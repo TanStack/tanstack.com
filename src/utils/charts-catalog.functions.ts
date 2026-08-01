@@ -23,18 +23,7 @@ const caseInputSchema = v.strictObject({
 
 const embedCaseInputSchema = v.strictObject({
   caseId: chartsCatalogCaseIdSchema,
-})
-
-export const getChartsCatalogIndex = createServerFn({
-  method: 'GET',
-}).handler(async () => {
-  const publication = await loadPublication()
-  setCatalogResponseHeaders()
-  return {
-    artifactRevision: publication.artifactRevision,
-    revision: publication.manifest.revision,
-    cases: publication.manifest.cases.map(getCaseMetadata),
-  }
+  source: v.boolean(),
 })
 
 export const getChartsCatalogAll = createServerFn({ method: 'GET' })
@@ -63,16 +52,19 @@ export const getChartsCatalogCase = createServerFn({ method: 'GET' })
     )
     if (!catalogCase) return null
 
-    const { getChartsCatalogSource } = await import('./charts-catalog.server')
+    const { getChartsCatalogAuthoredSource } =
+      await import('./charts-catalog.server')
     const [tanstackSource, comparisonSource] = await Promise.all([
-      getChartsCatalogSource(
-        publication.manifest.revision,
-        catalogCase.code.tanstack,
+      getChartsCatalogAuthoredSource(
+        publication.manifest,
+        catalogCase.id,
+        'tanstack',
       ),
       data.comparison
-        ? getChartsCatalogSource(
-            publication.manifest.revision,
-            catalogCase.code.reference,
+        ? getChartsCatalogAuthoredSource(
+            publication.manifest,
+            catalogCase.id,
+            'reference',
           )
         : Promise.resolve(undefined),
     ])
@@ -86,19 +78,9 @@ export const getChartsCatalogCase = createServerFn({ method: 'GET' })
         modules: data.comparison
           ? catalogCase.modules
           : { tanstack: catalogCase.modules.tanstack },
-        code: {
-          tanstack: {
-            path: catalogCase.code.tanstack,
-            source: tanstackSource,
-          },
-          ...(data.comparison
-            ? {
-                comparison: {
-                  path: catalogCase.code.reference,
-                  source: comparisonSource,
-                },
-              }
-            : {}),
+        authoredSource: {
+          tanstack: tanstackSource,
+          ...(comparisonSource ? { comparison: comparisonSource } : {}),
         },
       },
     }
@@ -113,6 +95,16 @@ export const getChartsCatalogEmbedCase = createServerFn({ method: 'GET' })
     )
     if (!catalogCase) return null
 
+    const authoredSource = data.source
+      ? await (
+          await import('./charts-catalog.server')
+        ).getChartsCatalogAuthoredSource(
+          publication.manifest,
+          catalogCase.id,
+          'tanstack',
+        )
+      : undefined
+
     setCatalogResponseHeaders()
     return {
       artifactRevision: publication.artifactRevision,
@@ -121,6 +113,7 @@ export const getChartsCatalogEmbedCase = createServerFn({ method: 'GET' })
         id: catalogCase.id,
         title: catalogCase.title,
         module: catalogCase.modules.tanstack,
+        authoredSource,
       },
     }
   })

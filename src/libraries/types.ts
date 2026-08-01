@@ -9,6 +9,7 @@ export type Framework =
   | 'ember'
   | 'lit'
   | 'marko'
+  | 'octane'
   | 'preact'
   | 'qwik'
   | 'react'
@@ -60,6 +61,10 @@ export type LibrarySlim = {
   frameworkPackageNames?: Partial<Record<Framework, string>>
   frameworkDocs?: Partial<Record<Framework, string>>
   handleRedirects?: (href: string) => void
+  /**
+   * Defaults to available. Set false until trustworthy package metrics exist.
+   */
+  statsAvailable?: boolean
   /**
    * If false, the library is hidden from sidebar navigation and pages have noindex meta tag.
    * Use for alpha/private libraries not ready for public visibility.

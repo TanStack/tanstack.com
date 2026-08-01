@@ -202,7 +202,7 @@ function TypographyPage() {
         <div className="grid gap-3 md:grid-cols-3">
           <DescriptionRoleCard
             name="Page description"
-            role="page"
+            variant="page"
             typeToken="body/md"
             colorToken="text-secondary"
           >
@@ -210,7 +210,7 @@ function TypographyPage() {
           </DescriptionRoleCard>
           <DescriptionRoleCard
             name="Section description"
-            role="section"
+            variant="section"
             typeToken="body/sm"
             colorToken="text-secondary"
           >
@@ -218,7 +218,7 @@ function TypographyPage() {
           </DescriptionRoleCard>
           <DescriptionRoleCard
             name="Preview description"
-            role="preview"
+            variant="preview"
             typeToken="body/sm"
             colorToken="text-muted"
           >
@@ -326,13 +326,13 @@ function DescriptionRoleCard({
   children,
   colorToken,
   name,
-  role,
+  variant,
   typeToken,
 }: {
   children: React.ReactNode
   colorToken: string
   name: string
-  role: React.ComponentProps<typeof DsDescription>['role']
+  variant: React.ComponentProps<typeof DsDescription>['variant']
   typeToken: string
 }) {
   return (
@@ -340,7 +340,7 @@ function DescriptionRoleCard({
       <div className="font-ds-display text-ds-heading-6 text-text-primary">
         {name}
       </div>
-      <DsDescription role={role} className="mt-2">
+      <DsDescription variant={variant} className="mt-2">
         {children}
       </DsDescription>
       <div className="mt-4 font-ds-mono text-ds-mono-2xs text-text-muted">

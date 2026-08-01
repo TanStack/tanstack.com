@@ -22,6 +22,7 @@ const LIBRARY_COLORS = [
   'router',
   'query',
   'table',
+  'charts',
   'db',
   'ai',
   'form',

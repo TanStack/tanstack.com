@@ -31,6 +31,7 @@ export const frameworkMeta: Record<Framework, { name: string; color: string }> =
     alpine: { name: 'Alpine', color: '#77C1D2' },
     marko: { name: 'Marko', color: '#44bfef' },
     ember: { name: 'Ember', color: '#E04E39' },
+    octane: { name: 'Octane', color: '#FF415A' },
     qwik: { name: 'Qwik', color: '#18B6F6' },
     vanilla: { name: 'Vanilla', color: '#F7DF1E' },
   }
@@ -128,6 +129,11 @@ export function getLibraryMainPackage(library: LibrarySlim): string {
 export function getLibraryColor(library: LibrarySlim): string {
   // Map Tailwind color classes to hex values
   const colorMap: Record<string, string> = {
+    'from-category-framework': '#39AF46',
+    'from-category-data': '#D3481B',
+    'from-category-ui': '#3AA3C4',
+    'from-category-performance': '#FFA216',
+    'from-category-tooling': '#756C5B',
     'from-red-500': '#EF4444',
     'from-amber-500': '#F59E0B',
     'from-emerald-500': '#10B981',

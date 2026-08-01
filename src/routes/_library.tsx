@@ -21,9 +21,13 @@ function LibraryRoute() {
       const config = matches
         .map((match) => getConfigFromLoaderData(match.loaderData))
         .find(isDefined)
-      const version = matches
-        .map((match) => getVersionFromParams(match.params))
-        .find(isDefined)
+      const version =
+        matches
+          .map((match) => getVersionFromParams(match.params))
+          .find(isDefined) ??
+        matches
+          .map((match) => getVersionFromLoaderData(match.loaderData))
+          .find(isDefined)
       const libraryId =
         matches
           .map((match) => getLibraryIdFromParams(match.params))
@@ -118,6 +122,15 @@ function getVersionFromParams(params: unknown): string | undefined {
     'version' in params &&
     typeof params.version === 'string'
     ? params.version
+    : undefined
+}
+
+function getVersionFromLoaderData(loaderData: unknown): string | undefined {
+  return typeof loaderData === 'object' &&
+    loaderData !== null &&
+    'version' in loaderData &&
+    typeof loaderData.version === 'string'
+    ? loaderData.version
     : undefined
 }
 

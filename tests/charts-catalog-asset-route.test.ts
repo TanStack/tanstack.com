@@ -10,6 +10,8 @@ import {
 } from './charts-catalog-test-fixture'
 
 const notFoundBody = 'Charts catalog asset not found'
+const catalogDistRefUrl =
+  'https://api.github.com/repos/tanstack/charts/git/ref/heads/catalog-dist'
 
 test('catalog asset handler returns explicit no-store 404 responses', async () => {
   resetGitHubContentCacheForTest()
@@ -26,6 +28,10 @@ test('catalog asset handler returns explicit no-store 404 responses', async () =
       url.startsWith('https://api.github.com/repos/tanstack/charts/commits?')
     ) {
       return Response.json([{ sha: artifactRevision }])
+    }
+
+    if (url === catalogDistRefUrl) {
+      return Response.json({ object: { sha: artifactRevision } })
     }
 
     if (
@@ -68,8 +74,9 @@ test('catalog asset handler returns explicit no-store 404 responses', async () =
     await assertNotFoundResponse(unlistedHead, 'HEAD')
 
     assert.deepEqual(requests, [
-      'https://api.github.com/repos/tanstack/charts/commits?sha=catalog-dist&per_page=100',
+      catalogDistRefUrl,
       `https://raw.githubusercontent.com/tanstack/charts/${artifactRevision}/catalog.json`,
+      'https://api.github.com/repos/tanstack/charts/commits?sha=catalog-dist&per_page=100',
     ])
     assert.equal(
       requests.some((url) => url.includes(unpublishedRevision)),
@@ -88,6 +95,9 @@ test('catalog asset handler returns 404 for missing manifests and files', async 
     resetGitHubContentCacheForTest()
     globalThis.fetch = async (input) => {
       const url = String(input)
+      if (url === catalogDistRefUrl) {
+        return Response.json({ object: { sha: artifactRevision } })
+      }
       if (
         url.startsWith('https://api.github.com/repos/tanstack/charts/commits?')
       ) {
@@ -106,6 +116,9 @@ test('catalog asset handler returns 404 for missing manifests and files', async 
     resetGitHubContentCacheForTest()
     globalThis.fetch = async (input) => {
       const url = String(input)
+      if (url === catalogDistRefUrl) {
+        return Response.json({ object: { sha: artifactRevision } })
+      }
       if (
         url.startsWith('https://api.github.com/repos/tanstack/charts/commits?')
       ) {
@@ -161,6 +174,9 @@ test('catalog asset handler preserves transient and integrity failures', async (
     resetGitHubContentCacheForTest()
     globalThis.fetch = async (input) => {
       const url = String(input)
+      if (url === catalogDistRefUrl) {
+        return Response.json({ object: { sha: artifactRevision } })
+      }
       if (
         url.startsWith('https://api.github.com/repos/tanstack/charts/commits?')
       ) {

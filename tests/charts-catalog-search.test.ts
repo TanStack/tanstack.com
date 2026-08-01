@@ -88,12 +88,14 @@ test('validated embed search produces stable loader deps', () => {
       validateChartsCatalogEmbedRouteSearch({
         height: 420,
         revision: 3,
+        source: 'expanded',
         theme: 'dark',
       }),
     ),
     {
       height: 420,
       revision: 3,
+      source: 'expanded',
       theme: 'dark',
     },
   )
@@ -102,12 +104,14 @@ test('validated embed search produces stable loader deps', () => {
       validateChartsCatalogEmbedRouteSearch({
         height: ['420', '421'],
         revision: '-1',
+        source: ['expanded'],
         theme: ['dark'],
       }),
     ),
     {
-      height: 360,
+      height: 480,
       revision: 0,
+      source: 'hidden',
       theme: 'system',
     },
   )

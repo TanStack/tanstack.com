@@ -82,6 +82,7 @@ export function getCodeBlockLanguageFromFilePath(filePath: string) {
   }
 
   if (['cts', 'mts'].includes(ext)) return 'ts'
+  if (ext === 'tsrx') return 'tsx'
   if (['cjs', 'mjs'].includes(ext)) return 'js'
   if (ext === 'gts') return 'ts'
   if (ext === 'gjs') return 'js'

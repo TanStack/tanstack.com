@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import HighlightLanding from '~/components/landing/HighlightLanding'
 import {
-  LibraryNavbarTitle,
   beforeLoadLibraryLanding,
   getLibraryLandingHead,
   getLibraryLandingHeaders,
@@ -18,15 +17,8 @@ export const Route = createFileRoute('/_library/highlight/$version/')({
     loadLibraryLandingRouteData('highlight', params.version, queryClient),
   head: () => getLibraryLandingHead('highlight'),
   headers: () => getLibraryLandingHeaders('highlight'),
-  staticData: {
-    Title: HighlightNavbarTitle,
-  },
   component: HighlightLandingRoute,
 })
-
-function HighlightNavbarTitle() {
-  return <LibraryNavbarTitle libraryId="highlight" />
-}
 
 function HighlightLandingRoute() {
   return <HighlightLanding />

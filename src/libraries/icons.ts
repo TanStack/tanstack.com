@@ -1,5 +1,6 @@
 import {
   Brain,
+  ChartLineUp,
   ClipboardText,
   Crosshair,
   Database,
@@ -35,6 +36,7 @@ export const libraryIcons: Record<string, Icon> = {
   store: Dresser,
   ai: Brain,
   table: Table,
+  charts: ChartLineUp,
   form: ClipboardText,
   hotkeys: SmileyMelting,
   markdown: MarkdownLogo,

@@ -49,15 +49,6 @@ export const Route = createFileRoute('/admin')({
       </ClientAdminAuth>
     )
   },
-  staticData: {
-    Title: () => {
-      return (
-        <Link to="." className="hover:text-blue-500">
-          Admin
-        </Link>
-      )
-    },
-  },
 })
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {

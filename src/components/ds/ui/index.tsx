@@ -322,6 +322,7 @@ const eyebrowLibraryStyles: Partial<Record<LibraryId, string>> = {
   router: 'text-lib-router',
   query: 'text-lib-query',
   table: 'text-lib-table',
+  charts: 'text-lib-charts',
   db: 'text-lib-db',
   ai: 'text-lib-ai',
   form: 'text-lib-form',

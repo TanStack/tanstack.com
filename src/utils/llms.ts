@@ -40,6 +40,7 @@ const frameworkLabels: Record<Framework, string> = {
   ember: 'Ember',
   lit: 'Lit',
   marko: 'Marko',
+  octane: 'Octane',
   preact: 'Preact',
   qwik: 'Qwik',
   react: 'React',

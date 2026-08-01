@@ -10,18 +10,18 @@ type ShopHero3DProps = {
 
 const BRAND_IMAGES = {
   light: [
-    '/images/logos/logo-color-600.png',
-    '/images/logos/logo-color-banner-600.png',
-    '/images/logos/logo-black.svg',
-    '/images/logos/logo-word-black.svg',
-    '/images/logos/splash-light.png',
+    '/images/brand/tanstack-emblem-black.svg',
+    '/images/brand/tanstack-landscape-black.svg',
+    '/images/brand/tanstack-stacked-black.svg',
+    '/images/brand/tanstack-emblem-charcoal.svg',
+    '/images/brand/tanstack-landscape-charcoal.svg',
   ],
   dark: [
-    '/images/logos/logo-color-600.png',
-    '/images/logos/logo-color-banner-600.png',
-    '/images/logos/logo-white.svg',
-    '/images/logos/logo-word-white.svg',
-    '/images/logos/splash-dark.png',
+    '/images/brand/tanstack-emblem-white.svg',
+    '/images/brand/tanstack-landscape-white.svg',
+    '/images/brand/tanstack-stacked-white.svg',
+    '/images/brand/tanstack-emblem-cream.svg',
+    '/images/brand/tanstack-stacked-cream.svg',
   ],
 }
 

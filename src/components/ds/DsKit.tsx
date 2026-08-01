@@ -13,15 +13,17 @@ const descriptionStyles = {
 export function DsDescription({
   children,
   className,
-  role,
+  variant,
 }: {
   children: React.ReactNode
   className?: string
-  role: keyof typeof descriptionStyles
+  variant: keyof typeof descriptionStyles
 }) {
   return (
     <p
-      className={[descriptionStyles[role], className].filter(Boolean).join(' ')}
+      className={[descriptionStyles[variant], className]
+        .filter(Boolean)
+        .join(' ')}
     >
       {children}
     </p>
@@ -53,7 +55,7 @@ export function DsPage({
           {title}
         </h1>
         {description ? (
-          <DsDescription role="page">{description}</DsDescription>
+          <DsDescription variant="page">{description}</DsDescription>
         ) : null}
       </header>
       <div className="space-y-12">{children}</div>
@@ -77,7 +79,7 @@ export function DsSection({
           {title}
         </h2>
         {description ? (
-          <DsDescription role="section">{description}</DsDescription>
+          <DsDescription variant="section">{description}</DsDescription>
         ) : null}
       </div>
       {children}
@@ -131,7 +133,7 @@ export function ComponentPreview({
               </div>
             ) : null}
             {description ? (
-              <DsDescription role="preview">{description}</DsDescription>
+              <DsDescription variant="preview">{description}</DsDescription>
             ) : null}
           </div>
           {code ? (

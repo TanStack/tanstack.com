@@ -23,7 +23,7 @@ function AccountLayout() {
         <h2 className="text-2xl font-semibold mb-6">My Account</h2>
 
         {/* Tab Navigation */}
-        <div className="border-b border-gray-200 dark:border-gray-700 mb-6 overflow-x-auto">
+        <div className="fade-x fade-size-x-sm mb-6 overflow-x-auto border-b border-gray-200 dark:border-gray-700">
           <nav className="flex gap-6 min-w-max" aria-label="Account tabs">
             <Link
               to="/account"

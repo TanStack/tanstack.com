@@ -589,7 +589,7 @@ export function ApplicationStarter({
           as="a"
           color="emerald"
           variant="primary"
-          size={isHomeStarter ? 'lg' : 'sm'}
+          size={isHomeStarter ? 'md' : 'sm'}
           href={disabled ? undefined : selectedHostingDeployHref}
           target="_blank"
           rel="noopener noreferrer"
@@ -625,7 +625,7 @@ export function ApplicationStarter({
       <Button
         color="emerald"
         variant="primary"
-        size={isHomeStarter ? 'lg' : 'sm'}
+        size={isHomeStarter ? 'md' : 'sm'}
         type="button"
         onClick={() => {
           showTransientActionFeedback('deploy')

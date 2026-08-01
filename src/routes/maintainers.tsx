@@ -253,7 +253,7 @@ function MaintainersFilter({
                   >
                     Filter by Libraries
                   </label>
-                  <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
+                  <div className="fade-y fade-size-y-sm grid max-h-48 grid-cols-2 gap-2 overflow-y-auto">
                     {availableLibraries.map((library) => {
                       const isSelected =
                         selectedLibraries?.includes(library.id) || false

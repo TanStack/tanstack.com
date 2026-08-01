@@ -1,17 +1,13 @@
 import * as React from 'react'
-import { Link, useParams } from '@tanstack/react-router'
-import type { ReactNode } from 'react'
+import { Link } from '@tanstack/react-router'
 import { parseMarkdown } from '@tanstack/markdown/parser'
 import { renderDocument, renderHtml } from '@tanstack/markdown/html'
 import { Markdown } from '@tanstack/markdown/react'
 import { streamingMarkdownExtension } from '@tanstack/markdown/extensions/streaming'
 import {
   ArrowRight,
-  BookOpen,
   BracketsCurly as Braces,
   Check,
-  CheckCircle as CheckCircle2,
-  Copy,
   FileText,
   Highlighter,
   LockKey as LockKeyhole,
@@ -24,20 +20,15 @@ import {
   X,
 } from '@phosphor-icons/react'
 
-import { Footer } from '~/components/Footer'
-import { LandingCommunitySection } from '~/components/LandingCommunitySection'
-import LandingPageGad from '~/components/LandingPageGad'
-import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
-import { LibraryStatusBadge } from '~/components/LibraryStatusBadge'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
-import { PartnersSponsorsSection } from '~/components/PartnersSponsorsSection'
-import { GithubIcon } from '~/components/icons/GithubIcon'
 import { getLibrary } from '~/libraries'
-import { copyTextToClipboard } from '~/utils/browser-effects'
 
-import { LandingCopyPromptButton } from './LandingCopyPromptButton'
+import {
+  LandingSection,
+  LandingSectionIntro,
+  LibraryLandingShell,
+} from './LibraryLanding'
 
-const library = getLibrary('markdown')
 const highlightLibrary = getLibrary('highlight')
 
 const markdownPrompt = [
@@ -168,174 +159,47 @@ const bundleComparisons = [
 ]
 
 export default function MarkdownLanding() {
-  const { version } = useParams({ strict: false })
-  const resolvedVersion = version ?? library.latestVersion
-
   return (
-    <div className="w-full min-w-0 overflow-x-hidden bg-[#f7f2f8] text-[#201725] dark:bg-[#100b12] dark:text-[#f8f2fa]">
-      <section className="relative overflow-hidden border-b border-violet-950/10 bg-[#eee5f2] dark:border-violet-200/10 dark:bg-[#170f1b]">
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(91,33,182,0.055)_1px,transparent_1px),linear-gradient(to_bottom,rgba(91,33,182,0.055)_1px,transparent_1px)] bg-[size:32px_32px] dark:opacity-40" />
-        <div className="relative mx-auto grid w-full gap-10 px-4 py-10 lg:max-w-[80rem] lg:grid-cols-[0.86fr_1.14fr] lg:items-center lg:py-16 xl:max-w-[92rem]">
-          <div className="max-w-3xl">
-            <Eyebrow>
-              <FileText size={14} aria-hidden="true" /> A document engine for
-              technical publishing
-            </Eyebrow>
+    <LibraryLandingShell
+      libraryId="markdown"
+      headline="Markdown with an exit strategy."
+      description="Parse documents or accumulated AI output into a plain, serializable tree. Inspect it, cache it, index it, or render it as HTML, React, or Octane."
+      hero={<ManuscriptPanel />}
+      prompt={markdownPrompt}
+      promptLabel="Copy Markdown prompt"
+    >
+      <LandingSection tone="accent">
+        <LandingSectionIntro
+          centered
+          eyebrow="The durable layer"
+          icon={<Braces aria-hidden="true" size={15} />}
+          title="The AST is the product."
+          body="Parsing does not trap content inside a renderer. Edit the source and inspect the serializable tree, deterministic HTML, or React output."
+        />
+        <MarkdownWorkbench />
+      </LandingSection>
 
-            <div className="mt-5 flex flex-wrap items-start gap-3">
-              <h1 className="text-5xl font-black leading-[0.93] sm:text-6xl lg:text-7xl">
-                <LibraryWordmark library={library} />
-              </h1>
-              {library.badge ? (
-                <LibraryStatusBadge badge={library.badge} />
-              ) : null}
-            </div>
-
-            <p className="mt-6 max-w-2xl text-2xl font-black leading-tight sm:text-3xl">
-              Markdown with an exit strategy.
-            </p>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-700 dark:text-zinc-300 sm:text-lg">
-              Parse documents or accumulated AI output into a plain,
-              serializable tree. Inspect it, cache it, index it, or render it as
-              HTML, React, or Octane—without carrying a content framework or
-              incremental parser state through your app.
-            </p>
-
-            <LibraryDownloadsMicro
-              animateIncreaseTrend
-              library={library}
-              className="mt-5"
-              label="weekly downloads"
-              period="weekly"
-              showTotals
-            />
-
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <Link
-                to="/$libraryId/$version/docs"
-                params={{ libraryId: library.id, version: resolvedVersion }}
-                className="inline-flex items-center justify-center gap-2 rounded-md border border-violet-700 bg-violet-700 px-4 py-2.5 text-sm font-black text-white transition-colors hover:bg-violet-800 dark:border-violet-400 dark:bg-violet-400 dark:text-violet-950 dark:hover:bg-violet-300"
-              >
-                <BookOpen size={16} aria-hidden="true" /> Read the syntax
-                profile
-              </Link>
-              <LandingCopyPromptButton
-                prompt={markdownPrompt}
-                label="Copy Markdown Prompt"
-              />
-            </div>
-
-            <InstallCommand className="mt-4" />
-
-            <div className="mt-8 flex flex-wrap gap-x-7 gap-y-3 border-t border-violet-950/15 pt-4 font-mono text-xs font-bold uppercase tracking-wider text-violet-900/70 dark:border-violet-200/15 dark:text-violet-200/70">
-              <span>4.9 KB parser</span>
-              <span>0 runtime dependencies</span>
-              <span>1 public AST</span>
-            </div>
-          </div>
-
-          <ManuscriptPanel />
-        </div>
-      </section>
-
-      <section className="border-b border-violet-950/10 bg-[#e8dcec] text-[#201725] dark:border-violet-200/10 dark:bg-[#0b080d] dark:text-white">
-        <div className="mx-auto w-full px-4 py-14 lg:max-w-[80rem] xl:max-w-[92rem]">
-          <div className="grid gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
-            <div className="max-w-xl">
-              <DarkEyebrow>
-                <Braces size={14} aria-hidden="true" /> The durable layer
-              </DarkEyebrow>
-              <h2 className="mt-4 text-4xl font-black leading-[1.02] sm:text-5xl">
-                The AST is the product.
-              </h2>
-              <p className="mt-5 text-base leading-7 text-violet-950/65 dark:text-violet-100/75 sm:text-lg">
-                Parsing does not trap your content inside a renderer. Edit the
-                source and inspect the real serializable tree, deterministic
-                HTML, or React output below.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-3 border-y border-violet-950/15 py-4 font-mono dark:border-violet-200/15">
-              <WorkbenchStat value="1 parse" label="every output" />
-              <WorkbenchStat value="plain JSON" label="cache and index" />
-              <WorkbenchStat value="0 deps" label="runtime core" />
-            </div>
-          </div>
-
-          <MarkdownWorkbench />
-        </div>
-      </section>
-
-      <section className="border-b border-violet-950/10 bg-white dark:border-violet-200/10 dark:bg-[#100b12]">
-        <div className="mx-auto grid w-full gap-10 px-4 py-14 lg:max-w-[80rem] lg:grid-cols-[0.68fr_1.32fr] lg:items-center xl:max-w-[92rem]">
-          <div className="max-w-xl">
-            <Eyebrow>
-              <Radio size={14} aria-hidden="true" /> Accumulated AI responses
-            </Eyebrow>
-            <h2 className="mt-4 text-3xl font-black leading-tight sm:text-4xl">
-              Stream the text. Keep the parser stateless.
-            </h2>
-            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300 sm:text-lg">
-              Append each chunk and pass the complete string back through
-              TanStack Markdown. The optional streaming profile reparses
-              synchronously, so there is no incremental state to coordinate,
-              recover, or discard.
-            </p>
-
-            <div className="mt-7 border-y border-violet-950/10 font-mono text-xs dark:border-violet-200/10">
-              <StreamingProof value="+0.2 KB" label="added to the React path" />
-              <StreamingProof
-                value="Every prefix"
-                label="deterministic React / HTML parity"
-              />
-              <StreamingProof
-                value="Same defaults"
-                label="HTML escaped, executable URLs removed"
-              />
-            </div>
-
-            <pre className="mt-6 overflow-auto rounded-md border border-violet-950/10 bg-[#f7f2f8] p-4 font-mono text-xs leading-6 !text-violet-950/70 dark:border-violet-200/10 dark:bg-white/5 dark:!text-violet-100/70 [&_code]:!text-inherit">
-              <code>{`import { streamingMarkdownExtension } from '@tanstack/markdown/extensions/streaming'
-
-const extensions = [streamingMarkdownExtension()]
-
-<Markdown extensions={extensions} frontmatter={false} headingIds={false}>
-  {responseSoFar}
-</Markdown>`}</code>
-            </pre>
-          </div>
-
+      <LandingSection tone="ink">
+        <div className="grid items-center gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
+          <LandingSectionIntro
+            eyebrow="Accumulated AI responses"
+            icon={<Radio aria-hidden="true" size={15} />}
+            title="Stream the text. Keep the parser stateless."
+            body="Append each chunk and pass the complete string through Markdown. The optional streaming profile reparses synchronously, with no incremental state to coordinate or recover."
+          />
           <StreamingReplay />
         </div>
-      </section>
+      </LandingSection>
 
-      <section className="border-b border-violet-950/10 bg-[#fffaf0] dark:border-violet-200/10 dark:bg-[#17110d]">
-        <div className="mx-auto grid w-full gap-10 px-4 py-14 lg:max-w-[80rem] lg:grid-cols-[0.72fr_1.28fr] xl:max-w-[92rem]">
-          <div className="max-w-xl">
-            <Eyebrow>
-              <FileText size={14} aria-hidden="true" /> A deliberate profile
-            </Eyebrow>
-            <h2 className="mt-4 text-3xl font-black leading-tight sm:text-4xl">
-              It does less Markdown on purpose.
-            </h2>
-            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              Technical docs need a known vocabulary, not an open-ended compiler
-              platform. New syntax has to justify its bytes, its ambiguity, and
-              its long-term maintenance cost.
-            </p>
-
-            <div className="mt-7 border-l-4 border-violet-600 pl-5">
-              <div className="font-mono text-4xl font-black text-violet-700 dark:text-violet-300">
-                287 / 652
-              </div>
-              <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
-                Current CommonMark example accounting. Full conformance is
-                explicitly not the goal; the supported docs profile is.
-              </p>
-            </div>
-          </div>
-
-          <div className="grid overflow-hidden border border-violet-950/15 bg-white shadow-sm dark:border-violet-200/10 dark:bg-[#110c13] md:grid-cols-2">
+      <LandingSection tone="raised">
+        <div className="grid items-center gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
+          <LandingSectionIntro
+            eyebrow="A deliberate profile"
+            icon={<FileText aria-hidden="true" size={15} />}
+            title="It does less Markdown on purpose."
+            body="Technical docs need a known vocabulary, not an open-ended compiler platform. New syntax has to justify its bytes, ambiguity, and maintenance cost."
+          />
+          <div className="grid overflow-hidden rounded-xl border border-border-subtle bg-background-surface md:grid-cols-2">
             <SyntaxList
               title="Inside the profile"
               items={supportedSyntax}
@@ -348,146 +212,64 @@ const extensions = [streamingMarkdownExtension()]
             />
           </div>
         </div>
-      </section>
-
-      <section className="border-b border-violet-950/10 bg-white dark:border-violet-200/10 dark:bg-[#100b12]">
-        <div className="mx-auto w-full px-4 py-14 lg:max-w-[80rem] xl:max-w-[92rem]">
-          <div className="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:items-end">
-            <div className="max-w-xl">
-              <Eyebrow>
-                <ShieldCheck size={14} aria-hidden="true" /> Boundary behavior
-              </Eyebrow>
-              <h2 className="mt-4 text-3xl font-black leading-tight sm:text-4xl">
-                Unsafe surprises are opt-in.
-              </h2>
-              <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
-                Raw HTML starts escaped, executable URL schemes are stripped,
-                and text, attributes, and code are encoded at render time. The
-                parser is also tested against malformed and adversarial input as
-                part of its normal release gates.
-              </p>
-            </div>
-            <SafetyProof />
-          </div>
+        <div className="mt-12 grid items-center gap-12 border-t border-border-subtle pt-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
+          <LandingSectionIntro
+            eyebrow="Boundary behavior"
+            icon={<ShieldCheck aria-hidden="true" size={15} />}
+            title="Unsafe surprises are opt-in."
+            body="Raw HTML starts escaped, executable URL schemes are stripped, and text, attributes, and code are encoded at render time."
+          />
+          <SafetyProof />
         </div>
-      </section>
+      </LandingSection>
 
-      <section className="border-b border-violet-950/10 bg-[#eee5f2] dark:border-violet-200/10 dark:bg-[#170f1b]">
-        <div className="mx-auto grid w-full gap-10 px-4 py-14 lg:max-w-[80rem] lg:grid-cols-[0.72fr_1.28fr] xl:max-w-[92rem]">
-          <div className="max-w-xl">
-            <Eyebrow>
-              <PackageOpen size={14} aria-hidden="true" /> Size ledger
-            </Eyebrow>
-            <h2 className="mt-4 text-3xl font-black leading-tight sm:text-4xl">
-              A parser should not outweigh the page.
-            </h2>
-            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              Split entry points keep the parser, renderers, framework adapters,
-              and docs extensions independent. Import the layer the page needs.
-            </p>
-            <p className="mt-5 font-mono text-xs leading-5 text-zinc-500 dark:text-zinc-500">
-              Gzip sizes from the project benchmark report. Package scopes and
-              feature sets are not equivalent.
-            </p>
-          </div>
+      <LandingSection tone="accent">
+        <div className="grid items-center gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
+          <LandingSectionIntro
+            eyebrow="Size ledger"
+            icon={<PackageOpen aria-hidden="true" size={15} />}
+            title="A parser should not outweigh the page."
+            body="Split entry points keep the parser, renderers, framework adapters, and docs extensions independent. Import only the layer the page needs."
+          />
           <BundleLedger />
         </div>
-      </section>
+      </LandingSection>
 
-      <section className="border-b border-violet-950/10 bg-[#e8dcec] text-[#201725] dark:border-violet-200/10 dark:bg-[#0b080d] dark:text-white">
-        <div className="mx-auto grid w-full gap-10 px-4 py-14 lg:max-w-[80rem] lg:grid-cols-[1.1fr_0.9fr] lg:items-center xl:max-w-[92rem]">
-          <div>
-            <DarkEyebrow>
-              <Highlighter size={14} aria-hidden="true" /> Content, then color
-            </DarkEyebrow>
-            <h2 className="mt-4 max-w-3xl text-3xl font-black leading-tight sm:text-4xl">
-              Syntax highlighting stays outside the parser.
-            </h2>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-violet-950/65 dark:text-violet-100/75">
-              Code fences carry language and metadata. An explicit highlighter
-              can render them later, so the core never silently imports a
-              grammar engine. The same boundary works with your own highlighter
-              or TanStack Highlight.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-2 font-mono text-xs text-violet-950/65 dark:text-violet-100/75">
-              <span className="border border-violet-950/15 px-3 py-2 dark:border-violet-300/20">
-                callouts · 0.4 KB
-              </span>
-              <span className="border border-violet-950/15 px-3 py-2 dark:border-violet-300/20">
-                docs preset · 2.4 KB
-              </span>
-              <span className="border border-violet-950/15 px-3 py-2 dark:border-violet-300/20">
-                heading collection
-              </span>
-            </div>
-          </div>
-
+      <LandingSection tone="ink">
+        <div className="grid items-center gap-12 lg:grid-cols-[1.08fr_0.92fr] lg:gap-16">
+          <LandingSectionIntro
+            eyebrow="Content, then color"
+            icon={<Highlighter aria-hidden="true" size={15} />}
+            title="Syntax highlighting stays outside the parser."
+            body="Code fences carry language and metadata. An explicit highlighter renders them later, so the core never silently imports a grammar engine."
+          />
           <Link
             to="/$libraryId"
             params={{ libraryId: highlightLibrary.id }}
-            className="group border border-violet-950/15 bg-white/35 p-6 transition-colors hover:bg-white/60 dark:border-violet-300/20 dark:bg-violet-300/5 dark:hover:bg-violet-300/10"
+            className="group rounded-xl border border-border-subtle bg-background-surface p-6 transition-colors hover:border-border-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
           >
-            <div className="font-mono text-xs font-bold uppercase tracking-widest text-violet-700 dark:text-violet-300">
+            <p className="font-ds-mono text-ds-mono-caps uppercase text-[var(--landing-accent-bright)]">
               Companion, not dependency
-            </div>
-            <div className="mt-4 text-2xl font-black">
+            </p>
+            <div className="mt-4 text-ds-heading-4">
               <LibraryWordmark library={highlightLibrary} />
             </div>
-            <p className="mt-3 text-sm leading-6 text-violet-950/60 dark:text-violet-100/65">
-              Tiny, synchronous highlighting for the code fences your document
-              model already understands.
+            <p className="mt-3 text-ds-body-sm text-text-primary/55">
+              Synchronous highlighting for the code fences the document model
+              already understands.
             </p>
-            <div className="mt-6 inline-flex items-center gap-2 text-sm font-black">
+            <span className="mt-6 inline-flex items-center gap-2 text-ds-label-md">
               Explore Highlight
               <ArrowRight
-                size={16}
                 aria-hidden="true"
                 className="transition-transform group-hover:translate-x-1"
+                size={16}
               />
-            </div>
+            </span>
           </Link>
         </div>
-      </section>
-
-      <section className="bg-white py-14 dark:bg-[#100b12]">
-        <div className="mx-auto w-full max-w-[80rem] px-4 xl:max-w-[92rem]">
-          <Eyebrow>
-            <GithubIcon className="h-3.5 w-3.5" /> Open source, in public
-          </Eyebrow>
-          <h2 className="mt-4 max-w-3xl text-3xl font-black leading-tight sm:text-4xl">
-            A small document contract deserves careful stewardship.
-          </h2>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-700 dark:text-zinc-300">
-            Syntax fixtures, renderer parity, deterministic corpus checks, size
-            budgets, and resilience limits ship with the library—not as an
-            afterthought.
-          </p>
-        </div>
-
-        <div className="mt-10">
-          <LandingCommunitySection libraryId="markdown" />
-        </div>
-      </section>
-
-      <LandingPageGad />
-      <section className="border-y border-violet-950/10 bg-[#eee5f2] px-4 py-14 text-center dark:border-violet-200/10 dark:bg-[#170f1b]">
-        <p className="font-mono text-xs font-bold uppercase tracking-widest text-violet-700 dark:text-violet-300">
-          Keep the source. Own the model.
-        </p>
-        <h2 className="mx-auto mt-3 max-w-2xl text-3xl font-black sm:text-4xl">
-          Build your document pipeline on plain data.
-        </h2>
-        <Link
-          to="/$libraryId/$version/docs"
-          params={{ libraryId: library.id, version: resolvedVersion }}
-          className="mt-7 inline-flex items-center gap-2 rounded-md bg-violet-700 px-5 py-3 text-sm font-black text-white transition-colors hover:bg-violet-800 dark:bg-violet-400 dark:text-violet-950 dark:hover:bg-violet-300"
-        >
-          Start with the parser <ArrowRight size={16} aria-hidden="true" />
-        </Link>
-      </section>
-      <PartnersSponsorsSection className="bg-background-default py-20 lg:py-24" />
-      <Footer />
-    </div>
+      </LandingSection>
+    </LibraryLandingShell>
   )
 }
 
@@ -500,88 +282,85 @@ function ManuscriptPanel() {
   const html = React.useMemo(() => renderDocument(document), [document])
 
   return (
-    <div className="relative min-w-0 pb-4 pr-0 sm:pr-5">
-      <div className="absolute bottom-0 right-0 top-5 hidden w-[92%] border border-violet-950/10 bg-violet-200/50 sm:block dark:border-violet-200/10 dark:bg-violet-950/30" />
-      <div className="relative overflow-hidden border border-violet-950/15 bg-[#fffdf8] shadow-[0_18px_50px_rgba(67,36,75,0.12)] dark:border-violet-200/15 dark:bg-[#141016] dark:shadow-black/30">
-        <div className="flex items-center justify-between border-b border-violet-950/10 px-4 py-3 font-mono text-[11px] font-bold uppercase tracking-widest text-violet-900/55 dark:border-violet-200/10 dark:text-violet-200/55">
-          <span>article.md</span>
-          <span>{document.children.length} blocks / live</span>
-        </div>
-        <div className="grid md:grid-cols-[0.9fr_1.1fr]">
-          <pre className="max-h-[24rem] overflow-auto border-b border-violet-950/10 p-5 font-mono text-xs leading-7 !text-zinc-700 md:border-b-0 md:border-r dark:border-violet-200/10 dark:!text-zinc-300 sm:text-sm [&_code]:!text-inherit">
-            <code>{heroSource}</code>
-          </pre>
-          <div className="flex min-h-[18rem] min-w-0 flex-col md:min-h-[24rem]">
-            <div className="min-h-0 flex-1 overflow-auto p-5">
-              {mode === 'ast' ? (
-                <div className="font-mono text-xs leading-6">
-                  <div className="text-fuchsia-700 dark:text-fuchsia-300">
-                    root{' '}
+    <div className="library-landing-graphic min-w-0 overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.45)] bg-background-surface shadow-[0_24px_70px_-28px_rgb(var(--landing-glow)/0.45)]">
+      <div className="flex items-center justify-between border-b border-border-subtle px-4 py-3 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/55">
+        <span>article.md</span>
+        <span>{document.children.length} blocks / live</span>
+      </div>
+      <div className="grid md:grid-cols-[0.9fr_1.1fr]">
+        <pre className="max-h-[24rem] overflow-auto border-b border-border-subtle p-5 font-ds-mono text-ds-mono-xs leading-7 !text-text-secondary md:border-b-0 md:border-r [&_code]:!text-inherit">
+          <code>{heroSource}</code>
+        </pre>
+        <div className="flex min-h-[18rem] min-w-0 flex-col md:min-h-[24rem]">
+          <div className="min-h-0 flex-1 overflow-auto p-5">
+            {mode === 'ast' ? (
+              <div className="font-mono text-xs leading-6">
+                <div className="text-[var(--landing-accent-bright)]">
+                  root{' '}
+                  <span className="text-zinc-400">
+                    · {document.children.length} blocks
+                  </span>
+                </div>
+                <div className="pl-4 text-[var(--landing-accent-bright)]">
+                  frontmatter{' '}
+                  <span className="text-zinc-400">
+                    · {document.frontmatter ? 'string' : 'none'}
+                  </span>
+                </div>
+                {document.children.map((node, index) => (
+                  <div key={index} className="pl-4">
+                    <span className="text-[var(--landing-accent-bright)]">
+                      {node.type}
+                    </span>
                     <span className="text-zinc-400">
-                      · {document.children.length} blocks
+                      {' '}
+                      ·{' '}
+                      {node.type === 'heading'
+                        ? `depth: ${node.depth}`
+                        : node.type === 'list'
+                          ? `${node.items.length} items`
+                          : node.type === 'paragraph'
+                            ? `${node.children.length} inline nodes`
+                            : 'block'}
                     </span>
                   </div>
-                  <div className="pl-4 text-violet-700 dark:text-violet-300">
-                    frontmatter{' '}
-                    <span className="text-zinc-400">
-                      · {document.frontmatter ? 'string' : 'none'}
-                    </span>
-                  </div>
-                  {document.children.map((node, index) => (
-                    <div key={index} className="pl-4">
-                      <span className="text-violet-700 dark:text-violet-300">
-                        {node.type}
-                      </span>
-                      <span className="text-zinc-400">
-                        {' '}
-                        ·{' '}
-                        {node.type === 'heading'
-                          ? `depth: ${node.depth}`
-                          : node.type === 'list'
-                            ? `${node.items.length} items`
-                            : node.type === 'paragraph'
-                              ? `${node.children.length} inline nodes`
-                              : 'block'}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              ) : mode === 'html' ? (
-                <pre className="whitespace-pre-wrap break-words font-mono text-xs leading-6 !text-zinc-700 dark:!text-zinc-300 [&_code]:!text-inherit">
-                  <code>{html}</code>
-                </pre>
-              ) : (
-                <div className="prose prose-zinc max-w-none text-sm dark:prose-invert prose-headings:font-black prose-h1:text-2xl prose-p:leading-6">
-                  <Markdown>{document}</Markdown>
-                </div>
-              )}
-            </div>
-            <div
-              className="grid grid-cols-3 border-t border-violet-950/10 text-center font-mono text-[10px] font-bold uppercase tracking-wider dark:border-violet-200/10"
-              role="tablist"
-              aria-label="Hero output"
-            >
-              {[
-                ['ast', 'AST'],
-                ['html', 'HTML'],
-                ['react', 'React'],
-              ].map(([id, label]) => (
-                <button
-                  key={id}
-                  type="button"
-                  role="tab"
-                  aria-selected={mode === id}
-                  className={`px-2 py-4 transition-colors ${
-                    mode === id
-                      ? 'bg-violet-700 text-white dark:bg-violet-300 dark:text-violet-950'
-                      : 'text-violet-800 hover:bg-violet-950/5 dark:text-violet-300 dark:hover:bg-violet-200/5'
-                  }`}
-                  onClick={() => setMode(id)}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : mode === 'html' ? (
+              <pre className="whitespace-pre-wrap break-words font-mono text-xs leading-6 !text-zinc-700 dark:!text-zinc-300 [&_code]:!text-inherit">
+                <code>{html}</code>
+              </pre>
+            ) : (
+              <div className="prose prose-zinc max-w-none text-sm dark:prose-invert prose-headings:font-black prose-h1:text-2xl prose-p:leading-6">
+                <Markdown>{document}</Markdown>
+              </div>
+            )}
+          </div>
+          <div
+            className="grid grid-cols-3 border-t border-border-subtle text-center font-ds-mono text-ds-mono-caps-xs uppercase"
+            role="tablist"
+            aria-label="Hero output"
+          >
+            {[
+              ['ast', 'AST'],
+              ['html', 'HTML'],
+              ['react', 'React'],
+            ].map(([id, label]) => (
+              <button
+                key={id}
+                type="button"
+                role="tab"
+                aria-selected={mode === id}
+                className={`px-2 py-4 transition-colors ${
+                  mode === id
+                    ? 'bg-[var(--landing-accent)] text-[var(--landing-accent-ink)]'
+                    : 'text-text-primary/55 hover:bg-text-primary/5 hover:text-text-primary'
+                }`}
+                onClick={() => setMode(id)}
+              >
+                {label}
+              </button>
+            ))}
           </div>
         </div>
       </div>
@@ -607,8 +386,8 @@ function MarkdownWorkbench() {
   const nodeCount = (ast.match(/"type":/g) ?? []).length
 
   return (
-    <div className="mt-9 overflow-hidden rounded-lg border border-violet-950/15 bg-[#fffdf8] shadow-[0_18px_50px_rgba(67,36,75,0.1)] dark:border-violet-200/15 dark:bg-[#141016] dark:shadow-black/30">
-      <div className="flex flex-col justify-between gap-3 border-b border-violet-950/10 px-4 py-3 dark:border-violet-200/10 sm:flex-row sm:items-center">
+    <div className="mt-10 overflow-hidden rounded-xl border border-border-subtle bg-background-surface">
+      <div className="flex flex-col justify-between gap-3 border-b border-border-subtle px-4 py-3 sm:flex-row sm:items-center">
         <div className="flex flex-wrap gap-1.5" aria-label="Example documents">
           {workbenchPresets.map((preset) => (
             <button
@@ -617,8 +396,8 @@ function MarkdownWorkbench() {
               aria-pressed={activePreset === preset.id}
               className={`rounded-md px-3 py-1.5 font-mono text-[11px] font-bold transition-colors ${
                 activePreset === preset.id
-                  ? 'bg-violet-700 text-white dark:bg-violet-300 dark:text-violet-950'
-                  : 'bg-violet-950/5 text-violet-950/65 hover:bg-violet-950/10 dark:bg-violet-200/5 dark:text-violet-100/65 dark:hover:bg-violet-200/10'
+                  ? 'bg-[var(--landing-accent)] text-[var(--landing-accent-ink)]'
+                  : 'bg-text-primary/5 text-text-primary/55 hover:bg-text-primary/10 hover:text-text-primary'
               }`}
               onClick={() => {
                 setActivePreset(preset.id)
@@ -636,8 +415,8 @@ function MarkdownWorkbench() {
       </div>
 
       <div className="grid lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="flex h-[28rem] min-w-0 flex-col border-b border-violet-950/10 lg:h-[34rem] lg:border-b-0 lg:border-r dark:border-violet-200/10">
-          <div className="flex items-center justify-between border-b border-violet-950/10 px-4 py-3 font-mono text-[11px] font-bold uppercase tracking-widest text-violet-900/55 dark:border-violet-200/10 dark:text-violet-200/55">
+        <div className="flex h-[28rem] min-w-0 flex-col border-b border-border-subtle lg:h-[34rem] lg:border-b-0 lg:border-r">
+          <div className="flex items-center justify-between border-b border-border-subtle px-4 py-3 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/55">
             <span>article.md</span>
             <span>editable source</span>
           </div>
@@ -654,12 +433,12 @@ function MarkdownWorkbench() {
         </div>
 
         <div className="flex h-[28rem] min-w-0 flex-col lg:h-[34rem]">
-          <div className="flex flex-col justify-between gap-2 border-b border-violet-950/10 px-4 py-2 dark:border-violet-200/10 sm:flex-row sm:items-center">
-            <span className="font-mono text-[11px] font-bold uppercase tracking-widest text-violet-900/55 dark:text-violet-200/55">
+          <div className="flex flex-col justify-between gap-2 border-b border-border-subtle px-4 py-2 sm:flex-row sm:items-center">
+            <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/55">
               One document, three views
             </span>
             <div
-              className="flex rounded-md bg-violet-950/5 p-1 dark:bg-violet-200/5"
+              className="flex rounded-md bg-text-primary/5 p-1"
               role="tablist"
               aria-label="Document output"
             >
@@ -675,8 +454,8 @@ function MarkdownWorkbench() {
                   aria-selected={mode === id}
                   className={`rounded px-3 py-1.5 font-mono text-[11px] font-bold transition-colors ${
                     mode === id
-                      ? 'bg-white text-violet-800 shadow-sm dark:bg-violet-300 dark:text-violet-950'
-                      : 'text-violet-950/55 hover:text-violet-950 dark:text-violet-100/55 dark:hover:text-white'
+                      ? 'bg-[var(--landing-accent)] text-[var(--landing-accent-ink)]'
+                      : 'text-text-primary/55 hover:text-text-primary'
                   }`}
                   onClick={() => setMode(id)}
                 >
@@ -696,7 +475,7 @@ function MarkdownWorkbench() {
                 <code>{html}</code>
               </pre>
             ) : (
-              <article className="prose prose-zinc max-w-none dark:prose-invert prose-headings:font-black prose-h1:text-3xl prose-a:text-violet-700 dark:prose-a:text-violet-300 prose-pre:overflow-auto prose-pre:rounded-md prose-pre:bg-zinc-950 prose-pre:text-zinc-100 [&_pre_code]:!text-zinc-100">
+              <article className="prose prose-zinc max-w-none dark:prose-invert prose-headings:font-black prose-h1:text-3xl prose-a:text-[var(--landing-accent-bright)] prose-pre:overflow-auto prose-pre:rounded-md prose-pre:bg-zinc-950 prose-pre:text-zinc-100 [&_pre_code]:!text-zinc-100">
                 <Markdown>{document}</Markdown>
               </article>
             )}
@@ -704,37 +483,11 @@ function MarkdownWorkbench() {
         </div>
       </div>
 
-      <div className="flex flex-col justify-between gap-2 border-t border-violet-950/10 px-4 py-3 font-mono text-[10px] font-bold uppercase tracking-wider text-violet-950/45 dark:border-violet-200/10 dark:text-violet-100/45 sm:flex-row">
+      <div className="flex flex-col justify-between gap-2 border-t border-border-subtle px-4 py-3 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/45 sm:flex-row">
         <span>{nodeCount} typed nodes</span>
         <span>{source.length} source characters</span>
         <span>JSON serializable</span>
       </div>
-    </div>
-  )
-}
-
-function WorkbenchStat({ value, label }: { value: string; label: string }) {
-  return (
-    <div className="px-3 text-center first:pl-0 last:pr-0 [&+&]:border-l [&+&]:border-violet-950/10 dark:[&+&]:border-violet-200/10">
-      <div className="text-sm font-black text-violet-800 dark:text-violet-300 sm:text-base">
-        {value}
-      </div>
-      <div className="mt-1 text-[9px] font-bold uppercase tracking-wider text-violet-950/45 dark:text-violet-100/45 sm:text-[10px]">
-        {label}
-      </div>
-    </div>
-  )
-}
-
-function StreamingProof({ value, label }: { value: string; label: string }) {
-  return (
-    <div className="grid grid-cols-[auto_1fr] items-baseline gap-4 py-3 [&+&]:border-t [&+&]:border-violet-950/10 dark:[&+&]:border-violet-200/10">
-      <span className="font-black text-violet-800 dark:text-violet-300">
-        {value}
-      </span>
-      <span className="text-right text-violet-950/55 dark:text-violet-100/55">
-        {label}
-      </span>
     </div>
   )
 }
@@ -779,14 +532,14 @@ function StreamingReplay() {
   }, [characterCount, isComplete, isPlaying])
 
   return (
-    <div className="min-w-0 overflow-hidden rounded-lg border border-violet-950/15 bg-[#f7f2f8] shadow-sm dark:border-violet-200/15 dark:bg-[#141016]">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-violet-950/10 px-4 py-3 dark:border-violet-200/10">
-        <div className="flex items-center gap-2 font-mono text-[10px] font-black uppercase tracking-widest text-violet-950/50 dark:text-violet-100/50">
+    <div className="min-w-0 overflow-hidden rounded-xl border border-border-subtle bg-background-surface">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border-subtle px-4 py-3">
+        <div className="flex items-center gap-2 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/50">
           <span
             className={`size-2 rounded-full ${
               isPlaying && !isComplete
-                ? 'animate-pulse bg-fuchsia-600 motion-reduce:animate-none dark:bg-fuchsia-400'
-                : 'bg-violet-950/25 dark:bg-violet-100/25'
+                ? 'animate-pulse bg-[var(--landing-accent)] motion-reduce:animate-none'
+                : 'bg-text-primary/25'
             }`}
           />
           {stateLabel}
@@ -801,7 +554,7 @@ function StreamingReplay() {
                 ? 'Pause the Markdown stream'
                 : 'Resume the Markdown stream'
           }
-          className="inline-flex items-center gap-2 rounded-md border border-violet-700/20 bg-white px-3 py-1.5 font-mono text-[10px] font-black uppercase tracking-wider text-violet-800 transition-colors hover:border-violet-700/40 hover:bg-violet-50 dark:border-violet-300/20 dark:bg-white/5 dark:text-violet-200 dark:hover:border-violet-300/40 dark:hover:bg-white/10"
+          className="inline-flex items-center gap-2 rounded-md border border-border-default bg-background-subtle px-3 py-1.5 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary transition-colors hover:border-[var(--landing-accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
           onClick={() => {
             if (isComplete) {
               setCharacterCount(0)
@@ -824,33 +577,31 @@ function StreamingReplay() {
       </div>
 
       <div className="grid md:grid-cols-2">
-        <div className="min-w-0 border-b border-violet-950/10 md:border-b-0 md:border-r dark:border-violet-200/10">
-          <div className="border-b border-violet-950/10 px-4 py-3 font-mono text-[10px] font-black uppercase tracking-widest text-violet-700 dark:border-violet-200/10 dark:text-violet-300">
+        <div className="min-w-0 border-b border-border-subtle md:border-b-0 md:border-r">
+          <div className="border-b border-border-subtle px-4 py-3 font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
             Accumulated source
           </div>
           <pre className="h-[22rem] overflow-auto !whitespace-pre-wrap break-words [overflow-wrap:anywhere] p-4 font-mono text-xs leading-6 !text-zinc-700 dark:!text-zinc-300 [&_code]:!whitespace-pre-wrap [&_code]:[overflow-wrap:anywhere] [&_code]:!text-inherit">
             <code>
               {visibleSource}
               {!isComplete ? (
-                <span className="text-fuchsia-600 dark:text-fuchsia-400">
-                  ▋
-                </span>
+                <span className="text-[var(--landing-accent-bright)]">▋</span>
               ) : null}
             </code>
           </pre>
         </div>
 
         <div className="min-w-0">
-          <div className="border-b border-violet-950/10 px-4 py-3 font-mono text-[10px] font-black uppercase tracking-widest text-violet-700 dark:border-violet-200/10 dark:text-violet-300">
+          <div className="border-b border-border-subtle px-4 py-3 font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
             React output
           </div>
           <div className="h-[22rem] overflow-auto p-4">
             {visibleSource ? (
-              <article className="prose prose-zinc max-w-none dark:prose-invert prose-headings:font-black prose-h1:text-2xl prose-a:text-violet-700 dark:prose-a:text-violet-300 prose-pre:overflow-auto prose-pre:rounded-md prose-pre:bg-zinc-950 prose-pre:text-zinc-100 [&_pre_code]:!text-zinc-100">
+              <article className="prose prose-zinc max-w-none dark:prose-invert prose-headings:font-black prose-h1:text-2xl prose-a:text-[var(--landing-accent-bright)] prose-pre:overflow-auto prose-pre:rounded-md prose-pre:bg-zinc-950 prose-pre:text-zinc-100 [&_pre_code]:!text-zinc-100">
                 <Markdown>{document}</Markdown>
               </article>
             ) : (
-              <p className="font-mono text-xs text-violet-950/40 dark:text-violet-100/40">
+              <p className="font-ds-mono text-ds-mono-xs text-text-primary/40">
                 Waiting for the first chunk…
               </p>
             )}
@@ -858,14 +609,14 @@ function StreamingReplay() {
         </div>
       </div>
 
-      <div className="border-t border-violet-950/10 px-4 py-3 dark:border-violet-200/10">
-        <div className="h-1 overflow-hidden bg-violet-950/10 dark:bg-violet-200/10">
+      <div className="border-t border-border-subtle px-4 py-3">
+        <div className="h-1 overflow-hidden bg-text-primary/10">
           <div
-            className="h-full bg-fuchsia-600 transition-[width] duration-75 ease-linear motion-reduce:transition-none dark:bg-fuchsia-400"
+            className="h-full bg-[var(--landing-accent)] transition-[width] duration-75 ease-linear motion-reduce:transition-none"
             style={{ width: `${progress}%` }}
           />
         </div>
-        <div className="mt-2 flex items-center justify-between gap-4 font-mono text-[10px] font-bold uppercase tracking-wider text-violet-950/40 dark:text-violet-100/40">
+        <div className="mt-2 flex items-center justify-between gap-4 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/40">
           <span>Complete input, reparsed</span>
           <span>
             {characterCount} / {streamingSource.length} chars
@@ -873,57 +624,6 @@ function StreamingReplay() {
         </div>
       </div>
     </div>
-  )
-}
-
-function InstallCommand({ className }: { className?: string }) {
-  const [status, setStatus] = React.useState('idle')
-  const command = 'pnpm add @tanstack/markdown'
-
-  React.useEffect(() => {
-    if (status !== 'copied' && status !== 'error') {
-      return
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setStatus('idle')
-    }, 1800)
-
-    return () => {
-      window.clearTimeout(timeoutId)
-    }
-  }, [status])
-
-  return (
-    <button
-      type="button"
-      className={`${className ?? ''} inline-flex max-w-full items-center gap-3 rounded-md border border-violet-950/10 bg-white/55 px-3 py-2 text-left font-mono text-xs font-bold text-violet-950/70 transition-colors hover:border-violet-700/30 hover:bg-white dark:border-violet-200/10 dark:bg-white/5 dark:text-violet-100/70 dark:hover:border-violet-300/30 dark:hover:bg-white/10`}
-      aria-label="Copy install command"
-      onClick={async () => {
-        try {
-          await copyTextToClipboard(command)
-          setStatus('copied')
-        } catch {
-          setStatus('error')
-        }
-      }}
-    >
-      <span className="text-fuchsia-700 dark:text-fuchsia-300">$</span>
-      <code className="truncate">{command}</code>
-      <span className="ml-auto inline-flex shrink-0 items-center gap-1.5 text-[10px] uppercase tracking-wider text-violet-900/45 dark:text-violet-100/45">
-        {status === 'copied' ? (
-          <>
-            <CheckCircle2 size={13} aria-hidden="true" /> Copied
-          </>
-        ) : status === 'error' ? (
-          'Copy failed'
-        ) : (
-          <>
-            <Copy size={13} aria-hidden="true" /> Copy
-          </>
-        )}
-      </span>
-    </button>
   )
 }
 
@@ -937,8 +637,8 @@ function SyntaxList({
   title: string
 }) {
   return (
-    <div className="p-5 md:p-6 [&+&]:border-t [&+&]:border-violet-950/10 dark:[&+&]:border-violet-200/10 md:[&+&]:border-l md:[&+&]:border-t-0">
-      <div className="font-mono text-xs font-black uppercase tracking-widest text-violet-700 dark:text-violet-300">
+    <div className="p-5 md:p-6 [&+&]:border-t [&+&]:border-border-subtle md:[&+&]:border-l md:[&+&]:border-t-0">
+      <div className="font-ds-mono text-ds-mono-caps uppercase text-[var(--landing-accent-bright)]">
         {title}
       </div>
       <ul className="mt-5 space-y-3">
@@ -969,10 +669,10 @@ function SafetyProof() {
   const html = renderHtml(safetySource)
 
   return (
-    <div className="overflow-hidden rounded-lg border border-violet-950/15 bg-[#fffdf8] shadow-sm dark:border-violet-200/15 dark:bg-[#141016]">
+    <div className="overflow-hidden rounded-xl border border-border-subtle bg-background-surface">
       <div className="grid md:grid-cols-2">
-        <div className="min-w-0 border-b border-violet-950/10 md:border-b-0 md:border-r dark:border-violet-200/10">
-          <div className="border-b border-violet-950/10 px-4 py-3 font-mono text-[10px] font-black uppercase tracking-widest text-rose-700 dark:border-violet-200/10 dark:text-rose-300">
+        <div className="min-w-0 border-b border-border-subtle md:border-b-0 md:border-r">
+          <div className="border-b border-border-subtle px-4 py-3 font-ds-mono text-ds-mono-caps-xs uppercase text-rose-700 dark:text-rose-300">
             Untrusted input
           </div>
           <pre className="overflow-auto !whitespace-pre-wrap break-words [overflow-wrap:anywhere] p-4 font-mono text-xs leading-6 !text-zinc-700 dark:!text-zinc-300 [&_code]:!whitespace-pre-wrap [&_code]:[overflow-wrap:anywhere] [&_code]:!text-inherit">
@@ -980,7 +680,7 @@ function SafetyProof() {
           </pre>
         </div>
         <div className="min-w-0">
-          <div className="border-b border-violet-950/10 px-4 py-3 font-mono text-[10px] font-black uppercase tracking-widest text-emerald-700 dark:border-violet-200/10 dark:text-emerald-300">
+          <div className="border-b border-border-subtle px-4 py-3 font-ds-mono text-ds-mono-caps-xs uppercase text-emerald-700 dark:text-emerald-300">
             Deterministic HTML
           </div>
           <pre className="overflow-auto !whitespace-pre-wrap break-words [overflow-wrap:anywhere] p-4 font-mono text-xs leading-6 !text-zinc-700 dark:!text-zinc-300 [&_code]:!whitespace-pre-wrap [&_code]:[overflow-wrap:anywhere] [&_code]:!text-inherit">
@@ -988,7 +688,7 @@ function SafetyProof() {
           </pre>
         </div>
       </div>
-      <div className="flex flex-wrap gap-x-5 gap-y-2 border-t border-violet-950/10 px-4 py-3 font-mono text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:border-violet-200/10 dark:text-emerald-400">
+      <div className="flex flex-wrap gap-x-5 gap-y-2 border-t border-border-subtle px-4 py-3 font-ds-mono text-ds-mono-caps-xs uppercase text-emerald-700 dark:text-emerald-400">
         <span className="inline-flex items-center gap-1.5">
           <LockKeyhole size={12} aria-hidden="true" /> HTML escaped
         </span>
@@ -1008,29 +708,29 @@ function BundleLedger() {
             <span
               className={
                 comparison.emphasis
-                  ? 'font-black text-violet-800 dark:text-violet-300'
-                  : 'text-zinc-600 dark:text-zinc-400'
+                  ? 'font-black text-[var(--landing-accent-bright)]'
+                  : 'text-text-primary/55'
               }
             >
               {comparison.name}
             </span>
             <span className="font-black">{comparison.size}</span>
           </div>
-          <div className="h-2 bg-violet-950/10 dark:bg-violet-200/10">
+          <div className="h-2 rounded-full bg-text-primary/10">
             <div
-              className={`h-full ${comparison.width} ${comparison.emphasis ? 'bg-violet-600' : 'bg-violet-950/30 dark:bg-violet-200/30'}`}
+              className={`h-full rounded-full ${comparison.width} ${comparison.emphasis ? 'bg-[var(--landing-accent)]' : 'bg-text-primary/30'}`}
             />
           </div>
         </div>
       ))}
-      <div className="grid grid-cols-2 gap-px bg-violet-950/10 pt-px font-mono text-xs dark:bg-violet-200/10 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-border-subtle p-px font-ds-mono text-ds-mono-xs sm:grid-cols-4">
         {[
           ['6.7 KB', 'HTML renderer'],
           ['6.7 KB', 'React adapter'],
           ['6.7 KB', 'Octane adapter'],
           ['2.4 KB', 'docs preset'],
         ].map(([value, label]) => (
-          <div key={label} className="bg-[#eee5f2] px-3 py-4 dark:bg-[#170f1b]">
+          <div key={label} className="bg-background-surface px-3 py-4">
             <div className="font-black">{value}</div>
             <div className="mt-1 text-[10px] uppercase tracking-wider text-zinc-500">
               {label}
@@ -1038,22 +738,6 @@ function BundleLedger() {
           </div>
         ))}
       </div>
-    </div>
-  )
-}
-
-function Eyebrow({ children }: { children: ReactNode }) {
-  return (
-    <div className="inline-flex items-center gap-2 font-mono text-xs font-black uppercase tracking-widest text-violet-700 dark:text-violet-300">
-      {children}
-    </div>
-  )
-}
-
-function DarkEyebrow({ children }: { children: ReactNode }) {
-  return (
-    <div className="inline-flex items-center gap-2 font-mono text-xs font-black uppercase tracking-widest text-violet-700 dark:text-violet-300">
-      {children}
     </div>
   )
 }

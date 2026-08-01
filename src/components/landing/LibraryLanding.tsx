@@ -264,7 +264,7 @@ export function LibraryLandingShell({
                     className="hidden h-[18px] w-auto dark:block"
                   />
                   <h1 className="mt-1">
-                    <span className="block bg-[linear-gradient(110deg,var(--landing-headline-start),var(--landing-headline-end))] bg-clip-text pr-1 font-ds-display text-ds-display-lg uppercase text-transparent dark:[filter:drop-shadow(0_4px_4px_rgb(0_0_0/0.25))] sm:text-ds-display-xl lg:text-ds-display-2xl">
+                    <span className="block bg-[linear-gradient(110deg,var(--landing-headline-start),var(--landing-headline-end))] bg-clip-text pr-1 font-ds-display text-ds-display-lg uppercase text-transparent dark:[filter:drop-shadow(0_4px_4px_rgb(0_0_0/0.25))] sm:text-ds-display-xl 2xl:text-ds-display-2xl">
                       {library.name.replace(/^TanStack\s+/i, '')}
                     </span>
                   </h1>
@@ -311,7 +311,9 @@ export function LibraryLandingShell({
             {hero}
           </div>
 
-          <LandingStats libraryId={libraryId} />
+          {library.statsAvailable === false ? null : (
+            <LandingStats libraryId={libraryId} />
+          )}
         </div>
       </section>
 
@@ -327,10 +329,12 @@ export function LibraryLandingShell({
 export function LandingSection({
   children,
   className = '',
+  id,
   tone = 'ink',
 }: {
   children: React.ReactNode
   className?: string
+  id?: string
   tone?: 'accent' | 'ink' | 'raised'
 }) {
   const toneClassName = {
@@ -341,6 +345,7 @@ export function LandingSection({
 
   return (
     <section
+      id={id}
       className={`border-b px-5 py-16 md:px-10 lg:px-12 lg:py-20 2xl:px-20 ${toneClassName} ${className}`}
     >
       <div className="mx-auto w-full max-w-[90rem]">{children}</div>
@@ -622,7 +627,7 @@ function FeatureSection({
           <div
             role="tablist"
             aria-label="Product capabilities"
-            className="flex gap-5 overflow-x-auto pb-2 lg:flex-col lg:items-start lg:overflow-visible lg:pb-0"
+            className="fade-x fade-size-x-sm flex gap-5 overflow-x-auto pb-2 lg:flex-col lg:items-start lg:overflow-visible lg:pb-0 lg:fade-none-x"
           >
             {features.map((feature, index) => {
               const FeatureIcon = feature.icon

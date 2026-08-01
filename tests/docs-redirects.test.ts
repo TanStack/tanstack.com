@@ -9,6 +9,7 @@ import { publicLibraries } from '../src/libraries'
 
 const expectedLegacyOverviewTargets: Record<string, string | null> = {
   ai: 'getting-started/overview',
+  charts: 'overview',
   cli: null,
   config: null,
   db: 'framework/react/overview',

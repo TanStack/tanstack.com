@@ -2,11 +2,11 @@ import fs from 'node:fs'
 import fsp from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { parse as parseYaml } from 'yaml'
 import {
   getCurrentHostRuntimeEnv,
   getHostRuntimeEnv,
+  isIsolateRuntime,
 } from '~/server/runtime/host.server'
 import { fetchCached } from '~/utils/cache.server'
 import {
@@ -14,6 +14,11 @@ import {
   getCachedGitHubTextFile,
   InvalidCacheKeyError,
 } from './github-content-cache.server'
+import {
+  getImportFallbackRepoDirs,
+  localDocsDevPath,
+  localDocsDevTokenHeader,
+} from './local-repo-path.server'
 import { normalizeRedirectFrom } from './redirects'
 import { isValidRepoPath } from './repo-path'
 import { multiSortBy, removeLeadingSlash } from './utils'
@@ -233,9 +238,8 @@ function getLocalRepoBaseDirs(repo: string) {
     ? path.resolve(path.dirname(path.dirname(gitCommonDir)), repo)
     : undefined
 
-  const siblingRepoDir = path.resolve(
-    path.dirname(fileURLToPath(import.meta.url)),
-    '../../..',
+  const importFallbackRepoDirs = getImportFallbackRepoDirs(
+    import.meta.url,
     repo,
   )
 
@@ -245,7 +249,7 @@ function getLocalRepoBaseDirs(repo: string) {
         configuredReposDir,
         gitSiblingRepoDir,
         homeGitHubRepoDir,
-        siblingRepoDir,
+        ...importFallbackRepoDirs,
       ].filter((dir): dir is string => dir !== undefined),
     ),
   )
@@ -258,6 +262,10 @@ async function fetchFs(repo: string, filepath: string) {
   if (!isValidFilepath(filepath)) {
     console.warn(`[fetchFs] Invalid filepath rejected: ${filepath}\n`)
     return ''
+  }
+
+  if (isIsolateRuntime()) {
+    return fetchFsFromDevServer(repo, filepath)
   }
 
   const attemptedPaths = Array<string>()
@@ -287,6 +295,43 @@ async function fetchFs(repo: string, filepath: string) {
     `[fetchFs] Tried to read file that does not exist: ${attemptedPaths.join(', ')}\n`,
   )
   return ''
+}
+
+async function fetchFsFromDevServer(repo: string, filepath: string) {
+  let request: Request
+
+  try {
+    const { getRequest } = await import('@tanstack/react-start/server')
+    request = getRequest()
+  } catch {
+    console.warn(
+      `[fetchFs] Local docs requested without an active server request: ${repo}/${filepath}\n`,
+    )
+    return ''
+  }
+
+  const url = new URL(localDocsDevPath, request.url)
+  url.searchParams.set('repo', repo)
+  url.searchParams.set('path', filepath)
+
+  const response = await fetch(url, {
+    headers: {
+      [localDocsDevTokenHeader]: __TANSTACK_LOCAL_DOCS_TOKEN__,
+    },
+  })
+
+  if (response.status === 404) {
+    console.warn(`[fetchFs] Local file does not exist: ${repo}/${filepath}\n`)
+    return ''
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      `[fetchFs] Local docs bridge failed with ${response.status}: ${repo}/${filepath}`,
+    )
+  }
+
+  return response.text()
 }
 
 /**

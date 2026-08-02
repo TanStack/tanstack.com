@@ -1,6 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
-import { ArrowLeft } from '@phosphor-icons/react'
+import { ArrowLeftIcon } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { DocContainer } from '~/components/DocContainer'
 import { DocTitle } from '~/components/DocTitle'
@@ -50,7 +50,7 @@ function RouteComponent() {
             to="/blog"
             className="inline-flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors mb-4"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeftIcon className="w-4 h-4" />
             Back to all posts
           </Link>
 

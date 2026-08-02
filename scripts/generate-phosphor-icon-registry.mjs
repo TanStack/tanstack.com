@@ -9,17 +9,14 @@ const iconNames = readdirSync(path.join(packageRoot, 'dist/csr'))
   .filter((fileName) => fileName.endsWith('.es.js'))
   .map((fileName) => fileName.slice(0, -'.es.js'.length))
   .sort((a, b) => a.localeCompare(b))
-const getLocalName = (iconName) =>
-  iconName === 'Infinity' ? 'InfinityIcon' : iconName
-const getImportSpecifier = (iconName) => {
-  const localName = getLocalName(iconName)
-  return localName === iconName ? iconName : `${iconName} as ${localName}`
-}
+// Every icon module exports both `Name` (deprecated) and `NameIcon`. The
+// suffixed export is the supported one and never collides with a JS global.
+const getLocalName = (iconName) => `${iconName}Icon`
 
 const imports = iconNames
   .map(
     (iconName) =>
-      `import { ${getImportSpecifier(iconName)} } from '@phosphor-icons/react/${iconName}'`,
+      `import { ${getLocalName(iconName)} } from '@phosphor-icons/react/${iconName}'`,
   )
   .join('\n')
 const entries = iconNames

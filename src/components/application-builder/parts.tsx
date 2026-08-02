@@ -1,6 +1,6 @@
 import * as React from 'react'
 import * as TooltipPrimitive from '@radix-ui/react-tooltip'
-import { Check, Copy, Sparkle, X } from '@phosphor-icons/react'
+import { CheckIcon, CopyIcon, SparkleIcon, XIcon } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import {
   getApplicationStarterConflictingPartnerIds,
@@ -221,7 +221,7 @@ function StarterLibraryTooltip({ library }: { library: StarterTryLibrary }) {
   return (
     <div className="w-[min(22rem,calc(100vw-1rem))] rounded-xl border border-gray-200 bg-white/95 px-3.5 py-3 text-left shadow-lg shadow-gray-950/10 dark:border-gray-800 dark:bg-gray-950/95">
       <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.18em] text-gray-400 dark:text-gray-500">
-        <Sparkle className="h-3.5 w-3.5" />
+        <SparkleIcon className="h-3.5 w-3.5" />
         TanStack {library.label}
       </div>
       <div className="mt-2 flex flex-wrap gap-1.5">
@@ -585,7 +585,7 @@ function StarterPartnerTooltip({
   return (
     <div className="w-[min(22rem,calc(100vw-1rem))] rounded-xl border border-gray-200 bg-white/95 px-3.5 py-3 text-left shadow-lg shadow-gray-950/10 dark:border-gray-800 dark:bg-gray-950/95">
       <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.18em] text-gray-400 dark:text-gray-500">
-        <Sparkle className="h-3.5 w-3.5" />
+        <SparkleIcon className="h-3.5 w-3.5" />
         {partner.label}
       </div>
       {partner.tags.length > 0 ? (
@@ -662,12 +662,12 @@ export function GeneratedPromptPreviewHeader({
             >
               {copiedPrompt ? (
                 <>
-                  <Check className="h-4 w-4" />
+                  <CheckIcon className="h-4 w-4" />
                   Copied
                 </>
               ) : (
                 <>
-                  <Copy className="h-4 w-4" />
+                  <CopyIcon className="h-4 w-4" />
                   Copy Prompt
                 </>
               )}
@@ -693,7 +693,7 @@ export function GeneratedPromptPreviewHeader({
               className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-emerald-200/80 text-emerald-800 transition-colors hover:bg-emerald-100 dark:border-emerald-800 dark:text-emerald-300 dark:hover:bg-emerald-900/50"
               aria-label="Dismiss copied prompt notice"
             >
-              <X className="h-4 w-4" />
+              <XIcon className="h-4 w-4" />
             </button>
           ) : null}
         </div>

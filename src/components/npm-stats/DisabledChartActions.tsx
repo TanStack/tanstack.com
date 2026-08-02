@@ -1,4 +1,4 @@
-import { Download, List } from '@phosphor-icons/react'
+import { DownloadIcon, ListIcon } from '@phosphor-icons/react'
 import { Tooltip } from '~/components/Tooltip'
 
 const disabledChartActionButtonStyles =
@@ -14,7 +14,7 @@ export function DisabledChartActions() {
           disabled={true}
           type="button"
         >
-          <Download className="size-3" />
+          <DownloadIcon className="size-3" />
         </button>
       </Tooltip>
       <Tooltip content="Plot legend available after render">
@@ -25,7 +25,7 @@ export function DisabledChartActions() {
           disabled={true}
           type="button"
         >
-          <List className="size-3" />
+          <ListIcon className="size-3" />
         </button>
       </Tooltip>
     </div>

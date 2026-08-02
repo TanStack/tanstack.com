@@ -1,10 +1,10 @@
 import * as React from 'react'
 import { Link, createFileRoute, notFound } from '@tanstack/react-router'
 import {
-  ArrowRight,
-  ArrowUpRight,
-  CheckCircle as CheckCircle2,
-  CircleDashed,
+  ArrowRightIcon,
+  ArrowUpRightIcon,
+  CheckCircleIcon as CheckCircle2,
+  CircleDashedIcon,
 } from '@phosphor-icons/react'
 import { Footer } from '~/components/Footer'
 import { Card } from '~/components/Card'
@@ -122,7 +122,7 @@ function PartnerDetailPage() {
                     {isActive ? (
                       <CheckCircle2 className="h-3.5 w-3.5" />
                     ) : (
-                      <CircleDashed className="h-3.5 w-3.5" />
+                      <CircleDashedIcon className="h-3.5 w-3.5" />
                     )}
                     {isActive ? 'Current Partner' : 'Previous Partner'}
                   </span>
@@ -184,7 +184,7 @@ function PartnerDetailPage() {
                     }}
                   >
                     Visit {partner.name}
-                    <ArrowUpRight className="h-4 w-4" />
+                    <ArrowUpRightIcon className="h-4 w-4" />
                   </Button>
                   <Button as={Link} to="/partners" variant="ghost">
                     Browse All Partners
@@ -238,9 +238,9 @@ function PartnerDetailPage() {
                           </span>
                         </span>
                         {isExternal ? (
-                          <ArrowUpRight className="h-4 w-4 shrink-0 text-gray-400 transition-colors group-hover:text-blue-500" />
+                          <ArrowUpRightIcon className="h-4 w-4 shrink-0 text-gray-400 transition-colors group-hover:text-blue-500" />
                         ) : (
-                          <ArrowRight className="h-4 w-4 shrink-0 text-gray-400 transition-colors group-hover:text-blue-500" />
+                          <ArrowRightIcon className="h-4 w-4 shrink-0 text-gray-400 transition-colors group-hover:text-blue-500" />
                         )}
                       </>
                     )

@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { Hydrate } from '@tanstack/react-start'
 import { visible } from '@tanstack/react-start/hydration'
-import { ArrowRight } from '@phosphor-icons/react'
+import { ArrowRightIcon } from '@phosphor-icons/react'
 import { MaintainerCard } from '~/components/MaintainerCard'
 import { coreMaintainers } from '~/libraries/maintainers'
 import { Button } from '~/components/ds/ui'
@@ -60,7 +60,7 @@ function HomeCommunityContent() {
             color="gray"
           >
             View All Maintainers
-            <ArrowRight />
+            <ArrowRightIcon />
           </Button>
         </div>
       </div>

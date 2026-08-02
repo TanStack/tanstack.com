@@ -1,14 +1,14 @@
 import * as React from 'react'
 import {
-  ArrowCounterClockwise,
-  ChatCircleDots,
-  Columns,
-  DeviceMobile,
-  Eye,
-  FloppyDisk,
-  GridFour,
-  Rows,
-  Ruler,
+  ArrowCounterClockwiseIcon,
+  ChatCircleDotsIcon,
+  ColumnsIcon,
+  DeviceMobileIcon,
+  EyeIcon,
+  FloppyDiskIcon,
+  GridFourIcon,
+  RowsIcon,
+  RulerIcon,
 } from '@phosphor-icons/react'
 
 import {
@@ -29,22 +29,22 @@ const OVERSCAN = 4
 
 const surfaces = [
   {
-    icon: Rows,
+    icon: RowsIcon,
     label: 'Element list',
     body: 'Logs, search results, menus',
   },
   {
-    icon: DeviceMobile,
+    icon: DeviceMobileIcon,
     label: 'Window feed',
     body: 'Documents and full-page feeds',
   },
   {
-    icon: GridFour,
+    icon: GridFourIcon,
     label: 'Grid + lanes',
     body: 'Galleries, calendars, boards',
   },
   {
-    icon: Columns,
+    icon: ColumnsIcon,
     label: 'Two-axis grid',
     body: 'Tables and spreadsheet surfaces',
   },
@@ -65,7 +65,7 @@ export default function VirtualLanding() {
           <LandingSectionIntro
             body="An estimate makes the full scroll range available immediately. Real measurements refine that model as content enters the window—without turning every offscreen item into a DOM node."
             eyebrow="Dynamic measurement"
-            icon={<Ruler aria-hidden="true" size={17} />}
+            icon={<RulerIcon aria-hidden="true" size={17} />}
             title="The hard part starts when rows are not the same height."
           />
           <MeasurementLab />
@@ -78,7 +78,7 @@ export default function VirtualLanding() {
           <LandingSectionIntro
             body="A chat viewport follows new messages only when the reader is already at the end. Loading older history must preserve the current message. Streaming content changes height without stealing the anchor."
             eyebrow="End-anchored lists"
-            icon={<ChatCircleDots aria-hidden="true" size={17} />}
+            icon={<ChatCircleDotsIcon aria-hidden="true" size={17} />}
             title="Chat turns scrolling into a contract."
           />
         </div>
@@ -88,7 +88,7 @@ export default function VirtualLanding() {
         <LandingSectionIntro
           body="Virtualization is a coordinate system, not a list component. Use it with the page, an element, rows and columns, sticky regions, or lanes—and snapshot that coordinate system when navigation needs an exact return."
           eyebrow="Scroll surfaces"
-          icon={<Eye aria-hidden="true" size={17} />}
+          icon={<EyeIcon aria-hidden="true" size={17} />}
           title="One virtualizer idea. Many kinds of viewport."
         />
         <div className="mt-10 grid gap-4 lg:grid-cols-[1fr_1.1fr]">
@@ -210,7 +210,7 @@ function VirtualizerLab() {
         </div>
 
         <div className="flex flex-col p-4">
-          <LandingEyebrow icon={<Eye aria-hidden="true" size={14} />}>
+          <LandingEyebrow icon={<EyeIcon aria-hidden="true" size={14} />}>
             dom budget
           </LandingEyebrow>
           <dl className="mt-6 space-y-4" aria-live="polite">
@@ -266,7 +266,7 @@ function MeasurementLab() {
           ))}
         </div>
         <div className="flex flex-col">
-          <LandingEyebrow icon={<Ruler aria-hidden="true" size={14} />}>
+          <LandingEyebrow icon={<RulerIcon aria-hidden="true" size={14} />}>
             {measured ? 'measured' : 'estimated'}
           </LandingEyebrow>
           <dl className="mt-6 space-y-4">
@@ -391,7 +391,7 @@ function SnapshotPanel() {
   return (
     <LandingWindow label="navigation snapshot">
       <div className="flex h-full flex-col p-5 sm:p-6">
-        <LandingEyebrow icon={<FloppyDisk aria-hidden="true" size={14} />}>
+        <LandingEyebrow icon={<FloppyDiskIcon aria-hidden="true" size={14} />}>
           leave → return
         </LandingEyebrow>
         <div className="mt-7 rounded-lg border border-border-subtle bg-background-subtle p-4">
@@ -430,7 +430,7 @@ function SnapshotPanel() {
           onClick={() => setRestored((value) => !value)}
           type="button"
         >
-          <ArrowCounterClockwise aria-hidden="true" size={15} />
+          <ArrowCounterClockwiseIcon aria-hidden="true" size={15} />
           {restored ? 'Clear snapshot' : 'Restore position'}
         </button>
       </div>

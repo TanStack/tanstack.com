@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { CaretDown } from '@phosphor-icons/react'
+import { CaretDownIcon } from '@phosphor-icons/react'
 import { seo } from '~/utils/seo'
 import {
   Collapsible,
@@ -32,7 +32,7 @@ function CollapsiblePage() {
     <>
       <CollapsibleTrigger className="flex w-full items-center justify-between px-4 py-3">
         <span>What is TanStack?</span>
-        <CaretDown className={open ? 'rotate-180' : ''} />
+        <CaretDownIcon className={open ? 'rotate-180' : ''} />
       </CollapsibleTrigger>
       <CollapsibleContent>
         <p className="px-4 pb-4">…</p>
@@ -49,7 +49,7 @@ function CollapsiblePage() {
               <>
                 <CollapsibleTrigger className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-text-primary">
                   <span>What is TanStack?</span>
-                  <CaretDown
+                  <CaretDownIcon
                     className={`h-4 w-4 text-icon-muted transition-transform ${
                       open ? 'rotate-180' : ''
                     }`}

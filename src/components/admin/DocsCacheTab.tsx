@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-  BookOpen,
-  Clock,
-  Database,
-  GitBranch,
-  ArrowsClockwise,
+  BookOpenIcon,
+  ClockIcon,
+  DatabaseIcon,
+  GitBranchIcon,
+  ArrowsClockwiseIcon,
 } from '@phosphor-icons/react'
 import {
   AdminEmptyState,
@@ -99,9 +99,9 @@ export function DocsCacheTab() {
   if (!data && !docsCacheQuery.isError && repos.length === 0) {
     return (
       <div className="space-y-6">
-        <AdminPageHeader icon={<BookOpen />} title="Docs Cache" />
+        <AdminPageHeader icon={<BookOpenIcon />} title="Docs Cache" />
         <AdminEmptyState
-          icon={<Database className="h-6 w-6" />}
+          icon={<DatabaseIcon className="h-6 w-6" />}
           title="No docs cache repos found"
           description="No watched repos or cached docs entries are available yet."
         />
@@ -116,7 +116,7 @@ export function DocsCacheTab() {
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        icon={<BookOpen />}
+        icon={<BookOpenIcon />}
         title="Docs Cache"
         isLoading={docsCacheQuery.isFetching}
         actions={
@@ -130,7 +130,7 @@ export function DocsCacheTab() {
             }
             title="Mark every cached docs row stale so the next docs request repopulates it"
           >
-            <ArrowsClockwise
+            <ArrowsClockwiseIcon
               className={invalidatingAll ? 'h-4 w-4 animate-spin' : 'h-4 w-4'}
             />
             {invalidatingAll ? 'Invalidating...' : 'Invalidate All Docs'}
@@ -191,22 +191,22 @@ export function DocsCacheTab() {
         <StatsCard
           label="Watched Repos"
           value={data?.summary.watchedRepoCount ?? docsWebhookSources.length}
-          icon={<GitBranch className="h-5 w-5" />}
+          icon={<GitBranchIcon className="h-5 w-5" />}
         />
         <StatsCard
           label="Cached Repos"
           value={data?.summary.cachedRepoCount ?? 0}
-          icon={<Database className="h-5 w-5" />}
+          icon={<DatabaseIcon className="h-5 w-5" />}
         />
         <StatsCard
           label="Content Rows"
           value={data?.summary.contentEntries ?? 0}
-          icon={<BookOpen className="h-5 w-5" />}
+          icon={<BookOpenIcon className="h-5 w-5" />}
         />
         <StatsCard
           label="Artifact Rows"
           value={data?.summary.artifactEntries ?? 0}
-          icon={<Clock className="h-5 w-5" />}
+          icon={<ClockIcon className="h-5 w-5" />}
         />
       </div>
 
@@ -313,7 +313,7 @@ export function DocsCacheTab() {
                         }
                         title={`Mark ${repo.repo} docs cache entries stale`}
                       >
-                        <ArrowsClockwise
+                        <ArrowsClockwiseIcon
                           className={
                             isInvalidatingRepo
                               ? 'h-4 w-4 animate-spin'

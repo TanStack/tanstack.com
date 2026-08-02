@@ -1,5 +1,9 @@
 import * as React from 'react'
-import { Command, MagnifyingGlass, Sparkle } from '@phosphor-icons/react'
+import {
+  CommandIcon,
+  MagnifyingGlassIcon,
+  SparkleIcon,
+} from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { Button, Tooltip } from '~/ui'
 import { useSearchContext } from '~/contexts/SearchContext'
@@ -33,7 +37,7 @@ export function SearchButton({
         className,
       )}
     >
-      <MagnifyingGlass
+      <MagnifyingGlassIcon
         className={iconOnly ? 'size-[18px]' : 'size-3.5'}
         weight={iconOnly ? 'bold' : undefined}
       />
@@ -43,7 +47,7 @@ export function SearchButton({
         <>
           <span>Search...</span>
           <div className="flex items-center bg-gray-500/10 dark:bg-gray-500/30 rounded px-1 py-0.5 gap-0.5 text-[10px] whitespace-nowrap">
-            <Command className="w-2.5 h-2.5" /> K
+            <CommandIcon className="w-2.5 h-2.5" /> K
           </div>
         </>
       )}
@@ -121,7 +125,7 @@ export function AiDockButton({ className }: { className?: string }) {
           className,
         )}
       >
-        <Sparkle aria-hidden="true" className="size-[18px]" weight="bold" />
+        <SparkleIcon aria-hidden="true" className="size-[18px]" weight="bold" />
         <span className="sr-only">Ask AI</span>
       </Button>
     </Tooltip>

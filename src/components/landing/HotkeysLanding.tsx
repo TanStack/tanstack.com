@@ -1,12 +1,12 @@
 import * as React from 'react'
 import {
-  ArrowsLeftRight,
-  Clock,
-  Command,
-  Crosshair,
-  Keyboard,
-  Stack,
-  WarningCircle,
+  ArrowsLeftRightIcon,
+  ClockIcon,
+  CommandIcon,
+  CrosshairIcon,
+  KeyboardIcon,
+  StackIcon,
+  WarningCircleIcon,
 } from '@phosphor-icons/react'
 
 import {
@@ -61,19 +61,19 @@ const scopes = [
 
 const gestures = [
   {
-    icon: Command,
+    icon: CommandIcon,
     label: 'Chord',
     binding: 'Mod + Shift + P',
     body: 'Several keys resolve as one command.',
   },
   {
-    icon: ArrowsLeftRight,
+    icon: ArrowsLeftRightIcon,
     label: 'Sequence',
     binding: 'G then D',
     body: 'Ordered keys create a tiny command language.',
   },
   {
-    icon: Clock,
+    icon: ClockIcon,
     label: 'Held key',
     binding: 'Space · 400ms',
     body: 'Press duration can become part of the gesture.',
@@ -95,7 +95,7 @@ export default function HotkeysLanding() {
           <LandingSectionIntro
             body="The same key can mean one thing globally, another thing inside an editor, and nothing while the user is typing. Scopes make that context explicit."
             eyebrow="Command scope"
-            icon={<Crosshair aria-hidden="true" size={17} />}
+            icon={<CrosshairIcon aria-hidden="true" size={17} />}
             title="A shortcut needs an address."
           />
           <ScopeStack />
@@ -106,7 +106,7 @@ export default function HotkeysLanding() {
         <LandingSectionIntro
           body="A command palette chord is useful. So are Vim-like sequences, press-and-hold actions, key releases, and keys that remain active while the pointer moves."
           eyebrow="Gesture grammar"
-          icon={<Keyboard aria-hidden="true" size={17} />}
+          icon={<KeyboardIcon aria-hidden="true" size={17} />}
           title="Chords are only the first sentence."
         />
         <div className="mt-10 grid gap-4 md:grid-cols-3">
@@ -144,11 +144,11 @@ export default function HotkeysLanding() {
             <LandingSectionIntro
               body="Treat bindings as user data. Record a gesture, normalize it into a portable definition, format it for the current platform, and reuse it everywhere the command appears."
               eyebrow="Custom bindings"
-              icon={<ArrowsLeftRight aria-hidden="true" size={17} />}
+              icon={<ArrowsLeftRightIcon aria-hidden="true" size={17} />}
               title="Let users own the muscle memory."
             />
             <p className="mt-7 flex items-start gap-3 text-ds-body-xs text-text-primary/40">
-              <WarningCircle
+              <WarningCircleIcon
                 aria-hidden="true"
                 className="mt-0.5 shrink-0 text-[var(--landing-accent-bright)]"
                 size={17}
@@ -221,7 +221,7 @@ function ShortcutStudio() {
     <LandingWindow label="shortcut settings">
       <div className="grid min-h-[23rem] md:grid-cols-[0.92fr_1.08fr]">
         <div className="border-border-subtle p-4 md:border-r">
-          <LandingEyebrow icon={<Stack aria-hidden="true" size={14} />}>
+          <LandingEyebrow icon={<StackIcon aria-hidden="true" size={14} />}>
             commands
           </LandingEyebrow>
           <div className="mt-4 space-y-2">

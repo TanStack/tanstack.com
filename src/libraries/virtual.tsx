@@ -1,4 +1,8 @@
-import { PersonSimple, Lightning, Gear } from '@phosphor-icons/react'
+import {
+  PersonSimpleIcon,
+  LightningIcon,
+  GearIcon,
+} from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { virtual } from './libraries'
 
@@ -38,7 +42,7 @@ export const virtualProject = {
       title: 'Designed for zero design',
       icon: (
         <div className="text-center overflow-hidden">
-          <PersonSimple className="text-category-performance" />
+          <PersonSimpleIcon className="text-category-performance" />
         </div>
       ),
       description: (
@@ -54,7 +58,7 @@ export const virtualProject = {
     },
     {
       title: 'Big Power, Small Package',
-      icon: <Lightning className="text-category-performance" />,
+      icon: <LightningIcon className="text-category-performance" />,
       description: (
         <div>
           Don't be fooled by the small bundle size. TanStack Virtual uses every
@@ -69,7 +73,7 @@ export const virtualProject = {
     },
     {
       title: 'Maximum Composability',
-      icon: <Gear className="text-category-performance" />,
+      icon: <GearIcon className="text-category-performance" />,
       description: (
         <div>
           With a single function/hook, you'll get limitless virtualization for{' '}

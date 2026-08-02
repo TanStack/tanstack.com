@@ -1,4 +1,9 @@
-import { EyeClosed, Key, Lightning, Skull } from '@phosphor-icons/react'
+import {
+  EyeClosedIcon,
+  KeyIcon,
+  LightningIcon,
+  SkullIcon,
+} from '@phosphor-icons/react'
 
 import { LibraryLanding, type LibraryLandingConfig } from './LibraryLanding'
 
@@ -43,25 +48,25 @@ const queryLanding = {
   },
   features: [
     {
-      icon: Skull,
+      icon: SkullIcon,
       label: 'Deadly defaults',
       title: 'Deadly defaults kill boring work.',
       body: 'Caching, request deduplication, retries, background refetching, window-focus updates, and garbage collection arrive wired for real applications.',
     },
     {
-      icon: Key,
+      icon: KeyIcon,
       label: 'Query keys',
       title: 'Keys become the cache contract.',
       body: 'Model the resource, inputs, filters, and scope once so reads, writes, invalidation, prefetching, and devtools all speak the same language.',
     },
     {
-      icon: Lightning,
+      icon: LightningIcon,
       label: 'State Management',
       title: 'Writes get a real lifecycle.',
       body: 'Pending UI, optimistic updates, rollback, targeted invalidation, and background reconciliation stay explicit instead of scattering through components.',
     },
     {
-      icon: EyeClosed,
+      icon: EyeClosedIcon,
       label: 'Devtools',
       title: 'See what the cache is doing.',
       body: 'Inspect keys, observers, freshness, retries, errors, mutations, and cache contents while the application is actually running.',

@@ -1,13 +1,13 @@
 import * as React from 'react'
 import {
-  ArrowCounterClockwise,
-  FlowArrow,
-  GitBranch,
-  HandPalm,
-  Hourglass,
-  Network,
-  PlayCircle,
-  ShieldCheck,
+  ArrowCounterClockwiseIcon,
+  FlowArrowIcon,
+  GitBranchIcon,
+  HandPalmIcon,
+  HourglassIcon,
+  NetworkIcon,
+  PlayCircleIcon,
+  ShieldCheckIcon,
 } from '@phosphor-icons/react'
 import { Badge } from '~/ui/Badge'
 
@@ -62,7 +62,7 @@ export default function WorkflowLanding() {
           <WorkflowCode />
           <LandingSectionIntro
             eyebrow="Code is the process"
-            icon={<FlowArrow aria-hidden="true" size={15} />}
+            icon={<FlowArrowIcon aria-hidden="true" size={15} />}
             title="Control flow stays in plain async TypeScript."
             body="Conditionals, loops, variables, and errors remain language features. The workflow context adds durable boundaries only where time, retries, side effects, or external input need to survive beyond the current process."
           />
@@ -73,7 +73,7 @@ export default function WorkflowLanding() {
         <div className="grid gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:items-center lg:gap-16">
           <LandingSectionIntro
             eyebrow="Time and outside input"
-            icon={<Hourglass aria-hidden="true" size={15} />}
+            icon={<HourglassIcon aria-hidden="true" size={15} />}
             title="Waiting is a stored state, not a worker doing nothing."
             body="A workflow can sleep until later, wait for an external event, or request human approval. Host-delivered signal IDs make retries idempotent, while recorded time and UUID primitives keep decisions deterministic when the function runs again."
           />
@@ -85,7 +85,7 @@ export default function WorkflowLanding() {
         <LandingSectionIntro
           centered
           eyebrow="Durability boundary"
-          icon={<Network aria-hidden="true" size={15} />}
+          icon={<NetworkIcon aria-hidden="true" size={15} />}
           title="Bring the runtime and store that fit your application."
           body="The workflow definition is application code. A runtime adapter executes it, and a durable store preserves the append-only history needed for recovery. Current runtimes and adapters are experimental, so deployment and version routing remain explicit choices."
         />
@@ -336,17 +336,17 @@ function WaitLab() {
 function RuntimeBoundary() {
   const layers = [
     {
-      icon: GitBranch,
+      icon: GitBranchIcon,
       label: 'Workflow definition',
       detail: 'Versioned TypeScript and stable step IDs',
     },
     {
-      icon: PlayCircle,
+      icon: PlayCircleIcon,
       label: 'Runtime adapter',
       detail: 'Executes, schedules, retries, and receives signals',
     },
     {
-      icon: ShieldCheck,
+      icon: ShieldCheckIcon,
       label: 'Durable store',
       detail: 'Persists history outside the worker process',
     },
@@ -383,7 +383,7 @@ function RuntimeBoundary() {
       </div>
       <div className="mt-5 grid gap-3 md:grid-cols-2">
         <div className="flex items-start gap-3 rounded-lg border border-border-default bg-background-surface p-5">
-          <ArrowCounterClockwise
+          <ArrowCounterClockwiseIcon
             aria-hidden="true"
             className="mt-0.5 shrink-0 text-[var(--landing-accent-bright)]"
             size={19}
@@ -394,7 +394,7 @@ function RuntimeBoundary() {
           </p>
         </div>
         <div className="flex items-start gap-3 rounded-lg border border-border-default bg-background-surface p-5">
-          <HandPalm
+          <HandPalmIcon
             aria-hidden="true"
             className="mt-0.5 shrink-0 text-[var(--landing-accent-bright)]"
             size={19}

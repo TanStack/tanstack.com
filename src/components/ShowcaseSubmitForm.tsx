@@ -12,7 +12,7 @@ import {
   USE_CASE_LABELS,
 } from '~/utils/showcase.shared'
 import { useToast } from './ToastProvider'
-import { Check, WarningCircle } from '@phosphor-icons/react'
+import { CheckIcon, WarningCircleIcon } from '@phosphor-icons/react'
 import { Button, FormInput } from '~/ui'
 import { ImageUpload } from './ImageUpload'
 import { FormEvent, useMemo, useState } from 'react'
@@ -364,7 +364,7 @@ export function ShowcaseSubmitForm({ showcase }: ShowcaseSubmitFormProps) {
                     } ${isAutoIncluded ? 'opacity-60 cursor-not-allowed' : ''}`}
                   >
                     {(isSelected || isAutoIncluded) && (
-                      <Check className="w-4 h-4 text-blue-600" />
+                      <CheckIcon className="w-4 h-4 text-blue-600" />
                     )}
                     <span className="text-sm font-medium text-gray-900 dark:text-white">
                       {lib.name?.replace('TanStack ', '')}
@@ -380,7 +380,7 @@ export function ShowcaseSubmitForm({ showcase }: ShowcaseSubmitFormProps) {
             </div>
             {selectedLibraries.length === 0 && (
               <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
-                <WarningCircle className="w-4 h-4" />
+                <WarningCircleIcon className="w-4 h-4" />
                 Select at least one library
               </p>
             )}

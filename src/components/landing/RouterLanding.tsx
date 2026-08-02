@@ -1,13 +1,13 @@
 import * as React from 'react'
 import {
-  ArrowRight,
-  BracketsCurly,
-  CheckCircle,
-  CursorClick,
-  Link as LinkIcon,
-  MagnifyingGlass,
-  Path,
-  TreeStructure,
+  ArrowRightIcon,
+  BracketsCurlyIcon,
+  CheckCircleIcon,
+  CursorClickIcon,
+  LinkIcon,
+  MagnifyingGlassIcon,
+  PathIcon,
+  TreeStructureIcon,
 } from '@phosphor-icons/react'
 import { Badge } from '~/ui/Badge'
 
@@ -61,19 +61,19 @@ const contractNodes = [
     detail: 'Navigation autocompletes against the route tree.',
   },
   {
-    icon: Path,
+    icon: PathIcon,
     label: 'Match',
     code: 'beforeLoad({ params })',
     detail: 'Path, search, and inherited context narrow together.',
   },
   {
-    icon: BracketsCurly,
+    icon: BracketsCurlyIcon,
     label: 'Load',
     code: 'loader({ deps })',
     detail: 'Typed dependencies start before the component renders.',
   },
   {
-    icon: CheckCircle,
+    icon: CheckCircleIcon,
     label: 'Render',
     code: 'Route.useLoaderData()',
     detail: 'The component receives the exact loader result.',
@@ -95,7 +95,7 @@ export default function RouterLanding() {
           <SearchStateLab />
           <LandingSectionIntro
             eyebrow="URL state"
-            icon={<MagnifyingGlass aria-hidden="true" size={15} />}
+            icon={<MagnifyingGlassIcon aria-hidden="true" size={15} />}
             title="The URL is a state manager, not a string bucket."
             body="Search params are parsed, validated, inherited, and typed. Filters, pagination, and tabs survive refreshes, back navigation, bookmarks, and shared links without hand-written serialization."
           />
@@ -106,7 +106,7 @@ export default function RouterLanding() {
         <div className="grid items-center gap-12 lg:grid-cols-[0.88fr_1.12fr] lg:gap-16">
           <LandingSectionIntro
             eyebrow="Preloading"
-            icon={<CursorClick aria-hidden="true" size={15} />}
+            icon={<CursorClickIcon aria-hidden="true" size={15} />}
             title="Navigation can begin before the click."
             body="Intent, viewport, and render strategies can preload route code and data. By the time navigation commits, the next screen can already be waiting."
           />
@@ -118,7 +118,7 @@ export default function RouterLanding() {
         <LandingSectionIntro
           centered
           eyebrow="One contract"
-          icon={<TreeStructure aria-hidden="true" size={15} />}
+          icon={<TreeStructureIcon aria-hidden="true" size={15} />}
           title="Types survive the whole trip."
           body="The destination, matched route, loader dependencies, and rendered data all derive from the same route definition. Refactors fail in the editor instead of after deployment."
         />
@@ -214,7 +214,7 @@ function RouteContractHero() {
             className="mt-4 inline-flex items-center gap-2 rounded-lg border border-[var(--landing-accent)] px-3 py-2 text-ds-label-sm text-[var(--landing-accent-bright)] transition-colors hover:bg-[color:rgb(var(--landing-glow)/0.14)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
             onClick={() => setUsesRefactoredParam((current) => !current)}
           >
-            <BracketsCurly aria-hidden="true" size={16} />
+            <BracketsCurlyIcon aria-hidden="true" size={16} />
             {usesRefactoredParam ? 'Restore param name' : 'Refactor param name'}
           </button>
         </div>
@@ -225,7 +225,7 @@ function RouteContractHero() {
               routeTree.gen.ts
             </p>
             <span className="inline-flex items-center gap-1.5 text-ds-body-xs text-text-primary/35">
-              <CheckCircle
+              <CheckCircleIcon
                 aria-hidden="true"
                 className="text-icon-success"
                 size={15}
@@ -364,7 +364,7 @@ function PreloadTrace() {
               Hover or focus to preload. Click to navigate.
             </span>
           </span>
-          <ArrowRight
+          <ArrowRightIcon
             aria-hidden="true"
             className="shrink-0 text-[var(--landing-accent-bright)] transition-transform group-hover:translate-x-1 motion-reduce:transition-none"
             size={22}

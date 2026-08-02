@@ -1,6 +1,11 @@
 import * as React from 'react'
 import { Link } from '@tanstack/react-router'
-import { ArrowRight, ArrowUpRight, Pause, Play } from '@phosphor-icons/react'
+import {
+  ArrowRightIcon,
+  ArrowUpRightIcon,
+  PauseIcon,
+  PlayIcon,
+} from '@phosphor-icons/react'
 
 import {
   ChartsCatalogChart,
@@ -157,11 +162,11 @@ export function CatalogChartsHero({
           }}
         >
           {reducedMotion ? (
-            <ArrowRight aria-hidden="true" className="size-4" />
+            <ArrowRightIcon aria-hidden="true" className="size-4" />
           ) : paused ? (
-            <Play aria-hidden="true" className="size-4 translate-x-px" />
+            <PlayIcon aria-hidden="true" className="size-4 translate-x-px" />
           ) : (
-            <Pause aria-hidden="true" className="size-4" />
+            <PauseIcon aria-hidden="true" className="size-4" />
           )}
         </button>
       </div>
@@ -227,7 +232,7 @@ function HeroChartTile({
             </div>
           ) : null}
         </div>
-        <ArrowUpRight
+        <ArrowUpRightIcon
           aria-hidden="true"
           className={`absolute right-4 top-4 size-5 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 motion-reduce:transition-none ${
             theme === 'dark' ? 'text-white/70' : 'text-[#071219]/60'
@@ -331,7 +336,7 @@ function CatalogChartCard({
             {catalogCase.family}
           </p>
         </div>
-        <ArrowUpRight
+        <ArrowUpRightIcon
           aria-hidden="true"
           className="size-4 shrink-0 opacity-55 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 motion-reduce:transition-none"
         />

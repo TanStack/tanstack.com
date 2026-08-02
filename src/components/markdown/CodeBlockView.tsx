@@ -55,6 +55,7 @@ export function CodeBlockView({
                     Code block copied to clipboard
                   </span>
                 </div>,
+                { id: 'code-copied' },
               )
             }}
             aria-label="Copy code to clipboard"

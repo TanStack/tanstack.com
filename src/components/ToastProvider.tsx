@@ -4,6 +4,7 @@ import { useTheme } from '~/components/ThemeProvider'
 
 type ToastOptions = {
   durationMs?: number
+  id?: number | string
 }
 
 type ToastContextValue = {
@@ -29,7 +30,10 @@ export function ToastProvider({
 
   const notify = React.useCallback(
     (content: React.ReactNode, options?: ToastOptions) => {
-      const id = toast(content, { duration: options?.durationMs ?? 2500 })
+      const id = toast(content, {
+        duration: options?.durationMs ?? 2500,
+        id: options?.id,
+      })
       return String(id)
     },
     [],

@@ -80,8 +80,10 @@ function IconographyPage() {
 
   const shown = filtered.slice(0, visible)
 
+  // The registry keys icons by their bare name, but `NameIcon` is the export
+  // callers actually import — copy and advertise that one.
   const handleCopy = React.useCallback(async (name: string) => {
-    await copyTextToClipboard(`<${name} />`)
+    await copyTextToClipboard(`<${name}Icon />`)
     setCopied(name)
     window.setTimeout(() => setCopied(null), 1200)
   }, [])
@@ -187,7 +189,7 @@ function IconographyPage() {
               key={name}
               type="button"
               onClick={() => handleCopy(name)}
-              title={`Copy <${name} />`}
+              title={`Copy <${name}Icon />`}
               className="group flex flex-col items-center gap-2.5 bg-background-default p-5 text-center transition-colors hover:bg-background-subtle"
             >
               <span className="flex h-12 items-center justify-center">

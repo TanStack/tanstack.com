@@ -9,17 +9,18 @@ import tailwindcss from '@tailwindcss/vite'
 import { cloudflare } from '@cloudflare/vite-plugin'
 import { analyzer } from 'vite-bundle-analyzer'
 import viteReact from '@vitejs/plugin-react'
+import { randomUUID } from 'node:crypto'
 import fs from 'node:fs'
-import { createRequire } from 'node:module'
 import os from 'node:os'
 import path from 'node:path'
+import { pathToFileURL } from 'node:url'
+import {
+  getImportFallbackRepoDirs,
+  localDocsDevPath,
+  localDocsDevTokenHeader,
+} from './src/utils/local-repo-path.server'
 
-const nodeRequire = createRequire(import.meta.url)
 const isDev = process.env.NODE_ENV !== 'production'
-const takumiWasmRuntimePath = path.join(
-  path.dirname(path.dirname(nodeRequire.resolve('@takumi-rs/wasm/no-bundler'))),
-  'bundlers/workerd.js',
-)
 const shouldUseRedact = process.env.DISABLE_REDACT !== 'true'
 const localRedactPackageRoot = process.env.LOCAL_REDACT_PACKAGE_ROOT
 const shouldUseSentryPlugin =
@@ -28,6 +29,7 @@ const shouldUseSentryPlugin =
 const shouldBuildSourcemaps =
   shouldUseSentryPlugin || process.env.BUILD_SOURCEMAPS === 'true'
 const SITE_URL = 'https://tanstack.com'
+const localDocsDevToken = isDev ? randomUUID() : ''
 
 const localEnvPath = path.resolve(__dirname, '.env.local')
 const defaultCheckoutEnvDir = path.join(os.homedir(), 'GitHub/tanstack.com')
@@ -37,19 +39,101 @@ const envDir =
     ? defaultCheckoutEnvDir
     : __dirname
 
-function edgeTakumiWasmImport(): PluginOption {
+function localDocsDevFiles(): PluginOption {
   return {
-    name: 'tanstack-edge-takumi-wasm-import',
-    enforce: 'pre',
-    transform(code, id) {
-      if (!id.includes('/node_modules/takumi-js/dist/render-')) return
+    name: 'tanstack-local-docs-files',
+    apply: 'serve',
+    configureServer(server) {
+      server.middlewares.use(async (request, response, next) => {
+        if (!request.url) return next()
 
-      return code.replace(
-        /import\(\s*\/\*\s*@vite-ignore\s*\*\/\s*['"]@takumi-rs\/wasm['"]\s*\)/g,
-        'import("@takumi-rs/wasm/no-bundler")',
-      )
+        const url = new URL(request.url, 'http://localhost')
+        if (url.pathname !== localDocsDevPath) return next()
+
+        if (
+          request.method !== 'GET' ||
+          request.headers[localDocsDevTokenHeader] !== localDocsDevToken
+        ) {
+          response.statusCode = 404
+          response.end()
+          return
+        }
+
+        const repo = url.searchParams.get('repo')
+        const filepath = url.searchParams.get('path')
+
+        if (
+          !repo ||
+          !/^[a-zA-Z0-9._-]+$/.test(repo) ||
+          !filepath ||
+          !isContainedRepoPath(filepath)
+        ) {
+          response.statusCode = 400
+          response.end()
+          return
+        }
+
+        const documentsModuleUrl = pathToFileURL(
+          path.join(server.config.root, 'src/utils/documents.server.ts'),
+        ).href
+        const repoDirs = Array.from(
+          new Set([
+            ...(process.env.TANSTACK_LOCAL_REPOS_DIR
+              ? [path.resolve(process.env.TANSTACK_LOCAL_REPOS_DIR, repo)]
+              : []),
+            path.resolve(os.homedir(), 'GitHub', repo),
+            ...getImportFallbackRepoDirs(documentsModuleUrl, repo),
+          ]),
+        )
+
+        const localFilePath = repoDirs
+          .map((repoDir) => ({
+            filepath: path.resolve(repoDir, filepath),
+            repoDir,
+          }))
+          .find(
+            (candidate) =>
+              isPathInside(candidate.repoDir, candidate.filepath) &&
+              fs.existsSync(candidate.filepath) &&
+              fs.statSync(candidate.filepath).isFile(),
+          )?.filepath
+
+        if (!localFilePath) {
+          response.statusCode = 404
+          response.end()
+          return
+        }
+
+        try {
+          const content = await fs.promises.readFile(localFilePath)
+          response.statusCode = 200
+          response.setHeader('Cache-Control', 'no-store')
+          response.setHeader('Content-Type', 'text/plain; charset=utf-8')
+          response.end(content)
+        } catch (error) {
+          next(error)
+        }
+      })
     },
   }
+}
+
+function isContainedRepoPath(filepath: string) {
+  const normalized = path.normalize(filepath)
+  return (
+    !normalized.startsWith('..') &&
+    !normalized.includes(`${path.sep}..${path.sep}`) &&
+    !path.isAbsolute(normalized)
+  )
+}
+
+function isPathInside(parent: string, child: string) {
+  const relativePath = path.relative(parent, child)
+  return (
+    relativePath !== '' &&
+    !relativePath.startsWith('..') &&
+    !path.isAbsolute(relativePath)
+  )
 }
 
 // Runtime-specific `react-dom/server` variants aren't in @tanstack/redact/vite's
@@ -82,7 +166,6 @@ const serverBundledClientPackages = [
   '@tanstack/react-hotkeys',
   '@tanstack/react-pacer',
   '@tanstack/react-table',
-  'lucide-react',
   'zustand',
   /^@fingerprintjs\//,
 ]
@@ -103,6 +186,7 @@ export default defineConfig({
   define: {
     __TANSTACK_ENABLE_SERVER_BUILDER_GENERATION__: JSON.stringify(true),
     __TANSTACK_ENABLE_IMAGE_TRANSFORMATIONS__: JSON.stringify(true),
+    __TANSTACK_LOCAL_DOCS_TOKEN__: JSON.stringify(localDocsDevToken),
     __TANSTACK_SITE_URL__: JSON.stringify(SITE_URL),
   },
   resolve: {
@@ -121,10 +205,6 @@ export default defineConfig({
       {
         find: 'unicorn-magic',
         replacement: 'unicorn-magic/node',
-      },
-      {
-        find: '@takumi-rs/wasm/auto',
-        replacement: takumiWasmRuntimePath,
       },
       ...(shouldUseRedact
         ? [
@@ -181,19 +261,14 @@ export default defineConfig({
       // CTA packages use execa which has a broken unicorn-magic dependency
       '@tanstack/create',
       'discord-interactions',
-      // OG image generation: takumi ships a native .node binary
-      '@takumi-rs/core',
-      '@takumi-rs/image-response',
-      '@takumi-rs/helpers',
-      'takumi-js',
       // Don't pre-bundle CLI so we always get fresh changes during dev
       ...(isDev ? ['@tanstack/cli'] : []),
-      // Lucide can resolve differently across Vite environments when combined
-      // with our React shim. Excluding it keeps resolution deterministic.
-      'lucide-react',
     ],
   },
   build: {
+    // The lazy iconography route intentionally ships the complete Phosphor
+    // registry so every icon can be browsed without follow-up requests.
+    chunkSizeWarningLimit: 4_000,
     minify: 'esbuild',
     sourcemap: shouldBuildSourcemaps,
     reportCompressedSize: false,
@@ -231,11 +306,6 @@ export default defineConfig({
 
           // Vendor chunk splitting for better caching
           if (id.includes('node_modules')) {
-            // Lucide icons (tree-shaken but still significant)
-            if (id.includes('lucide-react')) {
-              return 'icons'
-            }
-
             if (
               id.includes('node_modules/react-dom/') ||
               id.includes('node_modules/react/') ||
@@ -249,7 +319,7 @@ export default defineConfig({
     },
   },
   plugins: [
-    edgeTakumiWasmImport(),
+    localDocsDevFiles(),
     cloudflare({
       viteEnvironment: { name: 'ssr' },
     }),

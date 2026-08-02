@@ -79,7 +79,6 @@ export function getRouter() {
 declare module '@tanstack/react-router' {
   interface StaticDataRouteOption {
     baseParent?: boolean
-    Title?: () => any
     showNavbar?: boolean
     includeSearchInCanonical?: boolean
   }

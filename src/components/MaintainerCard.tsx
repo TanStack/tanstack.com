@@ -180,11 +180,25 @@ const MaintainerSocialIcons: Record<
   ),
 }
 
-function MaintainerSocialLinks({ maintainer }: { maintainer: Maintainer }) {
-  const links = Object.entries({
-    github: `https://github.com/${maintainer.github}`,
-    ...(maintainer.social || {}),
-  }).map(([key, value]) => {
+function MaintainerSocialLinks({
+  maintainer,
+  variant = 'default',
+}: {
+  maintainer: Maintainer
+  variant?: 'default' | 'card'
+}) {
+  const socialEntries =
+    variant === 'card'
+      ? [
+          ...Object.entries(maintainer.social || {}).slice(0, 2),
+          ['github', `https://github.com/${maintainer.github}`],
+        ]
+      : Object.entries({
+          github: `https://github.com/${maintainer.github}`,
+          ...(maintainer.social || {}),
+        })
+
+  const links = socialEntries.map(([key, value]) => {
     const Icon = MaintainerSocialIcons[key as keyof Maintainer['social']]
     return (
       <a
@@ -192,9 +206,13 @@ function MaintainerSocialLinks({ maintainer }: { maintainer: Maintainer }) {
         href={value}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label={key}
+        aria-label={`${maintainer.name} on ${key}`}
         onClick={(e) => e.stopPropagation()}
-        className="hover:text-gray-700 dark:hover:text-gray-200 transition-colors p-2 -mb-2 -ml-2 hover:grayscale-0 hover:scale-110"
+        className={
+          variant === 'card'
+            ? 'inline-flex size-6 items-center justify-center text-icon-muted transition-colors duration-200 hover:text-icon-default focus-visible:rounded-sm focus-visible:corner-squircle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus motion-reduce:transition-none [&_svg]:size-6'
+            : 'p-2 -mb-2 -ml-2 transition-colors hover:scale-110 hover:text-gray-700 hover:grayscale-0 dark:hover:text-gray-200'
+        }
       >
         {Icon}
       </a>
@@ -202,7 +220,13 @@ function MaintainerSocialLinks({ maintainer }: { maintainer: Maintainer }) {
   })
 
   return (
-    <div className="flex flex-wrap items-center gap-x-2 sm:gap-x-4 gap-y-2 text-gray-400 dark:text-gray-500  pt-1">
+    <div
+      className={
+        variant === 'card'
+          ? 'flex flex-wrap items-center justify-center gap-6'
+          : 'flex flex-wrap items-center gap-x-2 gap-y-2 pt-1 text-gray-400 sm:gap-x-4 dark:text-gray-500'
+      }
+    >
       {links}
     </div>
   )
@@ -368,17 +392,10 @@ export function MaintainerRowCard({
   )
 }
 
-export function MaintainerCard({
-  maintainer,
-  libraryId,
-  hideLibraries,
-}: MaintainerCardProps) {
-  const libraries = getPersonsMaintainerOf(maintainer)
-  const [showAllLibraries, setShowAllLibraries] = useState(false)
-
+export function MaintainerCard({ maintainer }: MaintainerCardProps) {
   return (
     <div
-      className="group bg-white dark:bg-gray-900 rounded-lg overflow-hidden shadow-xs border border-gray-200 dark:border-gray-800"
+      className="group flex w-full max-w-[252px] flex-col items-center rounded-[26px] corner-squircle p-1.5 transition-colors duration-200 hover:bg-[#f2f2f2] focus-within:bg-[#f2f2f2] active:bg-[#e5e5e5] motion-reduce:transition-none dark:hover:bg-[#262626] dark:focus-within:bg-[#262626] dark:active:bg-[#404040]"
       aria-label={`Maintainer card for ${maintainer.name}`}
     >
       <a
@@ -386,80 +403,25 @@ export function MaintainerCard({
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`View ${maintainer.name}'s GitHub profile`}
-        className="relative h-64 overflow-hidden block"
+        className="block aspect-square w-full overflow-hidden rounded-[22px] corner-squircle bg-[#d9d9d9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
         tabIndex={0}
       >
         <img
           alt={`Avatar of ${maintainer.name}`}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          className="h-full w-full object-cover"
           src={maintainer.avatar}
           loading="lazy"
           decoding="async"
-          style={{
-            aspectRatio: '1/1',
-            objectFit: 'cover',
-          }}
         />
-        <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        <div className="absolute inset-0 p-4 flex flex-col justify-end opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <div className="space-y-2">
-            {maintainer.frameworkExpertise &&
-              maintainer.frameworkExpertise.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {maintainer.frameworkExpertise.map((framework) => (
-                    <FrameworkChip key={framework} framework={framework} />
-                  ))}
-                </div>
-              )}
-            {maintainer.specialties && maintainer.specialties.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {maintainer.specialties.map((specialty) => (
-                  <SpecialtyChip key={specialty} specialty={specialty} />
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
       </a>
-      <div className="p-3 space-y-2">
-        <div className="flex items-center justify-between">
-          <span
-            className="text-base font-bold"
-            id={`maintainer-name-${maintainer.github}`}
-          >
-            {maintainer.name}
-          </span>
-          <div className="flex items-center gap-2">
-            {libraryId && (
-              <RoleBadge maintainer={maintainer} libraryId={libraryId} />
-            )}
-          </div>
-        </div>
-        {!hideLibraries && !libraryId && libraries.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 pt-1">
-            {libraries
-              .slice(0, showAllLibraries ? undefined : 2)
-              .map((library) => (
-                <LibraryBadge key={library.id} library={library} />
-              ))}
-            {!showAllLibraries && libraries.length > 2 && (
-              <button
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  setShowAllLibraries(true)
-                }}
-                className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
-                aria-label={`Show ${libraries.length - 2} more libraries`}
-                tabIndex={0}
-                type="button"
-              >
-                +{libraries.length - 2} more
-              </button>
-            )}
-          </div>
-        )}
-        <MaintainerSocialLinks maintainer={maintainer} />
+      <div className="flex w-full flex-col items-center gap-5 pb-[27px] pt-5">
+        <span
+          className="text-center font-ds-mono text-ds-mono-lg text-text-primary"
+          id={`maintainer-name-${maintainer.github}`}
+        >
+          {maintainer.name}
+        </span>
+        <MaintainerSocialLinks maintainer={maintainer} variant="card" />
       </div>
     </div>
   )

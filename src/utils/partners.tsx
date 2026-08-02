@@ -157,6 +157,16 @@ export const partnerTierFlares: Record<
   },
 }
 
+// Full-bleed tier band backgrounds (Figma 640:3878). Snapped to the nearest DS
+// palette tokens rather than the raw Figma literals so the bands stay in step
+// with the rest of the rebrand: gold→amber, silver→neutral, bronze→terracotta.
+// Labels sit in near-black (neutral-500) on every band, matching the design.
+export const partnerTierBandColor: Record<PartnerTier, string> = {
+  gold: 'bg-ds-amber-300',
+  silver: 'bg-ds-neutral-200',
+  bronze: 'bg-ds-terracotta-400',
+}
+
 export function PartnerImage({
   className,
   config,

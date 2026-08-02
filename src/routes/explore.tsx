@@ -1,4 +1,4 @@
-import { ClientOnly, Link, createFileRoute } from '@tanstack/react-router'
+import { ClientOnly, createFileRoute } from '@tanstack/react-router'
 import { lazy, Suspense } from 'react'
 
 // Lazy load the entire game to keep it out of main bundle
@@ -21,18 +21,6 @@ export const Route = createFileRoute('/explore')({
       },
     ],
   }),
-  staticData: {
-    Title: () => {
-      return (
-        <Link
-          to="."
-          className="hover:text-blue-500 flex items-center gap-2 text-gray-500"
-        >
-          Explore
-        </Link>
-      )
-    },
-  },
 })
 
 // Loading screen while game JS bundle loads

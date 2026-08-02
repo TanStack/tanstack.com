@@ -8,7 +8,7 @@ import {
 } from '@tanstack/react-router'
 import { useSuspenseQuery, useQuery } from '@tanstack/react-query'
 import * as v from 'valibot'
-import { Copy, Check } from 'lucide-react'
+import { Copy, Check } from '@phosphor-icons/react'
 import { Collapsible, CollapsibleContent } from '~/components/Collapsible'
 import { seo } from '~/utils/seo'
 import {
@@ -508,7 +508,7 @@ function MobileSkillsDrawer({
       </button>
       <Collapsible open={open}>
         <CollapsibleContent>
-          <div className="px-4 pb-4 max-h-64 overflow-y-auto">
+          <div className="fade-y fade-size-y-sm max-h-64 overflow-y-auto px-4 pb-4">
             <SkillsNav
               skills={skills}
               packageName={packageName}

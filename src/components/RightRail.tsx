@@ -77,7 +77,7 @@ export function RightRail({
           innerBreakpointClass,
           stickyTopClass,
           stickyMaxHeightClass,
-          'ml-auto flex flex-col gap-4 pb-4 max-w-full overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [&>*]:shrink-0',
+          'fade-y fade-size-y-sm ml-auto flex max-w-full flex-col gap-4 overflow-y-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [&>*]:shrink-0',
         )}
       >
         {children}

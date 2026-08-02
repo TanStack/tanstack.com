@@ -8,6 +8,10 @@ import {
 } from './og-limits'
 import { SITE_URL } from './site'
 
+// Bump when the renderer or its brand assets change so CDNs and social
+// platforms do not reuse an image cached under the previous template.
+const OG_IMAGE_VERSION = '2'
+
 type OgImageOptions = {
   title?: string | null
   description?: string | null
@@ -54,6 +58,7 @@ export function ogImageUrl(
   // Clamp client-side to the same limits as the server-side generator so
   // <meta og:image> URLs stay bounded and CDN cache keys stay stable.
   const params = new URLSearchParams()
+  params.set('v', OG_IMAGE_VERSION)
   if (options.title) {
     params.set('title', clampOgText(options.title, MAX_OG_TITLE_LENGTH))
   }

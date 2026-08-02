@@ -24,6 +24,8 @@ function redirectToStaticLanding(libraryId: string, version: string) {
   switch (libraryId) {
     case 'ai':
       throw redirect({ to: '/ai/$version', params: { version } })
+    case 'charts':
+      throw redirect({ to: '/charts/$version', params: { version } })
     case 'cli':
       throw redirect({ to: '/cli/$version', params: { version } })
     case 'config':

@@ -3,6 +3,7 @@ export const libraryIds = [
   'router',
   'query',
   'table',
+  'charts',
   'form',
   'virtual',
   'ranger',

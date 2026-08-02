@@ -10,7 +10,13 @@
 
 import { useState, useMemo } from 'react'
 import { twMerge } from 'tailwind-merge'
-import { Star, ExternalLink, ChevronDown, Sparkles, X } from 'lucide-react'
+import {
+  Star,
+  ArrowSquareOut,
+  CaretDown,
+  Sparkle,
+  X,
+} from '@phosphor-icons/react'
 import { matchSorter } from 'match-sorter'
 import {
   useBuilderStore,
@@ -340,7 +346,7 @@ function FeatureSection({
             {description}
           </p>
         </div>
-        <ChevronDown
+        <CaretDown
           className={twMerge(
             'w-4 h-4 text-gray-400 transition-transform duration-200',
             effectiveOpen && 'rotate-180',
@@ -461,7 +467,7 @@ function FeatureCard({ feature, categoryColor }: FeatureCardProps) {
               onClick={handleLinkClick}
               className="p-0.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
             >
-              <ExternalLink className="w-3.5 h-3.5" />
+              <ArrowSquareOut className="w-3.5 h-3.5" />
             </a>
           )}
         </div>
@@ -576,7 +582,7 @@ function ExamplePicker() {
             Start with a complete demo app
           </p>
         </div>
-        <ChevronDown
+        <CaretDown
           className={twMerge(
             'w-4 h-4 text-gray-400 transition-transform duration-200',
             isOpen && 'rotate-180',
@@ -611,7 +617,7 @@ function ExamplePicker() {
                       : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400',
                   )}
                 >
-                  <Sparkles className="w-4 h-4" />
+                  <Sparkle className="w-4 h-4" />
                 </div>
 
                 {/* Content */}

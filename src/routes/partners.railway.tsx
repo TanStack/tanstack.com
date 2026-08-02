@@ -3,17 +3,17 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import {
   ArrowUpRight,
   Check,
-  DollarSign,
+  CurrencyDollar as DollarSign,
   GitPullRequest,
   Globe,
   Infinity as InfinityIcon,
-  LineChart,
+  ChartLine as LineChart,
   Network,
   Plus,
   Rocket,
   ShieldCheck,
-  Undo2,
-} from 'lucide-react'
+  ArrowUUpLeft as Undo2,
+} from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { Footer } from '~/components/Footer'
 import { Card } from '~/components/Card'

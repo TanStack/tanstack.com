@@ -1,4 +1,4 @@
-import { Link, redirect } from '@tanstack/react-router'
+import { redirect } from '@tanstack/react-router'
 import type { QueryClient } from '@tanstack/react-query'
 import { getLibrary } from '~/libraries'
 import type { LibraryId } from '~/libraries'
@@ -42,11 +42,17 @@ export async function loadLibraryLandingRouteData(
   config: ConfigSchema
 }> {
   const library = getLibrary(libraryId)
-  const [config] = await Promise.all([
-    queryClient.ensureQueryData(docsConfigQueryOptions(libraryId, version)),
-    queryClient.ensureQueryData(ossStatsQuery({ library })),
-    queryClient.ensureQueryData(recentDownloadsQuery({ library })),
-  ])
+  const configPromise = queryClient.ensureQueryData(
+    docsConfigQueryOptions(libraryId, version),
+  )
+  const statsPromise =
+    library.statsAvailable === false
+      ? Promise.resolve()
+      : Promise.all([
+          queryClient.ensureQueryData(ossStatsQuery({ library })),
+          queryClient.ensureQueryData(recentDownloadsQuery({ library })),
+        ]).then(() => undefined)
+  const [config] = await Promise.all([configPromise, statsPromise])
 
   return {
     config,
@@ -70,24 +76,4 @@ export function getLibraryLandingHeaders(libraryId: LandingLibraryId) {
   return stackBlitzLandingLibraryIds.has(libraryId)
     ? stackBlitzEmbedHeaders
     : {}
-}
-
-export function LibraryNavbarTitle({
-  libraryId,
-}: {
-  libraryId: LandingLibraryId
-}) {
-  const library = getLibrary(libraryId)
-  const libraryName = library.name.replace('TanStack ', '')
-  const gradientText = `inline-block text-transparent bg-clip-text bg-linear-to-r ${library.colorFrom} ${library.colorTo}`
-
-  return (
-    <Link
-      to="/$libraryId"
-      params={{ libraryId: library.id }}
-      className="whitespace-nowrap"
-    >
-      <span className={gradientText}>{libraryName}</span>
-    </Link>
-  )
 }

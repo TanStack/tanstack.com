@@ -23,7 +23,7 @@ import {
 } from '~/utils/stats-admin.functions'
 import { formatDistanceToNow } from '~/utils/dates'
 import { GithubIcon } from '~/components/icons/GithubIcon'
-import { Box, RefreshCw, Star, Users } from 'lucide-react'
+import { Package, ArrowsClockwise, Star, Users } from '@phosphor-icons/react'
 import { Card } from '~/components/Card'
 import { Button } from '~/ui'
 
@@ -170,7 +170,7 @@ function GitHubStatsAdmin() {
           return (
             <div>
               <div className="flex items-center gap-2">
-                <Box className="text-purple-500" />
+                <Package className="text-purple-500" />
                 <span className="font-semibold text-gray-900 dark:text-white">
                   {entry.stats.dependentCount.toLocaleString()}
                 </span>
@@ -292,7 +292,7 @@ function GitHubStatsAdmin() {
               }}
               disabled={isRefreshing || refreshAllMutation.isPending}
             >
-              <RefreshCw className={isRefreshing ? 'animate-spin' : ''} />
+              <ArrowsClockwise className={isRefreshing ? 'animate-spin' : ''} />
               Refresh
             </Button>
           )
@@ -330,7 +330,7 @@ function GitHubStatsAdmin() {
             onClick={() => refreshAllMutation.mutate()}
             disabled={refreshAllMutation.isPending || refreshingKey !== null}
           >
-            <RefreshCw
+            <ArrowsClockwise
               className={refreshAllMutation.isPending ? 'animate-spin' : ''}
             />
             Refresh All

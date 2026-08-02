@@ -1,4 +1,4 @@
-import { Download, List } from 'lucide-react'
+import { Download, List } from '@phosphor-icons/react'
 import { Tooltip } from '~/components/Tooltip'
 
 const disabledChartActionButtonStyles =

@@ -2,7 +2,13 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { Card } from '~/components/Card'
 import { seo } from '~/utils/seo'
-import { Shield, Sprout, Layers, Handshake, FileText } from 'lucide-react'
+import {
+  Shield,
+  Plant,
+  Stack,
+  Handshake,
+  FileText,
+} from '@phosphor-icons/react'
 
 export const Route = createFileRoute('/ethos')({
   component: RouteComp,
@@ -35,7 +41,7 @@ const sections = [
   },
   {
     title: 'A Sustainable Future',
-    icon: Sprout,
+    icon: Plant,
     gradient: 'from-lime-500 to-green-500',
     borderColor: 'hover:border-lime-500/50',
     content: (
@@ -67,7 +73,7 @@ const sections = [
   },
   {
     title: 'Technology-Agnostic by Default',
-    icon: Layers,
+    icon: Stack,
     gradient: 'from-sky-500 to-indigo-500',
     borderColor: 'hover:border-sky-500/50',
     content: (

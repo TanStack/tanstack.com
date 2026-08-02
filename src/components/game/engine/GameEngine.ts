@@ -29,7 +29,7 @@ import {
 } from '../utils/islandGenerator'
 import { generateRockColliders } from '../utils/collision'
 import { generateCoins, generateExpandedCoins } from '../utils/coinGenerator'
-import { libraries } from '~/libraries'
+import { publicLibraries } from '~/libraries'
 import { partners } from '~/utils/partners'
 import { fetchGameShowcases } from '../utils/showcases'
 
@@ -338,7 +338,7 @@ export class GameEngine {
 
     if (state.islands.length === 0) {
       // Generate islands
-      const generatedIslands = generateIslands(libraries)
+      const generatedIslands = generateIslands(publicLibraries)
       state.setIslands(generatedIslands)
 
       // Generate rock colliders

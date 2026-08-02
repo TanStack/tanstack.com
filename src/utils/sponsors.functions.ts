@@ -24,7 +24,7 @@ export type Sponsor = {
   createdAt: string
 }
 
-type DisplaySponsor = {
+export type OssSponsor = {
   linkUrl: string
   login: string
   imageUrl: string
@@ -34,9 +34,9 @@ type DisplaySponsor = {
 
 const sponsorMaintainerLogin = 'tannerlinsley'
 
-export const getSponsorsForSponsorPack = createServerFn({
+export const getOssSponsors = createServerFn({
   method: 'GET',
-}).handler(async (): Promise<Array<DisplaySponsor>> => {
+}).handler(async (): Promise<Array<OssSponsor>> => {
   const sponsors = await fetchCached({
     key: 'sponsors',
     ttl: 60 * 1000,
@@ -51,8 +51,13 @@ export const getSponsorsForSponsorPack = createServerFn({
     }),
   )
 
-  const amountExtent = extent(sponsors, (d) => d.amount) as [number, number]
-  const scale = scaleLinear().domain(amountExtent).range([0, 1])
+  const [minimumAmount = 0, maximumAmount = 0] = extent(
+    sponsors,
+    (sponsor) => sponsor.amount,
+  )
+  const scale = scaleLinear()
+    .domain([minimumAmount, maximumAmount])
+    .range([0, 1])
 
   return sponsors
     .filter((d) => !d.private)

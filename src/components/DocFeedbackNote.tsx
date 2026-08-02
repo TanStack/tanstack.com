@@ -8,14 +8,14 @@ import {
 } from '~/utils/docFeedback.functions'
 import type { DocFeedback } from '~/db/types'
 import {
-  ChevronDown,
-  ChevronUp,
+  CaretDown,
+  CaretUp,
   Lightbulb,
-  MessageSquare,
-  Save,
+  ChatCentered,
+  FloppyDisk,
   Trash,
   X,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 
 interface DocFeedbackNoteProps {
   note: DocFeedback
@@ -52,7 +52,7 @@ export function DocFeedbackNote({
 
   // Theme based on type
   const isImprovement = note.type === 'improvement'
-  const Icon = isImprovement ? Lightbulb : MessageSquare
+  const Icon = isImprovement ? Lightbulb : ChatCentered
   const colors = isImprovement
     ? {
         bg: 'bg-yellow-50 dark:bg-yellow-900/20',
@@ -419,9 +419,9 @@ export function DocFeedbackNote({
                 }
               >
                 {note.isCollapsed ? (
-                  <ChevronDown className="text-xs" />
+                  <CaretDown className="text-xs" />
                 ) : (
-                  <ChevronUp className="text-xs" />
+                  <CaretUp className="text-xs" />
                 )}
               </button>
             </div>
@@ -469,7 +469,7 @@ export function DocFeedbackNote({
                   )}
                   disabled={isSaving}
                 >
-                  <Save className="text-[10px]" />
+                  <FloppyDisk className="text-[10px]" />
                   {isSaving ? 'Saving...' : 'Save'}
                 </button>
                 <button

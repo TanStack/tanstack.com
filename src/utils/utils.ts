@@ -218,8 +218,8 @@ export async function logTime<T>(
 }
 
 export const THEME_COLORS = {
-  light: '#f9fafb', // Tailwind gray-50
-  dark: '#101828', // Tailwind gray-900
+  light: '#eeebd4',
+  dark: '#111111',
 } as const
 
 export type ThemeColor = keyof typeof THEME_COLORS

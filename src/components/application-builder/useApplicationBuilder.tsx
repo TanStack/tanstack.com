@@ -102,7 +102,9 @@ export function useApplicationBuilder({
     () => getApplicationStarterPartnerSuggestions(partnerPlacementContext),
     [partnerPlacementContext],
   )
-  const [input, setInput] = React.useState(() => suggestions[0]?.input ?? '')
+  // Start empty so the prompt field shows the rotating suggestion placeholder;
+  // the user types their own, dictates, or accepts a suggestion via Shift+Enter.
+  const [input, setInput] = React.useState('')
   const [hasRevealedOptions, setHasRevealedOptions] = React.useState(
     revealOptionsImmediately,
   )
@@ -233,7 +235,9 @@ export function useApplicationBuilder({
     migrationRepositoryUrl,
   )
   const showMigrationRepositoryInput =
-    isNextJsMigrationInput(input) || normalizedMigrationRepositoryUrl.length > 0
+    context !== 'home' &&
+    (isNextJsMigrationInput(input) ||
+      normalizedMigrationRepositoryUrl.length > 0)
   const hasMigrationRepositoryUrlError =
     normalizedMigrationRepositoryUrl.length > 0 &&
     !isValidMigrationRepositoryUrl(normalizedMigrationRepositoryUrl)
@@ -942,13 +946,45 @@ export function useApplicationBuilder({
     [invalidateResult, markUserEditedStarter],
   )
 
-  const submitCurrentInput = React.useCallback(async () => {
-    if (!input.trim()) {
-      return
-    }
+  const submitCurrentInput = React.useCallback(
+    // `overrideInput` lets callers submit a value that isn't in state yet (e.g.
+    // accepting the rotating placeholder via Shift+Enter) without a state race.
+    async (overrideInput?: string) => {
+      const value = overrideInput ?? input
+      if (!value.trim()) {
+        return
+      }
 
-    setHasRevealedOptions(true)
-  }, [input])
+      if (overrideInput !== undefined && overrideInput !== input) {
+        markInputDirty()
+        setInput(overrideInput)
+      }
+
+      setHasRevealedOptions(true)
+    },
+    [input, markInputDirty],
+  )
+
+  const resetBuilder = React.useCallback(() => {
+    latestRequestIdRef.current += 1
+    hasUserEditedStarterRef.current = false
+    sessionContextRef.current = defaultBuilderSessionContext
+    setInput('')
+    setHasRevealedOptions(revealOptionsImmediately)
+    setResult(null)
+    setCopiedKind(null)
+    setShowPromptCopyNotice(false)
+    setDeployDialogProvider(null)
+    setIsDeployDialogOpen(false)
+    setIsDirtySinceLastResult(false)
+    setIsRebuildingResult(false)
+    setMigrationRepositoryUrl('')
+    setExplicitLibrarySelections({})
+    setExplicitPartnerSelections({})
+    setSelectedPackageManager(undefined)
+    setSelectedToolchain(undefined)
+    onResolvedResult?.(null)
+  }, [onResolvedResult, revealOptionsImmediately])
 
   return {
     copiedKind,
@@ -979,6 +1015,7 @@ export function useApplicationBuilder({
     partnerSuggestions: visiblePartnerSuggestions,
     promptCopyNotice: showPromptCopyNotice,
     result,
+    resetBuilder,
     selectSuggestion,
     selectedPackageManager,
     selectedLibraries,

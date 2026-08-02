@@ -1,4 +1,4 @@
-import { User } from 'lucide-react'
+import { User } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 
 type UserAvatarProps = {

@@ -1,8 +1,12 @@
-import { GitBranch, RotateCcw, ShieldCheck } from 'lucide-react'
+import {
+  GitBranch,
+  ArrowCounterClockwise,
+  ShieldCheck,
+} from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { workflow } from './libraries'
 
-const textStyles = 'text-blue-900 dark:text-blue-400'
+const textStyles = 'text-category-tooling'
 
 export const workflowProject = {
   ...workflow,
@@ -39,7 +43,7 @@ export const workflowProject = {
     },
     {
       title: 'Retries & Recovery',
-      icon: <RotateCcw className={twMerge(textStyles)} />,
+      icon: <ArrowCounterClockwise className={twMerge(textStyles)} />,
       description: (
         <div>
           Configure retries, backoff, and recovery behavior close to the work

@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Download, RefreshCw } from 'lucide-react'
+import { Download, ArrowsClockwise as RefreshCw } from '@phosphor-icons/react'
 import { Card } from '~/components/Card'
 import { NpmIcon } from '~/components/icons/NpmIcon'
 import { homepageNpmStatsSummaryQuery } from '~/queries/stats'

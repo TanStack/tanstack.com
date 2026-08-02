@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useGameStore } from '../hooks/useGameStore'
 import { getUpgradeTier, hasUnlock, type UpgradeType } from '../utils/upgrades'
-import { RotateCcw } from 'lucide-react'
+import { ArrowCounterClockwise } from '@phosphor-icons/react'
 
 // Convert number to roman numeral
 function toRoman(num: number): string {
@@ -162,7 +162,7 @@ export function StatsHUD() {
             onClick={() => setShowConfirm(true)}
             className="w-full flex items-center justify-center gap-1.5 text-[10px] text-white/30 hover:text-white/60 transition-colors"
           >
-            <RotateCcw className="w-3 h-3" />
+            <ArrowCounterClockwise className="w-3 h-3" />
             <span>Reset</span>
           </button>
         ) : (

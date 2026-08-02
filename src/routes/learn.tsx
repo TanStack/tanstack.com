@@ -1,8 +1,14 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
-import { Users, Video, MapPin, Star, Play } from 'lucide-react'
+import {
+  Users,
+  Video,
+  MapPin,
+  Star,
+  Play,
+  CheckCircle,
+} from '@phosphor-icons/react'
 import { LogoQueryGG } from '~/ui'
-import { CheckCircleIcon } from '~/components/icons/CheckCircleIcon'
 import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
 
 export const Route = createFileRoute('/learn')({
@@ -134,13 +140,13 @@ function LearnPage() {
               <div className="grid max-w-(--breakpoint-lg) mx-auto text-xs gap-2 text-left">
                 <div className="flex items-start gap-2">
                   <span className="text-lg text-green-500">
-                    <CheckCircleIcon />
+                    <CheckCircle />
                   </span>
                   <div>Save time by learning with a guided approach</div>
                 </div>
                 <div className="flex items-start gap-2">
                   <span className="text-lg text-green-500">
-                    <CheckCircleIcon />
+                    <CheckCircle />
                   </span>
                   <div>
                     Get hands-on experience building a real-world application
@@ -148,7 +154,7 @@ function LearnPage() {
                 </div>
                 <div className="flex items-start gap-2">
                   <span className="text-lg text-green-500">
-                    <CheckCircleIcon />
+                    <CheckCircle />
                   </span>
                   <div>Never worry about data fetching again</div>
                 </div>

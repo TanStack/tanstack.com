@@ -3,6 +3,7 @@ import { findLibrary } from '~/libraries'
 
 export type LandingLibraryId =
   | 'ai'
+  | 'charts'
   | 'cli'
   | 'config'
   | 'db'

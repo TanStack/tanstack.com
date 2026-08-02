@@ -20,6 +20,7 @@ import { StatsHUD } from './ui/StatsHUD'
 import { GameMachineProvider } from './machines/GameMachineProvider'
 import { ProgressionSync } from './machines/ProgressionSync'
 import { BadgeOverlay } from './ui/BadgeOverlay'
+import { useGamePersistence } from './hooks/useGameStore'
 
 const LOADING_MESSAGES = [
   ['Convincing the waves to behave...', 'They never listen'],
@@ -58,6 +59,7 @@ function LoadingOverlay() {
 
 export default function IslandExplorer() {
   const [isLoading, setIsLoading] = useState(true)
+  useGamePersistence()
 
   return (
     <GameMachineProvider>

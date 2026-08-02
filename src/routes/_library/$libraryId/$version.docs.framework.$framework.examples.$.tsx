@@ -18,7 +18,7 @@ import { capitalize, slugToTitle } from '~/utils/utils'
 import * as v from 'valibot'
 import { CodeExplorer } from '~/components/CodeExplorer'
 import type { GitHubFileNode } from '~/utils/documents.server'
-import { ExternalLink } from 'lucide-react'
+import { ArrowSquareOut } from '@phosphor-icons/react'
 import {
   ExampleDeployDialog,
   type DeployProvider,
@@ -412,7 +412,7 @@ function PageComponent() {
               className="flex gap-1 items-center"
               rel="noreferrer"
             >
-              <ExternalLink /> GitHub
+              <ArrowSquareOut /> GitHub
             </a>
             {!library.hideStackblitzUrl ? (
               <a
@@ -421,7 +421,7 @@ function PageComponent() {
                 className="flex gap-1 items-center"
                 rel="noreferrer"
               >
-                <ExternalLink /> StackBlitz
+                <ArrowSquareOut /> StackBlitz
               </a>
             ) : null}
             {!library.hideCodesandboxUrl ? (
@@ -431,7 +431,7 @@ function PageComponent() {
                 className="flex gap-1 items-center"
                 rel="noreferrer"
               >
-                <ExternalLink /> CodeSandbox
+                <ArrowSquareOut /> CodeSandbox
               </a>
             ) : null}
           </div>
@@ -487,7 +487,13 @@ function determineStartingFilePath(
   const preferenceFiles = new Set([
     getExampleStartingFileName(framework, libraryId),
     ...['__root', 'App', 'main', 'index', 'page', 'action']
-      .map((name) => [`${name}.tsx`, `${name}.ts`, `${name}.js`, `${name}.jsx`])
+      .map((name) => [
+        `${name}.tsrx`,
+        `${name}.tsx`,
+        `${name}.ts`,
+        `${name}.js`,
+        `${name}.jsx`,
+      ])
       .flat(),
     'README.md',
   ])

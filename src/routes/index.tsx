@@ -84,7 +84,7 @@ function Index() {
                 <span className="underline decoration-from-font underline-offset-[6px]">
                   open source
                 </span>
-                <br className="hidden md:block" /> the application stack
+                <br className="hidden md:block" /> application stack
                 <br className="hidden md:block" /> for the web
               </h1>
               <div className="flex flex-col items-start gap-6 md:w-[29%] md:max-w-[454px]">

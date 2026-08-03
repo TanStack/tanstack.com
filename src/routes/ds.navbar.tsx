@@ -1,14 +1,14 @@
 import * as React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import {
-  Moon,
-  ShoppingCart,
-  MagnifyingGlass,
-  List,
-  Sparkle,
-  Lifebuoy,
-  Users,
-  Path,
+  MoonIcon,
+  ShoppingCartIcon,
+  MagnifyingGlassIcon,
+  ListIcon,
+  SparkleIcon,
+  LifebuoyIcon,
+  UsersIcon,
+  PathIcon,
 } from '@phosphor-icons/react'
 import { seo } from '~/utils/seo'
 import { DsPage, DsSection } from '~/components/ds/DsKit'
@@ -114,11 +114,11 @@ function NavbarAnatomy() {
         <GithubIcon className="hidden h-4 w-4 @min-[1120px]:block" />
         <DiscordIcon className="hidden h-4 w-4 @min-[1120px]:block" />
         <span className="hidden h-4 w-px bg-gray-500/20 @min-[1120px]:block" />
-        <Moon className="h-[18px] w-[18px]" />
-        <ShoppingCart className="h-[18px] w-[18px]" />
-        <MagnifyingGlass className="h-[18px] w-[18px]" />
+        <MoonIcon className="h-[18px] w-[18px]" />
+        <ShoppingCartIcon className="h-[18px] w-[18px]" />
+        <MagnifyingGlassIcon className="h-[18px] w-[18px]" />
         <span className="inline-flex items-center gap-1 rounded-md border border-gray-500/25 px-1.5 py-1 text-[11px] font-semibold text-gray-700 dark:text-gray-200">
-          <Sparkle className="h-3 w-3" weight="fill" />
+          <SparkleIcon className="h-3 w-3" weight="fill" />
           AI
         </span>
         {/* Log In — desktop only (≥ 900px) */}
@@ -126,7 +126,7 @@ function NavbarAnatomy() {
           Log In
         </span>
         {/* Hamburger — mobile only (< 900px) */}
-        <List className="h-5 w-5 @min-[900px]:hidden" />
+        <ListIcon className="h-5 w-5 @min-[900px]:hidden" />
       </div>
     </div>
   )
@@ -287,19 +287,19 @@ function NavbarPage() {
         <div className="flex justify-center rounded-xl border border-border-default bg-background-subtle p-6 sm:p-8">
           <div className="flex w-max flex-col gap-2 rounded-xl border border-border-default bg-background-surface p-2 shadow-sm">
             <MegaMenuItem
-              icon={Lifebuoy}
+              icon={LifebuoyIcon}
               title="Support Overview"
               description="Find the right support path."
               to="/ds/navbar"
             />
             <MegaMenuItem
-              icon={Users}
+              icon={UsersIcon}
               title="Enterprise Support"
               description="Private consulting and expert support."
               to="/ds/navbar"
             />
             <MegaMenuItem
-              icon={Path}
+              icon={PathIcon}
               title="Migration guides"
               description="Move from other libraries with confidence."
               to="/ds/navbar"

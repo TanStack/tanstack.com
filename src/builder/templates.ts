@@ -7,16 +7,16 @@
 
 import type { Icon } from '@phosphor-icons/react'
 import {
-  Rocket,
-  Robot,
-  SquaresFour,
-  FileText,
-  HardDrives,
-  Radio,
-  Globe,
-  HardDrive,
-  Plus,
-  ShoppingBag,
+  RocketIcon,
+  RobotIcon,
+  SquaresFourIcon,
+  FileTextIcon,
+  HardDrivesIcon,
+  RadioIcon,
+  GlobeIcon,
+  HardDriveIcon,
+  PlusIcon,
+  ShoppingBagIcon,
 } from '@phosphor-icons/react'
 
 export interface Template {
@@ -39,7 +39,7 @@ export const TEMPLATES: Array<Template> = [
     id: 'blank',
     name: 'Blank',
     description: 'Start from scratch',
-    icon: Plus,
+    icon: PlusIcon,
     color: '#6B7280', // gray
     features: ['cloudflare'],
   },
@@ -47,7 +47,7 @@ export const TEMPLATES: Array<Template> = [
     id: 'saas',
     name: 'SaaS Starter',
     description: 'Auth, database, and UI',
-    icon: Rocket,
+    icon: RocketIcon,
     color: '#F97316', // orange
     features: ['cloudflare', 'better-auth', 'prisma', 'shadcn', 'form'],
   },
@@ -55,7 +55,7 @@ export const TEMPLATES: Array<Template> = [
     id: 'ai-chat',
     name: 'AI Chat',
     description: 'LLM-powered app',
-    icon: Robot,
+    icon: RobotIcon,
     color: '#8B5CF6', // violet
     features: ['cloudflare', 'ai', 'store', 'shadcn'],
   },
@@ -63,7 +63,7 @@ export const TEMPLATES: Array<Template> = [
     id: 'dashboard',
     name: 'Dashboard',
     description: 'Admin panels, data tables',
-    icon: SquaresFour,
+    icon: SquaresFourIcon,
     color: '#3B82F6', // blue
     features: ['cloudflare', 'table', 'tanstack-query', 'shadcn', 'form'],
   },
@@ -71,7 +71,7 @@ export const TEMPLATES: Array<Template> = [
     id: 'blog',
     name: 'Blog / CMS',
     description: 'Content-driven site',
-    icon: FileText,
+    icon: FileTextIcon,
     color: '#EC4899', // pink
     features: ['cloudflare', 'tanstack-query'],
   },
@@ -79,7 +79,7 @@ export const TEMPLATES: Array<Template> = [
     id: 'api-first',
     name: 'API-First',
     description: 'Type-safe backend APIs',
-    icon: HardDrives,
+    icon: HardDrivesIcon,
     color: '#10B981', // emerald
     features: ['cloudflare', 'tRPC', 'tanstack-query', 'drizzle'],
   },
@@ -87,7 +87,7 @@ export const TEMPLATES: Array<Template> = [
     id: 'realtime',
     name: 'Realtime',
     description: 'Live, collaborative features',
-    icon: Radio,
+    icon: RadioIcon,
     color: '#EF4444', // red
     features: ['cloudflare', 'db', 'tanstack-query'],
   },
@@ -95,7 +95,7 @@ export const TEMPLATES: Array<Template> = [
     id: 'i18n',
     name: 'Multi-Language',
     description: 'Internationalized app',
-    icon: Globe,
+    icon: GlobeIcon,
     color: '#06B6D4', // cyan
     features: ['cloudflare', 'paraglide', 'shadcn'],
   },
@@ -103,7 +103,7 @@ export const TEMPLATES: Array<Template> = [
     id: 'local-first',
     name: 'Local-First',
     description: 'Offline-capable, sync-enabled',
-    icon: HardDrive,
+    icon: HardDriveIcon,
     color: '#F59E0B', // amber
     features: ['cloudflare', 'db', 'tanstack-query', 'store'],
   },
@@ -111,7 +111,7 @@ export const TEMPLATES: Array<Template> = [
     id: 'storefront',
     name: 'Storefront',
     description: 'Sell products with Shopify',
-    icon: ShoppingBag,
+    icon: ShoppingBagIcon,
     color: '#5A31F4', // Shopify purple
     features: ['cloudflare'],
     exampleId: 'shopify-storefront',

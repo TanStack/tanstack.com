@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { Hydrate } from '@tanstack/react-start'
 import { visible } from '@tanstack/react-start/hydration'
-import { ArrowRight } from '@phosphor-icons/react'
+import { ArrowRightIcon } from '@phosphor-icons/react'
 import { Button } from '~/components/ds/ui'
 import { OssSponsorsWithQuery } from '~/components/OssSponsorsSection'
 import { PartnersGrid, TierBand } from '~/components/PartnersGrid'
@@ -35,7 +35,7 @@ function OssSponsorsBand() {
         <div className="mt-6 flex justify-center">
           <Button as="a" href="https://github.com/sponsors/tannerlinsley">
             Become a Sponsor
-            <ArrowRight className="h-4 w-4" />
+            <ArrowRightIcon className="h-4 w-4" />
           </Button>
         </div>
       </div>
@@ -64,7 +64,7 @@ export function PartnersSponsorsContent({
         <Link to="/partners" search={{ status: 'inactive' }}>
           <Button as="span" variant="subtle-link" color="gray">
             View Previous Partners
-            <ArrowRight />
+            <ArrowRightIcon />
           </Button>
         </Link>
       </div>

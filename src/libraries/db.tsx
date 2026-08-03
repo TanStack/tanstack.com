@@ -1,4 +1,4 @@
-import { Stack, Lightning, Gear } from '@phosphor-icons/react'
+import { StackIcon, LightningIcon, GearIcon } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { db } from './libraries'
 
@@ -12,7 +12,7 @@ export const dbProject = {
   featureHighlights: [
     {
       title: 'Collections',
-      icon: <Stack className={twMerge(textStyles)} />,
+      icon: <StackIcon className={twMerge(textStyles)} />,
       description: (
         <div>
           Collections are typed sets of objects. Sync or load data into them.
@@ -23,7 +23,7 @@ export const dbProject = {
     },
     {
       title: 'Live Queries',
-      icon: <Lightning className={twMerge(textStyles)} />,
+      icon: <LightningIcon className={twMerge(textStyles)} />,
       description: (
         <div>
           Live queries run reactively against and across collections. They're
@@ -34,7 +34,7 @@ export const dbProject = {
     },
     {
       title: 'Optimistic mutations',
-      icon: <Gear className={twMerge(textStyles)} />,
+      icon: <GearIcon className={twMerge(textStyles)} />,
       description: (
         <div>
           Batch and stage instant local changes across collections. Sync

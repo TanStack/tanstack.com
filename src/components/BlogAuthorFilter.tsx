@@ -1,4 +1,4 @@
-import { Check, CaretUpDown } from '@phosphor-icons/react'
+import { CheckIcon, CaretUpDownIcon } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import {
   Dropdown,
@@ -67,7 +67,10 @@ export function BlogAuthorFilter({
               {activeAuthor ?? 'All authors'}
             </span>
             <span className="flex items-center pr-1">
-              <CaretUpDown className="h-4 w-4 opacity-40" aria-hidden="true" />
+              <CaretUpDownIcon
+                className="h-4 w-4 opacity-40"
+                aria-hidden="true"
+              />
             </span>
           </button>
         </DropdownTrigger>
@@ -86,7 +89,7 @@ export function BlogAuthorFilter({
           >
             <span className="truncate">All authors</span>
             {!activeAuthor ? (
-              <Check
+              <CheckIcon
                 className="h-4 w-4 absolute right-2 text-blue-600 dark:text-blue-300"
                 aria-hidden="true"
               />
@@ -115,7 +118,7 @@ export function BlogAuthorFilter({
                 />
                 <span className="truncate">{name}</span>
                 {isSelected ? (
-                  <Check
+                  <CheckIcon
                     className="h-4 w-4 absolute right-2 text-blue-600 dark:text-blue-300"
                     aria-hidden="true"
                   />

@@ -1,7 +1,12 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import { createLazyFileRoute } from '@tanstack/react-router'
-import { CaretDown, Check, MagnifyingGlass, Star } from '@phosphor-icons/react'
+import {
+  CaretDownIcon,
+  CheckIcon,
+  MagnifyingGlassIcon,
+  StarIcon,
+} from '@phosphor-icons/react'
 import type { IconWeight } from '@phosphor-icons/react'
 import { copyTextToClipboard } from '~/utils/browser-effects'
 import { DsPage, DsSection } from '~/components/ds/DsKit'
@@ -75,8 +80,10 @@ function IconographyPage() {
 
   const shown = filtered.slice(0, visible)
 
+  // The registry keys icons by their bare name, but `NameIcon` is the export
+  // callers actually import — copy and advertise that one.
   const handleCopy = React.useCallback(async (name: string) => {
-    await copyTextToClipboard(`<${name} />`)
+    await copyTextToClipboard(`<${name}Icon />`)
     setCopied(name)
     window.setTimeout(() => setCopied(null), 1200)
   }, [])
@@ -92,18 +99,18 @@ function IconographyPage() {
           <Dropdown>
             <DropdownTrigger>
               <button type="button" className={triggerClass}>
-                <Star weight={weight} size={17} />
+                <StarIcon weight={weight} size={17} />
                 <span className="capitalize">{weight}</span>
-                <CaretDown size={13} className="text-text-muted" />
+                <CaretDownIcon size={13} className="text-text-muted" />
               </button>
             </DropdownTrigger>
             <DropdownContent align="start" className="min-w-44">
               {WEIGHTS.map((w) => (
                 <DropdownItem key={w} onSelect={() => setWeight(w)}>
-                  <Star weight={w} size={18} />
+                  <StarIcon weight={w} size={18} />
                   <span className="flex-1 capitalize">{w}</span>
                   {w === weight ? (
-                    <Check size={14} className="text-text-accent" />
+                    <CheckIcon size={14} className="text-text-accent" />
                   ) : null}
                 </DropdownItem>
               ))}
@@ -116,7 +123,7 @@ function IconographyPage() {
               <button type="button" className={triggerClass}>
                 <SizeGlyph px={size} />
                 <span className="tabular-nums">{size}px</span>
-                <CaretDown size={13} className="text-text-muted" />
+                <CaretDownIcon size={13} className="text-text-muted" />
               </button>
             </DropdownTrigger>
             <DropdownContent align="start" className="min-w-40">
@@ -127,7 +134,7 @@ function IconographyPage() {
                   </span>
                   <span className="flex-1 tabular-nums">{s}px</span>
                   {s === size ? (
-                    <Check size={14} className="text-text-accent" />
+                    <CheckIcon size={14} className="text-text-accent" />
                   ) : null}
                 </DropdownItem>
               ))}
@@ -149,7 +156,7 @@ function IconographyPage() {
               onClick={() => (searchOpen ? closeSearch() : setSearchOpen(true))}
               className="flex h-10 w-10 shrink-0 items-center justify-center text-text-muted transition-colors hover:text-text-primary"
             >
-              <MagnifyingGlass
+              <MagnifyingGlassIcon
                 size={18}
                 weight="bold"
                 className={twMerge(
@@ -182,7 +189,7 @@ function IconographyPage() {
               key={name}
               type="button"
               onClick={() => handleCopy(name)}
-              title={`Copy <${name} />`}
+              title={`Copy <${name}Icon />`}
               className="group flex flex-col items-center gap-2.5 bg-background-default p-5 text-center transition-colors hover:bg-background-subtle"
             >
               <span className="flex h-12 items-center justify-center">

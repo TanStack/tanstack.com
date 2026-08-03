@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from '@tanstack/react-router'
 import type { MarkdownHeading } from '~/utils/markdown'
-import { CaretDown, CaretRight } from '@phosphor-icons/react'
+import { CaretDownIcon, CaretRightIcon } from '@phosphor-icons/react'
 
 interface TocMobileProps {
   headings: Array<MarkdownHeading>
@@ -26,7 +26,7 @@ export function TocMobile({ headings }: TocMobileProps) {
           rounded-b-xl"
           aria-expanded={isOpen}
         >
-          <span>{isOpen ? <CaretDown /> : <CaretRight />}</span>
+          <span>{isOpen ? <CaretDownIcon /> : <CaretRightIcon />}</span>
           <span>On this page</span>
         </summary>
         <div className="py-2">

@@ -2,7 +2,7 @@ import * as React from 'react'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import Cropper from 'react-easy-crop'
 import type { Area, Point } from 'react-easy-crop'
-import { X } from '@phosphor-icons/react'
+import { XIcon } from '@phosphor-icons/react'
 import { Button } from '~/ui'
 
 interface AvatarCropModalProps {
@@ -116,7 +116,7 @@ export function AvatarCropModal({
               Crop Profile Picture
             </DialogPrimitive.Title>
             <DialogPrimitive.Close className="rounded-full p-1 hover:bg-gray-100 dark:hover:bg-gray-800">
-              <X className="w-5 h-5 text-gray-500" />
+              <XIcon className="w-5 h-5 text-gray-500" />
             </DialogPrimitive.Close>
           </div>
 

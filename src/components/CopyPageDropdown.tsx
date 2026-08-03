@@ -1,6 +1,6 @@
 'use client'
 import * as React from 'react'
-import { CaretDown, Copy, Check } from '@phosphor-icons/react'
+import { CaretDownIcon, CopyIcon, CheckIcon } from '@phosphor-icons/react'
 import { useToast } from '~/components/ToastProvider'
 import { Button } from '~/ui'
 import { ButtonGroup } from './ButtonGroup'
@@ -301,12 +301,12 @@ export function CopyPageDropdown({
       >
         {copied.active ? (
           <>
-            <Check className="w-3 h-3" />
+            <CheckIcon className="w-3 h-3" />
             Copied!
           </>
         ) : (
           <>
-            <Copy className="w-3 h-3" />
+            <CopyIcon className="w-3 h-3" />
             {label}
           </>
         )}
@@ -321,7 +321,7 @@ export function CopyPageDropdown({
             className="border-0 px-1.5"
             aria-label={`More ${label} options`}
           >
-            <CaretDown className="w-3 h-3" />
+            <CaretDownIcon className="w-3 h-3" />
           </Button>
         </DropdownTrigger>
         <DropdownContent align="end" className="min-w-72">

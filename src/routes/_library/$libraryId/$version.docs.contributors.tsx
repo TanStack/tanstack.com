@@ -11,7 +11,7 @@ import {
   MaintainerRowCard,
 } from '~/components/MaintainerCard'
 import { useState } from 'react'
-import { GridFour, GridNine, Rows } from '@phosphor-icons/react'
+import { GridFourIcon, GridNineIcon, RowsIcon } from '@phosphor-icons/react'
 
 export const Route = createFileRoute(
   '/_library/$libraryId/$version/docs/contributors',
@@ -65,7 +65,7 @@ function RouteComponent() {
                   }`}
                   title="Compact cards"
                 >
-                  <GridNine className="w-5 h-5" />
+                  <GridNineIcon className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => setViewMode('full')}
@@ -76,7 +76,7 @@ function RouteComponent() {
                   }`}
                   title="Full cards"
                 >
-                  <GridFour className="w-5 h-5" />
+                  <GridFourIcon className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => setViewMode('row')}
@@ -87,7 +87,7 @@ function RouteComponent() {
                   }`}
                   title="Row cards"
                 >
-                  <Rows className="w-5 h-5" />
+                  <RowsIcon className="w-5 h-5" />
                 </button>
               </div>
             </div>

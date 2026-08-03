@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useDebouncedValue } from '@tanstack/react-pacer'
-import { MagnifyingGlass as Search } from '@phosphor-icons/react'
+import { MagnifyingGlassIcon as Search } from '@phosphor-icons/react'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { Command } from 'cmdk'
 import { twMerge } from 'tailwind-merge'

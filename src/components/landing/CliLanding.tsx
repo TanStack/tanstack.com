@@ -1,11 +1,11 @@
 import * as React from 'react'
 import {
-  FileCode,
-  GitDiff,
-  Package,
-  PuzzlePiece,
-  Robot,
-  Stack,
+  FileCodeIcon,
+  GitDiffIcon,
+  PackageIcon,
+  PuzzlePieceIcon,
+  RobotIcon,
+  StackIcon,
 } from '@phosphor-icons/react'
 
 import {
@@ -73,7 +73,7 @@ export default function CliLanding() {
         <LandingSectionIntro
           centered
           eyebrow="Add-on contract"
-          icon={<PuzzlePiece aria-hidden="true" size={15} />}
+          icon={<PuzzlePieceIcon aria-hidden="true" size={15} />}
           title="An integration is more than a dependency."
           body="Add-ons can declare files, packages, environment variables, options, ordering hooks, dependencies, and conflicts. The CLI has enough structure to compose them deliberately instead of pasting setup snippets in sequence."
         />
@@ -85,7 +85,7 @@ export default function CliLanding() {
           <CatalogTerminal />
           <LandingSectionIntro
             eyebrow="Machine-readable context"
-            icon={<Robot aria-hidden="true" size={15} />}
+            icon={<RobotIcon aria-hidden="true" size={15} />}
             title="The same catalog works for humans and agents."
             body="Search documentation or inspect TanStack libraries, add-ons, and ecosystem entries from the terminal. JSON output preserves names, versions, categories, and source links without asking an agent to scrape a website."
           />
@@ -96,7 +96,7 @@ export default function CliLanding() {
         <div className="grid gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:items-center lg:gap-16">
           <LandingSectionIntro
             eyebrow="Open composition"
-            icon={<Stack aria-hidden="true" size={15} />}
+            icon={<StackIcon aria-hidden="true" size={15} />}
             title="Start from TanStack’s catalog—or publish your own."
             body="A template owns the project baseline. Add-ons layer focused capabilities on top. Both stay inspectable, so teams can host private building blocks or contribute integrations without turning project generation into a black box."
           />
@@ -262,7 +262,7 @@ function BuilderHero() {
             </div>
           </div>
           <div className="mt-3 flex items-center gap-3 rounded-lg border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.12)] p-3">
-            <FileCode
+            <FileCodeIcon
               aria-hidden="true"
               className="shrink-0 text-[var(--landing-accent-bright)]"
               size={18}
@@ -296,7 +296,7 @@ function AddonAnatomy() {
     <div className="mx-auto mt-14 max-w-[72rem] overflow-hidden rounded-xl border border-border-default bg-background-surface">
       <div className="grid md:grid-cols-[0.76fr_1.24fr]">
         <div className="border-border-subtle p-6 md:border-r md:p-8">
-          <PuzzlePiece
+          <PuzzlePieceIcon
             aria-hidden="true"
             className="text-[var(--landing-accent-bright)]"
             size={32}
@@ -385,7 +385,7 @@ function TemplateVsAddon() {
       <div className="p-5 sm:p-6">
         <div className="grid gap-4 sm:grid-cols-[1fr_auto_1fr] sm:items-stretch">
           <div className="rounded-xl border border-border-default bg-background-subtle p-5">
-            <Package
+            <PackageIcon
               aria-hidden="true"
               className="text-[var(--landing-accent-bright)]"
               size={24}
@@ -403,7 +403,7 @@ function TemplateVsAddon() {
             />
           </div>
           <div className="rounded-xl border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.12)] p-5">
-            <PuzzlePiece
+            <PuzzlePieceIcon
               aria-hidden="true"
               className="text-[var(--landing-accent-bright)]"
               size={24}
@@ -416,7 +416,7 @@ function TemplateVsAddon() {
           </div>
         </div>
         <div className="mt-4 flex items-center gap-3 rounded-lg bg-background-subtle p-4">
-          <GitDiff
+          <GitDiffIcon
             aria-hidden="true"
             className="shrink-0 text-[var(--landing-accent-bright)]"
             size={18}

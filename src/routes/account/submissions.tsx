@@ -7,13 +7,13 @@ import { libraries } from '~/libraries'
 import { useToast } from '~/components/ToastProvider'
 import { seo } from '~/utils/seo'
 import {
-  Plus,
-  Trash,
-  ArrowSquareOut,
-  Clock,
-  Check,
-  X,
-  Pencil,
+  PlusIcon,
+  TrashIcon,
+  ArrowSquareOutIcon,
+  ClockIcon,
+  CheckIcon,
+  XIcon,
+  PencilIcon,
 } from '@phosphor-icons/react'
 import type { Showcase } from '~/db/types'
 import { Badge, Button } from '~/ui'
@@ -80,21 +80,21 @@ function AccountSubmissionsPage() {
       case 'pending':
         return (
           <Badge variant="warning" className="gap-1">
-            <Clock className="w-3 h-3" />
+            <ClockIcon className="w-3 h-3" />
             Pending Review
           </Badge>
         )
       case 'approved':
         return (
           <Badge variant="success" className="gap-1">
-            <Check className="w-3 h-3" />
+            <CheckIcon className="w-3 h-3" />
             Approved
           </Badge>
         )
       case 'denied':
         return (
           <Badge variant="error" className="gap-1">
-            <X className="w-3 h-3" />
+            <XIcon className="w-3 h-3" />
             Denied
           </Badge>
         )
@@ -113,7 +113,7 @@ function AccountSubmissionsPage() {
           to="/showcase/submit"
           className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg border-none"
         >
-          <Plus className="w-4 h-4" />
+          <PlusIcon className="w-4 h-4" />
           New Submission
         </Button>
       </div>
@@ -196,17 +196,17 @@ function AccountSubmissionsPage() {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <ArrowSquareOut className="w-3 h-3" />
+                      <ArrowSquareOutIcon className="w-3 h-3" />
                       Visit
                     </Button>
                     <Link to="/showcase/edit/$id" params={{ id: showcase.id }}>
                       <Button variant="ghost" size="xs">
-                        <Pencil className="w-3 h-3" />
+                        <PencilIcon className="w-3 h-3" />
                         Edit
                       </Button>
                     </Link>
                     <Button onClick={() => handleDelete(showcase.id)}>
-                      <Trash className="w-3 h-3" />
+                      <TrashIcon className="w-3 h-3" />
                       Delete
                     </Button>
                   </div>
@@ -225,7 +225,7 @@ function AccountSubmissionsPage() {
             to="/showcase/submit"
             className="mt-4 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg border-none"
           >
-            <Plus className="w-5 h-5" />
+            <PlusIcon className="w-5 h-5" />
             Submit Your First Project
           </Button>
         </div>

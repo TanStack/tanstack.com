@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CaretUp, CaretDown } from '@phosphor-icons/react'
+import { CaretUpIcon, CaretDownIcon } from '@phosphor-icons/react'
 
 // Table - Main table wrapper
 interface TableProps {
@@ -141,10 +141,10 @@ export function SortableTableHeaderCell({
       >
         {children}
         <span className="w-3 h-3 flex items-center justify-center">
-          {sortDirection === 'asc' && <CaretUp className="w-3 h-3" />}
-          {sortDirection === 'desc' && <CaretDown className="w-3 h-3" />}
+          {sortDirection === 'asc' && <CaretUpIcon className="w-3 h-3" />}
+          {sortDirection === 'desc' && <CaretDownIcon className="w-3 h-3" />}
           {!sortDirection && (
-            <CaretUp className="w-3 h-3 opacity-0 group-hover:opacity-40 transition-opacity" />
+            <CaretUpIcon className="w-3 h-3 opacity-0 group-hover:opacity-40 transition-opacity" />
           )}
         </span>
       </span>

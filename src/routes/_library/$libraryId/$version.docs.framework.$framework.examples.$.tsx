@@ -18,7 +18,7 @@ import { capitalize, slugToTitle } from '~/utils/utils'
 import * as v from 'valibot'
 import { CodeExplorer } from '~/components/CodeExplorer'
 import type { GitHubFileNode } from '~/utils/documents.server'
-import { ArrowSquareOut } from '@phosphor-icons/react'
+import { ArrowSquareOutIcon } from '@phosphor-icons/react'
 import {
   ExampleDeployDialog,
   type DeployProvider,
@@ -412,7 +412,7 @@ function PageComponent() {
               className="flex gap-1 items-center"
               rel="noreferrer"
             >
-              <ArrowSquareOut /> GitHub
+              <ArrowSquareOutIcon /> GitHub
             </a>
             {!library.hideStackblitzUrl ? (
               <a
@@ -421,7 +421,7 @@ function PageComponent() {
                 className="flex gap-1 items-center"
                 rel="noreferrer"
               >
-                <ArrowSquareOut /> StackBlitz
+                <ArrowSquareOutIcon /> StackBlitz
               </a>
             ) : null}
             {!library.hideCodesandboxUrl ? (
@@ -431,7 +431,7 @@ function PageComponent() {
                 className="flex gap-1 items-center"
                 rel="noreferrer"
               >
-                <ArrowSquareOut /> CodeSandbox
+                <ArrowSquareOutIcon /> CodeSandbox
               </a>
             ) : null}
           </div>

@@ -1,12 +1,12 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import {
-  Users,
-  Video,
-  MapPin,
-  Star,
-  Play,
-  CheckCircle,
+  UsersIcon,
+  VideoIcon,
+  MapPinIcon,
+  StarIcon,
+  PlayIcon,
+  CheckCircleIcon,
 } from '@phosphor-icons/react'
 import { LogoQueryGG } from '~/ui'
 import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
@@ -54,15 +54,15 @@ function LearnPage() {
               </p>
               <div className="grid gap-2 text-xs text-left">
                 <div className="flex items-start gap-2">
-                  <Play className="w-4 h-4 mt-0.5 shrink-0" />
+                  <PlayIcon className="w-4 h-4 mt-0.5 shrink-0" />
                   <div>Tutorials & walkthroughs</div>
                 </div>
                 <div className="flex items-start gap-2">
-                  <Video className="w-4 h-4 mt-0.5 shrink-0" />
+                  <VideoIcon className="w-4 h-4 mt-0.5 shrink-0" />
                   <div>Deep dives into library internals</div>
                 </div>
                 <div className="flex items-start gap-2">
-                  <Star className="w-4 h-4 mt-0.5 shrink-0" />
+                  <StarIcon className="w-4 h-4 mt-0.5 shrink-0" />
                   <div>Release announcements & demos</div>
                 </div>
               </div>
@@ -85,7 +85,7 @@ function LearnPage() {
             </div>
             <div className="p-4 lg:p-8">
               <div className="flex items-center gap-3 mb-4">
-                <Users className="w-8 h-8" />
+                <UsersIcon className="w-8 h-8" />
                 <h2 className="text-xl font-bold">Professional Workshops</h2>
               </div>
               <p className="text-sm mb-4 opacity-90">
@@ -94,15 +94,15 @@ function LearnPage() {
               </p>
               <div className="grid gap-2 text-xs text-left">
                 <div className="flex items-start gap-2">
-                  <Video className="w-4 h-4 mt-0.5 shrink-0" />
+                  <VideoIcon className="w-4 h-4 mt-0.5 shrink-0" />
                   <div>Remote workshops worldwide</div>
                 </div>
                 <div className="flex items-start gap-2">
-                  <MapPin className="w-4 h-4 mt-0.5 shrink-0" />
+                  <MapPinIcon className="w-4 h-4 mt-0.5 shrink-0" />
                   <div>Premium in-person options</div>
                 </div>
                 <div className="flex items-start gap-2">
-                  <Star className="w-4 h-4 mt-0.5 shrink-0" />
+                  <StarIcon className="w-4 h-4 mt-0.5 shrink-0" />
                   <div>From maintainers & creators</div>
                 </div>
               </div>
@@ -140,13 +140,13 @@ function LearnPage() {
               <div className="grid max-w-(--breakpoint-lg) mx-auto text-xs gap-2 text-left">
                 <div className="flex items-start gap-2">
                   <span className="text-lg text-green-500">
-                    <CheckCircle />
+                    <CheckCircleIcon />
                   </span>
                   <div>Save time by learning with a guided approach</div>
                 </div>
                 <div className="flex items-start gap-2">
                   <span className="text-lg text-green-500">
-                    <CheckCircle />
+                    <CheckCircleIcon />
                   </span>
                   <div>
                     Get hands-on experience building a real-world application
@@ -154,7 +154,7 @@ function LearnPage() {
                 </div>
                 <div className="flex items-start gap-2">
                   <span className="text-lg text-green-500">
-                    <CheckCircle />
+                    <CheckCircleIcon />
                   </span>
                   <div>Never worry about data fetching again</div>
                 </div>

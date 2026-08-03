@@ -9,7 +9,7 @@ import {
 import { voteShowcase } from '~/utils/showcase.functions'
 import { ShowcaseCard, ShowcaseCardSkeleton } from './ShowcaseCard'
 import { Button } from '~/ui'
-import { ArrowRight, Plus } from '@phosphor-icons/react'
+import { ArrowRightIcon, PlusIcon } from '@phosphor-icons/react'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useLoginModal } from '~/contexts/LoginModalContext'
 import type { LibraryId } from '~/libraries'
@@ -37,7 +37,7 @@ export function SubmitShowcasePlaceholder({
       <div className="aspect-video flex items-center justify-center bg-gray-50 dark:bg-gray-900/50">
         <div className="text-center p-6">
           <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 transition-colors">
-            <Plus className="w-6 h-6 text-gray-400 group-hover:text-blue-500 transition-colors" />
+            <PlusIcon className="w-6 h-6 text-gray-400 group-hover:text-blue-500 transition-colors" />
           </div>
           <p className="text-sm font-medium text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
             Submit your project
@@ -244,7 +244,7 @@ export function ShowcaseSection({
           >
             <Button variant="ghost" size="xs">
               View all projects
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRightIcon className="w-4 h-4" />
             </Button>
           </Link>
         </div>

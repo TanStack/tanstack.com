@@ -1,7 +1,7 @@
 import * as React from 'react'
 import {
-  ArrowsInLineHorizontal,
-  ArrowsOutLineHorizontal,
+  ArrowsInLineHorizontalIcon,
+  ArrowsOutLineHorizontalIcon,
 } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { DocNavigation, WidthToggleContext } from '~/components/LibraryLayout'
@@ -167,9 +167,9 @@ export function Doc({
                   title={isFullWidth ? 'Constrain width' : 'Expand width'}
                 >
                   {isFullWidth ? (
-                    <ArrowsInLineHorizontal className="w-4 h-4" />
+                    <ArrowsInLineHorizontalIcon className="w-4 h-4" />
                   ) : (
-                    <ArrowsOutLineHorizontal className="w-4 h-4" />
+                    <ArrowsOutLineHorizontalIcon className="w-4 h-4" />
                   )}
                 </button>
               ) : null

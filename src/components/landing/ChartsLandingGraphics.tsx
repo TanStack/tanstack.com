@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Pause, Play, Shuffle } from '@phosphor-icons/react'
+import { PauseIcon, PlayIcon, ShuffleIcon } from '@phosphor-icons/react'
 
 import { useIsDark } from '~/hooks/useIsDark'
 
@@ -523,9 +523,9 @@ export function KineticChartsHero() {
               }}
             >
               {autoPlay ? (
-                <Pause aria-hidden="true" className="size-3.5" />
+                <PauseIcon aria-hidden="true" className="size-3.5" />
               ) : (
-                <Play aria-hidden="true" className="size-3.5" />
+                <PlayIcon aria-hidden="true" className="size-3.5" />
               )}
             </button>
             <button
@@ -533,7 +533,7 @@ export function KineticChartsHero() {
               className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-3 font-ds-mono text-ds-mono-caps-xs uppercase text-white/60 transition-[color,background-color,border-color] duration-200 hover:border-white/25 hover:bg-white/[0.08] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#61e8ff]"
               onClick={showNewVariation}
             >
-              <Shuffle aria-hidden="true" className="size-3.5" />
+              <ShuffleIcon aria-hidden="true" className="size-3.5" />
               <span className="hidden sm:inline">New variation</span>
             </button>
           </div>

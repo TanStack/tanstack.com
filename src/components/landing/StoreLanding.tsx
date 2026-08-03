@@ -1,11 +1,11 @@
 import * as React from 'react'
 import {
-  ArrowsClockwise,
-  BracketsCurly,
-  CirclesFour,
-  Cpu,
-  Radio,
-  Stack,
+  ArrowsClockwiseIcon,
+  BracketsCurlyIcon,
+  CirclesFourIcon,
+  CpuIcon,
+  RadioIcon,
+  StackIcon,
 } from '@phosphor-icons/react'
 
 import {
@@ -104,7 +104,7 @@ export default function StoreLanding() {
         <div className="grid items-center gap-14 lg:grid-cols-[0.82fr_1.18fr] lg:gap-20">
           <LandingSectionIntro
             eyebrow="Infrastructure, not architecture"
-            icon={<Cpu aria-hidden="true" size={15} />}
+            icon={<CpuIcon aria-hidden="true" size={15} />}
             title="Small enough to sit underneath the product."
             body="Store powers state inside framework-agnostic TanStack libraries and can stand alone in an application. It provides the reactive primitive without prescribing a product-wide state architecture."
           />
@@ -116,7 +116,7 @@ export default function StoreLanding() {
         <LandingSectionIntro
           centered
           eyebrow="Four focused primitives"
-          icon={<BracketsCurly aria-hidden="true" size={15} />}
+          icon={<BracketsCurlyIcon aria-hidden="true" size={15} />}
           title="Write, derive, batch, and select."
           body="The core stays intentionally direct: update a value, compute from other stores, group related writes, and subscribe at the granularity the renderer needs."
         />
@@ -128,7 +128,7 @@ export default function StoreLanding() {
           <AdapterField />
           <LandingSectionIntro
             eyebrow="Framework adapters"
-            icon={<Stack aria-hidden="true" size={15} />}
+            icon={<StackIcon aria-hidden="true" size={15} />}
             title="The binding changes. The state model does not."
             body="Use the same framework-agnostic core from vanilla TypeScript, then connect it to React, Preact, Solid, Vue, Angular, Svelte, or Lit through a thin adapter."
           />
@@ -139,7 +139,7 @@ export default function StoreLanding() {
         <LandingSectionIntro
           centered
           eyebrow="Use the smallest state tool"
-          icon={<CirclesFour aria-hidden="true" size={15} />}
+          icon={<CirclesFourIcon aria-hidden="true" size={15} />}
           title="Store owns one clear part of the stack."
           body="Reach for Store when state is local to the client and benefits from reactive derivation. Keep navigation, remote resources, and relational API data in the tools designed for them."
         />
@@ -321,7 +321,7 @@ function SignalTopology() {
           ))}
         </div>
         <div className="flex size-28 flex-col items-center justify-center rounded-full border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.22)] text-center shadow-[0_0_60px_rgb(var(--landing-glow)/0.18)] sm:size-36">
-          <Cpu
+          <CpuIcon
             aria-hidden="true"
             className="text-[var(--landing-accent-bright)]"
             size={28}
@@ -387,7 +387,7 @@ function PrimitiveLab() {
         </div>
         <div className="flex min-h-44 items-center justify-center border-t border-border-subtle bg-[color:rgb(var(--landing-glow)/0.12)] p-8 lg:border-t-0 lg:border-l">
           <div className="text-center">
-            <ArrowsClockwise
+            <ArrowsClockwiseIcon
               aria-hidden="true"
               className="mx-auto text-[var(--landing-accent-bright)]"
               size={30}
@@ -408,7 +408,7 @@ function AdapterField() {
     <LandingWindow label="one store core">
       <div className="p-6">
         <div className="mx-auto flex size-28 items-center justify-center rounded-full border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.18)] shadow-[0_0_55px_rgb(var(--landing-glow)/0.18)]">
-          <Radio
+          <RadioIcon
             aria-hidden="true"
             className="text-[var(--landing-accent-bright)]"
             size={34}

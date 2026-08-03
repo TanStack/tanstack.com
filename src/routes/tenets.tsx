@@ -3,14 +3,14 @@ import { Footer } from '~/components/Footer'
 import { Card } from '~/components/Card'
 import { seo } from '~/utils/seo'
 import {
-  Globe,
-  SquaresFour,
-  Rocket,
-  Eye,
-  Users,
-  Code,
-  Wrench,
-  Handshake,
+  GlobeIcon,
+  SquaresFourIcon,
+  RocketIcon,
+  EyeIcon,
+  UsersIcon,
+  CodeIcon,
+  WrenchIcon,
+  HandshakeIcon,
 } from '@phosphor-icons/react'
 
 export const Route = createFileRoute('/tenets')({
@@ -28,7 +28,7 @@ const tenets = [
   {
     number: 1,
     title: 'Open, Independent, Technology-Agnostic',
-    icon: Globe,
+    icon: GlobeIcon,
     gradient: 'from-blue-500 to-cyan-500',
     borderColor: 'hover:border-blue-500/50',
     description:
@@ -69,7 +69,7 @@ const tenets = [
   {
     number: 2,
     title: 'Composable, Platform-Aligned Primitives',
-    icon: SquaresFour,
+    icon: SquaresFourIcon,
     gradient: 'from-emerald-500 to-teal-500',
     borderColor: 'hover:border-emerald-500/50',
     description:
@@ -105,7 +105,7 @@ const tenets = [
   {
     number: 3,
     title: 'Pragmatic, Production-Grade Quality',
-    icon: Rocket,
+    icon: RocketIcon,
     gradient: 'from-orange-500 to-red-500',
     borderColor: 'hover:border-orange-500/50',
     description:
@@ -141,7 +141,7 @@ const tenets = [
   {
     number: 4,
     title: 'Predictable, Explicit, Type-Safe Behavior',
-    icon: Eye,
+    icon: EyeIcon,
     gradient: 'from-purple-500 to-pink-500',
     borderColor: 'hover:border-purple-500/50',
     description:
@@ -179,28 +179,28 @@ const tenets = [
 const audiences = [
   {
     title: 'For developers evaluating TanStack',
-    icon: Users,
+    icon: UsersIcon,
     gradient: 'from-blue-500 to-cyan-500',
     description:
       'These tenets define what you can expect from our libraries—quality, portability, and a commitment to your freedom to compose and deploy however you see fit.',
   },
   {
     title: 'For contributors',
-    icon: Code,
+    icon: CodeIcon,
     gradient: 'from-emerald-500 to-teal-500',
     description:
       'When proposing features or changes, consider how they align with these tenets. If your idea conflicts with a tenet, explicitly address why and how the conflict is justified.',
   },
   {
     title: 'For maintainers and reviewers',
-    icon: Wrench,
+    icon: WrenchIcon,
     gradient: 'from-orange-500 to-red-500',
     description:
       'Use these tenets as a checklist when evaluating PRs, feature requests, and architectural decisions. If something threatens a tenet, it needs strong justification or should be rejected.',
   },
   {
     title: 'For partners',
-    icon: Handshake,
+    icon: HandshakeIcon,
     gradient: 'from-purple-500 to-pink-500',
     description:
       'These tenets ensure that our libraries remain neutral and developer-focused. Partner integrations must respect these principles and cannot bias core APIs toward specific platforms or vendors.',

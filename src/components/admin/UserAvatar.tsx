@@ -1,4 +1,4 @@
-import { User } from '@phosphor-icons/react'
+import { UserIcon } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 
 type UserAvatarProps = {
@@ -47,7 +47,9 @@ export function UserAvatar({
         className,
       )}
     >
-      <User className={twMerge('text-gray-500 dark:text-gray-400', iconSize)} />
+      <UserIcon
+        className={twMerge('text-gray-500 dark:text-gray-400', iconSize)}
+      />
     </div>
   )
 }

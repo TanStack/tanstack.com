@@ -1,4 +1,4 @@
-import { MagicWand, Lightning, Gear } from '@phosphor-icons/react'
+import { MagicWandIcon, LightningIcon, GearIcon } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { form } from './libraries'
 
@@ -34,7 +34,7 @@ export const formProject = {
   featureHighlights: [
     {
       title: 'First-Class TypeScript Support',
-      icon: <MagicWand className="text-category-ui" />,
+      icon: <MagicWandIcon className="text-category-ui" />,
       description: (
         <div>
           TanStack Form touts first-class TypeScript support with outstanding
@@ -51,7 +51,7 @@ export const formProject = {
     },
     {
       title: 'Headless and Framework Agnostic',
-      icon: <Lightning className="text-category-ui" />,
+      icon: <LightningIcon className="text-category-ui" />,
       description: (
         <div>
           Form's headless and framework agnostic approach ensures maximum
@@ -68,7 +68,7 @@ export const formProject = {
     },
     {
       title: 'Granular Reactive Performance',
-      icon: <Gear className="text-category-ui" />,
+      icon: <GearIcon className="text-category-ui" />,
       description: (
         <div>
           When it comes to performance, TanStack Form delivers amazing speed and

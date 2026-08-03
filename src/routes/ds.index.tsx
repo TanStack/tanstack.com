@@ -1,21 +1,21 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import {
-  ArrowRight,
-  SealCheck,
-  CaretDown,
-  CaretUpDown,
-  UserCircle,
-  Drop,
-  Stack,
-  CircleNotch,
-  MapPinLine,
-  CursorClick,
-  Palette,
-  Sparkle,
-  Square,
-  Tag,
-  TextT,
-  Browser,
+  ArrowRightIcon,
+  SealCheckIcon,
+  CaretDownIcon,
+  CaretUpDownIcon,
+  UserCircleIcon,
+  DropIcon,
+  StackIcon,
+  CircleNotchIcon,
+  MapPinLineIcon,
+  CursorClickIcon,
+  PaletteIcon,
+  SparkleIcon,
+  SquareIcon,
+  TagIcon,
+  TextTIcon,
+  BrowserIcon,
 } from '@phosphor-icons/react'
 import type { Icon } from '@phosphor-icons/react'
 import { seo } from '~/utils/seo'
@@ -24,22 +24,22 @@ import { dsNav } from '~/components/ds/ds-nav'
 
 // A correlating icon per section so users can orient themselves at a glance.
 const SECTION_ICONS: Record<string, Icon> = {
-  '/ds/colors': Drop,
-  '/ds/typography': TextT,
-  '/ds/shadows': Stack,
-  '/ds/effects': Sparkle,
-  '/ds/palette': Palette,
-  '/ds/semantic': Tag,
-  '/ds/buttons': CursorClick,
-  '/ds/badges': SealCheck,
-  '/ds/inputs': TextT,
-  '/ds/dropdown': CaretDown,
-  '/ds/avatar': UserCircle,
-  '/ds/spinner': CircleNotch,
-  '/ds/collapsible': CaretUpDown,
-  '/ds/breadcrumbs': MapPinLine,
-  '/ds/cards': Stack,
-  '/ds/navbar': Browser,
+  '/ds/colors': DropIcon,
+  '/ds/typography': TextTIcon,
+  '/ds/shadows': StackIcon,
+  '/ds/effects': SparkleIcon,
+  '/ds/palette': PaletteIcon,
+  '/ds/semantic': TagIcon,
+  '/ds/buttons': CursorClickIcon,
+  '/ds/badges': SealCheckIcon,
+  '/ds/inputs': TextTIcon,
+  '/ds/dropdown': CaretDownIcon,
+  '/ds/avatar': UserCircleIcon,
+  '/ds/spinner': CircleNotchIcon,
+  '/ds/collapsible': CaretUpDownIcon,
+  '/ds/breadcrumbs': MapPinLineIcon,
+  '/ds/cards': StackIcon,
+  '/ds/navbar': BrowserIcon,
 }
 
 export const Route = createFileRoute('/ds/')({
@@ -71,7 +71,7 @@ function DesignSystemOverview() {
                 .map((item) => ({ ...item, section: section.title })),
             )
             .map((item) => {
-              const Icon = SECTION_ICONS[item.to] ?? Square
+              const Icon = SECTION_ICONS[item.to] ?? SquareIcon
               return (
                 <Link
                   key={item.to}
@@ -89,7 +89,7 @@ function DesignSystemOverview() {
                       {item.label}
                     </div>
                   </div>
-                  <ArrowRight className="h-4 w-4 shrink-0 text-text-muted transition-transform group-hover:translate-x-0.5 group-hover:text-text-secondary" />
+                  <ArrowRightIcon className="h-4 w-4 shrink-0 text-text-muted transition-transform group-hover:translate-x-0.5 group-hover:text-text-secondary" />
                 </Link>
               )
             })}

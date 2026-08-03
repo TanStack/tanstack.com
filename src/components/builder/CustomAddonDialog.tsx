@@ -8,12 +8,12 @@ import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 import {
-  Plus,
-  CircleNotch,
-  WarningCircle,
-  X,
-  ArrowSquareOut,
-  Question,
+  PlusIcon,
+  CircleNotchIcon,
+  WarningCircleIcon,
+  XIcon,
+  ArrowSquareOutIcon,
+  QuestionIcon,
 } from '@phosphor-icons/react'
 import { useBuilderStore, useTailwind } from './store'
 import type { IntegrationCompiled } from '~/builder/api'
@@ -118,7 +118,7 @@ export function CustomAddonDialog({ onClose }: CustomAddonDialogProps) {
             )}
           >
             {isLoading ? (
-              <CircleNotch className="w-4 h-4 animate-spin" />
+              <CircleNotchIcon className="w-4 h-4 animate-spin" />
             ) : (
               'Load'
             )}
@@ -133,7 +133,7 @@ export function CustomAddonDialog({ onClose }: CustomAddonDialogProps) {
       {/* Error */}
       {error && (
         <div className="flex items-start gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-700 dark:text-red-400">
-          <WarningCircle className="w-4 h-4 mt-0.5 shrink-0" />
+          <WarningCircleIcon className="w-4 h-4 mt-0.5 shrink-0" />
           <span>{error}</span>
         </div>
       )}
@@ -157,7 +157,7 @@ export function CustomAddonDialog({ onClose }: CustomAddonDialogProps) {
                 rel="noopener noreferrer"
                 className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
               >
-                <ArrowSquareOut className="w-4 h-4" />
+                <ArrowSquareOutIcon className="w-4 h-4" />
               </a>
             )}
           </div>
@@ -223,19 +223,19 @@ export function CustomAddonButton() {
       >
         {isOpen ? (
           <>
-            <X className="w-4 h-4" />
+            <XIcon className="w-4 h-4" />
             Cancel
           </>
         ) : (
           <>
-            <Plus className="w-4 h-4" />
+            <PlusIcon className="w-4 h-4" />
             Custom Integration
             <Link
               to="/builder/docs"
               onClick={(e) => e.stopPropagation()}
               className="p-0.5 hover:text-blue-600 dark:hover:text-cyan-400"
             >
-              <Question className="w-3.5 h-3.5" />
+              <QuestionIcon className="w-3.5 h-3.5" />
             </Link>
           </>
         )}

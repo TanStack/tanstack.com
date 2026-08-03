@@ -6,13 +6,13 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import {
-  CircleNotch,
-  ArrowSquareOut,
-  WarningCircle,
-  Check,
-  Lock,
-  Globe,
-  Rocket,
+  CircleNotchIcon,
+  ArrowSquareOutIcon,
+  WarningCircleIcon,
+  CheckIcon,
+  LockIcon,
+  GlobeIcon,
+  RocketIcon,
 } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { useAsyncDebouncer } from '@tanstack/react-pacer'
@@ -319,7 +319,7 @@ export function DeployDialog({
               }
             >
               {providerInfo ? (
-                <Rocket className="w-5 h-5 text-white" />
+                <RocketIcon className="w-5 h-5 text-white" />
               ) : (
                 <GitHub className="w-5 h-5 text-white" />
               )}
@@ -343,7 +343,7 @@ export function DeployDialog({
         <div className="p-6">
           {state.step === 'auth-check' && (
             <div className="flex flex-col items-center justify-center py-8">
-              <CircleNotch className="w-8 h-8 animate-spin text-gray-400" />
+              <CircleNotchIcon className="w-8 h-8 animate-spin text-gray-400" />
               <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
                 Checking authentication...
               </p>
@@ -400,14 +400,14 @@ export function DeployDialog({
                   />
                   <div className="absolute right-2.5 top-1/2 -translate-y-1/2">
                     {repoNameStatus === 'checking' && (
-                      <CircleNotch className="w-4 h-4 animate-spin text-gray-400" />
+                      <CircleNotchIcon className="w-4 h-4 animate-spin text-gray-400" />
                     )}
                     {repoNameStatus === 'available' && (
-                      <Check className="w-4 h-4 text-green-500" />
+                      <CheckIcon className="w-4 h-4 text-green-500" />
                     )}
                     {(repoNameStatus === 'taken' ||
                       repoNameStatus === 'invalid') && (
-                      <WarningCircle className="w-4 h-4 text-red-500" />
+                      <WarningCircleIcon className="w-4 h-4 text-red-500" />
                     )}
                   </div>
                 </div>
@@ -430,7 +430,7 @@ export function DeployDialog({
                         : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700',
                     )}
                   >
-                    <Globe className="w-4 h-4" />
+                    <GlobeIcon className="w-4 h-4" />
                     Public
                   </button>
                   <button
@@ -442,7 +442,7 @@ export function DeployDialog({
                         : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700',
                     )}
                   >
-                    <Lock className="w-4 h-4" />
+                    <LockIcon className="w-4 h-4" />
                     Private
                   </button>
                 </div>
@@ -483,7 +483,7 @@ export function DeployDialog({
 
           {state.step === 'deploying' && (
             <div className="flex flex-col items-center justify-center py-8">
-              <CircleNotch className="w-8 h-8 animate-spin text-blue-500 dark:text-cyan-400" />
+              <CircleNotchIcon className="w-8 h-8 animate-spin text-blue-500 dark:text-cyan-400" />
               <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
                 {state.message}
               </p>
@@ -493,7 +493,7 @@ export function DeployDialog({
           {state.step === 'success' && (
             <div className="flex flex-col items-center text-center py-4">
               <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4">
-                <Check className="w-8 h-8 text-green-600 dark:text-green-400" />
+                <CheckIcon className="w-8 h-8 text-green-600 dark:text-green-400" />
               </div>
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                 Repository Created!
@@ -508,7 +508,7 @@ export function DeployDialog({
                 className="text-sm text-blue-600 dark:text-cyan-400 hover:underline flex items-center gap-1 mb-4"
               >
                 {state.owner}/{state.repoName}
-                <ArrowSquareOut className="w-3 h-3" />
+                <ArrowSquareOutIcon className="w-3 h-3" />
               </a>
               {providerInfo ? (
                 <>
@@ -537,7 +537,7 @@ export function DeployDialog({
                         className="gap-2"
                         style={{ backgroundColor: providerInfo.color }}
                       >
-                        <Rocket className="w-4 h-4" />
+                        <RocketIcon className="w-4 h-4" />
                         Deploy Now
                       </Button>
                     )
@@ -554,7 +554,7 @@ export function DeployDialog({
           {state.step === 'error' && (
             <div className="flex flex-col items-center text-center py-4">
               <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4">
-                <WarningCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
+                <WarningCircleIcon className="w-8 h-8 text-red-600 dark:text-red-400" />
               </div>
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                 Deployment Failed

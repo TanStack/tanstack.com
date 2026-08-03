@@ -10,7 +10,13 @@ import {
   flexRender,
   type ColumnDef,
 } from '@tanstack/react-table'
-import { ArrowLeft, Lock, Trash, User, Users } from '@phosphor-icons/react'
+import {
+  ArrowLeftIcon,
+  LockIcon,
+  TrashIcon,
+  UserIcon,
+  UsersIcon,
+} from '@phosphor-icons/react'
 import { requireCapability } from '~/utils/auth.functions'
 import { hasCapability } from '~/db/types'
 import { Badge, Button } from '~/ui'
@@ -140,7 +146,7 @@ function RoleDetailPage() {
                   />
                 ) : (
                   <div className="h-10 w-10 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
-                    <User className="text-gray-500 dark:text-gray-400" />
+                    <UserIcon className="text-gray-500 dark:text-gray-400" />
                   </div>
                 )}
               </div>
@@ -198,7 +204,7 @@ function RoleDetailPage() {
               }}
               className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
             >
-              <Trash className="w-4 h-4" />
+              <TrashIcon className="w-4 h-4" />
             </button>
           )
         },
@@ -228,7 +234,7 @@ function RoleDetailPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <Lock className="text-4xl text-red-500 mx-auto mb-4" />
+          <LockIcon className="text-4xl text-red-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
           <p className="text-gray-600 dark:text-gray-400 mb-4">
             You don't have permission to access the admin area.
@@ -263,7 +269,7 @@ function RoleDetailPage() {
               to="/admin/roles"
               className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeftIcon className="w-5 h-5" />
             </Link>
             <div>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
@@ -280,7 +286,7 @@ function RoleDetailPage() {
 
         <div className="mb-4 flex items-center gap-4">
           <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-            <Users className="w-5 h-5" />
+            <UsersIcon className="w-5 h-5" />
             <span className="text-sm">
               {usersWithRole?.length || 0} user(s) with this role
             </span>
@@ -411,7 +417,7 @@ function RoleDetailPage() {
 
           {(!usersWithRole || usersWithRole.length === 0) && (
             <div className="text-center py-12">
-              <Users className="mx-auto h-12 w-12 text-gray-400" />
+              <UsersIcon className="mx-auto h-12 w-12 text-gray-400" />
               <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
                 No users with this role
               </h3>

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { twMerge } from 'tailwind-merge'
-import { Download, Star, TrendUp } from '@phosphor-icons/react'
+import { DownloadIcon, StarIcon, TrendUpIcon } from '@phosphor-icons/react'
 import type { LibrarySlim } from '~/libraries'
 import { ossStatsQuery, recentDownloadsQuery } from '~/queries/stats'
 import type { RecentDownloadStats } from '~/utils/stats.types'
@@ -360,14 +360,14 @@ export function LibraryDownloadsMicro({
   const items: Array<StatItem> = [
     {
       key: 'total',
-      icon: <TrendUp weight="regular" />,
+      icon: <TrendUpIcon weight="regular" />,
       value: hasTotalDownloadCount ? formatCompact(totalDownloadCount) : '',
       placeholder: '000.0M',
       label: 'Total Downloads',
     },
     {
       key: 'weekly',
-      icon: <Download weight="regular" />,
+      icon: <DownloadIcon weight="regular" />,
       value: hasNpmDownloads ? (totalDownloads ?? 0).toLocaleString() : '',
       placeholder: '000,000,000',
       label: formattedLabel,
@@ -377,7 +377,7 @@ export function LibraryDownloadsMicro({
     },
     {
       key: 'stars',
-      icon: <Star weight="regular" />,
+      icon: <StarIcon weight="regular" />,
       value: hasStarCount ? starCount.toLocaleString() : '',
       placeholder: '000,000',
       label: 'GitHub Stars',

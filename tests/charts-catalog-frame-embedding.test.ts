@@ -7,12 +7,16 @@ import {
 } from '../src/utils/charts-catalog-embed'
 import { isFrameEmbeddingAllowed } from '../src/utils/frame-embedding'
 
-test('only exact catalog embed documents bypass the global frame denial', () => {
+test('only explicit embed documents bypass the global frame denial', () => {
+  assert.equal(isFrameEmbeddingAllowed('/partners-embed'), true)
+  assert.equal(isFrameEmbeddingAllowed('/sponsors-embed'), true)
   assert.equal(isFrameEmbeddingAllowed('/charts/catalog/embed/01-line/'), true)
   assert.equal(isFrameEmbeddingAllowed('/charts/catalog/embed/01-line'), true)
   assert.equal(isFrameEmbeddingAllowed('/stats/npm/embed'), true)
 
   for (const pathname of [
+    '/partners',
+    '/sponsors',
     '/charts/catalog/',
     '/charts/catalog/charts/01-line/',
     '/charts/catalog/embed/',

@@ -84,13 +84,14 @@ function setExistingBlogListResponseHeaders() {
   )
 }
 
-async function getBlogCardPosts() {
-  const externalPosts = await getExternalBlogPosts()
+function getInternalBlogCardPosts() {
+  return sortBlogCardPosts(getVisiblePosts().map(postToBlogCardPost))
+}
 
-  return sortBlogCardPosts([
-    ...getVisiblePosts().map(postToBlogCardPost),
-    ...externalPosts,
-  ])
+async function getBlogCardPosts(options?: { libraryId?: LibraryId }) {
+  const externalPosts = await getExternalBlogPosts(options)
+
+  return sortBlogCardPosts([...getInternalBlogCardPosts(), ...externalPosts])
 }
 
 export const fetchBlogPost = createServerFn({ method: 'GET' })
@@ -153,7 +154,7 @@ export const fetchBlogPostsForLibrary = createServerFn({ method: 'GET' })
       return []
     }
 
-    return (await getBlogCardPosts()).filter((post) =>
+    return (await getBlogCardPosts({ libraryId: library.id })).filter((post) =>
       getBlogLibraries(post.library).some(
         (postLibrary) => postLibrary.id === library.id,
       ),
@@ -164,16 +165,18 @@ export const fetchRecentPosts = createServerFn({ method: 'GET' }).handler(
   async (): Promise<Array<RecentPost>> => {
     setExistingBlogListResponseHeaders()
 
-    return (await getBlogCardPosts()).slice(0, 3).map((post) => ({
-      slug: post.slug,
-      title: post.title,
-      published: post.published,
-      excerpt: post.excerpt,
-      headerImage: post.headerImage,
-      authors: post.authors,
-      externalUrl: post.externalUrl,
-      source: post.source,
-    }))
+    return getInternalBlogCardPosts()
+      .slice(0, 3)
+      .map((post) => ({
+        slug: post.slug,
+        title: post.title,
+        published: post.published,
+        excerpt: post.excerpt,
+        headerImage: post.headerImage,
+        authors: post.authors,
+        externalUrl: post.externalUrl,
+        source: post.source,
+      }))
   },
 )
 

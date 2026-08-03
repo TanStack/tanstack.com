@@ -118,19 +118,19 @@ export function ProductPage({
 
         <div className="flex flex-col">
           <ShopLabel>TanStack shop</ShopLabel>
-          <h1 className="font-shop-display font-bold text-[32px] leading-[1.05] tracking-[-0.02em] text-shop-text mt-1.5">
+          <h1 className="font-shop-display text-ds-heading-1 text-shop-text mt-1.5">
             {product.title}
           </h1>
 
           <ShopPanel className="mt-3 p-3 flex flex-wrap items-center gap-2.5">
             {displayPrice ? (
-              <ShopMono className="text-[20px] font-medium text-shop-text">
+              <ShopMono className="text-ds-body-xl text-shop-text">
                 {formatMoney(displayPrice.amount, displayPrice.currencyCode)}
               </ShopMono>
             ) : null}
             <ShopMono
               className={twMerge(
-                'ml-auto flex items-center gap-1.5 text-[12px]',
+                'ml-auto flex items-center gap-1.5 text-ds-label-sm',
                 inStock ? 'text-shop-green' : 'text-shop-orange',
               )}
             >
@@ -184,7 +184,7 @@ export function ProductPage({
             <ShopLabel>Keep browsing</ShopLabel>
             <Link
               to="/shop"
-              className="text-shop-accent text-[11.5px] hover:underline"
+              className="text-shop-accent text-ds-mono-xs hover:underline"
             >
               All products →
             </Link>
@@ -245,7 +245,7 @@ function ProductGallery({
               className={twMerge(
                 'aspect-square rounded-md border bg-shop-panel overflow-hidden cursor-pointer transition-all',
                 i === activeIndex
-                  ? 'border-shop-accent shadow-[0_0_0_1px_var(--shop-accent)]'
+                  ? 'border-shop-accent ring-1 ring-shop-accent'
                   : 'border-shop-line hover:border-shop-line-2',
               )}
             >
@@ -285,7 +285,7 @@ function VariantSelector({
             <legend className="flex items-center justify-between w-full mb-2.5">
               <ShopLabel as="span">
                 {option.name}
-                <span className="ml-2 font-sans normal-case tracking-normal text-[11.5px] text-shop-text">
+                <span className="ml-2 font-sans normal-case tracking-normal text-ds-mono-xs text-shop-text">
                   {selected[option.name]}
                 </span>
               </ShopLabel>
@@ -428,7 +428,7 @@ function QuantityAdd({
         className="
           h-10 flex items-center justify-center gap-2 rounded-md
           bg-shop-accent text-shop-accent-ink
-          font-semibold text-[13px] tracking-[0.01em]
+          font-semibold text-ds-label-md
           transition-[filter] hover:enabled:brightness-110
           disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-shop-panel-2 disabled:text-shop-muted
           group
@@ -449,7 +449,7 @@ function ProductDescription({ html }: { html: string }) {
   return (
     <div
       className="
-        mt-4 text-shop-text-2 text-[13.5px] leading-[1.6]
+        mt-4 text-shop-text-2 text-ds-body-sm
         [&_p]:my-0 [&_p]:mb-[0.9em] [&_a]:text-shop-accent [&_a]:underline
         [&_strong]:text-shop-text [&_strong]:font-semibold
         [&_ul]:pl-5 [&_ul]:my-2 [&_ol]:pl-5 [&_ol]:my-2 [&_li]:my-1

@@ -2,7 +2,13 @@ import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { Link } from '@tanstack/react-router'
-import { CaretDown, CircleNotch, User } from '@phosphor-icons/react'
+import {
+  CaretDown,
+  CircleNotch,
+  MagnifyingGlass,
+  User,
+  X,
+} from '@phosphor-icons/react'
 import type { MarkdownHeading } from '~/utils/markdown'
 import type { LibraryId } from '~/libraries/ids'
 import type { LibraryCategory } from '~/libraries/categories'
@@ -412,6 +418,157 @@ export const FormInput = React.forwardRef<HTMLInputElement, FormInputProps>(
         )}
         {...props}
       />
+    )
+  },
+)
+
+type FormSelectProps = React.SelectHTMLAttributes<HTMLSelectElement> & {
+  focusRing?: 'blue' | 'orange' | 'purple'
+}
+
+export const FormSelect = React.forwardRef<HTMLSelectElement, FormSelectProps>(
+  function FormSelect({ className, focusRing = 'blue', ...props }, ref) {
+    return (
+      <select
+        ref={ref}
+        className={twMerge(
+          'w-full rounded-lg border border-border-default bg-background-surface px-3 py-2 text-text-primary transition focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-40',
+          ringStyles[focusRing],
+          className,
+        )}
+        {...props}
+      />
+    )
+  },
+)
+
+/* ------------------------------------------------------------- SearchInput -- */
+
+type SearchInputProps = Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  'size' | 'type'
+> & {
+  size?: 'default' | 'large'
+  progressive?: boolean
+}
+
+export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
+  function SearchInput(
+    { className, size = 'default', progressive = false, ...props },
+    forwardedRef,
+  ) {
+    const [open, setOpen] = React.useState(!progressive)
+    const [skipMotion, setSkipMotion] = React.useState(false)
+    const inputRef = React.useRef<HTMLInputElement>(null)
+    const triggerRef = React.useRef<HTMLButtonElement>(null)
+
+    React.useImperativeHandle(forwardedRef, () => inputRef.current!)
+
+    React.useEffect(() => {
+      if (open && progressive) inputRef.current?.focus()
+    }, [open, progressive])
+
+    const reveal = (event: React.MouseEvent<HTMLButtonElement>) => {
+      setSkipMotion(event.detail === 0)
+      if (open) {
+        inputRef.current?.focus()
+      } else {
+        setOpen(true)
+      }
+    }
+
+    const close = (keyboardInitiated: boolean) => {
+      setSkipMotion(keyboardInitiated)
+      setOpen(false)
+      window.requestAnimationFrame(() => triggerRef.current?.focus())
+    }
+
+    const input = (
+      <input
+        ref={inputRef}
+        type="search"
+        className={twMerge(
+          'min-w-0 flex-1 bg-transparent text-text-primary placeholder-text-muted outline-none [&::-webkit-search-cancel-button]:hidden',
+          size === 'large' ? 'text-base' : 'text-sm',
+          className,
+        )}
+        {...props}
+        onKeyDown={(event) => {
+          props.onKeyDown?.(event)
+          if (progressive && event.key === 'Escape') close(true)
+        }}
+      />
+    )
+
+    if (!progressive) {
+      return (
+        <label
+          className={twMerge(
+            'flex w-full items-center border border-border-default bg-background-surface text-text-muted transition-[border-color,box-shadow] duration-150 focus-within:border-border-focus focus-within:text-text-primary focus-within:ring-2 focus-within:ring-border-focus/40 motion-reduce:transition-none',
+            size === 'large'
+              ? 'min-h-14 gap-3 rounded-xl px-4'
+              : 'h-10 gap-2.5 rounded-lg px-3',
+          )}
+        >
+          <MagnifyingGlass
+            size={size === 'large' ? 21 : 18}
+            weight="bold"
+            aria-hidden="true"
+            className="shrink-0"
+          />
+          {input}
+        </label>
+      )
+    }
+
+    return (
+      <div className="relative h-12 w-full max-w-72">
+        <div className="absolute inset-0 flex items-start text-text-muted focus-within:text-text-primary">
+          <button
+            ref={triggerRef}
+            type="button"
+            aria-label={open ? 'Focus search' : 'Open search'}
+            aria-expanded={open}
+            onClick={reveal}
+            className="grid size-10 shrink-0 place-items-center transition-colors duration-150 hover:text-text-primary focus-visible:text-text-accent focus-visible:outline-none motion-reduce:transition-none"
+          >
+            <MagnifyingGlass size={18} weight="bold" aria-hidden="true" />
+          </button>
+          {React.cloneElement(input, {
+            tabIndex: open ? props.tabIndex : -1,
+            'aria-hidden': !open,
+            className: twMerge(
+              input.props.className,
+              'h-12 pb-4 pt-2 transition-opacity ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none',
+              open
+                ? 'opacity-100 duration-[220ms]'
+                : 'pointer-events-none opacity-0 duration-100',
+              skipMotion && 'transition-none',
+            ),
+          })}
+          <button
+            type="button"
+            aria-label="Close search"
+            tabIndex={open ? 0 : -1}
+            onClick={(event) => close(event.detail === 0)}
+            className={twMerge(
+              'grid size-10 shrink-0 place-items-center text-text-muted transition-opacity duration-100 hover:text-text-primary focus-visible:text-text-accent focus-visible:outline-none motion-reduce:transition-none',
+              open ? 'opacity-100' : 'pointer-events-none opacity-0',
+              skipMotion && 'transition-none',
+            )}
+          >
+            <X size={16} weight="bold" aria-hidden="true" />
+          </button>
+          <span
+            aria-hidden="true"
+            className={twMerge(
+              'pointer-events-none absolute inset-x-0 bottom-0 h-px origin-left bg-border-focus transition-transform ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none',
+              open ? 'scale-x-100 duration-[240ms]' : 'scale-x-0 duration-100',
+              skipMotion && 'transition-none',
+            )}
+          />
+        </div>
+      </div>
     )
   },
 )

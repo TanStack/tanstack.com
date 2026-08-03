@@ -5,7 +5,6 @@ import { BlogAuthorFilter } from '~/components/BlogAuthorFilter'
 import { getVisiblePosts } from '~/utils/blog'
 import { getDistinctAuthors } from '~/utils/blog-format'
 
-import { Footer } from '~/components/Footer'
 import { PostNotFound } from './blog'
 import { createServerFn } from '@tanstack/react-start'
 import { setResponseHeaders } from '@tanstack/react-start/server'
@@ -187,7 +186,6 @@ function BlogIndex() {
           </Card>
         </RightRail>
       </div>
-      <Footer />
     </div>
   )
 }

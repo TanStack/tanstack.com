@@ -12,7 +12,6 @@ import {
   CodeSimple,
 } from '@phosphor-icons/react'
 import * as React from 'react'
-import { Footer } from '~/components/Footer'
 import { Card } from '~/components/Card'
 import { allMaintainers, Maintainer } from '~/libraries/maintainers'
 import { MaintainerCard } from '~/components/MaintainerCard'
@@ -424,7 +423,6 @@ function WorkshopsPage() {
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   )
 }

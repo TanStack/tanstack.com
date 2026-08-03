@@ -49,7 +49,7 @@ export function ShopQty({
       >
         <Minus />
       </button>
-      <span className="font-shop-mono text-[13px] text-shop-text min-w-[1.5rem] text-center select-none">
+      <span className="font-shop-mono text-shop-ui text-shop-text min-w-[1.5rem] text-center select-none">
         {quantity}
       </span>
       <button

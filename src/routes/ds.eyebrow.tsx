@@ -2,7 +2,7 @@ import * as React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { Sparkle, GitBranch, Database } from '@phosphor-icons/react'
 import { seo } from '~/utils/seo'
-import { Eyebrow } from '~/components/ds/ui'
+import { Eyebrow, FormSelect } from '~/components/ds/ui'
 import { ComponentPreview, DsPage, DsSection } from '~/components/ds/DsKit'
 import type { LibraryId } from '~/libraries/ids'
 
@@ -42,18 +42,23 @@ function EyebrowPlayground() {
         </label>
         <label className="flex items-center gap-2 text-sm text-text-secondary">
           Category
-          <select
+          <FormSelect
             value={library}
             disabled={!branded}
-            onChange={(e) => setLibrary(e.target.value as LibraryId)}
-            className="rounded-lg border border-border-default bg-background-default px-3 py-1.5 text-sm text-text-primary transition disabled:opacity-40"
+            onChange={(event) => {
+              const selectedLibrary = BRAND_LIBRARIES.find(
+                (id) => id === event.target.value,
+              )
+              if (selectedLibrary) setLibrary(selectedLibrary)
+            }}
+            className="w-auto py-1.5 text-sm"
           >
             {BRAND_LIBRARIES.map((id) => (
               <option key={id} value={id}>
                 {id[0].toUpperCase() + id.slice(1)}
               </option>
             ))}
-          </select>
+          </FormSelect>
         </label>
       </div>
 

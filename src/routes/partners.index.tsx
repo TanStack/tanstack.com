@@ -1,5 +1,4 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { Footer } from '~/components/Footer'
 import { Card } from '~/components/Card'
 import { PartnerStatusFilter } from '~/components/PartnerStatusFilter'
 import {
@@ -413,7 +412,6 @@ function PartnersIndexPage() {
           </a>
         </div>
       </div>
-      <Footer />
     </div>
   )
 }

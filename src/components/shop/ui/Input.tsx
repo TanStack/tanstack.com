@@ -12,7 +12,7 @@ export const ShopInput = React.forwardRef<HTMLInputElement, Props>(
         {...rest}
         className={twMerge(
           'px-2.5 py-2 border border-shop-line rounded-md',
-          'bg-shop-panel text-shop-text text-[13px]',
+          'bg-shop-panel text-shop-text text-shop-ui',
           'placeholder:text-shop-muted',
           'focus:outline-none focus:border-shop-accent',
           'w-full',

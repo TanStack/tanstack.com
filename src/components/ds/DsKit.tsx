@@ -2,10 +2,11 @@ import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import { Check, CaretDown, Code, Copy } from '@phosphor-icons/react'
 import { copyTextToClipboard } from '~/utils/browser-effects'
+import { toDsSectionId } from '~/components/ds/ds-nav'
 
 const descriptionStyles = {
-  page: 'mt-3 max-w-2xl text-ds-body-md text-text-secondary',
-  section: 'mt-1 max-w-2xl text-ds-body-sm text-text-secondary',
+  page: 'mt-3 max-w-[716px] text-ds-body-sm text-text-secondary',
+  section: 'mt-1 max-w-2xl text-ds-body-xs font-extralight text-text-secondary',
   preview: 'truncate text-ds-body-sm text-text-muted',
 } as const
 
@@ -67,14 +68,19 @@ export function DsSection({
   title,
   description,
   children,
+  className,
 }: {
   title: string
   description?: React.ReactNode
   children: React.ReactNode
+  className?: string
 }) {
   return (
-    <section className="space-y-4">
-      <div>
+    <section
+      id={toDsSectionId(title)}
+      className={twMerge('scroll-mt-24 space-y-5', className)}
+    >
+      <div className={description ? 'min-h-[70px]' : undefined}>
         <h2 className="font-ds-display text-ds-heading-4 text-text-primary">
           {title}
         </h2>

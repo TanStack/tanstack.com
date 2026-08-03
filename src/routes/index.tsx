@@ -71,15 +71,15 @@ function Index() {
               headline bottom-left, description + CTA bottom-right. The photo is
               always light, so text uses a mode-stable dark token (neutral-500)
               rather than a theme-flipping semantic. */}
-          <div className="mx-2 rounded-2xl bg-background-subtle p-1">
-            <div className="group relative isolate flex h-[calc(100dvh-var(--navbar-height))] max-h-[720px] min-h-[560px] flex-col justify-between gap-8 overflow-hidden rounded-xl px-6 py-10 sm:px-10 md:flex-row md:items-end md:justify-between md:gap-8 xl:gap-12 xl:px-16 xl:py-16">
+          <div className="mx-0 rounded-none bg-background-subtle p-0 sm:mx-2 sm:rounded-2xl sm:p-1">
+            <div className="group relative isolate flex h-[calc(100dvh-var(--navbar-height))] max-h-[720px] min-h-[560px] flex-col justify-between gap-8 overflow-hidden rounded-none px-6 py-10 [text-shadow:0_2px_8px_rgb(255_255_255/0.2)] sm:rounded-xl sm:px-10 md:flex-row md:items-end md:justify-between md:gap-8 md:[text-shadow:none] xl:gap-12 xl:px-16 xl:py-16">
               {/* The parent supplies the 4px frame shared by the hero and stats.
                   This wrapper clips the image to the inner radius so the <img>
                   fills it exactly instead of overflowing. Plain <img> (not OptimizedImage):
                   the Cloudflare transform resolves against the production origin,
                   so a newly-added asset 404s until deployed. */}
               <HeroPalmMedia />
-              <h1 className="max-w-[613px] font-ds-display text-ds-display-sm font-bold text-ds-neutral-500 md:w-[47%] md:text-[clamp(2.5rem,4.7vw,4rem)] md:leading-[1.1] xl:leading-[1.08]">
+              <h1 className="max-w-[613px] font-ds-display text-ds-display-sm font-bold text-ds-neutral-500 md:w-[47%] md:text-[clamp(2rem,4.3vw,4rem)] md:leading-[1.1] md:tracking-[-0.025em] xl:leading-[1.08]">
                 The{' '}
                 <span className="underline decoration-from-font underline-offset-[6px]">
                   open source
@@ -88,7 +88,7 @@ function Index() {
                 <br className="hidden md:block" /> for the web
               </h1>
               <div className="flex flex-col items-start gap-6 md:w-[29%] md:max-w-[454px]">
-                <p className="text-ds-body-md text-ds-neutral-500 [text-shadow:0_3px_10px_rgb(255_255_255/0.1)] md:text-ds-body-lg md:[text-shadow:none] xl:text-ds-body-xl">
+                <p className="text-ds-body-md text-ds-neutral-500 md:text-ds-body-lg xl:text-ds-body-xl">
                   Headless, type-safe, composable tools for building modern web
                   applications that work naturally for developers and reliably
                   for agents
@@ -102,15 +102,16 @@ function Index() {
                   >
                     Browse the Stack
                   </Button>
-                  {/* Link-style button; color pinned to a mode-stable dark token
-                      because the photo is always light. */}
+                  {/* Link-style button; color pinned to black because the photo
+                      is always light. The responsive override supersedes the
+                      link variant's mobile emphasis color. */}
                   <Button
                     as="a"
                     href="#start-with-a-prompt"
                     onClick={startWithPrompt}
                     variant="link"
                     size="md"
-                    className="text-ds-neutral-500 hover:text-ds-neutral-500/70"
+                    className="text-black hover:text-black max-[899px]:text-black"
                   >
                     Start with a prompt <ArrowRight className="h-4 w-4" />
                   </Button>
@@ -267,7 +268,7 @@ const whyTanStackPrinciples = [
     body: 'Our library cores are provider-agnostic and logic-driven, meaning you can use the same logic in React, Vue, Svelte, Solid, and more.',
     Icon: Stack,
     accentClassName: 'from-blue-500 to-cyan-500',
-    eyebrowClassName: 'text-ds-terracotta-400',
+    eyebrowClassName: 'text-category-ui',
     iconClassName:
       'border-cyan-200 bg-cyan-50 text-cyan-700 dark:border-cyan-900 dark:bg-cyan-950/40 dark:text-cyan-300',
     proof: 'adapters',
@@ -289,7 +290,7 @@ const whyTanStackPrinciples = [
     body: "Battle-tested in the world's largest apps. We build for scale, handling complex concurrency, caching, and state synchronization with ease.",
     Icon: Lightning,
     accentClassName: 'from-orange-500 to-red-500',
-    eyebrowClassName: 'text-ds-blue-400',
+    eyebrowClassName: 'text-ds-terracotta-400',
     iconClassName:
       'border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-900 dark:bg-orange-950/40 dark:text-orange-300',
     proof: 'adoption',

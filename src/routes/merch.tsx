@@ -1,6 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
 import * as React from 'react'
-import { Footer } from '~/components/Footer'
 import { seo } from '~/utils/seo'
 import {
   TShirt,
@@ -134,7 +133,6 @@ function RouteComp() {
           ))}
         </section>
       </div>
-      <Footer />
     </div>
   )
 }

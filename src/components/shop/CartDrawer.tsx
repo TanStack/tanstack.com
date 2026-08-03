@@ -33,7 +33,7 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
             'max-h-[calc(100dvh-var(--navbar-height,56px)-1rem)]',
             'flex flex-col rounded-xl',
             'bg-shop-bg-2 border border-shop-line text-shop-text',
-            'shadow-[0_25px_50px_-12px_rgba(0,0,0,0.4)]',
+            'shadow-2xl',
           )}
           aria-describedby={undefined}
         >
@@ -83,7 +83,7 @@ function DrawerEmpty({ onClose }: { onClose: () => void }) {
         onClick={onClose}
         className="
           inline-flex items-center gap-2 px-4 py-2.5 rounded-md
-          bg-shop-accent text-shop-accent-ink font-semibold text-[13px]
+          bg-shop-accent text-shop-accent-ink font-semibold text-shop-ui
           transition-[filter] hover:brightness-110 group
         "
       >
@@ -119,7 +119,7 @@ function DrawerFooter({
         href={cart.checkoutUrl}
         className="
           w-full h-10 rounded-md bg-shop-accent text-shop-accent-ink
-          font-semibold text-[13px] flex items-center justify-center gap-2
+          font-semibold text-shop-ui flex items-center justify-center gap-2
           transition-[filter] hover:brightness-110 group
         "
       >

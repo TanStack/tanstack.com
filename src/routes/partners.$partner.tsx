@@ -6,7 +6,6 @@ import {
   CheckCircle as CheckCircle2,
   CircleDashed,
 } from '@phosphor-icons/react'
-import { Footer } from '~/components/Footer'
 import { Card } from '~/components/Card'
 import { Button } from '~/ui'
 import { seo } from '~/utils/seo'
@@ -317,8 +316,6 @@ function PartnerDetailPage() {
           )}
         </div>
       </div>
-
-      <Footer />
     </div>
   )
 }

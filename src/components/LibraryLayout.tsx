@@ -27,7 +27,6 @@ import {
   type PartnerPlacementContext,
 } from '~/utils/partner-placement'
 import { usePartnerPlacementContext } from '~/utils/usePartnerPlacementContext'
-import { Footer } from './Footer'
 import { RecentPostsWidget } from './RecentPostsWidget'
 import { SearchButton } from './SearchButton'
 import { FrameworkSelect, useCurrentFramework } from './FrameworkSelect'
@@ -1505,11 +1504,6 @@ export function LibraryLayout({
               >
                 {children}
               </div>
-              {!isLandingPage && (
-                <div className="pt-8 md:pt-12">
-                  <Footer />
-                </div>
-              )}
             </div>
             {!isLandingPage && (
               <RightRail

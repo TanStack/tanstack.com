@@ -38,7 +38,7 @@ function CartPage() {
         crumbs={[{ label: 'Shop', href: '/shop' }, { label: 'Cart' }]}
       />
       <header>
-        <h1 className="font-shop-display font-bold text-[36px] leading-[1.05] tracking-[-0.02em] text-shop-text">
+        <h1 className="font-shop-display text-ds-heading-1 text-shop-text">
           Cart
         </h1>
         <ShopLabel className="mt-2">
@@ -75,7 +75,7 @@ function CartPage() {
                 </ShopMono>
               </dd>
             </div>
-            <p className="font-shop-mono text-[11px] text-shop-muted tracking-[0.06em] mt-1">
+            <p className="font-shop-mono text-ds-mono-caps-xs text-shop-muted mt-1">
               Shipping and taxes calculated at checkout.
             </p>
           </dl>
@@ -84,7 +84,7 @@ function CartPage() {
             href={checkoutUrl}
             className="
               w-full h-11 rounded-md bg-shop-accent text-shop-accent-ink
-              font-semibold text-[13px] flex items-center justify-center gap-2
+              font-semibold text-ds-label-md flex items-center justify-center gap-2
               transition-[filter] hover:brightness-110 group
             "
           >
@@ -185,7 +185,7 @@ function EmptyCart() {
   return (
     <div className="p-6 md:p-11 pb-24 max-w-[1100px] mx-auto flex flex-col gap-8">
       <header>
-        <h1 className="font-shop-display font-bold text-[36px] leading-[1.05] tracking-[-0.02em] text-shop-text">
+        <h1 className="font-shop-display text-ds-heading-1 text-shop-text">
           Cart
         </h1>
       </header>
@@ -197,7 +197,7 @@ function EmptyCart() {
           className="
             inline-flex items-center gap-2 px-4 py-2.5 rounded-md
             bg-shop-accent text-shop-accent-ink
-            font-semibold text-[13px]
+            font-semibold text-ds-label-md
             transition-[filter] hover:brightness-110 group
           "
         >

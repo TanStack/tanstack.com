@@ -1,4 +1,4 @@
-import type * as React from 'react'
+import * as React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import {
   ArrowRight,
@@ -84,6 +84,28 @@ function ButtonMode({
   )
 }
 
+const PERIODS = ['Day', 'Week', 'Month'] as const
+
+function SegmentedButtonGroup() {
+  const [period, setPeriod] = React.useState<(typeof PERIODS)[number]>('Week')
+
+  return (
+    <ButtonGroup>
+      {PERIODS.map((option) => (
+        <Button
+          key={option}
+          variant="ghost"
+          rounded="none"
+          aria-pressed={period === option}
+          onClick={() => setPeriod(option)}
+        >
+          {option}
+        </Button>
+      ))}
+    </ButtonGroup>
+  )
+}
+
 function ButtonsPage() {
   return (
     <DsPage
@@ -151,6 +173,7 @@ function ButtonsPage() {
       <DsSection
         title="Colors"
         description="Primary variant across the full color set."
+        className="space-y-0"
       >
         <ButtonPreview
           code={`<Button color="blue">Blue</Button>
@@ -262,22 +285,12 @@ function ButtonsPage() {
       >
         <ButtonPreview
           code={`<ButtonGroup>
-  <Button variant="ghost" rounded="none">Day</Button>
-  <Button variant="ghost" rounded="none">Week</Button>
-  <Button variant="ghost" rounded="none">Month</Button>
+  <Button variant="ghost" rounded="none" aria-pressed={period === 'day'}>Day</Button>
+  <Button variant="ghost" rounded="none" aria-pressed={period === 'week'}>Week</Button>
+  <Button variant="ghost" rounded="none" aria-pressed={period === 'month'}>Month</Button>
 </ButtonGroup>`}
         >
-          <ButtonGroup>
-            <Button variant="ghost" rounded="none">
-              Day
-            </Button>
-            <Button variant="ghost" rounded="none">
-              Week
-            </Button>
-            <Button variant="ghost" rounded="none">
-              Month
-            </Button>
-          </ButtonGroup>
+          <SegmentedButtonGroup />
         </ButtonPreview>
       </DsSection>
 

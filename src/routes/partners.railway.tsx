@@ -15,7 +15,6 @@ import {
   ArrowUUpLeft as Undo2,
 } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
-import { Footer } from '~/components/Footer'
 import { Card } from '~/components/Card'
 import { Button } from '~/ui'
 import {
@@ -785,8 +784,6 @@ function RailwayPartnerPage() {
           </a>
         </p>
       </div>
-
-      <Footer />
     </div>
   )
 }

@@ -3,7 +3,6 @@ import * as v from 'valibot'
 import { useState } from 'react'
 import * as React from 'react'
 import { X, Funnel, GridFour, GridNine, Rows } from '@phosphor-icons/react'
-import { Footer } from '~/components/Footer'
 import {
   MaintainerCard,
   CompactMaintainerCard,
@@ -759,7 +758,6 @@ function RouteComponent() {
             </p>
           </div>
         </div>
-        <Footer />
       </div>
     </>
   )

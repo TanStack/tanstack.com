@@ -4,12 +4,12 @@ import { useRemoveUsersFromRole } from '~/utils/mutations'
 import { useQuery } from '@tanstack/react-query'
 import { getRole, getUsersWithRole } from '~/utils/roles.functions'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
+import { flexRender } from '@tanstack/react-table'
 import {
-  useReactTable,
   getCoreRowModel,
-  flexRender,
-  type ColumnDef,
-} from '@tanstack/react-table'
+  useLegacyTable as useReactTable,
+} from '@tanstack/react-table/legacy'
+import type { LegacyColumnDef as ColumnDef } from '@tanstack/react-table/legacy'
 import {
   ArrowLeftIcon,
   LockIcon,

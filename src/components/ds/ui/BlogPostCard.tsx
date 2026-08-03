@@ -14,18 +14,12 @@ export function BlogPostCard({
   onNavigate?: () => void
   post: RecentPost
 }) {
-  return (
-    <Link
-      to="/blog/$"
-      params={{ _splat: post.slug } as never}
-      onClick={onNavigate}
-      preload="intent"
-      activeProps={{ className: 'bg-surface-state-pressed' }}
-      className={twMerge(
-        'group/post flex flex-col gap-3 rounded-xl corner-squircle p-3 transition-colors hover:bg-surface-state-hover focus-visible:bg-surface-state-hover focus-visible:outline-none',
-        className,
-      )}
-    >
+  const cardClassName = twMerge(
+    'group/post flex flex-col gap-3 rounded-xl corner-squircle p-3 transition-colors hover:bg-surface-state-hover focus-visible:bg-surface-state-hover focus-visible:outline-none',
+    className,
+  )
+  const content = (
+    <>
       {post.headerImage ? (
         <div className="aspect-video w-full overflow-hidden rounded-lg corner-squircle border border-border-subtle">
           <img
@@ -58,6 +52,33 @@ export function BlogPostCard({
           {formatAuthors(post.authors)} · {formatPublishedDate(post.published)}
         </div>
       </div>
+    </>
+  )
+
+  if (post.externalUrl) {
+    return (
+      <a
+        href={post.externalUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={onNavigate}
+        className={cardClassName}
+      >
+        {content}
+      </a>
+    )
+  }
+
+  return (
+    <Link
+      to="/blog/$"
+      params={{ _splat: post.slug } as never}
+      onClick={onNavigate}
+      preload="intent"
+      activeProps={{ className: 'bg-surface-state-pressed' }}
+      className={cardClassName}
+    >
+      {content}
     </Link>
   )
 }

@@ -2,14 +2,14 @@ import * as React from 'react'
 import { useMemo } from 'react'
 import { twMerge } from 'tailwind-merge'
 import {
-  BookOpen,
-  Code,
-  FileText,
-  Palette,
-  Rocket,
-  Settings2,
-  Terminal,
-} from 'lucide-react'
+  BookOpenIcon,
+  CodeIcon,
+  FileTextIcon,
+  PaletteIcon,
+  RocketIcon,
+  GearSixIcon,
+  TerminalIcon,
+} from '@phosphor-icons/react'
 import {
   useAvailableExamples,
   useAvailableFeatures,
@@ -244,16 +244,19 @@ export function BuilderSummaryPanel({
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
                 <SummaryBadge
-                  icon={Code}
+                  icon={CodeIcon}
                   label={summary.framework === 'solid' ? 'Solid' : 'React'}
                 />
-                <SummaryBadge icon={Terminal} label={summary.packageManager} />
                 <SummaryBadge
-                  icon={Palette}
+                  icon={TerminalIcon}
+                  label={summary.packageManager}
+                />
+                <SummaryBadge
+                  icon={PaletteIcon}
                   label={summary.tailwind ? 'Tailwind' : 'Custom CSS'}
                 />
                 <SummaryBadge
-                  icon={Rocket}
+                  icon={RocketIcon}
                   label={
                     summary.deploymentFeatures.length > 0
                       ? summary.deploymentFeatures
@@ -264,20 +267,23 @@ export function BuilderSummaryPanel({
                 />
                 {summary.selectedTemplate ? (
                   <SummaryBadge
-                    icon={FileText}
+                    icon={FileTextIcon}
                     label={summary.selectedTemplate}
                   />
                 ) : null}
                 {summary.toolingFeatures.length > 0 ? (
                   <SummaryBadge
-                    icon={Settings2}
+                    icon={GearSixIcon}
                     label={summary.toolingFeatures
                       .map((feature) => feature.name)
                       .join(', ')}
                   />
                 ) : null}
                 {summary.exampleName ? (
-                  <SummaryBadge icon={BookOpen} label={summary.exampleName} />
+                  <SummaryBadge
+                    icon={BookOpenIcon}
+                    label={summary.exampleName}
+                  />
                 ) : null}
               </div>
             </div>

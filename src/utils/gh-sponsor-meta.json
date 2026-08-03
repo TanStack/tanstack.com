@@ -48,8 +48,8 @@
   {
     "login": "humanizerpro",
     "name": "AI humanizer",
-    "imageUrl": "https://humanizerpro.ai/favicon.ico",
-    "linkUrl": "https://humanizerpro.ai"
+    "imageUrl": "https://humanizetext.io/logo.svg",
+    "linkUrl": "https://humanizetext.io"
   },
   {
     "login": "GoHumanize-ai",
@@ -359,5 +359,11 @@
     "name": "Forminit",
     "imageUrl": "https://avatars.githubusercontent.com/u/41009912?v=4",
     "linkUrl": "https://forminit.com/?utm_source=tanstack"
+  },
+  {
+    "login": "humanizeaitext-io",
+    "name": "Humanize AI Text",
+    "imageUrl": "https://humanizeaitext.io/icon.svg",
+    "linkUrl": "https://humanizeaitext.io/"
   }
 ]

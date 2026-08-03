@@ -6,12 +6,8 @@ import {
 } from '@tanstack/react-router'
 import { RedirectVersionBanner } from '~/components/RedirectVersionBanner'
 import { findLibrary } from '~/libraries'
-import {
-  loadLibraryConfig,
-  validateLibraryVersion,
-} from '../../-library-landing'
-
-export type { LandingComponentProps } from '../../-library-landing'
+import { docsConfigQueryOptions } from '~/queries/docsConfig'
+import { validateLibraryVersion } from '../../-library-landing'
 
 export const Route = createFileRoute('/_library/$libraryId/$version')({
   staleTime: 1000 * 60 * 5,
@@ -34,7 +30,9 @@ export const Route = createFileRoute('/_library/$libraryId/$version')({
     }
 
     return {
-      config: await loadLibraryConfig(library.id, version!),
+      config: await ctx.context.queryClient.ensureQueryData(
+        docsConfigQueryOptions(library.id, version!),
+      ),
     }
   },
   component: RouteForm,

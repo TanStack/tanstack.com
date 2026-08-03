@@ -14,7 +14,7 @@ import type {
   SkillHistoryEntry,
   SkillSearchResult,
 } from '~/utils/intent.functions'
-import { SkillTypeBadge } from './$packageName'
+import { encodePkgName, SkillTypeBadge } from './$packageName'
 import { SkillSparklineFallback } from '~/components/intent/SkillSparklineFallback'
 
 const LazySkillSparkline = React.lazy(() =>
@@ -22,6 +22,8 @@ const LazySkillSparkline = React.lazy(() =>
     default: m.SkillSparkline,
   })),
 )
+
+const SKILL_HISTORY_PACKAGE_LIMIT = 12
 
 const searchSchema = v.object({
   q: v.optional(v.string()),
@@ -83,8 +85,12 @@ function IntentRegistryPage() {
     () => packages.map((p) => p.name),
     [packages],
   )
+  const skillHistoryPackageNames = React.useMemo(
+    () => packageNames.slice(0, SKILL_HISTORY_PACKAGE_LIMIT),
+    [packageNames],
+  )
   const skillHistoryQuery = useQuery(
-    intentSkillHistoryQueryOptions(packageNames),
+    intentSkillHistoryQueryOptions(skillHistoryPackageNames),
   )
   const skillHistory = React.useMemo(
     () => skillHistoryQuery.data ?? {},
@@ -114,7 +120,7 @@ function IntentRegistryPage() {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
       {/* Header */}
-      <div className="border-b border-gray-200 dark:border-gray-800 bg-gradient-to-br from-sky-50 to-white dark:from-sky-950/30 dark:to-gray-950">
+      <div className="border-b border-gray-200 dark:border-gray-800 bg-linear-to-br from-sky-50 to-white dark:from-sky-950/30 dark:to-gray-950">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
           <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-4">
             <Link
@@ -481,7 +487,7 @@ function IntentRegistryPage() {
           ))}
 
         {/* Ship your skills CTA */}
-        <div className="mt-16 mb-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gradient-to-br from-sky-50/50 to-white dark:from-sky-950/20 dark:to-gray-900 p-8 text-center">
+        <div className="mt-16 mb-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-linear-to-br from-sky-50/50 to-white dark:from-sky-950/20 dark:to-gray-900 p-8 text-center">
           <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-sky-100 dark:bg-sky-950/60 mb-4">
             <svg
               className="w-5 h-5 text-sky-600 dark:text-sky-400"
@@ -553,7 +559,7 @@ function PackageCard({
 }) {
   const publishedLabel = formatRelativeDate(pkg.publishedAt)
   const navigate = useNavigate()
-  const pkgSlug = pkg.name.replace('/', '__')
+  const pkgSlug = encodePkgName(pkg.name)
 
   const handleVersionClick = React.useCallback(
     (entry: SkillHistoryEntry) => {
@@ -652,7 +658,7 @@ function PackageRow({
 }) {
   const publishedLabel = formatRelativeDate(pkg.publishedAt)
   const navigate = useNavigate()
-  const pkgSlug = pkg.name.replace('/', '__')
+  const pkgSlug = encodePkgName(pkg.name)
 
   const handleVersionClick = React.useCallback(
     (entry: SkillHistoryEntry) => {
@@ -751,7 +757,7 @@ function SkillHitRow({
     <Link
       to="/intent/registry/$packageName/$skillName"
       params={{
-        packageName: hit.packageName.replace('/', '__'),
+        packageName: encodePkgName(hit.packageName),
         skillName: hit.skillName,
       }}
       className="group flex items-start gap-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 hover:border-sky-300 dark:hover:border-sky-700 hover:shadow-sm transition-all"

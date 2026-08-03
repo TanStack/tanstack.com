@@ -1,7 +1,5 @@
-'use client'
-
 import * as React from 'react'
-import { User } from 'lucide-react'
+import { SignInIcon } from '@phosphor-icons/react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 import {
@@ -48,8 +46,8 @@ export function NavbarAuthControls({ className }: NavbarAuthControlsProps) {
         className,
       )}
     >
-      <User className="w-3.5 h-3.5" />
       <span className="hidden min-[430px]:inline">Log In</span>
+      <SignInIcon className="size-4" weight="bold" />
     </Link>
   )
 

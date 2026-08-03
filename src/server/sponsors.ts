@@ -26,7 +26,7 @@ export type Sponsor = {
 
 const sponsorMaintainerLogin = 'tannerlinsley'
 
-export const getSponsorsForSponsorPack = createServerFn({
+export const getOssSponsors = createServerFn({
   method: 'GET',
 }).handler(async () => {
   const sponsors = await fetchCached({
@@ -41,8 +41,8 @@ export const getSponsorsForSponsorPack = createServerFn({
   setResponseHeaders(
     new Headers({
       'Cache-Control': 'public, max-age=0, must-revalidate',
-      'Netlify-CDN-Cache-Control':
-        'public, max-age=300, durable, stale-while-revalidate=300',
+      'Cloudflare-CDN-Cache-Control':
+        'public, max-age=300, stale-while-revalidate=300',
     }),
   )
 

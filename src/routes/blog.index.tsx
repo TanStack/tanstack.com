@@ -1,24 +1,23 @@
+import { RssIcon } from '@phosphor-icons/react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
-import { BlogCard, type BlogCardPost } from '~/components/BlogCard'
 import { BlogAuthorFilter } from '~/components/BlogAuthorFilter'
+import { BlogCard, type BlogCardPost } from '~/components/BlogCard'
 import { BlogSearchFilter } from '~/components/BlogSearchFilter'
+import { Card } from '~/components/Card'
+import { Footer } from '~/components/Footer'
+import { LibrariesWidget } from '~/components/LibrariesWidget'
+import { RecentPostsWidget } from '~/components/RecentPostsWidget'
+import { PartnersRail, RightRail } from '~/components/RightRail'
+import { libraries, type LibrarySlim } from '~/libraries'
 import {
   getDistinctAuthors,
   normalizeBlogAuthor,
   searchBlogCardPosts,
-} from '~/utils/blog'
-
-import { Footer } from '~/components/Footer'
-import { PostNotFound } from './blog'
-import { RssIcon } from 'lucide-react'
-import { libraries, type LibrarySlim } from '~/libraries'
-import { LibrariesWidget } from '~/components/LibrariesWidget'
-import { Card } from '~/components/Card'
-import { partners } from '~/utils/partners'
-import { PartnersRail, RightRail } from '~/components/RightRail'
-import { RecentPostsWidget } from '~/components/RecentPostsWidget'
+} from '~/utils/blog-format'
 import { fetchBlogIndexPosts } from '~/utils/blog.functions'
+import { partners } from '~/utils/partners'
+import { PostNotFound } from './blog'
 
 const searchSchema = v.object({
   author: v.fallback(v.optional(v.string()), undefined),
@@ -52,10 +51,12 @@ function getLibrariesWithPosts(posts: BlogCardPost[]): LibrarySlim[] {
 }
 
 function BlogIndex() {
-  const frontMatters = Route.useLoaderData() as BlogCardPost[]
+  const frontMatters = Route.useLoaderData()
   const { author, q } = Route.useSearch()
   const navigate = Route.useNavigate()
-  const activePartners = partners.filter((d) => d.status === 'active')
+  const activePartners = partners.filter(
+    (partner) => partner.status === 'active',
+  )
   const selectedAuthor = author ? normalizeBlogAuthor(author) : undefined
   const searchQuery = q ?? ''
 
@@ -72,7 +73,7 @@ function BlogIndex() {
       <div className="flex-1 flex w-full mb-16">
         <div className="flex-1 p-4 md:p-8 min-w-0 flex justify-center">
           <div className="w-full max-w-[1100px] space-y-12">
-            <header className="">
+            <header>
               <div className="flex gap-3 items-baseline">
                 <h1 className="text-3xl font-black">Blog</h1>
                 <a
@@ -179,7 +180,7 @@ function BlogIndex() {
                     matching <span className="font-medium">{searchQuery}</span>
                   </>
                 ) : null}
-                {author ? (
+                {selectedAuthor ? (
                   <>
                     {' '}
                     by <span className="font-medium">{selectedAuthor}</span>
@@ -196,7 +197,7 @@ function BlogIndex() {
             partners={activePartners}
           />
           <div className="hidden md:block border border-gray-500/20 rounded-l-lg overflow-hidden w-full">
-            <RecentPostsWidget />
+            <RecentPostsWidget posts={frontMatters.slice(0, 3)} />
           </div>
           <Card>
             <LibrariesWidget />

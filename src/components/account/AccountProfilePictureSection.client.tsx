@@ -1,6 +1,10 @@
 import * as React from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { Camera, RotateCcw, Trash2 } from 'lucide-react'
+import {
+  CameraIcon,
+  ArrowCounterClockwiseIcon,
+  TrashIcon,
+} from '@phosphor-icons/react'
 import { Avatar } from '~/components/Avatar'
 import { AvatarCropModal } from '~/components/AvatarCropModal'
 import { useToast } from '~/components/ToastProvider'
@@ -8,6 +12,10 @@ import { Button } from '~/ui'
 import { removeProfileImage, revertProfileImage } from '~/utils/users.functions'
 import { useUploadThing } from '~/utils/uploadthing.client'
 import { currentUserQueryOptions } from '~/hooks/useCurrentUser'
+import {
+  AVATAR_IMAGE_MAX_BYTES,
+  validateImageUploadFile,
+} from '~/utils/upload-preflight'
 
 type AccountProfileUser = {
   image?: string | null
@@ -60,10 +68,30 @@ export function AccountProfilePictureSection({
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
+      const validationError = validateImageUploadFile(
+        file,
+        AVATAR_IMAGE_MAX_BYTES,
+      )
+
+      if (validationError) {
+        notify(
+          <div>
+            <div className="font-medium">Upload unavailable</div>
+            <div className="text-gray-500 dark:text-gray-400 text-xs">
+              {validationError}
+            </div>
+          </div>,
+        )
+        e.target.value = ''
+        return
+      }
+
       const reader = new FileReader()
       reader.onload = () => {
-        setSelectedImage(reader.result as string)
-        setCropModalOpen(true)
+        if (typeof reader.result === 'string') {
+          setSelectedImage(reader.result)
+          setCropModalOpen(true)
+        }
       }
       reader.readAsDataURL(file)
     }
@@ -153,12 +181,12 @@ export function AccountProfilePictureSection({
             disabled={isUploading}
             className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer disabled:cursor-not-allowed"
           >
-            <Camera className="w-6 h-6 text-white" />
+            <CameraIcon className="w-6 h-6 text-white" />
           </button>
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept="image/png,image/jpeg,image/webp,image/gif"
             onChange={handleFileSelect}
             className="hidden"
           />
@@ -170,7 +198,7 @@ export function AccountProfilePictureSection({
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
           >
-            <Camera className="w-3.5 h-3.5" />
+            <CameraIcon className="w-3.5 h-3.5" />
             {isUploading ? 'Uploading...' : 'Change photo'}
           </Button>
           {canRevert && (
@@ -180,7 +208,7 @@ export function AccountProfilePictureSection({
               onClick={handleRevertToOAuth}
               disabled={isReverting}
             >
-              <RotateCcw className="w-3.5 h-3.5" />
+              <ArrowCounterClockwiseIcon className="w-3.5 h-3.5" />
               {isReverting ? 'Reverting...' : 'Revert to original'}
             </Button>
           )}
@@ -191,7 +219,7 @@ export function AccountProfilePictureSection({
               onClick={handleRemovePhoto}
               disabled={isRemoving}
             >
-              <Trash2 className="w-3.5 h-3.5" />
+              <TrashIcon className="w-3.5 h-3.5" />
               {isRemoving ? 'Removing...' : 'Remove photo'}
             </Button>
           )}

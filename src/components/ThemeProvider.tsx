@@ -1,5 +1,3 @@
-'use client'
-
 import { createClientOnlyFn, createIsomorphicFn } from '@tanstack/react-start'
 import * as React from 'react'
 import { createContext, ReactNode, useEffect, useState } from 'react'
@@ -147,7 +145,7 @@ export const useTheme = () => {
 // Reads from DOM on client (matches what head script set), empty on server
 const getHtmlClass = createIsomorphicFn()
   .server(() => '')
-  .client(() => document.documentElement.className)
+  .client(() => document.documentElement?.className ?? '')
 
 export function useHtmlClass(): string {
   return getHtmlClass()

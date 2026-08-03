@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
-import { ChevronDown } from 'lucide-react'
+import { CaretDownIcon } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
-import type { MarkdownHeading } from '~/utils/markdown/processor.rsc'
+import type { MarkdownHeading } from '~/utils/markdown'
 import {
   Dropdown,
   DropdownTrigger,
@@ -56,7 +56,7 @@ export function Breadcrumbs({
                 )}
               >
                 <span>On this page</span>
-                <ChevronDown className="w-3.5 h-3.5" />
+                <CaretDownIcon className="w-3.5 h-3.5" />
               </button>
             </DropdownTrigger>
             <DropdownContent align="end" sideOffset={8} className={hiddenClass}>

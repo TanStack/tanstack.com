@@ -1,31 +1,21 @@
 import { notFound } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
+import { createServerFn, createServerOnlyFn } from '@tanstack/react-start'
 import { setResponseHeader } from '@tanstack/react-start/server'
 import removeMarkdown from 'remove-markdown'
 import * as v from 'valibot'
-import {
-  extractFrontMatter,
-  fetchApiContents,
-  fetchRepoFile,
-  isRecoverableGitHubContentError,
-  shouldUseLocalDocsFiles,
-} from '~/utils/documents.server'
-import { renderMarkdownToRsc } from './markdown'
 import { extractFrameworksFromMarkdown } from './markdown/filterFrameworkContent'
-import { getCachedDocsArtifact } from './github-content-cache.server'
 import { buildRedirectManifest, type RedirectManifestEntry } from './redirects'
 import { isValidRepoPath, MAX_REPO_PATH_LENGTH } from './repo-path'
 import { removeLeadingSlash } from './utils'
+import type { DocsRedirectManifest } from './docs-redirects'
+import type { GitHubFileNode } from './documents.server'
 
-type DocsTreeNode = {
+export type DocsTreeNode = {
   path: string
   children?: Array<DocsTreeNode>
 }
 
-type DocsManifest = {
-  paths: Array<string>
-  redirects: Record<string, string>
-}
+type DocsManifest = DocsRedirectManifest
 
 type RepoFileRequest = {
   repo: string
@@ -95,9 +85,44 @@ const docsRedirectInput = v.object({
   docsPaths: v.array(v.pipe(v.string(), v.maxLength(512))),
 })
 
+// Matches RAW_FETCH_CONCURRENCY in github-example.server.ts.
+const DOCS_MANIFEST_FETCH_CONCURRENCY = 6
+
+export async function mapWithConcurrency<T, TResult>(
+  values: Array<T>,
+  concurrency: number,
+  fn: (value: T) => Promise<TResult>,
+) {
+  const results = new Array<TResult>(values.length)
+  let index = 0
+
+  const workers = Array.from(
+    { length: Math.min(concurrency, values.length) },
+    async () => {
+      while (index < values.length) {
+        const currentIndex = index
+        index += 1
+        results[currentIndex] = await fn(values[currentIndex])
+      }
+    },
+  )
+
+  await Promise.all(workers)
+
+  return results
+}
+
 const temporarilyUnavailableMarkdown = `# Content temporarily unavailable
 
 We are having trouble fetching this document from GitHub right now. Please try again in a minute.`
+
+const loadDocumentsServerModule = createServerOnlyFn(
+  () => import('./documents.server'),
+)
+
+const loadGitHubContentCacheServerModule = createServerOnlyFn(
+  () => import('./github-content-cache.server'),
+)
 
 function buildUnavailableFile(filePath: string) {
   if (filePath.toLowerCase().endsWith('.md')) {
@@ -112,6 +137,9 @@ async function readRepoFileOrFallback(
   branch: string,
   filePath: string,
 ) {
+  const { fetchRepoFile, isRecoverableGitHubContentError } =
+    await loadDocumentsServerModule()
+
   try {
     return await fetchRepoFile(repo, branch, filePath)
   } catch (error) {
@@ -125,7 +153,7 @@ async function readRepoFileOrFallback(
 
 function setDocsCacheHeaders(cdnCacheControl: string) {
   setResponseHeader('Cache-Control', 'public, max-age=0, must-revalidate')
-  setResponseHeader('CDN-Cache-Control', cdnCacheControl)
+  setResponseHeader('Cloudflare-CDN-Cache-Control', cdnCacheControl)
 }
 
 function isDocsManifest(value: unknown): value is DocsManifest {
@@ -149,6 +177,64 @@ function isDocsManifest(value: unknown): value is DocsManifest {
   )
 }
 
+// Extracted so tests can inject a fake fetchFile without hitting real
+// GitHub network/cache.
+export async function collectRedirectEntriesForFile(
+  node: DocsTreeNode,
+  opts: {
+    docsRoot: string
+    fetchFile: (filePath: string) => Promise<string | null>
+    onCanonicalPath: (canonicalPath: string) => void
+  },
+): Promise<Array<RedirectManifestEntry>> {
+  const { extractFrontMatter, isRecoverableGitHubContentError } =
+    await loadDocumentsServerModule()
+  const canonicalPath = getCanonicalDocsPath(node.path, opts.docsRoot)
+
+  if (canonicalPath === null) {
+    return []
+  }
+
+  opts.onCanonicalPath(canonicalPath)
+
+  let file: string | null
+  try {
+    file = await opts.fetchFile(node.path)
+  } catch (error) {
+    if (!isRecoverableGitHubContentError(error)) {
+      throw error
+    }
+
+    return []
+  }
+
+  if (!file) {
+    return []
+  }
+
+  const frontMatter = extractFrontMatter(file)
+  const entries: Array<RedirectManifestEntry> = []
+
+  for (const redirectFrom of frontMatter.data.redirectFrom ?? []) {
+    const normalizedRedirect = normalizeDocsRedirectPath(
+      redirectFrom,
+      opts.docsRoot,
+    )
+
+    if (!normalizedRedirect || normalizedRedirect === canonicalPath) {
+      continue
+    }
+
+    entries.push({
+      from: normalizedRedirect,
+      to: canonicalPath,
+      source: node.path,
+    })
+  }
+
+  return entries
+}
+
 async function buildDocsManifest({
   repo,
   branch,
@@ -158,6 +244,7 @@ async function buildDocsManifest({
   branch: string
   docsRoot: string
 }): Promise<DocsManifest> {
+  const { fetchApiContents, fetchRepoFile } = await loadDocumentsServerModule()
   const nodes = await fetchApiContents(repo, branch, docsRoot)
 
   if (!nodes) {
@@ -168,55 +255,66 @@ async function buildDocsManifest({
     node.path.endsWith('.md'),
   )
   const paths = new Set<string>()
-  const redirects: Array<RedirectManifestEntry> = []
 
-  for (const node of markdownFiles) {
-    const canonicalPath = getCanonicalDocsPath(node.path, docsRoot)
-
-    if (canonicalPath === null) {
-      continue
-    }
-
-    paths.add(canonicalPath)
-
-    const file = await fetchRepoFile(repo, branch, node.path)
-
-    if (!file) {
-      continue
-    }
-
-    const frontMatter = extractFrontMatter(file)
-
-    for (const redirectFrom of frontMatter.data.redirectFrom ?? []) {
-      const normalizedRedirect = normalizeDocsRedirectPath(
-        redirectFrom,
+  // A recoverable error on one file must not fail the whole manifest build
+  // (see collectRedirectEntriesForFile).
+  const redirectsByFile = await mapWithConcurrency(
+    markdownFiles,
+    DOCS_MANIFEST_FETCH_CONCURRENCY,
+    (node) =>
+      collectRedirectEntriesForFile(node, {
         docsRoot,
-      )
-
-      if (!normalizedRedirect || normalizedRedirect === canonicalPath) {
-        continue
-      }
-
-      redirects.push({
-        from: normalizedRedirect,
-        to: canonicalPath,
-        source: node.path,
-      })
-    }
-  }
+        fetchFile: (filePath) => fetchRepoFile(repo, branch, filePath),
+        onCanonicalPath: (canonicalPath) => paths.add(canonicalPath),
+      }),
+  )
 
   return {
     paths: Array.from(paths),
-    redirects: buildRedirectManifest(redirects, {
+    redirects: buildRedirectManifest(redirectsByFile.flat(), {
       label: `docs redirects for ${repo}@${branch}:${docsRoot}`,
     }),
   }
 }
 
+async function buildDocsPathManifest({
+  repo,
+  branch,
+  docsRoot,
+}: {
+  repo: string
+  branch: string
+  docsRoot: string
+}): Promise<DocsManifest> {
+  const { fetchApiContents } = await loadDocumentsServerModule()
+  const nodes = await fetchApiContents(repo, branch, docsRoot)
+
+  if (!nodes) {
+    return { paths: [], redirects: {} }
+  }
+
+  const paths = flattenDocsNodes(nodes)
+    .filter((node) => node.path.endsWith('.md'))
+    .flatMap((node) => {
+      const canonicalPath = getCanonicalDocsPath(node.path, docsRoot)
+      return canonicalPath === null ? [] : [canonicalPath]
+    })
+
+  return {
+    paths,
+    redirects: {},
+  }
+}
+
 export const fetchDocsManifest = createServerFn({ method: 'GET' })
-  .inputValidator(docsManifestInput)
+  .validator(docsManifestInput)
   .handler(async ({ data }) => {
     const { repo, branch, docsRoot } = data
+    const [{ shouldUseLocalDocsFiles }, { getCachedDocsArtifact }] =
+      await Promise.all([
+        loadDocumentsServerModule(),
+        loadGitHubContentCacheServerModule(),
+      ])
 
     if (shouldUseLocalDocsFiles()) {
       return buildDocsManifest({ repo, branch, docsRoot })
@@ -233,16 +331,53 @@ export const fetchDocsManifest = createServerFn({ method: 'GET' })
     })
   })
 
-export const fetchDocsRedirect = createServerFn({ method: 'GET' })
-  .inputValidator(docsRedirectInput)
+export const fetchDocsPathManifest = createServerFn({ method: 'GET' })
+  .validator(docsManifestInput)
   .handler(async ({ data }) => {
-    const manifest = await fetchDocsManifest({
-      data: {
-        repo: data.repo,
-        branch: data.branch,
-        docsRoot: data.docsRoot,
-      },
+    const { repo, branch, docsRoot } = data
+    const [{ shouldUseLocalDocsFiles }, { getCachedDocsArtifact }] =
+      await Promise.all([
+        loadDocumentsServerModule(),
+        loadGitHubContentCacheServerModule(),
+      ])
+
+    if (shouldUseLocalDocsFiles()) {
+      return buildDocsPathManifest({ repo, branch, docsRoot })
+    }
+
+    return getCachedDocsArtifact({
+      repo,
+      gitRef: branch,
+      docsRoot,
+      artifactType: 'docs-path-manifest',
+      artifactKey: 'default',
+      isValue: isDocsManifest,
+      build: () => buildDocsPathManifest({ repo, branch, docsRoot }),
     })
+  })
+
+export const fetchDocsRedirect = createServerFn({ method: 'GET' })
+  .validator(docsRedirectInput)
+  .handler(async ({ data }) => {
+    const { isRecoverableGitHubContentError } =
+      await loadDocumentsServerModule()
+    let manifest: DocsManifest
+
+    try {
+      manifest = await fetchDocsManifest({
+        data: {
+          repo: data.repo,
+          branch: data.branch,
+          docsRoot: data.docsRoot,
+        },
+      })
+    } catch (error) {
+      if (isRecoverableGitHubContentError(error)) {
+        return null
+      }
+
+      throw error
+    }
 
     for (const docsPath of data.docsPaths) {
       const normalizedDocsPath = normalizeDocsRedirectPath(
@@ -265,7 +400,7 @@ export const fetchDocsRedirect = createServerFn({ method: 'GET' })
   })
 
 export const fetchDocs = createServerFn({ method: 'GET' })
-  .inputValidator(repoFileInput)
+  .validator(repoFileInput)
   .handler(async ({ data }: { data: RepoFileRequest }) => {
     const { repo, branch, filePath } = data
     const file = await readRepoFileOrFallback(repo, branch, filePath)
@@ -274,43 +409,22 @@ export const fetchDocs = createServerFn({ method: 'GET' })
       throw notFound()
     }
 
+    const { extractFrontMatter } = await loadDocumentsServerModule()
     const frontMatter = extractFrontMatter(file)
     const description =
       frontMatter.userDescription ?? removeMarkdown(frontMatter.excerpt ?? '')
     const keywords = extractFrontMatterKeywords(frontMatter.data.keywords)
-    const { contentRsc, headings } = await renderMarkdownToRsc(
-      frontMatter.content,
-    )
 
-    setDocsCacheHeaders('max-age=60, stale-while-revalidate=60, durable')
+    setDocsCacheHeaders('public, max-age=60, stale-while-revalidate=60')
 
     return {
       content: frontMatter.content,
-      contentRsc,
       title: frontMatter.data?.title ?? 'Content temporarily unavailable',
       description,
       keywords,
       frameworks: extractFrameworksFromMarkdown(frontMatter.content),
       filePath,
-      headings,
       frontmatter: frontMatter.data,
-    }
-  })
-
-export const fetchDocsPage = createServerFn({ method: 'GET' })
-  .inputValidator(repoFileInput)
-  .handler(async ({ data }: { data: RepoFileRequest }) => {
-    const doc = await fetchDocs({ data })
-
-    return {
-      contentRsc: doc.contentRsc,
-      description: doc.description,
-      keywords: doc.keywords,
-      filePath: doc.filePath,
-      frontmatter: doc.frontmatter,
-      frameworks: doc.frameworks,
-      headings: doc.headings,
-      title: doc.title,
     }
   })
 
@@ -333,7 +447,7 @@ function extractFrontMatterKeywords(value: unknown): string | undefined {
 }
 
 export const fetchFile = createServerFn({ method: 'GET' })
-  .inputValidator(repoFileInput)
+  .validator(repoFileInput)
   .handler(async ({ data }: { data: RepoFileRequest }) => {
     const { repo, branch, filePath } = data
     const file = await readRepoFileOrFallback(repo, branch, filePath)
@@ -342,7 +456,7 @@ export const fetchFile = createServerFn({ method: 'GET' })
       throw notFound()
     }
 
-    setDocsCacheHeaders('max-age=300, stale-while-revalidate=300, durable')
+    setDocsCacheHeaders('public, max-age=300, stale-while-revalidate=300')
 
     return file
   })
@@ -350,16 +464,24 @@ export const fetchFile = createServerFn({ method: 'GET' })
 export const fetchRepoDirectoryContents = createServerFn({
   method: 'GET',
 })
-  .inputValidator(repoDirectoryInput)
+  .validator(repoDirectoryInput)
   .handler(async ({ data }: { data: RepoDirectoryRequest }) => {
     const { repo, branch, startingPath } = data
-    const githubContents = await fetchApiContents(repo, branch, startingPath)
+    const { fetchApiContents, isRecoverableGitHubContentError } =
+      await loadDocumentsServerModule()
+    let githubContents: Array<GitHubFileNode> | null
 
-    if (!githubContents) {
-      throw notFound()
+    try {
+      githubContents = await fetchApiContents(repo, branch, startingPath)
+    } catch (error) {
+      if (!isRecoverableGitHubContentError(error)) {
+        throw error
+      }
+
+      return null
     }
 
-    setDocsCacheHeaders('max-age=300, stale-while-revalidate=300, durable')
+    setDocsCacheHeaders('public, max-age=300, stale-while-revalidate=300')
 
     return githubContents
   })
@@ -389,7 +511,7 @@ function getCanonicalDocsPath(filePath: string, docsRoot: string) {
 function normalizeDocsRedirectPath(path: string, docsRoot?: string) {
   const normalizedPath = removeLeadingSlash(path.trim()).replace(/\/+$/g, '')
 
-  if (!normalizedPath) {
+  if (!normalizedPath || !isValidRepoPath(normalizedPath)) {
     return null
   }
 

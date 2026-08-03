@@ -1,10 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { setResponseHeader } from '@tanstack/react-start/server'
-import {
-  getPublishedPosts,
-  formatAuthors,
-  publishedDateToUTCString,
-} from '~/utils/blog'
+import { getPublishedPosts } from '~/utils/blog'
+import { formatAuthors, publishedDateToUTCString } from '~/utils/blog-format'
 
 function escapeXml(unsafe: string): string {
   return unsafe
@@ -76,8 +73,8 @@ export const Route = createFileRoute('/rss.xml')({
           'public, max-age=300, must-revalidate',
         )
         setResponseHeader(
-          'CDN-Cache-Control',
-          'max-age=3600, stale-while-revalidate=3600',
+          'Cloudflare-CDN-Cache-Control',
+          'public, max-age=3600, stale-while-revalidate=3600',
         )
 
         return new Response(content)

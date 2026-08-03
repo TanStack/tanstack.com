@@ -2,13 +2,13 @@ import * as React from 'react'
 import { Link } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-  ArrowLeft,
-  ExternalLink,
-  ThumbsUp,
-  ThumbsDown,
-  Sparkles,
-  Code,
-} from 'lucide-react'
+  ArrowLeftIcon,
+  ArrowSquareOutIcon,
+  ThumbsUpIcon,
+  ThumbsDownIcon,
+  SparkleIcon,
+  CodeIcon,
+} from '@phosphor-icons/react'
 import { Button } from '~/ui'
 import { twMerge } from 'tailwind-merge'
 import { libraries, type LibraryId } from '~/libraries'
@@ -193,7 +193,7 @@ export function ShowcaseDetail({ showcaseId }: ShowcaseDetailProps) {
     return (
       <div className="min-h-screen">
         <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-          <Sparkles className="mx-auto h-16 w-16 text-gray-400 mb-4" />
+          <SparkleIcon className="mx-auto h-16 w-16 text-gray-400 mb-4" />
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
             Showcase not found
           </h1>
@@ -205,7 +205,7 @@ export function ShowcaseDetail({ showcaseId }: ShowcaseDetailProps) {
             to="/showcase"
             className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeftIcon className="w-4 h-4" />
             Back to Showcase Gallery
           </Link>
         </div>
@@ -227,7 +227,7 @@ export function ShowcaseDetail({ showcaseId }: ShowcaseDetailProps) {
           to="/showcase"
           className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-6"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeftIcon className="w-4 h-4" />
           Back to Showcase Gallery
         </Link>
 
@@ -269,7 +269,7 @@ export function ShowcaseDetail({ showcaseId }: ShowcaseDetailProps) {
                 className="px-4 py-2 text-sm"
               >
                 View Source
-                <Code className="w-4 h-4" />
+                <CodeIcon className="w-4 h-4" />
               </Button>
             )}
             <Button
@@ -280,7 +280,7 @@ export function ShowcaseDetail({ showcaseId }: ShowcaseDetailProps) {
               className="px-4 py-2 text-sm bg-gray-900 dark:bg-white text-white dark:text-gray-900 border-gray-900 dark:border-white hover:bg-gray-700 dark:hover:bg-gray-200"
             >
               Visit Site
-              <ExternalLink className="w-4 h-4" />
+              <ArrowSquareOutIcon className="w-4 h-4" />
             </Button>
           </div>
         </div>
@@ -354,9 +354,9 @@ export function ShowcaseDetail({ showcaseId }: ShowcaseDetailProps) {
               )}
               title="Upvote"
             >
-              <ThumbsUp
+              <ThumbsUpIcon
                 className="w-5 h-5"
-                fill={currentUserVote === 1 ? 'currentColor' : 'none'}
+                weight={currentUserVote === 1 ? 'fill' : 'regular'}
               />
             </button>
 
@@ -384,9 +384,9 @@ export function ShowcaseDetail({ showcaseId }: ShowcaseDetailProps) {
               )}
               title="Downvote"
             >
-              <ThumbsDown
+              <ThumbsDownIcon
                 className="w-5 h-5"
-                fill={currentUserVote === -1 ? 'currentColor' : 'none'}
+                weight={currentUserVote === -1 ? 'fill' : 'regular'}
               />
             </button>
           </div>

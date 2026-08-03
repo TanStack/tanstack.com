@@ -1,7 +1,19 @@
-import * as d3 from 'd3'
 import { keepPreviousData, queryOptions } from '@tanstack/react-query'
-import type { NpmQueryData, PackageGroup, TimeRange } from './shared'
+import type {
+  BinType,
+  NpmQueryData,
+  PackageGroup,
+  TimeRange,
+  ViewMode,
+} from './shared'
 import { fetchNpmDownloadsBulk } from '~/utils/stats-queries.functions'
+import {
+  formatNpmStatsDate,
+  getHistoryStartDate,
+  getLatestBucketWindow,
+  getUtcDay,
+  getUtcToday,
+} from './binning'
 
 /**
  * Shared TanStack Query options for fetching NPM download statistics.
@@ -13,39 +25,14 @@ export function npmQueryOptions({
 }: {
   packageGroups: PackageGroup[]
   range: TimeRange
+  viewMode?: ViewMode
+  binType?: BinType
+  bucketOffset?: number
 }) {
-  const now = d3.utcDay(new Date())
-  // Set to start of today to avoid timezone issues
-  now.setHours(0, 0, 0, 0)
-  const endDate = now
-
-  // NPM download statistics only go back to January 10, 2015
-  const NPM_STATS_START_DATE = d3.utcDay(new Date('2015-01-10'))
-
-  const startDate = (() => {
-    switch (range) {
-      case '7-days':
-        return d3.utcDay.offset(now, -7)
-      case '30-days':
-        return d3.utcDay.offset(now, -30)
-      case '90-days':
-        return d3.utcDay.offset(now, -90)
-      case '180-days':
-        return d3.utcDay.offset(now, -180)
-      case '365-days':
-        return d3.utcDay.offset(now, -365)
-      case '730-days':
-        return d3.utcDay.offset(now, -730)
-      case '1825-days':
-        return d3.utcDay.offset(now, -1825)
-      case 'all-time':
-        // Use NPM's stats start date - the API will return empty data for dates before packages existed
-        return NPM_STATS_START_DATE
-    }
-  })()
-
-  const formatDate = (date: Date) => {
-    return date.toISOString().split('T')[0]
+  const now = getUtcToday()
+  const dateWindow = {
+    startDate: getHistoryStartDate(range, now),
+    endDate: now,
   }
 
   return queryOptions({
@@ -67,20 +54,20 @@ export function npmQueryOptions({
                 hidden: p.hidden,
               })),
             })),
-            startDate: formatDate(startDate),
-            endDate: formatDate(endDate),
+            startDate: formatNpmStatsDate(dateWindow.startDate),
+            endDate: formatNpmStatsDate(dateWindow.endDate),
           },
         })
 
         // Process results to match the expected format
         return results.map((result: any, groupIndex: number) => {
-          let actualStartDate = startDate
+          let actualStartDate = dateWindow.startDate
 
           // Find the earliest non-zero download for this package group
           for (const pkg of result.packages) {
             const firstNonZero = pkg.downloads.find((d: any) => d.downloads > 0)
             if (firstNonZero) {
-              const firstNonZeroDate = d3.utcDay(new Date(firstNonZero.day))
+              const firstNonZeroDate = getUtcDay(new Date(firstNonZero.day))
               if (firstNonZeroDate < actualStartDate) {
                 actualStartDate = firstNonZeroDate
               }
@@ -94,8 +81,8 @@ export function npmQueryOptions({
               ),
               downloads: pkg.downloads,
             })),
-            start: formatDate(actualStartDate),
-            end: formatDate(endDate),
+            start: formatNpmStatsDate(actualStartDate),
+            end: formatNpmStatsDate(dateWindow.endDate),
             error: result.error ?? undefined,
             actualStartDate,
           }
@@ -108,13 +95,45 @@ export function npmQueryOptions({
             ...pkg,
             downloads: [],
           })),
-          start: formatDate(startDate),
-          end: formatDate(endDate),
+          start: formatNpmStatsDate(dateWindow.startDate),
+          end: formatNpmStatsDate(dateWindow.endDate),
           error: 'Failed to fetch package data (see console for details)',
-          actualStartDate: startDate,
+          actualStartDate: dateWindow.startDate,
         }))
       }
     },
     placeholderData: keepPreviousData,
   })
+}
+
+export function selectLatestBucketQueryData({
+  queryData,
+  binType,
+  bucketOffset,
+  now = getUtcToday(),
+}: {
+  queryData: NpmQueryData | undefined
+  binType: BinType
+  bucketOffset: number
+  now?: Date
+}) {
+  if (!queryData) return undefined
+
+  const dateWindow = getLatestBucketWindow({ binType, bucketOffset, now })
+  const startTime = dateWindow.startDate.getTime()
+  const endTime = dateWindow.endDate.getTime()
+
+  return queryData.map((packageGroup) => ({
+    ...packageGroup,
+    packages: packageGroup.packages.map((pkg) => ({
+      ...pkg,
+      downloads: pkg.downloads.filter((download) => {
+        const dayTime = getUtcDay(new Date(download.day)).getTime()
+        return dayTime >= startTime && dayTime <= endTime
+      }),
+    })),
+    start: formatNpmStatsDate(dateWindow.startDate),
+    end: formatNpmStatsDate(dateWindow.endDate),
+    actualStartDate: dateWindow.startDate,
+  }))
 }

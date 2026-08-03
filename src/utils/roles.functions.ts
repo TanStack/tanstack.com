@@ -14,7 +14,7 @@ const capabilityPicklist = v.picklist(
 )
 
 export const listRoles = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       nameFilter: v.optional(v.string()),
       capabilityFilter: v.optional(v.array(capabilityPicklist)),
@@ -59,7 +59,7 @@ export const listRoles = createServerFn({ method: 'POST' })
   })
 
 export const getRole = createServerFn({ method: 'POST' })
-  .inputValidator(v.object({ roleId: v.pipe(v.string(), v.uuid()) }))
+  .validator(v.object({ roleId: v.pipe(v.string(), v.uuid()) }))
   .handler(async ({ data }) => {
     await requireAdmin()
 
@@ -82,7 +82,7 @@ export const getRole = createServerFn({ method: 'POST' })
   })
 
 export const createRole = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       name: v.string(),
       description: v.optional(v.string()),
@@ -127,7 +127,7 @@ export const createRole = createServerFn({ method: 'POST' })
   })
 
 export const updateRole = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       roleId: v.pipe(v.string(), v.uuid()),
       name: v.optional(v.string()),
@@ -197,7 +197,7 @@ export const updateRole = createServerFn({ method: 'POST' })
   })
 
 export const deleteRole = createServerFn({ method: 'POST' })
-  .inputValidator(v.object({ roleId: v.pipe(v.string(), v.uuid()) }))
+  .validator(v.object({ roleId: v.pipe(v.string(), v.uuid()) }))
   .handler(async ({ data }) => {
     const { currentUser } = await requireAdmin()
 
@@ -234,9 +234,7 @@ export const deleteRole = createServerFn({ method: 'POST' })
   })
 
 export const getUserRoles = createServerFn({ method: 'POST' })
-  .inputValidator(
-    v.object({ userId: v.optional(v.pipe(v.string(), v.uuid())) }),
-  )
+  .validator(v.object({ userId: v.optional(v.pipe(v.string(), v.uuid())) }))
   .handler(async ({ data }) => {
     await requireAdmin()
 
@@ -281,7 +279,7 @@ export const getUserRoles = createServerFn({ method: 'POST' })
   })
 
 export const assignRolesToUser = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       userId: v.pipe(v.string(), v.uuid()),
       roleIds: v.array(v.pipe(v.string(), v.uuid())),
@@ -372,9 +370,7 @@ export const assignRolesToUser = createServerFn({ method: 'POST' })
   })
 
 export const getUserEffectiveCapabilities = createServerFn({ method: 'POST' })
-  .inputValidator(
-    v.object({ userId: v.optional(v.pipe(v.string(), v.uuid())) }),
-  )
+  .validator(v.object({ userId: v.optional(v.pipe(v.string(), v.uuid())) }))
   .handler(async ({ data }) => {
     await requireAdmin()
 
@@ -386,7 +382,7 @@ export const getUserEffectiveCapabilities = createServerFn({ method: 'POST' })
   })
 
 export const getBulkUserRoles = createServerFn({ method: 'POST' })
-  .inputValidator(v.object({ userIds: v.array(v.pipe(v.string(), v.uuid())) }))
+  .validator(v.object({ userIds: v.array(v.pipe(v.string(), v.uuid())) }))
   .handler(async ({ data }) => {
     await requireAdmin()
 
@@ -446,7 +442,7 @@ export const getBulkUserRoles = createServerFn({ method: 'POST' })
   })
 
 export const getBulkEffectiveCapabilities = createServerFn({ method: 'POST' })
-  .inputValidator(v.object({ userIds: v.array(v.pipe(v.string(), v.uuid())) }))
+  .validator(v.object({ userIds: v.array(v.pipe(v.string(), v.uuid())) }))
   .handler(async ({ data }) => {
     await requireAdmin()
 
@@ -462,7 +458,7 @@ export const getBulkEffectiveCapabilities = createServerFn({ method: 'POST' })
   })
 
 export const getUsersWithRole = createServerFn({ method: 'POST' })
-  .inputValidator(v.object({ roleId: v.pipe(v.string(), v.uuid()) }))
+  .validator(v.object({ roleId: v.pipe(v.string(), v.uuid()) }))
   .handler(async ({ data }) => {
     await requireAdmin()
 
@@ -491,7 +487,7 @@ export const getUsersWithRole = createServerFn({ method: 'POST' })
   })
 
 export const removeUsersFromRole = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       roleId: v.pipe(v.string(), v.uuid()),
       userIds: v.array(v.pipe(v.string(), v.uuid())),
@@ -536,7 +532,7 @@ export const removeUsersFromRole = createServerFn({ method: 'POST' })
   })
 
 export const bulkAssignRolesToUsers = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       userIds: v.array(v.pipe(v.string(), v.uuid())),
       roleIds: v.array(v.pipe(v.string(), v.uuid())),
@@ -607,7 +603,7 @@ export const bulkAssignRolesToUsers = createServerFn({ method: 'POST' })
   })
 
 export const sendTestModeratorEmail = createServerFn({ method: 'POST' })
-  .inputValidator(v.object({ capability: capabilityPicklist }))
+  .validator(v.object({ capability: capabilityPicklist }))
   .handler(async ({ data }) => {
     await requireAdmin()
     return sendTestEmail(data.capability)

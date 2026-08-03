@@ -3,37 +3,7 @@
  * Verifies that the same package will always generate the same chunk keys
  */
 
-function generateNormalizedChunks(
-  startDate: string,
-  endDate: string,
-): Array<{ from: string; to: string }> {
-  const CHUNK_DAYS = 500
-  const chunks: Array<{ from: string; to: string }> = []
-
-  let currentFrom = new Date(startDate)
-  const finalDate = new Date(endDate)
-
-  while (currentFrom <= finalDate) {
-    const from = currentFrom.toISOString().substring(0, 10)
-
-    const potentialTo = new Date(currentFrom)
-    potentialTo.setDate(potentialTo.getDate() + CHUNK_DAYS - 1)
-
-    const to =
-      potentialTo > finalDate
-        ? finalDate.toISOString().substring(0, 10)
-        : potentialTo.toISOString().substring(0, 10)
-
-    chunks.push({ from, to })
-
-    currentFrom = new Date(to)
-    currentFrom.setDate(currentFrom.getDate() + 1)
-
-    if (to === endDate) break
-  }
-
-  return chunks
-}
+import { getNormalizedNpmDownloadChunks } from '../src/utils/npm-download-ranges'
 
 console.log('\n' + '='.repeat(80))
 console.log('🧪 Testing Chunk Boundary Consistency')
@@ -55,7 +25,11 @@ console.log('Testing chunk consistency across different "today" dates:\n')
 const allChunks: Record<string, Array<{ from: string; to: string }>> = {}
 
 for (const today of testDates) {
-  const chunks = generateNormalizedChunks(createdDate, today)
+  const chunks = getNormalizedNpmDownloadChunks({
+    startDate: createdDate,
+    endDate: today,
+    today,
+  })
   allChunks[today] = chunks
 
   console.log(`📅 If run on ${today}:`)

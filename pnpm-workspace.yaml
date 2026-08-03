@@ -1,3 +1,6 @@
+packages:
+  - .
+
 overrides:
   cross-spawn: '>=6.0.6'
   glob: '>=10.5.0'
@@ -9,15 +12,16 @@ overrides:
   minimatch@3.1.5>brace-expansion: '1.1.12'
   minimatch@5.1.9>brace-expansion: '2.0.3'
   minimatch@10.2.5>brace-expansion: '5.0.5'
+  npm-run-path@6.0.0>unicorn-magic: '0.4.0'
 
 allowBuilds:
   # root dependency
   esbuild: true
 
-  # @netlify/vite-plugin-tanstack-start
+  # watcher optional native package
   '@parcel/watcher': false
 
-  # @netlify/vite-plugin-tanstack-start & uploadthing
+  # uploadthing optional native package
   msgpackr-extract: false
 
   #@takumi-rs
@@ -26,3 +30,6 @@ allowBuilds:
   # sentry
   '@sentry/cli': false
   '@fingerprintjs/fingerprintjs-pro-react': false
+
+  # Cloudflare Workers local runtime
+  workerd: true

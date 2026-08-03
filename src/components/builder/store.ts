@@ -373,12 +373,13 @@ export const useBuilderStore = create<BuilderState>()(
 
     loadFeatures: async () => {
       try {
+        if (import.meta.env.SSR) {
+          throw new Error('Builder features are only loaded in the browser')
+        }
+
         const { framework } = get()
-        const response = await fetch(
-          `/api/builder/features?framework=${framework}`,
-        )
-        if (!response.ok) throw new Error('Failed to load features')
-        const data = await response.json()
+        const { getFeaturesHandler } = await import('~/builder/api/features')
+        const data = await getFeaturesHandler(framework)
         set({
           availableFeatures: data.features,
           availableExamples: data.examples || [],

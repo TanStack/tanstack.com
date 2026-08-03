@@ -4,7 +4,7 @@ export const getExampleStartingPath = (
   framework: Framework,
   libraryId?: string,
 ) => {
-  if (libraryId && ['start', 'router'].includes(libraryId)) {
+  if (libraryId === 'start') {
     return 'src/routes/__root.tsx'
   }
 
@@ -31,9 +31,11 @@ export function getExampleStartingFileName(
       ? 'svelte'
       : framework === 'vue'
         ? 'vue'
-        : ['angular', 'lit'].includes(framework)
-          ? 'ts'
-          : 'tsx'
+        : framework === 'octane'
+          ? 'tsrx'
+          : ['angular', 'lit'].includes(framework)
+            ? 'ts'
+            : 'tsx'
 
   return `${file}.${ext}` as const
 }

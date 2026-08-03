@@ -10,7 +10,7 @@ export const listDocsCacheRepos = createServerFn({ method: 'GET' }).handler(
 )
 
 export const invalidateDocsCache = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       repo: v.optional(v.string()),
     }),

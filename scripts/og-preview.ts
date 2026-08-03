@@ -13,7 +13,7 @@ async function renderToFile(
   outPath: string,
   input: Parameters<typeof generateOgImageResponse>[0],
 ) {
-  const result = generateOgImageResponse(input)
+  const result = await generateOgImageResponse(input)
   if ('kind' in result) {
     console.warn(`[skip] ${input.libraryId}: ${result.kind}`)
     return

@@ -58,6 +58,7 @@ export const allMaintainers: Maintainer[] = [
       'router',
       'query',
       'table',
+      'charts',
       'form',
       'virtual',
       'ranger',
@@ -65,6 +66,8 @@ export const allMaintainers: Maintainer[] = [
       'pacer',
       'cli',
       'mcp',
+      'markdown',
+      'highlight',
       'react-charts',
     ],
     maintainerOf: ['intent'],
@@ -315,7 +318,7 @@ export const allMaintainers: Maintainer[] = [
     frameworkExpertise: ['react'],
     social: {
       linkedIn: 'https://www.linkedin.com/in/harry-whorlow/',
-      website: 'harry-whorlow.dev',
+      website: 'https://harry-whorlow.dev',
     },
   },
   {

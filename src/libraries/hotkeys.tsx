@@ -1,20 +1,22 @@
-import { Keyboard, ListOrdered, WandSparkles } from 'lucide-react'
+import {
+  KeyboardIcon,
+  ListNumbersIcon,
+  MagicWandIcon,
+} from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { hotkeys } from './libraries'
 
-const textStyles = 'text-rose-600 dark:text-rose-500'
+const textStyles = 'text-category-ui'
 
 export const hotkeysProject = {
   ...hotkeys,
   description: `A type-safe, cross-platform hotkey library with sequence detection, key state tracking, hotkey recording, and framework adapters for React and more.`,
   latestBranch: 'main',
-  bgRadial: 'from-rose-500 via-rose-700/50 to-transparent',
-  textColor: 'text-rose-700',
   defaultDocs: 'overview',
   featureHighlights: [
     {
       title: 'Type-Safe & Cross-Platform',
-      icon: <Keyboard className={twMerge(textStyles)} />,
+      icon: <KeyboardIcon className={twMerge(textStyles)} />,
       description: (
         <div>
           Define keyboard shortcuts with a{' '}
@@ -29,7 +31,7 @@ export const hotkeysProject = {
     },
     {
       title: 'Better Defaults',
-      icon: <WandSparkles className={twMerge(textStyles)} />,
+      icon: <MagicWandIcon className={twMerge(textStyles)} />,
       description: (
         <div>
           Ships with{' '}
@@ -46,7 +48,7 @@ export const hotkeysProject = {
     },
     {
       title: 'Sequences & Recording',
-      icon: <ListOrdered className={twMerge(textStyles)} />,
+      icon: <ListNumbersIcon className={twMerge(textStyles)} />,
       description: (
         <div>
           Build{' '}

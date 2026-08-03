@@ -4,8 +4,10 @@ import { CategoryArticle } from '~/components/stack/CategoryArticle'
 import {
   categoryMeta,
   categorySlugs,
+  getCategoryLibraries,
   type CategorySlug,
 } from '~/components/stack/stack-categories'
+import { fetchRelatedPostsForLibraries } from '~/utils/blog.functions'
 import { seo } from '~/utils/seo'
 
 function isCategorySlug(value: string): value is CategorySlug {
@@ -13,11 +15,22 @@ function isCategorySlug(value: string): value is CategorySlug {
 }
 
 export const Route = createFileRoute('/stack/$category')({
-  loader: ({ params }) => {
+  staleTime: Infinity,
+  loader: async ({ params }) => {
     if (!isCategorySlug(params.category)) {
       throw notFound()
     }
-    return { category: params.category, meta: categoryMeta[params.category] }
+
+    const libraries = getCategoryLibraries(params.category)
+    const relatedPosts = await fetchRelatedPostsForLibraries({
+      data: libraries.map((lib) => lib.id),
+    })
+
+    return {
+      category: params.category,
+      meta: categoryMeta[params.category],
+      relatedPosts,
+    }
   },
   head: ({ loaderData }) => ({
     meta: seo({
@@ -31,6 +44,6 @@ export const Route = createFileRoute('/stack/$category')({
 })
 
 function StackCategoryPage() {
-  const { category } = Route.useLoaderData()
-  return <CategoryArticle slug={category} />
+  const { category, relatedPosts } = Route.useLoaderData()
+  return <CategoryArticle slug={category} relatedPosts={relatedPosts} />
 }

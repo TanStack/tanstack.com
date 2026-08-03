@@ -1,13 +1,17 @@
 import * as React from 'react'
-import { CheckCircle2, Copy } from 'lucide-react'
+import { CheckCircleIcon, CopyIcon } from '@phosphor-icons/react'
+import { twMerge } from 'tailwind-merge'
+import { copyTextToClipboard } from '~/utils/browser-effects'
 
 type LandingCopyPromptButtonProps = {
+  className?: string
   getPrompt?: () => Promise<string> | string
   label?: string
   prompt?: string
 }
 
 export function LandingCopyPromptButton({
+  className,
   getPrompt,
   label = 'Copy Prompt',
   prompt,
@@ -33,7 +37,11 @@ export function LandingCopyPromptButton({
   return (
     <button
       type="button"
-      className="inline-flex w-full max-w-full items-center justify-center gap-2 rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm font-bold text-zinc-900 transition-colors hover:border-zinc-400 disabled:cursor-wait disabled:opacity-75 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:border-zinc-500 sm:w-auto"
+      aria-live="polite"
+      className={twMerge(
+        'inline-flex w-full max-w-full items-center justify-center gap-2 rounded-lg border border-border-default bg-background-surface px-4 py-2.5 text-ds-label-md text-text-primary transition-colors hover:border-border-strong disabled:cursor-wait disabled:opacity-75 sm:w-auto',
+        className,
+      )}
       disabled={status === 'copying'}
       onClick={async () => {
         setStatus('copying')
@@ -53,9 +61,9 @@ export function LandingCopyPromptButton({
       }}
     >
       {status === 'copied' ? (
-        <CheckCircle2 size={16} aria-hidden="true" />
+        <CheckCircleIcon size={16} aria-hidden="true" />
       ) : (
-        <Copy size={16} aria-hidden="true" />
+        <CopyIcon size={16} aria-hidden="true" />
       )}
       {status === 'copied'
         ? 'Copied'
@@ -66,38 +74,4 @@ export function LandingCopyPromptButton({
             : label}
     </button>
   )
-}
-
-async function copyTextToClipboard(value: string) {
-  if (typeof navigator !== 'undefined' && navigator.clipboard) {
-    await navigator.clipboard.writeText(value)
-    return
-  }
-
-  if (typeof document === 'undefined') {
-    throw new Error('Clipboard unavailable')
-  }
-
-  const textarea = document.createElement('textarea')
-  textarea.value = value
-  textarea.setAttribute('readonly', '')
-  textarea.style.position = 'fixed'
-  textarea.style.left = '-9999px'
-  textarea.style.top = '0'
-
-  document.body.appendChild(textarea)
-  textarea.focus()
-  textarea.select()
-
-  let didCopy = false
-
-  try {
-    didCopy = document.execCommand('copy')
-  } finally {
-    document.body.removeChild(textarea)
-  }
-
-  if (!didCopy) {
-    throw new Error('Copy failed')
-  }
 }

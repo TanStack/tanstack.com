@@ -1,4 +1,5 @@
 node_modules
+.pnpm-store/
 package-lock.json
 yarn.lock
 drizzle/migrations
@@ -14,6 +15,7 @@ drizzle/migrations
 .tanstack-start/build
 .nitro/*
 .netlify/*
+.wrangler/*
 
 /build/
 /api/
@@ -36,3 +38,4 @@ test-results
 .tsbuildinfo
 src/routeTree.gen.ts
 .og-preview/
+.readme-preview/

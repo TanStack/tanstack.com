@@ -1,22 +1,23 @@
+import { notFound, redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { setResponseHeaders } from '@tanstack/react-start/server'
-import { notFound, redirect } from '@tanstack/react-router'
 import { allPosts } from 'content-collections'
 import * as v from 'valibot'
-import { findLibrary } from '~/libraries'
+import { findLibrary, type LibraryId } from '~/libraries'
+import {
+  getPostsForLibrary,
+  getVisiblePosts,
+  postToBlogCardPost,
+  sortBlogCardPosts,
+} from '~/utils/blog'
 import {
   type BlogCardPost,
   formatAuthors,
   formatPublishedDate,
-  getPublishedPosts,
-  isBlogCardPostForLibrary,
+  getBlogLibraries,
   isPublishedDateReleased,
-  normalizeBlogAuthors,
-  postToBlogCardPost,
-  sortBlogCardPosts,
-} from '~/utils/blog'
+} from '~/utils/blog-format'
 import { getExternalBlogPosts } from '~/utils/external-blog-posts.server'
-import { renderMarkdownToRsc } from './markdown'
 import { buildRedirectManifest } from './redirects'
 
 export type RecentPost = Pick<
@@ -73,29 +74,27 @@ function handleRedirects(blogPath: string) {
   }
 }
 
-function setBlogListCacheHeaders() {
+function setExistingBlogListResponseHeaders() {
   setResponseHeaders(
     new Headers({
       'Cache-Control': 'public, max-age=0, must-revalidate',
-      'CDN-Cache-Control':
-        'public, max-age=3600, durable, stale-while-revalidate=3600',
-      'Netlify-CDN-Cache-Control':
-        'public, max-age=3600, durable, stale-while-revalidate=3600',
+      'Cloudflare-CDN-Cache-Control':
+        'public, max-age=300, stale-while-revalidate=300',
     }),
   )
 }
 
 async function getBlogCardPosts() {
-  const [externalPosts] = await Promise.all([getExternalBlogPosts()])
+  const externalPosts = await getExternalBlogPosts()
 
   return sortBlogCardPosts([
-    ...getPublishedPosts().map(postToBlogCardPost),
+    ...getVisiblePosts().map(postToBlogCardPost),
     ...externalPosts,
   ])
 }
 
 export const fetchBlogPost = createServerFn({ method: 'GET' })
-  .inputValidator(v.optional(v.string()))
+  .validator(v.optional(v.string()))
   .handler(async ({ data }: { data: string | undefined }) => {
     if (!data) {
       throw new Error('Invalid blog path')
@@ -112,29 +111,24 @@ export const fetchBlogPost = createServerFn({ method: 'GET' })
     setResponseHeaders(
       new Headers({
         'Cache-Control': 'public, max-age=0, must-revalidate',
-        'Netlify-CDN-Cache-Control':
-          'public, max-age=300, durable, stale-while-revalidate=300',
+        'Cloudflare-CDN-Cache-Control':
+          'public, max-age=300, stale-while-revalidate=300',
       }),
     )
 
-    const blogContent = `<small>_by ${formatAuthors(post.authors)} on ${formatPublishedDate(
+    const blogContent = `<small><em>by ${formatAuthors(post.authors)} on ${formatPublishedDate(
       post.published || '1970-01-01',
-    )}._</small>
+    )}.</em></small>
 
 ${post.content}`
 
-    const { contentRsc, headings } = await renderMarkdownToRsc(blogContent, {
-      preserveTabPanels: true,
-    })
     const isUnpublished = post.draft || !isPublishedDateReleased(post.published)
-    const authors = normalizeBlogAuthors(post.authors)
 
     return {
-      authors,
-      contentRsc,
+      authors: post.authors,
+      content: blogContent,
       description: post.excerpt,
       filePath: `src/blog/${data}.md`,
-      headings,
       headerImage: post.headerImage,
       isUnpublished,
       library: post.library,
@@ -145,16 +139,14 @@ ${post.content}`
 
 export const fetchBlogIndexPosts = createServerFn({ method: 'GET' }).handler(
   async (): Promise<Array<BlogCardPost>> => {
-    setBlogListCacheHeaders()
+    setExistingBlogListResponseHeaders()
     return getBlogCardPosts()
   },
 )
 
 export const fetchBlogPostsForLibrary = createServerFn({ method: 'GET' })
-  .inputValidator(v.string())
+  .validator(v.string())
   .handler(async ({ data }): Promise<Array<BlogCardPost>> => {
-    setBlogListCacheHeaders()
-
     const library = findLibrary(data)
 
     if (!library) {
@@ -162,13 +154,15 @@ export const fetchBlogPostsForLibrary = createServerFn({ method: 'GET' })
     }
 
     return (await getBlogCardPosts()).filter((post) =>
-      isBlogCardPostForLibrary(post, library.id),
+      getBlogLibraries(post.library).some(
+        (postLibrary) => postLibrary.id === library.id,
+      ),
     )
   })
 
 export const fetchRecentPosts = createServerFn({ method: 'GET' }).handler(
   async (): Promise<Array<RecentPost>> => {
-    setBlogListCacheHeaders()
+    setExistingBlogListResponseHeaders()
 
     return (await getBlogCardPosts()).slice(0, 3).map((post) => ({
       slug: post.slug,
@@ -182,3 +176,36 @@ export const fetchRecentPosts = createServerFn({ method: 'GET' }).handler(
     }))
   },
 )
+
+export type RelatedPost = {
+  libraryId: LibraryId
+  post: {
+    slug: string
+    title: string
+    published: string
+    excerpt: string
+  }
+}
+
+/**
+ * Mirrors CategoryArticle's original client-side
+ * `libraries.flatMap((lib) => getPostsForLibrary(lib.id)...).slice(0, 4)`
+ * so the display order/cutoff of related posts is unchanged.
+ */
+export const fetchRelatedPostsForLibraries = createServerFn({ method: 'GET' })
+  .validator(v.array(v.string()))
+  .handler(({ data }): Array<RelatedPost> => {
+    return (data as Array<LibraryId>)
+      .flatMap((libraryId) =>
+        getPostsForLibrary(libraryId).map((post) => ({
+          libraryId,
+          post: {
+            slug: post.slug,
+            title: post.title,
+            published: post.published,
+            excerpt: post.excerpt,
+          },
+        })),
+      )
+      .slice(0, 4)
+  })

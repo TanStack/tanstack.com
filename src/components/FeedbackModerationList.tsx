@@ -14,8 +14,9 @@ import { PaginationControls } from './PaginationControls'
 import { Spinner } from './Spinner'
 import type { DocFeedback } from '~/db/types'
 import { calculatePoints } from '~/utils/docFeedback.shared'
-import { Check, Lightbulb, TriangleAlert } from 'lucide-react'
-import { MessageSquare, X } from 'lucide-react'
+import { getRowFieldId } from '~/utils/route-encoding'
+import { CheckIcon, LightbulbIcon, WarningIcon } from '@phosphor-icons/react'
+import { ChatCenteredIcon, XIcon } from '@phosphor-icons/react'
 import { Badge, Button } from '~/ui'
 
 interface FeedbackModerationListProps {
@@ -155,6 +156,11 @@ export function FeedbackModerationList({
             const isExpanded = expandedIds.has(feedback.id)
             const isPending = feedback.status === 'pending'
             const isModeratingThis = isModeratingId === feedback.id
+            const moderationNoteId = getRowFieldId(
+              'feedback-moderation',
+              feedback.id,
+              'note',
+            )
 
             return (
               <React.Fragment key={feedback.id}>
@@ -183,9 +189,9 @@ export function FeedbackModerationList({
                       onClick={(e) => e.stopPropagation()}
                     >
                       {feedback.type === 'note' ? (
-                        <MessageSquare className="text-blue-500" />
+                        <ChatCenteredIcon className="text-blue-500" />
                       ) : (
-                        <Lightbulb className="text-yellow-500" />
+                        <LightbulbIcon className="text-yellow-500" />
                       )}
                       <span className="text-xs">
                         {feedback.type === 'note' ? 'Note' : 'Improvement'}
@@ -220,7 +226,7 @@ export function FeedbackModerationList({
                     </span>
                     {feedback.isDetached && (
                       <div className="flex items-center gap-1 text-xs text-yellow-600 dark:text-yellow-400 mt-1">
-                        <TriangleAlert />
+                        <WarningIcon />
                         Detached
                       </div>
                     )}
@@ -244,7 +250,7 @@ export function FeedbackModerationList({
                           onClick={() => handleModerate(feedback.id, 'approve')}
                           title="Approve"
                         >
-                          <Check />
+                          <CheckIcon />
                         </Button>
                         <Button
                           variant="icon"
@@ -253,7 +259,7 @@ export function FeedbackModerationList({
                           onClick={() => handleModerate(feedback.id, 'deny')}
                           title="Deny"
                         >
-                          <X />
+                          <XIcon />
                         </Button>
                       </div>
                     )}
@@ -333,12 +339,13 @@ export function FeedbackModerationList({
                         {isPending && (
                           <div>
                             <label
-                              htmlFor={`moderation-note-${feedback.id}`}
+                              htmlFor={moderationNoteId}
                               className="block text-sm font-semibold mb-2"
                             >
                               Internal Moderation Note (optional):
                             </label>
                             <textarea
+                              id={moderationNoteId}
                               value={moderationNotes[feedback.id] || ''}
                               onChange={(e) =>
                                 handleModerationNoteChange(

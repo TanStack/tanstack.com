@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { ExternalLink } from 'lucide-react'
+import { ArrowSquareOutIcon } from '@phosphor-icons/react'
 import { Card } from '~/components/Card'
 import { CoverFallback } from '~/components/CoverFallback'
 import {
@@ -7,10 +7,10 @@ import {
   formatPublishedDate,
   getBlogLibraries,
   type BlogCardPost,
-} from '~/utils/blog'
-import { getNetlifyImageUrl } from '~/utils/netlifyImage'
+} from '~/utils/blog-format'
+import { getOptimizedImageUrl } from '~/utils/optimizedImage'
 
-export type { BlogCardPost } from '~/utils/blog'
+export type { BlogCardPost } from '~/utils/blog-format'
 
 type BlogCardProps = {
   post: BlogCardPost
@@ -50,7 +50,12 @@ export function BlogCard({ post, showLibraryBadges = true }: BlogCardProps) {
       {headerImage ? (
         <div className="aspect-video overflow-hidden bg-gray-100 dark:bg-gray-800">
           <img
-            src={getNetlifyImageUrl(headerImage)}
+            src={getOptimizedImageUrl(headerImage, {
+              fit: 'cover',
+              format: 'auto',
+              quality: 80,
+              width: 800,
+            })}
             alt=""
             loading="lazy"
             decoding="async"
@@ -86,7 +91,7 @@ export function BlogCard({ post, showLibraryBadges = true }: BlogCardProps) {
           {externalUrl ? (
             <div className="inline-flex items-center gap-1 text-blue-500 uppercase font-black text-sm">
               Read on {source ?? 'Source'}
-              <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+              <ArrowSquareOutIcon className="h-3.5 w-3.5" aria-hidden="true" />
             </div>
           ) : (
             <div className="text-blue-500 uppercase font-black text-sm">

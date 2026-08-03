@@ -11,20 +11,21 @@ import {
   listConnectedApps,
   revokeConnectedApp,
 } from '~/utils/oauthClient.functions'
+import { copyTextToClipboard, useTemporaryFlag } from '~/utils/browser-effects'
 import { useToast } from '~/components/ToastProvider'
 import { Card } from '~/components/Card'
 import { Button, FormInput } from '~/ui'
 import {
-  Key,
-  Plus,
-  Trash2,
-  Ban,
-  Copy,
-  Check,
-  AlertTriangle,
-  Clock,
-  Link2,
-} from 'lucide-react'
+  KeyIcon,
+  PlusIcon,
+  TrashIcon,
+  ProhibitIcon,
+  CopyIcon,
+  CheckIcon,
+  WarningIcon,
+  ClockIcon,
+  LinkSimpleIcon,
+} from '@phosphor-icons/react'
 export const Route = createFileRoute('/account/integrations')({
   component: IntegrationsPage,
 })
@@ -40,7 +41,7 @@ function IntegrationsPage() {
   const [newlyCreatedKey, setNewlyCreatedKey] = React.useState<string | null>(
     null,
   )
-  const [copied, setCopied] = React.useState(false)
+  const copied = useTemporaryFlag()
 
   const keysQuery = useQuery({
     queryKey: ['api-keys'],
@@ -129,9 +130,8 @@ function IntegrationsPage() {
 
   const handleCopy = async () => {
     if (!newlyCreatedKey) return
-    await navigator.clipboard.writeText(newlyCreatedKey)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    await copyTextToClipboard(newlyCreatedKey)
+    copied.trigger()
   }
 
   const formatDate = (dateStr: string | null) => {
@@ -169,7 +169,7 @@ function IntegrationsPage() {
         </div>
         {!isCreating && (
           <Button variant="ghost" size="xs" onClick={() => setIsCreating(true)}>
-            <Plus className="w-3.5 h-3.5" />
+            <PlusIcon className="w-3.5 h-3.5" />
             New Key
           </Button>
         )}
@@ -178,7 +178,7 @@ function IntegrationsPage() {
       {newlyCreatedKey && (
         <Card className="p-4 border-green-500 dark:border-green-600 bg-green-50 dark:bg-green-950/30">
           <div className="flex items-start gap-3">
-            <Key className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+            <KeyIcon className="w-5 h-5 text-green-600 dark:text-green-400 shrink-0 mt-0.5" />
             <div className="flex-1 min-w-0">
               <p className="font-medium text-green-800 dark:text-green-200 text-sm">
                 Your new API key
@@ -190,13 +190,13 @@ function IntegrationsPage() {
                 <code className="flex-1 bg-white dark:bg-gray-900 border border-green-200 dark:border-green-800 rounded px-3 py-2 text-sm font-mono text-gray-900 dark:text-gray-100 overflow-x-auto">
                   {newlyCreatedKey}
                 </code>
-                <Button onClick={handleCopy} className="flex-shrink-0">
-                  {copied ? (
-                    <Check className="w-3.5 h-3.5 text-green-600" />
+                <Button onClick={handleCopy} className="shrink-0">
+                  {copied.active ? (
+                    <CheckIcon className="w-3.5 h-3.5 text-green-600" />
                   ) : (
-                    <Copy className="w-3.5 h-3.5" />
+                    <CopyIcon className="w-3.5 h-3.5" />
                   )}
-                  {copied ? 'Copied' : 'Copy'}
+                  {copied.active ? 'Copied' : 'Copy'}
                 </Button>
               </div>
               <button
@@ -283,7 +283,7 @@ function IntegrationsPage() {
           <div className="p-4 text-sm text-gray-500">Loading...</div>
         ) : keysQuery.data?.length === 0 ? (
           <div className="p-8 text-center">
-            <Key className="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+            <KeyIcon className="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
             <p className="text-gray-500 dark:text-gray-400 text-sm">
               No API keys yet
             </p>
@@ -305,7 +305,7 @@ function IntegrationsPage() {
                       : 'bg-blue-50 dark:bg-blue-950/30'
                   }`}
                 >
-                  <Key
+                  <KeyIcon
                     className={`w-4 h-4 ${
                       !key.isActive || isExpired(key.expiresAt)
                         ? 'text-gray-400'
@@ -325,7 +325,7 @@ function IntegrationsPage() {
                     )}
                     {key.isActive && isExpired(key.expiresAt) && (
                       <span className="text-xs px-1.5 py-0.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 rounded flex items-center gap-1">
-                        <AlertTriangle className="w-3 h-3" />
+                        <WarningIcon className="w-3 h-3" />
                         Expired
                       </span>
                     )}
@@ -333,7 +333,7 @@ function IntegrationsPage() {
                   <div className="flex items-center gap-3 mt-0.5 text-xs text-gray-500 dark:text-gray-400">
                     <code className="font-mono">{key.keyPrefix}...</code>
                     <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
+                      <ClockIcon className="w-3 h-3" />
                       Created {formatDate(key.createdAt)}
                     </span>
                     {key.lastUsedAt && (
@@ -345,7 +345,7 @@ function IntegrationsPage() {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="flex items-center gap-2 shrink-0">
                 {key.isActive && (
                   <Button
                     onClick={() =>
@@ -354,7 +354,7 @@ function IntegrationsPage() {
                     disabled={revokeMutation.isPending}
                     title="Revoke key"
                   >
-                    <Ban className="w-3.5 h-3.5" />
+                    <ProhibitIcon className="w-3.5 h-3.5" />
                     Revoke
                   </Button>
                 )}
@@ -366,7 +366,7 @@ function IntegrationsPage() {
                   title="Delete key"
                   className="text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
                 >
-                  <Trash2 className="w-3.5 h-3.5" />
+                  <TrashIcon className="w-3.5 h-3.5" />
                 </Button>
               </div>
             </div>
@@ -391,7 +391,7 @@ function IntegrationsPage() {
           <div className="p-4 text-sm text-gray-500">Loading...</div>
         ) : connectedAppsQuery.data?.length === 0 ? (
           <div className="p-8 text-center">
-            <Link2 className="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+            <LinkSimpleIcon className="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
             <p className="text-gray-500 dark:text-gray-400 text-sm">
               No connected apps
             </p>
@@ -407,7 +407,7 @@ function IntegrationsPage() {
             >
               <div className="flex items-center gap-3 min-w-0">
                 <div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-950/30">
-                  <Link2 className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                  <LinkSimpleIcon className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
@@ -417,7 +417,7 @@ function IntegrationsPage() {
                   </div>
                   <div className="flex items-center gap-3 mt-0.5 text-xs text-gray-500 dark:text-gray-400">
                     <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
+                      <ClockIcon className="w-3 h-3" />
                       Connected {formatDate(app.createdAt)}
                     </span>
                     {app.lastUsedAt && (
@@ -426,7 +426,7 @@ function IntegrationsPage() {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="flex items-center gap-2 shrink-0">
                 <Button
                   onClick={() =>
                     revokeAppMutation.mutate({
@@ -437,7 +437,7 @@ function IntegrationsPage() {
                   title="Revoke access"
                   className="text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
                 >
-                  <Ban className="w-3.5 h-3.5" />
+                  <ProhibitIcon className="w-3.5 h-3.5" />
                   Revoke
                 </Button>
               </div>

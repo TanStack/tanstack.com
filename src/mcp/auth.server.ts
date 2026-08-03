@@ -8,6 +8,9 @@ import {
 import { sha256Hex } from '~/utils/hash'
 import { getClientIp as getClientIpBase } from '~/utils/request.server'
 
+const LAST_USED_WRITE_INTERVAL_MS = 5 * 60 * 1000
+const RATE_LIMIT_CLEANUP_MAX_AGE_MS = 48 * 60 * 60 * 1000
+
 export type AuthResult =
   | { success: true; keyId: string; userId: string; rateLimitPerMinute: number }
   | { success: false; error: string; status: number }
@@ -93,6 +96,7 @@ async function validateApiKey(rawKey: string): Promise<AuthResult> {
       id: mcpApiKeys.id,
       isActive: mcpApiKeys.isActive,
       expiresAt: mcpApiKeys.expiresAt,
+      lastUsedAt: mcpApiKeys.lastUsedAt,
       rateLimitPerMinute: mcpApiKeys.rateLimitPerMinute,
       userId: mcpApiKeys.userId,
     })
@@ -134,11 +138,15 @@ async function validateApiKey(rawKey: string): Promise<AuthResult> {
     }
   }
 
-  // Update last used timestamp (fire and forget)
-  db.update(mcpApiKeys)
-    .set({ lastUsedAt: new Date() })
-    .where(eq(mcpApiKeys.id, apiKey.id))
-    .catch(() => {})
+  if (
+    !apiKey.lastUsedAt ||
+    Date.now() - apiKey.lastUsedAt.getTime() > LAST_USED_WRITE_INTERVAL_MS
+  ) {
+    db.update(mcpApiKeys)
+      .set({ lastUsedAt: new Date() })
+      .where(eq(mcpApiKeys.id, apiKey.id))
+      .catch(() => {})
+  }
 
   return {
     success: true,
@@ -157,6 +165,7 @@ export async function checkRateLimit(
   identifierType: 'api_key' | 'ip',
   limitPerMinute: number,
 ): Promise<{ allowed: boolean; remaining: number; resetAt: Date }> {
+  const scopedIdentifier = `${identifierType}:${identifier}`
   const now = new Date()
   // Round down to the current minute
   const windowStart = new Date(
@@ -174,7 +183,7 @@ export async function checkRateLimit(
   const result = await db
     .insert(mcpRateLimits)
     .values({
-      identifier,
+      identifier: scopedIdentifier,
       identifierType,
       windowStart,
       requestCount: 1,
@@ -226,7 +235,7 @@ export async function checkWriteRateLimit(
   const result = await db
     .insert(mcpRateLimits)
     .values({
-      identifier: userId,
+      identifier: `user_write:${userId}`,
       identifierType: 'user_write',
       windowStart,
       requestCount: 1,
@@ -251,8 +260,8 @@ export async function checkWriteRateLimit(
  * Call periodically to prevent table bloat
  */
 export async function cleanupRateLimits(): Promise<void> {
-  const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000)
+  const cutoff = new Date(Date.now() - RATE_LIMIT_CLEANUP_MAX_AGE_MS)
   await db
     .delete(mcpRateLimits)
-    .where(sql`${mcpRateLimits.windowStart} < ${twoHoursAgo}`)
+    .where(sql`${mcpRateLimits.windowStart} < ${cutoff}`)
 }

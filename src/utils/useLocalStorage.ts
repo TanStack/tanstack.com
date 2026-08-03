@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
+import {
+  getLocalStorageItem,
+  removeLocalStorageItem,
+  setLocalStorageItem,
+} from '~/utils/browser-storage'
 
 function getWithExpiry<T>(key: string): T | undefined {
-  if (typeof window === 'undefined') {
-    return undefined
-  }
-
-  const itemStr = localStorage.getItem(key)
+  const itemStr = getLocalStorageItem(key)
   if (!itemStr) {
     return undefined
   }
@@ -20,14 +21,14 @@ function getWithExpiry<T>(key: string): T | undefined {
 
     // If the item is expired, delete the item from storage
     if (new Date().getTime() > item.ttl) {
-      localStorage.removeItem(key)
+      removeLocalStorageItem(key)
       return undefined
     }
 
     return item.value
   } catch {
     // If JSON parsing fails, remove the corrupted item and return undefined
-    localStorage.removeItem(key)
+    removeLocalStorageItem(key)
     return undefined
   }
 }
@@ -53,7 +54,7 @@ export function useLocalStorage<T>(
   }, [key])
 
   useEffect(() => {
-    localStorage.setItem(
+    setLocalStorageItem(
       key,
       JSON.stringify({
         value,

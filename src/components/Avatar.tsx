@@ -1,4 +1,4 @@
-import { User } from 'lucide-react'
+import { UserIcon } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 
 type AvatarSize = '2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl'
@@ -80,7 +80,7 @@ export function Avatar({
         className,
       )}
     >
-      <User className="w-1/2 h-1/2" />
+      <UserIcon className="w-1/2 h-1/2" />
     </div>
   )
 }

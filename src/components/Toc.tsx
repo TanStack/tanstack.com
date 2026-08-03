@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
-import { MarkdownHeading } from '~/utils/markdown/processor.rsc'
+import type { MarkdownHeading } from '~/utils/markdown'
 
 const headingLevels: Record<number, string> = {
   1: '',
@@ -21,12 +21,7 @@ type TocProps = {
   currentFramework?: string
 }
 
-export function Toc({
-  headings,
-  textColor,
-  activeHeadings,
-  currentFramework,
-}: TocProps) {
+export function Toc({ headings, activeHeadings, currentFramework }: TocProps) {
   // Filter headings based on framework scope
   const visibleHeadings = React.useMemo(() => {
     return headings.filter((heading) => {
@@ -49,7 +44,7 @@ export function Toc({
       </div>
       <ul
         className={twMerge(
-          'py-1 flex flex-col overflow-y-auto text-[.6em] lg:text-[.65em] xl:text-[.7em] 2xl:text-[.75em]',
+          'fade-y fade-size-y-sm flex flex-col overflow-y-auto py-1 text-[.6em] lg:text-[.65em] xl:text-[.7em] 2xl:text-[.75em]',
         )}
       >
         {visibleHeadings?.map((heading) => (
@@ -65,10 +60,9 @@ export function Toc({
               className={twMerge(
                 'block py-1 pl-2 border-l-2 rounded-r transition-colors duration-200 opacity-60 hover:opacity-100 hover:bg-gray-500/10',
                 activeHeadings.includes(heading.id)
-                  ? `opacity-100 border-current ${textColor}`
+                  ? 'border-current text-text-primary opacity-100'
                   : 'border-transparent',
               )}
-              resetScroll={false}
               hashScrollIntoView={{
                 behavior: 'smooth',
               }}

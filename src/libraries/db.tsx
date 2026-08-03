@@ -1,21 +1,18 @@
-import { GalleryVerticalEnd, Zap } from 'lucide-react'
+import { StackIcon, LightningIcon, GearIcon } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
-import { CogsIcon } from '~/components/icons/CogsIcon'
 import { db } from './libraries'
 
-const textStyles = `text-orange-600 dark:text-orange-500`
+const textStyles = `text-category-data`
 
 export const dbProject = {
   ...db,
   description: `TanStack DB gives you a reactive, client-first store for your API data with collections, live queries and optimistic mutations that keep your UI reactive, consistent and blazing fast 🔥`,
   latestBranch: 'main',
-  bgRadial: 'from-orange-500 via-orange-700/50 to-transparent',
-  textColor: `text-orange-700`,
   defaultDocs: 'overview',
   featureHighlights: [
     {
       title: 'Collections',
-      icon: <GalleryVerticalEnd className={twMerge(textStyles)} />,
+      icon: <StackIcon className={twMerge(textStyles)} />,
       description: (
         <div>
           Collections are typed sets of objects. Sync or load data into them.
@@ -26,7 +23,7 @@ export const dbProject = {
     },
     {
       title: 'Live Queries',
-      icon: <Zap className={twMerge(textStyles)} />,
+      icon: <LightningIcon className={twMerge(textStyles)} />,
       description: (
         <div>
           Live queries run reactively against and across collections. They're
@@ -37,7 +34,7 @@ export const dbProject = {
     },
     {
       title: 'Optimistic mutations',
-      icon: <CogsIcon className={twMerge(textStyles)} />,
+      icon: <GearIcon className={twMerge(textStyles)} />,
       description: (
         <div>
           Batch and stage instant local changes across collections. Sync

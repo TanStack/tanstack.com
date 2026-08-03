@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { getFeaturesHandler, normalizeFrameworkId } from '~/builder/api'
+import { normalizeFrameworkId } from '~/builder/frameworks'
 
 export const Route = createFileRoute('/api/builder/features')({
   server: {
@@ -10,6 +10,7 @@ export const Route = createFileRoute('/api/builder/features')({
           const framework = normalizeFrameworkId(
             url.searchParams.get('framework') ?? 'react',
           )
+          const { getFeaturesHandler } = await import('~/builder/api/features')
           const response = await getFeaturesHandler(framework)
           return new Response(JSON.stringify(response), {
             headers: { 'Content-Type': 'application/json' },

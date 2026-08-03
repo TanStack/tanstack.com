@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import DbLanding from '~/components/landing/DbLanding'
 import {
-  LibraryNavbarTitle,
   beforeLoadLibraryLanding,
   getLibraryLandingHead,
   getLibraryLandingHeaders,
@@ -18,18 +17,9 @@ export const Route = createFileRoute('/_library/db/$version/')({
     loadLibraryLandingRouteData('db', params.version, queryClient),
   head: () => getLibraryLandingHead('db'),
   headers: () => getLibraryLandingHeaders('db'),
-  staticData: {
-    Title: DbNavbarTitle,
-  },
   component: DbLandingRoute,
 })
 
-function DbNavbarTitle() {
-  return <LibraryNavbarTitle libraryId="db" />
-}
-
 function DbLandingRoute() {
-  const { landingCodeExampleRsc } = Route.useLoaderData()
-
-  return <DbLanding landingCodeExampleRsc={landingCodeExampleRsc} />
+  return <DbLanding />
 }

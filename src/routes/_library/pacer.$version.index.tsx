@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import PacerLanding from '~/components/landing/PacerLanding'
 import {
-  LibraryNavbarTitle,
   beforeLoadLibraryLanding,
   getLibraryLandingHead,
   getLibraryLandingHeaders,
@@ -18,18 +17,9 @@ export const Route = createFileRoute('/_library/pacer/$version/')({
     loadLibraryLandingRouteData('pacer', params.version, queryClient),
   head: () => getLibraryLandingHead('pacer'),
   headers: () => getLibraryLandingHeaders('pacer'),
-  staticData: {
-    Title: PacerNavbarTitle,
-  },
   component: PacerLandingRoute,
 })
 
-function PacerNavbarTitle() {
-  return <LibraryNavbarTitle libraryId="pacer" />
-}
-
 function PacerLandingRoute() {
-  const { landingCodeExampleRsc } = Route.useLoaderData()
-
-  return <PacerLanding landingCodeExampleRsc={landingCodeExampleRsc} />
+  return <PacerLanding />
 }

@@ -1,6 +1,12 @@
-import { env } from '~/utils/env'
-const DEFAULT_SITE_URL = 'https://tanstack.com'
-const NON_INDEXABLE_PATH_PREFIXES = ['/account', '/admin', '/login'] as const
+import { SITE_URL } from '~/utils/site'
+
+const NON_INDEXABLE_PATH_PREFIXES = [
+  '/account',
+  '/admin',
+  '/login',
+  '/partners-embed',
+  '/sponsors-embed',
+] as const
 
 function trimTrailingSlash(value: string) {
   return value.replace(/\/$/, '')
@@ -36,11 +42,7 @@ export function shouldIndexPath(path: string) {
 }
 
 export function canonicalUrl(path: string, search?: string) {
-  const origin = trimTrailingSlash(
-    env.URL ||
-      (import.meta.env.SSR ? env.SITE_URL : undefined) ||
-      DEFAULT_SITE_URL,
-  )
+  const origin = trimTrailingSlash(SITE_URL)
 
   const normalizedSearch = search && search !== '?' ? search : ''
 
@@ -68,16 +70,19 @@ export const seo = ({
     { name: 'keywords', content: keywords },
     { name: 'twitter:title', content: title },
     { name: 'twitter:description', content: description },
-    { name: 'twitter:creator', content: '@tannerlinsley' },
-    { name: 'twitter:site', content: '@tannerlinsley' },
+    { name: 'twitter:creator', content: '@tan_stack' },
+    { name: 'twitter:site', content: '@tan_stack' },
     { property: 'og:type', content: 'website' },
+    { property: 'og:site_name', content: 'TanStack' },
     { property: 'og:title', content: title },
     { property: 'og:description', content: description },
     ...(image
       ? [
           { name: 'twitter:image', content: image },
+          { name: 'twitter:image:alt', content: title },
           { name: 'twitter:card', content: 'summary_large_image' },
           { property: 'og:image', content: image },
+          { property: 'og:image:alt', content: title },
         ]
       : []),
     ...(noindex ? [{ name: 'robots', content: 'noindex, nofollow' }] : []),

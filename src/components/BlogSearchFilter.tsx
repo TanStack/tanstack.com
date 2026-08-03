@@ -1,4 +1,4 @@
-import { Search } from 'lucide-react'
+import { MagnifyingGlassIcon } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 
 type BlogSearchFilterProps = {
@@ -16,7 +16,7 @@ export function BlogSearchFilter({
 }: BlogSearchFilterProps) {
   return (
     <div className={twMerge('relative w-full', className)}>
-      <Search
+      <MagnifyingGlassIcon
         className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500 dark:text-gray-400"
         aria-hidden="true"
       />

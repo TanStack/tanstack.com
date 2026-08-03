@@ -8,7 +8,7 @@ import {
 } from '@tanstack/react-router'
 import { useSuspenseQuery, useQuery } from '@tanstack/react-query'
 import * as v from 'valibot'
-import { Copy, Check } from 'lucide-react'
+import { CopyIcon, CheckIcon } from '@phosphor-icons/react'
 import { Collapsible, CollapsibleContent } from '~/components/Collapsible'
 import { seo } from '~/utils/seo'
 import {
@@ -19,6 +19,11 @@ import {
 import type { IntentPackageDetail } from '~/utils/intent.functions'
 import { useToast } from '~/components/ToastProvider'
 import { SkillSparklineFallback } from '~/components/intent/SkillSparklineFallback'
+import {
+  decodePackageNameSlug,
+  encodePackageNameSlug,
+} from '~/utils/route-encoding'
+import { copyTextToClipboard, useTemporaryFlag } from '~/utils/browser-effects'
 
 const LazySkillSparkline = React.lazy(() =>
   import('~/components/intent/SkillSparkline').then((m) => ({
@@ -26,10 +31,12 @@ const LazySkillSparkline = React.lazy(() =>
   })),
 )
 
-// npm scoped package names (@scope/name) can't go in a URL segment directly.
-// We encode `@scope/name` as `@scope__name` in the URL.
 export function decodePkgName(slug: string): string {
-  return slug.replace('__', '/')
+  return decodePackageNameSlug(slug)
+}
+
+export function encodePkgName(packageName: string): string {
+  return encodePackageNameSlug(packageName)
 }
 
 // Context for sharing version + package metadata between layout and child routes
@@ -184,7 +191,7 @@ function PackageLayoutInner({
             <span>/</span>
             <Link
               to="/intent/registry/$packageName"
-              params={{ packageName: name.replace('/', '__') }}
+              params={{ packageName: encodePkgName(name) }}
               className="font-mono text-gray-900 dark:text-gray-100 hover:text-sky-600 dark:hover:text-sky-400 transition-colors"
             >
               {name}
@@ -305,7 +312,7 @@ function PackageLayoutInner({
 }
 
 function CopyInstallPromptButton({ name }: { readonly name: string }) {
-  const [copied, setCopied] = React.useState(false)
+  const copied = useTemporaryFlag()
   const { notify } = useToast()
 
   const handleCopy = async () => {
@@ -322,28 +329,40 @@ function CopyInstallPromptButton({ name }: { readonly name: string }) {
 
 This will detect all Agent Skills in ${name} and configure them for your coding agent.`
 
-    await navigator.clipboard.writeText(prompt)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-    notify(
-      <div>
-        <div className="font-medium">Copied install prompt</div>
-        <div className="text-xs text-gray-500 dark:text-gray-400">
-          Paste into your coding agent
-        </div>
-      </div>,
-    )
+    try {
+      await copyTextToClipboard(prompt)
+      copied.trigger()
+      notify(
+        <div>
+          <div className="font-medium">Copied install prompt</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400">
+            Paste into your coding agent
+          </div>
+        </div>,
+      )
+    } catch (error) {
+      console.error('Failed to copy install prompt', error)
+      notify(
+        <div>
+          <div className="font-medium">Copy failed</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400">
+            Try again or copy the prompt manually
+          </div>
+        </div>,
+      )
+    }
   }
 
   return (
     <button
+      type="button"
       onClick={handleCopy}
       className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 text-xs font-medium text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-900 hover:border-sky-300 dark:hover:border-sky-700 hover:text-sky-600 dark:hover:text-sky-400 transition-colors"
     >
-      {copied ? (
-        <Check className="w-3.5 h-3.5 text-green-500" />
+      {copied.active ? (
+        <CheckIcon className="w-3.5 h-3.5 text-green-500" />
       ) : (
-        <Copy className="w-3.5 h-3.5" />
+        <CopyIcon className="w-3.5 h-3.5" />
       )}
       Copy install prompt
     </button>
@@ -444,6 +463,7 @@ function MobileSkillsDrawer({
   return (
     <div className="md:hidden border-b border-gray-200 dark:border-gray-800">
       <button
+        type="button"
         onClick={() => setOpen((o) => !o)}
         className="w-full flex items-center justify-between px-4 py-3 text-sm text-gray-700 dark:text-gray-300"
       >
@@ -488,7 +508,7 @@ function MobileSkillsDrawer({
       </button>
       <Collapsible open={open}>
         <CollapsibleContent>
-          <div className="px-4 pb-4 max-h-64 overflow-y-auto">
+          <div className="fade-y fade-size-y-sm max-h-64 overflow-y-auto px-4 pb-4">
             <SkillsNav
               skills={skills}
               packageName={packageName}

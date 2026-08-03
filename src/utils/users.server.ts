@@ -5,18 +5,9 @@ import type { InferSelectModel } from 'drizzle-orm'
 import { getAuthenticatedUser } from './auth.server-helpers'
 import { getBulkEffectiveCapabilities } from './capabilities.server'
 import { recordAuditLog } from './audit.server'
-import * as v from 'valibot'
-import {
-  VALID_CAPABILITIES,
-  type Capability,
-  type SignupSource,
-} from '~/db/types'
+import { type Capability, type SignupSource } from '~/db/types'
 
 type UserRecord = InferSelectModel<typeof users>
-
-const capabilityPicklist = v.picklist(
-  VALID_CAPABILITIES as unknown as [Capability, ...Capability[]],
-)
 
 // Helper function to validate user capability
 // Optimized: getEffectiveCapabilities is already called in getAuthenticatedUser,

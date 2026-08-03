@@ -1,5 +1,3 @@
-'use client'
-
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import { CodeBlockView } from './CodeBlockView'

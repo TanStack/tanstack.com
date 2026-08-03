@@ -1,35 +1,44 @@
-import { Card } from '~/components/Card'
+import { EnvelopeSimpleIcon } from '@phosphor-icons/react'
 import { NewsletterSignup } from '~/components/NewsletterSignup'
 import { Footer } from '~/components/Footer'
 
 export function HomeNewsletterSection() {
   return (
     <>
-      <div className="px-4 mx-auto max-w-(--breakpoint-lg) relative">
-        <Card className="rounded-md p-8 md:p-14">
-          <div>
-            <div className="relative inline-block max-w-full">
-              <h3 id="newsletter" className="text-3xl font-bold scroll-mt-24">
-                <a
-                  href="#newsletter"
-                  className="hover:underline decoration-gray-400 dark:decoration-gray-600"
-                >
-                  Subscribe to TanStack News
-                </a>
-              </h3>
+      <section
+        aria-labelledby="newsletter"
+        className="mx-auto w-full max-w-[96rem] px-6 md:px-10"
+      >
+        <div className="corner-squircle grid overflow-hidden rounded-2xl border border-border-subtle bg-background-surface px-6 py-8 sm:p-10 lg:mt-[19px] lg:px-[76px] lg:py-[59px]">
+          <div className="flex items-start gap-4 sm:gap-5">
+            <div className="corner-squircle flex size-12 shrink-0 items-center justify-center rounded-xl border border-border-subtle bg-background-subtle text-text-secondary sm:size-14">
+              <EnvelopeSimpleIcon className="size-6 sm:size-7" weight="light" />
             </div>
-
-            <p className="text-lg mt-1">
-              New posts, releases, and ecosystem updates from TanStack.
-            </p>
+            <div className="min-w-0">
+              <p className="font-ds-mono text-ds-mono-xs uppercase tracking-wider text-text-muted">
+                Newsletter
+              </p>
+              <h2
+                id="newsletter"
+                className="mt-2 scroll-mt-24 font-ds-display text-ds-heading-2 font-semibold text-text-primary"
+              >
+                Subscribe to TanStack News
+              </h2>
+              <p className="mt-2 max-w-xl text-ds-body-md text-text-secondary">
+                New posts, releases, and ecosystem updates from TanStack.
+              </p>
+            </div>
           </div>
+
           <NewsletterSignup
-            className="mt-4 max-w-sm"
-            noteClassName="text-sm opacity-50 font-semibold italic"
+            className="mt-8 w-full max-w-[23rem]"
+            buttonClassName="min-h-11 corner-squircle rounded-xl border-background-inverse bg-background-inverse px-5 font-ds-display text-ds-body-sm font-semibold text-text-inverse shadow-none hover:bg-background-inverse/90"
+            noteClassName="font-ds-mono text-[11px] tracking-wide text-text-muted"
+            successClassName="text-ds-body-sm text-text-success"
           />
-        </Card>
-      </div>
-      <div className="h-20" />
+        </div>
+      </section>
+      <div className="h-16 sm:h-20" />
       <Footer />
     </>
   )

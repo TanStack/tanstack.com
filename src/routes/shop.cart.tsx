@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { ShoppingCart, Trash2, X } from 'lucide-react'
+import { ShoppingCartIcon, TrashIcon, XIcon } from '@phosphor-icons/react'
 import {
   ShopButton,
   ShopCrumbs,
@@ -141,7 +141,7 @@ function DiscountCodeSection({ cart }: { cart: CartDetail }) {
                 aria-label={`Remove discount ${d.code}`}
                 className="p-1 rounded-md text-shop-muted hover:text-shop-text disabled:opacity-50"
               >
-                <X className="w-3.5 h-3.5" />
+                <XIcon className="w-3.5 h-3.5" />
               </button>
             </li>
           ))}
@@ -190,7 +190,7 @@ function EmptyCart() {
         </h1>
       </header>
       <div className="flex flex-col items-center gap-4 py-16 text-center text-shop-text-2">
-        <ShoppingCart className="w-10 h-10 text-shop-muted" />
+        <ShoppingCartIcon className="w-10 h-10 text-shop-muted" />
         <p>Your cart is empty.</p>
         <Link
           to="/shop"
@@ -225,7 +225,7 @@ function CartLineRow({ line }: { line: CartLineDetail }) {
   return (
     <li className="flex gap-4 py-5 border-b border-shop-line items-start">
       <Link
-        to="/shop/products/$handle"
+        to="/shop/$handle"
         params={{ handle: merchandise.product.handle }}
         className="shrink-0 w-24 h-24 rounded-lg border border-shop-line bg-shop-panel overflow-hidden"
       >
@@ -245,7 +245,7 @@ function CartLineRow({ line }: { line: CartLineDetail }) {
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
             <Link
-              to="/shop/products/$handle"
+              to="/shop/$handle"
               params={{ handle: merchandise.product.handle }}
               className="font-semibold text-shop-text hover:underline"
             >
@@ -281,7 +281,7 @@ function CartLineRow({ line }: { line: CartLineDetail }) {
             aria-label="Remove from cart"
             className="p-2 rounded-md text-shop-muted hover:text-shop-text disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Trash2 className="w-4 h-4" />
+            <TrashIcon className="w-4 h-4" />
           </button>
         </div>
       </div>

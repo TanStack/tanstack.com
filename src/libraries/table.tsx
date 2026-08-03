@@ -1,16 +1,17 @@
-import { PersonStanding, Zap } from 'lucide-react'
+import {
+  PersonSimpleIcon,
+  LightningIcon,
+  GearIcon,
+} from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
-import { CogsIcon } from '~/components/icons/CogsIcon'
 import { table } from './libraries'
 
-const textStyles = 'text-blue-500 dark:text-blue-400'
+const textStyles = 'text-category-ui'
 
 export const tableProject = {
   ...table,
   description: `Supercharge your tables or build a datagrid from scratch for TS/JS, React, Vue, Solid, Svelte, Qwik, Angular, and Lit while retaining 100% control over markup and styles.`,
   latestBranch: 'main',
-  bgRadial: 'from-cyan-500 via-blue-600/50 to-transparent',
-  textColor: 'text-blue-600',
   defaultDocs: 'introduction',
   legacyPackages: ['react-table'],
   testimonials: [
@@ -48,7 +49,7 @@ export const tableProject = {
       title: 'Designed for zero design',
       icon: (
         <div className="text-center overflow-hidden">
-          <PersonStanding className={twMerge(textStyles)} />
+          <PersonSimpleIcon className={twMerge(textStyles)} />
         </div>
       ),
       description: (
@@ -65,7 +66,7 @@ export const tableProject = {
     },
     {
       title: 'Big Power, Small Package',
-      icon: <Zap className={twMerge(textStyles)} />,
+      icon: <LightningIcon className={twMerge(textStyles)} />,
       description: (
         <div>
           Don't be fooled by the small bundle size. TanStack Table is a
@@ -81,7 +82,7 @@ export const tableProject = {
     },
     {
       title: 'Extensible',
-      icon: <CogsIcon className={twMerge(textStyles)} />,
+      icon: <GearIcon className={twMerge(textStyles)} />,
       description: (
         <div>
           TanStack table ships with excellent defaults to get you off the ground

@@ -1,40 +1,45 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { validateHandler } from '~/builder/api'
+import {
+  builderErrorResponse,
+  builderInternalErrorResponse,
+  builderJsonResponse,
+  readBuilderJsonRequest,
+} from '~/builder/api/request-boundary.server'
+import {
+  builderValidateBodySchema,
+  parseBuilderRequest,
+} from '~/builder/api/request-schema.server'
 
 export const Route = createFileRoute('/api/builder/validate')({
   server: {
     handlers: {
       POST: async ({ request }: { request: Request }) => {
         try {
-          const body = await request.json()
-          const { definition } = body
+          const requestBody = await readBuilderJsonRequest(request)
+          if ('response' in requestBody) {
+            return requestBody.response
+          }
 
-          if (!definition) {
-            return new Response(
-              JSON.stringify({ error: 'Missing definition in request body' }),
-              {
-                status: 400,
-                headers: { 'Content-Type': 'application/json' },
-              },
+          let body
+          try {
+            body = parseBuilderRequest(
+              builderValidateBodySchema,
+              requestBody.body,
+            )
+          } catch {
+            return builderErrorResponse(
+              'Invalid request body',
+              400,
+              requestBody.rateLimit,
             )
           }
 
-          const response = await validateHandler(definition)
-          return new Response(JSON.stringify(response), {
-            headers: { 'Content-Type': 'application/json' },
-          })
+          const { validateHandler } = await import('~/builder/api/validate')
+          const response = await validateHandler(body.definition)
+          return builderJsonResponse(response, requestBody.rateLimit)
         } catch (error) {
           console.error('Error validating project:', error)
-          return new Response(
-            JSON.stringify({
-              error: 'Failed to validate project',
-              details: error instanceof Error ? error.message : String(error),
-            }),
-            {
-              status: 500,
-              headers: { 'Content-Type': 'application/json' },
-            },
-          )
+          return builderInternalErrorResponse('Failed to validate project')
         }
       },
     },

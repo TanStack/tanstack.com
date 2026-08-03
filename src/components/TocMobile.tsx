@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from '@tanstack/react-router'
-import { MarkdownHeading } from '~/utils/markdown/processor.rsc'
-import { ChevronDown, ChevronRight } from 'lucide-react'
+import type { MarkdownHeading } from '~/utils/markdown'
+import { CaretDownIcon, CaretRightIcon } from '@phosphor-icons/react'
 
 interface TocMobileProps {
   headings: Array<MarkdownHeading>
@@ -26,7 +26,7 @@ export function TocMobile({ headings }: TocMobileProps) {
           rounded-b-xl"
           aria-expanded={isOpen}
         >
-          <span>{isOpen ? <ChevronDown /> : <ChevronRight />}</span>
+          <span>{isOpen ? <CaretDownIcon /> : <CaretRightIcon />}</span>
           <span>On this page</span>
         </summary>
         <div className="py-2">

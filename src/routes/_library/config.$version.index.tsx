@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import ConfigLanding from '~/components/landing/ConfigLanding'
 import {
-  LibraryNavbarTitle,
   beforeLoadLibraryLanding,
   getLibraryLandingHead,
   getLibraryLandingHeaders,
@@ -18,18 +17,9 @@ export const Route = createFileRoute('/_library/config/$version/')({
     loadLibraryLandingRouteData('config', params.version, queryClient),
   head: () => getLibraryLandingHead('config'),
   headers: () => getLibraryLandingHeaders('config'),
-  staticData: {
-    Title: ConfigNavbarTitle,
-  },
   component: ConfigLandingRoute,
 })
 
-function ConfigNavbarTitle() {
-  return <LibraryNavbarTitle libraryId="config" />
-}
-
 function ConfigLandingRoute() {
-  const { landingCodeExampleRsc } = Route.useLoaderData()
-
-  return <ConfigLanding landingCodeExampleRsc={landingCodeExampleRsc} />
+  return <ConfigLanding />
 }

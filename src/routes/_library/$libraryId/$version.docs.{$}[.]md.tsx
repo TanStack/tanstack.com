@@ -1,7 +1,8 @@
 import { createFileRoute, notFound } from '@tanstack/react-router'
 import { findLibrary, getBranch } from '~/libraries'
-import { loadDocs } from '~/utils/docs'
+import { buildDocsMarkdownRedirectHref, loadDocsRoute } from '~/utils/docs'
 import { getDocsCacheHeaders } from '~/utils/docs-cache-headers'
+import { getContentDispositionHeader } from '~/utils/http-response'
 import { filterFrameworkContent } from '~/utils/markdown/filterFrameworkContent'
 import { getPackageManager } from '~/utils/markdown/installCommand'
 
@@ -31,13 +32,34 @@ export const Route = createFileRoute(
 
         const root = library.docsRoot || 'docs'
         const cacheHeaders = getDocsCacheHeaders({ libraryId, version })
-
-        const doc = await loadDocs({
+        const branch = getBranch(library, version)
+        const result = await loadDocsRoute({
           repo: library.repo,
-          branch: getBranch(library, version),
+          branch,
           docsRoot: root,
           docsPath,
+          defaultDocs: library.defaultDocs ?? 'overview',
+          frameworks: library.frameworks,
+          redirectFromPaths: docsPath ? [docsPath] : [],
         })
+
+        if (result.type === 'redirect') {
+          return Response.redirect(
+            buildDocsMarkdownRedirectHref({
+              requestUrl: request.url,
+              docsPath: result.docsPath,
+              libraryId,
+              version,
+            }),
+            308,
+          )
+        }
+
+        if (result.type === 'not-found') {
+          throw notFound()
+        }
+
+        const doc = result.doc
 
         // Filter framework-specific content only if framework is explicitly specified
         const filteredContent = framework
@@ -49,13 +71,17 @@ export const Route = createFileRoute(
           : doc.content
 
         const markdownContent = `# ${doc.title}\n${filteredContent}`
-        const filename = (docsPath || 'file').split('/').join('-')
+        const filename = `${result.docsPath || 'file'}.md`
 
         return new Response(markdownContent, {
           headers: {
             ...cacheHeaders,
             'Content-Type': 'text/markdown',
-            'Content-Disposition': `inline; filename="${filename}.md"`,
+            'Content-Disposition': getContentDispositionHeader(
+              'inline',
+              filename,
+              'file.md',
+            ),
           },
         })
       },

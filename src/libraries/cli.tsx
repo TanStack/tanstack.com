@@ -1,15 +1,21 @@
-import { Bot, Layers, Puzzle, Rocket, Terminal } from 'lucide-react'
+import {
+  RobotIcon,
+  StackIcon,
+  PuzzlePieceIcon,
+  RocketIcon,
+  TerminalIcon,
+} from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { cli } from './libraries'
 
-const textStyles = 'text-indigo-600 dark:text-indigo-400'
+const textStyles = 'text-category-tooling'
 
 export const cliProject = {
   ...cli,
   featureHighlights: [
     {
       title: 'MCP Server',
-      icon: <Bot className={textStyles} />,
+      icon: <RobotIcon className={textStyles} />,
       description: (
         <div>
           Connect your AI assistant to TanStack via the{' '}
@@ -23,7 +29,7 @@ export const cliProject = {
     },
     {
       title: 'Modular Integrations',
-      icon: <Puzzle className={textStyles} />,
+      icon: <PuzzlePieceIcon className={textStyles} />,
       description: (
         <div>
           Choose from a growing ecosystem of{' '}
@@ -36,7 +42,7 @@ export const cliProject = {
     },
     {
       title: 'Interactive Builder',
-      icon: <Layers className={textStyles} />,
+      icon: <StackIcon className={textStyles} />,
       description: (
         <div>
           Use the{' '}
@@ -50,7 +56,7 @@ export const cliProject = {
     },
     {
       title: 'Zero to Production',
-      icon: <Terminal className={textStyles} />,
+      icon: <TerminalIcon className={textStyles} />,
       description: (
         <div>
           Go from{' '}
@@ -64,7 +70,7 @@ export const cliProject = {
     },
     {
       title: 'Deploy Anywhere',
-      icon: <Rocket className={textStyles} />,
+      icon: <RocketIcon className={textStyles} />,
       description: (
         <div>
           Built-in deployment integrations for{' '}

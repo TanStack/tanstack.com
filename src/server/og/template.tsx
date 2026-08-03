@@ -3,7 +3,7 @@ import type { ReactElement } from 'react'
 type TemplateProps = {
   libraryName: string
   accentColor: string
-  islandSrc: string
+  brandLogoSrc: string
   pitch: string
   docTitle?: string
   description?: string
@@ -11,12 +11,11 @@ type TemplateProps = {
 
 const WIDTH = 1200
 const HEIGHT = 630
-const ISLAND_SIZE = Math.round(HEIGHT * 0.72)
 
 // "TanStack AI" → ["TanStack", "AI"]
 // "TanStack Router" → ["TanStack", "Router"]
 // "Create TS Router App" → ["Create TS Router", "App"] (fallback: last word)
-function splitName(name: string): [string, string] {
+export function splitName(name: string): [string, string] {
   const parts = name.split(' ')
   if (parts.length < 2) return [name, '']
   const last = parts[parts.length - 1]
@@ -26,6 +25,7 @@ function splitName(name: string): [string, string] {
 
 export function buildOgTree(props: TemplateProps): ReactElement {
   const [titleLine1, titleLine2] = splitName(props.libraryName)
+  const hasPageDetail = Boolean(props.docTitle || props.description)
 
   return (
     <div
@@ -34,37 +34,30 @@ export function buildOgTree(props: TemplateProps): ReactElement {
         height: HEIGHT,
         display: 'flex',
         position: 'relative',
-        color: '#ffffff',
+        color: '#111111',
         fontFamily: 'Inter',
-        // Layered background: base gradient + green anchor + accent glow.
-        backgroundImage: [
-          `radial-gradient(circle at 100% 100%, ${hexToRgba(props.accentColor, 0.32)} 0%, transparent 55%)`,
-          `radial-gradient(circle at 8% 50%, rgba(0, 188, 125, 0.28) 0%, transparent 50%)`,
-          `linear-gradient(135deg, #0c1410 0%, #070a0a 55%, #0c070f 100%)`,
-        ].join(', '),
+        backgroundColor: '#eeebd4',
       }}
     >
-      {/* Island */}
       <img
-        src={props.islandSrc}
+        src={props.brandLogoSrc}
         alt=""
-        width={ISLAND_SIZE}
-        height={ISLAND_SIZE}
+        width={321}
+        height={50}
         style={{
           position: 'absolute',
-          left: Math.round(WIDTH * 0.03),
-          top: Math.round((HEIGHT - ISLAND_SIZE) / 2),
+          left: 64,
+          top: 52,
         }}
       />
 
-      {/* Text column */}
       <div
         style={{
           position: 'absolute',
-          left: Math.round(WIDTH * 0.46),
-          right: Math.round(WIDTH * 0.05),
-          top: 0,
-          bottom: 0,
+          left: 64,
+          right: 64,
+          top: 152,
+          bottom: 52,
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
@@ -74,16 +67,28 @@ export function buildOgTree(props: TemplateProps): ReactElement {
           style={{
             display: 'flex',
             flexDirection: 'column',
-            marginBottom: 22,
-            lineHeight: 0.95,
-            fontWeight: 900,
-            letterSpacing: '-3px',
-            textTransform: 'uppercase',
+            marginBottom: hasPageDetail ? 20 : 28,
+            fontFamily: 'Bricolage Grotesque',
+            fontWeight: 700,
+            lineHeight: 0.92,
+            letterSpacing: '-2px',
           }}
         >
-          <span style={{ fontSize: 72, color: '#ffffff' }}>{titleLine1}</span>
+          <span
+            style={{
+              fontSize: hasPageDetail ? 36 : 58,
+              color: '#3e3529',
+            }}
+          >
+            {titleLine1}
+          </span>
           {titleLine2 ? (
-            <span style={{ fontSize: 96, color: props.accentColor }}>
+            <span
+              style={{
+                fontSize: hasPageDetail ? 60 : 92,
+                color: props.accentColor,
+              }}
+            >
               {titleLine2}
             </span>
           ) : null}
@@ -92,10 +97,11 @@ export function buildOgTree(props: TemplateProps): ReactElement {
           <div
             style={{
               fontSize: 28,
-              fontWeight: 500,
+              fontWeight: 400,
               lineHeight: 1.3,
-              color: '#ffffff',
+              color: '#3e3529',
               marginBottom: 0,
+              maxWidth: 920,
             }}
           >
             {props.pitch}
@@ -105,11 +111,12 @@ export function buildOgTree(props: TemplateProps): ReactElement {
           <div
             style={{
               fontSize: 44,
-              fontWeight: 800,
-              lineHeight: 1.05,
-              letterSpacing: '-0.015em',
+              fontFamily: 'Bricolage Grotesque',
+              fontWeight: 700,
+              lineHeight: 1.08,
+              letterSpacing: '-1px',
               marginBottom: 14,
-              color: '#ffffff',
+              color: '#111111',
             }}
           >
             {props.docTitle}
@@ -120,22 +127,25 @@ export function buildOgTree(props: TemplateProps): ReactElement {
             style={{
               fontSize: 22,
               lineHeight: 1.3,
-              fontWeight: 500,
-              color: '#ffffff',
+              fontWeight: 400,
+              color: '#3e3529',
+              maxWidth: 980,
             }}
           >
             {props.description}
           </div>
         ) : null}
       </div>
+      <div
+        style={{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: 16,
+          backgroundColor: props.accentColor,
+        }}
+      />
     </div>
   )
-}
-
-function hexToRgba(hex: string, alpha: number): string {
-  const clean = hex.replace('#', '')
-  const r = parseInt(clean.slice(0, 2), 16)
-  const g = parseInt(clean.slice(2, 4), 16)
-  const b = parseInt(clean.slice(4, 6), 16)
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`
 }

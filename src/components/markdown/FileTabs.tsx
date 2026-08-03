@@ -1,5 +1,3 @@
-'use client'
-
 import * as React from 'react'
 
 export type FileTabDefinition = {
@@ -21,7 +19,7 @@ export function FileTabs({ tabs, children }: FileTabsProps) {
 
   return (
     <div className="not-prose my-4">
-      <div className="flex items-center justify-start gap-0 overflow-x-auto overflow-y-hidden bg-gray-100 dark:bg-gray-900 border border-b-0 border-gray-500/20 rounded-t-md">
+      <div className="fade-x fade-size-x-sm flex items-center justify-start gap-0 overflow-x-auto overflow-y-hidden rounded-t-md border border-b-0 border-gray-500/20 bg-gray-100 dark:bg-gray-900">
         {tabs.map((tab) => (
           <button
             key={`${id}-${tab.slug}`}

@@ -32,7 +32,7 @@ if (!dryRun && !webhookSecret) {
 if (!dryRun && webhookSecret) {
   if (webhookSecret.length < 16 || /\s/.test(webhookSecret)) {
     throw new Error(
-      'GITHUB_WEBHOOK_SECRET must be a raw secret value, not Netlify env:get output for a secret variable.',
+      'GITHUB_WEBHOOK_SECRET must be a raw secret value, not a secret manager placeholder.',
     )
   }
 }

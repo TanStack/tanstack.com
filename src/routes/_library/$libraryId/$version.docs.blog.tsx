@@ -1,17 +1,17 @@
+import { ArrowLeftIcon } from '@phosphor-icons/react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
-import { ArrowLeft } from 'lucide-react'
+import { BlogAuthorFilter } from '~/components/BlogAuthorFilter'
+import { BlogCard } from '~/components/BlogCard'
+import { BlogSearchFilter } from '~/components/BlogSearchFilter'
 import { DocContainer } from '~/components/DocContainer'
 import { DocTitle } from '~/components/DocTitle'
-import { BlogCard, type BlogCardPost } from '~/components/BlogCard'
-import { BlogAuthorFilter } from '~/components/BlogAuthorFilter'
-import { BlogSearchFilter } from '~/components/BlogSearchFilter'
 import { getLibrary, type LibraryId } from '~/libraries'
 import {
   getDistinctAuthors,
   normalizeBlogAuthor,
   searchBlogCardPosts,
-} from '~/utils/blog'
+} from '~/utils/blog-format'
 import { fetchBlogPostsForLibrary } from '~/utils/blog.functions'
 
 const searchSchema = v.object({
@@ -21,16 +21,10 @@ const searchSchema = v.object({
 
 export const Route = createFileRoute('/_library/$libraryId/$version/docs/blog')(
   {
+    staleTime: Infinity,
     validateSearch: searchSchema,
     loader: ({ params }) =>
       fetchBlogPostsForLibrary({ data: params.libraryId }),
-    headers: () => ({
-      'Cache-Control': 'public, max-age=0, must-revalidate',
-      'CDN-Cache-Control':
-        'public, max-age=3600, durable, stale-while-revalidate=3600',
-      'Netlify-CDN-Cache-Control':
-        'public, max-age=3600, durable, stale-while-revalidate=3600',
-    }),
     component: RouteComponent,
   },
 )
@@ -43,7 +37,7 @@ function RouteComponent() {
   const selectedAuthor = author ? normalizeBlogAuthor(author) : undefined
   const searchQuery = q ?? ''
 
-  const posts = Route.useLoaderData() as Array<BlogCardPost>
+  const posts = Route.useLoaderData()
   const authors = getDistinctAuthors(posts)
 
   const authorFilteredPosts = selectedAuthor
@@ -59,7 +53,7 @@ function RouteComponent() {
             to="/blog"
             className="inline-flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors mb-4"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeftIcon className="w-4 h-4" />
             Back to all posts
           </Link>
 
@@ -118,7 +112,7 @@ function RouteComponent() {
             ) : null}
           </div>
 
-          <section className="grid grid-cols-1 xl:grid-cols-2 gap-4 mt-8">
+          <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-8">
             {filteredPosts.map((post) => (
               <BlogCard key={post.slug} post={post} showLibraryBadges={false} />
             ))}

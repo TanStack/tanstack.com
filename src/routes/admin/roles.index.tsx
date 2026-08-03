@@ -21,15 +21,15 @@ import {
   type Row,
 } from '@tanstack/react-table'
 import {
-  SquarePen,
-  Plus,
-  Save,
-  X,
-  Trash,
-  Users,
-  Mail,
-  Shield,
-} from 'lucide-react'
+  PencilSimpleLineIcon,
+  PlusIcon,
+  FloppyDiskIcon,
+  XIcon,
+  TrashIcon,
+  UsersIcon,
+  EnvelopeIcon,
+  ShieldIcon,
+} from '@phosphor-icons/react'
 import { VALID_CAPABILITIES, type Capability } from '~/db/types'
 import {
   AdminAccessDenied,
@@ -330,13 +330,13 @@ function RolesPage() {
                   onClick={handleSaveRole}
                   className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
                 >
-                  <Save className="w-4 h-4" />
+                  <FloppyDiskIcon className="w-4 h-4" />
                 </button>
                 <button
                   onClick={handleCancelEdit}
                   className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                 >
-                  <X className="w-4 h-4" />
+                  <XIcon className="w-4 h-4" />
                 </button>
               </div>
             )
@@ -349,19 +349,19 @@ function RolesPage() {
                 className="text-purple-600 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-300"
                 title="View users with this role"
               >
-                <Users className="w-4 h-4" />
+                <UsersIcon className="w-4 h-4" />
               </Link>
               <button
                 onClick={() => handleEditRole(role)}
                 className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
               >
-                <SquarePen className="w-4 h-4" />
+                <PencilSimpleLineIcon className="w-4 h-4" />
               </button>
               <button
                 onClick={() => handleDeleteRole(role)}
                 className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
               >
-                <Trash className="w-4 h-4" />
+                <TrashIcon className="w-4 h-4" />
               </button>
             </div>
           )
@@ -422,13 +422,13 @@ function RolesPage() {
     <div className="w-full p-4">
       <div className="flex flex-col gap-4">
         <AdminPageHeader
-          icon={<Shield />}
+          icon={<ShieldIcon />}
           title="Manage Roles"
           isLoading={rolesQuery.isFetching}
           actions={
             !isCreating && (
               <Button size="xs" onClick={handleCreateRole}>
-                <Plus className="w-4 h-4" />
+                <PlusIcon className="w-4 h-4" />
                 Create Role
               </Button>
             )
@@ -466,7 +466,7 @@ function RolesPage() {
                 color="gray"
                 size="sm"
               >
-                <Mail className="w-4 h-4" />
+                <EnvelopeIcon className="w-4 h-4" />
                 {testEmailStatus.loading ? 'Sending...' : 'Test Email'}
               </Button>
             </div>
@@ -535,11 +535,11 @@ function RolesPage() {
                 </div>
                 <div className="flex space-x-2">
                   <Button onClick={handleSaveRole} color="green">
-                    <Save className="w-4 h-4" />
+                    <FloppyDiskIcon className="w-4 h-4" />
                     Save
                   </Button>
                   <Button onClick={handleCancelEdit} color="gray">
-                    <X className="w-4 h-4" />
+                    <XIcon className="w-4 h-4" />
                     Cancel
                   </Button>
                 </div>
@@ -605,7 +605,7 @@ function RolesPage() {
 
           {(!roles || roles.length === 0) && (
             <AdminEmptyState
-              icon={<Shield className="w-12 h-12" />}
+              icon={<ShieldIcon className="w-12 h-12" />}
               title="No roles found"
               description="Create your first role to get started."
             />

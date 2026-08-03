@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import QueryLanding from '~/components/landing/QueryLanding'
 import {
-  LibraryNavbarTitle,
   beforeLoadLibraryLanding,
   getLibraryLandingHead,
   getLibraryLandingHeaders,
@@ -18,18 +17,9 @@ export const Route = createFileRoute('/_library/query/$version/')({
     loadLibraryLandingRouteData('query', params.version, queryClient),
   head: () => getLibraryLandingHead('query'),
   headers: () => getLibraryLandingHeaders('query'),
-  staticData: {
-    Title: QueryNavbarTitle,
-  },
   component: QueryLandingRoute,
 })
 
-function QueryNavbarTitle() {
-  return <LibraryNavbarTitle libraryId="query" />
-}
-
 function QueryLandingRoute() {
-  const { landingCodeExampleRsc } = Route.useLoaderData()
-
-  return <QueryLanding landingCodeExampleRsc={landingCodeExampleRsc} />
+  return <QueryLanding />
 }

@@ -5,6 +5,24 @@ import { defaultColors } from '~/utils/npm-packages'
 
 export type PackageGroup = v.InferOutput<typeof packageGroupSchema>
 
+export function getPackageGroupLabel(packageGroup: PackageGroup): string {
+  return packageGroup.label?.trim() || packageGroup.packages[0]?.name || ''
+}
+
+export function hasPackageGroupLabel(packageGroup: PackageGroup): boolean {
+  return !!packageGroup.label?.trim()
+}
+
+export function isPackageGroupHidden(packageGroup: PackageGroup): boolean {
+  if (packageGroup.hidden !== undefined) return packageGroup.hidden
+
+  if (hasPackageGroupLabel(packageGroup) && !packageGroup.baseline) {
+    return false
+  }
+
+  return !!packageGroup.packages[0]?.hidden
+}
+
 export const binTypeSchema = v.picklist([
   'yearly',
   'monthly',
@@ -19,6 +37,35 @@ export type TransformMode = v.InferOutput<typeof transformModeSchema>
 export const showDataModeSchema = v.picklist(['all', 'complete'])
 export type ShowDataMode = v.InferOutput<typeof showDataModeSchema>
 
+export const latestBarSortSchema = v.picklist(['name', 'value'])
+export type LatestBarSort = v.InferOutput<typeof latestBarSortSchema>
+
+export const defaultPlaybackIntervalMs = 350
+export const maxPlaybackIntervalMs = 60000
+export const playbackIntervalMsSchema = v.pipe(
+  v.number(),
+  v.integer(),
+  v.minValue(1),
+  v.maxValue(maxPlaybackIntervalMs),
+)
+
+export const barOrientationSchema = v.picklist(['vertical', 'horizontal'])
+export type BarOrientation = v.InferOutput<typeof barOrientationSchema>
+
+export const viewModeSchema = v.picklist(['history', 'latest'])
+export type ViewMode = v.InferOutput<typeof viewModeSchema>
+
+export const chartTypeSchema = v.picklist([
+  'line',
+  'stacked',
+  'stacked-area',
+  'stacked-stream',
+  'bar',
+  'horizontal-bar',
+  'stacked-bar',
+])
+export type ChartType = v.InferOutput<typeof chartTypeSchema>
+
 export type TimeRange =
   | '7-days'
   | '30-days'
@@ -28,8 +75,6 @@ export type TimeRange =
   | '730-days'
   | '1825-days'
   | 'all-time'
-
-export type FacetValue = 'name'
 
 export type NpmQueryData = Array<{
   packages: Array<{
@@ -66,6 +111,24 @@ export const binningOptions = [
   },
 ] as const
 
+export const historyChartTypes = [
+  { label: 'Line', value: 'line' },
+  { label: 'Stacked', value: 'stacked' },
+  { label: 'Stacked Area', value: 'stacked-area' },
+  { label: 'Stream', value: 'stacked-stream' },
+] as const satisfies ReadonlyArray<{
+  label: string
+  value: ChartType
+}>
+
+export const latestChartTypes = [
+  { label: 'Bar', value: 'bar' },
+  { label: 'Stacked Bar', value: 'stacked-bar' },
+] as const satisfies ReadonlyArray<{
+  label: string
+  value: ChartType
+}>
+
 export const timeRanges = [
   { value: '7-days', label: '7 Days' },
   { value: '30-days', label: '30 Days' },
@@ -83,28 +146,32 @@ export const defaultRangeBinTypes: Record<TimeRange, BinType> = {
   '90-days': 'weekly',
   '180-days': 'weekly',
   '365-days': 'weekly',
-  '730-days': 'monthly',
-  '1825-days': 'monthly',
-  'all-time': 'monthly',
+  '730-days': 'weekly',
+  '1825-days': 'weekly',
+  'all-time': 'weekly',
 }
 
 export function getPackageColor(
   packageName: string,
   packages: PackageGroup[],
 ): string {
-  const packageInfo = packages.find((pkg) =>
-    pkg.packages.some((p) => p.name === packageName),
+  const packageInfo = packages.find(
+    (pkg) =>
+      pkg.label === packageName ||
+      pkg.packages.some((p) => p.name === packageName),
   )
 
   if (packageInfo?.color) {
     return packageInfo.color
   }
 
-  const packageIndex = packages.findIndex((pkg) =>
-    pkg.packages.some((p) => p.name === packageName),
+  const packageIndex = packages.findIndex(
+    (pkg) =>
+      pkg.label === packageName ||
+      pkg.packages.some((p) => p.name === packageName),
   )
 
-  return defaultColors[packageIndex % defaultColors.length]
+  return defaultColors[Math.max(packageIndex, 0) % defaultColors.length]
 }
 
 export function getBaselineDisplayName(packageGroups: PackageGroup[]): string {
@@ -114,8 +181,8 @@ export function getBaselineDisplayName(packageGroups: PackageGroup[]): string {
       const label = packageGroup.baselineLabel?.trim()
       if (label) return [label]
 
-      const packageNames = packageGroup.packages.map((pkg) => pkg.name)
-      return packageNames.length ? [packageNames.join(', ')] : []
+      const groupLabel = getPackageGroupLabel(packageGroup)
+      return groupLabel ? [groupLabel] : []
     })
 
   return [...new Set(baselineNames)].join(', ') || 'Baseline'
@@ -150,4 +217,16 @@ export function isBinningOptionValidForRange(
     case 'all-time':
       return true
   }
+}
+
+export function isChartTypeValidForViewMode(
+  viewMode: ViewMode,
+  chartType: ChartType,
+): boolean {
+  const options = viewMode === 'history' ? historyChartTypes : latestChartTypes
+  return options.some((option) => option.value === chartType)
+}
+
+export function getDefaultChartTypeForViewMode(viewMode: ViewMode): ChartType {
+  return viewMode === 'history' ? 'line' : 'bar'
 }

@@ -10,6 +10,7 @@ import {
 
 export type StarterTone = 'cyan' | 'emerald' | 'violet'
 export type StarterDeployProvider = 'cloudflare' | 'netlify' | 'railway'
+export type StarterPromptDeployProvider = 'lovable' | 'netlify'
 export type StarterPackageManager = 'bun' | 'npm' | 'pnpm' | 'yarn'
 export type StarterToolchain = 'biome' | 'eslint'
 
@@ -21,7 +22,11 @@ export interface StarterPalette {
 }
 
 export interface ApplicationStarterBuilderIntegration {
-  applyResult: (result: ApplicationStarterResult) => Promise<boolean>
+  applyResult: (
+    result: ApplicationStarterResult,
+    options?: { silent?: boolean },
+  ) => Promise<boolean>
+  downloadResult?: (result: ApplicationStarterResult) => Promise<void>
 }
 
 export interface ApplicationStarterAnonymousQuota {
@@ -45,6 +50,7 @@ export interface StarterTryLibrary {
 }
 
 export type StarterPartnerButtonStyle = CSSProperties & {
+  '--starter-partner-active-border-color'?: string
   '--starter-partner-border-hover'?: string
   '--starter-partner-hover-border-color'?: string
 }
@@ -137,6 +143,31 @@ export const starterLoadingPhrases = [
   'Hoisting a fresh draft...',
   'Finding calmer waters...',
 ]
+
+export function buildStarterPromptDeployUrl(
+  provider: StarterPromptDeployProvider,
+  prompt: string,
+) {
+  switch (provider) {
+    case 'lovable': {
+      const url = new URL('https://lovable.dev/')
+
+      url.searchParams.set('autosubmit', 'true')
+      url.searchParams.set('utm_source', 'tanstack')
+      url.hash = `prompt=${encodeURIComponent(prompt)}`
+
+      return url.toString()
+    }
+    case 'netlify': {
+      const url = new URL('https://app.netlify.com/start')
+
+      url.searchParams.set('prompt', prompt)
+      url.searchParams.set('utm_source', 'tanstack')
+
+      return url.toString()
+    }
+  }
+}
 
 export function isPinnedStarterLibrary(libraryId: LibraryId) {
   return starterPinnedLibraryIds.some(

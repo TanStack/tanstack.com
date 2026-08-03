@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import WorkflowLanding from '~/components/landing/WorkflowLanding'
 import {
-  LibraryNavbarTitle,
   beforeLoadLibraryLanding,
   getLibraryLandingHead,
   getLibraryLandingHeaders,
@@ -18,18 +17,9 @@ export const Route = createFileRoute('/_library/workflow/$version/')({
     loadLibraryLandingRouteData('workflow', params.version, queryClient),
   head: () => getLibraryLandingHead('workflow'),
   headers: () => getLibraryLandingHeaders('workflow'),
-  staticData: {
-    Title: WorkflowNavbarTitle,
-  },
   component: WorkflowLandingRoute,
 })
 
-function WorkflowNavbarTitle() {
-  return <LibraryNavbarTitle libraryId="workflow" />
-}
-
 function WorkflowLandingRoute() {
-  const { landingCodeExampleRsc } = Route.useLoaderData()
-
-  return <WorkflowLanding landingCodeExampleRsc={landingCodeExampleRsc} />
+  return <WorkflowLanding />
 }

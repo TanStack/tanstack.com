@@ -2,24 +2,28 @@ import * as React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-  RefreshCw,
-  Play,
-  RotateCcw,
-  Trash2,
-  BookOpen,
-  ChevronDown,
-  ChevronRight,
-  AlertTriangle,
-  CheckCircle2,
-  Clock,
-} from 'lucide-react'
+  ArrowsClockwiseIcon as RefreshCw,
+  PlayIcon,
+  ArrowCounterClockwiseIcon as RotateCcw,
+  TrashIcon as Trash2,
+  BookOpenIcon,
+  CaretDownIcon as ChevronDown,
+  CaretRightIcon as ChevronRight,
+  WarningIcon as AlertTriangle,
+  CheckCircleIcon as CheckCircle2,
+  ClockIcon,
+  WrenchIcon,
+} from '@phosphor-icons/react'
 import { Button } from '~/ui'
 import { Card } from '~/components/Card'
 import { formatDistanceToNow } from '~/utils/dates'
 import {
   getIntentAdminStats,
+  getIntentWorkflowHealth,
   listIntentPackages,
   listFailedVersions,
+  listIntentWorkflowRuns,
+  repairIntentWorkflowStore,
   triggerIntentDiscover,
   triggerIntentProcess,
   retryIntentVersion,
@@ -40,6 +44,8 @@ const QK = {
   stats: ['admin', 'intent', 'stats'] as const,
   packages: ['admin', 'intent', 'packages'] as const,
   failed: ['admin', 'intent', 'failed'] as const,
+  workflows: ['admin', 'intent', 'workflows'] as const,
+  health: ['admin', 'intent', 'workflow-health'] as const,
 }
 
 // ---------------------------------------------------------------------------
@@ -69,18 +75,35 @@ function IntentAdminPage() {
     queryFn: () => listFailedVersions(),
   })
 
+  const workflowsQuery = useQuery({
+    queryKey: QK.workflows,
+    queryFn: () => listIntentWorkflowRuns(),
+    refetchInterval: 10_000,
+  })
+
+  const healthQuery = useQuery({
+    queryKey: QK.health,
+    queryFn: () => getIntentWorkflowHealth(),
+    refetchInterval: 10_000,
+  })
+
   const discoverMutation = useMutation({
     mutationFn: () => triggerIntentDiscover(),
     onSuccess: invalidateAll,
   })
 
   const processMutation = useMutation({
-    mutationFn: (limit: number) => triggerIntentProcess({ data: { limit } }),
+    mutationFn: () => triggerIntentProcess(),
     onSuccess: invalidateAll,
   })
 
   const resetFailedMutation = useMutation({
     mutationFn: () => resetFailedVersions(),
+    onSuccess: invalidateAll,
+  })
+
+  const repairWorkflowMutation = useMutation({
+    mutationFn: () => repairIntentWorkflowStore(),
     onSuccess: invalidateAll,
   })
 
@@ -105,7 +128,7 @@ function IntentAdminPage() {
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <BookOpen className="w-5 h-5 text-sky-500" />
+            <BookOpenIcon className="w-5 h-5 text-sky-500" />
             <h1 className="text-xl font-bold text-gray-900 dark:text-white">
               Intent Skills Registry
             </h1>
@@ -152,19 +175,19 @@ function IntentAdminPage() {
           <Button
             size="sm"
             color="green"
-            onClick={() => processMutation.mutate(10)}
+            onClick={() => processMutation.mutate()}
             disabled={
               processMutation.isPending ||
               (stats?.pendingVersions ?? 0) + (stats?.failedVersions ?? 0) === 0
             }
-            title="Download tarballs and extract skills for up to 10 pending versions"
+            title="Download tarballs and extract skills for pending versions"
           >
-            <Play
+            <PlayIcon
               className={
                 processMutation.isPending ? 'animate-pulse w-4 h-4' : 'w-4 h-4'
               }
             />
-            {processMutation.isPending ? 'Processing...' : 'Process 10 Pending'}
+            {processMutation.isPending ? 'Processing...' : 'Process Queue'}
           </Button>
           {(stats?.failedVersions ?? 0) > 0 && (
             <Button
@@ -226,14 +249,29 @@ function IntentAdminPage() {
       )}
       {processMutation.data && (
         <ResultBanner
-          title={`Processed ${processMutation.data.processed} version(s)`}
-          items={processMutation.data.results.map(
-            (r) =>
-              `${r.packageName}@${r.version}: ${r.status === 'synced' ? `${r.skillCount} skills` : `FAILED — ${r.error}`}`,
-          )}
-          errors={processMutation.data.results
-            .filter((r) => r.status === 'failed')
-            .map((r) => `${r.packageName}@${r.version}: ${r.error}`)}
+          title={
+            processMutation.data.kind === 'completed'
+              ? `Processed ${processMutation.data.summary.processed} version(s)`
+              : 'Queue processing started'
+          }
+          items={
+            processMutation.data.kind === 'completed'
+              ? processMutation.data.summary.results.map(
+                  (result) =>
+                    `${result.packageName}@${result.version}: ${result.status === 'synced' ? `${result.skillCount} skills` : `FAILED — ${result.error}`}`,
+                )
+              : ['Remaining work will continue during scheduled processing.']
+          }
+          errors={
+            processMutation.data.kind === 'completed'
+              ? processMutation.data.summary.results
+                  .filter((result) => result.status === 'failed')
+                  .map(
+                    (result) =>
+                      `${result.packageName}@${result.version}: ${result.error}`,
+                  )
+              : []
+          }
           onDismiss={() => processMutation.reset()}
         />
       )}
@@ -243,6 +281,17 @@ function IntentAdminPage() {
           items={[]}
           errors={[]}
           onDismiss={() => resetFailedMutation.reset()}
+        />
+      )}
+      {repairWorkflowMutation.data && (
+        <ResultBanner
+          title="Workflow store repaired"
+          items={[
+            `${repairWorkflowMutation.data.staleRunsMarkedErrored} stale run(s) marked errored`,
+            `${repairWorkflowMutation.data.unregisteredSchedulesDeleted} obsolete schedule(s) deleted`,
+          ]}
+          errors={[]}
+          onDismiss={() => repairWorkflowMutation.reset()}
         />
       )}
       {githubDiscoverMutation.data && (
@@ -324,6 +373,18 @@ function IntentAdminPage() {
         />
       </div>
 
+      <WorkflowHealthSection
+        health={healthQuery.data}
+        loading={healthQuery.isLoading}
+        repairing={repairWorkflowMutation.isPending}
+        onRepair={() => repairWorkflowMutation.mutate()}
+      />
+
+      <WorkflowRunsSection
+        runs={workflowsQuery.data ?? []}
+        loading={workflowsQuery.isLoading}
+      />
+
       {/* Failed versions (shown prominently when non-zero) */}
       {(failedQuery.data?.length ?? 0) > 0 && (
         <FailedVersionsSection
@@ -378,6 +439,249 @@ function StatCard({
       )}
     </Card>
   )
+}
+
+function WorkflowHealthSection({
+  health,
+  loading,
+  repairing,
+  onRepair,
+}: {
+  readonly health:
+    | {
+        checkedAt: Date
+        staleRunMs: number
+        staleRuns: Array<{
+          runId: string
+          workflowId: string
+          status: string
+          updatedAt: Date
+          leaseExpiresAt: Date | null
+        }>
+        unregisteredSchedules: Array<{
+          scheduleId: string
+          workflowId: string
+          enabled: boolean
+          nextFireAt: Date | null
+          updatedAt: Date
+        }>
+        schedules: Array<{
+          scheduleId: string
+          workflowId: string
+          enabled: boolean
+          nextFireAt: Date | null
+          updatedAt: Date
+        }>
+        latestRuns: Array<{
+          runId: string
+          workflowId: string
+          status: string
+          updatedAt: Date
+        }>
+        statusCounts: Array<{ status: string; count: number }>
+      }
+    | undefined
+  readonly loading: boolean
+  readonly repairing: boolean
+  readonly onRepair: () => void
+}) {
+  const staleRunCount = health?.staleRuns.length ?? 0
+  const obsoleteScheduleCount = health?.unregisteredSchedules.length ?? 0
+  const needsRepair = staleRunCount > 0 || obsoleteScheduleCount > 0
+
+  return (
+    <div className="mb-6">
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+          <CheckCircle2 className="w-4 h-4" />
+          Workflow Health
+        </h2>
+        <Button
+          size="xs"
+          variant="secondary"
+          onClick={onRepair}
+          disabled={repairing || loading || !needsRepair}
+          title="Mark stale runs as errored and delete schedules for workflows that are no longer registered"
+        >
+          <WrenchIcon
+            className={repairing ? 'w-3.5 h-3.5 animate-pulse' : 'w-3.5 h-3.5'}
+          />
+          {repairing ? 'Repairing...' : 'Repair Store'}
+        </Button>
+      </div>
+      {loading ? (
+        <div className="h-28 rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse" />
+      ) : (
+        <div className="rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+          <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-gray-100 dark:divide-gray-800">
+            <HealthMetric
+              label="Stale runs"
+              value={staleRunCount}
+              tone={staleRunCount > 0 ? 'red' : 'green'}
+            />
+            <HealthMetric
+              label="Obsolete schedules"
+              value={obsoleteScheduleCount}
+              tone={obsoleteScheduleCount > 0 ? 'amber' : 'green'}
+            />
+            <HealthMetric
+              label="Registered schedules"
+              value={health?.schedules.length ?? 0}
+              tone="default"
+            />
+            <HealthMetric
+              label="Tracked runs"
+              value={
+                health?.statusCounts.reduce(
+                  (total, row) => total + row.count,
+                  0,
+                ) ?? 0
+              }
+              tone="default"
+            />
+          </div>
+          {health && needsRepair && (
+            <div className="border-t border-gray-100 dark:border-gray-800 bg-amber-50/60 dark:bg-amber-950/20 px-3 py-2 text-xs text-amber-800 dark:text-amber-200">
+              {[...health.staleRuns, ...health.unregisteredSchedules]
+                .slice(0, 4)
+                .map((item) =>
+                  'runId' in item
+                    ? `${item.workflowId}: ${item.status} since ${formatDistanceToNow(
+                        item.updatedAt,
+                        { addSuffix: true },
+                      )}`
+                    : `${item.workflowId}: obsolete schedule ${item.scheduleId}`,
+                )
+                .join(' | ')}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function HealthMetric({
+  label,
+  value,
+  tone,
+}: {
+  readonly label: string
+  readonly value: number
+  readonly tone: 'default' | 'green' | 'amber' | 'red'
+}) {
+  const valueClass = {
+    default: 'text-gray-900 dark:text-white',
+    green: 'text-emerald-600 dark:text-emerald-400',
+    amber: 'text-amber-600 dark:text-amber-400',
+    red: 'text-red-600 dark:text-red-400',
+  }[tone]
+
+  return (
+    <div className="bg-white dark:bg-gray-900 px-3 py-2">
+      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+        {label}
+      </div>
+      <div className={`text-xl font-semibold tabular-nums ${valueClass}`}>
+        {value.toLocaleString()}
+      </div>
+    </div>
+  )
+}
+
+function WorkflowRunsSection({
+  runs,
+  loading,
+}: {
+  readonly runs: Array<{
+    runId: string
+    workflowId: string
+    workflowVersion?: string
+    status: string
+    waitingFor?: string
+    wakeAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+  }>
+  readonly loading: boolean
+}) {
+  return (
+    <div className="mb-6">
+      <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1.5 mb-2">
+        <ClockIcon className="w-4 h-4" />
+        Workflow Runs
+      </h2>
+      {loading ? (
+        <div className="h-24 rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse" />
+      ) : runs.length === 0 ? (
+        <Card className="p-4 text-sm text-gray-500 dark:text-gray-400">
+          No workflow runs recorded yet.
+        </Card>
+      ) : (
+        <div className="rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 dark:bg-gray-900/50">
+              <tr>
+                <th className="text-left px-3 py-2 text-xs font-medium text-gray-500">
+                  Workflow
+                </th>
+                <th className="text-left px-3 py-2 text-xs font-medium text-gray-500">
+                  Status
+                </th>
+                <th className="text-left px-3 py-2 text-xs font-medium text-gray-500 hidden md:table-cell">
+                  Run
+                </th>
+                <th className="text-left px-3 py-2 text-xs font-medium text-gray-500">
+                  Updated
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+              {runs.map((run) => (
+                <tr key={run.runId} className="bg-white dark:bg-gray-900">
+                  <td className="px-3 py-2 font-mono text-xs text-gray-900 dark:text-gray-100">
+                    {run.workflowId}
+                  </td>
+                  <td className="px-3 py-2">
+                    <span
+                      className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium ${getWorkflowStatusClass(run.status)}`}
+                    >
+                      {run.waitingFor
+                        ? `${run.status}:${run.waitingFor}`
+                        : run.status}
+                    </span>
+                  </td>
+                  <td className="px-3 py-2 font-mono text-xs text-gray-500 dark:text-gray-400 hidden md:table-cell">
+                    {run.runId}
+                  </td>
+                  <td className="px-3 py-2 text-xs text-gray-500 dark:text-gray-400">
+                    {formatDistanceToNow(run.updatedAt, { addSuffix: true })}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function getWorkflowStatusClass(status: string): string {
+  switch (status) {
+    case 'finished':
+      return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
+    case 'errored':
+    case 'aborted':
+      return 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
+    case 'paused':
+      return 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'
+    case 'running':
+    case 'queued':
+      return 'bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300'
+    default:
+      return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -665,7 +969,7 @@ function PackageRow({
           </span>
         ) : (
           <span className="inline-flex items-center gap-1 text-xs text-gray-400">
-            <Clock className="w-3.5 h-3.5" /> Unverified
+            <ClockIcon className="w-3.5 h-3.5" /> Unverified
           </span>
         )}
       </td>

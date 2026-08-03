@@ -6,7 +6,7 @@
 import {
   getCachedNpmDownloadChunk,
   setCachedNpmDownloadChunk,
-} from '../src/utils/stats-db.server'
+} from '../src/utils/npm-download-cache.server'
 
 async function testCache() {
   console.log('\n' + '='.repeat(80))

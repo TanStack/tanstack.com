@@ -4,16 +4,16 @@
   "title": "TanStack Docs Config",
   "description": "Config file for the documentation of a TanStack project.",
   "type": "object",
-  "required": ["docSearch", "sections"],
+  "required": ["sections"],
   "additionalProperties": false,
   "properties": {
     "$schema": {
       "type": "string"
     },
     "docSearch": {
-      "description": "Data for Algolia Search.",
+      "deprecated": true,
+      "description": "Ignored. tanstack.com no longer reads this — the site's search client and index are configured in SearchModal.tsx, not per-library. Safe to delete from your config.",
       "type": "object",
-      "required": ["appId", "apiKey", "indexName"],
       "properties": {
         "appId": {
           "type": "string"
@@ -37,6 +37,10 @@
           "label": {
             "type": "string"
           },
+          "tab": {
+            "$ref": "#/$defs/tab",
+            "description": "Default docs nav tab for every child in this section. Individual children can override it."
+          },
           "children": {
             "description": "Framework-agnostic docs go here.",
             "type": "array",
@@ -52,7 +56,8 @@
                   "type": "string"
                 },
                 "badge": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "Free-form tag appended to this page's entry in the generated llms.txt (e.g. \"experimental\"). Not shown in the sidebar — the sidebar overwrites this with the page's framework provenance."
                 },
                 "addedAt": {
                   "type": "string",
@@ -63,6 +68,10 @@
                   "type": "string",
                   "format": "date",
                   "description": "Date the page was last meaningfully updated (e.g. \"2026-06-01\"). Shows an \"Updated\" pill in the sidebar for 7 days."
+                },
+                "tab": {
+                  "$ref": "#/$defs/tab",
+                  "description": "Docs nav tab this page belongs to. Overrides the section's `tab`. Omit to let the site infer one from the labels and path."
                 }
               }
             }
@@ -88,7 +97,8 @@
                         "type": "string"
                       },
                       "badge": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Free-form tag appended to this page's entry in the generated llms.txt (e.g. \"experimental\"). Not shown in the sidebar — the sidebar overwrites this with the page's framework provenance."
                       },
                       "addedAt": {
                         "type": "string",
@@ -99,6 +109,10 @@
                         "type": "string",
                         "format": "date",
                         "description": "Date the page was last meaningfully updated (e.g. \"2026-06-01\"). Shows an \"Updated\" pill in the sidebar for 7 days."
+                      },
+                      "tab": {
+                        "$ref": "#/$defs/tab",
+                        "description": "Docs nav tab this page belongs to. Overrides the section's `tab`. Omit to let the site infer one from the labels and path."
                       }
                     }
                   }
@@ -126,6 +140,13 @@
       "items": {
         "type": "string"
       }
+    }
+  },
+  "$defs": {
+    "tab": {
+      "description": "One of the docs nav tabs rendered above the sidebar.",
+      "type": "string",
+      "enum": ["home", "get-started", "tutorial", "guides", "api", "examples"]
     }
   }
 }

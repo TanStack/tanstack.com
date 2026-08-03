@@ -24,7 +24,7 @@ export type Sponsor = {
   createdAt: string
 }
 
-type DisplaySponsor = {
+export type OssSponsor = {
   linkUrl: string
   login: string
   imageUrl: string
@@ -34,9 +34,9 @@ type DisplaySponsor = {
 
 const sponsorMaintainerLogin = 'tannerlinsley'
 
-export const getSponsorsForSponsorPack = createServerFn({
+export const getOssSponsors = createServerFn({
   method: 'GET',
-}).handler(async (): Promise<Array<DisplaySponsor>> => {
+}).handler(async (): Promise<Array<OssSponsor>> => {
   const sponsors = await fetchCached({
     key: 'sponsors',
     ttl: 60 * 1000,
@@ -46,13 +46,18 @@ export const getSponsorsForSponsorPack = createServerFn({
   setResponseHeaders(
     new Headers({
       'Cache-Control': 'public, max-age=0, must-revalidate',
-      'Netlify-CDN-Cache-Control':
-        'public, max-age=300, durable, stale-while-revalidate=300',
+      'Cloudflare-CDN-Cache-Control':
+        'public, max-age=300, stale-while-revalidate=300',
     }),
   )
 
-  const amountExtent = extent(sponsors, (d) => d.amount) as [number, number]
-  const scale = scaleLinear().domain(amountExtent).range([0, 1])
+  const [minimumAmount = 0, maximumAmount = 0] = extent(
+    sponsors,
+    (sponsor) => sponsor.amount,
+  )
+  const scale = scaleLinear()
+    .domain([minimumAmount, maximumAmount])
+    .range([0, 1])
 
   return sponsors
     .filter((d) => !d.private)

@@ -1,18 +1,20 @@
 import * as React from 'react'
 import {
   useFloating,
-  useHover,
-  useInteractions,
   FloatingPortal,
   offset,
   shift,
   flip,
   autoUpdate,
+  useMergeRefs,
 } from '@floating-ui/react'
+
+type TooltipTriggerProps = React.HTMLProps<HTMLElement> &
+  React.RefAttributes<HTMLElement>
 
 interface TooltipProps {
   content: React.ReactNode
-  children: React.ReactElement
+  children: React.ReactElement<TooltipTriggerProps>
   placement?: 'top' | 'right' | 'bottom' | 'left'
   className?: string
 }
@@ -25,7 +27,7 @@ export function Tooltip({
 }: TooltipProps) {
   const [isOpen, setIsOpen] = React.useState(false)
 
-  const { refs, floatingStyles, context } = useFloating({
+  const { refs, floatingStyles } = useFloating<HTMLElement>({
     open: isOpen,
     onOpenChange: setIsOpen,
     placement,
@@ -33,24 +35,43 @@ export function Tooltip({
     whileElementsMounted: autoUpdate,
   })
 
-  const hover = useHover(context)
+  const triggerRef = useMergeRefs([refs.setReference, children.props.ref])
+  const triggerProps = children.props
 
-  const { getReferenceProps, getFloatingProps } = useInteractions([hover])
+  const handleMouseEnter: React.MouseEventHandler<HTMLElement> = (event) => {
+    triggerProps.onMouseEnter?.(event)
+    setIsOpen(true)
+  }
+
+  const handleMouseLeave: React.MouseEventHandler<HTMLElement> = (event) => {
+    triggerProps.onMouseLeave?.(event)
+    setIsOpen(false)
+  }
+
+  const handleFocus: React.FocusEventHandler<HTMLElement> = (event) => {
+    triggerProps.onFocus?.(event)
+    setIsOpen(true)
+  }
+
+  const handleBlur: React.FocusEventHandler<HTMLElement> = (event) => {
+    triggerProps.onBlur?.(event)
+    setIsOpen(false)
+  }
 
   return (
     <>
-      {/* eslint-disable-next-line react-hooks/refs */}
       {React.cloneElement(children, {
-        // eslint-disable-next-line react-hooks/refs
-        ref: refs.setReference,
-        ...getReferenceProps(),
-      } as any)}
+        ref: triggerRef,
+        onMouseEnter: handleMouseEnter,
+        onMouseLeave: handleMouseLeave,
+        onFocus: handleFocus,
+        onBlur: handleBlur,
+      })}
       <FloatingPortal>
         {isOpen && (
           <div
             ref={refs.setFloating /* eslint-disable-line react-hooks/refs */}
             style={floatingStyles}
-            {...getFloatingProps()}
             className={`z-50 rounded-md bg-gray-900 px-3 py-1.5 text-sm text-white shadow-lg dark:bg-gray-800 ${className}`}
           >
             {content}

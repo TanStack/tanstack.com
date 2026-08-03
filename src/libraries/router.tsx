@@ -1,16 +1,18 @@
-import { DatabaseZap, MessageCircleQuestionMark, PlugZap } from 'lucide-react'
+import {
+  DatabaseIcon,
+  ChatCircleDotsIcon,
+  PlugsIcon,
+} from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { router } from './libraries'
 
-const textStyles = 'text-emerald-500 dark:text-emerald-400'
+const textStyles = 'text-category-framework'
 
 export const routerProject = {
   ...router,
   description: `A powerful React router for client-side and full-stack react applications. Fully type-safe APIs, first-class search-params for managing state in the URL and seamless integration with the existing React ecosystem.`,
   latestBranch: 'main',
   docsRoot: 'docs/router',
-  bgRadial: 'from-emerald-500 via-lime-600/50 to-transparent',
-  textColor: textStyles,
   defaultDocs: 'framework/react/overview',
   installPath: 'framework/$framework/quick-start',
   legacyPackages: ['react-location'],
@@ -66,7 +68,7 @@ export const routerProject = {
   featureHighlights: [
     {
       title: 'Typesafe & powerful, yet familiarly simple',
-      icon: <PlugZap className={twMerge('scale-125', textStyles)} />,
+      icon: <PlugsIcon className={twMerge('scale-125', textStyles)} />,
       description: (
         <div>
           TanStack Router builds on modern routing patterns made popular by
@@ -81,7 +83,7 @@ export const routerProject = {
     {
       title: 'Built-in Data Fetching with Caching',
       icon: (
-        <DatabaseZap
+        <DatabaseIcon
           className={twMerge('motion-safe:animate-spin', textStyles)}
           style={{
             animationDuration: '3s',
@@ -103,7 +105,7 @@ export const routerProject = {
     },
     {
       title: 'Search Param APIs to make your state-manager jealous',
-      icon: <MessageCircleQuestionMark className={twMerge('', textStyles)} />,
+      icon: <ChatCircleDotsIcon className={twMerge('', textStyles)} />,
       description: (
         <div>
           Instead of throwing you to the URLSearchParam wolves, TanStack Router

@@ -2,15 +2,13 @@
  * Admin server functions for managing GitHub and NPM stats
  */
 
-import * as v from 'valibot'
 import { db } from '~/db/client'
-import { githubStatsCache, npmPackages, npmOrgStatsCache } from '~/db/schema'
-import { eq, desc, and, like } from 'drizzle-orm'
+import { githubStatsCache } from '~/db/schema'
+import { desc, like } from 'drizzle-orm'
 import { fetchGitHubOwnerStats, fetchGitHubRepoStats } from './stats.functions'
-import { refreshNpmOrgStats } from './stats.server'
 import { rebuildOssStatsCache, setCachedGitHubStats } from './stats-db.server'
-import { setCachedNpmPackageStats } from './stats-db.server'
 import { requireCapability } from './auth.server'
+import { refreshHomepageNpmStatsSummary } from './homepage-npm-stats.server'
 
 /**
  * List all GitHub stats cache entries
@@ -160,225 +158,16 @@ export async function refreshAllGitHubStats() {
   }
 }
 
-/**
- * List all NPM packages with their stats
- */
-export async function listNpmPackages({ data }: { data: any }) {
-  await requireCapability({ data: { capability: 'admin' } })
-
-  const whereConditions = []
-  if (data.libraryId) {
-    whereConditions.push(eq(npmPackages.libraryId, data.libraryId))
-  }
-  if (data.search) {
-    whereConditions.push(like(npmPackages.packageName, `%${data.search}%`))
-  }
-
-  const whereClause =
-    whereConditions.length > 0 ? and(...whereConditions) : undefined
-
-  const packages = await db.query.npmPackages.findMany({
-    where: whereClause,
-    orderBy: [desc(npmPackages.updatedAt)],
-  })
-
-  return {
-    packages: packages.map((pkg) => ({
-      id: pkg.id,
-      packageName: pkg.packageName,
-      githubRepo: pkg.githubRepo,
-      libraryId: pkg.libraryId,
-      isLegacy: pkg.isLegacy,
-      downloads: pkg.downloads,
-      ratePerDay: pkg.ratePerDay,
-      statsExpiresAt: pkg.statsExpiresAt,
-      metadataCheckedAt: pkg.metadataCheckedAt,
-      createdAt: pkg.createdAt,
-      updatedAt: pkg.updatedAt,
-    })),
-  }
-}
-
-/**
- * Refresh NPM stats for a specific package
- */
-export async function refreshNpmPackageStats({ data }: { data: any }) {
-  await requireCapability({ data: { capability: 'admin' } })
-
-  try {
-    // Use wide date range to get all-time download counts
-    const response = await fetch(
-      `https://api.npmjs.org/downloads/point/2010-01-01:2030-12-31/${data.packageName}`,
-      {
-        headers: {
-          Accept: 'application/json',
-          'User-Agent': 'TanStack-Stats',
-        },
-      },
-    )
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        await setCachedNpmPackageStats(data.packageName, 0, 1)
-        return {
-          success: true,
-          packageName: data.packageName,
-          downloads: 0,
-          message: 'Package not found, cached as 0',
-        }
-      }
-      throw new Error(`NPM API error: ${response.status}`)
-    }
-
-    const apiData = await response.json()
-    const downloads = apiData.downloads ?? 0
-
-    await setCachedNpmPackageStats(data.packageName, downloads, 24)
-
-    return {
-      success: true,
-      packageName: data.packageName,
-      downloads,
-    }
-  } catch (error) {
-    return {
-      success: false,
-      packageName: data.packageName,
-      error: error instanceof Error ? error.message : String(error),
-    }
-  }
-}
-
-/**
- * List NPM org stats cache entries
- */
-export async function listNpmOrgStatsCache() {
-  await requireCapability({ data: { capability: 'admin' } })
-
-  const entries = await db.query.npmOrgStatsCache.findMany({
-    orderBy: [desc(npmOrgStatsCache.updatedAt)],
-  })
-
-  return Promise.all(
-    entries.map(async (entry) => {
-      // Calculate total ratePerDay from packages in the database
-      const { like, or } = await import('drizzle-orm')
-      const { libraries } = await import('~/libraries')
-
-      const legacyPackages: string[] = []
-      for (const library of libraries) {
-        if (
-          'legacyPackages' in library &&
-          Array.isArray(library.legacyPackages)
-        ) {
-          legacyPackages.push(...library.legacyPackages)
-        }
-      }
-
-      let packages = await db.query.npmPackages.findMany({
-        where: like(npmPackages.packageName, `@${entry.orgName}/%`),
-      })
-
-      if (legacyPackages.length > 0) {
-        const legacyResults = await db.query.npmPackages.findMany({
-          where: or(
-            ...legacyPackages.map((pkg) => eq(npmPackages.packageName, pkg)),
-          ),
-        })
-        packages = [...packages, ...legacyResults]
-      }
-
-      const totalRatePerDay = packages.reduce(
-        (sum, pkg) => sum + (pkg.ratePerDay ?? 0),
-        0,
-      )
-
-      return {
-        orgName: entry.orgName,
-        totalDownloads: entry.totalDownloads,
-        ratePerDay: totalRatePerDay > 0 ? totalRatePerDay : undefined,
-        packageStats: entry.packageStats as never,
-        expiresAt: entry.expiresAt,
-        createdAt: entry.createdAt,
-        updatedAt: entry.updatedAt,
-      }
-    }),
-  )
-}
-
-/**
- * Get library-level NPM stats (from cache only)
- */
-export async function getLibraryNpmStats() {
-  await requireCapability({ data: { capability: 'admin' } })
-
-  const { getAllCachedLibraryStats } = await import('./stats-db.server')
-  const { libraries } = await import('~/libraries')
-
-  const cachedStats = await getAllCachedLibraryStats()
-  const statsMap = new Map(cachedStats.map((s) => [s.libraryId, s]))
-
-  // Get all packages to calculate ratePerDay for each library
-  const allPackages = await db.query.npmPackages.findMany()
-
-  // Return stats for all libraries, using cached data when available
-  return libraries.map((library) => {
-    const cached = statsMap.get(library.id)
-
-    // Calculate ratePerDay by summing up all packages' ratePerDay for this library
-    const libraryPackages = allPackages.filter(
-      (pkg) => pkg.libraryId === library.id,
-    )
-    const ratePerDay = libraryPackages.reduce(
-      (sum, pkg) => sum + (pkg.ratePerDay ?? 0),
-      0,
-    )
-
-    if (!cached) {
-      return {
-        libraryId: library.id,
-        libraryName: library.name,
-        packageCount: 0,
-        totalDownloads: 0,
-        previousTotalDownloads: null,
-        ratePerDay: ratePerDay > 0 ? ratePerDay : null,
-      }
-    }
-
-    return {
-      libraryId: library.id,
-      libraryName: library.name,
-      packageCount: cached.packageCount,
-      totalDownloads: cached.totalDownloads,
-      previousTotalDownloads: cached.previousTotalDownloads,
-      ratePerDay: ratePerDay > 0 ? ratePerDay : null,
-    }
-  })
-}
-
-/**
- * Complete atomic refresh of all NPM stats
- * Wraps refreshNpmOrgStats which handles:
- * 1. Package discovery
- * 2. Fresh stats fetch with growth rates
- * 3. Library cache rebuild
- * 4. Org cache update
- */
 export async function refreshAllNpmStats({ data }: { data: any }) {
   console.log(`[Admin] refreshAllNpmStats handler called with org: ${data.org}`)
 
   await requireCapability({ data: { capability: 'admin' } })
 
-  console.log(`[Admin] Starting complete NPM stats refresh for ${data.org}`)
-
-  // refreshNpmOrgStats handles everything atomically (always bypasses cache)
-  const stats = await refreshNpmOrgStats(data.org)
-
-  console.log('[Admin] Complete NPM stats refresh finished')
+  const summary = await refreshHomepageNpmStatsSummary({ org: data.org })
 
   return {
     success: true,
     org: data.org,
-    stats,
+    summary,
   }
 }

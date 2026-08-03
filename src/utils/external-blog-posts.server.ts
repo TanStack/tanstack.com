@@ -1,5 +1,5 @@
 import type { LibraryId } from '~/libraries'
-import { normalizeBlogAuthors, type BlogCardPost } from '~/utils/blog'
+import { normalizeBlogAuthors, type BlogCardPost } from '~/utils/blog-format'
 import { fetchCached } from '~/utils/cache.server'
 
 const DEFAULT_STANDARD_SITE_TIMEOUT_MS = 5000 // 5 seconds

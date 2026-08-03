@@ -1,13 +1,10 @@
 import { Link } from '@tanstack/react-router'
-import { libraries } from '~/libraries'
+import { publicLibraries } from '~/libraries'
 
-const featuredLibraries = libraries
-  .filter((library) => library.visible !== false)
-  .slice(0, 8)
-  .map((library) => ({
-    id: library.id,
-    name: library.name,
-  }))
+const featuredLibraries = publicLibraries.slice(0, 8).map((library) => ({
+  id: library.id,
+  name: library.name,
+}))
 
 export function LibrariesWidget() {
   return (
@@ -21,8 +18,8 @@ export function LibrariesWidget() {
         {featuredLibraries.map((library) => (
           <Link
             key={library.id}
-            to="/$libraryId/$version"
-            params={{ libraryId: library.id, version: 'latest' }}
+            to="/$libraryId"
+            params={{ libraryId: library.id }}
             className="text-xs opacity-70 hover:opacity-100 hover:underline"
           >
             {library.name.replace('TanStack ', '')}

@@ -1,0 +1,33 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "tanstack-com",
+  "account_id": "8da95258a9c70b54c3e2b374a0079106",
+  "main": "src/server.ts",
+  "compatibility_date": "2026-06-19",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true,
+  },
+  "cache": {
+    "enabled": false,
+  },
+  "limits": {
+    "cpu_ms": 300000,
+  },
+  "triggers": {
+    "crons": ["* * * * *", "0 9 * * *", "0 */6 * * *"],
+  },
+  "assets": {
+    "binding": "ASSETS",
+  },
+  "r2_buckets": [
+    {
+      "binding": "GITHUB_CONTENT_CACHE",
+      "bucket_name": "tanstack-github-content-cache",
+    },
+    {
+      "binding": "NPM_DOWNLOAD_CACHE",
+      "bucket_name": "tanstack-npm-download-cache",
+    },
+  ],
+}

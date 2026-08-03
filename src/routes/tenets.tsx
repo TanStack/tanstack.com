@@ -3,15 +3,15 @@ import { Footer } from '~/components/Footer'
 import { Card } from '~/components/Card'
 import { seo } from '~/utils/seo'
 import {
-  Globe,
-  Blocks,
-  Rocket,
-  Eye,
-  Users,
-  Code2,
-  Wrench,
-  Handshake,
-} from 'lucide-react'
+  GlobeIcon,
+  SquaresFourIcon,
+  RocketIcon,
+  EyeIcon,
+  UsersIcon,
+  CodeIcon,
+  WrenchIcon,
+  HandshakeIcon,
+} from '@phosphor-icons/react'
 
 export const Route = createFileRoute('/tenets')({
   component: RouteComp,
@@ -28,7 +28,7 @@ const tenets = [
   {
     number: 1,
     title: 'Open, Independent, Technology-Agnostic',
-    icon: Globe,
+    icon: GlobeIcon,
     gradient: 'from-blue-500 to-cyan-500',
     borderColor: 'hover:border-blue-500/50',
     description:
@@ -69,7 +69,7 @@ const tenets = [
   {
     number: 2,
     title: 'Composable, Platform-Aligned Primitives',
-    icon: Blocks,
+    icon: SquaresFourIcon,
     gradient: 'from-emerald-500 to-teal-500',
     borderColor: 'hover:border-emerald-500/50',
     description:
@@ -105,7 +105,7 @@ const tenets = [
   {
     number: 3,
     title: 'Pragmatic, Production-Grade Quality',
-    icon: Rocket,
+    icon: RocketIcon,
     gradient: 'from-orange-500 to-red-500',
     borderColor: 'hover:border-orange-500/50',
     description:
@@ -141,7 +141,7 @@ const tenets = [
   {
     number: 4,
     title: 'Predictable, Explicit, Type-Safe Behavior',
-    icon: Eye,
+    icon: EyeIcon,
     gradient: 'from-purple-500 to-pink-500',
     borderColor: 'hover:border-purple-500/50',
     description:
@@ -179,28 +179,28 @@ const tenets = [
 const audiences = [
   {
     title: 'For developers evaluating TanStack',
-    icon: Users,
+    icon: UsersIcon,
     gradient: 'from-blue-500 to-cyan-500',
     description:
       'These tenets define what you can expect from our libraries—quality, portability, and a commitment to your freedom to compose and deploy however you see fit.',
   },
   {
     title: 'For contributors',
-    icon: Code2,
+    icon: CodeIcon,
     gradient: 'from-emerald-500 to-teal-500',
     description:
       'When proposing features or changes, consider how they align with these tenets. If your idea conflicts with a tenet, explicitly address why and how the conflict is justified.',
   },
   {
     title: 'For maintainers and reviewers',
-    icon: Wrench,
+    icon: WrenchIcon,
     gradient: 'from-orange-500 to-red-500',
     description:
       'Use these tenets as a checklist when evaluating PRs, feature requests, and architectural decisions. If something threatens a tenet, it needs strong justification or should be rejected.',
   },
   {
     title: 'For partners',
-    icon: Handshake,
+    icon: HandshakeIcon,
     gradient: 'from-purple-500 to-pink-500',
     description:
       'These tenets ensure that our libraries remain neutral and developer-focused. Partner integrations must respect these principles and cannot bias core APIs toward specific platforms or vendors.',
@@ -248,7 +248,7 @@ function RouteComp() {
                 {/* Header */}
                 <div className="flex items-start gap-4 mb-6">
                   <div
-                    className={`shrink-0 w-12 h-12 rounded-lg bg-gradient-to-br ${tenet.gradient} flex items-center justify-center`}
+                    className={`shrink-0 w-12 h-12 rounded-lg bg-linear-to-br ${tenet.gradient} flex items-center justify-center`}
                   >
                     <Icon className="w-6 h-6 text-white" />
                   </div>
@@ -270,7 +270,7 @@ function RouteComp() {
                       className="flex gap-3 items-start"
                     >
                       <div
-                        className={`shrink-0 w-1.5 h-1.5 rounded-full bg-gradient-to-br ${tenet.gradient} mt-2`}
+                        className={`shrink-0 w-1.5 h-1.5 rounded-full bg-linear-to-br ${tenet.gradient} mt-2`}
                       />
                       <div>
                         <span className="font-semibold">
@@ -323,7 +323,7 @@ function RouteComp() {
               return (
                 <Card key={audience.title} className="p-5">
                   <div
-                    className={`w-10 h-10 rounded-lg bg-gradient-to-br ${audience.gradient} flex items-center justify-center mb-3`}
+                    className={`w-10 h-10 rounded-lg bg-linear-to-br ${audience.gradient} flex items-center justify-center mb-3`}
                   >
                     <Icon className="w-5 h-5 text-white" />
                   </div>

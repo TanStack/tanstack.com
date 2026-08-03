@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { libraries } from '~/libraries'
 import { getPopularComparisons } from '~/routes/stats/npm/-comparisons'
 import { fetchNpmDownloadsBulk } from '~/utils/stats.server'
 
@@ -94,27 +95,21 @@ function extractPackageNames(
 }
 
 async function getOrgStats() {
-  const {
-    getCachedNpmOrgStats,
-    getExpiredNpmOrgStats,
-    getAllCachedLibraryStats,
-  } = await import('~/utils/stats-db.server')
+  const { getHomepageNpmStatsSummary } =
+    await import('~/utils/homepage-npm-stats.server')
+  const summary = await getHomepageNpmStatsSummary()
 
-  const orgStats =
-    (await getCachedNpmOrgStats('tanstack')) ??
-    (await getExpiredNpmOrgStats('tanstack'))
-  if (!orgStats) {
+  if (!summary) {
     throw new Error(
       'NPM stats not available. Stats are refreshed every 6 hours.',
     )
   }
 
-  const libraryStats = await getAllCachedLibraryStats()
   return {
     org: 'tanstack',
-    totalDownloads: orgStats.totalDownloads,
-    ratePerDay: orgStats.ratePerDay ?? 0,
-    libraries: libraryStats
+    totalDownloads: summary.totalDownloads,
+    ratePerDay: summary.weeklyRatePerDay,
+    libraries: summary.librarySummaries
       .map((lib) => ({
         id: lib.libraryId,
         downloads: lib.totalDownloads,
@@ -125,36 +120,31 @@ async function getOrgStats() {
 }
 
 async function getLibraryStats(libraryId: string) {
-  const {
-    getCachedLibraryStats,
-    getRegisteredPackages,
-    getBatchCachedNpmPackageStats,
-  } = await import('~/utils/stats-db.server')
-
-  const libraryStats = await getCachedLibraryStats(libraryId)
-  if (!libraryStats) {
+  const library = libraries.find((item) => item.id === libraryId)
+  if (!library) {
     throw new Error(
       `Library "${libraryId}" not found. Use list_libraries to see available libraries.`,
     )
   }
 
-  const packageNames = await getRegisteredPackages(libraryId)
-  const packageStats = await getBatchCachedNpmPackageStats(packageNames)
+  const packageNames =
+    library.npmPackageNames ??
+    (library.corePackageName ? [library.corePackageName] : [])
 
-  const packages = packageNames
-    .map((name) => {
-      const stats = packageStats.get(name)
-      return {
-        name,
-        downloads: stats?.downloads ?? 0,
-        ratePerDay: stats?.ratePerDay ?? 0,
-      }
-    })
-    .sort((a, b) => b.downloads - a.downloads)
+  if (packageNames.length === 0) {
+    throw new Error(`Library "${libraryId}" does not declare NPM packages.`)
+  }
+
+  const comparison = await comparePackages(packageNames, 'all', 'monthly')
+  const packages = comparison.packages.map((pkg) => ({
+    name: pkg.name,
+    downloads: pkg.total,
+    ratePerDay: pkg.avgPerDay,
+  }))
 
   return {
     library: libraryId,
-    totalDownloads: libraryStats.totalDownloads,
+    totalDownloads: packages.reduce((sum, p) => sum + p.downloads, 0),
     ratePerDay: packages.reduce((sum, p) => sum + p.ratePerDay, 0),
     packages,
   }

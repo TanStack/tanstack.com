@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import RangerLanding from '~/components/landing/RangerLanding'
 import {
-  LibraryNavbarTitle,
   beforeLoadLibraryLanding,
   getLibraryLandingHead,
   getLibraryLandingHeaders,
@@ -18,18 +17,9 @@ export const Route = createFileRoute('/_library/ranger/$version/')({
     loadLibraryLandingRouteData('ranger', params.version, queryClient),
   head: () => getLibraryLandingHead('ranger'),
   headers: () => getLibraryLandingHeaders('ranger'),
-  staticData: {
-    Title: RangerNavbarTitle,
-  },
   component: RangerLandingRoute,
 })
 
-function RangerNavbarTitle() {
-  return <LibraryNavbarTitle libraryId="ranger" />
-}
-
 function RangerLandingRoute() {
-  const { landingCodeExampleRsc } = Route.useLoaderData()
-
-  return <RangerLanding landingCodeExampleRsc={landingCodeExampleRsc} />
+  return <RangerLanding />
 }

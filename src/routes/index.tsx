@@ -1,74 +1,40 @@
 import * as React from 'react'
-import {
-  ClientOnly,
-  Link,
-  createFileRoute,
-  useRouterState,
-} from '@tanstack/react-router'
-import { Hydrate } from '@tanstack/react-start'
-import { idle, load, visible } from '@tanstack/react-start/hydration'
+import { Link, createFileRoute } from '@tanstack/react-router'
 
-import discordImage from '~/images/discord-logo-white.svg'
-import { librariesByGroup, librariesGroupNamesMap, Library } from '~/libraries'
-import { groupToSlug } from '~/components/stack/stack-categories'
 import { twMerge } from 'tailwind-merge'
-import { NetlifyImage } from '~/components/NetlifyImage'
 
 import {
-  ArrowRight,
-  Code2,
-  Layers,
-  Shield,
-  Zap,
-  Play,
-  type LucideIcon,
-} from 'lucide-react'
-import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
+  ArrowRightIcon,
+  CodeIcon,
+  StackIcon,
+  ShieldIcon,
+  LightningIcon,
+  PauseIcon,
+  PlayIcon,
+  type Icon,
+} from '@phosphor-icons/react'
 import { HomeApplicationStarter } from '~/components/home/HomeApplicationStarter'
-import {
-  HomeCommunityFallback,
-  HomeNewsletterFallback,
-  HomeSocialProofFallback,
-} from '~/components/home/HomeSectionFallbacks'
 import { HomeCommunitySection } from '~/components/home/HomeCommunitySection'
 import { HomeNewsletterSection } from '~/components/home/HomeNewsletterSection'
 import { HomeSocialProofSection } from '~/components/home/HomeSocialProofSection'
 import { HomeStatsSection } from '~/components/home/HomeStatsSection'
-import { ossStatsQuery } from '~/queries/stats'
-import { Button } from '~/ui'
+import { useQuery } from '@tanstack/react-query'
+import { Button, Eyebrow } from '~/components/ds/ui'
+import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
+import { homepageNpmStatsSummaryQuery, ossStatsQuery } from '~/queries/stats'
+import { useLibrariesOverlay } from '~/contexts/LibrariesOverlayContext'
+import { fetchRecentPosts } from '~/utils/blog.functions'
 import { seo } from '~/utils/seo'
-
-const LazyBrandContextMenu = React.lazy(() =>
-  import('~/components/BrandContextMenu').then((m) => ({
-    default: m.BrandContextMenu,
-  })),
-)
-
-function getDeferredSectionStage(hash: string) {
-  const normalizedHash = hash.replace(/^#/, '')
-
-  if (!normalizedHash) {
-    return 0
-  }
-
-  if (['partners', 'blog'].includes(normalizedHash)) {
-    return 1
-  }
-
-  if (['sponsors', 'maintainers'].includes(normalizedHash)) {
-    return 2
-  }
-
-  if (normalizedHash === 'newsletter') {
-    return 3
-  }
-
-  return 0
-}
 
 export const Route = createFileRoute('/')({
   loader: async ({ context: { queryClient } }) => {
-    await queryClient.ensureQueryData(ossStatsQuery())
+    const [, , recentPosts] = await Promise.all([
+      queryClient.ensureQueryData(ossStatsQuery()),
+      queryClient.ensureQueryData(homepageNpmStatsSummaryQuery()),
+      fetchRecentPosts(),
+    ])
+
+    return { recentPosts }
   },
   head: () => ({
     meta: seo({
@@ -81,309 +47,179 @@ export const Route = createFileRoute('/')({
 })
 
 function Index() {
-  const locationHash = useRouterState({
-    select: (state) => state.location.hash,
-  })
-  const deferredSectionStage = getDeferredSectionStage(locationHash)
+  const { recentPosts } = Route.useLoaderData()
+  const { openLibraries } = useLibrariesOverlay()
+
+  const startWithPrompt = (e: React.MouseEvent) => {
+    e.preventDefault()
+    const section = document.getElementById('start-with-a-prompt')
+    section?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    const field = section?.querySelector<HTMLTextAreaElement>('textarea')
+    if (field) {
+      field.focus()
+      field.select()
+    } else if (section) {
+      section.dataset.focusPrompt = 'true'
+    }
+  }
 
   return (
     <>
       <div className="max-w-full z-10 space-y-24">
         <div className="space-y-8">
-          <div className="flex flex-col items-center gap-4 xl:grid xl:grid-cols-[400px_minmax(0,44rem)] 2xl:grid-cols-[500px_minmax(0,48rem)] xl:items-center xl:justify-center xl:gap-8 xl:pt-24">
-            <div
-              className="relative w-[300px] pt-8 xl:w-[400px] xl:pt-0 2xl:w-[500px] [--ship-x:50px] [--ship-y:1.5rem] 
-            lg:[--ship-x:50px] lg:[--ship-y:1.5rem]
-            xl:[--ship-x:80px] xl:[--ship-y:2.5rem]
-            2xl:[--ship-x:90px] 2xl:[--ship-y:3rem]"
-            >
-              <ClientOnly>
-                <div className="absolute left-1/3 bottom-[25%] z-0 animate-ship-peek">
-                  <NetlifyImage
-                    src="/images/ship.png"
-                    alt=""
-                    width={240}
-                    height={240}
-                    className="w-16 xl:w-20"
-                  />
-                </div>
-                <Link
-                  to="/explore"
-                  className="absolute left-1/3 bottom-[25%] z-20 animate-ship-peek-clickable"
-                  title="Explore TanStack"
-                >
-                  <NetlifyImage
-                    src="/images/ship.png"
-                    alt="Explore TanStack"
-                    width={240}
-                    height={240}
-                    className="w-16 xl:w-20 opacity-0"
-                  />
-                </Link>
-              </ClientOnly>
-              <React.Suspense
-                fallback={
-                  <div className="relative z-10 aspect-square">
-                    <div className="cursor-pointer relative h-full w-full">
-                      <NetlifyImage
-                        src="/images/logos/splash-light.png"
-                        width={500}
-                        height={500}
-                        quality={85}
-                        className="absolute inset-0 block h-full w-full object-contain dark:hidden"
-                        alt="TanStack Logo"
-                        loading="eager"
-                        fetchPriority="high"
-                      />
-                      <NetlifyImage
-                        src="/images/logos/splash-dark.png"
-                        width={500}
-                        height={500}
-                        quality={85}
-                        className="absolute inset-0 hidden h-full w-full object-contain dark:block"
-                        alt="TanStack Logo"
-                        loading="eager"
-                        fetchPriority="high"
-                      />
-                    </div>
-                  </div>
-                }
-              >
-                <div className="relative z-10 aspect-square">
-                  <LazyBrandContextMenu className="cursor-pointer relative h-full w-full">
-                    <NetlifyImage
-                      src="/images/logos/splash-light.png"
-                      width={500}
-                      height={500}
-                      quality={85}
-                      className="absolute inset-0 block h-full w-full object-contain dark:hidden"
-                      alt="TanStack Logo"
-                      loading="eager"
-                      fetchPriority="high"
-                    />
-                    <NetlifyImage
-                      src="/images/logos/splash-dark.png"
-                      width={500}
-                      height={500}
-                      quality={85}
-                      className="absolute inset-0 hidden h-full w-full object-contain dark:block"
-                      alt="TanStack Logo"
-                      loading="eager"
-                      fetchPriority="high"
-                    />
-                  </LazyBrandContextMenu>
-                </div>
-              </React.Suspense>
-            </div>
-            <div className="flex w-full max-w-md flex-col items-center gap-6 px-4 text-center md:max-w-2xl xl:max-w-[44rem] xl:items-start xl:px-0 xl:text-left 2xl:max-w-[48rem]">
-              <div className="flex gap-2 lg:gap-4 items-center">
-                <h1
-                  className={`inline-block
-            font-black text-5xl
-            md:text-6xl
-            lg:text-8xl`}
-                >
-                  <span
-                    className={`
-            inline-block text-black dark:text-white
-            mb-2 uppercase [letter-spacing:-.02em] pr-1.5
-            `}
+          {/* Hero — Figma node 802:2027. Full-bleed palm/gradient photo card:
+              headline bottom-left, description + CTA bottom-right. The photo is
+              always light, so text uses a mode-stable dark token (neutral-500)
+              rather than a theme-flipping semantic. */}
+          <div className="mx-2 rounded-2xl bg-background-subtle p-1">
+            <div className="group relative isolate flex h-[calc(100dvh-var(--navbar-height))] max-h-[720px] min-h-[560px] flex-col justify-between gap-8 overflow-hidden rounded-xl px-6 py-10 sm:px-10 md:flex-row md:items-end md:justify-between md:gap-8 xl:gap-12 xl:px-16 xl:py-16">
+              {/* The parent supplies the 4px frame shared by the hero and stats.
+                  This wrapper clips the image to the inner radius so the <img>
+                  fills it exactly instead of overflowing. Plain <img> (not OptimizedImage):
+                  the Cloudflare transform resolves against the production origin,
+                  so a newly-added asset 404s until deployed. */}
+              <HeroPalmMedia />
+              <h1 className="max-w-[613px] font-ds-display text-ds-display-sm font-bold text-ds-neutral-500 md:w-[47%] md:text-[clamp(2.5rem,4.7vw,4rem)] md:leading-[1.1] xl:leading-[1.08]">
+                The{' '}
+                <span className="underline decoration-from-font underline-offset-[6px]">
+                  open source
+                </span>
+                <br className="hidden md:block" /> application stack
+                <br className="hidden md:block" /> for the web
+              </h1>
+              <div className="flex flex-col items-start gap-6 md:w-[29%] md:max-w-[454px]">
+                <p className="text-ds-body-md text-ds-neutral-500 [text-shadow:0_3px_10px_rgb(255_255_255/0.1)] md:text-ds-body-lg md:[text-shadow:none] xl:text-ds-body-xl">
+                  Headless, type-safe, composable tools for building modern web
+                  applications that work naturally for developers and reliably
+                  for agents
+                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    type="button"
+                    onClick={() => openLibraries()}
+                    variant="primary"
+                    size="md"
                   >
-                    TanStack
-                  </span>
-                </h1>
+                    Browse the Stack
+                  </Button>
+                  {/* Link-style button; color pinned to a mode-stable dark token
+                      because the photo is always light. */}
+                  <Button
+                    as="a"
+                    href="#start-with-a-prompt"
+                    onClick={startWithPrompt}
+                    variant="link"
+                    size="md"
+                    className="text-ds-neutral-500 hover:text-ds-neutral-500/70"
+                  >
+                    Start with a prompt <ArrowRightIcon className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
-              <h2
-                className="font-bold text-2xl max-w-md
-            md:text-4xl md:max-w-2xl
-            2xl:text-5xl lg:max-w-2xl text-balance"
-                style={{
-                  fontFamily:
-                    'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
-                }}
-              >
-                The <OpenSourceGradientText /> application stack for the web.
-              </h2>
-              <p
-                className="text opacity-90 max-w-sm
-             lg:text-xl lg:max-w-2xl text-balance"
-              >
-                Headless, type-safe, composable tools for building modern web
-                applications that work naturally for <strong>developers</strong>{' '}
-                and reliably for <strong>agents</strong>.
-              </p>
+            </div>
+            <div className="flex items-center justify-center px-2.5 py-6">
+              <HomeStatsSection />
             </div>
           </div>
-          <div className="mx-auto mt-8 w-full max-w-[1021px] px-4 sm:px-6 md:mt-10">
-            <HomeStatsSection />
-          </div>
-          <div className="mx-auto mt-16 w-full max-w-[1021px] px-4 sm:px-6 md:mt-20 lg:mt-14 xl:mt-12">
+          <div
+            id="start-with-a-prompt"
+            className="mx-auto mt-16 w-full max-w-[1021px] scroll-mt-24 px-4 sm:px-6 md:mt-20"
+          >
             <HomeApplicationStarter />
           </div>
         </div>
 
-        <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-          <h3
-            id="libraries"
-            className={`text-4xl font-light mb-2 scroll-mt-24`}
-          >
-            <a
-              href="#libraries"
-              className="hover:underline decoration-gray-400 dark:decoration-gray-600"
-            >
-              Browse the stack
-            </a>
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
-            Every TanStack library, organized by what it does.
-          </p>
-
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-            {Object.entries(librariesByGroup).map(
-              ([groupName, groupLibraries]) => (
-                <StackCategoryCard
-                  key={groupName}
-                  groupId={groupName as keyof typeof librariesByGroup}
-                  libraries={groupLibraries as Library[]}
-                />
-              ),
-            )}
-          </div>
-        </div>
-
-        <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto mt-8 flex justify-center">
-          <Button as={Link} to="/libraries">
-            See all libraries
-          </Button>
-        </div>
-
         <WhyTanStackSection />
 
-        <Hydrate
-          when={() =>
-            deferredSectionStage >= 1 ? load() : visible({ rootMargin: '20%' })
-          }
-          prefetch={idle({ timeout: 4000 })}
-          fallback={<HomeSocialProofFallback />}
-        >
-          <HomeSocialProofSection />
-        </Hydrate>
+        <HomeSocialProofSection recentPosts={recentPosts} />
 
-        <Hydrate
-          when={() =>
-            deferredSectionStage >= 2 ? load() : visible({ rootMargin: '20%' })
-          }
-          prefetch={idle({ timeout: 4000 })}
-          fallback={<HomeCommunityFallback />}
-        >
-          <HomeCommunitySection />
-        </Hydrate>
-
-        <div className="px-4 mx-auto max-w-(--breakpoint-lg)">
-          <div
-            className={`
-          rounded-md p-4 grid gap-6
-          bg-discord text-white overflow-hidden relative
-          shadow-xl shadow-indigo-700/30
-          sm:p-8 sm:grid-cols-3 items-center`}
-          >
-            <div
-              className={`absolute transform opacity-10 z-0
-            right-0 top-0 -translate-y-1/3 translate-x-1/3
-            sm:opacity-20`}
-            >
-              <img
-                src={discordImage}
-                alt="Discord Logo"
-                loading="lazy"
-                width={300}
-                height={300}
-              />
-            </div>
-            <div className={`sm:col-span-2`}>
-              <h3 id="discord" className="text-3xl font-bold scroll-mt-24">
-                <a
-                  href="#discord"
-                  className="hover:underline decoration-white/50"
-                >
-                  TanStack on Discord
-                </a>
-              </h3>
-              <p className={`mt-4`}>
-                The official TanStack community to ask questions, network and
-                make new friends and get lightning fast news about what's coming
-                next for TanStack!
-              </p>
-            </div>
-            <div className={`flex items-center justify-center`}>
-              <Button
-                as="a"
-                href="https://discord.com/invite/WrRKjPJ"
-                target="_blank"
-                rel="noreferrer"
-                className="w-full mt-4 bg-white border-white hover:bg-gray-100 text-discord justify-center shadow-lg text-sm"
-              >
-                Join TanStack Discord
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        <div className="px-4 mx-auto max-w-(--breakpoint-lg)">
-          <div
-            className={`
-          rounded-md p-4 grid gap-6
-          bg-gradient-to-br from-red-500 to-red-700 text-white overflow-hidden relative
-          shadow-xl shadow-red-700/30
-          sm:p-8 sm:grid-cols-3 items-center`}
-          >
-            <div
-              className={`absolute transform opacity-10 z-0
-            right-0 top-0 -translate-y-1/3 translate-x-1/3
-            sm:opacity-20`}
-            >
-              <YouTubeIcon width={300} height={300} />
-            </div>
-            <div className={`sm:col-span-2`}>
-              <h3 id="youtube" className="text-3xl font-bold scroll-mt-24">
-                <a
-                  href="#youtube"
-                  className="hover:underline decoration-white/50"
-                >
-                  TanStack on YouTube
-                </a>
-              </h3>
-              <p className={`mt-4`}>
-                The official TanStack YouTube channel. Tutorials, deep dives,
-                release walkthroughs, and more — free for everyone!
-              </p>
-            </div>
-            <div className={`flex items-center justify-center`}>
-              <Button
-                as="a"
-                href="https://youtube.com/@tan_stack"
-                target="_blank"
-                rel="noreferrer"
-                className="w-full mt-4 bg-white border-white hover:bg-gray-100 text-red-600 justify-center shadow-lg text-sm"
-              >
-                <Play className="w-4 h-4" />
-                Subscribe on YouTube
-              </Button>
-            </div>
-          </div>
-        </div>
+        <HomeCommunitySection />
 
         <div className="h-4" />
-        <Hydrate
-          when={() =>
-            deferredSectionStage >= 3 ? load() : visible({ rootMargin: '10%' })
-          }
-          prefetch={idle({ timeout: 4000 })}
-          fallback={<HomeNewsletterFallback />}
-        >
-          <HomeNewsletterSection />
-        </Hydrate>
+        <HomeNewsletterSection />
       </div>
+    </>
+  )
+}
+
+function HeroPalmMedia() {
+  const videoRef = React.useRef<HTMLVideoElement>(null)
+  const [isPlaying, setIsPlaying] = React.useState(true)
+
+  React.useEffect(() => {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+
+    const syncMotionPreference = () => {
+      if (reducedMotion.matches) {
+        videoRef.current?.pause()
+      }
+    }
+
+    syncMotionPreference()
+    reducedMotion.addEventListener('change', syncMotionPreference)
+    return () =>
+      reducedMotion.removeEventListener('change', syncMotionPreference)
+  }, [])
+
+  const togglePlayback = () => {
+    const video = videoRef.current
+    if (!video) return
+
+    if (video.paused) {
+      void video.play()
+    } else {
+      video.pause()
+    }
+  }
+
+  return (
+    <>
+      <div
+        aria-hidden
+        className="absolute inset-0 -z-10 overflow-hidden rounded-xl [corner-shape:squircle]"
+      >
+        <picture className="contents">
+          <source
+            type="image/webp"
+            srcSet="/images/hero-palm-gradient-960.webp 960w, /images/hero-palm-gradient-1600.webp 1600w, /images/hero-palm-gradient-2400.webp 2400w"
+            sizes="100vw"
+          />
+          <img
+            src="/images/hero-palm-gradient.jpg"
+            alt=""
+            width={2400}
+            height={1600}
+            loading="eager"
+            fetchPriority="high"
+            className="h-full w-full object-cover object-center"
+          />
+        </picture>
+        <video
+          ref={videoRef}
+          autoPlay
+          loop
+          muted
+          playsInline
+          poster="/images/hero-palm-gradient.jpg"
+          onPause={() => setIsPlaying(false)}
+          onPlay={() => setIsPlaying(true)}
+          className="absolute inset-0 h-full w-full object-cover object-center motion-reduce:hidden"
+        >
+          <source src="/images/hero-palm-motion.mp4" type="video/mp4" />
+        </video>
+      </div>
+      <button
+        type="button"
+        onClick={togglePlayback}
+        aria-label={isPlaying ? 'Pause hero animation' : 'Play hero animation'}
+        className="absolute right-4 top-4 z-20 grid size-8 place-items-center rounded-full bg-ds-neutral-500/65 text-white opacity-0 backdrop-blur-sm transition-opacity hover:bg-ds-neutral-500/80 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white group-hover:opacity-100 motion-reduce:hidden"
+      >
+        {isPlaying ? (
+          <PauseIcon className="size-4" weight="fill" />
+        ) : (
+          <PlayIcon className="size-4" weight="fill" />
+        )}
+      </button>
     </>
   )
 }
@@ -394,8 +230,9 @@ type WhyTanStackPrinciple = {
   label: string
   title: string
   body: string
-  Icon: LucideIcon
+  Icon: Icon
   accentClassName: string
+  eyebrowClassName: string
   iconClassName: string
   proof: PrincipleProof
 }
@@ -419,13 +256,18 @@ type AdapterGraphCurve = {
   path: string
 }
 
+// Accent hues come from the DS palette (--color-ds-*), not the library
+// `category-*` tokens: these are product principles, not library categories.
+// Figma specifies near-neighbours of these values (e.g. #d3481b vs the DS
+// terracotta-400 #c3502b); the DS token wins per the design-system-first rule.
 const whyTanStackPrinciples = [
   {
     label: 'Portable core',
     title: 'Framework Agnostic',
-    body: 'Every library starts with a provider-agnostic core. Use React, Vue, Solid, Angular, or vanilla JS—your choice.',
-    Icon: Layers,
+    body: 'Our library cores are provider-agnostic and logic-driven, meaning you can use the same logic in React, Vue, Svelte, Solid, and more.',
+    Icon: StackIcon,
     accentClassName: 'from-blue-500 to-cyan-500',
+    eyebrowClassName: 'text-ds-terracotta-400',
     iconClassName:
       'border-cyan-200 bg-cyan-50 text-cyan-700 dark:border-cyan-900 dark:bg-cyan-950/40 dark:text-cyan-300',
     proof: 'adapters',
@@ -433,9 +275,10 @@ const whyTanStackPrinciples = [
   {
     label: 'Compile-time contracts',
     title: 'Type-Safe by Design',
-    body: 'First-class TypeScript support that catches bugs at compile time and makes refactoring fearless.',
-    Icon: Code2,
+    body: 'Built with TypeScript from the ground up, providing incredible autocomplete and safety across your entire data-fetching and state management stack.',
+    Icon: CodeIcon,
     accentClassName: 'from-emerald-500 to-teal-500',
+    eyebrowClassName: 'text-ds-green-400',
     iconClassName:
       'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300',
     proof: 'types',
@@ -443,9 +286,10 @@ const whyTanStackPrinciples = [
   {
     label: 'Real workloads',
     title: 'Production-Grade',
-    body: "Battle-tested in the world's largest apps. Built for real workloads, not just happy-path demos.",
-    Icon: Zap,
+    body: "Battle-tested in the world's largest apps. We build for scale, handling complex concurrency, caching, and state synchronization with ease.",
+    Icon: LightningIcon,
     accentClassName: 'from-orange-500 to-red-500',
+    eyebrowClassName: 'text-ds-blue-400',
     iconClassName:
       'border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-900 dark:bg-orange-950/40 dark:text-orange-300',
     proof: 'adoption',
@@ -453,9 +297,10 @@ const whyTanStackPrinciples = [
   {
     label: 'Independent tools',
     title: 'No Vendor Lock-in',
-    body: 'Open source and independent. No hidden agendas, no platform bias—just great tools for developers.',
-    Icon: Shield,
+    body: "Open source and independent. We aren't beholden to any single cloud provider or framework team, ensuring the best tools for the community.",
+    Icon: ShieldIcon,
     accentClassName: 'from-purple-500 to-pink-500',
+    eyebrowClassName: 'text-ds-purple-400',
     iconClassName:
       'border-purple-200 bg-purple-50 text-purple-700 dark:border-purple-900 dark:bg-purple-950/40 dark:text-purple-300',
     proof: 'portable',
@@ -615,87 +460,101 @@ function cubicAngle(
   return (Math.atan2(deltaY, deltaX) * 180) / Math.PI
 }
 
+/**
+ * The "Why TanStack?" principles stack — Figma 478:1734.
+ *
+ * Geometry follows the design frame: a 960px column, each feature card 313px
+ * tall (233px of content inside 40px padding), with the copy column and the
+ * proof panel separated by a 48px gutter. The description sits bottom-right of
+ * its column, which is what produces the stepped rhythm down the stack.
+ */
 function WhyTanStackSection() {
   return (
-    <section className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-      <div className="grid gap-8 border-y border-gray-200 py-10 dark:border-gray-800 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)] lg:gap-12 lg:py-12">
-        <div className="max-w-xl lg:max-w-sm">
-          <div className="inline-flex items-center gap-2 text-xs font-black uppercase text-gray-500 dark:text-gray-400">
-            <span className="h-2 w-2 rounded-full bg-cyan-500 shadow-[0_0_0_4px_rgba(6,182,212,0.12)]" />
-            Product principles
+    <section className="px-4 md:mx-auto">
+      <div className="mx-auto max-w-[960px] py-16 lg:py-20">
+        {/* section-header — 478:1737 */}
+        <div className="flex flex-col items-center gap-12 text-center">
+          <Eyebrow className="text-text-warning">Principles</Eyebrow>
+          <div className="flex flex-col items-center gap-4">
+            <h3 className="text-4xl font-[500] leading-[1.05] tracking-[-0.8px] sm:text-5xl lg:text-[64px]">
+              Why TanStack?
+            </h3>
+            <p className="max-w-[376px] text-base leading-[1.45] text-gray-600 dark:text-gray-400">
+              Our libraries are built around real products and the developers
+              shipping them.
+            </p>
           </div>
-          <h3 className="mt-4 text-3xl font-black leading-tight sm:text-4xl">
-            Why TanStack?
-          </h3>
-          <p className="mt-4 text-base leading-7 text-gray-600 dark:text-gray-400">
-            Our libraries are built around real products and the developers
-            shipping them
-          </p>
-          <div
-            aria-hidden="true"
-            className="mt-7 hidden h-px bg-gradient-to-r from-gray-300 via-gray-200 to-transparent dark:from-gray-700 dark:via-gray-800 lg:block"
-          />
-          <Button
-            as={Link}
-            to="/tenets"
-            variant="ghost"
-            color="gray"
-            className="mt-7 border-gray-300 bg-white/70 text-gray-950 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-950/70 dark:text-white dark:hover:bg-gray-900"
-          >
-            Read our product tenets
-            <ArrowRight className="h-4 w-4" />
-          </Button>
         </div>
 
-        <ol className="grid gap-3 sm:grid-cols-2">
+        {/* features-stack — 478:1742 */}
+        <ol className="mt-12 rounded-[20px]">
           {whyTanStackPrinciples.map((principle, index) => (
             <li
               key={principle.title}
-              className="group relative flex min-h-[19rem] flex-col overflow-hidden border border-gray-200 bg-white/70 p-5 shadow-sm transition-colors hover:bg-white dark:border-gray-800 dark:bg-gray-950/50 dark:hover:bg-gray-950 sm:p-6"
+              className={twMerge(
+                'flex flex-col gap-8 p-6 sm:p-10 lg:flex-row lg:items-center lg:justify-center lg:gap-[70px]',
+                index < whyTanStackPrinciples.length - 1 &&
+                  'border-b border-gray-200 dark:border-gray-800',
+              )}
             >
-              <div
-                aria-hidden="true"
-                className={twMerge(
-                  'absolute inset-x-0 top-0 h-1 bg-gradient-to-r',
-                  principle.accentClassName,
-                )}
-              />
-              <div className="relative flex items-start justify-between gap-4">
-                <div>
-                  <p className="font-mono text-[11px] font-bold uppercase text-gray-500 dark:text-gray-500">
+              {/* copy column — 478:1745. Everything is left-aligned to the
+                  card edge; at desktop sizes the title and description stay
+                  grouped at the center of the 233px proof panel. */}
+              <div className="flex min-w-0 flex-1 flex-col gap-8 lg:h-[233px] lg:justify-center lg:gap-0">
+                <div className="flex w-full flex-col gap-2">
+                  <Eyebrow className={principle.eyebrowClassName}>
                     {principle.label}
-                  </p>
-                  <h4 className="mt-4 max-w-64 text-xl font-black leading-tight text-gray-950 dark:text-white">
+                  </Eyebrow>
+                  <h4 className="text-2xl font-black leading-tight text-gray-950 dark:text-white">
                     {principle.title}
                   </h4>
                 </div>
-                <span
-                  className={twMerge(
-                    'flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border',
-                    principle.iconClassName,
-                  )}
-                >
-                  <principle.Icon className="h-5 w-5" />
-                </span>
+                <p className="w-full text-sm font-light leading-[1.45] text-gray-600 dark:text-gray-400 lg:pt-4">
+                  {principle.body}
+                </p>
               </div>
-              <p className="relative mt-4 max-w-[25rem] text-sm leading-6 text-gray-600 dark:text-gray-400">
-                {principle.body}
-              </p>
-              <PrincipleProof
-                proof={principle.proof}
-                accentClassName={principle.accentClassName}
-              />
-              <span
-                aria-hidden="true"
-                className="absolute bottom-3 right-5 font-mono text-5xl font-black leading-none text-gray-100 transition-colors group-hover:text-gray-200 dark:text-white/[0.04] dark:group-hover:text-white/[0.07]"
-              >
-                {String(index + 1).padStart(2, '0')}
-              </span>
+
+              {/* proof panel — 478:1744 */}
+              <PrinciplePanel>
+                <PrincipleProof
+                  proof={principle.proof}
+                  accentClassName={principle.accentClassName}
+                />
+              </PrinciplePanel>
             </li>
           ))}
         </ol>
+
+        {/* Quiet corner CTA — hugs the bottom-right of the section. Muted at
+            rest so it doesn't compete with the stack; on hover the label
+            brightens and the arrow slides to afford that it goes somewhere. */}
+        <div className="mt-4 flex justify-end">
+          <Link
+            to="/tenets"
+            className="group inline-flex items-center gap-1.5 rounded-md py-1 font-mono text-xs font-semibold uppercase tracking-[1px] text-gray-400 transition-colors hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus dark:text-gray-500 dark:hover:text-gray-100"
+          >
+            Read our product tenets
+            <ArrowRightIcon className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5 motion-reduce:transition-none" />
+          </Link>
+        </div>
       </div>
     </section>
+  )
+}
+
+/**
+ * The 460×233 proof slot from Figma (478:1744 et al).
+ *
+ * Deliberately chrome-less: no border, no fill. The design draws a surface
+ * here, but the proofs read better floating directly on the card — the row
+ * dividers and the 70px gutter already separate them from the copy, so a
+ * second frame around each one was redundant weight.
+ */
+function PrinciplePanel({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex h-[233px] w-full shrink-0 items-center justify-center lg:w-[460px]">
+      {children}
+    </div>
   )
 }
 
@@ -741,9 +600,12 @@ function FrameworkAdapterGraph({
   }, [])
 
   return (
+    // The node positions below are hard-coded against a 320×128 grid
+    // (adapterGraphWidth/Height), so the whole graph is scaled as a unit to
+    // fill the 460×233 slot rather than re-deriving every coordinate.
     <div
       aria-hidden="true"
-      className="relative mt-auto h-32 pt-5 font-mono text-[10px] font-bold"
+      className="relative h-32 w-[320px] shrink-0 scale-[1.35] font-mono text-[10px] font-bold"
     >
       <div className="home-adapter-graph absolute inset-x-0 top-1 h-[7.5rem] overflow-visible">
         {frameworkAdapterNodes.map((adapter, adapterIndex) => {
@@ -854,14 +716,17 @@ function PrincipleProof({
 
   if (proof === 'types') {
     return (
-      <div className="mt-auto pt-7 font-mono text-[11px] leading-5">
-        <div className="rounded-lg border border-gray-200 bg-white/70 p-3 text-gray-600 dark:border-gray-800 dark:bg-black/30 dark:text-gray-400">
+      <div className="w-full font-mono text-base leading-7">
+        <div className="flex flex-col gap-3 text-left text-gray-600 dark:text-gray-400">
           {[
             ['params.postId', 'string'],
             ['query.data', 'Project[]'],
             ['form.email', 'Field<string>'],
           ].map(([name, value]) => (
-            <div key={name} className="flex items-center justify-between gap-3">
+            <div
+              key={name}
+              className="flex items-baseline justify-between gap-4"
+            >
               <span>{name}</span>
               <span
                 className={twMerge(
@@ -879,102 +744,104 @@ function PrincipleProof({
   }
 
   if (proof === 'adoption') {
-    return (
-      <div className="mt-auto pt-7">
-        <div className="mb-2 flex items-center justify-between gap-3 font-mono text-[11px] font-bold uppercase text-gray-500 dark:text-gray-500">
-          <span>critical paths</span>
-          <span
-            className={twMerge(
-              'bg-gradient-to-r bg-clip-text text-transparent',
-              accentClassName,
-            )}
-          >
-            used daily
-          </span>
-        </div>
-        <div className="grid grid-cols-2 gap-1.5 font-mono text-[11px] font-bold text-gray-600 dark:text-gray-400">
-          {['websites', 'AI tools', 'apps', 'services'].map((useCase) => (
-            <span
-              key={useCase}
-              className="flex items-center gap-1.5 rounded-md border border-gray-200 bg-white/70 px-2 py-1.5 dark:border-gray-800 dark:bg-black/30"
-            >
-              <span
-                className={twMerge(
-                  'h-1.5 w-1.5 rounded-full bg-gradient-to-r',
-                  accentClassName,
-                )}
-              />
-              {useCase}
-            </span>
-          ))}
-        </div>
-      </div>
-    )
+    return <AdoptionProof accentClassName={accentClassName} />
   }
 
+  return <IndependenceProof accentClassName={accentClassName} />
+}
+
+/**
+ * Production-Grade proof: the live npm download odometer already prefetched by
+ * the route loader, plus weekly volume and stars. Real numbers rather than
+ * adjectives — the point of the principle is scale.
+ */
+function AdoptionProof({ accentClassName }: { accentClassName: string }) {
+  const { data: summary } = useQuery(homepageNpmStatsSummaryQuery())
+  const { data: stats } = useQuery(ossStatsQuery())
+
+  const totalDownloads = summary?.totalDownloads ?? 0
+  const weeklyDownloads = summary?.weeklyDownloads ?? 0
+  const starCount = stats?.github?.starCount ?? 0
+
+  // npm can be slow, rate-limited, or down — showing a literal 0 would claim
+  // this library has no users. Fall back to a placeholder instead.
+  const format = (value: number) => (value > 0 ? value.toLocaleString() : '—')
+
+  const counterRef = useNpmDownloadCounter({
+    totalDownloads,
+    ratePerDay: summary?.weeklyRatePerDay ?? 0,
+  })
+
   return (
-    <div className="mt-auto pt-7">
-      <div className="flex flex-wrap gap-1.5 font-mono text-[11px] font-bold text-gray-600 dark:text-gray-400">
-        {['MIT', 'self-host', 'any host', 'no paid products'].map((item) => (
-          <span
-            key={item}
-            className="rounded-md border border-gray-200 bg-white/70 px-2 py-1.5 dark:border-gray-800 dark:bg-black/30"
-          >
-            {item}
-          </span>
+    <div className="flex w-full flex-col gap-6">
+      <div className="flex flex-col gap-1">
+        <span className="font-mono text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-500">
+          npm downloads
+        </span>
+        <span
+          // The odometer writes into this node directly; only hand it over
+          // once there is a real number for it to count from.
+          ref={totalDownloads > 0 ? counterRef : undefined}
+          className={twMerge(
+            'bg-linear-to-r bg-clip-text font-mono text-4xl font-black tabular-nums text-transparent',
+            accentClassName,
+          )}
+        >
+          {format(totalDownloads)}
+        </span>
+      </div>
+      <div className="grid grid-cols-2 gap-6 font-mono">
+        {[
+          ['per week', weeklyDownloads],
+          ['github stars', starCount],
+        ].map(([label, value]) => (
+          <div key={String(label)} className="flex flex-col gap-1">
+            <span className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-500">
+              {label}
+            </span>
+            <span className="text-xl font-black tabular-nums text-gray-700 dark:text-gray-300">
+              {format(Number(value))}
+            </span>
+          </div>
         ))}
       </div>
-      <div
-        aria-hidden="true"
-        className={twMerge('mt-3 h-px bg-gradient-to-r', accentClassName)}
-      />
     </div>
   )
 }
 
-function StackCategoryCard({
-  groupId,
-  libraries,
-}: {
-  groupId: keyof typeof librariesByGroup
-  libraries: Library[]
-}) {
-  const groupName = librariesGroupNamesMap[groupId]
-  const categorySlug = groupToSlug[groupId]
-
+/**
+ * No Vendor Lock-in proof: the same four claims the chip list made, but as a
+ * checked ledger so the panel reads as substantiated rather than decorative.
+ */
+function IndependenceProof({ accentClassName }: { accentClassName: string }) {
   return (
-    <Link
-      to="/stack/$category"
-      params={{ category: categorySlug }}
-      className="group flex flex-col rounded-xl border border-gray-200 bg-white/60 p-5 transition-all hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md dark:border-gray-800 dark:bg-gray-900/40 dark:hover:border-gray-700"
-    >
-      <h4 className="text-base font-bold group-hover:underline">{groupName}</h4>
-      <ol className="mt-4 space-y-2.5">
-        {libraries.map((lib, i) => (
-          <li key={lib.id} className="flex items-start gap-2.5">
-            <span
-              className={twMerge(
-                'flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-gradient-to-br text-[10px] font-black text-white',
-                lib.colorFrom,
-                lib.colorTo,
-              )}
-            >
-              {i + 1}
-            </span>
-            <span className="min-w-0 flex-1 text-sm font-semibold leading-snug">
-              {lib.name.replace('TanStack ', '')}
-            </span>
-          </li>
-        ))}
-      </ol>
-      <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-gray-600 dark:text-gray-400">
-        Browse {groupName.toLowerCase()}
-        <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
-      </span>
-    </Link>
+    <dl className="flex w-full flex-col font-mono text-sm">
+      {[
+        ['license', 'MIT'],
+        ['hosting', 'self-host anywhere'],
+        ['governance', 'community-driven'],
+        ['paid tiers', 'none'],
+      ].map(([term, value], index) => (
+        <div
+          key={term}
+          className={twMerge(
+            'flex items-baseline justify-between gap-4 py-3',
+            index > 0 && 'border-t border-gray-200/70 dark:border-gray-800/70',
+          )}
+        >
+          <dt className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-500">
+            {term}
+          </dt>
+          <dd
+            className={twMerge(
+              'bg-linear-to-r bg-clip-text font-black text-transparent',
+              accentClassName,
+            )}
+          >
+            {value}
+          </dd>
+        </div>
+      ))}
+    </dl>
   )
-}
-
-function OpenSourceGradientText() {
-  return <span className="home-open-source-gradient">open-source</span>
 }

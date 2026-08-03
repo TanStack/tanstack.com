@@ -2,13 +2,13 @@ import * as React from 'react'
 import { useHeldKeys, useHotkey } from '@tanstack/react-hotkeys'
 
 interface ApplicationStarterHotkeysProps {
-  onAnalyze: () => void
+  onSubmit: () => void
   onModKeyChange: (isHeld: boolean) => void
   promptFocused: boolean
 }
 
 export function ApplicationStarterHotkeys({
-  onAnalyze,
+  onSubmit,
   onModKeyChange,
   promptFocused,
 }: ApplicationStarterHotkeysProps) {
@@ -20,7 +20,7 @@ export function ApplicationStarterHotkeys({
       return
     }
 
-    onAnalyze()
+    onSubmit()
   })
 
   React.useEffect(() => {

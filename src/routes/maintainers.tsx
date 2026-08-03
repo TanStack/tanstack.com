@@ -2,7 +2,13 @@ import { createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { useState } from 'react'
 import * as React from 'react'
-import { X, ListFilter, Grid2X2, Grid3X3, LayoutList } from 'lucide-react'
+import {
+  XIcon,
+  FunnelIcon,
+  GridFourIcon,
+  GridNineIcon,
+  RowsIcon,
+} from '@phosphor-icons/react'
 import { Footer } from '~/components/Footer'
 import {
   MaintainerCard,
@@ -27,7 +33,7 @@ const sortBySchema = v.picklist(['none', 'name', 'role', 'contributions'])
 
 const searchSchema = v.object({
   libraries: v.fallback(v.optional(v.array(libraryIdSchema)), undefined),
-  viewMode: v.fallback(v.optional(viewModeSchema, 'compact'), 'compact'),
+  viewMode: v.fallback(v.optional(viewModeSchema, 'full'), 'full'),
   groupBy: v.fallback(v.optional(groupBySchema, 'none'), 'none'),
   sortBy: v.fallback(v.optional(sortBySchema, 'none'), 'none'),
 })
@@ -133,14 +139,19 @@ function MaintainersFilter({
             [
               {
                 mode: 'compact',
-                Icon: Grid3X3,
+                Icon: GridNineIcon,
                 title: 'Compact cards',
                 rounded: 'rounded-l-lg',
               },
-              { mode: 'full', Icon: Grid2X2, title: 'Full cards', rounded: '' },
+              {
+                mode: 'full',
+                Icon: GridFourIcon,
+                title: 'Full cards',
+                rounded: '',
+              },
               {
                 mode: 'row',
-                Icon: LayoutList,
+                Icon: RowsIcon,
                 title: 'Row cards',
                 rounded: 'rounded-r-lg',
               },
@@ -167,7 +178,7 @@ function MaintainersFilter({
             onClick={() => setIsOpen(!isOpen)}
             className="inline-flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
-            <ListFilter className="w-4 h-4" />
+            <FunnelIcon className="w-4 h-4" />
             Filter & Sort
             {hasFilters && (
               <span className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-0.5 rounded-full text-xs">
@@ -248,7 +259,7 @@ function MaintainersFilter({
                   >
                     Filter by Libraries
                   </label>
-                  <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
+                  <div className="fade-y fade-size-y-sm grid max-h-48 grid-cols-2 gap-2 overflow-y-auto">
                     {availableLibraries.map((library) => {
                       const isSelected =
                         selectedLibraries?.includes(library.id) || false
@@ -294,7 +305,7 @@ function MaintainersFilter({
                   onClick={() => toggleLibrary(libraryId)}
                   className="hover:bg-black/10 dark:hover:bg-white/10 rounded p-0.5 transition-colors"
                 >
-                  <X className="w-3 h-3" />
+                  <XIcon className="w-3 h-3" />
                 </button>
               </span>
             )

@@ -1,11 +1,14 @@
 import agGridDarkSvg from '~/images/ag-grid-dark.svg'
 import agGridLightSvg from '~/images/ag-grid-light.svg'
+import agGridImage from '~/images/ag-grid.png'
 import nozzleImage from '~/images/nozzle.png'
 import bytesFireshipImage from '~/images/bytes-fireship.png'
 import vercelLightSvg from '~/images/vercel-light.svg'
 import vercelDarkSvg from '~/images/vercel-dark.svg'
 import netlifyLightSvg from '~/images/netlify-light.svg'
 import netlifyDarkSvg from '~/images/netlify-dark.svg'
+import lovableBlackSvg from '~/images/lovable-black.svg'
+import lovableWhiteSvg from '~/images/lovable-white.svg'
 import convexWhiteSvg from '~/images/convex-white.svg'
 import convexColorSvg from '~/images/convex-color.svg'
 import clerkLightSvg from '~/images/clerk-logo-light.svg'
@@ -28,7 +31,7 @@ import strapiLightSvg from '~/images/strapi-light.svg'
 import strapiDarkSvg from '~/images/strapi-dark.svg'
 import serpapiWhiteSvg from '~/images/serpapi-white.svg'
 import serpapiBlackSvg from '~/images/serpapi-black.svg'
-import { libraries, type Library } from '~/libraries'
+import type { Library } from '~/libraries'
 import cloudflareWhiteSvg from '~/images/cloudflare-white.svg'
 import cloudflareBlackSvg from '~/images/cloudflare-black.svg'
 import workosBlackSvg from '~/images/workos-black.svg'
@@ -42,6 +45,7 @@ import openrouterWhiteSvg from '~/images/openrouter-white.svg'
 import {
   getPartnerPlacementContext,
   getPartnersForPlacement,
+  type PartnerPlacementContext,
 } from '~/utils/partner-placement'
 
 function LearnMoreButton() {
@@ -61,7 +65,26 @@ type PartnerApplicationStarterIcon = {
   src: string
 }
 
+export const partnerResourceKinds = [
+  'documentation',
+  'example',
+  'announcement',
+] as const
+
+export type PartnerResourceKind = (typeof partnerResourceKinds)[number]
+
+export type PartnerResource = {
+  href: string
+  kind: PartnerResourceKind
+  label: string
+}
+
 type ApplicationStarterPartnerTier = 1 | 2 | 3
+
+const currentPartnerReviewDate = '2026-07-21'
+
+export const partnerUniqueConstraints = ['auth-provider', 'hosting'] as const
+export type PartnerUniqueConstraint = (typeof partnerUniqueConstraints)[number]
 
 export const partnerTiers = ['gold', 'silver', 'bronze'] as const
 export type PartnerTier = (typeof partnerTiers)[number]
@@ -100,7 +123,7 @@ export const partnerTierFlares: Record<
     gradientStops:
       'from-yellow-400 via-amber-500 to-orange-600 dark:from-yellow-300 dark:via-amber-400 dark:to-orange-400',
     iconColor: 'text-amber-500 dark:text-amber-300',
-    labelColor: 'text-amber-600 dark:text-amber-300',
+    labelColor: 'text-amber-700 dark:text-amber-300',
     // 5-point star
     icon: (
       <svg viewBox="0 0 12 12" className="h-3 w-3 fill-current" aria-hidden>
@@ -132,6 +155,16 @@ export const partnerTierFlares: Record<
       </svg>
     ),
   },
+}
+
+// Full-bleed tier band backgrounds (Figma 640:3878). Snapped to the nearest DS
+// palette tokens rather than the raw Figma literals so the bands stay in step
+// with the rest of the rebrand: gold→amber, silver→neutral, bronze→terracotta.
+// Labels sit in near-black (neutral-500) on every band, matching the design.
+export const partnerTierBandColor: Record<PartnerTier, string> = {
+  gold: 'bg-ds-amber-300',
+  silver: 'bg-ds-neutral-200',
+  bronze: 'bg-ds-terracotta-400',
 }
 
 export function PartnerImage({
@@ -217,30 +250,47 @@ export const partnerCategoryLabels: Record<PartnerCategory, string> = {
   database: 'Databases',
   monitoring: 'Error Monitoring',
   cms: 'CMS',
-  api: 'API Management',
+  api: 'API Infrastructure',
   ai: 'AI/LLM',
   learning: 'Learning Resources',
 }
 
-export type Partner = {
+type PartnerBase = {
   applicationStarterPromptInstructions?: Array<string>
   name: string
   id: string
-  libraries?: Library['id'][]
+  relatedProducts?: ReadonlyArray<Library['id']>
   href: string
   applicationStarterIcon?: PartnerApplicationStarterIcon
   image: PartnerImageConfig
   content: JSX.Element
   llmDescription: string
   category: PartnerCategory
-  status?: 'active' | 'inactive'
-  startDate?: string
-  endDate?: string
+  lastReviewedAt?: string
   score: number
-  tier?: PartnerTier
+  uniqueConstraints?: ReadonlyArray<PartnerUniqueConstraint>
   brandColor?: string // Primary brand color for game elements
   tagline?: string // Short tagline for game info cards
 }
+
+export type Partner =
+  | (PartnerBase & {
+      canonicalHref: string
+      endDate?: never
+      lastReviewedAt: string
+      resources: readonly [PartnerResource, ...Array<PartnerResource>]
+      startDate?: string
+      status: 'active'
+      tier: PartnerTier
+    })
+  | (PartnerBase & {
+      canonicalHref?: string
+      endDate: string | null
+      resources?: ReadonlyArray<PartnerResource>
+      startDate: string | null
+      status: 'inactive'
+      tier?: PartnerTier
+    })
 
 export type ApplicationStarterPartnerSuggestion = {
   brandColor?: Partner['brandColor']
@@ -253,6 +303,7 @@ export type ApplicationStarterPartnerSuggestion = {
   label: string
   tags: Array<string>
   tier: ApplicationStarterPartnerTier
+  uniqueConstraints: Array<PartnerUniqueConstraint>
 }
 
 const APPLICATION_STARTER_GUIDANCE_MARKER = 'Starter guidance:'
@@ -325,14 +376,15 @@ export function getApplicationStarterInferredPartnerIds(input: string) {
   })
 }
 
-const neon = (() => {
+const neon = ((): Partner => {
   const href = 'https://neon.tech?utm_source=tanstack'
 
   return {
     name: 'Neon',
     id: 'neon',
-    libraries: ['start', 'router'],
+    relatedProducts: ['start', 'router'],
     status: 'inactive' as const,
+    startDate: null,
     endDate: 'Apr 2026',
     score: 0.297,
     href,
@@ -359,13 +411,13 @@ const neon = (() => {
   }
 })()
 
-const convex = (() => {
+const convex = ((): Partner => {
   const href = 'https://convex.dev?utm_source=tanstack'
 
   return {
     name: 'Convex',
     id: 'convex',
-    libraries: ['start', 'router'],
+    relatedProducts: ['start', 'router'],
     status: 'inactive' as const,
     startDate: 'May 2024',
     endDate: 'Mar 2026',
@@ -394,19 +446,40 @@ const convex = (() => {
   }
 })()
 
-const clerk = (() => {
+const clerk = ((): Partner => {
   const href = 'https://go.clerk.com/wOwHtuJ'
 
   return {
     name: 'Clerk',
     id: 'clerk',
     href,
-    libraries: ['start', 'router'],
+    canonicalHref: 'https://clerk.com/',
+    resources: [
+      {
+        kind: 'documentation',
+        label: 'Clerk TanStack Start quickstart',
+        href: 'https://clerk.com/docs/tanstack-react-start/getting-started/quickstart',
+      },
+      {
+        kind: 'example',
+        label: 'TanStack Start Clerk example',
+        href: '/start/latest/docs/framework/react/examples/start-clerk-basic',
+      },
+    ],
+    relatedProducts: ['start', 'router'],
     status: 'active' as const,
+    lastReviewedAt: currentPartnerReviewDate,
     score: 0.286,
     tier: 'silver' as const,
+    uniqueConstraints: [
+      'auth-provider',
+    ] satisfies Array<PartnerUniqueConstraint>,
     brandColor: '#6C47FF',
     tagline: 'Authentication',
+    applicationStarterIcon: {
+      mode: 'contain',
+      src: clerkLightSvg,
+    },
     image: {
       light: clerkLightSvg,
       dark: clerkDarkSvg,
@@ -430,17 +503,34 @@ const clerk = (() => {
   }
 })()
 
-const workos = (() => {
+const workos = ((): Partner => {
   const href = 'https://workos.com?utm_source=tanstack'
 
   return {
     name: 'WorkOS',
     id: 'workos',
     href,
-    libraries: ['start', 'router'] as const,
+    canonicalHref: 'https://workos.com/',
+    resources: [
+      {
+        kind: 'documentation',
+        label: 'WorkOS AuthKit TanStack Start SDK',
+        href: 'https://workos.com/docs/sdks/authkit-tanstack-start',
+      },
+      {
+        kind: 'example',
+        label: 'TanStack Start WorkOS example',
+        href: '/start/latest/docs/framework/react/examples/start-workos',
+      },
+    ],
+    relatedProducts: ['start', 'router'] as const,
     status: 'active' as const,
+    lastReviewedAt: currentPartnerReviewDate,
     score: 0.314,
     tier: 'silver' as const,
+    uniqueConstraints: [
+      'auth-provider',
+    ] satisfies Array<PartnerUniqueConstraint>,
     brandColor: '#6363F1',
     tagline: 'Enterprise Auth',
     applicationStarterIcon: {
@@ -468,23 +558,37 @@ const workos = (() => {
   }
 })()
 
-const agGrid = (() => {
+const agGrid = ((): Partner => {
   const href =
     'https://ag-grid.com/react-data-grid/?utm_source=reacttable&utm_campaign=githubreacttable'
 
   return {
     name: 'AG Grid',
     id: 'ag-grid',
-    libraries: ['table'] as const,
+    relatedProducts: ['table'] as const,
     status: 'active' as const,
+    lastReviewedAt: currentPartnerReviewDate,
     score: 0.497,
     tier: 'silver' as const,
     href,
+    canonicalHref: 'https://www.ag-grid.com/',
+    resources: [
+      {
+        kind: 'documentation',
+        label: 'AG Grid with TanStack Table',
+        href: '/table/latest/docs/enterprise/ag-grid',
+      },
+      {
+        kind: 'announcement',
+        label: 'TanStack + AG Grid partnership',
+        href: '/blog/ag-grid-partnership',
+      },
+    ],
     brandColor: '#FF8C00',
     tagline: 'Enterprise Data Grid',
     applicationStarterIcon: {
       mode: 'contain',
-      src: 'https://www.ag-grid.com/_astro/favicon-32.WDuB-104.png',
+      src: agGridImage,
     },
     applicationStarterPromptInstructions: [
       'Install ag-grid-react and ag-grid-community and use AG Grid Community by default for a real working demo.',
@@ -522,22 +626,37 @@ const agGrid = (() => {
   }
 })()
 
-const netlify = (() => {
+const netlify = ((): Partner => {
   const href = 'https://netlify.com?utm_source=tanstack'
 
   return {
     name: 'Netlify',
     id: 'netlify',
-    libraries: ['start', 'router'],
+    relatedProducts: ['start', 'router'],
     status: 'active' as const,
+    lastReviewedAt: currentPartnerReviewDate,
     score: 0.343,
-    tier: 'silver' as const,
+    tier: 'gold' as const,
+    uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,
     href,
+    canonicalHref: 'https://www.netlify.com/',
+    resources: [
+      {
+        kind: 'documentation',
+        label: 'TanStack Start hosting guide',
+        href: '/start/latest/docs/framework/react/guide/hosting',
+      },
+      {
+        kind: 'announcement',
+        label: 'TanStack + Netlify partnership',
+        href: '/blog/netlify-partnership',
+      },
+    ],
     brandColor: '#00C7B7',
     tagline: 'Web Deployment',
     applicationStarterIcon: {
       mode: 'contain',
-      src: 'https://www.netlify.com/favicon/icon.svg',
+      src: netlifyLightSvg,
     },
     image: {
       light: netlifyLightSvg,
@@ -561,18 +680,32 @@ const netlify = (() => {
   }
 })()
 
-const cloudflare = (() => {
+const cloudflare = ((): Partner => {
   const href = 'https://www.cloudflare.com?utm_source=tanstack'
 
   return {
     name: 'Cloudflare',
     id: 'cloudflare',
     href,
-    // Show on every repo
-    libraries: libraries.map((l) => l.id),
+    canonicalHref: 'https://www.cloudflare.com/',
+    resources: [
+      {
+        kind: 'documentation',
+        label: 'Cloudflare TanStack Start guide',
+        href: 'https://developers.cloudflare.com/workers/framework-guides/web-apps/tanstack-start/',
+      },
+      {
+        kind: 'documentation',
+        label: 'TanStack Start hosting guide',
+        href: '/start/latest/docs/framework/react/guide/hosting',
+      },
+    ],
+    relatedProducts: ['start'],
     status: 'active' as const,
+    lastReviewedAt: currentPartnerReviewDate,
     score: 0.857,
     tier: 'gold' as const,
+    uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,
     startDate: 'Sep 2025',
     brandColor: '#F6821F',
     tagline: 'Edge Deployment',
@@ -596,17 +729,82 @@ const cloudflare = (() => {
   }
 })()
 
-const sentry = (() => {
+const lovable = ((): Partner => {
+  const href = 'https://lovable.dev?utm_source=tanstack'
+
+  return {
+    name: 'Lovable',
+    id: 'lovable',
+    href,
+    canonicalHref: 'https://lovable.dev/',
+    resources: [
+      {
+        kind: 'documentation',
+        label: 'Build with a URL in Lovable',
+        href: 'https://docs.lovable.dev/integrations/build-with-url',
+      },
+      {
+        kind: 'announcement',
+        label: 'Building TanStack Start apps with Lovable',
+        href: 'https://lovable.dev/blog/building-apps-using-tanstack-start',
+      },
+    ],
+    relatedProducts: ['start', 'router'] as const,
+    status: 'active' as const,
+    lastReviewedAt: currentPartnerReviewDate,
+    score: 0.714,
+    tier: 'gold' as const,
+    uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,
+    brandColor: '#FF7EB0',
+    tagline: 'AI App Builder',
+    applicationStarterPromptInstructions: [
+      'Treat Lovable as the AI app-building and hosting path, not as a TanStack CLI deployment flag or npm package.',
+      'Keep the generated app portable: start with the TanStack CLI output, preserve GitHub/project ownership notes, and call out any Lovable Cloud setup that cannot be automated from code.',
+      'When Lovable is selected, do not add a separate Cloudflare, Netlify, or Railway deployment target unless the user explicitly asks for a handoff path.',
+    ],
+    image: {
+      light: lovableBlackSvg,
+      dark: lovableWhiteSvg,
+    },
+    llmDescription:
+      'AI app-building platform for generating, editing, and shipping web apps from prompts, with GitHub sync, visual editing, Lovable Cloud hosting, and new TanStack Start-powered SSR projects.',
+    category: 'ai',
+    content: (
+      <>
+        <div className="text-xs">
+          Lovable helps teams move from prompt to working app with{' '}
+          <strong>AI-assisted building</strong>, visual editing, GitHub sync,
+          and Lovable Cloud hosting. New Lovable projects are powered by
+          TanStack Start, which makes it especially relevant for teams that want
+          generated apps to keep strong routing, SSR, and type-safety
+          foundations.
+        </div>
+        <LearnMoreButton />
+      </>
+    ),
+  }
+})()
+
+const sentry = ((): Partner => {
   const href = 'https://sentry.io?utm_source=tanstack'
 
   return {
     name: 'Sentry',
     id: 'sentry',
-    libraries: ['start', 'router'],
+    relatedProducts: ['start', 'router'],
     status: 'active' as const,
+    lastReviewedAt: currentPartnerReviewDate,
     score: 0.229,
     tier: 'bronze' as const,
     href,
+    canonicalHref: 'https://sentry.io/',
+    resources: [
+      {
+        kind: 'documentation',
+        label: 'Sentry for TanStack Start',
+        href: 'https://docs.sentry.io/platforms/javascript/guides/tanstackstart-react/',
+      },
+    ],
     brandColor: '#362D59',
     tagline: 'Error Monitoring',
     image: {
@@ -614,7 +812,7 @@ const sentry = (() => {
       dark: sentryWordMarkLightSvg,
     },
     llmDescription:
-      'Application monitoring platform for error tracking, tracing, replay, profiling, and logs. It also offers TanStack Router integration and an alpha TanStack Start React SDK.',
+      'Application monitoring platform for error tracking, tracing, replay, profiling, and logs, with TanStack Router support and an alpha TanStack Start React SDK.',
     category: 'monitoring',
     content: (
       <>
@@ -630,14 +828,16 @@ const sentry = (() => {
   }
 })()
 
-const fireship = (() => {
+const fireship = ((): Partner => {
   const href = 'https://bytes.dev?utm_source-tanstack&utm_campaign=tanstack'
 
   return {
     name: 'Fireship',
     id: 'fireship',
-    libraries: [],
+    relatedProducts: [],
     status: 'inactive' as const,
+    startDate: null,
+    endDate: null,
     score: 0.014,
     href,
     tagline: 'Dev Education',
@@ -686,7 +886,7 @@ const fireship = (() => {
   }
 })()
 
-const nozzle = (() => {
+const nozzle = ((): Partner => {
   const href = 'https://nozzle.io/?utm_source=tanstack&utm_campaign=tanstack'
 
   return {
@@ -694,6 +894,8 @@ const nozzle = (() => {
     id: 'nozzle',
     href,
     status: 'inactive' as const,
+    startDate: null,
+    endDate: null,
     score: 0.014,
     tagline: 'Enterprise SEO',
     image: {
@@ -716,7 +918,7 @@ const nozzle = (() => {
   }
 })()
 
-const speakeasy = (() => {
+const speakeasy = ((): Partner => {
   const href =
     'https://www.speakeasy.com/product/react-query?utm_source=tanstack&utm_campaign=tanstack'
 
@@ -724,10 +926,11 @@ const speakeasy = (() => {
     name: 'Speakeasy',
     id: 'speakeasy',
     href,
-    libraries: ['query'] as const,
+    relatedProducts: ['query'] as const,
     status: 'inactive' as const,
     startDate: 'Feb 2025',
     endDate: 'Jul 2025',
+    score: 0,
     image: {
       light: speakeasyLightSvg,
       dark: speakeasyDarkSvg,
@@ -751,17 +954,31 @@ const speakeasy = (() => {
   }
 })()
 
-const unkey = (() => {
+const unkey = ((): Partner => {
   const href = 'https://www.unkey.com/?utm_source=tanstack'
 
   return {
     name: 'Unkey',
     id: 'unkey',
-    libraries: ['pacer'] as const,
+    relatedProducts: ['start'] as const,
     status: 'active' as const,
+    lastReviewedAt: currentPartnerReviewDate,
     score: 0.051,
     tier: 'bronze' as const,
     href,
+    canonicalHref: 'https://www.unkey.com/',
+    resources: [
+      {
+        kind: 'documentation',
+        label: 'Unkey server-side rate limiting',
+        href: 'https://www.unkey.com/docs/platform/ratelimiting/introduction',
+      },
+      {
+        kind: 'documentation',
+        label: 'Unkey API key quickstart',
+        href: 'https://www.unkey.com/docs/quickstart/quickstart',
+      },
+    ],
     brandColor: '#222222',
     tagline: 'API Key Management',
     applicationStarterPromptInstructions: [
@@ -791,19 +1008,37 @@ const unkey = (() => {
   }
 })()
 
-const serpApi = (() => {
+const serpApi = ((): Partner => {
   const href = 'https://serpapi.com?utm_source=tanstack'
 
   return {
-    name: 'SerpAPI',
+    name: 'SerpApi',
     id: 'serpapi',
-    libraries: libraries.map((l) => l.id),
+    relatedProducts: ['start', 'ai', 'mcp'],
     status: 'active' as const,
+    lastReviewedAt: currentPartnerReviewDate,
     score: 0.41,
     tier: 'silver' as const,
     href,
+    canonicalHref: 'https://serpapi.com/',
+    resources: [
+      {
+        kind: 'documentation',
+        label: 'SerpApi JavaScript integration',
+        href: 'https://serpapi.com/integrations/javascript',
+      },
+      {
+        kind: 'documentation',
+        label: 'SerpApi MCP integration',
+        href: 'https://serpapi.com/integrations/mcp',
+      },
+    ],
     brandColor: '#6361EC',
     tagline: 'Real-time SERP API',
+    applicationStarterIcon: {
+      mode: 'contain',
+      src: serpapiBlackSvg,
+    },
     applicationStarterPromptInstructions: [
       'Install the official serpapi package and keep all SerpApi usage server-side behind an app-owned endpoint or server function.',
       'Read SERPAPI_API_KEY from environment variables and choose one explicit search engine instead of pretending to support every engine at once.',
@@ -831,17 +1066,26 @@ const serpApi = (() => {
   }
 })()
 
-const electric = (() => {
-  const href = 'https://electric-sql.com'
+const electric = ((): Partner => {
+  const href = 'https://electric.ax/?utm_source=tanstack'
 
   return {
     name: 'Electric',
     id: 'electric',
-    libraries: ['db'] as const,
+    relatedProducts: ['db'] as const,
     status: 'active' as const,
+    lastReviewedAt: currentPartnerReviewDate,
     score: 0.283,
     tier: 'bronze' as const,
     href,
+    canonicalHref: 'https://electric.ax/',
+    resources: [
+      {
+        kind: 'documentation',
+        label: 'TanStack DB Electric collection',
+        href: '/db/latest/docs/collections/electric-collection',
+      },
+    ],
     brandColor: '#7e78db',
     tagline: 'Sync Engine',
     applicationStarterPromptInstructions: [
@@ -871,17 +1115,19 @@ const electric = (() => {
   }
 })()
 
-const vercel = (() => {
+const vercel = ((): Partner => {
   const href = 'https://vercel.com?utm_source=tanstack'
 
   return {
     name: 'Vercel',
     id: 'vercel',
     href,
-    libraries: ['start', 'router'] as const,
+    relatedProducts: ['start', 'router'] as const,
     status: 'inactive' as const,
     startDate: 'May 2024',
     endDate: 'Oct 2024',
+    score: 0,
+    uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,
     image: {
       light: vercelLightSvg,
       dark: vercelDarkSvg,
@@ -903,15 +1149,24 @@ const vercel = (() => {
   }
 })()
 
-const prisma = (() => {
+const prisma = ((): Partner => {
   const href = 'https://www.prisma.io/?utm_source=tanstack&via=tanstack'
 
   return {
     name: 'Prisma',
     id: 'prisma',
     href,
+    canonicalHref: 'https://www.prisma.io/',
+    resources: [
+      {
+        kind: 'documentation',
+        label: 'Prisma with TanStack Start',
+        href: 'https://docs.prisma.io/docs/guides/frameworks/tanstack-start',
+      },
+    ],
     status: 'active' as const,
-    libraries: ['db', 'start'] as const,
+    lastReviewedAt: currentPartnerReviewDate,
+    relatedProducts: ['db', 'start'] as const,
     startDate: 'Aug 2025',
     score: 0.143,
     tier: 'bronze' as const,
@@ -938,7 +1193,7 @@ const prisma = (() => {
   }
 })()
 
-const codeRabbit = (() => {
+const codeRabbit = ((): Partner => {
   const href =
     'https://coderabbit.link/tanstack?utm_source=tanstack&via=tanstack'
 
@@ -946,8 +1201,17 @@ const codeRabbit = (() => {
     name: 'CodeRabbit',
     id: 'coderabbit',
     href,
+    canonicalHref: 'https://www.coderabbit.ai/',
+    resources: [
+      {
+        kind: 'documentation',
+        label: 'CodeRabbit quickstart',
+        href: 'https://docs.coderabbit.ai/getting-started/quickstart',
+      },
+    ],
     status: 'active' as const,
-    libraries: libraries.map((l) => l.id),
+    lastReviewedAt: currentPartnerReviewDate,
+    relatedProducts: [],
     startDate: 'Aug 2025',
     score: 1,
     tier: 'gold' as const,
@@ -979,14 +1243,16 @@ const codeRabbit = (() => {
   }
 })()
 
-const strapi = (() => {
+const strapi = ((): Partner => {
   const href = 'https://strapi.link/tanstack-start'
 
   return {
     name: 'Strapi',
     id: 'strapi',
-    libraries: ['start', 'router'] as const,
+    relatedProducts: ['start', 'router'] as const,
     status: 'inactive' as const,
+    startDate: null,
+    endDate: null,
     score: 0.069,
     tier: 'bronze' as const,
     href,
@@ -1014,19 +1280,33 @@ const strapi = (() => {
   }
 })()
 
-const powerSync = (() => {
+const powerSync = ((): Partner => {
   const href =
     'https://powersync.com?utm_source=tanstack&utm_campaign=tanstack_partner'
 
   return {
     name: 'PowerSync',
     id: 'powersync',
-    libraries: ['db', 'query'] as const,
+    relatedProducts: ['db', 'query'] as const,
     status: 'inactive' as const,
     startDate: 'Jan 2026',
+    endDate: 'Jun 2026',
     score: 0.143,
     tier: 'bronze' as const,
     href,
+    canonicalHref: 'https://www.powersync.com/',
+    resources: [
+      {
+        kind: 'documentation',
+        label: 'PowerSync TanStack SDK guide',
+        href: 'https://docs.powersync.com/client-sdks/frameworks/tanstack',
+      },
+      {
+        kind: 'documentation',
+        label: 'TanStack DB PowerSync collection',
+        href: '/db/latest/docs/collections/powersync-collection',
+      },
+    ],
     tagline: 'Offline-first Sync',
     applicationStarterPromptInstructions: [
       'Install the official PowerSync web client packages such as @powersync/web and @journeyapps/wa-sqlite when PowerSync is explicitly requested.',
@@ -1055,20 +1335,30 @@ const powerSync = (() => {
   }
 })()
 
-const railway = (() => {
+const railway = ((): Partner => {
   const href =
     'https://railway.com/?utm_medium=sponsor&utm_source=oss&utm_campaign=tanstack'
 
   return {
     name: 'Railway',
     id: 'railway',
-    libraries: libraries.map((l) => l.id),
+    relatedProducts: ['start'],
     status: 'active' as const,
+    lastReviewedAt: currentPartnerReviewDate,
     score: 0.145,
     tier: 'gold' as const,
+    uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,
     href,
+    canonicalHref: 'https://railway.com/',
+    resources: [
+      {
+        kind: 'documentation',
+        label: 'TanStack Start hosting guide',
+        href: '/start/latest/docs/framework/react/guide/hosting',
+      },
+    ],
     brandColor: '#0B0D0E',
-    tagline: 'Instant Deployment',
+    tagline: 'Full-stack Hosting',
     image: {
       light: railwayBlackSvg,
       dark: railwayWhiteSvg,
@@ -1091,22 +1381,40 @@ const railway = (() => {
   }
 })()
 
-const openRouter = (() => {
+const openRouter = ((): Partner => {
   const href = 'https://openrouter.ai?utm_source=tanstack'
 
   return {
     name: 'OpenRouter',
     id: 'openrouter',
     href,
-    libraries: libraries.map((l) => l.id),
+    canonicalHref: 'https://openrouter.ai/',
+    resources: [
+      {
+        kind: 'documentation',
+        label: 'TanStack AI OpenRouter adapter',
+        href: '/ai/latest/docs/adapters/openrouter',
+      },
+      {
+        kind: 'announcement',
+        label: 'TanStack + OpenRouter partnership',
+        href: '/blog/openrouter-partnership',
+      },
+    ],
+    relatedProducts: ['ai'],
     status: 'active' as const,
+    lastReviewedAt: currentPartnerReviewDate,
     startDate: 'Mar 2026',
     score: 0.344,
     tier: 'silver' as const,
     brandColor: '#7C3AED',
     tagline: 'Unified LLM API',
+    applicationStarterIcon: {
+      mode: 'contain',
+      src: openrouterBlackSvg,
+    },
     applicationStarterPromptInstructions: [
-      'Use the official @openrouter/sdk on the server and read OPENROUTER_API_KEY from environment variables.',
+      'When the app uses TanStack AI, integrate OpenRouter through the official @tanstack/ai-openrouter adapter. Otherwise, use the official @openrouter/sdk on the server. Read OPENROUTER_API_KEY from environment variables.',
       'Keep model selection explicit and easy to swap, and do not expose provider keys in client code.',
       'If AI functionality is demoed, route requests through app-owned server functions instead of calling OpenRouter directly from the browser.',
     ],
@@ -1140,9 +1448,10 @@ const openRouter = (() => {
   }
 })()
 
-export const partners: Partner[] = [
+export const partners = [
   codeRabbit,
   cloudflare,
+  lovable,
   agGrid,
   serpApi,
   netlify,
@@ -1162,7 +1471,7 @@ export const partners: Partner[] = [
   nozzle,
   vercel,
   speakeasy,
-] as Partner[]
+] satisfies Array<Partner>
 
 const applicationStarterBrandColorOverrides = new Map<string, string>([
   ['powersync', '#00D5FF'],
@@ -1177,25 +1486,185 @@ const applicationStarterPlacementContext = getPartnerPlacementContext({
   surface: 'application_starter_suggestions',
 })
 
+function getPartnerUniqueConstraints(
+  partner: Pick<Partner, 'uniqueConstraints'>,
+) {
+  return [...(partner.uniqueConstraints ?? [])]
+}
+
+function hasSharedUniqueConstraint(
+  left: Pick<ApplicationStarterPartnerSuggestion, 'uniqueConstraints'>,
+  right: Pick<ApplicationStarterPartnerSuggestion, 'uniqueConstraints'>,
+) {
+  return left.uniqueConstraints.some((constraint) =>
+    right.uniqueConstraints.includes(constraint),
+  )
+}
+
+function findApplicationStarterPartnerSuggestion(
+  partnerId: string,
+  partnerSuggestions: Array<ApplicationStarterPartnerSuggestion>,
+) {
+  return partnerSuggestions.find((partner) => partner.id === partnerId)
+}
+
+export function hasApplicationStarterPartnerConflictWithAny(
+  partnerId: string,
+  partnerIds: Array<string>,
+  partnerSuggestions: Array<ApplicationStarterPartnerSuggestion> = applicationStarterPartnerSuggestions,
+) {
+  const partner = findApplicationStarterPartnerSuggestion(
+    partnerId,
+    partnerSuggestions,
+  )
+
+  if (!partner) {
+    return false
+  }
+
+  return partnerIds.some((candidateId) => {
+    if (candidateId === partner.id) {
+      return false
+    }
+
+    const candidate = findApplicationStarterPartnerSuggestion(
+      candidateId,
+      partnerSuggestions,
+    )
+
+    return candidate ? hasSharedUniqueConstraint(partner, candidate) : false
+  })
+}
+
+export function getApplicationStarterConflictingPartnerIds(
+  partner: ApplicationStarterPartnerSuggestion,
+  partnerSuggestions: Array<ApplicationStarterPartnerSuggestion>,
+) {
+  return partnerSuggestions.flatMap((candidate) => {
+    if (
+      candidate.id === partner.id ||
+      !hasSharedUniqueConstraint(partner, candidate)
+    ) {
+      return []
+    }
+
+    return [candidate.id]
+  })
+}
+
+export function getApplicationStarterCompatiblePartnerIds(
+  partnerIds: Array<string>,
+  partnerSuggestions: Array<ApplicationStarterPartnerSuggestion> = applicationStarterPartnerSuggestions,
+) {
+  const normalized = Array<string>()
+
+  for (const partnerId of partnerIds) {
+    if (normalized.includes(partnerId)) {
+      continue
+    }
+
+    const partner = findApplicationStarterPartnerSuggestion(
+      partnerId,
+      partnerSuggestions,
+    )
+
+    if (!partner) {
+      continue
+    }
+
+    if (partner.uniqueConstraints.length === 0) {
+      normalized.push(partner.id)
+      continue
+    }
+
+    const conflictingPartnerIds = normalized.filter((candidateId) => {
+      const candidate = findApplicationStarterPartnerSuggestion(
+        candidateId,
+        partnerSuggestions,
+      )
+
+      return candidate ? hasSharedUniqueConstraint(partner, candidate) : false
+    })
+
+    const hasSameOrHigherTierConflict = conflictingPartnerIds.some(
+      (candidateId) => {
+        const candidate = findApplicationStarterPartnerSuggestion(
+          candidateId,
+          partnerSuggestions,
+        )
+
+        return candidate ? candidate.tier <= partner.tier : false
+      },
+    )
+
+    if (hasSameOrHigherTierConflict) {
+      continue
+    }
+
+    for (const conflictingPartnerId of conflictingPartnerIds) {
+      const candidate = findApplicationStarterPartnerSuggestion(
+        conflictingPartnerId,
+        partnerSuggestions,
+      )
+
+      if (!candidate || candidate.tier <= partner.tier) {
+        continue
+      }
+
+      const conflictingIndex = normalized.indexOf(conflictingPartnerId)
+
+      if (conflictingIndex >= 0) {
+        normalized.splice(conflictingIndex, 1)
+      }
+    }
+
+    normalized.push(partner.id)
+  }
+
+  return normalized
+}
+
+export function getApplicationStarterVisiblePartnerSuggestions(
+  partnerSuggestions: Array<ApplicationStarterPartnerSuggestion>,
+  _selectedPartnerIds: Array<string>,
+) {
+  return partnerSuggestions
+}
+
+export function hasApplicationStarterPartnerUniqueConstraint(
+  partnerId: string,
+  uniqueConstraint: PartnerUniqueConstraint,
+  partnerSuggestions: Array<ApplicationStarterPartnerSuggestion> = applicationStarterPartnerSuggestions,
+) {
+  const partner = findApplicationStarterPartnerSuggestion(
+    partnerId,
+    partnerSuggestions,
+  )
+
+  return partner?.uniqueConstraints.includes(uniqueConstraint) ?? false
+}
+
 const applicationStarterInferenceRules: Array<{
   partnerId: string
   patterns: Array<RegExp>
 }> = [
   {
     partnerId: 'workos',
-    patterns: [
-      /\b(sso|saml|scim|directory sync|enterprise auth|enterprise identity|b2b auth)\b/i,
-    ],
+    patterns: [/\b(workos|authkit)\b/i],
   },
   {
     partnerId: 'clerk',
-    patterns: [
-      /\b(authentication|sign[ -]?in|sign[ -]?up|login|oauth|mfa|user management|sessions?)\b/i,
-    ],
+    patterns: [/\bclerk\b/i],
   },
   {
     partnerId: 'cloudflare',
     patterns: [/\b(cloudflare|workers?|durable objects|r2|d1|kv)\b/i],
+  },
+  {
+    partnerId: 'lovable',
+    patterns: [
+      /\b(lovable|lovable cloud|vibe[- ]?coding|ai app builder|visual editor)\b/i,
+    ],
   },
   {
     partnerId: 'netlify',
@@ -1209,9 +1678,7 @@ const applicationStarterInferenceRules: Array<{
   },
   {
     partnerId: 'sentry',
-    patterns: [
-      /\b(error tracking|exception monitoring|observability|tracing|trace(s|ing)?|session replay|profiling|application monitoring)\b/i,
-    ],
+    patterns: [/\bsentry\b/i],
   },
   {
     partnerId: 'strapi',
@@ -1273,10 +1740,6 @@ function getApplicationStarterPartnerTier(
   return partner.tier ? partnerTierToBuilderTier[partner.tier] : 3
 }
 
-function getApplicationStarterPartnerFaviconUrl(href: string) {
-  return `${new URL(href).origin}/favicon.ico`
-}
-
 function getApplicationStarterPartnerDescription(
   partner: Pick<Partner, 'llmDescription'>,
 ) {
@@ -1303,9 +1766,15 @@ function inferApplicationStarterPartnerIds(
       partner.status === 'active' && selectedPartnerIds.includes(partner.id),
   )
   const blockedCategories = new Set(
-    selectedSourcePartners.map((partner) => partner.category),
+    selectedSourcePartners
+      .filter((partner) => getPartnerUniqueConstraints(partner).length === 0)
+      .map((partner) => partner.category),
+  )
+  const blockedUniqueConstraints = new Set(
+    selectedSourcePartners.flatMap(getPartnerUniqueConstraints),
   )
   const inferredCategories = new Set<PartnerCategory>()
+  const inferredUniqueConstraints = new Set<PartnerUniqueConstraint>()
   const inferredPartnerIds = Array<string>()
 
   for (const rule of applicationStarterInferenceRules) {
@@ -1322,6 +1791,18 @@ function inferApplicationStarterPartnerIds(
       continue
     }
 
+    const partnerUniqueConstraints = getPartnerUniqueConstraints(partner)
+    const hasUniqueConstraint = partnerUniqueConstraints.length > 0
+    const isBlockedByUniqueConstraint = partnerUniqueConstraints.some(
+      (uniqueConstraint) =>
+        blockedUniqueConstraints.has(uniqueConstraint) ||
+        inferredUniqueConstraints.has(uniqueConstraint),
+    )
+
+    if (isBlockedByUniqueConstraint) {
+      continue
+    }
+
     if (
       partner.id === 'clerk' &&
       /\bavoid\s+adding\s+auth\s+and\s+api\s+key\s+providers?\s+that\s+overlap\s+in\s+purpose\b/i.test(
@@ -1332,8 +1813,9 @@ function inferApplicationStarterPartnerIds(
     }
 
     if (
-      blockedCategories.has(partner.category) ||
-      inferredCategories.has(partner.category)
+      !hasUniqueConstraint &&
+      (blockedCategories.has(partner.category) ||
+        inferredCategories.has(partner.category))
     ) {
       continue
     }
@@ -1343,10 +1825,17 @@ function inferApplicationStarterPartnerIds(
     }
 
     inferredPartnerIds.push(partner.id)
-    inferredCategories.add(partner.category)
+
+    if (hasUniqueConstraint) {
+      for (const uniqueConstraint of partnerUniqueConstraints) {
+        inferredUniqueConstraints.add(uniqueConstraint)
+      }
+    } else {
+      inferredCategories.add(partner.category)
+    }
   }
 
-  return inferredPartnerIds
+  return getApplicationStarterCompatiblePartnerIds(inferredPartnerIds)
 }
 
 export function getInferredApplicationStarterPartnerIdsFromUserInput(
@@ -1356,45 +1845,51 @@ export function getInferredApplicationStarterPartnerIdsFromUserInput(
   return inferApplicationStarterPartnerIds(input, selectedPartnerIds)
 }
 
-const applicationStarterPartnerSuggestions: Array<ApplicationStarterPartnerSuggestion> =
-  getPartnersForPlacement(
+function createApplicationStarterPartnerSuggestion(
+  partner: Partner,
+): ApplicationStarterPartnerSuggestion {
+  const tier = getApplicationStarterPartnerTier(partner)
+  const normalizedPartnerKey = normalizeApplicationStarterPartnerKey(partner.id)
+  const iconMode: ApplicationStarterPartnerSuggestion['iconMode'] =
+    tier === 2 ? (partner.applicationStarterIcon?.mode ?? 'contain') : undefined
+
+  return {
+    id: partner.id,
+    label: partner.name,
+    description: getApplicationStarterPartnerDescription(partner),
+    hint: `${partner.name} (${partnerCategoryLabels[partner.category]})`,
+    iconMode,
+    iconSrc: tier === 2 ? partner.applicationStarterIcon?.src : undefined,
+    image: partner.image,
+    tags: getApplicationStarterPartnerTags(partner),
+    brandColor:
+      applicationStarterBrandColorOverrides.get(normalizedPartnerKey) ??
+      partner.brandColor,
+    tier,
+    uniqueConstraints: getPartnerUniqueConstraints(partner),
+  }
+}
+
+function createApplicationStarterPartnerSuggestions(
+  placementContext: PartnerPlacementContext,
+) {
+  return getPartnersForPlacement(
     partners.filter((partner) => partner.status === 'active'),
-    applicationStarterPlacementContext,
-  )
-    .map((partner) => {
-      const tier = getApplicationStarterPartnerTier(partner)
-      const normalizedPartnerKey = normalizeApplicationStarterPartnerKey(
-        partner.id,
-      )
-      const iconMode: ApplicationStarterPartnerSuggestion['iconMode'] =
-        tier === 2
-          ? (partner.applicationStarterIcon?.mode ?? 'contain')
-          : undefined
+    placementContext,
+  ).map(createApplicationStarterPartnerSuggestion)
+}
 
-      return {
-        id: partner.id,
-        label: partner.name,
-        description: getApplicationStarterPartnerDescription(partner),
-        hint: `${partner.name} (${partnerCategoryLabels[partner.category]})`,
-        iconMode,
-        iconSrc:
-          tier === 2
-            ? (partner.applicationStarterIcon?.src ??
-              getApplicationStarterPartnerFaviconUrl(partner.href))
-            : undefined,
-        image: partner.image,
-        tags: getApplicationStarterPartnerTags(partner),
-        brandColor:
-          applicationStarterBrandColorOverrides.get(normalizedPartnerKey) ??
-          partner.brandColor,
-        tier,
-        score: partner.score,
-      }
-    })
-    .map(({ score: _score, ...partner }) => partner)
+const applicationStarterPartnerSuggestions =
+  createApplicationStarterPartnerSuggestions(applicationStarterPlacementContext)
 
-export function getApplicationStarterPartnerSuggestions() {
-  return applicationStarterPartnerSuggestions
+export function getApplicationStarterPartnerSuggestions(
+  placementContext: PartnerPlacementContext = applicationStarterPlacementContext,
+) {
+  if (placementContext === applicationStarterPlacementContext) {
+    return applicationStarterPartnerSuggestions
+  }
+
+  return createApplicationStarterPartnerSuggestions(placementContext)
 }
 
 export function composeApplicationStarterInput(
@@ -1404,19 +1899,33 @@ export function composeApplicationStarterInput(
   options?: { forceRouterOnly?: boolean },
 ) {
   const trimmedInput = input.trim()
+  const compatibleSelectedPartnerIds =
+    getApplicationStarterCompatiblePartnerIds(selectedPartnerIds)
+  const compatibleInferredPartnerIds =
+    getApplicationStarterCompatiblePartnerIds(
+      inferredPartnerIds.filter(
+        (partnerId) =>
+          !hasApplicationStarterPartnerConflictWithAny(
+            partnerId,
+            compatibleSelectedPartnerIds,
+          ),
+      ),
+    )
   const selectedPartners = applicationStarterPartnerSuggestions.filter(
-    (partner) => selectedPartnerIds.includes(partner.id),
+    (partner) => compatibleSelectedPartnerIds.includes(partner.id),
   )
   const inferredPartners = applicationStarterPartnerSuggestions.filter(
-    (partner) => inferredPartnerIds.includes(partner.id),
+    (partner) => compatibleInferredPartnerIds.includes(partner.id),
   )
   const selectedSourcePartners = partners.filter(
     (partner) =>
-      partner.status === 'active' && selectedPartnerIds.includes(partner.id),
+      partner.status === 'active' &&
+      compatibleSelectedPartnerIds.includes(partner.id),
   )
   const inferredSourcePartners = partners.filter(
     (partner) =>
-      partner.status === 'active' && inferredPartnerIds.includes(partner.id),
+      partner.status === 'active' &&
+      compatibleInferredPartnerIds.includes(partner.id),
   )
 
   if (selectedPartners.length === 0 && inferredPartners.length === 0) {
@@ -1457,7 +1966,10 @@ export function composeApplicationStarterInput(
     )
   }
 
-  const allPartnerIds = [...selectedPartnerIds, ...inferredPartnerIds]
+  const allPartnerIds = [
+    ...compatibleSelectedPartnerIds,
+    ...compatibleInferredPartnerIds,
+  ]
 
   if (allPartnerIds.includes('coderabbit')) {
     partnerInstructions.push(
@@ -1470,8 +1982,8 @@ export function composeApplicationStarterInput(
     trimmedInput,
     '',
     APPLICATION_STARTER_GUIDANCE_MARKER,
-    `${APPLICATION_STARTER_SELECTED_PARTNERS_MARKER} ${selectedPartnerIds.join(', ') || 'none'}`,
-    `${APPLICATION_STARTER_INFERRED_PARTNERS_MARKER} ${inferredPartnerIds.join(', ') || 'none'}`,
+    `${APPLICATION_STARTER_SELECTED_PARTNERS_MARKER} ${compatibleSelectedPartnerIds.join(', ') || 'none'}`,
+    `${APPLICATION_STARTER_INFERRED_PARTNERS_MARKER} ${compatibleInferredPartnerIds.join(', ') || 'none'}`,
     options?.forceRouterOnly
       ? APPLICATION_STARTER_FORCE_ROUTER_ONLY_MARKER
       : null,

@@ -1,7 +1,6 @@
-'use client'
-
 import { Link } from '@tanstack/react-router'
 import type { HTMLProps } from 'react'
+import { isSafeHref } from '~/utils/url-boundary'
 
 function isRelativeLink(link: string) {
   return (
@@ -10,7 +9,8 @@ function isRelativeLink(link: string) {
     !link.startsWith('https://') &&
     !link.startsWith('//') &&
     !link.startsWith('#') &&
-    !link.startsWith('mailto:')
+    !link.startsWith('mailto:') &&
+    !/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(link)
   )
 }
 
@@ -52,6 +52,11 @@ export function MarkdownLink({
   ...rest
 }: HTMLProps<HTMLAnchorElement>) {
   const href = hrefProp ?? ''
+
+  if (!isSafeHref(href)) {
+    // eslint-disable-next-line jsx-a11y/anchor-has-content
+    return <a {...rest} />
+  }
 
   if (isRoutableInternalLink(href)) {
     const [hrefWithoutHash, hash] = href.split('#')

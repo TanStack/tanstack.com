@@ -6,15 +6,15 @@ import {
 } from '~/utils/docFeedback.functions'
 import { libraries } from '~/libraries'
 import {
-  ArrowLeft,
-  ChatCentered,
-  User,
-  Calendar,
-  FileText,
-  Check,
-  X,
-  Clock,
-  Warning,
+  ArrowLeftIcon,
+  ChatCenteredIcon,
+  UserIcon,
+  CalendarIcon,
+  FileTextIcon,
+  CheckIcon,
+  XIcon,
+  ClockIcon,
+  WarningIcon,
 } from '@phosphor-icons/react'
 import { Card } from '~/components/Card'
 import { Badge, Button } from '~/ui'
@@ -68,7 +68,7 @@ function FeedbackDetailPage() {
       <div className="w-full p-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center py-12">
-            <ChatCentered className="mx-auto h-12 w-12 text-gray-400" />
+            <ChatCenteredIcon className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
               Feedback not found
             </h3>
@@ -79,7 +79,7 @@ function FeedbackDetailPage() {
               to="/admin/feedback"
               className="mt-4 inline-flex items-center gap-2 text-blue-600 hover:text-blue-700"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeftIcon className="w-4 h-4" />
               Back to Feedback
             </Link>
           </div>
@@ -111,13 +111,13 @@ function FeedbackDetailPage() {
             to="/admin/feedback"
             className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-4"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeftIcon className="w-4 h-4" />
             Back to Feedback
           </Link>
 
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 rounded-lg bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-              <ChatCentered className="w-6 h-6 text-gray-400" />
+              <ChatCenteredIcon className="w-6 h-6 text-gray-400" />
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-3 flex-wrap">
@@ -140,7 +140,7 @@ function FeedbackDetailPage() {
                 </Badge>
                 {feedback.isDetached && (
                   <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300">
-                    <Warning className="w-3 h-3" />
+                    <WarningIcon className="w-3 h-3" />
                     Detached
                   </span>
                 )}
@@ -189,7 +189,7 @@ function FeedbackDetailPage() {
             <dl className="space-y-4">
               <div>
                 <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                  <FileText className="w-4 h-4" />
+                  <FileTextIcon className="w-4 h-4" />
                   Page Path
                 </dt>
                 <dd className="mt-1 text-sm text-gray-900 dark:text-white font-mono">
@@ -208,7 +208,7 @@ function FeedbackDetailPage() {
               )}
               <div>
                 <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                  <Calendar className="w-4 h-4" />
+                  <CalendarIcon className="w-4 h-4" />
                   Submitted
                 </dt>
                 <dd className="mt-1 text-sm text-gray-900 dark:text-white">
@@ -237,7 +237,7 @@ function FeedbackDetailPage() {
                   />
                 ) : (
                   <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                    <User className="w-5 h-5 text-gray-400" />
+                    <UserIcon className="w-5 h-5 text-gray-400" />
                   </div>
                 )}
                 <div>
@@ -259,7 +259,7 @@ function FeedbackDetailPage() {
         {feedback.status === 'pending' && (
           <Card className="p-6 mt-6">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-              <Clock className="w-5 h-5" />
+              <ClockIcon className="w-5 h-5" />
               Pending Review
             </h2>
             <div className="flex gap-4">
@@ -268,7 +268,7 @@ function FeedbackDetailPage() {
                 disabled={moderateMutation.isPending}
                 className="bg-green-600 hover:bg-green-700"
               >
-                <Check className="w-4 h-4 mr-2" />
+                <CheckIcon className="w-4 h-4 mr-2" />
                 Approve
               </Button>
               <Button
@@ -281,7 +281,7 @@ function FeedbackDetailPage() {
                 disabled={moderateMutation.isPending}
                 className="bg-red-600 hover:bg-red-700"
               >
-                <X className="w-4 h-4 mr-2" />
+                <XIcon className="w-4 h-4 mr-2" />
                 Deny
               </Button>
             </div>

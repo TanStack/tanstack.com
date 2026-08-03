@@ -2,7 +2,7 @@ import * as React from 'react'
 import { createFileRoute, notFound } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { useThrottledCallback, useThrottler } from '@tanstack/react-pacer'
-import { Plus } from '@phosphor-icons/react'
+import { PlusIcon } from '@phosphor-icons/react'
 import { useQuery } from '@tanstack/react-query'
 import { twMerge } from 'tailwind-merge'
 
@@ -827,7 +827,7 @@ function RouteComponent() {
                     onClick={() => handleAddPackage(packageName, color)}
                     className="flex items-center gap-1.5 px-2 py-1 text-xs rounded-md bg-gray-500/10 hover:bg-gray-500/20 transition-colors"
                   >
-                    <Plus className="w-3 h-3" />
+                    <PlusIcon className="w-3 h-3" />
                     <span className="font-medium" style={{ color }}>
                       🌴 {frameworkMeta[framework]?.name ?? framework}-
                       {library.id.charAt(0).toUpperCase() + library.id.slice(1)}
@@ -854,7 +854,7 @@ function RouteComponent() {
                       onClick={() => handleAddPackage(mainPackage, color)}
                       className="flex items-center gap-1.5 px-2 py-1 text-xs rounded-md bg-gray-500/10 hover:bg-gray-500/20 transition-colors"
                     >
-                      <Plus className="w-3 h-3" />
+                      <PlusIcon className="w-3 h-3" />
                       <span className="font-medium" style={{ color }}>
                         {mainPackage}
                       </span>

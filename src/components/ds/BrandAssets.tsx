@@ -1,4 +1,4 @@
-import { DownloadSimple } from '@phosphor-icons/react'
+import { DownloadSimpleIcon } from '@phosphor-icons/react'
 import { DsSection } from '~/components/ds/DsKit'
 
 type LogoTone = 'black' | 'charcoal' | 'cream' | 'white'
@@ -138,7 +138,7 @@ function AssetCard({ asset }: { asset: GalleryAsset }) {
               download
               className="inline-flex items-center gap-1.5 rounded-md border border-border-default bg-background-surface px-3 py-2 text-xs font-medium text-text-primary hover:bg-background-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
             >
-              <DownloadSimple size={14} aria-hidden="true" />
+              <DownloadSimpleIcon size={14} aria-hidden="true" />
               {download.format}
             </a>
           ))}

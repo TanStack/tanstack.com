@@ -1,12 +1,12 @@
 import * as React from 'react'
 import { Link } from '@tanstack/react-router'
 import {
-  CaretDown,
-  Gear,
-  Lock,
-  SignOut,
-  Sparkle,
-  Key,
+  CaretDownIcon,
+  GearIcon,
+  LockIcon,
+  SignOutIcon,
+  SparkleIcon,
+  KeyIcon,
 } from '@phosphor-icons/react'
 import { Avatar } from '~/components/Avatar'
 import {
@@ -47,7 +47,7 @@ export function AuthenticatedUserMenu({
             size="xs"
             className="w-[26px] h-[26px]"
           />
-          <CaretDown className="w-3 h-3 opacity-50" />
+          <CaretDownIcon className="w-3 h-3 opacity-50" />
         </div>
       </DropdownTrigger>
       <DropdownContent align="end">
@@ -57,13 +57,13 @@ export function AuthenticatedUserMenu({
         <DropdownSeparator />
         <DropdownItem asChild>
           <Link to="/account" className="flex items-center gap-2">
-            <Gear className="w-4 h-4" />
+            <GearIcon className="w-4 h-4" />
             <span>Account</span>
           </Link>
         </DropdownItem>
         <DropdownItem asChild>
           <Link to="/account/submissions" className="flex items-center gap-2">
-            <Sparkle className="w-4 h-4" />
+            <SparkleIcon className="w-4 h-4" />
             <span>My Showcases</span>
           </Link>
         </DropdownItem>
@@ -73,7 +73,7 @@ export function AuthenticatedUserMenu({
               to="/account/integrations"
               className="flex items-center gap-2"
             >
-              <Key className="w-4 h-4" />
+              <KeyIcon className="w-4 h-4" />
               <span>Integrations</span>
             </Link>
           </DropdownItem>
@@ -81,14 +81,14 @@ export function AuthenticatedUserMenu({
         {canAdmin && (
           <DropdownItem asChild>
             <Link to="/admin" className="flex items-center gap-2">
-              <Lock className="w-4 h-4" />
+              <LockIcon className="w-4 h-4" />
               <span>Admin</span>
             </Link>
           </DropdownItem>
         )}
         <DropdownSeparator />
         <DropdownItem onSelect={onSignOut}>
-          <SignOut className="w-4 h-4" />
+          <SignOutIcon className="w-4 h-4" />
           <span>Sign out</span>
         </DropdownItem>
       </DropdownContent>

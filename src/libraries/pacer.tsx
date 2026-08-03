@@ -1,4 +1,8 @@
-import { ArrowsLeftRight, Gauge, MagicWand } from '@phosphor-icons/react'
+import {
+  ArrowsLeftRightIcon,
+  GaugeIcon,
+  MagicWandIcon,
+} from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { pacer } from './libraries'
 
@@ -12,7 +16,7 @@ export const pacerProject = {
   featureHighlights: [
     {
       title: 'Flexible & Type-Safe',
-      icon: <MagicWand className={twMerge(textStyles)} />,
+      icon: <MagicWandIcon className={twMerge(textStyles)} />,
       description: (
         <div>
           TanStack Pacer provides an intuitive and flexible API that works
@@ -28,7 +32,7 @@ export const pacerProject = {
     },
     {
       title: 'Optimize Performance',
-      icon: <Gauge className={twMerge(textStyles)} />,
+      icon: <GaugeIcon className={twMerge(textStyles)} />,
       description: (
         <div>
           Enhance your application's efficiency with flexible utilities for{' '}
@@ -45,7 +49,7 @@ export const pacerProject = {
     },
     {
       title: 'Async or Sync',
-      icon: <ArrowsLeftRight className={twMerge(textStyles)} />,
+      icon: <ArrowsLeftRightIcon className={twMerge(textStyles)} />,
       description: (
         <div>
           Choose between async or sync execution for each utility based on your

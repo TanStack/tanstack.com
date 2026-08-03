@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Copy } from '@phosphor-icons/react'
+import { CopyIcon } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { useToast } from '~/components/ToastProvider'
 import { Button } from '~/ui'
@@ -63,7 +63,7 @@ export function CodeBlockView({
             {copied.active ? (
               <span className="text-xs">Copied!</span>
             ) : (
-              <Copy className="w-4 h-4" />
+              <CopyIcon className="w-4 h-4" />
             )}
           </Button>
         </div>

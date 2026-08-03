@@ -1,4 +1,4 @@
-import { HandHeart as HeartHandshake } from '@phosphor-icons/react'
+import { HandHeartIcon as HeartHandshake } from '@phosphor-icons/react'
 import { Card } from './Card'
 import {
   PARTNER_INQUIRY_HREF,

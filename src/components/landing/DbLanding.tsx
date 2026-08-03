@@ -1,14 +1,14 @@
 import * as React from 'react'
 import {
-  ArrowRight,
-  CheckCircle,
-  Database,
-  Funnel,
-  Lightning,
-  Network,
-  Plugs,
-  Stack,
-  XCircle,
+  ArrowRightIcon,
+  CheckCircleIcon,
+  DatabaseIcon,
+  FunnelIcon,
+  LightningIcon,
+  NetworkIcon,
+  PlugsIcon,
+  StackIcon,
+  XCircleIcon,
 } from '@phosphor-icons/react'
 import { Badge } from '~/ui/Badge'
 
@@ -97,7 +97,7 @@ export default function DbLanding() {
         <LandingSectionIntro
           centered
           eyebrow="A third path"
-          icon={<Database aria-hidden="true" size={15} />}
+          icon={<DatabaseIcon aria-hidden="true" size={15} />}
           title="Stop choosing between endpoint sprawl and loading everything."
           body="Normalized collections keep the backend shape simple. Components can ask a fast local query engine for the exact joined, filtered, and aggregated view they need."
         />
@@ -109,7 +109,7 @@ export default function DbLanding() {
           <LiveQueryLab />
           <LandingSectionIntro
             eyebrow="Live relational queries"
-            icon={<Lightning aria-hidden="true" size={15} />}
+            icon={<LightningIcon aria-hidden="true" size={15} />}
             title="Describe the view. DB keeps the result current."
             body="Queries can filter, project, join, include, order, group, and aggregate across collections. Differential dataflow updates affected results incrementally as the underlying records change."
           />
@@ -120,7 +120,7 @@ export default function DbLanding() {
         <div className="grid items-center gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:gap-16">
           <LandingSectionIntro
             eyebrow="On-demand sync"
-            icon={<Funnel aria-hidden="true" size={15} />}
+            icon={<FunnelIcon aria-hidden="true" size={15} />}
             title="The component query can shape the request."
             body="With on-demand sync, predicates, ordering, limits, and offsets can reach the collection loader. Translate them into API parameters and load only the subset active views require."
           />
@@ -132,7 +132,7 @@ export default function DbLanding() {
         <LandingSectionIntro
           centered
           eyebrow="Brownfield by design"
-          icon={<Plugs aria-hidden="true" size={15} />}
+          icon={<PlugsIcon aria-hidden="true" size={15} />}
           title="Adopt collections without replacing the backend."
           body="Start from the data source already in production. Components use the same live-query model whether records arrive through TanStack Query, an API, local persistence, or a sync engine."
         />
@@ -244,14 +244,15 @@ function OptimisticWorkbench() {
                   className="inline-flex items-center gap-2 rounded-lg bg-action-primary px-3 py-2 text-ds-label-sm text-action-primary-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
                   onClick={() => setState('completed')}
                 >
-                  <CheckCircle aria-hidden="true" size={15} /> Server confirms
+                  <CheckCircleIcon aria-hidden="true" size={15} /> Server
+                  confirms
                 </button>
                 <button
                   type="button"
                   className="inline-flex items-center gap-2 rounded-lg border border-border-error px-3 py-2 text-ds-label-sm text-text-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-error"
                   onClick={() => setState('failed')}
                 >
-                  <XCircle aria-hidden="true" size={15} /> Server rejects
+                  <XCircleIcon aria-hidden="true" size={15} /> Server rejects
                 </button>
               </>
             )}
@@ -431,17 +432,17 @@ function LiveQueryLab() {
 function QueryDrivenSync() {
   const steps = [
     {
-      icon: Funnel,
+      icon: FunnelIcon,
       label: 'active query',
       code: 'team = platform · limit 20',
     },
     {
-      icon: Network,
+      icon: NetworkIcon,
       label: 'load subset',
       code: 'ctx.meta.loadSubsetOptions',
     },
     {
-      icon: Database,
+      icon: DatabaseIcon,
       label: 'API request',
       code: 'GET /issues?team=platform&limit=20',
     },
@@ -490,7 +491,7 @@ function AdoptionPaths() {
           className="grid gap-5 border-b border-border-subtle p-5 last:border-b-0 md:grid-cols-[0.7fr_auto_1fr] md:items-center md:p-7"
         >
           <div className="flex items-center gap-3">
-            <Stack
+            <StackIcon
               aria-hidden="true"
               className="text-[var(--landing-accent-bright)]"
               size={20}
@@ -498,7 +499,7 @@ function AdoptionPaths() {
             <p className="text-ds-heading-5">{path.source}</p>
           </div>
           <div className="flex items-center gap-3 text-[var(--landing-accent-bright)]">
-            <ArrowRight
+            <ArrowRightIcon
               aria-hidden="true"
               className="rotate-90 md:rotate-0"
               size={18}

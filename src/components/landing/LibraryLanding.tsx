@@ -2,13 +2,13 @@ import * as React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link, useParams } from '@tanstack/react-router'
 import {
-  ArrowRight,
-  ArrowsClockwise,
-  CalendarDots,
-  DownloadSimple,
-  Plus,
-  Star,
-  Swap,
+  ArrowRightIcon,
+  ArrowsClockwiseIcon,
+  CalendarDotsIcon,
+  DownloadSimpleIcon,
+  PlusIcon,
+  StarIcon,
+  SwapIcon,
   type Icon,
 } from '@phosphor-icons/react'
 
@@ -298,7 +298,7 @@ export function LibraryLandingShell({
                   }}
                 >
                   Docs
-                  <ArrowRight aria-hidden="true" size={20} weight="bold" />
+                  <ArrowRightIcon aria-hidden="true" size={20} weight="bold" />
                 </Link>
                 <LandingCopyPromptButton
                   className="rounded-xl border-[var(--landing-accent)] bg-transparent px-5 py-3 font-ds-mono text-ds-mono-caps uppercase text-[var(--landing-accent-bright)] hover:border-[var(--landing-accent-bright)] hover:bg-[color:rgb(var(--landing-glow)/0.1)] sm:w-auto"
@@ -501,7 +501,7 @@ function LandingWorkbench({
                 )
               }
             >
-              <Plus aria-hidden="true" size={13} weight="bold" />
+              <PlusIcon aria-hidden="true" size={13} weight="bold" />
               {config.actionLabel}
             </button>
           </div>
@@ -541,19 +541,19 @@ function LandingStats({ libraryId }: { libraryId: LibraryLandingId }) {
   const metrics = [
     {
       href: 'https://www.npmjs.com/org/tanstack',
-      icon: DownloadSimple,
+      icon: DownloadSimpleIcon,
       label: 'total downloads',
       value: formatCompactNumber(stats?.npm?.totalDownloads),
     },
     {
       href: 'https://www.npmjs.com/org/tanstack',
-      icon: CalendarDots,
+      icon: CalendarDotsIcon,
       label: 'weekly downloads',
       value: formatFullNumber(downloads?.weeklyDownloads),
     },
     {
       href: `https://github.com/${library.repo}`,
-      icon: Star,
+      icon: StarIcon,
       label: 'GitHub stars',
       value: formatFullNumber(stats?.github?.starCount),
     },
@@ -619,7 +619,9 @@ function FeatureSection({
   return (
     <section className="border-b border-border-subtle bg-background-default px-5 py-16 md:px-10 lg:px-12 lg:py-20 2xl:px-20">
       <div className="mx-auto w-full max-w-[96rem]">
-        <LandingEyebrow icon={<ArrowsClockwise aria-hidden="true" size={14} />}>
+        <LandingEyebrow
+          icon={<ArrowsClockwiseIcon aria-hidden="true" size={14} />}
+        >
           {distinction}
         </LandingEyebrow>
 
@@ -708,7 +710,7 @@ function LifecycleSection({
       <div className="mx-auto grid w-full max-w-[90rem] items-center gap-14 lg:grid-cols-[minmax(18rem,0.9fr)_minmax(32rem,1.1fr)] lg:gap-16">
         <div className="max-w-[36rem]">
           <LandingEyebrow
-            icon={<ArrowsClockwise aria-hidden="true" size={14} />}
+            icon={<ArrowsClockwiseIcon aria-hidden="true" size={14} />}
           >
             {lifecycle.label}
           </LandingEyebrow>
@@ -754,7 +756,7 @@ function FlowSection({ flow }: { flow: LibraryLandingConfig['flow'] }) {
   return (
     <section className="min-h-[37.5rem] border-b border-border-subtle bg-background-default px-5 py-16 md:px-10 lg:px-12 lg:py-20 2xl:px-20">
       <div className="mx-auto flex w-full max-w-[70rem] flex-col items-center text-center">
-        <LandingEyebrow icon={<Swap aria-hidden="true" size={16} />}>
+        <LandingEyebrow icon={<SwapIcon aria-hidden="true" size={16} />}>
           {flow.label}
         </LandingEyebrow>
         <h2 className="mt-6 max-w-[47rem] text-ds-heading-1 md:text-ds-display-sm">

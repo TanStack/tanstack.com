@@ -1,17 +1,17 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import {
-  SortDescending as ArrowDownWideNarrow,
-  ChartLineUp as ChartArea,
-  ChartBar,
-  ChartBar as ChartBarStacked,
-  ChartLine,
-  Clock as Clock3,
-  Columns as Columns3,
-  ClockCounterClockwise as History,
-  Stack as Layers,
-  Rows as Rows3,
-  Waves,
+  SortDescendingIcon as ArrowDownWideNarrow,
+  ChartLineUpIcon as ChartArea,
+  ChartBarIcon,
+  ChartBarIcon as ChartBarStacked,
+  ChartLineIcon,
+  ClockIcon as Clock3,
+  ColumnsIcon as Columns3,
+  ClockCounterClockwiseIcon as History,
+  StackIcon as Layers,
+  RowsIcon as Rows3,
+  WavesIcon,
   type Icon as LucideIcon,
 } from '@phosphor-icons/react'
 import {
@@ -55,11 +55,11 @@ const iconSegmentedButtonStyles =
   'flex size-5 items-center justify-center rounded'
 
 const chartTypeIcons = {
-  line: ChartLine,
+  line: ChartLineIcon,
   stacked: Layers,
   'stacked-area': ChartArea,
-  'stacked-stream': Waves,
-  bar: ChartBar,
+  'stacked-stream': WavesIcon,
+  bar: ChartBarIcon,
   'stacked-bar': ChartBarStacked,
 } as const satisfies Partial<Record<ChartType, LucideIcon>>
 
@@ -230,7 +230,7 @@ export function ChartControls({
       {/* Chart Type */}
       <div aria-label="Chart type" className={segmentedControlStyles}>
         {chartTypeOptions.map(({ value, label }) => {
-          const Icon = chartTypeIcons[value] ?? ChartBar
+          const Icon = chartTypeIcons[value] ?? ChartBarIcon
 
           return (
             <Tooltip content={label} key={value}>

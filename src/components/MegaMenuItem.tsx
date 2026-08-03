@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
-import { ArrowSquareOut, IconContext } from '@phosphor-icons/react'
+import { ArrowSquareOutIcon, IconContext } from '@phosphor-icons/react'
 
 type IconComponent = React.ComponentType<{ className?: string }>
 
@@ -91,7 +91,7 @@ export function MegaMenuItem({
             </span>
           ) : null}
           {external && !to.startsWith('mailto:') ? (
-            <ArrowSquareOut className="h-3 w-3 text-text-muted transition-colors group-hover/mmi:text-text-secondary" />
+            <ArrowSquareOutIcon className="h-3 w-3 text-text-muted transition-colors group-hover/mmi:text-text-secondary" />
           ) : null}
         </span>
         {description ? (

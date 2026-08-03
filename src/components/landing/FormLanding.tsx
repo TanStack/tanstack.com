@@ -1,9 +1,9 @@
 import * as React from 'react'
 import {
-  ArrowsSplit,
-  BracketsCurly,
-  CircleNotch,
-  Fingerprint,
+  ArrowsSplitIcon,
+  BracketsCurlyIcon,
+  CircleNotchIcon,
+  FingerprintIcon,
 } from '@phosphor-icons/react'
 
 import {
@@ -73,7 +73,7 @@ export default function FormLanding() {
           <LandingSectionIntro
             body="Create the field components and defaults your team agrees on, then compose product-specific forms without giving up inference or markup control."
             eyebrow="Composition"
-            icon={<BracketsCurly aria-hidden="true" size={17} />}
+            icon={<BracketsCurlyIcon aria-hidden="true" size={17} />}
             title="Build your form system once. Keep every form specific."
           />
 
@@ -108,7 +108,7 @@ export default function FormLanding() {
         <LandingSectionIntro
           body="Validation is not one callback. Put each rule at the event where it helps, debounce expensive checks, and expose pending state to the exact surface that needs it."
           eyebrow="Validation orchestration"
-          icon={<CircleNotch aria-hidden="true" size={17} />}
+          icon={<CircleNotchIcon aria-hidden="true" size={17} />}
           title="Run each rule at the speed of the user."
         />
 
@@ -141,7 +141,7 @@ export default function FormLanding() {
             <LandingSectionIntro
               body="A price preview can listen to the plan. A submit button can listen to canSubmit. Field feedback can listen to its own metadata. The rest of the form stays quiet."
               eyebrow="Granular subscriptions"
-              icon={<ArrowsSplit aria-hidden="true" size={17} />}
+              icon={<ArrowsSplitIcon aria-hidden="true" size={17} />}
               title="Large forms update in small pieces."
             />
             <div className="mt-8 grid grid-cols-3 gap-3">
@@ -183,7 +183,7 @@ export default function FormLanding() {
               </pre>
               <div className="mt-6 grid gap-2 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
                 <StateNode label="form.state.canSubmit" status="changed" />
-                <ArrowsSplit
+                <ArrowsSplitIcon
                   aria-hidden="true"
                   className="mx-auto rotate-90 text-[var(--landing-accent-bright)] sm:rotate-0"
                   size={20}
@@ -283,7 +283,9 @@ function FormCockpit() {
         </div>
 
         <div className="flex flex-col p-5">
-          <LandingEyebrow icon={<Fingerprint aria-hidden="true" size={14} />}>
+          <LandingEyebrow
+            icon={<FingerprintIcon aria-hidden="true" size={14} />}
+          >
             live form state
           </LandingEyebrow>
           <dl className="mt-6 space-y-4">

@@ -1,5 +1,5 @@
 import { Link, useLocation } from '@tanstack/react-router'
-import { ShoppingCart } from '@phosphor-icons/react'
+import { ShoppingCartIcon } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { useCart } from '~/hooks/useCart'
 import { useCartDrawerStore } from '~/components/shop/cartDrawerStore'
@@ -57,7 +57,7 @@ export function NavbarCartButton() {
         aria-label={label}
         className={buttonClasses}
       >
-        <ShoppingCart className="size-[18px]" weight="bold" />
+        <ShoppingCartIcon className="size-[18px]" weight="bold" />
         {badge}
       </button>
     )
@@ -66,7 +66,7 @@ export function NavbarCartButton() {
   // Everywhere else: navigate to the cart page
   return (
     <Link to="/shop/cart" aria-label={label} className={buttonClasses}>
-      <ShoppingCart className="size-[18px]" weight="bold" />
+      <ShoppingCartIcon className="size-[18px]" weight="bold" />
       {badge}
     </Link>
   )

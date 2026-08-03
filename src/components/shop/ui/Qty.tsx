@@ -1,4 +1,4 @@
-import { Minus, Plus } from '@phosphor-icons/react'
+import { MinusIcon, PlusIcon } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 
 type Props = {
@@ -47,7 +47,7 @@ export function ShopQty({
           cell,
         )}
       >
-        <Minus />
+        <MinusIcon />
       </button>
       <span className="font-shop-mono text-[13px] text-shop-text min-w-[1.5rem] text-center select-none">
         {quantity}
@@ -62,7 +62,7 @@ export function ShopQty({
           cell,
         )}
       >
-        <Plus />
+        <PlusIcon />
       </button>
     </div>
   )

@@ -11,7 +11,7 @@ import { SubmitShowcasePlaceholder } from './ShowcaseSection'
 import { PaginationControls } from './PaginationControls'
 import { ShowcaseTopBarFilters } from './ShowcaseTopBarFilters'
 import type { ShowcaseUseCase } from '~/db/types'
-import { Plus } from '@phosphor-icons/react'
+import { PlusIcon } from '@phosphor-icons/react'
 import { Button } from '~/ui'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useLoginModal } from '~/contexts/LoginModalContext'
@@ -311,7 +311,7 @@ export function ShowcaseGallery() {
               to="/showcase/submit"
               className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg border-none"
             >
-              <Plus className="w-5 h-5" />
+              <PlusIcon className="w-5 h-5" />
               Submit Your Project
             </Button>
           </div>

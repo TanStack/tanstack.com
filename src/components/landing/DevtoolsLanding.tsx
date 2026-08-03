@@ -1,16 +1,16 @@
 import * as React from 'react'
 import {
-  AppWindow,
-  ArrowRight,
-  ArrowSquareOut,
-  Eye,
-  Gauge,
-  MagnifyingGlass,
-  Plug,
-  PuzzlePiece,
-  Sidebar,
-  Stack,
-  Terminal,
+  AppWindowIcon,
+  ArrowRightIcon,
+  ArrowSquareOutIcon,
+  EyeIcon,
+  GaugeIcon,
+  MagnifyingGlassIcon,
+  PlugIcon,
+  PuzzlePieceIcon,
+  SidebarIcon,
+  StackIcon,
+  TerminalIcon,
 } from '@phosphor-icons/react'
 
 import {
@@ -62,31 +62,35 @@ const inspectorPanels = [
 
 const shellParts = [
   {
-    icon: AppWindow,
+    icon: AppWindowIcon,
     label: 'Shell',
     detail: 'Trigger, panel, tabs, and settings',
   },
   {
-    icon: PuzzlePiece,
+    icon: PuzzlePieceIcon,
     label: 'Plugins',
     detail: 'Library and product inspectors',
   },
   {
-    icon: Plug,
+    icon: PlugIcon,
     label: 'Events',
     detail: 'Typed local, WebSocket, and SSE transport',
   },
   {
-    icon: Eye,
+    icon: EyeIcon,
     label: 'Source',
     detail: 'Element and log locations in the editor',
   },
   {
-    icon: Sidebar,
+    icon: SidebarIcon,
     label: 'Windowing',
     detail: 'Docking, persistence, hotkeys, and PiP',
   },
-  { icon: Stack, label: 'Adapters', detail: 'React, Vue, Solid, and Preact' },
+  {
+    icon: StackIcon,
+    label: 'Adapters',
+    detail: 'React, Vue, Solid, and Preact',
+  },
 ] as const
 
 export default function DevtoolsLanding() {
@@ -103,7 +107,7 @@ export default function DevtoolsLanding() {
         <LandingSectionIntro
           centered
           eyebrow="The shell is infrastructure"
-          icon={<AppWindow aria-hidden="true" size={15} />}
+          icon={<AppWindowIcon aria-hidden="true" size={15} />}
           title="Stop rebuilding everything around the useful panel."
           body="The trigger, tabs, window management, settings, persistence, hotkeys, source bridge, and transport are shared. Each library or product team can focus on the runtime truth it wants to expose."
         />
@@ -114,7 +118,7 @@ export default function DevtoolsLanding() {
         <div className="grid items-start gap-12 lg:grid-cols-[0.76fr_1.24fr] lg:gap-16">
           <LandingSectionIntro
             eyebrow="Custom plugins"
-            icon={<PuzzlePiece aria-hidden="true" size={15} />}
+            icon={<PuzzlePieceIcon aria-hidden="true" size={15} />}
             title="Your product gets devtools too."
             body="Register a panel beside TanStack inspectors and communicate through a typed event client. Events can stay local or travel between browser and server over WebSocket or SSE."
           />
@@ -127,7 +131,7 @@ export default function DevtoolsLanding() {
           <ConsoleBridge />
           <LandingSectionIntro
             eyebrow="One debugging conversation"
-            icon={<Terminal aria-hidden="true" size={15} />}
+            icon={<TerminalIcon aria-hidden="true" size={15} />}
             title="See client and server logs without changing windows."
             body="The Vite integration can pipe browser logs into the terminal and server logs into the browser console, with enhanced source locations attached."
           />
@@ -138,7 +142,7 @@ export default function DevtoolsLanding() {
         <LandingSectionIntro
           centered
           eyebrow="Development only"
-          icon={<MagnifyingGlass aria-hidden="true" size={15} />}
+          icon={<MagnifyingGlassIcon aria-hidden="true" size={15} />}
           title="Click straight to source. Ship none of the shell."
           body="Source injection connects elements and logs to their exact file and line during development. By default, the Vite plugin removes Devtools imports and matching JSX usage from production builds."
         />
@@ -177,7 +181,7 @@ function DevtoolsCockpit() {
               className="inline-flex items-center gap-1.5 rounded-md border border-border-strong px-2 py-1.5 font-ds-mono text-ds-mono-caps-xs uppercase text-text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
               onClick={() => setIsInspecting((current) => !current)}
             >
-              <MagnifyingGlass aria-hidden="true" size={12} /> Inspect
+              <MagnifyingGlassIcon aria-hidden="true" size={12} /> Inspect
             </button>
           </div>
           <div className="mt-4 overflow-hidden rounded-lg border border-border-default bg-background-subtle">
@@ -377,7 +381,7 @@ function PluginEventLab() {
             className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[var(--landing-accent)] px-3 py-2 text-ds-label-sm text-[var(--landing-accent-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
             onClick={() => setEventCount((current) => current + 1)}
           >
-            <Plug aria-hidden="true" size={15} /> Emit server event
+            <PlugIcon aria-hidden="true" size={15} /> Emit server event
           </button>
         </div>
       </div>
@@ -409,7 +413,7 @@ function ConsoleBridge() {
             )
           }
         >
-          <ArrowRight
+          <ArrowRightIcon
             aria-hidden="true"
             className={browserActive ? '' : 'rotate-180'}
             size={18}
@@ -451,7 +455,7 @@ function ConsolePane({
       }
     >
       <div className="flex items-center gap-2">
-        <Terminal
+        <TerminalIcon
           aria-hidden="true"
           className={
             active
@@ -482,14 +486,14 @@ function SourceToBuild() {
   return (
     <div className="mx-auto mt-14 grid max-w-[72rem] gap-5 lg:grid-cols-2">
       <div className="rounded-xl border border-border-default bg-background-surface p-6 md:p-8">
-        <LandingEyebrow icon={<Eye aria-hidden="true" size={14} />}>
+        <LandingEyebrow icon={<EyeIcon aria-hidden="true" size={14} />}>
           development
         </LandingEyebrow>
         <div className="mt-7 rounded-lg border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.12)] p-5">
           <p className="text-ds-heading-4">Project summary</p>
           <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded bg-background-inverse px-3 py-2 font-ds-mono text-ds-mono-xs text-text-inverse">
             <span>Summary.tsx:14</span>
-            <ArrowSquareOut aria-hidden="true" size={15} />
+            <ArrowSquareOutIcon aria-hidden="true" size={15} />
           </div>
         </div>
         <p className="mt-5 text-ds-body-xs text-text-primary/35">
@@ -499,7 +503,7 @@ function SourceToBuild() {
       </div>
 
       <div className="rounded-xl border border-border-default bg-background-surface p-6 md:p-8">
-        <LandingEyebrow icon={<Gauge aria-hidden="true" size={14} />}>
+        <LandingEyebrow icon={<GaugeIcon aria-hidden="true" size={14} />}>
           production build
         </LandingEyebrow>
         <div className="mt-7 space-y-3 font-ds-mono text-ds-mono-2xs">

@@ -1,4 +1,4 @@
-import { ArrowsOutSimple, GridFour } from '@phosphor-icons/react'
+import { ArrowsOutSimpleIcon, GridFourIcon } from '@phosphor-icons/react'
 import { Link } from '@tanstack/react-router'
 import * as React from 'react'
 import type {
@@ -286,9 +286,9 @@ function CatalogToolbar({
         className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 hover:text-gray-950 aria-pressed:border-blue-500 aria-pressed:text-blue-600 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-400 dark:hover:text-white dark:aria-pressed:border-blue-500 dark:aria-pressed:text-blue-400"
       >
         {fullWidth ? (
-          <GridFour aria-hidden="true" className="size-4" />
+          <GridFourIcon aria-hidden="true" className="size-4" />
         ) : (
-          <ArrowsOutSimple aria-hidden="true" className="size-4" />
+          <ArrowsOutSimpleIcon aria-hidden="true" className="size-4" />
         )}
         Full width
       </button>

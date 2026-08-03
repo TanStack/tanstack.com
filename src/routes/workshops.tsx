@@ -2,14 +2,14 @@ import { createFileRoute } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { seo } from '~/utils/seo'
 import {
-  Users,
-  Video,
-  MapPin,
-  Star,
-  Code,
-  Rocket,
-  Gear,
-  CodeSimple,
+  UsersIcon,
+  VideoIcon,
+  MapPinIcon,
+  StarIcon,
+  CodeIcon,
+  RocketIcon,
+  GearIcon,
+  CodeSimpleIcon,
 } from '@phosphor-icons/react'
 import * as React from 'react'
 import { Footer } from '~/components/Footer'
@@ -17,7 +17,7 @@ import { Card } from '~/components/Card'
 import { allMaintainers, Maintainer } from '~/libraries/maintainers'
 import { MaintainerCard } from '~/components/MaintainerCard'
 import { shuffleWithSeed } from '~/utils/utils'
-import { CheckCircle, Envelope } from '@phosphor-icons/react'
+import { CheckCircleIcon, EnvelopeIcon } from '@phosphor-icons/react'
 
 // Server function to get the seed based on 10-second intervals
 // This ensures consistency between server and client
@@ -74,7 +74,7 @@ function WorkshopsPage() {
               href="mailto:workshops@tanstack.com?subject=Workshop%20Inquiry"
               className="inline-flex items-center gap-3 px-8 py-4 bg-linear-to-r from-blue-600 to-purple-600 text-white rounded-lg font-black text-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 hover:shadow-xl hover:scale-105"
             >
-              <Envelope className="w-6 h-6" />
+              <EnvelopeIcon className="w-6 h-6" />
               Get a Quote
             </a>
           </header>
@@ -83,7 +83,7 @@ function WorkshopsPage() {
           <div className="grid md:grid-cols-2 gap-6">
             <Card className="p-6">
               <div className="flex items-center gap-3 mb-4">
-                <Video className="w-8 h-8 text-blue-500" />
+                <VideoIcon className="w-8 h-8 text-blue-500" />
                 <h2 className="text-2xl font-black">Remote Workshops</h2>
               </div>
               <p className="text-gray-600 dark:text-gray-400 mb-4">
@@ -99,7 +99,7 @@ function WorkshopsPage() {
                   'Access to maintainers and creators',
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-2">
-                    <CheckCircle className="w-5 h-5 text-green-500 shrink-0" />
+                    <CheckCircleIcon className="w-5 h-5 text-green-500 shrink-0" />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -108,7 +108,7 @@ function WorkshopsPage() {
 
             <div className="rounded-lg bg-linear-to-br from-purple-500 to-pink-500 p-6 shadow-lg text-white">
               <div className="flex items-center gap-3 mb-4">
-                <MapPin className="w-8 h-8" />
+                <MapPinIcon className="w-8 h-8" />
                 <h2 className="text-2xl font-black">In-Person Workshops</h2>
               </div>
               <p className="mb-4 opacity-90">
@@ -124,7 +124,7 @@ function WorkshopsPage() {
                   'Extended Q&A and networking sessions',
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-2">
-                    <Star className="w-5 h-5 shrink-0" />
+                    <StarIcon className="w-5 h-5 shrink-0" />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -146,21 +146,21 @@ function WorkshopsPage() {
               <div className="grid md:grid-cols-3 gap-6">
                 {[
                   {
-                    Icon: Code,
+                    Icon: CodeIcon,
                     iconColor: 'text-blue-500 dark:text-blue-400',
                     title: 'From the Source',
                     description:
                       "Learn directly from the maintainers and creators who built these libraries. Get insights you can't find anywhere else.",
                   },
                   {
-                    Icon: Users,
+                    Icon: UsersIcon,
                     iconColor: 'text-blue-600 dark:text-blue-500',
                     title: 'Expert Instructors',
                     description:
                       'Our workshops are led by experienced maintainers who understand real-world challenges and best practices.',
                   },
                   {
-                    Icon: Rocket,
+                    Icon: RocketIcon,
                     iconColor: 'text-blue-700 dark:text-blue-600',
                     title: 'Practical Focus',
                     description:
@@ -196,14 +196,14 @@ function WorkshopsPage() {
             <div className="grid md:grid-cols-2 gap-6 mt-8">
               {[
                 {
-                  Icon: Gear,
+                  Icon: GearIcon,
                   iconColor: 'text-blue-500 dark:text-blue-400',
                   title: 'Customized to Your Stack',
                   description:
                     "Every workshop is tailored to your team's specific tech stack, challenges, and goals. We work with you beforehand to understand your codebase and create relevant examples that resonate with your developers.",
                 },
                 {
-                  Icon: CodeSimple,
+                  Icon: CodeSimpleIcon,
                   iconColor: 'text-blue-600 dark:text-blue-500',
                   title: 'Hands-On Learning',
                   description:
@@ -234,7 +234,7 @@ function WorkshopsPage() {
               href="mailto:workshops@tanstack.com?subject=Workshop%20Inquiry"
               className="inline-flex items-center gap-3 px-8 py-4 bg-linear-to-r from-blue-600 to-purple-600 text-white rounded-lg font-black text-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 hover:shadow-xl hover:scale-105"
             >
-              <Envelope className="w-6 h-6" />
+              <EnvelopeIcon className="w-6 h-6" />
               Get a Quote
             </a>
           </div>
@@ -314,7 +314,7 @@ function WorkshopsPage() {
                 href="mailto:workshops@tanstack.com?subject=Workshop%20Questions"
                 className="inline-flex items-center gap-3 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all duration-200 hover:shadow-lg"
               >
-                <Envelope className="w-5 h-5" />
+                <EnvelopeIcon className="w-5 h-5" />
                 Ask Us Anything
               </a>
             </div>
@@ -346,7 +346,7 @@ function WorkshopsPage() {
                     key={topic}
                     className="flex items-center gap-3 rounded-lg bg-white dark:bg-gray-800 px-4 py-3 shadow-sm border border-gray-200 dark:border-gray-700"
                   >
-                    <CheckCircle className="w-5 h-5 text-green-500 shrink-0" />
+                    <CheckCircleIcon className="w-5 h-5 text-green-500 shrink-0" />
                     <span className="text-gray-600 dark:text-gray-400 font-medium">
                       {topic}
                     </span>
@@ -382,9 +382,9 @@ function WorkshopsPage() {
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 {[
-                  { Icon: Star, label: 'Q&A Sessions' },
-                  { Icon: Code, label: 'Lightning Consults' },
-                  { Icon: Rocket, label: 'Inspire Your Developers' },
+                  { Icon: StarIcon, label: 'Q&A Sessions' },
+                  { Icon: CodeIcon, label: 'Lightning Consults' },
+                  { Icon: RocketIcon, label: 'Inspire Your Developers' },
                 ].map(({ Icon, label }) => (
                   <div
                     key={label}
@@ -418,7 +418,7 @@ function WorkshopsPage() {
               href="mailto:workshops@tanstack.com?subject=Workshop%20Inquiry"
               className="inline-flex items-center gap-3 px-8 py-4 bg-linear-to-r from-green-600 to-cyan-600 text-white rounded-lg font-black text-lg hover:from-green-700 hover:to-cyan-700 transition-all duration-200 hover:shadow-xl hover:scale-105"
             >
-              <Envelope className="w-6 h-6" />
+              <EnvelopeIcon className="w-6 h-6" />
               Get Started Today
             </a>
           </div>
@@ -507,7 +507,7 @@ function TestimonialsMarquee() {
               <Card key={i} className="shrink-0 w-80 p-6">
                 <div className="flex items-start gap-2 mb-4">
                   {[...Array(5)].map((_, j) => (
-                    <Star
+                    <StarIcon
                       key={j}
                       className="w-4 h-4 text-yellow-500 fill-yellow-500"
                     />
@@ -561,7 +561,7 @@ function InstructorsSection({ instructors }: { instructors: Maintainer[] }) {
           href="mailto:workshops@tanstack.com?subject=Workshop%20Inquiry&body=I'm interested in learning more about your workshop instructors and availability."
           className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all duration-200 hover:shadow-lg"
         >
-          <Envelope className="w-5 h-5" />
+          <EnvelopeIcon className="w-5 h-5" />
           Learn More About Our Instructors
         </a>
       </div>

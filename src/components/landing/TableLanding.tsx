@@ -14,15 +14,15 @@ import {
   type VisibilityState,
 } from '@tanstack/react-table'
 import {
-  ArrowsHorizontal,
-  CaretDown,
-  CaretUp,
-  Funnel,
-  GridNine,
-  MagnifyingGlass,
-  Rows,
-  SlidersHorizontal,
-  Stack,
+  ArrowsHorizontalIcon,
+  CaretDownIcon,
+  CaretUpIcon,
+  FunnelIcon,
+  GridNineIcon,
+  MagnifyingGlassIcon,
+  RowsIcon,
+  SlidersHorizontalIcon,
+  StackIcon,
 } from '@phosphor-icons/react'
 import { Badge } from '~/ui/Badge'
 
@@ -115,24 +115,24 @@ const statusFilters: Array<{ label: string; value: StatusFilter }> = [
 ]
 
 const rowModels = [
-  { label: 'Core', code: 'getCoreRowModel()', rows: '8 rows', icon: Rows },
+  { label: 'Core', code: 'getCoreRowModel()', rows: '8 rows', icon: RowsIcon },
   {
     label: 'Filter',
     code: 'getFilteredRowModel()',
     rows: '5 rows',
-    icon: Funnel,
+    icon: FunnelIcon,
   },
   {
     label: 'Sort',
     code: 'getSortedRowModel()',
     rows: '5 rows',
-    icon: ArrowsHorizontal,
+    icon: ArrowsHorizontalIcon,
   },
   {
     label: 'Page',
     code: 'getPaginationRowModel()',
     rows: '4 rows',
-    icon: Stack,
+    icon: StackIcon,
   },
 ] as const
 
@@ -172,7 +172,7 @@ export default function TableLanding() {
           <LandingSectionIntro
             body="Start with core rows, then opt into only the transformations the product needs. Each row model has one job, a visible input, and a visible output."
             eyebrow="Row-model pipeline"
-            icon={<ArrowsHorizontal aria-hidden="true" size={17} />}
+            icon={<ArrowsHorizontalIcon aria-hidden="true" size={17} />}
             title="Compose behavior instead of buying a grid monolith."
           />
           <RowPipeline />
@@ -183,7 +183,7 @@ export default function TableLanding() {
         <LandingSectionIntro
           body="Column definitions and row models describe behavior, not elements. Feed the same model into semantic rows, responsive cards, or a dense operational view."
           eyebrow="Headless rendering"
-          icon={<GridNine aria-hidden="true" size={17} />}
+          icon={<GridNineIcon aria-hidden="true" size={17} />}
           title="One engine. Whatever surface the job calls for."
         />
         <div className="mt-10 space-y-4">
@@ -197,7 +197,7 @@ export default function TableLanding() {
           <LandingSectionIntro
             body="Let Table manage state until another part of the product needs it. Then lift only sorting, filters, selection, visibility, or pagination into the component, URL, or server."
             eyebrow="State ownership"
-            icon={<SlidersHorizontal aria-hidden="true" size={17} />}
+            icon={<SlidersHorizontalIcon aria-hidden="true" size={17} />}
             title="Control exactly the state that has somewhere else to be."
           />
           <StateSwitchboard />
@@ -314,7 +314,7 @@ function TableWorkbench() {
       <div className="p-4">
         <div className="grid gap-3 lg:grid-cols-[1fr_auto]">
           <label className="flex min-w-0 items-center gap-2 rounded-lg border border-border-subtle bg-text-primary/[0.025] px-3 py-2">
-            <MagnifyingGlass
+            <MagnifyingGlassIcon
               aria-hidden="true"
               className="shrink-0 text-[var(--landing-accent-bright)]"
               size={15}
@@ -412,9 +412,9 @@ function TableWorkbench() {
                               header.getContext(),
                             )}
                             {sort === 'asc' ? (
-                              <CaretUp aria-hidden="true" size={11} />
+                              <CaretUpIcon aria-hidden="true" size={11} />
                             ) : sort === 'desc' ? (
-                              <CaretDown aria-hidden="true" size={11} />
+                              <CaretDownIcon aria-hidden="true" size={11} />
                             ) : null}
                           </button>
                         ) : (

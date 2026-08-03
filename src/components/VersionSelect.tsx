@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { create } from 'zustand'
 import { useNavigate, useParams } from '@tanstack/react-router'
-import { Tag } from '@phosphor-icons/react'
+import { TagIcon } from '@phosphor-icons/react'
 import { Select, SelectOption } from './Select'
 import { getLibrary, LibraryId } from '~/libraries'
 import {
@@ -17,7 +17,7 @@ export function VersionSelect({ libraryId }: { libraryId: LibraryId }) {
   return (
     <Select
       className="w-full"
-      icon={<Tag className="w-3.5 h-3.5 opacity-60" />}
+      icon={<TagIcon className="w-3.5 h-3.5 opacity-60" />}
       selected={versionConfig.selected}
       available={versionConfig.available}
       onSelect={versionConfig.onSelect}

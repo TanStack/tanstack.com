@@ -1,11 +1,11 @@
 import * as React from 'react'
 import {
-  ClipboardText,
-  CloudArrowUp,
-  GitBranch,
-  Package,
-  ShieldCheck,
-  Terminal,
+  ClipboardTextIcon,
+  CloudArrowUpIcon,
+  GitBranchIcon,
+  PackageIcon,
+  ShieldCheckIcon,
+  TerminalIcon,
 } from '@phosphor-icons/react'
 import { Badge } from '~/ui/Badge'
 
@@ -81,7 +81,7 @@ export default function ConfigLanding() {
         <div className="grid items-center gap-12 lg:grid-cols-[0.94fr_1.06fr] lg:gap-16">
           <LandingSectionIntro
             eyebrow="Consumer boundary"
-            icon={<Package aria-hidden="true" size={15} />}
+            icon={<PackageIcon aria-hidden="true" size={15} />}
             title="The tarball is the product. Source is only its input."
             body="Consumers receive exports, JavaScript, declarations, metadata, and documentation—not your repository. The conventions keep that package boundary reviewable and use package checks such as publint before a release reaches npm."
           />
@@ -94,7 +94,7 @@ export default function ConfigLanding() {
           <AffectedGraph />
           <LandingSectionIntro
             eyebrow="Monorepo economics"
-            icon={<GitBranch aria-hidden="true" size={15} />}
+            icon={<GitBranchIcon aria-hidden="true" size={15} />}
             title="A pull request should pay only for what it can affect."
             body="Nx connects package dependencies to affected lint, test, and build tasks, then reuses cached work. pkg-pr-new closes the feedback loop by turning a pull request into packages maintainers can install before merging."
           />
@@ -105,7 +105,7 @@ export default function ConfigLanding() {
         <LandingSectionIntro
           centered
           eyebrow="Release trust"
-          icon={<ShieldCheck aria-hidden="true" size={15} />}
+          icon={<ShieldCheckIcon aria-hidden="true" size={15} />}
           title="Release intent is reviewed. Publish credentials are temporary."
           body="Changesets record package-level release intent in the pull request. The release workflow turns that intent into versions and changelogs, while npm trusted publishing can exchange GitHub’s OIDC identity for short-lived publish access with provenance."
         />
@@ -243,7 +243,7 @@ function PackageXRay() {
           ))}
         </div>
         <div className="mt-4 flex items-center gap-3 rounded-lg border-l-2 border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.08)] p-4">
-          <ClipboardText
+          <ClipboardTextIcon
             aria-hidden="true"
             className="shrink-0 text-[var(--landing-accent-bright)]"
             size={18}
@@ -312,7 +312,7 @@ function AffectedGraph() {
 
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
           <div className="rounded-lg bg-background-subtle p-4">
-            <Terminal
+            <TerminalIcon
               aria-hidden="true"
               className="text-[var(--landing-accent-bright)]"
               size={18}
@@ -322,7 +322,7 @@ function AffectedGraph() {
             </p>
           </div>
           <div className="rounded-lg bg-background-subtle p-4">
-            <Package
+            <PackageIcon
               aria-hidden="true"
               className="text-[var(--landing-accent-bright)]"
               size={18}
@@ -364,7 +364,7 @@ function ReleaseTrustPath() {
         ))}
       </ol>
       <div className="flex items-center gap-3 border-t border-border-subtle bg-background-subtle p-5">
-        <CloudArrowUp
+        <CloudArrowUpIcon
           aria-hidden="true"
           className="shrink-0 text-[var(--landing-accent-bright)]"
           size={20}

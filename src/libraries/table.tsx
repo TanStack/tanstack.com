@@ -1,4 +1,8 @@
-import { PersonSimple, Lightning, Gear } from '@phosphor-icons/react'
+import {
+  PersonSimpleIcon,
+  LightningIcon,
+  GearIcon,
+} from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { table } from './libraries'
 
@@ -45,7 +49,7 @@ export const tableProject = {
       title: 'Designed for zero design',
       icon: (
         <div className="text-center overflow-hidden">
-          <PersonSimple className={twMerge(textStyles)} />
+          <PersonSimpleIcon className={twMerge(textStyles)} />
         </div>
       ),
       description: (
@@ -62,7 +66,7 @@ export const tableProject = {
     },
     {
       title: 'Big Power, Small Package',
-      icon: <Lightning className={twMerge(textStyles)} />,
+      icon: <LightningIcon className={twMerge(textStyles)} />,
       description: (
         <div>
           Don't be fooled by the small bundle size. TanStack Table is a
@@ -78,7 +82,7 @@ export const tableProject = {
     },
     {
       title: 'Extensible',
-      icon: <Gear className={twMerge(textStyles)} />,
+      icon: <GearIcon className={twMerge(textStyles)} />,
       description: (
         <div>
           TanStack table ships with excellent defaults to get you off the ground

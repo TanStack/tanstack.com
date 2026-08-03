@@ -4,7 +4,7 @@ import type { Library, LibraryId } from '~/libraries'
 import { getFrameworkOptions } from '~/libraries/frameworks'
 import { useCopyButton } from '~/components/CopyMarkdownButton'
 import { useToast } from '~/components/ToastProvider'
-import { Check, Copy } from '@phosphor-icons/react'
+import { CheckIcon, CopyIcon } from '@phosphor-icons/react'
 import { Card } from '~/components/Card'
 import {
   getFrameworkDocsHash,
@@ -102,9 +102,9 @@ export function FrameworkCard({
             title="Copy package name"
           >
             {copied ? (
-              <Check className="w-3 h-3 text-green-600 dark:text-green-400" />
+              <CheckIcon className="w-3 h-3 text-green-600 dark:text-green-400" />
             ) : (
-              <Copy className="w-3 h-3" />
+              <CopyIcon className="w-3 h-3" />
             )}
           </button>
         </div>

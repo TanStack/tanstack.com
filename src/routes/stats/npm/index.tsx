@@ -3,7 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { useThrottledCallback, useThrottler } from '@tanstack/react-pacer'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
-import { Question as HelpCircle, X } from '@phosphor-icons/react'
+import { QuestionIcon as HelpCircle, XIcon } from '@phosphor-icons/react'
 import { useQuery } from '@tanstack/react-query'
 import { Card } from '~/components/ds/ui'
 import { Tooltip } from '~/components/Tooltip'
@@ -1088,7 +1088,7 @@ function RouteComponent() {
                     Add packages to {combiningPackage}
                   </DialogPrimitive.Title>
                   <DialogPrimitive.Close className="rounded-full p-1 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500">
-                    <X className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <XIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                   </DialogPrimitive.Close>
                 </div>
                 <DialogPrimitive.Description className="sr-only">

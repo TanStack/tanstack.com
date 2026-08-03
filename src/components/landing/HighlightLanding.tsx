@@ -1,15 +1,15 @@
 import * as React from 'react'
 import { Link } from '@tanstack/react-router'
 import {
-  ArrowRight,
-  Cube as Boxes,
-  BracketsCurly as Braces,
-  Check,
-  Gauge as CircleGauge,
-  Stack as Layers3,
-  Palette,
-  Scan as ScanText,
-  Lightning as Zap,
+  ArrowRightIcon,
+  CubeIcon as Boxes,
+  BracketsCurlyIcon as Braces,
+  CheckIcon,
+  GaugeIcon as CircleGauge,
+  StackIcon as Layers3,
+  PaletteIcon,
+  ScanIcon as ScanText,
+  LightningIcon as Zap,
 } from '@phosphor-icons/react'
 
 import { LibraryWordmark } from '~/components/LibraryWordmark'
@@ -96,7 +96,7 @@ export default function HighlightLanding() {
         <div className="grid items-center gap-12 lg:grid-cols-[0.76fr_1.24fr] lg:gap-16">
           <LandingSectionIntro
             eyebrow="Semantic output"
-            icon={<Palette aria-hidden="true" size={15} />}
+            icon={<PaletteIcon aria-hidden="true" size={15} />}
             title="Change the palette. Keep the markup."
             body="Tokens carry stable semantic classes instead of theme colors. CSS variables recolor the same tree without a second highlighting pass."
           />
@@ -195,7 +195,7 @@ export default function HighlightLanding() {
             </p>
             <span className="mt-6 inline-flex items-center gap-2 text-ds-label-md">
               Explore Markdown
-              <ArrowRight
+              <ArrowRightIcon
                 aria-hidden="true"
                 className="transition-transform group-hover:translate-x-1"
                 size={16}
@@ -654,7 +654,7 @@ function ChoiceRow({ name, useWhen }: { name: string; useWhen: string }) {
   return (
     <div className="grid gap-2 border-b border-border-subtle px-5 py-5 last:border-b-0 sm:grid-cols-[12rem_1fr] sm:gap-5">
       <div className="inline-flex items-center gap-2 font-black">
-        <Check
+        <CheckIcon
           size={15}
           aria-hidden="true"
           className="text-[var(--landing-accent-bright)]"

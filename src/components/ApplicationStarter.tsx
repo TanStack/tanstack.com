@@ -1,16 +1,16 @@
 import * as React from 'react'
 import { ClientOnly } from '@tanstack/react-router'
 import {
-  ArrowRight,
-  Check,
-  CaretDown,
-  Copy,
-  DownloadSimple,
-  GithubLogo,
-  OpenAiLogo,
-  CircleNotch,
-  ArrowCounterClockwise,
-  Rocket,
+  ArrowRightIcon,
+  CheckIcon,
+  CaretDownIcon,
+  CopyIcon,
+  DownloadSimpleIcon,
+  GithubLogoIcon,
+  OpenAiLogoIcon,
+  CircleNotchIcon,
+  ArrowCounterClockwiseIcon,
+  RocketIcon,
 } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { ClaudeIcon, CursorIcon } from '~/components/CopyPageDropdown'
@@ -452,11 +452,11 @@ export function ApplicationStarter({
       disabled={!canUseFinalActions}
     >
       {isGeneratingPrompt ? (
-        <CircleNotch className="h-4 w-4 animate-spin" />
+        <CircleNotchIcon className="h-4 w-4 animate-spin" />
       ) : isPromptCopied ? (
-        <Check className="h-4 w-4" />
+        <CheckIcon className="h-4 w-4" />
       ) : (
-        <Copy className="h-4 w-4" />
+        <CopyIcon className="h-4 w-4" />
       )}
       {isGeneratingPrompt
         ? loadingPhrase
@@ -477,11 +477,11 @@ export function ApplicationStarter({
       disabled={!canUseFinalActions}
     >
       {isGeneratingPrompt ? (
-        <CircleNotch className="h-4 w-4 animate-spin" />
+        <CircleNotchIcon className="h-4 w-4 animate-spin" />
       ) : isCommandCopied ? (
-        <Check className="h-4 w-4" />
+        <CheckIcon className="h-4 w-4" />
       ) : (
-        <Copy className="h-4 w-4" />
+        <CopyIcon className="h-4 w-4" />
       )}
       {isGeneratingPrompt
         ? 'Preparing...'
@@ -545,7 +545,7 @@ export function ApplicationStarter({
         )}
       >
         {transientAction === action || waitingForHref ? (
-          <CircleNotch
+          <CircleNotchIcon
             className={twMerge(
               'animate-spin',
               iconOnly ? 'h-6 w-6' : size === 'xs' ? 'h-3.5 w-3.5' : 'h-4 w-4',
@@ -608,9 +608,9 @@ export function ApplicationStarter({
           aria-label={`Deploy to ${hostingDeployPartnerLabels[selectedHostingDeployPartner]}`}
         >
           {isDeployFeedbackActive || waitingForHref ? (
-            <CircleNotch className="h-4 w-4 animate-spin" />
+            <CircleNotchIcon className="h-4 w-4 animate-spin" />
           ) : (
-            <Rocket className="h-4 w-4" />
+            <RocketIcon className="h-4 w-4" />
           )}
           {isDeployFeedbackActive
             ? 'Opening...'
@@ -639,9 +639,9 @@ export function ApplicationStarter({
         aria-label={`Deploy to ${hostingDeployPartnerLabels[selectedHostingDeployPartner]}`}
       >
         {isDeployFeedbackActive ? (
-          <CircleNotch className="h-4 w-4 animate-spin" />
+          <CircleNotchIcon className="h-4 w-4 animate-spin" />
         ) : (
-          <Rocket className="h-4 w-4" />
+          <RocketIcon className="h-4 w-4" />
         )}
         {isDeployFeedbackActive ? 'Opening...' : 'Deploy'}
       </Button>
@@ -858,7 +858,7 @@ export function ApplicationStarter({
                       type="submit"
                       disabled={!canRevealOptions}
                     >
-                      <ArrowRight className="h-4 w-4" />
+                      <ArrowRightIcon className="h-4 w-4" />
                       Next
                       {enableHotkeys ? (
                         <SubmitShortcutHint isMac={isMacShortcutPlatform} />
@@ -1089,7 +1089,7 @@ export function ApplicationStarter({
                             onClick={resetHomeBuilder}
                             className="rounded-lg border-0 bg-transparent text-xs font-medium text-gray-500 shadow-none hover:bg-gray-950/5 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-white"
                           >
-                            <ArrowCounterClockwise className="h-3.5 w-3.5" />
+                            <ArrowCounterClockwiseIcon className="h-3.5 w-3.5" />
                             Start over
                           </Button>
                         ) : isHomePayoffLoading ? (
@@ -1111,7 +1111,7 @@ export function ApplicationStarter({
                             className="rounded-[11px] border-transparent bg-[linear-gradient(117deg,#ff5f5f,#ffa05c,#fff27c,#74dcff)] font-ds-display font-bold text-ds-neutral-500 shadow-md transition-[filter] hover:text-ds-neutral-500 hover:brightness-105 disabled:grayscale"
                           >
                             Go
-                            <ArrowRight className="h-4 w-4" />
+                            <ArrowRightIcon className="h-4 w-4" />
                           </Button>
                         )}
                       </div>
@@ -1128,7 +1128,7 @@ export function ApplicationStarter({
                             className="rounded-[11px] border-transparent bg-[linear-gradient(117deg,#ff5f5f,#ffa05c,#fff27c,#74dcff)] font-ds-display font-bold text-ds-neutral-500 shadow-md transition-[filter] hover:text-ds-neutral-500 hover:brightness-105 disabled:grayscale"
                           >
                             Go
-                            <ArrowRight className="h-4 w-4" />
+                            <ArrowRightIcon className="h-4 w-4" />
                             {enableHotkeys ? (
                               <SubmitShortcutHint
                                 isMac={isMacShortcutPlatform}
@@ -1319,7 +1319,7 @@ export function ApplicationStarter({
                                       className:
                                         'border-[#00AD9F] bg-[#00AD9F] text-white hover:bg-[#009a8e]',
                                       href: netlifyStartHref,
-                                      icon: <Rocket className="h-4 w-4" />,
+                                      icon: <RocketIcon className="h-4 w-4" />,
                                       label: secondaryActionLabel,
                                       onTrack: () => {
                                         trackActivation({
@@ -1337,7 +1337,7 @@ export function ApplicationStarter({
                                   className:
                                     'border-gray-900 bg-gray-900 text-white hover:bg-gray-800 dark:border-gray-100 dark:bg-gray-100 dark:text-gray-950 dark:hover:bg-gray-200',
                                   href: codexStartHref,
-                                  icon: <OpenAiLogo className="h-4 w-4" />,
+                                  icon: <OpenAiLogoIcon className="h-4 w-4" />,
                                   label: 'Open in Codex',
                                   onTrack: () => {
                                     trackActivation({
@@ -1376,7 +1376,7 @@ export function ApplicationStarter({
                                     'text-text-secondary hover:text-text-primary',
                                   href: codexStartHref,
                                   icon: (
-                                    <OpenAiLogo
+                                    <OpenAiLogoIcon
                                       className="h-6 w-6"
                                       weight="regular"
                                     />
@@ -1447,9 +1447,9 @@ export function ApplicationStarter({
                                     className="text-text-secondary hover:text-text-primary"
                                   >
                                     {transientAction === 'clone' ? (
-                                      <CircleNotch className="h-6 w-6 animate-spin" />
+                                      <CircleNotchIcon className="h-6 w-6 animate-spin" />
                                     ) : (
-                                      <GithubLogo
+                                      <GithubLogoIcon
                                         className="h-6 w-6"
                                         weight="regular"
                                       />
@@ -1463,7 +1463,7 @@ export function ApplicationStarter({
                                     'text-text-secondary hover:text-text-primary',
                                   href: downloadHref,
                                   icon: (
-                                    <DownloadSimple
+                                    <DownloadSimpleIcon
                                       className="h-6 w-6"
                                       weight="regular"
                                     />
@@ -1550,7 +1550,7 @@ function StarterCustomizationSection({
           )}
         >
           {title}
-          <CaretDown
+          <CaretDownIcon
             className={twMerge(
               'h-3 w-3 transition-transform duration-200',
               open && 'rotate-180',

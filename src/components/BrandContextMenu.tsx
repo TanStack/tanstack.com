@@ -41,6 +41,7 @@ export function BrandContextMenu({ children, ...rest }: BrandContextMenuProps) {
             SVG markup is now in your clipboard
           </div>
         </div>,
+        { id: 'svg-copied' },
       )
     } catch (err) {
       console.error('Clipboard error', err)

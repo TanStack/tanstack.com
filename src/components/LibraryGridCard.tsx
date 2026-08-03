@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { ArrowRight, CaretRight } from '@phosphor-icons/react'
+import { ArrowRightIcon, CaretRightIcon } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import type { PublicLibrarySlim } from '~/libraries'
 import { libraryCategories, type LibraryCategory } from '~/libraries/categories'
@@ -84,11 +84,11 @@ export default function LibraryGridCard({
         {/* Persistent affordance that the card is clickable; sm+ only. */}
         <span className="hidden shrink-0 translate-y-0.5 items-center gap-1 rounded-[11px] corner-squircle bg-black/[0.03] px-3 py-1.5 font-ds-display text-sm font-bold text-text-secondary opacity-70 group-hover:text-text-primary group-hover:opacity-100 group-focus-visible:text-text-primary group-focus-visible:opacity-100 dark:bg-white/5 sm:inline-flex">
           Docs
-          <ArrowRight className="size-3.5" />
+          <ArrowRightIcon className="size-3.5" />
         </span>
       </div>
       {/* Compact-row caret (mobile only); the full card uses the Docs pill above. */}
-      <CaretRight className="size-5 shrink-0 text-text-muted sm:hidden" />
+      <CaretRightIcon className="size-5 shrink-0 text-text-muted sm:hidden" />
       <p className="hidden font-sans text-ds-body-md text-text-secondary sm:line-clamp-2 sm:block">
         {copy}
       </p>

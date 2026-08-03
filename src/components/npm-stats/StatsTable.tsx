@@ -1,6 +1,6 @@
 import * as React from 'react'
 import * as d3 from 'd3'
-import { X, EyeSlash } from '@phosphor-icons/react'
+import { XIcon, EyeSlashIcon } from '@phosphor-icons/react'
 import { Tooltip } from '~/components/Tooltip'
 import { binningOptionsByType } from './binning'
 import {
@@ -229,7 +229,7 @@ export function StatsTable({
                           <span className={stat.hidden ? 'opacity-50' : ''}>
                             {stat.package}
                           </span>
-                          {stat.hidden ? <EyeSlash className="" /> : null}
+                          {stat.hidden ? <EyeSlashIcon className="" /> : null}
                         </button>
                       </Tooltip>
                       <Tooltip content="Remove package">
@@ -237,7 +237,7 @@ export function StatsTable({
                           onClick={() => onRemove(stat.index)}
                           className="p-0.5 text-gray-500 hover:text-red-500"
                         >
-                          <X className="" />
+                          <XIcon className="" />
                         </button>
                       </Tooltip>
                     </div>

@@ -1,11 +1,12 @@
 import * as React from 'react'
 import {
-  Gear,
-  Key,
-  Lock,
-  SignIn,
-  SignOut,
-  Sparkle,
+  GearIcon as Gear,
+  KeyIcon as Key,
+  LockIcon as Lock,
+  SignInIcon,
+  SignInIcon as SignIn,
+  SignOutIcon as SignOut,
+  SparkleIcon as Sparkle,
 } from '@phosphor-icons/react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
@@ -54,7 +55,7 @@ export function NavbarAuthControls({ className }: NavbarAuthControlsProps) {
       )}
     >
       <span className="hidden min-[430px]:inline">Log In</span>
-      <SignIn className="size-4" weight="bold" />
+      <SignInIcon className="size-4" weight="bold" />
     </Link>
   )
 

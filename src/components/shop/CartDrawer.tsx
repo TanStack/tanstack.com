@@ -1,6 +1,12 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import { Link } from '@tanstack/react-router'
-import { Minus, Plus, ShoppingCart, Trash, X } from '@phosphor-icons/react'
+import {
+  MinusIcon,
+  PlusIcon,
+  ShoppingCartIcon,
+  TrashIcon,
+  XIcon,
+} from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { useCart, useRemoveCartLine, useUpdateCartLine } from '~/hooks/useCart'
 import { formatMoney, shopifyImageUrl } from '~/utils/shopify-format'
@@ -47,7 +53,7 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
               aria-label="Close cart"
               className="p-1 rounded-md text-shop-text-2 hover:text-shop-text"
             >
-              <X className="w-3.5 h-3.5" />
+              <XIcon className="w-3.5 h-3.5" />
             </Dialog.Close>
           </header>
 
@@ -76,7 +82,7 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
 function DrawerEmpty({ onClose }: { onClose: () => void }) {
   return (
     <div className="flex-1 flex flex-col items-center justify-center gap-4 p-8 text-center text-shop-text-2">
-      <ShoppingCart className="w-10 h-10 text-shop-muted" />
+      <ShoppingCartIcon className="w-10 h-10 text-shop-muted" />
       <p>Your cart is empty.</p>
       <Link
         to="/shop"
@@ -207,7 +213,7 @@ function DrawerCartLine({
               aria-label="Decrease quantity"
               className="p-1.5 text-shop-text-2 hover:text-shop-text disabled:opacity-50"
             >
-              <Minus className="w-3 h-3" />
+              <MinusIcon className="w-3 h-3" />
             </button>
             <span className="font-shop-mono text-shop-text min-w-[1.5rem] text-center">
               {line.quantity}
@@ -224,7 +230,7 @@ function DrawerCartLine({
               aria-label="Increase quantity"
               className="p-1.5 text-shop-text-2 hover:text-shop-text disabled:opacity-50"
             >
-              <Plus className="w-3 h-3" />
+              <PlusIcon className="w-3 h-3" />
             </button>
           </div>
           <div className="flex items-center gap-2">
@@ -241,7 +247,7 @@ function DrawerCartLine({
               aria-label="Remove from cart"
               className="p-1 rounded-md text-shop-muted hover:text-shop-text disabled:opacity-50"
             >
-              <Trash className="w-3.5 h-3.5" />
+              <TrashIcon className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>

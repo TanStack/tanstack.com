@@ -1,13 +1,13 @@
 import * as React from 'react'
 import {
-  CheckCircle,
-  ClockCounterClockwise,
-  FileMagnifyingGlass,
-  LockKey,
-  Package,
-  Robot,
-  Scan,
-  ShieldCheck,
+  CheckCircleIcon,
+  ClockCounterClockwiseIcon,
+  FileMagnifyingGlassIcon,
+  LockKeyIcon,
+  PackageIcon,
+  RobotIcon,
+  ScanIcon,
+  ShieldCheckIcon,
 } from '@phosphor-icons/react'
 import { Badge } from '~/ui/Badge'
 
@@ -59,7 +59,7 @@ export default function IntentLanding() {
         <LandingSectionIntro
           centered
           eyebrow="Consumer trust model"
-          icon={<ShieldCheck aria-hidden="true" size={15} />}
+          icon={<ShieldCheckIcon aria-hidden="true" size={15} />}
           title="Discovery can scan the workspace. Trust is still explicit."
           body="Intent can inspect workspace dependencies for static skill files without executing package code. An allowlist and exclusions decide which packages may contribute guidance, and the agent loads a skill only when the task calls for it."
         />
@@ -71,7 +71,7 @@ export default function IntentLanding() {
           <FreshnessWorkbench />
           <LandingSectionIntro
             eyebrow="Conservative freshness"
-            icon={<ClockCounterClockwise aria-hidden="true" size={15} />}
+            icon={<ClockCounterClockwiseIcon aria-hidden="true" size={15} />}
             title="A changed source is a review signal, not proof of bad guidance."
             body="Skills declare the documentation they depend on. intent stale can flag a skill when those sources move, but it does not pretend to understand whether the semantic advice is wrong. Maintainers make that call."
           />
@@ -82,7 +82,7 @@ export default function IntentLanding() {
         <div className="grid gap-12 lg:grid-cols-[0.84fr_1.16fr] lg:items-center lg:gap-16">
           <LandingSectionIntro
             eyebrow="Maintainer loop"
-            icon={<Package aria-hidden="true" size={15} />}
+            icon={<PackageIcon aria-hidden="true" size={15} />}
             title="The skill releases with the code it explains."
             body="Generate or author guidance near the package, validate its structure and source references in CI, then include it in the npm tarball. The package version becomes the skill version; the public registry makes that history browsable after indexing."
           />
@@ -180,7 +180,7 @@ function SkillDiscoveryHero() {
                 setLoaded(false)
               }}
             >
-              <LockKey aria-hidden="true" size={16} />
+              <LockKeyIcon aria-hidden="true" size={16} />
               {allowed ? 'Allowed' : 'Allow package'}
             </button>
             <button
@@ -191,9 +191,9 @@ function SkillDiscoveryHero() {
               onClick={() => setLoaded((current) => !current)}
             >
               {loaded ? (
-                <CheckCircle aria-hidden="true" size={16} />
+                <CheckCircleIcon aria-hidden="true" size={16} />
               ) : (
-                <Robot aria-hidden="true" size={16} />
+                <RobotIcon aria-hidden="true" size={16} />
               )}
               {loaded ? 'Guidance loaded' : 'Load for task'}
             </button>
@@ -207,22 +207,22 @@ function SkillDiscoveryHero() {
 function TrustPath() {
   const steps = [
     {
-      icon: Scan,
+      icon: ScanIcon,
       label: 'Scan',
       detail: 'Read package metadata and static skill files.',
     },
     {
-      icon: LockKey,
+      icon: LockKeyIcon,
       label: 'Allow',
       detail: 'Match package names against your allowlist and exclusions.',
     },
     {
-      icon: FileMagnifyingGlass,
+      icon: FileMagnifyingGlassIcon,
       label: 'Inspect',
       detail: 'Keep source references and skill content visible.',
     },
     {
-      icon: Robot,
+      icon: RobotIcon,
       label: 'Load',
       detail: 'Give only relevant guidance to the active agent task.',
     },
@@ -347,7 +347,7 @@ function PublicationTimeline() {
                   {detail}
                 </p>
               </div>
-              <CheckCircle
+              <CheckCircleIcon
                 aria-hidden="true"
                 className="text-icon-success"
                 size={17}

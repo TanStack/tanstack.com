@@ -11,21 +11,21 @@ import {
 import { libraries } from '~/libraries'
 import { USE_CASE_LABELS } from '~/utils/showcase.shared'
 import {
-  ArrowLeft,
-  Sparkle,
-  User,
-  Calendar,
-  Link as LinkIcon,
-  Check,
-  X,
-  ArrowSquareOut,
-  Clock,
-  ThumbsUp,
-  ThumbsDown,
-  Pencil,
-  Trash,
-  FloppyDisk,
-  ArrowCounterClockwise,
+  ArrowLeftIcon,
+  SparkleIcon,
+  UserIcon,
+  CalendarIcon,
+  LinkIcon,
+  CheckIcon,
+  XIcon,
+  ArrowSquareOutIcon,
+  ClockIcon,
+  ThumbsUpIcon,
+  ThumbsDownIcon,
+  PencilIcon,
+  TrashIcon,
+  FloppyDiskIcon,
+  ArrowCounterClockwiseIcon,
 } from '@phosphor-icons/react'
 import { Card } from '~/components/Card'
 import { Badge, Button, FormInput } from '~/ui'
@@ -190,7 +190,7 @@ function ShowcaseDetailPage() {
       <div className="w-full p-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center py-12">
-            <Sparkle className="mx-auto h-12 w-12 text-gray-400" />
+            <SparkleIcon className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
               Showcase not found
             </h3>
@@ -201,7 +201,7 @@ function ShowcaseDetailPage() {
               to="/admin/showcases"
               className="mt-4 inline-flex items-center gap-2 text-blue-600 hover:text-blue-700"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeftIcon className="w-4 h-4" />
               Back to Showcases
             </Link>
           </div>
@@ -249,7 +249,7 @@ function ShowcaseDetailPage() {
               to="/admin/showcases"
               className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeftIcon className="w-4 h-4" />
               Back to Showcases
             </Link>
             <div className="flex items-center gap-2">
@@ -259,7 +259,7 @@ function ShowcaseDetailPage() {
                     onClick={cancelEditing}
                     disabled={updateMutation.isPending}
                   >
-                    <ArrowCounterClockwise className="w-4 h-4" />
+                    <ArrowCounterClockwiseIcon className="w-4 h-4" />
                     Cancel
                   </Button>
                   <Button
@@ -267,7 +267,7 @@ function ShowcaseDetailPage() {
                     className="bg-green-600 hover:bg-green-700 text-white border-green-600"
                     disabled={updateMutation.isPending}
                   >
-                    <FloppyDisk className="w-4 h-4" />
+                    <FloppyDiskIcon className="w-4 h-4" />
                     {updateMutation.isPending ? 'Saving...' : 'Save Changes'}
                   </Button>
                 </>
@@ -277,7 +277,7 @@ function ShowcaseDetailPage() {
                     onClick={startEditing}
                     className="hover:text-blue-600 hover:border-blue-300 dark:hover:border-blue-700"
                   >
-                    <Pencil className="w-4 h-4" />
+                    <PencilIcon className="w-4 h-4" />
                     Edit
                   </Button>
                   <Button
@@ -285,7 +285,7 @@ function ShowcaseDetailPage() {
                     className="hover:text-red-600 hover:border-red-300 dark:hover:border-red-700"
                     disabled={deleteMutation.isPending}
                   >
-                    <Trash className="w-4 h-4" />
+                    <TrashIcon className="w-4 h-4" />
                     Delete
                   </Button>
                 </>
@@ -309,7 +309,7 @@ function ShowcaseDetailPage() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <Sparkle className="w-8 h-8 text-gray-400" />
+                  <SparkleIcon className="w-8 h-8 text-gray-400" />
                 )}
               </div>
             ) : showcase.logoUrl ? (
@@ -320,7 +320,7 @@ function ShowcaseDetailPage() {
               />
             ) : (
               <div className="w-16 h-16 rounded-lg bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                <Sparkle className="w-8 h-8 text-gray-400" />
+                <SparkleIcon className="w-8 h-8 text-gray-400" />
               </div>
             )}
             <div className="flex-1">
@@ -537,7 +537,7 @@ function ShowcaseDetailPage() {
                       className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 flex items-center gap-1"
                     >
                       {showcase.url}
-                      <ArrowSquareOut className="w-3 h-3" />
+                      <ArrowSquareOutIcon className="w-3 h-3" />
                     </a>
                   </dd>
                 </div>
@@ -553,7 +553,7 @@ function ShowcaseDetailPage() {
                 )}
                 <div>
                   <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
+                    <CalendarIcon className="w-4 h-4" />
                     Submitted
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 dark:text-white">
@@ -573,9 +573,9 @@ function ShowcaseDetailPage() {
                 <div>
                   <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
                     {showcase.voteScore >= 0 ? (
-                      <ThumbsUp className="w-4 h-4" />
+                      <ThumbsUpIcon className="w-4 h-4" />
                     ) : (
-                      <ThumbsDown className="w-4 h-4" />
+                      <ThumbsDownIcon className="w-4 h-4" />
                     )}
                     Community Votes
                   </dt>
@@ -588,7 +588,7 @@ function ShowcaseDetailPage() {
                         className="p-1.5 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/30 text-gray-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
                         title="Upvote"
                       >
-                        <ThumbsUp className="w-4 h-4" />
+                        <ThumbsUpIcon className="w-4 h-4" />
                       </button>
                       <span
                         className={`inline-flex items-center px-2.5 py-1 rounded-full text-sm font-medium ${
@@ -609,7 +609,7 @@ function ShowcaseDetailPage() {
                         className="p-1.5 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                         title="Downvote"
                       >
-                        <ThumbsDown className="w-4 h-4" />
+                        <ThumbsDownIcon className="w-4 h-4" />
                       </button>
                     </div>
                     {showcase.voteScore < 0 && (
@@ -642,7 +642,7 @@ function ShowcaseDetailPage() {
                   />
                 ) : (
                   <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                    <User className="w-5 h-5 text-gray-400" />
+                    <UserIcon className="w-5 h-5 text-gray-400" />
                   </div>
                 )}
                 <div>
@@ -844,7 +844,7 @@ function ShowcaseDetailPage() {
         {!isEditing && showcase.status === 'pending' && (
           <Card className="p-6 mt-6">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-              <Clock className="w-5 h-5" />
+              <ClockIcon className="w-5 h-5" />
               Pending Review
             </h2>
             <div className="flex gap-4">
@@ -853,7 +853,7 @@ function ShowcaseDetailPage() {
                 disabled={moderateMutation.isPending}
                 className="bg-green-600 hover:bg-green-700 text-white border-green-600"
               >
-                <Check className="w-4 h-4" />
+                <CheckIcon className="w-4 h-4" />
                 Approve
               </Button>
               <Button
@@ -866,7 +866,7 @@ function ShowcaseDetailPage() {
                 disabled={moderateMutation.isPending}
                 className="hover:text-red-600 hover:border-red-300 dark:hover:border-red-700"
               >
-                <X className="w-4 h-4" />
+                <XIcon className="w-4 h-4" />
                 Deny
               </Button>
             </div>

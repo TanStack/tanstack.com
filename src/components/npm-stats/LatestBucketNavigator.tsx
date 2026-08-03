@@ -1,14 +1,14 @@
 import * as React from 'react'
 import {
-  Check,
-  CaretDown as ChevronDown,
-  CaretLeft as ChevronLeft,
-  CaretRight as ChevronRight,
-  CaretDoubleLeft as ChevronsLeft,
-  CaretDoubleRight as ChevronsRight,
-  DotsThree as MoreHorizontal,
-  Pause,
-  Play,
+  CheckIcon,
+  CaretDownIcon as ChevronDown,
+  CaretLeftIcon as ChevronLeft,
+  CaretRightIcon as ChevronRight,
+  CaretDoubleLeftIcon as ChevronsLeft,
+  CaretDoubleRightIcon as ChevronsRight,
+  DotsThreeIcon as MoreHorizontal,
+  PauseIcon,
+  PlayIcon,
 } from '@phosphor-icons/react'
 import {
   DropdownMenu,
@@ -247,9 +247,9 @@ export function LatestBucketNavigator({
           type="button"
         >
           {isPlaying ? (
-            <Pause className="size-3.5" />
+            <PauseIcon className="size-3.5" />
           ) : (
-            <Play className="size-3.5" />
+            <PlayIcon className="size-3.5" />
           )}
         </button>
         <DropdownMenu>
@@ -277,7 +277,7 @@ export function LatestBucketNavigator({
                 key={option.intervalMs}
                 onSelect={() => onPlaybackIntervalChange(option.intervalMs)}
               >
-                <Check
+                <CheckIcon
                   className={
                     option.intervalMs === playbackIntervalMs
                       ? 'size-3 opacity-100'
@@ -311,7 +311,7 @@ export function LatestBucketNavigator({
               className={menuItemStyles}
               onSelect={() => onLoopingChange(!isLooping)}
             >
-              <Check
+              <CheckIcon
                 className={
                   isLooping ? 'size-3 opacity-100' : 'size-3 opacity-0'
                 }

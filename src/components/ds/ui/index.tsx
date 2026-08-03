@@ -3,11 +3,11 @@ import { twMerge } from 'tailwind-merge'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { Link } from '@tanstack/react-router'
 import {
-  CaretDown,
-  CircleNotch,
-  MagnifyingGlass,
-  User,
-  X,
+  CaretDownIcon,
+  CircleNotchIcon,
+  MagnifyingGlassIcon as MagnifyingGlass,
+  UserIcon,
+  XIcon as X,
 } from '@phosphor-icons/react'
 import type { MarkdownHeading } from '~/utils/markdown'
 import type { LibraryId } from '~/libraries/ids'
@@ -615,7 +615,7 @@ export function InlineCode({
 
 export function Spinner({ className }: { className?: string }) {
   return (
-    <CircleNotch
+    <CircleNotchIcon
       className={twMerge('h-6 w-6 animate-spin text-text-primary', className)}
       aria-label="Loading"
     />
@@ -688,7 +688,7 @@ export function Avatar({
         className,
       )}
     >
-      {initials || <User className="h-1/2 w-1/2 text-text-muted" />}
+      {initials || <UserIcon className="h-1/2 w-1/2 text-text-muted" />}
     </div>
   )
 }
@@ -832,7 +832,7 @@ export function Breadcrumbs({
               )}
             >
               <span>On this page</span>
-              <CaretDown className="h-3.5 w-3.5" />
+              <CaretDownIcon className="h-3.5 w-3.5" />
             </button>
           </DropdownTrigger>
           <DropdownContent align="end" sideOffset={8} className={hiddenClass}>

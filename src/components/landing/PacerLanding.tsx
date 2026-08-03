@@ -1,5 +1,10 @@
 import * as React from 'react'
-import { ArrowsSplit, Clock, Gauge, Rows } from '@phosphor-icons/react'
+import {
+  ArrowsSplitIcon,
+  ClockIcon,
+  GaugeIcon,
+  RowsIcon,
+} from '@phosphor-icons/react'
 
 import {
   LandingEyebrow,
@@ -73,7 +78,7 @@ export default function PacerLanding() {
         <LandingSectionIntro
           body="Each policy answers a different product question. Pick one by deciding whether work may be dropped, delayed, sampled, or grouped—not by reaching for the timer you remember."
           eyebrow="Policy map"
-          icon={<ArrowsSplit aria-hidden="true" size={17} />}
+          icon={<ArrowsSplitIcon aria-hidden="true" size={17} />}
           title="Choose by what you can afford to lose."
         />
         <PolicyMap />
@@ -85,7 +90,7 @@ export default function PacerLanding() {
             <LandingSectionIntro
               body="Queues turn a pile of promises into explicit traffic: order, priority, concurrency, expiration, retries, and cancellation all have a place in the model."
               eyebrow="Async traffic control"
-              icon={<Rows aria-hidden="true" size={17} />}
+              icon={<RowsIcon aria-hidden="true" size={17} />}
               title="Backpressure becomes product behavior."
             />
             <div className="mt-8 grid grid-cols-3 gap-3">
@@ -149,7 +154,7 @@ export default function PacerLanding() {
           <LandingSectionIntro
             body="Timing state should not disappear inside a closure. Subscribe to execution counts, pending work, errors, and status; inspect the same model in devtools; adopt the core alone when that is all you need."
             eyebrow="Observable by design"
-            icon={<Gauge aria-hidden="true" size={17} />}
+            icon={<GaugeIcon aria-hidden="true" size={17} />}
             title="The timer is no longer a black box."
           />
         </div>
@@ -357,7 +362,7 @@ function QueueControl() {
     <LandingWindow label="upload queue">
       <div className="p-4 sm:p-5">
         <div className="flex items-center justify-between gap-4">
-          <LandingEyebrow icon={<Clock aria-hidden="true" size={14} />}>
+          <LandingEyebrow icon={<ClockIcon aria-hidden="true" size={14} />}>
             concurrency / 2
           </LandingEyebrow>
           <button

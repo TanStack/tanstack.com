@@ -1,6 +1,6 @@
 import * as React from 'react'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
-import { CaretDown, Check } from '@phosphor-icons/react'
+import { CaretDownIcon, CheckIcon } from '@phosphor-icons/react'
 import { type Framework } from '~/libraries'
 import { frameworkOptions } from '~/libraries/frameworks'
 import LibraryGridCard from '~/components/LibraryGridCard'
@@ -158,7 +158,7 @@ export function LibrariesBrowser({
                   ? activeFrameworkOption.label
                   : 'All frameworks'}
               </span>
-              <CaretDown className="size-3 text-text-secondary" />
+              <CaretDownIcon className="size-3 text-text-secondary" />
             </button>
           </DropdownTrigger>
           <DropdownContent
@@ -169,7 +169,7 @@ export function LibrariesBrowser({
               <span className="flex-1">All frameworks</span>
               <span className="text-text-muted">{ordered.length}</span>
               {activeFramework === null ? (
-                <Check className="size-4 text-text-primary" />
+                <CheckIcon className="size-4 text-text-primary" />
               ) : null}
             </DropdownItem>
             <DropdownSeparator />
@@ -189,7 +189,7 @@ export function LibrariesBrowser({
                   {frameworkCounts[framework.value] ?? 0}
                 </span>
                 {activeFramework === framework.value ? (
-                  <Check className="size-4 text-text-primary" />
+                  <CheckIcon className="size-4 text-text-primary" />
                 ) : null}
               </DropdownItem>
             ))}

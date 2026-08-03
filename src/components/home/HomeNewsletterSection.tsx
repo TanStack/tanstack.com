@@ -1,4 +1,4 @@
-import { EnvelopeSimple } from '@phosphor-icons/react'
+import { EnvelopeSimpleIcon } from '@phosphor-icons/react'
 import { NewsletterSignup } from '~/components/NewsletterSignup'
 
 export function HomeNewsletterSection() {
@@ -11,7 +11,7 @@ export function HomeNewsletterSection() {
         <div className="corner-squircle grid overflow-hidden rounded-2xl border border-border-subtle bg-background-surface px-6 py-8 sm:p-10 lg:mt-[19px] lg:px-[76px] lg:py-[59px]">
           <div className="flex items-start gap-4 sm:gap-5">
             <div className="corner-squircle flex size-12 shrink-0 items-center justify-center rounded-xl border border-border-subtle bg-background-subtle text-text-secondary sm:size-14">
-              <EnvelopeSimple className="size-6 sm:size-7" weight="light" />
+              <EnvelopeSimpleIcon className="size-6 sm:size-7" weight="light" />
             </div>
             <div className="min-w-0">
               <p className="font-ds-mono text-ds-mono-xs uppercase tracking-wider text-text-muted">

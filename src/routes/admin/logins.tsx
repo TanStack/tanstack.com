@@ -21,7 +21,7 @@ import {
 } from '@tanstack/react-table'
 import * as v from 'valibot'
 import { listLoginHistory } from '~/utils/audit.functions'
-import { SignIn } from '@phosphor-icons/react'
+import { SignInIcon } from '@phosphor-icons/react'
 import { Badge } from '~/ui'
 import {
   AdminAccessDenied,
@@ -274,7 +274,7 @@ function LoginsPage() {
     <div className="w-full p-4">
       <div className="flex flex-col gap-4">
         <AdminPageHeader
-          icon={<SignIn />}
+          icon={<SignInIcon />}
           title="Login History"
           isLoading={loginsQuery.isFetching}
         />
@@ -353,7 +353,7 @@ function LoginsPage() {
 
           {(!loginsQuery.data || loginsQuery.data?.page.length === 0) && (
             <AdminEmptyState
-              icon={<SignIn className="w-12 h-12" />}
+              icon={<SignInIcon className="w-12 h-12" />}
               title="No login records found"
               description="Login history will appear here once users start logging in."
             />

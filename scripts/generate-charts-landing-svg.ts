@@ -13,11 +13,11 @@ import {
   renderChartSvg,
 } from '@tanstack/charts'
 import { activationChart } from './charts-landing/activation-chart'
-import { kineticAreaChart } from './charts-landing/kinetic-area-chart'
-import { kineticDumbbellChart } from './charts-landing/kinetic-dumbbell-chart'
+import { kineticBarChart } from './charts-landing/kinetic-bar-chart'
+import { kineticDonutChart } from './charts-landing/kinetic-donut-chart'
+import { kineticHeatmapChart } from './charts-landing/kinetic-heatmap-chart'
 import { kineticLayeredChart } from './charts-landing/kinetic-layered-chart'
-import { kineticLineChart } from './charts-landing/kinetic-line-chart'
-import { kineticLollipopChart } from './charts-landing/kinetic-lollipop-chart'
+import { kineticRadarChart } from './charts-landing/kinetic-radar-chart'
 import { kineticScatterChart } from './charts-landing/kinetic-scatter-chart'
 
 const outputFile = resolve(
@@ -41,7 +41,11 @@ const activationAriaDescription =
 const themeBaseline = 40
 const themeDomain: [number, number] = [40, 105]
 const themeSeries = [48, 52, 57, 55, 64, 71, 78, 86, 91, 98].map(
-  (value, index) => ({ month: index + 1, value }),
+  (value, index) => ({
+    month: index + 1,
+    phase: ['Pulse', 'Volt', 'Flare', 'Acid'][index % 4]!,
+    value,
+  }),
 )
 
 const editorialTheme = defineChart({
@@ -158,6 +162,54 @@ const terminalTheme = defineChart({
   },
 })
 
+const monokaiTheme = defineChart({
+  marks: [
+    areaY(themeSeries, {
+      x: 'month',
+      y: 'value',
+      y1: themeBaseline,
+      key: 'month',
+      fill: '#66d9ef',
+      fillOpacity: 0.16,
+      curve: d3Curve(curveMonotoneX),
+    }),
+    lineY(themeSeries, {
+      x: 'month',
+      y: 'value',
+      key: 'month',
+      stroke: '#f92672',
+      strokeWidth: 5,
+      curve: d3Curve(curveMonotoneX),
+    }),
+    dot(themeSeries, {
+      x: 'month',
+      y: 'value',
+      z: 'phase',
+      key: 'month',
+      r: 7,
+      stroke: '#272822',
+      strokeWidth: 3,
+    }),
+  ],
+  x: {
+    scale: scaleLinear().domain([1, 10]),
+    ticks: 4,
+    format: (month: number) => `M${month}`,
+  },
+  y: {
+    scale: scaleLinear().domain(themeDomain).nice(),
+    ticks: 4,
+    grid: true,
+  },
+  theme: {
+    foreground: '#f8f8f2',
+    muted: '#a4a59b',
+    grid: '#75715e',
+    background: 'transparent',
+    palette: ['#a6e22e', '#66d9ef', '#fd971f', '#ae81ff'],
+  },
+})
+
 const charts = {
   chartsThemeEditorialSvg: render(
     editorialTheme,
@@ -170,6 +222,10 @@ const charts = {
   chartsThemeTerminalSvg: render(
     terminalTheme,
     'Monthly active teams in a terminal theme',
+  ),
+  chartsThemeMonokaiSvg: render(
+    monokaiTheme,
+    'Monthly active teams in a Monokai theme',
   ),
 }
 
@@ -193,15 +249,21 @@ const activationCharts = {
 }
 
 const kineticCharts = {
-  chartsKineticAreaSvg: render(
-    kineticAreaChart,
-    'Forecast product signal over eight months',
+  chartsKineticBarSvg: render(
+    kineticBarChart,
+    'Product signals as rounded vertical bars',
     920,
     520,
   ),
-  chartsKineticDumbbellSvg: render(
-    kineticDumbbellChart,
-    'Previous and current product signals',
+  chartsKineticDonutSvg: render(
+    kineticDonutChart,
+    'Product activity share as a rounded donut chart',
+    920,
+    520,
+  ),
+  chartsKineticHeatmapSvg: render(
+    kineticHeatmapChart,
+    'Product health across four dimensions as a heatmap',
     920,
     520,
   ),
@@ -211,15 +273,9 @@ const kineticCharts = {
     920,
     520,
   ),
-  chartsKineticLineSvg: render(
-    kineticLineChart,
-    'Product signal over eight months',
-    920,
-    520,
-  ),
-  chartsKineticLollipopSvg: render(
-    kineticLollipopChart,
-    'Product signals as a ranked lollipop chart',
+  chartsKineticRadarSvg: render(
+    kineticRadarChart,
+    'Chart capability profile as a radar chart',
     920,
     520,
   ),

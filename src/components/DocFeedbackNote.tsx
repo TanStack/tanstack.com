@@ -8,13 +8,13 @@ import {
 } from '~/utils/docFeedback.functions'
 import type { DocFeedback } from '~/db/types'
 import {
-  CaretDown,
-  CaretUp,
-  Lightbulb,
-  ChatCentered,
-  FloppyDisk,
-  Trash,
-  X,
+  CaretDownIcon,
+  CaretUpIcon,
+  LightbulbIcon,
+  ChatCenteredIcon,
+  FloppyDiskIcon,
+  TrashIcon,
+  XIcon,
 } from '@phosphor-icons/react'
 
 interface DocFeedbackNoteProps {
@@ -52,7 +52,7 @@ export function DocFeedbackNote({
 
   // Theme based on type
   const isImprovement = note.type === 'improvement'
-  const Icon = isImprovement ? Lightbulb : ChatCentered
+  const Icon = isImprovement ? LightbulbIcon : ChatCenteredIcon
   const colors = isImprovement
     ? {
         bg: 'bg-yellow-50 dark:bg-yellow-900/20',
@@ -402,7 +402,7 @@ export function DocFeedbackNote({
                     title={isImprovement ? 'Delete improvement' : 'Delete note'}
                     disabled={isDeleting || isSaving}
                   >
-                    <Trash className="text-xs" />
+                    <TrashIcon className="text-xs" />
                   </button>
                 </>
               )}
@@ -419,9 +419,9 @@ export function DocFeedbackNote({
                 }
               >
                 {note.isCollapsed ? (
-                  <CaretDown className="text-xs" />
+                  <CaretDownIcon className="text-xs" />
                 ) : (
-                  <CaretUp className="text-xs" />
+                  <CaretUpIcon className="text-xs" />
                 )}
               </button>
             </div>
@@ -469,7 +469,7 @@ export function DocFeedbackNote({
                   )}
                   disabled={isSaving}
                 >
-                  <FloppyDisk className="text-[10px]" />
+                  <FloppyDiskIcon className="text-[10px]" />
                   {isSaving ? 'Saving...' : 'Save'}
                 </button>
                 <button
@@ -477,7 +477,7 @@ export function DocFeedbackNote({
                   className="px-3 py-1 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white disabled:opacity-50"
                   disabled={isSaving}
                 >
-                  <X className="inline text-[10px] mr-1" />
+                  <XIcon className="inline text-[10px] mr-1" />
                   Cancel
                 </button>
               </div>

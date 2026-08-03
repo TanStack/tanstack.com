@@ -3,23 +3,23 @@ import { Link } from '@tanstack/react-router'
 import { useLibrariesOverlay } from '~/contexts/LibrariesOverlayContext'
 import { twMerge } from 'tailwind-merge'
 import {
-  ArrowRight,
-  BracketsCurly,
-  CheckCircle,
-  CaretRight,
-  Clock,
-  Database,
-  Keyboard,
-  Newspaper,
-  Package,
-  Rocket,
-  MagnifyingGlass,
-  SlidersHorizontal,
-  Sparkle,
-  Table as TableIcon,
-  Terminal,
-  Wrench,
-  Lightning,
+  ArrowRightIcon,
+  BracketsCurlyIcon,
+  CheckCircleIcon,
+  CaretRightIcon,
+  ClockIcon,
+  DatabaseIcon,
+  KeyboardIcon,
+  NewspaperIcon,
+  PackageIcon,
+  RocketIcon,
+  MagnifyingGlassIcon,
+  SlidersHorizontalIcon,
+  SparkleIcon,
+  TableIcon,
+  TerminalIcon,
+  WrenchIcon,
+  LightningIcon,
 } from '@phosphor-icons/react'
 
 import { LibraryWordmark } from '~/components/LibraryWordmark'
@@ -114,7 +114,7 @@ function Breadcrumb({ categoryName }: { categoryName: string }) {
         <Link to="/" className="hover:text-zinc-950 dark:hover:text-white">
           Home
         </Link>
-        <CaretRight size={12} aria-hidden="true" />
+        <CaretRightIcon size={12} aria-hidden="true" />
         <button
           type="button"
           onClick={() => openLibraries()}
@@ -122,7 +122,7 @@ function Breadcrumb({ categoryName }: { categoryName: string }) {
         >
           Libraries
         </button>
-        <CaretRight size={12} aria-hidden="true" />
+        <CaretRightIcon size={12} aria-hidden="true" />
         <span className="font-semibold text-zinc-700 dark:text-zinc-300">
           {categoryName}
         </span>
@@ -146,7 +146,7 @@ function FrameworkCategory({
       <section className="border-b border-cyan-950/10 bg-[#f6fbfb] dark:border-cyan-300/10 dark:bg-[#041010]">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 lg:grid-cols-[0.88fr_1.12fr] lg:items-start lg:py-12">
           <div className="max-w-3xl">
-            <SectionKicker icon={<Sparkle size={14} />}>
+            <SectionKicker icon={<SparkleIcon size={14} />}>
               Framework
             </SectionKicker>
             <h1 className={heroTitleClassName}>
@@ -250,7 +250,7 @@ function FrameworkPlanPanel() {
           </p>
         </div>
         <span className="inline-flex items-center gap-1 rounded-md border border-cyan-200 bg-cyan-50 px-2 py-1 text-xs font-semibold text-cyan-800 dark:border-cyan-800 dark:bg-cyan-950/50 dark:text-cyan-200">
-          <Rocket size={13} aria-hidden="true" />
+          <RocketIcon size={13} aria-hidden="true" />
           App-ready
         </span>
       </div>
@@ -301,7 +301,7 @@ function StateCategory({
       <section className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
           <div>
-            <SectionKicker icon={<Database size={14} />}>
+            <SectionKicker icon={<DatabaseIcon size={14} />}>
               Data & State Management
             </SectionKicker>
             <h1 className={heroTitleClassName}>
@@ -458,13 +458,13 @@ function UiCategory({
             />
             <UiSurfaceCard
               detail="Field state, validation, submission, and async checks without losing control of inputs."
-              icon={<SlidersHorizontal size={18} />}
+              icon={<SlidersHorizontalIcon size={18} />}
               library={form}
               title="Input confidence"
             />
             <UiSurfaceCard
               detail="Scopes, sequences, key state, and command surfaces for keyboard-first flows."
-              icon={<Keyboard size={18} />}
+              icon={<KeyboardIcon size={18} />}
               library={hotkeys}
               title="Keyboard flow"
             />
@@ -601,7 +601,7 @@ function FormSample() {
         </div>
       ))}
       <div className="flex items-center gap-1.5 text-yellow-800 dark:text-yellow-200">
-        <CheckCircle size={14} aria-hidden="true" />
+        <CheckCircleIcon size={14} aria-hidden="true" />
         Schema and field state agree
       </div>
     </div>
@@ -641,7 +641,7 @@ function PerformanceCategory({
       <section className="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-[#0b0d08]">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <div>
-            <SectionKicker icon={<Lightning size={14} />}>
+            <SectionKicker icon={<LightningIcon size={14} />}>
               Performance
             </SectionKicker>
             <h1 className={heroTitleClassName}>
@@ -684,7 +684,7 @@ function FrameBudgetLab() {
     <div className="rounded-lg border border-zinc-200 bg-white p-5 shadow-sm shadow-zinc-950/5 dark:border-zinc-800 dark:bg-zinc-950">
       <div className="mb-5 flex items-center justify-between gap-3">
         <p className="font-bold">16ms frame lab</p>
-        <Clock className="text-lime-700 dark:text-lime-300" size={18} />
+        <ClockIcon className="text-lime-700 dark:text-lime-300" size={18} />
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         <div
@@ -813,7 +813,9 @@ function ToolingCategory({
       <section className="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 lg:grid-cols-[0.88fr_1.12fr] lg:items-center">
           <div>
-            <SectionKicker icon={<Wrench size={14} />}>Tooling</SectionKicker>
+            <SectionKicker icon={<WrenchIcon size={14} />}>
+              Tooling
+            </SectionKicker>
             <h1 className={heroTitleClassName}>
               The tools around TanStack apps and packages.
             </h1>
@@ -835,25 +837,25 @@ function ToolingCategory({
           <div className="mt-6 grid gap-4 lg:grid-cols-4">
             <ToolingStep
               detail="Create Start apps, search docs, and export prompts."
-              icon={<Terminal size={18} />}
+              icon={<TerminalIcon size={18} />}
               library={cli}
               step="Create"
             />
             <ToolingStep
               detail="Lint, build, test, version, and publish packages."
-              icon={<Package size={18} />}
+              icon={<PackageIcon size={18} />}
               library={config}
               step="Package"
             />
             <ToolingStep
               detail="Inspect TanStack libraries through one dockable panel."
-              icon={<MagnifyingGlass size={18} />}
+              icon={<MagnifyingGlassIcon size={18} />}
               library={devtools}
               step="Inspect"
             />
             <ToolingStep
               detail="Ship package-scoped guidance for assistants."
-              icon={<BracketsCurly size={18} />}
+              icon={<BracketsCurlyIcon size={18} />}
               library={intent}
               step="Remember"
             />
@@ -878,22 +880,22 @@ function ToolingWorkbench() {
       <div className="grid gap-3 md:grid-cols-2">
         <WorkbenchCell
           code={['create app workspace', 'template: app + data']}
-          icon={<Terminal size={16} />}
+          icon={<TerminalIcon size={16} />}
           label="Create"
         />
         <WorkbenchCell
           code={['shared lint/build/test', 'publish: versions ready']}
-          icon={<Package size={16} />}
+          icon={<PackageIcon size={16} />}
           label="Package"
         />
         <WorkbenchCell
           code={['runtime panel open', 'custom dock: app metrics']}
-          icon={<MagnifyingGlass size={16} />}
+          icon={<MagnifyingGlassIcon size={16} />}
           label="Inspect"
         />
         <WorkbenchCell
           code={['package notes installed', 'context: dependency-scoped']}
-          icon={<BracketsCurly size={16} />}
+          icon={<BracketsCurlyIcon size={16} />}
           label="Remember"
         />
       </div>
@@ -963,7 +965,7 @@ function RelatedPostsBlock({ items }: { items: Array<RelatedPost> }) {
   return (
     <section className="border-t border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950">
       <div className="mx-auto max-w-7xl px-4 py-12">
-        <SectionKicker icon={<Newspaper size={14} />}>
+        <SectionKicker icon={<NewspaperIcon size={14} />}>
           From the team
         </SectionKicker>
         <h2 className="mt-3 text-2xl font-black leading-tight sm:text-3xl">
@@ -1104,7 +1106,7 @@ function OpenLibraryCta({
       )}
     >
       Open {shortName(library)}
-      <ArrowRight size={13} aria-hidden="true" />
+      <ArrowRightIcon size={13} aria-hidden="true" />
     </span>
   )
 }
@@ -1141,7 +1143,7 @@ function LibraryButton({
           colorProduct={false}
         />
       ) : null}
-      <ArrowRight size={15} aria-hidden="true" />
+      <ArrowRightIcon size={15} aria-hidden="true" />
     </Link>
   )
 }

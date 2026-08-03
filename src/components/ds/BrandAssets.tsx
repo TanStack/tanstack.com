@@ -1,5 +1,10 @@
 import * as React from 'react'
-import { CaretDown, Check, Copy, DownloadSimple } from '@phosphor-icons/react'
+import {
+  CaretDownIcon as CaretDown,
+  CheckIcon as Check,
+  CopyIcon as Copy,
+  DownloadSimpleIcon as DownloadSimple,
+} from '@phosphor-icons/react'
 import { DsSection } from '~/components/ds/DsKit'
 import { useToast } from '~/components/ToastProvider'
 import { copyTextToClipboard, useTemporaryFlag } from '~/utils/browser-effects'

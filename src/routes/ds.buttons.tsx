@@ -1,14 +1,14 @@
 import * as React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import {
-  ArrowRight,
-  CaretDown,
-  Check,
-  Download,
-  Plus,
-  MagnifyingGlass,
-  Gear,
-  Trash,
+  ArrowRightIcon,
+  CaretDownIcon,
+  CheckIcon,
+  DownloadIcon,
+  PlusIcon,
+  MagnifyingGlassIcon,
+  GearIcon,
+  TrashIcon,
 } from '@phosphor-icons/react'
 import { seo } from '~/utils/seo'
 import {
@@ -121,18 +121,18 @@ function ButtonsPage() {
 <Button variant="secondary">Secondary</Button>
 <Button variant="ghost">Ghost</Button>
 <Button variant="link">Link</Button>
-<Button variant="subtle-link">Subtle link <ArrowRight /></Button>
-<Button variant="icon" aria-label="Add"><Plus /></Button>`}
+<Button variant="subtle-link">Subtle link <ArrowRightIcon /></Button>
+<Button variant="icon" aria-label="Add"><PlusIcon /></Button>`}
         >
           <Button variant="primary">Primary</Button>
           <Button variant="secondary">Secondary</Button>
           <Button variant="ghost">Ghost</Button>
           <Button variant="link">Link</Button>
           <Button variant="subtle-link" color="gray">
-            Subtle link <ArrowRight />
+            Subtle link <ArrowRightIcon />
           </Button>
           <Button variant="icon" aria-label="Add">
-            <Plus className="h-4 w-4" />
+            <PlusIcon className="h-4 w-4" />
           </Button>
         </ButtonPreview>
       </DsSection>
@@ -147,7 +147,7 @@ function ButtonsPage() {
 <Button variant="gradient" color="blue">Get started</Button>
 <Button variant="gradient" color="orange">Get started</Button>
 <Button variant="gradient" color="purple">Get started</Button>
-<Button variant="gradient">Copy prompt <ArrowRight /></Button>`}
+<Button variant="gradient">Copy prompt <ArrowRightIcon /></Button>`}
         >
           <Button variant="gradient" color="green">
             Get started
@@ -165,7 +165,7 @@ function ButtonsPage() {
             Get started
           </Button>
           <Button variant="gradient">
-            Copy prompt <ArrowRight className="h-4 w-4" />
+            Copy prompt <ArrowRightIcon className="h-4 w-4" />
           </Button>
         </ButtonPreview>
       </DsSection>
@@ -210,14 +210,14 @@ function ButtonsPage() {
         <ButtonPreview
           code={`<Button variant="link">Documentation</Button>
 <Button variant="link" color="gray">Learn more</Button>
-<Button variant="subtle-link" color="gray">View all posts <ArrowRight /></Button>`}
+<Button variant="subtle-link" color="gray">View all posts <ArrowRightIcon /></Button>`}
         >
           <Button variant="link">Documentation</Button>
           <Button variant="link" color="gray">
             Learn more
           </Button>
           <Button variant="subtle-link" color="gray">
-            View all posts <ArrowRight />
+            View all posts <ArrowRightIcon />
           </Button>
         </ButtonPreview>
       </DsSection>
@@ -227,21 +227,21 @@ function ButtonsPage() {
         description="Icon-only buttons via the icon variant, in both icon sizes (icon-sm, icon-md) and any color."
       >
         <ButtonPreview
-          code={`<Button variant="icon" size="icon-sm" aria-label="Search"><MagnifyingGlass /></Button>
-<Button variant="icon" size="icon-md" aria-label="Settings"><Gear /></Button>
-<Button variant="icon" color="red" aria-label="Delete"><Trash /></Button>`}
+          code={`<Button variant="icon" size="icon-sm" aria-label="Search"><MagnifyingGlassIcon /></Button>
+<Button variant="icon" size="icon-md" aria-label="Settings"><GearIcon /></Button>
+<Button variant="icon" color="red" aria-label="Delete"><TrashIcon /></Button>`}
         >
           <Button variant="icon" size="icon-sm" aria-label="Search">
-            <MagnifyingGlass className="h-4 w-4" />
+            <MagnifyingGlassIcon className="h-4 w-4" />
           </Button>
           <Button variant="icon" size="icon-md" aria-label="Settings">
-            <Gear className="h-5 w-5" />
+            <GearIcon className="h-5 w-5" />
           </Button>
           <Button variant="icon" size="icon-md" color="green" aria-label="Add">
-            <Plus className="h-5 w-5" />
+            <PlusIcon className="h-5 w-5" />
           </Button>
           <Button variant="icon" color="red" aria-label="Delete">
-            <Trash className="h-5 w-5" />
+            <TrashIcon className="h-5 w-5" />
           </Button>
         </ButtonPreview>
       </DsSection>
@@ -265,15 +265,15 @@ function ButtonsPage() {
         description="Buttons accept any children, and forward native props like disabled."
       >
         <ButtonPreview
-          code={`<Button><Download /> Download</Button>
-<Button variant="ghost" color="red"><Trash /> Delete</Button>
+          code={`<Button><DownloadIcon /> Download</Button>
+<Button variant="ghost" color="red"><TrashIcon /> Delete</Button>
 <Button disabled>Disabled</Button>`}
         >
           <Button>
-            <Download className="h-4 w-4" /> Download
+            <DownloadIcon className="h-4 w-4" /> Download
           </Button>
           <Button variant="ghost" color="red">
-            <Trash className="h-4 w-4" /> Delete
+            <TrashIcon className="h-4 w-4" /> Delete
           </Button>
           <Button disabled>Disabled</Button>
         </ButtonPreview>
@@ -300,35 +300,35 @@ function ButtonsPage() {
       >
         <ButtonPreview
           code={`{/* leading */}
-<Button><Plus /> New project</Button>
-<Button variant="secondary"><Gear /> Settings</Button>
-<Button variant="ghost" color="red"><Trash /> Delete</Button>
+<Button><PlusIcon /> New project</Button>
+<Button variant="secondary"><GearIcon /> Settings</Button>
+<Button variant="ghost" color="red"><TrashIcon /> Delete</Button>
 {/* trailing */}
-<Button>Continue <ArrowRight /></Button>
-<Button variant="secondary">Export <Download /></Button>
-<Button variant="ghost">Options <CaretDown /></Button>
-<Button color="green">Save <Check /></Button>`}
+<Button>Continue <ArrowRightIcon /></Button>
+<Button variant="secondary">Export <DownloadIcon /></Button>
+<Button variant="ghost">Options <CaretDownIcon /></Button>
+<Button color="green">Save <CheckIcon /></Button>`}
         >
           <Button>
-            <Plus className="h-4 w-4" /> New project
+            <PlusIcon className="h-4 w-4" /> New project
           </Button>
           <Button variant="secondary">
-            <Gear className="h-4 w-4" /> Settings
+            <GearIcon className="h-4 w-4" /> Settings
           </Button>
           <Button variant="ghost" color="red">
-            <Trash className="h-4 w-4" /> Delete
+            <TrashIcon className="h-4 w-4" /> Delete
           </Button>
           <Button>
-            Continue <ArrowRight className="h-4 w-4" />
+            Continue <ArrowRightIcon className="h-4 w-4" />
           </Button>
           <Button variant="secondary">
-            Export <Download className="h-4 w-4" />
+            Export <DownloadIcon className="h-4 w-4" />
           </Button>
           <Button variant="ghost">
-            Options <CaretDown className="h-4 w-4" />
+            Options <CaretDownIcon className="h-4 w-4" />
           </Button>
           <Button color="green">
-            Save <Check className="h-4 w-4" />
+            Save <CheckIcon className="h-4 w-4" />
           </Button>
         </ButtonPreview>
       </DsSection>
@@ -343,7 +343,7 @@ function ButtonsPage() {
   <Dropdown>
     <DropdownTrigger>
       <Button rounded="none" aria-label="More deploy options" className="border-l border-white/20 px-2">
-        <CaretDown />
+        <CaretDownIcon />
       </Button>
     </DropdownTrigger>
     <DropdownContent align="end">
@@ -364,7 +364,7 @@ function ButtonsPage() {
                   aria-label="More deploy options"
                   className="border-l border-white/20 px-2"
                 >
-                  <CaretDown className="h-4 w-4" />
+                  <CaretDownIcon className="h-4 w-4" />
                 </Button>
               </DropdownTrigger>
               <DropdownContent align="end">

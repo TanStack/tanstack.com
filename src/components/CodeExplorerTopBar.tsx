@@ -1,10 +1,10 @@
 import React from 'react'
 import {
-  ArrowLineLeft,
-  ArrowLineRight,
-  ArrowsOut,
-  ArrowsIn,
-  TextAlignLeft,
+  ArrowLineLeftIcon,
+  ArrowLineRightIcon,
+  ArrowsOutIcon,
+  ArrowsInIcon,
+  TextAlignLeftIcon,
 } from '@phosphor-icons/react'
 
 interface CodeExplorerTopBarProps {
@@ -34,7 +34,7 @@ export function CodeExplorerTopBar({
               className="p-2 text-sm rounded transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400"
               title={'Hide sidebar'}
             >
-              <ArrowLineLeft className="w-4 h-4" />
+              <ArrowLineLeftIcon className="w-4 h-4" />
             </button>
           ) : (
             <button
@@ -42,12 +42,15 @@ export function CodeExplorerTopBar({
               className="p-2 text-sm rounded transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400"
               title={'Show sidebar'}
             >
-              <ArrowLineRight className="w-4 h-4" />
+              <ArrowLineRightIcon className="w-4 h-4" />
             </button>
           )
         ) : (
           <div className="p-2 text-sm rounded" aria-hidden>
-            <TextAlignLeft className="w-4 h-4 text-transparent" aria-hidden />
+            <TextAlignLeftIcon
+              className="w-4 h-4 text-transparent"
+              aria-hidden
+            />
           </div>
         )}
         <button
@@ -96,9 +99,9 @@ export function CodeExplorerTopBar({
           title={isFullScreen ? 'Exit full screen' : 'Enter full screen'}
         >
           {isFullScreen ? (
-            <ArrowsIn className="w-4 h-4" />
+            <ArrowsInIcon className="w-4 h-4" />
           ) : (
-            <ArrowsOut className="w-4 h-4" />
+            <ArrowsOutIcon className="w-4 h-4" />
           )}
         </button>
       </div>

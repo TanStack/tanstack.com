@@ -4,13 +4,13 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 
 import {
-  ArrowRight,
-  Code,
-  Stack,
-  Shield,
-  Lightning,
-  Pause,
-  Play,
+  ArrowRightIcon,
+  CodeIcon,
+  StackIcon,
+  ShieldIcon,
+  LightningIcon,
+  PauseIcon,
+  PlayIcon,
   type Icon,
 } from '@phosphor-icons/react'
 import { HomeApplicationStarter } from '~/components/home/HomeApplicationStarter'
@@ -84,7 +84,7 @@ function Index() {
                 <span className="underline decoration-from-font underline-offset-[6px]">
                   open source
                 </span>
-                <br className="hidden md:block" /> the application stack
+                <br className="hidden md:block" /> application stack
                 <br className="hidden md:block" /> for the web
               </h1>
               <div className="flex flex-col items-start gap-6 md:w-[29%] md:max-w-[454px]">
@@ -113,7 +113,7 @@ function Index() {
                     size="md"
                     className="text-black hover:text-black max-[899px]:text-black"
                   >
-                    Start with a prompt <ArrowRight className="h-4 w-4" />
+                    Start with a prompt <ArrowRightIcon className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
@@ -216,9 +216,9 @@ function HeroPalmMedia() {
         className="absolute right-4 top-4 z-20 grid size-8 place-items-center rounded-full bg-ds-neutral-500/65 text-white opacity-0 backdrop-blur-sm transition-opacity hover:bg-ds-neutral-500/80 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white group-hover:opacity-100 motion-reduce:hidden"
       >
         {isPlaying ? (
-          <Pause className="size-4" weight="fill" />
+          <PauseIcon className="size-4" weight="fill" />
         ) : (
-          <Play className="size-4" weight="fill" />
+          <PlayIcon className="size-4" weight="fill" />
         )}
       </button>
     </>
@@ -266,7 +266,7 @@ const whyTanStackPrinciples = [
     label: 'Portable core',
     title: 'Framework Agnostic',
     body: 'Our library cores are provider-agnostic and logic-driven, meaning you can use the same logic in React, Vue, Svelte, Solid, and more.',
-    Icon: Stack,
+    Icon: StackIcon,
     accentClassName: 'from-blue-500 to-cyan-500',
     eyebrowClassName: 'text-category-ui',
     iconClassName:
@@ -277,7 +277,7 @@ const whyTanStackPrinciples = [
     label: 'Compile-time contracts',
     title: 'Type-Safe by Design',
     body: 'Built with TypeScript from the ground up, providing incredible autocomplete and safety across your entire data-fetching and state management stack.',
-    Icon: Code,
+    Icon: CodeIcon,
     accentClassName: 'from-emerald-500 to-teal-500',
     eyebrowClassName: 'text-ds-green-400',
     iconClassName:
@@ -288,7 +288,7 @@ const whyTanStackPrinciples = [
     label: 'Real workloads',
     title: 'Production-Grade',
     body: "Battle-tested in the world's largest apps. We build for scale, handling complex concurrency, caching, and state synchronization with ease.",
-    Icon: Lightning,
+    Icon: LightningIcon,
     accentClassName: 'from-orange-500 to-red-500',
     eyebrowClassName: 'text-ds-terracotta-400',
     iconClassName:
@@ -299,7 +299,7 @@ const whyTanStackPrinciples = [
     label: 'Independent tools',
     title: 'No Vendor Lock-in',
     body: "Open source and independent. We aren't beholden to any single cloud provider or framework team, ensuring the best tools for the community.",
-    Icon: Shield,
+    Icon: ShieldIcon,
     accentClassName: 'from-purple-500 to-pink-500',
     eyebrowClassName: 'text-ds-purple-400',
     iconClassName:
@@ -535,7 +535,7 @@ function WhyTanStackSection() {
             className="group inline-flex items-center gap-1.5 rounded-md py-1 font-mono text-xs font-semibold uppercase tracking-[1px] text-gray-400 transition-colors hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus dark:text-gray-500 dark:hover:text-gray-100"
           >
             Read our product tenets
-            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5 motion-reduce:transition-none" />
+            <ArrowRightIcon className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5 motion-reduce:transition-none" />
           </Link>
         </div>
       </div>

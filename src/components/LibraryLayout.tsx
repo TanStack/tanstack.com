@@ -1,5 +1,10 @@
 import * as React from 'react'
-import { CaretLeft, CaretRight, List, X } from '@phosphor-icons/react'
+import {
+  CaretLeftIcon,
+  CaretRightIcon,
+  ListIcon,
+  XIcon,
+} from '@phosphor-icons/react'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { DiscordIcon } from '~/components/icons/DiscordIcon'
 import { Link, useMatches, useParams } from '@tanstack/react-router'
@@ -582,7 +587,7 @@ function DocNavigationCard({
   const children =
     direction === 'previous' ? (
       <>
-        <CaretLeft className="w-3 h-3 sm:w-4 sm:h-4" />
+        <CaretLeftIcon className="w-3 h-3 sm:w-4 sm:h-4" />
         <div className="flex flex-col">
           <span className="hidden sm:block text-[10px] uppercase tracking-wider opacity-60 mb-0.5">
             Previous
@@ -600,7 +605,7 @@ function DocNavigationCard({
             {item.label}
           </span>
         </div>
-        <CaretRight className="h-3 w-3 text-text-primary sm:h-4 sm:w-4" />
+        <CaretRightIcon className="h-3 w-3 text-text-primary sm:h-4 sm:w-4" />
       </>
     )
 
@@ -1173,7 +1178,7 @@ export function LibraryLayout({
             className="p-1 rounded-md hover:bg-gray-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current cursor-pointer"
             onClick={closeMobileMenu}
           >
-            <X className="w-5 h-5" />
+            <XIcon className="w-5 h-5" />
           </button>
         </div>
         <div className="flex flex-col gap-4 p-4 text-lg">
@@ -1343,8 +1348,8 @@ export function LibraryLayout({
           data-docs-mobile-trigger
           className="min-[900px]:hidden flex items-center gap-1.5 shrink-0 px-3 border-r border-gray-500/20 text-slate-600 dark:text-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current"
         >
-          <List className="w-4 h-4" data-docs-mobile-closed-icon />
-          <X className="w-4 h-4" data-docs-mobile-open-icon />
+          <ListIcon className="w-4 h-4" data-docs-mobile-closed-icon />
+          <XIcon className="w-4 h-4" data-docs-mobile-open-icon />
           <span className="text-xs font-medium max-[479.98px]:sr-only">
             Menu
           </span>
@@ -1366,7 +1371,7 @@ export function LibraryLayout({
           data-docs-menu-trigger
           className="hidden min-[900px]:flex xl:hidden items-center gap-1 shrink-0 px-2 border-r border-gray-500/20 text-xs font-medium text-slate-600 dark:text-slate-300 min-[1120px]:gap-1.5 min-[1120px]:px-3 min-[1120px]:text-[13px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current"
         >
-          <List className="w-4 h-4" />
+          <ListIcon className="w-4 h-4" />
           <span className="text-xs font-medium">Menu</span>
         </button>
         <div className="relative hidden min-w-0 flex-1 items-stretch md:flex">
@@ -1476,7 +1481,7 @@ export function LibraryLayout({
           data-docs-layout
           data-docs-menu-open={showLargeMenu ? 'true' : undefined}
           className={twMerge(
-            'flex w-full flex-col [overflow-x:clip] md:min-h-[calc(100dvh-var(--navbar-height))] transition-all duration-300',
+            'flex w-full flex-col md:min-h-[calc(100dvh-var(--navbar-height))] transition-all duration-300',
             isLandingPage && 'bg-background-default text-text-primary',
           )}
         >
@@ -1486,7 +1491,7 @@ export function LibraryLayout({
             {largeMenu}
             <div
               className={twMerge(
-                'flex flex-col max-w-full min-w-0 flex-1 min-h-0 relative',
+                'relative flex min-h-0 min-w-0 max-w-full flex-1 flex-col [overflow-x:clip]',
               )}
             >
               <div

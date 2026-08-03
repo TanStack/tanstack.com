@@ -1,4 +1,8 @@
-import { Database, ChatCircleDots, Plugs } from '@phosphor-icons/react'
+import {
+  DatabaseIcon,
+  ChatCircleDotsIcon,
+  PlugsIcon,
+} from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { router } from './libraries'
 
@@ -64,7 +68,7 @@ export const routerProject = {
   featureHighlights: [
     {
       title: 'Typesafe & powerful, yet familiarly simple',
-      icon: <Plugs className={twMerge('scale-125', textStyles)} />,
+      icon: <PlugsIcon className={twMerge('scale-125', textStyles)} />,
       description: (
         <div>
           TanStack Router builds on modern routing patterns made popular by
@@ -79,7 +83,7 @@ export const routerProject = {
     {
       title: 'Built-in Data Fetching with Caching',
       icon: (
-        <Database
+        <DatabaseIcon
           className={twMerge('motion-safe:animate-spin', textStyles)}
           style={{
             animationDuration: '3s',
@@ -101,7 +105,7 @@ export const routerProject = {
     },
     {
       title: 'Search Param APIs to make your state-manager jealous',
-      icon: <ChatCircleDots className={twMerge('', textStyles)} />,
+      icon: <ChatCircleDotsIcon className={twMerge('', textStyles)} />,
       description: (
         <div>
           Instead of throwing you to the URLSearchParam wolves, TanStack Router

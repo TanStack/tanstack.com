@@ -1,5 +1,6 @@
 import {
   fetchGitHubCommitHistory,
+  fetchRemoteRepoRawFile,
   fetchRepoRawFile,
   GitHubContentError,
   resolveGitHubRef,
@@ -57,12 +58,12 @@ export function classifyChartsCatalogAssetError(error: unknown) {
 
 export async function getChartsCatalogPublication(): Promise<ChartsCatalogPublication> {
   if (shouldUseLocalDocsFiles()) {
-    const manifest = await readChartsCatalogManifest(
-      chartsCatalogPublicationRef,
-    )
-    return {
-      artifactRevision: manifest.revision,
-      manifest,
+    const manifest = await getLocalChartsCatalogManifest()
+    if (manifest) {
+      return {
+        artifactRevision: manifest.revision,
+        manifest,
+      }
     }
   }
 
@@ -87,15 +88,15 @@ export async function getChartsCatalogManifestAtRevision(
   }
 
   if (shouldUseLocalDocsFiles()) {
-    const manifest = await readChartsCatalogManifest(
-      chartsCatalogPublicationRef,
-    )
-    if (artifactRevision !== manifest.revision) {
-      throw new ChartsCatalogResourceNotFoundError(
-        'Unpublished Charts catalog artifact revision',
-      )
+    const manifest = await getLocalChartsCatalogManifest()
+    if (manifest) {
+      if (artifactRevision !== manifest.revision) {
+        throw new ChartsCatalogResourceNotFoundError(
+          'Unpublished Charts catalog artifact revision',
+        )
+      }
+      return manifest
     }
-    return manifest
   }
 
   const publication = await getChartsCatalogPublication()
@@ -110,7 +111,7 @@ export async function getChartsCatalogManifestAtRevision(
     )
   }
 
-  return readChartsCatalogManifest(artifactRevision)
+  return readChartsCatalogManifest(artifactRevision, 'remote')
 }
 
 export async function getVerifiedChartsCatalogAssetSource(
@@ -118,14 +119,16 @@ export async function getVerifiedChartsCatalogAssetSource(
   assetPath: string,
   expected: { bytes: number; sha256: string },
 ) {
-  const filePath = shouldUseLocalDocsFiles()
-    ? `${localCatalogRoot}/${assetPath}`
-    : assetPath
-  const source = await fetchRepoRawFile(
-    chartsCatalogRepo,
-    artifactRevision,
-    filePath,
-  )
+  const localManifest = await getLocalChartsCatalogManifest()
+  const useLocal = localManifest?.revision === artifactRevision
+  const filePath = useLocal ? `${localCatalogRoot}/${assetPath}` : assetPath
+  const source = useLocal
+    ? await fetchRepoRawFile(chartsCatalogRepo, artifactRevision, filePath)
+    : await fetchRemoteRepoRawFile(
+        chartsCatalogRepo,
+        artifactRevision,
+        filePath,
+      )
 
   if (source === null) {
     throw new ChartsCatalogResourceNotFoundError(
@@ -152,11 +155,15 @@ export async function getChartsCatalogSource(
   sourceRevision: string,
   sourcePath: string,
 ) {
-  const source = await fetchRepoRawFile(
-    chartsCatalogRepo,
-    sourceRevision,
-    sourcePath,
-  )
+  const localManifest = await getLocalChartsCatalogManifest()
+  const source =
+    localManifest?.revision === sourceRevision
+      ? await fetchRepoRawFile(chartsCatalogRepo, sourceRevision, sourcePath)
+      : await fetchRemoteRepoRawFile(
+          chartsCatalogRepo,
+          sourceRevision,
+          sourcePath,
+        )
   if (source === null) {
     throw new ChartsCatalogResourceNotFoundError(
       `Charts catalog source not found: ${sourcePath}`,
@@ -230,15 +237,22 @@ export async function getChartsCatalogAuthoredSource(
   }
 }
 
-async function readChartsCatalogManifest(artifactRevision: string) {
-  const filePath = shouldUseLocalDocsFiles()
-    ? `${localCatalogRoot}/${catalogManifestPath}`
-    : catalogManifestPath
-  const source = await fetchRepoRawFile(
-    chartsCatalogRepo,
-    artifactRevision,
-    filePath,
-  )
+async function readChartsCatalogManifest(
+  artifactRevision: string,
+  sourceKind: 'local' | 'remote',
+) {
+  const filePath =
+    sourceKind === 'local'
+      ? `${localCatalogRoot}/${catalogManifestPath}`
+      : catalogManifestPath
+  const source =
+    sourceKind === 'local'
+      ? await fetchRepoRawFile(chartsCatalogRepo, artifactRevision, filePath)
+      : await fetchRemoteRepoRawFile(
+          chartsCatalogRepo,
+          artifactRevision,
+          filePath,
+        )
 
   if (source === null) {
     throw new ChartsCatalogResourceNotFoundError(
@@ -263,6 +277,39 @@ async function readChartsCatalogManifest(artifactRevision: string) {
       error,
     )
   }
+}
+
+let localManifestCache:
+  | {
+      expiresAt: number
+      promise: Promise<ChartsCatalogManifest | null>
+    }
+  | undefined
+
+function getLocalChartsCatalogManifest() {
+  if (!shouldUseLocalDocsFiles()) {
+    return Promise.resolve(null)
+  }
+
+  const now = Date.now()
+  if (localManifestCache && localManifestCache.expiresAt > now) {
+    return localManifestCache.promise
+  }
+
+  const promise = readChartsCatalogManifest(
+    chartsCatalogPublicationRef,
+    'local',
+  ).catch((error: unknown) => {
+    if (
+      error instanceof ChartsCatalogResourceNotFoundError ||
+      error instanceof ChartsCatalogIntegrityError
+    ) {
+      return null
+    }
+    throw error
+  })
+  localManifestCache = { expiresAt: now + 1_000, promise }
+  return promise
 }
 
 function getCatalogSourceMetrics(
@@ -305,7 +352,7 @@ async function buildChartsCatalogPublication(): Promise<ChartsCatalogPublication
 
   return {
     artifactRevision,
-    manifest: await readChartsCatalogManifest(artifactRevision),
+    manifest: await readChartsCatalogManifest(artifactRevision, 'remote'),
   }
 }
 

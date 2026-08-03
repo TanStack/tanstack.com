@@ -1,4 +1,8 @@
-import { Keyboard, ListNumbers, MagicWand } from '@phosphor-icons/react'
+import {
+  KeyboardIcon,
+  ListNumbersIcon,
+  MagicWandIcon,
+} from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { hotkeys } from './libraries'
 
@@ -12,7 +16,7 @@ export const hotkeysProject = {
   featureHighlights: [
     {
       title: 'Type-Safe & Cross-Platform',
-      icon: <Keyboard className={twMerge(textStyles)} />,
+      icon: <KeyboardIcon className={twMerge(textStyles)} />,
       description: (
         <div>
           Define keyboard shortcuts with a{' '}
@@ -27,7 +31,7 @@ export const hotkeysProject = {
     },
     {
       title: 'Better Defaults',
-      icon: <MagicWand className={twMerge(textStyles)} />,
+      icon: <MagicWandIcon className={twMerge(textStyles)} />,
       description: (
         <div>
           Ships with{' '}
@@ -44,7 +48,7 @@ export const hotkeysProject = {
     },
     {
       title: 'Sequences & Recording',
-      icon: <ListNumbers className={twMerge(textStyles)} />,
+      icon: <ListNumbersIcon className={twMerge(textStyles)} />,
       description: (
         <div>
           Build{' '}

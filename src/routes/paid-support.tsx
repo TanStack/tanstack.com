@@ -7,7 +7,12 @@ import {
   MaintainerCard,
   MaintainerRowCard,
 } from '~/components/MaintainerCard'
-import { GridFour, GridNine, Rows, Envelope } from '@phosphor-icons/react'
+import {
+  GridFourIcon,
+  GridNineIcon,
+  RowsIcon,
+  EnvelopeIcon,
+} from '@phosphor-icons/react'
 import { Button } from '~/ui'
 
 export const Route = createFileRoute('/paid-support')({
@@ -61,19 +66,19 @@ function PaidSupportComp() {
                 [
                   {
                     mode: 'compact',
-                    Icon: GridNine,
+                    Icon: GridNineIcon,
                     title: 'Compact cards',
                     rounded: 'rounded-l-lg',
                   },
                   {
                     mode: 'full',
-                    Icon: GridFour,
+                    Icon: GridFourIcon,
                     title: 'Full cards',
                     rounded: '',
                   },
                   {
                     mode: 'row',
-                    Icon: Rows,
+                    Icon: RowsIcon,
                     title: 'Row cards',
                     rounded: 'rounded-r-lg',
                   },
@@ -154,7 +159,7 @@ function PaidSupportComp() {
               href="mailto:support@tanstack.com?subject=Enterprise%20Support%20Inquiry"
               className="inline-flex items-center gap-3 px-6 py-3 bg-linear-to-r from-green-600 to-cyan-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-200 hover:shadow-lg hover:scale-105"
             >
-              <Envelope className="w-5 h-5" />
+              <EnvelopeIcon className="w-5 h-5" />
               Contact Support Team
             </a>
           </div>

@@ -611,6 +611,33 @@ export async function fetchRepoRawFile(
   }
 }
 
+export async function fetchRemoteRepoRawFile(
+  repoPair: string,
+  ref: string,
+  filepath: string,
+) {
+  assertValidGitHubRepoPair(repoPair)
+  assertValidGitHubRef(ref)
+  if (!filepath || !isValidRepoPath(filepath)) {
+    throw new InvalidCacheKeyError('path', filepath)
+  }
+
+  try {
+    return await getCachedGitHubTextFile({
+      repo: repoPair,
+      gitRef: ref,
+      path: `.tanstack-raw/${filepath}`,
+      origin: async () => {
+        const [owner, repo] = repoPair.split('/')
+        return fetchRemote(owner, repo, ref, filepath)
+      },
+    })
+  } catch (error) {
+    if (error instanceof InvalidCacheKeyError) return null
+    throw error
+  }
+}
+
 export async function fetchRepoFile(
   repoPair: string,
   ref: string,

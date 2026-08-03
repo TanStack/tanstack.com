@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useTheme } from './ThemeProvider'
-import { Moon, Sun, SunHorizon } from '@phosphor-icons/react'
+import { MoonIcon, SunIcon, SunHorizonIcon } from '@phosphor-icons/react'
 import { Button } from '~/ui'
 
 export function ThemeToggle() {
@@ -41,9 +41,9 @@ export function ThemeToggle() {
         aria-hidden="true"
         className="grid size-[18px] shrink-0 place-items-center"
       >
-        <SunHorizon className={getIconClassName('auto')} weight="bold" />
-        <Sun className={getIconClassName('light')} weight="bold" />
-        <Moon className={getIconClassName('dark')} weight="bold" />
+        <SunHorizonIcon className={getIconClassName('auto')} weight="bold" />
+        <SunIcon className={getIconClassName('light')} weight="bold" />
+        <MoonIcon className={getIconClassName('dark')} weight="bold" />
       </span>
     </Button>
   )

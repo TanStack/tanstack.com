@@ -1,16 +1,16 @@
 import * as React from 'react'
 import {
-  BracketsCurly,
-  Bug,
-  Code,
-  Cube,
-  Database,
-  Microphone,
-  Plug,
-  Radio,
-  Robot,
-  Terminal,
-  Waveform,
+  BracketsCurlyIcon,
+  BugIcon,
+  CodeIcon,
+  CubeIcon,
+  DatabaseIcon,
+  MicrophoneIcon,
+  PlugIcon,
+  RadioIcon,
+  RobotIcon,
+  TerminalIcon,
+  WaveformIcon,
   type Icon,
 } from '@phosphor-icons/react'
 
@@ -169,7 +169,7 @@ export default function AiLanding() {
         <LandingSectionIntro
           centered
           eyebrow="Two files"
-          icon={<Terminal aria-hidden="true" size={15} />}
+          icon={<TerminalIcon aria-hidden="true" size={15} />}
           title="An agent on your own server, end to end."
           body="One route on the server, one hook in the client, and the transport between them is yours. Nothing here is a wrapper around a service we run."
         />
@@ -180,7 +180,7 @@ export default function AiLanding() {
         <div className="grid items-center gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16">
           <LandingSectionIntro
             eyebrow="The agent loop"
-            icon={<BracketsCurly aria-hidden="true" size={15} />}
+            icon={<BracketsCurlyIcon aria-hidden="true" size={15} />}
             title="An agent loop you can read, and stop where you want."
             body="chat() runs the cycle: the model calls a tool, the result goes back, it keeps reasoning. You decide the boundary. Client tools touch local UI state, server tools use your credentials, isomorphic tools share one definition. Stop conditions are plain (state) => boolean functions you compose. Mark a tool needsApproval and the run ends as an interrupt your UI resolves, then resumes exactly where it stopped, on a stateless server, no database required."
           />
@@ -193,7 +193,7 @@ export default function AiLanding() {
           <ProviderWorkbench />
           <LandingSectionIntro
             eyebrow="Provider types"
-            icon={<Plug aria-hidden="true" size={15} />}
+            icon={<PlugIcon aria-hidden="true" size={15} />}
             title="Swap the model. Keep the agent."
             body="OpenRouter, OpenAI, Anthropic, Gemini, Bedrock, Mistral, Groq, Grok, Ollama, ElevenLabs, and fal.ai ship as official adapters, and openaiCompatible covers any endpoint that speaks the same shape, including a model on your own hardware. Switching is a line of config, not a migration. And no adapter pretends every model is identical: write openaiText('gpt-5.5') and TypeScript narrows to that model's real options, capabilities, and input modalities."
           />
@@ -204,7 +204,7 @@ export default function AiLanding() {
         <LandingSectionIntro
           centered
           eyebrow="Open protocol"
-          icon={<Radio aria-hidden="true" size={15} />}
+          icon={<RadioIcon aria-hidden="true" size={15} />}
           title="AG-UI compliant, in both directions."
           body="The client sends AG-UI requests and consumes AG-UI events, with no proprietary stream format and no translation layer in between. That is what makes the agent on the other end replaceable: point the same client at a Python, Go, or PHP AG-UI runtime and it keeps working. The transport is yours too, whether that is SSE, HTTP streams, XHR, RPC, a raw async iterable, or a fetcher you wrote. Nothing to sign up for, no key to hand over, no traffic through us."
         />
@@ -215,7 +215,7 @@ export default function AiLanding() {
         <div className="grid gap-12 lg:grid-cols-[0.78fr_1.22fr] lg:items-start lg:gap-16">
           <LandingSectionIntro
             eyebrow="The rest of the agent stack"
-            icon={<Cube aria-hidden="true" size={15} />}
+            icon={<CubeIcon aria-hidden="true" size={15} />}
             title="Sandboxes, code mode, MCP, memory. Shipped, not planned."
             body="An agent framework is more than a loop around a model. Each of these is a separate package you opt into, running on infrastructure you already own. Each ships an Agent Skill so your coding assistant wires it up correctly."
           />
@@ -227,7 +227,7 @@ export default function AiLanding() {
         <div className="grid gap-12 lg:grid-cols-[0.78fr_1.22fr] lg:items-start lg:gap-16">
           <LandingSectionIntro
             eyebrow="Beyond chat"
-            icon={<Microphone aria-hidden="true" size={15} />}
+            icon={<MicrophoneIcon aria-hidden="true" size={15} />}
             title="Not a chatbot library. Every modality, one runtime."
             body="Text and structured output sit beside image, video, speech, transcription, music, and realtime voice. One hook per activity, each a separate tree-shakeable import, none of it wrapped in a chat UI you have to accept. Middleware, devtools, and OpenTelemetry observe every run at the activity level."
           />
@@ -239,7 +239,7 @@ export default function AiLanding() {
         <div className="grid gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:items-center lg:gap-16">
           <LandingSectionIntro
             eyebrow="Devtools"
-            icon={<Bug aria-hidden="true" size={15} />}
+            icon={<BugIcon aria-hidden="true" size={15} />}
             title="Watch the loop run instead of guessing."
             body="Agent bugs live between the turns: which tool ran, what came back, what memory injected, where the run stopped. The TanStack Devtools panel finds every AI hook on the page and gives each one a turn-by-turn timeline with tool inputs and outputs, state snapshots, and errors. You can even replay a tool from a saved fixture instead of prompting your way back to the same state."
           />
@@ -1047,25 +1047,25 @@ const agentStack: Array<RailItem> = [
     label: 'Code Mode',
     detail: '@tanstack/ai-code-mode',
     body: 'The model writes one TypeScript program that calls your tools with loops and Promise.all, instead of a round trip per call. It runs in a V8 isolate, QuickJS WASM, or a Cloudflare Worker, with no host filesystem, network, or process.',
-    icon: Code,
+    icon: CodeIcon,
   },
   {
     label: 'Coding-agent harnesses',
     detail: '@tanstack/ai-sandbox',
     body: 'Run Claude Code, Codex, OpenCode, Grok Build, or any ACP agent as a chat backend, inside a local process, Docker, Daytona, Vercel, Sprites, or Cloudflare sandbox. Their tool activity streams back as AG-UI events your UI already renders.',
-    icon: Terminal,
+    icon: TerminalIcon,
   },
   {
     label: 'MCP + MCP Apps',
     detail: '@tanstack/ai-mcp',
     body: 'A host-side MCP client with a type-generating CLI, provider-routed mcpTool(), and interactive ui:// widgets rendered from tool results across multiple servers.',
-    icon: Cube,
+    icon: CubeIcon,
   },
   {
     label: 'Memory + persistence',
     detail: '@tanstack/ai-memory · -persistence',
     body: 'memoryMiddleware recalls across sessions through Redis, mem0, Honcho, or Hindsight adapters. Persistence keeps an authoritative server thread, resumes a stream through a dropped connection, and survives a reload.',
-    icon: Database,
+    icon: DatabaseIcon,
   },
 ]
 
@@ -1074,25 +1074,25 @@ const modalities: Array<RailItem> = [
     label: 'Text, objects, reasoning',
     detail: 'chat · outputSchema · summarize',
     body: 'Structured output streams as a typed message part beside tool calls and is preserved per turn in history, not a separate one-shot call.',
-    icon: Robot,
+    icon: RobotIcon,
   },
   {
     label: 'Speech, transcription, music',
     detail: 'generateSpeech · generateTranscription · generateAudio',
     body: 'Six speech formats with speed control, transcription with word timestamps and diarization, plus music and sound effects.',
-    icon: Microphone,
+    icon: MicrophoneIcon,
   },
   {
     label: 'Realtime voice',
     detail: 'openaiRealtimeToken · RealtimeClient',
     body: 'OpenAI, Grok, and ElevenLabs with VAD modes and tool calling inside a live session.',
-    icon: Waveform,
+    icon: WaveformIcon,
   },
   {
     label: 'Images + video',
     detail: 'generateImage · generateVideo',
     body: 'Per-model typed options across OpenAI, Gemini, Grok, OpenRouter, and fal.ai, with an async job lifecycle for video.',
-    icon: Radio,
+    icon: RadioIcon,
   },
 ]
 

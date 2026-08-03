@@ -1,7 +1,7 @@
 import {
-  GitBranch,
-  ArrowCounterClockwise,
-  ShieldCheck,
+  GitBranchIcon,
+  ArrowCounterClockwiseIcon,
+  ShieldCheckIcon,
 } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { workflow } from './libraries'
@@ -15,7 +15,7 @@ export const workflowProject = {
   featureHighlights: [
     {
       title: 'Typed Workflows',
-      icon: <GitBranch className={twMerge(textStyles)} />,
+      icon: <GitBranchIcon className={twMerge(textStyles)} />,
       description: (
         <div>
           Model each step with TypeScript-first inputs, outputs, and shared
@@ -29,7 +29,7 @@ export const workflowProject = {
     },
     {
       title: 'Durable Execution',
-      icon: <ShieldCheck className={twMerge(textStyles)} />,
+      icon: <ShieldCheckIcon className={twMerge(textStyles)} />,
       description: (
         <div>
           Keep critical business processes moving through deploys, restarts, and
@@ -43,7 +43,7 @@ export const workflowProject = {
     },
     {
       title: 'Retries & Recovery',
-      icon: <ArrowCounterClockwise className={twMerge(textStyles)} />,
+      icon: <ArrowCounterClockwiseIcon className={twMerge(textStyles)} />,
       description: (
         <div>
           Configure retries, backoff, and recovery behavior close to the work

@@ -1,5 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { CaretDown, SignOut, Gear, User } from '@phosphor-icons/react'
+import {
+  CaretDownIcon,
+  SignOutIcon,
+  GearIcon,
+  UserIcon,
+} from '@phosphor-icons/react'
 import { seo } from '~/utils/seo'
 import {
   Button,
@@ -34,32 +39,32 @@ function DropdownPage() {
         <ComponentPreview
           code={`<Dropdown>
   <DropdownTrigger>
-    <Button variant="secondary">Account <CaretDown /></Button>
+    <Button variant="secondary">Account <CaretDownIcon /></Button>
   </DropdownTrigger>
   <DropdownContent align="start">
-    <DropdownItem><User /> Profile</DropdownItem>
-    <DropdownItem><Gear /> Settings</DropdownItem>
+    <DropdownItem><UserIcon /> Profile</DropdownItem>
+    <DropdownItem><GearIcon /> Settings</DropdownItem>
     <DropdownSeparator />
-    <DropdownItem><SignOut /> Sign out</DropdownItem>
+    <DropdownItem><SignOutIcon /> Sign out</DropdownItem>
   </DropdownContent>
 </Dropdown>`}
         >
           <Dropdown>
             <DropdownTrigger>
               <Button variant="secondary">
-                Account <CaretDown className="h-4 w-4" />
+                Account <CaretDownIcon className="h-4 w-4" />
               </Button>
             </DropdownTrigger>
             <DropdownContent align="start">
               <DropdownItem>
-                <User className="h-4 w-4" /> Profile
+                <UserIcon className="h-4 w-4" /> Profile
               </DropdownItem>
               <DropdownItem>
-                <Gear className="h-4 w-4" /> Settings
+                <GearIcon className="h-4 w-4" /> Settings
               </DropdownItem>
               <DropdownSeparator />
               <DropdownItem>
-                <SignOut className="h-4 w-4" /> Sign out
+                <SignOutIcon className="h-4 w-4" /> Sign out
               </DropdownItem>
             </DropdownContent>
           </Dropdown>

@@ -1,5 +1,9 @@
 import { Library } from '.'
-import { BookOpen, Package, ArrowsClockwise } from '@phosphor-icons/react'
+import {
+  BookOpenIcon,
+  PackageIcon,
+  ArrowsClockwiseIcon,
+} from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { intent } from './libraries'
 
@@ -10,7 +14,7 @@ export const intentProject = {
   featureHighlights: [
     {
       title: 'Agent Skills in npm',
-      icon: <Package className={twMerge(textStyles)} />,
+      icon: <PackageIcon className={twMerge(textStyles)} />,
       description: (
         <div>
           Ship{' '}
@@ -25,7 +29,7 @@ export const intentProject = {
     },
     {
       title: 'Automatic Discovery',
-      icon: <BookOpen className={twMerge(textStyles)} />,
+      icon: <BookOpenIcon className={twMerge(textStyles)} />,
       description: (
         <div>
           Agents discover skills automatically from{' '}
@@ -39,7 +43,7 @@ export const intentProject = {
     },
     {
       title: 'Staleness Detection',
-      icon: <ArrowsClockwise className={twMerge(textStyles)} />,
+      icon: <ArrowsClockwiseIcon className={twMerge(textStyles)} />,
       description: (
         <div>
           Each skill declares its source docs. When those docs change,{' '}

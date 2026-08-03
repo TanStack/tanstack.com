@@ -17,26 +17,26 @@ import { NavbarCartButton } from './NavbarCartButton'
 import { MegaMenuItem } from './MegaMenuItem'
 import { Link, useLocation } from '@tanstack/react-router'
 import {
-  ArrowRight,
-  ArrowLeft,
-  ArrowSquareOut,
-  Briefcase,
-  Code,
-  GridFour,
-  Hammer,
-  Heart,
-  Infinity as InfinityIcon,
-  Lifebuoy,
-  Mailbox,
-  List as Menu,
-  MagnifyingGlass,
-  ShieldCheck,
-  ShoppingBag,
-  SignIn,
-  Sparkle as Sparkles,
-  TrendUp as TrendingUp,
-  Users,
-  X,
+  ArrowRightIcon,
+  ArrowLeftIcon,
+  ArrowSquareOutIcon,
+  BriefcaseIcon,
+  CodeIcon,
+  GridFourIcon,
+  HammerIcon,
+  HeartIcon,
+  InfinityIcon,
+  LifebuoyIcon,
+  MailboxIcon,
+  ListIcon as Menu,
+  MagnifyingGlassIcon,
+  ShieldCheckIcon,
+  ShoppingBagIcon,
+  SignInIcon,
+  SparkleIcon as Sparkles,
+  TrendUpIcon as TrendingUp,
+  UsersIcon,
+  XIcon,
 } from '@phosphor-icons/react'
 import { ThemeToggle } from './ThemeToggle'
 import { AiDockButton, SearchButton } from './SearchButton'
@@ -170,7 +170,7 @@ const NAV_GROUPS = [
             label: 'Workshops',
             to: '/workshops',
             description: 'Live sessions from the maintainers.',
-            icon: Users,
+            icon: UsersIcon,
           },
           {
             label: 'Release Notes',
@@ -210,13 +210,13 @@ const NAV_GROUPS = [
             label: 'Maintainers',
             to: '/maintainers',
             description: 'Meet the people maintaining the stack.',
-            icon: Code,
+            icon: CodeIcon,
           },
           {
             label: 'Contributors',
             to: '/maintainers',
             description: 'Core, library, and community contributors.',
-            icon: Users,
+            icon: UsersIcon,
           },
           {
             label: 'Showcase',
@@ -240,7 +240,7 @@ const NAV_GROUPS = [
             to: '/builder',
             description: 'Generate TanStack app starters.',
             badge: 'Alpha',
-            icon: Hammer,
+            icon: HammerIcon,
           },
           {
             label: 'Stats',
@@ -269,32 +269,32 @@ const NAV_GROUPS = [
             label: 'Support Overview',
             to: '/support',
             description: 'Find the right support path.',
-            icon: Lifebuoy,
+            icon: LifebuoyIcon,
           },
           {
             label: 'Partners',
             to: '/partners',
             description: 'Companies supporting TanStack.',
-            icon: Heart,
+            icon: HeartIcon,
           },
           {
             label: 'OSS Sponsors',
             to: '/',
             hash: 'sponsors',
             description: 'Sponsors keeping TanStack open source.',
-            icon: ShieldCheck,
+            icon: ShieldCheckIcon,
           },
           {
             label: 'Enterprise Support',
             to: '/paid-support',
             description: 'Private consulting and expert support.',
-            icon: Briefcase,
+            icon: BriefcaseIcon,
           },
           {
             label: 'Contact',
             to: 'mailto:support@tanstack.com',
             description: 'Get in touch with the TanStack team.',
-            icon: Mailbox,
+            icon: MailboxIcon,
           },
         ],
       },
@@ -305,7 +305,7 @@ const NAV_GROUPS = [
             label: 'Ethos',
             to: '/ethos',
             description: 'How we approach open source.',
-            icon: ShieldCheck,
+            icon: ShieldCheckIcon,
           },
           {
             label: 'Tenets',
@@ -317,7 +317,7 @@ const NAV_GROUPS = [
             label: 'Design System',
             to: '/ds',
             description: 'Logos, tokens, and UI components.',
-            icon: GridFour,
+            icon: GridFourIcon,
           },
         ],
       },
@@ -330,7 +330,7 @@ const NAV_GROUPS = [
         analyticsPlacement: 'navbar',
         label: 'Partnership Inquiry',
         to: PARTNER_INQUIRY_HREF,
-        icon: Mailbox,
+        icon: MailboxIcon,
       },
     },
   },
@@ -568,7 +568,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       )}
     >
       <span className="hidden min-[430px]:inline">Log In</span>
-      <SignIn className="size-4" weight="bold" />
+      <SignInIcon className="size-4" weight="bold" />
     </Link>
   )
   const renderAuthControls = (className?: string) =>
@@ -664,7 +664,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           onClick={() => setMobileMenuOpen((prev) => !prev)}
         >
           {mobileMenuOpen ? (
-            <X className="h-5 w-5" />
+            <XIcon className="h-5 w-5" />
           ) : (
             <Menu className="h-5 w-5" />
           )}
@@ -906,7 +906,7 @@ function MobileNavigation({
               onClick={() => openUtility('search')}
               className="flex w-full items-center gap-3.5 rounded-xl px-3 py-4 text-left font-ds-display text-ds-heading-3 text-[#a3a3a3] transition-colors hover:bg-[#171717] hover:text-white focus-visible:bg-[#171717] focus-visible:text-white focus-visible:outline-none"
             >
-              <MagnifyingGlass className="size-8 shrink-0" />
+              <MagnifyingGlassIcon className="size-8 shrink-0" />
               Search
             </button>
             <button
@@ -926,7 +926,7 @@ function MobileNavigation({
                   onClick={onNavigate}
                   className="flex w-full items-center gap-3.5 rounded-xl px-3 py-4 text-left font-ds-display text-ds-heading-3 text-[#a3a3a3] transition-colors hover:bg-[#171717] hover:text-white focus-visible:bg-[#171717] focus-visible:text-white focus-visible:outline-none"
                 >
-                  <SignIn className="size-8 shrink-0" />
+                  <SignInIcon className="size-8 shrink-0" />
                   Sign In
                 </Link>
               }
@@ -946,7 +946,7 @@ function MobileNavigation({
             onClick={onBack}
             className="mb-4 inline-flex items-center gap-2 rounded-xl bg-[#171717] px-3 py-2 font-ds-display text-ds-body-lg font-medium text-white transition-colors hover:bg-[#262626] focus-visible:bg-[#262626] focus-visible:outline-none"
           >
-            <ArrowLeft className="size-5" />
+            <ArrowLeftIcon className="size-5" />
             Back
           </button>
           {activeGroup ? (
@@ -1079,14 +1079,14 @@ function LibrariesMenuContent({
           'min-[1120px]:gap-[7px] min-[1120px]:rounded-[10px] min-[1120px]:px-[11px] min-[1120px]:py-2.5 min-[1120px]:text-[14px]',
       )}
     >
-      <GridFour
+      <GridFourIcon
         className={twMerge(
           'size-4',
           variant === 'desktop' && 'min-[1120px]:size-[19px]',
         )}
       />
       Browse all libraries
-      <ArrowRight
+      <ArrowRightIcon
         className={twMerge(
           'size-3.5 transition-transform group-hover/all:translate-x-0.5',
           variant === 'desktop' && 'min-[1120px]:size-[17px]',
@@ -1483,7 +1483,7 @@ function MerchMenuContent({
         )}
       >
         View all
-        <ArrowRight className="size-3.5" />
+        <ArrowRightIcon className="size-3.5" />
       </Link>
     </div>
   )
@@ -1518,7 +1518,7 @@ function MerchProductLink({
           />
         ) : (
           <span className="flex h-full w-full items-center justify-center text-text-muted">
-            <ShoppingBag className="size-7" />
+            <ShoppingBagIcon className="size-7" />
           </span>
         )}
       </div>
@@ -1559,7 +1559,7 @@ function MenuRail({
     <>
       {rail.item.label}
       {external && !rail.item.to.startsWith('mailto:') ? (
-        <ArrowSquareOut className="size-3" />
+        <ArrowSquareOutIcon className="size-3" />
       ) : null}
     </>
   )

@@ -20,11 +20,11 @@ import { tooltip } from '@tanstack/charts/tooltip'
 import { Chart } from '@tanstack/react-charts'
 import { GIFEncoder, applyPalette, quantize } from 'gifenc'
 import {
-  Check,
-  Code as Code2,
-  Copy,
-  Download,
-  List,
+  CheckIcon,
+  CodeIcon as Code2,
+  CopyIcon,
+  DownloadIcon,
+  ListIcon,
 } from '@phosphor-icons/react'
 import {
   DropdownMenu,
@@ -1540,7 +1540,7 @@ function ChartActions({
               disabled={disabled}
               type="button"
             >
-              <Download className="size-3" />
+              <DownloadIcon className="size-3" />
             </button>
           </DropdownMenuTrigger>
         </Tooltip>
@@ -1589,7 +1589,7 @@ function ChartActions({
           onClick={onToggleLegend}
           type="button"
         >
-          <List className="size-3" />
+          <ListIcon className="size-3" />
         </button>
       </Tooltip>
       {embedConfig ? <EmbedChartAction embedConfig={embedConfig} /> : null}
@@ -1621,7 +1621,11 @@ function CopyButton({
       onClick={onCopy}
       type="button"
     >
-      {copied ? <Check className="size-3" /> : <Copy className="size-3" />}
+      {copied ? (
+        <CheckIcon className="size-3" />
+      ) : (
+        <CopyIcon className="size-3" />
+      )}
       {copied ? 'Copied' : label}
     </button>
   )

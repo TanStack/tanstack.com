@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CaretRight } from '@phosphor-icons/react'
+import { CaretRightIcon as CaretRight } from '@phosphor-icons/react'
 import {
   Link,
   Outlet,

@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { Hydrate } from '@tanstack/react-start'
 import { visible } from '@tanstack/react-start/hydration'
-import { ArrowRight } from '@phosphor-icons/react'
+import { ArrowRightIcon } from '@phosphor-icons/react'
 import { BlogPostCard } from '~/components/ds/ui/BlogPostCard'
 import { Button } from '~/components/ds/ui'
 import { PartnersSponsorsContent } from '~/components/PartnersSponsorsSection'
@@ -101,7 +101,7 @@ function HomeSocialProofContent({ recentPosts }: HomeSocialProofSectionProps) {
           <div className="flex justify-center mt-6">
             <Button as={Link} to="/blog" variant="subtle-link" color="gray">
               View All Posts
-              <ArrowRight />
+              <ArrowRightIcon />
             </Button>
           </div>
         </div>

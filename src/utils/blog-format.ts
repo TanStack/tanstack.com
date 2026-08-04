@@ -1,3 +1,4 @@
+import { matchSorter } from 'match-sorter'
 import { findLibrary, type LibrarySlim } from '~/libraries'
 
 const listJoiner = new Intl.ListFormat('en-US', {
@@ -5,12 +6,50 @@ const listJoiner = new Intl.ListFormat('en-US', {
   type: 'conjunction',
 })
 
+const authorAliases = new Map<string, string>([
+  ['TkDodo', 'Dominik Dorfmeister'],
+])
+
+export type BlogCardPost = {
+  slug: string
+  title: string
+  published: string
+  excerpt: string
+  headerImage: string | undefined
+  authors: Array<string>
+  library: string | undefined
+  externalUrl?: string
+  source?: string
+}
+
+export function normalizeBlogAuthor(author: string) {
+  return authorAliases.get(author) ?? author
+}
+
+export function normalizeBlogAuthors(authors: Array<string>) {
+  const normalizedAuthors: Array<string> = []
+  const seen = new Set<string>()
+
+  for (const author of authors) {
+    const normalizedAuthor = normalizeBlogAuthor(author)
+
+    if (!seen.has(normalizedAuthor)) {
+      seen.add(normalizedAuthor)
+      normalizedAuthors.push(normalizedAuthor)
+    }
+  }
+
+  return normalizedAuthors
+}
+
 export function formatAuthors(authors: Array<string>) {
-  if (!authors.length) {
+  const normalizedAuthors = normalizeBlogAuthors(authors)
+
+  if (!normalizedAuthors.length) {
     return 'TanStack'
   }
 
-  return listJoiner.format(authors)
+  return listJoiner.format(normalizedAuthors)
 }
 
 function getUtcDateString(date = new Date()) {
@@ -63,8 +102,32 @@ export function getDistinctAuthors(
   const authors = new Set<string>()
   for (const post of posts) {
     for (const author of post.authors) {
-      authors.add(author)
+      authors.add(normalizeBlogAuthor(author))
     }
   }
   return [...authors].sort((a, b) => a.localeCompare(b))
+}
+
+export function searchBlogCardPosts(
+  posts: Array<BlogCardPost>,
+  query: string | undefined,
+) {
+  const trimmedQuery = query?.trim()
+
+  if (!trimmedQuery) {
+    return posts
+  }
+
+  return matchSorter(posts, trimmedQuery, {
+    keys: [
+      'title',
+      'excerpt',
+      (post) => post.authors.join(' '),
+      (post) =>
+        getBlogLibraries(post.library)
+          .map((library) => `${library.id} ${library.name}`)
+          .join(' '),
+      (post) => post.library ?? '',
+    ],
+  })
 }

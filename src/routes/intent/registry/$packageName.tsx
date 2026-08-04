@@ -364,7 +364,7 @@ This will detect all Agent Skills in ${name} and configure them for your coding 
       ) : (
         <CopyIcon className="w-3.5 h-3.5" />
       )}
-      CopyIcon install prompt
+      Copy install prompt
     </button>
   )
 }

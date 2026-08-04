@@ -1,25 +1,36 @@
+import { notFound, redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { setResponseHeaders } from '@tanstack/react-start/server'
-import { notFound, redirect } from '@tanstack/react-router'
 import { allPosts } from 'content-collections'
 import * as v from 'valibot'
-import type { LibraryId } from '~/libraries'
-import { getPostsForLibrary, getVisiblePosts } from '~/utils/blog'
+import { findLibrary, type LibraryId } from '~/libraries'
 import {
+  getPostsForLibrary,
+  getVisiblePosts,
+  postToBlogCardPost,
+  sortBlogCardPosts,
+} from '~/utils/blog'
+import {
+  type BlogCardPost,
   formatAuthors,
   formatPublishedDate,
+  getBlogLibraries,
   isPublishedDateReleased,
 } from '~/utils/blog-format'
+import { getExternalBlogPosts } from '~/utils/external-blog-posts.server'
 import { buildRedirectManifest } from './redirects'
 
-export type RecentPost = {
-  slug: string
-  title: string
-  published: string
-  excerpt: string
-  headerImage: string | undefined
-  authors: Array<string>
-}
+export type RecentPost = Pick<
+  BlogCardPost,
+  | 'slug'
+  | 'title'
+  | 'published'
+  | 'excerpt'
+  | 'headerImage'
+  | 'authors'
+  | 'externalUrl'
+  | 'source'
+>
 
 const blogRedirectManifest = buildRedirectManifest(
   allPosts.flatMap((post) =>
@@ -61,6 +72,26 @@ function handleRedirects(blogPath: string) {
       href: '/blog/directives-and-the-platform-boundary',
     })
   }
+}
+
+function setExistingBlogListResponseHeaders() {
+  setResponseHeaders(
+    new Headers({
+      'Cache-Control': 'public, max-age=0, must-revalidate',
+      'Cloudflare-CDN-Cache-Control':
+        'public, max-age=300, stale-while-revalidate=300',
+    }),
+  )
+}
+
+function getInternalBlogCardPosts() {
+  return sortBlogCardPosts(getVisiblePosts().map(postToBlogCardPost))
+}
+
+async function getBlogCardPosts(options?: { libraryId?: LibraryId }) {
+  const externalPosts = await getExternalBlogPosts(options)
+
+  return sortBlogCardPosts([...getInternalBlogCardPosts(), ...externalPosts])
 }
 
 export const fetchBlogPost = createServerFn({ method: 'GET' })
@@ -107,17 +138,34 @@ ${post.content}`
     }
   })
 
+export const fetchBlogIndexPosts = createServerFn({ method: 'GET' }).handler(
+  async (): Promise<Array<BlogCardPost>> => {
+    setExistingBlogListResponseHeaders()
+    return getBlogCardPosts()
+  },
+)
+
+export const fetchBlogPostsForLibrary = createServerFn({ method: 'GET' })
+  .validator(v.string())
+  .handler(async ({ data }): Promise<Array<BlogCardPost>> => {
+    const library = findLibrary(data)
+
+    if (!library) {
+      return []
+    }
+
+    return (await getBlogCardPosts({ libraryId: library.id })).filter((post) =>
+      getBlogLibraries(post.library).some(
+        (postLibrary) => postLibrary.id === library.id,
+      ),
+    )
+  })
+
 export const fetchRecentPosts = createServerFn({ method: 'GET' }).handler(
   async (): Promise<Array<RecentPost>> => {
-    setResponseHeaders(
-      new Headers({
-        'Cache-Control': 'public, max-age=0, must-revalidate',
-        'Cloudflare-CDN-Cache-Control':
-          'public, max-age=300, stale-while-revalidate=300',
-      }),
-    )
+    setExistingBlogListResponseHeaders()
 
-    return getVisiblePosts()
+    return getInternalBlogCardPosts()
       .slice(0, 3)
       .map((post) => ({
         slug: post.slug,
@@ -126,6 +174,8 @@ export const fetchRecentPosts = createServerFn({ method: 'GET' }).handler(
         excerpt: post.excerpt,
         headerImage: post.headerImage,
         authors: post.authors,
+        externalUrl: post.externalUrl,
+        source: post.source,
       }))
   },
 )
@@ -161,33 +211,4 @@ export const fetchRelatedPostsForLibraries = createServerFn({ method: 'GET' })
         })),
       )
       .slice(0, 4)
-  })
-
-export type LibraryBlogPost = {
-  slug: string
-  title: string
-  published: string
-  excerpt: string
-  headerImage: string | undefined
-  authors: Array<string>
-  library: string | undefined
-}
-
-/**
- * Wider 7-field shape (matches blog.index.tsx's fetchFrontMatters) since
- * /docs/blog needs authors (author filter), headerImage (cover), and
- * library (badge suppression) in addition to slug/title/published/excerpt.
- */
-export const fetchPostsForLibrary = createServerFn({ method: 'GET' })
-  .validator(v.string())
-  .handler(({ data }): Array<LibraryBlogPost> => {
-    return getPostsForLibrary(data as LibraryId).map((post) => ({
-      slug: post.slug,
-      title: post.title,
-      published: post.published,
-      excerpt: post.excerpt,
-      headerImage: post.headerImage,
-      authors: post.authors,
-      library: post.library,
-    }))
   })

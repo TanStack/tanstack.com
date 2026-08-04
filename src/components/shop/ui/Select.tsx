@@ -151,7 +151,7 @@ export function ShopSelect({
           className={twMerge(
             'absolute right-0 top-[calc(100%+6px)] z-[200] min-w-full',
             'bg-shop-panel border border-shop-line rounded-xl max-h-[min(320px,60vh)] overflow-y-auto overflow-x-hidden',
-            'shadow-[0_8px_24px_-4px_rgba(0,0,0,0.18),0_2px_8px_-2px_rgba(0,0,0,0.12)]',
+            'shadow-xl',
           )}
         >
           {options.map((opt) => {

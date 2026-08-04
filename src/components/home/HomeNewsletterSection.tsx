@@ -1,6 +1,5 @@
 import { EnvelopeSimpleIcon } from '@phosphor-icons/react'
 import { NewsletterSignup } from '~/components/NewsletterSignup'
-import { Footer } from '~/components/Footer'
 
 export function HomeNewsletterSection() {
   return (
@@ -39,7 +38,6 @@ export function HomeNewsletterSection() {
         </div>
       </section>
       <div className="h-16 sm:h-20" />
-      <Footer />
     </>
   )
 }

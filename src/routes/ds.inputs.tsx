@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
-import { FormInput } from '~/components/ds/ui'
+import { FormInput, SearchInput } from '~/components/ds/ui'
 import { ComponentPreview, DsPage, DsSection } from '~/components/ds/DsKit'
 
 export const Route = createFileRoute('/ds/inputs')({
@@ -66,6 +66,42 @@ function InputsPage() {
             <FormInput id="project-name" placeholder="my-app" />
           </label>
           <FormInput disabled value="Disabled" readOnly />
+        </ComponentPreview>
+      </DsSection>
+
+      <DsSection
+        title="Progressive search"
+        description="Starts as a compact search action. Activating it reveals the field from the icon and moves focus directly into the input. Escape closes it."
+      >
+        <ComponentPreview
+          className="block min-h-24"
+          code={`<SearchInput progressive placeholder="Search documentation…" />`}
+        >
+          <SearchInput progressive placeholder="Search documentation…" />
+        </ComponentPreview>
+      </DsSection>
+
+      <DsSection
+        title="Persistent search"
+        description="Use when search is a primary task and should remain visible."
+      >
+        <ComponentPreview
+          className="block max-w-md"
+          code={`<SearchInput placeholder="Search documentation…" />`}
+        >
+          <SearchInput placeholder="Search documentation…" />
+        </ComponentPreview>
+      </DsSection>
+
+      <DsSection
+        title="Large search target"
+        description="A larger, highly visible target for prominent search experiences and touch-heavy layouts."
+      >
+        <ComponentPreview
+          className="block max-w-xl"
+          code={`<SearchInput size="large" placeholder="What are you looking for?" />`}
+        >
+          <SearchInput size="large" placeholder="What are you looking for?" />
         </ComponentPreview>
       </DsSection>
     </DsPage>

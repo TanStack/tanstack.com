@@ -1,5 +1,4 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { Footer } from '~/components/Footer'
 import { seo } from '~/utils/seo'
 import { authClient } from '~/auth/client'
 import { Authenticated, Unauthenticated } from '~/components/AuthComponents'
@@ -169,7 +168,6 @@ function RouteComp() {
           </div>
         </section>
       </div>
-      <Footer />
     </div>
   )
 }

@@ -127,8 +127,8 @@ importers:
         specifier: 1.168.14
         version: 1.168.14(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@tanstack/react-table':
-        specifier: 9.0.0-beta.78
-        version: 9.0.0-beta.78(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        specifier: 9.0.0-beta.80
+        version: 9.0.0-beta.80(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@tanstack/workflow-core':
         specifier: 0.0.4
         version: 0.0.4(@opentelemetry/api@1.9.1)
@@ -3560,8 +3560,8 @@ packages:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  '@tanstack/react-table@9.0.0-beta.78':
-    resolution: {integrity: sha512-jEnsR1mWQy0qCFO8TfZkZiGUa/6u2iEoCy1ymAaQY4xq+uoDMjPPOQ8+08+3A726R/DyGzrd9Aj1v0450UYtlg==}
+  '@tanstack/react-table@9.0.0-beta.80':
+    resolution: {integrity: sha512-oBNjj/jl5D57LuWFy7tbZX4Td2W3Huhzx5s1k4GVBz1tyFfPGhEsWi3VM6uJKs4Ayz0IU8ODWzO0fdJ+RQlXyQ==}
     engines: {node: '>=20'}
     peerDependencies:
       react: '>=18'
@@ -3658,8 +3658,8 @@ packages:
   '@tanstack/store@0.9.3':
     resolution: {integrity: sha512-8reSzl/qGWGGVKhBoxXPMWzATSbZLZFWhwBAFO9NAyp0TxzfBP0mIrGb8CP8KrQTmvzXlR/vFPPUrHTLBGyFyw==}
 
-  '@tanstack/table-core@9.0.0-beta.78':
-    resolution: {integrity: sha512-PbVO8JCaBKD6/hipdpFaq6t7PWA/VbioJClSR6fWFmPbQdT0C3pJHdne1o24XBY62BqlHc8h/twY6nRsLj2DIw==}
+  '@tanstack/table-core@9.0.0-beta.80':
+    resolution: {integrity: sha512-tD98Q6/qzjvbEomMtDqxrAQUAf9nsBD7RihY1073E0eaeYwP3GyW5Gdlb+PztSk9F0CsYArXeOqcrt1hV29O8w==}
     engines: {node: '>=20'}
 
   '@tanstack/virtual-file-routes@1.162.0':
@@ -9569,10 +9569,10 @@ snapshots:
       react-dom: 19.2.3(react@19.2.3)
       use-sync-external-store: 1.6.0(react@19.2.3)
 
-  '@tanstack/react-table@9.0.0-beta.78(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
+  '@tanstack/react-table@9.0.0-beta.80(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
       '@tanstack/react-store': 0.11.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@tanstack/table-core': 9.0.0-beta.78
+      '@tanstack/table-core': 9.0.0-beta.80
       react: 19.2.3
     transitivePeerDependencies:
       - react-dom
@@ -9704,7 +9704,7 @@ snapshots:
 
   '@tanstack/store@0.9.3': {}
 
-  '@tanstack/table-core@9.0.0-beta.78':
+  '@tanstack/table-core@9.0.0-beta.80':
     dependencies:
       '@tanstack/store': 0.11.0
 

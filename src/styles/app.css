@@ -25,19 +25,23 @@ html.theme-switching *::after {
   --font-sans:
     'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
     'Segoe UI Emoji', Segoe UI Symbol, 'Noto Color Emoji';
-  --font-shop-display: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
-  --font-shop-mono: 'DM Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-shop-display: var(--font-ds-display);
+  --font-shop-mono: var(--font-ds-mono);
 
   /* Shop type scale */
-  --text-shop-display: clamp(36px, 5vw, 52px);
-  --text-shop-heading: 22px;
-  --text-shop-title: 18px;
-  --text-shop-price: 20px;
-  --text-shop-body: 13.5px;
-  --text-shop-ui: 13px;
-  --text-shop-sm: 12px;
-  --text-shop-xs: 10.5px;
-  --text-shop-2xs: 9.5px;
+  --text-shop-display: clamp(
+    var(--text-ds-heading-1),
+    5vw,
+    var(--text-ds-display-md)
+  );
+  --text-shop-heading: var(--text-ds-heading-3);
+  --text-shop-title: var(--text-ds-body-lg);
+  --text-shop-price: var(--text-ds-body-xl);
+  --text-shop-body: var(--text-ds-body-sm);
+  --text-shop-ui: var(--text-ds-label-md);
+  --text-shop-sm: var(--text-ds-label-sm);
+  --text-shop-xs: var(--text-ds-mono-2xs);
+  --text-shop-2xs: var(--text-ds-mono-2xs);
 
   /* Shadows */
   --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
@@ -116,10 +120,40 @@ html.theme-switching *::after {
   --color-shop-muted: var(--shop-muted);
   --color-shop-accent: var(--shop-accent);
   --color-shop-accent-ink: var(--shop-accent-ink);
-  --color-shop-green: #22c993;
-  --color-shop-orange: #ff7a3a;
-  --font-shop-display: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
-  --font-shop-mono: 'DM Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --color-shop-green: var(--color-status-success);
+  --color-shop-orange: var(--color-status-warning);
+  --font-shop-display: var(--font-ds-display);
+  --font-shop-mono: var(--font-ds-mono);
+}
+
+:root {
+  --gradient-commerce-spectrum: conic-gradient(
+    from 30deg,
+    var(--color-accent-warm),
+    var(--color-accent-highlight),
+    var(--color-accent-nature),
+    var(--color-accent-brand),
+    var(--color-accent-creative),
+    var(--color-accent-warm)
+  );
+  --gradient-commerce-new: linear-gradient(
+    180deg,
+    #74dcff 8.23%,
+    #fff27c 29.88%,
+    #ffa05c 61.46%,
+    #ff5f5f 89.43%
+  );
+  --gradient-commerce-cta: linear-gradient(
+    235.54deg,
+    #74dcff 3.4%,
+    #fff27c 13.1%,
+    #ffa05c 27.1%,
+    #ff5f5f 39.5%
+  );
+  --motion-duration-fast: 180ms;
+  --motion-duration-sheet: 280ms;
+  --motion-ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --motion-ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 /* ============================================================================

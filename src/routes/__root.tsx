@@ -36,6 +36,7 @@ import { LibrariesOverlayProvider } from '~/contexts/LibrariesOverlayContext'
 import { Spinner } from '~/components/Spinner'
 import { ThemeProvider, useHtmlClass } from '~/components/ThemeProvider'
 import { Navbar } from '~/components/Navbar'
+import { Footer } from '~/components/Footer'
 import { THEME_COLORS } from '~/utils/utils'
 import { trackPageView } from '~/utils/analytics'
 import { createPartnerPlacementSessionSeed } from '~/utils/partner-placement'
@@ -319,7 +320,14 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
           <ToastProvider>
             <PageViewTracker />
             <LibrariesOverlayProvider>
-              {hideNavbar ? children : <Navbar>{children}</Navbar>}
+              {hideNavbar ? (
+                children
+              ) : (
+                <Navbar>
+                  {children}
+                  <Footer />
+                </Navbar>
+              )}
             </LibrariesOverlayProvider>
             {showDevtools && LazyAppDevtools ? (
               <OptionalDevtoolsBoundary>

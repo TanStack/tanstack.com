@@ -210,7 +210,7 @@ function MaintainerSocialLinks({
         onClick={(e) => e.stopPropagation()}
         className={
           variant === 'card'
-            ? 'inline-flex size-6 items-center justify-center text-icon-muted transition-colors duration-200 hover:text-icon-default focus-visible:rounded-sm focus-visible:corner-squircle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus motion-reduce:transition-none [&_svg]:size-6'
+            ? 'inline-flex size-4 items-center justify-center text-icon-muted transition-colors duration-200 hover:text-icon-default focus-visible:rounded-sm focus-visible:corner-squircle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus motion-reduce:transition-none [&_svg]:size-4'
             : 'p-2 -mb-2 -ml-2 transition-colors hover:scale-110 hover:text-gray-700 hover:grayscale-0 dark:hover:text-gray-200'
         }
       >
@@ -223,7 +223,7 @@ function MaintainerSocialLinks({
     <div
       className={
         variant === 'card'
-          ? 'flex flex-wrap items-center justify-center gap-6'
+          ? 'flex flex-wrap items-center justify-center gap-4 sm:gap-6'
           : 'flex flex-wrap items-center gap-x-2 gap-y-2 pt-1 text-gray-400 sm:gap-x-4 dark:text-gray-500'
       }
     >
@@ -395,7 +395,7 @@ export function MaintainerRowCard({
 export function MaintainerCard({ maintainer }: MaintainerCardProps) {
   return (
     <div
-      className="group flex w-full max-w-[252px] flex-col items-center rounded-[26px] corner-squircle p-1.5 transition-colors duration-200 hover:bg-[#f2f2f2] focus-within:bg-[#f2f2f2] active:bg-[#e5e5e5] motion-reduce:transition-none dark:hover:bg-[#262626] dark:focus-within:bg-[#262626] dark:active:bg-[#404040]"
+      className="group flex w-full max-w-[190px] flex-col items-center rounded-[20px] corner-squircle p-1 transition-colors duration-200 hover:bg-[#f2f2f2] focus-within:bg-[#f2f2f2] active:bg-[#e5e5e5] motion-reduce:transition-none sm:max-w-[252px] sm:rounded-[26px] sm:p-1.5 dark:hover:bg-[#262626] dark:focus-within:bg-[#262626] dark:active:bg-[#404040]"
       aria-label={`Maintainer card for ${maintainer.name}`}
     >
       <a
@@ -403,7 +403,7 @@ export function MaintainerCard({ maintainer }: MaintainerCardProps) {
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`View ${maintainer.name}'s GitHub profile`}
-        className="block aspect-square w-full overflow-hidden rounded-[22px] corner-squircle bg-[#d9d9d9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
+        className="block aspect-square w-full overflow-hidden rounded-[17px] corner-squircle bg-[#d9d9d9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus sm:rounded-[22px]"
         tabIndex={0}
       >
         <img
@@ -414,9 +414,9 @@ export function MaintainerCard({ maintainer }: MaintainerCardProps) {
           decoding="async"
         />
       </a>
-      <div className="flex w-full flex-col items-center gap-5 pb-[27px] pt-5">
+      <div className="flex w-full flex-col items-start gap-2 pb-[18px] pt-4 sm:pb-[27px] sm:pt-5">
         <span
-          className="text-center font-ds-mono text-ds-mono-lg text-text-primary"
+          className="text-left font-ds-mono text-ds-mono-sm text-text-primary sm:text-ds-mono-lg"
           id={`maintainer-name-${maintainer.github}`}
         >
           {maintainer.name}

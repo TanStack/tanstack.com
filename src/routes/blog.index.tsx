@@ -5,7 +5,6 @@ import { BlogAuthorFilter } from '~/components/BlogAuthorFilter'
 import { BlogCard, type BlogCardPost } from '~/components/BlogCard'
 import { BlogSearchFilter } from '~/components/BlogSearchFilter'
 import { Card } from '~/components/Card'
-import { Footer } from '~/components/Footer'
 import { LibrariesWidget } from '~/components/LibrariesWidget'
 import { RecentPostsWidget } from '~/components/RecentPostsWidget'
 import { PartnersRail, RightRail } from '~/components/RightRail'
@@ -204,7 +203,6 @@ function BlogIndex() {
           </Card>
         </RightRail>
       </div>
-      <Footer />
     </div>
   )
 }

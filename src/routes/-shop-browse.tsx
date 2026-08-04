@@ -116,6 +116,20 @@ export function ShopBrowsePage({
     [page.nodes, accumulated],
   )
 
+  const newestProduct = allProducts.reduce<ProductListItem | null>(
+    (newest, product) => {
+      if (!product.publishedAt) return newest
+      if (
+        !newest?.publishedAt ||
+        new Date(product.publishedAt) > new Date(newest.publishedAt)
+      ) {
+        return product
+      }
+      return newest
+    },
+    null,
+  )
+
   const typeOptions = React.useMemo(() => {
     const counts = new Map<string, { display: string; count: number }>()
     for (const product of allProducts) {
@@ -142,13 +156,14 @@ export function ShopBrowsePage({
   return (
     <div className="pb-24">
       <div className="px-6 md:px-11 pt-6 md:pt-11 max-w-[1280px] mx-auto">
-        <div className="pb-5.5 border-b border-shop-line-2 mb-7">
+        <div className="pb-5.5 border-b border-shop-line-2 mb-7 text-center [&_p]:mx-auto">
           <ShopHero
             title={
-              <>
-                Built in <em>public</em>,<br />
-                worn in <em>production</em>.
-              </>
+              <span className="inline-flex items-center gap-[0.2em]">
+                <span className="sr-only">TanStack </span>
+                <span className="shop-merch-mark" aria-hidden />
+                <span>Merch</span>
+              </span>
             }
             lede="Official TanStack apparel, accessories, and stickers. Limited runs, ethically produced, shipped worldwide. Rep the libraries that ship your code every day."
           />
@@ -206,6 +221,7 @@ export function ShopBrowsePage({
                 <ProductCard
                   key={product.id}
                   product={product}
+                  isNew={product.id === newestProduct?.id}
                   loading={i < 8 ? 'eager' : 'lazy'}
                   onQuickView={onProductSelect}
                 />

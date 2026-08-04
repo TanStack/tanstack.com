@@ -1,7 +1,6 @@
 ---
 title: 'Announcing TanStack Table V9'
 published: 2026-08-04
-draft: true
 excerpt: TanStack Table V9 is here with a tree-shakable feature architecture, fine-grained reactivity, improved performance, and first-class support for more frameworks.
 library: table
 authors:

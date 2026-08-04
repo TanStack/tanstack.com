@@ -176,6 +176,7 @@ export function Doc({
             }
           />
           {footer ?? <DocNavigation />}
+          <div className="h-4" />
         </div>
 
         {isTocVisible && (

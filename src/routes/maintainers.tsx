@@ -9,7 +9,6 @@ import {
   GridNineIcon,
   RowsIcon,
 } from '@phosphor-icons/react'
-import { Footer } from '~/components/Footer'
 import {
   MaintainerCard,
   CompactMaintainerCard,
@@ -765,7 +764,6 @@ function RouteComponent() {
             </p>
           </div>
         </div>
-        <Footer />
       </div>
     </>
   )

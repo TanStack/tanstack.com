@@ -19,7 +19,7 @@ export const Route = createFileRoute('/shop/')({
   loader: ({ deps }) => loadShopBrowsePage(deps.sort),
   head: () => ({
     meta: seo({
-      title: 'TanStack Shop',
+      title: 'Merch',
       description:
         'Official TanStack apparel, accessories, and stickers. Show your support and rep your favorite open-source toolkit.',
     }),

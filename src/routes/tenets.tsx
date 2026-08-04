@@ -1,5 +1,4 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { Footer } from '~/components/Footer'
 import { Card } from '~/components/Card'
 import { seo } from '~/utils/seo'
 import {
@@ -348,7 +347,6 @@ function RouteComp() {
           </p>
         </section>
       </div>
-      <Footer />
     </div>
   )
 }

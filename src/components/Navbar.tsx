@@ -8,6 +8,11 @@ const LazyNavbarAuthControls = React.lazy(() =>
     default: m.NavbarAuthControls,
   })),
 )
+const LazyMobileNavbarAuthControls = React.lazy(() =>
+  import('./NavbarAuthControls').then((m) => ({
+    default: m.MobileNavbarAuthControls,
+  })),
+)
 import { NavbarCartButton } from './NavbarCartButton'
 import { MegaMenuItem } from './MegaMenuItem'
 import { Link, useLocation } from '@tanstack/react-router'
@@ -624,12 +629,13 @@ export function Navbar({ children }: { children: React.ReactNode }) {
 
       <div className="flex flex-1 items-center justify-end gap-2 sm:gap-2.5">
         <div className={DESKTOP_SOCIAL_CLASS}>{socialLinks}</div>
-        <ThemeToggle />
-        <NavbarCartButton />
-        <div className={MOBILE_NAV_CLASS}>
-          <SearchButton iconOnly />
+        <div className={DESKTOP_NAV_CLASS}>
+          <ThemeToggle />
         </div>
-        <AiDockButton />
+        <NavbarCartButton />
+        <div className={DESKTOP_NAV_CLASS}>
+          <AiDockButton />
+        </div>
         <div
           className={twMerge(DESKTOP_NAV_CLASS, 'items-center gap-2')}
           onFocusCapture={requestAuthControls}
@@ -878,7 +884,7 @@ function MobileNavigation({
                     onSelect(group.key)
                   }
                 }}
-                className={`mobile-mega-menu-enter-item flex w-full items-center rounded-[18px] p-3 text-left font-ds-display text-ds-heading-1 text-white transition-colors hover:bg-[#171717] focus-visible:bg-[#171717] focus-visible:outline-none ${
+                className={`mobile-mega-menu-enter-item flex w-full items-center rounded-[18px] p-3 text-left font-ds-display text-ds-heading-3 text-white transition-colors hover:bg-[#171717] focus-visible:bg-[#171717] focus-visible:outline-none ${
                   group.key === 'libraries' ? 'bg-[#171717]' : ''
                 }`}
               >
@@ -892,7 +898,7 @@ function MobileNavigation({
               type="button"
               tabIndex={activeGroup ? -1 : 0}
               onClick={() => openUtility('search')}
-              className="flex w-full items-center gap-3.5 rounded-xl px-3 py-4 text-left font-ds-display text-ds-heading-1 text-[#a3a3a3] transition-colors hover:bg-[#171717] hover:text-white focus-visible:bg-[#171717] focus-visible:text-white focus-visible:outline-none"
+              className="flex w-full items-center gap-3.5 rounded-xl px-3 py-4 text-left font-ds-display text-ds-heading-3 text-[#a3a3a3] transition-colors hover:bg-[#171717] hover:text-white focus-visible:bg-[#171717] focus-visible:text-white focus-visible:outline-none"
             >
               <MagnifyingGlassIcon className="size-8 shrink-0" />
               Search
@@ -901,20 +907,29 @@ function MobileNavigation({
               type="button"
               tabIndex={activeGroup ? -1 : 0}
               onClick={() => openUtility('ai')}
-              className="flex w-full items-center gap-3.5 rounded-xl px-3 py-4 text-left font-ds-display text-ds-heading-1 text-[#a3a3a3] transition-colors hover:bg-[#171717] hover:text-white focus-visible:bg-[#171717] focus-visible:text-white focus-visible:outline-none"
+              className="flex w-full items-center gap-3.5 rounded-xl px-3 py-4 text-left font-ds-display text-ds-heading-3 text-[#a3a3a3] transition-colors hover:bg-[#171717] hover:text-white focus-visible:bg-[#171717] focus-visible:text-white focus-visible:outline-none"
             >
               <Sparkles className="size-8 shrink-0" />
               Ask AI
             </button>
-            <Link
-              to="/login"
-              tabIndex={activeGroup ? -1 : 0}
-              onClick={onNavigate}
-              className="flex w-full items-center gap-3.5 rounded-xl px-3 py-4 text-left font-ds-display text-ds-heading-1 text-[#a3a3a3] transition-colors hover:bg-[#171717] hover:text-white focus-visible:bg-[#171717] focus-visible:text-white focus-visible:outline-none"
+            <React.Suspense
+              fallback={
+                <Link
+                  to="/login"
+                  tabIndex={activeGroup ? -1 : 0}
+                  onClick={onNavigate}
+                  className="flex w-full items-center gap-3.5 rounded-xl px-3 py-4 text-left font-ds-display text-ds-heading-3 text-[#a3a3a3] transition-colors hover:bg-[#171717] hover:text-white focus-visible:bg-[#171717] focus-visible:text-white focus-visible:outline-none"
+                >
+                  <SignInIcon className="size-8 shrink-0" />
+                  Sign In
+                </Link>
+              }
             >
-              <SignInIcon className="size-8 shrink-0" />
-              Sign In
-            </Link>
+              <LazyMobileNavbarAuthControls
+                tabIndex={activeGroup ? -1 : 0}
+                onNavigate={onNavigate}
+              />
+            </React.Suspense>
           </div>
         </div>
 
@@ -1694,7 +1709,7 @@ function SocialStack() {
           </span>
         </button>
       </DropdownTrigger>
-      <DropdownContent align="end" sideOffset={8} className="min-w-44">
+      <DropdownContent align="center" sideOffset={8} className="min-w-44">
         {SOCIAL_LINKS.map(({ label, href, Icon }) => (
           <DropdownItem key={href} asChild>
             <a

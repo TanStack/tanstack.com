@@ -120,7 +120,7 @@ function CollectionPage() {
 
       <div className="flex flex-wrap justify-between items-end gap-4 pb-5.5 border-b border-shop-line mt-6 mb-7">
         <ShopHero title={collection.title} lede={collection.description} />
-        <label className="flex items-center gap-2 text-[12px] text-shop-muted">
+        <label className="flex items-center gap-2 text-ds-label-sm text-shop-muted">
           <span>Sort</span>
           <ShopSelect
             value={sortId}

@@ -295,7 +295,7 @@ export const table: LibrarySlim = {
   tagline: 'Headless, type-safe table and data-grid infrastructure',
   description:
     'Build tables and data grids with feature-level tree shaking, reactive state, fast row models, and complete control over markup and styles.',
-  badge: undefined,
+  badge: 'fresh',
   repo: 'tanstack/table',
   frameworks: [
     'angular',
@@ -399,7 +399,7 @@ export const form: LibrarySlim = {
   tagline: 'Headless UI for building performant and type-safe forms',
   description:
     'Headless, performant, and type-safe form state management for TS/JS, React, Preact, Vue, Angular, Solid, Lit and Svelte.',
-  badge: 'new',
+  badge: undefined,
   repo: 'tanstack/form',
   corePackageName: '@tanstack/form-core',
   npmPackageNames: ['@tanstack/form-core'],

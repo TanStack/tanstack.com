@@ -24,6 +24,7 @@ import {
 } from '@tanstack/react-table'
 import { useHotkeys } from '@tanstack/react-hotkeys'
 import {
+  ArrowRightIcon,
   BracketsCurlyIcon,
   CaretDownIcon,
   CaretUpIcon,
@@ -142,6 +143,51 @@ const developerControls = [
   'Events & interactions',
 ] as const
 
+const componentLibraryExamples = [
+  {
+    name: 'shadcn/ui + Base UI',
+    detail: 'Base UI',
+    logo: '/images/table/component-libraries/shadcn-ui.svg',
+    href: '/table/latest/docs/framework/react/examples/kitchen-sink-shadcn-base',
+  },
+  {
+    name: 'shadcn/ui + Radix UI',
+    detail: 'Radix UI',
+    logo: '/images/table/component-libraries/shadcn-ui.svg',
+    href: '/table/latest/docs/framework/react/examples/kitchen-sink-shadcn-radix',
+  },
+  {
+    name: 'HeroUI',
+    detail: 'HeroUI',
+    logo: '/images/table/component-libraries/hero-ui.svg',
+    href: '/table/latest/docs/framework/react/examples/kitchen-sink-hero-ui',
+  },
+  {
+    name: 'React Aria',
+    detail: 'Adobe',
+    logo: '/images/table/component-libraries/react-aria.svg',
+    href: '/table/latest/docs/framework/react/examples/kitchen-sink-react-aria',
+  },
+  {
+    name: 'Material UI',
+    detail: 'MUI',
+    logo: '/images/table/component-libraries/material-ui.svg',
+    href: '/table/latest/docs/framework/react/examples/kitchen-sink-material-ui',
+  },
+  {
+    name: 'Mantine',
+    detail: 'Mantine',
+    logo: '/images/table/component-libraries/mantine.svg',
+    href: '/table/latest/docs/framework/react/examples/kitchen-sink-mantine',
+  },
+  {
+    name: 'Chakra UI',
+    detail: 'Chakra UI',
+    logo: '/images/table/component-libraries/chakra-ui.svg',
+    href: '/table/latest/docs/framework/react/examples/kitchen-sink-chakra-ui',
+  },
+] as const
+
 const stateModes: Record<
   StateMode,
   { code: string; note: string; path: string }
@@ -237,6 +283,7 @@ export default function TableLanding() {
           />
           <OwnershipModel />
         </div>
+        <ComponentLibraryExamples />
       </LandingSection>
 
       <LandingSection tone="accent">
@@ -271,6 +318,52 @@ export default function TableLanding() {
         <TableToolbox />
       </LandingSection>
     </LibraryLandingShell>
+  )
+}
+
+function ComponentLibraryExamples() {
+  return (
+    <div className="mt-16 border-t border-border-subtle pt-10 lg:mt-20 lg:pt-12">
+      <div className="max-w-[42rem]">
+        <h3 className="text-ds-heading-3 text-text-primary md:text-ds-heading-2">
+          Already using one of these popular component libraries?
+        </h3>
+        <p className="mt-3 text-ds-body-sm text-text-primary/55 sm:text-ds-body-md">
+          Check out our official component library examples.
+        </p>
+      </div>
+
+      <div className="mt-8 grid gap-3 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols-7">
+        {componentLibraryExamples.map((example) => (
+          <a
+            key={example.href}
+            className="group relative flex min-h-28 flex-col items-start rounded-xl border border-border-subtle bg-background-surface p-3 shadow-sm transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-[color:rgb(var(--landing-glow)/0.55)] hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
+            href={example.href}
+          >
+            <span className="flex size-12 shrink-0 items-center justify-center rounded-lg border border-black/5 bg-white p-2.5 shadow-sm">
+              <img
+                alt=""
+                aria-hidden="true"
+                className="size-full object-contain"
+                src={example.logo}
+              />
+            </span>
+            <span className="mt-3 min-w-0">
+              <span className="block text-ds-label-sm text-text-primary">
+                {example.name}
+              </span>
+              <span className="mt-1 block font-ds-mono text-ds-mono-2xs uppercase text-text-primary/40">
+                {example.detail} example
+              </span>
+            </span>
+            <ArrowRightIcon
+              aria-hidden="true"
+              className="absolute right-3 top-3 size-3.5 text-text-primary/35 transition-transform group-hover:translate-x-0.5 group-hover:text-text-primary"
+            />
+          </a>
+        ))}
+      </div>
+    </div>
   )
 }
 

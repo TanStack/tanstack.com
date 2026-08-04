@@ -14,12 +14,12 @@ import { useState, useMemo, useCallback } from 'react'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { useCreateRole, useUpdateRole, useDeleteRole } from '~/utils/mutations'
 import { listRoles, sendTestModeratorEmail } from '~/utils/roles.functions'
+import { flexRender } from '@tanstack/react-table'
 import {
-  useReactTable,
   getCoreRowModel,
-  flexRender,
-  type Row,
-} from '@tanstack/react-table'
+  useLegacyTable as useReactTable,
+} from '@tanstack/react-table/legacy'
+import type { LegacyRow as Row } from '@tanstack/react-table/legacy'
 import {
   PencilSimpleLineIcon,
   PlusIcon,

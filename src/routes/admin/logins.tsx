@@ -12,13 +12,15 @@ import {
   TableRow,
   TableCell,
 } from '~/components/TableComponents'
+import { flexRender } from '@tanstack/react-table'
 import {
-  useReactTable,
   getCoreRowModel,
-  flexRender,
-  type ColumnDef,
-  type Column,
-} from '@tanstack/react-table'
+  useLegacyTable as useReactTable,
+} from '@tanstack/react-table/legacy'
+import type {
+  LegacyColumn as Column,
+  LegacyColumnDef as ColumnDef,
+} from '@tanstack/react-table/legacy'
 import * as v from 'valibot'
 import { listLoginHistory } from '~/utils/audit.functions'
 import { SignInIcon } from '@phosphor-icons/react'

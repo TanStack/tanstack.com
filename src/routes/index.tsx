@@ -784,7 +784,7 @@ function AdoptionProof({ accentClassName }: { accentClassName: string }) {
           // once there is a real number for it to count from.
           ref={totalDownloads > 0 ? counterRef : undefined}
           className={twMerge(
-            'bg-linear-to-r bg-clip-text font-mono text-4xl font-black tabular-nums text-transparent',
+            'bg-linear-to-r bg-clip-text font-mono text-3xl font-black tabular-nums text-transparent sm:text-4xl',
             accentClassName,
           )}
         >

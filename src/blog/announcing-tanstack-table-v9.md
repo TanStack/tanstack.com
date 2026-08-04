@@ -1,5 +1,5 @@
 ---
-title: "Announcing TanStack Table V9"
+title: 'Announcing TanStack Table V9'
 published: 2026-08-04
 draft: true
 excerpt: TanStack Table V9 is here with a tree-shakable feature architecture, fine-grained reactivity, improved performance, and first-class support for more frameworks.
@@ -72,18 +72,18 @@ import {
   rowPaginationFeature,
   tableFeatures,
   useTable,
-} from "@tanstack/react-table";
+} from '@tanstack/react-table'
 
 const features = tableFeatures({
   rowPaginationFeature,
   paginatedRowModel: createPaginatedRowModel(), // Only if client-side pagination is needed
-});
+})
 
 const table = useTable({
   features,
   columns,
   data,
-});
+})
 ```
 
 No other features will be included in the bundle, unless you add them explicitly. This should mean that the average table in an application will be smaller by using TanStack Table V9 compared to Table V8, even though the total package size has increased from 14kb to 25kb at the time of writing. TanStack Table V9 is able to offer more while staying lean for your use-cases.

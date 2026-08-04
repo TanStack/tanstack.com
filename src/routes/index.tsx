@@ -606,7 +606,7 @@ function FrameworkAdapterGraph({
     // fill the 460×233 slot rather than re-deriving every coordinate.
     <div
       aria-hidden="true"
-      className="relative h-32 w-[320px] shrink-0 scale-[1.35] font-mono text-[10px] font-bold"
+      className="relative h-32 w-[320px] shrink-0 scale-90 font-mono text-[10px] font-bold min-[520px]:scale-[1.2] sm:scale-[1.35]"
     >
       <div className="home-adapter-graph absolute inset-x-0 top-1 h-[7.5rem] overflow-visible">
         {frameworkAdapterNodes.map((adapter, adapterIndex) => {

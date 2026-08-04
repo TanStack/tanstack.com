@@ -20,6 +20,7 @@ import { HomeSocialProofSection } from '~/components/home/HomeSocialProofSection
 import { HomeStatsSection } from '~/components/home/HomeStatsSection'
 import { useQuery } from '@tanstack/react-query'
 import { Button, Eyebrow } from '~/components/ds/ui'
+import { useInView } from '~/hooks/useInView'
 import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
 import { homepageNpmStatsSummaryQuery, ossStatsQuery } from '~/queries/stats'
 import { useLibrariesOverlay } from '~/contexts/LibrariesOverlayContext'
@@ -566,20 +567,9 @@ function FrameworkAdapterGraph({
 }) {
   const [activeAdapterIndex, setActiveAdapterIndex] = React.useState(0)
   const [flowProgress, setFlowProgress] = React.useState(0)
-  const [isVisible, setIsVisible] = React.useState(false)
   const rootRef = React.useRef<HTMLDivElement>(null)
+  const isVisible = useInView(rootRef)
   const prefersReducedMotion = usePrefersReducedMotion()
-
-  React.useEffect(() => {
-    const root = rootRef.current
-    if (!root) return
-
-    const observer = new IntersectionObserver(([entry]) => {
-      setIsVisible(Boolean(entry?.isIntersecting))
-    })
-    observer.observe(root)
-    return () => observer.disconnect()
-  }, [])
 
   React.useEffect(() => {
     if (!isVisible || prefersReducedMotion !== false) return

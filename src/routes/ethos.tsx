@@ -1,8 +1,13 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { Footer } from '~/components/Footer'
 import { Card } from '~/components/Card'
 import { seo } from '~/utils/seo'
-import { Shield, Sprout, Layers, Handshake, FileText } from 'lucide-react'
+import {
+  ShieldIcon,
+  PlantIcon,
+  StackIcon,
+  HandshakeIcon,
+  FileTextIcon,
+} from '@phosphor-icons/react'
 
 export const Route = createFileRoute('/ethos')({
   component: RouteComp,
@@ -18,7 +23,7 @@ export const Route = createFileRoute('/ethos')({
 const sections = [
   {
     title: 'Independently Owned, Unbiased by Design',
-    icon: Shield,
+    icon: ShieldIcon,
     gradient: 'from-amber-500 to-orange-500',
     borderColor: 'hover:border-amber-500/50',
     content: (
@@ -35,7 +40,7 @@ const sections = [
   },
   {
     title: 'A Sustainable Future',
-    icon: Sprout,
+    icon: PlantIcon,
     gradient: 'from-lime-500 to-green-500',
     borderColor: 'hover:border-lime-500/50',
     content: (
@@ -67,7 +72,7 @@ const sections = [
   },
   {
     title: 'Technology-Agnostic by Default',
-    icon: Layers,
+    icon: StackIcon,
     gradient: 'from-sky-500 to-indigo-500',
     borderColor: 'hover:border-sky-500/50',
     content: (
@@ -87,7 +92,7 @@ const sections = [
   },
   {
     title: 'Open Partners',
-    icon: Handshake,
+    icon: HandshakeIcon,
     gradient: 'from-rose-500 to-pink-500',
     borderColor: 'hover:border-rose-500/50',
     content: (
@@ -134,7 +139,7 @@ function RouteComp() {
                 {/* Header */}
                 <div className="flex items-start gap-4 mb-4">
                   <div
-                    className={`shrink-0 w-12 h-12 rounded-lg bg-gradient-to-br ${section.gradient} flex items-center justify-center`}
+                    className={`shrink-0 w-12 h-12 rounded-lg bg-linear-to-br ${section.gradient} flex items-center justify-center`}
                   >
                     <Icon className="w-6 h-6 text-white" />
                   </div>
@@ -154,7 +159,7 @@ function RouteComp() {
                     {section.bullets.map((bullet) => (
                       <div key={bullet} className="flex gap-3 items-start">
                         <div
-                          className={`shrink-0 w-1.5 h-1.5 rounded-full bg-gradient-to-br ${section.gradient} mt-2`}
+                          className={`shrink-0 w-1.5 h-1.5 rounded-full bg-linear-to-br ${section.gradient} mt-2`}
                         />
                         <span className="text-gray-600 dark:text-gray-400">
                           {bullet}
@@ -193,8 +198,8 @@ function RouteComp() {
           className="p-6 md:p-8 hover:border-violet-500/50 transition-colors"
         >
           <div className="flex items-start gap-4">
-            <div className="shrink-0 w-12 h-12 rounded-lg bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center">
-              <FileText className="w-6 h-6 text-white" />
+            <div className="shrink-0 w-12 h-12 rounded-lg bg-linear-to-br from-violet-500 to-purple-500 flex items-center justify-center">
+              <FileTextIcon className="w-6 h-6 text-white" />
             </div>
             <div>
               <h2 className="text-xl font-semibold mb-2">
@@ -214,7 +219,6 @@ function RouteComp() {
           </div>
         </Card>
       </div>
-      <Footer />
     </div>
   )
 }

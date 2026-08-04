@@ -1,6 +1,12 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
-import { X, Plus, Eye, EyeOff, EllipsisVertical } from 'lucide-react'
+import {
+  XIcon,
+  PlusIcon,
+  EyeIcon,
+  EyeSlashIcon as EyeOff,
+  DotsThreeVerticalIcon as EllipsisVertical,
+} from '@phosphor-icons/react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -182,7 +188,7 @@ export function PackagePill({
                       {isGroupHidden ? (
                         <EyeOff className="text-sm" />
                       ) : (
-                        <Eye className="text-sm" />
+                        <EyeIcon className="text-sm" />
                       )}
                       {isGroupHidden ? 'Show Package' : 'Hide Package'}
                     </DropdownMenuItem>
@@ -222,7 +228,7 @@ export function PackagePill({
                                 {subPackage.hidden ? (
                                   <EyeOff className="text-sm" />
                                 ) : (
-                                  <Eye className="text-sm" />
+                                  <EyeIcon className="text-sm" />
                                 )}
                                 <span
                                   className={
@@ -242,7 +248,7 @@ export function PackagePill({
                                 }}
                                 className="p-1 text-gray-400 hover:text-red-500"
                               >
-                                <X className="w-3 h-3" />
+                                <XIcon className="w-3 h-3" />
                               </button>
                             </div>
                           </DropdownMenuItem>
@@ -257,7 +263,7 @@ export function PackagePill({
                         }}
                         className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer"
                       >
-                        <Plus className="text-sm" />
+                        <PlusIcon className="text-sm" />
                         Add Packages
                       </DropdownMenuItem>
                     )}
@@ -271,7 +277,7 @@ export function PackagePill({
             onClick={() => onRemove(index)}
             className="ml-auto pl-0.5 text-gray-500 hover:text-red-500"
           >
-            <X className="size-3.5" />
+            <XIcon className="size-3.5" />
           </button>
         </div>
       </div>

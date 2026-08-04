@@ -3,72 +3,52 @@
  *
  * Only three things live here:
  *   1. CSS variable declarations for the light/dark token swap
- *   2. A `@theme inline` block that exposes those vars to Tailwind so you can
- *      write `bg-shop-panel`, `text-shop-muted`, `font-shop-display`, etc.
- *   3. Keyframes used by the live-stock indicator and CTA button.
+ *   2. Layout rules scoped to the shop
+ *   3. Keyframes used by the live-stock indicator and CTA button
  *
- * Everything else is Tailwind utilities on components — no bespoke class
- * selectors, no global leakage.
+ * Tailwind tokens live in app.css because this file is emitted as a standalone
+ * route stylesheet and is not processed by Tailwind.
  */
 
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..900;1,9..40,100..900&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap');
-
-@theme inline {
-  --color-shop-bg: var(--shop-bg);
-  --color-shop-bg-2: var(--shop-bg-2);
-  --color-shop-panel: var(--shop-panel);
-  --color-shop-panel-2: var(--shop-panel-2);
-  --color-shop-surface: var(--shop-surface);
-  --color-shop-surface-hover: var(--shop-surface-hover);
-  --color-shop-line: var(--shop-line);
-  --color-shop-line-2: var(--shop-line-2);
-  --color-shop-text: var(--shop-text);
-  --color-shop-text-2: var(--shop-text-2);
-  --color-shop-muted: var(--shop-muted);
-  --color-shop-accent: var(--shop-accent);
-  --color-shop-accent-ink: var(--shop-accent-ink);
-  --color-shop-green: #22c993;
-  --color-shop-orange: #ff7a3a;
-
-  --font-shop-display: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
-  --font-shop-mono: 'DM Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-}
-
-/* Light mode (default) */
 .shop-scope {
-  --shop-bg: #f6f6ec;
-  --shop-bg-2: #ffffff;
-  --shop-panel: #ffffff;
-  --shop-panel-2: #edecea;
-  --shop-surface: #dcdccb;
-  --shop-surface-hover: #d0cfbe;
-  --shop-line: #e6e3db;
-  --shop-line-2: #d4d1c4;
-  --shop-text: #111111;
-  --shop-text-2: #4d4d49;
-  --shop-muted: #8a8471;
-  --shop-accent: #0891b2;
-  --shop-accent-ink: #ffffff;
+  --shop-bg: var(--color-background-default);
+  --shop-bg-2: var(--color-background-subtle);
+  --shop-panel: var(--color-background-surface);
+  --shop-panel-2: var(--color-background-elevated);
+  --shop-surface: var(--color-action-secondary);
+  --shop-surface-hover: var(--color-action-secondary-hover);
+  --shop-line: var(--color-border-subtle);
+  --shop-line-2: var(--color-border-default);
+  --shop-text: var(--color-text-primary);
+  --shop-text-2: var(--color-text-secondary);
+  --shop-muted: var(--color-text-muted);
+  --shop-accent: var(--color-action-primary);
+  --shop-accent-ink: var(--color-action-primary-text);
+  --shop-product-card-hover: var(--color-background-subtle);
 
   background: var(--shop-bg);
   color: var(--shop-text);
-  font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-ds-display);
 }
 
 html.dark .shop-scope {
-  --shop-bg: #0a0a0a;
-  --shop-bg-2: #121212;
-  --shop-panel: #17171b;
-  --shop-panel-2: #1d1d22;
-  --shop-surface: #1c1c1c;
-  --shop-surface-hover: #252525;
-  --shop-line: #26262c;
-  --shop-line-2: #26262c;
-  --shop-text: #e7e7ea;
-  --shop-text-2: #a8a8b0;
-  --shop-muted: #6f6f79;
-  --shop-accent: #36d3f3;
-  --shop-accent-ink: #001217;
+  --shop-product-card-hover: var(--color-action-secondary-hover);
+}
+
+.shop-product-card:hover {
+  background-color: var(--shop-product-card-hover);
+}
+
+.shop-merch-mark {
+  display: inline-block;
+  width: 0.82em;
+  height: 0.82em;
+  flex: none;
+  background-color: currentColor;
+  -webkit-mask: url('/images/brand/tanstack-emblem-black.svg') center / contain
+    no-repeat;
+  mask: url('/images/brand/tanstack-emblem-black.svg') center / contain
+    no-repeat;
 }
 
 @keyframes shop-cta-gradient {
@@ -115,14 +95,106 @@ html.dark .shop-scope {
   min-height: 100%;
 }
 
+.shop-product-scrim {
+  transition-duration: var(--motion-duration-fast);
+}
+
+.shop-product-sheet {
+  --shop-product-sheet-top: calc(var(--navbar-height, 56px) + 48px);
+
+  max-height: calc(100svh - var(--shop-product-sheet-top));
+  transition-duration: var(--motion-duration-sheet);
+  transition-timing-function: var(--motion-ease-sheet);
+}
+
+.shop-product-animate .shop-product-reveal {
+  animation: shop-product-reveal 240ms var(--motion-ease-standard) both;
+}
+
+.shop-product-animate
+  .shop-product-drawer-options
+  > .shop-product-reveal:nth-child(1) {
+  animation-delay: 50ms;
+}
+
+.shop-product-animate
+  .shop-product-drawer-options
+  > .shop-product-reveal:nth-child(2) {
+  animation-delay: 100ms;
+}
+
+.shop-product-animate
+  .shop-product-drawer-options
+  > .shop-product-reveal:nth-child(3) {
+  animation-delay: 150ms;
+}
+
+.shop-product-animate
+  .shop-product-drawer-options
+  > .shop-product-reveal:nth-child(4) {
+  animation-delay: 200ms;
+}
+
+.shop-product-animate .shop-product-reveal-cta {
+  animation-delay: 250ms;
+}
+
+.shop-product-animate .shop-product-reveal-description {
+  animation-delay: 300ms;
+}
+
+@keyframes shop-product-reveal {
+  from {
+    opacity: 0;
+    filter: blur(2px);
+    transform: translateX(-10px);
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shop-product-animate .shop-product-reveal {
+    animation: none;
+  }
+}
+
+.shop-product-drawer-heading {
+  padding-block: 15px;
+}
+
+.shop-product-drawer-title {
+  font-size: var(--text-shop-heading);
+}
+
+.shop-product-drawer-price {
+  font-size: var(--text-shop-price);
+  font-weight: 300;
+}
+
 .shop-product-option {
   width: 100%;
+}
+
+.shop-product-option-control,
+.shop-product-quantity-control > span {
+  font-size: var(--text-ds-label-sm);
+  line-height: var(--text-ds-label-sm--line-height);
+}
+
+.shop-product-description,
+.shop-product-description p {
+  font-weight: 200;
 }
 
 @container shop-product-drawer (min-width: 860px) {
   .shop-product-drawer-layout {
     display: grid;
-    grid-template-columns: minmax(360px, 1fr) minmax(420px, 640px);
+    grid-template-columns: minmax(600px, 1fr) minmax(420px, 560px);
     align-items: start;
   }
 
@@ -130,15 +202,14 @@ html.dark .shop-scope {
     position: sticky;
     top: 0;
     min-width: 0;
-    min-height: calc(100svh - 48px);
+    min-height: calc(100svh - var(--shop-product-sheet-top));
     background-color: color-mix(in oklab, var(--shop-bg) 40%, transparent);
     -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
     border-right: 1px solid var(--shop-line);
   }
 
-  .shop-product-drawer-main-image,
-  .shop-product-drawer-thumbs {
+  .shop-product-drawer-main-image {
     background-color: transparent;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
@@ -147,20 +218,27 @@ html.dark .shop-scope {
   .shop-product-drawer-details {
     min-width: 0;
     width: 100%;
-    max-width: 640px;
-    min-height: calc(100svh - 48px);
+    max-width: 560px;
+    min-height: calc(100svh - var(--shop-product-sheet-top));
+  }
+
+  .shop-product-drawer-heading {
+    padding-block: 26px;
+  }
+
+  .shop-product-drawer-title,
+  .shop-product-drawer-price {
+    font-size: 30px;
+  }
+
+  .shop-product-drawer-price {
+    font-weight: 100;
   }
 }
 
 @container shop-product-drawer (min-width: 1120px) {
   .shop-product-drawer-layout {
-    grid-template-columns: minmax(520px, 1fr) minmax(480px, 640px);
-  }
-
-  .shop-product-option {
-    width: auto;
-    min-width: 240px;
-    flex: 1 1 calc(50% - 1.5rem);
+    grid-template-columns: minmax(600px, 1fr) minmax(480px, 560px);
   }
 
   .shop-product-quantity {

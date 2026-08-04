@@ -1,6 +1,10 @@
 import { Link } from '@tanstack/react-router'
 import { useGameStore } from '../hooks/useGameStore'
-import { Trophy, RotateCcw, Home } from 'lucide-react'
+import {
+  TrophyIcon,
+  ArrowCounterClockwiseIcon,
+  HouseIcon,
+} from '@phosphor-icons/react'
 
 export function CompleteOverlay() {
   const { phase, reset, setPhase } = useGameStore()
@@ -13,11 +17,11 @@ export function CompleteOverlay() {
   }
 
   return (
-    <div className="absolute inset-0 z-20 flex items-center justify-center bg-gradient-to-b from-amber-400/90 to-orange-500/90 backdrop-blur-sm">
+    <div className="absolute inset-0 z-20 flex items-center justify-center bg-linear-to-b from-amber-400/90 to-orange-500/90 backdrop-blur-sm">
       <div className="max-w-md mx-4 text-center">
         {/* Trophy */}
         <div className="w-24 h-24 mx-auto mb-6 bg-white/20 rounded-full flex items-center justify-center">
-          <Trophy className="w-12 h-12 text-white" />
+          <TrophyIcon className="w-12 h-12 text-white" />
         </div>
 
         {/* Title */}
@@ -35,14 +39,14 @@ export function CompleteOverlay() {
             onClick={handlePlayAgain}
             className="flex items-center justify-center gap-2 px-6 py-3 bg-white text-orange-600 font-bold rounded-xl shadow-lg hover:bg-orange-50 hover:scale-105 transition-all duration-200"
           >
-            <RotateCcw className="w-5 h-5" />
+            <ArrowCounterClockwiseIcon className="w-5 h-5" />
             Explore Again
           </button>
           <Link
             to="/"
             className="flex items-center justify-center gap-2 px-6 py-3 bg-white/20 text-white font-bold rounded-xl hover:bg-white/30 transition-all duration-200"
           >
-            <Home className="w-5 h-5" />
+            <HouseIcon className="w-5 h-5" />
             Back to TanStack
           </Link>
         </div>

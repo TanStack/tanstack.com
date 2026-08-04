@@ -1,15 +1,43 @@
-import { libraries } from '~/libraries'
 import {
   getPartnerById,
   partnerCategoryLabels,
+  partners,
   type Partner,
 } from '~/utils/partners'
 
-const libraryLabelMap = new Map(
-  libraries
-    .filter((library) => library.name)
-    .map((library) => [library.id, library.name!.replace('TanStack ', '')]),
-)
+function asLastModified(value: string) {
+  return new Date(`${value}T12:00:00.000Z`).toISOString()
+}
+
+export function getPartnerSitemapEntries() {
+  const mostRecentReview = partners
+    .flatMap((partner) =>
+      partner.lastReviewedAt ? [partner.lastReviewedAt] : [],
+    )
+    .sort()
+    .at(-1)
+
+  return [
+    {
+      path: '/partners',
+      lastModified: mostRecentReview
+        ? asLastModified(mostRecentReview)
+        : undefined,
+    },
+    {
+      path: '/partners?status=inactive',
+      lastModified: mostRecentReview
+        ? asLastModified(mostRecentReview)
+        : undefined,
+    },
+    ...partners.map((partner) => ({
+      path: `/partners/${partner.id}`,
+      lastModified: partner.lastReviewedAt
+        ? asLastModified(partner.lastReviewedAt)
+        : undefined,
+    })),
+  ]
+}
 
 const partnerGuidance: Record<
   string,
@@ -153,42 +181,32 @@ export function findPartnerForPage(partnerId: string) {
   return getPartnerById(partnerId)
 }
 
-export function getPartnerLibraryLabels(partner: Partner) {
-  return (partner.libraries ?? []).map(
-    (libraryId) => libraryLabelMap.get(libraryId) ?? libraryId,
-  )
-}
-
 export function getPartnerPageTitle(partner: Partner) {
-  return `${partner.name} for TanStack`
+  return partner.status === 'active'
+    ? `${partner.name} — TanStack Partner`
+    : `${partner.name} — Previous TanStack Partner`
 }
 
 export function getPartnerPageDescription(partner: Partner) {
-  const libraries = getPartnerLibraryLabels(partner)
-  const librariesSuffix = libraries.length
-    ? ` Best fit for ${libraries.join(', ')} teams.`
-    : ''
+  const relationship = partner.status === 'active' ? 'is' : 'was'
+  const category = partnerCategoryLabels[partner.category].toLowerCase()
 
-  return `${partner.name} is a ${partnerCategoryLabels[partner.category].toLowerCase()} partner in the TanStack ecosystem. ${partner.llmDescription}${librariesSuffix}`
+  return `${partner.name} ${relationship} a TanStack partner for ${category}. ${partner.llmDescription}`
 }
 
 export function getPartnerPageCopy(partner: Partner) {
-  const libraryLabels = getPartnerLibraryLabels(partner)
   const guidance = partnerGuidance[partner.id] ?? {
     whyGreat: `${partner.name} offers a clearly defined product in the ${partnerCategoryLabels[partner.category].toLowerCase()} space.`,
     whyTanStack:
       'It can be a strong fit alongside TanStack depending on your stack and product needs.',
   }
-  const libraryLine = libraryLabels.length
-    ? ` It is especially relevant for teams building with ${libraryLabels.join(', ')}.`
-    : ''
   const statusLine =
     partner.status === 'active'
       ? `${partner.name} is a current TanStack partner, and we think they are a strong option for teams building in this part of the stack.`
       : `${partner.name} has supported TanStack previously, and we still think they are worth knowing about if their strengths match your stack.`
 
   return {
-    description: `${partner.llmDescription}${libraryLine}`,
+    description: partner.llmDescription,
     status: statusLine,
     whyGreat: guidance.whyGreat,
     whyTanStack: guidance.whyTanStack,
@@ -202,7 +220,7 @@ export function getPartnerJsonLd(partner: Partner) {
     about: {
       '@type': 'Organization',
       name: partner.name,
-      sameAs: partner.href,
+      sameAs: partner.canonicalHref ?? partner.href,
     },
     description: getPartnerPageDescription(partner),
     name: getPartnerPageTitle(partner),

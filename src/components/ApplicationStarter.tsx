@@ -1,19 +1,19 @@
 import * as React from 'react'
 import { ClientOnly } from '@tanstack/react-router'
 import {
-  ArrowRight,
-  Check,
-  ChevronDown,
-  Copy,
-  Download,
-  Loader2,
-  Rocket,
-} from 'lucide-react'
+  ArrowRightIcon,
+  CheckIcon,
+  CaretDownIcon,
+  CopyIcon,
+  DownloadSimpleIcon,
+  GithubLogoIcon,
+  OpenAiLogoIcon,
+  CircleNotchIcon,
+  ArrowCounterClockwiseIcon,
+  RocketIcon,
+} from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
-import anthropicDarkLogo from '~/images/anthropic-dark.svg'
-import anthropicLightLogo from '~/images/anthropic-light.svg'
-import openaiDarkLogo from '~/images/openai-dark.svg'
-import openaiLightLogo from '~/images/openai-light.svg'
+import { ClaudeIcon, CursorIcon } from '~/components/CopyPageDropdown'
 import type {
   ApplicationStarterContext,
   ApplicationStarterResult,
@@ -39,7 +39,9 @@ import {
   type StarterTone,
 } from '~/components/application-builder/shared'
 import { useApplicationBuilder } from '~/components/application-builder/useApplicationBuilder'
-import { Button, GitHub } from '~/ui'
+import { PixelSpinner } from '~/components/ds/ui/PixelSpinner'
+import { usePrefersReducedMotion } from '~/utils/usePrefersReducedMotion'
+import { Button, Tooltip } from '~/ui'
 
 export interface ApplicationStarterProps {
   builderIntegration?: ApplicationStarterBuilderIntegration
@@ -78,6 +80,8 @@ const LazyDeployDialog = React.lazy(() =>
 
 const starterPackageManagers = ['pnpm', 'npm', 'yarn', 'bun'] as const
 const starterToolchains = ['biome', 'eslint'] as const
+const starterEyebrowClassName =
+  'font-ds-mono text-ds-mono-xs uppercase tracking-wider text-text-muted'
 
 type HostingDeployPartnerId = 'cloudflare' | 'lovable' | 'netlify' | 'railway'
 type StarterTransientAction =
@@ -123,6 +127,18 @@ function getPromptDeployProvider(
   }
 }
 
+function buildCodexStartUrl(prompt: string) {
+  return `codex://new?prompt=${encodeURIComponent(prompt)}`
+}
+
+function buildClaudeStartUrl(prompt: string) {
+  return `https://claude.ai/code?q=${encodeURIComponent(prompt)}`
+}
+
+function buildCursorStartUrl(prompt: string) {
+  return `cursor://anysphere.cursor-deeplink/prompt?text=${encodeURIComponent(prompt)}`
+}
+
 export function ApplicationStarter({
   builderIntegration,
   className,
@@ -158,22 +174,16 @@ export function ApplicationStarter({
     input,
     isDeployDialogOpen,
     isGenerating,
-    isGeneratingNetlify,
     isGeneratingPrompt,
     isModHeld,
     loadingPhrase,
     migrationRepositoryInputRef,
     migrationRepositoryUrl,
-    navigateToResult,
-    openClaudeStart,
-    openCursorStart,
-    openCodexStart,
     openDeployDialog,
-    openLovableStart,
-    openNetlifyStart,
     partnerSuggestions,
     promptCopyNotice,
     result,
+    resetBuilder,
     selectSuggestion,
     selectedPackageManager,
     selectedLibraries,
@@ -204,7 +214,7 @@ export function ApplicationStarter({
 
   const palette = toneClasses[tone]
   const compact = mode === 'compact'
-  const [showMoreActions, setShowMoreActions] = React.useState(false)
+  const isHomeStarter = context === 'home'
   const [pendingHostingDeployPartner, setPendingHostingDeployPartner] =
     React.useState<HostingDeployPartnerId | null>(null)
   const [transientAction, setTransientAction] =
@@ -217,8 +227,109 @@ export function ApplicationStarter({
   const [showPackageManagerOptions, setShowPackageManagerOptions] =
     React.useState(false)
   const [showToolchainOptions, setShowToolchainOptions] = React.useState(false)
+
+  // Rotating placeholder: cycle the starter suggestions through the empty prompt
+  // field (replaces the preset chips). On home the short label shows in an
+  // animated overlay that gently dissolves out, then reveals the next
+  // left-to-right; elsewhere it's the native placeholder. Pauses once the field
+  // has content or focus. Shift+Enter accepts the shown suggestion.
+  const reducedMotion = usePrefersReducedMotion() === true
+  const [homeSelectionRevealCount, setHomeSelectionRevealCount] =
+    React.useState(0)
+  const [homeRevealSequenceComplete, setHomeRevealSequenceComplete] =
+    React.useState(false)
+  const hasPlayedHomeRevealRef = React.useRef(false)
+  const homeSelectedOptionCountRef = React.useRef(0)
+  homeSelectedOptionCountRef.current =
+    selectedLibraries.length + selectedPartners.length
+  const [isHomePayoffLoading, setIsHomePayoffLoading] = React.useState(false)
+  const homePayoffLoadingRef = React.useRef(false)
+  const pendingHomeSubmissionRef = React.useRef<string | undefined>(undefined)
+  const submitWithHomePayoff = React.useCallback(
+    (overrideInput?: string) => {
+      if (!isHomeStarter || reducedMotion) {
+        void submitCurrentInput(overrideInput)
+        return
+      }
+
+      if (homePayoffLoadingRef.current) {
+        return
+      }
+
+      homePayoffLoadingRef.current = true
+      pendingHomeSubmissionRef.current = overrideInput
+      setIsHomePayoffLoading(true)
+    },
+    [isHomeStarter, reducedMotion, submitCurrentInput],
+  )
+  const completeHomePayoff = React.useCallback(() => {
+    if (!homePayoffLoadingRef.current) {
+      return
+    }
+
+    const overrideInput = pendingHomeSubmissionRef.current
+    pendingHomeSubmissionRef.current = undefined
+    homePayoffLoadingRef.current = false
+    setIsHomePayoffLoading(false)
+    void submitCurrentInput(overrideInput)
+  }, [submitCurrentInput])
+  const resetHomeBuilder = React.useCallback(() => {
+    homePayoffLoadingRef.current = false
+    pendingHomeSubmissionRef.current = undefined
+    setIsHomePayoffLoading(false)
+    setHomeSelectionRevealCount(0)
+    setHomeRevealSequenceComplete(false)
+    hasPlayedHomeRevealRef.current = false
+    setShowToolchainOptions(false)
+    setShowPackageManagerOptions(false)
+    resetBuilder()
+  }, [resetBuilder])
+  const [placeholderIndex, setPlaceholderIndex] = React.useState(0)
+  const [placeholderShowing, setPlaceholderShowing] = React.useState(true)
+  React.useEffect(() => {
+    if (suggestions.length <= 1 || hasInput || isPromptFocused) {
+      return
+    }
+    let swapTimer: ReturnType<typeof setTimeout>
+    const cycle = window.setInterval(() => {
+      if (reducedMotion) {
+        setPlaceholderIndex((index) => (index + 1) % suggestions.length)
+        return
+      }
+      // Fade the current prompt fully out, then swap + reveal the next.
+      setPlaceholderShowing(false)
+      swapTimer = setTimeout(() => {
+        setPlaceholderIndex((index) => (index + 1) % suggestions.length)
+        setPlaceholderShowing(true)
+      }, 420)
+    }, 4200)
+    return () => {
+      window.clearInterval(cycle)
+      clearTimeout(swapTimer)
+    }
+  }, [suggestions.length, hasInput, isPromptFocused, reducedMotion])
+  const currentSuggestion =
+    suggestions.length > 0
+      ? suggestions[placeholderIndex % suggestions.length]
+      : undefined
+  const rotatingPlaceholder =
+    currentSuggestion?.input ??
+    'Build a SaaS app with auth, Postgres, nested routes, and Sentry. Use pnpm and deploy to Cloudflare.'
+  const handlePromptShiftEnter = (
+    event: React.KeyboardEvent<HTMLTextAreaElement>,
+  ) => {
+    if (event.key !== 'Enter' || !event.shiftKey) {
+      return
+    }
+    event.preventDefault()
+    submitWithHomePayoff(hasInput ? undefined : currentSuggestion?.input)
+  }
+
   const canRevealOptions =
-    hasInput && !hasMigrationRepositoryUrlError && !isGenerating
+    hasInput &&
+    !hasMigrationRepositoryUrlError &&
+    !isGenerating &&
+    !isHomePayoffLoading
   const canUseFinalActions =
     hasRevealedOptions &&
     hasInput &&
@@ -257,6 +368,7 @@ export function ApplicationStarter({
     isSelectedHostingDeployPending || transientAction === 'deploy'
   const isPromptCopied = copiedKind === 'prompt'
   const isCommandCopied = copiedKind === 'command'
+  const resultPrompt = result?.prompt
   const selectedPromptDeployProvider = selectedHostingDeployPartner
     ? getPromptDeployProvider(selectedHostingDeployPartner)
     : undefined
@@ -270,6 +382,26 @@ export function ApplicationStarter({
         : undefined,
     [result?.prompt, selectedPromptDeployProvider],
   )
+  const netlifyStartHref = React.useMemo(
+    () =>
+      resultPrompt
+        ? buildStarterPromptDeployUrl('netlify', resultPrompt)
+        : undefined,
+    [resultPrompt],
+  )
+  const codexStartHref = React.useMemo(
+    () => (resultPrompt ? buildCodexStartUrl(resultPrompt) : undefined),
+    [resultPrompt],
+  )
+  const claudeStartHref = React.useMemo(
+    () => (resultPrompt ? buildClaudeStartUrl(resultPrompt) : undefined),
+    [resultPrompt],
+  )
+  const cursorStartHref = React.useMemo(
+    () => (resultPrompt ? buildCursorStartUrl(resultPrompt) : undefined),
+    [resultPrompt],
+  )
+  const downloadHref = result?.downloadUrl
   const trackSelectedHostingDeployLink = React.useCallback(() => {
     if (!selectedHostingDeployPartner) {
       return
@@ -295,10 +427,8 @@ export function ApplicationStarter({
           await openDeployDialog('cloudflare')
           break
         case 'lovable':
-          await openLovableStart()
           break
         case 'netlify':
-          await openNetlifyStart()
           break
         case 'railway':
           await openDeployDialog('railway')
@@ -310,19 +440,23 @@ export function ApplicationStarter({
   }
   const renderCopyPromptButton = () => (
     <Button
-      color="emerald"
-      variant={selectedHostingDeployPartner ? 'secondary' : 'primary'}
-      size="sm"
+      variant="primary"
+      size={isHomeStarter ? 'md' : 'sm'}
+      className={
+        isHomeStarter
+          ? 'border-gray-950 bg-gray-950 text-white hover:bg-gray-800 dark:border-white dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200'
+          : undefined
+      }
       type="button"
       onClick={() => void generatePrompt()}
       disabled={!canUseFinalActions}
     >
       {isGeneratingPrompt ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
+        <CircleNotchIcon className="h-4 w-4 animate-spin" />
       ) : isPromptCopied ? (
-        <Check className="h-4 w-4" />
+        <CheckIcon className="h-4 w-4" />
       ) : (
-        <Copy className="h-4 w-4" />
+        <CopyIcon className="h-4 w-4" />
       )}
       {isGeneratingPrompt
         ? loadingPhrase
@@ -334,7 +468,8 @@ export function ApplicationStarter({
   const renderCopyCliCommandButton = () => (
     <Button
       variant="secondary"
-      size="sm"
+      size={isHomeStarter ? 'md' : 'sm'}
+      className={isHomeStarter ? 'border border-transparent' : undefined}
       type="button"
       onClick={() => {
         void copyResultValue('command')
@@ -342,11 +477,11 @@ export function ApplicationStarter({
       disabled={!canUseFinalActions}
     >
       {isGeneratingPrompt ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
+        <CircleNotchIcon className="h-4 w-4 animate-spin" />
       ) : isCommandCopied ? (
-        <Check className="h-4 w-4" />
+        <CheckIcon className="h-4 w-4" />
       ) : (
-        <Copy className="h-4 w-4" />
+        <CopyIcon className="h-4 w-4" />
       )}
       {isGeneratingPrompt
         ? 'Preparing...'
@@ -355,20 +490,106 @@ export function ApplicationStarter({
           : 'Copy CLI Command'}
     </Button>
   )
+  const renderActionAnchor = ({
+    action,
+    className,
+    href,
+    icon,
+    label,
+    iconOnly = false,
+    onTrack,
+    rel = 'noopener noreferrer',
+    size,
+    target = '_blank',
+    variant = 'primary',
+  }: {
+    action: StarterTransientAction
+    className?: string
+    href?: string
+    icon: React.ReactNode
+    label: string
+    iconOnly?: boolean
+    onTrack: () => void
+    rel?: string
+    size: 'xs' | 'sm'
+    target?: string
+    variant?: 'primary' | 'secondary'
+  }) => {
+    const disabled = !canUseFinalActions || !href || transientAction === action
+    const waitingForHref = !href
+
+    const button = (
+      <Button
+        as="a"
+        variant={iconOnly ? 'icon' : variant}
+        color={iconOnly ? 'gray' : undefined}
+        size={iconOnly ? 'icon-sm' : size}
+        href={disabled ? undefined : href}
+        target={target}
+        rel={rel}
+        aria-disabled={disabled}
+        aria-label={iconOnly ? label : undefined}
+        tabIndex={disabled ? -1 : undefined}
+        onClick={(event) => {
+          if (disabled) {
+            event.preventDefault()
+            return
+          }
+
+          onTrack()
+          showTransientActionFeedback(action)
+        }}
+        className={twMerge(
+          className,
+          disabled && 'pointer-events-none opacity-50',
+        )}
+      >
+        {transientAction === action || waitingForHref ? (
+          <CircleNotchIcon
+            className={twMerge(
+              'animate-spin',
+              iconOnly ? 'h-6 w-6' : size === 'xs' ? 'h-3.5 w-3.5' : 'h-4 w-4',
+            )}
+          />
+        ) : (
+          icon
+        )}
+        {!iconOnly
+          ? transientAction === action
+            ? 'Opening...'
+            : waitingForHref
+              ? 'Preparing...'
+              : label
+          : null}
+      </Button>
+    )
+
+    return iconOnly ? (
+      <Tooltip content={label} side="bottom">
+        {button}
+      </Tooltip>
+    ) : (
+      button
+    )
+  }
   const renderSelectedHostingDeployButton = () => {
     if (!selectedHostingDeployPartner) {
       return null
     }
 
-    if (selectedHostingDeployHref) {
-      const disabled = !canUseFinalActions || transientAction === 'deploy'
+    if (selectedPromptDeployProvider) {
+      const disabled =
+        !canUseFinalActions ||
+        !selectedHostingDeployHref ||
+        transientAction === 'deploy'
+      const waitingForHref = !selectedHostingDeployHref
 
       return (
         <Button
           as="a"
           color="emerald"
           variant="primary"
-          size="sm"
+          size={isHomeStarter ? 'md' : 'sm'}
           href={disabled ? undefined : selectedHostingDeployHref}
           target="_blank"
           rel="noopener noreferrer"
@@ -386,12 +607,16 @@ export function ApplicationStarter({
           className={disabled ? 'pointer-events-none opacity-50' : undefined}
           aria-label={`Deploy to ${hostingDeployPartnerLabels[selectedHostingDeployPartner]}`}
         >
-          {isDeployFeedbackActive ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+          {isDeployFeedbackActive || waitingForHref ? (
+            <CircleNotchIcon className="h-4 w-4 animate-spin" />
           ) : (
-            <Rocket className="h-4 w-4" />
+            <RocketIcon className="h-4 w-4" />
           )}
-          {isDeployFeedbackActive ? 'Opening...' : 'Deploy'}
+          {isDeployFeedbackActive
+            ? 'Opening...'
+            : waitingForHref
+              ? 'Preparing...'
+              : 'Deploy'}
         </Button>
       )
     }
@@ -400,7 +625,7 @@ export function ApplicationStarter({
       <Button
         color="emerald"
         variant="primary"
-        size="sm"
+        size={isHomeStarter ? 'md' : 'sm'}
         type="button"
         onClick={() => {
           showTransientActionFeedback('deploy')
@@ -414,9 +639,9 @@ export function ApplicationStarter({
         aria-label={`Deploy to ${hostingDeployPartnerLabels[selectedHostingDeployPartner]}`}
       >
         {isDeployFeedbackActive ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <CircleNotchIcon className="h-4 w-4 animate-spin" />
         ) : (
-          <Rocket className="h-4 w-4" />
+          <RocketIcon className="h-4 w-4" />
         )}
         {isDeployFeedbackActive ? 'Opening...' : 'Deploy'}
       </Button>
@@ -424,6 +649,55 @@ export function ApplicationStarter({
   }
   const showOptionsSection = hasRevealedOptions || hasGeneratedPrompt
   const showActionSection = hasRevealedOptions || hasGeneratedPrompt
+  const stagedHomeSelectionCount =
+    isHomeStarter &&
+    !reducedMotion &&
+    showOptionsSection &&
+    !homeRevealSequenceComplete
+      ? homeSelectionRevealCount
+      : undefined
+  const showStagedActionSection =
+    showActionSection &&
+    (!isHomeStarter || reducedMotion || homeRevealSequenceComplete)
+
+  React.useEffect(() => {
+    if (
+      !isHomeStarter ||
+      reducedMotion ||
+      !showOptionsSection ||
+      hasPlayedHomeRevealRef.current
+    ) {
+      return
+    }
+
+    hasPlayedHomeRevealRef.current = true
+    const totalSelections = homeSelectedOptionCountRef.current
+    let selectionTimer: number | undefined
+    const sectionTimer = window.setTimeout(() => {
+      if (totalSelections === 0) {
+        setHomeRevealSequenceComplete(true)
+        return
+      }
+
+      let revealedSelections = 0
+      selectionTimer = window.setInterval(() => {
+        revealedSelections += 1
+        setHomeSelectionRevealCount(revealedSelections)
+
+        if (revealedSelections >= totalSelections) {
+          window.clearInterval(selectionTimer)
+          setHomeRevealSequenceComplete(true)
+        }
+      }, 70)
+    }, 650)
+
+    return () => {
+      window.clearTimeout(sectionTimer)
+      if (selectionTimer !== undefined) {
+        window.clearInterval(selectionTimer)
+      }
+    }
+  }, [isHomeStarter, reducedMotion, showOptionsSection])
 
   React.useEffect(() => {
     return () => {
@@ -442,7 +716,10 @@ export function ApplicationStarter({
   }, [])
 
   return (
-    <div className={twMerge('relative', className)}>
+    <div
+      className={twMerge('relative', className)}
+      data-expanded={showOptionsSection || undefined}
+    >
       {enableHotkeys && !compact && hasFocusedPromptInput ? (
         <ClientOnly>
           <React.Suspense fallback={null}>
@@ -451,7 +728,7 @@ export function ApplicationStarter({
                 if (showActionSection) {
                   void generatePrompt()
                 } else {
-                  void submitCurrentInput()
+                  submitWithHomePayoff()
                 }
               }}
               onModKeyChange={setIsModHeld}
@@ -490,18 +767,16 @@ export function ApplicationStarter({
         <form
           id={formId}
           className={twMerge('space-y-3', compact ? 'mt-3' : 'mt-0')}
-          onSubmit={async (event) => {
+          onSubmit={(event) => {
             event.preventDefault()
-            await submitCurrentInput()
+            submitWithHomePayoff()
           }}
         >
           {compact ? (
             <>
               <div className="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950">
                 <div className="border-b border-gray-200 px-3 py-2 dark:border-gray-800">
-                  <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
-                    Ideas
-                  </div>
+                  <div className={starterEyebrowClassName}>Ideas</div>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {suggestions.map((suggestion) => (
                       <StarterChipButton
@@ -521,7 +796,7 @@ export function ApplicationStarter({
 
                 {showMigrationRepositoryInput ? (
                   <div className="border-b border-gray-200 px-3 py-2 dark:border-gray-800">
-                    <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
+                    <div className={starterEyebrowClassName}>
                       Existing Repository URL
                     </div>
                     <input
@@ -548,7 +823,9 @@ export function ApplicationStarter({
                 ) : null}
 
                 <div className="relative">
-                  <div className="px-3 pt-2 text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
+                  <div
+                    className={twMerge('px-3 pt-2', starterEyebrowClassName)}
+                  >
                     Prompt
                   </div>
                   <textarea
@@ -581,7 +858,7 @@ export function ApplicationStarter({
                       type="submit"
                       disabled={!canRevealOptions}
                     >
-                      <ArrowRight className="h-4 w-4" />
+                      <ArrowRightIcon className="h-4 w-4" />
                       Next
                       {enableHotkeys ? (
                         <SubmitShortcutHint isMac={isMacShortcutPlatform} />
@@ -597,7 +874,7 @@ export function ApplicationStarter({
                     <StarterTooltipProvider>
                       <div className="space-y-2 rounded-lg border border-gray-200 bg-white px-3 py-3 dark:border-gray-800 dark:bg-gray-950">
                         <div className="mb-3">
-                          <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
+                          <div className={starterEyebrowClassName}>
                             TanStack Libraries
                           </div>
 
@@ -610,7 +887,7 @@ export function ApplicationStarter({
                           </div>
                         </div>
 
-                        <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
+                        <div className={starterEyebrowClassName}>
                           Partner Integrations
                         </div>
                         <StarterPartnerRows
@@ -673,479 +950,567 @@ export function ApplicationStarter({
               </Collapsible>
             </>
           ) : (
-            <div className="relative overflow-hidden rounded-[1rem] border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950">
-              <div>
-                <div className="border-b border-gray-200 bg-gray-50/70 px-5 py-4 dark:border-gray-800 dark:bg-gray-900/50">
-                  <div className="flex items-center justify-between gap-3">
-                    <h3 className="font-semibold tracking-[-0.04em] text-[1.375rem] md:text-[1.5rem] text-gray-950 dark:text-white">
-                      {title}
-                    </h3>
-                    {headerAction ? (
-                      <div className="shrink-0">{headerAction}</div>
-                    ) : null}
-                  </div>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {suggestions.map((suggestion) => (
-                      <StarterChipButton
-                        key={suggestion.label}
-                        onClick={() => {
-                          void selectSuggestion({ suggestion })
-                        }}
-                        palette={palette}
-                        selected={input === suggestion.input}
-                      >
-                        {suggestion.label}
-                      </StarterChipButton>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="relative border-b border-gray-200 dark:border-gray-800">
-                  {showMigrationRepositoryInput ? (
-                    <div className="border-b border-gray-200 px-5 py-4 dark:border-gray-800">
-                      <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
-                        Existing Repository URL
+            <>
+              {/* Figma StackBuilder: the heading floats above the box. */}
+              {isHomeStarter ? (
+                <p className="mx-auto mb-6 max-w-4xl text-balance text-center font-ds-display text-ds-heading-3 font-light leading-tight text-gray-950 dark:text-white">
+                  {title}
+                </p>
+              ) : null}
+              <div
+                className={twMerge(
+                  'relative overflow-hidden rounded-[1rem] border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950',
+                  // Home: 36px full-squircle corners and a tight terracotta glow.
+                  isHomeStarter &&
+                    'rounded-[36px] [corner-shape:squircle] shadow-[0px_21px_39.2px_-38px_var(--color-ds-terracotta-300)] dark:border-transparent dark:bg-[#171717]',
+                )}
+              >
+                <div>
+                  {/* Home renders its heading above the box (see the fragment
+                    above); other contexts keep the in-box header bar. */}
+                  {isHomeStarter ? null : (
+                    <div className="border-b border-gray-200 bg-gray-50/70 px-5 py-4 dark:border-gray-800 dark:bg-gray-900/50">
+                      <div className="flex items-center justify-between gap-3">
+                        <h3 className="font-semibold tracking-[-0.04em] text-[1.375rem] md:text-[1.5rem] text-gray-950 dark:text-white">
+                          {title}
+                        </h3>
+                        {headerAction ? (
+                          <div className="shrink-0">{headerAction}</div>
+                        ) : null}
                       </div>
-                      <input
-                        ref={migrationRepositoryInputRef}
-                        type="text"
-                        value={migrationRepositoryUrl}
-                        onChange={(event) => {
-                          updateMigrationRepositoryUrl(event.target.value)
-                        }}
-                        placeholder="https://github.com/acme/legacy-next-app"
-                        className={twMerge(
-                          'mt-3 h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none transition-colors placeholder:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-white dark:placeholder:text-gray-500',
-                          palette.ring,
-                          hasMigrationRepositoryUrlError &&
-                            'border-red-300 dark:border-red-800',
-                        )}
-                      />
-                      {hasMigrationRepositoryUrlError ? (
-                        <div className="mt-2 text-xs text-red-600 dark:text-red-400">
-                          Enter a valid Git or GitHub repository URL.
-                        </div>
-                      ) : null}
                     </div>
-                  ) : null}
+                  )}
 
-                  <div className="px-5 pt-4 text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
-                    Prompt
-                  </div>
-                  <textarea
-                    value={input}
-                    onChange={(event) => {
-                      updateInput(event.target.value)
-                    }}
-                    onFocus={() => {
-                      setHasFocusedPromptInput(true)
-                      setIsPromptFocused(true)
-                    }}
-                    onBlur={() => {
-                      setIsPromptFocused(false)
-                    }}
-                    onClick={(event) => {
-                      if (enableHotkeys && isModHeld) {
-                        event.preventDefault()
-                        if (showActionSection) {
-                          void generatePrompt()
-                        } else {
-                          void submitCurrentInput()
-                        }
-                      }
-                    }}
-                    rows={4}
-                    placeholder="Build a SaaS app with auth, Postgres, nested routes, and Sentry. Use pnpm and deploy to Cloudflare."
+                  <div
                     className={twMerge(
-                      'w-full min-h-28 bg-transparent px-5 pb-4 pt-1 text-sm leading-6 text-gray-900 outline-none transition-colors dark:text-white',
-                      palette.ring,
+                      'relative border-b border-gray-200 dark:border-gray-800',
+                      isHomeStarter && 'rounded-[36px] border-b-0',
                     )}
-                  />
-
-                  {!showActionSection ? (
-                    <div className="border-t border-gray-200 px-5 py-4 dark:border-gray-800">
-                      <div className="flex flex-wrap items-center gap-3">
-                        <Button
-                          color="emerald"
-                          className="pr-1.5"
-                          size="sm"
-                          type="submit"
-                          disabled={!canRevealOptions}
-                        >
-                          <ArrowRight className="h-4 w-4" />
-                          Next
-                          {enableHotkeys ? (
-                            <SubmitShortcutHint isMac={isMacShortcutPlatform} />
-                          ) : null}
-                        </Button>
-                      </div>
-                    </div>
-                  ) : null}
-                </div>
-
-                <Collapsible open={showOptionsSection}>
-                  <CollapsibleContent>
-                    {showOptionsSection ? (
-                      <div className="bg-gray-50/70 px-5 py-4 dark:bg-gray-900/50">
-                        <StarterTooltipProvider>
-                          <div>
-                            <div className="mb-4">
-                              <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
-                                TanStack Libraries
-                              </div>
-
-                              <div className="mt-3 space-y-2.5">
-                                <StarterLibraryRows
-                                  selectedLibraries={selectedLibraries}
-                                  toggleLibrary={toggleLibrary}
-                                />
-                              </div>
-                            </div>
-
-                            <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
-                              Add Integrations
-                            </div>
-                            <div className="mt-3">
-                              <StarterPartnerRows
-                                palette={palette}
-                                partnerSuggestions={partnerSuggestions}
-                                selectedPartners={selectedPartners}
-                                size="compact"
-                                togglePartner={togglePartner}
-                              />
-                            </div>
-                            <StarterCustomizationSection
-                              onOpenChange={setShowToolchainOptions}
-                              open={showToolchainOptions}
-                              title="Toolchain"
-                            >
-                              <div className="mt-3 flex flex-wrap gap-2">
-                                {starterToolchains.map((toolchain) => (
-                                  <StarterChipButton
-                                    key={toolchain}
-                                    onClick={() => {
-                                      toggleToolchain(toolchain)
-                                    }}
-                                    palette={palette}
-                                    selected={selectedToolchain === toolchain}
-                                    size="compact"
-                                  >
-                                    {toolchain}
-                                  </StarterChipButton>
-                                ))}
-                              </div>
-                            </StarterCustomizationSection>
-                            <StarterCustomizationSection
-                              onOpenChange={setShowPackageManagerOptions}
-                              open={showPackageManagerOptions}
-                              title="Package Manager"
-                            >
-                              <div className="mt-3 flex flex-wrap gap-2">
-                                {starterPackageManagers.map(
-                                  (packageManager) => (
-                                    <StarterChipButton
-                                      key={packageManager}
-                                      onClick={() => {
-                                        togglePackageManager(packageManager)
-                                      }}
-                                      palette={palette}
-                                      selected={
-                                        selectedPackageManager ===
-                                        packageManager
-                                      }
-                                      size="compact"
-                                    >
-                                      {packageManager}
-                                    </StarterChipButton>
-                                  ),
-                                )}
-                              </div>
-                            </StarterCustomizationSection>
+                  >
+                    {showMigrationRepositoryInput ? (
+                      <div className="border-b border-gray-200 px-5 py-4 dark:border-gray-800">
+                        <div className={starterEyebrowClassName}>
+                          Existing Repository URL
+                        </div>
+                        <input
+                          ref={migrationRepositoryInputRef}
+                          type="text"
+                          value={migrationRepositoryUrl}
+                          onChange={(event) => {
+                            updateMigrationRepositoryUrl(event.target.value)
+                          }}
+                          placeholder="https://github.com/acme/legacy-next-app"
+                          className={twMerge(
+                            'mt-3 h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none transition-colors placeholder:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-white dark:placeholder:text-gray-500',
+                            palette.ring,
+                            hasMigrationRepositoryUrlError &&
+                              'border-red-300 dark:border-red-800',
+                          )}
+                        />
+                        {hasMigrationRepositoryUrlError ? (
+                          <div className="mt-2 text-xs text-red-600 dark:text-red-400">
+                            Enter a valid Git or GitHub repository URL.
                           </div>
-                        </StarterTooltipProvider>
-
-                        {footerContent ? (
-                          <div className="mt-4">{footerContent}</div>
                         ) : null}
                       </div>
                     ) : null}
-                  </CollapsibleContent>
-                </Collapsible>
 
-                <Collapsible open={showActionSection}>
-                  <CollapsibleContent>
-                    {showActionSection ? (
-                      <div className="bg-gray-50/70 px-5 py-4 dark:bg-gray-900/50">
-                        <div className="flex flex-col gap-4">
-                          {!showCliExportActions ? (
-                            <div className="flex flex-wrap items-center gap-3">
-                              {!selectedHostingDeployPartner ? (
-                                <Button
-                                  size="sm"
-                                  type="button"
-                                  onClick={() => {
-                                    showTransientActionFeedback('netlify')
-                                    void openNetlifyStart()
-                                  }}
-                                  disabled={
-                                    !canUseFinalActions ||
-                                    transientAction === 'netlify'
-                                  }
-                                  className="border-[#00AD9F] bg-[#00AD9F] text-white hover:bg-[#009a8e]"
-                                >
-                                  {isGeneratingNetlify ||
-                                  transientAction === 'netlify' ? (
-                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                  ) : (
-                                    <Rocket className="h-4 w-4" />
-                                  )}
-                                  {transientAction === 'netlify'
-                                    ? 'Opening...'
-                                    : secondaryActionLabel}
-                                </Button>
-                              ) : null}
+                    {isHomeStarter ? null : (
+                      <div
+                        className={twMerge(
+                          'px-5 pt-4',
+                          starterEyebrowClassName,
+                        )}
+                      >
+                        Prompt
+                      </div>
+                    )}
+                    <textarea
+                      value={input}
+                      onChange={(event) => {
+                        updateInput(event.target.value)
+                      }}
+                      onFocus={() => {
+                        setHasFocusedPromptInput(true)
+                        setIsPromptFocused(true)
+                      }}
+                      onBlur={() => {
+                        setIsPromptFocused(false)
+                      }}
+                      onClick={(event) => {
+                        if (enableHotkeys && isModHeld) {
+                          event.preventDefault()
+                          if (showActionSection) {
+                            void generatePrompt()
+                          } else {
+                            submitWithHomePayoff()
+                          }
+                        }
+                      }}
+                      onKeyDown={handlePromptShiftEnter}
+                      rows={4}
+                      // Home hides the native placeholder — the animated overlay
+                      // below renders the rotating (short) suggestion instead.
+                      placeholder={isHomeStarter ? '' : rotatingPlaceholder}
+                      className={twMerge(
+                        'w-full min-h-28 bg-transparent px-5 pb-4 pt-1 text-sm leading-6 text-gray-900 outline-none transition-colors dark:text-white',
+                        palette.ring,
+                        isHomeStarter &&
+                          'resize-none rounded-[36px] px-6 pb-6 pr-40 pt-6 text-base text-gray-900 placeholder:text-gray-500 dark:text-white dark:placeholder:text-[#8f8f98]',
+                      )}
+                    />
 
-                              <Button
-                                size="sm"
-                                type="button"
-                                onClick={() => {
-                                  showTransientActionFeedback('codex')
-                                  void openCodexStart()
-                                }}
-                                disabled={
-                                  !canUseFinalActions ||
-                                  transientAction === 'codex'
-                                }
-                                className="border-gray-900 bg-gray-900 text-white hover:bg-gray-800 dark:border-gray-100 dark:bg-gray-100 dark:text-gray-950 dark:hover:bg-gray-200"
-                              >
-                                {transientAction === 'codex' ? (
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                ) : (
-                                  <span className="relative h-4 w-4 shrink-0">
-                                    <img
-                                      src={openaiDarkLogo}
-                                      alt=""
-                                      aria-hidden="true"
-                                      className="h-4 w-4 dark:hidden"
-                                    />
-                                    <img
-                                      src={openaiLightLogo}
-                                      alt=""
-                                      aria-hidden="true"
-                                      className="hidden h-4 w-4 dark:block"
-                                    />
-                                  </span>
-                                )}
-                                {transientAction === 'codex'
-                                  ? 'Opening...'
-                                  : 'Open in Codex'}
-                              </Button>
-                            </div>
-                          ) : null}
+                    {/* Animated rotating placeholder (home): the short suggestion
+                      label dissolves out, then the next reveals left-to-right. */}
+                    {isHomeStarter && !hasInput ? (
+                      <span
+                        aria-hidden
+                        className={twMerge(
+                          'pointer-events-none absolute left-6 top-6 whitespace-nowrap text-base leading-6 text-gray-500 dark:text-[#8f8f98]',
+                          !reducedMotion &&
+                            (placeholderShowing
+                              ? 'home-prompt-ph-in'
+                              : 'home-prompt-ph-out'),
+                        )}
+                      >
+                        {currentSuggestion?.label}
+                      </span>
+                    ) : null}
 
-                          <div className="flex flex-wrap items-center gap-3">
-                            {renderSelectedHostingDeployButton()}
-                            {renderCopyPromptButton()}
-                            {showCliExportActions
-                              ? renderCopyCliCommandButton()
-                              : null}
-                          </div>
+                    {/* Home: the hint sits lateral to the prompt text (top-right);
+                        once the user types, the gradient Go CTA replaces it. */}
+                    {isHomeStarter ? (
+                      <div className="absolute right-6 top-5 flex items-center">
+                        {showActionSection ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            type="button"
+                            onClick={resetHomeBuilder}
+                            className="rounded-lg border-0 bg-transparent text-xs font-medium text-gray-500 shadow-none hover:bg-gray-950/5 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-white"
+                          >
+                            <ArrowCounterClockwiseIcon className="h-3.5 w-3.5" />
+                            Start over
+                          </Button>
+                        ) : isHomePayoffLoading ? (
+                          <PixelSpinner
+                            className="h-10 w-10"
+                            loops={2}
+                            onComplete={completeHomePayoff}
+                          />
+                        ) : !hasInput ? (
+                          <span className="font-ds-display text-sm font-extralight text-gray-500 dark:text-[#8f8f98]">
+                            Press Shift + Enter
+                          </span>
+                        ) : (
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            type="submit"
+                            disabled={!canRevealOptions}
+                            className="rounded-[11px] border-transparent bg-[linear-gradient(117deg,#ff5f5f,#ffa05c,#fff27c,#74dcff)] font-ds-display font-bold text-ds-neutral-500 shadow-md transition-[filter] hover:text-ds-neutral-500 hover:brightness-105 disabled:grayscale"
+                          >
+                            Go
+                            <ArrowRightIcon className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    ) : null}
 
-                          {showCliExportActions && !showMoreActions ? (
-                            <div className="flex flex-wrap items-center gap-3">
-                              <Button
-                                variant="ghost"
-                                size="xs"
-                                type="button"
-                                onClick={() => setShowMoreActions(true)}
-                                className="h-auto border-transparent bg-transparent px-1 py-0 text-[11px] font-medium text-gray-500 hover:bg-transparent hover:text-gray-700 dark:text-gray-500 dark:hover:bg-transparent dark:hover:text-gray-300"
-                              >
-                                Show More
-                              </Button>
-                            </div>
-                          ) : null}
-
-                          {showCliExportActions && showMoreActions ? (
-                            <div className="flex flex-wrap items-center gap-2">
-                              <Button
-                                size="xs"
-                                type="button"
-                                onClick={() => {
-                                  showTransientActionFeedback('codex')
-                                  void openCodexStart()
-                                }}
-                                disabled={
-                                  !canUseFinalActions ||
-                                  transientAction === 'codex'
-                                }
-                                className="h-6 gap-1 px-2 text-[11px] border-gray-900 bg-gray-900 text-white hover:bg-gray-800 dark:border-gray-100 dark:bg-gray-100 dark:text-gray-950 dark:hover:bg-gray-200"
-                              >
-                                {transientAction === 'codex' ? (
-                                  <Loader2 className="h-3 w-3 animate-spin" />
-                                ) : (
-                                  <span className="relative h-3 w-3 shrink-0">
-                                    <img
-                                      src={openaiDarkLogo}
-                                      alt=""
-                                      aria-hidden="true"
-                                      className="h-3 w-3 dark:hidden"
-                                    />
-                                    <img
-                                      src={openaiLightLogo}
-                                      alt=""
-                                      aria-hidden="true"
-                                      className="hidden h-3 w-3 dark:block"
-                                    />
-                                  </span>
-                                )}
-                                {transientAction === 'codex'
-                                  ? 'Opening...'
-                                  : 'Open in Codex'}
-                              </Button>
-
-                              <Button
-                                size="xs"
-                                type="button"
-                                onClick={() => {
-                                  showTransientActionFeedback('claude')
-                                  void openClaudeStart()
-                                }}
-                                disabled={
-                                  !canUseFinalActions ||
-                                  transientAction === 'claude'
-                                }
-                                className="h-6 gap-1 px-2 text-[11px] border-[#D4A373] bg-[#D4A373] text-white hover:bg-[#C6905C] dark:border-[#E6C49A] dark:bg-[#E6C49A] dark:text-gray-950 dark:hover:bg-[#DBB684]"
-                              >
-                                {transientAction === 'claude' ? (
-                                  <Loader2 className="h-3 w-3 animate-spin" />
-                                ) : (
-                                  <span className="relative h-3 w-3 shrink-0">
-                                    <img
-                                      src={anthropicDarkLogo}
-                                      alt=""
-                                      aria-hidden="true"
-                                      className="h-3 w-3 dark:hidden"
-                                    />
-                                    <img
-                                      src={anthropicLightLogo}
-                                      alt=""
-                                      aria-hidden="true"
-                                      className="hidden h-3 w-3 dark:block"
-                                    />
-                                  </span>
-                                )}
-                                {transientAction === 'claude'
-                                  ? 'Opening...'
-                                  : 'Open in Claude'}
-                              </Button>
-
-                              <Button
-                                size="xs"
-                                type="button"
-                                onClick={() => {
-                                  showTransientActionFeedback('cursor')
-                                  void openCursorStart()
-                                }}
-                                disabled={
-                                  !canUseFinalActions ||
-                                  transientAction === 'cursor'
-                                }
-                                className="h-6 gap-1 px-2 text-[11px] border-black bg-black text-white hover:bg-gray-900 dark:border-white dark:bg-white dark:text-black dark:hover:bg-gray-100"
-                              >
-                                {transientAction === 'cursor' ? (
-                                  <Loader2 className="h-3 w-3 animate-spin" />
-                                ) : (
-                                  <CursorIcon className="h-3 w-3" />
-                                )}
-                                {transientAction === 'cursor'
-                                  ? 'Opening...'
-                                  : 'Open in Cursor'}
-                              </Button>
-
-                              <Button
-                                variant="secondary"
-                                size="xs"
-                                type="button"
-                                onClick={() => {
-                                  showTransientActionFeedback('clone')
-                                  void openDeployDialog(null)
-                                }}
-                                disabled={
-                                  !canUseFinalActions ||
-                                  transientAction === 'clone'
-                                }
-                                className="h-6 gap-1 px-2 text-[11px]"
-                              >
-                                {transientAction === 'clone' ? (
-                                  <Loader2 className="h-3 w-3 animate-spin" />
-                                ) : (
-                                  <GitHub className="h-3 w-3" />
-                                )}
-                                {transientAction === 'clone'
-                                  ? 'Opening...'
-                                  : 'Clone to GitHub'}
-                              </Button>
-
-                              <Button
-                                variant="secondary"
-                                size="xs"
-                                type="button"
-                                onClick={() => {
-                                  showTransientActionFeedback('download')
-                                  void navigateToResult('download')
-                                }}
-                                disabled={
-                                  !canUseFinalActions ||
-                                  transientAction === 'download'
-                                }
-                                className="h-6 gap-1 px-2 text-[11px]"
-                              >
-                                {transientAction === 'download' ? (
-                                  <Loader2 className="h-3 w-3 animate-spin" />
-                                ) : (
-                                  <Download className="h-3 w-3" />
-                                )}
-                                {transientAction === 'download'
-                                  ? 'Opening...'
-                                  : 'Download ZIP'}
-                              </Button>
-                            </div>
-                          ) : null}
+                    {!isHomeStarter && !showActionSection ? (
+                      <div className="border-t border-gray-200 px-5 py-4 dark:border-gray-800">
+                        <div className="flex flex-wrap items-center gap-3">
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            type="submit"
+                            disabled={!canRevealOptions}
+                            className="rounded-[11px] border-transparent bg-[linear-gradient(117deg,#ff5f5f,#ffa05c,#fff27c,#74dcff)] font-ds-display font-bold text-ds-neutral-500 shadow-md transition-[filter] hover:text-ds-neutral-500 hover:brightness-105 disabled:grayscale"
+                          >
+                            Go
+                            <ArrowRightIcon className="h-4 w-4" />
+                            {enableHotkeys ? (
+                              <SubmitShortcutHint
+                                isMac={isMacShortcutPlatform}
+                              />
+                            ) : null}
+                          </Button>
                         </div>
                       </div>
                     ) : null}
-                  </CollapsibleContent>
-                </Collapsible>
-
-                {showPromptPreview && hasGeneratedPrompt ? (
-                  <div className="border-t border-gray-200 dark:border-gray-800">
-                    <GeneratedPromptPreviewHeader
-                      copiedPrompt={copiedKind === 'prompt'}
-                      copyNotice={promptCopyNotice}
-                      onDismissCopyNotice={dismissPromptCopyNotice}
-                      onCopyPrompt={() => {
-                        void copyResultValue('prompt')
-                      }}
-                    />
-                    <GeneratedPromptPreviewBody prompt={result?.prompt ?? ''} />
                   </div>
-                ) : null}
+
+                  <Collapsible open={showOptionsSection}>
+                    <CollapsibleContent
+                      className={twMerge(
+                        isHomeStarter &&
+                          'duration-[350ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none',
+                      )}
+                    >
+                      {showOptionsSection ? (
+                        <div
+                          className={twMerge(
+                            'bg-gray-50/70 px-5 py-4 dark:bg-gray-900/50',
+                            isHomeStarter &&
+                              'bg-transparent dark:bg-transparent',
+                          )}
+                        >
+                          <StarterTooltipProvider>
+                            <div>
+                              <div
+                                className={twMerge(
+                                  'mb-4',
+                                  isHomeStarter &&
+                                    !reducedMotion &&
+                                    'home-stack-builder-section-reveal',
+                                )}
+                              >
+                                <div className={starterEyebrowClassName}>
+                                  TanStack Libraries
+                                </div>
+
+                                <div className="mt-3 space-y-2.5">
+                                  <StarterLibraryRows
+                                    revealedSelectionCount={
+                                      stagedHomeSelectionCount
+                                    }
+                                    selectedLibraries={selectedLibraries}
+                                    size={isHomeStarter ? 'large' : 'default'}
+                                    toggleLibrary={toggleLibrary}
+                                  />
+                                </div>
+                              </div>
+
+                              <div
+                                className={twMerge(
+                                  isHomeStarter &&
+                                    !reducedMotion &&
+                                    'home-stack-builder-section-reveal home-stack-builder-section-reveal-delayed',
+                                )}
+                              >
+                                <div className={starterEyebrowClassName}>
+                                  Add Integrations
+                                </div>
+                                <div className="mt-3 w-full">
+                                  <StarterPartnerRows
+                                    palette={palette}
+                                    partnerSuggestions={partnerSuggestions}
+                                    revealedSelectionCount={
+                                      stagedHomeSelectionCount === undefined
+                                        ? undefined
+                                        : Math.max(
+                                            0,
+                                            stagedHomeSelectionCount -
+                                              selectedLibraries.length,
+                                          )
+                                    }
+                                    selectedPartners={selectedPartners}
+                                    size={isHomeStarter ? 'large' : 'compact'}
+                                    togglePartner={togglePartner}
+                                  />
+                                </div>
+                              </div>
+                              <div
+                                className={twMerge(
+                                  isHomeStarter &&
+                                    !reducedMotion &&
+                                    'home-stack-builder-section-reveal home-stack-builder-section-reveal-third',
+                                )}
+                              >
+                                <StarterCustomizationSection
+                                  onOpenChange={setShowToolchainOptions}
+                                  open={showToolchainOptions}
+                                  title="Toolchain"
+                                >
+                                  <div className="mt-3 flex flex-wrap gap-2">
+                                    {starterToolchains.map((toolchain) => (
+                                      <StarterChipButton
+                                        key={toolchain}
+                                        onClick={() => {
+                                          toggleToolchain(toolchain)
+                                        }}
+                                        palette={palette}
+                                        selected={
+                                          selectedToolchain === toolchain
+                                        }
+                                        size={
+                                          isHomeStarter ? 'large' : 'compact'
+                                        }
+                                      >
+                                        {toolchain}
+                                      </StarterChipButton>
+                                    ))}
+                                  </div>
+                                </StarterCustomizationSection>
+                              </div>
+                              <div
+                                className={twMerge(
+                                  isHomeStarter &&
+                                    !reducedMotion &&
+                                    'home-stack-builder-section-reveal home-stack-builder-section-reveal-fourth',
+                                )}
+                              >
+                                <StarterCustomizationSection
+                                  onOpenChange={setShowPackageManagerOptions}
+                                  open={showPackageManagerOptions}
+                                  title="Package Manager"
+                                >
+                                  <div className="mt-3 flex flex-wrap gap-2">
+                                    {starterPackageManagers.map(
+                                      (packageManager) => (
+                                        <StarterChipButton
+                                          key={packageManager}
+                                          onClick={() => {
+                                            togglePackageManager(packageManager)
+                                          }}
+                                          palette={palette}
+                                          selected={
+                                            selectedPackageManager ===
+                                            packageManager
+                                          }
+                                          size={
+                                            isHomeStarter ? 'large' : 'compact'
+                                          }
+                                        >
+                                          {packageManager}
+                                        </StarterChipButton>
+                                      ),
+                                    )}
+                                  </div>
+                                </StarterCustomizationSection>
+                              </div>
+                            </div>
+                          </StarterTooltipProvider>
+
+                          {footerContent ? (
+                            <div className="mt-4">{footerContent}</div>
+                          ) : null}
+                        </div>
+                      ) : null}
+                    </CollapsibleContent>
+                  </Collapsible>
+
+                  <Collapsible open={showStagedActionSection}>
+                    <CollapsibleContent
+                      className={twMerge(
+                        isHomeStarter &&
+                          'duration-[350ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none',
+                      )}
+                    >
+                      {showStagedActionSection ? (
+                        <div
+                          className={twMerge(
+                            'bg-gray-50/70 px-5 py-4 dark:bg-gray-900/50',
+                            isHomeStarter &&
+                              'home-stack-builder-reveal home-stack-builder-reveal-delayed bg-transparent dark:bg-transparent',
+                          )}
+                        >
+                          <div
+                            className={twMerge(
+                              'flex flex-col gap-4',
+                              isHomeStarter && 'items-end',
+                            )}
+                          >
+                            {!showCliExportActions ? (
+                              <div className="flex flex-wrap items-center gap-3">
+                                {!selectedHostingDeployPartner
+                                  ? renderActionAnchor({
+                                      action: 'netlify',
+                                      className:
+                                        'border-[#00AD9F] bg-[#00AD9F] text-white hover:bg-[#009a8e]',
+                                      href: netlifyStartHref,
+                                      icon: <RocketIcon className="h-4 w-4" />,
+                                      label: secondaryActionLabel,
+                                      onTrack: () => {
+                                        trackActivation({
+                                          action: 'netlify_start',
+                                          surface: 'result_panel',
+                                          provider: 'netlify',
+                                        })
+                                      },
+                                      size: 'sm',
+                                    })
+                                  : null}
+
+                                {renderActionAnchor({
+                                  action: 'codex',
+                                  className:
+                                    'border-gray-900 bg-gray-900 text-white hover:bg-gray-800 dark:border-gray-100 dark:bg-gray-100 dark:text-gray-950 dark:hover:bg-gray-200',
+                                  href: codexStartHref,
+                                  icon: <OpenAiLogoIcon className="h-4 w-4" />,
+                                  label: 'Open in Codex',
+                                  onTrack: () => {
+                                    trackActivation({
+                                      action: 'open_codex',
+                                      surface: 'result_panel',
+                                    })
+                                  },
+                                  size: 'sm',
+                                })}
+                              </div>
+                            ) : null}
+
+                            <div
+                              className={twMerge(
+                                'flex flex-wrap items-center gap-3',
+                                isHomeStarter && 'justify-end',
+                              )}
+                            >
+                              {renderSelectedHostingDeployButton()}
+                              {showCliExportActions
+                                ? renderCopyCliCommandButton()
+                                : null}
+                              {renderCopyPromptButton()}
+                            </div>
+
+                            {showCliExportActions ? (
+                              <div
+                                className={twMerge(
+                                  'flex flex-wrap items-center gap-2',
+                                  isHomeStarter && 'justify-end',
+                                )}
+                              >
+                                {renderActionAnchor({
+                                  action: 'codex',
+                                  className:
+                                    'text-text-secondary hover:text-text-primary',
+                                  href: codexStartHref,
+                                  icon: (
+                                    <OpenAiLogoIcon
+                                      className="h-6 w-6"
+                                      weight="regular"
+                                    />
+                                  ),
+                                  iconOnly: true,
+                                  label: 'Open in Codex',
+                                  onTrack: () => {
+                                    trackActivation({
+                                      action: 'open_codex',
+                                      surface: 'result_panel',
+                                    })
+                                  },
+                                  size: 'xs',
+                                })}
+
+                                {renderActionAnchor({
+                                  action: 'claude',
+                                  className:
+                                    'text-text-secondary hover:text-text-primary',
+                                  href: claudeStartHref,
+                                  icon: <ClaudeIcon className="h-6 w-6" />,
+                                  iconOnly: true,
+                                  label: 'Open in Claude',
+                                  onTrack: () => {
+                                    trackActivation({
+                                      action: 'open_claude',
+                                      surface: 'result_panel',
+                                    })
+                                  },
+                                  size: 'xs',
+                                })}
+
+                                {renderActionAnchor({
+                                  action: 'cursor',
+                                  className:
+                                    'text-text-secondary hover:text-text-primary',
+                                  href: cursorStartHref,
+                                  icon: <CursorIcon className="h-6 w-6" />,
+                                  iconOnly: true,
+                                  label: 'Open in Cursor',
+                                  onTrack: () => {
+                                    trackActivation({
+                                      action: 'open_cursor',
+                                      surface: 'result_panel',
+                                    })
+                                  },
+                                  size: 'xs',
+                                })}
+
+                                <Tooltip
+                                  content="Clone to GitHub"
+                                  side="bottom"
+                                >
+                                  <Button
+                                    variant="icon"
+                                    color="gray"
+                                    size="icon-sm"
+                                    type="button"
+                                    aria-label="Clone to GitHub"
+                                    onClick={() => {
+                                      showTransientActionFeedback('clone')
+                                      void openDeployDialog(null)
+                                    }}
+                                    disabled={
+                                      !canUseFinalActions ||
+                                      transientAction === 'clone'
+                                    }
+                                    className="text-text-secondary hover:text-text-primary"
+                                  >
+                                    {transientAction === 'clone' ? (
+                                      <CircleNotchIcon className="h-6 w-6 animate-spin" />
+                                    ) : (
+                                      <GithubLogoIcon
+                                        className="h-6 w-6"
+                                        weight="regular"
+                                      />
+                                    )}
+                                  </Button>
+                                </Tooltip>
+
+                                {renderActionAnchor({
+                                  action: 'download',
+                                  className:
+                                    'text-text-secondary hover:text-text-primary',
+                                  href: downloadHref,
+                                  icon: (
+                                    <DownloadSimpleIcon
+                                      className="h-6 w-6"
+                                      weight="regular"
+                                    />
+                                  ),
+                                  iconOnly: true,
+                                  label: 'Download ZIP',
+                                  onTrack: () => {
+                                    trackActivation({
+                                      action: 'download',
+                                      surface: 'result_panel',
+                                    })
+                                  },
+                                  size: 'xs',
+                                  variant: 'secondary',
+                                })}
+                              </div>
+                            ) : null}
+                          </div>
+                        </div>
+                      ) : null}
+                    </CollapsibleContent>
+                  </Collapsible>
+
+                  {showPromptPreview && hasGeneratedPrompt ? (
+                    <div className="border-t border-gray-200 dark:border-gray-800">
+                      <GeneratedPromptPreviewHeader
+                        copiedPrompt={copiedKind === 'prompt'}
+                        copyNotice={promptCopyNotice}
+                        onDismissCopyNotice={dismissPromptCopyNotice}
+                        onCopyPrompt={() => {
+                          void copyResultValue('prompt')
+                        }}
+                      />
+                      <GeneratedPromptPreviewBody
+                        prompt={result?.prompt ?? ''}
+                      />
+                    </div>
+                  ) : null}
+                </div>
               </div>
-            </div>
+            </>
           )}
 
           {compact ? submitButton : null}
         </form>
       </div>
     </div>
-  )
-}
-
-function CursorIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
-      <path d="M22.106 5.68 12.5.135a.998.998 0 0 0-.998 0L1.893 5.68a.84.84 0 0 0-.419.726v11.186c0 .3.16.577.42.727l9.607 5.547a.999.999 0 0 0 .998 0l9.608-5.547a.84.84 0 0 0 .42-.727V6.407a.84.84 0 0 0-.42-.726Zm-.603 1.176-9.275 16.064c-.063.108-.228.064-.228-.061V12.34a.59.59 0 0 0-.295-.51l-9.11-5.26c-.107-.062-.063-.228.062-.228h18.55c.264 0 .428.286.296.514Z" />
-    </svg>
   )
 }
 
@@ -1177,15 +1542,15 @@ function StarterCustomizationSection({
 }) {
   return (
     <Collapsible open={open} onOpenChange={onOpenChange}>
-      <div className={twMerge(compact ? 'pt-1' : 'pt-2')}>
+      <div className={twMerge(compact ? 'pt-1' : 'pt-4')}>
         <CollapsibleTrigger
           className={twMerge(
-            'inline-flex items-center gap-1 text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 transition-colors hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300',
-            compact && 'text-[10px]',
+            starterEyebrowClassName,
+            'inline-flex appearance-none items-center gap-1 border-0 bg-transparent p-0 text-left transition-colors hover:text-text-secondary',
           )}
         >
           {title}
-          <ChevronDown
+          <CaretDownIcon
             className={twMerge(
               'h-3 w-3 transition-transform duration-200',
               open && 'rotate-180',

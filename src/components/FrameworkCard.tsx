@@ -4,7 +4,7 @@ import type { Library, LibraryId } from '~/libraries'
 import { getFrameworkOptions } from '~/libraries/frameworks'
 import { useCopyButton } from '~/components/CopyMarkdownButton'
 import { useToast } from '~/components/ToastProvider'
-import { Check, Copy } from 'lucide-react'
+import { CheckIcon, CopyIcon } from '@phosphor-icons/react'
 import { Card } from '~/components/Card'
 import {
   getFrameworkDocsHash,
@@ -69,7 +69,7 @@ export function FrameworkCard({
         className="flex flex-col flex-1 gap-4"
       >
         {/* Framework Logo */}
-        <div className="flex-shrink-0 flex justify-center">
+        <div className="shrink-0 flex justify-center">
           <img
             src={framework.logo}
             alt={framework.label}
@@ -98,13 +98,13 @@ export function FrameworkCard({
               e.stopPropagation()
               onCopyClick(e)
             }}
-            className="flex-shrink-0 p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-800"
+            className="shrink-0 p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-800"
             title="Copy package name"
           >
             {copied ? (
-              <Check className="w-3 h-3 text-green-600 dark:text-green-400" />
+              <CheckIcon className="w-3 h-3 text-green-600 dark:text-green-400" />
             ) : (
-              <Copy className="w-3 h-3" />
+              <CopyIcon className="w-3 h-3" />
             )}
           </button>
         </div>

@@ -1,5 +1,4 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { Footer } from '~/components/Footer'
 import { seo } from '~/utils/seo'
 import { authClient } from '~/auth/client'
 import { Authenticated, Unauthenticated } from '~/components/AuthComponents'
@@ -8,7 +7,7 @@ import { useToast } from '~/components/ToastProvider'
 import { useEffect, useState } from 'react'
 import { setInterestedInHidingAds } from '~/utils/users.functions'
 import { GithubIcon } from '~/components/icons/GithubIcon'
-import { CheckCircleIcon } from '~/components/icons/CheckCircleIcon'
+import { CheckCircleIcon } from '@phosphor-icons/react'
 import { GoogleIcon } from '~/components/icons/GoogleIcon'
 
 export const Route = createFileRoute('/ads')({
@@ -169,7 +168,6 @@ function RouteComp() {
           </div>
         </section>
       </div>
-      <Footer />
     </div>
   )
 }

@@ -4,13 +4,19 @@ import { useRemoveUsersFromRole } from '~/utils/mutations'
 import { useQuery } from '@tanstack/react-query'
 import { getRole, getUsersWithRole } from '~/utils/roles.functions'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
+import { flexRender } from '@tanstack/react-table'
 import {
-  useReactTable,
   getCoreRowModel,
-  flexRender,
-  type ColumnDef,
-} from '@tanstack/react-table'
-import { ArrowLeft, Lock, Trash, User, Users } from 'lucide-react'
+  useLegacyTable as useReactTable,
+} from '@tanstack/react-table/legacy'
+import type { LegacyColumnDef as ColumnDef } from '@tanstack/react-table/legacy'
+import {
+  ArrowLeftIcon,
+  LockIcon,
+  TrashIcon,
+  UserIcon,
+  UsersIcon,
+} from '@phosphor-icons/react'
 import { requireCapability } from '~/utils/auth.functions'
 import { hasCapability } from '~/db/types'
 import { Badge, Button } from '~/ui'
@@ -131,7 +137,7 @@ function RoleDetailPage() {
           const displayName = user.name || user.displayUsername || ''
           return (
             <div className="flex items-center gap-3">
-              <div className="flex-shrink-0 h-10 w-10">
+              <div className="shrink-0 h-10 w-10">
                 {user.image ? (
                   <img
                     className="h-10 w-10 rounded-full"
@@ -140,7 +146,7 @@ function RoleDetailPage() {
                   />
                 ) : (
                   <div className="h-10 w-10 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
-                    <User className="text-gray-500 dark:text-gray-400" />
+                    <UserIcon className="text-gray-500 dark:text-gray-400" />
                   </div>
                 )}
               </div>
@@ -198,7 +204,7 @@ function RoleDetailPage() {
               }}
               className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
             >
-              <Trash className="w-4 h-4" />
+              <TrashIcon className="w-4 h-4" />
             </button>
           )
         },
@@ -228,7 +234,7 @@ function RoleDetailPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <Lock className="text-4xl text-red-500 mx-auto mb-4" />
+          <LockIcon className="text-4xl text-red-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
           <p className="text-gray-600 dark:text-gray-400 mb-4">
             You don't have permission to access the admin area.
@@ -263,7 +269,7 @@ function RoleDetailPage() {
               to="/admin/roles"
               className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeftIcon className="w-5 h-5" />
             </Link>
             <div>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
@@ -280,7 +286,7 @@ function RoleDetailPage() {
 
         <div className="mb-4 flex items-center gap-4">
           <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-            <Users className="w-5 h-5" />
+            <UsersIcon className="w-5 h-5" />
             <span className="text-sm">
               {usersWithRole?.length || 0} user(s) with this role
             </span>
@@ -317,7 +323,7 @@ function RoleDetailPage() {
         )}
 
         {confirmRemove && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                 Confirm Removal
@@ -411,7 +417,7 @@ function RoleDetailPage() {
 
           {(!usersWithRole || usersWithRole.length === 0) && (
             <div className="text-center py-12">
-              <Users className="mx-auto h-12 w-12 text-gray-400" />
+              <UsersIcon className="mx-auto h-12 w-12 text-gray-400" />
               <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
                 No users with this role
               </h3>

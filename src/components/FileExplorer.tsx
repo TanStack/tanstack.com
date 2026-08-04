@@ -7,6 +7,8 @@ import jsonIconUrl from '~/images/file-icons/json.svg?url'
 import svelteIconUrl from '~/images/file-icons/svelte.svg?url'
 import vueIconUrl from '~/images/file-icons/vue.svg?url'
 import markoIconUrl from '~/images/file-icons/marko.svg?url'
+import emberIconUrl from '~/images/ember-logo.svg?url'
+import octaneIconUrl from '~/images/octane-logo.svg?url'
 import textIconUrl from '~/images/file-icons/txt.svg?url'
 import type { GitHubFileNode } from '~/utils/documents.server'
 import { twMerge } from 'tailwind-merge'
@@ -18,6 +20,8 @@ const getFileIconPath = (filename: string) => {
     case 'ts':
     case 'tsx':
       return typescriptIconUrl
+    case 'tsrx':
+      return octaneIconUrl
     case 'js':
     case 'jsx':
       return javascriptIconUrl
@@ -33,6 +37,9 @@ const getFileIconPath = (filename: string) => {
       return vueIconUrl
     case 'marko':
       return markoIconUrl
+    case 'gjs':
+    case 'gts':
+      return emberIconUrl
     default:
       return textIconUrl
   }

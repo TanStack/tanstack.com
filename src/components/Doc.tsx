@@ -1,5 +1,8 @@
 import * as React from 'react'
-import { FoldHorizontal, UnfoldHorizontal } from 'lucide-react'
+import {
+  ArrowsInLineHorizontalIcon,
+  ArrowsOutLineHorizontalIcon,
+} from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { DocNavigation, WidthToggleContext } from '~/components/LibraryLayout'
 
@@ -164,15 +167,16 @@ export function Doc({
                   title={isFullWidth ? 'Constrain width' : 'Expand width'}
                 >
                   {isFullWidth ? (
-                    <FoldHorizontal className="w-4 h-4" />
+                    <ArrowsInLineHorizontalIcon className="w-4 h-4" />
                   ) : (
-                    <UnfoldHorizontal className="w-4 h-4" />
+                    <ArrowsOutLineHorizontalIcon className="w-4 h-4" />
                   )}
                 </button>
               ) : null
             }
           />
           {footer ?? <DocNavigation />}
+          <div className="h-4" />
         </div>
 
         {isTocVisible && (

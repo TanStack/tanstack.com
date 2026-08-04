@@ -1,8 +1,10 @@
 import alpineLogo from '../images/alpine-logo.svg'
 import angularLogo from '../images/angular-logo.svg'
+import emberLogo from '../images/ember-logo.svg'
 import jsLogo from '../images/js-logo.svg'
 import litLogo from '../images/lit-logo.svg'
 import markoLogo from '../images/marko-logo.svg'
+import octaneLogo from '../images/octane-logo.svg'
 import qwikLogo from '../images/qwik-logo.svg'
 import preactLogo from '../images/preact-logo.svg'
 import reactLogo from '../images/react-logo.svg'
@@ -41,6 +43,13 @@ export const frameworkOptions = [
     fontColor: 'text-fuchsia-500',
   },
   {
+    label: 'Ember',
+    value: 'ember',
+    logo: emberLogo,
+    color: 'bg-orange-600',
+    fontColor: 'text-orange-600',
+  },
+  {
     label: 'Solid',
     value: 'solid',
     logo: solidLogo,
@@ -60,6 +69,13 @@ export const frameworkOptions = [
     logo: markoLogo,
     color: 'bg-cyan-500',
     fontColor: 'text-cyan-500',
+  },
+  {
+    label: 'Octane',
+    value: 'octane',
+    logo: octaneLogo,
+    color: 'bg-rose-500',
+    fontColor: 'text-rose-500',
   },
   {
     label: 'Qwik',

@@ -101,9 +101,9 @@ User changed the filter state on the partners directory.
 
 User clicked a "get in touch", "let's chat", or "become a partner" CTA.
 
-| Prop        | Type | Notes                                                      |
-| ----------- | ---- | ---------------------------------------------------------- |
-| `placement` | enum | `partners_index_cta`, `library_callout`, `docs_right_rail` |
+| Prop        | Type | Notes                        |
+| ----------- | ---- | ---------------------------- |
+| `placement` | enum | See `PartnerPlacement` below |
 
 ---
 
@@ -191,6 +191,7 @@ User took an action on the generated result. Single event with `action` prop cov
 | `ecosystem_game`     | 3D ecosystem game islands                                                                                                         |
 | `partners_index_cta` | "Get in touch" mailto on `/partners`                                                                                              |
 | `library_callout`    | "Let's chat" callout per library                                                                                                  |
+| `navbar`             | "Partnership Inquiry" mailto in the Support menu                                                                                  |
 
 ### `BuilderAction`
 

@@ -11,20 +11,20 @@ import {
 } from '~/utils/activity.functions'
 import { Suspense, lazy, useState } from 'react'
 import {
-  ArrowDown,
-  ArrowUp,
-  ChartLine,
-  EyeOff,
-  Flame,
-  LayoutDashboard,
-  List,
-  Lock,
-  LogIn,
-  Minus,
-  Shield,
-  Trophy,
-  Users,
-} from 'lucide-react'
+  ArrowDownIcon,
+  ArrowUpIcon,
+  ChartLineIcon,
+  EyeSlashIcon,
+  FlameIcon,
+  SquaresFourIcon,
+  ListIcon,
+  LockIcon,
+  SignInIcon,
+  MinusIcon,
+  ShieldIcon,
+  TrophyIcon,
+  UsersIcon,
+} from '@phosphor-icons/react'
 import { Card } from '~/components/Card'
 import { Badge, Button } from '~/ui'
 import * as v from 'valibot'
@@ -94,7 +94,7 @@ function AdminPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <Lock className="text-4xl text-red-500 mx-auto mb-4" />
+          <LockIcon className="text-4xl text-red-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
           <p className="text-gray-600 dark:text-gray-400 mb-4">
             You don't have permission to access the admin area.
@@ -152,10 +152,10 @@ function AdminDashboard() {
   }
 
   const tabs = [
-    { id: 'overview', label: 'Overview', icon: <LayoutDashboard /> },
-    { id: 'users', label: 'Users', icon: <Users /> },
-    { id: 'activity', label: 'Activity', icon: <LogIn /> },
-    { id: 'ads', label: 'Ads', icon: <EyeOff /> },
+    { id: 'overview', label: 'Overview', icon: <SquaresFourIcon /> },
+    { id: 'users', label: 'Users', icon: <UsersIcon /> },
+    { id: 'activity', label: 'Activity', icon: <SignInIcon /> },
+    { id: 'ads', label: 'Ads', icon: <EyeSlashIcon /> },
   ] as const
 
   return (
@@ -163,7 +163,7 @@ function AdminDashboard() {
       <div className="max-w-7xl mx-auto">
         <div className="mb-6">
           <div className="flex items-center gap-3 mb-2">
-            <ChartLine className="text-2xl text-blue-500" />
+            <ChartLineIcon className="text-2xl text-blue-500" />
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
               Dashboard
             </h1>
@@ -174,7 +174,7 @@ function AdminDashboard() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 mb-6 border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
+        <div className="fade-x fade-size-x-sm mb-6 flex gap-1 overflow-x-auto border-b border-gray-200 dark:border-gray-700">
           <div className="flex gap-1 min-w-max">
             {tabs.map((t) => (
               <Link
@@ -257,7 +257,7 @@ function OverviewTab({
     <div className="space-y-6">
       {/* Key Metrics Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800 p-4">
+        <Card className="bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800 p-4">
           <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
             Total Users
           </div>
@@ -281,7 +281,7 @@ function OverviewTab({
         </Card>
 
         {dauStats && (
-          <Card className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border-emerald-200 dark:border-emerald-800 p-4">
+          <Card className="bg-linear-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border-emerald-200 dark:border-emerald-800 p-4">
             <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
               DAU
             </div>
@@ -331,7 +331,7 @@ function OverviewTab({
         {activityStats && (
           <Card className="p-6">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-              <LogIn className="text-cyan-500" />
+              <SignInIcon className="text-cyan-500" />
               Login Activity
             </h3>
             <div className="grid grid-cols-3 gap-4">
@@ -365,10 +365,10 @@ function OverviewTab({
 
         {/* Streak Leaderboard Preview */}
         {dauStats && dauStats.streakLeaderboard.length > 0 && (
-          <Card className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-amber-200 dark:border-amber-800 p-6">
+          <Card className="bg-linear-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-amber-200 dark:border-amber-800 p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                <Trophy className="text-amber-500" />
+                <TrophyIcon className="text-amber-500" />
                 Top Streaks
               </h3>
               <Link
@@ -411,7 +411,7 @@ function OverviewTab({
                     </span>
                   </div>
                   <div className="flex items-center gap-1 text-orange-600 dark:text-orange-400 font-bold">
-                    <Flame className="w-4 h-4" />
+                    <FlameIcon className="w-4 h-4" />
                     {user.currentStreak}
                   </div>
                 </div>
@@ -447,7 +447,7 @@ function UsersTab({
     <div className="space-y-6">
       {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800 p-6">
+        <Card className="bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800 p-6">
           <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
             Total Users
           </div>
@@ -561,7 +561,7 @@ function ActivityTab({
       {/* DAU/WAU/MAU Cards */}
       {dauStats && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border-emerald-200 dark:border-emerald-800 p-6">
+          <Card className="bg-linear-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border-emerald-200 dark:border-emerald-800 p-6">
             <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
               DAU (Today)
             </div>
@@ -650,7 +650,7 @@ function ActivityTab({
       {/* Login Stats */}
       {activityStats && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-cyan-900/20 dark:to-blue-900/20 border-cyan-200 dark:border-cyan-800 p-6">
+          <Card className="bg-linear-to-br from-cyan-50 to-blue-50 dark:from-cyan-900/20 dark:to-blue-900/20 border-cyan-200 dark:border-cyan-800 p-6">
             <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
               Today's Logins
             </div>
@@ -818,7 +818,7 @@ function ActivityTab({
                         <span className="text-sm font-medium text-gray-500 dark:text-gray-400 w-6">
                           #{index + 1}
                         </span>
-                        <div className="flex-shrink-0 h-8 w-8">
+                        <div className="shrink-0 h-8 w-8">
                           {user.userImage ? (
                             <img
                               className="h-8 w-8 rounded-full"
@@ -827,7 +827,7 @@ function ActivityTab({
                             />
                           ) : (
                             <div className="h-8 w-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
-                              <Users className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                              <UsersIcon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                             </div>
                           )}
                         </div>
@@ -850,9 +850,9 @@ function ActivityTab({
 
       {/* Streak Leaderboard */}
       {dauStats && dauStats.streakLeaderboard.length > 0 && (
-        <Card className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-amber-200 dark:border-amber-800 p-6">
+        <Card className="bg-linear-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-amber-200 dark:border-amber-800 p-6">
           <div className="flex items-center gap-3 mb-4">
-            <Trophy className="text-2xl text-amber-500" />
+            <TrophyIcon className="text-2xl text-amber-500" />
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
               Streak Leaderboard
             </h3>
@@ -877,7 +877,7 @@ function ActivityTab({
                   >
                     #{index + 1}
                   </span>
-                  <div className="flex-shrink-0 h-8 w-8">
+                  <div className="shrink-0 h-8 w-8">
                     {user.userImage ? (
                       <img
                         className="h-8 w-8 rounded-full"
@@ -886,7 +886,7 @@ function ActivityTab({
                       />
                     ) : (
                       <div className="h-8 w-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
-                        <Users className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                        <UsersIcon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                       </div>
                     )}
                   </div>
@@ -901,7 +901,7 @@ function ActivityTab({
                 </div>
                 <div className="text-right">
                   <div className="flex items-center gap-1 text-lg font-bold text-orange-600 dark:text-orange-400">
-                    <Flame className="w-4 h-4" />
+                    <FlameIcon className="w-4 h-4" />
                     {user.currentStreak}
                   </div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">
@@ -916,10 +916,10 @@ function ActivityTab({
 
       {/* Admin Activity */}
       {activityStats && (
-        <Card className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 border-orange-200 dark:border-orange-800 p-6">
+        <Card className="bg-linear-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 border-orange-200 dark:border-orange-800 p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <Shield className="text-2xl text-orange-500" />
+              <ShieldIcon className="text-2xl text-orange-500" />
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                 Admin Activity
               </h3>
@@ -997,9 +997,9 @@ function AdsTab({
   return (
     <div className="space-y-6">
       {/* Waitlist Demand - Primary Focus */}
-      <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200 dark:border-purple-800 p-6">
+      <Card className="bg-linear-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200 dark:border-purple-800 p-6">
         <div className="flex items-center gap-3 mb-4">
-          <List className="text-2xl text-purple-500" />
+          <ListIcon className="text-2xl text-purple-500" />
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             Ad-Free Waitlist Demand
           </h3>
@@ -1057,7 +1057,7 @@ function AdsTab({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="p-6">
           <div className="flex items-center gap-3 mb-4">
-            <EyeOff className="text-2xl text-green-500" />
+            <EyeSlashIcon className="text-2xl text-green-500" />
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
               Users with Ads Disabled
             </h3>
@@ -1088,7 +1088,7 @@ function AdsTab({
 
         <Card className="p-6">
           <div className="flex items-center gap-3 mb-4">
-            <Shield className="text-2xl text-blue-500" />
+            <ShieldIcon className="text-2xl text-blue-500" />
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
               DisableAds Capability
             </h3>
@@ -1149,11 +1149,11 @@ function ChangeIndicator({ value }: { value: number }) {
       }`}
     >
       {isPositive ? (
-        <ArrowUp className="w-4 h-4" />
+        <ArrowUpIcon className="w-4 h-4" />
       ) : isNegative ? (
-        <ArrowDown className="w-4 h-4" />
+        <ArrowDownIcon className="w-4 h-4" />
       ) : (
-        <Minus className="w-4 h-4" />
+        <MinusIcon className="w-4 h-4" />
       )}
       {Math.abs(value).toFixed(0)}%
     </div>
@@ -1192,7 +1192,7 @@ function SignupsChartCard({
     <Card className="p-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-          <Users className="text-blue-500" />
+          <UsersIcon className="text-blue-500" />
           {title}
         </h3>
         <div className="flex items-center gap-2">
@@ -1258,7 +1258,7 @@ function DauChartCard({
     <Card className="p-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-          <Flame className="text-orange-500" />
+          <FlameIcon className="text-orange-500" />
           {title}
         </h3>
         <div className="flex items-center gap-2">
@@ -1322,7 +1322,7 @@ function LoginsChartCard({
     <Card className="p-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-          <LogIn className="text-cyan-500" />
+          <SignInIcon className="text-cyan-500" />
           {title}
         </h3>
         <ChartControls

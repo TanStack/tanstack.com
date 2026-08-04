@@ -10,12 +10,12 @@ import {
   TableRow,
   TableCell,
 } from '~/components/TableComponents'
+import { flexRender } from '@tanstack/react-table'
 import {
-  useReactTable,
   getCoreRowModel,
-  flexRender,
-  type ColumnDef,
-} from '@tanstack/react-table'
+  useLegacyTable as useReactTable,
+} from '@tanstack/react-table/legacy'
+import type { LegacyColumnDef as ColumnDef } from '@tanstack/react-table/legacy'
 import {
   listGitHubStatsCache,
   refreshGitHubStats,
@@ -23,7 +23,12 @@ import {
 } from '~/utils/stats-admin.functions'
 import { formatDistanceToNow } from '~/utils/dates'
 import { GithubIcon } from '~/components/icons/GithubIcon'
-import { Box, RefreshCw, Star, Users } from 'lucide-react'
+import {
+  PackageIcon,
+  ArrowsClockwiseIcon,
+  StarIcon,
+  UsersIcon,
+} from '@phosphor-icons/react'
 import { Card } from '~/components/Card'
 import { Button } from '~/ui'
 
@@ -107,7 +112,7 @@ function GitHubStatsAdmin() {
           return (
             <div>
               <div className="flex items-center gap-2">
-                <Star className="text-yellow-500" />
+                <StarIcon className="text-yellow-500" />
                 <span className="font-semibold text-gray-900 dark:text-white">
                   {entry.stats.starCount.toLocaleString()}
                 </span>
@@ -133,7 +138,7 @@ function GitHubStatsAdmin() {
           return (
             <div>
               <div className="flex items-center gap-2">
-                <Users className="text-blue-500" />
+                <UsersIcon className="text-blue-500" />
                 <span className="font-semibold text-gray-900 dark:text-white">
                   {entry.stats.contributorCount.toLocaleString()}
                 </span>
@@ -170,7 +175,7 @@ function GitHubStatsAdmin() {
           return (
             <div>
               <div className="flex items-center gap-2">
-                <Box className="text-purple-500" />
+                <PackageIcon className="text-purple-500" />
                 <span className="font-semibold text-gray-900 dark:text-white">
                   {entry.stats.dependentCount.toLocaleString()}
                 </span>
@@ -292,7 +297,9 @@ function GitHubStatsAdmin() {
               }}
               disabled={isRefreshing || refreshAllMutation.isPending}
             >
-              <RefreshCw className={isRefreshing ? 'animate-spin' : ''} />
+              <ArrowsClockwiseIcon
+                className={isRefreshing ? 'animate-spin' : ''}
+              />
               Refresh
             </Button>
           )
@@ -330,7 +337,7 @@ function GitHubStatsAdmin() {
             onClick={() => refreshAllMutation.mutate()}
             disabled={refreshAllMutation.isPending || refreshingKey !== null}
           >
-            <RefreshCw
+            <ArrowsClockwiseIcon
               className={refreshAllMutation.isPending ? 'animate-spin' : ''}
             />
             Refresh All

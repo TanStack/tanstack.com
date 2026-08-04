@@ -19,6 +19,10 @@ import {
   useTrackedImpression,
   type PartnerPlacement,
 } from '~/utils/analytics'
+import {
+  PARTNER_INQUIRY_HREF,
+  trackPartnerInquiry,
+} from '~/utils/partner-inquiry'
 
 type RailPartner = {
   category: Partner['category']
@@ -73,7 +77,7 @@ export function RightRail({
           innerBreakpointClass,
           stickyTopClass,
           stickyMaxHeightClass,
-          'ml-auto flex flex-col gap-4 pb-4 max-w-full overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [&>*]:shrink-0',
+          'fade-y fade-size-y-sm ml-auto flex max-w-full flex-col gap-4 overflow-y-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [&>*]:shrink-0',
         )}
       >
         {children}
@@ -148,15 +152,9 @@ export function PartnersRail({
           {title}
         </Link>
         <a
-          href="https://docs.google.com/document/d/1Hg2MzY2TU6U3hFEZ3MLe2oEOM3JS4-eByti3kdJU3I8"
-          target="_blank"
-          rel="noopener noreferrer"
+          href={PARTNER_INQUIRY_HREF}
           className="font-medium opacity-60 hover:opacity-100 text-xs hover:underline"
-          onClick={() => {
-            trackEvent('partner_inquiry_started', {
-              placement: analyticsPlacement,
-            })
-          }}
+          onClick={() => trackPartnerInquiry(analyticsPlacement)}
         >
           Become a Partner
         </a>
@@ -170,7 +168,7 @@ export function PartnersRail({
           >
             {/* Tier-colored top line */}
             <div
-              className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${flare.gradientStops}`}
+              className={`absolute top-0 left-0 right-0 h-1 bg-linear-to-r ${flare.gradientStops}`}
             />
             {/* Absolute top-left tier label */}
             <div

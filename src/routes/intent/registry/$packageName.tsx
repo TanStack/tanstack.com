@@ -8,7 +8,7 @@ import {
 } from '@tanstack/react-router'
 import { useSuspenseQuery, useQuery } from '@tanstack/react-query'
 import * as v from 'valibot'
-import { Copy, Check } from 'lucide-react'
+import { CopyIcon, CheckIcon } from '@phosphor-icons/react'
 import { Collapsible, CollapsibleContent } from '~/components/Collapsible'
 import { seo } from '~/utils/seo'
 import {
@@ -360,9 +360,9 @@ This will detect all Agent Skills in ${name} and configure them for your coding 
       className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 text-xs font-medium text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-900 hover:border-sky-300 dark:hover:border-sky-700 hover:text-sky-600 dark:hover:text-sky-400 transition-colors"
     >
       {copied.active ? (
-        <Check className="w-3.5 h-3.5 text-green-500" />
+        <CheckIcon className="w-3.5 h-3.5 text-green-500" />
       ) : (
-        <Copy className="w-3.5 h-3.5" />
+        <CopyIcon className="w-3.5 h-3.5" />
       )}
       Copy install prompt
     </button>
@@ -508,7 +508,7 @@ function MobileSkillsDrawer({
       </button>
       <Collapsible open={open}>
         <CollapsibleContent>
-          <div className="px-4 pb-4 max-h-64 overflow-y-auto">
+          <div className="fade-y fade-size-y-sm max-h-64 overflow-y-auto px-4 pb-4">
             <SkillsNav
               skills={skills}
               packageName={packageName}

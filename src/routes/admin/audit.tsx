@@ -12,15 +12,15 @@ import {
   TableRow,
   TableCell,
 } from '~/components/TableComponents'
+import { flexRender } from '@tanstack/react-table'
 import {
-  useReactTable,
   getCoreRowModel,
-  flexRender,
-  type ColumnDef,
-} from '@tanstack/react-table'
+  useLegacyTable as useReactTable,
+} from '@tanstack/react-table/legacy'
+import type { LegacyColumnDef as ColumnDef } from '@tanstack/react-table/legacy'
 import * as v from 'valibot'
 import { listAuditLogs } from '~/utils/audit.functions'
-import { Shield, ChevronDown, ChevronUp } from 'lucide-react'
+import { ShieldIcon, CaretDownIcon, CaretUpIcon } from '@phosphor-icons/react'
 import {
   AdminAccessDenied,
   AdminLoading,
@@ -132,9 +132,9 @@ function DetailsCell({ details }: { details: string | null }) {
         className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
       >
         {expanded ? (
-          <ChevronUp className="w-3 h-3" />
+          <CaretUpIcon className="w-3 h-3" />
         ) : (
-          <ChevronDown className="w-3 h-3" />
+          <CaretDownIcon className="w-3 h-3" />
         )}
         {expanded ? 'Hide' : 'Show'} Details
       </button>
@@ -378,7 +378,7 @@ function AuditPage() {
     <div className="w-full p-4">
       <div className="flex flex-col gap-4">
         <AdminPageHeader
-          icon={<Shield />}
+          icon={<ShieldIcon />}
           title="Audit Logs"
           isLoading={auditQuery.isFetching}
         />
@@ -451,7 +451,7 @@ function AuditPage() {
 
           {(!auditQuery.data || auditQuery.data?.page.length === 0) && (
             <AdminEmptyState
-              icon={<Shield className="w-12 h-12" />}
+              icon={<ShieldIcon className="w-12 h-12" />}
               title="No audit records found"
               description="Admin actions will be recorded here."
             />

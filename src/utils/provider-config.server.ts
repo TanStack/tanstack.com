@@ -5,32 +5,155 @@
  * This enables 1-click deploys to Cloudflare, Netlify, Railway, etc.
  */
 
+import {
+  addOn as reactCloudflareAddOn,
+  renderManifestTemplate as renderReactCloudflareTemplate,
+} from '@tanstack/create/worker-manifest/frameworks/react/add-ons/cloudflare'
+import {
+  addOn as reactNetlifyAddOn,
+  renderManifestTemplate as renderReactNetlifyTemplate,
+} from '@tanstack/create/worker-manifest/frameworks/react/add-ons/netlify'
+import {
+  addOn as reactRailwayAddOn,
+  renderManifestTemplate as renderReactRailwayTemplate,
+} from '@tanstack/create/worker-manifest/frameworks/react/add-ons/railway'
+import {
+  addOn as solidCloudflareAddOn,
+  renderManifestTemplate as renderSolidCloudflareTemplate,
+} from '@tanstack/create/worker-manifest/frameworks/solid/add-ons/cloudflare'
+import {
+  addOn as solidNetlifyAddOn,
+  renderManifestTemplate as renderSolidNetlifyTemplate,
+} from '@tanstack/create/worker-manifest/frameworks/solid/add-ons/netlify'
+import {
+  addOn as solidRailwayAddOn,
+  renderManifestTemplate as renderSolidRailwayTemplate,
+} from '@tanstack/create/worker-manifest/frameworks/solid/add-ons/railway'
+import type { WorkerAddOnManifestModule } from '@tanstack/create/worker'
+import { parseDocument } from 'yaml'
+
 export type DeployProvider = 'cloudflare' | 'netlify' | 'railway'
+type StartFramework = 'react' | 'solid'
+type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun' | 'deno'
+type PackageAdditions = NonNullable<
+  WorkerAddOnManifestModule['addOn']['packageAdditions']
+>
+type DeploymentTemplateContext = Parameters<
+  typeof renderReactCloudflareTemplate
+>[1]
+
+type ViteIntegration = {
+  type?: string
+  import?: string
+  code?: string
+}
+
+type DeploymentManifest = {
+  files: Record<string, string>
+  deletedFiles?: ReadonlyArray<string>
+  integrations?: ReadonlyArray<ViteIntegration>
+  packageAdditions?: PackageAdditions
+  packageTemplate?: string
+}
+
+type DeploymentManifestModule = {
+  addOn: DeploymentManifest
+  renderManifestTemplate:
+    | typeof renderReactCloudflareTemplate
+    | typeof renderReactNetlifyTemplate
+    | typeof renderReactRailwayTemplate
+    | typeof renderSolidCloudflareTemplate
+    | typeof renderSolidNetlifyTemplate
+    | typeof renderSolidRailwayTemplate
+}
 
 interface ProviderConfigResult {
   files: Record<string, string>
-  devDependencies: Record<string, string>
+  deletedFiles: ReadonlyArray<string>
+  packageAdditions: PackageAdditions
+  viteIntegration: ViteIntegration | undefined
+}
+
+function defineDeploymentManifestModule(
+  module: DeploymentManifestModule,
+): DeploymentManifestModule {
+  return module
+}
+
+const deploymentManifestModules = {
+  react: {
+    cloudflare: defineDeploymentManifestModule({
+      addOn: reactCloudflareAddOn,
+      renderManifestTemplate: renderReactCloudflareTemplate,
+    }),
+    netlify: defineDeploymentManifestModule({
+      addOn: reactNetlifyAddOn,
+      renderManifestTemplate: renderReactNetlifyTemplate,
+    }),
+    railway: defineDeploymentManifestModule({
+      addOn: reactRailwayAddOn,
+      renderManifestTemplate: renderReactRailwayTemplate,
+    }),
+  },
+  solid: {
+    cloudflare: defineDeploymentManifestModule({
+      addOn: solidCloudflareAddOn,
+      renderManifestTemplate: renderSolidCloudflareTemplate,
+    }),
+    netlify: defineDeploymentManifestModule({
+      addOn: solidNetlifyAddOn,
+      renderManifestTemplate: renderSolidNetlifyTemplate,
+    }),
+    railway: defineDeploymentManifestModule({
+      addOn: solidRailwayAddOn,
+      renderManifestTemplate: renderSolidRailwayTemplate,
+    }),
+  },
+}
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
+function hasDependency(packageJson: unknown, dependency: string): boolean {
+  if (!isObject(packageJson)) return false
+
+  return [packageJson.dependencies, packageJson.devDependencies].some(
+    (dependencies) => isObject(dependencies) && dependency in dependencies,
+  )
+}
+
+/**
+ * Get the TanStack Start framework used by an example from package.json.
+ */
+export function getStartFramework(
+  files: Record<string, string>,
+): StartFramework | null {
+  const packageJson = files['package.json']
+  if (!packageJson) return null
+
+  try {
+    const parsedPackageJson: unknown = JSON.parse(packageJson)
+
+    if (hasDependency(parsedPackageJson, '@tanstack/solid-start')) {
+      return 'solid'
+    }
+
+    if (hasDependency(parsedPackageJson, '@tanstack/react-start')) {
+      return 'react'
+    }
+
+    return null
+  } catch {
+    return null
+  }
 }
 
 /**
  * Check if an example is a TanStack Start app by looking at package.json
  */
 export function isStartApp(files: Record<string, string>): boolean {
-  const packageJson = files['package.json']
-  if (!packageJson) return false
-
-  try {
-    const pkg = JSON.parse(packageJson)
-    const allDeps = {
-      ...pkg.dependencies,
-      ...pkg.devDependencies,
-    }
-    return (
-      '@tanstack/react-start' in allDeps || '@tanstack/solid-start' in allDeps
-    )
-  } catch {
-    return false
-  }
+  return getStartFramework(files) !== null
 }
 
 /**
@@ -39,77 +162,195 @@ export function isStartApp(files: Record<string, string>): boolean {
 export function getProviderConfig(
   provider: DeployProvider,
   projectName: string,
+  framework: StartFramework,
+  sourceFiles: Record<string, string> = {},
 ): ProviderConfigResult {
-  switch (provider) {
-    case 'cloudflare':
-      return getCloudflareConfig(projectName)
-    case 'netlify':
-      return getNetlifyConfig()
-    case 'railway':
-      return getRailwayConfig()
-    default:
-      return { files: {}, devDependencies: {} }
-  }
-}
+  const manifestModule = deploymentManifestModules[framework][provider]
+  const { addOn } = manifestModule
+  const files = getManifestFiles(addOn, provider, projectName)
+  let packageAdditions = addOn.packageAdditions ?? {}
 
-/**
- * Cloudflare Workers configuration
- */
-function getCloudflareConfig(projectName: string): ProviderConfigResult {
-  const wranglerConfig = {
-    $schema: 'node_modules/wrangler/config-schema.json',
-    name: sanitizeProjectName(projectName),
-    compatibility_date: '2025-01-01',
-    compatibility_flags: ['nodejs_compat'],
-    main: '@tanstack/react-start/server-entry',
+  if (addOn.packageTemplate) {
+    const renderedPackageTemplate = manifestModule.renderManifestTemplate(
+      addOn.packageTemplate,
+      getDeploymentTemplateContext(sourceFiles, projectName),
+    )
+
+    packageAdditions = parsePackageAdditions(renderedPackageTemplate)
   }
 
   return {
-    files: {
-      'wrangler.jsonc': JSON.stringify(wranglerConfig, null, 2),
+    files,
+    deletedFiles: addOn.deletedFiles ?? [],
+    packageAdditions,
+    viteIntegration: addOn.integrations?.find(
+      (integration) =>
+        integration.type === 'vite-plugin' &&
+        integration.import !== undefined &&
+        integration.code !== undefined,
+    ),
+  }
+}
+
+function getManifestFiles(
+  manifest: DeploymentManifest,
+  provider: DeployProvider,
+  projectName: string,
+): Record<string, string> {
+  const files = { ...manifest.files }
+  const wranglerConfig = files['wrangler.jsonc']
+
+  if (provider === 'cloudflare' && wranglerConfig) {
+    const parsedWranglerConfig: unknown = JSON.parse(wranglerConfig)
+    if (!isObject(parsedWranglerConfig)) {
+      throw new Error(
+        'Create Cloudflare manifest has an invalid wrangler.jsonc',
+      )
+    }
+
+    files['wrangler.jsonc'] = JSON.stringify(
+      {
+        ...parsedWranglerConfig,
+        name: sanitizeProjectName(projectName),
+      },
+      null,
+      2,
+    )
+  }
+
+  return files
+}
+
+function getDeploymentTemplateContext(
+  files: Record<string, string>,
+  projectName: string,
+): DeploymentTemplateContext {
+  return {
+    packageManager: getProjectPackageManager(files),
+    projectName,
+    typescript: true,
+    tailwind: false,
+    blank: false,
+    js: 'ts',
+    jsx: 'tsx',
+    fileRouter: true,
+    codeRouter: false,
+    routerOnly: false,
+    includeExamples: true,
+    addOnEnabled: {
+      sentry: hasCompleteSentrySetup(files),
     },
-    devDependencies: {
-      '@cloudflare/vite-plugin': '^1.0.0',
-      wrangler: '^4.0.0',
+    addOnOption: {},
+    addOns: [],
+    integrations: [],
+    routes: [],
+    getPackageManagerAddScript: () => '',
+    getPackageManagerRunScript: () => '',
+    getPackageManagerExecuteScript: () => '',
+    relativePath: () => '',
+    integrationImportContent: () => '',
+    integrationImportCode: () => undefined,
+    renderTemplate: (content) => content,
+    ignoreFile() {
+      throw new Error('Package templates cannot ignore files')
     },
   }
 }
 
-/**
- * Netlify configuration
- */
-function getNetlifyConfig(): ProviderConfigResult {
-  const netlifyToml = `[build]
-  command = "npm run build"
-  publish = "dist/client"
+function getProjectPackageManager(
+  files: Record<string, string>,
+): PackageManager {
+  const packageJson = parsePackageJson(files['package.json'])
+  if (isObject(packageJson) && typeof packageJson.packageManager === 'string') {
+    const packageManagerName = packageJson.packageManager.split('@')[0]
+    if (isPackageManager(packageManagerName)) {
+      return packageManagerName
+    }
+  }
 
-[dev]
-  command = "npm run dev"
-  port = 3000
-`
+  if ('pnpm-lock.yaml' in files) return 'pnpm'
+  if ('yarn.lock' in files) return 'yarn'
+  if ('bun.lock' in files || 'bun.lockb' in files) return 'bun'
+  if ('deno.lock' in files) return 'deno'
+  return 'npm'
+}
 
-  return {
-    files: {
-      'netlify.toml': netlifyToml,
-    },
-    devDependencies: {
-      '@netlify/vite-plugin-tanstack-start': '^1.0.0',
-    },
+function isPackageManager(value: string): value is PackageManager {
+  return ['npm', 'yarn', 'pnpm', 'bun', 'deno'].includes(value)
+}
+
+function parsePackageJson(content: string | undefined): unknown {
+  if (!content) return undefined
+
+  try {
+    return JSON.parse(content)
+  } catch {
+    return undefined
   }
 }
 
-/**
- * Railway configuration (uses Nitro)
- */
-function getRailwayConfig(): ProviderConfigResult {
-  // Railway uses Nitro for the Node server build, no additional config files needed
-  // Just need the nitro dependency
-  return {
-    files: {},
-    devDependencies: {
-      nitro: 'latest',
-    },
+function hasCompleteSentrySetup(files: Record<string, string>): boolean {
+  const packageJson = parsePackageJson(files['package.json'])
+  if (
+    !hasDependency(packageJson, '@sentry/tanstackstart-react') ||
+    !('instrument.server.mjs' in files) ||
+    !isObject(packageJson) ||
+    !isObject(packageJson.scripts) ||
+    typeof packageJson.scripts.build !== 'string'
+  ) {
+    return false
   }
+
+  return packageJson.scripts.build.includes(
+    'cp instrument.server.mjs .output/server',
+  )
+}
+
+function parsePackageAdditions(content: string | undefined): PackageAdditions {
+  if (!content) return {}
+
+  const parsedPackageAdditions: unknown = JSON.parse(content)
+  if (!isObject(parsedPackageAdditions)) {
+    throw new Error('Create deployment manifest has invalid package additions')
+  }
+
+  return {
+    dependencies: getStringRecord(parsedPackageAdditions.dependencies),
+    devDependencies: getStringRecord(parsedPackageAdditions.devDependencies),
+    engines: getStringRecord(parsedPackageAdditions.engines),
+    pnpm: getPnpmConfig(parsedPackageAdditions.pnpm),
+    scripts: getStringRecord(parsedPackageAdditions.scripts),
+  }
+}
+
+function getStringRecord(value: unknown): Record<string, string> | undefined {
+  if (!isObject(value)) return undefined
+
+  const entries = Object.entries(value).filter(
+    (entry): entry is [string, string] => typeof entry[1] === 'string',
+  )
+  return entries.length ? Object.fromEntries(entries) : undefined
+}
+
+function getStringArray(value: unknown): Array<string> {
+  if (!Array.isArray(value)) return []
+  return value.filter((entry): entry is string => typeof entry === 'string')
+}
+
+function getPnpmConfig(value: unknown): PackageAdditions['pnpm'] {
+  if (!isObject(value)) return undefined
+
+  const onlyBuiltDependencies = value.onlyBuiltDependencies
+  if (
+    !Array.isArray(onlyBuiltDependencies) ||
+    !onlyBuiltDependencies.every(
+      (dependency): dependency is string => typeof dependency === 'string',
+    )
+  ) {
+    return undefined
+  }
+
+  return { onlyBuiltDependencies }
 }
 
 /**
@@ -137,27 +378,42 @@ export function applyProviderConfig(
   provider: DeployProvider,
   projectName: string,
 ): Record<string, string> {
-  const isStart = isStartApp(files)
+  const framework = getStartFramework(files)
   const result = { ...files }
 
-  if (isStart) {
+  if (framework) {
     // Full server-side config for Start apps
     console.log(
       '[applyProviderConfig] Start app, applying full provider config',
     )
-    const config = getProviderConfig(provider, projectName)
+    const config = getProviderConfig(provider, projectName, framework, result)
 
     // Add provider-specific config files
     for (const [path, content] of Object.entries(config.files)) {
       result[path] = content
     }
 
+    for (const path of config.deletedFiles) {
+      delete result[path]
+    }
+
     // Update package.json with dependencies and scripts
     if (result['package.json']) {
       result['package.json'] = updatePackageJson(
         result['package.json'],
-        provider,
-        config.devDependencies,
+        config.packageAdditions,
+      )
+    }
+
+    const pnpmBuildDependencies =
+      config.packageAdditions.pnpm?.onlyBuiltDependencies ?? []
+    if (
+      getProjectPackageManager(result) === 'pnpm' &&
+      pnpmBuildDependencies.length
+    ) {
+      result['pnpm-workspace.yaml'] = updatePnpmWorkspace(
+        result['pnpm-workspace.yaml'],
+        pnpmBuildDependencies,
       )
     }
 
@@ -166,7 +422,7 @@ export function applyProviderConfig(
     if (viteConfigPath) {
       result[viteConfigPath] = updateViteConfig(
         result[viteConfigPath],
-        provider,
+        config.viteIntegration,
       )
     }
   } else {
@@ -256,114 +512,154 @@ function findViteConfig(files: Record<string, string>): string | null {
  */
 function updatePackageJson(
   content: string,
-  provider: DeployProvider,
-  devDependencies: Record<string, string>,
+  packageAdditions: PackageAdditions,
 ): string {
-  try {
-    const pkg = JSON.parse(content)
+  const parsedPackageJson = parsePackageJson(content)
+  if (!isObject(parsedPackageJson)) return content
 
-    // Add dev dependencies
-    pkg.devDependencies = {
-      ...pkg.devDependencies,
-      ...devDependencies,
-    }
+  const packageJson = { ...parsedPackageJson }
 
-    // Update scripts based on provider
-    pkg.scripts = pkg.scripts ?? {}
-
-    switch (provider) {
-      case 'cloudflare':
-        pkg.scripts.preview = 'vite preview'
-        pkg.scripts.deploy = 'npm run build && wrangler deploy'
-        // Remove node-based start script if present
-        if (pkg.scripts.start?.includes('node')) {
-          delete pkg.scripts.start
-        }
-        break
-
-      case 'netlify':
-        // Netlify handles deployment via their platform
-        // Just ensure build script exists
-        pkg.scripts.build = pkg.scripts.build ?? 'vite build'
-        break
-
-      case 'railway':
-        // Railway needs node-based start script for Nitro
-        pkg.scripts.build = 'vite build'
-        pkg.scripts.start = 'node .output/server/index.mjs'
-        break
-    }
-
-    return JSON.stringify(pkg, null, 2)
-  } catch {
-    return content
+  packageJson.dependencies = {
+    ...getStringRecord(packageJson.dependencies),
+    ...packageAdditions.dependencies,
   }
+  packageJson.devDependencies = {
+    ...getStringRecord(packageJson.devDependencies),
+    ...packageAdditions.devDependencies,
+  }
+  packageJson.scripts = {
+    ...getStringRecord(packageJson.scripts),
+    ...packageAdditions.scripts,
+  }
+
+  if (packageAdditions.engines) {
+    packageJson.engines = {
+      ...getStringRecord(packageJson.engines),
+      ...packageAdditions.engines,
+    }
+  }
+
+  const existingPnpm = isObject(packageJson.pnpm) ? packageJson.pnpm : undefined
+  const existingOnlyBuiltDependencies = getStringArray(
+    existingPnpm?.onlyBuiltDependencies,
+  )
+  const addedOnlyBuiltDependencies =
+    packageAdditions.pnpm?.onlyBuiltDependencies ?? []
+  const onlyBuiltDependencies = [
+    ...new Set([
+      ...existingOnlyBuiltDependencies,
+      ...addedOnlyBuiltDependencies,
+    ]),
+  ]
+
+  if (existingPnpm || packageAdditions.pnpm) {
+    const pnpm: Record<string, unknown> = {
+      ...existingPnpm,
+      ...packageAdditions.pnpm,
+    }
+    if (onlyBuiltDependencies.length) {
+      pnpm.onlyBuiltDependencies = onlyBuiltDependencies
+    }
+    packageJson.pnpm = pnpm
+  }
+
+  return JSON.stringify(packageJson, null, 2)
+}
+
+function updatePnpmWorkspace(
+  content: string | undefined,
+  buildDependencies: ReadonlyArray<string>,
+): string {
+  const document = parseDocument(content ?? '')
+  if (document.errors.length) {
+    throw new Error('Cannot update an invalid pnpm-workspace.yaml')
+  }
+
+  for (const dependency of buildDependencies) {
+    try {
+      document.setIn(['allowBuilds', dependency], true)
+    } catch {
+      throw new Error(
+        'pnpm-workspace.yaml must define allowBuilds as a mapping',
+      )
+    }
+  }
+
+  return document.toString()
 }
 
 /**
  * Update vite.config.ts with provider-specific plugin
  */
-function updateViteConfig(content: string, provider: DeployProvider): string {
-  // This is a best-effort transformation
-  // It adds the necessary import and plugin to the vite config
-
+function updateViteConfig(
+  content: string,
+  integration: ViteIntegration | undefined,
+): string {
   let result = content
+  if (!integration?.import || !integration.code) {
+    return result
+  }
 
-  switch (provider) {
-    case 'cloudflare': {
-      // Add cloudflare import if not present
-      if (!result.includes('@cloudflare/vite-plugin')) {
-        // Find a good place to add the import (after other imports)
-        const lastImportIndex = findLastImportIndex(result)
-        const importStatement = `import { cloudflare } from '@cloudflare/vite-plugin'\n`
-        result =
-          result.slice(0, lastImportIndex) +
-          importStatement +
-          result.slice(lastImportIndex)
-      }
+  if (!hasEquivalentImport(result, integration.import)) {
+    const lastImportIndex = findLastImportIndex(result)
+    result =
+      result.slice(0, lastImportIndex) +
+      `${integration.import}\n` +
+      result.slice(lastImportIndex)
+  }
 
-      // Add cloudflare() to plugins array
-      result = addPluginToConfig(
-        result,
-        `cloudflare({ viteEnvironment: { name: 'ssr' } })`,
-      )
-      break
-    }
-
-    case 'netlify': {
-      // Add netlify import if not present
-      if (!result.includes('@netlify/vite-plugin-tanstack-start')) {
-        const lastImportIndex = findLastImportIndex(result)
-        const importStatement = `import netlify from '@netlify/vite-plugin-tanstack-start'\n`
-        result =
-          result.slice(0, lastImportIndex) +
-          importStatement +
-          result.slice(lastImportIndex)
-      }
-
-      // Add netlify() to plugins array
-      result = addPluginToConfig(result, 'netlify()')
-      break
-    }
-
-    case 'railway': {
-      // Add nitro import if not present
-      if (!result.includes('nitro/vite')) {
-        const lastImportIndex = findLastImportIndex(result)
-        const importStatement = `import { nitro } from 'nitro/vite'\n`
-        result =
-          result.slice(0, lastImportIndex) +
-          importStatement +
-          result.slice(lastImportIndex)
-      }
-
-      // Add nitro() to plugins array
-      result = addPluginToConfig(result, 'nitro()')
-      break
-    }
+  const pluginName = getPluginName(integration.code)
+  if (pluginName) {
+    result = upsertPluginCall(result, pluginName, integration.code)
   }
 
   return result
+}
+
+function normalizeImportStatement(importStatement: string): string {
+  return importStatement
+    .trim()
+    .replace(/;$/, '')
+    .replaceAll('"', "'")
+    .replace(/\s+/g, ' ')
+    .replace(/\s*([{},])\s*/g, '$1')
+}
+
+function hasEquivalentImport(
+  content: string,
+  importStatement: string,
+): boolean {
+  const normalizedImport = normalizeImportStatement(importStatement)
+  const existingImports = content.match(/^import\s.+$/gm) ?? []
+  return existingImports.some(
+    (existingImport) =>
+      normalizeImportStatement(existingImport) === normalizedImport,
+  )
+}
+
+function getPluginName(pluginCall: string): string | undefined {
+  return /^([A-Za-z_$][\w$]*)\s*\(/.exec(pluginCall)?.[1]
+}
+
+function hasPluginCall(content: string, pluginName: string) {
+  return new RegExp(`\\b${pluginName}\\s*\\(`).test(content)
+}
+
+function upsertPluginCall(
+  content: string,
+  pluginName: string,
+  pluginCall: string,
+): string {
+  const emptyPluginCall = new RegExp(`\\b${pluginName}\\s*\\(\\s*\\)`)
+  if (emptyPluginCall.test(content)) {
+    return content.replace(emptyPluginCall, pluginCall)
+  }
+
+  if (hasPluginCall(content, pluginName)) {
+    return content
+  }
+
+  return addPluginToConfig(content, pluginCall)
 }
 
 /**

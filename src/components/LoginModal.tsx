@@ -1,6 +1,6 @@
 import * as React from 'react'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
-import { X } from 'lucide-react'
+import { XIcon } from '@phosphor-icons/react'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { GoogleIcon } from '~/components/icons/GoogleIcon'
 import { authClient } from '~/auth/client'
@@ -51,7 +51,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
               Sign in to continue
             </DialogPrimitive.Title>
             <DialogPrimitive.Close className="rounded-full p-1 hover:bg-gray-100 dark:hover:bg-gray-800">
-              <X className="w-5 h-5 text-gray-500" />
+              <XIcon className="w-5 h-5 text-gray-500" />
             </DialogPrimitive.Close>
           </div>
 

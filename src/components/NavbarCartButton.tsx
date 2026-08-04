@@ -1,5 +1,5 @@
 import { Link, useLocation } from '@tanstack/react-router'
-import { ShoppingCart } from 'lucide-react'
+import { ShoppingCartIcon } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { useCart } from '~/hooks/useCart'
 import { useCartDrawerStore } from '~/components/shop/cartDrawerStore'
@@ -13,8 +13,8 @@ const badgeClasses = twMerge(
 
 const buttonClasses = twMerge(
   'relative flex items-center justify-center',
-  'h-9 w-9 rounded-lg transition-colors',
-  'hover:bg-gray-500/10 text-gray-700 dark:text-gray-300',
+  'h-8 w-8 rounded-md border-0 p-0 shadow-none transition-colors',
+  'text-icon-default hover:bg-surface-state-hover hover:text-text-primary',
 )
 
 /**
@@ -57,7 +57,7 @@ export function NavbarCartButton() {
         aria-label={label}
         className={buttonClasses}
       >
-        <ShoppingCart className="w-4 h-4" />
+        <ShoppingCartIcon className="size-[18px]" weight="bold" />
         {badge}
       </button>
     )
@@ -66,7 +66,7 @@ export function NavbarCartButton() {
   // Everywhere else: navigate to the cart page
   return (
     <Link to="/shop/cart" aria-label={label} className={buttonClasses}>
-      <ShoppingCart className="w-4 h-4" />
+      <ShoppingCartIcon className="size-[18px]" weight="bold" />
       {badge}
     </Link>
   )

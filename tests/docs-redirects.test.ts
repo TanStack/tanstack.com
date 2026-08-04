@@ -9,13 +9,16 @@ import { publicLibraries } from '../src/libraries'
 
 const expectedLegacyOverviewTargets: Record<string, string | null> = {
   ai: 'getting-started/overview',
+  charts: 'overview',
   cli: null,
   config: null,
   db: 'framework/react/overview',
   devtools: 'overview',
   form: 'overview',
+  highlight: 'overview',
   hotkeys: 'overview',
   intent: null,
+  markdown: 'overview',
   pacer: 'overview',
   query: 'framework/react/overview',
   ranger: 'overview',
@@ -174,6 +177,14 @@ assertNotFound({
   docsPath: 'react/overview',
   frameworks: [],
   manifest: manifestWithPaths(['overview']),
+})
+
+assertRedirectsTo({
+  defaultDocs: 'overview',
+  docsPath: 'reference/type-aliases/RemovedType',
+  expectedTarget: 'reference',
+  frameworks: ['react'],
+  manifest: manifestWithPaths(['overview', 'reference']),
 })
 
 assert.equal(

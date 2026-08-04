@@ -2,7 +2,6 @@ import { Hydrate } from '@tanstack/react-start'
 import { visible } from '@tanstack/react-start/hydration'
 import type { LibraryId } from '~/libraries'
 import { MaintainersSection } from './MaintainersSection'
-import { PartnersSection } from './PartnersSection'
 
 interface LandingCommunitySectionProps {
   libraryId: LibraryId
@@ -32,17 +31,9 @@ export function LandingCommunitySection({
   return (
     <Hydrate
       when={visible({ rootMargin: '25%' })}
-      fallback={
-        <div className="flex flex-col gap-20 md:gap-24">
-          <SectionSkeleton title="Maintainers" />
-          <SectionSkeleton title="Partners" />
-        </div>
-      }
+      fallback={<SectionSkeleton title="Maintainers" />}
     >
-      <div className="flex flex-col gap-20 md:gap-24">
-        <MaintainersSection libraryId={libraryId} />
-        <PartnersSection libraryId={libraryId} />
-      </div>
+      <MaintainersSection libraryId={libraryId} />
     </Hydrate>
   )
 }

@@ -120,7 +120,7 @@ function IntentRegistryPage() {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
       {/* Header */}
-      <div className="border-b border-gray-200 dark:border-gray-800 bg-gradient-to-br from-sky-50 to-white dark:from-sky-950/30 dark:to-gray-950">
+      <div className="border-b border-gray-200 dark:border-gray-800 bg-linear-to-br from-sky-50 to-white dark:from-sky-950/30 dark:to-gray-950">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
           <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-4">
             <Link
@@ -487,7 +487,7 @@ function IntentRegistryPage() {
           ))}
 
         {/* Ship your skills CTA */}
-        <div className="mt-16 mb-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gradient-to-br from-sky-50/50 to-white dark:from-sky-950/20 dark:to-gray-900 p-8 text-center">
+        <div className="mt-16 mb-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-linear-to-br from-sky-50/50 to-white dark:from-sky-950/20 dark:to-gray-900 p-8 text-center">
           <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-sky-100 dark:bg-sky-950/60 mb-4">
             <svg
               className="w-5 h-5 text-sky-600 dark:text-sky-400"

@@ -1,6 +1,10 @@
 import * as React from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { Camera, RotateCcw, Trash2 } from 'lucide-react'
+import {
+  CameraIcon,
+  ArrowCounterClockwiseIcon,
+  TrashIcon,
+} from '@phosphor-icons/react'
 import { Avatar } from '~/components/Avatar'
 import { AvatarCropModal } from '~/components/AvatarCropModal'
 import { useToast } from '~/components/ToastProvider'
@@ -177,7 +181,7 @@ export function AccountProfilePictureSection({
             disabled={isUploading}
             className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer disabled:cursor-not-allowed"
           >
-            <Camera className="w-6 h-6 text-white" />
+            <CameraIcon className="w-6 h-6 text-white" />
           </button>
           <input
             ref={fileInputRef}
@@ -194,7 +198,7 @@ export function AccountProfilePictureSection({
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
           >
-            <Camera className="w-3.5 h-3.5" />
+            <CameraIcon className="w-3.5 h-3.5" />
             {isUploading ? 'Uploading...' : 'Change photo'}
           </Button>
           {canRevert && (
@@ -204,7 +208,7 @@ export function AccountProfilePictureSection({
               onClick={handleRevertToOAuth}
               disabled={isReverting}
             >
-              <RotateCcw className="w-3.5 h-3.5" />
+              <ArrowCounterClockwiseIcon className="w-3.5 h-3.5" />
               {isReverting ? 'Reverting...' : 'Revert to original'}
             </Button>
           )}
@@ -215,7 +219,7 @@ export function AccountProfilePictureSection({
               onClick={handleRemovePhoto}
               disabled={isRemoving}
             >
-              <Trash2 className="w-3.5 h-3.5" />
+              <TrashIcon className="w-3.5 h-3.5" />
               {isRemoving ? 'Removing...' : 'Remove photo'}
             </Button>
           )}

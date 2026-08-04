@@ -1,6 +1,12 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import { Link } from '@tanstack/react-router'
-import { Minus, Plus, ShoppingCart, Trash2, X } from 'lucide-react'
+import {
+  MinusIcon,
+  PlusIcon,
+  ShoppingCartIcon,
+  TrashIcon,
+  XIcon,
+} from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { useCart, useRemoveCartLine, useUpdateCartLine } from '~/hooks/useCart'
 import { formatMoney, shopifyImageUrl } from '~/utils/shopify-format'
@@ -33,7 +39,7 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
             'max-h-[calc(100dvh-var(--navbar-height,56px)-1rem)]',
             'flex flex-col rounded-xl',
             'bg-shop-bg-2 border border-shop-line text-shop-text',
-            'shadow-[0_25px_50px_-12px_rgba(0,0,0,0.4)]',
+            'shadow-2xl',
           )}
           aria-describedby={undefined}
         >
@@ -47,13 +53,13 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
               aria-label="Close cart"
               className="p-1 rounded-md text-shop-text-2 hover:text-shop-text"
             >
-              <X className="w-3.5 h-3.5" />
+              <XIcon className="w-3.5 h-3.5" />
             </Dialog.Close>
           </header>
 
           {hasLines ? (
             <>
-              <ul className="overflow-y-auto px-5 flex-1 min-h-0">
+              <ul className="fade-y fade-size-y-sm min-h-0 flex-1 overflow-y-auto px-5">
                 {cart.lines.nodes.map((line) => (
                   <DrawerCartLine
                     key={line.id}
@@ -76,14 +82,14 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
 function DrawerEmpty({ onClose }: { onClose: () => void }) {
   return (
     <div className="flex-1 flex flex-col items-center justify-center gap-4 p-8 text-center text-shop-text-2">
-      <ShoppingCart className="w-10 h-10 text-shop-muted" />
+      <ShoppingCartIcon className="w-10 h-10 text-shop-muted" />
       <p>Your cart is empty.</p>
       <Link
         to="/shop"
         onClick={onClose}
         className="
           inline-flex items-center gap-2 px-4 py-2.5 rounded-md
-          bg-shop-accent text-shop-accent-ink font-semibold text-[13px]
+          bg-shop-accent text-shop-accent-ink font-semibold text-shop-ui
           transition-[filter] hover:brightness-110 group
         "
       >
@@ -119,7 +125,7 @@ function DrawerFooter({
         href={cart.checkoutUrl}
         className="
           w-full h-10 rounded-md bg-shop-accent text-shop-accent-ink
-          font-semibold text-[13px] flex items-center justify-center gap-2
+          font-semibold text-shop-ui flex items-center justify-center gap-2
           transition-[filter] hover:brightness-110 group
         "
       >
@@ -207,7 +213,7 @@ function DrawerCartLine({
               aria-label="Decrease quantity"
               className="p-1.5 text-shop-text-2 hover:text-shop-text disabled:opacity-50"
             >
-              <Minus className="w-3 h-3" />
+              <MinusIcon className="w-3 h-3" />
             </button>
             <span className="font-shop-mono text-shop-text min-w-[1.5rem] text-center">
               {line.quantity}
@@ -224,7 +230,7 @@ function DrawerCartLine({
               aria-label="Increase quantity"
               className="p-1.5 text-shop-text-2 hover:text-shop-text disabled:opacity-50"
             >
-              <Plus className="w-3 h-3" />
+              <PlusIcon className="w-3 h-3" />
             </button>
           </div>
           <div className="flex items-center gap-2">
@@ -241,7 +247,7 @@ function DrawerCartLine({
               aria-label="Remove from cart"
               className="p-1 rounded-md text-shop-muted hover:text-shop-text disabled:opacity-50"
             >
-              <Trash2 className="w-3.5 h-3.5" />
+              <TrashIcon className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>

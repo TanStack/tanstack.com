@@ -4,7 +4,10 @@ import { wrapFetchWithSentry } from '@sentry/tanstackstart-react'
 import handler, { createServerEntry } from '@tanstack/react-start/server-entry'
 import { runWithDatabaseContext } from '~/db/client'
 import { runScheduledTasks } from '~/server/scheduled.server'
-import { runWithHostRuntimeEnv } from '~/server/runtime/host.server'
+import {
+  runWithHostRuntimeContext,
+  runWithHostRuntimeEnv,
+} from '~/server/runtime/host.server'
 import {
   installProductionFetchProbe,
   installProductionProcessProbe,
@@ -14,6 +17,7 @@ import {
   runWithRequestDiagnostics,
 } from '~/utils/prod-diagnostics.server'
 import { docsContentNegotiationVaryHeader } from '~/utils/http'
+import { isFrameEmbeddingAllowed } from '~/utils/frame-embedding'
 
 const SECURITY_HEADERS = {
   'X-Frame-Options': 'DENY',
@@ -70,7 +74,7 @@ function applyHostingHeaders(response: Response, url: URL) {
     headers.set(key, value)
   }
 
-  if (url.pathname === '/stats/npm/embed') {
+  if (isFrameEmbeddingAllowed(url.pathname)) {
     headers.delete('X-Frame-Options')
   }
 
@@ -189,8 +193,10 @@ const server = createServerEntry(
 )
 
 export default {
-  fetch(request: Request, env: unknown) {
-    return runWithHostRuntimeEnv(env, () => server.fetch(request))
+  fetch(request: Request, env: unknown, context: unknown) {
+    return runWithHostRuntimeEnv(env, () =>
+      runWithHostRuntimeContext(context, () => server.fetch(request)),
+    )
   },
   scheduled(
     controller: ScheduledController,
@@ -199,8 +205,10 @@ export default {
   ) {
     context.waitUntil(
       runWithHostRuntimeEnv(env, () =>
-        runWithDatabaseContext(() =>
-          runScheduledTasks(controller.cron, controller.scheduledTime),
+        runWithHostRuntimeContext(context, () =>
+          runWithDatabaseContext(() =>
+            runScheduledTasks(controller.cron, controller.scheduledTime),
+          ),
         ),
       ),
     )

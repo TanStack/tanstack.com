@@ -1,4 +1,4 @@
-import { Check, ChevronsUpDown } from 'lucide-react'
+import { CheckIcon, CaretUpDownIcon } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import {
   Dropdown,
@@ -47,7 +47,7 @@ export function BlogAuthorFilter({
           >
             <span
               className={twMerge(
-                'flex items-center justify-center w-6 h-6 rounded border overflow-hidden flex-shrink-0',
+                'flex items-center justify-center w-6 h-6 rounded border overflow-hidden shrink-0',
                 activeAuthor ? 'border-blue-500/30' : 'border-gray-500/20',
               )}
             >
@@ -67,7 +67,7 @@ export function BlogAuthorFilter({
               {activeAuthor ?? 'All authors'}
             </span>
             <span className="flex items-center pr-1">
-              <ChevronsUpDown
+              <CaretUpDownIcon
                 className="h-4 w-4 opacity-40"
                 aria-hidden="true"
               />
@@ -89,7 +89,7 @@ export function BlogAuthorFilter({
           >
             <span className="truncate">All authors</span>
             {!activeAuthor ? (
-              <Check
+              <CheckIcon
                 className="h-4 w-4 absolute right-2 text-blue-600 dark:text-blue-300"
                 aria-hidden="true"
               />
@@ -114,11 +114,11 @@ export function BlogAuthorFilter({
                   width={20}
                   src={getAuthorAvatar(name)}
                   alt=""
-                  className="w-5 h-5 rounded object-cover flex-shrink-0"
+                  className="w-5 h-5 rounded object-cover shrink-0"
                 />
                 <span className="truncate">{name}</span>
                 {isSelected ? (
-                  <Check
+                  <CheckIcon
                     className="h-4 w-4 absolute right-2 text-blue-600 dark:text-blue-300"
                     aria-hidden="true"
                   />

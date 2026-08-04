@@ -1,6 +1,6 @@
 'use client'
 import * as React from 'react'
-import { ChevronDown, Copy, Check } from 'lucide-react'
+import { CaretDownIcon, CopyIcon, CheckIcon } from '@phosphor-icons/react'
 import { useToast } from '~/components/ToastProvider'
 import { Button } from '~/ui'
 import { ButtonGroup } from './ButtonGroup'
@@ -38,7 +38,7 @@ function MarkdownIcon({ className }: { className?: string }) {
 }
 
 // Claude/Anthropic icon
-function ClaudeIcon({ className }: { className?: string }) {
+export function ClaudeIcon({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -61,7 +61,7 @@ function ChatGPTIcon({ className }: { className?: string }) {
 }
 
 // Cursor icon
-function CursorIcon({ className }: { className?: string }) {
+export function CursorIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
       <path d="M22.106 5.68L12.5.135a.998.998 0 00-.998 0L1.893 5.68a.84.84 0 00-.419.726v11.186c0 .3.16.577.42.727l9.607 5.547a.999.999 0 00.998 0l9.608-5.547a.84.84 0 00.42-.727V6.407a.84.84 0 00-.42-.726zm-.603 1.176L12.228 22.92c-.063.108-.228.064-.228-.061V12.34a.59.59 0 00-.295-.51l-9.11-5.26c-.107-.062-.063-.228.062-.228h18.55c.264 0 .428.286.296.514z"></path>
@@ -301,12 +301,12 @@ export function CopyPageDropdown({
       >
         {copied.active ? (
           <>
-            <Check className="w-3 h-3" />
+            <CheckIcon className="w-3 h-3" />
             Copied!
           </>
         ) : (
           <>
-            <Copy className="w-3 h-3" />
+            <CopyIcon className="w-3 h-3" />
             {label}
           </>
         )}
@@ -321,7 +321,7 @@ export function CopyPageDropdown({
             className="border-0 px-1.5"
             aria-label={`More ${label} options`}
           >
-            <ChevronDown className="w-3 h-3" />
+            <CaretDownIcon className="w-3 h-3" />
           </Button>
         </DropdownTrigger>
         <DropdownContent align="end" className="min-w-72">
@@ -331,7 +331,7 @@ export function CopyPageDropdown({
               onSelect={item.onSelect}
               className="gap-3 px-3 py-2.5"
             >
-              <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center text-gray-700 dark:text-gray-400">
+              <div className="shrink-0 w-5 h-5 flex items-center justify-center text-gray-700 dark:text-gray-400">
                 <item.icon className="w-4 h-4" />
               </div>
               <div className="flex flex-col gap-0.5">

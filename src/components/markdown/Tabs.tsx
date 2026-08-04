@@ -54,7 +54,7 @@ export function Tabs({
 
   return (
     <div className="my-4">
-      <div className="not-prose flex items-center justify-start gap-2 rounded-t-md border-1 border-b-none border-gray-200 dark:border-gray-800 overflow-x-auto overflow-y-hidden bg-white dark:bg-gray-950">
+      <div className="not-prose fade-x fade-size-x-sm flex items-center justify-start gap-2 overflow-x-auto overflow-y-hidden rounded-t-md border-1 border-b-none border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950">
         {tabsProp.map((tab) => {
           return (
             <Tab

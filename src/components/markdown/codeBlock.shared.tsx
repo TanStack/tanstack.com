@@ -82,7 +82,10 @@ export function getCodeBlockLanguageFromFilePath(filePath: string) {
   }
 
   if (['cts', 'mts'].includes(ext)) return 'ts'
+  if (ext === 'tsrx') return 'tsx'
   if (['cjs', 'mjs'].includes(ext)) return 'js'
+  if (ext === 'gts') return 'ts'
+  if (ext === 'gjs') return 'js'
   if (['prettierrc', 'babelrc', 'webmanifest'].includes(ext)) return 'json'
   if (['env', 'example'].includes(ext)) return 'sh'
 

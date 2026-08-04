@@ -1,18 +1,16 @@
-import { Network, Rocket, ServerCrash } from 'lucide-react'
+import { NetworkIcon, RocketIcon, WarningIcon } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { redirect } from '@tanstack/react-router'
 import { YinYangIcon } from '~/components/icons/YinYangIcon'
 import { start } from './libraries'
 
-const textStyles = 'text-cyan-600 dark:text-cyan-500'
+const textStyles = 'text-category-framework'
 
 export const startProject = {
   ...start,
   description: `Full-document SSR, Streaming, Server Functions, bundling and more, powered by TanStack Router and Vite - Ready to deploy to your favorite hosting provider.`,
   latestBranch: 'main',
   docsRoot: 'docs/start',
-  bgRadial: 'from-cyan-500 via-teal-600/50 to-transparent',
-  textColor: 'text-cyan-600',
   embedEditor: 'codesandbox' as const,
   defaultDocs: 'framework/react/overview',
   installPath: 'framework/$framework/build-from-scratch',
@@ -55,7 +53,7 @@ export const startProject = {
     {
       title: 'Enterprise-Grade Routing',
       icon: (
-        <Network
+        <NetworkIcon
           className={twMerge('motion-safe:animate-pulse', textStyles)}
           style={{
             animationDuration: '5s',
@@ -79,7 +77,7 @@ export const startProject = {
     {
       title: 'SSR, Streaming and Server RPCs',
       icon: (
-        <ServerCrash
+        <WarningIcon
           className={twMerge('motion-safe:animate-ping', textStyles)}
           style={{
             animationDuration: '2s',
@@ -129,7 +127,7 @@ export const startProject = {
     {
       title: 'Deploy Anywhere',
       icon: (
-        <Rocket
+        <RocketIcon
           className={twMerge('motion-safe:animate-bounce', textStyles)}
           style={{
             animationDuration: '2.5s',

@@ -1,9 +1,11 @@
 import * as React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { twMerge } from 'tailwind-merge'
+import { DownloadIcon, StarIcon, TrendUpIcon } from '@phosphor-icons/react'
 import type { LibrarySlim } from '~/libraries'
 import { ossStatsQuery, recentDownloadsQuery } from '~/queries/stats'
 import type { RecentDownloadStats } from '~/utils/stats.types'
+import { StatsSection, type StatItem } from '~/components/ds/ui'
 
 type DownloadPeriod = 'daily' | 'monthly' | 'weekly'
 
@@ -261,20 +263,12 @@ function formatStatsLabel(label: string) {
     .join(' ')
 }
 
-function formatAbbreviatedNumber(value: number) {
-  const units = [
-    { label: 'Billion', value: 1_000_000_000 },
-    { label: 'Million', value: 1_000_000 },
-    { label: 'Thousand', value: 1_000 },
-  ]
-
-  const unit = units.find((candidate) => Math.abs(value) >= candidate.value)
-
-  if (!unit) {
-    return value.toLocaleString()
-  }
-
-  return `${(value / unit.value).toFixed(1)} ${unit.label}`
+/** Compact count with a single-letter magnitude, e.g. 128_400_000 → "128.4M". */
+function formatCompact(value: number) {
+  if (value >= 1_000_000_000) return `${(value / 1_000_000_000).toFixed(1)}B`
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`
+  if (value >= 1_000) return `${Math.round(value / 1_000)}K`
+  return value.toLocaleString()
 }
 
 export function LibraryDownloadsMicro({
@@ -362,54 +356,40 @@ export function LibraryDownloadsMicro({
 
   const hasTotalDownloadCount = hasDownloads(totalDownloadCount)
   const hasStarCount = hasDownloads(starCount)
-  const weeklyDownloadsRow = micro ?? (
-    <span aria-label={label} className={statsRowClassName}>
-      <span
-        className={twMerge(
-          'invisible text-left text-zinc-950 dark:text-white',
-          valueClassName,
-        )}
-        style={{ fontVariantNumeric: 'tabular-nums' }}
-      >
-        000,000,000
-      </span>
-      <span className={twMerge('whitespace-nowrap', labelClassName)}>
-        {formattedLabel}
-      </span>
-    </span>
-  )
+
+  const items: Array<StatItem> = [
+    {
+      key: 'total',
+      icon: <TrendUpIcon weight="regular" />,
+      value: hasTotalDownloadCount ? formatCompact(totalDownloadCount) : '',
+      placeholder: '000.0M',
+      label: 'Total Downloads',
+    },
+    {
+      key: 'weekly',
+      icon: <DownloadIcon weight="regular" />,
+      value: hasNpmDownloads ? (totalDownloads ?? 0).toLocaleString() : '',
+      placeholder: '000,000,000',
+      label: formattedLabel,
+      // The animated ref keeps ticking the weekly figure after mount — only
+      // attach it once there's a real base value to count from.
+      valueRef: hasNpmDownloads ? displayedDownloadsRef : undefined,
+    },
+    {
+      key: 'stars',
+      icon: <StarIcon weight="regular" />,
+      value: hasStarCount ? starCount.toLocaleString() : '',
+      placeholder: '000,000',
+      label: 'GitHub Stars',
+    },
+  ]
 
   return (
-    <span
-      className={twMerge('inline-flex flex-col items-start gap-1.5', className)}
-    >
-      <span className={statsRowClassName}>
-        <span
-          className={twMerge(
-            'text-left text-zinc-950 dark:text-white',
-            !hasTotalDownloadCount ? 'invisible' : undefined,
-          )}
-          style={{ fontVariantNumeric: 'tabular-nums' }}
-        >
-          {hasTotalDownloadCount
-            ? formatAbbreviatedNumber(totalDownloadCount)
-            : '00.0 Million'}
-        </span>
-        <span>Total Downloads</span>
-      </span>
-      {weeklyDownloadsRow}
-      <span className={statsRowClassName}>
-        <span
-          className={twMerge(
-            'text-left text-zinc-950 dark:text-white',
-            !hasStarCount ? 'invisible' : undefined,
-          )}
-          style={{ fontVariantNumeric: 'tabular-nums' }}
-        >
-          {hasStarCount ? starCount.toLocaleString() : '0'}
-        </span>
-        <span>GitHub Stars</span>
-      </span>
-    </span>
+    <StatsSection
+      page="library"
+      layout="stacked"
+      stats={items}
+      className={className}
+    />
   )
 }

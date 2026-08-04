@@ -2,18 +2,18 @@ import * as React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-  RefreshCw,
-  Play,
-  RotateCcw,
-  Trash2,
-  BookOpen,
-  ChevronDown,
-  ChevronRight,
-  AlertTriangle,
-  CheckCircle2,
-  Clock,
-  Wrench,
-} from 'lucide-react'
+  ArrowsClockwiseIcon as RefreshCw,
+  PlayIcon,
+  ArrowCounterClockwiseIcon as RotateCcw,
+  TrashIcon as Trash2,
+  BookOpenIcon,
+  CaretDownIcon as ChevronDown,
+  CaretRightIcon as ChevronRight,
+  WarningIcon as AlertTriangle,
+  CheckCircleIcon as CheckCircle2,
+  ClockIcon,
+  WrenchIcon,
+} from '@phosphor-icons/react'
 import { Button } from '~/ui'
 import { Card } from '~/components/Card'
 import { formatDistanceToNow } from '~/utils/dates'
@@ -128,7 +128,7 @@ function IntentAdminPage() {
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <BookOpen className="w-5 h-5 text-sky-500" />
+            <BookOpenIcon className="w-5 h-5 text-sky-500" />
             <h1 className="text-xl font-bold text-gray-900 dark:text-white">
               Intent Skills Registry
             </h1>
@@ -180,9 +180,9 @@ function IntentAdminPage() {
               processMutation.isPending ||
               (stats?.pendingVersions ?? 0) + (stats?.failedVersions ?? 0) === 0
             }
-            title="Download tarballs and extract skills until the workflow nears its time budget"
+            title="Download tarballs and extract skills for pending versions"
           >
-            <Play
+            <PlayIcon
               className={
                 processMutation.isPending ? 'animate-pulse w-4 h-4' : 'w-4 h-4'
               }
@@ -249,21 +249,29 @@ function IntentAdminPage() {
       )}
       {processMutation.data && (
         <ResultBanner
-          title={`Processed ${processMutation.data.processed} version(s)`}
-          items={[
-            ...(processMutation.data.deferred > 0
-              ? [
-                  `${processMutation.data.deferred} version(s) deferred by the time budget`,
-                ]
-              : []),
-            ...processMutation.data.results.map(
-              (r) =>
-                `${r.packageName}@${r.version}: ${r.status === 'synced' ? `${r.skillCount} skills` : `FAILED — ${r.error}`}`,
-            ),
-          ]}
-          errors={processMutation.data.results
-            .filter((r) => r.status === 'failed')
-            .map((r) => `${r.packageName}@${r.version}: ${r.error}`)}
+          title={
+            processMutation.data.kind === 'completed'
+              ? `Processed ${processMutation.data.summary.processed} version(s)`
+              : 'Queue processing started'
+          }
+          items={
+            processMutation.data.kind === 'completed'
+              ? processMutation.data.summary.results.map(
+                  (result) =>
+                    `${result.packageName}@${result.version}: ${result.status === 'synced' ? `${result.skillCount} skills` : `FAILED — ${result.error}`}`,
+                )
+              : ['Remaining work will continue during scheduled processing.']
+          }
+          errors={
+            processMutation.data.kind === 'completed'
+              ? processMutation.data.summary.results
+                  .filter((result) => result.status === 'failed')
+                  .map(
+                    (result) =>
+                      `${result.packageName}@${result.version}: ${result.error}`,
+                  )
+              : []
+          }
           onDismiss={() => processMutation.reset()}
         />
       )}
@@ -495,7 +503,7 @@ function WorkflowHealthSection({
           disabled={repairing || loading || !needsRepair}
           title="Mark stale runs as errored and delete schedules for workflows that are no longer registered"
         >
-          <Wrench
+          <WrenchIcon
             className={repairing ? 'w-3.5 h-3.5 animate-pulse' : 'w-3.5 h-3.5'}
           />
           {repairing ? 'Repairing...' : 'Repair Store'}
@@ -600,7 +608,7 @@ function WorkflowRunsSection({
   return (
     <div className="mb-6">
       <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1.5 mb-2">
-        <Clock className="w-4 h-4" />
+        <ClockIcon className="w-4 h-4" />
         Workflow Runs
       </h2>
       {loading ? (
@@ -961,7 +969,7 @@ function PackageRow({
           </span>
         ) : (
           <span className="inline-flex items-center gap-1 text-xs text-gray-400">
-            <Clock className="w-3.5 h-3.5" /> Unverified
+            <ClockIcon className="w-3.5 h-3.5" /> Unverified
           </span>
         )}
       </td>

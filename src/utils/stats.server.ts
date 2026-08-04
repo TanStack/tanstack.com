@@ -64,6 +64,44 @@ type NpmDownloadsBulkRequest = {
 const MAX_NPM_STATS_CHUNK_FETCH_CONCURRENCY = 8
 const MAX_NPM_STATS_RANGE_DAYS = 12 * 366
 
+const NPM_RATE_LIMIT_COOLDOWN_MS = 60_000
+
+/**
+ * Shared 429 gate for api.npmjs.org.
+ *
+ * A stats request fans out to one call per package per year. When npm starts
+ * rate-limiting, every one of those calls fails independently and nothing
+ * records that we are being throttled — so the next page load fires the whole
+ * fan-out again. That is the download-storm: hundreds of doomed requests per
+ * render, and npm keeps the limit closed because we keep knocking.
+ *
+ * Once any call sees a 429 we stop calling for a cooldown window and let
+ * callers fall back to cached/empty data instead.
+ */
+const npmRateLimit = {
+  cooldownUntil: 0,
+
+  isCoolingDown() {
+    return Date.now() < this.cooldownUntil
+  },
+
+  /** Opens the cooldown when a response is a 429, honouring Retry-After. */
+  noteResponse(response: Response) {
+    if (response.status !== 429) return
+
+    const retryAfterSeconds = Number(response.headers.get('retry-after'))
+    const cooldownMs =
+      Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0
+        ? retryAfterSeconds * 1000
+        : NPM_RATE_LIMIT_COOLDOWN_MS
+
+    this.cooldownUntil = Date.now() + cooldownMs
+    console.warn(
+      `[npm stats] rate limited; pausing npm download fetches for ${Math.round(cooldownMs / 1000)}s`,
+    )
+  },
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
@@ -671,6 +709,10 @@ export async function fetchNpmDownloadsBulkData({ data }: { data: unknown }) {
         const fallbackChunk = fallbackChunks.get(cacheKey)
 
         try {
+          if (npmRateLimit.isCoolingDown()) {
+            throw new Error('NPM API cooling down after rate limit')
+          }
+
           const response = await fetch(
             `https://api.npmjs.org/downloads/range/${req.startDate}:${req.endDate}/${encodeURIComponent(req.packageName)}`,
             {
@@ -680,6 +722,8 @@ export async function fetchNpmDownloadsBulkData({ data }: { data: unknown }) {
               },
             },
           )
+
+          npmRateLimit.noteResponse(response)
 
           if (!response.ok) {
             if (response.status === 404) {
@@ -937,6 +981,10 @@ export async function fetchNpmDownloadChunk({ data }: { data: any }) {
 
   // Fetch from NPM API
   try {
+    if (npmRateLimit.isCoolingDown()) {
+      throw new Error('NPM API cooling down after rate limit')
+    }
+
     const response = await fetch(
       `https://api.npmjs.org/downloads/range/${startDate}:${endDate}/${encodeURIComponent(packageName)}`,
       {
@@ -946,6 +994,8 @@ export async function fetchNpmDownloadChunk({ data }: { data: any }) {
         },
       },
     )
+
+    npmRateLimit.noteResponse(response)
 
     if (!response.ok) {
       if (response.status === 404) {
@@ -1223,90 +1273,99 @@ export async function fetchRecentDownloadStats({
 
   // Fetch missing/stale data from NPM API
   if (needsFetch.length > 0) {
-    const fetchPromises = needsFetch.map(async (req) => {
-      try {
-        const response = await fetch(
-          `https://api.npmjs.org/downloads/range/${req.dateFrom}:${req.dateTo}/${encodeURIComponent(req.packageName)}`,
-          {
-            headers: {
-              Accept: 'application/json',
-              'User-Agent': 'TanStack-Stats',
-            },
-          },
-        )
-
-        if (!response.ok) {
-          if (response.status === 404) {
-            // Package not found, return zero data
-            return {
-              key: `${req.packageName}|${req.dateFrom}|${req.dateTo}|${req.binSize}`,
-              data: {
-                packageName: req.packageName,
-                dateFrom: req.dateFrom,
-                dateTo: req.dateTo,
-                binSize: req.binSize,
-                dailyData: [],
-                totalDownloads: 0,
-                isImmutable: false,
-                updatedAt: Date.now(),
-              },
-            }
+    const fetchResults = await mapWithConcurrency(
+      needsFetch,
+      MAX_NPM_STATS_CHUNK_FETCH_CONCURRENCY,
+      async (req) => {
+        try {
+          if (npmRateLimit.isCoolingDown()) {
+            throw new Error('NPM API cooling down after rate limit')
           }
-          throw new Error(`NPM API error: ${response.status}`)
-        }
 
-        const result = await response.json()
-        const downloads = getNpmDailyDownloadsFromResponse(result)
-
-        if (!hasCompleteDailyCoverage(downloads, req.dateFrom, req.dateTo)) {
-          throw new Error(
-            `NPM API returned incomplete recent range ${downloads[0]?.day ?? 'empty'}:${downloads.at(-1)?.day ?? 'empty'} for ${req.dateFrom}:${req.dateTo}`,
+          const response = await fetch(
+            `https://api.npmjs.org/downloads/range/${req.dateFrom}:${req.dateTo}/${encodeURIComponent(req.packageName)}`,
+            {
+              headers: {
+                Accept: 'application/json',
+                'User-Agent': 'TanStack-Stats',
+              },
+            },
           )
-        }
 
-        const chunkData = {
-          packageName: req.packageName,
-          dateFrom: req.dateFrom,
-          dateTo: req.dateTo,
-          binSize: req.binSize,
-          totalDownloads: downloads.reduce(
-            (sum, point) => sum + point.downloads,
-            0,
-          ),
-          dailyData: downloads,
-          isImmutable: false, // Recent data is mutable
-          updatedAt: Date.now(),
-        }
+          npmRateLimit.noteResponse(response)
 
-        await setCachedNpmDownloadChunk(chunkData)
+          if (!response.ok) {
+            if (response.status === 404) {
+              // Package not found, return zero data
+              return {
+                key: `${req.packageName}|${req.dateFrom}|${req.dateTo}|${req.binSize}`,
+                data: {
+                  packageName: req.packageName,
+                  dateFrom: req.dateFrom,
+                  dateTo: req.dateTo,
+                  binSize: req.binSize,
+                  dailyData: [],
+                  totalDownloads: 0,
+                  isImmutable: false,
+                  updatedAt: Date.now(),
+                },
+              }
+            }
+            throw new Error(`NPM API error: ${response.status}`)
+          }
 
-        return {
-          key: `${req.packageName}|${req.dateFrom}|${req.dateTo}|${req.binSize}`,
-          data: chunkData,
-        }
-      } catch (error) {
-        console.error(
-          `Failed to fetch recent downloads for ${req.packageName}:`,
-          error,
-        )
-        // Return zero data on error
-        return {
-          key: `${req.packageName}|${req.dateFrom}|${req.dateTo}|${req.binSize}`,
-          data: {
+          const result = await response.json()
+          const downloads = getNpmDailyDownloadsFromResponse(result)
+
+          if (!hasCompleteDailyCoverage(downloads, req.dateFrom, req.dateTo)) {
+            throw new Error(
+              `NPM API returned incomplete recent range ${downloads[0]?.day ?? 'empty'}:${downloads.at(-1)?.day ?? 'empty'} for ${req.dateFrom}:${req.dateTo}`,
+            )
+          }
+
+          const chunkData = {
             packageName: req.packageName,
             dateFrom: req.dateFrom,
             dateTo: req.dateTo,
             binSize: req.binSize,
-            dailyData: [],
-            totalDownloads: 0,
-            isImmutable: false,
+            totalDownloads: downloads.reduce(
+              (sum, point) => sum + point.downloads,
+              0,
+            ),
+            dailyData: downloads,
+            isImmutable: false, // Recent data is mutable
             updatedAt: Date.now(),
-          },
-        }
-      }
-    })
+          }
 
-    const fetchResults = await Promise.all(fetchPromises)
+          await setCachedNpmDownloadChunk(chunkData)
+
+          return {
+            key: `${req.packageName}|${req.dateFrom}|${req.dateTo}|${req.binSize}`,
+            data: chunkData,
+          }
+        } catch (error) {
+          console.error(
+            `Failed to fetch recent downloads for ${req.packageName}:`,
+            error,
+          )
+          // Return zero data on error
+          return {
+            key: `${req.packageName}|${req.dateFrom}|${req.dateTo}|${req.binSize}`,
+            data: {
+              packageName: req.packageName,
+              dateFrom: req.dateFrom,
+              dateTo: req.dateTo,
+              binSize: req.binSize,
+              dailyData: [],
+              totalDownloads: 0,
+              isImmutable: false,
+              updatedAt: Date.now(),
+            },
+          }
+        }
+      },
+    )
+
     for (const result of fetchResults) {
       results.set(result.key, result.data)
     }

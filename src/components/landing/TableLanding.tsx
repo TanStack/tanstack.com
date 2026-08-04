@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react'
 import {
   cellSelectionFeature,
   columnFilteringFeature,
@@ -21,8 +21,8 @@ import {
   type PaginationState,
   type RowSelectionState,
   type SortingState,
-} from "@tanstack/react-table";
-import { useHotkeys } from "@tanstack/react-hotkeys";
+} from '@tanstack/react-table'
+import { useHotkeys } from '@tanstack/react-hotkeys'
 import {
   BracketsCurlyIcon,
   CaretDownIcon,
@@ -31,29 +31,29 @@ import {
   RowsIcon,
   SlidersHorizontalIcon,
   StackIcon,
-} from "@phosphor-icons/react";
-import { Badge } from "~/ui/Badge";
+} from '@phosphor-icons/react'
+import { Badge } from '~/ui/Badge'
 
 import {
   LandingSection,
   LandingSectionIntro,
   LandingWindow,
   LibraryLandingShell,
-} from "./LibraryLanding";
+} from './LibraryLanding'
 
 const tablePrompt =
-  "Build a TanStack Table V9 data grid for a TypeScript app. Keep it headless. Define a stable tableFeatures object with only the feature plugins, create*RowModel slots, and function registries the product needs. Use TanStack Store-backed table state, selectors, or table.Subscribe for reactive reads, and external atoms only for slices the app must own. Render semantic table elements and synchronize state to the URL or server only where the product needs it.";
+  'Build a TanStack Table V9 data grid for a TypeScript app. Keep it headless. Define a stable tableFeatures object with only the feature plugins, create*RowModel slots, and function registries the product needs. Use TanStack Store-backed table state, selectors, or table.Subscribe for reactive reads, and external atoms only for slices the app must own. Render semantic table elements and synchronize state to the URL or server only where the product needs it.'
 
 type TableIssue = {
-  id: string;
-  owner: string;
-  project: string;
-  score: number;
-  status: "active" | "review" | "shipped";
-};
+  id: string
+  owner: string
+  project: string
+  score: number
+  status: 'active' | 'review' | 'shipped'
+}
 
-type StatusFilter = "all" | TableIssue["status"];
-type StateMode = "selected" | "subscribed" | "external";
+type StatusFilter = 'all' | TableIssue['status']
+type StateMode = 'selected' | 'subscribed' | 'external'
 
 const tableWorkbenchFeatures = tableFeatures({
   cellSelectionFeature,
@@ -66,160 +66,156 @@ const tableWorkbenchFeatures = tableFeatures({
   filteredRowModel: createFilteredRowModel(),
   sortedRowModel: createSortedRowModel(),
   paginatedRowModel: createPaginatedRowModel(),
-});
+})
 
 const tableRows: Array<TableIssue> = [
   {
-    id: "TS-732",
-    owner: "Tanner",
-    project: "Router docs",
+    id: 'TS-732',
+    owner: 'Tanner',
+    project: 'Router docs',
     score: 98,
-    status: "active",
+    status: 'active',
   },
   {
-    id: "TS-681",
-    owner: "Dominik",
-    project: "Query cache",
+    id: 'TS-681',
+    owner: 'Dominik',
+    project: 'Query cache',
     score: 94,
-    status: "review",
+    status: 'review',
   },
   {
-    id: "TS-644",
-    owner: "Kevin",
-    project: "Table filters",
+    id: 'TS-644',
+    owner: 'Kevin',
+    project: 'Table filters',
     score: 91,
-    status: "shipped",
+    status: 'shipped',
   },
   {
-    id: "TS-612",
-    owner: "Ben",
-    project: "Virtual lists",
+    id: 'TS-612',
+    owner: 'Ben',
+    project: 'Virtual lists',
     score: 88,
-    status: "active",
+    status: 'active',
   },
   {
-    id: "TS-590",
-    owner: "Arthur",
-    project: "Column pinning",
+    id: 'TS-590',
+    owner: 'Arthur',
+    project: 'Column pinning',
     score: 84,
-    status: "review",
+    status: 'review',
   },
   {
-    id: "TS-551",
-    owner: "Noel",
-    project: "Faceted search",
+    id: 'TS-551',
+    owner: 'Noel',
+    project: 'Faceted search',
     score: 79,
-    status: "shipped",
+    status: 'shipped',
   },
   {
-    id: "TS-523",
-    owner: "Zach",
-    project: "Bulk actions",
+    id: 'TS-523',
+    owner: 'Zach',
+    project: 'Bulk actions',
     score: 76,
-    status: "active",
+    status: 'active',
   },
   {
-    id: "TS-507",
-    owner: "Luca",
-    project: "Density switch",
+    id: 'TS-507',
+    owner: 'Luca',
+    project: 'Density switch',
     score: 72,
-    status: "review",
+    status: 'review',
   },
-];
+]
 
 const statusFilters: Array<{ label: string; value: StatusFilter }> = [
-  { label: "All", value: "all" },
-  { label: "Active", value: "active" },
-  { label: "Review", value: "review" },
-  { label: "Shipped", value: "shipped" },
-];
+  { label: 'All', value: 'all' },
+  { label: 'Active', value: 'active' },
+  { label: 'Review', value: 'review' },
+  { label: 'Shipped', value: 'shipped' },
+]
 
-const tableResponsibilities = [
-  "State",
-  "Row processing",
-  "Typed APIs",
-] as const;
+const tableResponsibilities = ['State', 'Row processing', 'Typed APIs'] as const
 
 const developerControls = [
-  "Markup & semantics",
-  "Styles & components",
-  "Events & interactions",
-] as const;
+  'Markup & semantics',
+  'Styles & components',
+  'Events & interactions',
+] as const
 
 const stateModes: Record<
   StateMode,
   { code: string; note: string; path: string }
 > = {
   selected: {
-    code: "const sorting = table.state.sorting",
-    note: "Select the state a component needs when creating its table instance.",
-    path: "table store → selected state → component",
+    code: 'const sorting = table.state.sorting',
+    note: 'Select the state a component needs when creating its table instance.',
+    path: 'table store → selected state → component',
   },
   subscribed: {
-    code: "<table.Subscribe selector={(state) => state.sorting}>",
-    note: "Move a reactive read to the smallest part of the tree that renders it.",
-    path: "sorting atom → subscription island → UI",
+    code: '<table.Subscribe selector={(state) => state.sorting}>',
+    note: 'Move a reactive read to the smallest part of the tree that renders it.',
+    path: 'sorting atom → subscription island → UI',
   },
   external: {
-    code: "atoms: { sorting: sortingAtom }",
-    note: "Give an external TanStack Store atom ownership when other systems share the slice.",
-    path: "external atom → table feature → app",
+    code: 'atoms: { sorting: sortingAtom }',
+    note: 'Give an external TanStack Store atom ownership when other systems share the slice.',
+    path: 'external atom → table feature → app',
   },
-};
+}
 
 const rowModelStages = [
   {
-    code: "automatic",
-    label: "Core",
-    note: "data to rows",
+    code: 'automatic',
+    label: 'Core',
+    note: 'data to rows',
   },
   {
-    code: "createFilteredRowModel()",
-    label: "Filter",
-    note: "column + global",
+    code: 'createFilteredRowModel()',
+    label: 'Filter',
+    note: 'column + global',
   },
   {
-    code: "createGroupedRowModel()",
-    label: "Group",
-    note: "grouped rows",
+    code: 'createGroupedRowModel()',
+    label: 'Group',
+    note: 'grouped rows',
   },
   {
-    code: "createSortedRowModel()",
-    label: "Sort",
-    note: "ordered rows",
+    code: 'createSortedRowModel()',
+    label: 'Sort',
+    note: 'ordered rows',
   },
   {
-    code: "createExpandedRowModel()",
-    label: "Expand",
-    note: "visible sub-rows",
+    code: 'createExpandedRowModel()',
+    label: 'Expand',
+    note: 'visible sub-rows',
   },
   {
-    code: "createPaginatedRowModel()",
-    label: "Paginate",
-    note: "current page",
+    code: 'createPaginatedRowModel()',
+    label: 'Paginate',
+    note: 'current page',
   },
-] as const;
+] as const
 
 const tableToolbox = [
   {
-    label: "Custom features",
-    code: "tableFeatures({ densityFeature })",
+    label: 'Custom features',
+    code: 'tableFeatures({ densityFeature })',
     detail:
-      "Add state, options, and APIs through the same extension system used by built-in features.",
+      'Add state, options, and APIs through the same extension system used by built-in features.',
   },
   {
-    label: "Reusable tables",
-    code: "createTableHook({ features, ... })",
+    label: 'Reusable tables',
+    code: 'createTableHook({ features, ... })',
     detail:
-      "Share typed features, options, column helpers, and registered components across a product.",
+      'Share typed features, options, column helpers, and registered components across a product.',
   },
   {
-    label: "Devtools",
-    code: "useTanStackTableDevtools(table)",
+    label: 'Devtools',
+    code: 'useTanStackTableDevtools(table)',
     detail:
-      "Inspect table state and derived data in supported framework integrations instead of logging internals.",
+      'Inspect table state and derived data in supported framework integrations instead of logging internals.',
   },
-] as const;
+] as const
 
 export default function TableLanding() {
   return (
@@ -265,7 +261,6 @@ export default function TableLanding() {
         <RowModelPipeline />
       </LandingSection>
 
-
       <LandingSection tone="accent">
         <LandingSectionIntro
           body="TanStack Table exposes its own architecture as a public toolkit. Extend it with typed features, package shared conventions into reusable table hooks and options, and inspect live instances with dedicated Devtools."
@@ -276,42 +271,42 @@ export default function TableLanding() {
         <TableToolbox />
       </LandingSection>
     </LibraryLandingShell>
-  );
+  )
 }
 
 function TableWorkbench() {
-  const gridRef = React.useRef<HTMLDivElement>(null);
-  const [globalFilter, setGlobalFilter] = React.useState("");
-  const [statusFilter, setStatusFilter] = React.useState<StatusFilter>("all");
+  const gridRef = React.useRef<HTMLDivElement>(null)
+  const [globalFilter, setGlobalFilter] = React.useState('')
+  const [statusFilter, setStatusFilter] = React.useState<StatusFilter>('all')
   const [sorting, setSorting] = React.useState<SortingState>([
-    { id: "score", desc: true },
-  ]);
+    { id: 'score', desc: true },
+  ])
   const [columnVisibility, setColumnVisibility] =
-    React.useState<ColumnVisibilityState>({ owner: false });
-  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
+    React.useState<ColumnVisibilityState>({ owner: false })
+  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({})
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 4,
-  });
+  })
   const columnFilters = React.useMemo<ColumnFiltersState>(
     () =>
-      statusFilter === "all" ? [] : [{ id: "status", value: statusFilter }],
+      statusFilter === 'all' ? [] : [{ id: 'status', value: statusFilter }],
     [statusFilter],
-  );
+  )
 
   const columns = React.useMemo<
     Array<ColumnDef<typeof tableWorkbenchFeatures, TableIssue>>
   >(
     () => [
       {
-        id: "select",
+        id: 'select',
         enableCellSelection: false,
         header: ({ table }) => (
           <input
             aria-label="Select every row on this page"
             aria-checked={
               table.getIsSomePageRowsSelected()
-                ? "mixed"
+                ? 'mixed'
                 : table.getIsAllPageRowsSelected()
             }
             checked={table.getIsAllPageRowsSelected()}
@@ -321,7 +316,7 @@ function TableWorkbench() {
               if (input) {
                 input.indeterminate =
                   table.getIsSomePageRowsSelected() &&
-                  !table.getIsAllPageRowsSelected();
+                  !table.getIsAllPageRowsSelected()
               }
             }}
             type="checkbox"
@@ -339,29 +334,29 @@ function TableWorkbench() {
         ),
       },
       {
-        accessorKey: "project",
-        header: "Project",
+        accessorKey: 'project',
+        header: 'Project',
         sortFn: sortFn_alphanumeric,
       },
       {
-        accessorKey: "owner",
-        header: "Owner",
+        accessorKey: 'owner',
+        header: 'Owner',
         sortFn: sortFn_alphanumeric,
       },
       {
-        accessorKey: "status",
-        header: "Status",
+        accessorKey: 'status',
+        header: 'Status',
         cell: ({ getValue }) => (
-          <StatusBadge status={getValue<TableIssue["status"]>()} />
+          <StatusBadge status={getValue<TableIssue['status']>()} />
         ),
         filterFn: (row, columnId, value) =>
-          row.getValue<TableIssue["status"]>(columnId) === value,
+          row.getValue<TableIssue['status']>(columnId) === value,
         sortFn: sortFn_alphanumeric,
       },
-      { accessorKey: "score", header: "Score", sortFn: sortFn_basic },
+      { accessorKey: 'score', header: 'Score', sortFn: sortFn_basic },
     ],
     [],
-  );
+  )
 
   const table = useTable({
     features: tableWorkbenchFeatures,
@@ -371,12 +366,12 @@ function TableWorkbench() {
     enableRowSelection: true,
     getRowId: (row) => row.id,
     globalFilterFn: (row, _columnId, filterValue) => {
-      const search = String(filterValue).trim().toLowerCase();
-      if (!search) return true;
+      const search = String(filterValue).trim().toLowerCase()
+      if (!search) return true
       return [row.original.project, row.original.owner, row.original.status]
-        .join(" ")
+        .join(' ')
         .toLowerCase()
-        .includes(search);
+        .includes(search)
     },
     onColumnVisibilityChange: setColumnVisibility,
     onGlobalFilterChange: setGlobalFilter,
@@ -391,42 +386,42 @@ function TableWorkbench() {
       rowSelection,
       sorting,
     },
-  });
+  })
 
   useHotkeys(
     [
-      { hotkey: "ArrowUp", callback: () => table.moveCellSelection("up") },
-      { hotkey: "ArrowDown", callback: () => table.moveCellSelection("down") },
-      { hotkey: "ArrowLeft", callback: () => table.moveCellSelection("left") },
+      { hotkey: 'ArrowUp', callback: () => table.moveCellSelection('up') },
+      { hotkey: 'ArrowDown', callback: () => table.moveCellSelection('down') },
+      { hotkey: 'ArrowLeft', callback: () => table.moveCellSelection('left') },
       {
-        hotkey: "ArrowRight",
-        callback: () => table.moveCellSelection("right"),
+        hotkey: 'ArrowRight',
+        callback: () => table.moveCellSelection('right'),
       },
       {
-        hotkey: "Shift+ArrowUp",
-        callback: () => table.extendCellSelection("up"),
+        hotkey: 'Shift+ArrowUp',
+        callback: () => table.extendCellSelection('up'),
       },
       {
-        hotkey: "Shift+ArrowDown",
-        callback: () => table.extendCellSelection("down"),
+        hotkey: 'Shift+ArrowDown',
+        callback: () => table.extendCellSelection('down'),
       },
       {
-        hotkey: "Shift+ArrowLeft",
-        callback: () => table.extendCellSelection("left"),
+        hotkey: 'Shift+ArrowLeft',
+        callback: () => table.extendCellSelection('left'),
       },
       {
-        hotkey: "Shift+ArrowRight",
-        callback: () => table.extendCellSelection("right"),
+        hotkey: 'Shift+ArrowRight',
+        callback: () => table.extendCellSelection('right'),
       },
-      { hotkey: "Mod+A", callback: () => table.selectAllCells() },
-      { hotkey: "Escape", callback: () => table.resetCellSelection(true) },
+      { hotkey: 'Mod+A', callback: () => table.selectAllCells() },
+      { hotkey: 'Escape', callback: () => table.resetCellSelection(true) },
     ],
     { preventDefault: true, target: gridRef },
-  );
+  )
 
-  const filteredRows = table.getFilteredRowModel().rows.length;
-  const selectedRows = table.getSelectedRowModel().rows.length;
-  const selectedCells = table.getSelectedCellCount();
+  const filteredRows = table.getFilteredRowModel().rows.length
+  const selectedRows = table.getSelectedRowModel().rows.length
+  const selectedCells = table.getSelectedCellCount()
 
   return (
     <LandingWindow label="issue workbench">
@@ -442,8 +437,8 @@ function TableWorkbench() {
             <input
               className="min-w-0 flex-1 bg-transparent font-ds-mono text-ds-mono-xs text-text-primary outline-none placeholder:text-text-primary/20"
               onChange={(event) => {
-                table.setGlobalFilter(event.target.value);
-                table.setPageIndex(0);
+                table.setGlobalFilter(event.target.value)
+                table.setPageIndex(0)
               }}
               placeholder="Search projects or owners"
               value={globalFilter}
@@ -460,8 +455,8 @@ function TableWorkbench() {
                 aria-pressed={statusFilter === filter.value}
                 className="rounded-md border border-border-subtle px-2.5 py-2 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-ink)]"
                 onClick={() => {
-                  setStatusFilter(filter.value);
-                  table.setPageIndex(0);
+                  setStatusFilter(filter.value)
+                  table.setPageIndex(0)
                 }}
                 type="button"
               >
@@ -477,8 +472,8 @@ function TableWorkbench() {
             className="flex gap-2"
             role="group"
           >
-            {(["owner", "status", "score"] as const).map((columnId) => {
-              const column = table.getColumn(columnId);
+            {(['owner', 'status', 'score'] as const).map((columnId) => {
+              const column = table.getColumn(columnId)
               return (
                 <button
                   key={columnId}
@@ -489,7 +484,7 @@ function TableWorkbench() {
                 >
                   {columnId}
                 </button>
-              );
+              )
             })}
           </div>
           <span
@@ -522,15 +517,15 @@ function TableWorkbench() {
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr key={headerGroup.id}>
                   {headerGroup.headers.map((header) => {
-                    const sort = header.column.getIsSorted();
+                    const sort = header.column.getIsSorted()
                     return (
                       <th
                         key={header.id}
                         aria-sort={
-                          sort === "asc"
-                            ? "ascending"
-                            : sort === "desc"
-                              ? "descending"
+                          sort === 'asc'
+                            ? 'ascending'
+                            : sort === 'desc'
+                              ? 'descending'
                               : undefined
                         }
                         className={getCellClassName(header.column.id)}
@@ -543,9 +538,9 @@ function TableWorkbench() {
                             type="button"
                           >
                             <table.FlexRender header={header} />
-                            {sort === "asc" ? (
+                            {sort === 'asc' ? (
                               <CaretUpIcon aria-hidden="true" size={11} />
-                            ) : sort === "desc" ? (
+                            ) : sort === 'desc' ? (
                               <CaretDownIcon aria-hidden="true" size={11} />
                             ) : null}
                           </button>
@@ -553,7 +548,7 @@ function TableWorkbench() {
                           <table.FlexRender header={header} />
                         )}
                       </th>
-                    );
+                    )
                   })}
                 </tr>
               ))}
@@ -626,13 +621,13 @@ function TableWorkbench() {
             </button>
           </div>
           <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
-            page {table.state.pagination.pageIndex + 1} /{" "}
+            page {table.state.pagination.pageIndex + 1} /{' '}
             {Math.max(table.getPageCount(), 1)}
           </span>
         </div>
       </div>
     </LandingWindow>
-  );
+  )
 }
 
 function OwnershipModel() {
@@ -692,12 +687,12 @@ function OwnershipModel() {
         </code>
       </div>
     </LandingWindow>
-  );
+  )
 }
 
 function StateSwitchboard() {
-  const [mode, setMode] = React.useState<StateMode>("subscribed");
-  const selected = stateModes[mode];
+  const [mode, setMode] = React.useState<StateMode>('subscribed')
+  const selected = stateModes[mode]
 
   return (
     <LandingWindow label="sorting reactivity">
@@ -707,7 +702,7 @@ function StateSwitchboard() {
           className="grid gap-2 sm:grid-cols-3"
           role="group"
         >
-          {(["selected", "subscribed", "external"] as const).map((item) => (
+          {(['selected', 'subscribed', 'external'] as const).map((item) => (
             <button
               key={item}
               aria-pressed={mode === item}
@@ -735,7 +730,7 @@ function StateSwitchboard() {
         </div>
 
         <div className="mt-5 flex flex-wrap items-center gap-3">
-          {selected.path.split(" → ").map((step, index) => (
+          {selected.path.split(' → ').map((step, index) => (
             <React.Fragment key={step}>
               {index > 0 ? (
                 <span className="text-text-primary/15">→</span>
@@ -748,7 +743,7 @@ function StateSwitchboard() {
         </div>
       </div>
     </LandingWindow>
-  );
+  )
 }
 
 function RowModelPipeline() {
@@ -762,7 +757,7 @@ function RowModelPipeline() {
               className="relative rounded-xl border border-border-subtle bg-background-surface p-4"
             >
               <p className="font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
-                {String(index + 1).padStart(2, "0")}
+                {String(index + 1).padStart(2, '0')}
               </p>
               <p className="mt-5 text-ds-label-md text-text-primary">
                 {stage.label}
@@ -788,7 +783,7 @@ function RowModelPipeline() {
         </div>
       </LandingWindow>
     </div>
-  );
+  )
 }
 
 function TableToolbox() {
@@ -809,61 +804,61 @@ function TableToolbox() {
         </article>
       ))}
     </div>
-  );
+  )
 }
 
-function StatusBadge({ status }: { status: TableIssue["status"] }) {
+function StatusBadge({ status }: { status: TableIssue['status'] }) {
   return (
     <Badge
       variant={
-        status === "active"
-          ? "success"
-          : status === "review"
-            ? "warning"
-            : "info"
+        status === 'active'
+          ? 'success'
+          : status === 'review'
+            ? 'warning'
+            : 'info'
       }
       className="rounded font-ds-mono text-ds-mono-caps-xs uppercase"
     >
       {status}
     </Badge>
-  );
+  )
 }
 
 function getCellClassName(columnId: string) {
-  if (columnId === "select") return "w-12 px-3 py-3";
-  if (columnId === "score") return "w-16 px-3 py-3";
-  if (columnId === "status") return "w-24 px-3 py-3";
-  if (columnId === "owner") return "w-24 px-3 py-3";
-  return "min-w-0 px-3 py-3";
+  if (columnId === 'select') return 'w-12 px-3 py-3'
+  if (columnId === 'score') return 'w-16 px-3 py-3'
+  if (columnId === 'status') return 'w-24 px-3 py-3'
+  if (columnId === 'owner') return 'w-24 px-3 py-3'
+  return 'min-w-0 px-3 py-3'
 }
 
 function getCellSelectionClassName(
   cell: Cell<typeof tableWorkbenchFeatures, TableIssue>,
 ) {
   return [
-    "focus-visible:outline-none",
-    cell.getCanSelect() && "cursor-cell select-none",
+    'focus-visible:outline-none',
+    cell.getCanSelect() && 'cursor-cell select-none',
     cell.getIsSelected() &&
-      "bg-[color:rgb(var(--landing-glow)/0.16)] text-text-primary",
+      'bg-[color:rgb(var(--landing-glow)/0.16)] text-text-primary',
     cell.getIsFocused() &&
-      "outline outline-1 -outline-offset-2 outline-[var(--landing-accent-bright)]",
+      'outline outline-1 -outline-offset-2 outline-[var(--landing-accent-bright)]',
   ]
     .filter(Boolean)
-    .join(" ");
+    .join(' ')
 }
 
 function getCellSelectionStyle(
   cell: Cell<typeof tableWorkbenchFeatures, TableIssue>,
 ): React.CSSProperties | undefined {
-  if (!cell.getIsSelected()) return undefined;
+  if (!cell.getIsSelected()) return undefined
 
-  const edges = cell.getSelectionEdges();
+  const edges = cell.getSelectionEdges()
   const shadows = [
-    edges.top && "inset 0 2px 0 var(--landing-accent)",
-    edges.right && "inset -2px 0 0 var(--landing-accent)",
-    edges.bottom && "inset 0 -2px 0 var(--landing-accent)",
-    edges.left && "inset 2px 0 0 var(--landing-accent)",
-  ].filter(Boolean);
+    edges.top && 'inset 0 2px 0 var(--landing-accent)',
+    edges.right && 'inset -2px 0 0 var(--landing-accent)',
+    edges.bottom && 'inset 0 -2px 0 var(--landing-accent)',
+    edges.left && 'inset 2px 0 0 var(--landing-accent)',
+  ].filter(Boolean)
 
-  return { boxShadow: shadows.join(", ") };
+  return { boxShadow: shadows.join(', ') }
 }

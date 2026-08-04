@@ -11,6 +11,7 @@ import {
   ChartsCatalogChart,
   type ChartsCatalogModuleReference,
 } from '~/components/charts/ChartsCatalogChart'
+import { useInView } from '~/hooks/useInView'
 import type { ChartsCatalogCase } from '~/utils/charts-catalog'
 
 type CatalogCase = Pick<
@@ -54,7 +55,7 @@ export function CatalogChartsHero({
   )
   const [focused, setFocused] = React.useState(false)
   const [hovered, setHovered] = React.useState(false)
-  const [inView, setInView] = React.useState(true)
+  const inView = useInView(rootRef, { threshold: 0.2 })
   const [pageVisible, setPageVisible] = React.useState(true)
   const [paused, setPaused] = React.useState(false)
   const reducedMotion = useReducedMotion()
@@ -81,18 +82,6 @@ export function CatalogChartsHero({
 
     return () => intervals.forEach((interval) => window.clearInterval(interval))
   }, [orderedCases.length, running, visibleTileCount])
-
-  React.useEffect(() => {
-    const root = rootRef.current
-    if (!root || !('IntersectionObserver' in window)) return
-
-    const observer = new IntersectionObserver(
-      ([entry]) => setInView(Boolean(entry?.isIntersecting)),
-      { threshold: 0.2 },
-    )
-    observer.observe(root)
-    return () => observer.disconnect()
-  }, [])
 
   React.useEffect(() => {
     const updateVisibility = () =>

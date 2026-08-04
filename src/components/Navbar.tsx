@@ -208,12 +208,6 @@ const NAV_GROUPS = [
             icon: CodeIcon,
           },
           {
-            label: 'Contributors',
-            to: '/maintainers',
-            description: 'Core, library, and community contributors.',
-            icon: UsersIcon,
-          },
-          {
             label: 'Showcase',
             to: '/showcase',
             description: 'Teams building with TanStack.',

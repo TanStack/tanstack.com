@@ -42,7 +42,6 @@ const FOOTER_COLUMNS: Array<FooterColumn> = [
       { label: 'Discord', to: 'https://tlinz.com/discord' },
       { label: 'GitHub', to: 'https://github.com/TanStack' },
       { label: 'Maintainers', to: '/maintainers' },
-      { label: 'Contributors', to: '/maintainers' },
       { label: 'Showcase', to: '/showcase' },
     ],
   },

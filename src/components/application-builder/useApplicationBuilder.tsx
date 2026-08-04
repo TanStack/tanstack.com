@@ -443,6 +443,7 @@ export function useApplicationBuilder({
             Paste it into your AI tool or terminal.
           </div>
         </div>,
+        { id: `builder-copied-${kind}` },
       )
     },
     [markCopied, notify],

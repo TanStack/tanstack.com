@@ -155,6 +155,7 @@ export function CopyPageDropdown({
         <div>
           <div className="font-medium">Copied to clipboard</div>
         </div>,
+        { id: 'page-copied' },
       )
       return
     }
@@ -172,6 +173,7 @@ export function CopyPageDropdown({
             {source}
           </div>
         </div>,
+        { id: 'page-copied' },
       )
     }
 
@@ -208,6 +210,7 @@ export function CopyPageDropdown({
               Page URL copied
             </div>
           </div>,
+          { id: 'page-copied' },
         )
       }
     }

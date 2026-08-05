@@ -39,10 +39,10 @@ pnpm add @tanstack/ai-byteplus
 
 BytePlus does not share credentials across its full stack. Treat them as two products:
 
-| Adapters | Product | Env var | Auth |
-| --- | --- | --- | --- |
+| Adapters                                         | Product        | Env var                                          | Auth                    |
+| ------------------------------------------------ | -------------- | ------------------------------------------------ | ----------------------- |
 | `byteplusText`, `byteplusVideo`, `byteplusImage` | ModelArk (Ark) | `ARK_API_KEY` (falls back to `BYTEPLUS_API_KEY`) | `Authorization: Bearer` |
-| `byteplusSpeech`, `byteplusTranscription` | Seed Speech | `BYTEPLUS_VOICE_API_KEY` | `X-Api-Key` |
+| `byteplusSpeech`, `byteplusTranscription`        | Seed Speech    | `BYTEPLUS_VOICE_API_KEY`                         | `X-Api-Key`             |
 
 ```bash
 # ModelArk: chat, Seedance video, Seedream image

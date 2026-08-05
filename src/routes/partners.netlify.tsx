@@ -309,7 +309,7 @@ export const Route = createFileRoute('/partners/netlify')({
 function CheckBadge() {
   return (
     <span className="mt-0.5 inline-flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white">
-      <CheckIcon className="h-2.5 w-2.5" strokeWidth={3} />
+      <CheckIcon className="h-2.5 w-2.5" weight="bold" />
     </span>
   )
 }

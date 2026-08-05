@@ -1019,7 +1019,9 @@ function MegaMenuContent({
                 variant === 'mobile' && sectionIndex > 0 && 'pt-3',
               )}
             >
-              <div className="mb-2 px-2 font-ds-mono text-ds-mono-sm uppercase text-ds-neutral-100">
+              <div
+                className={`mb-2 px-2 font-ds-mono text-ds-mono-sm uppercase ${variant === 'mobile' ? 'text-ds-neutral-100' : 'text-ds-neutral-300 dark:text-ds-neutral-100'}`}
+              >
                 {section.label}
               </div>
               <div
@@ -1303,7 +1305,9 @@ function BlogMenuContent({
       )}
     >
       <section>
-        <div className="mb-3 px-1 font-ds-mono text-ds-mono-xs uppercase tracking-wider text-ds-neutral-100">
+        <div
+          className={`mb-3 px-1 font-ds-mono text-ds-mono-xs uppercase tracking-wider ${variant === 'mobile' ? 'text-ds-neutral-100' : 'text-ds-neutral-300 dark:text-ds-neutral-100'}`}
+        >
           Blog &amp; Release Notes
         </div>
         <div
@@ -1341,7 +1345,9 @@ function BlogMenuContent({
 
       {aboutSection && aboutSection.items.length > 0 ? (
         <section className="border-t border-border-subtle pt-4">
-          <div className="mb-2 px-1 font-ds-mono text-ds-mono-xs uppercase tracking-wider text-ds-neutral-100">
+          <div
+            className={`mb-2 px-1 font-ds-mono text-ds-mono-xs uppercase tracking-wider ${variant === 'mobile' ? 'text-ds-neutral-100' : 'text-ds-neutral-300 dark:text-ds-neutral-100'}`}
+          >
             {aboutSection.label}
           </div>
           <div
@@ -1577,7 +1583,7 @@ function MenuRail({
         <div className="flex flex-col items-start gap-2.5">
           {/* "Work with" + the TanStack lockup read together as "Work with
               TanStack" (Figma: terracotta/200 label above the landscape mark). */}
-          <div className="font-ds-display text-base font-normal text-ds-terracotta-200">
+          <div className="font-ds-display text-base font-normal text-ds-terracotta-400 dark:text-ds-terracotta-200">
             {rail.title}
           </div>
           <img

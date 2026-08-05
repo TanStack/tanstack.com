@@ -1,19 +1,19 @@
 import * as React from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import {
-  ArrowUpRight,
-  Check,
-  DollarSign,
-  GitPullRequest,
-  Globe,
-  Infinity as InfinityIcon,
-  LineChart,
-  Plus,
-  Rocket,
-  ShieldCheck,
-  Undo2,
-  Zap,
-} from 'lucide-react'
+  ArrowUpRightIcon,
+  ArrowUUpLeftIcon,
+  ChartLineIcon,
+  CheckIcon,
+  CurrencyDollarIcon,
+  GitPullRequestIcon,
+  GlobeIcon,
+  InfinityIcon,
+  LightningIcon,
+  PlusIcon,
+  RocketIcon,
+  ShieldCheckIcon,
+} from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { Footer } from '~/components/Footer'
 import { Card } from '~/components/Card'
@@ -56,37 +56,37 @@ type FeatureIcon = React.ComponentType<{ className?: string }>
 
 const features: Array<{ Icon: FeatureIcon; title: string; desc: string }> = [
   {
-    Icon: Rocket,
+    Icon: RocketIcon,
     title: 'Zero-config builds',
     desc: 'The Netlify Vite plugin detects and configures your TanStack Start build. Add netlify() to your Vite plugins and push — no deploy config to write.',
   },
   {
-    Icon: GitPullRequest,
+    Icon: GitPullRequestIcon,
     title: 'Unlimited Deploy Previews',
     desc: 'Every pull request gets its own live preview URL, on every plan. Test routing, data, and server logic before you merge.',
   },
   {
-    Icon: Zap,
+    Icon: LightningIcon,
     title: 'Functions & Edge Functions',
     desc: 'TanStack Start SSR and server functions run on Netlify Functions and Edge Functions. No servers to provision or manage.',
   },
   {
-    Icon: Globe,
+    Icon: GlobeIcon,
     title: 'Global edge network',
     desc: 'Assets and functions run on Netlify’s worldwide edge, close to your users, with automatic caching and instant invalidation.',
   },
   {
-    Icon: Undo2,
+    Icon: ArrowUUpLeftIcon,
     title: 'Instant rollbacks',
     desc: 'Every deploy is atomic and immutable. Roll back to any previous deploy in one click when something breaks.',
   },
   {
-    Icon: LineChart,
+    Icon: ChartLineIcon,
     title: 'Logs, analytics & monitoring',
     desc: 'Real-time function logs, deploy insights, and analytics are built in — no third-party agent to wire up.',
   },
   {
-    Icon: ShieldCheck,
+    Icon: ShieldCheckIcon,
     title: 'Secure by default',
     desc: 'Automatic HTTPS, managed SSL, and smart secret detection run on every deploy so nothing ships that shouldn’t.',
   },
@@ -309,7 +309,7 @@ export const Route = createFileRoute('/partners/netlify')({
 function CheckBadge() {
   return (
     <span className="mt-0.5 inline-flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white">
-      <Check className="h-2.5 w-2.5" strokeWidth={3} />
+      <CheckIcon className="h-2.5 w-2.5" weight="bold" />
     </span>
   )
 }
@@ -420,7 +420,7 @@ function NetlifyPartnerPage() {
               className="bg-gray-950 text-white border-gray-950 hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:border-white dark:hover:bg-gray-200"
             >
               Deploy free in seconds
-              <ArrowUpRight className="h-4 w-4" />
+              <ArrowUpRightIcon className="h-4 w-4" />
             </Button>
             <Button as="a" href="#how-it-works" variant="ghost" size="lg">
               See how it works
@@ -525,7 +525,7 @@ function NetlifyPartnerPage() {
               className="bg-gray-950 text-white border-gray-950 hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:border-white dark:hover:bg-gray-200"
             >
               Deploy on Netlify
-              <ArrowUpRight className="h-4 w-4" />
+              <ArrowUpRightIcon className="h-4 w-4" />
             </Button>
             <Button
               as="a"
@@ -649,7 +649,7 @@ function NetlifyPartnerPage() {
               className="bg-gray-950 text-white border-gray-950 hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:border-white dark:hover:bg-gray-200"
             >
               Start free with 300 credits
-              <ArrowUpRight className="h-4 w-4" />
+              <ArrowUpRightIcon className="h-4 w-4" />
             </Button>
             <Button
               as="a"
@@ -699,10 +699,10 @@ function NetlifyPartnerPage() {
               className="bg-gray-950 text-white border-gray-950 hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:border-white dark:hover:bg-gray-200"
             >
               Move your app to Netlify
-              <ArrowUpRight className="h-4 w-4" />
+              <ArrowUpRightIcon className="h-4 w-4" />
             </Button>
             <span className="inline-flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
-              <DollarSign className="h-3.5 w-3.5" />
+              <CurrencyDollarIcon className="h-3.5 w-3.5" />
               Free plan · no credit card required
             </span>
           </div>
@@ -731,7 +731,7 @@ function NetlifyPartnerPage() {
                     <span className="text-sm font-medium md:text-[15px]">
                       {q}
                     </span>
-                    <Plus
+                    <PlusIcon
                       className={twMerge(
                         'h-4 w-4 flex-shrink-0 text-gray-500 transition-transform duration-200 dark:text-gray-400',
                         isOpen && 'rotate-45',
@@ -776,7 +776,7 @@ function NetlifyPartnerPage() {
               className="bg-white text-gray-950 border-white hover:bg-gray-100"
             >
               Deploy your TanStack app
-              <ArrowUpRight className="h-4 w-4" />
+              <ArrowUpRightIcon className="h-4 w-4" />
             </Button>
             <Button
               as="a"

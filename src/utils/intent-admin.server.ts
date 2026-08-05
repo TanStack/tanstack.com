@@ -246,7 +246,11 @@ export async function triggerIntentProcess() {
 // Trigger: retry a specific failed version by id
 // ---------------------------------------------------------------------------
 
-export async function retryIntentVersion({ data }: { data: any }) {
+export async function retryIntentVersion({
+  data,
+}: {
+  data: { versionId: number }
+}) {
   await requireCapability({ data: { capability: 'admin' } })
 
   const version = await db.query.intentPackageVersions.findFirst({
@@ -395,7 +399,7 @@ export async function discoverViaGitHub() {
 // Useful for packages that ship skills but haven't yet published the keyword.
 // ---------------------------------------------------------------------------
 
-export async function seedIntentPackage({ data }: { data: any }) {
+export async function seedIntentPackage({ data }: { data: { name: string } }) {
   await requireCapability({ data: { capability: 'admin' } })
 
   const packument = await fetchPackument(data.name)
@@ -426,7 +430,11 @@ export async function seedIntentPackage({ data }: { data: any }) {
 // Delete a package and all its versions/skills
 // ---------------------------------------------------------------------------
 
-export async function deleteIntentPackage({ data }: { data: any }) {
+export async function deleteIntentPackage({
+  data,
+}: {
+  data: { name: string }
+}) {
   await requireCapability({ data: { capability: 'admin' } })
 
   await db.delete(intentPackages).where(eq(intentPackages.name, data.name))

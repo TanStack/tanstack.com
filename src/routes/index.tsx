@@ -611,8 +611,9 @@ function FrameworkAdapterGraph({
     // than re-deriving every coordinate. The scale tracks the container's own
     // width so it fills whatever slot it lands in, capped at 1.35 — the ratio
     // the 460px `lg` slot was designed around.
-    <div ref={rootRef} className="@container flex w-full justify-center">
+    <div className="@container flex w-full justify-center">
       <div
+        ref={rootRef}
         aria-hidden="true"
         style={{
           transform: 'scale(clamp(0.8, calc(100cqw / 320px), 1.35))',

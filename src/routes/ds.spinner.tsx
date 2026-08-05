@@ -1,17 +1,17 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { seo } from "~/utils/seo";
-import { PixelSpinner, Spinner } from "~/components/ds/ui";
-import { ComponentPreview, DsPage, DsSection } from "~/components/ds/DsKit";
+import { createFileRoute } from '@tanstack/react-router'
+import { seo } from '~/utils/seo'
+import { PixelSpinner, Spinner } from '~/components/ds/ui'
+import { ComponentPreview, DsPage, DsSection } from '~/components/ds/DsKit'
 
-export const Route = createFileRoute("/ds/spinner")({
+export const Route = createFileRoute('/ds/spinner')({
   component: SpinnerPage,
   head: () => ({
     meta: seo({
-      title: "Spinner | TanStack Design System",
-      description: "The Spinner loading indicator.",
+      title: 'Spinner | TanStack Design System',
+      description: 'The Spinner loading indicator.',
     }),
   }),
-});
+})
 
 function SpinnerPage() {
   return (
@@ -26,7 +26,7 @@ function SpinnerPage() {
             A simple animated loading indicator. Size it with w-/h- utilities
             and recolor it with text-* (it inherits currentColor).
             <br />
-            Source:{" "}
+            Source:{' '}
             <a
               href="https://github.com/TanStack/tanstack.com/blob/main/src/components/Spinner.tsx"
               target="_blank"
@@ -61,7 +61,7 @@ function SpinnerPage() {
             size it with w-/h- utilities. Holds on the first frame when
             prefers-reduced-motion is set.
             <br />
-            Source:{" "}
+            Source:{' '}
             <a
               href="https://github.com/TanStack/tanstack.com/blob/main/src/components/ds/ui/PixelSpinner.tsx"
               target="_blank"
@@ -85,5 +85,5 @@ function SpinnerPage() {
         </ComponentPreview>
       </DsSection>
     </DsPage>
-  );
+  )
 }

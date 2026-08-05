@@ -100,9 +100,13 @@ function CopyAssetButton({
       }
 
       copied.trigger()
-      notify(<div className="font-medium">Copied {label}</div>)
+      notify(<div className="font-medium">Copied {label}</div>, {
+        id: 'brand-asset-copied',
+      })
     } catch {
-      notify(<div className="font-medium">Could not copy {label}</div>)
+      notify(<div className="font-medium">Could not copy {label}</div>, {
+        id: 'brand-asset-copy-failed',
+      })
     }
   }
 

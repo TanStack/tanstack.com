@@ -20,10 +20,12 @@ import { HomeSocialProofSection } from '~/components/home/HomeSocialProofSection
 import { HomeStatsSection } from '~/components/home/HomeStatsSection'
 import { useQuery } from '@tanstack/react-query'
 import { Button, Eyebrow } from '~/components/ds/ui'
+import { useInView } from '~/hooks/useInView'
 import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
 import { homepageNpmStatsSummaryQuery, ossStatsQuery } from '~/queries/stats'
 import { useLibrariesOverlay } from '~/contexts/LibrariesOverlayContext'
 import { fetchRecentPosts } from '~/utils/blog.functions'
+import { usePrefersReducedMotion } from '~/utils/usePrefersReducedMotion'
 import { seo } from '~/utils/seo'
 
 export const Route = createFileRoute('/')({
@@ -566,8 +568,13 @@ function FrameworkAdapterGraph({
 }) {
   const [activeAdapterIndex, setActiveAdapterIndex] = React.useState(0)
   const [flowProgress, setFlowProgress] = React.useState(0)
+  const rootRef = React.useRef<HTMLDivElement>(null)
+  const isVisible = useInView(rootRef)
+  const prefersReducedMotion = usePrefersReducedMotion()
 
   React.useEffect(() => {
+    if (!isVisible || prefersReducedMotion !== false) return
+
     const intervalId = window.setInterval(() => {
       setActiveAdapterIndex(
         (currentIndex) => (currentIndex + 1) % frameworkAdapterNodes.length,
@@ -575,12 +582,10 @@ function FrameworkAdapterGraph({
     }, 1150)
 
     return () => window.clearInterval(intervalId)
-  }, [])
+  }, [isVisible, prefersReducedMotion])
 
   React.useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      return
-    }
+    if (!isVisible || prefersReducedMotion !== false) return
 
     let frameId = 0
     let lastUpdate = 0
@@ -598,13 +603,14 @@ function FrameworkAdapterGraph({
     frameId = window.requestAnimationFrame(update)
 
     return () => window.cancelAnimationFrame(frameId)
-  }, [])
+  }, [isVisible, prefersReducedMotion])
 
   return (
     // The node positions below are hard-coded against a 320×128 grid
     // (adapterGraphWidth/Height), so the whole graph is scaled as a unit to
     // fill the 460×233 slot rather than re-deriving every coordinate.
     <div
+      ref={rootRef}
       aria-hidden="true"
       className="relative h-32 w-[320px] shrink-0 scale-90 font-mono text-[10px] font-bold min-[520px]:scale-[1.2] sm:scale-[1.35]"
     >

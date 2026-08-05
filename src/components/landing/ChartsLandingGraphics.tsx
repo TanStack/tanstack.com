@@ -2,6 +2,7 @@ import * as React from 'react'
 import { PauseIcon, PlayIcon, ShuffleIcon } from '@phosphor-icons/react'
 
 import { useIsDark } from '~/hooks/useIsDark'
+import { useInView } from '~/hooks/useInView'
 
 import kineticBarChartSource from '../../../scripts/charts-landing/kinetic-bar-chart.ts?raw'
 import kineticDonutChartSource from '../../../scripts/charts-landing/kinetic-donut-chart.ts?raw'
@@ -377,7 +378,7 @@ export function KineticChartsHero() {
   const [outgoingIndex, setOutgoingIndex] = React.useState<number | null>(null)
   const [focusWithin, setFocusWithin] = React.useState(false)
   const [hovered, setHovered] = React.useState(false)
-  const [inView, setInView] = React.useState(true)
+  const inView = useInView(rootRef, { threshold: 0.18 })
   const [autoAdvanceOverride, setAutoAdvanceOverride] = React.useState(false)
   const [pageVisible, setPageVisible] = React.useState(true)
   const [paused, setPaused] = React.useState(false)
@@ -437,20 +438,6 @@ export function KineticChartsHero() {
     )
     return () => window.clearInterval(interval)
   }, [autoPlay, interacting, showNewVariation])
-
-  React.useEffect(() => {
-    const root = rootRef.current
-    if (!root || !('IntersectionObserver' in window)) {
-      return
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => setInView(Boolean(entry?.isIntersecting)),
-      { threshold: 0.18 },
-    )
-    observer.observe(root)
-    return () => observer.disconnect()
-  }, [])
 
   React.useEffect(() => {
     const updateVisibility = () =>

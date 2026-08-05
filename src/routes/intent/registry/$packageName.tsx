@@ -339,6 +339,7 @@ This will detect all Agent Skills in ${name} and configure them for your coding 
             Paste into your coding agent
           </div>
         </div>,
+        { id: 'install-prompt-copied' },
       )
     } catch (error) {
       console.error('Failed to copy install prompt', error)
@@ -349,6 +350,7 @@ This will detect all Agent Skills in ${name} and configure them for your coding 
             Try again or copy the prompt manually
           </div>
         </div>,
+        { id: 'install-prompt-copy-failed' },
       )
     }
   }

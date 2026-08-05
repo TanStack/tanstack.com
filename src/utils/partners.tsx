@@ -653,7 +653,7 @@ const netlify = ((): Partner => {
       },
     ],
     brandColor: '#00C7B7',
-    tagline: 'Web Deployment',
+    tagline: 'The Complete Web Platform',
     applicationStarterIcon: {
       mode: 'contain',
       src: netlifyLightSvg,
@@ -664,7 +664,7 @@ const netlify = ((): Partner => {
       scale: 1.25,
     },
     llmDescription:
-      'Deployment platform for web applications with Deploy Previews, Functions, Edge Functions, and an official TanStack Start integration guide.',
+      "Where AI apps go from idea to production — build, deploy, and scale it all in one place: Git-to-edge deployment, serverless and edge functions, Deploy Previews, and native support for AI-generated apps (including TanStack Start), so you're not stitching together separate tools for building and shipping.",
     category: 'deployment',
     content: (
       <>

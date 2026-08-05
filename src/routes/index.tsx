@@ -608,15 +608,17 @@ function FrameworkAdapterGraph({
   return (
     // The node positions below are hard-coded against a 320×128 grid
     // (adapterGraphWidth/Height), so the whole graph is scaled as a unit rather
-    // than re-deriving every coordinate. The scale tracks the container's own
-    // width so it fills whatever slot it lands in, capped at 1.35 — the ratio
-    // the 460px `lg` slot was designed around.
-    <div className="@container flex w-full justify-center">
+    // than re-deriving every coordinate. Below `lg` the slot is the viewport
+    // minus the page's `px-4` and the panel's `p-6`; from `lg` it is a fixed
+    // 460px, which the 1.35 cap matches. Deliberately not a container query:
+    // `container-type` on an ancestor makes IntersectionObserver report the
+    // graph as offscreen, which silently disables the motion added in #1093.
+    <div className="flex w-full justify-center">
       <div
         ref={rootRef}
         aria-hidden="true"
         style={{
-          transform: 'scale(clamp(0.8, calc(100cqw / 320px), 1.35))',
+          transform: 'scale(clamp(0.8, calc((100vw - 64px) / 320px), 1.35))',
         }}
         className="relative h-32 w-[320px] shrink-0 origin-center font-mono text-[10px] font-bold"
       >

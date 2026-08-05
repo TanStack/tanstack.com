@@ -1,7 +1,8 @@
 import * as React from 'react'
 import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
-import { ArrowSquareOutIcon, IconContext } from '@phosphor-icons/react'
+import { ArrowSquareOut as ArrowSquareOutIcon } from '@phosphor-icons/react/ArrowSquareOut'
+import { IconContext } from '@phosphor-icons/react/dist/lib/context'
 
 type IconComponent = React.ComponentType<{ className?: string }>
 

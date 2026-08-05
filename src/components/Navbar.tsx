@@ -16,28 +16,26 @@ const LazyMobileNavbarAuthControls = React.lazy(() =>
 import { NavbarCartButton } from './NavbarCartButton'
 import { MegaMenuItem } from './MegaMenuItem'
 import { Link, useLocation } from '@tanstack/react-router'
-import {
-  ArrowRightIcon,
-  ArrowLeftIcon,
-  ArrowSquareOutIcon,
-  BriefcaseIcon,
-  CodeIcon,
-  GridFourIcon,
-  HammerIcon,
-  HeartIcon,
-  InfinityIcon,
-  LifebuoyIcon,
-  MailboxIcon,
-  ListIcon as Menu,
-  MagnifyingGlassIcon,
-  ShieldCheckIcon,
-  ShoppingBagIcon,
-  SignInIcon,
-  SparkleIcon as Sparkles,
-  TrendUpIcon as TrendingUp,
-  UsersIcon,
-  XIcon,
-} from '@phosphor-icons/react'
+import { ArrowLeft as ArrowLeftIcon } from '@phosphor-icons/react/ArrowLeft'
+import { ArrowRight as ArrowRightIcon } from '@phosphor-icons/react/ArrowRight'
+import { ArrowSquareOut as ArrowSquareOutIcon } from '@phosphor-icons/react/ArrowSquareOut'
+import { Briefcase as BriefcaseIcon } from '@phosphor-icons/react/Briefcase'
+import { Code as CodeIcon } from '@phosphor-icons/react/Code'
+import { GridFour as GridFourIcon } from '@phosphor-icons/react/GridFour'
+import { Hammer as HammerIcon } from '@phosphor-icons/react/Hammer'
+import { Heart as HeartIcon } from '@phosphor-icons/react/Heart'
+import { Infinity as InfinityIcon } from '@phosphor-icons/react/Infinity'
+import { Lifebuoy as LifebuoyIcon } from '@phosphor-icons/react/Lifebuoy'
+import { List as Menu } from '@phosphor-icons/react/List'
+import { MagnifyingGlass as MagnifyingGlassIcon } from '@phosphor-icons/react/MagnifyingGlass'
+import { Mailbox as MailboxIcon } from '@phosphor-icons/react/Mailbox'
+import { ShieldCheck as ShieldCheckIcon } from '@phosphor-icons/react/ShieldCheck'
+import { ShoppingBag as ShoppingBagIcon } from '@phosphor-icons/react/ShoppingBag'
+import { SignIn as SignInIcon } from '@phosphor-icons/react/SignIn'
+import { Sparkle as Sparkles } from '@phosphor-icons/react/Sparkle'
+import { TrendUp as TrendingUp } from '@phosphor-icons/react/TrendUp'
+import { Users as UsersIcon } from '@phosphor-icons/react/Users'
+import { X as XIcon } from '@phosphor-icons/react/X'
 import { ThemeToggle } from './ThemeToggle'
 import { AiDockButton, SearchButton } from './SearchButton'
 import { BrandContextMenu } from './BrandContextMenu'

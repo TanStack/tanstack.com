@@ -2,13 +2,11 @@ import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { Link } from '@tanstack/react-router'
-import {
-  CaretDownIcon,
-  CircleNotchIcon,
-  MagnifyingGlassIcon as MagnifyingGlass,
-  UserIcon,
-  XIcon as X,
-} from '@phosphor-icons/react'
+import { CaretDown as CaretDownIcon } from '@phosphor-icons/react/CaretDown'
+import { CircleNotch as CircleNotchIcon } from '@phosphor-icons/react/CircleNotch'
+import { MagnifyingGlass } from '@phosphor-icons/react/MagnifyingGlass'
+import { User as UserIcon } from '@phosphor-icons/react/User'
+import { X } from '@phosphor-icons/react/X'
 import type { MarkdownHeading } from '~/utils/markdown'
 import type { LibraryId } from '~/libraries/ids'
 import type { LibraryCategory } from '~/libraries/categories'

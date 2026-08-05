@@ -1,13 +1,10 @@
 import * as React from 'react'
-import {
-  GearIcon as Gear,
-  KeyIcon as Key,
-  LockIcon as Lock,
-  SignInIcon,
-  SignInIcon as SignIn,
-  SignOutIcon as SignOut,
-  SparkleIcon as Sparkle,
-} from '@phosphor-icons/react'
+import { Gear } from '@phosphor-icons/react/Gear'
+import { Key } from '@phosphor-icons/react/Key'
+import { Lock } from '@phosphor-icons/react/Lock'
+import { SignIn, SignIn as SignInIcon } from '@phosphor-icons/react/SignIn'
+import { SignOut } from '@phosphor-icons/react/SignOut'
+import { Sparkle } from '@phosphor-icons/react/Sparkle'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 import {

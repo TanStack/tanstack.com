@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { Hydrate } from '@tanstack/react-start'
 import { visible } from '@tanstack/react-start/hydration'
-import { ArrowRightIcon } from '@phosphor-icons/react'
+import { ArrowRight as ArrowRightIcon } from '@phosphor-icons/react/ArrowRight'
 import { Button } from '~/components/ds/ui'
 import { OssSponsorsWithQuery } from '~/components/OssSponsorsSection'
 import { PartnersGrid, TierBand } from '~/components/PartnersGrid'

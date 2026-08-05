@@ -1,10 +1,8 @@
 import * as React from 'react'
-import {
-  CaretLeftIcon,
-  CaretRightIcon,
-  ListIcon,
-  XIcon,
-} from '@phosphor-icons/react'
+import { CaretLeft as CaretLeftIcon } from '@phosphor-icons/react/CaretLeft'
+import { CaretRight as CaretRightIcon } from '@phosphor-icons/react/CaretRight'
+import { List as ListIcon } from '@phosphor-icons/react/List'
+import { X as XIcon } from '@phosphor-icons/react/X'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { DiscordIcon } from '~/components/icons/DiscordIcon'
 import { Link, useMatches, useParams } from '@tanstack/react-router'

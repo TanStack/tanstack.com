@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CopyIcon } from '@phosphor-icons/react'
+import { Copy as CopyIcon } from '@phosphor-icons/react/Copy'
 import { twMerge } from 'tailwind-merge'
 import { useToast } from '~/components/ToastProvider'
 import { Button } from '~/ui'

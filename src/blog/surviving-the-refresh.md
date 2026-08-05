@@ -1,33 +1,35 @@
 ---
 title: 'Surviving the refresh'
 published: 2026-08-04
-excerpt: 'A user reloads mid-answer and three things break: the transcript, the stream, and the agent doing the work. TanStack AI now ships chat persistence, resumable streams, generation persistence and durable sandboxed agent runs, plus server-side memory, rebuilt interrupts and multi-instance locks.'
+excerpt: 'Reload mid-answer and the transcript, the stream, and the agent doing the work all vanish. TanStack AI now keeps them around: chat persistence, resumable streams, generation persistence, durable sandbox runs, server-side memory, rebuilt interrupts, and multi-instance locks.'
 library: ai
 authors:
   - Alem Tuzlak
 ---
 
-A user asks your agent a hard question. Tokens start streaming. They hit refresh.
+You know the moment. The model is halfway through a good answer. Someone hits refresh — fat finger, flaky wifi, tab got discarded, doesn't matter — and the whole thing is just gone.
 
-In most AI apps, three things break at once. The transcript is gone, because it only ever lived in React state. The stream is gone, because the connection that carried it is gone. And if a sandboxed agent was doing the work, that agent is dead too, killed by the disconnect of the viewer who was watching it.
+In most AI apps that single reload takes out three different things at once. The transcript only lived in React state, so it evaporates. The reply was still mid-flight on a streaming HTTP connection, so that dies with the tab. And if a sandboxed coding agent was mid-refactor, killing the viewer often kills the agent too. One reload. Three failures.
 
-This release fixes all three. TanStack AI now ships server-side chat persistence, resumable streams, generation persistence for media, and durable sandboxed agent runs. It also adds server-side memory, a rebuilt interrupt lifecycle, multi-instance locks, and a BytePlus adapter. That is 70 changesets across 31 packages, and four new ones: `@tanstack/ai-persistence`, `@tanstack/ai-durable-stream`, `@tanstack/ai-memory`, and `@tanstack/ai-byteplus`.
+This release makes the reload survivable. TanStack AI now has server-side chat persistence, streams you can rejoin, generation persistence for media, and sandboxed agent runs that keep working after the browser leaves. On top of that: server-side memory, a rebuilt interrupt lifecycle, and multi-instance locks. Roughly 70 changesets across 31 packages, plus three new ones: `@tanstack/ai-persistence`, `@tanstack/ai-durable-stream`, and `@tanstack/ai-memory`.
 
-## Three failures that look like one bug
+## One bug report, three failures
 
-"It broke when I refreshed" is a bug report you get constantly, and it hides three separate problems that need three separate fixes.
+"It broke when I refreshed" is a report you get all the time, and it almost always means three separate things failed.
 
-**The transcript layer.** Where the conversation lives. If it lives in the browser only, a new device shows nothing.
+**The transcript.** Where does the conversation actually live? If the answer is "in this browser tab," open the same thread on another device and you get nothing.
 
-**The delivery layer.** How bytes reach the client. A dropped socket loses the reply that was in flight, and calling the model again costs money and produces a different answer.
+**The delivery.** How do the bytes get to the client? Drop the streaming connection and the half-finished reply is gone. Call the model again and you pay twice for a different answer.
 
-**The work layer.** Who is actually running. For a sandboxed coding agent, the work outlives the request that started it, so tying its lifetime to one HTTP connection is simply wrong.
+**The work.** Who is actually running? A sandboxed coding agent can outlive the request that started it. Tying its lifetime to one HTTP connection was never the right shape.
 
-Most SDKs give you one of these and call it durability. Fixing one and not the others gets you a partial answer: the transcript comes back, but the half-finished reply is still lost.
+A lot of SDKs ship one of these and call the release "durability." Fix only the transcript and the history comes back, but the half-written answer is still gone.
 
 ## How it works
 
-One route, two handlers, one client option. The `POST` produces the run and records it. The `GET` answers whichever question the returning client is asking: replay a run that is still streaming, or hand back the stored transcript.
+One client flag. On the server, either an HTTP route or a TanStack Start server function — same persistence middleware either way.
+
+The HTTP shape is the easiest to show. `POST` starts a run and records it. `GET` figures out what the returning client wants — rejoin a run that is still streaming, or hand back the stored thread.
 
 ```tsx
 // app/api/chat/route.ts
@@ -85,15 +87,17 @@ export function Chat() {
 }
 ```
 
-Two mechanisms sit behind those branches.
+On TanStack Start you can skip the route and call the server with `fetcher` instead of `connection`. Hydrate and rejoin still work — you pass them as handlers next to the fetcher (`hydrate` / `joinRun` on chat, `hydrateGeneration` / `joinRun` on generation hooks) instead of hanging them on a `GET`. Same middleware on the server; the client just reaches it without `/api/chat`.
 
-The **delivery log** is ordered and per run. Every chunk is recorded before it is delivered, and each event carries an opaque offset. On reconnect the client sends the last offset it saw and the server replays from there, so the provider is never called twice for one answer.
+Two mechanisms sit under both shapes.
 
-The **run record** is one row that describes one execution. Chat persistence and the sandbox run driver read and write the same record, so they can no longer disagree about whether a given run is alive. A run is joinable from the moment it is accepted, not from its first chunk, which closes the window where refreshing during a slow boot orphaned a live run forever.
+The **delivery log** is ordered and per run. Every chunk is written before it is sent, and each event carries an opaque offset. Reconnect with the last offset you saw and the server replays from there. The provider is not called a second time for the same answer.
+
+The **run record** is one row that describes one execution. Chat persistence and the sandbox run driver read and write the same record, so they cannot disagree about whether a run is still alive. A run is joinable the moment it is accepted, not after its first chunk — which closes the window where refreshing during a slow boot orphaned a live run forever.
 
 ## Layer 1: the conversation survives
 
-`withPersistence` writes the transcript, the run status, and any pending tool approvals into a store you own. On the client it is one option, and the only real decision is who owns the history:
+`withPersistence` writes the transcript, the run status, and any pending tool approvals into a store you own. On the client it is one option. The only real product decision is who owns history:
 
 ```tsx
 const { messages, sendMessage } = useChat({
@@ -104,7 +108,7 @@ const { messages, sendMessage } = useChat({
 })
 ```
 
-**Bring your own storage.** There is no required database. You implement a small store contract, and the package ships typers so you get autocomplete and contract checking with no annotations:
+**Bring your own storage.** There is no first-party Drizzle or Prisma package, and no required database. The package ships the store contracts, middleware, an in-memory backend for local dev, and a conformance test kit. You implement the stores against whatever you already run:
 
 ```ts
 import { defineMessageStore } from '@tanstack/ai-persistence'
@@ -117,11 +121,13 @@ export const messages = defineMessageStore({
 })
 ```
 
-A basic adapter is about 40 lines, and `memoryPersistence()` covers local dev. If you are writing one, the shared conformance testkit now covers the generation stores too, so you can prove your implementation is correct instead of hoping.
+A basic adapter is about 40 lines. `memoryPersistence()` covers local dev. For a real backend, the shared conformance test kit now covers the generation stores too, so you can prove the implementation instead of hoping.
+
+We also ship agent skills for this. Point a coding agent at your repo and the Drizzle skill (or Prisma, D1, custom) finds your dialect, schema, and `db` handle, then writes a `chat-persistence.ts` that plugs into what you already have — no second database, no parallel migration path. Hand-writing the adapter is fine too; the skill is there when you would rather not. Full walkthrough later.
 
 ## Layer 2: the stream reconnects
 
-A resumable stream lets a client re-attach to an in-flight response after a refresh, a dropped connection, or a suspended tab, without calling the provider again. You plug a durability adapter into the response:
+A resumable stream lets the client re-attach to an in-flight response after a refresh, a dropped connection, or a tab the OS decided to suspend — without calling the provider again. Plug a durability adapter into the response:
 
 ```ts
 export async function POST(request: Request) {
@@ -138,7 +144,7 @@ export async function POST(request: Request) {
 }
 ```
 
-Swap the adapter for production and nothing else changes:
+Swap the adapter for production and leave everything else alone:
 
 ```ts
 import { durableStream } from '@tanstack/ai-durable-stream'
@@ -152,16 +158,20 @@ return toServerSentEventsResponse(stream, {
 })
 ```
 
-It works for SSE and NDJSON. Any other store (Redis, Postgres, a queue) is a four-method `StreamDurability` interface away, so no specific infrastructure is baked in.
+SSE and NDJSON both work. Redis, Postgres, a queue — anything else is a four-method `StreamDurability` interface away. No specific infrastructure is baked into the core.
 
 ## Layer 3: media generation comes back too
 
-Chat is not the only thing that streams. Image, video, speech, and transcription runs are long, expensive, and exactly the kind of thing a user reloads during.
+Chat is not the only thing that streams. Image, video, speech, and transcription runs are long, expensive, and exactly what people reload during while they stare at a spinner.
 
-The server half mirrors chat, with `withGenerationPersistence` and a `reconstructGeneration` route:
+The server side mirrors chat: `withGenerationPersistence` plus a `reconstructGeneration` route.
 
 ```ts
-import { generateImage, toServerSentEventsResponse } from '@tanstack/ai'
+import {
+  generateImage,
+  generationParamsFromRequest,
+  toServerSentEventsResponse,
+} from '@tanstack/ai'
 import { openaiImage } from '@tanstack/ai-openai'
 import { withGenerationPersistence } from '@tanstack/ai-persistence'
 import { persistence } from './persistence'
@@ -185,7 +195,7 @@ export async function POST(request: Request) {
 }
 ```
 
-The client half is one boolean, and the restore lands in the same fields a fresh run uses:
+On the client it is one boolean, and the restore lands in the same fields a fresh run uses:
 
 ```tsx
 import { fetchServerSentEvents, useGenerateImage } from '@tanstack/ai-react'
@@ -197,13 +207,13 @@ const image = useGenerateImage({
 })
 ```
 
-The failure modes got attention too, because a wrong "success" is worse than an error. A restored generation whose result cannot be rebuilt now reports an error instead of repainting as a blank success, and a stream that ends without a terminal chunk settles to `error` instead of leaving the client on `generating` forever.
+We spent time on the failure modes, because a wrong "success" is worse than an error. A restored generation whose result cannot be rebuilt now reports an error instead of painting a blank success. A stream that ends without a terminal chunk settles to `error` instead of leaving the client stuck on `generating` forever.
 
 ## Layer 4: the agent keeps working
 
-This is the deepest change. A sandboxed coding agent used to write its output into a pipe held by the host process. Kill the host, kill the agent.
+This is the deepest change. A sandboxed coding agent used to write its output into a pipe held by the host process. Kill the host, kill the agent. Refresh the page, same outcome.
 
-Now the agent writes newline-delimited JSON to a journal file inside the sandbox. The host can return, die, or be replaced without taking the agent down. When a client comes back, a later request takes the run over: it reads a bounded slice of the stored log, lines its own output up against the prefix the previous host already delivered, and keeps streaming from there.
+Now the agent journals newline-delimited JSON inside the sandbox. The host can return, die, or be replaced without taking the agent down. When a client comes back, a later request takes the run over: it reads a bounded slice of the stored log, lines its own output up against the prefix the previous host already delivered, and keeps streaming from there.
 
 ```ts
 const adapter = memoryStream(request) // ONE adapter for journal + delivery log
@@ -226,7 +236,7 @@ const stream = chat({
 return toServerSentEventsResponse(stream, { durability: { adapter } })
 ```
 
-A disconnect records `detachedSince` and leaves the agent running. Because "still running" costs money, the release ships the sweep as well:
+A disconnect records `detachedSince` and leaves the agent running. "Still running" costs money, so the release ships the sweep as well:
 
 ```ts
 import { reapDetachedRuns, sandboxReclaimer } from '@tanstack/ai-sandbox'
@@ -247,11 +257,11 @@ export function sweepDetachedRuns() {
 }
 ```
 
-Sandbox instances can also resume across processes and replicas, so this works on a real multi-replica deploy, not just one box.
+Sandbox instances can also resume across processes and replicas. This is meant for a real multi-replica deploy, not just one box you forgot to restart.
 
 ## Also in this release
 
-**Server-side memory.** `@tanstack/ai-memory` adds a `recall`/`save` adapter contract and middleware. `inMemory()` for dev, `redis()` for production, or `hindsight()`, `mem0()`, and `honcho()` for hosted services. Memory state is now visible in DevTools through a memory inspector.
+**Server-side memory.** `@tanstack/ai-memory` adds a `recall`/`save` adapter contract and middleware. `inMemory()` for dev, `redis()` for production, or `hindsight()`, `mem0()`, and `honcho()` for hosted services. Memory state shows up in DevTools through a memory inspector.
 
 ```ts
 import { memoryMiddleware } from '@tanstack/ai-memory'
@@ -269,7 +279,7 @@ chat({
 })
 ```
 
-**Interrupts, rebuilt.** Tool approvals, generic interrupts, and client tools now follow the AG-UI interrupt lifecycle: typed bound resolvers, atomic batches, and structured errors. No database is required, because the continuation carries the message history.
+**Interrupts, rebuilt.** Tool approvals, generic interrupts, and client tools now follow the AG-UI interrupt lifecycle: typed bound resolvers, atomic batches, and structured errors. No database required — the continuation carries the message history.
 
 ```tsx
 const { interrupts } = useChat({
@@ -298,7 +308,7 @@ const { interrupts } = useChat({
 }
 ```
 
-**Multi-instance locks.** `@tanstack/ai/locks` answers a different question from persistence: not "what is durable" but "who may run this critical section right now". Two replicas can no longer both create a sandbox for the same thread.
+**Multi-instance locks.** `@tanstack/ai/locks` answers a different question from persistence: not "what is durable" but "who may run this critical section right now." Two replicas can no longer both create a sandbox for the same thread.
 
 ```ts
 import { InMemoryLockStore, withLocks } from '@tanstack/ai/locks'
@@ -311,30 +321,11 @@ chat({
 })
 ```
 
-**A new provider.** `@tanstack/ai-byteplus` covers BytePlus ModelArk: Seed chat models, Seedance video, Seedream image, and Seed Speech for text-to-speech and transcription. Note that ModelArk and Seed Speech are two products with two keys.
-
-```ts
-import { generateVideo, getVideoJobStatus } from '@tanstack/ai'
-import { byteplusVideo } from '@tanstack/ai-byteplus'
-
-const adapter = byteplusVideo('dreamina-seedance-2-0-260128') // ARK_API_KEY
-
-// Seedance is an asynchronous task API: you get a job, then poll it.
-const { jobId } = await generateVideo({
-  adapter,
-  prompt: 'a guitar being played in a store',
-  size: '16:9_720p',
-  duration: 5,
-})
-
-let status = await getVideoJobStatus({ adapter, jobId })
-```
-
 **One less dependency.** zod is out of `@tanstack/ai`'s dependency graph entirely.
 
 ## Try it
 
-Durability is not one feature. It is a transcript layer, a delivery layer, and a work layer that agree on what a thread and a run are. That agreement is the release.
+Durability is not one feature. It is a transcript layer, a delivery layer, and a work layer that finally agree on what a thread and a run are. That agreement is what this release is.
 
 ```bash
 pnpm add @tanstack/ai-persistence @tanstack/ai-durable-stream @tanstack/ai-memory

@@ -607,104 +607,110 @@ function FrameworkAdapterGraph({
 
   return (
     // The node positions below are hard-coded against a 320×128 grid
-    // (adapterGraphWidth/Height), so the whole graph is scaled as a unit to
-    // fill the 460×233 slot rather than re-deriving every coordinate.
-    <div
-      ref={rootRef}
-      aria-hidden="true"
-      className="relative h-32 w-[320px] shrink-0 scale-90 font-mono text-[10px] font-bold min-[520px]:scale-[1.2] sm:scale-[1.35]"
-    >
-      <div className="home-adapter-graph absolute inset-x-0 top-1 h-[7.5rem] overflow-visible">
-        {frameworkAdapterNodes.map((adapter, adapterIndex) => {
-          const isActive = activeAdapterIndex === adapterIndex
+    // (adapterGraphWidth/Height), so the whole graph is scaled as a unit rather
+    // than re-deriving every coordinate. The scale tracks the container's own
+    // width so it fills whatever slot it lands in, capped at 1.35 — the ratio
+    // the 460px `lg` slot was designed around.
+    <div ref={rootRef} className="@container flex w-full justify-center">
+      <div
+        aria-hidden="true"
+        style={{
+          transform: 'scale(clamp(0.8, calc(100cqw / 320px), 1.35))',
+        }}
+        className="relative h-32 w-[320px] shrink-0 origin-center font-mono text-[10px] font-bold"
+      >
+        <div className="home-adapter-graph absolute inset-x-0 top-1 h-[7.5rem] overflow-visible">
+          {frameworkAdapterNodes.map((adapter, adapterIndex) => {
+            const isActive = activeAdapterIndex === adapterIndex
 
-          return (
-            <span
-              key={adapter.label}
-              data-adapter-label={adapter.label}
-              style={adapterGraphStyle(adapter)}
-              className={twMerge(
-                'absolute z-20 flex items-center justify-center rounded-md border px-2 text-center text-gray-600 shadow-sm backdrop-blur transition-colors duration-500 dark:text-gray-400',
-                isActive
-                  ? 'border-cyan-300 bg-cyan-50 text-cyan-800 shadow-cyan-500/15 dark:border-cyan-700 dark:bg-cyan-950/40 dark:text-cyan-200'
-                  : 'border-gray-200 bg-white/85 dark:border-gray-800 dark:bg-black/55',
-              )}
-            >
-              {adapter.label}
-            </span>
-          )
-        })}
-
-        <span
-          data-adapter-label={frameworkAdapterCore.label}
-          style={adapterGraphStyle(frameworkAdapterCore)}
-          className={twMerge(
-            'absolute z-30 flex items-center justify-center rounded-lg bg-gradient-to-r text-center text-[11px] text-white shadow-lg shadow-cyan-500/15',
-            accentClassName,
-          )}
-        >
-          core
-        </span>
-
-        {frameworkAdapterConnections.map((connection, connectionIndex) => {
-          const progress = (flowProgress - connectionIndex * 0.13 + 1) % 1
-          const point = cubicPoint(
-            connection.start,
-            connection.control1,
-            connection.control2,
-            connection.end,
-            progress,
-          )
-          const angle = cubicAngle(
-            connection.start,
-            connection.control1,
-            connection.control2,
-            connection.end,
-            progress,
-          )
-
-          return (
-            <span
-              key={`flow-${connection.label}`}
-              data-connection-flow={connection.label}
-              style={{
-                ...adapterGraphPointStyle(point),
-                transform: `translate(-50%, -50%) rotate(${angle}deg)`,
-              }}
-              className={twMerge(
-                'home-adapter-graph-flow absolute z-50',
-                progress < 0.08 || progress > 0.92
-                  ? 'opacity-0'
-                  : 'opacity-100',
-              )}
-            />
-          )
-        })}
-
-        {frameworkAdapterConnections.map((connection, connectionIndex) => {
-          const isActive = activeAdapterIndex === connectionIndex
-
-          return (
-            <React.Fragment key={`ports-${connection.label}`}>
+            return (
               <span
-                data-connection-port={`${connection.label}-core`}
-                style={adapterGraphPointStyle(connection.start)}
+                key={adapter.label}
+                data-adapter-label={adapter.label}
+                style={adapterGraphStyle(adapter)}
                 className={twMerge(
-                  'absolute z-40 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-200 bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.55)] transition-opacity duration-500 dark:border-cyan-900',
-                  isActive ? 'opacity-100' : 'opacity-55',
+                  'absolute z-20 flex items-center justify-center rounded-md border px-2 text-center text-gray-600 shadow-sm backdrop-blur transition-colors duration-500 dark:text-gray-400',
+                  isActive
+                    ? 'border-cyan-300 bg-cyan-50 text-cyan-800 shadow-cyan-500/15 dark:border-cyan-700 dark:bg-cyan-950/40 dark:text-cyan-200'
+                    : 'border-gray-200 bg-white/85 dark:border-gray-800 dark:bg-black/55',
+                )}
+              >
+                {adapter.label}
+              </span>
+            )
+          })}
+
+          <span
+            data-adapter-label={frameworkAdapterCore.label}
+            style={adapterGraphStyle(frameworkAdapterCore)}
+            className={twMerge(
+              'absolute z-30 flex items-center justify-center rounded-lg bg-gradient-to-r text-center text-[11px] text-white shadow-lg shadow-cyan-500/15',
+              accentClassName,
+            )}
+          >
+            core
+          </span>
+
+          {frameworkAdapterConnections.map((connection, connectionIndex) => {
+            const progress = (flowProgress - connectionIndex * 0.13 + 1) % 1
+            const point = cubicPoint(
+              connection.start,
+              connection.control1,
+              connection.control2,
+              connection.end,
+              progress,
+            )
+            const angle = cubicAngle(
+              connection.start,
+              connection.control1,
+              connection.control2,
+              connection.end,
+              progress,
+            )
+
+            return (
+              <span
+                key={`flow-${connection.label}`}
+                data-connection-flow={connection.label}
+                style={{
+                  ...adapterGraphPointStyle(point),
+                  transform: `translate(-50%, -50%) rotate(${angle}deg)`,
+                }}
+                className={twMerge(
+                  'home-adapter-graph-flow absolute z-50',
+                  progress < 0.08 || progress > 0.92
+                    ? 'opacity-0'
+                    : 'opacity-100',
                 )}
               />
-              <span
-                data-connection-port={`${connection.label}-adapter`}
-                style={adapterGraphPointStyle(connection.end)}
-                className={twMerge(
-                  'absolute z-40 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-200 bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.55)] transition-opacity duration-500 dark:border-cyan-900',
-                  isActive ? 'opacity-100' : 'opacity-55',
-                )}
-              />
-            </React.Fragment>
-          )
-        })}
+            )
+          })}
+
+          {frameworkAdapterConnections.map((connection, connectionIndex) => {
+            const isActive = activeAdapterIndex === connectionIndex
+
+            return (
+              <React.Fragment key={`ports-${connection.label}`}>
+                <span
+                  data-connection-port={`${connection.label}-core`}
+                  style={adapterGraphPointStyle(connection.start)}
+                  className={twMerge(
+                    'absolute z-40 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-200 bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.55)] transition-opacity duration-500 dark:border-cyan-900',
+                    isActive ? 'opacity-100' : 'opacity-55',
+                  )}
+                />
+                <span
+                  data-connection-port={`${connection.label}-adapter`}
+                  style={adapterGraphPointStyle(connection.end)}
+                  className={twMerge(
+                    'absolute z-40 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-200 bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.55)] transition-opacity duration-500 dark:border-cyan-900',
+                    isActive ? 'opacity-100' : 'opacity-55',
+                  )}
+                />
+              </React.Fragment>
+            )
+          })}
+        </div>
       </div>
     </div>
   )

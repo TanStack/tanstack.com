@@ -56,6 +56,7 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
 
   const openAiDock = React.useCallback(() => {
     cancelAiDockHoverClose()
+    setHasLoadedSearch(true)
     setIsOpen(false)
     setIsAiDockOpen(true)
   }, [cancelAiDockHoverClose])
@@ -68,6 +69,7 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
       }
 
       cancelAiDockHoverClose()
+      setHasLoadedSearch(true)
       setIsOpen(false)
       setIsAiDockDirty(true)
       setIsAiDockOpen(true)

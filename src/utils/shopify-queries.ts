@@ -217,7 +217,7 @@ export const PRODUCT_QUERY = /* GraphQL */ `
           height
         }
       }
-      variants(first: 100) {
+      variants(first: 250) {
         nodes {
           id
           title

@@ -1,5 +1,5 @@
 import { twMerge } from 'tailwind-merge'
-import { CircleNotch as CircleNotchIcon } from '@phosphor-icons/react/CircleNotch'
+import { CircleNotchIcon } from '@phosphor-icons/react/CircleNotch'
 
 interface SpinnerProps {
   className?: string

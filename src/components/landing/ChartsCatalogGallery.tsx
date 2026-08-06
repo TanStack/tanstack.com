@@ -1,9 +1,9 @@
 import * as React from 'react'
 import { Link } from '@tanstack/react-router'
-import { ArrowRight as ArrowRightIcon } from '@phosphor-icons/react/ArrowRight'
-import { ArrowUpRight as ArrowUpRightIcon } from '@phosphor-icons/react/ArrowUpRight'
-import { Pause as PauseIcon } from '@phosphor-icons/react/Pause'
-import { Play as PlayIcon } from '@phosphor-icons/react/Play'
+import { ArrowRightIcon } from '@phosphor-icons/react/ArrowRight'
+import { ArrowUpRightIcon } from '@phosphor-icons/react/ArrowUpRight'
+import { PauseIcon } from '@phosphor-icons/react/Pause'
+import { PlayIcon } from '@phosphor-icons/react/Play'
 import { catalogCases } from '@tanstack/react-charts-catalog'
 import type { CatalogCaseId } from '@tanstack/react-charts-catalog'
 

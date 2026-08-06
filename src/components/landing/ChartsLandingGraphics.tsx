@@ -1,7 +1,7 @@
 import * as React from 'react'
-import { Pause as PauseIcon } from '@phosphor-icons/react/Pause'
-import { Play as PlayIcon } from '@phosphor-icons/react/Play'
-import { Shuffle as ShuffleIcon } from '@phosphor-icons/react/Shuffle'
+import { PauseIcon } from '@phosphor-icons/react/Pause'
+import { PlayIcon } from '@phosphor-icons/react/Play'
+import { ShuffleIcon } from '@phosphor-icons/react/Shuffle'
 
 import { useIsDark } from '~/hooks/useIsDark'
 import { useInView } from '~/hooks/useInView'

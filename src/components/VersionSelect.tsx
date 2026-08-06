@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { create } from 'zustand'
 import { useNavigate, useParams } from '@tanstack/react-router'
-import { Tag as TagIcon } from '@phosphor-icons/react/Tag'
+import { TagIcon } from '@phosphor-icons/react/Tag'
 import { Select, SelectOption } from './Select'
 import { getLibrary, LibraryId } from '~/libraries'
 import {

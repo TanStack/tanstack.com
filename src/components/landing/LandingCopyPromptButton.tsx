@@ -1,5 +1,6 @@
 import * as React from 'react'
-import { CheckCircleIcon, CopyIcon } from '@phosphor-icons/react'
+import { CheckCircle as CheckCircleIcon } from '@phosphor-icons/react/CheckCircle'
+import { Copy as CopyIcon } from '@phosphor-icons/react/Copy'
 import { twMerge } from 'tailwind-merge'
 import { copyTextToClipboard } from '~/utils/browser-effects'
 

@@ -1,5 +1,6 @@
 import { ReactNode } from 'react'
-import { CheckIcon, CaretUpDownIcon } from '@phosphor-icons/react'
+import { CaretUpDown as CaretUpDownIcon } from '@phosphor-icons/react/CaretUpDown'
+import { Check as CheckIcon } from '@phosphor-icons/react/Check'
 import { twMerge } from 'tailwind-merge'
 import {
   Dropdown,

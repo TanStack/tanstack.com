@@ -86,17 +86,20 @@ export function ProductPage({
     const i = product.images.nodes.findIndex(
       (img) => img.url === variantImage.url,
     )
-    return i >= 0 ? i : 0
+    return i
   }, [variantImage, product.images.nodes])
   const [activeImageIndex, setActiveImageIndex] =
     React.useState(initialImageIndex)
 
   React.useEffect(() => {
     setActiveImageIndex(initialImageIndex)
-  }, [initialImageIndex])
+  }, [initialImageIndex, selectedVariant?.id])
 
   const heroImage =
-    product.images.nodes[activeImageIndex] ?? variantImage ?? null
+    product.images.nodes[activeImageIndex] ??
+    variantImage ??
+    product.images.nodes[0] ??
+    null
 
   const displayPrice = selectedVariant?.price ?? null
   const inStock = !!selectedVariant?.availableForSale

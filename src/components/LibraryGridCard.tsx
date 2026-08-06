@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router'
-import { ArrowRightIcon, CaretRightIcon } from '@phosphor-icons/react'
+import { ArrowRight as ArrowRightIcon } from '@phosphor-icons/react/ArrowRight'
+import { CaretRight as CaretRightIcon } from '@phosphor-icons/react/CaretRight'
 import { twMerge } from 'tailwind-merge'
 import type { PublicLibrarySlim } from '~/libraries'
 import { libraryCategories, type LibraryCategory } from '~/libraries/categories'

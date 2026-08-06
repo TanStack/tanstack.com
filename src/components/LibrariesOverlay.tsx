@@ -1,5 +1,6 @@
 import { Dialog as DialogPrimitive } from '@base-ui/react/dialog'
-import { ArrowLeftIcon, XIcon } from '@phosphor-icons/react'
+import { ArrowLeft as ArrowLeftIcon } from '@phosphor-icons/react/ArrowLeft'
+import { X as XIcon } from '@phosphor-icons/react/X'
 import { LibrariesBrowser } from '~/components/LibrariesBrowser'
 
 export function LibrariesOverlay({

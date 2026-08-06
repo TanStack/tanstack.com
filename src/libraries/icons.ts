@@ -1,26 +1,24 @@
-import {
-  BrainIcon,
-  ChartLineUpIcon,
-  ClipboardTextIcon,
-  CrosshairIcon,
-  DatabaseIcon,
-  DresserIcon,
-  GearSixIcon,
-  GogglesIcon,
-  HighlighterIcon,
-  MarkdownLogoIcon,
-  PencilRulerIcon,
-  SealQuestionIcon,
-  SlidersIcon,
-  SmileyMeltingIcon,
-  SunHorizonIcon,
-  TableIcon,
-  TargetIcon,
-  TerminalWindowIcon,
-  TimerIcon,
-  TrafficSignIcon,
-  type Icon,
-} from '@phosphor-icons/react'
+import { Brain as BrainIcon } from '@phosphor-icons/react/Brain'
+import { ChartLineUp as ChartLineUpIcon } from '@phosphor-icons/react/ChartLineUp'
+import { ClipboardText as ClipboardTextIcon } from '@phosphor-icons/react/ClipboardText'
+import { Crosshair as CrosshairIcon } from '@phosphor-icons/react/Crosshair'
+import { Database as DatabaseIcon } from '@phosphor-icons/react/Database'
+import { Dresser as DresserIcon } from '@phosphor-icons/react/Dresser'
+import { GearSix as GearSixIcon } from '@phosphor-icons/react/GearSix'
+import { Goggles as GogglesIcon } from '@phosphor-icons/react/Goggles'
+import { Highlighter as HighlighterIcon } from '@phosphor-icons/react/Highlighter'
+import { MarkdownLogo as MarkdownLogoIcon } from '@phosphor-icons/react/MarkdownLogo'
+import { PencilRuler as PencilRulerIcon } from '@phosphor-icons/react/PencilRuler'
+import { SealQuestion as SealQuestionIcon } from '@phosphor-icons/react/SealQuestion'
+import { Sliders as SlidersIcon } from '@phosphor-icons/react/Sliders'
+import { SmileyMelting as SmileyMeltingIcon } from '@phosphor-icons/react/SmileyMelting'
+import { SunHorizon as SunHorizonIcon } from '@phosphor-icons/react/SunHorizon'
+import { Table as TableIcon } from '@phosphor-icons/react/Table'
+import { Target as TargetIcon } from '@phosphor-icons/react/Target'
+import { TerminalWindow as TerminalWindowIcon } from '@phosphor-icons/react/TerminalWindow'
+import { Timer as TimerIcon } from '@phosphor-icons/react/Timer'
+import { TrafficSign as TrafficSignIcon } from '@phosphor-icons/react/TrafficSign'
+import type { Icon } from '@phosphor-icons/react'
 
 /**
  * Canonical per-library icon map — the single source of truth shared by the

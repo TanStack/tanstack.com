@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { Dialog as DialogPrimitive } from '@base-ui/react/dialog'
-import { CaretDownIcon, CheckIcon } from '@phosphor-icons/react'
+import { CaretDown as CaretDownIcon } from '@phosphor-icons/react/CaretDown'
+import { Check as CheckIcon } from '@phosphor-icons/react/Check'
 import { type Framework } from '~/libraries'
 import { frameworkOptions } from '~/libraries/frameworks'
 import LibraryGridCard from '~/components/LibraryGridCard'

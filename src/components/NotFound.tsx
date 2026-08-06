@@ -1,18 +1,16 @@
 import * as React from 'react'
 import { Link, useRouterState } from '@tanstack/react-router'
-import {
-  ArrowRightIcon,
-  BookOpenIcon,
-  StackIcon,
-  CompassIcon,
-  QuestionIcon,
-  HouseIcon,
-  LifebuoyIcon,
-  NewspaperIcon,
-  ShoppingBagIcon,
-  SparkleIcon,
-  type Icon,
-} from '@phosphor-icons/react'
+import { ArrowRight as ArrowRightIcon } from '@phosphor-icons/react/ArrowRight'
+import { BookOpen as BookOpenIcon } from '@phosphor-icons/react/BookOpen'
+import { Compass as CompassIcon } from '@phosphor-icons/react/Compass'
+import { House as HouseIcon } from '@phosphor-icons/react/House'
+import { Lifebuoy as LifebuoyIcon } from '@phosphor-icons/react/Lifebuoy'
+import { Newspaper as NewspaperIcon } from '@phosphor-icons/react/Newspaper'
+import { Question as QuestionIcon } from '@phosphor-icons/react/Question'
+import { ShoppingBag as ShoppingBagIcon } from '@phosphor-icons/react/ShoppingBag'
+import { Sparkle as SparkleIcon } from '@phosphor-icons/react/Sparkle'
+import { Stack as StackIcon } from '@phosphor-icons/react/Stack'
+import type { Icon } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { libraries, type LibrarySlim } from '~/libraries'
 import { Button } from '~/ui'

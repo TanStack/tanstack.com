@@ -8,47 +8,41 @@ import {
   BundleSizeFigure,
   ThemeGallery,
 } from './ChartsLandingGraphics'
-import {
-  CatalogChartsHero,
-  ChartsCatalogGallery,
-  type ChartsLandingCatalog,
-} from './ChartsCatalogGallery'
+import { CatalogChartsHero, ChartsCatalogGallery } from './ChartsCatalogGallery'
 
 const chartPrompt = `Using TanStack Charts and the accounts array in this project, plot monthlyRevenue on x and retention on y. Size each point by seats, color it by segment, and keep the original Account type in tooltip and focus callbacks. Use D3 scale factories so TanStack Charts can infer the domains, enable the tooltip on the chart definition, add a useful ariaLabel, and render it through the React adapter.`
 
 export default function ChartsLanding({
-  catalog,
+  catalogOrderSeed,
 }: {
-  catalog: ChartsLandingCatalog | null
+  catalogOrderSeed: string
 }) {
   return (
     <LibraryLandingShell
-      description="TanStack Charts 0.3.1 is on npm. A compact React line consumer is 16.48 KiB gzip; its framework-neutral scene is 8.12 KiB."
+      description="TanStack Charts 0.6.5 is on npm. A compact React line consumer is 16.48 KiB gzip; its framework-neutral scene is 8.12 KiB."
       headline="A chart grammar you don't have to outgrow."
-      hero={catalog ? <CatalogChartsHero catalog={catalog} /> : null}
+      hero={<CatalogChartsHero />}
       libraryId="charts"
       prompt={chartPrompt}
       promptLabel="Copy Charts prompt"
     >
       <style>{chartsLandingStyles}</style>
 
-      {catalog ? (
-        <LandingSection
-          id="common-charts"
-          tone="raised"
-          className="py-12 lg:py-14"
-        >
-          <div className="mb-7">
-            <h2 className="font-ds-display text-ds-heading-1 md:text-ds-display-sm">
-              All mark, no chart.
-            </h2>
-            <p className="mt-2 text-ds-body-md text-text-secondary">
-              Just a few examples. The possibilities are endless.
-            </p>
-          </div>
-          <ChartsCatalogGallery catalog={catalog} />
-        </LandingSection>
-      ) : null}
+      <LandingSection
+        id="common-charts"
+        tone="raised"
+        className="py-12 lg:py-14"
+      >
+        <div className="mb-7">
+          <h2 className="font-ds-display text-ds-heading-1 md:text-ds-display-sm">
+            All mark, no chart.
+          </h2>
+          <p className="mt-2 text-ds-body-md text-text-secondary">
+            Just a few examples. The possibilities are endless.
+          </p>
+        </div>
+        <ChartsCatalogGallery orderSeed={catalogOrderSeed} />
+      </LandingSection>
 
       <LandingSection id="agent-authoring" tone="ink">
         <div className="grid gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:items-start lg:gap-14">
@@ -178,7 +172,7 @@ const accountChartSource = `const accountHealth = defineChart({
 
 const chartsLandingStyles = `
   .charts-activation {
-    --activation-bg: #f8f5ed;
+    --activation-bg: var(--color-background-surface);
     --activation-foreground: #15242b;
     --activation-muted: #66767c;
     --activation-border: rgb(21 36 43 / 0.13);
@@ -217,15 +211,24 @@ const chartsLandingStyles = `
     fill-opacity: var(--activation-range-opacity);
   }
 
-  .charts-catalog-card-light {
+  .charts-catalog-card {
     background: #fff;
+    color: #071219;
+    color-scheme: light;
   }
 
-  .charts-catalog-card-dark {
+  .dark .charts-catalog-card {
     background: #071219;
+    color: #fff;
+    color-scheme: dark;
   }
 
-  .charts-catalog-card-light .charts-catalog-chart {
+  .charts-catalog-gallery-card {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 288px auto 248px;
+  }
+
+  .charts-catalog-card .charts-catalog-chart {
     --ts-chart-1: #2497bd;
     --ts-chart-2: #e46244;
     --ts-chart-3: #39a84b;
@@ -234,7 +237,7 @@ const chartsLandingStyles = `
     --ts-chart-6: #667c87;
   }
 
-  .charts-catalog-card-dark .charts-catalog-chart {
+  .dark .charts-catalog-card .charts-catalog-chart {
     --ts-chart-1: #61e8ff;
     --ts-chart-2: #ff806f;
     --ts-chart-3: #b9f227;
@@ -243,77 +246,90 @@ const chartsLandingStyles = `
     --ts-chart-6: #91a9b4;
   }
 
-  .charts-catalog-card-light .charts-catalog-chart > div,
-  .charts-catalog-card-light .charts-catalog-chart svg.ts-chart {
+  .charts-catalog-card .charts-catalog-chart > div,
+  .charts-catalog-card .charts-catalog-chart svg.ts-chart {
     background: #fff;
   }
 
-  .charts-catalog-card-dark .charts-catalog-chart > div,
-  .charts-catalog-card-dark .charts-catalog-chart svg.ts-chart {
+  .dark .charts-catalog-card .charts-catalog-chart > div,
+  .dark .charts-catalog-card .charts-catalog-chart svg.ts-chart {
     background: #071219;
   }
 
-  .charts-catalog-hero-frame .ts-chart__legend,
-  .charts-catalog-gallery-card .ts-chart__legend {
+  .charts-catalog-hero-frame {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0) scale(1);
+  }
+
+  .charts-catalog-hero-frame-pending {
+    z-index: 1;
+    opacity: 0;
+    filter: blur(2px);
+    transform: translateY(4px) scale(0.995);
+  }
+
+  .charts-catalog-hero-frame-entering {
+    z-index: 2;
+    transition:
+      opacity 260ms cubic-bezier(0.22, 1, 0.36, 1),
+      filter 220ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .charts-catalog-hero-frame-exiting {
+    z-index: 1;
+    opacity: 0;
+    filter: blur(1px);
+    transform: translateY(-2px) scale(0.998);
+    transition:
+      opacity 180ms cubic-bezier(0.32, 0, 0.67, 0),
+      filter 160ms cubic-bezier(0.32, 0, 0.67, 0),
+      transform 180ms cubic-bezier(0.32, 0, 0.67, 0);
+  }
+
+  .charts-catalog-hero-frame .ts-chart__legend {
     display: none;
   }
 
-  .charts-catalog-hero-frame .ts-chart text,
-  .charts-catalog-gallery-card .ts-chart text {
+  .charts-catalog-hero-frame .ts-chart text {
     font-size: 9px;
   }
 
-  .charts-catalog-card-light .ts-chart__grid {
+  .charts-catalog-card .ts-chart__grid {
     stroke: #071219;
     stroke-opacity: 0.1;
   }
 
-  .charts-catalog-card-dark .ts-chart__grid {
+  .dark .charts-catalog-card .ts-chart__grid {
     stroke: #d9edf1;
     stroke-opacity: 0.13;
   }
 
-  .charts-catalog-card-light .ts-chart__axes line,
-  .charts-catalog-card-light .ts-chart__axes path {
+  .charts-catalog-card .ts-chart__axes line,
+  .charts-catalog-card .ts-chart__axes path {
     stroke: #071219;
     stroke-opacity: 0.32;
   }
 
-  .charts-catalog-card-dark .ts-chart__axes line,
-  .charts-catalog-card-dark .ts-chart__axes path {
+  .dark .charts-catalog-card .ts-chart__axes line,
+  .dark .charts-catalog-card .ts-chart__axes path {
     stroke: #d9edf1;
     stroke-opacity: 0.28;
   }
 
-  .charts-catalog-card-light .ts-chart__axes text {
+  .charts-catalog-card .ts-chart__axes text {
     fill: #071219;
     fill-opacity: 0.6;
   }
 
-  .charts-catalog-card-dark .ts-chart__axes text {
+  .dark .charts-catalog-card .ts-chart__axes text {
     fill: #d9edf1;
     fill-opacity: 0.62;
   }
 
-  .charts-catalog-hero-frame {
-    animation: charts-catalog-hero-enter 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
   .charts-catalog-title-enter {
     animation: charts-catalog-title-enter 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
-  @keyframes charts-catalog-hero-enter {
-    from {
-      opacity: 0.25;
-      filter: blur(4px);
-      transform: translateY(8px);
-    }
-    to {
-      opacity: 1;
-      filter: blur(0);
-      transform: translateY(0);
-    }
   }
 
   @keyframes charts-catalog-title-enter {
@@ -328,7 +344,10 @@ const chartsLandingStyles = `
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .charts-catalog-hero-frame,
+    .charts-catalog-hero-frame {
+      transition: none;
+    }
+
     .charts-catalog-title-enter {
       animation: none;
     }

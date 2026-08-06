@@ -2174,7 +2174,7 @@ html:not(.dark) .library-landing-graphic [style*='drop-shadow'] {
   animation: dropdown-in 150ms ease-out;
 }
 
-.dropdown-content[data-state='closed'] {
+.dropdown-content[data-ending-style] {
   animation: dropdown-out 100ms ease-in;
 }
 

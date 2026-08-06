@@ -13,7 +13,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@radix-ui/react-dropdown-menu'
+} from './DropdownMenu'
 import { twMerge } from 'tailwind-merge'
 import { Tooltip } from '~/components/Tooltip'
 import { PackageSearch } from './PackageSearch'
@@ -150,15 +150,17 @@ export function BaselineSection({
   const presetsMenu = (
     <DropdownMenu>
       <Tooltip content="Apply a curated baseline preset">
-        <DropdownMenuTrigger asChild>
-          <button
-            className="flex items-center gap-0.5 px-1.5 py-0.5 text-xs rounded
+        <DropdownMenuTrigger
+          render={
+            <button
+              className="flex items-center gap-0.5 px-1.5 py-0.5 text-xs rounded
               text-blue-700 dark:text-blue-300 hover:bg-blue-500/10 font-medium"
-          >
-            Presets
-            <ChevronDown className="w-3 h-3" />
-          </button>
-        </DropdownMenuTrigger>
+            >
+              Presets
+              <ChevronDown className="w-3 h-3" />
+            </button>
+          }
+        />
       </Tooltip>
       <DropdownMenuContent
         className="min-w-[320px] max-w-[400px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 z-50 border border-gray-200 dark:border-gray-700"
@@ -173,10 +175,8 @@ export function BaselineSection({
           .map((preset) => (
             <DropdownMenuItem
               key={preset.id}
-              onSelect={(e) => {
-                e.preventDefault()
-                onApplyPreset(preset)
-              }}
+              closeOnClick={false}
+              onSelect={() => onApplyPreset(preset)}
               className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/10 outline-none cursor-pointer flex items-center gap-2"
             >
               <div
@@ -201,10 +201,8 @@ export function BaselineSection({
           .map((preset) => (
             <DropdownMenuItem
               key={preset.id}
-              onSelect={(e) => {
-                e.preventDefault()
-                onApplyPreset(preset)
-              }}
+              closeOnClick={false}
+              onSelect={() => onApplyPreset(preset)}
               className="w-full px-2 py-2 text-left text-sm rounded hover:bg-gray-500/10 outline-none cursor-pointer"
             >
               <div className="font-medium text-gray-900 dark:text-gray-100">

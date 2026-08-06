@@ -21,7 +21,7 @@ export const Route = createFileRoute('/ds/dropdown')({
   head: () => ({
     meta: seo({
       title: 'Dropdown | TanStack Design System',
-      description: 'The Radix-powered Dropdown menu.',
+      description: 'The Base UI-powered Dropdown menu.',
     }),
   }),
 })
@@ -30,7 +30,7 @@ function DropdownPage() {
   return (
     <DsPage
       title="Dropdown"
-      description="A menu built on Radix primitives, composed from Dropdown + Trigger + Content + Item + Separator. Source: src/components/Dropdown.tsx."
+      description="A menu built on Base UI primitives, composed from Dropdown + Trigger + Content + Item + Separator. Source: src/components/Dropdown.tsx."
     >
       <DsSection
         title="Basic menu"
@@ -38,9 +38,9 @@ function DropdownPage() {
       >
         <ComponentPreview
           code={`<Dropdown>
-  <DropdownTrigger>
-    <Button variant="secondary">Account <CaretDownIcon /></Button>
-  </DropdownTrigger>
+  <DropdownTrigger
+    render={<Button variant="secondary">Account <CaretDownIcon /></Button>}
+  />
   <DropdownContent align="start">
     <DropdownItem><UserIcon /> Profile</DropdownItem>
     <DropdownItem><GearIcon /> Settings</DropdownItem>
@@ -50,11 +50,13 @@ function DropdownPage() {
 </Dropdown>`}
         >
           <Dropdown>
-            <DropdownTrigger>
-              <Button variant="secondary">
-                Account <CaretDownIcon className="h-4 w-4" />
-              </Button>
-            </DropdownTrigger>
+            <DropdownTrigger
+              render={
+                <Button variant="secondary">
+                  Account <CaretDownIcon className="h-4 w-4" />
+                </Button>
+              }
+            />
             <DropdownContent align="start">
               <DropdownItem>
                 <UserIcon className="h-4 w-4" /> Profile

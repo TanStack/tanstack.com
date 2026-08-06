@@ -234,12 +234,14 @@ function BrandLogoPicker() {
     <div className="relative overflow-hidden rounded-xl border border-border-default bg-background-surface">
       <div className="absolute inset-x-0 top-0 z-10 flex flex-wrap items-center gap-3 p-4">
         <Dropdown>
-          <DropdownTrigger>
-            <button type="button" className={socialControlClass}>
-              <span>{logo.label}</span>
-              <CaretDown size={13} className="text-text-muted" />
-            </button>
-          </DropdownTrigger>
+          <DropdownTrigger
+            render={
+              <button type="button" className={socialControlClass}>
+                <span>{logo.label}</span>
+                <CaretDown size={13} className="text-text-muted" />
+              </button>
+            }
+          />
           <DropdownContent align="start" className="min-w-44">
             {BRAND_LOGOS.map((option) => (
               <DropdownItem
@@ -256,17 +258,19 @@ function BrandLogoPicker() {
         </Dropdown>
 
         <Dropdown>
-          <DropdownTrigger>
-            <button type="button" className={socialControlClass}>
-              <span
-                aria-hidden="true"
-                className="size-4 rounded-full border border-border-default"
-                style={{ background: color.swatch }}
-              />
-              <span>{color.label}</span>
-              <CaretDown size={13} className="text-text-muted" />
-            </button>
-          </DropdownTrigger>
+          <DropdownTrigger
+            render={
+              <button type="button" className={socialControlClass}>
+                <span
+                  aria-hidden="true"
+                  className="size-4 rounded-full border border-border-default"
+                  style={{ background: color.swatch }}
+                />
+                <span>{color.label}</span>
+                <CaretDown size={13} className="text-text-muted" />
+              </button>
+            }
+          />
           <DropdownContent align="start" className="min-w-44">
             {availableColors.map((option) => (
               <DropdownItem
@@ -288,12 +292,14 @@ function BrandLogoPicker() {
         </Dropdown>
 
         <Dropdown>
-          <DropdownTrigger>
-            <button type="button" className={socialControlClass}>
-              <span>{format.label}</span>
-              <CaretDown size={13} className="text-text-muted" />
-            </button>
-          </DropdownTrigger>
+          <DropdownTrigger
+            render={
+              <button type="button" className={socialControlClass}>
+                <span>{format.label}</span>
+                <CaretDown size={13} className="text-text-muted" />
+              </button>
+            }
+          />
           <DropdownContent align="start" className="min-w-36">
             {BRAND_FORMATS.map((option) => (
               <DropdownItem
@@ -416,12 +422,14 @@ function SocialLogoPicker() {
     <div className="relative overflow-hidden rounded-xl border border-border-default bg-background-surface">
       <div className="absolute inset-x-0 top-0 z-10 flex flex-wrap items-center gap-3 p-4">
         <Dropdown>
-          <DropdownTrigger>
-            <button type="button" className={socialControlClass}>
-              <span>{orientation.label}</span>
-              <CaretDown size={13} className="text-text-muted" />
-            </button>
-          </DropdownTrigger>
+          <DropdownTrigger
+            render={
+              <button type="button" className={socialControlClass}>
+                <span>{orientation.label}</span>
+                <CaretDown size={13} className="text-text-muted" />
+              </button>
+            }
+          />
           <DropdownContent align="start" className="min-w-44">
             {SOCIAL_ORIENTATIONS.map((option) => (
               <DropdownItem
@@ -438,17 +446,19 @@ function SocialLogoPicker() {
         </Dropdown>
 
         <Dropdown>
-          <DropdownTrigger>
-            <button type="button" className={socialControlClass}>
-              <span
-                aria-hidden="true"
-                className="size-4 rounded-full border border-border-default"
-                style={{ background: color.swatch }}
-              />
-              <span>{color.label}</span>
-              <CaretDown size={13} className="text-text-muted" />
-            </button>
-          </DropdownTrigger>
+          <DropdownTrigger
+            render={
+              <button type="button" className={socialControlClass}>
+                <span
+                  aria-hidden="true"
+                  className="size-4 rounded-full border border-border-default"
+                  style={{ background: color.swatch }}
+                />
+                <span>{color.label}</span>
+                <CaretDown size={13} className="text-text-muted" />
+              </button>
+            }
+          />
           <DropdownContent align="start" className="min-w-44">
             {SOCIAL_COLORS.map((option) => (
               <DropdownItem
@@ -470,12 +480,14 @@ function SocialLogoPicker() {
         </Dropdown>
 
         <Dropdown>
-          <DropdownTrigger>
-            <button type="button" className={socialControlClass}>
-              <span>{format.label}</span>
-              <CaretDown size={13} className="text-text-muted" />
-            </button>
-          </DropdownTrigger>
+          <DropdownTrigger
+            render={
+              <button type="button" className={socialControlClass}>
+                <span>{format.label}</span>
+                <CaretDown size={13} className="text-text-muted" />
+              </button>
+            }
+          />
           <DropdownContent align="start" className="min-w-36">
             {SOCIAL_FORMATS.map((option) => (
               <DropdownItem

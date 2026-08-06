@@ -19,7 +19,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@radix-ui/react-dropdown-menu'
+} from './DropdownMenu'
 import { Tooltip } from '~/components/Tooltip'
 import {
   type TimeRange,
@@ -159,11 +159,13 @@ export function ChartControls({
       {/* Time Range */}
       <DropdownMenu>
         <Tooltip content="Select time range">
-          <DropdownMenuTrigger asChild>
-            <button className={twMerge(dropdownButtonStyles.base)}>
-              {timeRanges.find((r) => r.value === range)?.label}
-            </button>
-          </DropdownMenuTrigger>
+          <DropdownMenuTrigger
+            render={
+              <button className={twMerge(dropdownButtonStyles.base)}>
+                {timeRanges.find((r) => r.value === range)?.label}
+              </button>
+            }
+          />
         </Tooltip>
         <DropdownMenuContent className={dropdownContentStyles}>
           <div className={dropdownHeaderStyles}>
@@ -188,16 +190,18 @@ export function ChartControls({
       {/* Binning Interval */}
       <DropdownMenu>
         <Tooltip content="Select binning interval">
-          <DropdownMenuTrigger asChild>
-            <button
-              className={twMerge(
-                dropdownButtonStyles.base,
-                binType !== 'weekly' && dropdownButtonStyles.active,
-              )}
-            >
-              {binningOptions.find((b) => b.value === binType)?.label}
-            </button>
-          </DropdownMenuTrigger>
+          <DropdownMenuTrigger
+            render={
+              <button
+                className={twMerge(
+                  dropdownButtonStyles.base,
+                  binType !== 'weekly' && dropdownButtonStyles.active,
+                )}
+              >
+                {binningOptions.find((b) => b.value === binType)?.label}
+              </button>
+            }
+          />
         </Tooltip>
         <DropdownMenuContent className={dropdownContentStyles}>
           <div className={dropdownHeaderStyles}>
@@ -318,18 +322,20 @@ export function ChartControls({
               : 'Relative change is only available for history line charts'
           }
         >
-          <DropdownMenuTrigger asChild>
-            <button
-              className={twMerge(
-                dropdownButtonStyles.base,
-                transform !== 'none' && dropdownButtonStyles.active,
-                !canUseTransform && 'opacity-50 cursor-not-allowed',
-              )}
-              disabled={!canUseTransform}
-            >
-              {transformOptions.find((opt) => opt.value === transform)?.label}
-            </button>
-          </DropdownMenuTrigger>
+          <DropdownMenuTrigger
+            render={
+              <button
+                className={twMerge(
+                  dropdownButtonStyles.base,
+                  transform !== 'none' && dropdownButtonStyles.active,
+                  !canUseTransform && 'opacity-50 cursor-not-allowed',
+                )}
+                disabled={!canUseTransform}
+              >
+                {transformOptions.find((opt) => opt.value === transform)?.label}
+              </button>
+            }
+          />
         </Tooltip>
         <DropdownMenuContent className={dropdownContentStyles}>
           <div className={dropdownHeaderStyles}>
@@ -364,21 +370,23 @@ export function ChartControls({
                 : 'Control how data is displayed'
           }
         >
-          <DropdownMenuTrigger asChild>
-            <button
-              className={twMerge(
-                dropdownButtonStyles.base,
-                showDataMode !== 'all' && dropdownButtonStyles.active,
-                showDataModeDisabled && 'opacity-50 cursor-not-allowed',
-              )}
-              disabled={showDataModeDisabled}
-            >
-              {
-                showDataModeOptions.find((opt) => opt.value === showDataMode)
-                  ?.label
-              }
-            </button>
-          </DropdownMenuTrigger>
+          <DropdownMenuTrigger
+            render={
+              <button
+                className={twMerge(
+                  dropdownButtonStyles.base,
+                  showDataMode !== 'all' && dropdownButtonStyles.active,
+                  showDataModeDisabled && 'opacity-50 cursor-not-allowed',
+                )}
+                disabled={showDataModeDisabled}
+              >
+                {
+                  showDataModeOptions.find((opt) => opt.value === showDataMode)
+                    ?.label
+                }
+              </button>
+            }
+          />
         </Tooltip>
         <DropdownMenuContent className={dropdownContentStyles}>
           <div className={dropdownHeaderStyles}>

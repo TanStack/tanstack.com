@@ -1,9 +1,9 @@
 import * as React from 'react'
-import * as TooltipPrimitive from '@radix-ui/react-tooltip'
+import { Tooltip as TooltipPrimitive } from '@base-ui/react/tooltip'
 import { twMerge } from 'tailwind-merge'
 
 interface TooltipProps {
-  children: React.ReactNode
+  children: React.ReactElement
   content: React.ReactNode
   side?: 'top' | 'right' | 'bottom' | 'left'
   align?: 'start' | 'center' | 'end'
@@ -24,29 +24,27 @@ export function Tooltip({
   }
 
   return (
-    <TooltipPrimitive.Provider delayDuration={delayDuration}>
-      <TooltipPrimitive.Root>
-        <TooltipPrimitive.Trigger asChild>{children}</TooltipPrimitive.Trigger>
-        <TooltipPrimitive.Portal>
-          <TooltipPrimitive.Content
-            side={side}
-            align={align}
-            sideOffset={5}
+    <TooltipPrimitive.Root>
+      <TooltipPrimitive.Trigger delay={delayDuration} render={children} />
+      <TooltipPrimitive.Portal>
+        <TooltipPrimitive.Positioner side={side} align={align} sideOffset={5}>
+          <TooltipPrimitive.Popup
             className={twMerge(
               'z-50 rounded-lg px-3 py-2 text-xs',
               'bg-background-inverse text-text-inverse',
               'shadow-lg',
-              'animate-in fade-in-0 zoom-in-95',
-              'data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
-              '[transform-origin:var(--radix-tooltip-content-transform-origin)] motion-reduce:animate-none',
+              'origin-(--transform-origin) transition',
+              'data-starting-style:scale-95 data-starting-style:opacity-0',
+              'data-ending-style:scale-95 data-ending-style:opacity-0',
+              'motion-reduce:transition-none',
               className,
             )}
           >
             {content}
             <TooltipPrimitive.Arrow className="fill-background-inverse" />
-          </TooltipPrimitive.Content>
-        </TooltipPrimitive.Portal>
-      </TooltipPrimitive.Root>
-    </TooltipPrimitive.Provider>
+          </TooltipPrimitive.Popup>
+        </TooltipPrimitive.Positioner>
+      </TooltipPrimitive.Portal>
+    </TooltipPrimitive.Root>
   )
 }

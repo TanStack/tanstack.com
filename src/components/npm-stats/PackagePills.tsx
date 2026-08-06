@@ -12,7 +12,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@radix-ui/react-dropdown-menu'
+} from './DropdownMenu'
 import { Tooltip } from '~/components/Tooltip'
 import {
   type PackageGroup,
@@ -132,14 +132,16 @@ export function PackagePill({
                 }
               >
                 <Tooltip content="More options">
-                  <DropdownMenuTrigger asChild>
-                    <button className="px-0.5 hover:text-blue-500">
-                      <EllipsisVertical className="size-3.5" />
-                    </button>
-                  </DropdownMenuTrigger>
+                  <DropdownMenuTrigger
+                    render={
+                      <button className="px-0.5 hover:text-blue-500">
+                        <EllipsisVertical className="size-3.5" />
+                      </button>
+                    }
+                  />
                 </Tooltip>
                 <DropdownMenuContent
-                  className="z-50 max-h-[var(--radix-dropdown-menu-content-available-height)] min-w-[200px] overflow-y-auto rounded-lg bg-white p-2 shadow-lg dark:bg-gray-800"
+                  className="z-50 max-h-(--available-height) min-w-[200px] overflow-y-auto rounded-lg bg-white p-2 shadow-lg dark:bg-gray-800"
                   collisionPadding={8}
                   sideOffset={5}
                 >

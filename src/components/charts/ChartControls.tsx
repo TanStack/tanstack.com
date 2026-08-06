@@ -5,7 +5,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@radix-ui/react-dropdown-menu'
+} from '~/components/npm-stats/DropdownMenu'
 import { twMerge } from 'tailwind-merge'
 import {
   type TimeRange,
@@ -44,12 +44,14 @@ export function ChartControls({
   return (
     <div className={twMerge('flex gap-1 items-center', className)}>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <button className={buttonStyles.base}>
-            {timeRangeOptions.find((r) => r.value === timeRange)?.label}
-            <CaretDownIcon className="w-3 h-3" />
-          </button>
-        </DropdownMenuTrigger>
+        <DropdownMenuTrigger
+          render={
+            <button className={buttonStyles.base}>
+              {timeRangeOptions.find((r) => r.value === timeRange)?.label}
+              <CaretDownIcon className="w-3 h-3" />
+            </button>
+          }
+        />
         <DropdownMenuContent className="min-w-[120px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-1 z-50">
           {timeRangeOptions.map(({ value, label }) => (
             <DropdownMenuItem
@@ -68,17 +70,20 @@ export function ChartControls({
       </DropdownMenu>
 
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <button
-            className={twMerge(
-              buttonStyles.base,
-              binType !== defaultBinForRange[timeRange] && buttonStyles.active,
-            )}
-          >
-            {binningOptions.find((b) => b.value === binType)?.label}
-            <CaretDownIcon className="w-3 h-3" />
-          </button>
-        </DropdownMenuTrigger>
+        <DropdownMenuTrigger
+          render={
+            <button
+              className={twMerge(
+                buttonStyles.base,
+                binType !== defaultBinForRange[timeRange] &&
+                  buttonStyles.active,
+              )}
+            >
+              {binningOptions.find((b) => b.value === binType)?.label}
+              <CaretDownIcon className="w-3 h-3" />
+            </button>
+          }
+        />
         <DropdownMenuContent className="min-w-[100px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-1 z-50">
           {binningOptions.map(({ value, label }) => (
             <DropdownMenuItem

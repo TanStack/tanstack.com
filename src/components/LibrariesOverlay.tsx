@@ -1,4 +1,4 @@
-import * as DialogPrimitive from '@radix-ui/react-dialog'
+import { Dialog as DialogPrimitive } from '@base-ui/react/dialog'
 import { ArrowLeftIcon, XIcon } from '@phosphor-icons/react'
 import { LibrariesBrowser } from '~/components/LibrariesBrowser'
 
@@ -14,20 +14,24 @@ export function LibrariesOverlay({
   return (
     <DialogPrimitive.Root
       open={open}
-      onOpenChange={(next) => {
-        if (!next) onClose()
+      onOpenChange={(next, eventDetails) => {
+        if (next) return
+
+        if (eventDetails.reason === 'outside-press') {
+          const target = eventDetails.event.target
+          if (target instanceof Element && target.closest('[role="menu"]')) {
+            eventDetails.cancel()
+            return
+          }
+        }
+
+        onClose()
       }}
     >
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="animate-library-overlay-in libraries-overlay-glass fixed inset-0 z-[110]" />
-        <DialogPrimitive.Content
+        <DialogPrimitive.Backdrop className="animate-library-overlay-in libraries-overlay-glass fixed inset-0 z-[110]" />
+        <DialogPrimitive.Popup
           className="animate-library-overlay-in libraries-overlay-scroll fixed inset-0 z-[111] flex flex-col overflow-y-auto outline-none"
-          onInteractOutside={(event) => {
-            const target = event.detail.originalEvent.target
-            if (target instanceof Element && target.closest('[role="menu"]')) {
-              event.preventDefault()
-            }
-          }}
           onClick={(event) => {
             if (event.target === event.currentTarget) onClose()
           }}
@@ -49,7 +53,7 @@ export function LibrariesOverlay({
             <XIcon className="size-7 min-[900px]:size-10" weight="light" />
           </DialogPrimitive.Close>
           <LibrariesBrowser variant="dialog" />
-        </DialogPrimitive.Content>
+        </DialogPrimitive.Popup>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
   )

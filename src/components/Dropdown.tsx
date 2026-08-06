@@ -1,5 +1,5 @@
 import * as React from 'react'
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
+import { Menu } from '@base-ui/react/menu'
 import { twMerge } from 'tailwind-merge'
 
 type DropdownProps = {
@@ -10,9 +10,11 @@ type DropdownProps = {
 }
 
 type DropdownTriggerProps = {
-  children: React.ReactNode
+  render: React.ReactElement
   className?: string
-  asChild?: boolean
+  // Set false when `render` is not a native <button> — e.g. the virtual anchor
+  // BrandContextMenu positions at the cursor.
+  nativeButton?: boolean
 }
 
 type DropdownContentProps = {
@@ -27,10 +29,10 @@ type DropdownContentProps = {
 }
 
 type DropdownItemProps = {
-  children: React.ReactNode
+  children?: React.ReactNode
   className?: string
   onSelect?: () => void
-  asChild?: boolean
+  render?: React.ReactElement
 }
 
 type DropdownSeparatorProps = {
@@ -44,21 +46,23 @@ export function Dropdown({
   modal = false,
 }: DropdownProps) {
   return (
-    <DropdownMenu.Root open={open} onOpenChange={onOpenChange} modal={modal}>
+    <Menu.Root open={open} onOpenChange={onOpenChange} modal={modal}>
       {children}
-    </DropdownMenu.Root>
+    </Menu.Root>
   )
 }
 
 export function DropdownTrigger({
-  children,
+  render,
   className,
-  asChild = true,
+  nativeButton,
 }: DropdownTriggerProps) {
   return (
-    <DropdownMenu.Trigger asChild={asChild} className={className}>
-      {children}
-    </DropdownMenu.Trigger>
+    <Menu.Trigger
+      className={className}
+      render={render}
+      nativeButton={nativeButton}
+    />
   )
 }
 
@@ -73,58 +77,62 @@ export function DropdownContent({
   onPointerLeave,
 }: DropdownContentProps) {
   const content = (
-    <DropdownMenu.Content
-      align={align}
-      sideOffset={sideOffset}
-      onFocus={onFocus}
-      onPointerEnter={onPointerEnter}
-      onPointerLeave={onPointerLeave}
-      className={twMerge(
-        'dropdown-content z-[1200] min-w-48 rounded-lg p-1.5',
-        'border border-gray-200 dark:border-gray-700',
-        'bg-white dark:bg-gray-800',
-        'shadow-lg',
-        className,
-      )}
-    >
-      {children}
-    </DropdownMenu.Content>
+    <Menu.Positioner align={align} sideOffset={sideOffset} className="z-[1200]">
+      <Menu.Popup
+        onFocus={onFocus}
+        onPointerEnter={onPointerEnter}
+        onPointerLeave={onPointerLeave}
+        className={twMerge(
+          'dropdown-content min-w-48 rounded-lg p-1.5',
+          'border border-gray-200 dark:border-gray-700',
+          'bg-white dark:bg-gray-800',
+          'shadow-lg',
+          className,
+        )}
+      >
+        {children}
+      </Menu.Popup>
+    </Menu.Positioner>
   )
 
   if (!portal) {
     return content
   }
 
-  return <DropdownMenu.Portal>{content}</DropdownMenu.Portal>
+  return <Menu.Portal>{content}</Menu.Portal>
 }
 
 export function DropdownItem({
   children,
   className,
   onSelect,
-  asChild,
+  render,
 }: DropdownItemProps) {
+  const itemClassName = twMerge(
+    'flex cursor-pointer select-none items-center gap-2 rounded-md px-2 py-1.5 outline-none',
+    'text-sm text-gray-700 dark:text-gray-300',
+    'hover:bg-gray-100 dark:hover:bg-gray-700/50',
+    'data-highlighted:bg-gray-100 dark:data-highlighted:bg-gray-700/50',
+    'transition-colors duration-150',
+    className,
+  )
+
+  if (render) {
+    return (
+      <Menu.Item onClick={onSelect} className={itemClassName} render={render} />
+    )
+  }
+
   return (
-    <DropdownMenu.Item
-      asChild={asChild}
-      onSelect={onSelect}
-      className={twMerge(
-        'flex cursor-pointer select-none items-center gap-2 rounded-md px-2 py-1.5 outline-none',
-        'text-sm text-gray-700 dark:text-gray-300',
-        'hover:bg-gray-100 dark:hover:bg-gray-700/50',
-        'focus:bg-gray-100 dark:focus:bg-gray-700/50',
-        'transition-colors duration-150',
-        className,
-      )}
-    >
+    <Menu.Item onClick={onSelect} className={itemClassName}>
       {children}
-    </DropdownMenu.Item>
+    </Menu.Item>
   )
 }
 
 export function DropdownSeparator({ className }: DropdownSeparatorProps) {
   return (
-    <DropdownMenu.Separator
+    <Menu.Separator
       className={twMerge('my-1 h-px bg-gray-200 dark:bg-gray-700', className)}
     />
   )

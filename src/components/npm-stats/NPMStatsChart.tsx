@@ -31,7 +31,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@radix-ui/react-dropdown-menu'
+} from './DropdownMenu'
 import { twMerge } from 'tailwind-merge'
 import { Tooltip } from '~/components/Tooltip'
 import {
@@ -1533,16 +1533,18 @@ function ChartActions({
                 : 'Export chart'
           }
         >
-          <DropdownMenuTrigger asChild>
-            <button
-              aria-label="Export chart"
-              className={buttonStyles}
-              disabled={disabled}
-              type="button"
-            >
-              <DownloadIcon className="size-3" />
-            </button>
-          </DropdownMenuTrigger>
+          <DropdownMenuTrigger
+            render={
+              <button
+                aria-label="Export chart"
+                className={buttonStyles}
+                disabled={disabled}
+                type="button"
+              >
+                <DownloadIcon className="size-3" />
+              </button>
+            }
+          />
         </Tooltip>
         <DropdownMenuContent
           className={chartActionDropdownContentStyles}
@@ -1713,15 +1715,17 @@ function EmbedChartAction({
   return (
     <DropdownMenu>
       <Tooltip content="Embed chart">
-        <DropdownMenuTrigger asChild>
-          <button
-            aria-label="Embed chart"
-            className={chartActionButtonStyles}
-            type="button"
-          >
-            <Code2 className="size-3" />
-          </button>
-        </DropdownMenuTrigger>
+        <DropdownMenuTrigger
+          render={
+            <button
+              aria-label="Embed chart"
+              className={chartActionButtonStyles}
+              type="button"
+            >
+              <Code2 className="size-3" />
+            </button>
+          }
+        />
       </Tooltip>
       <DropdownMenuContent
         align="end"

@@ -1,5 +1,5 @@
 import * as React from 'react'
-import * as DialogPrimitive from '@radix-ui/react-dialog'
+import { Dialog as DialogPrimitive } from '@base-ui/react/dialog'
 import { CaretDownIcon, CheckIcon } from '@phosphor-icons/react'
 import { type Framework } from '~/libraries'
 import { frameworkOptions } from '~/libraries/frameworks'
@@ -141,26 +141,28 @@ export function LibrariesBrowser({
         </div>
 
         <Dropdown>
-          <DropdownTrigger>
-            <button
-              type="button"
-              className="inline-flex shrink-0 items-center gap-2 rounded-lg corner-squircle border border-black/[0.06] bg-background-surface px-3 py-2 font-ds-mono text-xs text-text-primary transition-colors hover:border-border-strong dark:border-white/[0.08] dark:bg-[#0a0a0a]"
-            >
-              {activeFrameworkOption ? (
-                <img
-                  src={activeFrameworkOption.logo}
-                  alt=""
-                  className="h-4 w-4 object-contain opacity-80 brightness-0 dark:invert"
-                />
-              ) : null}
-              <span>
-                {activeFrameworkOption
-                  ? activeFrameworkOption.label
-                  : 'All frameworks'}
-              </span>
-              <CaretDownIcon className="size-3 text-text-secondary" />
-            </button>
-          </DropdownTrigger>
+          <DropdownTrigger
+            render={
+              <button
+                type="button"
+                className="inline-flex shrink-0 items-center gap-2 rounded-lg corner-squircle border border-black/[0.06] bg-background-surface px-3 py-2 font-ds-mono text-xs text-text-primary transition-colors hover:border-border-strong dark:border-white/[0.08] dark:bg-[#0a0a0a]"
+              >
+                {activeFrameworkOption ? (
+                  <img
+                    src={activeFrameworkOption.logo}
+                    alt=""
+                    className="h-4 w-4 object-contain opacity-80 brightness-0 dark:invert"
+                  />
+                ) : null}
+                <span>
+                  {activeFrameworkOption
+                    ? activeFrameworkOption.label
+                    : 'All frameworks'}
+                </span>
+                <CaretDownIcon className="size-3 text-text-secondary" />
+              </button>
+            }
+          />
           <DropdownContent
             align="end"
             className="max-h-[60vh] overflow-y-auto font-ds-mono"

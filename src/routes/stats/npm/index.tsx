@@ -2,7 +2,7 @@ import * as React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { useThrottledCallback, useThrottler } from '@tanstack/react-pacer'
-import * as DialogPrimitive from '@radix-ui/react-dialog'
+import { Dialog as DialogPrimitive } from '@base-ui/react/dialog'
 import { QuestionIcon as HelpCircle, XIcon } from '@phosphor-icons/react'
 import { useQuery } from '@tanstack/react-query'
 import { Card } from '~/components/ds/ui'
@@ -1081,8 +1081,8 @@ function RouteComponent() {
             }}
           >
             <DialogPrimitive.Portal>
-              <DialogPrimitive.Overlay className="fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm" />
-              <DialogPrimitive.Content className="fixed left-1/2 top-1/2 z-[1000] w-[calc(100%-1rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white dark:bg-gray-900 p-4 shadow-xl outline-none">
+              <DialogPrimitive.Backdrop className="fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm" />
+              <DialogPrimitive.Popup className="fixed left-1/2 top-1/2 z-[1000] w-[calc(100%-1rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white dark:bg-gray-900 p-4 shadow-xl outline-none">
                 <div className="flex justify-between items-center mb-4">
                   <DialogPrimitive.Title className="text-base sm:text-lg font-medium text-gray-900 dark:text-gray-100">
                     Add packages to {combiningPackage}
@@ -1103,7 +1103,7 @@ function RouteComponent() {
                     autoFocus={true}
                   />
                 )}
-              </DialogPrimitive.Content>
+              </DialogPrimitive.Popup>
             </DialogPrimitive.Portal>
           </DialogPrimitive.Root>
 

@@ -15,7 +15,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@radix-ui/react-dropdown-menu'
+} from './DropdownMenu'
 import {
   binningOptionsByType,
   getLatestBucketOffsetBounds,
@@ -253,15 +253,17 @@ export function LatestBucketNavigator({
           )}
         </button>
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              aria-label="Bucket playback options"
-              className={borderedNavigatorButtonStyles}
-              type="button"
-            >
-              <MoreHorizontal className="size-3.5" />
-            </button>
-          </DropdownMenuTrigger>
+          <DropdownMenuTrigger
+            render={
+              <button
+                aria-label="Bucket playback options"
+                className={borderedNavigatorButtonStyles}
+                type="button"
+              >
+                <MoreHorizontal className="size-3.5" />
+              </button>
+            }
+          />
           <DropdownMenuContent
             align="start"
             className="z-50 min-w-[160px] rounded-md bg-white p-1.5 shadow-lg dark:bg-gray-800"

@@ -1693,42 +1693,47 @@ function SocialStack() {
 
   return (
     <Dropdown>
-      <DropdownTrigger>
-        <button
-          type="button"
-          aria-label="TanStack social channels"
-          title="Social channels"
-          className="group/social inline-flex h-8 items-center px-0"
-        >
-          <span className="relative inline-flex items-center">
-            {stackTop.map(({ label, Icon }, i) => (
-              <span
-                key={label}
-                className={twMerge(
-                  'inline-flex h-8 w-8 items-center justify-center rounded-full border border-border-default bg-background-default text-icon-default shadow-sm transition-[transform,color,background-color] group-hover/social:text-text-primary',
-                  i > 0 && '-ml-3',
-                )}
-                style={{ zIndex: stackTop.length - i }}
-              >
-                <Icon className="size-4" />
-              </span>
-            ))}
-          </span>
-        </button>
-      </DropdownTrigger>
+      <DropdownTrigger
+        render={
+          <button
+            type="button"
+            aria-label="TanStack social channels"
+            title="Social channels"
+            className="group/social inline-flex h-8 items-center px-0"
+          >
+            <span className="relative inline-flex items-center">
+              {stackTop.map(({ label, Icon }, i) => (
+                <span
+                  key={label}
+                  className={twMerge(
+                    'inline-flex h-8 w-8 items-center justify-center rounded-full border border-border-default bg-background-default text-icon-default shadow-sm transition-[transform,color,background-color] group-hover/social:text-text-primary',
+                    i > 0 && '-ml-3',
+                  )}
+                  style={{ zIndex: stackTop.length - i }}
+                >
+                  <Icon className="size-4" />
+                </span>
+              ))}
+            </span>
+          </button>
+        }
+      />
       <DropdownContent align="center" sideOffset={8} className="min-w-44">
         {SOCIAL_LINKS.map(({ label, href, Icon }) => (
-          <DropdownItem key={href} asChild>
-            <a
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`TanStack on ${label}`}
-            >
-              <Icon className="size-4" />
-              <span>{label}</span>
-            </a>
-          </DropdownItem>
+          <DropdownItem
+            key={href}
+            render={
+              <a
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`TanStack on ${label}`}
+              >
+                <Icon className="size-4" />
+                <span>{label}</span>
+              </a>
+            }
+          />
         ))}
       </DropdownContent>
     </Dropdown>

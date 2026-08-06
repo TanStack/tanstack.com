@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { createPortal } from 'react-dom'
-import { Dialog as DialogPrimitive } from '@base-ui/react/dialog'
+import { Dialog } from '@base-ui/react/dialog'
 import { Command } from 'cmdk'
 import { twMerge } from 'tailwind-merge'
 import {
@@ -3400,7 +3400,7 @@ export function SearchModal() {
   }, [isOpen])
 
   return (
-    <DialogPrimitive.Root
+    <Dialog.Root
       open={isOpen}
       onOpenChange={(open, eventDetails) => {
         if (open) return
@@ -3416,21 +3416,19 @@ export function SearchModal() {
         closeSearch()
       }}
     >
-      <DialogPrimitive.Portal>
-        <DialogPrimitive.Backdrop className="search-modal-overlay fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm xl:bg-black/30" />
-        <DialogPrimitive.Popup
+      <Dialog.Portal>
+        <Dialog.Backdrop className="search-modal-overlay fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm xl:bg-black/30" />
+        <Dialog.Popup
           ref={contentRef}
           className={twMerge(
             'search-modal-content fixed z-[1000] inset-0 sm:inset-auto sm:top-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-[96%] xl:w-full sm:max-w-4xl text-left outline-none',
             isFullHeight && 'sm:bottom-4',
           )}
         >
-          <DialogPrimitive.Title className="sr-only">
-            Search TanStack
-          </DialogPrimitive.Title>
-          <DialogPrimitive.Description className="sr-only">
+          <Dialog.Title className="sr-only">Search TanStack</Dialog.Title>
+          <Dialog.Description className="sr-only">
             Search TanStack and open TanStack AI from the current query.
-          </DialogPrimitive.Description>
+          </Dialog.Description>
           <div className="search-modal-panel-transition h-full">
             <InstantSearch
               searchClient={searchClient}
@@ -3445,9 +3443,9 @@ export function SearchModal() {
               </SearchFiltersProvider>
             </InstantSearch>
           </div>
-        </DialogPrimitive.Popup>
-      </DialogPrimitive.Portal>
-    </DialogPrimitive.Root>
+        </Dialog.Popup>
+      </Dialog.Portal>
+    </Dialog.Root>
   )
 }
 

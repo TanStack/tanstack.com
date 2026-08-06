@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Tooltip as TooltipPrimitive } from '@base-ui/react/tooltip'
+import { Tooltip as BaseTooltip } from '@base-ui/react/tooltip'
 import { twMerge } from 'tailwind-merge'
 
 interface TooltipProps {
@@ -24,11 +24,11 @@ export function Tooltip({
   }
 
   return (
-    <TooltipPrimitive.Root>
-      <TooltipPrimitive.Trigger delay={delayDuration} render={children} />
-      <TooltipPrimitive.Portal>
-        <TooltipPrimitive.Positioner side={side} align={align} sideOffset={5}>
-          <TooltipPrimitive.Popup
+    <BaseTooltip.Root>
+      <BaseTooltip.Trigger delay={delayDuration} render={children} />
+      <BaseTooltip.Portal>
+        <BaseTooltip.Positioner side={side} align={align} sideOffset={5}>
+          <BaseTooltip.Popup
             className={twMerge(
               'z-50 rounded-lg px-3 py-2 text-xs',
               'bg-background-inverse text-text-inverse',
@@ -41,10 +41,10 @@ export function Tooltip({
             )}
           >
             {content}
-            <TooltipPrimitive.Arrow className="fill-background-inverse" />
-          </TooltipPrimitive.Popup>
-        </TooltipPrimitive.Positioner>
-      </TooltipPrimitive.Portal>
-    </TooltipPrimitive.Root>
+            <BaseTooltip.Arrow className="fill-background-inverse" />
+          </BaseTooltip.Popup>
+        </BaseTooltip.Positioner>
+      </BaseTooltip.Portal>
+    </BaseTooltip.Root>
   )
 }

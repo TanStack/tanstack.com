@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Dialog as DialogPrimitive } from '@base-ui/react/dialog'
+import { Dialog } from '@base-ui/react/dialog'
 import Cropper from 'react-easy-crop'
 import type { Area, Point } from 'react-easy-crop'
 import { XIcon } from '@phosphor-icons/react'
@@ -107,17 +107,17 @@ export function AvatarCropModal({
   }, [open])
 
   return (
-    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
-      <DialogPrimitive.Portal>
-        <DialogPrimitive.Backdrop className="fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm" />
-        <DialogPrimitive.Popup className="fixed left-1/2 top-1/2 z-[1000] w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+    <Dialog.Root open={open} onOpenChange={onOpenChange}>
+      <Dialog.Portal>
+        <Dialog.Backdrop className="fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm" />
+        <Dialog.Popup className="fixed left-1/2 top-1/2 z-[1000] w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white dark:bg-gray-900 p-6 shadow-xl">
           <div className="flex items-center justify-between mb-4">
-            <DialogPrimitive.Title className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            <Dialog.Title className="text-lg font-semibold text-gray-900 dark:text-gray-100">
               Crop Profile Picture
-            </DialogPrimitive.Title>
-            <DialogPrimitive.Close className="rounded-full p-1 hover:bg-gray-100 dark:hover:bg-gray-800">
+            </Dialog.Title>
+            <Dialog.Close className="rounded-full p-1 hover:bg-gray-100 dark:hover:bg-gray-800">
               <XIcon className="w-5 h-5 text-gray-500" />
-            </DialogPrimitive.Close>
+            </Dialog.Close>
           </div>
 
           <div className="relative w-full aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
@@ -169,8 +169,8 @@ export function AvatarCropModal({
               {isProcessing ? 'Processing...' : 'Save'}
             </Button>
           </div>
-        </DialogPrimitive.Popup>
-      </DialogPrimitive.Portal>
-    </DialogPrimitive.Root>
+        </Dialog.Popup>
+      </Dialog.Portal>
+    </Dialog.Root>
   )
 }

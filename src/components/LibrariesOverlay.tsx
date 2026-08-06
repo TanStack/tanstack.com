@@ -1,4 +1,4 @@
-import { Dialog as DialogPrimitive } from '@base-ui/react/dialog'
+import { Dialog } from '@base-ui/react/dialog'
 import { ArrowLeft as ArrowLeftIcon } from '@phosphor-icons/react/ArrowLeft'
 import { X as XIcon } from '@phosphor-icons/react/X'
 import { LibrariesBrowser } from '~/components/LibrariesBrowser'
@@ -13,7 +13,7 @@ export function LibrariesOverlay({
   onClose: () => void
 }) {
   return (
-    <DialogPrimitive.Root
+    <Dialog.Root
       open={open}
       onOpenChange={(next, eventDetails) => {
         if (next) return
@@ -29,9 +29,9 @@ export function LibrariesOverlay({
         onClose()
       }}
     >
-      <DialogPrimitive.Portal>
-        <DialogPrimitive.Backdrop className="animate-library-overlay-in libraries-overlay-glass fixed inset-0 z-[110]" />
-        <DialogPrimitive.Popup
+      <Dialog.Portal>
+        <Dialog.Backdrop className="animate-library-overlay-in libraries-overlay-glass fixed inset-0 z-[110]" />
+        <Dialog.Popup
           className="animate-library-overlay-in libraries-overlay-scroll fixed inset-0 z-[111] flex flex-col overflow-y-auto outline-none"
           onClick={(event) => {
             if (event.target === event.currentTarget) onClose()
@@ -47,15 +47,15 @@ export function LibrariesOverlay({
               Back to menu
             </button>
           ) : null}
-          <DialogPrimitive.Close
+          <Dialog.Close
             aria-label="Close"
             className="fixed right-4 top-4 z-[112] flex size-11 items-center justify-center rounded-full corner-squircle text-text-secondary transition-colors hover:bg-black/5 hover:text-text-primary dark:hover:bg-white/10 min-[900px]:right-6 min-[900px]:top-6 min-[900px]:size-14"
           >
             <XIcon className="size-7 min-[900px]:size-10" weight="light" />
-          </DialogPrimitive.Close>
+          </Dialog.Close>
           <LibrariesBrowser variant="dialog" />
-        </DialogPrimitive.Popup>
-      </DialogPrimitive.Portal>
-    </DialogPrimitive.Root>
+        </Dialog.Popup>
+      </Dialog.Portal>
+    </Dialog.Root>
   )
 }

@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Dialog as DialogPrimitive } from '@base-ui/react/dialog'
+import { Dialog } from '@base-ui/react/dialog'
 import { CaretDown as CaretDownIcon } from '@phosphor-icons/react/CaretDown'
 import { Check as CheckIcon } from '@phosphor-icons/react/Check'
 import { type Framework } from '~/libraries'
@@ -109,9 +109,9 @@ export function LibrariesBrowser({
               />
             ) : null}
             {variant === 'dialog' ? (
-              <DialogPrimitive.Title className="font-ds-display text-3xl font-medium text-text-primary">
+              <Dialog.Title className="font-ds-display text-3xl font-medium text-text-primary">
                 {title}
-              </DialogPrimitive.Title>
+              </Dialog.Title>
             ) : (
               <h1 className="font-ds-display text-3xl font-medium text-text-primary">
                 {title}
@@ -119,7 +119,7 @@ export function LibrariesBrowser({
             )}
           </div>
           {variant === 'dialog' ? (
-            <DialogPrimitive.Description
+            <Dialog.Description
               className={
                 activeFrameworkOption
                   ? 'mt-2 max-w-2xl font-ds-mono text-xs leading-relaxed text-text-secondary'
@@ -127,7 +127,7 @@ export function LibrariesBrowser({
               }
             >
               {description}
-            </DialogPrimitive.Description>
+            </Dialog.Description>
           ) : (
             <p
               className={

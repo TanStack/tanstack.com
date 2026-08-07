@@ -410,7 +410,7 @@ export function Form() {
 The v2 alpha does not yet include:
 
 - **Built-in form persistence.** The alpha does not yet provide a built-in way to save form state and restore it later, so persistence still needs to be handled outside the form API.
-- **Non-React adapters.** v2 currently focuses on React. The adapters for Solid, Angular, Vue, and Svelte have not been ported yet.
+- [TODO come back to it, form composition for other adapters]
 - **Submit meta.** v1 lets you pass additional typed data from `handleSubmit` to `onSubmit`, which is useful when the same form has multiple submit actions. That API is not part of v2 yet.
 
 ## Trying out TanStack Form v2 alpha

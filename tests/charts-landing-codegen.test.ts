@@ -8,7 +8,12 @@ import { catalogCases } from '@tanstack/react-charts-catalog'
 import { createChartsLandingCatalogSource } from '../scripts/generate-charts-landing-catalog'
 
 test('the generated landing catalog matches package metadata', () => {
-  assert.equal(catalogCases.length, 109)
+  assert.equal(catalogCases.length, 110)
+  assert.ok(
+    catalogCases.some(
+      (catalogCase) => catalogCase.id === '119-stacked-bar-band-cursor',
+    ),
+  )
 
   const generatedFile = resolve(
     process.cwd(),

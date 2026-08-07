@@ -1,4 +1,5 @@
-import { curveMonotoneX, scaleLinear } from 'd3'
+import { scaleLinear } from '@tanstack/charts-scales/linear'
+import { curveMonotoneX } from 'd3-shape'
 import { areaY, d3Curve, defineChart, dot, lineY } from '@tanstack/charts'
 
 import { kineticDarkTheme, productSignals } from './kinetic-data'

@@ -105,14 +105,15 @@ test('hero tiles rotate through disjoint chart pools', () => {
   }
 })
 
-test('all 109 gallery snapshots are safe 288 by 192 SVG assets', () => {
+test('all 110 gallery snapshots are safe 288 by 192 SVG assets', () => {
   const metadataIds = catalogCases.map((catalogCase) => catalogCase.id)
   const assetDirectory = resolve(process.cwd(), 'public/images/charts/catalog')
   const assetFiles = readdirSync(assetDirectory)
     .filter((filename) => filename.endsWith('.svg'))
     .sort()
 
-  assert.equal(metadataIds.length, 109)
+  assert.equal(metadataIds.length, 110)
+  assert.ok(metadataIds.includes('119-stacked-bar-band-cursor'))
   assert.deepEqual(
     assetFiles,
     metadataIds.map((caseId) => `${caseId}.svg`).sort(),

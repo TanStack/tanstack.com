@@ -2,9 +2,10 @@ import * as React from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { twMerge } from 'tailwind-merge'
 import { getProduct } from '~/utils/shop.functions'
-import type {
-  ProductDetail,
-  ProductDetailVariant,
+import {
+  hasAvailableVariant,
+  type ProductDetail,
+  type ProductDetailVariant,
 } from '~/utils/shopify-queries'
 import { formatMoney } from '~/utils/shopify-format'
 import { resolveShopProductColor, shopColorContrast } from '~/utils/shop-color'
@@ -474,15 +475,16 @@ function DrawerContent({
                         Select {option.name}
                       </option>
                       {option.values.map((value) => {
-                        const match = findMatchingVariant(
-                          variants,
-                          getCandidate(value),
-                        )
                         return (
                           <option
                             key={value}
                             value={value}
-                            disabled={!match?.availableForSale}
+                            disabled={
+                              !hasAvailableVariant(
+                                variants,
+                                getCandidate(value),
+                              )
+                            }
                           >
                             {value}
                           </option>
@@ -505,11 +507,10 @@ function DrawerContent({
                     <div className="flex flex-wrap gap-1.5">
                       {option.values.map((value) => {
                         const isSelected = selected[option.name] === value
-                        const match = findMatchingVariant(
+                        const isUnavailable = !hasAvailableVariant(
                           variants,
                           getCandidate(value),
                         )
-                        const isUnavailable = !match?.availableForSale
                         return (
                           <ShopSize
                             key={value}
@@ -545,11 +546,10 @@ function DrawerContent({
                   <div className="flex flex-wrap gap-1.5">
                     {option.values.map((value) => {
                       const isSelected = selected[option.name] === value
-                      const match = findMatchingVariant(
+                      const isUnavailable = !hasAvailableVariant(
                         variants,
                         getCandidate(value),
                       )
-                      const isUnavailable = !match?.availableForSale
                       const hex = resolveShopProductColor(value)
                       return (
                         <ShopChip

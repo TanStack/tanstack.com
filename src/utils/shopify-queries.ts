@@ -255,6 +255,22 @@ export type ProductDetailVariant = Pick<
   image: Pick<StorefrontImage, 'url' | 'altText' | 'width' | 'height'> | null
 }
 
+export function hasAvailableVariant(
+  variants: Array<
+    Pick<ProductDetailVariant, 'availableForSale' | 'selectedOptions'>
+  >,
+  selected: Record<string, string>,
+): boolean {
+  return variants.some(
+    (variant) =>
+      variant.availableForSale &&
+      variant.selectedOptions.every(
+        (option) =>
+          !selected[option.name] || selected[option.name] === option.value,
+      ),
+  )
+}
+
 export type ProductDetail = Pick<
   Product,
   'id' | 'handle' | 'title' | 'descriptionHtml'

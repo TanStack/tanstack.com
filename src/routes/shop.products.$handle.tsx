@@ -19,6 +19,7 @@ import {
 import { useAddToCart } from '~/hooks/useCart'
 import { getProduct } from '~/utils/shop.functions'
 import {
+  hasAvailableVariant,
   type ProductDetail,
   type ProductDetailVariant,
 } from '~/utils/shopify-queries'
@@ -336,15 +337,13 @@ function VariantSelector({
                   Select {option.name}
                 </option>
                 {option.values.map((value) => {
-                  const match = findAvailableVariant(
-                    variants,
-                    getCandidate(value),
-                  )
                   return (
                     <option
                       key={value}
                       value={value}
-                      disabled={!match?.availableForSale}
+                      disabled={
+                        !hasAvailableVariant(variants, getCandidate(value))
+                      }
                     >
                       {value}
                     </option>
@@ -361,11 +360,10 @@ function VariantSelector({
               >
                 {option.values.map((value) => {
                   const isSelected = selected[option.name] === value
-                  const match = findAvailableVariant(
+                  const isUnavailable = !hasAvailableVariant(
                     variants,
                     getCandidate(value),
                   )
-                  const isUnavailable = !match?.availableForSale
                   const handleClick = () => handleChange(value)
                   if (isSizeOption) {
                     return (
@@ -516,18 +514,6 @@ function findMatchingVariant(
 ): ProductDetailVariant | undefined {
   return variants.find((v) =>
     v.selectedOptions.every((opt) => selected[opt.name] === opt.value),
-  )
-}
-
-function findAvailableVariant(
-  variants: Array<ProductDetailVariant>,
-  selected: Record<string, string>,
-): ProductDetailVariant | undefined {
-  return variants.find((variant) =>
-    variant.selectedOptions.every(
-      (option) =>
-        !selected[option.name] || selected[option.name] === option.value,
-    ),
   )
 }
 

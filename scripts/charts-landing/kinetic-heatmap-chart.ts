@@ -1,4 +1,4 @@
-import { scaleBand } from 'd3'
+import { scaleBand } from '@tanstack/charts-scales/band'
 import { cell, defineChart } from '@tanstack/charts'
 
 import {

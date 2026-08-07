@@ -10,7 +10,8 @@ import {
 } from './ChartsLandingGraphics'
 import { CatalogChartsHero, ChartsCatalogGallery } from './ChartsCatalogGallery'
 
-const chartPrompt = `Using TanStack Charts and the accounts array in this project, plot monthlyRevenue on x and retention on y. Size each point by seats, color it by segment, and keep the original Account type in tooltip and focus callbacks. Use D3 scale factories so TanStack Charts can infer the domains, enable the tooltip on the chart definition, add a useful ariaLabel, and render it through the React adapter.`
+const chartsReleaseVersion = '0.7.2'
+const chartPrompt = `Using TanStack Charts and the accounts array in this project, plot monthlyRevenue on x and retention on y. Size each point by seats with an explicit square-root radius scale, color it by segment, and preserve the original Account rows for typed tooltip and focus callbacks. Use the compact linear scale from @tanstack/charts-scales/linear so TanStack Charts can infer the domains, add the tooltip behavior from @tanstack/charts/tooltip, and render it through the React adapter with a useful ariaLabel.`
 
 export default function ChartsLanding({
   catalogOrderSeed,
@@ -19,7 +20,19 @@ export default function ChartsLanding({
 }) {
   return (
     <LibraryLandingShell
-      description="TanStack Charts 0.6.5 is on npm. A compact React line consumer is 16.48 KiB gzip; its framework-neutral scene is 8.12 KiB."
+      description={
+        <>
+          TanStack Charts {chartsReleaseVersion} adds declarative view
+          composition, controlled interactions, motion, spatial layouts, and
+          expanded React Native parity.{' '}
+          <a
+            href={`https://github.com/TanStack/charts/blob/v${chartsReleaseVersion}/CHANGELOG.md#070`}
+            className="text-[var(--landing-accent-bright)] underline decoration-current/30 underline-offset-4 hover:decoration-current"
+          >
+            What changed since 0.6.5.
+          </a>
+        </>
+      }
       headline="A chart grammar you don't have to outgrow."
       hero={<CatalogChartsHero />}
       libraryId="charts"
@@ -37,9 +50,6 @@ export default function ChartsLanding({
           <h2 className="font-ds-display text-ds-heading-1 md:text-ds-display-sm">
             All mark, no chart.
           </h2>
-          <p className="mt-2 text-ds-body-md text-text-secondary">
-            Just a few examples. The possibilities are endless.
-          </p>
         </div>
         <ChartsCatalogGallery orderSeed={catalogOrderSeed} />
       </LandingSection>
@@ -83,19 +93,19 @@ export default function ChartsLanding({
       <LandingSection tone="raised">
         <div className="grid gap-8 lg:grid-cols-[0.88fr_1.12fr] lg:items-end lg:gap-16">
           <h2 className="max-w-3xl font-ds-display text-ds-heading-1 md:text-ds-display-md">
-            16.48 KiB for a compact React line.
+            36.73–42.64 KiB across the controlled suite.
           </h2>
           <p className="max-w-2xl text-ds-body-sm text-text-secondary sm:text-ds-body-md">
-            The framework-neutral scene is 8.12 KiB and retains neither D3 nor
-            InternMap. For an apples-to-apples comparison, the{' '}
+            The compact React line is 26.48 KiB gzip; its framework-neutral
+            scene is 10.28 KiB. The{' '}
             <a
               href="/charts/latest/docs/comparison"
               className="text-[var(--landing-accent-bright)] underline decoration-current/30 underline-offset-4 hover:decoration-current"
             >
-              pinned 12-case suite
+              comparison methodology and fixtures
             </a>{' '}
-            measures full cold-page browser bundles; Bklit&apos;s interactive
-            line is included alongside the published library ranges.
+            measure complete cold-page browser bundles, including rendering,
+            axes, styles, and library code.
           </p>
         </div>
 
@@ -107,11 +117,19 @@ export default function ChartsLanding({
       <LandingSection tone="ink">
         <div className="grid gap-6 md:grid-cols-[0.82fr_1.18fr] md:items-end md:gap-12">
           <h2 className="max-w-4xl font-ds-display text-ds-heading-1 md:text-ds-display-md">
-            Layer marks over shared scales.
+            Compose from marks to complete views.
           </h2>
           <p className="max-w-2xl text-ds-body-sm text-text-secondary sm:text-ds-body-md">
-            Area, rules, lines, points, and labels share one coordinate system.
-            The definition beside the chart is the whole composition.
+            Layer marks when they share a coordinate system. For compound
+            charts, <code>composeViews</code> places complete definitions with
+            fill, grid, layer, and inset utilities. Each view keeps its own
+            scales unless you share or align them.{' '}
+            <a
+              href="/charts/latest/docs/reference/view-composition"
+              className="text-[var(--landing-accent-bright)] underline decoration-current/30 underline-offset-4 hover:decoration-current"
+            >
+              View composition reference.
+            </a>
           </p>
         </div>
 
@@ -140,7 +158,7 @@ export default function ChartsLanding({
 function TypedDotExample() {
   return (
     <CodeBlock
-      dataCodeTitle="account-health.ts"
+      dataCodeTitle="account-health.tsx"
       className="mt-8 overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.3)] bg-[#0c1420] shadow-[0_18px_50px_-30px_rgb(var(--landing-glow)/0.45)] [&>div:first-child]:rounded-none [&_pre]:max-h-[30rem] [&_pre]:overflow-auto [&_pre]:rounded-none [&_pre]:text-[11px] [&_pre]:leading-5 sm:[&_pre]:text-xs"
     >
       <code className="language-ts">{accountChartSource}</code>
@@ -148,27 +166,52 @@ function TypedDotExample() {
   )
 }
 
-const accountChartSource = `const accountHealth = defineChart({
+const accountChartSource = `import { scaleLinear } from '@tanstack/charts-scales/linear'
+import { defineChart, dot } from '@tanstack/charts'
+import { tooltip } from '@tanstack/charts/tooltip'
+import { Chart } from '@tanstack/react-charts'
+import { scaleSqrt } from 'd3-scale'
+
+const accountHealth = defineChart({
   marks: [
     dot(accounts, {
       x: 'monthlyRevenue',
       y: 'retention',
       r: 'seats',
+      rScale: {
+        scale: () => scaleSqrt().range([4, 22]),
+      },
       z: 'segment',
       key: 'id',
     }),
   ],
   x: {
-    scale: scaleLinear(),
-    label: 'Monthly revenue ($k)',
+    scale: scaleLinear,
+    axis: { label: 'Monthly revenue ($k)' },
   },
   y: {
-    scale: scaleLinear(),
-    label: '90-day retention',
-    format: (value) => percent.format(value),
+    scale: scaleLinear,
+    axis: {
+      label: '90-day retention',
+      ticks: { format: (value) => percent.format(value) },
+    },
   },
-  tooltip: true,
-})`
+  tooltip,
+})
+
+export function AccountHealthChart({
+  onFocus,
+}: {
+  onFocus: (account: Account | null) => void
+}) {
+  return (
+    <Chart
+      definition={accountHealth}
+      ariaLabel="Account health by revenue, retention, segment, and seats"
+      onFocusChange={(point) => onFocus(point?.datum ?? null)}
+    />
+  )
+}`
 
 const chartsLandingStyles = `
   .charts-activation {

@@ -333,8 +333,8 @@ const bundleRows = [
   {
     color: 'bg-[#39af46]',
     label: 'TanStack Charts',
-    maximum: 32.08,
-    minimum: 26.58,
+    maximum: 42.64,
+    minimum: 36.73,
   },
   {
     color: 'bg-[#3aa3c4]',
@@ -347,12 +347,6 @@ const bundleRows = [
     label: 'Observable Plot',
     maximum: 91.94,
     minimum: 83.34,
-  },
-  {
-    color: 'bg-[#ff8a65]',
-    label: 'Bklit',
-    maximum: 152.12,
-    minimum: 152.12,
   },
   {
     color: 'bg-[#f59e0b]',
@@ -678,8 +672,7 @@ export function BundleSizeFigure() {
             Cold-page bundle comparison
           </p>
           <p className="mt-1 text-ds-body-xs text-text-primary/45">
-            Published 12-chart ranges; Bklit is an interactive line · minified +
-            gzip
+            Controlled 12-case cold-page bundles · minified + gzip
           </p>
         </div>
       </div>
@@ -688,11 +681,7 @@ export function BundleSizeFigure() {
         {bundleRows.map((row) => (
           <div
             key={row.label}
-            aria-label={
-              row.minimum === row.maximum
-                ? `${row.label}: ${row.minimum.toFixed(1)} kibibytes gzip`
-                : `${row.label}: ${row.minimum.toFixed(1)} to ${row.maximum.toFixed(1)} kibibytes gzip`
-            }
+            aria-label={`${row.label}: ${row.minimum.toFixed(1)} to ${row.maximum.toFixed(1)} kibibytes gzip`}
             className="grid w-full grid-cols-[1fr_auto] items-center gap-x-3 gap-y-2 text-left sm:grid-cols-[9rem_1fr_8rem]"
           >
             <span className="order-1 text-ds-label-sm text-text-secondary">
@@ -709,22 +698,12 @@ export function BundleSizeFigure() {
                 className={`absolute inset-y-0 rounded-full ${row.color}`}
                 style={{
                   left: `${(row.minimum / bundleChartMaximumKiB) * 100}%`,
-                  transform:
-                    row.minimum === row.maximum
-                      ? 'translateX(-50%)'
-                      : undefined,
-                  width:
-                    row.minimum === row.maximum
-                      ? '0.75rem'
-                      : `${((row.maximum - row.minimum) / bundleChartMaximumKiB) * 100}%`,
+                  width: `${((row.maximum - row.minimum) / bundleChartMaximumKiB) * 100}%`,
                 }}
               />
             </span>
             <span className="order-2 text-right font-ds-mono text-ds-mono-xs text-text-primary sm:order-3">
-              {row.minimum === row.maximum
-                ? row.minimum.toFixed(1)
-                : `${row.minimum.toFixed(1)}–${row.maximum.toFixed(1)}`}{' '}
-              KiB
+              {row.minimum.toFixed(1)}–{row.maximum.toFixed(1)} KiB
             </span>
           </div>
         ))}

@@ -1,7 +1,8 @@
 import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
-import { curveMonotoneX, curveStepAfter, scaleLinear } from 'd3'
+import { scaleLinear } from '@tanstack/charts-scales/linear'
+import { curveMonotoneX, curveStepAfter } from 'd3-shape'
 
 import {
   areaY,
@@ -146,7 +147,9 @@ const terminalTheme = defineChart({
   ],
   x: {
     scale: scaleLinear().domain([1, 10]),
-    axis: { ticks: { count: 4, format: (month) => `0${month}` } },
+    axis: {
+      ticks: { count: 4, format: (month) => String(month).padStart(2, '0') },
+    },
   },
   y: {
     scale: scaleLinear().domain(themeDomain).nice(),

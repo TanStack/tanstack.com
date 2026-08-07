@@ -147,7 +147,9 @@ const terminalTheme = defineChart({
   ],
   x: {
     scale: scaleLinear().domain([1, 10]),
-    axis: { ticks: { count: 4, format: (month) => `0${month}` } },
+    axis: {
+      ticks: { count: 4, format: (month) => String(month).padStart(2, '0') },
+    },
   },
   y: {
     scale: scaleLinear().domain(themeDomain).nice(),

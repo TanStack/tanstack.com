@@ -6,16 +6,16 @@ import { Markdown } from '@tanstack/markdown/react'
 import { streamingMarkdownExtension } from '@tanstack/markdown/extensions/streaming'
 import {
   ArrowRightIcon,
-  BracketsCurlyIcon as Braces,
+  BracketsCurlyIcon,
   CheckIcon,
   FileTextIcon,
   HighlighterIcon,
-  LockKeyIcon as LockKeyhole,
-  PackageIcon as PackageOpen,
+  LockKeyIcon,
+  PackageIcon,
   PauseIcon,
   PlayIcon,
   RadioIcon,
-  ArrowCounterClockwiseIcon as RotateCcw,
+  ArrowCounterClockwiseIcon,
   ShieldCheckIcon,
   XIcon,
 } from '@phosphor-icons/react'
@@ -172,7 +172,7 @@ export default function MarkdownLanding() {
         <LandingSectionIntro
           centered
           eyebrow="The durable layer"
-          icon={<Braces aria-hidden="true" size={15} />}
+          icon={<BracketsCurlyIcon aria-hidden="true" size={15} />}
           title="The AST is the product."
           body="Parsing does not trap content inside a renderer. Edit the source and inspect the serializable tree, deterministic HTML, or React output."
         />
@@ -227,7 +227,7 @@ export default function MarkdownLanding() {
         <div className="grid items-center gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
           <LandingSectionIntro
             eyebrow="Size ledger"
-            icon={<PackageOpen aria-hidden="true" size={15} />}
+            icon={<PackageIcon aria-hidden="true" size={15} />}
             title="A parser should not outweigh the page."
             body="Split entry points keep the parser, renderers, framework adapters, and docs extensions independent. Import only the layer the page needs."
           />
@@ -566,7 +566,7 @@ function StreamingReplay() {
           }}
         >
           {isComplete ? (
-            <RotateCcw size={13} aria-hidden="true" />
+            <ArrowCounterClockwiseIcon size={13} aria-hidden="true" />
           ) : isPlaying ? (
             <PauseIcon size={13} aria-hidden="true" />
           ) : (
@@ -690,7 +690,7 @@ function SafetyProof() {
       </div>
       <div className="flex flex-wrap gap-x-5 gap-y-2 border-t border-border-subtle px-4 py-3 font-ds-mono text-ds-mono-caps-xs uppercase text-emerald-700 dark:text-emerald-400">
         <span className="inline-flex items-center gap-1.5">
-          <LockKeyhole size={12} aria-hidden="true" /> HTML escaped
+          <LockKeyIcon size={12} aria-hidden="true" /> HTML escaped
         </span>
         <span>Executable URL removed</span>
         <span>Markdown preserved</span>

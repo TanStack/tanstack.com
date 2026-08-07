@@ -21,7 +21,7 @@ import { Chart } from '@tanstack/react-charts'
 import { GIFEncoder, applyPalette, quantize } from 'gifenc'
 import {
   CheckIcon,
-  CodeIcon as Code2,
+  CodeIcon,
   CopyIcon,
   DownloadIcon,
   ListIcon,
@@ -1719,7 +1719,7 @@ function EmbedChartAction({
             className={chartActionButtonStyles}
             type="button"
           >
-            <Code2 className="size-3" />
+            <CodeIcon className="size-3" />
           </button>
         </DropdownMenuTrigger>
       </Tooltip>

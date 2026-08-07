@@ -1,9 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import {
-  DownloadIcon,
-  ArrowsClockwiseIcon as RefreshCw,
-} from '@phosphor-icons/react'
+import { DownloadIcon, ArrowsClockwiseIcon } from '@phosphor-icons/react'
 import { Card } from '~/components/Card'
 import { NpmIcon } from '~/components/icons/NpmIcon'
 import { homepageNpmStatsSummaryQuery } from '~/queries/stats'
@@ -53,7 +50,7 @@ function NpmStatsAdmin() {
             onClick={() => refreshSummaryMutation.mutate()}
             title="Refresh the NPM summary cache from NPM stats chunks"
           >
-            <RefreshCw
+            <ArrowsClockwiseIcon
               className={refreshSummaryMutation.isPending ? 'animate-spin' : ''}
             />
             {refreshSummaryMutation.isPending

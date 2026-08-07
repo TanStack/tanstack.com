@@ -26,14 +26,14 @@ import { HammerIcon } from '@phosphor-icons/react/Hammer'
 import { HeartIcon } from '@phosphor-icons/react/Heart'
 import { InfinityIcon } from '@phosphor-icons/react/Infinity'
 import { LifebuoyIcon } from '@phosphor-icons/react/Lifebuoy'
-import { ListIcon as Menu } from '@phosphor-icons/react/List'
+import { ListIcon } from '@phosphor-icons/react/List'
 import { MagnifyingGlassIcon } from '@phosphor-icons/react/MagnifyingGlass'
 import { MailboxIcon } from '@phosphor-icons/react/Mailbox'
 import { ShieldCheckIcon } from '@phosphor-icons/react/ShieldCheck'
 import { ShoppingBagIcon } from '@phosphor-icons/react/ShoppingBag'
 import { SignInIcon } from '@phosphor-icons/react/SignIn'
-import { SparkleIcon as Sparkles } from '@phosphor-icons/react/Sparkle'
-import { TrendUpIcon as TrendingUp } from '@phosphor-icons/react/TrendUp'
+import { SparkleIcon } from '@phosphor-icons/react/Sparkle'
+import { TrendUpIcon } from '@phosphor-icons/react/TrendUp'
 import { UsersIcon } from '@phosphor-icons/react/Users'
 import { XIcon } from '@phosphor-icons/react/X'
 import { ThemeToggle } from './ThemeToggle'
@@ -174,7 +174,7 @@ const NAV_GROUPS = [
             label: 'Release Notes',
             to: '/blog',
             description: 'The latest releases and changelog.',
-            icon: Sparkles,
+            icon: SparkleIcon,
           },
         ],
       },
@@ -214,7 +214,7 @@ const NAV_GROUPS = [
             label: 'Showcase',
             to: '/showcase',
             description: 'Teams building with TanStack.',
-            icon: Sparkles,
+            icon: SparkleIcon,
           },
         ],
       },
@@ -238,7 +238,7 @@ const NAV_GROUPS = [
             label: 'Stats',
             to: '/stats/npm',
             description: 'NPM and ecosystem usage data.',
-            icon: TrendingUp,
+            icon: TrendUpIcon,
           },
         ],
       },
@@ -658,7 +658,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           {mobileMenuOpen ? (
             <XIcon className="h-5 w-5" />
           ) : (
-            <Menu className="h-5 w-5" />
+            <ListIcon className="h-5 w-5" />
           )}
         </button>
       </div>
@@ -922,7 +922,7 @@ function MobileNavigation({
               onClick={() => openUtility('ai')}
               className="flex w-full items-center gap-3.5 rounded-xl px-3 py-4 text-left font-ds-display text-ds-heading-3 text-[#a3a3a3] transition-colors hover:bg-[#171717] hover:text-white focus-visible:bg-[#171717] focus-visible:text-white focus-visible:outline-none"
             >
-              <Sparkles className="size-8 shrink-0" />
+              <SparkleIcon className="size-8 shrink-0" />
               Ask AI
             </button>
             {loadAuthControls ? (

@@ -3,7 +3,7 @@ import { Link, createFileRoute, notFound } from '@tanstack/react-router'
 import {
   ArrowRightIcon,
   ArrowUpRightIcon,
-  CheckCircleIcon as CheckCircle2,
+  CheckCircleIcon,
   CircleDashedIcon,
 } from '@phosphor-icons/react'
 import { Card } from '~/components/Card'
@@ -119,7 +119,7 @@ function PartnerDetailPage() {
                     }`}
                   >
                     {isActive ? (
-                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      <CheckCircleIcon className="h-3.5 w-3.5" />
                     ) : (
                       <CircleDashedIcon className="h-3.5 w-3.5" />
                     )}

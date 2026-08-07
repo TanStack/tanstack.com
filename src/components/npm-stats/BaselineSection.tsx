@@ -1,12 +1,12 @@
 import * as React from 'react'
 import {
-  PushPinIcon as Pin,
-  PushPinSlashIcon as PinOff,
+  PushPinIcon,
+  PushPinSlashIcon,
   PlusIcon,
   XIcon,
-  CaretDownIcon as ChevronDown,
+  CaretDownIcon,
   EyeIcon,
-  EyeSlashIcon as EyeOff,
+  EyeSlashIcon,
 } from '@phosphor-icons/react'
 import {
   DropdownMenu,
@@ -75,9 +75,9 @@ export function BaselineSection({
         )}
       >
         {normalizeActive ? (
-          <Pin className="w-3 h-3" />
+          <PushPinIcon className="w-3 h-3" />
         ) : (
-          <PinOff className="w-3 h-3" />
+          <PushPinSlashIcon className="w-3 h-3" />
         )}
         <span>Baseline</span>
       </button>
@@ -111,14 +111,14 @@ export function BaselineSection({
             {isBaselineShown ? (
               <EyeIcon className="w-3 h-3 text-blue-600 dark:text-blue-300" />
             ) : (
-              <EyeOff className="w-3 h-3 text-gray-400 dark:text-gray-500" />
+              <EyeSlashIcon className="w-3 h-3 text-gray-400 dark:text-gray-500" />
             )}
             {baselineName}
           </button>
         </Tooltip>
       ) : (
         <div className="flex items-center gap-1.5">
-          <EyeOff className="w-3 h-3 text-gray-400 dark:text-gray-500" />
+          <EyeSlashIcon className="w-3 h-3 text-gray-400 dark:text-gray-500" />
           {baselineName}
         </div>
       )}
@@ -156,7 +156,7 @@ export function BaselineSection({
               text-blue-700 dark:text-blue-300 hover:bg-blue-500/10 font-medium"
           >
             Presets
-            <ChevronDown className="w-3 h-3" />
+            <CaretDownIcon className="w-3 h-3" />
           </button>
         </DropdownMenuTrigger>
       </Tooltip>
@@ -255,7 +255,7 @@ export function BaselineSection({
           <div className="bg-white dark:bg-gray-800 rounded-lg p-2 sm:p-4 w-full max-w-md">
             <div className="flex justify-between items-center mb-2 sm:mb-4">
               <h3 className="text-base sm:text-lg font-medium flex items-center gap-2">
-                <Pin className="w-4 h-4 text-blue-500" />
+                <PushPinIcon className="w-4 h-4 text-blue-500" />
                 Add baseline package
               </h3>
               <button

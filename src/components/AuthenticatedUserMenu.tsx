@@ -38,6 +38,7 @@ export function AuthenticatedUserMenu({
   return (
     <Dropdown>
       <DropdownTrigger
+        nativeButton={false}
         render={
           <div className="flex items-center gap-1 cursor-pointer h-[26px]">
             <Avatar

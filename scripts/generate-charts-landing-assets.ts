@@ -12,6 +12,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
+import './pin-catalog-locale'
 import { catalogCases } from '@tanstack/react-charts-catalog'
 import type { ComponentType } from 'react'
 import type { CatalogChartProps } from '@tanstack/react-charts-catalog'

@@ -1297,7 +1297,7 @@ export function LibraryLayout({
         onPointerLeave={(e) => {
           if (e.pointerType === 'touch') return
           // Keep sidebar open while a dropdown opened from inside it is active (e.g. FrameworkSelect, VersionSelect)
-          if (expandedMenuRef.current?.querySelector('[data-state="open"]'))
+          if (expandedMenuRef.current?.querySelector('[data-popup-open]'))
             return
           if (window.innerWidth < 1280) {
             leaveTimer.current = setTimeout(() => {

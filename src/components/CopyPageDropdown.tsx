@@ -315,18 +315,20 @@ export function CopyPageDropdown({
         )}
       </Button>
       <Dropdown open={open} onOpenChange={setOpen}>
-        <DropdownTrigger>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            rounded="none"
-            className="border-0 px-1.5"
-            aria-label={`More ${label} options`}
-          >
-            <CaretDownIcon className="w-3 h-3" />
-          </Button>
-        </DropdownTrigger>
+        <DropdownTrigger
+          render={
+            <Button
+              type="button"
+              variant="ghost"
+              size="xs"
+              rounded="none"
+              className="border-0 px-1.5"
+              aria-label={`More ${label} options`}
+            >
+              <CaretDownIcon className="w-3 h-3" />
+            </Button>
+          }
+        />
         <DropdownContent align="end" className="min-w-72">
           {menuItems.map((item) => (
             <DropdownItem

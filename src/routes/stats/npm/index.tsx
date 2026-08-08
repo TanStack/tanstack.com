@@ -2,7 +2,7 @@ import * as React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { useThrottledCallback, useThrottler } from '@tanstack/react-pacer'
-import * as DialogPrimitive from '@radix-ui/react-dialog'
+import { Dialog } from '@base-ui/react/dialog'
 import { QuestionIcon, XIcon } from '@phosphor-icons/react'
 import { useQuery } from '@tanstack/react-query'
 import { Card } from '~/components/ds/ui'
@@ -1074,27 +1074,27 @@ function RouteComponent() {
           </div>
 
           {/* Combine Package Dialog */}
-          <DialogPrimitive.Root
+          <Dialog.Root
             open={combiningPackage !== null}
             onOpenChange={(open) => {
               if (!open) setCombiningPackage(null)
             }}
           >
-            <DialogPrimitive.Portal>
-              <DialogPrimitive.Overlay className="fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm" />
-              <DialogPrimitive.Content className="fixed left-1/2 top-1/2 z-[1000] w-[calc(100%-1rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white dark:bg-gray-900 p-4 shadow-xl outline-none">
+            <Dialog.Portal>
+              <Dialog.Backdrop className="fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm" />
+              <Dialog.Popup className="fixed left-1/2 top-1/2 z-[1000] w-[calc(100%-1rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white dark:bg-gray-900 p-4 shadow-xl outline-none">
                 <div className="flex justify-between items-center mb-4">
-                  <DialogPrimitive.Title className="text-base sm:text-lg font-medium text-gray-900 dark:text-gray-100">
+                  <Dialog.Title className="text-base sm:text-lg font-medium text-gray-900 dark:text-gray-100">
                     Add packages to {combiningPackage}
-                  </DialogPrimitive.Title>
-                  <DialogPrimitive.Close className="rounded-full p-1 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500">
+                  </Dialog.Title>
+                  <Dialog.Close className="rounded-full p-1 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500">
                     <XIcon className="w-4 h-4 sm:w-5 sm:h-5" />
-                  </DialogPrimitive.Close>
+                  </Dialog.Close>
                 </div>
-                <DialogPrimitive.Description className="sr-only">
+                <Dialog.Description className="sr-only">
                   Search for additional npm packages to combine with{' '}
                   {combiningPackage}.
-                </DialogPrimitive.Description>
+                </Dialog.Description>
                 {combiningPackage && (
                   <PackageSearch
                     onSelect={handleAddToGroup}
@@ -1103,9 +1103,9 @@ function RouteComponent() {
                     autoFocus={true}
                   />
                 )}
-              </DialogPrimitive.Content>
-            </DialogPrimitive.Portal>
-          </DialogPrimitive.Root>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
 
           {/* Color Picker Popover */}
           {colorPickerPackage && colorPickerPosition && (

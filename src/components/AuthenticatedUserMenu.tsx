@@ -37,54 +37,65 @@ export function AuthenticatedUserMenu({
 }: AuthenticatedUserMenuProps) {
   return (
     <Dropdown>
-      <DropdownTrigger>
-        <div className="flex items-center gap-1 cursor-pointer h-[26px]">
-          <Avatar
-            image={user?.image}
-            oauthImage={user?.oauthImage}
-            name={user?.name}
-            email={user?.email}
-            size="xs"
-            className="w-[26px] h-[26px]"
-          />
-          <CaretDownIcon className="w-3 h-3 opacity-50" />
-        </div>
-      </DropdownTrigger>
+      <DropdownTrigger
+        nativeButton={false}
+        render={
+          <div className="flex items-center gap-1 cursor-pointer h-[26px]">
+            <Avatar
+              image={user?.image}
+              oauthImage={user?.oauthImage}
+              name={user?.name}
+              email={user?.email}
+              size="xs"
+              className="w-[26px] h-[26px]"
+            />
+            <CaretDownIcon className="w-3 h-3 opacity-50" />
+          </div>
+        }
+      />
       <DropdownContent align="end">
         <div className="px-2 py-1.5 text-xs text-gray-500 dark:text-gray-400">
           {user?.email}
         </div>
         <DropdownSeparator />
-        <DropdownItem asChild>
-          <Link to="/account" className="flex items-center gap-2">
-            <GearIcon className="w-4 h-4" />
-            <span>Account</span>
-          </Link>
-        </DropdownItem>
-        <DropdownItem asChild>
-          <Link to="/account/submissions" className="flex items-center gap-2">
-            <SparkleIcon className="w-4 h-4" />
-            <span>My Showcases</span>
-          </Link>
-        </DropdownItem>
-        {canApiKeys && (
-          <DropdownItem asChild>
-            <Link
-              to="/account/integrations"
-              className="flex items-center gap-2"
-            >
-              <KeyIcon className="w-4 h-4" />
-              <span>Integrations</span>
+        <DropdownItem
+          render={
+            <Link to="/account" className="flex items-center gap-2">
+              <GearIcon className="w-4 h-4" />
+              <span>Account</span>
             </Link>
-          </DropdownItem>
+          }
+        />
+        <DropdownItem
+          render={
+            <Link to="/account/submissions" className="flex items-center gap-2">
+              <SparkleIcon className="w-4 h-4" />
+              <span>My Showcases</span>
+            </Link>
+          }
+        />
+        {canApiKeys && (
+          <DropdownItem
+            render={
+              <Link
+                to="/account/integrations"
+                className="flex items-center gap-2"
+              >
+                <KeyIcon className="w-4 h-4" />
+                <span>Integrations</span>
+              </Link>
+            }
+          />
         )}
         {canAdmin && (
-          <DropdownItem asChild>
-            <Link to="/admin" className="flex items-center gap-2">
-              <LockIcon className="w-4 h-4" />
-              <span>Admin</span>
-            </Link>
-          </DropdownItem>
+          <DropdownItem
+            render={
+              <Link to="/admin" className="flex items-center gap-2">
+                <LockIcon className="w-4 h-4" />
+                <span>Admin</span>
+              </Link>
+            }
+          />
         )}
         <DropdownSeparator />
         <DropdownItem onSelect={onSignOut}>

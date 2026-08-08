@@ -44,15 +44,13 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@base-ui/react": "^1.7.0",
     "@fingerprintjs/fingerprintjs-pro-react": "^2.7.1",
     "@floating-ui/react": "^0.27.19",
     "@kapaai/react-sdk": "^0.9.10",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@octokit/graphql": "^9.0.3",
     "@phosphor-icons/react": "^2.1.10",
-    "@radix-ui/react-dialog": "^1.1.15",
-    "@radix-ui/react-dropdown-menu": "^2.1.16",
-    "@radix-ui/react-tooltip": "^1.2.8",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
     "@sentry/browser": "^10.47.0",

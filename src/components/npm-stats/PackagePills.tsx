@@ -12,7 +12,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from './DropdownMenu'
+} from '~/components/DropdownMenu'
 import { Tooltip } from '~/components/Tooltip'
 import {
   type PackageGroup,

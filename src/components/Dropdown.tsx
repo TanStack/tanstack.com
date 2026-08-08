@@ -2,6 +2,11 @@ import * as React from 'react'
 import { Menu } from '@base-ui/react/menu'
 import { twMerge } from 'tailwind-merge'
 
+/**
+ * Base UI menu with the site's default surface styling on the popup. Reach for
+ * the sibling `DropdownMenu.tsx` instead when the call site supplies its own.
+ */
+
 type DropdownProps = {
   children: React.ReactNode
   open?: boolean

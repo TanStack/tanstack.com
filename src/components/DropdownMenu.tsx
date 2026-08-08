@@ -3,10 +3,13 @@ import { Menu } from '@base-ui/react/menu'
 import { twMerge } from 'tailwind-merge'
 
 /**
- * Base UI menu shaped like the flat `DropdownMenu*` API the stats and chart
- * controls already use, so those call sites stay unchanged. Base UI splits the
- * menu surface into `Positioner` + `Popup`; `DropdownMenuContent` keeps that
- * split internal and applies the caller's className to the popup.
+ * Unstyled Base UI menu. `DropdownMenuContent` passes the caller's className
+ * straight to the popup, so each call site brings its own surface styling —
+ * unlike the sibling `Dropdown.tsx`, which ships a default one.
+ *
+ * Base UI splits the menu surface into `Positioner` + `Popup`; that split is
+ * kept internal here so the flat `DropdownMenu*` API stays a single element
+ * per part.
  */
 
 export function DropdownMenu({

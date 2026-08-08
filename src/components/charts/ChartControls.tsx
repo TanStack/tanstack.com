@@ -5,7 +5,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~/components/npm-stats/DropdownMenu'
+} from '~/components/DropdownMenu'
 import { twMerge } from 'tailwind-merge'
 import {
   type TimeRange,

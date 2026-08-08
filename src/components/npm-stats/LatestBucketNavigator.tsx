@@ -15,7 +15,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from './DropdownMenu'
+} from '~/components/DropdownMenu'
 import {
   binningOptionsByType,
   getLatestBucketOffsetBounds,

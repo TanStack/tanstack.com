@@ -12,10 +12,10 @@ export function ButtonGroup({ children, className }: ButtonGroupProps) {
       className={twMerge(
         'inline-flex items-stretch overflow-hidden rounded-md',
         'border border-border-default',
-        'divide-x divide-border-default',
+        '[&>*]:border-0 [&>*+*]:border-l [&>*+*]:border-border-default',
         'bg-background-surface text-text-primary',
         'shadow-sm',
-        '[&>[aria-pressed=true]]:border-transparent [&>[aria-pressed=true]]:bg-text-primary [&>[aria-pressed=true]]:text-background-default [&>[aria-pressed=true]]:shadow-sm',
+        '[&>[aria-pressed=true]]:bg-text-primary [&>[aria-pressed=true]]:text-background-default [&>[aria-pressed=true]]:shadow-sm',
         className,
       )}
     >

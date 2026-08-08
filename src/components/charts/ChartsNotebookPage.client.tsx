@@ -522,7 +522,7 @@ export function ChartsNotebookPage() {
   }, [source])
 
   React.useEffect(() => {
-    if (!sourceReady) return
+    if (!showNotebook || !sourceReady) return
 
     let active = true
     const timeout = window.setTimeout(() => {
@@ -545,7 +545,7 @@ export function ChartsNotebookPage() {
       active = false
       window.clearTimeout(timeout)
     }
-  }, [source, sourceReady])
+  }, [showNotebook, source, sourceReady])
 
   React.useEffect(() => {
     document.title = `${notebookTitle.trim() || defaultNotebookTitle} | TanStack`

@@ -30,7 +30,7 @@ function DropdownPage() {
   return (
     <DsPage
       title="Dropdown"
-      description="A menu built on Base UI primitives, composed from Dropdown + Trigger + Content + Item + Separator. Source: src/components/Dropdown.tsx."
+      description="A menu built on Base UI primitives, composed from Dropdown + Trigger + Content + Item + Separator. Source: src/components/ds/ui/index.tsx."
     >
       <DsSection
         title="Basic menu"

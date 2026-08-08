@@ -1146,7 +1146,11 @@ export function ChartsNotebookPage() {
               : 'h-[calc(100dvh-var(--navbar-height))] min-h-[640px] overflow-hidden'
           }`}
         >
-          <header className="sticky top-[var(--navbar-height)] z-30 flex min-h-14 items-center gap-3 border-b border-border-default bg-background-default px-3 text-text-primary sm:px-4">
+          <header
+            className={`sticky z-30 flex min-h-14 items-center gap-3 border-b border-border-default bg-background-default px-3 text-text-primary sm:px-4 ${
+              fluidOutput ? 'top-[var(--navbar-height)]' : 'top-0'
+            }`}
+          >
             <div className="min-w-0 flex-1">
               <input
                 aria-label="Notebook title"

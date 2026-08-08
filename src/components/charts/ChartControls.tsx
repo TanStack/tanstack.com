@@ -1,11 +1,6 @@
 import * as React from 'react'
 import { CaretDownIcon } from '@phosphor-icons/react'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '~/components/DropdownMenu'
+import { Menu } from '@base-ui/react/menu'
 import { twMerge } from 'tailwind-merge'
 import {
   type TimeRange,
@@ -43,8 +38,8 @@ export function ChartControls({
 
   return (
     <div className={twMerge('flex gap-1 items-center', className)}>
-      <DropdownMenu>
-        <DropdownMenuTrigger
+      <Menu.Root>
+        <Menu.Trigger
           render={
             <button className={buttonStyles.base}>
               {timeRangeOptions.find((r) => r.value === timeRange)?.label}
@@ -52,25 +47,29 @@ export function ChartControls({
             </button>
           }
         />
-        <DropdownMenuContent className="min-w-[120px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-1 z-50">
-          {timeRangeOptions.map(({ value, label }) => (
-            <DropdownMenuItem
-              key={value}
-              onSelect={() => handleTimeRangeChange(value)}
-              className={twMerge(
-                'w-full px-2 py-1.5 text-left text-xs rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
-                value === timeRange ? 'text-blue-500 bg-blue-500/10' : '',
-                'data-highlighted:bg-gray-500/20',
-              )}
-            >
-              {label}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
+        <Menu.Portal>
+          <Menu.Positioner align="start" sideOffset={4} className="z-50">
+            <Menu.Popup className="min-w-[120px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-1 z-50">
+              {timeRangeOptions.map(({ value, label }) => (
+                <Menu.Item
+                  key={value}
+                  onClick={() => handleTimeRangeChange(value)}
+                  className={twMerge(
+                    'w-full px-2 py-1.5 text-left text-xs rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
+                    value === timeRange ? 'text-blue-500 bg-blue-500/10' : '',
+                    'data-highlighted:bg-gray-500/20',
+                  )}
+                >
+                  {label}
+                </Menu.Item>
+              ))}
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger
+      <Menu.Root>
+        <Menu.Trigger
           render={
             <button
               className={twMerge(
@@ -84,22 +83,26 @@ export function ChartControls({
             </button>
           }
         />
-        <DropdownMenuContent className="min-w-[100px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-1 z-50">
-          {binningOptions.map(({ value, label }) => (
-            <DropdownMenuItem
-              key={value}
-              onSelect={() => onBinTypeChange(value)}
-              className={twMerge(
-                'w-full px-2 py-1.5 text-left text-xs rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
-                binType === value ? 'text-blue-500 bg-blue-500/10' : '',
-                'data-highlighted:bg-gray-500/20',
-              )}
-            >
-              {label}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
+        <Menu.Portal>
+          <Menu.Positioner align="start" sideOffset={4} className="z-50">
+            <Menu.Popup className="min-w-[100px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-1 z-50">
+              {binningOptions.map(({ value, label }) => (
+                <Menu.Item
+                  key={value}
+                  onClick={() => onBinTypeChange(value)}
+                  className={twMerge(
+                    'w-full px-2 py-1.5 text-left text-xs rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
+                    binType === value ? 'text-blue-500 bg-blue-500/10' : '',
+                    'data-highlighted:bg-gray-500/20',
+                  )}
+                >
+                  {label}
+                </Menu.Item>
+              ))}
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>
     </div>
   )
 }

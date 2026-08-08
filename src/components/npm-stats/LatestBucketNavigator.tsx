@@ -10,12 +10,7 @@ import {
   PauseIcon,
   PlayIcon,
 } from '@phosphor-icons/react'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '~/components/DropdownMenu'
+import { Menu } from '@base-ui/react/menu'
 import {
   binningOptionsByType,
   getLatestBucketOffsetBounds,
@@ -252,8 +247,8 @@ export function LatestBucketNavigator({
             <PlayIcon className="size-3.5" />
           )}
         </button>
-        <DropdownMenu>
-          <DropdownMenuTrigger
+        <Menu.Root>
+          <Menu.Trigger
             render={
               <button
                 aria-label="Bucket playback options"
@@ -264,64 +259,68 @@ export function LatestBucketNavigator({
               </button>
             }
           />
-          <DropdownMenuContent
-            align="start"
-            className="z-50 min-w-[160px] rounded-md bg-white p-1.5 shadow-lg dark:bg-gray-800"
-            collisionPadding={8}
-            sideOffset={5}
-          >
-            <div className="mb-1 flex items-center justify-between px-0.5 text-xs font-medium">
-              <span>Playback Speed</span>
-            </div>
-            {playbackSpeedOptions.map((option) => (
-              <DropdownMenuItem
-                className={menuItemStyles}
-                key={option.intervalMs}
-                onSelect={() => onPlaybackIntervalChange(option.intervalMs)}
-              >
-                <CheckIcon
-                  className={
-                    option.intervalMs === playbackIntervalMs
-                      ? 'size-3 opacity-100'
-                      : 'size-3 opacity-0'
-                  }
-                />
-                <span>{option.label}</span>
-              </DropdownMenuItem>
-            ))}
-            <div className="mt-1 px-0.5 pb-1">
-              <label
-                className="mb-1 block text-xs font-medium"
-                htmlFor={playbackIntervalInputId}
-              >
-                Custom ms
-              </label>
-              <input
-                className="h-6 w-full rounded border border-gray-500/20 bg-transparent px-1.5 text-xs outline-none focus:border-blue-500"
-                id={playbackIntervalInputId}
-                max={maxPlaybackIntervalMs}
-                min={1}
-                onChange={handlePlaybackIntervalInputChange}
-                onKeyDown={(event) => event.stopPropagation()}
-                step={1}
-                type="number"
-                value={playbackIntervalInput}
-              />
-            </div>
-            <div className="my-1 h-px bg-gray-500/20" />
-            <DropdownMenuItem
-              className={menuItemStyles}
-              onSelect={() => onLoopingChange(!isLooping)}
+          <Menu.Portal>
+            <Menu.Positioner
+              align="start"
+              sideOffset={5}
+              collisionPadding={8}
+              className="z-50"
             >
-              <CheckIcon
-                className={
-                  isLooping ? 'size-3 opacity-100' : 'size-3 opacity-0'
-                }
-              />
-              <span>Loop</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              <Menu.Popup className="z-50 min-w-[160px] rounded-md bg-white p-1.5 shadow-lg dark:bg-gray-800">
+                <div className="mb-1 flex items-center justify-between px-0.5 text-xs font-medium">
+                  <span>Playback Speed</span>
+                </div>
+                {playbackSpeedOptions.map((option) => (
+                  <Menu.Item
+                    className={menuItemStyles}
+                    key={option.intervalMs}
+                    onClick={() => onPlaybackIntervalChange(option.intervalMs)}
+                  >
+                    <CheckIcon
+                      className={
+                        option.intervalMs === playbackIntervalMs
+                          ? 'size-3 opacity-100'
+                          : 'size-3 opacity-0'
+                      }
+                    />
+                    <span>{option.label}</span>
+                  </Menu.Item>
+                ))}
+                <div className="mt-1 px-0.5 pb-1">
+                  <label
+                    className="mb-1 block text-xs font-medium"
+                    htmlFor={playbackIntervalInputId}
+                  >
+                    Custom ms
+                  </label>
+                  <input
+                    className="h-6 w-full rounded border border-gray-500/20 bg-transparent px-1.5 text-xs outline-none focus:border-blue-500"
+                    id={playbackIntervalInputId}
+                    max={maxPlaybackIntervalMs}
+                    min={1}
+                    onChange={handlePlaybackIntervalInputChange}
+                    onKeyDown={(event) => event.stopPropagation()}
+                    step={1}
+                    type="number"
+                    value={playbackIntervalInput}
+                  />
+                </div>
+                <div className="my-1 h-px bg-gray-500/20" />
+                <Menu.Item
+                  className={menuItemStyles}
+                  onClick={() => onLoopingChange(!isLooping)}
+                >
+                  <CheckIcon
+                    className={
+                      isLooping ? 'size-3 opacity-100' : 'size-3 opacity-0'
+                    }
+                  />
+                  <span>Loop</span>
+                </Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
         <div className="flex h-6 min-w-36 max-w-[300px] flex-1 items-center border-l border-gray-500/15 bg-gray-500/5 px-1.5">
           <input
             aria-label={`Scrub ${binLabel}s`}

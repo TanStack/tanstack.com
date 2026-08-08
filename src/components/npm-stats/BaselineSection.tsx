@@ -8,12 +8,7 @@ import {
   EyeIcon,
   EyeSlashIcon,
 } from '@phosphor-icons/react'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '~/components/DropdownMenu'
+import { Menu } from '@base-ui/react/menu'
 import { twMerge } from 'tailwind-merge'
 import { Tooltip } from '~/components/Tooltip'
 import { PackageSearch } from './PackageSearch'
@@ -148,9 +143,9 @@ export function BaselineSection({
   )
 
   const presetsMenu = (
-    <DropdownMenu>
+    <Menu.Root>
       <Tooltip content="Apply a curated baseline preset">
-        <DropdownMenuTrigger
+        <Menu.Trigger
           render={
             <button
               className="flex items-center gap-0.5 px-1.5 py-0.5 text-xs rounded
@@ -162,73 +157,74 @@ export function BaselineSection({
           }
         />
       </Tooltip>
-      <DropdownMenuContent
-        className="min-w-[320px] max-w-[400px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 z-50 border border-gray-200 dark:border-gray-700"
-        sideOffset={5}
-        align="start"
-      >
-        <div className="px-2 pt-1 pb-0.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-          Single Package
-        </div>
-        {presets
-          .filter((p) => p.category === 'single')
-          .map((preset) => (
-            <DropdownMenuItem
-              key={preset.id}
-              closeOnClick={false}
-              onSelect={() => onApplyPreset(preset)}
-              className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/10 outline-none cursor-pointer flex items-center gap-2"
-            >
-              <div
-                className="w-2.5 h-2.5 rounded"
-                style={{
-                  backgroundColor: preset.packages[0]?.color ?? 'currentColor',
-                }}
-              />
-              <span className="font-medium text-gray-900 dark:text-gray-100">
-                {preset.title}
-              </span>
-            </DropdownMenuItem>
-          ))}
-
-        <div className="h-px bg-gray-500/20 my-1.5" />
-
-        <div className="px-2 pt-1 pb-0.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-          Equal-Weighted Index
-        </div>
-        {presets
-          .filter((p) => p.category === 'index')
-          .map((preset) => (
-            <DropdownMenuItem
-              key={preset.id}
-              closeOnClick={false}
-              onSelect={() => onApplyPreset(preset)}
-              className="w-full px-2 py-2 text-left text-sm rounded hover:bg-gray-500/10 outline-none cursor-pointer"
-            >
-              <div className="font-medium text-gray-900 dark:text-gray-100">
-                {preset.title}
-              </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                {preset.description}
-              </div>
-              <div className="flex flex-wrap gap-1 mt-1.5">
-                {preset.packages.map((p) => (
+      <Menu.Portal>
+        <Menu.Positioner align="start" sideOffset={5} className="z-50">
+          <Menu.Popup className="min-w-[320px] max-w-[400px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 z-50 border border-gray-200 dark:border-gray-700">
+            <div className="px-2 pt-1 pb-0.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+              Single Package
+            </div>
+            {presets
+              .filter((p) => p.category === 'single')
+              .map((preset) => (
+                <Menu.Item
+                  key={preset.id}
+                  closeOnClick={false}
+                  onClick={() => onApplyPreset(preset)}
+                  className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/10 outline-none cursor-pointer flex items-center gap-2"
+                >
                   <div
-                    key={p.name}
-                    className="flex items-center gap-1 text-[10px] font-mono text-gray-600 dark:text-gray-300"
-                  >
-                    <div
-                      className="w-2 h-2 rounded"
-                      style={{ backgroundColor: p.color ?? 'currentColor' }}
-                    />
-                    {p.name}
+                    className="w-2.5 h-2.5 rounded"
+                    style={{
+                      backgroundColor:
+                        preset.packages[0]?.color ?? 'currentColor',
+                    }}
+                  />
+                  <span className="font-medium text-gray-900 dark:text-gray-100">
+                    {preset.title}
+                  </span>
+                </Menu.Item>
+              ))}
+
+            <div className="h-px bg-gray-500/20 my-1.5" />
+
+            <div className="px-2 pt-1 pb-0.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+              Equal-Weighted Index
+            </div>
+            {presets
+              .filter((p) => p.category === 'index')
+              .map((preset) => (
+                <Menu.Item
+                  key={preset.id}
+                  closeOnClick={false}
+                  onClick={() => onApplyPreset(preset)}
+                  className="w-full px-2 py-2 text-left text-sm rounded hover:bg-gray-500/10 outline-none cursor-pointer"
+                >
+                  <div className="font-medium text-gray-900 dark:text-gray-100">
+                    {preset.title}
                   </div>
-                ))}
-              </div>
-            </DropdownMenuItem>
-          ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                    {preset.description}
+                  </div>
+                  <div className="flex flex-wrap gap-1 mt-1.5">
+                    {preset.packages.map((p) => (
+                      <div
+                        key={p.name}
+                        className="flex items-center gap-1 text-[10px] font-mono text-gray-600 dark:text-gray-300"
+                      >
+                        <div
+                          className="w-2 h-2 rounded"
+                          style={{ backgroundColor: p.color ?? 'currentColor' }}
+                        />
+                        {p.name}
+                      </div>
+                    ))}
+                  </div>
+                </Menu.Item>
+              ))}
+          </Menu.Popup>
+        </Menu.Positioner>
+      </Menu.Portal>
+    </Menu.Root>
   )
 
   return (

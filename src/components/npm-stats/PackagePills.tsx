@@ -178,8 +178,8 @@ export function PackagePill({
                           </div>
                         )}
                         <Menu.Item
-                          onClick={(e) => {
-                            e.preventDefault()
+                          closeOnClick={false}
+                          onClick={() => {
                             onToggleVisibility(
                               index,
                               hasLabel ? label : mainPackage.name,
@@ -195,12 +195,9 @@ export function PackagePill({
                           {isGroupHidden ? 'Show Package' : 'Hide Package'}
                         </Menu.Item>
                         <Menu.Item
+                          closeOnClick={false}
                           onClick={(e) => {
-                            e.preventDefault()
-                            onColorClick(
-                              mainPackage.name,
-                              e as unknown as React.MouseEvent,
-                            )
+                            onColorClick(mainPackage.name, e)
                           }}
                           className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer"
                         >
@@ -219,8 +216,8 @@ export function PackagePill({
                             {listedPackages.map((subPackage) => (
                               <Menu.Item
                                 key={subPackage.name}
-                                onClick={(e) => {
-                                  e.preventDefault()
+                                closeOnClick={false}
+                                onClick={() => {
                                   onToggleVisibility(index, subPackage.name)
                                 }}
                                 className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer"
@@ -259,8 +256,8 @@ export function PackagePill({
                         )}
                         {onCombinePackage && (
                           <Menu.Item
-                            onClick={(e) => {
-                              e.preventDefault()
+                            closeOnClick={false}
+                            onClick={() => {
                               onCombinePackage(mainPackage.name)
                             }}
                             className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer"

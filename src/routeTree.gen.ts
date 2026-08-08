@@ -23,6 +23,7 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PartnersEmbedRouteImport } from './routes/partners-embed'
 import { Route as PartnersRouteImport } from './routes/partners'
 import { Route as PaidSupportRouteImport } from './routes/paid-support'
+import { Route as NotebookRouteImport } from './routes/notebook'
 import { Route as MerchRouteImport } from './routes/merch'
 import { Route as MaintainersRouteImport } from './routes/maintainers'
 import { Route as LoginRouteImport } from './routes/login'
@@ -266,6 +267,11 @@ const PartnersRoute = PartnersRouteImport.update({
 const PaidSupportRoute = PaidSupportRouteImport.update({
   id: '/paid-support',
   path: '/paid-support',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotebookRoute = NotebookRouteImport.update({
+  id: '/notebook',
+  path: '/notebook',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MerchRoute = MerchRouteImport.update({
@@ -1213,6 +1219,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/maintainers': typeof MaintainersRoute
   '/merch': typeof MerchRoute
+  '/notebook': typeof NotebookRoute
   '/paid-support': typeof PaidSupportRoute
   '/partners': typeof PartnersRouteWithChildren
   '/partners-embed': typeof PartnersEmbedRoute
@@ -1397,6 +1404,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/maintainers': typeof MaintainersRoute
   '/merch': typeof MerchRoute
+  '/notebook': typeof NotebookRoute
   '/paid-support': typeof PaidSupportRoute
   '/partners-embed': typeof PartnersEmbedRoute
   '/privacy': typeof PrivacyRoute
@@ -1581,6 +1589,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/maintainers': typeof MaintainersRoute
   '/merch': typeof MerchRoute
+  '/notebook': typeof NotebookRoute
   '/paid-support': typeof PaidSupportRoute
   '/partners': typeof PartnersRouteWithChildren
   '/partners-embed': typeof PartnersEmbedRoute
@@ -1772,6 +1781,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/maintainers'
     | '/merch'
+    | '/notebook'
     | '/paid-support'
     | '/partners'
     | '/partners-embed'
@@ -1956,6 +1966,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/maintainers'
     | '/merch'
+    | '/notebook'
     | '/paid-support'
     | '/partners-embed'
     | '/privacy'
@@ -2139,6 +2150,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/maintainers'
     | '/merch'
+    | '/notebook'
     | '/paid-support'
     | '/partners'
     | '/partners-embed'
@@ -2330,6 +2342,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MaintainersRoute: typeof MaintainersRoute
   MerchRoute: typeof MerchRoute
+  NotebookRoute: typeof NotebookRoute
   PaidSupportRoute: typeof PaidSupportRoute
   PartnersRoute: typeof PartnersRouteWithChildren
   PartnersEmbedRoute: typeof PartnersEmbedRoute
@@ -2493,6 +2506,13 @@ declare module '@tanstack/react-router' {
       path: '/paid-support'
       fullPath: '/paid-support'
       preLoaderRoute: typeof PaidSupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notebook': {
+      id: '/notebook'
+      path: '/notebook'
+      fullPath: '/notebook'
+      preLoaderRoute: typeof NotebookRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/merch': {
@@ -4100,6 +4120,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MaintainersRoute: MaintainersRoute,
   MerchRoute: MerchRoute,
+  NotebookRoute: NotebookRoute,
   PaidSupportRoute: PaidSupportRoute,
   PartnersRoute: PartnersRouteWithChildren,
   PartnersEmbedRoute: PartnersEmbedRoute,

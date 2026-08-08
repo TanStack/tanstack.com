@@ -2,6 +2,7 @@ import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
+import './pin-catalog-locale'
 import { catalogCases } from '@tanstack/react-charts-catalog'
 
 type CatalogCaseMetadata = {

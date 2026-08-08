@@ -2,27 +2,36 @@ import * as React from 'react'
 import {
   ArrowRightIcon,
   CheckIcon,
+  CodeIcon,
   CopyIcon,
   PlayIcon,
+  PlusIcon,
+  QuestionIcon,
+  TerminalWindowIcon,
 } from '@phosphor-icons/react'
 import { createHighlighter } from '@tanstack/highlight/core'
-import { js } from '@tanstack/highlight/languages/js'
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '~/components/Collapsible'
+import { tsx } from '@tanstack/highlight/languages/tsx'
+import * as esbuild from 'esbuild-wasm'
+import esbuildWasmUrl from 'esbuild-wasm/esbuild.wasm?url'
+import { Collapsible, CollapsibleContent } from '~/components/Collapsible'
+import { ButtonGroup } from '~/components/ButtonGroup'
+import { NotebookGuideDialog } from '~/components/charts/NotebookGuideDialog'
+import { Button } from '~/components/ds/ui'
 import { copyTextToClipboard } from '~/utils/browser-effects'
 import {
   createSharedChartUrl,
   decodeSharedChartSource,
   encodeSharedChartSource,
 } from '~/utils/charts-notebook'
+import {
+  notebookImports,
+  notebookStarterSource,
+} from '~/utils/notebook-environment'
 import { notebookExamples } from '~/utils/notebook-examples'
 
 const draftStorageKey = 'tanstack-charts-notebook-source:v1'
 const defaultNotebookTitle = 'Notebook'
-const sourceHighlighter = createHighlighter({ languages: [js] })
+const sourceHighlighter = createHighlighter({ languages: [tsx] })
 const editorTextStyle = {
   fontFamily:
     'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
@@ -33,36 +42,26 @@ const editorTextStyle = {
   lineHeight: '24px',
   tabSize: 2,
 } satisfies React.CSSProperties
-const notebookImportMap = JSON.stringify({
-  imports: {
-    '@tanstack/charts': 'https://esm.sh/@tanstack/charts@0.6.5',
-    '@tanstack/charts/': 'https://esm.sh/@tanstack/charts@0.6.5/',
-    '@tanstack/charts-data/':
-      'https://esm.sh/gh/TanStack/charts@b8690671d677244848cff0eebd3d5dd0d5825b18/packages/charts-demo-data/src/',
-    '@tanstack/highlight': 'https://esm.sh/@tanstack/highlight@0.0.9',
-    '@tanstack/highlight/': 'https://esm.sh/@tanstack/highlight@0.0.9/',
-    '@tanstack/markdown': 'https://esm.sh/@tanstack/markdown@0.0.11',
-    '@tanstack/pacer': 'https://esm.sh/@tanstack/pacer@0.21.1',
-    '@tanstack/react-charts':
-      'https://esm.sh/@tanstack/react-charts@0.6.5?external=react',
-    '@tanstack/react-pacer':
-      'https://esm.sh/@tanstack/react-pacer@0.22.1?external=react',
-    '@tanstack/react-query':
-      'https://esm.sh/@tanstack/react-query@5.100.11?external=react',
-    '@tanstack/react-router':
-      'https://esm.sh/@tanstack/react-router@1.170.16?external=react,react-dom',
-    '@tanstack/react-table':
-      'https://esm.sh/@tanstack/react-table@9.0.0?external=react,react-dom',
-    'd3-array': 'https://esm.sh/d3-array@3.2.4',
-    'd3-geo': 'https://esm.sh/d3-geo@3.1.1',
-    'd3-scale': 'https://esm.sh/d3-scale@4.0.2',
-    'd3-shape': 'https://esm.sh/d3-shape@3.2.0',
-    react: 'https://esm.sh/react@19.2.3',
-    'react/': 'https://esm.sh/react@19.2.3/',
-    'react-dom': 'https://esm.sh/react-dom@19.2.3',
-    'react-dom/': 'https://esm.sh/react-dom@19.2.3/',
-  },
-})
+const notebookImportMap = JSON.stringify({ imports: notebookImports })
+let esbuildInitialization: Promise<void> | undefined
+
+async function compileNotebookSource(source: string) {
+  esbuildInitialization ??= esbuild.initialize({ wasmURL: esbuildWasmUrl })
+  await esbuildInitialization
+
+  const result = await esbuild.transform(source, {
+    format: 'esm',
+    jsx: 'automatic',
+    jsxImportSource: 'react',
+    legalComments: 'none',
+    loader: 'tsx',
+    sourcefile: 'notebook.tsx',
+    sourcemap: 'inline',
+    target: 'es2022',
+  })
+
+  return result.code
+}
 
 const defaultSource = `import { scaleBand, scaleLinear } from 'd3-scale'
 import { barY, defineChart, mountChart } from '@tanstack/charts'
@@ -130,7 +129,7 @@ function createSandboxDocument(
     <script type="importmap">${notebookImportMap}</script>
     <style>
       * { box-sizing: border-box; }
-      html, body, #output { width: 100%; min-height: 100%; margin: 0; }
+      html, body, #output { width: 100%; margin: 0; }
       :root {
         color-scheme: light;
         --notebook-background: #fff;
@@ -144,12 +143,13 @@ function createSandboxDocument(
         --notebook-error: #f87171;
       }
       body {
-        overflow: auto;
+        overflow-x: auto;
+        overflow-y: hidden;
         background: var(--notebook-background);
         color: var(--notebook-foreground);
         font-family: Inter, ui-sans-serif, system-ui, sans-serif;
       }
-      #output { min-height: 100vh; padding: 24px; }
+      #output { padding: 24px; }
       #output > pre {
         margin: 0;
         white-space: pre-wrap;
@@ -209,6 +209,42 @@ function createSandboxDocument(
           },
           '*',
         )
+      }
+
+      let postedHeight = 0
+      let heightFrame
+
+      function postHeight() {
+        heightFrame = undefined
+        const height = Math.ceil(
+          Math.max(output.scrollHeight, output.getBoundingClientRect().height),
+        )
+
+        if (height === postedHeight) return
+        postedHeight = height
+        parent.postMessage(
+          {
+            type: 'tanstack-charts-notebook:height',
+            runToken,
+            height,
+          },
+          '*',
+        )
+      }
+
+      function scheduleHeight() {
+        if (heightFrame !== undefined) return
+        heightFrame = requestAnimationFrame(postHeight)
+      }
+
+      const heightObserver = new ResizeObserver(scheduleHeight)
+      heightObserver.observe(document.documentElement)
+      heightObserver.observe(document.body)
+      heightObserver.observe(output)
+      scheduleHeight()
+
+      if (document.fonts) {
+        document.fonts.ready.then(scheduleHeight)
       }
 
       function formatError(error) {
@@ -333,6 +369,7 @@ function createSandboxDocument(
         }
 
         post('ready')
+        scheduleHeight()
       } catch (error) {
         const message = formatError(error)
         const pre = document.createElement('pre')
@@ -340,6 +377,7 @@ function createSandboxDocument(
         pre.textContent = message
         output.append(pre)
         post('error', message)
+        scheduleHeight()
       } finally {
         URL.revokeObjectURL(moduleUrl)
       }
@@ -355,6 +393,24 @@ type SandboxConsoleEntry = {
   level: SandboxConsoleLevel
   values: Array<string>
 }
+
+function isSandboxHeightMessage(
+  value: unknown,
+): value is { runToken: string; height: number } {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'type' in value &&
+    value.type === 'tanstack-charts-notebook:height' &&
+    'runToken' in value &&
+    typeof value.runToken === 'string' &&
+    'height' in value &&
+    typeof value.height === 'number' &&
+    Number.isFinite(value.height) &&
+    value.height > 0
+  )
+}
+
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max)
 }
@@ -457,7 +513,8 @@ export function ChartsNotebookPage() {
   )
   const [showSource, setShowSource] = React.useState(readShowSource)
   const [source, setSource] = React.useState(readStoredSource)
-  const [runningSource, setRunningSource] = React.useState(readStoredSource)
+  const [compiledSource, setCompiledSource] = React.useState<string>()
+  const [frameContentHeight, setFrameContentHeight] = React.useState<number>()
   const [runningTheme, setRunningTheme] = React.useState(readResolvedTheme)
   const [sourceReady, setSourceReady] = React.useState(false)
   const [runRevision, setRunRevision] = React.useState(0)
@@ -493,15 +550,20 @@ export function ChartsNotebookPage() {
   const skipSourceToggleAnimationRef = React.useRef(false)
   const copiedTimeoutRef = React.useRef<number | undefined>(undefined)
   const nextConsoleEntryIdRef = React.useRef(0)
+  const compileRequestRef = React.useRef(0)
   const runToken = `${sandboxChannel}:${runRevision}`
   const activeRunTokenRef = React.useRef(runToken)
+  const fluidOutput = !showSource && !showConsole
   const sandboxDocument = React.useMemo(
-    () => createSandboxDocument(runningSource, runToken, runningTheme),
-    [runningSource, runningTheme, runToken],
+    () =>
+      compiledSource === undefined
+        ? undefined
+        : createSandboxDocument(compiledSource, runToken, runningTheme),
+    [compiledSource, runningTheme, runToken],
   )
   const highlightedTokens = React.useMemo(() => {
     if (!showSource) return []
-    return sourceHighlighter.tokenize(source, { lang: 'js' }).tokens
+    return sourceHighlighter.tokenize(source, { lang: 'tsx' }).tokens
   }, [showSource, source])
 
   activeRunTokenRef.current = runToken
@@ -572,6 +634,18 @@ export function ChartsNotebookPage() {
     return () => resizeObserver.disconnect()
   }, [])
 
+  React.useEffect(() => {
+    const frameArea = outputFrameAreaRef.current
+    if (fluidOutput || !frameArea) return
+
+    const resizeObserver = new ResizeObserver(() => {
+      setFrameContentHeight(undefined)
+    })
+
+    resizeObserver.observe(frameArea)
+    return () => resizeObserver.disconnect()
+  }, [fluidOutput])
+
   React.useLayoutEffect(() => {
     const snapshot = outputLayoutSnapshotRef.current
     outputLayoutSnapshotRef.current = undefined
@@ -633,9 +707,9 @@ export function ChartsNotebookPage() {
           return
         }
         setSource(sharedSource)
-        setRunningSource(sharedSource)
         setShowNotebook(true)
         setSourceReady(true)
+        runSource(sharedSource)
       })
       .catch((cause: unknown) => {
         if (!active) return
@@ -650,6 +724,14 @@ export function ChartsNotebookPage() {
 
   React.useEffect(() => {
     function receiveSandboxMessage(event: MessageEvent) {
+      if (
+        isSandboxHeightMessage(event.data) &&
+        event.data.runToken === activeRunTokenRef.current
+      ) {
+        setFrameContentHeight(Math.ceil(event.data.height))
+        return
+      }
+
       if (
         isSandboxThemeRequest(event.data) &&
         event.data.runToken === activeRunTokenRef.current
@@ -713,13 +795,27 @@ export function ChartsNotebookPage() {
   )
 
   function runSource(nextSource: string) {
+    const compileRequest = compileRequestRef.current + 1
+    compileRequestRef.current = compileRequest
     setStatus('loading')
     setError(undefined)
     setConsoleEntries([])
+    setFrameContentHeight(undefined)
     nextConsoleEntryIdRef.current = 0
-    setRunningSource(nextSource)
+    setCompiledSource(undefined)
     setRunningTheme(readResolvedTheme())
     setRunRevision((revision) => revision + 1)
+
+    void compileNotebookSource(nextSource)
+      .then((nextCompiledSource) => {
+        if (compileRequest !== compileRequestRef.current) return
+        setCompiledSource(nextCompiledSource)
+      })
+      .catch((cause: unknown) => {
+        if (compileRequest !== compileRequestRef.current) return
+        setStatus('error')
+        setError(cause instanceof Error ? cause.message : String(cause))
+      })
   }
 
   function run() {
@@ -735,6 +831,16 @@ export function ChartsNotebookPage() {
     updateNotebookDescription(example.description)
     setShowNotebook(true)
     runSource(example.source)
+  }
+
+  function createNotebook() {
+    setSource(notebookStarterSource)
+    updateNotebookTitle(defaultNotebookTitle)
+    updateNotebookDescription('')
+    setSourceReady(true)
+    setShowNotebook(true)
+    setSourceOpen(true)
+    runSource(notebookStarterSource)
   }
 
   function setSourceOpen(open: boolean) {
@@ -981,9 +1087,23 @@ export function ChartsNotebookPage() {
     return (
       <main className="min-h-[calc(100dvh-var(--navbar-height))] bg-white px-5 py-14 text-gray-950 sm:px-8 sm:py-20 dark:bg-black dark:text-white">
         <section className="mx-auto w-full max-w-3xl">
-          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-            Notebook
-          </h1>
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+              Notebook
+            </h1>
+            <div className="flex items-center gap-2">
+              <NotebookGuideDialog>
+                <Button type="button" variant="ghost" size="sm">
+                  <QuestionIcon className="size-4" aria-hidden="true" />
+                  Guide
+                </Button>
+              </NotebookGuideDialog>
+              <Button type="button" size="sm" onClick={createNotebook}>
+                <PlusIcon className="size-4" aria-hidden="true" />
+                New notebook
+              </Button>
+            </div>
+          </div>
           <div className="mt-10 border-y border-gray-500/20">
             {notebookExamples.map((example) => (
               <button
@@ -1019,9 +1139,15 @@ export function ChartsNotebookPage() {
       className="contents"
     >
       {({ open }) => (
-        <main className="flex h-[calc(100dvh-var(--navbar-height))] min-h-[640px] w-full flex-col overflow-hidden bg-gray-50 text-gray-950 dark:bg-gray-950 dark:text-white">
-          <header className="flex min-h-14 items-center justify-between gap-3 border-b border-gray-500/20 bg-white px-3 sm:px-4 dark:bg-black">
-            <div className="min-w-0">
+        <main
+          className={`flex min-h-[calc(100dvh-var(--navbar-height))] w-full flex-col bg-gray-50 text-gray-950 dark:bg-gray-950 dark:text-white ${
+            fluidOutput
+              ? ''
+              : 'h-[calc(100dvh-var(--navbar-height))] min-h-[640px] overflow-hidden'
+          }`}
+        >
+          <header className="sticky top-[var(--navbar-height)] z-30 flex min-h-14 items-center gap-3 border-b border-border-default bg-background-default px-3 text-text-primary sm:px-4">
+            <div className="min-w-0 flex-1">
               <input
                 aria-label="Notebook title"
                 value={notebookTitle}
@@ -1032,7 +1158,7 @@ export function ChartsNotebookPage() {
                     updateNotebookTitle(defaultNotebookTitle)
                   }
                 }}
-                className="block w-full truncate rounded-sm bg-transparent text-sm font-semibold outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                className="block w-full truncate rounded-sm bg-transparent text-sm font-semibold outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
               />
               <input
                 aria-label="Notebook description"
@@ -1045,16 +1171,14 @@ export function ChartsNotebookPage() {
                 onBlur={() =>
                   updateNotebookDescription(notebookDescription.trim())
                 }
-                className="block w-full truncate rounded-sm bg-transparent text-xs text-gray-500 outline-none placeholder:text-gray-600 focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-gray-400 dark:placeholder:text-gray-500"
+                className="block w-full truncate rounded-sm bg-transparent text-xs text-text-muted outline-none placeholder:text-text-muted focus-visible:ring-2 focus-visible:ring-border-focus"
               />
             </div>
 
             <div className="flex shrink-0 items-center gap-2">
               <span
                 className={`hidden text-xs sm:inline ${
-                  status === 'error'
-                    ? 'text-red-600 dark:text-red-400'
-                    : 'text-gray-500 dark:text-gray-400'
+                  status === 'error' ? 'text-text-error' : 'text-text-muted'
                 }`}
                 role="status"
               >
@@ -1064,67 +1188,95 @@ export function ChartsNotebookPage() {
                     ? 'Ready'
                     : 'Error'}
               </span>
-              <CollapsibleTrigger
-                aria-controls="notebook-source"
-                aria-label={open ? 'Hide source code' : 'Show source code'}
-                onPointerDown={() => {
-                  skipSourceToggleAnimationRef.current = false
-                }}
-                onKeyDown={() => {
-                  skipSourceToggleAnimationRef.current = true
-                }}
-                className={`inline-flex h-8 items-center rounded-md border border-gray-500/25 px-2.5 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 ${
-                  open
-                    ? 'bg-gray-100 dark:bg-gray-800'
-                    : 'bg-white hover:bg-gray-100 dark:bg-gray-950 dark:hover:bg-gray-900'
-                }`}
-              >
-                Code
-              </CollapsibleTrigger>
-              <button
-                type="button"
-                aria-controls="notebook-console"
-                aria-expanded={showConsole}
-                aria-label={showConsole ? 'Hide console' : 'Show console'}
-                onClick={() => setShowConsole((open) => !open)}
-                className={`inline-flex h-8 items-center rounded-md border border-gray-500/25 px-2.5 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 ${
-                  showConsole
-                    ? 'bg-gray-100 dark:bg-gray-800'
-                    : 'bg-white hover:bg-gray-100 dark:bg-gray-950 dark:hover:bg-gray-900'
-                }`}
-              >
-                Console
-              </button>
-              <button
-                type="button"
-                onClick={() => void share()}
-                className="inline-flex h-8 items-center gap-1.5 rounded-md border border-gray-500/25 bg-white px-2.5 text-xs font-medium transition-colors hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 dark:bg-gray-950 dark:hover:bg-gray-900"
-              >
-                {copied ? (
-                  <CheckIcon className="size-3.5" aria-hidden="true" />
-                ) : (
-                  <CopyIcon className="size-3.5" aria-hidden="true" />
-                )}
-                {copied ? 'Copied' : 'Share'}
-              </button>
-              <button
-                type="button"
-                onClick={run}
-                className="inline-flex h-8 items-center gap-1.5 rounded-md bg-gray-950 px-3 text-xs font-medium text-white transition-colors hover:bg-gray-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
-              >
-                <PlayIcon
-                  className="size-3.5"
-                  weight="fill"
-                  aria-hidden="true"
-                />
-                Run
-              </button>
+              <ButtonGroup>
+                <NotebookGuideDialog>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="xs"
+                    rounded="none"
+                    aria-label="Open notebook guide"
+                  >
+                    <QuestionIcon className="size-3.5" aria-hidden="true" />
+                    <span className="hidden md:inline">Guide</span>
+                  </Button>
+                </NotebookGuideDialog>
+                <Button
+                  type="button"
+                  aria-controls="notebook-source"
+                  aria-expanded={open}
+                  aria-label={open ? 'Hide source code' : 'Show source code'}
+                  aria-pressed={open}
+                  variant="ghost"
+                  size="xs"
+                  rounded="none"
+                  onPointerDown={() => {
+                    skipSourceToggleAnimationRef.current = false
+                  }}
+                  onKeyDown={() => {
+                    skipSourceToggleAnimationRef.current = true
+                  }}
+                  onClick={() => setSourceOpen(!open)}
+                >
+                  <CodeIcon className="size-3.5" aria-hidden="true" />
+                  <span className="hidden md:inline">Code</span>
+                </Button>
+                <Button
+                  type="button"
+                  aria-controls="notebook-console"
+                  aria-expanded={showConsole}
+                  aria-label={showConsole ? 'Hide console' : 'Show console'}
+                  aria-pressed={showConsole}
+                  variant="ghost"
+                  size="xs"
+                  rounded="none"
+                  onClick={() => setShowConsole((open) => !open)}
+                >
+                  <TerminalWindowIcon className="size-3.5" aria-hidden="true" />
+                  <span className="hidden md:inline">Console</span>
+                </Button>
+              </ButtonGroup>
+              <ButtonGroup>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="xs"
+                  rounded="none"
+                  onClick={() => void share()}
+                  aria-label={copied ? 'Share URL copied' : 'Copy share URL'}
+                >
+                  {copied ? (
+                    <CheckIcon className="size-3.5" aria-hidden="true" />
+                  ) : (
+                    <CopyIcon className="size-3.5" aria-hidden="true" />
+                  )}
+                  <span className="hidden md:inline">
+                    {copied ? 'Copied' : 'Share'}
+                  </span>
+                </Button>
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="xs"
+                  rounded="none"
+                  onClick={run}
+                >
+                  <PlayIcon
+                    className="size-3.5"
+                    weight="fill"
+                    aria-hidden="true"
+                  />
+                  <span className="hidden md:inline">Run</span>
+                </Button>
+              </ButtonGroup>
             </div>
           </header>
 
           <div
             ref={workspaceRef}
-            className="relative min-h-0 flex-1 overflow-hidden"
+            className={`relative flex-1 ${
+              fluidOutput ? '' : 'min-h-0 overflow-hidden'
+            }`}
           >
             <CollapsibleContent
               ref={sourcePanelRef}
@@ -1146,7 +1298,7 @@ export function ChartsNotebookPage() {
             >
               <section className="relative flex h-full min-h-0 flex-col border-b border-gray-500/20 bg-gray-950 shadow-xl lg:border-r lg:border-b-0">
                 <div className="flex h-9 shrink-0 items-center justify-between border-b border-gray-500/20 bg-white px-3 text-xs dark:bg-black">
-                  <span className="font-medium">JavaScript module</span>
+                  <span className="font-medium">TypeScript + JSX module</span>
                   <span className="text-gray-500 dark:text-gray-400">
                     ⌘ Enter to run
                   </span>
@@ -1174,7 +1326,7 @@ export function ChartsNotebookPage() {
                     )}
                   </div>
                   <textarea
-                    aria-label="JavaScript module source"
+                    aria-label="TypeScript and JSX module source"
                     value={source}
                     onChange={(event) => setSource(event.target.value)}
                     onKeyDown={(event) => {
@@ -1228,9 +1380,24 @@ export function ChartsNotebookPage() {
                       ? { marginLeft: sourcePanelWidth ?? '50%' }
                       : undefined
                   }
-                  className="relative flex h-full min-h-0 flex-col bg-white"
+                  className={
+                    fluidOutput
+                      ? 'relative min-h-[calc(100dvh-var(--navbar-height)-3.5rem)] bg-white'
+                      : 'relative flex h-full min-h-0 flex-col bg-white'
+                  }
                 >
-                  <div className="relative min-h-0 flex-1">
+                  <div
+                    style={
+                      fluidOutput && frameContentHeight !== undefined
+                        ? { height: frameContentHeight }
+                        : undefined
+                    }
+                    className={
+                      fluidOutput
+                        ? 'relative min-h-[calc(100dvh-var(--navbar-height)-3.5rem)]'
+                        : 'relative min-h-0 flex-1'
+                    }
+                  >
                     <div
                       ref={outputFrameAreaRef}
                       style={
@@ -1238,9 +1405,11 @@ export function ChartsNotebookPage() {
                           ? { top: renderedSourcePanelHeight ?? '50%' }
                           : { top: 0 }
                       }
-                      className="absolute inset-x-0 bottom-0"
+                      className={`absolute inset-x-0 bottom-0 ${
+                        fluidOutput ? '' : 'overflow-auto'
+                      }`}
                     >
-                      {sourceReady ? (
+                      {sourceReady && sandboxDocument ? (
                         <iframe
                           ref={outputFrameRef}
                           key={runRevision}
@@ -1248,7 +1417,16 @@ export function ChartsNotebookPage() {
                           sandbox="allow-scripts"
                           title={`${notebookTitle.trim() || defaultNotebookTitle} output`}
                           onLoad={syncSandboxTheme}
-                          className="absolute inset-0 size-full border-0 bg-white dark:bg-gray-950"
+                          style={
+                            !fluidOutput && frameContentHeight !== undefined
+                              ? { height: frameContentHeight }
+                              : undefined
+                          }
+                          className={
+                            fluidOutput
+                              ? 'absolute inset-0 size-full border-0 bg-white dark:bg-gray-950'
+                              : 'block min-h-full w-full border-0 bg-white dark:bg-gray-950'
+                          }
                         />
                       ) : null}
                     </div>

@@ -65,6 +65,7 @@ import { Route as PartnersPartnerRouteImport } from './routes/partners.$partner'
 import { Route as OauthTokenRouteImport } from './routes/oauth/token'
 import { Route as OauthRegisterRouteImport } from './routes/oauth/register'
 import { Route as OauthAuthorizeRouteImport } from './routes/oauth/authorize'
+import { Route as NotebookLlmsDottxtRouteImport } from './routes/notebook_.llms[.]txt'
 import { Route as LibrariesFrameworkRouteImport } from './routes/libraries_.$framework'
 import { Route as DsTypographyRouteImport } from './routes/ds.typography'
 import { Route as DsStatsRouteImport } from './routes/ds.stats'
@@ -476,6 +477,11 @@ const OauthRegisterRoute = OauthRegisterRouteImport.update({
 const OauthAuthorizeRoute = OauthAuthorizeRouteImport.update({
   id: '/oauth/authorize',
   path: '/oauth/authorize',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotebookLlmsDottxtRoute = NotebookLlmsDottxtRouteImport.update({
+  id: '/notebook_/llms.txt',
+  path: '/notebook/llms.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LibrariesFrameworkRoute = LibrariesFrameworkRouteImport.update({
@@ -1275,6 +1281,7 @@ export interface FileRoutesByFullPath {
   '/ds/stats': typeof DsStatsRoute
   '/ds/typography': typeof DsTypographyRoute
   '/libraries/$framework': typeof LibrariesFrameworkRoute
+  '/notebook/llms.txt': typeof NotebookLlmsDottxtRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
   '/oauth/token': typeof OauthTokenRoute
@@ -1457,6 +1464,7 @@ export interface FileRoutesByTo {
   '/ds/stats': typeof DsStatsRoute
   '/ds/typography': typeof DsTypographyRoute
   '/libraries/$framework': typeof LibrariesFrameworkRoute
+  '/notebook/llms.txt': typeof NotebookLlmsDottxtRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
   '/oauth/token': typeof OauthTokenRoute
@@ -1645,6 +1653,7 @@ export interface FileRoutesById {
   '/ds/stats': typeof DsStatsRoute
   '/ds/typography': typeof DsTypographyRoute
   '/libraries_/$framework': typeof LibrariesFrameworkRoute
+  '/notebook_/llms.txt': typeof NotebookLlmsDottxtRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
   '/oauth/token': typeof OauthTokenRoute
@@ -1837,6 +1846,7 @@ export interface FileRouteTypes {
     | '/ds/stats'
     | '/ds/typography'
     | '/libraries/$framework'
+    | '/notebook/llms.txt'
     | '/oauth/authorize'
     | '/oauth/register'
     | '/oauth/token'
@@ -2019,6 +2029,7 @@ export interface FileRouteTypes {
     | '/ds/stats'
     | '/ds/typography'
     | '/libraries/$framework'
+    | '/notebook/llms.txt'
     | '/oauth/authorize'
     | '/oauth/register'
     | '/oauth/token'
@@ -2206,6 +2217,7 @@ export interface FileRouteTypes {
     | '/ds/stats'
     | '/ds/typography'
     | '/libraries_/$framework'
+    | '/notebook_/llms.txt'
     | '/oauth/authorize'
     | '/oauth/register'
     | '/oauth/token'
@@ -2363,6 +2375,7 @@ export interface RootRouteChildren {
   AuthPopupSuccessRoute: typeof AuthPopupSuccessRoute
   AuthSignoutRoute: typeof AuthSignoutRoute
   LibrariesFrameworkRoute: typeof LibrariesFrameworkRoute
+  NotebookLlmsDottxtRoute: typeof NotebookLlmsDottxtRoute
   OauthAuthorizeRoute: typeof OauthAuthorizeRoute
   OauthRegisterRoute: typeof OauthRegisterRoute
   OauthTokenRoute: typeof OauthTokenRoute
@@ -2800,6 +2813,13 @@ declare module '@tanstack/react-router' {
       path: '/oauth/authorize'
       fullPath: '/oauth/authorize'
       preLoaderRoute: typeof OauthAuthorizeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notebook_/llms.txt': {
+      id: '/notebook_/llms.txt'
+      path: '/notebook/llms.txt'
+      fullPath: '/notebook/llms.txt'
+      preLoaderRoute: typeof NotebookLlmsDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/libraries_/$framework': {
@@ -4142,6 +4162,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthPopupSuccessRoute: AuthPopupSuccessRoute,
   AuthSignoutRoute: AuthSignoutRoute,
   LibrariesFrameworkRoute: LibrariesFrameworkRoute,
+  NotebookLlmsDottxtRoute: NotebookLlmsDottxtRoute,
   OauthAuthorizeRoute: OauthAuthorizeRoute,
   OauthRegisterRoute: OauthRegisterRoute,
   OauthTokenRoute: OauthTokenRoute,

@@ -14,8 +14,16 @@ export const Route = createFileRoute('/notebook')({
   head: () => ({
     meta: seo({
       title: 'Notebook | TanStack',
-      description: 'Write and share client-side JavaScript modules.',
+      description: 'Write and share client-side TypeScript and JSX modules.',
     }),
+    links: [
+      {
+        rel: 'alternate',
+        type: 'text/plain',
+        href: '/notebook/llms.txt',
+        title: 'TanStack Notebook authoring guide',
+      },
+    ],
   }),
 })
 

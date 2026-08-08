@@ -102,6 +102,9 @@ export function generateLlmsTxt(): string {
   lines.push(
     '- [NPM Stats](https://tanstack.com/stats/npm): Compare npm package download statistics across TanStack packages and related ecosystem packages.',
   )
+  lines.push(
+    '- [Notebook authoring guide](https://tanstack.com/notebook/llms.txt): Create shareable client-side TypeScript and JSX modules with the supported runtime, import aliases, and URL protocol.',
+  )
   lines.push('')
 
   lines.push('## Optional')

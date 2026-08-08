@@ -143,10 +143,12 @@ export function ComponentPreview({
                 {title}
               </div>
             ) : null}
+
             {description ? (
               <DsDescription variant="preview">{description}</DsDescription>
             ) : null}
           </div>
+
           {code ? (
             <div className="flex shrink-0 items-center gap-1">
               <button
@@ -163,6 +165,7 @@ export function ComponentPreview({
                   )}
                 />
               </button>
+
               <button
                 type="button"
                 onClick={handleCopy}

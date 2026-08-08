@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CaretRightIcon as CaretRight } from '@phosphor-icons/react'
+import { CaretRightIcon } from '@phosphor-icons/react'
 import {
   Link,
   Outlet,
@@ -145,7 +145,7 @@ function DesignSystemSidebar() {
                             }
                             className="grid size-7 shrink-0 place-items-center rounded-md text-text-muted hover:bg-background-subtle hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
                           >
-                            <CaretRight
+                            <CaretRightIcon
                               size={14}
                               className={expanded ? 'rotate-90' : undefined}
                             />

@@ -79,8 +79,11 @@ importers:
         specifier: ^0.9.5
         version: 0.9.5(@tanstack/ai-client@0.11.3(@opentelemetry/api@1.9.1))(@tanstack/ai@0.20.1(@opentelemetry/api@1.9.1))(ws@8.21.0)(zod@4.3.6)
       '@tanstack/charts':
-        specifier: 0.6.5
-        version: 0.6.5
+        specifier: 0.7.2
+        version: 0.7.2
+      '@tanstack/charts-scales':
+        specifier: 0.7.2
+        version: 0.7.2
       '@tanstack/create':
         specifier: ^0.69.0
         version: 0.69.0(tslib@2.8.1)
@@ -94,11 +97,11 @@ importers:
         specifier: ^0.21.1
         version: 0.21.1
       '@tanstack/react-charts':
-        specifier: 0.6.5
-        version: 0.6.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        specifier: 0.7.2
+        version: 0.7.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@tanstack/react-charts-catalog':
-        specifier: 0.6.5
-        version: 0.6.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        specifier: 0.7.2
+        version: 0.7.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@tanstack/react-hotkeys':
         specifier: ^0.10.0
         version: 0.10.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -162,6 +165,9 @@ importers:
       d3:
         specifier: ^7.9.0
         version: 7.9.0
+      d3-interpolate:
+        specifier: 3.0.1
+        version: 3.0.1
       d3-scale:
         specifier: 4.0.2
         version: 4.0.2
@@ -298,6 +304,9 @@ importers:
       '@tanstack/redact':
         specifier: ^0.0.19
         version: 0.0.19(vite@8.0.13(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
+      '@types/d3-interpolate':
+        specifier: 3.0.4
+        version: 3.0.4
       '@types/d3-scale':
         specifier: 4.0.9
         version: 4.0.9
@@ -3258,8 +3267,11 @@ packages:
       '@opentelemetry/api':
         optional: true
 
-  '@tanstack/charts@0.6.5':
-    resolution: {integrity: sha512-37wwhwzfgXvwjFkFnH6y+wH8+ho7AuXevN9TuUf34lGvEiQZfdf1SRnT8Y6/4en/HyaHK2lC8EISYJ6AnxzL8w==}
+  '@tanstack/charts-scales@0.7.2':
+    resolution: {integrity: sha512-8FtKXz50TYBtMj8K6Y3BrBzPa61cRjBEVxexO3RMs4xiMQUoGToMrLotIMPiVhD+oP2Zy6oJdLOIj/0BoaxQqQ==}
+
+  '@tanstack/charts@0.7.2':
+    resolution: {integrity: sha512-FlQ0FUm5pm7++E5/7yJMZJ7v/3UtoRl6aMXqpYUwSyS6lGmDCd2Zcp7wa5RbzG/BBDeau2+3CuIcFq1xLgJK5Q==}
 
   '@tanstack/create@0.69.0':
     resolution: {integrity: sha512-LVbzkTWiCK+JCKa/1Qwax0JddfJt4rxwekrDyHzhDWsSeNodJrTwbUg4eqqbQsxEWcrk0kHEJSfiTVzMnmI+kQ==}
@@ -3336,14 +3348,14 @@ packages:
   '@tanstack/query-devtools@5.100.11':
     resolution: {integrity: sha512-47rVBDuGMW/A4ekt3YQdz+q0JSIwktwGnWCYyQUvSs2/g/Oa+6Fi2/IQk4/Y4vf6u1uwI7hOogHslgMC8f3X/Q==}
 
-  '@tanstack/react-charts-catalog@0.6.5':
-    resolution: {integrity: sha512-32lVdAP8eGjjOOtR086z6etq3LmSBMiOWhG5B1IT6Z2V0WJLhaICp5IJxeLGfftVpBM0Ft1akCXwr8BYPpCKYw==}
+  '@tanstack/react-charts-catalog@0.7.2':
+    resolution: {integrity: sha512-V2sDsgy5m7pzC7IvjdjRvouSJHl+X+59ItszE+XNFIVzYhTaPyZQKipIDKW0YXLa27k0D2KvIN0C4tmqVOBWCQ==}
     peerDependencies:
       react: ^19.0.0
       react-dom: ^19.0.0
 
-  '@tanstack/react-charts@0.6.5':
-    resolution: {integrity: sha512-26GsbPKbEsFZaXwUKvRnbufK2vGTGPthAgHO3piYWOKzLM0Kg7sEMIKRngU8EM8+tdIWOgEBSBMXXqDwsPlSEg==}
+  '@tanstack/react-charts@0.7.2':
+    resolution: {integrity: sha512-3xcuV27/30prfdYcii21Pdp0NJij7rvgdQkF864l/dGk4a0rcjtWef+2CUzz5cgYq/lw/HthLgX/7evpWED3pA==}
     peerDependencies:
       react: ^19.0.0
       react-dom: ^19.0.0
@@ -3656,6 +3668,9 @@ packages:
   '@types/d3-interpolate@3.0.4':
     resolution: {integrity: sha512-mgLPETlrpVV1YRJIglr4Ez47g7Yxjl1lj7YKsiMCb27VJH9W8NVM6Bb9d8kkpG/uAQS5AmbA48q2IAolKKo1MA==}
 
+  '@types/d3-path@1.0.11':
+    resolution: {integrity: sha512-4pQMp8ldf7UaB/gR8Fvvy69psNHkTpD/pVw3vmEi8iZAB9EPMBruB1JvHO4BIq9QkUUd2lV1F5YXpMNj7JPBpw==}
+
   '@types/d3-path@3.1.1':
     resolution: {integrity: sha512-VMZBYyQvbGmWyWVea0EHs/BwLgxc+MKi1zLDCONksozI4YJMcTt8ZEuIR4Sb1MMTE8MMW49v0IwI5+b7RmfWlg==}
 
@@ -3668,6 +3683,9 @@ packages:
   '@types/d3-random@3.0.3':
     resolution: {integrity: sha512-Imagg1vJ3y76Y2ea0871wpabqp613+8/r0mCLEBfdtqC7xMSfj9idOnmBYyMoULfHePJyxMAw3nWhJxzc+LFwQ==}
 
+  '@types/d3-sankey@0.12.5':
+    resolution: {integrity: sha512-/3RZSew0cLAtzGQ+C89hq/Rp3H20QJuVRSqFy6RKLe7E0B8kd2iOS1oBsodrgds4PcNVpqWhdUEng/SHvBcJ6Q==}
+
   '@types/d3-scale-chromatic@3.1.0':
     resolution: {integrity: sha512-iWMJgwkK7yTRmWqRB5plb1kadXyQ5Sj8V/zYlFGMUBbIPKQScw+Dku9cAAMgJG+z5GYDoMjWGLVOvjghDEFnKQ==}
 
@@ -3676,6 +3694,9 @@ packages:
 
   '@types/d3-selection@3.0.11':
     resolution: {integrity: sha512-bhAXu23DJWsrI45xafYpkQ4NtcKMwWnAC/vKrd2l+nxMFuvOT3XMYTIj2opv8vq8AO5Yh7Qac/nSeP/3zjTK0w==}
+
+  '@types/d3-shape@1.3.12':
+    resolution: {integrity: sha512-8oMzcd4+poSLGgV0R1Q1rOlx/xdmozS4Xab7np0eamFFUYq71AU9pOCJEFnkXW2aI/oXdVYJzw6pssbSut7Z9Q==}
 
   '@types/d3-shape@3.1.8':
     resolution: {integrity: sha512-lae0iWfcDeR7qt7rA88BNiqdvPS5pFVPpo5OfjElwNaT2yyekbM0C9vK+yqBqEmHr6lDkRnYNoTBYlAgJa7a4w==}
@@ -9122,14 +9143,28 @@ snapshots:
     optionalDependencies:
       '@opentelemetry/api': 1.9.1
 
-  '@tanstack/charts@0.6.5':
+  '@tanstack/charts-scales@0.7.2': {}
+
+  '@tanstack/charts@0.7.2':
     dependencies:
+      '@types/d3-force': 3.0.10
       '@types/d3-geo': 3.1.1
+      '@types/d3-hierarchy': 3.1.7
+      '@types/d3-sankey': 0.12.5
       '@types/d3-shape': 3.1.8
       d3-array: 3.2.4
+      d3-brush: 3.0.0
+      d3-contour: 4.0.2
+      d3-delaunay: 6.0.4
+      d3-force: 3.0.0
       d3-geo: 3.1.1
+      d3-hexbin: 0.2.2
+      d3-hierarchy: 3.1.2
+      d3-sankey: 0.12.3
       d3-scale: 4.0.2
+      d3-selection: 3.0.0
       d3-shape: 3.2.0
+      d3-zoom: 3.0.0
 
   '@tanstack/create@0.69.0(tslib@2.8.1)':
     dependencies:
@@ -9228,10 +9263,10 @@ snapshots:
 
   '@tanstack/query-devtools@5.100.11': {}
 
-  '@tanstack/react-charts-catalog@0.6.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
+  '@tanstack/react-charts-catalog@0.7.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
-      '@tanstack/charts': 0.6.5
-      '@tanstack/react-charts': 0.6.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@tanstack/charts': 0.7.2
+      '@tanstack/react-charts': 0.7.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       d3-array: 3.2.4
       d3-brush: 3.0.0
       d3-contour: 4.0.2
@@ -9250,9 +9285,9 @@ snapshots:
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
 
-  '@tanstack/react-charts@0.6.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
+  '@tanstack/react-charts@0.7.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
-      '@tanstack/charts': 0.6.5
+      '@tanstack/charts': 0.7.2
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
 
@@ -9652,6 +9687,8 @@ snapshots:
     dependencies:
       '@types/d3-color': 3.1.3
 
+  '@types/d3-path@1.0.11': {}
+
   '@types/d3-path@3.1.1': {}
 
   '@types/d3-polygon@3.0.2': {}
@@ -9660,6 +9697,10 @@ snapshots:
 
   '@types/d3-random@3.0.3': {}
 
+  '@types/d3-sankey@0.12.5':
+    dependencies:
+      '@types/d3-shape': 1.3.12
+
   '@types/d3-scale-chromatic@3.1.0': {}
 
   '@types/d3-scale@4.0.9':
@@ -9667,6 +9708,10 @@ snapshots:
       '@types/d3-time': 3.0.4
 
   '@types/d3-selection@3.0.11': {}
+
+  '@types/d3-shape@1.3.12':
+    dependencies:
+      '@types/d3-path': 1.0.11
 
   '@types/d3-shape@3.1.8':
     dependencies:

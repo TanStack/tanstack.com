@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { useTheme } from './ThemeProvider'
-import { Moon as MoonIcon } from '@phosphor-icons/react/Moon'
-import { Sun as SunIcon } from '@phosphor-icons/react/Sun'
-import { SunHorizon as SunHorizonIcon } from '@phosphor-icons/react/SunHorizon'
+import { MoonIcon } from '@phosphor-icons/react/Moon'
+import { SunIcon } from '@phosphor-icons/react/Sun'
+import { SunHorizonIcon } from '@phosphor-icons/react/SunHorizon'
 import { Button } from '~/ui'
 
 export function ThemeToggle() {

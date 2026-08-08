@@ -1,13 +1,13 @@
 import * as React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link, useParams } from '@tanstack/react-router'
-import { ArrowRight as ArrowRightIcon } from '@phosphor-icons/react/ArrowRight'
-import { ArrowsClockwise as ArrowsClockwiseIcon } from '@phosphor-icons/react/ArrowsClockwise'
-import { CalendarDots as CalendarDotsIcon } from '@phosphor-icons/react/CalendarDots'
-import { DownloadSimple as DownloadSimpleIcon } from '@phosphor-icons/react/DownloadSimple'
-import { Plus as PlusIcon } from '@phosphor-icons/react/Plus'
-import { Star as StarIcon } from '@phosphor-icons/react/Star'
-import { Swap as SwapIcon } from '@phosphor-icons/react/Swap'
+import { ArrowRightIcon } from '@phosphor-icons/react/ArrowRight'
+import { ArrowsClockwiseIcon } from '@phosphor-icons/react/ArrowsClockwise'
+import { CalendarDotsIcon } from '@phosphor-icons/react/CalendarDots'
+import { DownloadSimpleIcon } from '@phosphor-icons/react/DownloadSimple'
+import { PlusIcon } from '@phosphor-icons/react/Plus'
+import { StarIcon } from '@phosphor-icons/react/Star'
+import { SwapIcon } from '@phosphor-icons/react/Swap'
 import type { Icon } from '@phosphor-icons/react'
 
 import { libraryCategories, type LibraryCategory } from '~/libraries/categories'
@@ -79,7 +79,7 @@ export type LibraryLandingConfig = {
 
 export type LibraryLandingShellProps = {
   children: React.ReactNode
-  description: string
+  description: React.ReactNode
   headline: string
   hero: React.ReactNode
   libraryId: LibraryLandingId

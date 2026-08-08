@@ -1,4 +1,5 @@
-import { scaleLinear, scalePoint } from 'd3'
+import { scaleLinear } from '@tanstack/charts-scales/linear'
+import { scalePoint } from '@tanstack/charts-scales/point'
 import { curveLinearClosed } from 'd3-shape'
 import { defineChart } from '@tanstack/charts'
 import {

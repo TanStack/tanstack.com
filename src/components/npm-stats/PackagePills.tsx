@@ -4,8 +4,8 @@ import {
   XIcon,
   PlusIcon,
   EyeIcon,
-  EyeSlashIcon as EyeOff,
-  DotsThreeVerticalIcon as EllipsisVertical,
+  EyeSlashIcon,
+  DotsThreeVerticalIcon,
 } from '@phosphor-icons/react'
 import {
   DropdownMenu,
@@ -113,7 +113,9 @@ export function PackagePill({
               )}
             >
               <span className="truncate">{label}</span>
-              {isGroupHidden ? <EyeOff className="size-3.5 shrink-0" /> : null}
+              {isGroupHidden ? (
+                <EyeSlashIcon className="size-3.5 shrink-0" />
+              ) : null}
             </button>
           </Tooltip>
           {showPackageCount ? (
@@ -135,7 +137,7 @@ export function PackagePill({
                   <DropdownMenuTrigger
                     render={
                       <button className="px-0.5 hover:text-blue-500">
-                        <EllipsisVertical className="size-3.5" />
+                        <DotsThreeVerticalIcon className="size-3.5" />
                       </button>
                     }
                   />
@@ -188,7 +190,7 @@ export function PackagePill({
                       className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer"
                     >
                       {isGroupHidden ? (
-                        <EyeOff className="text-sm" />
+                        <EyeSlashIcon className="text-sm" />
                       ) : (
                         <EyeIcon className="text-sm" />
                       )}
@@ -228,7 +230,7 @@ export function PackagePill({
                             <div className="flex-1 flex items-center justify-between">
                               <div className="flex items-center gap-2">
                                 {subPackage.hidden ? (
-                                  <EyeOff className="text-sm" />
+                                  <EyeSlashIcon className="text-sm" />
                                 ) : (
                                   <EyeIcon className="text-sm" />
                                 )}

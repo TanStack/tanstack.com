@@ -2,14 +2,14 @@ import * as React from 'react'
 import { Link } from '@tanstack/react-router'
 import {
   ArrowRightIcon,
-  CubeIcon as Boxes,
-  BracketsCurlyIcon as Braces,
+  CubeIcon,
+  BracketsCurlyIcon,
   CheckIcon,
-  GaugeIcon as CircleGauge,
-  StackIcon as Layers3,
+  GaugeIcon,
+  StackIcon,
   PaletteIcon,
-  ScanIcon as ScanText,
-  LightningIcon as Zap,
+  ScanIcon,
+  LightningIcon,
 } from '@phosphor-icons/react'
 
 import { LibraryWordmark } from '~/components/LibraryWordmark'
@@ -84,7 +84,7 @@ export default function HighlightLanding() {
         <div className="grid items-center gap-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
           <LandingSectionIntro
             eyebrow="Selective assembly"
-            icon={<Boxes aria-hidden="true" size={15} />}
+            icon={<CubeIcon aria-hidden="true" size={15} />}
             title="The registry is the bundle plan."
             body="The core knows no languages. Direct imports make the site’s language set explicit and let the bundler discard everything else."
           />
@@ -105,7 +105,7 @@ export default function HighlightLanding() {
         <div className="mt-12 grid items-center gap-12 border-t border-border-subtle pt-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
           <LandingSectionIntro
             eyebrow="Context-aware scanners"
-            icon={<Layers3 aria-hidden="true" size={15} />}
+            icon={<StackIcon aria-hidden="true" size={15} />}
             title="Web languages rarely stay in their lane."
             body="HTML, Vue, Svelte, EJS, Markdown, and JavaScript templates delegate embedded regions only when the nested language is registered."
           />
@@ -132,7 +132,7 @@ export default function HighlightLanding() {
           <AnnotationPanel />
           <LandingSectionIntro
             eyebrow="Presentation metadata"
-            icon={<ScanText aria-hidden="true" size={15} />}
+            icon={<ScanIcon aria-hidden="true" size={15} />}
             title="Annotate the lesson, not the token stream."
             body="Highlight lines, exact character ranges, insertions, deletions, focus, errors, and warnings without changing the source or tokenizer."
           />
@@ -140,7 +140,7 @@ export default function HighlightLanding() {
         <div className="mt-12 grid items-center gap-12 border-t border-border-subtle pt-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
           <LandingSectionIntro
             eyebrow="Corpus, not toys"
-            icon={<CircleGauge aria-hidden="true" size={15} />}
+            icon={<GaugeIcon aria-hidden="true" size={15} />}
             title="Tuned against the docs it will render."
             body="The committed corpus samples 333 fixtures from 2,940 TanStack documentation files. Release checks cover fidelity, deterministic HTML, bundle profiles, and runtime throughput."
           />
@@ -152,7 +152,7 @@ export default function HighlightLanding() {
         <div className="grid items-start gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
           <LandingSectionIntro
             eyebrow="Choose by job"
-            icon={<Zap aria-hidden="true" size={15} />}
+            icon={<LightningIcon aria-hidden="true" size={15} />}
             title="A docs highlighter is not an editor highlighter."
             body="Highlight is optimized for known web languages and compact page output, not TextMate completeness, automatic detection, or incremental editor state."
           />
@@ -174,7 +174,7 @@ export default function HighlightLanding() {
         <div className="mt-12 grid items-center gap-12 border-t border-border-subtle pt-12 lg:grid-cols-[1.08fr_0.92fr] lg:gap-16">
           <LandingSectionIntro
             eyebrow="Explicit integrations"
-            icon={<Braces aria-hidden="true" size={15} />}
+            icon={<BracketsCurlyIcon aria-hidden="true" size={15} />}
             title="Drop it into Markdown without hiding the language set."
             body="Every renderer and adapter receives the highlighter you assembled; none imports every language behind your back."
           />

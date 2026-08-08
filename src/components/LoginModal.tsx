@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Dialog } from '@base-ui/react/dialog'
-import { X as XIcon } from '@phosphor-icons/react/X'
+import { XIcon } from '@phosphor-icons/react/X'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { GoogleIcon } from '~/components/icons/GoogleIcon'
 import { authClient } from '~/auth/client'

@@ -2,11 +2,11 @@ import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import { Menu } from '@base-ui/react/menu'
 import { Link } from '@tanstack/react-router'
-import { CaretDown as CaretDownIcon } from '@phosphor-icons/react/CaretDown'
-import { CircleNotch as CircleNotchIcon } from '@phosphor-icons/react/CircleNotch'
-import { MagnifyingGlass } from '@phosphor-icons/react/MagnifyingGlass'
-import { User as UserIcon } from '@phosphor-icons/react/User'
-import { X } from '@phosphor-icons/react/X'
+import { CaretDownIcon } from '@phosphor-icons/react/CaretDown'
+import { CircleNotchIcon } from '@phosphor-icons/react/CircleNotch'
+import { MagnifyingGlassIcon } from '@phosphor-icons/react/MagnifyingGlass'
+import { UserIcon } from '@phosphor-icons/react/User'
+import { XIcon } from '@phosphor-icons/react/X'
 import type { MarkdownHeading } from '~/utils/markdown'
 import type { LibraryId } from '~/libraries/ids'
 import type { LibraryCategory } from '~/libraries/categories'
@@ -508,7 +508,7 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
               : 'h-10 gap-2.5 rounded-lg px-3',
           )}
         >
-          <MagnifyingGlass
+          <MagnifyingGlassIcon
             size={size === 'large' ? 21 : 18}
             weight="bold"
             aria-hidden="true"
@@ -530,7 +530,7 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
             onClick={reveal}
             className="grid size-10 shrink-0 place-items-center transition-colors duration-150 hover:text-text-primary focus-visible:text-text-accent focus-visible:outline-none motion-reduce:transition-none"
           >
-            <MagnifyingGlass size={18} weight="bold" aria-hidden="true" />
+            <MagnifyingGlassIcon size={18} weight="bold" aria-hidden="true" />
           </button>
           {React.cloneElement(input, {
             tabIndex: open ? props.tabIndex : -1,
@@ -555,7 +555,7 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
               skipMotion && 'transition-none',
             )}
           >
-            <X size={16} weight="bold" aria-hidden="true" />
+            <XIcon size={16} weight="bold" aria-hidden="true" />
           </button>
           <span
             aria-hidden="true"

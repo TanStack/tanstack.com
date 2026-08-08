@@ -1,4 +1,5 @@
-import { scaleBand, scaleLinear } from 'd3'
+import { scaleBand } from '@tanstack/charts-scales/band'
+import { scaleLinear } from '@tanstack/charts-scales/linear'
 import { defineChart, dot, link } from '@tanstack/charts'
 
 import { kineticDarkTheme, productNames, productSignals } from './kinetic-data'

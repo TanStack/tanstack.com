@@ -1,4 +1,6 @@
-import { curveMonotoneX, scaleLinear, scaleUtc } from 'd3'
+import { scaleLinear } from '@tanstack/charts-scales/linear'
+import { scaleUtc } from 'd3-scale'
+import { curveMonotoneX } from 'd3-shape'
 import {
   areaY,
   d3Curve,

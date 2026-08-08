@@ -3,7 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { useThrottledCallback, useThrottler } from '@tanstack/react-pacer'
 import { Dialog } from '@base-ui/react/dialog'
-import { QuestionIcon as HelpCircle, XIcon } from '@phosphor-icons/react'
+import { QuestionIcon, XIcon } from '@phosphor-icons/react'
 import { useQuery } from '@tanstack/react-query'
 import { Card } from '~/components/ds/ui'
 import { Tooltip } from '~/components/Tooltip'
@@ -1012,7 +1012,7 @@ function RouteComponent() {
                 className="flex size-6 items-center justify-center rounded bg-gray-500/10 text-gray-500 hover:bg-gray-500/20 hover:text-blue-500"
                 type="button"
               >
-                <HelpCircle className="size-3" />
+                <QuestionIcon className="size-3" />
               </button>
             </Tooltip>
           </div>

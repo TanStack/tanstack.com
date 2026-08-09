@@ -1,4 +1,5 @@
 import { CodeBlock } from '~/components/markdown/CodeBlock'
+import { charts } from '~/libraries'
 import type { getChartsCatalogLanding } from '~/utils/charts-catalog.functions'
 
 import activationChartSource from '../../../scripts/charts-landing/activation-chart.ts?raw'
@@ -6,12 +7,10 @@ import { LandingSection, LibraryLandingShell } from './LibraryLanding'
 import {
   AccountChart,
   ActivationChart,
-  BundleSizeFigure,
   ThemeGallery,
 } from './ChartsLandingGraphics'
 import { CatalogChartsHero, ChartsCatalogGallery } from './ChartsCatalogGallery'
 
-const chartsReleaseVersion = '0.7.2'
 const chartPrompt = `Using TanStack Charts and the accounts array in this project, plot monthlyRevenue on x and retention on y. Size each point by seats with an explicit square-root radius scale, color it by segment, and preserve the original Account rows for typed tooltip and focus callbacks. Use the compact linear scale from @tanstack/charts-scales/linear so TanStack Charts can infer the domains, add the tooltip behavior from @tanstack/charts/tooltip, and render it through the React adapter with a useful ariaLabel.`
 
 export default function ChartsLanding({
@@ -23,19 +22,7 @@ export default function ChartsLanding({
 }) {
   return (
     <LibraryLandingShell
-      description={
-        <>
-          TanStack Charts {chartsReleaseVersion} adds declarative view
-          composition, controlled interactions, motion, spatial layouts, and
-          expanded React Native parity.{' '}
-          <a
-            href={`https://github.com/TanStack/charts/blob/v${chartsReleaseVersion}/CHANGELOG.md#070`}
-            className="text-[var(--landing-accent-bright)] underline decoration-current/30 underline-offset-4 hover:decoration-current"
-          >
-            What changed since 0.6.5.
-          </a>
-        </>
-      }
+      description={charts.description}
       headline="A chart grammar you don't have to outgrow."
       hero={<CatalogChartsHero catalog={catalog} />}
       libraryId="charts"
@@ -90,30 +77,6 @@ export default function ChartsLanding({
 
         <div className="mt-8">
           <ThemeGallery />
-        </div>
-      </LandingSection>
-
-      <LandingSection tone="raised">
-        <div className="grid gap-8 lg:grid-cols-[0.88fr_1.12fr] lg:items-end lg:gap-16">
-          <h2 className="max-w-3xl font-ds-display text-ds-heading-1 md:text-ds-display-md">
-            36.73–42.64 KiB across the controlled suite.
-          </h2>
-          <p className="max-w-2xl text-ds-body-sm text-text-secondary sm:text-ds-body-md">
-            The compact React line is 26.48 KiB gzip; its framework-neutral
-            scene is 10.28 KiB. The{' '}
-            <a
-              href="/charts/latest/docs/comparison"
-              className="text-[var(--landing-accent-bright)] underline decoration-current/30 underline-offset-4 hover:decoration-current"
-            >
-              comparison methodology and fixtures
-            </a>{' '}
-            measure complete cold-page browser bundles, including rendering,
-            axes, styles, and library code.
-          </p>
-        </div>
-
-        <div className="mt-10">
-          <BundleSizeFigure />
         </div>
       </LandingSection>
 

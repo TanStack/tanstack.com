@@ -1,3 +1,12 @@
+import {
+  chartsCatalogPreviewEarlyCaseIds,
+  getChartsCatalogPreviewEarly,
+} from './ChartsCatalogPreviewCasesEarly'
+import {
+  chartsCatalogPreviewLateCaseIds,
+  getChartsCatalogPreviewLate,
+} from './ChartsCatalogPreviewCasesLate'
+
 export type ChartsCatalogPreviewKind =
   | 'area'
   | 'bars'
@@ -124,21 +133,28 @@ export function ChartsCatalogPreview({
   family: string
 }) {
   const kind = getChartsCatalogPreviewKind(caseId, family)
+  const exactGraphic =
+    getChartsCatalogPreviewEarly(caseId) ?? getChartsCatalogPreviewLate(caseId)
 
   return (
     <svg
       aria-hidden="true"
       className={`charts-catalog-preview ${className ?? ''}`}
       data-catalog-preview-case={caseId}
-      data-catalog-preview-kind={kind}
+      data-catalog-preview-kind={exactGraphic === undefined ? kind : 'case'}
       focusable="false"
       preserveAspectRatio="xMidYMid meet"
       viewBox="0 0 288 192"
     >
-      <PreviewGraphic kind={kind} />
+      {exactGraphic ?? <PreviewGraphic kind={kind} />}
     </svg>
   )
 }
+
+export const chartsCatalogPreviewCaseIds = [
+  ...chartsCatalogPreviewEarlyCaseIds,
+  ...chartsCatalogPreviewLateCaseIds,
+] as const
 
 function PreviewGraphic({ kind }: { kind: ChartsCatalogPreviewKind }) {
   switch (kind) {

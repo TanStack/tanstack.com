@@ -2390,8 +2390,10 @@ button[aria-label='Open TanStack Devtools'] {
   --catalog-preview-1: var(--color-ds-blue-500);
   --catalog-preview-2: var(--color-ds-terracotta-500);
   --catalog-preview-3: var(--color-ds-purple-400);
+  --catalog-preview-label: var(--color-ds-neutral-500);
   --catalog-preview-muted: var(--color-ds-neutral-300);
 
+  color: var(--catalog-preview-label);
   display: block;
   width: 100%;
   height: 100%;
@@ -2401,5 +2403,6 @@ button[aria-label='Open TanStack Devtools'] {
   --catalog-preview-1: var(--color-ds-blue-200);
   --catalog-preview-2: var(--color-ds-terracotta-200);
   --catalog-preview-3: var(--color-ds-purple-200);
+  --catalog-preview-label: var(--color-ds-neutral-100);
   --catalog-preview-muted: var(--color-ds-neutral-400);
 }

@@ -62,13 +62,10 @@ export function ChartsCatalog({
             key={catalogCase.id}
             className="group relative min-w-0 overflow-hidden rounded-xl border border-border-subtle bg-background-surface"
           >
-            <div
-              aria-hidden="true"
-              className={fullWidth ? 'aspect-[3/1]' : 'aspect-[3/2]'}
-            >
+            <div aria-hidden="true" className="aspect-[3/2]">
               <ChartsCatalogPreview
                 caseId={catalogCase.id}
-                className="p-5"
+                className="p-2"
                 family={catalogCase.family}
               />
             </div>

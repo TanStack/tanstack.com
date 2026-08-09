@@ -34,7 +34,7 @@ export function CatalogChartsHero({
       aria-label="Chart catalog examples"
       className="library-landing-graphic min-w-0"
     >
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] sm:grid-rows-2">
         {heroCases.map((catalogCase, index) => (
           <HeroChartTile
             catalogCase={catalogCase}
@@ -55,12 +55,16 @@ function HeroChartTile({
   featured: boolean
 }) {
   return (
-    <figure className={featured ? 'col-span-2 min-w-0' : 'min-w-0'}>
+    <figure
+      className={
+        featured ? 'col-span-2 min-w-0 sm:col-span-1 sm:row-span-2' : 'min-w-0'
+      }
+    >
       <div className="group relative overflow-hidden rounded-2xl border border-border-subtle bg-background-surface shadow-[0_24px_55px_-28px_rgb(3_18_25/0.42)]">
-        <div className={featured ? 'aspect-[3/1]' : 'aspect-[3/2]'}>
+        <div className="aspect-[3/2]">
           <ChartsCatalogPreview
             caseId={catalogCase.id}
-            className="p-3 sm:p-4"
+            className="p-2"
             family={catalogCase.family}
           />
         </div>
@@ -121,7 +125,7 @@ function CatalogChartCard({ catalogCase }: { catalogCase: CatalogCase }) {
       <div aria-hidden="true" className="relative aspect-[3/2] overflow-hidden">
         <ChartsCatalogPreview
           caseId={catalogCase.id}
-          className="p-4"
+          className="p-2"
           family={catalogCase.family}
         />
       </div>

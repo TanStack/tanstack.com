@@ -1,4 +1,5 @@
 import { CodeBlock } from '~/components/markdown/CodeBlock'
+import type { getChartsCatalogLanding } from '~/utils/charts-catalog.functions'
 
 import activationChartSource from '../../../scripts/charts-landing/activation-chart.ts?raw'
 import { LandingSection, LibraryLandingShell } from './LibraryLanding'
@@ -14,8 +15,10 @@ const chartsReleaseVersion = '0.7.2'
 const chartPrompt = `Using TanStack Charts and the accounts array in this project, plot monthlyRevenue on x and retention on y. Size each point by seats with an explicit square-root radius scale, color it by segment, and preserve the original Account rows for typed tooltip and focus callbacks. Use the compact linear scale from @tanstack/charts-scales/linear so TanStack Charts can infer the domains, add the tooltip behavior from @tanstack/charts/tooltip, and render it through the React adapter with a useful ariaLabel.`
 
 export default function ChartsLanding({
+  catalog,
   catalogOrderSeed,
 }: {
+  catalog: Awaited<ReturnType<typeof getChartsCatalogLanding>>
   catalogOrderSeed: string
 }) {
   return (
@@ -34,7 +37,7 @@ export default function ChartsLanding({
         </>
       }
       headline="A chart grammar you don't have to outgrow."
-      hero={<CatalogChartsHero />}
+      hero={<CatalogChartsHero catalog={catalog} />}
       libraryId="charts"
       prompt={chartPrompt}
       promptLabel="Copy Charts prompt"
@@ -51,7 +54,7 @@ export default function ChartsLanding({
             All mark, no chart.
           </h2>
         </div>
-        <ChartsCatalogGallery orderSeed={catalogOrderSeed} />
+        <ChartsCatalogGallery catalog={catalog} orderSeed={catalogOrderSeed} />
       </LandingSection>
 
       <LandingSection id="agent-authoring" tone="ink">
@@ -254,145 +257,8 @@ const chartsLandingStyles = `
     fill-opacity: var(--activation-range-opacity);
   }
 
-  .charts-catalog-card {
-    background: #fff;
-    color: #071219;
-    color-scheme: light;
-  }
-
-  .dark .charts-catalog-card {
-    background: #071219;
-    color: #fff;
-    color-scheme: dark;
-  }
-
   .charts-catalog-gallery-card {
     content-visibility: auto;
     contain-intrinsic-size: auto 288px auto 248px;
-  }
-
-  .charts-catalog-card .charts-catalog-chart {
-    --ts-chart-1: #2497bd;
-    --ts-chart-2: #e46244;
-    --ts-chart-3: #39a84b;
-    --ts-chart-4: #805ad5;
-    --ts-chart-5: #e69a16;
-    --ts-chart-6: #667c87;
-  }
-
-  .dark .charts-catalog-card .charts-catalog-chart {
-    --ts-chart-1: #61e8ff;
-    --ts-chart-2: #ff806f;
-    --ts-chart-3: #b9f227;
-    --ts-chart-4: #c4a7ff;
-    --ts-chart-5: #ffd85e;
-    --ts-chart-6: #91a9b4;
-  }
-
-  .charts-catalog-card .charts-catalog-chart > div,
-  .charts-catalog-card .charts-catalog-chart svg.ts-chart {
-    background: #fff;
-  }
-
-  .dark .charts-catalog-card .charts-catalog-chart > div,
-  .dark .charts-catalog-card .charts-catalog-chart svg.ts-chart {
-    background: #071219;
-  }
-
-  .charts-catalog-hero-frame {
-    opacity: 1;
-    filter: blur(0);
-    transform: translateY(0) scale(1);
-  }
-
-  .charts-catalog-hero-frame-pending {
-    z-index: 1;
-    opacity: 0;
-    filter: blur(2px);
-    transform: translateY(4px) scale(0.995);
-  }
-
-  .charts-catalog-hero-frame-entering {
-    z-index: 2;
-    transition:
-      opacity 260ms cubic-bezier(0.22, 1, 0.36, 1),
-      filter 220ms cubic-bezier(0.22, 1, 0.36, 1),
-      transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
-  .charts-catalog-hero-frame-exiting {
-    z-index: 1;
-    opacity: 0;
-    filter: blur(1px);
-    transform: translateY(-2px) scale(0.998);
-    transition:
-      opacity 180ms cubic-bezier(0.32, 0, 0.67, 0),
-      filter 160ms cubic-bezier(0.32, 0, 0.67, 0),
-      transform 180ms cubic-bezier(0.32, 0, 0.67, 0);
-  }
-
-  .charts-catalog-hero-frame .ts-chart__legend {
-    display: none;
-  }
-
-  .charts-catalog-hero-frame .ts-chart text {
-    font-size: 9px;
-  }
-
-  .charts-catalog-card .ts-chart__grid {
-    stroke: #071219;
-    stroke-opacity: 0.1;
-  }
-
-  .dark .charts-catalog-card .ts-chart__grid {
-    stroke: #d9edf1;
-    stroke-opacity: 0.13;
-  }
-
-  .charts-catalog-card .ts-chart__axes line,
-  .charts-catalog-card .ts-chart__axes path {
-    stroke: #071219;
-    stroke-opacity: 0.32;
-  }
-
-  .dark .charts-catalog-card .ts-chart__axes line,
-  .dark .charts-catalog-card .ts-chart__axes path {
-    stroke: #d9edf1;
-    stroke-opacity: 0.28;
-  }
-
-  .charts-catalog-card .ts-chart__axes text {
-    fill: #071219;
-    fill-opacity: 0.6;
-  }
-
-  .dark .charts-catalog-card .ts-chart__axes text {
-    fill: #d9edf1;
-    fill-opacity: 0.62;
-  }
-
-  .charts-catalog-title-enter {
-    animation: charts-catalog-title-enter 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
-  @keyframes charts-catalog-title-enter {
-    from {
-      opacity: 0;
-      transform: translateY(4px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .charts-catalog-hero-frame {
-      transition: none;
-    }
-
-    .charts-catalog-title-enter {
-      animation: none;
-    }
   }
 `

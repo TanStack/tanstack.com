@@ -1,8 +1,13 @@
 import { getHostRuntimeEnv, isIsolateRuntime } from './host.server'
 
-export type BlobStorageName = 'githubContentCache' | 'npmDownloadCache'
+export type BlobStorageName =
+  | 'githubContentCache'
+  | 'notebookProjects'
+  | 'npmDownloadCache'
 
 export type BlobStorageObject = {
+  arrayBuffer: () => Promise<ArrayBuffer>
+  body: ReadableStream<Uint8Array> | null
   key: string
   metadata?: Record<string, string>
   text: () => Promise<string>
@@ -33,12 +38,14 @@ export type BlobStorage = {
   list: (options?: BlobStorageListOptions) => Promise<BlobStorageListResult>
   put: (
     key: string,
-    value: string,
+    value: string | ArrayBuffer | ArrayBufferView | ReadableStream<Uint8Array>,
     options?: {
+      contentEncoding?: string
       contentType?: string
       metadata?: Record<string, string>
+      onlyIfAbsent?: boolean
     },
-  ) => Promise<void>
+  ) => Promise<boolean>
 }
 
 export type BlobStorageCacheEntry = {
@@ -59,6 +66,8 @@ type RuntimeBlobObject = {
 }
 
 type RuntimeBlobObjectBody = RuntimeBlobObject & {
+  arrayBuffer: () => Promise<ArrayBuffer>
+  body: ReadableStream<Uint8Array> | null
   text: () => Promise<string>
 }
 
@@ -81,14 +90,16 @@ type RuntimeBlobBucket = {
   list: (options?: RuntimeBlobListOptions) => Promise<RuntimeBlobListResult>
   put: (
     key: string,
-    value: string,
+    value: string | ArrayBuffer | ArrayBufferView | ReadableStream<Uint8Array>,
     options?: {
       customMetadata?: Record<string, string>
       httpMetadata?: {
+        contentEncoding?: string
         contentType?: string
       }
+      onlyIf?: { etagDoesNotMatch: string }
     },
-  ) => Promise<unknown>
+  ) => Promise<RuntimeBlobObject | null>
 }
 
 const CACHE_METADATA_HEADER = 'x-blob-storage-metadata'
@@ -158,6 +169,8 @@ function getRuntimeBindingName(name: BlobStorageName) {
   switch (name) {
     case 'githubContentCache':
       return 'GITHUB_CONTENT_CACHE'
+    case 'notebookProjects':
+      return 'NOTEBOOK_PROJECTS'
     case 'npmDownloadCache':
       return 'NPM_DOWNLOAD_CACHE'
   }
@@ -195,6 +208,8 @@ function createBlobStorage(bucket: RuntimeBlobBucket): BlobStorage {
       }
 
       return {
+        arrayBuffer: () => object.arrayBuffer(),
+        body: object.body,
         key: object.key,
         metadata: object.customMetadata,
         text: () => object.text(),
@@ -220,12 +235,15 @@ function createBlobStorage(bucket: RuntimeBlobBucket): BlobStorage {
       }
     },
     async put(key, value, options) {
-      await bucket.put(key, value, {
+      const result = await bucket.put(key, value, {
         customMetadata: options?.metadata,
         httpMetadata: {
+          contentEncoding: options?.contentEncoding,
           contentType: options?.contentType,
         },
+        ...(options?.onlyIfAbsent ? { onlyIf: { etagDoesNotMatch: '*' } } : {}),
       })
+      return result !== null
     },
   }
 }

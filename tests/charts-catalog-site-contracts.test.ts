@@ -1,53 +1,64 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import { getChartsCatalogSitemapEntries } from '../src/utils/charts-catalog'
 import {
-  chartsCatalogPublicationCacheHeaders,
-  chartsCatalogPublicationCacheTag,
-  getChartsCatalogSitemapEntries,
-  parseChartsCatalogManifest,
-} from '../src/utils/charts-catalog'
+  chartsCatalogIndexCacheHeaders,
+  chartsCatalogIndexCacheTag,
+  parseChartsCatalogIndex,
+} from '../src/utils/charts-catalog-index'
 import {
   docsWebhookSources,
   isWatchedDocsWebhookSource,
   type DocsWebhookSource,
 } from '../src/utils/docs-webhook-sources'
-import { createChartsCatalogManifest } from './charts-catalog-test-fixture'
 
-test('sitemap exposes catalog discovery routes but not executable resources', () => {
-  const manifest = parseChartsCatalogManifest(createChartsCatalogManifest())
-  const entries = getChartsCatalogSitemapEntries(manifest)
-  const paths = entries.map((entry) => entry.path)
+test('sitemap exposes catalog pages but not runtime resources', () => {
+  const index = parseChartsCatalogIndex({
+    schemaVersion: 1,
+    source: {
+      repo: 'tanstack/charts',
+      pathRoot: 'benchmarks/conformance/',
+    },
+    cases: [
+      {
+        schemaVersion: 1,
+        order: 1,
+        id: '01-line',
+        title: 'Line chart',
+        family: 'trend',
+        intent: 'Show a line.',
+        support: 'native',
+        features: ['line'],
+        source: {
+          title: 'Source',
+          url: 'https://example.com/source',
+        },
+        ai: {
+          create: 'Create a line chart.',
+          maintain: 'Keep the line visible.',
+        },
+        entries: {
+          tanstack: 'benchmarks/conformance/cases/01-line/tanstack.ts',
+          reference: {
+            renderer: 'observable-plot',
+            path: 'benchmarks/conformance/cases/01-line/plot.ts',
+          },
+        },
+      },
+    ],
+  })
 
-  assert.deepEqual(paths, [
-    '/charts/catalog/',
-    '/charts/catalog/all/',
-    '/charts/catalog/charts/01-line/',
+  assert.deepEqual(getChartsCatalogSitemapEntries(index), [
+    { path: '/charts/catalog/' },
+    { path: '/charts/catalog/charts/01-line/' },
   ])
-  assert.equal(
-    paths.some((path) => path.includes('/embed/')),
-    false,
-  )
-  assert.equal(
-    paths.some((path) => path.includes('/assets/')),
-    false,
-  )
-  assert.equal(
-    paths.some((path) => path.includes('?compare=1')),
-    false,
-  )
 })
 
-test('catalog publication pushes invalidate the GitHub content pipeline', () => {
-  assert.equal(
-    chartsCatalogPublicationCacheTag,
-    'charts-catalog:tanstack/charts:catalog-dist',
-  )
+test('Charts main pushes invalidate the catalog index pipeline', () => {
+  assert.equal(chartsCatalogIndexCacheTag, 'docs:charts:branch:main')
+  assert.equal(isWatchedDocsWebhookSource('tanstack/charts', 'main'), true)
   assert.equal(
     isWatchedDocsWebhookSource('tanstack/charts', 'catalog-dist'),
-    true,
-  )
-  assert.equal(
-    isWatchedDocsWebhookSource('tanstack/charts', 'catalog-dist-other'),
     false,
   )
 
@@ -55,14 +66,15 @@ test('catalog publication pushes invalidate the GitHub content pipeline', () => 
     (source) => source.repo === 'tanstack/charts',
   )
   assert.ok(chartsSource)
-  assert.ok(chartsSource.refs.includes('catalog-dist'))
+  assert.ok(chartsSource.refs.includes('main'))
+  assert.equal(chartsSource.refs.includes('catalog-dist'), false)
 })
 
-test('catalog publication responses share one cache contract', () => {
-  assert.deepEqual(chartsCatalogPublicationCacheHeaders, {
+test('catalog index responses use the Charts main cache contract', () => {
+  assert.deepEqual(chartsCatalogIndexCacheHeaders, {
     'Cache-Control': 'public, max-age=60, must-revalidate',
     'Cloudflare-CDN-Cache-Control':
       'public, max-age=300, stale-while-revalidate=300',
-    'Cache-Tag': chartsCatalogPublicationCacheTag,
+    'Cache-Tag': chartsCatalogIndexCacheTag,
   })
 })

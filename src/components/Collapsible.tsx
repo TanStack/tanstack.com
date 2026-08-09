@@ -20,9 +20,8 @@ type CollapsibleTriggerProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   children: React.ReactNode
 }
 
-type CollapsibleContentProps = {
+type CollapsibleContentProps = React.HTMLAttributes<HTMLDivElement> & {
   children: React.ReactNode
-  className?: string
 }
 
 const CollapsibleContext = React.createContext<CollapsibleRenderProps | null>(
@@ -104,14 +103,18 @@ export function CollapsibleTrigger({
   )
 }
 
-export function CollapsibleContent({
-  children,
-  className,
-}: CollapsibleContentProps) {
+export const CollapsibleContent = React.forwardRef<
+  HTMLDivElement,
+  CollapsibleContentProps
+>(function CollapsibleContent({ children, className, ...props }, ref) {
   const { open } = useCollapsible()
 
   return (
     <div
+      {...props}
+      ref={ref}
+      aria-hidden={!open}
+      inert={open ? undefined : true}
       className={twMerge(
         'grid transition-[grid-template-rows] duration-200 ease-out',
         open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
@@ -121,4 +124,4 @@ export function CollapsibleContent({
       <div className="overflow-hidden">{children}</div>
     </div>
   )
-}
+})

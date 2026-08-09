@@ -17,11 +17,6 @@ const docsWebhookSourceMap = libraries.reduce((map, library) => {
   return map
 }, new Map<string, Set<string>>())
 
-const chartsCatalogRefs =
-  docsWebhookSourceMap.get('tanstack/charts') ?? new Set<string>()
-chartsCatalogRefs.add('catalog-dist')
-docsWebhookSourceMap.set('tanstack/charts', chartsCatalogRefs)
-
 export const docsWebhookSources = Array.from(docsWebhookSourceMap.entries())
   .map(([repo, refs]) => ({
     repo,

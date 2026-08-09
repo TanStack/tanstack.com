@@ -84,7 +84,7 @@ export function CodeExplorer({
         >
           <FileExplorer
             currentPath={currentPath}
-            githubContents={githubContents}
+            files={githubContents}
             isSidebarOpen={isSidebarOpen}
             libraryColor={library.bgStyle}
             prefetchFileContent={prefetchFileContent}

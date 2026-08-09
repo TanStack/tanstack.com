@@ -1,6 +1,5 @@
 import * as React from 'react'
-import { createFileRoute, notFound } from '@tanstack/react-router'
-import { ChartsCatalogChart } from '~/components/charts/ChartsCatalogChart'
+import { ClientOnly, createFileRoute, notFound } from '@tanstack/react-router'
 import { ChartsCatalogSource } from '~/components/charts/ChartsCatalogSource'
 import {
   isChartsCatalogEmbedTheme,
@@ -11,6 +10,12 @@ import {
 import { getChartsCatalogEmbedCase } from '~/utils/charts-catalog.functions'
 import { seo } from '~/utils/seo'
 
+const LazyChartsCatalogResult = React.lazy(() =>
+  import('~/components/charts/ChartsCatalogResult.client').then((module) => ({
+    default: module.ChartsCatalogResult,
+  })),
+)
+
 export const Route = createFileRoute('/charts/catalog_/embed/$caseId')({
   validateSearch: validateChartsCatalogEmbedRouteSearch,
   loaderDeps: ({ search }) => parseChartsCatalogEmbedRouteSearch(search),
@@ -18,6 +23,8 @@ export const Route = createFileRoute('/charts/catalog_/embed/$caseId')({
     const data = await getChartsCatalogEmbedCase({
       data: {
         caseId: params.caseId,
+        height: deps.height,
+        revision: deps.revision,
         source: deps.source !== 'hidden',
       },
     })
@@ -113,14 +120,15 @@ function ChartsCatalogEmbedRoute() {
 
   return (
     <main ref={contentRef} className="charts-catalog-embed overflow-hidden p-0">
-      <ChartsCatalogChart
-        artifactRevision={data.artifactRevision}
-        caseId={data.case.id}
-        height={data.height}
-        module={data.case.module}
-        onStatus={postStatus}
-        revision={data.revision}
-      />
+      <ClientOnly fallback={<div style={{ height: data.height }} />}>
+        <React.Suspense fallback={<div style={{ height: data.height }} />}>
+          <LazyChartsCatalogResult
+            definition={data.case.example}
+            height={data.height}
+            onStatus={postStatus}
+          />
+        </React.Suspense>
+      </ClientOnly>
       {data.case.authoredSource ? (
         <details
           open={data.source === 'expanded'}

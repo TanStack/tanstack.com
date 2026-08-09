@@ -23,6 +23,7 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PartnersEmbedRouteImport } from './routes/partners-embed'
 import { Route as PartnersRouteImport } from './routes/partners'
 import { Route as PaidSupportRouteImport } from './routes/paid-support'
+import { Route as NotebookRouteImport } from './routes/notebook'
 import { Route as MerchRouteImport } from './routes/merch'
 import { Route as MaintainersRouteImport } from './routes/maintainers'
 import { Route as LoginRouteImport } from './routes/login'
@@ -64,6 +65,8 @@ import { Route as PartnersPartnerRouteImport } from './routes/partners.$partner'
 import { Route as OauthTokenRouteImport } from './routes/oauth/token'
 import { Route as OauthRegisterRouteImport } from './routes/oauth/register'
 import { Route as OauthAuthorizeRouteImport } from './routes/oauth/authorize'
+import { Route as NotebookLlmsDottxtRouteImport } from './routes/notebook_.llms[.]txt'
+import { Route as NotebookEsbuildRouteImport } from './routes/notebook_.esbuild'
 import { Route as LibrariesFrameworkRouteImport } from './routes/libraries_.$framework'
 import { Route as DsTypographyRouteImport } from './routes/ds.typography'
 import { Route as DsStatsRouteImport } from './routes/ds.stats'
@@ -120,11 +123,13 @@ import { Route as ShopProductsHandleRouteImport } from './routes/shop.products.$
 import { Route as ShopPoliciesHandleRouteImport } from './routes/shop.policies.$handle'
 import { Route as ShopPagesHandleRouteImport } from './routes/shop.pages.$handle'
 import { Route as ShopCollectionsHandleRouteImport } from './routes/shop.collections.$handle'
+import { Route as NotebookPHashRouteImport } from './routes/notebook_.p.$hash'
 import { Route as IntentRegistryPackageNameRouteImport } from './routes/intent/registry/$packageName'
 import { Route as ChartsCatalogCatalogDotjsonRouteImport } from './routes/charts.catalog_.catalog[.]json'
 import { Route as AuthProviderStartRouteImport } from './routes/auth/$provider/start'
 import { Route as ApiReadmeChar123Char125DotpngRouteImport } from './routes/api/readme/{$}[.]png'
 import { Route as ApiOgChar123Char125DotpngRouteImport } from './routes/api/og/{$}[.]png'
+import { Route as ApiNotebookProjectsRouteImport } from './routes/api/notebook/projects'
 import { Route as ApiMcpSplatRouteImport } from './routes/api/mcp/$'
 import { Route as ApiGithubWebhookRouteImport } from './routes/api/github/webhook'
 import { Route as ApiExampleDeployRouteImport } from './routes/api/example/deploy'
@@ -174,6 +179,7 @@ import { Route as LibraryLibraryIdVersionIndexRouteImport } from './routes/_libr
 import { Route as IntentRegistryPackageNameChar123Char125DotmdRouteImport } from './routes/intent/registry/$packageName.{$}[.]md'
 import { Route as IntentRegistryPackageNameSkillNameRouteImport } from './routes/intent/registry/$packageName.$skillName'
 import { Route as ChartsCatalogEmbedCaseIdRouteImport } from './routes/charts.catalog_.embed.$caseId'
+import { Route as ApiNotebookProjectsHashRouteImport } from './routes/api/notebook/projects.$hash'
 import { Route as ApiBuilderDeployGithubRouteImport } from './routes/api/builder/deploy/github'
 import { Route as ApiBuilderDeployCheckNameRouteImport } from './routes/api/builder/deploy/check-name'
 import { Route as ApiAuthCliCreateTicketRouteImport } from './routes/api/auth/cli/create-ticket'
@@ -182,7 +188,7 @@ import { Route as LibraryChartsCatalogAllRouteImport } from './routes/_library/c
 import { Route as LibraryLibraryIdVersionLlmsDottxtRouteImport } from './routes/_library/$libraryId/$version.llms[.]txt'
 import { Route as LibraryLibraryIdVersionDocsRouteImport } from './routes/_library/$libraryId/$version.docs'
 import { Route as LibraryLibraryIdVersionDocsIndexRouteImport } from './routes/_library/$libraryId/$version.docs.index'
-import { Route as ChartsCatalogAssetsArtifactRevisionSplatRouteImport } from './routes/charts.catalog_.assets.$artifactRevision.$'
+import { Route as ApiNotebookProjectsHashQuarantineRouteImport } from './routes/api/notebook/projects.$hash.quarantine'
 import { Route as ApiAuthCliStatusTicketIdRouteImport } from './routes/api/auth/cli/status.$ticketId'
 import { Route as LibraryChartsCatalogChartsCaseIdRouteImport } from './routes/_library/charts.catalog.charts.$caseId'
 import { Route as LibraryLibraryIdVersionDocsChar123Char125DotmdRouteImport } from './routes/_library/$libraryId/$version.docs.{$}[.]md'
@@ -266,6 +272,11 @@ const PartnersRoute = PartnersRouteImport.update({
 const PaidSupportRoute = PaidSupportRouteImport.update({
   id: '/paid-support',
   path: '/paid-support',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotebookRoute = NotebookRouteImport.update({
+  id: '/notebook',
+  path: '/notebook',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MerchRoute = MerchRouteImport.update({
@@ -470,6 +481,16 @@ const OauthRegisterRoute = OauthRegisterRouteImport.update({
 const OauthAuthorizeRoute = OauthAuthorizeRouteImport.update({
   id: '/oauth/authorize',
   path: '/oauth/authorize',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotebookLlmsDottxtRoute = NotebookLlmsDottxtRouteImport.update({
+  id: '/notebook_/llms.txt',
+  path: '/notebook/llms.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotebookEsbuildRoute = NotebookEsbuildRouteImport.update({
+  id: '/notebook_/esbuild',
+  path: '/notebook/esbuild',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LibrariesFrameworkRoute = LibrariesFrameworkRouteImport.update({
@@ -755,6 +776,11 @@ const ShopCollectionsHandleRoute = ShopCollectionsHandleRouteImport.update({
   path: '/collections/$handle',
   getParentRoute: () => ShopRoute,
 } as any)
+const NotebookPHashRoute = NotebookPHashRouteImport.update({
+  id: '/notebook_/p/$hash',
+  path: '/notebook/p/$hash',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IntentRegistryPackageNameRoute =
   IntentRegistryPackageNameRouteImport.update({
     id: '/intent/registry/$packageName',
@@ -784,6 +810,11 @@ const ApiOgChar123Char125DotpngRoute =
     path: '/api/og/{$}.png',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiNotebookProjectsRoute = ApiNotebookProjectsRouteImport.update({
+  id: '/api/notebook/projects',
+  path: '/api/notebook/projects',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiMcpSplatRoute = ApiMcpSplatRouteImport.update({
   id: '/api/mcp/$',
   path: '/api/mcp/$',
@@ -1056,6 +1087,11 @@ const ChartsCatalogEmbedCaseIdRoute =
     path: '/charts/catalog/embed/$caseId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiNotebookProjectsHashRoute = ApiNotebookProjectsHashRouteImport.update({
+  id: '/$hash',
+  path: '/$hash',
+  getParentRoute: () => ApiNotebookProjectsRoute,
+} as any)
 const ApiBuilderDeployGithubRoute = ApiBuilderDeployGithubRouteImport.update({
   id: '/api/builder/deploy/github',
   path: '/api/builder/deploy/github',
@@ -1100,11 +1136,11 @@ const LibraryLibraryIdVersionDocsIndexRoute =
     path: '/',
     getParentRoute: () => LibraryLibraryIdVersionDocsRoute,
   } as any)
-const ChartsCatalogAssetsArtifactRevisionSplatRoute =
-  ChartsCatalogAssetsArtifactRevisionSplatRouteImport.update({
-    id: '/charts/catalog_/assets/$artifactRevision/$',
-    path: '/charts/catalog/assets/$artifactRevision/$',
-    getParentRoute: () => rootRouteImport,
+const ApiNotebookProjectsHashQuarantineRoute =
+  ApiNotebookProjectsHashQuarantineRouteImport.update({
+    id: '/quarantine',
+    path: '/quarantine',
+    getParentRoute: () => ApiNotebookProjectsHashRoute,
   } as any)
 const ApiAuthCliStatusTicketIdRoute =
   ApiAuthCliStatusTicketIdRouteImport.update({
@@ -1213,6 +1249,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/maintainers': typeof MaintainersRoute
   '/merch': typeof MerchRoute
+  '/notebook': typeof NotebookRoute
   '/paid-support': typeof PaidSupportRoute
   '/partners': typeof PartnersRouteWithChildren
   '/partners-embed': typeof PartnersEmbedRoute
@@ -1268,6 +1305,8 @@ export interface FileRoutesByFullPath {
   '/ds/stats': typeof DsStatsRoute
   '/ds/typography': typeof DsTypographyRoute
   '/libraries/$framework': typeof LibrariesFrameworkRoute
+  '/notebook/esbuild': typeof NotebookEsbuildRoute
+  '/notebook/llms.txt': typeof NotebookLlmsDottxtRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
   '/oauth/token': typeof OauthTokenRoute
@@ -1312,11 +1351,13 @@ export interface FileRoutesByFullPath {
   '/api/example/deploy': typeof ApiExampleDeployRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
+  '/api/notebook/projects': typeof ApiNotebookProjectsRouteWithChildren
   '/api/og/{$}.png': typeof ApiOgChar123Char125DotpngRoute
   '/api/readme/{$}.png': typeof ApiReadmeChar123Char125DotpngRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/charts/catalog/catalog.json': typeof ChartsCatalogCatalogDotjsonRoute
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameRouteWithChildren
+  '/notebook/p/$hash': typeof NotebookPHashRoute
   '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
   '/shop/pages/$handle': typeof ShopPagesHandleRoute
   '/shop/policies/$handle': typeof ShopPoliciesHandleRoute
@@ -1339,6 +1380,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
+  '/api/notebook/projects/$hash': typeof ApiNotebookProjectsHashRouteWithChildren
   '/charts/catalog/embed/$caseId': typeof ChartsCatalogEmbedCaseIdRoute
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
@@ -1374,7 +1416,7 @@ export interface FileRoutesByFullPath {
   '/$libraryId/$version/docs/{$}.md': typeof LibraryLibraryIdVersionDocsChar123Char125DotmdRoute
   '/charts/catalog/charts/$caseId': typeof LibraryChartsCatalogChartsCaseIdRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
-  '/charts/catalog/assets/$artifactRevision/$': typeof ChartsCatalogAssetsArtifactRevisionSplatRoute
+  '/api/notebook/projects/$hash/quarantine': typeof ApiNotebookProjectsHashQuarantineRoute
   '/$libraryId/$version/docs/': typeof LibraryLibraryIdVersionDocsIndexRoute
   '/$libraryId/$version/docs/framework/': typeof LibraryLibraryIdVersionDocsFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/$': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkSplatRoute
@@ -1397,6 +1439,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/maintainers': typeof MaintainersRoute
   '/merch': typeof MerchRoute
+  '/notebook': typeof NotebookRoute
   '/paid-support': typeof PaidSupportRoute
   '/partners-embed': typeof PartnersEmbedRoute
   '/privacy': typeof PrivacyRoute
@@ -1449,6 +1492,8 @@ export interface FileRoutesByTo {
   '/ds/stats': typeof DsStatsRoute
   '/ds/typography': typeof DsTypographyRoute
   '/libraries/$framework': typeof LibrariesFrameworkRoute
+  '/notebook/esbuild': typeof NotebookEsbuildRoute
+  '/notebook/llms.txt': typeof NotebookLlmsDottxtRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
   '/oauth/token': typeof OauthTokenRoute
@@ -1491,10 +1536,12 @@ export interface FileRoutesByTo {
   '/api/example/deploy': typeof ApiExampleDeployRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
+  '/api/notebook/projects': typeof ApiNotebookProjectsRouteWithChildren
   '/api/og/{$}.png': typeof ApiOgChar123Char125DotpngRoute
   '/api/readme/{$}.png': typeof ApiReadmeChar123Char125DotpngRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/charts/catalog/catalog.json': typeof ChartsCatalogCatalogDotjsonRoute
+  '/notebook/p/$hash': typeof NotebookPHashRoute
   '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
   '/shop/pages/$handle': typeof ShopPagesHandleRoute
   '/shop/policies/$handle': typeof ShopPoliciesHandleRoute
@@ -1516,6 +1563,7 @@ export interface FileRoutesByTo {
   '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
+  '/api/notebook/projects/$hash': typeof ApiNotebookProjectsHashRouteWithChildren
   '/charts/catalog/embed/$caseId': typeof ChartsCatalogEmbedCaseIdRoute
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
@@ -1551,7 +1599,7 @@ export interface FileRoutesByTo {
   '/$libraryId/$version/docs/{$}.md': typeof LibraryLibraryIdVersionDocsChar123Char125DotmdRoute
   '/charts/catalog/charts/$caseId': typeof LibraryChartsCatalogChartsCaseIdRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
-  '/charts/catalog/assets/$artifactRevision/$': typeof ChartsCatalogAssetsArtifactRevisionSplatRoute
+  '/api/notebook/projects/$hash/quarantine': typeof ApiNotebookProjectsHashQuarantineRoute
   '/$libraryId/$version/docs': typeof LibraryLibraryIdVersionDocsIndexRoute
   '/$libraryId/$version/docs/framework': typeof LibraryLibraryIdVersionDocsFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/$': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkSplatRoute
@@ -1581,6 +1629,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/maintainers': typeof MaintainersRoute
   '/merch': typeof MerchRoute
+  '/notebook': typeof NotebookRoute
   '/paid-support': typeof PaidSupportRoute
   '/partners': typeof PartnersRouteWithChildren
   '/partners-embed': typeof PartnersEmbedRoute
@@ -1636,6 +1685,8 @@ export interface FileRoutesById {
   '/ds/stats': typeof DsStatsRoute
   '/ds/typography': typeof DsTypographyRoute
   '/libraries_/$framework': typeof LibrariesFrameworkRoute
+  '/notebook_/esbuild': typeof NotebookEsbuildRoute
+  '/notebook_/llms.txt': typeof NotebookLlmsDottxtRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
   '/oauth/token': typeof OauthTokenRoute
@@ -1680,11 +1731,13 @@ export interface FileRoutesById {
   '/api/example/deploy': typeof ApiExampleDeployRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
+  '/api/notebook/projects': typeof ApiNotebookProjectsRouteWithChildren
   '/api/og/{$}.png': typeof ApiOgChar123Char125DotpngRoute
   '/api/readme/{$}.png': typeof ApiReadmeChar123Char125DotpngRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/charts/catalog_/catalog.json': typeof ChartsCatalogCatalogDotjsonRoute
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameRouteWithChildren
+  '/notebook_/p/$hash': typeof NotebookPHashRoute
   '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
   '/shop/pages/$handle': typeof ShopPagesHandleRoute
   '/shop/policies/$handle': typeof ShopPoliciesHandleRoute
@@ -1707,6 +1760,7 @@ export interface FileRoutesById {
   '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
+  '/api/notebook/projects/$hash': typeof ApiNotebookProjectsHashRouteWithChildren
   '/charts/catalog_/embed/$caseId': typeof ChartsCatalogEmbedCaseIdRoute
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
@@ -1742,7 +1796,7 @@ export interface FileRoutesById {
   '/_library/$libraryId/$version/docs/{$}.md': typeof LibraryLibraryIdVersionDocsChar123Char125DotmdRoute
   '/_library/charts/catalog/charts/$caseId': typeof LibraryChartsCatalogChartsCaseIdRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
-  '/charts/catalog_/assets/$artifactRevision/$': typeof ChartsCatalogAssetsArtifactRevisionSplatRoute
+  '/api/notebook/projects/$hash/quarantine': typeof ApiNotebookProjectsHashQuarantineRoute
   '/_library/$libraryId/$version/docs/': typeof LibraryLibraryIdVersionDocsIndexRoute
   '/_library/$libraryId/$version/docs/framework/': typeof LibraryLibraryIdVersionDocsFrameworkIndexRoute
   '/_library/$libraryId/$version/docs/framework/$framework/$': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkSplatRoute
@@ -1772,6 +1826,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/maintainers'
     | '/merch'
+    | '/notebook'
     | '/paid-support'
     | '/partners'
     | '/partners-embed'
@@ -1827,6 +1882,8 @@ export interface FileRouteTypes {
     | '/ds/stats'
     | '/ds/typography'
     | '/libraries/$framework'
+    | '/notebook/esbuild'
+    | '/notebook/llms.txt'
     | '/oauth/authorize'
     | '/oauth/register'
     | '/oauth/token'
@@ -1871,11 +1928,13 @@ export interface FileRouteTypes {
     | '/api/example/deploy'
     | '/api/github/webhook'
     | '/api/mcp/$'
+    | '/api/notebook/projects'
     | '/api/og/{$}.png'
     | '/api/readme/{$}.png'
     | '/auth/$provider/start'
     | '/charts/catalog/catalog.json'
     | '/intent/registry/$packageName'
+    | '/notebook/p/$hash'
     | '/shop/collections/$handle'
     | '/shop/pages/$handle'
     | '/shop/policies/$handle'
@@ -1898,6 +1957,7 @@ export interface FileRouteTypes {
     | '/api/auth/cli/create-ticket'
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
+    | '/api/notebook/projects/$hash'
     | '/charts/catalog/embed/$caseId'
     | '/intent/registry/$packageName/$skillName'
     | '/intent/registry/$packageName/{$}.md'
@@ -1933,7 +1993,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/{$}.md'
     | '/charts/catalog/charts/$caseId'
     | '/api/auth/cli/status/$ticketId'
-    | '/charts/catalog/assets/$artifactRevision/$'
+    | '/api/notebook/projects/$hash/quarantine'
     | '/$libraryId/$version/docs/'
     | '/$libraryId/$version/docs/framework/'
     | '/$libraryId/$version/docs/framework/$framework/$'
@@ -1956,6 +2016,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/maintainers'
     | '/merch'
+    | '/notebook'
     | '/paid-support'
     | '/partners-embed'
     | '/privacy'
@@ -2008,6 +2069,8 @@ export interface FileRouteTypes {
     | '/ds/stats'
     | '/ds/typography'
     | '/libraries/$framework'
+    | '/notebook/esbuild'
+    | '/notebook/llms.txt'
     | '/oauth/authorize'
     | '/oauth/register'
     | '/oauth/token'
@@ -2050,10 +2113,12 @@ export interface FileRouteTypes {
     | '/api/example/deploy'
     | '/api/github/webhook'
     | '/api/mcp/$'
+    | '/api/notebook/projects'
     | '/api/og/{$}.png'
     | '/api/readme/{$}.png'
     | '/auth/$provider/start'
     | '/charts/catalog/catalog.json'
+    | '/notebook/p/$hash'
     | '/shop/collections/$handle'
     | '/shop/pages/$handle'
     | '/shop/policies/$handle'
@@ -2075,6 +2140,7 @@ export interface FileRouteTypes {
     | '/api/auth/cli/create-ticket'
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
+    | '/api/notebook/projects/$hash'
     | '/charts/catalog/embed/$caseId'
     | '/intent/registry/$packageName/$skillName'
     | '/intent/registry/$packageName/{$}.md'
@@ -2110,7 +2176,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/{$}.md'
     | '/charts/catalog/charts/$caseId'
     | '/api/auth/cli/status/$ticketId'
-    | '/charts/catalog/assets/$artifactRevision/$'
+    | '/api/notebook/projects/$hash/quarantine'
     | '/$libraryId/$version/docs'
     | '/$libraryId/$version/docs/framework'
     | '/$libraryId/$version/docs/framework/$framework/$'
@@ -2139,6 +2205,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/maintainers'
     | '/merch'
+    | '/notebook'
     | '/paid-support'
     | '/partners'
     | '/partners-embed'
@@ -2194,6 +2261,8 @@ export interface FileRouteTypes {
     | '/ds/stats'
     | '/ds/typography'
     | '/libraries_/$framework'
+    | '/notebook_/esbuild'
+    | '/notebook_/llms.txt'
     | '/oauth/authorize'
     | '/oauth/register'
     | '/oauth/token'
@@ -2238,11 +2307,13 @@ export interface FileRouteTypes {
     | '/api/example/deploy'
     | '/api/github/webhook'
     | '/api/mcp/$'
+    | '/api/notebook/projects'
     | '/api/og/{$}.png'
     | '/api/readme/{$}.png'
     | '/auth/$provider/start'
     | '/charts/catalog_/catalog.json'
     | '/intent/registry/$packageName'
+    | '/notebook_/p/$hash'
     | '/shop/collections/$handle'
     | '/shop/pages/$handle'
     | '/shop/policies/$handle'
@@ -2265,6 +2336,7 @@ export interface FileRouteTypes {
     | '/api/auth/cli/create-ticket'
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
+    | '/api/notebook/projects/$hash'
     | '/charts/catalog_/embed/$caseId'
     | '/intent/registry/$packageName/$skillName'
     | '/intent/registry/$packageName/{$}.md'
@@ -2300,7 +2372,7 @@ export interface FileRouteTypes {
     | '/_library/$libraryId/$version/docs/{$}.md'
     | '/_library/charts/catalog/charts/$caseId'
     | '/api/auth/cli/status/$ticketId'
-    | '/charts/catalog_/assets/$artifactRevision/$'
+    | '/api/notebook/projects/$hash/quarantine'
     | '/_library/$libraryId/$version/docs/'
     | '/_library/$libraryId/$version/docs/framework/'
     | '/_library/$libraryId/$version/docs/framework/$framework/$'
@@ -2330,6 +2402,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MaintainersRoute: typeof MaintainersRoute
   MerchRoute: typeof MerchRoute
+  NotebookRoute: typeof NotebookRoute
   PaidSupportRoute: typeof PaidSupportRoute
   PartnersRoute: typeof PartnersRouteWithChildren
   PartnersEmbedRoute: typeof PartnersEmbedRoute
@@ -2350,6 +2423,8 @@ export interface RootRouteChildren {
   AuthPopupSuccessRoute: typeof AuthPopupSuccessRoute
   AuthSignoutRoute: typeof AuthSignoutRoute
   LibrariesFrameworkRoute: typeof LibrariesFrameworkRoute
+  NotebookEsbuildRoute: typeof NotebookEsbuildRoute
+  NotebookLlmsDottxtRoute: typeof NotebookLlmsDottxtRoute
   OauthAuthorizeRoute: typeof OauthAuthorizeRoute
   OauthRegisterRoute: typeof OauthRegisterRoute
   OauthTokenRoute: typeof OauthTokenRoute
@@ -2375,11 +2450,13 @@ export interface RootRouteChildren {
   ApiExampleDeployRoute: typeof ApiExampleDeployRoute
   ApiGithubWebhookRoute: typeof ApiGithubWebhookRoute
   ApiMcpSplatRoute: typeof ApiMcpSplatRoute
+  ApiNotebookProjectsRoute: typeof ApiNotebookProjectsRouteWithChildren
   ApiOgChar123Char125DotpngRoute: typeof ApiOgChar123Char125DotpngRoute
   ApiReadmeChar123Char125DotpngRoute: typeof ApiReadmeChar123Char125DotpngRoute
   AuthProviderStartRoute: typeof AuthProviderStartRoute
   ChartsCatalogCatalogDotjsonRoute: typeof ChartsCatalogCatalogDotjsonRoute
   IntentRegistryPackageNameRoute: typeof IntentRegistryPackageNameRouteWithChildren
+  NotebookPHashRoute: typeof NotebookPHashRoute
   ShowcaseEditIdRoute: typeof ShowcaseEditIdRoute
   StatsNpmPackagesRoute: typeof StatsNpmPackagesRoute
   StatsNpmEmbedRoute: typeof StatsNpmEmbedRoute
@@ -2392,7 +2469,6 @@ export interface RootRouteChildren {
   ApiBuilderDeployGithubRoute: typeof ApiBuilderDeployGithubRoute
   ChartsCatalogEmbedCaseIdRoute: typeof ChartsCatalogEmbedCaseIdRoute
   ApiAuthCliStatusTicketIdRoute: typeof ApiAuthCliStatusTicketIdRoute
-  ChartsCatalogAssetsArtifactRevisionSplatRoute: typeof ChartsCatalogAssetsArtifactRevisionSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -2493,6 +2569,13 @@ declare module '@tanstack/react-router' {
       path: '/paid-support'
       fullPath: '/paid-support'
       preLoaderRoute: typeof PaidSupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notebook': {
+      id: '/notebook'
+      path: '/notebook'
+      fullPath: '/notebook'
+      preLoaderRoute: typeof NotebookRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/merch': {
@@ -2780,6 +2863,20 @@ declare module '@tanstack/react-router' {
       path: '/oauth/authorize'
       fullPath: '/oauth/authorize'
       preLoaderRoute: typeof OauthAuthorizeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notebook_/llms.txt': {
+      id: '/notebook_/llms.txt'
+      path: '/notebook/llms.txt'
+      fullPath: '/notebook/llms.txt'
+      preLoaderRoute: typeof NotebookLlmsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notebook_/esbuild': {
+      id: '/notebook_/esbuild'
+      path: '/notebook/esbuild'
+      fullPath: '/notebook/esbuild'
+      preLoaderRoute: typeof NotebookEsbuildRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/libraries_/$framework': {
@@ -3174,6 +3271,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShopCollectionsHandleRouteImport
       parentRoute: typeof ShopRoute
     }
+    '/notebook_/p/$hash': {
+      id: '/notebook_/p/$hash'
+      path: '/notebook/p/$hash'
+      fullPath: '/notebook/p/$hash'
+      preLoaderRoute: typeof NotebookPHashRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/intent/registry/$packageName': {
       id: '/intent/registry/$packageName'
       path: '/intent/registry/$packageName'
@@ -3207,6 +3311,13 @@ declare module '@tanstack/react-router' {
       path: '/api/og/{$}.png'
       fullPath: '/api/og/{$}.png'
       preLoaderRoute: typeof ApiOgChar123Char125DotpngRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/notebook/projects': {
+      id: '/api/notebook/projects'
+      path: '/api/notebook/projects'
+      fullPath: '/api/notebook/projects'
+      preLoaderRoute: typeof ApiNotebookProjectsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/mcp/$': {
@@ -3552,6 +3663,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChartsCatalogEmbedCaseIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/notebook/projects/$hash': {
+      id: '/api/notebook/projects/$hash'
+      path: '/$hash'
+      fullPath: '/api/notebook/projects/$hash'
+      preLoaderRoute: typeof ApiNotebookProjectsHashRouteImport
+      parentRoute: typeof ApiNotebookProjectsRoute
+    }
     '/api/builder/deploy/github': {
       id: '/api/builder/deploy/github'
       path: '/api/builder/deploy/github'
@@ -3608,12 +3726,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryLibraryIdVersionDocsIndexRouteImport
       parentRoute: typeof LibraryLibraryIdVersionDocsRoute
     }
-    '/charts/catalog_/assets/$artifactRevision/$': {
-      id: '/charts/catalog_/assets/$artifactRevision/$'
-      path: '/charts/catalog/assets/$artifactRevision/$'
-      fullPath: '/charts/catalog/assets/$artifactRevision/$'
-      preLoaderRoute: typeof ChartsCatalogAssetsArtifactRevisionSplatRouteImport
-      parentRoute: typeof rootRouteImport
+    '/api/notebook/projects/$hash/quarantine': {
+      id: '/api/notebook/projects/$hash/quarantine'
+      path: '/quarantine'
+      fullPath: '/api/notebook/projects/$hash/quarantine'
+      preLoaderRoute: typeof ApiNotebookProjectsHashQuarantineRouteImport
+      parentRoute: typeof ApiNotebookProjectsHashRoute
     }
     '/api/auth/cli/status/$ticketId': {
       id: '/api/auth/cli/status/$ticketId'
@@ -4059,6 +4177,32 @@ const ShopRouteChildren: ShopRouteChildren = {
 
 const ShopRouteWithChildren = ShopRoute._addFileChildren(ShopRouteChildren)
 
+interface ApiNotebookProjectsHashRouteChildren {
+  ApiNotebookProjectsHashQuarantineRoute: typeof ApiNotebookProjectsHashQuarantineRoute
+}
+
+const ApiNotebookProjectsHashRouteChildren: ApiNotebookProjectsHashRouteChildren =
+  {
+    ApiNotebookProjectsHashQuarantineRoute:
+      ApiNotebookProjectsHashQuarantineRoute,
+  }
+
+const ApiNotebookProjectsHashRouteWithChildren =
+  ApiNotebookProjectsHashRoute._addFileChildren(
+    ApiNotebookProjectsHashRouteChildren,
+  )
+
+interface ApiNotebookProjectsRouteChildren {
+  ApiNotebookProjectsHashRoute: typeof ApiNotebookProjectsHashRouteWithChildren
+}
+
+const ApiNotebookProjectsRouteChildren: ApiNotebookProjectsRouteChildren = {
+  ApiNotebookProjectsHashRoute: ApiNotebookProjectsHashRouteWithChildren,
+}
+
+const ApiNotebookProjectsRouteWithChildren =
+  ApiNotebookProjectsRoute._addFileChildren(ApiNotebookProjectsRouteChildren)
+
 interface IntentRegistryPackageNameRouteChildren {
   IntentRegistryPackageNameSkillNameRoute: typeof IntentRegistryPackageNameSkillNameRoute
   IntentRegistryPackageNameChar123Char125DotmdRoute: typeof IntentRegistryPackageNameChar123Char125DotmdRoute
@@ -4100,6 +4244,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MaintainersRoute: MaintainersRoute,
   MerchRoute: MerchRoute,
+  NotebookRoute: NotebookRoute,
   PaidSupportRoute: PaidSupportRoute,
   PartnersRoute: PartnersRouteWithChildren,
   PartnersEmbedRoute: PartnersEmbedRoute,
@@ -4121,6 +4266,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthPopupSuccessRoute: AuthPopupSuccessRoute,
   AuthSignoutRoute: AuthSignoutRoute,
   LibrariesFrameworkRoute: LibrariesFrameworkRoute,
+  NotebookEsbuildRoute: NotebookEsbuildRoute,
+  NotebookLlmsDottxtRoute: NotebookLlmsDottxtRoute,
   OauthAuthorizeRoute: OauthAuthorizeRoute,
   OauthRegisterRoute: OauthRegisterRoute,
   OauthTokenRoute: OauthTokenRoute,
@@ -4146,11 +4293,13 @@ const rootRouteChildren: RootRouteChildren = {
   ApiExampleDeployRoute: ApiExampleDeployRoute,
   ApiGithubWebhookRoute: ApiGithubWebhookRoute,
   ApiMcpSplatRoute: ApiMcpSplatRoute,
+  ApiNotebookProjectsRoute: ApiNotebookProjectsRouteWithChildren,
   ApiOgChar123Char125DotpngRoute: ApiOgChar123Char125DotpngRoute,
   ApiReadmeChar123Char125DotpngRoute: ApiReadmeChar123Char125DotpngRoute,
   AuthProviderStartRoute: AuthProviderStartRoute,
   ChartsCatalogCatalogDotjsonRoute: ChartsCatalogCatalogDotjsonRoute,
   IntentRegistryPackageNameRoute: IntentRegistryPackageNameRouteWithChildren,
+  NotebookPHashRoute: NotebookPHashRoute,
   ShowcaseEditIdRoute: ShowcaseEditIdRoute,
   StatsNpmPackagesRoute: StatsNpmPackagesRoute,
   StatsNpmEmbedRoute: StatsNpmEmbedRoute,
@@ -4163,8 +4312,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiBuilderDeployGithubRoute: ApiBuilderDeployGithubRoute,
   ChartsCatalogEmbedCaseIdRoute: ChartsCatalogEmbedCaseIdRoute,
   ApiAuthCliStatusTicketIdRoute: ApiAuthCliStatusTicketIdRoute,
-  ChartsCatalogAssetsArtifactRevisionSplatRoute:
-    ChartsCatalogAssetsArtifactRevisionSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

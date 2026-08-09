@@ -29,6 +29,7 @@ import { LifebuoyIcon } from '@phosphor-icons/react/Lifebuoy'
 import { ListIcon } from '@phosphor-icons/react/List'
 import { MagnifyingGlassIcon } from '@phosphor-icons/react/MagnifyingGlass'
 import { MailboxIcon } from '@phosphor-icons/react/Mailbox'
+import { NotebookIcon } from '@phosphor-icons/react/Notebook'
 import { ShieldCheckIcon } from '@phosphor-icons/react/ShieldCheck'
 import { ShoppingBagIcon } from '@phosphor-icons/react/ShoppingBag'
 import { SignInIcon } from '@phosphor-icons/react/SignIn'
@@ -233,6 +234,12 @@ const NAV_GROUPS = [
             description: 'Generate TanStack app starters.',
             badge: 'Alpha',
             icon: HammerIcon,
+          },
+          {
+            label: 'Notebook',
+            to: '/notebook',
+            description: 'Create and share client-side TSX modules.',
+            icon: NotebookIcon,
           },
           {
             label: 'Stats',

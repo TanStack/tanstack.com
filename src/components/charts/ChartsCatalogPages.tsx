@@ -1,48 +1,24 @@
 import { ArrowsOutSimpleIcon, GridFourIcon } from '@phosphor-icons/react'
-import { Link } from '@tanstack/react-router'
+import { ClientOnly, Link } from '@tanstack/react-router'
 import * as React from 'react'
-import type {
-  ChartsCatalogAuthoredSource,
-  ChartsCatalogCase,
-} from '~/utils/charts-catalog'
-import {
-  ChartsCatalogChart,
-  type ChartsCatalogModuleReference,
-} from './ChartsCatalogChart'
+import type { ChartsCatalogAuthoredSource } from '~/utils/charts-catalog'
+import type { ChartsCatalogIndexCase } from '~/utils/charts-catalog-index'
+import type { ExampleDefinition } from '~/utils/example-workspace'
+import { ChartsCatalogPreview } from './ChartsCatalogPreview'
 import { ChartsCatalogSource } from './ChartsCatalogSource'
-import { Resizable, type ResizableSizeChange } from '../npm-stats/Resizable'
 
-type CatalogCaseMetadata = Pick<
-  ChartsCatalogCase,
-  | 'ai'
-  | 'family'
-  | 'features'
-  | 'geometry'
-  | 'id'
-  | 'intent'
-  | 'order'
-  | 'referenceRenderer'
-  | 'routes'
-  | 'schemaVersion'
-  | 'source'
-  | 'support'
-  | 'title'
->
+const LazyExampleWorkbench = React.lazy(() =>
+  import('~/components/examples/ExampleWorkbench.client').then((module) => ({
+    default: module.ExampleWorkbench,
+  })),
+)
 
-type CatalogCaseModules = {
-  tanstack: ChartsCatalogModuleReference
-  comparison?: ChartsCatalogModuleReference & {
-    renderer: 'observable-plot' | 'recharts' | 'echarts'
-    visibility: 'debug'
-  }
-}
+type CatalogCaseMetadata = ChartsCatalogIndexCase
 
 export function ChartsCatalog({
-  artifactRevision,
   cases,
 }: {
-  artifactRevision: string
-  cases: Array<CatalogCaseMetadata & { modules: CatalogCaseModules }>
+  cases: Array<CatalogCaseMetadata>
 }) {
   const [query, setQuery] = React.useState('')
   const [family, setFamily] = React.useState('all')
@@ -84,31 +60,34 @@ export function ChartsCatalog({
         {filtered.map((catalogCase) => (
           <article
             key={catalogCase.id}
-            className="min-w-0 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-950"
+            className="group relative min-w-0 overflow-hidden rounded-xl border border-border-subtle bg-background-surface"
           >
-            <div className="flex items-start justify-between gap-4">
-              <Link
-                to="/charts/catalog/charts/$caseId"
-                params={{ caseId: catalogCase.id }}
-                search={true}
-                className="font-semibold leading-snug text-gray-950 hover:text-blue-600 dark:text-white dark:hover:text-blue-400"
-              >
+            <div
+              aria-hidden="true"
+              className={fullWidth ? 'aspect-[3/1]' : 'aspect-[3/2]'}
+            >
+              <ChartsCatalogPreview
+                caseId={catalogCase.id}
+                className="p-5"
+                family={catalogCase.family}
+              />
+            </div>
+            <div className="flex min-h-16 items-center justify-between gap-4 border-t border-border-subtle px-4 py-3">
+              <p className="min-w-0 truncate font-ds-display text-sm font-semibold text-text-primary">
                 {catalogCase.title}
-              </Link>
-              <span className="shrink-0 text-xs text-gray-500">
+              </p>
+              <span className="shrink-0 font-ds-mono text-ds-mono-caps-xs uppercase text-text-muted">
                 {catalogCase.family}
               </span>
             </div>
-            <div className="mt-4">
-              <ResizableCatalogChart
-                key={`${catalogCase.id}:${fullWidth ? 'full' : 'grid'}`}
-                artifactRevision={artifactRevision}
-                caseId={catalogCase.id}
-                defer
-                initialHeight={fullWidth ? 420 : 320}
-                module={catalogCase.modules.tanstack}
-              />
-            </div>
+            <Link
+              aria-label={`Open the ${catalogCase.title} catalog example`}
+              className="absolute inset-0 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action-primary focus-visible:ring-inset"
+              params={{ caseId: catalogCase.id }}
+              preload={false}
+              search={true}
+              to="/charts/catalog/charts/$caseId"
+            />
           </article>
         ))}
       </div>
@@ -117,20 +96,15 @@ export function ChartsCatalog({
 }
 
 export function ChartsCatalogDetail({
-  artifactRevision,
   catalogCase,
 }: {
-  artifactRevision: string
   catalogCase: CatalogCaseMetadata & {
-    modules: CatalogCaseModules
+    example: ExampleDefinition
     authoredSource: {
       tanstack: ChartsCatalogAuthoredSource
-      comparison?: ChartsCatalogAuthoredSource
     }
   }
 }) {
-  const comparison = catalogCase.modules.comparison
-
   return (
     <CatalogSurface wide>
       <div className="mb-6 flex flex-wrap items-start justify-between gap-5">
@@ -150,72 +124,28 @@ export function ChartsCatalogDetail({
         </div>
       </div>
 
-      <div className={`grid gap-6 ${comparison ? 'xl:grid-cols-2' : ''}`}>
-        <ChartPanel label="TanStack">
-          <ResizableCatalogChart
-            artifactRevision={artifactRevision}
-            caseId={catalogCase.id}
-            module={catalogCase.modules.tanstack}
-          />
-        </ChartPanel>
-        {comparison ? (
-          <ChartPanel label={rendererLabel(comparison.renderer)}>
-            <ResizableCatalogChart
-              artifactRevision={artifactRevision}
-              caseId={`${catalogCase.id}-comparison`}
-              module={comparison}
-            />
-          </ChartPanel>
-        ) : null}
-      </div>
-
-      <div className={`mt-6 grid gap-3 ${comparison ? 'xl:grid-cols-2' : ''}`}>
-        <ChartPanel label="TanStack source">
-          <ChartsCatalogSource source={catalogCase.authoredSource.tanstack} />
-        </ChartPanel>
-        {catalogCase.authoredSource.comparison && comparison ? (
-          <ChartPanel label={`${rendererLabel(comparison.renderer)} source`}>
-            <ChartsCatalogSource
-              source={catalogCase.authoredSource.comparison}
-            />
-          </ChartPanel>
-        ) : null}
-      </div>
+      <ClientOnly
+        fallback={<CatalogWorkbenchFallback catalogCase={catalogCase} />}
+      >
+        <React.Suspense
+          fallback={<CatalogWorkbenchFallback catalogCase={catalogCase} />}
+        >
+          <LazyExampleWorkbench definition={catalogCase.example} />
+        </React.Suspense>
+      </ClientOnly>
     </CatalogSurface>
   )
 }
 
-function ResizableCatalogChart({
-  artifactRevision,
-  caseId,
-  defer = false,
-  initialHeight = 360,
-  module,
+function CatalogWorkbenchFallback({
+  catalogCase,
 }: {
-  artifactRevision: string
-  caseId: string
-  defer?: boolean
-  initialHeight?: number
-  module: ChartsCatalogModuleReference
+  catalogCase: { authoredSource: { tanstack: ChartsCatalogAuthoredSource } }
 }) {
-  const [height, setHeight] = React.useState(initialHeight)
-  const [width, setWidth] = React.useState<number | undefined>(undefined)
-
-  const onSizeChange = React.useCallback((size: ResizableSizeChange) => {
-    if (size.height !== undefined) setHeight(size.height)
-    if ('width' in size) setWidth(size.width)
-  }, [])
-
   return (
-    <Resizable height={height} width={width} onSizeChange={onSizeChange}>
-      <ChartsCatalogChart
-        artifactRevision={artifactRevision}
-        caseId={caseId}
-        defer={defer}
-        height={height}
-        module={module}
-      />
-    </Resizable>
+    <div className="rounded-lg border border-gray-200 dark:border-gray-800">
+      <ChartsCatalogSource source={catalogCase.authoredSource.tanstack} />
+    </div>
   )
 }
 
@@ -283,7 +213,7 @@ function CatalogToolbar({
         type="button"
         aria-pressed={fullWidth}
         onClick={() => setFullWidth(!fullWidth)}
-        className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 hover:text-gray-950 aria-pressed:border-blue-500 aria-pressed:text-blue-600 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-400 dark:hover:text-white dark:aria-pressed:border-blue-500 dark:aria-pressed:text-blue-400"
+        className="hidden items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 hover:text-gray-950 aria-pressed:border-blue-500 aria-pressed:text-blue-600 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-400 dark:hover:text-white dark:aria-pressed:border-blue-500 dark:aria-pressed:text-blue-400 sm:inline-flex"
       >
         {fullWidth ? (
           <GridFourIcon aria-hidden="true" className="size-4" />
@@ -297,25 +227,4 @@ function CatalogToolbar({
       </span>
     </div>
   )
-}
-
-function ChartPanel({
-  children,
-  label,
-}: {
-  children: React.ReactNode
-  label: string
-}) {
-  return (
-    <div className="min-w-0">
-      <p className="mb-2 text-xs font-medium text-gray-500">{label}</p>
-      {children}
-    </div>
-  )
-}
-
-function rendererLabel(renderer: 'observable-plot' | 'recharts' | 'echarts') {
-  if (renderer === 'observable-plot') return 'Observable Plot'
-  if (renderer === 'recharts') return 'Recharts'
-  return 'Apache ECharts'
 }

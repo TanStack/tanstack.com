@@ -193,4 +193,8 @@ export const RATE_LIMITS = {
   deploy: { limitPerMinute: 10, keyPrefix: 'deploy' },
   // CLI auth ticket creation: public endpoint polled by local tools
   cliAuthTicket: { limitPerMinute: 20, keyPrefix: 'cli-auth-ticket' },
+  notebookProjectWrite: {
+    limitPerMinute: 10,
+    keyPrefix: 'notebook-project-write',
+  },
 } as const

@@ -16,7 +16,6 @@ import {
 const catalogSourceRoot = 'benchmarks/conformance/'
 const catalogExamplePackagePaths = {
   charts: 'packages/charts-core/package.json',
-  reactCharts: 'packages/react-charts/package.json',
   root: 'package.json',
 }
 const catalogExampleRootDependencies = [
@@ -436,15 +435,10 @@ async function getChartsCatalogExampleVersions(
   revision: string,
   sourceKind: ChartsCatalogIndexPublication['sourceKind'],
 ): Promise<ChartsCatalogExampleVersions> {
-  const [chartsSource, reactChartsSource, rootSource] = await Promise.all([
+  const [chartsSource, rootSource] = await Promise.all([
     getChartsCatalogSource(
       revision,
       catalogExamplePackagePaths.charts,
-      sourceKind,
-    ),
-    getChartsCatalogSource(
-      revision,
-      catalogExamplePackagePaths.reactCharts,
       sourceKind,
     ),
     getChartsCatalogSource(
@@ -457,10 +451,6 @@ async function getChartsCatalogExampleVersions(
     chartsSource,
     catalogExamplePackagePaths.charts,
   )
-  const reactCharts = parsePackageMetadata(
-    reactChartsSource,
-    catalogExamplePackagePaths.reactCharts,
-  )
   const root = parsePackageMetadata(rootSource, catalogExamplePackagePaths.root)
   const dependencies = Object.fromEntries(
     catalogExampleRootDependencies.map((name) => [
@@ -471,10 +461,6 @@ async function getChartsCatalogExampleVersions(
 
   return {
     charts: getPackageVersion(charts, catalogExamplePackagePaths.charts),
-    reactCharts: getPackageVersion(
-      reactCharts,
-      catalogExamplePackagePaths.reactCharts,
-    ),
     react: dependencies.react,
     reactDom: dependencies['react-dom'],
     dependencies,

@@ -17,7 +17,7 @@ assert.equal(
 
 assert.equal(
   getFrameworkPackageName('octane', charts.id, charts),
-  '@tanstack/octane-charts',
+  '@tanstack/charts',
 )
 
 assert.equal(

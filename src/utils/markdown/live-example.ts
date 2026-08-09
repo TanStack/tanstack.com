@@ -8,6 +8,7 @@ import type {
 import {
   createExampleWorkspace,
   isCanonicalExamplePath,
+  isExampleEnvironment,
   serializeExampleWorkspace,
 } from '~/utils/example-workspace'
 
@@ -29,7 +30,7 @@ function transformBlocks(blocks: Array<BlockNode>): Array<BlockNode> {
   let index = 0
 
   while (index < nested.length) {
-    const first = readLiveCode(nested[index])
+    const first = readGroupCode(nested[index])
     if (!first) {
       transformed.push(nested[index])
       index += 1
@@ -40,8 +41,8 @@ function transformBlocks(blocks: Array<BlockNode>): Array<BlockNode> {
     let cursor = index + 1
 
     while (cursor < nested.length) {
-      const next = readLiveCode(nested[cursor])
-      if (!next || next.id !== first.id) break
+      const next = readGroupCode(nested[cursor])
+      if (!next || next.group !== first.group) break
       group.push(next)
       cursor += 1
     }
@@ -87,58 +88,115 @@ function transformNestedBlocks(block: BlockNode): BlockNode {
   }
 }
 
-function readLiveCode(block: BlockNode | undefined) {
+function readGroupCode(block: BlockNode | undefined) {
   if (block?.type !== 'code' || !block.meta) return undefined
 
   const attributes = parseAttributes(block.meta)
-  const entry = attributes.entry
-  const id = attributes.live
-  const file = attributes.file
+  const group = attributes.group
 
-  if (!id || !/^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/.test(id)) return undefined
-  if (!file || !isCanonicalExamplePath(file)) return undefined
-  if (entry && !isCanonicalExamplePath(entry)) return undefined
+  if (group === undefined) return undefined
 
-  return { entry, file, id, node: block }
+  return {
+    attributes,
+    attributeNames: readAttributeNames(block.meta),
+    group,
+    node: block,
+  }
 }
 
 function createLiveComponent(
   group: Array<{
-    entry: string | undefined
-    file: string
-    id: string
+    attributes: Record<string, string>
+    attributeNames: Array<string>
+    group: string
     node: CodeBlockNode
   }>,
 ): ComponentNode | undefined {
-  const files: Record<string, string> = {}
-
-  for (const item of group) {
-    if (files[item.file] !== undefined) return undefined
-    files[item.file] = item.node.value
+  const first = group[0]
+  if (!first || !/^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/.test(first.group)) {
+    return undefined
   }
 
-  const first = group[0]
-  if (!first) return undefined
+  const files: Record<string, string> = {}
+  const collapsedIndexes: Array<number> = []
+  const entryItems: Array<(typeof group)[number]> = []
+  const environmentItems: Array<(typeof group)[number]> = []
 
-  const explicitEntries = group.flatMap(({ entry }) =>
-    entry === undefined ? [] : [entry],
-  )
-  if (new Set(explicitEntries).size > 1) return undefined
+  for (const [index, item] of group.entries()) {
+    const { attributes, attributeNames } = item
+    const file = attributes.file
+    const entry = attributes.entry
+    const collapsed = attributes.collapsed
+    const environment = attributes.env
 
-  const entry = explicitEntries[0] ?? first.file
-  if (files[entry] === undefined) return undefined
+    if (
+      countAttribute(attributeNames, 'group') !== 1 ||
+      countAttribute(attributeNames, 'file') !== 1 ||
+      countAttribute(attributeNames, 'entry') > 1 ||
+      countAttribute(attributeNames, 'collapsed') > 1 ||
+      countAttribute(attributeNames, 'env') > 1 ||
+      !file ||
+      !isCanonicalExamplePath(file) ||
+      (entry !== undefined && entry !== 'true') ||
+      (collapsed !== undefined && collapsed !== 'true') ||
+      (environment !== undefined && !isExampleEnvironment(environment)) ||
+      files[file] !== undefined
+    ) {
+      return undefined
+    }
 
-  const workspace = createExampleWorkspace({ entry, files })
+    files[file] = item.node.value
+    if (entry === 'true') entryItems.push(item)
+    if (environment !== undefined) environmentItems.push(item)
+    if (collapsed === 'true') collapsedIndexes.push(index)
+  }
+
+  const entryItem = entryItems[0]
+  const environmentItem = environmentItems[0]
+  if (
+    entryItems.length !== 1 ||
+    environmentItems.length !== 1 ||
+    !entryItem ||
+    entryItem !== environmentItem ||
+    entryItem.attributes.collapsed !== undefined
+  ) {
+    return undefined
+  }
+
+  const entry = entryItem.attributes.file
+  const environment = entryItem.attributes.env
+  if (!entry || !environment || !isExampleEnvironment(environment)) {
+    return undefined
+  }
+
+  const workspace = createExampleWorkspace({ entry, environment, files })
 
   return {
     type: 'component',
     name: 'live-example',
     tagName: 'md-live-example',
-    attributes: { id: first.id },
+    attributes: { id: first.group },
     properties: {
-      'data-live-id': first.id,
+      'data-example-group': first.group,
+      'data-collapsed-indexes': JSON.stringify(collapsedIndexes),
       'data-workspace': serializeExampleWorkspace(workspace),
     },
     children: group.map(({ node }) => node),
   }
+}
+
+function readAttributeNames(meta: string) {
+  const names: Array<string> = []
+  const pattern = /([A-Za-z_][\w:-]*)(?:=(?:"[^"]*"|'[^']*'|[^\s"']+))?/g
+
+  for (const match of meta.matchAll(pattern)) {
+    const name = match[1]
+    if (name) names.push(name)
+  }
+
+  return names
+}
+
+function countAttribute(names: Array<string>, name: string) {
+  return names.filter((candidate) => candidate === name).length
 }

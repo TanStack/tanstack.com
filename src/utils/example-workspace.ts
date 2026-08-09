@@ -1,8 +1,17 @@
 export const exampleWorkspaceVersion = 1
 
+export const exampleEnvironmentNames = [
+  'charts',
+  'charts-react',
+  'charts-octane',
+] as const
+
+export type ExampleEnvironment = (typeof exampleEnvironmentNames)[number]
+
 export type ExampleWorkspace = {
   version: typeof exampleWorkspaceVersion
   entry: string
+  environment?: ExampleEnvironment
   files: Record<string, string>
   imports?: Record<string, string>
 }
@@ -17,10 +26,12 @@ export type ExampleDefinition = {
 
 export function createExampleWorkspace({
   entry,
+  environment,
   files,
   imports,
 }: {
   entry: string
+  environment?: ExampleEnvironment
   files: Record<string, string>
   imports?: Record<string, string>
 }): ExampleWorkspace {
@@ -33,6 +44,7 @@ export function createExampleWorkspace({
   return {
     version: exampleWorkspaceVersion,
     entry: normalizeExamplePath(entry),
+    ...(environment ? { environment } : {}),
     files: normalizedFiles,
     ...(imports ? { imports: { ...imports } } : {}),
   }
@@ -70,6 +82,7 @@ export function serializeExampleWorkspace(workspace: ExampleWorkspace) {
   return JSON.stringify({
     version: workspace.version,
     entry: workspace.entry,
+    ...(workspace.environment ? { environment: workspace.environment } : {}),
     files,
     ...(imports ? { imports } : {}),
   })
@@ -78,7 +91,13 @@ export function serializeExampleWorkspace(workspace: ExampleWorkspace) {
 export function parseExampleWorkspace(value: unknown): ExampleWorkspace {
   if (
     !isRecord(value) ||
-    !hasOnlyKeys(value, ['version', 'entry', 'files', 'imports']) ||
+    !hasOnlyKeys(value, [
+      'version',
+      'entry',
+      'environment',
+      'files',
+      'imports',
+    ]) ||
     value.version !== exampleWorkspaceVersion
   ) {
     throw new Error('Unsupported example workspace version')
@@ -87,6 +106,8 @@ export function parseExampleWorkspace(value: unknown): ExampleWorkspace {
   if (
     typeof value.entry !== 'string' ||
     !isCanonicalExamplePath(value.entry) ||
+    (value.environment !== undefined &&
+      !isExampleEnvironment(value.environment)) ||
     !isStringRecord(value.files) ||
     !Object.keys(value.files).every(isCanonicalExamplePath) ||
     (value.imports !== undefined && !isStringRecord(value.imports))
@@ -96,6 +117,7 @@ export function parseExampleWorkspace(value: unknown): ExampleWorkspace {
 
   const workspace = createExampleWorkspace({
     entry: value.entry,
+    environment: value.environment,
     files: value.files,
     imports: value.imports,
   })
@@ -116,6 +138,12 @@ export function isCanonicalExamplePath(path: string) {
     !path.split('/').includes('..') &&
     normalizeExamplePath(path) === path
   )
+}
+
+export function isExampleEnvironment(
+  value: unknown,
+): value is ExampleEnvironment {
+  return exampleEnvironmentNames.some((name) => name === value)
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

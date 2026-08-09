@@ -164,6 +164,7 @@ export function ExampleWorkbench({
     setWorkspace((current) => {
       const next = createExampleWorkspace({
         entry: current.entry,
+        environment: current.environment,
         files: { ...current.files, [activePath]: source },
         imports: current.imports,
       })
@@ -408,6 +409,7 @@ export function ExampleWorkbench({
 function cloneWorkspace(workspace: ExampleWorkspace) {
   return createExampleWorkspace({
     entry: workspace.entry,
+    environment: workspace.environment,
     files: { ...workspace.files },
     imports: workspace.imports,
   })

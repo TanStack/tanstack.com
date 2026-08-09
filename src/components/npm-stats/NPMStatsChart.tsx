@@ -17,7 +17,7 @@ import {
 } from '@tanstack/charts'
 import { renderChartSvgWithResources } from '@tanstack/charts/svg/resources'
 import { tooltip } from '@tanstack/charts/tooltip'
-import { Chart } from '@tanstack/react-charts'
+import { Chart } from '@tanstack/charts/react'
 import { GIFEncoder, applyPalette, quantize } from 'gifenc'
 import {
   CheckIcon,

@@ -1,16 +1,28 @@
+import type { ExampleEnvironment } from './example-workspace'
+
 export const notebookImports = {
-  '@tanstack/charts': 'https://esm.sh/@tanstack/charts@0.7.2',
-  '@tanstack/charts/': 'https://esm.sh/@tanstack/charts@0.7.2/',
-  '@tanstack/charts-scales': 'https://esm.sh/@tanstack/charts-scales@0.7.2',
-  '@tanstack/charts-scales/': 'https://esm.sh/@tanstack/charts-scales@0.7.2/',
+  '@tanstack/charts': 'https://esm.sh/@tanstack/charts@0.9.0',
+  '@tanstack/charts/': 'https://esm.sh/@tanstack/charts@0.9.0/',
+  '@tanstack/charts/react':
+    'https://esm.sh/@tanstack/charts@0.9.0/react?external=react,react-dom',
+  '@tanstack/charts/react/canvas':
+    'https://esm.sh/@tanstack/charts@0.9.0/react/canvas?external=react,react-dom',
+  '@tanstack/charts/react/core':
+    'https://esm.sh/@tanstack/charts@0.9.0/react/core?external=react,react-dom',
+  '@tanstack/charts/react/tooltip':
+    'https://esm.sh/@tanstack/charts@0.9.0/react/tooltip?external=react,react-dom',
+  '@tanstack/charts/octane':
+    'https://esm.sh/@tanstack/charts@0.9.0/octane?external=octane',
+  '@tanstack/charts/octane/canvas':
+    'https://esm.sh/@tanstack/charts@0.9.0/octane/canvas?external=octane',
+  '@tanstack/charts/octane/core':
+    'https://esm.sh/@tanstack/charts@0.9.0/octane/core?external=octane',
   '@tanstack/charts-data/':
     'https://esm.sh/gh/TanStack/charts@b8690671d677244848cff0eebd3d5dd0d5825b18/packages/charts-demo-data/src/',
   '@tanstack/highlight': 'https://esm.sh/@tanstack/highlight@0.0.9',
   '@tanstack/highlight/': 'https://esm.sh/@tanstack/highlight@0.0.9/',
   '@tanstack/markdown': 'https://esm.sh/@tanstack/markdown@0.0.11',
   '@tanstack/pacer': 'https://esm.sh/@tanstack/pacer@0.21.1',
-  '@tanstack/react-charts':
-    'https://esm.sh/@tanstack/react-charts@0.7.2?external=react',
   '@tanstack/react-pacer':
     'https://esm.sh/@tanstack/react-pacer@0.22.1?external=react',
   '@tanstack/react-query':
@@ -23,13 +35,74 @@ export const notebookImports = {
   'd3-geo': 'https://esm.sh/d3-geo@3.1.1',
   'd3-scale': 'https://esm.sh/d3-scale@4.0.2',
   'd3-shape': 'https://esm.sh/d3-shape@3.2.0',
+  octane: 'https://esm.sh/octane@0.1.13',
+  'octane/': 'https://esm.sh/octane@0.1.13/',
+  'octane/compiler': 'https://esm.sh/octane@0.1.13/compiler',
   react: 'https://esm.sh/react@19.2.3',
+  'react/jsx-dev-runtime': 'https://esm.sh/react@19.2.3/jsx-dev-runtime',
   'react/jsx-runtime': 'https://esm.sh/react@19.2.3/jsx-runtime',
   'react/': 'https://esm.sh/react@19.2.3/',
   'react-dom': 'https://esm.sh/react-dom@19.2.3',
   'react-dom/client': 'https://esm.sh/react-dom@19.2.3/client',
   'react-dom/': 'https://esm.sh/react-dom@19.2.3/',
 } as const
+
+export const exampleEnvironmentProfiles = {
+  charts: {
+    entryPath: '/__tanstack-example-entry.ts',
+    createEntrySource(entry: string) {
+      return `import { mountChart } from '@tanstack/charts'
+import definition from ${JSON.stringify(entry)}
+
+const output = document.querySelector<HTMLElement>('#root')
+if (!output) throw new Error('Example root not found')
+
+const chart = mountChart(output, {
+  definition,
+  height: 320,
+  ariaLabel: 'Chart example',
+})
+
+window.addEventListener('pagehide', () => chart.destroy(), { once: true })
+`
+    },
+  },
+  'charts-react': {
+    entryPath: '/__tanstack-example-entry.ts',
+    createEntrySource(entry: string) {
+      return `import { createElement } from 'react'
+import { createRoot } from 'react-dom/client'
+import App from ${JSON.stringify(entry)}
+
+const output = document.querySelector<HTMLElement>('#root')
+if (!output) throw new Error('Example root not found')
+
+const root = createRoot(output)
+root.render(createElement(App))
+window.addEventListener('pagehide', () => root.unmount(), { once: true })
+`
+    },
+  },
+  'charts-octane': {
+    entryPath: '/__tanstack-example-entry.ts',
+    createEntrySource(entry: string) {
+      return `import { createRoot } from 'octane'
+import App from ${JSON.stringify(entry)}
+
+const output = document.querySelector<HTMLElement>('#root')
+if (!output) throw new Error('Example root not found')
+
+const root = createRoot(output)
+root.render(App)
+window.addEventListener('pagehide', () => root.unmount(), { once: true })
+`
+    },
+  },
+}
+
+export function getExampleEnvironmentProfile(environment: ExampleEnvironment) {
+  return exampleEnvironmentProfiles[environment]
+}
 
 function describeImport(
   specifier: keyof typeof notebookImports,
@@ -42,8 +115,9 @@ export const notebookImportAliases = [
   describeImport('react', 'React 19.2.3'),
   describeImport('react-dom/client', 'React DOM root API'),
   describeImport('@tanstack/charts', 'TanStack Charts core'),
-  describeImport('@tanstack/charts-scales', 'TanStack Charts scales'),
-  describeImport('@tanstack/react-charts', 'TanStack Charts React bindings'),
+  describeImport('@tanstack/charts/react', 'TanStack Charts React bindings'),
+  describeImport('@tanstack/charts/octane', 'TanStack Charts Octane bindings'),
+  describeImport('octane', 'Octane 0.1.13 runtime'),
   describeImport(
     '@tanstack/charts-data/',
     'TanStack Charts demo data; append a module path',
@@ -87,16 +161,18 @@ export const notebookTips = [
 ]
 
 export const exampleWorkspaceRules = [
-  'A workspace is JSON with version 1, an absolute entry path, a files object keyed by canonical absolute paths, and an optional imports object.',
-  'The entry module executes in the browser. TypeScript and JSX are transformed by esbuild-wasm but are not type-checked.',
+  'A workspace is JSON with version 1, an absolute entry path, a files object keyed by canonical absolute paths, an optional environment, and an optional imports object.',
+  'The entry module executes in the browser. esbuild-wasm transforms TypeScript and JSX; octane/compiler transforms .tsrx files first. Neither path type-checks source.',
   'Relative imports resolve inside files. CSS and JSON imports are bundled. Browser-safe image and font imports become data URLs.',
   'Bare dependencies in /package.json resolve through esm.sh. Explicit workspace imports override both package.json and the built-in aliases.',
   'Add /index.html only when the example needs a custom document. The runtime injects its import map, compiled CSS, module, console bridge, and theme bridge.',
 ]
 
 export const liveDocsRules = [
-  'A live documentation example is a consecutive group of fenced code blocks with the same live identifier.',
-  'Every fence must include an explicit canonical absolute file path. The first fence is the entry unless the group declares entry=/path.',
+  'A runnable documentation example is a consecutive group of fenced code blocks with the same group identifier.',
+  "Every fence must include an explicit canonical absolute file path. Exactly one fence has the entry flag, and that fence carries the group's only env declaration.",
+  "Supported environments are charts, charts-react, and charts-octane. Their hidden bootstrap mounts the entry module's default export.",
+  'Add the collapsed flag to support files that should remain under a disclosure until the reader opens them.',
   'The static highlighted fences are rendered on the server. The editor and esbuild runtime load only after the reader selects Run.',
 ]
 
@@ -174,11 +250,11 @@ export function generateNotebookLlmsTxt() {
     ...liveDocsRules.map((rule) => `- ${rule}`),
     '',
     '````md',
-    '```tsx live=counter file=/src/main.tsx',
-    '// entry source',
+    '```tsx group=counter env=charts-react file=/src/App.tsx entry',
+    'export default function App() { return <button>Count</button> }',
     '```',
     '',
-    '```tsx live=counter file=/src/App.tsx',
+    '```ts group=counter file=/src/data.ts collapsed',
     '// imported source',
     '```',
     '````',

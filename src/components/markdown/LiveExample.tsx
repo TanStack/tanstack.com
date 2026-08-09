@@ -12,14 +12,20 @@ const LazyExampleWorkbench = React.lazy(() =>
 
 export function LiveExample({
   children,
-  'data-live-id': id,
+  'data-example-group': group,
+  'data-collapsed-indexes': serializedCollapsedIndexes,
   'data-workspace': serializedWorkspace,
 }: {
   children?: React.ReactNode
-  'data-live-id'?: string
+  'data-example-group'?: string
+  'data-collapsed-indexes'?: string
   'data-workspace'?: string
 }) {
   const [active, setActive] = React.useState(false)
+  const collapsedIndexes = React.useMemo(
+    () => parseCollapsedIndexes(serializedCollapsedIndexes),
+    [serializedCollapsedIndexes],
+  )
   const workspace = React.useMemo(() => {
     if (!serializedWorkspace) return undefined
 
@@ -30,16 +36,29 @@ export function LiveExample({
     }
   }, [serializedWorkspace])
   const definition = React.useMemo(
-    () => (workspace && id ? { id, title: id, workspace } : undefined),
-    [id, workspace],
+    () =>
+      workspace && group ? { id: group, title: group, workspace } : undefined,
+    [group, workspace],
   )
 
   if (!definition) return <>{children}</>
 
   if (active) {
     return (
-      <ClientOnly fallback={<StaticFiles>{children}</StaticFiles>}>
-        <React.Suspense fallback={<StaticFiles>{children}</StaticFiles>}>
+      <ClientOnly
+        fallback={
+          <StaticFiles collapsedIndexes={collapsedIndexes}>
+            {children}
+          </StaticFiles>
+        }
+      >
+        <React.Suspense
+          fallback={
+            <StaticFiles collapsedIndexes={collapsedIndexes}>
+              {children}
+            </StaticFiles>
+          }
+        >
           <LazyExampleWorkbench definition={definition} className="my-5" />
         </React.Suspense>
       </ClientOnly>
@@ -59,11 +78,56 @@ export function LiveExample({
           Run
         </Button>
       </div>
-      <StaticFiles>{children}</StaticFiles>
+      <StaticFiles collapsedIndexes={collapsedIndexes}>{children}</StaticFiles>
     </div>
   )
 }
 
-function StaticFiles({ children }: { children?: React.ReactNode }) {
-  return <div className="divide-y divide-border-default">{children}</div>
+function StaticFiles({
+  children,
+  collapsedIndexes,
+}: {
+  children?: React.ReactNode
+  collapsedIndexes: Array<number>
+}) {
+  const files = React.Children.toArray(children)
+  const collapsed = new Set(collapsedIndexes)
+  const visibleFiles = files.filter((_file, index) => !collapsed.has(index))
+  const supportFiles = files.filter((_file, index) => collapsed.has(index))
+
+  return (
+    <div>
+      <div className="divide-y divide-border-default">{visibleFiles}</div>
+      {supportFiles.length ? (
+        <details className="border-t border-border-default">
+          <summary className="cursor-pointer px-3 py-2 font-ds-mono text-xs text-text-muted hover:text-text-secondary">
+            Support files
+          </summary>
+          <div className="divide-y divide-border-default border-t border-border-default">
+            {supportFiles}
+          </div>
+        </details>
+      ) : null}
+    </div>
+  )
+}
+
+function parseCollapsedIndexes(value: string | undefined) {
+  if (!value) return []
+
+  try {
+    const parsed: unknown = JSON.parse(value)
+    if (!Array.isArray(parsed)) return []
+
+    const indexes: Array<number> = []
+    for (const item of parsed) {
+      if (typeof item !== 'number' || !Number.isInteger(item) || item < 0) {
+        return []
+      }
+      indexes.push(item)
+    }
+    return indexes
+  } catch {
+    return []
+  }
 }

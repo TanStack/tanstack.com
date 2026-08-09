@@ -10,7 +10,7 @@ import {
   type ChartPoint,
 } from '@tanstack/charts'
 import { tooltip } from '@tanstack/charts/tooltip'
-import { Chart } from '@tanstack/react-charts'
+import { Chart } from '@tanstack/charts/react'
 import { type BinType, binTimeSeriesData } from '~/utils/chart'
 
 export type ChartVariant = 'area' | 'bar' | 'cumulative'

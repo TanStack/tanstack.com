@@ -37,6 +37,10 @@ import { VersionSelect } from './VersionSelect'
 import { Card } from './Card'
 import { PartnersRail, RightRail } from './RightRail'
 import { trackEvent, useTrackedImpression } from '~/utils/analytics'
+import {
+  getMenuGroupInitialOpenState,
+  isChartsCatalogTarget,
+} from './library-layout-navigation'
 
 // Number of days a doc page is flagged as "New"/"Updated" in the sidebar.
 const RECENCY_WINDOW_DAYS = 7
@@ -913,24 +917,12 @@ export function LibraryLayout({
   const isDesktopViewport = useMediaQuery('(min-width: 768px)')
 
   const groupInitialOpenState = React.useMemo(() => {
-    return visibleMenuConfig.reduce<Record<string, boolean>>(
-      (acc, group, index) => {
-        const isChildActive = group.children.some(
-          (child) => child.to === _splat,
-        )
-        const key = `${index}:${String(group.label)}`
-
-        acc[key] = isChildActive
-          ? true
-          : typeof group.defaultCollapsed !== 'undefined'
-            ? !group.defaultCollapsed
-            : false
-
-        return acc
-      },
-      {},
+    return getMenuGroupInitialOpenState(
+      visibleMenuConfig,
+      _splat,
+      lastMatch.pathname,
     )
-  }, [visibleMenuConfig, _splat])
+  }, [lastMatch.pathname, visibleMenuConfig, _splat])
 
   const [openGroups, setOpenGroups] = React.useState(groupInitialOpenState)
 
@@ -990,7 +982,7 @@ export function LibraryLayout({
                 ? ({ libraryId, version } as never)
                 : undefined
             const isHomeLink = child.to === '..'
-            const isChartsExamplesLink = child.to === '/charts/catalog'
+            const isChartsExamplesLink = isChartsCatalogTarget(child.to)
             const frameworkDocsTarget = getFrameworkDocsLinkTarget(child.to)
 
             const recency = getDocRecency(child.addedAt, child.updatedAt)
@@ -1205,7 +1197,7 @@ export function LibraryLayout({
                   <li key={tab.id}>
                     <Link
                       from={
-                        target.to === '/charts/catalog'
+                        isChartsCatalogTarget(target.to)
                           ? undefined
                           : '/$libraryId/$version/docs'
                       }
@@ -1213,7 +1205,7 @@ export function LibraryLayout({
                       params={linkParams}
                       onClick={closeMobileMenu}
                       preload={
-                        target.to === '/charts/catalog' ? false : 'intent'
+                        isChartsCatalogTarget(target.to) ? false : 'intent'
                       }
                       aria-current={isActive ? 'page' : undefined}
                       className={twMerge(
@@ -1394,13 +1386,13 @@ export function LibraryLayout({
                 <Link
                   key={tab.id}
                   from={
-                    target.to === '/charts/catalog'
+                    isChartsCatalogTarget(target.to)
                       ? undefined
                       : '/$libraryId/$version/docs'
                   }
                   to={target.to}
                   params={linkParams}
-                  preload={target.to === '/charts/catalog' ? false : 'intent'}
+                  preload={isChartsCatalogTarget(target.to) ? false : 'intent'}
                   activeOptions={{
                     exact: true,
                     includeHash: false,

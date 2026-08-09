@@ -1,4 +1,4 @@
-import { scaleLinear } from '@tanstack/charts-scales/linear'
+import { scaleLinear } from '@tanstack/charts/scales/linear'
 import { defineChart, dot } from '@tanstack/charts'
 
 import { kineticDarkTheme, productSignals } from './kinetic-data'

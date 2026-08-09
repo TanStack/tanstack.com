@@ -178,7 +178,6 @@ import { Route as LibraryAiVersionIndexRouteImport } from './routes/_library/ai.
 import { Route as LibraryLibraryIdVersionIndexRouteImport } from './routes/_library/$libraryId/$version.index'
 import { Route as IntentRegistryPackageNameChar123Char125DotmdRouteImport } from './routes/intent/registry/$packageName.{$}[.]md'
 import { Route as IntentRegistryPackageNameSkillNameRouteImport } from './routes/intent/registry/$packageName.$skillName'
-import { Route as ChartsCatalogEmbedCaseIdRouteImport } from './routes/charts.catalog_.embed.$caseId'
 import { Route as ApiNotebookProjectsHashRouteImport } from './routes/api/notebook/projects.$hash'
 import { Route as ApiBuilderDeployGithubRouteImport } from './routes/api/builder/deploy/github'
 import { Route as ApiBuilderDeployCheckNameRouteImport } from './routes/api/builder/deploy/check-name'
@@ -1081,12 +1080,6 @@ const IntentRegistryPackageNameSkillNameRoute =
     path: '/$skillName',
     getParentRoute: () => IntentRegistryPackageNameRoute,
   } as any)
-const ChartsCatalogEmbedCaseIdRoute =
-  ChartsCatalogEmbedCaseIdRouteImport.update({
-    id: '/charts/catalog_/embed/$caseId',
-    path: '/charts/catalog/embed/$caseId',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiNotebookProjectsHashRoute = ApiNotebookProjectsHashRouteImport.update({
   id: '/$hash',
   path: '/$hash',
@@ -1381,7 +1374,6 @@ export interface FileRoutesByFullPath {
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
   '/api/notebook/projects/$hash': typeof ApiNotebookProjectsHashRouteWithChildren
-  '/charts/catalog/embed/$caseId': typeof ChartsCatalogEmbedCaseIdRoute
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/$libraryId/$version/': typeof LibraryLibraryIdVersionIndexRoute
@@ -1564,7 +1556,6 @@ export interface FileRoutesByTo {
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
   '/api/notebook/projects/$hash': typeof ApiNotebookProjectsHashRouteWithChildren
-  '/charts/catalog/embed/$caseId': typeof ChartsCatalogEmbedCaseIdRoute
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/$libraryId/$version': typeof LibraryLibraryIdVersionIndexRoute
@@ -1761,7 +1752,6 @@ export interface FileRoutesById {
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
   '/api/notebook/projects/$hash': typeof ApiNotebookProjectsHashRouteWithChildren
-  '/charts/catalog_/embed/$caseId': typeof ChartsCatalogEmbedCaseIdRoute
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/_library/$libraryId/$version/': typeof LibraryLibraryIdVersionIndexRoute
@@ -1958,7 +1948,6 @@ export interface FileRouteTypes {
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
     | '/api/notebook/projects/$hash'
-    | '/charts/catalog/embed/$caseId'
     | '/intent/registry/$packageName/$skillName'
     | '/intent/registry/$packageName/{$}.md'
     | '/$libraryId/$version/'
@@ -2141,7 +2130,6 @@ export interface FileRouteTypes {
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
     | '/api/notebook/projects/$hash'
-    | '/charts/catalog/embed/$caseId'
     | '/intent/registry/$packageName/$skillName'
     | '/intent/registry/$packageName/{$}.md'
     | '/$libraryId/$version'
@@ -2337,7 +2325,6 @@ export interface FileRouteTypes {
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
     | '/api/notebook/projects/$hash'
-    | '/charts/catalog_/embed/$caseId'
     | '/intent/registry/$packageName/$skillName'
     | '/intent/registry/$packageName/{$}.md'
     | '/_library/$libraryId/$version/'
@@ -2467,7 +2454,6 @@ export interface RootRouteChildren {
   ApiAuthCliCreateTicketRoute: typeof ApiAuthCliCreateTicketRoute
   ApiBuilderDeployCheckNameRoute: typeof ApiBuilderDeployCheckNameRoute
   ApiBuilderDeployGithubRoute: typeof ApiBuilderDeployGithubRoute
-  ChartsCatalogEmbedCaseIdRoute: typeof ChartsCatalogEmbedCaseIdRoute
   ApiAuthCliStatusTicketIdRoute: typeof ApiAuthCliStatusTicketIdRoute
 }
 
@@ -3656,13 +3642,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IntentRegistryPackageNameSkillNameRouteImport
       parentRoute: typeof IntentRegistryPackageNameRoute
     }
-    '/charts/catalog_/embed/$caseId': {
-      id: '/charts/catalog_/embed/$caseId'
-      path: '/charts/catalog/embed/$caseId'
-      fullPath: '/charts/catalog/embed/$caseId'
-      preLoaderRoute: typeof ChartsCatalogEmbedCaseIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/notebook/projects/$hash': {
       id: '/api/notebook/projects/$hash'
       path: '/$hash'
@@ -4310,7 +4289,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthCliCreateTicketRoute: ApiAuthCliCreateTicketRoute,
   ApiBuilderDeployCheckNameRoute: ApiBuilderDeployCheckNameRoute,
   ApiBuilderDeployGithubRoute: ApiBuilderDeployGithubRoute,
-  ChartsCatalogEmbedCaseIdRoute: ChartsCatalogEmbedCaseIdRoute,
   ApiAuthCliStatusTicketIdRoute: ApiAuthCliStatusTicketIdRoute,
 }
 export const routeTree = rootRouteImport

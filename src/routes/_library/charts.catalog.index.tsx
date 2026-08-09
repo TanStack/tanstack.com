@@ -16,5 +16,5 @@ export const Route = createFileRoute('/_library/charts/catalog/')({
 
 function ChartsCatalogIndexRoute() {
   const data = Route.useLoaderData()
-  return <ChartsCatalog cases={data.cases} />
+  return <ChartsCatalog cases={data.cases} revision={data.revision} />
 }

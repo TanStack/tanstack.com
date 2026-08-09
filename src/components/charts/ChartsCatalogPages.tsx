@@ -17,8 +17,10 @@ type CatalogCaseMetadata = ChartsCatalogIndexCase
 
 export function ChartsCatalog({
   cases,
+  revision,
 }: {
   cases: Array<CatalogCaseMetadata>
+  revision: string
 }) {
   const [query, setQuery] = React.useState('')
   const [family, setFamily] = React.useState('all')
@@ -65,8 +67,7 @@ export function ChartsCatalog({
             <div aria-hidden="true" className="aspect-[3/2]">
               <ChartsCatalogPreview
                 caseId={catalogCase.id}
-                className="p-2"
-                family={catalogCase.family}
+                revision={revision}
               />
             </div>
             <div className="flex min-h-16 items-center justify-between gap-4 border-t border-border-subtle px-4 py-3">

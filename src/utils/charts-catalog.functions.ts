@@ -32,6 +32,7 @@ export const getChartsCatalogLanding = createServerFn({
   const publication = await loadPublication()
   setCatalogResponseHeaders()
   return {
+    revision: publication.revision,
     cases: publication.index.cases.map((catalogCase) => ({
       id: catalogCase.id,
       family: catalogCase.family,

@@ -100,7 +100,7 @@ function ChartsCatalogDocExampleFallback({
         </div>
       </div>
       <div aria-label={`${label} chart preview`} role="img" style={{ height }}>
-        <ChartsCatalogPreview caseId={caseId} className="p-8" family="" />
+        <ChartsCatalogPreview caseId={caseId} />
       </div>
     </div>
   )

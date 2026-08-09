@@ -40,6 +40,7 @@ export function CatalogChartsHero({
             catalogCase={catalogCase}
             featured={index === 0}
             key={catalogCase.id}
+            revision={catalog.revision}
           />
         ))}
       </div>
@@ -50,9 +51,11 @@ export function CatalogChartsHero({
 function HeroChartTile({
   catalogCase,
   featured,
+  revision,
 }: {
   catalogCase: CatalogCase
   featured: boolean
+  revision: string
 }) {
   return (
     <figure
@@ -62,11 +65,7 @@ function HeroChartTile({
     >
       <div className="group relative overflow-hidden rounded-2xl border border-border-subtle bg-background-surface shadow-[0_24px_55px_-28px_rgb(3_18_25/0.42)]">
         <div className="aspect-[3/2]">
-          <ChartsCatalogPreview
-            caseId={catalogCase.id}
-            className="p-2"
-            family={catalogCase.family}
-          />
+          <ChartsCatalogPreview caseId={catalogCase.id} revision={revision} />
         </div>
         <Link
           aria-label={`Open the ${catalogCase.title} catalog example`}
@@ -112,22 +111,28 @@ export function ChartsCatalogGallery({
     <div className="fade-x fade-size-x-sm -mx-5 overflow-x-auto overscroll-x-contain px-5 pb-5 [scrollbar-color:rgb(var(--landing-glow)/0.48)_transparent] md:-mx-10 md:px-10 lg:-mx-12 lg:px-12 2xl:-mx-20 2xl:px-20">
       <div className="grid min-w-max snap-x snap-proximity grid-flow-col grid-rows-3 auto-cols-[min(74vw,18rem)] gap-3 sm:auto-cols-[18rem]">
         {shuffledCases.map((catalogCase) => (
-          <CatalogChartCard catalogCase={catalogCase} key={catalogCase.id} />
+          <CatalogChartCard
+            catalogCase={catalogCase}
+            key={catalogCase.id}
+            revision={catalog.revision}
+          />
         ))}
       </div>
     </div>
   )
 }
 
-function CatalogChartCard({ catalogCase }: { catalogCase: CatalogCase }) {
+function CatalogChartCard({
+  catalogCase,
+  revision,
+}: {
+  catalogCase: CatalogCase
+  revision: string
+}) {
   return (
     <div className="charts-catalog-gallery-card group relative block snap-start overflow-hidden rounded-xl border border-border-subtle bg-background-surface shadow-[0_16px_35px_-26px_rgb(3_18_25/0.5)]">
       <div aria-hidden="true" className="relative aspect-[3/2] overflow-hidden">
-        <ChartsCatalogPreview
-          caseId={catalogCase.id}
-          className="p-2"
-          family={catalogCase.family}
-        />
+        <ChartsCatalogPreview caseId={catalogCase.id} revision={revision} />
       </div>
       <div className="flex min-h-14 items-center justify-between gap-3 px-4 py-2.5">
         <div className="min-w-0">

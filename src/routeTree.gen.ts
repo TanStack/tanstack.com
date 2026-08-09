@@ -187,6 +187,7 @@ import { Route as LibraryChartsCatalogAllRouteImport } from './routes/_library/c
 import { Route as LibraryLibraryIdVersionLlmsDottxtRouteImport } from './routes/_library/$libraryId/$version.llms[.]txt'
 import { Route as LibraryLibraryIdVersionDocsRouteImport } from './routes/_library/$libraryId/$version.docs'
 import { Route as LibraryLibraryIdVersionDocsIndexRouteImport } from './routes/_library/$libraryId/$version.docs.index'
+import { Route as ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRouteImport } from './routes/charts.catalog_.previews.$revision.{$caseId}[.]svg'
 import { Route as ApiNotebookProjectsHashQuarantineRouteImport } from './routes/api/notebook/projects.$hash.quarantine'
 import { Route as ApiAuthCliStatusTicketIdRouteImport } from './routes/api/auth/cli/status.$ticketId'
 import { Route as LibraryChartsCatalogChartsCaseIdRouteImport } from './routes/_library/charts.catalog.charts.$caseId'
@@ -1129,6 +1130,12 @@ const LibraryLibraryIdVersionDocsIndexRoute =
     path: '/',
     getParentRoute: () => LibraryLibraryIdVersionDocsRoute,
   } as any)
+const ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute =
+  ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRouteImport.update({
+    id: '/charts/catalog_/previews/$revision/{$caseId}.svg',
+    path: '/charts/catalog/previews/$revision/{$caseId}.svg',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiNotebookProjectsHashQuarantineRoute =
   ApiNotebookProjectsHashQuarantineRouteImport.update({
     id: '/quarantine',
@@ -1409,6 +1416,7 @@ export interface FileRoutesByFullPath {
   '/charts/catalog/charts/$caseId': typeof LibraryChartsCatalogChartsCaseIdRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
   '/api/notebook/projects/$hash/quarantine': typeof ApiNotebookProjectsHashQuarantineRoute
+  '/charts/catalog/previews/$revision/{$caseId}.svg': typeof ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute
   '/$libraryId/$version/docs/': typeof LibraryLibraryIdVersionDocsIndexRoute
   '/$libraryId/$version/docs/framework/': typeof LibraryLibraryIdVersionDocsFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/$': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkSplatRoute
@@ -1591,6 +1599,7 @@ export interface FileRoutesByTo {
   '/charts/catalog/charts/$caseId': typeof LibraryChartsCatalogChartsCaseIdRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
   '/api/notebook/projects/$hash/quarantine': typeof ApiNotebookProjectsHashQuarantineRoute
+  '/charts/catalog/previews/$revision/{$caseId}.svg': typeof ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute
   '/$libraryId/$version/docs': typeof LibraryLibraryIdVersionDocsIndexRoute
   '/$libraryId/$version/docs/framework': typeof LibraryLibraryIdVersionDocsFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/$': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkSplatRoute
@@ -1787,6 +1796,7 @@ export interface FileRoutesById {
   '/_library/charts/catalog/charts/$caseId': typeof LibraryChartsCatalogChartsCaseIdRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
   '/api/notebook/projects/$hash/quarantine': typeof ApiNotebookProjectsHashQuarantineRoute
+  '/charts/catalog_/previews/$revision/{$caseId}.svg': typeof ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute
   '/_library/$libraryId/$version/docs/': typeof LibraryLibraryIdVersionDocsIndexRoute
   '/_library/$libraryId/$version/docs/framework/': typeof LibraryLibraryIdVersionDocsFrameworkIndexRoute
   '/_library/$libraryId/$version/docs/framework/$framework/$': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkSplatRoute
@@ -1983,6 +1993,7 @@ export interface FileRouteTypes {
     | '/charts/catalog/charts/$caseId'
     | '/api/auth/cli/status/$ticketId'
     | '/api/notebook/projects/$hash/quarantine'
+    | '/charts/catalog/previews/$revision/{$caseId}.svg'
     | '/$libraryId/$version/docs/'
     | '/$libraryId/$version/docs/framework/'
     | '/$libraryId/$version/docs/framework/$framework/$'
@@ -2165,6 +2176,7 @@ export interface FileRouteTypes {
     | '/charts/catalog/charts/$caseId'
     | '/api/auth/cli/status/$ticketId'
     | '/api/notebook/projects/$hash/quarantine'
+    | '/charts/catalog/previews/$revision/{$caseId}.svg'
     | '/$libraryId/$version/docs'
     | '/$libraryId/$version/docs/framework'
     | '/$libraryId/$version/docs/framework/$framework/$'
@@ -2360,6 +2372,7 @@ export interface FileRouteTypes {
     | '/_library/charts/catalog/charts/$caseId'
     | '/api/auth/cli/status/$ticketId'
     | '/api/notebook/projects/$hash/quarantine'
+    | '/charts/catalog_/previews/$revision/{$caseId}.svg'
     | '/_library/$libraryId/$version/docs/'
     | '/_library/$libraryId/$version/docs/framework/'
     | '/_library/$libraryId/$version/docs/framework/$framework/$'
@@ -2455,6 +2468,7 @@ export interface RootRouteChildren {
   ApiBuilderDeployCheckNameRoute: typeof ApiBuilderDeployCheckNameRoute
   ApiBuilderDeployGithubRoute: typeof ApiBuilderDeployGithubRoute
   ApiAuthCliStatusTicketIdRoute: typeof ApiAuthCliStatusTicketIdRoute
+  ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute: typeof ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -3705,6 +3719,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryLibraryIdVersionDocsIndexRouteImport
       parentRoute: typeof LibraryLibraryIdVersionDocsRoute
     }
+    '/charts/catalog_/previews/$revision/{$caseId}.svg': {
+      id: '/charts/catalog_/previews/$revision/{$caseId}.svg'
+      path: '/charts/catalog/previews/$revision/{$caseId}.svg'
+      fullPath: '/charts/catalog/previews/$revision/{$caseId}.svg'
+      preLoaderRoute: typeof ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/notebook/projects/$hash/quarantine': {
       id: '/api/notebook/projects/$hash/quarantine'
       path: '/quarantine'
@@ -4290,6 +4311,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiBuilderDeployCheckNameRoute: ApiBuilderDeployCheckNameRoute,
   ApiBuilderDeployGithubRoute: ApiBuilderDeployGithubRoute,
   ApiAuthCliStatusTicketIdRoute: ApiAuthCliStatusTicketIdRoute,
+  ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute:
+    ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

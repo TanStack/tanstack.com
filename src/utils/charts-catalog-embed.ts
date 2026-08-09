@@ -26,6 +26,22 @@ export type ChartsCatalogEmbedRouteSearch = {
   theme?: string | number | Array<string | number>
 }
 
+export function parseChartsCatalogExampleAttributes(value: unknown) {
+  if (
+    !isRecord(value) ||
+    !hasOnlyKeys(value, ['id', 'height']) ||
+    typeof value.id !== 'string' ||
+    !isChartsCatalogCaseId(value.id)
+  ) {
+    return null
+  }
+
+  const height = parseStrictInteger(value.height, 480, 1_200)
+  if (height === null) return null
+
+  return { caseId: value.id, height }
+}
+
 export function isChartsCatalogEmbedPath(pathname: string) {
   if (
     !pathname.startsWith(chartsCatalogEmbedPrefix) ||
@@ -247,4 +263,27 @@ function getChartsCatalogEmbedRouteSearchValue(value: unknown) {
     return value
   }
   return undefined
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function hasOnlyKeys(value: Record<string, unknown>, keys: Array<string>) {
+  return Object.keys(value).every((key) => keys.includes(key))
+}
+
+function parseStrictInteger(value: unknown, minimum: number, maximum: number) {
+  if (
+    typeof value === 'number' &&
+    Number.isSafeInteger(value) &&
+    value >= minimum &&
+    value <= maximum
+  ) {
+    return value
+  }
+  if (typeof value !== 'string' || !isBoundedInteger(value, minimum, maximum)) {
+    return null
+  }
+  return Number(value)
 }

@@ -1,11 +1,17 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import { createElement } from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
+import { ChartsCatalogDocExample } from '../src/components/charts/ChartsCatalogDocExample'
+import { ChartsCatalogEmbed } from '../src/components/charts/ChartsCatalogEmbed'
 import {
   isChartsCatalogEmbedPath,
   mapChartsCatalogEmbeds,
+  parseChartsCatalogExampleAttributes,
   parseChartsCatalogEmbed,
 } from '../src/utils/charts-catalog-embed'
 import { isFrameEmbeddingAllowed } from '../src/utils/frame-embedding'
+import { parseSiteMarkdown } from '../src/utils/markdown'
 
 test('only explicit embed documents bypass the global frame denial', () => {
   assert.equal(isFrameEmbeddingAllowed('/partners-embed'), true)
@@ -119,4 +125,58 @@ test('chart docs can promote trusted raw iframes to source-aware embeds', () => 
     },
     children: [],
   })
+})
+
+test('chart example comments validate their source reference', () => {
+  assert.deepEqual(
+    parseChartsCatalogExampleAttributes({
+      id: '01-line-gaps',
+      height: '480',
+    }),
+    { caseId: '01-line-gaps', height: 480 },
+  )
+
+  for (const attributes of [
+    { id: '../line-gaps', height: '480' },
+    { id: '01-line-gaps', height: '479' },
+    { id: '01-line-gaps', height: '1201' },
+    { id: '01-line-gaps', height: '480', src: 'https://example.com' },
+  ]) {
+    assert.equal(parseChartsCatalogExampleAttributes(attributes), null)
+  }
+})
+
+test('chart example comments retain a useful static document', () => {
+  const document = parseSiteMarkdown(
+    '<!-- ::chart-example id=01-line-gaps height=480 -->',
+  )
+  const block = document.children[0]
+  assert.equal(block?.type, 'component')
+  if (block?.type !== 'component') return
+
+  const example = parseChartsCatalogExampleAttributes(block.attributes)
+  assert.ok(example)
+  const html = renderToStaticMarkup(
+    createElement(ChartsCatalogDocExample, example),
+  )
+
+  assert.match(html, /data-chart-example="01-line-gaps"/)
+  assert.match(html, /data-catalog-preview-case="01-line-gaps"/)
+  assert.match(html, /height:480px/)
+  assert.match(html, /Open example/)
+  assert.doesNotMatch(html, /<iframe/)
+})
+
+test('legacy chart iframe markup renders through the inline fallback', () => {
+  const html = renderToStaticMarkup(
+    createElement(ChartsCatalogEmbed, {
+      height: 480,
+      src: 'https://tanstack.com/charts/catalog/embed/01-line-gaps/',
+      title: 'Line chart',
+    }),
+  )
+
+  assert.match(html, /data-chart-example="01-line-gaps"/)
+  assert.match(html, /Line chart/)
+  assert.doesNotMatch(html, /<iframe/)
 })

@@ -10,7 +10,7 @@ import {
 } from '../src/utils/github-content-cache.server'
 import {
   artifactRevision,
-  createChartsCatalogManifest,
+  createChartsCatalogManifestV5,
 } from './charts-catalog-test-fixture'
 
 test('catalog publication keeps serving the last compatible manifest', async () => {
@@ -33,7 +33,7 @@ test('catalog publication keeps serving the last compatible manifest', async () 
       url ===
       `https://raw.githubusercontent.com/tanstack/charts/${artifactRevision}/catalog.json`
     ) {
-      return Response.json(createChartsCatalogManifest())
+      return Response.json(createChartsCatalogManifestV5())
     }
 
     if (
@@ -87,7 +87,7 @@ test('current catalog assets use the compatible publication without stale histor
       url ===
       `https://raw.githubusercontent.com/tanstack/charts/${artifactRevision}/catalog.json`
     ) {
-      return Response.json(createChartsCatalogManifest())
+      return Response.json(createChartsCatalogManifestV5())
     }
 
     if (

@@ -47,6 +47,9 @@ export const getChartsCatalogLanding = createServerFn({
   method: 'GET',
 }).handler(async () => {
   const publication = await loadPublication()
+  if (publication.manifest.schemaVersion !== 5) {
+    throw new Error('Current Charts catalog publication requires previews')
+  }
   setCatalogResponseHeaders()
   return {
     artifactRevision: publication.artifactRevision,
@@ -56,7 +59,7 @@ export const getChartsCatalogLanding = createServerFn({
       order: catalogCase.order,
       title: catalogCase.title,
       module: catalogCase.modules.tanstack,
-      preview: 'preview' in catalogCase ? catalogCase.preview : undefined,
+      preview: catalogCase.preview,
     })),
   }
 })

@@ -363,9 +363,10 @@ function HeroChartFrame({
 }) {
   const { catalogCase } = chart
   const [ready, setReady] = React.useState(false)
-  const previewSrc = catalogCase.preview
-    ? getChartsCatalogPreviewUrl(artifactRevision, catalogCase.preview.path)
-    : `/images/charts/catalog/${catalogCase.id}.svg`
+  const previewSrc = getChartsCatalogPreviewUrl(
+    artifactRevision,
+    catalogCase.preview.path,
+  )
   const handleHydrated = React.useCallback(() => {
     setReady(true)
     onHydrated(chart)
@@ -440,14 +441,10 @@ export function ChartsCatalogGallery({
           <CatalogChartCard
             key={catalogCase.id}
             catalogCase={catalogCase}
-            src={
-              catalogCase.preview
-                ? getChartsCatalogPreviewUrl(
-                    catalog.artifactRevision,
-                    catalogCase.preview.path,
-                  )
-                : `/images/charts/catalog/${catalogCase.id}.svg`
-            }
+            src={getChartsCatalogPreviewUrl(
+              catalog.artifactRevision,
+              catalogCase.preview.path,
+            )}
           />
         ))}
       </div>

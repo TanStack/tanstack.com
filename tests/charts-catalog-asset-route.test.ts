@@ -5,7 +5,6 @@ import { ChartsCatalogIntegrityError } from '../src/utils/charts-catalog.server'
 import { resetGitHubContentCacheForTest } from '../src/utils/github-content-cache.server'
 import {
   artifactRevision,
-  createChartsCatalogManifest,
   createChartsCatalogManifestV5,
   previewAsset,
   previewSvg,
@@ -96,7 +95,7 @@ test('catalog asset handler returns explicit no-store 404 responses', async () =
       url ===
       `https://raw.githubusercontent.com/tanstack/charts/${artifactRevision}/catalog.json`
     ) {
-      return Response.json(createChartsCatalogManifest())
+      return Response.json(createChartsCatalogManifestV5())
     }
 
     return new Response('Not found', { status: 404 })
@@ -186,7 +185,7 @@ test('catalog asset handler returns 404 for missing manifests and files', async 
         url ===
         `https://raw.githubusercontent.com/tanstack/charts/${artifactRevision}/catalog.json`
       ) {
-        return Response.json(createChartsCatalogManifest())
+        return Response.json(createChartsCatalogManifestV5())
       }
       return new Response('Not found', { status: 404 })
     }
@@ -244,7 +243,7 @@ test('catalog asset handler preserves transient and integrity failures', async (
         url ===
         `https://raw.githubusercontent.com/tanstack/charts/${artifactRevision}/catalog.json`
       ) {
-        return Response.json(createChartsCatalogManifest())
+        return Response.json(createChartsCatalogManifestV5())
       }
       return new Response('tampered asset')
     }

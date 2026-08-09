@@ -88,7 +88,7 @@ export function classifyChartsCatalogAssetError(error: unknown) {
 export async function getChartsCatalogPublication(): Promise<ChartsCatalogPublication> {
   if (shouldUseLocalDocsFiles()) {
     const manifest = await getLocalChartsCatalogManifest()
-    if (manifest) {
+    if (manifest?.schemaVersion === 5) {
       return {
         artifactRevision: manifest.revision,
         manifest,
@@ -746,9 +746,16 @@ async function buildChartsCatalogPublication(): Promise<ChartsCatalogPublication
     )
   }
 
+  const manifest = await readChartsCatalogManifest(artifactRevision, 'remote')
+  if (manifest.schemaVersion !== 5) {
+    throw new ChartsCatalogIntegrityError(
+      'Current Charts catalog publication must use schema version 5',
+    )
+  }
+
   return {
     artifactRevision,
-    manifest: await readChartsCatalogManifest(artifactRevision, 'remote'),
+    manifest,
   }
 }
 
@@ -767,8 +774,7 @@ function isChartsCatalogPublication(
   }
 
   try {
-    parseChartsCatalogManifest(value.manifest)
-    return true
+    return parseChartsCatalogManifest(value.manifest).schemaVersion === 5
   } catch {
     return false
   }

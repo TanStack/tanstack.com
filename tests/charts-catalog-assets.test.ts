@@ -191,7 +191,7 @@ test('catalog assets admit recent published revisions without caching random SHA
       url ===
       `https://raw.githubusercontent.com/tanstack/charts/${artifactRevision}/catalog.json`
     ) {
-      return Response.json(createChartsCatalogManifest())
+      return Response.json(createChartsCatalogManifestV5())
     }
 
     if (

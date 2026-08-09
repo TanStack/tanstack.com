@@ -417,7 +417,7 @@ The v2 alpha does not yet include:
 
 This alpha focuses on React, since it's our most popular adapter for the library. Once we have the main issues patched, we'll focus on porting the API to the remaining supported adapters.
 
-You can read up on the [React migration guide](/form/latest/docs/framework/react/guide/migrating) to get started.
+You can read up on the [migration guide](/form/alpha/docs/migrate-from-v1) to get started.
 
 ## Thank you
 

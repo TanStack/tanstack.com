@@ -1,6 +1,5 @@
 import * as React from 'react'
-import { createFileRoute, notFound } from '@tanstack/react-router'
-import { ChartsCatalogResult } from '~/components/charts/ChartsCatalogResult.client'
+import { ClientOnly, createFileRoute, notFound } from '@tanstack/react-router'
 import { ChartsCatalogSource } from '~/components/charts/ChartsCatalogSource'
 import {
   isChartsCatalogEmbedTheme,
@@ -10,6 +9,12 @@ import {
 } from '~/utils/charts-catalog-embed'
 import { getChartsCatalogEmbedCase } from '~/utils/charts-catalog.functions'
 import { seo } from '~/utils/seo'
+
+const LazyChartsCatalogResult = React.lazy(() =>
+  import('~/components/charts/ChartsCatalogResult.client').then((module) => ({
+    default: module.ChartsCatalogResult,
+  })),
+)
 
 export const Route = createFileRoute('/charts/catalog_/embed/$caseId')({
   validateSearch: validateChartsCatalogEmbedRouteSearch,
@@ -115,11 +120,15 @@ function ChartsCatalogEmbedRoute() {
 
   return (
     <main ref={contentRef} className="charts-catalog-embed overflow-hidden p-0">
-      <ChartsCatalogResult
-        definition={data.case.example}
-        height={data.height}
-        onStatus={postStatus}
-      />
+      <ClientOnly fallback={<div style={{ height: data.height }} />}>
+        <React.Suspense fallback={<div style={{ height: data.height }} />}>
+          <LazyChartsCatalogResult
+            definition={data.case.example}
+            height={data.height}
+            onStatus={postStatus}
+          />
+        </React.Suspense>
+      </ClientOnly>
       {data.case.authoredSource ? (
         <details
           open={data.source === 'expanded'}

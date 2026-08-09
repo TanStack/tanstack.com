@@ -1,16 +1,23 @@
 import { ArrowsOutSimpleIcon, GridFourIcon } from '@phosphor-icons/react'
-import { Link } from '@tanstack/react-router'
+import { ClientOnly, Link } from '@tanstack/react-router'
 import * as React from 'react'
 import type {
   ChartsCatalogAuthoredSource,
   ChartsCatalogCase,
 } from '~/utils/charts-catalog'
+import type { ExampleDefinition } from '~/utils/example-workspace'
 import {
   ChartsCatalogChart,
   type ChartsCatalogModuleReference,
 } from './ChartsCatalogChart'
 import { ChartsCatalogSource } from './ChartsCatalogSource'
 import { Resizable, type ResizableSizeChange } from '../npm-stats/Resizable'
+
+const LazyExampleWorkbench = React.lazy(() =>
+  import('~/components/examples/ExampleWorkbench.client').then((module) => ({
+    default: module.ExampleWorkbench,
+  })),
+)
 
 type CatalogCaseMetadata = Pick<
   ChartsCatalogCase,
@@ -122,6 +129,7 @@ export function ChartsCatalogDetail({
 }: {
   artifactRevision: string
   catalogCase: CatalogCaseMetadata & {
+    example: ExampleDefinition
     modules: CatalogCaseModules
     authoredSource: {
       tanstack: ChartsCatalogAuthoredSource
@@ -150,15 +158,18 @@ export function ChartsCatalogDetail({
         </div>
       </div>
 
-      <div className={`grid gap-6 ${comparison ? 'xl:grid-cols-2' : ''}`}>
-        <ChartPanel label="TanStack">
-          <ResizableCatalogChart
-            artifactRevision={artifactRevision}
-            caseId={catalogCase.id}
-            module={catalogCase.modules.tanstack}
-          />
-        </ChartPanel>
-        {comparison ? (
+      <ClientOnly
+        fallback={<CatalogWorkbenchFallback catalogCase={catalogCase} />}
+      >
+        <React.Suspense
+          fallback={<CatalogWorkbenchFallback catalogCase={catalogCase} />}
+        >
+          <LazyExampleWorkbench definition={catalogCase.example} />
+        </React.Suspense>
+      </ClientOnly>
+
+      {comparison ? (
+        <div className="mt-6 grid gap-3 xl:grid-cols-2">
           <ChartPanel label={rendererLabel(comparison.renderer)}>
             <ResizableCatalogChart
               artifactRevision={artifactRevision}
@@ -166,22 +177,28 @@ export function ChartsCatalogDetail({
               module={comparison}
             />
           </ChartPanel>
-        ) : null}
-      </div>
-
-      <div className={`mt-6 grid gap-3 ${comparison ? 'xl:grid-cols-2' : ''}`}>
-        <ChartPanel label="TanStack source">
-          <ChartsCatalogSource source={catalogCase.authoredSource.tanstack} />
-        </ChartPanel>
-        {catalogCase.authoredSource.comparison && comparison ? (
-          <ChartPanel label={`${rendererLabel(comparison.renderer)} source`}>
-            <ChartsCatalogSource
-              source={catalogCase.authoredSource.comparison}
-            />
-          </ChartPanel>
-        ) : null}
-      </div>
+          {catalogCase.authoredSource.comparison ? (
+            <ChartPanel label={`${rendererLabel(comparison.renderer)} source`}>
+              <ChartsCatalogSource
+                source={catalogCase.authoredSource.comparison}
+              />
+            </ChartPanel>
+          ) : null}
+        </div>
+      ) : null}
     </CatalogSurface>
+  )
+}
+
+function CatalogWorkbenchFallback({
+  catalogCase,
+}: {
+  catalogCase: { authoredSource: { tanstack: ChartsCatalogAuthoredSource } }
+}) {
+  return (
+    <div className="rounded-lg border border-gray-200 dark:border-gray-800">
+      <ChartsCatalogSource source={catalogCase.authoredSource.tanstack} />
+    </div>
   )
 }
 

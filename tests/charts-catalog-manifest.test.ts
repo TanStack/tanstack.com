@@ -4,7 +4,10 @@ import { parseChartsCatalogManifest } from '../src/utils/charts-catalog'
 import {
   comparisonAsset,
   createChartsCatalogManifest,
+  createChartsCatalogManifestV5,
   datasetId,
+  previewAsset,
+  previewSha256,
   sharedAsset,
   sourceRevision,
   tanstackAsset,
@@ -16,6 +19,17 @@ function expectRejected(
 ) {
   test(`catalog manifest rejects ${label}`, () => {
     const manifest = createChartsCatalogManifest()
+    mutate(manifest)
+    assert.throws(() => parseChartsCatalogManifest(manifest))
+  })
+}
+
+function expectV5Rejected(
+  label: string,
+  mutate: (manifest: Record<string, any>) => void,
+) {
+  test(`catalog v5 rejects ${label}`, () => {
+    const manifest = createChartsCatalogManifestV5()
     mutate(manifest)
     assert.throws(() => parseChartsCatalogManifest(manifest))
   })
@@ -38,6 +52,70 @@ test('catalog manifest accepts the generated v4 contract', () => {
     sharedAsset,
     tanstackAsset,
   ])
+})
+
+test('catalog manifest accepts the generated v5 preview contract', () => {
+  const manifest = parseChartsCatalogManifest(createChartsCatalogManifestV5())
+
+  assert.equal(manifest.schemaVersion, 5)
+  assert.deepEqual(manifest.cases[0]?.preview, {
+    path: previewAsset,
+    mediaType: 'image/svg+xml',
+    width: 288,
+    height: 192,
+    bytes: 68,
+    sha256: previewSha256,
+  })
+})
+
+test('catalog v4 rejects v5 preview metadata', () => {
+  const manifest = createChartsCatalogManifest()
+  manifest.cases[0].preview = createChartsCatalogManifestV5().cases[0].preview
+
+  assert.throws(() => parseChartsCatalogManifest(manifest))
+})
+
+expectV5Rejected('a missing case preview', (manifest) => {
+  delete manifest.cases[0].preview
+})
+
+expectV5Rejected('a preview path with another case ID', (manifest) => {
+  manifest.cases[0].preview.path = `previews/02-area-${previewSha256}.svg`
+})
+
+expectV5Rejected('a preview path with another digest', (manifest) => {
+  manifest.cases[0].preview.path = `previews/01-line-${'f'.repeat(64)}.svg`
+})
+
+expectV5Rejected('a preview with another media type', (manifest) => {
+  manifest.cases[0].preview.mediaType = 'image/png'
+})
+
+expectV5Rejected('a preview with non-canonical dimensions', (manifest) => {
+  manifest.cases[0].preview.width = 576
+})
+
+expectV5Rejected('a preview larger than 256 KiB', (manifest) => {
+  manifest.cases[0].preview.bytes = 256 * 1024 + 1
+})
+
+test('catalog manifest accepts TSX authored source paths', () => {
+  const manifest = createChartsCatalogManifest()
+  manifest.cases[0].code.tanstack =
+    'benchmarks/conformance/cases/01-line/tanstack.tsx'
+  manifest.cases[0].authoredSource.tanstack.roles.entry.paths[0] =
+    'cases/01-line/tanstack.tsx'
+
+  assert.doesNotThrow(() => parseChartsCatalogManifest(manifest))
+})
+
+test('catalog manifest accepts TypeScript and TSX React harness paths', () => {
+  for (const extension of ['ts', 'tsx']) {
+    const manifest = createChartsCatalogManifest()
+    manifest.cases[0].authoredSource.tanstack.roles.harness.paths[0] = `shared/react-mount.${extension}`
+
+    assert.doesNotThrow(() => parseChartsCatalogManifest(manifest))
+  }
 })
 
 test('catalog manifest rejects the retired v2 contract', () => {
@@ -117,6 +195,11 @@ expectRejected('a non-debug comparison module', (manifest) => {
 
 expectRejected('source-code traversal', (manifest) => {
   manifest.cases[0].code.tanstack = '../private.ts'
+})
+
+expectRejected('a TSX test file as authored source', (manifest) => {
+  manifest.cases[0].authoredSource.tanstack.roles.support.paths[0] =
+    'shared/transforms/normalize.test.tsx'
 })
 
 expectRejected('duplicate case ids', (manifest) => {

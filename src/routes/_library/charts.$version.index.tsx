@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import ChartsLanding from '~/components/landing/ChartsLanding'
+import { getChartsCatalogLanding } from '~/utils/charts-catalog.functions'
 import {
   beforeLoadLibraryLanding,
   getLibraryLandingHead,
@@ -19,12 +20,13 @@ export const Route = createFileRoute('/_library/charts/$version/')({
     beforeLoadLibraryLanding('charts', params.version, location.href)
   },
   loader: async ({ params, context: { queryClient } }) => {
-    const [landingData, catalogOrderSeed] = await Promise.all([
+    const [landingData, catalogOrderSeed, catalog] = await Promise.all([
       loadLibraryLandingRouteData('charts', params.version, queryClient),
       getChartsCatalogOrderSeed({ data: undefined }),
+      getChartsCatalogLanding(),
     ])
 
-    return { ...landingData, catalogOrderSeed }
+    return { ...landingData, catalogOrderSeed, catalog }
   },
   head: () => getLibraryLandingHead('charts'),
   headers: () => getLibraryLandingHeaders('charts'),
@@ -32,6 +34,6 @@ export const Route = createFileRoute('/_library/charts/$version/')({
 })
 
 function ChartsLandingRoute() {
-  const { catalogOrderSeed } = Route.useLoaderData()
-  return <ChartsLanding catalogOrderSeed={catalogOrderSeed} />
+  const { catalog, catalogOrderSeed } = Route.useLoaderData()
+  return <ChartsLanding catalog={catalog} catalogOrderSeed={catalogOrderSeed} />
 }

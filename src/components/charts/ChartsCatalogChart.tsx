@@ -11,6 +11,7 @@ type ChartMountInput = {
   height: number
   revision: number
   interactive?: boolean
+  preview?: boolean
 }
 
 type ChartMountHandle = {
@@ -26,33 +27,42 @@ export function ChartsCatalogChart({
   artifactRevision,
   caseId,
   defer = false,
+  fill = false,
   height = 360,
   interactive = true,
   logicalWidth,
   module,
   onStatus,
+  preview = false,
   revision = 0,
 }: {
   artifactRevision: string
   caseId: string
   defer?: boolean
+  fill?: boolean
   height?: number
   interactive?: boolean
   logicalWidth?: number
   module: ChartsCatalogModuleReference
   onStatus?: (status: 'ready' | 'resize' | 'error') => void
+  preview?: boolean
   revision?: number
 }) {
   const containerRef = React.useRef<HTMLDivElement>(null)
   const handleRef = React.useRef<ChartMountHandle | undefined>(undefined)
-  const inputRef = React.useRef({ height, interactive, revision })
+  const inputRef = React.useRef({ interactive, preview, revision })
+  const sizeRef = React.useRef({ fill, height, logicalWidth })
   const onStatusRef = React.useRef(onStatus)
   const [visible, setVisible] = React.useState(!defer)
   const [failed, setFailed] = React.useState(false)
 
   React.useEffect(() => {
-    inputRef.current = { height, interactive, revision }
-  }, [height, interactive, revision])
+    inputRef.current = { interactive, preview, revision }
+  }, [interactive, preview, revision])
+
+  React.useEffect(() => {
+    sizeRef.current = { fill, height, logicalWidth }
+  }, [fill, height, logicalWidth])
 
   React.useEffect(() => {
     onStatusRef.current = onStatus
@@ -85,7 +95,7 @@ export function ChartsCatalogChart({
 
     let cancelled = false
     let mountedHandle: ChartMountHandle | undefined
-    let width = measureWidth(container, logicalWidth)
+    let size = measureChart(container, sizeRef.current)
     const preloadLinks = module.preload.map((assetPath) => {
       const link = document.createElement('link')
       link.rel = 'modulepreload'
@@ -107,7 +117,7 @@ export function ChartsCatalogChart({
         }
 
         const mounted = loaded.mount(container, {
-          width,
+          ...size,
           ...inputRef.current,
         })
         if (!isChartMountHandle(mounted)) {
@@ -127,11 +137,13 @@ export function ChartsCatalogChart({
       })
 
     const resizeObserver = new ResizeObserver(() => {
-      const nextWidth = measureWidth(container, logicalWidth)
-      if (nextWidth === width || nextWidth < 1) return
-      width = nextWidth
+      const nextSize = measureChart(container, sizeRef.current)
+      if (nextSize.width === size.width && nextSize.height === size.height) {
+        return
+      }
+      size = nextSize
       handleRef.current?.update({
-        width,
+        ...size,
         ...inputRef.current,
       })
       onStatusRef.current?.('resize')
@@ -148,7 +160,7 @@ export function ChartsCatalogChart({
       for (const link of preloadLinks) link.remove()
       container.replaceChildren()
     }
-  }, [artifactRevision, caseId, logicalWidth, module, visible])
+  }, [artifactRevision, caseId, module, visible])
 
   React.useEffect(() => {
     const container = containerRef.current
@@ -156,18 +168,18 @@ export function ChartsCatalogChart({
     if (!container || !handle) return
 
     handle.update({
-      width: measureWidth(container, logicalWidth),
-      height,
-      interactive,
-      revision,
+      ...measureChart(container, sizeRef.current),
+      ...inputRef.current,
     })
-  }, [height, interactive, logicalWidth, revision])
+  }, [fill, height, interactive, logicalWidth, preview, revision])
 
   return (
     <div
-      className="charts-catalog-chart relative w-full overflow-visible"
+      className={`charts-catalog-chart relative w-full overflow-visible ${
+        fill ? 'h-full' : ''
+      }`}
       data-chart-case={caseId}
-      style={{ height }}
+      style={fill ? undefined : { height }}
     >
       <div ref={containerRef} className="h-full w-full" />
       {!visible || failed ? (
@@ -185,11 +197,19 @@ export function ChartsCatalogChart({
   )
 }
 
-function measureWidth(container: HTMLElement, logicalWidth?: number) {
-  return Math.max(
-    1,
-    Math.floor(logicalWidth ?? container.getBoundingClientRect().width),
-  )
+function measureChart(
+  container: HTMLElement,
+  {
+    fill,
+    height,
+    logicalWidth,
+  }: { fill: boolean; height: number; logicalWidth?: number },
+) {
+  const bounds = container.getBoundingClientRect()
+  return {
+    width: Math.max(1, Math.floor(logicalWidth ?? bounds.width)),
+    height: Math.max(1, Math.floor(fill ? bounds.height : height)),
+  }
 }
 
 function isChartRuntimeModule(value: unknown): value is ChartRuntimeModule {

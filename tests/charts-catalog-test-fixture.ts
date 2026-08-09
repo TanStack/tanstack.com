@@ -4,6 +4,11 @@ export const tanstackAsset = 'assets/tanstack-AbC_1.js'
 export const sharedAsset = 'assets/shared-XyZ_2.js'
 export const comparisonAsset = 'assets/plot-QrS_3.js'
 export const datasetId = 'aapl'
+export const previewSvg =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 288 192"></svg>'
+export const previewSha256 =
+  '27b8b7ddaca4568f9dfe9c8883b0fdd530b8315cf611787227d1763bacc09716'
+export const previewAsset = `previews/01-line-${previewSha256}.svg`
 
 export const catalogSources: Record<string, string> = {
   'cases/01-line/tanstack.ts':
@@ -160,6 +165,20 @@ export function createChartsCatalogManifest(): Record<string, any> {
       },
     ],
   }
+}
+
+export function createChartsCatalogManifestV5(): Record<string, any> {
+  const manifest = createChartsCatalogManifest()
+  manifest.schemaVersion = 5
+  manifest.cases[0].preview = {
+    path: previewAsset,
+    mediaType: 'image/svg+xml',
+    width: 288,
+    height: 192,
+    bytes: new TextEncoder().encode(previewSvg).byteLength,
+    sha256: previewSha256,
+  }
+  return manifest
 }
 
 function createSourceClosure(paths: {

@@ -42,6 +42,14 @@ export const chartsCatalogAssetPathSchema = v.pipe(
   ),
 )
 
+export const chartsCatalogPreviewPathSchema = v.pipe(
+  v.string(),
+  v.regex(
+    /^previews\/[a-z0-9]+(?:-[a-z0-9]+)*-[a-f0-9]{64}\.svg$/,
+    'Expected a case-scoped, content-addressed SVG preview path',
+  ),
+)
+
 const sourcePathSchema = v.pipe(
   v.string(),
   v.regex(
@@ -186,12 +194,30 @@ const catalogCaseEntries = {
   ),
 }
 
-const catalogCaseSchema = v.strictObject({
+const catalogCaseV4Schema = v.strictObject({
   ...catalogCaseEntries,
   authoredSource: v.strictObject({
     tanstack: catalogSourceClosureSchema,
     reference: catalogSourceClosureSchema,
   }),
+})
+
+const catalogPreviewSchema = v.strictObject({
+  path: chartsCatalogPreviewPathSchema,
+  mediaType: v.literal('image/svg+xml'),
+  width: v.literal(288),
+  height: v.literal(192),
+  bytes: v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(256 * 1024)),
+  sha256: sha256Schema,
+})
+
+const catalogCaseV5Schema = v.strictObject({
+  ...catalogCaseEntries,
+  authoredSource: v.strictObject({
+    tanstack: catalogSourceClosureSchema,
+    reference: catalogSourceClosureSchema,
+  }),
+  preview: catalogPreviewSchema,
 })
 
 const assetDescriptorSchema = v.strictObject({
@@ -250,8 +276,7 @@ const catalogAssetsSchema = v.pipe(
   v.maxEntries(1_000),
 )
 
-const chartsCatalogManifestSchema = v.strictObject({
-  schemaVersion: v.literal(4),
+const catalogManifestEntries = {
   revision: gitShaSchema,
   source: v.strictObject({
     repo: v.literal(chartsCatalogRepo),
@@ -263,14 +288,27 @@ const chartsCatalogManifestSchema = v.strictObject({
   embed: catalogEmbedSchema,
   datasets: v.record(v.string(), catalogDatasetSchema),
   assets: catalogAssetsSchema,
-  cases: v.pipe(v.array(catalogCaseSchema), v.nonEmpty()),
-})
+}
+
+const chartsCatalogManifestSchema = v.variant('schemaVersion', [
+  v.strictObject({
+    schemaVersion: v.literal(4),
+    ...catalogManifestEntries,
+    cases: v.pipe(v.array(catalogCaseV4Schema), v.nonEmpty()),
+  }),
+  v.strictObject({
+    schemaVersion: v.literal(5),
+    ...catalogManifestEntries,
+    cases: v.pipe(v.array(catalogCaseV5Schema), v.nonEmpty()),
+  }),
+])
 
 export type ChartsCatalogManifest = v.InferOutput<
   typeof chartsCatalogManifestSchema
 >
 export type ChartsCatalogCase = ChartsCatalogManifest['cases'][number]
 export type ChartsCatalogDataset = v.InferOutput<typeof catalogDatasetSchema>
+export type ChartsCatalogPreview = v.InferOutput<typeof catalogPreviewSchema>
 
 export type ChartsCatalogSourceKind = 'entry' | 'support' | 'fixture'
 
@@ -358,6 +396,8 @@ function validateManifestRelationships(manifest: ChartsCatalogManifest) {
 
   const caseIds = new Set<string>()
   const caseOrders = new Set<number>()
+  const previewPaths = new Set<string>()
+  let totalPreviewBytes = 0
 
   for (const catalogCase of manifest.cases) {
     if (!Number.isSafeInteger(catalogCase.order)) {
@@ -378,14 +418,35 @@ function validateManifestRelationships(manifest: ChartsCatalogManifest) {
     caseIds.add(catalogCase.id)
     caseOrders.add(catalogCase.order)
 
+    if ('preview' in catalogCase) {
+      const expectedPreviewPath = `previews/${catalogCase.id}-${catalogCase.preview.sha256}.svg`
+      if (catalogCase.preview.path !== expectedPreviewPath) {
+        throw new TypeError(
+          `Invalid Charts catalog manifest: preview path does not match case ${catalogCase.id}`,
+        )
+      }
+      if (previewPaths.has(catalogCase.preview.path)) {
+        throw new TypeError(
+          `Invalid Charts catalog manifest: duplicate preview ${catalogCase.preview.path}`,
+        )
+      }
+      previewPaths.add(catalogCase.preview.path)
+      totalPreviewBytes += catalogCase.preview.bytes
+    }
+
     const comparisonRenderer =
       catalogCase.referenceRenderer ?? 'observable-plot'
     const referenceFilename =
       comparisonRenderer === 'observable-plot' ? 'plot' : comparisonRenderer
     const sourceRoot = `benchmarks/conformance/cases/${catalogCase.id}`
     if (
-      catalogCase.code.tanstack !== `${sourceRoot}/tanstack.ts` ||
-      catalogCase.code.reference !== `${sourceRoot}/${referenceFilename}.ts` ||
+      ![`${sourceRoot}/tanstack.ts`, `${sourceRoot}/tanstack.tsx`].includes(
+        catalogCase.code.tanstack,
+      ) ||
+      ![
+        `${sourceRoot}/${referenceFilename}.ts`,
+        `${sourceRoot}/${referenceFilename}.tsx`,
+      ].includes(catalogCase.code.reference) ||
       catalogCase.modules.comparison.renderer !== comparisonRenderer
     ) {
       throw new TypeError(
@@ -416,6 +477,17 @@ function validateManifestRelationships(manifest: ChartsCatalogManifest) {
       'comparison',
       catalogCase.modules.comparison,
       assetPaths,
+    )
+  }
+
+  if (totalPreviewBytes > 2 * 1024 * 1024) {
+    throw new TypeError(
+      'Invalid Charts catalog manifest: previews exceed 2 MiB total',
+    )
+  }
+  if (totalAssetBytes + totalPreviewBytes > 8 * 1024 * 1024) {
+    throw new TypeError(
+      'Invalid Charts catalog manifest: artifact exceeds 8 MiB total',
     )
   }
 
@@ -658,8 +730,8 @@ function isCatalogSourcePath(sourcePath: string) {
   return (
     isSafeRepositoryPath(sourcePath) &&
     (sourcePath.startsWith('cases/') || sourcePath.startsWith('shared/')) &&
-    sourcePath.endsWith('.ts') &&
-    !sourcePath.endsWith('.test.ts') &&
+    /\.tsx?$/.test(sourcePath) &&
+    !/\.test\.tsx?$/.test(sourcePath) &&
     !sourcePath.includes('\\') &&
     !sourcePath.includes('?') &&
     !sourcePath.includes('#')
@@ -667,7 +739,9 @@ function isCatalogSourcePath(sourcePath: string) {
 }
 
 function isCatalogHarnessSourcePath(sourcePath: string) {
-  return /^shared\/(?:mount|recharts-mount|echarts-mount)\.ts$/.test(sourcePath)
+  return /^shared\/(?:mount|react-mount|recharts-mount|echarts-mount)\.tsx?$/.test(
+    sourcePath,
+  )
 }
 
 function isSafeRepositoryPath(value: string) {
@@ -794,6 +868,13 @@ export function getChartsCatalogAssetUrl(
   assetPath: string,
 ) {
   return `${chartsCatalogAssetBasePath}${artifactRevision}/${assetPath}`
+}
+
+export function getChartsCatalogPreviewUrl(
+  artifactRevision: string,
+  previewPath: string,
+) {
+  return getChartsCatalogAssetUrl(artifactRevision, previewPath)
 }
 
 export function getChartsCatalogSitemapEntries(

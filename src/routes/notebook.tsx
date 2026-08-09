@@ -8,6 +8,12 @@ const LazyChartsNotebookPage = React.lazy(() =>
   })),
 )
 
+const LazySharedExamplePage = React.lazy(() =>
+  import('~/components/examples/SharedExamplePage.client').then((module) => ({
+    default: module.SharedExamplePage,
+  })),
+)
+
 export const Route = createFileRoute('/notebook')({
   ssr: false,
   component: ChartsNotebookRoute,
@@ -31,8 +37,16 @@ function ChartsNotebookRoute() {
   return (
     <ClientOnly>
       <React.Suspense fallback={null}>
-        <LazyChartsNotebookPage />
+        <NotebookClientPage />
       </React.Suspense>
     </ClientOnly>
+  )
+}
+
+function NotebookClientPage() {
+  return window.location.hash.startsWith('#project=') ? (
+    <LazySharedExamplePage />
+  ) : (
+    <LazyChartsNotebookPage />
   )
 }

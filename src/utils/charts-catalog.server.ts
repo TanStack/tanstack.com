@@ -1,5 +1,6 @@
 import {
   fetchGitHubCommitHistory,
+  fetchGitHubRecursiveTree,
   fetchRemoteRepoRawFile,
   fetchRepoRawFile,
   GitHubContentError,
@@ -19,6 +20,10 @@ import {
   type ChartsCatalogPublication,
   type ChartsCatalogSourceKind,
 } from './charts-catalog'
+import {
+  createChartsCatalogExampleDefinition,
+  type ChartsCatalogExampleVersions,
+} from './charts-catalog-example'
 
 const catalogManifestPath = 'catalog.json'
 const localCatalogRoot = '.catalog-artifact'
@@ -26,8 +31,32 @@ const catalogRevisionHistoryCachePath =
   '.tanstack/catalog-dist-revision-history'
 const catalogRevisionHistoryLimit = 100
 const catalogPublicationArtifactType = 'charts-catalog'
-const catalogPublicationArtifactKey = 'v4'
+const catalogPublicationArtifactKey = 'v5'
 const exactGitShaPattern = /^[a-f0-9]{40}$/
+const catalogExamplePackagePaths = {
+  charts: 'packages/charts-core/package.json',
+  reactCharts: 'packages/react-charts/package.json',
+  catalog: 'packages/react-charts-catalog/package.json',
+  root: 'package.json',
+}
+const catalogExampleRootDependencies = [
+  'react',
+  'react-dom',
+  'topojson-client',
+  'us-atlas',
+  'world-atlas',
+]
+const catalogExampleModuleExtensions = [
+  '.ts',
+  '.tsx',
+  '.js',
+  '.jsx',
+  '.mjs',
+  '.css',
+  '.json',
+  '.svg',
+]
+const maxCatalogExampleFiles = 128
 
 export class ChartsCatalogResourceNotFoundError extends Error {
   constructor(message: string) {
@@ -235,6 +264,373 @@ export async function getChartsCatalogAuthoredSource(
     datasets: closure.datasetIds.map((id) => manifest.datasets[id]),
     excludedHarness: closure.roles.harness,
   }
+}
+
+export async function getChartsCatalogExampleDefinition(
+  manifest: ChartsCatalogManifest,
+  caseId: string,
+) {
+  const catalogCase = manifest.cases.find((entry) => entry.id === caseId)
+  if (!catalogCase) {
+    throw new ChartsCatalogResourceNotFoundError(
+      `Charts catalog case not found: ${caseId}`,
+    )
+  }
+
+  const [files, versions] = await Promise.all([
+    getChartsCatalogExampleFiles(manifest.revision, catalogCase.code.tanstack),
+    getChartsCatalogExampleVersions(manifest.revision),
+  ])
+
+  return createChartsCatalogExampleDefinition({
+    caseId: catalogCase.id,
+    title: catalogCase.title,
+    description: catalogCase.intent,
+    revision: manifest.revision,
+    entryPath: catalogCase.code.tanstack,
+    files,
+    versions,
+  })
+}
+
+async function getChartsCatalogExampleFiles(
+  revision: string,
+  entryPath: string,
+) {
+  const tree = await fetchGitHubRecursiveTree(chartsCatalogRepo, revision)
+  if (!tree) {
+    throw new ChartsCatalogResourceNotFoundError(
+      'Charts catalog source tree is unavailable',
+    )
+  }
+
+  const sourcePaths = new Set(
+    tree.flatMap((entry) => (entry.type === 'blob' ? [entry.path] : [])),
+  )
+  if (!sourcePaths.has(entryPath)) {
+    throw new ChartsCatalogResourceNotFoundError(
+      `Charts catalog source not found: ${entryPath}`,
+    )
+  }
+
+  const files = new Map<string, string>()
+  const scheduled = new Set<string>()
+
+  async function load(path: string): Promise<void> {
+    if (scheduled.has(path)) return
+    if (scheduled.size >= maxCatalogExampleFiles) {
+      throw new ChartsCatalogIntegrityError(
+        `Charts catalog example exceeds ${maxCatalogExampleFiles} source files`,
+      )
+    }
+    scheduled.add(path)
+
+    const source = await getChartsCatalogSource(revision, path)
+    files.set(path, source)
+
+    const dependencies = extractStaticRelativeModuleSpecifiers(source).map(
+      (specifier) => resolveCatalogExampleModule(path, specifier, sourcePaths),
+    )
+    await Promise.all(dependencies.map(load))
+  }
+
+  await load(entryPath)
+
+  return Object.fromEntries(
+    [...files.entries()].sort(([left], [right]) => left.localeCompare(right)),
+  )
+}
+
+function resolveCatalogExampleModule(
+  importer: string,
+  specifier: string,
+  sourcePaths: Set<string>,
+) {
+  const importerDirectory = importer.slice(0, importer.lastIndexOf('/'))
+  const requestedPath = normalizeRepoModulePath(
+    `${importerDirectory}/${specifier}`,
+  )
+  const hasKnownExtension = catalogExampleModuleExtensions.some((extension) =>
+    requestedPath.endsWith(extension),
+  )
+  const candidates = hasKnownExtension
+    ? [requestedPath]
+    : [
+        requestedPath,
+        ...catalogExampleModuleExtensions.map(
+          (extension) => `${requestedPath}${extension}`,
+        ),
+        ...catalogExampleModuleExtensions.map(
+          (extension) => `${requestedPath}/index${extension}`,
+        ),
+      ]
+  const resolved = candidates.find((candidate) => sourcePaths.has(candidate))
+
+  if (!resolved) {
+    throw new ChartsCatalogResourceNotFoundError(
+      `Could not resolve ${specifier} from ${importer}`,
+    )
+  }
+
+  return resolved
+}
+
+function normalizeRepoModulePath(path: string) {
+  const segments = new Array<string>()
+  for (const segment of path.split('/')) {
+    if (!segment || segment === '.') continue
+    if (segment === '..') {
+      segments.pop()
+      continue
+    }
+    segments.push(segment)
+  }
+  return segments.join('/')
+}
+
+function extractStaticRelativeModuleSpecifiers(source: string) {
+  const tokens = tokenizeModuleSource(source)
+  const specifiers = new Set<string>()
+
+  for (let index = 0; index < tokens.length; index += 1) {
+    const token = tokens[index]
+    if (token?.kind !== 'identifier') continue
+    if (token.value !== 'import' && token.value !== 'export') continue
+
+    const next = tokens[index + 1]
+    if (token.value === 'import' && next?.value === '(') continue
+    if (token.value === 'import' && next?.value === '.') continue
+
+    if (next?.kind === 'string') {
+      if (next.value.startsWith('.')) specifiers.add(next.value)
+      continue
+    }
+
+    for (let cursor = index + 1; cursor < tokens.length; cursor += 1) {
+      const candidate = tokens[cursor]
+      if (!candidate || candidate.value === ';') break
+      if (candidate.kind !== 'identifier' || candidate.value !== 'from') {
+        continue
+      }
+      const value = tokens[cursor + 1]
+      if (value?.kind === 'string' && value.value.startsWith('.')) {
+        specifiers.add(value.value)
+      }
+      break
+    }
+  }
+
+  return [...specifiers]
+}
+
+type ModuleSourceToken = {
+  kind: 'identifier' | 'punctuation' | 'string'
+  value: string
+}
+
+function tokenizeModuleSource(source: string) {
+  const tokens = new Array<ModuleSourceToken>()
+  let index = 0
+
+  while (index < source.length) {
+    const character = source[index]
+    const next = source[index + 1]
+
+    if (character === '/' && next === '/') {
+      index += 2
+      while (index < source.length && !isLineBreak(source[index])) index += 1
+      continue
+    }
+    if (character === '/' && next === '*') {
+      index += 2
+      while (
+        index < source.length &&
+        !(source[index] === '*' && source[index + 1] === '/')
+      ) {
+        index += 1
+      }
+      index += 2
+      continue
+    }
+    if (character === '"' || character === "'") {
+      const value = readQuotedModuleString(source, index, character)
+      tokens.push({ kind: 'string', value: value.value })
+      index = value.end
+      continue
+    }
+    if (character === '`') {
+      index = skipTemplateLiteral(source, index)
+      continue
+    }
+    if (character && /[a-zA-Z_$]/.test(character)) {
+      const start = index
+      index += 1
+      while (index < source.length && /[\w$]/.test(source[index] ?? '')) {
+        index += 1
+      }
+      tokens.push({ kind: 'identifier', value: source.slice(start, index) })
+      continue
+    }
+    if (character && !/\s/.test(character)) {
+      tokens.push({ kind: 'punctuation', value: character })
+    }
+    index += 1
+  }
+
+  return tokens
+}
+
+function readQuotedModuleString(
+  source: string,
+  start: number,
+  quote: '"' | "'",
+) {
+  let index = start + 1
+  let value = ''
+
+  while (index < source.length) {
+    const character = source[index]
+    if (character === quote) return { value, end: index + 1 }
+    if (character === '\\') {
+      const escaped = source[index + 1]
+      if (escaped !== undefined) value += escaped
+      index += 2
+      continue
+    }
+    if (character !== undefined) value += character
+    index += 1
+  }
+
+  return { value, end: index }
+}
+
+function skipTemplateLiteral(source: string, start: number) {
+  let index = start + 1
+  while (index < source.length) {
+    if (source[index] === '\\') {
+      index += 2
+      continue
+    }
+    if (source[index] === '`') return index + 1
+    index += 1
+  }
+  return index
+}
+
+function isLineBreak(value: string | undefined) {
+  return value === '\n' || value === '\r'
+}
+
+async function getChartsCatalogExampleVersions(
+  revision: string,
+): Promise<ChartsCatalogExampleVersions> {
+  const [chartsSource, reactChartsSource, catalogSource, rootSource] =
+    await Promise.all([
+      getChartsCatalogSource(revision, catalogExamplePackagePaths.charts),
+      getChartsCatalogSource(revision, catalogExamplePackagePaths.reactCharts),
+      getChartsCatalogSource(revision, catalogExamplePackagePaths.catalog),
+      getChartsCatalogSource(revision, catalogExamplePackagePaths.root),
+    ])
+  const charts = parsePackageMetadata(
+    chartsSource,
+    catalogExamplePackagePaths.charts,
+  )
+  const reactCharts = parsePackageMetadata(
+    reactChartsSource,
+    catalogExamplePackagePaths.reactCharts,
+  )
+  const catalog = parsePackageMetadata(
+    catalogSource,
+    catalogExamplePackagePaths.catalog,
+  )
+  const root = parsePackageMetadata(rootSource, catalogExamplePackagePaths.root)
+  const rootDependencies = Object.fromEntries(
+    catalogExampleRootDependencies.map((name) => [
+      name,
+      getPackageDependency(root.devDependencies, name),
+    ]),
+  )
+
+  return {
+    charts: getPackageVersion(charts, catalogExamplePackagePaths.charts),
+    reactCharts: getPackageVersion(
+      reactCharts,
+      catalogExamplePackagePaths.reactCharts,
+    ),
+    react: rootDependencies.react,
+    reactDom: rootDependencies['react-dom'],
+    dependencies: Object.fromEntries(
+      [
+        ...Object.entries(catalog.dependencies),
+        ...Object.entries(rootDependencies),
+      ]
+        .filter(([, version]) => !version.startsWith('workspace:'))
+        .sort(([left], [right]) => left.localeCompare(right)),
+    ),
+  }
+}
+
+function parsePackageMetadata(source: string, path: string) {
+  let value: unknown
+  try {
+    value = JSON.parse(source)
+  } catch (error) {
+    throw new ChartsCatalogIntegrityError(
+      `Invalid Charts package metadata: ${path}`,
+      error,
+    )
+  }
+
+  if (!isRecord(value)) {
+    throw new ChartsCatalogIntegrityError(
+      `Invalid Charts package metadata: ${path}`,
+    )
+  }
+
+  return {
+    version: typeof value.version === 'string' ? value.version : undefined,
+    dependencies: getStringRecord(value.dependencies),
+    devDependencies: getStringRecord(value.devDependencies),
+  }
+}
+
+function getStringRecord(value: unknown) {
+  if (!isRecord(value)) return {}
+
+  return Object.fromEntries(
+    Object.entries(value).flatMap(([name, entry]) =>
+      typeof entry === 'string' ? [[name, entry]] : [],
+    ),
+  )
+}
+
+function getPackageDependency(
+  dependencies: Record<string, string>,
+  name: string,
+) {
+  const version = dependencies[name]
+  if (!version) {
+    throw new ChartsCatalogIntegrityError(
+      `Charts catalog package metadata is missing ${name}`,
+    )
+  }
+  return version
+}
+
+function getPackageVersion(
+  metadata: { version: string | undefined },
+  path: string,
+) {
+  if (!metadata.version) {
+    throw new ChartsCatalogIntegrityError(
+      `Charts package metadata is missing a version: ${path}`,
+    )
+  }
+  return metadata.version
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
 async function readChartsCatalogManifest(

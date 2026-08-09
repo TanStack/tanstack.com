@@ -14,6 +14,7 @@ import {
 } from '~/utils/markdown'
 import { isSafeHttpUrl } from '~/utils/url-boundary'
 import { CodeBlock } from './CodeBlock'
+import { LiveExample } from './LiveExample'
 import { MarkdownLink } from './MarkdownLink'
 import {
   MdCommentComponent,
@@ -246,6 +247,7 @@ function createMarkdownComponents(
     img: ImgElement,
     'md-comment-component': MdCommentComponentWithOptions,
     'md-framework-panel': MdFrameworkPanel,
+    'md-live-example': LiveExample,
     'md-tab-panel': MdTabPanel,
     pre: CodeBlock,
     table: TableElement,

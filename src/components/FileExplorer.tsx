@@ -10,8 +10,15 @@ import markoIconUrl from '~/images/file-icons/marko.svg?url'
 import emberIconUrl from '~/images/ember-logo.svg?url'
 import octaneIconUrl from '~/images/octane-logo.svg?url'
 import textIconUrl from '~/images/file-icons/txt.svg?url'
-import type { GitHubFileNode } from '~/utils/documents.server'
 import { twMerge } from 'tailwind-merge'
+
+export type FileExplorerNode = {
+  children?: Array<FileExplorerNode>
+  depth: number
+  name: string
+  path: string
+  type: string
+}
 
 const getFileIconPath = (filename: string) => {
   const ext = filename.split('.').pop()?.toLowerCase() || ''
@@ -93,7 +100,7 @@ function getMarginLeft(depth: number) {
 
 interface FileExplorerProps {
   currentPath: string | null
-  githubContents: GitHubFileNode[] | undefined
+  files: Array<FileExplorerNode> | undefined
   isSidebarOpen: boolean
   libraryColor: string
   prefetchFileContent: (file: string) => void
@@ -102,7 +109,7 @@ interface FileExplorerProps {
 
 export function FileExplorer({
   currentPath,
-  githubContents,
+  files,
   isSidebarOpen,
   libraryColor,
   prefetchFileContent,
@@ -116,8 +123,8 @@ export function FileExplorer({
   const [expandedFolders, setExpandedFolders] = React.useState<Set<string>>(
     () => {
       const expanded = new Set<string>()
-      if (githubContents) {
-        const flattened = recursiveFlattenGithubContents(githubContents)
+      if (files) {
+        const flattened = recursiveFlattenFiles(files)
         if (flattened.every((f) => f.depth === 0)) {
           return expanded
         }
@@ -126,7 +133,7 @@ export function FileExplorer({
         for (const file of flattened) {
           if (file.path === currentPath) {
             // Open all ancestors directories
-            const dirs = flattedOnlyToDirs(githubContents)
+            const dirs = flattenedOnlyToDirs(files)
             const ancestors = file.path.split('/').slice(0, -1)
 
             while (ancestors.length > 0) {
@@ -212,7 +219,7 @@ export function FileExplorer({
     })
   }
 
-  if (!githubContents) return null
+  if (!files) return null
 
   return (
     <>
@@ -225,12 +232,12 @@ export function FileExplorer({
           isResizing ? '' : 'transition-all duration-300'
         }`}
       >
-        {githubContents && isSidebarOpen ? (
+        {files && isSidebarOpen ? (
           <div className="p-2">
             <RenderFileTree
               currentPath={currentPath}
               expandedFolders={expandedFolders}
-              files={githubContents}
+              files={files}
               libraryColor={libraryColor}
               prefetchFileContent={prefetchFileContent}
               setCurrentPath={setCurrentPath}
@@ -252,7 +259,7 @@ export function FileExplorer({
 }
 
 const RenderFileTree = (props: {
-  files: GitHubFileNode[] | undefined
+  files: Array<FileExplorerNode> | undefined
   libraryColor: string
   toggleFolder: (path: string) => void
   prefetchFileContent: (file: string) => void
@@ -368,24 +375,24 @@ const RenderFileTree = (props: {
   )
 }
 
-function recursiveFlattenGithubContents(
-  nodes: Array<GitHubFileNode>,
+function recursiveFlattenFiles(
+  nodes: Array<FileExplorerNode>,
   bannedDirs: Set<string> = new Set(),
-): Array<GitHubFileNode> {
+): Array<FileExplorerNode> {
   return nodes.flatMap((node) => {
     if (node.type === 'dir' && node.children && !bannedDirs.has(node.name)) {
-      return recursiveFlattenGithubContents(node.children, bannedDirs)
+      return recursiveFlattenFiles(node.children, bannedDirs)
     }
     return node
   })
 }
 
-function flattedOnlyToDirs(
-  nodes: Array<GitHubFileNode>,
-): Array<GitHubFileNode> {
+function flattenedOnlyToDirs(
+  nodes: Array<FileExplorerNode>,
+): Array<FileExplorerNode> {
   return nodes.flatMap((node) => {
     if (node.type === 'dir' && node.children) {
-      return [node, ...flattedOnlyToDirs(node.children)]
+      return [node, ...flattenedOnlyToDirs(node.children)]
     }
     return node.type === 'dir' ? [node] : []
   })

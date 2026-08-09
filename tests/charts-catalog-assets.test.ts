@@ -6,6 +6,7 @@ import {
 } from '../src/utils/charts-catalog-assets'
 import {
   getChartsCatalogAssetUrl,
+  getChartsCatalogPreviewUrl,
   parseChartsCatalogManifest,
 } from '../src/utils/charts-catalog'
 import {
@@ -22,10 +23,14 @@ import {
 import {
   artifactRevision,
   createChartsCatalogManifest,
+  createChartsCatalogManifestV5,
+  previewAsset,
+  previewSha256,
   tanstackAsset,
 } from './charts-catalog-test-fixture'
 
 const manifest = parseChartsCatalogManifest(createChartsCatalogManifest())
+const manifestV5 = parseChartsCatalogManifest(createChartsCatalogManifestV5())
 
 test('catalog assets resolve only through an immutable artifact revision', () => {
   const request = parseChartsCatalogAssetRequest({
@@ -39,6 +44,31 @@ test('catalog assets resolve only through an immutable artifact revision', () =>
   assert.equal(
     getChartsCatalogAssetUrl(artifactRevision, tanstackAsset),
     `/charts/catalog/assets/${artifactRevision}/${tanstackAsset}`,
+  )
+})
+
+test('catalog previews resolve through the same immutable artifact revision', () => {
+  const request = parseChartsCatalogAssetRequest({
+    artifactRevision,
+    assetPath: previewAsset,
+    manifest: manifestV5,
+  })
+  const headers = new Headers(request.headers)
+
+  assert.equal(request.repo, 'tanstack/charts')
+  assert.equal(request.repoPath, previewAsset)
+  assert.equal(request.descriptor.bytes, 68)
+  assert.equal(request.descriptor.sha256, previewSha256)
+  assert.equal(
+    getChartsCatalogPreviewUrl(artifactRevision, previewAsset),
+    `/charts/catalog/assets/${artifactRevision}/${previewAsset}`,
+  )
+  assert.equal(headers.get('Content-Type'), 'image/svg+xml; charset=utf-8')
+  assert.equal(headers.get('Cross-Origin-Resource-Policy'), 'same-origin')
+  assert.equal(headers.get('X-Content-Type-Options'), 'nosniff')
+  assert.equal(
+    headers.get('Content-Security-Policy'),
+    "default-src 'none'; style-src 'unsafe-inline'; sandbox",
   )
 })
 

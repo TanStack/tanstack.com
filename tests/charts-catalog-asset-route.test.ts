@@ -6,12 +6,70 @@ import { resetGitHubContentCacheForTest } from '../src/utils/github-content-cach
 import {
   artifactRevision,
   createChartsCatalogManifest,
+  createChartsCatalogManifestV5,
+  previewAsset,
+  previewSvg,
   tanstackAsset,
 } from './charts-catalog-test-fixture'
 
 const notFoundBody = 'Charts catalog asset not found'
 const catalogDistRefUrl =
   'https://api.github.com/repos/tanstack/charts/git/ref/heads/catalog-dist'
+
+test('catalog asset handler serves verified v5 SVG previews', async () => {
+  resetGitHubContentCacheForTest()
+
+  const originalFetch = globalThis.fetch
+  globalThis.fetch = async (input) => {
+    const url = String(input)
+
+    if (url === catalogDistRefUrl) {
+      return Response.json({ object: { sha: artifactRevision } })
+    }
+    if (
+      url.startsWith('https://api.github.com/repos/tanstack/charts/commits?')
+    ) {
+      return Response.json([{ sha: artifactRevision }])
+    }
+    if (
+      url ===
+      `https://raw.githubusercontent.com/tanstack/charts/${artifactRevision}/catalog.json`
+    ) {
+      return Response.json(createChartsCatalogManifestV5())
+    }
+    if (
+      url ===
+      `https://raw.githubusercontent.com/tanstack/charts/${artifactRevision}/${previewAsset}`
+    ) {
+      return new Response(previewSvg)
+    }
+
+    return new Response('Not found', { status: 404 })
+  }
+
+  try {
+    const response = await requestCatalogAsset({
+      artifactRevision,
+      assetPath: previewAsset,
+      method: 'GET',
+    })
+
+    assert.equal(response.status, 200)
+    assert.equal(
+      response.headers.get('Content-Type'),
+      'image/svg+xml; charset=utf-8',
+    )
+    assert.equal(response.headers.get('Content-Length'), '68')
+    assert.equal(
+      response.headers.get('Cache-Control'),
+      'public, max-age=31536000, immutable',
+    )
+    assert.equal(await response.text(), previewSvg)
+  } finally {
+    globalThis.fetch = originalFetch
+    resetGitHubContentCacheForTest()
+  }
+})
 
 test('catalog asset handler returns explicit no-store 404 responses', async () => {
   resetGitHubContentCacheForTest()

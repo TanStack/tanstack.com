@@ -4,23 +4,17 @@ import { ArrowRightIcon } from '@phosphor-icons/react/ArrowRight'
 import { ArrowUpRightIcon } from '@phosphor-icons/react/ArrowUpRight'
 import { PauseIcon } from '@phosphor-icons/react/Pause'
 import { PlayIcon } from '@phosphor-icons/react/Play'
-import { catalogCases } from '@tanstack/react-charts-catalog'
-import type { CatalogCaseId } from '@tanstack/react-charts-catalog'
 
-import {
-  ChartsLandingCatalogChart,
-  chartsLandingCaseIds,
-  chartsLandingInitialCaseIds,
-} from '~/components/charts/ChartsLandingCatalogChart'
-import type { ChartsLandingCaseId } from '~/components/charts/ChartsLandingCatalogChart'
-import { chartsLandingCatalogAssetRevision } from '~/components/charts/chartsLandingCatalogAssets'
+import { ChartsCatalogChart } from '~/components/charts/ChartsCatalogChart'
 import { useInView } from '~/hooks/useInView'
+import type { getChartsCatalogLanding } from '~/utils/charts-catalog.functions'
+import { getChartsCatalogPreviewUrl } from '~/utils/charts-catalog'
 import { shuffleWithSeed } from '~/utils/utils'
 
-type CatalogCase = (typeof catalogCases)[number]
-type HeroCatalogCase = Extract<CatalogCase, { id: ChartsLandingCaseId }>
+type ChartsLandingCatalog = Awaited<ReturnType<typeof getChartsCatalogLanding>>
+type CatalogCase = ChartsLandingCatalog['cases'][number]
 type HeroChart = {
-  catalogCase: HeroCatalogCase
+  catalogCase: CatalogCase
 }
 type HeroChartPhase = 'current' | 'entering' | 'exiting' | 'pending'
 
@@ -30,42 +24,34 @@ const heroTileClasses = [
   'hidden md:block',
   'hidden lg:block',
 ] as const
-const orderedCases = [...catalogCases].sort(compareCatalogCases)
-const heroCaseIds = new Set<CatalogCaseId>(chartsLandingCaseIds)
-const heroCases = orderedCases.filter(
-  (catalogCase): catalogCase is HeroCatalogCase =>
-    heroCaseIds.has(catalogCase.id),
-)
-const heroInitialIndices = chartsLandingInitialCaseIds.map((caseId) =>
-  heroCases.findIndex((catalogCase) => catalogCase.id === caseId),
-)
-const heroAlternateIndices = heroCases
-  .map((_, index) => index)
-  .filter((index) => !heroInitialIndices.includes(index))
-const heroCaseIndicesByTile = heroInitialIndices.map(
-  (initialIndex, tileIndex) => [
-    initialIndex,
-    ...heroAlternateIndices.slice(tileIndex, tileIndex + 1),
-  ],
-)
-export const chartsLandingHeroCaseIdsByTile: ReadonlyArray<
-  ReadonlyArray<CatalogCaseId>
-> = heroCaseIndicesByTile.map((caseIndices) =>
-  caseIndices.flatMap((index) => {
-    const catalogCase = heroCases[index]
-    return catalogCase ? [catalogCase.id] : []
-  }),
-)
-export const chartsLandingInitialHeroCaseIds = heroInitialIndices.flatMap(
-  (index) => {
-    const catalogCase = heroCases[index]
-    return catalogCase ? [catalogCase.id] : []
-  },
-)
-export function CatalogChartsHero() {
+export const chartsLandingHeroCaseIdsByTile = [
+  ['03-temperature-range-band', '01-line-gaps'],
+  ['bar-grouped', '04-stacked-time-area'],
+  ['bar-vertical-sorted', '14-error-bars'],
+  ['bar-stacked', 'scatter-bubble'],
+] as const
+export const chartsLandingInitialHeroCaseIds =
+  chartsLandingHeroCaseIdsByTile.map(([caseId]) => caseId)
+
+export function CatalogChartsHero({
+  catalog,
+}: {
+  catalog: ChartsLandingCatalog
+}) {
+  const heroCasePools = React.useMemo(() => {
+    const casesById = new Map(
+      catalog.cases.map((catalogCase) => [catalogCase.id, catalogCase]),
+    )
+    return chartsLandingHeroCaseIdsByTile.map((caseIds) =>
+      caseIds.flatMap((caseId) => {
+        const catalogCase = casesById.get(caseId)
+        return catalogCase ? [catalogCase] : []
+      }),
+    )
+  }, [catalog.cases])
   const rootRef = React.useRef<HTMLElement>(null)
   const [activePositions, setActivePositions] = React.useState<number[]>(() =>
-    heroCaseIndicesByTile.map(() => 0),
+    chartsLandingHeroCaseIdsByTile.map(() => 0),
   )
   const [focused, setFocused] = React.useState(false)
   const [hovered, setHovered] = React.useState(false)
@@ -86,27 +72,36 @@ export function CatalogChartsHero() {
       document.removeEventListener('visibilitychange', updateVisibility)
   }, [])
 
-  const advanceTile = React.useCallback((tileIndex: number) => {
-    React.startTransition(() => {
-      setActivePositions((positions) =>
-        positions.map((position, indexToUpdate) =>
-          indexToUpdate === tileIndex
-            ? nextHeroCasePosition(position, tileIndex)
-            : position,
-        ),
-      )
-    })
-  }, [])
+  const advanceTile = React.useCallback(
+    (tileIndex: number) => {
+      React.startTransition(() => {
+        setActivePositions((positions) =>
+          positions.map((position, indexToUpdate) =>
+            indexToUpdate === tileIndex
+              ? (position + 1) % (heroCasePools[tileIndex]?.length ?? 1)
+              : position,
+          ),
+        )
+      })
+    },
+    [heroCasePools],
+  )
 
   const advanceAll = React.useCallback(() => {
     React.startTransition(() => {
-      setActivePositions((positions) => positions.map(nextHeroCasePosition))
+      setActivePositions((positions) =>
+        positions.map(
+          (position, tileIndex) =>
+            (position + 1) % (heroCasePools[tileIndex]?.length ?? 1),
+        ),
+      )
     })
-  }, [])
+  }, [heroCasePools])
 
-  if (!heroCases[0]) return null
+  const firstCase = heroCasePools[0]?.[0]
+  if (!firstCase) return null
 
-  const featuredCase = getHeroCase(0, activePositions[0] ?? 0) ?? heroCases[0]
+  const featuredCase = heroCasePools[0]?.[activePositions[0] ?? 0] ?? firstCase
 
   return (
     <section
@@ -127,6 +122,8 @@ export function CatalogChartsHero() {
     >
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-2">
         <HeroChartTile
+          artifactRevision={catalog.artifactRevision}
+          caseCount={heroCasePools[0]?.length ?? 1}
           featured
           tileIndex={0}
           catalogCase={featuredCase}
@@ -139,11 +136,13 @@ export function CatalogChartsHero() {
         {heroIntervals.slice(1).map((intervalMs, standardIndex) => {
           const tileIndex = standardIndex + 1
           const activeCase =
-            getHeroCase(tileIndex, activePositions[tileIndex] ?? 0) ??
-            heroCases[0]
+            heroCasePools[tileIndex]?.[activePositions[tileIndex] ?? 0] ??
+            firstCase
 
           return (
             <HeroChartTile
+              artifactRevision={catalog.artifactRevision}
+              caseCount={heroCasePools[tileIndex]?.length ?? 1}
               key={`standard-${tileIndex}`}
               tileIndex={tileIndex}
               catalogCase={activeCase}
@@ -195,6 +194,8 @@ export function CatalogChartsHero() {
 }
 
 function HeroChartTile({
+  artifactRevision,
+  caseCount,
   catalogCase,
   className,
   featured = false,
@@ -204,7 +205,9 @@ function HeroChartTile({
   running,
   tileIndex,
 }: {
-  catalogCase: HeroCatalogCase
+  artifactRevision: string
+  caseCount: number
+  catalogCase: CatalogCase
   className: string
   featured?: boolean
   intervalMs: number
@@ -217,7 +220,7 @@ function HeroChartTile({
     catalogCase,
   }))
   const [exitingChart, setExitingChart] = React.useState<HeroChart>()
-  const [hydratedCaseId, setHydratedCaseId] = React.useState<CatalogCaseId>()
+  const [hydratedCaseId, setHydratedCaseId] = React.useState<string>()
   const desiredCaseIdRef = React.useRef(catalogCase.id)
   desiredCaseIdRef.current = catalogCase.id
 
@@ -227,7 +230,7 @@ function HeroChartTile({
     if (
       !running ||
       exitingChart ||
-      heroCases.length < 2 ||
+      caseCount < 2 ||
       activeCaseId !== catalogCase.id ||
       hydratedCaseId !== activeCaseId
     ) {
@@ -238,6 +241,7 @@ function HeroChartTile({
     return () => window.clearTimeout(timeout)
   }, [
     activeCaseId,
+    caseCount,
     catalogCase.id,
     exitingChart,
     hydratedCaseId,
@@ -277,41 +281,37 @@ function HeroChartTile({
             {exitingChart ? (
               <>
                 <HeroChartFrame
-                  featured={featured}
+                  artifactRevision={artifactRevision}
                   key={exitingChart.catalogCase.id}
                   chart={exitingChart}
                   onHydrated={handleHydrated}
                   phase="exiting"
-                  tileIndex={tileIndex}
                 />
                 <HeroChartFrame
-                  featured={featured}
+                  artifactRevision={artifactRevision}
                   key={activeCase.id}
                   chart={activeChart}
                   onEntered={() => setExitingChart(undefined)}
                   onHydrated={handleHydrated}
                   phase="entering"
-                  tileIndex={tileIndex}
                 />
               </>
             ) : (
               <>
                 <HeroChartFrame
-                  featured={featured}
+                  artifactRevision={artifactRevision}
                   key={activeCase.id}
                   chart={activeChart}
                   onHydrated={handleHydrated}
                   phase="current"
-                  tileIndex={tileIndex}
                 />
                 {activeCase.id === catalogCase.id ? null : (
                   <HeroChartFrame
-                    featured={featured}
+                    artifactRevision={artifactRevision}
                     key={catalogCase.id}
                     chart={{ catalogCase }}
                     onHydrated={handleHydrated}
                     phase="pending"
-                    tileIndex={tileIndex}
                   />
                 )}
               </>
@@ -349,25 +349,27 @@ function HeroChartTile({
 }
 
 function HeroChartFrame({
+  artifactRevision,
   chart,
-  featured,
   onEntered,
   onHydrated,
   phase,
-  tileIndex,
 }: {
+  artifactRevision: string
   chart: HeroChart
-  featured: boolean
   onEntered?: () => void
   onHydrated: (chart: HeroChart) => void
   phase: HeroChartPhase
-  tileIndex: number
 }) {
   const { catalogCase } = chart
-  const handleHydrated = React.useCallback(
-    () => onHydrated(chart),
-    [chart, onHydrated],
-  )
+  const [ready, setReady] = React.useState(false)
+  const previewSrc = catalogCase.preview
+    ? getChartsCatalogPreviewUrl(artifactRevision, catalogCase.preview.path)
+    : `/images/charts/catalog/${catalogCase.id}.svg`
+  const handleHydrated = React.useCallback(() => {
+    setReady(true)
+    onHydrated(chart)
+  }, [chart, onHydrated])
   const handleTransitionComplete = (
     event: React.TransitionEvent<HTMLDivElement>,
   ) => {
@@ -388,22 +390,45 @@ function HeroChartFrame({
       onTransitionCancel={handleTransitionComplete}
       onTransitionEnd={handleTransitionComplete}
     >
-      <ChartsLandingCatalogChart
-        aspectRatio={featured ? 3 : 1.5}
-        caseId={catalogCase.id}
-        idPrefix={`charts-landing-hero-${featured ? 'featured' : 'standard'}-${tileIndex}-${catalogCase.id}`}
-        initialWidth={featured ? 672 : 480}
-        interactive={false}
-        onHydrated={handleHydrated}
-        preview
+      <img
+        alt=""
+        className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 motion-reduce:transition-none ${
+          ready ? 'opacity-0' : 'opacity-100'
+        }`}
+        height={192}
+        src={previewSrc}
+        width={288}
       />
+      <div
+        className={`absolute inset-0 transition-opacity duration-300 motion-reduce:transition-none ${
+          ready ? 'opacity-100' : 'opacity-0'
+        }`}
+      >
+        <ChartsCatalogChart
+          artifactRevision={artifactRevision}
+          caseId={catalogCase.id}
+          fill
+          interactive={false}
+          module={catalogCase.module}
+          onStatus={(status) => {
+            if (status === 'ready') handleHydrated()
+          }}
+          preview
+        />
+      </div>
     </div>
   )
 }
 
-export function ChartsCatalogGallery({ orderSeed }: { orderSeed: string }) {
+export function ChartsCatalogGallery({
+  catalog,
+  orderSeed,
+}: {
+  catalog: ChartsLandingCatalog
+  orderSeed: string
+}) {
   const shuffledCases = shuffleWithSeed(
-    orderedCases,
+    [...catalog.cases].sort(compareCatalogCases),
     orderSeed,
     (catalogCase) => catalogCase.id,
   )
@@ -415,7 +440,14 @@ export function ChartsCatalogGallery({ orderSeed }: { orderSeed: string }) {
           <CatalogChartCard
             key={catalogCase.id}
             catalogCase={catalogCase}
-            src={`/images/charts/catalog/${catalogCase.id}.svg?v=${chartsLandingCatalogAssetRevision}`}
+            src={
+              catalogCase.preview
+                ? getChartsCatalogPreviewUrl(
+                    catalog.artifactRevision,
+                    catalogCase.preview.path,
+                  )
+                : `/images/charts/catalog/${catalogCase.id}.svg`
+            }
           />
         ))}
       </div>
@@ -428,7 +460,7 @@ function CatalogChartCard({
   src,
 }: {
   catalogCase: CatalogCase
-  src: string
+  src?: string
 }) {
   return (
     <div className="charts-catalog-gallery-card charts-catalog-card group relative block snap-start overflow-hidden rounded-xl shadow-[0_16px_35px_-26px_rgb(3_18_25/0.65)] transition-[translate,box-shadow] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 hover:shadow-[0_20px_40px_-24px_rgb(3_18_25/0.75)] motion-reduce:transition-none">
@@ -437,15 +469,17 @@ function CatalogChartCard({
         className="relative aspect-[3/2] overflow-hidden"
         inert
       >
-        <img
-          alt=""
-          className="h-full w-full"
-          decoding="async"
-          height={192}
-          loading="lazy"
-          src={src}
-          width={288}
-        />
+        {src ? (
+          <img
+            alt=""
+            className="h-full w-full"
+            decoding="async"
+            height={192}
+            loading="lazy"
+            src={src}
+            width={288}
+          />
+        ) : null}
       </div>
       <div className="flex min-h-14 items-center justify-between gap-3 px-4 py-2.5">
         <div className="min-w-0">
@@ -475,16 +509,6 @@ function CatalogChartCard({
 
 function compareCatalogCases(left: CatalogCase, right: CatalogCase) {
   return left.order - right.order
-}
-
-function getHeroCase(tileIndex: number, position: number) {
-  const caseIndex = heroCaseIndicesByTile[tileIndex]?.[position]
-  return caseIndex === undefined ? undefined : heroCases[caseIndex]
-}
-
-function nextHeroCasePosition(position: number, tileIndex: number) {
-  const caseCount = heroCaseIndicesByTile[tileIndex]?.length ?? 1
-  return (position + 1) % caseCount
 }
 
 function useHeroLayout() {

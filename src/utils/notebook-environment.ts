@@ -1,6 +1,6 @@
 export const notebookImports = {
-  '@tanstack/charts': 'https://esm.sh/@tanstack/charts@0.6.5',
-  '@tanstack/charts/': 'https://esm.sh/@tanstack/charts@0.6.5/',
+  '@tanstack/charts': 'https://esm.sh/@tanstack/charts@0.7.2',
+  '@tanstack/charts/': 'https://esm.sh/@tanstack/charts@0.7.2/',
   '@tanstack/charts-data/':
     'https://esm.sh/gh/TanStack/charts@b8690671d677244848cff0eebd3d5dd0d5825b18/packages/charts-demo-data/src/',
   '@tanstack/highlight': 'https://esm.sh/@tanstack/highlight@0.0.9',
@@ -8,7 +8,7 @@ export const notebookImports = {
   '@tanstack/markdown': 'https://esm.sh/@tanstack/markdown@0.0.11',
   '@tanstack/pacer': 'https://esm.sh/@tanstack/pacer@0.21.1',
   '@tanstack/react-charts':
-    'https://esm.sh/@tanstack/react-charts@0.6.5?external=react',
+    'https://esm.sh/@tanstack/react-charts@0.7.2?external=react',
   '@tanstack/react-pacer':
     'https://esm.sh/@tanstack/react-pacer@0.22.1?external=react',
   '@tanstack/react-query':
@@ -79,8 +79,22 @@ export const notebookThemeRules = [
 export const notebookTips = [
   'Render inside the provided output element. Do not replace document.body.',
   'Make the result responsive to its container. ResizeObserver is available for charts, canvas, and WebGL scenes.',
-  'Keep data and code in the single module when possible. Shared URLs carry the entire source in the fragment.',
+  'Use one file for small modules. Use a workspace when separate components, styles, data, assets, or a custom document make the example clearer.',
   'Use console output for diagnostics that should remain available without opening browser developer tools.',
+]
+
+export const exampleWorkspaceRules = [
+  'A workspace is JSON with version 1, an absolute entry path, a files object keyed by canonical absolute paths, and an optional imports object.',
+  'The entry module executes in the browser. TypeScript and JSX are transformed by esbuild-wasm but are not type-checked.',
+  'Relative imports resolve inside files. CSS and JSON imports are bundled. Browser-safe image and font imports become data URLs.',
+  'Bare dependencies in /package.json resolve through esm.sh. Explicit workspace imports override both package.json and the built-in aliases.',
+  'Add /index.html only when the example needs a custom document. The runtime injects its import map, compiled CSS, module, console bridge, theme bridge, and resize bridge.',
+]
+
+export const liveDocsRules = [
+  'A live documentation example is a consecutive group of fenced code blocks with the same live identifier.',
+  'Every fence must include an explicit canonical absolute file path. The first fence is the entry file.',
+  'The static highlighted fences are rendered on the server. The editor and esbuild runtime load only after the reader selects Run.',
 ]
 
 export const notebookStarterSource = `import { useState } from 'react'
@@ -104,13 +118,15 @@ export function generateNotebookLlmsTxt() {
   const lines = [
     '# TanStack Notebook',
     '',
-    '> Author and share one-file client-side TypeScript and JSX modules at https://tanstack.com/notebook.',
+    '> Author, run, edit, and share browser-only JavaScript, TypeScript, JSX, and TSX projects at https://tanstack.com/notebook.',
     '',
-    '## Module contract',
+    '## One-file compatibility mode',
+    '',
+    'Existing `#code=` notebook links use this contract:',
     '',
     ...notebookModuleRules.map((rule) => `- ${rule}`),
     '',
-    '## Starter TSX module',
+    '### Starter TSX module',
     '',
     '```tsx',
     notebookStarterSource,
@@ -128,19 +144,61 @@ export function generateNotebookLlmsTxt() {
     '',
     ...notebookEnvironmentRules.map((rule) => `- ${rule}`),
     '',
+    '## Multi-file workspace contract',
+    '',
+    ...exampleWorkspaceRules.map((rule) => `- ${rule}`),
+    '',
+    '```json',
+    JSON.stringify(
+      {
+        version: 1,
+        entry: '/src/main.tsx',
+        files: {
+          '/src/main.tsx': "import { App } from './App'\n// mount App",
+          '/src/App.tsx': 'export function App() { return <h1>Hello</h1> }',
+        },
+        imports: {
+          react: 'https://esm.sh/react@19.2.3',
+        },
+      },
+      null,
+      2,
+    ),
+    '```',
+    '',
+    '## Live documentation fences',
+    '',
+    ...liveDocsRules.map((rule) => `- ${rule}`),
+    '',
+    '````md',
+    '```tsx live=counter file=/src/main.tsx',
+    '// entry source',
+    '```',
+    '',
+    '```tsx live=counter file=/src/App.tsx',
+    '// imported source',
+    '```',
+    '````',
+    '',
     '## Theme',
     '',
     ...notebookThemeRules.map((rule) => `- ${rule}`),
     '',
     '## Sharing protocol',
     '',
-    'A notebook URL has this form:',
+    'The original one-file notebook URL remains supported:',
     '',
     '`https://tanstack.com/notebook?title=<title>&description=<description>#code=<source>`',
     '',
-    'To produce `<source>`, UTF-8 encode the TSX module, gzip the bytes, encode them as base64url, and omit `=` padding. To read a shared notebook, reverse those steps. URL fragments are not sent to the HTTP server, so agents must decode `#code` from the supplied URL locally.',
+    'To produce `<source>`, UTF-8 encode the TSX module, gzip the bytes, encode them as base64url, and omit `=` padding.',
     '',
-    'The editor debounces source changes into the current URL. `?view=code` only controls whether the code panel is visible.',
+    'Small multi-file projects use `https://tanstack.com/notebook#project=<project>`. The decoded JSON and the large-project POST body are exactly `{ "version": 1, "title": string, "description": string, "workspace": <workspace> }`. Encode and decode it with the same UTF-8, gzip, and unpadded base64url process.',
+    '',
+    'URL fragments are not sent to the HTTP server. Agents given a `#code` or `#project` URL must decode the fragment locally.',
+    '',
+    'Large projects use `https://tanstack.com/notebook/p/<sha256>`. Read their canonical JSON without executing it at `GET https://tanstack.com/api/notebook/projects/<sha256>`. Reads are public and unlisted. Writes are immutable, authenticated, same-origin, and rate-limited through `POST https://tanstack.com/api/notebook/projects`.',
+    '',
+    'Git remains canonical for documentation and catalog examples. Shared URLs are immutable forks and one-off projects.',
     '',
     '## Tips',
     '',

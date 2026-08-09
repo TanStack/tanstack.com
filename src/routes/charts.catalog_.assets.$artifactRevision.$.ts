@@ -58,17 +58,12 @@ export async function serveCatalogAsset({
     throw error
   }
 
-  const descriptor = manifest.assets[asset.repoPath]
-  if (!descriptor) {
-    return createCatalogAssetNotFoundResponse(request.method)
-  }
-
   let source: string
   try {
     source = await getVerifiedChartsCatalogAssetSource(
       params.artifactRevision,
       asset.repoPath,
-      descriptor,
+      asset.descriptor,
     )
   } catch (error) {
     return handleCatalogAssetError(
@@ -81,7 +76,7 @@ export async function serveCatalogAsset({
   return new Response(request.method === 'HEAD' ? null : source, {
     headers: {
       ...asset.headers,
-      'Content-Length': String(descriptor.bytes),
+      'Content-Length': String(asset.descriptor.bytes),
     },
   })
 }

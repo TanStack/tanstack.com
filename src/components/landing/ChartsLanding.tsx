@@ -1,4 +1,5 @@
 import { CodeBlock } from '~/components/markdown/CodeBlock'
+import type { getChartsCatalogLanding } from '~/utils/charts-catalog.functions'
 
 import activationChartSource from '../../../scripts/charts-landing/activation-chart.ts?raw'
 import { LandingSection, LibraryLandingShell } from './LibraryLanding'
@@ -14,8 +15,10 @@ const chartsReleaseVersion = '0.7.2'
 const chartPrompt = `Using TanStack Charts and the accounts array in this project, plot monthlyRevenue on x and retention on y. Size each point by seats with an explicit square-root radius scale, color it by segment, and preserve the original Account rows for typed tooltip and focus callbacks. Use the compact linear scale from @tanstack/charts-scales/linear so TanStack Charts can infer the domains, add the tooltip behavior from @tanstack/charts/tooltip, and render it through the React adapter with a useful ariaLabel.`
 
 export default function ChartsLanding({
+  catalog,
   catalogOrderSeed,
 }: {
+  catalog: Awaited<ReturnType<typeof getChartsCatalogLanding>>
   catalogOrderSeed: string
 }) {
   return (
@@ -34,7 +37,7 @@ export default function ChartsLanding({
         </>
       }
       headline="A chart grammar you don't have to outgrow."
-      hero={<CatalogChartsHero />}
+      hero={<CatalogChartsHero catalog={catalog} />}
       libraryId="charts"
       prompt={chartPrompt}
       promptLabel="Copy Charts prompt"
@@ -51,7 +54,7 @@ export default function ChartsLanding({
             All mark, no chart.
           </h2>
         </div>
-        <ChartsCatalogGallery orderSeed={catalogOrderSeed} />
+        <ChartsCatalogGallery catalog={catalog} orderSeed={catalogOrderSeed} />
       </LandingSection>
 
       <LandingSection id="agent-authoring" tone="ink">

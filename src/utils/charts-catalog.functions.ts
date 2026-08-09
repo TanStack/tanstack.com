@@ -43,6 +43,24 @@ export const getChartsCatalogAll = createServerFn({ method: 'GET' })
     }
   })
 
+export const getChartsCatalogLanding = createServerFn({
+  method: 'GET',
+}).handler(async () => {
+  const publication = await loadPublication()
+  setCatalogResponseHeaders()
+  return {
+    artifactRevision: publication.artifactRevision,
+    cases: publication.manifest.cases.map((catalogCase) => ({
+      id: catalogCase.id,
+      family: catalogCase.family,
+      order: catalogCase.order,
+      title: catalogCase.title,
+      module: catalogCase.modules.tanstack,
+      preview: 'preview' in catalogCase ? catalogCase.preview : undefined,
+    })),
+  }
+})
+
 export const getChartsCatalogCase = createServerFn({ method: 'GET' })
   .validator(caseInputSchema)
   .handler(async ({ data }) => {
@@ -52,9 +70,11 @@ export const getChartsCatalogCase = createServerFn({ method: 'GET' })
     )
     if (!catalogCase) return null
 
-    const { getChartsCatalogAuthoredSource } =
-      await import('./charts-catalog.server')
-    const [tanstackSource, comparisonSource] = await Promise.all([
+    const {
+      getChartsCatalogAuthoredSource,
+      getChartsCatalogExampleDefinition,
+    } = await import('./charts-catalog.server')
+    const [tanstackSource, comparisonSource, example] = await Promise.all([
       getChartsCatalogAuthoredSource(
         publication.manifest,
         catalogCase.id,
@@ -67,6 +87,7 @@ export const getChartsCatalogCase = createServerFn({ method: 'GET' })
             'reference',
           )
         : Promise.resolve(undefined),
+      getChartsCatalogExampleDefinition(publication.manifest, catalogCase.id),
     ])
 
     setCatalogResponseHeaders()
@@ -82,6 +103,7 @@ export const getChartsCatalogCase = createServerFn({ method: 'GET' })
           tanstack: tanstackSource,
           ...(comparisonSource ? { comparison: comparisonSource } : {}),
         },
+        example,
       },
     }
   })

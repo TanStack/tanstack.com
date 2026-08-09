@@ -406,7 +406,7 @@ export const form: LibrarySlim = {
   frameworks: ['react', 'preact', 'vue', 'angular', 'solid', 'lit', 'svelte'],
   latestVersion: 'v1',
   latestBranch: 'main',
-  availableVersions: ['v1'],
+  availableVersions: ['v1', 'alpha'],
   scarfId: '72ec4452-5d77-427c-b44a-57515d2d83aa',
   sitemap: {
     includeLandingPage: true,

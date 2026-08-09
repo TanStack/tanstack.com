@@ -12,20 +12,6 @@ export type ChartsCatalogEmbed = {
 export type ChartsCatalogEmbedTheme = 'system' | 'light' | 'dark'
 export type ChartsCatalogEmbedSource = 'hidden' | 'collapsed' | 'expanded'
 
-export type ChartsCatalogEmbedLoaderDeps = {
-  height: number
-  revision: number
-  source: ChartsCatalogEmbedSource
-  theme: ChartsCatalogEmbedTheme
-}
-
-export type ChartsCatalogEmbedRouteSearch = {
-  height?: string | number | Array<string | number>
-  revision?: string | number | Array<string | number>
-  source?: string | number | Array<string | number>
-  theme?: string | number | Array<string | number>
-}
-
 export function parseChartsCatalogExampleAttributes(value: unknown) {
   if (
     !isRecord(value) ||
@@ -116,55 +102,6 @@ export function isChartsCatalogEmbedTheme(
   return value === 'system' || value === 'light' || value === 'dark'
 }
 
-export function parseChartsCatalogEmbedInteger(
-  value: unknown,
-  fallback: number,
-  minimum: number,
-  maximum: number,
-) {
-  if (
-    typeof value === 'number' &&
-    Number.isSafeInteger(value) &&
-    value >= minimum &&
-    value <= maximum
-  ) {
-    return value
-  }
-  if (typeof value !== 'string' || !isBoundedInteger(value, minimum, maximum)) {
-    return fallback
-  }
-  return Number(value)
-}
-
-export function validateChartsCatalogEmbedRouteSearch(
-  search: Record<string, unknown>,
-): ChartsCatalogEmbedRouteSearch {
-  const height = getChartsCatalogEmbedRouteSearchValue(search.height)
-  const revision = getChartsCatalogEmbedRouteSearchValue(search.revision)
-  const source = getChartsCatalogEmbedRouteSearchValue(search.source)
-  const theme = getChartsCatalogEmbedRouteSearchValue(search.theme)
-
-  return {
-    ...(height === undefined ? {} : { height }),
-    ...(revision === undefined ? {} : { revision }),
-    ...(source === undefined ? {} : { source }),
-    ...(theme === undefined ? {} : { theme }),
-  }
-}
-
-export function parseChartsCatalogEmbedRouteSearch(
-  search: ChartsCatalogEmbedRouteSearch,
-): ChartsCatalogEmbedLoaderDeps {
-  return {
-    height: parseChartsCatalogEmbedInteger(search.height, 480, 120, 1_200),
-    revision: parseChartsCatalogEmbedInteger(search.revision, 0, 0, 10_000),
-    source: isChartsCatalogEmbedSource(search.source)
-      ? search.source
-      : 'hidden',
-    theme: isChartsCatalogEmbedTheme(search.theme) ? search.theme : 'system',
-  }
-}
-
 export function withChartsCatalogEmbedSource(
   source: string,
   sourceMode: ChartsCatalogEmbedSource,
@@ -249,20 +186,6 @@ function isBoundedInteger(value: string, minimum: number, maximum: number) {
   if (!/^\d+$/.test(value)) return false
   const number = Number(value)
   return Number.isSafeInteger(number) && number >= minimum && number <= maximum
-}
-
-function getChartsCatalogEmbedRouteSearchValue(value: unknown) {
-  if (typeof value === 'string' || typeof value === 'number') return value
-  if (
-    Array.isArray(value) &&
-    value.every(
-      (entry): entry is string | number =>
-        typeof entry === 'string' || typeof entry === 'number',
-    )
-  ) {
-    return value
-  }
-  return undefined
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { PlayIcon } from '@phosphor-icons/react'
+import { ClientOnly } from '@tanstack/react-router'
 import { Button } from '~/components/ds/ui'
 import { parseExampleWorkspace } from '~/utils/example-workspace'
 
@@ -37,9 +38,11 @@ export function LiveExample({
 
   if (active) {
     return (
-      <React.Suspense fallback={<StaticFiles>{children}</StaticFiles>}>
-        <LazyExampleWorkbench definition={definition} className="my-5" />
-      </React.Suspense>
+      <ClientOnly fallback={<StaticFiles>{children}</StaticFiles>}>
+        <React.Suspense fallback={<StaticFiles>{children}</StaticFiles>}>
+          <LazyExampleWorkbench definition={definition} className="my-5" />
+        </React.Suspense>
+      </ClientOnly>
     )
   }
 

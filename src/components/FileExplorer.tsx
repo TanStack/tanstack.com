@@ -228,9 +228,7 @@ export function FileExplorer({
           width: isSidebarOpen ? sidebarWidth : 0,
           paddingRight: isSidebarOpen ? '0.5rem' : 0,
         }}
-        className={`shrink-0 overflow-y-auto bg-linear-to-r from-gray-50 via-gray-50 to-transparent dark:from-gray-800/50 dark:via-gray-800/50 dark:to-transparent shadow-sm ${
-          isResizing ? '' : 'transition-all duration-300'
-        }`}
+        className="shrink-0 overflow-y-auto bg-linear-to-r from-gray-50 via-gray-50 to-transparent shadow-sm dark:from-gray-800/50 dark:via-gray-800/50 dark:to-transparent"
       >
         {files && isSidebarOpen ? (
           <div className="p-2">

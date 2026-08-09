@@ -1,6 +1,8 @@
 export const notebookImports = {
   '@tanstack/charts': 'https://esm.sh/@tanstack/charts@0.7.2',
   '@tanstack/charts/': 'https://esm.sh/@tanstack/charts@0.7.2/',
+  '@tanstack/charts-scales': 'https://esm.sh/@tanstack/charts-scales@0.7.2',
+  '@tanstack/charts-scales/': 'https://esm.sh/@tanstack/charts-scales@0.7.2/',
   '@tanstack/charts-data/':
     'https://esm.sh/gh/TanStack/charts@b8690671d677244848cff0eebd3d5dd0d5825b18/packages/charts-demo-data/src/',
   '@tanstack/highlight': 'https://esm.sh/@tanstack/highlight@0.0.9',
@@ -40,6 +42,7 @@ export const notebookImportAliases = [
   describeImport('react', 'React 19.2.3'),
   describeImport('react-dom/client', 'React DOM root API'),
   describeImport('@tanstack/charts', 'TanStack Charts core'),
+  describeImport('@tanstack/charts-scales', 'TanStack Charts scales'),
   describeImport('@tanstack/react-charts', 'TanStack Charts React bindings'),
   describeImport(
     '@tanstack/charts-data/',
@@ -88,12 +91,12 @@ export const exampleWorkspaceRules = [
   'The entry module executes in the browser. TypeScript and JSX are transformed by esbuild-wasm but are not type-checked.',
   'Relative imports resolve inside files. CSS and JSON imports are bundled. Browser-safe image and font imports become data URLs.',
   'Bare dependencies in /package.json resolve through esm.sh. Explicit workspace imports override both package.json and the built-in aliases.',
-  'Add /index.html only when the example needs a custom document. The runtime injects its import map, compiled CSS, module, console bridge, theme bridge, and resize bridge.',
+  'Add /index.html only when the example needs a custom document. The runtime injects its import map, compiled CSS, module, console bridge, and theme bridge.',
 ]
 
 export const liveDocsRules = [
   'A live documentation example is a consecutive group of fenced code blocks with the same live identifier.',
-  'Every fence must include an explicit canonical absolute file path. The first fence is the entry file.',
+  'Every fence must include an explicit canonical absolute file path. The first fence is the entry unless the group declares entry=/path.',
   'The static highlighted fences are rendered on the server. The editor and esbuild runtime load only after the reader selects Run.',
 ]
 

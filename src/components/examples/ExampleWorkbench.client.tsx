@@ -7,6 +7,7 @@ import {
 } from '@phosphor-icons/react'
 import { ButtonGroup } from '~/components/ButtonGroup'
 import { FileExplorer, type FileExplorerNode } from '~/components/FileExplorer'
+import { useTheme } from '~/components/ThemeProvider'
 import { Button } from '~/components/ds/ui'
 import { copyTextToClipboard } from '~/utils/browser-effects'
 import { compileExampleWorkspace } from '~/utils/example-esbuild.client'
@@ -32,6 +33,7 @@ type ConsoleEntry = {
   level: ExampleConsoleLevel
   values: Array<string>
 }
+type MobileView = 'code' | 'preview'
 
 export function ExampleWorkbench({
   autoRun = true,
@@ -44,13 +46,15 @@ export function ExampleWorkbench({
   definition: ExampleDefinition
   onWorkspaceChange?: (workspace: ExampleWorkspace) => void
 }) {
+  const { resolvedTheme } = useTheme()
   const [workspace, setWorkspace] = React.useState(() =>
     cloneWorkspace(definition.workspace),
   )
   const [activePath, setActivePath] = React.useState(() =>
     getInitialFile(definition, workspace),
   )
-  const [showFiles, setShowFiles] = React.useState(true)
+  const [mobileView, setMobileView] = React.useState<MobileView>('preview')
+  const [showFiles, setShowFiles] = React.useState(false)
   const [showConsole, setShowConsole] = React.useState(false)
   const [status, setStatus] = React.useState<WorkbenchStatus>('idle')
   const [error, setError] = React.useState('')
@@ -58,7 +62,6 @@ export function ExampleWorkbench({
     Array<ConsoleEntry>
   >([])
   const [sourceDocument, setSourceDocument] = React.useState('')
-  const [frameHeight, setFrameHeight] = React.useState<number>()
   const [shareState, setShareState] = React.useState<
     'idle' | 'sharing' | 'copied'
   >('idle')
@@ -81,7 +84,6 @@ export function ExampleWorkbench({
     nextConsoleIdRef.current = 0
     setConsoleEntries([])
     setError('')
-    setFrameHeight(undefined)
     setStatus('compiling')
 
     try {
@@ -135,11 +137,6 @@ export function ExampleWorkbench({
         return
       }
 
-      if (message.kind === 'height') {
-        setFrameHeight(message.height)
-        return
-      }
-
       if (message.kind === 'theme-request') {
         syncTheme()
         return
@@ -154,6 +151,7 @@ export function ExampleWorkbench({
   }, [syncTheme])
 
   React.useEffect(() => {
+    syncTheme()
     const observer = new MutationObserver(syncTheme)
     observer.observe(document.documentElement, {
       attributes: true,
@@ -172,6 +170,23 @@ export function ExampleWorkbench({
       onWorkspaceChange?.(next)
       return next
     })
+  }
+
+  function selectFile(path: string) {
+    setActivePath(path)
+    if (!window.matchMedia('(min-width: 1024px)').matches) {
+      setShowFiles(false)
+    }
+  }
+
+  function toggleFiles() {
+    setMobileView('code')
+    setShowFiles((open) => !open)
+  }
+
+  function toggleConsole() {
+    setMobileView('preview')
+    setShowConsole((open) => !open)
   }
 
   async function share() {
@@ -203,7 +218,7 @@ export function ExampleWorkbench({
 
   return (
     <section
-      className={`not-prose flex min-h-[680px] flex-col overflow-hidden rounded-lg border border-border-default bg-background-default text-text-primary ${className ?? ''}`}
+      className={`not-prose flex h-[clamp(520px,75dvh,720px)] min-w-0 flex-col overflow-hidden rounded-lg border border-border-default bg-background-default text-text-primary ${className ?? ''}`}
       aria-label={`${definition.title} workbench`}
     >
       <header className="flex min-h-10 shrink-0 items-center justify-between gap-3 border-b border-border-default px-2">
@@ -238,7 +253,7 @@ export function ExampleWorkbench({
               rounded="none"
               aria-pressed={showFiles}
               aria-label={showFiles ? 'Hide files' : 'Show files'}
-              onClick={() => setShowFiles((open) => !open)}
+              onClick={toggleFiles}
             >
               <FolderOpenIcon className="size-3.5" aria-hidden="true" />
               <span className="hidden sm:inline">Files</span>
@@ -250,7 +265,7 @@ export function ExampleWorkbench({
               rounded="none"
               aria-pressed={showConsole}
               aria-label={showConsole ? 'Hide console' : 'Show console'}
-              onClick={() => setShowConsole((open) => !open)}
+              onClick={toggleConsole}
             >
               <TerminalWindowIcon className="size-3.5" aria-hidden="true" />
               <span className="hidden sm:inline">Console</span>
@@ -269,37 +284,71 @@ export function ExampleWorkbench({
         </div>
       </header>
 
-      <div className="grid min-h-0 flex-1 lg:grid-cols-2">
-        <section className="flex min-h-0 border-b border-border-default lg:border-r lg:border-b-0">
-          <FileExplorer
-            currentPath={activePath}
-            files={fileTree}
-            isSidebarOpen={showFiles}
-            libraryColor="bg-emerald-500"
-            prefetchFileContent={() => {}}
-            setCurrentPath={setActivePath}
-          />
-          <div className="flex min-w-0 flex-1 flex-col bg-gray-950">
-            <div className="fade-x flex min-h-9 shrink-0 overflow-x-auto border-b border-gray-800">
+      <div className="shrink-0 border-b border-border-default p-1 lg:hidden">
+        <ButtonGroup className="flex w-full shadow-none">
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            rounded="none"
+            className="flex-1 justify-center"
+            aria-pressed={mobileView === 'preview'}
+            onClick={() => setMobileView('preview')}
+          >
+            Preview
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            rounded="none"
+            className="flex-1 justify-center"
+            aria-pressed={mobileView === 'code'}
+            onClick={() => setMobileView('code')}
+          >
+            Code
+          </Button>
+        </ButtonGroup>
+      </div>
+
+      <div className="grid min-h-0 min-w-0 flex-1 grid-cols-1 lg:grid-cols-2">
+        <section
+          className={`${mobileView === 'code' ? 'flex' : 'hidden'} relative min-h-0 min-w-0 overflow-hidden lg:flex lg:border-r lg:border-border-default`}
+        >
+          <div
+            className={`${showFiles ? 'border-r border-border-default shadow-lg' : ''} absolute inset-y-0 left-0 z-20 flex max-w-[80%] overflow-hidden bg-background-default lg:static lg:z-auto lg:max-w-none lg:border-r-0 lg:shadow-none`}
+          >
+            <FileExplorer
+              currentPath={activePath}
+              files={fileTree}
+              isSidebarOpen={showFiles}
+              libraryColor="bg-emerald-500"
+              prefetchFileContent={() => {}}
+              setCurrentPath={selectFile}
+            />
+          </div>
+          <div className="flex min-w-0 flex-1 flex-col bg-[var(--th-background)]">
+            <div className="fade-x flex min-h-9 shrink-0 overflow-x-auto border-b border-border-default bg-background-subtle">
               {filePaths.map((path) => (
                 <button
                   key={path}
                   type="button"
                   title={path}
                   onClick={() => setActivePath(path)}
-                  className={`shrink-0 border-r border-gray-800 px-3 font-mono text-xs ${
+                  className={`shrink-0 border-r border-border-default px-3 font-ds-mono text-xs ${
                     activePath === path
-                      ? 'bg-gray-900 text-gray-100'
-                      : 'text-gray-500 hover:bg-gray-900/60 hover:text-gray-300'
+                      ? 'bg-background-default text-text-primary'
+                      : 'text-text-muted hover:bg-background-elevated hover:text-text-secondary'
                   }`}
                 >
                   {path.split('/').pop()}
                 </button>
               ))}
             </div>
-            <div className="min-h-[400px] flex-1">
+            <div className="min-h-0 flex-1">
               <CodeMirrorEditor
                 path={activePath}
+                theme={resolvedTheme}
                 value={activeSource}
                 onChange={updateActiveSource}
                 onRun={() => void run()}
@@ -309,9 +358,9 @@ export function ExampleWorkbench({
         </section>
 
         <section
-          className={`grid min-h-0 ${showConsole ? 'grid-rows-[minmax(400px,1fr)_minmax(120px,180px)]' : 'grid-rows-1'}`}
+          className={`${mobileView === 'preview' ? 'grid' : 'hidden'} min-h-0 min-w-0 bg-background-default lg:grid ${showConsole ? 'grid-rows-[minmax(0,1fr)_minmax(100px,28%)]' : 'grid-rows-1'}`}
         >
-          <div className="min-h-[400px] overflow-auto bg-white dark:bg-gray-950">
+          <div className="min-h-0 overflow-hidden bg-background-default">
             {sourceDocument ? (
               <iframe
                 ref={frameRef}
@@ -319,12 +368,7 @@ export function ExampleWorkbench({
                 sandbox="allow-scripts"
                 srcDoc={sourceDocument}
                 onLoad={syncTheme}
-                style={
-                  frameHeight === undefined
-                    ? undefined
-                    : { height: frameHeight }
-                }
-                className="block min-h-full w-full border-0 bg-white dark:bg-gray-950"
+                className="block size-full border-0 bg-background-default"
               />
             ) : null}
           </div>
@@ -332,7 +376,7 @@ export function ExampleWorkbench({
             <div
               role="log"
               aria-label="Console output"
-              className="overflow-auto border-t border-gray-800 bg-gray-950 p-3 font-mono text-xs leading-5 text-gray-200"
+              className="overflow-auto border-t border-border-default bg-[var(--th-background)] p-3 font-ds-mono text-xs leading-5 text-[var(--th-token)]"
             >
               {consoleEntries.length ? (
                 consoleEntries.map((entry) => (
@@ -345,7 +389,7 @@ export function ExampleWorkbench({
                   </div>
                 ))
               ) : (
-                <span className="text-gray-500">No console output</span>
+                <span className="text-text-muted">No console output</span>
               )}
             </div>
           ) : null}
@@ -353,7 +397,7 @@ export function ExampleWorkbench({
       </div>
 
       {error ? (
-        <pre className="max-h-32 overflow-auto border-t border-red-500/20 bg-red-950 p-3 font-mono text-xs whitespace-pre-wrap text-red-300">
+        <pre className="max-h-32 overflow-auto border-t border-border-error bg-status-error-bg p-3 font-ds-mono text-xs whitespace-pre-wrap text-text-error">
           {error}
         </pre>
       ) : null}
@@ -405,13 +449,13 @@ function getStatusLabel(status: WorkbenchStatus) {
 function getConsoleColor(level: ExampleConsoleLevel) {
   switch (level) {
     case 'error':
-      return 'text-red-400'
+      return 'text-text-error'
     case 'warn':
-      return 'text-amber-300'
+      return 'text-text-warning'
     case 'info':
-      return 'text-blue-300'
+      return 'text-text-info'
     case 'debug':
-      return 'text-gray-500'
+      return 'text-text-muted'
     case 'log':
       return ''
   }

@@ -33,6 +33,12 @@ importers:
       '@codemirror/lang-json':
         specifier: ^6.0.2
         version: 6.0.2
+      '@codemirror/language':
+        specifier: ^6.12.4
+        version: 6.12.4
+      '@codemirror/state':
+        specifier: ^6.7.1
+        version: 6.7.1
       '@fingerprintjs/fingerprintjs-pro-react':
         specifier: ^2.7.1
         version: 2.7.1
@@ -42,6 +48,9 @@ importers:
       '@kapaai/react-sdk':
         specifier: ^0.9.10
         version: 0.9.10(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@lezer/highlight':
+        specifier: ^1.2.3
+        version: 1.2.3
       '@modelcontextprotocol/sdk':
         specifier: ^1.29.0
         version: 1.29.0(zod@4.3.6)

@@ -91,17 +91,24 @@ function readLiveCode(block: BlockNode | undefined) {
   if (block?.type !== 'code' || !block.meta) return undefined
 
   const attributes = parseAttributes(block.meta)
+  const entry = attributes.entry
   const id = attributes.live
   const file = attributes.file
 
   if (!id || !/^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/.test(id)) return undefined
   if (!file || !isCanonicalExamplePath(file)) return undefined
+  if (entry && !isCanonicalExamplePath(entry)) return undefined
 
-  return { file, id, node: block }
+  return { entry, file, id, node: block }
 }
 
 function createLiveComponent(
-  group: Array<{ file: string; id: string; node: CodeBlockNode }>,
+  group: Array<{
+    entry: string | undefined
+    file: string
+    id: string
+    node: CodeBlockNode
+  }>,
 ): ComponentNode | undefined {
   const files: Record<string, string> = {}
 
@@ -113,7 +120,15 @@ function createLiveComponent(
   const first = group[0]
   if (!first) return undefined
 
-  const workspace = createExampleWorkspace({ entry: first.file, files })
+  const explicitEntries = group.flatMap(({ entry }) =>
+    entry === undefined ? [] : [entry],
+  )
+  if (new Set(explicitEntries).size > 1) return undefined
+
+  const entry = explicitEntries[0] ?? first.file
+  if (files[entry] === undefined) return undefined
+
+  const workspace = createExampleWorkspace({ entry, files })
 
   return {
     type: 'component',

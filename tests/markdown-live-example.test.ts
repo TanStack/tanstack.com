@@ -57,6 +57,33 @@ export function App() { return <button>Count</button> }
   ])
 })
 
+test('supports a visible source file before an explicit entry file', () => {
+  const document =
+    parseSiteMarkdown(`\`\`\`tsx live=letter-frequency file=/src/LetterFrequencyChart.tsx entry=/src/main.tsx
+import { Chart } from '@tanstack/react-charts'
+
+export function LetterFrequencyChart() {
+  return <Chart definition={letterFrequencyChart} height={320} />
+}
+\`\`\`
+
+\`\`\`tsx live=letter-frequency file=/src/main.tsx
+import { createRoot } from 'react-dom/client'
+import { LetterFrequencyChart } from './LetterFrequencyChart'
+
+createRoot(document.getElementById('root')!).render(<LetterFrequencyChart />)
+\`\`\``)
+
+  const component = requireComponent(document.children[0])
+  const workspace = readWorkspace(component)
+
+  assert.equal(workspace.entry, '/src/main.tsx')
+  assert.deepEqual(Object.keys(workspace.files).sort(), [
+    '/src/LetterFrequencyChart.tsx',
+    '/src/main.tsx',
+  ])
+})
+
 test('keeps separate live groups and ordinary blocks separate', () => {
   const document = parseSiteMarkdown(`\`\`\`tsx live=first file=/main.tsx
 console.log('first')
@@ -147,6 +174,7 @@ test('invalid live metadata fails open to static code', () => {
     'live=counter file=/src\\main.tsx',
     'live="not valid" file=/main.tsx',
     'live=counter title=/main.tsx',
+    'live=counter file=/main.tsx entry=../main.tsx',
   ]
 
   for (const metadata of invalidMetadata) {

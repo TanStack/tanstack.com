@@ -13,12 +13,6 @@ export type ExampleSandboxMessage =
       values: Array<string>
     }
   | {
-      height: number
-      kind: 'height'
-      runToken: string
-      type: 'tanstack-example-sandbox'
-    }
-  | {
       kind: 'status'
       message?: string
       runToken: string
@@ -52,7 +46,7 @@ export function createExampleSandboxDocument({
   const head = [
     '<meta name="color-scheme" content="light dark">',
     `<script type="importmap">${importMap}</script>`,
-    `<style>:root{--notebook-background:#fff;--notebook-foreground:#171717;--notebook-error:#b91c1c}:root.dark{--notebook-background:#030712;--notebook-foreground:#f9fafb;--notebook-error:#f87171}</style>`,
+    `<style>:root{--notebook-background:#fff;--notebook-foreground:#111;--notebook-error:#b91c1c;background:var(--notebook-background);color:var(--notebook-foreground)}:root.dark{--notebook-background:#111;--notebook-foreground:#d4d4d4;--notebook-error:#e06e49}</style>`,
     compiled.css ? `<style>${escapeStyleText(compiled.css)}</style>` : '',
     `<script>${bridge}</script>`,
   ].join('')
@@ -105,14 +99,6 @@ export function isExampleSandboxMessage(
       isConsoleLevel(value.level) &&
       Array.isArray(value.values) &&
       value.values.every((item) => typeof item === 'string')
-    )
-  }
-
-  if (value.kind === 'height') {
-    return (
-      typeof value.height === 'number' &&
-      Number.isFinite(value.height) &&
-      value.height > 0
     )
   }
 
@@ -182,26 +168,6 @@ window.addEventListener('unhandledrejection', (event) => {
   send({ kind: 'status', status: 'error', message: format(event.reason) })
 })
 
-let postedHeight = 0
-let heightFrame
-function postHeight() {
-  heightFrame = undefined
-  const height = Math.ceil(Math.max(
-    document.documentElement.scrollHeight,
-    document.body?.scrollHeight || 0,
-  ))
-  if (height === postedHeight) return
-  postedHeight = height
-  send({ kind: 'height', height })
-}
-function scheduleHeight() {
-  if (heightFrame !== undefined) return
-  heightFrame = requestAnimationFrame(postHeight)
-}
-new ResizeObserver(scheduleHeight).observe(document.documentElement)
-if (document.body) new ResizeObserver(scheduleHeight).observe(document.body)
-if (document.fonts) document.fonts.ready.then(scheduleHeight)
-scheduleHeight()
 send({ kind: 'theme-request' })
 send({ kind: 'status', status: 'running' })`
 }

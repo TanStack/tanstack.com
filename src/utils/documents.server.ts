@@ -261,7 +261,7 @@ function getLocalRepoBaseDirs(repo: string) {
 async function fetchFs(repo: string, filepath: string) {
   if (!isValidFilepath(filepath)) {
     console.warn(`[fetchFs] Invalid filepath rejected: ${filepath}\n`)
-    return ''
+    return null
   }
 
   if (isIsolateRuntime()) {
@@ -279,7 +279,7 @@ async function fetchFs(repo: string, filepath: string) {
       console.warn(
         `[fetchFs] Path traversal attempt blocked: ${filepath} resolved to ${localFilePath}\n`,
       )
-      return ''
+      return null
     }
 
     const exists = fs.existsSync(localFilePath)
@@ -294,7 +294,7 @@ async function fetchFs(repo: string, filepath: string) {
   console.warn(
     `[fetchFs] Tried to read file that does not exist: ${attemptedPaths.join(', ')}\n`,
   )
-  return ''
+  return null
 }
 
 async function fetchFsFromDevServer(repo: string, filepath: string) {
@@ -307,7 +307,7 @@ async function fetchFsFromDevServer(repo: string, filepath: string) {
     console.warn(
       `[fetchFs] Local docs requested without an active server request: ${repo}/${filepath}\n`,
     )
-    return ''
+    return null
   }
 
   const url = new URL(localDocsDevPath, request.url)
@@ -322,7 +322,7 @@ async function fetchFsFromDevServer(repo: string, filepath: string) {
 
   if (response.status === 404) {
     console.warn(`[fetchFs] Local file does not exist: ${repo}/${filepath}\n`)
-    return ''
+    return null
   }
 
   if (!response.ok) {

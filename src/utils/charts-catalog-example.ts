@@ -24,17 +24,21 @@ export type ChartsCatalogExampleDefinition = ExampleDefinition & {
 }
 
 export function createChartsCatalogExampleDefinition({
+  chartHeight = 480,
   caseId,
   title,
   description,
+  renderRevision = 0,
   revision,
   entryPath,
   files,
   versions,
 }: {
+  chartHeight?: number
   caseId: string
   title: string
   description?: string
+  renderRevision?: number
   revision: string
   entryPath: string
   files: Record<string, string>
@@ -67,8 +71,12 @@ export function createChartsCatalogExampleDefinition({
     throw new Error(`Charts catalog entry source not found: ${initialFile}`)
   }
 
-  workspaceFiles[generatedEntryPath] = createCatalogEntry(initialFile)
-  workspaceFiles[generatedDocumentPath] = catalogDocument
+  workspaceFiles[generatedEntryPath] = createCatalogEntry(
+    initialFile,
+    chartHeight,
+    renderRevision,
+  )
+  workspaceFiles[generatedDocumentPath] = createCatalogDocument(chartHeight)
 
   return {
     id: caseId,
@@ -163,18 +171,22 @@ function packageUrl(specifier: string, version: string) {
   return `https://esm.sh/${specifier}@${version}`
 }
 
-function createCatalogEntry(initialFile: string) {
+function createCatalogEntry(
+  initialFile: string,
+  chartHeight: number,
+  renderRevision: number,
+) {
   return `import { mount } from ${JSON.stringify(initialFile)}
 
 const root = document.querySelector<HTMLElement>('#root')
 if (!root) throw new Error('Charts catalog root not found')
 
-const height = 480
+const height = ${chartHeight}
 let width = Math.max(1, Math.floor(root.getBoundingClientRect().width))
 const input = () => ({
   width,
   height,
-  revision: 0,
+  revision: ${renderRevision},
   interactive: true,
 })
 const handle = mount(root, input())
@@ -193,7 +205,8 @@ window.addEventListener('pagehide', () => {
 `
 }
 
-const catalogDocument = `<!doctype html>
+function createCatalogDocument(chartHeight: number) {
+  return `<!doctype html>
 <html>
   <head>
     <meta charset="utf-8">
@@ -204,8 +217,9 @@ const catalogDocument = `<!doctype html>
         background: var(--notebook-background);
         color: var(--notebook-foreground);
       }
-      #root { width: 100%; height: 480px; min-width: 0; }
+      #root { width: 100%; height: ${chartHeight}px; min-width: 0; }
     </style>
   </head>
   <body><div id="root"></div></body>
 </html>`
+}

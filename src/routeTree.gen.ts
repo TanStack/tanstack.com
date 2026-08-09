@@ -188,7 +188,6 @@ import { Route as LibraryChartsCatalogAllRouteImport } from './routes/_library/c
 import { Route as LibraryLibraryIdVersionLlmsDottxtRouteImport } from './routes/_library/$libraryId/$version.llms[.]txt'
 import { Route as LibraryLibraryIdVersionDocsRouteImport } from './routes/_library/$libraryId/$version.docs'
 import { Route as LibraryLibraryIdVersionDocsIndexRouteImport } from './routes/_library/$libraryId/$version.docs.index'
-import { Route as ChartsCatalogAssetsArtifactRevisionSplatRouteImport } from './routes/charts.catalog_.assets.$artifactRevision.$'
 import { Route as ApiNotebookProjectsHashQuarantineRouteImport } from './routes/api/notebook/projects.$hash.quarantine'
 import { Route as ApiAuthCliStatusTicketIdRouteImport } from './routes/api/auth/cli/status.$ticketId'
 import { Route as LibraryChartsCatalogChartsCaseIdRouteImport } from './routes/_library/charts.catalog.charts.$caseId'
@@ -1137,12 +1136,6 @@ const LibraryLibraryIdVersionDocsIndexRoute =
     path: '/',
     getParentRoute: () => LibraryLibraryIdVersionDocsRoute,
   } as any)
-const ChartsCatalogAssetsArtifactRevisionSplatRoute =
-  ChartsCatalogAssetsArtifactRevisionSplatRouteImport.update({
-    id: '/charts/catalog_/assets/$artifactRevision/$',
-    path: '/charts/catalog/assets/$artifactRevision/$',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiNotebookProjectsHashQuarantineRoute =
   ApiNotebookProjectsHashQuarantineRouteImport.update({
     id: '/quarantine',
@@ -1424,7 +1417,6 @@ export interface FileRoutesByFullPath {
   '/charts/catalog/charts/$caseId': typeof LibraryChartsCatalogChartsCaseIdRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
   '/api/notebook/projects/$hash/quarantine': typeof ApiNotebookProjectsHashQuarantineRoute
-  '/charts/catalog/assets/$artifactRevision/$': typeof ChartsCatalogAssetsArtifactRevisionSplatRoute
   '/$libraryId/$version/docs/': typeof LibraryLibraryIdVersionDocsIndexRoute
   '/$libraryId/$version/docs/framework/': typeof LibraryLibraryIdVersionDocsFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/$': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkSplatRoute
@@ -1608,7 +1600,6 @@ export interface FileRoutesByTo {
   '/charts/catalog/charts/$caseId': typeof LibraryChartsCatalogChartsCaseIdRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
   '/api/notebook/projects/$hash/quarantine': typeof ApiNotebookProjectsHashQuarantineRoute
-  '/charts/catalog/assets/$artifactRevision/$': typeof ChartsCatalogAssetsArtifactRevisionSplatRoute
   '/$libraryId/$version/docs': typeof LibraryLibraryIdVersionDocsIndexRoute
   '/$libraryId/$version/docs/framework': typeof LibraryLibraryIdVersionDocsFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/$': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkSplatRoute
@@ -1806,7 +1797,6 @@ export interface FileRoutesById {
   '/_library/charts/catalog/charts/$caseId': typeof LibraryChartsCatalogChartsCaseIdRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
   '/api/notebook/projects/$hash/quarantine': typeof ApiNotebookProjectsHashQuarantineRoute
-  '/charts/catalog_/assets/$artifactRevision/$': typeof ChartsCatalogAssetsArtifactRevisionSplatRoute
   '/_library/$libraryId/$version/docs/': typeof LibraryLibraryIdVersionDocsIndexRoute
   '/_library/$libraryId/$version/docs/framework/': typeof LibraryLibraryIdVersionDocsFrameworkIndexRoute
   '/_library/$libraryId/$version/docs/framework/$framework/$': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkSplatRoute
@@ -2004,7 +1994,6 @@ export interface FileRouteTypes {
     | '/charts/catalog/charts/$caseId'
     | '/api/auth/cli/status/$ticketId'
     | '/api/notebook/projects/$hash/quarantine'
-    | '/charts/catalog/assets/$artifactRevision/$'
     | '/$libraryId/$version/docs/'
     | '/$libraryId/$version/docs/framework/'
     | '/$libraryId/$version/docs/framework/$framework/$'
@@ -2188,7 +2177,6 @@ export interface FileRouteTypes {
     | '/charts/catalog/charts/$caseId'
     | '/api/auth/cli/status/$ticketId'
     | '/api/notebook/projects/$hash/quarantine'
-    | '/charts/catalog/assets/$artifactRevision/$'
     | '/$libraryId/$version/docs'
     | '/$libraryId/$version/docs/framework'
     | '/$libraryId/$version/docs/framework/$framework/$'
@@ -2385,7 +2373,6 @@ export interface FileRouteTypes {
     | '/_library/charts/catalog/charts/$caseId'
     | '/api/auth/cli/status/$ticketId'
     | '/api/notebook/projects/$hash/quarantine'
-    | '/charts/catalog_/assets/$artifactRevision/$'
     | '/_library/$libraryId/$version/docs/'
     | '/_library/$libraryId/$version/docs/framework/'
     | '/_library/$libraryId/$version/docs/framework/$framework/$'
@@ -2482,7 +2469,6 @@ export interface RootRouteChildren {
   ApiBuilderDeployGithubRoute: typeof ApiBuilderDeployGithubRoute
   ChartsCatalogEmbedCaseIdRoute: typeof ChartsCatalogEmbedCaseIdRoute
   ApiAuthCliStatusTicketIdRoute: typeof ApiAuthCliStatusTicketIdRoute
-  ChartsCatalogAssetsArtifactRevisionSplatRoute: typeof ChartsCatalogAssetsArtifactRevisionSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -3740,13 +3726,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryLibraryIdVersionDocsIndexRouteImport
       parentRoute: typeof LibraryLibraryIdVersionDocsRoute
     }
-    '/charts/catalog_/assets/$artifactRevision/$': {
-      id: '/charts/catalog_/assets/$artifactRevision/$'
-      path: '/charts/catalog/assets/$artifactRevision/$'
-      fullPath: '/charts/catalog/assets/$artifactRevision/$'
-      preLoaderRoute: typeof ChartsCatalogAssetsArtifactRevisionSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/notebook/projects/$hash/quarantine': {
       id: '/api/notebook/projects/$hash/quarantine'
       path: '/quarantine'
@@ -4333,8 +4312,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiBuilderDeployGithubRoute: ApiBuilderDeployGithubRoute,
   ChartsCatalogEmbedCaseIdRoute: ChartsCatalogEmbedCaseIdRoute,
   ApiAuthCliStatusTicketIdRoute: ApiAuthCliStatusTicketIdRoute,
-  ChartsCatalogAssetsArtifactRevisionSplatRoute:
-    ChartsCatalogAssetsArtifactRevisionSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

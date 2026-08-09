@@ -1,51 +1,47 @@
 import {
-  fetchGitHubCommitHistory,
   fetchGitHubRecursiveTree,
   fetchRemoteRepoRawFile,
   fetchRepoRawFile,
-  GitHubContentError,
-  resolveGitHubRef,
-  shouldUseLocalDocsFiles,
 } from './documents.server'
 import {
-  getCachedDocsArtifact,
-  getCachedGitHubJsonContent,
-} from './github-content-cache.server'
-import {
-  chartsCatalogPublicationRef,
   chartsCatalogRepo,
-  parseChartsCatalogManifest,
   type ChartsCatalogAuthoredSource,
-  type ChartsCatalogManifest,
-  type ChartsCatalogPublication,
-  type ChartsCatalogSourceKind,
 } from './charts-catalog'
+import type { ChartsCatalogIndexPublication } from './charts-catalog-index'
 import {
   createChartsCatalogExampleDefinition,
   type ChartsCatalogExampleVersions,
 } from './charts-catalog-example'
 
-const catalogManifestPath = 'catalog.json'
-const localCatalogRoot = '.catalog-artifact'
-const catalogRevisionHistoryCachePath =
-  '.tanstack/catalog-dist-revision-history'
-const catalogRevisionHistoryLimit = 100
-const catalogPublicationArtifactType = 'charts-catalog'
-const catalogPublicationArtifactKey = 'v5'
-const exactGitShaPattern = /^[a-f0-9]{40}$/
+const catalogSourceRoot = 'benchmarks/conformance/'
 const catalogExamplePackagePaths = {
   charts: 'packages/charts-core/package.json',
   reactCharts: 'packages/react-charts/package.json',
-  catalog: 'packages/react-charts-catalog/package.json',
   root: 'package.json',
 }
 const catalogExampleRootDependencies = [
+  'd3-array',
+  'd3-brush',
+  'd3-contour',
+  'd3-delaunay',
+  'd3-force',
+  'd3-format',
+  'd3-geo',
+  'd3-hexbin',
+  'd3-hierarchy',
+  'd3-interpolate',
+  'd3-sankey',
+  'd3-scale',
+  'd3-selection',
+  'd3-shape',
+  'd3-time',
+  'd3-zoom',
   'react',
   'react-dom',
   'topojson-client',
   'us-atlas',
   'world-atlas',
-]
+] as const
 const catalogExampleModuleExtensions = [
   '.ts',
   '.tsx',
@@ -72,121 +68,79 @@ export class ChartsCatalogIntegrityError extends Error {
   }
 }
 
-export function classifyChartsCatalogAssetError(error: unknown) {
-  if (error instanceof ChartsCatalogResourceNotFoundError) {
-    return 'not-found'
-  }
-  if (
-    error instanceof GitHubContentError &&
-    ['network', 'rate-limit', 'server'].includes(error.kind)
-  ) {
-    return 'unavailable'
-  }
-  return 'internal'
-}
-
-export async function getChartsCatalogPublication(): Promise<ChartsCatalogPublication> {
-  if (shouldUseLocalDocsFiles()) {
-    const manifest = await getLocalChartsCatalogManifest()
-    if (manifest?.schemaVersion === 5) {
-      return {
-        artifactRevision: manifest.revision,
-        manifest,
-      }
-    }
-  }
-
-  return getCachedDocsArtifact({
-    repo: chartsCatalogRepo,
-    gitRef: chartsCatalogPublicationRef,
-    docsRoot: '',
-    artifactType: catalogPublicationArtifactType,
-    artifactKey: catalogPublicationArtifactKey,
-    isValue: isChartsCatalogPublication,
-    build: buildChartsCatalogPublication,
-  })
-}
-
-export async function getChartsCatalogManifestAtRevision(
-  artifactRevision: string,
+export async function getChartsCatalogExample(
+  publication: ChartsCatalogIndexPublication,
+  caseId: string,
+  options?: {
+    chartHeight?: number
+    renderRevision?: number
+  },
 ) {
-  if (!exactGitShaPattern.test(artifactRevision)) {
+  const catalogCase = publication.index.cases.find(
+    (entry) => entry.id === caseId,
+  )
+  if (!catalogCase) {
     throw new ChartsCatalogResourceNotFoundError(
-      'Invalid Charts catalog artifact revision',
+      `Charts catalog case not found: ${caseId}`,
     )
   }
 
-  if (shouldUseLocalDocsFiles()) {
-    const manifest = await getLocalChartsCatalogManifest()
-    if (manifest) {
-      if (artifactRevision !== manifest.revision) {
-        throw new ChartsCatalogResourceNotFoundError(
-          'Unpublished Charts catalog artifact revision',
-        )
-      }
-      return manifest
-    }
-  }
+  const [files, versions] = await Promise.all([
+    getChartsCatalogExampleFiles(
+      publication.revision,
+      catalogCase.entries.tanstack,
+      publication.sourceKind,
+    ),
+    getChartsCatalogExampleVersions(
+      publication.revision,
+      publication.sourceKind,
+    ),
+  ])
 
-  const publication = await getChartsCatalogPublication()
-  if (artifactRevision === publication.artifactRevision) {
-    return publication.manifest
+  return {
+    example: createChartsCatalogExampleDefinition({
+      chartHeight: options?.chartHeight,
+      caseId: catalogCase.id,
+      title: catalogCase.title,
+      description: catalogCase.intent,
+      revision: publication.revision,
+      entryPath: catalogCase.entries.tanstack,
+      files,
+      renderRevision: options?.renderRevision,
+      versions,
+    }),
+    authoredSource: createChartsCatalogAuthoredSource(
+      files,
+      catalogCase.entries.tanstack,
+    ),
   }
-
-  const publishedRevisions = await getPublishedChartsCatalogRevisions()
-  if (!publishedRevisions.includes(artifactRevision)) {
-    throw new ChartsCatalogResourceNotFoundError(
-      'Unpublished Charts catalog artifact revision',
-    )
-  }
-
-  return readChartsCatalogManifest(artifactRevision, 'remote')
 }
 
-export async function getVerifiedChartsCatalogAssetSource(
-  artifactRevision: string,
-  assetPath: string,
-  expected: { bytes: number; sha256: string },
+export async function getChartsCatalogExampleDefinition(
+  publication: ChartsCatalogIndexPublication,
+  caseId: string,
+  options?: {
+    chartHeight?: number
+    renderRevision?: number
+  },
 ) {
-  const localManifest = await getLocalChartsCatalogManifest()
-  const useLocal = localManifest?.revision === artifactRevision
-  const filePath = useLocal ? `${localCatalogRoot}/${assetPath}` : assetPath
-  const source = useLocal
-    ? await fetchRepoRawFile(chartsCatalogRepo, artifactRevision, filePath)
-    : await fetchRemoteRepoRawFile(
-        chartsCatalogRepo,
-        artifactRevision,
-        filePath,
-      )
+  return (await getChartsCatalogExample(publication, caseId, options)).example
+}
 
-  if (source === null) {
-    throw new ChartsCatalogResourceNotFoundError(
-      `Charts catalog asset not found: ${assetPath}`,
-    )
-  }
-
-  const bytes = new TextEncoder().encode(source)
-  const digest = await crypto.subtle.digest('SHA-256', bytes)
-  const sha256 = Array.from(new Uint8Array(digest), (byte) =>
-    byte.toString(16).padStart(2, '0'),
-  ).join('')
-
-  if (bytes.byteLength !== expected.bytes || sha256 !== expected.sha256) {
-    throw new ChartsCatalogIntegrityError(
-      `Charts catalog asset failed integrity check: ${assetPath}`,
-    )
-  }
-
-  return source
+export async function getChartsCatalogAuthoredSource(
+  publication: ChartsCatalogIndexPublication,
+  caseId: string,
+) {
+  return (await getChartsCatalogExample(publication, caseId)).authoredSource
 }
 
 export async function getChartsCatalogSource(
   sourceRevision: string,
   sourcePath: string,
+  sourceKind: ChartsCatalogIndexPublication['sourceKind'],
 ) {
-  const localManifest = await getLocalChartsCatalogManifest()
   const source =
-    localManifest?.revision === sourceRevision
+    sourceKind === 'local'
       ? await fetchRepoRawFile(chartsCatalogRepo, sourceRevision, sourcePath)
       : await fetchRemoteRepoRawFile(
           chartsCatalogRepo,
@@ -201,113 +155,38 @@ export async function getChartsCatalogSource(
   return source
 }
 
-export async function getChartsCatalogAuthoredSource(
-  manifest: ChartsCatalogManifest,
-  caseId: string,
-  implementation: 'tanstack' | 'reference',
-): Promise<ChartsCatalogAuthoredSource> {
-  const catalogCase = manifest.cases.find((entry) => entry.id === caseId)
-  if (!catalogCase) {
-    throw new ChartsCatalogResourceNotFoundError(
-      `Charts catalog case not found: ${caseId}`,
-    )
-  }
-  const closure = catalogCase.authoredSource[implementation]
-  const sourceKinds: Array<ChartsCatalogSourceKind> = [
-    'entry',
-    'support',
-    'fixture',
-  ]
-  const files = await Promise.all(
-    sourceKinds.flatMap((kind) =>
-      closure.roles[kind].paths.map(async (path) => {
-        const source = await getChartsCatalogSource(
-          manifest.revision,
-          `${manifest.source.pathRoot}${path}`,
-        )
-        return {
-          path,
-          source,
-          kind,
-          lines: countCatalogSourceLines(source),
-          bytes: countCatalogSourceBytes(source),
-        }
-      }),
-    ),
-  )
-  const roles = {
-    entry: getCatalogSourceMetrics(files, 'entry'),
-    support: getCatalogSourceMetrics(files, 'support'),
-    fixture: getCatalogSourceMetrics(files, 'fixture'),
-  }
-
-  for (const kind of sourceKinds) {
-    const expected = closure.roles[kind]
-    const actual = roles[kind]
-    if (
-      actual.files !== expected.files ||
-      actual.lines !== expected.lines ||
-      actual.bytes !== expected.bytes
-    ) {
-      throw new ChartsCatalogIntegrityError(
-        `Charts catalog ${caseId} ${implementation} ${kind} source failed its metadata check`,
-      )
-    }
-  }
+function createChartsCatalogAuthoredSource(
+  files: Record<string, string>,
+  entryPath: string,
+): ChartsCatalogAuthoredSource {
+  const authoredFiles = Object.entries(files).map(([path, source]) => ({
+    path: path.startsWith(catalogSourceRoot)
+      ? path.slice(catalogSourceRoot.length)
+      : path,
+    source,
+    kind: path === entryPath ? ('entry' as const) : ('dependency' as const),
+    lines: countCatalogSourceLines(source),
+    bytes: countCatalogSourceBytes(source),
+  }))
 
   return {
-    totalFiles: closure.totalFiles,
-    totalLines: closure.totalLines,
-    totalBytes: closure.totalBytes,
-    roles,
-    files,
-    datasets: closure.datasetIds.map((id) => manifest.datasets[id]),
-    excludedHarness: closure.roles.harness,
+    totalFiles: authoredFiles.length,
+    totalLines: authoredFiles.reduce((total, file) => total + file.lines, 0),
+    totalBytes: authoredFiles.reduce((total, file) => total + file.bytes, 0),
+    files: authoredFiles,
   }
-}
-
-export async function getChartsCatalogExampleDefinition(
-  manifest: ChartsCatalogManifest,
-  caseId: string,
-) {
-  const catalogCase = manifest.cases.find((entry) => entry.id === caseId)
-  if (!catalogCase) {
-    throw new ChartsCatalogResourceNotFoundError(
-      `Charts catalog case not found: ${caseId}`,
-    )
-  }
-
-  const [files, versions] = await Promise.all([
-    getChartsCatalogExampleFiles(manifest.revision, catalogCase.code.tanstack),
-    getChartsCatalogExampleVersions(manifest.revision),
-  ])
-
-  return createChartsCatalogExampleDefinition({
-    caseId: catalogCase.id,
-    title: catalogCase.title,
-    description: catalogCase.intent,
-    revision: manifest.revision,
-    entryPath: catalogCase.code.tanstack,
-    files,
-    versions,
-  })
 }
 
 async function getChartsCatalogExampleFiles(
   revision: string,
   entryPath: string,
+  sourceKind: ChartsCatalogIndexPublication['sourceKind'],
 ) {
-  const tree = await fetchGitHubRecursiveTree(chartsCatalogRepo, revision)
-  if (!tree) {
-    throw new ChartsCatalogResourceNotFoundError(
-      'Charts catalog source tree is unavailable',
-    )
-  }
-
-  const sourcePaths = new Set(
-    tree.flatMap((entry) => (entry.type === 'blob' ? [entry.path] : [])),
-  )
-  if (!sourcePaths.has(entryPath)) {
+  const sourcePaths =
+    sourceKind === 'local'
+      ? undefined
+      : await getChartsCatalogSourcePaths(revision)
+  if (sourcePaths && !sourcePaths.has(entryPath)) {
     throw new ChartsCatalogResourceNotFoundError(
       `Charts catalog source not found: ${entryPath}`,
     )
@@ -325,11 +204,13 @@ async function getChartsCatalogExampleFiles(
     }
     scheduled.add(path)
 
-    const source = await getChartsCatalogSource(revision, path)
+    const source = await getChartsCatalogSource(revision, path, sourceKind)
     files.set(path, source)
 
-    const dependencies = extractStaticRelativeModuleSpecifiers(source).map(
-      (specifier) => resolveCatalogExampleModule(path, specifier, sourcePaths),
+    const dependencies = await Promise.all(
+      extractStaticRelativeModuleSpecifiers(source).map((specifier) =>
+        resolveCatalogExampleModule(path, specifier, sourcePaths, revision),
+      ),
     )
     await Promise.all(dependencies.map(load))
   }
@@ -341,10 +222,23 @@ async function getChartsCatalogExampleFiles(
   )
 }
 
-function resolveCatalogExampleModule(
+async function getChartsCatalogSourcePaths(revision: string) {
+  const tree = await fetchGitHubRecursiveTree(chartsCatalogRepo, revision)
+  if (!tree) {
+    throw new ChartsCatalogResourceNotFoundError(
+      'Charts catalog source tree is unavailable',
+    )
+  }
+  return new Set(
+    tree.flatMap((entry) => (entry.type === 'blob' ? [entry.path] : [])),
+  )
+}
+
+async function resolveCatalogExampleModule(
   importer: string,
   specifier: string,
-  sourcePaths: Set<string>,
+  sourcePaths: Set<string> | undefined,
+  revision: string,
 ) {
   const importerDirectory = importer.slice(0, importer.lastIndexOf('/'))
   const requestedPath = normalizeRepoModulePath(
@@ -364,7 +258,9 @@ function resolveCatalogExampleModule(
           (extension) => `${requestedPath}/index${extension}`,
         ),
       ]
-  const resolved = candidates.find((candidate) => sourcePaths.has(candidate))
+  const resolved = sourcePaths
+    ? candidates.find((candidate) => sourcePaths.has(candidate))
+    : await findLocalCatalogExampleModule(revision, candidates)
 
   if (!resolved) {
     throw new ChartsCatalogResourceNotFoundError(
@@ -373,6 +269,21 @@ function resolveCatalogExampleModule(
   }
 
   return resolved
+}
+
+async function findLocalCatalogExampleModule(
+  revision: string,
+  candidates: Array<string>,
+) {
+  for (const candidate of candidates) {
+    const source = await fetchRepoRawFile(
+      chartsCatalogRepo,
+      revision,
+      candidate,
+    )
+    if (source !== null) return candidate
+  }
+  return undefined
 }
 
 function normalizeRepoModulePath(path: string) {
@@ -523,14 +434,25 @@ function isLineBreak(value: string | undefined) {
 
 async function getChartsCatalogExampleVersions(
   revision: string,
+  sourceKind: ChartsCatalogIndexPublication['sourceKind'],
 ): Promise<ChartsCatalogExampleVersions> {
-  const [chartsSource, reactChartsSource, catalogSource, rootSource] =
-    await Promise.all([
-      getChartsCatalogSource(revision, catalogExamplePackagePaths.charts),
-      getChartsCatalogSource(revision, catalogExamplePackagePaths.reactCharts),
-      getChartsCatalogSource(revision, catalogExamplePackagePaths.catalog),
-      getChartsCatalogSource(revision, catalogExamplePackagePaths.root),
-    ])
+  const [chartsSource, reactChartsSource, rootSource] = await Promise.all([
+    getChartsCatalogSource(
+      revision,
+      catalogExamplePackagePaths.charts,
+      sourceKind,
+    ),
+    getChartsCatalogSource(
+      revision,
+      catalogExamplePackagePaths.reactCharts,
+      sourceKind,
+    ),
+    getChartsCatalogSource(
+      revision,
+      catalogExamplePackagePaths.root,
+      sourceKind,
+    ),
+  ])
   const charts = parsePackageMetadata(
     chartsSource,
     catalogExamplePackagePaths.charts,
@@ -539,12 +461,8 @@ async function getChartsCatalogExampleVersions(
     reactChartsSource,
     catalogExamplePackagePaths.reactCharts,
   )
-  const catalog = parsePackageMetadata(
-    catalogSource,
-    catalogExamplePackagePaths.catalog,
-  )
   const root = parsePackageMetadata(rootSource, catalogExamplePackagePaths.root)
-  const rootDependencies = Object.fromEntries(
+  const dependencies = Object.fromEntries(
     catalogExampleRootDependencies.map((name) => [
       name,
       getPackageDependency(root.devDependencies, name),
@@ -557,16 +475,9 @@ async function getChartsCatalogExampleVersions(
       reactCharts,
       catalogExamplePackagePaths.reactCharts,
     ),
-    react: rootDependencies.react,
-    reactDom: rootDependencies['react-dom'],
-    dependencies: Object.fromEntries(
-      [
-        ...Object.entries(catalog.dependencies),
-        ...Object.entries(rootDependencies),
-      ]
-        .filter(([, version]) => !version.startsWith('workspace:'))
-        .sort(([left], [right]) => left.localeCompare(right)),
-    ),
+    react: dependencies.react,
+    reactDom: dependencies['react-dom'],
+    dependencies,
   }
 }
 
@@ -589,7 +500,6 @@ function parsePackageMetadata(source: string, path: string) {
 
   return {
     version: typeof value.version === 'string' ? value.version : undefined,
-    dependencies: getStringRecord(value.dependencies),
     devDependencies: getStringRecord(value.devDependencies),
   }
 }
@@ -611,7 +521,7 @@ function getPackageDependency(
   const version = dependencies[name]
   if (!version) {
     throw new ChartsCatalogIntegrityError(
-      `Charts catalog package metadata is missing ${name}`,
+      `Charts package metadata is missing ${name}`,
     )
   }
   return version
@@ -633,98 +543,6 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
-async function readChartsCatalogManifest(
-  artifactRevision: string,
-  sourceKind: 'local' | 'remote',
-) {
-  const filePath =
-    sourceKind === 'local'
-      ? `${localCatalogRoot}/${catalogManifestPath}`
-      : catalogManifestPath
-  const source =
-    sourceKind === 'local'
-      ? await fetchRepoRawFile(chartsCatalogRepo, artifactRevision, filePath)
-      : await fetchRemoteRepoRawFile(
-          chartsCatalogRepo,
-          artifactRevision,
-          filePath,
-        )
-
-  if (source === null) {
-    throw new ChartsCatalogResourceNotFoundError(
-      'Charts catalog manifest is unavailable',
-    )
-  }
-
-  let value: unknown
-  try {
-    value = JSON.parse(source)
-  } catch (error) {
-    throw new ChartsCatalogIntegrityError(
-      'Invalid Charts catalog manifest: expected JSON',
-      error,
-    )
-  }
-  try {
-    return parseChartsCatalogManifest(value)
-  } catch (error) {
-    throw new ChartsCatalogIntegrityError(
-      'Invalid Charts catalog manifest contract',
-      error,
-    )
-  }
-}
-
-let localManifestCache:
-  | {
-      expiresAt: number
-      promise: Promise<ChartsCatalogManifest | null>
-    }
-  | undefined
-
-function getLocalChartsCatalogManifest() {
-  if (!shouldUseLocalDocsFiles()) {
-    return Promise.resolve(null)
-  }
-
-  const now = Date.now()
-  if (localManifestCache && localManifestCache.expiresAt > now) {
-    return localManifestCache.promise
-  }
-
-  const promise = readChartsCatalogManifest(
-    chartsCatalogPublicationRef,
-    'local',
-  ).catch((error: unknown) => {
-    if (
-      error instanceof ChartsCatalogResourceNotFoundError ||
-      error instanceof ChartsCatalogIntegrityError
-    ) {
-      return null
-    }
-    throw error
-  })
-  localManifestCache = { expiresAt: now + 1_000, promise }
-  return promise
-}
-
-function getCatalogSourceMetrics(
-  files: ChartsCatalogAuthoredSource['files'],
-  kind: ChartsCatalogSourceKind,
-) {
-  return files.reduce(
-    (metrics, file) =>
-      file.kind === kind
-        ? {
-            files: metrics.files + 1,
-            lines: metrics.lines + file.lines,
-            bytes: metrics.bytes + file.bytes,
-          }
-        : metrics,
-    { files: 0, lines: 0, bytes: 0 },
-  )
-}
-
 function countCatalogSourceLines(source: string) {
   if (source.length === 0) return 0
   const lineBreaks = source.match(/\r\n|\r|\n/g)?.length ?? 0
@@ -733,86 +551,4 @@ function countCatalogSourceLines(source: string) {
 
 function countCatalogSourceBytes(source: string) {
   return new TextEncoder().encode(source).byteLength
-}
-
-async function buildChartsCatalogPublication(): Promise<ChartsCatalogPublication> {
-  const artifactRevision = await resolveGitHubRef(
-    chartsCatalogRepo,
-    chartsCatalogPublicationRef,
-  )
-  if (!artifactRevision) {
-    throw new ChartsCatalogResourceNotFoundError(
-      'Charts catalog publication is unavailable',
-    )
-  }
-
-  const manifest = await readChartsCatalogManifest(artifactRevision, 'remote')
-  if (manifest.schemaVersion !== 5) {
-    throw new ChartsCatalogIntegrityError(
-      'Current Charts catalog publication must use schema version 5',
-    )
-  }
-
-  return {
-    artifactRevision,
-    manifest,
-  }
-}
-
-function isChartsCatalogPublication(
-  value: unknown,
-): value is ChartsCatalogPublication {
-  if (
-    typeof value !== 'object' ||
-    value === null ||
-    !('artifactRevision' in value) ||
-    typeof value.artifactRevision !== 'string' ||
-    !exactGitShaPattern.test(value.artifactRevision) ||
-    !('manifest' in value)
-  ) {
-    return false
-  }
-
-  try {
-    return parseChartsCatalogManifest(value.manifest).schemaVersion === 5
-  } catch {
-    return false
-  }
-}
-
-async function getPublishedChartsCatalogRevisions() {
-  const revisions = await getCachedGitHubJsonContent({
-    repo: chartsCatalogRepo,
-    gitRef: chartsCatalogPublicationRef,
-    path: catalogRevisionHistoryCachePath,
-    isValue: isChartsCatalogRevisionHistory,
-    origin: () =>
-      fetchGitHubCommitHistory(
-        chartsCatalogRepo,
-        chartsCatalogPublicationRef,
-        catalogRevisionHistoryLimit,
-      ),
-  })
-
-  if (!revisions) {
-    throw new ChartsCatalogIntegrityError(
-      'Charts catalog publication history is unavailable',
-    )
-  }
-  return revisions
-}
-
-function isChartsCatalogRevisionHistory(
-  value: unknown,
-): value is Array<string> {
-  return (
-    Array.isArray(value) &&
-    value.length > 0 &&
-    value.length <= catalogRevisionHistoryLimit &&
-    value.every(
-      (revision) =>
-        typeof revision === 'string' && exactGitShaPattern.test(revision),
-    ) &&
-    new Set(value).size === value.length
-  )
 }

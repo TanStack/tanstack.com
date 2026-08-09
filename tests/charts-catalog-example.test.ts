@@ -108,6 +108,34 @@ describe('Charts catalog example workspaces', () => {
     })
   })
 
+  test('configures embed height and render revision without compiled assets', () => {
+    const definition = createChartsCatalogExampleDefinition({
+      caseId: 'bar-vertical-sorted',
+      title: 'Sorted vertical bars',
+      chartHeight: 640,
+      renderRevision: 42,
+      revision,
+      entryPath: 'cases/bar-vertical-sorted/tanstack.ts',
+      files: {
+        '/cases/bar-vertical-sorted/tanstack.ts': 'export function mount() {}',
+      },
+      versions,
+    })
+
+    assert.match(
+      definition.workspace.files['/__catalog.ts'] ?? '',
+      /const height = 640/,
+    )
+    assert.match(
+      definition.workspace.files['/__catalog.ts'] ?? '',
+      /revision: 42/,
+    )
+    assert.match(
+      definition.workspace.files['/index.html'] ?? '',
+      /#root \{ width: 100%; height: 640px;/,
+    )
+  })
+
   test('rejects missing, mismatched, duplicate, or unsafe source paths', () => {
     const base = {
       caseId: 'bar-vertical-sorted',

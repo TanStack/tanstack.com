@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { isWatchedDocsWebhookSource } from "~/utils/docs-webhook-sources";
-import { chartsCatalogPublicationCacheTag } from "~/utils/charts-catalog";
 import {
   isRecord,
   jsonError,
@@ -162,9 +161,6 @@ export const Route = createFileRoute("/api/github/webhook")({
 
         const tags = [
           `docs-config:${repo}:${gitRef}`,
-          ...(repo === "tanstack/charts" && gitRef === "catalog-dist"
-            ? [chartsCatalogPublicationCacheTag]
-            : []),
           ...libraries
             .filter(
               (library) =>

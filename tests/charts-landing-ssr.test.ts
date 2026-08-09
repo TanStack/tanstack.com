@@ -15,100 +15,82 @@ import {
 import {
   CatalogChartsHero,
   ChartsCatalogGallery,
-  chartsLandingHeroCaseIdsByTile,
-  chartsLandingInitialHeroCaseIds,
+  chartsLandingHeroCaseIds,
 } from '../src/components/landing/ChartsCatalogGallery'
-import { getChartsCatalogPreviewUrl } from '../src/utils/charts-catalog'
 import { shuffleWithSeed } from '../src/utils/utils'
 
-const artifactRevision = '2'.repeat(40)
 const galleryOrderSeed = 'charts-landing-ssr'
 const landingCatalogSsrBudget = {
   rawBytes: 250_000,
   brotliQuality4Bytes: 14_000,
   elements: 1_600,
 }
-const expectedHeroCaseIds = [
-  '03-temperature-range-band',
-  '01-line-gaps',
-  'bar-grouped',
-  '04-stacked-time-area',
-  'bar-vertical-sorted',
-  '14-error-bars',
-  'bar-stacked',
-  'scatter-bubble',
-] as const
-
-type LandingCatalog = {
-  artifactRevision: string
-  cases: Array<{
-    id: string
-    family: string
-    order: number
-    title: string
-    module: { path: string; preload: Array<string> }
-    preview: {
-      path: string
-      mediaType: 'image/svg+xml'
-      width: 288
-      height: 192
-      bytes: number
-      sha256: string
-    }
-  }>
+const catalog = {
+  cases: [
+    {
+      id: '03-temperature-range-band',
+      family: 'range',
+      order: 1,
+      title: 'Temperature Range Band',
+    },
+    {
+      id: 'bar-grouped',
+      family: 'bar',
+      order: 2,
+      title: 'Grouped Bars',
+    },
+    {
+      id: 'scatter-bubble',
+      family: 'relationship',
+      order: 3,
+      title: 'Bubble Scatter',
+    },
+    {
+      id: '04-stacked-time-area',
+      family: 'composition',
+      order: 4,
+      title: 'Stacked Time Area',
+    },
+    {
+      id: '14-error-bars',
+      family: 'uncertainty',
+      order: 5,
+      title: 'Error Bars',
+    },
+    {
+      id: 'heatmap-labeled',
+      family: 'matrix',
+      order: 6,
+      title: 'Labeled Heatmap',
+    },
+    {
+      id: '36-hierarchy-tree',
+      family: 'hierarchy',
+      order: 7,
+      title: 'Hierarchy Tree',
+    },
+    {
+      id: '76-pie',
+      family: 'polar',
+      order: 8,
+      title: 'Pie',
+    },
+  ],
 }
 
-const catalog: LandingCatalog = {
-  artifactRevision,
-  cases: expectedHeroCaseIds.map((id, index) => {
-    const sha256 = (index + 1).toString(16).padStart(64, '0')
-    return {
-      id,
-      family: index % 2 === 0 ? 'cartesian' : 'statistical',
-      order: index + 1,
-      title: id
-        .split('-')
-        .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
-        .join(' '),
-      module: {
-        path: `assets/${id}-${sha256}.js`,
-        preload: [],
-      },
-      preview: {
-        path: `previews/${id}-${sha256}.svg`,
-        mediaType: 'image/svg+xml',
-        width: 288,
-        height: 192,
-        bytes: 1_024 + index,
-        sha256,
-      },
-    }
-  }),
-}
-
-test('hero tiles rotate through disjoint chart pools', () => {
-  assert.deepEqual(
-    chartsLandingHeroCaseIdsByTile.map((caseIds) => caseIds[0]),
-    chartsLandingInitialHeroCaseIds,
+test('the landing hero uses a fixed set of distinct catalog cases', () => {
+  assert.equal(
+    new Set(chartsLandingHeroCaseIds).size,
+    chartsLandingHeroCaseIds.length,
   )
-
-  const assignedCaseIds = chartsLandingHeroCaseIdsByTile.flat()
-  assert.equal(new Set(assignedCaseIds).size, assignedCaseIds.length)
-  assert.deepEqual([...assignedCaseIds].sort(), [...expectedHeroCaseIds].sort())
-
-  const combinations = chartsLandingHeroCaseIdsByTile.reduce<
-    Array<Array<string>>
-  >(
-    (rows, pool) =>
-      rows.flatMap((row) => pool.map((caseId) => [...row, caseId])),
-    [[]],
-  )
-  for (const combination of combinations) {
-    assert.equal(new Set(combination).size, combination.length)
-  }
+  assert.deepEqual(chartsLandingHeroCaseIds, [
+    '03-temperature-range-band',
+    'bar-grouped',
+    'scatter-bubble',
+  ])
 })
 
-test('the landing server-renders artifact previews before live hero charts mount', () => {
+test('the landing server-renders site-owned chart previews without catalog assets', () => {
   const shuffledCases = shuffleWithSeed(
     [...catalog.cases].sort((left, right) => left.order - right.order),
     galleryOrderSeed,
@@ -124,22 +106,19 @@ test('the landing server-renders artifact previews before live hero charts mount
     history: createMemoryHistory({ initialEntries: ['/charts/latest'] }),
     routeTree: rootRoute.addChildren([chartRoute]),
   })
-  const routerProviderProps = {
-    router,
-    children: createElement(Fragment, null, [
-      createElement(CatalogChartsHero, { catalog, key: 'hero' }),
-      createElement(ChartsCatalogGallery, {
-        catalog,
-        key: 'gallery',
-        orderSeed: galleryOrderSeed,
-      }),
-    ]),
-  }
-  const renderStartedAt = performance.now()
   const html = renderToStaticMarkup(
-    createElement(RouterContextProvider<typeof router>, routerProviderProps),
+    RouterContextProvider<typeof router>({
+      router,
+      children: createElement(Fragment, null, [
+        createElement(CatalogChartsHero, { catalog, key: 'hero' }),
+        createElement(ChartsCatalogGallery, {
+          catalog,
+          key: 'gallery',
+          orderSeed: galleryOrderSeed,
+        }),
+      ]),
+    }),
   )
-  const renderDurationMs = performance.now() - renderStartedAt
   const $ = load(html)
   const rawBytes = Buffer.byteLength(html)
   const brotliQuality4Bytes = brotliCompressSync(html, {
@@ -149,27 +128,13 @@ test('the landing server-renders artifact previews before live hero charts mount
   }).byteLength
   const elements = $('*').length
 
-  assert.ok(
-    rawBytes <= landingCatalogSsrBudget.rawBytes,
-    `Landing catalog SSR is ${rawBytes} raw bytes after ${renderDurationMs.toFixed(1)}ms.`,
-  )
-  assert.ok(
-    brotliQuality4Bytes <= landingCatalogSsrBudget.brotliQuality4Bytes,
-    `Landing catalog SSR is ${brotliQuality4Bytes} Brotli quality-4 bytes.`,
-  )
-  assert.ok(
-    elements <= landingCatalogSsrBudget.elements,
-    `Landing catalog SSR contains ${elements} elements.`,
-  )
+  assert.ok(rawBytes <= landingCatalogSsrBudget.rawBytes)
+  assert.ok(brotliQuality4Bytes <= landingCatalogSsrBudget.brotliQuality4Bytes)
+  assert.ok(elements <= landingCatalogSsrBudget.elements)
 
   const shuffledIds = shuffledCases.map((catalogCase) => catalogCase.id)
   const galleryCards = $('.charts-catalog-gallery-card')
-  const galleryImages = galleryCards.find('img')
   assert.equal(galleryCards.length, catalog.cases.length)
-  assert.equal(
-    galleryCards.filter('.charts-catalog-card').length,
-    catalog.cases.length,
-  )
   assert.deepEqual(
     galleryCards
       .find('a')
@@ -177,61 +142,27 @@ test('the landing server-renders artifact previews before live hero charts mount
       .get(),
     shuffledIds.map((caseId) => `/charts/catalog/charts/${caseId}`),
   )
-  assert.equal(galleryImages.length, catalog.cases.length)
-  assert.equal(
-    galleryImages.filter(
-      '[loading="lazy"][decoding="async"][width="288"][height="192"]',
-    ).length,
-    catalog.cases.length,
-  )
   assert.deepEqual(
-    galleryImages.map((_, element) => $(element).attr('src')).get(),
-    shuffledCases.map((catalogCase) =>
-      getChartsCatalogPreviewUrl(artifactRevision, catalogCase.preview.path),
-    ),
-  )
-  assert.equal(
-    $('.charts-catalog-gallery-card .charts-catalog-chart').length,
-    0,
+    galleryCards
+      .find('svg[data-catalog-preview-case]')
+      .map((_, element) => $(element).attr('data-catalog-preview-case'))
+      .get(),
+    shuffledIds,
   )
 
-  const heroRenderCount = chartsLandingInitialHeroCaseIds.length
-  const heroFrames = $('.charts-catalog-hero-frame')
-  const heroImages = heroFrames.find('img')
-  assert.equal(heroFrames.length, heroRenderCount)
-  assert.equal(heroImages.length, heroRenderCount)
+  const hero = $('section[aria-label="Chart catalog examples"]')
+  const heroPreviews = hero.find('svg[data-catalog-preview-case]')
   assert.deepEqual(
-    heroImages.map((_, element) => $(element).attr('src')).get(),
-    chartsLandingInitialHeroCaseIds.map((caseId) => {
-      const catalogCase = catalog.cases.find((entry) => entry.id === caseId)
-      assert.ok(catalogCase)
-      return getChartsCatalogPreviewUrl(
-        artifactRevision,
-        catalogCase.preview.path,
-      )
-    }),
+    heroPreviews
+      .map((_, element) => $(element).attr('data-catalog-preview-case'))
+      .get(),
+    [...chartsLandingHeroCaseIds],
   )
-  assert.equal($('.charts-catalog-chart').length, heroRenderCount)
-  assert.equal($('.charts-catalog-hero-frame .ts-chart').length, 0)
-  assert.equal(
-    heroImages.filter('[width="288"][height="192"]').length,
-    heroRenderCount,
-  )
-  assert.equal($('img[src^="/images/charts/catalog/"]').length, 0)
+  assert.equal(hero.children('.grid').hasClass('grid-cols-2'), true)
+  assert.equal(hero.find('figure').first().hasClass('col-span-2'), true)
 
-  const heroRenderedCaseIds = heroFrames
-    .find('[data-chart-case]')
-    .map((_, element) => $(element).attr('data-chart-case'))
-    .get()
-  assert.equal(new Set(heroRenderedCaseIds).size, heroRenderedCaseIds.length)
-  const heroSection = $('section[aria-label="Rotating chart catalog examples"]')
-  const heroGrid = heroSection.children('.grid').first()
-  const heroFigures = heroGrid.children('figure')
-  assert.equal(heroGrid.hasClass('lg:grid-cols-3'), true)
-  assert.equal(heroGrid.hasClass('xl:grid-cols-2'), true)
-  assert.equal(heroFigures.first().hasClass('xl:col-span-2'), true)
-  assert.equal(heroFigures.first().hasClass('hidden'), true)
-  assert.equal(heroFigures.first().hasClass('xl:block'), true)
-  assert.equal(heroFigures.first().find('[class~="aspect-[3/1]"]').length, 1)
-  assert.equal(heroFigures.eq(1).hasClass('xl:hidden'), true)
+  assert.equal($('img').length, 0)
+  assert.equal($('.charts-catalog-chart').length, 0)
+  assert.equal($('[data-chart-case]').length, 0)
+  assert.equal($('[src*="/charts/catalog/assets/"]').length, 0)
 })

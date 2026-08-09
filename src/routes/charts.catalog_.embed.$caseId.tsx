@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { createFileRoute, notFound } from '@tanstack/react-router'
-import { ChartsCatalogChart } from '~/components/charts/ChartsCatalogChart'
+import { ChartsCatalogResult } from '~/components/charts/ChartsCatalogResult.client'
 import { ChartsCatalogSource } from '~/components/charts/ChartsCatalogSource'
 import {
   isChartsCatalogEmbedTheme,
@@ -18,6 +18,8 @@ export const Route = createFileRoute('/charts/catalog_/embed/$caseId')({
     const data = await getChartsCatalogEmbedCase({
       data: {
         caseId: params.caseId,
+        height: deps.height,
+        revision: deps.revision,
         source: deps.source !== 'hidden',
       },
     })
@@ -113,13 +115,10 @@ function ChartsCatalogEmbedRoute() {
 
   return (
     <main ref={contentRef} className="charts-catalog-embed overflow-hidden p-0">
-      <ChartsCatalogChart
-        artifactRevision={data.artifactRevision}
-        caseId={data.case.id}
+      <ChartsCatalogResult
+        definition={data.case.example}
         height={data.height}
-        module={data.case.module}
         onStatus={postStatus}
-        revision={data.revision}
       />
       {data.case.authoredSource ? (
         <details

@@ -329,42 +329,8 @@ const themePreviews = [
   },
 ] as const
 
-const bundleRows = [
-  {
-    color: 'bg-[#39af46]',
-    label: 'TanStack Charts',
-    maximum: 42.64,
-    minimum: 36.73,
-  },
-  {
-    color: 'bg-[#3aa3c4]',
-    label: 'Chart.js',
-    maximum: 58.21,
-    minimum: 44.7,
-  },
-  {
-    color: 'bg-[#8b5cf6]',
-    label: 'Observable Plot',
-    maximum: 91.94,
-    minimum: 83.34,
-  },
-  {
-    color: 'bg-[#f59e0b]',
-    label: 'Recharts',
-    maximum: 168.27,
-    minimum: 153.08,
-  },
-  {
-    color: 'bg-[#ef6c4d]',
-    label: 'Apache ECharts',
-    maximum: 173.18,
-    minimum: 153.1,
-  },
-] as const
-
 const kineticChartIntervalMs = 4_000
 const kineticChartTransitionMs = 1_200
-const bundleChartMaximumKiB = 180
 
 export function KineticChartsHero() {
   const rootRef = React.useRef<HTMLElement>(null)
@@ -606,7 +572,7 @@ export function AccountChart() {
               Account health
             </p>
             <p className="mt-1 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/40">
-              Example account dataset · Q2 2026
+              Illustrative account dataset
             </p>
           </div>
           <p className="max-w-xs text-ds-body-xs text-text-secondary">
@@ -658,60 +624,6 @@ export function ThemeGallery() {
   )
 }
 
-export function BundleSizeFigure() {
-  return (
-    <div
-      aria-label="Chart library cold-page bundle size comparison"
-      aria-roledescription="chart"
-      className="overflow-hidden rounded-xl border border-border-subtle bg-background-surface p-4 sm:p-6"
-      role="group"
-    >
-      <div className="flex flex-wrap items-end justify-between gap-4 border-b border-border-subtle pb-5">
-        <div>
-          <p className="font-ds-display text-ds-heading-5 text-text-primary">
-            Cold-page bundle comparison
-          </p>
-          <p className="mt-1 text-ds-body-xs text-text-primary/45">
-            Controlled 12-case cold-page bundles · minified + gzip
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-6 space-y-5">
-        {bundleRows.map((row) => (
-          <div
-            key={row.label}
-            aria-label={`${row.label}: ${row.minimum.toFixed(1)} to ${row.maximum.toFixed(1)} kibibytes gzip`}
-            className="grid w-full grid-cols-[1fr_auto] items-center gap-x-3 gap-y-2 text-left sm:grid-cols-[9rem_1fr_8rem]"
-          >
-            <span className="order-1 text-ds-label-sm text-text-secondary">
-              {row.label}
-            </span>
-            <span className="relative order-3 col-span-2 h-4 overflow-hidden rounded-full bg-background-subtle sm:order-2 sm:col-span-1">
-              <span
-                className={`absolute inset-y-0 left-0 rounded-full opacity-25 ${row.color}`}
-                style={{
-                  width: `${(row.maximum / bundleChartMaximumKiB) * 100}%`,
-                }}
-              />
-              <span
-                className={`absolute inset-y-0 rounded-full ${row.color}`}
-                style={{
-                  left: `${(row.minimum / bundleChartMaximumKiB) * 100}%`,
-                  width: `${((row.maximum - row.minimum) / bundleChartMaximumKiB) * 100}%`,
-                }}
-              />
-            </span>
-            <span className="order-2 text-right font-ds-mono text-ds-mono-xs text-text-primary sm:order-3">
-              {row.minimum.toFixed(1)}–{row.maximum.toFixed(1)} KiB
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
 export function ActivationChart() {
   const isDark = useIsDark()
   const tooltip = React.useMemo(
@@ -728,7 +640,7 @@ export function ActivationChart() {
               Weekly activation rate
             </p>
             <p className="mt-1 font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--activation-muted)]">
-              Jan–May 2026 · illustrative product telemetry
+              Illustrative product telemetry
             </p>
           </div>
           <div className="text-left sm:text-right">

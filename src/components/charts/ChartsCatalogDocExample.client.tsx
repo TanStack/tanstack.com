@@ -13,23 +13,25 @@ const LazyExampleWorkbench = React.lazy(() =>
 
 export function ChartsCatalogDocExampleClient({
   caseId,
+  edit,
   fallback,
   height,
   source,
   title,
 }: {
   caseId: string
+  edit: boolean
   fallback: React.ReactNode
   height: number
   source: 'hidden' | 'collapsed' | 'expanded'
   title?: string
 }) {
   const [definition, setDefinition] = React.useState<ExampleDefinition>()
-  const [editing, setEditing] = React.useState(source === 'expanded')
+  const [editing, setEditing] = React.useState(edit)
 
   React.useEffect(() => {
-    setEditing(source === 'expanded')
-  }, [caseId, source])
+    setEditing(edit)
+  }, [caseId, edit])
 
   React.useEffect(() => {
     let cancelled = false

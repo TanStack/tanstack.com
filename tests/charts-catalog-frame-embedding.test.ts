@@ -163,7 +163,8 @@ test('chart example comments retain a useful static document', () => {
   assert.match(html, /data-chart-example="01-line-gaps"/)
   assert.match(html, /data-catalog-preview-case="01-line-gaps"/)
   assert.match(html, /height:480px/)
-  assert.match(html, /Open example/)
+  assert.match(html, />Edit</)
+  assert.match(html, />Run</)
   assert.doesNotMatch(html, /<iframe/)
 })
 

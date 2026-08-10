@@ -2385,21 +2385,3 @@ html:not(.dark) .library-landing-graphic [style*='drop-shadow'] {
 button[aria-label='Open TanStack Devtools'] {
   display: none !important;
 }
-
-.charts-catalog-preview {
-  --catalog-preview-1: var(--color-ds-blue-500);
-  --catalog-preview-2: var(--color-ds-terracotta-500);
-  --catalog-preview-3: var(--color-ds-purple-400);
-  --catalog-preview-muted: var(--color-ds-neutral-300);
-
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.dark .charts-catalog-preview {
-  --catalog-preview-1: var(--color-ds-blue-200);
-  --catalog-preview-2: var(--color-ds-terracotta-200);
-  --catalog-preview-3: var(--color-ds-purple-200);
-  --catalog-preview-muted: var(--color-ds-neutral-400);
-}

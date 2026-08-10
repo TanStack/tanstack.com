@@ -26,6 +26,7 @@ const landingCatalogSsrBudget = {
   elements: 1_600,
 }
 const catalog = {
+  revision: 'a'.repeat(40),
   cases: [
     {
       id: '03-temperature-range-band',
@@ -90,7 +91,7 @@ test('the landing hero uses a fixed set of distinct catalog cases', () => {
   ])
 })
 
-test('the landing server-renders site-owned chart previews without catalog assets', () => {
+test('the landing server-renders revision-pinned chart preview assets', () => {
   const shuffledCases = shuffleWithSeed(
     [...catalog.cases].sort((left, right) => left.order - right.order),
     galleryOrderSeed,
@@ -144,14 +145,14 @@ test('the landing server-renders site-owned chart previews without catalog asset
   )
   assert.deepEqual(
     galleryCards
-      .find('svg[data-catalog-preview-case]')
+      .find('img[data-catalog-preview-case]')
       .map((_, element) => $(element).attr('data-catalog-preview-case'))
       .get(),
     shuffledIds,
   )
 
   const hero = $('section[aria-label="Chart catalog examples"]')
-  const heroPreviews = hero.find('svg[data-catalog-preview-case]')
+  const heroPreviews = hero.find('img[data-catalog-preview-case]')
   assert.deepEqual(
     heroPreviews
       .map((_, element) => $(element).attr('data-catalog-preview-case'))
@@ -161,7 +162,10 @@ test('the landing server-renders site-owned chart previews without catalog asset
   assert.equal(hero.children('.grid').hasClass('grid-cols-2'), true)
   assert.equal(hero.find('figure').first().hasClass('col-span-2'), true)
 
-  assert.equal($('img').length, 0)
+  assert.equal(
+    $('img[src^="/charts/catalog/previews/"]').length,
+    catalog.cases.length + chartsLandingHeroCaseIds.length,
+  )
   assert.equal($('.charts-catalog-chart').length, 0)
   assert.equal($('[data-chart-case]').length, 0)
   assert.equal($('[src*="/charts/catalog/assets/"]').length, 0)

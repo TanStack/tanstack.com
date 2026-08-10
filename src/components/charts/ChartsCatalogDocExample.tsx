@@ -1,6 +1,7 @@
 import { ClientOnly } from '@tanstack/react-router'
 import * as React from 'react'
 import { ChartsCatalogPreview } from './ChartsCatalogPreview'
+import { Button } from '~/components/ds/ui'
 
 const LazyChartsCatalogDocExample = React.lazy(() =>
   import('./ChartsCatalogDocExample.client').then((module) => ({
@@ -19,45 +20,30 @@ export function ChartsCatalogDocExample({
   source?: 'hidden' | 'collapsed' | 'expanded'
   title?: string
 }) {
-  const containerRef = React.useRef<HTMLElement>(null)
-  const [shouldLoad, setShouldLoad] = React.useState(false)
+  const [activation, setActivation] = React.useState<{
+    caseId: string
+    edit: boolean
+  }>()
+  const isActive = activation?.caseId === caseId
   const fallback = (
     <ChartsCatalogDocExampleFallback
       caseId={caseId}
       height={height}
+      onEdit={() => setActivation({ caseId, edit: true })}
+      onRun={() => setActivation({ caseId, edit: false })}
       source={source}
       title={title}
     />
   )
 
-  React.useEffect(() => {
-    const container = containerRef.current
-    if (shouldLoad || !container) return
-
-    if (!('IntersectionObserver' in window)) {
-      setShouldLoad(true)
-      return
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (!entries.some((entry) => entry.isIntersecting)) return
-        setShouldLoad(true)
-        observer.disconnect()
-      },
-      { rootMargin: '320px 0px' },
-    )
-    observer.observe(container)
-    return () => observer.disconnect()
-  }, [shouldLoad])
-
   return (
-    <section ref={containerRef} className="not-prose my-5">
-      {shouldLoad ? (
+    <section className="not-prose my-5">
+      {isActive ? (
         <ClientOnly fallback={fallback}>
           <React.Suspense fallback={fallback}>
             <LazyChartsCatalogDocExample
               caseId={caseId}
+              edit={activation.edit}
               fallback={fallback}
               height={height}
               source={source}
@@ -75,11 +61,15 @@ export function ChartsCatalogDocExample({
 function ChartsCatalogDocExampleFallback({
   caseId,
   height,
+  onEdit,
+  onRun,
   source,
   title,
 }: {
   caseId: string
   height: number
+  onEdit: () => void
+  onRun: () => void
   source: 'hidden' | 'collapsed' | 'expanded'
   title?: string
 }) {
@@ -90,21 +80,27 @@ function ChartsCatalogDocExampleFallback({
       className="overflow-hidden rounded-lg border border-border-default bg-background-default"
       data-chart-example={caseId}
     >
-      {source !== 'hidden' ? (
-        <div className="flex min-h-10 items-center justify-between gap-3 border-b border-border-default px-3">
+      <div
+        className={`flex min-h-10 items-center gap-3 border-b border-border-default px-2 ${source === 'hidden' ? 'justify-end' : 'justify-between pl-3'}`}
+      >
+        {source !== 'hidden' ? (
           <span className="min-w-0 truncate font-ds-mono text-xs text-text-muted">
             {label}
           </span>
-          <a
-            className="shrink-0 text-xs font-medium text-text-secondary hover:text-text-primary"
-            href={`/charts/catalog/charts/${caseId}`}
-          >
-            Open example
-          </a>
+        ) : null}
+        <div className="flex shrink-0 items-center gap-1">
+          {source !== 'hidden' ? (
+            <Button type="button" variant="ghost" size="xs" onClick={onEdit}>
+              Edit
+            </Button>
+          ) : null}
+          <Button type="button" variant="primary" size="xs" onClick={onRun}>
+            Run
+          </Button>
         </div>
-      ) : null}
+      </div>
       <div aria-label={`${label} chart preview`} role="img" style={{ height }}>
-        <ChartsCatalogPreview caseId={caseId} className="p-8" family="" />
+        <ChartsCatalogPreview caseId={caseId} />
       </div>
     </div>
   )

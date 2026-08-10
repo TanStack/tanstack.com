@@ -184,7 +184,12 @@ function createLiveComponent(
   const profile = getExampleEnvironmentProfile(environment)
   if (files[profile.entryPath] !== undefined) return undefined
 
-  const workspace = createExampleWorkspace({ entry, environment, files })
+  const workspace = createExampleWorkspace({
+    entry,
+    environment,
+    files,
+    imports: profile.imports,
+  })
   const occurrence = (state.groupOccurrences.get(first.group) ?? 0) + 1
   state.groupOccurrences.set(first.group, occurrence)
 

@@ -63,7 +63,20 @@ test('provides hidden entry modules for every Charts environment', () => {
     assert.ok(profile)
     assert.equal(typeof profile.createEntrySource, 'function')
     assert.equal(profile.entryPath, '/__tanstack-example-entry.ts')
+    assert.equal(
+      profile.imports['@tanstack/charts'],
+      'https://esm.sh/@tanstack/charts@0.9.0',
+    )
   }
+
+  assert.equal(
+    exampleEnvironmentProfiles['charts-react'].imports.react,
+    'https://esm.sh/react@19.2.3',
+  )
+  assert.equal(
+    exampleEnvironmentProfiles['charts-octane'].imports.octane,
+    'https://esm.sh/octane@0.1.13',
+  )
 
   const charts =
     exampleEnvironmentProfiles.charts.createEntrySource('/src/chart.ts')

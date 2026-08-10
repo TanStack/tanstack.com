@@ -47,9 +47,18 @@ export const notebookImports = {
   'react-dom/': 'https://esm.sh/react-dom@19.2.3/',
 } as const
 
+const chartsEnvironmentImports = {
+  '@tanstack/charts': notebookImports['@tanstack/charts'],
+  '@tanstack/charts/': notebookImports['@tanstack/charts/'],
+  'd3-geo': notebookImports['d3-geo'],
+  'd3-scale': notebookImports['d3-scale'],
+  'd3-shape': notebookImports['d3-shape'],
+}
+
 export const exampleEnvironmentProfiles = {
   charts: {
     entryPath: '/__tanstack-example-entry.ts',
+    imports: chartsEnvironmentImports,
     createEntrySource(entry: string) {
       return `import { mountChart } from '@tanstack/charts'
 import definition from ${JSON.stringify(entry)}
@@ -69,6 +78,23 @@ window.addEventListener('pagehide', () => chart.destroy(), { once: true })
   },
   'charts-react': {
     entryPath: '/__tanstack-example-entry.ts',
+    imports: {
+      ...chartsEnvironmentImports,
+      '@tanstack/charts/react': notebookImports['@tanstack/charts/react'],
+      '@tanstack/charts/react/canvas':
+        notebookImports['@tanstack/charts/react/canvas'],
+      '@tanstack/charts/react/core':
+        notebookImports['@tanstack/charts/react/core'],
+      '@tanstack/charts/react/tooltip':
+        notebookImports['@tanstack/charts/react/tooltip'],
+      react: notebookImports.react,
+      'react/': notebookImports['react/'],
+      'react/jsx-dev-runtime': notebookImports['react/jsx-dev-runtime'],
+      'react/jsx-runtime': notebookImports['react/jsx-runtime'],
+      'react-dom': notebookImports['react-dom'],
+      'react-dom/': notebookImports['react-dom/'],
+      'react-dom/client': notebookImports['react-dom/client'],
+    },
     createEntrySource(entry: string) {
       return `import { createElement } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -85,6 +111,16 @@ window.addEventListener('pagehide', () => root.unmount(), { once: true })
   },
   'charts-octane': {
     entryPath: '/__tanstack-example-entry.ts',
+    imports: {
+      ...chartsEnvironmentImports,
+      '@tanstack/charts/octane': notebookImports['@tanstack/charts/octane'],
+      '@tanstack/charts/octane/canvas':
+        notebookImports['@tanstack/charts/octane/canvas'],
+      '@tanstack/charts/octane/core':
+        notebookImports['@tanstack/charts/octane/core'],
+      octane: notebookImports.octane,
+      'octane/': notebookImports['octane/'],
+    },
     createEntrySource(entry: string) {
       return `import { createRoot } from 'octane'
 import App from ${JSON.stringify(entry)}

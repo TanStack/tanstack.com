@@ -25,7 +25,7 @@ Before it finishes, they click `/settings`. That route has a layout and an index
 Meanwhile, the `/account` loader is still useful to the preload. Its result can enter the cache even though `/account` is no longer where the user is going. The router eventually publishes `/login`, then waits for the framework to catch up.
 
 <figure>
-<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_simple-scenario.svg" width="720" alt="A timeline where an account preload is joined by a navigation, a later settings navigation starts layout and index loaders, the index loader redirects to login, account data also enters the cache, and the framework acknowledges login after publication">
+<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_simple-scenario.svg" style="width:100%" alt="A timeline where an account preload is joined by a navigation, a later settings navigation starts layout and index loaders, the index loader redirects to login, account data also enters the cache, and the framework acknowledges login after publication">
 <figcaption>
 Even this simplified timeline has work being shared, superseded, redirected, cached, published, and rendered on different schedules.
 </figcaption>
@@ -44,7 +44,7 @@ The new model assigns separate owners to publishing, route outcomes, loader work
 Before adding concurrency between navigations, it helps to slow down one ordinary navigation.
 
 <figure>
-<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_single-orchestration.svg" width="720" alt="A single navigation moving through route matching, transaction acquisition, context building, parallel loader flights, pending UI publication, outcome selection, final match publication, and framework render acknowledgements">
+<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_single-orchestration.svg" style="width:100%" alt="A single navigation moving through route matching, transaction acquisition, context building, parallel loader flights, pending UI publication, outcome selection, final match publication, and framework render acknowledgements">
 <figcaption>
 Even one navigation moves along several schedules: loaders run, pending UI may appear, final matches publish, and the framework renders each publication in its own time.
 </figcaption>
@@ -92,7 +92,7 @@ Overlap exposes three boundaries that a single happy-path navigation can hide:
 The detailed timeline puts all three into the opening scenario. Read it as a worked example, not as a required ordering: independent events, such as caching `/account` and publishing `/login`, can happen in either order.
 
 <figure>
-<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_concurrent-orchestration.svg" width="720" alt="A detailed sequence diagram where an account preload and navigation share a loader flight, settings supersedes account, nested settings loaders produce an error and redirect, account data reaches cache, login matches publish, and the framework acknowledges rendering them">
+<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_concurrent-orchestration.svg" style="width:100%" alt="A detailed sequence diagram where an account preload and navigation share a loader flight, settings supersedes account, nested settings loaders produce an error and redirect, account data reaches cache, login matches publish, and the framework acknowledges rendering them">
 <figcaption>
 Replacing the current transaction does not necessarily end a shared loader flight. Loader outcomes first return to a private lane, and published matches cross a separate framework-render boundary.
 </figcaption>

@@ -14,8 +14,14 @@ export const Route = createFileRoute('/_library/$libraryId/$version')({
   beforeLoad: async (ctx) => {
     const { libraryId, version } = ctx.params
     const library = validateLibraryVersion(libraryId, version, () => {
+      // Permanent redirect so retired versions (e.g. /table/beta/...) keep SEO
+      // equity when rewritten to /latest with the rest of the path intact.
       throw redirect({
-        params: { libraryId, version: 'latest' } as never,
+        href: ctx.location.href.replace(
+          `/${libraryId}/${version}`,
+          `/${libraryId}/latest`,
+        ),
+        statusCode: 308,
       })
     })
 

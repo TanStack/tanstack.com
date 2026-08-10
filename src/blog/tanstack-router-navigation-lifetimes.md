@@ -16,13 +16,17 @@ From application code, a navigation looks almost too simple:
 await router.navigate({ to: '/account' })
 ```
 
-One call, one promise, one destination.
+Now let's imagine a slightly more complex scenario.
 
-Now imagine that the user hovers the link first. The router starts preloading `/account`. They click while its loader is still running, so the navigation joins the work that the hover already started.
+<video src="/blog-assets/tanstack-router-loading-lifetimes/tanstack-router-navigation-demo.mp4" autoplay muted loop playsinline controls />
 
-Before it finishes, they click `/settings`. That route has a layout and an index child, with a loader on each. The layout loader fails, but the index loader redirects to `/login`.
-
-Meanwhile, the `/account` loader is still useful to the preload. Its result can enter the cache even though `/account` is no longer where the user is going. The router eventually publishes `/login`, then waits for the framework to catch up.
+1. The user hovers a link, and the router starts preloading `/account`
+2. They click the link while its loader is still running, so the navigation joins the work that the hover already started
+3. While it's still loading, they click `/settings`, which has many parallel `loader` calls to run
+4. The layout loader errors, but the index loader redirects to `/login`
+5. Meanwhile, the `/account` loader settles. The user is no longer going to `/account` but its result can enter the cache
+6. The router eventually publishes `/login` but its content suspends
+7. Finally, the suspense resolves and the framework renders the `/login` page
 
 <figure>
 <img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_simple-scenario.svg" style="width:100%" alt="A timeline where an account preload is joined by a navigation, a later settings navigation starts layout and index loaders, the index loader redirects to login, account data also enters the cache, and the framework acknowledges login after publication">
@@ -35,7 +39,7 @@ Which result is allowed to reach the page? Which loader should be canceled? Does
 
 Those questions do not have one shared answer.
 
-We learned this the hard way. [A rewrite of TanStack Router's match-loading core](https://github.com/TanStack/router/pull/7805) grew around dozens of linked reports and patches across preloading, redirects, caching, pending UI, SSR, and more. They looked unrelated, but most crossed the same boundary: one part of the router was answering a question that belonged to another.
+We learned this the hard way. [A rewrite of TanStack Router's route loading core](https://github.com/TanStack/router/pull/7805) grew around dozens of linked reports and patches across preloading, redirects, caching, pending UI, SSR, and more. They looked unrelated, but most crossed the same boundary: one part of the router was answering a question that belonged to another.
 
 The new model assigns separate owners to publishing, route outcomes, loader work, and rendering. There is still one `navigate()` call at the API boundary, but there is no single owner of everything inside it.[^architecture]
 
@@ -114,7 +118,7 @@ A loader flight can also outlive its promise. An accepted or cached match may ke
 
 ### A Loader Outcome Is Not a Route Outcome
 
-A rejected loader promise is a local fact. It is not automatically a decision to render an error page. Other loaders that already started may still produce control flow, such as a redirect or not-found result, that changes the meaning of the whole attempt.
+A rejected loader promise is a local fact. It is not automatically a decision to render an error page. Other loaders that already started may still produce control flow, such as a redirect, that changes the meaning of the whole attempt.
 
 The router therefore normalizes individual settlements and returns them to the lane. The lane reducer considers the outcomes together and selects one semantic result. Only that reduced result can be projected into publishable matches.
 

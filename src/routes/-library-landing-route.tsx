@@ -28,7 +28,7 @@ export function beforeLoadLibraryLanding(
   href: string,
 ) {
   const library = validateLibraryVersion(libraryId, version, () => {
-    throw redirect({ href: `/${libraryId}/latest` })
+    throw redirect({ href: `/${libraryId}/latest`, statusCode: 308 })
   })
 
   library.handleRedirects?.(href)

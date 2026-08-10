@@ -13,7 +13,8 @@ function escapeXml(unsafe: string): string {
 }
 
 export function getRssImageMediaType(src: string) {
-  const extension = src.match(/\.([^.?#]+)(?:[?#]|$)/)?.[1]?.toLowerCase()
+  const path = src.split(/[?#]/, 1)[0]
+  const extension = path.match(/\.([^./]+)$/)?.[1]?.toLowerCase()
 
   if (extension === 'jpg' || extension === 'jpeg') return 'image/jpeg'
   if (extension === 'webp') return 'image/webp'

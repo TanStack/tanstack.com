@@ -10,6 +10,14 @@ test('uses the image media type matching an RSS enclosure URL', () => {
   assert.equal(getRssImageMediaType('/header.svg?v=1'), 'image/svg+xml')
   assert.equal(getRssImageMediaType('/header.gif#image'), 'image/gif')
   assert.equal(
+    getRssImageMediaType('/header?source=original.png'),
+    'application/octet-stream',
+  )
+  assert.equal(
+    getRssImageMediaType('/header#preview.jpg'),
+    'application/octet-stream',
+  )
+  assert.equal(
     getRssImageMediaType('/header.unknown'),
     'application/octet-stream',
   )

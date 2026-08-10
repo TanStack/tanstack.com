@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import { exampleEnvironmentNames } from '../src/utils/example-workspace'
 import {
   exampleEnvironmentProfiles,
   generateNotebookLlmsTxt,
@@ -57,6 +58,13 @@ test('exposes unified Charts subpaths without duplicate framework runtimes', () 
 })
 
 test('provides hidden entry modules for every Charts environment', () => {
+  for (const environment of exampleEnvironmentNames) {
+    const profile = exampleEnvironmentProfiles[environment]
+    assert.ok(profile)
+    assert.equal(typeof profile.createEntrySource, 'function')
+    assert.equal(profile.entryPath, '/__tanstack-example-entry.ts')
+  }
+
   const charts =
     exampleEnvironmentProfiles.charts.createEntrySource('/src/chart.ts')
   assert.match(charts, /mountChart/)

@@ -1,4 +1,3 @@
-import { parseAttributes } from '@tanstack/markdown/extensions/comment-components'
 import type {
   BlockNode,
   CodeBlockNode,
@@ -11,6 +10,11 @@ import {
   isExampleEnvironment,
   serializeExampleWorkspace,
 } from '~/utils/example-workspace'
+import { getExampleEnvironmentProfile } from '~/utils/notebook-environment'
+
+type TransformState = {
+  groupOccurrences: Map<string, number>
+}
 
 export function liveExamplesExtension(): MarkdownExtension {
   return {
@@ -18,21 +22,25 @@ export function liveExamplesExtension(): MarkdownExtension {
     transformDocument(document) {
       return {
         ...document,
-        children: transformBlocks(document.children),
+        children: transformBlocks(document.children, {
+          groupOccurrences: new Map(),
+        }),
       }
     },
   }
 }
 
-function transformBlocks(blocks: Array<BlockNode>): Array<BlockNode> {
-  const nested = blocks.map(transformNestedBlocks)
+function transformBlocks(
+  blocks: Array<BlockNode>,
+  state: TransformState,
+): Array<BlockNode> {
   const transformed: Array<BlockNode> = []
   let index = 0
 
-  while (index < nested.length) {
-    const first = readGroupCode(nested[index])
+  while (index < blocks.length) {
+    const first = readGroupCode(blocks[index])
     if (!first) {
-      transformed.push(nested[index])
+      transformed.push(transformNestedBlocks(blocks[index], state))
       index += 1
       continue
     }
@@ -40,14 +48,14 @@ function transformBlocks(blocks: Array<BlockNode>): Array<BlockNode> {
     const group = [first]
     let cursor = index + 1
 
-    while (cursor < nested.length) {
-      const next = readGroupCode(nested[cursor])
+    while (cursor < blocks.length) {
+      const next = readGroupCode(blocks[cursor])
       if (!next || next.group !== first.group) break
       group.push(next)
       cursor += 1
     }
 
-    const component = createLiveComponent(group)
+    const component = createLiveComponent(group, state)
     if (component) transformed.push(component)
     else transformed.push(...group.map(({ node }) => node))
     index = cursor
@@ -56,18 +64,21 @@ function transformBlocks(blocks: Array<BlockNode>): Array<BlockNode> {
   return transformed
 }
 
-function transformNestedBlocks(block: BlockNode): BlockNode {
+function transformNestedBlocks(
+  block: BlockNode,
+  state: TransformState,
+): BlockNode {
   switch (block.type) {
     case 'blockquote':
     case 'callout':
     case 'component':
-      return { ...block, children: transformBlocks(block.children) }
+      return { ...block, children: transformBlocks(block.children, state) }
     case 'list':
       return {
         ...block,
         items: block.items.map((item) => ({
           ...item,
-          children: transformBlocks(item.children),
+          children: transformBlocks(item.children, state),
         })),
       }
     case 'footnotes':
@@ -75,7 +86,7 @@ function transformNestedBlocks(block: BlockNode): BlockNode {
         ...block,
         items: block.items.map((item) => ({
           ...item,
-          children: transformBlocks(item.children),
+          children: transformBlocks(item.children, state),
         })),
       }
     case 'code':
@@ -91,14 +102,14 @@ function transformNestedBlocks(block: BlockNode): BlockNode {
 function readGroupCode(block: BlockNode | undefined) {
   if (block?.type !== 'code' || !block.meta) return undefined
 
-  const attributes = parseAttributes(block.meta)
+  const { attributes, attributeCounts } = parseFenceAttributes(block.meta)
   const group = attributes.group
 
   if (group === undefined) return undefined
 
   return {
     attributes,
-    attributeNames: readAttributeNames(block.meta),
+    attributeCounts,
     group,
     node: block,
   }
@@ -107,10 +118,11 @@ function readGroupCode(block: BlockNode | undefined) {
 function createLiveComponent(
   group: Array<{
     attributes: Record<string, string>
-    attributeNames: Array<string>
+    attributeCounts: Map<string, number>
     group: string
     node: CodeBlockNode
   }>,
+  state: TransformState,
 ): ComponentNode | undefined {
   const first = group[0]
   if (!first || !/^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/.test(first.group)) {
@@ -123,18 +135,18 @@ function createLiveComponent(
   const environmentItems: Array<(typeof group)[number]> = []
 
   for (const [index, item] of group.entries()) {
-    const { attributes, attributeNames } = item
+    const { attributes, attributeCounts } = item
     const file = attributes.file
     const entry = attributes.entry
     const collapsed = attributes.collapsed
     const environment = attributes.env
 
     if (
-      countAttribute(attributeNames, 'group') !== 1 ||
-      countAttribute(attributeNames, 'file') !== 1 ||
-      countAttribute(attributeNames, 'entry') > 1 ||
-      countAttribute(attributeNames, 'collapsed') > 1 ||
-      countAttribute(attributeNames, 'env') > 1 ||
+      countAttribute(attributeCounts, 'group') !== 1 ||
+      countAttribute(attributeCounts, 'file') !== 1 ||
+      countAttribute(attributeCounts, 'entry') > 1 ||
+      countAttribute(attributeCounts, 'collapsed') > 1 ||
+      countAttribute(attributeCounts, 'env') > 1 ||
       !file ||
       !isCanonicalExamplePath(file) ||
       (entry !== undefined && entry !== 'true') ||
@@ -169,13 +181,18 @@ function createLiveComponent(
     return undefined
   }
 
+  const profile = getExampleEnvironmentProfile(environment)
+  if (files[profile.entryPath] !== undefined) return undefined
+
   const workspace = createExampleWorkspace({ entry, environment, files })
+  const occurrence = (state.groupOccurrences.get(first.group) ?? 0) + 1
+  state.groupOccurrences.set(first.group, occurrence)
 
   return {
     type: 'component',
     name: 'live-example',
     tagName: 'md-live-example',
-    attributes: { id: first.group },
+    attributes: { id: `${first.group}-${occurrence}` },
     properties: {
       'data-example-group': first.group,
       'data-collapsed-indexes': JSON.stringify(collapsedIndexes),
@@ -185,18 +202,22 @@ function createLiveComponent(
   }
 }
 
-function readAttributeNames(meta: string) {
-  const names: Array<string> = []
-  const pattern = /([A-Za-z_][\w:-]*)(?:=(?:"[^"]*"|'[^']*'|[^\s"']+))?/g
+function parseFenceAttributes(meta: string) {
+  const attributes: Record<string, string> = {}
+  const attributeCounts = new Map<string, number>()
+  const pattern = /([A-Za-z_][\w:-]*)(?:=(?:"([^"]*)"|'([^']*)'|([^\s"']+)))?/g
 
   for (const match of meta.matchAll(pattern)) {
     const name = match[1]
-    if (name) names.push(name)
+    if (!name) continue
+
+    attributes[name] = match[2] ?? match[3] ?? match[4] ?? 'true'
+    attributeCounts.set(name, (attributeCounts.get(name) ?? 0) + 1)
   }
 
-  return names
+  return { attributes, attributeCounts }
 }
 
-function countAttribute(names: Array<string>, name: string) {
-  return names.filter((candidate) => candidate === name).length
+function countAttribute(counts: Map<string, number>, name: string) {
+  return counts.get(name) ?? 0
 }

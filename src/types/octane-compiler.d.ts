@@ -5,9 +5,24 @@ declare module 'octane/compiler' {
     mode?: 'client' | 'server'
   }
 
+  export type OctaneCompilePosition = {
+    offset: number
+    line: number
+    column: number
+  }
+
+  export type OctaneCompileDiagnostic = {
+    code: string
+    severity: string
+    message: string
+    filename: string
+    start: OctaneCompilePosition
+    end: OctaneCompilePosition
+  }
+
   export type OctaneCompileResult = {
     code: string
-    diagnostics: ReadonlyArray<unknown>
+    diagnostics: ReadonlyArray<OctaneCompileDiagnostic>
     map: unknown
   }
 

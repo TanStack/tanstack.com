@@ -121,12 +121,38 @@ function createWorkspacePlugin(files: Record<string, string>): esbuild.Plugin {
             }
           }
 
-          const contents = args.path.endsWith('.tsrx')
-            ? await compileOctaneSource(source, args.path)
-            : source
+          if (args.path.endsWith('.tsrx')) {
+            const compiled = await compileOctaneSource(source, args.path)
+            const errors: esbuild.PartialMessage[] = []
+            const warnings: esbuild.PartialMessage[] = []
+
+            for (const diagnostic of compiled.diagnostics) {
+              const message = {
+                text: diagnostic.message,
+                location: {
+                  file: diagnostic.filename,
+                  line: diagnostic.start.line,
+                  column: diagnostic.start.column,
+                  length: diagnostic.end.offset - diagnostic.start.offset,
+                },
+                detail: diagnostic,
+              }
+
+              if (diagnostic.severity === 'warning') warnings.push(message)
+              else errors.push(message)
+            }
+
+            return {
+              contents: compiled.code,
+              errors,
+              loader: getLoader(args.path),
+              resolveDir: getDirectory(args.path),
+              warnings,
+            }
+          }
 
           return {
-            contents,
+            contents: source,
             loader: getLoader(args.path),
             resolveDir: getDirectory(args.path),
           }
@@ -142,7 +168,7 @@ async function compileOctaneSource(source: string, path: string) {
     dev: false,
     hmr: false,
     mode: 'client',
-  }).code
+  })
 }
 
 function normalizeFiles(files: Record<string, string>) {

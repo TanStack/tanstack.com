@@ -140,6 +140,24 @@ console.log('third')
     ],
     'second',
   )
+  assert.equal(
+    requireComponent(adjacentIds.children[0]).attributes.id,
+    'first-1',
+  )
+  assert.equal(
+    requireComponent(adjacentIds.children[1]).attributes.id,
+    'second-1',
+  )
+  assert.equal(
+    requireComponent(adjacentIds.children[3]).attributes.id,
+    'first-2',
+  )
+  assert.equal(
+    requireComponent(adjacentIds.children[3]).properties?.[
+      'data-example-group'
+    ],
+    'first',
+  )
 })
 
 test('groups runnable files inside nested block containers', () => {
@@ -191,6 +209,7 @@ test('invalid runnable metadata fails open to static code', () => {
     'group=counter env=charts file=/main.tsx entry collapsed',
     'group=counter env=charts file=/main.tsx entry=false',
     'group=counter env=charts file=/main.tsx entry collapsed=false',
+    'group=counter env=charts file=/__tanstack-example-entry.ts entry',
     'live=counter file=/main.tsx',
   ]
 
@@ -227,6 +246,34 @@ console.log('support')
 
   assert.deepEqual(
     environmentOnSupport.children.map((child) => child.type),
+    ['code', 'code'],
+  )
+
+  const missingEnvironment =
+    parseSiteMarkdown(`\`\`\`tsx group=counter file=/main.tsx entry
+console.log('main')
+\`\`\``)
+
+  assert.equal(missingEnvironment.children[0]?.type, 'code')
+
+  const duplicateEnvironment =
+    parseSiteMarkdown(`\`\`\`tsx group=counter env=charts env=charts-react file=/main.tsx entry
+console.log('main')
+\`\`\``)
+
+  assert.equal(duplicateEnvironment.children[0]?.type, 'code')
+
+  const reservedEnvironmentFile =
+    parseSiteMarkdown(`\`\`\`tsx group=counter env=charts file=/main.tsx entry
+console.log('main')
+\`\`\`
+
+\`\`\`ts group=counter file=/__tanstack-example-entry.ts
+console.log('reserved')
+\`\`\``)
+
+  assert.deepEqual(
+    reservedEnvironmentFile.children.map((child) => child.type),
     ['code', 'code'],
   )
 

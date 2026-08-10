@@ -8,7 +8,7 @@ excerpt: 'A navigation looks like one asynchronous operation. Inside TanStack Ro
 library: router
 ---
 
-![A flock of seagulls racing toward an island](/blog-assets/tanstack-router-loading-lifetimes/header.png)
+![A meandering river flows, its tributaries joining and separating](/blog-assets/tanstack-router-loading-lifetimes/header.png)
 
 From application code, a navigation looks almost too simple:
 

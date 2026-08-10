@@ -1,5 +1,5 @@
 ---
-title: 'Form v2 is here: All you need to know about the alpha'
+title: "Form v2 is here: All you need to know about the alpha"
 published: 2026-08-06
 excerpt: The TanStack Form v2 alpha is here with more flexible validators, schema-oriented forms, safer form composition, and simpler SSR.
 library: form
@@ -21,7 +21,7 @@ v2 uses a pipeline instead. Each validator gets its own entry and declares the e
 
 ### One validator, multiple triggers
 
-#### Before (v1)
+### Before (v1)
 
 Say you want to validate a field when its value changes and when it loses focus. v1 couldn't attach one validator to both events directly, so you had to add the same validator twice.
 
@@ -29,112 +29,112 @@ Because v1 registered the validator once for each event, it could produce duplic
 
 ```ts title="v1"
 const form = useForm({
-  defaultValues: { name: '' },
+  defaultValues: { name: "" },
   validators: {
     onChange: mySchema,
     onBlur: mySchema,
   },
-})
+});
 ```
 
-#### After (v2)
+### After (v2)
 
 In v2, you define the validator once and list both events in `triggers`. It can run on change and blur without duplicating its setup or its errors.
 
 ```ts title="v2"
 const form = useForm({
-  defaultValues: { name: '' },
+  defaultValues: { name: "" },
   validators: [
     {
       run: mySchema,
-      triggers: ['change', 'blur'],
+      triggers: ["change", "blur"],
     },
   ],
-})
+});
 ```
 
 ### Multiple validators, one trigger
 
-#### Before (v1)
+### Before (v1)
 
 The opposite was awkward too. Say you want to run both a schema validator and a reserved-username check whenever a field changes. v1 only had one `onChange` key, so you had to wrap both validators in a single callback and control how they ran yourself:
 
 ```ts title="v1"
 const form = useForm({
-  defaultValues: { name: '' },
+  defaultValues: { name: "" },
   validators: {
     onChange: ({ formApi, value }) => {
-      const errors = formApi.parseValuesWithSchema(mySchema)
+      const errors = formApi.parseValuesWithSchema(mySchema);
 
       // Stop if the schema validator found any errors.
-      if (errors) return errors
+      if (errors) return errors;
 
-      return checkReservedUsername(value)
+      return checkReservedUsername(value);
     },
   },
-})
+});
 ```
 
-#### After (v2)
+### After (v2)
 
 In v2, the two validators stay separate even though they share a trigger. Setting `bailIfInvalid` on the username check makes it run only if the schema validator passes, just like the early return in the v1 example.
 
 ```ts title="v2"
 const form = useForm({
-  defaultValues: { name: '' },
+  defaultValues: { name: "" },
   validators: [
     {
       run: mySchema,
-      triggers: ['change'],
+      triggers: ["change"],
     },
     {
       run: ({ value }) => checkReservedUsername(value),
-      triggers: ['change'],
+      triggers: ["change"],
       // Only run this check if the schema validator passes.
       bailIfInvalid: true,
     },
   ],
-})
+});
 ```
 
 ### Conditional validators
 
 Sometimes you only want an event to trigger validation after something else has happened. One common React Hook Form pattern is to validate on submit first, then validate on every change after the first submission attempt.
 
-#### Before (v1)
+### Before (v1)
 
 In v1, general conditions had to live inside the validator. The function still ran on every change, only to return early while the condition was false. For this particular submit-then-change pattern, v1 also offered `onDynamic` together with `revalidateLogic()`:
 
 ```ts title="v1"
 const form = useForm({
-  defaultValues: { name: '' },
+  defaultValues: { name: "" },
   validationLogic: revalidateLogic(),
   validators: {
     onDynamic: mySchema,
   },
-})
+});
 ```
 
-#### After (v2)
+### After (v2)
 
 In v2, each trigger can include a `when` condition. The validator still runs on submit, but the change trigger only becomes active after the first submission attempt. Until then, changes don't call the validator at all. The condition now sits next to the trigger it controls, with no early return inside the validator or separate validation setting.
 
 ```ts title="v2"
 const form = useForm({
-  defaultValues: { name: '' },
+  defaultValues: { name: "" },
   validators: [
     {
       run: schema,
       triggers: [
         {
-          trigger: 'change',
+          trigger: "change",
           // After the first submission attempt, validate every change.
           when: ({ formApi }) => formApi.state.submissionAttempts > 0,
         },
       ],
     },
   ],
-})
+});
 ```
 
 ## Listeners rework
@@ -152,7 +152,7 @@ Consider an appointment form. Its schema requires a date, but we don't want to p
 ```ts
 const schema = z.object({
   appointment: z.date(),
-})
+});
 
 /*
   z.input<typeof schema> = {
@@ -176,10 +176,10 @@ const formOpts = formOptions({
     {
       // Error: The form is `appointment: null`, but the schema expects `Date`.
       run: schema,
-      triggers: ['change'],
+      triggers: ["change"],
     },
   ],
-})
+});
 ```
 
 ```ts title="Strict schema"
@@ -191,10 +191,10 @@ const formOpts = formOptions.strictSchema({
   validators: [
     {
       run: schema,
-      triggers: ['change'],
+      triggers: ["change"],
     },
   ],
-})
+});
 ```
 
 ```ts title="Loose schema"
@@ -206,17 +206,17 @@ const formOpts = formOptions.looseSchema({
   validators: [
     {
       run: schema,
-      triggers: ['change'],
+      triggers: ["change"],
     },
   ],
-})
+});
 ```
 
 <!-- ::end:tabs -->
 
 ## Form Composition type safety
 
-#### Before (v1)
+### Before (v1)
 
 Form composition made it possible to bundle reusable components with a field and reduced the boilerplate needed to build forms. In v1, however, those components weren't restricted by the field's value type. A string field such as `email` could render a `NumberInput` without any warning about the mismatch:
 
@@ -233,7 +233,7 @@ Form composition made it possible to bundle reusable components with a field and
 </form.AppField>
 ```
 
-#### After (v2)
+### After (v2)
 
 v2 lets composed field components be branded with the value types they support. Once `email` is inferred as a string field, incompatible components are left out of its field API. Trying to access `field.NumberInput` therefore produces a type error before the form reaches the browser.
 
@@ -263,69 +263,70 @@ v1 configured server validation separately from the shared form options. Validat
 <!-- ::start:tabs variant="files" -->
 
 ```ts title="shared-code.ts"
-import { formOptions } from '@tanstack/react-form-nextjs'
+import { formOptions } from "@tanstack/react-form-nextjs";
 
 export const formOpts = formOptions({
   defaultValues: { age: 0 },
-})
+});
 ```
 
 ```ts title="action.ts"
-'use server'
+"use server";
 
 import {
   createServerValidate,
   ServerValidateError,
-} from '@tanstack/react-form-nextjs'
-import { formOpts } from './shared-code'
+} from "@tanstack/react-form-nextjs";
+import { z } from "zod";
+import { formOpts } from "./shared-code";
 
 const mySchema = z.object({
-  age: z.coerce.number().min(13, 'You must be 13 at least 13'),
-})
+  age: z.coerce.number().min(13, "You must be at least 13"),
+});
 
 const serverValidate = createServerValidate({
   ...formOpts,
   onServerValidate: mySchema,
-})
+});
 
 export async function submit(_previous: unknown, formData: FormData) {
   try {
-    const values = await serverValidate(formData)
+    const values = await serverValidate(formData);
 
     // Use values...
   } catch (error) {
     // The returned form state loses its inferred type after this check.
     if (error instanceof ServerValidateError) {
-      return error.formState
+      return error.formState;
     }
 
-    throw error
+    throw error;
   }
 }
 ```
 
 ```tsx title="client.tsx"
-'use client'
+"use client";
 
-import { useActionState } from 'react'
+import { useActionState } from "react";
 import {
   initialFormState,
   mergeForm,
   useForm,
   useTransform,
-} from '@tanstack/react-form-nextjs'
-import { submit } from './action'
-import { formOpts } from './shared-code'
+} from "@tanstack/react-form-nextjs";
+import { submit } from "./action";
+import { formOpts } from "./shared-code";
 
 export function Form() {
-  const [state, action] = useActionState(submit, initialFormState)
+  const [state, action] = useActionState(submit, initialFormState);
 
   const form = useForm({
     ...formOpts,
     transform: useTransform((baseForm) => mergeForm(baseForm, state!), [state]),
-  })
+  });
 
-  return <form action={action as never}>{/* form.Field components */}</form>
+  return <form action={action as never}>{/* form.Field components */}</form>;
 }
 ```
 
@@ -338,68 +339,69 @@ v2 moves the server validator into the shared `formOpts`, so the same configurat
 <!-- ::start:tabs variant="files" -->
 
 ```ts title="shared-code.ts"
-import { formOptions } from '@tanstack/react-form'
+import { formOptions } from "@tanstack/react-form";
+import { z } from "zod";
 
 const mySchema = z.object({
-  age: z.coerce.number().min(13, 'You must be 13 at least 13'),
-})
+  age: z.coerce.number().min(13, "You must be 13 at least 13"),
+});
 
 export const formOpts = formOptions({
   defaultValues: { age: 0 },
   validators: [
     {
-      triggers: ['server'],
+      triggers: ["server"],
       runOnSubmit: false,
       run: mySchema,
     },
   ],
-})
+});
 ```
 
 ```ts title="action.ts"
-'use server'
+"use server";
 
 import {
   initialServerFormState,
   serverValidateHelper,
-} from '@tanstack/react-form'
-import { next } from '@tanstack/react-form-nextjs'
-import { formOpts } from './shared-code'
+} from "@tanstack/react-form";
+import { next } from "@tanstack/react-form-nextjs";
+import { formOpts } from "./shared-code";
 
 const { createServerValidate } = serverValidateHelper({
   framework: next(),
-})
+});
 
-const serverValidate = createServerValidate(formOpts)
+const serverValidate = createServerValidate(formOpts);
 
 export async function submit(_previous: unknown, formData: FormData) {
-  const result = await serverValidate(formData)
+  const result = await serverValidate(formData);
 
   // serverState keeps the type inferred from formOpts.
-  if (!result.success) return result.serverState
+  if (!result.success) return result.serverState;
 
   // Use result.values...
-  return initialServerFormState
+  return initialServerFormState;
 }
 ```
 
 ```tsx title="client.tsx"
-'use client'
+"use client";
 
-import { useActionState } from 'react'
-import { initialServerFormState, useForm } from '@tanstack/react-form'
-import { submit } from './action'
-import { formOpts } from './shared-code'
+import { useActionState } from "react";
+import { initialServerFormState, useForm } from "@tanstack/react-form";
+import { submit } from "./action";
+import { formOpts } from "./shared-code";
 
 export function Form() {
-  const [serverState, action] = useActionState(submit, initialServerFormState)
+  const [serverState, action] = useActionState(submit, initialServerFormState);
 
   const form = useForm({
     ...formOpts,
     serverState,
-  })
+  });
 
-  return <form action={action}>{/* form.Field components */}</form>
+  return <form action={action}>{/* form.Field components */}</form>;
 }
 ```
 

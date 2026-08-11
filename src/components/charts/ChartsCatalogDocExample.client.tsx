@@ -76,6 +76,7 @@ export function ChartsCatalogDocExampleClient({
     <div
       className="overflow-hidden rounded-lg border border-border-default bg-background-default"
       data-chart-example={caseId}
+      data-chart-example-state="running"
     >
       {source !== 'hidden' ? (
         <div className="flex min-h-10 items-center justify-between gap-3 border-b border-border-default px-2 pl-3">

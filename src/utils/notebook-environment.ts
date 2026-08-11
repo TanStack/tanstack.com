@@ -19,9 +19,12 @@ export const notebookImports = {
     'https://esm.sh/@tanstack/charts@0.10.0/octane/core?external=octane',
   '@tanstack/charts-data/':
     'https://esm.sh/gh/TanStack/charts@b8690671d677244848cff0eebd3d5dd0d5825b18/packages/charts-demo-data/src/',
-  '@tanstack/highlight': 'https://esm.sh/@tanstack/highlight@0.0.9',
-  '@tanstack/highlight/': 'https://esm.sh/@tanstack/highlight@0.0.9/',
-  '@tanstack/markdown': 'https://esm.sh/@tanstack/markdown@0.0.11',
+  '@tanstack/highlight': 'https://esm.sh/@tanstack/highlight@0.0.10',
+  '@tanstack/highlight/': 'https://esm.sh/@tanstack/highlight@0.0.10/',
+  '@tanstack/markdown': 'https://esm.sh/@tanstack/markdown@0.0.13',
+  '@tanstack/markdown/react':
+    'https://esm.sh/@tanstack/markdown@0.0.13/react?external=react',
+  '@tanstack/markdown/': 'https://esm.sh/@tanstack/markdown@0.0.13/',
   '@tanstack/pacer': 'https://esm.sh/@tanstack/pacer@0.21.1',
   '@tanstack/react-pacer':
     'https://esm.sh/@tanstack/react-pacer@0.22.1?external=react',
@@ -54,6 +57,8 @@ const chartsEnvironmentImports = {
   'd3-scale': notebookImports['d3-scale'],
   'd3-shape': notebookImports['d3-shape'],
 }
+
+const clientEnvironmentImports = { ...notebookImports }
 
 function defineExampleEnvironmentProfile({
   createEntrySource,
@@ -91,6 +96,47 @@ if (!output) {
 }
 
 export const exampleEnvironmentProfiles = {
+  client: defineExampleEnvironmentProfile({
+    imports: clientEnvironmentImports,
+    outputSelector: '#root',
+    createEntrySource(entry, outputSource) {
+      return `import value from ${JSON.stringify(entry)}
+
+${outputSource}
+
+function appendValue(value: unknown) {
+  if (value === undefined || value === null) return
+  if (value instanceof Node) {
+    output.append(value)
+    return
+  }
+
+  const pre = document.createElement('pre')
+  pre.textContent = typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value)
+  output.append(pre)
+}
+
+const result = typeof value === 'function' ? await value(output) : value
+appendValue(result)
+`
+    },
+  }),
+  react: defineExampleEnvironmentProfile({
+    imports: clientEnvironmentImports,
+    outputSelector: '#root',
+    createEntrySource(entry, outputSource) {
+      return `import { createElement } from 'react'
+import { createRoot } from 'react-dom/client'
+import App from ${JSON.stringify(entry)}
+
+${outputSource}
+
+const root = createRoot(output)
+root.render(createElement(App))
+window.addEventListener('pagehide', () => root.unmount(), { once: true })
+`
+    },
+  }),
   charts: defineExampleEnvironmentProfile({
     imports: chartsEnvironmentImports,
     outputSelector: '#root',
@@ -191,7 +237,19 @@ export const notebookImportAliases = [
     'TanStack Charts demo data; append a module path',
   ),
   describeImport('@tanstack/highlight', 'TanStack Highlight'),
+  describeImport(
+    '@tanstack/highlight/',
+    'TanStack Highlight subpaths; append core, languages/<name>, theme, themes/<name>, or markdown',
+  ),
   describeImport('@tanstack/markdown', 'TanStack Markdown'),
+  describeImport(
+    '@tanstack/markdown/',
+    'TanStack Markdown subpaths; append html, parser, or extensions/<name>',
+  ),
+  describeImport(
+    '@tanstack/markdown/react',
+    'TanStack Markdown React renderer using the notebook React instance',
+  ),
   describeImport('@tanstack/pacer', 'TanStack Pacer'),
   describeImport('@tanstack/react-pacer', 'TanStack Pacer React bindings'),
   describeImport('@tanstack/react-query', 'TanStack Query'),
@@ -239,7 +297,7 @@ export const exampleWorkspaceRules = [
 export const liveDocsRules = [
   'A runnable documentation example is a consecutive group of fenced code blocks with the same group identifier.',
   "Every fence must include an explicit canonical absolute file path. Exactly one fence has the entry flag, and that fence carries the group's only env declaration.",
-  "Supported environments are charts, charts-react, and charts-octane. Their hidden bootstrap mounts the entry module's default export.",
+  "Supported environments are client, react, charts, charts-react, and charts-octane. Their hidden bootstrap mounts the entry module's default export.",
   'Add the collapsed flag to support files that should remain under a disclosure until the reader opens them.',
   'The static highlighted fences are rendered on the server. The editor and esbuild runtime load only after the reader selects Run.',
 ]

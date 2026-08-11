@@ -1,6 +1,8 @@
 export const exampleWorkspaceVersion = 1
 
 export const exampleEnvironmentNames = [
+  'client',
+  'react',
   'charts',
   'charts-react',
   'charts-octane',

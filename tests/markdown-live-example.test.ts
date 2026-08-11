@@ -99,6 +99,57 @@ export default function App() { return <LetterFrequencyChart /> }
   ])
 })
 
+test('builds a realistic multi-file Markdown and Highlight workspace', () => {
+  const document =
+    parseSiteMarkdown(`\`\`\`ts group=markdown-highlight file=/src/render-markdown.ts
+import { createHighlighter } from '@tanstack/highlight/core'
+import { ts } from '@tanstack/highlight/languages/ts'
+import { createTanStackMarkdownHighlighter } from '@tanstack/highlight/markdown'
+import { renderHtml } from '@tanstack/markdown/html'
+
+const highlighter = createHighlighter({ languages: [ts] })
+const highlightMarkdownCode = createTanStackMarkdownHighlighter(highlighter)
+
+export function render(source: string) {
+  return renderHtml(source, {
+    highlighter: highlightMarkdownCode,
+  })
+}
+\`\`\`
+
+\`\`\`ts group=markdown-highlight env=client file=/src/main.ts entry
+import { render } from './render-markdown'
+import './styles.css'
+
+export default function mount(output: HTMLElement) {
+  output.innerHTML = render('# TypeScript\\n\\n\`const answer: number = 42\`')
+}
+\`\`\`
+
+\`\`\`css group=markdown-highlight file=/src/styles.css collapsed
+pre { overflow: auto; }
+\`\`\``)
+
+  const component = requireComponent(document.children[0])
+  const workspace = readWorkspace(component)
+
+  assert.equal(workspace.entry, '/src/main.ts')
+  assert.equal(workspace.environment, 'client')
+  assert.deepEqual(Object.keys(workspace.files).sort(), [
+    '/src/main.ts',
+    '/src/render-markdown.ts',
+    '/src/styles.css',
+  ])
+  assert.match(
+    workspace.files['/src/render-markdown.ts'] ?? '',
+    /@tanstack\/highlight\/languages\/ts/,
+  )
+  assert.match(
+    workspace.files['/src/render-markdown.ts'] ?? '',
+    /@tanstack\/markdown\/html/,
+  )
+})
+
 test('keeps separate runnable groups and ordinary blocks separate', () => {
   const document =
     parseSiteMarkdown(`\`\`\`tsx group=first env=charts file=/main.tsx entry

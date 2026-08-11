@@ -57,7 +57,7 @@ test('exposes unified Charts subpaths without duplicate framework runtimes', () 
   assert.doesNotMatch(guide, /@tanstack\/react-charts/)
 })
 
-test('provides hidden entry modules for every Charts environment', () => {
+test('provides hidden entry modules for every example environment', () => {
   for (const environment of exampleEnvironmentNames) {
     const profile = exampleEnvironmentProfiles[environment]
     assert.ok(profile)
@@ -81,6 +81,10 @@ test('provides hidden entry modules for every Charts environment', () => {
   }
 
   assert.equal(
+    exampleEnvironmentProfiles.react.imports.react,
+    'https://esm.sh/react@19.2.3',
+  )
+  assert.equal(
     exampleEnvironmentProfiles['charts-react'].imports.react,
     'https://esm.sh/react@19.2.3',
   )
@@ -94,6 +98,17 @@ test('provides hidden entry modules for every Charts environment', () => {
   assert.match(charts, /mountChart/)
   assert.match(charts, /import definition from "\/src\/chart\.ts"/)
 
+  const client =
+    exampleEnvironmentProfiles.client.createEntrySource('/src/example.ts')
+  assert.match(client, /typeof value === 'function'/)
+  assert.match(client, /await value\(output\)/)
+  assert.match(client, /value instanceof Node/)
+
+  const genericReact =
+    exampleEnvironmentProfiles.react.createEntrySource('/src/App.tsx')
+  assert.match(genericReact, /createRoot/)
+  assert.match(genericReact, /createElement\(App\)/)
+
   const react =
     exampleEnvironmentProfiles['charts-react'].createEntrySource('/src/App.tsx')
   assert.match(react, /createRoot/)
@@ -105,4 +120,32 @@ test('provides hidden entry modules for every Charts environment', () => {
     )
   assert.match(octane, /import \{ createRoot \} from 'octane'/)
   assert.match(octane, /root\.render\(App\)/)
+})
+
+test('exposes current Highlight and Markdown modules', () => {
+  assert.equal(
+    notebookImports['@tanstack/highlight'],
+    'https://esm.sh/@tanstack/highlight@0.0.10',
+  )
+  assert.equal(
+    notebookImports['@tanstack/highlight/'],
+    'https://esm.sh/@tanstack/highlight@0.0.10/',
+  )
+  assert.equal(
+    notebookImports['@tanstack/markdown'],
+    'https://esm.sh/@tanstack/markdown@0.0.13',
+  )
+  assert.equal(
+    notebookImports['@tanstack/markdown/'],
+    'https://esm.sh/@tanstack/markdown@0.0.13/',
+  )
+  assert.equal(
+    notebookImports['@tanstack/markdown/react'],
+    'https://esm.sh/@tanstack/markdown@0.0.13/react?external=react',
+  )
+
+  const guide = generateNotebookLlmsTxt()
+  assert.match(guide, /`@tanstack\/highlight\/`/)
+  assert.match(guide, /`@tanstack\/markdown\/`/)
+  assert.match(guide, /`@tanstack\/markdown\/react`/)
 })

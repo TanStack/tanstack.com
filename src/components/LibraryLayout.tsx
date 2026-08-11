@@ -958,7 +958,7 @@ export function LibraryLayout({
       <>
         {group.collapsible ? (
           <summary
-            className="ts-sidebar-label flex min-h-6 cursor-pointer list-none items-center justify-between rounded-md px-2 text-[11px] font-bold uppercase leading-none tracking-[0.075em] text-text-muted hover:bg-background-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus [&::-webkit-details-marker]:hidden"
+            className="ts-sidebar-label flex min-h-6 cursor-pointer list-none items-center justify-between rounded-md px-2 text-[11px] font-bold uppercase leading-none tracking-[0.075em] text-text-secondary hover:bg-background-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus [&::-webkit-details-marker]:hidden"
             onClick={(event) => {
               event.preventDefault()
               setOpenGroups((prev) => ({
@@ -978,7 +978,7 @@ export function LibraryLayout({
             />
           </summary>
         ) : (
-          <div className="ts-sidebar-label flex min-h-6 items-center px-2 text-[11px] font-bold uppercase leading-none tracking-[0.075em] text-text-muted">
+          <div className="ts-sidebar-label flex min-h-6 items-center px-2 text-[11px] font-bold uppercase leading-none tracking-[0.075em] text-text-secondary">
             {group.label}
           </div>
         )}

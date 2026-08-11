@@ -312,7 +312,7 @@ export const table: LibrarySlim = {
   ],
   latestVersion: 'v9',
   latestBranch: 'main',
-  availableVersions: ['v9', 'v8', 'beta'],
+  availableVersions: ['v9', 'v8'],
   scarfId: 'dc8b39e1-3fe9-4f3a-8e56-d4e2cf420a9e',
   defaultDocs: 'overview',
   sitemap: {
@@ -429,7 +429,7 @@ export const form: LibrarySlim = {
   frameworks: ['react', 'preact', 'vue', 'angular', 'solid', 'lit', 'svelte'],
   latestVersion: 'v1',
   latestBranch: 'main',
-  availableVersions: ['v1'],
+  availableVersions: ['v1', 'alpha'],
   scarfId: '72ec4452-5d77-427c-b44a-57515d2d83aa',
   sitemap: {
     includeLandingPage: true,

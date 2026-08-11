@@ -14,6 +14,7 @@ authors:
 That matters for video first. Seedance is one of the strongest generators shipping right now, and going direct is typically the most cost-effective way to run it. **Seedance 2.5** is the longer multimodal flagship (up to **30 seconds**, audio generation, heavy reference media). Need **4K**? That’s still on the **Seedance 2.0** family (`dreamina-seedance-2-0-260128`) in the same adapter — not a different integration.
 
 And it’s not video-only. The package covers every generation mode BytePlus exposes to international developers: Seed chat, Seedance video, Seedream images, and Seed Speech TTS/transcription. One TypeScript surface instead of a pile of one-off HTTP clients.
+
 ## Why this adapter exists
 
 The hard part is not “can I call the API.” It’s that each BytePlus product behaves differently, and the quirks only show up after you’ve already written the client:
@@ -195,13 +196,13 @@ console.log(status.status === 'completed' ? status.url : status.error)
 
 Or hand polling to the core with `stream: true` and drive it from `useGenerateVideo` on the client — same pattern as other video adapters.
 
-| Capability | Seedance 2.5 |
-| --- | --- |
-| Duration | 4–30s, or `-1` (model chooses; required for video-editing tasks) |
-| Resolution | `480p`, `720p` (default `720p`) — no 1080p / 4k |
-| Reference media | images 1–30, videos 0–10, audio 0–10; **audio-only allowed** |
-| First + last frame | yes |
-| `priority` / `generate_audio` / `output_format` | yes |
+| Capability                                      | Seedance 2.5                                                     |
+| ----------------------------------------------- | ---------------------------------------------------------------- |
+| Duration                                        | 4–30s, or `-1` (model chooses; required for video-editing tasks) |
+| Resolution                                      | `480p`, `720p` (default `720p`) — no 1080p / 4k                  |
+| Reference media                                 | images 1–30, videos 0–10, audio 0–10; **audio-only allowed**     |
+| First + last frame                              | yes                                                              |
+| `priority` / `generate_audio` / `output_format` | yes                                                              |
 
 Per-model options matter. Ark **rejects** inapplicable fields with a `400` rather than ignoring them. Resolution tiers, draft mode, `camera_fixed`, `priority`, and reference-media roles all depend on which Seedance id you picked. The adapter encodes probe-verified capability tables so unsupported combinations fail locally with a clear error before the request goes out.
 

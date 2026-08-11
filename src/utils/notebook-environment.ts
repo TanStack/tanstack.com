@@ -299,7 +299,7 @@ export const liveDocsRules = [
   "Every fence must include an explicit canonical absolute file path. Exactly one fence has the entry flag, and that fence carries the group's only env declaration.",
   "Supported environments are client, react, charts, charts-react, and charts-octane. Their hidden bootstrap mounts the entry module's default export.",
   'Add the collapsed flag to support files that should remain under a disclosure until the reader opens them.',
-  'The static highlighted fences are rendered on the server. The editor and esbuild runtime load only after the reader selects Run.',
+  'The static highlighted fences are rendered on the server. The workbench hydrates near the viewport and runs once visible and idle; selecting Run starts it immediately.',
 ]
 
 export const notebookStarterSource = `import { useState } from 'react'

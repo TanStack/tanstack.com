@@ -148,4 +148,5 @@ test('exposes current Highlight and Markdown modules', () => {
   assert.match(guide, /`@tanstack\/highlight\/`/)
   assert.match(guide, /`@tanstack\/markdown\/`/)
   assert.match(guide, /`@tanstack\/markdown\/react`/)
+  assert.match(guide, /runs once visible and idle/)
 })

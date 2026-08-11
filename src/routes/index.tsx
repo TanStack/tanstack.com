@@ -479,7 +479,7 @@ function WhyTanStackSection() {
       <div className="mx-auto max-w-[960px] py-16 lg:py-20">
         {/* section-header — 478:1737 */}
         <div className="flex flex-col items-center gap-12 text-center">
-          <Eyebrow className="text-text-warning">Principles</Eyebrow>
+          <Eyebrow tone="warning">Principles</Eyebrow>
           <div className="flex flex-col items-center gap-4">
             <h3 className="text-4xl font-[500] leading-[1.05] tracking-[-0.8px] sm:text-5xl lg:text-[64px]">
               Why TanStack?

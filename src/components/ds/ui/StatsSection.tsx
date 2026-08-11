@@ -197,16 +197,32 @@ function LibraryStat({ iconTop, stat }: { iconTop: boolean; stat: StatItem }) {
 
 /* --------------------------------------------------------------- hero stats -- */
 
-function HeroStat({ iconTop, stat }: { iconTop: boolean; stat: StatItem }) {
+function HeroStat({
+  iconTop,
+  stat,
+  onImage,
+}: {
+  iconTop: boolean
+  stat: StatItem
+  onImage?: boolean
+}) {
   return (
     <span
       className={twMerge(
-        'inline-flex min-w-0 gap-4 text-text-primary md:gap-3.5 xl:gap-4',
+        'inline-flex min-w-0 gap-4 md:gap-3.5 xl:gap-4',
+        // Over a (light) image the theme-adaptive text is illegible, so force
+        // dark ink; otherwise follow the surface via the semantic token.
+        onImage ? 'text-gray-900' : 'text-text-primary',
         iconTop ? 'flex-col items-start' : 'items-center',
       )}
     >
       {stat.icon ? (
-        <span className="shrink-0 text-icon-muted [&>svg]:size-6 md:[&>svg]:size-5 xl:[&>svg]:size-6">
+        <span
+          className={twMerge(
+            'shrink-0 [&>svg]:size-6 md:[&>svg]:size-5 xl:[&>svg]:size-6',
+            onImage ? 'text-gray-700' : 'text-icon-muted',
+          )}
+        >
           {stat.icon}
         </span>
       ) : null}
@@ -219,7 +235,12 @@ function HeroStat({ iconTop, stat }: { iconTop: boolean; stat: StatItem }) {
             {stat.value}
           </StatValue>
         </span>
-        <span className="font-ds-mono text-ds-mono-caps-xs font-medium uppercase tracking-[1.75px] text-text-secondary md:text-[9.5px] md:tracking-[1.5px] xl:text-ds-mono-caps-xs xl:tracking-[1.75px]">
+        <span
+          className={twMerge(
+            'font-ds-mono text-ds-mono-caps-xs font-medium uppercase tracking-[1.75px] md:text-[9.5px] md:tracking-[1.5px] xl:text-ds-mono-caps-xs xl:tracking-[1.75px]',
+            onImage ? 'text-gray-700' : 'text-text-secondary',
+          )}
+        >
           {stat.label}
         </span>
       </span>
@@ -234,11 +255,15 @@ export function StatsSection({
   layout = 'landscape',
   stats,
   className,
+  onImage = false,
 }: {
   page?: StatsPage
   layout?: StatsLayout
   stats: Array<StatItem>
   className?: string
+  /** Forces dark ink for legibility when the stats are overlaid on a light
+   *  image (the `hero` inline variant). Defaults to theme-adaptive colors. */
+  onImage?: boolean
 }) {
   if (page === 'unified') {
     const stacked = layout === 'stacked'
@@ -274,7 +299,12 @@ export function StatsSection({
         )}
       >
         {stats.map((stat) => (
-          <HeroStat key={stat.key} iconTop={iconTop} stat={stat} />
+          <HeroStat
+            key={stat.key}
+            iconTop={iconTop}
+            stat={stat}
+            onImage={onImage}
+          />
         ))}
       </div>
     )

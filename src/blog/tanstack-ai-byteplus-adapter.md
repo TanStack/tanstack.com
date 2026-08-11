@@ -1,31 +1,29 @@
 ---
-title: 'BytePlus on TanStack AI: Seed, Seedance, Seedream, and Seed Speech'
+title: 'BytePlus on TanStack AI: Seedance 2.5, and the rest of the suite'
 published: 2026-08-05
-excerpt: '@tanstack/ai-byteplus is out — Seed chat, Seedance, Seedream, and Seed Speech in one TanStack AI adapter for BytePlus ModelArk and Seed Speech.'
+excerpt: '@tanstack/ai-byteplus is out — Seedance 2.5 video natively in TypeScript, plus Seed chat, Seedream, and Seed Speech, billed direct on BytePlus.'
 library: ai
 authors:
   - Tom Beckenham
 ---
 
-BytePlus is ByteDance’s international model platform: Seed for chat, Seedance for video, Seedream for images, and Seed Speech for TTS and transcription. The models are strong. The international surface is real. What has been missing is a **single typed TypeScript path across the whole stack** — chat, image, video, and speech — that matches the rest of your AI app instead of a one-off HTTP integration.
+![Seedance still — scooter courier with TanStack palm logo, rainy night street](/blog-assets/tanstack-ai-byteplus-adapter/header.jpg)
 
-**[`@tanstack/ai-byteplus`](https://tanstack.com/ai/latest/docs/adapters/byteplus) is that path for TanStack AI.** One package for ModelArk and Seed Speech: typed factories, streaming, structured output where the models support it, and the same `chat` / `generateImage` / `generateVideo` / `generateSpeech` / `generateTranscription` activities you use with every other provider.
+**[`@tanstack/ai-byteplus`](https://tanstack.com/ai/latest/docs/adapters/byteplus) is out.** If you wanted Seedance in TypeScript, you usually went through a third party. Now you can call **Seedance 2.5** — and the rest of the BytePlus suite — natively, on your own Ark key, with the same TanStack AI activities you already use for OpenAI, Anthropic, fal, and friends.
 
-No new app architecture. No partnership pitch. Just another adapter you plug in.
+That matters for video first. Seedance is one of the strongest generators shipping right now, and going direct is typically the most cost-effective way to run it. **Seedance 2.5** is the longer multimodal flagship (up to **30 seconds**, audio generation, heavy reference media). Need **4K**? That’s still on the **Seedance 2.0** family (`dreamina-seedance-2-0-260128`) in the same adapter — not a different integration.
 
+And it’s not video-only. The package covers every generation mode BytePlus exposes to international developers: Seed chat, Seedance video, Seedream images, and Seed Speech TTS/transcription. One TypeScript surface instead of a pile of one-off HTTP clients.
 ## Why this adapter exists
 
-BytePlus does not ship an official TypeScript SDK for international developers the way OpenAI or Anthropic do. You get REST docs, region-specific base URLs, and product splits. Wiring the full surface yourself means owning all of this:
+The hard part is not “can I call the API.” It’s that each BytePlus product behaves differently, and the quirks only show up after you’ve already written the client:
 
-- **Seed chat** — reasoning by default, encrypted reasoning signatures, structured-output support that does not match published tables
-- **Seedance video** — async job API, not a single request/response
-- **Seedream image** — watermarks, group generation, short-lived result URLs
-- **Seed Speech** — TTS and transcription on a **different host with a different API key**
-- The usual integration tax: dual products, region-isolated Ark keys, model ids that retire under you
+- Seed chat reasons by default and hands back encrypted signatures you’re expected to echo on the next turn. Structured-output support also doesn’t match the published tables.
+- Seedance is an async job API (Seedance 2.5 and Seedance 2.0) — open a task, poll or stream, grab the URL before it expires.
+- Seedream watermarks by default, treats multi-image as an upper bound rather than a count, and returns links that die after 24 hours.
+- Seed Speech sits on a **different host with a different API key** from ModelArk. Ark keys are region-isolated too, and model ids retire under you.
 
-Without a multimodal adapter you hand-roll each product against REST and re-derive the quirks every time a dated model id ships.
-
-TanStack AI’s job is provider-agnostic tooling across modalities. Shipping `@tanstack/ai-byteplus` means Seed, Seedance, Seedream, and Seed Speech share the same typed API as OpenAI, Anthropic, Gemini, fal, and the rest of the matrix — without hand-rolling HTTP, SSE framing, or job polling.
+Hand-roll that once and you’ll re-learn half of it the next time a dated model id ships. The adapter owns the HTTP, SSE, and polling, and puts everything behind the same typed activities as OpenAI, Anthropic, Gemini, fal, and the rest of the matrix.
 
 ## Install
 
@@ -166,17 +164,24 @@ Generated image URLs expire after 24 hours. Prefer `response_format: 'b64_json'`
 
 Video generation is experimental in TanStack AI. Seedance is an **async task API**: open a job, poll (or stream) to completion, then download before the URL expires (24 hours after completion).
 
+**Seedance 2.5** (`dreamina-seedance-2-5-260628`) is a first-class model in this package — longer clips (up to **30 seconds** at 480p/720p), audio-only reference input, `priority`, `generate_audio`, and `output_format: 'mp4' | 'mov'`. Want **4K**? Use the **Seedance 2.0** family in the same adapter (`dreamina-seedance-2-0-260128` is the 4K id); Seedance 2.5 does not expose a 4K tier.
+
 ```ts
 import { generateVideo, getVideoJobStatus } from '@tanstack/ai'
 import { byteplusVideo } from '@tanstack/ai-byteplus'
 
-const adapter = byteplusVideo('dreamina-seedance-2-0-260128')
+const adapter = byteplusVideo('dreamina-seedance-2-5-260628')
 
 const { jobId } = await generateVideo({
   adapter,
   prompt: 'a guitar being played in a store',
   size: '16:9_720p',
-  duration: 5,
+  duration: 10,
+  modelOptions: {
+    generate_audio: true,
+    priority: 5,
+    output_format: 'mp4',
+  },
 })
 
 let status = await getVideoJobStatus({ adapter, jobId })
@@ -190,9 +195,17 @@ console.log(status.status === 'completed' ? status.url : status.error)
 
 Or hand polling to the core with `stream: true` and drive it from `useGenerateVideo` on the client — same pattern as other video adapters.
 
+| Capability | Seedance 2.5 |
+| --- | --- |
+| Duration | 4–30s, or `-1` (model chooses; required for video-editing tasks) |
+| Resolution | `480p`, `720p` (default `720p`) — no 1080p / 4k |
+| Reference media | images 1–30, videos 0–10, audio 0–10; **audio-only allowed** |
+| First + last frame | yes |
+| `priority` / `generate_audio` / `output_format` | yes |
+
 Per-model options matter. Ark **rejects** inapplicable fields with a `400` rather than ignoring them. Resolution tiers, draft mode, `camera_fixed`, `priority`, and reference-media roles all depend on which Seedance id you picked. The adapter encodes probe-verified capability tables so unsupported combinations fail locally with a clear error before the request goes out.
 
-Seedance 2.5 (`dreamina-seedance-2-5-260628`) is reachable but **activation-gated per account**. Until you enable it in the Ark Console, Ark returns `404 ModelNotOpen`. It is deliberately untyped in the model tables until capabilities can be verified; pass the id as a string and the adapter relaxes local guards so Ark validates the request.
+Like the Seedance 2.0 series, Seedance 2.5 may still require **model activation / a resource pack in the Ark Console** before your account can call it — until then Ark returns `404 ModelNotOpen`.
 
 Seedance is also available through [`@tanstack/ai-fal`](https://tanstack.com/ai/latest/docs/adapters/fal). Use fal if you already live there; use `@tanstack/ai-byteplus` when you want direct BytePlus billing, model ids, and first-class Seedance fields.
 
@@ -262,4 +275,4 @@ Full reference — dual keys, region endpoints, model tables, Seedance options, 
 
 **[BytePlus adapter docs →](https://tanstack.com/ai/latest/docs/adapters/byteplus)**
 
-If you want Seed, Seedance, Seedream, and Seed Speech under one TanStack AI adapter, this is it.
+If you wanted Seedance (and the rest of BytePlus) in TypeScript without a middleman, this is the direct path.

@@ -1,4 +1,4 @@
-import { scaleLinear } from '@tanstack/charts-scales/linear'
+import { scaleLinear } from '@tanstack/charts/scales/linear'
 import { curveMonotoneX } from 'd3-shape'
 import {
   areaY,

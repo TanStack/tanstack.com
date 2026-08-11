@@ -1,5 +1,5 @@
-import { scaleBand } from '@tanstack/charts-scales/band'
-import { scaleLinear } from '@tanstack/charts-scales/linear'
+import { scaleBand } from '@tanstack/charts/scales/band'
+import { scaleLinear } from '@tanstack/charts/scales/linear'
 import { barY, defineChart, ruleY } from '@tanstack/charts'
 
 import { kineticDarkTheme, productNames, productSignals } from './kinetic-data'

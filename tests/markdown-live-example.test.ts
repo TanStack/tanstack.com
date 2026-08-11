@@ -24,13 +24,16 @@ function readWorkspace(component: ComponentNode) {
   return parseExampleWorkspace(JSON.parse(serialized))
 }
 
-test('groups adjacent live files into a versioned workspace', () => {
-  const document = parseSiteMarkdown(`\`\`\`tsx live=counter file=/src/main.tsx
-import { App } from './App'
+test('groups adjacent runnable files into an environment workspace', () => {
+  const document =
+    parseSiteMarkdown(`\`\`\`tsx group=counter env=charts-react file=/src/App.tsx entry
+import { label } from './data'
+
+export default function App() { return <button>{label}</button> }
 \`\`\`
 
-\`\`\`tsx live=counter file=/src/App.tsx
-export function App() { return <button>Count</button> }
+\`\`\`ts group=counter file=/src/data.ts collapsed
+export const label = 'Count'
 \`\`\``)
 
   const component = requireComponent(document.children[0])
@@ -46,52 +49,65 @@ export function App() { return <button>Count</button> }
     return
   }
   assert.equal(component.children[0].lang, 'tsx')
-  assert.equal(component.children[0].file, '/src/main.tsx')
-  assert.equal(component.children[1].file, '/src/App.tsx')
+  assert.equal(component.children[0].file, '/src/App.tsx')
+  assert.equal(component.children[1].file, '/src/data.ts')
 
   const workspace = readWorkspace(component)
-  assert.equal(workspace.entry, '/src/main.tsx')
+  assert.equal(workspace.entry, '/src/App.tsx')
+  assert.equal(workspace.environment, 'charts-react')
+  assert.equal(
+    workspace.imports?.['@tanstack/charts'],
+    'https://esm.sh/@tanstack/charts@0.10.0',
+  )
+  assert.equal(
+    workspace.imports?.['@tanstack/charts/react'],
+    'https://esm.sh/@tanstack/charts@0.10.0/react?external=react,react-dom',
+  )
+  assert.equal(workspace.imports?.react, 'https://esm.sh/react@19.2.3')
   assert.deepEqual(Object.keys(workspace.files).sort(), [
     '/src/App.tsx',
-    '/src/main.tsx',
+    '/src/data.ts',
   ])
+  assert.equal(component.properties?.['data-example-group'], 'counter')
+  assert.equal(component.properties?.['data-collapsed-indexes'], '[1]')
 })
 
 test('supports a visible source file before an explicit entry file', () => {
   const document =
-    parseSiteMarkdown(`\`\`\`tsx live=letter-frequency file=/src/LetterFrequencyChart.tsx entry=/src/main.tsx
-import { Chart } from '@tanstack/react-charts'
+    parseSiteMarkdown(`\`\`\`tsx group=letter-frequency file=/src/LetterFrequencyChart.tsx
+import { Chart } from '@tanstack/charts/react'
 
 export function LetterFrequencyChart() {
   return <Chart definition={letterFrequencyChart} height={320} />
 }
 \`\`\`
 
-\`\`\`tsx live=letter-frequency file=/src/main.tsx
-import { createRoot } from 'react-dom/client'
+\`\`\`tsx group=letter-frequency env=charts-react file=/src/App.tsx entry
 import { LetterFrequencyChart } from './LetterFrequencyChart'
 
-createRoot(document.getElementById('root')!).render(<LetterFrequencyChart />)
+export default function App() { return <LetterFrequencyChart /> }
 \`\`\``)
 
   const component = requireComponent(document.children[0])
   const workspace = readWorkspace(component)
 
-  assert.equal(workspace.entry, '/src/main.tsx')
+  assert.equal(workspace.entry, '/src/App.tsx')
+  assert.equal(workspace.environment, 'charts-react')
   assert.deepEqual(Object.keys(workspace.files).sort(), [
+    '/src/App.tsx',
     '/src/LetterFrequencyChart.tsx',
-    '/src/main.tsx',
   ])
 })
 
-test('keeps separate live groups and ordinary blocks separate', () => {
-  const document = parseSiteMarkdown(`\`\`\`tsx live=first file=/main.tsx
+test('keeps separate runnable groups and ordinary blocks separate', () => {
+  const document =
+    parseSiteMarkdown(`\`\`\`tsx group=first env=charts file=/main.tsx entry
 console.log('first')
 \`\`\`
 
 Between examples.
 
-\`\`\`tsx live=first file=/other.tsx
+\`\`\`tsx group=first env=charts file=/other.tsx entry
 console.log('other')
 \`\`\``)
 
@@ -100,11 +116,12 @@ console.log('other')
     ['component', 'paragraph', 'component'],
   )
 
-  const adjacentIds = parseSiteMarkdown(`\`\`\`tsx live=first file=/first.tsx
+  const adjacentIds =
+    parseSiteMarkdown(`\`\`\`tsx group=first env=charts file=/first.tsx entry
 console.log('first')
 \`\`\`
 
-\`\`\`tsx live=second file=/second.tsx
+\`\`\`tsx group=second env=charts file=/second.tsx entry
 console.log('second')
 \`\`\`
 
@@ -112,7 +129,7 @@ console.log('second')
 console.log('ordinary')
 \`\`\`
 
-\`\`\`tsx live=first file=/third.tsx
+\`\`\`tsx group=first env=charts file=/third.tsx entry
 console.log('third')
 \`\`\``)
 
@@ -121,21 +138,44 @@ console.log('third')
     ['component', 'component', 'code', 'component'],
   )
   assert.equal(
-    requireComponent(adjacentIds.children[0]).properties?.['data-live-id'],
+    requireComponent(adjacentIds.children[0]).properties?.[
+      'data-example-group'
+    ],
     'first',
   )
   assert.equal(
-    requireComponent(adjacentIds.children[1]).properties?.['data-live-id'],
+    requireComponent(adjacentIds.children[1]).properties?.[
+      'data-example-group'
+    ],
     'second',
+  )
+  assert.equal(
+    requireComponent(adjacentIds.children[0]).attributes.id,
+    'first-1',
+  )
+  assert.equal(
+    requireComponent(adjacentIds.children[1]).attributes.id,
+    'second-1',
+  )
+  assert.equal(
+    requireComponent(adjacentIds.children[3]).attributes.id,
+    'first-2',
+  )
+  assert.equal(
+    requireComponent(adjacentIds.children[3]).properties?.[
+      'data-example-group'
+    ],
+    'first',
   )
 })
 
-test('groups live files inside nested block containers', () => {
-  const quoteDocument = parseSiteMarkdown(`> \`\`\`tsx live=quote file=/main.tsx
+test('groups runnable files inside nested block containers', () => {
+  const quoteDocument =
+    parseSiteMarkdown(`> \`\`\`tsx group=quote env=charts file=/main.tsx entry
 > console.log('main')
 > \`\`\`
 >
-> \`\`\`tsx live=quote file=/support.tsx
+> \`\`\`tsx group=quote file=/support.tsx collapsed
 > export const support = true
 > \`\`\``)
 
@@ -148,11 +188,11 @@ test('groups live files inside nested block containers', () => {
 
   const listDocument = parseSiteMarkdown(`- Example
 
-  \`\`\`tsx live=list file=/main.tsx
+  \`\`\`tsx group=list env=charts file=/main.tsx entry
   console.log('main')
   \`\`\`
 
-  \`\`\`json live=list file=/package.json
+  \`\`\`json group=list file=/package.json collapsed
   {"private": true}
   \`\`\``)
 
@@ -167,14 +207,19 @@ test('groups live files inside nested block containers', () => {
   ])
 })
 
-test('invalid live metadata fails open to static code', () => {
+test('invalid runnable metadata fails open to static code', () => {
   const invalidMetadata = [
-    'live=counter file=../main.tsx',
-    'live=counter file=/',
-    'live=counter file=/src\\main.tsx',
-    'live="not valid" file=/main.tsx',
-    'live=counter title=/main.tsx',
-    'live=counter file=/main.tsx entry=../main.tsx',
+    'group=counter env=charts file=../main.tsx entry',
+    'group=counter env=charts file=/ entry',
+    'group=counter env=charts file=/src\\main.tsx entry',
+    'group="not valid" env=charts file=/main.tsx entry',
+    'group=counter env=unknown file=/main.tsx entry',
+    'group=counter env=charts file=/main.tsx entry=/main.tsx',
+    'group=counter env=charts file=/main.tsx entry collapsed',
+    'group=counter env=charts file=/main.tsx entry=false',
+    'group=counter env=charts file=/main.tsx entry collapsed=false',
+    'group=counter env=charts file=/__tanstack-example-entry.ts entry',
+    'live=counter file=/main.tsx',
   ]
 
   for (const metadata of invalidMetadata) {
@@ -186,11 +231,11 @@ console.log('static')
   }
 
   const duplicateFiles =
-    parseSiteMarkdown(`\`\`\`tsx live=counter file=/main.tsx
+    parseSiteMarkdown(`\`\`\`tsx group=counter env=charts file=/main.tsx entry
 console.log('first')
 \`\`\`
 
-\`\`\`tsx live=counter file=/main.tsx
+\`\`\`tsx group=counter file=/main.tsx
 console.log('second')
 \`\`\``)
 
@@ -198,11 +243,72 @@ console.log('second')
     duplicateFiles.children.map((child) => child.type),
     ['code', 'code'],
   )
+
+  const environmentOnSupport =
+    parseSiteMarkdown(`\`\`\`tsx group=counter env=charts file=/main.tsx entry
+console.log('main')
+\`\`\`
+
+\`\`\`tsx group=counter env=charts file=/support.tsx
+console.log('support')
+\`\`\``)
+
+  assert.deepEqual(
+    environmentOnSupport.children.map((child) => child.type),
+    ['code', 'code'],
+  )
+
+  const missingEnvironment =
+    parseSiteMarkdown(`\`\`\`tsx group=counter file=/main.tsx entry
+console.log('main')
+\`\`\``)
+
+  assert.equal(missingEnvironment.children[0]?.type, 'code')
+
+  const duplicateEnvironment =
+    parseSiteMarkdown(`\`\`\`tsx group=counter env=charts env=charts-react file=/main.tsx entry
+console.log('main')
+\`\`\``)
+
+  assert.equal(duplicateEnvironment.children[0]?.type, 'code')
+
+  const reservedEnvironmentFile =
+    parseSiteMarkdown(`\`\`\`tsx group=counter env=charts file=/main.tsx entry
+console.log('main')
+\`\`\`
+
+\`\`\`ts group=counter file=/__tanstack-example-entry.ts
+console.log('reserved')
+\`\`\``)
+
+  assert.deepEqual(
+    reservedEnvironmentFile.children.map((child) => child.type),
+    ['code', 'code'],
+  )
+
+  const malformedSupport =
+    parseSiteMarkdown(`\`\`\`tsx group=counter env=charts file=/main.tsx entry
+console.log('main')
+\`\`\`
+
+\`\`\`tsx group=counter file=../support.tsx
+console.log('support')
+\`\`\``)
+
+  assert.deepEqual(
+    malformedSupport.children.map((child) => child.type),
+    ['code', 'code'],
+  )
 })
 
 test('server rendering retains static source without loading the workbench', () => {
-  const document = parseSiteMarkdown(`\`\`\`tsx live=ssr file=/main.tsx
+  const document =
+    parseSiteMarkdown(`\`\`\`tsx group=ssr env=charts file=/main.tsx entry
 console.log('server-static-marker')
+\`\`\`
+
+\`\`\`ts group=ssr file=/support.ts collapsed
+console.log('collapsed-support-marker')
 \`\`\``)
 
   const rendered = renderMarkdownReact(document, {
@@ -211,6 +317,9 @@ console.log('server-static-marker')
   const html = renderToStaticMarkup(createElement(Fragment, null, rendered))
 
   assert.match(html, /server-static-marker/)
+  assert.match(html, /collapsed-support-marker/)
+  assert.match(html, /<details/)
+  assert.match(html, /Support files/)
   assert.match(html, />Run</)
   assert.doesNotMatch(html, /data-workspace/)
   assert.doesNotMatch(html, /<iframe/)

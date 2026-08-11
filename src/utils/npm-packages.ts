@@ -84,6 +84,12 @@ export function getFrameworkPackageName(
   library: LibrarySlim,
   framework: Framework,
 ): string | null {
+  const packageName = library.frameworkPackageNames?.[framework]
+
+  if (packageName) {
+    return packageName
+  }
+
   // Vanilla doesn't have a framework adapter (uses core package)
   if (framework === 'vanilla') {
     return null

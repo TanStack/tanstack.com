@@ -14,23 +14,25 @@ describe('example workspaces', () => {
   test('serialize files and imports canonically', () => {
     const left = createExampleWorkspace({
       entry: '/src/main.tsx',
+      environment: 'charts-react',
       files: {
         '/src/main.tsx': 'import "./app"',
         '/src/app.tsx': 'export default null',
       },
       imports: {
         react: 'https://esm.sh/react@19.2.3',
-        '@tanstack/charts': 'https://esm.sh/@tanstack/charts@0.7.2',
+        '@tanstack/charts': 'https://esm.sh/@tanstack/charts@0.10.0',
       },
     })
     const right = createExampleWorkspace({
       entry: '/src/main.tsx',
+      environment: 'charts-react',
       files: {
         '/src/app.tsx': 'export default null',
         '/src/main.tsx': 'import "./app"',
       },
       imports: {
-        '@tanstack/charts': 'https://esm.sh/@tanstack/charts@0.7.2',
+        '@tanstack/charts': 'https://esm.sh/@tanstack/charts@0.10.0',
         react: 'https://esm.sh/react@19.2.3',
       },
     })
@@ -59,6 +61,9 @@ describe('example workspaces', () => {
       parseExampleWorkspace({ ...valid, entry: '/src/missing.tsx' }),
     )
     assert.throws(() => parseExampleWorkspace({ ...valid, imports: [] }))
+    assert.throws(() =>
+      parseExampleWorkspace({ ...valid, environment: 'unknown' }),
+    )
   })
 
   test('round-trips the complete shared project contract', () => {
@@ -70,12 +75,13 @@ describe('example workspaces', () => {
       workspace: {
         version: 1,
         entry: '/src/main.tsx',
+        environment: 'charts-react',
         files: {
           '/src/chart.tsx': 'export const chart = null',
           '/src/main.tsx': 'export default null',
         },
         imports: {
-          '@tanstack/charts': 'https://esm.sh/@tanstack/charts@0.7.2',
+          '@tanstack/charts': 'https://esm.sh/@tanstack/charts@0.10.0',
         },
       },
     })

@@ -63,10 +63,21 @@ test('provides hidden entry modules for every Charts environment', () => {
     assert.ok(profile)
     assert.equal(typeof profile.createEntrySource, 'function')
     assert.equal(profile.entryPath, '/__tanstack-example-entry.ts')
+    assert.equal(profile.outputSelector, '#root')
     assert.equal(
       profile.imports['@tanstack/charts'],
       'https://esm.sh/@tanstack/charts@0.10.0',
     )
+
+    const source = profile.createEntrySource('/src/example.ts')
+    assert.match(
+      source,
+      /let output = document\.querySelector<HTMLElement>\("#root"\)/,
+    )
+    assert.match(source, /output = document\.createElement\('div'\)/)
+    assert.match(source, /output\.id = "root"/)
+    assert.match(source, /document\.body\.append\(output\)/)
+    assert.doesNotMatch(source, /Example root not found/)
   }
 
   assert.equal(

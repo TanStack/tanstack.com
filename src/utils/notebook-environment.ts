@@ -55,16 +55,50 @@ const chartsEnvironmentImports = {
   'd3-shape': notebookImports['d3-shape'],
 }
 
-export const exampleEnvironmentProfiles = {
-  charts: {
-    entryPath: '/__tanstack-example-entry.ts',
-    imports: chartsEnvironmentImports,
+function defineExampleEnvironmentProfile({
+  createEntrySource,
+  entryPath = '/__tanstack-example-entry.ts',
+  imports,
+  outputSelector,
+}: {
+  createEntrySource: (entry: string, outputSource: string) => string
+  entryPath?: string
+  imports: Record<string, string>
+  outputSelector: `#${string}`
+}) {
+  return {
+    entryPath,
+    imports,
+    outputSelector,
     createEntrySource(entry: string) {
+      return createEntrySource(entry, createExampleOutputSource(outputSelector))
+    },
+  }
+}
+
+function createExampleOutputSource(outputSelector: `#${string}`) {
+  const outputId = /^#([A-Za-z][\w-]*)$/.exec(outputSelector)?.[1]
+  if (!outputId) {
+    throw new Error('Example output selector must be a simple id selector')
+  }
+
+  return `let output = document.querySelector<HTMLElement>(${JSON.stringify(outputSelector)})
+if (!output) {
+  output = document.createElement('div')
+  output.id = ${JSON.stringify(outputId)}
+  document.body.append(output)
+}`
+}
+
+export const exampleEnvironmentProfiles = {
+  charts: defineExampleEnvironmentProfile({
+    imports: chartsEnvironmentImports,
+    outputSelector: '#root',
+    createEntrySource(entry, outputSource) {
       return `import { mountChart } from '@tanstack/charts'
 import definition from ${JSON.stringify(entry)}
 
-const output = document.querySelector<HTMLElement>('#root')
-if (!output) throw new Error('Example root not found')
+${outputSource}
 
 const chart = mountChart(output, {
   definition,
@@ -75,9 +109,8 @@ const chart = mountChart(output, {
 window.addEventListener('pagehide', () => chart.destroy(), { once: true })
 `
     },
-  },
-  'charts-react': {
-    entryPath: '/__tanstack-example-entry.ts',
+  }),
+  'charts-react': defineExampleEnvironmentProfile({
     imports: {
       ...chartsEnvironmentImports,
       '@tanstack/charts/react': notebookImports['@tanstack/charts/react'],
@@ -95,22 +128,21 @@ window.addEventListener('pagehide', () => chart.destroy(), { once: true })
       'react-dom/': notebookImports['react-dom/'],
       'react-dom/client': notebookImports['react-dom/client'],
     },
-    createEntrySource(entry: string) {
+    outputSelector: '#root',
+    createEntrySource(entry, outputSource) {
       return `import { createElement } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from ${JSON.stringify(entry)}
 
-const output = document.querySelector<HTMLElement>('#root')
-if (!output) throw new Error('Example root not found')
+${outputSource}
 
 const root = createRoot(output)
 root.render(createElement(App))
 window.addEventListener('pagehide', () => root.unmount(), { once: true })
 `
     },
-  },
-  'charts-octane': {
-    entryPath: '/__tanstack-example-entry.ts',
+  }),
+  'charts-octane': defineExampleEnvironmentProfile({
     imports: {
       ...chartsEnvironmentImports,
       '@tanstack/charts/octane': notebookImports['@tanstack/charts/octane'],
@@ -121,19 +153,19 @@ window.addEventListener('pagehide', () => root.unmount(), { once: true })
       octane: notebookImports.octane,
       'octane/': notebookImports['octane/'],
     },
-    createEntrySource(entry: string) {
+    outputSelector: '#root',
+    createEntrySource(entry, outputSource) {
       return `import { createRoot } from 'octane'
 import App from ${JSON.stringify(entry)}
 
-const output = document.querySelector<HTMLElement>('#root')
-if (!output) throw new Error('Example root not found')
+${outputSource}
 
 const root = createRoot(output)
 root.render(App)
 window.addEventListener('pagehide', () => root.unmount(), { once: true })
 `
     },
-  },
+  }),
 }
 
 export function getExampleEnvironmentProfile(environment: ExampleEnvironment) {
@@ -201,7 +233,7 @@ export const exampleWorkspaceRules = [
   'The entry module executes in the browser. esbuild-wasm transforms TypeScript and JSX; octane/compiler transforms .tsrx files first. Neither path type-checks source.',
   'Relative imports resolve inside files. CSS and JSON imports are bundled. Browser-safe image and font imports become data URLs.',
   'Bare dependencies in /package.json resolve through esm.sh. Explicit workspace imports override both package.json and the built-in aliases.',
-  'Add /index.html only when the example needs a custom document. The runtime injects its import map, compiled CSS, module, console bridge, and theme bridge.',
+  'Add /index.html only when the example needs a custom document. Environment bootstraps reuse #root or append it to the body. The runtime injects its import map, compiled CSS, module, console bridge, and theme bridge.',
 ]
 
 export const liveDocsRules = [

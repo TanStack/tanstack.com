@@ -1163,7 +1163,7 @@ function LibraryCategoryColumn({
       >
         {column.label}
       </div>
-      <div className="flex flex-col items-stretch gap-1">
+      <div className="flex flex-col items-start gap-1">
         {column.libraries.map((library) => (
           <LibraryMenuRow
             key={library.id}
@@ -1189,12 +1189,12 @@ function LibraryMenuRow({
   const Icon = library.icon
   const external = library.to.startsWith('http')
   const className = twMerge(
-    // Subtle hover/pressed overlay matching the other mega menus (hover white/4%,
-    // pressed white/12%, mode-adaptive via text-primary). Replaces the dead
-    // `surface-state-hover` token, which was never defined.
-    'group/lib flex items-center gap-2 rounded-[14px] py-2 pl-[9px] pr-3 text-text-secondary transition-colors hover:bg-text-primary/[0.04] hover:text-text-primary focus:bg-text-primary/[0.04] focus:text-text-primary focus:outline-none active:bg-text-primary/[0.12]',
+    // Light mode: an "elevated white" hover — a bright-white pill lifted off the
+    // glass with a soft shadow + hairline ring (contrast via depth, not value).
+    // Dark mode keeps the subtle white/4% (pressed 12%) overlay, no shadow/ring.
+    'group/lib flex items-center gap-2 rounded-[14px] py-2 pl-[9px] pr-4 text-text-secondary transition-[color,background-color,box-shadow] hover:bg-white hover:text-text-primary hover:shadow-sm hover:ring-1 hover:ring-black/5 focus:bg-white focus:text-text-primary focus:shadow-sm focus:ring-1 focus:ring-black/5 focus:outline-none active:bg-white dark:hover:bg-text-primary/[0.04] dark:hover:shadow-none dark:hover:ring-0 dark:focus:bg-text-primary/[0.04] dark:focus:shadow-none dark:focus:ring-0 dark:active:bg-text-primary/[0.12]',
     variant === 'desktop'
-      ? 'h-[38px] min-[1120px]:h-[46px] min-[1120px]:gap-2.5 min-[1120px]:rounded-[17px] min-[1120px]:pl-[11px] min-[1120px]:pr-[14px]'
+      ? 'h-[38px] min-[1120px]:h-[46px] min-[1120px]:gap-2.5 min-[1120px]:rounded-[17px] min-[1120px]:pl-[11px] min-[1120px]:pr-[18px]'
       : 'py-2.5',
   )
   const content = (

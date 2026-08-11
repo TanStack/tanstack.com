@@ -1868,6 +1868,44 @@ mark {
   animation: home-prompt-ph-in 520ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+/* Home prompt focus glow: a slow horizontal wave (with a gentle width pulse) so
+   the terracotta bloom feels alive instead of static. The wrapper handles the
+   opacity/scale grow-in on focus (see ApplicationStarter); this drives only the
+   flowing drift, on a separate nested element so the two transforms compose. */
+@keyframes prompt-glow-flow {
+  0%,
+  100% {
+    transform: translate3d(-5%, 0, 0) scaleX(1);
+  }
+  50% {
+    transform: translate3d(5%, 0, 0) scaleX(1.12);
+  }
+}
+.prompt-glow-flow {
+  animation: prompt-glow-flow 5.5s ease-in-out infinite;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .prompt-glow-flow {
+    animation: none;
+  }
+}
+
+/* DS brand mark — the TanStack emblem as a monochrome glyph tinted with
+   currentColor, for pairing with a page title (see PageHeader). Sized relative
+   to the title (em units) so it scales with the fluid display type. */
+.ds-brand-mark {
+  display: inline-block;
+  width: 0.82em;
+  height: 0.82em;
+  flex: none;
+  background-color: currentColor;
+  -webkit-mask: url('/images/brand/tanstack-emblem-black.svg') center / contain
+    no-repeat;
+  mask: url('/images/brand/tanstack-emblem-black.svg') center / contain
+    no-repeat;
+}
+
 @keyframes home-stack-builder-reveal {
   from {
     opacity: 0;

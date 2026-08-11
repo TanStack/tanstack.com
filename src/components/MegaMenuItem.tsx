@@ -54,11 +54,11 @@ export function MegaMenuItem({
   const rootClassName = twMerge(
     // Figma "Mege menu list item" (node 407:659): gap 10px, pl 12 / pr 16 /
     // py 12, radius 12px (14px on hover). Icon box + text vertically centered.
-    'group/mmi flex items-center gap-2.5 rounded-xl py-3 pl-3 pr-4 text-left transition-[background-color,border-radius]',
-    // States differ only by row background: hover white/4% + radius 14px,
-    // pressed white/12% (mode-adaptive via text-primary so it also works on
-    // light menu panels).
-    'hover:rounded-[14px] hover:bg-text-primary/[0.04] focus:bg-text-primary/[0.04] focus:outline-none active:bg-text-primary/[0.12]',
+    'group/mmi flex items-center gap-2.5 rounded-xl py-3 pl-3 pr-4 text-left transition-[background-color,border-radius,box-shadow]',
+    // Light mode: an "elevated white" hover — a bright-white row lifted off the
+    // glass with a soft shadow + hairline ring. Dark mode keeps the subtle
+    // white/4% (pressed 12%) overlay, no shadow/ring. Radius grows to 14px.
+    'hover:rounded-[14px] hover:bg-white hover:shadow-sm hover:ring-1 hover:ring-black/5 focus:bg-white focus:shadow-sm focus:ring-1 focus:ring-black/5 focus:outline-none active:bg-white dark:hover:bg-text-primary/[0.04] dark:hover:shadow-none dark:hover:ring-0 dark:focus:bg-text-primary/[0.04] dark:focus:shadow-none dark:focus:ring-0 dark:active:bg-text-primary/[0.12]',
     compact && 'border border-border-subtle bg-background-surface',
     variant === 'desktop' && !compact && 'w-full',
     variant === 'mobile' && 'py-2.5',
@@ -100,10 +100,10 @@ export function MegaMenuItem({
         {description ? (
           // Plain string (not twMerge) — the DS text-size and text-color
           // utilities both start with `text-`, and twMerge would drop the color.
-          // Desktop rows share a bounded column width, but descriptions may
-          // wrap so longer copy never overflows the panel.
+          // Desktop descriptions stay on a single line (`whitespace-nowrap`); the
+          // mega-menu panel is `w-max`, so it widens to fit the longest row.
           <span
-            className={`block text-text-secondary ${variant === 'desktop' ? 'text-ds-body-xs leading-relaxed' : 'text-ds-body-sm'}`}
+            className={`block text-text-secondary ${variant === 'desktop' ? 'whitespace-nowrap text-ds-body-xs leading-relaxed' : 'text-ds-body-sm'}`}
           >
             {description}
           </span>

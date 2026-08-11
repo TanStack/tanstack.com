@@ -21,7 +21,7 @@ describe('example workspaces', () => {
       },
       imports: {
         react: 'https://esm.sh/react@19.2.3',
-        '@tanstack/charts': 'https://esm.sh/@tanstack/charts@0.9.0',
+        '@tanstack/charts': 'https://esm.sh/@tanstack/charts@0.10.0',
       },
     })
     const right = createExampleWorkspace({
@@ -32,7 +32,7 @@ describe('example workspaces', () => {
         '/src/main.tsx': 'import "./app"',
       },
       imports: {
-        '@tanstack/charts': 'https://esm.sh/@tanstack/charts@0.9.0',
+        '@tanstack/charts': 'https://esm.sh/@tanstack/charts@0.10.0',
         react: 'https://esm.sh/react@19.2.3',
       },
     })
@@ -81,7 +81,7 @@ describe('example workspaces', () => {
           '/src/main.tsx': 'export default null',
         },
         imports: {
-          '@tanstack/charts': 'https://esm.sh/@tanstack/charts@0.9.0',
+          '@tanstack/charts': 'https://esm.sh/@tanstack/charts@0.10.0',
         },
       },
     })

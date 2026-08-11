@@ -87,7 +87,7 @@ const sources: Record<string, string> = {
   ].join('\n'),
   'benchmarks/conformance/types.ts':
     'export type ConformanceInput = { width: number }',
-  'packages/charts-core/package.json': JSON.stringify({ version: '0.9.0' }),
+  'packages/charts-core/package.json': JSON.stringify({ version: '0.10.0' }),
   'package.json': JSON.stringify({
     devDependencies: {
       ...dependencyVersions,

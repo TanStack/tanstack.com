@@ -1,22 +1,22 @@
 import type { ExampleEnvironment } from './example-workspace'
 
 export const notebookImports = {
-  '@tanstack/charts': 'https://esm.sh/@tanstack/charts@0.9.0',
-  '@tanstack/charts/': 'https://esm.sh/@tanstack/charts@0.9.0/',
+  '@tanstack/charts': 'https://esm.sh/@tanstack/charts@0.10.0',
+  '@tanstack/charts/': 'https://esm.sh/@tanstack/charts@0.10.0/',
   '@tanstack/charts/react':
-    'https://esm.sh/@tanstack/charts@0.9.0/react?external=react,react-dom',
+    'https://esm.sh/@tanstack/charts@0.10.0/react?external=react,react-dom',
   '@tanstack/charts/react/canvas':
-    'https://esm.sh/@tanstack/charts@0.9.0/react/canvas?external=react,react-dom',
+    'https://esm.sh/@tanstack/charts@0.10.0/react/canvas?external=react,react-dom',
   '@tanstack/charts/react/core':
-    'https://esm.sh/@tanstack/charts@0.9.0/react/core?external=react,react-dom',
+    'https://esm.sh/@tanstack/charts@0.10.0/react/core?external=react,react-dom',
   '@tanstack/charts/react/tooltip':
-    'https://esm.sh/@tanstack/charts@0.9.0/react/tooltip?external=react,react-dom',
+    'https://esm.sh/@tanstack/charts@0.10.0/react/tooltip?external=react,react-dom',
   '@tanstack/charts/octane':
-    'https://esm.sh/@tanstack/charts@0.9.0/octane?external=octane',
+    'https://esm.sh/@tanstack/charts@0.10.0/octane?external=octane',
   '@tanstack/charts/octane/canvas':
-    'https://esm.sh/@tanstack/charts@0.9.0/octane/canvas?external=octane',
+    'https://esm.sh/@tanstack/charts@0.10.0/octane/canvas?external=octane',
   '@tanstack/charts/octane/core':
-    'https://esm.sh/@tanstack/charts@0.9.0/octane/core?external=octane',
+    'https://esm.sh/@tanstack/charts@0.10.0/octane/core?external=octane',
   '@tanstack/charts-data/':
     'https://esm.sh/gh/TanStack/charts@b8690671d677244848cff0eebd3d5dd0d5825b18/packages/charts-demo-data/src/',
   '@tanstack/highlight': 'https://esm.sh/@tanstack/highlight@0.0.9',

@@ -7,7 +7,7 @@ import {
 
 const revision = 'b8690671d677244848cff0eebd3d5dd0d5825b18'
 const versions: ChartsCatalogExampleVersions = {
-  charts: '0.9.0',
+  charts: '0.10.0',
   react: '19.2.3',
   reactDom: '19.2.3',
   dependencies: {
@@ -80,14 +80,14 @@ describe('Charts catalog example workspaces', () => {
 
     assert.deepEqual(imports, {
       '@charts-poc/demo-data/': `https://esm.sh/gh/TanStack/charts@${revision}/packages/charts-demo-data/src/`,
-      '@tanstack/charts': 'https://esm.sh/@tanstack/charts@0.9.0',
-      '@tanstack/charts/': 'https://esm.sh/@tanstack/charts@0.9.0/',
+      '@tanstack/charts': 'https://esm.sh/@tanstack/charts@0.10.0',
+      '@tanstack/charts/': 'https://esm.sh/@tanstack/charts@0.10.0/',
       '@tanstack/charts/react':
-        'https://esm.sh/@tanstack/charts@0.9.0/react?external=react',
+        'https://esm.sh/@tanstack/charts@0.10.0/react?external=react',
       '@tanstack/charts/react/core':
-        'https://esm.sh/@tanstack/charts@0.9.0/react/core?external=react',
+        'https://esm.sh/@tanstack/charts@0.10.0/react/core?external=react',
       '@tanstack/charts/react/tooltip':
-        'https://esm.sh/@tanstack/charts@0.9.0/react/tooltip?external=react,react-dom',
+        'https://esm.sh/@tanstack/charts@0.10.0/react/tooltip?external=react,react-dom',
       '@tanstack/charts-data/': `https://esm.sh/gh/TanStack/charts@${revision}/packages/charts-demo-data/src/`,
       'd3-scale': 'https://esm.sh/d3-scale@4.0.2',
       'd3-scale/': 'https://esm.sh/d3-scale@4.0.2/',

@@ -107,6 +107,8 @@ The final publish arrow compresses two steps: the private lane selects a result,
 
 ### One Loader, Several Leases
 
+<!-- explain "lease" -->
+
 In the detailed timeline, the `/account` preload and navigation do not merely happen to await the same promise. They each hold a **lease** on one loader flight.
 
 <figure>
@@ -116,13 +118,15 @@ Consumers acquire and release their own claims on one loader invocation. The fli
 </figcaption>
 </figure>
 
-A lease means “this consumer still needs the shared work.” Acquiring one increments the flight's lease count; releasing one removes only that consumer's claim. If the count reaches zero while the invocation is still pending, its controller can be aborted.[^flights]
+Holding a lease means "this consumer still needs the shared work." Acquiring one increments the flight's lease count, releasing one removes only that consumer's claim. If the count reaches zero while the invocation is still pending, its controller can be aborted.[^flights]
 
-The claim is about resource lifetime, not just promise settlement. An accepted or cached match may retain its flight after the loader returns because the associated abort signal still belongs to that generation. Ownership ends only when its final consumer releases it.
+Several kinds of *consumers* can hold a lease on a loader flight: a cached route, a rendered route, a pending route, and a preloading route. These leases can last long after the loader promise has settled: the claim is about resource lifetime.
 
-In the opening scenario, the preload acquires the first lease. The `/account` navigation joins the flight and acquires another. When `/settings` supersedes that navigation, only the navigation's lease is released.
+In the opening scenario, the preload acquires the first lease. The `/account` navigation joins the flight and acquires another. When `/settings` supersedes that navigation, only the navigation's lease is released, but the preload still holds it, so the promise isn't aborted and the loader's result gets cached when it finally settles.
 
 ### The Navigation Was Replaced. Its Loader Kept Going.
+
+<!-- explain "transaction" -->
 
 The current transaction answers one narrow question: **which navigation may change the page?** Once `/settings` becomes current, it takes that authority from `/account`. It does not make every task associated with `/account` useless.
 
@@ -138,6 +142,8 @@ This separation lets the router discard an obsolete page decision without destro
 
 ### The Error Finished First. The Redirect Still Won.
 
+<!-- explain "reduction" -->
+
 Both settings loaders have already started when the layout loader fails. That error is a local fact, not yet a decision to render an error page.
 
 ```text
@@ -149,11 +155,13 @@ lane result    → redirect('/login')
 
 The router normalizes individual settlements and returns them to the private lane. The first ordinary failure is provisional because an already-started descendant may still redirect. When that redirect arrives, it replaces the provisional failure as the route-level result.[^reduction]
 
-This is control-flow precedence, not a general ranking where redirects are “more important” than errors. If no redirect appears, reduction still has to select an ordinary failure and a renderable boundary. The important rule is that promise timing alone does not decide what reaches the page.
+This is control-flow precedence, not a general ranking where redirects are "more important" than errors. If no redirect appears, reduction still has to select an ordinary failure and a renderable boundary. The important rule is that promise timing alone does not decide what reaches the page.
 
 The settings error therefore remains evidence from a discarded attempt. The transaction follows the redirect with a new `/login` lane, and no settings error UI is published.
 
 ### `/login` Was Published Before React Rendered It
+
+<!-- explain "ack" -->
 
 At the bottom of the detailed timeline, `Publish /login` and `Ack render` are deliberately separate events. Publication means the router has accepted the lane, written its `matches` to the store, and asked React to render them. It does not mean the `/login` tree committed.
 
@@ -169,7 +177,7 @@ That distinction splits the navigation lifecycle around the framework boundary:[
 
 To tell those cases apart, the React adapter installs a receipt for the exact offered `matches` array before publishing it. A `Matches` layout effect settles that receipt `true` only if the same array reaches a commit. If a newer publication replaces it first, the old receipt settles `false`.[^framework-ack]
 
-Both values release the router's wait, but only `true` is evidence that this publication rendered. That boolean guard prevents an abandoned or older suspended tree from producing `onRendered` for the wrong publication. Here, “rendered” means React committed the tree and reached the layout effect, not that the browser finished painting it.
+Both values release the router's wait, but only `true` is evidence that this publication rendered. That boolean guard prevents an abandoned or older suspended tree from producing `onRendered` for the wrong publication. Here, "rendered" means React committed the tree and reached the layout effect, not that the browser finished painting it.
 
 Pending UI uses the same rule. A pending fallback that never commits adds no artificial `pendingMinMs` delay.[^pending]
 

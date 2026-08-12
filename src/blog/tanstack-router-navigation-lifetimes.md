@@ -69,17 +69,14 @@ These steps are not one long waterfall. The pending timer races the loaders. Nor
 > [!NOTE]
 > `Promise.allSettled` is shorthand here. The router waits for the outcomes needed to choose between success, failure, and redirect.[^reduction]
 
-The common client-side path is easier to reason about as four separate tracks. A **flight** is one real loader invocation that compatible consumers can share. A **lease** is a claim that one consumer still needs that flight.[^flights]
+The common client-side path is easier to reason about as four separate tracks, each answering one question and ending on its own schedule. [When Navigations Overlap](#when-navigations-overlap) then takes them one row at a time, in this order:
 
-<!-- TODO: this explanation above is redundant with the sections below, but we do need a short explanation here, how do we reconcile both? -->
-<!-- TODO: each entry in this table is a section inside "When Navigations Overlap", make this more obvious -->
-
-| Owner                        | Decides                                                     | Ends when                                                         |
-| ---------------------------- | ----------------------------------------------------------- | ----------------------------------------------------------------- |
-| **Current transaction**      | May this navigation publish?                                | A successor replaces its authority                                |
-| **Private lane**             | Did this route attempt succeed, fail, or redirect?          | The lane is accepted, redirected, or discarded                    |
-| **Loader flight**            | Should this loader invocation remain alive?                 | Its final navigation, preload, or cached owner releases its lease |
-| **Framework render receipt** | May the transition finish, and did this publication render? | The receipt settles or is superseded                              |
+| Owner                                                                         | Decides                                                     | Ends when                                             |
+| ----------------------------------------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------- |
+| [**Loader flight**](#one-loader-several-leases)                               | Should this loader invocation stay alive?                   | Its last consumer releases its claim on it, a _lease_ |
+| [**Current transaction**](#the-navigation-was-replaced-its-loader-kept-going)  | May this navigation publish?                                | A successor replaces its authority                    |
+| [**Private lane**](#the-error-finished-first-the-redirect-still-won)          | Did this route attempt succeed, fail, or redirect?          | The lane is accepted, redirected, or discarded        |
+| [**Framework render receipt**](#login-was-published-before-react-rendered-it)  | May the transition finish, and did this publication render? | The receipt settles or is superseded                  |
 
 > [!NOTE]
 > The lane's phases are encoded in TypeScript as `matched`, `contextualized`, `reduced`, and `projected`. The brands add no runtime state; they stop code that expects a finished phase from accepting an earlier one.[^lane-phases]
@@ -112,6 +109,8 @@ The final publish arrow compresses two steps: the private lane selects a result,
 
 Both the _preload_ lane and the _navigation_ lane need `/account`'s data. But the `loader` is only invoked once.
 
+Each still does its own matching, builds its own context, and runs its own `beforeLoad`. That invocation and its outcome are the only things they share: reusing work must not mean inheriting another consumer's draft of the page.
+
 Sharing one invocation raises a question: when is it safe to abort? So the invocation is wrapped in a **flight**: a promise, its abort controller, and a lease count. Every consumer that needs it takes a **lease**.[^flights]
 
 <figure>
@@ -132,9 +131,9 @@ That is why `/account` still reaches the cache. Clicking `/settings` releases th
 While the `/account` navigation lane is pending, starting a new navigation to `/settings` has exactly one effect on it: revoking its right to change the page. This is what the **current transaction** controls: it is a single slot, and the only navigation that holds it can change the page.
 
 <figure>
-<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-transaction-explainer.svg" style="width:100%" alt="Three rows on one timeline: the current transaction passes from account to settings at the click, the account lane stops there, and the account loader flight continues across it and settles into the cache">
+<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-transaction-explainer.svg" style="width:100%" alt="The current transaction slot, holding /settings, extends downwards as a barrier with a single opening: the /settings lane passes through it and publishes, the /account lane runs into it and is discarded, and below a dashed line the /account loader flight keeps running to the cache">
 <figcaption>
-The slot changes hands, so the `/account` lane may never publish. The flight it was using is owned elsewhere and keeps running.
+Only the lane holding the slot gets through. The `/account` lane stops there; the flight it was using is not governed by the slot at all.
 </figcaption>
 </figure>
 
@@ -150,10 +149,6 @@ if (router._tx !== tx) {
 }
 ```
 
-<!-- TODO: this paragraph below is interesting, but it feels less about "transactions" (this section) than about lanes (section below) or leases (section above). -->
-
-Notice what was never shared. The preload and the navigation each did their own matching, built their own context, ran their own `beforeLoad`, and kept their own lane. They shared one loader invocation and its outcome, nothing more. Reusing work must not mean inheriting another consumer's draft of the page.
-
 ### The Error Finished First. The Redirect Still Won. <!-- "lane" explainer -->
 
 The `/settings` branch runs two loaders. The parent layout's rejects, and a moment later, the child index's throws `redirect('/login')`.
@@ -167,13 +162,9 @@ Loader outcomes return to the lane. The lane, not the order the promises settled
 </figcaption>
 </figure>
 
-<!-- TODO: the rest of this section is very confusing. We're saying simple things here, it feels like this shouldn't be this hard to explain it. -->
+So the lane never acts on the first outcome to arrive. It waits for the loaders it already started, and only then picks one result for the whole branch: a redirect if any of them asked for one, otherwise a failure and the boundary that will render it.
 
-An ordinary failure is held as provisional, because other parallel loaders may still redirect. A redirect is control flow, not something to render: it asks for another navigation. So the redirect replaces the provisional failure, even though the error settled first.
-
-This is not a general ranking where redirects matter more than errors. With no redirect in the branch, the lane still has to select a failure and the boundary that renders it. Our goal is merely that promise timing alone does not decide what reaches the page.
-
-The layout error is registered on the loader, but the `/settings` lane never publishes the error UI.
+The redirect wins here, not because it outranks the error, but because it is not a result to display at all: it is the start of another navigation. The layout error stays recorded on its match, and the discarded `/settings` lane never publishes an error UI.
 
 ### `/login` Was Published Before React Rendered It <!-- "ack" explainer -->
 

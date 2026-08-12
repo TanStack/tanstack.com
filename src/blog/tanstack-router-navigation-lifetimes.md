@@ -120,7 +120,7 @@ Consumers acquire and release their own claims on one loader invocation. The fli
 
 Holding a lease means "this consumer still needs the shared work." Acquiring one increments the flight's lease count, releasing one removes only that consumer's claim. If the count reaches zero while the invocation is still pending, its controller can be aborted.[^flights]
 
-Several kinds of *consumers* can hold a lease on a loader flight: a cached route, a rendered route, a pending route, and a preloading route. These leases can last long after the loader promise has settled: the claim is about resource lifetime.
+Several kinds of _consumers_ can hold a lease on a loader flight: a cached route, a rendered route, a pending route, and a preloading route. These leases can last long after the loader promise has settled: the claim is about resource lifetime.
 
 In the opening scenario, the preload acquires the first lease. The `/account` navigation joins the flight and acquires another. When `/settings` supersedes that navigation, only the navigation's lease is released, but the preload still holds it, so the promise isn't aborted and the loader's result gets cached when it finally settles.
 

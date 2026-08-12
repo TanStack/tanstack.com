@@ -12,6 +12,19 @@ function escapeXml(unsafe: string): string {
     .replace(/'/g, '&apos;')
 }
 
+export function getRssImageMediaType(src: string) {
+  const path = src.split(/[?#]/, 1)[0]
+  const extension = path.match(/\.([^./]+)$/)?.[1]?.toLowerCase()
+
+  if (extension === 'jpg' || extension === 'jpeg') return 'image/jpeg'
+  if (extension === 'webp') return 'image/webp'
+  if (extension === 'svg') return 'image/svg+xml'
+  if (extension === 'gif') return 'image/gif'
+  if (extension === 'png') return 'image/png'
+
+  return 'application/octet-stream'
+}
+
 function generateRSSFeed() {
   const posts = getPublishedPosts().slice(0, 50) // Most recent 50 posts
   const siteUrl = 'https://tanstack.com'
@@ -42,7 +55,7 @@ function generateRSSFeed() {
       <pubDate>${pubDate}</pubDate>
       <author>${escapeXml(author)}</author>
       <description>${escapeXml(description)}</description>
-      ${post.headerImage ? `<enclosure url="${escapeXml(siteUrl + post.headerImage)}" type="image/png" />` : ''}
+      ${post.headerImage ? `<enclosure url="${escapeXml(siteUrl + post.headerImage)}" type="${getRssImageMediaType(post.headerImage)}" />` : ''}
     </item>`
     })
     .join('')

@@ -72,11 +72,11 @@ These steps are not one long waterfall. The pending timer races the loaders. Nor
 The common client-side path is easier to reason about as four separate tracks, each answering one question and ending on its own schedule. [When Navigations Overlap](#when-navigations-overlap) then takes them one row at a time, in this order:
 
 | Owner                                                                         | Decides                                                     | Ends when                                             |
-| ----------------------------------------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------- |
+| ----------------------------------------------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------------- |
 | [**Loader flight**](#one-loader-several-leases)                               | Should this loader invocation stay alive?                   | Its last consumer releases its claim on it, a _lease_ |
-| [**Current transaction**](#the-navigation-was-replaced-its-loader-kept-going)  | May this navigation publish?                                | A successor replaces its authority                    |
+| [**Current transaction**](#the-navigation-was-replaced-its-loader-kept-going) | May this navigation publish?                                | A successor replaces its authority                    |
 | [**Private lane**](#the-error-finished-first-the-redirect-still-won)          | Did this route attempt succeed, fail, or redirect?          | The lane is accepted, redirected, or discarded        |
-| [**Framework render receipt**](#login-was-published-before-react-rendered-it)  | May the transition finish, and did this publication render? | The receipt settles or is superseded                  |
+| [**Framework render receipt**](#login-was-published-before-react-rendered-it) | May the transition finish, and did this publication render? | The receipt settles or is superseded                  |
 
 > [!NOTE]
 > The lane's phases are encoded in TypeScript as `matched`, `contextualized`, `reduced`, and `projected`. The brands add no runtime state; they stop code that expects a finished phase from accepting an earlier one.[^lane-phases]

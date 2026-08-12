@@ -769,6 +769,9 @@ function DesktopNavTrigger({
       className="ts-mega-trigger-wrap group/nav"
       data-menu-key={group.key}
       data-menu-dismissed={dismissed ? 'true' : undefined}
+      onAuxClick={(event) => {
+        if (event.button === 1) onDismiss()
+      }}
       onPointerLeave={onResetDismissed}
       onFocusCapture={onResetDismissed}
     >

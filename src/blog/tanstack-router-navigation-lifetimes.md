@@ -110,7 +110,7 @@ The final publish arrow compresses two steps: the private lane selects a result,
 
 ### One Loader, Several Leases <!-- "lease" explainer -->
 
-Both the *preload* lane and the *navigation* lane need `/account`'s data. But the `loader` is only invoked once.
+Both the _preload_ lane and the _navigation_ lane need `/account`'s data. But the `loader` is only invoked once.
 
 Sharing one invocation raises a question: when is it safe to abort? So the invocation is wrapped in a **flight**: a promise, its abort controller, and a lease count. Every consumer that needs it takes a **lease**.[^flights]
 
@@ -125,7 +125,7 @@ Acquiring a lease raises the count. Releasing one removes that consumer's claim 
 
 Preloads, pending routes, rendered routes, and cache entries all hold leases, and a lease can outlive the promise it covers: the claim is about the lifetime of the resource, not the delivery of a value.
 
-That is why `/account` still reaches the cache. Clicking `/settings` releases the *navigation*'s lease, but the hover's *preload* lease is still there. The count never reaches zero, nothing is aborted, and the result is cached when it finally settles.
+That is why `/account` still reaches the cache. Clicking `/settings` releases the _navigation_'s lease, but the hover's _preload_ lease is still there. The count never reaches zero, nothing is aborted, and the result is cached when it finally settles.
 
 ### The Navigation Was Replaced. Its Loader Kept Going. <!-- "transaction" explainer -->
 
@@ -141,6 +141,7 @@ The slot changes hands, so the `/account` lane may never publish. The flight it 
 Without the transaction, the `/account` lane can no longer publish its matches. It will stop at its next async boundary and release its leases. This in turn may abort the loader flights that have no other leases, but in our example the preload still holds a lease which means the flight continues.
 
 It becomes very easy to enforce that a lane cannot publish if it is not allowed to:
+
 ```ts
 if (router._tx !== tx) {
   finishPending(tx)
@@ -150,6 +151,7 @@ if (router._tx !== tx) {
 ```
 
 <!-- TODO: this paragraph below is interesting, but it feels less about "transactions" (this section) than about lanes (section below) or leases (section above). -->
+
 Notice what was never shared. The preload and the navigation each did their own matching, built their own context, ran their own `beforeLoad`, and kept their own lane. They shared one loader invocation and its outcome, nothing more. Reusing work must not mean inheriting another consumer's draft of the page.
 
 ### The Error Finished First. The Redirect Still Won. <!-- "lane" explainer -->
@@ -166,6 +168,7 @@ Loader outcomes return to the lane. The lane, not the order the promises settled
 </figure>
 
 <!-- TODO: the rest of this section is very confusing. We're saying simple things here, it feels like this shouldn't be this hard to explain it. -->
+
 An ordinary failure is held as provisional, because other parallel loaders may still redirect. A redirect is control flow, not something to render: it asks for another navigation. So the redirect replaces the provisional failure, even though the error settled first.
 
 This is not a general ranking where redirects matter more than errors. With no redirect in the branch, the lane still has to select a failure and the boundary that renders it. Our goal is merely that promise timing alone does not decide what reaches the page.

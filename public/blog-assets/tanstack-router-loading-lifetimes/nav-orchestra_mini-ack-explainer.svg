@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="252" viewBox="0 0 720 252" role="img" aria-labelledby="mae-title mae-desc">
+  <title id="mae-title">Publishing asks the framework to render; the receipt answers</title>
+  <desc id="mae-desc">
+    The router publishes the login matches and hands the framework a receipt for
+    that exact matches array. If the framework commits those matches the receipt
+    settles true; if a newer publication replaces them first it settles false.
+    Both answers release the router's wait, but only true means this publication
+    rendered.
+  </desc>
+  <style>
+    :root {
+      background-color: #fdfdfd;
+    }
+
+    text {
+      fill: #4c4c4c;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-size: 14px;
+    }
+
+    .mono {
+      font-family: ui-monospace, "Monaspace Neon NF", Menlo, monospace;
+    }
+
+    .note {
+      font-size: 12.5px;
+    }
+
+    .tick {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+    }
+
+    .bar {
+      fill: none;
+      stroke-width: 9;
+      stroke-linecap: round;
+    }
+
+    .wait {
+      stroke-dasharray: 2 12;
+    }
+
+    .link {
+      fill: none;
+      stroke: #a7a7a7;
+      stroke-width: 1.6;
+    }
+
+    .node {
+      fill: #0a0a0a;
+      stroke-width: 4;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        background-color: #0a0a0a;
+      }
+
+      text {
+        fill: #b3b3b3;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="mae-arrow-grey" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0 0 10 5 0 10z" fill="#a7a7a7" />
+    </marker>
+  </defs>
+
+  <text class="tick" x="700" y="26" text-anchor="end">TIME →</text>
+
+  <!-- router -->
+  <text x="150" y="77" text-anchor="end">router</text>
+  <path class="bar" stroke="#60d9d8" d="M180 72h210" />
+  <circle class="node" stroke="#60d9d8" cx="390" cy="72" r="6" />
+  <text class="mono" x="390" y="50" text-anchor="middle">publish /login</text>
+  <path class="link" marker-end="url(#mae-arrow-grey)" d="M390 82c0 34 12 26 12 50" />
+  <text class="note" x="378" y="112" text-anchor="end">hands over a receipt</text>
+
+  <!-- framework -->
+  <text x="150" y="147" text-anchor="end">framework</text>
+  <path class="bar wait" stroke="#8049d2" d="M402 142h86" />
+  <text class="note" x="434" y="170" text-anchor="middle">may suspend</text>
+  <path class="bar" stroke="#8049d2" d="M492 142c28 0 14-36 42-36h48" />
+  <path class="bar" stroke="#a7a7a7" d="M492 142c28 0 14 36 42 36h48" />
+  <circle class="node" stroke="#8049d2" cx="582" cy="106" r="6" />
+  <circle class="node" stroke="#a7a7a7" cx="582" cy="178" r="6" />
+  <text class="note" x="545" y="94" text-anchor="middle">these matches commit</text>
+  <text class="note" x="545" y="200" text-anchor="middle">replaced before commit</text>
+  <text class="mono" x="598" y="111">true</text>
+  <text class="mono" x="598" y="183">false</text>
+
+  <text class="note" x="404" y="238" text-anchor="middle">both answers release the wait; only true means this publication rendered</text>
+</svg>

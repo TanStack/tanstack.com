@@ -71,6 +71,9 @@ These steps are not one long waterfall. The pending timer races the loaders. Nor
 
 The common client-side path is easier to reason about as four separate tracks. A **flight** is one real loader invocation that compatible consumers can share. A **lease** is a claim that one consumer still needs that flight.[^flights]
 
+<!-- TODO: this explanation above is redundant with the sections below, but we do need a short explanation here, how do we reconcile both? -->
+<!-- TODO: each entry in this table is a section inside "When Navigations Overlap", make this more obvious -->
+
 | Owner                        | Decides                                                     | Ends when                                                         |
 | ---------------------------- | ----------------------------------------------------------- | ----------------------------------------------------------------- |
 | **Current transaction**      | May this navigation publish?                                | A successor replaces its authority                                |
@@ -105,11 +108,11 @@ Replacing the current transaction does not necessarily end a shared loader fligh
 
 The final publish arrow compresses two steps: the private lane selects a result, then the current transaction confirms that it may publish. A loader flight cannot publish a destination by itself.
 
-### One Loader, Several Leases
+### One Loader, Several Leases <!-- "lease" explainer -->
 
-<!-- explain "lease" -->
+Both the *preload* lane and the *navigation* lane need `/account`'s data. But the `loader` is only invoked once.
 
-In the detailed timeline, the `/account` preload and navigation do not merely happen to await the same promise. They each hold a **lease** on one loader flight.
+Sharing one invocation raises a question: when is it safe to abort? So the invocation is wrapped in a **flight**: a promise, its abort controller, and a lease count. Every consumer that needs it takes a **lease**.[^flights]
 
 <figure>
 <img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-lease-explainer.svg" style="width:100%; max-width:400px; margin: auto;" alt="One loader flight shared across three overlapping lease lifetimes, with its lease count rising from one to three and falling back to zero">
@@ -118,68 +121,75 @@ Consumers acquire and release their own claims on one loader invocation. The fli
 </figcaption>
 </figure>
 
-Holding a lease means "this consumer still needs the shared work." Acquiring one increments the flight's lease count, releasing one removes only that consumer's claim. If the count reaches zero while the invocation is still pending, its controller can be aborted.[^flights]
+Acquiring a lease raises the count. Releasing one removes that consumer's claim and nothing else. The flight stays alive while the count is above zero, and can be aborted the moment it reaches zero with the promise still pending.
 
-Several kinds of _consumers_ can hold a lease on a loader flight: a cached route, a rendered route, a pending route, and a preloading route. These leases can last long after the loader promise has settled: the claim is about resource lifetime.
+Preloads, pending routes, rendered routes, and cache entries all hold leases, and a lease can outlive the promise it covers: the claim is about the lifetime of the resource, not the delivery of a value.
 
-In the opening scenario, the preload acquires the first lease. The `/account` navigation joins the flight and acquires another. When `/settings` supersedes that navigation, only the navigation's lease is released, but the preload still holds it, so the promise isn't aborted and the loader's result gets cached when it finally settles.
+That is why `/account` still reaches the cache. Clicking `/settings` releases the *navigation*'s lease, but the hover's *preload* lease is still there. The count never reaches zero, nothing is aborted, and the result is cached when it finally settles.
 
-### The Navigation Was Replaced. Its Loader Kept Going.
+### The Navigation Was Replaced. Its Loader Kept Going. <!-- "transaction" explainer -->
 
-<!-- explain "transaction" -->
+While the `/account` navigation lane is pending, starting a new navigation to `/settings` has exactly one effect on it: revoking its right to change the page. This is what the **current transaction** controls: it is a single slot, and the only navigation that holds it can change the page.
 
-The current transaction answers one narrow question: **which navigation may change the page?** Once `/settings` becomes current, it takes that authority from `/account`. It does not make every task associated with `/account` useless.
+<figure>
+<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-transaction-explainer.svg" style="width:100%" alt="Three rows on one timeline: the current transaction passes from account to settings at the click, the account lane stops there, and the account loader flight continues across it and settles into the cache">
+<figcaption>
+The slot changes hands, so the `/account` lane may never publish. The flight it was using is owned elsewhere and keeps running.
+</figcaption>
+</figure>
 
-| Once `/settings` is current  | State                    | Consequence                                     |
-| ---------------------------- | ------------------------ | ----------------------------------------------- |
-| **Current transaction**      | `/settings`              | Only the settings lane may publish              |
-| **Private `/account` lane**  | Superseded               | It cannot publish; its navigation lease ends    |
-| **`/account` loader flight** | Preload lease still held | It may continue, settle, and populate the cache |
+Without the transaction, the `/account` lane can no longer publish its matches. It will stop at its next async boundary and release its leases. This in turn may abort the loader flights that have no other leases, but in our example the preload still holds a lease which means the flight continues.
 
-Only the loader invocation and its normalized outcome were shared. The preload and navigation still had separate lanes, with their own matching, context, `beforeLoad`, and control flow. Reusing the flight must not mean reusing another consumer's draft route state.
-
-This separation lets the router discard an obsolete page decision without destroying work that another owner can still use.
-
-### The Error Finished First. The Redirect Still Won.
-
-<!-- explain "reduction" -->
-
-Both settings loaders have already started when the layout loader fails. That error is a local fact, not yet a decision to render an error page.
-
-```text
-layout loader  → error                ordinary failure, provisional
-index loader   → redirect('/login')   control flow
-                                      ────────────────────────────
-lane result    → redirect('/login')
+It becomes very easy to enforce that a lane cannot publish if it is not allowed to:
+```ts
+if (router._tx !== tx) {
+  finishPending(tx)
+  discardLane(result)
+  return
+}
 ```
 
-The router normalizes individual settlements and returns them to the private lane. The first ordinary failure is provisional because an already-started descendant may still redirect. When that redirect arrives, it replaces the provisional failure as the route-level result.[^reduction]
+<!-- TODO: this paragraph below is interesting, but it feels less about "transactions" (this section) than about lanes (section below) or leases (section above). -->
+Notice what was never shared. The preload and the navigation each did their own matching, built their own context, ran their own `beforeLoad`, and kept their own lane. They shared one loader invocation and its outcome, nothing more. Reusing work must not mean inheriting another consumer's draft of the page.
 
-This is control-flow precedence, not a general ranking where redirects are "more important" than errors. If no redirect appears, reduction still has to select an ordinary failure and a renderable boundary. The important rule is that promise timing alone does not decide what reaches the page.
+### The Error Finished First. The Redirect Still Won. <!-- "lane" explainer -->
 
-The settings error therefore remains evidence from a discarded attempt. The transaction follows the redirect with a new `/login` lane, and no settings error UI is published.
+The `/settings` branch runs two loaders. The parent layout's rejects, and a moment later, the child index's throws `redirect('/login')`.
 
-### `/login` Was Published Before React Rendered It
+A settled loader is a fact about one loader, not yet a decision about the route. Those facts go back to the private lane, which **reduces** them into a single outcome.[^reduction]
 
-<!-- explain "ack" -->
+<figure>
+<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-reduction-explainer.svg" style="width:100%" alt="A layout loader settles first with an error and an index loader settles later with a redirect to login; both outcomes return to the settings lane, which produces one result and continues as the login lane">
+<figcaption>
+Loader outcomes return to the lane. The lane, not the order the promises settled in, decides what the route did.
+</figcaption>
+</figure>
 
-At the bottom of the detailed timeline, `Publish /login` and `Ack render` are deliberately separate events. Publication means the router has accepted the lane, written its `matches` to the store, and asked React to render them. It does not mean the `/login` tree committed.
+<!-- TODO: the rest of this section is very confusing. We're saying simple things here, it feels like this shouldn't be this hard to explain it. -->
+An ordinary failure is held as provisional, because other parallel loaders may still redirect. A redirect is control flow, not something to render: it asks for another navigation. So the redirect replaces the provisional failure, even though the error settled first.
 
-React may already be working on an older tree that is suspended. The new rendering attempt can also discover another promise: a component might call `useSuspenseQuery`, call `use(promise)`, or come from `lazy(() => import(...))`. React can keep the previously committed UI visible while it waits. If another navigation arrives first, the `/login` attempt may never commit at all.
+This is not a general ranking where redirects matter more than errors. With no redirect in the branch, the lane still has to select a failure and the boundary that renders it. Our goal is merely that promise timing alone does not decide what reaches the page.
 
-That distinction splits the navigation lifecycle around the framework boundary:[^publication-events]
+The layout error is registered on the loader, but the `/settings` lane never publishes the error UI.
 
-| Moment                                      | Lifecycle work                                                                                                                              |
-| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| **The router publishes the matches**        | Route `onLeave`/`onEnter`/`onStay` callbacks run, followed by `onLoad` and `onBeforeRouteMount`                                             |
-| **The framework receipt settles**           | If the transaction is still current, the router marks it resolved, emits `onResolved`, and may complete the navigation                      |
-| **The receipt specifically settles `true`** | The exact offered matches committed, so the router also emits `onRendered`; for a pending publication, its `pendingMinMs` minimum can begin |
+### `/login` Was Published Before React Rendered It <!-- "ack" explainer -->
 
-To tell those cases apart, the React adapter installs a receipt for the exact offered `matches` array before publishing it. A `Matches` layout effect settles that receipt `true` only if the same array reaches a commit. If a newer publication replaces it first, the old receipt settles `false`.[^framework-ack]
+Publishing is the router writing `matches` to its store and asking the framework to render them. It is a request, not a result.[^publication-events]
 
-Both values release the router's wait, but only `true` is evidence that this publication rendered. That boolean guard prevents an abandoned or older suspended tree from producing `onRendered` for the wrong publication. Here, "rendered" means React committed the tree and reached the layout effect, not that the browser finished painting it.
+React may still be busy with the previous tree. The new one can suspend on promises of its own (`useSuspenseQuery`, `use(promise)`, `lazy(() => import(...))`, etc.) while React keeps the committed UI on screen. And if another navigation publishes first, the `/login` tree may never commit at all.
 
-Pending UI uses the same rule. A pending fallback that never commits adds no artificial `pendingMinMs` delay.[^pending]
+<figure>
+<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-ack-explainer.svg" style="width:100%" alt="The router publishes login and hands the framework a receipt; the framework may suspend, then either commits those exact matches and settles the receipt true, or is replaced before commit and settles it false">
+<figcaption>
+Publication offers an exact set of matches. The receipt reports whether that set is the one that committed.
+</figcaption>
+</figure>
+
+So the router installs a **receipt** for the exact `matches` array it is about to publish. React's adapter settles that receipt `true` from a layout effect, but only if the very same array reaches a commit. If a newer publication replaces it first, the receipt settles `false`.[^framework-ack]
+
+Both answers release the router's wait: a still-current transaction resolves and emits `onResolved` either way. Only `true` is evidence that this publication rendered, so only `true` emits `onRendered`, which is what stops an abandoned or older suspended tree from claiming the event. _Rendered_ here means React committed the tree and reached the layout effect, not that the browser painted it.
+
+Pending UI reads the same signal. A fallback that never commits never starts its `pendingMinMs` clock, so it adds no artificial delay.[^pending]
 
 ## One Bug Pattern, Many Symptoms
 

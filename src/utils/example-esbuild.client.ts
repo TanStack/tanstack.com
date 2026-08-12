@@ -87,8 +87,16 @@ function createWorkspacePlugin(files: Record<string, string>): esbuild.Plugin {
     name: workspaceNamespace,
     setup(build) {
       build.onResolve({ filter: /.*/ }, (args) => {
-        if (args.path.startsWith('https://') || isBareSpecifier(args.path)) {
+        if (args.path.startsWith('https://')) {
           return { external: true, path: args.path }
+        }
+        if (isBareSpecifier(args.path)) {
+          return {
+            external: true,
+            path: args.path.endsWith('.json')
+              ? `${args.path}?module`
+              : args.path,
+          }
         }
 
         const unresolvedPath =

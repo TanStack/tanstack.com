@@ -1,6 +1,9 @@
 import * as esbuild from 'esbuild-wasm'
 import esbuildWasmUrl from 'esbuild-wasm/esbuild.wasm?url'
-import { notebookImports } from './notebook-environment'
+import {
+  getExampleEnvironmentProfile,
+  notebookImports,
+} from './notebook-environment'
 import {
   normalizeExamplePath,
   type ExampleWorkspace,
@@ -13,7 +16,15 @@ export type CompiledExampleWorkspace = {
 }
 
 const workspaceNamespace = 'tanstack-example-workspace'
-const sourceExtensions = ['.tsx', '.ts', '.jsx', '.js', '.css', '.json']
+const sourceExtensions = [
+  '.tsx',
+  '.tsrx',
+  '.ts',
+  '.jsx',
+  '.js',
+  '.css',
+  '.json',
+]
 const indexFiles = sourceExtensions.map((extension) => `/index${extension}`)
 let esbuildInitialization: Promise<void> | undefined
 
@@ -24,14 +35,16 @@ export async function compileExampleWorkspace(
   await esbuildInitialization
 
   const files = normalizeFiles(workspace.files)
-  const entry = resolveWorkspacePath(
+  const authoredEntry = resolveWorkspacePath(
     normalizeExamplePath(workspace.entry),
     files,
   )
 
-  if (!entry) {
+  if (!authoredEntry) {
     throw new Error(`Entry file not found: ${workspace.entry}`)
   }
+
+  const entry = addEnvironmentEntry(workspace, files, authoredEntry)
 
   const result = await esbuild.build({
     absWorkingDir: '/',
@@ -74,8 +87,16 @@ function createWorkspacePlugin(files: Record<string, string>): esbuild.Plugin {
     name: workspaceNamespace,
     setup(build) {
       build.onResolve({ filter: /.*/ }, (args) => {
-        if (args.path.startsWith('https://') || isBareSpecifier(args.path)) {
+        if (args.path.startsWith('https://')) {
           return { external: true, path: args.path }
+        }
+        if (isBareSpecifier(args.path)) {
+          return {
+            external: true,
+            path: args.path.endsWith('.json')
+              ? `${args.path}?module`
+              : args.path,
+          }
         }
 
         const unresolvedPath =
@@ -97,23 +118,65 @@ function createWorkspacePlugin(files: Record<string, string>): esbuild.Plugin {
         return { namespace: workspaceNamespace, path }
       })
 
-      build.onLoad({ filter: /.*/, namespace: workspaceNamespace }, (args) => {
-        const contents = files[args.path]
+      build.onLoad(
+        { filter: /.*/, namespace: workspaceNamespace },
+        async (args) => {
+          const source = files[args.path]
 
-        if (contents === undefined) {
-          return {
-            errors: [{ text: `Workspace file not found: ${args.path}` }],
+          if (source === undefined) {
+            return {
+              errors: [{ text: `Workspace file not found: ${args.path}` }],
+            }
           }
-        }
 
-        return {
-          contents,
-          loader: getLoader(args.path),
-          resolveDir: getDirectory(args.path),
-        }
-      })
+          if (args.path.endsWith('.tsrx')) {
+            const compiled = await compileOctaneSource(source, args.path)
+            const errors: esbuild.PartialMessage[] = []
+            const warnings: esbuild.PartialMessage[] = []
+
+            for (const diagnostic of compiled.diagnostics) {
+              const message = {
+                text: diagnostic.message,
+                location: {
+                  file: diagnostic.filename,
+                  line: diagnostic.start.line,
+                  column: diagnostic.start.column,
+                  length: diagnostic.end.offset - diagnostic.start.offset,
+                },
+                detail: diagnostic,
+              }
+
+              if (diagnostic.severity === 'warning') warnings.push(message)
+              else errors.push(message)
+            }
+
+            return {
+              contents: compiled.code,
+              errors,
+              loader: getLoader(args.path),
+              resolveDir: getDirectory(args.path),
+              warnings,
+            }
+          }
+
+          return {
+            contents: source,
+            loader: getLoader(args.path),
+            resolveDir: getDirectory(args.path),
+          }
+        },
+      )
     },
   }
+}
+
+async function compileOctaneSource(source: string, path: string) {
+  const { compile } = await import('octane/compiler')
+  return compile(source, path, {
+    dev: false,
+    hmr: false,
+    mode: 'client',
+  })
 }
 
 function normalizeFiles(files: Record<string, string>) {
@@ -123,6 +186,22 @@ function normalizeFiles(files: Record<string, string>) {
       source,
     ]),
   )
+}
+
+function addEnvironmentEntry(
+  workspace: ExampleWorkspace,
+  files: Record<string, string>,
+  authoredEntry: string,
+) {
+  if (!workspace.environment) return authoredEntry
+
+  const profile = getExampleEnvironmentProfile(workspace.environment)
+  if (files[profile.entryPath] !== undefined) {
+    throw new Error(`Reserved environment file: ${profile.entryPath}`)
+  }
+
+  files[profile.entryPath] = profile.createEntrySource(authoredEntry)
+  return profile.entryPath
 }
 
 function resolveRelativePath(importer: string, specifier: string) {
@@ -154,6 +233,7 @@ function isBareSpecifier(specifier: string) {
 
 function getLoader(path: string): esbuild.Loader {
   if (path.endsWith('.tsx')) return 'tsx'
+  if (path.endsWith('.tsrx')) return 'js'
   if (path.endsWith('.ts')) return 'ts'
   if (path.endsWith('.jsx')) return 'jsx'
   if (path.endsWith('.css')) return 'css'

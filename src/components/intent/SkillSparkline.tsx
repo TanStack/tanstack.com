@@ -2,7 +2,7 @@ import * as React from 'react'
 import * as d3 from 'd3'
 import { defineChart, rect, type ChartPoint } from '@tanstack/charts'
 import { tooltip } from '@tanstack/charts/tooltip'
-import { Chart } from '@tanstack/react-charts'
+import { Chart } from '@tanstack/charts/react'
 import type { SkillHistoryEntry } from '~/utils/intent.functions'
 
 const changeColors = {

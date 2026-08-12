@@ -13,7 +13,6 @@ const exactVersionPattern =
 
 export type ChartsCatalogExampleVersions = {
   charts: string
-  reactCharts: string
   react: string
   reactDom: string
   dependencies: Record<string, string>
@@ -125,15 +124,12 @@ function createCatalogImports(
   addPackageImports(imports, 'react', versions.react)
   addPackageImports(imports, 'react-dom', versions.reactDom)
 
-  const reactChartsUrl = packageUrl(
-    '@tanstack/react-charts',
-    versions.reactCharts,
-  )
-  imports['@tanstack/react-charts'] = `${reactChartsUrl}?external=react`
-  imports['@tanstack/react-charts/core'] =
-    `${reactChartsUrl}/core?external=react`
-  imports['@tanstack/react-charts/tooltip'] =
-    `${reactChartsUrl}/tooltip?external=react`
+  const chartsUrl = packageUrl('@tanstack/charts', versions.charts)
+  imports['@tanstack/charts/react'] = `${chartsUrl}/react?external=react`
+  imports['@tanstack/charts/react/core'] =
+    `${chartsUrl}/react/core?external=react`
+  imports['@tanstack/charts/react/tooltip'] =
+    `${chartsUrl}/react/tooltip?external=react,react-dom`
   imports['react/jsx-runtime'] =
     `${packageUrl('react', versions.react)}/jsx-runtime`
   imports['react/jsx-dev-runtime'] =

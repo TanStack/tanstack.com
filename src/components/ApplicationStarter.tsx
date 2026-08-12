@@ -960,12 +960,42 @@ export function ApplicationStarter({
               <div
                 className={twMerge(
                   'relative overflow-hidden rounded-[1rem] border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950',
-                  // Home: 36px full-squircle corners and a tight terracotta glow.
+                  // Home: 36px full-squircle corners. `overflow-visible` lets the
+                  // focus glow (an absolute child at -z-10) bleed out from behind
+                  // the card; the inner wrapper below re-clips the card content.
                   isHomeStarter &&
-                    'rounded-[36px] [corner-shape:squircle] shadow-[0px_21px_39.2px_-38px_var(--color-ds-terracotta-300)] dark:border-transparent dark:bg-[#171717]',
+                    'overflow-visible rounded-[36px] [corner-shape:squircle] dark:border-transparent dark:bg-[#171717]',
                 )}
               >
-                <div>
+                {/* Home: a warm terracotta glow that grows in from behind the card
+                  while the prompt is focused, drifting in a slow wave. Sits at
+                  -z-10 so the opaque card hides all but the bottom bleed. */}
+                {isHomeStarter ? (
+                  <div
+                    aria-hidden
+                    className={twMerge(
+                      'pointer-events-none absolute inset-x-24 -bottom-2 -z-10 h-20 origin-bottom transition-[opacity,transform] duration-700 ease-out',
+                      isPromptFocused
+                        ? 'opacity-100 scale-100'
+                        : 'opacity-0 scale-75',
+                      reducedMotion && 'transition-none',
+                    )}
+                  >
+                    <div
+                      className={twMerge(
+                        'h-full w-full rounded-[100%] bg-ds-terracotta-300/50 blur-2xl',
+                        !reducedMotion && isPromptFocused && 'prompt-glow-flow',
+                      )}
+                    />
+                  </div>
+                ) : null}
+                <div
+                  className={
+                    isHomeStarter
+                      ? 'overflow-hidden rounded-[36px] [corner-shape:squircle]'
+                      : undefined
+                  }
+                >
                   {/* Home renders its heading above the box (see the fragment
                     above); other contexts keep the in-box header bar. */}
                   {isHomeStarter ? null : (

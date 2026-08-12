@@ -1,4 +1,4 @@
-import { scaleLinear } from '@tanstack/charts-scales/linear'
+import { scaleLinear } from '@tanstack/charts/scales/linear'
 import { defineChart } from '@tanstack/charts'
 import { polar, radialArc, radialText } from '@tanstack/charts/polar'
 

@@ -43,13 +43,13 @@ export function BlogAuthorFilter({
                 'focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500',
                 activeAuthor
                   ? 'bg-blue-50 dark:bg-blue-950/40 ring-1 ring-blue-500/50 text-blue-700 dark:text-blue-200'
-                  : 'hover:bg-gray-500/10',
+                  : 'hover:bg-surface-state-hover',
               )}
             >
               <span
                 className={twMerge(
                   'flex items-center justify-center w-6 h-6 rounded border overflow-hidden shrink-0',
-                  activeAuthor ? 'border-blue-500/30' : 'border-gray-500/20',
+                  activeAuthor ? 'border-blue-500/30' : 'border-border-subtle',
                 )}
               >
                 <img

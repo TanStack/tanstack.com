@@ -11,7 +11,7 @@ import {
 } from './ChartsLandingGraphics'
 import { CatalogChartsHero, ChartsCatalogGallery } from './ChartsCatalogGallery'
 
-const chartPrompt = `Using TanStack Charts and the accounts array in this project, plot monthlyRevenue on x and retention on y. Size each point by seats with an explicit square-root radius scale, color it by segment, and preserve the original Account rows for typed tooltip and focus callbacks. Use the compact linear scale from @tanstack/charts-scales/linear so TanStack Charts can infer the domains, add the tooltip behavior from @tanstack/charts/tooltip, and render it through the React adapter with a useful ariaLabel.`
+const chartPrompt = `Using TanStack Charts and the accounts array in this project, plot monthlyRevenue on x and retention on y. Size each point by seats with an explicit square-root radius scale, color it by segment, and preserve the original Account rows for typed tooltip and focus callbacks. Use the compact linear scale from @tanstack/charts/scales/linear so TanStack Charts can infer the domains, add the tooltip behavior from @tanstack/charts/tooltip, and render it through the React adapter with a useful ariaLabel.`
 
 export default function ChartsLanding({
   catalog,
@@ -132,10 +132,10 @@ function TypedDotExample() {
   )
 }
 
-const accountChartSource = `import { scaleLinear } from '@tanstack/charts-scales/linear'
+const accountChartSource = `import { scaleLinear } from '@tanstack/charts/scales/linear'
 import { defineChart, dot } from '@tanstack/charts'
 import { tooltip } from '@tanstack/charts/tooltip'
-import { Chart } from '@tanstack/react-charts'
+import { Chart } from '@tanstack/charts/react'
 import { scaleSqrt } from 'd3-scale'
 
 const accountHealth = defineChart({

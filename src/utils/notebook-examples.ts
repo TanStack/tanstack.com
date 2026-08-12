@@ -14,7 +14,7 @@ const dutyStatusSource = String.raw`import {
   ruleY,
   text,
 } from '@tanstack/charts'
-import { scaleLinear } from 'd3-scale'
+import { scaleLinear } from '@tanstack/charts/scales/linear'
 
 const colors = {
   OFF: '#ef3b2d',
@@ -131,9 +131,10 @@ export default function render(output) {
 
 const populationRaceSource = String.raw`import React from 'react'
 import { createRoot } from 'react-dom/client'
-import { Chart } from '@tanstack/react-charts'
+import { Chart } from '@tanstack/charts/react'
 import { barX, defineChart, ruleX, text } from '@tanstack/charts'
-import { scaleBand, scaleLinear } from 'd3-scale'
+import { scaleBand } from '@tanstack/charts/scales/band'
+import { scaleLinear } from '@tanstack/charts/scales/linear'
 
 const snapshots = [
   { year: 1961, values: { China: 660, India: 456, 'United States': 184, Russia: 121, Japan: 95, Indonesia: 89, Brazil: 75, Bangladesh: 52, Pakistan: 47, Nigeria: 46 } },
@@ -217,9 +218,9 @@ export default function render(output) {
 
 const technicalIndicatorsSource = String.raw`import React from 'react'
 import { createRoot } from 'react-dom/client'
-import { Chart } from '@tanstack/react-charts'
+import { Chart } from '@tanstack/charts/react'
 import { areaY, defineChart, dot, lineY, ruleY } from '@tanstack/charts'
-import { scaleLinear } from 'd3-scale'
+import { scaleLinear } from '@tanstack/charts/scales/linear'
 
 const palette = ['#ae3ce6', '#6899ef', '#f3c536', '#46be78']
 

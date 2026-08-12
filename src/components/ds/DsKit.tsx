@@ -55,7 +55,7 @@ export function DsPage({
   children: React.ReactNode
 }) {
   return (
-    <div className="mx-auto max-w-7xl px-6 py-10 lg:px-10">
+    <div className="mx-auto max-w-7xl px-6 pt-10 pb-28 lg:px-10">
       <header className="mb-10">
         <h1 className="font-ds-display text-ds-display-sm text-text-primary">
           {title}

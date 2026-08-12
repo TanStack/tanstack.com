@@ -37,6 +37,10 @@ import { VersionSelect } from './VersionSelect'
 import { Card } from './Card'
 import { PartnersRail, RightRail } from './RightRail'
 import { trackEvent, useTrackedImpression } from '~/utils/analytics'
+import {
+  getMenuGroupInitialOpenState,
+  isChartsCatalogTarget,
+} from './library-layout-navigation'
 
 // Number of days a doc page is flagged as "New"/"Updated" in the sidebar.
 const RECENCY_WINDOW_DAYS = 7
@@ -913,24 +917,12 @@ export function LibraryLayout({
   const isDesktopViewport = useMediaQuery('(min-width: 768px)')
 
   const groupInitialOpenState = React.useMemo(() => {
-    return visibleMenuConfig.reduce<Record<string, boolean>>(
-      (acc, group, index) => {
-        const isChildActive = group.children.some(
-          (child) => child.to === _splat,
-        )
-        const key = `${index}:${String(group.label)}`
-
-        acc[key] = isChildActive
-          ? true
-          : typeof group.defaultCollapsed !== 'undefined'
-            ? !group.defaultCollapsed
-            : false
-
-        return acc
-      },
-      {},
+    return getMenuGroupInitialOpenState(
+      visibleMenuConfig,
+      _splat,
+      lastMatch.pathname,
     )
-  }, [visibleMenuConfig, _splat])
+  }, [lastMatch.pathname, visibleMenuConfig, _splat])
 
   const [openGroups, setOpenGroups] = React.useState(groupInitialOpenState)
 
@@ -960,12 +952,13 @@ export function LibraryLayout({
 
   const menuItems = visibleMenuConfig.map((group, i) => {
     const groupKey = `${i}:${String(group.label)}`
+    const isGroupOpen = openGroups[groupKey] ?? false
 
     const groupContent = (
       <>
         {group.collapsible ? (
           <summary
-            className="text-[.8em] font-bold leading-4 px-2 ts-sidebar-label"
+            className="ts-sidebar-label flex min-h-6 cursor-pointer list-none items-center justify-between rounded-md px-2 text-[11px] font-bold uppercase leading-none tracking-[0.075em] text-text-secondary hover:bg-background-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus [&::-webkit-details-marker]:hidden"
             onClick={(event) => {
               event.preventDefault()
               setOpenGroups((prev) => ({
@@ -974,23 +967,36 @@ export function LibraryLayout({
               }))
             }}
           >
-            {group.label}
+            <span>{group.label}</span>
+            <CaretRightIcon
+              aria-hidden="true"
+              className={twMerge(
+                'size-3.5 shrink-0 transition-transform duration-150 ease-[cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none',
+                isGroupOpen && 'rotate-90',
+              )}
+              weight="bold"
+            />
           </summary>
         ) : (
-          <div className="text-[.8em] font-bold leading-4 px-2 ts-sidebar-label">
+          <div className="ts-sidebar-label flex min-h-6 items-center px-2 text-[11px] font-bold uppercase leading-none tracking-[0.075em] text-text-secondary">
             {group.label}
           </div>
         )}
-        <div className="h-2" />
-        <ul className="text-[.85em] leading-snug list-none">
+        <div className="h-1" />
+        <ul className="list-none text-[.85em] leading-snug">
           {group?.children?.map((child, i) => {
-            const linkClasses = `flex gap-2 items-center justify-between group px-2 py-1.5 rounded-lg hover:bg-gray-500/10 opacity-60 hover:opacity-100`
+            const linkClasses =
+              'relative flex items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-text-muted transition-colors duration-150 hover:bg-background-subtle hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus motion-reduce:transition-none'
+            const internalLinkClasses = twMerge(
+              'relative block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current',
+              libraryGroupColor,
+            )
             const linkParams =
               !child.to.startsWith('/') || child.to.includes('/$libraryId')
                 ? ({ libraryId, version } as never)
                 : undefined
             const isHomeLink = child.to === '..'
-            const isChartsExamplesLink = child.to === '/charts/catalog'
+            const isChartsExamplesLink = isChartsCatalogTarget(child.to)
             const frameworkDocsTarget = getFrameworkDocsLinkTarget(child.to)
 
             const recency = getDocRecency(child.addedAt, child.updatedAt)
@@ -1002,15 +1008,15 @@ export function LibraryLayout({
             ) : null
 
             const renderLinkContent = (isActive: boolean) => (
-              <div className={twMerge(linkClasses, isActive && 'opacity-100')}>
-                <div
-                  className={twMerge(
-                    'w-full',
-                    isActive ? 'font-bold text-text-primary' : '',
-                  )}
-                >
-                  {child.label}
-                </div>
+              <div
+                className={twMerge(
+                  linkClasses,
+                  isActive &&
+                    'bg-current/10 font-bold before:absolute before:inset-y-1.5 before:left-0 before:w-0.5 before:rounded-r-full before:bg-current',
+                  isActive && libraryGroupColor,
+                )}
+              >
+                <div className="w-full">{child.label}</div>
                 {recencyPill}
               </div>
             )
@@ -1031,23 +1037,9 @@ export function LibraryLayout({
                   <Link
                     to={libraryHomePath}
                     onClick={closeMobileMenu}
-                    className="relative"
+                    className={internalLinkClasses}
                   >
-                    <div
-                      className={twMerge(
-                        linkClasses,
-                        !docsMatch && 'opacity-100',
-                      )}
-                    >
-                      <div
-                        className={twMerge(
-                          'w-full',
-                          !docsMatch ? 'font-bold text-text-primary' : '',
-                        )}
-                      >
-                        {child.label}
-                      </div>
-                    </div>
+                    {renderLinkContent(!docsMatch)}
                   </Link>
                 ) : frameworkDocsTarget?.kind === 'examples' ? (
                   <Link
@@ -1065,7 +1057,7 @@ export function LibraryLayout({
                       includeHash: false,
                       includeSearch: false,
                     }}
-                    className="relative"
+                    className={internalLinkClasses}
                   >
                     {(props) => renderLinkContent(props.isActive)}
                   </Link>
@@ -1085,7 +1077,7 @@ export function LibraryLayout({
                       includeHash: false,
                       includeSearch: false,
                     }}
-                    className="relative"
+                    className={internalLinkClasses}
                   >
                     {(props) => renderLinkContent(props.isActive)}
                   </Link>
@@ -1105,7 +1097,7 @@ export function LibraryLayout({
                       includeHash: false,
                       includeSearch: false,
                     }}
-                    className="relative"
+                    className={internalLinkClasses}
                   >
                     {(props) => renderLinkContent(props.isActive)}
                   </Link>
@@ -1120,16 +1112,13 @@ export function LibraryLayout({
     return group.collapsible ? (
       <details
         key={`group-${i}`}
-        className="[&>summary]:before:mr-1 [&>summary]:marker:text-[0.8em] [&>summary]:marker:leading-4 relative select-none"
-        open={openGroups[groupKey] ?? false}
+        className="relative select-none"
+        open={isGroupOpen}
       >
         {groupContent}
       </details>
     ) : (
-      <div
-        key={`group-${i}`}
-        className="[&>summary]:before:mr-1 [&>summary]:marker:text-[0.8em] [&>summary]:marker:leading-4 relative select-none"
-      >
+      <div key={`group-${i}`} className="relative select-none">
         {groupContent}
       </div>
     )
@@ -1205,7 +1194,7 @@ export function LibraryLayout({
                   <li key={tab.id}>
                     <Link
                       from={
-                        target.to === '/charts/catalog'
+                        isChartsCatalogTarget(target.to)
                           ? undefined
                           : '/$libraryId/$version/docs'
                       }
@@ -1213,7 +1202,7 @@ export function LibraryLayout({
                       params={linkParams}
                       onClick={closeMobileMenu}
                       preload={
-                        target.to === '/charts/catalog' ? false : 'intent'
+                        isChartsCatalogTarget(target.to) ? false : 'intent'
                       }
                       aria-current={isActive ? 'page' : undefined}
                       className={twMerge(
@@ -1394,13 +1383,13 @@ export function LibraryLayout({
                 <Link
                   key={tab.id}
                   from={
-                    target.to === '/charts/catalog'
+                    isChartsCatalogTarget(target.to)
                       ? undefined
                       : '/$libraryId/$version/docs'
                   }
                   to={target.to}
                   params={linkParams}
-                  preload={target.to === '/charts/catalog' ? false : 'intent'}
+                  preload={isChartsCatalogTarget(target.to) ? false : 'intent'}
                   activeOptions={{
                     exact: true,
                     includeHash: false,

@@ -623,7 +623,7 @@ function FeatureSection({
           {distinction}
         </LandingEyebrow>
 
-        <div className="mt-12 grid items-stretch gap-10 lg:grid-cols-[15.5rem_minmax(0,1fr)] lg:gap-14">
+        <div className="mt-12 grid items-stretch gap-10 lg:grid-cols-[minmax(15.5rem,max-content)_minmax(0,1fr)] lg:gap-14">
           <div
             role="tablist"
             aria-label="Product capabilities"
@@ -644,7 +644,7 @@ function FeatureSection({
                   aria-controls={tabPanelId}
                   aria-selected={index === activeIndex}
                   tabIndex={index === activeIndex ? 0 : -1}
-                  className="inline-flex shrink-0 items-center gap-3 border-b border-border-default pb-4 text-left font-ds-display text-ds-heading-5 text-text-muted transition-colors hover:text-text-primary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-selected:border-[var(--landing-accent-bright)] aria-selected:text-[var(--landing-accent-bright)] lg:text-ds-heading-3"
+                  className="inline-flex shrink-0 items-center gap-3 whitespace-nowrap border-b border-border-default pb-4 text-left font-ds-display text-ds-heading-5 text-text-muted transition-colors hover:text-text-primary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-selected:border-[var(--landing-accent-bright)] aria-selected:text-[var(--landing-accent-bright)] lg:text-ds-heading-3"
                   onClick={() => setActiveIndex(index)}
                   onKeyDown={(event) => {
                     let nextIndex: number | undefined

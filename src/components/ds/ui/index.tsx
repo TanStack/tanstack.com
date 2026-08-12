@@ -189,17 +189,12 @@ const roundedStyles: Record<ButtonRounded, string> = {
 }
 
 const baseStyles =
-  'inline-flex items-center justify-center gap-2 cursor-pointer transition-all duration-150 ease-out disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none disabled:hover:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-1 focus-visible:ring-offset-background-default'
+  'inline-flex items-center justify-center gap-2 corner-squircle cursor-pointer transition-all duration-150 ease-out disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none disabled:hover:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-1 focus-visible:ring-offset-background-default'
 
 function getDefaultSize(variant: ButtonVariant): ButtonSize {
   if (variant === 'icon') return 'icon-md'
   if (variant === 'gradient') return 'lg'
   return 'md'
-}
-
-function getDefaultRounded(size: ButtonSize): ButtonRounded {
-  if (size === 'xs' || size === 'sm') return 'md'
-  return 'lg'
 }
 
 export const Button: ButtonComponent = React.forwardRef<
@@ -218,8 +213,10 @@ export const Button: ButtonComponent = React.forwardRef<
   } = props as ButtonOwnProps & Record<string, unknown>
   const Component = as || 'button'
   const resolvedSize = size ?? getDefaultSize(variant)
-  const resolvedRounded =
-    rounded ?? (variant === 'gradient' ? 'xl' : getDefaultRounded(resolvedSize))
+  // All variants default to fully-rounded pills; the base `corner-squircle`
+  // gives the rounding an organic superellipse shape. Callers can still opt out
+  // via the `rounded` prop.
+  const resolvedRounded = rounded ?? 'full'
   const colorStyles =
     variant === 'primary'
       ? primaryColorStyles[color]
@@ -300,12 +297,13 @@ export function Badge({
 
 /* ---------------------------------------------------------------- Eyebrow -- */
 
-type EyebrowTone = 'muted' | 'secondary' | 'accent'
+type EyebrowTone = 'muted' | 'secondary' | 'accent' | 'warning'
 
 const eyebrowToneStyles: Record<EyebrowTone, string> = {
   muted: 'text-text-muted',
   secondary: 'text-text-secondary',
   accent: 'text-text-accent',
+  warning: 'text-text-warning',
 }
 
 // Libraries that ship a `--color-lib-*` brand token. Written as literal classes

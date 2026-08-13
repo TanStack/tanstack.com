@@ -73,12 +73,12 @@ The **lane** in the middle is a private, unpublished draft of the matched route 
 
 Nothing goes wrong in this version. The transaction is never replaced, the loaders do not error or redirect, and both publications render successfully. Now change one assumption at a time:
 
-| What if...                                                              | The answer belongs to                                                                    |
-| ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| another consumer needs a loader that is already running?                | A [**loader flight** and its leases](#a-replaced-navigation-can-leave-useful-work)        |
-| the user starts another navigation before this one finishes?            | The [**current transaction**](#only-the-current-navigation-may-publish)                   |
-| parallel loaders produce different kinds of outcomes?                   | A [**private lane**](#one-loader-result-is-not-the-route-result)                          |
-| another publication takes over before the framework renders this one?   | A [**framework render receipt**](#published-does-not-mean-rendered)                       |
+| What if...                                                            | The answer belongs to                                                              |
+| --------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| another consumer needs a loader that is already running?              | A [**loader flight** and its leases](#a-replaced-navigation-can-leave-useful-work) |
+| the user starts another navigation before this one finishes?          | The [**current transaction**](#only-the-current-navigation-may-publish)            |
+| parallel loaders produce different kinds of outcomes?                 | A [**private lane**](#one-loader-result-is-not-the-route-result)                   |
+| another publication takes over before the framework renders this one? | A [**framework render receipt**](#published-does-not-mean-rendered)                |
 
 Usually, all four answers arrive within a few milliseconds of each other, preserving the illusion of one asynchronous task, but it is also plenty of time for another event to change what should happen next.
 
@@ -183,15 +183,14 @@ To tell these cases apart, the router keeps a single **receipt** slot. A new pub
 
 > [!NOTE]
 > The receipt belongs to one exact publication. Either answer releases the internal render wait, but what happens next depends on the value:
-> |                                                        | `ack:true` | `ack:false` |
+> | | `ack:true` | `ack:false` |
 > | ------------------------------------------------------ | ---------- | ----------- |
-> | The navigation resolves                                | ✅         | 🤷          |
-> | `onResolved`, if the transaction is still current      | ✅         | ✅          |
-> | `onRendered`                                           | ✅         | ❌          |
-> | A pending fallback starts its `pendingMinMs`[^pending] | ✅         | ❌          |
+> | The navigation resolves | ✅ | 🤷 |
+> | `onResolved`, if the transaction is still current | ✅ | ✅ |
+> | `onRendered` | ✅ | ❌ |
+> | A pending fallback starts its `pendingMinMs`[^pending] | ✅ | ❌ |
 >
 > A superseded public `navigate()` can remain chained to the navigation that replaced it, so `ack:false` does not guarantee that the navigation resolves.
-
 
 _Rendered_ here means that React committed the tree and ran its layout effects. It does not necessarily mean that the browser painted it.
 

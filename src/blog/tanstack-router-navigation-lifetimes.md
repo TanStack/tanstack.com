@@ -39,9 +39,9 @@ Which result is allowed to reach the page? Which loader should be canceled? Does
 
 Those questions do not have one shared answer.
 
-We learned this the hard way. [A rewrite of TanStack Router's route loading core](https://github.com/TanStack/router/pull/7805) grew around dozens of linked reports and patches across preloading, redirects, caching, pending UI, SSR, and more. They looked unrelated, but most had the same cause: the router did not record enough about its own state, so it inferred it (e.g. an aborted signal was taken as proof that a navigation had been superseded; or a state update was taken as proof that its matches had rendered).
+We learned this while [rewriting TanStack Router's loading system](https://github.com/TanStack/router/pull/7805). Dozens of bugs across preloading, redirects, caching, pending UI, SSR, and more looked unrelated. Many came from treating clues as facts: an aborted signal was taken to mean a navigation had been superseded, and a state update was taken to mean its matches had rendered.
 
-The new model assigns separate owners to publishing, route outcomes, loader work, and rendering. There is still one `navigate()` call at the API boundary, but there is no single owner of everything inside it.[^architecture]
+Application code still sees one `navigate()` call, but inside the router, we use distinct owners for each fact: should a loader keep running, what did the route attempt decide, may this navigation publish, and did the framework actually render it?[^architecture]
 
 ## Even One Navigation Is an Orchestration
 
@@ -65,9 +65,7 @@ A **lane** is a private, unpublished draft of the matched route branch. Reading 
 7. If the navigation is still current, it publishes the final matches. The framework receipt settles, and only then may the navigation complete.
 
 > [!NOTE]
-> The lane carries its progress in its own type: it is branded `matched`, then `contextualized`, then `reduced`, then `projected` as it moves through those steps. The brands add no runtime state; they stop code that expects a finished phase from accepting an earlier one.[^lane-phases]
-
-<!-- it helps us making the system correct by construction instead of having to add *more* runtime checks -->
+> The lane's TypeScript type changes with each phase: `matched`, `contextualized`, `reduced`, then `projected`. A function that publishes a finished lane therefore cannot accidentally receive one that has only been matched. These labels add no runtime state; they let TypeScript enforce the order of the phases.[^lane-phases]
 
 These steps are not one long waterfall but an orchestration of multiple parallel systems: the pending timer races the loaders, normal route components can load alongside them, a framework render can be in progress while the private lane continues toward its final result.
 
@@ -148,7 +146,7 @@ if (router._tx !== tx) {
 
 ### The Lane Reduces Many Outcomes to One Result <!-- "lane" explainer -->
 
-The `/settings` branch runs two loaders. The parent layout's rejects, and a moment later, the child index's throws `redirect('/login')`.
+The `/settings` branch runs two loaders. The parent layout loader rejects, and a moment later the child index loader throws `redirect('/login')`.
 
 A settled loader is a fact about one loader, not yet a decision about the route. Those facts go back to the private lane, which **reduces** them into a single outcome.[^reduction]
 
@@ -159,32 +157,30 @@ Loader outcomes return to the lane. The lane, not the order the promises settled
 </figcaption>
 </figure>
 
-So the lane never acts on the first outcome to arrive. It waits for the loaders it already started, and only then picks one result for the whole branch:
+An error does not become the lane's result just because it arrives first. Before choosing an ordinary failure, the lane waits for any already-started loaders that could still redirect. It then chooses one result for the whole branch:
 
 - a redirect if any loader asked for one,
 - a failure (error or not-found) and the boundary that will render it,
 - or a full-lane success.
 
-The redirect wins here, not because it outranks the error, but because it is not a result to display at all: it is the start of another navigation. The layout error stays recorded on its match, and the discarded `/settings` lane never publishes an error UI.
+The redirect wins here, not because it outranks the error, but because it starts another navigation rather than producing UI. The lane still considers the error, but does not select it for display. The `/settings` lane is discarded without ever publishing error UI.
 
 ### The Receipt Reports Whether a Publication Rendered <!-- "ack" explainer -->
 
-Publishing is the router writing `matches` to its store and asking the framework to render them. It is a request, not a result.[^publication-events]
+Publishing means handing a route branch to the framework to render. It is a request, not proof that the branch reached the screen.[^publication-events]
 
 React may still be busy with the previous tree. The new one can suspend on promises of its own (`useSuspenseQuery`, `use(promise)`, `lazy(() => import(...))`, etc.) while React keeps the committed UI on screen. And if another navigation publishes first, the previously published branch may never commit at all.
 
 <figure>
-<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-ack-explainer.svg" style="width:100%; max-width: 580px; margin: auto;" alt="Two transactions, each publishing its matches to the framework. The first publication's render attempt never joins the screen: the second transaction publishes before it commits, which settles the first one's acknowledgement to false. The second publication's attempt does reach the screen, and settles its acknowledgement to true">
+<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-ack-explainer.svg" style="width:100%; max-width: 580px; margin: auto;" alt="Two route publications race to render. The first is replaced before it commits and receives a false acknowledgement; the second commits and receives a true acknowledgement">
 <figcaption>
-One transaction publishes, but before its matches get committed, a second superseding transaction publishes too. The 2nd publication answers `ack:false` for the 1st. Only an attempt that reaches the screen answers `ack:true`.
+Here the second publication replaces the first before it renders, then reaches the screen itself.
 </figcaption>
 </figure>
 
-So the router hands over a **receipt** for the exact `matches` array it is publishing, then waits on it. React's adapter settles that receipt `true` from a layout effect, but only if that very array is the one that reaches a commit.[^framework-ack]
+To tell these cases apart, the router keeps a single **receipt** slot. When a publication claims it, it first has to answer any receipt already there with `false`, then installing its own. If React commits that publication, the adapter answers its receipt with `true`.[^framework-ack]
 
-That receipt lives in a single slot, and a publication claims the slot by clearing it first. So the first publication is never detected as lost: the second one evicts it, and the eviction is its `false`. Only one receipt is ever outstanding, precisely because each new one answers the one it displaces.
-
-Both answers release the router's wait, so a superseded publication is unblocked by its `false` and exits. What the answer changes is what is allowed to follow it:
+Either answer releases the router's wait. The answer changes what may follow:[^pending]
 
 |                                                   | `ack:true` | `ack:false` |
 | ------------------------------------------------- | ---------- | ----------- |
@@ -193,22 +189,20 @@ Both answers release the router's wait, so a superseded publication is unblocked
 | `onRendered`                                      | ✅         | ❌          |
 | A pending fallback starts its `pendingMinMs`      | ✅         | ❌          |
 
-Only `true` is evidence that this publication rendered. That is what stops an older suspended tree from claiming `onRendered`, and a pending UI that was not shown from holding the screen for its minimum duration.[^pending] _Rendered_ here means React committed the tree and reached the layout effect, not that the browser painted it.
+_Rendered_ here means React committed the tree and ran its layout effects, not necessarily that the browser painted it.
 
 ## One Bug Pattern, Many Symptoms
 
-The bug reports behind the rewrite were not duplicates of each other. They came from different APIs and different framework adapters, and each looked like its own problem. What they had in common is that every one of them sat on a boundary the router was not tracking, one of the four we just went through.
+The bugs behind the rewrite surfaced in different APIs and frameworks. Their symptoms varied, but the underlying mistake was often the same: one fact was treated as proof of another.
 
-| Ownership boundary                           | What breaks when it is blurred                                                                                                                                                                                                                                                                                             |
-| -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Publish authority / flight ownership**     | Treating transaction replacement or cache eviction as the end of a flight can repeatedly abort reusable parent work or strand an in-flight preload's bookkeeping ([#3928](https://github.com/TanStack/router/issues/3928), [#7759](https://github.com/TanStack/router/issues/7759))                                        |
-| **Shared flight / private lane**             | Sharing more than the loader result lets one lane observe another's `cause` or `preload` flags, or leaves a child without fresh parent context ([#3179](https://github.com/TanStack/router/issues/3179), [#4572](https://github.com/TanStack/router/issues/4572), [#7602](https://github.com/TanStack/router/issues/7602)) |
-| **Redirect control flow / presentation**     | A pending or stale match marked as redirected can reach `MatchInner`, even though a redirect should produce another lane rather than UI ([#7120](https://github.com/TanStack/router/issues/7120), [#7367](https://github.com/TanStack/router/issues/7367), [#7753](https://github.com/TanStack/router/issues/7753))        |
-| **Router publication / framework rendering** | Without a publication-scoped receipt, the router can observe only broad transition state, not whether the exact offered matches rendered ([render-owner contract](https://github.com/TanStack/router/blob/45c4ad8d629e291fab70c37900525449e415ffcd/packages/react-router/tests/react-render-owner-contract.test.tsx#L21-L101)) |
+| What happened                    | What the router inferred                    | What went wrong                                                                                                                                                                                                                                                                            |
+| -------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| A navigation was replaced        | Its loader was no longer needed             | Shared work was canceled while a preload or another navigation still needed it, forcing loaders to restart or preventing preload results from being reused ([#3928](https://github.com/TanStack/router/issues/3928), [#7759](https://github.com/TanStack/router/issues/7759))                     |
+| A loader result could be shared  | The whole route attempt could be shared     | One navigation inherited another's preload state or parent context, so loaders ran with the wrong inputs ([#3179](https://github.com/TanStack/router/issues/3179), [#4572](https://github.com/TanStack/router/issues/4572), [#7602](https://github.com/TanStack/router/issues/7602))                  |
+| A loader redirected              | The route should render that result         | A redirect reached route UI instead of starting the next navigation ([#7120](https://github.com/TanStack/router/issues/7120), [#7367](https://github.com/TanStack/router/issues/7367), [#7753](https://github.com/TanStack/router/issues/7753))                                                  |
+| Route state was published        | The route had rendered                      | The router could report that a route rendered even though the framework never committed that publication ([render-owner contract](https://github.com/TanStack/router/blob/45c4ad8d629e291fab70c37900525449e415ffcd/packages/react-router/tests/react-render-owner-contract.test.tsx#L21-L101))          |
 
-Not every row was broken. Waiting for an already-running child redirect after a parent error worked before the rewrite too, and it now has regression tests and an explicit reducer behind it.[^reduction] The publication receipt is the other extreme: there was nothing to repair, because nothing tracked individual publications at all.
-
-None of this was fixed by making navigations wait for each other. It was fixed by giving each fact an owner that knows enough to act on it.
+The fix was to track each decision separately.
 
 ## One Valid Page
 

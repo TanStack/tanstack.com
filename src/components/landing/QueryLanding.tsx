@@ -356,7 +356,8 @@ function QueryCachePanel() {
                   />
                 </span>
                 <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/35">
-                  {row.observers} obs
+                  {row.observers}{' '}
+                  {row.observers === 1 ? 'observer' : 'observers'}
                 </span>
               </span>
             </button>

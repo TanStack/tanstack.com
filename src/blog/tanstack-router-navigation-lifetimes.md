@@ -62,6 +62,7 @@ A **lane** is a private, unpublished draft of the matched route branch. Reading 
 4. Once that chain is ready, eligible route loaders can run in parallel. Each actual loader invocation is a **loader flight**.
 5. If loading takes longer than the route's `pendingMs` duration, the router can publish a pending component. That publication gets its own framework receipt.
 6. The lane waits for the loader outcomes it needs, then decides whether the route succeeded, failed, or redirected.
+
    > [!NOTE]
    > `Promise.allSettled` is shorthand here. The router waits for the outcomes needed to choose between success, failure, and redirect.[^reduction]
 
@@ -69,18 +70,19 @@ A **lane** is a private, unpublished draft of the matched route branch. Reading 
 
 > [!NOTE]
 > The lane carries its progress in its own type: it is branded `matched`, then `contextualized`, then `reduced`, then `projected` as it moves through those steps. The brands add no runtime state; they stop code that expects a finished phase from accepting an earlier one.[^lane-phases]
+
 <!-- it helps us making the system correct by construction instead of having to add *more* runtime checks -->
 
 These steps are not one long waterfall but an orchestration of multiple parallel systems: the pending timer races the loaders, normal route components can load alongside them, a framework render can be in progress while the private lane continues toward its final result.
 
 The common client-side path is easier to reason about as four separate tracks, each answering one question and ending on its own schedule. [The next section below](#when-navigations-overlap) explains each concept:
 
-| Owner                                                                         | Decides                                                     | Ends when                                             |
-| ----------------------------------------------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------------- |
-| [**Loader flight**](#leases-keep-a-shared-loader-flight-alive)                               | Should this loader invocation stay alive?                   | Its last consumer releases its _lease_ |
-| [**Current transaction**](#the-transaction-gates-publishing-not-loading) | May this navigation publish?                                | A successor replaces its authority                    |
-| [**Private lane**](#the-lane-reduces-many-outcomes-to-one-result)          | Did this route attempt succeed, fail, or redirect?          | The lane is accepted or discarded        |
-| [**Framework render receipt**](#the-receipt-reports-whether-a-publication-rendered) | May the transition finish, and did this publication render? | The receipt settles or is superseded                  |
+| Owner                                                                               | Decides                                                     | Ends when                              |
+| ----------------------------------------------------------------------------------- | ----------------------------------------------------------- | -------------------------------------- |
+| [**Loader flight**](#leases-keep-a-shared-loader-flight-alive)                      | Should this loader invocation stay alive?                   | Its last consumer releases its _lease_ |
+| [**Current transaction**](#the-transaction-gates-publishing-not-loading)            | May this navigation publish?                                | A successor replaces its authority     |
+| [**Private lane**](#the-lane-reduces-many-outcomes-to-one-result)                   | Did this route attempt succeed, fail, or redirect?          | The lane is accepted or discarded      |
+| [**Framework render receipt**](#the-receipt-reports-whether-a-publication-rendered) | May the transition finish, and did this publication render? | The receipt settles or is superseded   |
 
 Most of the time these tracks advance within a few milliseconds of each other. That creates the useful illusion that navigation is one asynchronous task.
 
@@ -161,7 +163,8 @@ Loader outcomes return to the lane. The lane, not the order the promises settled
 </figcaption>
 </figure>
 
-So the lane never acts on the first outcome to arrive. It waits for the loaders it already started, and only then picks one result for the whole branch: 
+So the lane never acts on the first outcome to arrive. It waits for the loaders it already started, and only then picks one result for the whole branch:
+
 - a redirect if any loader asked for one,
 - a failure (error or not-found) and the boundary that will render it,
 - or a full-lane success.
@@ -214,6 +217,7 @@ None of this was fixed by making navigations wait for each other. It was fixed b
 ## One Valid Page
 
 <!-- TODO: this conclusion is exactly right for its content, but feels entirely too AI-sloppy -->
+
 Return to the opening timeline. `/account` can become irrelevant to the screen without becoming useless. A settings loader can fail without deciding the route. `/login` can be published before it has rendered.
 
 Those are not contradictions. They are facts owned at different boundaries. The transaction gates publication, the lane turns many outcomes into one route decision, leases keep shared work alive, and the framework receipt tells core what crossed the gap between state and UI.
@@ -221,7 +225,6 @@ Those are not contradictions. They are facts owned at different boundaries. The 
 That is how `navigate()` can keep its simple shape. The router does not make concurrency disappear; it gives each consequence of concurrency somewhere precise to land, then lets one coherent result cross onto the screen.
 
 <img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_summary.svg" style="width:100%; max-width: 480px; margin: auto;" alt="One line running from navigate to render, made of four coloured segments that hand over to each other at a node: the current transaction, the private lane, the loader flight, and the framework render">
-
 
 > [!NOTE]
 > The diagrams are a teaching slice, not a complete inventory. Examples in the implementation include preflight planning, pending UI presentation, preload and cache entries, hydration handoff, development HMR rollback, and server request and stream cleanup. Background reloads are another: they keep successful loader data visible while a private candidate runs, then require both their transaction and exact committed base to remain current before publishing.

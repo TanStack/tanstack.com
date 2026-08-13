@@ -101,7 +101,7 @@ function useVersionConfig({
     const available = versions.map(
       (version): SelectOption =>
         version === latestVersion
-          ? { label: `${version} (latest)`, value: 'latest' }
+          ? { label: `${version} (Latest)`, value: 'latest' }
           : { label: version, value: version },
     )
 

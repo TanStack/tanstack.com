@@ -186,6 +186,8 @@ function QueryCachePanel() {
   // Starts paused so the server render matches the first client render; the
   // effect below turns it on unless the visitor asked for reduced motion.
   const [isLive, setIsLive] = React.useState(false)
+  // `0` until the first tick, for the same first-render reason as `fetchedAt`.
+  const [now, setNow] = React.useState(0)
 
   const projectsQuery = useQuery({
     queryKey: queryHeroKey,
@@ -255,14 +257,19 @@ function QueryCachePanel() {
       : 'fresh'
   const fetchedLabel =
     projectsQuery.data.fetchedAt > 0
-      ? `${Math.max(0, Math.round((Date.now() - projectsQuery.data.fetchedAt) / 1000))}s ago`
+      ? `${Math.max(0, Math.round((Math.max(now, projectsQuery.data.fetchedAt) - projectsQuery.data.fetchedAt) / 1000))}s ago`
       : 'primed'
 
   React.useEffect(() => {
-    if (prefersReducedMotion === false) {
-      setIsLive(true)
-    }
+    if (prefersReducedMotion === null) return
+
+    setIsLive(prefersReducedMotion === false)
   }, [prefersReducedMotion])
+
+  React.useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(id)
+  }, [])
 
   const addIssue = () => {
     const nextSequence = mutationSequenceRef.current + 1
@@ -365,7 +372,11 @@ function QueryCachePanel() {
                   aria-hidden="true"
                   size={13}
                   weight="bold"
-                  className={projectsQuery.isFetching ? 'animate-spin' : ''}
+                  className={
+                    projectsQuery.isFetching
+                      ? 'animate-spin motion-reduce:animate-none'
+                      : ''
+                  }
                 />
                 Refetch
               </button>

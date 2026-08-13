@@ -97,7 +97,7 @@ Overlap exposes four ideas that a single happy-path navigation can hide:
 The detailed timeline puts all four into the opening scenario. Read it as a worked example, not as a required ordering: independent events, such as caching `/account` and publishing `/login`, can happen in either order.
 
 <figure>
-<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_concurrent-orchestration.svg" style="width:100%" alt="A detailed sequence diagram where an account preload and navigation share a loader flight, settings supersedes account, nested settings loaders produce an error and redirect, account data reaches cache, login matches publish, and the framework acknowledges rendering them">
+<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_concurrent-orchestration.svg" style="width:100%; max-width: 600px; margin: auto;" alt="A detailed sequence diagram where an account preload and navigation share a loader flight, settings supersedes account, nested settings loaders produce an error and redirect, account data reaches cache, login matches publish, and the framework acknowledges rendering them">
 <figcaption>
 Replacing the current transaction does not necessarily end a shared loader flight. Loader outcomes first return to a private lane, and published matches cross a separate framework-render boundary.
 </figcaption>
@@ -173,9 +173,9 @@ Publishing is the router writing `matches` to its store and asking the framework
 React may still be busy with the previous tree. The new one can suspend on promises of its own (`useSuspenseQuery`, `use(promise)`, `lazy(() => import(...))`, etc.) while React keeps the committed UI on screen. And if another navigation publishes first, the `/login` tree may never commit at all.
 
 <figure>
-<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-ack-explainer.svg" style="width:100%" alt="The router publishes login and hands the framework a receipt; the framework may suspend, then either commits those exact matches and settles the receipt true, or is replaced before commit and settles it false">
+<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-ack-explainer.svg" style="width:100%; max-width: 520px; margin: auto;" alt="Two state strips: the router's store switches to /login as soon as the matches are published, while the committed tree keeps showing the previous page until later; the shaded interval between the two switches is when /login is published but not rendered, and the receipt is pending for exactly that interval before settling true">
 <figcaption>
-Publication offers an exact set of matches. The receipt reports whether that set is the one that committed.
+The store changes at publication, the committed tree changes later or not at all. The receipt is pending for exactly that interval, and its value says which of the two happened.
 </figcaption>
 </figure>
 

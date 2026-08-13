@@ -1,55 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="720" height="252" viewBox="0 0 720 252" role="img" aria-labelledby="mae-title mae-desc">
-  <title id="mae-title">Publishing asks the framework to render; the receipt answers</title>
-  <desc id="mae-desc">
-    The router publishes the login matches and hands the framework a receipt for
-    that exact matches array. If the framework commits those matches the receipt
-    settles true; if a newer publication replaces them first it settles false.
-    Both answers release the router's wait, but only true means this publication
-    rendered.
-  </desc>
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="76.682" height="27.468" viewBox="0 0 20.289 7.268">
   <style>
     :root {
       background-color: #fdfdfd;
-    }
-
-    text {
-      fill: #4c4c4c;
-      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-      font-size: 14px;
-    }
-
-    .mono {
-      font-family: ui-monospace, "Monaspace Neon NF", Menlo, monospace;
-    }
-
-    .note {
-      font-size: 12.5px;
-    }
-
-    .tick {
-      font-size: 11px;
-      letter-spacing: 0.08em;
-    }
-
-    .bar {
-      fill: none;
-      stroke-width: 9;
-      stroke-linecap: round;
-    }
-
-    .wait {
-      stroke-dasharray: 2 12;
-    }
-
-    .link {
-      fill: none;
-      stroke: #a7a7a7;
-      stroke-width: 1.6;
-    }
-
-    .node {
-      fill: #0a0a0a;
-      stroke-width: 4;
     }
 
     @media (prefers-color-scheme: dark) {
@@ -57,39 +9,13 @@
         background-color: #0a0a0a;
       }
 
-      text {
+      [fill="#4c4c4c"] {
         fill: #b3b3b3;
+      }
+
+      text:not([fill]) {
+        fill: #fff;
       }
     }
   </style>
-  <defs>
-    <marker id="mae-arrow-grey" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
-      <path d="M0 0 10 5 0 10z" fill="#a7a7a7" />
-    </marker>
-  </defs>
-
-  <text class="tick" x="700" y="26" text-anchor="end">TIME →</text>
-
-  <!-- router -->
-  <text x="150" y="77" text-anchor="end">router</text>
-  <path class="bar" stroke="#60d9d8" d="M180 72h210" />
-  <circle class="node" stroke="#60d9d8" cx="390" cy="72" r="6" />
-  <text class="mono" x="390" y="50" text-anchor="middle">publish /login</text>
-  <path class="link" marker-end="url(#mae-arrow-grey)" d="M390 82c0 34 12 26 12 50" />
-  <text class="note" x="378" y="112" text-anchor="end">hands over a receipt</text>
-
-  <!-- framework -->
-  <text x="150" y="147" text-anchor="end">framework</text>
-  <path class="bar wait" stroke="#8049d2" d="M402 142h86" />
-  <text class="note" x="434" y="170" text-anchor="middle">may suspend</text>
-  <path class="bar" stroke="#8049d2" d="M492 142c28 0 14-36 42-36h48" />
-  <path class="bar" stroke="#a7a7a7" d="M492 142c28 0 14 36 42 36h48" />
-  <circle class="node" stroke="#8049d2" cx="582" cy="106" r="6" />
-  <circle class="node" stroke="#a7a7a7" cx="582" cy="178" r="6" />
-  <text class="note" x="545" y="94" text-anchor="middle">these matches commit</text>
-  <text class="note" x="545" y="200" text-anchor="middle">replaced before commit</text>
-  <text class="mono" x="598" y="111">true</text>
-  <text class="mono" x="598" y="183">false</text>
-
-  <text class="note" x="404" y="238" text-anchor="middle">both answers release the wait; only true means this publication rendered</text>
-</svg>
+<defs><marker id="a" markerHeight="1" markerWidth="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid" refX="3" refY="0" viewBox="0 0 1 1"><path fill="context-stroke" fill-rule="evenodd" d="M-.148-2.874 4.348-.626a.7.7 0 0 1 0 1.252L-.148 2.874A.865.865 0 0 1-1.4 2.1v-4.2a.865.865 0 0 1 1.252-.774"/></marker><marker id="d" markerHeight="1" markerWidth="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid" refX="3" refY="0" viewBox="0 0 1 1"><path fill="context-stroke" fill-rule="evenodd" d="M-.148-2.874 4.348-.626a.7.7 0 0 1 0 1.252L-.148 2.874A.865.865 0 0 1-1.4 2.1v-4.2a.865.865 0 0 1 1.252-.774"/></marker><marker id="b" markerHeight="1" markerWidth="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid" refX="3" refY="0" viewBox="0 0 1 1"><path fill="context-stroke" fill-rule="evenodd" d="M-.148-2.874 4.348-.626a.7.7 0 0 1 0 1.252L-.148 2.874A.865.865 0 0 1-1.4 2.1v-4.2a.865.865 0 0 1 1.252-.774"/></marker><marker id="c" markerHeight="1" markerWidth="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid" refX="3" refY="0" viewBox="0 0 1 1"><path fill="context-stroke" fill-rule="evenodd" d="M-.148-2.874 4.348-.626a.7.7 0 0 1 0 1.252L-.148 2.874A.865.865 0 0 1-1.4 2.1v-4.2a.865.865 0 0 1 1.252-.774"/></marker></defs><g stroke-linecap="round"><path fill="none" stroke="#db81dd" stroke-width=".285" d="M.635 2.064H5.53M6.5.765h13.208"/><path fill="none" stroke="#a7a7a7" stroke-dashoffset=".646" stroke-width=".07" marker-end="url(#a)" d="M62.122 36.695s-.402.523-.402 1.323.396 1.308.396 1.308" transform="translate(-56.986 -34.242)"/><text xml:space="preserve" x="67.552" y="37.905" fill="#4c4c4c" stroke-dashoffset=".646" stroke-width=".085" font-family="Monaspace Neon NF" font-size=".635" font-weight="400" style="line-height:.9;-inkscape-font-specification:&quot;Monaspace Neon NF, Normal&quot;;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start" transform="translate(-56.986 -34.242)"><tspan x="67.552" y="37.905" style="line-height:.9;-inkscape-font-specification:&quot;Monaspace Neon NF, Normal&quot;;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal">ack:false</tspan></text><text xml:space="preserve" x="72.042" y="37.905" fill="#4c4c4c" stroke-dashoffset=".646" stroke-width=".085" font-family="Monaspace Neon NF" font-size=".635" font-weight="400" style="line-height:.9;-inkscape-font-specification:&quot;Monaspace Neon NF, Normal&quot;;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start" transform="translate(-56.986 -34.242)"><tspan x="72.042" y="37.905" style="line-height:.9;-inkscape-font-specification:&quot;Monaspace Neon NF, Normal&quot;;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal">ack:true</tspan></text><path fill="none" stroke="#8049d2" stroke-dashoffset=".646" stroke-width=".07" marker-end="url(#b)" d="M67.237 38.393s.177-.319.177-.806a1.76 1.76 0 0 0-.175-.798" transform="translate(-56.986 -34.242)"/><path fill="none" stroke="#8049d2" stroke-dashoffset=".646" stroke-width=".07" marker-end="url(#c)" d="M71.311 40.179s.544-.907.544-2.29c0-1.385-.536-2.267-.536-2.267" transform="translate(-56.986 -34.242)"/><path fill="none" stroke="#a7a7a7" stroke-width=".285" d="M.635 6.422h11.627"/><path fill="none" stroke="#8049d2" stroke-width=".285" d="M14.273 6.437h5.435M5.863 5.547h3.994"/><path fill="none" stroke="#db81dd" stroke-opacity=".505" stroke-width=".285" d="M5.816 2.062h4.352"/><path fill="none" stroke="#8049d2" stroke-width=".285" d="M9.834 4.55h2.127c.867 0 .877 1.887 1.67 1.887h1.728"/><path fill="none" stroke="#a7a7a7" stroke-dashoffset=".646" stroke-width=".07" marker-end="url(#d)" d="M66.436 35.529s-.42.543-.42 1.372.414 1.358.414 1.358" transform="translate(-56.986 -34.242)"/></g><g stroke-width=".159" transform="translate(-56.986 -34.242)"><circle cx="62.558" cy="36.306" r=".307" stroke="#db81dd"/><circle cx="63.5" cy="35.007" r=".307" stroke="#db81dd"/><circle cx="66.821" cy="35.007" r=".307" stroke="#db81dd"/><circle cx="62.543" cy="-39.789" r=".307" stroke="#8049d2" transform="scale(1 -1)"/><circle cx="66.846" cy="-38.806" r=".307" stroke="#8049d2" transform="scale(1 -1)"/><circle cx="70.953" cy="-40.679" r=".307" stroke="#8049d2" transform="scale(1 -1)"/><circle cx="71.005" cy="35.007" r=".307" stroke="#db81dd"/></g></svg>

@@ -131,9 +131,9 @@ That is why `/account` still reaches the cache. Clicking `/settings` releases th
 While the `/account` navigation lane is pending, starting a new navigation to `/settings` has exactly one effect on it: revoking its right to change the page. This is what the **current transaction** controls: it is a single slot, and the only navigation that holds it can change the page.
 
 <figure>
-<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-transaction-explainer.svg" style="width:100%" alt="The current transaction slot, holding /settings, extends downwards as a barrier with a single opening: the /settings lane passes through it and publishes, the /account lane runs into it and is discarded, and below a dashed line the /account loader flight keeps running to the cache">
+<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-tx-explainer.svg" style="width:100%; max-width:620px; margin: auto;" alt="The /account lane advances through matching, beforeLoad and its loaders, with a check between each step comparing its transaction with the slot; another navigation takes the slot during the loaders, so the next check fails and the lane is discarded before it can publish">
 <figcaption>
-Only the lane holding the slot gets through. The `/account` lane stops there; the flight it was using is not governed by the slot at all.
+Every time the lane resumes, it compares its own transaction with the slot. It keeps running until the first mismatch, which ends it before it publishes.
 </figcaption>
 </figure>
 
@@ -156,7 +156,7 @@ The `/settings` branch runs two loaders. The parent layout's rejects, and a mome
 A settled loader is a fact about one loader, not yet a decision about the route. Those facts go back to the private lane, which **reduces** them into a single outcome.[^reduction]
 
 <figure>
-<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-reduction-explainer.svg" style="width:100%" alt="A layout loader settles first with an error and an index loader settles later with a redirect to login; both outcomes return to the settings lane, which produces one result and continues as the login lane">
+<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-reduce-explainer.svg" style="width:100%;max-width: 470px;margin: auto;" alt="A layout loader settles first with an error and an index loader settles later with a redirect to login; both outcomes return to the settings lane, which produces one result and continues as the login lane">
 <figcaption>
 Loader outcomes return to the lane. The lane, not the order the promises settled in, decides what the route did.
 </figcaption>

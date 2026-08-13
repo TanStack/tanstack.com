@@ -16,97 +16,93 @@ From application code, a navigation looks almost too simple:
 await router.navigate({ to: '/account' })
 ```
 
-Now let's imagine a slightly more complex scenario.
+Now imagine that several things happen before that navigation can finish.
 
 <video src="/blog-assets/tanstack-router-loading-lifetimes/tanstack-router-navigation-demo.mp4" autoplay muted loop playsinline controls></video>
 
-1. The user hovers a link, and the router starts preloading `/account`
-2. They click the link while its loader is still running, so the navigation joins the work that the hover already started
-3. While it's still loading, they click `/settings`, which has many parallel `loader` calls to run
-4. The layout loader errors, but the index loader redirects to `/login`
-5. Meanwhile, the `/account` loader settles. The user is no longer going to `/account` but its result can enter the cache
-6. The router eventually publishes `/login` but its content suspends
-7. Finally, the suspense resolves and the framework renders the `/login` page
+1. Hovering `/account` starts preloading it.
+2. Clicking `/account` reuses the loading work that the hover started.
+3. Before it finishes, the user clicks `/settings`, whose route loaders run in parallel.
+4. One `/settings` loader errors while another redirects to `/login`.
+5. The earlier `/account` work finishes and is cached, even though the user is no longer going there.
+6. The router publishes `/login`, but its content suspends.
+7. The framework eventually renders `/login`.
+
+This is what this scenario would look like on a timeline. Don't worry about the labels yet, the rest of the article will explain them.
 
 <figure>
 <img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_simple-scenario.svg" style="width:100%; max-width: 800px; margin: auto;" alt="A timeline where an account preload is joined by a navigation, a later settings navigation starts layout and index loaders, the index loader redirects to login, account data also enters the cache, and the framework acknowledges login after publication">
 <figcaption>
-Even this simplified timeline has work being shared, superseded, redirected, cached, published, and rendered on different schedules.
+Account loading, the redirect to login, caching, and rendering proceed on different schedules.
 </figcaption>
 </figure>
 
-Which result is allowed to reach the page? Which loader should be canceled? Does the first error win? When is the navigation finished?
+Why can `/account` keep loading after the user moves on? Why can it no longer update the page? Why does the `/settings` error never reach the page? Why is publishing `/login` not the end of the navigation?
 
-Those questions do not have one shared answer.
+Those questions do not have one shared answer. **A navigation looks like one asynchronous operation, but the router must decide four things independently: which loading work should continue, which navigation may publish, what the route attempt decided, and whether the framework rendered it.**
 
-We learned this while [rewriting TanStack Router's loading system](https://github.com/TanStack/router/pull/7805). Dozens of bugs across preloading, redirects, caching, pending UI, SSR, and more looked unrelated. Many came from treating clues as facts: an aborted signal was taken to mean a navigation had been superseded, and a state update was taken to mean its matches had rendered.
+We learned this while [rewriting TanStack Router's loading system](https://github.com/TanStack/router/pull/7805). Dozens of bugs across preloading, redirects, caching, pending UI, SSR, and more looked unrelated. Many had the same cause: an event that answered one question was treated as proof of another. Cancellation, supersession, publication, and rendering were allowed to stand in for each other.[^lifetime-bugs]
 
-Application code still sees one `navigate()` call, but inside the router, we use distinct owners for each fact: should a loader keep running, what did the route attempt decide, may this navigation publish, and did the framework actually render it?[^architecture]
+Application code still sees one `navigate()` call. Inside the router, separate lifetimes track each of those four answers.[^architecture]
 
-## Even One Navigation Is an Orchestration
+## Start With One Successful Navigation
 
-Before adding concurrency between navigations, it helps to slow down one ordinary navigation.
+Before returning to the opening scenario, strip away the second navigation, error, and redirect. The next diagram shows one successful navigation that loads slowly enough to display pending UI.
+
+Some labels name internal steps, don't worry we're decoding just after. Each row follows a different part of the navigation. The arrows between rows are handoffs: loaders can run while a pending timer races them, and the framework can render pending UI while the private route branch continues loading.
 
 <figure>
 <img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_single-orchestration.svg" style="width:100%; max-width: 880px; margin: auto;" alt="A single navigation moving through route matching, transaction acquisition, context building, parallel loader flights, pending UI publication, outcome selection, final match publication, and framework render acknowledgements">
 <figcaption>
-Even one navigation moves along several schedules: loaders run, pending UI may appear, final matches publish, and the framework renders each publication in its own time.
+One successful navigation still moves along several schedules: loaders run, pending UI may appear, final matches publish, and the framework handles each publication in its own time.
 </figcaption>
 </figure>
 
-A **lane** is a private, unpublished draft of the matched route branch. Reading from left to right:
+A **lane** is a private, unpublished draft of the matched route branch. In this successful case:
 
 1. **Route matching** turns the destination URL into an ordered branch of route matches.
-2. The navigation becomes the **current transaction**, giving it permission to publish if it is still current when the work finishes.[^planning]
-3. It builds route context and runs `beforeLoad` from parent to child. Children need the completed context of their parents, so this part is intentionally serial.
-4. Once that chain is ready, eligible route loaders can run in parallel. Each actual loader invocation is a **loader flight**.
-5. If loading takes longer than the route's `pendingMs` duration, the router can publish a pending component. That publication gets its own framework receipt.
-6. The lane waits for the loader outcomes it needs, then decides whether the route succeeded, failed, or redirected.
-7. If the navigation is still current, it publishes the final matches. The framework receipt settles, and only then may the navigation complete.
+2. The navigation becomes the **current transaction**. This is what grants it permission to publish if it is still current when the work finishes.[^planning]
+3. The private lane builds route context and runs `beforeLoad` from parent to child. A child `beforeLoad` needs their parents' completed context, so this part is intentionally serial.
+4. Eligible route loaders can then run in parallel. Each actual loader invocation is a **loader flight**.
+5. If the loaders take longer than `pendingMs`, the router can publish pending UI. The framework handles that publication while the private lane keeps loading.
+6. When the loader outcomes are ready, the lane selects the successful result.
+7. Because this navigation is still current, it publishes the final matches. The framework acknowledges that publication, and the navigation can finish.
 
 > [!NOTE]
-> The lane's TypeScript type changes with each phase: `matched`, `contextualized`, `reduced`, then `projected`. A function that publishes a finished lane therefore cannot accidentally receive one that has only been matched. These labels add no runtime state; they let TypeScript enforce the order of the phases.[^lane-phases]
+> The diagram's `release flight` label marks where the lane releases its temporary claim. That does not necessarily end ownership of settled data. The loader-flight section below explains why.
 
-These steps are not one long waterfall but an orchestration of multiple parallel systems: the pending timer races the loaders, normal route components can load alongside them, a framework render can be in progress while the private lane continues toward its final result.
+This example is deliberately uneventful. No other navigation replaces its transaction. No loader errors or redirects. Both the pending and final publications render successfully.
 
-The common client-side path is easier to reason about as four separate tracks, each answering one question and ending on its own schedule. [The next section below](#when-navigations-overlap) explains each concept:
+Now add one complication to each row:
 
-| Owner                                                                               | Decides                                                     | Ends when                              |
-| ----------------------------------------------------------------------------------- | ----------------------------------------------------------- | -------------------------------------- |
-| [**Loader flight**](#leases-keep-a-shared-loader-flight-alive)                      | Should this loader invocation stay alive?                   | Its last consumer releases its _lease_ |
-| [**Current transaction**](#the-current-transaction-controls-publication)            | May this navigation publish?                                | A successor replaces its authority     |
-| [**Private lane**](#the-lane-reduces-many-outcomes-to-one-result)                   | Did this route attempt succeed, fail, or redirect?          | The lane is accepted or discarded      |
-| [**Framework render receipt**](#the-receipt-reports-whether-a-publication-rendered) | May the transition finish, and did this publication render? | The receipt settles or is superseded   |
+| What changes?                                                        | The router keeps it separate with                                                        |
+| -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Another consumer needs a loader that is already running.             | A [**loader flight** and its leases](#a-replaced-navigation-can-leave-useful-work)        |
+| The user starts another navigation before this one finishes.         | The [**current transaction**](#only-the-current-navigation-may-publish)                   |
+| Parallel loaders produce different kinds of outcomes.                | A [**private lane**](#one-loader-result-is-not-the-route-result)                          |
+| Another publication replaces this one before the framework renders it. | A [**framework render receipt**](#published-does-not-mean-rendered)                     |
 
-Most of the time these tracks advance within a few milliseconds of each other. That creates the useful illusion that navigation is one asynchronous task.
+Most of the time, all four answers arrive within a few milliseconds of each other. That creates the useful illusion that navigation is one asynchronous task. But it is still enough for events to happen at any stage of this navigation.
 
 ## When Navigations Overlap
 
-With navigation concurrency, we can highlight even more interesting cases:
+The opening scenario puts all four complications together. The next diagram is a map for the four sections that follow, not a sequence to memorize.
 
-- shared loader work stays alive through leases held by independent consumers;
-- losing permission to publish is not the same as losing ownership of that work;
-- one loader's outcome is not yet the outcome of the route attempt;
-- publishing router state is not proof that the framework rendered it.
+Unlike the other diagrams, read this one from **top to bottom**. Each column follows one owner: the current transaction, a private lane, a loader flight, or the framework render. Horizontal arrows hand work or results from one owner to another. It shows one possible interleaving; independent events, such as caching `/account` and publishing `/login`, can happen in either order.
 
-Here is the scenario from the video again, this time with the router's own work in view. Read it as one possible interleaving rather than a fixed order: independent events, such as caching `/account` and publishing `/login`, can happen in any order.
-
-<figure>
 <img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_concurrent-orchestration.svg" style="width:100%; max-width: 600px; margin: auto;" alt="A detailed sequence diagram where an account preload and navigation share a loader flight, settings supersedes account, nested settings loaders produce an error and redirect, account data reaches cache, login matches publish, and the framework acknowledges rendering them">
-<figcaption>
-Replacing the current transaction does not necessarily end a shared loader flight. Loader outcomes first return to a private lane, and published matches cross a separate framework-render boundary.
-</figcaption>
-</figure>
 
-Now let's zoom in on some of what is happening here.
+At a high level, the hover and click create separate `/account` lanes that use the same loader flight. `/settings` then takes over permission to publish, but the preload keeps the `/account` flight alive. The `/settings` loaders return an error and a redirect to their private lane; the redirect starts a new navigation to `/login`, so the `/settings` lane never publishes its final matches. Meanwhile, `/account` can enter the cache. Finally, `/login` publishes and waits for the framework to report that it rendered.
 
-### Leases Keep a Shared Loader Flight Alive <!-- "lease" explainer -->
+This is our general scenario, now we can zoom in on each boundary.
 
-Both the _preload_ lane and the _navigation_ lane need `/account`'s data. But the `loader` is only invoked once.
+### A Replaced Navigation Can Leave Useful Work <!-- "lease" explainer -->
 
-Each still does its own matching, builds its own context, and runs its own `beforeLoad`. That invocation and its outcome are the only things they share: reusing work must not mean inheriting another consumer's draft of the page.
+In the successful navigation above, each loader had one consumer. In the opening scenario, both the hover preload and the navigation need `/account`'s data. The `loader` should still run only once.
 
-Sharing one invocation raises a question: when is it safe to abort? So the invocation is wrapped in a **flight**: a promise, its abort controller, and a lease count. Every consumer that needs it takes a **lease**.[^flights]
+The preload and navigation still do their own matching, build their own context, and run their own `beforeLoad`. They share only the loader invocation and its outcome. Reusing work must not mean inheriting another consumer's draft of the page.
+
+To decide when that shared invocation can be aborted, the router wraps it in a **flight**: a promise, an abort controller, and a lease count. Every consumer that needs the flight takes a **lease**.[^flights]
 
 <figure>
 <img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-lease-explainer.svg" style="width:100%; max-width:430px; margin: auto;" alt="One loader flight shared across three overlapping lease lifetimes, with its lease count rising from one to three and falling back to zero">
@@ -115,113 +111,127 @@ Consumers acquire and release their own claims on one loader invocation. The fli
 </figcaption>
 </figure>
 
-Acquiring a lease raises the count. Releasing one removes that consumer's claim and nothing else. The flight stays alive while the count is above zero, and can be aborted the moment it reaches zero with the promise still pending.
+This generic diagram shows three consumers. Each owner line is one lease, and the numbers are the total lease count. Acquiring a lease raises the count. Releasing one removes only that consumer's claim. If the count reaches zero while the promise is still pending, the router can abort the flight.
 
-Preload and navigation lanes, published routes, and cache entries can all hold leases. A lease can outlive the promise it covers because the claim is about the lifetime of the resource, not the delivery of a value.
+Back in the opening scenario, clicking `/settings` ends the `/account` navigation's claim. The preload still holds its own lease, so the count does not reach zero. The flight continues and its result enters the cache when it settles.
 
-That is why `/account` still reaches the cache. Clicking `/settings` releases the _navigation_'s lease, but the hover's _preload_ lease is still there. The count never reaches zero, nothing is aborted, and the result is cached when it finally settles.
+Losing permission to publish `/account` therefore does not prove that its loader is no longer useful. The transaction answers whether `/account` may publish. The flight's leases answer whether the loader is still needed.
 
-### The Current Transaction Controls Publication <!-- "transaction" explainer -->
+> [!NOTE]
+> Preload and navigation lanes, published routes, and cache entries can all hold leases. A lease can also outlive the promise it covers: the lease represents ownership of the resource, not a promise lifecycle.
 
-While the `/account` navigation lane is pending, `/settings` can take over as the **current transaction**. The transaction is a single slot: only the navigation that holds it can publish. When `/settings` takes it, `/account` loses that right (and attempts a cleanup, possibly aborting flights without a lease).
+### Only the Current Navigation May Publish <!-- "transaction" explainer -->
+
+In the successful navigation, one transaction remained current from its acquisition through publication. In the opening scenario, `/settings` starts while the `/account` navigation lane is still pending.
+
+The **current transaction** is a single slot. Only the navigation that occupies it may publish. When `/settings` takes the slot, the `/account` navigation loses that right. This change says nothing by itself about whether an independent consumer still needs one of its loader flights.
 
 <figure>
 <img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-tx-explainer.svg" style="width:100%; max-width:680px; margin: auto;" alt="The /account lane moves through matching, beforeLoad and loaders, checking that it still holds the transaction between stages; /settings then takes the slot, so any /account continuation fails its next check and cannot publish">
 <figcaption>
-At every async boundary, the lane compares its own transaction with the slot. When `/settings` takes it, `/account` is canceled and the dotted segment can never publish.
+At each async boundary, the lane compares its transaction with the current slot. THe first few checks pass, but when `/settings` takes the slot, the next check fails, so the `/account` lane loses publication authority and the dotted segment can never publish.
 </figcaption>
 </figure>
 
-Without the transaction, the `/account` lane is guaranteed to never publish its matches. The navigation releases its leases. This in turn may abort the loader flights that have no other leases, but in our example the preload still holds a lease which means the flight continues.
+The discarded navigation releases its leases. Pending flights with no other consumers may now abort, but the `/account` preload still has a lease. Its shared flight continues.
 
-With this single-slot transaction, it becomes very easy to enforce that a lane cannot publish if it is not allowed to:
+The rule is narrow: the current transaction controls which navigation may publish. It does not control how long shared loader work remains useful.
 
-```ts
-if (router._tx !== tx) {
-  finishPending(tx)
-  discardLane(result)
-  return
-}
-```
+> [!NOTE]
+> The implementation check is deliberately small. At an asynchronous boundary, a lane that no longer holds the slot cleans up and returns instead of publishing:
+>
+> ```ts
+> if (router._tx !== tx) {
+>   finishPending(tx)
+>   discardLane(result)
+>   return
+> }
+> ```
 
-### The Lane Reduces Many Outcomes to One Result <!-- "lane" explainer -->
+### One Loader Result Is Not the Route Result <!-- "lane" explainer -->
 
-The `/settings` branch runs two loaders. The parent layout loader rejects, and a moment later the child index loader throws `redirect('/login')`.
+In the successful navigation, every loader contributes to one successful result. The `/settings` lane is less tidy. The diagram below shows three loaders: one succeeds, the parent layout loader rejects, and the child index loader throws `redirect('/login')`.
 
-A settled loader is a fact about one loader, not yet a decision about the route. Those facts go back to the private lane, which **reduces** them into a single outcome.[^reduction]
+A settled loader tells us what happened to that loader. It does not yet tell us what the whole route attempt should do. Each outcome returns to the private lane, which **reduces** them into one result.[^reduction]
 
 <figure>
-<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-reduce-explainer.svg" style="width:100%;max-width: 550px;margin: auto;" alt="Three settings loaders return a success, an error, and a redirect to login; their outcomes return to the settings lane, which produces one result and continues as the login lane">
+<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-reduce-explainer.svg" style="width:100%;max-width: 550px;margin: auto;" alt="Three loaders return a success, an error, and a redirect to one private lane, which reduces them to a single outcome">
 <figcaption>
-Loader outcomes return to the lane. The lane, not the order the promises settled in, decides what the route did.
+Loader outcomes return to the lane. One settled error cannot decide the route result while another started loader could still redirect.
 </figcaption>
 </figure>
 
-An error does not become the lane's result just because it arrives first. Before choosing an ordinary failure, the lane waits for any already-started loaders that could still redirect. It then chooses one result for the whole branch:
+The error does not become the lane's result merely because it settles first. Before choosing an ordinary failure, the lane waits for already-started loaders that could still redirect. This does not mean settlement order never matters: it can help choose among ordinary failures, but it cannot end the route attempt while a started loader might still redirect. The lane then chooses one result for the whole branch:
 
-- a redirect if any loader asked for one,
-- a failure (error or not-found) and the boundary that will render it,
-- or a full-lane success.
+- A redirect starts a new navigation.
+- A failure selects the error or not-found boundary that will render it.
+- A success makes the complete lane eligible to publish.
 
-The redirect wins here, not because it outranks the error, but because it starts another navigation rather than producing UI. The lane still considers the error, but does not select it for display. The `/settings` lane is discarded without ever publishing error UI.
+The redirect is not a higher-priority piece of UI than the error. It is control flow: it discards the `/settings` lane and starts a new navigation to `/login`. Because that lane never publishes its final matches, the error never reaches the page. (However the `/settings` pending UI may already have been published while its loaders were running.)
 
-### The Receipt Reports Whether a Publication Rendered <!-- "ack" explainer -->
+> [!NOTE]
+> The lane's TypeScript type changes with each phase: `matched`, `contextualized`, `reduced`, then `projected`. These labels help ensure that the lane goes through each stage in the correct order without adding runtime states.[^lane-phases]
 
-Publishing means handing a route branch to the framework to render. It is a request, not proof that the branch reached the screen.[^publication-events]
+### Published Does Not Mean Rendered <!-- "ack" explainer -->
 
-React may still be busy with the previous tree. The new one can suspend on promises of its own (`useSuspenseQuery`, `use(promise)`, `lazy(() => import(...))`, etc.) while React keeps the committed UI on screen. And if another navigation publishes first, the previously published branch may never commit at all.
+In the successful navigation, both the pending and final publications render. The opening scenario adds another delay: `/login` publishes, but its content suspends.
+
+Publishing means handing a route branch to the framework. It is a request to render, not proof that the framework committed that branch.[^publication-events]
+
+React may still be busy with the previous tree. The new one can suspend on promises of its own (`useSuspenseQuery`, `use(promise)`, `lazy(() => import(...))`, etc.) while React keeps the committed UI on screen. And if another navigation publishes in the meantime, the previously published branch may never commit at all.
+
+The next diagram is a generic race between two publications. It is not showing `/settings` publishing error UI: the redirect discarded that lane before it could publish its final matches.
 
 <figure>
 <img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-ack-explainer.svg" style="width:100%; max-width: 580px; margin: auto;" alt="Two route publications race to render. The first is replaced before it commits and receives a false acknowledgement; the second commits and receives a true acknowledgement">
 <figcaption>
-Here the second publication replaces the first before it renders, then reaches the screen itself.
+The second publication replaces the first before it commits, then commits successfully itself.
 </figcaption>
 </figure>
 
-To tell these cases apart, the router keeps a single **receipt** slot. When a publication claims it, it first has to answer any receipt already there with `false`, then installing its own. If React commits that publication, the adapter answers its receipt with `true`.[^framework-ack]
+To tell these cases apart, the router keeps a single **receipt** slot. A new publication acknowledges (`ack`) the previous receipt with `false` before installing its own. If React commits the new publication, the adapter acknowledges its receipt with `true`.[^framework-ack]
 
-Either answer releases the router's wait. The answer changes what may follow:[^pending]
+`ack:false` does not mean the navigation failed. It means that exact publication was replaced before it committed. Either answer settles the receipt, but only `ack:true` proves that the framework rendered the publication.
 
-|                                                   | `ack:true` | `ack:false` |
-| ------------------------------------------------- | ---------- | ----------- |
-| The navigation resolves                           | ✅         | ✅          |
-| `onResolved`, if the transaction is still current | ✅         | ✅          |
-| `onRendered`                                      | ✅         | ❌          |
-| A pending fallback starts its `pendingMinMs`      | ✅         | ❌          |
+> [!NOTE]
+> The receipt belongs to one exact publication. Either answer releases the internal render wait, but the meaning is changes based on the value:
+> |                                                        | `ack:true` | `ack:false` |
+> | ------------------------------------------------------ | ---------- | ----------- |
+> | The navigation resolves                                | ✅         | 🤷          |
+> | `onResolved`, if the transaction is still current      | ✅         | ✅          |
+> | `onRendered`                                           | ✅         | ❌          |
+> | A pending fallback starts its `pendingMinMs`[^pending] | ✅         | ❌          |
+>
+> A superseded public `navigate()` can remain chained to the navigation that replaced it, so `ack:false` does not guarantee that the navigation resolves.
 
-_Rendered_ here means React committed the tree and ran its layout effects, not necessarily that the browser painted it.
 
-## What Breaks When Lifetimes Are Confused
-
-The bugs behind the rewrite surfaced in different APIs and frameworks. Their symptoms varied, but the underlying mistake was often the same: one fact was treated as proof of another.
-
-| What happened                   | What the router inferred                | What went wrong                                                                                                                                                                                                                                                                                |
-| ------------------------------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A navigation was replaced       | Its loader was no longer needed         | Shared work was canceled while a preload or another navigation still needed it, forcing loaders to restart or preventing preload results from being reused ([#3928](https://github.com/TanStack/router/issues/3928), [#7759](https://github.com/TanStack/router/issues/7759))                  |
-| A loader result could be shared | The whole route attempt could be shared | One navigation inherited another's preload state or parent context, so loaders ran with the wrong inputs ([#3179](https://github.com/TanStack/router/issues/3179), [#4572](https://github.com/TanStack/router/issues/4572), [#7602](https://github.com/TanStack/router/issues/7602))           |
-| A loader redirected             | The route should render that result     | A redirect reached route UI instead of starting the next navigation ([#7120](https://github.com/TanStack/router/issues/7120), [#7367](https://github.com/TanStack/router/issues/7367), [#7753](https://github.com/TanStack/router/issues/7753))                                                |
-| Route state was published       | The route had rendered                  | The router could report that a route rendered even though the framework never committed that publication ([render-owner contract](https://github.com/TanStack/router/blob/45c4ad8d629e291fab70c37900525449e415ffcd/packages/react-router/tests/react-render-owner-contract.test.tsx#L21-L101)) |
-
-The fix was to track each decision separately.
+_Rendered_ here means that React committed the tree and ran its layout effects. It does not necessarily mean that the browser painted it.
 
 ## Keeping Navigation Lifetimes Separate
 
-In the opening scenario, the user ends up on `/login`. The `/account` result still reaches the cache, the `/settings` error never reaches the page, and React decides when `/login` has actually rendered.
+In the opening scenario, the user ends up on `/login`, but four separate decisions produce that result. The `/account` loader continues because its preload still holds a lease. The `/account` and `/settings` lanes cannot publish their final matches after their transactions are replaced. The `/settings` lane observes an error, but its redirect starts a new `/login` navigation instead of producing UI. Finally, the framework reports when the `/login` publication actually commits.
 
-We now have an architecture in place that ensures individual facts to now bleed into parallel work. Replacing a navigation does not mean all of its work should stop. A loader error does not necessarily mean error UI. Publishing a route does not mean the framework rendered it.
+A navigation can remain one promise in application code because TanStack Router does not treat it as one lifetime internally. A lease says whether loader work is still needed. The current transaction says which navigation may publish. A private lane decides what one route attempt did. A receipt reports whether the framework rendered a publication.
 
-`navigate()` remains simple because the router orchestrates all those promises.
+<figure>
+<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_summary.svg" style="width:100%; max-width: 480px; margin: auto;" alt="A line from navigate to render containing four colors for the current transaction, private lane, loader flight, and framework render receipt">
+<figcaption>
+The four colors summarize the independent answers that carry one `navigate()` call to render. Their lifetimes can overlap.
+</figcaption>
+</figure>
 
-<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_summary.svg" style="width:100%; max-width: 480px; margin: auto;" alt="One line running from navigate to render, made of four coloured segments that hand over to each other at a node: the current transaction, the private lane, the loader flight, and the framework render">
+Each event answers one question, and nothing more.
 
 > [!NOTE]
-> The diagrams are a teaching slice, not a complete inventory. Examples in the implementation include preflight planning, pending UI presentation, preload and cache entries, hydration handoff, development HMR rollback, and server request and stream cleanup. Background reloads are another: they keep successful loader data visible while a private candidate runs, then require both their transaction and exact committed base to remain current before publishing.
+> These four lifetimes we have seen here are a teaching slice, not a complete inventory. The implementation also separates preflight planning, pending UI presentation, preload and cache entries, hydration handoff, development HMR rollback, server request cleanup, and stream ownership. Background reloads keep successful loader data visible while a private candidate runs, then require both their transaction and exact committed base to remain current before publishing.
 >
 > Other features attach to those boundaries instead of creating one larger navigation owner: lazy component readiness feeds into lane reduction, scroll restoration consumes rendered events, and view transitions wrap publication. Those details are not needed to follow the client navigation above.[^other-lifetimes]
 
 ---
 
 [^architecture]: The rewrite's [internal architecture guide](https://github.com/TanStack/router/blob/45c4ad8d629e291fab70c37900525449e415ffcd/packages/router-core/INTERNALS.md#L53-L86) lists the independent publishing, resource, presentation, preload, hydration, and server authorities. The four tracks in this article cover the common client-side story; they are not the complete inventory.
+
+[^lifetime-bugs]: Examples include shared loader work being canceled when a navigation was replaced ([#3928](https://github.com/TanStack/router/issues/3928), [#7759](https://github.com/TanStack/router/issues/7759)), route attempts sharing state that only their loader result could safely share ([#3179](https://github.com/TanStack/router/issues/3179), [#4572](https://github.com/TanStack/router/issues/4572), [#7602](https://github.com/TanStack/router/issues/7602)), redirects reaching route UI ([#7120](https://github.com/TanStack/router/issues/7120), [#7367](https://github.com/TanStack/router/issues/7367), [#7753](https://github.com/TanStack/router/issues/7753)), and published state being reported as rendered before the framework committed it ([render-owner contract](https://github.com/TanStack/router/blob/45c4ad8d629e291fab70c37900525449e415ffcd/packages/react-router/tests/react-render-owner-contract.test.tsx#L21-L101)).
 
 [^planning]: The diagram compresses planning and execution into one navigation-authority track. In the implementation, a short-lived [`_preflight` owner](https://github.com/TanStack/router/blob/45c4ad8d629e291fab70c37900525449e415ffcd/packages/router-core/src/load-client.ts#L2017-L2111) protects events and route matching before the foreground transaction is installed.
 

@@ -188,6 +188,9 @@ function QueryCachePanel() {
   const [isLive, setIsLive] = React.useState(false)
   // `0` until the first tick, for the same first-render reason as `fetchedAt`.
   const [now, setNow] = React.useState(0)
+  const [selectedId, setSelectedId] = React.useState(
+    queryHeroInitialRows[0]?.id,
+  )
 
   const projectsQuery = useQuery({
     queryKey: queryHeroKey,
@@ -255,6 +258,11 @@ function QueryCachePanel() {
     : projectsQuery.isStale
       ? 'stale'
       : 'fresh'
+  // The selected row can fall out of the cache once five newer issues arrive,
+  // so fall back to the top row rather than holding a dangling id.
+  const selectedRow =
+    projectsQuery.data.rows.find((row) => row.id === selectedId) ??
+    projectsQuery.data.rows[0]
   const fetchedLabel =
     projectsQuery.data.fetchedAt > 0
       ? `${Math.max(0, Math.round((Math.max(now, projectsQuery.data.fetchedAt) - projectsQuery.data.fetchedAt) / 1000))}s ago`
@@ -320,9 +328,12 @@ function QueryCachePanel() {
           </div>
 
           {projectsQuery.data.rows.map((row) => (
-            <div
+            <button
               key={row.id}
-              className="block w-full rounded-lg border border-transparent bg-background-subtle p-4 text-left"
+              type="button"
+              aria-pressed={row.id === selectedRow?.id}
+              className="block w-full rounded-lg border border-transparent bg-background-subtle p-4 text-left transition-colors hover:border-text-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[color:rgb(var(--landing-glow)/0.42)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.1)]"
+              onClick={() => setSelectedId(row.id)}
             >
               <span className="flex items-start justify-between gap-4">
                 <span className="min-w-0">
@@ -348,7 +359,7 @@ function QueryCachePanel() {
                   {row.observers} obs
                 </span>
               </span>
-            </div>
+            </button>
           ))}
         </div>
 
@@ -395,7 +406,7 @@ function QueryCachePanel() {
           <div className="mt-7" aria-live="polite">
             <p className="text-ds-heading-4">{queryLanding.hero.detailTitle}</p>
             <p className="mt-2 truncate font-ds-mono text-ds-mono-xs text-[var(--landing-accent-bright)]">
-              ['issues', '{projectsQuery.data.rows[0]?.id ?? 'router-cache'}']
+              ['issues', '{selectedRow?.id ?? 'router-cache'}']
             </p>
             <p className="mt-4 text-ds-body-sm text-text-primary/55">
               {queryLanding.hero.detailBody}
@@ -409,6 +420,11 @@ function QueryCachePanel() {
                 label: 'isFetching',
                 value: String(projectsQuery.isFetching),
               },
+              {
+                label: 'observers',
+                value: String(selectedRow?.observers ?? 0),
+              },
+              { label: 'priority', value: `P${selectedRow?.priority ?? 0}` },
               { label: 'staleTime', value: '3,200' },
               { label: 'mutation', value: addIssueMutation.status },
             ].map((fact) => (

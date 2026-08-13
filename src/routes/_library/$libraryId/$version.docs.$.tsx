@@ -1,7 +1,11 @@
 import { seo } from '~/utils/seo'
 import { ogImageUrl } from '~/utils/og'
 import { Doc } from '~/components/Doc'
-import { buildDocsRedirectHref, loadDocsRoute } from '~/utils/docs'
+import {
+  appendPathToDocsHref,
+  buildDocsRedirectHref,
+  loadDocsRoute,
+} from '~/utils/docs'
 import { findLibrary, getBranch, getLibrary } from '~/libraries'
 import { DocContainer } from '~/components/DocContainer'
 import { getDocsCacheHeaders } from '~/utils/docs-cache-headers'
@@ -33,6 +37,7 @@ export const Route = createFileRoute('/_library/$libraryId/$version/docs/$')({
       docsPath: requestedDocsPath,
       defaultDocs: library.defaultDocs ?? 'overview',
       frameworks: library.frameworks,
+      latestBranch: getBranch(library, 'latest'),
       redirectFromPaths: requestedDocsPath ? [requestedDocsPath] : [],
     })
 
@@ -52,7 +57,18 @@ export const Route = createFileRoute('/_library/$libraryId/$version/docs/$')({
       throw notFound()
     }
 
-    return result.doc
+    return {
+      ...result.doc,
+      // Old-version pages that still exist on latest canonicalize to /latest
+      // (read by getCanonicalHeadTags in __root.tsx).
+      canonicalPathOverride: result.latestDocsPath
+        ? appendPathToDocsHref({
+            docsPath: result.latestDocsPath,
+            libraryId,
+            version: 'latest',
+          })
+        : undefined,
+    }
   },
   head: ({ loaderData, params }) => {
     const { libraryId, version, _splat: docsPath } = params

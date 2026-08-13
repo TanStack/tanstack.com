@@ -75,6 +75,28 @@ type CanonicalHeadMatch = {
   staticData?: {
     includeSearchInCanonical?: boolean
   }
+  loaderData?: unknown
+}
+
+// Loaders can point a page's canonical at a different URL (e.g. old-version
+// docs canonicalize to /latest) by returning `canonicalPathOverride`.
+function getCanonicalPathOverride(
+  matches: ReadonlyArray<CanonicalHeadMatch>,
+): string | null {
+  for (let i = matches.length - 1; i >= 0; i--) {
+    const loaderData = matches[i]?.loaderData
+
+    if (
+      loaderData &&
+      typeof loaderData === 'object' &&
+      'canonicalPathOverride' in loaderData &&
+      typeof loaderData.canonicalPathOverride === 'string'
+    ) {
+      return loaderData.canonicalPathOverride
+    }
+  }
+
+  return null
 }
 
 function getCanonicalHeadTags(matches: ReadonlyArray<CanonicalHeadMatch>): {
@@ -90,7 +112,9 @@ function getCanonicalHeadTags(matches: ReadonlyArray<CanonicalHeadMatch>): {
     includeSearchInCanonical && lastMatch
       ? defaultStringifySearch(lastMatch.search)
       : ''
-  const preferredCanonicalPath = getCanonicalPath(canonicalPath)
+  const preferredCanonicalPath = getCanonicalPath(
+    getCanonicalPathOverride(matches) ?? canonicalPath,
+  )
   const pageUrl = canonicalUrl(
     preferredCanonicalPath ?? canonicalPath,
     canonicalSearch,

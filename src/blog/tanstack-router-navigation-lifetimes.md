@@ -200,17 +200,16 @@ In the opening scenario, the user lands on `/login`, but four separate decisions
 
 `navigate()` can remain one promise because the router keeps these lifetimes separate. A lease says whether loader work is still needed. The current transaction says which navigation may publish. A private lane decides what one route attempt did. A receipt reports whether the framework rendered a publication.
 
+```ts
+await router.navigate({ to: '/account' })
+```
+
 <figure>
 <img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_summary.svg" style="width:100%; max-width: 480px; margin: auto;" alt="A line from navigate to render containing four colors for the current transaction, private lane, loader flight, and framework render receipt">
-<figcaption>
-The four colors summarize the independent answers that carry one `navigate()` call to render. Their lifetimes can overlap.
-</figcaption>
 </figure>
 
-Now we have a simple `navigate(...)`.
-
 > [!NOTE]
-> These four lifetimes are a teaching slice, not a complete inventory. The implementation also separates preflight planning, pending UI presentation, preload and cache entries, hydration handoff, development HMR rollback, server request cleanup, and stream ownership. Background reloads keep successful loader data visible while a private candidate runs, then require both their transaction and exact committed base to remain current before publishing.
+> The four lifetimes we've seen are a teaching slice, not a complete inventory. The implementation also separates preflight planning, pending UI presentation, preload and cache entries, hydration handoff, development HMR rollback, server request cleanup, and stream ownership. Background reloads keep successful loader data visible while a private candidate runs, then require both their transaction and exact committed base to remain current before publishing.
 >
 > Other features attach to those boundaries instead of creating one larger navigation owner: lazy component readiness feeds into lane reduction, scroll restoration consumes rendered events, and view transitions wrap publication. Those details are not needed to follow the client navigation above.[^other-lifetimes]
 

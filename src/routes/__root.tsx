@@ -74,29 +74,8 @@ type CanonicalHeadMatch = {
   search: Record<string, unknown>
   staticData?: {
     includeSearchInCanonical?: boolean
+    ownsCanonicalLink?: boolean
   }
-  loaderData?: unknown
-}
-
-// Loaders can point a page's canonical at a different URL (e.g. old-version
-// docs canonicalize to /latest) by returning `canonicalPathOverride`.
-function getCanonicalPathOverride(
-  matches: ReadonlyArray<CanonicalHeadMatch>,
-): string | null {
-  for (let i = matches.length - 1; i >= 0; i--) {
-    const loaderData = matches[i]?.loaderData
-
-    if (
-      loaderData &&
-      typeof loaderData === 'object' &&
-      'canonicalPathOverride' in loaderData &&
-      typeof loaderData.canonicalPathOverride === 'string'
-    ) {
-      return loaderData.canonicalPathOverride
-    }
-  }
-
-  return null
 }
 
 function getCanonicalHeadTags(matches: ReadonlyArray<CanonicalHeadMatch>): {
@@ -108,27 +87,34 @@ function getCanonicalHeadTags(matches: ReadonlyArray<CanonicalHeadMatch>): {
   const includeSearchInCanonical = matches.some(
     (match) => match.staticData?.includeSearchInCanonical === true,
   )
+  // Routes whose canonical depends on loader data (e.g. old-version docs
+  // canonicalizing to /latest) emit their own link tag from their head().
+  // The root must not also emit one — the router does not dedupe links, and
+  // this head only sees pre-loader match snapshots, so it can't compute the
+  // override itself.
+  const ownsCanonicalLink = matches.some(
+    (match) => match.staticData?.ownsCanonicalLink === true,
+  )
   const canonicalSearch =
     includeSearchInCanonical && lastMatch
       ? defaultStringifySearch(lastMatch.search)
       : ''
-  const preferredCanonicalPath = getCanonicalPath(
-    getCanonicalPathOverride(matches) ?? canonicalPath,
-  )
+  const preferredCanonicalPath = getCanonicalPath(canonicalPath)
   const pageUrl = canonicalUrl(
     preferredCanonicalPath ?? canonicalPath,
     canonicalSearch,
   )
 
   return {
-    links: preferredCanonicalPath
-      ? [
-          {
-            rel: 'canonical',
-            href: canonicalUrl(preferredCanonicalPath, canonicalSearch),
-          },
-        ]
-      : [],
+    links:
+      preferredCanonicalPath && !ownsCanonicalLink
+        ? [
+            {
+              rel: 'canonical',
+              href: canonicalUrl(preferredCanonicalPath, canonicalSearch),
+            },
+          ]
+        : [],
     meta: [
       { property: 'og:url', content: pageUrl },
       { name: 'twitter:url', content: pageUrl },

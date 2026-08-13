@@ -84,7 +84,7 @@ Usually, all four answers arrive within a few milliseconds of each other, preser
 
 ## When Navigations Overlap
 
-The opening scenario puts all four complications back together. The next diagram maps them before the following sections examine each one.
+The opening scenario puts all four complications back together. Here is the whole thing at once, and then one section per complication.
 
 Unlike the other diagrams, this one reads from **top to bottom**. Each column follows one owner: the current transaction, a private lane, a loader flight, or the framework render. The horizontal arrows pass work or results between them. This is only one possible interleaving; independent events, such as caching `/account` and publishing `/login`, could happen in either order.
 
@@ -196,7 +196,7 @@ _Rendered_ here means that React committed the tree and ran its layout effects. 
 
 ## Keeping Navigation Lifetimes Separate
 
-In the opening scenario, the user lands on `/login`, but four separate decisions produce that result. The `/account` loader continues because its preload still holds a lease, even though its lane can no longer publish. The `/settings` lane sees an error, but its redirect starts a new `/login` navigation instead of producing UI. The framework then reports when `/login` actually commits.
+In the opening scenario, the user lands on `/login`, but four separate decisions produce that result. The `/account` loader continues because its preload still holds a lease. That same `/account` lane can no longer publish, because `/settings` took the transaction. The `/settings` lane sees an error, but its redirect starts a new `/login` navigation instead of producing UI. The framework then reports when `/login` actually commits.
 
 `navigate()` can remain one promise because the router keeps these lifetimes separate. A lease says whether loader work is still needed. The current transaction says which navigation may publish. A private lane decides what one route attempt did. A receipt reports whether the framework rendered a publication.
 

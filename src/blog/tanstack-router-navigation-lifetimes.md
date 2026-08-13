@@ -29,7 +29,7 @@ Now let's imagine a slightly more complex scenario.
 7. Finally, the suspense resolves and the framework renders the `/login` page
 
 <figure>
-<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_simple-scenario.svg" style="width:100%" alt="A timeline where an account preload is joined by a navigation, a later settings navigation starts layout and index loaders, the index loader redirects to login, account data also enters the cache, and the framework acknowledges login after publication">
+<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_simple-scenario.svg" style="width:100%; max-width: 800px; margin: auto;" alt="A timeline where an account preload is joined by a navigation, a later settings navigation starts layout and index loaders, the index loader redirects to login, account data also enters the cache, and the framework acknowledges login after publication">
 <figcaption>
 Even this simplified timeline has work being shared, superseded, redirected, cached, published, and rendered on different schedules.
 </figcaption>
@@ -48,7 +48,7 @@ The new model assigns separate owners to publishing, route outcomes, loader work
 Before adding concurrency between navigations, it helps to slow down one ordinary navigation.
 
 <figure>
-<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_single-orchestration.svg" style="width:100%" alt="A single navigation moving through route matching, transaction acquisition, context building, parallel loader flights, pending UI publication, outcome selection, final match publication, and framework render acknowledgements">
+<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_single-orchestration.svg" style="width:100%; max-width: 880px; margin: auto;" alt="A single navigation moving through route matching, transaction acquisition, context building, parallel loader flights, pending UI publication, outcome selection, final match publication, and framework render acknowledgements">
 <figcaption>
 Even one navigation moves along several schedules: loaders run, pending UI may appear, final matches publish, and the framework renders each publication in its own time.
 </figcaption>
@@ -73,10 +73,10 @@ The common client-side path is easier to reason about as four separate tracks, e
 
 | Owner                                                                         | Decides                                                     | Ends when                                             |
 | ----------------------------------------------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------------- |
-| [**Loader flight**](#one-loader-several-leases)                               | Should this loader invocation stay alive?                   | Its last consumer releases its claim on it, a _lease_ |
-| [**Current transaction**](#the-navigation-was-replaced-its-loader-kept-going) | May this navigation publish?                                | A successor replaces its authority                    |
-| [**Private lane**](#the-error-finished-first-the-redirect-still-won)          | Did this route attempt succeed, fail, or redirect?          | The lane is accepted, redirected, or discarded        |
-| [**Framework render receipt**](#login-was-published-before-react-rendered-it) | May the transition finish, and did this publication render? | The receipt settles or is superseded                  |
+| [**Loader flight**](#leases-keep-a-shared-loader-flight-alive)                               | Should this loader invocation stay alive?                   | Its last consumer releases its claim on it, a _lease_ |
+| [**Current transaction**](#the-transaction-gates-publishing-not-loading) | May this navigation publish?                                | A successor replaces its authority                    |
+| [**Private lane**](#the-lane-reduces-many-outcomes-to-one-result)          | Did this route attempt succeed, fail, or redirect?          | The lane is accepted, redirected, or discarded        |
+| [**Framework render receipt**](#the-receipt-reports-whether-a-publication-rendered) | May the transition finish, and did this publication render? | The receipt settles or is superseded                  |
 
 > [!NOTE]
 > The lane's phases are encoded in TypeScript as `matched`, `contextualized`, `reduced`, and `projected`. The brands add no runtime state; they stop code that expects a finished phase from accepting an earlier one.[^lane-phases]
@@ -105,7 +105,7 @@ Replacing the current transaction does not necessarily end a shared loader fligh
 
 The final publish arrow compresses two steps: the private lane selects a result, then the current transaction confirms that it may publish. A loader flight cannot publish a destination by itself.
 
-### One Loader, Several Leases <!-- "lease" explainer -->
+### Leases Keep a Shared Loader Flight Alive <!-- "lease" explainer -->
 
 Both the _preload_ lane and the _navigation_ lane need `/account`'s data. But the `loader` is only invoked once.
 
@@ -114,7 +114,7 @@ Each still does its own matching, builds its own context, and runs its own `befo
 Sharing one invocation raises a question: when is it safe to abort? So the invocation is wrapped in a **flight**: a promise, its abort controller, and a lease count. Every consumer that needs it takes a **lease**.[^flights]
 
 <figure>
-<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-lease-explainer.svg" style="width:100%; max-width:400px; margin: auto;" alt="One loader flight shared across three overlapping lease lifetimes, with its lease count rising from one to three and falling back to zero">
+<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-lease-explainer.svg" style="width:100%; max-width:430px; margin: auto;" alt="One loader flight shared across three overlapping lease lifetimes, with its lease count rising from one to three and falling back to zero">
 <figcaption>
 Consumers acquire and release their own claims on one loader invocation. The flight remains owned until the final lease ends.
 </figcaption>
@@ -126,12 +126,12 @@ Preloads, pending routes, rendered routes, and cache entries all hold leases, an
 
 That is why `/account` still reaches the cache. Clicking `/settings` releases the _navigation_'s lease, but the hover's _preload_ lease is still there. The count never reaches zero, nothing is aborted, and the result is cached when it finally settles.
 
-### The Navigation Was Replaced. Its Loader Kept Going. <!-- "transaction" explainer -->
+### The Transaction Gates Publishing, Not Loading <!-- "transaction" explainer -->
 
 While the `/account` navigation lane is pending, starting a new navigation to `/settings` has exactly one effect on it: revoking its right to change the page. This is what the **current transaction** controls: it is a single slot, and the only navigation that holds it can change the page.
 
 <figure>
-<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-tx-explainer.svg" style="width:100%; max-width:620px; margin: auto;" alt="The /account lane advances through matching, beforeLoad and its loaders, with a check between each step comparing its transaction with the slot; another navigation takes the slot during the loaders, so the next check fails and the lane is discarded before it can publish">
+<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-tx-explainer.svg" style="width:100%; max-width:680px; margin: auto;" alt="The /account lane advances through matching, beforeLoad and its loaders, with a check between each step comparing its transaction with the slot; another navigation takes the slot during the loaders, so the next check fails and the lane is discarded before it can publish">
 <figcaption>
 Every time the lane resumes, it compares its own transaction with the slot. It keeps running until the first mismatch, which ends it before it publishes.
 </figcaption>
@@ -149,14 +149,14 @@ if (router._tx !== tx) {
 }
 ```
 
-### The Error Finished First. The Redirect Still Won. <!-- "lane" explainer -->
+### The Lane Reduces Many Outcomes to One Result <!-- "lane" explainer -->
 
 The `/settings` branch runs two loaders. The parent layout's rejects, and a moment later, the child index's throws `redirect('/login')`.
 
 A settled loader is a fact about one loader, not yet a decision about the route. Those facts go back to the private lane, which **reduces** them into a single outcome.[^reduction]
 
 <figure>
-<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-reduce-explainer.svg" style="width:100%;max-width: 470px;margin: auto;" alt="A layout loader settles first with an error and an index loader settles later with a redirect to login; both outcomes return to the settings lane, which produces one result and continues as the login lane">
+<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-reduce-explainer.svg" style="width:100%;max-width: 550px;margin: auto;" alt="A layout loader settles first with an error and an index loader settles later with a redirect to login; both outcomes return to the settings lane, which produces one result and continues as the login lane">
 <figcaption>
 Loader outcomes return to the lane. The lane, not the order the promises settled in, decides what the route did.
 </figcaption>
@@ -166,14 +166,14 @@ So the lane never acts on the first outcome to arrive. It waits for the loaders 
 
 The redirect wins here, not because it outranks the error, but because it is not a result to display at all: it is the start of another navigation. The layout error stays recorded on its match, and the discarded `/settings` lane never publishes an error UI.
 
-### `/login` Was Published Before React Rendered It <!-- "ack" explainer -->
+### The Receipt Reports Whether a Publication Rendered <!-- "ack" explainer -->
 
 Publishing is the router writing `matches` to its store and asking the framework to render them. It is a request, not a result.[^publication-events]
 
 React may still be busy with the previous tree. The new one can suspend on promises of its own (`useSuspenseQuery`, `use(promise)`, `lazy(() => import(...))`, etc.) while React keeps the committed UI on screen. And if another navigation publishes first, the `/login` tree may never commit at all.
 
 <figure>
-<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-ack-explainer.svg" style="width:100%; max-width: 520px; margin: auto;" alt="Two transactions, each publishing its matches to the framework. The first publication's render attempt never joins the screen: the second transaction publishes before it commits, which settles the first one's acknowledgement to false. The second publication's attempt does reach the screen, and settles its acknowledgement to true">
+<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-ack-explainer.svg" style="width:100%; max-width: 580px; margin: auto;" alt="Two transactions, each publishing its matches to the framework. The first publication's render attempt never joins the screen: the second transaction publishes before it commits, which settles the first one's acknowledgement to false. The second publication's attempt does reach the screen, and settles its acknowledgement to true">
 <figcaption>
 One transaction publishes, but before its matches get committed, a second superseding transaction publishes too. The second publication answers `ack:false` for the 1st. Only the attempt that reaches the screen answers `ack:true`.
 </figcaption>

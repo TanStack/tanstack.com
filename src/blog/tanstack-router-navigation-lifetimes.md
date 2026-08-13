@@ -35,11 +35,12 @@ Even this simplified timeline has work being shared, superseded, redirected, cac
 </figcaption>
 </figure>
 
-Which result is allowed to reach the page? Which loader should be canceled? Does the first error win? Is the navigation finished when router state changes, or when the framework renders it?
+Which result is allowed to reach the page? Which loader should be canceled? Does the first error win? When is the navigation finished?
 
 Those questions do not have one shared answer.
 
 We learned this the hard way. [A rewrite of TanStack Router's route loading core](https://github.com/TanStack/router/pull/7805) grew around dozens of linked reports and patches across preloading, redirects, caching, pending UI, SSR, and more. They looked unrelated, but most crossed the same boundary: one part of the router was answering a question that belonged to another.
+<!-- TODO: rephrase "one part of the router was answering a question that belonged to another." we had too few facts to know the state precisely, and made erroneous assumptions, like tracking the abort signal to know whether a lane was superseded, or assuming if the state is updated the matches are rendered -->
 
 The new model assigns separate owners to publishing, route outcomes, loader work, and rendering. There is still one `navigate()` call at the API boundary, but there is no single owner of everything inside it.[^architecture]
 
@@ -60,41 +61,41 @@ A **lane** is a private, unpublished draft of the matched route branch. Reading 
 2. The navigation becomes the **current transaction**, giving it permission to publish if it is still current when the work finishes.[^planning]
 3. It builds route context and runs `beforeLoad` from parent to child. Children need the completed context of their parents, so this part is intentionally serial.
 4. Once that chain is ready, eligible route loaders can run in parallel. Each actual loader invocation is a **loader flight**.
-5. If loading crosses the route's `pendingMs` threshold, the router can publish a pending component. That publication gets its own framework receipt.
+5. If loading takes longer than the route's `pendingMs` duration, the router can publish a pending component. That publication gets its own framework receipt.
 6. The lane waits for the loader outcomes it needs, then decides whether the route succeeded, failed, or redirected.
+   > [!NOTE]
+   > `Promise.allSettled` is shorthand here. The router waits for the outcomes needed to choose between success, failure, and redirect.[^reduction]
+
 7. If the navigation is still current, it publishes the final matches. The framework receipt settles, and only then may the navigation complete.
 
-These steps are not one long waterfall. The pending timer races the loaders. Normal route components can load alongside them. A framework render can be in progress while the private lane continues toward its final result.
+These steps are not one long waterfall but an orchestration of multiple parallel systems: the pending timer races the loaders, normal route components can load alongside them, a framework render can be in progress while the private lane continues toward its final result.
 
-> [!NOTE]
-> `Promise.allSettled` is shorthand here. The router waits for the outcomes needed to choose between success, failure, and redirect.[^reduction]
-
-The common client-side path is easier to reason about as four separate tracks, each answering one question and ending on its own schedule. [When Navigations Overlap](#when-navigations-overlap) then takes them one row at a time, in this order:
+The common client-side path is easier to reason about as four separate tracks, each answering one question and ending on its own schedule. [The next section below](#when-navigations-overlap) explains each concept:
 
 | Owner                                                                         | Decides                                                     | Ends when                                             |
 | ----------------------------------------------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------------- |
-| [**Loader flight**](#leases-keep-a-shared-loader-flight-alive)                               | Should this loader invocation stay alive?                   | Its last consumer releases its claim on it, a _lease_ |
+| [**Loader flight**](#leases-keep-a-shared-loader-flight-alive)                               | Should this loader invocation stay alive?                   | Its last consumer releases its _lease_ |
 | [**Current transaction**](#the-transaction-gates-publishing-not-loading) | May this navigation publish?                                | A successor replaces its authority                    |
-| [**Private lane**](#the-lane-reduces-many-outcomes-to-one-result)          | Did this route attempt succeed, fail, or redirect?          | The lane is accepted, redirected, or discarded        |
+| [**Private lane**](#the-lane-reduces-many-outcomes-to-one-result)          | Did this route attempt succeed, fail, or redirect?          | The lane is accepted or discarded        |
 | [**Framework render receipt**](#the-receipt-reports-whether-a-publication-rendered) | May the transition finish, and did this publication render? | The receipt settles or is superseded                  |
 
 > [!NOTE]
 > The lane's phases are encoded in TypeScript as `matched`, `contextualized`, `reduced`, and `projected`. The brands add no runtime state; they stop code that expects a finished phase from accepting an earlier one.[^lane-phases]
+<!-- TODO: this is an interesting fact, but it feels completely out of place here, it has barely anything to do with what we're talking about in this section, except for the mere mention of "lane" -->
 
 Most of the time these tracks advance within a few milliseconds of each other. That creates the useful illusion that navigation is one asynchronous task.
 
-Overlap is where the illusion breaks.
-
 ## When Navigations Overlap
 
-Overlap exposes four ideas that a single happy-path navigation can hide:
+With navigation concurrency, we can highlight even more interesting cases:
 
 - shared loader work stays alive through leases held by independent consumers;
 - losing permission to publish is not the same as losing ownership of that work;
 - one loader's outcome is not yet the outcome of the route attempt;
 - publishing router state is not proof that the framework rendered it.
 
-The detailed timeline puts all four into the opening scenario. Read it as a worked example, not as a required ordering: independent events, such as caching `/account` and publishing `/login`, can happen in either order.
+<!-- TODO: confusing way to say that this is the same scenario we saw in video, but this time with details of what is happening in side the router while it plays -->
+The detailed timeline puts all four into the opening scenario. Read it as one possible example, not as a required ordering: independent events, such as caching `/account` and publishing `/login`, can happen in either order.
 
 <figure>
 <img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_concurrent-orchestration.svg" style="width:100%; max-width: 600px; margin: auto;" alt="A detailed sequence diagram where an account preload and navigation share a loader flight, settings supersedes account, nested settings loaders produce an error and redirect, account data reaches cache, login matches publish, and the framework acknowledges rendering them">
@@ -103,7 +104,7 @@ Replacing the current transaction does not necessarily end a shared loader fligh
 </figcaption>
 </figure>
 
-The final publish arrow compresses two steps: the private lane selects a result, then the current transaction confirms that it may publish. A loader flight cannot publish a destination by itself.
+Now let's zoom in on some of what is happening here.
 
 ### Leases Keep a Shared Loader Flight Alive <!-- "lease" explainer -->
 
@@ -133,13 +134,13 @@ While the `/account` navigation lane is pending, starting a new navigation to `/
 <figure>
 <img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-tx-explainer.svg" style="width:100%; max-width:680px; margin: auto;" alt="The /account lane advances through matching, beforeLoad and its loaders, with a check between each step comparing its transaction with the slot; another navigation takes the slot during the loaders, so the next check fails and the lane is discarded before it can publish">
 <figcaption>
-Every time the lane resumes, it compares its own transaction with the slot. It keeps running until the first mismatch, which ends it before it publishes.
+At every async boundary, the lane compares its own transaction with the slot. It keeps running until the first mismatch, which ends it before it publishes.
 </figcaption>
 </figure>
 
 Without the transaction, the `/account` lane can no longer publish its matches. It will stop at its next async boundary and release its leases. This in turn may abort the loader flights that have no other leases, but in our example the preload still holds a lease which means the flight continues.
 
-It becomes very easy to enforce that a lane cannot publish if it is not allowed to:
+With this single-slot transaction, it becomes very easy to enforce that a lane cannot publish if it is not allowed to:
 
 ```ts
 if (router._tx !== tx) {
@@ -162,7 +163,10 @@ Loader outcomes return to the lane. The lane, not the order the promises settled
 </figcaption>
 </figure>
 
-So the lane never acts on the first outcome to arrive. It waits for the loaders it already started, and only then picks one result for the whole branch: a redirect if any of them asked for one, otherwise a failure and the boundary that will render it.
+So the lane never acts on the first outcome to arrive. It waits for the loaders it already started, and only then picks one result for the whole branch: 
+- a redirect if any loader asked for one,
+- a failure (error or not-found) and the boundary that will render it,
+- or a full-lane success.
 
 The redirect wins here, not because it outranks the error, but because it is not a result to display at all: it is the start of another navigation. The layout error stays recorded on its match, and the discarded `/settings` lane never publishes an error UI.
 
@@ -170,12 +174,12 @@ The redirect wins here, not because it outranks the error, but because it is not
 
 Publishing is the router writing `matches` to its store and asking the framework to render them. It is a request, not a result.[^publication-events]
 
-React may still be busy with the previous tree. The new one can suspend on promises of its own (`useSuspenseQuery`, `use(promise)`, `lazy(() => import(...))`, etc.) while React keeps the committed UI on screen. And if another navigation publishes first, the `/login` tree may never commit at all.
+React may still be busy with the previous tree. The new one can suspend on promises of its own (`useSuspenseQuery`, `use(promise)`, `lazy(() => import(...))`, etc.) while React keeps the committed UI on screen. And if another navigation publishes first, the previously published branch may never commit at all.
 
 <figure>
 <img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-ack-explainer.svg" style="width:100%; max-width: 580px; margin: auto;" alt="Two transactions, each publishing its matches to the framework. The first publication's render attempt never joins the screen: the second transaction publishes before it commits, which settles the first one's acknowledgement to false. The second publication's attempt does reach the screen, and settles its acknowledgement to true">
 <figcaption>
-One transaction publishes, but before its matches get committed, a second superseding transaction publishes too. The second publication answers `ack:false` for the 1st. Only the attempt that reaches the screen answers `ack:true`.
+One transaction publishes, but before its matches get committed, a second superseding transaction publishes too. The 2nd publication answers `ack:false` for the 1st. Only an attempt that reaches the screen answers `ack:true`.
 </figcaption>
 </figure>
 
@@ -187,8 +191,11 @@ Both answers release the router's wait. The superseded publication is unblocked 
 
 Pending UI reads the same signal. A fallback that never commits never starts its `pendingMinMs` clock, so it adds no artificial delay.[^pending]
 
+<!-- TODO: maybe a small table here w/ ✅ or ❌ in each cell for all the "lifecycle" stuff that depends on ack:true and ack:false would help understand the previous paragraphs. They are quite dense and verbose paragraphs for a concept that is relatively simple. And maybe we should simplify those paragraphs if the table does a good job at presenting the information in a more digestable way -->
+
 ## One Bug Pattern, Many Symptoms
 
+<!-- TODO: this is such a "litterary" paragraph for a simple thing, we should rephrase. The bugs were due to missing the concepts we just explained. Actually this entire section is already not very interesting, so we should make sure it's at least extremely easy to read. We're done with the hard concepts at this point, it's basically bookkeeping now. -->
 The reports linked from the rewrite were not copies of one bug. They appeared in different APIs and framework adapters. The ownership model connects many of them because their symptoms cross one of the boundaries we just followed.
 
 | Ownership boundary                           | What breaks when it is blurred                                                                                                                                                                                                                                                                                             |
@@ -202,18 +209,23 @@ This table is a map of ownership boundaries, not a changelog. Waiting for an alr
 
 The fix was not to serialize navigation. It was to give concurrent work explicit boundaries, so that each fact is interpreted by the owner with enough context to act on it.
 
-> [!NOTE]
-> The diagrams are a teaching slice, not a complete inventory. Examples in the implementation include preflight planning, pending UI presentation, preload and cache entries, hydration handoff, development HMR rollback, and server request and stream cleanup. Background reloads are another: they keep successful loader data visible while a private candidate runs, then require both their transaction and exact committed base to remain current before publishing.
->
-> Other features attach to those boundaries instead of creating one larger navigation owner: lazy component readiness feeds into lane reduction, scroll restoration consumes rendered events, and view transitions wrap publication. Those details are not needed to follow the client navigation above.[^other-lifetimes]
-
 ## One Valid Page
 
+<!-- TODO: this conclusion is exactly right for its content, but feels entirely too AI-sloppy -->
 Return to the opening timeline. `/account` can become irrelevant to the screen without becoming useless. A settings loader can fail without deciding the route. `/login` can be published before it has rendered.
 
 Those are not contradictions. They are facts owned at different boundaries. The transaction gates publication, the lane turns many outcomes into one route decision, leases keep shared work alive, and the framework receipt tells core what crossed the gap between state and UI.
 
 That is how `navigate()` can keep its simple shape. The router does not make concurrency disappear; it gives each consequence of concurrency somewhere precise to land, then lets one coherent result cross onto the screen.
+
+<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_summary.svg" style="width:100%; max-width: 480px; margin: auto;" alt="TODO">
+<!-- TODO: do the alt attribute of this image -->
+
+
+> [!NOTE]
+> The diagrams are a teaching slice, not a complete inventory. Examples in the implementation include preflight planning, pending UI presentation, preload and cache entries, hydration handoff, development HMR rollback, and server request and stream cleanup. Background reloads are another: they keep successful loader data visible while a private candidate runs, then require both their transaction and exact committed base to remain current before publishing.
+>
+> Other features attach to those boundaries instead of creating one larger navigation owner: lazy component readiness feeds into lane reduction, scroll restoration consumes rendered events, and view transitions wrap publication. Those details are not needed to follow the client navigation above.[^other-lifetimes]
 
 ---
 
@@ -222,6 +234,7 @@ That is how `navigate()` can keep its simple shape. The router does not make con
 [^planning]: The diagram compresses planning and execution into one navigation-authority track. In the implementation, a short-lived [`_preflight` owner](https://github.com/TanStack/router/blob/45c4ad8d629e291fab70c37900525449e415ffcd/packages/router-core/src/load-client.ts#L2017-L2111) protects events and route matching before the foreground transaction is installed.
 
 [^lane-phases]: The [phase-branded lane types](https://github.com/TanStack/router/blob/45c4ad8d629e291fab70c37900525449e415ffcd/packages/router-core/src/load-client.ts#L135-L159) are phantom TypeScript evidence for the pipeline position.
+<!-- TODO: "phantom" is a weird term to use here. We need to rephrase, it's ok to use a little bit more words if that makes the concept clearer -->
 
 [^reduction]: Before the rewrite, the loader path already [waited for started tasks and preferred redirect control flow](https://github.com/TanStack/router/blob/2cb221cfd3b95f55498b22e76e9ac96a32cd26d4/packages/router-core/src/load-matches.ts#L1029-L1050). [Regression coverage for that existing behavior](https://github.com/TanStack/router/commit/3a5575627d46e765f7fab2e5488657d2b739273c) includes a [shared-flight variant](https://github.com/TanStack/router/blob/2cb221cfd3b95f55498b22e76e9ac96a32cd26d4/packages/router-core/tests/loader-architecture-regressions.test.ts#L136-L208). In the new pipeline, [`settleTasks`](https://github.com/TanStack/router/blob/45c4ad8d629e291fab70c37900525449e415ffcd/packages/router-core/src/load-client.ts#L1034-L1080) records outcomes and [`reduceLane`](https://github.com/TanStack/router/blob/45c4ad8d629e291fab70c37900525449e415ffcd/packages/router-core/src/load-client.ts#L1082-L1215) selects one semantic lane or redirect.
 

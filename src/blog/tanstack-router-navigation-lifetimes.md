@@ -1,6 +1,5 @@
 ---
 published: 2026-08-14
-draft: true
 authors:
   - Florian Pellet
 title: 'Inside a TanStack Router Navigation'

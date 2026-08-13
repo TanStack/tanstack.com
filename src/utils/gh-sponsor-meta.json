@@ -361,9 +361,9 @@
     "linkUrl": "https://forminit.com/?utm_source=tanstack"
   },
   {
-    "login": "humanizeaitext-io",
-    "name": "Humanize AI Text",
-    "imageUrl": "https://humanizeaitext.io/icon.svg",
-    "linkUrl": "https://humanizeaitext.io/"
+  "login": "Humanize-AI-Text-io",
+  "name": "Humanize AI Text",
+  "imageUrl": "https://humanizeaitext.io/favicon/favicon-32x32.png",
+  "linkUrl": "https://humanizeaitext.io/"
   }
 ]

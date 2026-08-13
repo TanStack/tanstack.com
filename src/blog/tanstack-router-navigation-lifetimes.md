@@ -90,7 +90,9 @@ Unlike the other diagrams, this one reads from **top to bottom**. Each column fo
 
 <img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_concurrent-orchestration.svg" style="width:100%; max-width: 600px; margin: auto;" alt="A detailed sequence diagram where an account preload and navigation share a loader flight, settings supersedes account, nested settings loaders produce an error and redirect, account data reaches cache, login matches publish, and the framework acknowledges rendering them">
 
-### A Replaced Navigation Can Leave Useful Work <!-- "lease" explainer -->
+### A Replaced Navigation Can Leave Useful Work
+
+<!-- "lease" explainer -->
 
 In the opening scenario, `/account` keeps loading after the user clicks away. Both the hover preload and the navigation need `/account`'s data, but the `loader` should still run only once.
 
@@ -112,7 +114,9 @@ Losing permission to publish `/account` does not prove that its loader is useles
 > [!NOTE]
 > Preload and navigation lanes, published routes, and cache entries can all hold leases. A lease can also outlive the promise it covers: the lease represents ownership of the resource, not a promise lifecycle.
 
-### Only the Current Navigation May Publish <!-- "transaction" explainer -->
+### Only the Current Navigation May Publish
+
+<!-- "transaction" explainer -->
 
 Keeping a loader alive is separate from deciding whether its navigation may reach the page. In the simple example, one transaction stays current all the way through publication. In the complex scenario, `/settings` starts while the `/account` lane is still pending.
 
@@ -138,7 +142,9 @@ Discarding the navigation also releases its leases. Any pending flight with no o
 > }
 > ```
 
-### One Loader Result Is Not the Route Result <!-- "lane" explainer -->
+### One Loader Result Is Not the Route Result
+
+<!-- "lane" explainer -->
 
 In the successful navigation, every loader contributes to one successful result. The diagram below shows three outcomes: the root route succeeds, the parent layout loader rejects, and the child index loader throws `redirect('/login')`.
 
@@ -162,7 +168,9 @@ It is tempting to say that the redirect "beats" the error, but that is not quite
 > [!NOTE]
 > The lane's TypeScript type changes with each phase: `matched`, `contextualized`, `reduced`, then `projected`. These labels help ensure that the lane goes through each stage in the correct order without adding runtime states.[^lane-phases]
 
-### Published Does Not Mean Rendered <!-- "ack" explainer -->
+### Published Does Not Mean Rendered
+
+<!-- "ack" explainer -->
 
 Both scenarios represent the end of a successful lane as two separate events: publish and acknowledge. _Publishing_ means handing a route branch to the framework. It is a request to render, not proof that the framework committed that branch.[^publication-events]
 

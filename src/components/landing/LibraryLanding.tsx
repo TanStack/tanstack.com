@@ -66,8 +66,6 @@ export type LibraryLandingConfig = {
     items: readonly LibraryLandingWorkbenchItem[]
     label: string
   }
-  // Replaces the static `hero` mockup with a live panel. Query uses this to
-  // demo its own cache; every other landing rides the mockup.
   heroRender?: React.ReactNode
   libraryId: LibraryLandingId
   lifecycle: {

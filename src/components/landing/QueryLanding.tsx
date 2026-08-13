@@ -177,11 +177,6 @@ export default function QueryLanding() {
   )
 }
 
-/**
- * The hero panel runs a real QueryClient rather than mocking one: the cache
- * badge, revision counter, and row list are all derived from query state, and
- * "Add issue" is an optimistic mutation that rolls back on error.
- */
 function QueryCachePanel() {
   const prefersReducedMotion = usePrefersReducedMotion()
   const queryClient = useQueryClient()

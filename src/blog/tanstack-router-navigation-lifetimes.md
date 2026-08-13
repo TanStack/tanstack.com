@@ -206,13 +206,11 @@ The fix was to track each decision separately.
 
 ## One Valid Page
 
-<!-- TODO: this conclusion is exactly right for its content, but feels entirely too AI-sloppy -->
+In the opening scenario, the user ends up on `/login`. The `/account` result still reaches the cache, the `/settings` error never reaches the page, and React decides when `/login` has actually rendered.
 
-Return to the opening timeline. `/account` can become irrelevant to the screen without becoming useless. A settings loader can fail without deciding the route. `/login` can be published before it has rendered.
+We now have an architecture in place that ensures individual facts to now bleed into parallel work. Replacing a navigation does not mean all of its work should stop. A loader error does not necessarily mean error UI. Publishing a route does not mean the framework rendered it.
 
-Those are not contradictions. They are facts owned at different boundaries. The transaction gates publication, the lane turns many outcomes into one route decision, leases keep shared work alive, and the framework receipt tells the router what crossed the gap between state and UI.
-
-That is how `navigate()` can keep its simple shape. The router does not make concurrency disappear; it gives each consequence of concurrency somewhere precise to land, then lets one coherent result cross onto the screen.
+`navigate()` remains simple because the router orchestrates all those promises.
 
 <img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_summary.svg" style="width:100%; max-width: 480px; margin: auto;" alt="One line running from navigate to render, made of four coloured segments that hand over to each other at a node: the current transaction, the private lane, the loader flight, and the framework render">
 

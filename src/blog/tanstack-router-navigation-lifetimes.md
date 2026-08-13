@@ -119,22 +119,22 @@ Consumers acquire and release their own claims on one loader invocation. The fli
 
 Acquiring a lease raises the count. Releasing one removes that consumer's claim and nothing else. The flight stays alive while the count is above zero, and can be aborted the moment it reaches zero with the promise still pending.
 
-Preloads, pending routes, rendered routes, and cache entries all hold leases, and a lease can outlive the promise it covers: the claim is about the lifetime of the resource, not the delivery of a value.
+Preload and navigation lanes, published routes, and cache entries can all hold leases. A lease can outlive the promise it covers because the claim is about the lifetime of the resource, not the delivery of a value.
 
 That is why `/account` still reaches the cache. Clicking `/settings` releases the _navigation_'s lease, but the hover's _preload_ lease is still there. The count never reaches zero, nothing is aborted, and the result is cached when it finally settles.
 
 ### The Transaction Gates Publishing, Not Loading <!-- "transaction" explainer -->
 
-While the `/account` navigation lane is pending, starting a new navigation to `/settings` has exactly one effect on it: revoking its right to change the page. This is what the **current transaction** controls: it is a single slot, and the only navigation that holds it can change the page.
+While the `/account` navigation lane is pending, `/settings` can take over as the **current transaction**. The transaction is a single slot: only the navigation that holds it can publish. When `/settings` takes it, `/account` loses that right (and attempts a cleanup, possibly aborting flights without a lease).
 
 <figure>
-<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-tx-explainer.svg" style="width:100%; max-width:680px; margin: auto;" alt="The /account lane advances through matching, beforeLoad and its loaders, with a check between each step comparing its transaction with the slot; another navigation takes the slot during the loaders, so the next check fails and the lane is discarded before it can publish">
+<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-tx-explainer.svg" style="width:100%; max-width:680px; margin: auto;" alt="The /account lane moves through matching, beforeLoad and loaders, checking that it still holds the transaction between stages; /settings then takes the slot, so any /account continuation fails its next check and cannot publish">
 <figcaption>
-At every async boundary, the lane compares its own transaction with the slot. It keeps running until the first mismatch, which ends it before it publishes.
+At every async boundary, the lane compares its own transaction with the slot. When `/settings` takes it, `/account` is canceled and the dotted segment can never publish.
 </figcaption>
 </figure>
 
-Without the transaction, the `/account` lane can no longer publish its matches. It will stop at its next async boundary and release its leases. This in turn may abort the loader flights that have no other leases, but in our example the preload still holds a lease which means the flight continues.
+Without the transaction, the `/account` lane is guaranteed to never publish its matches. The navigation releases its leases. This in turn may abort the loader flights that have no other leases, but in our example the preload still holds a lease which means the flight continues.
 
 With this single-slot transaction, it becomes very easy to enforce that a lane cannot publish if it is not allowed to:
 
@@ -153,7 +153,7 @@ The `/settings` branch runs two loaders. The parent layout's rejects, and a mome
 A settled loader is a fact about one loader, not yet a decision about the route. Those facts go back to the private lane, which **reduces** them into a single outcome.[^reduction]
 
 <figure>
-<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-reduce-explainer.svg" style="width:100%;max-width: 550px;margin: auto;" alt="A layout loader settles first with an error and an index loader settles later with a redirect to login; both outcomes return to the settings lane, which produces one result and continues as the login lane">
+<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-reduce-explainer.svg" style="width:100%;max-width: 550px;margin: auto;" alt="Three settings loaders return a success, an error, and a redirect to login; their outcomes return to the settings lane, which produces one result and continues as the login lane">
 <figcaption>
 Loader outcomes return to the lane. The lane, not the order the promises settled in, decides what the route did.
 </figcaption>
@@ -204,7 +204,7 @@ The bug reports behind the rewrite were not duplicates of each other. They came 
 | **Publish authority / flight ownership**     | Treating transaction replacement or cache eviction as the end of a flight can repeatedly abort reusable parent work or strand an in-flight preload's bookkeeping ([#3928](https://github.com/TanStack/router/issues/3928), [#7759](https://github.com/TanStack/router/issues/7759))                                        |
 | **Shared flight / private lane**             | Sharing more than the loader result lets one lane observe another's `cause` or `preload` flags, or leaves a child without fresh parent context ([#3179](https://github.com/TanStack/router/issues/3179), [#4572](https://github.com/TanStack/router/issues/4572), [#7602](https://github.com/TanStack/router/issues/7602)) |
 | **Redirect control flow / presentation**     | A pending or stale match marked as redirected can reach `MatchInner`, even though a redirect should produce another lane rather than UI ([#7120](https://github.com/TanStack/router/issues/7120), [#7367](https://github.com/TanStack/router/issues/7367), [#7753](https://github.com/TanStack/router/issues/7753))        |
-| **Router publication / framework rendering** | Without a publication-scoped receipt, core can observe only broad transition state, not whether the exact offered matches rendered ([render-owner contract](https://github.com/TanStack/router/blob/45c4ad8d629e291fab70c37900525449e415ffcd/packages/react-router/tests/react-render-owner-contract.test.tsx#L21-L101))   |
+| **Router publication / framework rendering** | Without a publication-scoped receipt, the router can observe only broad transition state, not whether the exact offered matches rendered ([render-owner contract](https://github.com/TanStack/router/blob/45c4ad8d629e291fab70c37900525449e415ffcd/packages/react-router/tests/react-render-owner-contract.test.tsx#L21-L101)) |
 
 Not every row was broken. Waiting for an already-running child redirect after a parent error worked before the rewrite too, and it now has regression tests and an explicit reducer behind it.[^reduction] The publication receipt is the other extreme: there was nothing to repair, because nothing tracked individual publications at all.
 
@@ -216,7 +216,7 @@ None of this was fixed by making navigations wait for each other. It was fixed b
 
 Return to the opening timeline. `/account` can become irrelevant to the screen without becoming useless. A settings loader can fail without deciding the route. `/login` can be published before it has rendered.
 
-Those are not contradictions. They are facts owned at different boundaries. The transaction gates publication, the lane turns many outcomes into one route decision, leases keep shared work alive, and the framework receipt tells core what crossed the gap between state and UI.
+Those are not contradictions. They are facts owned at different boundaries. The transaction gates publication, the lane turns many outcomes into one route decision, leases keep shared work alive, and the framework receipt tells the router what crossed the gap between state and UI.
 
 That is how `navigate()` can keep its simple shape. The router does not make concurrency disappear; it gives each consequence of concurrency somewhere precise to land, then lets one coherent result cross onto the screen.
 
@@ -239,7 +239,7 @@ That is how `navigate()` can keep its simple shape. The router does not make con
 
 [^flights]: A [`LoaderFlight`](https://github.com/TanStack/router/blob/45c4ad8d629e291fab70c37900525449e415ffcd/packages/router-core/src/load-client.ts#L176-L184) contains one normalized outcome promise, its own abort controller, and a lease count. The [registry and release rules](https://github.com/TanStack/router/blob/45c4ad8d629e291fab70c37900525449e415ffcd/packages/router-core/src/load-client.ts#L472-L575) keep discoverability separate from ownership.
 
-[^publication-events]: The final client [publication callback](https://github.com/TanStack/router/blob/45c4ad8d629e291fab70c37900525449e415ffcd/packages/router-core/src/load-client.ts#L1956-L1975) commits the matches and emits `onLoad` and `onBeforeRouteMount` before awaiting the framework receipt; [`commitMatches`](https://github.com/TanStack/router/blob/45c4ad8d629e291fab70c37900525449e415ffcd/packages/router-core/src/load-client.ts#L1538-L1604) runs the route lifecycle callbacks. [After that receipt settles](https://github.com/TanStack/router/blob/45c4ad8d629e291fab70c37900525449e415ffcd/packages/router-core/src/load-client.ts#L1983-L2013), core emits `onResolved`, and emits `onRendered` only for a current positive acknowledgement.
+[^publication-events]: The final client [publication callback](https://github.com/TanStack/router/blob/45c4ad8d629e291fab70c37900525449e415ffcd/packages/router-core/src/load-client.ts#L1956-L1975) commits the matches and emits `onLoad` and `onBeforeRouteMount` before awaiting the framework receipt; [`commitMatches`](https://github.com/TanStack/router/blob/45c4ad8d629e291fab70c37900525449e415ffcd/packages/router-core/src/load-client.ts#L1538-L1604) runs the route lifecycle callbacks. [After that receipt settles](https://github.com/TanStack/router/blob/45c4ad8d629e291fab70c37900525449e415ffcd/packages/router-core/src/load-client.ts#L1983-L2013), the router emits `onResolved`, and emits `onRendered` only for a current positive acknowledgement.
 
 [^framework-ack]: Before the rewrite, React's adapter used [global loading and transition flags](https://github.com/TanStack/router/blob/2cb221cfd3b95f55498b22e76e9ac96a32cd26d4/packages/react-router/src/Transitioner.tsx#L86-L128), while `startTransition` itself [returned no receipt](https://github.com/TanStack/router/blob/2cb221cfd3b95f55498b22e76e9ac96a32cd26d4/packages/react-router/src/Transitioner.tsx#L13-L32). It now acknowledges the exact offered match-array reference through a [transition owner](https://github.com/TanStack/router/blob/45c4ad8d629e291fab70c37900525449e415ffcd/packages/react-router/src/Transitioner.tsx#L9-L46) and a [`Matches` layout effect](https://github.com/TanStack/router/blob/45c4ad8d629e291fab70c37900525449e415ffcd/packages/react-router/src/Matches.tsx#L74-L92). Solid awaits [`Solid.startTransition`](https://github.com/TanStack/router/blob/45c4ad8d629e291fab70c37900525449e415ffcd/packages/solid-router/src/Transitioner.tsx#L17-L27), while Vue awaits its [render tick](https://github.com/TanStack/router/blob/45c4ad8d629e291fab70c37900525449e415ffcd/packages/vue-router/src/Transitioner.tsx#L12-L17).
 

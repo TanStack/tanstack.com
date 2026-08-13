@@ -62,10 +62,6 @@ A **lane** is a private, unpublished draft of the matched route branch. Reading 
 4. Once that chain is ready, eligible route loaders can run in parallel. Each actual loader invocation is a **loader flight**.
 5. If loading takes longer than the route's `pendingMs` duration, the router can publish a pending component. That publication gets its own framework receipt.
 6. The lane waits for the loader outcomes it needs, then decides whether the route succeeded, failed, or redirected.
-
-   > [!NOTE]
-   > `Promise.allSettled` is shorthand here. The router waits for the outcomes needed to choose between success, failure, and redirect.[^reduction]
-
 7. If the navigation is still current, it publishes the final matches. The framework receipt settles, and only then may the navigation complete.
 
 > [!NOTE]

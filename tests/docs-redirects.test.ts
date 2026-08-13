@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import {
   buildDocsMarkdownRedirectHref,
   buildDocsRedirectHref,
+  docsManifestHasPath,
   resolveDocsPathRedirect,
   type DocsRedirectManifest,
 } from '../src/utils/docs-redirects'
@@ -207,5 +208,31 @@ assert.equal(
   }),
   'https://tanstack.com/query/v5/docs/framework/react/overview.md?pm=pnpm#motivation',
 )
+
+assert.equal(
+  docsManifestHasPath(
+    manifestWithPaths(['guides/queries.md', 'framework/react/overview.md']),
+    'guides/queries',
+  ),
+  true,
+)
+
+assert.equal(
+  docsManifestHasPath(
+    manifestWithPaths(['guides/queries/index.md']),
+    'guides/queries',
+  ),
+  true,
+)
+
+assert.equal(
+  docsManifestHasPath(
+    manifestWithPaths(['guides/queries.md']),
+    'guides/removed-in-latest',
+  ),
+  false,
+)
+
+assert.equal(docsManifestHasPath(manifestWithPaths(['overview.md']), ''), false)
 
 console.log('docs redirect tests passed')

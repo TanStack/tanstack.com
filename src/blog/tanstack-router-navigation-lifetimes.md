@@ -37,7 +37,7 @@ Account loading, the redirect to login, caching, and rendering proceed on differ
 </figcaption>
 </figure>
 
-There is a lot to explain here. Why can `/account` keep loading after the user moves on, but no longer update the page? Why does the `/settings` error never appear? And why isn't publishing `/login` the end of the navigation?
+Why can `/account` keep loading after the user moves on, but no longer update the page? Why does the `/settings` error never appear? And why isn't publishing `/login` the end of the navigation?
 
 **A navigation looks like one asynchronous operation, but the router must decide four things independently: which loading work should continue, which navigation may publish, what the route attempt decided, and whether the framework rendered it.**
 
@@ -71,7 +71,7 @@ The **lane** in the middle is a private, unpublished draft of the matched route 
 > [!NOTE]
 > The diagram's `release flight` label marks where the lane releases its temporary claim. That does not necessarily end ownership of settled data. The loader-flight section below explains why.
 
-Nothing goes wrong in this version. The transaction is never replaced, the loaders do not error or redirect, and both publications render successfully. The interesting cases appear when complications happen:
+Nothing goes wrong in this version. The transaction is never replaced, the loaders do not error or redirect, and both publications render successfully. Now change one assumption at a time:
 
 | What if...                                                              | The answer belongs to                                                                    |
 | ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
@@ -80,21 +80,19 @@ Nothing goes wrong in this version. The transaction is never replaced, the loade
 | parallel loaders produce different kinds of outcomes?                   | A [**private lane**](#one-loader-result-is-not-the-route-result)                          |
 | another publication takes over before the framework renders this one?   | A [**framework render receipt**](#published-does-not-mean-rendered)                       |
 
-Usually, all four answers arrive within a few milliseconds of each other. That is what preserves the useful illusion of one asynchronous task. It is also plenty of time for another event to change what should happen next.
+Usually, all four answers arrive within a few milliseconds of each other, preserving the illusion of one asynchronous task. It is also plenty of time for another event to change what should happen next.
 
 ## When Navigations Overlap
 
-The opening scenario puts all four complications back together. The next diagram gives us a map of the whole thing. It is dense, but the four sections after walk through each important part.
+The opening scenario puts all four complications back together. The next diagram maps them before the following sections examine each one.
 
 Unlike the other diagrams, this one reads from **top to bottom**. Each column follows one owner: the current transaction, a private lane, a loader flight, or the framework render. The horizontal arrows pass work or results between them. This is only one possible interleaving; independent events, such as caching `/account` and publishing `/login`, could happen in either order.
 
 <img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_concurrent-orchestration.svg" style="width:100%; max-width: 600px; margin: auto;" alt="A detailed sequence diagram where an account preload and navigation share a loader flight, settings supersedes account, nested settings loaders produce an error and redirect, account data reaches cache, login matches publish, and the framework acknowledges rendering them">
 
-Let's take those boundaries one at a time.
-
 ### A Replaced Navigation Can Leave Useful Work <!-- "lease" explainer -->
 
-The first surprise in the opening scenario is that `/account` keeps loading after the user clicks away. Both the hover preload and the navigation need `/account`'s data, but the `loader` should still run only once.
+In the opening scenario, `/account` keeps loading after the user clicks away. Both the hover preload and the navigation need `/account`'s data, but the `loader` should still run only once.
 
 The preload and navigation still do their own matching, build their own context, and run their own `beforeLoad`. They share only the loader invocation and its outcome. Reusing work must not mean inheriting another consumer's draft of the page.
 
@@ -109,7 +107,7 @@ Consumers acquire and release their own claims on one loader invocation. The fli
 
 For `/account`, clicking `/settings` ends the navigation's claim. The preload still holds its own lease, so the count never reaches zero. The flight continues, settles, and its result enters the cache.
 
-This is the key separation: losing permission to publish `/account` does not prove that its loader is useless. The transaction enforces whether `/account` may publish, and the flight's leases tracks whether the loader is still needed.
+Losing permission to publish `/account` does not prove that its loader is useless. The transaction enforces whether `/account` may publish, and the flight's leases track whether the loader is still needed.
 
 > [!NOTE]
 > Preload and navigation lanes, published routes, and cache entries can all hold leases. A lease can also outlive the promise it covers: the lease represents ownership of the resource, not a promise lifecycle.
@@ -129,8 +127,6 @@ At each async boundary, the lane compares its transaction with the current slot.
 
 Discarding the navigation also releases its leases. Any pending flight with no other consumers may now abort. Our `/account` flight has the preload consumer, though, so it carries on.
 
-This is the simple role of the current transaction, to controls which navigation may publish, not how long shared loader work remains useful.
-
 > [!NOTE]
 > The implementation check is deliberately small. At an asynchronous boundary, a lane that no longer holds the slot cleans up and returns instead of publishing:
 >
@@ -144,7 +140,7 @@ This is the simple role of the current transaction, to controls which navigation
 
 ### One Loader Result Is Not the Route Result <!-- "lane" explainer -->
 
-In the successful navigation, every loader contributes to one successful result. But of course it can get more complicated. The diagram below shows three loaders: the root route succeeds, the parent layout loader rejects, and the child index loader throws `redirect('/login')`.
+In the successful navigation, every loader contributes to one successful result. The diagram below shows three outcomes: the root route succeeds, the parent layout loader rejects, and the child index loader throws `redirect('/login')`.
 
 Each settlement tells us what happened to one loader, but not yet what the whole route attempt should do. The outcomes go back to the private lane, which **reduces** them into one result.[^reduction]
 
@@ -168,9 +164,7 @@ It is tempting to say that the redirect "beats" the error, but that is not quite
 
 ### Published Does Not Mean Rendered <!-- "ack" explainer -->
 
-In both scenarios, we're represented the end of a successful lane as a two-step process: publish and ack.
-
-Publishing means handing a route branch to the framework. It is a request to render, not proof that the framework committed that branch.[^publication-events]
+Both scenarios represent the end of a successful lane as two separate events: publish and acknowledge. _Publishing_ means handing a route branch to the framework. It is a request to render, not proof that the framework committed that branch.[^publication-events]
 
 React may still be busy with the previous tree. The new one can suspend on promises of its own (`useSuspenseQuery`, `use(promise)`, `lazy(() => import(...))`, etc.), leaving the committed UI on screen. If another navigation publishes in the meantime, the earlier publication may never commit at all.
 
@@ -214,7 +208,7 @@ The four colors summarize the independent answers that carry one `navigate()` ca
 </figcaption>
 </figure>
 
-Now we have a simple, robust `navigate(...)`.
+Now we have a simple `navigate(...)`.
 
 > [!NOTE]
 > These four lifetimes are a teaching slice, not a complete inventory. The implementation also separates preflight planning, pending UI presentation, preload and cache entries, hydration handoff, development HMR rollback, server request cleanup, and stream ownership. Background reloads keep successful loader data visible while a private candidate runs, then require both their transaction and exact committed base to remain current before publishing.

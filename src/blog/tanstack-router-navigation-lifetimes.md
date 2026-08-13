@@ -173,15 +173,17 @@ Publishing is the router writing `matches` to its store and asking the framework
 React may still be busy with the previous tree. The new one can suspend on promises of its own (`useSuspenseQuery`, `use(promise)`, `lazy(() => import(...))`, etc.) while React keeps the committed UI on screen. And if another navigation publishes first, the `/login` tree may never commit at all.
 
 <figure>
-<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-ack-explainer.svg" style="width:100%; max-width: 520px; margin: auto;" alt="Two state strips: the router's store switches to /login as soon as the matches are published, while the committed tree keeps showing the previous page until later; the shaded interval between the two switches is when /login is published but not rendered, and the receipt is pending for exactly that interval before settling true">
+<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-ack-explainer.svg" style="width:100%; max-width: 520px; margin: auto;" alt="Two transactions, each publishing its matches to the framework. The first publication's render attempt never joins the screen: the second transaction publishes before it commits, which settles the first one's acknowledgement to false. The second publication's attempt does reach the screen, and settles its acknowledgement to true">
 <figcaption>
-The store changes at publication, the committed tree changes later or not at all. The receipt is pending for exactly that interval, and its value says which of the two happened.
+One transaction publishes, but before its matches get committed, a second superseding transaction publishes too. The second publication answers `ack:false` for the 1st. Only the attempt that reaches the screen answers `ack:true`.
 </figcaption>
 </figure>
 
-So the router installs a **receipt** for the exact `matches` array it is about to publish. React's adapter settles that receipt `true` from a layout effect, but only if the very same array reaches a commit. If a newer publication replaces it first, the receipt settles `false`.[^framework-ack]
+So the router hands over a **receipt** for the exact `matches` array it is publishing, then waits on it. React's adapter settles that receipt `true` from a layout effect, but only if that very array is the one that reaches a commit.[^framework-ack]
 
-Both answers release the router's wait: a still-current transaction resolves and emits `onResolved` either way. Only `true` is evidence that this publication rendered, so only `true` emits `onRendered`, which is what stops an abandoned or older suspended tree from claiming the event. _Rendered_ here means React committed the tree and reached the layout effect, not that the browser painted it.
+That receipt lives in a single slot, and a publication claims the slot by clearing it first. So the first publication is never detected as lost: the second one evicts it, and the eviction is its `false`. Only one receipt is ever outstanding, precisely because each new one answers the one it displaces.
+
+Both answers release the router's wait. The superseded publication is unblocked by its `false` and exits, and a still-current transaction resolves and emits `onResolved` either way. Only `true` also emits `onRendered`, which is what stops an abandoned or older suspended tree from claiming the event. _Rendered_ here means React committed the tree and reached the layout effect, not that the browser painted it.
 
 Pending UI reads the same signal. A fallback that never commits never starts its `pendingMinMs` clock, so it adds no artificial delay.[^pending]
 

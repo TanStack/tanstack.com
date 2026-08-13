@@ -80,7 +80,7 @@ Nothing goes wrong in this version. The transaction is never replaced, the loade
 | parallel loaders produce different kinds of outcomes?                   | A [**private lane**](#one-loader-result-is-not-the-route-result)                          |
 | another publication takes over before the framework renders this one?   | A [**framework render receipt**](#published-does-not-mean-rendered)                       |
 
-Usually, all four answers arrive within a few milliseconds of each other, preserving the illusion of one asynchronous task. It is also plenty of time for another event to change what should happen next.
+Usually, all four answers arrive within a few milliseconds of each other, preserving the illusion of one asynchronous task, but it is also plenty of time for another event to change what should happen next.
 
 ## When Navigations Overlap
 
@@ -94,7 +94,7 @@ Unlike the other diagrams, this one reads from **top to bottom**. Each column fo
 
 In the opening scenario, `/account` keeps loading after the user clicks away. Both the hover preload and the navigation need `/account`'s data, but the `loader` should still run only once.
 
-The preload and navigation still do their own matching, build their own context, and run their own `beforeLoad`. They share only the loader invocation and its outcome. Reusing work must not mean inheriting another consumer's draft of the page.
+The preload and navigation still do their own matching, build their own context, and run their own `beforeLoad`. They share only the loader invocation and its outcome.
 
 To decide when that shared invocation can be aborted, the router wraps it in a **flight**: a promise, an abort controller, and a lease count. Every consumer that needs the flight takes a **lease**.[^flights]
 
@@ -116,7 +116,7 @@ Losing permission to publish `/account` does not prove that its loader is useles
 
 Keeping a loader alive is separate from deciding whether its navigation may reach the page. In the simple example, one transaction stays current all the way through publication. In the complex scenario, `/settings` starts while the `/account` lane is still pending.
 
-The **current transaction** is a single slot that holds which navigation may publish. When `/settings` takes the slot, `/account` loses that right. It does not matter whether some of `/account`'s work is still useful; the lane can no longer update the page.
+The **current transaction** is a single slot that holds which navigation is allowed to publish. When `/settings` takes the slot, `/account` loses that right. It does not matter whether some of `/account`'s work is still useful; the lane can no longer update the page.
 
 <figure>
 <img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-tx-explainer.svg" style="width:100%; max-width:680px; margin: auto;" alt="The /account lane moves through matching, beforeLoad and loaders, checking that it still holds the transaction between stages; /settings then takes the slot, so any /account continuation fails its next check and cannot publish">
@@ -197,9 +197,9 @@ _Rendered_ here means that React committed the tree and ran its layout effects. 
 
 ## Keeping Navigation Lifetimes Separate
 
-In the opening scenario, the user lands on `/login`, but four separate decisions produce that result. The `/account` loader continues because its preload still holds a lease, even though its lane can no longer publish. The `/settings` lane sees an error, but its redirect starts a new `/login` navigation instead of producing UI. Then the framework gets the final word on when `/login` actually commits.
+In the opening scenario, the user lands on `/login`, but four separate decisions produce that result. The `/account` loader continues because its preload still holds a lease, even though its lane can no longer publish. The `/settings` lane sees an error, but its redirect starts a new `/login` navigation instead of producing UI. The framework then reports when `/login` actually commits.
 
-This is how navigation can remain one promise in application code without becoming one tangled lifetime inside the router. A lease says whether loader work is still needed. The current transaction says which navigation may publish. A private lane decides what one route attempt did. A receipt reports whether the framework rendered a publication.
+`navigate()` can remain one promise because the router keeps these lifetimes separate. A lease says whether loader work is still needed. The current transaction says which navigation may publish. A private lane decides what one route attempt did. A receipt reports whether the framework rendered a publication.
 
 <figure>
 <img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_summary.svg" style="width:100%; max-width: 480px; margin: auto;" alt="A line from navigate to render containing four colors for the current transaction, private lane, loader flight, and framework render receipt">

@@ -84,13 +84,11 @@ Usually, all four answers arrive within a few milliseconds of each other. That i
 
 ## When Navigations Overlap
 
-The opening scenario puts all four complications back together. The next diagram gives us a map of the whole thing. It is dense, but there is no need to memorize it; the four sections after it each zoom into one part.
+The opening scenario puts all four complications back together. The next diagram gives us a map of the whole thing. It is dense, but the four sections after walk through each important part.
 
 Unlike the other diagrams, this one reads from **top to bottom**. Each column follows one owner: the current transaction, a private lane, a loader flight, or the framework render. The horizontal arrows pass work or results between them. This is only one possible interleaving; independent events, such as caching `/account` and publishing `/login`, could happen in either order.
 
 <img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_concurrent-orchestration.svg" style="width:100%; max-width: 600px; margin: auto;" alt="A detailed sequence diagram where an account preload and navigation share a loader flight, settings supersedes account, nested settings loaders produce an error and redirect, account data reaches cache, login matches publish, and the framework acknowledges rendering them">
-
-Here is the short version. The hover and click create separate `/account` lanes, but both use the same loader flight. `/settings` takes over permission to publish, while the preload keeps the `/account` flight alive. The `/settings` loaders return an error and a redirect; the redirect starts a new navigation to `/login`, so the `/settings` lane never publishes its final matches. Meanwhile, `/account` can still enter the cache. `/login` eventually publishes and waits for the framework to report that it rendered.
 
 Let's take those boundaries one at a time.
 
@@ -108,8 +106,6 @@ To decide when that shared invocation can be aborted, the router wraps it in a *
 Consumers acquire and release their own claims on one loader invocation. The flight remains owned until the final lease ends.
 </figcaption>
 </figure>
-
-This diagram uses three generic consumers to show the count changing over time. Each owner line is one lease. Acquiring one raises the total; releasing one removes only that consumer's claim. If the count reaches zero while the promise is still pending, the router can abort the flight.
 
 For `/account`, clicking `/settings` ends the navigation's claim. The preload still holds its own lease, so the count never reaches zero. The flight continues, settles, and its result enters the cache.
 
@@ -218,7 +214,7 @@ The four colors summarize the independent answers that carry one `navigate()` ca
 </figcaption>
 </figure>
 
-The important part is not to ask any of those events to prove more than it knows.
+Now we have a simple, robust `navigate(...)`.
 
 > [!NOTE]
 > These four lifetimes are a teaching slice, not a complete inventory. The implementation also separates preflight planning, pending UI presentation, preload and cache entries, hydration handoff, development HMR rollback, server request cleanup, and stream ownership. Background reloads keep successful loader data visible while a private candidate runs, then require both their transaction and exact committed base to remain current before publishing.

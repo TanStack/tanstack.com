@@ -18,7 +18,7 @@ await router.navigate({ to: '/account' })
 
 Now let's imagine a slightly more complex scenario.
 
-<video src="/blog-assets/tanstack-router-loading-lifetimes/tanstack-router-navigation-demo.mp4" autoplay muted loop playsinline controls />
+<video src="/blog-assets/tanstack-router-loading-lifetimes/tanstack-router-navigation-demo.mp4" autoplay muted loop playsinline controls></video>
 
 1. The user hovers a link, and the router starts preloading `/account`
 2. They click the link while its loader is still running, so the navigation joins the work that the hover already started

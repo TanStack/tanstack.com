@@ -74,7 +74,7 @@ The common client-side path is easier to reason about as four separate tracks, e
 | Owner                                                                               | Decides                                                     | Ends when                              |
 | ----------------------------------------------------------------------------------- | ----------------------------------------------------------- | -------------------------------------- |
 | [**Loader flight**](#leases-keep-a-shared-loader-flight-alive)                      | Should this loader invocation stay alive?                   | Its last consumer releases its _lease_ |
-| [**Current transaction**](#the-transaction-gates-publishing-not-loading)            | May this navigation publish?                                | A successor replaces its authority     |
+| [**Current transaction**](#the-current-transaction-controls-publication)            | May this navigation publish?                                | A successor replaces its authority     |
 | [**Private lane**](#the-lane-reduces-many-outcomes-to-one-result)                   | Did this route attempt succeed, fail, or redirect?          | The lane is accepted or discarded      |
 | [**Framework render receipt**](#the-receipt-reports-whether-a-publication-rendered) | May the transition finish, and did this publication render? | The receipt settles or is superseded   |
 
@@ -121,7 +121,7 @@ Preload and navigation lanes, published routes, and cache entries can all hold l
 
 That is why `/account` still reaches the cache. Clicking `/settings` releases the _navigation_'s lease, but the hover's _preload_ lease is still there. The count never reaches zero, nothing is aborted, and the result is cached when it finally settles.
 
-### The Transaction Gates Publishing, Not Loading <!-- "transaction" explainer -->
+### The Current Transaction Controls Publication <!-- "transaction" explainer -->
 
 While the `/account` navigation lane is pending, `/settings` can take over as the **current transaction**. The transaction is a single slot: only the navigation that holds it can publish. When `/settings` takes it, `/account` loses that right (and attempts a cleanup, possibly aborting flights without a lease).
 
@@ -191,7 +191,7 @@ Either answer releases the router's wait. The answer changes what may follow:[^p
 
 _Rendered_ here means React committed the tree and ran its layout effects, not necessarily that the browser painted it.
 
-## One Bug Pattern, Many Symptoms
+## What Breaks When Lifetimes Are Confused
 
 The bugs behind the rewrite surfaced in different APIs and frameworks. Their symptoms varied, but the underlying mistake was often the same: one fact was treated as proof of another.
 
@@ -204,7 +204,7 @@ The bugs behind the rewrite surfaced in different APIs and frameworks. Their sym
 
 The fix was to track each decision separately.
 
-## One Valid Page
+## Keeping Navigation Lifetimes Separate
 
 In the opening scenario, the user ends up on `/login`. The `/account` result still reaches the cache, the `/settings` error never reaches the page, and React decides when `/login` has actually rendered.
 

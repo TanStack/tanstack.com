@@ -29,8 +29,6 @@ type QueryHeroMutationContext = {
   previous?: QueryHeroIssue
 }
 
-// Each row is its own cache entry with its own `staleTime`, so the three
-// gauges drain at different rates and go stale independently.
 type QueryHeroRow = {
   id: string
   refetchInterval: number
@@ -38,6 +36,10 @@ type QueryHeroRow = {
   staleTime: number
 }
 
+// Each row is its own cache entry with its own `staleTime`, so the three gauges
+// drain at different rates and go stale independently. The values are evenly
+// spaced, and each `refetchInterval` sits past its own `staleTime` so every row
+// spends a visible stretch stale before it refetches.
 const queryHeroRows = [
   {
     id: 'router-cache',
@@ -219,8 +221,6 @@ function QueryCachePanel() {
     Object.fromEntries(queryHeroRows.map((row) => [row.id, { ...row.seed }])),
   )
   const bumpAttemptRef = React.useRef(0)
-  // Where each gauge stood when its entry was last written, so the sweep after
-  // a write starts from the bar's current position instead of from empty.
   const gaugeRef = React.useRef<
     Record<string, { from: number; shown: number; writtenAt: number }>
   >({})

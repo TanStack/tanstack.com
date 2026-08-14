@@ -6,10 +6,13 @@ import {
   fetchDocsRedirect,
   fetchFile,
   fetchRepoDirectoryContents,
+  fetchClientExampleFiles,
 } from './docs.functions'
 import {
+  appendPathToDocsHref,
   buildDocsMarkdownRedirectHref,
   buildDocsRedirectHref,
+  docsManifestHasPath,
   resolveDocsPathRedirect,
   type DocsPathResolution,
 } from './docs-redirects'
@@ -161,6 +164,7 @@ export type LoadDocsRouteResult =
       type: 'loaded'
       docsPath: string
       doc: Awaited<ReturnType<typeof loadDocs>>
+      latestDocsPath: string | null
     }
   | {
       type: 'redirect'
@@ -176,6 +180,7 @@ export async function loadDocsRoute(opts: {
   docsPath: string
   docsRoot: string
   frameworks: Array<string>
+  latestBranch?: string
   redirectFromPaths: Array<string>
   repo: string
 }): Promise<LoadDocsRouteResult> {
@@ -186,15 +191,21 @@ export async function loadDocsRoute(opts: {
   }
 
   try {
-    return {
-      type: 'loaded',
-      docsPath: resolution.docsPath,
-      doc: await loadDocs({
+    const [doc, latestDocsPath] = await Promise.all([
+      loadDocs({
         repo: opts.repo,
         branch: opts.branch,
         docsRoot: opts.docsRoot,
         docsPath: resolution.docsPath,
       }),
+      findLatestDocsPath(opts, resolution.docsPath),
+    ])
+
+    return {
+      type: 'loaded',
+      docsPath: resolution.docsPath,
+      doc,
+      latestDocsPath,
     }
   } catch (error) {
     if (!isDocsNotFoundError(error)) {
@@ -211,6 +222,39 @@ export async function loadDocsRoute(opts: {
     }
 
     return { type: 'not-found' }
+  }
+}
+
+/**
+ * When serving an old version, checks whether the same doc path exists on the
+ * latest branch so the page can canonicalize to its /latest equivalent.
+ * Fails open (null) so a manifest hiccup never breaks the doc itself.
+ */
+async function findLatestDocsPath(
+  opts: {
+    branch: string
+    docsRoot: string
+    latestBranch?: string
+    repo: string
+  },
+  docsPath: string,
+): Promise<string | null> {
+  if (!opts.latestBranch || opts.latestBranch === opts.branch) {
+    return null
+  }
+
+  try {
+    const manifest = await fetchDocsPathManifest({
+      data: {
+        repo: opts.repo,
+        branch: opts.latestBranch,
+        docsRoot: opts.docsRoot,
+      },
+    })
+
+    return docsManifestHasPath(manifest, docsPath) ? docsPath : null
+  } catch {
+    return null
   }
 }
 
@@ -278,8 +322,10 @@ export async function resolveDocsRedirect(opts: {
 }
 
 export {
+  appendPathToDocsHref,
   buildDocsMarkdownRedirectHref,
   buildDocsRedirectHref,
   fetchFile,
   fetchRepoDirectoryContents,
+  fetchClientExampleFiles,
 }

@@ -360,7 +360,7 @@ function QueryCachePanel() {
       </div>
 
       <div className="grid lg:grid-cols-[1.08fr_0.82fr]">
-        <div className="flex flex-col gap-3 border-border-subtle p-5 lg:border-r">
+        <div className="flex min-w-0 flex-col gap-3 border-border-subtle p-5 lg:border-r">
           <div className="flex flex-wrap items-center gap-2 font-ds-mono text-ds-mono-caps-xs uppercase">
             <span
               className={`rounded-sm px-2 py-1 ${queryHeroStateClass[cacheState]}`}
@@ -415,7 +415,7 @@ function QueryCachePanel() {
           ))}
         </div>
 
-        <div className="flex flex-col p-5">
+        <div className="flex min-w-0 flex-col p-5">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <button
               type="button"

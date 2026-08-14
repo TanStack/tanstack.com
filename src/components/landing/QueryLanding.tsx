@@ -25,6 +25,7 @@ type QueryHeroIssue = {
 }
 
 type QueryHeroMutationContext = {
+  optimistic?: QueryHeroIssue
   previous?: QueryHeroIssue
 }
 
@@ -250,18 +251,20 @@ function QueryCachePanel() {
         queryHeroKey(id),
       )
 
-      queryClient.setQueryData<QueryHeroIssue>(queryHeroKey(id), (current) =>
-        current
-          ? {
-              ...current,
-              // Wraps instead of clamping so repeated bumps always visibly move.
-              priority: current.priority >= 99 ? 80 : current.priority + 1,
-              revision: current.revision + 1,
-            }
-          : current,
-      )
+      const optimistic = previous
+        ? {
+            ...previous,
+            // Wraps instead of clamping so repeated bumps always visibly move.
+            priority: previous.priority >= 99 ? 0 : previous.priority + 1,
+            revision: previous.revision + 1,
+          }
+        : undefined
 
-      return { previous }
+      if (optimistic) {
+        queryClient.setQueryData<QueryHeroIssue>(queryHeroKey(id), optimistic)
+      }
+
+      return { optimistic, previous }
     },
     onError: (_error, id, context) => {
       if (context?.previous) {
@@ -272,7 +275,9 @@ function QueryCachePanel() {
       }
       // A fixed id keeps repeated failures from stacking up toasts.
       notify(
-        `Write rejected — rolled ['issues', '${id}'] back to P${context?.previous?.priority ?? ''}`,
+        context?.previous && context.optimistic
+          ? `Demo: every third write fails. Rolled ['issues', '${id}'] back from P${context.optimistic.priority} to P${context.previous.priority}.`
+          : `Demo: every third write fails. Rolled ['issues', '${id}'] back.`,
         { id: 'query-landing-rollback' },
       )
     },

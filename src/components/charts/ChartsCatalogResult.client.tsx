@@ -45,6 +45,8 @@ export function ChartsCatalogResult({
           createExampleSandboxDocument({
             compiled,
             document: definition.workspace.files['/index.html'],
+            entry: definition.workspace.entry,
+            files: definition.workspace.files,
             runToken,
             theme: readTheme(),
           }),

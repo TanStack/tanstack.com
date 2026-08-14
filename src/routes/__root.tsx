@@ -368,7 +368,9 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
                     : '-translate-y-6 opacity-0',
                 )}
               >
-                <Spinner className="text-4xl" />
+                {showNavigationSpinner ? (
+                  <Spinner className="text-4xl" />
+                ) : null}
               </div>
             </div>
           </ToastProvider>

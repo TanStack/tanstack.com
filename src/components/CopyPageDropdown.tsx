@@ -192,7 +192,7 @@ export function CopyPageDropdown({
       markdownCache.set(urlToFetch, content)
       await copyContent(
         content,
-        repo === 'tanstack/tanstack.com'
+        repo === 'tanstack/tanstack.com' && hasPageMarkdownEndpoint
           ? 'Markdown content copied from markdown endpoint'
           : 'Markdown content copied from GitHub',
       )

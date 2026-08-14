@@ -7,7 +7,7 @@ excerpt: 'A navigation looks like one asynchronous operation. Inside TanStack Ro
 library: router
 ---
 
-![A meandering river flows, its tributaries joining and separating](/blog-assets/tanstack-router-loading-lifetimes/header.png)
+![A meandering river flows, its tributaries joining and separating](/blog-assets/tanstack-router-navigation-lanes/header.png)
 
 From application code, a navigation looks almost too simple:
 
@@ -17,7 +17,7 @@ await router.navigate({ to: '/account' })
 
 That simplicity gets deceptive as soon as a few things overlap.
 
-<video src="/blog-assets/tanstack-router-loading-lifetimes/tanstack-router-navigation-demo.mp4" autoplay muted loop playsinline controls></video>
+<video src="/blog-assets/tanstack-router-navigation-lanes/tanstack-router-navigation-demo.mp4" autoplay muted loop playsinline controls></video>
 
 1. Hovering `/account` starts preloading it.
 2. Clicking `/account` reuses the loading work that the hover started.
@@ -30,7 +30,7 @@ That simplicity gets deceptive as soon as a few things overlap.
 This is what the scenario looks like on a timeline. Don't worry about the labels yet, we'll unpack them as we go.
 
 <figure>
-<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_simple-scenario.svg" style="width:100%; max-width: 800px; margin: auto;" alt="A timeline where an account preload is joined by a navigation, a later settings navigation starts layout and index loaders, the index loader redirects to login, account data also enters the cache, and the framework acknowledges login after publication">
+<img src="/blog-assets/tanstack-router-navigation-lanes/nav-orchestra_simple-scenario.svg" style="width:100%; max-width: 800px; margin: auto;" alt="A timeline where an account preload is joined by a navigation, a later settings navigation starts layout and index loaders, the index loader redirects to login, account data also enters the cache, and the framework acknowledges login after publication">
 <figcaption>
 Account loading, the redirect to login, caching, and rendering proceed on different schedules.
 </figcaption>
@@ -51,7 +51,7 @@ Before we return to all that overlap, it helps to focus on one ordinary navigati
 Each row follows a different part of the navigation, and the arrows between them are handoffs. Loaders can run while a pending timer races them. The framework can render pending UI while the private route branch keeps loading. We'll decode the internal labels just below.
 
 <figure>
-<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_single-orchestration.svg" style="width:100%; max-width: 880px; margin: auto;" alt="A single navigation moving through route matching, transaction acquisition, context building, parallel loader flights, pending UI publication, outcome selection, final match publication, and framework render acknowledgements">
+<img src="/blog-assets/tanstack-router-navigation-lanes/nav-orchestra_single-orchestration.svg" style="width:100%; max-width: 880px; margin: auto;" alt="A single navigation moving through route matching, transaction acquisition, context building, parallel loader flights, pending UI publication, outcome selection, final match publication, and framework render acknowledgements">
 <figcaption>
 One successful navigation still moves along several schedules: loaders run, pending UI may appear, final matches publish, and the framework handles each publication in its own time.
 </figcaption>
@@ -87,7 +87,7 @@ The opening scenario puts all four complications back together. Here is the whol
 
 Unlike the other diagrams, this one reads from **top to bottom**. Each column follows one owner: the current transaction, a private lane, a loader flight, or the framework render. The horizontal arrows pass work or results between them. This is only one possible interleaving; independent events, such as caching `/account` and publishing `/login`, could happen in either order.
 
-<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_concurrent-orchestration.svg" style="width:100%; max-width: 600px; margin: auto;" alt="A detailed sequence diagram where an account preload and navigation share a loader flight, settings supersedes account, nested settings loaders produce an error and redirect, account data reaches cache, login matches publish, and the framework acknowledges rendering them">
+<img src="/blog-assets/tanstack-router-navigation-lanes/nav-orchestra_concurrent-orchestration.svg" style="width:100%; max-width: 600px; margin: auto;" alt="A detailed sequence diagram where an account preload and navigation share a loader flight, settings supersedes account, nested settings loaders produce an error and redirect, account data reaches cache, login matches publish, and the framework acknowledges rendering them">
 
 ### A Replaced Navigation Can Leave Useful Work
 
@@ -100,7 +100,7 @@ The preload and navigation still do their own matching, build their own context,
 To decide when that shared invocation can be aborted, the router wraps it in a **flight**: a promise, an abort controller, and a lease count. Every consumer that needs the flight takes a **lease**.[^flights]
 
 <figure>
-<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-lease-explainer.svg" style="width:100%; max-width:430px; margin: auto;" alt="One loader flight shared across three overlapping lease lifetimes, with its lease count rising from one to three and falling back to zero">
+<img src="/blog-assets/tanstack-router-navigation-lanes/nav-orchestra_mini-lease-explainer.svg" style="width:100%; max-width:430px; margin: auto;" alt="One loader flight shared across three overlapping lease lifetimes, with its lease count rising from one to three and falling back to zero">
 <figcaption>
 Consumers acquire and release their own claims on one loader invocation. The flight remains owned until the final lease ends.
 </figcaption>
@@ -122,7 +122,7 @@ Keeping a loader alive is separate from deciding whether its navigation may reac
 The **current transaction** is a single slot that holds which navigation is allowed to publish. When `/settings` takes the slot, `/account` loses that right. It does not matter whether some of `/account`'s work is still useful; the lane can no longer update the page.
 
 <figure>
-<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-tx-explainer.svg" style="width:100%; max-width:680px; margin: auto;" alt="The /account lane moves through matching, beforeLoad and loaders, checking that it still holds the transaction between stages; /settings then takes the slot, so any /account continuation fails its next check and cannot publish">
+<img src="/blog-assets/tanstack-router-navigation-lanes/nav-orchestra_mini-tx-explainer.svg" style="width:100%; max-width:680px; margin: auto;" alt="The /account lane moves through matching, beforeLoad and loaders, checking that it still holds the transaction between stages; /settings then takes the slot, so any /account continuation fails its next check and cannot publish">
 <figcaption>
 At each async boundary, the lane compares its transaction with the current slot. The first few checks pass, but when `/settings` takes the slot, the next check fails. The `/account` lane loses publication authority, and the dotted segment can never publish.
 </figcaption>
@@ -150,7 +150,7 @@ In the successful navigation, every loader contributes to one successful result.
 Each settlement tells us what happened to one loader, but not yet what the whole route attempt should do. The outcomes go back to the private lane, which **reduces** them into one result.[^reduction]
 
 <figure>
-<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-reduce-explainer.svg" style="width:100%;max-width: 550px;margin: auto;" alt="Three loaders return a success, an error, and a redirect to one private lane, which reduces them to a single outcome">
+<img src="/blog-assets/tanstack-router-navigation-lanes/nav-orchestra_mini-reduce-explainer.svg" style="width:100%;max-width: 550px;margin: auto;" alt="Three loaders return a success, an error, and a redirect to one private lane, which reduces them to a single outcome">
 <figcaption>
 Loader outcomes return to the lane. One settled error cannot decide the route result while another started loader could still redirect.
 </figcaption>
@@ -180,7 +180,7 @@ React may still be busy with the previous tree. The new one can suspend on promi
 The diagram below shows that generic race.
 
 <figure>
-<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_mini-ack-explainer.svg" style="width:100%; max-width: 580px; margin: auto;" alt="Two route publications race to render. The first is replaced before it commits and receives a false acknowledgement; the second commits and receives a true acknowledgement">
+<img src="/blog-assets/tanstack-router-navigation-lanes/nav-orchestra_mini-ack-explainer.svg" style="width:100%; max-width: 580px; margin: auto;" alt="Two route publications race to render. The first is replaced before it commits and receives a false acknowledgement; the second commits and receives a true acknowledgement">
 <figcaption>
 The second publication replaces the first before it commits, then commits successfully itself.
 </figcaption>
@@ -214,7 +214,7 @@ await router.navigate({ to: '/account' })
 ```
 
 <figure>
-<img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_summary.svg" style="width:100%; max-width: 480px; margin: auto;" alt="A line from navigate to render containing four colors for the current transaction, private lane, loader flight, and framework render receipt">
+<img src="/blog-assets/tanstack-router-navigation-lanes/nav-orchestra_summary.svg" style="width:100%; max-width: 480px; margin: auto;" alt="A line from navigate to render containing four colors for the current transaction, private lane, loader flight, and framework render receipt">
 </figure>
 
 ---

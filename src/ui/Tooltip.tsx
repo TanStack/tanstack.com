@@ -30,7 +30,7 @@ export function Tooltip({
         <BaseTooltip.Positioner side={side} align={align} sideOffset={5}>
           <BaseTooltip.Popup
             className={twMerge(
-              'z-50 rounded-lg px-3 py-2 text-xs',
+              'z-1300 rounded-lg px-3 py-2 text-xs',
               'bg-background-inverse text-text-inverse',
               'shadow-lg',
               'origin-(--transform-origin) transition',

@@ -34,23 +34,42 @@ function createCatalogCase(
       maintain: 'Keep the gaps visible.',
     },
     entries: {
-      tanstack: `benchmarks/conformance/cases/${id}/tanstack.ts`,
-      reference: {
-        renderer: 'observable-plot',
-        path: `benchmarks/conformance/cases/${id}/plot.ts`,
-      },
+      example: `benchmarks/conformance/cases/${id}/example.tsx`,
     },
   }
 }
 
 function createCatalogIndex(collection?: string) {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     source: {
       repo: 'tanstack/charts',
       pathRoot: 'benchmarks/conformance/',
     },
     cases: [createCatalogCase('01-line-gaps', 1, collection)],
+  }
+}
+
+function createLegacyCatalogIndex() {
+  const catalogCase = createCatalogCase()
+  return {
+    schemaVersion: 1,
+    source: {
+      repo: 'tanstack/charts',
+      pathRoot: 'benchmarks/conformance/',
+    },
+    cases: [
+      {
+        ...catalogCase,
+        entries: {
+          tanstack: 'benchmarks/conformance/cases/01-line-gaps/tanstack.ts',
+          reference: {
+            renderer: 'observable-plot',
+            path: 'benchmarks/conformance/cases/01-line-gaps/plot.ts',
+          },
+        },
+      },
+    ],
   }
 }
 
@@ -66,6 +85,13 @@ test('catalog index retains only the site-owned contract', () => {
   )
 })
 
+test('catalog index accepts the legacy adapter contract during rollout', () => {
+  const index = parseChartsCatalogIndex(createLegacyCatalogIndex())
+
+  assert.equal(index.schemaVersion, 1)
+  assert.equal(index.cases[0]?.id, '01-line-gaps')
+})
+
 test('catalog index rejects broken case and ordering relationships', () => {
   const duplicate = createCatalogIndex()
   duplicate.cases.push(createCatalogCase('01-line-gaps', 2))
@@ -76,8 +102,8 @@ test('catalog index rejects broken case and ordering relationships', () => {
   assert.throws(() => parseChartsCatalogIndex(unsorted))
 
   const mismatchedEntry = createCatalogIndex()
-  mismatchedEntry.cases[0]!.entries.tanstack =
-    'benchmarks/conformance/cases/other/tanstack.ts'
+  mismatchedEntry.cases[0]!.entries.example =
+    'benchmarks/conformance/cases/other/example.tsx'
   assert.throws(() => parseChartsCatalogIndex(mismatchedEntry))
 })
 

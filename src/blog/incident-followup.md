@@ -1,6 +1,7 @@
 ---
 title: 'Hardening TanStack After the npm Compromise'
 published: 2026-05-12
+updated: 2026-05-15
 draft: false
 excerpt: "A companion to our incident postmortem: what we're changing across the org so the May 11 supply-chain attack can't happen the same way again."
 authors:

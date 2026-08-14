@@ -61,7 +61,7 @@ const queryHeroRows = [
 
 const queryHeroKey = (id: string) => ['issues', id] as const
 
-// How long a refetched row takes to sweep back up to its freshness value.
+// How long a written row takes to sweep back up to its freshness value.
 const queryHeroRefillMs = 500
 
 // Shared so the optimistic write and the server-side one cannot drift apart.

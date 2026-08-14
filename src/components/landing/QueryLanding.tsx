@@ -457,7 +457,7 @@ function QueryCachePanel() {
                 type="button"
                 aria-label="Refetch"
                 title="Refetch"
-                className="inline-flex items-center rounded-md border border-border-subtle px-3 py-2 text-text-primary/70 transition-colors hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
+                className="inline-flex items-center rounded-md border border-border-subtle px-3 py-2 text-text-primary/70 transition-colors hover:border-border-default hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
                 onClick={() => selected.query.refetch()}
               >
                 <ArrowsClockwiseIcon

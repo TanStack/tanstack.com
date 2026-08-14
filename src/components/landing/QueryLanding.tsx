@@ -53,8 +53,8 @@ const queryHeroRows = [
   },
   {
     id: 'offline-queue',
-    staleTime: 14000,
-    refetchInterval: 16000,
+    staleTime: 12000,
+    refetchInterval: 14000,
     seed: { priority: 0, revision: 0, title: 'Offline mutation queue' },
   },
 ] satisfies readonly [QueryHeroRow, ...QueryHeroRow[]]

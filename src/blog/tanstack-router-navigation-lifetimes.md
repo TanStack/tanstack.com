@@ -215,10 +215,15 @@ await router.navigate({ to: '/account' })
 <img src="/blog-assets/tanstack-router-loading-lifetimes/nav-orchestra_summary.svg" style="width:100%; max-width: 480px; margin: auto;" alt="A line from navigate to render containing four colors for the current transaction, private lane, loader flight, and framework render receipt">
 </figure>
 
+---
+
 > [!NOTE]
-> The four lifetimes we've seen are a teaching slice, not a complete inventory. The implementation also separates preflight planning, pending UI presentation, preload and cache entries, hydration handoff, development HMR rollback, server request cleanup, and stream ownership. Background reloads keep successful loader data visible while a private candidate runs, then require both their transaction and exact committed base to remain current before publishing.
+> We have seen how the 4 main owners of a navigation work: transaction, lane, flight, render receipt. But the system has more complexity if you want to investigate further:
+> - The implementation also separates preflight planning, pending UI presentation, preload and cache entries, hydration handoff, development HMR rollback, server request cleanup, and stream ownership.
+> - During a background refresh of active routes, the router keeps the existing successful data visible while replacement data loads privately. It publishes the replacement only if the reload is still current and the committed route state it started from has not changed.
+> - Other features attach to those owners instead of creating one new ones: lazy component readiness feeds into lane reduction, scroll restoration consumes rendered events, and view transitions wrap publication.
 >
-> Other features attach to those boundaries instead of creating one larger navigation owner: lazy component readiness feeds into lane reduction, scroll restoration consumes rendered events, and view transitions wrap publication. Those details are not needed to follow the client navigation above.[^other-lifetimes]
+> Those details are not needed to follow the client navigation above.[^other-lifetimes]
 
 ---
 

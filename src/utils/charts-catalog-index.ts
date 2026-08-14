@@ -32,21 +32,78 @@ const httpsUrlSchema = v.pipe(
   v.url(),
   v.check((value) => new URL(value).protocol === 'https:', 'Expected HTTPS'),
 )
-const referenceRendererSchema = v.picklist([
+const legacyReferenceRendererSchema = v.picklist([
   'observable-plot',
   'recharts',
   'echarts',
 ])
-const caseEntryPathSchema = v.pipe(
+const legacyCaseEntryPathSchema = v.pipe(
   v.string(),
   v.regex(
     /^benchmarks\/conformance\/cases\/[a-z0-9]+(?:-[a-z0-9]+)*\/(?:tanstack|plot|recharts|echarts)\.ts$/,
+    'Invalid legacy catalog entry path',
+  ),
+)
+const caseEntryPathSchema = v.pipe(
+  v.string(),
+  v.regex(
+    /^benchmarks\/conformance\/cases\/[a-z0-9]+(?:-[a-z0-9]+)*\/example\.tsx$/,
     'Invalid catalog entry path',
   ),
 )
 
 // Deliberately use `object` here. The Charts benchmark owns geometry and
 // interaction metadata; the site validates and retains only its UI contract.
+const legacyCatalogCaseSchema = v.pipe(
+  v.object({
+    schemaVersion: v.literal(1),
+    order: nonNegativeIntegerSchema,
+    id: caseIdSchema,
+    collection: v.optional(caseIdSchema),
+    title: nonEmptyStringSchema,
+    family: nonEmptyStringSchema,
+    intent: nonEmptyStringSchema,
+    support: v.picklist(['native', 'composed', 'gap', 'deferred']),
+    features: v.array(nonEmptyStringSchema),
+    source: v.strictObject({
+      title: nonEmptyStringSchema,
+      url: httpsUrlSchema,
+    }),
+    ai: v.strictObject({
+      create: nonEmptyStringSchema,
+      maintain: nonEmptyStringSchema,
+    }),
+    entries: v.strictObject({
+      tanstack: legacyCaseEntryPathSchema,
+      reference: v.strictObject({
+        renderer: legacyReferenceRendererSchema,
+        path: legacyCaseEntryPathSchema,
+      }),
+    }),
+  }),
+  v.check(
+    (catalogCase) =>
+      new Set(catalogCase.features).size === catalogCase.features.length,
+    'Catalog case features must be unique',
+  ),
+  v.check(
+    (catalogCase) =>
+      catalogCase.entries.tanstack ===
+      `benchmarks/conformance/cases/${catalogCase.id}/tanstack.ts`,
+    'Legacy catalog case TanStack entry must match its ID',
+  ),
+  v.check((catalogCase) => {
+    const filename =
+      catalogCase.entries.reference.renderer === 'observable-plot'
+        ? 'plot'
+        : catalogCase.entries.reference.renderer
+    return (
+      catalogCase.entries.reference.path ===
+      `benchmarks/conformance/cases/${catalogCase.id}/${filename}.ts`
+    )
+  }, 'Legacy catalog case reference entry must match its ID and renderer'),
+)
+
 const catalogCaseSchema = v.pipe(
   v.object({
     schemaVersion: v.literal(1),
@@ -67,11 +124,7 @@ const catalogCaseSchema = v.pipe(
       maintain: nonEmptyStringSchema,
     }),
     entries: v.strictObject({
-      tanstack: caseEntryPathSchema,
-      reference: v.strictObject({
-        renderer: referenceRendererSchema,
-        path: caseEntryPathSchema,
-      }),
+      example: caseEntryPathSchema,
     }),
   }),
   v.check(
@@ -81,31 +134,31 @@ const catalogCaseSchema = v.pipe(
   ),
   v.check(
     (catalogCase) =>
-      catalogCase.entries.tanstack ===
-      `benchmarks/conformance/cases/${catalogCase.id}/tanstack.ts`,
-    'Catalog case TanStack entry must match its ID',
+      catalogCase.entries.example ===
+      `benchmarks/conformance/cases/${catalogCase.id}/example.tsx`,
+    'Catalog case example entry must match its ID',
   ),
-  v.check((catalogCase) => {
-    const filename =
-      catalogCase.entries.reference.renderer === 'observable-plot'
-        ? 'plot'
-        : catalogCase.entries.reference.renderer
-    return (
-      catalogCase.entries.reference.path ===
-      `benchmarks/conformance/cases/${catalogCase.id}/${filename}.ts`
-    )
-  }, 'Catalog case reference entry must match its ID and renderer'),
 )
 
 const catalogIndexSchema = v.pipe(
-  v.strictObject({
-    schemaVersion: v.literal(1),
-    source: v.strictObject({
-      repo: v.literal(chartsCatalogIndexRepo),
-      pathRoot: v.literal('benchmarks/conformance/'),
+  v.union([
+    v.strictObject({
+      schemaVersion: v.literal(1),
+      source: v.strictObject({
+        repo: v.literal(chartsCatalogIndexRepo),
+        pathRoot: v.literal('benchmarks/conformance/'),
+      }),
+      cases: v.pipe(v.array(legacyCatalogCaseSchema), v.minLength(1)),
     }),
-    cases: v.pipe(v.array(catalogCaseSchema), v.minLength(1)),
-  }),
+    v.strictObject({
+      schemaVersion: v.literal(2),
+      source: v.strictObject({
+        repo: v.literal(chartsCatalogIndexRepo),
+        pathRoot: v.literal('benchmarks/conformance/'),
+      }),
+      cases: v.pipe(v.array(catalogCaseSchema), v.minLength(1)),
+    }),
+  ]),
   v.check((index) => {
     const ids = index.cases.map((catalogCase) => catalogCase.id)
     return new Set(ids).size === ids.length

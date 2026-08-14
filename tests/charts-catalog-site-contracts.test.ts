@@ -14,7 +14,7 @@ import {
 
 test('sitemap exposes catalog pages but not runtime resources', () => {
   const index = parseChartsCatalogIndex({
-    schemaVersion: 1,
+    schemaVersion: 2,
     source: {
       repo: 'tanstack/charts',
       pathRoot: 'benchmarks/conformance/',
@@ -39,11 +39,7 @@ test('sitemap exposes catalog pages but not runtime resources', () => {
           maintain: 'Keep the line visible.',
         },
         entries: {
-          tanstack: 'benchmarks/conformance/cases/01-line/tanstack.ts',
-          reference: {
-            renderer: 'observable-plot',
-            path: 'benchmarks/conformance/cases/01-line/plot.ts',
-          },
+          example: 'benchmarks/conformance/cases/01-line/example.tsx',
         },
       },
     ],

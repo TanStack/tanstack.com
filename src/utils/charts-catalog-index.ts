@@ -52,6 +52,7 @@ const catalogCaseSchema = v.pipe(
     schemaVersion: v.literal(1),
     order: nonNegativeIntegerSchema,
     id: caseIdSchema,
+    collection: v.optional(caseIdSchema),
     title: nonEmptyStringSchema,
     family: nonEmptyStringSchema,
     intent: nonEmptyStringSchema,

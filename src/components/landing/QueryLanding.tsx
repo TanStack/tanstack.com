@@ -468,6 +468,7 @@ function QueryCachePanel() {
           <dl className="mt-auto space-y-2 rounded-lg bg-background-subtle p-4 text-ds-body-xs">
             {[
               { label: 'status', value: selected.query.status },
+              { label: 'fetchStatus', value: selected.query.fetchStatus },
               {
                 label: 'isStale',
                 value: String(selected.query.isStale),

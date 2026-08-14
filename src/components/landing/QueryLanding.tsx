@@ -348,10 +348,12 @@ function QueryCachePanel() {
       return () => clearInterval(id)
     }
 
-    let frame = requestAnimationFrame(function tick() {
+    const tick = () => {
       setNow(Date.now())
       frame = requestAnimationFrame(tick)
-    })
+    }
+
+    let frame = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(frame)
   }, [prefersReducedMotion])
 

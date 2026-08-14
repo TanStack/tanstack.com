@@ -31,13 +31,6 @@ export function beforeLoadLibraryLanding(
     throw redirect({ href: `/${libraryId}/latest`, statusCode: 308 })
   })
 
-  if (version === library.latestVersion) {
-    throw redirect({
-      href: href.replace(`/${libraryId}/${version}`, `/${libraryId}/latest`),
-      statusCode: 308,
-    })
-  }
-
   library.handleRedirects?.(href)
 }
 

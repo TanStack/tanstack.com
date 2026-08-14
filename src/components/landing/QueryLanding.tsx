@@ -360,8 +360,8 @@ function QueryCachePanel() {
       </div>
 
       <div className="grid min-h-[22rem] lg:grid-cols-[1.08fr_0.82fr]">
-        <div className="space-y-3 border-border-subtle p-4 lg:border-r">
-          <div className="mb-4 flex flex-wrap items-center gap-2 font-ds-mono text-ds-mono-caps-xs uppercase">
+        <div className="flex flex-col gap-3 border-border-subtle p-5 lg:border-r">
+          <div className="flex flex-wrap items-center gap-2 font-ds-mono text-ds-mono-caps-xs uppercase">
             <span
               className={`rounded-sm px-2 py-1 ${queryHeroStateClass[cacheState]}`}
             >
@@ -377,7 +377,7 @@ function QueryCachePanel() {
               key={row.id}
               type="button"
               aria-pressed={row.id === selected.id}
-              className="block w-full rounded-lg border border-transparent bg-background-subtle p-4 text-left transition-colors hover:border-text-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[color:rgb(var(--landing-glow)/0.42)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.1)]"
+              className="flex w-full flex-1 flex-col justify-between rounded-lg border border-transparent bg-background-subtle p-4 text-left transition-colors hover:border-text-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[color:rgb(var(--landing-glow)/0.42)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.1)]"
               onClick={() => setSelectedId(row.id)}
             >
               <span className="flex items-start justify-between gap-4">
@@ -465,7 +465,7 @@ function QueryCachePanel() {
             </p>
           </div>
 
-          <dl className="mt-auto space-y-2 rounded-lg bg-background-subtle p-4 text-ds-body-xs">
+          <dl className="mt-7 space-y-2 rounded-lg bg-background-subtle p-4 text-ds-body-xs">
             {[
               { label: 'status', value: selected.query.status },
               { label: 'fetchStatus', value: selected.query.fetchStatus },

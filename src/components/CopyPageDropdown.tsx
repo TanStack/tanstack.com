@@ -140,8 +140,11 @@ export function CopyPageDropdown({
     return queryString ? `${base}?${queryString}` : base
   })()
 
+  const hasPageMarkdownEndpoint =
+    typeof window !== 'undefined' && window.location.pathname.includes('/docs/')
+
   const sourceMarkdownUrl =
-    repo === 'tanstack/tanstack.com'
+    repo === 'tanstack/tanstack.com' && hasPageMarkdownEndpoint
       ? pageMarkdownUrl
       : repo && branch && filePath
         ? `https://raw.githubusercontent.com/${repo}/${branch}/${filePath}`

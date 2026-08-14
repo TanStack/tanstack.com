@@ -224,7 +224,7 @@ await router.navigate({ to: '/account' })
 >
 > - The implementation also separates preflight planning, pending UI presentation, preload and cache entries, hydration handoff, development HMR rollback, server request cleanup, and stream ownership.
 > - During a background refresh of active routes, the router keeps the existing successful data visible while replacement data loads privately. It publishes the replacement only if the reload is still current and the committed route state it started from has not changed.
-> - Other features attach to those owners instead of creating one new ones: lazy component readiness feeds into lane reduction, scroll restoration consumes rendered events, and view transitions wrap publication.
+> - Other features attach to those owners instead of creating new ones: lazy component readiness feeds into lane reduction, scroll restoration consumes rendered events, and view transitions wrap publication.
 >
 > Those details are not needed to follow the client navigation above.[^other-lifetimes]
 

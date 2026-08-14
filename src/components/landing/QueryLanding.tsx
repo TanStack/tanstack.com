@@ -14,6 +14,7 @@ import {
   SkullIcon,
 } from '@phosphor-icons/react'
 
+import { useToast } from '~/components/ToastProvider'
 import { usePrefersReducedMotion } from '~/utils/usePrefersReducedMotion'
 import { LibraryLanding, type LibraryLandingConfig } from './LibraryLanding'
 
@@ -193,12 +194,14 @@ export default function QueryLanding() {
 function QueryCachePanel() {
   const prefersReducedMotion = usePrefersReducedMotion()
   const queryClient = useQueryClient()
+  const { notify } = useToast()
   // One server-side record per key, so the three queries return distinct data.
   const serverRowsRef = React.useRef(
     Object.fromEntries(
       queryHeroRows.map((row) => [row.id, { ...row.seed }]),
     ) as Record<string, QueryHeroIssue>,
   )
+  const bumpAttemptRef = React.useRef(0)
   // Starts paused so the server render matches the first client render; the
   // effect below turns it on unless the visitor asked for reduced motion.
   const [isLive, setIsLive] = React.useState(false)
@@ -234,10 +237,18 @@ function QueryCachePanel() {
   >({
     mutationFn: async (id) => {
       await waitForQueryHero(720)
+      // Every third write fails on purpose, so the optimistic update visibly
+      // rolls back instead of the rollback path being unreachable code.
+      bumpAttemptRef.current += 1
+      if (bumpAttemptRef.current % 3 === 0) {
+        throw new Error('Write rejected by the server')
+      }
+
       const current = serverRowsRef.current[id]!
       const next = {
         ...current,
-        priority: Math.min(99, current.priority + 1),
+        // Wraps instead of clamping so repeated bumps always visibly move.
+        priority: current.priority >= 99 ? 80 : current.priority + 1,
         revision: current.revision + 1,
       }
       serverRowsRef.current[id] = next
@@ -254,7 +265,8 @@ function QueryCachePanel() {
         current
           ? {
               ...current,
-              priority: Math.min(99, current.priority + 1),
+              // Wraps instead of clamping so repeated bumps always visibly move.
+              priority: current.priority >= 99 ? 80 : current.priority + 1,
               revision: current.revision + 1,
             }
           : current,
@@ -269,6 +281,11 @@ function QueryCachePanel() {
           context.previous,
         )
       }
+      // A fixed id keeps repeated failures from stacking up toasts.
+      notify(
+        `Write rejected — rolled ['issues', '${id}'] back to P${context?.previous?.priority ?? ''}`,
+        { id: 'query-landing-rollback' },
+      )
     },
     // Only the mutated key is invalidated; the other rows keep their own
     // freshness windows.

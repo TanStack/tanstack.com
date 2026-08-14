@@ -171,6 +171,8 @@ It is tempting to say that the redirect "beats" the error, but that is not quite
 
 <!-- "ack" explainer -->
 
+_This section depends on the UI framework (React / Solid / Vue). We will use React for this explanation._
+
 Both scenarios represent the end of a successful lane as two separate events: publish and acknowledge. _Publishing_ means handing a route branch to the framework. It is a request to render, not proof that the framework committed that branch.[^publication-events]
 
 React may still be busy with the previous tree. The new one can suspend on promises of its own (`useSuspenseQuery`, `use(promise)`, `lazy(() => import(...))`, etc.), leaving the committed UI on screen. If another navigation publishes in the meantime, the earlier publication may never commit at all.
@@ -194,7 +196,7 @@ To tell these cases apart, the router keeps a single **receipt** slot. A new pub
 > | ------------------------------------------------------ | ---------- | ----------- |
 > | The navigation resolves | ✅ | 🤷 |
 > | `onResolved`, if the transaction is still current | ✅ | ✅ |
-> | `onRendered` | ✅ | ❌ |
+> | `onRendered`, if the transaction is still current | ✅ | ❌ |
 > | A pending fallback starts its `pendingMinMs`[^pending] | ✅ | ❌ |
 >
 > A superseded public `navigate()` can remain chained to the navigation that replaced it, so `ack:false` does not guarantee that the navigation resolves.

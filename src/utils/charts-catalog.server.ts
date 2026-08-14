@@ -7,7 +7,10 @@ import {
   chartsCatalogRepo,
   type ChartsCatalogAuthoredSource,
 } from './charts-catalog'
-import type { ChartsCatalogIndexPublication } from './charts-catalog-index'
+import type {
+  ChartsCatalogIndexCase,
+  ChartsCatalogIndexPublication,
+} from './charts-catalog-index'
 import {
   createChartsCatalogExampleDefinition,
   type ChartsCatalogExampleVersions,
@@ -83,11 +86,12 @@ export async function getChartsCatalogExample(
       `Charts catalog case not found: ${caseId}`,
     )
   }
+  const entryPath = getChartsCatalogEntryPath(catalogCase)
 
   const [files, versions] = await Promise.all([
     getChartsCatalogExampleFiles(
       publication.revision,
-      catalogCase.entries.tanstack,
+      entryPath,
       publication.sourceKind,
     ),
     getChartsCatalogExampleVersions(
@@ -103,16 +107,19 @@ export async function getChartsCatalogExample(
       title: catalogCase.title,
       description: catalogCase.intent,
       revision: publication.revision,
-      entryPath: catalogCase.entries.tanstack,
+      entryPath,
       files,
       renderRevision: options?.renderRevision,
       versions,
     }),
-    authoredSource: createChartsCatalogAuthoredSource(
-      files,
-      catalogCase.entries.tanstack,
-    ),
+    authoredSource: createChartsCatalogAuthoredSource(files, entryPath),
   }
+}
+
+function getChartsCatalogEntryPath(catalogCase: ChartsCatalogIndexCase) {
+  return 'example' in catalogCase.entries
+    ? catalogCase.entries.example
+    : catalogCase.entries.tanstack
 }
 
 export async function getChartsCatalogExampleDefinition(
@@ -181,6 +188,8 @@ async function getChartsCatalogExampleFiles(
   entryPath: string,
   sourceKind: ChartsCatalogIndexPublication['sourceKind'],
 ) {
+  const caseDirectory = entryPath.slice(0, entryPath.lastIndexOf('/') + 1)
+  const isSelfContainedExample = entryPath.endsWith('/example.tsx')
   const sourcePaths =
     sourceKind === 'local'
       ? undefined
@@ -211,6 +220,13 @@ async function getChartsCatalogExampleFiles(
         resolveCatalogExampleModule(path, specifier, sourcePaths, revision),
       ),
     )
+    for (const dependency of dependencies) {
+      if (isSelfContainedExample && !dependency.startsWith(caseDirectory)) {
+        throw new ChartsCatalogIntegrityError(
+          `Charts catalog example import leaves its case directory: ${dependency}`,
+        )
+      }
+    }
     await Promise.all(dependencies.map(load))
   }
 

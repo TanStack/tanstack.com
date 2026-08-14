@@ -5,7 +5,7 @@ import {
 } from './example-workspace'
 
 const catalogSourceRoot = 'benchmarks/conformance/'
-const generatedEntryPath = '/__catalog.ts'
+const generatedEntryPath = '/__catalog.tsx'
 const generatedDocumentPath = '/index.html'
 const revisionPattern = /^[a-f0-9]{40}$/
 const exactVersionPattern =
@@ -48,7 +48,10 @@ export function createChartsCatalogExampleDefinition({
   }
 
   const initialFile = normalizeCatalogSourcePath(entryPath)
-  const expectedInitialFile = `/cases/${caseId}/tanstack.ts`
+  const isPublicExample = initialFile.endsWith('/example.tsx')
+  const expectedInitialFile = isPublicExample
+    ? `/cases/${caseId}/example.tsx`
+    : `/cases/${caseId}/tanstack.ts`
 
   if (initialFile !== expectedInitialFile) {
     throw new Error(
@@ -74,6 +77,7 @@ export function createChartsCatalogExampleDefinition({
     initialFile,
     chartHeight,
     renderRevision,
+    isPublicExample,
   )
   workspaceFiles[generatedDocumentPath] = createCatalogDocument(chartHeight)
 
@@ -168,6 +172,50 @@ function packageUrl(specifier: string, version: string) {
 }
 
 function createCatalogEntry(
+  initialFile: string,
+  chartHeight: number,
+  renderRevision: number,
+  isPublicExample: boolean,
+) {
+  if (!isPublicExample) {
+    return createLegacyCatalogEntry(initialFile, chartHeight, renderRevision)
+  }
+
+  return `import { createRoot } from 'react-dom/client'
+import type { ComponentType } from 'react'
+import Example from ${JSON.stringify(initialFile)}
+
+const root = document.querySelector<HTMLElement>('#root')
+if (!root) throw new Error('Charts catalog root not found')
+
+const height = ${chartHeight}
+let width = Math.max(1, Math.floor(root.getBoundingClientRect().width))
+const CatalogExample = Example as ComponentType<{
+  width?: number
+  height?: number
+  revision?: number
+}>
+const reactRoot = createRoot(root)
+const render = () => reactRoot.render(
+  <CatalogExample width={width} height={height} revision={${renderRevision}} />
+)
+render()
+const observer = new ResizeObserver(() => {
+  const nextWidth = Math.max(1, Math.floor(root.getBoundingClientRect().width))
+  if (nextWidth === width) return
+  width = nextWidth
+  render()
+})
+
+observer.observe(root)
+window.addEventListener('pagehide', () => {
+  observer.disconnect()
+  reactRoot.unmount()
+}, { once: true })
+`
+}
+
+function createLegacyCatalogEntry(
   initialFile: string,
   chartHeight: number,
   renderRevision: number,

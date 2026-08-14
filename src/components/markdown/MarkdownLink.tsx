@@ -14,6 +14,19 @@ function isRelativeLink(link: string) {
   )
 }
 
+function shouldOpenInNewTab(link: string) {
+  if (!/^https:\/\//i.test(link)) {
+    return false
+  }
+
+  try {
+    const hostname = new URL(link).hostname
+    return hostname !== 'tanstack.com' && !hostname.endsWith('.tanstack.com')
+  } catch {
+    return false
+  }
+}
+
 function isStaticAssetLink(link: string) {
   const [pathname] = link.split(/[?#]/)
   return /\.[a-z0-9]+$/i.test(pathname) && !pathname.endsWith('.md')
@@ -76,8 +89,18 @@ export function MarkdownLink({
   }
 
   if (!isRelativeLink(href)) {
-    // eslint-disable-next-line jsx-a11y/anchor-has-content
-    return <a {...rest} href={hrefProp} />
+    const openInNewTab = shouldOpenInNewTab(href)
+
+    return (
+      <a
+        {...rest}
+        href={hrefProp}
+        target={openInNewTab ? '_blank' : undefined}
+        rel={openInNewTab ? 'noopener noreferrer' : undefined}
+      >
+        {rest.children}
+      </a>
+    )
   }
 
   const [hrefWithoutHash, hash] = href.split('#')

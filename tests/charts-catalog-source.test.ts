@@ -5,7 +5,8 @@ import { parseChartsCatalogIndexPublication } from '../src/utils/charts-catalog-
 import { resetGitHubContentCacheForTest } from '../src/utils/github-content-cache.server'
 
 const revision = '4'.repeat(40)
-const entryPath = 'benchmarks/conformance/cases/01-line/tanstack.ts'
+const entryPath = 'benchmarks/conformance/cases/01-line/example.tsx'
+const legacyEntryPath = 'benchmarks/conformance/cases/01-line/tanstack.ts'
 const dependencyVersions = Object.fromEntries(
   [
     'd3-array',
@@ -34,6 +35,41 @@ const publication = parseChartsCatalogIndexPublication({
   revision,
   sourceKind: 'remote',
   index: {
+    schemaVersion: 2,
+    source: {
+      repo: 'tanstack/charts',
+      pathRoot: 'benchmarks/conformance/',
+    },
+    cases: [
+      {
+        schemaVersion: 1,
+        order: 1,
+        id: '01-line',
+        title: 'Line chart',
+        family: 'trend',
+        intent: 'Show a line.',
+        support: 'native',
+        features: ['line'],
+        source: {
+          title: 'Source',
+          url: 'https://example.com/source',
+        },
+        ai: {
+          create: 'Create a line chart.',
+          maintain: 'Keep the line visible.',
+        },
+        entries: {
+          example: entryPath,
+        },
+      },
+    ],
+  },
+})
+
+const legacyPublication = parseChartsCatalogIndexPublication({
+  revision,
+  sourceKind: 'remote',
+  index: {
     schemaVersion: 1,
     source: {
       repo: 'tanstack/charts',
@@ -58,7 +94,7 @@ const publication = parseChartsCatalogIndexPublication({
           maintain: 'Keep the line visible.',
         },
         entries: {
-          tanstack: entryPath,
+          tanstack: legacyEntryPath,
           reference: {
             renderer: 'observable-plot',
             path: 'benchmarks/conformance/cases/01-line/plot.ts',
@@ -72,21 +108,12 @@ const publication = parseChartsCatalogIndexPublication({
 const sources: Record<string, string> = {
   [entryPath]: [
     "import { rows } from './data'",
-    "import { tanstackMount } from '../../shared/mount'",
-    'export const mount = tanstackMount(() => rows)',
+    'export default function Example() {',
+    '  return <pre>{JSON.stringify(rows)}</pre>',
+    '}',
   ].join('\n'),
   'benchmarks/conformance/cases/01-line/data.ts':
     'export const rows = [{ x: 1, y: 2 }]',
-  'benchmarks/conformance/shared/mount.ts': [
-    "import type { ConformanceInput } from '../types'",
-    'export const tanstackMount =',
-    '  (create: (input: ConformanceInput) => unknown) => () => ({',
-    '    update: create,',
-    '    destroy() {},',
-    '  })',
-  ].join('\n'),
-  'benchmarks/conformance/types.ts':
-    'export type ConformanceInput = { width: number }',
   'packages/charts-core/package.json': JSON.stringify({ version: '0.10.0' }),
   'package.json': JSON.stringify({
     devDependencies: {
@@ -108,14 +135,12 @@ test('catalog example follows Git source without a catalog package or build outp
       '01-line',
     )
 
-    assert.equal(example.initialFile, '/cases/01-line/tanstack.ts')
+    assert.equal(example.initialFile, '/cases/01-line/example.tsx')
     assert.deepEqual(Object.keys(example.workspace.files).sort(), [
-      '/__catalog.ts',
+      '/__catalog.tsx',
       '/cases/01-line/data.ts',
-      '/cases/01-line/tanstack.ts',
+      '/cases/01-line/example.tsx',
       '/index.html',
-      '/shared/mount.ts',
-      '/types.ts',
     ])
     assert.equal(example.workspace.files['/package.json'], undefined)
     assert.equal(
@@ -126,10 +151,40 @@ test('catalog example follows Git source without a catalog package or build outp
       authoredSource.files.map((file) => [file.kind, file.path]),
       [
         ['dependency', 'cases/01-line/data.ts'],
-        ['entry', 'cases/01-line/tanstack.ts'],
-        ['dependency', 'shared/mount.ts'],
-        ['dependency', 'types.ts'],
+        ['entry', 'cases/01-line/example.tsx'],
       ],
+    )
+  } finally {
+    globalThis.fetch = originalFetch
+    resetGitHubContentCacheForTest()
+  }
+})
+
+test('catalog example follows a legacy adapter closure during rollout', async () => {
+  const originalFetch = globalThis.fetch
+  resetGitHubContentCacheForTest()
+  globalThis.fetch = createSourceFetch({
+    ...sources,
+    [legacyEntryPath]:
+      "import { mountExample } from '../../shared/mount'\nexport const mount = mountExample",
+    'benchmarks/conformance/shared/mount.ts':
+      'export function mountExample() {}',
+  })
+
+  try {
+    const { authoredSource, example } = await getChartsCatalogExample(
+      legacyPublication,
+      '01-line',
+    )
+
+    assert.equal(example.initialFile, '/cases/01-line/tanstack.ts')
+    assert.deepEqual(
+      authoredSource.files.map((file) => file.path),
+      ['cases/01-line/tanstack.ts', 'shared/mount.ts'],
+    )
+    assert.match(
+      example.workspace.files['/__catalog.tsx'] ?? '',
+      /import \{ mount \}/,
     )
   } finally {
     globalThis.fetch = originalFetch

@@ -20,20 +20,16 @@ const versions: ChartsCatalogExampleVersions = {
 
 describe('Charts catalog example workspaces', () => {
   test('preserves Git source files and generates a runnable workspace', () => {
-    const entrySource = `import { tanstackMount } from '../../shared/mount'\nexport const mount = tanstackMount(() => ({}), 'Sorted bars')`
-    const mountSource = `export function tanstackMount() {}`
-    const typesSource = `export interface ConformanceInput { width: number }`
+    const entrySource = `export default function Example() { return <div>Sorted bars</div> }`
     const definition = createChartsCatalogExampleDefinition({
       caseId: 'bar-vertical-sorted',
       title: 'Sorted vertical bars',
       description: 'Compare English letter frequencies.',
       revision,
-      entryPath: 'benchmarks/conformance/cases/bar-vertical-sorted/tanstack.ts',
+      entryPath: 'benchmarks/conformance/cases/bar-vertical-sorted/example.tsx',
       files: {
-        'benchmarks/conformance/cases/bar-vertical-sorted/tanstack.ts':
+        'benchmarks/conformance/cases/bar-vertical-sorted/example.tsx':
           entrySource,
-        'benchmarks/conformance/shared/mount.ts': mountSource,
-        'benchmarks/conformance/types.ts': typesSource,
       },
       versions,
     })
@@ -41,22 +37,20 @@ describe('Charts catalog example workspaces', () => {
     assert.equal(definition.id, 'bar-vertical-sorted')
     assert.equal(
       definition.initialFile,
-      '/cases/bar-vertical-sorted/tanstack.ts',
+      '/cases/bar-vertical-sorted/example.tsx',
     )
-    assert.equal(definition.workspace.entry, '/__catalog.ts')
+    assert.equal(definition.workspace.entry, '/__catalog.tsx')
     assert.equal(
-      definition.workspace.files['/cases/bar-vertical-sorted/tanstack.ts'],
+      definition.workspace.files['/cases/bar-vertical-sorted/example.tsx'],
       entrySource,
     )
-    assert.equal(definition.workspace.files['/shared/mount.ts'], mountSource)
-    assert.equal(definition.workspace.files['/types.ts'], typesSource)
     assert.equal(definition.workspace.files['/package.json'], undefined)
     assert.match(
-      definition.workspace.files['/__catalog.ts'] ?? '',
-      /import \{ mount \} from "\/cases\/bar-vertical-sorted\/tanstack\.ts"/,
+      definition.workspace.files['/__catalog.tsx'] ?? '',
+      /import Example from "\/cases\/bar-vertical-sorted\/example\.tsx"/,
     )
     assert.match(
-      definition.workspace.files['/__catalog.ts'] ?? '',
+      definition.workspace.files['/__catalog.tsx'] ?? '',
       /new ResizeObserver/,
     )
     assert.match(
@@ -65,14 +59,38 @@ describe('Charts catalog example workspaces', () => {
     )
   })
 
-  test('pins framework, dependency, atlas, and dataset imports', () => {
+  test('runs the legacy adapter entry during a schema v1 rollout', () => {
+    const entrySource = 'export function mount() {}'
     const definition = createChartsCatalogExampleDefinition({
       caseId: 'bar-vertical-sorted',
       title: 'Sorted vertical bars',
       revision,
       entryPath: 'cases/bar-vertical-sorted/tanstack.ts',
       files: {
-        '/cases/bar-vertical-sorted/tanstack.ts': 'export function mount() {}',
+        'cases/bar-vertical-sorted/tanstack.ts': entrySource,
+      },
+      versions,
+    })
+
+    assert.equal(
+      definition.initialFile,
+      '/cases/bar-vertical-sorted/tanstack.ts',
+    )
+    assert.match(
+      definition.workspace.files['/__catalog.tsx'] ?? '',
+      /import \{ mount \} from "\/cases\/bar-vertical-sorted\/tanstack\.ts"/,
+    )
+  })
+
+  test('pins framework, dependency, atlas, and dataset imports', () => {
+    const definition = createChartsCatalogExampleDefinition({
+      caseId: 'bar-vertical-sorted',
+      title: 'Sorted vertical bars',
+      revision,
+      entryPath: 'cases/bar-vertical-sorted/example.tsx',
+      files: {
+        '/cases/bar-vertical-sorted/example.tsx':
+          'export default function Example() {}',
       },
       versions,
     })
@@ -114,20 +132,21 @@ describe('Charts catalog example workspaces', () => {
       chartHeight: 640,
       renderRevision: 42,
       revision,
-      entryPath: 'cases/bar-vertical-sorted/tanstack.ts',
+      entryPath: 'cases/bar-vertical-sorted/example.tsx',
       files: {
-        '/cases/bar-vertical-sorted/tanstack.ts': 'export function mount() {}',
+        '/cases/bar-vertical-sorted/example.tsx':
+          'export default function Example() {}',
       },
       versions,
     })
 
     assert.match(
-      definition.workspace.files['/__catalog.ts'] ?? '',
+      definition.workspace.files['/__catalog.tsx'] ?? '',
       /const height = 640/,
     )
     assert.match(
-      definition.workspace.files['/__catalog.ts'] ?? '',
-      /revision: 42/,
+      definition.workspace.files['/__catalog.tsx'] ?? '',
+      /revision=\{42\}/,
     )
     assert.match(
       definition.workspace.files['/index.html'] ?? '',
@@ -140,7 +159,7 @@ describe('Charts catalog example workspaces', () => {
       caseId: 'bar-vertical-sorted',
       title: 'Sorted vertical bars',
       revision,
-      entryPath: 'cases/bar-vertical-sorted/tanstack.ts',
+      entryPath: 'cases/bar-vertical-sorted/example.tsx',
       versions,
     }
 
@@ -150,9 +169,10 @@ describe('Charts catalog example workspaces', () => {
     assert.throws(() =>
       createChartsCatalogExampleDefinition({
         ...base,
-        entryPath: 'cases/another-case/tanstack.ts',
+        entryPath: 'cases/another-case/example.tsx',
         files: {
-          'cases/another-case/tanstack.ts': 'export function mount() {}',
+          'cases/another-case/example.tsx':
+            'export default function Example() {}',
         },
       }),
     )
@@ -160,8 +180,8 @@ describe('Charts catalog example workspaces', () => {
       createChartsCatalogExampleDefinition({
         ...base,
         files: {
-          'cases/bar-vertical-sorted/tanstack.ts': 'first',
-          'benchmarks/conformance/cases/bar-vertical-sorted/tanstack.ts':
+          'cases/bar-vertical-sorted/example.tsx': 'first',
+          'benchmarks/conformance/cases/bar-vertical-sorted/example.tsx':
             'second',
         },
       }),
@@ -170,7 +190,7 @@ describe('Charts catalog example workspaces', () => {
       createChartsCatalogExampleDefinition({
         ...base,
         files: {
-          'cases/bar-vertical-sorted/tanstack.ts': 'entry',
+          'cases/bar-vertical-sorted/example.tsx': 'entry',
           'cases/bar-vertical-sorted/../other.ts': 'unsafe',
         },
       }),

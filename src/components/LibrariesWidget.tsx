@@ -4,6 +4,7 @@ import { publicLibraries } from '~/libraries'
 const featuredLibraries = publicLibraries.slice(0, 8).map((library) => ({
   id: library.id,
   name: library.name,
+  to: library.to,
 }))
 
 export function LibrariesWidget() {
@@ -18,8 +19,7 @@ export function LibrariesWidget() {
         {featuredLibraries.map((library) => (
           <Link
             key={library.id}
-            to="/$libraryId"
-            params={{ libraryId: library.id }}
+            to={library.to as never}
             className="text-xs opacity-70 hover:opacity-100 hover:underline"
           >
             {library.name.replace('TanStack ', '')}

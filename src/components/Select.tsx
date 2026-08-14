@@ -66,7 +66,7 @@ export function Select<T extends SelectOption>({
             ) : null}
             <span className="truncate font-medium">{selectedOption.label}</span>
             {selectedOption.badge ? (
-              <Badge variant="success">{selectedOption.badge}</Badge>
+              <Badge>{selectedOption.badge}</Badge>
             ) : null}
             <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
               <CaretUpDownIcon
@@ -97,9 +97,7 @@ export function Select<T extends SelectOption>({
                 />
               ) : null}
               <span className="truncate">{option.label}</span>
-              {option.badge ? (
-                <Badge variant="success">{option.badge}</Badge>
-              ) : null}
+              {option.badge ? <Badge>{option.badge}</Badge> : null}
               {selected === option.value ? (
                 <CheckIcon
                   className="h-4 w-4 absolute right-2 text-gray-800 dark:text-gray-400"

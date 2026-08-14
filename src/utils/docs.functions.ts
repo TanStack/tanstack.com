@@ -525,12 +525,28 @@ export const fetchClientExampleFiles = createServerFn({ method: 'GET' })
     }
 
     const library = getLibrary(config.libraryId)
-    const { fetchExampleFiles } = await loadGitHubExampleServerModule()
-    const result = await fetchExampleFiles(
-      library.repo,
-      getBranch(library, data.version),
-      `examples/${config.framework}/${config.slug}`,
-    )
+    const gitRef = getBranch(library, data.version)
+    const examplePath = `examples/${config.framework}/${config.slug}`
+    const {
+      ensureCacheableFetchExampleFilesResponse,
+      fetchExampleFiles,
+      isFetchExampleFilesResponse,
+    } = await loadGitHubExampleServerModule()
+    const { getCachedDocsArtifact } = await loadGitHubContentCacheServerModule()
+    const result = await getCachedDocsArtifact({
+      artifactKey: 'workspace-v1',
+      artifactType: 'client-example',
+      build: async () =>
+        ensureCacheableFetchExampleFilesResponse(
+          await fetchExampleFiles(library.repo, gitRef, examplePath, {
+            preserveBinary: true,
+          }),
+        ),
+      docsRoot: examplePath,
+      gitRef,
+      isValue: isFetchExampleFilesResponse,
+      repo: library.repo,
+    })
 
     setDocsCacheHeaders('public, max-age=300, stale-while-revalidate=300')
 

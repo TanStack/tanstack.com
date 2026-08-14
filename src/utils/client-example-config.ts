@@ -1,9 +1,12 @@
 import type { Framework, LibraryId } from '../libraries/types'
+import type { ExampleRuntime } from './example-workspace'
 
 type ClientExampleConfig = {
+  autoStart?: boolean
   entry: string
   framework: Framework
   libraryId: LibraryId
+  runtime?: ExampleRuntime
   slug: string
 }
 
@@ -32,20 +35,7 @@ const clientExampleConfigs: ReadonlyArray<ClientExampleConfig> = [
     entry: '/src/main.tsx',
     framework: 'react',
     libraryId: 'virtual',
-    slugs: [
-      'chat',
-      'dynamic',
-      'fixed',
-      'infinite-scroll',
-      'padding',
-      'pretext',
-      'scroll-padding',
-      'smooth-scroll',
-      'sticky',
-      'table',
-      'variable',
-      'window',
-    ],
+    slugs: ['chat', 'fixed', 'pretext', 'table', 'window'],
   }),
   {
     entry: '/src/main.ts',
@@ -75,7 +65,6 @@ const clientExampleConfigs: ReadonlyArray<ClientExampleConfig> = [
       'useAsyncBatcher',
       'useAsyncDebouncedCallback',
       'useAsyncDebouncer',
-      'useAsyncQueuedState',
       'useAsyncQueuer',
       'useAsyncRateLimiter',
       'useAsyncThrottledCallback',
@@ -86,7 +75,6 @@ const clientExampleConfigs: ReadonlyArray<ClientExampleConfig> = [
       'useDebouncedState',
       'useDebouncedValue',
       'useDebouncer',
-      'useQueuedState',
       'useQueuedValue',
       'useQueuer',
       'useRateLimitedCallback',
@@ -145,14 +133,7 @@ const clientExampleConfigs: ReadonlyArray<ClientExampleConfig> = [
     entry: '/src/index.tsx',
     framework: 'react',
     libraryId: 'query',
-    slugs: [
-      'algolia',
-      'basic-graphql-request',
-      'default-query-function',
-      'devtools-panel',
-      'playground',
-      'simple',
-    ],
+    slugs: ['algolia', 'devtools-panel', 'playground', 'simple'],
   }),
   {
     entry: '/src/main.tsx',
@@ -186,7 +167,6 @@ const clientExampleConfigs: ReadonlyArray<ClientExampleConfig> = [
       'basic-external-state',
       'basic-subscribe',
       'basic-use-app-table',
-      'basic-use-legacy-table',
       'basic-use-table',
       'cell-spanning',
       'column-dnd',
@@ -234,6 +214,57 @@ const clientExampleConfigs: ReadonlyArray<ClientExampleConfig> = [
     framework: 'react',
     libraryId: 'db',
     slug: 'paced-mutations-demo',
+  },
+  {
+    autoStart: true,
+    entry: '/src/routes/index.tsx',
+    framework: 'react',
+    libraryId: 'router',
+    runtime: {
+      type: 'webcontainer',
+      install: { command: 'pnpm', args: ['install'] },
+      start: { command: 'pnpm', args: ['run', 'dev'] },
+    },
+    slug: 'basic-ssr-file-based',
+  },
+  {
+    autoStart: true,
+    entry: '/src/routes/index.tsx',
+    framework: 'react',
+    libraryId: 'start',
+    runtime: {
+      type: 'webcontainer',
+      compatibility: 'tanstack-start-async-context',
+      install: { command: 'pnpm', args: ['install'] },
+      start: { command: 'pnpm', args: ['run', 'dev'] },
+    },
+    slug: 'start-counter',
+  },
+  {
+    autoStart: true,
+    entry: '/src/routes/index.tsx',
+    framework: 'react',
+    libraryId: 'start',
+    runtime: {
+      type: 'webcontainer',
+      compatibility: 'tanstack-start-async-context',
+      install: { command: 'pnpm', args: ['install'] },
+      start: { command: 'pnpm', args: ['run', 'dev'] },
+    },
+    slug: 'start-basic',
+  },
+  {
+    autoStart: true,
+    entry: '/src/routes/index.tsx',
+    framework: 'react',
+    libraryId: 'start',
+    runtime: {
+      type: 'webcontainer',
+      compatibility: 'tanstack-start-async-context',
+      install: { command: 'pnpm', args: ['install'] },
+      start: { command: 'pnpm', args: ['run', 'dev'] },
+    },
+    slug: 'start-streaming-data-from-server-functions',
   },
 ]
 

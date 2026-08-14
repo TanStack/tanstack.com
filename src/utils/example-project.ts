@@ -3,6 +3,7 @@ import {
   parseExampleWorkspace,
   serializeExampleWorkspace,
   type ExampleDefinition,
+  type ExampleRuntime,
   type ExampleWorkspace,
 } from './example-workspace'
 
@@ -13,6 +14,7 @@ export type SharedExampleProject = {
   title: string
   description: string
   initialFile?: string
+  runtime?: ExampleRuntime
   workspace: ExampleWorkspace
 }
 
@@ -20,11 +22,13 @@ export function createSharedExampleProject({
   title,
   description = '',
   initialFile,
+  runtime,
   workspace,
 }: {
   title: string
   description?: string
   initialFile?: string
+  runtime?: ExampleRuntime
   workspace: ExampleWorkspace
 }): SharedExampleProject {
   return {
@@ -32,6 +36,7 @@ export function createSharedExampleProject({
     title,
     description,
     ...(initialFile ? { initialFile } : {}),
+    ...(runtime ? { runtime } : {}),
     workspace,
   }
 }
@@ -42,6 +47,7 @@ export function serializeSharedExampleProject(project: SharedExampleProject) {
     title: project.title,
     description: project.description,
     ...(project.initialFile ? { initialFile: project.initialFile } : {}),
+    ...(project.runtime ? { runtime: project.runtime } : {}),
     workspace: JSON.parse(serializeExampleWorkspace(project.workspace)),
   })
 }
@@ -56,6 +62,7 @@ export function parseSharedExampleProject(
       'title',
       'description',
       'initialFile',
+      'runtime',
       'workspace',
     ]) ||
     value.version !== sharedExampleProjectVersion ||
@@ -63,7 +70,8 @@ export function parseSharedExampleProject(
     typeof value.description !== 'string' ||
     (value.initialFile !== undefined &&
       (typeof value.initialFile !== 'string' ||
-        !isCanonicalExamplePath(value.initialFile)))
+        !isCanonicalExamplePath(value.initialFile))) ||
+    (value.runtime !== undefined && !isExampleRuntime(value.runtime))
   ) {
     throw new Error('Invalid shared example project')
   }
@@ -80,6 +88,7 @@ export function parseSharedExampleProject(
     title: value.title,
     description: value.description,
     initialFile: value.initialFile,
+    runtime: value.runtime,
     workspace,
   })
 }
@@ -93,8 +102,32 @@ export function sharedProjectToExampleDefinition(
     title: project.title,
     ...(project.description ? { description: project.description } : {}),
     ...(project.initialFile ? { initialFile: project.initialFile } : {}),
+    ...(project.runtime ? { runtime: project.runtime } : {}),
     workspace: project.workspace,
   }
+}
+
+function isExampleRuntime(value: unknown): value is ExampleRuntime {
+  return (
+    isRecord(value) &&
+    hasOnlyKeys(value, ['type', 'compatibility', 'install', 'start']) &&
+    value.type === 'webcontainer' &&
+    (value.compatibility === undefined ||
+      value.compatibility === 'tanstack-start-async-context') &&
+    isExampleRuntimeCommand(value.install) &&
+    isExampleRuntimeCommand(value.start)
+  )
+}
+
+function isExampleRuntimeCommand(value: unknown) {
+  return (
+    isRecord(value) &&
+    hasOnlyKeys(value, ['command', 'args']) &&
+    typeof value.command === 'string' &&
+    value.command.trim().length > 0 &&
+    Array.isArray(value.args) &&
+    value.args.every((arg) => typeof arg === 'string')
+  )
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

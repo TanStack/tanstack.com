@@ -4,7 +4,10 @@ import test from 'node:test'
 import { getBlobStorage } from '../src/server/runtime/blob-storage.server'
 import { runWithHostRuntimeEnv } from '../src/server/runtime/host.server'
 import { createSharedExampleProject } from '../src/utils/example-project'
-import { createExampleWorkspace } from '../src/utils/example-workspace'
+import {
+  createExampleWorkspace,
+  encodeExampleBinaryFile,
+} from '../src/utils/example-workspace'
 import {
   getNotebookProjectObject,
   NotebookProjectQuarantinedError,
@@ -226,5 +229,25 @@ test('rejects projects over the per-file byte limit', () => {
   assert.throws(
     () => parseStoredNotebookProject(project),
     /Notebook file exceeds 512 KiB/,
+  )
+})
+
+test('applies the per-file byte limit to decoded binary files', () => {
+  const project = createSharedExampleProject({
+    title: 'Storage test',
+    workspace: createExampleWorkspace({
+      binaryFiles: {
+        '/public/favicon.ico': encodeExampleBinaryFile(
+          new Uint8Array(512 * 1024 + 1),
+        ),
+      },
+      entry: '/src/index.tsx',
+      files: { '/src/index.tsx': 'export default 42' },
+    }),
+  })
+
+  assert.throws(
+    () => parseStoredNotebookProject(project),
+    /Notebook file exceeds 512 KiB: \/public\/favicon\.ico/,
   )
 })

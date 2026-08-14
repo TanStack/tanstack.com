@@ -33,7 +33,7 @@ import {
   type DeployProvider,
 } from '~/components/ExampleDeployDialog'
 import { getDocsCacheHeaders } from '~/utils/docs-cache-headers'
-import { stackBlitzEmbedHeaders } from '~/utils/stackblitz-embed'
+import { getExampleRuntimeHeaders } from '~/utils/stackblitz-embed'
 import {
   type DeploymentProviderId,
   useDeploymentProviderPlacement,
@@ -162,11 +162,14 @@ export const Route = createFileRoute(
 
         return {
           kind: 'client' as const,
+          autoStart: clientConfig.autoStart,
           definition: createRepositoryExampleDefinition({
+            binaryFiles: result.binaryFiles,
             entry: clientConfig.entry,
             files: result.files,
             id: `${params.libraryId}-${framework}-${params._splat}`,
             initialFile: getExampleWorkspacePath(path, repoStartingDirPath),
+            runtime: clientConfig.runtime,
             title: slugToTitle(params._splat || ''),
           }),
         }
@@ -265,17 +268,18 @@ export const Route = createFileRoute(
   },
   headers: ({ params }) => {
     const { libraryId, version } = params
+    const config = getClientExampleConfig({
+      framework: params.framework,
+      libraryId,
+      slug: params._splat ?? '',
+      version,
+    })
 
     return {
       ...getDocsCacheHeaders({ libraryId, version }),
-      ...(getClientExampleConfig({
-        framework: params.framework,
-        libraryId,
-        slug: params._splat ?? '',
-        version,
-      })
-        ? {}
-        : stackBlitzEmbedHeaders),
+      ...getExampleRuntimeHeaders(
+        config ? (config.runtime?.type ?? 'esbuild') : 'external',
+      ),
     }
   },
   staleTime: 1000 * 60 * 5, // 5 minutes
@@ -288,6 +292,7 @@ function RouteComponent() {
   return data.kind === 'client' ? (
     <ClientExamplePage
       key={`client-page-${_splat}`}
+      autoStart={data.autoStart}
       definition={data.definition}
     />
   ) : (
@@ -569,12 +574,33 @@ function ExternalExamplePage({
   )
 }
 
-function ClientExamplePage({ definition }: { definition: ExampleDefinition }) {
+function ClientExamplePage({
+  autoStart,
+  definition,
+}: {
+  autoStart?: boolean
+  definition: ExampleDefinition
+}) {
   const { version, framework, _splat, libraryId } = Route.useParams()
   const library = getLibrary(libraryId)
   const branch = getBranch(library, version)
   const examplePath = [framework, _splat].join('/')
   const githubUrl = `https://github.com/${library.repo}/tree/${branch}/examples/${examplePath}`
+  const initialFile = (
+    definition.initialFile ?? definition.workspace.entry
+  ).replace(/^\//, '')
+  const fallbackAction =
+    definition.runtime?.type !== 'webcontainer'
+      ? undefined
+      : library.hideCodesandboxUrl
+        ? {
+            label: 'Open in StackBlitz',
+            url: `https://stackblitz.com/github/${library.repo}/tree/${branch}/examples/${examplePath}?preset=node&file=${encodeURIComponent(initialFile)}`,
+          }
+        : {
+            label: 'Open in CodeSandbox',
+            url: `https://codesandbox.io/p/devbox/github/${library.repo}/tree/${branch}/examples/${examplePath}?file=${encodeURIComponent(initialFile)}`,
+          }
   const fallback = <ClientExampleFallback definition={definition} />
 
   return (
@@ -598,7 +624,9 @@ function ClientExamplePage({ definition }: { definition: ExampleDefinition }) {
         <ClientOnly fallback={fallback}>
           <React.Suspense fallback={fallback}>
             <LazyExampleWorkbench
+              autoRun={autoStart}
               definition={definition}
+              fallbackAction={fallbackAction}
               filesInitiallyOpen
               libraryColor={library.bgStyle}
             />

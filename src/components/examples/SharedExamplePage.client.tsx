@@ -59,7 +59,7 @@ export function SharedExamplePage({ hash }: { hash?: string }) {
           </p>
         ) : null}
       </header>
-      <ExampleWorkbench definition={definition} />
+      <ExampleWorkbench allowSharing definition={definition} />
     </main>
   )
 }

@@ -58,6 +58,12 @@ const queryHeroRows = [
 
 const queryHeroKey = (id: string) => ['issues', id] as const
 
+const queryHeroStateClass = {
+  fetching: 'bg-amber-400 text-amber-950',
+  fresh: 'bg-emerald-500 text-emerald-950',
+  stale: 'bg-[var(--landing-accent)] text-[var(--landing-accent-ink)]',
+} as const
+
 function waitForQueryHero(ms: number) {
   return new Promise<void>((resolve) => {
     setTimeout(resolve, ms)
@@ -268,6 +274,11 @@ function QueryCachePanel() {
       ...row,
       query,
       issue: query.data,
+      state: query.isFetching
+        ? ('fetching' as const)
+        : query.isStale
+          ? ('stale' as const)
+          : ('fresh' as const),
       // Drains from 100% to 0% across this row's own `staleTime`.
       freshness:
         query.dataUpdatedAt > 0
@@ -279,11 +290,11 @@ function QueryCachePanel() {
     }
   })
   const selected = rows.find((row) => row.id === selectedId) ?? rows[0]!
-  const cacheState = selected.query.isFetching
-    ? 'fetching'
-    : selected.query.isStale
-      ? 'stale'
-      : 'fresh'
+  // The header summarises all three entries; each row carries its own badge.
+  const freshCount = rows.filter((row) => row.state === 'fresh').length
+  const fetchingCount = rows.filter((row) => row.state === 'fetching').length
+  const cacheState =
+    fetchingCount > 0 ? 'fetching' : freshCount > 0 ? 'fresh' : 'stale'
   const fetchedLabel =
     selected.query.dataUpdatedAt > 0
       ? `${Math.max(0, Math.round((Math.max(now, selected.query.dataUpdatedAt) - selected.query.dataUpdatedAt) / 1000))}s ago`
@@ -317,18 +328,12 @@ function QueryCachePanel() {
         <div className="space-y-3 border-border-subtle p-4 lg:border-r">
           <div className="mb-4 flex flex-wrap items-center gap-2 font-ds-mono text-ds-mono-caps-xs uppercase">
             <span
-              className={
-                cacheState === 'fresh'
-                  ? 'rounded-sm bg-emerald-500 px-2 py-1 text-emerald-950'
-                  : cacheState === 'fetching'
-                    ? 'rounded-sm bg-amber-400 px-2 py-1 text-amber-950'
-                    : 'rounded-sm bg-[var(--landing-accent)] px-2 py-1 text-[var(--landing-accent-ink)]'
-              }
+              className={`rounded-sm px-2 py-1 ${queryHeroStateClass[cacheState]}`}
             >
               {cacheState}
             </span>
             <span className="rounded-sm bg-text-primary/5 px-2 py-1 text-text-primary/35">
-              rev {selected.issue.revision} / {fetchedLabel}
+              {freshCount}/{rows.length} fresh
             </span>
           </div>
 
@@ -349,8 +354,15 @@ function QueryCachePanel() {
                     {row.issue.title}
                   </span>
                 </span>
-                <span className="shrink-0 rounded bg-[var(--landing-accent)] px-2 py-1 font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-ink)]">
-                  P{row.issue.priority}
+                <span className="flex shrink-0 items-center gap-1.5">
+                  <span
+                    className={`rounded px-2 py-1 font-ds-mono text-ds-mono-2xs uppercase ${queryHeroStateClass[row.state]}`}
+                  >
+                    {row.state}
+                  </span>
+                  <span className="rounded bg-[var(--landing-accent)] px-2 py-1 font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-ink)]">
+                    P{row.issue.priority}
+                  </span>
                 </span>
               </span>
               <span className="mt-4 flex items-center gap-3">
@@ -433,6 +445,7 @@ function QueryCachePanel() {
                 label: 'staleTime',
                 value: selected.staleTime.toLocaleString('en-US'),
               },
+              { label: 'updated', value: fetchedLabel },
               { label: 'mutation', value: bumpMutation.status },
             ].map((fact) => (
               <div key={fact.label} className="flex justify-between gap-3">

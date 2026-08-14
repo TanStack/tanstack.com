@@ -1,10 +1,13 @@
 import { redirect, createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_library/$libraryId/')({
-  beforeLoad: ({ params }) => {
+  beforeLoad: ({ params, location }) => {
     throw redirect({
-      to: '/$libraryId/$version',
-      params: { libraryId: params.libraryId, version: 'latest' } as never,
+      href: location.href.replace(
+        `/${params.libraryId}`,
+        `/${params.libraryId}/latest`,
+      ),
+      statusCode: 308,
     })
   },
 })

@@ -5,6 +5,7 @@ import { getDocsManifest } from '~/utils/docs'
 import { getPartnerSitemapEntries } from '~/utils/partner-pages'
 import { SITE_URL } from '~/utils/site'
 import { getChartsCatalogSitemapEntries } from './charts-catalog'
+import { getLibraryLandingSitemapEntries } from './library-sitemap'
 
 export type SitemapEntry = {
   path: string
@@ -45,20 +46,6 @@ function escapeXml(value: string) {
 
 function asLastModified(value: string) {
   return new Date(`${value}T12:00:00.000Z`).toISOString()
-}
-
-function getLibraryEntries(): Array<SitemapEntry> {
-  return libraries.flatMap((library) => {
-    if (
-      library.visible === false ||
-      !library.latestVersion ||
-      library.sitemap?.includeLandingPage !== true
-    ) {
-      return []
-    }
-    const basePath = `/${library.id}/latest`
-    return [{ path: basePath }]
-  })
 }
 
 function isHighValueDocsSlug(slug: string) {
@@ -117,7 +104,7 @@ export async function getSitemapEntries(): Promise<Array<SitemapEntry>> {
 
   const entries = [
     ...HIGH_VALUE_NON_DOC_PAGES.map((path) => ({ path })),
-    ...getLibraryEntries(),
+    ...getLibraryLandingSitemapEntries(),
     ...docsEntries.flat(),
     ...getBlogEntries(),
     ...getPartnerSitemapEntries(),

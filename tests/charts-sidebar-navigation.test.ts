@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import {
+  getLibraryLayoutVersion,
   getLibraryTabLinkOptions,
   getMenuGroupInitialOpenState,
   isChartsCatalogTarget,
@@ -9,6 +10,34 @@ assert.equal(isChartsCatalogTarget('/charts/catalog'), true)
 assert.equal(isChartsCatalogTarget('/charts/catalog/charts/01-line'), true)
 assert.equal(isChartsCatalogTarget('/charts/catalog/collections/shadcn'), true)
 assert.equal(isChartsCatalogTarget('/charts/catalogue'), false)
+
+assert.equal(
+  getLibraryLayoutVersion({
+    layoutVersion: 'v0',
+    pathname: '/charts/catalog',
+    routeVersion: undefined,
+  }),
+  'latest',
+  'the versionless catalog generates canonical docs links instead of redirecting version aliases',
+)
+assert.equal(
+  getLibraryLayoutVersion({
+    layoutVersion: 'v0',
+    pathname: '/charts/v0/docs/overview',
+    routeVersion: 'v0',
+  }),
+  'v0',
+  'versioned docs retain their requested version',
+)
+assert.equal(
+  getLibraryLayoutVersion({
+    layoutVersion: 'v1',
+    pathname: '/table',
+    routeVersion: undefined,
+  }),
+  'v1',
+  'other versionless library pages retain their layout version',
+)
 
 assert.deepEqual(
   getLibraryTabLinkOptions({

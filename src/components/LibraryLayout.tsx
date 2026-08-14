@@ -38,6 +38,7 @@ import { Card } from './Card'
 import { PartnersRail, RightRail } from './RightRail'
 import { trackEvent, useTrackedImpression } from '~/utils/analytics'
 import {
+  getLibraryLayoutVersion,
   getLibraryTabLinkOptions,
   getMenuGroupInitialOpenState,
   isChartsCatalogTarget,
@@ -812,14 +813,16 @@ export function LibraryLayout({
   isLandingPage = false,
 }: LibraryLayoutProps) {
   const { _splat, version: routeVersion } = useParams({ strict: false })
-  const version =
-    typeof routeVersion === 'string' ? routeVersion : layoutVersion
+  const matches = useMatches()
+  const lastMatch = last(matches)
+  const version = getLibraryLayoutVersion({
+    layoutVersion,
+    pathname: lastMatch.pathname,
+    routeVersion,
+  })
   const menuConfig = useMenuConfig({ config, frameworks, repo, libraryId })
   const LibraryIcon = libraryIcons[libraryId] ?? fallbackLibraryIcon
   const libraryGroupColor = categoryTextColor[categoryOf(libraryId)]
-
-  const matches = useMatches()
-  const lastMatch = last(matches)
 
   const isExample = matches.some(
     (d) =>

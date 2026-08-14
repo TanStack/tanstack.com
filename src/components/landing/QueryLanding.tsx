@@ -31,6 +31,13 @@ type QueryHeroMutationContext = {
 
 // Each row is its own cache entry with its own `staleTime`, so the three
 // gauges drain at different rates and go stale independently.
+type QueryHeroRow = {
+  id: string
+  refetchInterval: number
+  seed: QueryHeroIssue
+  staleTime: number
+}
+
 const queryHeroRows = [
   {
     id: 'router-cache',
@@ -50,14 +57,19 @@ const queryHeroRows = [
     refetchInterval: 15000,
     seed: { priority: 0, revision: 0, title: 'Offline mutation queue' },
   },
-] satisfies ReadonlyArray<{
-  id: string
-  refetchInterval: number
-  seed: QueryHeroIssue
-  staleTime: number
-}>
+] satisfies readonly [QueryHeroRow, ...QueryHeroRow[]]
 
 const queryHeroKey = (id: string) => ['issues', id] as const
+
+// Shared so the optimistic write and the server-side one cannot drift apart.
+// Wraps instead of clamping so repeated bumps always visibly move.
+function bumpQueryHeroIssue(issue: QueryHeroIssue): QueryHeroIssue {
+  return {
+    ...issue,
+    priority: issue.priority >= 99 ? 0 : issue.priority + 1,
+    revision: issue.revision + 1,
+  }
+}
 
 type QueryHeroState = 'fetching' | 'fresh' | 'stale'
 
@@ -200,7 +212,6 @@ function QueryCachePanel() {
   const prefersReducedMotion = usePrefersReducedMotion()
   const queryClient = useQueryClient()
   const { notify } = useToast()
-  // One server-side record per key, so the three queries return distinct data.
   const serverRowsRef = React.useRef<Record<string, QueryHeroIssue>>(
     Object.fromEntries(queryHeroRows.map((row) => [row.id, { ...row.seed }])),
   )
@@ -228,8 +239,6 @@ function QueryCachePanel() {
     })),
   })
 
-  // Query tracks in-flight fetches across the whole client, so the header does
-  // not have to tally the rows itself.
   const fetchingCount = useIsFetching({ queryKey: ['issues'] })
 
   const bumpMutation = useMutation<
@@ -247,13 +256,7 @@ function QueryCachePanel() {
         throw new Error('Write rejected by the server')
       }
 
-      const current = serverRowsRef.current[id]!
-      const next = {
-        ...current,
-        // Wraps instead of clamping so repeated bumps always visibly move.
-        priority: current.priority >= 99 ? 0 : current.priority + 1,
-        revision: current.revision + 1,
-      }
+      const next = bumpQueryHeroIssue(serverRowsRef.current[id]!)
       serverRowsRef.current[id] = next
 
       return next
@@ -264,14 +267,7 @@ function QueryCachePanel() {
         queryHeroKey(id),
       )
 
-      const optimistic = previous
-        ? {
-            ...previous,
-            // Wraps instead of clamping so repeated bumps always visibly move.
-            priority: previous.priority >= 99 ? 0 : previous.priority + 1,
-            revision: previous.revision + 1,
-          }
-        : undefined
+      const optimistic = previous ? bumpQueryHeroIssue(previous) : undefined
 
       if (optimistic) {
         queryClient.setQueryData<QueryHeroIssue>(queryHeroKey(id), optimistic)
@@ -294,28 +290,23 @@ function QueryCachePanel() {
         { id: 'query-landing-rollback' },
       )
     },
-    // Only the mutated key is invalidated; the other rows keep their own
-    // freshness windows.
     onSettled: (_data, _error, id) =>
       queryClient.invalidateQueries({ queryKey: queryHeroKey(id) }),
   })
 
   const rows = queryHeroRows.map((row, index) => {
-    const query = rowQueries[index]!
-    const elapsed = query.dataUpdatedAt > 0 ? now - query.dataUpdatedAt : 0
+    const query = rowQueries[index]
+    const elapsed = now - query.dataUpdatedAt
     return {
       ...row,
       query,
       issue: query.data,
       state: queryHeroState(query),
-      // Read from the cache rather than seeded, so it reflects the components
-      // actually subscribed to this key.
       observers:
         queryClient
           .getQueryCache()
           .find({ queryKey: queryHeroKey(row.id) })
           ?.getObserversCount() ?? 0,
-      // Drains from 100% to 0% across this row's own `staleTime`.
       freshness:
         query.dataUpdatedAt > 0
           ? Math.max(
@@ -325,14 +316,15 @@ function QueryCachePanel() {
           : 100,
     }
   })
-  const selected = rows.find((row) => row.id === selectedId) ?? rows[0]!
-  // The header summarises all three entries; each row carries its own badge.
+  const selected = rows.find((row) => row.id === selectedId) ?? rows[0]
   const freshCount = rows.filter((row) => row.state === 'fresh').length
   const cacheState =
     fetchingCount > 0 ? 'fetching' : freshCount > 0 ? 'fresh' : 'stale'
+  // `now` only ticks once a second, so it can trail a just-refetched
+  // `dataUpdatedAt`; clamping keeps the readout off negative seconds.
   const fetchedLabel =
     selected.query.dataUpdatedAt > 0
-      ? `${Math.max(0, Math.round((Math.max(now, selected.query.dataUpdatedAt) - selected.query.dataUpdatedAt) / 1000))}s ago`
+      ? `${Math.max(0, Math.round((now - selected.query.dataUpdatedAt) / 1000))}s ago`
       : 'primed'
 
   React.useEffect(() => {

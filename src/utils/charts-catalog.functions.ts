@@ -1,11 +1,19 @@
 import { createServerFn } from '@tanstack/react-start'
 import { setResponseHeader } from '@tanstack/react-start/server'
 import * as v from 'valibot'
-import { chartsCatalogCaseIdSchema } from './charts-catalog'
+import {
+  chartsCatalogCaseIdSchema,
+  chartsCatalogCollectionIdSchema,
+  findChartsCatalogCollection,
+} from './charts-catalog'
 import { chartsCatalogIndexCacheHeaders } from './charts-catalog-index'
 
 const caseInputSchema = v.strictObject({
   caseId: chartsCatalogCaseIdSchema,
+})
+
+const collectionInputSchema = v.strictObject({
+  collectionId: chartsCatalogCollectionIdSchema,
 })
 
 const embedCaseInputSchema = v.strictObject({
@@ -25,6 +33,26 @@ export const getChartsCatalogAll = createServerFn({ method: 'GET' }).handler(
     }
   },
 )
+
+export const getChartsCatalogCollection = createServerFn({ method: 'GET' })
+  .validator(collectionInputSchema)
+  .handler(async ({ data }) => {
+    const collection = findChartsCatalogCollection(data.collectionId)
+    if (!collection) return null
+
+    const publication = await loadPublication()
+    const cases = publication.index.cases.filter(
+      (catalogCase) => catalogCase.collection === collection.id,
+    )
+    if (cases.length === 0) return null
+
+    setCatalogResponseHeaders()
+    return {
+      collection,
+      revision: publication.revision,
+      cases,
+    }
+  })
 
 export const getChartsCatalogLanding = createServerFn({
   method: 'GET',

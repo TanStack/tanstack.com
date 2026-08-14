@@ -6,6 +6,7 @@ import {
 
 assert.equal(isChartsCatalogTarget('/charts/catalog'), true)
 assert.equal(isChartsCatalogTarget('/charts/catalog/charts/01-line'), true)
+assert.equal(isChartsCatalogTarget('/charts/catalog/collections/shadcn'), true)
 assert.equal(isChartsCatalogTarget('/charts/catalogue'), false)
 
 const groups = [

@@ -57,11 +57,11 @@ export const label = 'Count'
   assert.equal(workspace.environment, 'charts-react')
   assert.equal(
     workspace.imports?.['@tanstack/charts'],
-    'https://esm.sh/@tanstack/charts@0.10.0',
+    'https://esm.sh/@tanstack/charts@0.13.0',
   )
   assert.equal(
     workspace.imports?.['@tanstack/charts/react'],
-    'https://esm.sh/@tanstack/charts@0.10.0/react?external=react,react-dom',
+    'https://esm.sh/@tanstack/charts@0.13.0/react?external=react,react-dom',
   )
   assert.equal(workspace.imports?.react, 'https://esm.sh/react@19.2.3')
   assert.deepEqual(Object.keys(workspace.files).sort(), [

@@ -61,6 +61,9 @@ const queryHeroRows = [
 
 const queryHeroKey = (id: string) => ['issues', id] as const
 
+// How long a refetched row takes to sweep back up to its freshness value.
+const queryHeroRefillMs = 500
+
 // Shared so the optimistic write and the server-side one cannot drift apart.
 // Wraps instead of clamping so repeated bumps always visibly move.
 function bumpQueryHeroIssue(issue: QueryHeroIssue): QueryHeroIssue {
@@ -297,9 +300,16 @@ function QueryCachePanel() {
   const rows = queryHeroRows.map((row, index) => {
     const query = rowQueries[index]
     const elapsed = now - query.dataUpdatedAt
-    // A just-refetched row is held at full while the refill transition plays,
-    // so the bar lands on 100% before the per-frame drain takes over.
-    const isRefilling = query.dataUpdatedAt > 0 && elapsed < 220
+    // Drained value at this instant, before the refill sweep is applied.
+    const drained =
+      query.dataUpdatedAt > 0
+        ? Math.max(0, Math.min(100, (1 - elapsed / row.staleTime) * 100))
+        : 100
+    // A refetch sweeps the bar back up over `queryHeroRefillMs`, then hands
+    // off to the drain. Interpolating here rather than with a CSS transition
+    // keeps the two continuous: the sweep ends exactly on the drained value.
+    const refillProgress =
+      query.dataUpdatedAt > 0 ? Math.min(1, elapsed / queryHeroRefillMs) : 1
     return {
       ...row,
       query,
@@ -311,17 +321,7 @@ function QueryCachePanel() {
           .find({ queryKey: queryHeroKey(row.id) })
           ?.getObserversCount() ?? 0,
       // Kept fractional so per-frame movement is not rounded away.
-      freshness:
-        query.dataUpdatedAt > 0 && !isRefilling
-          ? Math.max(
-              0,
-              Math.min(
-                100,
-                Math.round((1 - elapsed / row.staleTime) * 1000) / 10,
-              ),
-            )
-          : 100,
-      isRefilling,
+      freshness: Math.round(drained * refillProgress * 10) / 10,
     }
   })
   const selected = rows.find((row) => row.id === selectedId) ?? rows[0]
@@ -413,14 +413,7 @@ function QueryCachePanel() {
               <span className="mt-4 flex items-center gap-3">
                 <span className="h-1 flex-1 overflow-hidden rounded-full bg-text-primary/5">
                   <span
-                    // The drain is interpolated per frame, so only the refill
-                    // needs a transition — and a short one, or the bar would
-                    // start draining before it reaches full.
-                    className={`block h-full rounded-full bg-[var(--landing-accent)] ease-linear ${
-                      row.isRefilling
-                        ? 'transition-[width] duration-200 motion-reduce:transition-none'
-                        : ''
-                    }`}
+                    className="block h-full rounded-full bg-[var(--landing-accent)]"
                     style={{ width: `${row.freshness}%` }}
                   />
                 </span>

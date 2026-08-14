@@ -1,4 +1,5 @@
 import { SITE_URL } from '~/utils/site'
+import { findLibrary } from '~/libraries/libraries'
 
 const NON_INDEXABLE_PATH_PREFIXES = [
   '/account',
@@ -32,6 +33,18 @@ export function getCanonicalPath(path: string) {
     )
   ) {
     return null
+  }
+
+  const [, libraryId, version, ...remainingSegments] = normalizedPath.split('/')
+  const library = libraryId ? findLibrary(libraryId) : undefined
+
+  // Numbered and historical landing pages render independently, but all of
+  // them consolidate their indexing and social URL signals onto /latest.
+  if (
+    library?.availableVersions.concat('latest').includes(version!) &&
+    remainingSegments.length === 0
+  ) {
+    return `/${library.id}/latest`
   }
 
   return normalizedPath

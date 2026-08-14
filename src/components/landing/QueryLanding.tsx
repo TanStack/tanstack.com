@@ -3,6 +3,7 @@ import {
   useIsFetching,
   useMutation,
   useQueries,
+  useQuery,
   useQueryClient,
 } from '@tanstack/react-query'
 import {
@@ -63,6 +64,85 @@ function waitForQueryHero(ms: number) {
   return new Promise<void>((resolve) => {
     setTimeout(resolve, ms)
   })
+}
+
+/**
+ * Subscribes to the selected row's key rather than receiving its data as a
+ * prop. That is what a second component reading the same cache entry looks
+ * like in a real app, and it is why `observers` reads 2 for the selected row
+ * and 1 for the others.
+ */
+function QueryHeroDetail({
+  id,
+  mutationStatus,
+  now,
+  staleTime,
+}: {
+  id: string
+  mutationStatus: string
+  now: number
+  staleTime: number
+}) {
+  const queryClient = useQueryClient()
+  const detailQuery = useQuery({
+    queryKey: queryHeroKey(id),
+    // No `queryFn` — the panel owns fetching; this observer only reads.
+    enabled: false,
+    staleTime,
+  })
+  // Read after paint: during render this observer has not registered yet, so
+  // the count would lag by one on the first render after `id` changes.
+  const [observers, setObservers] = React.useState(0)
+
+  React.useEffect(() => {
+    const read = () =>
+      setObservers(
+        queryClient
+          .getQueryCache()
+          .find({ queryKey: queryHeroKey(id) })
+          ?.getObserversCount() ?? 0,
+      )
+
+    read()
+    return queryClient.getQueryCache().subscribe(read)
+  }, [id, queryClient])
+
+  const updatedLabel =
+    detailQuery.dataUpdatedAt > 0
+      ? `${Math.max(0, Math.round((Math.max(now, detailQuery.dataUpdatedAt) - detailQuery.dataUpdatedAt) / 1000))}s ago`
+      : 'primed'
+
+  return (
+    <>
+      <div className="mt-7" aria-live="polite">
+        <p className="text-ds-heading-4">{queryLanding.hero.detailTitle}</p>
+        <p className="mt-2 truncate font-ds-mono text-ds-mono-xs text-[var(--landing-accent-bright)]">
+          ['issues', '{id}']
+        </p>
+        <p className="mt-4 text-ds-body-sm text-text-primary/55">
+          {queryLanding.hero.detailBody}
+        </p>
+      </div>
+
+      <dl className="mt-auto space-y-2 rounded-lg bg-background-subtle p-4 text-ds-body-xs">
+        {[
+          { label: 'status', value: detailQuery.status },
+          { label: 'isStale', value: String(detailQuery.isStale) },
+          { label: 'observers', value: String(observers) },
+          { label: 'staleTime', value: staleTime.toLocaleString('en-US') },
+          { label: 'updated', value: updatedLabel },
+          { label: 'mutation', value: mutationStatus },
+        ].map((fact) => (
+          <div key={fact.label} className="flex justify-between gap-3">
+            <dt className="text-text-primary/45">{fact.label}</dt>
+            <dd className="text-right font-ds-mono text-ds-mono-xs text-text-primary/85">
+              {fact.value}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </>
+  )
 }
 
 const queryLanding = {
@@ -294,13 +374,6 @@ function QueryCachePanel() {
         : query.isStale
           ? ('stale' as const)
           : ('fresh' as const),
-      // Read from the cache rather than seeded, so it reflects the components
-      // actually subscribed to this key.
-      observers:
-        queryClient
-          .getQueryCache()
-          .find({ queryKey: queryHeroKey(row.id) })
-          ?.getObserversCount() ?? 0,
       // Drains from 100% to 0% across this row's own `staleTime`.
       freshness:
         query.dataUpdatedAt > 0
@@ -316,10 +389,6 @@ function QueryCachePanel() {
   const freshCount = rows.filter((row) => row.state === 'fresh').length
   const cacheState =
     fetchingCount > 0 ? 'fetching' : freshCount > 0 ? 'fresh' : 'stale'
-  const fetchedLabel =
-    selected.query.dataUpdatedAt > 0
-      ? `${Math.max(0, Math.round((Math.max(now, selected.query.dataUpdatedAt) - selected.query.dataUpdatedAt) / 1000))}s ago`
-      : 'primed'
 
   React.useEffect(() => {
     if (prefersReducedMotion === null) return
@@ -441,42 +510,12 @@ function QueryCachePanel() {
             </div>
           </div>
 
-          <div className="mt-7" aria-live="polite">
-            <p className="text-ds-heading-4">{queryLanding.hero.detailTitle}</p>
-            <p className="mt-2 truncate font-ds-mono text-ds-mono-xs text-[var(--landing-accent-bright)]">
-              ['issues', '{selected.id}']
-            </p>
-            <p className="mt-4 text-ds-body-sm text-text-primary/55">
-              {queryLanding.hero.detailBody}
-            </p>
-          </div>
-
-          <dl className="mt-auto space-y-2 rounded-lg bg-background-subtle p-4 text-ds-body-xs">
-            {[
-              { label: 'status', value: selected.query.status },
-              {
-                label: 'isStale',
-                value: String(selected.query.isStale),
-              },
-              {
-                label: 'observers',
-                value: String(selected.observers),
-              },
-              {
-                label: 'staleTime',
-                value: selected.staleTime.toLocaleString('en-US'),
-              },
-              { label: 'updated', value: fetchedLabel },
-              { label: 'mutation', value: bumpMutation.status },
-            ].map((fact) => (
-              <div key={fact.label} className="flex justify-between gap-3">
-                <dt className="text-text-primary/45">{fact.label}</dt>
-                <dd className="text-right font-ds-mono text-ds-mono-xs text-text-primary/85">
-                  {fact.value}
-                </dd>
-              </div>
-            ))}
-          </dl>
+          <QueryHeroDetail
+            id={selected.id}
+            mutationStatus={bumpMutation.status}
+            now={now}
+            staleTime={selected.staleTime}
+          />
         </div>
       </div>
     </div>

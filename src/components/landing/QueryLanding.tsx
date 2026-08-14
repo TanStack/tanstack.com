@@ -1,5 +1,10 @@
 import * as React from 'react'
-import { useMutation, useQueries, useQueryClient } from '@tanstack/react-query'
+import {
+  useIsFetching,
+  useMutation,
+  useQueries,
+  useQueryClient,
+} from '@tanstack/react-query'
 import {
   ArrowsClockwiseIcon,
   EyeClosedIcon,
@@ -217,6 +222,10 @@ function QueryCachePanel() {
     })),
   })
 
+  // Query tracks in-flight fetches across the whole client, so the header does
+  // not have to tally the rows itself.
+  const fetchingCount = useIsFetching({ queryKey: ['issues'] })
+
   const bumpMutation = useMutation<
     QueryHeroIssue,
     Error,
@@ -292,7 +301,6 @@ function QueryCachePanel() {
   const selected = rows.find((row) => row.id === selectedId) ?? rows[0]!
   // The header summarises all three entries; each row carries its own badge.
   const freshCount = rows.filter((row) => row.state === 'fresh').length
-  const fetchingCount = rows.filter((row) => row.state === 'fetching').length
   const cacheState =
     fetchingCount > 0 ? 'fetching' : freshCount > 0 ? 'fresh' : 'stale'
   const fetchedLabel =

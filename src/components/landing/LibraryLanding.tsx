@@ -66,6 +66,7 @@ export type LibraryLandingConfig = {
     items: readonly LibraryLandingWorkbenchItem[]
     label: string
   }
+  heroRender?: React.ReactNode
   libraryId: LibraryLandingId
   lifecycle: {
     body: string
@@ -189,7 +190,7 @@ export function LibraryLanding({ config }: { config: LibraryLandingConfig }) {
     <LibraryLandingShell
       description={config.description}
       headline={config.headline}
-      hero={<LandingWorkbench config={config.hero} />}
+      hero={config.heroRender ?? <LandingWorkbench config={config.hero} />}
       libraryId={config.libraryId}
       prompt={config.prompt}
       promptLabel={config.promptLabel}

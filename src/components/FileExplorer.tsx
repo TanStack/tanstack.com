@@ -12,6 +12,8 @@ import octaneIconUrl from '~/images/octane-logo.svg?url'
 import textIconUrl from '~/images/file-icons/txt.svg?url'
 import { twMerge } from 'tailwind-merge'
 
+const DEFAULT_SIDEBAR_WIDTH = 180
+
 export type FileExplorerNode = {
   children?: Array<FileExplorerNode>
   depth: number
@@ -103,6 +105,7 @@ interface FileExplorerProps {
   files: Array<FileExplorerNode> | undefined
   isSidebarOpen: boolean
   libraryColor: string
+  onSidebarClose: () => void
   prefetchFileContent: (file: string) => void
   setCurrentPath: (file: string) => void
 }
@@ -112,10 +115,11 @@ export function FileExplorer({
   files,
   isSidebarOpen,
   libraryColor,
+  onSidebarClose,
   prefetchFileContent,
   setCurrentPath,
 }: FileExplorerProps) {
-  const [sidebarWidth, setSidebarWidth] = React.useState(220)
+  const [sidebarWidth, setSidebarWidth] = React.useState(DEFAULT_SIDEBAR_WIDTH)
   const [isResizing, setIsResizing] = React.useState(false)
   const MIN_SIDEBAR_WIDTH = 60
 
@@ -186,9 +190,8 @@ export function FileExplorer({
     const handleMouseUp = () => {
       setIsResizing(false)
       if (sidebarWidth <= MIN_SIDEBAR_WIDTH) {
-        setSidebarWidth(200)
-        const event = new CustomEvent('closeSidebar')
-        window.dispatchEvent(event)
+        setSidebarWidth(DEFAULT_SIDEBAR_WIDTH)
+        onSidebarClose()
       }
     }
 
@@ -205,7 +208,7 @@ export function FileExplorer({
       document.removeEventListener('touchmove', handleMouseMove)
       document.removeEventListener('touchend', handleMouseUp)
     }
-  }, [isResizing, sidebarWidth])
+  }, [isResizing, onSidebarClose, sidebarWidth])
 
   const toggleFolder = (path: string) => {
     setExpandedFolders((prev) => {
@@ -224,31 +227,33 @@ export function FileExplorer({
   return (
     <>
       <div
+        aria-hidden={!isSidebarOpen}
+        inert={!isSidebarOpen}
         style={{
           width: isSidebarOpen ? sidebarWidth : 0,
           paddingRight: isSidebarOpen ? '0.5rem' : 0,
         }}
-        className="shrink-0 overflow-y-auto bg-linear-to-r from-gray-50 via-gray-50 to-transparent shadow-sm dark:from-gray-800/50 dark:via-gray-800/50 dark:to-transparent"
+        className={`shrink-0 overflow-x-hidden overflow-y-auto bg-linear-to-r from-gray-50 via-gray-50 to-transparent shadow-sm dark:from-gray-800/50 dark:via-gray-800/50 dark:to-transparent ${isSidebarOpen ? 'opacity-100' : 'pointer-events-none opacity-0'} ${isResizing ? '' : 'transition-[width,padding-right,opacity] duration-[180ms] [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none'}`}
       >
-        {files && isSidebarOpen ? (
-          <div className="p-2">
-            <RenderFileTree
-              currentPath={currentPath}
-              expandedFolders={expandedFolders}
-              files={files}
-              libraryColor={libraryColor}
-              prefetchFileContent={prefetchFileContent}
-              setCurrentPath={setCurrentPath}
-              toggleFolder={toggleFolder}
-            />
-          </div>
-        ) : null}
+        <div className="p-2">
+          <RenderFileTree
+            currentPath={currentPath}
+            expandedFolders={expandedFolders}
+            files={files}
+            libraryColor={libraryColor}
+            prefetchFileContent={prefetchFileContent}
+            setCurrentPath={setCurrentPath}
+            toggleFolder={toggleFolder}
+          />
+        </div>
       </div>
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
       <div
-        className={`w-1 cursor-col-resize hover:bg-gray-300 dark:hover:bg-gray-600 active:bg-gray-400 dark:active:bg-gray-500 ${
-          isResizing ? '' : 'transition-colors'
-        } ${isSidebarOpen ? '' : 'hidden'}`}
+        className={`${isSidebarOpen ? 'w-1 opacity-100' : 'pointer-events-none w-0 opacity-0'} cursor-col-resize hover:bg-gray-300 dark:hover:bg-gray-600 active:bg-gray-400 dark:active:bg-gray-500 ${
+          isResizing
+            ? ''
+            : 'transition-[width,opacity,background-color] duration-[180ms] [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none'
+        }`}
         onMouseDown={startResize}
         onTouchStart={startResize}
       />
@@ -308,7 +313,7 @@ const RenderFileTree = (props: {
               <div
                 className="absolute w-px bg-gray-200 dark:bg-gray-700"
                 style={{
-                  left: `${file.depth * 16 - 9}px`,
+                  left: `${file.depth * 16 + 4}px`,
                   top: 0,
                   bottom: 0,
                 }}
@@ -317,8 +322,8 @@ const RenderFileTree = (props: {
               <div
                 className="absolute h-px bg-gray-200 dark:bg-gray-700"
                 style={{
-                  left: `${file.depth * 16 - 9}px`,
-                  width: '9px',
+                  left: `${file.depth * 16 + 4}px`,
+                  width: '8px',
                   top: '50%',
                 }}
               />
@@ -348,7 +353,7 @@ const RenderFileTree = (props: {
               onMouseLeave={() => cancelPrefetch(file.path)}
               onBlur={() => cancelPrefetch(file.path)}
               className={twMerge(
-                `px-2 py-1.5 text-left w-full flex items-center gap-2 text-sm rounded transition-colors duration-200 min-w-0`,
+                `px-2 py-1.5 text-left w-full flex items-center gap-2 text-xs rounded transition-colors duration-200 min-w-0`,
                 props.currentPath === file.path
                   ? `${props.libraryColor}/20 text-gray-900 dark:text-white shadow-sm`
                   : 'hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400',

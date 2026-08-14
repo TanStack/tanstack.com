@@ -1,9 +1,7 @@
 import * as esbuild from 'esbuild-wasm'
 import esbuildWasmUrl from 'esbuild-wasm/esbuild.wasm?url'
-import {
-  getExampleEnvironmentProfile,
-  notebookImports,
-} from './notebook-environment'
+import { getExampleEnvironmentProfile } from './notebook-environment'
+import { getExampleWorkspaceImports } from './example-imports'
 import {
   normalizeExamplePath,
   type ExampleWorkspace,
@@ -55,6 +53,7 @@ export async function compileExampleWorkspace(
     jsxImportSource: 'react',
     legalComments: 'none',
     logLevel: 'silent',
+    metafile: true,
     outdir: '/out',
     platform: 'browser',
     plugins: [createWorkspacePlugin(files)],
@@ -77,9 +76,23 @@ export async function compileExampleWorkspace(
 
   return {
     css,
-    imports: getWorkspaceImports(workspace, files),
+    imports: getExampleWorkspaceImports(
+      workspace,
+      files,
+      getExternalSpecifiers(result.metafile),
+    ),
     javascript,
   }
+}
+
+function getExternalSpecifiers(metafile: esbuild.Metafile) {
+  return new Set(
+    Object.values(metafile.outputs).flatMap((output) =>
+      output.imports
+        .filter((dependency) => dependency.external)
+        .map((dependency) => dependency.path),
+    ),
+  )
 }
 
 function createWorkspacePlugin(files: Record<string, string>): esbuild.Plugin {
@@ -244,37 +257,4 @@ function getLoader(path: string): esbuild.Loader {
 
 function isDataUrlAsset(path: string) {
   return /\.(?:avif|gif|jpe?g|png|svg|webp|woff2?)$/i.test(path)
-}
-
-function getWorkspaceImports(
-  workspace: ExampleWorkspace,
-  files: Record<string, string>,
-) {
-  const imports: Record<string, string> = { ...notebookImports }
-  const packageSource = files['/package.json']
-
-  if (!packageSource) return { ...imports, ...workspace.imports }
-
-  let packageValue: unknown
-  try {
-    packageValue = JSON.parse(packageSource)
-  } catch {
-    throw new Error('Invalid /package.json')
-  }
-
-  if (!isRecord(packageValue) || !isRecord(packageValue.dependencies)) {
-    return { ...imports, ...workspace.imports }
-  }
-
-  for (const [name, version] of Object.entries(packageValue.dependencies)) {
-    if (typeof version !== 'string') continue
-    imports[name] = `https://esm.sh/${name}@${version}`
-    imports[`${name}/`] = `https://esm.sh/${name}@${version}/`
-  }
-
-  return { ...imports, ...workspace.imports }
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null
 }

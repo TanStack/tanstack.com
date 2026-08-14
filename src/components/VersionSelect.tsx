@@ -13,6 +13,7 @@ export function VersionSelect({ libraryId }: { libraryId: LibraryId }) {
   const library = getLibrary(libraryId)
   const versionConfig = useVersionConfig({
     versions: library.availableVersions,
+    latestVersion: library.latestVersion,
   })
   return (
     <Select
@@ -85,37 +86,38 @@ function useCurrentVersion(versions: string[]) {
   }
 }
 
-function useVersionConfig({ versions }: { versions: string[] }) {
+function useVersionConfig({
+  versions,
+  latestVersion,
+}: {
+  versions: string[]
+  latestVersion: string
+}) {
   const currentVersion = useCurrentVersion(versions)
 
   const versionConfig = React.useMemo(() => {
-    const available = versions.reduce(
-      (acc: SelectOption[], version) => {
-        acc.push({
-          label: version,
-          value: version,
-        })
-        return acc
-      },
-      [
-        {
-          label: 'Latest',
-          value: 'latest',
-        },
-      ],
+    // The latest numbered version and 'latest' are the same docs, so they
+    // collapse into a single option that navigates to the /latest URL.
+    const available = versions.map(
+      (version): SelectOption =>
+        version === latestVersion
+          ? { label: `${version} - Latest`, value: 'latest' }
+          : { label: version, value: version },
     )
+
+    const isLatest =
+      currentVersion.version === latestVersion ||
+      !versions.includes(currentVersion.version)
 
     return {
       label: 'Version',
-      selected: versions.includes(currentVersion.version)
-        ? currentVersion.version
-        : 'latest',
+      selected: isLatest ? 'latest' : currentVersion.version,
       available,
       onSelect: (option: { label: string; value: string }) => {
         currentVersion.setVersion(option.value)
       },
     }
-  }, [currentVersion, versions])
+  }, [currentVersion, versions, latestVersion])
 
   return versionConfig
 }

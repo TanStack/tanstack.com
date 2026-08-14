@@ -28,11 +28,15 @@ export type ExampleSandboxMessage =
 export function createExampleSandboxDocument({
   compiled,
   document,
+  entry,
+  files,
   runToken,
   theme,
 }: {
   compiled: CompiledExampleWorkspace
   document: string | undefined
+  entry: string
+  files: Record<string, string>
   runToken: string
   theme: ExampleSandboxTheme
 }) {
@@ -51,15 +55,66 @@ export function createExampleSandboxDocument({
     `<script>${bridge}</script>`,
   ].join('')
   const body = `<script type="module">${javascript}</script>`
-  const source =
-    document ??
-    '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head><body><div id="root"></div></body></html>'
+  const source = document
+    ? prepareAuthoredDocument(document, entry, files)
+    : '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head><body><div id="root"></div></body></html>'
 
   return injectBeforeClosingTag(
     injectBeforeClosingTag(source, 'head', head),
     'body',
     body,
   )
+}
+
+function prepareAuthoredDocument(
+  source: string,
+  entry: string,
+  files: Record<string, string>,
+) {
+  const parsed = new DOMParser().parseFromString(source, 'text/html')
+
+  for (const script of parsed.querySelectorAll('script[type="module"][src]')) {
+    const src = script.getAttribute('src')
+    if (!src) continue
+
+    const url = new URL(src, 'https://tanstack.example/')
+    if (url.origin === 'https://tanstack.example' && url.pathname === entry) {
+      script.remove()
+    }
+  }
+
+  for (const element of parsed.querySelectorAll('[href], [src]')) {
+    for (const attribute of ['href', 'src']) {
+      const value = element.getAttribute(attribute)
+      if (!value) continue
+
+      const url = new URL(value, 'https://tanstack.example/')
+      if (url.origin !== 'https://tanstack.example') continue
+
+      const filePath = `/public${url.pathname}`
+      const file = files[filePath] ?? files[url.pathname]
+      const mimeType = getTextAssetMimeType(url.pathname)
+      if (file === undefined || !mimeType) continue
+
+      element.setAttribute(
+        attribute,
+        `data:${mimeType};charset=utf-8,${encodeURIComponent(file)}`,
+      )
+    }
+  }
+
+  const doctype = parsed.doctype ? '<!doctype html>' : ''
+  return `${doctype}${parsed.documentElement.outerHTML}`
+}
+
+function getTextAssetMimeType(path: string) {
+  if (path.endsWith('.css')) return 'text/css'
+  if (path.endsWith('.html')) return 'text/html'
+  if (path.endsWith('.js')) return 'text/javascript'
+  if (path.endsWith('.json')) return 'application/json'
+  if (path.endsWith('.svg')) return 'image/svg+xml'
+  if (path.endsWith('.txt')) return 'text/plain'
+  return undefined
 }
 
 export function postExampleSandboxTheme({

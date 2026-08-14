@@ -1,4 +1,9 @@
-import { isNotFound, notFound, createFileRoute } from '@tanstack/react-router'
+import {
+  ClientOnly,
+  isNotFound,
+  notFound,
+  createFileRoute,
+} from '@tanstack/react-router'
 import {
   queryOptions,
   useQueryClient,
@@ -7,7 +12,11 @@ import {
 import React from 'react'
 import { DocTitle } from '~/components/DocTitle'
 import { Framework, getBranch, getLibrary } from '~/libraries'
-import { fetchFile, fetchRepoDirectoryContents } from '~/utils/docs'
+import {
+  fetchFile,
+  fetchRepoDirectoryContents,
+  fetchClientExampleFiles,
+} from '~/utils/docs'
 import {
   getExampleStartingFileName,
   getExampleStartingPath,
@@ -34,6 +43,17 @@ import {
   getLocalStorageItem,
   setLocalStorageItem,
 } from '~/utils/browser-storage'
+import { createRepositoryExampleDefinition } from '~/utils/repository-example'
+import type { ExampleDefinition } from '~/utils/example-workspace'
+import { CodeBlock } from '~/components/markdown'
+import { getCodeBlockLanguageFromFilePath } from '~/components/markdown/codeBlock.shared'
+import { getClientExampleConfig } from '~/utils/client-example-config'
+
+const LazyExampleWorkbench = React.lazy(() =>
+  import('~/components/examples/ExampleWorkbench.client').then((module) => ({
+    default: module.ExampleWorkbench,
+  })),
+)
 
 type ExamplePanel = 'code' | 'sandbox'
 
@@ -68,6 +88,26 @@ const repoDirApiContentsQueryOptions = (
     staleTime: Infinity, // We can cache this forever. A refresh can invalidate the cache if necessary.
   })
 
+const clientExampleFilesQueryOptions = ({
+  example,
+  framework,
+  libraryId,
+  version,
+}: {
+  example: string
+  framework: string
+  libraryId: string
+  version: string
+}) =>
+  queryOptions({
+    queryKey: ['client-example-files', libraryId, version, framework, example],
+    queryFn: () =>
+      fetchClientExampleFiles({
+        data: { example, framework, libraryId, version },
+      }),
+    staleTime: Infinity,
+  })
+
 export const Route = createFileRoute(
   '/_library/$libraryId/$version/docs/framework/$framework/examples/$',
 )({
@@ -98,6 +138,40 @@ export const Route = createFileRoute(
     const repoStartingDirPath = `examples/${examplePath}`
 
     try {
+      const clientConfig = getClientExampleConfig({
+        framework,
+        libraryId: params.libraryId,
+        slug: params._splat ?? '',
+        version: params.version,
+      })
+
+      if (clientConfig) {
+        const result = await queryClient.ensureQueryData(
+          clientExampleFilesQueryOptions({
+            example: clientConfig.slug,
+            framework: clientConfig.framework,
+            libraryId: clientConfig.libraryId,
+            version: params.version,
+          }),
+        )
+
+        if (!result.success) {
+          if (result.reason === 'not-found') throw notFound()
+          throw new Error(result.error)
+        }
+
+        return {
+          kind: 'client' as const,
+          definition: createRepositoryExampleDefinition({
+            entry: clientConfig.entry,
+            files: result.files,
+            id: `${params.libraryId}-${framework}-${params._splat}`,
+            initialFile: getExampleWorkspacePath(path, repoStartingDirPath),
+            title: slugToTitle(params._splat || ''),
+          }),
+        }
+      }
+
       // Fetching and Caching the contents of the target directory
       const githubContents = await queryClient.ensureQueryData(
         repoDirApiContentsQueryOptions(
@@ -157,7 +231,12 @@ export const Route = createFileRoute(
         )
       }
 
-      return { currentCode, repoStartingDirPath, currentPath }
+      return {
+        kind: 'external' as const,
+        currentCode,
+        repoStartingDirPath,
+        currentPath,
+      }
     } catch (error) {
       if (isRouteNotFoundError(error)) {
         throw notFound()
@@ -189,7 +268,14 @@ export const Route = createFileRoute(
 
     return {
       ...getDocsCacheHeaders({ libraryId, version }),
-      ...stackBlitzEmbedHeaders,
+      ...(getClientExampleConfig({
+        framework: params.framework,
+        libraryId,
+        slug: params._splat ?? '',
+        version,
+      })
+        ? {}
+        : stackBlitzEmbedHeaders),
     }
   },
   staleTime: 1000 * 60 * 5, // 5 minutes
@@ -197,13 +283,28 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const { _splat } = Route.useParams()
-  return <PageComponent key={`page-${_splat}`} />
+  const data = Route.useLoaderData()
+
+  return data.kind === 'client' ? (
+    <ClientExamplePage
+      key={`client-page-${_splat}`}
+      definition={data.definition}
+    />
+  ) : (
+    <ExternalExamplePage key={`external-page-${_splat}`} data={data} />
+  )
 }
 
-function PageComponent() {
-  const { currentCode, repoStartingDirPath, currentPath } =
-    Route.useLoaderData()
-
+function ExternalExamplePage({
+  data: { currentCode, repoStartingDirPath, currentPath },
+}: {
+  data: {
+    currentCode: string
+    currentPath: string
+    kind: 'external'
+    repoStartingDirPath: string
+  }
+}) {
   const navigate = Route.useNavigate()
   const queryClient = useQueryClient()
   const { version, framework, _splat, libraryId } = Route.useParams()
@@ -468,6 +569,73 @@ function PageComponent() {
   )
 }
 
+function ClientExamplePage({ definition }: { definition: ExampleDefinition }) {
+  const { version, framework, _splat, libraryId } = Route.useParams()
+  const library = getLibrary(libraryId)
+  const branch = getBranch(library, version)
+  const examplePath = [framework, _splat].join('/')
+  const githubUrl = `https://github.com/${library.repo}/tree/${branch}/examples/${examplePath}`
+  const fallback = <ClientExampleFallback definition={definition} />
+
+  return (
+    <div className="flex min-h-0 flex-1 flex-col overflow-auto">
+      <div className="p-4 lg:p-6">
+        <DocTitle>
+          <span>
+            {capitalize(framework)} Example: {slugToTitle(_splat!)}
+          </span>
+          <a
+            href={githubUrl}
+            target="_blank"
+            className="flex items-center gap-1 text-xs font-normal"
+            rel="noreferrer"
+          >
+            <ArrowSquareOutIcon /> GitHub
+          </a>
+        </DocTitle>
+      </div>
+      <div className="flex min-h-0 flex-1 flex-col lg:px-6">
+        <ClientOnly fallback={fallback}>
+          <React.Suspense fallback={fallback}>
+            <LazyExampleWorkbench
+              definition={definition}
+              filesInitiallyOpen
+              libraryColor={library.bgStyle}
+            />
+          </React.Suspense>
+        </ClientOnly>
+      </div>
+    </div>
+  )
+}
+
+function ClientExampleFallback({
+  definition,
+}: {
+  definition: ExampleDefinition
+}) {
+  const path = definition.initialFile ?? definition.workspace.entry
+  const source = definition.workspace.files[path] ?? ''
+  const language = getCodeBlockLanguageFromFilePath(path)
+
+  return (
+    <section className="not-prose flex h-[clamp(520px,75dvh,720px)] min-w-0 flex-col overflow-hidden rounded-lg border border-border-default bg-background-default">
+      <header className="flex min-h-10 shrink-0 items-center border-b border-border-default px-3 font-ds-mono text-xs text-text-muted">
+        {path}
+      </header>
+      <div className="min-h-0 flex-1 overflow-auto">
+        <CodeBlock
+          className="h-full border-0"
+          isEmbedded
+          showTypeCopyButton={false}
+        >
+          <code className={`language-${language}`}>{source}</code>
+        </CodeBlock>
+      </div>
+    </section>
+  )
+}
+
 function determineStartingFilePath(
   nodes: Array<GitHubFileNode> | null,
   candidate: string,
@@ -533,6 +701,17 @@ function isRouteNotFoundError(error: unknown) {
     isNotFound(error) ||
     (error !== null && typeof error === 'object' && 'isNotFound' in error)
   )
+}
+
+function getExampleWorkspacePath(
+  path: string | undefined,
+  repoStartingDirPath: string,
+) {
+  if (!path) return undefined
+  const relativePath = path.startsWith(`${repoStartingDirPath}/`)
+    ? path.slice(repoStartingDirPath.length + 1)
+    : path
+  return relativePath.startsWith('/') ? relativePath : `/${relativePath}`
 }
 
 function recursiveFlattenGithubContents(

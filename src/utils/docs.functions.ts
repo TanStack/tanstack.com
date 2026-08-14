@@ -9,6 +9,8 @@ import { isValidRepoPath, MAX_REPO_PATH_LENGTH } from './repo-path'
 import { removeLeadingSlash } from './utils'
 import type { DocsRedirectManifest } from './docs-redirects'
 import type { GitHubFileNode } from './documents.server'
+import { getBranch, getLibrary } from '~/libraries'
+import { getClientExampleConfig } from './client-example-config'
 
 export type DocsTreeNode = {
   path: string
@@ -27,6 +29,13 @@ type RepoDirectoryRequest = {
   repo: string
   branch: string
   startingPath: string
+}
+
+type ClientExampleRequest = {
+  example: string
+  framework: string
+  libraryId: string
+  version: string
 }
 
 // Inputs feed into a database cache key + a GitHub API URL. They must be
@@ -70,6 +79,13 @@ const repoDirectoryInput = v.object({
   repo: repoSchema,
   branch: branchSchema,
   startingPath: repoPathSchema,
+})
+
+const clientExampleInput = v.object({
+  example: repoPathSchema,
+  framework: v.pipe(v.string(), v.maxLength(50)),
+  libraryId: v.pipe(v.string(), v.maxLength(50)),
+  version: branchSchema,
 })
 
 const docsManifestInput = v.object({
@@ -122,6 +138,10 @@ const loadDocumentsServerModule = createServerOnlyFn(
 
 const loadGitHubContentCacheServerModule = createServerOnlyFn(
   () => import('./github-content-cache.server'),
+)
+
+const loadGitHubExampleServerModule = createServerOnlyFn(
+  () => import('./github-example.server'),
 )
 
 function buildUnavailableFile(filePath: string) {
@@ -484,6 +504,37 @@ export const fetchRepoDirectoryContents = createServerFn({
     setDocsCacheHeaders('public, max-age=300, stale-while-revalidate=300')
 
     return githubContents
+  })
+
+export const fetchClientExampleFiles = createServerFn({ method: 'GET' })
+  .validator(clientExampleInput)
+  .handler(async ({ data }: { data: ClientExampleRequest }) => {
+    const config = getClientExampleConfig({
+      framework: data.framework,
+      libraryId: data.libraryId,
+      slug: data.example,
+      version: data.version,
+    })
+
+    if (!config) {
+      return {
+        success: false as const,
+        error: 'Example is not supported by the client runtime',
+        reason: 'not-found' as const,
+      }
+    }
+
+    const library = getLibrary(config.libraryId)
+    const { fetchExampleFiles } = await loadGitHubExampleServerModule()
+    const result = await fetchExampleFiles(
+      library.repo,
+      getBranch(library, data.version),
+      `examples/${config.framework}/${config.slug}`,
+    )
+
+    setDocsCacheHeaders('public, max-age=300, stale-while-revalidate=300')
+
+    return result
   })
 
 function flattenDocsNodes(nodes: Array<DocsTreeNode>): Array<DocsTreeNode> {

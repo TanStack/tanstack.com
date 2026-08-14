@@ -55,6 +55,23 @@ function assertRedirectsTo(opts: {
   )
 }
 
+function assertRenders(opts: {
+  defaultDocs: string
+  docsPath: string
+  frameworks: Array<string>
+  manifest: DocsRedirectManifest
+}) {
+  assert.deepEqual(
+    resolveDocsPathRedirect({
+      defaultDocs: opts.defaultDocs,
+      docsPath: opts.docsPath,
+      frameworks: opts.frameworks,
+      manifest: opts.manifest,
+    }),
+    { type: 'render', docsPath: opts.docsPath },
+  )
+}
+
 function assertNotFound(opts: {
   defaultDocs: string
   docsPath: string
@@ -160,6 +177,50 @@ assertNotFound({
   manifest: manifestWithPaths(['overview', 'framework/react/overview']),
 })
 
+const typedocManifest = manifestWithPaths([
+  'overview',
+  'reference',
+  'reference/index',
+  'reference/index/type-aliases/DebugOptions',
+  'framework/react/reference',
+  'framework/react/reference/index',
+])
+
+assertRenders({
+  defaultDocs: 'overview',
+  docsPath: 'reference/index',
+  frameworks: ['react'],
+  manifest: typedocManifest,
+})
+
+assertRenders({
+  defaultDocs: 'overview',
+  docsPath: 'reference/index/index',
+  frameworks: ['react'],
+  manifest: typedocManifest,
+})
+
+assertRenders({
+  defaultDocs: 'overview',
+  docsPath: 'reference/index/type-aliases/DebugOptions',
+  frameworks: ['react'],
+  manifest: typedocManifest,
+})
+
+assertRenders({
+  defaultDocs: 'overview',
+  docsPath: 'framework/react/reference/index',
+  frameworks: ['react'],
+  manifest: typedocManifest,
+})
+
+assertRenders({
+  defaultDocs: 'overview',
+  docsPath: 'framework/react/reference/index/index',
+  frameworks: ['react'],
+  manifest: typedocManifest,
+})
+
 assertRedirectsTo({
   defaultDocs: 'overview',
   docsPath: 'react/overview',
@@ -221,6 +282,14 @@ assert.equal(
   docsManifestHasPath(
     manifestWithPaths(['guides/queries/index.md']),
     'guides/queries',
+  ),
+  true,
+)
+
+assert.equal(
+  docsManifestHasPath(
+    manifestWithPaths(['reference/index']),
+    'reference/index/index',
   ),
   true,
 )

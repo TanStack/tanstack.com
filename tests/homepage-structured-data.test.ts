@@ -47,6 +47,7 @@ test('homepage Organization uses a square logo and verified profiles', () => {
     'https://x.com/tan_stack',
     'https://bsky.app/profile/tanstack.com',
     'https://youtube.com/@tan_stack',
+    'https://www.linkedin.com/company/tanstack',
   ])
 })
 

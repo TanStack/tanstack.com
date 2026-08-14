@@ -36,6 +36,7 @@ export function getTanStackOrganizationJsonLd() {
       'https://x.com/tan_stack',
       'https://bsky.app/profile/tanstack.com',
       'https://youtube.com/@tan_stack',
+      'https://www.linkedin.com/company/tanstack',
     ],
   }
 }

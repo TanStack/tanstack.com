@@ -37,8 +37,8 @@ test('homepage Organization uses a square logo and verified profiles', () => {
   assert.deepEqual(organization.logo, {
     '@type': 'ImageObject',
     '@id': 'https://tanstack.com/#organization-logo',
-    url: 'https://tanstack.com/images/brand/social/stacked-green@2x.png',
-    contentUrl: 'https://tanstack.com/images/brand/social/stacked-green@2x.png',
+    url: 'https://tanstack.com/images/brand/social/stacked-light@2x.png',
+    contentUrl: 'https://tanstack.com/images/brand/social/stacked-light@2x.png',
     width: 800,
     height: 800,
   })

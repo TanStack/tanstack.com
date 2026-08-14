@@ -26,8 +26,8 @@ export function getTanStackOrganizationJsonLd() {
     logo: {
       '@type': 'ImageObject' as const,
       '@id': `${siteUrl}#organization-logo`,
-      url: `${siteUrl}images/brand/social/stacked-green@2x.png`,
-      contentUrl: `${siteUrl}images/brand/social/stacked-green@2x.png`,
+      url: `${siteUrl}images/brand/social/stacked-light@2x.png`,
+      contentUrl: `${siteUrl}images/brand/social/stacked-light@2x.png`,
       width: 800,
       height: 800,
     },

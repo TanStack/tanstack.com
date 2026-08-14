@@ -10,40 +10,40 @@ import {
 test('exposes unified Charts subpaths without duplicate framework runtimes', () => {
   assert.equal(
     notebookImports['@tanstack/charts'],
-    'https://esm.sh/@tanstack/charts@0.10.0',
+    'https://esm.sh/@tanstack/charts@0.13.0',
   )
   assert.equal(
     notebookImports['@tanstack/charts/'],
-    'https://esm.sh/@tanstack/charts@0.10.0/',
+    'https://esm.sh/@tanstack/charts@0.13.0/',
   )
 
   assert.equal(
     notebookImports['@tanstack/charts/react'],
-    'https://esm.sh/@tanstack/charts@0.10.0/react?external=react,react-dom',
+    'https://esm.sh/@tanstack/charts@0.13.0/react?external=react,react-dom',
   )
   assert.equal(
     notebookImports['@tanstack/charts/react/canvas'],
-    'https://esm.sh/@tanstack/charts@0.10.0/react/canvas?external=react,react-dom',
+    'https://esm.sh/@tanstack/charts@0.13.0/react/canvas?external=react,react-dom',
   )
   assert.equal(
     notebookImports['@tanstack/charts/react/core'],
-    'https://esm.sh/@tanstack/charts@0.10.0/react/core?external=react,react-dom',
+    'https://esm.sh/@tanstack/charts@0.13.0/react/core?external=react,react-dom',
   )
   assert.equal(
     notebookImports['@tanstack/charts/react/tooltip'],
-    'https://esm.sh/@tanstack/charts@0.10.0/react/tooltip?external=react,react-dom',
+    'https://esm.sh/@tanstack/charts@0.13.0/react/tooltip?external=react,react-dom',
   )
   assert.equal(
     notebookImports['@tanstack/charts/octane'],
-    'https://esm.sh/@tanstack/charts@0.10.0/octane?external=octane',
+    'https://esm.sh/@tanstack/charts@0.13.0/octane?external=octane',
   )
   assert.equal(
     notebookImports['@tanstack/charts/octane/canvas'],
-    'https://esm.sh/@tanstack/charts@0.10.0/octane/canvas?external=octane',
+    'https://esm.sh/@tanstack/charts@0.13.0/octane/canvas?external=octane',
   )
   assert.equal(
     notebookImports['@tanstack/charts/octane/core'],
-    'https://esm.sh/@tanstack/charts@0.10.0/octane/core?external=octane',
+    'https://esm.sh/@tanstack/charts@0.13.0/octane/core?external=octane',
   )
 
   assert.equal(
@@ -66,7 +66,7 @@ test('provides hidden entry modules for every example environment', () => {
     assert.equal(profile.outputSelector, '#root')
     assert.equal(
       profile.imports['@tanstack/charts'],
-      'https://esm.sh/@tanstack/charts@0.10.0',
+      'https://esm.sh/@tanstack/charts@0.13.0',
     )
 
     const source = profile.createEntrySource('/src/example.ts')

@@ -9,11 +9,16 @@ import { resetGitHubContentCacheForTest } from '../src/utils/github-content-cach
 
 const revision = '1'.repeat(40)
 
-function createCatalogCase(id = '01-line-gaps', order = 1) {
+function createCatalogCase(
+  id = '01-line-gaps',
+  order = 1,
+  collection?: string,
+) {
   return {
     schemaVersion: 1,
     order,
     id,
+    ...(collection ? { collection } : {}),
     title: 'Apple stock line with seasonal gaps',
     family: 'trend',
     intent: 'Show gaps in a time series.',
@@ -38,21 +43,22 @@ function createCatalogCase(id = '01-line-gaps', order = 1) {
   }
 }
 
-function createCatalogIndex() {
+function createCatalogIndex(collection?: string) {
   return {
     schemaVersion: 1,
     source: {
       repo: 'tanstack/charts',
       pathRoot: 'benchmarks/conformance/',
     },
-    cases: [createCatalogCase()],
+    cases: [createCatalogCase('01-line-gaps', 1, collection)],
   }
 }
 
 test('catalog index retains only the site-owned contract', () => {
-  const index = parseChartsCatalogIndex(createCatalogIndex())
+  const index = parseChartsCatalogIndex(createCatalogIndex('shadcn'))
 
   assert.equal(index.cases[0]?.id, '01-line-gaps')
+  assert.equal(index.cases[0]?.collection, 'shadcn')
   assert.equal('geometry' in (index.cases[0] ?? {}), false)
   assert.equal(
     chartsCatalogIndexCacheHeaders['Cache-Tag'],

@@ -19,7 +19,6 @@ import { usePrefersReducedMotion } from '~/utils/usePrefersReducedMotion'
 import { LibraryLanding, type LibraryLandingConfig } from './LibraryLanding'
 
 type QueryHeroIssue = {
-  observers: number
   priority: number
   revision: number
   title: string
@@ -36,29 +35,19 @@ const queryHeroRows = [
     id: 'router-cache',
     staleTime: 2000,
     refetchInterval: 3000,
-    seed: {
-      observers: 3,
-      priority: 0,
-      revision: 0,
-      title: 'Router dashboard',
-    },
+    seed: { priority: 0, revision: 0, title: 'Router dashboard' },
   },
   {
     id: 'project-detail',
     staleTime: 6000,
     refetchInterval: 7000,
-    seed: { observers: 2, priority: 0, revision: 0, title: 'Project detail' },
+    seed: { priority: 0, revision: 0, title: 'Project detail' },
   },
   {
     id: 'offline-queue',
     staleTime: 14000,
     refetchInterval: 15000,
-    seed: {
-      observers: 1,
-      priority: 0,
-      revision: 0,
-      title: 'Offline mutation queue',
-    },
+    seed: { priority: 0, revision: 0, title: 'Offline mutation queue' },
   },
 ] as const
 
@@ -305,6 +294,13 @@ function QueryCachePanel() {
         : query.isStale
           ? ('stale' as const)
           : ('fresh' as const),
+      // Read from the cache rather than seeded, so it reflects the components
+      // actually subscribed to this key.
+      observers:
+        queryClient
+          .getQueryCache()
+          .find({ queryKey: queryHeroKey(row.id) })
+          ?.getObserversCount() ?? 0,
       // Drains from 100% to 0% across this row's own `staleTime`.
       freshness:
         query.dataUpdatedAt > 0
@@ -464,7 +460,7 @@ function QueryCachePanel() {
               },
               {
                 label: 'observers',
-                value: String(selected.issue.observers),
+                value: String(selected.observers),
               },
               {
                 label: 'staleTime',

@@ -395,7 +395,7 @@ function QueryCachePanel() {
               <span className="mt-4 flex items-center gap-3">
                 <span className="h-1 flex-1 overflow-hidden rounded-full bg-text-primary/5">
                   <span
-                    className="block h-full rounded-full bg-[var(--landing-accent)] transition-[width] duration-500 motion-reduce:transition-none"
+                    className="block h-full rounded-full bg-[var(--landing-accent)] transition-[width] duration-1000 ease-linear motion-reduce:transition-none"
                     style={{ width: `${row.freshness}%` }}
                   />
                 </span>

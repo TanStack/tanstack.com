@@ -359,7 +359,7 @@ function QueryCachePanel() {
         </span>
       </div>
 
-      <div className="grid min-h-[22rem] lg:grid-cols-[1.08fr_0.82fr]">
+      <div className="grid lg:grid-cols-[1.08fr_0.82fr]">
         <div className="flex flex-col gap-3 border-border-subtle p-5 lg:border-r">
           <div className="flex flex-wrap items-center gap-2 font-ds-mono text-ds-mono-caps-xs uppercase">
             <span
@@ -377,7 +377,7 @@ function QueryCachePanel() {
               key={row.id}
               type="button"
               aria-pressed={row.id === selected.id}
-              className="flex w-full flex-1 flex-col justify-between rounded-lg border border-transparent bg-background-subtle p-4 text-left transition-colors hover:border-text-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[color:rgb(var(--landing-glow)/0.42)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.1)]"
+              className="flex flex-1 flex-col rounded-lg border border-transparent bg-background-subtle p-4 text-left transition-colors hover:border-text-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[color:rgb(var(--landing-glow)/0.42)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.1)]"
               onClick={() => setSelectedId(row.id)}
             >
               <span className="flex items-start justify-between gap-4">

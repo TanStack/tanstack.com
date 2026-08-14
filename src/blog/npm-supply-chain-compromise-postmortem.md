@@ -1,6 +1,7 @@
 ---
 title: 'Postmortem: TanStack npm supply-chain compromise'
 published: 2026-05-11
+updated: 2026-05-15
 excerpt: On 2026-05-11, an attacker chained a pull_request_target Pwn Request, GitHub Actions cache poisoning across the fork↔base trust boundary, and OIDC token extraction from runner memory to publish 84 malicious versions across 42 @tanstack/* packages on npm. Full postmortem.
 authors:
   - Tanner Linsley

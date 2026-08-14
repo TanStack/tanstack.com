@@ -57,4 +57,7 @@ test('social metadata identifies TanStack and describes its image', () => {
       (tag) => tag.property === 'og:image:alt' && tag.content === title,
     ),
   )
+  assert.ok(
+    tags.some((tag) => tag.property === 'og:type' && tag.content === 'website'),
+  )
 })

@@ -25,6 +25,18 @@ export const Route = createFileRoute('/_library/$libraryId/$version')({
       })
     })
 
+    // The latest numbered version (e.g. /query/v5) serves the exact same
+    // content as /latest; permanently redirect so only one URL gets indexed.
+    if (version === library.latestVersion) {
+      throw redirect({
+        href: ctx.location.href.replace(
+          `/${libraryId}/${version}`,
+          `/${libraryId}/latest`,
+        ),
+        statusCode: 308,
+      })
+    }
+
     library.handleRedirects?.(ctx.location.href)
   },
   loader: async (ctx) => {

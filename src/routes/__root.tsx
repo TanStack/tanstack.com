@@ -74,6 +74,7 @@ type CanonicalHeadMatch = {
   search: Record<string, unknown>
   staticData?: {
     includeSearchInCanonical?: boolean
+    ownsCanonicalLink?: boolean
   }
 }
 
@@ -86,6 +87,14 @@ function getCanonicalHeadTags(matches: ReadonlyArray<CanonicalHeadMatch>): {
   const includeSearchInCanonical = matches.some(
     (match) => match.staticData?.includeSearchInCanonical === true,
   )
+  // Routes whose canonical depends on loader data (e.g. old-version docs
+  // canonicalizing to /latest) emit their own link tag from their head().
+  // The root must not also emit one — the router does not dedupe links, and
+  // this head only sees pre-loader match snapshots, so it can't compute the
+  // override itself.
+  const ownsCanonicalLink = matches.some(
+    (match) => match.staticData?.ownsCanonicalLink === true,
+  )
   const canonicalSearch =
     includeSearchInCanonical && lastMatch
       ? defaultStringifySearch(lastMatch.search)
@@ -97,14 +106,15 @@ function getCanonicalHeadTags(matches: ReadonlyArray<CanonicalHeadMatch>): {
   )
 
   return {
-    links: preferredCanonicalPath
-      ? [
-          {
-            rel: 'canonical',
-            href: canonicalUrl(preferredCanonicalPath, canonicalSearch),
-          },
-        ]
-      : [],
+    links:
+      preferredCanonicalPath && !ownsCanonicalLink
+        ? [
+            {
+              rel: 'canonical',
+              href: canonicalUrl(preferredCanonicalPath, canonicalSearch),
+            },
+          ]
+        : [],
     meta: [
       { property: 'og:url', content: pageUrl },
       { name: 'twitter:url', content: pageUrl },

@@ -13,9 +13,14 @@ import {
   type MarkdownDocument,
 } from '~/utils/markdown'
 import { isSafeHttpUrl } from '~/utils/url-boundary'
+import { mapStartHostingPartnerElements } from '~/utils/start-hosting-guide'
 import { CodeBlock } from './CodeBlock'
 import { LiveExample } from './LiveExample'
 import { MarkdownLink } from './MarkdownLink'
+import {
+  StartHostingLovableLogo,
+  StartHostingPartners,
+} from '~/components/StartHostingPartners'
 import {
   MdCommentComponent,
   MdFrameworkPanel,
@@ -46,13 +51,13 @@ export function Markdown({
     () => document ?? parseSiteMarkdown(content ?? ''),
     [content, document],
   )
-  const renderDocument = React.useMemo(
-    () =>
-      chartEmbedSource
-        ? mapChartsCatalogEmbeds(parsed, chartEmbedSource)
-        : parsed,
-    [chartEmbedSource, parsed],
-  )
+  const renderDocument = React.useMemo(() => {
+    const withHostingPartners = mapStartHostingPartnerElements(parsed)
+
+    return chartEmbedSource
+      ? mapChartsCatalogEmbeds(withHostingPartners, chartEmbedSource)
+      : withHostingPartners
+  }, [chartEmbedSource, parsed])
 
   return React.useMemo(() => {
     const firstImageSrc = eagerFirstImage
@@ -250,6 +255,8 @@ function createMarkdownComponents(
     'md-live-example': LiveExample,
     'md-tab-panel': MdTabPanel,
     pre: CodeBlock,
+    'start-hosting-lovable-logo': StartHostingLovableLogo,
+    'start-hosting-partners': StartHostingPartners,
     table: TableElement,
   }
 }

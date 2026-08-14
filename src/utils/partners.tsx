@@ -756,7 +756,7 @@ const lovable = ((): Partner => {
     tier: 'gold' as const,
     uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,
     brandColor: '#FF7EB0',
-    tagline: 'AI App Builder',
+    tagline: 'AI App Builder + Hosting',
     applicationStarterPromptInstructions: [
       'Treat Lovable as the AI app-building and hosting path, not as a TanStack CLI deployment flag or npm package.',
       'Keep the generated app portable: start with the TanStack CLI output, preserve GitHub/project ownership notes, and call out any Lovable Cloud setup that cannot be automated from code.',

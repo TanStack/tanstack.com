@@ -13,6 +13,11 @@ import type { ConfigSchema } from '~/utils/config'
 import { useLocalCurrentFramework } from './FrameworkSelect'
 import { useParams } from '@tanstack/react-router'
 import { parseSiteMarkdown } from '~/utils/markdown'
+import { useStartHostingPartners } from './StartHostingPartners'
+import {
+  isStartHostingGuide,
+  renderDynamicStartHostingGuide,
+} from '~/utils/start-hosting-guide'
 
 type DocProps = {
   title: string
@@ -53,7 +58,21 @@ export function Doc({
   footer,
   framework: frameworkProp,
 }: DocProps) {
-  const markdown = React.useMemo(() => parseSiteMarkdown(content), [content])
+  const { groups: startHostingPartnerGroups } = useStartHostingPartners()
+  const renderedContent = React.useMemo(() => {
+    if (!isStartHostingGuide({ filePath, libraryId })) {
+      return content
+    }
+
+    return renderDynamicStartHostingGuide(
+      content,
+      startHostingPartnerGroups.flatMap((group) => group.partners),
+    )
+  }, [content, filePath, libraryId, startHostingPartnerGroups])
+  const markdown = React.useMemo(
+    () => parseSiteMarkdown(renderedContent),
+    [renderedContent],
+  )
   const headings = markdown.headings
 
   // Get current framework from prop, URL params, or local storage

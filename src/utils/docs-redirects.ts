@@ -77,6 +77,21 @@ export function resolveDocsPathRedirect({
   return { type: 'not-found' }
 }
 
+export function docsManifestHasPath(
+  manifest: DocsRedirectManifest,
+  docsPath: string,
+) {
+  const normalizedPath = normalizeDocsPath(docsPath)
+
+  if (normalizedPath === null) {
+    return false
+  }
+
+  return manifest.paths.some(
+    (path) => normalizeManifestPath(path) === normalizedPath,
+  )
+}
+
 export function appendPathToDocsHref(opts: {
   docsPath: string
   libraryId: string

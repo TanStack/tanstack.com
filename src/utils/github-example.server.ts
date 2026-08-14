@@ -20,6 +20,7 @@ import {
 const RAW_FETCH_CONCURRENCY = 6
 const MAX_EXAMPLE_FILES = 500
 const MAX_EXAMPLE_FILE_BYTES = 1 * 1024 * 1024
+const MAX_EXAMPLE_TOTAL_BYTES = 5 * 1024 * 1024
 const EXAMPLE_FETCH_TIMEOUT_MS = 10_000
 
 export interface FetchExampleFilesResult {
@@ -30,6 +31,7 @@ export interface FetchExampleFilesResult {
 export interface FetchExampleFilesError {
   success: false
   error: string
+  reason: 'fetch-failed' | 'not-found' | 'too-large' | 'too-many-files'
 }
 
 /**
@@ -48,6 +50,7 @@ export async function fetchExampleFiles(
     return {
       success: false,
       error: `Failed to fetch example directory: ${examplePath}`,
+      reason: 'not-found',
     }
   }
 
@@ -63,6 +66,20 @@ export async function fetchExampleFiles(
     return {
       success: false,
       error: `Example has too many files; maximum is ${MAX_EXAMPLE_FILES}`,
+      reason: 'too-many-files',
+    }
+  }
+
+  const knownTotalBytes = fileEntries.reduce(
+    (total, entry) => total + (entry.size ?? 0),
+    0,
+  )
+
+  if (knownTotalBytes > MAX_EXAMPLE_TOTAL_BYTES) {
+    return {
+      success: false,
+      error: `Example is too large; maximum is ${MAX_EXAMPLE_TOTAL_BYTES} bytes`,
+      reason: 'too-large',
     }
   }
 
@@ -70,10 +87,12 @@ export async function fetchExampleFiles(
     return {
       success: false,
       error: `No files found in example path: ${examplePath}`,
+      reason: 'not-found',
     }
   }
 
   try {
+    let totalBytes = 0
     const files = Object.fromEntries(
       await mapWithConcurrency(
         fileEntries,
@@ -86,6 +105,13 @@ export async function fetchExampleFiles(
 
           if (content === null) {
             throw new Error(`Missing file content for ${entry.path}`)
+          }
+
+          totalBytes += new TextEncoder().encode(content).byteLength
+          if (totalBytes > MAX_EXAMPLE_TOTAL_BYTES) {
+            throw new Error(
+              `Example is too large; maximum is ${MAX_EXAMPLE_TOTAL_BYTES} bytes`,
+            )
           }
 
           return [relativePath, content] as const
@@ -109,6 +135,7 @@ export async function fetchExampleFiles(
         error instanceof Error
           ? error.message
           : 'Failed to fetch example files',
+      reason: 'fetch-failed',
     }
   }
 }

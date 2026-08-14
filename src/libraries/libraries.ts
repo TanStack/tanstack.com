@@ -11,7 +11,7 @@ export const query: LibrarySlim = {
   id: 'query',
   ...categoryStyles.data,
   name: 'TanStack Query',
-  to: '/query',
+  to: '/query/latest',
   tagline:
     'Powerful asynchronous state management, server-state utilities and data fetching',
   description:
@@ -197,7 +197,7 @@ export const router: LibrarySlim = {
   ...categoryStyles.framework,
   name: 'TanStack Router',
   installPath: 'framework/$framework/quick-start',
-  to: '/router',
+  to: '/router/latest',
   tagline: 'Type-safe Routing for React and Solid applications',
   description:
     'A powerful React router for client-side and full-stack react applications. Fully type-safe APIs, first-class search-params for managing state in the URL and seamless integration with the existing React ecosystem.',
@@ -259,7 +259,7 @@ export const start: LibrarySlim = {
   id: 'start',
   ...categoryStyles.framework,
   name: 'TanStack Start',
-  to: '/start',
+  to: '/start/latest',
   tagline:
     'Full-stack Framework powered by TanStack Router for React and Solid',
   description:
@@ -291,7 +291,7 @@ export const table: LibrarySlim = {
   id: 'table',
   ...categoryStyles.ui,
   name: 'TanStack Table',
-  to: '/table',
+  to: '/table/latest',
   tagline: 'Headless, type-safe table and data-grid infrastructure',
   description:
     'Build tables and data grids with feature-level tree shaking, reactive state, fast row models, and complete control over markup and styles.',
@@ -337,7 +337,7 @@ export const charts: LibrarySlim = {
   id: 'charts',
   ...categoryStyles.ui,
   name: 'TanStack Charts',
-  to: '/charts',
+  to: '/charts/latest',
   tagline: "A chart grammar you don't have to outgrow.",
   description:
     'A typed, tree-shakable chart grammar for SVG and Canvas. Compose marks, views, scales, transforms, interactions, and motion with compact primitives or D3-compatible inputs.',
@@ -426,7 +426,7 @@ export const form: LibrarySlim = {
   id: 'form',
   ...categoryStyles.ui,
   name: 'TanStack Form',
-  to: '/form',
+  to: '/form/latest',
   tagline: 'Headless UI for building performant and type-safe forms',
   description:
     'Headless, performant, and type-safe form state management for TS/JS, React, Preact, Vue, Angular, Solid, Lit and Svelte.',
@@ -449,7 +449,7 @@ export const virtual: LibrarySlim = {
   id: 'virtual',
   ...categoryStyles.performance,
   name: 'TanStack Virtual',
-  to: '/virtual',
+  to: '/virtual/latest',
   tagline: 'Headless UI for Virtualizing Large Element Lists',
   description:
     'Virtualize only the visible content for massive scrollable DOM nodes at 60FPS in TS/JS, React, Vue, Solid, Svelte, Lit, Angular & Marko while retaining 100% control over markup and styles.',
@@ -499,7 +499,7 @@ export const store: LibrarySlim = {
   id: 'store',
   ...categoryStyles.data,
   name: 'TanStack Store',
-  to: '/store',
+  to: '/store/latest',
   tagline: 'Framework agnostic data store with reactive framework adapters',
   description:
     'The immutable-reactive data store that powers the core of TanStack libraries and their framework adapters.',
@@ -532,7 +532,7 @@ export const pacer: LibrarySlim = {
   id: 'pacer',
   ...categoryStyles.performance,
   name: 'TanStack Pacer',
-  to: '/pacer',
+  to: '/pacer/latest',
   tagline:
     'Framework agnostic debouncing, throttling, rate limiting, queuing, and batching utilities',
   description:
@@ -572,7 +572,7 @@ export const hotkeys: LibrarySlim = {
   id: 'hotkeys',
   ...categoryStyles.ui,
   name: 'TanStack Hotkeys',
-  to: '/hotkeys',
+  to: '/hotkeys/latest',
   tagline:
     'Type-safe keyboard shortcuts, sequences, and key state tracking for your apps',
   description:
@@ -605,7 +605,7 @@ export const markdown: LibrarySlim = {
   id: 'markdown',
   name: 'TanStack Markdown',
   cardStyles: 'text-fuchsia-500 dark:text-fuchsia-400 hover:border-current',
-  to: '/markdown',
+  to: '/markdown/latest',
   tagline: 'A serializable document model for docs and AI streams',
   description:
     'A deliberately bounded Markdown parser with a public serializable AST, safe defaults, deterministic React, HTML, and Octane output, and a stateless profile for accumulated AI streams.',
@@ -635,7 +635,7 @@ export const highlight: LibrarySlim = {
   id: 'highlight',
   name: 'TanStack Highlight',
   cardStyles: 'text-amber-500 dark:text-amber-400 hover:border-current',
-  to: '/highlight',
+  to: '/highlight/latest',
   tagline: 'Web-first syntax highlighting with compact, themeable HTML',
   description:
     'A synchronous syntax highlighter with selective language imports, context-aware web scanners, semantic CSS themes, precise annotations, and compact deterministic output.',
@@ -665,7 +665,7 @@ export const db: LibrarySlim = {
   id: 'db',
   ...categoryStyles.data,
   name: 'TanStack DB',
-  to: '/db',
+  to: '/db/latest',
   tagline: 'The reactive client-first store for your API',
   description:
     'TanStack DB gives you a reactive, client-first store for your API data with collections, live queries and optimistic mutations that keep your UI reactive, consistent and blazing fast 🔥',
@@ -689,7 +689,7 @@ export const ai: LibrarySlim = {
   id: 'ai',
   ...categoryStyles.data,
   name: 'TanStack AI',
-  to: '/ai',
+  to: '/ai/latest',
   tagline: 'The headless agent framework for TypeScript. Bring your own stack',
   description:
     'The headless agent framework for TypeScript. TanStack AI runs the agent loop as typed primitives you compose yourself: tool calls, reasoning, human-in-the-loop interrupts, memory, and streaming state. Eleven provider adapters, seven UI framework bindings, sandboxed code execution, MCP, and coding-agent harnesses behind one interface. Native AG-UI over the wire, MIT licensed, no hosted gateway and no platform to buy into.',
@@ -738,7 +738,7 @@ export const intent: LibrarySlim = {
   id: 'intent',
   ...categoryStyles.tooling,
   name: 'TanStack Intent',
-  to: '/intent',
+  to: '/intent/latest',
   tagline: 'Ship Agent Skills with your npm Packages',
   description:
     "Generate, validate, and ship Agent Skills alongside your library — versioned knowledge that agents discover automatically from node_modules. Skills live in each library's repo and update when the package updates.",
@@ -761,7 +761,7 @@ export const config: LibrarySlim = {
   id: 'config',
   ...categoryStyles.tooling,
   name: 'TanStack Config',
-  to: '/config',
+  to: '/config/latest',
   tagline:
     'Configuration and tools for publishing and maintaining high-quality JavaScript packages',
   description:
@@ -784,7 +784,7 @@ export const devtools: LibrarySlim = {
   id: 'devtools',
   ...categoryStyles.tooling,
   name: 'TanStack Devtools',
-  to: '/devtools',
+  to: '/devtools/latest',
   tagline:
     'Centralized devtools panel for TanStack libraries and other custom devtools',
   description:
@@ -848,7 +848,7 @@ export const cli: LibrarySlim = {
   id: 'cli',
   ...categoryStyles.tooling,
   name: 'TanStack CLI',
-  to: '/cli',
+  to: '/cli/latest',
   tagline: 'CLI and project scaffolding toolkit for TanStack',
   description:
     'A CLI toolkit for TanStack. Create and customize TanStack Start apps, search docs, inspect add-ons, and generate project changes with current TanStack context.',

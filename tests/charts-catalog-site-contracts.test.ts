@@ -24,6 +24,7 @@ test('sitemap exposes catalog pages but not runtime resources', () => {
         schemaVersion: 1,
         order: 1,
         id: '01-line',
+        collection: 'shadcn',
         title: 'Line chart',
         family: 'trend',
         intent: 'Show a line.',
@@ -50,6 +51,7 @@ test('sitemap exposes catalog pages but not runtime resources', () => {
 
   assert.deepEqual(getChartsCatalogSitemapEntries(index), [
     { path: '/charts/catalog/' },
+    { path: '/charts/catalog/collections/shadcn/' },
     { path: '/charts/catalog/charts/01-line/' },
   ])
 })

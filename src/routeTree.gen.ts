@@ -190,6 +190,7 @@ import { Route as LibraryLibraryIdVersionDocsIndexRouteImport } from './routes/_
 import { Route as ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRouteImport } from './routes/charts.catalog_.previews.$revision.{$caseId}[.]svg'
 import { Route as ApiNotebookProjectsHashQuarantineRouteImport } from './routes/api/notebook/projects.$hash.quarantine'
 import { Route as ApiAuthCliStatusTicketIdRouteImport } from './routes/api/auth/cli/status.$ticketId'
+import { Route as LibraryChartsCatalogCollectionsCollectionIdRouteImport } from './routes/_library/charts.catalog.collections.$collectionId'
 import { Route as LibraryChartsCatalogChartsCaseIdRouteImport } from './routes/_library/charts.catalog.charts.$caseId'
 import { Route as LibraryLibraryIdVersionDocsChar123Char125DotmdRouteImport } from './routes/_library/$libraryId/$version.docs.{$}[.]md'
 import { Route as LibraryLibraryIdVersionDocsNpmStatsRouteImport } from './routes/_library/$libraryId/$version.docs.npm-stats'
@@ -1148,6 +1149,12 @@ const ApiAuthCliStatusTicketIdRoute =
     path: '/api/auth/cli/status/$ticketId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const LibraryChartsCatalogCollectionsCollectionIdRoute =
+  LibraryChartsCatalogCollectionsCollectionIdRouteImport.update({
+    id: '/collections/$collectionId',
+    path: '/collections/$collectionId',
+    getParentRoute: () => LibraryChartsCatalogRoute,
+  } as any)
 const LibraryChartsCatalogChartsCaseIdRoute =
   LibraryChartsCatalogChartsCaseIdRouteImport.update({
     id: '/charts/$caseId',
@@ -1414,6 +1421,7 @@ export interface FileRoutesByFullPath {
   '/$libraryId/$version/docs/npm-stats': typeof LibraryLibraryIdVersionDocsNpmStatsRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryLibraryIdVersionDocsChar123Char125DotmdRoute
   '/charts/catalog/charts/$caseId': typeof LibraryChartsCatalogChartsCaseIdRoute
+  '/charts/catalog/collections/$collectionId': typeof LibraryChartsCatalogCollectionsCollectionIdRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
   '/api/notebook/projects/$hash/quarantine': typeof ApiNotebookProjectsHashQuarantineRoute
   '/charts/catalog/previews/$revision/{$caseId}.svg': typeof ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute
@@ -1597,6 +1605,7 @@ export interface FileRoutesByTo {
   '/$libraryId/$version/docs/npm-stats': typeof LibraryLibraryIdVersionDocsNpmStatsRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryLibraryIdVersionDocsChar123Char125DotmdRoute
   '/charts/catalog/charts/$caseId': typeof LibraryChartsCatalogChartsCaseIdRoute
+  '/charts/catalog/collections/$collectionId': typeof LibraryChartsCatalogCollectionsCollectionIdRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
   '/api/notebook/projects/$hash/quarantine': typeof ApiNotebookProjectsHashQuarantineRoute
   '/charts/catalog/previews/$revision/{$caseId}.svg': typeof ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute
@@ -1794,6 +1803,7 @@ export interface FileRoutesById {
   '/_library/$libraryId/$version/docs/npm-stats': typeof LibraryLibraryIdVersionDocsNpmStatsRoute
   '/_library/$libraryId/$version/docs/{$}.md': typeof LibraryLibraryIdVersionDocsChar123Char125DotmdRoute
   '/_library/charts/catalog/charts/$caseId': typeof LibraryChartsCatalogChartsCaseIdRoute
+  '/_library/charts/catalog/collections/$collectionId': typeof LibraryChartsCatalogCollectionsCollectionIdRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
   '/api/notebook/projects/$hash/quarantine': typeof ApiNotebookProjectsHashQuarantineRoute
   '/charts/catalog_/previews/$revision/{$caseId}.svg': typeof ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute
@@ -1991,6 +2001,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/npm-stats'
     | '/$libraryId/$version/docs/{$}.md'
     | '/charts/catalog/charts/$caseId'
+    | '/charts/catalog/collections/$collectionId'
     | '/api/auth/cli/status/$ticketId'
     | '/api/notebook/projects/$hash/quarantine'
     | '/charts/catalog/previews/$revision/{$caseId}.svg'
@@ -2174,6 +2185,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/npm-stats'
     | '/$libraryId/$version/docs/{$}.md'
     | '/charts/catalog/charts/$caseId'
+    | '/charts/catalog/collections/$collectionId'
     | '/api/auth/cli/status/$ticketId'
     | '/api/notebook/projects/$hash/quarantine'
     | '/charts/catalog/previews/$revision/{$caseId}.svg'
@@ -2370,6 +2382,7 @@ export interface FileRouteTypes {
     | '/_library/$libraryId/$version/docs/npm-stats'
     | '/_library/$libraryId/$version/docs/{$}.md'
     | '/_library/charts/catalog/charts/$caseId'
+    | '/_library/charts/catalog/collections/$collectionId'
     | '/api/auth/cli/status/$ticketId'
     | '/api/notebook/projects/$hash/quarantine'
     | '/charts/catalog_/previews/$revision/{$caseId}.svg'
@@ -3740,6 +3753,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthCliStatusTicketIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_library/charts/catalog/collections/$collectionId': {
+      id: '/_library/charts/catalog/collections/$collectionId'
+      path: '/collections/$collectionId'
+      fullPath: '/charts/catalog/collections/$collectionId'
+      preLoaderRoute: typeof LibraryChartsCatalogCollectionsCollectionIdRouteImport
+      parentRoute: typeof LibraryChartsCatalogRoute
+    }
     '/_library/charts/catalog/charts/$caseId': {
       id: '/_library/charts/catalog/charts/$caseId'
       path: '/charts/$caseId'
@@ -3975,12 +3995,15 @@ interface LibraryChartsCatalogRouteChildren {
   LibraryChartsCatalogAllRoute: typeof LibraryChartsCatalogAllRoute
   LibraryChartsCatalogIndexRoute: typeof LibraryChartsCatalogIndexRoute
   LibraryChartsCatalogChartsCaseIdRoute: typeof LibraryChartsCatalogChartsCaseIdRoute
+  LibraryChartsCatalogCollectionsCollectionIdRoute: typeof LibraryChartsCatalogCollectionsCollectionIdRoute
 }
 
 const LibraryChartsCatalogRouteChildren: LibraryChartsCatalogRouteChildren = {
   LibraryChartsCatalogAllRoute: LibraryChartsCatalogAllRoute,
   LibraryChartsCatalogIndexRoute: LibraryChartsCatalogIndexRoute,
   LibraryChartsCatalogChartsCaseIdRoute: LibraryChartsCatalogChartsCaseIdRoute,
+  LibraryChartsCatalogCollectionsCollectionIdRoute:
+    LibraryChartsCatalogCollectionsCollectionIdRoute,
 }
 
 const LibraryChartsCatalogRouteWithChildren =

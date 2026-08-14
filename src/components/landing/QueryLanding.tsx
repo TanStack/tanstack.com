@@ -222,7 +222,7 @@ function QueryCachePanel() {
   // Starts paused so the server render matches the first client render; the
   // effect below turns it on unless the visitor asked for reduced motion.
   const [isLive, setIsLive] = React.useState(false)
-  // `0` until the first tick; re-renders drive the draining freshness gauges.
+  // `0` keeps `Date.now()` out of the first render so SSR and hydration agree.
   const [now, setNow] = React.useState(0)
   const [selectedId, setSelectedId] = React.useState<string>(
     queryHeroRows[0].id,
@@ -300,16 +300,14 @@ function QueryCachePanel() {
   const rows = queryHeroRows.map((row, index) => {
     const query = rowQueries[index]
     const elapsed = now - query.dataUpdatedAt
-    // Drained value at this instant, before the refill sweep is applied.
-    const drained =
-      query.dataUpdatedAt > 0
-        ? Math.max(0, Math.min(100, (1 - elapsed / row.staleTime) * 100))
-        : 100
-    // A refetch sweeps the bar back up over `queryHeroRefillMs`, then hands
-    // off to the drain. Interpolating here rather than with a CSS transition
-    // keeps the two continuous: the sweep ends exactly on the drained value.
-    const refillProgress =
-      query.dataUpdatedAt > 0 ? Math.min(1, elapsed / queryHeroRefillMs) : 1
+    // A refetch sweeps the bar up to the freshness the entry actually has,
+    // then the same value drains. Interpolating both here rather than with a
+    // CSS transition keeps them continuous — no jump at the handoff.
+    const drained = Math.max(
+      0,
+      Math.min(100, (1 - elapsed / row.staleTime) * 100),
+    )
+    const refill = Math.min(1, elapsed / queryHeroRefillMs)
     return {
       ...row,
       query,
@@ -321,15 +319,16 @@ function QueryCachePanel() {
           .find({ queryKey: queryHeroKey(row.id) })
           ?.getObserversCount() ?? 0,
       // Kept fractional so per-frame movement is not rounded away.
-      freshness: Math.round(drained * refillProgress * 10) / 10,
+      freshness:
+        query.dataUpdatedAt > 0 ? Math.round(drained * refill * 10) / 10 : 100,
     }
   })
   const selected = rows.find((row) => row.id === selectedId) ?? rows[0]
   const freshCount = rows.filter((row) => row.state === 'fresh').length
   const cacheState =
     fetchingCount > 0 ? 'fetching' : freshCount > 0 ? 'fresh' : 'stale'
-  // `now` only ticks once a second, so it can trail a just-refetched
-  // `dataUpdatedAt`; clamping keeps the readout off negative seconds.
+  // Under reduced motion `now` only ticks once a second, so it can trail a
+  // just-refetched `dataUpdatedAt`; clamping keeps the readout non-negative.
   const fetchedLabel =
     selected.query.dataUpdatedAt > 0
       ? `${Math.max(0, Math.round((now - selected.query.dataUpdatedAt) / 1000))}s ago`

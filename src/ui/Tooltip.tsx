@@ -33,7 +33,7 @@ export function Tooltip({
             align={align}
             sideOffset={5}
             className={twMerge(
-              'z-50 rounded-lg px-3 py-2 text-xs',
+              'z-1300 rounded-lg px-3 py-2 text-xs',
               'bg-background-inverse text-text-inverse',
               'shadow-lg',
               'animate-in fade-in-0 zoom-in-95',

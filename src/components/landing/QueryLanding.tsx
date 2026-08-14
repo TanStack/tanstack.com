@@ -41,20 +41,20 @@ type QueryHeroRow = {
 const queryHeroRows = [
   {
     id: 'router-cache',
-    staleTime: 2000,
-    refetchInterval: 3000,
+    staleTime: 4000,
+    refetchInterval: 6000,
     seed: { priority: 0, revision: 0, title: 'Router dashboard' },
   },
   {
     id: 'project-detail',
-    staleTime: 6000,
-    refetchInterval: 7000,
+    staleTime: 8000,
+    refetchInterval: 10000,
     seed: { priority: 0, revision: 0, title: 'Project detail' },
   },
   {
     id: 'offline-queue',
     staleTime: 14000,
-    refetchInterval: 15000,
+    refetchInterval: 16000,
     seed: { priority: 0, revision: 0, title: 'Offline mutation queue' },
   },
 ] satisfies readonly [QueryHeroRow, ...QueryHeroRow[]]
@@ -297,6 +297,9 @@ function QueryCachePanel() {
   const rows = queryHeroRows.map((row, index) => {
     const query = rowQueries[index]
     const elapsed = now - query.dataUpdatedAt
+    // A just-refetched row is held at full while the refill transition plays,
+    // so the bar lands on 100% before the per-frame drain takes over.
+    const isRefilling = query.dataUpdatedAt > 0 && elapsed < 220
     return {
       ...row,
       query,
@@ -307,13 +310,18 @@ function QueryCachePanel() {
           .getQueryCache()
           .find({ queryKey: queryHeroKey(row.id) })
           ?.getObserversCount() ?? 0,
+      // Kept fractional so per-frame movement is not rounded away.
       freshness:
-        query.dataUpdatedAt > 0
+        query.dataUpdatedAt > 0 && !isRefilling
           ? Math.max(
               0,
-              Math.min(100, Math.round((1 - elapsed / row.staleTime) * 100)),
+              Math.min(
+                100,
+                Math.round((1 - elapsed / row.staleTime) * 1000) / 10,
+              ),
             )
           : 100,
+      isRefilling,
     }
   })
   const selected = rows.find((row) => row.id === selectedId) ?? rows[0]
@@ -333,10 +341,20 @@ function QueryCachePanel() {
     setIsLive(prefersReducedMotion === false)
   }, [prefersReducedMotion])
 
+  // Per-frame rather than per-second: the gauges interpolate here instead of
+  // through a CSS transition, so their drain rate tracks elapsed time exactly.
   React.useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), 1000)
-    return () => clearInterval(id)
-  }, [])
+    if (prefersReducedMotion === true) {
+      const id = setInterval(() => setNow(Date.now()), 1000)
+      return () => clearInterval(id)
+    }
+
+    let frame = requestAnimationFrame(function tick() {
+      setNow(Date.now())
+      frame = requestAnimationFrame(tick)
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [prefersReducedMotion])
 
   return (
     <div className="library-landing-graphic min-w-0 overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.45)] bg-background-surface shadow-[0_24px_70px_-28px_rgb(var(--landing-glow)/0.45)] dark:shadow-[inset_-3px_-4px_18px_-7px_var(--landing-accent),0_24px_70px_rgb(0_0_0/0.18)]">
@@ -395,12 +413,13 @@ function QueryCachePanel() {
               <span className="mt-4 flex items-center gap-3">
                 <span className="h-1 flex-1 overflow-hidden rounded-full bg-text-primary/5">
                   <span
-                    // Refills instantly on a refetch, then drains at a steady
-                    // rate; easing the refill would cap the bar below 100%.
-                    className={`block h-full rounded-full bg-[var(--landing-accent)] ease-linear motion-reduce:transition-none ${
-                      row.freshness === 100
-                        ? ''
-                        : 'transition-[width] duration-1000'
+                    // The drain is interpolated per frame, so only the refill
+                    // needs a transition — and a short one, or the bar would
+                    // start draining before it reaches full.
+                    className={`block h-full rounded-full bg-[var(--landing-accent)] ease-linear ${
+                      row.isRefilling
+                        ? 'transition-[width] duration-200 motion-reduce:transition-none'
+                        : ''
                     }`}
                     style={{ width: `${row.freshness}%` }}
                   />

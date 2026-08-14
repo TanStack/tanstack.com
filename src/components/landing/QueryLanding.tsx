@@ -455,12 +455,14 @@ function QueryCachePanel() {
             <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
-                className="inline-flex items-center gap-1.5 rounded-md border border-border-subtle px-3 py-2 text-ds-label-sm text-text-primary/70 transition-colors hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
+                aria-label="Refetch"
+                title="Refetch"
+                className="inline-flex items-center rounded-md border border-border-subtle px-3 py-2 text-text-primary/70 transition-colors hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
                 onClick={() => selected.query.refetch()}
               >
                 <ArrowsClockwiseIcon
                   aria-hidden="true"
-                  size={13}
+                  size={14}
                   weight="bold"
                   className={
                     selected.query.isFetching
@@ -468,7 +470,6 @@ function QueryCachePanel() {
                       : ''
                   }
                 />
-                Refetch
               </button>
               <button
                 type="button"

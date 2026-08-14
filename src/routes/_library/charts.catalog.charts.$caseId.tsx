@@ -1,5 +1,8 @@
 import { createFileRoute, notFound } from '@tanstack/react-router'
-import { ChartsCatalogDetail } from '~/components/charts/ChartsCatalogPages'
+import {
+  ChartsCatalogDetail,
+  ChartsCatalogDetailPending,
+} from '~/components/charts/ChartsCatalogPages'
 import { getChartsCatalogCase } from '~/utils/charts-catalog.functions'
 import { seo } from '~/utils/seo'
 
@@ -14,6 +17,8 @@ export const Route = createFileRoute('/_library/charts/catalog/charts/$caseId')(
       if (!data) throw notFound()
       return data
     },
+    pendingComponent: ChartsCatalogDetailPending,
+    pendingMs: 250,
     component: ChartsCatalogCaseRoute,
     head: ({ loaderData }) => ({
       meta: seo({

@@ -135,6 +135,20 @@ export function ChartsCatalogDetail({
   )
 }
 
+export function ChartsCatalogDetailPending() {
+  return (
+    <CatalogSurface wide>
+      <p
+        aria-live="polite"
+        className="rounded-lg border border-gray-200 p-6 text-sm text-gray-500 dark:border-gray-800"
+        role="status"
+      >
+        Loading chart example…
+      </p>
+    </CatalogSurface>
+  )
+}
+
 function CatalogWorkbenchFallback({
   catalogCase,
 }: {

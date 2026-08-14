@@ -221,9 +221,9 @@ function QueryCachePanel() {
   const bumpAttemptRef = React.useRef(0)
   // Where each gauge stood when its entry was last written, so the sweep after
   // a write starts from the bar's current position instead of from empty.
-  const sweepFromRef = React.useRef<Record<string, number>>({})
-  const lastWriteRef = React.useRef<Record<string, number>>({})
-  const shownRef = React.useRef<Record<string, number>>({})
+  const gaugeRef = React.useRef<
+    Record<string, { from: number; shown: number; writtenAt: number }>
+  >({})
   // Starts paused so the server render matches the first client render; the
   // effect below turns it on unless the visitor asked for reduced motion.
   const [isLive, setIsLive] = React.useState(false)
@@ -312,15 +312,18 @@ function QueryCachePanel() {
     // A cache write sweeps the bar from wherever it stood up to the freshness
     // the entry actually has. Anchoring the sweep to the last painted value
     // keeps a mid-drain write from collapsing the bar before it climbs again.
-    const writtenAt = query.dataUpdatedAt
-    if (lastWriteRef.current[row.id] !== writtenAt) {
-      sweepFromRef.current[row.id] = shownRef.current[row.id] ?? 0
-      lastWriteRef.current[row.id] = writtenAt
+    const gauge = (gaugeRef.current[row.id] ??= {
+      from: 0,
+      shown: 0,
+      writtenAt: query.dataUpdatedAt,
+    })
+    if (gauge.writtenAt !== query.dataUpdatedAt) {
+      gauge.from = gauge.shown
+      gauge.writtenAt = query.dataUpdatedAt
     }
     const sweep = Math.min(1, elapsed / queryHeroRefillMs)
-    const from = sweepFromRef.current[row.id] ?? 0
-    const freshness = from + (drained - from) * sweep
-    shownRef.current[row.id] = freshness
+    const freshness = gauge.from + (drained - gauge.from) * sweep
+    gauge.shown = freshness
     return {
       ...row,
       query,

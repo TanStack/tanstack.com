@@ -38,7 +38,7 @@ const queryHeroRows = [
     refetchInterval: 3000,
     seed: {
       observers: 3,
-      priority: 98,
+      priority: 0,
       revision: 0,
       title: 'Router dashboard',
     },
@@ -47,7 +47,7 @@ const queryHeroRows = [
     id: 'project-detail',
     staleTime: 6000,
     refetchInterval: 7000,
-    seed: { observers: 2, priority: 91, revision: 0, title: 'Project detail' },
+    seed: { observers: 2, priority: 0, revision: 0, title: 'Project detail' },
   },
   {
     id: 'offline-queue',
@@ -55,7 +55,7 @@ const queryHeroRows = [
     refetchInterval: 15000,
     seed: {
       observers: 1,
-      priority: 84,
+      priority: 0,
       revision: 0,
       title: 'Offline mutation queue',
     },
@@ -248,7 +248,7 @@ function QueryCachePanel() {
       const next = {
         ...current,
         // Wraps instead of clamping so repeated bumps always visibly move.
-        priority: current.priority >= 99 ? 80 : current.priority + 1,
+        priority: current.priority >= 99 ? 0 : current.priority + 1,
         revision: current.revision + 1,
       }
       serverRowsRef.current[id] = next

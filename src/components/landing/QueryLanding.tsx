@@ -31,6 +31,8 @@ type QueryHeroMutationContext = {
 
 const queryHeroKey = ['landing-query-hero'] as const
 
+const queryHeroStaleTime = 3200
+
 const queryHeroInitialRows: Array<QueryHeroIssue> = [
   { id: 'router-cache', observers: 3, priority: 98, title: 'Router dashboard' },
   { id: 'project-detail', observers: 2, priority: 91, title: 'Project detail' },
@@ -206,7 +208,7 @@ function QueryCachePanel() {
     initialData: queryHeroInitialSnapshot,
     initialDataUpdatedAt: 0,
     refetchInterval: isLive ? 4200 : false,
-    staleTime: 3200,
+    staleTime: queryHeroStaleTime,
   })
 
   const addIssueMutation = useMutation<
@@ -267,6 +269,24 @@ function QueryCachePanel() {
     projectsQuery.data.fetchedAt > 0
       ? `${Math.max(0, Math.round((Math.max(now, projectsQuery.data.fetchedAt) - projectsQuery.data.fetchedAt) / 1000))}s ago`
       : 'primed'
+  // Freshness drains from 100% to 0% across `staleTime`, so the gauge shows how
+  // much of the cache entry's fresh window is left before Query marks it stale.
+  const freshness =
+    projectsQuery.data.fetchedAt > 0
+      ? Math.max(
+          0,
+          Math.min(
+            100,
+            Math.round(
+              (1 -
+                (Math.max(now, projectsQuery.data.fetchedAt) -
+                  projectsQuery.data.fetchedAt) /
+                  queryHeroStaleTime) *
+                100,
+            ),
+          ),
+        )
+      : 100
 
   React.useEffect(() => {
     if (prefersReducedMotion === null) return
@@ -352,7 +372,7 @@ function QueryCachePanel() {
                 <span className="h-1 flex-1 overflow-hidden rounded-full bg-text-primary/5">
                   <span
                     className="block h-full rounded-full bg-[var(--landing-accent)] transition-[width] duration-500 motion-reduce:transition-none"
-                    style={{ width: `${row.priority}%` }}
+                    style={{ width: `${freshness}%` }}
                   />
                 </span>
                 <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/35">
@@ -426,7 +446,10 @@ function QueryCachePanel() {
                 value: String(selectedRow?.observers ?? 0),
               },
               { label: 'priority', value: `P${selectedRow?.priority ?? 0}` },
-              { label: 'staleTime', value: '3,200' },
+              {
+                label: 'staleTime',
+                value: queryHeroStaleTime.toLocaleString('en-US'),
+              },
               { label: 'mutation', value: addIssueMutation.status },
             ].map((fact) => (
               <div key={fact.label} className="flex justify-between gap-3">

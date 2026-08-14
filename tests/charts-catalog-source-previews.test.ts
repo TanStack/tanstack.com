@@ -18,6 +18,7 @@ import {
   CatalogChartsHero,
   ChartsCatalogGallery,
 } from '../src/components/landing/ChartsCatalogGallery'
+import { Route as chartsCatalogCaseRoute } from '../src/routes/_library/charts.catalog.charts.$caseId'
 import { serveChartsCatalogPreview } from '../src/routes/charts.catalog_.previews.$revision.{$caseId}[.]svg'
 import {
   getChartsCatalogPreviewHeaders,
@@ -32,15 +33,14 @@ const previewSvg =
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 288 192"><path d="M0 192L288 0" stroke="#2563eb"/></svg>'
 
 test('catalog detail navigation exposes feedback while its source loads', () => {
-  const routeSource = readFileSync(
-    'src/routes/_library/charts.catalog.charts.$caseId.tsx',
-    'utf8',
-  )
   const html = renderToStaticMarkup(createElement(ChartsCatalogDetailPending))
   const $ = load(html)
 
-  assert.match(routeSource, /pendingComponent: ChartsCatalogDetailPending/)
-  assert.match(routeSource, /pendingMs: 250/)
+  assert.equal(
+    chartsCatalogCaseRoute.options.pendingComponent,
+    ChartsCatalogDetailPending,
+  )
+  assert.equal(chartsCatalogCaseRoute.options.pendingMs, 250)
   assert.equal($('[role="status"]').text(), 'Loading chart example…')
 })
 

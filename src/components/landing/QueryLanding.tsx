@@ -50,15 +50,30 @@ const queryHeroRows = [
     refetchInterval: 15000,
     seed: { priority: 0, revision: 0, title: 'Offline mutation queue' },
   },
-] as const
+] satisfies ReadonlyArray<{
+  id: string
+  refetchInterval: number
+  seed: QueryHeroIssue
+  staleTime: number
+}>
 
 const queryHeroKey = (id: string) => ['issues', id] as const
 
-const queryHeroStateClass = {
+type QueryHeroState = 'fetching' | 'fresh' | 'stale'
+
+const queryHeroStateClass: Record<QueryHeroState, string> = {
   fetching: 'bg-amber-400 text-amber-950',
   fresh: 'bg-emerald-500 text-emerald-950',
   stale: 'bg-[var(--landing-accent)] text-[var(--landing-accent-ink)]',
-} as const
+}
+
+function queryHeroState(query: {
+  isFetching: boolean
+  isStale: boolean
+}): QueryHeroState {
+  if (query.isFetching) return 'fetching'
+  return query.isStale ? 'stale' : 'fresh'
+}
 
 function waitForQueryHero(ms: number) {
   return new Promise<void>((resolve) => {
@@ -186,10 +201,8 @@ function QueryCachePanel() {
   const queryClient = useQueryClient()
   const { notify } = useToast()
   // One server-side record per key, so the three queries return distinct data.
-  const serverRowsRef = React.useRef(
-    Object.fromEntries(
-      queryHeroRows.map((row) => [row.id, { ...row.seed }]),
-    ) as Record<string, QueryHeroIssue>,
+  const serverRowsRef = React.useRef<Record<string, QueryHeroIssue>>(
+    Object.fromEntries(queryHeroRows.map((row) => [row.id, { ...row.seed }])),
   )
   const bumpAttemptRef = React.useRef(0)
   // Starts paused so the server render matches the first client render; the
@@ -208,7 +221,7 @@ function QueryCachePanel() {
         await waitForQueryHero(620)
         return serverRowsRef.current[row.id]!
       },
-      initialData: row.seed as QueryHeroIssue,
+      initialData: row.seed,
       initialDataUpdatedAt: 0,
       refetchInterval: isLive ? row.refetchInterval : false,
       staleTime: row.staleTime,
@@ -294,11 +307,7 @@ function QueryCachePanel() {
       ...row,
       query,
       issue: query.data,
-      state: query.isFetching
-        ? ('fetching' as const)
-        : query.isStale
-          ? ('stale' as const)
-          : ('fresh' as const),
+      state: queryHeroState(query),
       // Read from the cache rather than seeded, so it reflects the components
       // actually subscribed to this key.
       observers:

@@ -219,6 +219,11 @@ function QueryCachePanel() {
     Object.fromEntries(queryHeroRows.map((row) => [row.id, { ...row.seed }])),
   )
   const bumpAttemptRef = React.useRef(0)
+  // Where each gauge stood when its entry was last written, so the sweep after
+  // a write starts from the bar's current position instead of from empty.
+  const sweepFromRef = React.useRef<Record<string, number>>({})
+  const lastWriteRef = React.useRef<Record<string, number>>({})
+  const shownRef = React.useRef<Record<string, number>>({})
   // Starts paused so the server render matches the first client render; the
   // effect below turns it on unless the visitor asked for reduced motion.
   const [isLive, setIsLive] = React.useState(false)
@@ -300,14 +305,22 @@ function QueryCachePanel() {
   const rows = queryHeroRows.map((row, index) => {
     const query = rowQueries[index]
     const elapsed = now - query.dataUpdatedAt
-    // A refetch sweeps the bar up to the freshness the entry actually has,
-    // then the same value drains. Interpolating both here rather than with a
-    // CSS transition keeps them continuous — no jump at the handoff.
     const drained = Math.max(
       0,
       Math.min(100, (1 - elapsed / row.staleTime) * 100),
     )
-    const refill = Math.min(1, elapsed / queryHeroRefillMs)
+    // A cache write sweeps the bar from wherever it stood up to the freshness
+    // the entry actually has. Anchoring the sweep to the last painted value
+    // keeps a mid-drain write from collapsing the bar before it climbs again.
+    const writtenAt = query.dataUpdatedAt
+    if (lastWriteRef.current[row.id] !== writtenAt) {
+      sweepFromRef.current[row.id] = shownRef.current[row.id] ?? 0
+      lastWriteRef.current[row.id] = writtenAt
+    }
+    const sweep = Math.min(1, elapsed / queryHeroRefillMs)
+    const from = sweepFromRef.current[row.id] ?? 0
+    const freshness = from + (drained - from) * sweep
+    shownRef.current[row.id] = freshness
     return {
       ...row,
       query,
@@ -320,7 +333,7 @@ function QueryCachePanel() {
           ?.getObserversCount() ?? 0,
       // Kept fractional so per-frame movement is not rounded away.
       freshness:
-        query.dataUpdatedAt > 0 ? Math.round(drained * refill * 10) / 10 : 100,
+        query.dataUpdatedAt > 0 ? Math.round(freshness * 10) / 10 : 100,
     }
   })
   const selected = rows.find((row) => row.id === selectedId) ?? rows[0]

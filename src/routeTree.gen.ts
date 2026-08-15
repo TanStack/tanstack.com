@@ -65,6 +65,7 @@ import { Route as PartnersPartnerRouteImport } from './routes/partners.$partner'
 import { Route as OauthTokenRouteImport } from './routes/oauth/token'
 import { Route as OauthRegisterRouteImport } from './routes/oauth/register'
 import { Route as OauthAuthorizeRouteImport } from './routes/oauth/authorize'
+import { Route as NotebookNewRouteImport } from './routes/notebook_.new'
 import { Route as NotebookLlmsDottxtRouteImport } from './routes/notebook_.llms[.]txt'
 import { Route as NotebookEsbuildRouteImport } from './routes/notebook_.esbuild'
 import { Route as NotebookIdRouteImport } from './routes/notebook_.$id'
@@ -485,6 +486,11 @@ const OauthRegisterRoute = OauthRegisterRouteImport.update({
 const OauthAuthorizeRoute = OauthAuthorizeRouteImport.update({
   id: '/oauth/authorize',
   path: '/oauth/authorize',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotebookNewRoute = NotebookNewRouteImport.update({
+  id: '/notebook_/new',
+  path: '/notebook/new',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NotebookLlmsDottxtRoute = NotebookLlmsDottxtRouteImport.update({
@@ -1333,6 +1339,7 @@ export interface FileRoutesByFullPath {
   '/notebook/$id': typeof NotebookIdRoute
   '/notebook/esbuild': typeof NotebookEsbuildRoute
   '/notebook/llms.txt': typeof NotebookLlmsDottxtRoute
+  '/notebook/new': typeof NotebookNewRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
   '/oauth/token': typeof OauthTokenRoute
@@ -1524,6 +1531,7 @@ export interface FileRoutesByTo {
   '/notebook/$id': typeof NotebookIdRoute
   '/notebook/esbuild': typeof NotebookEsbuildRoute
   '/notebook/llms.txt': typeof NotebookLlmsDottxtRoute
+  '/notebook/new': typeof NotebookNewRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
   '/oauth/token': typeof OauthTokenRoute
@@ -1721,6 +1729,7 @@ export interface FileRoutesById {
   '/notebook_/$id': typeof NotebookIdRoute
   '/notebook_/esbuild': typeof NotebookEsbuildRoute
   '/notebook_/llms.txt': typeof NotebookLlmsDottxtRoute
+  '/notebook_/new': typeof NotebookNewRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
   '/oauth/token': typeof OauthTokenRoute
@@ -1922,6 +1931,7 @@ export interface FileRouteTypes {
     | '/notebook/$id'
     | '/notebook/esbuild'
     | '/notebook/llms.txt'
+    | '/notebook/new'
     | '/oauth/authorize'
     | '/oauth/register'
     | '/oauth/token'
@@ -2113,6 +2123,7 @@ export interface FileRouteTypes {
     | '/notebook/$id'
     | '/notebook/esbuild'
     | '/notebook/llms.txt'
+    | '/notebook/new'
     | '/oauth/authorize'
     | '/oauth/register'
     | '/oauth/token'
@@ -2309,6 +2320,7 @@ export interface FileRouteTypes {
     | '/notebook_/$id'
     | '/notebook_/esbuild'
     | '/notebook_/llms.txt'
+    | '/notebook_/new'
     | '/oauth/authorize'
     | '/oauth/register'
     | '/oauth/token'
@@ -2475,6 +2487,7 @@ export interface RootRouteChildren {
   NotebookIdRoute: typeof NotebookIdRoute
   NotebookEsbuildRoute: typeof NotebookEsbuildRoute
   NotebookLlmsDottxtRoute: typeof NotebookLlmsDottxtRoute
+  NotebookNewRoute: typeof NotebookNewRoute
   OauthAuthorizeRoute: typeof OauthAuthorizeRoute
   OauthRegisterRoute: typeof OauthRegisterRoute
   OauthTokenRoute: typeof OauthTokenRoute
@@ -2914,6 +2927,13 @@ declare module '@tanstack/react-router' {
       path: '/oauth/authorize'
       fullPath: '/oauth/authorize'
       preLoaderRoute: typeof OauthAuthorizeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notebook_/new': {
+      id: '/notebook_/new'
+      path: '/notebook/new'
+      fullPath: '/notebook/new'
+      preLoaderRoute: typeof NotebookNewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/notebook_/llms.txt': {
@@ -4362,6 +4382,7 @@ const rootRouteChildren: RootRouteChildren = {
   NotebookIdRoute: NotebookIdRoute,
   NotebookEsbuildRoute: NotebookEsbuildRoute,
   NotebookLlmsDottxtRoute: NotebookLlmsDottxtRoute,
+  NotebookNewRoute: NotebookNewRoute,
   OauthAuthorizeRoute: OauthAuthorizeRoute,
   OauthRegisterRoute: OauthRegisterRoute,
   OauthTokenRoute: OauthTokenRoute,

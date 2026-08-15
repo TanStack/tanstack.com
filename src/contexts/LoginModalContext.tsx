@@ -4,7 +4,10 @@ import { LoginModal } from '~/components/LoginModal'
 import { currentUserQueryOptions } from '~/hooks/useCurrentUser'
 
 interface LoginModalContextValue {
-  openLoginModal: (options?: { onSuccess?: () => void }) => void
+  openLoginModal: (options?: {
+    description?: string
+    onSuccess?: () => void
+  }) => void
   closeLoginModal: () => void
 }
 
@@ -35,11 +38,13 @@ interface LoginModalProviderProps {
 export function LoginModalProvider({ children }: LoginModalProviderProps) {
   const queryClient = useQueryClient()
   const [isOpen, setIsOpen] = React.useState(false)
+  const [description, setDescription] = React.useState<string>()
   const pendingOnSuccessRef = React.useRef<(() => void) | undefined>(undefined)
 
   const openLoginModal = React.useCallback(
-    (options?: { onSuccess?: () => void }) => {
+    (options?: { description?: string; onSuccess?: () => void }) => {
       pendingOnSuccessRef.current = options?.onSuccess
+      setDescription(options?.description)
       setIsOpen(true)
     },
     [],
@@ -47,7 +52,10 @@ export function LoginModalProvider({ children }: LoginModalProviderProps) {
 
   const handleOpenChange = React.useCallback((open: boolean) => {
     setIsOpen(open)
-    if (!open) pendingOnSuccessRef.current = undefined
+    if (!open) {
+      pendingOnSuccessRef.current = undefined
+      setDescription(undefined)
+    }
   }, [])
 
   const closeLoginModal = React.useCallback(
@@ -62,6 +70,7 @@ export function LoginModalProvider({ children }: LoginModalProviderProps) {
         queryClient.invalidateQueries(currentUserQueryOptions)
         const onSuccess = pendingOnSuccessRef.current
         setIsOpen(false)
+        setDescription(undefined)
         pendingOnSuccessRef.current = undefined
         if (onSuccess) {
           setTimeout(onSuccess, 0)
@@ -80,7 +89,11 @@ export function LoginModalProvider({ children }: LoginModalProviderProps) {
   return (
     <LoginModalContext.Provider value={value}>
       {children}
-      <LoginModal open={isOpen} onOpenChange={handleOpenChange} />
+      <LoginModal
+        open={isOpen}
+        description={description}
+        onOpenChange={handleOpenChange}
+      />
     </LoginModalContext.Provider>
   )
 }

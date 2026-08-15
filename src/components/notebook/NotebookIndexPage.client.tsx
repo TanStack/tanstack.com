@@ -7,37 +7,34 @@ import {
   TrashIcon,
 } from '@phosphor-icons/react'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { useLoginModal } from '~/contexts/LoginModalContext'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { Button } from '~/components/ds/ui'
+import type { SharedExampleProject } from '~/utils/example-project'
 import {
-  createSharedExampleProject,
-  type SharedExampleProject,
-} from '~/utils/example-project'
-import { createExampleWorkspace } from '~/utils/example-workspace'
+  blankNotebookProject,
+  clearNotebookDraft,
+  createNotebookTemplateProject,
+  getBrowserNotebookDraftStorage,
+  loadNotebookDraft,
+  saveNotebookDraft,
+} from '~/utils/notebook-draft'
 import {
-  createNotebookRecord,
   deleteNotebookRecord,
   listNotebookRecords,
 } from '~/utils/notebook-record.client'
 import type { NotebookRecord } from '~/utils/notebook-record'
-import { notebookStarterSource } from '~/utils/notebook-environment'
 import { notebookExamples } from '~/utils/notebook-examples'
-
-const blankTemplate = createTemplateProject(
-  'Untitled notebook',
-  '',
-  notebookStarterSource,
-)
 
 export function NotebookIndexPage() {
   const navigate = useNavigate()
-  const { openLoginModal } = useLoginModal()
   const userQuery = useCurrentUserQuery()
   const user = userQuery.data
+  const [draftStorage] = React.useState(getBrowserNotebookDraftStorage)
+  const [draft, setDraft] = React.useState(() =>
+    loadNotebookDraft(draftStorage),
+  )
   const [records, setRecords] = React.useState<Array<NotebookRecord>>([])
   const [loadingRecords, setLoadingRecords] = React.useState(false)
-  const [creatingTitle, setCreatingTitle] = React.useState('')
   const [deletingId, setDeletingId] = React.useState('')
   const [query, setQuery] = React.useState('')
   const [error, setError] = React.useState('')
@@ -68,31 +65,41 @@ export function NotebookIndexPage() {
     }
   }, [user])
 
-  async function create(project: SharedExampleProject) {
-    setCreatingTitle(project.title)
-    setError('')
-
-    try {
-      const record = await createNotebookRecord(project)
-      await navigate({
-        to: '/notebook/$id',
-        params: { id: record.id },
-      })
-    } catch (cause) {
-      setError(formatError(cause))
-      setCreatingTitle('')
-    }
-  }
-
-  function createAfterAuthentication(project: SharedExampleProject) {
-    if (user) {
-      void create(project)
+  async function startDraft(project: SharedExampleProject, template: string) {
+    if (
+      draft &&
+      !window.confirm(`Replace your local draft “${draft.project.title}”?`)
+    ) {
       return
     }
 
-    openLoginModal({
-      onSuccess: () => void create(project),
+    const updatedAt = new Date().toISOString()
+    const stored = saveNotebookDraft(draftStorage, project, updatedAt)
+    if (!stored && draft) {
+      setError('Unable to replace the local draft in this browser.')
+      return
+    }
+    if (stored) setDraft({ project, updatedAt })
+    await navigate({
+      to: '/notebook/new',
+      search: { template },
     })
+  }
+
+  function removeDraft() {
+    if (
+      !draft ||
+      !window.confirm(`Delete local draft “${draft.project.title}”?`)
+    ) {
+      return
+    }
+
+    if (!clearNotebookDraft(draftStorage)) {
+      setError('Unable to delete the local draft from this browser.')
+      return
+    }
+
+    setDraft(undefined)
   }
 
   async function remove(record: NotebookRecord) {
@@ -136,23 +143,15 @@ export function NotebookIndexPage() {
           <Button
             type="button"
             size="sm"
-            disabled={Boolean(creatingTitle) || userQuery.isPending}
-            onClick={() => createAfterAuthentication(blankTemplate)}
+            onClick={() => void startDraft(blankNotebookProject, 'blank')}
           >
-            {creatingTitle === blankTemplate.title ? (
-              <SpinnerGapIcon
-                className="size-4 animate-spin motion-reduce:animate-none"
-                aria-hidden="true"
-              />
-            ) : (
-              <PlusIcon className="size-4" aria-hidden="true" />
-            )}
-            {user ? 'New notebook' : 'Sign in to create'}
+            <PlusIcon className="size-4" aria-hidden="true" />
+            New notebook
           </Button>
         </header>
 
         <p className="mt-3 text-sm text-text-muted">
-          Unlisted · anyone with the link can view.
+          Drafts stay in this browser until you save.
         </p>
 
         {error ? (
@@ -164,8 +163,45 @@ export function NotebookIndexPage() {
           </p>
         ) : null}
 
+        {draft ? (
+          <section className="mt-12" aria-labelledby="local-draft-heading">
+            <h2 id="local-draft-heading" className="text-lg font-semibold">
+              Local draft
+            </h2>
+            <div className="mt-4 border-y border-border-default">
+              <div className="group flex items-center gap-3 px-1 sm:px-3">
+                <Link
+                  to="/notebook/new"
+                  className="min-w-0 flex-1 py-5 outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
+                >
+                  <span className="block truncate font-medium">
+                    {draft.project.title}
+                  </span>
+                  <span className="mt-1 block text-sm text-text-muted">
+                    Updated {formatUpdatedAt(draft.updatedAt)}
+                  </span>
+                </Link>
+                <Button
+                  type="button"
+                  variant="icon"
+                  color="gray"
+                  size="icon-sm"
+                  aria-label={`Delete local draft ${draft.project.title}`}
+                  onClick={removeDraft}
+                >
+                  <TrashIcon className="size-4" aria-hidden="true" />
+                </Button>
+                <ArrowRightIcon
+                  className="size-4 shrink-0 text-text-muted transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none"
+                  aria-hidden="true"
+                />
+              </div>
+            </div>
+          </section>
+        ) : null}
+
         {user ? (
-          <section className="mt-12" aria-labelledby="your-notebooks-heading">
+          <section className="mt-14" aria-labelledby="your-notebooks-heading">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <h2 id="your-notebooks-heading" className="text-lg font-semibold">
                 Your notebooks
@@ -257,11 +293,7 @@ export function NotebookIndexPage() {
           </h2>
           <div className="mt-4 border-y border-border-default">
             {notebookExamples.map((example) => {
-              const project = createTemplateProject(
-                example.title,
-                example.description,
-                example.source,
-              )
+              const project = createNotebookTemplateProject(example)
 
               return (
                 <div
@@ -278,15 +310,8 @@ export function NotebookIndexPage() {
                     type="button"
                     variant="ghost"
                     size="sm"
-                    disabled={Boolean(creatingTitle) || userQuery.isPending}
-                    onClick={() => createAfterAuthentication(project)}
+                    onClick={() => void startDraft(project, example.id)}
                   >
-                    {creatingTitle === example.title ? (
-                      <SpinnerGapIcon
-                        className="size-4 animate-spin motion-reduce:animate-none"
-                        aria-hidden="true"
-                      />
-                    ) : null}
                     Use template
                   </Button>
                 </div>
@@ -297,23 +322,6 @@ export function NotebookIndexPage() {
       </div>
     </main>
   )
-}
-
-function createTemplateProject(
-  title: string,
-  description: string,
-  source: string,
-) {
-  return createSharedExampleProject({
-    title,
-    description,
-    initialFile: '/index.tsx',
-    workspace: createExampleWorkspace({
-      entry: '/index.tsx',
-      environment: 'client',
-      files: { '/index.tsx': source },
-    }),
-  })
 }
 
 function formatUpdatedAt(value: string) {

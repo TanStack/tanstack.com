@@ -7,6 +7,10 @@ import {
   NotebookProjectStorageUnavailableError,
 } from '~/utils/notebook-project-storage.server'
 
+type CloudflareResponseInit = ResponseInit & {
+  encodeBody: 'manual'
+}
+
 export const Route = createFileRoute('/api/notebook/projects/$hash')({
   server: {
     handlers: {
@@ -19,7 +23,10 @@ export const Route = createFileRoute('/api/notebook/projects/$hash')({
           const object = await getNotebookProjectObject(params.hash)
           if (!object) return jsonError('Notebook project not found', 404)
 
-          return new Response(object.body ?? (await object.arrayBuffer()), {
+          const responseInit = {
+            // R2 stores the canonical project pre-compressed. Without manual
+            // encoding, Workers gzip it again before sending it to the client.
+            encodeBody: 'manual',
             headers: {
               'Cache-Control': 'public, max-age=300, must-revalidate',
               'Cache-Tag': getNotebookProjectCacheTag(params.hash),
@@ -29,7 +36,12 @@ export const Route = createFileRoute('/api/notebook/projects/$hash')({
               'Content-Type': 'application/json; charset=utf-8',
               ETag: `"${params.hash}"`,
             },
-          })
+          } satisfies CloudflareResponseInit
+
+          return new Response(
+            object.body ?? (await object.arrayBuffer()),
+            responseInit,
+          )
         } catch (error) {
           if (error instanceof NotebookProjectStorageUnavailableError) {
             return jsonError('Notebook project storage is unavailable', 503)

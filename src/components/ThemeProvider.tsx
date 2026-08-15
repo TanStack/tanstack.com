@@ -40,6 +40,7 @@ const getSystemTheme = createIsomorphicFn()
 
 const updateThemeClass = createClientOnlyFn((themeMode: ThemeMode) => {
   const root = document.documentElement
+  if (!root) return
   root.classList.add('theme-switching')
 
   root.classList.remove('light', 'dark', 'auto')

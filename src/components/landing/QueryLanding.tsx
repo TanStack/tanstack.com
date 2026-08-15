@@ -307,7 +307,7 @@ function QueryCachePanel() {
 
   const rows = queryHeroRows.map((row, index) => {
     const query = rowQueries[index]
-    const elapsed = now - query.dataUpdatedAt
+    const elapsed = Math.max(0, now - query.dataUpdatedAt)
     const drained = Math.max(
       0,
       Math.min(100, (1 - elapsed / row.staleTime) * 100),
@@ -365,16 +365,18 @@ function QueryCachePanel() {
     if (!inView) return
 
     if (prefersReducedMotion === true) {
+      setNow(Date.now())
       const id = setInterval(() => setNow(Date.now()), 1000)
       return () => clearInterval(id)
     }
 
+    let frame = 0
     const tick = () => {
       setNow(Date.now())
       frame = requestAnimationFrame(tick)
     }
 
-    let frame = requestAnimationFrame(tick)
+    tick()
     return () => cancelAnimationFrame(frame)
   }, [inView, prefersReducedMotion])
 

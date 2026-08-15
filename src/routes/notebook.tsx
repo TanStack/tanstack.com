@@ -15,14 +15,21 @@ const LazySharedExamplePage = React.lazy(() =>
   })),
 )
 
+const LazyNotebookIndexPage = React.lazy(() =>
+  import('~/components/notebook/NotebookIndexPage.client').then((module) => ({
+    default: module.NotebookIndexPage,
+  })),
+)
+
 export const Route = createFileRoute('/notebook')({
   ssr: false,
   component: ChartsNotebookRoute,
   headers: () => webContainerHeaders,
   head: () => ({
     meta: seo({
-      title: 'Notebook | TanStack',
-      description: 'Write and share client-side TypeScript and JSX modules.',
+      title: 'Notebooks | TanStack',
+      description:
+        'Create, run, and share browser sandboxes for TypeScript and TanStack projects.',
     }),
     links: [
       {
@@ -46,9 +53,13 @@ function ChartsNotebookRoute() {
 }
 
 function NotebookClientPage() {
-  return window.location.hash.startsWith('#project=') ? (
-    <LazySharedExamplePage />
-  ) : (
-    <LazyChartsNotebookPage />
-  )
+  if (window.location.hash.startsWith('#project=')) {
+    return <LazySharedExamplePage />
+  }
+
+  if (window.location.hash.startsWith('#code=')) {
+    return <LazyChartsNotebookPage />
+  }
+
+  return <LazyNotebookIndexPage />
 }

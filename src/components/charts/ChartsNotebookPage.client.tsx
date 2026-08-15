@@ -17,6 +17,8 @@ import { Collapsible, CollapsibleContent } from '~/components/Collapsible'
 import { ButtonGroup } from '~/components/ButtonGroup'
 import { NotebookGuideDialog } from '~/components/charts/NotebookGuideDialog'
 import { Button } from '~/components/ds/ui'
+import { useLoginModal } from '~/contexts/LoginModalContext'
+import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { copyTextToClipboard } from '~/utils/browser-effects'
 import {
   createSharedChartUrl,
@@ -386,7 +388,7 @@ function createSandboxDocument(
 </html>`
 }
 
-type SandboxStatus = 'loading' | 'ready' | 'error'
+type SandboxStatus = 'idle' | 'loading' | 'ready' | 'error'
 type SandboxConsoleLevel = 'log' | 'info' | 'warn' | 'error' | 'debug'
 type SandboxConsoleEntry = {
   id: number
@@ -504,6 +506,9 @@ function isSandboxThemeRequest(value: unknown): value is { runToken: string } {
 }
 
 export function ChartsNotebookPage() {
+  const { openLoginModal } = useLoginModal()
+  const userQuery = useCurrentUserQuery()
+  const user = userQuery.data
   const [showNotebook, setShowNotebook] = React.useState(() =>
     window.location.hash.startsWith('#code='),
   )
@@ -518,7 +523,7 @@ export function ChartsNotebookPage() {
   const [runningTheme, setRunningTheme] = React.useState(readResolvedTheme)
   const [sourceReady, setSourceReady] = React.useState(false)
   const [runRevision, setRunRevision] = React.useState(0)
-  const [status, setStatus] = React.useState<SandboxStatus>('loading')
+  const [status, setStatus] = React.useState<SandboxStatus>('idle')
   const [error, setError] = React.useState<string>()
   const [copied, setCopied] = React.useState(false)
   const [showConsole, setShowConsole] = React.useState(false)
@@ -584,7 +589,7 @@ export function ChartsNotebookPage() {
   }, [source])
 
   React.useEffect(() => {
-    if (!showNotebook || !sourceReady) return
+    if (!user || !showNotebook || !sourceReady) return
 
     let active = true
     const timeout = window.setTimeout(() => {
@@ -607,7 +612,7 @@ export function ChartsNotebookPage() {
       active = false
       window.clearTimeout(timeout)
     }
-  }, [showNotebook, source, sourceReady])
+  }, [showNotebook, source, sourceReady, user])
 
   React.useEffect(() => {
     document.title = `${notebookTitle.trim() || defaultNotebookTitle} | TanStack`
@@ -709,7 +714,6 @@ export function ChartsNotebookPage() {
         setSource(sharedSource)
         setShowNotebook(true)
         setSourceReady(true)
-        runSource(sharedSource)
       })
       .catch((cause: unknown) => {
         if (!active) return
@@ -872,6 +876,9 @@ export function ChartsNotebookPage() {
   }
 
   function updateNotebookTitle(title: string) {
+    setNotebookTitle(title)
+    if (!user) return
+
     const url = new URL(window.location.href)
     const trimmedTitle = title.trim()
 
@@ -882,10 +889,12 @@ export function ChartsNotebookPage() {
     }
 
     window.history.replaceState(null, '', url)
-    setNotebookTitle(title)
   }
 
   function updateNotebookDescription(description: string) {
+    setNotebookDescription(description)
+    if (!user) return
+
     const url = new URL(window.location.href)
     const trimmedDescription = description.trim()
 
@@ -896,7 +905,6 @@ export function ChartsNotebookPage() {
     }
 
     window.history.replaceState(null, '', url)
-    setNotebookDescription(description)
   }
 
   function startSourceResize(event: React.MouseEvent<HTMLDivElement>) {
@@ -1067,6 +1075,20 @@ export function ChartsNotebookPage() {
     try {
       const encodedSource = await encodeSharedChartSource(source)
       const url = createSharedChartUrl(encodedSource)
+      const trimmedTitle = notebookTitle.trim()
+      const trimmedDescription = notebookDescription.trim()
+
+      if (trimmedTitle && trimmedTitle !== defaultNotebookTitle) {
+        url.searchParams.set('title', trimmedTitle)
+      } else {
+        url.searchParams.delete('title')
+      }
+      if (trimmedDescription) {
+        url.searchParams.set('description', trimmedDescription)
+      } else {
+        url.searchParams.delete('description')
+      }
+
       window.history.replaceState(null, '', url)
       await copyTextToClipboard(url.href)
       setCopied(true)
@@ -1081,6 +1103,15 @@ export function ChartsNotebookPage() {
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause))
     }
+  }
+
+  function shareAfterAuthentication() {
+    if (user) {
+      void share()
+      return
+    }
+
+    openLoginModal({ onSuccess: () => void share() })
   }
 
   if (!showNotebook) {
@@ -1186,11 +1217,13 @@ export function ChartsNotebookPage() {
                 }`}
                 role="status"
               >
-                {status === 'loading'
-                  ? 'Running'
-                  : status === 'ready'
-                    ? 'Ready'
-                    : 'Error'}
+                {status === 'idle'
+                  ? 'Ready to run'
+                  : status === 'loading'
+                    ? 'Running'
+                    : status === 'ready'
+                      ? 'Ready'
+                      : 'Error'}
               </span>
               <ButtonGroup>
                 <NotebookGuideDialog>
@@ -1246,8 +1279,15 @@ export function ChartsNotebookPage() {
                   variant="ghost"
                   size="xs"
                   rounded="none"
-                  onClick={() => void share()}
-                  aria-label={copied ? 'Share URL copied' : 'Copy share URL'}
+                  disabled={userQuery.isPending}
+                  onClick={shareAfterAuthentication}
+                  aria-label={
+                    copied
+                      ? 'Share URL copied'
+                      : user
+                        ? 'Copy share URL'
+                        : 'Sign in to share'
+                  }
                 >
                   {copied ? (
                     <CheckIcon className="size-3.5" aria-hidden="true" />

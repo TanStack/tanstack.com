@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { ExampleWorkbench } from './ExampleWorkbench.client'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { decodeSharedExampleProject } from '~/utils/example-share.client'
 import {
   parseSharedExampleProject,
@@ -8,6 +9,7 @@ import {
 } from '~/utils/example-project'
 
 export function SharedExamplePage({ hash }: { hash?: string }) {
+  const user = useCurrentUser()
   const [project, setProject] = React.useState<SharedExampleProject>()
   const [error, setError] = React.useState('')
 
@@ -59,7 +61,12 @@ export function SharedExamplePage({ hash }: { hash?: string }) {
           </p>
         ) : null}
       </header>
-      <ExampleWorkbench allowSharing definition={definition} />
+      <ExampleWorkbench
+        allowSharing={Boolean(user)}
+        autoRun={false}
+        definition={definition}
+        runLabel="Run notebook"
+      />
     </main>
   )
 }

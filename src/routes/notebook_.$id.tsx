@@ -3,15 +3,15 @@ import { ClientOnly, createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { webContainerHeaders } from '~/utils/stackblitz-embed'
 
-const LazySharedExamplePage = React.lazy(() =>
-  import('~/components/examples/SharedExamplePage.client').then((module) => ({
-    default: module.SharedExamplePage,
+const LazyNotebookPage = React.lazy(() =>
+  import('~/components/notebook/NotebookPage.client').then((module) => ({
+    default: module.NotebookPage,
   })),
 )
 
-export const Route = createFileRoute('/notebook_/p/$hash')({
+export const Route = createFileRoute('/notebook_/$id')({
   ssr: false,
-  component: SharedNotebookRoute,
+  component: NotebookRoute,
   headers: () => webContainerHeaders,
   head: () => ({
     meta: seo({
@@ -22,13 +22,13 @@ export const Route = createFileRoute('/notebook_/p/$hash')({
   }),
 })
 
-function SharedNotebookRoute() {
-  const { hash } = Route.useParams()
+function NotebookRoute() {
+  const { id } = Route.useParams()
 
   return (
     <ClientOnly>
       <React.Suspense fallback={null}>
-        <LazySharedExamplePage hash={hash} />
+        <LazyNotebookPage id={id} />
       </React.Suspense>
     </ClientOnly>
   )

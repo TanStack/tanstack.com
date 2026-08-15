@@ -45,10 +45,15 @@ export function LoginModalProvider({ children }: LoginModalProviderProps) {
     [],
   )
 
-  const closeLoginModal = React.useCallback(() => {
-    setIsOpen(false)
-    pendingOnSuccessRef.current = undefined
+  const handleOpenChange = React.useCallback((open: boolean) => {
+    setIsOpen(open)
+    if (!open) pendingOnSuccessRef.current = undefined
   }, [])
+
+  const closeLoginModal = React.useCallback(
+    () => handleOpenChange(false),
+    [handleOpenChange],
+  )
 
   React.useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -75,7 +80,7 @@ export function LoginModalProvider({ children }: LoginModalProviderProps) {
   return (
     <LoginModalContext.Provider value={value}>
       {children}
-      <LoginModal open={isOpen} onOpenChange={setIsOpen} />
+      <LoginModal open={isOpen} onOpenChange={handleOpenChange} />
     </LoginModalContext.Provider>
   )
 }

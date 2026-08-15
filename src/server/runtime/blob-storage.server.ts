@@ -8,6 +8,7 @@ export type BlobStorageName =
 export type BlobStorageObject = {
   arrayBuffer: () => Promise<ArrayBuffer>
   body: ReadableStream<Uint8Array> | null
+  etag: string
   key: string
   metadata?: Record<string, string>
   text: () => Promise<string>
@@ -15,6 +16,7 @@ export type BlobStorageObject = {
 }
 
 export type BlobStorageListedObject = {
+  etag: string
   key: string
   metadata?: Record<string, string>
   uploaded?: Date
@@ -32,6 +34,15 @@ export type BlobStorageListResult = {
   truncated: boolean
 }
 
+type BlobStoragePutOptions = {
+  contentEncoding?: string
+  contentType?: string
+  metadata?: Record<string, string>
+} & (
+  | { etagMatches: string; onlyIfAbsent?: never }
+  | { etagMatches?: never; onlyIfAbsent?: boolean }
+)
+
 export type BlobStorage = {
   delete: (keys: string | Array<string>) => Promise<void>
   get: (key: string) => Promise<BlobStorageObject | null>
@@ -39,12 +50,7 @@ export type BlobStorage = {
   put: (
     key: string,
     value: string | ArrayBuffer | ArrayBufferView | ReadableStream<Uint8Array>,
-    options?: {
-      contentEncoding?: string
-      contentType?: string
-      metadata?: Record<string, string>
-      onlyIfAbsent?: boolean
-    },
+    options?: BlobStoragePutOptions,
   ) => Promise<boolean>
 }
 
@@ -61,6 +67,7 @@ export type BlobStorageCache = {
 
 type RuntimeBlobObject = {
   customMetadata?: Record<string, string>
+  etag: string
   key: string
   uploaded?: Date
 }
@@ -97,7 +104,7 @@ type RuntimeBlobBucket = {
         contentEncoding?: string
         contentType?: string
       }
-      onlyIf?: { etagDoesNotMatch: string }
+      onlyIf?: { etagDoesNotMatch?: string; etagMatches?: string }
     },
   ) => Promise<RuntimeBlobObject | null>
 }
@@ -210,6 +217,7 @@ function createBlobStorage(bucket: RuntimeBlobBucket): BlobStorage {
       return {
         arrayBuffer: () => object.arrayBuffer(),
         body: object.body,
+        etag: object.etag,
         key: object.key,
         metadata: object.customMetadata,
         text: () => object.text(),
@@ -227,6 +235,7 @@ function createBlobStorage(bucket: RuntimeBlobBucket): BlobStorage {
       return {
         cursor: result.cursor,
         objects: result.objects.map((object) => ({
+          etag: object.etag,
           key: object.key,
           metadata: object.customMetadata,
           uploaded: object.uploaded,
@@ -235,13 +244,18 @@ function createBlobStorage(bucket: RuntimeBlobBucket): BlobStorage {
       }
     },
     async put(key, value, options) {
+      const onlyIf = options?.onlyIfAbsent
+        ? { etagDoesNotMatch: '*' }
+        : options?.etagMatches !== undefined
+          ? { etagMatches: options.etagMatches }
+          : undefined
       const result = await bucket.put(key, value, {
         customMetadata: options?.metadata,
         httpMetadata: {
           contentEncoding: options?.contentEncoding,
           contentType: options?.contentType,
         },
-        ...(options?.onlyIfAbsent ? { onlyIf: { etagDoesNotMatch: '*' } } : {}),
+        ...(onlyIf ? { onlyIf } : {}),
       })
       return result !== null
     },

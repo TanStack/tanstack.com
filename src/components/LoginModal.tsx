@@ -1,4 +1,3 @@
-import * as React from 'react'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { XIcon } from '@phosphor-icons/react/X'
 import { GithubIcon } from '~/components/icons/GithubIcon'
@@ -11,28 +10,6 @@ interface LoginModalProps {
 }
 
 export function LoginModal({ open, onOpenChange }: LoginModalProps) {
-  React.useEffect(() => {
-    if (!open) {
-      return
-    }
-
-    function handleMessage(event: MessageEvent) {
-      if (
-        event.origin === window.location.origin &&
-        event.data &&
-        typeof event.data === 'object' &&
-        'type' in event.data &&
-        event.data.type === 'TANSTACK_AUTH_SUCCESS'
-      ) {
-        onOpenChange(false)
-        window.location.reload()
-      }
-    }
-
-    window.addEventListener('message', handleMessage)
-    return () => window.removeEventListener('message', handleMessage)
-  }, [open, onOpenChange])
-
   const openSocialPopup = (provider: 'github' | 'google') => {
     const popup = authClient.signIn.socialPopup({ provider })
 

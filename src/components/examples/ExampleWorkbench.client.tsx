@@ -94,8 +94,10 @@ export function ExampleWorkbench({
   definition,
   fallbackAction,
   filesInitiallyOpen = false,
+  fullscreen = false,
   libraryColor = 'bg-emerald-500',
   onWorkspaceChange,
+  runLabel = 'Run example',
 }: {
   allowSharing?: boolean
   autoRun?: boolean
@@ -103,8 +105,10 @@ export function ExampleWorkbench({
   definition: ExampleDefinition
   fallbackAction?: { label: string; url: string }
   filesInitiallyOpen?: boolean
+  fullscreen?: boolean
   libraryColor?: string
   onWorkspaceChange?: (workspace: ExampleWorkspace) => void
+  runLabel?: string
 }) {
   const { resolvedTheme } = useTheme()
   const codePanelId = React.useId()
@@ -861,7 +865,11 @@ export function ExampleWorkbench({
 
   return (
     <section
-      className={`not-prose flex h-[clamp(520px,75dvh,720px)] min-w-0 flex-col overflow-hidden rounded-lg border border-border-default bg-background-default text-text-primary ${className ?? ''}`}
+      className={`not-prose flex min-w-0 flex-col overflow-hidden border border-border-default bg-background-default text-text-primary ${
+        fullscreen
+          ? 'min-h-0 flex-1 rounded-none border-x-0 border-b-0'
+          : 'h-[clamp(520px,75dvh,720px)] rounded-lg'
+      } ${className ?? ''}`}
       aria-label={`${definition.title} workbench`}
     >
       <header className="flex min-h-10 shrink-0 items-center justify-between gap-3 border-b border-border-default px-2">
@@ -942,18 +950,25 @@ export function ExampleWorkbench({
               <BrowserIcon className="size-3.5" aria-hidden="true" />
               <span className="hidden sm:inline">Preview</span>
             </Button>
-            <Tooltip content="Refresh preview" side="bottom">
+            <Tooltip
+              content={status === 'idle' ? runLabel : 'Refresh preview'}
+              side="bottom"
+            >
               <Button
                 type="button"
                 variant="primary"
                 size="xs"
                 rounded="none"
                 className="hover:translate-y-0 max-[899px]:translate-y-0"
-                aria-label="Refresh preview"
+                aria-label={status === 'idle' ? runLabel : 'Refresh preview'}
                 disabled={isWebContainerBusy || isWebContainerUnsupported}
                 onClick={() => void run()}
               >
-                <ArrowClockwiseIcon className="size-3.5" aria-hidden="true" />
+                {status === 'idle' ? (
+                  <PlayIcon className="size-3.5" aria-hidden="true" />
+                ) : (
+                  <ArrowClockwiseIcon className="size-3.5" aria-hidden="true" />
+                )}
               </Button>
             </Tooltip>
           </ButtonGroup>
@@ -1119,7 +1134,7 @@ export function ExampleWorkbench({
                 onLoad={syncTheme}
                 className="block size-full border-0 bg-background-default"
               />
-            ) : usesWebContainer ? (
+            ) : (
               <div className="flex size-full items-center justify-center p-6">
                 {isWebContainerUnsupported ? (
                   <div className="max-w-md text-center">
@@ -1137,7 +1152,7 @@ export function ExampleWorkbench({
                       </a>
                     ) : null}
                   </div>
-                ) : isWebContainerBusy ? (
+                ) : isWebContainerBusy || status === 'compiling' ? (
                   <div
                     className="flex items-center gap-2 text-sm text-text-muted"
                     role="status"
@@ -1155,11 +1170,11 @@ export function ExampleWorkbench({
                     onClick={() => void run()}
                   >
                     <PlayIcon className="size-4" aria-hidden="true" />
-                    {status === 'error' ? 'Try again' : 'Run example'}
+                    {status === 'error' ? 'Try again' : runLabel}
                   </Button>
                 )}
               </div>
-            ) : null}
+            )}
           </div>
           {usesWebContainer ? (
             outputActivated ? (

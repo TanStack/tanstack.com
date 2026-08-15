@@ -86,6 +86,7 @@ export function createChartsCatalogExampleDefinition({
     title,
     ...(description === undefined ? {} : { description }),
     initialFile,
+    hiddenFiles: [generatedEntryPath, generatedDocumentPath],
     workspace: createExampleWorkspace({
       entry: generatedEntryPath,
       files: workspaceFiles,

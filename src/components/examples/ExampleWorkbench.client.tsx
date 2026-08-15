@@ -809,6 +809,7 @@ export function ExampleWorkbench({
           title: definition.title,
           description: definition.description,
           initialFile: activePath,
+          hiddenFiles: definition.hiddenFiles,
           runtime: definition.runtime,
           workspace,
         }),
@@ -822,7 +823,9 @@ export function ExampleWorkbench({
     }
   }
 
-  const filePaths = Object.keys(workspace.files).sort()
+  const filePaths = Object.keys(workspace.files)
+    .filter((path) => !definition.hiddenFiles?.includes(path))
+    .sort()
   const fileTree = React.useMemo(() => createFileTree(filePaths), [filePaths])
   const activeSource = workspace.files[activePath] ?? ''
   const statusLabel = getStatusLabel(status)
@@ -1389,9 +1392,12 @@ function getInitialFile(
   workspace: ExampleWorkspace,
 ) {
   return definition.initialFile &&
-    workspace.files[definition.initialFile] !== undefined
+    workspace.files[definition.initialFile] !== undefined &&
+    !definition.hiddenFiles?.includes(definition.initialFile)
     ? definition.initialFile
-    : workspace.entry
+    : Object.keys(workspace.files).find(
+        (path) => !definition.hiddenFiles?.includes(path),
+      ) || workspace.entry
 }
 
 function readTheme() {

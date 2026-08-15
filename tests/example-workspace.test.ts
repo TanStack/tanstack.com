@@ -74,6 +74,7 @@ describe('example workspaces', () => {
       title: 'Sorted bars',
       description: 'A browser-only Charts example.',
       initialFile: '/src/chart.tsx',
+      hiddenFiles: ['/src/main.tsx'],
       workspace: {
         version: 1,
         entry: '/src/main.tsx',
@@ -238,6 +239,36 @@ describe('example workspaces', () => {
           entry: '/src/main.tsx',
           files: { '/src/main.tsx': '' },
         },
+      }),
+    )
+  })
+
+  test('rejects invalid hidden shared-project files', () => {
+    const project = {
+      version: 1,
+      title: 'Sorted bars',
+      description: '',
+      initialFile: '/src/chart.tsx',
+      workspace: {
+        version: 1,
+        entry: '/src/main.tsx',
+        files: {
+          '/src/chart.tsx': '',
+          '/src/main.tsx': '',
+        },
+      },
+    }
+
+    assert.throws(() =>
+      parseSharedExampleProject({
+        ...project,
+        hiddenFiles: ['/src/missing.tsx'],
+      }),
+    )
+    assert.throws(() =>
+      parseSharedExampleProject({
+        ...project,
+        hiddenFiles: ['/src/chart.tsx'],
       }),
     )
   })

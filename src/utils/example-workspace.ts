@@ -36,6 +36,7 @@ export type ExampleDefinition = {
   title: string
   description?: string
   initialFile?: string
+  hiddenFiles?: ReadonlyArray<string>
   runtime?: ExampleRuntime
   workspace: ExampleWorkspace
 }

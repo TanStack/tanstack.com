@@ -15,6 +15,7 @@ import {
 } from '@phosphor-icons/react'
 
 import { useToast } from '~/components/ToastProvider'
+import { useInView } from '~/hooks/useInView'
 import { usePrefersReducedMotion } from '~/utils/usePrefersReducedMotion'
 import { LibraryLanding, type LibraryLandingConfig } from './LibraryLanding'
 
@@ -217,6 +218,8 @@ function QueryCachePanel() {
   const prefersReducedMotion = usePrefersReducedMotion()
   const queryClient = useQueryClient()
   const { notify } = useToast()
+  const rootRef = React.useRef<HTMLDivElement>(null)
+  const inView = useInView(rootRef)
   const serverRowsRef = React.useRef<Record<string, QueryHeroIssue>>(
     Object.fromEntries(queryHeroRows.map((row) => [row.id, { ...row.seed }])),
   )
@@ -359,6 +362,8 @@ function QueryCachePanel() {
   // Per-frame rather than per-second: the gauges interpolate here instead of
   // through a CSS transition, so their drain rate tracks elapsed time exactly.
   React.useEffect(() => {
+    if (!inView) return
+
     if (prefersReducedMotion === true) {
       const id = setInterval(() => setNow(Date.now()), 1000)
       return () => clearInterval(id)
@@ -371,10 +376,13 @@ function QueryCachePanel() {
 
     let frame = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(frame)
-  }, [prefersReducedMotion])
+  }, [inView, prefersReducedMotion])
 
   return (
-    <div className="library-landing-graphic min-w-0 overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.45)] bg-background-surface shadow-[0_24px_70px_-28px_rgb(var(--landing-glow)/0.45)] dark:shadow-[inset_-3px_-4px_18px_-7px_var(--landing-accent),0_24px_70px_rgb(0_0_0/0.18)]">
+    <div
+      ref={rootRef}
+      className="library-landing-graphic min-w-0 overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.45)] bg-background-surface shadow-[0_24px_70px_-28px_rgb(var(--landing-glow)/0.45)] dark:shadow-[inset_-3px_-4px_18px_-7px_var(--landing-accent),0_24px_70px_rgb(0_0_0/0.18)]"
+    >
       <div className="flex items-center justify-between border-b border-border-subtle px-4 py-3">
         <div aria-hidden="true" className="flex gap-1.5">
           <span className="size-2.5 rounded-full bg-[#ff5f57]" />

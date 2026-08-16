@@ -197,4 +197,12 @@ export const RATE_LIMITS = {
     limitPerMinute: 10,
     keyPrefix: 'notebook-project-write',
   },
+  notebookRecordSave: {
+    limitPerMinute: 30,
+    keyPrefix: 'notebook-record-save',
+  },
+  notebookRecordList: {
+    limitPerMinute: 30,
+    keyPrefix: 'notebook-record-list',
+  },
 } as const

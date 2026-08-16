@@ -40,6 +40,7 @@ describe('Charts catalog example workspaces', () => {
       '/cases/bar-vertical-sorted/example.tsx',
     )
     assert.equal(definition.workspace.entry, '/__catalog.tsx')
+    assert.deepEqual(definition.hiddenFiles, ['/__catalog.tsx', '/index.html'])
     assert.equal(
       definition.workspace.files['/cases/bar-vertical-sorted/example.tsx'],
       entrySource,

@@ -2,24 +2,29 @@ import {
   createExampleWorkspace,
   normalizeExamplePath,
   type ExampleDefinition,
+  type ExampleRuntime,
 } from './example-workspace'
 
 export function createRepositoryExampleDefinition({
+  binaryFiles,
   description,
   entry,
   files,
   id,
   initialFile,
+  runtime,
   title,
 }: {
+  binaryFiles?: Record<string, string>
   description?: string
   entry: string
   files: Record<string, string>
   id: string
   initialFile?: string
+  runtime?: ExampleRuntime
   title: string
 }): ExampleDefinition {
-  const workspace = createExampleWorkspace({ entry, files })
+  const workspace = createExampleWorkspace({ binaryFiles, entry, files })
 
   if (workspace.files[workspace.entry] === undefined) {
     throw new Error(`Entry file not found: ${workspace.entry}`)
@@ -33,6 +38,7 @@ export function createRepositoryExampleDefinition({
     id,
     title,
     ...(description ? { description } : {}),
+    ...(runtime ? { runtime } : {}),
     initialFile:
       workspace.files[normalizedInitialFile] === undefined
         ? workspace.entry

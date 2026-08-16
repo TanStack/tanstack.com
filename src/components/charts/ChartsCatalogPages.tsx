@@ -1,4 +1,8 @@
-import { ArrowsOutSimpleIcon, GridFourIcon } from '@phosphor-icons/react'
+import {
+  ArrowsOutSimpleIcon,
+  ArrowUpRightIcon,
+  GridFourIcon,
+} from '@phosphor-icons/react'
 import { ClientOnly, Link } from '@tanstack/react-router'
 import * as React from 'react'
 import type { ChartsCatalogIndexCase } from '~/utils/charts-catalog-index'
@@ -112,11 +116,17 @@ export function ChartsCatalog({
             key={catalogCase.id}
             className="group relative min-w-0 overflow-hidden rounded-xl border border-border-subtle bg-background-surface"
           >
-            <div aria-hidden="true" className="aspect-[3/2]">
+            <div aria-hidden="true" className="relative aspect-[3/2]">
               <ChartsCatalogPreview
                 caseId={catalogCase.id}
                 revision={revision}
               />
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-background-default/60 opacity-0 backdrop-blur-[1px] transition-opacity duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:opacity-100 group-focus-within:opacity-100 motion-reduce:transition-none">
+                <span className="inline-flex items-center gap-1.5 rounded-lg border border-border-default bg-background-surface/95 px-3 py-2 font-ds-display text-sm font-semibold text-text-primary shadow-sm">
+                  Open example
+                  <ArrowUpRightIcon aria-hidden="true" className="size-4" />
+                </span>
+              </div>
             </div>
             <div className="flex min-h-16 items-center justify-between gap-4 border-t border-border-subtle px-4 py-3">
               <p className="min-w-0 truncate font-ds-display text-sm font-semibold text-text-primary">
@@ -195,6 +205,20 @@ export function ChartsCatalogDetail({
           <LazyExampleWorkbench definition={catalogCase.example} />
         </React.Suspense>
       </ClientOnly>
+    </CatalogSurface>
+  )
+}
+
+export function ChartsCatalogDetailPending() {
+  return (
+    <CatalogSurface wide>
+      <p
+        aria-live="polite"
+        className="rounded-lg border border-gray-200 p-6 text-sm text-gray-500 dark:border-gray-800"
+        role="status"
+      >
+        Loading chart example…
+      </p>
     </CatalogSurface>
   )
 }

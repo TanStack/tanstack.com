@@ -27,6 +27,7 @@ import { HeartIcon } from '@phosphor-icons/react/Heart'
 import { InfinityIcon } from '@phosphor-icons/react/Infinity'
 import { LifebuoyIcon } from '@phosphor-icons/react/Lifebuoy'
 import { ListIcon } from '@phosphor-icons/react/List'
+import { LinkedinLogoIcon } from '@phosphor-icons/react/LinkedinLogo'
 import { MagnifyingGlassIcon } from '@phosphor-icons/react/MagnifyingGlass'
 import { MailboxIcon } from '@phosphor-icons/react/Mailbox'
 import { NotebookIcon } from '@phosphor-icons/react/Notebook'
@@ -236,9 +237,9 @@ const NAV_GROUPS = [
             icon: HammerIcon,
           },
           {
-            label: 'Notebook',
+            label: 'Notebooks',
             to: '/notebook',
-            description: 'Create and share client-side TSX modules.',
+            description: 'Create and share browser sandboxes.',
             icon: NotebookIcon,
           },
           {
@@ -1699,6 +1700,11 @@ const SOCIAL_LINKS = [
     label: 'Instagram',
     href: 'https://instagram.com/tan_stack',
     Icon: InstagramIcon,
+  },
+  {
+    label: 'LinkedIn',
+    href: 'https://www.linkedin.com/company/tanstack',
+    Icon: LinkedinLogoIcon,
   },
 ] as const
 

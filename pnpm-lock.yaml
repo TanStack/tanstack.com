@@ -165,6 +165,12 @@ importers:
       '@xstate/react':
         specifier: ^6.1.0
         version: 6.1.0(@types/react@19.2.14)(react@19.2.3)(xstate@5.30.0)
+      '@xterm/addon-fit':
+        specifier: 0.10.0
+        version: 0.10.0(@xterm/xterm@5.5.0)
+      '@xterm/xterm':
+        specifier: 5.5.0
+        version: 5.5.0
       algoliasearch:
         specifier: ^5.50.0
         version: 5.50.0
@@ -382,6 +388,9 @@ importers:
       oxlint-tsgolint:
         specifier: ^0.19.0
         version: 0.19.0
+      seroval:
+        specifier: 1.5.4
+        version: 1.5.4
       sharp:
         specifier: 0.34.5
         version: 0.34.5
@@ -3981,6 +3990,14 @@ packages:
     peerDependenciesMeta:
       xstate:
         optional: true
+
+  '@xterm/addon-fit@0.10.0':
+    resolution: {integrity: sha512-UFYkDm4HUahf2lnEyHvio51TNGiLK66mqP2JoATy7hRZeXaGMRDr00JiSF7m63vR5WKATF605yEggJKsw0JpMQ==}
+    peerDependencies:
+      '@xterm/xterm': ^5.0.0
+
+  '@xterm/xterm@5.5.0':
+    resolution: {integrity: sha512-hqJHYaQb5OptNunnyAnkHyM8aCjZ1MEIDTQu1iIbbTD/xops91NB5yq1ZK/dC2JDbVWtF23zUtl9JE2NqwT87A==}
 
   abbrev@1.1.1:
     resolution: {integrity: sha512-nne9/IiQ/hzIhY6pdDnbBtz7DjPTKrY00P/zvPSm5pOFkl6xuGrGnXn/VtTNNfNtAfZ9/1RtehkszU9qcTii0Q==}
@@ -10289,6 +10306,12 @@ snapshots:
       xstate: 5.30.0
     transitivePeerDependencies:
       - '@types/react'
+
+  '@xterm/addon-fit@0.10.0(@xterm/xterm@5.5.0)':
+    dependencies:
+      '@xterm/xterm': 5.5.0
+
+  '@xterm/xterm@5.5.0': {}
 
   abbrev@1.1.1: {}
 

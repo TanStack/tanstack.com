@@ -26,6 +26,7 @@ export type ExampleSandboxMessage =
     }
 
 export function createExampleSandboxDocument({
+  binaryFiles,
   compiled,
   document,
   entry,
@@ -33,6 +34,7 @@ export function createExampleSandboxDocument({
   runToken,
   theme,
 }: {
+  binaryFiles?: Record<string, string>
   compiled: CompiledExampleWorkspace
   document: string | undefined
   entry: string
@@ -56,7 +58,7 @@ export function createExampleSandboxDocument({
   ].join('')
   const body = `<script type="module">${javascript}</script>`
   const source = document
-    ? prepareAuthoredDocument(document, entry, files)
+    ? prepareAuthoredDocument(document, entry, files, binaryFiles)
     : '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head><body><div id="root"></div></body></html>'
 
   return injectBeforeClosingTag(
@@ -70,6 +72,7 @@ function prepareAuthoredDocument(
   source: string,
   entry: string,
   files: Record<string, string>,
+  binaryFiles: Record<string, string> = {},
 ) {
   const parsed = new DOMParser().parseFromString(source, 'text/html')
 
@@ -93,6 +96,16 @@ function prepareAuthoredDocument(
 
       const filePath = `/public${url.pathname}`
       const file = files[filePath] ?? files[url.pathname]
+      const binaryFile = binaryFiles[filePath] ?? binaryFiles[url.pathname]
+      const binaryMimeType = getBinaryAssetMimeType(url.pathname)
+      if (binaryFile !== undefined && binaryMimeType) {
+        element.setAttribute(
+          attribute,
+          `data:${binaryMimeType};base64,${binaryFile}`,
+        )
+        continue
+      }
+
       const mimeType = getTextAssetMimeType(url.pathname)
       if (file === undefined || !mimeType) continue
 
@@ -105,6 +118,18 @@ function prepareAuthoredDocument(
 
   const doctype = parsed.doctype ? '<!doctype html>' : ''
   return `${doctype}${parsed.documentElement.outerHTML}`
+}
+
+function getBinaryAssetMimeType(path: string) {
+  if (/\.avif$/i.test(path)) return 'image/avif'
+  if (/\.gif$/i.test(path)) return 'image/gif'
+  if (/\.ico$/i.test(path)) return 'image/x-icon'
+  if (/\.jpe?g$/i.test(path)) return 'image/jpeg'
+  if (/\.png$/i.test(path)) return 'image/png'
+  if (/\.webp$/i.test(path)) return 'image/webp'
+  if (/\.woff2$/i.test(path)) return 'font/woff2'
+  if (/\.woff$/i.test(path)) return 'font/woff'
+  return undefined
 }
 
 function getTextAssetMimeType(path: string) {
@@ -194,6 +219,18 @@ function format(value) {
 }
 
 applyTheme(${JSON.stringify(theme)})
+
+document.addEventListener('click', (event) => {
+  const anchor = event.target instanceof Element
+    ? event.target.closest('a[href]')
+    : null
+  const href = anchor?.getAttribute('href')
+  if (!href?.startsWith('#')) return
+
+  event.preventDefault()
+  const target = document.getElementById(href.slice(1))
+  target?.scrollIntoView()
+})
 
 window.addEventListener('message', (event) => {
   const value = event.data

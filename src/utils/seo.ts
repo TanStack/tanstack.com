@@ -68,6 +68,9 @@ type SeoOptions = {
   image?: string
   keywords?: string
   noindex?: boolean
+  ogType?: 'article' | 'website'
+  articlePublishedTime?: string
+  articleModifiedTime?: string
 }
 
 export const seo = ({
@@ -76,6 +79,9 @@ export const seo = ({
   keywords,
   image,
   noindex,
+  ogType = 'website',
+  articlePublishedTime,
+  articleModifiedTime,
 }: SeoOptions) => {
   const tags = [
     { title },
@@ -85,10 +91,26 @@ export const seo = ({
     { name: 'twitter:description', content: description },
     { name: 'twitter:creator', content: '@tan_stack' },
     { name: 'twitter:site', content: '@tan_stack' },
-    { property: 'og:type', content: 'website' },
+    { property: 'og:type', content: ogType },
     { property: 'og:site_name', content: 'TanStack' },
     { property: 'og:title', content: title },
     { property: 'og:description', content: description },
+    ...(ogType === 'article' && articlePublishedTime
+      ? [
+          {
+            property: 'article:published_time',
+            content: articlePublishedTime,
+          },
+        ]
+      : []),
+    ...(ogType === 'article' && articleModifiedTime
+      ? [
+          {
+            property: 'article:modified_time',
+            content: articleModifiedTime,
+          },
+        ]
+      : []),
     ...(image
       ? [
           { name: 'twitter:image', content: image },

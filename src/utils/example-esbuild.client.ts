@@ -3,6 +3,7 @@ import esbuildWasmUrl from 'esbuild-wasm/esbuild.wasm?url'
 import { getExampleEnvironmentProfile } from './notebook-environment'
 import { getExampleWorkspaceImports } from './example-imports'
 import {
+  decodeExampleBinaryFile,
   normalizeExamplePath,
   type ExampleWorkspace,
 } from './example-workspace'
@@ -25,6 +26,7 @@ const sourceExtensions = [
 ]
 const indexFiles = sourceExtensions.map((extension) => `/index${extension}`)
 let esbuildInitialization: Promise<void> | undefined
+type WorkspaceBuildFiles = Record<string, string | Uint8Array>
 
 export async function compileExampleWorkspace(
   workspace: ExampleWorkspace,
@@ -32,7 +34,7 @@ export async function compileExampleWorkspace(
   esbuildInitialization ??= esbuild.initialize({ wasmURL: esbuildWasmUrl })
   await esbuildInitialization
 
-  const files = normalizeFiles(workspace.files)
+  const files = normalizeFiles(workspace.files, workspace.binaryFiles)
   const authoredEntry = resolveWorkspacePath(
     normalizeExamplePath(workspace.entry),
     files,
@@ -78,7 +80,7 @@ export async function compileExampleWorkspace(
     css,
     imports: getExampleWorkspaceImports(
       workspace,
-      files,
+      workspace.files,
       getExternalSpecifiers(result.metafile),
     ),
     javascript,
@@ -95,7 +97,7 @@ function getExternalSpecifiers(metafile: esbuild.Metafile) {
   )
 }
 
-function createWorkspacePlugin(files: Record<string, string>): esbuild.Plugin {
+function createWorkspacePlugin(files: WorkspaceBuildFiles): esbuild.Plugin {
   return {
     name: workspaceNamespace,
     setup(build) {
@@ -143,6 +145,11 @@ function createWorkspacePlugin(files: Record<string, string>): esbuild.Plugin {
           }
 
           if (args.path.endsWith('.tsrx')) {
+            if (typeof source !== 'string') {
+              return {
+                errors: [{ text: `Expected text source: ${args.path}` }],
+              }
+            }
             const compiled = await compileOctaneSource(source, args.path)
             const errors: esbuild.PartialMessage[] = []
             const warnings: esbuild.PartialMessage[] = []
@@ -174,7 +181,8 @@ function createWorkspacePlugin(files: Record<string, string>): esbuild.Plugin {
 
           return {
             contents: source,
-            loader: getLoader(args.path),
+            loader:
+              typeof source === 'string' ? getLoader(args.path) : 'dataurl',
             resolveDir: getDirectory(args.path),
           }
         },
@@ -192,18 +200,26 @@ async function compileOctaneSource(source: string, path: string) {
   })
 }
 
-function normalizeFiles(files: Record<string, string>) {
-  return Object.fromEntries(
-    Object.entries(files).map(([path, source]) => [
-      normalizeExamplePath(path),
-      source,
-    ]),
-  )
+function normalizeFiles(
+  files: Record<string, string>,
+  binaryFiles: Record<string, string> = {},
+): WorkspaceBuildFiles {
+  const normalizedFiles: WorkspaceBuildFiles = {}
+
+  for (const [path, source] of Object.entries(files)) {
+    normalizedFiles[normalizeExamplePath(path)] = source
+  }
+  for (const [path, source] of Object.entries(binaryFiles)) {
+    normalizedFiles[normalizeExamplePath(path)] =
+      decodeExampleBinaryFile(source)
+  }
+
+  return normalizedFiles
 }
 
 function addEnvironmentEntry(
   workspace: ExampleWorkspace,
-  files: Record<string, string>,
+  files: WorkspaceBuildFiles,
   authoredEntry: string,
 ) {
   if (!workspace.environment) return authoredEntry
@@ -224,7 +240,7 @@ function resolveRelativePath(importer: string, specifier: string) {
 
 function resolveWorkspacePath(
   requestedPath: string,
-  files: Record<string, string>,
+  files: WorkspaceBuildFiles,
 ) {
   const candidates = [
     requestedPath,

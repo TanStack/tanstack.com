@@ -9,6 +9,7 @@ import {
   PlusIcon,
   ShareIcon,
   TerminalWindowIcon,
+  WarningCircleIcon,
   XIcon,
 } from '@phosphor-icons/react'
 import { ButtonGroup } from '~/components/ButtonGroup'
@@ -249,6 +250,7 @@ export function ExampleWorkbench({
   const [shareState, setShareState] = React.useState<
     'idle' | 'sharing' | 'copied'
   >('idle')
+  const [shareError, setShareError] = React.useState('')
   const frameRef = React.useRef<HTMLIFrameElement>(null)
   const splitRef = React.useRef<HTMLDivElement>(null)
   const codePanelRef = React.useRef<HTMLElement>(null)
@@ -461,6 +463,7 @@ export function ExampleWorkbench({
     setOutputActivated(false)
     setTerminalIds([])
     setActiveTerminalId('process')
+    setShareError('')
     nextTerminalIdRef.current = 1
   }, [
     cancelPreviewCapture,
@@ -511,6 +514,12 @@ export function ExampleWorkbench({
     })
     setStatus('unsupported')
   }, [definition, usesWebContainer])
+
+  React.useEffect(() => {
+    if (!error) return
+    setShowPreview(true)
+    setMobileView('preview')
+  }, [error])
 
   React.useEffect(
     () => () => {
@@ -1351,7 +1360,7 @@ export function ExampleWorkbench({
 
   async function share() {
     setShareState('sharing')
-    setError('')
+    setShareError('')
 
     try {
       const url = await createSharedExampleUrl(
@@ -1369,7 +1378,7 @@ export function ExampleWorkbench({
       window.setTimeout(() => setShareState('idle'), 1_500)
     } catch (cause) {
       setShareState('idle')
-      setError(formatError(cause))
+      setShareError(formatError(cause))
     }
   }
 
@@ -1415,7 +1424,7 @@ export function ExampleWorkbench({
 
   return (
     <section
-      className={`not-prose flex min-w-0 flex-col overflow-hidden border border-border-default bg-background-default text-text-primary ${
+      className={`not-prose relative flex min-w-0 flex-col overflow-hidden border border-border-default bg-background-default text-text-primary ${
         fullscreen
           ? 'min-h-0 flex-1 rounded-none border-x-0 border-b-0'
           : 'h-[clamp(520px,75dvh,720px)] rounded-lg'
@@ -1574,6 +1583,33 @@ export function ExampleWorkbench({
           </ButtonGroup>
         </div>
       </header>
+
+      {shareError ? (
+        <div
+          className="absolute top-12 right-3 left-3 z-30 flex max-h-28 items-start gap-2 overflow-hidden rounded-lg border border-border-default border-l-2 border-l-border-error bg-background-elevated px-3 py-2 shadow-lg sm:left-auto sm:w-96"
+          role="alert"
+        >
+          <WarningCircleIcon
+            className="mt-0.5 size-4 shrink-0 text-icon-error"
+            aria-hidden="true"
+          />
+          <span className="min-h-0 min-w-0 flex-1 overflow-auto text-xs/5 whitespace-pre-wrap text-text-secondary">
+            {shareError}
+          </span>
+          <Button
+            type="button"
+            variant="icon"
+            color="gray"
+            size="icon-sm"
+            rounded="md"
+            className="-m-1 shrink-0 transition-none active:scale-100"
+            aria-label="Dismiss share error"
+            onClick={() => setShareError('')}
+          >
+            <XIcon className="size-3.5" aria-hidden="true" />
+          </Button>
+        </div>
+      ) : null}
 
       <div className="shrink-0 border-b border-border-default p-1 lg:hidden">
         <ButtonGroup
@@ -1746,7 +1782,7 @@ export function ExampleWorkbench({
                 previewUrl || sourceDocument ? capturePreview : undefined
               }
               currentUrl={currentPreviewUrl}
-              error={previewNavigationError}
+              error={error || previewNavigationError}
               history={[...new Set(previewHistory.entries)]}
               navigationAvailable={Boolean(previewUrl || sourceDocument)}
               onAnnotationModeChange={setPreviewAnnotationMode}
@@ -1972,24 +2008,6 @@ export function ExampleWorkbench({
           ) : null}
         </section>
       </div>
-
-      {error ? (
-        <div className="flex max-h-32 items-start justify-between gap-3 overflow-auto border-t border-border-error bg-status-error-bg p-3">
-          <pre className="min-w-0 font-ds-mono text-xs whitespace-pre-wrap text-text-error">
-            {error}
-          </pre>
-          {fallbackAction ? (
-            <a
-              href={fallbackAction.url}
-              target="_blank"
-              rel="noreferrer"
-              className="shrink-0 text-xs font-medium text-blue-600 hover:underline dark:text-blue-400"
-            >
-              {fallbackAction.label}
-            </a>
-          ) : null}
-        </div>
-      ) : null}
     </section>
   )
 }

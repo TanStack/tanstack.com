@@ -247,6 +247,32 @@ test('notebook activity stops unfinished items with the run', () => {
   assert.equal(getNotebookAiActivitySummary(activity), 'Stopped')
 })
 
+test('notebook activity summarizes package evidence without persisting source', () => {
+  const activity = reduceEvents([
+    { type: 'run-started', runId: 'run-package', timestamp: 1_000 },
+    {
+      type: 'item-completed',
+      runId: 'run-package',
+      itemId: 'inspect-1',
+      source: 'tool',
+      name: 'inspect_module',
+      timestamp: 1_500,
+      output: {
+        packageName: '@tanstack/charts',
+        packageVersion: '0.13.0',
+        source: 'PACKAGE_SOURCE_MUST_NOT_PERSIST',
+        declarations: 'PACKAGE_TYPES_MUST_NOT_PERSIST',
+      },
+    },
+    { type: 'run-completed', runId: 'run-package', timestamp: 2_000 },
+  ])
+
+  assert.equal(getNotebookAiActivitySummary(activity), 'Inspected package API')
+  assert.equal(activity.items[0]?.details.packageName, '@tanstack/charts')
+  assert.equal(activity.items[0]?.details.packageVersion, '0.13.0')
+  assert.doesNotMatch(JSON.stringify(activity), /PACKAGE_(?:SOURCE|TYPES)/)
+})
+
 test('notebook activity settles unfinished items when a run completes', () => {
   const activity = reduceEvents([
     { type: 'run-started', runId: 'run-complete', timestamp: 1_000 },

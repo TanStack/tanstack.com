@@ -1652,7 +1652,11 @@ export function ChartsNotebookPage() {
                           sandboxDocument ? capturePreview : undefined
                         }
                         currentUrl={currentPreviewUrl}
-                        error={previewNavigationError}
+                        error={
+                          status === 'error' && error
+                            ? error
+                            : previewNavigationError
+                        }
                         history={[...new Set(previewHistory.entries)]}
                         navigationAvailable={Boolean(sandboxDocument)}
                         onAnnotationModeChange={setPreviewAnnotationMode}
@@ -1690,11 +1694,6 @@ export function ChartsNotebookPage() {
                       </SandboxBrowser>
                     </div>
                   </div>
-                  {status === 'error' && error ? (
-                    <div className="max-h-24 shrink-0 overflow-auto border-t border-red-200 bg-red-50 px-3 py-2 font-mono text-xs text-red-700">
-                      {error}
-                    </div>
-                  ) : null}
                   <CollapsibleContent
                     ref={consolePanelRef}
                     id="notebook-console"

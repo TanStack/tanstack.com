@@ -122,6 +122,38 @@ test('notebook BYOK rejects extra forwarded properties and client tools', async 
   )
 })
 
+test('notebook BYOK strictly preserves typed repair progress', async () => {
+  const body = requestBody([
+    {
+      id: 'user-1',
+      role: 'user',
+      parts: [{ type: 'text', content: 'Repair the notebook.' }],
+      content: 'Repair the notebook.',
+    },
+  ])
+  const repair = {
+    priorEvidenceFingerprints: ['1111111111111111'],
+    blockedMutationFingerprints: ['2222222222222222'],
+  }
+
+  const input = await parseNotebookAiRequest({
+    ...body,
+    forwardedProps: { ...forwardedProps, repair },
+  })
+  assert.deepEqual(input.repair, repair)
+
+  await assert.rejects(
+    parseNotebookAiRequest({
+      ...body,
+      forwardedProps: {
+        ...forwardedProps,
+        repair: { ...repair, extra: true },
+      },
+    }),
+    /Invalid notebook AI repair context/,
+  )
+})
+
 test('notebook BYOK preserves AG-UI events and emits execution only before the final finish', async () => {
   const sourceChunks: Array<StreamChunk> = [
     {
@@ -184,6 +216,7 @@ test('notebook BYOK preserves AG-UI events and emits execution only before the f
       execution,
       changedFiles: ['/index.tsx'],
       runtimeChanged: false,
+      trace: { evidenceFingerprints: [], mutationFingerprints: [] },
     }),
   )) {
     chunks.push(chunk)
@@ -209,6 +242,7 @@ test('notebook BYOK preserves AG-UI events and emits execution only before the f
     execution,
     changedFiles: ['/index.tsx'],
     runtimeChanged: false,
+    trace: { evidenceFingerprints: [], mutationFingerprints: [] },
   })
 })
 
@@ -233,6 +267,7 @@ test('notebook BYOK redacts keys from streamed and thrown errors', async () => {
       execution,
       changedFiles: [],
       runtimeChanged: false,
+      trace: { evidenceFingerprints: [], mutationFingerprints: [] },
     }),
   )) {
     chunks.push(chunk)
@@ -259,6 +294,7 @@ test('notebook BYOK redacts keys from streamed and thrown errors', async () => {
         execution,
         changedFiles: [],
         runtimeChanged: false,
+        trace: { evidenceFingerprints: [], mutationFingerprints: [] },
       }),
     )) {
       // Consume the stream.

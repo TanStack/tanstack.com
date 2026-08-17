@@ -122,7 +122,7 @@ export function NotebookAgentActivity({
           </ol>
           {activity.error ? (
             <pre
-              className="mt-2 ml-3 max-h-48 overflow-auto rounded-lg bg-status-error-bg px-3 py-2 font-ds-mono text-xs/5 whitespace-pre-wrap text-text-error"
+              className="mt-2 ml-3 max-h-48 overflow-auto rounded-lg border border-border-default border-l-2 border-l-border-error bg-background-elevated px-3 py-2 font-ds-mono text-xs/5 whitespace-pre-wrap text-text-secondary"
               aria-label="Agent error"
             >
               {activity.error}

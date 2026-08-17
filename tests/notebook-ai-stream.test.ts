@@ -16,6 +16,7 @@ const response: NotebookAiResponse = {
   },
   changedFiles: ['/index.tsx'],
   runtimeChanged: false,
+  trace: { evidenceFingerprints: [], mutationFingerprints: [] },
 }
 
 const runStarted: StreamChunk = {

@@ -11,6 +11,7 @@ import {
   CursorClickIcon,
   DownloadSimpleIcon,
   DotsThreeIcon,
+  WarningCircleIcon,
   XIcon,
 } from '@phosphor-icons/react'
 import {
@@ -380,10 +381,16 @@ export function SandboxBrowser({
 
       {error ? (
         <div
-          className="absolute top-12 right-3 z-20 max-w-sm rounded-lg border border-border-default bg-background-elevated px-3 py-2 text-xs text-text-error shadow-lg"
+          className="absolute top-12 right-3 left-3 z-20 flex max-h-48 items-start gap-2 overflow-hidden rounded-lg border border-border-default border-l-2 border-l-border-error bg-background-elevated px-3 py-2 shadow-lg sm:left-auto sm:w-[26rem]"
           role="alert"
         >
-          {error}
+          <WarningCircleIcon
+            className="mt-0.5 size-4 shrink-0 text-icon-error"
+            aria-hidden="true"
+          />
+          <pre className="min-h-0 min-w-0 overflow-auto font-ds-mono text-xs/5 whitespace-pre-wrap text-text-secondary">
+            {error}
+          </pre>
         </div>
       ) : null}
 

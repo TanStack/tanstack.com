@@ -212,12 +212,19 @@ export function sanitizeNotebookAiActivityDetails(
   if (entry) details.entry = entry
 
   const packageName =
+    readText(outputRecord?.packageName, maxDetailCharacters) ??
     readText(outputRecord?.name, maxDetailCharacters) ??
     readText(inputRecord?.name, maxDetailCharacters)
   const packageVersion =
+    readText(outputRecord?.packageVersion, maxDetailCharacters) ??
     readText(outputRecord?.version, maxDetailCharacters) ??
     readText(inputRecord?.version, maxDetailCharacters)
-  if (name === 'install_dependency') {
+  if (
+    name === 'install_dependency' ||
+    name === 'inspect_module' ||
+    name === 'search_package_resources' ||
+    name === 'read_package_resource'
+  ) {
     if (packageName) details.packageName = packageName
     if (packageVersion) details.packageVersion = packageVersion
   }
@@ -373,6 +380,16 @@ export function getNotebookAiActivitySummary(activity: NotebookAiActivity) {
   }
   if (
     completed.some(
+      (item) =>
+        item.name === 'inspect_module' ||
+        item.name === 'search_package_resources' ||
+        item.name === 'read_package_resource',
+    )
+  ) {
+    return 'Inspected package API'
+  }
+  if (
+    completed.some(
       (item) => item.name === 'describe_notebook' || item.name === 'list_files',
     )
   ) {
@@ -413,6 +430,27 @@ export function getNotebookAiActivityItemLabel(item: NotebookAiActivityItem) {
         : 'Listing files'
   }
   if (item.name === 'read_file') {
+    if (failed) return `Failed to read ${path}`
+    if (stopped) return `Stopped reading ${path}`
+    return complete ? `Read ${path}` : `Reading ${path}`
+  }
+  if (item.name === 'inspect_module') {
+    const packageName = item.details.packageName ?? 'module'
+    if (failed) return `Failed to inspect ${packageName}`
+    if (stopped) return `Stopped inspecting ${packageName}`
+    return complete
+      ? `Inspected ${packageName} exports`
+      : `Inspecting ${packageName} exports`
+  }
+  if (item.name === 'search_package_resources') {
+    const packageName = item.details.packageName ?? 'package'
+    if (failed) return `Failed to search ${packageName}`
+    if (stopped) return `Stopped searching ${packageName}`
+    return complete
+      ? `Searched ${packageName} resources`
+      : `Searching ${packageName} resources`
+  }
+  if (item.name === 'read_package_resource') {
     if (failed) return `Failed to read ${path}`
     if (stopped) return `Stopped reading ${path}`
     return complete ? `Read ${path}` : `Reading ${path}`

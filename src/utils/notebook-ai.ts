@@ -6,6 +6,10 @@ import {
   type ExampleRuntime,
   type ExampleWorkspace,
 } from './example-workspace'
+import {
+  parseNotebookAiAttemptTrace,
+  type NotebookAiAttemptTrace,
+} from './notebook-ai-progress'
 
 export const notebookAiRemoteProviders = ['openai', 'anthropic'] as const
 
@@ -27,6 +31,7 @@ export type NotebookAiResponse = {
   execution: NotebookAiExecution
   changedFiles: Array<string>
   runtimeChanged: boolean
+  trace: NotebookAiAttemptTrace
 }
 
 export async function collectNotebookAiMessage(
@@ -112,7 +117,14 @@ export function parseNotebookAiResponse(value: unknown): NotebookAiResponse {
     typeof value.message !== 'string' ||
     !Array.isArray(value.changedFiles) ||
     !value.changedFiles.every((path) => typeof path === 'string') ||
-    typeof value.runtimeChanged !== 'boolean'
+    typeof value.runtimeChanged !== 'boolean' ||
+    !hasOnlyKeys(value, [
+      'message',
+      'execution',
+      'changedFiles',
+      'runtimeChanged',
+      'trace',
+    ])
   ) {
     throw new Error('Notebook AI returned an invalid response')
   }
@@ -122,6 +134,7 @@ export function parseNotebookAiResponse(value: unknown): NotebookAiResponse {
     execution: parseNotebookAiExecution(value.execution),
     changedFiles: value.changedFiles,
     runtimeChanged: value.runtimeChanged,
+    trace: parseNotebookAiAttemptTrace(value.trace),
   }
 }
 

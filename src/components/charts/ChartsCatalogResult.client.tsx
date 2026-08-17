@@ -323,7 +323,7 @@ export function ChartsCatalogResult({
           <div
             className={`absolute inset-0 ${
               status === 'error'
-                ? 'grid place-items-center text-sm text-red-700 dark:text-red-300'
+                ? 'grid place-items-center text-sm text-text-error'
                 : 'animate-pulse bg-gray-100 dark:bg-gray-900 motion-reduce:animate-none'
             }`}
           >

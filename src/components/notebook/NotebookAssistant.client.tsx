@@ -54,6 +54,13 @@ import {
   type NotebookAiThread,
 } from '~/utils/notebook-ai-persistence.client'
 import {
+  fingerprintNotebookAiDiagnostic,
+  fingerprintNotebookAiValue,
+  recordNotebookAiFailure,
+  type NotebookAiFailureObservation,
+  type NotebookAiRepairContext,
+} from '~/utils/notebook-ai-progress'
+import {
   NotebookAiPromptQueue,
   type NotebookAiQueuedPrompt,
   type NotebookAiSendMode,
@@ -419,7 +426,8 @@ export function NotebookAssistant({
 
   function selectModel(model: ModelChoice) {
     if (running) return
-    didSelectConnectionRef.current = true
+    didSelectConnectionRef.current =
+      model.connection !== 'chatgpt' || Boolean(model.model)
     setSelectedModel(model)
     if (model.connection === 'byok') {
       setSettingsProvider(model.provider)
@@ -427,7 +435,12 @@ export function NotebookAssistant({
         setShowApiKeySetup(true)
         setSettingsOpen(true)
       }
-    } else if (!chatGptConnection?.connected) {
+    } else if (
+      !chatGptConnection?.connected ||
+      !chatGptConnection.models.some(
+        (candidate) => candidate.id === model.model,
+      )
+    ) {
       setSettingsOpen(true)
     }
     setError('')
@@ -703,6 +716,8 @@ export function NotebookAssistant({
       .map(({ role, content }) => ({ role, content }))
     let requestExecution = initialExecution
     let repairAttempt = 0
+    let repair: NotebookAiRepairContext | undefined
+    let repairHistory: Array<NotebookAiFailureObservation> = []
     const activityId = crypto.randomUUID()
     let currentActivity: NotebookAiActivity | undefined
     const abortController = new AbortController()
@@ -739,6 +754,7 @@ export function NotebookAssistant({
                   model: selectedModel.model,
                   onActivityEvent: updateActivity,
                   onText: setStreamingMessage,
+                  repair,
                   threadId,
                 })
               : await runRemoteAgent({
@@ -752,6 +768,7 @@ export function NotebookAssistant({
                   onActivityEvent: updateActivity,
                   onText: setStreamingMessage,
                   provider: selectedModel.provider,
+                  repair,
                   threadId,
                 })
         } finally {
@@ -876,10 +893,39 @@ export function NotebookAssistant({
         })
         failRepair(runResult.message)
 
-        if (
-          (runResult.phase !== 'compile' && runResult.phase !== 'runtime') ||
-          repairAttempt >= maxRepairAttempts
-        ) {
+        if (runResult.phase !== 'compile' && runResult.phase !== 'runtime') {
+          const runError = formatRunError(runResult)
+          failActivity(runError)
+          commitAssistant(response.message)
+          setError(runError)
+          return 'error'
+        }
+
+        const failureFingerprint = fingerprintNotebookAiDiagnostic(
+          runResult.phase,
+          runResult.message,
+        )
+        const executionFingerprint = fingerprintNotebookAiValue(
+          response.execution,
+        )
+        const progress = recordNotebookAiFailure(repairHistory, {
+          failureFingerprint,
+          executionFingerprint,
+          evidenceFingerprints: response.trace.evidenceFingerprints,
+          mutationFingerprints: response.trace.mutationFingerprints,
+        })
+        repairHistory = progress.history
+
+        if (progress.repeatedState) {
+          const runError =
+            'The repair stopped because it returned to a notebook state that already failed with the same error.'
+          failActivity(runError)
+          commitAssistant(response.message)
+          setError(runError)
+          return 'error'
+        }
+
+        if (repairAttempt >= maxRepairAttempts) {
           const runError = formatRunError(runResult)
           failActivity(runError)
           commitAssistant(response.message)
@@ -902,6 +948,7 @@ export function NotebookAssistant({
           },
         })
         const diagnostic = createRepairDiagnostic(runResult)
+        repair = progress.repair
         requestMessages = requestMessages
           .concat(
             { role: 'assistant', content: response.message },
@@ -1125,13 +1172,17 @@ export function NotebookAssistant({
                 onSave={saveApiKey}
               />
               {supportsChatGptLogin ? (
-                <button
+                <Button
                   type="button"
-                  className="mx-auto mt-5 block text-xs font-medium text-text-muted underline-offset-2 hover:text-text-primary hover:underline"
+                  variant="secondary"
+                  size="sm"
+                  className="mt-5 w-full"
                   onClick={useChatGptConnection}
                 >
-                  Use ChatGPT
-                </button>
+                  {chatGptConnection?.connected
+                    ? 'Use ChatGPT'
+                    : 'Continue with ChatGPT'}
+                </Button>
               ) : null}
             </>
           )}
@@ -1211,6 +1262,7 @@ export function NotebookAssistant({
                   chatGptModels={chatGptModels}
                   disabled={running}
                   selected={selectedModel}
+                  showChatGpt={supportsChatGptLogin}
                   onSelect={selectModel}
                 />
                 <div className="flex items-center gap-1">
@@ -1432,7 +1484,7 @@ function DeviceLogin({
 function ErrorMessage({ message }: { message: string }) {
   return (
     <p
-      className="mt-4 rounded-lg border border-border-error bg-status-error-bg px-3 py-2 text-xs/5 text-text-error"
+      className="mt-4 rounded-lg border border-border-default border-l-2 border-l-border-error bg-background-elevated px-3 py-2 text-xs/5 text-text-secondary"
       role="alert"
     >
       {message}
@@ -1539,11 +1591,13 @@ function ModelPicker({
   chatGptModels,
   disabled,
   selected,
+  showChatGpt,
   onSelect,
 }: {
   chatGptModels: ReadonlyArray<ChatGptModelChoice>
   disabled: boolean
   selected: ModelChoice
+  showChatGpt: boolean
   onSelect: (model: ModelChoice) => void
 }) {
   return (
@@ -1562,14 +1616,35 @@ function ModelPicker({
         </Button>
       </DropdownTrigger>
       <DropdownContent align="start" side="top" className="w-64 rounded-xl">
-        {chatGptModels.length ? (
+        {showChatGpt ? (
           <>
-            <ModelGroup
-              label="ChatGPT"
-              models={chatGptModels}
-              selected={selected}
-              onSelect={onSelect}
-            />
+            {chatGptModels.length ? (
+              <ModelGroup
+                label="ChatGPT"
+                models={chatGptModels}
+                selected={selected}
+                onSelect={onSelect}
+              />
+            ) : (
+              <div>
+                <div className="px-2 py-1 font-ds-mono text-[10px] uppercase tracking-wide text-text-muted">
+                  ChatGPT
+                </div>
+                <DropdownItem
+                  className="min-h-11 rounded-lg px-2.5"
+                  onSelect={() => onSelect(chatGptPlaceholder)}
+                >
+                  <span>
+                    <span className="block text-sm text-text-primary">
+                      Connect ChatGPT
+                    </span>
+                    <span className="block text-xs text-text-muted">
+                      Use your ChatGPT plan
+                    </span>
+                  </span>
+                </DropdownItem>
+              </div>
+            )}
             <DropdownSeparator />
           </>
         ) : null}
@@ -1934,6 +2009,7 @@ async function runChatGptAgent({
   model,
   onActivityEvent,
   onText,
+  repair,
   threadId,
 }: {
   activityId: string
@@ -1944,12 +2020,18 @@ async function runChatGptAgent({
   model: string
   onActivityEvent: (event: NotebookAiActivityEvent) => void
   onText: (text: string) => void
+  repair?: NotebookAiRepairContext
   threadId: string
 }) {
   return runNotebookAiStream({
     endpoint: '/api/notebook/chatgpt/assist',
     activityId,
-    forwardedProps: { model, execution, hiddenFiles },
+    forwardedProps: {
+      model,
+      execution,
+      hiddenFiles,
+      ...(repair ? { repair } : {}),
+    },
     includeReasoningSummaries: true,
     messages,
     onActivityEvent,
@@ -1970,6 +2052,7 @@ async function runRemoteAgent({
   onActivityEvent,
   onText,
   provider,
+  repair,
   threadId,
 }: {
   activityId: string
@@ -1982,6 +2065,7 @@ async function runRemoteAgent({
   onActivityEvent: (event: NotebookAiActivityEvent) => void
   onText: (text: string) => void
   provider: NotebookAiRemoteProvider
+  repair?: NotebookAiRepairContext
   threadId: string
 }) {
   return runNotebookAiStream({
@@ -1993,6 +2077,7 @@ async function runRemoteAgent({
       apiKey,
       execution,
       hiddenFiles,
+      ...(repair ? { repair } : {}),
     },
     messages,
     onActivityEvent,
@@ -2031,7 +2116,7 @@ function createRepairDiagnostic(
   result: Extract<ExampleWorkbenchRunResult, { ok: false }>,
 ) {
   const message = result.message.slice(0, maxRuntimeErrorCharacters)
-  return `The notebook was updated, but it failed during ${result.phase}:\n\n${message}\n\nFix this error now. Inspect the current workspace, make only the necessary changes, and keep the requested behavior.`
+  return `The notebook was updated, but it failed during ${result.phase}:\n\n${message}\n\nGather new evidence appropriate to this failure before editing. Inspect current source, diagnostics, runtime output, package metadata, declarations, implementation, documentation, or a relevant skill. The host requires an evidence result that differs from prior attempts and rejects exact mutations that already failed. Make only the necessary change and keep the requested behavior.`
 }
 
 function formatRunError(

@@ -16,6 +16,7 @@ export type ExampleSandboxBrowserCommand =
   | { kind: 'capture'; requestId: string }
   | { kind: 'forward' }
   | { kind: 'navigate'; url: string }
+  | { kind: 'observe'; observationId: string }
   | { kind: 'reload' }
 
 export type ExampleSandboxBrowserCommandMessage =
@@ -35,6 +36,7 @@ export type ExampleSandboxBrowserStateMessage =
   ExampleSandboxBrowserMessageBase & {
     kind: 'browser-state'
     navigationKind: ExampleSandboxNavigationKind
+    observationId?: string
     title: string
     url: string
   }
@@ -294,6 +296,10 @@ export function isExampleSandboxBrowserCommandMessage(
     return isCappedString(value.requestId, 128)
   }
 
+  if (value.kind === 'observe') {
+    return isCappedString(value.observationId, 128)
+  }
+
   return (
     value.kind === 'navigate' &&
     typeof value.url === 'string' &&
@@ -317,6 +323,8 @@ export function isExampleSandboxBrowserMessage(
   if (value.kind === 'browser-state') {
     return (
       isNavigationKind(value.navigationKind) &&
+      (value.observationId === undefined ||
+        isCappedString(value.observationId, 128)) &&
       isCappedString(value.title, 512) &&
       isCappedString(value.url, 2_048)
     )
@@ -413,7 +421,7 @@ function currentUrl() {
   return location.href
 }
 
-function reportBrowserState(navigationKind, documentChanged) {
+function reportBrowserState(navigationKind, documentChanged, observationId) {
   const url = currentUrl().slice(0, 2048)
   const didNavigate = documentChanged || navigationKind === 'load'
     || (lastReportedUrl !== null && lastReportedUrl !== url)
@@ -426,6 +434,7 @@ function reportBrowserState(navigationKind, documentChanged) {
   send({
     kind: 'browser-state',
     navigationKind,
+    ...(observationId ? { observationId } : {}),
     title: document.title.slice(0, 512),
     url,
   })
@@ -846,6 +855,14 @@ window.addEventListener('message', (event) => {
     value.requestId.length <= 128
   ) {
     void captureViewport(value.requestId)
+    return
+  }
+  if (
+    value.kind === 'observe' &&
+    typeof value.observationId === 'string' &&
+    value.observationId.length <= 128
+  ) {
+    reportBrowserState('replace', false, value.observationId)
     return
   }
   if (

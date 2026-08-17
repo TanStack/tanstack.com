@@ -160,6 +160,12 @@ export function serializeNotebookAiExecution(execution: NotebookAiExecution) {
   })
 }
 
+export function cloneNotebookAiExecution(execution: NotebookAiExecution) {
+  return parseNotebookAiExecution(
+    JSON.parse(serializeNotebookAiExecution(execution)),
+  )
+}
+
 export function redactNotebookAiKey(message: string, apiKey: string) {
   return apiKey ? message.split(apiKey).join('[redacted]') : message
 }

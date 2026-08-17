@@ -74,6 +74,7 @@ test('strictly validates browser state and annotation messages by channel', () =
         channel: 'browser-1',
         kind: 'browser-state',
         navigationKind: 'push',
+        observationId: 'run-1',
         title: 'Chart',
         type: 'tanstack-example-sandbox:browser',
         url: '/reports?range=week#sales',
@@ -129,6 +130,18 @@ test('strictly validates browser state and annotation messages by channel', () =
 })
 
 test('strictly validates browser commands by channel', () => {
+  assert.equal(
+    isExampleSandboxBrowserCommandMessage(
+      {
+        channel: 'browser-1',
+        kind: 'observe',
+        observationId: 'run-1',
+        type: 'tanstack-example-sandbox:browser-command',
+      },
+      'browser-1',
+    ),
+    true,
+  )
   assert.equal(
     isExampleSandboxBrowserCommandMessage(
       {

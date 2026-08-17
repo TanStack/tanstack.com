@@ -9,6 +9,7 @@ import {
   type ExampleWorkbenchRunRequest,
 } from '~/components/examples/ExampleWorkbench.client'
 import { NotebookAssistant } from '~/components/notebook/NotebookAssistant.client'
+import { createEmptyExampleEnvironmentSnapshot } from '~/utils/example-run-observation'
 import { notebookStarterSource } from '~/utils/notebook-environment'
 import {
   createExampleWorkspace,
@@ -29,6 +30,14 @@ const initialDefinition = {
   }),
 } satisfies ExampleDefinition
 
+declare global {
+  interface Window {
+    __TANSTACK_NOTEBOOK_AI_EVAL__?: {
+      getExecution: () => NotebookAiExecution
+    }
+  }
+}
+
 export function NotebookAiSpike() {
   const [activeView, setActiveView] = React.useState<'chat' | 'code'>('chat')
   const [definition, setDefinition] =
@@ -40,6 +49,21 @@ export function NotebookAiSpike() {
   const workspaceRef = React.useRef<ExampleWorkspace>(definition.workspace)
   definitionRef.current = definition
 
+  React.useEffect(() => {
+    const bridge = {
+      getExecution: () => ({
+        runtime: definitionRef.current.runtime ?? null,
+        workspace: workspaceRef.current,
+      }),
+    }
+    window.__TANSTACK_NOTEBOOK_AI_EVAL__ = bridge
+    return () => {
+      if (window.__TANSTACK_NOTEBOOK_AI_EVAL__ === bridge) {
+        delete window.__TANSTACK_NOTEBOOK_AI_EVAL__
+      }
+    }
+  }, [])
+
   function applyAiExecution(
     execution: NotebookAiExecution,
     signal: AbortSignal,
@@ -48,9 +72,16 @@ export function NotebookAiSpike() {
     const currentWorkspace = workspaceRef.current
     if (signal.aborted) {
       return Promise.resolve({
-        ok: false,
+        ok: false as const,
         phase: 'superseded' as const,
         message: 'The notebook edit was stopped.',
+        snapshot: createEmptyExampleEnvironmentSnapshot({
+          runId: crypto.randomUUID(),
+          runtime:
+            execution.runtime?.type === 'webcontainer'
+              ? 'webcontainer'
+              : 'client',
+        }),
       })
     }
     const hiddenFiles = getAiHiddenFiles(
@@ -84,6 +115,7 @@ export function NotebookAiSpike() {
       return workbenchRef.current.replaceWorkspaceAndRun(
         execution.workspace,
         signal,
+        { notify: false },
       )
     }
 
@@ -100,6 +132,10 @@ export function NotebookAiSpike() {
         },
       })
     })
+  }
+
+  async function restoreAiExecution(execution: NotebookAiExecution) {
+    await applyAiExecution(execution, new AbortController().signal)
   }
 
   return (
@@ -138,6 +174,7 @@ export function NotebookAiSpike() {
                 })}
                 hiddenFiles={[]}
                 onApply={applyAiExecution}
+                onRestore={restoreAiExecution}
                 storageScope="local-spike"
               />
             ),

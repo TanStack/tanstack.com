@@ -20,6 +20,12 @@ import { Tooltip } from '~/ui'
 import { copyTextToClipboard } from '~/utils/browser-effects'
 import { compileExampleWorkspace } from '~/utils/example-esbuild.client'
 import {
+  createEmptyExampleEnvironmentSnapshot,
+  type ExampleEnvironmentSnapshot,
+  type ExampleWorkbenchRunOutcome,
+  type ExampleWorkbenchRunResult as ExampleRunResult,
+} from '~/utils/example-run-observation'
+import {
   createWebContainerExampleSession,
   getExampleWebContainerSupport,
   type WebContainerExampleSession,
@@ -105,26 +111,25 @@ const MAX_PROCESS_OUTPUT_LENGTH = 500_000
 const RUN_SETTLE_DELAY_MS = 750
 const CLIENT_RUN_TIMEOUT_MS = 15_000
 const WEBCONTAINER_RUN_TIMEOUT_MS = 120_000
+const MAX_RUN_CONSOLE_ENTRIES = 50
+const MAX_RUN_CONSOLE_CHARACTERS = 16_000
+const MAX_RUN_PROCESS_CHARACTERS = 16_000
 
-export type ExampleWorkbenchRunResult =
-  | { ok: true }
-  | {
-      ok: false
-      phase:
-        | 'aborted'
-        | 'compile'
-        | 'runtime'
-        | 'superseded'
-        | 'timeout'
-        | 'unsupported'
-      message: string
-    }
+export type ExampleWorkbenchRunResult = ExampleRunResult
+
+export type ExampleWorkbenchWorkspaceUpdateOptions = {
+  notify?: boolean
+}
 
 export type ExampleWorkbenchHandle = {
-  replaceWorkspace(workspace: ExampleWorkspace): void
+  replaceWorkspace(
+    workspace: ExampleWorkspace,
+    options?: ExampleWorkbenchWorkspaceUpdateOptions,
+  ): void
   replaceWorkspaceAndRun(
     workspace: ExampleWorkspace,
     signal?: AbortSignal,
+    options?: ExampleWorkbenchWorkspaceUpdateOptions,
   ): Promise<ExampleWorkbenchRunResult>
 }
 
@@ -142,10 +147,13 @@ export type ExampleWorkbenchPreviewOptions = {
 type PendingWorkbenchRun = {
   abortListener?: () => void
   abortSignal?: AbortSignal
+  observed?: boolean
+  ready?: boolean
   readyTimeout?: number
   resolve(result: ExampleWorkbenchRunResult): void
   timeout: number
   token: string
+  workspaceRevision: number
 }
 type PendingPreviewCapture = {
   reject(cause: Error): void
@@ -257,6 +265,10 @@ export function ExampleWorkbench({
   const previewPanelRef = React.useRef<HTMLElement>(null)
   const codeResizeRef = React.useRef<CodePanelResize>(null)
   const runTokenRef = React.useRef('')
+  const workspaceRevisionRef = React.useRef(0)
+  const environmentSnapshotRef = React.useRef<
+    ExampleEnvironmentSnapshot | undefined
+  >(undefined)
   const browserChannelRef = React.useRef(crypto.randomUUID())
   const compileRequestRef = React.useRef(0)
   const nextConsoleIdRef = React.useRef(0)
@@ -280,6 +292,78 @@ export function ExampleWorkbench({
     previewHistoryRef.current = previewHistory
   }, [previewHistory])
 
+  const captureEnvironmentSnapshot = React.useCallback(
+    (runId: string): ExampleEnvironmentSnapshot => {
+      const snapshot = environmentSnapshotRef.current
+      if (!snapshot || snapshot.runId !== runId) {
+        return createEmptyExampleEnvironmentSnapshot({
+          runId,
+          runtime: usesWebContainer ? 'webcontainer' : 'client',
+          workspaceRevision: workspaceRevisionRef.current,
+        })
+      }
+
+      return {
+        runId: snapshot.runId,
+        workspaceRevision: snapshot.workspaceRevision,
+        runtime: snapshot.runtime,
+        preview: { ...snapshot.preview },
+        console: {
+          entries: snapshot.console.entries.map((entry) => ({ ...entry })),
+          omittedEntries: snapshot.console.omittedEntries,
+        },
+        process: snapshot.process ? { ...snapshot.process } : null,
+      }
+    },
+    [usesWebContainer],
+  )
+
+  const recordRunConsoleEntry = React.useCallback(
+    (level: ExampleConsoleLevel, text: string) => {
+      const snapshot = environmentSnapshotRef.current
+      if (!snapshot || snapshot.runId !== runTokenRef.current) return
+
+      const next = [
+        ...snapshot.console.entries,
+        { level, text: text.slice(0, MAX_RUN_CONSOLE_CHARACTERS) },
+      ]
+      let characters = next.reduce(
+        (total, entry) => total + entry.text.length,
+        0,
+      )
+      let omittedEntries = snapshot.console.omittedEntries
+      while (
+        next.length > MAX_RUN_CONSOLE_ENTRIES ||
+        characters > MAX_RUN_CONSOLE_CHARACTERS
+      ) {
+        const removed = next.shift()
+        if (!removed) break
+        characters -= removed.text.length
+        omittedEntries += 1
+      }
+      snapshot.console = { entries: next, omittedEntries }
+    },
+    [],
+  )
+
+  const recordRunProcessOutput = React.useCallback((value: string) => {
+    const snapshot = environmentSnapshotRef.current
+    if (
+      !snapshot ||
+      snapshot.runId !== runTokenRef.current ||
+      !snapshot.process
+    ) {
+      return
+    }
+
+    const combined = snapshot.process.tail + value
+    const overflow = Math.max(0, combined.length - MAX_RUN_PROCESS_CHARACTERS)
+    snapshot.process = {
+      omittedCharacters: snapshot.process.omittedCharacters + overflow,
+      tail: overflow ? combined.slice(overflow) : combined,
+    }
+  }, [])
+
   const cancelPreviewCapture = React.useCallback((message: string) => {
     const pending = pendingPreviewCaptureRef.current
     if (!pending) return
@@ -289,9 +373,28 @@ export function ExampleWorkbench({
   }, [])
 
   const finishRun = React.useCallback(
-    (token: string, result: ExampleWorkbenchRunResult) => {
+    (token: string, outcome: ExampleWorkbenchRunOutcome) => {
       const pending = pendingRunRef.current
       if (!pending || pending.token !== token) return
+
+      const snapshot = captureEnvironmentSnapshot(token)
+      const result: ExampleWorkbenchRunResult =
+        outcome.ok && pending.workspaceRevision !== workspaceRevisionRef.current
+          ? {
+              ok: false,
+              phase: 'superseded',
+              message: 'The notebook changed before validation completed.',
+              snapshot,
+            }
+          : outcome.ok && !snapshot.preview.observed
+            ? {
+                ok: false,
+                phase: 'timeout',
+                message:
+                  'The preview loaded without establishing the browser observation channel.',
+                snapshot,
+              }
+            : { ...outcome, snapshot }
 
       window.clearTimeout(pending.timeout)
       if (pending.readyTimeout !== undefined) {
@@ -303,11 +406,11 @@ export function ExampleWorkbench({
       pendingRunRef.current = undefined
       pending.resolve(result)
     },
-    [],
+    [captureEnvironmentSnapshot],
   )
 
   const finishCurrentRun = React.useCallback(
-    (result: ExampleWorkbenchRunResult) => {
+    (result: ExampleWorkbenchRunOutcome) => {
       const token = pendingRunRef.current?.token
       if (token) finishRun(token, result)
     },
@@ -316,12 +419,6 @@ export function ExampleWorkbench({
 
   const beginRun = React.useCallback(
     (token: string, signal?: AbortSignal) => {
-      finishCurrentRun({
-        ok: false,
-        phase: 'superseded',
-        message: 'The preview restarted before the previous run finished.',
-      })
-
       return new Promise<ExampleWorkbenchRunResult>((resolve) => {
         const timeout = window.setTimeout(
           () =>
@@ -334,7 +431,12 @@ export function ExampleWorkbench({
             ? WEBCONTAINER_RUN_TIMEOUT_MS
             : CLIENT_RUN_TIMEOUT_MS,
         )
-        const pending: PendingWorkbenchRun = { resolve, timeout, token }
+        const pending: PendingWorkbenchRun = {
+          resolve,
+          timeout,
+          token,
+          workspaceRevision: workspaceRevisionRef.current,
+        }
         pendingRunRef.current = pending
 
         if (signal) {
@@ -351,13 +453,20 @@ export function ExampleWorkbench({
         }
       })
     },
-    [finishCurrentRun, finishRun, usesWebContainer],
+    [finishRun, usesWebContainer],
   )
 
-  const finishRunAfterQuietPeriod = React.useCallback(
+  const scheduleRunSettlement = React.useCallback(
     (token: string) => {
       const pending = pendingRunRef.current
-      if (!pending || pending.token !== token) return
+      if (
+        !pending ||
+        pending.token !== token ||
+        !pending.ready ||
+        !pending.observed
+      ) {
+        return
+      }
       if (pending.readyTimeout !== undefined) {
         window.clearTimeout(pending.readyTimeout)
       }
@@ -367,6 +476,26 @@ export function ExampleWorkbench({
       )
     },
     [finishRun],
+  )
+
+  const markRunReady = React.useCallback(
+    (token: string) => {
+      const pending = pendingRunRef.current
+      if (!pending || pending.token !== token) return
+      pending.ready = true
+      scheduleRunSettlement(token)
+    },
+    [scheduleRunSettlement],
+  )
+
+  const markRunObserved = React.useCallback(
+    (token: string) => {
+      const pending = pendingRunRef.current
+      if (!pending || pending.token !== token) return
+      pending.observed = true
+      scheduleRunSettlement(token)
+    },
+    [scheduleRunSettlement],
   )
 
   const flushProcessOutput = React.useCallback(() => {
@@ -390,6 +519,7 @@ export function ExampleWorkbench({
 
   const appendProcessOutput = React.useCallback(
     (value: string) => {
+      recordRunProcessOutput(value)
       const pending = pendingProcessOutputRef.current + value
       const overflow = Math.max(0, pending.length - MAX_PROCESS_OUTPUT_LENGTH)
       pendingProcessOutputRef.current = overflow
@@ -400,7 +530,7 @@ export function ExampleWorkbench({
       processOutputFrameRef.current =
         window.requestAnimationFrame(flushProcessOutput)
     },
-    [flushProcessOutput],
+    [flushProcessOutput, recordRunProcessOutput],
   )
 
   const resetProcessOutput = React.useCallback(() => {
@@ -441,6 +571,7 @@ export function ExampleWorkbench({
       webContainerWriteTimeoutRef.current = undefined
     }
 
+    workspaceRevisionRef.current += 1
     const nextWorkspace = cloneWorkspace(definition.workspace)
     workspaceRef.current = nextWorkspace
     setWorkspace(nextWorkspace)
@@ -586,7 +717,10 @@ export function ExampleWorkbench({
   )
 
   const replaceWorkspace = React.useCallback(
-    (nextWorkspace: ExampleWorkspace) => {
+    (
+      nextWorkspace: ExampleWorkspace,
+      options?: ExampleWorkbenchWorkspaceUpdateOptions,
+    ) => {
       const next = cloneWorkspace(nextWorkspace)
       const current = workspaceRef.current
 
@@ -598,6 +732,7 @@ export function ExampleWorkbench({
         }
       }
 
+      workspaceRevisionRef.current += 1
       workspaceRef.current = next
       setWorkspace(next)
       setActivePath((path) =>
@@ -605,7 +740,7 @@ export function ExampleWorkbench({
           ? getInitialFile(definition, next)
           : path,
       )
-      onWorkspaceChange?.(next)
+      if (options?.notify !== false) onWorkspaceChange?.(next)
     },
     [
       definition,
@@ -620,11 +755,39 @@ export function ExampleWorkbench({
       handledRunDefinitionRef.current = definition
 
       if (signal?.aborted) {
+        const runId = crypto.randomUUID()
         return Promise.resolve({
           ok: false,
           phase: 'aborted',
           message: 'The notebook run was stopped.',
+          snapshot: createEmptyExampleEnvironmentSnapshot({
+            runId,
+            runtime: usesWebContainer ? 'webcontainer' : 'client',
+            workspaceRevision: workspaceRevisionRef.current,
+          }),
         })
+      }
+
+      const overlappingWebContainerRun =
+        usesWebContainer &&
+        Boolean(pendingRunRef.current) &&
+        Boolean(webContainerSessionRef.current)
+      finishCurrentRun({
+        ok: false,
+        phase: 'superseded',
+        message: 'The preview restarted before the previous run finished.',
+      })
+      if (overlappingWebContainerRun) {
+        webContainerSessionRef.current?.dispose()
+        webContainerSessionRef.current = null
+        setWebContainerSession(undefined)
+        setTerminalIds([])
+        setActiveTerminalId('process')
+        pendingWebContainerWritesRef.current.clear()
+        if (webContainerWriteTimeoutRef.current !== undefined) {
+          window.clearTimeout(webContainerWriteTimeoutRef.current)
+          webContainerWriteTimeoutRef.current = undefined
+        }
       }
 
       setPreviewAnnotationModeActive(false)
@@ -640,6 +803,11 @@ export function ExampleWorkbench({
       compileRequestRef.current = request
       const runToken = crypto.randomUUID()
       runTokenRef.current = runToken
+      environmentSnapshotRef.current = createEmptyExampleEnvironmentSnapshot({
+        runId: runToken,
+        runtime: usesWebContainer ? 'webcontainer' : 'client',
+        workspaceRevision: workspaceRevisionRef.current,
+      })
       const result = beginRun(runToken, signal)
       nextConsoleIdRef.current = 0
       setConsoleEntries([])
@@ -677,6 +845,7 @@ export function ExampleWorkbench({
             const session = createWebContainerExampleSession({
               browserChannel: browserChannelRef.current,
               onEvent(event) {
+                if (webContainerSessionRef.current !== session) return
                 switch (event.kind) {
                   case 'error':
                     revealWebContainerOutput()
@@ -831,12 +1000,17 @@ export function ExampleWorkbench({
       flushWebContainerWrites,
       revealWebContainerOutput,
       resetProcessOutput,
+      usesWebContainer,
     ],
   )
 
   const replaceWorkspaceAndRun = React.useCallback(
-    (nextWorkspace: ExampleWorkspace, signal?: AbortSignal) => {
-      replaceWorkspace(nextWorkspace)
+    (
+      nextWorkspace: ExampleWorkspace,
+      signal?: AbortSignal,
+      options?: ExampleWorkbenchWorkspaceUpdateOptions,
+    ) => {
+      replaceWorkspace(nextWorkspace, options)
       return run(signal)
     },
     [replaceWorkspace, run],
@@ -889,26 +1063,32 @@ export function ExampleWorkbench({
   }, [usesWebContainer])
 
   const handlePreviewLoad = React.useCallback(() => {
+    const pendingRunToken = pendingRunRef.current?.token
     postExampleSandboxBrowserCommand({
       channel: browserChannelRef.current,
       command: { kind: 'annotation', enabled: previewAnnotationMode },
       frame: frameRef.current,
       targetOrigin: getPreviewTargetOrigin(frameRef.current?.src ?? ''),
     })
+    if (pendingRunToken) {
+      postExampleSandboxBrowserCommand({
+        channel: browserChannelRef.current,
+        command: {
+          kind: 'observe',
+          observationId: pendingRunToken,
+        },
+        frame: frameRef.current,
+        targetOrigin: getPreviewTargetOrigin(frameRef.current?.src ?? ''),
+      })
+    }
 
     if (!usesWebContainer) {
       syncTheme()
       return
     }
 
-    const token = pendingRunRef.current?.token
-    if (token) finishRunAfterQuietPeriod(token)
-  }, [
-    finishRunAfterQuietPeriod,
-    previewAnnotationMode,
-    syncTheme,
-    usesWebContainer,
-  ])
+    if (pendingRunToken) markRunReady(pendingRunToken)
+  }, [markRunReady, previewAnnotationMode, syncTheme, usesWebContainer])
 
   React.useEffect(() => {
     function handleMessage(event: MessageEvent<unknown>) {
@@ -951,6 +1131,18 @@ export function ExampleWorkbench({
             url: message.url,
           })
           if (!trustedUrl) return
+          const environmentSnapshot = environmentSnapshotRef.current
+          if (
+            environmentSnapshot?.runId === runTokenRef.current &&
+            message.observationId === environmentSnapshot.runId
+          ) {
+            environmentSnapshot.preview = {
+              observed: true,
+              title: message.title,
+              url: trustedUrl,
+            }
+            markRunObserved(message.observationId)
+          }
           const currentHistory = previewHistoryRef.current
           const currentUrl = currentHistory.entries[currentHistory.index] ?? '/'
 
@@ -1005,10 +1197,11 @@ export function ExampleWorkbench({
           values: message.values,
         }
         nextConsoleIdRef.current += 1
-        setConsoleEntries((current) => [...current, entry])
+        const text = message.values.join('\n')
+        recordRunConsoleEntry(message.level, text)
+        setConsoleEntries((current) => [...current, entry].slice(-500))
         if (message.level === 'error') {
-          const consoleError =
-            message.values.join('\n') || 'The notebook logged an error.'
+          const consoleError = text || 'The notebook logged an error.'
           setStatus('error')
           setError(consoleError)
           finishRun(message.runToken, {
@@ -1028,8 +1221,12 @@ export function ExampleWorkbench({
       setStatus(message.status)
       setError(message.message ?? '')
       if (message.status === 'ready') {
-        finishRunAfterQuietPeriod(message.runToken)
+        markRunReady(message.runToken)
       } else if (message.status === 'error') {
+        recordRunConsoleEntry(
+          'error',
+          message.message || 'The notebook failed while running.',
+        )
         finishRun(message.runToken, {
           ok: false,
           phase: 'runtime',
@@ -1042,10 +1239,12 @@ export function ExampleWorkbench({
     return () => window.removeEventListener('message', handleMessage)
   }, [
     finishRun,
-    finishRunAfterQuietPeriod,
+    markRunObserved,
+    markRunReady,
     previewAnnotationMode,
     revealPreviewOnPush,
     previewUrl,
+    recordRunConsoleEntry,
     syncTheme,
     usesWebContainer,
   ])
@@ -1088,6 +1287,7 @@ export function ExampleWorkbench({
       files: { ...current.files, [activePath]: source },
       imports: current.imports,
     })
+    workspaceRevisionRef.current += 1
     workspaceRef.current = next
     setWorkspace(next)
     onWorkspaceChange?.(next)

@@ -5,6 +5,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { NotebookAgentActivity } from '../src/components/notebook/NotebookAgentActivity'
 import {
   getNotebookAiActivitySummary,
+  getNotebookAiActivityItemLabel,
   parseNotebookAiActivity,
   reduceNotebookAiActivity,
   type NotebookAiActivity,
@@ -245,6 +246,30 @@ test('notebook activity stops unfinished items with the run', () => {
   assert.equal(activity.items[0]?.status, 'stopped')
   assert.equal(activity.items[0]?.details.packageName, '@tanstack/charts')
   assert.equal(getNotebookAiActivitySummary(activity), 'Stopped')
+})
+
+test('notebook activity labels checkpoint rollback outcomes', () => {
+  const completed = reduceEvents([
+    { type: 'run-started', runId: 'run-rollback', timestamp: 1_000 },
+    {
+      type: 'item-completed',
+      runId: 'run-rollback',
+      itemId: 'rollback',
+      source: 'harness',
+      name: 'rollback_workspace',
+      timestamp: 1_500,
+    },
+    {
+      type: 'run-failed',
+      runId: 'run-rollback',
+      timestamp: 2_000,
+      error: 'Original run failed',
+    },
+  ])
+  assert.equal(
+    getNotebookAiActivityItemLabel(completed.items[0]!),
+    'Restored notebook checkpoint',
+  )
 })
 
 test('notebook activity summarizes package evidence without persisting source', () => {

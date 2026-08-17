@@ -497,6 +497,11 @@ export function getNotebookAiActivityItemLabel(item: NotebookAiActivityItem) {
     if (stopped) return 'Preview repair stopped'
     return complete ? 'Fixed preview error' : 'Fixing preview error'
   }
+  if (item.name === 'rollback_workspace') {
+    if (failed) return 'Checkpoint restore failed'
+    if (stopped) return 'Checkpoint restore stopped'
+    return complete ? 'Restored notebook checkpoint' : 'Restoring checkpoint'
+  }
   if (item.name === 'reasoning' || item.source === 'reasoning') {
     if (failed) return 'Reasoning summary failed'
     if (stopped) return 'Thinking stopped'

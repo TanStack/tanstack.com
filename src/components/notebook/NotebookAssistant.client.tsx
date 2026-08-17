@@ -41,11 +41,27 @@ import {
   type NotebookChatGptLogin,
 } from '~/utils/notebook-ai-chatgpt'
 import {
+  cloneNotebookAiExecution,
   serializeNotebookAiExecution,
   type NotebookAiExecution,
   type NotebookAiMessage,
   type NotebookAiRemoteProvider,
 } from '~/utils/notebook-ai'
+import {
+  createNotebookAiCheckpoint,
+  loadLatestNotebookAiCheckpoint,
+  notebookAiCheckpointMatchesExecution,
+  removeNotebookAiCheckpoint,
+  updateNotebookAiCheckpointExpectedExecution,
+  type NotebookAiCheckpoint,
+} from '~/utils/notebook-ai-checkpoints.client'
+import {
+  createNotebookAiEnvironmentSnapshot,
+  formatNotebookAiEnvironmentEvidence,
+  shouldRestoreNotebookAiCheckpoint,
+  validateNotebookAiCompletion,
+  type NotebookAiEnvironmentSnapshot,
+} from '~/utils/notebook-ai-environment'
 import {
   createNotebookAiThreadId,
   listNotebookAiThreads,
@@ -72,6 +88,7 @@ type ByokModelChoice = {
   provider: NotebookAiRemoteProvider
   model: string
   label: string
+  description: string
 }
 
 type ChatGptModelChoice = {
@@ -97,6 +114,13 @@ type TranscriptRow =
       message: string
     }
   | { id: 'error'; kind: 'error'; message: string }
+  | { id: 'checkpoint'; kind: 'checkpoint' }
+
+type RollbackCheckpoint = {
+  id: string
+  execution: NotebookAiExecution
+  persisted?: NotebookAiCheckpoint
+}
 
 const maxRepairAttempts = 2
 const maxRuntimeErrorCharacters = 4_000
@@ -107,6 +131,7 @@ const openAiDefault = {
   provider: 'openai',
   model: 'gpt-5.4-mini',
   label: 'GPT-5.4 mini',
+  description: 'Budget',
 } satisfies ByokModelChoice
 
 const anthropicDefault = {
@@ -114,28 +139,39 @@ const anthropicDefault = {
   provider: 'anthropic',
   model: 'claude-sonnet-4-6',
   label: 'Claude Sonnet 4.6',
+  description: 'Balanced',
 } satisfies ByokModelChoice
 
 const byokModelChoices = [
+  {
+    connection: 'byok',
+    provider: 'openai',
+    model: 'gpt-5.6-sol',
+    label: 'GPT-5.6 Sol',
+    description: 'Frontier',
+  },
+  {
+    connection: 'byok',
+    provider: 'openai',
+    model: 'gpt-5.6-terra',
+    label: 'GPT-5.6 Terra',
+    description: 'Balanced',
+  },
+  {
+    connection: 'byok',
+    provider: 'openai',
+    model: 'gpt-5.6-luna',
+    label: 'GPT-5.6 Luna',
+    description: 'Efficient',
+  },
   openAiDefault,
-  {
-    connection: 'byok',
-    provider: 'openai',
-    model: 'gpt-5-mini',
-    label: 'GPT-5 mini',
-  },
-  {
-    connection: 'byok',
-    provider: 'openai',
-    model: 'gpt-4.1-mini',
-    label: 'GPT-4.1 mini',
-  },
   anthropicDefault,
   {
     connection: 'byok',
     provider: 'anthropic',
     model: 'claude-haiku-4-5',
     label: 'Claude Haiku 4.5',
+    description: 'Fast',
   },
 ] satisfies ReadonlyArray<ByokModelChoice>
 
@@ -166,6 +202,10 @@ export function NotebookAssistant({
   getExecution,
   hiddenFiles,
   onApply,
+  onCommit,
+  onFinish,
+  onPrepare,
+  onRestore,
   onSignIn,
   storageScope,
 }: {
@@ -177,6 +217,13 @@ export function NotebookAssistant({
     execution: NotebookAiExecution,
     signal: AbortSignal,
   ) => Promise<ExampleWorkbenchRunResult>
+  onCommit?: (execution: NotebookAiExecution) => void | Promise<void>
+  onFinish?: () => void
+  onPrepare?: () => Promise<NotebookAiExecution>
+  onRestore: (
+    execution: NotebookAiExecution,
+    reason: 'manual' | 'rollback',
+  ) => void | Promise<void>
   onSignIn?: () => void
   storageScope?: string
 }) {
@@ -213,6 +260,8 @@ export function NotebookAssistant({
   const [liveActivity, setLiveActivity] = React.useState<NotebookAiActivity>()
   const [streamingMessage, setStreamingMessage] = React.useState('')
   const [error, setError] = React.useState('')
+  const [rollbackCheckpoint, setRollbackCheckpoint] =
+    React.useState<RollbackCheckpoint>()
   const [running, setRunning] = React.useState(false)
   const [agentStreaming, setAgentStreaming] = React.useState(false)
   const [sendMode, setSendMode] = React.useState<NotebookAiSendMode>('queue')
@@ -221,13 +270,29 @@ export function NotebookAssistant({
   const abortRef = React.useRef<AbortController>(null)
   const abortIntentRef = React.useRef<'steer' | 'stop' | undefined>(undefined)
   const agentStreamingRef = React.useRef(false)
+  const getExecutionRef = React.useRef(getExecution)
   const messagesRef = React.useRef<Array<TranscriptMessage>>([])
+  const rollbackCheckpointRef = React.useRef<RollbackCheckpoint | undefined>(
+    undefined,
+  )
   const promptQueueRef = React.useRef(new NotebookAiPromptQueue())
   const transcriptRef = React.useRef<HTMLDivElement>(null)
   const promptRef = React.useRef<HTMLTextAreaElement>(null)
   const didInitialScrollRef = React.useRef(false)
   const hydrationGenerationRef = React.useRef(0)
+  const checkpointHydrationGenerationRef = React.useRef(0)
+  const checkpointHydrationPromiseRef = React.useRef<
+    Promise<
+      | {
+          checkpoint: RollbackCheckpoint
+          scope: string
+        }
+      | undefined
+    >
+  >(Promise.resolve(undefined))
   const didSelectConnectionRef = React.useRef(false)
+
+  getExecutionRef.current = getExecution
 
   const chatGptModels = React.useMemo<Array<ChatGptModelChoice>>(
     () =>
@@ -268,8 +333,18 @@ export function NotebookAssistant({
       })),
     )
     if (error) rows.push({ id: 'error', kind: 'error', message: error })
+    if (rollbackCheckpoint) {
+      rows.push({ id: 'checkpoint', kind: 'checkpoint' })
+    }
     return rows
-  }, [error, liveActivity, messages, queuedPrompts, streamingMessage])
+  }, [
+    error,
+    liveActivity,
+    messages,
+    queuedPrompts,
+    rollbackCheckpoint,
+    streamingMessage,
+  ])
 
   const getItemKey = React.useCallback(
     (index: number) => transcriptRows[index]!.id,
@@ -293,6 +368,61 @@ export function NotebookAssistant({
 
   const refreshThreads = React.useCallback(() => {
     setThreads(storageScope ? listNotebookAiThreads(storageScope) : [])
+  }, [storageScope])
+
+  React.useEffect(() => {
+    const generation = checkpointHydrationGenerationRef.current + 1
+    checkpointHydrationGenerationRef.current = generation
+    let active = true
+    rollbackCheckpointRef.current = undefined
+    setRollbackCheckpoint(undefined)
+    if (!storageScope) {
+      checkpointHydrationPromiseRef.current = Promise.resolve(undefined)
+      return
+    }
+
+    const hydration = loadLatestNotebookAiCheckpoint(storageScope)
+      .then(async (snapshot) => {
+        if (!snapshot) return undefined
+        const currentExecution = getExecutionRef.current()
+        const matchesExpected = await notebookAiCheckpointMatchesExecution(
+          snapshot.checkpoint,
+          currentExecution,
+        )
+        const needsRestore =
+          serializeNotebookAiExecution(snapshot.execution) !==
+          serializeNotebookAiExecution(currentExecution)
+        if (!matchesExpected || !needsRestore) {
+          await removeNotebookAiCheckpoint(storageScope, snapshot.checkpoint.id)
+          return undefined
+        }
+        return {
+          checkpoint: {
+            id: snapshot.checkpoint.id,
+            execution: snapshot.execution,
+            persisted: snapshot.checkpoint,
+          },
+          scope: storageScope,
+        }
+      })
+      .catch(() => undefined)
+    checkpointHydrationPromiseRef.current = hydration
+    void hydration.then((hydrated) => {
+      if (
+        !active ||
+        generation !== checkpointHydrationGenerationRef.current ||
+        !hydrated
+      ) {
+        return
+      }
+      const { checkpoint } = hydrated
+      rollbackCheckpointRef.current = checkpoint
+      setRollbackCheckpoint(checkpoint)
+    })
+
+    return () => {
+      active = false
+    }
   }, [storageScope])
 
   React.useEffect(() => {
@@ -584,6 +714,48 @@ export function NotebookAssistant({
     setThreadId(nextThreadId)
   }
 
+  async function dismissRollbackCheckpoint() {
+    checkpointHydrationGenerationRef.current += 1
+    const hydrated = await checkpointHydrationPromiseRef.current
+    const checkpoint =
+      rollbackCheckpointRef.current ??
+      (hydrated && hydrated.scope === storageScope
+        ? hydrated.checkpoint
+        : undefined)
+    rollbackCheckpointRef.current = undefined
+    setRollbackCheckpoint(undefined)
+    if (checkpoint && storageScope) {
+      await removeNotebookAiCheckpoint(storageScope, checkpoint.id)
+    }
+  }
+
+  async function restoreRollbackCheckpoint() {
+    const checkpoint = rollbackCheckpointRef.current
+    if (!checkpoint) return
+
+    try {
+      if (
+        checkpoint.persisted &&
+        !(await notebookAiCheckpointMatchesExecution(
+          checkpoint.persisted,
+          getExecution(),
+        ))
+      ) {
+        await dismissRollbackCheckpoint()
+        setError('The notebook changed after this checkpoint was created.')
+        return
+      }
+      await onRestore(cloneNotebookAiExecution(checkpoint.execution), 'manual')
+      await dismissRollbackCheckpoint()
+      setError('')
+      setQueueAnnouncement('Restored the notebook checkpoint.')
+    } catch (cause) {
+      setError(
+        `Could not restore the notebook checkpoint: ${formatError(cause)}`,
+      )
+    }
+  }
+
   function syncQueuedPrompts() {
     setQueuedPrompts(promptQueueRef.current.items)
   }
@@ -707,7 +879,15 @@ export function NotebookAssistant({
   async function runPrompt(
     instruction: string,
   ): Promise<'success' | 'error' | 'aborted'> {
-    const initialExecution = getExecution()
+    let initialExecution: NotebookAiExecution
+    try {
+      await dismissRollbackCheckpoint()
+      initialExecution = onPrepare ? await onPrepare() : getExecution()
+    } catch (cause) {
+      setError(`Could not prepare the notebook: ${formatError(cause)}`)
+      return 'error'
+    }
+    const checkpointExecution = cloneNotebookAiExecution(initialExecution)
     const userMessage = createTranscriptMessage('user', instruction)
     const nextMessages = [...messagesRef.current, userMessage]
     messagesRef.current = nextMessages
@@ -718,6 +898,9 @@ export function NotebookAssistant({
     let repairAttempt = 0
     let repair: NotebookAiRepairContext | undefined
     let repairHistory: Array<NotebookAiFailureObservation> = []
+    let checkpoint: RollbackCheckpoint | undefined
+    let didStageExecution = false
+    let lastStagedExecution: NotebookAiExecution | undefined
     const activityId = crypto.randomUUID()
     let currentActivity: NotebookAiActivity | undefined
     const abortController = new AbortController()
@@ -777,6 +960,7 @@ export function NotebookAssistant({
           setSendMode('queue')
         }
         if (abortController.signal.aborted) {
+          await rollbackStagedExecution()
           stopActivity()
           return 'aborted'
         }
@@ -790,6 +974,7 @@ export function NotebookAssistant({
           setError(
             'The notebook changed while the assistant was working. Send the request again.',
           )
+          await discardCheckpoint()
           return 'error'
         }
 
@@ -798,6 +983,7 @@ export function NotebookAssistant({
             const message =
               'The notebook still has an error and no repair was applied.'
             failRepair(message)
+            await rollbackStagedExecution()
             failActivity(message)
           } else {
             completeActivity()
@@ -812,6 +998,31 @@ export function NotebookAssistant({
           return 'success'
         }
 
+        if (!checkpoint) {
+          checkpoint = {
+            id: activityId,
+            execution: checkpointExecution,
+          }
+          if (storageScope) {
+            const storedCheckpoint = await createNotebookAiCheckpoint(
+              storageScope,
+              checkpoint.id,
+              checkpoint.execution,
+            )
+            checkpoint.persisted = storedCheckpoint
+          }
+        }
+        didStageExecution = true
+        lastStagedExecution = cloneNotebookAiExecution(response.execution)
+        if (storageScope && checkpoint.persisted) {
+          checkpoint.persisted =
+            await updateNotebookAiCheckpointExpectedExecution(
+              storageScope,
+              checkpoint.id,
+              response.execution,
+            )
+        }
+
         const applyItemId = `apply:${repairAttempt}`
         updateActivity({
           type: 'item-running',
@@ -821,15 +1032,6 @@ export function NotebookAssistant({
           name: 'apply_workspace',
           timestamp: Date.now(),
           input: { paths: response.changedFiles },
-        })
-        updateActivity({
-          type: 'item-completed',
-          runId: activityId,
-          itemId: applyItemId,
-          source: 'harness',
-          name: 'apply_workspace',
-          timestamp: Date.now(),
-          output: { paths: response.changedFiles },
         })
         const runItemId = `run:${repairAttempt}`
         updateActivity({
@@ -844,12 +1046,24 @@ export function NotebookAssistant({
           response.execution,
           abortController.signal,
         )
-        if (abortController.signal.aborted) {
-          stopActivity()
-          return 'aborted'
-        }
+        updateActivity({
+          type: 'item-completed',
+          runId: activityId,
+          itemId: applyItemId,
+          source: 'harness',
+          name: 'apply_workspace',
+          timestamp: Date.now(),
+          output: { paths: response.changedFiles },
+        })
 
-        if (runResult.ok) {
+        const environmentSnapshot = createNotebookAiEnvironmentSnapshot({
+          actualExecution: getExecution(),
+          expectedExecution: response.execution,
+          run: runResult,
+        })
+        const completion = validateNotebookAiCompletion(environmentSnapshot)
+
+        if (completion.status === 'complete') {
           updateActivity({
             type: 'item-completed',
             runId: activityId,
@@ -857,6 +1071,7 @@ export function NotebookAssistant({
             source: 'harness',
             name: 'run_notebook',
             timestamp: Date.now(),
+            output: { runtime: environmentSnapshot.run.snapshot.runtime },
           })
           if (repairAttempt > 0) {
             updateActivity({
@@ -868,20 +1083,22 @@ export function NotebookAssistant({
               timestamp: Date.now(),
             })
           }
+          try {
+            await onCommit?.(response.execution)
+          } catch (cause) {
+            const message = `The notebook ran successfully but could not be saved: ${formatError(cause)}`
+            await discardCheckpoint()
+            failActivity(message)
+            commitAssistant(response.message)
+            setError(message)
+            return 'error'
+          }
+          await discardCheckpoint()
           completeActivity()
           commitAssistant(response.message)
           return 'success'
         }
 
-        updateActivity({
-          type: 'item-running',
-          runId: activityId,
-          itemId: runItemId,
-          source: 'harness',
-          name: 'run_notebook',
-          timestamp: Date.now(),
-          input: { phase: runResult.phase },
-        })
         updateActivity({
           type: 'item-failed',
           runId: activityId,
@@ -889,21 +1106,40 @@ export function NotebookAssistant({
           source: 'harness',
           name: 'run_notebook',
           timestamp: Date.now(),
-          error: runResult.message,
+          error: completion.diagnostic,
+          output: {
+            runtime: environmentSnapshot.run.snapshot.runtime,
+            phase:
+              completion.status === 'repair'
+                ? completion.phase
+                : runResult.ok
+                  ? 'validation'
+                  : runResult.phase,
+          },
         })
-        failRepair(runResult.message)
+        failRepair(completion.diagnostic)
 
-        if (runResult.phase !== 'compile' && runResult.phase !== 'runtime') {
-          const runError = formatRunError(runResult)
-          failActivity(runError)
+        if (abortController.signal.aborted) {
+          await rollbackStagedExecution()
+          stopActivity()
+          return 'aborted'
+        }
+
+        if (completion.status === 'stop') {
+          if (completion.preserveCurrentExecution) {
+            await discardCheckpoint()
+          } else {
+            await rollbackStagedExecution()
+          }
+          failActivity(completion.diagnostic)
           commitAssistant(response.message)
-          setError(runError)
+          setError(completion.diagnostic)
           return 'error'
         }
 
         const failureFingerprint = fingerprintNotebookAiDiagnostic(
-          runResult.phase,
-          runResult.message,
+          completion.phase,
+          completion.diagnostic,
         )
         const executionFingerprint = fingerprintNotebookAiValue(
           response.execution,
@@ -919,6 +1155,7 @@ export function NotebookAssistant({
         if (progress.repeatedState) {
           const runError =
             'The repair stopped because it returned to a notebook state that already failed with the same error.'
+          await rollbackStagedExecution()
           failActivity(runError)
           commitAssistant(response.message)
           setError(runError)
@@ -926,7 +1163,8 @@ export function NotebookAssistant({
         }
 
         if (repairAttempt >= maxRepairAttempts) {
-          const runError = formatRunError(runResult)
+          const runError = `The notebook still fails after ${maxRepairAttempts} repair attempts: ${completion.diagnostic}`
+          await rollbackStagedExecution()
           failActivity(runError)
           commitAssistant(response.message)
           setError(runError)
@@ -942,12 +1180,16 @@ export function NotebookAssistant({
           name: 'repair_notebook',
           timestamp: Date.now(),
           input: {
-            phase: runResult.phase,
+            phase: completion.phase,
             attempt: repairAttempt,
             maxAttempts: maxRepairAttempts,
           },
         })
-        const diagnostic = createRepairDiagnostic(runResult)
+        const diagnostic = createRepairDiagnostic(
+          completion.phase,
+          completion.diagnostic,
+          environmentSnapshot,
+        )
         repair = progress.repair
         requestMessages = requestMessages
           .concat(
@@ -959,17 +1201,20 @@ export function NotebookAssistant({
       }
     } catch (cause) {
       if (isAbortError(cause) || abortController.signal.aborted) {
+        await rollbackStagedExecution()
         stopActivity()
         return 'aborted'
       } else {
         const message = formatError(cause)
         failRepair(message)
+        await rollbackStagedExecution()
         failActivity(message)
         setError(message)
         return 'error'
       }
     } finally {
       if (abortRef.current === abortController) abortRef.current = null
+      onFinish?.()
     }
 
     return 'aborted'
@@ -1017,6 +1262,76 @@ export function NotebookAssistant({
       })
     }
 
+    function retainCheckpoint() {
+      if (!checkpoint || !didStageExecution) return
+      rollbackCheckpointRef.current = checkpoint
+      setRollbackCheckpoint(checkpoint)
+    }
+
+    async function rollbackStagedExecution() {
+      if (!checkpoint || !didStageExecution) return
+      if (
+        lastStagedExecution &&
+        !shouldRestoreNotebookAiCheckpoint({
+          currentExecution: getExecution(),
+          lastStagedExecution,
+        })
+      ) {
+        await discardCheckpoint()
+        return
+      }
+
+      const rollbackItemId = 'rollback'
+      updateActivity({
+        type: 'item-running',
+        runId: activityId,
+        itemId: rollbackItemId,
+        source: 'harness',
+        name: 'rollback_workspace',
+        timestamp: Date.now(),
+      })
+      try {
+        await onRestore(
+          cloneNotebookAiExecution(checkpoint.execution),
+          'rollback',
+        )
+        updateActivity({
+          type: 'item-completed',
+          runId: activityId,
+          itemId: rollbackItemId,
+          source: 'harness',
+          name: 'rollback_workspace',
+          timestamp: Date.now(),
+        })
+        await discardCheckpoint()
+      } catch (cause) {
+        const message = formatError(cause)
+        updateActivity({
+          type: 'item-failed',
+          runId: activityId,
+          itemId: rollbackItemId,
+          source: 'harness',
+          name: 'rollback_workspace',
+          timestamp: Date.now(),
+          error: message,
+        })
+        retainCheckpoint()
+      }
+    }
+
+    async function discardCheckpoint() {
+      if (!checkpoint) return
+      const discarded = checkpoint
+      checkpoint = undefined
+      if (rollbackCheckpointRef.current?.id === discarded.id) {
+        rollbackCheckpointRef.current = undefined
+        setRollbackCheckpoint(undefined)
+      }
+      if (storageScope) {
+        await removeNotebookAiCheckpoint(storageScope, discarded.id)
+      }
+    }
+
     function commitAssistant(content: string) {
       const savedActivity = currentActivity?.items.length
         ? currentActivity
@@ -1048,6 +1363,7 @@ export function NotebookAssistant({
   return (
     <section
       aria-label="Notebook AI editor"
+      aria-busy={running}
       className="flex min-h-0 min-w-0 flex-1 flex-col bg-background-default"
     >
       <header className="flex h-12 shrink-0 items-center justify-end gap-1 border-b border-border-default px-3">
@@ -1209,6 +1525,12 @@ export function NotebookAssistant({
                       <TranscriptRowView
                         row={row}
                         onCancelQueued={cancelQueuedPrompt}
+                        onDismissCheckpoint={() =>
+                          void dismissRollbackCheckpoint()
+                        }
+                        onRestoreCheckpoint={() =>
+                          void restoreRollbackCheckpoint()
+                        }
                       />
                     </div>
                   )
@@ -1495,9 +1817,13 @@ function ErrorMessage({ message }: { message: string }) {
 function TranscriptRowView({
   row,
   onCancelQueued,
+  onDismissCheckpoint,
+  onRestoreCheckpoint,
 }: {
   row: TranscriptRow
   onCancelQueued: (id: string) => void
+  onDismissCheckpoint: () => void
+  onRestoreCheckpoint: () => void
 }) {
   return (
     <div className="px-4 py-3 sm:px-6">
@@ -1523,9 +1849,38 @@ function TranscriptRowView({
             prompt={row.prompt}
             onCancel={() => onCancelQueued(row.prompt.id)}
           />
+        ) : row.kind === 'checkpoint' ? (
+          <CheckpointNotice
+            onDismiss={onDismissCheckpoint}
+            onRestore={onRestoreCheckpoint}
+          />
         ) : (
           <ErrorMessage message={row.message} />
         )}
+      </div>
+    </div>
+  )
+}
+
+function CheckpointNotice({
+  onDismiss,
+  onRestore,
+}: {
+  onDismiss: () => void
+  onRestore: () => void
+}) {
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-lg border border-border-default bg-background-elevated px-3 py-2">
+      <p className="text-xs/5 text-text-secondary">
+        The pre-run notebook is available as a checkpoint.
+      </p>
+      <div className="flex shrink-0 items-center gap-1">
+        <Button type="button" variant="secondary" size="xs" onClick={onRestore}>
+          Restore
+        </Button>
+        <Button type="button" variant="ghost" size="xs" onClick={onDismiss}>
+          Dismiss
+        </Button>
       </div>
     </div>
   )
@@ -1609,6 +1964,8 @@ function ModelPicker({
           color="gray"
           size="xs"
           disabled={disabled}
+          aria-label={`Select model, current ${selected.label}`}
+          data-notebook-ai-selected-model={selected.model}
           className="max-w-52 px-2"
         >
           <span className="truncate">{selected.label}</span>
@@ -1748,12 +2105,16 @@ function ModelGroup({
           className="min-h-10 justify-between rounded-lg px-2.5"
           onSelect={() => onSelect(model)}
         >
-          <span className="min-w-0">
+          <span
+            className="min-w-0"
+            data-notebook-ai-connection={model.connection}
+            data-notebook-ai-model={model.model}
+          >
             <span className="block truncate text-sm text-text-primary">
               {model.label}
             </span>
             <span className="block truncate font-ds-mono text-[10px] text-text-muted">
-              {model.model}
+              {model.connection === 'byok' ? model.description : model.model}
             </span>
           </span>
           {isSelectedModel(selected, model) ? (
@@ -2113,19 +2474,13 @@ function getPreferredChatGptModel(connection: NotebookChatGptConnection) {
 }
 
 function createRepairDiagnostic(
-  result: Extract<ExampleWorkbenchRunResult, { ok: false }>,
+  phase: 'compile' | 'runtime',
+  diagnostic: string,
+  snapshot: NotebookAiEnvironmentSnapshot,
 ) {
-  const message = result.message.slice(0, maxRuntimeErrorCharacters)
-  return `The notebook was updated, but it failed during ${result.phase}:\n\n${message}\n\nGather new evidence appropriate to this failure before editing. Inspect current source, diagnostics, runtime output, package metadata, declarations, implementation, documentation, or a relevant skill. The host requires an evidence result that differs from prior attempts and rejects exact mutations that already failed. Make only the necessary change and keep the requested behavior.`
-}
-
-function formatRunError(
-  result: Extract<ExampleWorkbenchRunResult, { ok: false }>,
-) {
-  if (result.phase === 'compile' || result.phase === 'runtime') {
-    return `The notebook still fails after ${maxRepairAttempts} repair attempts: ${result.message}`
-  }
-  return result.message
+  const message = diagnostic.slice(0, maxRuntimeErrorCharacters)
+  const evidence = formatNotebookAiEnvironmentEvidence(snapshot)
+  return `The staged notebook failed during ${phase}:\n\n${message}${evidence ? `\n\nEnvironment snapshot:\n${evidence}` : ''}\n\nGather new authoritative evidence before editing. Inspect current source, diagnostics, runtime output, exact package metadata, declarations, implementation, documentation, or a relevant skill. The host rejects evidence results and mutations already tried against this failure. Make only the necessary change and keep the requested behavior.`
 }
 
 function createTranscriptMessage(

@@ -17,6 +17,7 @@ import {
   getWebContainerStartCommand,
   prepareTanStackStartWebContainerFiles,
 } from './example-webcontainer-start'
+import { createExampleSandboxBrowserScript } from './example-sandbox.client'
 
 export type ExampleWebContainerStatus =
   | 'booting'
@@ -63,6 +64,7 @@ export type WebContainerExampleSession = {
     onOutput(value: string): void
     rows: number
   }): Promise<WebContainerTerminal>
+  reloadPreview(frame: HTMLIFrameElement): Promise<void>
   restart(): Promise<void>
   start(): Promise<void>
   writeFile(path: string, source: string): Promise<void>
@@ -131,15 +133,18 @@ export function getExampleWebContainerSupport(): ExampleWebContainerSupport {
 }
 
 export function createWebContainerExampleSession({
+  browserChannel = crypto.randomUUID(),
   onEvent,
   runtime,
   workspace,
 }: {
+  browserChannel?: string
   onEvent: (event: ExampleWebContainerEvent) => void
   runtime: ExampleRuntime
   workspace: ExampleWorkspace
 }): WebContainerExampleSession {
   return new ExampleWebContainerSessionImplementation({
+    browserChannel,
     onEvent,
     runtime,
     workspace,
@@ -278,6 +283,7 @@ export function createWebContainerFileSystemTree(
 
 class ExampleWebContainerSessionImplementation implements WebContainerExampleSession {
   private binaryFiles: Record<string, string>
+  private browserChannel: string
   private container: WebContainer | undefined
   private disposed = false
   private files: Record<string, string>
@@ -294,15 +300,18 @@ class ExampleWebContainerSessionImplementation implements WebContainerExampleSes
   private writeQueue = Promise.resolve()
 
   constructor({
+    browserChannel,
     onEvent,
     runtime,
     workspace,
   }: {
+    browserChannel: string
     onEvent: (event: ExampleWebContainerEvent) => void
     runtime: ExampleRuntime
     workspace: ExampleWorkspace
   }) {
     this.binaryFiles = { ...workspace.binaryFiles }
+    this.browserChannel = browserChannel
     this.files = { ...workspace.files }
     this.onEvent = onEvent
     this.runtime = {
@@ -404,6 +413,13 @@ class ExampleWebContainerSessionImplementation implements WebContainerExampleSes
     return terminal
   }
 
+  async reloadPreview(frame: HTMLIFrameElement) {
+    this.assertUsable()
+    const { reloadPreview } = await import('@webcontainer/api')
+    this.assertUsable()
+    await reloadPreview(frame)
+  }
+
   async restart() {
     this.assertUsable()
 
@@ -476,6 +492,14 @@ class ExampleWebContainerSessionImplementation implements WebContainerExampleSes
     this.container = container
     this.assertUsable()
     this.subscribe(container)
+
+    await container.setPreviewScript(
+      createExampleSandboxBrowserScript({
+        channel: this.browserChannel,
+        mode: 'webcontainer',
+      }),
+    )
+    this.assertUsable()
 
     this.emit({ kind: 'status', status: 'mounting' })
     const mountedFiles = prepareTanStackStartWebContainerFiles(

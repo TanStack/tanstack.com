@@ -546,7 +546,7 @@ html.dark {
   --color-text-inverse: #111111;
   --color-text-success: #69bc75;
   --color-text-warning: #f4d648;
-  --color-text-error: #e06e49;
+  --color-text-error: var(--color-ds-terracotta-200);
   --color-text-info: #9cd5e2;
 
   --color-background-default: #111111;
@@ -568,7 +568,7 @@ html.dark {
   --color-icon-inverse: #111111;
   --color-icon-success: #69bc75;
   --color-icon-warning: #f4d648;
-  --color-icon-error: #e06e49;
+  --color-icon-error: var(--color-ds-terracotta-200);
 
   --color-action-primary: #3aa3c4;
   --color-action-primary-hover: #61adbf;
@@ -582,8 +582,8 @@ html.dark {
   --color-status-success-bg: #1d4226;
   --color-status-warning: #f4d648;
   --color-status-warning-bg: #624a00;
-  --color-status-error: #e06e49;
-  --color-status-error-bg: #5f1a06;
+  --color-status-error: var(--color-ds-terracotta-200);
+  --color-status-error-bg: #2b1711;
   --color-status-info: #61adbf;
   --color-status-info-bg: #003e53;
 
@@ -621,16 +621,22 @@ html.dark {
   --color-text-secondary: var(--color-ds-neutral-400);
   --color-text-muted: var(--color-ds-neutral-300);
   --color-text-inverse: #ffffff;
+  --color-text-error: var(--color-ds-terracotta-500);
   --color-background-default: #ffffff;
   --color-background-surface: #ffffff;
+  --color-background-elevated: #ffffff;
   --color-background-subtle: #fafafa;
   --color-background-inverse: var(--color-ds-neutral-500);
   --color-border-default: var(--color-ds-neutral-200);
   --color-border-subtle: var(--color-ds-neutral-100);
   --color-border-strong: var(--color-ds-neutral-400);
   --color-border-focus: var(--color-ds-blue-400);
+  --color-border-error: var(--color-ds-terracotta-400);
+  --color-icon-error: var(--color-ds-terracotta-400);
   --color-action-secondary: var(--color-ds-neutral-100);
   --color-action-secondary-hover: var(--color-ds-neutral-200);
+  --color-status-error: var(--color-ds-terracotta-400);
+  --color-status-error-bg: var(--color-ds-terracotta-100);
   --color-category-framework: var(--color-ds-green-400);
   --color-category-data: var(--color-ds-terracotta-400);
   --color-category-ui: var(--color-ds-blue-400);
@@ -646,16 +652,22 @@ html.dark {
   --color-text-secondary: #aea691;
   --color-text-muted: #756c5b;
   --color-text-inverse: #111111;
+  --color-text-error: var(--color-ds-terracotta-200);
   --color-background-default: #111111;
   --color-background-surface: #1f1f1f;
+  --color-background-elevated: #2b2b2b;
   --color-background-subtle: #1b1b1b;
   --color-background-inverse: #ffffff;
   --color-border-default: #2d2d2d;
   --color-border-subtle: #232323;
   --color-border-strong: #aea691;
   --color-border-focus: #61adbf;
+  --color-border-error: #e06e49;
+  --color-icon-error: var(--color-ds-terracotta-200);
   --color-action-secondary: #2b2b2b;
   --color-action-secondary-hover: #3a3a3a;
+  --color-status-error: var(--color-ds-terracotta-200);
+  --color-status-error-bg: #2b1711;
   --color-category-framework: var(--color-ds-green-300);
   --color-category-data: var(--color-ds-terracotta-300);
   --color-category-ui: var(--color-ds-blue-300);
@@ -2422,4 +2434,8 @@ html:not(.dark) .library-landing-graphic [style*='drop-shadow'] {
 
 button[aria-label='Open TanStack Devtools'] {
   display: none !important;
+}
+
+[data-notebook-shell]:has([data-notebook-ready]) > [data-notebook-initial] {
+  display: none;
 }

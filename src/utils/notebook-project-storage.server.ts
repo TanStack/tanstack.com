@@ -75,6 +75,12 @@ export async function getNotebookProjectObject(hash: string) {
   return storage.get(getProjectKey(hash))
 }
 
+export async function isNotebookProjectQuarantined(hash: string) {
+  if (!isNotebookProjectHash(hash)) return false
+  const storage = await requireStorage()
+  return Boolean(await storage.get(getQuarantineKey(hash)))
+}
+
 export async function quarantineNotebookProject(hash: string, userId: string) {
   if (!isNotebookProjectHash(hash)) return false
   const storage = await requireStorage()

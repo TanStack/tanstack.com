@@ -133,7 +133,7 @@ export function sharedProjectToExampleDefinition(
   }
 }
 
-function isExampleRuntime(value: unknown): value is ExampleRuntime {
+export function isExampleRuntime(value: unknown): value is ExampleRuntime {
   return (
     isRecord(value) &&
     hasOnlyKeys(value, ['type', 'compatibility', 'install', 'start']) &&

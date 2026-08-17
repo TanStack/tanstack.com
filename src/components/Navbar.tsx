@@ -237,9 +237,10 @@ const NAV_GROUPS = [
             icon: HammerIcon,
           },
           {
-            label: 'Notebook',
+            label: 'Notebooks',
             to: '/notebook',
-            description: 'Create and share client-side TSX modules.',
+            description: 'Create and share browser sandboxes.',
+            badge: 'Alpha',
             icon: NotebookIcon,
           },
           {

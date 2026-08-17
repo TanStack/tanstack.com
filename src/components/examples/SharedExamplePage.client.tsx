@@ -1,5 +1,8 @@
 import * as React from 'react'
 import { ExampleWorkbench } from './ExampleWorkbench.client'
+import { NotebookEmbeddedSkeleton } from '~/components/notebook/NotebookLoading'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { shouldAutoRunNotebook } from '~/utils/notebook-auto-run.client'
 import { decodeSharedExampleProject } from '~/utils/example-share.client'
 import {
   parseSharedExampleProject,
@@ -8,8 +11,16 @@ import {
 } from '~/utils/example-project'
 
 export function SharedExamplePage({ hash }: { hash?: string }) {
+  const user = useCurrentUser()
   const [project, setProject] = React.useState<SharedExampleProject>()
   const [error, setError] = React.useState('')
+  const definition = React.useMemo(
+    () =>
+      project
+        ? sharedProjectToExampleDefinition(hash ?? 'shared-notebook', project)
+        : undefined,
+    [hash, project],
+  )
 
   React.useEffect(() => {
     let active = true
@@ -42,12 +53,7 @@ export function SharedExamplePage({ hash }: { hash?: string }) {
     )
   }
 
-  if (!project) return null
-
-  const definition = sharedProjectToExampleDefinition(
-    hash ?? 'shared-notebook',
-    project,
-  )
+  if (!project || !definition) return <NotebookEmbeddedSkeleton />
 
   return (
     <main className="w-full p-3 sm:p-4">
@@ -59,7 +65,12 @@ export function SharedExamplePage({ hash }: { hash?: string }) {
           </p>
         ) : null}
       </header>
-      <ExampleWorkbench allowSharing definition={definition} />
+      <ExampleWorkbench
+        allowSharing={Boolean(user)}
+        autoRun={shouldAutoRunNotebook(window.navigator)}
+        definition={definition}
+        runLabel="Run notebook"
+      />
     </main>
   )
 }

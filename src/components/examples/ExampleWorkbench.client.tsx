@@ -174,6 +174,7 @@ export function ExampleWorkbench({
   libraryColor = 'bg-emerald-500',
   onWorkspaceChange,
   preview,
+  runDisabled = false,
   runLabel = 'Run example',
   runRequest,
   workbenchRef,
@@ -194,6 +195,7 @@ export function ExampleWorkbench({
   libraryColor?: string
   onWorkspaceChange?: (workspace: ExampleWorkspace) => void
   preview?: ExampleWorkbenchPreviewOptions
+  runDisabled?: boolean
   runLabel?: string
   runRequest?: ExampleWorkbenchRunRequest
   workbenchRef?: React.Ref<ExampleWorkbenchHandle>
@@ -230,6 +232,7 @@ export function ExampleWorkbench({
   )
   const [isCodePanelResizing, setIsCodePanelResizing] = React.useState(false)
   const [status, setStatus] = React.useState<WorkbenchStatus>('idle')
+  const [runActive, setRunActive] = React.useState(false)
   const [error, setError] = React.useState('')
   const [consoleEntries, setConsoleEntries] = React.useState<
     Array<ConsoleEntry>
@@ -404,6 +407,7 @@ export function ExampleWorkbench({
         pending.abortSignal.removeEventListener('abort', pending.abortListener)
       }
       pendingRunRef.current = undefined
+      setRunActive(false)
       pending.resolve(result)
     },
     [captureEnvironmentSnapshot],
@@ -438,6 +442,7 @@ export function ExampleWorkbench({
           workspaceRevision: workspaceRevisionRef.current,
         }
         pendingRunRef.current = pending
+        setRunActive(true)
 
         if (signal) {
           const abortListener = () =>
@@ -1412,6 +1417,7 @@ export function ExampleWorkbench({
   }
 
   function reloadPreview() {
+    if (runActive || runDisabled) return
     const frame = frameRef.current
     const session = webContainerSessionRef.current
     if (usesWebContainer && frame && session) {
@@ -1611,6 +1617,8 @@ export function ExampleWorkbench({
       status === 'mounting' ||
       status === 'installing' ||
       status === 'starting')
+  const manualRunDisabled =
+    runActive || runDisabled || isWebContainerBusy || isWebContainerUnsupported
   const visibleStatusLabel =
     webContainerAvailability.status === 'checking'
       ? 'Checking support'
@@ -1759,25 +1767,18 @@ export function ExampleWorkbench({
               <BrowserIcon className="size-3.5" aria-hidden="true" />
               <span className="hidden sm:inline">Preview</span>
             </Button>
-            <Tooltip
-              content={status === 'idle' ? runLabel : 'Refresh preview'}
-              side="bottom"
-            >
+            <Tooltip content={runLabel} side="bottom">
               <Button
                 type="button"
                 variant="primary"
                 size="xs"
                 rounded="none"
                 className="hover:translate-y-0 max-[899px]:translate-y-0"
-                aria-label={status === 'idle' ? runLabel : 'Refresh preview'}
-                disabled={isWebContainerBusy || isWebContainerUnsupported}
+                aria-label={runLabel}
+                disabled={manualRunDisabled}
                 onClick={() => void run()}
               >
-                {status === 'idle' ? (
-                  <PlayIcon className="size-3.5" aria-hidden="true" />
-                ) : (
-                  <ArrowClockwiseIcon className="size-3.5" aria-hidden="true" />
-                )}
+                <PlayIcon className="size-3.5" aria-hidden="true" />
               </Button>
             </Tooltip>
           </ButtonGroup>
@@ -1921,7 +1922,9 @@ export function ExampleWorkbench({
                   theme={resolvedTheme}
                   value={activeSource}
                   onChange={updateActiveSource}
-                  onRun={() => void run()}
+                  onRun={() => {
+                    if (!manualRunDisabled) void run()
+                  }}
                 />
               </div>
             </div>
@@ -1994,6 +1997,7 @@ export function ExampleWorkbench({
               }
               onReload={reloadPreview}
               openExternalUrl={externalPreviewUrl}
+              reloadDisabled={runActive || runDisabled}
             >
               {previewUrl ? (
                 <iframe
@@ -2047,6 +2051,7 @@ export function ExampleWorkbench({
                     <Button
                       type="button"
                       variant="primary"
+                      disabled={manualRunDisabled}
                       onClick={() => void run()}
                     >
                       <PlayIcon className="size-4" aria-hidden="true" />

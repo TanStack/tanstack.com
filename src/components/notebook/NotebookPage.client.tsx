@@ -60,6 +60,7 @@ export function NotebookPage({ id }: { id: string }) {
   const [copied, setCopied] = React.useState(false)
   const [activeView, setActiveView] = React.useState<'chat' | 'code'>('code')
   const [aiTransactionActive, setAiTransactionActive] = React.useState(false)
+  const [assistantRunning, setAssistantRunning] = React.useState(false)
   const [runRequest, setRunRequest] =
     React.useState<ExampleWorkbenchRunRequest>()
   const workbenchRef = React.useRef<ExampleWorkbenchHandle>(null)
@@ -694,6 +695,7 @@ export function NotebookPage({ id }: { id: string }) {
               <NotebookAssistant
                 key={`${record.id}:${user?.userId ?? 'anonymous'}`}
                 authenticated={Boolean(user)}
+                credentialScope={user?.userId}
                 enabled={activeView === 'chat'}
                 getExecution={() => {
                   return {
@@ -707,6 +709,7 @@ export function NotebookPage({ id }: { id: string }) {
                 onFinish={finishAiExecution}
                 onPrepare={prepareAiExecution}
                 onRestore={restoreAiExecution}
+                onRunningChange={setAssistantRunning}
                 onSignIn={() => openLoginModal()}
                 storageScope={user ? `${user.userId}:${record.id}` : undefined}
               />
@@ -717,6 +720,7 @@ export function NotebookPage({ id }: { id: string }) {
           definition={definition}
           fullscreen
           filesInitiallyOpen
+          runDisabled={assistantRunning}
           runLabel="Run notebook"
           runRequest={runRequest}
           workbenchRef={workbenchRef}

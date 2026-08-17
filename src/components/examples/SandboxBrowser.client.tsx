@@ -56,6 +56,7 @@ export function SandboxBrowser({
   onNavigate,
   onReload,
   openExternalUrl,
+  reloadDisabled = false,
 }: {
   annotationAvailable?: boolean
   annotationMode?: boolean
@@ -75,6 +76,7 @@ export function SandboxBrowser({
   onNavigate(url: string): void
   onReload(): void
   openExternalUrl?: string
+  reloadDisabled?: boolean
 }) {
   const rootRef = React.useRef<HTMLDivElement>(null)
   const annotationInputRef = React.useRef<HTMLTextAreaElement>(null)
@@ -257,7 +259,7 @@ export function SandboxBrowser({
           'Reload preview',
           <ArrowClockwiseIcon className="size-3.5" aria-hidden="true" />,
           onReload,
-          !navigationAvailable,
+          !navigationAvailable || reloadDisabled,
         )}
 
         <form

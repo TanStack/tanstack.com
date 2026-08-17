@@ -44,6 +44,7 @@ export function NotebookAiSpike() {
     React.useState<ExampleDefinition>(initialDefinition)
   const [runRequest, setRunRequest] =
     React.useState<ExampleWorkbenchRunRequest>()
+  const [assistantRunning, setAssistantRunning] = React.useState(false)
   const workbenchRef = React.useRef<ExampleWorkbenchHandle>(null)
   const definitionRef = React.useRef(definition)
   const workspaceRef = React.useRef<ExampleWorkspace>(definition.workspace)
@@ -167,6 +168,7 @@ export function NotebookAiSpike() {
             content: (
               <NotebookAssistant
                 authenticated
+                credentialScope="local-spike"
                 enabled={activeView === 'chat'}
                 getExecution={() => ({
                   runtime: definitionRef.current.runtime ?? null,
@@ -175,6 +177,7 @@ export function NotebookAiSpike() {
                 hiddenFiles={[]}
                 onApply={applyAiExecution}
                 onRestore={restoreAiExecution}
+                onRunningChange={setAssistantRunning}
                 storageScope="local-spike"
               />
             ),
@@ -184,6 +187,7 @@ export function NotebookAiSpike() {
           definition={definition}
           fullscreen
           filesInitiallyOpen
+          runDisabled={assistantRunning}
           runLabel="Run notebook"
           runRequest={runRequest}
           workbenchRef={workbenchRef}

@@ -1,5 +1,9 @@
 import * as React from 'react'
 import { ClientOnly, createFileRoute } from '@tanstack/react-router'
+import {
+  NotebookEditorSkeleton,
+  NotebookRouteReady,
+} from '~/components/notebook/NotebookLoading'
 import { seo } from '~/utils/seo'
 import { webContainerHeaders } from '~/utils/stackblitz-embed'
 
@@ -11,6 +15,7 @@ const LazyNotebookPage = React.lazy(() =>
 
 export const Route = createFileRoute('/notebook_/$id')({
   ssr: false,
+  pendingComponent: NotebookEditorSkeleton,
   component: NotebookRoute,
   headers: () => webContainerHeaders,
   head: () => ({
@@ -26,10 +31,12 @@ function NotebookRoute() {
   const { id } = Route.useParams()
 
   return (
-    <ClientOnly>
-      <React.Suspense fallback={null}>
-        <LazyNotebookPage id={id} />
-      </React.Suspense>
-    </ClientOnly>
+    <NotebookRouteReady>
+      <ClientOnly fallback={<NotebookEditorSkeleton />}>
+        <React.Suspense fallback={<NotebookEditorSkeleton />}>
+          <LazyNotebookPage key={id} id={id} />
+        </React.Suspense>
+      </ClientOnly>
+    </NotebookRouteReady>
   )
 }

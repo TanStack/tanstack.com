@@ -10,7 +10,14 @@ import {
 import { Link, useBlocker, useNavigate } from '@tanstack/react-router'
 import { ButtonGroup } from '~/components/ButtonGroup'
 import { Button } from '~/components/ds/ui'
-import { ExampleWorkbench } from '~/components/examples/ExampleWorkbench.client'
+import {
+  ExampleWorkbench,
+  type ExampleWorkbenchHandle,
+  type ExampleWorkbenchRunResult,
+  type ExampleWorkbenchRunRequest,
+} from '~/components/examples/ExampleWorkbench.client'
+import { NotebookAssistant } from '~/components/notebook/NotebookAssistant.client'
+import { NotebookEditorSkeleton } from '~/components/notebook/NotebookLoading'
 import { useLoginModal } from '~/contexts/LoginModalContext'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { copyTextToClipboard } from '~/utils/browser-effects'
@@ -20,6 +27,8 @@ import {
   type SharedExampleProject,
 } from '~/utils/example-project'
 import type { ExampleWorkspace } from '~/utils/example-workspace'
+import type { NotebookAiExecution } from '~/utils/notebook-ai'
+import { shouldAutoRunNotebook } from '~/utils/notebook-auto-run.client'
 import {
   createNotebookRecord,
   getNotebookRecord,
@@ -48,6 +57,10 @@ export function NotebookPage({ id }: { id: string }) {
   const [hasLocalChanges, setHasLocalChanges] = React.useState(false)
   const [forking, setForking] = React.useState(false)
   const [copied, setCopied] = React.useState(false)
+  const [activeView, setActiveView] = React.useState<'chat' | 'code'>('code')
+  const [runRequest, setRunRequest] =
+    React.useState<ExampleWorkbenchRunRequest>()
+  const workbenchRef = React.useRef<ExampleWorkbenchHandle>(null)
   const workspaceRef = React.useRef<ExampleWorkspace | undefined>(undefined)
   const recordRef = React.useRef<NotebookRecord | undefined>(undefined)
   const projectRef = React.useRef<SharedExampleProject | undefined>(undefined)
@@ -220,6 +233,62 @@ export function NotebookPage({ id }: { id: string }) {
     if (isOwner) markEdited()
   }
 
+  function applyAiExecution(
+    execution: NotebookAiExecution,
+    signal: AbortSignal,
+  ) {
+    const currentProject = projectRef.current
+    const currentWorkspace = workspaceRef.current
+    if (!currentProject || !currentWorkspace || signal.aborted) {
+      return Promise.resolve({
+        ok: false,
+        phase: 'superseded' as const,
+        message: 'The notebook editor is no longer available.',
+      })
+    }
+
+    const nextProject = createSharedExampleProject({
+      title: titleRef.current.trim() || 'Untitled notebook',
+      description: descriptionRef.current.trim(),
+      initialFile: currentProject.initialFile,
+      hiddenFiles: getAiHiddenFiles(
+        currentProject.hiddenFiles,
+        execution.workspace,
+      ),
+      runtime: execution.runtime ?? undefined,
+      workspace: execution.workspace,
+    })
+    projectRef.current = nextProject
+    workspaceRef.current = execution.workspace
+    const resetWorkbench = requiresWorkbenchReset(
+      currentProject.runtime ?? null,
+      currentWorkspace,
+      execution,
+    )
+    if (!resetWorkbench && workbenchRef.current) {
+      return workbenchRef.current.replaceWorkspaceAndRun(
+        execution.workspace,
+        signal,
+      )
+    }
+
+    setProject(nextProject)
+    setHasLocalChanges(true)
+    if (isOwner) markEdited()
+
+    return new Promise<ExampleWorkbenchRunResult>((resolve) => {
+      const id = crypto.randomUUID()
+      setRunRequest({
+        id,
+        signal,
+        onComplete(result) {
+          setRunRequest((current) => (current?.id === id ? undefined : current))
+          resolve(result)
+        },
+      })
+    })
+  }
+
   function updateTitle(value: string) {
     setTitle(value)
     markEdited()
@@ -313,17 +382,7 @@ export function NotebookPage({ id }: { id: string }) {
   }
 
   if (!record || !project || !definition || userQuery.isPending) {
-    return (
-      <main
-        className="grid min-h-[calc(100dvh-var(--navbar-height))] place-items-center bg-background-default text-text-muted"
-        aria-label="Loading notebook"
-      >
-        <SpinnerGapIcon
-          className="size-5 animate-spin motion-reduce:animate-none"
-          aria-hidden="true"
-        />
-      </main>
-    )
+    return <NotebookEditorSkeleton />
   }
 
   const authorName = record.author.name || 'TanStack user'
@@ -332,7 +391,7 @@ export function NotebookPage({ id }: { id: string }) {
     hasLocalChanges && !isOwner ? 'Copy original notebook link' : 'Copy link'
 
   return (
-    <main className="flex h-[calc(100dvh-var(--navbar-height))] min-h-0 flex-col overflow-hidden bg-background-default text-text-primary">
+    <main className="fixed inset-x-0 top-[var(--navbar-height)] bottom-0 z-20 flex min-h-0 flex-col overflow-hidden bg-background-default text-text-primary">
       <header className="flex h-16 shrink-0 items-center gap-2 border-b border-border-default bg-background-default px-2 sm:gap-3 sm:px-4">
         <Button
           as={Link}
@@ -538,14 +597,41 @@ export function NotebookPage({ id }: { id: string }) {
         </div>
       ) : null}
 
-      <ExampleWorkbench
-        autoRun={false}
-        definition={definition}
-        fullscreen
-        filesInitiallyOpen
-        runLabel="Run notebook"
-        onWorkspaceChange={updateWorkspace}
-      />
+      <div className="flex min-h-0 flex-1">
+        <ExampleWorkbench
+          alternateEditor={{
+            active: activeView === 'chat',
+            label: 'Chat',
+            onActiveChange: (active) => setActiveView(active ? 'chat' : 'code'),
+            content: (
+              <NotebookAssistant
+                key={`${record.id}:${user?.userId ?? 'anonymous'}`}
+                authenticated={Boolean(user)}
+                enabled={activeView === 'chat'}
+                getExecution={() => {
+                  return {
+                    runtime: projectRef.current?.runtime ?? null,
+                    workspace: workspaceRef.current ?? project.workspace,
+                  }
+                }}
+                hiddenFiles={project.hiddenFiles ?? []}
+                onApply={applyAiExecution}
+                onSignIn={() => openLoginModal()}
+                storageScope={user ? `${user.userId}:${record.id}` : undefined}
+              />
+            ),
+          }}
+          autoRun={shouldAutoRunNotebook(window.navigator)}
+          className="w-full"
+          definition={definition}
+          fullscreen
+          filesInitiallyOpen
+          runLabel="Run notebook"
+          runRequest={runRequest}
+          workbenchRef={workbenchRef}
+          onWorkspaceChange={updateWorkspace}
+        />
+      </div>
     </main>
   )
 }
@@ -558,4 +644,55 @@ function formatDate(value: string) {
   return new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(
     new Date(value),
   )
+}
+
+function requiresWorkbenchReset(
+  currentRuntime: NotebookAiExecution['runtime'],
+  currentWorkspace: ExampleWorkspace,
+  next: NotebookAiExecution,
+) {
+  if (JSON.stringify(currentRuntime) !== JSON.stringify(next.runtime)) {
+    return true
+  }
+  if (!next.runtime) return false
+  if (
+    currentWorkspace.files['/package.json'] !==
+    next.workspace.files['/package.json']
+  ) {
+    return true
+  }
+
+  return (
+    hasDifferentPaths(currentWorkspace.files, next.workspace.files) ||
+    hasDifferentPaths(
+      currentWorkspace.binaryFiles ?? {},
+      next.workspace.binaryFiles ?? {},
+    )
+  )
+}
+
+function hasDifferentPaths(
+  current: Record<string, string>,
+  next: Record<string, string>,
+) {
+  const currentPaths = Object.keys(current)
+  const nextPaths = Object.keys(next)
+  return (
+    currentPaths.length !== nextPaths.length ||
+    currentPaths.some((path) => next[path] === undefined)
+  )
+}
+
+function getAiHiddenFiles(
+  hiddenFiles: ReadonlyArray<string> | undefined,
+  workspace: ExampleWorkspace,
+) {
+  return [
+    ...new Set([
+      ...(hiddenFiles ?? []),
+      ...Object.keys(workspace.files).filter((path) =>
+        path.startsWith('/.tanstack/'),
+      ),
+    ]),
+  ]
 }

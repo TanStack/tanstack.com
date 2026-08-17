@@ -1,5 +1,9 @@
 import * as React from 'react'
 import { ClientOnly, createFileRoute } from '@tanstack/react-router'
+import {
+  NotebookEmbeddedSkeleton,
+  NotebookRouteReady,
+} from '~/components/notebook/NotebookLoading'
 import { seo } from '~/utils/seo'
 import { webContainerHeaders } from '~/utils/stackblitz-embed'
 
@@ -11,6 +15,7 @@ const LazySharedExamplePage = React.lazy(() =>
 
 export const Route = createFileRoute('/notebook_/p/$hash')({
   ssr: false,
+  pendingComponent: NotebookEmbeddedSkeleton,
   component: SharedNotebookRoute,
   headers: () => webContainerHeaders,
   head: () => ({
@@ -26,10 +31,12 @@ function SharedNotebookRoute() {
   const { hash } = Route.useParams()
 
   return (
-    <ClientOnly>
-      <React.Suspense fallback={null}>
-        <LazySharedExamplePage hash={hash} />
-      </React.Suspense>
-    </ClientOnly>
+    <NotebookRouteReady>
+      <ClientOnly fallback={<NotebookEmbeddedSkeleton />}>
+        <React.Suspense fallback={<NotebookEmbeddedSkeleton />}>
+          <LazySharedExamplePage hash={hash} />
+        </React.Suspense>
+      </ClientOnly>
+    </NotebookRouteReady>
   )
 }

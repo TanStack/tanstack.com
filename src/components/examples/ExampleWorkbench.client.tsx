@@ -2,6 +2,8 @@ import * as React from 'react'
 import {
   ArrowClockwiseIcon,
   BrowserIcon,
+  ChatCircleDotsIcon,
+  CodeIcon,
   FolderOpenIcon,
   PlayIcon,
   PlusIcon,
@@ -25,17 +27,30 @@ import { createSharedExampleProject } from '~/utils/example-project'
 import { createSharedExampleUrl } from '~/utils/example-share.client'
 import {
   createExampleSandboxDocument,
+  isExampleSandboxBrowserMessage,
   isExampleSandboxMessage,
+  postExampleSandboxBrowserCommand,
   postExampleSandboxTheme,
   type ExampleConsoleLevel,
   type ExampleSandboxStatus,
 } from '~/utils/example-sandbox.client'
+import {
+  canGoBackInExamplePreview,
+  canGoForwardInExamplePreview,
+  createExamplePreviewHistory,
+  normalizeExamplePreviewUrl,
+  updateExamplePreviewHistory,
+} from '~/utils/example-preview-history'
 import {
   createExampleWorkspace,
   type ExampleDefinition,
   type ExampleWorkspace,
 } from '~/utils/example-workspace'
 import { CodeMirrorEditor } from './CodeMirrorEditor.client'
+import {
+  SandboxBrowser,
+  type SandboxBrowserAnnotationTarget,
+} from './SandboxBrowser.client'
 
 const LazyWebContainerTerminalPanel = React.lazy(() =>
   import('./WebContainerTerminal.client').then((module) => ({
@@ -86,9 +101,61 @@ type CodePanelResize = {
 const DEFAULT_CODE_PANEL_PERCENT = 67
 const MIN_DESKTOP_PANEL_WIDTH = 280
 const MAX_PROCESS_OUTPUT_LENGTH = 500_000
+const RUN_SETTLE_DELAY_MS = 750
+const CLIENT_RUN_TIMEOUT_MS = 15_000
+const WEBCONTAINER_RUN_TIMEOUT_MS = 120_000
+
+export type ExampleWorkbenchRunResult =
+  | { ok: true }
+  | {
+      ok: false
+      phase:
+        | 'aborted'
+        | 'compile'
+        | 'runtime'
+        | 'superseded'
+        | 'timeout'
+        | 'unsupported'
+      message: string
+    }
+
+export type ExampleWorkbenchHandle = {
+  replaceWorkspace(workspace: ExampleWorkspace): void
+  replaceWorkspaceAndRun(
+    workspace: ExampleWorkspace,
+    signal?: AbortSignal,
+  ): Promise<ExampleWorkbenchRunResult>
+}
+
+export type ExampleWorkbenchRunRequest = {
+  id: string
+  onComplete(result: ExampleWorkbenchRunResult): void
+  signal?: AbortSignal
+}
+
+export type ExampleWorkbenchPreviewOptions = {
+  defaultDisplay?: 'collapsed' | 'expanded'
+  revealOnPush?: boolean
+}
+
+type PendingWorkbenchRun = {
+  abortListener?: () => void
+  abortSignal?: AbortSignal
+  readyTimeout?: number
+  resolve(result: ExampleWorkbenchRunResult): void
+  timeout: number
+  token: string
+}
+type PendingPreviewCapture = {
+  reject(cause: Error): void
+  requestId: string
+  resolve(blob: Blob): void
+  timeout: number
+}
 
 export function ExampleWorkbench({
   allowSharing = false,
+  alternateEditor,
   autoRun,
   className,
   definition,
@@ -97,9 +164,18 @@ export function ExampleWorkbench({
   fullscreen = false,
   libraryColor = 'bg-emerald-500',
   onWorkspaceChange,
+  preview,
   runLabel = 'Run example',
+  runRequest,
+  workbenchRef,
 }: {
   allowSharing?: boolean
+  alternateEditor?: {
+    active: boolean
+    content: React.ReactNode
+    label: string
+    onActiveChange(active: boolean): void
+  }
   autoRun?: boolean
   className?: string
   definition: ExampleDefinition
@@ -108,7 +184,10 @@ export function ExampleWorkbench({
   fullscreen?: boolean
   libraryColor?: string
   onWorkspaceChange?: (workspace: ExampleWorkspace) => void
+  preview?: ExampleWorkbenchPreviewOptions
   runLabel?: string
+  runRequest?: ExampleWorkbenchRunRequest
+  workbenchRef?: React.Ref<ExampleWorkbenchHandle>
 }) {
   const { resolvedTheme } = useTheme()
   const codePanelId = React.useId()
@@ -118,13 +197,19 @@ export function ExampleWorkbench({
   const [workspace, setWorkspace] = React.useState(() =>
     cloneWorkspace(definition.workspace),
   )
+  const alternateEditorActive = alternateEditor?.active ?? false
+  const workspaceRef = React.useRef(workspace)
   const [activePath, setActivePath] = React.useState(() =>
     getInitialFile(definition, workspace),
   )
-  const [mobileView, setMobileView] = React.useState<MobileView>('preview')
+  const previewExpandedByDefault = preview?.defaultDisplay !== 'collapsed'
+  const revealPreviewOnPush = preview?.revealOnPush ?? true
+  const [mobileView, setMobileView] = React.useState<MobileView>(() =>
+    previewExpandedByDefault ? 'preview' : 'code',
+  )
   const [isDesktop, setIsDesktop] = React.useState(false)
   const [showFiles, setShowFiles] = React.useState(filesInitiallyOpen)
-  const [showPreview, setShowPreview] = React.useState(true)
+  const [showPreview, setShowPreview] = React.useState(previewExpandedByDefault)
   const [showConsole, setShowConsole] = React.useState(false)
   const [outputActivated, setOutputActivated] = React.useState(false)
   const [terminalIds, setTerminalIds] = React.useState<Array<number>>([])
@@ -147,6 +232,15 @@ export function ExampleWorkbench({
   })
   const [sourceDocument, setSourceDocument] = React.useState('')
   const [previewUrl, setPreviewUrl] = React.useState('')
+  const [previewHistory, setPreviewHistory] = React.useState(() =>
+    createExamplePreviewHistory(),
+  )
+  const previewHistoryRef = React.useRef(previewHistory)
+  const [previewNavigationError, setPreviewNavigationError] = React.useState('')
+  const [previewAnnotationMode, setPreviewAnnotationModeActive] =
+    React.useState(false)
+  const [previewAnnotationTarget, setPreviewAnnotationTarget] =
+    React.useState<SandboxBrowserAnnotationTarget>()
   const [webContainerSession, setWebContainerSession] = React.useState<
     WebContainerExampleSession | undefined
   >()
@@ -161,6 +255,7 @@ export function ExampleWorkbench({
   const previewPanelRef = React.useRef<HTMLElement>(null)
   const codeResizeRef = React.useRef<CodePanelResize>(null)
   const runTokenRef = React.useRef('')
+  const browserChannelRef = React.useRef(crypto.randomUUID())
   const compileRequestRef = React.useRef(0)
   const nextConsoleIdRef = React.useRef(0)
   const nextTerminalIdRef = React.useRef(1)
@@ -170,9 +265,107 @@ export function ExampleWorkbench({
   const webContainerSessionRef = React.useRef<WebContainerExampleSession>(null)
   const pendingWebContainerWritesRef = React.useRef(new Map<string, string>())
   const webContainerWriteTimeoutRef = React.useRef<number>(undefined)
-  const autoRunWebContainerDefinitionRef = React.useRef<ExampleDefinition>(null)
+  const handledRunDefinitionRef = React.useRef<ExampleDefinition>(null)
+  const pendingRunRef = React.useRef<PendingWorkbenchRun | undefined>(undefined)
+  const pendingPreviewCaptureRef = React.useRef<
+    PendingPreviewCapture | undefined
+  >(undefined)
+  const handledRunRequestRef = React.useRef<string | undefined>(undefined)
   const usesWebContainer = definition.runtime?.type === 'webcontainer'
   const shouldAutoRun = autoRun ?? !usesWebContainer
+
+  React.useEffect(() => {
+    previewHistoryRef.current = previewHistory
+  }, [previewHistory])
+
+  const cancelPreviewCapture = React.useCallback((message: string) => {
+    const pending = pendingPreviewCaptureRef.current
+    if (!pending) return
+    window.clearTimeout(pending.timeout)
+    pendingPreviewCaptureRef.current = undefined
+    pending.reject(new Error(message))
+  }, [])
+
+  const finishRun = React.useCallback(
+    (token: string, result: ExampleWorkbenchRunResult) => {
+      const pending = pendingRunRef.current
+      if (!pending || pending.token !== token) return
+
+      window.clearTimeout(pending.timeout)
+      if (pending.readyTimeout !== undefined) {
+        window.clearTimeout(pending.readyTimeout)
+      }
+      if (pending.abortSignal && pending.abortListener) {
+        pending.abortSignal.removeEventListener('abort', pending.abortListener)
+      }
+      pendingRunRef.current = undefined
+      pending.resolve(result)
+    },
+    [],
+  )
+
+  const finishCurrentRun = React.useCallback(
+    (result: ExampleWorkbenchRunResult) => {
+      const token = pendingRunRef.current?.token
+      if (token) finishRun(token, result)
+    },
+    [finishRun],
+  )
+
+  const beginRun = React.useCallback(
+    (token: string, signal?: AbortSignal) => {
+      finishCurrentRun({
+        ok: false,
+        phase: 'superseded',
+        message: 'The preview restarted before the previous run finished.',
+      })
+
+      return new Promise<ExampleWorkbenchRunResult>((resolve) => {
+        const timeout = window.setTimeout(
+          () =>
+            finishRun(token, {
+              ok: false,
+              phase: 'timeout',
+              message: 'The preview did not become ready in time.',
+            }),
+          usesWebContainer
+            ? WEBCONTAINER_RUN_TIMEOUT_MS
+            : CLIENT_RUN_TIMEOUT_MS,
+        )
+        const pending: PendingWorkbenchRun = { resolve, timeout, token }
+        pendingRunRef.current = pending
+
+        if (signal) {
+          const abortListener = () =>
+            finishRun(token, {
+              ok: false,
+              phase: 'aborted',
+              message: 'The notebook run was stopped.',
+            })
+          pending.abortListener = abortListener
+          pending.abortSignal = signal
+          signal.addEventListener('abort', abortListener, { once: true })
+          if (signal.aborted) abortListener()
+        }
+      })
+    },
+    [finishCurrentRun, finishRun, usesWebContainer],
+  )
+
+  const finishRunAfterQuietPeriod = React.useCallback(
+    (token: string) => {
+      const pending = pendingRunRef.current
+      if (!pending || pending.token !== token) return
+      if (pending.readyTimeout !== undefined) {
+        window.clearTimeout(pending.readyTimeout)
+      }
+      pending.readyTimeout = window.setTimeout(
+        () => finishRun(token, { ok: true }),
+        RUN_SETTLE_DELAY_MS,
+      )
+    },
+    [finishRun],
+  )
 
   const flushProcessOutput = React.useCallback(() => {
     processOutputFrameRef.current = undefined
@@ -229,7 +422,14 @@ export function ExampleWorkbench({
   }, [])
 
   React.useEffect(() => {
+    finishCurrentRun({
+      ok: false,
+      phase: 'superseded',
+      message: 'The notebook changed before the preview finished.',
+    })
     compileRequestRef.current += 1
+    cancelPreviewCapture('The preview changed before capture completed.')
+    browserChannelRef.current = crypto.randomUUID()
     webContainerSessionRef.current?.dispose()
     webContainerSessionRef.current = null
     setWebContainerSession(undefined)
@@ -240,21 +440,35 @@ export function ExampleWorkbench({
     }
 
     const nextWorkspace = cloneWorkspace(definition.workspace)
+    workspaceRef.current = nextWorkspace
     setWorkspace(nextWorkspace)
     setActivePath(getInitialFile(definition, nextWorkspace))
     setConsoleEntries([])
     resetProcessOutput()
     setError('')
     setPreviewUrl('')
+    const initialPreviewHistory = createExamplePreviewHistory()
+    previewHistoryRef.current = initialPreviewHistory
+    setPreviewHistory(initialPreviewHistory)
+    setPreviewNavigationError('')
+    setPreviewAnnotationModeActive(false)
+    setPreviewAnnotationTarget(undefined)
     setSourceDocument('')
     setStatus('idle')
-    setMobileView('preview')
+    setMobileView(previewExpandedByDefault ? 'preview' : 'code')
+    setShowPreview(previewExpandedByDefault)
     setShowConsole(false)
     setOutputActivated(false)
     setTerminalIds([])
     setActiveTerminalId('process')
     nextTerminalIdRef.current = 1
-  }, [definition, resetProcessOutput])
+  }, [
+    cancelPreviewCapture,
+    definition,
+    finishCurrentRun,
+    previewExpandedByDefault,
+    resetProcessOutput,
+  ])
 
   React.useEffect(() => {
     if (!usesWebContainer) {
@@ -300,6 +514,12 @@ export function ExampleWorkbench({
 
   React.useEffect(
     () => () => {
+      cancelPreviewCapture('The preview closed before capture completed.')
+      finishCurrentRun({
+        ok: false,
+        phase: 'superseded',
+        message: 'The preview closed before the run finished.',
+      })
       webContainerSessionRef.current?.dispose()
       if (webContainerWriteTimeoutRef.current !== undefined) {
         window.clearTimeout(webContainerWriteTimeoutRef.current)
@@ -308,7 +528,7 @@ export function ExampleWorkbench({
         window.cancelAnimationFrame(processOutputFrameRef.current)
       }
     },
-    [],
+    [cancelPreviewCapture, finishCurrentRun],
   )
 
   const flushWebContainerWrites = React.useCallback(async () => {
@@ -356,147 +576,287 @@ export function ExampleWorkbench({
     [flushWebContainerWrites],
   )
 
-  const run = React.useCallback(async () => {
-    const request = compileRequestRef.current + 1
-    compileRequestRef.current = request
-    const runToken = crypto.randomUUID()
-    runTokenRef.current = runToken
-    nextConsoleIdRef.current = 0
-    setConsoleEntries([])
-    resetProcessOutput()
-    setError('')
+  const replaceWorkspace = React.useCallback(
+    (nextWorkspace: ExampleWorkspace) => {
+      const next = cloneWorkspace(nextWorkspace)
+      const current = workspaceRef.current
 
-    try {
-      if (definition.runtime?.type === 'webcontainer') {
-        const support = getExampleWebContainerSupport()
-        if (!support.supported) {
-          setWebContainerAvailability({
-            reason: support.reason,
-            status: 'unsupported',
-          })
-          setStatus('unsupported')
-          return
+      if (usesWebContainer) {
+        for (const [path, source] of Object.entries(next.files)) {
+          if (current.files[path] !== source) {
+            scheduleWebContainerWrite(path, source)
+          }
         }
-
-        const currentSession = webContainerSessionRef.current
-        if (currentSession) {
-          setStatus('starting')
-          await flushWebContainerWrites()
-          await currentSession.restart()
-          return
-        }
-
-        setStatus('booting')
-        const session = createWebContainerExampleSession({
-          onEvent(event) {
-            switch (event.kind) {
-              case 'error':
-                revealWebContainerOutput()
-                setError(event.message)
-                setStatus('error')
-                break
-              case 'output':
-                appendProcessOutput(event.value)
-                break
-              case 'preview':
-                setPreviewUrl(event.url)
-                break
-              case 'preview-error':
-                appendProcessOutput(`\r\nerror ${event.message}\r\n`)
-                if (event.fatal) {
-                  revealWebContainerOutput()
-                  setError(event.message)
-                  setStatus('error')
-                }
-                break
-              case 'status':
-                if (event.status === 'starting' || event.status === 'stopped') {
-                  setPreviewUrl('')
-                }
-                setStatus(event.status)
-                break
-              case 'superseded':
-                webContainerSessionRef.current = null
-                setWebContainerSession(undefined)
-                setTerminalIds([])
-                setActiveTerminalId('process')
-                pendingWebContainerWritesRef.current.clear()
-                if (webContainerWriteTimeoutRef.current !== undefined) {
-                  window.clearTimeout(webContainerWriteTimeoutRef.current)
-                  webContainerWriteTimeoutRef.current = undefined
-                }
-                setPreviewUrl('')
-                setError(
-                  'This example stopped because another WebContainer example started in this tab.',
-                )
-                setStatus('stopped')
-                break
-            }
-          },
-          runtime: definition.runtime,
-          workspace,
-        })
-        webContainerSessionRef.current = session
-        setWebContainerSession(session)
-        await session.start()
-        return
       }
 
-      setStatus('compiling')
-      const compiled = await compileExampleWorkspace(workspace)
-      if (request !== compileRequestRef.current) return
-
-      setSourceDocument(
-        createExampleSandboxDocument({
-          binaryFiles: workspace.binaryFiles,
-          compiled,
-          document: workspace.files['/index.html'],
-          entry: workspace.entry,
-          files: workspace.files,
-          runToken,
-          theme: readTheme(),
-        }),
+      workspaceRef.current = next
+      setWorkspace(next)
+      setActivePath((path) =>
+        next.files[path] === undefined
+          ? getInitialFile(definition, next)
+          : path,
       )
-      setStatus('running')
-    } catch (cause) {
-      if (request !== compileRequestRef.current) return
-      if (definition.runtime?.type === 'webcontainer') {
-        if (!webContainerSessionRef.current) return
-        revealWebContainerOutput()
-        webContainerSessionRef.current?.dispose()
-        webContainerSessionRef.current = null
-        setWebContainerSession(undefined)
-        setTerminalIds([])
-        setActiveTerminalId('process')
-        setPreviewUrl('')
+      onWorkspaceChange?.(next)
+    },
+    [
+      definition,
+      onWorkspaceChange,
+      scheduleWebContainerWrite,
+      usesWebContainer,
+    ],
+  )
+
+  const run = React.useCallback(
+    (signal?: AbortSignal): Promise<ExampleWorkbenchRunResult> => {
+      handledRunDefinitionRef.current = definition
+
+      if (signal?.aborted) {
+        return Promise.resolve({
+          ok: false,
+          phase: 'aborted',
+          message: 'The notebook run was stopped.',
+        })
       }
-      setStatus('error')
-      setError(formatError(cause))
-    }
-  }, [
-    appendProcessOutput,
-    definition.runtime,
-    flushWebContainerWrites,
-    revealWebContainerOutput,
-    resetProcessOutput,
-    workspace,
-  ])
+
+      setPreviewAnnotationModeActive(false)
+      setPreviewAnnotationTarget(undefined)
+      postExampleSandboxBrowserCommand({
+        channel: browserChannelRef.current,
+        command: { kind: 'annotation', enabled: false },
+        frame: frameRef.current,
+        targetOrigin: getPreviewTargetOrigin(frameRef.current?.src ?? ''),
+      })
+
+      const request = compileRequestRef.current + 1
+      compileRequestRef.current = request
+      const runToken = crypto.randomUUID()
+      runTokenRef.current = runToken
+      const result = beginRun(runToken, signal)
+      nextConsoleIdRef.current = 0
+      setConsoleEntries([])
+      resetProcessOutput()
+      setError('')
+
+      void (async () => {
+        try {
+          const currentWorkspace = workspaceRef.current
+          if (definition.runtime?.type === 'webcontainer') {
+            const support = getExampleWebContainerSupport()
+            if (!support.supported) {
+              setWebContainerAvailability({
+                reason: support.reason,
+                status: 'unsupported',
+              })
+              setStatus('unsupported')
+              finishRun(runToken, {
+                ok: false,
+                phase: 'unsupported',
+                message: support.reason,
+              })
+              return
+            }
+
+            const currentSession = webContainerSessionRef.current
+            if (currentSession) {
+              setStatus('starting')
+              await flushWebContainerWrites()
+              await currentSession.restart()
+              return
+            }
+
+            setStatus('booting')
+            const session = createWebContainerExampleSession({
+              browserChannel: browserChannelRef.current,
+              onEvent(event) {
+                switch (event.kind) {
+                  case 'error':
+                    revealWebContainerOutput()
+                    setError(event.message)
+                    setStatus('error')
+                    finishCurrentRun({
+                      ok: false,
+                      phase: 'runtime',
+                      message: event.message,
+                    })
+                    break
+                  case 'output':
+                    appendProcessOutput(event.value)
+                    break
+                  case 'preview':
+                    {
+                      const currentHistory = previewHistoryRef.current
+                      const currentUrl =
+                        currentHistory.entries[currentHistory.index] ?? '/'
+                      const nextUrl = preservePreviewLocation(
+                        event.url,
+                        currentUrl,
+                      )
+                      const nextHistory =
+                        currentHistory.entries.length === 1 &&
+                        currentHistory.entries[0] === '/'
+                          ? createExamplePreviewHistory(nextUrl)
+                          : updateExamplePreviewHistory(currentHistory, {
+                              kind: 'replace',
+                              url: nextUrl,
+                            })
+                      previewHistoryRef.current = nextHistory
+                      setPreviewHistory(nextHistory)
+                      setPreviewUrl(nextUrl)
+                    }
+                    break
+                  case 'preview-error':
+                    appendProcessOutput(`\r\nerror ${event.message}\r\n`)
+                    finishCurrentRun({
+                      ok: false,
+                      phase: 'runtime',
+                      message: event.message,
+                    })
+                    if (event.fatal) {
+                      revealWebContainerOutput()
+                      setError(event.message)
+                      setStatus('error')
+                    }
+                    break
+                  case 'status': {
+                    if (
+                      event.status === 'starting' ||
+                      event.status === 'stopped'
+                    ) {
+                      setPreviewUrl('')
+                    }
+                    setStatus(event.status)
+                    if (event.status === 'stopped') {
+                      finishCurrentRun({
+                        ok: false,
+                        phase: 'runtime',
+                        message:
+                          'The notebook server stopped before it was ready.',
+                      })
+                    }
+                    break
+                  }
+                  case 'superseded':
+                    webContainerSessionRef.current = null
+                    setWebContainerSession(undefined)
+                    setTerminalIds([])
+                    setActiveTerminalId('process')
+                    pendingWebContainerWritesRef.current.clear()
+                    if (webContainerWriteTimeoutRef.current !== undefined) {
+                      window.clearTimeout(webContainerWriteTimeoutRef.current)
+                      webContainerWriteTimeoutRef.current = undefined
+                    }
+                    setPreviewUrl('')
+                    setError(
+                      'This example stopped because another WebContainer example started in this tab.',
+                    )
+                    setStatus('stopped')
+                    finishCurrentRun({
+                      ok: false,
+                      phase: 'superseded',
+                      message:
+                        'Another WebContainer notebook started in this tab.',
+                    })
+                    break
+                }
+              },
+              runtime: definition.runtime,
+              workspace: currentWorkspace,
+            })
+            webContainerSessionRef.current = session
+            setWebContainerSession(session)
+            await session.start()
+            return
+          }
+
+          setStatus('compiling')
+          const compiled = await compileExampleWorkspace(currentWorkspace)
+          if (request !== compileRequestRef.current) return
+
+          setSourceDocument(
+            createExampleSandboxDocument({
+              binaryFiles: currentWorkspace.binaryFiles,
+              browserChannel: browserChannelRef.current,
+              compiled,
+              document: currentWorkspace.files['/index.html'],
+              entry: currentWorkspace.entry,
+              files: currentWorkspace.files,
+              runToken,
+              theme: readTheme(),
+            }),
+          )
+          setStatus('running')
+        } catch (cause) {
+          if (request !== compileRequestRef.current) return
+          const message = formatError(cause)
+          if (definition.runtime?.type === 'webcontainer') {
+            if (!webContainerSessionRef.current) return
+            revealWebContainerOutput()
+            webContainerSessionRef.current?.dispose()
+            webContainerSessionRef.current = null
+            setWebContainerSession(undefined)
+            setTerminalIds([])
+            setActiveTerminalId('process')
+            setPreviewUrl('')
+          }
+          setStatus('error')
+          setError(message)
+          finishRun(runToken, {
+            ok: false,
+            phase:
+              definition.runtime?.type === 'webcontainer'
+                ? 'runtime'
+                : 'compile',
+            message,
+          })
+        }
+      })()
+
+      return result
+    },
+    [
+      appendProcessOutput,
+      beginRun,
+      definition,
+      finishCurrentRun,
+      finishRun,
+      flushWebContainerWrites,
+      revealWebContainerOutput,
+      resetProcessOutput,
+    ],
+  )
+
+  const replaceWorkspaceAndRun = React.useCallback(
+    (nextWorkspace: ExampleWorkspace, signal?: AbortSignal) => {
+      replaceWorkspace(nextWorkspace)
+      return run(signal)
+    },
+    [replaceWorkspace, run],
+  )
+
+  React.useImperativeHandle(
+    workbenchRef,
+    () => ({ replaceWorkspace, replaceWorkspaceAndRun }),
+    [replaceWorkspace, replaceWorkspaceAndRun],
+  )
+
+  React.useEffect(() => {
+    if (!runRequest || handledRunRequestRef.current === runRequest.id) return
+    handledRunRequestRef.current = runRequest.id
+    void run(runRequest.signal).then(runRequest.onComplete)
+  }, [run, runRequest])
 
   React.useEffect(() => {
     if (
       !shouldAutoRun ||
       (usesWebContainer && webContainerAvailability.status !== 'supported') ||
-      (usesWebContainer &&
-        autoRunWebContainerDefinitionRef.current === definition)
+      handledRunDefinitionRef.current === definition
     ) {
       return
     }
 
     const timeout = window.setTimeout(
       () => {
-        if (usesWebContainer) {
-          autoRunWebContainerDefinitionRef.current = definition
-        }
+        if (handledRunDefinitionRef.current === definition) return
         void run()
       },
       usesWebContainer ? 0 : 300,
@@ -519,9 +879,113 @@ export function ExampleWorkbench({
     })
   }, [usesWebContainer])
 
+  const handlePreviewLoad = React.useCallback(() => {
+    postExampleSandboxBrowserCommand({
+      channel: browserChannelRef.current,
+      command: { kind: 'annotation', enabled: previewAnnotationMode },
+      frame: frameRef.current,
+      targetOrigin: getPreviewTargetOrigin(frameRef.current?.src ?? ''),
+    })
+
+    if (!usesWebContainer) {
+      syncTheme()
+      return
+    }
+
+    const token = pendingRunRef.current?.token
+    if (token) finishRunAfterQuietPeriod(token)
+  }, [
+    finishRunAfterQuietPeriod,
+    previewAnnotationMode,
+    syncTheme,
+    usesWebContainer,
+  ])
+
   React.useEffect(() => {
     function handleMessage(event: MessageEvent<unknown>) {
       if (event.source !== frameRef.current?.contentWindow) return
+      const previewOrigin = getPreviewTargetOrigin(previewUrl)
+      if (
+        usesWebContainer
+          ? previewOrigin === '*' || event.origin !== previewOrigin
+          : event.origin !== 'null'
+      ) {
+        return
+      }
+
+      if (
+        isExampleSandboxBrowserMessage(event.data, browserChannelRef.current)
+      ) {
+        const message = event.data
+        if (
+          message.kind === 'capture-result' ||
+          message.kind === 'capture-error'
+        ) {
+          const pending = pendingPreviewCaptureRef.current
+          if (!pending || pending.requestId !== message.requestId) return
+          window.clearTimeout(pending.timeout)
+          pendingPreviewCaptureRef.current = undefined
+          if (message.kind === 'capture-error') {
+            pending.reject(new Error(message.message))
+          } else {
+            pending.resolve(
+              new Blob([message.bytes], { type: message.mimeType }),
+            )
+          }
+          return
+        }
+
+        if (message.kind === 'browser-state') {
+          const trustedUrl = normalizeExamplePreviewUrl({
+            mode: usesWebContainer ? 'webcontainer' : 'client',
+            previewUrl,
+            url: message.url,
+          })
+          if (!trustedUrl) return
+          const currentHistory = previewHistoryRef.current
+          const currentUrl = currentHistory.entries[currentHistory.index] ?? '/'
+
+          setPreviewHistory((current) => {
+            const next = updateExamplePreviewHistory(current, {
+              kind: message.navigationKind,
+              url: trustedUrl,
+            })
+            previewHistoryRef.current = next
+            return next
+          })
+          setPreviewNavigationError('')
+          if (message.navigationKind === 'load' || currentUrl !== trustedUrl) {
+            setPreviewAnnotationTarget(undefined)
+          }
+          if (message.navigationKind === 'push' && revealPreviewOnPush) {
+            setShowPreview(true)
+            setMobileView('preview')
+          }
+          return
+        }
+
+        if (message.kind === 'navigation-error') {
+          setPreviewNavigationError(
+            usesWebContainer
+              ? 'Preview navigation must stay on the current origin.'
+              : 'This client preview only supports in-page links.',
+          )
+          return
+        }
+
+        if (!previewAnnotationMode) return
+        const currentHistory = previewHistoryRef.current
+        const currentUrl = currentHistory.entries[currentHistory.index] ?? '/'
+        setPreviewAnnotationTarget({
+          rect: message.rect,
+          selector: message.selector,
+          tagName: message.tag,
+          text: message.text,
+          url: currentUrl,
+        })
+        return
+      }
+
       if (!isExampleSandboxMessage(event.data, runTokenRef.current)) return
 
       const message = event.data
@@ -533,6 +997,17 @@ export function ExampleWorkbench({
         }
         nextConsoleIdRef.current += 1
         setConsoleEntries((current) => [...current, entry])
+        if (message.level === 'error') {
+          const consoleError =
+            message.values.join('\n') || 'The notebook logged an error.'
+          setStatus('error')
+          setError(consoleError)
+          finishRun(message.runToken, {
+            ok: false,
+            phase: 'runtime',
+            message: consoleError,
+          })
+        }
         return
       }
 
@@ -543,11 +1018,28 @@ export function ExampleWorkbench({
 
       setStatus(message.status)
       setError(message.message ?? '')
+      if (message.status === 'ready') {
+        finishRunAfterQuietPeriod(message.runToken)
+      } else if (message.status === 'error') {
+        finishRun(message.runToken, {
+          ok: false,
+          phase: 'runtime',
+          message: message.message || 'The notebook failed while running.',
+        })
+      }
     }
 
     window.addEventListener('message', handleMessage)
     return () => window.removeEventListener('message', handleMessage)
-  }, [syncTheme])
+  }, [
+    finishRun,
+    finishRunAfterQuietPeriod,
+    previewAnnotationMode,
+    revealPreviewOnPush,
+    previewUrl,
+    syncTheme,
+    usesWebContainer,
+  ])
 
   React.useEffect(() => {
     syncTheme()
@@ -569,7 +1061,6 @@ export function ExampleWorkbench({
     const desktop = window.matchMedia('(min-width: 1024px)')
     const syncDesktopState = () => {
       setIsDesktop(desktop.matches)
-      if (!desktop.matches) setShowPreview(true)
     }
 
     syncDesktopState()
@@ -580,17 +1071,17 @@ export function ExampleWorkbench({
   function updateActiveSource(source: string) {
     if (usesWebContainer) scheduleWebContainerWrite(activePath, source)
 
-    setWorkspace((current) => {
-      const next = createExampleWorkspace({
-        binaryFiles: current.binaryFiles,
-        entry: current.entry,
-        environment: current.environment,
-        files: { ...current.files, [activePath]: source },
-        imports: current.imports,
-      })
-      onWorkspaceChange?.(next)
-      return next
+    const current = workspaceRef.current
+    const next = createExampleWorkspace({
+      binaryFiles: current.binaryFiles,
+      entry: current.entry,
+      environment: current.environment,
+      files: { ...current.files, [activePath]: source },
+      imports: current.imports,
     })
+    workspaceRef.current = next
+    setWorkspace(next)
+    onWorkspaceChange?.(next)
   }
 
   function selectFile(path: string) {
@@ -698,6 +1189,61 @@ export function ExampleWorkbench({
     const nextShowPreview = !showPreview
     setShowPreview(nextShowPreview)
     if (!nextShowPreview) setShowConsole(false)
+  }
+
+  function sendPreviewBrowserCommand(
+    command: Parameters<typeof postExampleSandboxBrowserCommand>[0]['command'],
+  ) {
+    postExampleSandboxBrowserCommand({
+      channel: browserChannelRef.current,
+      command,
+      frame: frameRef.current,
+      targetOrigin: getPreviewTargetOrigin(previewUrl),
+    })
+  }
+
+  function reloadPreview() {
+    const frame = frameRef.current
+    const session = webContainerSessionRef.current
+    if (usesWebContainer && frame && session) {
+      void session.reloadPreview(frame).catch((cause: unknown) => {
+        setPreviewNavigationError(formatError(cause))
+      })
+      return
+    }
+    sendPreviewBrowserCommand({ kind: 'reload' })
+  }
+
+  function setPreviewAnnotationMode(active: boolean) {
+    setPreviewAnnotationModeActive(active)
+    setPreviewAnnotationTarget(undefined)
+    sendPreviewBrowserCommand({ kind: 'annotation', enabled: active })
+  }
+
+  function clearPreviewAnnotationTarget() {
+    setPreviewAnnotationTarget(undefined)
+    sendPreviewBrowserCommand({ kind: 'annotation', enabled: true })
+  }
+
+  function capturePreview() {
+    cancelPreviewCapture('A newer screenshot replaced this capture.')
+    const requestId = crypto.randomUUID()
+
+    return new Promise<Blob>((resolve, reject) => {
+      const timeout = window.setTimeout(() => {
+        if (pendingPreviewCaptureRef.current?.requestId !== requestId) return
+        pendingPreviewCaptureRef.current = undefined
+        reject(new Error('The preview did not return a screenshot.'))
+      }, 15_000)
+
+      pendingPreviewCaptureRef.current = {
+        reject,
+        requestId,
+        resolve,
+        timeout,
+      }
+      sendPreviewBrowserCommand({ kind: 'capture', requestId })
+    })
   }
 
   function startCodePanelResize(event: React.PointerEvent<HTMLDivElement>) {
@@ -862,6 +1408,10 @@ export function ExampleWorkbench({
       : webContainerAvailability.status === 'reloading'
         ? 'Preparing example'
         : statusLabel
+  const currentPreviewUrl = previewHistory.entries[previewHistory.index] ?? '/'
+  const externalPreviewUrl = usesWebContainer
+    ? getExternalPreviewUrl(currentPreviewUrl)
+    : undefined
 
   return (
     <section
@@ -874,23 +1424,73 @@ export function ExampleWorkbench({
     >
       <header className="flex min-h-10 shrink-0 items-center justify-between gap-3 border-b border-border-default px-2">
         <div className="flex min-w-0 items-center gap-2">
-          <Button
-            type="button"
-            variant="icon"
-            color="gray"
-            size="xs"
-            rounded="none"
-            className={`shrink-0 gap-1.5 border-0 bg-transparent px-1.5 py-1 text-text-muted shadow-none hover:bg-transparent hover:text-text-primary max-[899px]:bg-transparent max-[899px]:text-text-muted active:scale-100 ${showFiles ? 'text-text-primary max-[899px]:text-text-primary' : ''}`}
-            aria-pressed={showFiles}
-            aria-label={showFiles ? 'Hide files' : 'Show files'}
-            onClick={toggleFiles}
-          >
-            <FolderOpenIcon className="size-3.5" aria-hidden="true" />
-            <span className="hidden sm:inline">Files</span>
-          </Button>
-          <div className="min-w-0 truncate font-ds-mono text-xs text-text-muted">
-            {activePath}
-          </div>
+          {alternateEditor ? (
+            <ButtonGroup
+              role="group"
+              aria-label="Editor view"
+              className="shrink-0 shadow-none"
+            >
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                rounded="none"
+                className="transition-none hover:shadow-none"
+                aria-label="Show files and code"
+                aria-pressed={!alternateEditorActive}
+                onClick={() => {
+                  alternateEditor.onActiveChange(false)
+                  setMobileView('code')
+                }}
+              >
+                <CodeIcon className="size-3.5" aria-hidden="true" />
+                Code
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                rounded="none"
+                className="transition-none hover:shadow-none"
+                aria-label={`Show ${alternateEditor.label.toLowerCase()}`}
+                aria-pressed={alternateEditorActive}
+                onClick={() => {
+                  alternateEditor.onActiveChange(true)
+                  setMobileView('code')
+                }}
+              >
+                <ChatCircleDotsIcon className="size-3.5" aria-hidden="true" />
+                {alternateEditor.label}
+              </Button>
+            </ButtonGroup>
+          ) : null}
+          {!alternateEditorActive ? (
+            <div
+              className={`${mobileView === 'code' ? 'flex' : 'hidden'} min-w-0 items-center gap-2 lg:flex`}
+            >
+              <Tooltip
+                content={showFiles ? 'Hide files' : 'Show files'}
+                side="bottom"
+              >
+                <Button
+                  type="button"
+                  variant="icon"
+                  color="gray"
+                  size="icon-sm"
+                  rounded="md"
+                  className={`shrink-0 transition-none active:scale-100 ${showFiles ? 'text-text-primary' : ''}`}
+                  aria-pressed={showFiles}
+                  aria-label={showFiles ? 'Hide files' : 'Show files'}
+                  onClick={toggleFiles}
+                >
+                  <FolderOpenIcon className="size-3.5" aria-hidden="true" />
+                </Button>
+              </Tooltip>
+              <div className="min-w-0 truncate font-ds-mono text-xs text-text-muted">
+                {activePath}
+              </div>
+            </div>
+          ) : null}
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <span
@@ -976,7 +1576,11 @@ export function ExampleWorkbench({
       </header>
 
       <div className="shrink-0 border-b border-border-default p-1 lg:hidden">
-        <ButtonGroup className="flex w-full shadow-none">
+        <ButtonGroup
+          role="group"
+          aria-label="Workbench view"
+          className="flex w-full shadow-none"
+        >
           <Button
             type="button"
             variant="ghost"
@@ -984,7 +1588,10 @@ export function ExampleWorkbench({
             rounded="none"
             className="flex-1 justify-center"
             aria-pressed={mobileView === 'preview'}
-            onClick={() => setMobileView('preview')}
+            onClick={() => {
+              setShowPreview(true)
+              setMobileView('preview')
+            }}
           >
             Preview
           </Button>
@@ -997,7 +1604,7 @@ export function ExampleWorkbench({
             aria-pressed={mobileView === 'code'}
             onClick={() => setMobileView('code')}
           >
-            Code
+            {alternateEditor ? 'Editor' : 'Code'}
           </Button>
           {usesWebContainer ? (
             <Button
@@ -1032,50 +1639,63 @@ export function ExampleWorkbench({
           }}
           className={`${mobileView === 'code' ? 'flex' : 'hidden'} relative min-h-0 min-w-0 overflow-hidden lg:flex lg:basis-0 ${isCodePanelResizing ? '' : 'transition-[flex-grow] duration-[180ms] [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none'}`}
         >
-          <FileExplorer
-            currentPath={activePath}
-            files={fileTree}
-            isSidebarOpen={showFiles}
-            libraryColor={libraryColor}
-            onSidebarClose={() => setShowFiles(false)}
-            prefetchFileContent={() => {}}
-            setCurrentPath={selectFile}
-          />
-          <div className="flex min-w-0 flex-1 flex-col bg-[var(--th-background)]">
-            <div
-              aria-hidden={showFiles}
-              inert={showFiles}
-              className={`${showFiles ? 'grid-rows-[0fr] opacity-0' : 'grid-rows-[1fr] opacity-100'} grid shrink-0 transition-[grid-template-rows,opacity] duration-[180ms] [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none`}
-            >
-              <div className="min-h-0 overflow-hidden">
-                <div className="fade-x flex h-9 overflow-x-auto border-b border-border-default bg-background-subtle">
-                  {filePaths.map((path) => (
-                    <button
-                      key={path}
-                      type="button"
-                      title={path}
-                      onClick={() => setActivePath(path)}
-                      className={`shrink-0 border-r border-border-default px-2 font-ds-mono text-[11px] ${
-                        activePath === path
-                          ? 'bg-background-default text-text-primary'
-                          : 'text-text-muted hover:bg-background-elevated hover:text-text-secondary'
-                      }`}
-                    >
-                      {path.split('/').pop()}
-                    </button>
-                  ))}
+          <div
+            aria-hidden={alternateEditorActive}
+            inert={alternateEditorActive}
+            className={`${alternateEditorActive ? 'pointer-events-none invisible' : 'visible'} absolute inset-0 flex min-h-0 min-w-0 overflow-hidden`}
+          >
+            <FileExplorer
+              currentPath={activePath}
+              files={fileTree}
+              isSidebarOpen={showFiles}
+              libraryColor={libraryColor}
+              onSidebarClose={() => setShowFiles(false)}
+              prefetchFileContent={() => {}}
+              setCurrentPath={selectFile}
+            />
+            <div className="flex min-w-0 flex-1 flex-col bg-[var(--th-background)]">
+              <div
+                aria-hidden={showFiles}
+                inert={showFiles}
+                className={`${showFiles ? 'grid-rows-[0fr] opacity-0' : 'grid-rows-[1fr] opacity-100'} grid shrink-0 transition-[grid-template-rows,opacity] duration-[180ms] [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none`}
+              >
+                <div className="min-h-0 overflow-hidden">
+                  <div className="fade-x flex h-9 overflow-x-auto border-b border-border-default bg-background-subtle">
+                    {filePaths.map((path) => (
+                      <button
+                        key={path}
+                        type="button"
+                        title={path}
+                        onClick={() => setActivePath(path)}
+                        className={`shrink-0 border-r border-border-default px-2 font-ds-mono text-[11px] ${
+                          activePath === path
+                            ? 'bg-background-default text-text-primary'
+                            : 'text-text-muted hover:bg-background-elevated hover:text-text-secondary'
+                        }`}
+                      >
+                        {path.split('/').pop()}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
+              <div className="min-h-0 flex-1">
+                <CodeMirrorEditor
+                  path={activePath}
+                  theme={resolvedTheme}
+                  value={activeSource}
+                  onChange={updateActiveSource}
+                  onRun={() => void run()}
+                />
+              </div>
             </div>
-            <div className="min-h-0 flex-1">
-              <CodeMirrorEditor
-                path={activePath}
-                theme={resolvedTheme}
-                value={activeSource}
-                onChange={updateActiveSource}
-                onRun={() => void run()}
-              />
-            </div>
+          </div>
+          <div
+            aria-hidden={!alternateEditorActive}
+            inert={!alternateEditorActive}
+            className={`${alternateEditorActive ? 'visible' : 'pointer-events-none invisible'} absolute inset-0 flex min-h-0 min-w-0`}
+          >
+            {alternateEditor?.content}
           </div>
         </section>
 
@@ -1116,65 +1736,90 @@ export function ExampleWorkbench({
           <div
             className={`${isMobileOutputVisible ? 'hidden lg:block' : 'block'} row-start-1 min-h-0 overflow-hidden bg-background-default`}
           >
-            {previewUrl ? (
-              <iframe
-                ref={frameRef}
-                title={`${definition.title} output`}
-                allow="cross-origin-isolated"
-                sandbox="allow-forms allow-same-origin allow-scripts"
-                src={previewUrl}
-                className="block size-full border-0 bg-background-default"
-              />
-            ) : sourceDocument ? (
-              <iframe
-                ref={frameRef}
-                title={`${definition.title} output`}
-                sandbox="allow-scripts"
-                srcDoc={sourceDocument}
-                onLoad={syncTheme}
-                className="block size-full border-0 bg-background-default"
-              />
-            ) : (
-              <div className="flex size-full items-center justify-center p-6">
-                {isWebContainerUnsupported ? (
-                  <div className="max-w-md text-center">
-                    <p className="text-sm text-text-muted">
-                      {webContainerUnsupportedReason}
-                    </p>
-                    {fallbackAction ? (
-                      <a
-                        href={fallbackAction.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="mt-3 inline-flex text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
-                      >
-                        {fallbackAction.label}
-                      </a>
-                    ) : null}
-                  </div>
-                ) : isWebContainerBusy || status === 'compiling' ? (
-                  <div
-                    className="flex items-center gap-2 text-sm text-text-muted"
-                    role="status"
-                  >
-                    <ArrowClockwiseIcon
-                      className="size-4 animate-spin"
-                      aria-hidden="true"
-                    />
-                    {visibleStatusLabel}
-                  </div>
-                ) : (
-                  <Button
-                    type="button"
-                    variant="primary"
-                    onClick={() => void run()}
-                  >
-                    <PlayIcon className="size-4" aria-hidden="true" />
-                    {status === 'error' ? 'Try again' : runLabel}
-                  </Button>
-                )}
-              </div>
-            )}
+            <SandboxBrowser
+              annotationAvailable={Boolean(previewUrl || sourceDocument)}
+              annotationMode={previewAnnotationMode}
+              annotationTarget={previewAnnotationTarget}
+              canGoBack={canGoBackInExamplePreview(previewHistory)}
+              canGoForward={canGoForwardInExamplePreview(previewHistory)}
+              captureScreenshot={
+                previewUrl || sourceDocument ? capturePreview : undefined
+              }
+              currentUrl={currentPreviewUrl}
+              error={previewNavigationError}
+              history={[...new Set(previewHistory.entries)]}
+              navigationAvailable={Boolean(previewUrl || sourceDocument)}
+              onAnnotationModeChange={setPreviewAnnotationMode}
+              onBack={() => sendPreviewBrowserCommand({ kind: 'back' })}
+              onClearAnnotationTarget={clearPreviewAnnotationTarget}
+              onForward={() => sendPreviewBrowserCommand({ kind: 'forward' })}
+              onNavigate={(url) =>
+                sendPreviewBrowserCommand({ kind: 'navigate', url })
+              }
+              onReload={reloadPreview}
+              openExternalUrl={externalPreviewUrl}
+            >
+              {previewUrl ? (
+                <iframe
+                  ref={frameRef}
+                  title={`${definition.title} output`}
+                  allow="cross-origin-isolated"
+                  sandbox="allow-forms allow-same-origin allow-scripts"
+                  src={previewUrl}
+                  onLoad={handlePreviewLoad}
+                  className="block size-full border-0 bg-background-default"
+                />
+              ) : sourceDocument ? (
+                <iframe
+                  ref={frameRef}
+                  title={`${definition.title} output`}
+                  sandbox="allow-scripts"
+                  srcDoc={sourceDocument}
+                  onLoad={handlePreviewLoad}
+                  className="block size-full border-0 bg-background-default"
+                />
+              ) : (
+                <div className="flex size-full items-center justify-center p-6">
+                  {isWebContainerUnsupported ? (
+                    <div className="max-w-md text-center">
+                      <p className="text-sm text-text-muted">
+                        {webContainerUnsupportedReason}
+                      </p>
+                      {fallbackAction ? (
+                        <a
+                          href={fallbackAction.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-3 inline-flex text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+                        >
+                          {fallbackAction.label}
+                        </a>
+                      ) : null}
+                    </div>
+                  ) : isWebContainerBusy || status === 'compiling' ? (
+                    <div
+                      className="flex items-center gap-2 text-sm text-text-muted"
+                      role="status"
+                    >
+                      <ArrowClockwiseIcon
+                        className="size-4 animate-spin motion-reduce:animate-none"
+                        aria-hidden="true"
+                      />
+                      {visibleStatusLabel}
+                    </div>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="primary"
+                      onClick={() => void run()}
+                    >
+                      <PlayIcon className="size-4" aria-hidden="true" />
+                      {status === 'error' ? 'Try again' : runLabel}
+                    </Button>
+                  )}
+                </div>
+              )}
+            </SandboxBrowser>
           </div>
           {usesWebContainer ? (
             outputActivated ? (
@@ -1421,6 +2066,36 @@ function readTheme() {
 
 function formatError(error: unknown) {
   return error instanceof Error ? error.stack || error.message : String(error)
+}
+
+function getPreviewTargetOrigin(url: string) {
+  try {
+    return new URL(url).origin
+  } catch {
+    return '*'
+  }
+}
+
+function getExternalPreviewUrl(url: string) {
+  try {
+    const parsed = new URL(url)
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:'
+      ? parsed.href
+      : undefined
+  } catch {
+    return undefined
+  }
+}
+
+function preservePreviewLocation(baseUrl: string, currentUrl: string) {
+  try {
+    const base = new URL(baseUrl)
+    const current = new URL(currentUrl)
+    return new URL(`${current.pathname}${current.search}${current.hash}`, base)
+      .href
+  } catch {
+    return baseUrl
+  }
 }
 
 function getStatusLabel(status: WorkbenchStatus) {

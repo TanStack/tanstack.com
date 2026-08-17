@@ -2423,3 +2423,7 @@ html:not(.dark) .library-landing-graphic [style*='drop-shadow'] {
 button[aria-label='Open TanStack Devtools'] {
   display: none !important;
 }
+
+[data-notebook-shell]:has([data-notebook-ready]) > [data-notebook-initial] {
+  display: none;
+}

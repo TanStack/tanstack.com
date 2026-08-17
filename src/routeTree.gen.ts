@@ -68,6 +68,7 @@ import { Route as OauthAuthorizeRouteImport } from './routes/oauth/authorize'
 import { Route as NotebookNewRouteImport } from './routes/notebook_.new'
 import { Route as NotebookLlmsDottxtRouteImport } from './routes/notebook_.llms[.]txt'
 import { Route as NotebookEsbuildRouteImport } from './routes/notebook_.esbuild'
+import { Route as NotebookAiRouteImport } from './routes/notebook_.ai'
 import { Route as NotebookIdRouteImport } from './routes/notebook_.$id'
 import { Route as LibrariesFrameworkRouteImport } from './routes/libraries_.$framework'
 import { Route as DsTypographyRouteImport } from './routes/ds.typography'
@@ -133,6 +134,7 @@ import { Route as ApiReadmeChar123Char125DotpngRouteImport } from './routes/api/
 import { Route as ApiOgChar123Char125DotpngRouteImport } from './routes/api/og/{$}[.]png'
 import { Route as ApiNotebookRecordsRouteImport } from './routes/api/notebook/records'
 import { Route as ApiNotebookProjectsRouteImport } from './routes/api/notebook/projects'
+import { Route as ApiNotebookAssistRouteImport } from './routes/api/notebook/assist'
 import { Route as ApiMcpSplatRouteImport } from './routes/api/mcp/$'
 import { Route as ApiGithubWebhookRouteImport } from './routes/api/github/webhook'
 import { Route as ApiExampleDeployRouteImport } from './routes/api/example/deploy'
@@ -503,6 +505,11 @@ const NotebookEsbuildRoute = NotebookEsbuildRouteImport.update({
   path: '/notebook/esbuild',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NotebookAiRoute = NotebookAiRouteImport.update({
+  id: '/notebook_/ai',
+  path: '/notebook/ai',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NotebookIdRoute = NotebookIdRouteImport.update({
   id: '/notebook_/$id',
   path: '/notebook/$id',
@@ -833,6 +840,11 @@ const ApiNotebookRecordsRoute = ApiNotebookRecordsRouteImport.update({
 const ApiNotebookProjectsRoute = ApiNotebookProjectsRouteImport.update({
   id: '/api/notebook/projects',
   path: '/api/notebook/projects',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiNotebookAssistRoute = ApiNotebookAssistRouteImport.update({
+  id: '/api/notebook/assist',
+  path: '/api/notebook/assist',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiMcpSplatRoute = ApiMcpSplatRouteImport.update({
@@ -1337,6 +1349,7 @@ export interface FileRoutesByFullPath {
   '/ds/typography': typeof DsTypographyRoute
   '/libraries/$framework': typeof LibrariesFrameworkRoute
   '/notebook/$id': typeof NotebookIdRoute
+  '/notebook/ai': typeof NotebookAiRoute
   '/notebook/esbuild': typeof NotebookEsbuildRoute
   '/notebook/llms.txt': typeof NotebookLlmsDottxtRoute
   '/notebook/new': typeof NotebookNewRoute
@@ -1384,6 +1397,7 @@ export interface FileRoutesByFullPath {
   '/api/example/deploy': typeof ApiExampleDeployRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
+  '/api/notebook/assist': typeof ApiNotebookAssistRoute
   '/api/notebook/projects': typeof ApiNotebookProjectsRouteWithChildren
   '/api/notebook/records': typeof ApiNotebookRecordsRouteWithChildren
   '/api/og/{$}.png': typeof ApiOgChar123Char125DotpngRoute
@@ -1529,6 +1543,7 @@ export interface FileRoutesByTo {
   '/ds/typography': typeof DsTypographyRoute
   '/libraries/$framework': typeof LibrariesFrameworkRoute
   '/notebook/$id': typeof NotebookIdRoute
+  '/notebook/ai': typeof NotebookAiRoute
   '/notebook/esbuild': typeof NotebookEsbuildRoute
   '/notebook/llms.txt': typeof NotebookLlmsDottxtRoute
   '/notebook/new': typeof NotebookNewRoute
@@ -1574,6 +1589,7 @@ export interface FileRoutesByTo {
   '/api/example/deploy': typeof ApiExampleDeployRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
+  '/api/notebook/assist': typeof ApiNotebookAssistRoute
   '/api/notebook/projects': typeof ApiNotebookProjectsRouteWithChildren
   '/api/notebook/records': typeof ApiNotebookRecordsRouteWithChildren
   '/api/og/{$}.png': typeof ApiOgChar123Char125DotpngRoute
@@ -1727,6 +1743,7 @@ export interface FileRoutesById {
   '/ds/typography': typeof DsTypographyRoute
   '/libraries_/$framework': typeof LibrariesFrameworkRoute
   '/notebook_/$id': typeof NotebookIdRoute
+  '/notebook_/ai': typeof NotebookAiRoute
   '/notebook_/esbuild': typeof NotebookEsbuildRoute
   '/notebook_/llms.txt': typeof NotebookLlmsDottxtRoute
   '/notebook_/new': typeof NotebookNewRoute
@@ -1774,6 +1791,7 @@ export interface FileRoutesById {
   '/api/example/deploy': typeof ApiExampleDeployRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
+  '/api/notebook/assist': typeof ApiNotebookAssistRoute
   '/api/notebook/projects': typeof ApiNotebookProjectsRouteWithChildren
   '/api/notebook/records': typeof ApiNotebookRecordsRouteWithChildren
   '/api/og/{$}.png': typeof ApiOgChar123Char125DotpngRoute
@@ -1929,6 +1947,7 @@ export interface FileRouteTypes {
     | '/ds/typography'
     | '/libraries/$framework'
     | '/notebook/$id'
+    | '/notebook/ai'
     | '/notebook/esbuild'
     | '/notebook/llms.txt'
     | '/notebook/new'
@@ -1976,6 +1995,7 @@ export interface FileRouteTypes {
     | '/api/example/deploy'
     | '/api/github/webhook'
     | '/api/mcp/$'
+    | '/api/notebook/assist'
     | '/api/notebook/projects'
     | '/api/notebook/records'
     | '/api/og/{$}.png'
@@ -2121,6 +2141,7 @@ export interface FileRouteTypes {
     | '/ds/typography'
     | '/libraries/$framework'
     | '/notebook/$id'
+    | '/notebook/ai'
     | '/notebook/esbuild'
     | '/notebook/llms.txt'
     | '/notebook/new'
@@ -2166,6 +2187,7 @@ export interface FileRouteTypes {
     | '/api/example/deploy'
     | '/api/github/webhook'
     | '/api/mcp/$'
+    | '/api/notebook/assist'
     | '/api/notebook/projects'
     | '/api/notebook/records'
     | '/api/og/{$}.png'
@@ -2318,6 +2340,7 @@ export interface FileRouteTypes {
     | '/ds/typography'
     | '/libraries_/$framework'
     | '/notebook_/$id'
+    | '/notebook_/ai'
     | '/notebook_/esbuild'
     | '/notebook_/llms.txt'
     | '/notebook_/new'
@@ -2365,6 +2388,7 @@ export interface FileRouteTypes {
     | '/api/example/deploy'
     | '/api/github/webhook'
     | '/api/mcp/$'
+    | '/api/notebook/assist'
     | '/api/notebook/projects'
     | '/api/notebook/records'
     | '/api/og/{$}.png'
@@ -2485,6 +2509,7 @@ export interface RootRouteChildren {
   AuthSignoutRoute: typeof AuthSignoutRoute
   LibrariesFrameworkRoute: typeof LibrariesFrameworkRoute
   NotebookIdRoute: typeof NotebookIdRoute
+  NotebookAiRoute: typeof NotebookAiRoute
   NotebookEsbuildRoute: typeof NotebookEsbuildRoute
   NotebookLlmsDottxtRoute: typeof NotebookLlmsDottxtRoute
   NotebookNewRoute: typeof NotebookNewRoute
@@ -2513,6 +2538,7 @@ export interface RootRouteChildren {
   ApiExampleDeployRoute: typeof ApiExampleDeployRoute
   ApiGithubWebhookRoute: typeof ApiGithubWebhookRoute
   ApiMcpSplatRoute: typeof ApiMcpSplatRoute
+  ApiNotebookAssistRoute: typeof ApiNotebookAssistRoute
   ApiNotebookProjectsRoute: typeof ApiNotebookProjectsRouteWithChildren
   ApiNotebookRecordsRoute: typeof ApiNotebookRecordsRouteWithChildren
   ApiOgChar123Char125DotpngRoute: typeof ApiOgChar123Char125DotpngRoute
@@ -2948,6 +2974,13 @@ declare module '@tanstack/react-router' {
       path: '/notebook/esbuild'
       fullPath: '/notebook/esbuild'
       preLoaderRoute: typeof NotebookEsbuildRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notebook_/ai': {
+      id: '/notebook_/ai'
+      path: '/notebook/ai'
+      fullPath: '/notebook/ai'
+      preLoaderRoute: typeof NotebookAiRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/notebook_/$id': {
@@ -3403,6 +3436,13 @@ declare module '@tanstack/react-router' {
       path: '/api/notebook/projects'
       fullPath: '/api/notebook/projects'
       preLoaderRoute: typeof ApiNotebookProjectsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/notebook/assist': {
+      id: '/api/notebook/assist'
+      path: '/api/notebook/assist'
+      fullPath: '/api/notebook/assist'
+      preLoaderRoute: typeof ApiNotebookAssistRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/mcp/$': {
@@ -4380,6 +4420,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthSignoutRoute: AuthSignoutRoute,
   LibrariesFrameworkRoute: LibrariesFrameworkRoute,
   NotebookIdRoute: NotebookIdRoute,
+  NotebookAiRoute: NotebookAiRoute,
   NotebookEsbuildRoute: NotebookEsbuildRoute,
   NotebookLlmsDottxtRoute: NotebookLlmsDottxtRoute,
   NotebookNewRoute: NotebookNewRoute,
@@ -4408,6 +4449,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiExampleDeployRoute: ApiExampleDeployRoute,
   ApiGithubWebhookRoute: ApiGithubWebhookRoute,
   ApiMcpSplatRoute: ApiMcpSplatRoute,
+  ApiNotebookAssistRoute: ApiNotebookAssistRoute,
   ApiNotebookProjectsRoute: ApiNotebookProjectsRouteWithChildren,
   ApiNotebookRecordsRoute: ApiNotebookRecordsRouteWithChildren,
   ApiOgChar123Char125DotpngRoute: ApiOgChar123Char125DotpngRoute,

@@ -1,6 +1,10 @@
 import * as React from 'react'
 import { ClientOnly, createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
+import {
+  NotebookEditorSkeleton,
+  NotebookRouteReady,
+} from '~/components/notebook/NotebookLoading'
 import { seo } from '~/utils/seo'
 import { webContainerHeaders } from '~/utils/stackblitz-embed'
 
@@ -12,6 +16,7 @@ const LazyNotebookDraftPage = React.lazy(() =>
 
 export const Route = createFileRoute('/notebook_/new')({
   ssr: false,
+  pendingComponent: NotebookEditorSkeleton,
   validateSearch: v.object({
     template: v.optional(v.string()),
   }),
@@ -30,10 +35,12 @@ function NotebookDraftRoute() {
   const { template } = Route.useSearch()
 
   return (
-    <ClientOnly>
-      <React.Suspense fallback={null}>
-        <LazyNotebookDraftPage template={template} />
-      </React.Suspense>
-    </ClientOnly>
+    <NotebookRouteReady>
+      <ClientOnly fallback={<NotebookEditorSkeleton />}>
+        <React.Suspense fallback={<NotebookEditorSkeleton />}>
+          <LazyNotebookDraftPage template={template} />
+        </React.Suspense>
+      </ClientOnly>
+    </NotebookRouteReady>
   )
 }

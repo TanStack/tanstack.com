@@ -240,6 +240,7 @@ const NAV_GROUPS = [
             label: 'Notebooks',
             to: '/notebook',
             description: 'Create and share browser sandboxes.',
+            badge: 'Alpha',
             icon: NotebookIcon,
           },
           {

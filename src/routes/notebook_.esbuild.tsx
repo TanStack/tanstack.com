@@ -1,5 +1,9 @@
 import * as React from 'react'
 import { ClientOnly, createFileRoute } from '@tanstack/react-router'
+import {
+  NotebookEmbeddedSkeleton,
+  NotebookRouteReady,
+} from '~/components/notebook/NotebookLoading'
 
 const LazyEsbuildNotebookSpike = React.lazy(() =>
   import('~/components/charts/EsbuildNotebookSpike.client').then((module) => ({
@@ -9,15 +13,18 @@ const LazyEsbuildNotebookSpike = React.lazy(() =>
 
 export const Route = createFileRoute('/notebook_/esbuild')({
   ssr: false,
+  pendingComponent: NotebookEmbeddedSkeleton,
   component: EsbuildNotebookSpikeRoute,
 })
 
 function EsbuildNotebookSpikeRoute() {
   return (
-    <ClientOnly>
-      <React.Suspense fallback={null}>
-        <LazyEsbuildNotebookSpike />
-      </React.Suspense>
-    </ClientOnly>
+    <NotebookRouteReady>
+      <ClientOnly fallback={<NotebookEmbeddedSkeleton />}>
+        <React.Suspense fallback={<NotebookEmbeddedSkeleton />}>
+          <LazyEsbuildNotebookSpike />
+        </React.Suspense>
+      </ClientOnly>
+    </NotebookRouteReady>
   )
 }

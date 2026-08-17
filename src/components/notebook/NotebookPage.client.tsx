@@ -10,7 +10,15 @@ import {
 import { Link, useBlocker, useNavigate } from '@tanstack/react-router'
 import { ButtonGroup } from '~/components/ButtonGroup'
 import { Button } from '~/components/ds/ui'
-import { ExampleWorkbench } from '~/components/examples/ExampleWorkbench.client'
+import {
+  ExampleWorkbench,
+  type ExampleWorkbenchHandle,
+  type ExampleWorkbenchRunResult,
+  type ExampleWorkbenchRunRequest,
+} from '~/components/examples/ExampleWorkbench.client'
+import { createEmptyExampleEnvironmentSnapshot } from '~/utils/example-run-observation'
+import { NotebookAssistant } from '~/components/notebook/NotebookAssistant.client'
+import { NotebookEditorSkeleton } from '~/components/notebook/NotebookLoading'
 import { useLoginModal } from '~/contexts/LoginModalContext'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { copyTextToClipboard } from '~/utils/browser-effects'
@@ -20,6 +28,8 @@ import {
   type SharedExampleProject,
 } from '~/utils/example-project'
 import type { ExampleWorkspace } from '~/utils/example-workspace'
+import type { NotebookAiExecution } from '~/utils/notebook-ai'
+import { shouldAutoRunNotebook } from '~/utils/notebook-auto-run.client'
 import {
   createNotebookRecord,
   getNotebookRecord,
@@ -48,6 +58,11 @@ export function NotebookPage({ id }: { id: string }) {
   const [hasLocalChanges, setHasLocalChanges] = React.useState(false)
   const [forking, setForking] = React.useState(false)
   const [copied, setCopied] = React.useState(false)
+  const [activeView, setActiveView] = React.useState<'chat' | 'code'>('code')
+  const [aiTransactionActive, setAiTransactionActive] = React.useState(false)
+  const [runRequest, setRunRequest] =
+    React.useState<ExampleWorkbenchRunRequest>()
+  const workbenchRef = React.useRef<ExampleWorkbenchHandle>(null)
   const workspaceRef = React.useRef<ExampleWorkspace | undefined>(undefined)
   const recordRef = React.useRef<NotebookRecord | undefined>(undefined)
   const projectRef = React.useRef<SharedExampleProject | undefined>(undefined)
@@ -57,75 +72,89 @@ export function NotebookPage({ id }: { id: string }) {
   const editRevisionRef = React.useRef(0)
   const savedRevisionRef = React.useRef(0)
   const saveQueueRef = React.useRef<Promise<void>>(Promise.resolve())
+  const aiTransactionActiveRef = React.useRef(false)
   const copiedTimeoutRef = React.useRef<number | undefined>(undefined)
   const isOwner = Boolean(user && record && user.userId === record.ownerId)
 
   recordRef.current = record
-  projectRef.current = project
   titleRef.current = title
   descriptionRef.current = description
   isOwnerRef.current = isOwner
 
-  const flushPendingSave = React.useCallback(() => {
-    const queuedSave = saveQueueRef.current
-      .catch(() => {})
-      .then(async () => {
-        while (
-          isOwnerRef.current &&
-          editRevisionRef.current > savedRevisionRef.current
-        ) {
-          const currentRecord = recordRef.current
-          const currentProject = projectRef.current
-          const workspace = workspaceRef.current
-          if (!currentRecord || !currentProject || !workspace) return
+  const flushPendingSave = React.useCallback(
+    (options?: { allowAiTransaction?: boolean }) => {
+      if (
+        aiTransactionActiveRef.current &&
+        options?.allowAiTransaction !== true
+      ) {
+        return Promise.reject(
+          new Error('The notebook is still validating an assistant edit.'),
+        )
+      }
 
-          const revision = editRevisionRef.current
-          setSaveState('saving')
-          setSaveError('')
-          setSaveConflict(false)
+      const queuedSave = saveQueueRef.current
+        .catch(() => {})
+        .then(async () => {
+          while (
+            isOwnerRef.current &&
+            editRevisionRef.current > savedRevisionRef.current
+          ) {
+            const currentRecord = recordRef.current
+            const currentProject = projectRef.current
+            const workspace = workspaceRef.current
+            if (!currentRecord || !currentProject || !workspace) return
 
-          const nextProject = createSharedExampleProject({
-            title: titleRef.current.trim() || 'Untitled notebook',
-            description: descriptionRef.current.trim(),
-            initialFile: currentProject.initialFile,
-            hiddenFiles: currentProject.hiddenFiles,
-            runtime: currentProject.runtime,
-            workspace,
-          })
+            const revision = editRevisionRef.current
+            setSaveState('saving')
+            setSaveError('')
+            setSaveConflict(false)
 
-          try {
-            const nextRecord = await updateNotebookRecord(
-              currentRecord,
-              nextProject,
-            )
-            recordRef.current = nextRecord
-            savedRevisionRef.current = revision
-            setRecord(nextRecord)
-            setSaveState(
-              editRevisionRef.current === revision ? 'saved' : 'saving',
-            )
-          } catch (cause) {
-            const conflict =
-              cause instanceof NotebookRequestError && cause.status === 409
-            setSaveState('error')
-            setSaveConflict(conflict)
-            setSaveError(
-              conflict
-                ? 'This notebook changed in another tab. Save this version as a fork.'
-                : formatError(cause),
-            )
-            throw cause
+            const nextProject = createSharedExampleProject({
+              title: titleRef.current.trim() || 'Untitled notebook',
+              description: descriptionRef.current.trim(),
+              initialFile: currentProject.initialFile,
+              hiddenFiles: currentProject.hiddenFiles,
+              runtime: currentProject.runtime,
+              workspace,
+            })
+
+            try {
+              const nextRecord = await updateNotebookRecord(
+                currentRecord,
+                nextProject,
+              )
+              recordRef.current = nextRecord
+              savedRevisionRef.current = revision
+              setRecord(nextRecord)
+              setSaveState(
+                editRevisionRef.current === revision ? 'saved' : 'saving',
+              )
+            } catch (cause) {
+              const conflict =
+                cause instanceof NotebookRequestError && cause.status === 409
+              setSaveState('error')
+              setSaveConflict(conflict)
+              setSaveError(
+                conflict
+                  ? 'This notebook changed in another tab. Save this version as a fork.'
+                  : formatError(cause),
+              )
+              throw cause
+            }
           }
-        }
-      })
+        })
 
-    saveQueueRef.current = queuedSave
-    return queuedSave
-  }, [])
+      saveQueueRef.current = queuedSave
+      return queuedSave
+    },
+    [],
+  )
 
   const hasPendingSave = React.useCallback(
     () =>
-      isOwnerRef.current && editRevisionRef.current > savedRevisionRef.current,
+      aiTransactionActiveRef.current ||
+      (isOwnerRef.current &&
+        editRevisionRef.current > savedRevisionRef.current),
     [],
   )
 
@@ -133,6 +162,7 @@ export function NotebookPage({ id }: { id: string }) {
     disabled: !isOwner,
     enableBeforeUnload: hasPendingSave,
     shouldBlockFn: async () => {
+      if (aiTransactionActiveRef.current) return true
       try {
         await flushPendingSave()
         return false
@@ -191,7 +221,11 @@ export function NotebookPage({ id }: { id: string }) {
   )
 
   React.useEffect(() => {
-    if (!isOwner || editRevision <= savedRevisionRef.current) {
+    if (
+      aiTransactionActive ||
+      !isOwner ||
+      editRevision <= savedRevisionRef.current
+    ) {
       return
     }
 
@@ -200,7 +234,7 @@ export function NotebookPage({ id }: { id: string }) {
     }, 1_500)
 
     return () => window.clearTimeout(timeout)
-  }, [editRevision, flushPendingSave, isOwner])
+  }, [aiTransactionActive, editRevision, flushPendingSave, isOwner])
 
   const definition = React.useMemo(
     () => (project ? sharedProjectToExampleDefinition(id, project) : undefined),
@@ -218,6 +252,128 @@ export function NotebookPage({ id }: { id: string }) {
     workspaceRef.current = workspace
     setHasLocalChanges(true)
     if (isOwner) markEdited()
+  }
+
+  function applyAiExecution(
+    execution: NotebookAiExecution,
+    signal: AbortSignal,
+  ) {
+    const currentProject = projectRef.current
+    const currentWorkspace = workspaceRef.current
+    if (!currentProject || !currentWorkspace || signal.aborted) {
+      return Promise.resolve({
+        ok: false as const,
+        phase: 'superseded' as const,
+        message: 'The notebook editor is no longer available.',
+        snapshot: createEmptyExampleEnvironmentSnapshot({
+          runId: crypto.randomUUID(),
+          runtime:
+            execution.runtime?.type === 'webcontainer'
+              ? 'webcontainer'
+              : 'client',
+        }),
+      })
+    }
+
+    const nextProject = createSharedExampleProject({
+      title: titleRef.current.trim() || 'Untitled notebook',
+      description: descriptionRef.current.trim(),
+      initialFile: currentProject.initialFile,
+      hiddenFiles: getAiHiddenFiles(
+        currentProject.hiddenFiles,
+        execution.workspace,
+      ),
+      runtime: execution.runtime ?? undefined,
+      workspace: execution.workspace,
+    })
+    projectRef.current = nextProject
+    workspaceRef.current = execution.workspace
+    const resetWorkbench = requiresWorkbenchReset(
+      currentProject.runtime ?? null,
+      currentWorkspace,
+      execution,
+    )
+    if (!resetWorkbench && workbenchRef.current) {
+      return workbenchRef.current.replaceWorkspaceAndRun(
+        execution.workspace,
+        signal,
+        { notify: false },
+      )
+    }
+
+    setProject(nextProject)
+
+    return new Promise<ExampleWorkbenchRunResult>((resolve) => {
+      const id = crypto.randomUUID()
+      setRunRequest({
+        id,
+        signal,
+        onComplete(result) {
+          setRunRequest((current) => (current?.id === id ? undefined : current))
+          resolve(result)
+        },
+      })
+    })
+  }
+
+  async function prepareAiExecution() {
+    await flushPendingSave()
+    const currentProject = projectRef.current
+    const currentWorkspace = workspaceRef.current
+    if (!currentProject || !currentWorkspace) {
+      throw new Error('The notebook editor is no longer available.')
+    }
+    aiTransactionActiveRef.current = true
+    setAiTransactionActive(true)
+    return {
+      runtime: currentProject.runtime ?? null,
+      workspace: currentWorkspace,
+    }
+  }
+
+  async function commitAiExecution(execution: NotebookAiExecution) {
+    const currentProject = projectRef.current
+    if (!currentProject) {
+      throw new Error('The notebook editor is no longer available.')
+    }
+    projectRef.current = createSharedExampleProject({
+      title: titleRef.current.trim() || 'Untitled notebook',
+      description: descriptionRef.current.trim(),
+      initialFile: currentProject.initialFile,
+      hiddenFiles: getAiHiddenFiles(
+        currentProject.hiddenFiles,
+        execution.workspace,
+      ),
+      runtime: execution.runtime ?? undefined,
+      workspace: execution.workspace,
+    })
+    workspaceRef.current = execution.workspace
+    setHasLocalChanges(true)
+    if (!isOwner) return
+    markEdited()
+    await flushPendingSave({ allowAiTransaction: true })
+  }
+
+  function finishAiExecution() {
+    aiTransactionActiveRef.current = false
+    setAiTransactionActive(false)
+  }
+
+  async function restoreAiExecution(
+    execution: NotebookAiExecution,
+    reason: 'manual' | 'rollback',
+  ) {
+    const currentProject = projectRef.current
+    const currentWorkspace = workspaceRef.current
+    if (!currentProject || !currentWorkspace) {
+      throw new Error('The notebook editor is no longer available.')
+    }
+
+    if (reason === 'manual') {
+      setHasLocalChanges(true)
+      if (isOwner) markEdited()
+    }
+    await applyAiExecution(execution, new AbortController().signal)
   }
 
   function updateTitle(value: string) {
@@ -313,17 +469,7 @@ export function NotebookPage({ id }: { id: string }) {
   }
 
   if (!record || !project || !definition || userQuery.isPending) {
-    return (
-      <main
-        className="grid min-h-[calc(100dvh-var(--navbar-height))] place-items-center bg-background-default text-text-muted"
-        aria-label="Loading notebook"
-      >
-        <SpinnerGapIcon
-          className="size-5 animate-spin motion-reduce:animate-none"
-          aria-hidden="true"
-        />
-      </main>
-    )
+    return <NotebookEditorSkeleton />
   }
 
   const authorName = record.author.name || 'TanStack user'
@@ -332,7 +478,7 @@ export function NotebookPage({ id }: { id: string }) {
     hasLocalChanges && !isOwner ? 'Copy original notebook link' : 'Copy link'
 
   return (
-    <main className="flex h-[calc(100dvh-var(--navbar-height))] min-h-0 flex-col overflow-hidden bg-background-default text-text-primary">
+    <main className="fixed inset-x-0 top-[var(--navbar-height)] bottom-0 z-20 flex min-h-0 flex-col overflow-hidden bg-background-default text-text-primary">
       <header className="flex h-16 shrink-0 items-center gap-2 border-b border-border-default bg-background-default px-2 sm:gap-3 sm:px-4">
         <Button
           as={Link}
@@ -538,14 +684,45 @@ export function NotebookPage({ id }: { id: string }) {
         </div>
       ) : null}
 
-      <ExampleWorkbench
-        autoRun={false}
-        definition={definition}
-        fullscreen
-        filesInitiallyOpen
-        runLabel="Run notebook"
-        onWorkspaceChange={updateWorkspace}
-      />
+      <div className="flex min-h-0 flex-1">
+        <ExampleWorkbench
+          alternateEditor={{
+            active: activeView === 'chat',
+            label: 'Chat',
+            onActiveChange: (active) => setActiveView(active ? 'chat' : 'code'),
+            content: (
+              <NotebookAssistant
+                key={`${record.id}:${user?.userId ?? 'anonymous'}`}
+                authenticated={Boolean(user)}
+                enabled={activeView === 'chat'}
+                getExecution={() => {
+                  return {
+                    runtime: projectRef.current?.runtime ?? null,
+                    workspace: workspaceRef.current ?? project.workspace,
+                  }
+                }}
+                hiddenFiles={project.hiddenFiles ?? []}
+                onApply={applyAiExecution}
+                onCommit={commitAiExecution}
+                onFinish={finishAiExecution}
+                onPrepare={prepareAiExecution}
+                onRestore={restoreAiExecution}
+                onSignIn={() => openLoginModal()}
+                storageScope={user ? `${user.userId}:${record.id}` : undefined}
+              />
+            ),
+          }}
+          autoRun={shouldAutoRunNotebook(window.navigator)}
+          className="w-full"
+          definition={definition}
+          fullscreen
+          filesInitiallyOpen
+          runLabel="Run notebook"
+          runRequest={runRequest}
+          workbenchRef={workbenchRef}
+          onWorkspaceChange={updateWorkspace}
+        />
+      </div>
     </main>
   )
 }
@@ -558,4 +735,55 @@ function formatDate(value: string) {
   return new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(
     new Date(value),
   )
+}
+
+function requiresWorkbenchReset(
+  currentRuntime: NotebookAiExecution['runtime'],
+  currentWorkspace: ExampleWorkspace,
+  next: NotebookAiExecution,
+) {
+  if (JSON.stringify(currentRuntime) !== JSON.stringify(next.runtime)) {
+    return true
+  }
+  if (!next.runtime) return false
+  if (
+    currentWorkspace.files['/package.json'] !==
+    next.workspace.files['/package.json']
+  ) {
+    return true
+  }
+
+  return (
+    hasDifferentPaths(currentWorkspace.files, next.workspace.files) ||
+    hasDifferentPaths(
+      currentWorkspace.binaryFiles ?? {},
+      next.workspace.binaryFiles ?? {},
+    )
+  )
+}
+
+function hasDifferentPaths(
+  current: Record<string, string>,
+  next: Record<string, string>,
+) {
+  const currentPaths = Object.keys(current)
+  const nextPaths = Object.keys(next)
+  return (
+    currentPaths.length !== nextPaths.length ||
+    currentPaths.some((path) => next[path] === undefined)
+  )
+}
+
+function getAiHiddenFiles(
+  hiddenFiles: ReadonlyArray<string> | undefined,
+  workspace: ExampleWorkspace,
+) {
+  return [
+    ...new Set([
+      ...(hiddenFiles ?? []),
+      ...Object.keys(workspace.files).filter((path) =>
+        path.startsWith('/.tanstack/'),
+      ),
+    ]),
+  ]
 }

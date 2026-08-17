@@ -28,6 +28,7 @@ export function CodeMirrorEditor({
   const themeCompartmentRef = React.useRef(new Compartment())
   const themeRef = React.useRef(theme)
   const valueRef = React.useRef(value)
+  const applyingValueRef = React.useRef(false)
 
   onChangeRef.current = onChange
   onRunRef.current = onRun
@@ -61,7 +62,7 @@ export function CodeMirrorEditor({
           },
         }),
         EditorView.updateListener.of((update) => {
-          if (update.docChanged) {
+          if (update.docChanged && !applyingValueRef.current) {
             onChangeRef.current(update.state.doc.toString())
           }
         }),
@@ -91,13 +92,18 @@ export function CodeMirrorEditor({
     const editor = editorRef.current
     if (!editor || editor.state.doc.toString() === value) return
 
-    editor.dispatch({
-      changes: {
-        from: 0,
-        to: editor.state.doc.length,
-        insert: value,
-      },
-    })
+    applyingValueRef.current = true
+    try {
+      editor.dispatch({
+        changes: {
+          from: 0,
+          to: editor.state.doc.length,
+          insert: value,
+        },
+      })
+    } finally {
+      applyingValueRef.current = false
+    }
   }, [value])
 
   return <div ref={containerRef} className="h-full min-h-0" />

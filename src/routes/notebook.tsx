@@ -1,5 +1,10 @@
 import * as React from 'react'
 import { ClientOnly, createFileRoute } from '@tanstack/react-router'
+import {
+  NotebookEmbeddedSkeleton,
+  NotebookIndexSkeleton,
+  NotebookRouteReady,
+} from '~/components/notebook/NotebookLoading'
 import { seo } from '~/utils/seo'
 import { webContainerHeaders } from '~/utils/stackblitz-embed'
 
@@ -23,6 +28,7 @@ const LazyNotebookIndexPage = React.lazy(() =>
 
 export const Route = createFileRoute('/notebook')({
   ssr: false,
+  pendingComponent: NotebookIndexSkeleton,
   component: ChartsNotebookRoute,
   headers: () => webContainerHeaders,
   head: () => ({
@@ -44,22 +50,34 @@ export const Route = createFileRoute('/notebook')({
 
 function ChartsNotebookRoute() {
   return (
-    <ClientOnly>
-      <React.Suspense fallback={null}>
+    <NotebookRouteReady>
+      <ClientOnly fallback={<NotebookIndexSkeleton />}>
         <NotebookClientPage />
-      </React.Suspense>
-    </ClientOnly>
+      </ClientOnly>
+    </NotebookRouteReady>
   )
 }
 
 function NotebookClientPage() {
   if (window.location.hash.startsWith('#project=')) {
-    return <LazySharedExamplePage />
+    return (
+      <React.Suspense fallback={<NotebookEmbeddedSkeleton />}>
+        <LazySharedExamplePage />
+      </React.Suspense>
+    )
   }
 
   if (window.location.hash.startsWith('#code=')) {
-    return <LazyChartsNotebookPage />
+    return (
+      <React.Suspense fallback={<NotebookEmbeddedSkeleton />}>
+        <LazyChartsNotebookPage />
+      </React.Suspense>
+    )
   }
 
-  return <LazyNotebookIndexPage />
+  return (
+    <React.Suspense fallback={<NotebookIndexSkeleton />}>
+      <LazyNotebookIndexPage />
+    </React.Suspense>
+  )
 }

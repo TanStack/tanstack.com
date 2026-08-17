@@ -37,6 +37,10 @@ import { Spinner } from '~/components/Spinner'
 import { ThemeProvider, useHtmlClass } from '~/components/ThemeProvider'
 import { Navbar } from '~/components/Navbar'
 import { Footer } from '~/components/Footer'
+import {
+  NotebookRouteFrame,
+  NotebookRouteSkeleton,
+} from '~/components/notebook/NotebookLoading'
 import { THEME_COLORS } from '~/utils/utils'
 import { trackPageView } from '~/utils/analytics'
 import { createPartnerPlacementSessionSeed } from '~/utils/partner-placement'
@@ -273,6 +277,9 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
   const isNavigating = useRouterState({
     select: (s) => s.isLoading || s.isTransitioning,
   })
+  const pathname = useRouterState({
+    select: (s) => s.location.pathname,
+  })
 
   const [canShowDevtools, setCanShowDevtools] = React.useState(false)
   const [showNavigationSpinner, setShowNavigationSpinner] =
@@ -308,8 +315,17 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
   const hideNavbar = useMatches({
     select: (s) => s.some((d) => d.staticData?.showNavbar === false),
   })
+  const hideFooter =
+    pathname === '/notebook' || pathname.startsWith('/notebook/')
 
   const htmlClass = useHtmlClass()
+  const routeContent = (
+    <NotebookRouteFrame pathname={pathname}>
+      <React.Suspense fallback={<NotebookRouteSkeleton pathname={pathname} />}>
+        {children}
+      </React.Suspense>
+    </NotebookRouteFrame>
+  )
 
   return (
     <html lang="en" className={htmlClass} suppressHydrationWarning>
@@ -331,11 +347,11 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
             <PageViewTracker />
             <LibrariesOverlayProvider>
               {hideNavbar ? (
-                children
+                routeContent
               ) : (
                 <Navbar>
-                  {children}
-                  <Footer />
+                  {routeContent}
+                  {hideFooter ? null : <Footer />}
                 </Navbar>
               )}
             </LibrariesOverlayProvider>

@@ -722,18 +722,23 @@ export function DropdownTrigger({
 export function DropdownContent({
   children,
   className,
+  container,
   align = 'end',
+  side = 'bottom',
   sideOffset = 6,
 }: {
   children: React.ReactNode
   className?: string
+  container?: HTMLElement | null
   align?: 'start' | 'center' | 'end'
+  side?: 'top' | 'right' | 'bottom' | 'left'
   sideOffset?: number
 }) {
   return (
-    <Menu.Portal>
+    <Menu.Portal container={container ?? undefined}>
       <Menu.Positioner
         align={align}
+        side={side}
         sideOffset={sideOffset}
         className="z-[1200]"
       >

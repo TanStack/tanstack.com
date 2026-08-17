@@ -229,6 +229,7 @@ export const notebookImportAliases = [
   describeImport('react', 'React 19.2.3'),
   describeImport('react-dom/client', 'React DOM root API'),
   describeImport('@tanstack/charts', 'TanStack Charts core'),
+  describeImport('@tanstack/charts/', 'TanStack Charts subpaths'),
   describeImport('@tanstack/charts/react', 'TanStack Charts React bindings'),
   describeImport('@tanstack/charts/octane', 'TanStack Charts Octane bindings'),
   describeImport('octane', 'Octane 0.1.13 runtime'),

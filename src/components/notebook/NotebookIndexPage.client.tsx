@@ -3,12 +3,14 @@ import {
   ArrowRightIcon,
   MagnifyingGlassIcon,
   PlusIcon,
+  SparkleIcon,
   SpinnerGapIcon,
   TrashIcon,
 } from '@phosphor-icons/react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { Button } from '~/components/ds/ui'
+import { NotebookListSkeletonRows } from '~/components/notebook/NotebookLoading'
 import type { SharedExampleProject } from '~/utils/example-project'
 import {
   blankNotebookProject,
@@ -140,14 +142,22 @@ export function NotebookIndexPage() {
           <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
             Notebooks
           </h1>
-          <Button
-            type="button"
-            size="sm"
-            onClick={() => void startDraft(blankNotebookProject, 'blank')}
-          >
-            <PlusIcon className="size-4" aria-hidden="true" />
-            New notebook
-          </Button>
+          <div className="flex items-center gap-2">
+            {import.meta.env.DEV ? (
+              <Button as={Link} to="/notebook/ai" variant="ghost" size="sm">
+                <SparkleIcon className="size-4" aria-hidden="true" />
+                AI spike
+              </Button>
+            ) : null}
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => void startDraft(blankNotebookProject, 'blank')}
+            >
+              <PlusIcon className="size-4" aria-hidden="true" />
+              New notebook
+            </Button>
+          </div>
         </header>
 
         <p className="mt-3 text-sm text-text-muted">
@@ -200,7 +210,27 @@ export function NotebookIndexPage() {
           </section>
         ) : null}
 
-        {user ? (
+        {userQuery.isPending ? (
+          <section
+            className="mt-14"
+            aria-busy="true"
+            aria-labelledby="loading-notebooks-heading"
+          >
+            <h2
+              id="loading-notebooks-heading"
+              className="text-lg font-semibold"
+            >
+              Your notebooks
+            </h2>
+            <span className="sr-only">Loading notebooks</span>
+            <div
+              className="mt-4 border-y border-border-default"
+              aria-hidden="true"
+            >
+              <NotebookListSkeletonRows />
+            </div>
+          </section>
+        ) : user ? (
           <section className="mt-14" aria-labelledby="your-notebooks-heading">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <h2 id="your-notebooks-heading" className="text-lg font-semibold">
@@ -226,9 +256,7 @@ export function NotebookIndexPage() {
 
             <div className="mt-4 border-y border-border-default">
               {loadingRecords ? (
-                <p className="px-1 py-6 text-sm text-text-muted">
-                  Loading notebooks…
-                </p>
+                <NotebookListSkeletonRows />
               ) : visibleRecords.length ? (
                 visibleRecords.map((record) => (
                   <div

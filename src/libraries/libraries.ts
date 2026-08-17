@@ -3,24 +3,19 @@
 
 import { redirect } from '@tanstack/react-router'
 import type { LibrarySlim, LibraryId } from './types'
+import { categoryStyles } from './categories'
 import { handleRedirects } from '~/utils/handleRedirects'
+export { libraryIds, SIDEBAR_LIBRARY_IDS } from './ids'
 
 export const query: LibrarySlim = {
   id: 'query',
+  ...categoryStyles.data,
   name: 'TanStack Query',
-  cardStyles: 'text-red-500 hover:border-current',
-  to: '/query',
+  to: '/query/latest',
   tagline:
     'Powerful asynchronous state management, server-state utilities and data fetching',
   description:
     'Powerful asynchronous state management, server-state utilities and data fetching. Fetch, cache, update, and wrangle all forms of async data in your TS/JS, React, Vue, Solid, Svelte, Angular & Lit applications all without touching any "global state"',
-  bgStyle: 'bg-red-500',
-  borderStyle: 'border-red-500/50',
-  textStyle: 'text-red-500',
-  textColor: 'text-amber-500',
-  colorFrom: 'from-red-500',
-  colorTo: 'to-amber-500',
-  bgRadial: 'from-red-500 via-red-500/60 to-transparent',
   badge: undefined,
   repo: 'tanstack/query',
   frameworks: ['react', 'preact', 'solid', 'vue', 'svelte', 'angular', 'lit'],
@@ -199,19 +194,13 @@ const queryCommunityLinks = [
 
 export const router: LibrarySlim = {
   id: 'router',
+  ...categoryStyles.framework,
   name: 'TanStack Router',
-  cardStyles: 'text-emerald-500 dark:text-emerald-400 hover:border-current',
-  to: '/router',
+  installPath: 'framework/$framework/quick-start',
+  to: '/router/latest',
   tagline: 'Type-safe Routing for React and Solid applications',
   description:
     'A powerful React router for client-side and full-stack react applications. Fully type-safe APIs, first-class search-params for managing state in the URL and seamless integration with the existing React ecosystem.',
-  bgStyle: 'bg-emerald-500',
-  borderStyle: 'border-emerald-500/50',
-  textStyle: 'text-emerald-500 dark:text-emerald-400',
-  textColor: 'text-emerald-500 dark:text-emerald-400',
-  colorFrom: 'from-emerald-500',
-  colorTo: 'to-lime-600',
-  bgRadial: 'from-emerald-500 via-lime-600/50 to-transparent',
   badge: undefined,
   repo: 'tanstack/router',
   frameworks: ['react', 'solid'],
@@ -268,20 +257,13 @@ export const router: LibrarySlim = {
 
 export const start: LibrarySlim = {
   id: 'start',
+  ...categoryStyles.framework,
   name: 'TanStack Start',
-  cardStyles: 'text-cyan-500 dark:text-white-400 hover:border-current',
-  to: '/start',
+  to: '/start/latest',
   tagline:
     'Full-stack Framework powered by TanStack Router for React and Solid',
   description:
     'Full-document SSR, Streaming, Server Functions, bundling and more, powered by TanStack Router and Vite - Ready to deploy to your favorite hosting provider.',
-  bgStyle: 'bg-cyan-500',
-  borderStyle: 'border-cyan-500/50',
-  textStyle: 'text-cyan-500',
-  textColor: 'text-cyan-600',
-  colorFrom: 'from-teal-500',
-  colorTo: 'to-cyan-500',
-  bgRadial: 'from-cyan-500 via-teal-600/50 to-transparent',
   badge: 'RC',
   repo: 'tanstack/router',
   frameworks: ['react', 'solid'],
@@ -307,37 +289,32 @@ export const start: LibrarySlim = {
 
 export const table: LibrarySlim = {
   id: 'table',
+  ...categoryStyles.ui,
   name: 'TanStack Table',
-  cardStyles: 'text-blue-500 hover:border-current',
-  to: '/table',
-  tagline: 'Headless UI for building powerful tables & datagrids',
+  to: '/table/latest',
+  tagline: 'Headless, type-safe table and data-grid infrastructure',
   description:
-    'Supercharge your tables or build a datagrid from scratch for TS/JS, React, Vue, Solid, Svelte, Qwik, Angular, and Lit while retaining 100% control over markup and styles.',
-  bgStyle: 'bg-blue-500',
-  borderStyle: 'border-blue-500/50',
-  textStyle: 'text-blue-500',
-  textColor: 'text-blue-600',
-  colorFrom: 'from-cyan-500',
-  colorTo: 'to-blue-600',
-  bgRadial: 'from-cyan-500 via-blue-600/50 to-transparent',
-  badge: undefined,
+    'Build tables and data grids with feature-level tree shaking, reactive state, fast row models, and complete control over markup and styles.',
+  badge: 'fresh',
   repo: 'tanstack/table',
   frameworks: [
     'angular',
+    'ember',
+    'octane',
     'react',
+    'preact',
     'solid',
     'svelte',
     'vue',
-    'qwik',
     'lit',
     'alpine',
     'vanilla',
   ],
-  latestVersion: 'v8',
+  latestVersion: 'v9',
   latestBranch: 'main',
-  availableVersions: ['v8', 'beta'],
+  availableVersions: ['v9', 'v8'],
   scarfId: 'dc8b39e1-3fe9-4f3a-8e56-d4e2cf420a9e',
-  defaultDocs: 'introduction',
+  defaultDocs: 'overview',
   sitemap: {
     includeLandingPage: true,
     includeDocsPages: true,
@@ -353,6 +330,63 @@ export const table: LibrarySlim = {
       '/table/v8',
       'from=reactTableV7',
     )
+  },
+}
+
+export const charts: LibrarySlim = {
+  id: 'charts',
+  ...categoryStyles.ui,
+  name: 'TanStack Charts',
+  to: '/charts/latest',
+  tagline: "A chart grammar you don't have to outgrow.",
+  description:
+    'A typed, tree-shakable chart grammar for SVG and Canvas. Compose marks, views, scales, transforms, interactions, and motion with compact primitives or D3-compatible inputs.',
+  repo: 'tanstack/charts',
+  frameworks: [
+    'react',
+    'preact',
+    'vue',
+    'solid',
+    'svelte',
+    'angular',
+    'lit',
+    'alpine',
+    'octane',
+    'vanilla',
+  ],
+  corePackageName: '@tanstack/charts',
+  npmPackageNames: ['@tanstack/charts'],
+  frameworkPackageNames: {
+    react: '@tanstack/charts',
+    preact: '@tanstack/charts',
+    vue: '@tanstack/charts',
+    solid: '@tanstack/charts',
+    svelte: '@tanstack/charts',
+    angular: '@tanstack/charts',
+    lit: '@tanstack/charts',
+    alpine: '@tanstack/charts',
+    octane: '@tanstack/charts',
+    vanilla: '@tanstack/charts',
+  },
+  frameworkDocs: {
+    react: 'framework/react/adapter',
+    preact: 'framework/preact/adapter',
+    vue: 'framework/vue/adapter',
+    solid: 'framework/solid/adapter',
+    svelte: 'framework/svelte/adapter',
+    angular: 'framework/angular/adapter',
+    lit: 'framework/lit/adapter',
+    alpine: 'framework/alpine/adapter',
+    octane: 'framework/octane/adapter',
+    vanilla: 'quick-start',
+  },
+  latestVersion: 'v0',
+  latestBranch: 'main',
+  availableVersions: ['v0'],
+  statsAvailable: false,
+  sitemap: {
+    includeLandingPage: true,
+    includeDocsPages: true,
   },
 }
 
@@ -390,27 +424,20 @@ const reactTableV7List = [
 
 export const form: LibrarySlim = {
   id: 'form',
+  ...categoryStyles.ui,
   name: 'TanStack Form',
-  cardStyles: 'text-yellow-500 hover:border-current',
-  to: '/form',
+  to: '/form/latest',
   tagline: 'Headless UI for building performant and type-safe forms',
   description:
     'Headless, performant, and type-safe form state management for TS/JS, React, Preact, Vue, Angular, Solid, Lit and Svelte.',
-  bgStyle: 'bg-yellow-500',
-  borderStyle: 'border-yellow-500/50',
-  textStyle: 'text-yellow-500',
-  textColor: 'text-yellow-600',
-  colorFrom: 'from-yellow-500',
-  colorTo: 'to-yellow-600',
-  bgRadial: 'from-yellow-500 via-yellow-600/50 to-transparent',
-  badge: 'new',
+  badge: undefined,
   repo: 'tanstack/form',
   corePackageName: '@tanstack/form-core',
   npmPackageNames: ['@tanstack/form-core'],
   frameworks: ['react', 'preact', 'vue', 'angular', 'solid', 'lit', 'svelte'],
   latestVersion: 'v1',
   latestBranch: 'main',
-  availableVersions: ['v1'],
+  availableVersions: ['v1', 'alpha'],
   scarfId: '72ec4452-5d77-427c-b44a-57515d2d83aa',
   sitemap: {
     includeLandingPage: true,
@@ -420,22 +447,15 @@ export const form: LibrarySlim = {
 
 export const virtual: LibrarySlim = {
   id: 'virtual',
+  ...categoryStyles.performance,
   name: 'TanStack Virtual',
-  cardStyles: 'text-purple-500 hover:border-current',
-  to: '/virtual',
+  to: '/virtual/latest',
   tagline: 'Headless UI for Virtualizing Large Element Lists',
   description:
-    'Virtualize only the visible content for massive scrollable DOM nodes at 60FPS in TS/JS, React, Vue, Solid, Svelte, Lit & Angular while retaining 100% control over markup and styles.',
-  bgStyle: 'bg-purple-500',
-  borderStyle: 'border-purple-500/50',
-  textStyle: 'text-purple-500',
-  textColor: 'text-purple-600',
-  colorFrom: 'from-purple-500',
-  colorTo: 'to-violet-600',
-  bgRadial: 'from-purple-500 via-violet-600/50 to-transparent',
+    'Virtualize only the visible content for massive scrollable DOM nodes at 60FPS in TS/JS, React, Vue, Solid, Svelte, Lit, Angular & Marko while retaining 100% control over markup and styles.',
   badge: undefined,
   repo: 'tanstack/virtual',
-  frameworks: ['react', 'solid', 'vue', 'svelte', 'lit', 'angular'],
+  frameworks: ['react', 'solid', 'vue', 'svelte', 'lit', 'angular', 'marko'],
   corePackageName: '@tanstack/virtual-core',
   npmPackageNames: ['@tanstack/virtual-core', 'react-virtual'],
   latestVersion: 'v3',
@@ -452,24 +472,12 @@ export const virtual: LibrarySlim = {
 
 export const ranger: LibrarySlim = {
   id: 'ranger',
+  ...categoryStyles.tooling,
   name: 'TanStack Ranger',
-  cardStyles: 'text-black dark:text-gray-100 hover:border-current',
   to: '/ranger',
   tagline: 'Headless range and multi-range slider utilities.',
   description:
     'Headless, lightweight, and extensible primitives for building range and multi-range sliders.',
-  bgStyle: 'bg-black dark:bg-gray-100',
-  borderStyle: 'border-black/50 dark:border-gray-100/50',
-  textStyle: 'text-black dark:text-gray-100',
-  textColor: 'text-black dark:text-gray-100',
-  badgeTextStyle: 'text-white dark:text-gray-900',
-  colorFrom: 'from-black dark:from-gray-100',
-  colorTo: 'to-gray-600 dark:to-gray-400',
-  accentColorFrom: 'from-blue-500',
-  accentColorTo: 'to-blue-700',
-  accentTextColor: 'text-blue-600 dark:text-blue-400',
-  bgRadial:
-    'from-black via-gray-600/50 to-transparent dark:from-gray-100 dark:via-gray-400/50',
   badge: undefined,
   repo: 'tanstack/ranger',
   frameworks: ['react'],
@@ -480,6 +488,7 @@ export const ranger: LibrarySlim = {
   latestBranch: 'main',
   availableVersions: ['v0'],
   scarfId: 'dd278e06-bb3f-420c-85c6-6e42d14d8f61',
+  visible: false,
   sitemap: {
     includeLandingPage: true,
     includeDocsPages: true,
@@ -488,22 +497,24 @@ export const ranger: LibrarySlim = {
 
 export const store: LibrarySlim = {
   id: 'store',
+  ...categoryStyles.data,
   name: 'TanStack Store',
-  cardStyles: 'text-twine-500 dark:text-twine-400 hover:border-current',
-  to: '/store',
+  to: '/store/latest',
   tagline: 'Framework agnostic data store with reactive framework adapters',
   description:
     'The immutable-reactive data store that powers the core of TanStack libraries and their framework adapters.',
-  bgStyle: 'bg-twine-700',
-  borderStyle: 'border-twine-700/50',
-  textStyle: 'text-twine-500',
-  textColor: 'text-twine-700',
-  colorFrom: 'from-twine-500',
-  colorTo: 'to-twine-700',
-  bgRadial: 'from-twine-500 via-twine-700/50 to-transparent',
   badge: 'alpha',
   repo: 'tanstack/store',
-  frameworks: ['react', 'preact', 'solid', 'svelte', 'vue', 'angular', 'lit'],
+  frameworks: [
+    'react',
+    'preact',
+    'solid',
+    'svelte',
+    'vue',
+    'angular',
+    'lit',
+    'octane',
+  ],
   corePackageName: '@tanstack/store',
   npmPackageNames: ['@tanstack/store'],
   latestVersion: 'v0',
@@ -519,23 +530,16 @@ export const store: LibrarySlim = {
 
 export const pacer: LibrarySlim = {
   id: 'pacer',
+  ...categoryStyles.performance,
   name: 'TanStack Pacer',
-  cardStyles: 'text-lime-500 dark:text-lime-400 hover:border-current',
-  to: '/pacer',
+  to: '/pacer/latest',
   tagline:
     'Framework agnostic debouncing, throttling, rate limiting, queuing, and batching utilities',
   description:
     "Optimize your application's performance with TanStack Pacer's core primitives: Debouncing, Throttling, Rate Limiting, Queuing, and Batching.",
-  bgStyle: 'bg-lime-600',
-  borderStyle: 'border-lime-700/50',
-  textStyle: 'text-lime-500',
-  textColor: 'text-lime-700',
-  colorFrom: 'from-lime-500',
-  colorTo: 'to-lime-700',
-  bgRadial: 'from-lime-500 via-lime-700/50 to-transparent',
   badge: 'beta',
   repo: 'tanstack/pacer',
-  frameworks: ['react', 'preact', 'solid', 'angular'],
+  frameworks: ['react', 'preact', 'solid', 'angular', 'vanilla'],
   corePackageName: '@tanstack/pacer',
   npmPackageNames: ['@tanstack/pacer', '@tanstack/pacer-lite'],
   legacyPackages: ['@tanstack/pacer-lite'],
@@ -548,27 +552,43 @@ export const pacer: LibrarySlim = {
     includeLandingPage: true,
     includeDocsPages: true,
   },
+  handleRedirects: (href) => {
+    if (
+      /\/pacer\/[^/]+\/docs\/framework\/angular\/examples\/injectAsyncRateLimitedCallback/.test(
+        href,
+      )
+    ) {
+      throw redirect({
+        href: href.replace(
+          'injectAsyncRateLimitedCallback',
+          'injectAsyncRateLimiter',
+        ),
+      })
+    }
+  },
 }
 
 export const hotkeys: LibrarySlim = {
   id: 'hotkeys',
+  ...categoryStyles.ui,
   name: 'TanStack Hotkeys',
-  cardStyles: 'text-rose-500 dark:text-rose-400 hover:border-current',
-  to: '/hotkeys',
+  to: '/hotkeys/latest',
   tagline:
     'Type-safe keyboard shortcuts, sequences, and key state tracking for your apps',
   description:
     'A type-safe, cross-platform hotkey library with sequence detection, key state tracking, hotkey recording, and framework adapters for React and more.',
   badge: 'alpha',
-  bgStyle: 'bg-rose-500',
-  borderStyle: 'border-rose-500/50',
-  textStyle: 'text-rose-500 dark:text-rose-400',
-  textColor: 'text-rose-600 dark:text-rose-400',
-  colorFrom: 'from-rose-500',
-  colorTo: 'to-rose-700',
-  bgRadial: 'from-rose-500 via-rose-700/50 to-transparent',
   repo: 'tanstack/hotkeys',
-  frameworks: ['react', 'preact', 'solid', 'svelte', 'vue', 'angular'],
+  frameworks: [
+    'vanilla',
+    'react',
+    'preact',
+    'solid',
+    'svelte',
+    'vue',
+    'angular',
+    'lit',
+  ],
   corePackageName: '@tanstack/hotkeys',
   npmPackageNames: ['@tanstack/hotkeys'],
   latestVersion: 'v0',
@@ -581,22 +601,75 @@ export const hotkeys: LibrarySlim = {
   },
 }
 
+export const markdown: LibrarySlim = {
+  id: 'markdown',
+  name: 'TanStack Markdown',
+  cardStyles: 'text-fuchsia-500 dark:text-fuchsia-400 hover:border-current',
+  to: '/markdown/latest',
+  tagline: 'A serializable document model for docs and AI streams',
+  description:
+    'A deliberately bounded Markdown parser with a public serializable AST, safe defaults, deterministic React, HTML, and Octane output, and a stateless profile for accumulated AI streams.',
+  badge: 'alpha',
+  bgStyle: 'bg-fuchsia-500',
+  borderStyle: 'border-fuchsia-500/50',
+  textStyle: 'text-fuchsia-500 dark:text-fuchsia-400',
+  textColor: 'text-fuchsia-600 dark:text-fuchsia-400',
+  colorFrom: 'from-fuchsia-500',
+  colorTo: 'to-fuchsia-500',
+  bgRadial: 'from-fuchsia-500 via-fuchsia-500/50 to-transparent',
+  repo: 'tanstack/markdown',
+  frameworks: ['react', 'vanilla'],
+  corePackageName: '@tanstack/markdown',
+  npmPackageNames: ['@tanstack/markdown'],
+  latestVersion: 'v0',
+  latestBranch: 'main',
+  availableVersions: ['v0'],
+  defaultDocs: 'overview',
+  sitemap: {
+    includeLandingPage: true,
+    includeDocsPages: true,
+  },
+}
+
+export const highlight: LibrarySlim = {
+  id: 'highlight',
+  name: 'TanStack Highlight',
+  cardStyles: 'text-amber-500 dark:text-amber-400 hover:border-current',
+  to: '/highlight/latest',
+  tagline: 'Web-first syntax highlighting with compact, themeable HTML',
+  description:
+    'A synchronous syntax highlighter with selective language imports, context-aware web scanners, semantic CSS themes, precise annotations, and compact deterministic output.',
+  badge: 'alpha',
+  bgStyle: 'bg-amber-500',
+  borderStyle: 'border-amber-500/50',
+  textStyle: 'text-amber-500 dark:text-amber-400',
+  textColor: 'text-amber-600 dark:text-amber-400',
+  colorFrom: 'from-amber-500',
+  colorTo: 'to-amber-500',
+  bgRadial: 'from-amber-500 via-amber-500/50 to-transparent',
+  repo: 'tanstack/highlight',
+  frameworks: ['react', 'vanilla'],
+  corePackageName: '@tanstack/highlight',
+  npmPackageNames: ['@tanstack/highlight'],
+  latestVersion: 'v0',
+  latestBranch: 'main',
+  availableVersions: ['v0'],
+  defaultDocs: 'overview',
+  sitemap: {
+    includeLandingPage: true,
+    includeDocsPages: true,
+  },
+}
+
 export const db: LibrarySlim = {
   id: 'db',
+  ...categoryStyles.data,
   name: 'TanStack DB',
-  cardStyles: 'text-orange-500 dark:text-orange-400 hover:border-current',
-  to: '/db',
+  to: '/db/latest',
   tagline: 'The reactive client-first store for your API',
   description:
     'TanStack DB gives you a reactive, client-first store for your API data with collections, live queries and optimistic mutations that keep your UI reactive, consistent and blazing fast 🔥',
   badge: 'beta',
-  bgStyle: 'bg-orange-500',
-  borderStyle: 'border-orange-700/50',
-  textStyle: 'text-orange-500',
-  textColor: 'text-orange-700',
-  colorFrom: 'from-orange-500',
-  colorTo: 'to-orange-700',
-  bgRadial: 'from-orange-500 via-orange-700/50 to-transparent',
   repo: 'tanstack/db',
   frameworks: ['react', 'vue', 'solid', 'svelte', 'vanilla'],
   corePackageName: '@tanstack/db',
@@ -614,23 +687,23 @@ export const db: LibrarySlim = {
 
 export const ai: LibrarySlim = {
   id: 'ai',
+  ...categoryStyles.data,
   name: 'TanStack AI',
-  cardStyles: 'text-pink-500 dark:text-pink-400 hover:border-current',
-  to: '/ai',
-  tagline:
-    'A powerful, open-source AI SDK with a unified interface across multiple providers',
+  to: '/ai/latest',
+  tagline: 'The headless agent framework for TypeScript. Bring your own stack',
   description:
-    'A powerful, open-source AI SDK with a unified interface across multiple providers. No vendor lock-in, no proprietary formats, just clean TypeScript and honest open source.',
-  badge: 'alpha',
-  bgStyle: 'bg-pink-500',
-  borderStyle: 'border-pink-700/50',
-  textStyle: 'text-pink-500',
-  textColor: 'text-pink-700',
-  colorFrom: 'from-pink-500',
-  colorTo: 'to-pink-700',
-  bgRadial: 'from-pink-500 via-pink-700/50 to-transparent',
+    'The headless agent framework for TypeScript. TanStack AI runs the agent loop as typed primitives you compose yourself: tool calls, reasoning, human-in-the-loop interrupts, memory, and streaming state. Eleven provider adapters, seven UI framework bindings, sandboxed code execution, MCP, and coding-agent harnesses behind one interface. Native AG-UI over the wire, MIT licensed, no hosted gateway and no platform to buy into.',
+  badge: 'beta',
   repo: 'tanstack/ai',
-  frameworks: ['react', 'vue', 'solid', 'svelte', 'preact', 'vanilla'],
+  frameworks: [
+    'react',
+    'vue',
+    'solid',
+    'svelte',
+    'preact',
+    'angular',
+    'vanilla',
+  ],
   corePackageName: '@tanstack/ai-client',
   npmPackageNames: ['@tanstack/ai-client'],
   latestVersion: 'v0',
@@ -643,6 +716,7 @@ export const ai: LibrarySlim = {
     solid: '@tanstack/ai-solid',
     svelte: '@tanstack/ai-svelte',
     preact: '@tanstack/ai-preact',
+    angular: '@tanstack/ai-angular',
     vanilla: '@tanstack/ai-client',
   },
   frameworkDocs: {
@@ -651,6 +725,7 @@ export const ai: LibrarySlim = {
     solid: 'api/ai-solid',
     svelte: 'getting-started/quick-start-svelte',
     preact: 'api/ai-preact',
+    angular: 'getting-started/quick-start-angular',
     vanilla: 'api/ai-client',
   },
   sitemap: {
@@ -661,20 +736,13 @@ export const ai: LibrarySlim = {
 
 export const intent: LibrarySlim = {
   id: 'intent',
+  ...categoryStyles.tooling,
   name: 'TanStack Intent',
-  cardStyles: 'text-sky-500 dark:text-sky-400 hover:border-current',
-  to: '/intent',
+  to: '/intent/latest',
   tagline: 'Ship Agent Skills with your npm Packages',
   description:
     "Generate, validate, and ship Agent Skills alongside your library — versioned knowledge that agents discover automatically from node_modules. Skills live in each library's repo and update when the package updates.",
   badge: 'alpha',
-  bgStyle: 'bg-sky-500',
-  borderStyle: 'border-sky-500/50',
-  textStyle: 'text-sky-500 dark:text-sky-400',
-  textColor: 'text-sky-600 dark:text-sky-400',
-  colorFrom: 'from-sky-500',
-  colorTo: 'to-sky-700',
-  bgRadial: 'from-sky-500 via-sky-700/50 to-transparent',
   repo: 'tanstack/intent',
   frameworks: [],
   corePackageName: '@tanstack/intent',
@@ -691,25 +759,13 @@ export const intent: LibrarySlim = {
 
 export const config: LibrarySlim = {
   id: 'config',
+  ...categoryStyles.tooling,
   name: 'TanStack Config',
-  cardStyles: 'text-black dark:text-gray-100 hover:border-current',
-  to: '/config',
+  to: '/config/latest',
   tagline:
     'Configuration and tools for publishing and maintaining high-quality JavaScript packages',
   description:
     'Opinionated tooling to lint, build, test, version, and publish JS/TS packages — minimal config, consistent results.',
-  bgStyle: 'bg-black dark:bg-gray-100',
-  borderStyle: 'border-black/50 dark:border-gray-100/50',
-  textStyle: 'text-black dark:text-gray-100',
-  textColor: 'text-black dark:text-gray-100',
-  badgeTextStyle: 'text-white dark:text-gray-900',
-  colorFrom: 'from-black dark:from-gray-100',
-  colorTo: 'to-gray-600 dark:to-gray-400',
-  accentColorFrom: 'from-blue-500',
-  accentColorTo: 'to-blue-700',
-  accentTextColor: 'text-blue-600 dark:text-blue-400',
-  bgRadial:
-    'from-black via-gray-600/50 to-transparent dark:from-gray-100 dark:via-gray-400/50',
   badge: undefined,
   repo: 'tanstack/config',
   frameworks: [],
@@ -726,28 +782,24 @@ export const config: LibrarySlim = {
 
 export const devtools: LibrarySlim = {
   id: 'devtools',
+  ...categoryStyles.tooling,
   name: 'TanStack Devtools',
-  cardStyles: 'text-black dark:text-gray-100 hover:border-current',
-  to: '/devtools',
+  to: '/devtools/latest',
   tagline:
     'Centralized devtools panel for TanStack libraries and other custom devtools',
   description:
     'A unified devtools panel that houses all TanStack devtools and allows you to create and integrate your own custom devtools.',
   badge: 'alpha',
-  bgStyle: 'bg-black dark:bg-gray-100',
-  borderStyle: 'border-black/50 dark:border-gray-100/50',
-  textStyle: 'text-black dark:text-gray-100',
-  textColor: 'text-black dark:text-gray-100',
-  colorFrom: 'from-black dark:from-gray-100',
-  colorTo: 'to-gray-600 dark:to-gray-400',
-  accentColorFrom: 'from-blue-500',
-  accentColorTo: 'to-blue-700',
-  accentTextColor: 'text-blue-600 dark:text-blue-400',
-  badgeTextStyle: 'text-white dark:text-gray-900',
-  bgRadial:
-    'from-black via-gray-600/50 to-transparent dark:from-gray-100 dark:via-gray-400/50',
   repo: 'tanstack/devtools',
-  frameworks: ['react', 'preact', 'solid', 'vue', 'angular', 'vanilla'],
+  frameworks: [
+    'react',
+    'preact',
+    'solid',
+    'vue',
+    'svelte',
+    'angular',
+    'vanilla',
+  ],
   corePackageName: '@tanstack/devtools',
   npmPackageNames: ['@tanstack/devtools', '@tanstack/react-devtools'],
   latestVersion: 'v0',
@@ -757,29 +809,27 @@ export const devtools: LibrarySlim = {
     includeLandingPage: true,
     includeDocsPages: true,
   },
+  handleRedirects: (href) => {
+    if (/\/devtools\/[^/]+\/docs\/framework\/solif\//.test(href)) {
+      throw redirect({
+        href: href.replace(
+          /\/devtools\/([^/]+)\/docs\/framework\/solif\//,
+          '/devtools/$1/docs/framework/solid/',
+        ),
+      })
+    }
+  },
 }
 
 export const mcp: LibrarySlim = {
   id: 'mcp',
+  ...categoryStyles.tooling,
   name: 'TanStack MCP',
-  cardStyles: 'text-black dark:text-gray-100 hover:border-current',
   to: '/mcp',
   tagline: 'AI-powered access to TanStack documentation',
   description:
     'Connect your AI assistant to TanStack documentation. Search docs, fetch pages, and explore the ecosystem programmatically via the Model Context Protocol.',
   badge: 'alpha',
-  bgStyle: 'bg-black dark:bg-gray-100',
-  borderStyle: 'border-black/50 dark:border-gray-100/50',
-  textStyle: 'text-black dark:text-gray-100',
-  textColor: 'text-black dark:text-gray-100',
-  colorFrom: 'from-black dark:from-gray-100',
-  colorTo: 'to-gray-600 dark:to-gray-400',
-  accentColorFrom: 'from-blue-500',
-  accentColorTo: 'to-blue-700',
-  accentTextColor: 'text-blue-600 dark:text-blue-400',
-  badgeTextStyle: 'text-white dark:text-gray-900',
-  bgRadial:
-    'from-black via-gray-600/50 to-transparent dark:from-gray-100 dark:via-gray-400/50',
   repo: 'tanstack/tanstack.com',
   frameworks: [],
   latestVersion: 'v1',
@@ -796,20 +846,13 @@ export const mcp: LibrarySlim = {
 
 export const cli: LibrarySlim = {
   id: 'cli',
+  ...categoryStyles.tooling,
   name: 'TanStack CLI',
-  cardStyles: 'text-indigo-500 dark:text-indigo-400 hover:border-current',
-  to: '/cli',
+  to: '/cli/latest',
   tagline: 'CLI and project scaffolding toolkit for TanStack',
   description:
     'A CLI toolkit for TanStack. Create and customize TanStack Start apps, search docs, inspect add-ons, and generate project changes with current TanStack context.',
   badge: 'alpha',
-  bgStyle: 'bg-indigo-500',
-  borderStyle: 'border-indigo-500/50',
-  textStyle: 'text-indigo-500 dark:text-indigo-400',
-  textColor: 'text-indigo-600 dark:text-indigo-400',
-  colorFrom: 'from-indigo-500',
-  colorTo: 'to-violet-600',
-  bgRadial: 'from-indigo-500 via-violet-600/50 to-transparent',
   repo: 'tanstack/cli',
   frameworks: [],
   corePackageName: '@tanstack/cli',
@@ -826,20 +869,13 @@ export const cli: LibrarySlim = {
 
 export const workflow: LibrarySlim = {
   id: 'workflow',
+  ...categoryStyles.tooling,
   name: 'TanStack Workflow',
-  cardStyles: 'text-blue-800 dark:text-blue-400 hover:border-current',
   to: '/workflow',
   tagline: 'Durable, type-safe workflow orchestration for TypeScript',
   description:
     'Build resilient multi-step workflows with typed inputs, durable execution, retries, and observable state for long-running application processes.',
   badge: 'alpha',
-  bgStyle: 'bg-blue-900',
-  borderStyle: 'border-blue-900/50',
-  textStyle: 'text-blue-800 dark:text-blue-400',
-  textColor: 'text-blue-900 dark:text-blue-400',
-  colorFrom: 'from-blue-800',
-  colorTo: 'to-blue-600',
-  bgRadial: 'from-blue-800 via-blue-700/50 to-transparent',
   repo: 'tanstack/workflow',
   frameworks: [],
   corePackageName: '@tanstack/workflow',
@@ -856,6 +892,7 @@ export const libraries: LibrarySlim[] = [
   router,
   query,
   table,
+  charts,
   form,
   db,
   ai,
@@ -863,6 +900,8 @@ export const libraries: LibrarySlim[] = [
   virtual,
   pacer,
   hotkeys,
+  markdown,
+  highlight,
   store,
   ranger,
   config,
@@ -872,16 +911,11 @@ export const libraries: LibrarySlim[] = [
   workflow,
   {
     id: 'react-charts',
+    ...categoryStyles.tooling,
     name: 'React Charts',
     repo: 'tanstack/react-charts',
     to: undefined,
     tagline: '',
-    cardStyles: '',
-    bgStyle: '',
-    borderStyle: '',
-    textStyle: '',
-    colorFrom: '',
-    colorTo: '',
     badge: undefined,
     frameworks: [],
     latestVersion: '',
@@ -889,16 +923,11 @@ export const libraries: LibrarySlim[] = [
   },
   {
     id: 'create-tsrouter-app',
+    ...categoryStyles.tooling,
     name: 'Create TS Router App',
     repo: 'tanstack/create-tsrouter-app',
     to: undefined,
     tagline: '',
-    cardStyles: '',
-    bgStyle: '',
-    borderStyle: '',
-    textStyle: '',
-    colorFrom: '',
-    colorTo: '',
     badge: undefined,
     frameworks: [],
     latestVersion: '',
@@ -906,10 +935,26 @@ export const libraries: LibrarySlim[] = [
   },
 ]
 
+export type PublicLibrarySlim = LibrarySlim & {
+  to: string
+}
+
+export function isPublicLibrary(
+  library: LibrarySlim,
+): library is PublicLibrarySlim {
+  return (
+    typeof library.to === 'string' &&
+    library.to.startsWith('/') &&
+    library.visible !== false
+  )
+}
+
+export const publicLibraries = libraries.filter(isPublicLibrary)
+
 export const librariesByGroup = {
   framework: [start, router],
   state: [query, db, store, ai],
-  headlessUI: [table, form, hotkeys],
+  headlessUI: [table, charts, form, hotkeys, markdown, highlight],
   performance: [virtual, pacer],
   tooling: [devtools, config, cli, intent],
 }
@@ -933,24 +978,3 @@ export function getLibrary(id: LibraryId): LibrarySlim {
   }
   return library
 }
-
-// Library IDs for schema validation
-export const libraryIds = libraries.map((lib) => lib.id) as readonly LibraryId[]
-
-// Library IDs shown in the sidebar navigation
-export const SIDEBAR_LIBRARY_IDS = [
-  'start',
-  'router',
-  'query',
-  'table',
-  'db',
-  'ai',
-  'form',
-  'virtual',
-  'pacer',
-  'hotkeys',
-  'store',
-  'devtools',
-  'cli',
-  'intent',
-] as const satisfies readonly LibraryId[]

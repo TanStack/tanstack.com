@@ -9,12 +9,21 @@ interface LocalMedianReplacement {
   windowDays?: number
 }
 
+interface SameWeekdayReplacement {
+  kind: 'same-weekday'
+  side?: 'after' | 'before' | 'both'
+  windowWeeks?: number
+}
+
 interface FixedReplacement {
   downloads: number
   kind: 'fixed'
 }
 
-type NpmDownloadOutlierReplacement = FixedReplacement | LocalMedianReplacement
+type NpmDownloadOutlierReplacement =
+  | FixedReplacement
+  | LocalMedianReplacement
+  | SameWeekdayReplacement
 
 interface NpmDownloadOutlierOverride {
   dateFrom: string
@@ -71,6 +80,17 @@ export const npmDownloadOutlierOverrides: NpmDownloadOutlierOverride[] = [
       windowDays: 21,
     },
   },
+  {
+    dateFrom: '2025-08-10',
+    dateTo: '2025-08-29',
+    note: 'Historical vite corruption burst in August 2025.',
+    packageName: 'vite',
+    replacement: {
+      kind: 'same-weekday',
+      side: 'before',
+      windowWeeks: 6,
+    },
+  },
 ]
 
 const outlierOverridesByPackage = new Map<
@@ -107,10 +127,6 @@ function findMatchingOverride(
   }
 
   return undefined
-}
-
-function getOverrideKey(override: NpmDownloadOutlierOverride) {
-  return `${override.packageName}:${override.dateFrom}:${override.dateTo}`
 }
 
 function getDistanceFromOverride(
@@ -168,15 +184,16 @@ function getUtcDayDistance(left: string, right: string) {
   return Math.round(Math.abs(leftTime - rightTime) / 86_400_000)
 }
 
-function resolveReplacementDownloads(
+function getUtcDayOfWeek(day: string) {
+  return new Date(`${day}T00:00:00.000Z`).getUTCDay()
+}
+
+function resolveLocalMedianReplacementDownloads(
   override: NpmDownloadOutlierOverride,
   dailyDownloads: NpmDailyDownload[],
   packageOverrides: NpmDownloadOutlierOverride[],
 ) {
-  if (override.replacement.kind === 'fixed') {
-    return override.replacement.downloads
-  }
-
+  if (override.replacement.kind !== 'local-median') return undefined
   const windowDays =
     override.replacement.windowDays ?? DEFAULT_LOCAL_MEDIAN_WINDOW_DAYS
   const side = override.replacement.side ?? 'both'
@@ -218,6 +235,100 @@ function resolveReplacementDownloads(
   return Math.round(localMedian)
 }
 
+function resolveSameWeekdayReplacementDownloads(
+  day: string,
+  override: NpmDownloadOutlierOverride,
+  dailyDownloads: NpmDailyDownload[],
+  packageOverrides: NpmDownloadOutlierOverride[],
+  side: 'after' | 'before' | 'both',
+) {
+  if (override.replacement.kind !== 'same-weekday') return undefined
+
+  const windowDays = (override.replacement.windowWeeks ?? 4) * 7
+  const targetDayOfWeek = getUtcDayOfWeek(day)
+  const nearbyDownloads: number[] = []
+
+  for (const point of dailyDownloads) {
+    if (point.day === day) {
+      continue
+    }
+
+    if (isManualOutlierDay(point.day, packageOverrides)) {
+      continue
+    }
+
+    if (point.downloads <= 0) {
+      continue
+    }
+
+    if (getUtcDayOfWeek(point.day) !== targetDayOfWeek) {
+      continue
+    }
+
+    if (side === 'before' && point.day >= day) {
+      continue
+    }
+
+    if (side === 'after' && point.day <= day) {
+      continue
+    }
+
+    if (getUtcDayDistance(point.day, day) > windowDays) {
+      continue
+    }
+
+    nearbyDownloads.push(point.downloads)
+  }
+
+  const localMedian = getMedian(nearbyDownloads)
+
+  if (localMedian === undefined) {
+    return undefined
+  }
+
+  return Math.round(localMedian)
+}
+
+function resolveReplacementDownloads(
+  day: string,
+  override: NpmDownloadOutlierOverride,
+  dailyDownloads: NpmDailyDownload[],
+  packageOverrides: NpmDownloadOutlierOverride[],
+) {
+  switch (override.replacement.kind) {
+    case 'fixed':
+      return override.replacement.downloads
+    case 'local-median':
+      return resolveLocalMedianReplacementDownloads(
+        override,
+        dailyDownloads,
+        packageOverrides,
+      )
+    case 'same-weekday': {
+      const side = override.replacement.side ?? 'both'
+      const replacement = resolveSameWeekdayReplacementDownloads(
+        day,
+        override,
+        dailyDownloads,
+        packageOverrides,
+        side,
+      )
+
+      if (replacement !== undefined || side === 'both') {
+        return replacement
+      }
+
+      return resolveSameWeekdayReplacementDownloads(
+        day,
+        override,
+        dailyDownloads,
+        packageOverrides,
+        'both',
+      )
+    }
+  }
+}
+
 export function applyManualNpmDownloadOutlierCorrections(
   packageName: string,
   dailyDownloads: NpmDailyDownload[],
@@ -232,15 +343,6 @@ export function applyManualNpmDownloadOutlierCorrections(
     return dailyDownloads
   }
 
-  const replacementDownloadsByOverride = new Map<string, number | undefined>()
-
-  for (const override of packageOverrides) {
-    replacementDownloadsByOverride.set(
-      getOverrideKey(override),
-      resolveReplacementDownloads(override, dailyDownloads, packageOverrides),
-    )
-  }
-
   return dailyDownloads.map((point) => {
     const override = findMatchingOverride(point.day, packageOverrides)
 
@@ -248,8 +350,11 @@ export function applyManualNpmDownloadOutlierCorrections(
       return point
     }
 
-    const downloads = replacementDownloadsByOverride.get(
-      getOverrideKey(override),
+    const downloads = resolveReplacementDownloads(
+      point.day,
+      override,
+      dailyDownloads,
+      packageOverrides,
     )
 
     if (downloads === undefined || downloads === point.downloads) {

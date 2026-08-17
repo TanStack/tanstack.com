@@ -11,7 +11,7 @@
 
 import { db } from '~/db/client'
 import { users, oauthAccounts, roles, roleAssignments } from '~/db/schema'
-import { eq, and, inArray } from 'drizzle-orm'
+import { eq, and, inArray, sql } from 'drizzle-orm'
 import type {
   Capability,
   DbUser,
@@ -19,6 +19,7 @@ import type {
   IOAuthAccountRepository,
   IUserRepository,
   OAuthProvider,
+  SignupSource,
 } from './types'
 import { encryptToken, decryptStoredToken } from '~/utils/crypto.server'
 
@@ -54,6 +55,7 @@ export class DrizzleUserRepository implements IUserRepository {
     oauthImage?: string
     displayUsername?: string
     capabilities?: Capability[]
+    signupSources?: SignupSource[]
   }): Promise<DbUser> {
     const [newUser] = await db
       .insert(users)
@@ -64,6 +66,7 @@ export class DrizzleUserRepository implements IUserRepository {
         oauthImage: data.oauthImage,
         displayUsername: data.displayUsername,
         capabilities: data.capabilities || [],
+        signupSources: data.signupSources ?? [],
       })
       .returning()
 
@@ -85,7 +88,9 @@ export class DrizzleUserRepository implements IUserRepository {
       capabilities: Capability[]
       adsDisabled: boolean
       interestedInHidingAds: boolean
+      lastUsedFramework: string
       sessionVersion: number
+      signupSources: SignupSource[]
       updatedAt: Date
     }>,
   ): Promise<void> {
@@ -96,17 +101,13 @@ export class DrizzleUserRepository implements IUserRepository {
   }
 
   async incrementSessionVersion(userId: string): Promise<void> {
-    // Get current version first
-    const user = await this.findById(userId)
-    if (user) {
-      await db
-        .update(users)
-        .set({
-          sessionVersion: user.sessionVersion + 1,
-          updatedAt: new Date(),
-        })
-        .where(eq(users.id, userId))
-    }
+    await db
+      .update(users)
+      .set({
+        sessionVersion: sql`${users.sessionVersion} + 1`,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, userId))
   }
 
   private mapToDbUser(user: typeof users.$inferSelect): DbUser {
@@ -117,10 +118,11 @@ export class DrizzleUserRepository implements IUserRepository {
       image: user.image,
       oauthImage: user.oauthImage,
       displayUsername: user.displayUsername,
-      capabilities: user.capabilities as Capability[],
+      capabilities: user.capabilities,
       adsDisabled: user.adsDisabled,
       interestedInHidingAds: user.interestedInHidingAds,
       lastUsedFramework: user.lastUsedFramework,
+      signupSources: user.signupSources,
       sessionVersion: user.sessionVersion,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
@@ -239,16 +241,13 @@ export class DrizzleCapabilitiesRepository implements ICapabilitiesRepository {
     }
 
     // Extract user capabilities (same for all rows)
-    const directCapabilities = (result[0]?.userCapabilities ||
-      []) as Capability[]
+    const directCapabilities = result[0]?.userCapabilities ?? []
 
     // Collect all role capabilities from all rows
     const roleCapabilities = result
       .map((r) => r.roleCapabilities)
-      .filter(
-        (caps): caps is Capability[] => caps !== null && Array.isArray(caps),
-      )
-      .flat() as Capability[]
+      .filter((caps) => caps !== null)
+      .flat()
 
     // Union of direct capabilities and role capabilities
     const effectiveCapabilities = Array.from(
@@ -286,18 +285,15 @@ export class DrizzleCapabilitiesRepository implements ICapabilitiesRepository {
 
       // Store direct capabilities (same for all rows of the same user)
       if (!userCapabilitiesMap[userId]) {
-        userCapabilitiesMap[userId] = (row.userCapabilities ||
-          []) as Capability[]
+        userCapabilitiesMap[userId] = row.userCapabilities ?? []
       }
 
       // Collect role capabilities
-      if (row.roleCapabilities && Array.isArray(row.roleCapabilities)) {
+      if (row.roleCapabilities) {
         if (!userRoleCapabilitiesMap[userId]) {
           userRoleCapabilitiesMap[userId] = []
         }
-        userRoleCapabilitiesMap[userId].push(
-          ...(row.roleCapabilities as Capability[]),
-        )
+        userRoleCapabilitiesMap[userId].push(...row.roleCapabilities)
       }
     }
 

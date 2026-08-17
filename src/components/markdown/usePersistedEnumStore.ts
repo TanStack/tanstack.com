@@ -1,5 +1,3 @@
-'use client'
-
 import * as React from 'react'
 import { create, type StoreApi, type UseBoundStore } from 'zustand'
 

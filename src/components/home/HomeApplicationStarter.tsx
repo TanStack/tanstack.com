@@ -1,95 +1,68 @@
 import * as React from 'react'
+import { Hydrate } from '@tanstack/react-start'
+import { idle, visible } from '@tanstack/react-start/hydration'
 
+import { ApplicationStarter } from '~/components/ApplicationStarter'
 import { HomeApplicationStarterFallback } from './HomeSectionFallbacks'
 
-const LazyApplicationStarter = React.lazy(() =>
-  import('~/components/ApplicationStarter').then((m) => ({
-    default: m.ApplicationStarter,
-  })),
-)
+const headlineStorageKey = 'tanstack-home-starter-headline-index'
+const headlines = [
+  'Describe what you want to build.',
+  'Prompt your app idea.',
+  'Start with one prompt.',
+  'Tell Stack Builder what you’re making.',
+  'Your app starts with a prompt.',
+] as const
 
 export function HomeApplicationStarter() {
-  const wrapperRef = React.useRef<HTMLDivElement | null>(null)
-  const [shouldLoad, setShouldLoad] = React.useState(false)
+  return (
+    <Hydrate
+      when={visible({ rootMargin: '180px 0px' })}
+      prefetch={idle({ timeout: 3500 })}
+      fallback={<HomeApplicationStarterFallback />}
+    >
+      <RotatingHomeApplicationStarter />
+    </Hydrate>
+  )
+}
+
+function RotatingHomeApplicationStarter() {
+  const [headlineIndex, setHeadlineIndex] = React.useState(0)
 
   React.useEffect(() => {
-    if (shouldLoad) {
-      return
-    }
+    const storedIndex = Number.parseInt(
+      window.localStorage.getItem(headlineStorageKey) ?? '',
+      10,
+    )
+    const currentIndex =
+      Number.isInteger(storedIndex) &&
+      storedIndex >= 0 &&
+      storedIndex < headlines.length
+        ? storedIndex
+        : 0
 
-    const element = wrapperRef.current
-
-    if (!element || typeof IntersectionObserver === 'undefined') {
-      setShouldLoad(true)
-      return
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (!entries.some((entry) => entry.isIntersecting)) {
-          return
-        }
-
-        React.startTransition(() => {
-          setShouldLoad(true)
-        })
-        observer.disconnect()
-      },
-      { rootMargin: '180px 0px' },
+    setHeadlineIndex(currentIndex)
+    window.localStorage.setItem(
+      headlineStorageKey,
+      String((currentIndex + 1) % headlines.length),
     )
 
-    observer.observe(element)
-
-    return () => {
-      observer.disconnect()
+    const section = document.getElementById('start-with-a-prompt')
+    if (section?.dataset.focusPrompt === 'true') {
+      const field = section.querySelector<HTMLTextAreaElement>('textarea')
+      field?.focus()
+      field?.select()
+      delete section.dataset.focusPrompt
     }
-  }, [shouldLoad])
-
-  React.useEffect(() => {
-    if (shouldLoad || typeof window === 'undefined') {
-      return
-    }
-
-    if (typeof window.requestIdleCallback === 'function') {
-      const idleId = window.requestIdleCallback(
-        () => {
-          React.startTransition(() => {
-            setShouldLoad(true)
-          })
-        },
-        { timeout: 3500 },
-      )
-
-      return () => {
-        window.cancelIdleCallback(idleId)
-      }
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      React.startTransition(() => {
-        setShouldLoad(true)
-      })
-    }, 2500)
-
-    return () => {
-      window.clearTimeout(timeoutId)
-    }
-  }, [shouldLoad])
+  }, [])
 
   return (
-    <div ref={wrapperRef}>
-      {shouldLoad ? (
-        <React.Suspense fallback={<HomeApplicationStarterFallback />}>
-          <LazyApplicationStarter
-            context="home"
-            enableHotkeys
-            primaryButtonColor="cyan"
-            tone="cyan"
-          />
-        </React.Suspense>
-      ) : (
-        <HomeApplicationStarterFallback />
-      )}
-    </div>
+    <ApplicationStarter
+      context="home"
+      enableHotkeys
+      showPromptPreview={false}
+      title={headlines[headlineIndex]}
+      tone="cyan"
+    />
   )
 }

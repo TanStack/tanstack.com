@@ -59,6 +59,8 @@ export const AUDIT_ACTIONS = [
 
 export const RELEASE_LEVELS = ['major', 'minor', 'patch'] as const
 
+export const SIGNUP_SOURCES = ['newsletter'] as const
+
 // Derived types from constants
 export type Capability = (typeof CAPABILITIES)[number]
 export type OAuthProvider = (typeof OAUTH_PROVIDERS)[number]
@@ -68,6 +70,7 @@ export type ShowcaseStatus = (typeof SHOWCASE_STATUSES)[number]
 export type ShowcaseUseCase = (typeof SHOWCASE_USE_CASES)[number]
 export type AuditAction = (typeof AUDIT_ACTIONS)[number]
 export type ReleaseLevel = (typeof RELEASE_LEVELS)[number]
+export type SignupSource = (typeof SIGNUP_SOURCES)[number]
 
 // Legacy aliases for backwards compatibility
 /** @deprecated Use CAPABILITIES instead */
@@ -94,6 +97,7 @@ export interface User {
   adsDisabled: boolean | null
   interestedInHidingAds: boolean | null
   lastUsedFramework: string | null
+  signupSources: SignupSource[]
   sessionVersion: number
   createdAt: Date
   updatedAt: Date

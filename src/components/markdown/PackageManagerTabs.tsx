@@ -1,5 +1,3 @@
-'use client'
-
 import { useLocalCurrentFramework } from '../FrameworkSelect'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { useParams } from '@tanstack/react-router'

@@ -1,6 +1,11 @@
 import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
-import { ExternalLink, ThumbsUp, ThumbsDown, Code } from 'lucide-react'
+import {
+  ArrowSquareOutIcon,
+  ThumbsUpIcon,
+  ThumbsDownIcon,
+  CodeIcon,
+} from '@phosphor-icons/react'
 import { libraries, type LibraryId } from '~/libraries'
 import type { Showcase } from '~/db/types'
 
@@ -87,7 +92,7 @@ export function ShowcaseCard({
             className="p-2 rounded-full bg-white/90 dark:bg-gray-800/90 shadow-sm hover:bg-white dark:hover:bg-gray-700 transition-colors"
             title="View source code"
           >
-            <Code className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+            <CodeIcon className="w-4 h-4 text-gray-600 dark:text-gray-300" />
           </a>
         )}
         <a
@@ -98,7 +103,7 @@ export function ShowcaseCard({
           className="p-2 rounded-full bg-white/90 dark:bg-gray-800/90 shadow-sm hover:bg-white dark:hover:bg-gray-700 transition-colors"
           title="Visit site"
         >
-          <ExternalLink className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+          <ArrowSquareOutIcon className="w-4 h-4 text-gray-600 dark:text-gray-300" />
         </a>
       </div>
 
@@ -144,9 +149,9 @@ export function ShowcaseCard({
               )}
               title="Upvote"
             >
-              <ThumbsUp
+              <ThumbsUpIcon
                 className="w-4 h-4"
-                fill={currentUserVote === 1 ? 'currentColor' : 'none'}
+                weight={currentUserVote === 1 ? 'fill' : 'regular'}
               />
             </button>
 
@@ -173,9 +178,9 @@ export function ShowcaseCard({
               )}
               title="Downvote"
             >
-              <ThumbsDown
+              <ThumbsDownIcon
                 className="w-4 h-4"
-                fill={currentUserVote === -1 ? 'currentColor' : 'none'}
+                weight={currentUserVote === -1 ? 'fill' : 'regular'}
               />
             </button>
           </div>

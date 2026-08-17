@@ -1,49 +1,36 @@
 import { sentryTanstackStart } from '@sentry/tanstackstart-react/vite'
 import { defineConfig } from 'vite'
+import type { PluginOption } from 'vite'
 import { redact } from '@tanstack/redact/vite'
 import contentCollections from '@content-collections/vite'
 import { devtools as tanstackDevtools } from '@tanstack/devtools-vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import tailwindcss from '@tailwindcss/vite'
+import { cloudflare } from '@cloudflare/vite-plugin'
 import { analyzer } from 'vite-bundle-analyzer'
 import viteReact from '@vitejs/plugin-react'
-import rsc from '@vitejs/plugin-rsc'
-import netlify from '@netlify/vite-plugin-tanstack-start'
+import { randomUUID } from 'node:crypto'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import { pathToFileURL } from 'node:url'
+import {
+  getImportFallbackRepoDirs,
+  localDocsDevPath,
+  localDocsDevTokenHeader,
+} from './src/utils/local-repo-path.server'
+import { localNotebookAi } from './scripts/local-notebook-ai-vite'
 
 const isDev = process.env.NODE_ENV !== 'production'
+const shouldUseRedact = process.env.DISABLE_REDACT !== 'true'
+const localRedactPackageRoot = process.env.LOCAL_REDACT_PACKAGE_ROOT
 const shouldUseSentryPlugin =
   process.env.NODE_ENV === 'production' &&
   Boolean(process.env.SENTRY_AUTH_TOKEN)
-
-const rscSsrExternals = [
-  // OpenTelemetry uses require-in-the-middle which is CJS-only and breaks
-  // under Vite's ESM module runner during dev SSR.
-  'require-in-the-middle',
-  '@opentelemetry/instrumentation',
-  // HTML parsing stack has known CJS/ESM interop issues in SSR module runner.
-  'cheerio',
-  'iconv-lite',
-  'encoding-sniffer',
-  'parse5',
-  'parse5-parser-stream',
-  // Compression/archive stack has known CJS transform issues in dev SSR.
-  'jszip',
-  'pako',
-  // These packages also have known CJS/ESM interop issues in the RSC/SSR path.
-  'discord-interactions',
-  // OG image generation: takumi ships a native .node binary that cannot
-  // be bundled by rolldown — must be externalized for SSR environments.
-  '@takumi-rs/core',
-  '@takumi-rs/image-response',
-  '@takumi-rs/helpers',
-  'takumi-js',
-]
-
-const sentrySsrExternals = ['@sentry/node', '@sentry/tanstackstart-react']
-const dbSsrExternals = ['drizzle-orm', 'drizzle-orm/postgres-js']
+const shouldBuildSourcemaps =
+  shouldUseSentryPlugin || process.env.BUILD_SOURCEMAPS === 'true'
+const SITE_URL = 'https://tanstack.com'
+const localDocsDevToken = isDev ? randomUUID() : ''
 
 const localEnvPath = path.resolve(__dirname, '.env.local')
 const defaultCheckoutEnvDir = path.join(os.homedir(), 'GitHub/tanstack.com')
@@ -53,14 +40,108 @@ const envDir =
     ? defaultCheckoutEnvDir
     : __dirname
 
+function localDocsDevFiles(): PluginOption {
+  return {
+    name: 'tanstack-local-docs-files',
+    apply: 'serve',
+    configureServer(server) {
+      server.middlewares.use(async (request, response, next) => {
+        if (!request.url) return next()
+
+        const url = new URL(request.url, 'http://localhost')
+        if (url.pathname !== localDocsDevPath) return next()
+
+        if (
+          request.method !== 'GET' ||
+          request.headers[localDocsDevTokenHeader] !== localDocsDevToken
+        ) {
+          response.statusCode = 404
+          response.end()
+          return
+        }
+
+        const repo = url.searchParams.get('repo')
+        const filepath = url.searchParams.get('path')
+
+        if (
+          !repo ||
+          !/^[a-zA-Z0-9._-]+$/.test(repo) ||
+          !filepath ||
+          !isContainedRepoPath(filepath)
+        ) {
+          response.statusCode = 400
+          response.end()
+          return
+        }
+
+        const documentsModuleUrl = pathToFileURL(
+          path.join(server.config.root, 'src/utils/documents.server.ts'),
+        ).href
+        const repoDirs = Array.from(
+          new Set([
+            ...(process.env.TANSTACK_LOCAL_REPOS_DIR
+              ? [path.resolve(process.env.TANSTACK_LOCAL_REPOS_DIR, repo)]
+              : []),
+            path.resolve(os.homedir(), 'GitHub', repo),
+            ...getImportFallbackRepoDirs(documentsModuleUrl, repo),
+          ]),
+        )
+
+        const localFilePath = repoDirs
+          .map((repoDir) => ({
+            filepath: path.resolve(repoDir, filepath),
+            repoDir,
+          }))
+          .find(
+            (candidate) =>
+              isPathInside(candidate.repoDir, candidate.filepath) &&
+              fs.existsSync(candidate.filepath) &&
+              fs.statSync(candidate.filepath).isFile(),
+          )?.filepath
+
+        if (!localFilePath) {
+          response.statusCode = 404
+          response.end()
+          return
+        }
+
+        try {
+          const content = await fs.promises.readFile(localFilePath)
+          response.statusCode = 200
+          response.setHeader('Cache-Control', 'no-store')
+          response.setHeader('Content-Type', 'text/plain; charset=utf-8')
+          response.end(content)
+        } catch (error) {
+          next(error)
+        }
+      })
+    },
+  }
+}
+
+function isContainedRepoPath(filepath: string) {
+  const normalized = path.normalize(filepath)
+  return (
+    !normalized.startsWith('..') &&
+    !normalized.includes(`${path.sep}..${path.sep}`) &&
+    !path.isAbsolute(normalized)
+  )
+}
+
+function isPathInside(parent: string, child: string) {
+  const relativePath = path.relative(parent, child)
+  return (
+    relativePath !== '' &&
+    !relativePath.startsWith('..') &&
+    !path.isAbsolute(relativePath)
+  )
+}
+
 // Runtime-specific `react-dom/server` variants aren't in @tanstack/redact/vite's
-// default alias map — our shim ships a single universal server build, unlike
-// React which maintains per-runtime forks (edge/node/bun/browser + static.*).
-// @vitejs/plugin-rsc and Netlify's edge adapter import them conditionally, so
-// we funnel them all to `@tanstack/redact/server` at the top-level resolve
-// (Vite 8's `EnvironmentResolveOptions` doesn't accept `alias`, so env-scoped
-// aliasing isn't an option).
+// default alias map. Funnel them all to `@tanstack/redact/server` at the
+// top-level resolve so Workers get a single server implementation.
 const serverVariantAliases: Record<string, string> = {
+  'react-dom/server': '@tanstack/redact/server',
   'react-dom/server.edge': '@tanstack/redact/server',
   'react-dom/server.node': '@tanstack/redact/server',
   'react-dom/server.bun': '@tanstack/redact/server',
@@ -75,19 +156,68 @@ const useSyncExternalStoreShimIndexAlias = {
   replacement: '@tanstack/redact',
 }
 
+// These browser-facing packages are imported by SSR assets. Bundle them into
+// Worker server output so the runtime never loads their raw package entries.
+const serverBundledClientPackages = [
+  ...(shouldUseRedact ? ['@tanstack/redact'] : []),
+  /^@radix-ui\//,
+  '@kapaai/react-sdk',
+  '@tanstack/highlight',
+  '@tanstack/markdown',
+  '@tanstack/react-hotkeys',
+  '@tanstack/react-pacer',
+  '@tanstack/react-table',
+  'zustand',
+  /^@fingerprintjs\//,
+]
+
+const routerSsrPackages = [
+  '@tanstack/history',
+  '@tanstack/query-core',
+  '@tanstack/react-query',
+  '@tanstack/react-router',
+  '@tanstack/react-router-ssr-query',
+  '@tanstack/react-router/ssr',
+  '@tanstack/react-router/ssr/server',
+  '@tanstack/router-core',
+]
+
 export default defineConfig({
   envDir,
+  define: {
+    __TANSTACK_ENABLE_SERVER_BUILDER_GENERATION__: JSON.stringify(true),
+    __TANSTACK_ENABLE_IMAGE_TRANSFORMATIONS__: JSON.stringify(true),
+    __TANSTACK_LOCAL_DOCS_TOKEN__: JSON.stringify(localDocsDevToken),
+    __TANSTACK_SITE_URL__: JSON.stringify(SITE_URL),
+  },
   resolve: {
     alias: [
       {
         find: '~',
         replacement: path.resolve(__dirname, './src'),
       },
-      useSyncExternalStoreShimIndexAlias,
-      ...Object.entries(serverVariantAliases).map(([find, replacement]) => ({
-        find,
-        replacement,
-      })),
+      {
+        find: 'ejs',
+        replacement: path.resolve(
+          __dirname,
+          './src/server/runtime/ejs-compat.server.ts',
+        ),
+      },
+      {
+        find: 'unicorn-magic',
+        replacement: 'unicorn-magic/node',
+      },
+      ...(shouldUseRedact
+        ? [
+            useSyncExternalStoreShimIndexAlias,
+            ...Object.entries(serverVariantAliases).map(
+              ([find, replacement]) => ({
+                find,
+                replacement,
+              }),
+            ),
+          ]
+        : []),
     ],
   },
   server: {
@@ -105,41 +235,25 @@ export default defineConfig({
       : undefined,
   },
   environments: {
-    rsc: {
-      resolve: {
-        external: [
-          '@tanstack/react-start-server',
-          '@tanstack/react-router/ssr/server',
-        ],
-      },
-    },
     ssr: {
+      optimizeDeps: {
+        exclude: ['@tanstack/create'],
+      },
       resolve: {
-        external: [
-          ...rscSsrExternals,
-          ...sentrySsrExternals,
-          ...dbSsrExternals,
-        ],
+        noExternal: [...serverBundledClientPackages, ...routerSsrPackages],
       },
     },
   },
   ssr: {
-    external: [
-      'postgres',
-      ...dbSsrExternals,
-      // CTA packages use execa which has a broken unicorn-magic dependency
-      '@tanstack/create',
-      // Externalize CLI so server reloads it on changes
-      '@tanstack/cli',
-      ...rscSsrExternals,
-      ...sentrySsrExternals,
-    ],
+    external: [],
     noExternal: [
       '@uploadthing/react',
       'file-selector',
       'normalize-wheel',
       '@tanstack/react-hotkeys',
       '@webcontainer/api',
+      ...serverBundledClientPackages,
+      ...routerSsrPackages,
     ],
   },
   optimizeDeps: {
@@ -148,48 +262,32 @@ export default defineConfig({
       // CTA packages use execa which has a broken unicorn-magic dependency
       '@tanstack/create',
       'discord-interactions',
-      // OG image generation: takumi ships a native .node binary
-      '@takumi-rs/core',
-      '@takumi-rs/image-response',
-      '@takumi-rs/helpers',
-      'takumi-js',
       // Don't pre-bundle CLI so we always get fresh changes during dev
       ...(isDev ? ['@tanstack/cli'] : []),
-      // `use client` libraries that plugin-rsc pre-bundles inconsistently
-      // across client/ssr/rsc envs when combined with our React shim — each
-      // env resolves `react` to a different target, so the optimizer's hash
-      // diverges. Excluding from optimize keeps resolution deterministic per
-      // env and silences the 50k+ "inconsistently optimized" warning flood.
-      'lucide-react',
     ],
   },
   build: {
-    sourcemap: process.env.NODE_ENV === 'production',
+    // The lazy iconography route intentionally ships the complete Phosphor
+    // registry so every icon can be browsed without follow-up requests.
+    chunkSizeWarningLimit: 4_000,
+    minify: 'esbuild',
+    sourcemap: shouldBuildSourcemaps,
+    reportCompressedSize: false,
     rollupOptions: {
-      external: (id) => {
-        // Externalize postgres from client bundle
-        return id.includes('postgres')
-      },
       output: {
         manualChunks: (id) => {
-          // Keep the app shell and docs runtime from shattering into dozens of
-          // tiny eagerly preloaded chunks.
           if (
-            id.includes('/src/components/Navbar') ||
-            id.includes('/src/components/Theme') ||
-            id.includes('/src/components/SearchButton') ||
-            id.includes('/src/components/NetlifyImage') ||
-            id.includes('/src/components/Card') ||
-            id.includes('/src/components/Footer') ||
-            id.includes('/src/components/ToastProvider') ||
-            id.includes('/src/components/icons/') ||
-            id.includes('/src/contexts/SearchContext') ||
-            id.includes('/src/hooks/useCurrentUser') ||
-            id.includes('/src/hooks/useCapabilities') ||
-            id.includes('/src/libraries/libraries.ts') ||
-            id.includes('/src/ui/')
+            id.includes('/node_modules/@tanstack/react-start') ||
+            id.includes('/node_modules/@tanstack/start-')
           ) {
-            return 'app-shell'
+            return 'tanstack-start'
+          }
+
+          if (
+            id.includes('/src/db/types.ts') ||
+            id.includes('/src/libraries/ids.ts')
+          ) {
+            return 'shared-constants'
           }
 
           if (
@@ -209,11 +307,6 @@ export default defineConfig({
 
           // Vendor chunk splitting for better caching
           if (id.includes('node_modules')) {
-            // Lucide icons (tree-shaken but still significant)
-            if (id.includes('lucide-react')) {
-              return 'icons'
-            }
-
             if (
               id.includes('node_modules/react-dom/') ||
               id.includes('node_modules/react/') ||
@@ -227,7 +320,24 @@ export default defineConfig({
     },
   },
   plugins: [
-    redact(),
+    localNotebookAi(),
+    localDocsDevFiles(),
+    cloudflare({
+      viteEnvironment: { name: 'ssr' },
+    }),
+    ...(shouldUseRedact
+      ? [
+          redact(
+            localRedactPackageRoot
+              ? {
+                  packageRoots: {
+                    '@tanstack/redact': localRedactPackageRoot,
+                  },
+                }
+              : undefined,
+          ),
+        ]
+      : []),
     ...(isDev
       ? [
           tanstackDevtools({
@@ -249,8 +359,10 @@ export default defineConfig({
         ]
       : []),
     tanstackStart({
-      rsc: {
-        enabled: true,
+      server: {
+        build: {
+          inlineCss: false,
+        },
       },
       importProtection: {
         behavior: 'error',
@@ -278,11 +390,6 @@ export default defineConfig({
         },
       },
     }),
-    rsc(),
-    // Only enable Netlify plugin during build or when NETLIFY env is set
-    ...(process.env.NETLIFY || process.env.NODE_ENV === 'production'
-      ? [netlify()]
-      : []),
     viteReact(),
 
     ...(shouldUseSentryPlugin

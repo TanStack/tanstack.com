@@ -5,14 +5,26 @@ import type { InferSelectModel } from 'drizzle-orm'
 import { getAuthenticatedUser } from './auth.server-helpers'
 import { getBulkEffectiveCapabilities } from './capabilities.server'
 import { recordAuditLog } from './audit.server'
-import * as v from 'valibot'
-import { VALID_CAPABILITIES, type Capability } from '~/db/types'
+import { type Capability, type SignupSource } from '~/db/types'
 
 type UserRecord = InferSelectModel<typeof users>
 
-const capabilityPicklist = v.picklist(
-  VALID_CAPABILITIES as unknown as [Capability, ...Capability[]],
-)
+// Follows the valibot schema in `users.functions.ts`, which validates every
+// call before delegating here — deliberately looser, since the schema's
+// bounds have no type-level equivalent and `useEffectiveCapabilities` stays
+// optional to keep the `?? true` below meaningful.
+type ListUsersInput = {
+  pagination: { limit: number; page?: number }
+  emailFilter?: string
+  nameFilter?: string
+  capabilityFilter?: Array<Capability>
+  noCapabilitiesFilter?: boolean
+  adsDisabledFilter?: boolean
+  interestedInHidingAdsFilter?: boolean
+  useEffectiveCapabilities?: boolean
+  sortBy?: string
+  sortDir?: 'asc' | 'desc'
+}
 
 // Helper function to validate user capability
 // Optimized: getEffectiveCapabilities is already called in getAuthenticatedUser,
@@ -33,7 +45,7 @@ async function requireCapability({
 }
 
 // Server function wrapper for listUsers
-export async function listUsers({ data }: { data: any }) {
+export async function listUsers({ data }: { data: ListUsersInput }) {
   if (!data || !data.pagination) {
     throw new Error('Missing required')
   }
@@ -201,6 +213,7 @@ export async function listUsers({ data }: { data: any }) {
       capabilities: user.capabilities,
       adsDisabled: user.adsDisabled,
       interestedInHidingAds: user.interestedInHidingAds,
+      signupSources: user.signupSources,
       createdAt: user.createdAt.getTime(),
       updatedAt: user.updatedAt.getTime(),
     }))
@@ -273,6 +286,7 @@ export async function listUsers({ data }: { data: any }) {
       capabilities: user.capabilities,
       adsDisabled: user.adsDisabled,
       interestedInHidingAds: user.interestedInHidingAds,
+      signupSources: user.signupSources,
       createdAt: user.createdAt.getTime(),
       updatedAt: user.updatedAt.getTime(),
     }))
@@ -290,7 +304,7 @@ export async function listUsers({ data }: { data: any }) {
 }
 
 // Get a single user by ID (admin only)
-export async function getUser({ data }: { data: any }) {
+export async function getUser({ data }: { data: { userId: string } }) {
   await requireCapability({ data: { capability: 'admin' } })
 
   const user = await db.query.users.findFirst({
@@ -313,6 +327,7 @@ export async function getUser({ data }: { data: any }) {
     adsDisabled: user.adsDisabled,
     interestedInHidingAds: user.interestedInHidingAds,
     lastUsedFramework: user.lastUsedFramework,
+    signupSources: user.signupSources,
     sessionVersion: user.sessionVersion,
     createdAt: user.createdAt.getTime(),
     updatedAt: user.updatedAt.getTime(),
@@ -320,7 +335,11 @@ export async function getUser({ data }: { data: any }) {
 }
 
 // Server function wrapper for updateAdPreference
-export async function updateAdPreference({ data }: { data: any }) {
+export async function updateAdPreference({
+  data,
+}: {
+  data: { adsDisabled: boolean }
+}) {
   const user = await getAuthenticatedUser()
 
   // Validate disableAds capability
@@ -335,7 +354,11 @@ export async function updateAdPreference({ data }: { data: any }) {
 }
 
 // Server function wrapper for setInterestedInHidingAds
-export async function setInterestedInHidingAds({ data }: { data: any }) {
+export async function setInterestedInHidingAds({
+  data,
+}: {
+  data: { interested: boolean }
+}) {
   const user = await getAuthenticatedUser()
 
   // Verify user exists
@@ -359,7 +382,11 @@ export async function setInterestedInHidingAds({ data }: { data: any }) {
 }
 
 // Server function to update user's last used framework preference
-export async function updateLastUsedFramework({ data }: { data: any }) {
+export async function updateLastUsedFramework({
+  data,
+}: {
+  data: { framework: string }
+}) {
   const user = await getAuthenticatedUser()
 
   await db
@@ -373,8 +400,55 @@ export async function updateLastUsedFramework({ data }: { data: any }) {
   return { success: true }
 }
 
+export async function addUserSignupSource({
+  data,
+}: {
+  data: { source: SignupSource }
+}) {
+  const user = await getAuthenticatedUser()
+
+  const existingUser = await db.query.users.findFirst({
+    where: eq(users.id, user.userId),
+    columns: {
+      signupSources: true,
+    },
+  })
+
+  if (!existingUser) {
+    throw new Error('User not found')
+  }
+
+  if (existingUser.signupSources.includes(data.source)) {
+    return {
+      success: true,
+      alreadyTagged: true,
+      signupSources: existingUser.signupSources,
+    }
+  }
+
+  const signupSources = [...existingUser.signupSources, data.source]
+
+  await db
+    .update(users)
+    .set({
+      signupSources,
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, user.userId))
+
+  return {
+    success: true,
+    alreadyTagged: false,
+    signupSources,
+  }
+}
+
 // Server function wrapper for updateUserCapabilities (admin only)
-export async function updateUserCapabilities({ data }: { data: any }) {
+export async function updateUserCapabilities({
+  data,
+}: {
+  data: { userId: string; capabilities: Array<Capability> }
+}) {
   // Validate admin capability
   const { currentUser } = await requireCapability({
     data: { capability: 'admin' },
@@ -413,7 +487,11 @@ export async function updateUserCapabilities({ data }: { data: any }) {
 }
 
 // Server function wrapper for adminSetAdsDisabled (admin only)
-export async function adminSetAdsDisabled({ data }: { data: any }) {
+export async function adminSetAdsDisabled({
+  data,
+}: {
+  data: { userId: string; adsDisabled: boolean }
+}) {
   // Validate admin capability
   const { currentUser } = await requireCapability({
     data: { capability: 'admin' },
@@ -451,7 +529,11 @@ export async function adminSetAdsDisabled({ data }: { data: any }) {
 }
 
 // Server function wrapper for bulkUpdateUserCapabilities (admin only)
-export async function bulkUpdateUserCapabilities({ data }: { data: any }) {
+export async function bulkUpdateUserCapabilities({
+  data,
+}: {
+  data: { userIds: Array<string>; capabilities: Array<Capability> }
+}) {
   // Validate admin capability
   const { currentUser } = await requireCapability({
     data: { capability: 'admin' },

@@ -5,11 +5,13 @@ import { CodeExplorerTopBar } from './CodeExplorerTopBar'
 import type { GitHubFileNode } from '~/utils/documents.server'
 import type { Library } from '~/libraries'
 import { twMerge } from 'tailwind-merge'
+import { CodeBlock } from '~/components/markdown'
+import { getCodeBlockLanguageFromFilePath } from '~/components/markdown/codeBlock.shared'
 
 interface CodeExplorerProps {
   activeTab: 'code' | 'sandbox'
   codeSandboxUrl: string
-  currentCodeRsc: React.ReactNode
+  currentCode: string
   currentPath: string
   examplePath: string
   githubContents: GitHubFileNode[] | undefined
@@ -23,7 +25,7 @@ interface CodeExplorerProps {
 export function CodeExplorer({
   activeTab,
   codeSandboxUrl,
-  currentCodeRsc,
+  currentCode,
   currentPath,
   examplePath,
   githubContents,
@@ -35,6 +37,7 @@ export function CodeExplorer({
 }: CodeExplorerProps) {
   const [isFullScreen, setIsFullScreen] = React.useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true)
+  const currentCodeLanguage = getCodeBlockLanguageFromFilePath(currentPath)
 
   // Add escape key handler
   React.useEffect(() => {
@@ -46,15 +49,6 @@ export function CodeExplorer({
     window.addEventListener('keydown', handleEsc)
     return () => window.removeEventListener('keydown', handleEsc)
   }, [isFullScreen])
-
-  // Add sidebar close handler
-  React.useEffect(() => {
-    const handleCloseSidebar = () => {
-      setIsSidebarOpen(false)
-    }
-    window.addEventListener('closeSidebar', handleCloseSidebar)
-    return () => window.removeEventListener('closeSidebar', handleCloseSidebar)
-  }, [])
 
   return (
     <div
@@ -81,9 +75,10 @@ export function CodeExplorer({
         >
           <FileExplorer
             currentPath={currentPath}
-            githubContents={githubContents}
+            files={githubContents}
             isSidebarOpen={isSidebarOpen}
             libraryColor={library.bgStyle}
+            onSidebarClose={() => setIsSidebarOpen(false)}
             prefetchFileContent={prefetchFileContent}
             setCurrentPath={setCurrentPath}
           />
@@ -93,7 +88,15 @@ export function CodeExplorer({
               isFullScreen ? 'max-h-[90dvh]' : 'max-h-[80dvh]',
             )}
           >
-            {currentCodeRsc}
+            <CodeBlock
+              className="h-full border-0"
+              isEmbedded
+              showTypeCopyButton={false}
+            >
+              <code className={`language-${currentCodeLanguage}`}>
+                {currentCode}
+              </code>
+            </CodeBlock>
           </div>
         </div>
         <InteractiveSandbox

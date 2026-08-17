@@ -57,7 +57,7 @@ function getPartnerTier(partner: Pick<Partner, 'tier'>): PartnerTier {
   return partner.tier ?? 'bronze'
 }
 
-export function createPartnerPlacementPageViewSeed() {
+export function createPartnerPlacementSessionSeed() {
   const crypto = globalThis.crypto
 
   if (crypto?.randomUUID) {
@@ -75,9 +75,9 @@ export function createPartnerPlacementPageViewSeed() {
 
 export function getPartnerViewPlacementSeed(
   surface: string,
-  pageViewSeed: string,
+  sessionSeed: string,
 ) {
-  return `${surface}:${pageViewSeed}`
+  return `${surface}:${sessionSeed}`
 }
 
 export function getPartnerPlacementContext({

@@ -1,5 +1,3 @@
-'use client'
-
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import type { Framework } from '~/libraries'
@@ -26,7 +24,7 @@ export function FrameworkIconTabs({
   return (
     <div
       className={twMerge(
-        `flex items-center justify-start gap-2 border-b border-gray-200 dark:border-gray-700 overflow-x-auto scrollbar-hide`,
+        'fade-x fade-size-x-sm flex items-center justify-start gap-2 overflow-x-auto overflow-y-hidden border-b border-gray-200 scrollbar-hide dark:border-gray-700',
         className,
       )}
     >

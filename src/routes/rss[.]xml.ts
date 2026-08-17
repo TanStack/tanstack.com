@@ -1,10 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { setResponseHeader } from '@tanstack/react-start/server'
-import {
-  getPublishedPosts,
-  formatAuthors,
-  publishedDateToUTCString,
-} from '~/utils/blog'
+import { getPublishedPosts } from '~/utils/blog'
+import { formatAuthors, publishedDateToUTCString } from '~/utils/blog-format'
 
 function escapeXml(unsafe: string): string {
   return unsafe
@@ -13,6 +10,19 @@ function escapeXml(unsafe: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&apos;')
+}
+
+export function getRssImageMediaType(src: string) {
+  const path = src.split(/[?#]/, 1)[0]
+  const extension = path.match(/\.([^./]+)$/)?.[1]?.toLowerCase()
+
+  if (extension === 'jpg' || extension === 'jpeg') return 'image/jpeg'
+  if (extension === 'webp') return 'image/webp'
+  if (extension === 'svg') return 'image/svg+xml'
+  if (extension === 'gif') return 'image/gif'
+  if (extension === 'png') return 'image/png'
+
+  return 'application/octet-stream'
 }
 
 function generateRSSFeed() {
@@ -45,7 +55,7 @@ function generateRSSFeed() {
       <pubDate>${pubDate}</pubDate>
       <author>${escapeXml(author)}</author>
       <description>${escapeXml(description)}</description>
-      ${post.headerImage ? `<enclosure url="${escapeXml(siteUrl + post.headerImage)}" type="image/png" />` : ''}
+      ${post.headerImage ? `<enclosure url="${escapeXml(siteUrl + post.headerImage)}" type="${getRssImageMediaType(post.headerImage)}" />` : ''}
     </item>`
     })
     .join('')
@@ -76,8 +86,8 @@ export const Route = createFileRoute('/rss.xml')({
           'public, max-age=300, must-revalidate',
         )
         setResponseHeader(
-          'CDN-Cache-Control',
-          'max-age=3600, stale-while-revalidate=3600',
+          'Cloudflare-CDN-Cache-Control',
+          'public, max-age=3600, stale-while-revalidate=3600',
         )
 
         return new Response(content)

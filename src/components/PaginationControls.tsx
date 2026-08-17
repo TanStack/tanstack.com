@@ -1,4 +1,5 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import * as React from 'react'
+import { CaretLeftIcon, CaretRightIcon } from '@phosphor-icons/react'
 
 interface PaginationControlsProps {
   currentPage: number
@@ -31,6 +32,8 @@ export function PaginationControls({
   itemLabel = 'items',
   sticky = false,
 }: PaginationControlsProps) {
+  const pageSizeSelectId = `${React.useId()}-page-size`
+
   const goToPreviousPage = () => {
     if (canGoPrevious) {
       onPageChange(currentPage - 1)
@@ -83,7 +86,10 @@ export function PaginationControls({
   }
 
   const content = (
-    <div className="flex items-center justify-between flex-wrap gap-3">
+    <nav
+      aria-label={`${itemLabel} pagination`}
+      className="flex items-center justify-between flex-wrap gap-3"
+    >
       <div className="text-sm text-gray-600 dark:text-gray-400">
         Showing{' '}
         <span className="font-semibold text-gray-900 dark:text-white">
@@ -109,12 +115,13 @@ export function PaginationControls({
         {showPageSizeSelector && (
           <>
             <label
-              htmlFor="pageSize"
+              htmlFor={pageSizeSelectId}
               className="text-sm text-gray-600 dark:text-gray-400"
             >
               Per page:
             </label>
             <select
+              id={pageSizeSelectId}
               value={pageSize}
               onChange={(e) => {
                 const next = parseInt(e.target.value, 10)
@@ -133,11 +140,12 @@ export function PaginationControls({
 
         <div className="flex gap-1 items-center">
           <button
+            type="button"
             onClick={goToPreviousPage}
             disabled={!canGoPrevious}
             className="flex items-center px-2 py-1 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 hover:text-gray-900 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white dark:disabled:hover:bg-gray-800 gap-1 transition-colors"
           >
-            <ChevronLeft className="w-2.5 h-2.5" />
+            <CaretLeftIcon className="w-2.5 h-2.5" />
             <span>Prev</span>
           </button>
 
@@ -158,6 +166,7 @@ export function PaginationControls({
               const isActive = pageNum === currentPage
               return (
                 <button
+                  type="button"
                   key={pageNum}
                   onClick={() => onPageChange(pageNum as number)}
                   className={
@@ -173,16 +182,17 @@ export function PaginationControls({
           </div>
 
           <button
+            type="button"
             onClick={goToNextPage}
             disabled={!canGoNext}
             className="flex items-center px-2 py-1 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 hover:text-gray-900 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white dark:disabled:hover:bg-gray-800 gap-1 transition-colors"
           >
             <span>Next</span>
-            <ChevronRight className="w-2.5 h-2.5" />
+            <CaretRightIcon className="w-2.5 h-2.5" />
           </button>
         </div>
       </div>
-    </div>
+    </nav>
   )
 
   if (sticky) {

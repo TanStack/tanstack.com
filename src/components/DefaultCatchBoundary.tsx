@@ -9,6 +9,7 @@ import {
 import * as Sentry from '@sentry/tanstackstart-react'
 
 import { Button } from '~/ui'
+import { reloadOnStaleAppError } from '~/utils/stale-app-reload'
 import { useEffect } from 'react'
 
 // type DefaultCatchBoundaryType = {
@@ -18,34 +19,11 @@ import { useEffect } from 'react'
 //   isRoot?: boolean
 // }
 
-function isChunkLoadError(error: unknown): boolean {
-  if (!(error instanceof Error)) return false
-  return (
-    error.message.includes('Failed to fetch dynamically imported module') ||
-    error.message.includes('error loading dynamically imported module') ||
-    error.message.includes('Importing a module script failed') ||
-    error.name === 'ChunkLoadError'
-  )
-}
-
 export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
   const router = useRouter()
 
   useEffect(() => {
-    // Handle chunk loading errors (version skew) by reloading the page
-    if (isChunkLoadError(error) && typeof window !== 'undefined') {
-      const reloadKey = 'chunk-error-reload'
-      const lastReload = sessionStorage.getItem(reloadKey)
-      const now = Date.now()
-
-      // Only reload if we haven't reloaded in the last 10 seconds (prevent loop)
-      if (!lastReload || now - parseInt(lastReload, 10) > 10000) {
-        sessionStorage.setItem(reloadKey, now.toString())
-        window.location.reload()
-        return
-      }
-    }
-
+    if (reloadOnStaleAppError(error)) return
     Sentry.captureException(error)
   }, [error])
 

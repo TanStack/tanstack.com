@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { createPortal } from 'react-dom'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
+import { Command } from 'cmdk'
 import { twMerge } from 'tailwind-merge'
 import {
   Dropdown,
@@ -18,23 +19,22 @@ import {
 } from 'react-instantsearch'
 import { liteClient } from 'algoliasearch/lite'
 import {
-  X,
-  CircleX,
-  Search,
-  SearchSlash,
-  ChevronDown,
-  CornerDownLeft,
-  ArrowUp,
-  Check,
-  Copy,
-  ExternalLink,
-  History,
-  RotateCcw,
-  ThumbsDown,
-  ThumbsUp,
-  Maximize2,
-  Minimize2,
-} from 'lucide-react'
+  XIcon,
+  MagnifyingGlassIcon,
+  MagnifyingGlassMinusIcon,
+  CaretDownIcon,
+  ArrowElbowDownLeftIcon,
+  ArrowUpIcon,
+  CheckIcon,
+  CopyIcon,
+  ArrowSquareOutIcon,
+  ClockCounterClockwiseIcon,
+  ChatCenteredDotsIcon,
+  ThumbsDownIcon,
+  ThumbsUpIcon,
+  ArrowsOutSimpleIcon,
+  ArrowsInSimpleIcon,
+} from '@phosphor-icons/react'
 import {
   DefaultKapaApiService,
   KapaProvider,
@@ -42,21 +42,19 @@ import {
   useChat,
   type StreamSource,
 } from '@kapaai/react-sdk'
-import { Streamdown } from 'streamdown'
+import { streamingMarkdownExtension } from '@tanstack/markdown/extensions/streaming'
+import { Markdown as TanStackMarkdown } from '@tanstack/markdown/react'
 import { Link, useRouterState } from '@tanstack/react-router'
 import { useSearchContext } from '~/contexts/SearchContext'
-import { libraries } from '~/libraries'
+import { publicLibraries, type Framework } from '~/libraries'
 import { frameworkOptions } from '~/libraries/frameworks'
 import { capitalize } from '~/utils/utils'
-import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
-import {
-  getStoredFrameworkPreference,
-  usePersistFrameworkPreference,
-} from './FrameworkSelect'
+import { usePersistFrameworkPreference } from './FrameworkSelect'
 import { shouldPersistFrameworkForHit } from '~/utils/searchRecords'
 import { CodeBlock } from '~/components/markdown/CodeBlock'
 import { InlineCode } from '~/ui/InlineCode'
 import { env } from '~/utils/env'
+import { getRoutableInternalLinkTarget, isSafeHref } from '~/utils/url-boundary'
 
 /**
  * Safely decode HTML entities without using innerHTML.
@@ -112,6 +110,7 @@ interface AlgoliaHighlightResult {
 interface AlgoliaHit extends Record<string, unknown> {
   objectID: string
   url: string
+  url_without_anchor?: string
   urlWithAnchor?: string
   library?: string
   framework?: string
@@ -123,6 +122,40 @@ interface AlgoliaHit extends Record<string, unknown> {
   __queryID?: string
   _highlightResult?: Record<string, unknown>
   _snippetResult?: Record<string, unknown>
+}
+
+type SearchHitPageFields = {
+  url: string
+  url_without_anchor?: string
+  urlWithAnchor?: string
+}
+
+function getSearchHitPageKey(hit: SearchHitPageFields) {
+  const hitUrl = hit.url_without_anchor ?? hit.urlWithAnchor ?? hit.url
+
+  try {
+    const url = new URL(hitUrl, 'https://tanstack.com')
+    return `${url.origin}${decodeURIComponent(url.pathname)}${url.search}`
+  } catch {
+    return hitUrl.split('#')[0].replace(/%40/gi, '@')
+  }
+}
+
+function dedupeSearchHitsByPage<THit extends SearchHitPageFields>(
+  hits: THit[],
+) {
+  const seenPageKeys = new Set<string>()
+
+  return hits.filter((hit) => {
+    const pageKey = getSearchHitPageKey(hit)
+
+    if (seenPageKeys.has(pageKey)) {
+      return false
+    }
+
+    seenPageKeys.add(pageKey)
+    return true
+  })
 }
 
 // Custom Highlight component that decodes HTML entities
@@ -186,6 +219,121 @@ const searchClient = liteClient(
   '10c34d6a5c89f6048cf644d601e65172',
 )
 const searchIndexName = 'tanstack-test'
+const AI_DOCK_WIDTH_STORAGE_KEY = 'tanstack-ai-dock-width'
+const AI_DOCK_MIN_WIDTH = 320
+const AI_DOCK_DEFAULT_WIDTH = 360
+const AI_DOCK_MAX_WIDTH_RATIO = 0.5
+const AI_DOCK_MAXIMIZED_WIDTH = 1200
+const DEFAULT_SEARCH_FRAMEWORK: Framework = 'react'
+const KAPA_RECAPTCHA_READY_TIMEOUT_MS = 8_000
+const KAPA_INTEGRATION_ID = '86e864f7-401e-48c8-ac6f-5fcbc86c5668'
+
+type SearchSurface = 'modal' | 'dock'
+type AiDockStyle = React.CSSProperties & {
+  '--ai-dock-width': string
+  '--ai-dock-max-width': string
+}
+
+function getAiDockMaxWidth(viewportWidth: number) {
+  return Math.max(
+    AI_DOCK_MIN_WIDTH,
+    Math.floor(viewportWidth * AI_DOCK_MAX_WIDTH_RATIO),
+  )
+}
+
+function clampAiDockWidth(width: number, viewportWidth: number) {
+  return Math.min(
+    Math.max(Math.round(width), AI_DOCK_MIN_WIDTH),
+    getAiDockMaxWidth(viewportWidth),
+  )
+}
+
+function readAiDockWidth() {
+  if (typeof window === 'undefined') {
+    return AI_DOCK_DEFAULT_WIDTH
+  }
+
+  const storedWidth = Number(localStorage.getItem(AI_DOCK_WIDTH_STORAGE_KEY))
+
+  if (!Number.isFinite(storedWidth)) {
+    return clampAiDockWidth(AI_DOCK_DEFAULT_WIDTH, window.innerWidth)
+  }
+
+  return clampAiDockWidth(storedWidth, window.innerWidth)
+}
+
+function writeAiDockWidth(width: number) {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  localStorage.setItem(AI_DOCK_WIDTH_STORAGE_KEY, String(Math.round(width)))
+}
+
+function waitForKapaRecaptchaReady() {
+  if (typeof window === 'undefined') {
+    return Promise.resolve()
+  }
+
+  return new Promise<void>((resolve) => {
+    let timeoutId: number | null = null
+    let intervalId: number | null = null
+    let isSettled = false
+    let hasRegisteredReadyCallback = false
+
+    const cleanup = () => {
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId)
+        timeoutId = null
+      }
+
+      if (intervalId !== null) {
+        window.clearInterval(intervalId)
+        intervalId = null
+      }
+    }
+
+    const finish = () => {
+      if (isSettled) {
+        return
+      }
+
+      isSettled = true
+      cleanup()
+      window.setTimeout(resolve, 0)
+    }
+
+    const checkReady = () => {
+      if (hasRegisteredReadyCallback) {
+        return true
+      }
+
+      const enterprise = window.grecaptcha?.enterprise
+
+      if (!enterprise) {
+        return false
+      }
+
+      hasRegisteredReadyCallback = true
+
+      if (intervalId !== null) {
+        window.clearInterval(intervalId)
+        intervalId = null
+      }
+
+      enterprise.ready(finish)
+      return true
+    }
+
+    timeoutId = window.setTimeout(finish, KAPA_RECAPTCHA_READY_TIMEOUT_MS)
+
+    if (checkReady()) {
+      return
+    }
+
+    intervalId = window.setInterval(checkReady, 50)
+  })
+}
 
 function buildSearchFilters({
   selectedLibrary,
@@ -205,6 +353,52 @@ function buildSearchFilters({
   }
 
   return filterParts.join(' AND ')
+}
+
+function getSearchableLibraries() {
+  return publicLibraries.filter((library) => library.latestVersion)
+}
+
+function isFramework(value: string): value is Framework {
+  return frameworkOptions.some((framework) => framework.value === value)
+}
+
+function getRouteFramework(pathname: string) {
+  const pathParts = pathname.split('/').filter(Boolean)
+  const frameworkIndex = pathParts.findIndex((part) => part === 'framework')
+
+  if (frameworkIndex === -1) {
+    return ''
+  }
+
+  const routeFramework = pathParts[frameworkIndex + 1]
+
+  return routeFramework && isFramework(routeFramework) ? routeFramework : ''
+}
+
+function getSearchFilterDefaults(pathname: string) {
+  const searchableLibraries = getSearchableLibraries()
+  const [firstPathPart] = pathname.split('/').filter(Boolean)
+  const routeLibrary = searchableLibraries.find(
+    (library) => library.id === firstPathPart,
+  )
+  const availableFrameworks = routeLibrary
+    ? routeLibrary.frameworks
+    : Array.from(
+        new Set(searchableLibraries.flatMap((library) => library.frameworks)),
+      )
+  const routeFramework = getRouteFramework(pathname)
+  const selectedFramework =
+    routeFramework && availableFrameworks.includes(routeFramework)
+      ? routeFramework
+      : availableFrameworks.includes(DEFAULT_SEARCH_FRAMEWORK)
+        ? DEFAULT_SEARCH_FRAMEWORK
+        : ''
+
+  return {
+    selectedLibrary: routeLibrary?.id ?? '',
+    selectedFramework,
+  }
 }
 
 // Context to share filter state between components
@@ -242,72 +436,46 @@ function useSearchFilters() {
   return context
 }
 
-function SearchFiltersProvider({ children }: { children: React.ReactNode }) {
-  const userQuery = useCurrentUserQuery()
-  const [selectedLibrary, setSelectedLibrary] = React.useState('')
+function SearchFiltersProvider({
+  children,
+  resetFiltersOnOpen = false,
+}: {
+  children: React.ReactNode
+  resetFiltersOnOpen?: boolean
+}) {
+  const pathname = useRouterState({
+    select: (state) => state.location.pathname,
+  })
+  const defaultFilters = React.useMemo(
+    () => getSearchFilterDefaults(pathname),
+    [pathname],
+  )
+  const [selectedLibrary, setSelectedLibrary] = React.useState(
+    defaultFilters.selectedLibrary,
+  )
   const [searchQuery, setSearchQuery] = React.useState('')
   const [showSearchResults, setShowSearchResults] = React.useState(() => {
     if (typeof window === 'undefined') return true
     return localStorage.getItem('search-show-results') !== 'false'
   })
-  const lastUsedFramework = userQuery.data?.lastUsedFramework
+  const [selectedFramework, setSelectedFramework] = React.useState(
+    defaultFilters.selectedFramework,
+  )
 
-  // Get initial framework from user preference (DB if logged in, localStorage otherwise)
-  const getInitialFramework = React.useCallback(() => {
-    if (lastUsedFramework) {
-      return lastUsedFramework
-    }
-    return getStoredFrameworkPreference() || ''
-  }, [lastUsedFramework])
-
-  const [selectedFramework, setSelectedFramework] =
-    React.useState(getInitialFramework)
-
-  // Auto-select based on current page URL
-  const pathname = useRouterState({
-    select: (state) => state.location.pathname,
-  })
-
-  // Auto-select library from URL on mount
-  const hasAutoSelectedLibrary = React.useRef(false)
   React.useEffect(() => {
-    if (hasAutoSelectedLibrary.current) return
-    const pathParts = pathname.split('/').filter(Boolean)
-    const urlLibrary = libraries.find((l) => l.id === pathParts[0])
-    if (urlLibrary) {
-      setSelectedLibrary(urlLibrary.id)
-      hasAutoSelectedLibrary.current = true
-    }
-  }, [pathname])
-
-  // Auto-select framework from URL or preference on mount
-  const hasAutoSelectedFramework = React.useRef(false)
-  React.useEffect(() => {
-    if (hasAutoSelectedFramework.current) return
-
-    // First check URL for framework
-    const frameworkMatch = pathname.match(/\/framework\/([^/]+)/)
-    if (frameworkMatch) {
-      setSelectedFramework(frameworkMatch[1])
-      hasAutoSelectedFramework.current = true
+    if (!resetFiltersOnOpen) {
       return
     }
 
-    // Fall back to stored preference
-    const storedFramework = getInitialFramework()
-    if (storedFramework) {
-      setSelectedFramework(storedFramework)
-      hasAutoSelectedFramework.current = true
-    }
-  }, [pathname, getInitialFramework])
+    setSelectedLibrary(defaultFilters.selectedLibrary)
+    setSelectedFramework(defaultFilters.selectedFramework)
+  }, [
+    defaultFilters.selectedFramework,
+    defaultFilters.selectedLibrary,
+    resetFiltersOnOpen,
+  ])
 
-  const searchableLibraries = React.useMemo(
-    () =>
-      libraries.filter(
-        (library) => library.visible !== false && library.latestVersion,
-      ),
-    [],
-  )
+  const searchableLibraries = React.useMemo(() => getSearchableLibraries(), [])
 
   const selectedLibraryInfo = React.useMemo(
     () => searchableLibraries.find((library) => library.id === selectedLibrary),
@@ -411,6 +579,7 @@ function DynamicFilters() {
         'hierarchy.lvl5',
         'hierarchy.lvl6',
         'url',
+        'url_without_anchor',
         'anchor',
         'urlWithAnchor',
         'content',
@@ -429,9 +598,14 @@ function DynamicFilters() {
         'content',
       ]}
       attributesToSnippet={['content:50']}
+      distinct={1}
       filters={buildSearchFilters({ selectedLibrary, selectedFramework })}
     />
   )
+}
+
+function getInternalLinkTarget(hrefValue: string) {
+  return getRoutableInternalLinkTarget(hrefValue)
 }
 
 const SafeLink = React.forwardRef(
@@ -449,23 +623,12 @@ const SafeLink = React.forwardRef(
     ref: React.Ref<HTMLAnchorElement>,
   ) => {
     const hrefValue = href ?? ''
-    const internalUrl = hrefValue.includes('//tanstack.com')
-      ? hrefValue.split('//tanstack.com')[1]
-      : hrefValue
-    const [internalPath, internalHash] = internalUrl.split('#')
-    const isInternal =
-      hrefValue.includes('//tanstack.com') || hrefValue.startsWith('/')
-    const isRoutableInternal =
-      internalPath.startsWith('/') &&
-      !internalPath.startsWith('//') &&
-      internalPath !== '/api' &&
-      !internalPath.startsWith('/api/') &&
-      !/\.[a-z0-9]+$/i.test(internalPath)
+    const internalTarget = getInternalLinkTarget(hrefValue)
 
-    if (!isInternal || !isRoutableInternal) {
+    if (!internalTarget) {
       return (
         <a
-          href={href}
+          href={isSafeHref(hrefValue) ? href : undefined}
           className={className}
           onKeyDown={onKeyDown}
           role={role}
@@ -481,8 +644,8 @@ const SafeLink = React.forwardRef(
 
     return (
       <Link
-        to={internalPath}
-        hash={internalHash}
+        to={internalTarget.path}
+        hash={internalTarget.hash}
         className={className}
         onKeyDown={onKeyDown}
         role={role}
@@ -514,10 +677,107 @@ function KapaMarkdownLink({
   )
 }
 
-const streamdownComponents = {
+function KapaMarkdownTable({
+  children,
+  className,
+  ...props
+}: React.TableHTMLAttributes<HTMLTableElement>) {
+  return (
+    <div className="my-3 max-w-full overflow-x-auto rounded-xl border border-gray-200 bg-white dark:border-white/[0.12] dark:bg-black/20">
+      <table
+        className={twMerge(
+          className,
+          'w-full min-w-[34rem] border-collapse text-left',
+        )}
+        {...props}
+      >
+        {children}
+      </table>
+    </div>
+  )
+}
+
+function KapaMarkdownTableHead({
+  children,
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLTableSectionElement>) {
+  return (
+    <thead
+      className={twMerge(
+        className,
+        'border-b border-gray-200 bg-gray-50/80 dark:border-white/[0.12] dark:bg-white/[0.04]',
+      )}
+      {...props}
+    >
+      {children}
+    </thead>
+  )
+}
+
+function KapaMarkdownTableBody({
+  children,
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLTableSectionElement>) {
+  return (
+    <tbody
+      className={twMerge(
+        className,
+        '[&_tr:last-child_td]:border-b-0 [&_tr:last-child_th]:border-b-0',
+      )}
+      {...props}
+    >
+      {children}
+    </tbody>
+  )
+}
+
+function KapaMarkdownTableCell({
+  children,
+  className,
+  ...props
+}: React.TdHTMLAttributes<HTMLTableCellElement>) {
+  return (
+    <td
+      className={twMerge(
+        className,
+        'border-b border-l border-gray-200/80 px-3 py-2 align-top first:border-l-0 dark:border-white/[0.08]',
+      )}
+      {...props}
+    >
+      {children}
+    </td>
+  )
+}
+
+function KapaMarkdownTableHeaderCell({
+  children,
+  className,
+  ...props
+}: React.ThHTMLAttributes<HTMLTableCellElement>) {
+  return (
+    <th
+      className={twMerge(
+        className,
+        'border-b border-l border-gray-200 px-3 py-2 font-semibold align-top first:border-l-0 dark:border-white/[0.1]',
+      )}
+      {...props}
+    >
+      {children}
+    </th>
+  )
+}
+
+const kapaMarkdownComponents = {
   pre: CodeBlock,
   code: InlineCode,
   a: KapaMarkdownLink,
+  table: KapaMarkdownTable,
+  thead: KapaMarkdownTableHead,
+  tbody: KapaMarkdownTableBody,
+  td: KapaMarkdownTableCell,
+  th: KapaMarkdownTableHeaderCell,
   ul: ({ children }: { children?: React.ReactNode }) => (
     <ul className="list-disc list-outside pl-5 space-y-1 my-2">{children}</ul>
   ),
@@ -530,6 +790,8 @@ const streamdownComponents = {
     <li className="leading-relaxed">{children}</li>
   ),
 }
+
+const kapaMarkdownExtensions = [streamingMarkdownExtension()]
 
 function parseSourceGroupIDs(value: string | undefined) {
   if (!value) {
@@ -586,13 +848,10 @@ class KapaThreadOverrideApiService {
     args: KapaSubmitQueryArgs,
     callbacks: KapaChatStreamCallbacks,
   ): Promise<void> {
-    const threadIdOverride = this.threadIdOverrideRef.current
-    const nextArgs =
-      threadIdOverride && !args.threadId
-        ? { ...args, threadId: threadIdOverride }
-        : args
-
-    return this.service.submitQuery(nextArgs, callbacks)
+    return this.service.submitQuery(
+      { ...args, threadId: this.threadIdOverrideRef.current },
+      callbacks,
+    )
   }
 
   addFeedback(args: KapaSubmitFeedbackArgs): Promise<void> {
@@ -636,7 +895,13 @@ function parseKapaSource(value: unknown): StreamSource | null {
   const title = readString(value.title)
   const sourceUrl = readString(value.source_url)
 
-  if (!title || !sourceUrl) {
+  if (
+    !title ||
+    title.length > 160 ||
+    !sourceUrl ||
+    sourceUrl.length > 2048 ||
+    !isSafeHref(sourceUrl)
+  ) {
     return null
   }
 
@@ -843,7 +1108,7 @@ function getSourceScope(sourceUrl: string) {
 
   const pathParts = pathname.split('/').filter(Boolean)
   const libraryId = pathParts[0]
-  const library = libraries.find((item) => item.id === libraryId)
+  const library = publicLibraries.find((item) => item.id === libraryId)
   const frameworkIndex = pathParts.indexOf('framework')
   const frameworkValue =
     frameworkIndex >= 0 ? pathParts[frameworkIndex + 1] : undefined
@@ -894,13 +1159,71 @@ function SourceScopeBadges({
   )
 }
 
+function ChatControlTooltip({ children }: { children: React.ReactNode }) {
+  return (
+    <span
+      aria-hidden="true"
+      data-chat-control-tooltip
+      className="pointer-events-none absolute right-0 top-full z-30 mt-1.5 whitespace-nowrap rounded-md bg-gray-900 px-2 py-1 text-[11px] font-medium text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus:opacity-100 group-focus-visible:opacity-100 dark:bg-gray-100 dark:text-gray-900"
+    >
+      {children}
+    </span>
+  )
+}
+
+const compactChatControlClass =
+  'group relative h-8 w-8 justify-center rounded-lg bg-transparent shadow-none border-transparent hover:border-gray-200 focus-visible:border-gray-200 dark:hover:border-white/10 dark:focus-visible:border-white/10'
+
+function DockMaximizeButton({
+  isMaximized,
+  onToggle,
+}: {
+  isMaximized: boolean
+  onToggle: () => void
+}) {
+  const label = isMaximized ? 'Minimize panel' : 'Maximize panel'
+
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      title={label}
+      aria-label={label}
+      aria-pressed={isMaximized}
+      className={twMerge(
+        'pointer-events-auto flex items-center text-xs backdrop-blur-sm border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-white dark:hover:bg-black/90 disabled:opacity-40 disabled:hover:text-gray-400 dark:disabled:hover:text-gray-500 shadow-sm transition-colors',
+        compactChatControlClass,
+      )}
+    >
+      {isMaximized ? (
+        <ArrowsInSimpleIcon className="w-3.5 h-3.5" />
+      ) : (
+        <ArrowsOutSimpleIcon className="w-3.5 h-3.5" />
+      )}
+      <ChatControlTooltip>{label}</ChatControlTooltip>
+    </button>
+  )
+}
+
 function CopyChatButton({
   conversation,
+  compact = false,
 }: {
   conversation: Array<KapaDisplayQA>
+  compact?: boolean
 }) {
   const [copied, setCopied] = React.useState(false)
   const hasConversation = conversation.length > 0
+  const label = copied ? 'Copied' : 'Copy chat'
+  const resetCopiedTimerRef = React.useRef<number | null>(null)
+
+  React.useEffect(() => {
+    return () => {
+      if (resetCopiedTimerRef.current) {
+        window.clearTimeout(resetCopiedTimerRef.current)
+      }
+    }
+  }, [])
 
   const handleCopy = () => {
     const text = conversation
@@ -916,8 +1239,15 @@ function CopyChatButton({
     }
 
     navigator.clipboard.writeText(text).then(() => {
+      if (resetCopiedTimerRef.current) {
+        window.clearTimeout(resetCopiedTimerRef.current)
+      }
+
       setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      resetCopiedTimerRef.current = window.setTimeout(() => {
+        setCopied(false)
+        resetCopiedTimerRef.current = null
+      }, 2000)
     })
   }
 
@@ -926,14 +1256,23 @@ function CopyChatButton({
       type="button"
       onClick={handleCopy}
       disabled={!hasConversation}
-      className="pointer-events-auto flex items-center gap-1 px-2 py-1 text-xs rounded-md bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-white dark:hover:bg-black/90 disabled:opacity-40 disabled:hover:text-gray-400 dark:disabled:hover:text-gray-500 shadow-sm transition-colors"
+      title={label}
+      aria-label={label}
+      className={twMerge(
+        'pointer-events-auto flex items-center text-xs backdrop-blur-sm border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-white dark:hover:bg-black/90 disabled:opacity-40 disabled:hover:text-gray-400 dark:disabled:hover:text-gray-500 shadow-sm transition-colors',
+        compact
+          ? compactChatControlClass
+          : 'gap-1 px-2 py-1 rounded-md bg-white/80 dark:bg-black/80',
+        copied &&
+          'border-green-500/30 bg-green-500/10 text-green-600 hover:bg-green-500/15 hover:text-green-700 dark:border-green-400/30 dark:bg-green-400/10 dark:text-green-300 dark:hover:bg-green-400/15 dark:hover:text-green-200',
+      )}
     >
       {copied ? (
-        <Check className="w-3 h-3 text-green-500" />
+        <CheckIcon className="w-3.5 h-3.5" />
       ) : (
-        <Copy className="w-3 h-3" />
+        <CopyIcon className="w-3 h-3" />
       )}
-      {copied ? 'Copied' : 'Copy chat'}
+      {compact ? <ChatControlTooltip>{label}</ChatControlTooltip> : label}
     </button>
   )
 }
@@ -943,29 +1282,59 @@ function KapaHistoryButton({
   activeThreadId,
   isBusy,
   onSelect,
+  compact = false,
 }: {
   items: Array<KapaHistoryItem>
   activeThreadId: string | null
   isBusy: boolean
   onSelect: (item: KapaHistoryItem) => void
+  compact?: boolean
 }) {
+  const { cancelAiDockHoverClose } = useSearchContext()
+  const cancelPendingDockClose = React.useCallback(() => {
+    if (!compact) {
+      return
+    }
+
+    cancelAiDockHoverClose()
+  }, [cancelAiDockHoverClose, compact])
+
   return (
-    <Dropdown modal={false}>
+    <Dropdown
+      modal={false}
+      onOpenChange={(open) => {
+        if (open) {
+          cancelPendingDockClose()
+        }
+      }}
+    >
       <DropdownTrigger>
         <button
           type="button"
           disabled={isBusy}
           aria-label="Chat history"
-          className="pointer-events-auto flex items-center gap-1 px-1.5 sm:px-2 py-1 text-xs rounded-md bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-white dark:hover:bg-black/90 disabled:opacity-40 disabled:hover:text-gray-400 dark:disabled:hover:text-gray-500 shadow-sm transition-colors"
+          title="Chat history"
+          className={twMerge(
+            'pointer-events-auto flex items-center text-xs backdrop-blur-sm border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-white dark:hover:bg-black/90 disabled:opacity-40 disabled:hover:text-gray-400 dark:disabled:hover:text-gray-500 shadow-sm transition-colors',
+            compact
+              ? compactChatControlClass
+              : 'gap-1 px-1.5 sm:px-2 py-1 rounded-md bg-white/80 dark:bg-black/80',
+          )}
         >
-          <History className="w-3 h-3" />
-          <span className="hidden sm:inline">History</span>
+          <ClockCounterClockwiseIcon className="w-3 h-3" />
+          {compact ? (
+            <ChatControlTooltip>Chat history</ChatControlTooltip>
+          ) : (
+            <span className="hidden sm:inline">History</span>
+          )}
         </button>
       </DropdownTrigger>
       <DropdownContent
         align="end"
         sideOffset={8}
         className="w-72 max-w-[calc(100vw-2rem)]"
+        onFocus={cancelPendingDockClose}
+        onPointerEnter={cancelPendingDockClose}
       >
         {items.length === 0 ? (
           <div className="px-2 py-2 text-xs text-gray-400 dark:text-gray-500">
@@ -978,7 +1347,10 @@ function KapaHistoryButton({
           return (
             <DropdownItem
               key={item.threadId}
-              onSelect={() => onSelect(item)}
+              onSelect={() => {
+                cancelPendingDockClose()
+                onSelect(item)
+              }}
               className="items-start justify-between gap-3 py-2"
             >
               <span className="min-w-0">
@@ -990,7 +1362,7 @@ function KapaHistoryButton({
                 </span>
               </span>
               {isActive ? (
-                <Check className="mt-0.5 w-3 h-3 shrink-0 text-green-500" />
+                <CheckIcon className="mt-0.5 w-3 h-3 shrink-0 text-green-500" />
               ) : null}
             </DropdownItem>
           )
@@ -1020,9 +1392,9 @@ function MessageActionButton({
   }
 
   const iconEl = flashed ? (
-    <Check className="w-3 h-3 text-green-500" />
+    <CheckIcon className="w-3 h-3 text-green-500" />
   ) : (
-    <Copy className="w-3 h-3" />
+    <CopyIcon className="w-3 h-3" />
   )
 
   return (
@@ -1043,9 +1415,15 @@ function AIMessageHeader({ action }: { action?: React.ReactNode }) {
       <div className="flex items-center gap-1.5 min-w-0">
         <div className="w-5 h-5 rounded-full overflow-hidden ring-1 ring-black/10 dark:ring-white/10 shrink-0">
           <img
-            src="/images/logos/logo-color-100.png"
+            src="/images/brand/tanstack-emblem-black.svg"
             alt="TanStack"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain p-0.5 dark:hidden"
+          />
+          <img
+            src="/images/brand/tanstack-emblem-white.svg"
+            alt="TanStack"
+            aria-hidden="true"
+            className="hidden w-full h-full object-contain p-0.5 dark:block"
           />
         </div>
         <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0 min-w-0">
@@ -1146,11 +1524,13 @@ function KapaWelcome({
   selectedFramework,
   onSuggestion,
   disabled,
+  compact = false,
 }: {
   selectedLibrary: string
   selectedFramework: string
   onSuggestion: (suggestion: string) => void
   disabled?: boolean
+  compact?: boolean
 }) {
   const suggestions = getKapaSuggestions(selectedLibrary)
 
@@ -1158,7 +1538,12 @@ function KapaWelcome({
     <div>
       <AIMessageHeader />
       <div className="rounded-2xl px-3.5 py-3 bg-white dark:bg-white/[0.06] border border-gray-200 dark:border-white/10 shadow-sm space-y-2.5">
-        <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+        <p
+          className={twMerge(
+            'text-gray-700 dark:text-gray-300 leading-relaxed',
+            compact ? 'text-[13px]' : 'text-sm',
+          )}
+        >
           Ask a TanStack docs question in plain English.
           {(selectedLibrary || selectedFramework) && (
             <>
@@ -1190,7 +1575,10 @@ function KapaWelcome({
                 type="button"
                 disabled={disabled}
                 onClick={() => onSuggestion(suggestion)}
-                className="text-xs px-2.5 py-1 rounded-full bg-gray-100 dark:bg-white/[0.08] text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/[0.14] disabled:hover:bg-gray-100 dark:disabled:hover:bg-white/[0.08] disabled:opacity-50 disabled:cursor-default transition-colors border border-gray-200 dark:border-white/10 text-left"
+                className={twMerge(
+                  'px-2.5 py-1 rounded-full bg-gray-100 dark:bg-white/[0.08] text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/[0.14] disabled:hover:bg-gray-100 dark:disabled:hover:bg-white/[0.08] disabled:opacity-50 disabled:cursor-default transition-colors border border-gray-200 dark:border-white/10 text-left',
+                  compact ? 'text-[11px]' : 'text-xs',
+                )}
               >
                 {suggestion}
               </button>
@@ -1208,12 +1596,14 @@ function KapaAnswer({
   error,
   onCopyQuestion,
   onFeedback,
+  compact = false,
 }: {
   qa: KapaDisplayQA
   isStreaming: boolean
   error?: string | null
   onCopyQuestion: () => void
   onFeedback: (reaction: 'upvote' | 'downvote') => void
+  compact?: boolean
 }) {
   const canSubmitFeedback =
     qa.id !== null && qa.isFeedbackSubmissionEnabled && qa.reaction === null
@@ -1222,7 +1612,12 @@ function KapaAnswer({
   return (
     <div className="space-y-3">
       <div className="group flex flex-col items-end gap-1">
-        <div className="max-w-[85%] px-3.5 py-2 rounded-2xl rounded-tr-sm bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm break-words">
+        <div
+          className={twMerge(
+            'max-w-[85%] px-3.5 py-2 rounded-2xl rounded-tr-sm bg-gray-900 dark:bg-white text-white dark:text-gray-900 break-words',
+            compact ? 'text-[13px]' : 'text-sm',
+          )}
+        >
           {qa.question}
         </div>
         <div className="flex items-center gap-0.5 opacity-60 group-hover:opacity-100 transition-opacity">
@@ -1237,17 +1632,29 @@ function KapaAnswer({
         <AIMessageHeader />
         <div className="rounded-2xl px-3.5 py-2.5 bg-white dark:bg-white/[0.06] border border-gray-200 dark:border-white/10 shadow-sm">
           {hasAnswerError ? (
-            <p className="text-sm text-red-700 dark:text-red-300 leading-relaxed">
+            <p
+              className={twMerge(
+                'text-red-700 dark:text-red-300 leading-relaxed',
+                compact ? 'text-[13px]' : 'text-sm',
+              )}
+            >
               {error}
             </p>
           ) : qa.answer ? (
-            <div className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed break-words">
-              <Streamdown
-                components={streamdownComponents}
-                isAnimating={isStreaming}
+            <div
+              className={twMerge(
+                'text-gray-800 dark:text-gray-200 leading-relaxed break-words',
+                compact ? 'text-[13px]' : 'text-sm',
+              )}
+            >
+              <TanStackMarkdown
+                components={kapaMarkdownComponents}
+                extensions={kapaMarkdownExtensions}
+                frontmatter={false}
+                headingIds={false}
               >
                 {qa.answer}
-              </Streamdown>
+              </TanStackMarkdown>
             </div>
           ) : (
             <div className="flex items-center gap-1 py-0.5">
@@ -1274,21 +1681,22 @@ function KapaAnswer({
                 const sourceScope = getSourceScope(source.source_url)
                 const hasSourceScope =
                   !!sourceScope.library || !!sourceScope.framework
+                const internalTarget = getInternalLinkTarget(source.source_url)
 
                 return (
-                  <a
+                  <SafeLink
                     key={source.source_url}
                     href={source.source_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    target={internalTarget ? undefined : '_blank'}
+                    rel={internalTarget ? undefined : 'noopener noreferrer'}
                     className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-[11px] font-medium bg-gray-100 dark:bg-white/[0.06] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/[0.12] hover:text-gray-900 dark:hover:text-gray-200 border border-gray-200 dark:border-white/10 transition-colors max-w-[280px]"
                   >
                     <SourceScopeBadges {...sourceScope} />
                     {!hasSourceScope ? (
-                      <ExternalLink className="w-2.5 h-2.5 flex-none opacity-60" />
+                      <ArrowSquareOutIcon className="w-2.5 h-2.5 flex-none opacity-60" />
                     ) : null}
                     <span className="truncate">{label}</span>
-                  </a>
+                  </SafeLink>
                 )
               })}
             </div>
@@ -1308,7 +1716,7 @@ function KapaAnswer({
                   : 'text-gray-300 dark:text-gray-600 hover:text-gray-500 dark:hover:text-gray-400 disabled:opacity-40',
               )}
             >
-              <ThumbsUp className="w-3 h-3" />
+              <ThumbsUpIcon className="w-3 h-3" />
             </button>
             <button
               type="button"
@@ -1322,7 +1730,7 @@ function KapaAnswer({
                   : 'text-gray-300 dark:text-gray-600 hover:text-gray-500 dark:hover:text-gray-400 disabled:opacity-40',
               )}
             >
-              <ThumbsDown className="w-3 h-3" />
+              <ThumbsDownIcon className="w-3 h-3" />
             </button>
             <div className="w-px h-3 bg-gray-200 dark:bg-white/10 mx-0.5" />
             <MessageActionButton
@@ -1343,12 +1751,18 @@ function KapaChatPanel({
   onToggleFullHeight,
   threadIdOverrideRef,
   newChatRequestId,
+  surface,
+  isDockMaximized = false,
+  onToggleDockMaximized,
 }: {
   onReset: () => void
   isFullHeight: boolean
   onToggleFullHeight: () => void
   threadIdOverrideRef: React.MutableRefObject<string | null>
   newChatRequestId: number
+  surface: SearchSurface
+  isDockMaximized?: boolean
+  onToggleDockMaximized?: () => void
 }) {
   const {
     conversation,
@@ -1361,17 +1775,25 @@ function KapaChatPanel({
     addFeedback,
     error,
   } = useChat()
-  const { closeSearch } = useSearchContext()
-  const { selectedLibrary, selectedFramework, showSearchResults } =
+  const {
+    aiDockAskRequest,
+    clearAiDockAskRequest,
+    closeSearch,
+    setAiDockDirty,
+  } = useSearchContext()
+  const { selectedLibrary, selectedFramework, showSearchResults, searchQuery } =
     useSearchFilters()
   const scrollRef = React.useRef<HTMLDivElement>(null)
   const { items: historyItems, save: saveHistory } = useKapaChatHistory()
   const [selectedHistoryItem, setSelectedHistoryItem] =
     React.useState<KapaHistoryItem | null>(null)
   const isBusy = isGeneratingAnswer || isPreparingAnswer
+  const isDock = surface === 'dock'
   const isSubmittingRef = React.useRef(false)
+  const pendingSubmitIdRef = React.useRef(0)
   const lockedToBottom = React.useRef(true)
   const handledNewChatRequestId = React.useRef(newChatRequestId)
+  const handledAiDockAskRequestId = React.useRef(0)
   const displayConversation = React.useMemo<Array<KapaDisplayQA>>(() => {
     const liveConversation = Array.from(conversation)
 
@@ -1383,6 +1805,16 @@ function KapaChatPanel({
   }, [conversation, selectedHistoryItem])
   const hasConversation = displayConversation.length > 0
   const activeThreadId = threadId ?? selectedHistoryItem?.threadId ?? null
+
+  React.useEffect(() => {
+    if (!isDock) {
+      return
+    }
+
+    setAiDockDirty(
+      searchQuery.trim().length > 0 || displayConversation.length > 0 || isBusy,
+    )
+  }, [displayConversation.length, isBusy, isDock, searchQuery, setAiDockDirty])
 
   React.useEffect(() => {
     if (threadId) {
@@ -1438,8 +1870,17 @@ function KapaChatPanel({
         return
       }
 
+      const submitId = pendingSubmitIdRef.current + 1
+      pendingSubmitIdRef.current = submitId
       isSubmittingRef.current = true
-      submitQuery(trimmed)
+
+      waitForKapaRecaptchaReady().then(() => {
+        if (pendingSubmitIdRef.current !== submitId) {
+          return
+        }
+
+        submitQuery(trimmed)
+      })
     },
     [isBusy, submitQuery],
   )
@@ -1458,16 +1899,23 @@ function KapaChatPanel({
     [isBusy, resetConversation, threadIdOverrideRef],
   )
 
+  const clearActiveChat = React.useCallback(() => {
+    pendingSubmitIdRef.current += 1
+    isSubmittingRef.current = false
+    resetConversation()
+    threadIdOverrideRef.current = null
+    setSelectedHistoryItem(null)
+    lockedToBottom.current = true
+    onReset()
+  }, [onReset, resetConversation, threadIdOverrideRef])
+
   const startNewChat = React.useCallback(() => {
     if (isBusy) {
       stopGeneration()
     }
 
-    resetConversation()
-    threadIdOverrideRef.current = null
-    setSelectedHistoryItem(null)
-    onReset()
-  }, [isBusy, onReset, resetConversation, stopGeneration, threadIdOverrideRef])
+    clearActiveChat()
+  }, [clearActiveChat, isBusy, stopGeneration])
 
   React.useEffect(() => {
     if (handledNewChatRequestId.current === newChatRequestId) {
@@ -1478,68 +1926,149 @@ function KapaChatPanel({
     startNewChat()
   }, [newChatRequestId, startNewChat])
 
+  React.useEffect(() => {
+    if (!isDock || !aiDockAskRequest) {
+      return
+    }
+
+    if (handledAiDockAskRequestId.current === aiDockAskRequest.id) {
+      return
+    }
+
+    if (isBusy) {
+      stopGeneration()
+      return
+    }
+
+    handledAiDockAskRequestId.current = aiDockAskRequest.id
+    clearActiveChat()
+    ask(aiDockAskRequest.question)
+    clearAiDockAskRequest(aiDockAskRequest.id)
+  }, [
+    ask,
+    aiDockAskRequest,
+    clearActiveChat,
+    clearAiDockAskRequest,
+    isBusy,
+    isDock,
+    stopGeneration,
+  ])
+
   return (
     <section
       ref={scrollRef}
       className={twMerge(
         'overflow-y-auto flex flex-col',
-        isFullHeight
+        isDock
           ? 'flex-1 min-h-0'
-          : 'flex-1 min-h-0 sm:flex-none sm:max-h-[min(600px,calc(100dvh-2rem-90px))]',
+          : isFullHeight
+            ? 'flex-1 min-h-0'
+            : 'flex-1 min-h-0 sm:flex-none sm:max-h-[min(600px,calc(100dvh-2rem-90px))]',
       )}
     >
-      <div className="sticky top-0 z-10 relative flex items-center justify-between gap-1.5 px-4 sm:px-5 pt-2 pb-1 pointer-events-none">
-        <StickyTopBlur />
-        <div className="relative z-10 flex items-center gap-1">
-          <button
-            type="button"
-            onClick={closeSearch}
-            className="pointer-events-auto flex items-center justify-center w-6 h-6 rounded-md bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-white dark:hover:bg-black/90 shadow-sm transition-colors"
-            aria-label="Close search"
-          >
-            <X className="w-3.5 h-3.5" />
-          </button>
-          <button
-            type="button"
-            onClick={onToggleFullHeight}
-            className="hidden sm:flex pointer-events-auto items-center justify-center w-6 h-6 rounded-md bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-white dark:hover:bg-black/90 shadow-sm transition-colors"
-            aria-label={isFullHeight ? 'Collapse search' : 'Expand search'}
-          >
-            {isFullHeight ? (
-              <Minimize2 className="w-3 h-3" />
-            ) : (
-              <Maximize2 className="w-3 h-3" />
-            )}
-          </button>
+      <div
+        className={twMerge(
+          'sticky top-0 flex items-center justify-between gap-1.5',
+          isDock
+            ? 'z-20 px-3 py-2 border-b border-gray-200/80 dark:border-white/10 bg-white/90 dark:bg-black/90 backdrop-blur-xl shadow-sm'
+            : 'z-10 pt-2 pb-1 px-4 sm:px-5 pointer-events-none',
+        )}
+      >
+        {isDock ? null : <StickyTopBlur />}
+        <div className="relative z-10 flex items-center gap-1 min-w-0">
+          {isDock ? (
+            <div className="min-w-0 py-1.5">
+              <div className="truncate text-sm font-bold leading-4 text-gray-900 dark:text-white">
+                TanStack AI
+              </div>
+            </div>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={closeSearch}
+                className="pointer-events-auto flex items-center justify-center w-6 h-6 rounded-md bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-white dark:hover:bg-black/90 shadow-sm transition-colors"
+                aria-label="Close search"
+              >
+                <XIcon className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={onToggleFullHeight}
+                className="hidden sm:flex pointer-events-auto items-center justify-center w-6 h-6 rounded-md bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-white dark:hover:bg-black/90 shadow-sm transition-colors"
+                aria-label={isFullHeight ? 'Collapse search' : 'Expand search'}
+              >
+                {isFullHeight ? (
+                  <ArrowsInSimpleIcon className="w-3 h-3" />
+                ) : (
+                  <ArrowsOutSimpleIcon className="w-3 h-3" />
+                )}
+              </button>
+            </>
+          )}
         </div>
-        <div className="relative z-10 flex items-center gap-1.5">
+        <div
+          className={twMerge(
+            'relative z-10 flex items-center',
+            isDock
+              ? 'gap-0.5 rounded-xl bg-gray-500/5 dark:bg-white/[0.04] p-0.5'
+              : 'gap-1.5',
+          )}
+        >
+          {isDock && onToggleDockMaximized ? (
+            <DockMaximizeButton
+              isMaximized={isDockMaximized}
+              onToggle={onToggleDockMaximized}
+            />
+          ) : null}
           <KapaHistoryButton
             items={historyItems}
             activeThreadId={activeThreadId}
             isBusy={isBusy}
             onSelect={selectHistoryItem}
+            compact={isDock}
           />
           {hasConversation ? (
             <>
-              <CopyChatButton conversation={displayConversation} />
+              <CopyChatButton
+                conversation={displayConversation}
+                compact={isDock}
+              />
               <button
                 type="button"
                 onClick={startNewChat}
-                className="pointer-events-auto flex items-center gap-1 px-2 py-1 text-xs rounded-md bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-white dark:hover:bg-black/90 shadow-sm transition-colors"
+                title="New chat"
+                aria-label="New chat"
+                className={twMerge(
+                  'pointer-events-auto flex items-center text-xs backdrop-blur-sm border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-white dark:hover:bg-black/90 shadow-sm transition-colors',
+                  isDock
+                    ? compactChatControlClass
+                    : 'gap-1 px-2 py-1 rounded-md bg-white/80 dark:bg-black/80',
+                )}
               >
-                <RotateCcw className="w-3 h-3" />
-                New chat
+                <ChatCenteredDotsIcon className="w-3.5 h-3.5" />
+                {isDock ? (
+                  <ChatControlTooltip>New chat</ChatControlTooltip>
+                ) : (
+                  'New chat'
+                )}
               </button>
             </>
           ) : null}
         </div>
       </div>
-      <div className="flex-1 px-3 sm:px-4 pt-3 pb-[220px] space-y-4">
+      <div
+        className={twMerge(
+          'flex-1 pt-3 space-y-4',
+          isDock ? 'px-3 pb-[260px]' : 'px-3 sm:px-4 pb-[220px]',
+        )}
+      >
         {displayConversation.length === 0 ? (
           <KapaWelcome
             selectedLibrary={showSearchResults ? selectedLibrary : ''}
             selectedFramework={showSearchResults ? selectedFramework : ''}
             onSuggestion={ask}
+            compact={isDock}
           />
         ) : (
           displayConversation.map((qa, index) => {
@@ -1567,6 +2096,7 @@ function KapaChatPanel({
                     addFeedback(qa.id, reaction)
                   }
                 }}
+                compact={isDock}
               />
             )
           })
@@ -1579,9 +2109,14 @@ function KapaChatPanel({
       </div>
       <div className="sticky bottom-0">
         <div className="absolute bottom-full left-0 right-0">
-          <SearchResultsInChat />
+          <SearchResultsInChat surface={surface} />
         </div>
-        <InputBar isBusy={isBusy} onAskAISubmit={ask} onStop={stopGeneration} />
+        <InputBar
+          isBusy={isBusy}
+          onAskAISubmit={ask}
+          onStop={stopGeneration}
+          surface={surface}
+        />
       </div>
     </section>
   )
@@ -1621,49 +2156,96 @@ function StickyTopBlur() {
 function KapaUnavailablePanel({
   isFullHeight,
   onToggleFullHeight,
+  surface,
+  isDockMaximized = false,
+  onToggleDockMaximized,
 }: {
   isFullHeight: boolean
   onToggleFullHeight: () => void
+  surface: SearchSurface
+  isDockMaximized?: boolean
+  onToggleDockMaximized?: () => void
 }) {
-  const { closeSearch } = useSearchContext()
-  const { selectedLibrary, selectedFramework, showSearchResults } =
+  const { closeSearch, setAiDockDirty } = useSearchContext()
+  const { selectedLibrary, selectedFramework, showSearchResults, searchQuery } =
     useSearchFilters()
+  const isDock = surface === 'dock'
+
+  React.useEffect(() => {
+    if (!isDock) {
+      return
+    }
+
+    setAiDockDirty(searchQuery.trim().length > 0)
+  }, [isDock, searchQuery, setAiDockDirty])
 
   return (
     <section
       className={twMerge(
         'overflow-y-auto flex flex-col',
-        isFullHeight
+        isDock
           ? 'flex-1 min-h-0'
-          : 'flex-1 min-h-0 sm:flex-none sm:max-h-[min(600px,calc(100dvh-2rem-90px))]',
+          : isFullHeight
+            ? 'flex-1 min-h-0'
+            : 'flex-1 min-h-0 sm:flex-none sm:max-h-[min(600px,calc(100dvh-2rem-90px))]',
       )}
     >
-      <div className="sticky top-0 z-10 relative flex items-center justify-between gap-1.5 px-4 sm:px-5 pt-2 pb-1 pointer-events-none">
-        <StickyTopBlur />
-        <div className="relative z-10 flex items-center gap-1">
-          <button
-            type="button"
-            onClick={closeSearch}
-            className="pointer-events-auto flex items-center justify-center w-6 h-6 rounded-md bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-white dark:hover:bg-black/90 shadow-sm transition-colors"
-            aria-label="Close search"
-          >
-            <X className="w-3.5 h-3.5" />
-          </button>
-          <button
-            type="button"
-            onClick={onToggleFullHeight}
-            className="hidden sm:flex pointer-events-auto items-center justify-center w-6 h-6 rounded-md bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-white dark:hover:bg-black/90 shadow-sm transition-colors"
-            aria-label={isFullHeight ? 'Collapse search' : 'Expand search'}
-          >
-            {isFullHeight ? (
-              <Minimize2 className="w-3 h-3" />
-            ) : (
-              <Maximize2 className="w-3 h-3" />
-            )}
-          </button>
+      <div
+        className={twMerge(
+          'sticky top-0 flex items-center justify-between gap-1.5',
+          isDock
+            ? 'z-20 px-3 py-2 border-b border-gray-200/80 dark:border-white/10 bg-white/90 dark:bg-black/90 backdrop-blur-xl shadow-sm'
+            : 'z-10 pt-2 pb-1 px-4 sm:px-5 pointer-events-none',
+        )}
+      >
+        {isDock ? null : <StickyTopBlur />}
+        <div className="relative z-10 flex items-center gap-1 min-w-0">
+          {isDock ? (
+            <div className="min-w-0 py-1.5">
+              <div className="truncate text-sm font-bold leading-4 text-gray-900 dark:text-white">
+                TanStack AI
+              </div>
+            </div>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={closeSearch}
+                className="pointer-events-auto flex items-center justify-center w-6 h-6 rounded-md bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-white dark:hover:bg-black/90 shadow-sm transition-colors"
+                aria-label="Close search"
+              >
+                <XIcon className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={onToggleFullHeight}
+                className="hidden sm:flex pointer-events-auto items-center justify-center w-6 h-6 rounded-md bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-white dark:hover:bg-black/90 shadow-sm transition-colors"
+                aria-label={isFullHeight ? 'Collapse search' : 'Expand search'}
+              >
+                {isFullHeight ? (
+                  <ArrowsInSimpleIcon className="w-3 h-3" />
+                ) : (
+                  <ArrowsOutSimpleIcon className="w-3 h-3" />
+                )}
+              </button>
+            </>
+          )}
         </div>
+        {isDock && onToggleDockMaximized ? (
+          <div className="relative z-10 flex items-center gap-0.5 rounded-xl bg-gray-500/5 dark:bg-white/[0.04] p-0.5">
+            <DockMaximizeButton
+              isMaximized={isDockMaximized}
+              onToggle={onToggleDockMaximized}
+            />
+          </div>
+        ) : null}
       </div>
-      <div className="flex-1 px-3 sm:px-4 pt-3 pb-[220px] space-y-4">
+      <div
+        className={twMerge(
+          'flex-1 pt-3 space-y-4',
+          isDock ? 'px-3 pb-[260px]' : 'px-3 sm:px-4 pb-[220px]',
+        )}
+      >
         <div className="rounded-xl border border-amber-200 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/10 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
           Kapa is not configured. Add{' '}
           <code className="font-mono">VITE_KAPA_INTEGRATION_ID</code> to enable
@@ -1674,13 +2256,14 @@ function KapaUnavailablePanel({
           selectedFramework={showSearchResults ? selectedFramework : ''}
           onSuggestion={() => {}}
           disabled
+          compact={isDock}
         />
       </div>
       <div className="sticky bottom-0">
         <div className="absolute bottom-full left-0 right-0">
-          <SearchResultsInChat />
+          <SearchResultsInChat surface={surface} />
         </div>
-        <InputBar isBusy onAskAISubmit={() => {}} />
+        <InputBar isBusy onAskAISubmit={() => {}} surface={surface} />
       </div>
     </section>
   )
@@ -1690,12 +2273,18 @@ function SearchPanel({
   isFullHeight,
   onToggleFullHeight,
   newChatRequestId,
+  surface,
+  isDockMaximized = false,
+  onToggleDockMaximized,
 }: {
   isFullHeight: boolean
   onToggleFullHeight: () => void
   newChatRequestId: number
+  surface: SearchSurface
+  isDockMaximized?: boolean
+  onToggleDockMaximized?: () => void
 }) {
-  const integrationId = env.VITE_KAPA_INTEGRATION_ID
+  const integrationId = KAPA_INTEGRATION_ID
   const threadIdOverrideRef = React.useRef<string | null>(null)
   const apiService = React.useMemo(
     () => new KapaThreadOverrideApiService(threadIdOverrideRef),
@@ -1706,11 +2295,21 @@ function SearchPanel({
     [],
   )
 
+  React.useEffect(() => {
+    return () => {
+      apiService.abortCurrent()
+    }
+  }, [apiService])
+
   return (
     <div
       className={twMerge(
         'bg-white/90 dark:bg-black/90 backdrop-blur-lg sm:rounded-[1.75rem] shadow-lg dark:border dark:border-white/20 overflow-hidden',
-        isFullHeight ? 'flex flex-col h-full' : 'h-dvh sm:h-auto flex flex-col',
+        surface === 'dock'
+          ? 'h-full flex flex-col rounded-none sm:rounded-none border-l border-gray-200 bg-white shadow-2xl backdrop-blur-none dark:border-white/10 dark:bg-black'
+          : isFullHeight
+            ? 'flex flex-col h-full'
+            : 'h-dvh sm:h-auto flex flex-col',
       )}
     >
       {integrationId ? (
@@ -1726,15 +2325,272 @@ function SearchPanel({
             onToggleFullHeight={onToggleFullHeight}
             threadIdOverrideRef={threadIdOverrideRef}
             newChatRequestId={newChatRequestId}
+            surface={surface}
+            isDockMaximized={isDockMaximized}
+            onToggleDockMaximized={onToggleDockMaximized}
           />
         </KapaProvider>
       ) : (
         <KapaUnavailablePanel
           isFullHeight={isFullHeight}
           onToggleFullHeight={onToggleFullHeight}
+          surface={surface}
+          isDockMaximized={isDockMaximized}
+          onToggleDockMaximized={onToggleDockMaximized}
         />
       )}
     </div>
+  )
+}
+
+function CommandSearchPanel({
+  isFullHeight,
+  onToggleFullHeight,
+}: {
+  isFullHeight: boolean
+  onToggleFullHeight: () => void
+}) {
+  return (
+    <Command
+      label="Search TanStack"
+      shouldFilter={false}
+      loop
+      className={twMerge(
+        'flex flex-col overflow-hidden bg-white/95 text-left shadow-2xl backdrop-blur-xl dark:border dark:border-white/20 dark:bg-black/95 sm:rounded-[1.5rem]',
+        isFullHeight ? 'h-full' : 'h-dvh sm:h-[min(760px,calc(100dvh-2rem))]',
+      )}
+    >
+      <CommandSearchInput
+        isFullHeight={isFullHeight}
+        onToggleFullHeight={onToggleFullHeight}
+      />
+      <CommandSearchResults />
+    </Command>
+  )
+}
+
+function CommandSearchInput({
+  isFullHeight,
+  onToggleFullHeight,
+}: {
+  isFullHeight: boolean
+  onToggleFullHeight: () => void
+}) {
+  const { closeSearch } = useSearchContext()
+  const { refine } = useSearchBox()
+  const { searchQuery, setSearchQuery } = useSearchFilters()
+  const hasQuery = searchQuery.trim().length > 0
+  const inputRef = React.useRef<HTMLInputElement>(null)
+
+  React.useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      inputRef.current?.focus({ preventScroll: true })
+    })
+
+    return () => cancelAnimationFrame(frame)
+  }, [])
+
+  const clearSearch = React.useCallback(() => {
+    setSearchQuery('')
+    refine('')
+  }, [refine, setSearchQuery])
+
+  return (
+    <header className="flex-none border-b border-gray-200/80 bg-white/95 px-3 py-3 dark:border-white/10 dark:bg-black/95 sm:px-4">
+      <div className="flex items-center gap-2">
+        <div className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-gray-200 bg-gray-500/[0.04] px-3 py-2.5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
+          <MagnifyingGlassIcon className="h-5 w-5 shrink-0 text-gray-400 dark:text-gray-500" />
+          <Command.Input
+            ref={inputRef}
+            aria-label="Search TanStack"
+            placeholder="Search TanStack..."
+            value={searchQuery}
+            onValueChange={(nextQuery) => {
+              setSearchQuery(nextQuery)
+              refine(nextQuery)
+            }}
+            className="w-full bg-transparent text-base text-gray-900 outline-none placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 [&::-webkit-search-cancel-button]:hidden"
+          />
+          <button
+            type="button"
+            onClick={clearSearch}
+            className={twMerge(
+              'flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-gray-400 transition-opacity hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-200',
+              hasQuery ? 'opacity-100' : 'pointer-events-none opacity-0',
+            )}
+            tabIndex={-1}
+            aria-label="Clear search"
+          >
+            <XIcon className="h-4 w-4" />
+          </button>
+        </div>
+        <button
+          type="button"
+          onClick={onToggleFullHeight}
+          className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-400 shadow-sm transition-colors hover:text-gray-700 dark:border-white/10 dark:bg-white/[0.06] dark:text-gray-500 dark:hover:text-gray-200 sm:flex"
+          aria-label={isFullHeight ? 'Collapse search' : 'Expand search'}
+        >
+          {isFullHeight ? (
+            <ArrowsInSimpleIcon className="h-4 w-4" />
+          ) : (
+            <ArrowsOutSimpleIcon className="h-4 w-4" />
+          )}
+        </button>
+        <button
+          type="button"
+          onClick={closeSearch}
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-400 shadow-sm transition-colors hover:text-gray-700 dark:border-white/10 dark:bg-white/[0.06] dark:text-gray-500 dark:hover:text-gray-200"
+          aria-label="Close search"
+        >
+          <XIcon className="h-4 w-4" />
+        </button>
+      </div>
+    </header>
+  )
+}
+
+function CommandSearchResults() {
+  const { results } = useInstantSearch()
+  const { hits, isLastPage, showMore } = useInfiniteHits<AlgoliaHit>({
+    transformItems: dedupeSearchHitsByPage,
+  })
+  const sentinelRef = React.useRef<HTMLDivElement>(null)
+  const resultsScrollRef = React.useRef<HTMLDivElement>(null)
+
+  const {
+    selectedLibrary,
+    selectedFramework,
+    setSelectedLibrary,
+    setSelectedFramework,
+    searchQuery,
+  } = useSearchFilters()
+
+  const refinedLibrary = selectedLibrary || null
+  const refinedFramework = selectedFramework || null
+  const trimmedQuery = searchQuery.trim()
+  const hasQuery = trimmedQuery.length > 0
+
+  const clearFramework = () => {
+    setSelectedFramework('')
+  }
+
+  const clearLibrary = () => {
+    setSelectedLibrary('')
+  }
+
+  const resultSummary = results.__isArtificial ? (
+    <>Searching for &ldquo;{trimmedQuery}&rdquo;</>
+  ) : results.nbHits > 0 ? (
+    <>
+      Results for{' '}
+      <span className="font-medium text-gray-600 dark:text-gray-300">
+        &ldquo;{trimmedQuery}&rdquo;
+      </span>
+    </>
+  ) : (
+    <>No results for &ldquo;{trimmedQuery}&rdquo;</>
+  )
+
+  React.useEffect(() => {
+    const sentinel = sentinelRef.current
+    if (!sentinel || !hasQuery || !hits.length) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !isLastPage) {
+            showMore()
+          }
+        })
+      },
+      { root: resultsScrollRef.current, rootMargin: '260px' },
+    )
+
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [hasQuery, hits, isLastPage, showMore])
+
+  return (
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="flex-none border-b border-gray-200/80 px-3 py-2 dark:border-white/10 sm:px-4">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <div
+            className="flex min-w-0 flex-wrap items-center gap-1.5"
+            data-command-search-controls="true"
+          >
+            <FrameworkRefinement compact />
+            <LibraryRefinement compact />
+          </div>
+          {hasQuery ? (
+            <p className="min-w-[10rem] flex-1 truncate text-xs text-gray-500 dark:text-gray-400">
+              {resultSummary}
+            </p>
+          ) : null}
+          <div className="ml-auto flex shrink-0 items-center">
+            <AlgoliaAttribution />
+          </div>
+        </div>
+      </div>
+      <Command.List
+        ref={resultsScrollRef}
+        className="min-h-0 flex-1 overflow-y-auto scroll-py-2"
+        label="Search results"
+      >
+        {hasQuery ? (
+          <>
+            <AskAIResult query={trimmedQuery} />
+            <NoResults
+              refinedFramework={refinedFramework}
+              refinedLibrary={refinedLibrary}
+              clearFramework={clearFramework}
+              clearLibrary={clearLibrary}
+            />
+            {hits.map((hit, index) => (
+              <Hit
+                key={hit.objectID}
+                commandValue={`hit-${hit.objectID}-${index}`}
+                hit={hit}
+                refinedLibrary={refinedLibrary}
+                refinedFramework={refinedFramework}
+              />
+            ))}
+            <div ref={sentinelRef} className="h-4" aria-hidden="true" />
+          </>
+        ) : (
+          <div className="flex h-full items-center justify-center px-6 py-16 text-sm text-gray-400 dark:text-gray-500">
+            Search TanStack
+          </div>
+        )}
+      </Command.List>
+    </div>
+  )
+}
+
+function AskAIResult({ query }: { query: string }) {
+  const { askAiDock } = useSearchContext()
+
+  return (
+    <Command.Item
+      value="ask-ai"
+      onSelect={() => askAiDock(query)}
+      className={twMerge(
+        'flex w-full cursor-pointer scroll-my-2 items-center gap-3 border-b border-gray-200 px-4 py-3 text-left outline-none transition-colors dark:border-white/10',
+        'hover:bg-gray-500/10 data-[selected=true]:bg-cyan-500/10 dark:data-[selected=true]:bg-cyan-400/10',
+      )}
+    >
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-cyan-500/10 text-cyan-700 dark:bg-cyan-400/15 dark:text-cyan-300">
+        <ChatCenteredDotsIcon className="h-4 w-4" />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-semibold text-gray-900 dark:text-white">
+          Ask AI
+        </span>
+        <span className="block truncate text-xs text-gray-500 dark:text-gray-400">
+          Open TanStack AI with this query
+        </span>
+      </span>
+      <ArrowElbowDownLeftIcon className="h-4 w-4 shrink-0 text-gray-300 dark:text-gray-600" />
+    </Command.Item>
   )
 }
 
@@ -1742,10 +2598,12 @@ function InputBar({
   isBusy,
   onAskAISubmit,
   onStop,
+  surface,
 }: {
   isBusy: boolean
   onAskAISubmit: (question: string) => void
   onStop?: () => void
+  surface: SearchSurface
 }) {
   const { refine } = useSearchBox()
   const { searchQuery, setSearchQuery } = useSearchFilters()
@@ -1753,6 +2611,7 @@ function InputBar({
   const hasQuery = trimmedQuery.length > 0
   const canAsk = trimmedQuery.length >= 3 && !isBusy
   const canStop = isBusy && !!onStop
+  const isDock = surface === 'dock'
   const inputRef = React.useRef<HTMLInputElement>(null)
 
   React.useEffect(() => {
@@ -1778,16 +2637,20 @@ function InputBar({
   }
 
   return (
-    <div className="flex-none px-3 pb-3">
+    <div className={twMerge('flex-none px-3', isDock ? 'pb-4' : 'pb-3')}>
       <div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.06] shadow-sm overflow-visible">
         <div className="flex items-center gap-2 px-3 py-2.5">
-          <Search className="w-4 h-4 opacity-30 flex-none" />
+          <MagnifyingGlassIcon className="w-4 h-4 opacity-30 flex-none" />
           <form className="flex-1 min-w-0" onSubmit={handleSubmit}>
             <input
               ref={inputRef}
               type="search"
               aria-label="Search"
-              placeholder="Search or ask a question..."
+              placeholder={
+                isDock
+                  ? 'Ask AI or search docs...'
+                  : 'Search or ask a question...'
+              }
               value={searchQuery}
               onChange={(event) => {
                 const nextQuery = event.target.value
@@ -1800,7 +2663,10 @@ function InputBar({
                   submitQuestion()
                 }
               }}
-              className="w-full outline-none [&::-webkit-search-cancel-button]:hidden bg-transparent text-sm text-gray-800 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+              className={twMerge(
+                'w-full outline-none [&::-webkit-search-cancel-button]:hidden bg-transparent text-gray-800 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500',
+                isDock ? 'text-[13px]' : 'text-sm',
+              )}
             />
             <button type="submit" className="hidden" tabIndex={-1}>
               Search
@@ -1822,7 +2688,7 @@ function InputBar({
             tabIndex={-1}
             aria-label="Clear search"
           >
-            <X className="w-3.5 h-3.5" />
+            <XIcon className="w-3.5 h-3.5" />
           </button>
           <SearchResultsToggle />
 
@@ -1841,7 +2707,7 @@ function InputBar({
             {canStop ? (
               <span className="w-2 h-2 rounded-[1px] bg-current" />
             ) : (
-              <ArrowUp className="w-3.5 h-3.5" />
+              <ArrowUpIcon className="w-3.5 h-3.5" />
             )}
           </button>
         </div>
@@ -1889,9 +2755,9 @@ function SearchResultsToggle() {
         )}
       >
         {showSearchResults ? (
-          <SearchSlash className="w-[18px] h-[18px]" />
+          <MagnifyingGlassMinusIcon className="w-[18px] h-[18px]" />
         ) : (
-          <Search className="w-[18px] h-[18px]" />
+          <MagnifyingGlassIcon className="w-[18px] h-[18px]" />
         )}
       </button>
       {tooltipRect && typeof document !== 'undefined'
@@ -1914,9 +2780,11 @@ function SearchResultsToggle() {
   )
 }
 
-function SearchResultsInChat() {
+function SearchResultsInChat({ surface }: { surface: SearchSurface }) {
   const { results } = useInstantSearch()
-  const { hits, isLastPage, showMore } = useInfiniteHits()
+  const { hits, isLastPage, showMore } = useInfiniteHits<AlgoliaHit>({
+    transformItems: dedupeSearchHitsByPage,
+  })
   const sentinelRef = React.useRef<HTMLDivElement>(null)
   const resultsScrollRef = React.useRef<HTMLDivElement>(null)
 
@@ -1935,6 +2803,7 @@ function SearchResultsInChat() {
   const trimmedQuery = searchQuery.trim()
   const hasQuery = trimmedQuery.length > 0
   const isOpen = hasQuery && showSearchResults
+  const isDock = surface === 'dock'
 
   const clearFramework = () => {
     setSelectedFramework('')
@@ -1943,6 +2812,29 @@ function SearchResultsInChat() {
   const clearLibrary = () => {
     setSelectedLibrary('')
   }
+
+  const hideSearchResultsButton = (
+    <button
+      type="button"
+      onClick={hideSearchResults}
+      aria-label="Hide search results"
+      className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gray-900 text-white shadow-sm transition-colors hover:bg-gray-700 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white"
+    >
+      <XIcon className="w-3 h-3" />
+    </button>
+  )
+
+  const resultSummary =
+    hits.length > 0 ? (
+      <>
+        {results.nbHits} page{results.nbHits === 1 ? '' : 's'} for{' '}
+        <span className="font-medium text-gray-500 dark:text-gray-400">
+          &ldquo;{trimmedQuery}&rdquo;
+        </span>
+      </>
+    ) : (
+      <>No pages found for &ldquo;{trimmedQuery}&rdquo;</>
+    )
 
   React.useEffect(() => {
     const sentinel = sentinelRef.current
@@ -1967,42 +2859,54 @@ function SearchResultsInChat() {
     <div
       className="overflow-hidden transition-[height] duration-300"
       style={{
-        height: isOpen ? '210px' : '0px',
+        height: isOpen ? (isDock ? '260px' : '210px') : '0px',
         transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
       }}
     >
-      <div className="px-6">
+      <div className={isDock ? 'px-3' : 'px-6'}>
         <div className="rounded-t-2xl rounded-b-none border border-b-0 border-gray-200 dark:border-white/10 overflow-hidden bg-white dark:bg-white/[0.06]">
-          <div className="px-3 py-1.5 border-b border-gray-100 dark:border-white/[0.06] flex items-center gap-2">
-            <p className="flex-1 text-[11px] text-gray-400 dark:text-gray-500 min-w-0 truncate">
-              {hits.length > 0 ? (
-                <>
-                  {results.nbHits} page{results.nbHits === 1 ? '' : 's'} for{' '}
-                  <span className="font-medium text-gray-500 dark:text-gray-400">
-                    &ldquo;{trimmedQuery}&rdquo;
-                  </span>
-                </>
-              ) : (
-                <>No pages found for &ldquo;{trimmedQuery}&rdquo;</>
-              )}
-            </p>
-            <div className="ml-auto flex min-w-0 items-center justify-end gap-1.5">
-              <FrameworkRefinement compact />
-              <LibraryRefinement compact />
-              <AlgoliaAttribution />
-              <button
-                type="button"
-                onClick={hideSearchResults}
-                aria-label="Hide search results"
-                className="p-0.5 rounded-full text-gray-300 dark:text-gray-600 hover:text-gray-500 dark:hover:text-gray-400 transition-colors"
-              >
-                <CircleX className="w-3.5 h-3.5" />
-              </button>
-            </div>
+          <div
+            className={twMerge(
+              'px-3 py-1.5 border-b border-gray-100 dark:border-white/[0.06] flex gap-2',
+              isDock ? 'flex-col items-stretch' : 'items-center',
+            )}
+          >
+            {isDock ? (
+              <>
+                <div className="flex min-w-0 items-center gap-2">
+                  <p className="flex-1 text-[11px] text-gray-400 dark:text-gray-500 min-w-0 truncate">
+                    {resultSummary}
+                  </p>
+                  {hideSearchResultsButton}
+                </div>
+                <div className="flex items-center justify-end">
+                  <AlgoliaAttribution />
+                </div>
+                <div className="flex min-w-0 items-center gap-2">
+                  <FrameworkRefinement compact />
+                  <LibraryRefinement compact />
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="flex-1 text-[11px] text-gray-400 dark:text-gray-500 min-w-0 truncate">
+                  {resultSummary}
+                </p>
+                <div className="ml-auto flex min-w-0 items-center justify-end gap-1.5">
+                  <FrameworkRefinement compact />
+                  <LibraryRefinement compact />
+                  <AlgoliaAttribution />
+                  {hideSearchResultsButton}
+                </div>
+              </>
+            )}
           </div>
           <div
             ref={resultsScrollRef}
-            className="overflow-y-auto h-[180px]"
+            className={twMerge(
+              'overflow-y-auto',
+              isDock ? 'h-[210px]' : 'h-[180px]',
+            )}
             role="listbox"
             aria-label="Search results"
           >
@@ -2015,7 +2919,7 @@ function SearchResultsInChat() {
             {hits.map((hit) => (
               <Hit
                 key={hit.objectID}
-                hit={hit as AlgoliaHit}
+                hit={hit}
                 refinedLibrary={refinedLibrary}
                 refinedFramework={refinedFramework}
               />
@@ -2030,11 +2934,13 @@ function SearchResultsInChat() {
 
 const Hit = ({
   hit,
+  commandValue,
   isFocused,
   refinedLibrary,
   refinedFramework,
 }: {
   hit: AlgoliaHit
+  commandValue?: string
   isFocused?: boolean
   refinedLibrary: string | null
   refinedFramework: string | null
@@ -2071,6 +2977,13 @@ const Hit = ({
     handleActivate()
   }
 
+  const handleCommandSelect = () => {
+    handleActivate()
+    if (typeof window !== 'undefined') {
+      window.location.assign(hitUrl)
+    }
+  }
+
   const ref = React.useRef<HTMLAnchorElement>(null!)
 
   React.useEffect(() => {
@@ -2085,7 +2998,7 @@ const Hit = ({
     frameworkOptions.find((f) => f.value === hit.framework) ??
     frameworkOptions.find((f) => hit.url.includes(`/framework/${f.value}`))
   const hitLibraryInfo = hitLibrary
-    ? libraries.find((l) => l.id === hitLibrary)
+    ? publicLibraries.find((l) => l.id === hitLibrary)
     : null
   const hitUrl = hit.urlWithAnchor ?? hit.url
 
@@ -2136,6 +3049,80 @@ const Hit = ({
     'lvl6',
   ].filter((lvl) => hit.hierarchy[lvl])
 
+  const content = (
+    <article className="flex items-start gap-4">
+      <div className="flex-1">
+        <h3 className="text-xs leading-relaxed text-gray-900 dark:text-white flex items-center gap-1.5 flex-wrap">
+          {prefixParts.length > 0 && (
+            <>
+              {prefixParts.map((part, i) => (
+                <React.Fragment key={i}>
+                  {part}
+                  <span className="text-gray-400 dark:text-gray-600 text-xs">
+                    ›
+                  </span>
+                </React.Fragment>
+              ))}
+            </>
+          )}
+          {hierarchyLevels.map((lvl, i, arr) => (
+            <React.Fragment key={lvl}>
+              <span className="text-gray-600 dark:text-gray-400 [&_mark]:font-semibold [&_mark]:!bg-transparent [&_mark]:text-black [&_mark]:dark:text-white [&_mark]:inline [&_mark]:!p-0 [&_mark]:!m-0 [&_mark]:!rounded-none">
+                <DecodedHighlight attribute={`hierarchy.${lvl}`} hit={hit} />
+              </span>
+              {i < arr.length - 1 && (
+                <span className="text-gray-400 dark:text-gray-600 text-xs">
+                  ›
+                </span>
+              )}
+            </React.Fragment>
+          ))}
+        </h3>
+        {hit.content ? (
+          <p className="text-[11px] leading-relaxed text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2 [&_mark]:font-semibold [&_mark]:!bg-transparent [&_mark]:text-black [&_mark]:dark:text-white [&_mark]:inline [&_mark]:!p-0 [&_mark]:!m-0 [&_mark]:!rounded-none">
+            <Snippet
+              attribute="content"
+              hit={hit as Parameters<typeof Snippet>[0]['hit']}
+            />
+          </p>
+        ) : null}
+      </div>
+      {refinedFramework && hitFramework ? (
+        <div className="flex-none">
+          <div
+            className={twMerge(
+              'flex items-center gap-1 text-[11px] font-semibold',
+              hitFramework.fontColor,
+            )}
+          >
+            <img
+              src={hitFramework.logo}
+              alt={hitFramework.label}
+              className="w-3 h-3"
+            />
+            {capitalize(hitFramework.label)}
+          </div>
+        </div>
+      ) : null}
+    </article>
+  )
+
+  if (commandValue) {
+    return (
+      <Command.Item
+        value={commandValue}
+        onSelect={handleCommandSelect}
+        className={twMerge(
+          'block cursor-pointer scroll-my-2 px-4 py-2.5 focus:outline-none border-b border-gray-300 dark:border-gray-700',
+          'hover:bg-gray-500/10 data-[selected=true]:bg-gray-500/20',
+        )}
+        data-search-hit="true"
+      >
+        {content}
+      </Command.Item>
+    )
+  }
+
   return (
     <SafeLink
       href={hitUrl}
@@ -2152,61 +3139,7 @@ const Hit = ({
       data-search-hit="true"
       ref={ref}
     >
-      <article className="flex items-start gap-4">
-        <div className="flex-1">
-          <h3 className="text-xs leading-relaxed text-gray-900 dark:text-white flex items-center gap-1.5 flex-wrap">
-            {prefixParts.length > 0 && (
-              <>
-                {prefixParts.map((part, i) => (
-                  <React.Fragment key={i}>
-                    {part}
-                    <span className="text-gray-400 dark:text-gray-600 text-xs">
-                      ›
-                    </span>
-                  </React.Fragment>
-                ))}
-              </>
-            )}
-            {hierarchyLevels.map((lvl, i, arr) => (
-              <React.Fragment key={lvl}>
-                <span className="text-gray-600 dark:text-gray-400 [&_mark]:font-black [&_mark]:!bg-transparent [&_mark]:text-black [&_mark]:dark:text-white [&_mark]:inline [&_mark]:!p-0 [&_mark]:!m-0 [&_mark]:!rounded-none">
-                  <DecodedHighlight attribute={`hierarchy.${lvl}`} hit={hit} />
-                </span>
-                {i < arr.length - 1 && (
-                  <span className="text-gray-400 dark:text-gray-600 text-xs">
-                    ›
-                  </span>
-                )}
-              </React.Fragment>
-            ))}
-          </h3>
-          {hit.content ? (
-            <p className="text-[11px] leading-relaxed text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2 [&_mark]:font-black [&_mark]:!bg-transparent [&_mark]:text-black [&_mark]:dark:text-white [&_mark]:inline [&_mark]:!p-0 [&_mark]:!m-0 [&_mark]:!rounded-none">
-              <Snippet
-                attribute="content"
-                hit={hit as Parameters<typeof Snippet>[0]['hit']}
-              />
-            </p>
-          ) : null}
-        </div>
-        {refinedFramework && hitFramework ? (
-          <div className="flex-none">
-            <div
-              className={twMerge(
-                'flex items-center gap-1 text-[11px] font-semibold',
-                hitFramework.fontColor,
-              )}
-            >
-              <img
-                src={hitFramework.logo}
-                alt={hitFramework.label}
-                className="w-3 h-3"
-              />
-              {capitalize(hitFramework.label)}
-            </div>
-          </div>
-        ) : null}
-      </article>
+      {content}
     </SafeLink>
   )
 }
@@ -2222,7 +3155,7 @@ function LibraryRefinement({ compact = false }: SearchScopePickerProps) {
     libraryItems: items,
   } = useSearchFilters()
 
-  const currentLibrary = libraries.find((l) => l.id === selectedLibrary)
+  const currentLibrary = publicLibraries.find((l) => l.id === selectedLibrary)
 
   return (
     <Dropdown modal={false}>
@@ -2231,7 +3164,7 @@ function LibraryRefinement({ compact = false }: SearchScopePickerProps) {
           type="button"
           className={twMerge(
             'flex min-w-0 items-center gap-1 p-0.5 cursor-pointer font-bold rounded focus:ring-2 text-gray-900 dark:text-gray-100',
-            compact ? 'max-w-[8.5rem] text-[11px]' : 'text-sm',
+            compact ? 'max-w-[10rem] text-xs' : 'text-sm',
           )}
         >
           {currentLibrary ? (
@@ -2244,7 +3177,7 @@ function LibraryRefinement({ compact = false }: SearchScopePickerProps) {
           ) : (
             <span className="truncate">All Libraries</span>
           )}
-          <ChevronDown className="w-3 h-3 opacity-50 shrink-0" />
+          <CaretDownIcon className="w-3 h-3 opacity-50 shrink-0" />
         </button>
       </DropdownTrigger>
       <DropdownContent align="end" className="max-h-[60vh] w-64 overflow-auto">
@@ -2255,7 +3188,7 @@ function LibraryRefinement({ compact = false }: SearchScopePickerProps) {
           All Libraries
         </DropdownItem>
         {items.map((item) => {
-          const lib = libraries.find((l) => l.id === item.value)
+          const lib = publicLibraries.find((l) => l.id === item.value)
           return (
             <DropdownItem
               key={item.value}
@@ -2303,7 +3236,7 @@ function FrameworkRefinement({ compact = false }: SearchScopePickerProps) {
           type="button"
           className={twMerge(
             'flex min-w-0 items-center gap-1 p-0.5 font-bold rounded cursor-pointer focus:ring-2 text-gray-900 dark:text-gray-100',
-            compact ? 'max-w-[7.5rem] text-[11px]' : 'text-sm',
+            compact ? 'max-w-[9rem] text-xs' : 'text-sm',
           )}
         >
           {currentFramework && (
@@ -2311,7 +3244,10 @@ function FrameworkRefinement({ compact = false }: SearchScopePickerProps) {
               src={currentFramework.logo}
               alt=""
               aria-hidden="true"
-              className={twMerge('shrink-0', compact ? 'w-3 h-3' : 'w-4 h-4')}
+              className={twMerge(
+                'shrink-0',
+                compact ? 'w-3.5 h-3.5' : 'w-4 h-4',
+              )}
             />
           )}
           <span className="truncate">
@@ -2319,7 +3255,7 @@ function FrameworkRefinement({ compact = false }: SearchScopePickerProps) {
               ? capitalize(currentFramework.label)
               : 'All Frameworks'}
           </span>
-          <ChevronDown className="w-3 h-3 opacity-50 shrink-0" />
+          <CaretDownIcon className="w-3 h-3 opacity-50 shrink-0" />
         </button>
       </DropdownTrigger>
       <DropdownContent align="end" className="max-h-[60vh] w-52 overflow-auto">
@@ -2374,7 +3310,7 @@ function NoResults({
     ? frameworkOptions.find((f) => f.value === refinedFramework)
     : null
   const currentLibrary = refinedLibrary
-    ? libraries.find((l) => l.id === refinedLibrary)
+    ? publicLibraries.find((l) => l.id === refinedLibrary)
     : null
 
   return (
@@ -2396,7 +3332,7 @@ function NoResults({
               </span>
             )}
           </button>
-          <CornerDownLeft className="w-4 h-4 animate-bounce" />
+          <ArrowElbowDownLeftIcon className="w-4 h-4 animate-bounce" />
         </div>
       )}
       {!refinedFramework && refinedLibrary && (
@@ -2412,7 +3348,7 @@ function NoResults({
               </span>
             )}
           </button>
-          <CornerDownLeft className="w-4 h-4 animate-bounce" />
+          <ArrowElbowDownLeftIcon className="w-4 h-4 animate-bounce" />
         </div>
       )}
     </div>
@@ -2420,17 +3356,20 @@ function NoResults({
 }
 
 const _submitIconComponent = () => {
-  return <Search />
+  return <MagnifyingGlassIcon />
 }
 
 function isSearchModalPortalTarget(target: EventTarget | null) {
   return target instanceof Element && !!target.closest('.dropdown-content')
 }
 
+const searchModalTransitionMs = 140
+
 export function SearchModal() {
-  const { isOpen, closeSearch, newChatRequestId } = useSearchContext()
+  const { isOpen, closeSearch } = useSearchContext()
   const contentRef = React.useRef<HTMLDivElement>(null)
   const bodyPointerEventsRef = React.useRef('')
+  const [shouldRenderSearch, setShouldRenderSearch] = React.useState(isOpen)
   const [isFullHeight, setIsFullHeight] = React.useState(() => {
     if (typeof window === 'undefined') return false
     return localStorage.getItem('search-full-height') === 'true'
@@ -2443,6 +3382,22 @@ export function SearchModal() {
       return next
     })
   }, [])
+
+  React.useEffect(() => {
+    if (isOpen) {
+      setShouldRenderSearch(true)
+      return
+    }
+
+    const timeout = window.setTimeout(() => {
+      setShouldRenderSearch(false)
+      requestAnimationFrame(() => {
+        document.body.style.pointerEvents = bodyPointerEventsRef.current
+      })
+    }, searchModalTransitionMs)
+
+    return () => window.clearTimeout(timeout)
+  }, [isOpen])
 
   React.useEffect(() => {
     if (!isOpen) {
@@ -2490,6 +3445,8 @@ export function SearchModal() {
     }
   }, [])
 
+  const shouldMountSearch = isOpen || shouldRenderSearch
+
   return (
     <DialogPrimitive.Root
       open={isOpen}
@@ -2500,51 +3457,310 @@ export function SearchModal() {
       }}
     >
       <DialogPrimitive.Portal forceMount>
-        {isOpen ? (
-          <DialogPrimitive.Overlay className="fixed inset-0 z-[999] bg-black/60 xl:bg-black/30 backdrop-blur-sm" />
-        ) : null}
-        <DialogPrimitive.Content
-          forceMount
-          ref={contentRef}
-          className={twMerge(
-            'fixed z-[1000] inset-0 sm:inset-auto sm:top-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-[96%] xl:w-full sm:max-w-3xl text-left outline-none data-[state=closed]:hidden',
-            isFullHeight && 'sm:bottom-4',
-          )}
-          onInteractOutside={(event) => {
-            if (isSearchModalPortalTarget(event.target)) {
-              event.preventDefault()
-            }
-          }}
-        >
-          <DialogPrimitive.Title className="sr-only">
-            Search TanStack docs
-          </DialogPrimitive.Title>
-          <InstantSearch
-            searchClient={searchClient}
-            indexName={searchIndexName}
-          >
-            <SearchFiltersProvider>
-              <DynamicFilters />
-              <SearchPanel
-                isFullHeight={isFullHeight}
-                onToggleFullHeight={toggleFullHeight}
-                newChatRequestId={newChatRequestId}
-              />
-            </SearchFiltersProvider>
-          </InstantSearch>
-          {!isFullHeight ? (
-            <button
-              type="button"
-              onClick={toggleFullHeight}
-              className="hidden sm:flex absolute left-1/2 top-full mt-2 -translate-x-1/2 items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/85 dark:bg-black/85 backdrop-blur-sm border border-gray-200 dark:border-white/10 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-100 hover:bg-white dark:hover:bg-black/90 shadow-lg transition-colors"
-              aria-label="Maximize search"
+        {shouldMountSearch ? (
+          <>
+            <DialogPrimitive.Overlay
+              forceMount
+              className="search-modal-overlay fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm xl:bg-black/30"
+            />
+            <DialogPrimitive.Content
+              forceMount
+              ref={contentRef}
+              className={twMerge(
+                'search-modal-content fixed z-[1000] inset-0 sm:inset-auto sm:top-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-[96%] xl:w-full sm:max-w-4xl text-left outline-none',
+                isFullHeight && 'sm:bottom-4',
+              )}
+              onInteractOutside={(event) => {
+                if (isSearchModalPortalTarget(event.target)) {
+                  event.preventDefault()
+                }
+              }}
             >
-              <Maximize2 className="w-3.5 h-3.5" />
-              Maximize
-            </button>
-          ) : null}
-        </DialogPrimitive.Content>
+              <DialogPrimitive.Title className="sr-only">
+                Search TanStack
+              </DialogPrimitive.Title>
+              <DialogPrimitive.Description className="sr-only">
+                Search TanStack and open TanStack AI from the current query.
+              </DialogPrimitive.Description>
+              <div className="search-modal-panel-transition h-full">
+                <InstantSearch
+                  searchClient={searchClient}
+                  indexName={searchIndexName}
+                >
+                  <SearchFiltersProvider resetFiltersOnOpen={isOpen}>
+                    <DynamicFilters />
+                    <CommandSearchPanel
+                      isFullHeight={isFullHeight}
+                      onToggleFullHeight={toggleFullHeight}
+                    />
+                  </SearchFiltersProvider>
+                </InstantSearch>
+              </div>
+            </DialogPrimitive.Content>
+          </>
+        ) : null}
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
+  )
+}
+
+export function AiDock() {
+  const {
+    cancelAiDockHoverClose,
+    isAiDockOpen,
+    newChatRequestId,
+    scheduleAiDockHoverClose,
+  } = useSearchContext()
+  const [hasActivated, setHasActivated] = React.useState(isAiDockOpen)
+  const [isDockVisible, setIsDockVisible] = React.useState(false)
+  const [isDockMaximized, setIsDockMaximized] = React.useState(false)
+  const [dockWidth, setDockWidth] = React.useState(readAiDockWidth)
+  const [viewportWidth, setViewportWidth] = React.useState(() =>
+    typeof window === 'undefined'
+      ? AI_DOCK_DEFAULT_WIDTH / AI_DOCK_MAX_WIDTH_RATIO
+      : window.innerWidth,
+  )
+  const [isResizingDock, setIsResizingDock] = React.useState(false)
+  const contentRef = React.useRef<HTMLDivElement>(null)
+  const isResizingDockRef = React.useRef(false)
+  const displayedDockWidth = clampAiDockWidth(dockWidth, viewportWidth)
+  const dockMaxWidth = getAiDockMaxWidth(viewportWidth)
+  const dockStyle: AiDockStyle = {
+    '--ai-dock-width': `${displayedDockWidth}px`,
+    '--ai-dock-max-width': `${AI_DOCK_MAXIMIZED_WIDTH}px`,
+  }
+
+  React.useEffect(() => {
+    if (!isAiDockOpen) {
+      setIsDockVisible(false)
+      return
+    }
+
+    setHasActivated(true)
+
+    let enterFrame = 0
+    const mountFrame = requestAnimationFrame(() => {
+      enterFrame = requestAnimationFrame(() => {
+        setIsDockVisible(true)
+      })
+    })
+
+    return () => {
+      cancelAnimationFrame(mountFrame)
+      cancelAnimationFrame(enterFrame)
+    }
+  }, [isAiDockOpen])
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    const handleResize = () => {
+      setViewportWidth(window.innerWidth)
+    }
+
+    handleResize()
+    window.addEventListener('resize', handleResize)
+
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [])
+
+  React.useEffect(() => {
+    if (!isAiDockOpen || !isDockVisible) {
+      return
+    }
+
+    const frame = requestAnimationFrame(() => {
+      contentRef.current
+        ?.querySelector<HTMLInputElement>('input[type="search"]')
+        ?.focus({ preventScroll: true })
+    })
+
+    return () => cancelAnimationFrame(frame)
+  }, [isAiDockOpen, isDockVisible])
+
+  const toggleDockMaximized = React.useCallback(() => {
+    setIsDockMaximized((current) => !current)
+  }, [])
+
+  const handleResizePointerDown = React.useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      if (isDockMaximized || typeof window === 'undefined') {
+        return
+      }
+
+      event.preventDefault()
+      event.stopPropagation()
+      cancelAiDockHoverClose()
+
+      const startX = event.clientX
+      const startWidth = displayedDockWidth
+      let nextWidth = startWidth
+      const previousCursor = document.body.style.cursor
+      const previousUserSelect = document.body.style.userSelect
+
+      isResizingDockRef.current = true
+      setIsResizingDock(true)
+      document.body.style.cursor = 'ew-resize'
+      document.body.style.userSelect = 'none'
+
+      const stopResizing = () => {
+        window.removeEventListener('pointermove', handlePointerMove)
+        window.removeEventListener('pointerup', stopResizing)
+        window.removeEventListener('pointercancel', stopResizing)
+        document.body.style.cursor = previousCursor
+        document.body.style.userSelect = previousUserSelect
+        isResizingDockRef.current = false
+        setIsResizingDock(false)
+        writeAiDockWidth(nextWidth)
+      }
+
+      const handlePointerMove = (moveEvent: PointerEvent) => {
+        const currentViewportWidth = window.innerWidth
+        nextWidth = clampAiDockWidth(
+          startWidth + startX - moveEvent.clientX,
+          currentViewportWidth,
+        )
+        setViewportWidth(currentViewportWidth)
+        setDockWidth(nextWidth)
+      }
+
+      window.addEventListener('pointermove', handlePointerMove)
+      window.addEventListener('pointerup', stopResizing)
+      window.addEventListener('pointercancel', stopResizing)
+    },
+    [cancelAiDockHoverClose, displayedDockWidth, isDockMaximized],
+  )
+
+  const handleResizeKeyDown = React.useCallback(
+    (event: React.KeyboardEvent<HTMLDivElement>) => {
+      if (isDockMaximized) {
+        return
+      }
+
+      const step = event.shiftKey ? 48 : 16
+      let nextWidth: number | null = null
+
+      if (event.key === 'ArrowLeft') {
+        nextWidth = displayedDockWidth + step
+      } else if (event.key === 'ArrowRight') {
+        nextWidth = displayedDockWidth - step
+      } else if (event.key === 'Home') {
+        nextWidth = AI_DOCK_MIN_WIDTH
+      } else if (event.key === 'End') {
+        nextWidth = dockMaxWidth
+      }
+
+      if (nextWidth === null) {
+        return
+      }
+
+      event.preventDefault()
+
+      const clampedWidth = clampAiDockWidth(nextWidth, viewportWidth)
+      setDockWidth(clampedWidth)
+      writeAiDockWidth(clampedWidth)
+    },
+    [displayedDockWidth, dockMaxWidth, isDockMaximized, viewportWidth],
+  )
+
+  const handlePointerEnter = (event: React.PointerEvent<HTMLElement>) => {
+    if (event.pointerType === 'touch') {
+      return
+    }
+
+    cancelAiDockHoverClose()
+  }
+
+  const handlePointerLeave = (event: React.PointerEvent<HTMLElement>) => {
+    if (event.pointerType === 'touch') {
+      return
+    }
+
+    if (isResizingDockRef.current) {
+      return
+    }
+
+    if (
+      event.relatedTarget instanceof Element &&
+      event.relatedTarget.closest('.dropdown-content')
+    ) {
+      return
+    }
+
+    scheduleAiDockHoverClose()
+  }
+
+  if (!hasActivated) {
+    return null
+  }
+
+  return (
+    <div
+      ref={contentRef}
+      aria-label="TanStack AI"
+      aria-hidden={!isAiDockOpen}
+      inert={!isAiDockOpen}
+      style={dockStyle}
+      className={twMerge(
+        'fixed top-[var(--navbar-height)] right-0 bottom-0 z-[1000] w-full max-w-full pointer-events-none',
+        isDockMaximized
+          ? 'sm:w-[min(var(--ai-dock-max-width),100vw)]'
+          : 'sm:w-[var(--ai-dock-width)]',
+        !isResizingDock && 'transition-[width] duration-300 ease-out',
+      )}
+    >
+      <aside
+        onPointerEnter={handlePointerEnter}
+        onPointerLeave={handlePointerLeave}
+        className={twMerge(
+          'pointer-events-auto absolute right-0 top-0 h-full w-full max-w-full text-left outline-none transition-[transform,translate,opacity] duration-300 ease-out',
+          isDockVisible
+            ? 'translate-x-0 opacity-100'
+            : 'translate-x-full opacity-0 pointer-events-none',
+        )}
+      >
+        {!isDockMaximized ? (
+          <div
+            role="separator"
+            aria-label="Resize AI panel"
+            aria-orientation="vertical"
+            aria-valuemin={AI_DOCK_MIN_WIDTH}
+            aria-valuemax={dockMaxWidth}
+            aria-valuenow={displayedDockWidth}
+            tabIndex={0}
+            onPointerDown={handleResizePointerDown}
+            onKeyDown={handleResizeKeyDown}
+            className="group/resize absolute left-0 top-0 z-40 hidden h-full w-3 -translate-x-1.5 cursor-ew-resize touch-none outline-none sm:block"
+          >
+            <div
+              className={twMerge(
+                'absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-transparent transition-colors',
+                isResizingDock
+                  ? 'bg-cyan-500/70'
+                  : 'group-hover/resize:bg-cyan-500/50 group-focus/resize:bg-cyan-500/60',
+              )}
+            />
+          </div>
+        ) : null}
+        <h2 className="sr-only">TanStack AI</h2>
+        <InstantSearch searchClient={searchClient} indexName={searchIndexName}>
+          <SearchFiltersProvider>
+            <DynamicFilters />
+            <SearchPanel
+              isFullHeight
+              onToggleFullHeight={() => {}}
+              newChatRequestId={newChatRequestId}
+              surface="dock"
+              isDockMaximized={isDockMaximized}
+              onToggleDockMaximized={toggleDockMaximized}
+            />
+          </SearchFiltersProvider>
+        </InstantSearch>
+      </aside>
+    </div>
   )
 }

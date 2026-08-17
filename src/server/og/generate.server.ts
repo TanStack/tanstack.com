@@ -1,83 +1,38 @@
-import { existsSync, readFileSync, readdirSync } from 'node:fs'
-import { createRequire } from 'node:module'
-import { join } from 'node:path'
-import { ImageResponse } from '@takumi-rs/image-response'
+import { ImageResponse, type ImageResponseOptions } from 'takumi-js/response'
+import type { ReactElement } from 'react'
 import { findLibrary } from '~/libraries'
 import type { LibraryId } from '~/libraries'
+import type { Framework } from '~/libraries/types'
 import { loadOgAssets } from './assets.server'
-import { getAccentColor } from './colors'
+import { getAccentColor, getThemeSurface, type OgTheme } from './colors'
 import { buildOgTree } from './template'
+import { buildReadmeHeaderTree } from './readme-template'
 import {
   MAX_OG_DESCRIPTION_LENGTH,
   MAX_OG_TITLE_LENGTH,
   clampOgText,
 } from '~/utils/og-limits'
 
-const ISLAND_KEY = 'island'
-
-// Force takumi to render via @takumi-rs/wasm instead of @takumi-rs/core's
-// native napi binding. The native loader requires platform-specific
-// .node binaries (e.g. @takumi-rs/core-linux-x64-gnu) which Netlify's
-// zip-it-and-ship-it consistently dropped from the function bundle —
-// `external_node_modules` and explicit optionalDependencies didn't fix
-// it. WASM is platform-agnostic and ships a single .wasm asset (listed
-// in netlify.toml `included_files`).
-const WASM_REL_PATH = 'node_modules/@takumi-rs/wasm/pkg/takumi_wasm_bg.wasm'
-const WASM_PNPM_REL_PATH =
-  'node_modules/@takumi-rs/wasm/pkg/takumi_wasm_bg.wasm'
-
-let cachedWasmBytes: Uint8Array | null = null
-function loadTakumiWasm(): Uint8Array {
-  if (cachedWasmBytes) return cachedWasmBytes
-  const candidatePaths = [
-    // Standard module resolution — works in dev and any environment that
-    // hoists @takumi-rs/wasm to top-level node_modules.
-    tryRequireResolve('@takumi-rs/wasm/takumi_wasm_bg.wasm'),
-    // Top-level pnpm hoist (also via require but without the subpath
-    // exports indirection).
-    join(process.cwd(), WASM_REL_PATH),
-    // Netlify Functions deploy: pnpm packages live under
-    // node_modules/.pnpm/<pkg>@<version>/node_modules/<pkg>/. The function
-    // bundler isn't symlinking @takumi-rs/wasm at top-level, so walk .pnpm
-    // and find the matching directory.
-    findInPnpmStore('@takumi-rs+wasm@', WASM_PNPM_REL_PATH),
-  ].filter((p): p is string => Boolean(p))
-
-  for (const path of candidatePaths) {
-    if (existsSync(path)) {
-      cachedWasmBytes = readFileSync(path)
-      return cachedWasmBytes
-    }
-  }
-  throw new Error(
-    `Could not locate @takumi-rs/wasm/pkg/takumi_wasm_bg.wasm. Tried: ${candidatePaths.join(', ')}`,
-  )
-}
-
-function tryRequireResolve(specifier: string): string | null {
-  try {
-    return createRequire(import.meta.url).resolve(specifier)
-  } catch {
-    return null
-  }
-}
-
-function findInPnpmStore(pkgPrefix: string, relPath: string): string | null {
-  const pnpmDir = join(process.cwd(), 'node_modules', '.pnpm')
-  if (!existsSync(pnpmDir)) return null
-  for (const entry of readdirSync(pnpmDir)) {
-    if (entry.startsWith(pkgPrefix)) {
-      const candidate = join(pnpmDir, entry, relPath)
-      if (existsSync(candidate)) return candidate
-    }
-  }
-  return null
-}
+const BRAND_LOGO_KEY = 'brand-logo'
+const BRAND_EMBLEM_KEY = 'brand-emblem'
+const BRAND_EMBLEM_CREAM_KEY = 'brand-emblem-cream'
 
 type GenerateInput = {
   libraryId: LibraryId | string
+  requestUrl?: string
   title?: string
   description?: string
+}
+
+export type ReadmeHeaderInput = {
+  libraryId: LibraryId | string
+  requestUrl?: string
+  /** Already validated against the library's framework list by the route. */
+  framework?: Framework
+  title?: string
+  subtitle?: string
+  /** Defaults to the light (cream) surface. */
+  theme?: OgTheme
 }
 
 export type OgLibraryNotFoundError = {
@@ -85,20 +40,55 @@ export type OgLibraryNotFoundError = {
   libraryId: string
 }
 
-export function generateOgImageResponse(
+async function renderOgImage(
+  tree: ReactElement,
+  size: { width: number; height: number },
+  assets: {
+    interRegular: Buffer
+    bricolageBold: Buffer
+    images: NonNullable<ImageResponseOptions['images']>
+  },
+  init?: ResponseInit,
+): Promise<ImageResponse> {
+  const options: ImageResponseOptions = {
+    width: size.width,
+    height: size.height,
+    format: 'png',
+    fonts: [
+      {
+        name: 'Inter',
+        data: assets.interRegular,
+        weight: 400,
+        style: 'normal',
+      },
+      {
+        name: 'Bricolage Grotesque',
+        data: assets.bricolageBold,
+        weight: 700,
+        style: 'normal',
+      },
+    ],
+    images: assets.images,
+    ...init,
+  }
+
+  return new ImageResponse(tree, options)
+}
+
+export async function generateOgImageResponse(
   input: GenerateInput,
   init?: ResponseInit,
-): ImageResponse | OgLibraryNotFoundError {
+): Promise<ImageResponse | OgLibraryNotFoundError> {
   const library = findLibrary(input.libraryId)
   if (!library) {
     return { kind: 'library-not-found', libraryId: input.libraryId }
   }
 
-  const assets = loadOgAssets()
+  const assets = await loadOgAssets('logo', input.requestUrl)
   const tree = buildOgTree({
     libraryName: library.name,
     accentColor: getAccentColor(library.id),
-    islandSrc: ISLAND_KEY,
+    brandLogoSrc: BRAND_LOGO_KEY,
     pitch: clampOgText(library.tagline ?? '', MAX_OG_DESCRIPTION_LENGTH),
     docTitle: input.title?.trim()
       ? clampOgText(input.title, MAX_OG_TITLE_LENGTH)
@@ -108,34 +98,74 @@ export function generateOgImageResponse(
       : undefined,
   })
 
-  return new ImageResponse(tree, {
-    width: 1200,
-    height: 630,
-    format: 'png',
-    // Passing `module` switches takumi-js's renderer to WASM (see
-    // takumi-js/dist/render-*.mjs `getImports`).
-    module: loadTakumiWasm(),
-    fonts: [
-      {
-        name: 'Inter',
-        data: assets.interRegular,
-        weight: 400,
-        style: 'normal',
-      },
-      {
-        name: 'Inter',
-        data: assets.interExtraBold,
-        weight: 800,
-        style: 'normal',
-      },
-      {
-        name: 'Inter',
-        data: assets.interBlack,
-        weight: 900,
-        style: 'normal',
-      },
-    ],
-    persistentImages: [{ src: ISLAND_KEY, data: assets.islandPng }],
-    ...init,
+  return renderOgImage(
+    tree,
+    { width: 1200, height: 630 },
+    {
+      interRegular: assets.interRegular,
+      bricolageBold: assets.bricolageBold,
+      images: [{ src: BRAND_LOGO_KEY, data: assets.imageData }],
+    },
+    init,
+  )
+}
+
+// "TanStack Start" + react → "TanStack React Start"
+//
+// Capitalizing the framework id reproduces every label in `frameworkOptions`
+// (react → React, vanilla → Vanilla, …). Importing that module here is not an
+// option: it pulls in framework logo SVGs, which breaks server/script bundles.
+function withFrameworkLabel(name: string, framework: Framework): string {
+  const label = framework.charAt(0).toUpperCase() + framework.slice(1)
+  return name.startsWith('TanStack ')
+    ? `TanStack ${label} ${name.slice('TanStack '.length)}`
+    : `${label} ${name}`
+}
+
+export async function generateReadmeHeaderResponse(
+  input: ReadmeHeaderInput,
+  init?: ResponseInit,
+): Promise<ImageResponse | OgLibraryNotFoundError> {
+  const library = findLibrary(input.libraryId)
+  if (!library) {
+    return { kind: 'library-not-found', libraryId: input.libraryId }
+  }
+
+  const theme = input.theme ?? 'light'
+  const assets = await loadOgAssets(
+    theme === 'dark' ? 'emblem-cream' : 'emblem',
+    input.requestUrl,
+  )
+
+  // An explicit title replaces the whole name, so the framework label is not
+  // applied on top of it.
+  const name = input.title?.trim()
+    ? clampOgText(input.title, MAX_OG_TITLE_LENGTH)
+    : input.framework
+      ? withFrameworkLabel(library.name, input.framework)
+      : library.name
+
+  const tagline = input.subtitle?.trim() ? input.subtitle : library.tagline
+  const surface = getThemeSurface(theme)
+  const emblemSrc = theme === 'dark' ? BRAND_EMBLEM_CREAM_KEY : BRAND_EMBLEM_KEY
+
+  const tree = buildReadmeHeaderTree({
+    name,
+    tagline: clampOgText(tagline ?? '', MAX_OG_DESCRIPTION_LENGTH),
+    accentColor: getAccentColor(library.id, theme),
+    emblemSrc,
+    background: surface.background,
+    secondaryText: surface.secondaryText,
   })
+
+  return renderOgImage(
+    tree,
+    { width: 1800, height: 450 },
+    {
+      interRegular: assets.interRegular,
+      bricolageBold: assets.bricolageBold,
+      images: [{ src: emblemSrc, data: assets.imageData }],
+    },
+    init,
+  )
 }

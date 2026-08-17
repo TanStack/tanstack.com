@@ -12,16 +12,18 @@ import {
   TableRow,
   TableCell,
 } from '~/components/TableComponents'
+import { flexRender } from '@tanstack/react-table'
 import {
-  useReactTable,
   getCoreRowModel,
-  flexRender,
-  type ColumnDef,
-  type Column,
-} from '@tanstack/react-table'
+  useLegacyTable as useReactTable,
+} from '@tanstack/react-table/legacy'
+import type {
+  LegacyColumn as Column,
+  LegacyColumnDef as ColumnDef,
+} from '@tanstack/react-table/legacy'
 import * as v from 'valibot'
 import { listLoginHistory } from '~/utils/audit.functions'
-import { LogIn } from 'lucide-react'
+import { SignInIcon } from '@phosphor-icons/react'
 import { Badge } from '~/ui'
 import {
   AdminAccessDenied,
@@ -33,6 +35,7 @@ import {
 } from '~/components/admin'
 import { useAdminGuard } from '~/hooks/useAdminGuard'
 import { requireCapability } from '~/utils/auth.functions'
+import { pageIndexSchema, pageSizeSchema } from '~/utils/schemas'
 
 type LoginHistoryEntry = {
   id: string
@@ -71,8 +74,8 @@ export const Route = createFileRoute('/admin/logins')({
       v.object({
         userId: v.optional(v.string()),
         provider: v.optional(v.picklist(['github', 'google'])),
-        page: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0))),
-        pageSize: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
+        page: v.optional(pageIndexSchema),
+        pageSize: v.optional(pageSizeSchema),
         sortBy: v.optional(v.string()),
         sortDir: v.optional(v.picklist(['asc', 'desc'])),
       }),
@@ -273,7 +276,7 @@ function LoginsPage() {
     <div className="w-full p-4">
       <div className="flex flex-col gap-4">
         <AdminPageHeader
-          icon={<LogIn />}
+          icon={<SignInIcon />}
           title="Login History"
           isLoading={loginsQuery.isFetching}
         />
@@ -352,7 +355,7 @@ function LoginsPage() {
 
           {(!loginsQuery.data || loginsQuery.data?.page.length === 0) && (
             <AdminEmptyState
-              icon={<LogIn className="w-12 h-12" />}
+              icon={<SignInIcon className="w-12 h-12" />}
               title="No login records found"
               description="Login history will appear here once users start logging in."
             />

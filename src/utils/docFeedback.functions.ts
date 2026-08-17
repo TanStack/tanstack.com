@@ -18,39 +18,85 @@ import {
   checkRateLimit,
 } from './docFeedback.server'
 import { notifyModerators, formatFeedbackSubmittedEmail } from './email.server'
-import { docFeedbackStatusSchema, docFeedbackTypeSchema } from './schemas'
+import {
+  docFeedbackStatusSchema,
+  docFeedbackTypeSchema,
+  isoDateSchema,
+  pageNumberSchema,
+  pageSizeSchema,
+} from './schemas'
+
+const feedbackPagePathSchema = v.pipe(
+  v.string(),
+  v.minLength(1),
+  v.maxLength(512),
+)
+const feedbackLibraryIdSchema = v.pipe(
+  v.string(),
+  v.minLength(1),
+  v.maxLength(80),
+)
+const feedbackLibraryVersionSchema = v.pipe(
+  v.string(),
+  v.minLength(1),
+  v.maxLength(40),
+)
+const feedbackBlockSelectorSchema = v.pipe(
+  v.string(),
+  v.minLength(1),
+  v.maxLength(500),
+)
+const feedbackContentHashSchema = v.pipe(
+  v.string(),
+  v.length(64),
+  v.regex(/^[a-f0-9]{64}$/i),
+)
+const feedbackBlockMarkdownSchema = v.pipe(v.string(), v.maxLength(20_000))
+const feedbackNoteContentSchema = v.pipe(
+  v.string(),
+  v.minLength(1, 'Note cannot be empty'),
+  v.maxLength(4_000, 'Note must be 4,000 characters or less'),
+)
+const feedbackImprovementContentSchema = v.pipe(
+  v.string(),
+  v.minLength(10, 'Improvement feedback must be at least 10 characters'),
+  v.maxLength(8_000, 'Improvement feedback must be 8,000 characters or less'),
+)
+const feedbackPaginationSchema = v.object({
+  page: v.optional(pageNumberSchema, 1),
+  pageSize: v.optional(pageSizeSchema, 20),
+})
+const moderationPaginationSchema = v.object({
+  page: v.optional(pageNumberSchema, 1),
+  pageSize: v.optional(pageSizeSchema, 50),
+})
+const feedbackModerationNoteSchema = v.pipe(v.string(), v.maxLength(1_000))
 
 /**
  * Create new doc feedback
  */
 export const createDocFeedback = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.variant('type', [
       v.object({
         type: v.literal('note'),
-        content: v.pipe(v.string(), v.minLength(1, 'Note cannot be empty')),
-        pagePath: v.string(),
-        libraryId: v.string(),
-        libraryVersion: v.string(),
-        blockSelector: v.string(),
-        blockContentHash: v.optional(v.string()),
-        blockMarkdown: v.optional(v.string()),
+        content: feedbackNoteContentSchema,
+        pagePath: feedbackPagePathSchema,
+        libraryId: feedbackLibraryIdSchema,
+        libraryVersion: feedbackLibraryVersionSchema,
+        blockSelector: feedbackBlockSelectorSchema,
+        blockContentHash: v.optional(feedbackContentHashSchema),
+        blockMarkdown: v.optional(feedbackBlockMarkdownSchema),
       }),
       v.object({
         type: v.literal('improvement'),
-        content: v.pipe(
-          v.string(),
-          v.minLength(
-            10,
-            'Improvement feedback must be at least 10 characters',
-          ),
-        ),
-        pagePath: v.string(),
-        libraryId: v.string(),
-        libraryVersion: v.string(),
-        blockSelector: v.string(),
-        blockContentHash: v.optional(v.string()),
-        blockMarkdown: v.optional(v.string()),
+        content: feedbackImprovementContentSchema,
+        pagePath: feedbackPagePathSchema,
+        libraryId: feedbackLibraryIdSchema,
+        libraryVersion: feedbackLibraryVersionSchema,
+        blockSelector: feedbackBlockSelectorSchema,
+        blockContentHash: v.optional(feedbackContentHashSchema),
+        blockMarkdown: v.optional(feedbackBlockMarkdownSchema),
       }),
     ]),
   )
@@ -120,10 +166,14 @@ export const createDocFeedback = createServerFn({ method: 'POST' })
  * Update existing doc feedback (user can edit their own)
  */
 export const updateDocFeedback = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       feedbackId: v.pipe(v.string(), v.uuid()),
-      content: v.pipe(v.string(), v.minLength(1, 'Content cannot be empty')),
+      content: v.pipe(
+        v.string(),
+        v.minLength(1, 'Content cannot be empty'),
+        v.maxLength(8_000, 'Content must be 8,000 characters or less'),
+      ),
     }),
   )
   .handler(async ({ data }) => {
@@ -173,7 +223,7 @@ export const updateDocFeedback = createServerFn({ method: 'POST' })
  * Delete doc feedback (user can delete their own)
  */
 export const deleteDocFeedback = createServerFn({ method: 'POST' })
-  .inputValidator(v.object({ feedbackId: v.pipe(v.string(), v.uuid()) }))
+  .validator(v.object({ feedbackId: v.pipe(v.string(), v.uuid()) }))
   .handler(async ({ data }) => {
     const user = await getAuthenticatedUser()
 
@@ -194,7 +244,7 @@ export const deleteDocFeedback = createServerFn({ method: 'POST' })
  * Update doc feedback collapsed state
  */
 export const updateDocFeedbackCollapsed = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       feedbackId: v.pipe(v.string(), v.uuid()),
       isCollapsed: v.boolean(),
@@ -226,16 +276,13 @@ export const updateDocFeedbackCollapsed = createServerFn({ method: 'POST' })
  * Get user's own feedback with status and points
  */
 export const getUserDocFeedback = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
-      pagination: v.object({
-        page: v.optional(v.number(), 1),
-        pageSize: v.optional(v.number(), 20),
-      }),
+      pagination: feedbackPaginationSchema,
       filters: v.optional(
         v.object({
           status: v.optional(v.array(docFeedbackStatusSchema)),
-          libraryId: v.optional(v.string()),
+          libraryId: v.optional(feedbackLibraryIdSchema),
           type: v.optional(v.array(docFeedbackTypeSchema)),
         }),
       ),
@@ -309,21 +356,18 @@ export const getUserDocFeedback = createServerFn({ method: 'POST' })
  * List all feedback for moderation (moderate-feedback capability required)
  */
 export const listDocFeedbackForModeration = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
-      pagination: v.object({
-        page: v.optional(v.number(), 1),
-        pageSize: v.optional(v.number(), 50),
-      }),
+      pagination: moderationPaginationSchema,
       filters: v.optional(
         v.object({
           status: v.optional(v.array(docFeedbackStatusSchema)),
           type: v.optional(v.array(docFeedbackTypeSchema)),
-          libraryId: v.optional(v.string()),
+          libraryId: v.optional(feedbackLibraryIdSchema),
           isDetached: v.optional(v.boolean()),
           userId: v.optional(v.pipe(v.string(), v.uuid())),
-          dateFrom: v.optional(v.string()), // ISO date string
-          dateTo: v.optional(v.string()),
+          dateFrom: v.optional(isoDateSchema),
+          dateTo: v.optional(isoDateSchema),
         }),
       ),
     }),
@@ -415,11 +459,11 @@ export const listDocFeedbackForModeration = createServerFn({ method: 'POST' })
  * Moderate feedback (approve or deny)
  */
 export const moderateDocFeedback = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       feedbackId: v.pipe(v.string(), v.uuid()),
       action: v.picklist(['approve', 'deny']),
-      moderationNote: v.optional(v.string()),
+      moderationNote: v.optional(feedbackModerationNoteSchema),
     }),
   )
   .handler(async ({ data }) => {
@@ -446,12 +490,9 @@ export const moderateDocFeedback = createServerFn({ method: 'POST' })
  * Get feedback leaderboard (public) - all-time
  */
 export const getDocFeedbackLeaderboard = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
-      pagination: v.object({
-        page: v.optional(v.number(), 1),
-        pageSize: v.optional(v.number(), 50),
-      }),
+      pagination: moderationPaginationSchema,
     }),
   )
   .handler(async ({ data }) => {
@@ -529,10 +570,10 @@ export const getDocFeedbackLeaderboard = createServerFn({ method: 'POST' })
  * Get feedback for a specific doc page (for displaying on the page)
  */
 export const getDocFeedbackForPage = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
-      pagePath: v.string(),
-      libraryVersion: v.string(),
+      pagePath: feedbackPagePathSchema,
+      libraryVersion: feedbackLibraryVersionSchema,
     }),
   )
   .handler(async ({ data }) => {
@@ -590,7 +631,7 @@ export const getDocFeedbackForPage = createServerFn({ method: 'POST' })
  * Get single feedback for admin detail view
  */
 export const adminGetDocFeedback = createServerFn({ method: 'POST' })
-  .inputValidator(v.object({ feedbackId: v.pipe(v.string(), v.uuid()) }))
+  .validator(v.object({ feedbackId: v.pipe(v.string(), v.uuid()) }))
   .handler(async ({ data }) => {
     await requireModerateFeedback()
 
@@ -620,7 +661,7 @@ export const adminGetDocFeedback = createServerFn({ method: 'POST' })
  * Mark feedback as detached (when block no longer exists)
  */
 export const markFeedbackDetached = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       feedbackIds: v.array(v.pipe(v.string(), v.uuid())),
     }),

@@ -23,12 +23,20 @@ const variants: Record<Variant, string> = {
 /** Shop button. Three visual weights — primary, outline, ghost. */
 export const ShopButton = React.forwardRef<HTMLButtonElement, Props>(
   function ShopButton(
-    { variant = 'outline', fullWidth, className, children, ...rest },
+    {
+      variant = 'outline',
+      fullWidth,
+      type = 'button',
+      className,
+      children,
+      ...rest
+    },
     ref,
   ) {
     return (
       <button
         ref={ref}
+        type={type}
         {...rest}
         className={twMerge(
           base,

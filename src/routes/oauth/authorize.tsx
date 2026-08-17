@@ -1,16 +1,34 @@
 import * as React from 'react'
-import { redirect, useNavigate, createFileRoute } from '@tanstack/react-router'
+import {
+  ClientOnly,
+  redirect,
+  useNavigate,
+  createFileRoute,
+} from '@tanstack/react-router'
 import * as v from 'valibot'
 import { createAuthorizationCode } from '~/utils/oauthClient.functions'
 import { getCurrentUser } from '~/utils/auth.functions'
 import { Card } from '~/components/Card'
 import { Button } from '~/ui'
+import { BrandContextMenu } from '~/components/BrandContextMenu'
 
-const LazyBrandContextMenu = React.lazy(() =>
-  import('~/components/BrandContextMenu').then((m) => ({
-    default: m.BrandContextMenu,
-  })),
-)
+function SplashImages() {
+  return (
+    <>
+      <img
+        src="/images/brand/tanstack-emblem-black.svg"
+        alt="TanStack"
+        className="w-24 h-24 dark:hidden"
+      />
+      <img
+        src="/images/brand/tanstack-emblem-white.svg"
+        alt="TanStack"
+        aria-hidden="true"
+        className="w-24 h-24 hidden dark:block"
+      />
+    </>
+  )
+}
 
 /**
  * Validate redirect URI - must be localhost or HTTPS
@@ -19,12 +37,16 @@ const LazyBrandContextMenu = React.lazy(() =>
 function validateRedirectUri(uri: string): boolean {
   try {
     const url = new URL(uri)
+    if (url.username || url.password) {
+      return false
+    }
+
     if (
       url.hostname === 'localhost' ||
       url.hostname === '127.0.0.1' ||
       url.hostname === '[::1]'
     ) {
-      return true
+      return url.protocol === 'http:' || url.protocol === 'https:'
     }
     if (url.protocol === 'https:') {
       return true
@@ -36,13 +58,13 @@ function validateRedirectUri(uri: string): boolean {
 }
 
 const searchSchema = v.object({
-  client_id: v.string(),
-  redirect_uri: v.string(),
-  code_challenge: v.string(),
-  code_challenge_method: v.optional(v.string()),
-  state: v.optional(v.string()),
-  scope: v.optional(v.string()),
-  response_type: v.optional(v.string()),
+  client_id: v.optional(v.pipe(v.string(), v.maxLength(8192))),
+  redirect_uri: v.optional(v.pipe(v.string(), v.maxLength(2048))),
+  code_challenge: v.optional(v.pipe(v.string(), v.maxLength(256))),
+  code_challenge_method: v.optional(v.pipe(v.string(), v.maxLength(32))),
+  state: v.optional(v.pipe(v.string(), v.maxLength(2048))),
+  scope: v.optional(v.pipe(v.string(), v.maxLength(512))),
+  response_type: v.optional(v.pipe(v.string(), v.maxLength(64))),
 })
 
 export const Route = createFileRoute('/oauth/authorize')({
@@ -139,37 +161,19 @@ export const Route = createFileRoute('/oauth/authorize')({
 })
 
 function SplashImage() {
+  const fallback = (
+    <div className="cursor-pointer">
+      <SplashImages />
+    </div>
+  )
+
   return (
     <div className="flex items-center justify-center mb-4">
-      <React.Suspense
-        fallback={
-          <div className="cursor-pointer">
-            <img
-              src="/images/logos/splash-light.png"
-              alt="TanStack"
-              className="w-24 h-24 dark:hidden"
-            />
-            <img
-              src="/images/logos/splash-dark.png"
-              alt="TanStack"
-              className="w-24 h-24 hidden dark:block"
-            />
-          </div>
-        }
-      >
-        <LazyBrandContextMenu className="cursor-pointer">
-          <img
-            src="/images/logos/splash-light.png"
-            alt="TanStack"
-            className="w-24 h-24 dark:hidden"
-          />
-          <img
-            src="/images/logos/splash-dark.png"
-            alt="TanStack"
-            className="w-24 h-24 hidden dark:block"
-          />
-        </LazyBrandContextMenu>
-      </React.Suspense>
+      <ClientOnly fallback={fallback}>
+        <BrandContextMenu className="cursor-pointer">
+          <SplashImages />
+        </BrandContextMenu>
+      </ClientOnly>
     </div>
   )
 }

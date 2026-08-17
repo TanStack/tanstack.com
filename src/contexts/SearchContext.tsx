@@ -1,5 +1,3 @@
-'use client'
-
 import * as React from 'react'
 
 const LazySearchModal = React.lazy(() =>
@@ -8,9 +6,22 @@ const LazySearchModal = React.lazy(() =>
 
 interface SearchContextType {
   isOpen: boolean
+  isAiDockOpen: boolean
+  isAiDockDirty: boolean
+  aiDockAskRequest: {
+    id: number
+    question: string
+  } | null
   newChatRequestId: number
   openSearch: () => void
+  openAiDock: () => void
+  askAiDock: (question: string) => void
+  clearAiDockAskRequest: (id: number) => void
   closeSearch: () => void
+  closeAiDock: () => void
+  cancelAiDockHoverClose: () => void
+  scheduleAiDockHoverClose: () => void
+  setAiDockDirty: (isDirty: boolean) => void
 }
 
 const SearchContext = React.createContext<SearchContextType | undefined>(
@@ -19,17 +30,83 @@ const SearchContext = React.createContext<SearchContextType | undefined>(
 
 export function SearchProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = React.useState(false)
-  const [hasOpenedSearch, setHasOpenedSearch] = React.useState(false)
+  const [isAiDockOpen, setIsAiDockOpen] = React.useState(false)
+  const [isAiDockDirty, setIsAiDockDirty] = React.useState(false)
+  const [hasLoadedSearch, setHasLoadedSearch] = React.useState(false)
   const [newChatRequestId, setNewChatRequestId] = React.useState(0)
+  const [aiDockAskRequest, setAiDockAskRequest] = React.useState<{
+    id: number
+    question: string
+  } | null>(null)
+  const aiDockCloseTimerRef = React.useRef<number | null>(null)
+
+  const cancelAiDockHoverClose = React.useCallback(() => {
+    if (!aiDockCloseTimerRef.current) {
+      return
+    }
+
+    window.clearTimeout(aiDockCloseTimerRef.current)
+    aiDockCloseTimerRef.current = null
+  }, [])
 
   const openSearch = React.useCallback(() => {
-    setHasOpenedSearch(true)
+    setHasLoadedSearch(true)
     setIsOpen(true)
+  }, [])
+
+  const openAiDock = React.useCallback(() => {
+    cancelAiDockHoverClose()
+    setHasLoadedSearch(true)
+    setIsOpen(false)
+    setIsAiDockOpen(true)
+  }, [cancelAiDockHoverClose])
+
+  const askAiDock = React.useCallback(
+    (question: string) => {
+      const trimmedQuestion = question.trim()
+      if (trimmedQuestion.length < 3) {
+        return
+      }
+
+      cancelAiDockHoverClose()
+      setHasLoadedSearch(true)
+      setIsOpen(false)
+      setIsAiDockDirty(true)
+      setIsAiDockOpen(true)
+      setAiDockAskRequest((current) => ({
+        id: (current?.id ?? 0) + 1,
+        question: trimmedQuestion,
+      }))
+    },
+    [cancelAiDockHoverClose],
+  )
+
+  const clearAiDockAskRequest = React.useCallback((id: number) => {
+    setAiDockAskRequest((current) => (current?.id === id ? null : current))
   }, [])
 
   const closeSearch = React.useCallback(() => {
     setIsOpen(false)
   }, [])
+
+  const closeAiDock = React.useCallback(() => {
+    cancelAiDockHoverClose()
+    setIsAiDockOpen(false)
+  }, [cancelAiDockHoverClose])
+
+  const scheduleAiDockHoverClose = React.useCallback(() => {
+    cancelAiDockHoverClose()
+    aiDockCloseTimerRef.current = window.setTimeout(() => {
+      setIsAiDockOpen(false)
+      aiDockCloseTimerRef.current = null
+    }, 300)
+  }, [cancelAiDockHoverClose])
+
+  React.useEffect(() => {
+    return () => {
+      cancelAiDockHoverClose()
+    }
+  }, [cancelAiDockHoverClose])
 
   const requestNewChat = React.useCallback(() => {
     setNewChatRequestId((current) => current + 1)
@@ -38,11 +115,35 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
   const value = React.useMemo(
     () => ({
       isOpen,
+      isAiDockOpen,
+      isAiDockDirty,
+      aiDockAskRequest,
       newChatRequestId,
       openSearch,
+      openAiDock,
+      askAiDock,
+      clearAiDockAskRequest,
       closeSearch,
+      closeAiDock,
+      cancelAiDockHoverClose,
+      scheduleAiDockHoverClose,
+      setAiDockDirty: setIsAiDockDirty,
     }),
-    [closeSearch, isOpen, newChatRequestId, openSearch],
+    [
+      aiDockAskRequest,
+      askAiDock,
+      cancelAiDockHoverClose,
+      clearAiDockAskRequest,
+      closeAiDock,
+      closeSearch,
+      isAiDockDirty,
+      isAiDockOpen,
+      isOpen,
+      newChatRequestId,
+      openAiDock,
+      openSearch,
+      scheduleAiDockHoverClose,
+    ],
   )
 
   React.useEffect(() => {
@@ -93,7 +194,7 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
   return (
     <SearchContext.Provider value={value}>
       {children}
-      {hasOpenedSearch ? (
+      {hasLoadedSearch ? (
         <React.Suspense fallback={null}>
           <LazySearchModal />
         </React.Suspense>

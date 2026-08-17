@@ -18,9 +18,9 @@ Do not expose private commercial criteria in client-facing field names, comments
 
 ### `tier-rotated`
 
-Use for visible partner surfaces where partners in the same tier should cycle over time. Tier order remains fixed, but partners inside the same tier are selected with weighted-random ordering for each page view and surface.
+Use for visible partner surfaces where partners in the same tier should cycle over time. Tier order remains fixed, but partners inside the same tier are selected with weighted-random ordering for each loaded app session and surface.
 
-The root loader creates the initial page-view seed, so SSR and hydration receive the same value through loader data. A React provider owns the seed after hydration and refreshes it on client-side page views. Each surface combines its stable surface id with the page-view seed; avoid runtime-generated component ids in the seed because they can diverge across server and client rendering. Partners default to equal probability within their tier; a future `placementWeight` can bias same-tier odds without changing the ordering API.
+The root loader creates the session seed, so SSR and hydration receive the same value through loader data. Client placement hooks read the root loader data directly and do not refresh it during normal navigation. Each surface combines its stable surface id with the session seed; avoid runtime-generated component ids in the seed because they can diverge across server and client rendering. Partners default to equal probability within their tier; a future `placementWeight` can bias same-tier odds without changing the ordering API.
 
 ### `contextual-recommendation`
 
@@ -34,7 +34,7 @@ Use for AI- or crawler-facing outputs such as `llms.txt` and JSON feeds. These s
 
 Reserved rules should be narrow. For example, Cloudflare is reserved as the first deployment/hosting partner in any list that contains Cloudflare and other deployment partners. That should not imply Cloudflare is globally first across every partner surface; non-deployment partners can still appear before Cloudflare when the surface is mixed-category.
 
-Deployment action buttons are a deployment-only surface. Cloudflare remains first when present. Tier order is still preserved, and providers within the same tier can rotate by page view.
+Deployment action buttons are a deployment-only surface. Cloudflare remains first when present. Tier order is still preserved, and providers within the same tier can rotate by session.
 
 ## Current Surfaces
 

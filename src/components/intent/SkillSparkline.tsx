@@ -1,7 +1,132 @@
 import * as React from 'react'
-import * as Plot from '@observablehq/plot'
-import { PlotContainer } from '~/components/charts/PlotContainer'
+import * as d3 from 'd3'
+import { defineChart, rect, type ChartPoint } from '@tanstack/charts'
+import { tooltip } from '@tanstack/charts/tooltip'
+import { Chart } from '@tanstack/charts/react'
 import type { SkillHistoryEntry } from '~/utils/intent.functions'
+
+const changeColors = {
+  added: '#22c55e',
+  removed: '#ef4444',
+  modified: '#f59e0b',
+  unchanged: '#808080',
+} as const
+
+type ChangeType = keyof typeof changeColors
+const changeTypes = [
+  'added',
+  'removed',
+  'modified',
+  'unchanged',
+] as const satisfies ReadonlyArray<ChangeType>
+
+type SparkRect = {
+  entry: SkillHistoryEntry
+  historyIndex: number
+  id: string
+  type: ChangeType
+  x: number
+  x1: number
+  x2: number
+  y: number
+  y1: number
+  y2: number
+}
+
+function createSkillSparkline(
+  history: Array<SkillHistoryEntry>,
+  slots: number,
+  keyboard: boolean,
+) {
+  const responsiveDefinition = defineChart(({ width }) => {
+    const offset = slots - history.length
+    const pxPerSlot = width / slots
+    const barPx = Math.min(10, pxPerSlot * 0.6)
+    const barWidth = (barPx / 2) * (slots / width)
+    const data: Array<SparkRect> = []
+
+    history.forEach((entry, historyIndex) => {
+      const x = historyIndex + offset
+      const changes = [
+        ['added', entry.added],
+        ['modified', entry.modified],
+        ['removed', entry.removed],
+      ] as const
+      let y = 0
+
+      changes.forEach(([type, value]) => {
+        if (value <= 0) return
+        data.push({
+          entry,
+          historyIndex,
+          id: `${historyIndex}:${type}`,
+          type,
+          x,
+          x1: x - barWidth,
+          x2: x + barWidth,
+          y: y + value / 2,
+          y1: y,
+          y2: y + value,
+        })
+        y += value
+      })
+
+      if (y === 0) {
+        data.push({
+          entry,
+          historyIndex,
+          id: `${historyIndex}:unchanged`,
+          type: 'unchanged',
+          x,
+          x1: x - barWidth,
+          x2: x + barWidth,
+          y: entry.total / 2,
+          y1: 0,
+          y2: entry.total,
+        })
+      }
+    })
+
+    return {
+      marks: [
+        rect(data, {
+          id: 'skill-history',
+          x: 'x',
+          x1: 'x1',
+          x2: 'x2',
+          y: 'y',
+          y1: 'y1',
+          y2: 'y2',
+          z: 'type',
+          key: 'id',
+          inset: 0,
+        }),
+      ],
+      x: {
+        scale: d3.scaleLinear().domain([-0.5, slots - 0.5]),
+      },
+      y: {
+        scale: d3
+          .scaleLinear()
+          .domain([0, d3.max(history, (entry) => entry.total) ?? 1]),
+      },
+      color: {
+        scale: d3
+          .scaleOrdinal<ChangeType, string>()
+          .domain(changeTypes)
+          .range(changeTypes.map((type) => changeColors[type])),
+      },
+      guides: false,
+      margin: 2,
+      theme: { background: 'transparent' },
+    }
+  })
+
+  return defineChart(responsiveDefinition, {
+    keyboard,
+    tooltip: { use: tooltip, format: formatSparkTooltip },
+  })
+}
 
 export function SkillSparklinePlaceholder({
   height = 40,
@@ -29,165 +154,42 @@ export function SkillSparkline({
   maxSlots,
   onVersionClick,
 }: SkillSparklineProps) {
-  const n = history.length
-  const slots = Math.max(maxSlots ?? n, n)
-  const offset = slots - n
-
-  const options = React.useCallback(
-    (width: number) => {
-      const pxPerSlot = width / slots
-      const barPx = Math.min(10, pxPerSlot * 0.6)
-      const barW = (barPx / 2) * (slots / width)
-
-      const rectData: Array<{
-        x1: number
-        x2: number
-        y1: number
-        y2: number
-        type: string
-      }> = []
-
-      for (let i = 0; i < n; i++) {
-        const entry = history[i]
-        const x = i + offset
-        const hasChanges =
-          entry.added > 0 || entry.modified > 0 || entry.removed > 0
-
-        if (hasChanges) {
-          let y0 = 0
-          if (entry.added > 0) {
-            rectData.push({
-              x1: x - barW,
-              x2: x + barW,
-              y1: y0,
-              y2: y0 + entry.added,
-              type: 'added',
-            })
-            y0 += entry.added
-          }
-          if (entry.modified > 0) {
-            rectData.push({
-              x1: x - barW,
-              x2: x + barW,
-              y1: y0,
-              y2: y0 + entry.modified,
-              type: 'modified',
-            })
-            y0 += entry.modified
-          }
-          if (entry.removed > 0) {
-            rectData.push({
-              x1: x - barW,
-              x2: x + barW,
-              y1: y0,
-              y2: y0 + entry.removed,
-              type: 'removed',
-            })
-          }
-        } else {
-          // No changes — gray bar showing total
-          rectData.push({
-            x1: x - barW,
-            x2: x + barW,
-            y1: 0,
-            y2: entry.total,
-            type: 'unchanged',
-          })
-        }
-      }
-
-      const yMax = Math.max(...history.map((h) => h.total), 1)
-
-      const tipData = history.map((d, i) => {
-        const status =
-          d.added > 0
-            ? 'added'
-            : d.modified > 0
-              ? 'modified'
-              : d.removed > 0
-                ? 'removed'
-                : 'unchanged'
-        return { ...d, _x: i + offset, _status: status }
-      })
-
-      return {
-        height,
-        marginLeft: 0,
-        marginRight: 0,
-        marginTop: 2,
-        marginBottom: 2,
-        x: { axis: null, domain: [-0.5, slots - 0.5] },
-        y: { axis: null, domain: [0, yMax] },
-        marks: [
-          Plot.rect(rectData, {
-            x1: 'x1',
-            x2: 'x2',
-            y1: 'y1',
-            y2: 'y2',
-            fill: 'type',
-          }),
-          Plot.tip(
-            tipData,
-            Plot.pointer({
-              x: '_x',
-              y: 'total',
-              fill: '_status',
-              channels: {
-                Version: (d) => `v${d.version}`,
-                Skills: (d) => d.total,
-                Added: (d) => (d.added > 0 ? `+${d.added}` : null),
-                Removed: (d) => (d.removed > 0 ? `-${d.removed}` : null),
-                Modified: (d) => (d.modified > 0 ? `~${d.modified}` : null),
-              },
-              format: {
-                x: false,
-                y: false,
-                fill: true,
-              },
-            } as Plot.TipOptions),
-          ),
-        ],
-        color: {
-          domain: ['added', 'removed', 'modified', 'unchanged'],
-          range: ['#22c55e', '#ef4444', '#f59e0b', '#808080'],
-        },
-        style: { background: 'transparent' },
-      } satisfies Partial<Parameters<typeof Plot.plot>[0]>
-    },
-    [history, height, slots, offset, n],
+  const slots = Math.max(maxSlots ?? history.length, history.length)
+  const keyboard = Boolean(onVersionClick)
+  const skillSparkline = React.useMemo(
+    () => createSkillSparkline(history, slots, keyboard),
+    [history, keyboard, slots],
   )
 
-  const handleClick = React.useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (!onVersionClick) return
-      const container = e.currentTarget
-      const rect = container.getBoundingClientRect()
-      const x = e.clientX - rect.left
-      const width = container.clientWidth
-      if (width === 0) return
-
-      const domainX = (x / width) * slots - 0.5
-      const slotIndex = Math.round(domainX)
-      const historyIndex = slotIndex - offset
-      if (historyIndex < 0 || historyIndex >= n) return
-
-      e.preventDefault()
-      e.stopPropagation()
-      onVersionClick(history[historyIndex], historyIndex)
-    },
-    [onVersionClick, slots, offset, n, history],
-  )
-
-  if (history.length === 0) {
-    return null
-  }
+  if (history.length === 0) return null
 
   return (
-    <PlotContainer
-      options={options}
+    <Chart
+      definition={skillSparkline}
       height={height}
-      onClick={onVersionClick ? handleClick : undefined}
+      initialWidth={320}
+      ariaLabel="Skill changes by version"
+      tabIndex={onVersionClick ? 0 : -1}
+      onSelect={
+        onVersionClick
+          ? (point) => {
+              if (!point) return
+              onVersionClick(point.datum.entry, point.datum.historyIndex)
+            }
+          : undefined
+      }
       style={onVersionClick ? { cursor: 'pointer' } : undefined}
     />
   )
+}
+
+function formatSparkTooltip(point: ChartPoint<SparkRect>) {
+  const { entry } = point.datum
+  const changes = [
+    entry.added > 0 ? `Added +${entry.added}` : '',
+    entry.removed > 0 ? `Removed -${entry.removed}` : '',
+    entry.modified > 0 ? `Modified ~${entry.modified}` : '',
+  ].filter(Boolean)
+
+  return [`v${entry.version}`, `Skills ${entry.total}`, ...changes].join('\n')
 }

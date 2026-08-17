@@ -1,20 +1,23 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 
-type ButtonGroupProps = {
-  children: React.ReactNode
-  className?: string
-}
+type ButtonGroupProps = React.ComponentProps<'div'>
 
-export function ButtonGroup({ children, className }: ButtonGroupProps) {
+export function ButtonGroup({
+  children,
+  className,
+  ...props
+}: ButtonGroupProps) {
   return (
     <div
+      {...props}
       className={twMerge(
-        'inline-flex items-stretch rounded-md overflow-hidden',
-        'border border-gray-200 dark:border-gray-700',
-        'divide-x divide-gray-200 dark:divide-gray-700',
-        'bg-white dark:bg-gray-800',
+        'inline-flex items-stretch overflow-hidden rounded-md',
+        'border border-border-default',
+        '[&>*]:border-0! [&>*+*]:border-l! [&>*+*]:border-border-default!',
+        'bg-background-surface text-text-primary',
         'shadow-sm',
+        '[&>[aria-pressed=true]]:bg-text-primary [&>[aria-pressed=true]]:text-background-default [&>[aria-pressed=true]]:shadow-sm',
         className,
       )}
     >

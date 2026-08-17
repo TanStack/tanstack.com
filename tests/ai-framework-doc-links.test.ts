@@ -12,6 +12,7 @@ const expectedFrameworks: Framework[] = [
   'solid',
   'svelte',
   'preact',
+  'angular',
   'vanilla',
 ]
 
@@ -21,6 +22,7 @@ const expectedPackages: Partial<Record<Framework, string>> = {
   solid: '@tanstack/ai-solid',
   svelte: '@tanstack/ai-svelte',
   preact: '@tanstack/ai-preact',
+  angular: '@tanstack/ai-angular',
   vanilla: '@tanstack/ai-client',
 }
 
@@ -30,6 +32,7 @@ const expectedDocsPaths: Partial<Record<Framework, string>> = {
   solid: 'api/ai-solid',
   svelte: 'getting-started/quick-start-svelte',
   preact: 'api/ai-preact',
+  angular: 'getting-started/quick-start-angular',
   vanilla: 'api/ai-client',
 }
 

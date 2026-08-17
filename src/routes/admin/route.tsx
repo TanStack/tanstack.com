@@ -7,18 +7,18 @@ import {
   createFileRoute,
 } from '@tanstack/react-router'
 import {
-  X,
-  TextAlignStart,
-  LayoutDashboard,
-  LogIn,
-  MessagesSquare,
-  Shield,
-  ShieldHalf,
-  StickyNote,
-  Users,
-  User,
-  BookOpen,
-} from 'lucide-react'
+  XIcon,
+  TextAlignLeftIcon,
+  SquaresFourIcon,
+  SignInIcon,
+  ChatsCircleIcon,
+  ShieldIcon,
+  ShieldCheckeredIcon,
+  NoteIcon,
+  UsersIcon,
+  UserIcon,
+  BookOpenIcon,
+} from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 // Using public asset URL
 import { ClientAdminAuth } from '~/components/ClientAuth'
@@ -26,7 +26,7 @@ import { requireAnyAdminCapability } from '~/utils/auth.functions'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { NpmIcon } from '~/components/icons/NpmIcon'
-import { Sparkles } from 'lucide-react'
+import { SparkleIcon } from '@phosphor-icons/react'
 import { hasCapability, type Capability } from '~/db/types'
 
 export const Route = createFileRoute('/admin')({
@@ -49,15 +49,6 @@ export const Route = createFileRoute('/admin')({
       </ClientAdminAuth>
     )
   },
-  staticData: {
-    Title: () => {
-      return (
-        <Link to="." className="hover:text-blue-500">
-          Admin
-        </Link>
-      )
-    },
-  },
 })
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -73,48 +64,48 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   })[] = [
     {
       label: 'Dashboard',
-      icon: <LayoutDashboard />,
+      icon: <SquaresFourIcon />,
       to: '/admin',
     },
     {
       label: 'Users',
-      icon: <Users />,
+      icon: <UsersIcon />,
       to: '/admin/users',
       requiredCapability: 'admin',
     },
     {
       label: 'Roles',
-      icon: <ShieldHalf />,
+      icon: <ShieldCheckeredIcon />,
       to: '/admin/roles',
       requiredCapability: 'admin',
     },
     {
       label: 'Login History',
-      icon: <LogIn />,
+      icon: <SignInIcon />,
       to: '/admin/logins',
       requiredCapability: 'admin',
     },
     {
       label: 'Audit Logs',
-      icon: <Shield />,
+      icon: <ShieldIcon />,
       to: '/admin/audit',
       requiredCapability: 'admin',
     },
     {
       label: 'Feedback',
-      icon: <MessagesSquare />,
+      icon: <ChatsCircleIcon />,
       to: '/admin/feedback',
       requiredCapability: 'moderate-feedback',
     },
     {
       label: 'Notes',
-      icon: <StickyNote />,
+      icon: <NoteIcon />,
       to: '/admin/notes',
       requiredCapability: 'moderate-feedback',
     },
     {
       label: 'Showcases',
-      icon: <Sparkles />,
+      icon: <SparkleIcon />,
       to: '/admin/showcases',
       requiredCapability: 'moderate-showcases',
     },
@@ -130,17 +121,17 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     },
     {
       label: 'Intent Skills',
-      icon: <BookOpen />,
+      icon: <BookOpenIcon />,
       to: '/admin/intent',
     },
     {
       label: 'Docs Cache',
-      icon: <BookOpen />,
+      icon: <BookOpenIcon />,
       to: '/admin/docs',
     },
     {
       label: 'My Account',
-      icon: <User />,
+      icon: <UserIcon />,
       to: '/account',
     },
   ]
@@ -190,8 +181,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       >
         <summary className="py-2 px-4 flex gap-2 items-center justify-between">
           <div className="flex-1 flex gap-4 items-center">
-            <TextAlignStart className="icon-open cursor-pointer" />
-            <X className="icon-close cursor-pointer" />
+            <TextAlignLeftIcon className="icon-open cursor-pointer" />
+            <XIcon className="icon-close cursor-pointer" />
             Admin Menu
           </div>
         </summary>

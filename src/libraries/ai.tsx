@@ -1,48 +1,52 @@
 import { Library } from '.'
-import { Plug, Zap } from 'lucide-react'
+import { PlugIcon, LightningIcon, GearIcon } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
-import { CogsIcon } from '~/components/icons/CogsIcon'
 import { ai } from './libraries'
 
-const textStyles = `text-pink-600 dark:text-pink-500`
+const textStyles = `text-category-data`
 
 export const aiProject = {
   ...ai,
-  description: `A powerful, open-source AI SDK with a unified interface across multiple providers. No vendor lock-in, no proprietary formats, just clean TypeScript and honest open source.`,
+  description: `The headless agent framework for TypeScript. TanStack AI runs the agent loop as typed primitives you compose yourself: tool calls, reasoning, human-in-the-loop interrupts, memory, and streaming state. Bring your own UI framework, model provider, server, and transport. Native AG-UI over the wire, MIT licensed, no hosted gateway and no platform to buy into.`,
   latestBranch: 'main',
-  bgRadial: 'from-pink-500 via-pink-700/50 to-transparent',
-  textColor: `text-pink-700`,
   defaultDocs: 'getting-started/overview',
   featureHighlights: [
     {
-      title: 'Provider Agnostic',
-      icon: <Plug className={twMerge(textStyles)} />,
+      title: 'A Real Agent Loop',
+      icon: <GearIcon className={twMerge(textStyles)} />,
       description: (
         <div>
-          Official adapters for OpenRouter, OpenAI, Anthropic, Gemini, Ollama,
-          Groq, Grok/xAI, ElevenLabs, and fal.ai. Import only the adapters your
-          app needs.
+          <code>chat()</code> drives the loop and you control every part of it:
+          isomorphic tools you place on the client or the server, composable{' '}
+          <code>{`(state) => boolean`}</code> stop strategies, and interrupts
+          that pause a run for human approval and resume exactly where it
+          stopped, with no database required.
         </div>
       ),
     },
     {
-      title: 'AG-UI Native Clients',
-      icon: <Zap className={twMerge(textStyles)} />,
+      title: 'Bring Your Own Everything',
+      icon: <PlugIcon className={twMerge(textStyles)} />,
       description: (
         <div>
-          A headless client plus React, Vue, Solid, Svelte, and Preact bindings
-          all speak the same AG-UI request and event protocol.
+          Your provider, server, transport, auth, and deploy target. Adapters
+          for OpenRouter, OpenAI, Anthropic, Gemini, Bedrock, Mistral, Groq,
+          Grok/xAI, Ollama, ElevenLabs, and fal.ai, plus{' '}
+          <code>openaiCompatible</code> for anything else. Import only what you
+          use: every activity is a separate, tree-shakeable module.
         </div>
       ),
     },
     {
-      title: 'Typed Tools & Media',
-      icon: <CogsIcon className={twMerge(textStyles)} />,
+      title: 'Headless, Not Opinionated',
+      icon: <LightningIcon className={twMerge(textStyles)} />,
       description: (
         <div>
-          Type-safe client/server tools, provider-native tools, structured
-          output, reasoning streams, image, speech, transcription, realtime
-          voice, and video generation.
+          A framework-free core with React, Vue, Solid, Svelte, Preact, Angular,
+          and React Native bindings on top, plus official Octane bindings from
+          the Octane team. All of them speak native AG-UI over SSE, HTTP
+          streams, XHR, RPC, or your own transport. No components to fight, no
+          styles to override.
         </div>
       ),
     },

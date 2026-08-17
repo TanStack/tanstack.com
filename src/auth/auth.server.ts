@@ -112,6 +112,7 @@ export class AuthService implements IAuthService {
       adsDisabled: user.adsDisabled,
       interestedInHidingAds: user.interestedInHidingAds,
       lastUsedFramework: user.lastUsedFramework,
+      signupSources: user.signupSources,
     }
   }
 }

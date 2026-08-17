@@ -1,6 +1,6 @@
 'use client'
 import * as React from 'react'
-import { ChevronDown, Copy, Check } from 'lucide-react'
+import { CaretDownIcon, CopyIcon, CheckIcon } from '@phosphor-icons/react'
 import { useToast } from '~/components/ToastProvider'
 import { Button } from '~/ui'
 import { ButtonGroup } from './ButtonGroup'
@@ -11,6 +11,12 @@ import {
   DropdownItem,
 } from './Dropdown'
 import { getPackageManager } from '~/utils/markdown/installCommand'
+import {
+  copyTextToClipboard,
+  openPopupWindow,
+  useTemporaryFlag,
+} from '~/utils/browser-effects'
+import { getLocalStorageItem } from '~/utils/browser-storage'
 
 // Markdown icon component matching the screenshot
 function MarkdownIcon({ className }: { className?: string }) {
@@ -32,7 +38,7 @@ function MarkdownIcon({ className }: { className?: string }) {
 }
 
 // Claude/Anthropic icon
-function ClaudeIcon({ className }: { className?: string }) {
+export function ClaudeIcon({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -55,7 +61,7 @@ function ChatGPTIcon({ className }: { className?: string }) {
 }
 
 // Cursor icon
-function CursorIcon({ className }: { className?: string }) {
+export function CursorIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
       <path d="M22.106 5.68L12.5.135a.998.998 0 00-.998 0L1.893 5.68a.84.84 0 00-.419.726v11.186c0 .3.16.577.42.727l9.607 5.547a.999.999 0 00.998 0l9.608-5.547a.84.84 0 00.42-.727V6.407a.84.84 0 00-.42-.726zm-.603 1.176L12.228 22.92c-.063.108-.228.064-.228-.061V12.34a.59.59 0 00-.295-.51l-9.11-5.26c-.107-.062-.063-.228.062-.228h18.55c.264 0 .428.286.296.514z"></path>
@@ -110,31 +116,35 @@ export function CopyPageDropdown({
   label = 'Copy page',
 }: CopyPageDropdownProps = {}) {
   const [open, setOpen] = React.useState(false)
-  const [copied, setCopied] = React.useState(false)
+  const copied = useTemporaryFlag()
   const { notify } = useToast()
 
   // For docs pages in this repo, prefer the site's markdown endpoint so requests stay behind site caching.
   const pageMarkdownUrl = (() => {
-    const base = `${typeof window !== 'undefined' ? window.location.origin : ''}${typeof window !== 'undefined' ? window.location.pathname.replace(/\/$/, '') : ''}.md`
-    const params =
-      typeof window !== 'undefined'
-        ? new URLSearchParams(window.location.search)
-        : new URLSearchParams()
+    if (typeof window === 'undefined') {
+      return '.md'
+    }
+
+    const base = `${window.location.origin}${window.location.pathname.replace(/\/$/, '')}.md`
+    const params = new URLSearchParams(window.location.search)
     if (currentFramework) {
       params.set('framework', currentFramework)
     }
+
     // Read package manager from localStorage (same key as PackageManagerTabs)
-    if (typeof localStorage !== 'undefined') {
-      const pm = localStorage.getItem('packageManager')
-      const validPm = getPackageManager(pm)
-      params.set('pm', validPm)
-    }
+    const pm = getLocalStorageItem('packageManager')
+    const validPm = getPackageManager(pm)
+    params.set('pm', validPm)
+
     const queryString = params.toString()
     return queryString ? `${base}?${queryString}` : base
   })()
 
+  const hasPageMarkdownEndpoint =
+    typeof window !== 'undefined' && window.location.pathname.includes('/docs/')
+
   const sourceMarkdownUrl =
-    repo === 'tanstack/tanstack.com'
+    repo === 'tanstack/tanstack.com' && hasPageMarkdownEndpoint
       ? pageMarkdownUrl
       : repo && branch && filePath
         ? `https://raw.githubusercontent.com/${repo}/${branch}/${filePath}`
@@ -142,13 +152,13 @@ export function CopyPageDropdown({
 
   const handleCopyPage = async () => {
     if (rawContent) {
-      await navigator.clipboard.writeText(rawContent)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      await copyTextToClipboard(rawContent)
+      copied.trigger()
       notify(
         <div>
           <div className="font-medium">Copied to clipboard</div>
         </div>,
+        { id: 'page-copied' },
       )
       return
     }
@@ -157,9 +167,8 @@ export function CopyPageDropdown({
     const cached = markdownCache.get(urlToFetch)
 
     const copyContent = async (content: string, source: string) => {
-      await navigator.clipboard.writeText(content)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      await copyTextToClipboard(content)
+      copied.trigger()
       notify(
         <div>
           <div className="font-medium">Copied to clipboard</div>
@@ -167,6 +176,7 @@ export function CopyPageDropdown({
             {source}
           </div>
         </div>,
+        { id: 'page-copied' },
       )
     }
 
@@ -182,7 +192,7 @@ export function CopyPageDropdown({
       markdownCache.set(urlToFetch, content)
       await copyContent(
         content,
-        repo === 'tanstack/tanstack.com'
+        repo === 'tanstack/tanstack.com' && hasPageMarkdownEndpoint
           ? 'Markdown content copied from markdown endpoint'
           : 'Markdown content copied from GitHub',
       )
@@ -194,9 +204,8 @@ export function CopyPageDropdown({
         await copyContent(pageContent, 'Copied rendered page content')
       } else {
         // Last resort: copy the URL
-        await navigator.clipboard.writeText(window.location.href)
-        setCopied(true)
-        setTimeout(() => setCopied(false), 2000)
+        await copyTextToClipboard(window.location.href)
+        copied.trigger()
         notify(
           <div>
             <div className="font-medium">Copied to clipboard</div>
@@ -204,6 +213,7 @@ export function CopyPageDropdown({
               Page URL copied
             </div>
           </div>,
+          { id: 'page-copied' },
         )
       }
     }
@@ -211,7 +221,7 @@ export function CopyPageDropdown({
 
   const handleViewMarkdown = () => {
     const url = sourceMarkdownUrl
-    window.open(url, '_blank')
+    openPopupWindow(url)
   }
 
   const handleOpenInClaude = () => {
@@ -219,7 +229,7 @@ export function CopyPageDropdown({
     const prompt = encodeURIComponent(
       `Read from this URL: ${pageUrl} and explain it to me`,
     )
-    window.open(`https://claude.ai/new?q=${prompt}`, '_blank')
+    openPopupWindow(`https://claude.ai/new?q=${prompt}`)
   }
 
   const handleOpenInChatGPT = () => {
@@ -227,17 +237,16 @@ export function CopyPageDropdown({
     const prompt = encodeURIComponent(
       `Read from this URL: ${pageUrl} and explain it to me`,
     )
-    window.open(`https://chatgpt.com/?q=${prompt}`, '_blank')
+    openPopupWindow(`https://chatgpt.com/?q=${prompt}`)
   }
 
   const handleOpenInCursor = () => {
     const pageUrl = window.location.href
     const prompt = `Read from this URL:\n${pageUrl}\nand explain it to me`
-    window.open(
+    openPopupWindow(
       `cursor://anysphere.cursor-deeplink/prompt?text=${encodeURIComponent(
         prompt,
       )}`,
-      '_blank',
     )
   }
 
@@ -246,7 +255,7 @@ export function CopyPageDropdown({
     const prompt = encodeURIComponent(
       `Read from this URL: ${pageUrl} and explain it to me`,
     )
-    window.open(`https://t3.chat/new?q=${prompt}`, '_blank')
+    openPopupWindow(`https://t3.chat/new?q=${prompt}`)
   }
 
   const menuItems = [
@@ -289,20 +298,21 @@ export function CopyPageDropdown({
   return (
     <ButtonGroup>
       <Button
+        type="button"
         variant="ghost"
         size="xs"
         rounded="none"
         className="border-0"
         onClick={handleCopyPage}
       >
-        {copied ? (
+        {copied.active ? (
           <>
-            <Check className="w-3 h-3" />
+            <CheckIcon className="w-3 h-3" />
             Copied!
           </>
         ) : (
           <>
-            <Copy className="w-3 h-3" />
+            <CopyIcon className="w-3 h-3" />
             {label}
           </>
         )}
@@ -310,13 +320,14 @@ export function CopyPageDropdown({
       <Dropdown open={open} onOpenChange={setOpen}>
         <DropdownTrigger>
           <Button
+            type="button"
             variant="ghost"
             size="xs"
             rounded="none"
             className="border-0 px-1.5"
             aria-label={`More ${label} options`}
           >
-            <ChevronDown className="w-3 h-3" />
+            <CaretDownIcon className="w-3 h-3" />
           </Button>
         </DropdownTrigger>
         <DropdownContent align="end" className="min-w-72">
@@ -326,7 +337,7 @@ export function CopyPageDropdown({
               onSelect={item.onSelect}
               className="gap-3 px-3 py-2.5"
             >
-              <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center text-gray-700 dark:text-gray-400">
+              <div className="shrink-0 w-5 h-5 flex items-center justify-center text-gray-700 dark:text-gray-400">
                 <item.icon className="w-4 h-4" />
               </div>
               <div className="flex flex-col gap-0.5">

@@ -13,16 +13,17 @@ import { PaginationControls } from './PaginationControls'
 import { Spinner } from './Spinner'
 import type { Showcase } from '~/db/types'
 import {
-  Check,
-  X,
-  Star,
-  ExternalLink,
-  Trash2,
-  ThumbsUp,
-  ThumbsDown,
-} from 'lucide-react'
+  CheckIcon,
+  XIcon,
+  StarIcon,
+  ArrowSquareOutIcon,
+  TrashIcon,
+  ThumbsUpIcon,
+  ThumbsDownIcon,
+} from '@phosphor-icons/react'
 import { libraries } from '~/libraries'
 import { Badge, Button } from '~/ui'
+import { getRowFieldId } from '~/utils/route-encoding'
 import { Fragment, useState } from 'react'
 
 interface ShowcaseModerationListProps {
@@ -205,6 +206,11 @@ export function ShowcaseModerationList({
             const isExpanded = expandedIds.has(showcase.id)
             const isPending = showcase.status === 'pending'
             const isModeratingThis = isModeratingId === showcase.id
+            const moderationNoteId = getRowFieldId(
+              'showcase-moderation',
+              showcase.id,
+              'note',
+            )
 
             return (
               <Fragment key={showcase.id}>
@@ -298,7 +304,7 @@ export function ShowcaseModerationList({
                           : 'Add to featured'
                       }
                     >
-                      <Star
+                      <StarIcon
                         className={twMerge(
                           'w-4 h-4',
                           showcase.isFeatured && 'fill-current',
@@ -313,7 +319,7 @@ export function ShowcaseModerationList({
                         className="p-1 rounded hover:bg-emerald-100 dark:hover:bg-emerald-900/30 text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
                         title="Upvote"
                       >
-                        <ThumbsUp className="w-3.5 h-3.5" />
+                        <ThumbsUpIcon className="w-3.5 h-3.5" />
                       </button>
                       <span
                         className={twMerge(
@@ -334,7 +340,7 @@ export function ShowcaseModerationList({
                         className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                         title="Downvote"
                       >
-                        <ThumbsDown className="w-3.5 h-3.5" />
+                        <ThumbsDownIcon className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </TableCell>
@@ -370,7 +376,7 @@ export function ShowcaseModerationList({
                             }
                             title="Approve"
                           >
-                            <Check className="w-3.5 h-3.5" />
+                            <CheckIcon className="w-3.5 h-3.5" />
                           </Button>
                         )}
                         {showcase.status !== 'denied' && (
@@ -381,7 +387,7 @@ export function ShowcaseModerationList({
                             onClick={() => handleModerate(showcase.id, 'deny')}
                             title="Deny"
                           >
-                            <X className="w-3.5 h-3.5" />
+                            <XIcon className="w-3.5 h-3.5" />
                           </Button>
                         )}
                         <Button
@@ -399,7 +405,7 @@ export function ShowcaseModerationList({
                           }}
                           title="Delete"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <TrashIcon className="w-3.5 h-3.5" />
                         </Button>
                       </div>
                     )}
@@ -437,7 +443,7 @@ export function ShowcaseModerationList({
                               className="text-sm text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
                             >
                               {showcase.url}
-                              <ExternalLink className="w-3 h-3" />
+                              <ArrowSquareOutIcon className="w-3 h-3" />
                             </a>
                           </div>
                           <div>
@@ -508,9 +514,9 @@ export function ShowcaseModerationList({
                             )}
                           >
                             {showcase.voteScore > 0 ? (
-                              <ThumbsUp className="w-4 h-4" />
+                              <ThumbsUpIcon className="w-4 h-4" />
                             ) : showcase.voteScore < 0 ? (
-                              <ThumbsDown className="w-4 h-4" />
+                              <ThumbsDownIcon className="w-4 h-4" />
                             ) : null}
                             <span>
                               {showcase.voteScore > 0 ? '+' : ''}
@@ -528,13 +534,13 @@ export function ShowcaseModerationList({
                         {isPending && (
                           <div>
                             <label
-                              htmlFor="note"
+                              htmlFor={moderationNoteId}
                               className="block text-sm font-semibold mb-2"
                             >
                               Internal Moderation Note (optional):
                             </label>
                             <textarea
-                              id="note"
+                              id={moderationNoteId}
                               value={moderationNotes[showcase.id] || ''}
                               onChange={(e) =>
                                 handleModerationNoteChange(

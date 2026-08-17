@@ -21,6 +21,9 @@ type DropdownContentProps = {
   align?: 'start' | 'center' | 'end'
   sideOffset?: number
   portal?: boolean
+  onFocus?: React.FocusEventHandler<HTMLDivElement>
+  onPointerEnter?: React.PointerEventHandler<HTMLDivElement>
+  onPointerLeave?: React.PointerEventHandler<HTMLDivElement>
 }
 
 type DropdownItemProps = {
@@ -65,11 +68,17 @@ export function DropdownContent({
   align = 'end',
   sideOffset = 6,
   portal = true,
+  onFocus,
+  onPointerEnter,
+  onPointerLeave,
 }: DropdownContentProps) {
   const content = (
     <DropdownMenu.Content
       align={align}
       sideOffset={sideOffset}
+      onFocus={onFocus}
+      onPointerEnter={onPointerEnter}
+      onPointerLeave={onPointerLeave}
       className={twMerge(
         'dropdown-content z-[1200] min-w-48 rounded-lg p-1.5',
         'border border-gray-200 dark:border-gray-700',

@@ -1,6 +1,10 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
-import { Lightbulb, MessageSquare, Plus } from 'lucide-react'
+import {
+  LightbulbIcon,
+  ChatCenteredIcon,
+  PlusIcon,
+} from '@phosphor-icons/react'
 
 interface DocFeedbackFloatingButtonProps {
   onAddNote: () => void
@@ -113,7 +117,7 @@ export function DocFeedbackFloatingButton({
         )}
         title="Add feedback"
       >
-        <Plus
+        <PlusIcon
           className={twMerge(
             'text-[10px] transition-transform duration-200',
             isMenuOpen && 'rotate-45',
@@ -130,7 +134,7 @@ export function DocFeedbackFloatingButton({
                 onClick={handleNoteClick}
                 className="w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left"
               >
-                <MessageSquare className="text-blue-500" />
+                <ChatCenteredIcon className="text-blue-500" />
                 <div>
                   <div className="font-medium text-sm text-gray-900 dark:text-white">
                     Add Note
@@ -150,7 +154,7 @@ export function DocFeedbackFloatingButton({
               onClick={handleFeedbackClick}
               className="w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left"
             >
-              <Lightbulb className="text-yellow-500" />
+              <LightbulbIcon className="text-yellow-500" />
               <div>
                 <div className="font-medium text-sm text-gray-900 dark:text-white">
                   Suggest Improvement

@@ -1,5 +1,7 @@
 import { ReactNode } from 'react'
-import { Check, ChevronsUpDown } from 'lucide-react'
+import { Badge } from '~/components/ds/ui'
+import { CaretUpDownIcon } from '@phosphor-icons/react/CaretUpDown'
+import { CheckIcon } from '@phosphor-icons/react/Check'
 import { twMerge } from 'tailwind-merge'
 import {
   Dropdown,
@@ -12,6 +14,7 @@ export type SelectOption = {
   label: string
   value: string
   logo?: string
+  badge?: string
 }
 
 export type SelectProps<T extends SelectOption> = {
@@ -43,7 +46,10 @@ export function Select<T extends SelectOption>({
     <div className={twMerge('w-full', className)}>
       <Dropdown>
         <DropdownTrigger>
-          <button className="relative items-center w-full gap-2 flex hover:bg-gray-500/10 cursor-pointer rounded-md py-1.5 px-2 text-left focus:outline-none text-sm">
+          <button
+            type="button"
+            className="relative items-center w-full gap-2 flex hover:bg-gray-500/10 cursor-pointer rounded-md py-1.5 px-2 text-left focus:outline-none text-sm"
+          >
             {icon ? (
               <span className="flex items-center justify-center w-6 h-6 rounded border border-gray-500/20">
                 {icon}
@@ -59,8 +65,11 @@ export function Select<T extends SelectOption>({
               </span>
             ) : null}
             <span className="truncate font-medium">{selectedOption.label}</span>
+            {selectedOption.badge ? (
+              <Badge>{selectedOption.badge}</Badge>
+            ) : null}
             <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-              <ChevronsUpDown
+              <CaretUpDownIcon
                 className="h-4 w-4 opacity-40"
                 aria-hidden="true"
               />
@@ -84,12 +93,13 @@ export function Select<T extends SelectOption>({
                   width={18}
                   src={option.logo}
                   alt={`${option.label} logo`}
-                  className="flex-shrink-0"
+                  className="shrink-0"
                 />
               ) : null}
               <span className="truncate">{option.label}</span>
+              {option.badge ? <Badge>{option.badge}</Badge> : null}
               {selected === option.value ? (
-                <Check
+                <CheckIcon
                   className="h-4 w-4 absolute right-2 text-gray-800 dark:text-gray-400"
                   aria-hidden="true"
                 />

@@ -6,9 +6,21 @@ import htmlIconUrl from '~/images/file-icons/html.svg?url'
 import jsonIconUrl from '~/images/file-icons/json.svg?url'
 import svelteIconUrl from '~/images/file-icons/svelte.svg?url'
 import vueIconUrl from '~/images/file-icons/vue.svg?url'
+import markoIconUrl from '~/images/file-icons/marko.svg?url'
+import emberIconUrl from '~/images/ember-logo.svg?url'
+import octaneIconUrl from '~/images/octane-logo.svg?url'
 import textIconUrl from '~/images/file-icons/txt.svg?url'
-import type { GitHubFileNode } from '~/utils/documents.server'
 import { twMerge } from 'tailwind-merge'
+
+const DEFAULT_SIDEBAR_WIDTH = 180
+
+export type FileExplorerNode = {
+  children?: Array<FileExplorerNode>
+  depth: number
+  name: string
+  path: string
+  type: string
+}
 
 const getFileIconPath = (filename: string) => {
   const ext = filename.split('.').pop()?.toLowerCase() || ''
@@ -17,6 +29,8 @@ const getFileIconPath = (filename: string) => {
     case 'ts':
     case 'tsx':
       return typescriptIconUrl
+    case 'tsrx':
+      return octaneIconUrl
     case 'js':
     case 'jsx':
       return javascriptIconUrl
@@ -30,6 +44,11 @@ const getFileIconPath = (filename: string) => {
       return svelteIconUrl
     case 'vue':
       return vueIconUrl
+    case 'marko':
+      return markoIconUrl
+    case 'gjs':
+    case 'gts':
+      return emberIconUrl
     default:
       return textIconUrl
   }
@@ -83,22 +102,24 @@ function getMarginLeft(depth: number) {
 
 interface FileExplorerProps {
   currentPath: string | null
-  githubContents: GitHubFileNode[] | undefined
+  files: Array<FileExplorerNode> | undefined
   isSidebarOpen: boolean
   libraryColor: string
+  onSidebarClose: () => void
   prefetchFileContent: (file: string) => void
   setCurrentPath: (file: string) => void
 }
 
 export function FileExplorer({
   currentPath,
-  githubContents,
+  files,
   isSidebarOpen,
   libraryColor,
+  onSidebarClose,
   prefetchFileContent,
   setCurrentPath,
 }: FileExplorerProps) {
-  const [sidebarWidth, setSidebarWidth] = React.useState(220)
+  const [sidebarWidth, setSidebarWidth] = React.useState(DEFAULT_SIDEBAR_WIDTH)
   const [isResizing, setIsResizing] = React.useState(false)
   const MIN_SIDEBAR_WIDTH = 60
 
@@ -106,8 +127,8 @@ export function FileExplorer({
   const [expandedFolders, setExpandedFolders] = React.useState<Set<string>>(
     () => {
       const expanded = new Set<string>()
-      if (githubContents) {
-        const flattened = recursiveFlattenGithubContents(githubContents)
+      if (files) {
+        const flattened = recursiveFlattenFiles(files)
         if (flattened.every((f) => f.depth === 0)) {
           return expanded
         }
@@ -116,7 +137,7 @@ export function FileExplorer({
         for (const file of flattened) {
           if (file.path === currentPath) {
             // Open all ancestors directories
-            const dirs = flattedOnlyToDirs(githubContents)
+            const dirs = flattenedOnlyToDirs(files)
             const ancestors = file.path.split('/').slice(0, -1)
 
             while (ancestors.length > 0) {
@@ -169,9 +190,8 @@ export function FileExplorer({
     const handleMouseUp = () => {
       setIsResizing(false)
       if (sidebarWidth <= MIN_SIDEBAR_WIDTH) {
-        setSidebarWidth(200)
-        const event = new CustomEvent('closeSidebar')
-        window.dispatchEvent(event)
+        setSidebarWidth(DEFAULT_SIDEBAR_WIDTH)
+        onSidebarClose()
       }
     }
 
@@ -188,7 +208,7 @@ export function FileExplorer({
       document.removeEventListener('touchmove', handleMouseMove)
       document.removeEventListener('touchend', handleMouseUp)
     }
-  }, [isResizing, sidebarWidth])
+  }, [isResizing, onSidebarClose, sidebarWidth])
 
   const toggleFolder = (path: string) => {
     setExpandedFolders((prev) => {
@@ -202,38 +222,38 @@ export function FileExplorer({
     })
   }
 
-  if (!githubContents) return null
+  if (!files) return null
 
   return (
     <>
       <div
+        aria-hidden={!isSidebarOpen}
+        inert={!isSidebarOpen}
         style={{
           width: isSidebarOpen ? sidebarWidth : 0,
           paddingRight: isSidebarOpen ? '0.5rem' : 0,
         }}
-        className={`shrink-0 overflow-y-auto bg-linear-to-r from-gray-50 via-gray-50 to-transparent dark:from-gray-800/50 dark:via-gray-800/50 dark:to-transparent shadow-sm ${
-          isResizing ? '' : 'transition-all duration-300'
-        }`}
+        className={`shrink-0 overflow-x-hidden overflow-y-auto bg-linear-to-r from-gray-50 via-gray-50 to-transparent shadow-sm dark:from-gray-800/50 dark:via-gray-800/50 dark:to-transparent ${isSidebarOpen ? 'opacity-100' : 'pointer-events-none opacity-0'} ${isResizing ? '' : 'transition-[width,padding-right,opacity] duration-[180ms] [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none'}`}
       >
-        {githubContents && isSidebarOpen ? (
-          <div className="p-2">
-            <RenderFileTree
-              currentPath={currentPath}
-              expandedFolders={expandedFolders}
-              files={githubContents}
-              libraryColor={libraryColor}
-              prefetchFileContent={prefetchFileContent}
-              setCurrentPath={setCurrentPath}
-              toggleFolder={toggleFolder}
-            />
-          </div>
-        ) : null}
+        <div className="p-2">
+          <RenderFileTree
+            currentPath={currentPath}
+            expandedFolders={expandedFolders}
+            files={files}
+            libraryColor={libraryColor}
+            prefetchFileContent={prefetchFileContent}
+            setCurrentPath={setCurrentPath}
+            toggleFolder={toggleFolder}
+          />
+        </div>
       </div>
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
       <div
-        className={`w-1 cursor-col-resize hover:bg-gray-300 dark:hover:bg-gray-600 active:bg-gray-400 dark:active:bg-gray-500 ${
-          isResizing ? '' : 'transition-colors'
-        } ${isSidebarOpen ? '' : 'hidden'}`}
+        className={`${isSidebarOpen ? 'w-1 opacity-100' : 'pointer-events-none w-0 opacity-0'} cursor-col-resize hover:bg-gray-300 dark:hover:bg-gray-600 active:bg-gray-400 dark:active:bg-gray-500 ${
+          isResizing
+            ? ''
+            : 'transition-[width,opacity,background-color] duration-[180ms] [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none'
+        }`}
         onMouseDown={startResize}
         onTouchStart={startResize}
       />
@@ -242,7 +262,7 @@ export function FileExplorer({
 }
 
 const RenderFileTree = (props: {
-  files: GitHubFileNode[] | undefined
+  files: Array<FileExplorerNode> | undefined
   libraryColor: string
   toggleFolder: (path: string) => void
   prefetchFileContent: (file: string) => void
@@ -293,7 +313,7 @@ const RenderFileTree = (props: {
               <div
                 className="absolute w-px bg-gray-200 dark:bg-gray-700"
                 style={{
-                  left: `${file.depth * 16 - 9}px`,
+                  left: `${file.depth * 16 + 4}px`,
                   top: 0,
                   bottom: 0,
                 }}
@@ -302,8 +322,8 @@ const RenderFileTree = (props: {
               <div
                 className="absolute h-px bg-gray-200 dark:bg-gray-700"
                 style={{
-                  left: `${file.depth * 16 - 9}px`,
-                  width: '9px',
+                  left: `${file.depth * 16 + 4}px`,
+                  width: '8px',
                   top: '50%',
                 }}
               />
@@ -333,7 +353,7 @@ const RenderFileTree = (props: {
               onMouseLeave={() => cancelPrefetch(file.path)}
               onBlur={() => cancelPrefetch(file.path)}
               className={twMerge(
-                `px-2 py-1.5 text-left w-full flex items-center gap-2 text-sm rounded transition-colors duration-200 min-w-0`,
+                `px-2 py-1.5 text-left w-full flex items-center gap-2 text-xs rounded transition-colors duration-200 min-w-0`,
                 props.currentPath === file.path
                   ? `${props.libraryColor}/20 text-gray-900 dark:text-white shadow-sm`
                   : 'hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400',
@@ -358,24 +378,24 @@ const RenderFileTree = (props: {
   )
 }
 
-function recursiveFlattenGithubContents(
-  nodes: Array<GitHubFileNode>,
+function recursiveFlattenFiles(
+  nodes: Array<FileExplorerNode>,
   bannedDirs: Set<string> = new Set(),
-): Array<GitHubFileNode> {
+): Array<FileExplorerNode> {
   return nodes.flatMap((node) => {
     if (node.type === 'dir' && node.children && !bannedDirs.has(node.name)) {
-      return recursiveFlattenGithubContents(node.children, bannedDirs)
+      return recursiveFlattenFiles(node.children, bannedDirs)
     }
     return node
   })
 }
 
-function flattedOnlyToDirs(
-  nodes: Array<GitHubFileNode>,
-): Array<GitHubFileNode> {
+function flattenedOnlyToDirs(
+  nodes: Array<FileExplorerNode>,
+): Array<FileExplorerNode> {
   return nodes.flatMap((node) => {
     if (node.type === 'dir' && node.children) {
-      return [node, ...flattedOnlyToDirs(node.children)]
+      return [node, ...flattenedOnlyToDirs(node.children)]
     }
     return node.type === 'dir' ? [node] : []
   })

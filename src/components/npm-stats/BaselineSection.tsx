@@ -1,5 +1,13 @@
 import * as React from 'react'
-import { Pin, PinOff, Plus, X, ChevronDown, Eye, EyeOff } from 'lucide-react'
+import {
+  PushPinIcon,
+  PushPinSlashIcon,
+  PlusIcon,
+  XIcon,
+  CaretDownIcon,
+  EyeIcon,
+  EyeSlashIcon,
+} from '@phosphor-icons/react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +25,7 @@ export const BASELINE_LINE_COLOR = '#3b82f6'
 export type BaselineSectionProps = {
   packageGroups: PackageGroup[]
   presets: BaselinePreset[]
+  canToggleShowBaseline: boolean
   normalizeBaseline: boolean
   showBaseline: boolean
   onToggleNormalizeBaseline: () => void
@@ -29,6 +38,7 @@ export type BaselineSectionProps = {
 export function BaselineSection({
   packageGroups,
   presets,
+  canToggleShowBaseline,
   normalizeBaseline,
   showBaseline,
   onToggleNormalizeBaseline,
@@ -65,13 +75,20 @@ export function BaselineSection({
         )}
       >
         {normalizeActive ? (
-          <Pin className="w-3 h-3" />
+          <PushPinIcon className="w-3 h-3" />
         ) : (
-          <PinOff className="w-3 h-3" />
+          <PushPinSlashIcon className="w-3 h-3" />
         )}
         <span>Baseline</span>
       </button>
     </Tooltip>
+  )
+
+  const isBaselineShown = canToggleShowBaseline && showBaseline
+  const baselineName = (
+    <span className={twMerge('font-medium', !isBaselineShown && 'opacity-70')}>
+      {baselineDisplayName}
+    </span>
   )
 
   const chip = hasBaselines && (
@@ -79,36 +96,39 @@ export function BaselineSection({
       className="flex items-center gap-1.5 rounded px-1.5 py-0.5 text-xs text-blue-900 dark:text-blue-100"
       style={{ backgroundColor: `${BASELINE_LINE_COLOR}25` }}
     >
-      <Tooltip
-        content={
-          showBaseline
-            ? 'Hide combined baseline line on chart'
-            : 'Show combined baseline line on chart'
-        }
-      >
-        <button
-          onClick={onToggleShowBaseline}
-          className="flex items-center gap-1.5 hover:brightness-110"
+      {canToggleShowBaseline ? (
+        <Tooltip
+          content={
+            isBaselineShown
+              ? 'Hide combined baseline line on chart'
+              : 'Show combined baseline line on chart'
+          }
         >
-          {showBaseline ? (
-            <Eye className="w-3 h-3 text-blue-600 dark:text-blue-300" />
-          ) : (
-            <EyeOff className="w-3 h-3 text-gray-400 dark:text-gray-500" />
-          )}
-          <span
-            className={twMerge('font-medium', !showBaseline && 'opacity-70')}
+          <button
+            onClick={onToggleShowBaseline}
+            className="flex items-center gap-1.5 hover:brightness-110"
           >
-            {baselineDisplayName}
-          </span>
-        </button>
-      </Tooltip>
+            {isBaselineShown ? (
+              <EyeIcon className="w-3 h-3 text-blue-600 dark:text-blue-300" />
+            ) : (
+              <EyeSlashIcon className="w-3 h-3 text-gray-400 dark:text-gray-500" />
+            )}
+            {baselineName}
+          </button>
+        </Tooltip>
+      ) : (
+        <div className="flex items-center gap-1.5">
+          <EyeSlashIcon className="w-3 h-3 text-gray-400 dark:text-gray-500" />
+          {baselineName}
+        </div>
+      )}
       <Tooltip content="Clear all baselines">
         <button
           onClick={onClearBaselines}
           className="text-gray-500 hover:text-red-500"
           aria-label="Clear all baselines"
         >
-          <X className="w-3 h-3" />
+          <XIcon className="w-3 h-3" />
         </button>
       </Tooltip>
     </div>
@@ -121,7 +141,7 @@ export function BaselineSection({
         className="flex items-center gap-1 px-1.5 py-0.5 text-xs rounded
           text-blue-700 dark:text-blue-300 hover:bg-blue-500/10 font-medium"
       >
-        <Plus className="w-3 h-3" />
+        <PlusIcon className="w-3 h-3" />
         Add
       </button>
     </Tooltip>
@@ -136,7 +156,7 @@ export function BaselineSection({
               text-blue-700 dark:text-blue-300 hover:bg-blue-500/10 font-medium"
           >
             Presets
-            <ChevronDown className="w-3 h-3" />
+            <CaretDownIcon className="w-3 h-3" />
           </button>
         </DropdownMenuTrigger>
       </Tooltip>
@@ -235,14 +255,14 @@ export function BaselineSection({
           <div className="bg-white dark:bg-gray-800 rounded-lg p-2 sm:p-4 w-full max-w-md">
             <div className="flex justify-between items-center mb-2 sm:mb-4">
               <h3 className="text-base sm:text-lg font-medium flex items-center gap-2">
-                <Pin className="w-4 h-4 text-blue-500" />
+                <PushPinIcon className="w-4 h-4 text-blue-500" />
                 Add baseline package
               </h3>
               <button
                 onClick={() => setShowSearch(false)}
                 className="p-0.5 sm:p-1 hover:text-red-500"
               >
-                <X className="w-4 h-4 sm:w-5 sm:h-5" />
+                <XIcon className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
             </div>
             <PackageSearch

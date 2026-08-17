@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { env } from "~/utils/env";
+import { normalizeSameOriginPath } from "~/utils/url-boundary";
 
 export const Route = createFileRoute("/api/auth/callback/$provider")({
   server: {
@@ -38,7 +39,14 @@ export const Route = createFileRoute("/api/auth/callback/$provider")({
         const isProduction = process.env.NODE_ENV === "production";
 
         try {
-          const provider = params.provider as "github" | "google";
+          const provider = params.provider;
+          if (provider !== "github" && provider !== "google") {
+            return Response.redirect(
+              new URL("/login?error=oauth_failed", request.url),
+              302,
+            );
+          }
+
           const url = new URL(request.url);
           const code = url.searchParams.get("code");
           const state = url.searchParams.get("state");
@@ -91,7 +99,7 @@ export const Route = createFileRoute("/api/auth/callback/$provider")({
           const clearStateCookieHeader = clearOAuthStateCookie(isProduction);
 
           // Exchange code for access token
-          const origin = env.SITE_URL || new URL(request.url).origin;
+          const origin = new URL(request.url).origin;
           const redirectUri = `${origin}/api/auth/callback/${provider}`;
 
           let userProfile: {
@@ -113,7 +121,6 @@ export const Route = createFileRoute("/api/auth/callback/$provider")({
               code,
               clientId,
               clientSecret,
-              redirectUri,
             );
             tokenInfo = githubToken;
             userProfile = await fetchGitHubProfile(githubToken.accessToken);
@@ -187,7 +194,8 @@ export const Route = createFileRoute("/api/auth/callback/$provider")({
           const isPopup = isOAuthPopupMode(request);
 
           // Check for custom returnTo URL
-          const returnTo = getOAuthReturnTo(request);
+          const rawReturnTo = getOAuthReturnTo(request);
+          const returnTo = normalizeSameOriginPath(rawReturnTo, request.url);
 
           let redirectUrl: string;
           if (isPopup) {
@@ -196,25 +204,7 @@ export const Route = createFileRoute("/api/auth/callback/$provider")({
               request.url,
             ).toString();
           } else if (returnTo) {
-            // Validate returnTo is a same-origin URL to prevent open redirect
-            try {
-              const returnToUrl = new URL(returnTo, request.url);
-              const currentOrigin = new URL(request.url).origin;
-              if (returnToUrl.origin === currentOrigin) {
-                redirectUrl = returnToUrl.toString();
-              } else {
-                console.warn(
-                  `[AUTH:WARN] returnTo origin mismatch: ${returnToUrl.origin} !== ${currentOrigin}`,
-                );
-                redirectUrl = new URL("/account", request.url).toString();
-              }
-            } catch (e) {
-              console.warn(
-                `[AUTH:WARN] Failed to parse returnTo URL: ${returnTo}`,
-                e,
-              );
-              redirectUrl = new URL("/account", request.url).toString();
-            }
+            redirectUrl = new URL(returnTo, request.url).toString();
           } else {
             redirectUrl = new URL("/account", request.url).toString();
           }
@@ -227,7 +217,7 @@ export const Route = createFileRoute("/api/auth/callback/$provider")({
           if (isPopup) {
             headers.append("Set-Cookie", clearOAuthPopupCookie(isProduction));
           }
-          if (returnTo) {
+          if (rawReturnTo) {
             headers.append(
               "Set-Cookie",
               clearOAuthReturnToCookie(isProduction),

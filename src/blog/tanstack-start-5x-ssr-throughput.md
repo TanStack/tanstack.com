@@ -8,7 +8,7 @@ excerpt: 'How profiling under sustained load uncovered SSR hot paths in TanStack
 library: start
 ---
 
-![A flamegraph island in the tanstack universe](/blog-assets/tanstack-start-5x-ssr-throughput/header.png)
+![A flamegraph island in the tanstack universe](/blog-assets/tanstack-start-5x-ssr-throughput/header.jpg)
 
 ## TL;DR
 

@@ -3,23 +3,6 @@ import { seo } from '~/utils/seo'
 
 export const Route = createFileRoute('/builder/docs')({
   component: RouteComponent,
-  staticData: {
-    Title: () => (
-      <div className="flex items-center gap-2 text-gray-500">
-        <Link
-          to="/builder"
-          className="hover:text-blue-500 flex items-center gap-2"
-        >
-          Builder
-          <span className="px-1.5 py-0.5 text-[.6rem] font-black border border-amber-500 text-amber-500 rounded-md uppercase">
-            Alpha
-          </span>
-        </Link>
-        <span>/</span>
-        <span>Docs</span>
-      </div>
-    ),
-  },
   head: () => ({
     meta: seo({
       title: 'TanStack Builder Docs',
@@ -138,7 +121,7 @@ function RouteComponent() {
         </div>
 
         {/* Footer CTA */}
-        <div className="mt-16 p-8 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 dark:from-blue-500/20 dark:to-cyan-500/20 rounded-2xl border border-blue-200 dark:border-cyan-800 text-center">
+        <div className="mt-16 p-8 bg-linear-to-r from-blue-500/10 to-cyan-500/10 dark:from-blue-500/20 dark:to-cyan-500/20 rounded-2xl border border-blue-200 dark:border-cyan-800 text-center">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
             Ready to Build?
           </h2>

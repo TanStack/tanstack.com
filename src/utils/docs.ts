@@ -1,12 +1,21 @@
-import { notFound } from '@tanstack/react-router'
+import { isNotFound, notFound } from '@tanstack/react-router'
 import {
   fetchDocs,
-  fetchDocsPage,
   fetchDocsManifest,
+  fetchDocsPathManifest,
   fetchDocsRedirect,
   fetchFile,
   fetchRepoDirectoryContents,
+  fetchClientExampleFiles,
 } from './docs.functions'
+import {
+  appendPathToDocsHref,
+  buildDocsMarkdownRedirectHref,
+  buildDocsRedirectHref,
+  docsManifestHasPath,
+  resolveDocsPathRedirect,
+  type DocsPathResolution,
+} from './docs-redirects'
 import { removeLeadingSlash } from './utils'
 
 export const loadDocs = async ({
@@ -28,27 +37,32 @@ export const loadDocs = async ({
     })
   }
 
-  return fetchDocs({
-    data: {
-      repo,
-      branch,
-      filePath: `${removeLeadingSlash(docsRoot)}/${docsPath}.md`,
-    },
-  })
-}
+  const filePath = `${removeLeadingSlash(docsRoot)}/${docsPath}`
+  let doc
 
-export const loadDocsPage = async ({
-  repo,
-  branch,
-  docsRoot,
-  docsPath,
-}: {
-  repo: string
-  branch: string
-  docsRoot: string
-  docsPath: string
-}) => {
-  if (!branch || !docsRoot || !docsPath) {
+  try {
+    doc = await fetchDocs({
+      data: {
+        repo,
+        branch,
+        filePath: `${filePath}.md`,
+      },
+    })
+  } catch (error) {
+    if (!isDocsNotFoundError(error)) {
+      throw error
+    }
+
+    doc = await fetchDocs({
+      data: {
+        repo,
+        branch,
+        filePath: `${filePath}/index.md`,
+      },
+    })
+  }
+
+  if (!doc) {
     throw notFound({
       data: {
         message: 'No doc was found here!',
@@ -56,13 +70,7 @@ export const loadDocsPage = async ({
     })
   }
 
-  return fetchDocsPage({
-    data: {
-      repo,
-      branch,
-      filePath: `${removeLeadingSlash(docsRoot)}/${docsPath}.md`,
-    },
-  })
+  return doc
 }
 
 export async function getDocsManifest(opts: {
@@ -71,6 +79,237 @@ export async function getDocsManifest(opts: {
   docsRoot: string
 }) {
   return fetchDocsManifest({ data: opts })
+}
+
+export async function resolveDocsRoutePath(opts: {
+  branch: string
+  defaultDocs: string
+  docsPath: string
+  docsRoot: string
+  frameworks: Array<string>
+  repo: string
+}): Promise<DocsPathResolution> {
+  const defaultDocsResolution = getDefaultDocsResolution(opts)
+
+  if (defaultDocsResolution) {
+    return defaultDocsResolution
+  }
+
+  const manifest = await fetchDocsPathManifest({
+    data: {
+      repo: opts.repo,
+      branch: opts.branch,
+      docsRoot: opts.docsRoot,
+    },
+  })
+
+  if (manifest.paths.length === 0) {
+    return { type: 'render', docsPath: opts.docsPath }
+  }
+
+  return resolveDocsPathRedirect({
+    defaultDocs: opts.defaultDocs,
+    docsPath: opts.docsPath,
+    frameworks: opts.frameworks,
+    manifest,
+  })
+}
+
+function getDefaultDocsResolution(opts: {
+  defaultDocs: string
+  docsPath: string
+  frameworks: Array<string>
+}): DocsPathResolution | null {
+  const docsPath = normalizeRouteDocsPath(opts.docsPath)
+  const defaultDocs = normalizeRouteDocsPath(opts.defaultDocs)
+
+  if (!docsPath || !defaultDocs) {
+    return null
+  }
+
+  if (docsPath === defaultDocs) {
+    return {
+      type: 'render',
+      docsPath,
+    }
+  }
+
+  const [framework, ...restParts] = docsPath.split('/')
+  const restPath = restParts.join('/')
+
+  if (
+    framework &&
+    opts.frameworks.includes(framework) &&
+    restPath === 'overview' &&
+    defaultDocs === `framework/${framework}/overview`
+  ) {
+    return {
+      type: 'redirect',
+      docsPath: defaultDocs,
+    }
+  }
+
+  return null
+}
+
+function normalizeRouteDocsPath(path: string) {
+  return removeLeadingSlash(path.trim())
+    .replace(/\.md$/, '')
+    .replace(/\/index$/, '')
+    .replace(/\/+$/g, '')
+}
+
+export type LoadDocsRouteResult =
+  | {
+      type: 'loaded'
+      docsPath: string
+      doc: Awaited<ReturnType<typeof loadDocs>>
+      latestDocsPath: string | null
+    }
+  | {
+      type: 'redirect'
+      docsPath: string
+    }
+  | {
+      type: 'not-found'
+    }
+
+export async function loadDocsRoute(opts: {
+  branch: string
+  defaultDocs: string
+  docsPath: string
+  docsRoot: string
+  frameworks: Array<string>
+  latestBranch?: string
+  redirectFromPaths: Array<string>
+  repo: string
+}): Promise<LoadDocsRouteResult> {
+  const resolution = await resolveDocsRoutePathWithRedirects(opts)
+
+  if (resolution.type !== 'render') {
+    return resolution
+  }
+
+  try {
+    const [doc, latestDocsPath] = await Promise.all([
+      loadDocs({
+        repo: opts.repo,
+        branch: opts.branch,
+        docsRoot: opts.docsRoot,
+        docsPath: resolution.docsPath,
+      }),
+      findLatestDocsPath(opts, resolution.docsPath),
+    ])
+
+    return {
+      type: 'loaded',
+      docsPath: resolution.docsPath,
+      doc,
+      latestDocsPath,
+    }
+  } catch (error) {
+    if (!isDocsNotFoundError(error)) {
+      throw error
+    }
+
+    const redirectPath = await resolveDocsRedirectFromPaths(opts)
+
+    if (redirectPath !== null) {
+      return {
+        type: 'redirect',
+        docsPath: redirectPath,
+      }
+    }
+
+    return { type: 'not-found' }
+  }
+}
+
+/**
+ * When serving an old version, checks whether the same doc path exists on the
+ * latest branch so the page can canonicalize to its /latest equivalent.
+ * Fails open (null) so a manifest hiccup never breaks the doc itself.
+ */
+async function findLatestDocsPath(
+  opts: {
+    branch: string
+    docsRoot: string
+    latestBranch?: string
+    repo: string
+  },
+  docsPath: string,
+): Promise<string | null> {
+  if (!opts.latestBranch || opts.latestBranch === opts.branch) {
+    return null
+  }
+
+  try {
+    const manifest = await fetchDocsPathManifest({
+      data: {
+        repo: opts.repo,
+        branch: opts.latestBranch,
+        docsRoot: opts.docsRoot,
+      },
+    })
+
+    return docsManifestHasPath(manifest, docsPath) ? docsPath : null
+  } catch {
+    return null
+  }
+}
+
+async function resolveDocsRoutePathWithRedirects(opts: {
+  branch: string
+  defaultDocs: string
+  docsPath: string
+  docsRoot: string
+  frameworks: Array<string>
+  redirectFromPaths: Array<string>
+  repo: string
+}): Promise<DocsPathResolution> {
+  const resolution = await resolveDocsRoutePath(opts)
+
+  if (resolution.type !== 'not-found') {
+    return resolution
+  }
+
+  const redirectPath = await resolveDocsRedirectFromPaths(opts)
+
+  if (redirectPath !== null) {
+    return {
+      type: 'redirect',
+      docsPath: redirectPath,
+    }
+  }
+
+  return resolution
+}
+
+async function resolveDocsRedirectFromPaths(opts: {
+  branch: string
+  docsRoot: string
+  redirectFromPaths: Array<string>
+  repo: string
+}) {
+  const docsPaths = opts.redirectFromPaths.filter(Boolean)
+
+  if (docsPaths.length === 0) {
+    return null
+  }
+
+  return resolveDocsRedirect({
+    repo: opts.repo,
+    branch: opts.branch,
+    docsRoot: opts.docsRoot,
+    docsPaths,
+  })
+}
+
+function isDocsNotFoundError(error: unknown) {
+  return (
+    isNotFound(error) ||
+    (error && typeof error === 'object' && 'isNotFound' in error)
+  )
 }
 
 export async function resolveDocsRedirect(opts: {
@@ -82,4 +321,11 @@ export async function resolveDocsRedirect(opts: {
   return fetchDocsRedirect({ data: opts })
 }
 
-export { fetchFile, fetchRepoDirectoryContents }
+export {
+  appendPathToDocsHref,
+  buildDocsMarkdownRedirectHref,
+  buildDocsRedirectHref,
+  fetchFile,
+  fetchRepoDirectoryContents,
+  fetchClientExampleFiles,
+}

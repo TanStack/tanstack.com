@@ -1,11 +1,12 @@
 import React from 'react'
 import {
-  ArrowLeftFromLine,
-  ArrowRightFromLine,
-  Maximize,
-  Minimize,
-  TextAlignStart,
-} from 'lucide-react'
+  ArrowLineLeftIcon,
+  ArrowLineRightIcon,
+  ArrowsOutIcon,
+  ArrowsInIcon,
+  TextAlignLeftIcon,
+} from '@phosphor-icons/react'
+import { Tooltip } from '~/ui'
 
 interface CodeExplorerTopBarProps {
   activeTab: 'code' | 'sandbox'
@@ -29,25 +30,36 @@ export function CodeExplorerTopBar({
       <div className="flex items-center gap-2 px-1">
         {activeTab === 'code' ? (
           isSidebarOpen ? (
-            <button
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 text-sm rounded transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400"
-              title={'Hide sidebar'}
-            >
-              <ArrowLeftFromLine className="w-4 h-4" />
-            </button>
+            <Tooltip content="Hide files" side="bottom">
+              <button
+                type="button"
+                onClick={() => setIsSidebarOpen(false)}
+                className="p-2 text-sm rounded transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400"
+                aria-label="Hide files"
+                aria-pressed={true}
+              >
+                <ArrowLineLeftIcon className="w-4 h-4" aria-hidden="true" />
+              </button>
+            </Tooltip>
           ) : (
-            <button
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 text-sm rounded transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400"
-              title={'Show sidebar'}
-            >
-              <ArrowRightFromLine className="w-4 h-4" />
-            </button>
+            <Tooltip content="Show files" side="bottom">
+              <button
+                type="button"
+                onClick={() => setIsSidebarOpen(true)}
+                className="p-2 text-sm rounded transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400"
+                aria-label="Show files"
+                aria-pressed={false}
+              >
+                <ArrowLineRightIcon className="w-4 h-4" aria-hidden="true" />
+              </button>
+            </Tooltip>
           )
         ) : (
           <div className="p-2 text-sm rounded" aria-hidden>
-            <TextAlignStart className="w-4 h-4 text-transparent" aria-hidden />
+            <TextAlignLeftIcon
+              className="w-4 h-4 text-transparent"
+              aria-hidden
+            />
           </div>
         )}
         <button
@@ -96,9 +108,9 @@ export function CodeExplorerTopBar({
           title={isFullScreen ? 'Exit full screen' : 'Enter full screen'}
         >
           {isFullScreen ? (
-            <Minimize className="w-4 h-4" />
+            <ArrowsInIcon className="w-4 h-4" />
           ) : (
-            <Maximize className="w-4 h-4" />
+            <ArrowsOutIcon className="w-4 h-4" />
           )}
         </button>
       </div>

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Download, Star } from 'lucide-react'
+import { DownloadIcon, StarIcon } from '@phosphor-icons/react'
 import type * as React from 'react'
 import type { Library } from '~/libraries'
 import { ossStatsQuery } from '~/queries/stats'
@@ -59,13 +59,13 @@ export function LibraryStatsSection({ library }: LibraryStatsSectionProps) {
       <div className="flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:gap-6">
         <LibraryPlainStat
           href="https://www.npmjs.com/org/tanstack"
-          icon={<Download size={18} aria-hidden="true" />}
+          icon={<DownloadIcon size={18} aria-hidden="true" />}
           label="NPM Downloads"
           value={stats?.npm?.totalDownloads}
         />
         <LibraryPlainStat
           href={`https://github.com/${library.repo}`}
-          icon={<Star size={18} aria-hidden="true" />}
+          icon={<StarIcon size={18} aria-hidden="true" />}
           label="GitHub Stars"
           value={stats?.github?.starCount}
         />

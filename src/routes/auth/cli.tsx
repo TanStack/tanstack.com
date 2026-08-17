@@ -9,7 +9,7 @@ const searchSchema = v.object({
 })
 
 const authorizeCliSession = createServerFn({ method: 'POST' })
-  .inputValidator((data: { ticketId: string }) => data)
+  .validator((data: { ticketId: string }) => data)
   .handler(async ({ data: { ticketId } }) => {
     const [{ getRequest }, authIndex, cliTickets] = await Promise.all([
       import('@tanstack/react-start/server'),

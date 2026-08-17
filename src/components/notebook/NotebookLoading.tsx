@@ -1,0 +1,345 @@
+import * as React from 'react'
+import { ArrowLeftIcon } from '@phosphor-icons/react'
+
+type NotebookEditorSkeletonProps = {
+  headerActions?: boolean
+  initialPanel?: 'chat' | 'code'
+  subtitle?: string
+  title?: string
+}
+
+type NotebookRouteFrameProps = {
+  children: React.ReactNode
+  pathname: string
+}
+
+export function NotebookRouteFrame({
+  children,
+  pathname,
+}: NotebookRouteFrameProps) {
+  if (!getNotebookLoadingKind(pathname)) return <>{children}</>
+
+  return (
+    <div
+      data-notebook-shell=""
+      className="grid min-h-[calc(100dvh-var(--navbar-height))] min-w-0 flex-1"
+    >
+      <div
+        data-notebook-initial=""
+        inert
+        className="pointer-events-none col-start-1 row-start-1 min-w-0"
+      >
+        <NotebookRouteSkeleton pathname={pathname} />
+      </div>
+      <div className="col-start-1 row-start-1 min-w-0">{children}</div>
+    </div>
+  )
+}
+
+export function NotebookRouteReady({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <div data-notebook-ready="" className="contents">
+      {children}
+    </div>
+  )
+}
+
+export function NotebookIndexSkeleton() {
+  return (
+    <main
+      data-notebook-loading="index"
+      aria-busy="true"
+      className="min-h-[calc(100dvh-var(--navbar-height))] bg-background-default px-5 py-12 text-text-primary sm:px-8 sm:py-16"
+    >
+      <span className="sr-only" role="status">
+        Loading notebooks
+      </span>
+      <div className="mx-auto w-full max-w-5xl">
+        <header className="flex items-center justify-between gap-4">
+          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+            Notebooks
+          </h1>
+          <SkeletonBlock className="h-9 w-32 rounded-lg" />
+        </header>
+        <p className="mt-3 text-sm text-text-muted">
+          Unlisted · anyone with the link can view.
+        </p>
+
+        <section className="mt-12" aria-hidden="true">
+          <SkeletonBlock className="h-5 w-32" />
+          <div className="mt-4 border-y border-border-default">
+            <NotebookListSkeletonRows count={2} />
+          </div>
+        </section>
+
+        <section className="mt-14" aria-hidden="true">
+          <h2 className="text-lg font-semibold">Start from an example</h2>
+          <div className="mt-4 border-y border-border-default">
+            <NotebookListSkeletonRows count={3} actions />
+          </div>
+        </section>
+      </div>
+    </main>
+  )
+}
+
+export function NotebookEditorSkeleton({
+  headerActions = true,
+  initialPanel = 'code',
+  subtitle,
+  title,
+}: NotebookEditorSkeletonProps = {}) {
+  return (
+    <main
+      data-notebook-loading="editor"
+      aria-busy="true"
+      className="fixed inset-x-0 top-[var(--navbar-height)] bottom-0 z-20 flex min-h-0 flex-col overflow-hidden bg-background-default text-text-primary"
+    >
+      <span className="sr-only" role="status">
+        Loading notebook
+      </span>
+      <header className="flex h-16 shrink-0 items-center gap-2 border-b border-border-default bg-background-default px-2 sm:gap-3 sm:px-4">
+        <a
+          href="/notebook"
+          aria-label="Back to notebooks"
+          className="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-text-secondary hover:bg-background-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
+        >
+          <ArrowLeftIcon className="size-4" aria-hidden="true" />
+        </a>
+
+        <div className="min-w-0 flex-1">
+          {title ? (
+            <h1 className="truncate text-sm font-semibold">{title}</h1>
+          ) : (
+            <SkeletonBlock className="h-4 w-40 max-w-full" />
+          )}
+          {subtitle ? (
+            <p className="truncate text-xs text-text-muted">{subtitle}</p>
+          ) : (
+            <SkeletonBlock className="mt-1.5 h-3 w-24 max-w-full" />
+          )}
+        </div>
+
+        {headerActions ? (
+          <div className="flex shrink-0 items-center gap-2" aria-hidden="true">
+            <SkeletonBlock className="hidden h-7 w-16 sm:block" />
+            <SkeletonBlock className="h-8 w-8 rounded-md" />
+            <SkeletonBlock className="h-8 w-20 rounded-md" />
+          </div>
+        ) : null}
+      </header>
+
+      <NotebookWorkbenchSkeleton
+        assistant
+        fullscreen
+        initialPanel={initialPanel}
+      />
+    </main>
+  )
+}
+
+export function NotebookAiSkeleton() {
+  return (
+    <NotebookEditorSkeleton
+      headerActions={false}
+      initialPanel="chat"
+      subtitle="Local spike"
+      title="AI notebook spike"
+    />
+  )
+}
+
+export function NotebookRouteSkeleton({ pathname }: { pathname: string }) {
+  switch (getNotebookLoadingKind(pathname)) {
+    case 'index':
+      return <NotebookIndexSkeleton />
+    case 'ai':
+      return <NotebookAiSkeleton />
+    case 'embedded':
+      return <NotebookEmbeddedSkeleton />
+    case 'editor':
+      return <NotebookEditorSkeleton />
+    default:
+      return null
+  }
+}
+
+function getNotebookLoadingKind(pathname: string) {
+  if (pathname === '/notebook' || pathname === '/notebook/') return 'index'
+  if (pathname === '/notebook/ai') return 'ai'
+  if (pathname === '/notebook/esbuild' || pathname.startsWith('/notebook/p/')) {
+    return 'embedded'
+  }
+  if (pathname.startsWith('/notebook/') && pathname !== '/notebook/llms.txt') {
+    return 'editor'
+  }
+  return null
+}
+
+export function NotebookEmbeddedSkeleton() {
+  return (
+    <main
+      data-notebook-loading="embedded"
+      aria-busy="true"
+      className="min-h-[calc(100dvh-var(--navbar-height))] w-full bg-background-default p-3 text-text-primary sm:p-4"
+    >
+      <span className="sr-only" role="status">
+        Loading notebook
+      </span>
+      <header className="mb-3" aria-hidden="true">
+        <SkeletonBlock className="h-5 w-48 max-w-full" />
+        <SkeletonBlock className="mt-2 h-4 w-72 max-w-full" />
+      </header>
+      <NotebookWorkbenchSkeleton />
+    </main>
+  )
+}
+
+export function NotebookListSkeletonRows({
+  actions = false,
+  count = 3,
+}: {
+  actions?: boolean
+  count?: number
+}) {
+  return Array.from({ length: count }, (_, index) => (
+    <div
+      key={index}
+      className="flex min-h-20 items-center gap-5 border-b border-border-default px-1 py-5 last:border-b-0 sm:px-3"
+    >
+      <div className="min-w-0 flex-1">
+        <SkeletonBlock className="h-4 w-44 max-w-[70%]" />
+        <SkeletonBlock className="mt-2 h-3 w-72 max-w-[90%]" />
+      </div>
+      {actions ? <SkeletonBlock className="h-8 w-24 rounded-md" /> : null}
+    </div>
+  ))
+}
+
+function NotebookWorkbenchSkeleton({
+  assistant = false,
+  fullscreen = false,
+  initialPanel = 'code',
+}: {
+  assistant?: boolean
+  fullscreen?: boolean
+  initialPanel?: 'chat' | 'code'
+}) {
+  return (
+    <section
+      aria-hidden="true"
+      className={`not-prose flex min-w-0 flex-col overflow-hidden border border-border-default bg-background-default ${
+        fullscreen
+          ? 'min-h-0 flex-1 rounded-none border-x-0 border-b-0'
+          : 'h-[clamp(520px,75dvh,720px)] rounded-lg'
+      }`}
+    >
+      <header className="flex min-h-10 shrink-0 items-center justify-between gap-3 border-b border-border-default px-2">
+        <div className="flex min-w-0 items-center gap-2">
+          {assistant ? (
+            <div className="hidden h-7 overflow-hidden rounded-md border border-border-default lg:flex">
+              <span className="flex items-center px-2 text-xs text-text-muted">
+                Code
+              </span>
+              <span className="flex items-center border-l border-border-default px-2 text-xs text-text-muted">
+                Chat
+              </span>
+            </div>
+          ) : null}
+          {initialPanel === 'code' ? (
+            <>
+              <SkeletonBlock className="size-8 shrink-0 rounded-md" />
+              <SkeletonBlock className="h-3 w-24" />
+            </>
+          ) : (
+            <span className="text-xs text-text-muted">Chat</span>
+          )}
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <SkeletonBlock className="hidden h-3 w-16 sm:block" />
+          <SkeletonBlock className="h-7 w-24 rounded-md" />
+        </div>
+      </header>
+
+      <div className="shrink-0 border-b border-border-default p-1 lg:hidden">
+        <div className="grid h-7 grid-cols-2 rounded-md border border-border-default text-center text-xs text-text-muted">
+          <span className="flex items-center justify-center">Preview</span>
+          <span className="flex items-center justify-center border-l border-border-default">
+            {assistant ? 'Editor' : 'Code'}
+          </span>
+        </div>
+      </div>
+
+      <div className="grid min-h-0 min-w-0 flex-1 grid-cols-1 lg:grid-cols-[minmax(280px,67fr)_8px_minmax(280px,33fr)]">
+        <div
+          className={`${initialPanel === 'chat' ? 'flex' : 'hidden'} min-h-0 min-w-0 border-border-default lg:flex lg:border-r`}
+        >
+          {initialPanel === 'chat' ? <ChatSkeleton /> : <CodeSkeleton />}
+        </div>
+        <div className="hidden border-x border-border-default lg:block" />
+        <div
+          className={`${initialPanel === 'chat' ? 'hidden' : 'block'} min-h-0 min-w-0 bg-background-default lg:block`}
+        >
+          <div className="flex h-10 items-center gap-1 border-b border-border-default bg-background-subtle px-1.5">
+            <SkeletonBlock className="size-7 rounded-md" />
+            <SkeletonBlock className="size-7 rounded-md" />
+            <SkeletonBlock className="size-7 rounded-md" />
+            <SkeletonBlock className="mx-1 h-7 min-w-0 flex-1 rounded-lg" />
+            <SkeletonBlock className="size-7 rounded-md" />
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function ChatSkeleton() {
+  return (
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+      <div className="flex h-12 shrink-0 items-center justify-between border-b border-border-default px-3">
+        <SkeletonBlock className="h-4 w-28" />
+        <SkeletonBlock className="size-8 rounded-md" />
+      </div>
+      <div className="min-h-0 flex-1 px-5 py-6">
+        <SkeletonBlock className="ml-auto h-8 w-2/3 rounded-2xl" />
+        <SkeletonBlock className="mt-5 h-3 w-4/5" />
+        <SkeletonBlock className="mt-2 h-3 w-3/5" />
+      </div>
+      <div className="shrink-0 p-3">
+        <div className="h-20 rounded-2xl border border-border-default bg-background-subtle" />
+      </div>
+    </div>
+  )
+}
+
+function CodeSkeleton() {
+  return (
+    <div className="flex min-h-0 min-w-0 flex-1 bg-background-default">
+      <div className="hidden w-[184px] shrink-0 border-r border-border-default p-3 sm:block">
+        <SkeletonBlock className="h-3 w-24" />
+        <SkeletonBlock className="mt-4 h-3 w-28" />
+        <SkeletonBlock className="mt-3 h-3 w-20" />
+      </div>
+      <div className="min-w-0 flex-1 p-4">
+        <SkeletonBlock className="h-3 w-3/5" />
+        <SkeletonBlock className="mt-3 h-3 w-4/5" />
+        <SkeletonBlock className="mt-3 h-3 w-2/5" />
+        <SkeletonBlock className="mt-6 h-3 w-3/4" />
+        <SkeletonBlock className="mt-3 h-3 w-1/2" />
+      </div>
+    </div>
+  )
+}
+
+function SkeletonBlock({ className }: { className: string }) {
+  return (
+    <div
+      className={`rounded bg-background-subtle ${className}`}
+      aria-hidden="true"
+    />
+  )
+}

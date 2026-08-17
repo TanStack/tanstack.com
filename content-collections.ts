@@ -25,16 +25,22 @@ const posts = defineCollection({
   name: 'posts',
   directory: './src/blog',
   include: '*.md',
-  schema: z.object({
-    title: z.string(),
-    published: z.iso.date(),
-    draft: z.boolean().optional(),
-    excerpt: z.string(),
-    authors: z.string().array(),
-    library: libraryListSchema.optional(),
-    content: z.string(),
-    redirect_from: z.string().array().optional(),
-  }),
+  schema: z
+    .object({
+      title: z.string(),
+      published: z.iso.date(),
+      updated: z.iso.date().optional(),
+      draft: z.boolean().optional(),
+      excerpt: z.string(),
+      authors: z.string().array(),
+      library: libraryListSchema.optional(),
+      content: z.string(),
+      redirect_from: z.string().array().optional(),
+    })
+    .refine((post) => !post.updated || post.updated >= post.published, {
+      message: 'updated must be on or after published',
+      path: ['updated'],
+    }),
   transform: ({ content, ...post }) => {
     // Extract header image (first image after frontmatter)
     const headerImageMatch = content.match(/!\[([^\]]*)\]\(([^)]+)\)/)

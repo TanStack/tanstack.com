@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Footer } from '~/components/Footer'
 import { seo } from '~/utils/seo'
 
 export const Route = createFileRoute('/privacy')({
@@ -219,7 +218,6 @@ function RouteComp() {
           </address>
         </section>
       </div>
-      <Footer />
     </div>
   )
 }

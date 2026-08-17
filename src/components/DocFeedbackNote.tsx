@@ -8,14 +8,14 @@ import {
 } from '~/utils/docFeedback.functions'
 import type { DocFeedback } from '~/db/types'
 import {
-  ChevronDown,
-  ChevronUp,
-  Lightbulb,
-  MessageSquare,
-  Save,
-  Trash,
-  X,
-} from 'lucide-react'
+  CaretDownIcon,
+  CaretUpIcon,
+  LightbulbIcon,
+  ChatCenteredIcon,
+  FloppyDiskIcon,
+  TrashIcon,
+  XIcon,
+} from '@phosphor-icons/react'
 
 interface DocFeedbackNoteProps {
   note: DocFeedback
@@ -52,7 +52,7 @@ export function DocFeedbackNote({
 
   // Theme based on type
   const isImprovement = note.type === 'improvement'
-  const Icon = isImprovement ? Lightbulb : MessageSquare
+  const Icon = isImprovement ? LightbulbIcon : ChatCenteredIcon
   const colors = isImprovement
     ? {
         bg: 'bg-yellow-50 dark:bg-yellow-900/20',
@@ -370,14 +370,14 @@ export function DocFeedbackNote({
         >
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 flex-1 min-w-0">
-              <Icon className={`${colors.icon} text-xs flex-shrink-0`} />
+              <Icon className={`${colors.icon} text-xs shrink-0`} />
               <span className={`text-xs font-medium ${colors.text} truncate`}>
                 {isImprovement ? 'Your Improvement' : 'Your Note'}
               </span>
               {isImprovement && note.status && (
                 <span
                   className={twMerge(
-                    'text-[10px] px-1.5 py-0.5 rounded font-medium uppercase tracking-wide flex-shrink-0',
+                    'text-[10px] px-1.5 py-0.5 rounded font-medium uppercase tracking-wide shrink-0',
                     note.status === 'approved' &&
                       'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400',
                     note.status === 'denied' &&
@@ -390,7 +390,7 @@ export function DocFeedbackNote({
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-1 flex-shrink-0">
+            <div className="flex items-center gap-1 shrink-0">
               {!note.isCollapsed && (
                 <>
                   <button
@@ -402,7 +402,7 @@ export function DocFeedbackNote({
                     title={isImprovement ? 'Delete improvement' : 'Delete note'}
                     disabled={isDeleting || isSaving}
                   >
-                    <Trash className="text-xs" />
+                    <TrashIcon className="text-xs" />
                   </button>
                 </>
               )}
@@ -419,9 +419,9 @@ export function DocFeedbackNote({
                 }
               >
                 {note.isCollapsed ? (
-                  <ChevronDown className="text-xs" />
+                  <CaretDownIcon className="text-xs" />
                 ) : (
-                  <ChevronUp className="text-xs" />
+                  <CaretUpIcon className="text-xs" />
                 )}
               </button>
             </div>
@@ -469,7 +469,7 @@ export function DocFeedbackNote({
                   )}
                   disabled={isSaving}
                 >
-                  <Save className="text-[10px]" />
+                  <FloppyDiskIcon className="text-[10px]" />
                   {isSaving ? 'Saving...' : 'Save'}
                 </button>
                 <button
@@ -477,7 +477,7 @@ export function DocFeedbackNote({
                   className="px-3 py-1 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white disabled:opacity-50"
                   disabled={isSaving}
                 >
-                  <X className="inline text-[10px] mr-1" />
+                  <XIcon className="inline text-[10px] mr-1" />
                   Cancel
                 </button>
               </div>

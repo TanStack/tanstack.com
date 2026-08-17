@@ -49,7 +49,7 @@ export const listMcpApiKeys = createServerFn({ method: 'POST' }).handler(
  * Returns the raw key (only shown once)
  */
 export const createMcpApiKey = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       name: v.pipe(
         v.string(),
@@ -109,7 +109,7 @@ export const createMcpApiKey = createServerFn({ method: 'POST' })
  * Revoke (deactivate) an MCP API key
  */
 export const revokeMcpApiKey = createServerFn({ method: 'POST' })
-  .inputValidator(v.object({ keyId: v.pipe(v.string(), v.uuid()) }))
+  .validator(v.object({ keyId: v.pipe(v.string(), v.uuid()) }))
   .handler(async ({ data }) => {
     const user = await requireApiKeysAccess()
 
@@ -138,7 +138,7 @@ export const revokeMcpApiKey = createServerFn({ method: 'POST' })
  * Delete an MCP API key permanently
  */
 export const deleteMcpApiKey = createServerFn({ method: 'POST' })
-  .inputValidator(v.object({ keyId: v.pipe(v.string(), v.uuid()) }))
+  .validator(v.object({ keyId: v.pipe(v.string(), v.uuid()) }))
   .handler(async ({ data }) => {
     const user = await requireApiKeysAccess()
 
@@ -166,7 +166,7 @@ export const deleteMcpApiKey = createServerFn({ method: 'POST' })
  * Update an MCP API key's name
  */
 export const updateMcpApiKey = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       keyId: v.pipe(v.string(), v.uuid()),
       name: v.pipe(

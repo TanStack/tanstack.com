@@ -1,13 +1,14 @@
 import * as React from 'react'
 import { Link } from '@tanstack/react-router'
 import {
-  ChevronDown,
-  Settings,
-  Lock,
-  LogOut,
-  Sparkles,
-  Key,
-} from 'lucide-react'
+  CaretDownIcon,
+  GearIcon,
+  LockIcon,
+  SignOutIcon,
+  SparkleIcon,
+  KeyIcon,
+  NotebookIcon,
+} from '@phosphor-icons/react'
 import { Avatar } from '~/components/Avatar'
 import {
   Dropdown,
@@ -47,7 +48,7 @@ export function AuthenticatedUserMenu({
             size="xs"
             className="w-[26px] h-[26px]"
           />
-          <ChevronDown className="w-3 h-3 opacity-50" />
+          <CaretDownIcon className="w-3 h-3 opacity-50" />
         </div>
       </DropdownTrigger>
       <DropdownContent align="end">
@@ -57,13 +58,19 @@ export function AuthenticatedUserMenu({
         <DropdownSeparator />
         <DropdownItem asChild>
           <Link to="/account" className="flex items-center gap-2">
-            <Settings className="w-4 h-4" />
+            <GearIcon className="w-4 h-4" />
             <span>Account</span>
           </Link>
         </DropdownItem>
         <DropdownItem asChild>
+          <Link to="/notebook" className="flex items-center gap-2">
+            <NotebookIcon className="w-4 h-4" />
+            <span>My Notebooks</span>
+          </Link>
+        </DropdownItem>
+        <DropdownItem asChild>
           <Link to="/account/submissions" className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4" />
+            <SparkleIcon className="w-4 h-4" />
             <span>My Showcases</span>
           </Link>
         </DropdownItem>
@@ -73,7 +80,7 @@ export function AuthenticatedUserMenu({
               to="/account/integrations"
               className="flex items-center gap-2"
             >
-              <Key className="w-4 h-4" />
+              <KeyIcon className="w-4 h-4" />
               <span>Integrations</span>
             </Link>
           </DropdownItem>
@@ -81,14 +88,14 @@ export function AuthenticatedUserMenu({
         {canAdmin && (
           <DropdownItem asChild>
             <Link to="/admin" className="flex items-center gap-2">
-              <Lock className="w-4 h-4" />
+              <LockIcon className="w-4 h-4" />
               <span>Admin</span>
             </Link>
           </DropdownItem>
         )}
         <DropdownSeparator />
         <DropdownItem onSelect={onSignOut}>
-          <LogOut className="w-4 h-4" />
+          <SignOutIcon className="w-4 h-4" />
           <span>Sign out</span>
         </DropdownItem>
       </DropdownContent>

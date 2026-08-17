@@ -1,541 +1,871 @@
 import * as React from 'react'
-import {
-  ClientOnly,
-  Link,
-  createFileRoute,
-  useRouterState,
-} from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 
-import discordImage from '~/images/discord-logo-white.svg'
-import { librariesByGroup, librariesGroupNamesMap, Library } from '~/libraries'
-import { groupToSlug } from '~/components/stack/stack-categories'
 import { twMerge } from 'tailwind-merge'
-import { NetlifyImage } from '~/components/NetlifyImage'
 
-import { ArrowRight, Code2, Layers, Shield, Zap, Play } from 'lucide-react'
-import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
-import { Card } from '~/components/Card'
-import { HomeApplicationStarter } from '~/components/home/HomeApplicationStarter'
-import { HomeDeferredSection } from '~/components/home/HomeDeferredSection'
 import {
-  HomeBytesFallback,
-  HomeCommunityFallback,
-  HomeSocialProofFallback,
-  HomeStatsFallback,
-} from '~/components/home/HomeSectionFallbacks'
-import { Button } from '~/ui'
+  ArrowRightIcon,
+  CodeIcon,
+  StackIcon,
+  ShieldIcon,
+  LightningIcon,
+  PauseIcon,
+  PlayIcon,
+  type Icon,
+} from '@phosphor-icons/react'
+import { HomeApplicationStarter } from '~/components/home/HomeApplicationStarter'
+import { HomeCommunitySection } from '~/components/home/HomeCommunitySection'
+import { HomeNewsletterSection } from '~/components/home/HomeNewsletterSection'
+import { HomeSocialProofSection } from '~/components/home/HomeSocialProofSection'
+import { HomeStatsSection } from '~/components/home/HomeStatsSection'
+import { useQuery } from '@tanstack/react-query'
+import { Button, Eyebrow } from '~/components/ds/ui'
+import { useInView } from '~/hooks/useInView'
+import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
+import { homepageNpmStatsSummaryQuery, ossStatsQuery } from '~/queries/stats'
+import { useLibrariesOverlay } from '~/contexts/LibrariesOverlayContext'
+import { fetchRecentPosts } from '~/utils/blog.functions'
+import { usePrefersReducedMotion } from '~/utils/usePrefersReducedMotion'
 import { seo } from '~/utils/seo'
-
-const LazyBrandContextMenu = React.lazy(() =>
-  import('~/components/BrandContextMenu').then((m) => ({
-    default: m.BrandContextMenu,
-  })),
-)
-
-const loadHomeSocialProofSection = () =>
-  import('~/components/home/HomeSocialProofSection')
-
-const LazyHomeSocialProofSection = React.lazy(() =>
-  loadHomeSocialProofSection().then((m) => ({
-    default: m.HomeSocialProofSection,
-  })),
-)
-
-const loadHomeCommunitySection = () =>
-  import('~/components/home/HomeCommunitySection')
-
-const LazyHomeCommunitySection = React.lazy(() =>
-  loadHomeCommunitySection().then((m) => ({
-    default: m.HomeCommunitySection,
-  })),
-)
-
-const loadHomeBytesSection = () => import('~/components/home/HomeBytesSection')
-
-const LazyHomeBytesSection = React.lazy(() =>
-  loadHomeBytesSection().then((m) => ({
-    default: m.HomeBytesSection,
-  })),
-)
-
-const loadHomeStatsSection = () => import('~/components/home/HomeStatsSection')
-
-const LazyHomeStatsSection = React.lazy(() =>
-  loadHomeStatsSection().then((m) => ({
-    default: m.HomeStatsSection,
-  })),
-)
-
-function getDeferredSectionStage(hash: string) {
-  const normalizedHash = hash.replace(/^#/, '')
-
-  if (!normalizedHash) {
-    return 0
-  }
-
-  if (['partners', 'blog'].includes(normalizedHash)) {
-    return 1
-  }
-
-  if (['courses', 'sponsors', 'maintainers'].includes(normalizedHash)) {
-    return 2
-  }
-
-  if (normalizedHash === 'bytes') {
-    return 3
-  }
-
-  return 0
-}
+import { getTanStackHomepageJsonLd } from '~/utils/organization-structured-data'
 
 export const Route = createFileRoute('/')({
+  loader: async ({ context: { queryClient } }) => {
+    const [, , recentPosts] = await Promise.all([
+      queryClient.ensureQueryData(ossStatsQuery()),
+      queryClient.ensureQueryData(homepageNpmStatsSummaryQuery()),
+      fetchRecentPosts(),
+    ])
+
+    return { recentPosts }
+  },
   head: () => ({
     meta: seo({
       title: 'TanStack | The open-source application stack for the web.',
       description:
         'Headless, type-safe, composable tools for building modern web applications that work naturally for developers and reliably for agents.',
     }),
+    scripts: [
+      {
+        type: 'application/ld+json',
+        children: JSON.stringify(getTanStackHomepageJsonLd()),
+      },
+    ],
   }),
   component: Index,
 })
 
 function Index() {
-  const locationHash = useRouterState({
-    select: (state) => state.location.hash,
-  })
-  const deferredSectionStage = getDeferredSectionStage(locationHash)
+  const { recentPosts } = Route.useLoaderData()
+  const { openLibraries } = useLibrariesOverlay()
+
+  const startWithPrompt = (e: React.MouseEvent) => {
+    e.preventDefault()
+    const section = document.getElementById('start-with-a-prompt')
+    section?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    const field = section?.querySelector<HTMLTextAreaElement>('textarea')
+    if (field) {
+      field.focus()
+      field.select()
+    } else if (section) {
+      section.dataset.focusPrompt = 'true'
+    }
+  }
 
   return (
     <>
       <div className="max-w-full z-10 space-y-24">
         <div className="space-y-8">
-          <div className="flex flex-col items-center gap-4 xl:grid xl:grid-cols-[400px_minmax(0,44rem)] 2xl:grid-cols-[500px_minmax(0,48rem)] xl:items-center xl:justify-center xl:gap-8 xl:pt-24">
-            <div
-              className="relative w-[300px] pt-8 xl:w-[400px] xl:pt-0 2xl:w-[500px] [--ship-x:50px] [--ship-y:1.5rem] 
-            lg:[--ship-x:50px] lg:[--ship-y:1.5rem]
-            xl:[--ship-x:80px] xl:[--ship-y:2.5rem]
-            2xl:[--ship-x:90px] 2xl:[--ship-y:3rem]"
-            >
-              <ClientOnly>
-                <div className="absolute left-1/3 bottom-[25%] z-0 animate-ship-peek">
-                  <NetlifyImage
-                    src="/images/ship.png"
-                    alt=""
-                    width={240}
-                    height={240}
-                    className="w-16 xl:w-20"
-                  />
-                </div>
-                <Link
-                  to="/explore"
-                  className="absolute left-1/3 bottom-[25%] z-20 animate-ship-peek-clickable"
-                  title="Explore TanStack"
-                >
-                  <NetlifyImage
-                    src="/images/ship.png"
-                    alt="Explore TanStack"
-                    width={240}
-                    height={240}
-                    className="w-16 xl:w-20 opacity-0"
-                  />
-                </Link>
-              </ClientOnly>
-              <React.Suspense
-                fallback={
-                  <div className="relative z-10 aspect-square">
-                    <div className="cursor-pointer relative h-full w-full">
-                      <NetlifyImage
-                        src="/images/logos/splash-light.png"
-                        width={500}
-                        height={500}
-                        quality={85}
-                        className="absolute inset-0 block h-full w-full object-contain dark:hidden"
-                        alt="TanStack Logo"
-                        loading="eager"
-                        fetchPriority="high"
-                      />
-                      <NetlifyImage
-                        src="/images/logos/splash-dark.png"
-                        width={500}
-                        height={500}
-                        quality={85}
-                        className="absolute inset-0 hidden h-full w-full object-contain dark:block"
-                        alt="TanStack Logo"
-                        loading="eager"
-                        fetchPriority="high"
-                      />
-                    </div>
-                  </div>
-                }
-              >
-                <div className="relative z-10 aspect-square">
-                  <LazyBrandContextMenu className="cursor-pointer relative h-full w-full">
-                    <NetlifyImage
-                      src="/images/logos/splash-light.png"
-                      width={500}
-                      height={500}
-                      quality={85}
-                      className="absolute inset-0 block h-full w-full object-contain dark:hidden"
-                      alt="TanStack Logo"
-                      loading="eager"
-                      fetchPriority="high"
-                    />
-                    <NetlifyImage
-                      src="/images/logos/splash-dark.png"
-                      width={500}
-                      height={500}
-                      quality={85}
-                      className="absolute inset-0 hidden h-full w-full object-contain dark:block"
-                      alt="TanStack Logo"
-                      loading="eager"
-                      fetchPriority="high"
-                    />
-                  </LazyBrandContextMenu>
-                </div>
-              </React.Suspense>
-            </div>
-            <div className="flex w-full max-w-md flex-col items-center gap-6 px-4 text-center md:max-w-2xl xl:max-w-[44rem] xl:items-start xl:px-0 xl:text-left 2xl:max-w-[48rem]">
-              <div className="flex gap-2 lg:gap-4 items-center">
-                <h1
-                  className={`inline-block
-            font-black text-5xl
-            md:text-6xl
-            lg:text-8xl`}
-                >
-                  <span
-                    className={`
-            inline-block text-black dark:text-white
-            mb-2 uppercase [letter-spacing:-.02em] pr-1.5
-            `}
+          {/* Hero — Figma node 802:2027. Full-bleed palm/gradient photo card:
+              headline bottom-left, description + CTA bottom-right. The photo is
+              always light, so text uses a mode-stable dark token (neutral-500)
+              rather than a theme-flipping semantic. */}
+          <div className="mx-0 rounded-none bg-background-subtle p-0 sm:mx-2 sm:rounded-2xl sm:p-1">
+            {/* `svh`, not `dvh` — the dynamic viewport grows as iOS collapses
+                the URL bar mid-scroll, visibly stretching the hero. */}
+            <div className="group relative isolate flex h-[calc(100svh-var(--navbar-height))] max-h-[720px] min-h-[560px] flex-col justify-between gap-8 overflow-hidden rounded-none px-6 py-10 [text-shadow:0_2px_8px_rgb(255_255_255/0.2)] sm:rounded-xl sm:px-10 md:flex-row md:items-end md:justify-between md:gap-8 md:[text-shadow:none] xl:gap-12 xl:px-16 xl:py-16">
+              {/* The parent supplies the 4px frame shared by the hero and stats.
+                  This wrapper clips the image to the inner radius so the <img>
+                  fills it exactly instead of overflowing. Plain <img> (not OptimizedImage):
+                  the Cloudflare transform resolves against the production origin,
+                  so a newly-added asset 404s until deployed. */}
+              <HeroPalmMedia />
+              <h1 className="max-w-[613px] font-ds-display text-ds-display-sm font-bold text-ds-neutral-500 md:w-[47%] md:text-[clamp(2rem,4.3vw,4rem)] md:leading-[1.1] md:tracking-[-0.025em] xl:leading-[1.08]">
+                The{' '}
+                <span className="underline decoration-from-font underline-offset-[6px]">
+                  open source
+                </span>
+                <br className="hidden md:block" /> application stack
+                <br className="hidden md:block" /> for the web
+              </h1>
+              <div className="flex flex-col items-start gap-6 md:w-[29%] md:max-w-[454px]">
+                <p className="text-ds-body-md text-ds-neutral-500 md:text-ds-body-lg xl:text-ds-body-xl">
+                  Headless, type-safe, composable tools for building modern web
+                  applications that work naturally for developers and reliably
+                  for agents
+                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    type="button"
+                    onClick={() => openLibraries()}
+                    variant="primary"
+                    size="md"
                   >
-                    TanStack
-                  </span>
-                </h1>
+                    Browse the Stack
+                  </Button>
+                  {/* Link-style button; color pinned to black because the photo
+                      is always light. The responsive override supersedes the
+                      link variant's mobile emphasis color. */}
+                  <Button
+                    as="a"
+                    href="#start-with-a-prompt"
+                    onClick={startWithPrompt}
+                    variant="link"
+                    size="md"
+                    className="text-black hover:text-black max-[899px]:text-black"
+                  >
+                    Start with a prompt <ArrowRightIcon className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
-              <h2
-                className="font-bold text-2xl max-w-md
-            md:text-4xl md:max-w-2xl
-            2xl:text-5xl lg:max-w-2xl text-balance"
-              >
-                The <OpenSourceUnderline /> application stack for the web.
-              </h2>
-              <p
-                className="text opacity-90 max-w-sm
-             lg:text-xl lg:max-w-2xl text-balance"
-              >
-                Headless, type-safe, composable tools for building modern web
-                applications that work naturally for <strong>developers</strong>{' '}
-                and reliably for <strong>agents</strong>.
-              </p>
+            </div>
+            <div className="flex items-center justify-center px-2.5 py-6">
+              <HomeStatsSection />
             </div>
           </div>
-          <div className="mx-auto mt-8 w-full max-w-[1021px] px-4 sm:px-6 md:mt-10">
-            <HomeDeferredSection
-              forceLoad
-              fallback={<HomeStatsFallback />}
-              preload={loadHomeStatsSection}
-              rootMargin="10%"
-              timeoutMs={6000}
-            >
-              <LazyHomeStatsSection />
-            </HomeDeferredSection>
-          </div>
-          <div className="mx-auto mt-16 w-full max-w-[1021px] px-4 sm:px-6 md:mt-20 lg:mt-14 xl:mt-12">
+          <div
+            id="start-with-a-prompt"
+            className="mx-auto mt-16 w-full max-w-[1021px] scroll-mt-24 px-4 sm:px-6 md:mt-20"
+          >
             <HomeApplicationStarter />
           </div>
         </div>
 
-        <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-          <h3
-            id="libraries"
-            className={`text-4xl font-light mb-2 scroll-mt-24`}
-          >
-            <a
-              href="#libraries"
-              className="hover:underline decoration-gray-400 dark:decoration-gray-600"
-            >
-              Browse the stack
-            </a>
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
-            Every TanStack library, organized by what it does.
-          </p>
+        <WhyTanStackSection />
 
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-            {Object.entries(librariesByGroup).map(
-              ([groupName, groupLibraries]) => (
-                <StackCategoryCard
-                  key={groupName}
-                  groupId={groupName as keyof typeof librariesByGroup}
-                  libraries={groupLibraries as Library[]}
-                />
-              ),
-            )}
-          </div>
-        </div>
+        <HomeSocialProofSection recentPosts={recentPosts} />
 
-        <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto mt-8 flex justify-center">
-          <Button as={Link} to="/libraries">
-            See all libraries
-          </Button>
-        </div>
-
-        {/* Why TanStack Section */}
-        <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-          <div className="mb-8">
-            <h3 className="text-3xl font-bold">Why TanStack?</h3>
-            <p className="text-gray-600 dark:text-gray-400 mt-2">
-              Our libraries are built on principles that put developers first
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="p-6 rounded-xl">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center mb-4">
-                <Layers className="w-5 h-5 text-white" />
-              </div>
-              <h4 className="font-bold text-lg mb-2">Framework Agnostic</h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Every library starts with a provider-agnostic core. Use React,
-                Vue, Solid, Angular, or vanilla JS—your choice.
-              </p>
-            </Card>
-            <Card className="p-6 rounded-xl">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center mb-4">
-                <Code2 className="w-5 h-5 text-white" />
-              </div>
-              <h4 className="font-bold text-lg mb-2">Type-Safe by Design</h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                First-class TypeScript support that catches bugs at compile time
-                and makes refactoring fearless.
-              </p>
-            </Card>
-            <Card className="p-6 rounded-xl">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center mb-4">
-                <Zap className="w-5 h-5 text-white" />
-              </div>
-              <h4 className="font-bold text-lg mb-2">Production-Grade</h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Battle-tested in the world's largest apps. Built for real
-                workloads, not just happy-path demos.
-              </p>
-            </Card>
-            <Card className="p-6 rounded-xl">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-4">
-                <Shield className="w-5 h-5 text-white" />
-              </div>
-              <h4 className="font-bold text-lg mb-2">No Vendor Lock-in</h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Open source and independent. No hidden agendas, no platform
-                bias—just great tools for developers.
-              </p>
-            </Card>
-          </div>
-          <div className="flex justify-center mt-8">
-            <Button as={Link} to="/tenets">
-              Read our product tenets
-              <ArrowRight className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
-
-        <HomeDeferredSection
-          forceLoad={deferredSectionStage >= 1}
-          fallback={<HomeSocialProofFallback />}
-          preload={loadHomeSocialProofSection}
-        >
-          <LazyHomeSocialProofSection />
-        </HomeDeferredSection>
-
-        <HomeDeferredSection
-          forceLoad={deferredSectionStage >= 2}
-          fallback={<HomeCommunityFallback />}
-          preload={loadHomeCommunitySection}
-        >
-          <LazyHomeCommunitySection />
-        </HomeDeferredSection>
-
-        <div className="px-4 mx-auto max-w-(--breakpoint-lg)">
-          <div
-            className={`
-          rounded-md p-4 grid gap-6
-          bg-discord text-white overflow-hidden relative
-          shadow-xl shadow-indigo-700/30
-          sm:p-8 sm:grid-cols-3 items-center`}
-          >
-            <div
-              className={`absolute transform opacity-10 z-0
-            right-0 top-0 -translate-y-1/3 translate-x-1/3
-            sm:opacity-20`}
-            >
-              <img
-                src={discordImage}
-                alt="Discord Logo"
-                loading="lazy"
-                width={300}
-                height={300}
-              />
-            </div>
-            <div className={`sm:col-span-2`}>
-              <h3 id="discord" className="text-3xl font-bold scroll-mt-24">
-                <a
-                  href="#discord"
-                  className="hover:underline decoration-white/50"
-                >
-                  TanStack on Discord
-                </a>
-              </h3>
-              <p className={`mt-4`}>
-                The official TanStack community to ask questions, network and
-                make new friends and get lightning fast news about what's coming
-                next for TanStack!
-              </p>
-            </div>
-            <div className={`flex items-center justify-center`}>
-              <Button
-                as="a"
-                href="https://discord.com/invite/WrRKjPJ"
-                target="_blank"
-                rel="noreferrer"
-                className="w-full mt-4 bg-white border-white hover:bg-gray-100 text-discord justify-center shadow-lg text-sm"
-              >
-                Join TanStack Discord
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        <div className="px-4 mx-auto max-w-(--breakpoint-lg)">
-          <div
-            className={`
-          rounded-md p-4 grid gap-6
-          bg-gradient-to-br from-red-500 to-red-700 text-white overflow-hidden relative
-          shadow-xl shadow-red-700/30
-          sm:p-8 sm:grid-cols-3 items-center`}
-          >
-            <div
-              className={`absolute transform opacity-10 z-0
-            right-0 top-0 -translate-y-1/3 translate-x-1/3
-            sm:opacity-20`}
-            >
-              <YouTubeIcon width={300} height={300} />
-            </div>
-            <div className={`sm:col-span-2`}>
-              <h3 id="youtube" className="text-3xl font-bold scroll-mt-24">
-                <a
-                  href="#youtube"
-                  className="hover:underline decoration-white/50"
-                >
-                  TanStack on YouTube
-                </a>
-              </h3>
-              <p className={`mt-4`}>
-                The official TanStack YouTube channel. Tutorials, deep dives,
-                release walkthroughs, and more — free for everyone!
-              </p>
-            </div>
-            <div className={`flex items-center justify-center`}>
-              <Button
-                as="a"
-                href="https://youtube.com/@tan_stack"
-                target="_blank"
-                rel="noreferrer"
-                className="w-full mt-4 bg-white border-white hover:bg-gray-100 text-red-600 justify-center shadow-lg text-sm"
-              >
-                <Play className="w-4 h-4" />
-                Subscribe on YouTube
-              </Button>
-            </div>
-          </div>
-        </div>
+        <HomeCommunitySection />
 
         <div className="h-4" />
-        <HomeDeferredSection
-          forceLoad={deferredSectionStage >= 3}
-          fallback={<HomeBytesFallback />}
-          preload={loadHomeBytesSection}
-          rootMargin="10%"
-        >
-          <LazyHomeBytesSection />
-        </HomeDeferredSection>
+        <HomeNewsletterSection />
       </div>
     </>
   )
 }
 
-function StackCategoryCard({
-  groupId,
-  libraries,
-}: {
-  groupId: keyof typeof librariesByGroup
-  libraries: Library[]
-}) {
-  const groupName = librariesGroupNamesMap[groupId]
-  const categorySlug = groupToSlug[groupId]
+function HeroPalmMedia() {
+  const videoRef = React.useRef<HTMLVideoElement>(null)
+  const [isPlaying, setIsPlaying] = React.useState(true)
+
+  React.useEffect(() => {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+
+    const syncMotionPreference = () => {
+      if (reducedMotion.matches) {
+        videoRef.current?.pause()
+      }
+    }
+
+    syncMotionPreference()
+    reducedMotion.addEventListener('change', syncMotionPreference)
+    return () =>
+      reducedMotion.removeEventListener('change', syncMotionPreference)
+  }, [])
+
+  const togglePlayback = () => {
+    const video = videoRef.current
+    if (!video) return
+
+    if (video.paused) {
+      void video.play()
+    } else {
+      video.pause()
+    }
+  }
 
   return (
-    <Link
-      to="/stack/$category"
-      params={{ category: categorySlug }}
-      className="group flex flex-col rounded-xl border border-gray-200 bg-white/60 p-5 transition-all hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md dark:border-gray-800 dark:bg-gray-900/40 dark:hover:border-gray-700"
-    >
-      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">
-        Category
-      </p>
-      <h4 className="mt-1.5 text-base font-bold group-hover:underline">
-        {groupName}
-      </h4>
-      <ol className="mt-4 space-y-2.5">
-        {libraries.map((lib, i) => (
-          <li key={lib.id} className="flex items-start gap-2.5">
-            <span
-              className={twMerge(
-                'flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-gradient-to-br text-[10px] font-black text-white',
-                lib.colorFrom,
-                lib.colorTo,
-              )}
-            >
-              {i + 1}
-            </span>
-            <span className="min-w-0 flex-1 text-sm font-semibold leading-snug">
-              {lib.name.replace('TanStack ', '')}
-            </span>
-          </li>
-        ))}
-      </ol>
-      <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-gray-600 dark:text-gray-400">
-        Browse {groupName.toLowerCase()}
-        <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
-      </span>
-    </Link>
+    <>
+      <div
+        aria-hidden
+        className="absolute inset-0 -z-10 overflow-hidden rounded-xl [corner-shape:squircle]"
+      >
+        <picture className="contents">
+          <source
+            type="image/webp"
+            srcSet="/images/hero-palm-gradient-960.webp 960w, /images/hero-palm-gradient-1600.webp 1600w, /images/hero-palm-gradient-2400.webp 2400w"
+            sizes="100vw"
+          />
+          <img
+            src="/images/hero-palm-gradient.jpg"
+            alt=""
+            width={2400}
+            height={1600}
+            loading="eager"
+            fetchPriority="high"
+            className="h-full w-full object-cover object-center"
+          />
+        </picture>
+        <video
+          ref={videoRef}
+          autoPlay
+          loop
+          muted
+          playsInline
+          poster="/images/hero-palm-gradient.jpg"
+          onPause={() => setIsPlaying(false)}
+          onPlay={() => setIsPlaying(true)}
+          className="absolute inset-0 h-full w-full object-cover object-center motion-reduce:hidden"
+        >
+          <source src="/images/hero-palm-motion.mp4" type="video/mp4" />
+        </video>
+      </div>
+      <button
+        type="button"
+        onClick={togglePlayback}
+        aria-label={isPlaying ? 'Pause hero animation' : 'Play hero animation'}
+        className="absolute right-4 top-4 z-20 grid size-8 place-items-center rounded-full bg-ds-neutral-500/65 text-white opacity-0 backdrop-blur-sm transition-opacity hover:bg-ds-neutral-500/80 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white group-hover:opacity-100 motion-reduce:hidden"
+      >
+        {isPlaying ? (
+          <PauseIcon className="size-4" weight="fill" />
+        ) : (
+          <PlayIcon className="size-4" weight="fill" />
+        )}
+      </button>
+    </>
   )
 }
 
-function OpenSourceUnderline() {
+type PrincipleProof = 'adapters' | 'types' | 'adoption' | 'portable'
+
+type WhyTanStackPrinciple = {
+  label: string
+  title: string
+  body: string
+  Icon: Icon
+  accentClassName: string
+  eyebrowClassName: string
+  iconClassName: string
+  proof: PrincipleProof
+}
+
+type AdapterGraphNode = {
+  height: number
+  label: string
+  width: number
+  x: number
+  y: number
+}
+
+type AdapterGraphPoint = {
+  x: number
+  y: number
+}
+
+type AdapterGraphCurve = {
+  control1: AdapterGraphPoint
+  control2: AdapterGraphPoint
+  path: string
+}
+
+// Accent hues come from the DS palette (--color-ds-*), not the library
+// `category-*` tokens: these are product principles, not library categories.
+// Figma specifies near-neighbours of these values (e.g. #d3481b vs the DS
+// terracotta-400 #c3502b); the DS token wins per the design-system-first rule.
+const whyTanStackPrinciples = [
+  {
+    label: 'Portable core',
+    title: 'Framework Agnostic',
+    body: 'Our library cores are provider-agnostic and logic-driven, meaning you can use the same logic in React, Vue, Svelte, Solid, and more.',
+    Icon: StackIcon,
+    accentClassName: 'from-blue-500 to-cyan-500',
+    eyebrowClassName: 'text-category-ui',
+    iconClassName:
+      'border-cyan-200 bg-cyan-50 text-cyan-700 dark:border-cyan-900 dark:bg-cyan-950/40 dark:text-cyan-300',
+    proof: 'adapters',
+  },
+  {
+    label: 'Compile-time contracts',
+    title: 'Type-Safe by Design',
+    body: 'Built with TypeScript from the ground up, providing incredible autocomplete and safety across your entire data-fetching and state management stack.',
+    Icon: CodeIcon,
+    accentClassName: 'from-emerald-500 to-teal-500',
+    eyebrowClassName: 'text-ds-green-400',
+    iconClassName:
+      'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300',
+    proof: 'types',
+  },
+  {
+    label: 'Real workloads',
+    title: 'Production-Grade',
+    body: "Battle-tested in the world's largest apps. We build for scale, handling complex concurrency, caching, and state synchronization with ease.",
+    Icon: LightningIcon,
+    accentClassName: 'from-orange-500 to-red-500',
+    eyebrowClassName: 'text-ds-terracotta-400',
+    iconClassName:
+      'border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-900 dark:bg-orange-950/40 dark:text-orange-300',
+    proof: 'adoption',
+  },
+  {
+    label: 'Independent tools',
+    title: 'No Vendor Lock-in',
+    body: "Open source and independent. We aren't beholden to any single cloud provider or framework team, ensuring the best tools for the community.",
+    Icon: ShieldIcon,
+    accentClassName: 'from-purple-500 to-pink-500',
+    eyebrowClassName: 'text-ds-purple-400',
+    iconClassName:
+      'border-purple-200 bg-purple-50 text-purple-700 dark:border-purple-900 dark:bg-purple-950/40 dark:text-purple-300',
+    proof: 'portable',
+  },
+] satisfies ReadonlyArray<WhyTanStackPrinciple>
+
+const adapterGraphWidth = 320
+const adapterGraphHeight = 128
+
+const frameworkAdapterCore = {
+  label: 'core',
+  x: 132,
+  y: 58,
+  width: 56,
+  height: 32,
+} satisfies AdapterGraphNode
+
+const frameworkAdapterNodes = [
+  { label: 'React', x: 18, y: 28, width: 60, height: 26 },
+  { label: 'Vue', x: 132, y: 7, width: 56, height: 26 },
+  { label: 'Solid', x: 242, y: 28, width: 60, height: 26 },
+  { label: 'Angular', x: 26, y: 98, width: 78, height: 26 },
+  { label: 'Vanilla', x: 216, y: 98, width: 78, height: 26 },
+] satisfies ReadonlyArray<AdapterGraphNode>
+
+const frameworkAdapterConnections = frameworkAdapterNodes.map((node) => {
+  const start = edgeAnchor(frameworkAdapterCore, node)
+  const end = edgeAnchor(node, frameworkAdapterCore)
+  const curve = curveBetween(start, end, 0.5)
+
+  return {
+    control1: curve.control1,
+    control2: curve.control2,
+    end,
+    label: node.label,
+    path: curve.path,
+    start,
+  }
+})
+
+function centerPoint(node: AdapterGraphNode): AdapterGraphPoint {
+  return {
+    x: node.x + node.width / 2,
+    y: node.y + node.height / 2,
+  }
+}
+
+function edgeAnchor(
+  node: AdapterGraphNode,
+  toward: AdapterGraphNode,
+): AdapterGraphPoint {
+  const center = centerPoint(node)
+  const targetCenter = centerPoint(toward)
+  const deltaX = targetCenter.x - center.x
+  const deltaY = targetCenter.y - center.y
+
+  if (deltaX === 0 && deltaY === 0) {
+    return center
+  }
+
+  const scaleX =
+    deltaX === 0 ? Number.POSITIVE_INFINITY : node.width / 2 / Math.abs(deltaX)
+  const scaleY =
+    deltaY === 0 ? Number.POSITIVE_INFINITY : node.height / 2 / Math.abs(deltaY)
+  const scale = Math.min(scaleX, scaleY)
+
+  return {
+    x: center.x + deltaX * scale,
+    y: center.y + deltaY * scale,
+  }
+}
+
+function curveBetween(
+  start: AdapterGraphPoint,
+  end: AdapterGraphPoint,
+  bend = 0.5,
+): AdapterGraphCurve {
+  if (Math.abs(end.y - start.y) > Math.abs(end.x - start.x)) {
+    const controlY = start.y + (end.y - start.y) * bend
+    const control1 = { x: start.x, y: controlY }
+    const control2 = { x: end.x, y: controlY }
+
+    return {
+      control1,
+      control2,
+      path: `M ${start.x} ${start.y} C ${control1.x} ${control1.y}, ${control2.x} ${control2.y}, ${end.x} ${end.y}`,
+    }
+  }
+
+  const controlX = start.x + (end.x - start.x) * bend
+  const control1 = { x: controlX, y: start.y }
+  const control2 = { x: controlX, y: end.y }
+
+  return {
+    control1,
+    control2,
+    path: `M ${start.x} ${start.y} C ${control1.x} ${control1.y}, ${control2.x} ${control2.y}, ${end.x} ${end.y}`,
+  }
+}
+
+function adapterGraphStyle(node: AdapterGraphNode): React.CSSProperties {
+  return {
+    height: `${(node.height / adapterGraphHeight) * 100}%`,
+    left: `${(node.x / adapterGraphWidth) * 100}%`,
+    top: `${(node.y / adapterGraphHeight) * 100}%`,
+    width: `${(node.width / adapterGraphWidth) * 100}%`,
+  }
+}
+
+function adapterGraphPointStyle(point: AdapterGraphPoint): React.CSSProperties {
+  return {
+    left: `${(point.x / adapterGraphWidth) * 100}%`,
+    top: `${(point.y / adapterGraphHeight) * 100}%`,
+  }
+}
+
+function cubicPoint(
+  start: AdapterGraphPoint,
+  control1: AdapterGraphPoint,
+  control2: AdapterGraphPoint,
+  end: AdapterGraphPoint,
+  progress: number,
+): AdapterGraphPoint {
+  const inverse = 1 - progress
+
+  return {
+    x:
+      inverse ** 3 * start.x +
+      3 * inverse ** 2 * progress * control1.x +
+      3 * inverse * progress ** 2 * control2.x +
+      progress ** 3 * end.x,
+    y:
+      inverse ** 3 * start.y +
+      3 * inverse ** 2 * progress * control1.y +
+      3 * inverse * progress ** 2 * control2.y +
+      progress ** 3 * end.y,
+  }
+}
+
+function cubicAngle(
+  start: AdapterGraphPoint,
+  control1: AdapterGraphPoint,
+  control2: AdapterGraphPoint,
+  end: AdapterGraphPoint,
+  progress: number,
+): number {
+  const inverse = 1 - progress
+  const deltaX =
+    3 * inverse ** 2 * (control1.x - start.x) +
+    6 * inverse * progress * (control2.x - control1.x) +
+    3 * progress ** 2 * (end.x - control2.x)
+  const deltaY =
+    3 * inverse ** 2 * (control1.y - start.y) +
+    6 * inverse * progress * (control2.y - control1.y) +
+    3 * progress ** 2 * (end.y - control2.y)
+
+  return (Math.atan2(deltaY, deltaX) * 180) / Math.PI
+}
+
+/**
+ * The "Why TanStack?" principles stack — Figma 478:1734.
+ *
+ * Geometry follows the design frame: a 960px column, each feature card 313px
+ * tall (233px of content inside 40px padding), with the copy column and the
+ * proof panel separated by a 48px gutter. The description sits bottom-right of
+ * its column, which is what produces the stepped rhythm down the stack.
+ */
+function WhyTanStackSection() {
   return (
-    <span className="home-open-source-underline">
-      <span className="relative z-10">open-source</span>
-      <svg
+    <section className="px-4 md:mx-auto">
+      <div className="mx-auto max-w-[960px] py-16 lg:py-20">
+        {/* section-header — 478:1737 */}
+        <div className="flex flex-col items-center gap-12 text-center">
+          <Eyebrow tone="warning">Principles</Eyebrow>
+          <div className="flex flex-col items-center gap-4">
+            <h3 className="text-4xl font-[500] leading-[1.05] tracking-[-0.8px] sm:text-5xl lg:text-[64px]">
+              Why TanStack?
+            </h3>
+            <p className="max-w-[376px] text-base leading-[1.45] text-gray-600 dark:text-gray-400">
+              Our libraries are built around real products and the developers
+              shipping them.
+            </p>
+          </div>
+        </div>
+
+        {/* features-stack — 478:1742 */}
+        <ol className="mt-12 rounded-[20px]">
+          {whyTanStackPrinciples.map((principle, index) => (
+            <li
+              key={principle.title}
+              className={twMerge(
+                'flex flex-col gap-8 p-6 sm:p-10 lg:flex-row lg:items-center lg:justify-center lg:gap-[70px]',
+                index < whyTanStackPrinciples.length - 1 &&
+                  'border-b border-gray-200 dark:border-gray-800',
+              )}
+            >
+              {/* copy column — 478:1745. Everything is left-aligned to the
+                  card edge; at desktop sizes the title and description stay
+                  grouped at the center of the 233px proof panel. */}
+              <div className="flex min-w-0 flex-1 flex-col gap-8 lg:h-[233px] lg:justify-center lg:gap-0">
+                <div className="flex w-full flex-col gap-2">
+                  <Eyebrow className={principle.eyebrowClassName}>
+                    {principle.label}
+                  </Eyebrow>
+                  <h4 className="text-2xl font-black leading-tight text-gray-950 dark:text-white">
+                    {principle.title}
+                  </h4>
+                </div>
+                <p className="w-full text-sm font-light leading-[1.45] text-gray-600 dark:text-gray-400 lg:pt-4">
+                  {principle.body}
+                </p>
+              </div>
+
+              {/* proof panel — 478:1744 */}
+              <PrinciplePanel>
+                <PrincipleProof
+                  proof={principle.proof}
+                  accentClassName={principle.accentClassName}
+                />
+              </PrinciplePanel>
+            </li>
+          ))}
+        </ol>
+
+        {/* Quiet corner CTA — hugs the bottom-right of the section. Muted at
+            rest so it doesn't compete with the stack; on hover the label
+            brightens and the arrow slides to afford that it goes somewhere. */}
+        <div className="mt-4 flex justify-end">
+          <Link
+            to="/tenets"
+            className="group inline-flex items-center gap-1.5 rounded-md py-1 font-mono text-xs font-semibold uppercase tracking-[1px] text-gray-400 transition-colors hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus dark:text-gray-500 dark:hover:text-gray-100"
+          >
+            Read our product tenets
+            <ArrowRightIcon className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5 motion-reduce:transition-none" />
+          </Link>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/**
+ * The 460×233 proof slot from Figma (478:1744 et al).
+ *
+ * Deliberately chrome-less: no border, no fill. The design draws a surface
+ * here, but the proofs read better floating directly on the card — the row
+ * dividers and the 70px gutter already separate them from the copy, so a
+ * second frame around each one was redundant weight.
+ */
+function PrinciplePanel({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex h-[233px] w-full shrink-0 items-center justify-center lg:w-[460px]">
+      {children}
+    </div>
+  )
+}
+
+function FrameworkAdapterGraph({
+  accentClassName,
+}: {
+  accentClassName: string
+}) {
+  const [activeAdapterIndex, setActiveAdapterIndex] = React.useState(0)
+  const [flowProgress, setFlowProgress] = React.useState(0)
+  const rootRef = React.useRef<HTMLDivElement>(null)
+  const isVisible = useInView(rootRef)
+  const prefersReducedMotion = usePrefersReducedMotion()
+
+  React.useEffect(() => {
+    if (!isVisible || prefersReducedMotion !== false) return
+
+    const intervalId = window.setInterval(() => {
+      setActiveAdapterIndex(
+        (currentIndex) => (currentIndex + 1) % frameworkAdapterNodes.length,
+      )
+    }, 1150)
+
+    return () => window.clearInterval(intervalId)
+  }, [isVisible, prefersReducedMotion])
+
+  React.useEffect(() => {
+    if (!isVisible || prefersReducedMotion !== false) return
+
+    let frameId = 0
+    let lastUpdate = 0
+    const duration = 1500
+
+    const update = (timestamp: number) => {
+      if (timestamp - lastUpdate > 33) {
+        setFlowProgress((timestamp % duration) / duration)
+        lastUpdate = timestamp
+      }
+
+      frameId = window.requestAnimationFrame(update)
+    }
+
+    frameId = window.requestAnimationFrame(update)
+
+    return () => window.cancelAnimationFrame(frameId)
+  }, [isVisible, prefersReducedMotion])
+
+  return (
+    // The node positions below are hard-coded against a 320×128 grid
+    // (adapterGraphWidth/Height), so the whole graph is scaled as a unit rather
+    // than re-deriving every coordinate. The scale tracks the wrapper's own
+    // width, so the graph fills whatever slot it lands in without restating the
+    // ancestors' padding. The 1.35 cap is the ratio the fixed 460px `lg` slot
+    // was designed around.
+    <div className="@container flex w-full justify-center">
+      <div
+        ref={rootRef}
         aria-hidden="true"
-        viewBox="0 0 280 52"
-        preserveAspectRatio="none"
-        className="home-open-source-underline__svg"
+        style={{
+          transform: 'scale(clamp(0.75, calc(100cqw / 320px), 1.35))',
+        }}
+        className="relative h-32 w-[320px] shrink-0 origin-center font-mono text-[10px] font-bold"
       >
-        <path
-          pathLength="1"
-          className="home-open-source-underline__path home-open-source-underline__path--primary"
-          d="M8 28C24 15 41 40 58 28C75 16 92 40 110 28C128 15 145 40 164 29C183 17 200 40 220 29C239 18 255 33 272 25"
-        />
-        <path
-          pathLength="1"
-          className="home-open-source-underline__path home-open-source-underline__path--secondary"
-          d="M10 31C27 19 44 42 62 30C80 18 97 42 116 30C135 18 152 43 172 31C192 19 210 42 230 31C248 21 261 34 270 28"
-        />
-        <path
-          pathLength="1"
-          className="home-open-source-underline__path home-open-source-underline__path--tertiary"
-          d="M12 34C29 23 47 45 65 33C83 21 101 45 121 33C141 21 159 45 179 34C199 23 217 44 237 34C253 26 264 36 268 32"
-        />
-      </svg>
-    </span>
+        <div className="home-adapter-graph absolute inset-x-0 top-1 h-[7.5rem] overflow-visible">
+          {frameworkAdapterNodes.map((adapter, adapterIndex) => {
+            const isActive = activeAdapterIndex === adapterIndex
+
+            return (
+              <span
+                key={adapter.label}
+                data-adapter-label={adapter.label}
+                style={adapterGraphStyle(adapter)}
+                className={twMerge(
+                  'absolute z-20 flex items-center justify-center rounded-md border px-2 text-center text-gray-600 shadow-sm backdrop-blur transition-colors duration-500 dark:text-gray-400',
+                  isActive
+                    ? 'border-cyan-300 bg-cyan-50 text-cyan-800 shadow-cyan-500/15 dark:border-cyan-700 dark:bg-cyan-950/40 dark:text-cyan-200'
+                    : 'border-gray-200 bg-white/85 dark:border-gray-800 dark:bg-black/55',
+                )}
+              >
+                {adapter.label}
+              </span>
+            )
+          })}
+
+          <span
+            data-adapter-label={frameworkAdapterCore.label}
+            style={adapterGraphStyle(frameworkAdapterCore)}
+            className={twMerge(
+              'absolute z-30 flex items-center justify-center rounded-lg bg-gradient-to-r text-center text-[11px] text-white shadow-lg shadow-cyan-500/15',
+              accentClassName,
+            )}
+          >
+            core
+          </span>
+
+          {frameworkAdapterConnections.map((connection, connectionIndex) => {
+            const progress = (flowProgress - connectionIndex * 0.13 + 1) % 1
+            const point = cubicPoint(
+              connection.start,
+              connection.control1,
+              connection.control2,
+              connection.end,
+              progress,
+            )
+            const angle = cubicAngle(
+              connection.start,
+              connection.control1,
+              connection.control2,
+              connection.end,
+              progress,
+            )
+
+            return (
+              <span
+                key={`flow-${connection.label}`}
+                data-connection-flow={connection.label}
+                style={{
+                  ...adapterGraphPointStyle(point),
+                  transform: `translate(-50%, -50%) rotate(${angle}deg)`,
+                }}
+                className={twMerge(
+                  'home-adapter-graph-flow absolute z-50',
+                  progress < 0.08 || progress > 0.92
+                    ? 'opacity-0'
+                    : 'opacity-100',
+                )}
+              />
+            )
+          })}
+
+          {frameworkAdapterConnections.map((connection, connectionIndex) => {
+            const isActive = activeAdapterIndex === connectionIndex
+
+            return (
+              <React.Fragment key={`ports-${connection.label}`}>
+                <span
+                  data-connection-port={`${connection.label}-core`}
+                  style={adapterGraphPointStyle(connection.start)}
+                  className={twMerge(
+                    'absolute z-40 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-200 bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.55)] transition-opacity duration-500 dark:border-cyan-900',
+                    isActive ? 'opacity-100' : 'opacity-55',
+                  )}
+                />
+                <span
+                  data-connection-port={`${connection.label}-adapter`}
+                  style={adapterGraphPointStyle(connection.end)}
+                  className={twMerge(
+                    'absolute z-40 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-200 bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.55)] transition-opacity duration-500 dark:border-cyan-900',
+                    isActive ? 'opacity-100' : 'opacity-55',
+                  )}
+                />
+              </React.Fragment>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function PrincipleProof({
+  proof,
+  accentClassName,
+}: {
+  proof: PrincipleProof
+  accentClassName: string
+}) {
+  if (proof === 'adapters') {
+    return <FrameworkAdapterGraph accentClassName={accentClassName} />
+  }
+
+  if (proof === 'types') {
+    return (
+      <div className="w-full font-mono text-base leading-7">
+        <div className="flex flex-col gap-3 text-left text-gray-600 dark:text-gray-400">
+          {[
+            ['params.postId', 'string'],
+            ['query.data', 'Project[]'],
+            ['form.email', 'Field<string>'],
+          ].map(([name, value]) => (
+            <div
+              key={name}
+              className="flex items-baseline justify-between gap-4"
+            >
+              <span>{name}</span>
+              <span
+                className={twMerge(
+                  'bg-gradient-to-r bg-clip-text font-black text-transparent',
+                  accentClassName,
+                )}
+              >
+                {value}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  if (proof === 'adoption') {
+    return <AdoptionProof accentClassName={accentClassName} />
+  }
+
+  return <IndependenceProof accentClassName={accentClassName} />
+}
+
+/**
+ * Production-Grade proof: the live npm download odometer already prefetched by
+ * the route loader, plus weekly volume and stars. Real numbers rather than
+ * adjectives — the point of the principle is scale.
+ */
+function AdoptionProof({ accentClassName }: { accentClassName: string }) {
+  const { data: summary } = useQuery(homepageNpmStatsSummaryQuery())
+  const { data: stats } = useQuery(ossStatsQuery())
+
+  const totalDownloads = summary?.totalDownloads ?? 0
+  const weeklyDownloads = summary?.weeklyDownloads ?? 0
+  const starCount = stats?.github?.starCount ?? 0
+
+  // npm can be slow, rate-limited, or down — showing a literal 0 would claim
+  // this library has no users. Fall back to a placeholder instead.
+  const format = (value: number) => (value > 0 ? value.toLocaleString() : '—')
+
+  const counterRef = useNpmDownloadCounter({
+    totalDownloads,
+    ratePerDay: summary?.weeklyRatePerDay ?? 0,
+  })
+
+  return (
+    <div className="flex w-full flex-col gap-6">
+      <div className="flex flex-col gap-1">
+        <span className="font-mono text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-500">
+          npm downloads
+        </span>
+        <span
+          // The odometer writes into this node directly; only hand it over
+          // once there is a real number for it to count from.
+          ref={totalDownloads > 0 ? counterRef : undefined}
+          className={twMerge(
+            'bg-linear-to-r bg-clip-text font-mono text-3xl font-black tabular-nums text-transparent sm:text-4xl',
+            accentClassName,
+          )}
+        >
+          {format(totalDownloads)}
+        </span>
+      </div>
+      <div className="grid grid-cols-2 gap-6 font-mono">
+        {[
+          ['per week', weeklyDownloads],
+          ['github stars', starCount],
+        ].map(([label, value]) => (
+          <div key={String(label)} className="flex flex-col gap-1">
+            <span className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-500">
+              {label}
+            </span>
+            <span className="text-xl font-black tabular-nums text-gray-700 dark:text-gray-300">
+              {format(Number(value))}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/**
+ * No Vendor Lock-in proof: the same four claims the chip list made, but as a
+ * checked ledger so the panel reads as substantiated rather than decorative.
+ */
+function IndependenceProof({ accentClassName }: { accentClassName: string }) {
+  return (
+    <dl className="flex w-full flex-col font-mono text-sm">
+      {[
+        ['license', 'MIT'],
+        ['hosting', 'self-host anywhere'],
+        ['governance', 'community-driven'],
+        ['paid tiers', 'none'],
+      ].map(([term, value], index) => (
+        <div
+          key={term}
+          className={twMerge(
+            'flex items-baseline justify-between gap-4 py-3',
+            index > 0 && 'border-t border-gray-200/70 dark:border-gray-800/70',
+          )}
+        >
+          <dt className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-500">
+            {term}
+          </dt>
+          <dd
+            className={twMerge(
+              'bg-linear-to-r bg-clip-text font-black text-transparent',
+              accentClassName,
+            )}
+          >
+            {value}
+          </dd>
+        </div>
+      ))}
+    </dl>
   )
 }

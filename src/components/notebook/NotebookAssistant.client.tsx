@@ -249,6 +249,7 @@ export function NotebookAssistant({
   hiddenFiles,
   onApply,
   onCommit,
+  onDismiss,
   onFinish,
   onPrepare,
   onRestore,
@@ -266,6 +267,7 @@ export function NotebookAssistant({
     signal: AbortSignal,
   ) => Promise<ExampleWorkbenchRunResult>
   onCommit?: (execution: NotebookAiExecution) => void | Promise<void>
+  onDismiss?: () => void
   onFinish?: () => void
   onPrepare?: () => Promise<NotebookAiExecution>
   onRestore: (
@@ -1486,6 +1488,24 @@ export function NotebookAssistant({
       className="flex min-h-0 min-w-0 flex-1 flex-col bg-background-default"
     >
       <header className="flex h-12 shrink-0 items-center justify-end gap-1 border-b border-border-default px-3">
+        {onDismiss ? (
+          <Tooltip content="Hide chat">
+            <Button
+              type="button"
+              variant="icon"
+              color="gray"
+              size="icon-sm"
+              className="mr-auto min-h-11 min-w-11 @min-[900px]:min-h-0 @min-[900px]:min-w-0"
+              aria-label="Hide chat"
+              onClick={onDismiss}
+            >
+              <CaretDownIcon
+                className="size-4 @min-[900px]:-rotate-90"
+                aria-hidden="true"
+              />
+            </Button>
+          </Tooltip>
+        ) : null}
         {threads.length > 1 ? (
           <Dropdown>
             <Tooltip content="Recent conversations">

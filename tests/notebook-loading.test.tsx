@@ -4,6 +4,7 @@ import test from 'node:test'
 import { renderToStaticMarkup } from 'react-dom/server'
 import {
   NotebookAiSkeleton,
+  NotebookDraftSkeleton,
   NotebookEditorSkeleton,
   NotebookEmbeddedSkeleton,
   NotebookIndexSkeleton,
@@ -36,9 +37,9 @@ const routeCases = [
   [
     'new notebook',
     NotebookNewRoute,
-    NotebookEditorSkeleton,
+    NotebookDraftSkeleton,
     'editor',
-    () => renderToStaticMarkup(<NotebookEditorSkeleton />),
+    () => renderToStaticMarkup(<NotebookDraftSkeleton />),
   ],
   [
     'AI notebook',
@@ -88,7 +89,30 @@ test('notebook skeletons reserve their final route geometry', () => {
   assert.match(embedded, /h-\[clamp\(520px,75dvh,720px\)\]/)
   assert.match(ai, /AI notebook spike/)
   assert.match(ai, /Local spike/)
-  assert.doesNotMatch(`${index}${editor}${embedded}${ai}`, /animate-pulse/)
+  assert.match(ai, /motion-safe:animate-pulse/)
+  assert.doesNotMatch(
+    `${index}${editor}${embedded}${ai}`,
+    /(?:^|\s)animate-pulse(?:\s|&quot;|")/,
+  )
+})
+
+test('the editor skeleton reserves the tabbed workspace and chat dock', () => {
+  const editor = renderToStaticMarkup(<NotebookEditorSkeleton />)
+  const draft = renderToStaticMarkup(<NotebookDraftSkeleton />)
+  const embedded = renderToStaticMarkup(<NotebookEmbeddedSkeleton />)
+
+  assert.match(editor, /data-notebook-tab-skeleton="preview"/)
+  assert.match(editor, /data-notebook-workspace-skeleton=""/)
+  assert.match(editor, /data-notebook-chat-skeleton=""/)
+  assert.match(editor, /grid-rows-\[minmax\(0,1fr\)_minmax\(0,1fr\)\]/)
+  assert.match(
+    editor,
+    /@min-\[900px\]:grid-cols-\[minmax\(0,62fr\)_minmax\(280px,38fr\)\]/,
+  )
+  assert.doesNotMatch(embedded, /data-notebook-chat-skeleton=""/)
+  assert.doesNotMatch(draft, /data-notebook-chat-skeleton=""/)
+  assert.doesNotMatch(embedded, /data-notebook-tab-skeleton="preview"/)
+  assert.doesNotMatch(draft, /data-notebook-tab-skeleton="preview"/)
 })
 
 test('the synchronous router fallback selects each notebook layout', () => {
@@ -99,6 +123,10 @@ test('the synchronous router fallback selects each notebook layout', () => {
   assert.match(
     renderToStaticMarkup(<NotebookRouteSkeleton pathname="/notebook/ai" />),
     /data-notebook-loading="editor"/,
+  )
+  assert.doesNotMatch(
+    renderToStaticMarkup(<NotebookRouteSkeleton pathname="/notebook/new" />),
+    /data-notebook-chat-skeleton=""/,
   )
   assert.match(
     renderToStaticMarkup(

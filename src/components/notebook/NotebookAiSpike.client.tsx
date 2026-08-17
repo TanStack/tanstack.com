@@ -169,13 +169,14 @@ export function NotebookAiSpike() {
               <NotebookAssistant
                 authenticated
                 credentialScope="local-spike"
-                enabled={activeView === 'chat'}
+                enabled
                 getExecution={() => ({
                   runtime: definitionRef.current.runtime ?? null,
                   workspace: workspaceRef.current,
                 })}
                 hiddenFiles={[]}
                 onApply={applyAiExecution}
+                onDismiss={() => setActiveView('code')}
                 onRestore={restoreAiExecution}
                 onRunningChange={setAssistantRunning}
                 storageScope="local-spike"

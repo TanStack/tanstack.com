@@ -15,7 +15,13 @@ import {
 import { ButtonGroup } from '~/components/ButtonGroup'
 import { FileExplorer, type FileExplorerNode } from '~/components/FileExplorer'
 import { useTheme } from '~/components/ThemeProvider'
-import { Button } from '~/components/ds/ui'
+import {
+  Button,
+  Dropdown,
+  DropdownContent,
+  DropdownItem,
+  DropdownTrigger,
+} from '~/components/ds/ui'
 import { Tooltip } from '~/ui'
 import { copyTextToClipboard } from '~/utils/browser-effects'
 import { compileExampleWorkspace } from '~/utils/example-esbuild.client'
@@ -47,7 +53,20 @@ import {
   createExamplePreviewHistory,
   normalizeExamplePreviewUrl,
   updateExamplePreviewHistory,
+  type ExamplePreviewHistory,
 } from '~/utils/example-preview-history'
+import {
+  activateNotebookWorkbenchTab,
+  addNotebookWorkbenchTab,
+  closeNotebookWorkbenchTab,
+  createNotebookWorkbenchTabsState,
+  getNotebookWorkbenchTabLabel,
+  getNotebookWorkbenchTabNavigationTarget,
+  repairNotebookWorkbenchEditorPaths,
+  updateNotebookWorkbenchEditorTab,
+  type NewNotebookWorkbenchTab,
+  type NotebookWorkbenchTab,
+} from '~/utils/notebook-workbench-tabs'
 import {
   createExampleWorkspace,
   type ExampleDefinition,
@@ -205,9 +224,14 @@ export function ExampleWorkbench({
   const outputPanelId = React.useId()
   const previewPanelId = React.useId()
   const processPanelId = React.useId()
+  const notebookTabsId = React.useId()
+  const notebookEditorPanelId = React.useId()
+  const notebookPreviewPanelId = React.useId()
+  const notebookConsolePanelId = React.useId()
   const [workspace, setWorkspace] = React.useState(() =>
     cloneWorkspace(definition.workspace),
   )
+  const notebookMode = alternateEditor !== undefined
   const alternateEditorActive = alternateEditor?.active ?? false
   const workspaceRef = React.useRef(workspace)
   const [activePath, setActivePath] = React.useState(() =>
@@ -248,6 +272,25 @@ export function ExampleWorkbench({
     createExamplePreviewHistory(),
   )
   const previewHistoryRef = React.useRef(previewHistory)
+  const [notebookTabs, setNotebookTabs] = React.useState(() =>
+    createNotebookWorkbenchTabsState(),
+  )
+  const notebookTabsRef = React.useRef(notebookTabs)
+  const notebookDefinitionIdRef = React.useRef(definition.id)
+  const notebookTabButtonRefs = React.useRef(
+    new Map<string, HTMLButtonElement>(),
+  )
+  const notebookAddTabButtonRef = React.useRef<HTMLButtonElement>(null)
+  const notebookShowChatButtonRef = React.useRef<HTMLButtonElement>(null)
+  const previousNotebookChatOpenRef = React.useRef(
+    alternateEditorActive || notebookTabs.tabs.length === 0,
+  )
+  const notebookPreviewHistoriesRef = React.useRef(
+    new Map<string, ExamplePreviewHistory>(),
+  )
+  const currentNotebookPreviewTabIdRef = React.useRef<string | undefined>(
+    undefined,
+  )
   const [previewNavigationError, setPreviewNavigationError] = React.useState('')
   const [previewAnnotationMode, setPreviewAnnotationModeActive] =
     React.useState(false)
@@ -290,6 +333,25 @@ export function ExampleWorkbench({
   const handledRunRequestRef = React.useRef<string | undefined>(undefined)
   const usesWebContainer = definition.runtime?.type === 'webcontainer'
   const shouldAutoRun = autoRun ?? !usesWebContainer
+
+  notebookTabsRef.current = notebookTabs
+
+  const revealNotebookPreviewTab = React.useCallback(() => {
+    setNotebookTabs((current) => {
+      const activeTab = current.tabs.find(
+        (tab) => tab.id === current.activeTabId,
+      )
+      if (activeTab?.kind === 'preview') return current
+
+      const previewTab =
+        current.tabs.find(
+          (tab) => tab.id === currentNotebookPreviewTabIdRef.current,
+        ) ?? current.tabs.find((tab) => tab.kind === 'preview')
+      return previewTab
+        ? activateNotebookWorkbenchTab(current, previewTab.id)
+        : addNotebookWorkbenchTab(current, { kind: 'preview' })
+    })
+  }, [])
 
   React.useEffect(() => {
     previewHistoryRef.current = previewHistory
@@ -580,7 +642,7 @@ export function ExampleWorkbench({
     const nextWorkspace = cloneWorkspace(definition.workspace)
     workspaceRef.current = nextWorkspace
     setWorkspace(nextWorkspace)
-    setActivePath(getInitialFile(definition, nextWorkspace))
+    const initialFile = getInitialFile(definition, nextWorkspace)
     setConsoleEntries([])
     resetProcessOutput()
     setError('')
@@ -588,6 +650,53 @@ export function ExampleWorkbench({
     const initialPreviewHistory = createExamplePreviewHistory()
     previewHistoryRef.current = initialPreviewHistory
     setPreviewHistory(initialPreviewHistory)
+    const notebookChanged = notebookDefinitionIdRef.current !== definition.id
+    notebookDefinitionIdRef.current = definition.id
+    const previousNotebookTabs = notebookTabsRef.current
+    const availablePaths = Object.keys(nextWorkspace.files).filter(
+      (path) => !definition.hiddenFiles?.includes(path),
+    )
+    const nextNotebookTabs = repairNotebookWorkbenchEditorPaths(
+      notebookChanged
+        ? createNotebookWorkbenchTabsState()
+        : previousNotebookTabs,
+      availablePaths,
+      initialFile,
+    )
+    notebookTabsRef.current = nextNotebookTabs
+    if (notebookChanged || nextNotebookTabs !== previousNotebookTabs) {
+      setNotebookTabs(nextNotebookTabs)
+    }
+    const activeNotebookTab = nextNotebookTabs.tabs.find(
+      (tab) => tab.id === nextNotebookTabs.activeTabId,
+    )
+    setActivePath(
+      activeNotebookTab?.kind === 'editor'
+        ? activeNotebookTab.path
+        : initialFile,
+    )
+    if (activeNotebookTab?.kind === 'editor') {
+      setShowFiles(activeNotebookTab.filesOpen)
+    }
+    const activeNotebookPreviewTab = nextNotebookTabs.tabs.find(
+      (tab) =>
+        tab.id === nextNotebookTabs.activeTabId && tab.kind === 'preview',
+    )
+    const nextNotebookPreviewTab =
+      activeNotebookPreviewTab ??
+      nextNotebookTabs.tabs.find((tab) => tab.kind === 'preview')
+    currentNotebookPreviewTabIdRef.current = nextNotebookPreviewTab?.id
+    const nextPreviewHistories = new Map<string, ExamplePreviewHistory>()
+    for (const tab of nextNotebookTabs.tabs) {
+      if (tab.kind !== 'preview') continue
+      nextPreviewHistories.set(
+        tab.id,
+        tab.id === nextNotebookPreviewTab?.id
+          ? initialPreviewHistory
+          : createExamplePreviewHistory(),
+      )
+    }
+    notebookPreviewHistoriesRef.current = nextPreviewHistories
     setPreviewNavigationError('')
     setPreviewAnnotationModeActive(false)
     setPreviewAnnotationTarget(undefined)
@@ -653,9 +762,13 @@ export function ExampleWorkbench({
 
   React.useEffect(() => {
     if (!error) return
-    setShowPreview(true)
-    setMobileView('preview')
-  }, [error])
+    if (notebookMode) {
+      revealNotebookPreviewTab()
+    } else {
+      setShowPreview(true)
+      setMobileView('preview')
+    }
+  }, [error, notebookMode, revealNotebookPreviewTab])
 
   React.useEffect(
     () => () => {
@@ -1157,6 +1270,13 @@ export function ExampleWorkbench({
               url: trustedUrl,
             })
             previewHistoryRef.current = next
+            const notebookPreviewTabId = currentNotebookPreviewTabIdRef.current
+            if (notebookPreviewTabId) {
+              notebookPreviewHistoriesRef.current.set(
+                notebookPreviewTabId,
+                next,
+              )
+            }
             return next
           })
           setPreviewNavigationError('')
@@ -1164,8 +1284,12 @@ export function ExampleWorkbench({
             setPreviewAnnotationTarget(undefined)
           }
           if (message.navigationKind === 'push' && revealPreviewOnPush) {
-            setShowPreview(true)
-            setMobileView('preview')
+            if (notebookMode) {
+              revealNotebookPreviewTab()
+            } else {
+              setShowPreview(true)
+              setMobileView('preview')
+            }
           }
           return
         }
@@ -1248,6 +1372,8 @@ export function ExampleWorkbench({
     markRunReady,
     previewAnnotationMode,
     revealPreviewOnPush,
+    revealNotebookPreviewTab,
+    notebookMode,
     previewUrl,
     recordRunConsoleEntry,
     syncTheme,
@@ -1298,16 +1424,146 @@ export function ExampleWorkbench({
     onWorkspaceChange?.(next)
   }
 
+  function getNotebookPanelId(tab: NotebookWorkbenchTab) {
+    if (tab.kind === 'preview') return notebookPreviewPanelId
+    if (tab.kind === 'editor') return notebookEditorPanelId
+    return notebookConsolePanelId
+  }
+
+  function getNotebookTabButtonId(tabId: string) {
+    return `${notebookTabsId}-${tabId}`
+  }
+
+  function focusNotebookTab(tabId: string | null) {
+    window.requestAnimationFrame(() => {
+      if (tabId) {
+        notebookTabButtonRefs.current.get(tabId)?.focus()
+      } else {
+        notebookAddTabButtonRef.current?.focus()
+      }
+    })
+  }
+
+  function activateNotebookTab(tab: NotebookWorkbenchTab) {
+    setNotebookTabs((current) => activateNotebookWorkbenchTab(current, tab.id))
+    if (tab.kind === 'editor') {
+      setActivePath(tab.path)
+      setShowFiles(tab.filesOpen)
+    }
+    if (tab.kind === 'console') setOutputActivated(true)
+  }
+
+  function addNotebookTab(tab: NewNotebookWorkbenchTab) {
+    const next = addNotebookWorkbenchTab(notebookTabs, tab)
+    const addedTab = next.tabs.at(-1)
+    setNotebookTabs(next)
+    if (addedTab?.kind === 'preview') {
+      notebookPreviewHistoriesRef.current.set(
+        addedTab.id,
+        createExamplePreviewHistory(),
+      )
+    } else if (addedTab?.kind === 'editor') {
+      setActivePath(addedTab.path)
+      setShowFiles(addedTab.filesOpen)
+    } else if (addedTab?.kind === 'console') {
+      setOutputActivated(true)
+    }
+    focusNotebookTab(next.activeTabId)
+  }
+
+  function closeNotebookTab(tabId: string) {
+    const next = closeNotebookWorkbenchTab(notebookTabs, tabId)
+    const nextActiveTab = next.tabs.find((tab) => tab.id === next.activeTabId)
+    setNotebookTabs(next)
+    notebookPreviewHistoriesRef.current.delete(tabId)
+    if (currentNotebookPreviewTabIdRef.current === tabId) {
+      currentNotebookPreviewTabIdRef.current = next.tabs.find(
+        (tab) => tab.kind === 'preview',
+      )?.id
+    }
+    if (nextActiveTab?.kind === 'editor') {
+      setActivePath(nextActiveTab.path)
+      setShowFiles(nextActiveTab.filesOpen)
+    } else if (nextActiveTab?.kind === 'console') {
+      setOutputActivated(true)
+    }
+    if (next.tabs.length === 0) alternateEditor?.onActiveChange(true)
+    focusNotebookTab(next.activeTabId)
+  }
+
+  function navigateNotebookTabs(event: React.KeyboardEvent<HTMLButtonElement>) {
+    if (event.key === 'Delete') {
+      event.preventDefault()
+      closeNotebookTab(event.currentTarget.dataset.tabId ?? '')
+      return
+    }
+    if (
+      event.key !== 'ArrowLeft' &&
+      event.key !== 'ArrowRight' &&
+      event.key !== 'Home' &&
+      event.key !== 'End'
+    ) {
+      return
+    }
+
+    event.preventDefault()
+    const target = getNotebookWorkbenchTabNavigationTarget(
+      notebookTabs,
+      event.key,
+    )
+    if (!target) return
+    const tab = notebookTabs.tabs.find((candidate) => candidate.id === target)
+    if (!tab) return
+    activateNotebookTab(tab)
+    focusNotebookTab(tab.id)
+  }
+
+  function setNotebookFilesOpen(open: boolean) {
+    setShowFiles(open)
+    const activeTab = notebookTabs.tabs.find(
+      (tab) => tab.id === notebookTabs.activeTabId,
+    )
+    if (activeTab?.kind !== 'editor') return
+    setNotebookTabs((current) =>
+      updateNotebookWorkbenchEditorTab(current, activeTab.id, {
+        filesOpen: open,
+      }),
+    )
+  }
+
   function selectFile(path: string) {
     setActivePath(path)
-    if (!window.matchMedia('(min-width: 1024px)').matches) {
+    const activeTab = notebookTabs.tabs.find(
+      (tab) => tab.id === notebookTabs.activeTabId,
+    )
+    const closeFiles = !window.matchMedia('(min-width: 1024px)').matches
+    if (alternateEditor && activeTab?.kind === 'editor') {
+      setNotebookTabs((current) =>
+        updateNotebookWorkbenchEditorTab(current, activeTab.id, {
+          path,
+          filesOpen: closeFiles ? false : undefined,
+        }),
+      )
+    }
+    if (closeFiles) {
       setShowFiles(false)
     }
   }
 
   function toggleFiles() {
     setMobileView('code')
-    setShowFiles((open) => !open)
+    const next = !showFiles
+    setShowFiles(next)
+    const activeTab = notebookTabs.tabs.find(
+      (tab) => tab.id === notebookTabs.activeTabId,
+    )
+    if (alternateEditor && activeTab?.kind === 'editor') {
+      setNotebookTabs((current) =>
+        updateNotebookWorkbenchEditorTab(current, activeTab.id, {
+          filesOpen: next,
+        }),
+      )
+    }
   }
 
   function toggleConsole() {
@@ -1427,6 +1683,22 @@ export function ExampleWorkbench({
       return
     }
     sendPreviewBrowserCommand({ kind: 'reload' })
+  }
+
+  function navigateNotebookPreviewHistory(offset: -1 | 1) {
+    const current = previewHistoryRef.current
+    const index = current.index + offset
+    const url = current.entries[index]
+    if (!url) return
+
+    const next = { entries: current.entries, index }
+    previewHistoryRef.current = next
+    setPreviewHistory(next)
+    const previewTabId = currentNotebookPreviewTabIdRef.current
+    if (previewTabId) {
+      notebookPreviewHistoriesRef.current.set(previewTabId, next)
+    }
+    sendPreviewBrowserCommand({ kind: 'navigate', url })
   }
 
   function setPreviewAnnotationMode(active: boolean) {
@@ -1588,10 +1860,89 @@ export function ExampleWorkbench({
     }
   }
 
-  const filePaths = Object.keys(workspace.files)
-    .filter((path) => !definition.hiddenFiles?.includes(path))
-    .sort()
+  const filePaths = React.useMemo(
+    () =>
+      Object.keys(workspace.files)
+        .filter((path) => !definition.hiddenFiles?.includes(path))
+        .sort(),
+    [definition.hiddenFiles, workspace.files],
+  )
   const fileTree = React.useMemo(() => createFileTree(filePaths), [filePaths])
+  const activeNotebookTab = notebookTabs.tabs.find(
+    (tab) => tab.id === notebookTabs.activeTabId,
+  )
+  const activeNotebookEditorTab =
+    activeNotebookTab?.kind === 'editor' ? activeNotebookTab : undefined
+  const notebookChatOpen =
+    alternateEditorActive || notebookTabs.tabs.length === 0
+
+  React.useEffect(() => {
+    setNotebookTabs((current) =>
+      repairNotebookWorkbenchEditorPaths(
+        current,
+        filePaths,
+        getInitialFile(definition, workspace),
+      ),
+    )
+  }, [definition, filePaths, workspace])
+
+  React.useEffect(() => {
+    if (!activeNotebookEditorTab) return
+    setActivePath(activeNotebookEditorTab.path)
+    setShowFiles(activeNotebookEditorTab.filesOpen)
+  }, [activeNotebookEditorTab])
+
+  React.useEffect(() => {
+    if (activeNotebookTab?.kind !== 'preview') return
+
+    const currentHistory = previewHistoryRef.current
+    const currentUrl = currentHistory.entries[currentHistory.index] ?? '/'
+    const history =
+      notebookPreviewHistoriesRef.current.get(activeNotebookTab.id) ??
+      previewHistoryRef.current
+    notebookPreviewHistoriesRef.current.set(activeNotebookTab.id, history)
+    currentNotebookPreviewTabIdRef.current = activeNotebookTab.id
+    previewHistoryRef.current = history
+    setPreviewHistory(history)
+
+    const targetUrl = history.entries[history.index] ?? '/'
+    if (targetUrl === currentUrl) return
+    const frame = window.requestAnimationFrame(() => {
+      postExampleSandboxBrowserCommand({
+        channel: browserChannelRef.current,
+        command: { kind: 'navigate', url: targetUrl },
+        frame: frameRef.current,
+        targetOrigin: getPreviewTargetOrigin(frameRef.current?.src ?? ''),
+      })
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [activeNotebookTab?.id, activeNotebookTab?.kind])
+
+  React.useEffect(() => {
+    if (
+      alternateEditor &&
+      notebookTabs.tabs.length === 0 &&
+      !alternateEditorActive
+    ) {
+      revealNotebookPreviewTab()
+    }
+  }, [
+    alternateEditor,
+    alternateEditorActive,
+    notebookTabs.tabs.length,
+    revealNotebookPreviewTab,
+  ])
+
+  React.useEffect(() => {
+    const wasOpen = previousNotebookChatOpenRef.current
+    previousNotebookChatOpenRef.current = notebookChatOpen
+    if (!wasOpen || notebookChatOpen) return
+    const frame = window.requestAnimationFrame(() => {
+      notebookShowChatButtonRef.current?.focus()
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [notebookChatOpen])
+
   const activeSource = workspace.files[activePath] ?? ''
   const statusLabel = getStatusLabel(status)
   const outputLabel = usesWebContainer ? 'terminals' : 'console'
@@ -1630,6 +1981,596 @@ export function ExampleWorkbench({
     ? getExternalPreviewUrl(currentPreviewUrl)
     : undefined
 
+  if (alternateEditor) {
+    const hasNotebookTabs = notebookTabs.tabs.length > 0
+    const activeNotebookTabButtonId = activeNotebookTab
+      ? getNotebookTabButtonId(activeNotebookTab.id)
+      : undefined
+    const notebookWorkspaceClass = hasNotebookTabs
+      ? notebookChatOpen
+        ? 'top-0 right-0 left-0 h-1/2 @min-[900px]:right-auto @min-[900px]:bottom-0 @min-[900px]:h-auto @min-[900px]:w-[62%]'
+        : 'inset-0'
+      : 'pointer-events-none invisible inset-0'
+    const notebookChatGeometryClass = hasNotebookTabs
+      ? 'right-0 bottom-0 left-0 h-1/2 border-t border-border-default @min-[900px]:top-0 @min-[900px]:left-auto @min-[900px]:h-auto @min-[900px]:w-[38%] @min-[900px]:border-t-0 @min-[900px]:border-l'
+      : 'inset-0'
+    const notebookChatTransformClass = notebookChatOpen
+      ? 'translate-x-0 translate-y-0'
+      : 'pointer-events-none translate-y-full @min-[900px]:translate-x-full @min-[900px]:translate-y-0'
+
+    return (
+      <section
+        className={`@container not-prose relative flex min-w-0 flex-col overflow-hidden border border-border-default bg-background-default text-text-primary ${
+          fullscreen
+            ? 'min-h-0 flex-1 rounded-none border-x-0 border-b-0'
+            : 'h-[clamp(520px,75dvh,720px)] rounded-lg'
+        } ${className ?? ''}`}
+        aria-label={`${definition.title} workbench`}
+      >
+        <header className="flex h-10 shrink-0 items-stretch border-b border-border-default bg-background-default">
+          <div
+            role="tablist"
+            aria-label="Notebook workspace"
+            className="fade-x flex min-w-0 flex-1 items-stretch overflow-x-auto"
+          >
+            {notebookTabs.tabs.map((tab) => {
+              const label = getNotebookWorkbenchTabLabel(notebookTabs.tabs, tab)
+              const active = tab.id === notebookTabs.activeTabId
+
+              return (
+                <div
+                  key={tab.id}
+                  role="presentation"
+                  className={`flex shrink-0 items-stretch border-r border-border-default ${
+                    active
+                      ? 'bg-background-default text-text-primary'
+                      : 'bg-background-subtle text-text-muted'
+                  }`}
+                >
+                  <button
+                    ref={(element) => {
+                      if (element) {
+                        notebookTabButtonRefs.current.set(tab.id, element)
+                      } else {
+                        notebookTabButtonRefs.current.delete(tab.id)
+                      }
+                    }}
+                    type="button"
+                    role="tab"
+                    id={getNotebookTabButtonId(tab.id)}
+                    data-tab-id={tab.id}
+                    aria-controls={getNotebookPanelId(tab)}
+                    aria-selected={active}
+                    tabIndex={active ? 0 : -1}
+                    className="flex min-w-0 items-center gap-1.5 px-2 text-xs hover:bg-background-elevated hover:text-text-primary focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus"
+                    onClick={() => activateNotebookTab(tab)}
+                    onKeyDown={navigateNotebookTabs}
+                  >
+                    {tab.kind === 'preview' ? (
+                      <BrowserIcon className="size-3.5" aria-hidden="true" />
+                    ) : tab.kind === 'editor' ? (
+                      <CodeIcon className="size-3.5" aria-hidden="true" />
+                    ) : (
+                      <TerminalWindowIcon
+                        className="size-3.5"
+                        aria-hidden="true"
+                      />
+                    )}
+                    <span>{label}</span>
+                  </button>
+                  <Tooltip content={`Close ${label}`} side="bottom">
+                    <button
+                      type="button"
+                      aria-label={`Close ${label}`}
+                      className="flex w-9 items-center justify-center text-text-muted hover:bg-background-elevated hover:text-text-primary focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus"
+                      onClick={() => closeNotebookTab(tab.id)}
+                    >
+                      <XIcon className="size-3" aria-hidden="true" />
+                    </button>
+                  </Tooltip>
+                </div>
+              )
+            })}
+          </div>
+
+          <div className="flex shrink-0 items-stretch border-l border-border-default">
+            <Dropdown>
+              <DropdownTrigger>
+                <Button
+                  ref={notebookAddTabButtonRef}
+                  type="button"
+                  variant="icon"
+                  color="gray"
+                  size="icon-sm"
+                  rounded="none"
+                  className="size-10 shrink-0 transition-none active:scale-100"
+                  aria-label="New workspace tab"
+                >
+                  <PlusIcon className="size-4" aria-hidden="true" />
+                </Button>
+              </DropdownTrigger>
+              <DropdownContent align="end" className="min-w-44">
+                <DropdownItem
+                  onSelect={() => addNotebookTab({ kind: 'preview' })}
+                >
+                  <BrowserIcon className="size-4" aria-hidden="true" />
+                  Preview
+                </DropdownItem>
+                <DropdownItem
+                  onSelect={() =>
+                    addNotebookTab({
+                      kind: 'editor',
+                      path: activePath,
+                      filesOpen: showFiles,
+                    })
+                  }
+                >
+                  <CodeIcon className="size-4" aria-hidden="true" />
+                  Editor
+                </DropdownItem>
+                <DropdownItem
+                  onSelect={() => addNotebookTab({ kind: 'console' })}
+                >
+                  <TerminalWindowIcon className="size-4" aria-hidden="true" />
+                  Console
+                </DropdownItem>
+              </DropdownContent>
+            </Dropdown>
+
+            {allowSharing ? (
+              <Tooltip
+                content={shareState === 'copied' ? 'Copied' : 'Copy share link'}
+                side="bottom"
+              >
+                <Button
+                  type="button"
+                  variant="icon"
+                  color="gray"
+                  size="icon-sm"
+                  rounded="none"
+                  className="size-10 shrink-0 transition-none active:scale-100"
+                  aria-label="Copy share link"
+                  disabled={shareState === 'sharing'}
+                  onClick={() => void share()}
+                >
+                  <ShareIcon className="size-4" aria-hidden="true" />
+                </Button>
+              </Tooltip>
+            ) : null}
+
+            {!notebookChatOpen ? (
+              <Button
+                ref={notebookShowChatButtonRef}
+                type="button"
+                variant="ghost"
+                size="xs"
+                rounded="none"
+                className="h-10 shrink-0 transition-none hover:shadow-none"
+                onClick={() => alternateEditor.onActiveChange(true)}
+              >
+                <ChatCircleDotsIcon className="size-3.5" aria-hidden="true" />
+                Show chat
+              </Button>
+            ) : null}
+          </div>
+        </header>
+
+        {shareError ? (
+          <div
+            className="absolute top-12 right-3 left-3 z-30 flex max-h-28 items-start gap-2 overflow-hidden rounded-lg border border-border-default border-l-2 border-l-border-error bg-background-elevated px-3 py-2 shadow-lg sm:left-auto sm:w-96"
+            role="alert"
+          >
+            <WarningCircleIcon
+              className="mt-0.5 size-4 shrink-0 text-icon-error"
+              aria-hidden="true"
+            />
+            <span className="min-h-0 min-w-0 flex-1 overflow-auto text-xs/5 whitespace-pre-wrap text-text-secondary">
+              {shareError}
+            </span>
+            <Button
+              type="button"
+              variant="icon"
+              color="gray"
+              size="icon-sm"
+              rounded="md"
+              className="-m-1 shrink-0 transition-none active:scale-100"
+              aria-label="Dismiss share error"
+              onClick={() => setShareError('')}
+            >
+              <XIcon className="size-3.5" aria-hidden="true" />
+            </Button>
+          </div>
+        ) : null}
+
+        <div className="relative min-h-0 flex-1 overflow-hidden">
+          <div
+            className={`absolute min-h-0 min-w-0 overflow-hidden ${notebookWorkspaceClass}`}
+          >
+            <section
+              id={notebookPreviewPanelId}
+              role="tabpanel"
+              aria-labelledby={
+                activeNotebookTab?.kind === 'preview'
+                  ? activeNotebookTabButtonId
+                  : undefined
+              }
+              aria-hidden={activeNotebookTab?.kind !== 'preview'}
+              inert={activeNotebookTab?.kind !== 'preview'}
+              className={`absolute inset-0 min-h-0 overflow-hidden bg-background-default ${
+                activeNotebookTab?.kind === 'preview'
+                  ? 'visible'
+                  : 'pointer-events-none invisible'
+              }`}
+            >
+              <SandboxBrowser
+                annotationAvailable={Boolean(previewUrl || sourceDocument)}
+                annotationMode={previewAnnotationMode}
+                annotationTarget={previewAnnotationTarget}
+                canGoBack={canGoBackInExamplePreview(previewHistory)}
+                canGoForward={canGoForwardInExamplePreview(previewHistory)}
+                captureScreenshot={
+                  previewUrl || sourceDocument ? capturePreview : undefined
+                }
+                currentUrl={currentPreviewUrl}
+                error={error || previewNavigationError}
+                history={[...new Set(previewHistory.entries)]}
+                navigationAvailable={Boolean(previewUrl || sourceDocument)}
+                onAnnotationModeChange={setPreviewAnnotationMode}
+                onBack={() => navigateNotebookPreviewHistory(-1)}
+                onClearAnnotationTarget={clearPreviewAnnotationTarget}
+                onForward={() => navigateNotebookPreviewHistory(1)}
+                onNavigate={(url) =>
+                  sendPreviewBrowserCommand({ kind: 'navigate', url })
+                }
+                onReload={reloadPreview}
+                openExternalUrl={externalPreviewUrl}
+                reloadDisabled={runActive || runDisabled}
+              >
+                {previewUrl ? (
+                  <iframe
+                    ref={frameRef}
+                    title={`${definition.title} output`}
+                    allow="cross-origin-isolated"
+                    sandbox="allow-forms allow-same-origin allow-scripts"
+                    src={previewUrl}
+                    onLoad={handlePreviewLoad}
+                    className="block size-full border-0 bg-background-default"
+                  />
+                ) : sourceDocument ? (
+                  <iframe
+                    ref={frameRef}
+                    title={`${definition.title} output`}
+                    sandbox="allow-scripts"
+                    srcDoc={sourceDocument}
+                    onLoad={handlePreviewLoad}
+                    className="block size-full border-0 bg-background-default"
+                  />
+                ) : (
+                  <div className="flex size-full items-center justify-center p-6">
+                    {isWebContainerUnsupported ? (
+                      <div className="max-w-md text-center">
+                        <p className="text-sm text-text-muted">
+                          {webContainerUnsupportedReason}
+                        </p>
+                        {fallbackAction ? (
+                          <a
+                            href={fallbackAction.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="mt-3 inline-flex text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+                          >
+                            {fallbackAction.label}
+                          </a>
+                        ) : null}
+                      </div>
+                    ) : isWebContainerBusy || status === 'compiling' ? (
+                      <div
+                        className="flex items-center gap-2 text-sm text-text-muted"
+                        role="status"
+                      >
+                        <ArrowClockwiseIcon
+                          className="size-4 animate-spin motion-reduce:animate-none"
+                          aria-hidden="true"
+                        />
+                        {visibleStatusLabel}
+                      </div>
+                    ) : (
+                      <Button
+                        type="button"
+                        variant="primary"
+                        disabled={manualRunDisabled}
+                        onClick={() => void run()}
+                      >
+                        <PlayIcon className="size-4" aria-hidden="true" />
+                        {status === 'error' ? 'Try again' : runLabel}
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </SandboxBrowser>
+            </section>
+
+            <section
+              id={notebookEditorPanelId}
+              role="tabpanel"
+              aria-labelledby={
+                activeNotebookTab?.kind === 'editor'
+                  ? activeNotebookTabButtonId
+                  : undefined
+              }
+              aria-hidden={activeNotebookTab?.kind !== 'editor'}
+              inert={activeNotebookTab?.kind !== 'editor'}
+              className={`absolute inset-0 min-h-0 overflow-hidden bg-[var(--th-background)] ${
+                activeNotebookTab?.kind === 'editor'
+                  ? 'visible'
+                  : 'pointer-events-none invisible'
+              }`}
+            >
+              <div className="flex size-full min-h-0 flex-col">
+                <div className="flex h-10 shrink-0 items-center gap-2 border-b border-border-default bg-background-subtle px-2">
+                  <Tooltip
+                    content={showFiles ? 'Hide files' : 'Show files'}
+                    side="bottom"
+                  >
+                    <Button
+                      type="button"
+                      variant="icon"
+                      color="gray"
+                      size="icon-sm"
+                      rounded="md"
+                      className="size-9 shrink-0 transition-none active:scale-100"
+                      aria-pressed={showFiles}
+                      aria-label={showFiles ? 'Hide files' : 'Show files'}
+                      onClick={() => setNotebookFilesOpen(!showFiles)}
+                    >
+                      <FolderOpenIcon className="size-3.5" aria-hidden="true" />
+                    </Button>
+                  </Tooltip>
+                  <div className="min-w-0 truncate font-ds-mono text-xs text-text-muted">
+                    {activePath}
+                  </div>
+                </div>
+
+                <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
+                  <FileExplorer
+                    currentPath={activePath}
+                    files={fileTree}
+                    isSidebarOpen={showFiles}
+                    libraryColor={libraryColor}
+                    onSidebarClose={() => setNotebookFilesOpen(false)}
+                    prefetchFileContent={() => {}}
+                    setCurrentPath={selectFile}
+                  />
+                  <div className="flex min-w-0 flex-1 flex-col bg-[var(--th-background)]">
+                    <div
+                      className={`${showFiles ? 'hidden' : 'flex'} fade-x h-9 shrink-0 overflow-x-auto border-b border-border-default bg-background-subtle`}
+                    >
+                      {filePaths.map((path) => (
+                        <button
+                          key={path}
+                          type="button"
+                          title={path}
+                          onClick={() => selectFile(path)}
+                          className={`shrink-0 border-r border-border-default px-2 font-ds-mono text-[11px] ${
+                            activePath === path
+                              ? 'bg-background-default text-text-primary'
+                              : 'text-text-muted hover:bg-background-elevated hover:text-text-secondary'
+                          }`}
+                        >
+                          {path.split('/').pop()}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="min-h-0 flex-1">
+                      <CodeMirrorEditor
+                        path={activePath}
+                        theme={resolvedTheme}
+                        value={activeSource}
+                        onChange={updateActiveSource}
+                        onRun={() => {
+                          if (!manualRunDisabled) void run()
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {usesWebContainer ? (
+              <section
+                id={notebookConsolePanelId}
+                role="tabpanel"
+                aria-labelledby={
+                  activeNotebookTab?.kind === 'console'
+                    ? activeNotebookTabButtonId
+                    : undefined
+                }
+                aria-hidden={activeNotebookTab?.kind !== 'console'}
+                inert={activeNotebookTab?.kind !== 'console'}
+                className={`absolute inset-0 min-h-0 grid-rows-[2rem_minmax(0,1fr)] overflow-hidden bg-background-default ${
+                  activeNotebookTab?.kind === 'console'
+                    ? 'grid'
+                    : 'pointer-events-none invisible grid'
+                }`}
+              >
+                <div className="flex min-w-0 items-stretch border-b border-border-default">
+                  <div
+                    role="tablist"
+                    aria-label="Terminals"
+                    onKeyDown={navigateTerminalTabs}
+                    className="fade-x flex min-w-0 flex-1 items-stretch overflow-x-auto px-2"
+                  >
+                    <button
+                      type="button"
+                      role="tab"
+                      id={getTerminalTabId('process')}
+                      aria-controls={processPanelId}
+                      aria-selected={activeTerminalId === 'process'}
+                      tabIndex={activeTerminalId === 'process' ? 0 : -1}
+                      className="h-full shrink-0 border-b-2 border-transparent px-2 font-ds-mono text-[11px] text-text-muted hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus aria-selected:border-text-primary aria-selected:text-text-primary"
+                      onClick={() => setActiveTerminalId('process')}
+                    >
+                      Process
+                    </button>
+
+                    {terminalIds.map((id) => {
+                      const label = `Terminal ${id}`
+                      const panelId = `${outputPanelId}-terminal-${id}`
+                      const tabId = getTerminalTabId(id)
+
+                      return (
+                        <div
+                          key={id}
+                          className={`flex h-full shrink-0 items-center border-b-2 border-transparent ${
+                            activeTerminalId === id
+                              ? 'border-text-primary text-text-primary'
+                              : 'text-text-muted'
+                          }`}
+                        >
+                          <button
+                            type="button"
+                            role="tab"
+                            id={tabId}
+                            aria-controls={panelId}
+                            aria-selected={activeTerminalId === id}
+                            tabIndex={activeTerminalId === id ? 0 : -1}
+                            className="h-full py-0 pr-1 pl-2 font-ds-mono text-[11px] hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
+                            onClick={() => setActiveTerminalId(id)}
+                          >
+                            {label}
+                          </button>
+                          <Tooltip content={`Close ${label}`} side="bottom">
+                            <button
+                              type="button"
+                              aria-label={`Close ${label}`}
+                              className="mr-1 flex size-5 items-center justify-center rounded-sm text-text-muted hover:bg-background-elevated hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
+                              onClick={() => closeTerminal(id)}
+                            >
+                              <XIcon className="size-3" aria-hidden="true" />
+                            </button>
+                          </Tooltip>
+                        </div>
+                      )
+                    })}
+                  </div>
+                  <Tooltip content="New terminal" side="bottom">
+                    <button
+                      type="button"
+                      aria-label="New terminal"
+                      disabled={!webContainerSession || isWebContainerBusy}
+                      className="flex w-8 shrink-0 items-center justify-center border-l border-border-default text-text-muted hover:bg-background-elevated hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus disabled:cursor-not-allowed disabled:opacity-40"
+                      onClick={addTerminal}
+                    >
+                      <PlusIcon className="size-3.5" aria-hidden="true" />
+                    </button>
+                  </Tooltip>
+                </div>
+                <div className="relative min-h-0">
+                  <div
+                    id={processPanelId}
+                    role="tabpanel"
+                    aria-labelledby={getTerminalTabId('process')}
+                    hidden={activeTerminalId !== 'process'}
+                    inert={activeTerminalId !== 'process'}
+                    className="absolute inset-0 min-h-0"
+                  >
+                    <React.Suspense
+                      fallback={
+                        <div
+                          role="status"
+                          className="flex size-full items-center justify-center text-xs text-text-muted"
+                        >
+                          Loading process output
+                        </div>
+                      }
+                    >
+                      <LazyWebContainerProcessTerminalPanel
+                        active={
+                          activeNotebookTab?.kind === 'console' &&
+                          activeTerminalId === 'process'
+                        }
+                        generation={processOutput.generation}
+                        offset={processOutput.offset}
+                        output={processOutput.value}
+                        theme={resolvedTheme}
+                      />
+                    </React.Suspense>
+                  </div>
+
+                  {terminalIds.map((id) => {
+                    const label = `Terminal ${id}`
+                    const panelId = `${outputPanelId}-terminal-${id}`
+                    const tabId = getTerminalTabId(id)
+
+                    return webContainerSession ? (
+                      <div
+                        key={id}
+                        id={panelId}
+                        role="tabpanel"
+                        aria-label={label}
+                        aria-labelledby={tabId}
+                        hidden={activeTerminalId !== id}
+                        inert={activeTerminalId !== id}
+                        className="absolute inset-0 min-h-0"
+                      >
+                        <React.Suspense
+                          fallback={
+                            <div
+                              role="status"
+                              className="flex size-full items-center justify-center text-xs text-text-muted"
+                            >
+                              Loading terminal
+                            </div>
+                          }
+                        >
+                          <LazyWebContainerTerminalPanel
+                            active={
+                              activeNotebookTab?.kind === 'console' &&
+                              activeTerminalId === id
+                            }
+                            session={webContainerSession}
+                            theme={resolvedTheme}
+                          />
+                        </React.Suspense>
+                      </div>
+                    ) : null
+                  })}
+                </div>
+              </section>
+            ) : (
+              <ConsoleOutput
+                id={notebookConsolePanelId}
+                ariaLabelledBy={
+                  activeNotebookTab?.kind === 'console'
+                    ? activeNotebookTabButtonId
+                    : undefined
+                }
+                className={`absolute inset-0 min-h-0 ${
+                  activeNotebookTab?.kind === 'console'
+                    ? 'visible'
+                    : 'pointer-events-none invisible'
+                }`}
+                entries={consoleEntries}
+                hidden={activeNotebookTab?.kind !== 'console'}
+                label="Console output"
+              />
+            )}
+          </div>
+
+          <aside
+            aria-label={alternateEditor.label}
+            aria-hidden={!notebookChatOpen}
+            inert={!notebookChatOpen}
+            className={`absolute z-10 flex min-h-0 min-w-0 overflow-hidden bg-background-default transition-transform duration-[180ms] [transition-timing-function:cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none ${notebookChatGeometryClass} ${notebookChatTransformClass}`}
+          >
+            {alternateEditor.content}
+          </aside>
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section
       className={`not-prose relative flex min-w-0 flex-col overflow-hidden border border-border-default bg-background-default text-text-primary ${
@@ -1641,73 +2582,31 @@ export function ExampleWorkbench({
     >
       <header className="flex min-h-10 shrink-0 items-center justify-between gap-3 border-b border-border-default px-2">
         <div className="flex min-w-0 items-center gap-2">
-          {alternateEditor ? (
-            <ButtonGroup
-              role="group"
-              aria-label="Editor view"
-              className="shrink-0 shadow-none"
+          <div
+            className={`${mobileView === 'code' ? 'flex' : 'hidden'} min-w-0 items-center gap-2 lg:flex`}
+          >
+            <Tooltip
+              content={showFiles ? 'Hide files' : 'Show files'}
+              side="bottom"
             >
               <Button
                 type="button"
-                variant="ghost"
-                size="xs"
-                rounded="none"
-                className="transition-none hover:shadow-none"
-                aria-label="Show files and code"
-                aria-pressed={!alternateEditorActive}
-                onClick={() => {
-                  alternateEditor.onActiveChange(false)
-                  setMobileView('code')
-                }}
+                variant="icon"
+                color="gray"
+                size="icon-sm"
+                rounded="md"
+                className={`shrink-0 transition-none active:scale-100 ${showFiles ? 'text-text-primary' : ''}`}
+                aria-pressed={showFiles}
+                aria-label={showFiles ? 'Hide files' : 'Show files'}
+                onClick={toggleFiles}
               >
-                <CodeIcon className="size-3.5" aria-hidden="true" />
-                Code
+                <FolderOpenIcon className="size-3.5" aria-hidden="true" />
               </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="xs"
-                rounded="none"
-                className="transition-none hover:shadow-none"
-                aria-label={`Show ${alternateEditor.label.toLowerCase()}`}
-                aria-pressed={alternateEditorActive}
-                onClick={() => {
-                  alternateEditor.onActiveChange(true)
-                  setMobileView('code')
-                }}
-              >
-                <ChatCircleDotsIcon className="size-3.5" aria-hidden="true" />
-                {alternateEditor.label}
-              </Button>
-            </ButtonGroup>
-          ) : null}
-          {!alternateEditorActive ? (
-            <div
-              className={`${mobileView === 'code' ? 'flex' : 'hidden'} min-w-0 items-center gap-2 lg:flex`}
-            >
-              <Tooltip
-                content={showFiles ? 'Hide files' : 'Show files'}
-                side="bottom"
-              >
-                <Button
-                  type="button"
-                  variant="icon"
-                  color="gray"
-                  size="icon-sm"
-                  rounded="md"
-                  className={`shrink-0 transition-none active:scale-100 ${showFiles ? 'text-text-primary' : ''}`}
-                  aria-pressed={showFiles}
-                  aria-label={showFiles ? 'Hide files' : 'Show files'}
-                  onClick={toggleFiles}
-                >
-                  <FolderOpenIcon className="size-3.5" aria-hidden="true" />
-                </Button>
-              </Tooltip>
-              <div className="min-w-0 truncate font-ds-mono text-xs text-text-muted">
-                {activePath}
-              </div>
+            </Tooltip>
+            <div className="min-w-0 truncate font-ds-mono text-xs text-text-muted">
+              {activePath}
             </div>
-          ) : null}
+          </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <span
@@ -1841,7 +2740,7 @@ export function ExampleWorkbench({
             aria-pressed={mobileView === 'code'}
             onClick={() => setMobileView('code')}
           >
-            {alternateEditor ? 'Editor' : 'Code'}
+            Code
           </Button>
           {usesWebContainer ? (
             <Button
@@ -1876,11 +2775,7 @@ export function ExampleWorkbench({
           }}
           className={`${mobileView === 'code' ? 'flex' : 'hidden'} relative min-h-0 min-w-0 overflow-hidden lg:flex lg:basis-0 ${isCodePanelResizing ? '' : 'transition-[flex-grow] duration-[180ms] [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none'}`}
         >
-          <div
-            aria-hidden={alternateEditorActive}
-            inert={alternateEditorActive}
-            className={`${alternateEditorActive ? 'pointer-events-none invisible' : 'visible'} absolute inset-0 flex min-h-0 min-w-0 overflow-hidden`}
-          >
+          <div className="absolute inset-0 flex min-h-0 min-w-0 overflow-hidden">
             <FileExplorer
               currentPath={activePath}
               files={fileTree}
@@ -1928,13 +2823,6 @@ export function ExampleWorkbench({
                 />
               </div>
             </div>
-          </div>
-          <div
-            aria-hidden={!alternateEditorActive}
-            inert={!alternateEditorActive}
-            className={`${alternateEditorActive ? 'visible' : 'pointer-events-none invisible'} absolute inset-0 flex min-h-0 min-w-0`}
-          >
-            {alternateEditor?.content}
           </div>
         </section>
 

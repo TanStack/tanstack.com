@@ -319,7 +319,7 @@ export function NotebookDraftPage({ template }: { template?: string }) {
         </div>
       ) : null}
 
-      <div className="min-h-0 flex-1" inert={saving}>
+      <div className="flex min-h-0 flex-1" inert={saving}>
         <ExampleWorkbench
           autoRun={false}
           definition={definition}

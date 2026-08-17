@@ -315,6 +315,8 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
   const hideNavbar = useMatches({
     select: (s) => s.some((d) => d.staticData?.showNavbar === false),
   })
+  const hideFooter =
+    pathname === '/notebook' || pathname.startsWith('/notebook/')
 
   const htmlClass = useHtmlClass()
   const routeContent = (
@@ -349,7 +351,7 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
               ) : (
                 <Navbar>
                   {routeContent}
-                  <Footer />
+                  {hideFooter ? null : <Footer />}
                 </Navbar>
               )}
             </LibrariesOverlayProvider>

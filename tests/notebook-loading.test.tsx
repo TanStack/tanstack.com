@@ -15,6 +15,7 @@ import { Route as NotebookRoute } from '../src/routes/notebook'
 import { Route as NotebookRecordRoute } from '../src/routes/notebook_.$id'
 import { Route as NotebookAiRoute } from '../src/routes/notebook_.ai'
 import { Route as NotebookEsbuildRoute } from '../src/routes/notebook_.esbuild'
+import { Route as NotebookNewRoute } from '../src/routes/notebook_.new'
 import { Route as NotebookProjectRoute } from '../src/routes/notebook_.p.$hash'
 
 const routeCases = [
@@ -28,6 +29,13 @@ const routeCases = [
   [
     'saved notebook',
     NotebookRecordRoute,
+    NotebookEditorSkeleton,
+    'editor',
+    () => renderToStaticMarkup(<NotebookEditorSkeleton />),
+  ],
+  [
+    'new notebook',
+    NotebookNewRoute,
     NotebookEditorSkeleton,
     'editor',
     () => renderToStaticMarkup(<NotebookEditorSkeleton />),

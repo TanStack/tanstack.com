@@ -4,7 +4,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { BlogBrowseNav } from '~/components/BlogBrowseNav'
 import { type BlogCardPost } from '~/components/BlogCard'
-import { Button, Eyebrow, SearchInput } from '~/components/ds/ui'
+import { Eyebrow, SearchInput } from '~/components/ds/ui'
 import { BlogPostCard } from '~/components/ds/ui/BlogPostCard'
 import { PageHeader } from '~/components/ds/ui/PageHeader'
 import { PartnersRail } from '~/components/RightRail'
@@ -202,46 +202,51 @@ function BlogIndex() {
                 title="Blog"
                 lede="The latest news and blog posts from TanStack"
               />
-              {/* Filter toggle pegged left, pill search (RSS nested right)
-                  centered beneath the masthead. */}
-              <div className="relative flex items-center justify-center">
-                <div className="absolute left-0">
-                  <Button
-                    variant="icon"
-                    size="icon-md"
-                    aria-label="Filters"
-                    aria-expanded={filtersOpen}
-                    onClick={() => setFiltersOpen((open) => !open)}
-                  >
-                    <FunnelIcon className="h-5 w-5" />
-                  </Button>
-                  {hasActiveFilters ? (
-                    <span className="pointer-events-none absolute right-1 top-1 h-2 w-2 rounded-full bg-blue-500 ring-2 ring-background-default" />
-                  ) : null}
-                </div>
-                <div className="w-full max-w-md">
-                  <SearchInput
-                    pill
-                    aria-label="Search posts"
-                    placeholder="Search posts..."
-                    value={searchQuery}
-                    onChange={(event) =>
-                      onSearchChange(event.currentTarget.value)
-                    }
-                    trailing={
+              {/* One cohesive pill: the search field, then the RSS feed and the
+                  filter toggle as icons inside it, each parted by a faint
+                  divider. Centered beneath the masthead. */}
+              <div className="mx-auto w-full max-w-md">
+                <SearchInput
+                  pill
+                  aria-label="Search posts"
+                  placeholder="Search posts..."
+                  value={searchQuery}
+                  onChange={(event) => onSearchChange(event.currentTarget.value)}
+                  trailing={
+                    <div className="flex items-center gap-1">
+                      <span
+                        aria-hidden
+                        className="h-5 w-px bg-border-subtle"
+                      />
                       <a
                         href="/rss.xml"
                         target="_blank"
                         rel="noreferrer"
                         title="RSS feed"
                         aria-label="RSS feed"
-                        className="-mr-1 grid place-items-center rounded-full p-1.5 text-text-muted transition-colors hover:bg-surface-state-hover hover:text-text-primary"
+                        className="grid place-items-center rounded-full p-1.5 text-text-muted transition-colors hover:bg-surface-state-hover hover:text-text-primary"
                       >
                         <RssIcon className="h-4 w-4" />
                       </a>
-                    }
-                  />
-                </div>
+                      <span
+                        aria-hidden
+                        className="h-5 w-px bg-border-subtle"
+                      />
+                      <button
+                        type="button"
+                        aria-label="Filters"
+                        aria-expanded={filtersOpen}
+                        onClick={() => setFiltersOpen((open) => !open)}
+                        className="relative -mr-1 grid place-items-center rounded-full p-1.5 text-text-muted transition-colors hover:bg-surface-state-hover hover:text-text-primary aria-expanded:text-text-primary"
+                      >
+                        <FunnelIcon className="h-4 w-4" />
+                        {hasActiveFilters ? (
+                          <span className="pointer-events-none absolute right-0.5 top-0.5 h-1.5 w-1.5 rounded-full bg-blue-500 ring-2 ring-background-surface" />
+                        ) : null}
+                      </button>
+                    </div>
+                  }
+                />
               </div>
             </div>
 

@@ -405,8 +405,8 @@ function NavbarPage() {
             extra breathing room.
           </RegionCard>
           <RegionCard index={0} title="< 900px — Mobile">
-            Primary nav collapses to a hamburger that opens a full-height sliding
-            panel with Search, Ask AI, and Sign In.
+            Primary nav collapses to a hamburger that opens a full-height
+            sliding panel with Search, Ask AI, and Sign In.
           </RegionCard>
         </div>
       </DsSection>

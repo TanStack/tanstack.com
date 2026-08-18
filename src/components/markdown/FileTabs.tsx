@@ -19,23 +19,33 @@ export function FileTabs({ tabs, children }: FileTabsProps) {
 
   return (
     <div className="not-prose my-4">
-      <div className="fade-x fade-size-x-sm flex items-center justify-start gap-0 overflow-x-auto overflow-y-hidden rounded-t-md border border-b-0 border-gray-500/20 bg-gray-100 dark:bg-gray-900">
-        {tabs.map((tab) => (
-          <button
-            key={`${id}-${tab.slug}`}
-            type="button"
-            onClick={() => setActiveSlug(tab.slug)}
-            aria-label={tab.name}
-            title={tab.name}
-            className={`px-3 py-1.5 text-sm font-medium transition-colors border-b-2 -mb-[1px] ${
-              activeSlug === tab.slug
-                ? 'border-current text-current bg-white dark:bg-gray-950'
-                : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-800'
-            }`}
-          >
-            {tab.name}
-          </button>
-        ))}
+      <div
+        role="tablist"
+        className="fade-x fade-size-x-sm flex items-center justify-start gap-1 overflow-x-auto overflow-y-hidden border-b border-border-default"
+      >
+        {tabs.map((tab) => {
+          const isActive = activeSlug === tab.slug
+          return (
+            <button
+              key={`${id}-${tab.slug}`}
+              type="button"
+              role="tab"
+              id={`${id}-tab-${tab.slug}`}
+              aria-selected={isActive}
+              aria-controls={`${id}-panel-${tab.slug}`}
+              onClick={() => setActiveSlug(tab.slug)}
+              aria-label={tab.name}
+              title={tab.name}
+              className={`relative -mb-px shrink-0 border-b-2 px-3 py-2 text-sm font-semibold transition-colors ${
+                isActive
+                  ? 'border-text-primary text-text-primary'
+                  : 'border-transparent text-text-secondary hover:text-text-primary'
+              }`}
+            >
+              {tab.name}
+            </button>
+          )
+        })}
       </div>
       <div>
         {childrenArray.map((child, index) => {
@@ -45,9 +55,12 @@ export function FileTabs({ tabs, children }: FileTabsProps) {
           return (
             <div
               key={`${id}-${tab.slug}-panel`}
+              role="tabpanel"
+              id={`${id}-panel-${tab.slug}`}
+              aria-labelledby={`${id}-tab-${tab.slug}`}
               data-tab={tab.slug}
               data-content="code-only"
-              className={`border border-t-0 border-gray-500/20 rounded-b-md overflow-hidden ${
+              className={`overflow-hidden rounded-b-md border border-t-0 border-border-default ${
                 isActive ? '' : 'hidden'
               }`}
             >

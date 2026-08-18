@@ -1133,11 +1133,7 @@ export function ChartsNotebookPage() {
   }
 
   return (
-    <Panel
-      open={showSource}
-      onOpenChange={setSourceOpen}
-      className="contents"
-    >
+    <Panel open={showSource} onOpenChange={setSourceOpen} className="contents">
       {({ open }) => (
         <main
           className={`flex min-h-[calc(100dvh-var(--navbar-height))] w-full flex-col bg-gray-50 text-gray-950 dark:bg-gray-950 dark:text-white ${

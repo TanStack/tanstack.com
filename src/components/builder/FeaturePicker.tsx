@@ -32,11 +32,7 @@ import {
   getPartnersForPlacement,
 } from '~/utils/partner-placement'
 import { Tooltip } from '~/ui/Tooltip'
-import {
-  Panel,
-  PanelTrigger,
-  PanelContent,
-} from '~/components/Panel'
+import { Panel, PanelTrigger, PanelContent } from '~/components/Panel'
 import type { FeatureId, FeatureInfo } from '~/builder/api'
 
 type FeatureCategory =

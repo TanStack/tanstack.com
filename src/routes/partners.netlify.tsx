@@ -18,11 +18,7 @@ import { twMerge } from 'tailwind-merge'
 import { Footer } from '~/components/Footer'
 import { Card } from '~/components/Card'
 import { Button } from '~/ui'
-import {
-  Panel,
-  PanelContent,
-  PanelTrigger,
-} from '~/components/Panel'
+import { Panel, PanelContent, PanelTrigger } from '~/components/Panel'
 import { CodeBlock } from '~/components/markdown/CodeBlock'
 import { seo } from '~/utils/seo'
 import { getPartnerById, PartnerImage } from '~/utils/partners'

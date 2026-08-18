@@ -93,7 +93,7 @@ function DisclosureSummary({
             'flex min-w-0 items-center gap-2 truncate text-sm group-open:hidden',
             isActive
               ? (activeClassName ??
-                'font-medium text-blue-600 dark:text-blue-400')
+                  'font-medium text-blue-600 dark:text-blue-400')
               : 'text-text-muted',
           )}
         >
@@ -183,7 +183,10 @@ export function BlogBrowseNav({
           }
           activeClassName={
             selectedTopicCategory
-              ? twMerge('font-semibold', categoryTextColor[selectedTopicCategory])
+              ? twMerge(
+                  'font-semibold',
+                  categoryTextColor[selectedTopicCategory],
+                )
               : undefined
           }
         />

@@ -10,9 +10,7 @@ type PanelProps = {
   open?: boolean
   defaultOpen?: boolean
   onOpenChange?: (open: boolean) => void
-  children:
-    | React.ReactNode
-    | ((props: PanelRenderProps) => React.ReactNode)
+  children: React.ReactNode | ((props: PanelRenderProps) => React.ReactNode)
   className?: string
 }
 
@@ -24,9 +22,7 @@ type PanelContentProps = React.HTMLAttributes<HTMLDivElement> & {
   children: React.ReactNode
 }
 
-const PanelContext = React.createContext<PanelRenderProps | null>(
-  null,
-)
+const PanelContext = React.createContext<PanelRenderProps | null>(null)
 
 function usePanel() {
   const context = React.useContext(PanelContext)
@@ -103,25 +99,24 @@ export function PanelTrigger({
   )
 }
 
-export const PanelContent = React.forwardRef<
-  HTMLDivElement,
-  PanelContentProps
->(function PanelContent({ children, className, ...props }, ref) {
-  const { open } = usePanel()
+export const PanelContent = React.forwardRef<HTMLDivElement, PanelContentProps>(
+  function PanelContent({ children, className, ...props }, ref) {
+    const { open } = usePanel()
 
-  return (
-    <div
-      {...props}
-      ref={ref}
-      aria-hidden={!open}
-      inert={open ? undefined : true}
-      className={twMerge(
-        'grid transition-[grid-template-rows] duration-200 ease-out',
-        open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
-        className,
-      )}
-    >
-      <div className="overflow-hidden">{children}</div>
-    </div>
-  )
-})
+    return (
+      <div
+        {...props}
+        ref={ref}
+        aria-hidden={!open}
+        inert={open ? undefined : true}
+        className={twMerge(
+          'grid transition-[grid-template-rows] duration-200 ease-out',
+          open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
+          className,
+        )}
+      >
+        <div className="overflow-hidden">{children}</div>
+      </div>
+    )
+  },
+)

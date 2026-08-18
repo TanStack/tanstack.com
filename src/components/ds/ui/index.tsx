@@ -796,7 +796,10 @@ export function DropdownSeparator({ className }: { className?: string }) {
       // On the elevated menu surface, dark `border-subtle` (#232323) is darker
       // than the surface and recedes; use the site's subtle dark-surface line
       // (a faint white hairline, as in the mega/mobile menus) for dark mode.
-      className={twMerge('my-1 h-px bg-border-subtle dark:bg-white/10', className)}
+      className={twMerge(
+        'my-1 h-px bg-border-subtle dark:bg-white/10',
+        className,
+      )}
     />
   )
 }

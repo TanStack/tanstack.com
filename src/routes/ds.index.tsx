@@ -59,7 +59,8 @@ function DesignSystemOverview() {
     <DsPage
       header={
         <PageHeader
-          title="TanStack Design System"
+          align="center"
+          title="Design System"
           lede="A living catalog of the design tokens and components that power TanStack sites, library docs, and landing pages. Everything here renders with the real production styles — toggle light/dark from the navbar to preview both."
         />
       }

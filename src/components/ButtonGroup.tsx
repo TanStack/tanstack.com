@@ -20,7 +20,11 @@ type ButtonGroupProps = {
  * The `[&>[aria-pressed=true]]` selector paints the pressed/selected child, so
  * any button that sets `aria-pressed` gets the active treatment for free.
  */
-export function ButtonGroup({ children, className, ...rest }: ButtonGroupProps) {
+export function ButtonGroup({
+  children,
+  className,
+  ...rest
+}: ButtonGroupProps) {
   return (
     <div
       className={twMerge(
@@ -84,7 +88,11 @@ export function SegmentedControl<TValue extends string>({
     <div
       role="group"
       aria-label={ariaLabel}
-      className={twMerge(segmentTrackClasses(size), fullWidth && 'flex w-full', className)}
+      className={twMerge(
+        segmentTrackClasses(size),
+        fullWidth && 'flex w-full',
+        className,
+      )}
     >
       {options.map((option) => {
         const selected = value === option.value
@@ -96,7 +104,11 @@ export function SegmentedControl<TValue extends string>({
             aria-label={option['aria-label']}
             disabled={option.disabled}
             onClick={() => onValueChange(option.value)}
-            className={segmentClasses(size, selected, fullWidth ? 'flex-1' : undefined)}
+            className={segmentClasses(
+              size,
+              selected,
+              fullWidth ? 'flex-1' : undefined,
+            )}
           >
             {option.label}
           </button>

@@ -36,7 +36,8 @@ export function useSquircleFallback(
     const apply = () => {
       const { width, height } = el.getBoundingClientRect()
       const style = getComputedStyle(el)
-      const radius = (prop: string) => parseFloat(style.getPropertyValue(prop)) || 0
+      const radius = (prop: string) =>
+        parseFloat(style.getPropertyValue(prop)) || 0
       const corners = {
         topLeftCornerRadius: radius('border-top-left-radius'),
         topRightCornerRadius: radius('border-top-right-radius'),

@@ -200,7 +200,10 @@ export function TabsList({
     if (event.key === 'ArrowRight')
       next = current < 0 ? 0 : (current + 1) % tabs.length
     else if (event.key === 'ArrowLeft')
-      next = current < 0 ? tabs.length - 1 : (current - 1 + tabs.length) % tabs.length
+      next =
+        current < 0
+          ? tabs.length - 1
+          : (current - 1 + tabs.length) % tabs.length
     else if (event.key === 'Home') next = 0
     else if (event.key === 'End') next = tabs.length - 1
     event.preventDefault()
@@ -242,8 +245,12 @@ export function TabsTrigger({
   className?: string
   children: React.ReactNode
 }) {
-  const { value: active, setValue, idBase, variant } =
-    useTabsContext('TabsTrigger')
+  const {
+    value: active,
+    setValue,
+    idBase,
+    variant,
+  } = useTabsContext('TabsTrigger')
   const size = React.useContext(SegmentSizeContext)
   const selected = active === value
 

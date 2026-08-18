@@ -18,11 +18,7 @@ import type {
   ApplicationStarterContext,
   ApplicationStarterResult,
 } from '~/utils/application-starter'
-import {
-  Panel,
-  PanelContent,
-  PanelTrigger,
-} from '~/components/Panel'
+import { Panel, PanelContent, PanelTrigger } from '~/components/Panel'
 import {
   GeneratedPromptPreviewBody,
   GeneratedPromptPreviewHeader,

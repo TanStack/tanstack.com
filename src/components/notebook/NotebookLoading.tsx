@@ -234,17 +234,21 @@ function NotebookWorkbenchSkeleton({
   return (
     <section
       aria-hidden="true"
-      className={`@container not-prose flex min-w-0 flex-col overflow-hidden border border-border-default bg-background-default ${
+      className={`@container not-prose relative flex min-w-0 flex-col overflow-hidden border border-border-default bg-background-default ${
         fullscreen
           ? 'min-h-0 flex-1 rounded-none border-x-0 border-b-0'
           : 'h-[clamp(520px,75dvh,720px)] rounded-lg'
       }`}
     >
-      {assistant ? <WorkspaceTabSkeleton /> : null}
+      {assistant ? (
+        <div className="relative z-10 shrink-0 @min-[900px]:absolute @min-[900px]:top-0 @min-[900px]:right-0 @min-[900px]:w-[62%]">
+          <WorkspaceTabSkeleton />
+        </div>
+      ) : null}
       <div
         className={`grid min-h-0 min-w-0 flex-1 grid-cols-1 ${
           assistant
-            ? 'grid-rows-[minmax(0,1fr)_minmax(0,1fr)] @min-[900px]:grid-cols-[minmax(0,62fr)_minmax(280px,38fr)] @min-[900px]:grid-rows-1'
+            ? 'grid-rows-[minmax(0,1fr)_minmax(0,1fr)] @min-[900px]:grid-cols-[minmax(280px,38fr)_minmax(0,62fr)] @min-[900px]:grid-rows-1'
             : 'grid-rows-1'
         }`}
       >
@@ -337,7 +341,7 @@ function PreviewWorkspaceSkeleton({
       data-notebook-workspace-skeleton=""
       className={`flex min-h-0 min-w-0 flex-col overflow-hidden ${
         assistant
-          ? 'border-b border-border-default @min-[900px]:border-r @min-[900px]:border-b-0'
+          ? 'border-b border-border-default @min-[900px]:order-2 @min-[900px]:border-b-0 @min-[900px]:border-l @min-[900px]:pt-10'
           : ''
       }`}
     >
@@ -371,13 +375,19 @@ function ChatSkeleton() {
   return (
     <div
       data-notebook-chat-skeleton=""
-      className="flex min-h-0 min-w-0 flex-col bg-background-default"
+      className="relative flex min-h-0 min-w-0 flex-col bg-background-default @min-[900px]:order-1"
     >
-      <div className="flex h-12 shrink-0 items-center justify-between border-b border-border-default px-3">
-        <SkeletonBlock className="h-3 w-24" />
-        <SkeletonBlock className="size-8 rounded-md" />
+      <div
+        data-notebook-chat-controls-skeleton=""
+        className="absolute inset-x-0 top-0 z-10 flex items-center justify-between p-3"
+      >
+        <SkeletonBlock className="size-11 rounded-full @min-[900px]:size-9" />
+        <div className="flex gap-1">
+          <SkeletonBlock className="size-11 rounded-full @min-[900px]:size-9" />
+          <SkeletonBlock className="size-11 rounded-full @min-[900px]:size-9" />
+        </div>
       </div>
-      <div className="min-h-0 flex-1 overflow-hidden px-4 py-4 sm:px-5">
+      <div className="min-h-0 flex-1 overflow-hidden px-4 pt-16 pb-4 sm:px-5">
         <SkeletonBlock className="ml-auto h-8 w-2/3 rounded-2xl" />
         <SkeletonBlock className="mt-4 h-3 w-4/5" />
         <SkeletonBlock className="mt-2 h-3 w-3/5" />

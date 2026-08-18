@@ -64,7 +64,7 @@ export function SandboxBrowser({
   canGoBack: boolean
   canGoForward: boolean
   captureScreenshot?: () => Promise<Blob>
-  children: React.ReactNode
+  children?: React.ReactNode
   currentUrl: string
   error?: string
   history: Array<string>
@@ -297,22 +297,26 @@ export function SandboxBrowser({
         </form>
 
         {annotationAvailable ? (
-          <Button
-            type="button"
-            variant={annotationMode ? 'primary' : 'ghost'}
-            color={annotationMode ? 'blue' : 'gray'}
-            size="xs"
-            rounded="lg"
-            className="hidden shrink-0 transition-none hover:translate-y-0 active:scale-100 sm:inline-flex"
-            aria-label={
-              annotationMode ? 'Stop commenting' : 'Comment on preview'
-            }
-            aria-pressed={annotationMode}
-            onClick={() => setCommenting(!annotationMode)}
+          <Tooltip
+            content={annotationMode ? 'Stop commenting' : 'Comment on preview'}
+            side="bottom"
           >
-            <CursorClickIcon className="size-3.5" aria-hidden="true" />
-            Commenting
-          </Button>
+            <Button
+              type="button"
+              variant={annotationMode ? 'primary' : 'icon'}
+              color={annotationMode ? 'blue' : 'gray'}
+              size="icon-sm"
+              rounded="md"
+              className="hidden shrink-0 transition-none hover:translate-y-0 active:scale-100 sm:inline-flex"
+              aria-label={
+                annotationMode ? 'Stop commenting' : 'Comment on preview'
+              }
+              aria-pressed={annotationMode}
+              onClick={() => setCommenting(!annotationMode)}
+            >
+              <CursorClickIcon className="size-3.5" aria-hidden="true" />
+            </Button>
+          </Tooltip>
         ) : null}
 
         <Dropdown>

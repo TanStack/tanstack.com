@@ -42,10 +42,13 @@ import {
 } from '~/utils/notebook-ai-chatgpt'
 import {
   cloneNotebookAiExecution,
+  notebookAiDefaultRemoteModels,
+  notebookAiRemoteModels,
   notebookAiRemoteProviders,
   serializeNotebookAiExecution,
   type NotebookAiExecution,
   type NotebookAiMessage,
+  type NotebookAiRemoteModel,
   type NotebookAiRemoteProvider,
 } from '~/utils/notebook-ai'
 import {
@@ -135,52 +138,19 @@ const supportsChatGptLogin = import.meta.env.DEV
 
 const openAiDefault = {
   connection: 'byok',
-  provider: 'openai',
-  model: 'gpt-5.4-mini',
-  label: 'GPT-5.4 mini',
-  description: 'Budget',
+  ...notebookAiDefaultRemoteModels.openai,
 } satisfies ByokModelChoice
 
 const anthropicDefault = {
   connection: 'byok',
-  provider: 'anthropic',
-  model: 'claude-sonnet-4-6',
-  label: 'Claude Sonnet 4.6',
-  description: 'Balanced',
+  ...notebookAiDefaultRemoteModels.anthropic,
 } satisfies ByokModelChoice
 
-const byokModelChoices = [
-  {
-    connection: 'byok',
-    provider: 'openai',
-    model: 'gpt-5.6-sol',
-    label: 'GPT-5.6 Sol',
-    description: 'Frontier',
-  },
-  {
-    connection: 'byok',
-    provider: 'openai',
-    model: 'gpt-5.6-terra',
-    label: 'GPT-5.6 Terra',
-    description: 'Balanced',
-  },
-  {
-    connection: 'byok',
-    provider: 'openai',
-    model: 'gpt-5.6-luna',
-    label: 'GPT-5.6 Luna',
-    description: 'Efficient',
-  },
-  openAiDefault,
-  anthropicDefault,
-  {
-    connection: 'byok',
-    provider: 'anthropic',
-    model: 'claude-haiku-4-5',
-    label: 'Claude Haiku 4.5',
-    description: 'Fast',
-  },
-] satisfies ReadonlyArray<ByokModelChoice>
+function toByokModelChoice(model: NotebookAiRemoteModel): ByokModelChoice {
+  return { connection: 'byok', ...model }
+}
+
+const byokModelChoices = notebookAiRemoteModels.map(toByokModelChoice)
 
 const defaultModelByProvider = {
   openai: openAiDefault,
@@ -418,6 +388,7 @@ export function NotebookAssistant({
     getScrollElement: () => transcriptRef.current,
     estimateSize: () => 96,
     getItemKey,
+    paddingStart: 64,
     anchorTo: 'end',
     followOnAppend: true,
     scrollEndThreshold: 80,
@@ -1480,14 +1451,16 @@ export function NotebookAssistant({
       ? 'Steer current response'
       : 'Queue message'
     : 'Send message'
+  const floatingChatButtonClass =
+    'pointer-events-auto size-11 border border-border-default bg-background-elevated shadow-sm @min-[900px]:size-9'
 
   return (
     <section
       aria-label="Notebook AI editor"
       aria-busy={running}
-      className="flex min-h-0 min-w-0 flex-1 flex-col bg-background-default"
+      className="relative flex min-h-0 min-w-0 flex-1 flex-col bg-background-default"
     >
-      <header className="flex h-12 shrink-0 items-center justify-end gap-1 border-b border-border-default px-3">
+      <header className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-start gap-2 p-3">
         {onDismiss ? (
           <Tooltip content="Hide chat">
             <Button
@@ -1495,101 +1468,106 @@ export function NotebookAssistant({
               variant="icon"
               color="gray"
               size="icon-sm"
-              className="mr-auto min-h-11 min-w-11 @min-[900px]:min-h-0 @min-[900px]:min-w-0"
+              className={floatingChatButtonClass}
               aria-label="Hide chat"
               onClick={onDismiss}
             >
               <CaretDownIcon
-                className="size-4 @min-[900px]:-rotate-90"
+                className="size-4 @min-[900px]:rotate-90"
                 aria-hidden="true"
               />
             </Button>
           </Tooltip>
         ) : null}
-        {threads.length > 1 ? (
-          <Dropdown>
-            <Tooltip content="Recent conversations">
-              <DropdownTrigger>
-                <Button
-                  type="button"
-                  variant="icon"
-                  color="gray"
-                  size="icon-sm"
-                  aria-label="Recent AI conversations"
-                  disabled={running}
-                >
-                  <ClockCounterClockwiseIcon
-                    className="size-4"
-                    aria-hidden="true"
-                  />
-                </Button>
-              </DropdownTrigger>
-            </Tooltip>
-            <DropdownContent align="end" className="w-72 rounded-xl">
-              <div className="px-2 py-1 font-ds-mono text-[10px] uppercase tracking-wide text-text-muted">
-                Recent conversations
-              </div>
-              {threads.map((thread) => (
-                <DropdownItem
-                  key={thread.id}
-                  className="min-h-11 justify-between gap-3 rounded-lg px-2.5"
-                  onSelect={() => void selectThread(thread.id)}
-                >
-                  <span className="min-w-0">
-                    <span className="block truncate text-sm text-text-primary">
-                      {thread.title}
+        <div className="ml-auto flex items-center gap-1">
+          {threads.length > 1 ? (
+            <Dropdown>
+              <Tooltip content="Recent conversations">
+                <DropdownTrigger>
+                  <Button
+                    type="button"
+                    variant="icon"
+                    color="gray"
+                    size="icon-sm"
+                    className={floatingChatButtonClass}
+                    aria-label="Recent AI conversations"
+                    disabled={running}
+                  >
+                    <ClockCounterClockwiseIcon
+                      className="size-4"
+                      aria-hidden="true"
+                    />
+                  </Button>
+                </DropdownTrigger>
+              </Tooltip>
+              <DropdownContent align="end" className="w-72 rounded-xl">
+                <div className="px-2 py-1 font-ds-mono text-[10px] uppercase tracking-wide text-text-muted">
+                  Recent conversations
+                </div>
+                {threads.map((thread) => (
+                  <DropdownItem
+                    key={thread.id}
+                    className="min-h-11 justify-between gap-3 rounded-lg px-2.5"
+                    onSelect={() => void selectThread(thread.id)}
+                  >
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm text-text-primary">
+                        {thread.title}
+                      </span>
+                      <span className="block text-[10px] text-text-muted">
+                        {formatChatDate(thread.lastAccessedAt)}
+                      </span>
                     </span>
-                    <span className="block text-[10px] text-text-muted">
-                      {formatChatDate(thread.lastAccessedAt)}
-                    </span>
-                  </span>
-                  {thread.id === threadId ? (
-                    <>
-                      <span className="sr-only">Current</span>
-                      <CheckIcon
-                        className="size-4 shrink-0"
-                        aria-hidden="true"
-                      />
-                    </>
-                  ) : null}
-                </DropdownItem>
-              ))}
-            </DropdownContent>
-          </Dropdown>
-        ) : null}
-        <Tooltip content="New conversation">
-          <Button
-            type="button"
-            variant="icon"
-            color="gray"
-            size="icon-sm"
-            aria-label="New AI conversation"
-            disabled={running || messages.length === 0}
-            onClick={() => void resetConversation()}
-          >
-            <NotePencilIcon className="size-4" aria-hidden="true" />
-          </Button>
-        </Tooltip>
-        {authenticated ? (
-          <Tooltip content="Model connections">
+                    {thread.id === threadId ? (
+                      <>
+                        <span className="sr-only">Current</span>
+                        <CheckIcon
+                          className="size-4 shrink-0"
+                          aria-hidden="true"
+                        />
+                      </>
+                    ) : null}
+                  </DropdownItem>
+                ))}
+              </DropdownContent>
+            </Dropdown>
+          ) : null}
+          <Tooltip content="New conversation">
             <Button
               type="button"
               variant="icon"
               color="gray"
               size="icon-sm"
-              aria-label="Open model connections"
-              disabled={running}
-              onClick={() => {
-                if (selectedModel.connection === 'byok') {
-                  setSettingsProvider(selectedModel.provider)
-                }
-                setSettingsOpen(true)
-              }}
+              className={floatingChatButtonClass}
+              aria-label="New AI conversation"
+              disabled={running || messages.length === 0}
+              onClick={() => void resetConversation()}
             >
-              <GearSixIcon className="size-4" aria-hidden="true" />
+              <NotePencilIcon className="size-4" aria-hidden="true" />
             </Button>
           </Tooltip>
-        ) : null}
+          {authenticated ? (
+            <Tooltip content="Model connections">
+              <Button
+                type="button"
+                variant="icon"
+                color="gray"
+                size="icon-sm"
+                className={floatingChatButtonClass}
+                aria-label="Open model connections"
+                disabled={running}
+                onClick={() => {
+                  if (selectedModel.connection === 'byok') {
+                    setSettingsProvider(selectedModel.provider)
+                  }
+                  setSettingsOpen(true)
+                }}
+              >
+                <GearSixIcon className="size-4" aria-hidden="true" />
+              </Button>
+            </Tooltip>
+          ) : null}
+        </div>
       </header>
 
       {!authenticated ? (

@@ -22,9 +22,17 @@ export type NotebookWorkbenchTab =
   | NotebookWorkbenchEditorTab
   | NotebookWorkbenchConsoleTab
 
+export type NotebookWorkbenchPane = {
+  id: string
+  tabIds: Array<string>
+  activeTabId: string | null
+  fraction: number
+}
+
 export type NotebookWorkbenchTabsState = {
   tabs: Array<NotebookWorkbenchTab>
-  activeTabId: string | null
+  panes: Array<NotebookWorkbenchPane>
+  activePaneId: string
 }
 
 export type NewNotebookWorkbenchTab =
@@ -38,9 +46,15 @@ export type NotebookWorkbenchTabNavigationKey =
   | 'Home'
   | 'End'
 
+export type NotebookWorkbenchSplitPosition = 'before' | 'after'
+
 export function createNotebookWorkbenchTabsState(): NotebookWorkbenchTabsState {
   const preview = createNotebookWorkbenchTab([], { kind: 'preview' })
-  return { tabs: [preview], activeTabId: preview.id }
+  return {
+    tabs: [preview],
+    panes: [createNotebookWorkbenchPane('pane-1', [preview.id], preview.id, 1)],
+    activePaneId: 'pane-1',
+  }
 }
 
 export function addNotebookWorkbenchTab(
@@ -48,9 +62,29 @@ export function addNotebookWorkbenchTab(
   tab: NewNotebookWorkbenchTab,
 ): NotebookWorkbenchTabsState {
   const nextTab = createNotebookWorkbenchTab(state.tabs, tab)
+  const activePane = getActiveNotebookWorkbenchPane(state)
+  if (!activePane) {
+    return {
+      tabs: [...state.tabs, nextTab],
+      panes: [
+        createNotebookWorkbenchPane('pane-1', [nextTab.id], nextTab.id, 1),
+      ],
+      activePaneId: 'pane-1',
+    }
+  }
+
   return {
+    ...state,
     tabs: [...state.tabs, nextTab],
-    activeTabId: nextTab.id,
+    panes: state.panes.map((pane) =>
+      pane.id === activePane.id
+        ? {
+            ...pane,
+            tabIds: [...pane.tabIds, nextTab.id],
+            activeTabId: nextTab.id,
+          }
+        : pane,
+    ),
   }
 }
 
@@ -58,28 +92,171 @@ export function activateNotebookWorkbenchTab(
   state: NotebookWorkbenchTabsState,
   tabId: string,
 ): NotebookWorkbenchTabsState {
+  const pane = getNotebookWorkbenchPaneForTab(state, tabId)
+  if (!pane) return state
+  if (state.activePaneId === pane.id && pane.activeTabId === tabId) return state
+
+  return {
+    ...state,
+    activePaneId: pane.id,
+    panes: state.panes.map((candidate) =>
+      candidate.id === pane.id
+        ? { ...candidate, activeTabId: tabId }
+        : candidate,
+    ),
+  }
+}
+
+export function activateNotebookWorkbenchPane(
+  state: NotebookWorkbenchTabsState,
+  paneId: string,
+): NotebookWorkbenchTabsState {
   if (
-    state.activeTabId === tabId ||
-    !state.tabs.some((tab) => tab.id === tabId)
+    state.activePaneId === paneId ||
+    !state.panes.some((pane) => pane.id === paneId)
   ) {
     return state
   }
-  return { ...state, activeTabId: tabId }
+  return { ...state, activePaneId: paneId }
 }
 
 export function closeNotebookWorkbenchTab(
   state: NotebookWorkbenchTabsState,
   tabId: string,
 ): NotebookWorkbenchTabsState {
-  const closedIndex = state.tabs.findIndex((tab) => tab.id === tabId)
-  if (closedIndex === -1) return state
+  const pane = getNotebookWorkbenchPaneForTab(state, tabId)
+  if (!pane) return state
 
-  const tabs = state.tabs.filter((tab) => tab.id !== tabId)
-  if (state.activeTabId !== tabId) return { ...state, tabs }
+  const closedIndex = pane.tabIds.indexOf(tabId)
+  const nextTabIds = pane.tabIds.filter((candidate) => candidate !== tabId)
+  const nextActiveTabId =
+    pane.activeTabId === tabId
+      ? (nextTabIds[Math.min(closedIndex, nextTabIds.length - 1)] ?? null)
+      : pane.activeTabId
+  const panes = state.panes
+    .map((candidate) =>
+      candidate.id === pane.id
+        ? {
+            ...candidate,
+            tabIds: nextTabIds,
+            activeTabId: nextActiveTabId,
+          }
+        : candidate,
+    )
+    .filter((candidate) => candidate.tabIds.length > 0)
+  const normalizedPanes = normalizeNotebookWorkbenchPaneFractions(panes)
+  const activePaneId = normalizedPanes.some(
+    (candidate) => candidate.id === state.activePaneId,
+  )
+    ? state.activePaneId
+    : (normalizedPanes[0]?.id ?? 'pane-1')
 
   return {
-    tabs,
-    activeTabId: tabs[Math.min(closedIndex, tabs.length - 1)]?.id ?? null,
+    tabs: state.tabs.filter((tab) => tab.id !== tabId),
+    panes: normalizedPanes,
+    activePaneId,
+  }
+}
+
+export function splitNotebookWorkbenchTab(
+  state: NotebookWorkbenchTabsState,
+  tabId: string,
+  position: NotebookWorkbenchSplitPosition,
+): NotebookWorkbenchTabsState {
+  const sourcePane = getNotebookWorkbenchPaneForTab(state, tabId)
+  if (!sourcePane || sourcePane.tabIds.length === 1) return state
+
+  if (state.panes.length === 2) {
+    const destination = state.panes.find((pane) => pane.id !== sourcePane.id)
+    return destination
+      ? moveNotebookWorkbenchTab(state, tabId, destination.id)
+      : state
+  }
+
+  const nextPaneId = getNextNotebookWorkbenchPaneId(state.panes)
+  const nextPane = createNotebookWorkbenchPane(nextPaneId, [tabId], tabId, 0.5)
+  const source = {
+    ...sourcePane,
+    tabIds: sourcePane.tabIds.filter((candidate) => candidate !== tabId),
+    activeTabId:
+      sourcePane.activeTabId === tabId
+        ? getNeighborNotebookWorkbenchTabId(sourcePane, tabId)
+        : sourcePane.activeTabId,
+    fraction: 0.5,
+  }
+  const panes = position === 'before' ? [nextPane, source] : [source, nextPane]
+
+  return {
+    ...state,
+    panes,
+    activePaneId: nextPaneId,
+  }
+}
+
+export function moveNotebookWorkbenchTab(
+  state: NotebookWorkbenchTabsState,
+  tabId: string,
+  destinationPaneId: string,
+): NotebookWorkbenchTabsState {
+  const sourcePane = getNotebookWorkbenchPaneForTab(state, tabId)
+  const destinationPane = state.panes.find(
+    (pane) => pane.id === destinationPaneId,
+  )
+  if (!sourcePane || !destinationPane || sourcePane.id === destinationPane.id) {
+    return state
+  }
+
+  const sourceTabIds = sourcePane.tabIds.filter(
+    (candidate) => candidate !== tabId,
+  )
+  const panes = state.panes
+    .map((pane) => {
+      if (pane.id === sourcePane.id) {
+        return {
+          ...pane,
+          tabIds: sourceTabIds,
+          activeTabId:
+            sourcePane.activeTabId === tabId
+              ? getNeighborNotebookWorkbenchTabId(sourcePane, tabId)
+              : sourcePane.activeTabId,
+        }
+      }
+      if (pane.id === destinationPane.id) {
+        return {
+          ...pane,
+          tabIds: [...pane.tabIds, tabId],
+          activeTabId: tabId,
+        }
+      }
+      return pane
+    })
+    .filter((pane) => pane.tabIds.length > 0)
+
+  return {
+    ...state,
+    panes: normalizeNotebookWorkbenchPaneFractions(panes),
+    activePaneId: destinationPane.id,
+  }
+}
+
+export function resizeNotebookWorkbenchPanes(
+  state: NotebookWorkbenchTabsState,
+  upperFraction: number,
+): NotebookWorkbenchTabsState {
+  if (state.panes.length !== 2) return state
+  const clamped = Math.min(0.8, Math.max(0.2, upperFraction))
+  if (
+    state.panes[0].fraction === clamped &&
+    state.panes[1].fraction === 1 - clamped
+  ) {
+    return state
+  }
+  return {
+    ...state,
+    panes: state.panes.map((pane, index) => ({
+      ...pane,
+      fraction: index === 0 ? clamped : 1 - clamped,
+    })),
   }
 }
 
@@ -138,23 +315,63 @@ export function getNotebookWorkbenchTabLabel(
   return count === 1 ? name : `${name} ${ordinal}`
 }
 
+export function getActiveNotebookWorkbenchPane(
+  state: NotebookWorkbenchTabsState,
+) {
+  return state.panes.find((pane) => pane.id === state.activePaneId)
+}
+
+export function getActiveNotebookWorkbenchTab(
+  state: NotebookWorkbenchTabsState,
+) {
+  const pane = getActiveNotebookWorkbenchPane(state)
+  return state.tabs.find((tab) => tab.id === pane?.activeTabId)
+}
+
+export function getNotebookWorkbenchPaneForTab(
+  state: NotebookWorkbenchTabsState,
+  tabId: string,
+) {
+  return state.panes.find((pane) => pane.tabIds.includes(tabId))
+}
+
+export function getNotebookWorkbenchPaneTabs(
+  state: NotebookWorkbenchTabsState,
+  pane: NotebookWorkbenchPane,
+) {
+  const tabs = new Map(state.tabs.map((tab) => [tab.id, tab]))
+  return pane.tabIds.flatMap((id) => {
+    const tab = tabs.get(id)
+    return tab ? [tab] : []
+  })
+}
+
 export function getNotebookWorkbenchTabNavigationTarget(
   state: NotebookWorkbenchTabsState,
+  tabId: string,
   key: NotebookWorkbenchTabNavigationKey,
 ) {
-  if (state.tabs.length === 0) return null
-  if (key === 'Home') return state.tabs[0].id
-  if (key === 'End') return state.tabs[state.tabs.length - 1].id
+  const pane = getNotebookWorkbenchPaneForTab(state, tabId)
+  if (!pane || pane.tabIds.length === 0) return null
+  if (key === 'Home') return pane.tabIds[0]
+  if (key === 'End') return pane.tabIds[pane.tabIds.length - 1]
 
-  const activeIndex = state.tabs.findIndex(
-    (tab) => tab.id === state.activeTabId,
-  )
-  if (activeIndex === -1) return state.tabs[0].id
+  const activeIndex = pane.tabIds.indexOf(tabId)
+  if (activeIndex === -1) return pane.tabIds[0]
 
   const offset = key === 'ArrowRight' ? 1 : -1
   const targetIndex =
-    (activeIndex + offset + state.tabs.length) % state.tabs.length
-  return state.tabs[targetIndex].id
+    (activeIndex + offset + pane.tabIds.length) % pane.tabIds.length
+  return pane.tabIds[targetIndex]
+}
+
+function createNotebookWorkbenchPane(
+  id: string,
+  tabIds: Array<string>,
+  activeTabId: string | null,
+  fraction: number,
+): NotebookWorkbenchPane {
+  return { id, tabIds, activeTabId, fraction }
 }
 
 function createNotebookWorkbenchTab(
@@ -173,6 +390,14 @@ function createNotebookWorkbenchTab(
   return { id, kind: tab.kind }
 }
 
+function getNeighborNotebookWorkbenchTabId(
+  pane: NotebookWorkbenchPane,
+  tabId: string,
+) {
+  const index = pane.tabIds.indexOf(tabId)
+  return pane.tabIds[index + 1] ?? pane.tabIds[index - 1] ?? null
+}
+
 function getNextNotebookWorkbenchTabId(
   tabs: ReadonlyArray<NotebookWorkbenchTab>,
 ) {
@@ -180,4 +405,26 @@ function getNextNotebookWorkbenchTabId(
   let ordinal = 1
   while (ids.has(`tab-${ordinal}`)) ordinal += 1
   return `tab-${ordinal}`
+}
+
+function getNextNotebookWorkbenchPaneId(
+  panes: ReadonlyArray<NotebookWorkbenchPane>,
+) {
+  const ids = new Set(panes.map((pane) => pane.id))
+  let ordinal = 1
+  while (ids.has(`pane-${ordinal}`)) ordinal += 1
+  return `pane-${ordinal}`
+}
+
+function normalizeNotebookWorkbenchPaneFractions(
+  panes: Array<NotebookWorkbenchPane>,
+) {
+  if (panes.length === 1) return [{ ...panes[0], fraction: 1 }]
+  if (panes.length === 2) {
+    const total = panes[0].fraction + panes[1].fraction
+    return total > 0
+      ? panes.map((pane) => ({ ...pane, fraction: pane.fraction / total }))
+      : panes.map((pane) => ({ ...pane, fraction: 0.5 }))
+  }
+  return panes
 }

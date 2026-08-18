@@ -11,14 +11,37 @@ function renderBrowser(reloadDisabled: boolean) {
     canGoForward: false,
     currentUrl: '/',
     history: ['/'],
-    children: createElement('div'),
     onBack() {},
     onForward() {},
     onNavigate() {},
     onReload() {},
     reloadDisabled,
   }
-  return renderToStaticMarkup(createElement(SandboxBrowser, props))
+  return renderToStaticMarkup(
+    createElement(SandboxBrowser, props, createElement('div')),
+  )
+}
+
+function renderAnnotatedBrowser(annotationMode: boolean) {
+  return renderToStaticMarkup(
+    createElement(
+      SandboxBrowser,
+      {
+        annotationAvailable: true,
+        annotationMode,
+        canGoBack: false,
+        canGoForward: false,
+        currentUrl: '/',
+        history: ['/'],
+        onAnnotationModeChange() {},
+        onBack() {},
+        onForward() {},
+        onNavigate() {},
+        onReload() {},
+      },
+      createElement('div'),
+    ),
+  )
 }
 
 test('disables only the preview reload action when requested', () => {
@@ -37,4 +60,17 @@ test('disables only the preview reload action when requested', () => {
     disabled('button[aria-label="Preview actions"]').attr('disabled'),
     undefined,
   )
+})
+
+test('uses an icon-only preview commenting control', () => {
+  const inactive = load(renderAnnotatedBrowser(false))
+  const active = load(renderAnnotatedBrowser(true))
+  const inactiveButton = inactive('button[aria-label="Comment on preview"]')
+  const activeButton = active('button[aria-label="Stop commenting"]')
+
+  assert.equal(inactiveButton.text().trim(), '')
+  assert.equal(inactiveButton.attr('aria-pressed'), 'false')
+  assert.equal(activeButton.text().trim(), '')
+  assert.equal(activeButton.attr('aria-pressed'), 'true')
+  assert.doesNotMatch(inactive.html(), /Commenting/)
 })

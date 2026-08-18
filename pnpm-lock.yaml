@@ -17,6 +17,9 @@ overrides:
   minimatch@10.2.5>brace-expansion: 5.0.5
   npm-run-path@6.0.0>unicorn-magic: 0.4.0
 
+patchedDependencies:
+  '@tanstack/openai-base@0.9.12': 35f5e3a08ed7b556783069bbcafbbd125c36803601e5ce7fb899855541956d99
+
 importers:
 
   .:
@@ -9763,7 +9766,7 @@ snapshots:
     dependencies:
       '@tanstack/ai': 0.44.1(@opentelemetry/api@1.9.1)(zod@4.3.6)
       '@tanstack/ai-utils': 0.4.0
-      '@tanstack/openai-base': 0.9.12(@tanstack/ai@0.44.1(@opentelemetry/api@1.9.1)(zod@4.3.6))(ws@8.21.0)(zod@4.3.6)
+      '@tanstack/openai-base': 0.9.12(patch_hash=35f5e3a08ed7b556783069bbcafbbd125c36803601e5ce7fb899855541956d99)(@tanstack/ai@0.44.1(@opentelemetry/api@1.9.1)(zod@4.3.6))(ws@8.21.0)(zod@4.3.6)
       openai: 6.49.0(ws@8.21.0)(zod@4.3.6)
       zod: 4.3.6
     transitivePeerDependencies:
@@ -9895,7 +9898,7 @@ snapshots:
       octane: 0.1.13(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(vite@8.0.16(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
       react: 19.2.3
 
-  '@tanstack/openai-base@0.9.12(@tanstack/ai@0.44.1(@opentelemetry/api@1.9.1)(zod@4.3.6))(ws@8.21.0)(zod@4.3.6)':
+  '@tanstack/openai-base@0.9.12(patch_hash=35f5e3a08ed7b556783069bbcafbbd125c36803601e5ce7fb899855541956d99)(@tanstack/ai@0.44.1(@opentelemetry/api@1.9.1)(zod@4.3.6))(ws@8.21.0)(zod@4.3.6)':
     dependencies:
       '@tanstack/ai': 0.44.1(@opentelemetry/api@1.9.1)(zod@4.3.6)
       '@tanstack/ai-utils': 0.4.0

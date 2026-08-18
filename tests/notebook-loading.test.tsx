@@ -104,11 +104,17 @@ test('the editor skeleton reserves the tabbed workspace and chat dock', () => {
   assert.match(editor, /data-notebook-tab-skeleton="preview"/)
   assert.match(editor, /data-notebook-workspace-skeleton=""/)
   assert.match(editor, /data-notebook-chat-skeleton=""/)
+  assert.match(editor, /data-notebook-chat-controls-skeleton=""/)
   assert.match(editor, /grid-rows-\[minmax\(0,1fr\)_minmax\(0,1fr\)\]/)
   assert.match(
     editor,
-    /@min-\[900px\]:grid-cols-\[minmax\(0,62fr\)_minmax\(280px,38fr\)\]/,
+    /@min-\[900px\]:grid-cols-\[minmax\(280px,38fr\)_minmax\(0,62fr\)\]/,
   )
+  assert.match(editor, /@min-\[900px\]:order-1/)
+  assert.match(editor, /@min-\[900px\]:order-2/)
+  assert.match(editor, /@min-\[900px\]:right-0/)
+  assert.match(editor, /@min-\[900px\]:w-\[62%\]/)
+  assert.match(editor, /@min-\[900px\]:pt-10/)
   assert.doesNotMatch(embedded, /data-notebook-chat-skeleton=""/)
   assert.doesNotMatch(draft, /data-notebook-chat-skeleton=""/)
   assert.doesNotMatch(embedded, /data-notebook-tab-skeleton="preview"/)

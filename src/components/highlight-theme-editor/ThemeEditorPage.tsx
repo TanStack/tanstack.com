@@ -82,13 +82,21 @@ export function ThemeEditorPage() {
   )
 
   const copyThemeObject = async () => {
-    await copyTextToClipboard(buildThemeObjectSnippet(theme))
-    notify('Copied theme object to clipboard', { id: 'theme-copy' })
+    try {
+      await copyTextToClipboard(buildThemeObjectSnippet(theme))
+      notify('Copied theme object to clipboard', { id: 'theme-copy' })
+    } catch {
+      notify('Failed to copy theme object', { id: 'theme-copy' })
+    }
   }
 
   const copyAgentPrompt = async () => {
-    await copyTextToClipboard(buildAgentPrompt(theme))
-    notify('Copied AI prompt to clipboard', { id: 'theme-copy-prompt' })
+    try {
+      await copyTextToClipboard(buildAgentPrompt(theme))
+      notify('Copied AI prompt to clipboard', { id: 'theme-copy-prompt' })
+    } catch {
+      notify('Failed to copy AI prompt', { id: 'theme-copy-prompt' })
+    }
   }
 
   return (
@@ -173,10 +181,11 @@ export function ThemeEditorPage() {
         ))}
 
         <div className="flex flex-wrap gap-2">
-          <Button variant="secondary" size="sm" onClick={copyThemeObject}>
+          <Button variant="ghost" size="sm" onClick={copyThemeObject}>
             Copy theme object
           </Button>
-          <Button variant="ghost" size="sm" onClick={copyAgentPrompt}>
+
+          <Button variant="secondary" size="sm" onClick={copyAgentPrompt}>
             Copy AI prompt
           </Button>
         </div>
@@ -272,16 +281,16 @@ function normalizeHex(value: string) {
 function buildThemeObjectSnippet(theme: HighlightTheme) {
   const identifier = toThemeIdentifier(theme.name)
   const tokenLines = themeTokenClasses
-    .map((token) => `    '${token}': '${theme.tokens[token]}',`)
+    .map((token) => `    '${token}': ${JSON.stringify(theme.tokens[token])},`)
     .join('\n')
 
   return `import type { HighlightTheme } from '@tanstack/highlight/theme'
 
 export const ${identifier} = {
-  name: '${theme.name}',
-  type: '${theme.type}',
-  background: '${theme.background}',
-  foreground: '${theme.foreground}',
+  name: ${JSON.stringify(theme.name)},
+  type: ${JSON.stringify(theme.type)},
+  background: ${JSON.stringify(theme.background)},
+  foreground: ${JSON.stringify(theme.foreground)},
   tokens: {
 ${tokenLines}
   },

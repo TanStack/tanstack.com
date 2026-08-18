@@ -56,7 +56,11 @@ export function BlogPostCard({
     // needs no inset padding. `motion-safe` drops the lift for reduced-motion;
     // the focus ring keeps keyboard focus visible now the bg cue is gone.
     'group/post flex flex-col rounded-xl corner-squircle transition-transform duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background-default motion-safe:hover:-translate-y-0.5',
-    featured ? 'gap-4 md:flex-row md:gap-6' : isLarge ? 'gap-4' : 'gap-3',
+    featured
+      ? 'gap-4 md:min-h-[410px] md:flex-row md:gap-6'
+      : isLarge
+        ? 'gap-4'
+        : 'gap-3',
     className,
   )
 
@@ -65,7 +69,7 @@ export function BlogPostCard({
       <Squircle
         className={twMerge(
           'relative aspect-video w-full overflow-hidden rounded-lg corner-squircle border border-border-subtle bg-background-subtle',
-          featured && 'md:aspect-auto md:w-1/2',
+          featured && 'md:aspect-auto md:w-2/3',
         )}
       >
         {post.headerImage ? (
@@ -109,7 +113,7 @@ export function BlogPostCard({
         className={twMerge(
           'flex flex-col px-1 pb-1',
           isLarge ? 'gap-1.5' : 'gap-1',
-          featured && 'md:w-1/2 md:justify-center md:px-2',
+          featured && 'md:w-1/3 md:justify-center md:px-2',
         )}
       >
         {/* Plain strings (not twMerge): the DS `text-ds-*` size utilities and the

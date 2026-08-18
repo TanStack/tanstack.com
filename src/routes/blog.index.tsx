@@ -196,7 +196,7 @@ function BlogIndex() {
       <div className="relative flex-1 w-full mb-16">
         <div className="p-4 md:p-8">
           <div className="mx-auto w-full max-w-[1280px] space-y-10">
-            <div className="space-y-6 border-b border-border-subtle pb-8">
+            <div className="space-y-6 border-b border-border-subtle pb-14 pt-6">
               <PageHeader
                 align="center"
                 title="Blog"
@@ -216,7 +216,10 @@ function BlogIndex() {
                   }
                   trailing={
                     <div className="flex items-center gap-1">
-                      <span aria-hidden className="h-5 w-px bg-border-default" />
+                      <span
+                        aria-hidden
+                        className="h-5 w-px bg-border-default"
+                      />
                       <a
                         href="/rss.xml"
                         target="_blank"
@@ -227,7 +230,10 @@ function BlogIndex() {
                       >
                         <RssIcon weight="bold" className="h-[18px] w-[18px]" />
                       </a>
-                      <span aria-hidden className="h-5 w-px bg-border-default" />
+                      <span
+                        aria-hidden
+                        className="h-5 w-px bg-border-default"
+                      />
                       <button
                         type="button"
                         aria-label="Filters"

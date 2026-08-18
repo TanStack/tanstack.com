@@ -81,10 +81,6 @@ export const Route = createFileRoute('/api/notebook/assist')({
         let responseHeaders = new Headers()
 
         if (!import.meta.env.DEV) {
-          const { getAuthService } = await import('~/auth/index.server')
-          const user = await getAuthService().getCurrentUser(request)
-          if (!user) return jsonError('Sign in to use a BYOK model', 401)
-
           const rateLimit = await checkIpRateLimit(
             request,
             RATE_LIMITS.notebookAi,

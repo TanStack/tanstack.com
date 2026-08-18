@@ -6,17 +6,32 @@ import {
 } from '@phosphor-icons/react'
 import { Link, useBlocker, useNavigate } from '@tanstack/react-router'
 import { Button } from '~/components/ds/ui'
-import { ExampleWorkbench } from '~/components/examples/ExampleWorkbench.client'
+import {
+  ExampleWorkbench,
+  type ExampleWorkbenchHandle,
+  type ExampleWorkbenchRunResult,
+  type ExampleWorkbenchRunRequest,
+} from '~/components/examples/ExampleWorkbench.client'
+import { NotebookAssistant } from '~/components/notebook/NotebookAssistant.client'
+import { NotebookDraftSkeleton } from '~/components/notebook/NotebookLoading'
 import { useLoginModal } from '~/contexts/LoginModalContext'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
+import { createEmptyExampleEnvironmentSnapshot } from '~/utils/example-run-observation'
 import {
   createSharedExampleProject,
   sharedProjectToExampleDefinition,
 } from '~/utils/example-project'
 import type { ExampleWorkspace } from '~/utils/example-workspace'
+import type { NotebookAiExecution } from '~/utils/notebook-ai'
+import {
+  getNotebookAiHiddenFiles,
+  requiresNotebookWorkbenchReset,
+} from '~/utils/notebook-ai-execution'
+import { shouldAutoRunNotebook } from '~/utils/notebook-auto-run.client'
 import {
   blankNotebookProject,
   clearNotebookDraft,
+  createNotebookDraftId,
   createNotebookProjectFromTemplateId,
   getBrowserNotebookDraftStorage,
   loadNotebookDraft,
@@ -39,16 +54,30 @@ export function NotebookDraftPage({ template }: { template?: string }) {
     const storedDraft = loadNotebookDraft(draftStorage)
 
     if (storedDraft) {
-      return { project: storedDraft.project, needsInitialSave: false }
+      return {
+        id: storedDraft.id,
+        project: storedDraft.project,
+        needsInitialSave: false,
+      }
     }
 
     if (templateProject) {
-      return { project: templateProject, needsInitialSave: true }
+      return {
+        id: createNotebookDraftId(),
+        project: templateProject,
+        needsInitialSave: true,
+      }
     }
 
-    return { project: blankNotebookProject, needsInitialSave: true }
+    return {
+      id: createNotebookDraftId(),
+      project: blankNotebookProject,
+      needsInitialSave: true,
+    }
   })
+  const draftId = initialDraft.id
   const initialProject = initialDraft.project
+  const [project, setProject] = React.useState(initialProject)
   const [title, setTitle] = React.useState(initialProject.title)
   const [description, setDescription] = React.useState(
     initialProject.description,
@@ -60,6 +89,13 @@ export function NotebookDraftPage({ template }: { template?: string }) {
   const [localError, setLocalError] = React.useState('')
   const [saveError, setSaveError] = React.useState('')
   const [saving, setSaving] = React.useState(false)
+  const [activeView, setActiveView] = React.useState<'chat' | 'code'>('chat')
+  const [aiTransactionActive, setAiTransactionActive] = React.useState(false)
+  const [assistantRunning, setAssistantRunning] = React.useState(false)
+  const [runRequest, setRunRequest] =
+    React.useState<ExampleWorkbenchRunRequest>()
+  const workbenchRef = React.useRef<ExampleWorkbenchHandle>(null)
+  const projectRef = React.useRef(initialProject)
   const workspaceRef = React.useRef<ExampleWorkspace>(initialProject.workspace)
   const titleRef = React.useRef(initialProject.title)
   const descriptionRef = React.useRef(initialProject.description)
@@ -68,30 +104,34 @@ export function NotebookDraftPage({ template }: { template?: string }) {
   const promotedRef = React.useRef(false)
   const savingRef = React.useRef(false)
   const draftStoredRef = React.useRef(!initialDraft.needsInitialSave)
+  const aiTransactionActiveRef = React.useRef(false)
 
   const definition = React.useMemo(
-    () => sharedProjectToExampleDefinition('local-draft', initialProject),
-    [initialProject],
+    () => sharedProjectToExampleDefinition('local-draft', project),
+    [project],
   )
 
-  const currentProject = React.useCallback(
-    () =>
-      createSharedExampleProject({
-        title: titleRef.current.trim() || 'Untitled notebook',
-        description: descriptionRef.current.trim(),
-        initialFile: initialProject.initialFile,
-        hiddenFiles: initialProject.hiddenFiles,
-        runtime: initialProject.runtime,
-        workspace: workspaceRef.current,
-      }),
-    [initialProject],
-  )
+  const currentProject = React.useCallback(() => {
+    const current = projectRef.current
+    return createSharedExampleProject({
+      title: titleRef.current.trim() || 'Untitled notebook',
+      description: descriptionRef.current.trim(),
+      initialFile: current.initialFile,
+      hiddenFiles: current.hiddenFiles,
+      runtime: current.runtime,
+      workspace: workspaceRef.current,
+    })
+  }, [])
 
   const persistDraft = React.useCallback(
-    (updateUi = true) => {
+    (updateUi = true, allowAiTransaction = false) => {
       if (promotedRef.current) return true
+      if (aiTransactionActiveRef.current && !allowAiTransaction) return true
       const revision = editRevisionRef.current
-      const saved = saveNotebookDraft(draftStorage, currentProject())
+      const saved = saveNotebookDraft(draftStorage, {
+        id: draftId,
+        project: currentProject(),
+      })
       draftStoredRef.current = saved
 
       if (saved) {
@@ -109,19 +149,22 @@ export function NotebookDraftPage({ template }: { template?: string }) {
 
       return saved
     },
-    [currentProject, draftStorage],
+    [currentProject, draftId, draftStorage],
   )
 
   const hasUnstoredChanges = React.useCallback(
     () =>
       !promotedRef.current &&
-      (!draftStoredRef.current ||
+      (aiTransactionActiveRef.current ||
+        !draftStoredRef.current ||
         editRevisionRef.current > persistedRevisionRef.current),
     [],
   )
 
   const shouldBlockBeforeUnload = React.useCallback(
-    () => hasUnstoredChanges() && !persistDraft(false),
+    () =>
+      aiTransactionActiveRef.current ||
+      (hasUnstoredChanges() && !persistDraft(false)),
     [hasUnstoredChanges, persistDraft],
   )
 
@@ -129,6 +172,7 @@ export function NotebookDraftPage({ template }: { template?: string }) {
     disabled: false,
     enableBeforeUnload: shouldBlockBeforeUnload,
     shouldBlockFn: () => {
+      if (aiTransactionActiveRef.current) return true
       if (!hasUnstoredChanges()) return false
       return !persistDraft()
     },
@@ -152,13 +196,16 @@ export function NotebookDraftPage({ template }: { template?: string }) {
   }, [initialDraft.needsInitialSave, persistDraft])
 
   React.useEffect(() => {
-    if (editRevision <= persistedRevisionRef.current) return
+    if (aiTransactionActive || editRevision <= persistedRevisionRef.current) {
+      return
+    }
     const timeout = window.setTimeout(() => persistDraft(), 400)
     return () => window.clearTimeout(timeout)
-  }, [editRevision, persistDraft])
+  }, [aiTransactionActive, editRevision, persistDraft])
 
   React.useEffect(() => {
     const flushOnPageHide = () => {
+      if (aiTransactionActiveRef.current) return
       if (hasUnstoredChanges()) persistDraft(false)
     }
     const flushWhenHidden = () => {
@@ -198,8 +245,119 @@ export function NotebookDraftPage({ template }: { template?: string }) {
     markEdited()
   }
 
+  function applyAiExecution(
+    execution: NotebookAiExecution,
+    signal: AbortSignal,
+  ) {
+    const currentProject = projectRef.current
+    const currentWorkspace = workspaceRef.current
+    if (signal.aborted) {
+      return Promise.resolve({
+        ok: false as const,
+        phase: 'superseded' as const,
+        message: 'The notebook edit was stopped.',
+        snapshot: createEmptyExampleEnvironmentSnapshot({
+          runId: crypto.randomUUID(),
+          runtime:
+            execution.runtime?.type === 'webcontainer'
+              ? 'webcontainer'
+              : 'client',
+        }),
+      })
+    }
+
+    const nextProject = createSharedExampleProject({
+      title: titleRef.current.trim() || 'Untitled notebook',
+      description: descriptionRef.current.trim(),
+      initialFile: currentProject.initialFile,
+      hiddenFiles: getNotebookAiHiddenFiles(
+        currentProject.hiddenFiles,
+        execution.workspace,
+      ),
+      runtime: execution.runtime ?? undefined,
+      workspace: execution.workspace,
+    })
+    projectRef.current = nextProject
+    workspaceRef.current = execution.workspace
+
+    if (
+      !requiresNotebookWorkbenchReset(
+        currentProject.runtime ?? null,
+        currentWorkspace,
+        execution,
+      ) &&
+      workbenchRef.current
+    ) {
+      return workbenchRef.current.replaceWorkspaceAndRun(
+        execution.workspace,
+        signal,
+        { notify: false },
+      )
+    }
+
+    setProject(nextProject)
+    return new Promise<ExampleWorkbenchRunResult>((resolve) => {
+      const id = crypto.randomUUID()
+      setRunRequest({
+        id,
+        signal,
+        onComplete(result) {
+          setRunRequest((current) => (current?.id === id ? undefined : current))
+          resolve(result)
+        },
+      })
+    })
+  }
+
+  async function prepareAiExecution() {
+    persistDraft()
+    aiTransactionActiveRef.current = true
+    setAiTransactionActive(true)
+    const current = projectRef.current
+    return {
+      runtime: current.runtime ?? null,
+      workspace: workspaceRef.current,
+    }
+  }
+
+  function commitAiExecution(execution: NotebookAiExecution) {
+    const current = projectRef.current
+    const nextProject = createSharedExampleProject({
+      title: titleRef.current.trim() || 'Untitled notebook',
+      description: descriptionRef.current.trim(),
+      initialFile: current.initialFile,
+      hiddenFiles: getNotebookAiHiddenFiles(
+        current.hiddenFiles,
+        execution.workspace,
+      ),
+      runtime: execution.runtime ?? undefined,
+      workspace: execution.workspace,
+    })
+    projectRef.current = nextProject
+    workspaceRef.current = execution.workspace
+    markEdited()
+    if (!persistDraft(true, true)) {
+      throw new Error(
+        'This browser could not store the validated notebook edit.',
+      )
+    }
+  }
+
+  function finishAiExecution() {
+    aiTransactionActiveRef.current = false
+    setAiTransactionActive(false)
+  }
+
+  async function restoreAiExecution(
+    execution: NotebookAiExecution,
+    reason: 'manual' | 'rollback',
+  ) {
+    await applyAiExecution(execution, new AbortController().signal)
+    if (reason === 'manual') markEdited()
+  }
+
   async function save() {
-    if (savingRef.current) return
+    if (savingRef.current || aiTransactionActiveRef.current) return
     savingRef.current = true
     setSaving(true)
     setSaveError('')
@@ -244,8 +402,10 @@ export function NotebookDraftPage({ template }: { template?: string }) {
         ? 'Saving locally'
         : 'Local draft'
 
+  if (userQuery.isPending) return <NotebookDraftSkeleton />
+
   return (
-    <main className="flex h-[calc(100dvh-var(--navbar-height))] min-h-0 flex-col overflow-hidden bg-background-default text-text-primary">
+    <main className="fixed inset-x-0 top-[var(--navbar-height)] bottom-0 z-20 flex min-h-0 flex-col overflow-hidden bg-background-default text-text-primary">
       <header className="flex h-16 shrink-0 items-center gap-2 border-b border-border-default bg-background-default px-2 sm:gap-3 sm:px-4">
         <Button
           as={Link}
@@ -291,7 +451,7 @@ export function NotebookDraftPage({ template }: { template?: string }) {
         <Button
           type="button"
           size="xs"
-          disabled={saving || userQuery.isPending}
+          disabled={saving || aiTransactionActive || userQuery.isPending}
           aria-label={user ? 'Save notebook' : 'Sign in to save notebook'}
           onClick={saveAfterAuthentication}
         >
@@ -321,11 +481,39 @@ export function NotebookDraftPage({ template }: { template?: string }) {
 
       <div className="flex min-h-0 flex-1" inert={saving}>
         <ExampleWorkbench
-          autoRun={false}
+          alternateEditor={{
+            active: activeView === 'chat',
+            label: 'Chat',
+            onActiveChange: (active) => setActiveView(active ? 'chat' : 'code'),
+            content: (
+              <NotebookAssistant
+                credentialScope={user?.userId ?? 'anonymous'}
+                enabled
+                getExecution={() => ({
+                  runtime: projectRef.current.runtime ?? null,
+                  workspace: workspaceRef.current,
+                })}
+                hiddenFiles={project.hiddenFiles ?? []}
+                onApply={applyAiExecution}
+                onCommit={commitAiExecution}
+                onDismiss={() => setActiveView('code')}
+                onFinish={finishAiExecution}
+                onPrepare={prepareAiExecution}
+                onRestore={restoreAiExecution}
+                onRunningChange={setAssistantRunning}
+                storageScope={`local-draft:${draftId}`}
+              />
+            ),
+          }}
+          autoRun={shouldAutoRunNotebook(window.navigator)}
+          className="w-full"
           definition={definition}
           fullscreen
           filesInitiallyOpen
+          runDisabled={assistantRunning}
           runLabel="Run notebook"
+          runRequest={runRequest}
+          workbenchRef={workbenchRef}
           onWorkspaceChange={updateWorkspace}
         />
       </div>

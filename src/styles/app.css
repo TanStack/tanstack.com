@@ -1444,7 +1444,7 @@ button {
 /* ============================================================================ */
 
 pre {
-  @apply text-black overflow-x-auto relative leading-tight;
+  @apply overflow-x-auto relative leading-tight;
 }
 
 .th-line--deleted,
@@ -2434,6 +2434,18 @@ html:not(.dark) .library-landing-graphic [style*='drop-shadow'] {
 
 button[aria-label='Open TanStack Devtools'] {
   display: none !important;
+}
+
+.sandbox-ui {
+  --color-border-default: #1111111a;
+  --color-text-secondary: #525252;
+  --color-text-muted: #737373;
+}
+
+html.dark .sandbox-ui {
+  --color-border-default: #ffffff1f;
+  --color-text-secondary: #b8b8b8;
+  --color-text-muted: #8a8a8a;
 }
 
 [data-notebook-shell]:has([data-notebook-ready]) > [data-notebook-initial] {

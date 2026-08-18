@@ -17,6 +17,10 @@ import {
   type ExampleWorkspace,
 } from '~/utils/example-workspace'
 import type { NotebookAiExecution } from '~/utils/notebook-ai'
+import {
+  getNotebookAiHiddenFiles,
+  requiresNotebookWorkbenchReset,
+} from '~/utils/notebook-ai-execution'
 import { shouldAutoRunNotebook } from '~/utils/notebook-auto-run.client'
 
 const initialDefinition = {
@@ -85,7 +89,7 @@ export function NotebookAiSpike() {
         }),
       })
     }
-    const hiddenFiles = getAiHiddenFiles(
+    const hiddenFiles = getNotebookAiHiddenFiles(
       currentDefinition.hiddenFiles ?? [],
       execution.workspace,
     )
@@ -106,7 +110,7 @@ export function NotebookAiSpike() {
     workspaceRef.current = execution.workspace
 
     if (
-      !requiresWorkbenchReset(
+      !requiresNotebookWorkbenchReset(
         currentDefinition.runtime ?? null,
         currentWorkspace,
         execution,
@@ -167,7 +171,6 @@ export function NotebookAiSpike() {
             onActiveChange: (active) => setActiveView(active ? 'chat' : 'code'),
             content: (
               <NotebookAssistant
-                authenticated
                 credentialScope="local-spike"
                 enabled
                 getExecution={() => ({
@@ -199,55 +202,4 @@ export function NotebookAiSpike() {
       </div>
     </main>
   )
-}
-
-function requiresWorkbenchReset(
-  currentRuntime: NotebookAiExecution['runtime'],
-  currentWorkspace: ExampleWorkspace,
-  next: NotebookAiExecution,
-) {
-  if (JSON.stringify(currentRuntime) !== JSON.stringify(next.runtime)) {
-    return true
-  }
-  if (!next.runtime) return false
-  if (
-    currentWorkspace.files['/package.json'] !==
-    next.workspace.files['/package.json']
-  ) {
-    return true
-  }
-
-  return (
-    hasDifferentPaths(currentWorkspace.files, next.workspace.files) ||
-    hasDifferentPaths(
-      currentWorkspace.binaryFiles ?? {},
-      next.workspace.binaryFiles ?? {},
-    )
-  )
-}
-
-function hasDifferentPaths(
-  current: Record<string, string>,
-  next: Record<string, string>,
-) {
-  const currentPaths = Object.keys(current)
-  const nextPaths = Object.keys(next)
-  return (
-    currentPaths.length !== nextPaths.length ||
-    currentPaths.some((path) => next[path] === undefined)
-  )
-}
-
-function getAiHiddenFiles(
-  hiddenFiles: ReadonlyArray<string>,
-  workspace: ExampleWorkspace,
-) {
-  return [
-    ...new Set([
-      ...hiddenFiles,
-      ...Object.keys(workspace.files).filter((path) =>
-        path.startsWith('/.tanstack/'),
-      ),
-    ]),
-  ]
 }

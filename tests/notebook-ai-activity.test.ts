@@ -353,3 +353,26 @@ test('notebook agent activity renders accessible expandable details', () => {
   assert.match(markup, /Edited 1 file/)
   assert.match(markup, /Diff for \/index\.tsx/)
 })
+
+test('notebook agent activity keeps raw errors neutral and readable', () => {
+  const activity = reduceEvents([
+    { type: 'run-started', runId: 'run-error', timestamp: 1_000 },
+    {
+      type: 'run-failed',
+      runId: 'run-error',
+      timestamp: 2_000,
+      error: "SyntaxError: Missing export 'band'\n    at /index.tsx:4:10",
+    },
+  ])
+  const markup = renderToStaticMarkup(
+    React.createElement(NotebookAgentActivity, {
+      activity,
+      defaultOpen: true,
+    }),
+  )
+
+  assert.match(markup, /aria-label="Agent error"/)
+  assert.match(markup, /text-text-secondary/)
+  assert.doesNotMatch(markup, /border-l-border-error/)
+  assert.doesNotMatch(markup, /font-medium text-text-error/)
+})

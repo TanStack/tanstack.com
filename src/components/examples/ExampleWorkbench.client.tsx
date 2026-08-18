@@ -9,6 +9,7 @@ import {
   PlayIcon,
   PlusIcon,
   ShareIcon,
+  SidebarSimpleIcon,
   TerminalWindowIcon,
   WarningCircleIcon,
   XIcon,
@@ -23,6 +24,7 @@ import {
   DropdownItem,
   DropdownTrigger,
 } from '~/components/ds/ui'
+import { NotebookWorkspaceControlsContext } from '~/components/notebook/notebook-workspace-controls.client'
 import { Tooltip } from '~/ui'
 import { copyTextToClipboard } from '~/utils/browser-effects'
 import {
@@ -143,6 +145,14 @@ type NotebookPaneResize = {
   previousCursor: string
   previousUserSelect: string
 }
+type NotebookChatResize = {
+  frames: Array<{ frame: HTMLIFrameElement; pointerEvents: string }>
+  ownerDocument: Document
+  percent: number
+  pointerId: number
+  previousCursor: string
+  previousUserSelect: string
+}
 type NotebookTabDrag = {
   active: boolean
   frames?: Array<{ frame: HTMLIFrameElement; pointerEvents: string }>
@@ -155,6 +165,7 @@ type NotebookTabDrag = {
 }
 
 const DEFAULT_CODE_PANEL_PERCENT = 67
+const DEFAULT_NOTEBOOK_CHAT_PERCENT = 38
 const MIN_DESKTOP_PANEL_WIDTH = 280
 const MAX_PROCESS_OUTPUT_LENGTH = 500_000
 const RUN_SETTLE_DELAY_MS = 750
@@ -257,6 +268,8 @@ export function ExampleWorkbench({
   const previewPanelId = React.useId()
   const processPanelId = React.useId()
   const notebookTabsId = React.useId()
+  const notebookWorkspaceId = `${notebookTabsId}-workspace`
+  const notebookChatId = `${notebookTabsId}-chat`
   const [workspace, setWorkspace] = React.useState(() =>
     cloneWorkspace(definition.workspace),
   )
@@ -284,6 +297,13 @@ export function ExampleWorkbench({
     DEFAULT_CODE_PANEL_PERCENT,
   )
   const [isCodePanelResizing, setIsCodePanelResizing] = React.useState(false)
+  const [notebookChatPercent, setNotebookChatPercent] = React.useState(
+    DEFAULT_NOTEBOOK_CHAT_PERCENT,
+  )
+  const [notebookWorkspaceVisible, setNotebookWorkspaceVisible] =
+    React.useState(true)
+  const [isNotebookChatResizing, setIsNotebookChatResizing] =
+    React.useState(false)
   const [status, setStatus] = React.useState<WorkbenchStatus>('idle')
   const [runActive, setRunActive] = React.useState(false)
   const [error, setError] = React.useState('')
@@ -311,16 +331,21 @@ export function ExampleWorkbench({
   )
   const notebookAddTabButtonRef = React.useRef<HTMLButtonElement>(null)
   const notebookPaneRefs = React.useRef(new Map<string, HTMLDivElement>())
+  const notebookLayoutRef = React.useRef<HTMLDivElement>(null)
   const notebookWorkspaceRef = React.useRef<HTMLDivElement>(null)
+  const notebookChatRef = React.useRef<HTMLElement>(null)
+  const notebookChatSeparatorRef = React.useRef<HTMLDivElement>(null)
   const notebookContainerRef = React.useRef<HTMLElement>(null)
   const notebookPaneGridRef = React.useRef<HTMLDivElement>(null)
   const notebookPaneResizeRef = React.useRef<NotebookPaneResize>(null)
+  const notebookChatResizeRef = React.useRef<NotebookChatResize>(null)
   const notebookTabDragRef = React.useRef<NotebookTabDrag>(null)
   const notebookTabDidDragRef = React.useRef(false)
   const [notebookTabDrag, setNotebookTabDrag] =
     React.useState<NotebookTabDrag>()
   const [isNotebookPaneResizing, setIsNotebookPaneResizing] =
     React.useState(false)
+  const [notebookContainerWidth, setNotebookContainerWidth] = React.useState(0)
   const [notebookLayoutAnnouncement, setNotebookLayoutAnnouncement] =
     React.useState('')
   const notebookShowChatButtonRef = React.useRef<HTMLButtonElement>(null)
@@ -414,6 +439,7 @@ export function ExampleWorkbench({
   }, [isDesktop])
 
   const revealNotebookPreviewTab = React.useCallback(() => {
+    setNotebookWorkspaceVisible(true)
     setNotebookTabs((current) => {
       const activeTab = getActiveNotebookWorkbenchTab(current)
       if (activeTab?.kind === 'preview') return current
@@ -427,6 +453,41 @@ export function ExampleWorkbench({
         : addNotebookWorkbenchTab(current, { kind: 'preview' })
     })
   }, [])
+
+  const showNotebookWorkspace = React.useCallback(() => {
+    setNotebookWorkspaceVisible(true)
+    const current = notebookTabsRef.current
+    if (current.tabs.length > 0) {
+      setNotebookLayoutAnnouncement('Side panel shown.')
+      return
+    }
+
+    const next = addNotebookWorkbenchTab(current, { kind: 'preview' })
+    const previewTab = next.tabs.find((tab) => tab.kind === 'preview')
+    notebookTabsRef.current = next
+    setNotebookTabs(next)
+    if (previewTab) {
+      notebookPreviewHistoriesRef.current.set(
+        previewTab.id,
+        createExamplePreviewHistory(),
+      )
+    }
+    setNotebookLayoutAnnouncement('Side panel shown.')
+  }, [])
+
+  const toggleNotebookWorkspace = React.useCallback(() => {
+    if (
+      !notebookWorkspaceVisible ||
+      notebookTabsRef.current.tabs.length === 0
+    ) {
+      showNotebookWorkspace()
+      return
+    }
+
+    alternateEditor?.onActiveChange(true)
+    setNotebookWorkspaceVisible(false)
+    setNotebookLayoutAnnouncement('Side panel hidden.')
+  }, [alternateEditor, notebookWorkspaceVisible, showNotebookWorkspace])
 
   React.useEffect(() => {
     previewHistoryRef.current = previewHistory
@@ -734,6 +795,7 @@ export function ExampleWorkbench({
     setPreviewHistory(initialPreviewHistory)
     const notebookChanged = notebookDefinitionIdRef.current !== definition.id
     notebookDefinitionIdRef.current = definition.id
+    if (notebookChanged) setNotebookWorkspaceVisible(true)
     const previousNotebookTabs = notebookTabsRef.current
     const availablePaths = Object.keys(nextWorkspace.files).filter(
       (path) => !definition.hiddenFiles?.includes(path),
@@ -1671,6 +1733,12 @@ export function ExampleWorkbench({
   }, [isNotebookPaneResizing])
 
   React.useEffect(() => {
+    if (!isNotebookChatResizing) return
+    const resize = notebookChatResizeRef.current
+    return () => restoreNotebookChatResize(resize)
+  }, [isNotebookChatResizing])
+
+  React.useEffect(() => {
     if (!notebookTabDrag?.active) return
     const cancel = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return
@@ -1693,7 +1761,10 @@ export function ExampleWorkbench({
   React.useEffect(() => {
     const container = notebookContainerRef.current
     if (!container) return
-    const syncDesktopState = () => setIsDesktop(container.clientWidth >= 900)
+    const syncDesktopState = () => {
+      setIsDesktop(container.clientWidth >= 900)
+      setNotebookContainerWidth(container.clientWidth)
+    }
     syncDesktopState()
     const observer = new ResizeObserver(syncDesktopState)
     observer.observe(container)
@@ -1842,8 +1913,12 @@ export function ExampleWorkbench({
     } else if (nextActiveTab?.kind === 'console') {
       setOutputActivated(true)
     }
-    if (next.tabs.length === 0) alternateEditor?.onActiveChange(true)
-    focusNotebookTab(nextActiveTab?.id ?? null)
+    if (next.tabs.length === 0) {
+      alternateEditor?.onActiveChange(true)
+      setNotebookLayoutAnnouncement('Side panel hidden.')
+    } else {
+      focusNotebookTab(nextActiveTab?.id ?? null)
+    }
   }
 
   function splitNotebookTab(
@@ -2384,6 +2459,133 @@ export function ExampleWorkbench({
     setNotebookTabs((current) => resizeNotebookWorkbenchPanes(current, 0.5))
   }
 
+  function applyNotebookChatSplit(
+    percent: number | undefined,
+    splitChat = true,
+  ) {
+    const workspace = notebookWorkspaceRef.current
+    const chat = notebookChatRef.current
+    const separator = notebookChatSeparatorRef.current
+
+    if (percent === undefined) {
+      workspace?.style.removeProperty('left')
+      workspace?.style.removeProperty('width')
+      chat?.style.removeProperty('width')
+      separator?.style.removeProperty('left')
+      return
+    }
+
+    if (workspace) {
+      workspace.style.left = `${percent}%`
+      workspace.style.width = `${100 - percent}%`
+    }
+    if (chat) {
+      if (splitChat) chat.style.width = `${percent}%`
+      else chat.style.removeProperty('width')
+    }
+    if (separator) separator.style.left = `${percent}%`
+  }
+
+  function startNotebookChatResize(event: React.PointerEvent<HTMLDivElement>) {
+    if (event.button !== 0 || !showsNotebookChatSplit) return
+
+    event.preventDefault()
+    event.currentTarget.setPointerCapture(event.pointerId)
+    const ownerDocument = event.currentTarget.ownerDocument
+    const frames = [...notebookPreviewFrameRefs.current.values()].map(
+      (frame) => ({ frame, pointerEvents: frame.style.pointerEvents }),
+    )
+    notebookChatResizeRef.current = {
+      frames,
+      ownerDocument,
+      percent: notebookChatPercent,
+      pointerId: event.pointerId,
+      previousCursor: ownerDocument.body.style.cursor,
+      previousUserSelect: ownerDocument.body.style.userSelect,
+    }
+    ownerDocument.body.style.cursor = 'col-resize'
+    ownerDocument.body.style.userSelect = 'none'
+    for (const { frame } of frames) frame.style.pointerEvents = 'none'
+    setIsNotebookChatResizing(true)
+  }
+
+  function moveNotebookChatResize(event: React.PointerEvent<HTMLDivElement>) {
+    const resize = notebookChatResizeRef.current
+    const layout = notebookLayoutRef.current
+    if (!resize || !layout || event.pointerId !== resize.pointerId) return
+
+    const rect = layout.getBoundingClientRect()
+    if (rect.width <= 0) return
+    const bounds = getNotebookChatPercentBounds(rect.width)
+    const percent = clamp(
+      ((event.clientX - rect.left) / rect.width) * 100,
+      bounds.min,
+      bounds.max,
+    )
+    resize.percent = percent
+    applyNotebookChatSplit(percent)
+  }
+
+  function finishNotebookChatResize(event: React.PointerEvent<HTMLDivElement>) {
+    const resize = notebookChatResizeRef.current
+    if (!resize || event.pointerId !== resize.pointerId) return
+
+    setNotebookChatPercent(resize.percent)
+    restoreNotebookChatResize(resize)
+    notebookChatResizeRef.current = null
+    setIsNotebookChatResizing(false)
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId)
+    }
+  }
+
+  function resizeNotebookChatWithKeyboard(
+    event: React.KeyboardEvent<HTMLDivElement>,
+  ) {
+    if (
+      event.key !== 'ArrowLeft' &&
+      event.key !== 'ArrowRight' &&
+      event.key !== 'Home' &&
+      event.key !== 'End'
+    ) {
+      return
+    }
+
+    const layout = notebookLayoutRef.current
+    const chat = notebookChatRef.current
+    if (!layout || !chat) return
+    event.preventDefault()
+
+    const width = layout.getBoundingClientRect().width
+    if (width <= 0) return
+    const bounds = getNotebookChatPercentBounds(width)
+    const currentWidth = chat.getBoundingClientRect().width
+    const minWidth = (bounds.min / 100) * width
+    const maxWidth = (bounds.max / 100) * width
+    const nextWidth =
+      event.key === 'Home'
+        ? minWidth
+        : event.key === 'End'
+          ? maxWidth
+          : clamp(
+              currentWidth +
+                (event.key === 'ArrowRight' ? 1 : -1) *
+                  (event.shiftKey ? 64 : 24),
+              minWidth,
+              maxWidth,
+            )
+    const percent = (nextWidth / width) * 100
+    setNotebookChatPercent(percent)
+    applyNotebookChatSplit(percent)
+  }
+
+  function resetNotebookChatSize() {
+    const bounds = getNotebookChatPercentBounds(notebookContainerWidth)
+    const percent = clamp(DEFAULT_NOTEBOOK_CHAT_PERCENT, bounds.min, bounds.max)
+    setNotebookChatPercent(percent)
+    applyNotebookChatSplit(percent)
+  }
+
   function startCodePanelResize(event: React.PointerEvent<HTMLDivElement>) {
     if (event.button !== 0) return
 
@@ -2529,8 +2731,38 @@ export function ExampleWorkbench({
         : []
   const activeNotebookEditorTab =
     activeNotebookTab?.kind === 'editor' ? activeNotebookTab : undefined
-  const notebookChatOpen =
-    alternateEditorActive || notebookTabs.tabs.length === 0
+  const hasNotebookTabs = notebookTabs.tabs.length > 0
+  const notebookWorkspaceOpen = notebookWorkspaceVisible && hasNotebookTabs
+  const notebookChatOpen = alternateEditorActive || !notebookWorkspaceOpen
+  const showsNotebookChatSplit =
+    notebookMode && isDesktop && notebookWorkspaceOpen && notebookChatOpen
+  const keepsNotebookWorkspaceSplit =
+    notebookMode && isDesktop && hasNotebookTabs && notebookChatOpen
+  const notebookWorkspaceControls = React.useMemo(
+    () => ({
+      controlsId: notebookWorkspaceId,
+      open: notebookWorkspaceOpen,
+      toggle: toggleNotebookWorkspace,
+    }),
+    [notebookWorkspaceId, notebookWorkspaceOpen, toggleNotebookWorkspace],
+  )
+
+  React.useLayoutEffect(() => {
+    if (!keepsNotebookWorkspaceSplit) {
+      applyNotebookChatSplit(undefined)
+      return
+    }
+
+    const bounds = getNotebookChatPercentBounds(notebookContainerWidth)
+    const next = clamp(notebookChatPercent, bounds.min, bounds.max)
+    applyNotebookChatSplit(next, notebookWorkspaceOpen)
+    if (next !== notebookChatPercent) setNotebookChatPercent(next)
+  }, [
+    keepsNotebookWorkspaceSplit,
+    notebookChatPercent,
+    notebookContainerWidth,
+    notebookWorkspaceOpen,
+  ])
 
   React.useEffect(() => {
     setNotebookTabs((current) =>
@@ -3035,18 +3267,18 @@ export function ExampleWorkbench({
           if (element) notebookPaneRefs.current.set(pane.id, element)
           else notebookPaneRefs.current.delete(pane.id)
         }}
-        className="grid min-h-0 min-w-0 grid-rows-[2.5rem_minmax(0,1fr)] overflow-hidden bg-background-default @min-[900px]:grid-rows-[2.25rem_minmax(0,1fr)]"
+        className="grid min-h-0 min-w-0 grid-rows-[2.75rem_minmax(0,1fr)] overflow-hidden bg-background-default @min-[900px]:grid-rows-[2.25rem_minmax(0,1fr)]"
         onPointerDownCapture={() => {
           setNotebookTabs((current) =>
             activateNotebookWorkbenchPane(current, pane.id),
           )
         }}
       >
-        <header className="relative z-20 flex min-w-0 items-center gap-1 border-b border-border-default bg-background-default @min-[900px]:px-1">
+        <header className="relative z-20 flex min-w-0 items-center gap-0.5 border-b border-border-default bg-background-default p-0.5 @min-[900px]:gap-1 @min-[900px]:p-1">
           <div
             role="tablist"
             aria-label={paneLabel}
-            className="fade-x flex min-w-0 shrink items-center gap-1 overflow-x-auto"
+            className="fade-x flex min-w-0 shrink items-center gap-0.5 overflow-x-auto @min-[900px]:gap-1"
           >
             {paneTabs.map((tab) => {
               const label = getNotebookWorkbenchTabLabel(notebookTabs.tabs, tab)
@@ -3077,9 +3309,9 @@ export function ExampleWorkbench({
                 <div
                   key={tab.id}
                   role="presentation"
-                  className={`flex h-10 shrink-0 items-stretch overflow-hidden rounded-lg transition-colors duration-100 motion-reduce:transition-none @min-[900px]:h-8 ${
+                  className={`corner-squircle flex h-10 shrink-0 items-stretch overflow-hidden rounded-lg transition-colors duration-100 motion-reduce:transition-none @min-[900px]:h-7 ${
                     active
-                      ? 'bg-action-secondary text-text-primary'
+                      ? 'bg-surface-state-pressed text-text-primary'
                       : 'text-text-secondary hover:bg-surface-state-hover hover:text-text-primary'
                   } ${dragging ? 'opacity-50' : ''}`}
                 >
@@ -3100,7 +3332,7 @@ export function ExampleWorkbench({
                     aria-label={label}
                     title={label}
                     tabIndex={active ? 0 : -1}
-                    className="flex min-w-0 touch-pan-x items-center gap-1.5 px-2 text-xs focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus"
+                    className="flex min-w-0 touch-pan-x items-center gap-2 px-2.5 text-[13px] focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus"
                     onClick={() => {
                       if (notebookTabDidDragRef.current) {
                         notebookTabDidDragRef.current = false
@@ -3147,7 +3379,7 @@ export function ExampleWorkbench({
                         <button
                           type="button"
                           aria-label={`Arrange ${label}`}
-                          className="flex w-10 items-center justify-center text-text-muted hover:bg-surface-state-hover hover:text-text-primary focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus @min-[900px]:w-7"
+                          className="flex w-10 items-center justify-center text-text-secondary hover:bg-surface-state-pressed hover:text-text-primary focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus @min-[900px]:w-7"
                         >
                           <DotsThreeIcon
                             className="size-3.5"
@@ -3155,7 +3387,10 @@ export function ExampleWorkbench({
                           />
                         </button>
                       </DropdownTrigger>
-                      <DropdownContent align="start" className="min-w-44">
+                      <DropdownContent
+                        align="start"
+                        className="sandbox-ui min-w-44 border-black/10 dark:border-white/10"
+                      >
                         {otherPane ? (
                           <DropdownItem
                             onSelect={() => moveNotebookTab(tab, otherPane.id)}
@@ -3185,7 +3420,7 @@ export function ExampleWorkbench({
                     <button
                       type="button"
                       aria-label={`Close ${label}`}
-                      className="flex w-10 items-center justify-center text-text-muted hover:bg-surface-state-hover hover:text-text-primary focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus @min-[900px]:w-7"
+                      className="flex w-10 items-center justify-center text-text-secondary hover:bg-surface-state-pressed hover:text-text-primary focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus @min-[900px]:w-7"
                       onClick={() => closeNotebookTab(tab.id)}
                     >
                       <XIcon className="size-3.5" aria-hidden="true" />
@@ -3209,17 +3444,17 @@ export function ExampleWorkbench({
                 color="gray"
                 size="icon-sm"
                 rounded="lg"
-                className="size-10 shrink-0 bg-action-secondary text-text-primary transition-colors duration-100 hover:bg-action-secondary-hover active:scale-95 max-[899px]:bg-action-secondary max-[899px]:text-text-primary motion-reduce:transition-none @min-[900px]:size-8"
+                className="size-10 shrink-0 bg-surface-state-hover text-text-primary transition-colors duration-100 hover:bg-surface-state-pressed active:scale-95 max-[899px]:bg-surface-state-hover max-[899px]:text-text-primary motion-reduce:transition-none @min-[900px]:size-7"
                 aria-label={newTabLabel}
               >
-                <PlusIcon className="size-4" aria-hidden="true" />
+                <PlusIcon className="size-3.5" aria-hidden="true" />
               </Button>
             </DropdownTrigger>
             <DropdownContent
               align="start"
               sideOffset={4}
               collisionPadding={8}
-              className="w-64 max-w-[calc(100vw-1rem)] origin-[var(--radix-dropdown-menu-content-transform-origin)] rounded-xl border-border-subtle p-1 shadow-xl duration-100 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 motion-reduce:animate-none"
+              className="sandbox-ui w-64 max-w-[calc(100vw-1rem)] origin-[var(--radix-dropdown-menu-content-transform-origin)] rounded-xl border-black/10 p-1 shadow-xl duration-100 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 dark:border-white/10 motion-reduce:animate-none"
             >
               <DropdownItem
                 className="min-h-10 gap-2 rounded-lg px-2 py-1 text-[13px] text-text-primary transition-colors duration-100 hover:bg-surface-state-hover focus:bg-surface-state-hover motion-reduce:transition-none min-[900px]:min-h-9"
@@ -3269,29 +3504,54 @@ export function ExampleWorkbench({
                     color="gray"
                     size="icon-sm"
                     rounded="lg"
-                    className="size-10 shrink-0 bg-action-secondary text-text-primary transition-colors duration-100 hover:bg-action-secondary-hover active:scale-95 max-[899px]:bg-action-secondary max-[899px]:text-text-primary motion-reduce:transition-none @min-[900px]:size-8"
+                    className="size-10 shrink-0 transition-colors duration-100 hover:bg-surface-state-hover active:scale-95 motion-reduce:transition-none @min-[900px]:size-7"
                     aria-label="Copy share link"
                     disabled={shareState === 'sharing'}
                     onClick={() => void share()}
                   >
-                    <ShareIcon className="size-4" aria-hidden="true" />
+                    <ShareIcon className="size-3.5" aria-hidden="true" />
                   </Button>
                 </Tooltip>
               ) : null}
 
               {(flattened || paneIndex === 0) && !notebookChatOpen ? (
-                <Button
-                  ref={notebookShowChatButtonRef}
-                  type="button"
-                  variant="ghost"
-                  size="xs"
-                  rounded="lg"
-                  className="h-10 shrink-0 transition-colors duration-100 hover:translate-y-0 hover:shadow-none motion-reduce:transition-none @min-[900px]:h-8"
-                  onClick={() => alternateEditor?.onActiveChange(true)}
-                >
-                  <ChatCircleDotsIcon className="size-3.5" aria-hidden="true" />
-                  Show chat
-                </Button>
+                <>
+                  <Button
+                    ref={notebookShowChatButtonRef}
+                    type="button"
+                    variant="ghost"
+                    size="xs"
+                    rounded="lg"
+                    className="h-10 shrink-0 transition-colors duration-100 hover:translate-y-0 hover:shadow-none motion-reduce:transition-none @min-[900px]:h-7"
+                    onClick={() => alternateEditor?.onActiveChange(true)}
+                  >
+                    <ChatCircleDotsIcon
+                      className="size-3.5"
+                      aria-hidden="true"
+                    />
+                    Show chat
+                  </Button>
+                  <Tooltip content="Hide side panel">
+                    <Button
+                      type="button"
+                      variant="icon"
+                      color="gray"
+                      size="icon-sm"
+                      rounded="lg"
+                      className="size-10 shrink-0 transition-colors duration-100 hover:bg-surface-state-hover active:scale-95 motion-reduce:transition-none @min-[900px]:size-7"
+                      aria-label="Hide side panel"
+                      aria-controls={notebookWorkspaceId}
+                      aria-expanded={true}
+                      onClick={toggleNotebookWorkspace}
+                    >
+                      <SidebarSimpleIcon
+                        className="size-3.5"
+                        mirrored
+                        aria-hidden="true"
+                      />
+                    </Button>
+                  </Tooltip>
+                </>
               ) : null}
             </div>
           ) : null}
@@ -3311,13 +3571,14 @@ export function ExampleWorkbench({
   }
 
   if (alternateEditor) {
-    const hasNotebookTabs = notebookTabs.tabs.length > 0
     const notebookWorkspaceClass = hasNotebookTabs
-      ? notebookChatOpen
-        ? 'top-0 right-0 left-0 h-1/2 @min-[900px]:bottom-0 @min-[900px]:left-auto @min-[900px]:h-auto @min-[900px]:w-[62%]'
-        : 'inset-0'
+      ? notebookWorkspaceOpen
+        ? notebookChatOpen
+          ? 'top-0 right-0 left-0 h-1/2 @min-[900px]:bottom-0 @min-[900px]:left-auto @min-[900px]:h-auto @min-[900px]:w-[62%]'
+          : 'inset-0'
+        : 'pointer-events-none invisible top-0 right-0 left-0 h-1/2 @min-[900px]:bottom-0 @min-[900px]:left-auto @min-[900px]:h-auto @min-[900px]:w-[62%]'
       : 'pointer-events-none invisible inset-0'
-    const notebookChatGeometryClass = hasNotebookTabs
+    const notebookChatGeometryClass = notebookWorkspaceOpen
       ? 'right-0 bottom-0 left-0 h-1/2 border-t border-border-default @min-[900px]:top-0 @min-[900px]:right-auto @min-[900px]:h-auto @min-[900px]:w-[38%] @min-[900px]:border-r @min-[900px]:border-t-0'
       : 'inset-0'
     const notebookChatTransformClass = notebookChatOpen
@@ -3329,11 +3590,19 @@ export function ExampleWorkbench({
     const splitStyle = showsNotebookSplit
       ? { gridTemplateRows: `${upperFraction}fr 8px ${lowerFraction}fr` }
       : { gridTemplateRows: 'minmax(0, 1fr)' }
+    const notebookChatBounds = getNotebookChatPercentBounds(
+      notebookContainerWidth,
+    )
+    const currentNotebookChatPercent = clamp(
+      notebookChatPercent,
+      notebookChatBounds.min,
+      notebookChatBounds.max,
+    )
 
     return (
       <section
         ref={notebookContainerRef}
-        className={`@container not-prose relative flex min-w-0 flex-col overflow-hidden border border-border-default bg-background-default text-text-primary ${
+        className={`sandbox-ui @container not-prose relative flex min-w-0 flex-col overflow-hidden border border-border-default bg-background-default text-text-primary ${
           fullscreen
             ? 'min-h-0 flex-1 rounded-none border-x-0 border-b-0'
             : 'h-[clamp(520px,75dvh,720px)] rounded-lg'
@@ -3342,7 +3611,7 @@ export function ExampleWorkbench({
       >
         {shareError ? (
           <div
-            className="absolute top-3 right-3 left-3 z-30 flex max-h-28 items-start gap-2 overflow-hidden rounded-lg border border-border-default border-l-2 border-l-border-error bg-background-elevated px-3 py-2 shadow-lg sm:left-auto sm:w-96"
+            className="absolute top-3 right-3 left-3 z-30 flex max-h-28 items-start gap-2 overflow-hidden rounded-md border border-border-default bg-background-surface px-2.5 py-2 shadow-sm sm:left-auto sm:w-96"
             role="alert"
           >
             <WarningCircleIcon
@@ -3367,9 +3636,15 @@ export function ExampleWorkbench({
           </div>
         ) : null}
 
-        <div className="relative min-h-0 flex-1 overflow-hidden">
+        <div
+          ref={notebookLayoutRef}
+          className="relative min-h-0 flex-1 overflow-hidden"
+        >
           <div
+            id={notebookWorkspaceId}
             ref={notebookWorkspaceRef}
+            aria-hidden={!notebookWorkspaceOpen}
+            inert={!notebookWorkspaceOpen}
             className={`absolute min-h-0 min-w-0 overflow-hidden ${notebookWorkspaceClass}`}
           >
             <div
@@ -3486,13 +3761,53 @@ export function ExampleWorkbench({
             ) : null}
           </div>
 
+          {showsNotebookChatSplit ? (
+            <div
+              ref={notebookChatSeparatorRef}
+              data-notebook-chat-separator=""
+              role="separator"
+              tabIndex={0}
+              aria-label="Resize chat and side panel"
+              aria-orientation="vertical"
+              aria-controls={`${notebookChatId} ${notebookWorkspaceId}`}
+              aria-valuemin={Math.round(notebookChatBounds.min)}
+              aria-valuemax={Math.round(notebookChatBounds.max)}
+              aria-valuenow={Math.round(currentNotebookChatPercent)}
+              aria-valuetext={`Chat ${Math.round(
+                currentNotebookChatPercent,
+              )}%, side panel ${Math.round(100 - currentNotebookChatPercent)}%`}
+              className="group absolute inset-y-0 left-[38%] z-20 w-2 -translate-x-1/2 touch-none cursor-col-resize focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus"
+              onDoubleClick={resetNotebookChatSize}
+              onKeyDown={resizeNotebookChatWithKeyboard}
+              onPointerDown={startNotebookChatResize}
+              onPointerMove={moveNotebookChatResize}
+              onPointerUp={finishNotebookChatResize}
+              onPointerCancel={finishNotebookChatResize}
+              onLostPointerCapture={finishNotebookChatResize}
+            >
+              <div
+                className={`absolute inset-y-0 left-1/2 w-px -translate-x-1/2 group-hover:bg-border-focus group-focus-visible:bg-border-focus ${
+                  isNotebookChatResizing
+                    ? 'bg-border-focus'
+                    : 'bg-border-default'
+                }`}
+              />
+            </div>
+          ) : null}
+
           <aside
+            id={notebookChatId}
+            ref={notebookChatRef}
             aria-label={alternateEditor.label}
             aria-hidden={!notebookChatOpen}
             inert={!notebookChatOpen}
             className={`absolute z-10 flex min-h-0 min-w-0 overflow-hidden bg-background-default transition-transform duration-[180ms] [transition-timing-function:cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none ${notebookChatGeometryClass} ${notebookChatTransformClass}`}
           >
-            {alternateEditor.content}
+            <NotebookWorkspaceControlsContext.Provider
+              value={notebookWorkspaceControls}
+            >
+              {alternateEditor.content}
+            </NotebookWorkspaceControlsContext.Provider>
           </aside>
         </div>
 
@@ -3505,7 +3820,7 @@ export function ExampleWorkbench({
 
   return (
     <section
-      className={`not-prose relative flex min-w-0 flex-col overflow-hidden border border-border-default bg-background-default text-text-primary ${
+      className={`sandbox-ui not-prose relative flex min-w-0 flex-col overflow-hidden border border-border-default bg-background-default text-text-primary ${
         fullscreen
           ? 'min-h-0 flex-1 rounded-none border-x-0 border-b-0'
           : 'h-[clamp(520px,75dvh,720px)] rounded-lg'
@@ -3618,7 +3933,7 @@ export function ExampleWorkbench({
 
       {shareError ? (
         <div
-          className="absolute top-12 right-3 left-3 z-30 flex max-h-28 items-start gap-2 overflow-hidden rounded-lg border border-border-default border-l-2 border-l-border-error bg-background-elevated px-3 py-2 shadow-lg sm:left-auto sm:w-96"
+          className="absolute top-12 right-3 left-3 z-30 flex max-h-28 items-start gap-2 overflow-hidden rounded-md border border-border-default bg-background-surface px-2.5 py-2 shadow-sm sm:left-auto sm:w-96"
           role="alert"
         >
           <WarningCircleIcon
@@ -4217,6 +4532,13 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max)
 }
 
+function getNotebookChatPercentBounds(width: number) {
+  if (width <= 0) return { min: 0, max: 100 }
+  const minWidth = Math.min(MIN_DESKTOP_PANEL_WIDTH, width / 2)
+  const min = (minWidth / width) * 100
+  return { min, max: 100 - min }
+}
+
 function restoreCodePanelResize(resize: CodePanelResize | null) {
   if (!resize) return
 
@@ -4228,6 +4550,16 @@ function restoreCodePanelResize(resize: CodePanelResize | null) {
 }
 
 function restoreNotebookPaneResize(resize: NotebookPaneResize | null) {
+  if (!resize) return
+
+  resize.ownerDocument.body.style.cursor = resize.previousCursor
+  resize.ownerDocument.body.style.userSelect = resize.previousUserSelect
+  for (const { frame, pointerEvents } of resize.frames) {
+    frame.style.pointerEvents = pointerEvents
+  }
+}
+
+function restoreNotebookChatResize(resize: NotebookChatResize | null) {
   if (!resize) return
 
   resize.ownerDocument.body.style.cursor = resize.previousCursor

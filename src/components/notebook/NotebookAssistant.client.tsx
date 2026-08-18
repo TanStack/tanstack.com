@@ -9,6 +9,7 @@ import {
   GearSixIcon,
   NotePencilIcon,
   PaperPlaneRightIcon,
+  SidebarSimpleIcon,
   SpinnerGapIcon,
   StopIcon,
   XIcon,
@@ -27,6 +28,7 @@ import {
 } from '~/components/ds/ui'
 import type { ExampleWorkbenchRunResult } from '~/components/examples/ExampleWorkbench.client'
 import { NotebookAgentActivity } from '~/components/notebook/NotebookAgentActivity'
+import { useNotebookWorkspaceControls } from '~/components/notebook/notebook-workspace-controls.client'
 import { Tooltip } from '~/ui'
 import { copyTextToClipboard } from '~/utils/browser-effects'
 import {
@@ -212,7 +214,6 @@ function getInitialModelChoice(state: ApiKeyState): ModelChoice {
 }
 
 export function NotebookAssistant({
-  authenticated,
   credentialScope,
   enabled,
   getExecution,
@@ -224,10 +225,8 @@ export function NotebookAssistant({
   onPrepare,
   onRestore,
   onRunningChange,
-  onSignIn,
   storageScope,
 }: {
-  authenticated: boolean
   credentialScope?: string
   enabled: boolean
   getExecution: () => NotebookAiExecution
@@ -245,12 +244,18 @@ export function NotebookAssistant({
     reason: 'manual' | 'rollback',
   ) => void | Promise<void>
   onRunningChange?: (running: boolean) => void
-  onSignIn?: () => void
   storageScope?: string
 }) {
   const [initialApiKeyState] = React.useState(() =>
     loadInitialApiKeyState(credentialScope),
   )
+  const notebookWorkspaceControls = useNotebookWorkspaceControls()
+  const sidePanelButtonRef = React.useRef<HTMLButtonElement>(null)
+
+  React.useEffect(() => {
+    if (notebookWorkspaceControls?.open !== false) return
+    sidePanelButtonRef.current?.focus()
+  }, [notebookWorkspaceControls?.open])
   const [selectedModel, setSelectedModel] = React.useState<ModelChoice>(() =>
     getInitialModelChoice(initialApiKeyState),
   )
@@ -323,9 +328,43 @@ export function NotebookAssistant({
       (provider) => initialApiKeyState.persisted[provider],
     ),
   )
+  const credentialScopeRef = React.useRef(credentialScope)
 
   getExecutionRef.current = getExecution
   onRunningChangeRef.current = onRunningChange
+
+  React.useLayoutEffect(() => {
+    if (credentialScopeRef.current === credentialScope) return
+    credentialScopeRef.current = credentialScope
+    abortIntentRef.current = 'stop'
+    abortRef.current?.abort()
+    promptQueueRef.current.clear()
+    setQueuedPrompts([])
+
+    const nextApiKeyState = loadInitialApiKeyState(credentialScope)
+    const hasPersistedApiKey = notebookAiRemoteProviders.some(
+      (provider) => nextApiKeyState.persisted[provider],
+    )
+    const chatGptModel = chatGptConnection?.connected
+      ? getPreferredChatGptModel(chatGptConnection)
+      : undefined
+    const nextModel = hasPersistedApiKey
+      ? getInitialModelChoice(nextApiKeyState)
+      : chatGptModel
+        ? chatGptModelChoice(chatGptModel)
+        : getInitialModelChoice(nextApiKeyState)
+
+    setApiKeys(nextApiKeyState.keys)
+    setPersistedApiKeys(nextApiKeyState.persisted)
+    didSelectConnectionRef.current = hasPersistedApiKey
+    setSelectedModel(nextModel)
+    setSettingsProvider(
+      nextModel.connection === 'byok' ? nextModel.provider : 'openai',
+    )
+    setSettingsOpen(false)
+    setShowApiKeySetup(false)
+    setApiKeyStorageError('')
+  }, [chatGptConnection, credentialScope])
 
   const chatGptModels = React.useMemo<Array<ChatGptModelChoice>>(
     () =>
@@ -555,11 +594,11 @@ export function NotebookAssistant({
   )
 
   React.useEffect(() => {
-    if (!supportsChatGptLogin || !authenticated || !enabled) return
+    if (!supportsChatGptLogin || !enabled) return
     const abortController = new AbortController()
     void refreshChatGptConnection(abortController.signal, true)
     return () => abortController.abort()
-  }, [authenticated, enabled, refreshChatGptConnection])
+  }, [enabled, refreshChatGptConnection])
 
   React.useEffect(() => {
     if (!chatGptLogin || !enabled) return
@@ -907,10 +946,6 @@ export function NotebookAssistant({
     event.preventDefault()
     const instruction = prompt.trim()
     if (!enabled || !instruction || hydrating) return
-    if (!authenticated) {
-      onSignIn?.()
-      return
-    }
     if (needsConnection) return
 
     const promptQueue = promptQueueRef.current
@@ -1179,7 +1214,7 @@ export function NotebookAssistant({
             await onCommit?.(response.execution)
           } catch (cause) {
             const message = `The notebook ran successfully but could not be saved: ${formatError(cause)}`
-            await discardCheckpoint()
+            retainCheckpoint()
             failActivity(message)
             commitAssistant(response.message)
             setError(message)
@@ -1452,7 +1487,7 @@ export function NotebookAssistant({
       : 'Queue message'
     : 'Send message'
   const floatingChatButtonClass =
-    'pointer-events-auto size-11 border border-border-default bg-background-elevated shadow-sm @min-[900px]:size-9'
+    'pointer-events-auto size-11 bg-surface-state-hover hover:bg-surface-state-pressed @min-[900px]:size-8'
 
   return (
     <section
@@ -1460,7 +1495,7 @@ export function NotebookAssistant({
       aria-busy={running}
       className="relative flex min-h-0 min-w-0 flex-1 flex-col bg-background-default"
     >
-      <header className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-start gap-2 p-3">
+      <header className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-start gap-2 p-3 @min-[900px]:p-2">
         {onDismiss ? (
           <Tooltip content="Hide chat">
             <Button
@@ -1470,10 +1505,15 @@ export function NotebookAssistant({
               size="icon-sm"
               className={floatingChatButtonClass}
               aria-label="Hide chat"
-              onClick={onDismiss}
+              onClick={() => {
+                if (notebookWorkspaceControls?.open === false) {
+                  notebookWorkspaceControls.toggle()
+                }
+                onDismiss()
+              }}
             >
               <CaretDownIcon
-                className="size-4 @min-[900px]:rotate-90"
+                className="size-3.5 @min-[900px]:rotate-90"
                 aria-hidden="true"
               />
             </Button>
@@ -1494,13 +1534,16 @@ export function NotebookAssistant({
                     disabled={running}
                   >
                     <ClockCounterClockwiseIcon
-                      className="size-4"
+                      className="size-3.5"
                       aria-hidden="true"
                     />
                   </Button>
                 </DropdownTrigger>
               </Tooltip>
-              <DropdownContent align="end" className="w-72 rounded-xl">
+              <DropdownContent
+                align="end"
+                className="sandbox-ui w-72 rounded-xl"
+              >
                 <div className="px-2 py-1 font-ds-mono text-[10px] uppercase tracking-wide text-text-muted">
                   Recent conversations
                 </div>
@@ -1543,40 +1586,64 @@ export function NotebookAssistant({
               disabled={running || messages.length === 0}
               onClick={() => void resetConversation()}
             >
-              <NotePencilIcon className="size-4" aria-hidden="true" />
+              <NotePencilIcon className="size-3.5" aria-hidden="true" />
             </Button>
           </Tooltip>
-          {authenticated ? (
-            <Tooltip content="Model connections">
+          <Tooltip content="Model connections">
+            <Button
+              type="button"
+              variant="icon"
+              color="gray"
+              size="icon-sm"
+              className={floatingChatButtonClass}
+              aria-label="Open model connections"
+              disabled={running}
+              onClick={() => {
+                if (selectedModel.connection === 'byok') {
+                  setSettingsProvider(selectedModel.provider)
+                }
+                setSettingsOpen(true)
+              }}
+            >
+              <GearSixIcon className="size-3.5" aria-hidden="true" />
+            </Button>
+          </Tooltip>
+          {notebookWorkspaceControls ? (
+            <Tooltip
+              content={
+                notebookWorkspaceControls.open
+                  ? 'Hide side panel'
+                  : 'Show side panel'
+              }
+            >
               <Button
+                ref={sidePanelButtonRef}
                 type="button"
                 variant="icon"
                 color="gray"
                 size="icon-sm"
                 className={floatingChatButtonClass}
-                aria-label="Open model connections"
-                disabled={running}
-                onClick={() => {
-                  if (selectedModel.connection === 'byok') {
-                    setSettingsProvider(selectedModel.provider)
-                  }
-                  setSettingsOpen(true)
-                }}
+                aria-label={
+                  notebookWorkspaceControls.open
+                    ? 'Hide side panel'
+                    : 'Show side panel'
+                }
+                aria-controls={notebookWorkspaceControls.controlsId}
+                aria-expanded={notebookWorkspaceControls.open}
+                onClick={notebookWorkspaceControls.toggle}
               >
-                <GearSixIcon className="size-4" aria-hidden="true" />
+                <SidebarSimpleIcon
+                  className="size-3.5"
+                  mirrored
+                  aria-hidden="true"
+                />
               </Button>
             </Tooltip>
           ) : null}
         </div>
       </header>
 
-      {!authenticated ? (
-        <SetupState title="Sign in to edit with AI">
-          <Button type="button" size="sm" className="mt-5" onClick={onSignIn}>
-            Sign in
-          </Button>
-        </SetupState>
-      ) : needsConnection ? (
+      {needsConnection ? (
         <SetupState title="Connect a model" align="left">
           {supportsChatGptLogin && !showApiKeySetup ? (
             chatGptLogin ? (
@@ -1932,7 +1999,7 @@ function DeviceLogin({
 function ErrorMessage({ message }: { message: string }) {
   return (
     <p
-      className="mt-4 rounded-lg border border-border-default border-l-2 border-l-border-error bg-background-elevated px-3 py-2 text-xs/5 text-text-secondary"
+      className="mt-4 rounded-md border border-border-default bg-background-surface px-2.5 py-2 text-xs/5 whitespace-pre-wrap text-text-secondary"
       role="alert"
     >
       {message}
@@ -2098,7 +2165,11 @@ function ModelPicker({
           <CaretDownIcon className="size-3" aria-hidden="true" />
         </Button>
       </DropdownTrigger>
-      <DropdownContent align="start" side="top" className="w-64 rounded-xl">
+      <DropdownContent
+        align="start"
+        side="top"
+        className="sandbox-ui w-64 rounded-xl"
+      >
         {showChatGpt ? (
           <>
             {chatGptModels.length ? (
@@ -2175,7 +2246,11 @@ function SendModePicker({
           <CaretDownIcon className="size-3" aria-hidden="true" />
         </Button>
       </DropdownTrigger>
-      <DropdownContent align="end" side="top" className="w-72 rounded-xl">
+      <DropdownContent
+        align="end"
+        side="top"
+        className="sandbox-ui w-72 rounded-xl"
+      >
         <DropdownItem
           className="min-h-12 justify-between gap-3 rounded-lg px-2.5"
           onSelect={() => onChange('queue')}
@@ -2314,7 +2389,7 @@ function ConnectionsDialog({
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="fixed inset-0 z-[999] bg-black/45 backdrop-blur-[1px] data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0 motion-reduce:animate-none" />
-        <DialogPrimitive.Content className="fixed top-1/2 left-1/2 z-[1000] max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border border-border-default bg-background-surface text-text-primary shadow-2xl outline-none data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 motion-reduce:animate-none">
+        <DialogPrimitive.Content className="sandbox-ui fixed top-1/2 left-1/2 z-[1000] max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border border-border-default bg-background-surface text-text-primary shadow-2xl outline-none data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 motion-reduce:animate-none">
           <header className="flex h-14 items-center justify-between border-b border-border-default px-5">
             <DialogPrimitive.Title className="text-sm font-semibold">
               Model connections

@@ -11,6 +11,7 @@ import {
 import {
   blankNotebookProject,
   clearNotebookDraft,
+  createNotebookDraftId,
   createNotebookProjectFromTemplateId,
   createNotebookTemplateProject,
   getBrowserNotebookDraftStorage,
@@ -38,6 +39,7 @@ class MemoryStorage {
 }
 
 const updatedAt = '2026-08-15T18:00:00.000Z'
+const draftId = '2a57a714-e6b6-476f-bf54-2152577df4fd'
 
 function createCompleteProject(): SharedExampleProject {
   return createSharedExampleProject({
@@ -70,9 +72,30 @@ test('round-trips a complete notebook draft through storage', () => {
   const storage = new MemoryStorage()
   const project = createCompleteProject()
 
-  assert.equal(saveNotebookDraft(storage, project, updatedAt), true)
+  assert.equal(
+    saveNotebookDraft(storage, { id: draftId, project }, updatedAt),
+    true,
+  )
   assert.ok(storage.getItem(notebookDraftStorageKey))
-  assert.deepEqual(loadNotebookDraft(storage), { project, updatedAt })
+  assert.deepEqual(loadNotebookDraft(storage), {
+    id: draftId,
+    project,
+    updatedAt,
+  })
+})
+
+test('gives legacy drafts a stable assistant scope when loading', () => {
+  const storage = new MemoryStorage()
+  const project = createCompleteProject()
+  storage.setItem(
+    notebookDraftStorageKey,
+    JSON.stringify({ version: 1, project, updatedAt }),
+  )
+
+  const firstLoad = loadNotebookDraft(storage)
+  const secondLoad = loadNotebookDraft(storage)
+  assert.equal(firstLoad?.id, `legacy-${updatedAt}`)
+  assert.equal(secondLoad?.id, firstLoad?.id)
 })
 
 test('clears corrupt and invalid notebook drafts', async (t) => {
@@ -80,7 +103,16 @@ test('clears corrupt and invalid notebook drafts', async (t) => {
     { name: 'corrupt JSON', source: '{' },
     {
       name: 'unsupported version',
-      source: JSON.stringify({ version: 2, project: {}, updatedAt }),
+      source: JSON.stringify({ version: 3, project: {}, updatedAt }),
+    },
+    {
+      name: 'invalid draft id',
+      source: JSON.stringify({
+        version: 2,
+        id: '',
+        project: createCompleteProject(),
+        updatedAt,
+      }),
     },
     {
       name: 'invalid project',
@@ -122,17 +154,26 @@ test('contains storage access failures', () => {
 
   assert.equal(loadNotebookDraft(inaccessibleStorage), undefined)
   assert.equal(
-    saveNotebookDraft(inaccessibleStorage, blankNotebookProject, updatedAt),
+    saveNotebookDraft(
+      inaccessibleStorage,
+      { id: draftId, project: blankNotebookProject },
+      updatedAt,
+    ),
     false,
   )
   assert.equal(clearNotebookDraft(inaccessibleStorage), false)
   assert.equal(loadNotebookDraft(undefined), undefined)
   assert.equal(
-    saveNotebookDraft(undefined, blankNotebookProject, updatedAt),
+    saveNotebookDraft(
+      undefined,
+      { id: draftId, project: blankNotebookProject },
+      updatedAt,
+    ),
     false,
   )
   assert.equal(clearNotebookDraft(undefined), false)
   assert.equal(getBrowserNotebookDraftStorage(), undefined)
+  assert.notEqual(createNotebookDraftId(), createNotebookDraftId())
 })
 
 test('constructs blank and example notebook projects', () => {

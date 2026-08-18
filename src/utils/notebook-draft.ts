@@ -12,6 +12,7 @@ import { isNotebookRecordTimestamp } from './notebook-record'
 export const notebookDraftStorageKey = 'tanstack.notebook.draft.v1'
 
 export type NotebookDraft = {
+  id: string
   project: SharedExampleProject
   updatedAt: string
 }
@@ -31,6 +32,10 @@ export const blankNotebookProject = createNotebookTemplateProject({
   description: '',
   source: notebookStarterSource,
 })
+
+export function createNotebookDraftId() {
+  return crypto.randomUUID()
+}
 
 export function createNotebookProjectFromTemplateId(templateId: string) {
   if (templateId === 'blank') return blankNotebookProject
@@ -71,17 +76,22 @@ export function loadNotebookDraft(
 
 export function saveNotebookDraft(
   storage: NotebookDraftStorage | undefined,
-  project: SharedExampleProject,
+  draft: Pick<NotebookDraft, 'id' | 'project'>,
   updatedAt = new Date().toISOString(),
 ) {
   if (!storage) return false
   try {
     const canonicalProject: unknown = JSON.parse(
-      serializeSharedExampleProject(project),
+      serializeSharedExampleProject(draft.project),
     )
     storage.setItem(
       notebookDraftStorageKey,
-      JSON.stringify({ version: 1, project: canonicalProject, updatedAt }),
+      JSON.stringify({
+        version: 2,
+        id: draft.id,
+        project: canonicalProject,
+        updatedAt,
+      }),
     )
     return true
   } catch {
@@ -101,9 +111,27 @@ export function clearNotebookDraft(storage: NotebookDraftStorage | undefined) {
 
 function parseNotebookDraft(value: unknown): NotebookDraft {
   if (
+    isRecord(value) &&
+    hasOnlyKeys(value, ['version', 'project', 'updatedAt']) &&
+    value.version === 1 &&
+    typeof value.updatedAt === 'string' &&
+    isNotebookRecordTimestamp(value.updatedAt) &&
+    'project' in value
+  ) {
+    return {
+      id: `legacy-${value.updatedAt}`,
+      project: parseSharedExampleProject(value.project),
+      updatedAt: value.updatedAt,
+    }
+  }
+
+  if (
     !isRecord(value) ||
-    !hasOnlyKeys(value, ['version', 'project', 'updatedAt']) ||
-    value.version !== 1 ||
+    !hasOnlyKeys(value, ['version', 'id', 'project', 'updatedAt']) ||
+    value.version !== 2 ||
+    typeof value.id !== 'string' ||
+    value.id.length === 0 ||
+    value.id.length > 200 ||
     typeof value.updatedAt !== 'string' ||
     !isNotebookRecordTimestamp(value.updatedAt) ||
     !('project' in value)
@@ -112,6 +140,7 @@ function parseNotebookDraft(value: unknown): NotebookDraft {
   }
 
   return {
+    id: value.id,
     project: parseSharedExampleProject(value.project),
     updatedAt: value.updatedAt,
   }

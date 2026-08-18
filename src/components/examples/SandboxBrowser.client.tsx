@@ -240,7 +240,7 @@ export function SandboxBrowser({
     <div
       ref={rootRef}
       data-sandbox-browser=""
-      className="relative grid size-full min-h-0 grid-rows-[2.5rem_minmax(0,1fr)] bg-background-default min-[900px]:grid-rows-[2.25rem_minmax(0,1fr)]"
+      className="sandbox-ui relative grid size-full min-h-0 grid-rows-[2.5rem_minmax(0,1fr)] bg-background-default min-[900px]:grid-rows-[2.25rem_minmax(0,1fr)]"
     >
       <header className="flex min-w-0 items-center gap-1 border-b border-border-default bg-background-subtle px-1.5">
         {toolbarAction(
@@ -330,7 +330,7 @@ export function SandboxBrowser({
               className="shrink-0 transition-none active:scale-100"
               aria-label="Preview actions"
             >
-              <DotsThreeIcon className="size-4" aria-hidden="true" />
+              <DotsThreeIcon className="size-3.5" aria-hidden="true" />
             </Button>
           </DropdownTrigger>
           <DropdownContent
@@ -338,6 +338,7 @@ export function SandboxBrowser({
             container={isFullscreen ? rootRef.current : undefined}
             side="bottom"
             sideOffset={5}
+            className="sandbox-ui border-black/10 dark:border-white/10"
           >
             <DropdownItem onSelect={() => void copyUrl()}>
               {copiedUrl ? (
@@ -387,14 +388,21 @@ export function SandboxBrowser({
 
       {error ? (
         <div
-          className="absolute top-12 right-3 left-3 z-20 flex max-h-48 items-start gap-2 overflow-hidden rounded-lg border border-border-default border-l-2 border-l-border-error bg-background-elevated px-3 py-2 shadow-lg sm:left-auto sm:w-[26rem] min-[900px]:top-11"
-          role="alert"
+          className="absolute top-12 right-3 left-3 z-20 flex max-h-48 items-start gap-2 overflow-hidden rounded-md border border-border-default bg-background-surface px-2.5 py-2 shadow-sm sm:left-auto sm:w-[26rem] min-[900px]:top-11"
+          role="group"
+          aria-label="Preview error"
         >
+          <span className="sr-only" role="alert">
+            Preview failed. Error details are shown.
+          </span>
           <WarningCircleIcon
             className="mt-0.5 size-4 shrink-0 text-icon-error"
             aria-hidden="true"
           />
-          <pre className="min-h-0 min-w-0 overflow-auto font-ds-mono text-xs/5 whitespace-pre-wrap text-text-secondary">
+          <pre
+            className="min-h-0 min-w-0 overflow-auto font-ds-mono text-xs/5 whitespace-pre-wrap text-text-secondary"
+            aria-label="Preview error details"
+          >
             {error}
           </pre>
         </div>
@@ -466,7 +474,7 @@ export function SandboxBrowser({
             </Button>
           </div>
           {annotationCopyError ? (
-            <p className="mt-2 text-xs text-text-error" role="alert">
+            <p className="mt-2 text-xs text-text-secondary" role="alert">
               Unable to copy comment.
             </p>
           ) : null}
@@ -524,16 +532,20 @@ export function SandboxBrowser({
             </Tooltip>
           </div>
           {screenshotStatus === 'error' ? (
-            <p className="mt-2 text-xs text-text-error" role="alert">
+            <p className="mt-2 text-xs text-text-secondary" role="alert">
               Unable to copy screenshot. Download is still available.
             </p>
           ) : null}
         </div>
       ) : screenshotStatus === 'error' ? (
         <div
-          className="absolute right-3 bottom-3 z-20 flex items-center gap-2 rounded-lg border border-border-default bg-background-elevated py-1.5 pr-1.5 pl-3 text-xs text-text-error shadow-lg"
+          className="absolute right-3 bottom-3 z-20 flex items-center gap-2 rounded-md border border-border-default bg-background-surface py-1.5 pr-1.5 pl-2.5 text-xs text-text-secondary shadow-sm"
           role="alert"
         >
+          <WarningCircleIcon
+            className="size-3.5 shrink-0 text-icon-error"
+            aria-hidden="true"
+          />
           Screenshot unavailable for this preview.
           <Button
             type="button"

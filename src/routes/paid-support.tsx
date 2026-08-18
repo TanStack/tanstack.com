@@ -107,7 +107,7 @@ function PaidSupportComp() {
                   ? 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3'
                   : viewMode === 'row'
                     ? 'flex flex-col gap-4'
-                    : 'grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-6 [&>*>*]:max-w-none @[43rem]:grid-cols-3'
+                    : 'grid grid-cols-2 gap-6 [&>*>*]:max-w-none @[28rem]:grid-cols-[repeat(auto-fit,minmax(180px,1fr))] @[43rem]:grid-cols-3'
               }`}
             >
               {coreMaintainers.map((maintainer, index) => (

@@ -341,7 +341,7 @@ function MaintainerGrid({
             ? 'grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-6'
             : viewMode === 'row'
               ? 'flex flex-col gap-4'
-              : 'grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-6 [&>*>*]:max-w-none @[43rem]:grid-cols-3'
+              : 'grid grid-cols-2 gap-6 [&>*>*]:max-w-none @[28rem]:grid-cols-[repeat(auto-fit,minmax(180px,1fr))] @[43rem]:grid-cols-3'
         }`}
       >
         {maintainers.map((maintainer, index) => (

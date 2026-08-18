@@ -52,7 +52,7 @@ export function PageHeader({
       )}
     >
       <h1 className="m-0 font-ds-display font-bold leading-[1.02] tracking-[-0.03em] text-text-primary text-[clamp(var(--text-ds-heading-1),5vw,var(--text-ds-display-md))] [&_em]:relative [&_em]:not-italic [&_em]:text-accent-warm [&_em]:after:absolute [&_em]:after:inset-x-0 [&_em]:after:-bottom-0.5 [&_em]:after:h-[3px] [&_em]:after:rounded-sm [&_em]:after:bg-accent-warm [&_em]:after:opacity-35">
-        <span className="inline-flex items-center gap-[0.3em]">
+        <span className="inline-flex items-center gap-2">
           {usingBrandMark ? <span className="sr-only">TanStack </span> : null}
           {mark}
           <span>{title}</span>

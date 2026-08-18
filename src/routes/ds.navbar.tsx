@@ -9,6 +9,7 @@ import {
   LifebuoyIcon,
   UsersIcon,
   PathIcon,
+  YoutubeLogoIcon,
 } from '@phosphor-icons/react'
 import { seo } from '~/utils/seo'
 import { DsPage, DsSection } from '~/components/ds/DsKit'
@@ -50,7 +51,7 @@ const MENU_VARIANTS = [
   {
     name: 'Support',
     detail:
-      'Two link columns (Support, About) plus a Partners rail — a left-divided column with the "Work with TanStack" emblem lockup and a Get in touch link anchored to the bottom.',
+      'Two link columns (Support, About) plus a Partners rail — a left-divided column with the "Work with TanStack" emblem lockup and a Partnership Inquiry link anchored to the bottom.',
   },
   {
     name: 'Merch',
@@ -60,7 +61,7 @@ const MENU_VARIANTS = [
   {
     name: 'Community & Tools',
     detail:
-      'Standard section layouts of MegaMenuItem rows — Channels / People & Work for Community, and Builder / Stats for Tools.',
+      'Standard section layouts of MegaMenuItem rows — Channels / People & Work for Community, and Builder / Notebook / Stats for Tools.',
   },
 ]
 
@@ -110,17 +111,28 @@ function NavbarAnatomy() {
 
       {/* Utility cluster */}
       <div className="flex items-center gap-2 text-gray-500 @min-[400px]:gap-2.5 dark:text-gray-400">
-        {/* Social links — wide only (≥ 1120px) */}
-        <GithubIcon className="hidden h-4 w-4 @min-[1120px]:block" />
-        <DiscordIcon className="hidden h-4 w-4 @min-[1120px]:block" />
-        <span className="hidden h-4 w-px bg-gray-500/20 @min-[1120px]:block" />
-        <MoonIcon className="h-[18px] w-[18px]" />
-        <ShoppingCartIcon className="h-[18px] w-[18px]" />
-        <MagnifyingGlassIcon className="h-[18px] w-[18px]" />
-        <span className="inline-flex items-center gap-1 rounded-md border border-gray-500/25 px-1.5 py-1 text-[11px] font-semibold text-gray-700 dark:text-gray-200">
-          <SparkleIcon className="h-3 w-3" weight="fill" />
-          AI
+        {/* Search — its own icon button, desktop only (≥ 900px) */}
+        <MagnifyingGlassIcon className="hidden h-[18px] w-[18px] @min-[900px]:block" />
+        {/* Social — a stacked-avatar cluster (opens a dropdown), wide only (≥ 1120px) */}
+        <span className="hidden items-center @min-[1120px]:flex">
+          {[GithubIcon, DiscordIcon, YoutubeLogoIcon].map((Icon, i) => (
+            <span
+              key={i}
+              className={`flex h-6 w-6 items-center justify-center rounded-full border border-gray-500/20 bg-white dark:bg-black ${i > 0 ? '-ml-2' : ''}`}
+            >
+              <Icon className="h-3.5 w-3.5" />
+            </span>
+          ))}
         </span>
+        {/* Theme toggle — desktop only (≥ 900px) */}
+        <MoonIcon className="hidden h-[18px] w-[18px] @min-[900px]:block" />
+        {/* Cart — always */}
+        <ShoppingCartIcon className="h-[18px] w-[18px]" />
+        {/* Ask AI — icon-only, desktop only (≥ 900px) */}
+        <SparkleIcon
+          className="hidden h-[18px] w-[18px] @min-[900px]:block"
+          weight="bold"
+        />
         {/* Log In — desktop only (≥ 900px) */}
         <span className="hidden items-center rounded-md bg-gray-900 px-2.5 py-1.5 text-xs font-semibold text-white @min-[900px]:inline-flex dark:bg-white dark:text-black">
           Log In
@@ -372,7 +384,10 @@ function NavbarPage() {
             value="text-xs · min-[1120px]:text-[13px]"
           />
           <SpecRow label="Surface" value="bg-white/90 dark:bg-black/90" />
-          <SpecRow label="Border" value="border-b border-gray-500/20" />
+          <SpecRow
+            label="Border"
+            value="scroll-reactive hairline — bg-border-subtle, fades in on scroll"
+          />
         </div>
       </DsSection>
 
@@ -390,8 +405,8 @@ function NavbarPage() {
             extra breathing room.
           </RegionCard>
           <RegionCard index={0} title="< 900px — Mobile">
-            Primary nav collapses to a hamburger that opens a full-width
-            collapsible menu below the bar.
+            Primary nav collapses to a hamburger that opens a full-height sliding
+            panel with Search, Ask AI, and Sign In.
           </RegionCard>
         </div>
       </DsSection>

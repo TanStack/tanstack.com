@@ -100,6 +100,26 @@ export const dsNav: Array<DsNavSection> = [
     title: 'Components',
     items: [
       {
+        label: 'Avatar',
+        to: '/ds/avatar',
+        sections: [
+          'Sizes',
+          'Fallbacks',
+          'Maintainer card',
+          'Responsive maintainer grid',
+        ],
+      },
+      {
+        label: 'Badges',
+        to: '/ds/badges',
+        sections: ['Variants', 'Corner styles', 'In context', 'Library status'],
+      },
+      {
+        label: 'Breadcrumbs',
+        to: '/ds/breadcrumbs',
+        sections: ['Section + on-this-page'],
+      },
+      {
         label: 'Buttons',
         to: '/ds/buttons',
         sections: [
@@ -117,9 +137,14 @@ export const dsNav: Array<DsNavSection> = [
         ],
       },
       {
-        label: 'Badges',
-        to: '/ds/badges',
-        sections: ['Variants', 'Corner styles', 'In context'],
+        label: 'Cards & Surfaces',
+        to: '/ds/cards',
+        sections: ['Card', 'Inline code', 'Blog post card', 'Tooltip'],
+      },
+      {
+        label: 'Dropdown',
+        to: '/ds/dropdown',
+        sections: ['Basic menu'],
       },
       {
         label: 'Eyebrow',
@@ -139,46 +164,6 @@ export const dsNav: Array<DsNavSection> = [
         ],
       },
       {
-        label: 'Dropdown',
-        to: '/ds/dropdown',
-        sections: ['Basic menu'],
-      },
-      {
-        label: 'Avatar',
-        to: '/ds/avatar',
-        sections: [
-          'Sizes',
-          'Fallbacks',
-          'Maintainer card',
-          'Responsive maintainer grid',
-        ],
-      },
-      {
-        label: 'Spinner',
-        to: '/ds/spinner',
-        sections: ['Sizes & color', 'Headbanger'],
-      },
-      {
-        label: 'Collapsible',
-        to: '/ds/collapsible',
-        sections: ['Disclosure'],
-      },
-      {
-        label: 'Breadcrumbs',
-        to: '/ds/breadcrumbs',
-        sections: ['Section + on-this-page'],
-      },
-      {
-        label: 'Cards & Surfaces',
-        to: '/ds/cards',
-        sections: ['Card', 'Inline code', 'Blog post card', 'Tooltip'],
-      },
-      {
-        label: 'Stats Section',
-        to: '/ds/stats',
-        sections: ['Preview'],
-      },
-      {
         label: 'Navbar',
         to: '/ds/navbar',
         sections: [
@@ -190,6 +175,26 @@ export const dsNav: Array<DsNavSection> = [
           'Responsive behavior',
           'Source',
         ],
+      },
+      {
+        label: 'Panel',
+        to: '/ds/panel',
+        sections: ['Disclosure'],
+      },
+      {
+        label: 'Spinner',
+        to: '/ds/spinner',
+        sections: ['Sizes & color', 'Headbanger'],
+      },
+      {
+        label: 'Stats Section',
+        to: '/ds/stats',
+        sections: ['Preview'],
+      },
+      {
+        label: 'Tabs',
+        to: '/ds/tabs',
+        sections: ['Primary', 'Secondary', 'Icon only'],
       },
     ],
   },

@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 import { CoverFallback } from '~/components/CoverFallback'
+import { Squircle } from '~/components/Squircle'
 import {
   formatAuthors,
   formatPublishedDate,
@@ -8,6 +9,7 @@ import {
 } from '~/utils/blog-format'
 import type { RecentPost } from '~/utils/blog.functions'
 import { getOptimizedImageUrl } from '~/utils/optimizedImage'
+import { categoryTextColor, libraryCategories } from '~/libraries/categories'
 
 // The card renders library tags when the post carries a `library`; `RecentPost`
 // (nav / homepage) omits it, so those usages stay tag-free.
@@ -19,6 +21,8 @@ export function BlogPostCard({
   post,
   size = 'sm',
   featured = false,
+  showLibraryBadges = true,
+  showCategory = false,
 }: {
   className?: string
   onNavigate?: () => void
@@ -29,23 +33,36 @@ export function BlogPostCard({
   /** Hero treatment: image and copy sit side-by-side on wider screens with the
    *  largest type. Used for the single latest post atop the Blog index. */
   featured?: boolean
+  /** Show the library tag(s) over the image. Off for a single-library blog,
+   *  where every card would carry the same redundant badge. */
+  showLibraryBadges?: boolean
+  /** Lead the meta line with the primary library as a category
+   *  ("{Library} · {Author} · {Date}"). Used on the main Blog index. */
+  showCategory?: boolean
 }) {
   const isLarge = featured || size === 'lg'
-  const blogLibraries = getBlogLibraries(post.library)
+  const blogLibraries = showLibraryBadges ? getBlogLibraries(post.library) : []
+  const primaryLibrary = showCategory
+    ? getBlogLibraries(post.library)[0]
+    : undefined
+  const categoryLabel = primaryLibrary?.name.replace('TanStack ', '')
+  const categoryColor = primaryLibrary
+    ? categoryTextColor[libraryCategories[primaryLibrary.id] ?? 'tooling']
+    : undefined
 
   const cardClassName = twMerge(
-    'group/post flex flex-col rounded-xl corner-squircle transition-colors hover:bg-surface-state-hover focus-visible:bg-surface-state-hover focus-visible:outline-none',
-    featured
-      ? 'gap-4 p-4 md:flex-row md:gap-6'
-      : isLarge
-        ? 'gap-4 p-4'
-        : 'gap-3 p-3',
+    // Hover is cued by the text brightening (title/excerpt/byline, via
+    // group-hover below) plus a subtle lift — no background fill, so the card
+    // needs no inset padding. `motion-safe` drops the lift for reduced-motion;
+    // the focus ring keeps keyboard focus visible now the bg cue is gone.
+    'group/post flex flex-col rounded-xl corner-squircle transition-transform duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background-default motion-safe:hover:-translate-y-0.5',
+    featured ? 'gap-4 md:flex-row md:gap-6' : isLarge ? 'gap-4' : 'gap-3',
     className,
   )
 
   const content = (
     <>
-      <div
+      <Squircle
         className={twMerge(
           'relative aspect-video w-full overflow-hidden rounded-lg corner-squircle border border-border-subtle bg-background-subtle',
           featured && 'md:aspect-auto md:w-1/2',
@@ -87,7 +104,7 @@ export function BlogPostCard({
             ))}
           </div>
         ) : null}
-      </div>
+      </Squircle>
       <div
         className={twMerge(
           'flex flex-col px-1 pb-1',
@@ -99,7 +116,7 @@ export function BlogPostCard({
             `text-*` color utilities both start with `text-`, and twMerge would
             drop the color. */}
         <div
-          className={`font-ds-display text-text-primary ${
+          className={`font-ds-display text-text-primary/85 transition-colors duration-200 group-hover/post:text-text-primary ${
             featured
               ? 'line-clamp-3 text-ds-heading-2'
               : isLarge
@@ -110,7 +127,7 @@ export function BlogPostCard({
           {post.title}
         </div>
         <p
-          className={`text-text-secondary ${
+          className={`text-text-secondary transition-colors duration-200 group-hover/post:text-text-primary ${
             featured
               ? 'line-clamp-3 text-ds-body-md'
               : isLarge
@@ -121,8 +138,18 @@ export function BlogPostCard({
           {post.excerpt}
         </p>
         <div
-          className={`mt-0.5 font-ds-mono text-text-muted/70 ${isLarge ? 'text-ds-mono-sm' : 'text-ds-mono-xs'}`}
+          className={`mt-0.5 font-ds-mono text-text-muted/70 transition-colors duration-200 group-hover/post:text-text-secondary ${isLarge ? 'text-ds-mono-sm' : 'text-ds-mono-xs'}`}
         >
+          {categoryLabel ? (
+            <>
+              <span
+                className={`${categoryColor} opacity-70 transition-opacity duration-200 group-hover/post:opacity-100`}
+              >
+                {categoryLabel}
+              </span>
+              {' · '}
+            </>
+          ) : null}
           {formatAuthors(post.authors)} · {formatPublishedDate(post.published)}
         </div>
       </div>

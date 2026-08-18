@@ -828,6 +828,10 @@ export function LibraryLayout({
 
   const isNpmStats = matches.some((d) => d.pathname.includes('/docs/npm-stats'))
 
+  // The library blog already lists posts, so the "Latest Posts" rail widget is
+  // redundant there — hide it on the blog while keeping it on other docs pages.
+  const isBlog = matches.some((d) => d.pathname.includes('/docs/blog'))
+
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
   const mobileMenuDialogRef = React.useRef<HTMLDivElement>(null)
   const mobileMenuToggleId = 'docs-mobile-menu-toggle'
@@ -1507,9 +1511,11 @@ export function LibraryLayout({
                   analyticsPlacement="docs_rail"
                   partners={activePartners}
                 />
-                <div className="hidden md:block border border-gray-500/20 rounded-l-lg overflow-hidden w-full">
-                  <RecentPostsWidget enabled={isDesktopViewport} />
-                </div>
+                {!isBlog && (
+                  <div className="hidden md:block border border-gray-500/20 rounded-l-lg overflow-hidden w-full">
+                    <RecentPostsWidget enabled={isDesktopViewport} />
+                  </div>
+                )}
               </RightRail>
             )}
           </div>

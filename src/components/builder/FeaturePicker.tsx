@@ -33,10 +33,10 @@ import {
 } from '~/utils/partner-placement'
 import { Tooltip } from '~/ui/Tooltip'
 import {
-  Collapsible,
-  CollapsibleTrigger,
-  CollapsibleContent,
-} from '~/components/Collapsible'
+  Panel,
+  PanelTrigger,
+  PanelContent,
+} from '~/components/Panel'
 import type { FeatureId, FeatureInfo } from '~/builder/api'
 
 type FeatureCategory =
@@ -336,8 +336,8 @@ function FeatureSection({
   const effectiveOpen = forceOpen || isOpen
 
   return (
-    <Collapsible open={effectiveOpen} onOpenChange={setIsOpen}>
-      <CollapsibleTrigger className="w-full flex items-center justify-between py-3">
+    <Panel open={effectiveOpen} onOpenChange={setIsOpen}>
+      <PanelTrigger className="w-full flex items-center justify-between py-3">
         <div className="text-left">
           <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">
             {title}
@@ -352,9 +352,9 @@ function FeatureSection({
             effectiveOpen && 'rotate-180',
           )}
         />
-      </CollapsibleTrigger>
+      </PanelTrigger>
 
-      <CollapsibleContent>
+      <PanelContent>
         <div className="mt-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 xl:grid-cols-2 gap-1 px-1 pb-2">
           {features.map((feature) => (
             <FeatureCard
@@ -364,8 +364,8 @@ function FeatureSection({
             />
           ))}
         </div>
-      </CollapsibleContent>
-    </Collapsible>
+      </PanelContent>
+    </Panel>
   )
 }
 
@@ -572,8 +572,8 @@ function ExamplePicker() {
   if (examples.length === 0) return null
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <CollapsibleTrigger className="w-full flex items-center justify-between py-3">
+    <Panel open={isOpen} onOpenChange={setIsOpen}>
+      <PanelTrigger className="w-full flex items-center justify-between py-3">
         <div className="text-left">
           <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">
             Examples
@@ -588,9 +588,9 @@ function ExamplePicker() {
             isOpen && 'rotate-180',
           )}
         />
-      </CollapsibleTrigger>
+      </PanelTrigger>
 
-      <CollapsibleContent>
+      <PanelContent>
         <div className="mt-1 grid grid-cols-1 gap-1 px-1 pb-2">
           {examples.map((example) => {
             const isSelected = selectedExample === example.id
@@ -647,7 +647,7 @@ function ExamplePicker() {
             )
           })}
         </div>
-      </CollapsibleContent>
-    </Collapsible>
+      </PanelContent>
+    </Panel>
   )
 }

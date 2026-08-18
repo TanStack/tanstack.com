@@ -446,11 +446,22 @@ type SearchInputProps = Omit<
 > & {
   size?: 'default' | 'large'
   progressive?: boolean
+  /** Fully-rounded pill shape (default is the standard rounded-lg/xl). */
+  pill?: boolean
+  /** Node rendered inside the field, right of the input (e.g. an RSS link). */
+  trailing?: React.ReactNode
 }
 
 export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
   function SearchInput(
-    { className, size = 'default', progressive = false, ...props },
+    {
+      className,
+      size = 'default',
+      progressive = false,
+      pill = false,
+      trailing,
+      ...props
+    },
     forwardedRef,
   ) {
     const [open, setOpen] = React.useState(!progressive)
@@ -504,6 +515,7 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
             size === 'large'
               ? 'min-h-14 gap-3 rounded-xl px-4'
               : 'h-10 gap-2.5 rounded-lg px-3',
+            pill && 'rounded-full',
           )}
         >
           <MagnifyingGlassIcon
@@ -513,6 +525,7 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
             className="shrink-0"
           />
           {input}
+          {trailing ? <span className="shrink-0">{trailing}</span> : null}
         </label>
       )
     }
@@ -581,7 +594,7 @@ export function Card({
   return (
     <div
       className={twMerge(
-        'rounded-lg border border-border-default bg-background-surface shadow-md',
+        'rounded-lg corner-squircle border border-border-default bg-background-surface shadow-md',
         className,
       )}
     >
@@ -780,7 +793,10 @@ export function DropdownItem({
 export function DropdownSeparator({ className }: { className?: string }) {
   return (
     <DropdownMenu.Separator
-      className={twMerge('my-1 h-px bg-border-subtle', className)}
+      // On the elevated menu surface, dark `border-subtle` (#232323) is darker
+      // than the surface and recedes; use the site's subtle dark-surface line
+      // (a faint white hairline, as in the mega/mobile menus) for dark mode.
+      className={twMerge('my-1 h-px bg-border-subtle dark:bg-white/10', className)}
     />
   )
 }
@@ -854,6 +870,15 @@ export function Breadcrumbs({
   )
 }
 
+export {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsPanel,
+  segmentClasses,
+  segmentTrackClasses,
+  type SegmentSize,
+} from './Tabs'
 export { PalmSpinner } from './PalmSpinner'
 export { PixelSpinner } from './PixelSpinner'
 export {

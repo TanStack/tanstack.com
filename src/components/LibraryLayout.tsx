@@ -830,6 +830,10 @@ export function LibraryLayout({
       d.routeId.startsWith('/_library/charts/catalog'),
   )
 
+  const isThemeEditor = matches.some((d) =>
+    d.routeId.startsWith('/_library/highlight/$version/theme-editor'),
+  )
+
   const isNpmStats = matches.some((d) => d.pathname.includes('/docs/npm-stats'))
 
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
@@ -860,30 +864,58 @@ export function LibraryLayout({
   const tabbedMenuConfig = React.useMemo(() => {
     const tabs = getTabbedMenuConfig(menuConfig)
 
-    return libraryId === 'charts'
-      ? tabs.map((tab) =>
-          tab.id === 'examples'
-            ? {
-                ...tab,
-                firstItem: {
-                  label: 'Examples',
-                  to: '/charts/catalog',
-                  tab: 'examples',
-                },
-              }
-            : tab,
-        )
-      : tabs
+    if (libraryId === 'charts') {
+      return tabs.map((tab) =>
+        tab.id === 'examples'
+          ? {
+              ...tab,
+              firstItem: {
+                label: 'Examples',
+                to: '/charts/catalog',
+                tab: 'examples',
+              },
+            }
+          : tab,
+      )
+    }
+
+    if (libraryId === 'highlight') {
+      return [
+        ...tabs,
+        {
+          id: 'theme-editor' as const,
+          label: 'Theme Editor',
+          groups: [],
+          firstItem: {
+            label: 'Theme Editor',
+            to: '/highlight/$version/theme-editor',
+            tab: 'theme-editor' as const,
+          },
+        },
+      ]
+    }
+
+    return tabs
   }, [libraryId, menuConfig])
 
   const activeTabId = React.useMemo(() => {
+    if (isThemeEditor) {
+      return 'theme-editor' as const
+    }
+
     return getActiveDocsNavTabId({
       isExample,
       menuConfig,
       pathname: lastMatch.pathname,
       relativePathname,
     })
-  }, [isExample, lastMatch.pathname, menuConfig, relativePathname])
+  }, [
+    isExample,
+    isThemeEditor,
+    lastMatch.pathname,
+    menuConfig,
+    relativePathname,
+  ])
 
   const visibleMenuConfig = React.useMemo(() => {
     return (
@@ -1187,23 +1219,29 @@ export function LibraryLayout({
                   return null
                 }
 
-                const linkOptions = getLibraryTabLinkOptions({
-                  libraryId,
-                  version,
-                  to: target.to,
-                })
+                const isCustomToolRoute =
+                  target.to === '/charts/catalog' ||
+                  target.to === '/highlight/$version/theme-editor'
+                const linkParams =
+                  !target.to.startsWith('/') ||
+                  target.to.includes('/$libraryId') ||
+                  target.to.includes('/$version')
+                    ? ({ libraryId, version } as never)
+                    : undefined
                 const isActive = tab.id === activeTabId
 
                 return (
                   <li key={tab.id}>
                     <Link
-                      from={linkOptions.from as never}
-                      to={linkOptions.to as never}
-                      params={linkOptions.params as never}
-                      onClick={closeMobileMenu}
-                      preload={
-                        isChartsCatalogTarget(target.to) ? false : 'intent'
+                      from={
+                        isCustomToolRoute
+                          ? undefined
+                          : '/$libraryId/$version/docs'
                       }
+                      to={target.to}
+                      params={linkParams}
+                      onClick={closeMobileMenu}
+                      preload={isCustomToolRoute ? false : 'intent'}
                       aria-current={isActive ? 'page' : undefined}
                       className={twMerge(
                         'relative block whitespace-nowrap pb-2 font-semibold',
@@ -1374,19 +1412,25 @@ export function LibraryLayout({
                 return null
               }
 
-              const linkOptions = getLibraryTabLinkOptions({
-                libraryId,
-                version,
-                to: target.to,
-              })
+              const isCustomToolRoute =
+                target.to === '/charts/catalog' ||
+                target.to === '/highlight/$version/theme-editor'
+              const linkParams =
+                !target.to.startsWith('/') ||
+                target.to.includes('/$libraryId') ||
+                target.to.includes('/$version')
+                  ? ({ libraryId, version } as never)
+                  : undefined
 
               return (
                 <Link
                   key={tab.id}
-                  from={linkOptions.from as never}
-                  to={linkOptions.to as never}
-                  params={linkOptions.params as never}
-                  preload={isChartsCatalogTarget(target.to) ? false : 'intent'}
+                  from={
+                    isCustomToolRoute ? undefined : '/$libraryId/$version/docs'
+                  }
+                  to={target.to}
+                  params={linkParams}
+                  preload={isCustomToolRoute ? false : 'intent'}
                   activeOptions={{
                     exact: true,
                     includeHash: false,
@@ -1487,6 +1531,7 @@ export function LibraryLayout({
                   !isLandingPage &&
                     !isExample &&
                     !isNpmStats &&
+                    !isThemeEditor &&
                     !isFullWidth &&
                     'mx-auto w-[900px]',
                 )}

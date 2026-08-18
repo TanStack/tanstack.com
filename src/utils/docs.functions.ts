@@ -435,7 +435,7 @@ export const fetchDocs = createServerFn({ method: 'GET' })
       frontMatter.userDescription ?? removeMarkdown(frontMatter.excerpt ?? '')
     const keywords = extractFrontMatterKeywords(frontMatter.data.keywords)
 
-    setDocsCacheHeaders('public, max-age=60, stale-while-revalidate=60')
+    setDocsCacheHeaders('public, max-age=3600, stale-while-revalidate=86400')
 
     return {
       content: frontMatter.content,

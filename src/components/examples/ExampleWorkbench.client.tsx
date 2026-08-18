@@ -3023,7 +3023,7 @@ export function ExampleWorkbench({
           if (element) notebookPaneRefs.current.set(pane.id, element)
           else notebookPaneRefs.current.delete(pane.id)
         }}
-        className="grid min-h-0 min-w-0 grid-rows-[2.5rem_minmax(0,1fr)] overflow-hidden bg-background-default"
+        className="grid min-h-0 min-w-0 grid-rows-[2.5rem_minmax(0,1fr)] overflow-hidden bg-background-default @min-[900px]:grid-rows-[2.25rem_minmax(0,1fr)]"
         onPointerDownCapture={() => {
           setNotebookTabs((current) =>
             activateNotebookWorkbenchPane(current, pane.id),
@@ -3067,8 +3067,8 @@ export function ExampleWorkbench({
                   role="presentation"
                   className={`flex h-10 shrink-0 items-stretch overflow-hidden rounded-lg transition-colors duration-100 motion-reduce:transition-none @min-[900px]:h-8 ${
                     active
-                      ? 'bg-background-subtle text-text-primary'
-                      : 'text-text-muted hover:bg-background-subtle hover:text-text-primary'
+                      ? 'bg-action-secondary text-text-primary'
+                      : 'text-text-secondary hover:bg-surface-state-hover hover:text-text-primary'
                   } ${dragging ? 'opacity-50' : ''}`}
                 >
                   <button
@@ -3088,7 +3088,7 @@ export function ExampleWorkbench({
                     aria-label={label}
                     title={label}
                     tabIndex={active ? 0 : -1}
-                    className="flex min-w-0 touch-pan-x items-center gap-2 px-2.5 text-sm focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus"
+                    className="flex min-w-0 touch-pan-x items-center gap-1.5 px-2 text-xs focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus"
                     onClick={() => {
                       if (notebookTabDidDragRef.current) {
                         notebookTabDidDragRef.current = false
@@ -3106,12 +3106,12 @@ export function ExampleWorkbench({
                     onLostPointerCapture={cancelNotebookTabDrag}
                   >
                     {tab.kind === 'preview' ? (
-                      <BrowserIcon className="size-4" aria-hidden="true" />
+                      <BrowserIcon className="size-3.5" aria-hidden="true" />
                     ) : tab.kind === 'editor' ? (
-                      <CodeIcon className="size-4" aria-hidden="true" />
+                      <CodeIcon className="size-3.5" aria-hidden="true" />
                     ) : (
                       <TerminalWindowIcon
-                        className="size-4"
+                        className="size-3.5"
                         aria-hidden="true"
                       />
                     )}
@@ -3197,7 +3197,7 @@ export function ExampleWorkbench({
                 color="gray"
                 size="icon-sm"
                 rounded="lg"
-                className="size-10 shrink-0 bg-background-subtle text-text-secondary transition-colors duration-100 hover:bg-surface-state-hover active:scale-95 motion-reduce:transition-none @min-[900px]:size-8"
+                className="size-10 shrink-0 bg-action-secondary text-text-primary transition-colors duration-100 hover:bg-action-secondary-hover active:scale-95 max-[899px]:bg-action-secondary max-[899px]:text-text-primary motion-reduce:transition-none @min-[900px]:size-8"
                 aria-label={newTabLabel}
               >
                 <PlusIcon className="size-4" aria-hidden="true" />
@@ -3210,14 +3210,14 @@ export function ExampleWorkbench({
               className="w-64 max-w-[calc(100vw-1rem)] origin-[var(--radix-dropdown-menu-content-transform-origin)] rounded-xl border-border-subtle p-1 shadow-xl duration-100 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 motion-reduce:animate-none"
             >
               <DropdownItem
-                className="min-h-10 gap-2.5 rounded-lg px-2.5 py-1 text-sm text-text-primary transition-colors duration-100 motion-reduce:transition-none"
+                className="min-h-10 gap-2 rounded-lg px-2 py-1 text-[13px] text-text-primary transition-colors duration-100 hover:bg-surface-state-hover focus:bg-surface-state-hover motion-reduce:transition-none min-[900px]:min-h-9"
                 onSelect={() => addNotebookTab({ kind: 'preview' }, pane.id)}
               >
                 <BrowserIcon className="size-4" aria-hidden="true" />
                 Preview
               </DropdownItem>
               <DropdownItem
-                className="min-h-10 gap-2.5 rounded-lg px-2.5 py-1 text-sm text-text-primary transition-colors duration-100 motion-reduce:transition-none"
+                className="min-h-10 gap-2 rounded-lg px-2 py-1 text-[13px] text-text-primary transition-colors duration-100 hover:bg-surface-state-hover focus:bg-surface-state-hover motion-reduce:transition-none min-[900px]:min-h-9"
                 onSelect={() =>
                   addNotebookTab(
                     {
@@ -3233,7 +3233,7 @@ export function ExampleWorkbench({
                 Editor
               </DropdownItem>
               <DropdownItem
-                className="min-h-10 gap-2.5 rounded-lg px-2.5 py-1 text-sm text-text-primary transition-colors duration-100 motion-reduce:transition-none"
+                className="min-h-10 gap-2 rounded-lg px-2 py-1 text-[13px] text-text-primary transition-colors duration-100 hover:bg-surface-state-hover focus:bg-surface-state-hover motion-reduce:transition-none min-[900px]:min-h-9"
                 onSelect={() => addNotebookTab({ kind: 'console' }, pane.id)}
               >
                 <TerminalWindowIcon className="size-4" aria-hidden="true" />
@@ -3257,7 +3257,7 @@ export function ExampleWorkbench({
                     color="gray"
                     size="icon-sm"
                     rounded="lg"
-                    className="size-10 shrink-0 transition-colors duration-100 active:scale-95 motion-reduce:transition-none @min-[900px]:size-8"
+                    className="size-10 shrink-0 bg-action-secondary text-text-primary transition-colors duration-100 hover:bg-action-secondary-hover active:scale-95 max-[899px]:bg-action-secondary max-[899px]:text-text-primary motion-reduce:transition-none @min-[900px]:size-8"
                     aria-label="Copy share link"
                     disabled={shareState === 'sharing'}
                     onClick={() => void share()}

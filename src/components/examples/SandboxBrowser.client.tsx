@@ -240,7 +240,7 @@ export function SandboxBrowser({
     <div
       ref={rootRef}
       data-sandbox-browser=""
-      className="relative grid size-full min-h-0 grid-rows-[2.5rem_minmax(0,1fr)] bg-background-default"
+      className="relative grid size-full min-h-0 grid-rows-[2.5rem_minmax(0,1fr)] bg-background-default min-[900px]:grid-rows-[2.25rem_minmax(0,1fr)]"
     >
       <header className="flex min-w-0 items-center gap-1 border-b border-border-default bg-background-subtle px-1.5">
         {toolbarAction(
@@ -387,7 +387,7 @@ export function SandboxBrowser({
 
       {error ? (
         <div
-          className="absolute top-12 right-3 left-3 z-20 flex max-h-48 items-start gap-2 overflow-hidden rounded-lg border border-border-default border-l-2 border-l-border-error bg-background-elevated px-3 py-2 shadow-lg sm:left-auto sm:w-[26rem]"
+          className="absolute top-12 right-3 left-3 z-20 flex max-h-48 items-start gap-2 overflow-hidden rounded-lg border border-border-default border-l-2 border-l-border-error bg-background-elevated px-3 py-2 shadow-lg sm:left-auto sm:w-[26rem] min-[900px]:top-11"
           role="alert"
         >
           <WarningCircleIcon

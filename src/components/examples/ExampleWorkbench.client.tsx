@@ -2075,20 +2075,22 @@ export function ExampleWorkbench({
 
           <div className="flex shrink-0 items-stretch border-l border-border-default">
             <Dropdown>
-              <DropdownTrigger>
-                <Button
-                  ref={notebookAddTabButtonRef}
-                  type="button"
-                  variant="icon"
-                  color="gray"
-                  size="icon-sm"
-                  rounded="none"
-                  className="size-10 shrink-0 transition-none active:scale-100"
-                  aria-label="New workspace tab"
-                >
-                  <PlusIcon className="size-4" aria-hidden="true" />
-                </Button>
-              </DropdownTrigger>
+              <DropdownTrigger
+                render={
+                  <Button
+                    ref={notebookAddTabButtonRef}
+                    type="button"
+                    variant="icon"
+                    color="gray"
+                    size="icon-sm"
+                    rounded="none"
+                    className="size-10 shrink-0 transition-none active:scale-100"
+                    aria-label="New workspace tab"
+                  >
+                    <PlusIcon className="size-4" aria-hidden="true" />
+                  </Button>
+                }
+              />
               <DropdownContent align="end" className="min-w-44">
                 <DropdownItem
                   onSelect={() => addNotebookTab({ kind: 'preview' })}

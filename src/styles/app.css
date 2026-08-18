@@ -638,6 +638,18 @@ html.dark {
   --color-category-tooling: var(--color-ds-neutral-400);
   --color-surface-state-hover: #1111110f;
   --color-surface-state-pressed: #1111111f;
+
+  /* Light surfaces carry the stronger mono weights (mirrors html.light) so a
+     forced-light subtree renders mono as medium / regular — not regular /
+     light — matching the real site's light mode. */
+  --text-ds-mono-display--font-weight: 500;
+  --text-ds-mono-lg--font-weight: 500;
+  --text-ds-mono-md--font-weight: 400;
+  --text-ds-mono-sm--font-weight: 400;
+  --text-ds-mono-xs--font-weight: 400;
+  --text-ds-mono-2xs--font-weight: 400;
+  --text-ds-mono-caps--font-weight: 500;
+  --text-ds-mono-caps-xs--font-weight: 500;
 }
 
 .ds-mode-dark {

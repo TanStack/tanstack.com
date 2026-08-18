@@ -1,9 +1,9 @@
 import * as React from 'react'
-import { ArrowLeftIcon } from '@phosphor-icons/react'
+import { ArrowLeftIcon, PlusIcon } from '@phosphor-icons/react'
 
 type NotebookEditorSkeletonProps = {
+  assistant?: boolean
   headerActions?: boolean
-  initialPanel?: 'chat' | 'code'
   subtitle?: string
   title?: string
 }
@@ -88,8 +88,8 @@ export function NotebookIndexSkeleton() {
 }
 
 export function NotebookEditorSkeleton({
+  assistant = true,
   headerActions = true,
-  initialPanel = 'code',
   subtitle,
   title,
 }: NotebookEditorSkeletonProps = {}) {
@@ -123,21 +123,15 @@ export function NotebookEditorSkeleton({
             <SkeletonBlock className="mt-1.5 h-3 w-24 max-w-full" />
           )}
         </div>
-
         {headerActions ? (
-          <div className="flex shrink-0 items-center gap-2" aria-hidden="true">
-            <SkeletonBlock className="hidden h-7 w-16 sm:block" />
-            <SkeletonBlock className="h-8 w-8 rounded-md" />
-            <SkeletonBlock className="h-8 w-20 rounded-md" />
+          <div className="flex shrink-0 items-center gap-1" aria-hidden="true">
+            <SkeletonBlock className="size-8 rounded-md" />
+            <SkeletonBlock className="h-8 w-16 rounded-md" />
           </div>
         ) : null}
       </header>
 
-      <NotebookWorkbenchSkeleton
-        assistant
-        fullscreen
-        initialPanel={initialPanel}
-      />
+      <NotebookWorkbenchSkeleton assistant={assistant} fullscreen />
     </main>
   )
 }
@@ -146,11 +140,14 @@ export function NotebookAiSkeleton() {
   return (
     <NotebookEditorSkeleton
       headerActions={false}
-      initialPanel="chat"
       subtitle="Local spike"
       title="AI notebook spike"
     />
   )
+}
+
+export function NotebookDraftSkeleton() {
+  return <NotebookEditorSkeleton assistant={false} />
 }
 
 export function NotebookRouteSkeleton({ pathname }: { pathname: string }) {
@@ -159,6 +156,8 @@ export function NotebookRouteSkeleton({ pathname }: { pathname: string }) {
       return <NotebookIndexSkeleton />
     case 'ai':
       return <NotebookAiSkeleton />
+    case 'draft':
+      return <NotebookDraftSkeleton />
     case 'embedded':
       return <NotebookEmbeddedSkeleton />
     case 'editor':
@@ -171,6 +170,7 @@ export function NotebookRouteSkeleton({ pathname }: { pathname: string }) {
 function getNotebookLoadingKind(pathname: string) {
   if (pathname === '/notebook' || pathname === '/notebook/') return 'index'
   if (pathname === '/notebook/ai') return 'ai'
+  if (pathname === '/notebook/new') return 'draft'
   if (pathname === '/notebook/esbuild' || pathname.startsWith('/notebook/p/')) {
     return 'embedded'
   }
@@ -223,11 +223,42 @@ export function NotebookListSkeletonRows({
 function NotebookWorkbenchSkeleton({
   assistant = false,
   fullscreen = false,
-  initialPanel = 'code',
 }: {
   assistant?: boolean
   fullscreen?: boolean
-  initialPanel?: 'chat' | 'code'
+}) {
+  if (!assistant) {
+    return <LegacyNotebookWorkbenchSkeleton fullscreen={fullscreen} />
+  }
+
+  return (
+    <section
+      aria-hidden="true"
+      className={`@container not-prose flex min-w-0 flex-col overflow-hidden border border-border-default bg-background-default ${
+        fullscreen
+          ? 'min-h-0 flex-1 rounded-none border-x-0 border-b-0'
+          : 'h-[clamp(520px,75dvh,720px)] rounded-lg'
+      }`}
+    >
+      {assistant ? <WorkspaceTabSkeleton /> : null}
+      <div
+        className={`grid min-h-0 min-w-0 flex-1 grid-cols-1 ${
+          assistant
+            ? 'grid-rows-[minmax(0,1fr)_minmax(0,1fr)] @min-[900px]:grid-cols-[minmax(0,62fr)_minmax(280px,38fr)] @min-[900px]:grid-rows-1'
+            : 'grid-rows-1'
+        }`}
+      >
+        <PreviewWorkspaceSkeleton assistant={assistant} tabBar={!assistant} />
+        {assistant ? <ChatSkeleton /> : null}
+      </div>
+    </section>
+  )
+}
+
+function LegacyNotebookWorkbenchSkeleton({
+  fullscreen,
+}: {
+  fullscreen: boolean
 }) {
   return (
     <section
@@ -240,24 +271,8 @@ function NotebookWorkbenchSkeleton({
     >
       <header className="flex min-h-10 shrink-0 items-center justify-between gap-3 border-b border-border-default px-2">
         <div className="flex min-w-0 items-center gap-2">
-          {assistant ? (
-            <div className="hidden h-7 overflow-hidden rounded-md border border-border-default lg:flex">
-              <span className="flex items-center px-2 text-xs text-text-muted">
-                Code
-              </span>
-              <span className="flex items-center border-l border-border-default px-2 text-xs text-text-muted">
-                Chat
-              </span>
-            </div>
-          ) : null}
-          {initialPanel === 'code' ? (
-            <>
-              <SkeletonBlock className="size-8 shrink-0 rounded-md" />
-              <SkeletonBlock className="h-3 w-24" />
-            </>
-          ) : (
-            <span className="text-xs text-text-muted">Chat</span>
-          )}
+          <SkeletonBlock className="size-8 shrink-0 rounded-md" />
+          <SkeletonBlock className="h-3 w-24" />
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <SkeletonBlock className="hidden h-3 w-16 sm:block" />
@@ -269,21 +284,17 @@ function NotebookWorkbenchSkeleton({
         <div className="grid h-7 grid-cols-2 rounded-md border border-border-default text-center text-xs text-text-muted">
           <span className="flex items-center justify-center">Preview</span>
           <span className="flex items-center justify-center border-l border-border-default">
-            {assistant ? 'Editor' : 'Code'}
+            Code
           </span>
         </div>
       </div>
 
       <div className="grid min-h-0 min-w-0 flex-1 grid-cols-1 lg:grid-cols-[minmax(280px,67fr)_8px_minmax(280px,33fr)]">
-        <div
-          className={`${initialPanel === 'chat' ? 'flex' : 'hidden'} min-h-0 min-w-0 border-border-default lg:flex lg:border-r`}
-        >
-          {initialPanel === 'chat' ? <ChatSkeleton /> : <CodeSkeleton />}
+        <div className="hidden min-h-0 min-w-0 border-r border-border-default lg:flex">
+          <CodeSkeleton />
         </div>
         <div className="hidden border-x border-border-default lg:block" />
-        <div
-          className={`${initialPanel === 'chat' ? 'hidden' : 'block'} min-h-0 min-w-0 bg-background-default lg:block`}
-        >
+        <div className="min-h-0 min-w-0 bg-background-default">
           <div className="flex h-10 items-center gap-1 border-b border-border-default bg-background-subtle px-1.5">
             <SkeletonBlock className="size-7 rounded-md" />
             <SkeletonBlock className="size-7 rounded-md" />
@@ -297,20 +308,85 @@ function NotebookWorkbenchSkeleton({
   )
 }
 
+function WorkspaceTabSkeleton() {
+  return (
+    <div className="flex h-10 shrink-0 items-center border-b border-border-default bg-background-default">
+      <div
+        data-notebook-tab-skeleton="preview"
+        className="mr-auto flex h-full min-w-0 items-center gap-2 border-r border-border-default bg-background-default px-3 text-xs font-medium text-text-secondary"
+      >
+        <span className="truncate">Preview</span>
+        <SkeletonBlock className="size-2.5 shrink-0 rounded-full" />
+      </div>
+      <span className="inline-flex size-10 shrink-0 items-center justify-center text-text-muted">
+        <PlusIcon className="size-4" aria-hidden="true" />
+      </span>
+    </div>
+  )
+}
+
+function PreviewWorkspaceSkeleton({
+  assistant,
+  tabBar,
+}: {
+  assistant: boolean
+  tabBar: boolean
+}) {
+  return (
+    <div
+      data-notebook-workspace-skeleton=""
+      className={`flex min-h-0 min-w-0 flex-col overflow-hidden ${
+        assistant
+          ? 'border-b border-border-default @min-[900px]:border-r @min-[900px]:border-b-0'
+          : ''
+      }`}
+    >
+      {tabBar ? <WorkspaceTabSkeleton /> : null}
+
+      <div className="flex h-10 shrink-0 items-center gap-1 border-b border-border-default bg-background-subtle px-1.5">
+        <SkeletonBlock className="size-7 rounded-md" />
+        <SkeletonBlock className="size-7 rounded-md" />
+        <SkeletonBlock className="size-7 rounded-md" />
+        <SkeletonBlock className="mx-1 h-7 min-w-0 flex-1 rounded-lg" />
+        <SkeletonBlock className="size-7 rounded-md" />
+      </div>
+
+      <div className="min-h-0 flex-1 overflow-hidden bg-background-default p-4 sm:p-6">
+        <div className="mx-auto w-full max-w-2xl">
+          <SkeletonBlock className="h-5 w-40 max-w-[66.666667%]" />
+          <SkeletonBlock className="mt-4 h-3 w-full" />
+          <SkeletonBlock className="mt-2 h-3 w-4/5" />
+          <div className="mt-6 grid grid-cols-3 gap-3">
+            <SkeletonBlock className="h-16 rounded-lg" />
+            <SkeletonBlock className="h-16 rounded-lg" />
+            <SkeletonBlock className="h-16 rounded-lg" />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function ChatSkeleton() {
   return (
-    <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+    <div
+      data-notebook-chat-skeleton=""
+      className="flex min-h-0 min-w-0 flex-col bg-background-default"
+    >
       <div className="flex h-12 shrink-0 items-center justify-between border-b border-border-default px-3">
-        <SkeletonBlock className="h-4 w-28" />
+        <SkeletonBlock className="h-3 w-24" />
         <SkeletonBlock className="size-8 rounded-md" />
       </div>
-      <div className="min-h-0 flex-1 px-5 py-6">
+      <div className="min-h-0 flex-1 overflow-hidden px-4 py-4 sm:px-5">
         <SkeletonBlock className="ml-auto h-8 w-2/3 rounded-2xl" />
-        <SkeletonBlock className="mt-5 h-3 w-4/5" />
+        <SkeletonBlock className="mt-4 h-3 w-4/5" />
         <SkeletonBlock className="mt-2 h-3 w-3/5" />
       </div>
-      <div className="shrink-0 p-3">
-        <div className="h-20 rounded-2xl border border-border-default bg-background-subtle" />
+      <div className="shrink-0 border-t border-border-default p-3">
+        <div className="h-16 rounded-2xl border border-border-default bg-background-surface p-3">
+          <SkeletonBlock className="h-3 w-3/4" />
+          <SkeletonBlock className="mt-3 ml-auto size-6 rounded-full" />
+        </div>
       </div>
     </div>
   )
@@ -338,7 +414,7 @@ function CodeSkeleton() {
 function SkeletonBlock({ className }: { className: string }) {
   return (
     <div
-      className={`rounded bg-background-subtle ${className}`}
+      className={`motion-safe:animate-pulse rounded bg-background-subtle ${className}`}
       aria-hidden="true"
     />
   )

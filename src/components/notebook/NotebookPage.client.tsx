@@ -58,8 +58,9 @@ export function NotebookPage({ id }: { id: string }) {
   const [hasLocalChanges, setHasLocalChanges] = React.useState(false)
   const [forking, setForking] = React.useState(false)
   const [copied, setCopied] = React.useState(false)
-  const [activeView, setActiveView] = React.useState<'chat' | 'code'>('code')
+  const [activeView, setActiveView] = React.useState<'chat' | 'code'>('chat')
   const [aiTransactionActive, setAiTransactionActive] = React.useState(false)
+  const [assistantRunning, setAssistantRunning] = React.useState(false)
   const [runRequest, setRunRequest] =
     React.useState<ExampleWorkbenchRunRequest>()
   const workbenchRef = React.useRef<ExampleWorkbenchHandle>(null)
@@ -694,7 +695,8 @@ export function NotebookPage({ id }: { id: string }) {
               <NotebookAssistant
                 key={`${record.id}:${user?.userId ?? 'anonymous'}`}
                 authenticated={Boolean(user)}
-                enabled={activeView === 'chat'}
+                credentialScope={user?.userId}
+                enabled
                 getExecution={() => {
                   return {
                     runtime: projectRef.current?.runtime ?? null,
@@ -704,9 +706,11 @@ export function NotebookPage({ id }: { id: string }) {
                 hiddenFiles={project.hiddenFiles ?? []}
                 onApply={applyAiExecution}
                 onCommit={commitAiExecution}
+                onDismiss={() => setActiveView('code')}
                 onFinish={finishAiExecution}
                 onPrepare={prepareAiExecution}
                 onRestore={restoreAiExecution}
+                onRunningChange={setAssistantRunning}
                 onSignIn={() => openLoginModal()}
                 storageScope={user ? `${user.userId}:${record.id}` : undefined}
               />
@@ -717,6 +721,7 @@ export function NotebookPage({ id }: { id: string }) {
           definition={definition}
           fullscreen
           filesInitiallyOpen
+          runDisabled={assistantRunning}
           runLabel="Run notebook"
           runRequest={runRequest}
           workbenchRef={workbenchRef}

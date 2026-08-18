@@ -42,11 +42,18 @@ import {
 } from '~/utils/notebook-ai-chatgpt'
 import {
   cloneNotebookAiExecution,
+  notebookAiRemoteProviders,
   serializeNotebookAiExecution,
   type NotebookAiExecution,
   type NotebookAiMessage,
   type NotebookAiRemoteProvider,
 } from '~/utils/notebook-ai'
+import {
+  getBrowserNotebookAiApiKeyStorage,
+  loadNotebookAiApiKey,
+  removeNotebookAiApiKey,
+  setNotebookAiApiKeyPersistence,
+} from '~/utils/notebook-ai-api-key-storage.client'
 import {
   createNotebookAiCheckpoint,
   loadLatestNotebookAiCheckpoint,
@@ -185,6 +192,16 @@ const emptyApiKeys = {
   anthropic: '',
 } satisfies Record<NotebookAiRemoteProvider, string>
 
+const noPersistedApiKeys = {
+  openai: false,
+  anthropic: false,
+} satisfies Record<NotebookAiRemoteProvider, boolean>
+
+type ApiKeyState = {
+  keys: Record<NotebookAiRemoteProvider, string>
+  persisted: Record<NotebookAiRemoteProvider, boolean>
+}
+
 const chatGptPlaceholder = {
   connection: 'chatgpt',
   model: '',
@@ -196,20 +213,52 @@ const disconnectedChatGpt = {
   models: [],
 } satisfies NotebookChatGptConnection
 
+function loadInitialApiKeyState(scope: string | undefined): ApiKeyState {
+  const keys: Record<NotebookAiRemoteProvider, string> = { ...emptyApiKeys }
+  const persisted: Record<NotebookAiRemoteProvider, boolean> = {
+    ...noPersistedApiKeys,
+  }
+  if (!scope) return { keys, persisted }
+
+  const storage = getBrowserNotebookAiApiKeyStorage()
+  for (const provider of notebookAiRemoteProviders) {
+    const apiKey = loadNotebookAiApiKey(storage, scope, provider)
+    if (!apiKey) continue
+    keys[provider] = apiKey
+    persisted[provider] = true
+  }
+  return { keys, persisted }
+}
+
+function getInitialModelChoice(state: ApiKeyState): ModelChoice {
+  const provider = notebookAiRemoteProviders.find(
+    (candidate) => state.persisted[candidate],
+  )
+  return provider
+    ? defaultModelByProvider[provider]
+    : supportsChatGptLogin
+      ? chatGptPlaceholder
+      : openAiDefault
+}
+
 export function NotebookAssistant({
   authenticated,
+  credentialScope,
   enabled,
   getExecution,
   hiddenFiles,
   onApply,
   onCommit,
+  onDismiss,
   onFinish,
   onPrepare,
   onRestore,
+  onRunningChange,
   onSignIn,
   storageScope,
 }: {
   authenticated: boolean
+  credentialScope?: string
   enabled: boolean
   getExecution: () => NotebookAiExecution
   hiddenFiles: ReadonlyArray<string>
@@ -218,20 +267,27 @@ export function NotebookAssistant({
     signal: AbortSignal,
   ) => Promise<ExampleWorkbenchRunResult>
   onCommit?: (execution: NotebookAiExecution) => void | Promise<void>
+  onDismiss?: () => void
   onFinish?: () => void
   onPrepare?: () => Promise<NotebookAiExecution>
   onRestore: (
     execution: NotebookAiExecution,
     reason: 'manual' | 'rollback',
   ) => void | Promise<void>
+  onRunningChange?: (running: boolean) => void
   onSignIn?: () => void
   storageScope?: string
 }) {
-  const [selectedModel, setSelectedModel] = React.useState<ModelChoice>(
-    supportsChatGptLogin ? chatGptPlaceholder : openAiDefault,
+  const [initialApiKeyState] = React.useState(() =>
+    loadInitialApiKeyState(credentialScope),
   )
-  const [apiKeys, setApiKeys] =
-    React.useState<Record<NotebookAiRemoteProvider, string>>(emptyApiKeys)
+  const [selectedModel, setSelectedModel] = React.useState<ModelChoice>(() =>
+    getInitialModelChoice(initialApiKeyState),
+  )
+  const [apiKeys, setApiKeys] = React.useState(initialApiKeyState.keys)
+  const [persistedApiKeys, setPersistedApiKeys] = React.useState(
+    initialApiKeyState.persisted,
+  )
   const [settingsProvider, setSettingsProvider] =
     React.useState<NotebookAiRemoteProvider>('openai')
   const [settingsOpen, setSettingsOpen] = React.useState(false)
@@ -242,6 +298,7 @@ export function NotebookAssistant({
   const [chatGptLoading, setChatGptLoading] =
     React.useState(supportsChatGptLogin)
   const [connectionError, setConnectionError] = React.useState('')
+  const [apiKeyStorageError, setApiKeyStorageError] = React.useState('')
   const [prompt, setPrompt] = React.useState('')
   const [messages, setMessages] = React.useState<Array<TranscriptMessage>>([])
   const [queuedPrompts, setQueuedPrompts] = React.useState<
@@ -268,6 +325,7 @@ export function NotebookAssistant({
   const [queueAnnouncement, setQueueAnnouncement] = React.useState('')
   const [showLatest, setShowLatest] = React.useState(false)
   const abortRef = React.useRef<AbortController>(null)
+  const onRunningChangeRef = React.useRef(onRunningChange)
   const abortIntentRef = React.useRef<'steer' | 'stop' | undefined>(undefined)
   const agentStreamingRef = React.useRef(false)
   const getExecutionRef = React.useRef(getExecution)
@@ -290,9 +348,14 @@ export function NotebookAssistant({
       | undefined
     >
   >(Promise.resolve(undefined))
-  const didSelectConnectionRef = React.useRef(false)
+  const didSelectConnectionRef = React.useRef(
+    notebookAiRemoteProviders.some(
+      (provider) => initialApiKeyState.persisted[provider],
+    ),
+  )
 
   getExecutionRef.current = getExecution
+  onRunningChangeRef.current = onRunningChange
 
   const chatGptModels = React.useMemo<Array<ChatGptModelChoice>>(
     () =>
@@ -552,7 +615,13 @@ export function NotebookAssistant({
     if (needsConnection) didInitialScrollRef.current = false
   }, [needsConnection])
 
-  React.useEffect(() => () => abortRef.current?.abort(), [])
+  React.useEffect(
+    () => () => {
+      abortRef.current?.abort()
+      onRunningChangeRef.current?.(false)
+    },
+    [],
+  )
 
   function selectModel(model: ModelChoice) {
     if (running) return
@@ -561,6 +630,7 @@ export function NotebookAssistant({
     setSelectedModel(model)
     if (model.connection === 'byok') {
       setSettingsProvider(model.provider)
+      setApiKeyStorageError('')
       if (!apiKeys[model.provider]) {
         setShowApiKeySetup(true)
         setSettingsOpen(true)
@@ -594,19 +664,62 @@ export function NotebookAssistant({
   function useApiKeyConnection() {
     didSelectConnectionRef.current = true
     setShowApiKeySetup(true)
+    setApiKeyStorageError('')
   }
 
-  function saveApiKey(provider: NotebookAiRemoteProvider, value: string) {
-    setApiKeys((current) => ({ ...current, [provider]: value.trim() }))
+  function saveApiKey(
+    provider: NotebookAiRemoteProvider,
+    value: string,
+    persist: boolean,
+  ) {
+    const normalizedKey = value.trim()
+    if (
+      (persist && !credentialScope) ||
+      (credentialScope &&
+        !setNotebookAiApiKeyPersistence(
+          getBrowserNotebookAiApiKeyStorage(),
+          credentialScope,
+          provider,
+          normalizedKey,
+          persist,
+        ))
+    ) {
+      setApiKeyStorageError(
+        persist
+          ? 'This browser could not save the API key. It has not been connected.'
+          : 'This browser could not remove the saved copy. Clear tanstack.com site data before using this device.',
+      )
+      return
+    }
+
+    setApiKeys((current) => ({ ...current, [provider]: normalizedKey }))
+    setPersistedApiKeys((current) => ({ ...current, [provider]: persist }))
     didSelectConnectionRef.current = true
     setSelectedModel(defaultModelByProvider[provider])
     setShowApiKeySetup(false)
     setSettingsOpen(false)
+    setApiKeyStorageError('')
     setError('')
   }
 
   function clearApiKey(provider: NotebookAiRemoteProvider) {
+    if (
+      persistedApiKeys[provider] &&
+      (!credentialScope ||
+        !removeNotebookAiApiKey(
+          getBrowserNotebookAiApiKeyStorage(),
+          credentialScope,
+          provider,
+        ))
+    ) {
+      setApiKeyStorageError(
+        'This browser could not remove the saved key. Clear tanstack.com site data before using this device.',
+      )
+      return
+    }
+
     setApiKeys((current) => ({ ...current, [provider]: '' }))
+    setPersistedApiKeys((current) => ({ ...current, [provider]: false }))
     if (
       selectedModel.connection === 'byok' &&
       selectedModel.provider === provider
@@ -624,7 +737,13 @@ export function NotebookAssistant({
         setSelectedModel(chatGptPlaceholder)
       }
     }
+    setApiKeyStorageError('')
     setSettingsOpen(false)
+  }
+
+  function changeSettingsProvider(provider: NotebookAiRemoteProvider) {
+    setSettingsProvider(provider)
+    setApiKeyStorageError('')
   }
 
   async function startChatGptLogin() {
@@ -838,6 +957,7 @@ export function NotebookAssistant({
     setPrompt('')
     setError('')
     setRunning(true)
+    onRunningChangeRef.current?.(true)
     setSendMode('queue')
     void runPromptSequence(initialPrompt)
   }
@@ -873,6 +993,7 @@ export function NotebookAssistant({
       setSendMode('queue')
       promptQueueRef.current.release()
       setRunning(false)
+      onRunningChangeRef.current?.(false)
     }
   }
 
@@ -1367,6 +1488,24 @@ export function NotebookAssistant({
       className="flex min-h-0 min-w-0 flex-1 flex-col bg-background-default"
     >
       <header className="flex h-12 shrink-0 items-center justify-end gap-1 border-b border-border-default px-3">
+        {onDismiss ? (
+          <Tooltip content="Hide chat">
+            <Button
+              type="button"
+              variant="icon"
+              color="gray"
+              size="icon-sm"
+              className="mr-auto min-h-11 min-w-11 @min-[900px]:min-h-0 @min-[900px]:min-w-0"
+              aria-label="Hide chat"
+              onClick={onDismiss}
+            >
+              <CaretDownIcon
+                className="size-4 @min-[900px]:-rotate-90"
+                aria-hidden="true"
+              />
+            </Button>
+          </Tooltip>
+        ) : null}
         {threads.length > 1 ? (
           <Dropdown>
             <Tooltip content="Recent conversations">
@@ -1484,9 +1623,12 @@ export function NotebookAssistant({
             <>
               <ProviderSettingsForm
                 apiKey={apiKeys[settingsProvider]}
+                error={apiKeyStorageError}
+                persistenceAvailable={Boolean(credentialScope)}
+                persistKey={persistedApiKeys[settingsProvider]}
                 provider={settingsProvider}
                 onClear={clearApiKey}
-                onProviderChange={setSettingsProvider}
+                onProviderChange={changeSettingsProvider}
                 onSave={saveApiKey}
               />
               {supportsChatGptLogin ? (
@@ -1648,19 +1790,25 @@ export function NotebookAssistant({
 
       <ConnectionsDialog
         apiKeys={apiKeys}
+        apiKeyError={apiKeyStorageError}
         busy={chatGptLoading}
         chatGpt={chatGptConnection ?? disconnectedChatGpt}
         chatGptError={connectionError}
         chatGptLogin={chatGptLogin}
         open={settingsOpen}
+        persistenceAvailable={Boolean(credentialScope)}
+        persistedApiKeys={persistedApiKeys}
         provider={settingsProvider}
         showChatGpt={supportsChatGptLogin}
         onCancelLogin={() => void cancelChatGptLogin()}
         onClear={clearApiKey}
         onConnect={() => void startChatGptLogin()}
         onDisconnect={() => void disconnectChatGpt()}
-        onOpenChange={setSettingsOpen}
-        onProviderChange={setSettingsProvider}
+        onOpenChange={(open) => {
+          setSettingsOpen(open)
+          if (open) setApiKeyStorageError('')
+        }}
+        onProviderChange={changeSettingsProvider}
         onRefresh={() => void refreshChatGptConnection(undefined, true)}
         onSave={saveApiKey}
       />
@@ -2146,12 +2294,15 @@ function isSelectedModel(selected: ModelChoice, model: ModelChoice) {
 }
 
 function ConnectionsDialog({
+  apiKeyError,
   apiKeys,
   busy,
   chatGpt,
   chatGptError,
   chatGptLogin,
   open,
+  persistenceAvailable,
+  persistedApiKeys,
   provider,
   showChatGpt,
   onCancelLogin,
@@ -2163,12 +2314,15 @@ function ConnectionsDialog({
   onRefresh,
   onSave,
 }: {
+  apiKeyError: string
   apiKeys: Record<NotebookAiRemoteProvider, string>
   busy: boolean
   chatGpt: NotebookChatGptConnection
   chatGptError: string
   chatGptLogin: NotebookChatGptLogin | undefined
   open: boolean
+  persistenceAvailable: boolean
+  persistedApiKeys: Record<NotebookAiRemoteProvider, boolean>
   provider: NotebookAiRemoteProvider
   showChatGpt: boolean
   onCancelLogin: () => void
@@ -2178,7 +2332,11 @@ function ConnectionsDialog({
   onOpenChange: (open: boolean) => void
   onProviderChange: (provider: NotebookAiRemoteProvider) => void
   onRefresh: () => void
-  onSave: (provider: NotebookAiRemoteProvider, apiKey: string) => void
+  onSave: (
+    provider: NotebookAiRemoteProvider,
+    apiKey: string,
+    persist: boolean,
+  ) => void
 }) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -2272,6 +2430,9 @@ function ConnectionsDialog({
               <h3 className="text-sm font-medium">API key</h3>
               <ProviderSettingsForm
                 apiKey={apiKeys[provider]}
+                error={apiKeyError}
+                persistenceAvailable={persistenceAvailable}
+                persistKey={persistedApiKeys[provider]}
                 provider={provider}
                 onClear={onClear}
                 onProviderChange={onProviderChange}
@@ -2287,28 +2448,44 @@ function ConnectionsDialog({
 
 function ProviderSettingsForm({
   apiKey,
+  error,
+  persistenceAvailable,
+  persistKey,
   provider,
   onClear,
   onProviderChange,
   onSave,
 }: {
   apiKey: string
+  error: string
+  persistenceAvailable: boolean
+  persistKey: boolean
   provider: NotebookAiRemoteProvider
   onClear: (provider: NotebookAiRemoteProvider) => void
   onProviderChange: (provider: NotebookAiRemoteProvider) => void
-  onSave: (provider: NotebookAiRemoteProvider, apiKey: string) => void
+  onSave: (
+    provider: NotebookAiRemoteProvider,
+    apiKey: string,
+    persist: boolean,
+  ) => void
 }) {
   const [draftKey, setDraftKey] = React.useState(apiKey)
+  const [persist, setPersist] = React.useState(persistKey)
   const providerId = React.useId()
   const apiKeyId = React.useId()
-  React.useEffect(() => setDraftKey(apiKey), [apiKey, provider])
+  const persistenceId = React.useId()
+  const persistenceRiskId = React.useId()
+  React.useEffect(() => {
+    setDraftKey(apiKey)
+    setPersist(persistKey)
+  }, [apiKey, persistKey, provider])
 
   return (
     <form
       className="mt-5 space-y-4"
       onSubmit={(event) => {
         event.preventDefault()
-        if (draftKey.trim()) onSave(provider, draftKey)
+        if (draftKey.trim()) onSave(provider, draftKey, persist)
       }}
     >
       <div>
@@ -2341,15 +2518,44 @@ function ProviderSettingsForm({
           id={apiKeyId}
           type="password"
           value={draftKey}
+          maxLength={4_096}
           autoComplete="off"
           spellCheck={false}
           className="mt-1.5 font-ds-mono text-sm"
           onChange={(event) => setDraftKey(event.target.value)}
         />
       </div>
-      <p className="text-xs/5 text-text-muted">
-        Kept in memory. Leaving or refreshing clears it.
-      </p>
+      {persistenceAvailable ? (
+        <div className="flex items-start gap-2 rounded-lg border border-border-default bg-background-subtle p-3">
+          <input
+            id={persistenceId}
+            type="checkbox"
+            checked={persist}
+            aria-describedby={persistenceRiskId}
+            className="mt-0.5 size-4 shrink-0 accent-[var(--color-accent-brand)]"
+            onChange={(event) => setPersist(event.currentTarget.checked)}
+          />
+          <div className="min-w-0 text-xs/5">
+            <label
+              htmlFor={persistenceId}
+              className="cursor-pointer font-medium text-text-primary"
+            >
+              Store this key in local storage
+            </label>
+            <p id={persistenceRiskId} className="mt-0.5 text-text-muted">
+              Keeps it after refreshes. I understand TanStack does not encrypt
+              it, and scripts running on tanstack.com, browser extensions with
+              site access, or anyone using this browser profile may be able to
+              read it. Don’t enable this on a shared device.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <p className="text-xs/5 text-text-muted">
+          Kept in memory. Leaving or refreshing clears it.
+        </p>
+      )}
+      {error ? <ErrorMessage message={error} /> : null}
       <div className="flex justify-end gap-2">
         {apiKey ? (
           <Button

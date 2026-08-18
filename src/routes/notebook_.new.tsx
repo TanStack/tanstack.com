@@ -2,7 +2,7 @@ import * as React from 'react'
 import { ClientOnly, createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import {
-  NotebookEditorSkeleton,
+  NotebookDraftSkeleton,
   NotebookRouteReady,
 } from '~/components/notebook/NotebookLoading'
 import { seo } from '~/utils/seo'
@@ -16,7 +16,7 @@ const LazyNotebookDraftPage = React.lazy(() =>
 
 export const Route = createFileRoute('/notebook_/new')({
   ssr: false,
-  pendingComponent: NotebookEditorSkeleton,
+  pendingComponent: NotebookDraftSkeleton,
   validateSearch: v.object({
     template: v.optional(v.string()),
   }),
@@ -36,8 +36,8 @@ function NotebookDraftRoute() {
 
   return (
     <NotebookRouteReady>
-      <ClientOnly fallback={<NotebookEditorSkeleton />}>
-        <React.Suspense fallback={<NotebookEditorSkeleton />}>
+      <ClientOnly fallback={<NotebookDraftSkeleton />}>
+        <React.Suspense fallback={<NotebookDraftSkeleton />}>
           <LazyNotebookDraftPage template={template} />
         </React.Suspense>
       </ClientOnly>

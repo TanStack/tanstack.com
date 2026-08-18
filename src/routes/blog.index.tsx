@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { FunnelIcon, RssIcon } from '@phosphor-icons/react'
+import { SlidersHorizontalIcon, RssIcon } from '@phosphor-icons/react'
 import { createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { BlogBrowseNav } from '~/components/BlogBrowseNav'
@@ -211,35 +211,34 @@ function BlogIndex() {
                   aria-label="Search posts"
                   placeholder="Search posts..."
                   value={searchQuery}
-                  onChange={(event) => onSearchChange(event.currentTarget.value)}
+                  onChange={(event) =>
+                    onSearchChange(event.currentTarget.value)
+                  }
                   trailing={
                     <div className="flex items-center gap-1">
-                      <span
-                        aria-hidden
-                        className="h-5 w-px bg-border-subtle"
-                      />
+                      <span aria-hidden className="h-5 w-px bg-border-default" />
                       <a
                         href="/rss.xml"
                         target="_blank"
                         rel="noreferrer"
                         title="RSS feed"
                         aria-label="RSS feed"
-                        className="grid place-items-center rounded-full p-1.5 text-text-muted transition-colors hover:bg-surface-state-hover hover:text-text-primary"
+                        className="grid place-items-center rounded-full p-1.5 text-text-secondary transition-colors hover:bg-surface-state-hover hover:text-text-primary"
                       >
-                        <RssIcon className="h-4 w-4" />
+                        <RssIcon weight="bold" className="h-[18px] w-[18px]" />
                       </a>
-                      <span
-                        aria-hidden
-                        className="h-5 w-px bg-border-subtle"
-                      />
+                      <span aria-hidden className="h-5 w-px bg-border-default" />
                       <button
                         type="button"
                         aria-label="Filters"
                         aria-expanded={filtersOpen}
                         onClick={() => setFiltersOpen((open) => !open)}
-                        className="relative -mr-1 grid place-items-center rounded-full p-1.5 text-text-muted transition-colors hover:bg-surface-state-hover hover:text-text-primary aria-expanded:text-text-primary"
+                        className="relative -mr-1 grid place-items-center rounded-full p-1.5 text-text-secondary transition-colors hover:bg-surface-state-hover hover:text-text-primary aria-expanded:text-text-primary"
                       >
-                        <FunnelIcon className="h-4 w-4" />
+                        <SlidersHorizontalIcon
+                          weight="bold"
+                          className="h-[18px] w-[18px]"
+                        />
                         {hasActiveFilters ? (
                           <span className="pointer-events-none absolute right-0.5 top-0.5 h-1.5 w-1.5 rounded-full bg-blue-500 ring-2 ring-background-surface" />
                         ) : null}

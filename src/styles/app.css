@@ -970,22 +970,6 @@ button {
   }
 }
 
-@media (min-width: 1280px) {
-  .blog-year-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-  /* Reset the 2-col rule (equal specificity, later in source wins) … */
-  .blog-year-grid > *:nth-child(n) {
-    border-left: 0;
-    padding-left: 0;
-  }
-  /* … then draw dividers before columns 2 and 3. */
-  .blog-year-grid > *:not(:nth-child(3n + 1)) {
-    border-left: 1px solid var(--color-border-subtle);
-    padding-left: 2rem;
-  }
-}
-
 .ts-mega-dropdown-panel {
   position: relative;
   isolation: isolate;

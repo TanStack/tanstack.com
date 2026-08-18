@@ -118,7 +118,7 @@ export function BlogPostCard({
         <div
           className={`font-ds-display text-text-primary/85 transition-colors duration-200 group-hover/post:text-text-primary ${
             featured
-              ? 'line-clamp-3 text-ds-heading-2'
+              ? 'line-clamp-3 text-ds-display-sm'
               : isLarge
                 ? 'line-clamp-2 text-ds-heading-3'
                 : 'line-clamp-1 text-ds-heading-5'

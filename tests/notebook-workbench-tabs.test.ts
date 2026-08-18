@@ -37,7 +37,7 @@ test('adds tabs to the focused pane with unique ids and ordinal labels', () => {
   state = addNotebookWorkbenchTab(state, { kind: 'preview' })
   state = addNotebookWorkbenchTab(state, {
     kind: 'editor',
-    path: '/index.tsx',
+    path: '/src/routes/index.tsx',
     filesOpen: true,
   })
   state = addNotebookWorkbenchTab(state, { kind: 'console' })
@@ -52,7 +52,13 @@ test('adds tabs to the focused pane with unique ids and ordinal labels', () => {
   )
   assert.deepEqual(
     state.tabs.map((tab) => getNotebookWorkbenchTabLabel(state.tabs, tab)),
-    ['Preview 1', 'Preview 2', 'Editor 1', 'Console', 'Editor 2'],
+    [
+      'Preview 1',
+      'Preview 2',
+      '/src/routes/index.tsx',
+      'Console',
+      '/styles.css',
+    ],
   )
   assert.deepEqual(state.panes[0].tabIds, [
     'tab-1',
@@ -207,6 +213,10 @@ test('updates and repairs editor tabs in either pane', () => {
     filesOpen: true,
   })
   assert.equal(getNotebookWorkbenchPaneForTab(state, 'tab-2')?.id, 'pane-2')
+  assert.equal(
+    getNotebookWorkbenchTabLabel(state.tabs, state.tabs[1]),
+    '/index.tsx',
+  )
   assert.deepEqual(
     getNotebookWorkbenchPaneTabs(state, state.panes[1]).map((tab) => tab.id),
     ['tab-2'],

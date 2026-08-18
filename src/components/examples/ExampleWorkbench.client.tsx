@@ -1782,7 +1782,7 @@ export function ExampleWorkbench({
       )
       if (existing) {
         activateNotebookTab(existing)
-        focusNotebookTab(existing.id)
+        window.requestAnimationFrame(() => focusNotebookTab(existing.id))
         return
       }
     }
@@ -1803,7 +1803,7 @@ export function ExampleWorkbench({
     } else if (addedTab?.kind === 'console') {
       setOutputActivated(true)
     }
-    focusNotebookTab(addedTab?.id ?? null)
+    window.requestAnimationFrame(() => focusNotebookTab(addedTab?.id ?? null))
   }
 
   function closeNotebookTab(tabId: string) {
@@ -3008,6 +3008,12 @@ export function ExampleWorkbench({
       : paneIndex === 0
         ? 'Upper workspace'
         : 'Lower workspace'
+    const newTabLabel =
+      flattened || notebookTabs.panes.length === 1
+        ? 'New tab'
+        : `New tab in ${paneIndex === 0 ? 'upper' : 'lower'} pane`
+    const showPaneActions =
+      (flattened || paneIndex === 0) && (allowSharing || !notebookChatOpen)
 
     return (
       <div
@@ -3024,14 +3030,24 @@ export function ExampleWorkbench({
           )
         }}
       >
-        <header className="relative z-20 flex min-w-0 items-stretch border-b border-border-default bg-background-default">
+        <header className="relative z-20 flex min-w-0 items-center gap-1 border-b border-border-default bg-background-default @min-[900px]:px-1">
           <div
             role="tablist"
             aria-label={paneLabel}
-            className="fade-x flex min-w-0 flex-1 items-stretch overflow-x-auto"
+            className="fade-x flex min-w-0 shrink items-center gap-1 overflow-x-auto"
           >
             {paneTabs.map((tab) => {
               const label = getNotebookWorkbenchTabLabel(notebookTabs.tabs, tab)
+              const editorPathSeparator =
+                tab.kind === 'editor' ? tab.path.lastIndexOf('/') : -1
+              const editorDirectory =
+                tab.kind === 'editor' && editorPathSeparator >= 0
+                  ? tab.path.slice(0, editorPathSeparator + 1)
+                  : ''
+              const editorFileName =
+                tab.kind === 'editor'
+                  ? tab.path.slice(editorPathSeparator + 1)
+                  : ''
               const tabPane = getNotebookWorkbenchPaneForTab(
                 notebookTabs,
                 tab.id,
@@ -3049,10 +3065,10 @@ export function ExampleWorkbench({
                 <div
                   key={tab.id}
                   role="presentation"
-                  className={`flex shrink-0 items-stretch border-r border-border-default ${
+                  className={`flex h-10 shrink-0 items-stretch overflow-hidden rounded-lg transition-colors duration-100 motion-reduce:transition-none @min-[900px]:h-8 ${
                     active
-                      ? 'bg-background-default text-text-primary'
-                      : 'bg-background-subtle text-text-muted'
+                      ? 'bg-background-subtle text-text-primary'
+                      : 'text-text-muted hover:bg-background-subtle hover:text-text-primary'
                   } ${dragging ? 'opacity-50' : ''}`}
                 >
                   <button
@@ -3069,8 +3085,10 @@ export function ExampleWorkbench({
                     data-tab-id={tab.id}
                     aria-controls={getNotebookPanelId(tab)}
                     aria-selected={active}
+                    aria-label={label}
+                    title={label}
                     tabIndex={active ? 0 : -1}
-                    className="flex min-w-0 touch-pan-x items-center gap-1.5 px-2 text-xs hover:bg-background-elevated hover:text-text-primary focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus"
+                    className="flex min-w-0 touch-pan-x items-center gap-2 px-2.5 text-sm focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus"
                     onClick={() => {
                       if (notebookTabDidDragRef.current) {
                         notebookTabDidDragRef.current = false
@@ -3088,16 +3106,27 @@ export function ExampleWorkbench({
                     onLostPointerCapture={cancelNotebookTabDrag}
                   >
                     {tab.kind === 'preview' ? (
-                      <BrowserIcon className="size-3.5" aria-hidden="true" />
+                      <BrowserIcon className="size-4" aria-hidden="true" />
                     ) : tab.kind === 'editor' ? (
-                      <CodeIcon className="size-3.5" aria-hidden="true" />
+                      <CodeIcon className="size-4" aria-hidden="true" />
                     ) : (
                       <TerminalWindowIcon
-                        className="size-3.5"
+                        className="size-4"
                         aria-hidden="true"
                       />
                     )}
-                    <span>{label}</span>
+                    {tab.kind === 'editor' ? (
+                      <span className="flex min-w-0 max-w-40 items-center overflow-hidden font-ds-mono @min-[900px]:max-w-56">
+                        {editorDirectory ? (
+                          <span className="min-w-0 overflow-hidden whitespace-nowrap text-right text-text-muted">
+                            {editorDirectory}
+                          </span>
+                        ) : null}
+                        <span className="shrink-0">{editorFileName}</span>
+                      </span>
+                    ) : (
+                      <span>{label}</span>
+                    )}
                   </button>
 
                   {paneTabs.length > 1 || otherPane ? (
@@ -3106,7 +3135,7 @@ export function ExampleWorkbench({
                         <button
                           type="button"
                           aria-label={`Arrange ${label}`}
-                          className="flex w-7 items-center justify-center text-text-muted hover:bg-background-elevated hover:text-text-primary focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus"
+                          className="flex w-10 items-center justify-center text-text-muted hover:bg-surface-state-hover hover:text-text-primary focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus @min-[900px]:w-7"
                         >
                           <DotsThreeIcon
                             className="size-3.5"
@@ -3144,10 +3173,10 @@ export function ExampleWorkbench({
                     <button
                       type="button"
                       aria-label={`Close ${label}`}
-                      className="flex w-8 items-center justify-center text-text-muted hover:bg-background-elevated hover:text-text-primary focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus"
+                      className="flex w-10 items-center justify-center text-text-muted hover:bg-surface-state-hover hover:text-text-primary focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus @min-[900px]:w-7"
                       onClick={() => closeNotebookTab(tab.id)}
                     >
-                      <XIcon className="size-3" aria-hidden="true" />
+                      <XIcon className="size-3.5" aria-hidden="true" />
                     </button>
                   </Tooltip>
                 </div>
@@ -3155,93 +3184,105 @@ export function ExampleWorkbench({
             })}
           </div>
 
-          <div className="flex shrink-0 items-stretch border-l border-border-default">
-            <Dropdown>
-              <DropdownTrigger>
-                <Button
-                  ref={
-                    pane.id === notebookTabs.activePaneId
-                      ? notebookAddTabButtonRef
-                      : undefined
-                  }
-                  type="button"
-                  variant="icon"
-                  color="gray"
-                  size="icon-sm"
-                  rounded="none"
-                  className="size-10 shrink-0 transition-none active:scale-100"
-                  aria-label={`New tab in ${paneLabel.toLowerCase()}`}
-                >
-                  <PlusIcon className="size-4" aria-hidden="true" />
-                </Button>
-              </DropdownTrigger>
-              <DropdownContent align="end" className="min-w-44">
-                <DropdownItem
-                  onSelect={() => addNotebookTab({ kind: 'preview' }, pane.id)}
-                >
-                  <BrowserIcon className="size-4" aria-hidden="true" />
-                  Preview
-                </DropdownItem>
-                <DropdownItem
-                  onSelect={() =>
-                    addNotebookTab(
-                      {
-                        kind: 'editor',
-                        path: activePath,
-                        filesOpen: showFiles,
-                      },
-                      pane.id,
-                    )
-                  }
-                >
-                  <CodeIcon className="size-4" aria-hidden="true" />
-                  Editor
-                </DropdownItem>
-                <DropdownItem
-                  onSelect={() => addNotebookTab({ kind: 'console' }, pane.id)}
-                >
-                  <TerminalWindowIcon className="size-4" aria-hidden="true" />
-                  Console
-                </DropdownItem>
-              </DropdownContent>
-            </Dropdown>
-
-            {(flattened || paneIndex === 0) && allowSharing ? (
-              <Tooltip
-                content={shareState === 'copied' ? 'Copied' : 'Copy share link'}
-                side="bottom"
-              >
-                <Button
-                  type="button"
-                  variant="icon"
-                  color="gray"
-                  size="icon-sm"
-                  rounded="none"
-                  className="size-10 shrink-0 transition-none active:scale-100"
-                  aria-label="Copy share link"
-                  disabled={shareState === 'sharing'}
-                  onClick={() => void share()}
-                >
-                  <ShareIcon className="size-4" aria-hidden="true" />
-                </Button>
-              </Tooltip>
-            ) : null}
-
-            {(flattened || paneIndex === 0) && !notebookChatOpen ? (
+          <Dropdown>
+            <DropdownTrigger>
               <Button
-                ref={notebookShowChatButtonRef}
+                ref={
+                  pane.id === notebookTabs.activePaneId
+                    ? notebookAddTabButtonRef
+                    : undefined
+                }
                 type="button"
-                variant="ghost"
-                size="xs"
-                rounded="none"
-                className="h-10 shrink-0 transition-none hover:shadow-none"
-                onClick={() => alternateEditor?.onActiveChange(true)}
+                variant="icon"
+                color="gray"
+                size="icon-sm"
+                rounded="lg"
+                className="size-10 shrink-0 bg-background-subtle text-text-secondary transition-colors duration-100 hover:bg-surface-state-hover active:scale-95 motion-reduce:transition-none @min-[900px]:size-8"
+                aria-label={newTabLabel}
               >
-                <ChatCircleDotsIcon className="size-3.5" aria-hidden="true" />
-                Show chat
+                <PlusIcon className="size-4" aria-hidden="true" />
               </Button>
-            ) : null}
-          </div>
+            </DropdownTrigger>
+            <DropdownContent
+              align="start"
+              sideOffset={4}
+              collisionPadding={8}
+              className="w-64 max-w-[calc(100vw-1rem)] origin-[var(--radix-dropdown-menu-content-transform-origin)] rounded-xl border-border-subtle p-1 shadow-xl duration-100 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 motion-reduce:animate-none"
+            >
+              <DropdownItem
+                className="min-h-10 gap-2.5 rounded-lg px-2.5 py-1 text-sm text-text-primary transition-colors duration-100 motion-reduce:transition-none"
+                onSelect={() => addNotebookTab({ kind: 'preview' }, pane.id)}
+              >
+                <BrowserIcon className="size-4" aria-hidden="true" />
+                Preview
+              </DropdownItem>
+              <DropdownItem
+                className="min-h-10 gap-2.5 rounded-lg px-2.5 py-1 text-sm text-text-primary transition-colors duration-100 motion-reduce:transition-none"
+                onSelect={() =>
+                  addNotebookTab(
+                    {
+                      kind: 'editor',
+                      path: activePath,
+                      filesOpen: showFiles,
+                    },
+                    pane.id,
+                  )
+                }
+              >
+                <CodeIcon className="size-4" aria-hidden="true" />
+                Editor
+              </DropdownItem>
+              <DropdownItem
+                className="min-h-10 gap-2.5 rounded-lg px-2.5 py-1 text-sm text-text-primary transition-colors duration-100 motion-reduce:transition-none"
+                onSelect={() => addNotebookTab({ kind: 'console' }, pane.id)}
+              >
+                <TerminalWindowIcon className="size-4" aria-hidden="true" />
+                Console
+              </DropdownItem>
+            </DropdownContent>
+          </Dropdown>
+
+          {showPaneActions ? (
+            <div className="ml-auto flex shrink-0 items-center gap-1">
+              {(flattened || paneIndex === 0) && allowSharing ? (
+                <Tooltip
+                  content={
+                    shareState === 'copied' ? 'Copied' : 'Copy share link'
+                  }
+                  side="bottom"
+                >
+                  <Button
+                    type="button"
+                    variant="icon"
+                    color="gray"
+                    size="icon-sm"
+                    rounded="lg"
+                    className="size-10 shrink-0 transition-colors duration-100 active:scale-95 motion-reduce:transition-none @min-[900px]:size-8"
+                    aria-label="Copy share link"
+                    disabled={shareState === 'sharing'}
+                    onClick={() => void share()}
+                  >
+                    <ShareIcon className="size-4" aria-hidden="true" />
+                  </Button>
+                </Tooltip>
+              ) : null}
+
+              {(flattened || paneIndex === 0) && !notebookChatOpen ? (
+                <Button
+                  ref={notebookShowChatButtonRef}
+                  type="button"
+                  variant="ghost"
+                  size="xs"
+                  rounded="lg"
+                  className="h-10 shrink-0 transition-colors duration-100 hover:translate-y-0 hover:shadow-none motion-reduce:transition-none @min-[900px]:h-8"
+                  onClick={() => alternateEditor?.onActiveChange(true)}
+                >
+                  <ChatCircleDotsIcon className="size-3.5" aria-hidden="true" />
+                  Show chat
+                </Button>
+              ) : null}
+            </div>
+          ) : null}
         </header>
 
         <div className="min-h-0 min-w-0 overflow-hidden">

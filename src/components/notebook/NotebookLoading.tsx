@@ -314,15 +314,15 @@ function LegacyNotebookWorkbenchSkeleton({
 
 function WorkspaceTabSkeleton() {
   return (
-    <div className="flex h-10 shrink-0 items-center border-b border-border-default bg-background-default">
+    <div className="flex h-10 shrink-0 items-center gap-1 border-b border-border-default bg-background-default @min-[900px]:px-1">
       <div
         data-notebook-tab-skeleton="preview"
-        className="mr-auto flex h-full min-w-0 items-center gap-2 border-r border-border-default bg-background-default px-3 text-xs font-medium text-text-secondary"
+        className="flex h-10 min-w-0 items-center gap-2 rounded-lg bg-background-subtle px-3 text-sm font-medium text-text-secondary @min-[900px]:h-8"
       >
         <span className="truncate">Preview</span>
         <SkeletonBlock className="size-2.5 shrink-0 rounded-full" />
       </div>
-      <span className="inline-flex size-10 shrink-0 items-center justify-center text-text-muted">
+      <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg bg-background-subtle text-text-muted @min-[900px]:size-8">
         <PlusIcon className="size-4" aria-hidden="true" />
       </span>
     </div>

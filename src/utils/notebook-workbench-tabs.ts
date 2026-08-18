@@ -299,18 +299,15 @@ export function getNotebookWorkbenchTabLabel(
   tabs: ReadonlyArray<NotebookWorkbenchTab>,
   tab: NotebookWorkbenchTab,
 ) {
+  if (tab.kind === 'editor') return tab.path
+
   let ordinal = 0
   for (const candidate of tabs) {
     if (candidate.kind === tab.kind) ordinal += 1
     if (candidate.id === tab.id) break
   }
 
-  const name =
-    tab.kind === 'preview'
-      ? 'Preview'
-      : tab.kind === 'editor'
-        ? 'Editor'
-        : 'Console'
+  const name = tab.kind === 'preview' ? 'Preview' : 'Console'
   const count = tabs.filter((candidate) => candidate.kind === tab.kind).length
   return count === 1 ? name : `${name} ${ordinal}`
 }

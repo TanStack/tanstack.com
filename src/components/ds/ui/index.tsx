@@ -732,6 +732,7 @@ export function DropdownContent({
   align = 'end',
   side = 'bottom',
   sideOffset = 6,
+  collisionPadding = 0,
 }: {
   children: React.ReactNode
   className?: string
@@ -739,6 +740,7 @@ export function DropdownContent({
   align?: 'start' | 'center' | 'end'
   side?: 'top' | 'right' | 'bottom' | 'left'
   sideOffset?: number
+  collisionPadding?: number
 }) {
   return (
     <DropdownMenu.Portal container={container ?? undefined}>
@@ -746,6 +748,7 @@ export function DropdownContent({
         align={align}
         side={side}
         sideOffset={sideOffset}
+        collisionPadding={collisionPadding}
         className={twMerge(
           'z-[1200] min-w-48 rounded-lg border border-border-default bg-background-elevated p-1.5 shadow-lg',
           className,

@@ -306,13 +306,150 @@ export const liveDocsRules = [
 export const notebookStarterSource = `import { useState } from 'react'
 import { createRoot } from 'react-dom/client'
 
+const styles = \`
+:root {
+  --sandbox-ui: #3aa3c4;
+  --sandbox-framework: #39af46;
+  --sandbox-data: #d3481b;
+  --sandbox-performance: #ffa216;
+}
+
+:root.dark {
+  --sandbox-ui: #61adbf;
+  --sandbox-framework: #69bc75;
+  --sandbox-data: #e06e49;
+  --sandbox-performance: #f4d648;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--notebook-background);
+  color: var(--notebook-foreground);
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.sandbox {
+  display: grid;
+  min-height: 100dvh;
+  place-items: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.sandbox__content {
+  width: min(100%, 34rem);
+}
+
+.sandbox__colors {
+  width: 8rem;
+  height: 0.25rem;
+  margin: 0 auto 2rem;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    var(--sandbox-ui) 0 25%,
+    var(--sandbox-framework) 25% 50%,
+    var(--sandbox-data) 50% 75%,
+    var(--sandbox-performance) 75%
+  );
+}
+
+.sandbox__brand {
+  margin: 0 0 0.75rem;
+  color: color-mix(
+    in srgb,
+    var(--notebook-foreground) 66%,
+    var(--notebook-background)
+  );
+  font-weight: 650;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2.25rem, 8vw, 3rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.sandbox__hint {
+  margin: 1.75rem 0 2.75rem;
+  color: color-mix(
+    in srgb,
+    var(--notebook-foreground) 66%,
+    var(--notebook-background)
+  );
+  font-size: clamp(1rem, 3vw, 1.25rem);
+}
+
+code {
+  color: var(--notebook-foreground);
+}
+
+.sandbox__button {
+  min-width: 10.5rem;
+  padding: 0.8rem 1.5rem;
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--notebook-foreground) 45%,
+      var(--notebook-background)
+    );
+  border-radius: 0.625rem;
+  background: color-mix(
+    in srgb,
+    var(--notebook-foreground) 8%,
+    var(--notebook-background)
+  );
+  color: var(--notebook-foreground);
+  font: inherit;
+  font-size: 1.125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.sandbox__button:hover {
+  background: color-mix(
+    in srgb,
+    var(--notebook-foreground) 14%,
+    var(--notebook-background)
+  );
+}
+
+.sandbox__button:focus-visible {
+  outline: 2px solid var(--notebook-foreground);
+  outline-offset: 3px;
+}
+\`
+
 function App() {
   const [count, setCount] = useState<number>(0)
 
   return (
-    <button onClick={() => setCount((value) => value + 1)}>
-      Count: {count}
-    </button>
+    <>
+      <style>{styles}</style>
+      <main className="sandbox">
+        <div className="sandbox__content">
+          <div className="sandbox__colors" aria-hidden="true" />
+          <p className="sandbox__brand">TanStack Sandbox</p>
+          <h1>Ready to build.</h1>
+          <p className="sandbox__hint">
+            Edit <code>/index.tsx</code> to get started.
+          </p>
+          <button
+            className="sandbox__button"
+            type="button"
+            onClick={() => setCount((value) => value + 1)}
+          >
+            Count {count}
+          </button>
+        </div>
+      </main>
+    </>
   )
 }
 

@@ -188,7 +188,6 @@ function createLiveComponent(
     entry,
     environment,
     files,
-    imports: profile.imports,
   })
   const occurrence = (state.groupOccurrences.get(first.group) ?? 0) + 1
   state.groupOccurrences.set(first.group, occurrence)

@@ -199,7 +199,11 @@ function LiveExampleIsland({
             </StaticExample>
           }
         >
-          <LazyExampleWorkbench definition={definition} className="my-5" />
+          <LazyExampleWorkbench
+            definition={definition}
+            className="my-5"
+            packageResolution="dynamic"
+          />
         </React.Suspense>
       </ClientOnly>
     )

@@ -1,7 +1,10 @@
 import * as esbuild from 'esbuild-wasm'
 import esbuildWasmUrl from 'esbuild-wasm/esbuild.wasm?url'
 import { getExampleEnvironmentProfile } from './notebook-environment'
-import { getExampleWorkspaceImports } from './example-imports'
+import {
+  getExampleWorkspaceImports,
+  resolveExampleWorkspaceImports,
+} from './example-imports'
 import {
   decodeExampleBinaryFile,
   normalizeExamplePath,
@@ -12,6 +15,13 @@ export type CompiledExampleWorkspace = {
   css: string
   imports: Record<string, string>
   javascript: string
+}
+
+export type ExamplePackageResolution = 'dynamic' | 'legacy'
+
+export type CompileExampleWorkspaceOptions = {
+  packageResolution?: ExamplePackageResolution
+  signal?: AbortSignal
 }
 
 const workspaceNamespace = 'tanstack-example-workspace'
@@ -30,9 +40,11 @@ type WorkspaceBuildFiles = Record<string, string | Uint8Array>
 
 export async function compileExampleWorkspace(
   workspace: ExampleWorkspace,
+  options?: CompileExampleWorkspaceOptions,
 ): Promise<CompiledExampleWorkspace> {
   esbuildInitialization ??= esbuild.initialize({ wasmURL: esbuildWasmUrl })
   await esbuildInitialization
+  options?.signal?.throwIfAborted()
 
   const files = normalizeFiles(workspace.files, workspace.binaryFiles)
   const authoredEntry = resolveWorkspacePath(
@@ -63,6 +75,7 @@ export async function compileExampleWorkspace(
     target: 'es2022',
     write: false,
   })
+  options?.signal?.throwIfAborted()
 
   let css = ''
   let javascript = ''
@@ -76,13 +89,25 @@ export async function compileExampleWorkspace(
     throw new Error('esbuild did not produce a JavaScript module')
   }
 
+  const externalSpecifiers = getExternalSpecifiers(result.metafile)
+  const imports =
+    options?.packageResolution === 'dynamic'
+      ? await resolveExampleWorkspaceImports(
+          workspace,
+          workspace.files,
+          externalSpecifiers,
+          { signal: options.signal },
+        )
+      : getExampleWorkspaceImports(
+          workspace,
+          workspace.files,
+          externalSpecifiers,
+        )
+  options?.signal?.throwIfAborted()
+
   return {
     css,
-    imports: getExampleWorkspaceImports(
-      workspace,
-      workspace.files,
-      getExternalSpecifiers(result.metafile),
-    ),
+    imports,
     javascript,
   }
 }

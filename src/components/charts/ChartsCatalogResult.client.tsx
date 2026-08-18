@@ -68,6 +68,7 @@ export function ChartsCatalogResult({
   }, [previewHistory])
 
   React.useEffect(() => {
+    const controller = new AbortController()
     const request = compileRequestRef.current + 1
     compileRequestRef.current = request
     const runToken = crypto.randomUUID()
@@ -88,7 +89,10 @@ export function ChartsCatalogResult({
     setSourceDocument('')
     setStatus('compiling')
 
-    void compileExampleWorkspace(definition.workspace)
+    void compileExampleWorkspace(definition.workspace, {
+      packageResolution: 'dynamic',
+      signal: controller.signal,
+    })
       .then((compiled) => {
         if (request !== compileRequestRef.current) return
         setSourceDocument(
@@ -105,6 +109,7 @@ export function ChartsCatalogResult({
         setStatus('running')
       })
       .catch((error: unknown) => {
+        if (controller.signal.aborted) return
         if (request !== compileRequestRef.current) return
         console.error(
           `Unable to compile Charts catalog case ${definition.id}`,
@@ -113,6 +118,11 @@ export function ChartsCatalogResult({
         setStatus('error')
         onStatusRef.current?.('error')
       })
+
+    return () => {
+      compileRequestRef.current += 1
+      controller.abort()
+    }
   }, [definition])
 
   const syncTheme = React.useCallback(() => {

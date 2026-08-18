@@ -25,7 +25,10 @@ import {
 } from '~/components/ds/ui'
 import { Tooltip } from '~/ui'
 import { copyTextToClipboard } from '~/utils/browser-effects'
-import { compileExampleWorkspace } from '~/utils/example-esbuild.client'
+import {
+  compileExampleWorkspace,
+  type ExamplePackageResolution,
+} from '~/utils/example-esbuild.client'
 import {
   createEmptyExampleEnvironmentSnapshot,
   type ExampleEnvironmentSnapshot,
@@ -219,6 +222,7 @@ export function ExampleWorkbench({
   fullscreen = false,
   libraryColor = 'bg-emerald-500',
   onWorkspaceChange,
+  packageResolution = 'legacy',
   preview,
   runDisabled = false,
   runLabel = 'Run example',
@@ -240,6 +244,7 @@ export function ExampleWorkbench({
   fullscreen?: boolean
   libraryColor?: string
   onWorkspaceChange?: (workspace: ExampleWorkspace) => void
+  packageResolution?: ExamplePackageResolution
   preview?: ExampleWorkbenchPreviewOptions
   runDisabled?: boolean
   runLabel?: string
@@ -581,12 +586,15 @@ export function ExampleWorkbench({
         setRunActive(true)
 
         if (signal) {
-          const abortListener = () =>
+          const abortListener = () => {
+            compileRequestRef.current += 1
+            if (!usesWebContainer) setStatus('stopped')
             finishRun(token, {
               ok: false,
               phase: 'aborted',
               message: 'The notebook run was stopped.',
             })
+          }
           pending.abortListener = abortListener
           pending.abortSignal = signal
           signal.addEventListener('abort', abortListener, { once: true })
@@ -1164,8 +1172,11 @@ export function ExampleWorkbench({
           }
 
           setStatus('compiling')
-          const compiled = await compileExampleWorkspace(currentWorkspace)
-          if (request !== compileRequestRef.current) return
+          const compiled = await compileExampleWorkspace(currentWorkspace, {
+            packageResolution,
+            signal,
+          })
+          if (signal?.aborted || request !== compileRequestRef.current) return
 
           setSourceDocument(
             createExampleSandboxDocument({
@@ -1181,7 +1192,7 @@ export function ExampleWorkbench({
           )
           setStatus('running')
         } catch (cause) {
-          if (request !== compileRequestRef.current) return
+          if (signal?.aborted || request !== compileRequestRef.current) return
           const message = formatError(cause)
           if (definition.runtime?.type === 'webcontainer') {
             if (!webContainerSessionRef.current) return
@@ -1217,6 +1228,7 @@ export function ExampleWorkbench({
       flushWebContainerWrites,
       getVisibleNotebookPreviewTab,
       notebookMode,
+      packageResolution,
       revealWebContainerOutput,
       resetProcessOutput,
       usesWebContainer,

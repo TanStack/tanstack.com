@@ -50,30 +50,17 @@ export const notebookImports = {
   'react-dom/': 'https://esm.sh/react-dom@19.2.3/',
 } as const
 
-const chartsEnvironmentImports = {
-  '@tanstack/charts': notebookImports['@tanstack/charts'],
-  '@tanstack/charts/': notebookImports['@tanstack/charts/'],
-  'd3-geo': notebookImports['d3-geo'],
-  'd3-scale': notebookImports['d3-scale'],
-  'd3-shape': notebookImports['d3-shape'],
-}
-
-const clientEnvironmentImports = { ...notebookImports }
-
 function defineExampleEnvironmentProfile({
   createEntrySource,
   entryPath = '/__tanstack-example-entry.ts',
-  imports,
   outputSelector,
 }: {
   createEntrySource: (entry: string, outputSource: string) => string
   entryPath?: string
-  imports: Record<string, string>
   outputSelector: `#${string}`
 }) {
   return {
     entryPath,
-    imports,
     outputSelector,
     createEntrySource(entry: string) {
       return createEntrySource(entry, createExampleOutputSource(outputSelector))
@@ -97,7 +84,6 @@ if (!output) {
 
 export const exampleEnvironmentProfiles = {
   client: defineExampleEnvironmentProfile({
-    imports: clientEnvironmentImports,
     outputSelector: '#root',
     createEntrySource(entry, outputSource) {
       return `import value from ${JSON.stringify(entry)}
@@ -122,7 +108,6 @@ appendValue(result)
     },
   }),
   react: defineExampleEnvironmentProfile({
-    imports: clientEnvironmentImports,
     outputSelector: '#root',
     createEntrySource(entry, outputSource) {
       return `import { createElement } from 'react'
@@ -138,7 +123,6 @@ window.addEventListener('pagehide', () => root.unmount(), { once: true })
     },
   }),
   charts: defineExampleEnvironmentProfile({
-    imports: chartsEnvironmentImports,
     outputSelector: '#root',
     createEntrySource(entry, outputSource) {
       return `import { mountChart } from '@tanstack/charts'
@@ -157,23 +141,6 @@ window.addEventListener('pagehide', () => chart.destroy(), { once: true })
     },
   }),
   'charts-react': defineExampleEnvironmentProfile({
-    imports: {
-      ...chartsEnvironmentImports,
-      '@tanstack/charts/react': notebookImports['@tanstack/charts/react'],
-      '@tanstack/charts/react/canvas':
-        notebookImports['@tanstack/charts/react/canvas'],
-      '@tanstack/charts/react/core':
-        notebookImports['@tanstack/charts/react/core'],
-      '@tanstack/charts/react/tooltip':
-        notebookImports['@tanstack/charts/react/tooltip'],
-      react: notebookImports.react,
-      'react/': notebookImports['react/'],
-      'react/jsx-dev-runtime': notebookImports['react/jsx-dev-runtime'],
-      'react/jsx-runtime': notebookImports['react/jsx-runtime'],
-      'react-dom': notebookImports['react-dom'],
-      'react-dom/': notebookImports['react-dom/'],
-      'react-dom/client': notebookImports['react-dom/client'],
-    },
     outputSelector: '#root',
     createEntrySource(entry, outputSource) {
       return `import { createElement } from 'react'
@@ -189,16 +156,6 @@ window.addEventListener('pagehide', () => root.unmount(), { once: true })
     },
   }),
   'charts-octane': defineExampleEnvironmentProfile({
-    imports: {
-      ...chartsEnvironmentImports,
-      '@tanstack/charts/octane': notebookImports['@tanstack/charts/octane'],
-      '@tanstack/charts/octane/canvas':
-        notebookImports['@tanstack/charts/octane/canvas'],
-      '@tanstack/charts/octane/core':
-        notebookImports['@tanstack/charts/octane/core'],
-      octane: notebookImports.octane,
-      'octane/': notebookImports['octane/'],
-    },
     outputSelector: '#root',
     createEntrySource(entry, outputSource) {
       return `import { createRoot } from 'octane'
@@ -299,6 +256,8 @@ export const liveDocsRules = [
   'A runnable documentation example is a consecutive group of fenced code blocks with the same group identifier.',
   "Every fence must include an explicit canonical absolute file path. Exactly one fence has the entry flag, and that fence carries the group's only env declaration.",
   "Supported environments are client, react, charts, charts-react, and charts-octane. Their hidden bootstrap mounts the entry module's default export.",
+  'Bare npm imports use the version requested by a grouped /package.json file, or the current latest version when no version is declared. The runtime resolves that request to one exact version before loading the example.',
+  'Use a full HTTPS module URL when a source import itself must pin a version.',
   'Add the collapsed flag to support files that should remain under a disclosure until the reader opens them.',
   'The static highlighted fences are rendered on the server. The workbench hydrates near the viewport and runs once visible and idle; selecting Run starts it immediately.',
 ]

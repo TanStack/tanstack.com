@@ -7,11 +7,7 @@ import {
   XIcon,
 } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
-import {
-  Panel,
-  PanelContent,
-  PanelTrigger,
-} from '~/components/Panel'
+import { Panel, PanelContent, PanelTrigger } from '~/components/Panel'
 import {
   formatNotebookAiActivityDuration,
   getNotebookAiActivityItemLabel,

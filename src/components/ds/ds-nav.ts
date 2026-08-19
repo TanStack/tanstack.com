@@ -169,7 +169,6 @@ export const dsNav: Array<DsNavSection> = [
         sections: [
           'Anatomy',
           'Mega menu item',
-          'Menu variants',
           'Layout & spacing',
           'Responsive behavior',
           'Source',

@@ -37,33 +37,6 @@ const PRIMARY_NAV = [
   'Support',
 ]
 
-const MENU_VARIANTS = [
-  {
-    name: 'Libraries',
-    detail:
-      'Five category columns (Framework, Data & State, UI & UX, Performance, Tooling) with mono category-colored headers over icon + name rows. Built from the canonical libraryCategories taxonomy; a "Browse all libraries" footer opens the full-screen overlay.',
-  },
-  {
-    name: 'Blog',
-    detail:
-      'Three recent-post cards (cover image, title, excerpt, author · date) loaded on hover via the fetchRecentPosts server fn, over an About row: YouTube, Workshops, Release Notes.',
-  },
-  {
-    name: 'Support',
-    detail:
-      'Two link columns (Support, About) plus a Partners rail — a left-divided column with the "Work with TanStack" emblem lockup and a Partnership Inquiry link anchored to the bottom.',
-  },
-  {
-    name: 'Merch',
-    detail:
-      'A three-up grid of product cards (image-forward) fetched from Shopify on hover, with a centered "View all" link to the shop.',
-  },
-  {
-    name: 'Community & Tools',
-    detail:
-      'Standard section layouts of MegaMenuItem rows — Channels / People & Work for Community, and Builder / Notebook / Stats for Tools.',
-  },
-]
 
 /**
  * A static, non-fixed replica of the real site navbar for documentation.
@@ -341,27 +314,6 @@ function NavbarPage() {
               badge="New"
             />
           </div>
-        </div>
-      </DsSection>
-
-      <DsSection
-        title="Menu variants"
-        description="Each primary-nav item opens a mega-menu. Most are built from the shared MegaMenuItem row, but Libraries, Blog, Merch, and the Support rail use bespoke layouts. The live menus depend on router, overlay, and data context, so they're documented here rather than rendered inline."
-      >
-        <div className="grid gap-3 sm:grid-cols-2">
-          {MENU_VARIANTS.map((variant) => (
-            <div
-              key={variant.name}
-              className="rounded-xl border border-border-default bg-background-surface p-4"
-            >
-              <div className="font-ds-mono text-ds-mono-xs uppercase tracking-wider text-text-muted">
-                {variant.name}
-              </div>
-              <p className="mt-2 text-ds-body-sm text-text-secondary">
-                {variant.detail}
-              </p>
-            </div>
-          ))}
         </div>
       </DsSection>
 

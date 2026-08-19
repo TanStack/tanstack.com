@@ -9,11 +9,16 @@ import { resetGitHubContentCacheForTest } from '../src/utils/github-content-cach
 
 const revision = '1'.repeat(40)
 
-function createCatalogCase(id = '01-line-gaps', order = 1) {
+function createCatalogCase(
+  id = '01-line-gaps',
+  order = 1,
+  collection?: string,
+) {
   return {
     schemaVersion: 1,
     order,
     id,
+    ...(collection ? { collection } : {}),
     title: 'Apple stock line with seasonal gaps',
     family: 'trend',
     intent: 'Show gaps in a time series.',
@@ -29,35 +34,62 @@ function createCatalogCase(id = '01-line-gaps', order = 1) {
       maintain: 'Keep the gaps visible.',
     },
     entries: {
-      tanstack: `benchmarks/conformance/cases/${id}/tanstack.ts`,
-      reference: {
-        renderer: 'observable-plot',
-        path: `benchmarks/conformance/cases/${id}/plot.ts`,
-      },
+      example: `benchmarks/conformance/cases/${id}/example.tsx`,
     },
   }
 }
 
-function createCatalogIndex() {
+function createCatalogIndex(collection?: string) {
+  return {
+    schemaVersion: 2,
+    source: {
+      repo: 'tanstack/charts',
+      pathRoot: 'benchmarks/conformance/',
+    },
+    cases: [createCatalogCase('01-line-gaps', 1, collection)],
+  }
+}
+
+function createLegacyCatalogIndex() {
+  const catalogCase = createCatalogCase()
   return {
     schemaVersion: 1,
     source: {
       repo: 'tanstack/charts',
       pathRoot: 'benchmarks/conformance/',
     },
-    cases: [createCatalogCase()],
+    cases: [
+      {
+        ...catalogCase,
+        entries: {
+          tanstack: 'benchmarks/conformance/cases/01-line-gaps/tanstack.ts',
+          reference: {
+            renderer: 'observable-plot',
+            path: 'benchmarks/conformance/cases/01-line-gaps/plot.ts',
+          },
+        },
+      },
+    ],
   }
 }
 
 test('catalog index retains only the site-owned contract', () => {
-  const index = parseChartsCatalogIndex(createCatalogIndex())
+  const index = parseChartsCatalogIndex(createCatalogIndex('shadcn'))
 
   assert.equal(index.cases[0]?.id, '01-line-gaps')
+  assert.equal(index.cases[0]?.collection, 'shadcn')
   assert.equal('geometry' in (index.cases[0] ?? {}), false)
   assert.equal(
     chartsCatalogIndexCacheHeaders['Cache-Tag'],
     'docs:charts:branch:main',
   )
+})
+
+test('catalog index accepts the legacy adapter contract during rollout', () => {
+  const index = parseChartsCatalogIndex(createLegacyCatalogIndex())
+
+  assert.equal(index.schemaVersion, 1)
+  assert.equal(index.cases[0]?.id, '01-line-gaps')
 })
 
 test('catalog index rejects broken case and ordering relationships', () => {
@@ -70,8 +102,8 @@ test('catalog index rejects broken case and ordering relationships', () => {
   assert.throws(() => parseChartsCatalogIndex(unsorted))
 
   const mismatchedEntry = createCatalogIndex()
-  mismatchedEntry.cases[0]!.entries.tanstack =
-    'benchmarks/conformance/cases/other/tanstack.ts'
+  mismatchedEntry.cases[0]!.entries.example =
+    'benchmarks/conformance/cases/other/example.tsx'
   assert.throws(() => parseChartsCatalogIndex(mismatchedEntry))
 })
 

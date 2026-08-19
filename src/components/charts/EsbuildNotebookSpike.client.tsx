@@ -185,7 +185,12 @@ export function EsbuildNotebookSpike() {
           ))}
         </nav>
       </header>
-      <ExampleWorkbench key={definition.id} definition={definition} />
+      <ExampleWorkbench
+        key={definition.id}
+        allowSharing
+        definition={definition}
+        packageResolution="dynamic"
+      />
     </main>
   )
 }

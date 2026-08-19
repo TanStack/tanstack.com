@@ -6,9 +6,7 @@ import {
   type SegmentSize,
 } from '~/components/ds/ui/Tabs'
 
-type ButtonGroupProps = {
-  children: React.ReactNode
-} & React.ComponentPropsWithoutRef<'div'>
+type ButtonGroupProps = React.ComponentProps<'div'>
 
 /**
  * Low-level toolbar container: joins whatever buttons you drop in with shared
@@ -23,20 +21,21 @@ type ButtonGroupProps = {
 export function ButtonGroup({
   children,
   className,
-  ...rest
+  ...props
 }: ButtonGroupProps) {
   return (
     <div
+      {...props}
       className={twMerge(
         'inline-flex items-stretch overflow-hidden rounded-md',
         'border border-border-default',
-        '[&>*]:border-0 [&>*+*]:border-l [&>*+*]:border-border-default',
+        '[&>*]:border-0! [&>*+*]:border-l! [&>*+*]:border-border-default!',
         'bg-background-surface text-text-primary',
         'shadow-sm',
         '[&>[aria-pressed=true]]:bg-text-primary [&>[aria-pressed=true]]:text-background-default [&>[aria-pressed=true]]:shadow-sm',
         className,
       )}
-      {...rest}
+      {...props}
     >
       {children}
     </div>

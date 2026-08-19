@@ -4,6 +4,7 @@ import { setResponseHeaders } from '@tanstack/react-start/server'
 import { allPosts } from 'content-collections'
 import * as v from 'valibot'
 import { findLibrary, type LibraryId } from '~/libraries'
+import { allMaintainers } from '~/libraries/maintainers'
 import {
   getPostsForLibrary,
   getVisiblePosts,
@@ -14,8 +15,10 @@ import {
   type BlogCardPost,
   formatAuthors,
   formatPublishedDate,
+  getBlogAuthorIdentities,
   getBlogLibraries,
-  isPublishedDateReleased,
+  isBlogPostUnpublished,
+  normalizeBlogAuthors,
 } from '~/utils/blog-format'
 import { getExternalBlogPosts } from '~/utils/external-blog-posts.server'
 import { buildRedirectManifest } from './redirects'
@@ -117,16 +120,18 @@ export const fetchBlogPost = createServerFn({ method: 'GET' })
       }),
     )
 
-    const blogContent = `<small><em>by ${formatAuthors(post.authors)} on ${formatPublishedDate(
+    const authors = normalizeBlogAuthors(post.authors)
+    const blogContent = `<small><em>by ${formatAuthors(authors)} on ${formatPublishedDate(
       post.published || '1970-01-01',
     )}.</em></small>
 
 ${post.content}`
 
-    const isUnpublished = post.draft || !isPublishedDateReleased(post.published)
+    const isUnpublished = isBlogPostUnpublished(post)
 
     return {
-      authors: post.authors,
+      authorIdentities: getBlogAuthorIdentities(authors, allMaintainers),
+      authors,
       content: blogContent,
       description: post.excerpt,
       filePath: `src/blog/${data}.md`,
@@ -134,7 +139,9 @@ ${post.content}`
       isUnpublished,
       library: post.library,
       published: post.published,
+      slug: post.slug,
       title: post.title,
+      updated: post.updated,
     }
   })
 

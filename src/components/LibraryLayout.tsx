@@ -38,6 +38,8 @@ import { Card } from './Card'
 import { PartnersRail, RightRail } from './RightRail'
 import { trackEvent, useTrackedImpression } from '~/utils/analytics'
 import {
+  getLibraryLayoutVersion,
+  getLibraryTabLinkOptions,
   getMenuGroupInitialOpenState,
   isChartsCatalogTarget,
 } from './library-layout-navigation'
@@ -811,14 +813,16 @@ export function LibraryLayout({
   isLandingPage = false,
 }: LibraryLayoutProps) {
   const { _splat, version: routeVersion } = useParams({ strict: false })
-  const version =
-    typeof routeVersion === 'string' ? routeVersion : layoutVersion
+  const matches = useMatches()
+  const lastMatch = last(matches)
+  const version = getLibraryLayoutVersion({
+    layoutVersion,
+    pathname: lastMatch.pathname,
+    routeVersion,
+  })
   const menuConfig = useMenuConfig({ config, frameworks, repo, libraryId })
   const LibraryIcon = libraryIcons[libraryId] ?? fallbackLibraryIcon
   const libraryGroupColor = categoryTextColor[categoryOf(libraryId)]
-
-  const matches = useMatches()
-  const lastMatch = last(matches)
 
   const isExample = matches.some(
     (d) =>
@@ -1187,23 +1191,19 @@ export function LibraryLayout({
                   return null
                 }
 
-                const linkParams =
-                  !target.to.startsWith('/') ||
-                  target.to.includes('/$libraryId')
-                    ? ({ libraryId, version } as never)
-                    : undefined
+                const linkOptions = getLibraryTabLinkOptions({
+                  libraryId,
+                  version,
+                  to: target.to,
+                })
                 const isActive = tab.id === activeTabId
 
                 return (
                   <li key={tab.id}>
                     <Link
-                      from={
-                        isChartsCatalogTarget(target.to)
-                          ? undefined
-                          : '/$libraryId/$version/docs'
-                      }
-                      to={target.to}
-                      params={linkParams}
+                      from={linkOptions.from as never}
+                      to={linkOptions.to as never}
+                      params={linkOptions.params as never}
                       onClick={closeMobileMenu}
                       preload={
                         isChartsCatalogTarget(target.to) ? false : 'intent'
@@ -1378,21 +1378,18 @@ export function LibraryLayout({
                 return null
               }
 
-              const linkParams =
-                !target.to.startsWith('/') || target.to.includes('/$libraryId')
-                  ? ({ libraryId, version } as never)
-                  : undefined
+              const linkOptions = getLibraryTabLinkOptions({
+                libraryId,
+                version,
+                to: target.to,
+              })
 
               return (
                 <Link
                   key={tab.id}
-                  from={
-                    isChartsCatalogTarget(target.to)
-                      ? undefined
-                      : '/$libraryId/$version/docs'
-                  }
-                  to={target.to}
-                  params={linkParams}
+                  from={linkOptions.from as never}
+                  to={linkOptions.to as never}
+                  params={linkOptions.params as never}
                   preload={isChartsCatalogTarget(target.to) ? false : 'intent'}
                   activeOptions={{
                     exact: true,

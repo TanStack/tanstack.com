@@ -11,6 +11,10 @@ import {
   NotebookProjectStorageUnavailableError,
   quarantineNotebookProject,
 } from '~/utils/notebook-project-storage.server'
+import {
+  NotebookRecordStorageUnavailableError,
+  quarantineStoredNotebookRecordsByProjectHash,
+} from '~/utils/notebook-record-storage.server'
 
 export const Route = createFileRoute(
   '/api/notebook/projects/$hash/quarantine',
@@ -43,13 +47,25 @@ export const Route = createFileRoute(
 
         try {
           await quarantineNotebookProject(params.hash, user.userId)
+          const stableRecordsQuarantined =
+            await quarantineStoredNotebookRecordsByProjectHash(
+              params.hash,
+              user.userId,
+            )
           const purge = await purgeHostingCacheTags([
             getNotebookProjectCacheTag(params.hash),
           ])
-          return jsonResponse({ purge, quarantined: true })
+          return jsonResponse({
+            purge,
+            quarantined: true,
+            stableRecordsQuarantined,
+          })
         } catch (error) {
-          if (error instanceof NotebookProjectStorageUnavailableError) {
-            return jsonError('Notebook project storage is unavailable', 503)
+          if (
+            error instanceof NotebookProjectStorageUnavailableError ||
+            error instanceof NotebookRecordStorageUnavailableError
+          ) {
+            return jsonError('Notebook storage is unavailable', 503)
           }
           console.error('Failed to quarantine notebook project:', error)
           return jsonError('Failed to quarantine notebook project', 500)

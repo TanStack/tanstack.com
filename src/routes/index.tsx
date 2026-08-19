@@ -28,6 +28,7 @@ import { useLibrariesOverlay } from '~/contexts/LibrariesOverlayContext'
 import { fetchRecentPosts } from '~/utils/blog.functions'
 import { usePrefersReducedMotion } from '~/utils/usePrefersReducedMotion'
 import { seo } from '~/utils/seo'
+import { getTanStackHomepageJsonLd } from '~/utils/organization-structured-data'
 
 export const Route = createFileRoute('/')({
   loader: async ({ context: { queryClient } }) => {
@@ -45,6 +46,12 @@ export const Route = createFileRoute('/')({
       description:
         'Headless, type-safe, composable tools for building modern web applications that work naturally for developers and reliably for agents.',
     }),
+    scripts: [
+      {
+        type: 'application/ld+json',
+        children: JSON.stringify(getTanStackHomepageJsonLd()),
+      },
+    ],
   }),
   component: Index,
 })

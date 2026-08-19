@@ -56,6 +56,17 @@ test(
         })
       }
 
+      if (library.id === 'table') {
+        paths.push({
+          path: '/table/latest/docs/reference/index/index',
+          expected: 'ok',
+        })
+        paths.push({
+          path: '/table/latest/docs/framework/react/reference/index/index',
+          expected: 'ok',
+        })
+      }
+
       return paths
     })
 

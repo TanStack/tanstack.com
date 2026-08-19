@@ -15,7 +15,20 @@ export type ExampleWorkspace = {
   entry: string
   environment?: ExampleEnvironment
   files: Record<string, string>
+  binaryFiles?: Record<string, string>
   imports?: Record<string, string>
+}
+
+export type ExampleRuntime = {
+  type: 'webcontainer'
+  compatibility?: 'tanstack-start-async-context'
+  install: ExampleRuntimeCommand
+  start: ExampleRuntimeCommand
+}
+
+export type ExampleRuntimeCommand = {
+  command: string
+  args: Array<string>
 }
 
 export type ExampleDefinition = {
@@ -23,24 +36,37 @@ export type ExampleDefinition = {
   title: string
   description?: string
   initialFile?: string
+  hiddenFiles?: ReadonlyArray<string>
+  runtime?: ExampleRuntime
   workspace: ExampleWorkspace
 }
 
 export function createExampleWorkspace({
+  binaryFiles,
   entry,
   environment,
   files,
   imports,
 }: {
+  binaryFiles?: Record<string, string>
   entry: string
   environment?: ExampleEnvironment
   files: Record<string, string>
   imports?: Record<string, string>
 }): ExampleWorkspace {
   const normalizedFiles: Record<string, string> = {}
+  const normalizedBinaryFiles: Record<string, string> = {}
 
   for (const [path, source] of Object.entries(files)) {
     normalizedFiles[normalizeExamplePath(path)] = source
+  }
+
+  for (const [path, source] of Object.entries(binaryFiles ?? {})) {
+    const normalizedPath = normalizeExamplePath(path)
+    if (normalizedFiles[normalizedPath] !== undefined) {
+      throw new Error(`Duplicate example file path: ${normalizedPath}`)
+    }
+    normalizedBinaryFiles[normalizedPath] = source
   }
 
   return {
@@ -48,6 +74,9 @@ export function createExampleWorkspace({
     entry: normalizeExamplePath(entry),
     ...(environment ? { environment } : {}),
     files: normalizedFiles,
+    ...(Object.keys(normalizedBinaryFiles).length
+      ? { binaryFiles: normalizedBinaryFiles }
+      : {}),
     ...(imports ? { imports: { ...imports } } : {}),
   }
 }
@@ -80,12 +109,20 @@ export function serializeExampleWorkspace(workspace: ExampleWorkspace) {
         ),
       )
     : undefined
+  const binaryFiles = workspace.binaryFiles
+    ? Object.fromEntries(
+        Object.entries(workspace.binaryFiles).sort(([left], [right]) =>
+          left.localeCompare(right),
+        ),
+      )
+    : undefined
 
   return JSON.stringify({
     version: workspace.version,
     entry: workspace.entry,
     ...(workspace.environment ? { environment: workspace.environment } : {}),
     files,
+    ...(binaryFiles ? { binaryFiles } : {}),
     ...(imports ? { imports } : {}),
   })
 }
@@ -98,6 +135,7 @@ export function parseExampleWorkspace(value: unknown): ExampleWorkspace {
       'entry',
       'environment',
       'files',
+      'binaryFiles',
       'imports',
     ]) ||
     value.version !== exampleWorkspaceVersion
@@ -112,12 +150,17 @@ export function parseExampleWorkspace(value: unknown): ExampleWorkspace {
       !isExampleEnvironment(value.environment)) ||
     !isStringRecord(value.files) ||
     !Object.keys(value.files).every(isCanonicalExamplePath) ||
+    (value.binaryFiles !== undefined &&
+      (!isStringRecord(value.binaryFiles) ||
+        !Object.keys(value.binaryFiles).every(isCanonicalExamplePath) ||
+        !Object.values(value.binaryFiles).every(isCanonicalBase64))) ||
     (value.imports !== undefined && !isStringRecord(value.imports))
   ) {
     throw new Error('Invalid example workspace')
   }
 
   const workspace = createExampleWorkspace({
+    binaryFiles: value.binaryFiles,
     entry: value.entry,
     environment: value.environment,
     files: value.files,
@@ -129,6 +172,17 @@ export function parseExampleWorkspace(value: unknown): ExampleWorkspace {
   }
 
   return workspace
+}
+
+export function encodeExampleBinaryFile(bytes: Uint8Array) {
+  let binary = ''
+  for (const byte of bytes) binary += String.fromCharCode(byte)
+  return btoa(binary)
+}
+
+export function decodeExampleBinaryFile(source: string) {
+  const binary = atob(source)
+  return Uint8Array.from(binary, (character) => character.charCodeAt(0))
 }
 
 export function isCanonicalExamplePath(path: string) {
@@ -157,6 +211,14 @@ function isStringRecord(value: unknown): value is Record<string, string> {
     isRecord(value) &&
     Object.values(value).every((source) => typeof source === 'string')
   )
+}
+
+function isCanonicalBase64(value: string) {
+  try {
+    return encodeExampleBinaryFile(decodeExampleBinaryFile(value)) === value
+  } catch {
+    return false
+  }
 }
 
 function hasOnlyKeys(value: Record<string, unknown>, keys: Array<string>) {

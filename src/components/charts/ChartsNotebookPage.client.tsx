@@ -17,7 +17,25 @@ import { Panel, PanelContent } from '~/components/Panel'
 import { ButtonGroup } from '~/components/ButtonGroup'
 import { NotebookGuideDialog } from '~/components/charts/NotebookGuideDialog'
 import { Button } from '~/components/ds/ui'
+import {
+  SandboxBrowser,
+  type SandboxBrowserAnnotationTarget,
+} from '~/components/examples/SandboxBrowser.client'
+import { useLoginModal } from '~/contexts/LoginModalContext'
+import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { copyTextToClipboard } from '~/utils/browser-effects'
+import {
+  canGoBackInExamplePreview,
+  canGoForwardInExamplePreview,
+  createExamplePreviewHistory,
+  normalizeExamplePreviewUrl,
+  updateExamplePreviewHistory,
+} from '~/utils/example-preview-history'
+import {
+  createExampleSandboxBrowserScript,
+  isExampleSandboxBrowserMessage,
+  postExampleSandboxBrowserCommand,
+} from '~/utils/example-sandbox.client'
 import {
   createSharedChartUrl,
   decodeSharedChartSource,
@@ -113,12 +131,17 @@ type SandboxTheme = 'light' | 'dark'
 
 function createSandboxDocument(
   source: string,
+  browserChannel: string,
   runToken: string,
   theme: SandboxTheme,
 ) {
   const serializedSource = JSON.stringify(source).replaceAll('<', '\\u003c')
   const serializedRunToken = JSON.stringify(runToken)
   const serializedTheme = JSON.stringify(theme)
+  const browserBridge = createExampleSandboxBrowserScript({
+    channel: browserChannel,
+    mode: 'client',
+  }).replaceAll('</script', '<\\/script')
 
   return `<!doctype html>
 <html class="${theme}" style="color-scheme: ${theme}">
@@ -127,6 +150,7 @@ function createSandboxDocument(
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
     <script type="importmap">${notebookImportMap}</script>
+    <script>${browserBridge}</script>
     <style>
       * { box-sizing: border-box; }
       html, body, #output { width: 100%; margin: 0; }
@@ -386,12 +410,18 @@ function createSandboxDocument(
 </html>`
 }
 
-type SandboxStatus = 'loading' | 'ready' | 'error'
+type SandboxStatus = 'idle' | 'loading' | 'ready' | 'error'
 type SandboxConsoleLevel = 'log' | 'info' | 'warn' | 'error' | 'debug'
 type SandboxConsoleEntry = {
   id: number
   level: SandboxConsoleLevel
   values: Array<string>
+}
+type PendingSandboxCapture = {
+  reject(cause: Error): void
+  requestId: string
+  resolve(blob: Blob): void
+  timeout: number
 }
 
 function isSandboxHeightMessage(
@@ -504,6 +534,9 @@ function isSandboxThemeRequest(value: unknown): value is { runToken: string } {
 }
 
 export function ChartsNotebookPage() {
+  const { openLoginModal } = useLoginModal()
+  const userQuery = useCurrentUserQuery()
+  const user = userQuery.data
   const [showNotebook, setShowNotebook] = React.useState(() =>
     window.location.hash.startsWith('#code='),
   )
@@ -518,7 +551,7 @@ export function ChartsNotebookPage() {
   const [runningTheme, setRunningTheme] = React.useState(readResolvedTheme)
   const [sourceReady, setSourceReady] = React.useState(false)
   const [runRevision, setRunRevision] = React.useState(0)
-  const [status, setStatus] = React.useState<SandboxStatus>('loading')
+  const [status, setStatus] = React.useState<SandboxStatus>('idle')
   const [error, setError] = React.useState<string>()
   const [copied, setCopied] = React.useState(false)
   const [showConsole, setShowConsole] = React.useState(false)
@@ -534,6 +567,18 @@ export function ChartsNotebookPage() {
     Array<SandboxConsoleEntry>
   >([])
   const [sandboxChannel] = React.useState(() => crypto.randomUUID())
+  const [previewHistory, setPreviewHistory] = React.useState(() =>
+    createExamplePreviewHistory(),
+  )
+  const [previewNavigationError, setPreviewNavigationError] = React.useState('')
+  const [previewAnnotationMode, setPreviewAnnotationModeActive] =
+    React.useState(false)
+  const [previewAnnotationTarget, setPreviewAnnotationTarget] =
+    React.useState<SandboxBrowserAnnotationTarget>()
+  const previewHistoryRef = React.useRef(previewHistory)
+  const pendingCaptureRef = React.useRef<PendingSandboxCapture | undefined>(
+    undefined,
+  )
   const highlightedSourceRef = React.useRef<HTMLDivElement>(null)
   const workspaceRef = React.useRef<HTMLDivElement>(null)
   const sourcePanelRef = React.useRef<HTMLDivElement>(null)
@@ -558,8 +603,13 @@ export function ChartsNotebookPage() {
     () =>
       compiledSource === undefined
         ? undefined
-        : createSandboxDocument(compiledSource, runToken, runningTheme),
-    [compiledSource, runningTheme, runToken],
+        : createSandboxDocument(
+            compiledSource,
+            sandboxChannel,
+            runToken,
+            runningTheme,
+          ),
+    [compiledSource, runningTheme, runToken, sandboxChannel],
   )
   const highlightedTokens = React.useMemo(() => {
     if (!showSource) return []
@@ -584,7 +634,11 @@ export function ChartsNotebookPage() {
   }, [source])
 
   React.useEffect(() => {
-    if (!showNotebook || !sourceReady) return
+    previewHistoryRef.current = previewHistory
+  }, [previewHistory])
+
+  React.useEffect(() => {
+    if (!user || !showNotebook || !sourceReady) return
 
     let active = true
     const timeout = window.setTimeout(() => {
@@ -607,7 +661,7 @@ export function ChartsNotebookPage() {
       active = false
       window.clearTimeout(timeout)
     }
-  }, [showNotebook, source, sourceReady])
+  }, [showNotebook, source, sourceReady, user])
 
   React.useEffect(() => {
     document.title = `${notebookTitle.trim() || defaultNotebookTitle} | TanStack`
@@ -709,7 +763,6 @@ export function ChartsNotebookPage() {
         setSource(sharedSource)
         setShowNotebook(true)
         setSourceReady(true)
-        runSource(sharedSource)
       })
       .catch((cause: unknown) => {
         if (!active) return
@@ -724,6 +777,72 @@ export function ChartsNotebookPage() {
 
   React.useEffect(() => {
     function receiveSandboxMessage(event: MessageEvent) {
+      if (event.source !== outputFrameRef.current?.contentWindow) return
+      if (event.origin !== 'null') return
+
+      if (isExampleSandboxBrowserMessage(event.data, sandboxChannel)) {
+        const message = event.data
+        if (
+          message.kind === 'capture-result' ||
+          message.kind === 'capture-error'
+        ) {
+          const pending = pendingCaptureRef.current
+          if (!pending || pending.requestId !== message.requestId) return
+          window.clearTimeout(pending.timeout)
+          pendingCaptureRef.current = undefined
+          if (message.kind === 'capture-error') {
+            pending.reject(new Error(message.message))
+          } else {
+            pending.resolve(
+              new Blob([message.bytes], { type: message.mimeType }),
+            )
+          }
+          return
+        }
+
+        if (message.kind === 'browser-state') {
+          const trustedUrl = normalizeExamplePreviewUrl({
+            mode: 'client',
+            url: message.url,
+          })
+          if (!trustedUrl) return
+          const currentHistory = previewHistoryRef.current
+          const currentUrl = currentHistory.entries[currentHistory.index] ?? '/'
+
+          setPreviewHistory((current) => {
+            const next = updateExamplePreviewHistory(current, {
+              kind: message.navigationKind,
+              url: trustedUrl,
+            })
+            previewHistoryRef.current = next
+            return next
+          })
+          setPreviewNavigationError('')
+          if (message.navigationKind === 'load' || currentUrl !== trustedUrl) {
+            setPreviewAnnotationTarget(undefined)
+          }
+          return
+        }
+
+        if (message.kind === 'navigation-error') {
+          setPreviewNavigationError(
+            'This client preview only supports in-page links.',
+          )
+          return
+        }
+
+        if (!previewAnnotationMode) return
+        const currentHistory = previewHistoryRef.current
+        setPreviewAnnotationTarget({
+          rect: message.rect,
+          selector: message.selector,
+          tagName: message.tag,
+          text: message.text,
+          url: currentHistory.entries[currentHistory.index] ?? '/',
+        })
+        return
+      }
+
       if (
         isSandboxHeightMessage(event.data) &&
         event.data.runToken === activeRunTokenRef.current
@@ -767,11 +886,36 @@ export function ChartsNotebookPage() {
 
     window.addEventListener('message', receiveSandboxMessage)
     return () => window.removeEventListener('message', receiveSandboxMessage)
-  }, [syncSandboxTheme])
+  }, [previewAnnotationMode, sandboxChannel, syncSandboxTheme])
 
   React.useEffect(() => {
     syncSandboxTheme()
   }, [runToken, syncSandboxTheme])
+
+  React.useEffect(() => {
+    const pending = pendingCaptureRef.current
+    if (pending) {
+      window.clearTimeout(pending.timeout)
+      pendingCaptureRef.current = undefined
+      pending.reject(new Error('The preview changed before capture completed.'))
+    }
+    const initial = createExamplePreviewHistory()
+    previewHistoryRef.current = initial
+    setPreviewHistory(initial)
+    setPreviewNavigationError('')
+    setPreviewAnnotationTarget(undefined)
+  }, [runToken])
+
+  React.useEffect(
+    () => () => {
+      const pending = pendingCaptureRef.current
+      if (!pending) return
+      window.clearTimeout(pending.timeout)
+      pendingCaptureRef.current = undefined
+      pending.reject(new Error('The preview closed before capture completed.'))
+    },
+    [],
+  )
 
   React.useEffect(() => {
     const root = document.documentElement
@@ -795,6 +939,10 @@ export function ChartsNotebookPage() {
   )
 
   function runSource(nextSource: string) {
+    setPreviewAnnotationModeActive(false)
+    setPreviewAnnotationTarget(undefined)
+    sendPreviewBrowserCommand({ kind: 'annotation', enabled: false })
+
     const compileRequest = compileRequestRef.current + 1
     compileRequestRef.current = compileRequest
     setStatus('loading')
@@ -820,6 +968,47 @@ export function ChartsNotebookPage() {
 
   function run() {
     runSource(source)
+  }
+
+  function sendPreviewBrowserCommand(
+    command: Parameters<typeof postExampleSandboxBrowserCommand>[0]['command'],
+  ) {
+    postExampleSandboxBrowserCommand({
+      channel: sandboxChannel,
+      command,
+      frame: outputFrameRef.current,
+    })
+  }
+
+  function setPreviewAnnotationMode(active: boolean) {
+    setPreviewAnnotationModeActive(active)
+    setPreviewAnnotationTarget(undefined)
+    sendPreviewBrowserCommand({ kind: 'annotation', enabled: active })
+  }
+
+  function clearPreviewAnnotationTarget() {
+    setPreviewAnnotationTarget(undefined)
+    sendPreviewBrowserCommand({ kind: 'annotation', enabled: true })
+  }
+
+  function capturePreview() {
+    const current = pendingCaptureRef.current
+    if (current) {
+      window.clearTimeout(current.timeout)
+      pendingCaptureRef.current = undefined
+      current.reject(new Error('A newer screenshot replaced this capture.'))
+    }
+    const requestId = crypto.randomUUID()
+
+    return new Promise<Blob>((resolve, reject) => {
+      const timeout = window.setTimeout(() => {
+        if (pendingCaptureRef.current?.requestId !== requestId) return
+        pendingCaptureRef.current = undefined
+        reject(new Error('The preview did not return a screenshot.'))
+      }, 15_000)
+      pendingCaptureRef.current = { reject, requestId, resolve, timeout }
+      sendPreviewBrowserCommand({ kind: 'capture', requestId })
+    })
   }
 
   function loadExample(id: string) {
@@ -872,6 +1061,9 @@ export function ChartsNotebookPage() {
   }
 
   function updateNotebookTitle(title: string) {
+    setNotebookTitle(title)
+    if (!user) return
+
     const url = new URL(window.location.href)
     const trimmedTitle = title.trim()
 
@@ -882,10 +1074,12 @@ export function ChartsNotebookPage() {
     }
 
     window.history.replaceState(null, '', url)
-    setNotebookTitle(title)
   }
 
   function updateNotebookDescription(description: string) {
+    setNotebookDescription(description)
+    if (!user) return
+
     const url = new URL(window.location.href)
     const trimmedDescription = description.trim()
 
@@ -896,7 +1090,6 @@ export function ChartsNotebookPage() {
     }
 
     window.history.replaceState(null, '', url)
-    setNotebookDescription(description)
   }
 
   function startSourceResize(event: React.MouseEvent<HTMLDivElement>) {
@@ -1067,6 +1260,20 @@ export function ChartsNotebookPage() {
     try {
       const encodedSource = await encodeSharedChartSource(source)
       const url = createSharedChartUrl(encodedSource)
+      const trimmedTitle = notebookTitle.trim()
+      const trimmedDescription = notebookDescription.trim()
+
+      if (trimmedTitle && trimmedTitle !== defaultNotebookTitle) {
+        url.searchParams.set('title', trimmedTitle)
+      } else {
+        url.searchParams.delete('title')
+      }
+      if (trimmedDescription) {
+        url.searchParams.set('description', trimmedDescription)
+      } else {
+        url.searchParams.delete('description')
+      }
+
       window.history.replaceState(null, '', url)
       await copyTextToClipboard(url.href)
       setCopied(true)
@@ -1082,6 +1289,17 @@ export function ChartsNotebookPage() {
       setError(cause instanceof Error ? cause.message : String(cause))
     }
   }
+
+  function shareAfterAuthentication() {
+    if (user) {
+      void share()
+      return
+    }
+
+    openLoginModal({ onSuccess: () => void share() })
+  }
+
+  const currentPreviewUrl = previewHistory.entries[previewHistory.index] ?? '/'
 
   if (!showNotebook) {
     return (
@@ -1182,11 +1400,13 @@ export function ChartsNotebookPage() {
                 }`}
                 role="status"
               >
-                {status === 'loading'
-                  ? 'Running'
-                  : status === 'ready'
-                    ? 'Ready'
-                    : 'Error'}
+                {status === 'idle'
+                  ? 'Ready to run'
+                  : status === 'loading'
+                    ? 'Running'
+                    : status === 'ready'
+                      ? 'Ready'
+                      : 'Error'}
               </span>
               <ButtonGroup>
                 <NotebookGuideDialog>
@@ -1242,8 +1462,15 @@ export function ChartsNotebookPage() {
                   variant="ghost"
                   size="xs"
                   rounded="none"
-                  onClick={() => void share()}
-                  aria-label={copied ? 'Share URL copied' : 'Copy share URL'}
+                  disabled={userQuery.isPending}
+                  onClick={shareAfterAuthentication}
+                  aria-label={
+                    copied
+                      ? 'Share URL copied'
+                      : user
+                        ? 'Copy share URL'
+                        : 'Sign in to share'
+                  }
                 >
                   {copied ? (
                     <CheckIcon className="size-3.5" aria-hidden="true" />
@@ -1389,7 +1616,7 @@ export function ChartsNotebookPage() {
                   <div
                     style={
                       fluidOutput && frameContentHeight !== undefined
-                        ? { height: frameContentHeight }
+                        ? { height: frameContentHeight + 40 }
                         : undefined
                     }
                     className={
@@ -1409,33 +1636,60 @@ export function ChartsNotebookPage() {
                         fluidOutput ? '' : 'overflow-auto'
                       }`}
                     >
-                      {sourceReady && sandboxDocument ? (
-                        <iframe
-                          ref={outputFrameRef}
-                          key={runRevision}
-                          srcDoc={sandboxDocument}
-                          sandbox="allow-scripts"
-                          title={`${notebookTitle.trim() || defaultNotebookTitle} output`}
-                          onLoad={syncSandboxTheme}
-                          style={
-                            !fluidOutput && frameContentHeight !== undefined
-                              ? { height: frameContentHeight }
-                              : undefined
-                          }
-                          className={
-                            fluidOutput
-                              ? 'absolute inset-0 size-full border-0 bg-white dark:bg-gray-950'
-                              : 'block min-h-full w-full border-0 bg-white dark:bg-gray-950'
-                          }
-                        />
-                      ) : null}
+                      <SandboxBrowser
+                        annotationAvailable={Boolean(sandboxDocument)}
+                        annotationMode={previewAnnotationMode}
+                        annotationTarget={previewAnnotationTarget}
+                        canGoBack={canGoBackInExamplePreview(previewHistory)}
+                        canGoForward={canGoForwardInExamplePreview(
+                          previewHistory,
+                        )}
+                        captureScreenshot={
+                          sandboxDocument ? capturePreview : undefined
+                        }
+                        currentUrl={currentPreviewUrl}
+                        error={
+                          status === 'error' && error
+                            ? error
+                            : previewNavigationError
+                        }
+                        history={[...new Set(previewHistory.entries)]}
+                        navigationAvailable={Boolean(sandboxDocument)}
+                        onAnnotationModeChange={setPreviewAnnotationMode}
+                        onBack={() =>
+                          sendPreviewBrowserCommand({ kind: 'back' })
+                        }
+                        onClearAnnotationTarget={clearPreviewAnnotationTarget}
+                        onForward={() =>
+                          sendPreviewBrowserCommand({ kind: 'forward' })
+                        }
+                        onNavigate={(url) =>
+                          sendPreviewBrowserCommand({ kind: 'navigate', url })
+                        }
+                        onReload={() =>
+                          sendPreviewBrowserCommand({ kind: 'reload' })
+                        }
+                      >
+                        {sourceReady && sandboxDocument ? (
+                          <iframe
+                            ref={outputFrameRef}
+                            key={runRevision}
+                            srcDoc={sandboxDocument}
+                            sandbox="allow-scripts"
+                            title={`${notebookTitle.trim() || defaultNotebookTitle} output`}
+                            onLoad={() => {
+                              syncSandboxTheme()
+                              sendPreviewBrowserCommand({
+                                kind: 'annotation',
+                                enabled: previewAnnotationMode,
+                              })
+                            }}
+                            className="block size-full border-0 bg-white dark:bg-gray-950"
+                          />
+                        ) : null}
+                      </SandboxBrowser>
                     </div>
                   </div>
-                  {status === 'error' && error ? (
-                    <div className="max-h-24 shrink-0 overflow-auto border-t border-red-200 bg-red-50 px-3 py-2 font-mono text-xs text-red-700">
-                      {error}
-                    </div>
-                  ) : null}
                   <PanelContent
                     ref={consolePanelRef}
                     id="notebook-console"

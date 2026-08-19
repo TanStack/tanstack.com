@@ -328,7 +328,7 @@ function requestPreview({
 
 function createCatalogIndex() {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     source: {
       repo: 'tanstack/charts',
       pathRoot: 'benchmarks/conformance/',
@@ -352,11 +352,7 @@ function createCatalogIndex() {
           maintain: 'Keep the gaps visible.',
         },
         entries: {
-          tanstack: 'benchmarks/conformance/cases/01-line-gaps/tanstack.ts',
-          reference: {
-            renderer: 'observable-plot',
-            path: 'benchmarks/conformance/cases/01-line-gaps/plot.ts',
-          },
+          example: 'benchmarks/conformance/cases/01-line-gaps/example.tsx',
         },
       },
     ],

@@ -14,7 +14,7 @@ import {
 
 test('sitemap exposes catalog pages but not runtime resources', () => {
   const index = parseChartsCatalogIndex({
-    schemaVersion: 1,
+    schemaVersion: 2,
     source: {
       repo: 'tanstack/charts',
       pathRoot: 'benchmarks/conformance/',
@@ -24,6 +24,7 @@ test('sitemap exposes catalog pages but not runtime resources', () => {
         schemaVersion: 1,
         order: 1,
         id: '01-line',
+        collection: 'shadcn',
         title: 'Line chart',
         family: 'trend',
         intent: 'Show a line.',
@@ -38,11 +39,7 @@ test('sitemap exposes catalog pages but not runtime resources', () => {
           maintain: 'Keep the line visible.',
         },
         entries: {
-          tanstack: 'benchmarks/conformance/cases/01-line/tanstack.ts',
-          reference: {
-            renderer: 'observable-plot',
-            path: 'benchmarks/conformance/cases/01-line/plot.ts',
-          },
+          example: 'benchmarks/conformance/cases/01-line/example.tsx',
         },
       },
     ],
@@ -50,6 +47,7 @@ test('sitemap exposes catalog pages but not runtime resources', () => {
 
   assert.deepEqual(getChartsCatalogSitemapEntries(index), [
     { path: '/charts/catalog/' },
+    { path: '/charts/catalog/collections/shadcn/' },
     { path: '/charts/catalog/charts/01-line/' },
   ])
 })

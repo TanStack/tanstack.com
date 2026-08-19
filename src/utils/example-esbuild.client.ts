@@ -1,10 +1,12 @@
 import * as esbuild from 'esbuild-wasm'
 import esbuildWasmUrl from 'esbuild-wasm/esbuild.wasm?url'
+import { getExampleEnvironmentProfile } from './notebook-environment'
 import {
-  getExampleEnvironmentProfile,
-  notebookImports,
-} from './notebook-environment'
+  getExampleWorkspaceImports,
+  resolveExampleWorkspaceImports,
+} from './example-imports'
 import {
+  decodeExampleBinaryFile,
   normalizeExamplePath,
   type ExampleWorkspace,
 } from './example-workspace'
@@ -13,6 +15,13 @@ export type CompiledExampleWorkspace = {
   css: string
   imports: Record<string, string>
   javascript: string
+}
+
+export type ExamplePackageResolution = 'dynamic' | 'legacy'
+
+export type CompileExampleWorkspaceOptions = {
+  packageResolution?: ExamplePackageResolution
+  signal?: AbortSignal
 }
 
 const workspaceNamespace = 'tanstack-example-workspace'
@@ -27,14 +36,17 @@ const sourceExtensions = [
 ]
 const indexFiles = sourceExtensions.map((extension) => `/index${extension}`)
 let esbuildInitialization: Promise<void> | undefined
+type WorkspaceBuildFiles = Record<string, string | Uint8Array>
 
 export async function compileExampleWorkspace(
   workspace: ExampleWorkspace,
+  options?: CompileExampleWorkspaceOptions,
 ): Promise<CompiledExampleWorkspace> {
   esbuildInitialization ??= esbuild.initialize({ wasmURL: esbuildWasmUrl })
   await esbuildInitialization
+  options?.signal?.throwIfAborted()
 
-  const files = normalizeFiles(workspace.files)
+  const files = normalizeFiles(workspace.files, workspace.binaryFiles)
   const authoredEntry = resolveWorkspacePath(
     normalizeExamplePath(workspace.entry),
     files,
@@ -55,6 +67,7 @@ export async function compileExampleWorkspace(
     jsxImportSource: 'react',
     legalComments: 'none',
     logLevel: 'silent',
+    metafile: true,
     outdir: '/out',
     platform: 'browser',
     plugins: [createWorkspacePlugin(files)],
@@ -62,6 +75,7 @@ export async function compileExampleWorkspace(
     target: 'es2022',
     write: false,
   })
+  options?.signal?.throwIfAborted()
 
   let css = ''
   let javascript = ''
@@ -75,14 +89,40 @@ export async function compileExampleWorkspace(
     throw new Error('esbuild did not produce a JavaScript module')
   }
 
+  const externalSpecifiers = getExternalSpecifiers(result.metafile)
+  const imports =
+    options?.packageResolution === 'dynamic'
+      ? await resolveExampleWorkspaceImports(
+          workspace,
+          workspace.files,
+          externalSpecifiers,
+          { signal: options.signal },
+        )
+      : getExampleWorkspaceImports(
+          workspace,
+          workspace.files,
+          externalSpecifiers,
+        )
+  options?.signal?.throwIfAborted()
+
   return {
     css,
-    imports: getWorkspaceImports(workspace, files),
+    imports,
     javascript,
   }
 }
 
-function createWorkspacePlugin(files: Record<string, string>): esbuild.Plugin {
+function getExternalSpecifiers(metafile: esbuild.Metafile) {
+  return new Set(
+    Object.values(metafile.outputs).flatMap((output) =>
+      output.imports
+        .filter((dependency) => dependency.external)
+        .map((dependency) => dependency.path),
+    ),
+  )
+}
+
+function createWorkspacePlugin(files: WorkspaceBuildFiles): esbuild.Plugin {
   return {
     name: workspaceNamespace,
     setup(build) {
@@ -130,6 +170,11 @@ function createWorkspacePlugin(files: Record<string, string>): esbuild.Plugin {
           }
 
           if (args.path.endsWith('.tsrx')) {
+            if (typeof source !== 'string') {
+              return {
+                errors: [{ text: `Expected text source: ${args.path}` }],
+              }
+            }
             const compiled = await compileOctaneSource(source, args.path)
             const errors: esbuild.PartialMessage[] = []
             const warnings: esbuild.PartialMessage[] = []
@@ -161,7 +206,8 @@ function createWorkspacePlugin(files: Record<string, string>): esbuild.Plugin {
 
           return {
             contents: source,
-            loader: getLoader(args.path),
+            loader:
+              typeof source === 'string' ? getLoader(args.path) : 'dataurl',
             resolveDir: getDirectory(args.path),
           }
         },
@@ -179,18 +225,26 @@ async function compileOctaneSource(source: string, path: string) {
   })
 }
 
-function normalizeFiles(files: Record<string, string>) {
-  return Object.fromEntries(
-    Object.entries(files).map(([path, source]) => [
-      normalizeExamplePath(path),
-      source,
-    ]),
-  )
+function normalizeFiles(
+  files: Record<string, string>,
+  binaryFiles: Record<string, string> = {},
+): WorkspaceBuildFiles {
+  const normalizedFiles: WorkspaceBuildFiles = {}
+
+  for (const [path, source] of Object.entries(files)) {
+    normalizedFiles[normalizeExamplePath(path)] = source
+  }
+  for (const [path, source] of Object.entries(binaryFiles)) {
+    normalizedFiles[normalizeExamplePath(path)] =
+      decodeExampleBinaryFile(source)
+  }
+
+  return normalizedFiles
 }
 
 function addEnvironmentEntry(
   workspace: ExampleWorkspace,
-  files: Record<string, string>,
+  files: WorkspaceBuildFiles,
   authoredEntry: string,
 ) {
   if (!workspace.environment) return authoredEntry
@@ -211,7 +265,7 @@ function resolveRelativePath(importer: string, specifier: string) {
 
 function resolveWorkspacePath(
   requestedPath: string,
-  files: Record<string, string>,
+  files: WorkspaceBuildFiles,
 ) {
   const candidates = [
     requestedPath,
@@ -244,37 +298,4 @@ function getLoader(path: string): esbuild.Loader {
 
 function isDataUrlAsset(path: string) {
   return /\.(?:avif|gif|jpe?g|png|svg|webp|woff2?)$/i.test(path)
-}
-
-function getWorkspaceImports(
-  workspace: ExampleWorkspace,
-  files: Record<string, string>,
-) {
-  const imports: Record<string, string> = { ...notebookImports }
-  const packageSource = files['/package.json']
-
-  if (!packageSource) return { ...imports, ...workspace.imports }
-
-  let packageValue: unknown
-  try {
-    packageValue = JSON.parse(packageSource)
-  } catch {
-    throw new Error('Invalid /package.json')
-  }
-
-  if (!isRecord(packageValue) || !isRecord(packageValue.dependencies)) {
-    return { ...imports, ...workspace.imports }
-  }
-
-  for (const [name, version] of Object.entries(packageValue.dependencies)) {
-    if (typeof version !== 'string') continue
-    imports[name] = `https://esm.sh/${name}@${version}`
-    imports[`${name}/`] = `https://esm.sh/${name}@${version}/`
-  }
-
-  return { ...imports, ...workspace.imports }
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null
 }

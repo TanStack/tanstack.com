@@ -1,6 +1,12 @@
 import * as React from 'react'
 import { ClientOnly, createFileRoute } from '@tanstack/react-router'
+import {
+  NotebookEmbeddedSkeleton,
+  NotebookIndexSkeleton,
+  NotebookRouteReady,
+} from '~/components/notebook/NotebookLoading'
 import { seo } from '~/utils/seo'
+import { webContainerHeaders } from '~/utils/stackblitz-embed'
 
 const LazyChartsNotebookPage = React.lazy(() =>
   import('~/components/charts/ChartsNotebookPage.client').then((module) => ({
@@ -14,13 +20,22 @@ const LazySharedExamplePage = React.lazy(() =>
   })),
 )
 
+const LazyNotebookIndexPage = React.lazy(() =>
+  import('~/components/notebook/NotebookIndexPage.client').then((module) => ({
+    default: module.NotebookIndexPage,
+  })),
+)
+
 export const Route = createFileRoute('/notebook')({
   ssr: false,
+  pendingComponent: NotebookIndexSkeleton,
   component: ChartsNotebookRoute,
+  headers: () => webContainerHeaders,
   head: () => ({
     meta: seo({
-      title: 'Notebook | TanStack',
-      description: 'Write and share client-side TypeScript and JSX modules.',
+      title: 'Notebooks | TanStack',
+      description:
+        'Create, run, and share browser sandboxes for TypeScript and TanStack projects.',
     }),
     links: [
       {
@@ -35,18 +50,34 @@ export const Route = createFileRoute('/notebook')({
 
 function ChartsNotebookRoute() {
   return (
-    <ClientOnly>
-      <React.Suspense fallback={null}>
+    <NotebookRouteReady>
+      <ClientOnly fallback={<NotebookIndexSkeleton />}>
         <NotebookClientPage />
-      </React.Suspense>
-    </ClientOnly>
+      </ClientOnly>
+    </NotebookRouteReady>
   )
 }
 
 function NotebookClientPage() {
-  return window.location.hash.startsWith('#project=') ? (
-    <LazySharedExamplePage />
-  ) : (
-    <LazyChartsNotebookPage />
+  if (window.location.hash.startsWith('#project=')) {
+    return (
+      <React.Suspense fallback={<NotebookEmbeddedSkeleton />}>
+        <LazySharedExamplePage />
+      </React.Suspense>
+    )
+  }
+
+  if (window.location.hash.startsWith('#code=')) {
+    return (
+      <React.Suspense fallback={<NotebookEmbeddedSkeleton />}>
+        <LazyChartsNotebookPage />
+      </React.Suspense>
+    )
+  }
+
+  return (
+    <React.Suspense fallback={<NotebookIndexSkeleton />}>
+      <LazyNotebookIndexPage />
+    </React.Suspense>
   )
 }

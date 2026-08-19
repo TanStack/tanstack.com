@@ -55,15 +55,7 @@ export const label = 'Count'
   const workspace = readWorkspace(component)
   assert.equal(workspace.entry, '/src/App.tsx')
   assert.equal(workspace.environment, 'charts-react')
-  assert.equal(
-    workspace.imports?.['@tanstack/charts'],
-    'https://esm.sh/@tanstack/charts@0.10.0',
-  )
-  assert.equal(
-    workspace.imports?.['@tanstack/charts/react'],
-    'https://esm.sh/@tanstack/charts@0.10.0/react?external=react,react-dom',
-  )
-  assert.equal(workspace.imports?.react, 'https://esm.sh/react@19.2.3')
+  assert.equal(workspace.imports, undefined)
   assert.deepEqual(Object.keys(workspace.files).sort(), [
     '/src/App.tsx',
     '/src/data.ts',

@@ -2,6 +2,7 @@ import * as React from 'react'
 import { GearIcon } from '@phosphor-icons/react/Gear'
 import { KeyIcon } from '@phosphor-icons/react/Key'
 import { LockIcon } from '@phosphor-icons/react/Lock'
+import { NotebookIcon } from '@phosphor-icons/react/Notebook'
 import { SignInIcon } from '@phosphor-icons/react/SignIn'
 import { SignOutIcon } from '@phosphor-icons/react/SignOut'
 import { SparkleIcon } from '@phosphor-icons/react/Sparkle'
@@ -144,6 +145,15 @@ export function MobileNavbarAuthControls({
         >
           <GearIcon className="size-8 shrink-0" />
           Account
+        </Link>
+        <Link
+          to="/notebook"
+          tabIndex={tabIndex}
+          onClick={onNavigate}
+          className={itemClassName}
+        >
+          <NotebookIcon className="size-8 shrink-0" />
+          My Notebooks
         </Link>
         <Link
           to="/account/submissions"

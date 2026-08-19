@@ -260,6 +260,17 @@ function ChartsCatalogDocExampleFallback({
           </Button>
         </div>
       </div>
+      <div
+        aria-hidden="true"
+        data-sandbox-browser-skeleton=""
+        className="flex h-10 items-center gap-1 border-b border-border-default bg-background-subtle px-1.5"
+      >
+        <div className="size-7 rounded-md bg-border-subtle" />
+        <div className="size-7 rounded-md bg-border-subtle" />
+        <div className="size-7 rounded-md bg-border-subtle" />
+        <div className="mx-1 h-7 min-w-0 flex-1 rounded-lg border border-border-default bg-background-default" />
+        <div className="size-7 rounded-md bg-border-subtle" />
+      </div>
       <div aria-label={`${label} chart preview`} role="img" style={{ height }}>
         <ChartsCatalogPreview caseId={caseId} />
       </div>

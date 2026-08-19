@@ -1,7 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { seo } from '~/utils/seo'
 import { PostNotFound } from './blog'
-import { formatAuthors } from '~/utils/blog-format'
 import * as React from 'react'
 import { MarkdownContent } from '~/components/markdown'
 import { Card } from '~/components/Card'
@@ -16,7 +14,7 @@ import { Breadcrumbs } from '~/components/Breadcrumbs'
 import { CoverFallback } from '~/components/CoverFallback'
 import { fetchBlogPost } from '~/utils/blog.functions'
 import { parseSiteMarkdown } from '~/utils/markdown'
-import { getAbsoluteOptimizedImageUrl } from '~/utils/optimizedImage'
+import { getBlogPostHead, getBlogSocialImageUrl } from '~/utils/blog-post-seo'
 
 export const Route = createFileRoute('/blog/$')({
   staleTime: Infinity,
@@ -30,40 +28,11 @@ export const Route = createFileRoute('/blog/$')({
     return fetchBlogPost({ data: blogPath })
   },
   head: ({ loaderData }) => {
-    const getSocialImageUrl = (headerImage?: string) => {
-      if (!headerImage) return undefined
+    const socialImage = getBlogSocialImageUrl(loaderData?.headerImage)
 
-      if (headerImage.startsWith('http')) {
-        return headerImage
-      }
-
-      return getAbsoluteOptimizedImageUrl(headerImage, {
-        fit: 'cover',
-        format: 'auto',
-        height: 630,
-        quality: 80,
-        width: 1200,
-      })
-    }
-
-    return {
-      meta: loaderData
-        ? [
-            ...seo({
-              title: `${loaderData?.title ?? 'Docs'} | TanStack Blog`,
-              description: loaderData?.description,
-              image: getSocialImageUrl(loaderData?.headerImage),
-              noindex: loaderData?.isUnpublished,
-            }),
-            {
-              name: 'author',
-              content: `${
-                loaderData.authors.length > 1 ? 'co-authored by ' : ''
-              }${formatAuthors(loaderData.authors)}`,
-            },
-          ]
-        : [],
-    }
+    return getBlogPostHead(
+      loaderData ? { ...loaderData, socialImage } : undefined,
+    )
   },
   notFoundComponent: () => <PostNotFound />,
   component: BlogPost,

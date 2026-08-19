@@ -19,13 +19,16 @@ export const Route = createFileRoute('/api/notebook/projects/$hash')({
           const object = await getNotebookProjectObject(params.hash)
           if (!object) return jsonError('Notebook project not found', 404)
 
-          return new Response(object.body ?? (await object.arrayBuffer()), {
+          const body = new Blob([await object.arrayBuffer()])
+            .stream()
+            .pipeThrough(new DecompressionStream('gzip'))
+
+          return new Response(body, {
             headers: {
               'Cache-Control': 'public, max-age=300, must-revalidate',
               'Cache-Tag': getNotebookProjectCacheTag(params.hash),
               'Cloudflare-CDN-Cache-Control':
                 'public, max-age=31536000, immutable',
-              'Content-Encoding': 'gzip',
               'Content-Type': 'application/json; charset=utf-8',
               ETag: `"${params.hash}"`,
             },

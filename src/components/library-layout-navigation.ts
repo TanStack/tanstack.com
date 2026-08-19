@@ -4,6 +4,43 @@ export function isChartsCatalogTarget(to: string) {
   return to === '/charts/catalog' || to.startsWith('/charts/catalog/')
 }
 
+export function getLibraryLayoutVersion({
+  layoutVersion,
+  pathname,
+  routeVersion,
+}: {
+  layoutVersion: string
+  pathname: string
+  routeVersion: unknown
+}) {
+  if (typeof routeVersion === 'string') return routeVersion
+  return isChartsCatalogTarget(pathname) ? 'latest' : layoutVersion
+}
+
+export function getLibraryTabLinkOptions({
+  libraryId,
+  version,
+  to,
+}: {
+  libraryId: string
+  version: string
+  to: string
+}) {
+  const isHomeTarget = to === '..'
+
+  return {
+    from:
+      isHomeTarget || isChartsCatalogTarget(to)
+        ? undefined
+        : '/$libraryId/$version/docs',
+    to: isHomeTarget ? `/${libraryId}/${version}` : to,
+    params:
+      !isHomeTarget && (!to.startsWith('/') || to.includes('/$libraryId'))
+        ? { libraryId, version }
+        : undefined,
+  }
+}
+
 function normalizeMenuPath(path: string) {
   return path.replace(/\/+$/, '')
 }

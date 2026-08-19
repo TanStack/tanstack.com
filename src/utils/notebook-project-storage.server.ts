@@ -5,6 +5,7 @@ import {
   type SharedExampleProject,
 } from './example-project'
 import { sha256Hex } from './hash'
+import { decodeExampleBinaryFile } from './example-workspace'
 
 const storageName = 'notebookProjects'
 const projectHashPattern = /^[a-f0-9]{64}$/
@@ -74,6 +75,12 @@ export async function getNotebookProjectObject(hash: string) {
   return storage.get(getProjectKey(hash))
 }
 
+export async function isNotebookProjectQuarantined(hash: string) {
+  if (!isNotebookProjectHash(hash)) return false
+  const storage = await requireStorage()
+  return Boolean(await storage.get(getQuarantineKey(hash)))
+}
+
 export async function quarantineNotebookProject(hash: string, userId: string) {
   if (!isNotebookProjectHash(hash)) return false
   const storage = await requireStorage()
@@ -119,17 +126,28 @@ function validateProjectLimits(project: SharedExampleProject) {
     throw new Error('Notebook description exceeds 1,000 characters')
   }
 
-  const files = Object.entries(project.workspace.files)
+  const encoder = new TextEncoder()
+  const files = [
+    ...Object.entries(project.workspace.files).map(([path, source]) => ({
+      byteLength: encoder.encode(source).byteLength,
+      path,
+    })),
+    ...Object.entries(project.workspace.binaryFiles ?? {}).map(
+      ([path, source]) => ({
+        byteLength: decodeExampleBinaryFile(source).byteLength,
+        path,
+      }),
+    ),
+  ]
   if (files.length === 0 || files.length > maxFiles) {
     throw new Error('Notebook projects must contain between 1 and 128 files')
   }
 
-  const encoder = new TextEncoder()
-  for (const [path, source] of files) {
+  for (const { byteLength, path } of files) {
     if (encoder.encode(path).byteLength > maxPathBytes) {
       throw new Error(`Notebook path exceeds 512 bytes: ${path}`)
     }
-    if (encoder.encode(source).byteLength > maxFileBytes) {
+    if (byteLength > maxFileBytes) {
       throw new Error(`Notebook file exceeds 512 KiB: ${path}`)
     }
   }

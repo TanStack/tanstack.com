@@ -1,5 +1,6 @@
 import type * as React from 'react'
 import { Link } from '@tanstack/react-router'
+import { LinkedinLogoIcon } from '@phosphor-icons/react/LinkedinLogo'
 import { BSkyIcon } from '~/components/icons/BSkyIcon'
 import { BrandXIcon } from '~/components/icons/BrandXIcon'
 import { GithubIcon } from '~/components/icons/GithubIcon'
@@ -88,6 +89,11 @@ const SOCIAL_LINKS: Array<
     label: 'YouTube',
     to: 'https://youtube.com/@tan_stack',
     Icon: YouTubeIcon,
+  },
+  {
+    label: 'LinkedIn',
+    to: 'https://www.linkedin.com/company/tanstack',
+    Icon: LinkedinLogoIcon,
   },
 ]
 

@@ -1,9 +1,17 @@
-import { ArrowsOutSimpleIcon, GridFourIcon } from '@phosphor-icons/react'
+import {
+  ArrowsOutSimpleIcon,
+  ArrowUpRightIcon,
+  GridFourIcon,
+} from '@phosphor-icons/react'
 import { ClientOnly, Link } from '@tanstack/react-router'
 import * as React from 'react'
-import type { ChartsCatalogAuthoredSource } from '~/utils/charts-catalog'
 import type { ChartsCatalogIndexCase } from '~/utils/charts-catalog-index'
 import type { ExampleDefinition } from '~/utils/example-workspace'
+import {
+  chartsCatalogCollections,
+  findChartsCatalogCollection,
+  type ChartsCatalogAuthoredSource,
+} from '~/utils/charts-catalog'
 import { ChartsCatalogPreview } from './ChartsCatalogPreview'
 import { ChartsCatalogSource } from './ChartsCatalogSource'
 
@@ -17,9 +25,11 @@ type CatalogCaseMetadata = ChartsCatalogIndexCase
 
 export function ChartsCatalog({
   cases,
+  collection,
   revision,
 }: {
   cases: Array<CatalogCaseMetadata>
+  collection?: (typeof chartsCatalogCollections)[number]
   revision: string
 }) {
   const [query, setQuery] = React.useState('')
@@ -41,9 +51,51 @@ export function ChartsCatalog({
         ))
     )
   })
+  const availableCollections = chartsCatalogCollections
+    .map((metadata) => ({
+      metadata,
+      count: cases.filter(
+        (catalogCase) => catalogCase.collection === metadata.id,
+      ).length,
+    }))
+    .filter((entry) => entry.count > 0)
 
   return (
     <CatalogSurface>
+      {collection ? (
+        <header className="mb-6 max-w-2xl">
+          <Link
+            className="text-sm text-text-muted hover:text-action-primary"
+            preload={false}
+            search={true}
+            to="/charts/catalog"
+          >
+            All examples
+          </Link>
+          <h1 className="mt-2 font-ds-display text-3xl font-bold tracking-tight text-text-primary">
+            {collection.title}
+          </h1>
+          <p className="mt-2 text-text-secondary">{collection.description}</p>
+        </header>
+      ) : availableCollections.length > 0 ? (
+        <nav aria-label="Chart collections" className="mb-4 flex gap-2">
+          {availableCollections.map((entry) => (
+            <Link
+              key={entry.metadata.id}
+              className="rounded-lg border border-border-subtle bg-background-surface px-3 py-2 text-sm font-medium text-text-primary hover:border-action-primary"
+              params={{ collectionId: entry.metadata.id }}
+              preload={false}
+              search={true}
+              to="/charts/catalog/collections/$collectionId"
+            >
+              {entry.metadata.title}
+              <span className="ml-2 font-ds-mono text-ds-mono-caps-xs text-text-muted">
+                {entry.count}
+              </span>
+            </Link>
+          ))}
+        </nav>
+      ) : null}
       <CatalogToolbar
         count={filtered.length}
         family={family}
@@ -64,11 +116,17 @@ export function ChartsCatalog({
             key={catalogCase.id}
             className="group relative min-w-0 overflow-hidden rounded-xl border border-border-subtle bg-background-surface"
           >
-            <div aria-hidden="true" className="aspect-[3/2]">
+            <div aria-hidden="true" className="relative aspect-[3/2]">
               <ChartsCatalogPreview
                 caseId={catalogCase.id}
                 revision={revision}
               />
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-background-default/60 opacity-0 backdrop-blur-[1px] transition-opacity duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:opacity-100 group-focus-within:opacity-100 motion-reduce:transition-none">
+                <span className="inline-flex items-center gap-1.5 rounded-lg border border-border-default bg-background-surface/95 px-3 py-2 font-ds-display text-sm font-semibold text-text-primary shadow-sm">
+                  Open example
+                  <ArrowUpRightIcon aria-hidden="true" className="size-4" />
+                </span>
+              </div>
             </div>
             <div className="flex min-h-16 items-center justify-between gap-4 border-t border-border-subtle px-4 py-3">
               <p className="min-w-0 truncate font-ds-display text-sm font-semibold text-text-primary">
@@ -103,18 +161,34 @@ export function ChartsCatalogDetail({
     }
   }
 }) {
+  const collection = catalogCase.collection
+    ? findChartsCatalogCollection(catalogCase.collection)
+    : undefined
+
   return (
     <CatalogSurface wide>
       <div className="mb-6 flex flex-wrap items-start justify-between gap-5">
         <div>
-          <Link
-            to="/charts/catalog"
-            search={true}
-            preload={false}
-            className="text-sm text-gray-500 hover:text-blue-600 dark:hover:text-blue-400"
-          >
-            Catalog
-          </Link>
+          {collection ? (
+            <Link
+              className="text-sm text-gray-500 hover:text-blue-600 dark:hover:text-blue-400"
+              params={{ collectionId: collection.id }}
+              preload={false}
+              search={true}
+              to="/charts/catalog/collections/$collectionId"
+            >
+              {collection.title}
+            </Link>
+          ) : (
+            <Link
+              className="text-sm text-gray-500 hover:text-blue-600 dark:hover:text-blue-400"
+              preload={false}
+              search={true}
+              to="/charts/catalog"
+            >
+              Catalog
+            </Link>
+          )}
           <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-950 dark:text-white sm:text-3xl">
             {catalogCase.title}
           </h1>
@@ -128,9 +202,26 @@ export function ChartsCatalogDetail({
         <React.Suspense
           fallback={<CatalogWorkbenchFallback catalogCase={catalogCase} />}
         >
-          <LazyExampleWorkbench definition={catalogCase.example} />
+          <LazyExampleWorkbench
+            definition={catalogCase.example}
+            packageResolution="dynamic"
+          />
         </React.Suspense>
       </ClientOnly>
+    </CatalogSurface>
+  )
+}
+
+export function ChartsCatalogDetailPending() {
+  return (
+    <CatalogSurface wide>
+      <p
+        aria-live="polite"
+        className="rounded-lg border border-gray-200 p-6 text-sm text-gray-500 dark:border-gray-800"
+        role="status"
+      >
+        Loading chart example…
+      </p>
     </CatalogSurface>
   )
 }

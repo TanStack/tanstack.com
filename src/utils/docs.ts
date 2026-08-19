@@ -6,6 +6,7 @@ import {
   fetchDocsRedirect,
   fetchFile,
   fetchRepoDirectoryContents,
+  fetchClientExampleFiles,
 } from './docs.functions'
 import {
   appendPathToDocsHref,
@@ -326,4 +327,5 @@ export {
   buildDocsRedirectHref,
   fetchFile,
   fetchRepoDirectoryContents,
+  fetchClientExampleFiles,
 }

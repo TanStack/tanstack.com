@@ -1,48 +1,44 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 
-type CollapsibleRenderProps = {
+type PanelRenderProps = {
   open: boolean
   toggle: () => void
 }
 
-type CollapsibleProps = {
+type PanelProps = {
   open?: boolean
   defaultOpen?: boolean
   onOpenChange?: (open: boolean) => void
-  children:
-    | React.ReactNode
-    | ((props: CollapsibleRenderProps) => React.ReactNode)
+  children: React.ReactNode | ((props: PanelRenderProps) => React.ReactNode)
   className?: string
 }
 
-type CollapsibleTriggerProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+type PanelTriggerProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   children: React.ReactNode
 }
 
-type CollapsibleContentProps = React.HTMLAttributes<HTMLDivElement> & {
+type PanelContentProps = React.HTMLAttributes<HTMLDivElement> & {
   children: React.ReactNode
 }
 
-const CollapsibleContext = React.createContext<CollapsibleRenderProps | null>(
-  null,
-)
+const PanelContext = React.createContext<PanelRenderProps | null>(null)
 
-function useCollapsible() {
-  const context = React.useContext(CollapsibleContext)
+function usePanel() {
+  const context = React.useContext(PanelContext)
   if (!context) {
-    throw new Error('Collapsible components must be used within a Collapsible')
+    throw new Error('Panel components must be used within a Panel')
   }
   return context
 }
 
-export function Collapsible({
+export function Panel({
   open: controlledOpen,
   defaultOpen = false,
   onOpenChange,
   children,
   className,
-}: CollapsibleProps) {
+}: PanelProps) {
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(defaultOpen)
 
   const isControlled = controlledOpen !== undefined
@@ -63,23 +59,23 @@ export function Collapsible({
   const value = React.useMemo(() => ({ open, toggle }), [open, toggle])
 
   return (
-    <CollapsibleContext.Provider value={value}>
-      <div className={className} data-collapsible>
+    <PanelContext.Provider value={value}>
+      <div className={className} data-panel>
         {typeof children === 'function' ? children(value) : children}
       </div>
-    </CollapsibleContext.Provider>
+    </PanelContext.Provider>
   )
 }
 
-export function CollapsibleTrigger({
+export function PanelTrigger({
   children,
   className,
   onClick,
   onMouseDown,
   type = 'button',
   ...props
-}: CollapsibleTriggerProps) {
-  const { open, toggle } = useCollapsible()
+}: PanelTriggerProps) {
+  const { open, toggle } = usePanel()
 
   return (
     <button
@@ -96,32 +92,31 @@ export function CollapsibleTrigger({
         onClick?.(e)
       }}
       className={twMerge('cursor-pointer select-none', className)}
-      data-collapsible-trigger
+      data-panel-trigger
     >
       {children}
     </button>
   )
 }
 
-export const CollapsibleContent = React.forwardRef<
-  HTMLDivElement,
-  CollapsibleContentProps
->(function CollapsibleContent({ children, className, ...props }, ref) {
-  const { open } = useCollapsible()
+export const PanelContent = React.forwardRef<HTMLDivElement, PanelContentProps>(
+  function PanelContent({ children, className, ...props }, ref) {
+    const { open } = usePanel()
 
-  return (
-    <div
-      {...props}
-      ref={ref}
-      aria-hidden={!open}
-      inert={open ? undefined : true}
-      className={twMerge(
-        'grid transition-[grid-template-rows] duration-200 ease-out',
-        open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
-        className,
-      )}
-    >
-      <div className="overflow-hidden">{children}</div>
-    </div>
-  )
-})
+    return (
+      <div
+        {...props}
+        ref={ref}
+        aria-hidden={!open}
+        inert={open ? undefined : true}
+        className={twMerge(
+          'grid transition-[grid-template-rows] duration-200 ease-out',
+          open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
+          className,
+        )}
+      >
+        <div className="overflow-hidden">{children}</div>
+      </div>
+    )
+  },
+)

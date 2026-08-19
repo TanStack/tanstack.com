@@ -20,6 +20,7 @@ import { HomeSocialProofSection } from '~/components/home/HomeSocialProofSection
 import { HomeStatsSection } from '~/components/home/HomeStatsSection'
 import { useQuery } from '@tanstack/react-query'
 import { Button, Eyebrow } from '~/components/ds/ui'
+import { Squircle } from '~/components/Squircle'
 import { useInView } from '~/hooks/useInView'
 import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
 import { homepageNpmStatsSummaryQuery, ossStatsQuery } from '~/queries/stats'
@@ -99,12 +100,15 @@ function Index() {
                 <br className="hidden md:block" /> for the web
               </h1>
               <div className="flex flex-col items-start gap-6 md:w-[29%] md:max-w-[454px]">
-                <p className="text-ds-body-md text-ds-neutral-500 md:text-ds-body-lg xl:text-ds-body-xl">
+                <p className="hidden text-ds-body-md text-ds-neutral-500 md:block md:text-ds-body-lg xl:text-ds-body-xl">
                   Headless, type-safe, composable tools for building modern web
                   applications that work naturally for developers and reliably
                   for agents
                 </p>
-                <div className="flex flex-wrap items-center gap-2">
+                {/* The photo is always light, so scope the CTAs to the DS
+                    light mode — the Buttons then render as their standard DS
+                    light-mode selves (no per-button color overrides). */}
+                <div className="ds-mode-light flex flex-wrap items-center gap-2">
                   <Button
                     type="button"
                     onClick={() => openLibraries()}
@@ -113,16 +117,12 @@ function Index() {
                   >
                     Browse the Stack
                   </Button>
-                  {/* Link-style button; color pinned to black because the photo
-                      is always light. The responsive override supersedes the
-                      link variant's mobile emphasis color. */}
                   <Button
                     as="a"
                     href="#start-with-a-prompt"
                     onClick={startWithPrompt}
                     variant="link"
                     size="md"
-                    className="text-black hover:text-black max-[899px]:text-black"
                   >
                     Start with a prompt <ArrowRightIcon className="h-4 w-4" />
                   </Button>
@@ -186,7 +186,7 @@ function HeroPalmMedia() {
 
   return (
     <>
-      <div
+      <Squircle
         aria-hidden
         className="absolute inset-0 -z-10 overflow-hidden rounded-xl [corner-shape:squircle]"
       >
@@ -219,7 +219,7 @@ function HeroPalmMedia() {
         >
           <source src="/images/hero-palm-motion.mp4" type="video/mp4" />
         </video>
-      </div>
+      </Squircle>
       <button
         type="button"
         onClick={togglePlayback}

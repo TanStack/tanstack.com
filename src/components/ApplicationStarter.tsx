@@ -18,11 +18,7 @@ import type {
   ApplicationStarterContext,
   ApplicationStarterResult,
 } from '~/utils/application-starter'
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '~/components/Collapsible'
+import { Panel, PanelContent, PanelTrigger } from '~/components/Panel'
 import {
   GeneratedPromptPreviewBody,
   GeneratedPromptPreviewHeader,
@@ -868,8 +864,8 @@ export function ApplicationStarter({
                 ) : null}
               </div>
 
-              <Collapsible open={showOptionsSection}>
-                <CollapsibleContent className="mt-3">
+              <Panel open={showOptionsSection}>
+                <PanelContent className="mt-3">
                   {showOptionsSection ? (
                     <StarterTooltipProvider>
                       <div className="space-y-2 rounded-lg border border-gray-200 bg-white px-3 py-3 dark:border-gray-800 dark:bg-gray-950">
@@ -946,8 +942,8 @@ export function ApplicationStarter({
                       </div>
                     </StarterTooltipProvider>
                   ) : null}
-                </CollapsibleContent>
-              </Collapsible>
+                </PanelContent>
+              </Panel>
             </>
           ) : (
             <>
@@ -1170,8 +1166,8 @@ export function ApplicationStarter({
                     ) : null}
                   </div>
 
-                  <Collapsible open={showOptionsSection}>
-                    <CollapsibleContent
+                  <Panel open={showOptionsSection}>
+                    <PanelContent
                       className={twMerge(
                         isHomeStarter &&
                           'duration-[350ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none',
@@ -1317,11 +1313,11 @@ export function ApplicationStarter({
                           ) : null}
                         </div>
                       ) : null}
-                    </CollapsibleContent>
-                  </Collapsible>
+                    </PanelContent>
+                  </Panel>
 
-                  <Collapsible open={showStagedActionSection}>
-                    <CollapsibleContent
+                  <Panel open={showStagedActionSection}>
+                    <PanelContent
                       className={twMerge(
                         isHomeStarter &&
                           'duration-[350ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none',
@@ -1514,8 +1510,8 @@ export function ApplicationStarter({
                           </div>
                         </div>
                       ) : null}
-                    </CollapsibleContent>
-                  </Collapsible>
+                    </PanelContent>
+                  </Panel>
 
                   {showPromptPreview && hasGeneratedPrompt ? (
                     <div className="border-t border-gray-200 dark:border-gray-800">
@@ -1571,9 +1567,9 @@ function StarterCustomizationSection({
   title: string
 }) {
   return (
-    <Collapsible open={open} onOpenChange={onOpenChange}>
+    <Panel open={open} onOpenChange={onOpenChange}>
       <div className={twMerge(compact ? 'pt-1' : 'pt-4')}>
-        <CollapsibleTrigger
+        <PanelTrigger
           className={twMerge(
             starterEyebrowClassName,
             'inline-flex appearance-none items-center gap-1 border-0 bg-transparent p-0 text-left transition-colors hover:text-text-secondary',
@@ -1586,9 +1582,9 @@ function StarterCustomizationSection({
               open && 'rotate-180',
             )}
           />
-        </CollapsibleTrigger>
-        <CollapsibleContent>{open ? children : null}</CollapsibleContent>
+        </PanelTrigger>
+        <PanelContent>{open ? children : null}</PanelContent>
       </div>
-    </Collapsible>
+    </Panel>
   )
 }

@@ -7,11 +7,7 @@ import {
   XIcon,
 } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '~/components/Collapsible'
+import { Panel, PanelContent, PanelTrigger } from '~/components/Panel'
 import {
   formatNotebookAiActivityDuration,
   getNotebookAiActivityItemLabel,
@@ -76,7 +72,7 @@ export function NotebookAgentActivity({
       aria-busy={activity.status === 'running'}
       className={twMerge('w-full text-sm', className)}
     >
-      <Collapsible
+      <Panel
         open={open}
         onOpenChange={(nextOpen) => {
           manuallyChangedRef.current = true
@@ -84,7 +80,7 @@ export function NotebookAgentActivity({
           onOpenChange?.(nextOpen)
         }}
       >
-        <CollapsibleTrigger
+        <PanelTrigger
           id={triggerId}
           aria-controls={contentId}
           className="group flex min-h-8 w-full items-center gap-2 rounded-lg px-1.5 py-1 text-left text-text-secondary outline-none transition-colors duration-150 hover:bg-background-subtle focus-visible:ring-2 focus-visible:ring-border-focus motion-reduce:transition-none"
@@ -99,8 +95,8 @@ export function NotebookAgentActivity({
             )}
             aria-hidden="true"
           />
-        </CollapsibleTrigger>
-        <CollapsibleContent
+        </PanelTrigger>
+        <PanelContent
           id={contentId}
           role="region"
           aria-labelledby={triggerId}
@@ -121,8 +117,8 @@ export function NotebookAgentActivity({
               {activity.error}
             </pre>
           ) : null}
-        </CollapsibleContent>
-      </Collapsible>
+        </PanelContent>
+      </Panel>
       <span className="sr-only" role="status" aria-live="polite">
         {summary}
       </span>
@@ -147,8 +143,8 @@ function ActivityItem({ item }: { item: NotebookAiActivityItem }) {
   }
 
   return (
-    <Collapsible open={open} onOpenChange={setOpen}>
-      <CollapsibleTrigger
+    <Panel open={open} onOpenChange={setOpen}>
+      <PanelTrigger
         id={triggerId}
         aria-controls={contentId}
         className="group flex min-h-7 w-full items-center gap-2 rounded-md px-1.5 py-1 text-left text-text-muted outline-none transition-colors duration-150 hover:bg-background-subtle hover:text-text-secondary focus-visible:ring-2 focus-visible:ring-border-focus motion-reduce:transition-none"
@@ -162,16 +158,16 @@ function ActivityItem({ item }: { item: NotebookAiActivityItem }) {
           )}
           aria-hidden="true"
         />
-      </CollapsibleTrigger>
-      <CollapsibleContent
+      </PanelTrigger>
+      <PanelContent
         id={contentId}
         role="region"
         aria-labelledby={triggerId}
         className="motion-reduce:transition-none"
       >
         <ActivityItemDetails item={item} />
-      </CollapsibleContent>
-    </Collapsible>
+      </PanelContent>
+    </Panel>
   )
 }
 

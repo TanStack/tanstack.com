@@ -72,11 +72,14 @@ import { Route as NotebookAiRouteImport } from './routes/notebook_.ai'
 import { Route as NotebookIdRouteImport } from './routes/notebook_.$id'
 import { Route as LibrariesFrameworkRouteImport } from './routes/libraries_.$framework'
 import { Route as DsTypographyRouteImport } from './routes/ds.typography'
+import { Route as DsTabsRouteImport } from './routes/ds.tabs'
 import { Route as DsStatsRouteImport } from './routes/ds.stats'
 import { Route as DsSpinnerRouteImport } from './routes/ds.spinner'
 import { Route as DsShadowsRouteImport } from './routes/ds.shadows'
 import { Route as DsSemanticRouteImport } from './routes/ds.semantic'
+import { Route as DsPanelRouteImport } from './routes/ds.panel'
 import { Route as DsPaletteRouteImport } from './routes/ds.palette'
+import { Route as DsPageHeaderRouteImport } from './routes/ds.page-header'
 import { Route as DsNavbarRouteImport } from './routes/ds.navbar'
 import { Route as DsMaintainersRouteImport } from './routes/ds.maintainers'
 import { Route as DsLogosRouteImport } from './routes/ds.logos'
@@ -86,7 +89,6 @@ import { Route as DsEyebrowRouteImport } from './routes/ds.eyebrow'
 import { Route as DsEffectsRouteImport } from './routes/ds.effects'
 import { Route as DsDropdownRouteImport } from './routes/ds.dropdown'
 import { Route as DsColorsRouteImport } from './routes/ds.colors'
-import { Route as DsCollapsibleRouteImport } from './routes/ds.collapsible'
 import { Route as DsCardsRouteImport } from './routes/ds.cards'
 import { Route as DsButtonsRouteImport } from './routes/ds.buttons'
 import { Route as DsBreadcrumbsRouteImport } from './routes/ds.breadcrumbs'
@@ -525,6 +527,11 @@ const DsTypographyRoute = DsTypographyRouteImport.update({
   path: '/typography',
   getParentRoute: () => DsRoute,
 } as any)
+const DsTabsRoute = DsTabsRouteImport.update({
+  id: '/tabs',
+  path: '/tabs',
+  getParentRoute: () => DsRoute,
+} as any)
 const DsStatsRoute = DsStatsRouteImport.update({
   id: '/stats',
   path: '/stats',
@@ -545,9 +552,19 @@ const DsSemanticRoute = DsSemanticRouteImport.update({
   path: '/semantic',
   getParentRoute: () => DsRoute,
 } as any)
+const DsPanelRoute = DsPanelRouteImport.update({
+  id: '/panel',
+  path: '/panel',
+  getParentRoute: () => DsRoute,
+} as any)
 const DsPaletteRoute = DsPaletteRouteImport.update({
   id: '/palette',
   path: '/palette',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsPageHeaderRoute = DsPageHeaderRouteImport.update({
+  id: '/page-header',
+  path: '/page-header',
   getParentRoute: () => DsRoute,
 } as any)
 const DsNavbarRoute = DsNavbarRouteImport.update({
@@ -595,11 +612,6 @@ const DsDropdownRoute = DsDropdownRouteImport.update({
 const DsColorsRoute = DsColorsRouteImport.update({
   id: '/colors',
   path: '/colors',
-  getParentRoute: () => DsRoute,
-} as any)
-const DsCollapsibleRoute = DsCollapsibleRouteImport.update({
-  id: '/collapsible',
-  path: '/collapsible',
   getParentRoute: () => DsRoute,
 } as any)
 const DsCardsRoute = DsCardsRouteImport.update({
@@ -1331,7 +1343,6 @@ export interface FileRoutesByFullPath {
   '/ds/breadcrumbs': typeof DsBreadcrumbsRoute
   '/ds/buttons': typeof DsButtonsRoute
   '/ds/cards': typeof DsCardsRoute
-  '/ds/collapsible': typeof DsCollapsibleRoute
   '/ds/colors': typeof DsColorsRoute
   '/ds/dropdown': typeof DsDropdownRoute
   '/ds/effects': typeof DsEffectsRoute
@@ -1341,11 +1352,14 @@ export interface FileRoutesByFullPath {
   '/ds/logos': typeof DsLogosRoute
   '/ds/maintainers': typeof DsMaintainersRoute
   '/ds/navbar': typeof DsNavbarRoute
+  '/ds/page-header': typeof DsPageHeaderRoute
   '/ds/palette': typeof DsPaletteRoute
+  '/ds/panel': typeof DsPanelRoute
   '/ds/semantic': typeof DsSemanticRoute
   '/ds/shadows': typeof DsShadowsRoute
   '/ds/spinner': typeof DsSpinnerRoute
   '/ds/stats': typeof DsStatsRoute
+  '/ds/tabs': typeof DsTabsRoute
   '/ds/typography': typeof DsTypographyRoute
   '/libraries/$framework': typeof LibrariesFrameworkRoute
   '/notebook/$id': typeof NotebookIdRoute
@@ -1525,7 +1539,6 @@ export interface FileRoutesByTo {
   '/ds/breadcrumbs': typeof DsBreadcrumbsRoute
   '/ds/buttons': typeof DsButtonsRoute
   '/ds/cards': typeof DsCardsRoute
-  '/ds/collapsible': typeof DsCollapsibleRoute
   '/ds/colors': typeof DsColorsRoute
   '/ds/dropdown': typeof DsDropdownRoute
   '/ds/effects': typeof DsEffectsRoute
@@ -1535,11 +1548,14 @@ export interface FileRoutesByTo {
   '/ds/logos': typeof DsLogosRoute
   '/ds/maintainers': typeof DsMaintainersRoute
   '/ds/navbar': typeof DsNavbarRoute
+  '/ds/page-header': typeof DsPageHeaderRoute
   '/ds/palette': typeof DsPaletteRoute
+  '/ds/panel': typeof DsPanelRoute
   '/ds/semantic': typeof DsSemanticRoute
   '/ds/shadows': typeof DsShadowsRoute
   '/ds/spinner': typeof DsSpinnerRoute
   '/ds/stats': typeof DsStatsRoute
+  '/ds/tabs': typeof DsTabsRoute
   '/ds/typography': typeof DsTypographyRoute
   '/libraries/$framework': typeof LibrariesFrameworkRoute
   '/notebook/$id': typeof NotebookIdRoute
@@ -1725,7 +1741,6 @@ export interface FileRoutesById {
   '/ds/breadcrumbs': typeof DsBreadcrumbsRoute
   '/ds/buttons': typeof DsButtonsRoute
   '/ds/cards': typeof DsCardsRoute
-  '/ds/collapsible': typeof DsCollapsibleRoute
   '/ds/colors': typeof DsColorsRoute
   '/ds/dropdown': typeof DsDropdownRoute
   '/ds/effects': typeof DsEffectsRoute
@@ -1735,11 +1750,14 @@ export interface FileRoutesById {
   '/ds/logos': typeof DsLogosRoute
   '/ds/maintainers': typeof DsMaintainersRoute
   '/ds/navbar': typeof DsNavbarRoute
+  '/ds/page-header': typeof DsPageHeaderRoute
   '/ds/palette': typeof DsPaletteRoute
+  '/ds/panel': typeof DsPanelRoute
   '/ds/semantic': typeof DsSemanticRoute
   '/ds/shadows': typeof DsShadowsRoute
   '/ds/spinner': typeof DsSpinnerRoute
   '/ds/stats': typeof DsStatsRoute
+  '/ds/tabs': typeof DsTabsRoute
   '/ds/typography': typeof DsTypographyRoute
   '/libraries_/$framework': typeof LibrariesFrameworkRoute
   '/notebook_/$id': typeof NotebookIdRoute
@@ -1929,7 +1947,6 @@ export interface FileRouteTypes {
     | '/ds/breadcrumbs'
     | '/ds/buttons'
     | '/ds/cards'
-    | '/ds/collapsible'
     | '/ds/colors'
     | '/ds/dropdown'
     | '/ds/effects'
@@ -1939,11 +1956,14 @@ export interface FileRouteTypes {
     | '/ds/logos'
     | '/ds/maintainers'
     | '/ds/navbar'
+    | '/ds/page-header'
     | '/ds/palette'
+    | '/ds/panel'
     | '/ds/semantic'
     | '/ds/shadows'
     | '/ds/spinner'
     | '/ds/stats'
+    | '/ds/tabs'
     | '/ds/typography'
     | '/libraries/$framework'
     | '/notebook/$id'
@@ -2123,7 +2143,6 @@ export interface FileRouteTypes {
     | '/ds/breadcrumbs'
     | '/ds/buttons'
     | '/ds/cards'
-    | '/ds/collapsible'
     | '/ds/colors'
     | '/ds/dropdown'
     | '/ds/effects'
@@ -2133,11 +2152,14 @@ export interface FileRouteTypes {
     | '/ds/logos'
     | '/ds/maintainers'
     | '/ds/navbar'
+    | '/ds/page-header'
     | '/ds/palette'
+    | '/ds/panel'
     | '/ds/semantic'
     | '/ds/shadows'
     | '/ds/spinner'
     | '/ds/stats'
+    | '/ds/tabs'
     | '/ds/typography'
     | '/libraries/$framework'
     | '/notebook/$id'
@@ -2322,7 +2344,6 @@ export interface FileRouteTypes {
     | '/ds/breadcrumbs'
     | '/ds/buttons'
     | '/ds/cards'
-    | '/ds/collapsible'
     | '/ds/colors'
     | '/ds/dropdown'
     | '/ds/effects'
@@ -2332,11 +2353,14 @@ export interface FileRouteTypes {
     | '/ds/logos'
     | '/ds/maintainers'
     | '/ds/navbar'
+    | '/ds/page-header'
     | '/ds/palette'
+    | '/ds/panel'
     | '/ds/semantic'
     | '/ds/shadows'
     | '/ds/spinner'
     | '/ds/stats'
+    | '/ds/tabs'
     | '/ds/typography'
     | '/libraries_/$framework'
     | '/notebook_/$id'
@@ -3004,6 +3028,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DsTypographyRouteImport
       parentRoute: typeof DsRoute
     }
+    '/ds/tabs': {
+      id: '/ds/tabs'
+      path: '/tabs'
+      fullPath: '/ds/tabs'
+      preLoaderRoute: typeof DsTabsRouteImport
+      parentRoute: typeof DsRoute
+    }
     '/ds/stats': {
       id: '/ds/stats'
       path: '/stats'
@@ -3032,11 +3063,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DsSemanticRouteImport
       parentRoute: typeof DsRoute
     }
+    '/ds/panel': {
+      id: '/ds/panel'
+      path: '/panel'
+      fullPath: '/ds/panel'
+      preLoaderRoute: typeof DsPanelRouteImport
+      parentRoute: typeof DsRoute
+    }
     '/ds/palette': {
       id: '/ds/palette'
       path: '/palette'
       fullPath: '/ds/palette'
       preLoaderRoute: typeof DsPaletteRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/page-header': {
+      id: '/ds/page-header'
+      path: '/page-header'
+      fullPath: '/ds/page-header'
+      preLoaderRoute: typeof DsPageHeaderRouteImport
       parentRoute: typeof DsRoute
     }
     '/ds/navbar': {
@@ -3100,13 +3145,6 @@ declare module '@tanstack/react-router' {
       path: '/colors'
       fullPath: '/ds/colors'
       preLoaderRoute: typeof DsColorsRouteImport
-      parentRoute: typeof DsRoute
-    }
-    '/ds/collapsible': {
-      id: '/ds/collapsible'
-      path: '/collapsible'
-      fullPath: '/ds/collapsible'
-      preLoaderRoute: typeof DsCollapsibleRouteImport
       parentRoute: typeof DsRoute
     }
     '/ds/cards': {
@@ -4231,7 +4269,6 @@ interface DsRouteChildren {
   DsBreadcrumbsRoute: typeof DsBreadcrumbsRoute
   DsButtonsRoute: typeof DsButtonsRoute
   DsCardsRoute: typeof DsCardsRoute
-  DsCollapsibleRoute: typeof DsCollapsibleRoute
   DsColorsRoute: typeof DsColorsRoute
   DsDropdownRoute: typeof DsDropdownRoute
   DsEffectsRoute: typeof DsEffectsRoute
@@ -4241,11 +4278,14 @@ interface DsRouteChildren {
   DsLogosRoute: typeof DsLogosRoute
   DsMaintainersRoute: typeof DsMaintainersRoute
   DsNavbarRoute: typeof DsNavbarRoute
+  DsPageHeaderRoute: typeof DsPageHeaderRoute
   DsPaletteRoute: typeof DsPaletteRoute
+  DsPanelRoute: typeof DsPanelRoute
   DsSemanticRoute: typeof DsSemanticRoute
   DsShadowsRoute: typeof DsShadowsRoute
   DsSpinnerRoute: typeof DsSpinnerRoute
   DsStatsRoute: typeof DsStatsRoute
+  DsTabsRoute: typeof DsTabsRoute
   DsTypographyRoute: typeof DsTypographyRoute
   DsIndexRoute: typeof DsIndexRoute
 }
@@ -4256,7 +4296,6 @@ const DsRouteChildren: DsRouteChildren = {
   DsBreadcrumbsRoute: DsBreadcrumbsRoute,
   DsButtonsRoute: DsButtonsRoute,
   DsCardsRoute: DsCardsRoute,
-  DsCollapsibleRoute: DsCollapsibleRoute,
   DsColorsRoute: DsColorsRoute,
   DsDropdownRoute: DsDropdownRoute,
   DsEffectsRoute: DsEffectsRoute,
@@ -4266,11 +4305,14 @@ const DsRouteChildren: DsRouteChildren = {
   DsLogosRoute: DsLogosRoute,
   DsMaintainersRoute: DsMaintainersRoute,
   DsNavbarRoute: DsNavbarRoute,
+  DsPageHeaderRoute: DsPageHeaderRoute,
   DsPaletteRoute: DsPaletteRoute,
+  DsPanelRoute: DsPanelRoute,
   DsSemanticRoute: DsSemanticRoute,
   DsShadowsRoute: DsShadowsRoute,
   DsSpinnerRoute: DsSpinnerRoute,
   DsStatsRoute: DsStatsRoute,
+  DsTabsRoute: DsTabsRoute,
   DsTypographyRoute: DsTypographyRoute,
   DsIndexRoute: DsIndexRoute,
 }

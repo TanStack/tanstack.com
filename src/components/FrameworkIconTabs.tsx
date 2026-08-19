@@ -23,18 +23,21 @@ export function FrameworkIconTabs({
 
   return (
     <div
+      role="tablist"
       className={twMerge(
-        'fade-x fade-size-x-sm flex items-center justify-start gap-2 overflow-x-auto overflow-y-hidden border-b border-gray-200 scrollbar-hide dark:border-gray-700',
+        'fade-x fade-size-x-sm flex items-center justify-start gap-1 overflow-x-auto overflow-y-hidden border-b border-border-default scrollbar-hide',
         className,
       )}
     >
       {options.map((opt) => (
         <button
           key={opt.value}
-          className={`inline-flex items-center justify-center gap-2 px-3 py-1.5 -mb-[1px] border-b-2 text-sm font-bold transition-colors ${
+          role="tab"
+          aria-selected={value === opt.value}
+          className={`relative -mb-px inline-flex shrink-0 items-center justify-center gap-2 border-b-2 px-3 py-2 text-sm font-semibold transition-colors ${
             value === opt.value
-              ? 'border-current text-current'
-              : 'border-transparent text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
+              ? 'border-text-primary text-text-primary'
+              : 'border-transparent text-text-secondary hover:text-text-primary'
           }`}
           onClick={() => onChange(opt.value as Framework)}
           aria-label={opt.label}

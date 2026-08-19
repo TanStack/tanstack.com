@@ -35,7 +35,6 @@ export function ButtonGroup({
         '[&>[aria-pressed=true]]:bg-text-primary [&>[aria-pressed=true]]:text-background-default [&>[aria-pressed=true]]:shadow-sm',
         className,
       )}
-      {...props}
     >
       {children}
     </div>

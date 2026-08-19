@@ -37,7 +37,6 @@ const PRIMARY_NAV = [
   'Support',
 ]
 
-
 /**
  * A static, non-fixed replica of the real site navbar for documentation.
  *

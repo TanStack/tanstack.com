@@ -76,6 +76,7 @@ import { Route as DsShadowsRouteImport } from './routes/ds.shadows'
 import { Route as DsSemanticRouteImport } from './routes/ds.semantic'
 import { Route as DsPanelRouteImport } from './routes/ds.panel'
 import { Route as DsPaletteRouteImport } from './routes/ds.palette'
+import { Route as DsPageHeaderRouteImport } from './routes/ds.page-header'
 import { Route as DsNavbarRouteImport } from './routes/ds.navbar'
 import { Route as DsMaintainersRouteImport } from './routes/ds.maintainers'
 import { Route as DsLogosRouteImport } from './routes/ds.logos'
@@ -537,6 +538,11 @@ const DsPanelRoute = DsPanelRouteImport.update({
 const DsPaletteRoute = DsPaletteRouteImport.update({
   id: '/palette',
   path: '/palette',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsPageHeaderRoute = DsPageHeaderRouteImport.update({
+  id: '/page-header',
+  path: '/page-header',
   getParentRoute: () => DsRoute,
 } as any)
 const DsNavbarRoute = DsNavbarRouteImport.update({
@@ -1303,6 +1309,7 @@ export interface FileRoutesByFullPath {
   '/ds/logos': typeof DsLogosRoute
   '/ds/maintainers': typeof DsMaintainersRoute
   '/ds/navbar': typeof DsNavbarRoute
+  '/ds/page-header': typeof DsPageHeaderRoute
   '/ds/palette': typeof DsPaletteRoute
   '/ds/panel': typeof DsPanelRoute
   '/ds/semantic': typeof DsSemanticRoute
@@ -1491,6 +1498,7 @@ export interface FileRoutesByTo {
   '/ds/logos': typeof DsLogosRoute
   '/ds/maintainers': typeof DsMaintainersRoute
   '/ds/navbar': typeof DsNavbarRoute
+  '/ds/page-header': typeof DsPageHeaderRoute
   '/ds/palette': typeof DsPaletteRoute
   '/ds/panel': typeof DsPanelRoute
   '/ds/semantic': typeof DsSemanticRoute
@@ -1685,6 +1693,7 @@ export interface FileRoutesById {
   '/ds/logos': typeof DsLogosRoute
   '/ds/maintainers': typeof DsMaintainersRoute
   '/ds/navbar': typeof DsNavbarRoute
+  '/ds/page-header': typeof DsPageHeaderRoute
   '/ds/palette': typeof DsPaletteRoute
   '/ds/panel': typeof DsPanelRoute
   '/ds/semantic': typeof DsSemanticRoute
@@ -1883,6 +1892,7 @@ export interface FileRouteTypes {
     | '/ds/logos'
     | '/ds/maintainers'
     | '/ds/navbar'
+    | '/ds/page-header'
     | '/ds/palette'
     | '/ds/panel'
     | '/ds/semantic'
@@ -2071,6 +2081,7 @@ export interface FileRouteTypes {
     | '/ds/logos'
     | '/ds/maintainers'
     | '/ds/navbar'
+    | '/ds/page-header'
     | '/ds/palette'
     | '/ds/panel'
     | '/ds/semantic'
@@ -2264,6 +2275,7 @@ export interface FileRouteTypes {
     | '/ds/logos'
     | '/ds/maintainers'
     | '/ds/navbar'
+    | '/ds/page-header'
     | '/ds/palette'
     | '/ds/panel'
     | '/ds/semantic'
@@ -2952,6 +2964,13 @@ declare module '@tanstack/react-router' {
       path: '/palette'
       fullPath: '/ds/palette'
       preLoaderRoute: typeof DsPaletteRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/page-header': {
+      id: '/ds/page-header'
+      path: '/page-header'
+      fullPath: '/ds/page-header'
+      preLoaderRoute: typeof DsPageHeaderRouteImport
       parentRoute: typeof DsRoute
     }
     '/ds/navbar': {
@@ -4117,6 +4136,7 @@ interface DsRouteChildren {
   DsLogosRoute: typeof DsLogosRoute
   DsMaintainersRoute: typeof DsMaintainersRoute
   DsNavbarRoute: typeof DsNavbarRoute
+  DsPageHeaderRoute: typeof DsPageHeaderRoute
   DsPaletteRoute: typeof DsPaletteRoute
   DsPanelRoute: typeof DsPanelRoute
   DsSemanticRoute: typeof DsSemanticRoute
@@ -4143,6 +4163,7 @@ const DsRouteChildren: DsRouteChildren = {
   DsLogosRoute: DsLogosRoute,
   DsMaintainersRoute: DsMaintainersRoute,
   DsNavbarRoute: DsNavbarRoute,
+  DsPageHeaderRoute: DsPageHeaderRoute,
   DsPaletteRoute: DsPaletteRoute,
   DsPanelRoute: DsPanelRoute,
   DsSemanticRoute: DsSemanticRoute,

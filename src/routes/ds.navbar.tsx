@@ -81,9 +81,9 @@ const MENU_VARIANTS = [
  */
 function NavbarAnatomy() {
   return (
-    <div className="flex h-[var(--navbar-height)] w-full items-center justify-between gap-4 rounded-lg border border-gray-500/20 bg-white/90 px-3 py-2 shadow-sm backdrop-blur-lg @min-[900px]:px-5 dark:bg-black/90">
-      {/* Brand — the real landscape logo, theme-swapped like the live navbar */}
-      <div className="flex shrink-0 items-center">
+    <div className="flex h-[var(--navbar-height)] w-full items-center gap-4 rounded-lg border border-gray-500/20 bg-white/90 px-3 py-2 shadow-sm backdrop-blur-lg @min-[900px]:px-5 dark:bg-black/90">
+      {/* Brand — flex-1 so the primary nav sits centered, like the live navbar */}
+      <div className="flex min-w-0 flex-1 shrink-0 items-center">
         <img
           src="/images/brand/tanstack-landscape-black.svg"
           alt="TanStack"
@@ -109,18 +109,24 @@ function NavbarAnatomy() {
         ))}
       </nav>
 
-      {/* Utility cluster */}
-      <div className="flex items-center gap-2 text-gray-500 @min-[400px]:gap-2.5 dark:text-gray-400">
-        {/* Search — its own icon button, desktop only (≥ 900px) */}
-        <MagnifyingGlassIcon className="hidden h-[18px] w-[18px] @min-[900px]:block" />
-        {/* Social — a stacked-avatar cluster (opens a dropdown), wide only (≥ 1120px) */}
+      {/* Search — its own icon button sitting right after the primary nav
+          (≥ 900px), matching the live navbar's separate search slot. */}
+      <div className="hidden text-gray-500 @min-[900px]:block dark:text-gray-400">
+        <MagnifyingGlassIcon className="h-[18px] w-[18px]" />
+      </div>
+
+      {/* Utility cluster — flex-1 pushes it hard to the right edge */}
+      <div className="flex flex-1 items-center justify-end gap-2 text-gray-500 @min-[400px]:gap-2.5 dark:text-gray-400">
+        {/* Social — a stacked cluster of h-8 circles that opens a dropdown, wide
+            only (≥ 1120px). Mirrors SocialStack (GitHub / Discord / YouTube). */}
         <span className="hidden items-center @min-[1120px]:flex">
           {[GithubIcon, DiscordIcon, YoutubeLogoIcon].map((Icon, i) => (
             <span
               key={i}
-              className={`flex h-6 w-6 items-center justify-center rounded-full border border-gray-500/20 bg-white dark:bg-black ${i > 0 ? '-ml-2' : ''}`}
+              style={{ zIndex: 3 - i }}
+              className={`relative inline-flex h-8 w-8 items-center justify-center rounded-full border border-gray-500/20 bg-white shadow-sm dark:bg-black ${i > 0 ? '-ml-3' : ''}`}
             >
-              <Icon className="h-3.5 w-3.5" />
+              <Icon className="h-4 w-4" />
             </span>
           ))}
         </span>
@@ -287,9 +293,26 @@ function NavbarPage() {
     >
       <DsSection
         title="Anatomy"
-        description="A static replica built from the production classes and the shared --navbar-height token. Toggle a device size, or leave it on Auto to watch it reflow with the screen — driven by container queries, so it mirrors the real navbar's 900px / 1120px breakpoints at any width."
+        description="A static replica built from the production classes and the shared --navbar-height token — toggle a device size, or leave it on Auto to watch it reflow (container queries mirror the real 900px / 1120px breakpoints). The numbered regions below label the parts of the bar, left to right."
       >
         <NavbarAnatomyPreview />
+        <div className="grid gap-3 sm:grid-cols-3">
+          <RegionCard index={1} title="Brand">
+            Logo mark and wordmark, linking home; right-clicking opens the brand
+            context menu (logo assets). Sits in the left flex-1 slot, so the
+            primary nav lands centered.
+          </RegionCard>
+          <RegionCard index={2} title="Primary nav + search">
+            Libraries, Blog, Community, Tools, Merch, and Support — each a
+            hover/focus mega-menu — with the search button in its own slot right
+            after them. Collapses to the mobile menu below 900px.
+          </RegionCard>
+          <RegionCard index={3} title="Utility cluster">
+            Social stack, theme toggle, cart, the AI dock, and auth controls,
+            pushed to the right edge by a flex-1 — plus the hamburger trigger on
+            mobile.
+          </RegionCard>
+        </div>
       </DsSection>
 
       <DsSection
@@ -339,26 +362,6 @@ function NavbarPage() {
               </p>
             </div>
           ))}
-        </div>
-      </DsSection>
-
-      <DsSection
-        title="Regions"
-        description="Three regions laid out with flex justify-between: brand on the left, primary navigation centered, utilities on the right."
-      >
-        <div className="grid gap-3 sm:grid-cols-3">
-          <RegionCard index={1} title="Brand">
-            Logo mark and wordmark, linking home. Right-clicking opens the brand
-            context menu (logo assets).
-          </RegionCard>
-          <RegionCard index={2} title="Primary nav">
-            Libraries, Blog, Community, Tools, Merch, and Support — each a
-            hover/focus mega-menu. Collapses into the mobile menu below 900px.
-          </RegionCard>
-          <RegionCard index={3} title="Utility cluster">
-            Social links, theme toggle, cart, search, the AI dock, and auth
-            controls — plus the hamburger trigger on mobile.
-          </RegionCard>
         </div>
       </DsSection>
 

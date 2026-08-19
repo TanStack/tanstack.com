@@ -170,11 +170,15 @@ export const dsNav: Array<DsNavSection> = [
           'Anatomy',
           'Mega menu item',
           'Menu variants',
-          'Regions',
           'Layout & spacing',
           'Responsive behavior',
           'Source',
         ],
+      },
+      {
+        label: 'Page Header',
+        to: '/ds/page-header',
+        sections: ['Left-aligned', 'Centered', 'Marks & actions'],
       },
       {
         label: 'Panel',

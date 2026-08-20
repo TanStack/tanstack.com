@@ -126,7 +126,7 @@ const stepladderTierLayout: Record<
   PartnerTier,
   {
     width: string
-    minHeight: string
+    height: string
     logoMaxWidth: string
     logoMaxHeight: string
     padding: string
@@ -134,24 +134,24 @@ const stepladderTierLayout: Record<
 > = {
   gold: {
     width: 'w-full',
-    minHeight: 'min-h-[76px]',
+    height: 'h-[90px]',
     logoMaxWidth: 'max-w-[190px]',
     logoMaxHeight: 'max-h-[42px]',
-    padding: 'px-4 py-6',
+    padding: 'px-4',
   },
   silver: {
     width: 'w-[80%]',
-    minHeight: 'min-h-[62px]',
+    height: 'h-[70px]',
     logoMaxWidth: 'max-w-[130px]',
     logoMaxHeight: 'max-h-[30px]',
-    padding: 'px-3 py-5',
+    padding: 'px-3',
   },
   bronze: {
     width: 'w-[62%]',
-    minHeight: 'min-h-[50px]',
+    height: 'h-[58px]',
     logoMaxWidth: 'max-w-[90px]',
     logoMaxHeight: 'max-h-[24px]',
-    padding: 'px-2.5 py-4',
+    padding: 'px-2.5',
   },
 }
 
@@ -295,11 +295,15 @@ function PartnersRailItem({
   const layout = isStepladder
     ? stepladderTierLayout[tier]
     : railTierLayout[tier]
-  // Read the differing size key from the concretely-typed config so the union
-  // stays narrowed (grid → flexBasis, stepladder → width).
+  // Read the differing size keys from the concretely-typed config so the union
+  // stays narrowed (grid → flexBasis + min-height, stepladder → width + fixed
+  // per-tier height).
   const sizingClass = isStepladder
     ? stepladderTierLayout[tier].width
     : railTierLayout[tier].flexBasis
+  const heightClass = isStepladder
+    ? stepladderTierLayout[tier].height
+    : railTierLayout[tier].minHeight
   const analyticsMetadata = getPartnerPlacementAnalyticsMetadata(
     partner,
     placementContext,
@@ -324,7 +328,7 @@ function PartnersRailItem({
         'flex items-center justify-center overflow-hidden transition-colors duration-150 ease-out hover:bg-gray-500/10',
         isStepladder ? '' : 'border-b border-r border-gray-500/20',
         sizingClass,
-        layout.minHeight,
+        heightClass,
         layout.padding,
       )}
       onClick={() => {

@@ -137,21 +137,21 @@ const stepladderTierLayout: Record<
     minHeight: 'min-h-[76px]',
     logoMaxWidth: 'max-w-[190px]',
     logoMaxHeight: 'max-h-[42px]',
-    padding: 'p-4',
+    padding: 'px-4 py-6',
   },
   silver: {
     width: 'w-[80%]',
     minHeight: 'min-h-[62px]',
     logoMaxWidth: 'max-w-[130px]',
     logoMaxHeight: 'max-h-[30px]',
-    padding: 'p-3',
+    padding: 'px-3 py-5',
   },
   bronze: {
     width: 'w-[62%]',
     minHeight: 'min-h-[50px]',
     logoMaxWidth: 'max-w-[90px]',
     logoMaxHeight: 'max-h-[24px]',
-    padding: 'p-2.5',
+    padding: 'px-2.5 py-4',
   },
 }
 
@@ -200,7 +200,7 @@ export function PartnersRail({
             Become a Partner
           </a>
         </div>
-        <div className="group/rail flex w-full flex-col items-end gap-2">
+        <div className="group/rail flex w-full flex-col items-end divide-y divide-gray-500/20">
           {rowsByTier.map((row) =>
             row.partners.map((partner) => {
               const index = slotIndex++
@@ -322,9 +322,7 @@ function PartnersRailItem({
       rel="noreferrer"
       className={twMerge(
         'flex items-center justify-center overflow-hidden transition-colors duration-150 ease-out hover:bg-gray-500/10',
-        isStepladder
-          ? 'rounded-lg border border-gray-500/20'
-          : 'border-b border-r border-gray-500/20',
+        isStepladder ? '' : 'border-b border-r border-gray-500/20',
         sizingClass,
         layout.minHeight,
         layout.padding,

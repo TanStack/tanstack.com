@@ -16,16 +16,9 @@ export type { BlogCardPost } from '~/utils/blog-format'
 type BlogCardProps = {
   post: BlogCardPost
   showLibraryBadges?: boolean
-  /** Hero treatment: side-by-side on wider screens with larger type. Used for
-   *  the single latest post at the top of the blog index. */
-  featured?: boolean
 }
 
-export function BlogCard({
-  post,
-  showLibraryBadges = true,
-  featured = false,
-}: BlogCardProps) {
+export function BlogCard({ post, showLibraryBadges = true }: BlogCardProps) {
   const {
     slug,
     title,
@@ -40,12 +33,9 @@ export function BlogCard({
   const blogLibraries = showLibraryBadges ? getBlogLibraries(library) : []
   const cardClassName = twMerge(
     'relative flex flex-col justify-between overflow-hidden transition-all hover:shadow-sm hover:border-blue-500',
-    // Featured: image and copy sit side-by-side once there's room.
-    featured && 'md:flex-row md:justify-start',
   )
   const mediaClassName = twMerge(
     'aspect-video w-full overflow-hidden bg-background-subtle',
-    featured && 'md:aspect-auto md:w-1/2',
   )
 
   const content = (
@@ -69,10 +59,10 @@ export function BlogCard({
               fit: 'cover',
               format: 'auto',
               quality: 80,
-              width: featured ? 1200 : 800,
+              width: 800,
             })}
             alt=""
-            loading={featured ? 'eager' : 'lazy'}
+            loading="lazy"
             decoding="async"
             className="w-full h-full object-cover"
           />
@@ -84,21 +74,9 @@ export function BlogCard({
           className={mediaClassName}
         />
       )}
-      <div
-        className={twMerge(
-          'p-4 md:p-8 flex flex-col gap-4 flex-1 justify-between',
-          featured && 'md:w-1/2 md:justify-center md:p-10',
-        )}
-      >
+      <div className="p-4 md:p-8 flex flex-col gap-4 flex-1 justify-between">
         <div>
-          <h2
-            className={twMerge(
-              'text-lg font-extrabold',
-              featured && 'text-2xl md:text-3xl leading-tight',
-            )}
-          >
-            {title}
-          </h2>
+          <h2 className="text-lg font-extrabold">{title}</h2>
           <div className="text-xs italic font-light mt-1">
             by {formatAuthors(authors)}
             {published ? (
@@ -109,12 +87,7 @@ export function BlogCard({
             ) : null}
           </div>
           {excerpt ? (
-            <p
-              className={twMerge(
-                'text-sm mt-4 text-text-secondary leading-7 line-clamp-2',
-                featured && 'md:text-base line-clamp-3',
-              )}
-            >
+            <p className="text-sm mt-4 text-text-secondary leading-7 line-clamp-2">
               {excerpt}
             </p>
           ) : null}

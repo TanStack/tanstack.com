@@ -20,7 +20,6 @@ function NewBadge() {
 type ProductCardProps = {
   product: ProductListItem
   isNew?: boolean
-  sizes?: string
   loading?: 'eager' | 'lazy'
   onQuickView?: (handle: string) => void
 }
@@ -28,7 +27,6 @@ type ProductCardProps = {
 export function ProductCard({
   product,
   isNew = false,
-  sizes,
   loading = 'lazy',
   onQuickView,
 }: ProductCardProps) {
@@ -84,7 +82,6 @@ export function ProductCard({
           image={activeImage}
           alt={product.title}
           width={600}
-          sizes={sizes}
           loading={loading}
           className="w-full h-full object-cover"
         />

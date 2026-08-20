@@ -35,8 +35,6 @@ type DocProps = {
   pagePath?: string
   // Breadcrumb props (optional)
   config?: ConfigSchema
-  // Footer content rendered after markdown
-  footer?: React.ReactNode
   // Optional framework to use (overrides URL and local storage)
   framework?: string
 }
@@ -55,7 +53,6 @@ export function Doc({
   libraryVersion,
   pagePath,
   config,
-  footer,
   framework: frameworkProp,
 }: DocProps) {
   const { groups: startHostingPartnerGroups } = useStartHostingPartners()
@@ -194,7 +191,7 @@ export function Doc({
               ) : null
             }
           />
-          {footer ?? <DocNavigation />}
+          <DocNavigation />
           <div className="h-4" />
         </div>
 

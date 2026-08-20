@@ -161,13 +161,19 @@ async function readRepoFileOrFallback(
     await loadDocumentsServerModule()
 
   try {
-    return await fetchRepoFile(repo, branch, filePath)
+    return {
+      file: await fetchRepoFile(repo, branch, filePath),
+      isFallback: false,
+    }
   } catch (error) {
     if (!isRecoverableGitHubContentError(error)) {
       throw error
     }
 
-    return buildUnavailableFile(filePath)
+    return {
+      file: buildUnavailableFile(filePath),
+      isFallback: true,
+    }
   }
 }
 
@@ -423,19 +429,24 @@ export const fetchDocs = createServerFn({ method: 'GET' })
   .validator(repoFileInput)
   .handler(async ({ data }: { data: RepoFileRequest }) => {
     const { repo, branch, filePath } = data
-    const file = await readRepoFileOrFallback(repo, branch, filePath)
+    const result = await readRepoFileOrFallback(repo, branch, filePath)
 
-    if (!file) {
+    if (!result.file) {
       throw notFound()
     }
 
     const { extractFrontMatter } = await loadDocumentsServerModule()
-    const frontMatter = extractFrontMatter(file)
+    const frontMatter = extractFrontMatter(result.file)
     const description =
       frontMatter.userDescription ?? removeMarkdown(frontMatter.excerpt ?? '')
     const keywords = extractFrontMatterKeywords(frontMatter.data.keywords)
 
-    setDocsCacheHeaders('public, max-age=3600, stale-while-revalidate=86400')
+    setDocsCacheHeaders(
+      result.isFallback
+        ? 'no-store'
+        : 'public, max-age=3600, stale-while-revalidate=86400',
+    )
+    if (result.isFallback) setResponseHeader('Cache-Control', 'no-store')
 
     return {
       content: frontMatter.content,
@@ -470,15 +481,20 @@ export const fetchFile = createServerFn({ method: 'GET' })
   .validator(repoFileInput)
   .handler(async ({ data }: { data: RepoFileRequest }) => {
     const { repo, branch, filePath } = data
-    const file = await readRepoFileOrFallback(repo, branch, filePath)
+    const result = await readRepoFileOrFallback(repo, branch, filePath)
 
-    if (!file) {
+    if (!result.file) {
       throw notFound()
     }
 
-    setDocsCacheHeaders('public, max-age=300, stale-while-revalidate=300')
+    setDocsCacheHeaders(
+      result.isFallback
+        ? 'no-store'
+        : 'public, max-age=300, stale-while-revalidate=300',
+    )
+    if (result.isFallback) setResponseHeader('Cache-Control', 'no-store')
 
-    return file
+    return result.file
   })
 
 export const fetchRepoDirectoryContents = createServerFn({

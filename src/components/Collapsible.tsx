@@ -3,12 +3,14 @@ import { twMerge } from 'tailwind-merge'
 
 type CollapsibleRenderProps = {
   open: boolean
+  orientation: 'horizontal' | 'vertical'
   toggle: () => void
 }
 
 type CollapsibleProps = {
   open?: boolean
   defaultOpen?: boolean
+  orientation?: 'horizontal' | 'vertical'
   onOpenChange?: (open: boolean) => void
   children:
     | React.ReactNode
@@ -39,6 +41,7 @@ function useCollapsible() {
 export function Collapsible({
   open: controlledOpen,
   defaultOpen = false,
+  orientation = 'vertical',
   onOpenChange,
   children,
   className,
@@ -60,11 +63,18 @@ export function Collapsible({
     }
   }, [isControlled, open, onOpenChange])
 
-  const value = React.useMemo(() => ({ open, toggle }), [open, toggle])
+  const value = React.useMemo(
+    () => ({ open, orientation, toggle }),
+    [open, orientation, toggle],
+  )
 
   return (
     <CollapsibleContext.Provider value={value}>
-      <div className={className} data-collapsible>
+      <div
+        className={className}
+        data-collapsible
+        data-orientation={orientation}
+      >
         {typeof children === 'function' ? children(value) : children}
       </div>
     </CollapsibleContext.Provider>
@@ -107,7 +117,8 @@ export const CollapsibleContent = React.forwardRef<
   HTMLDivElement,
   CollapsibleContentProps
 >(function CollapsibleContent({ children, className, ...props }, ref) {
-  const { open } = useCollapsible()
+  const { open, orientation } = useCollapsible()
+  const horizontal = orientation === 'horizontal'
 
   return (
     <div
@@ -116,12 +127,28 @@ export const CollapsibleContent = React.forwardRef<
       aria-hidden={!open}
       inert={open ? undefined : true}
       className={twMerge(
-        'grid transition-[grid-template-rows] duration-200 ease-out',
-        open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
+        'grid overflow-hidden duration-200 [transition-timing-function:cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none',
+        horizontal
+          ? 'transition-[grid-template-columns]'
+          : 'transition-[grid-template-rows]',
+        horizontal
+          ? open
+            ? 'grid-cols-[1fr]'
+            : 'grid-cols-[0fr]'
+          : open
+            ? 'grid-rows-[1fr]'
+            : 'grid-rows-[0fr]',
         className,
       )}
     >
-      <div className="overflow-hidden">{children}</div>
+      <div
+        className={twMerge(
+          'overflow-hidden',
+          horizontal ? 'min-w-0' : 'min-h-0',
+        )}
+      >
+        {children}
+      </div>
     </div>
   )
 })

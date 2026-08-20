@@ -7,7 +7,7 @@ import { type BlogCardPost } from '~/components/BlogCard'
 import { Eyebrow, SearchInput } from '~/components/ds/ui'
 import { BlogPostCard } from '~/components/ds/ui/BlogPostCard'
 import { PageHeader } from '~/components/ds/ui/PageHeader'
-import { PartnersRail, RightRail } from '~/components/RightRail'
+import { PartnersRail } from '~/components/RightRail'
 import { libraries, type LibrarySlim } from '~/libraries'
 import {
   getDistinctAuthors,
@@ -195,8 +195,7 @@ function BlogIndex() {
     <div className="flex flex-col max-w-full min-h-screen">
       <div className="relative flex-1 w-full mb-16">
         <div className="p-4 md:p-8">
-          <div className="mx-auto flex w-full max-w-[1600px] gap-8">
-            <div className="min-w-0 flex-1 space-y-10">
+          <div className="mx-auto w-full max-w-[1280px] space-y-10">
             <div className="space-y-6 border-b border-border-subtle pb-14 pt-6">
               <PageHeader
                 align="center"
@@ -352,13 +351,19 @@ function BlogIndex() {
                 ) : null}
               </div>
             </div>
-            </div>
-            <RightRail breakpoint="md">
-              <PartnersRail
-                analyticsPlacement="blog_rail"
-                partners={activePartners}
-              />
-            </RightRail>
+          </div>
+        </div>
+        {/* Partner rail floats in the right gutter — absolutely positioned, so
+            it's OUT of the content's layout flow and the masthead/posts stay
+            centered on the page (under the main nav) regardless of the rail. It
+            shows only when the viewport is wide enough (~1900px) to seat a 300px
+            rail beside the centered 1280px content without overlapping it. */}
+        <div className="pointer-events-none absolute inset-y-0 right-0 hidden min-[1900px]:block">
+          <div className="pointer-events-auto sticky top-[calc(var(--navbar-height)+1.5rem)] mr-4 flex max-h-[calc(100dvh-var(--navbar-height)-2rem)] w-[300px] flex-col overflow-y-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <PartnersRail
+              analyticsPlacement="blog_rail"
+              partners={activePartners}
+            />
           </div>
         </div>
       </div>

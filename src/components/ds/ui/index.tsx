@@ -733,6 +733,7 @@ export function DropdownContent({
   side = 'bottom',
   sideOffset = 6,
   collisionPadding = 0,
+  ariaLabelledBy,
 }: {
   children: React.ReactNode
   className?: string
@@ -741,6 +742,7 @@ export function DropdownContent({
   side?: 'top' | 'right' | 'bottom' | 'left'
   sideOffset?: number
   collisionPadding?: number
+  ariaLabelledBy?: string
 }) {
   return (
     <DropdownMenu.Portal container={container ?? undefined}>
@@ -749,6 +751,9 @@ export function DropdownContent({
         side={side}
         sideOffset={sideOffset}
         collisionPadding={collisionPadding}
+        {...(ariaLabelledBy
+          ? { 'aria-labelledby': ariaLabelledBy }
+          : undefined)}
         className={twMerge(
           'z-[1200] min-w-48 rounded-lg border border-border-default bg-background-elevated p-1.5 shadow-lg',
           className,

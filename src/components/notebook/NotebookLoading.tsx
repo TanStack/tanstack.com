@@ -102,7 +102,7 @@ export function NotebookEditorSkeleton({
       <span className="sr-only" role="status">
         Loading notebook
       </span>
-      <header className="flex h-16 shrink-0 items-center gap-2 border-b border-border-default bg-background-default px-2 sm:gap-3 sm:px-4">
+      <header className="flex h-16 shrink-0 items-center gap-2 border-b border-border-subtle bg-background-default px-2 sm:gap-3 sm:px-4">
         <a
           href="/notebook"
           aria-label="Back to notebooks"
@@ -147,7 +147,7 @@ export function NotebookAiSkeleton() {
 }
 
 export function NotebookDraftSkeleton() {
-  return <NotebookEditorSkeleton assistant={false} />
+  return <NotebookEditorSkeleton />
 }
 
 export function NotebookRouteSkeleton({ pathname }: { pathname: string }) {
@@ -234,10 +234,10 @@ function NotebookWorkbenchSkeleton({
   return (
     <section
       aria-hidden="true"
-      className={`@container not-prose relative flex min-w-0 flex-col overflow-hidden border border-border-default bg-background-default ${
+      className={`sandbox-ui @container not-prose relative flex min-w-0 flex-col overflow-hidden bg-background-default ${
         fullscreen
-          ? 'min-h-0 flex-1 rounded-none border-x-0 border-b-0'
-          : 'h-[clamp(520px,75dvh,720px)] rounded-lg'
+          ? 'min-h-0 flex-1 rounded-none'
+          : 'h-[clamp(520px,75dvh,720px)] rounded-lg border border-border-default'
       }`}
     >
       {assistant ? (
@@ -267,10 +267,10 @@ function LegacyNotebookWorkbenchSkeleton({
   return (
     <section
       aria-hidden="true"
-      className={`not-prose flex min-w-0 flex-col overflow-hidden border border-border-default bg-background-default ${
+      className={`sandbox-ui not-prose flex min-w-0 flex-col overflow-hidden bg-background-default ${
         fullscreen
-          ? 'min-h-0 flex-1 rounded-none border-x-0 border-b-0'
-          : 'h-[clamp(520px,75dvh,720px)] rounded-lg'
+          ? 'min-h-0 flex-1 rounded-none'
+          : 'h-[clamp(520px,75dvh,720px)] rounded-lg border border-border-default'
       }`}
     >
       <header className="flex min-h-10 shrink-0 items-center justify-between gap-3 border-b border-border-default px-2">
@@ -314,15 +314,15 @@ function LegacyNotebookWorkbenchSkeleton({
 
 function WorkspaceTabSkeleton() {
   return (
-    <div className="flex h-10 shrink-0 items-center gap-1 border-b border-border-default bg-background-default @min-[900px]:h-9 @min-[900px]:px-1">
+    <div className="flex h-9 shrink-0 items-center gap-1 border-b border-border-default bg-background-default p-1">
       <div
         data-notebook-tab-skeleton="preview"
-        className="flex h-10 min-w-0 items-center gap-1.5 rounded-lg bg-action-secondary px-2 text-xs font-medium text-text-primary @min-[900px]:h-8"
+        className="corner-squircle flex h-7 min-w-0 items-center gap-2 rounded-lg bg-surface-state-hover px-2.5 text-[13px] font-medium text-text-primary"
       >
         <span className="truncate">Preview</span>
         <SkeletonBlock className="size-2.5 shrink-0 rounded-full" />
       </div>
-      <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg bg-action-secondary text-text-primary @min-[900px]:size-8">
+      <span className="corner-squircle inline-flex size-7 shrink-0 items-center justify-center rounded-lg bg-transparent text-text-primary">
         <PlusIcon className="size-3.5" aria-hidden="true" />
       </span>
     </div>
@@ -379,15 +379,16 @@ function ChatSkeleton() {
     >
       <div
         data-notebook-chat-controls-skeleton=""
-        className="absolute inset-x-0 top-0 z-10 flex items-center justify-between p-3"
+        className="absolute inset-x-0 top-0 z-10 flex items-center justify-between p-3 @min-[900px]:p-2"
       >
-        <SkeletonBlock className="size-11 rounded-full @min-[900px]:size-9" />
+        <SkeletonBlock className="size-7 rounded-full bg-background-elevated shadow-sm" />
         <div className="flex gap-1">
-          <SkeletonBlock className="size-11 rounded-full @min-[900px]:size-9" />
-          <SkeletonBlock className="size-11 rounded-full @min-[900px]:size-9" />
+          <SkeletonBlock className="size-7 rounded-full bg-background-elevated shadow-sm" />
+          <SkeletonBlock className="size-7 rounded-full bg-background-elevated shadow-sm" />
+          <SkeletonBlock className="size-7 rounded-full bg-background-elevated shadow-sm" />
         </div>
       </div>
-      <div className="min-h-0 flex-1 overflow-hidden px-4 pt-16 pb-4 sm:px-5">
+      <div className="min-h-0 flex-1 overflow-hidden px-4 pt-12 pb-4 sm:px-5">
         <SkeletonBlock className="ml-auto h-8 w-2/3 rounded-2xl" />
         <SkeletonBlock className="mt-4 h-3 w-4/5" />
         <SkeletonBlock className="mt-2 h-3 w-3/5" />

@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { getClientExampleConfig } from '../src/utils/client-example-config'
-import { getExampleWorkspaceImports } from '../src/utils/example-imports'
+import {
+  resolveExampleWorkspaceImports,
+  type ExampleImportMetadataFetch,
+} from '../src/utils/example-imports'
 import { createRepositoryExampleDefinition } from '../src/utils/repository-example'
 import { getExampleRuntimeHeaders } from '../src/utils/stackblitz-embed'
 import type { ExampleRuntime } from '../src/utils/example-workspace'
@@ -347,7 +350,7 @@ test('falls back to the entry when the requested file is absent', () => {
   assert.equal(definition.initialFile, '/src/index.tsx')
 })
 
-test('package dependencies replace built-in React aliases consistently', () => {
+test('package dependencies resolve repository imports to exact versions', async () => {
   const definition = createRepositoryExampleDefinition({
     entry: '/src/index.tsx',
     files: {
@@ -357,7 +360,7 @@ test('package dependencies replace built-in React aliases consistently', () => {
     id: 'store-react-simple',
     title: 'Simple',
   })
-  const imports = getExampleWorkspaceImports(
+  const imports = await resolveExampleWorkspaceImports(
     definition.workspace,
     definition.workspace.files,
     new Set([
@@ -365,28 +368,30 @@ test('package dependencies replace built-in React aliases consistently', () => {
       'react/jsx-runtime',
       'react-dom/client',
     ]),
+    { fetch: createRepositoryMetadataFetch() },
   )
 
-  assert.equal(imports.react, 'https://esm.sh/react@^19.2.5')
+  assert.equal(imports.react, 'https://esm.sh/react@19.2.5')
+  assert.equal(imports['react/'], 'https://esm.sh/react@19.2.5/')
   assert.equal(
     imports['react/jsx-runtime'],
-    'https://esm.sh/react@^19.2.5/jsx-runtime',
+    'https://esm.sh/react@19.2.5/jsx-runtime',
+  )
+  assert.equal(
+    imports['react-dom'],
+    'https://esm.sh/react-dom@19.2.5?external=react',
   )
   assert.equal(
     imports['react-dom/client'],
-    'https://esm.sh/react-dom@^19.2.5/client?external=react',
-  )
-  assert.equal(
-    imports['@tanstack/react-store'],
-    'https://esm.sh/@tanstack/react-store@^0.11.1?external=react,react-dom',
+    'https://esm.sh/react-dom@19.2.5/client?external=react',
   )
   assert.equal(
     imports['@tanstack/react-store/helpers'],
-    'https://esm.sh/@tanstack/react-store@^0.11.1/helpers?external=react,react-dom',
+    'https://esm.sh/@tanstack/react-store@0.11.1/helpers?external=react,react-dom',
   )
 })
 
-test('workspace imports remain the final override', () => {
+test('workspace imports remain the final override', async () => {
   const definition = createRepositoryExampleDefinition({
     entry: '/src/index.tsx',
     files: {
@@ -400,10 +405,33 @@ test('workspace imports remain the final override', () => {
     react: 'https://example.com/react.js',
   }
 
-  const imports = getExampleWorkspaceImports(
+  const imports = await resolveExampleWorkspaceImports(
     definition.workspace,
     definition.workspace.files,
   )
 
   assert.equal(imports.react, 'https://example.com/react.js')
 })
+
+function createRepositoryMetadataFetch(): ExampleImportMetadataFetch {
+  return async (input) => {
+    const url =
+      typeof input === 'string'
+        ? input
+        : input instanceof URL
+          ? input.href
+          : input.url
+
+    if (url.startsWith('https://unpkg.com/')) {
+      const peerDependencies = url.includes('@tanstack/react-store')
+        ? { react: '^19.0.0', 'react-dom': '^19.0.0' }
+        : url.includes('react-dom')
+          ? { react: '^19.0.0' }
+          : {}
+      return new Response(JSON.stringify({ peerDependencies }))
+    }
+
+    const version = url.includes('@tanstack/react-store') ? '0.11.1' : '19.2.5'
+    return new Response(JSON.stringify({ version }))
+  }
+}

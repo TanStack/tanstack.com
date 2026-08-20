@@ -84,10 +84,6 @@ test('provides hidden entry modules for every example environment', () => {
     assert.equal(typeof profile.createEntrySource, 'function')
     assert.equal(profile.entryPath, '/__tanstack-example-entry.ts')
     assert.equal(profile.outputSelector, '#root')
-    assert.equal(
-      profile.imports['@tanstack/charts'],
-      'https://esm.sh/@tanstack/charts@0.13.0',
-    )
 
     const source = profile.createEntrySource('/src/example.ts')
     assert.match(
@@ -99,19 +95,6 @@ test('provides hidden entry modules for every example environment', () => {
     assert.match(source, /document\.body\.append\(output\)/)
     assert.doesNotMatch(source, /Example root not found/)
   }
-
-  assert.equal(
-    exampleEnvironmentProfiles.react.imports.react,
-    'https://esm.sh/react@19.2.3',
-  )
-  assert.equal(
-    exampleEnvironmentProfiles['charts-react'].imports.react,
-    'https://esm.sh/react@19.2.3',
-  )
-  assert.equal(
-    exampleEnvironmentProfiles['charts-octane'].imports.octane,
-    'https://esm.sh/octane@0.1.13',
-  )
 
   const charts =
     exampleEnvironmentProfiles.charts.createEntrySource('/src/chart.ts')

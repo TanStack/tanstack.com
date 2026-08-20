@@ -115,10 +115,17 @@ test('the editor skeleton reserves the tabbed workspace and chat dock', () => {
   assert.match(editor, /@min-\[900px\]:right-0/)
   assert.match(editor, /@min-\[900px\]:w-\[62%\]/)
   assert.match(editor, /@min-\[900px\]:pt-9/)
+  assert.match(editor, /border-b border-border-subtle/)
+  assert.match(editor, /rounded-none/)
+  assert.doesNotMatch(
+    editor,
+    /overflow-hidden border border-border-default bg-background-default/,
+  )
+  assert.doesNotMatch(editor, /border-x-0 border-b-0/)
+  assert.match(draft, /data-notebook-chat-skeleton=""/)
+  assert.match(draft, /data-notebook-tab-skeleton="preview"/)
   assert.doesNotMatch(embedded, /data-notebook-chat-skeleton=""/)
-  assert.doesNotMatch(draft, /data-notebook-chat-skeleton=""/)
   assert.doesNotMatch(embedded, /data-notebook-tab-skeleton="preview"/)
-  assert.doesNotMatch(draft, /data-notebook-tab-skeleton="preview"/)
 })
 
 test('the synchronous router fallback selects each notebook layout', () => {
@@ -130,7 +137,7 @@ test('the synchronous router fallback selects each notebook layout', () => {
     renderToStaticMarkup(<NotebookRouteSkeleton pathname="/notebook/ai" />),
     /data-notebook-loading="editor"/,
   )
-  assert.doesNotMatch(
+  assert.match(
     renderToStaticMarkup(<NotebookRouteSkeleton pathname="/notebook/new" />),
     /data-notebook-chat-skeleton=""/,
   )

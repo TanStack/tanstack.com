@@ -22,7 +22,7 @@ function CollapsiblePage() {
   return (
     <DsPage
       title="Collapsible"
-      description="A disclosure that animates open/closed via a grid-rows transition. Controlled or uncontrolled; children may be a render function exposing `open`. Source: src/components/Collapsible.tsx."
+      description="A vertical or horizontal disclosure. Controlled or uncontrolled; children may be a render function exposing `open`. Source: src/components/Collapsible.tsx."
     >
       <DsSection title="Disclosure">
         <ComponentPreview

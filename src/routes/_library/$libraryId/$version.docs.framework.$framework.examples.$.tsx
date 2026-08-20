@@ -629,6 +629,7 @@ function ClientExamplePage({
               fallbackAction={fallbackAction}
               filesInitiallyOpen
               libraryColor={library.bgStyle}
+              packageResolution="dynamic"
             />
           </React.Suspense>
         </ClientOnly>

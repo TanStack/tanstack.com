@@ -1209,6 +1209,7 @@ export const NotebookAssistant = React.forwardRef<
         return 'error'
       }
     } finally {
+      abortController.abort()
       if (abortRef.current === abortController) abortRef.current = null
       onFinish?.()
     }

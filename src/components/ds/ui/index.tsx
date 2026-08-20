@@ -418,18 +418,16 @@ export const FormInput = React.forwardRef<HTMLInputElement, FormInputProps>(
   },
 )
 
-type FormSelectProps = React.SelectHTMLAttributes<HTMLSelectElement> & {
-  focusRing?: 'blue' | 'orange' | 'purple'
-}
+type FormSelectProps = React.SelectHTMLAttributes<HTMLSelectElement>
 
 export const FormSelect = React.forwardRef<HTMLSelectElement, FormSelectProps>(
-  function FormSelect({ className, focusRing = 'blue', ...props }, ref) {
+  function FormSelect({ className, ...props }, ref) {
     return (
       <select
         ref={ref}
         className={twMerge(
           'w-full rounded-lg border border-border-default bg-background-surface px-3 py-2 text-text-primary transition focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-40',
-          ringStyles[focusRing],
+          ringStyles.blue,
           className,
         )}
         {...props}

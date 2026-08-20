@@ -6,14 +6,12 @@ import { copyTextToClipboard } from '~/utils/browser-effects'
 
 type LandingCopyPromptButtonProps = {
   className?: string
-  getPrompt?: () => Promise<string> | string
   label?: string
   prompt?: string
 }
 
 export function LandingCopyPromptButton({
   className,
-  getPrompt,
   label = 'Copy Prompt',
   prompt,
 }: LandingCopyPromptButtonProps) {
@@ -48,7 +46,7 @@ export function LandingCopyPromptButton({
         setStatus('copying')
 
         try {
-          const resolvedPrompt = getPrompt ? await getPrompt() : prompt
+          const resolvedPrompt = prompt
 
           if (!resolvedPrompt) {
             throw new Error('Prompt unavailable')

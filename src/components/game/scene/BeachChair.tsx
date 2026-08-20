@@ -4,15 +4,14 @@ import * as THREE from 'three'
 interface BeachChairProps {
   position?: [number, number, number]
   rotation?: number
-  color?: string
 }
 
 export function BeachChair({
   position = [0, 0, 0],
   rotation = 0,
-  color = '#DC143C', // Cherry red
 }: BeachChairProps) {
   const woodColor = '#D97706'
+  const color = '#DC143C'
 
   const seatGeometry = useMemo(() => {
     return new THREE.BoxGeometry(0.6, 0.05, 0.8)

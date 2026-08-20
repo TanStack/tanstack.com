@@ -17,10 +17,6 @@ export type ResizableProps = {
     options: ResizeChangeOptions,
   ) => void
   children: React.ReactNode
-  minHeight?: number
-  minWidth?: number
-  fullWidthSnapThreshold?: number
-  enableWidthResize?: boolean
 }
 
 type ResizePreviewSize = {
@@ -36,10 +32,6 @@ export function Resizable({
   width,
   onSizeChange,
   children,
-  minHeight = 300,
-  minWidth = 320,
-  fullWidthSnapThreshold = 12,
-  enableWidthResize = true,
 }: ResizableProps) {
   const [isHeightDragging, setIsHeightDragging] = React.useState(false)
   const [isWidthDragging, setIsWidthDragging] = React.useState(false)
@@ -96,26 +88,26 @@ export function Resizable({
   }, [containerWidth])
 
   const getHeightFromDelta = React.useCallback(
-    (deltaY: number) => Math.max(minHeight, startHeightRef.current + deltaY),
-    [minHeight],
+    (deltaY: number) => Math.max(300, startHeightRef.current + deltaY),
+    [],
   )
 
   const getWidthFromDelta = React.useCallback(
     ({ deltaX, maxWidth }: { deltaX: number; maxWidth: number }) => {
       const rawWidth = startWidthRef.current + deltaX * 2
-      const nextMinWidth = Math.min(minWidth, maxWidth)
+      const nextMinWidth = Math.min(320, maxWidth)
       const nextWidth = Math.max(
         nextMinWidth,
         Math.min(maxWidth, Math.round(rawWidth)),
       )
 
-      if (nextWidth >= maxWidth - fullWidthSnapThreshold) {
+      if (nextWidth >= maxWidth - 12) {
         return undefined
       }
 
       return nextWidth
     },
-    [fullWidthSnapThreshold, minWidth],
+    [],
   )
 
   const handleHeightMouseDown = React.useCallback(
@@ -307,48 +299,44 @@ export function Resizable({
         style={{ width: width ?? '100%', maxWidth: '100%' }}
       >
         {children}
-        {enableWidthResize ? (
-          <div
-            role="separator"
-            aria-label="Resize chart width"
-            aria-orientation="vertical"
-            onMouseDown={handleWidthMouseDown}
-            onDoubleClick={handleWidthDoubleClick}
-            className="group absolute right-0 top-0 z-20 flex w-3 cursor-ew-resize select-none items-center justify-center hover:bg-gray-500/20"
-            style={{ height: Math.max(0, height - 8) }}
+        <div
+          role="separator"
+          aria-label="Resize chart width"
+          aria-orientation="vertical"
+          onMouseDown={handleWidthMouseDown}
+          onDoubleClick={handleWidthDoubleClick}
+          className="group absolute right-0 top-0 z-20 flex w-3 cursor-ew-resize select-none items-center justify-center hover:bg-gray-500/20"
+          style={{ height: Math.max(0, height - 8) }}
+        >
+          <span
+            aria-hidden="true"
+            className={`${dimensionTooltipStyles} right-full top-1/2 mr-1 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100 ${
+              showWidthTooltip ? 'opacity-100' : ''
+            }`}
           >
-            <span
-              aria-hidden="true"
-              className={`${dimensionTooltipStyles} right-full top-1/2 mr-1 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100 ${
-                showWidthTooltip ? 'opacity-100' : ''
-              }`}
-            >
-              {widthLabel}
-            </span>
-            <div className="h-8 w-1 rounded-full bg-gray-400" />
-          </div>
-        ) : null}
-        {enableWidthResize ? (
-          <div
-            role="separator"
-            aria-label="Resize chart width and height"
-            aria-orientation="horizontal"
-            onMouseDown={handleCornerMouseDown}
-            onDoubleClick={handleWidthDoubleClick}
-            className="group absolute right-0 z-40 flex h-5 w-5 cursor-nwse-resize select-none items-end justify-end rounded-tl-md p-1 hover:bg-gray-500/20"
-            style={{ top: Math.max(0, height - 20) }}
+            {widthLabel}
+          </span>
+          <div className="h-8 w-1 rounded-full bg-gray-400" />
+        </div>
+        <div
+          role="separator"
+          aria-label="Resize chart width and height"
+          aria-orientation="horizontal"
+          onMouseDown={handleCornerMouseDown}
+          onDoubleClick={handleWidthDoubleClick}
+          className="group absolute right-0 z-40 flex h-5 w-5 cursor-nwse-resize select-none items-end justify-end rounded-tl-md p-1 hover:bg-gray-500/20"
+          style={{ top: Math.max(0, height - 20) }}
+        >
+          <span
+            aria-hidden="true"
+            className={`${dimensionTooltipStyles} bottom-full right-full mb-1 mr-1 opacity-0 transition-opacity group-hover:opacity-100 ${
+              isCornerDragging ? 'opacity-100' : ''
+            }`}
           >
-            <span
-              aria-hidden="true"
-              className={`${dimensionTooltipStyles} bottom-full right-full mb-1 mr-1 opacity-0 transition-opacity group-hover:opacity-100 ${
-                isCornerDragging ? 'opacity-100' : ''
-              }`}
-            >
-              {cornerLabel}
-            </span>
-            <div className="h-2.5 w-2.5 border-b-2 border-r-2 border-gray-400" />
-          </div>
-        ) : null}
+            {cornerLabel}
+          </span>
+          <div className="h-2.5 w-2.5 border-b-2 border-r-2 border-gray-400" />
+        </div>
         <div
           role="separator"
           aria-label="Resize chart height"

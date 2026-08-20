@@ -12,7 +12,6 @@ type PartnersSponsorsContentProps = {
 }
 
 type PartnersSponsorsSectionProps = {
-  analyticsPlacement?: PartnerPlacement
   className?: string
 }
 
@@ -106,7 +105,6 @@ function PartnersSponsorsSkeleton() {
 }
 
 export function PartnersSponsorsSection({
-  analyticsPlacement = 'library_grid',
   className = '',
 }: PartnersSponsorsSectionProps) {
   return (
@@ -115,7 +113,7 @@ export function PartnersSponsorsSection({
         when={visible({ rootMargin: '25%' })}
         fallback={<PartnersSponsorsSkeleton />}
       >
-        <PartnersSponsorsContent analyticsPlacement={analyticsPlacement} />
+        <PartnersSponsorsContent analyticsPlacement="library_grid" />
       </Hydrate>
     </section>
   )

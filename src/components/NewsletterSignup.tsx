@@ -13,7 +13,6 @@ type NewsletterSignupProps = {
   buttonClassName?: string
   noteClassName?: string
   successClassName?: string
-  showNote?: boolean
 }
 
 export function NewsletterSignup({
@@ -21,7 +20,6 @@ export function NewsletterSignup({
   buttonClassName,
   noteClassName,
   successClassName,
-  showNote = true,
 }: NewsletterSignupProps) {
   const user = useCurrentUser()
   const queryClient = useQueryClient()
@@ -105,16 +103,14 @@ export function NewsletterSignup({
             ? 'Subscribe with my login'
             : 'Log in to subscribe'}
       </Button>
-      {showNote ? (
-        <p
-          className={twMerge(
-            'text-xs text-gray-500 dark:text-gray-400',
-            noteClassName,
-          )}
-        >
-          We'll use your TanStack login email.
-        </p>
-      ) : null}
+      <p
+        className={twMerge(
+          'text-xs text-gray-500 dark:text-gray-400',
+          noteClassName,
+        )}
+      >
+        We'll use your TanStack login email.
+      </p>
     </div>
   )
 }

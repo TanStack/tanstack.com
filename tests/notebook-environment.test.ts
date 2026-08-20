@@ -5,7 +5,27 @@ import {
   exampleEnvironmentProfiles,
   generateNotebookLlmsTxt,
   notebookImports,
+  notebookStarterSource,
 } from '../src/utils/notebook-environment'
+
+test('uses TanStack category colors in the starter sandbox', () => {
+  assert.match(notebookStarterSource, /TanStack Sandbox/)
+  assert.match(notebookStarterSource, /Ready to build\./)
+  assert.match(notebookStarterSource, /Edit <code>\/index\.tsx<\/code>/)
+
+  for (const color of [
+    '#3aa3c4',
+    '#39af46',
+    '#d3481b',
+    '#ffa216',
+    '#61adbf',
+    '#69bc75',
+    '#e06e49',
+    '#f4d648',
+  ]) {
+    assert.ok(notebookStarterSource.includes(color))
+  }
+})
 
 test('exposes unified Charts subpaths without duplicate framework runtimes', () => {
   assert.equal(
@@ -64,10 +84,6 @@ test('provides hidden entry modules for every example environment', () => {
     assert.equal(typeof profile.createEntrySource, 'function')
     assert.equal(profile.entryPath, '/__tanstack-example-entry.ts')
     assert.equal(profile.outputSelector, '#root')
-    assert.equal(
-      profile.imports['@tanstack/charts'],
-      'https://esm.sh/@tanstack/charts@0.13.0',
-    )
 
     const source = profile.createEntrySource('/src/example.ts')
     assert.match(
@@ -79,19 +95,6 @@ test('provides hidden entry modules for every example environment', () => {
     assert.match(source, /document\.body\.append\(output\)/)
     assert.doesNotMatch(source, /Example root not found/)
   }
-
-  assert.equal(
-    exampleEnvironmentProfiles.react.imports.react,
-    'https://esm.sh/react@19.2.3',
-  )
-  assert.equal(
-    exampleEnvironmentProfiles['charts-react'].imports.react,
-    'https://esm.sh/react@19.2.3',
-  )
-  assert.equal(
-    exampleEnvironmentProfiles['charts-octane'].imports.octane,
-    'https://esm.sh/octane@0.1.13',
-  )
 
   const charts =
     exampleEnvironmentProfiles.charts.createEntrySource('/src/chart.ts')

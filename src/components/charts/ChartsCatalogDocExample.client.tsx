@@ -65,7 +65,10 @@ export function ChartsCatalogDocExampleClient({
   if (editing) {
     return (
       <React.Suspense fallback={fallback}>
-        <LazyExampleWorkbench definition={definition} />
+        <LazyExampleWorkbench
+          definition={definition}
+          packageResolution="dynamic"
+        />
       </React.Suspense>
     )
   }

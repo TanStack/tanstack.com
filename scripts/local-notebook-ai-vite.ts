@@ -4,9 +4,10 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import path from 'node:path'
 import readline from 'node:readline'
 import type { PluginOption } from 'vite'
+import { notebookAiLocalValidationEndpoint } from '../src/utils/notebook-ai-local-validation'
 
 const maxRequestBytes = 2 * 1024 * 1024
-const maxResponseBytes = 4 * 1024 * 1024
+const maxResponseBytes = 24 * 1024 * 1024
 
 export function localNotebookAi(): PluginOption {
   let bridgeProcess: ReturnType<typeof spawn> | undefined
@@ -23,7 +24,8 @@ export function localNotebookAi(): PluginOption {
         const url = new URL(request.url, 'http://localhost')
         if (
           url.pathname !== '/api/notebook/chatgpt' &&
-          url.pathname !== '/api/notebook/chatgpt/assist'
+          url.pathname !== '/api/notebook/chatgpt/assist' &&
+          url.pathname !== notebookAiLocalValidationEndpoint
         ) {
           return next()
         }
@@ -224,6 +226,9 @@ function getBridgePath(
 ) {
   if (pathname === '/api/notebook/chatgpt/assist' && method === 'POST') {
     return '/assist'
+  }
+  if (pathname === notebookAiLocalValidationEndpoint && method === 'POST') {
+    return '/validation'
   }
   if (pathname !== '/api/notebook/chatgpt') return
   if (method === 'GET') return '/account'

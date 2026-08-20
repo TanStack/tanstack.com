@@ -50,30 +50,17 @@ export const notebookImports = {
   'react-dom/': 'https://esm.sh/react-dom@19.2.3/',
 } as const
 
-const chartsEnvironmentImports = {
-  '@tanstack/charts': notebookImports['@tanstack/charts'],
-  '@tanstack/charts/': notebookImports['@tanstack/charts/'],
-  'd3-geo': notebookImports['d3-geo'],
-  'd3-scale': notebookImports['d3-scale'],
-  'd3-shape': notebookImports['d3-shape'],
-}
-
-const clientEnvironmentImports = { ...notebookImports }
-
 function defineExampleEnvironmentProfile({
   createEntrySource,
   entryPath = '/__tanstack-example-entry.ts',
-  imports,
   outputSelector,
 }: {
   createEntrySource: (entry: string, outputSource: string) => string
   entryPath?: string
-  imports: Record<string, string>
   outputSelector: `#${string}`
 }) {
   return {
     entryPath,
-    imports,
     outputSelector,
     createEntrySource(entry: string) {
       return createEntrySource(entry, createExampleOutputSource(outputSelector))
@@ -97,7 +84,6 @@ if (!output) {
 
 export const exampleEnvironmentProfiles = {
   client: defineExampleEnvironmentProfile({
-    imports: clientEnvironmentImports,
     outputSelector: '#root',
     createEntrySource(entry, outputSource) {
       return `import value from ${JSON.stringify(entry)}
@@ -122,7 +108,6 @@ appendValue(result)
     },
   }),
   react: defineExampleEnvironmentProfile({
-    imports: clientEnvironmentImports,
     outputSelector: '#root',
     createEntrySource(entry, outputSource) {
       return `import { createElement } from 'react'
@@ -138,7 +123,6 @@ window.addEventListener('pagehide', () => root.unmount(), { once: true })
     },
   }),
   charts: defineExampleEnvironmentProfile({
-    imports: chartsEnvironmentImports,
     outputSelector: '#root',
     createEntrySource(entry, outputSource) {
       return `import { mountChart } from '@tanstack/charts'
@@ -157,23 +141,6 @@ window.addEventListener('pagehide', () => chart.destroy(), { once: true })
     },
   }),
   'charts-react': defineExampleEnvironmentProfile({
-    imports: {
-      ...chartsEnvironmentImports,
-      '@tanstack/charts/react': notebookImports['@tanstack/charts/react'],
-      '@tanstack/charts/react/canvas':
-        notebookImports['@tanstack/charts/react/canvas'],
-      '@tanstack/charts/react/core':
-        notebookImports['@tanstack/charts/react/core'],
-      '@tanstack/charts/react/tooltip':
-        notebookImports['@tanstack/charts/react/tooltip'],
-      react: notebookImports.react,
-      'react/': notebookImports['react/'],
-      'react/jsx-dev-runtime': notebookImports['react/jsx-dev-runtime'],
-      'react/jsx-runtime': notebookImports['react/jsx-runtime'],
-      'react-dom': notebookImports['react-dom'],
-      'react-dom/': notebookImports['react-dom/'],
-      'react-dom/client': notebookImports['react-dom/client'],
-    },
     outputSelector: '#root',
     createEntrySource(entry, outputSource) {
       return `import { createElement } from 'react'
@@ -189,16 +156,6 @@ window.addEventListener('pagehide', () => root.unmount(), { once: true })
     },
   }),
   'charts-octane': defineExampleEnvironmentProfile({
-    imports: {
-      ...chartsEnvironmentImports,
-      '@tanstack/charts/octane': notebookImports['@tanstack/charts/octane'],
-      '@tanstack/charts/octane/canvas':
-        notebookImports['@tanstack/charts/octane/canvas'],
-      '@tanstack/charts/octane/core':
-        notebookImports['@tanstack/charts/octane/core'],
-      octane: notebookImports.octane,
-      'octane/': notebookImports['octane/'],
-    },
     outputSelector: '#root',
     createEntrySource(entry, outputSource) {
       return `import { createRoot } from 'octane'
@@ -299,6 +256,8 @@ export const liveDocsRules = [
   'A runnable documentation example is a consecutive group of fenced code blocks with the same group identifier.',
   "Every fence must include an explicit canonical absolute file path. Exactly one fence has the entry flag, and that fence carries the group's only env declaration.",
   "Supported environments are client, react, charts, charts-react, and charts-octane. Their hidden bootstrap mounts the entry module's default export.",
+  'Bare npm imports use the version requested by a grouped /package.json file, or the current latest version when no version is declared. The runtime resolves that request to one exact version before loading the example.',
+  'Use a full HTTPS module URL when a source import itself must pin a version.',
   'Add the collapsed flag to support files that should remain under a disclosure until the reader opens them.',
   'The static highlighted fences are rendered on the server. The workbench hydrates near the viewport and runs once visible and idle; selecting Run starts it immediately.',
 ]
@@ -306,13 +265,150 @@ export const liveDocsRules = [
 export const notebookStarterSource = `import { useState } from 'react'
 import { createRoot } from 'react-dom/client'
 
+const styles = \`
+:root {
+  --sandbox-ui: #3aa3c4;
+  --sandbox-framework: #39af46;
+  --sandbox-data: #d3481b;
+  --sandbox-performance: #ffa216;
+}
+
+:root.dark {
+  --sandbox-ui: #61adbf;
+  --sandbox-framework: #69bc75;
+  --sandbox-data: #e06e49;
+  --sandbox-performance: #f4d648;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--notebook-background);
+  color: var(--notebook-foreground);
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.sandbox {
+  display: grid;
+  min-height: 100dvh;
+  place-items: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.sandbox__content {
+  width: min(100%, 34rem);
+}
+
+.sandbox__colors {
+  width: 8rem;
+  height: 0.25rem;
+  margin: 0 auto 2rem;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    var(--sandbox-ui) 0 25%,
+    var(--sandbox-framework) 25% 50%,
+    var(--sandbox-data) 50% 75%,
+    var(--sandbox-performance) 75%
+  );
+}
+
+.sandbox__brand {
+  margin: 0 0 0.75rem;
+  color: color-mix(
+    in srgb,
+    var(--notebook-foreground) 66%,
+    var(--notebook-background)
+  );
+  font-weight: 650;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2.25rem, 8vw, 3rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.sandbox__hint {
+  margin: 1.75rem 0 2.75rem;
+  color: color-mix(
+    in srgb,
+    var(--notebook-foreground) 66%,
+    var(--notebook-background)
+  );
+  font-size: clamp(1rem, 3vw, 1.25rem);
+}
+
+code {
+  color: var(--notebook-foreground);
+}
+
+.sandbox__button {
+  min-width: 10.5rem;
+  padding: 0.8rem 1.5rem;
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--notebook-foreground) 45%,
+      var(--notebook-background)
+    );
+  border-radius: 0.625rem;
+  background: color-mix(
+    in srgb,
+    var(--notebook-foreground) 8%,
+    var(--notebook-background)
+  );
+  color: var(--notebook-foreground);
+  font: inherit;
+  font-size: 1.125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.sandbox__button:hover {
+  background: color-mix(
+    in srgb,
+    var(--notebook-foreground) 14%,
+    var(--notebook-background)
+  );
+}
+
+.sandbox__button:focus-visible {
+  outline: 2px solid var(--notebook-foreground);
+  outline-offset: 3px;
+}
+\`
+
 function App() {
   const [count, setCount] = useState<number>(0)
 
   return (
-    <button onClick={() => setCount((value) => value + 1)}>
-      Count: {count}
-    </button>
+    <>
+      <style>{styles}</style>
+      <main className="sandbox">
+        <div className="sandbox__content">
+          <div className="sandbox__colors" aria-hidden="true" />
+          <p className="sandbox__brand">TanStack Sandbox</p>
+          <h1>Ready to build.</h1>
+          <p className="sandbox__hint">
+            Edit <code>/index.tsx</code> to get started.
+          </p>
+          <button
+            className="sandbox__button"
+            type="button"
+            onClick={() => setCount((value) => value + 1)}
+          >
+            Count {count}
+          </button>
+        </div>
+      </main>
+    </>
   )
 }
 

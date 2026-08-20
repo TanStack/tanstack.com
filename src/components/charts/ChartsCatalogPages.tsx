@@ -202,7 +202,10 @@ export function ChartsCatalogDetail({
         <React.Suspense
           fallback={<CatalogWorkbenchFallback catalogCase={catalogCase} />}
         >
-          <LazyExampleWorkbench definition={catalogCase.example} />
+          <LazyExampleWorkbench
+            definition={catalogCase.example}
+            packageResolution="dynamic"
+          />
         </React.Suspense>
       </ClientOnly>
     </CatalogSurface>

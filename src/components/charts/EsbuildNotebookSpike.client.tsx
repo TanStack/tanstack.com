@@ -189,6 +189,7 @@ export function EsbuildNotebookSpike() {
         key={definition.id}
         allowSharing
         definition={definition}
+        packageResolution="dynamic"
       />
     </main>
   )

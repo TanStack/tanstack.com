@@ -38,11 +38,9 @@ export function NotebookAgentActivity({
 }) {
   const triggerId = React.useId()
   const contentId = React.useId()
-  const manuallyChangedRef = React.useRef(false)
-  const previousStatusRef = React.useRef(activity.status)
   const previousActivityIdRef = React.useRef(activity.id)
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(
-    defaultOpen ?? shouldOpenActivity(activity.status),
+    defaultOpen ?? false,
   )
   const open = controlledOpen ?? uncontrolledOpen
   const summary = getNotebookAiActivitySummary(activity)
@@ -56,19 +54,11 @@ export function NotebookAgentActivity({
   React.useEffect(() => {
     if (previousActivityIdRef.current !== activity.id) {
       previousActivityIdRef.current = activity.id
-      manuallyChangedRef.current = false
       if (controlledOpen === undefined) {
-        setUncontrolledOpen(defaultOpen ?? shouldOpenActivity(activity.status))
+        setUncontrolledOpen(defaultOpen ?? false)
       }
-    } else if (
-      previousStatusRef.current !== activity.status &&
-      !manuallyChangedRef.current &&
-      controlledOpen === undefined
-    ) {
-      setUncontrolledOpen(shouldOpenActivity(activity.status))
     }
-    previousStatusRef.current = activity.status
-  }, [activity.id, activity.status, controlledOpen, defaultOpen])
+  }, [activity.id, controlledOpen, defaultOpen])
 
   return (
     <section
@@ -79,7 +69,6 @@ export function NotebookAgentActivity({
       <Collapsible
         open={open}
         onOpenChange={(nextOpen) => {
-          manuallyChangedRef.current = true
           if (controlledOpen === undefined) setUncontrolledOpen(nextOpen)
           onOpenChange?.(nextOpen)
         }}
@@ -90,14 +79,7 @@ export function NotebookAgentActivity({
           className="group flex min-h-8 w-full items-center gap-2 rounded-lg px-1.5 py-1 text-left text-text-secondary outline-none transition-colors duration-150 hover:bg-background-subtle focus-visible:ring-2 focus-visible:ring-border-focus motion-reduce:transition-none"
         >
           <ActivityStatusIcon status={activity.status} />
-          <span
-            className={twMerge(
-              'min-w-0 flex-1 truncate font-medium',
-              activity.status === 'error' && 'text-text-error',
-            )}
-          >
-            {summary}
-          </span>
+          <span className="min-w-0 flex-1 truncate font-medium">{summary}</span>
           <span className="shrink-0 text-xs text-text-muted">{meta}</span>
           <CaretDownIcon
             className={twMerge(
@@ -122,7 +104,7 @@ export function NotebookAgentActivity({
           </ol>
           {activity.error ? (
             <pre
-              className="mt-2 ml-3 max-h-48 overflow-auto rounded-lg border border-border-default border-l-2 border-l-border-error bg-background-elevated px-3 py-2 font-ds-mono text-xs/5 whitespace-pre-wrap text-text-secondary"
+              className="mt-2 ml-3 max-h-48 overflow-auto rounded-md border border-border-default bg-background-surface px-2.5 py-2 font-ds-mono text-xs/5 whitespace-pre-wrap text-text-secondary"
               aria-label="Agent error"
             >
               {activity.error}
@@ -257,7 +239,7 @@ function ActivityItemDetails({ item }: { item: NotebookAiActivityItem }) {
       ) : null}
       {item.error ? (
         <pre
-          className="mt-2 max-h-48 overflow-auto font-ds-mono text-xs/5 whitespace-pre-wrap text-text-error"
+          className="mt-2 max-h-48 overflow-auto font-ds-mono text-xs/5 whitespace-pre-wrap text-text-secondary"
           aria-label="Action error"
         >
           {item.error}
@@ -333,10 +315,6 @@ function ActivityItemStatusIcon({
   return (
     <XIcon className="size-3.5 shrink-0 text-text-error" aria-hidden="true" />
   )
-}
-
-function shouldOpenActivity(status: NotebookAiActivityStatus) {
-  return status === 'running' || status === 'error' || status === 'stopped'
 }
 
 function hasActivityDetails(details: NotebookAiActivityDetails) {

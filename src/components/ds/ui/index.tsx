@@ -726,6 +726,8 @@ export function DropdownContent({
   align = 'end',
   side = 'bottom',
   sideOffset = 6,
+  collisionPadding = 0,
+  ariaLabelledBy,
 }: {
   children: React.ReactNode
   className?: string
@@ -733,6 +735,8 @@ export function DropdownContent({
   align?: 'start' | 'center' | 'end'
   side?: 'top' | 'right' | 'bottom' | 'left'
   sideOffset?: number
+  collisionPadding?: number
+  ariaLabelledBy?: string
 }) {
   return (
     <Menu.Portal container={container ?? undefined}>
@@ -740,6 +744,10 @@ export function DropdownContent({
         align={align}
         side={side}
         sideOffset={sideOffset}
+        collisionPadding={collisionPadding}
+        {...(ariaLabelledBy
+          ? { 'aria-labelledby': ariaLabelledBy }
+          : undefined)}
         className="z-[1200]"
       >
         <Menu.Popup

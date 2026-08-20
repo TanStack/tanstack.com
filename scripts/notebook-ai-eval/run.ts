@@ -664,7 +664,7 @@ function readApiKey(connection: Connection) {
 }
 
 function defaultModel(connection: Exclude<Connection, 'chatgpt'>) {
-  return connection === 'openai' ? 'gpt-5.4-mini' : 'claude-sonnet-4-6'
+  return connection === 'openai' ? 'gpt-5.6-luna' : 'claude-sonnet-4-6'
 }
 
 async function assertServerAvailable(baseUrl: string) {

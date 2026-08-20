@@ -29,6 +29,10 @@ import {
 } from '~/utils/example-project'
 import type { ExampleWorkspace } from '~/utils/example-workspace'
 import type { NotebookAiExecution } from '~/utils/notebook-ai'
+import {
+  getNotebookAiHiddenFiles,
+  requiresNotebookWorkbenchReset,
+} from '~/utils/notebook-ai-execution'
 import { shouldAutoRunNotebook } from '~/utils/notebook-auto-run.client'
 import {
   createNotebookRecord,
@@ -280,7 +284,7 @@ export function NotebookPage({ id }: { id: string }) {
       title: titleRef.current.trim() || 'Untitled notebook',
       description: descriptionRef.current.trim(),
       initialFile: currentProject.initialFile,
-      hiddenFiles: getAiHiddenFiles(
+      hiddenFiles: getNotebookAiHiddenFiles(
         currentProject.hiddenFiles,
         execution.workspace,
       ),
@@ -289,7 +293,7 @@ export function NotebookPage({ id }: { id: string }) {
     })
     projectRef.current = nextProject
     workspaceRef.current = execution.workspace
-    const resetWorkbench = requiresWorkbenchReset(
+    const resetWorkbench = requiresNotebookWorkbenchReset(
       currentProject.runtime ?? null,
       currentWorkspace,
       execution,
@@ -341,7 +345,7 @@ export function NotebookPage({ id }: { id: string }) {
       title: titleRef.current.trim() || 'Untitled notebook',
       description: descriptionRef.current.trim(),
       initialFile: currentProject.initialFile,
-      hiddenFiles: getAiHiddenFiles(
+      hiddenFiles: getNotebookAiHiddenFiles(
         currentProject.hiddenFiles,
         execution.workspace,
       ),
@@ -480,7 +484,7 @@ export function NotebookPage({ id }: { id: string }) {
 
   return (
     <main className="fixed inset-x-0 top-[var(--navbar-height)] bottom-0 z-20 flex min-h-0 flex-col overflow-hidden bg-background-default text-text-primary">
-      <header className="flex h-16 shrink-0 items-center gap-2 border-b border-border-default bg-background-default px-2 sm:gap-3 sm:px-4">
+      <header className="flex h-16 shrink-0 items-center gap-2 border-b border-border-subtle bg-background-default px-2 sm:gap-3 sm:px-4">
         <Button
           as={Link}
           to="/notebook"
@@ -694,8 +698,7 @@ export function NotebookPage({ id }: { id: string }) {
             content: (
               <NotebookAssistant
                 key={`${record.id}:${user?.userId ?? 'anonymous'}`}
-                authenticated={Boolean(user)}
-                credentialScope={user?.userId}
+                credentialScope={user?.userId ?? 'anonymous'}
                 enabled
                 getExecution={() => {
                   return {
@@ -711,8 +714,7 @@ export function NotebookPage({ id }: { id: string }) {
                 onPrepare={prepareAiExecution}
                 onRestore={restoreAiExecution}
                 onRunningChange={setAssistantRunning}
-                onSignIn={() => openLoginModal()}
-                storageScope={user ? `${user.userId}:${record.id}` : undefined}
+                storageScope={`${user?.userId ?? 'anonymous'}:${record.id}`}
               />
             ),
           }}
@@ -740,55 +742,4 @@ function formatDate(value: string) {
   return new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(
     new Date(value),
   )
-}
-
-function requiresWorkbenchReset(
-  currentRuntime: NotebookAiExecution['runtime'],
-  currentWorkspace: ExampleWorkspace,
-  next: NotebookAiExecution,
-) {
-  if (JSON.stringify(currentRuntime) !== JSON.stringify(next.runtime)) {
-    return true
-  }
-  if (!next.runtime) return false
-  if (
-    currentWorkspace.files['/package.json'] !==
-    next.workspace.files['/package.json']
-  ) {
-    return true
-  }
-
-  return (
-    hasDifferentPaths(currentWorkspace.files, next.workspace.files) ||
-    hasDifferentPaths(
-      currentWorkspace.binaryFiles ?? {},
-      next.workspace.binaryFiles ?? {},
-    )
-  )
-}
-
-function hasDifferentPaths(
-  current: Record<string, string>,
-  next: Record<string, string>,
-) {
-  const currentPaths = Object.keys(current)
-  const nextPaths = Object.keys(next)
-  return (
-    currentPaths.length !== nextPaths.length ||
-    currentPaths.some((path) => next[path] === undefined)
-  )
-}
-
-function getAiHiddenFiles(
-  hiddenFiles: ReadonlyArray<string> | undefined,
-  workspace: ExampleWorkspace,
-) {
-  return [
-    ...new Set([
-      ...(hiddenFiles ?? []),
-      ...Object.keys(workspace.files).filter((path) =>
-        path.startsWith('/.tanstack/'),
-      ),
-    ]),
-  ]
 }

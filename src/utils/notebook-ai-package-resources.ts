@@ -9,6 +9,12 @@ const maxMetadataBytes = 2 * 1024 * 1024
 const maxResourceBytes = 256 * 1024
 const maxReadCharacters = 50_000
 const maxSearchResults = 80
+const maxInspectionBytes = 16 * 1024 * 1024
+const maxInspectionResources = 32
+const downloadLimitMessage =
+  'Notebook AI package download budget reached. Continue with the package evidence already gathered.'
+const resourceLimitMessage =
+  'Notebook AI package resource budget reached. Continue with the package evidence already gathered.'
 export type NotebookAiResolvedModule = {
   specifier: string
   packageName: string
@@ -17,9 +23,65 @@ export type NotebookAiResolvedModule = {
 }
 
 export type NotebookAiPackageFetchOptions = {
+  fetchState: NotebookAiPackageFetchState
   fetcher?: typeof fetch
   signal?: AbortSignal
   timeoutMs?: number
+}
+
+export type NotebookAiPackageFetchState = {
+  load: (
+    resource: string,
+    loader: (recordBytes: (byteLength: number) => void) => Promise<string>,
+  ) => Promise<string>
+}
+
+export function createNotebookAiPackageFetchState(
+  options: {
+    maxBytes?: number
+    maxResources?: number
+  } = {},
+): NotebookAiPackageFetchState {
+  const byteLimit = options.maxBytes ?? maxInspectionBytes
+  const resourceLimit = options.maxResources ?? maxInspectionResources
+  const resources = new Map<string, Promise<string>>()
+  const attemptedResources = new Set<string>()
+  let downloadedBytes = 0
+
+  return {
+    load(resource, loader) {
+      const cached = resources.get(resource)
+      if (cached) return cached
+      if (!attemptedResources.has(resource)) {
+        if (attemptedResources.size >= resourceLimit) {
+          return Promise.reject(new Error(resourceLimitMessage))
+        }
+        attemptedResources.add(resource)
+      }
+      if (downloadedBytes >= byteLimit) {
+        return Promise.reject(new Error(downloadLimitMessage))
+      }
+
+      const request = loader((byteLength) => {
+        downloadedBytes += byteLength
+        if (downloadedBytes > byteLimit) {
+          throw new Error(downloadLimitMessage)
+        }
+      }).catch((error: unknown) => {
+        if (isRetryablePackageFetchError(error)) resources.delete(resource)
+        throw error
+      })
+      resources.set(resource, request)
+      return request
+    },
+  }
+}
+
+function isRetryablePackageFetchError(error: unknown) {
+  return (
+    error instanceof TypeError ||
+    (error instanceof DOMException && error.name === 'AbortError')
+  )
 }
 
 type PackageResource = {
@@ -68,7 +130,7 @@ export function resolveNotebookAiModule(
 export async function inspectNotebookAiModule(
   execution: NotebookAiExecution,
   specifier: string,
-  options: NotebookAiPackageFetchOptions = {},
+  options: NotebookAiPackageFetchOptions,
 ) {
   const resolved = resolveNotebookAiModule(execution, specifier)
   const manifestSource = await fetchPackageText(
@@ -124,7 +186,7 @@ export async function searchNotebookAiPackageResources(
   execution: NotebookAiExecution,
   specifier: string,
   query: string,
-  options: NotebookAiPackageFetchOptions = {},
+  options: NotebookAiPackageFetchOptions,
 ) {
   const resolved = resolveNotebookAiModule(execution, specifier)
   const normalizedQuery = query.trim().toLowerCase()
@@ -167,8 +229,8 @@ export async function readNotebookAiPackageResource(
   execution: NotebookAiExecution,
   specifier: string,
   path: string,
-  offset = 0,
-  options: NotebookAiPackageFetchOptions = {},
+  offset: number,
+  options: NotebookAiPackageFetchOptions,
 ) {
   const resolved = resolveNotebookAiModule(execution, specifier)
   const resourcePath = normalizeResourcePath(path)
@@ -449,19 +511,6 @@ async function fetchPackageText(
   maxBytes: number,
   options: NotebookAiPackageFetchOptions,
 ) {
-  const fetcher = options.fetcher ?? fetch
-  const controller = new AbortController()
-  const timeout = setTimeout(
-    () => controller.abort(),
-    options.timeoutMs ?? 10_000,
-  )
-  const abortFromSource = () => controller.abort(options.signal?.reason)
-  if (options.signal) {
-    if (options.signal.aborted) controller.abort(options.signal.reason)
-    else
-      options.signal.addEventListener('abort', abortFromSource, { once: true })
-  }
-
   const suffix = path === '/?meta' ? '/?meta' : path
   const packagePath = `/${resolved.packageName}@${resolved.packageVersion}`
   const url = new URL(`https://unpkg.com${packagePath}${suffix}`)
@@ -471,29 +520,51 @@ async function fetchPackageText(
   ) {
     throw new Error('Invalid package resource URL.')
   }
-  try {
-    const response = await fetcher(url, {
-      headers: {
-        Accept:
-          'application/json, text/plain, text/markdown, text/typescript, text/javascript',
-      },
-      redirect: 'error',
-      signal: controller.signal,
-    })
-    if (!response.ok) {
-      await response.body?.cancel().catch(() => undefined)
-      throw new Error(
-        `Package resource request failed (${response.status}): ${path}`,
-      )
+
+  return options.fetchState.load(url.href, async (recordBytes) => {
+    const fetcher = options.fetcher ?? fetch
+    const controller = new AbortController()
+    const timeout = setTimeout(
+      () => controller.abort(),
+      options.timeoutMs ?? 10_000,
+    )
+    const abortFromSource = () => controller.abort(options.signal?.reason)
+    if (options.signal) {
+      if (options.signal.aborted) controller.abort(options.signal.reason)
+      else
+        options.signal.addEventListener('abort', abortFromSource, {
+          once: true,
+        })
     }
-    return readResponseText(response, maxBytes)
-  } finally {
-    clearTimeout(timeout)
-    options.signal?.removeEventListener('abort', abortFromSource)
-  }
+
+    try {
+      const response = await fetcher(url, {
+        headers: {
+          Accept:
+            'application/json, text/plain, text/markdown, text/typescript, text/javascript',
+        },
+        redirect: 'error',
+        signal: controller.signal,
+      })
+      if (!response.ok) {
+        await response.body?.cancel().catch(() => undefined)
+        throw new Error(
+          `Package resource request failed (${response.status}): ${path}`,
+        )
+      }
+      return readResponseText(response, maxBytes, recordBytes)
+    } finally {
+      clearTimeout(timeout)
+      options.signal?.removeEventListener('abort', abortFromSource)
+    }
+  })
 }
 
-async function readResponseText(response: Response, maxBytes: number) {
+async function readResponseText(
+  response: Response,
+  maxBytes: number,
+  recordBytes: (byteLength: number) => void,
+) {
   const contentLength = response.headers.get('content-length')
   if (contentLength) {
     const parsed = Number(contentLength)
@@ -504,6 +575,7 @@ async function readResponseText(response: Response, maxBytes: number) {
   }
   if (!response.body) {
     const bytes = new Uint8Array(await response.arrayBuffer())
+    recordBytes(bytes.byteLength)
     if (bytes.byteLength > maxBytes) {
       throw new Error(`Package resource exceeds ${maxBytes} bytes.`)
     }
@@ -518,12 +590,15 @@ async function readResponseText(response: Response, maxBytes: number) {
       const result = await reader.read()
       if (result.done) break
       total += result.value.byteLength
+      recordBytes(result.value.byteLength)
       if (total > maxBytes) {
-        await reader.cancel()
         throw new Error(`Package resource exceeds ${maxBytes} bytes.`)
       }
       chunks.push(result.value)
     }
+  } catch (error) {
+    await reader.cancel().catch(() => undefined)
+    throw error
   } finally {
     reader.releaseLock()
   }

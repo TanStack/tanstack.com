@@ -15,6 +15,7 @@ import type { SharedExampleProject } from '~/utils/example-project'
 import {
   blankNotebookProject,
   clearNotebookDraft,
+  createNotebookDraftId,
   createNotebookTemplateProject,
   getBrowserNotebookDraftStorage,
   loadNotebookDraft,
@@ -76,12 +77,13 @@ export function NotebookIndexPage() {
     }
 
     const updatedAt = new Date().toISOString()
-    const stored = saveNotebookDraft(draftStorage, project, updatedAt)
+    const nextDraft = { id: createNotebookDraftId(), project, updatedAt }
+    const stored = saveNotebookDraft(draftStorage, nextDraft, updatedAt)
     if (!stored && draft) {
       setError('Unable to replace the local draft in this browser.')
       return
     }
-    if (stored) setDraft({ project, updatedAt })
+    if (stored) setDraft(nextDraft)
     await navigate({
       to: '/notebook/new',
       search: { template },

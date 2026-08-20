@@ -64,7 +64,7 @@ export function SandboxBrowser({
   canGoBack: boolean
   canGoForward: boolean
   captureScreenshot?: () => Promise<Blob>
-  children: React.ReactNode
+  children?: React.ReactNode
   currentUrl: string
   error?: string
   history: Array<string>
@@ -80,7 +80,9 @@ export function SandboxBrowser({
 }) {
   const rootRef = React.useRef<HTMLDivElement>(null)
   const annotationInputRef = React.useRef<HTMLTextAreaElement>(null)
-  const [address, setAddress] = React.useState(currentUrl)
+  const [address, setAddress] = React.useState(() =>
+    getPreviewAddressPath(currentUrl),
+  )
   const [addressFocused, setAddressFocused] = React.useState(false)
   const [annotationNote, setAnnotationNote] = React.useState('')
   const [annotationCopyError, setAnnotationCopyError] = React.useState(false)
@@ -96,7 +98,7 @@ export function SandboxBrowser({
     typeof document !== 'undefined' && document.fullscreenEnabled
 
   React.useEffect(() => {
-    if (!addressFocused) setAddress(currentUrl)
+    if (!addressFocused) setAddress(getPreviewAddressPath(currentUrl))
   }, [addressFocused, currentUrl])
 
   React.useEffect(() => {
@@ -129,7 +131,7 @@ export function SandboxBrowser({
     event.preventDefault()
     const next = address.trim()
     if (!next) {
-      setAddress(currentUrl)
+      setAddress(getPreviewAddressPath(currentUrl))
       return
     }
     onNavigate(next)
@@ -226,7 +228,7 @@ export function SandboxBrowser({
         color="gray"
         size="icon-sm"
         rounded="md"
-        className="shrink-0 transition-none active:scale-100"
+        className="shrink-0 bg-transparent text-text-muted transition-none hover:bg-surface-state-hover hover:text-text-primary active:scale-100 disabled:hover:bg-transparent disabled:hover:text-text-muted max-[899px]:bg-transparent max-[899px]:text-text-muted max-[899px]:hover:bg-surface-state-hover max-[899px]:hover:text-text-primary"
         aria-label={label}
         disabled={disabled}
         onClick={action}
@@ -240,7 +242,7 @@ export function SandboxBrowser({
     <div
       ref={rootRef}
       data-sandbox-browser=""
-      className="relative grid size-full min-h-0 grid-rows-[2.5rem_minmax(0,1fr)] bg-background-default"
+      className="sandbox-ui relative grid size-full min-h-0 grid-rows-[2.5rem_minmax(0,1fr)] bg-background-default min-[900px]:grid-rows-[2.25rem_minmax(0,1fr)]"
     >
       <header className="flex min-w-0 items-center gap-1 border-b border-border-default bg-background-subtle px-1.5">
         {toolbarAction(
@@ -266,8 +268,14 @@ export function SandboxBrowser({
           className="mx-1 flex min-w-0 flex-1 items-center"
           onSubmit={submitAddress}
         >
-          <label className="flex h-7 min-w-0 flex-1 items-center rounded-lg border border-border-default bg-background-default px-2 text-text-muted shadow-sm focus-within:border-border-focus focus-within:ring-2 focus-within:ring-border-focus/30">
+          <label className="flex h-7 min-w-0 flex-1 items-center rounded-lg border border-transparent bg-transparent px-2 text-text-muted hover:border-border-default hover:bg-input-bg-hover focus-within:border-border-focus focus-within:bg-input-bg-hover focus-within:ring-2 focus-within:ring-border-focus/30 focus-within:hover:border-border-focus">
             <span className="sr-only">Preview address</span>
+            <span
+              aria-hidden="true"
+              className="shrink-0 select-none font-ds-mono text-[11px] text-text-muted"
+            >
+              localhost:3000
+            </span>
             <input
               type="text"
               value={address}
@@ -281,7 +289,7 @@ export function SandboxBrowser({
               onFocus={() => setAddressFocused(true)}
               onKeyDown={(event) => {
                 if (event.key !== 'Escape') return
-                setAddress(currentUrl)
+                setAddress(getPreviewAddressPath(currentUrl))
                 event.currentTarget.blur()
               }}
               className="min-w-0 flex-1 truncate bg-transparent font-ds-mono text-[11px] text-text-secondary outline-none read-only:cursor-default"
@@ -290,29 +298,33 @@ export function SandboxBrowser({
           {history.length > 1 ? (
             <datalist id={historyId}>
               {history.map((url) => (
-                <option key={url} value={url} />
+                <option key={url} value={getPreviewAddressPath(url)} />
               ))}
             </datalist>
           ) : null}
         </form>
 
         {annotationAvailable ? (
-          <Button
-            type="button"
-            variant={annotationMode ? 'primary' : 'ghost'}
-            color={annotationMode ? 'blue' : 'gray'}
-            size="xs"
-            rounded="lg"
-            className="hidden shrink-0 transition-none hover:translate-y-0 active:scale-100 sm:inline-flex"
-            aria-label={
-              annotationMode ? 'Stop commenting' : 'Comment on preview'
-            }
-            aria-pressed={annotationMode}
-            onClick={() => setCommenting(!annotationMode)}
+          <Tooltip
+            content={annotationMode ? 'Stop commenting' : 'Comment on preview'}
+            side="bottom"
           >
-            <CursorClickIcon className="size-3.5" aria-hidden="true" />
-            Commenting
-          </Button>
+            <Button
+              type="button"
+              variant={annotationMode ? 'primary' : 'icon'}
+              color={annotationMode ? 'blue' : 'gray'}
+              size="icon-sm"
+              rounded="md"
+              className={`${annotationMode ? '' : 'bg-transparent text-text-muted hover:bg-surface-state-hover hover:text-text-primary max-[899px]:bg-transparent max-[899px]:text-text-muted max-[899px]:hover:bg-surface-state-hover max-[899px]:hover:text-text-primary'} hidden shrink-0 transition-none hover:translate-y-0 active:scale-100 sm:inline-flex`}
+              aria-label={
+                annotationMode ? 'Stop commenting' : 'Comment on preview'
+              }
+              aria-pressed={annotationMode}
+              onClick={() => setCommenting(!annotationMode)}
+            >
+              <CursorClickIcon className="size-3.5" aria-hidden="true" />
+            </Button>
+          </Tooltip>
         ) : null}
 
         <Dropdown>
@@ -324,10 +336,10 @@ export function SandboxBrowser({
                 color="gray"
                 size="icon-sm"
                 rounded="md"
-                className="shrink-0 transition-none active:scale-100"
+                className="shrink-0 bg-transparent text-text-muted transition-none hover:bg-surface-state-hover hover:text-text-primary active:scale-100 max-[899px]:bg-transparent max-[899px]:text-text-muted max-[899px]:hover:bg-surface-state-hover max-[899px]:hover:text-text-primary"
                 aria-label="Preview actions"
               >
-                <DotsThreeIcon className="size-4" aria-hidden="true" />
+                <DotsThreeIcon className="size-3.5" aria-hidden="true" />
               </Button>
             }
           />
@@ -336,6 +348,7 @@ export function SandboxBrowser({
             container={isFullscreen ? rootRef.current : undefined}
             side="bottom"
             sideOffset={5}
+            className="sandbox-ui border-black/10 dark:border-white/10"
           >
             <DropdownItem onSelect={() => void copyUrl()}>
               {copiedUrl ? (
@@ -387,14 +400,21 @@ export function SandboxBrowser({
 
       {error ? (
         <div
-          className="absolute top-12 right-3 left-3 z-20 flex max-h-48 items-start gap-2 overflow-hidden rounded-lg border border-border-default border-l-2 border-l-border-error bg-background-elevated px-3 py-2 shadow-lg sm:left-auto sm:w-[26rem]"
-          role="alert"
+          className="absolute top-12 right-3 left-3 z-20 flex max-h-48 items-start gap-2 overflow-hidden rounded-md border border-border-default bg-background-surface px-2.5 py-2 shadow-sm sm:left-auto sm:w-[26rem] min-[900px]:top-11"
+          role="group"
+          aria-label="Preview error"
         >
+          <span className="sr-only" role="alert">
+            Preview failed. Error details are shown.
+          </span>
           <WarningCircleIcon
             className="mt-0.5 size-4 shrink-0 text-icon-error"
             aria-hidden="true"
           />
-          <pre className="min-h-0 min-w-0 overflow-auto font-ds-mono text-xs/5 whitespace-pre-wrap text-text-secondary">
+          <pre
+            className="min-h-0 min-w-0 overflow-auto font-ds-mono text-xs/5 whitespace-pre-wrap text-text-secondary"
+            aria-label="Preview error details"
+          >
             {error}
           </pre>
         </div>
@@ -466,7 +486,7 @@ export function SandboxBrowser({
             </Button>
           </div>
           {annotationCopyError ? (
-            <p className="mt-2 text-xs text-text-error" role="alert">
+            <p className="mt-2 text-xs text-text-secondary" role="alert">
               Unable to copy comment.
             </p>
           ) : null}
@@ -524,16 +544,20 @@ export function SandboxBrowser({
             </Tooltip>
           </div>
           {screenshotStatus === 'error' ? (
-            <p className="mt-2 text-xs text-text-error" role="alert">
+            <p className="mt-2 text-xs text-text-secondary" role="alert">
               Unable to copy screenshot. Download is still available.
             </p>
           ) : null}
         </div>
       ) : screenshotStatus === 'error' ? (
         <div
-          className="absolute right-3 bottom-3 z-20 flex items-center gap-2 rounded-lg border border-border-default bg-background-elevated py-1.5 pr-1.5 pl-3 text-xs text-text-error shadow-lg"
+          className="absolute right-3 bottom-3 z-20 flex items-center gap-2 rounded-md border border-border-default bg-background-surface py-1.5 pr-1.5 pl-2.5 text-xs text-text-secondary shadow-sm"
           role="alert"
         >
+          <WarningCircleIcon
+            className="size-3.5 shrink-0 text-icon-error"
+            aria-hidden="true"
+          />
           Screenshot unavailable for this preview.
           <Button
             type="button"
@@ -550,6 +574,16 @@ export function SandboxBrowser({
       ) : null}
     </div>
   )
+}
+
+function getPreviewAddressPath(url: string) {
+  if (url.startsWith('/') || url.startsWith('#')) return url
+  try {
+    const parsed = new URL(url)
+    return `${parsed.pathname}${parsed.search}${parsed.hash}`
+  } catch {
+    return url
+  }
 }
 
 type CapturedScreenshot = {

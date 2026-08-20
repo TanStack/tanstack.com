@@ -3,6 +3,7 @@ import test from 'node:test'
 import { createExampleWorkspace } from '../src/utils/example-workspace'
 import type { NotebookAiExecution } from '../src/utils/notebook-ai'
 import {
+  createNotebookAiPackageFetchState,
   inspectNotebookAiModule,
   readNotebookAiPackageResource,
   resolveNotebookAiModule,
@@ -68,7 +69,7 @@ test('resolves exact built-in and installed package versions', () => {
 })
 
 test('inspects exact module exports and declarations', async () => {
-  const fetcher = createFetcher({
+  const baseFetcher = createFetcher({
     'https://unpkg.com/@tanstack/charts@0.13.0/package.json': JSON.stringify({
       exports: {
         './scales/band': {
@@ -82,11 +83,17 @@ test('inspects exact module exports and declarations', async () => {
     'https://unpkg.com/@tanstack/charts@0.13.0/dist/scales/band.js':
       'function scaleBand() {}\nexport { scaleBand };',
   })
+  let fetchCount = 0
+  const fetcher: typeof fetch = (input, init) => {
+    fetchCount += 1
+    return baseFetcher(input, init)
+  }
+  const fetchState = createNotebookAiPackageFetchState()
 
   const result = await inspectNotebookAiModule(
     clientExecution,
     '@tanstack/charts/scales/band',
-    { fetcher },
+    { fetchState, fetcher },
   )
 
   assert.deepEqual(result.detectedRuntimeExports, ['scaleBand'])
@@ -98,6 +105,16 @@ test('inspects exact module exports and declarations', async () => {
   assert.equal(result.sourcePath, '/dist/scales/band.js')
   assert.match(result.declarations ?? '', /scaleBand/)
   assert.doesNotMatch(result.declarations ?? '', /function band/)
+
+  const declarations = await readNotebookAiPackageResource(
+    clientExecution,
+    '@tanstack/charts',
+    '/dist/scales/band.d.ts',
+    0,
+    { fetchState, fetcher },
+  )
+  assert.match(declarations.content, /BandScale/)
+  assert.equal(fetchCount, 3)
 })
 
 test('matches the exports shipped by the pinned Charts package', async () => {
@@ -127,15 +144,21 @@ test('searches bounded docs, declarations, and trusted TanStack skills', async (
       { path: '/LICENSE', size: 20, type: 'text/plain' },
     ],
   })
-  const fetcher = createFetcher({
+  const baseFetcher = createFetcher({
     'https://unpkg.com/@tanstack/charts@0.13.0/?meta': metadata,
   })
+  let fetchCount = 0
+  const fetcher: typeof fetch = (input, init) => {
+    fetchCount += 1
+    return baseFetcher(input, init)
+  }
+  const fetchState = createNotebookAiPackageFetchState()
 
   const result = await searchNotebookAiPackageResources(
     clientExecution,
     '@tanstack/charts',
     'band',
-    { fetcher },
+    { fetchState, fetcher },
   )
   assert.deepEqual(
     result.resources.map(({ path }) => path),
@@ -146,13 +169,14 @@ test('searches bounded docs, declarations, and trusted TanStack skills', async (
     clientExecution,
     '@tanstack/charts',
     '',
-    { fetcher },
+    { fetchState, fetcher },
   )
   assert.equal(all.resources[0]?.path, '/skills/debug-charts/SKILL.md')
   assert.equal(
     all.resources.some(({ path }) => path === '/LICENSE'),
     false,
   )
+  assert.equal(fetchCount, 1)
 })
 
 test('reads package resources in chunks and trusts only TanStack skills', async () => {
@@ -165,7 +189,7 @@ test('reads package resources in chunks and trusts only TanStack skills', async 
     '@tanstack/charts',
     '/skills/design/SKILL.md',
     4,
-    { fetcher },
+    { fetchState: createNotebookAiPackageFetchState(), fetcher },
   )
   assert.equal(result.content, skill.slice(4))
   assert.equal(result.offset, 4)
@@ -184,7 +208,7 @@ test('reads package resources in chunks and trusts only TanStack skills', async 
       'react',
       '/skills/untrusted/SKILL.md',
       0,
-      { fetcher },
+      { fetchState: createNotebookAiPackageFetchState(), fetcher },
     ),
     /not readable/,
   )
@@ -194,7 +218,7 @@ test('reads package resources in chunks and trusts only TanStack skills', async 
       '@tanstack/charts',
       '/docs/../package.json',
       0,
-      { fetcher },
+      { fetchState: createNotebookAiPackageFetchState(), fetcher },
     ),
     /Invalid package resource path/,
   )
@@ -204,9 +228,157 @@ test('reads package resources in chunks and trusts only TanStack skills', async 
       '@tanstack/charts',
       '/skills/%2e%2e/%2e%2e/@evil/package/skills/SKILL.md',
       0,
-      { fetcher },
+      { fetchState: createNotebookAiPackageFetchState(), fetcher },
     ),
     /Invalid package resource path/,
+  )
+})
+
+test('reuses one package download across chunked reads', async () => {
+  const source = `${'a'.repeat(50_000)}tail`
+  const baseFetcher = createFetcher({
+    'https://unpkg.com/@tanstack/charts@0.13.0/docs/large.md': source,
+  })
+  let fetchCount = 0
+  const fetcher: typeof fetch = (input, init) => {
+    fetchCount += 1
+    return baseFetcher(input, init)
+  }
+  const fetchState = createNotebookAiPackageFetchState()
+
+  const first = await readNotebookAiPackageResource(
+    clientExecution,
+    '@tanstack/charts',
+    '/docs/large.md',
+    0,
+    { fetchState, fetcher },
+  )
+  const second = await readNotebookAiPackageResource(
+    clientExecution,
+    '@tanstack/charts',
+    'docs/large.md',
+    first.nextOffset ?? 0,
+    { fetchState, fetcher },
+  )
+
+  assert.equal(first.nextOffset, 50_000)
+  assert.equal(second.content, 'tail')
+  assert.equal(fetchCount, 1)
+})
+
+test('coalesces concurrent reads of one package resource', async () => {
+  const baseFetcher = createFetcher({
+    'https://unpkg.com/@tanstack/charts@0.13.0/docs/shared.md': 'shared',
+  })
+  let fetchCount = 0
+  const fetcher: typeof fetch = async (input, init) => {
+    fetchCount += 1
+    await Promise.resolve()
+    return baseFetcher(input, init)
+  }
+  const fetchState = createNotebookAiPackageFetchState()
+
+  const [first, second] = await Promise.all([
+    readNotebookAiPackageResource(
+      clientExecution,
+      '@tanstack/charts',
+      '/docs/shared.md',
+      0,
+      { fetchState, fetcher },
+    ),
+    readNotebookAiPackageResource(
+      clientExecution,
+      '@tanstack/charts',
+      'docs/shared.md',
+      1,
+      { fetchState, fetcher },
+    ),
+  ])
+
+  assert.equal(first.content, 'shared')
+  assert.equal(second.content, 'hared')
+  assert.equal(fetchCount, 1)
+})
+
+test('budgets unique package downloads by UTF-8 bytes', async () => {
+  const fetcher = createFetcher({
+    'https://unpkg.com/@tanstack/charts@0.13.0/docs/exact.md': 'é',
+    'https://unpkg.com/@tanstack/charts@0.13.0/docs/extra.md': 'x',
+  })
+  const fetchState = createNotebookAiPackageFetchState({ maxBytes: 2 })
+
+  const exact = await readNotebookAiPackageResource(
+    clientExecution,
+    '@tanstack/charts',
+    '/docs/exact.md',
+    0,
+    { fetchState, fetcher },
+  )
+  assert.equal(exact.content, 'é')
+
+  await assert.rejects(
+    readNotebookAiPackageResource(
+      clientExecution,
+      '@tanstack/charts',
+      '/docs/extra.md',
+      0,
+      { fetchState, fetcher },
+    ),
+    /package download budget reached/,
+  )
+
+  const cached = await readNotebookAiPackageResource(
+    clientExecution,
+    '@tanstack/charts',
+    '/docs/exact.md',
+    0,
+    { fetchState, fetcher },
+  )
+  assert.equal(cached.content, 'é')
+})
+
+test('retries transient package fetches without bypassing the resource budget', async () => {
+  const baseFetcher = createFetcher({
+    'https://unpkg.com/@tanstack/charts@0.13.0/docs/retry.md': 'ready',
+    'https://unpkg.com/@tanstack/charts@0.13.0/docs/other.md': 'other',
+  })
+  let fetchCount = 0
+  const fetcher: typeof fetch = async (input, init) => {
+    fetchCount += 1
+    if (fetchCount === 1) throw new TypeError('Temporary network failure')
+    return baseFetcher(input, init)
+  }
+  const fetchState = createNotebookAiPackageFetchState({ maxResources: 1 })
+
+  await assert.rejects(
+    readNotebookAiPackageResource(
+      clientExecution,
+      '@tanstack/charts',
+      '/docs/retry.md',
+      0,
+      { fetchState, fetcher },
+    ),
+    /Temporary network failure/,
+  )
+  const retried = await readNotebookAiPackageResource(
+    clientExecution,
+    '@tanstack/charts',
+    '/docs/retry.md',
+    0,
+    { fetchState, fetcher },
+  )
+  assert.equal(retried.content, 'ready')
+  assert.equal(fetchCount, 2)
+
+  await assert.rejects(
+    readNotebookAiPackageResource(
+      clientExecution,
+      '@tanstack/charts',
+      '/docs/other.md',
+      0,
+      { fetchState, fetcher },
+    ),
+    /package resource budget reached/,
   )
 })
 
@@ -218,6 +390,7 @@ test('rejects oversized package responses before reading them', async () => {
 
   await assert.rejects(
     searchNotebookAiPackageResources(clientExecution, '@tanstack/charts', '', {
+      fetchState: createNotebookAiPackageFetchState(),
       fetcher,
     }),
     /exceeds/,

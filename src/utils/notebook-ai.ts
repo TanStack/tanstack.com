@@ -16,6 +16,70 @@ export const notebookAiRemoteProviders = ['openai', 'anthropic'] as const
 export type NotebookAiRemoteProvider =
   (typeof notebookAiRemoteProviders)[number]
 
+export type NotebookAiRemoteModel = {
+  provider: NotebookAiRemoteProvider
+  model: string
+  label: string
+  description: string
+}
+
+export const notebookAiOpenAiDefaultModel = {
+  provider: 'openai',
+  model: 'gpt-5.6-luna',
+  label: 'GPT-5.6 Luna',
+  description: 'Efficient',
+} satisfies NotebookAiRemoteModel
+
+export const notebookAiAnthropicDefaultModel = {
+  provider: 'anthropic',
+  model: 'claude-sonnet-4-6',
+  label: 'Claude Sonnet 4.6',
+  description: 'Balanced',
+} satisfies NotebookAiRemoteModel
+
+export const notebookAiRemoteModels: ReadonlyArray<NotebookAiRemoteModel> = [
+  {
+    provider: 'openai',
+    model: 'gpt-5.6-sol',
+    label: 'GPT-5.6 Sol',
+    description: 'Frontier',
+  },
+  {
+    provider: 'openai',
+    model: 'gpt-5.6-terra',
+    label: 'GPT-5.6 Terra',
+    description: 'Balanced',
+  },
+  notebookAiOpenAiDefaultModel,
+  {
+    provider: 'openai',
+    model: 'gpt-5.4-mini',
+    label: 'GPT-5.4 mini',
+    description: 'Budget',
+  },
+  notebookAiAnthropicDefaultModel,
+  {
+    provider: 'anthropic',
+    model: 'claude-haiku-4-5',
+    label: 'Claude Haiku 4.5',
+    description: 'Fast',
+  },
+]
+
+export const notebookAiDefaultRemoteModels = {
+  openai: notebookAiOpenAiDefaultModel,
+  anthropic: notebookAiAnthropicDefaultModel,
+} satisfies Record<NotebookAiRemoteProvider, NotebookAiRemoteModel>
+
+export function findNotebookAiRemoteModel(
+  provider: NotebookAiRemoteProvider,
+  model: string,
+) {
+  return notebookAiRemoteModels.find(
+    (candidate) => candidate.provider === provider && candidate.model === model,
+  )
+}
+
 export type NotebookAiMessage = {
   role: 'assistant' | 'user'
   content: string

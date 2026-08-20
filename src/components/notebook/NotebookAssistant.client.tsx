@@ -88,6 +88,7 @@ import {
 } from '~/utils/notebook-ai-progress'
 import {
   NotebookAiPromptQueue,
+  type NotebookAiPromptLifecycle,
   type NotebookAiQueuedPrompt,
   type NotebookAiSendMode,
 } from '~/utils/notebook-ai-prompt-queue'
@@ -214,20 +215,11 @@ function getInitialModelChoice(state: ApiKeyState): ModelChoice {
       : openAiDefault
 }
 
-export function NotebookAssistant({
-  credentialScope,
-  enabled,
-  getExecution,
-  hiddenFiles,
-  onApply,
-  onCommit,
-  onDismiss,
-  onFinish,
-  onPrepare,
-  onRestore,
-  onRunningChange,
-  storageScope,
-}: {
+export type NotebookAssistantHandle = {
+  submitPrompt(content: string, lifecycle?: NotebookAiPromptLifecycle): boolean
+}
+
+type NotebookAssistantProps = {
   credentialScope?: string
   enabled: boolean
   getExecution: () => NotebookAiExecution
@@ -246,7 +238,28 @@ export function NotebookAssistant({
   ) => void | Promise<void>
   onRunningChange?: (running: boolean) => void
   storageScope?: string
-}) {
+}
+
+export const NotebookAssistant = React.forwardRef<
+  NotebookAssistantHandle,
+  NotebookAssistantProps
+>(function NotebookAssistant(
+  {
+    credentialScope,
+    enabled,
+    getExecution,
+    hiddenFiles,
+    onApply,
+    onCommit,
+    onDismiss,
+    onFinish,
+    onPrepare,
+    onRestore,
+    onRunningChange,
+    storageScope,
+  },
+  ref,
+) {
   const [initialApiKeyState] = React.useState(() =>
     loadInitialApiKeyState(credentialScope),
   )
@@ -310,6 +323,9 @@ export function NotebookAssistant({
     undefined,
   )
   const promptQueueRef = React.useRef(new NotebookAiPromptQueue())
+  const unrecordedPromptRef = React.useRef<NotebookAiQueuedPrompt | undefined>(
+    undefined,
+  )
   const transcriptRef = React.useRef<HTMLDivElement>(null)
   const promptRef = React.useRef<HTMLTextAreaElement>(null)
   const didInitialScrollRef = React.useRef(false)
@@ -339,6 +355,7 @@ export function NotebookAssistant({
     credentialScopeRef.current = credentialScope
     abortIntentRef.current = 'stop'
     abortRef.current?.abort()
+    discardUnrecordedPrompt()
     promptQueueRef.current.clear()
     setQueuedPrompts([])
 
@@ -629,6 +646,8 @@ export function NotebookAssistant({
   React.useEffect(
     () => () => {
       abortRef.current?.abort()
+      discardUnrecordedPrompt()
+      promptQueueRef.current.clear()
       onRunningChangeRef.current?.(false)
     },
     [],
@@ -890,7 +909,12 @@ export function NotebookAssistant({
     setQueuedPrompts(promptQueueRef.current.items)
   }
 
-  function queuePrompt(instruction: string, mode: NotebookAiSendMode) {
+  function queuePrompt(
+    instruction: string,
+    mode: NotebookAiSendMode,
+    clearComposer: boolean,
+    lifecycle?: NotebookAiPromptLifecycle,
+  ) {
     const promptQueue = promptQueueRef.current
     const effectiveMode =
       mode === 'steer' &&
@@ -898,10 +922,12 @@ export function NotebookAssistant({
       abortIntentRef.current !== 'steer'
         ? 'steer'
         : 'queue'
-    promptQueue.enqueue(instruction, effectiveMode)
+    promptQueue.enqueue(instruction, effectiveMode, lifecycle)
     syncQueuedPrompts()
-    setPrompt('')
-    setSendMode('queue')
+    if (clearComposer) {
+      setPrompt('')
+      setSendMode('queue')
+    }
     setError('')
 
     if (effectiveMode === 'steer') {
@@ -941,40 +967,67 @@ export function NotebookAssistant({
         : `Response stopped. Cleared ${cleared} queued ${cleared === 1 ? 'message' : 'messages'}.`,
     )
     abortRef.current?.abort()
+    discardUnrecordedPrompt()
   }
 
   function submit(event: React.FormEvent) {
     event.preventDefault()
-    const instruction = prompt.trim()
-    if (!enabled || !instruction || hydrating) return
-    if (needsConnection) return
+    submitInstruction(prompt, sendMode, true)
+  }
+
+  function submitInstruction(
+    content: string,
+    mode: NotebookAiSendMode,
+    clearComposer: boolean,
+    lifecycle?: NotebookAiPromptLifecycle,
+  ) {
+    const instruction = content.trim()
+    if (
+      !enabled ||
+      !instruction ||
+      instruction.length > 10_000 ||
+      hydrating ||
+      needsConnection
+    ) {
+      return false
+    }
 
     const promptQueue = promptQueueRef.current
     if (!promptQueue.claim()) {
-      queuePrompt(instruction, sendMode)
-      return
+      queuePrompt(instruction, mode, clearComposer, lifecycle)
+      return true
     }
 
     const initialPrompt = {
       id: crypto.randomUUID(),
       content: instruction,
       createdAt: Date.now(),
+      lifecycle,
       mode: 'queue',
     } satisfies NotebookAiQueuedPrompt
-    setPrompt('')
+    if (clearComposer) {
+      setPrompt('')
+      setSendMode('queue')
+    }
     setError('')
     setRunning(true)
     onRunningChangeRef.current?.(true)
-    setSendMode('queue')
     void runPromptSequence(initialPrompt)
+    return true
   }
+
+  React.useImperativeHandle(ref, () => ({
+    submitPrompt(content, lifecycle) {
+      return submitInstruction(content, 'queue', false, lifecycle)
+    },
+  }))
 
   async function runPromptSequence(initialPrompt: NotebookAiQueuedPrompt) {
     let nextPrompt: NotebookAiQueuedPrompt | undefined = initialPrompt
 
     try {
       while (nextPrompt) {
-        const outcome = await runPrompt(nextPrompt.content)
+        const outcome = await runPrompt(nextPrompt)
         const shouldContinue =
           outcome === 'success' ||
           (outcome === 'aborted' && abortIntentRef.current === 'steer')
@@ -1005,20 +1058,39 @@ export function NotebookAssistant({
   }
 
   async function runPrompt(
-    instruction: string,
+    prompt: NotebookAiQueuedPrompt,
   ): Promise<'success' | 'error' | 'aborted'> {
+    const abortController = new AbortController()
+    abortRef.current = abortController
+    unrecordedPromptRef.current = prompt
     let initialExecution: NotebookAiExecution
     try {
       await dismissRollbackCheckpoint()
+      if (abortController.signal.aborted) {
+        discardUnrecordedPrompt(prompt)
+        if (abortRef.current === abortController) abortRef.current = null
+        return 'aborted'
+      }
       initialExecution = onPrepare ? await onPrepare() : getExecution()
+      if (abortController.signal.aborted) {
+        discardUnrecordedPrompt(prompt)
+        if (abortRef.current === abortController) abortRef.current = null
+        onFinish?.()
+        return 'aborted'
+      }
     } catch (cause) {
+      discardUnrecordedPrompt(prompt)
+      if (abortRef.current === abortController) abortRef.current = null
+      if (abortController.signal.aborted) return 'aborted'
       setError(`Could not prepare the notebook: ${formatError(cause)}`)
       return 'error'
     }
+    const instruction = prompt.content
     const checkpointExecution = cloneNotebookAiExecution(initialExecution)
     const userMessage = createTranscriptMessage('user', instruction)
     const nextMessages = [...messagesRef.current, userMessage]
     messagesRef.current = nextMessages
+    recordPrompt(prompt)
     const requestMessages: Array<NotebookAiMessage> = nextMessages
       .slice(-20)
       .map(({ role, content }) => ({ role, content }))
@@ -1030,8 +1102,6 @@ export function NotebookAssistant({
     let preserveStoppedExecution = false
     const activityId = crypto.randomUUID()
     let currentActivity: NotebookAiActivity | undefined
-    const abortController = new AbortController()
-    abortRef.current = abortController
     setMessages(nextMessages)
     setError('')
     setStreamingMessage('')
@@ -1445,6 +1515,21 @@ export function NotebookAssistant({
     }
   }
 
+  function discardUnrecordedPrompt(prompt?: NotebookAiQueuedPrompt) {
+    const unrecordedPrompt = unrecordedPromptRef.current
+    if (!unrecordedPrompt || (prompt && unrecordedPrompt.id !== prompt.id)) {
+      return
+    }
+    unrecordedPromptRef.current = undefined
+    unrecordedPrompt.lifecycle?.onDiscarded?.()
+  }
+
+  function recordPrompt(prompt: NotebookAiQueuedPrompt) {
+    if (unrecordedPromptRef.current?.id === prompt.id) {
+      unrecordedPromptRef.current = undefined
+    }
+  }
+
   const submitDisabled = hydrating || !prompt.trim() || needsConnection
   const stopLabel =
     queuedPrompts.length === 0
@@ -1455,6 +1540,48 @@ export function NotebookAssistant({
       ? 'Steer current response'
       : 'Queue message'
     : 'Send message'
+  const copyDebugTranscript = React.useCallback(
+    () =>
+      copyTextToClipboard(
+        JSON.stringify(
+          {
+            version: 1,
+            copiedAt: new Date().toISOString(),
+            url: window.location.href,
+            threadId,
+            model:
+              selectedModel.connection === 'byok'
+                ? {
+                    connection: selectedModel.connection,
+                    provider: selectedModel.provider,
+                    model: selectedModel.model,
+                  }
+                : {
+                    connection: selectedModel.connection,
+                    model: selectedModel.model,
+                  },
+            messages,
+            current: {
+              activity: liveActivity ?? null,
+              response: streamingMessage || null,
+              queuedPrompts,
+              error: error || null,
+            },
+          },
+          null,
+          2,
+        ),
+      ),
+    [
+      error,
+      liveActivity,
+      messages,
+      queuedPrompts,
+      selectedModel,
+      streamingMessage,
+      threadId,
+    ],
+  )
   const floatingChatButtonClass =
     'pointer-events-auto size-7 border border-border-default bg-background-elevated p-0 text-text-muted shadow-sm hover:bg-background-elevated hover:text-text-primary max-[899px]:bg-background-elevated max-[899px]:text-text-muted disabled:opacity-100 disabled:text-text-disabled'
 
@@ -1681,6 +1808,7 @@ export function NotebookAssistant({
                       <TranscriptRowView
                         row={row}
                         onCancelQueued={cancelQueuedPrompt}
+                        onCopyDebugTranscript={copyDebugTranscript}
                         onDismissCheckpoint={() =>
                           void dismissRollbackCheckpoint()
                         }
@@ -1826,7 +1954,7 @@ export function NotebookAssistant({
       />
     </section>
   )
-}
+})
 
 function SetupState({
   align = 'center',
@@ -1965,25 +2093,65 @@ function DeviceLogin({
   )
 }
 
-function ErrorMessage({ message }: { message: string }) {
+function ErrorMessage({
+  message,
+  onCopyDebugTranscript,
+}: {
+  message: string
+  onCopyDebugTranscript?: () => Promise<void>
+}) {
+  const [copied, setCopied] = React.useState(false)
+
   return (
-    <p
-      className="mt-4 rounded-md border border-border-default bg-background-surface px-2.5 py-2 text-xs/5 whitespace-pre-wrap text-text-secondary"
-      role="alert"
-    >
-      {message}
-    </p>
+    <div className="group/error relative mt-4 rounded-md border border-border-default bg-background-surface px-2.5 py-2">
+      <p
+        className="pr-7 text-xs/5 whitespace-pre-wrap text-text-secondary"
+        role="alert"
+      >
+        {message}
+      </p>
+      {onCopyDebugTranscript ? (
+        <Tooltip
+          content={copied ? 'Debug transcript copied' : 'Copy debug transcript'}
+        >
+          <Button
+            type="button"
+            variant="icon"
+            color="gray"
+            size="icon-sm"
+            className="absolute top-1 right-1 size-6 bg-transparent p-0 opacity-0 hover:bg-surface-state-hover focus-visible:opacity-100 group-hover/error:opacity-100"
+            aria-label={
+              copied ? 'Debug transcript copied' : 'Copy debug transcript'
+            }
+            onClick={() => {
+              void onCopyDebugTranscript().then(() => setCopied(true))
+            }}
+          >
+            {copied ? (
+              <CheckIcon className="size-3.5" aria-hidden="true" />
+            ) : (
+              <CopyIcon className="size-3.5" aria-hidden="true" />
+            )}
+          </Button>
+        </Tooltip>
+      ) : null}
+      <span className="sr-only" role="status" aria-live="polite">
+        {copied ? 'Debug transcript copied.' : ''}
+      </span>
+    </div>
   )
 }
 
 function TranscriptRowView({
   row,
   onCancelQueued,
+  onCopyDebugTranscript,
   onDismissCheckpoint,
   onRestoreCheckpoint,
 }: {
   row: TranscriptRow
   onCancelQueued: (id: string) => void
+  onCopyDebugTranscript: () => Promise<void>
   onDismissCheckpoint: () => void
   onRestoreCheckpoint: () => void
 }) {
@@ -2017,7 +2185,10 @@ function TranscriptRowView({
             onRestore={onRestoreCheckpoint}
           />
         ) : (
-          <ErrorMessage message={row.message} />
+          <ErrorMessage
+            message={row.message}
+            onCopyDebugTranscript={onCopyDebugTranscript}
+          />
         )}
       </div>
     </div>

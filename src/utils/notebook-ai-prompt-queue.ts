@@ -1,9 +1,14 @@
 export type NotebookAiSendMode = 'queue' | 'steer'
 
+export interface NotebookAiPromptLifecycle {
+  readonly onDiscarded?: () => void
+}
+
 export interface NotebookAiQueuedPrompt {
   readonly id: string
   readonly content: string
   readonly createdAt: number
+  readonly lifecycle?: NotebookAiPromptLifecycle
   readonly mode: NotebookAiSendMode
 }
 
@@ -30,11 +35,16 @@ export class NotebookAiPromptQueue {
     this.claimed = false
   }
 
-  enqueue(content: string, mode: NotebookAiSendMode) {
+  enqueue(
+    content: string,
+    mode: NotebookAiSendMode,
+    lifecycle?: NotebookAiPromptLifecycle,
+  ) {
     const item: NotebookAiQueuedPrompt = {
       id: crypto.randomUUID(),
       content,
       createdAt: Date.now(),
+      lifecycle,
       mode,
     }
 
@@ -54,20 +64,21 @@ export class NotebookAiPromptQueue {
   cancel(id: string) {
     const steeringIndex = this.steering.findIndex((item) => item.id === id)
     if (steeringIndex !== -1) {
-      this.steering.splice(steeringIndex, 1)
+      this.steering.splice(steeringIndex, 1)[0]?.lifecycle?.onDiscarded?.()
       return true
     }
 
     const queuedIndex = this.queued.findIndex((item) => item.id === id)
     if (queuedIndex === -1) return false
-    this.queued.splice(queuedIndex, 1)
+    this.queued.splice(queuedIndex, 1)[0]?.lifecycle?.onDiscarded?.()
     return true
   }
 
   clear() {
-    const count = this.steering.length + this.queued.length
+    const discarded = this.items
     this.steering.length = 0
     this.queued.length = 0
-    return count
+    for (const prompt of discarded) prompt.lifecycle?.onDiscarded?.()
+    return discarded.length
   }
 }

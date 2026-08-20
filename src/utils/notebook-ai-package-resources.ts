@@ -543,7 +543,7 @@ async function fetchPackageText(
           Accept:
             'application/json, text/plain, text/markdown, text/typescript, text/javascript',
         },
-        redirect: 'error',
+        redirect: 'manual',
         signal: controller.signal,
       })
       if (!response.ok) {

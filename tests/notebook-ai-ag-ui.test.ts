@@ -442,3 +442,33 @@ test('notebook BYOK redacts keys from streamed and thrown errors', async () => {
     }
   }, /Request failed with \[redacted\]/)
 })
+
+test('notebook BYOK turns an incomplete provider stream into a terminal error', async () => {
+  async function* incompleteStream(): AsyncGenerator<StreamChunk> {
+    yield {
+      type: EventType.RUN_STARTED,
+      threadId: 'thread-1',
+      runId: 'run-1',
+    }
+  }
+
+  const chunks: Array<StreamChunk> = []
+  for await (const chunk of streamNotebookAiResponse(
+    incompleteStream(),
+    forwardedProps.apiKey,
+    () => ({
+      message: '',
+      execution,
+      changedFiles: [],
+      runtimeChanged: false,
+      trace: { evidenceFingerprints: [], mutationFingerprints: [] },
+    }),
+  )) {
+    chunks.push(chunk)
+  }
+
+  assert.deepEqual(chunks.at(-1), {
+    type: EventType.RUN_ERROR,
+    message: 'Notebook AI provider stream ended before the run finished',
+  })
+})

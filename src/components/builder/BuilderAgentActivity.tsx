@@ -23,22 +23,15 @@ export function BuilderAgentActivity({
   activity,
   className,
   defaultOpen,
-  open: controlledOpen,
-  onOpenChange,
 }: {
   activity: BuilderAiActivity
   className?: string
   defaultOpen?: boolean
-  open?: boolean
-  onOpenChange?: (open: boolean) => void
 }) {
   const triggerId = React.useId()
   const contentId = React.useId()
   const previousActivityIdRef = React.useRef(activity.id)
-  const [uncontrolledOpen, setUncontrolledOpen] = React.useState(
-    defaultOpen ?? false,
-  )
-  const open = controlledOpen ?? uncontrolledOpen
+  const [open, setOpen] = React.useState(defaultOpen ?? false)
   const summary = getBuilderAiActivitySummary(activity)
   const actionCount = activity.items.length
   const actionCountLabel = formatCount(actionCount, 'action')
@@ -50,11 +43,9 @@ export function BuilderAgentActivity({
   React.useEffect(() => {
     if (previousActivityIdRef.current !== activity.id) {
       previousActivityIdRef.current = activity.id
-      if (controlledOpen === undefined) {
-        setUncontrolledOpen(defaultOpen ?? false)
-      }
+      setOpen(defaultOpen ?? false)
     }
-  }, [activity.id, controlledOpen, defaultOpen])
+  }, [activity.id, defaultOpen])
 
   return (
     <section
@@ -62,13 +53,7 @@ export function BuilderAgentActivity({
       aria-busy={activity.status === 'running'}
       className={twMerge('w-full text-sm', className)}
     >
-      <Panel
-        open={open}
-        onOpenChange={(nextOpen) => {
-          if (controlledOpen === undefined) setUncontrolledOpen(nextOpen)
-          onOpenChange?.(nextOpen)
-        }}
-      >
+      <Panel open={open} onOpenChange={setOpen}>
         <PanelTrigger
           id={triggerId}
           aria-controls={contentId}

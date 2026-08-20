@@ -396,11 +396,10 @@ export function FilterDropdownSection({
 export function getFilterChipLabel(
   facetName: string,
   values: string[],
-  maxDisplay = 2,
 ): string {
   if (values.length === 0) return ''
   if (values.length === 1) return `${facetName}: ${values[0]}`
-  if (values.length <= maxDisplay) return `${facetName}: ${values.join(', ')}`
+  if (values.length <= 2) return `${facetName}: ${values.join(', ')}`
   return `${facetName} (${values.length})`
 }
 

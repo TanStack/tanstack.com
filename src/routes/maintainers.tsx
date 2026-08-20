@@ -319,18 +319,10 @@ function MaintainerGrid({
   maintainers,
   viewMode,
   title,
-  stats,
 }: {
   maintainers: Maintainer[]
   viewMode: 'compact' | 'full' | 'row'
   title?: string
-  stats?: Array<{
-    username: string
-    totalCommits: number
-    totalPullRequests: number
-    totalIssues: number
-    totalReviews: number
-  }>
 }) {
   return (
     <div>
@@ -356,10 +348,7 @@ function MaintainerGrid({
             {viewMode === 'compact' ? (
               <CompactMaintainerCard maintainer={maintainer} />
             ) : viewMode === 'row' ? (
-              <MaintainerRowCard
-                maintainer={maintainer}
-                stats={stats?.find((s) => s.username === maintainer.github)}
-              />
+              <MaintainerRowCard maintainer={maintainer} />
             ) : (
               <MaintainerCard maintainer={maintainer} />
             )}

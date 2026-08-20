@@ -468,9 +468,7 @@ export function ApplicationStarter({
     label,
     iconOnly = false,
     onTrack,
-    rel = 'noopener noreferrer',
     size,
-    target = '_blank',
     variant = 'primary',
   }: {
     action: StarterTransientAction
@@ -480,9 +478,7 @@ export function ApplicationStarter({
     label: string
     iconOnly?: boolean
     onTrack: () => void
-    rel?: string
     size: 'xs' | 'sm'
-    target?: string
     variant?: 'primary' | 'secondary'
   }) => {
     const disabled = !canUseFinalActions || !href || transientAction === action
@@ -495,8 +491,8 @@ export function ApplicationStarter({
         color={iconOnly ? 'gray' : undefined}
         size={iconOnly ? 'icon-sm' : size}
         href={disabled ? undefined : href}
-        target={target}
-        rel={rel}
+        target="_blank"
+        rel="noopener noreferrer"
         aria-disabled={disabled}
         aria-label={iconOnly ? label : undefined}
         tabIndex={disabled ? -1 : undefined}

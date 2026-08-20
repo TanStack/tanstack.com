@@ -110,15 +110,14 @@ export function selectLatestBucketQueryData({
   queryData,
   binType,
   bucketOffset,
-  now = getUtcToday(),
 }: {
   queryData: NpmQueryData | undefined
   binType: BinType
   bucketOffset: number
-  now?: Date
 }) {
   if (!queryData) return undefined
 
+  const now = getUtcToday()
   const dateWindow = getLatestBucketWindow({ binType, bucketOffset, now })
   const startTime = dateWindow.startDate.getTime()
   const endTime = dateWindow.endDate.getTime()

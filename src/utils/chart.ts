@@ -84,12 +84,11 @@ export function getCurrentBinStart(binType: BinType): Date {
 export function binTimeSeriesData(
   data: Array<{ date: string; count: number }>,
   binType: BinType,
-  options?: { includeIncomplete?: boolean },
 ): Array<{ date: Date; count: number }> {
   if (data.length === 0) return []
 
   const binFn = getBinFunction(binType)
-  const includeIncomplete = options?.includeIncomplete ?? true
+  const includeIncomplete = true
 
   const parsed = data.map((d) => ({
     date: new Date(d.date),

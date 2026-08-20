@@ -269,21 +269,11 @@ export async function exchangeGitHubCode(
   code: string,
   clientId: string,
   clientSecret: string,
-  redirectUri?: string,
 ): Promise<GitHubTokenResult> {
-  const body: {
-    client_id: string
-    client_secret: string
-    code: string
-    redirect_uri?: string
-  } = {
+  const body = {
     client_id: clientId,
     client_secret: clientSecret,
     code,
-  }
-
-  if (redirectUri) {
-    body.redirect_uri = redirectUri
   }
 
   const tokenResponse = await fetch(

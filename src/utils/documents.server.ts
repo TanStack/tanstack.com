@@ -955,8 +955,8 @@ function createExcerpt(text: string, maxLength = 200) {
   return cleanText
 }
 
-function createRichExcerpt(text: string, maxLength = 200) {
-  let cleanText = createExcerpt(text, maxLength)
+function createRichExcerpt(text: string) {
+  let cleanText = createExcerpt(text, 200)
 
   const imageText = extractFirstImage(text)
 

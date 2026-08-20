@@ -1557,11 +1557,10 @@ function findApplicationStarterPartnerSuggestion(
 export function hasApplicationStarterPartnerConflictWithAny(
   partnerId: string,
   partnerIds: Array<string>,
-  partnerSuggestions: Array<ApplicationStarterPartnerSuggestion> = applicationStarterPartnerSuggestions,
 ) {
   const partner = findApplicationStarterPartnerSuggestion(
     partnerId,
-    partnerSuggestions,
+    applicationStarterPartnerSuggestions,
   )
 
   if (!partner) {
@@ -1575,7 +1574,7 @@ export function hasApplicationStarterPartnerConflictWithAny(
 
     const candidate = findApplicationStarterPartnerSuggestion(
       candidateId,
-      partnerSuggestions,
+      applicationStarterPartnerSuggestions,
     )
 
     return candidate ? hasSharedUniqueConstraint(partner, candidate) : false

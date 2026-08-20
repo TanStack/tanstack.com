@@ -137,21 +137,21 @@ const stepladderTierLayout: Record<
     minHeight: 'min-h-[76px]',
     logoMaxWidth: 'max-w-[190px]',
     logoMaxHeight: 'max-h-[42px]',
-    padding: 'px-5 py-4',
+    padding: 'p-4',
   },
   silver: {
     width: 'w-[80%]',
     minHeight: 'min-h-[62px]',
     logoMaxWidth: 'max-w-[130px]',
     logoMaxHeight: 'max-h-[30px]',
-    padding: 'px-4 py-3',
+    padding: 'p-3',
   },
   bronze: {
     width: 'w-[62%]',
     minHeight: 'min-h-[50px]',
     logoMaxWidth: 'max-w-[90px]',
     logoMaxHeight: 'max-h-[24px]',
-    padding: 'px-3 py-2.5',
+    padding: 'p-2.5',
   },
 }
 

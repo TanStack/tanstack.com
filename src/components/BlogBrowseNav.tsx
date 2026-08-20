@@ -8,8 +8,6 @@ import {
   type LibraryCategory,
 } from '~/libraries/categories'
 import { fallbackLibraryIcon, libraryIcons } from '~/libraries/icons'
-import { findMaintainerByAuthorName } from '~/utils/authors'
-import authorFallbackAvatar from '~/images/author-fallback.svg'
 import type { LibrarySlim } from '~/libraries'
 
 export type BlogTopic = { library: LibrarySlim; count: number }
@@ -59,9 +57,6 @@ function Count({ value }: { value: number }) {
   return <span className="text-text-muted"> ({value})</span>
 }
 
-function getAuthorAvatar(name: string): string {
-  return findMaintainerByAuthorName(name)?.avatar ?? authorFallbackAvatar
-}
 
 // A collapsible section header (Eyebrow + chevron) for progressive disclosure.
 // When collapsed, the current selection rides alongside the label so the active
@@ -267,13 +262,6 @@ export function BlogBrowseNav({
                   onClick={() => onAuthorChange(isActive ? undefined : name)}
                   className={twMerge(rowClassName, rowStateClass(isActive))}
                 >
-                  <img
-                    height={16}
-                    width={16}
-                    src={getAuthorAvatar(name)}
-                    alt=""
-                    className="h-4 w-4 shrink-0 rounded object-cover"
-                  />
                   <span className="truncate">{name}</span>
                 </button>
               )

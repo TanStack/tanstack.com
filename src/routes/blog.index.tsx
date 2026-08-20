@@ -307,7 +307,7 @@ function BlogIndex() {
             <PartnersRail
               analyticsPlacement="blog_rail"
               partners={activePartners}
-              layout="stepladder"
+              layout="tiered"
             />
           </div>
         </div>

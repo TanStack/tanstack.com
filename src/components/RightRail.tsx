@@ -119,40 +119,58 @@ const railTierLayout: Record<
   },
 }
 
-// The stepladder is a single right-aligned column: one partner per row, the
-// row (and its logo) narrowing tier by tier so gold sits widest at the top and
-// bronze narrowest at the bottom — a ladder stepping down and in.
-const stepladderTierLayout: Record<
+// The tiered rail groups partners into centered tier sections (a hairline +
+// icon + label header per tier). Logos scale down tier by tier — gold largest
+// and one-up, silver medium and one-up, bronze smallest and two-up — and fade
+// slightly, matching the design reference's spacing and relative scale.
+const tieredTierLayout: Record<
   PartnerTier,
   {
-    width: string
-    height: string
+    rowHeight: string
     logoMaxWidth: string
     logoMaxHeight: string
-    padding: string
+    perRow: 1 | 2
+    idleOpacity: string
   }
 > = {
   gold: {
-    width: 'w-full',
-    height: 'h-[90px]',
-    logoMaxWidth: 'max-w-[190px]',
-    logoMaxHeight: 'max-h-[42px]',
-    padding: 'px-4',
+    rowHeight: 'h-[80px]',
+    logoMaxWidth: 'max-w-[210px]',
+    logoMaxHeight: 'max-h-[46px]',
+    perRow: 1,
+    idleOpacity: '',
   },
   silver: {
-    width: 'w-[80%]',
-    height: 'h-[70px]',
-    logoMaxWidth: 'max-w-[130px]',
+    rowHeight: 'h-[62px]',
+    logoMaxWidth: 'max-w-[145px]',
     logoMaxHeight: 'max-h-[30px]',
-    padding: 'px-3',
+    perRow: 1,
+    idleOpacity: 'opacity-80',
   },
   bronze: {
-    width: 'w-[62%]',
-    height: 'h-[58px]',
-    logoMaxWidth: 'max-w-[90px]',
-    logoMaxHeight: 'max-h-[24px]',
-    padding: 'px-2.5',
+    rowHeight: 'h-[56px]',
+    logoMaxWidth: 'max-w-[100px]',
+    logoMaxHeight: 'max-h-[22px]',
+    perRow: 2,
+    idleOpacity: 'opacity-65',
   },
+}
+
+// Centered tier header: a hairline on each side of the tier's icon + label.
+function TierHeader({ tier }: { tier: PartnerTier }) {
+  const flare = partnerTierFlares[tier]
+  return (
+    <div className="flex w-full items-center gap-2">
+      <span className="h-px flex-1 bg-border-default" />
+      <span className={twMerge('flex items-center gap-1.5', flare.labelColor)}>
+        <span className={flare.iconColor}>{flare.icon}</span>
+        <span className="text-[10px] font-semibold uppercase tracking-[0.18em]">
+          {partnerTierLabels[tier]}
+        </span>
+      </span>
+      <span className="h-px flex-1 bg-border-default" />
+    </div>
+  )
 }
 
 export function PartnersRail({
@@ -166,9 +184,9 @@ export function PartnersRail({
   partners: Array<RailPartner>
   title?: string
   titleTo?: '/partners'
-  /** `grid` (default) tiles logos in tier rows; `stepladder` is a single
-   *  right-aligned column that narrows tier by tier. */
-  layout?: 'grid' | 'stepladder'
+  /** `grid` (default) tiles logos in tier rows; `tiered` stacks centered tier
+   *  sections whose logos scale down tier by tier (bronze is two-up). */
+  layout?: 'grid' | 'tiered'
 }) {
   const placementContext = usePartnerPlacementContext({
     orderStrategy: 'tier-rotated',
@@ -182,9 +200,9 @@ export function PartnersRail({
 
   let slotIndex = 0
 
-  if (layout === 'stepladder') {
+  if (layout === 'tiered') {
     return (
-      <div className="flex w-full flex-col gap-3">
+      <div className="group/rail flex w-full flex-col gap-6">
         <div className="flex w-full items-center justify-between gap-2">
           <Link
             className="text-xs font-medium opacity-60 hover:opacity-100"
@@ -200,23 +218,32 @@ export function PartnersRail({
             Become a Partner
           </a>
         </div>
-        <div className="group/rail flex w-full flex-col items-end divide-y divide-gray-500/20">
-          {rowsByTier.map((row) =>
-            row.partners.map((partner) => {
-              const index = slotIndex++
-              return (
-                <PartnersRailItem
-                  key={partner.id}
-                  analyticsPlacement={analyticsPlacement}
-                  index={index}
-                  placementContext={placementContext}
-                  partner={partner}
-                  variant="stepladder"
-                />
-              )
-            }),
-          )}
-        </div>
+        {rowsByTier.map((row) => (
+          <section key={row.tier} className="flex w-full flex-col gap-2.5">
+            <TierHeader tier={row.tier} />
+            <div
+              className={
+                tieredTierLayout[row.tier].perRow === 2
+                  ? 'grid grid-cols-2'
+                  : 'flex flex-col'
+              }
+            >
+              {row.partners.map((partner) => {
+                const index = slotIndex++
+                return (
+                  <PartnersRailItem
+                    key={partner.id}
+                    analyticsPlacement={analyticsPlacement}
+                    index={index}
+                    placementContext={placementContext}
+                    partner={partner}
+                    variant="tiered"
+                  />
+                )
+              })}
+            </div>
+          </section>
+        ))}
       </div>
     )
   }
@@ -286,24 +313,29 @@ function PartnersRailItem({
   index: number
   placementContext: PartnerPlacementContext
   partner: RailPartner
-  variant?: 'grid' | 'stepladder'
+  variant?: 'grid' | 'tiered'
 }) {
   const tier = partner.tier ?? 'bronze'
-  // Stepladder rows are self-contained rounded cards sized by tier width; grid
-  // cells are borderless tiles that share edges within a tier row.
-  const isStepladder = variant === 'stepladder'
-  const layout = isStepladder
-    ? stepladderTierLayout[tier]
-    : railTierLayout[tier]
-  // Read the differing size keys from the concretely-typed config so the union
-  // stays narrowed (grid → flexBasis + min-height, stepladder → width + fixed
-  // per-tier height).
-  const sizingClass = isStepladder
-    ? stepladderTierLayout[tier].width
-    : railTierLayout[tier].flexBasis
-  const heightClass = isStepladder
-    ? stepladderTierLayout[tier].height
-    : railTierLayout[tier].minHeight
+  // Tiered cells are borderless, fixed-height logo slots that fade by tier; grid
+  // cells are borderless tiles that share edges within a tier row. Both read
+  // logo bounds from their own concretely-typed config.
+  const isTiered = variant === 'tiered'
+  const grid = railTierLayout[tier]
+  const tiered = tieredTierLayout[tier]
+  const logoMaxWidth = isTiered ? tiered.logoMaxWidth : grid.logoMaxWidth
+  const logoMaxHeight = isTiered ? tiered.logoMaxHeight : grid.logoMaxHeight
+  const cellClass = isTiered
+    ? twMerge('w-full px-2', tiered.rowHeight)
+    : twMerge(
+        'border-b border-r border-gray-500/20',
+        grid.flexBasis,
+        grid.minHeight,
+        grid.padding,
+      )
+  // Lower tiers rest more muted and lift to full opacity/color on rail hover.
+  const logoIdleClass = isTiered
+    ? twMerge(tiered.idleOpacity, 'group-hover/rail:opacity-100')
+    : ''
   const analyticsMetadata = getPartnerPlacementAnalyticsMetadata(
     partner,
     placementContext,
@@ -326,10 +358,7 @@ function PartnersRailItem({
       rel="noreferrer"
       className={twMerge(
         'flex items-center justify-center overflow-hidden transition-colors duration-150 ease-out hover:bg-gray-500/10',
-        isStepladder ? '' : 'border-b border-r border-gray-500/20',
-        sizingClass,
-        heightClass,
-        layout.padding,
+        cellClass,
       )}
       onClick={() => {
         let destinationHost: string | undefined
@@ -350,12 +379,13 @@ function PartnersRailItem({
     >
       <div
         className={twMerge(
-          'w-full flex items-center justify-center mx-auto grayscale brightness-90 group-hover/rail:grayscale-0 group-hover/rail:brightness-100 transition-[filter] duration-500 ease-out',
-          layout.logoMaxWidth,
+          'w-full flex items-center justify-center mx-auto grayscale brightness-90 group-hover/rail:grayscale-0 group-hover/rail:brightness-100 transition-[filter,opacity] duration-500 ease-out',
+          logoMaxWidth,
+          logoIdleClass,
         )}
       >
         <PartnerImage
-          className={twMerge('w-full object-contain', layout.logoMaxHeight)}
+          className={twMerge('w-full object-contain', logoMaxHeight)}
           config={partner.image}
           alt={partner.name}
         />

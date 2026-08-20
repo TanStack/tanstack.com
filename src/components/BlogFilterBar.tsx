@@ -110,133 +110,65 @@ export function BlogFilterBar({
     : null
 
   // The facet dropdowns, rendered in both the desktop inline row and the
-  // mobile expandable row (a fresh call so each slot owns its instances). Each
-  // is the DS Dropdown + a DS Button trigger (ghost when idle, secondary when a
-  // selection is active), matching the canonical Dropdown pattern.
-  const renderFilters = () => (
-    <>
-      <Dropdown>
-        <DropdownTrigger>
-          <Button
-            variant={selectedLibrary ? 'secondary' : 'ghost'}
-            className="h-10 shrink-0"
-          >
-            {SelectedTopicIcon ? (
-              <SelectedTopicIcon
-                className={twMerge(
-                  'h-4 w-4 shrink-0',
-                  selectedTopicCategory
-                    ? categoryTextColor[selectedTopicCategory]
-                    : undefined,
-                )}
-              />
-            ) : null}
-            <span className="max-w-[16ch] truncate">{topicLabel}</span>
-            <CaretDownIcon className="h-4 w-4 shrink-0 text-text-muted" />
-          </Button>
-        </DropdownTrigger>
-        <DropdownContent align="start" className="max-h-80 overflow-y-auto">
-          <MenuItem
-            selected={!selectedLibrary}
-            onSelect={() => onLibraryToggle(undefined)}
-          >
-            <span className="truncate">
-              All topics
-              <Count value={totalCount} />
-            </span>
-          </MenuItem>
-          {topics.map(({ library, count }) => {
-            const Icon = libraryIcons[library.id] ?? fallbackLibraryIcon
-            const category = libraryCategories[library.id] ?? 'tooling'
-            const isActive = selectedLibrary === library.id
-            return (
-              <MenuItem
-                key={library.id}
-                selected={isActive}
-                onSelect={() =>
-                  onLibraryToggle(isActive ? undefined : library.id)
-                }
-              >
-                <Icon
+  // mobile expandable column (a fresh call so each slot owns its instances).
+  // Each is the DS Dropdown + a DS Button trigger (ghost when idle, secondary
+  // when a selection is active), matching the canonical Dropdown pattern.
+  // `block` makes the triggers full-width (label left, caret right) for the
+  // stacked mobile column.
+  const renderFilters = (block = false) => {
+    const triggerClass = block ? 'h-10 w-full justify-between' : 'h-10 shrink-0'
+    return (
+      <>
+        <Dropdown>
+          <DropdownTrigger>
+            <Button
+              variant={selectedLibrary ? 'secondary' : 'ghost'}
+              className={triggerClass}
+            >
+              {SelectedTopicIcon ? (
+                <SelectedTopicIcon
                   className={twMerge(
                     'h-4 w-4 shrink-0',
-                    categoryTextColor[category],
+                    selectedTopicCategory
+                      ? categoryTextColor[selectedTopicCategory]
+                      : undefined,
                   )}
                 />
-                <span className="truncate">
-                  {library.name.replace('TanStack ', '')}
-                  <Count value={count} />
-                </span>
-              </MenuItem>
-            )
-          })}
-        </DropdownContent>
-      </Dropdown>
-
-      {authors.length ? (
-        <Dropdown>
-          <DropdownTrigger>
-            <Button
-              variant={activeAuthor ? 'secondary' : 'ghost'}
-              className="h-10 shrink-0"
+              ) : null}
+              <span className="max-w-[16ch] truncate">{topicLabel}</span>
+              <CaretDownIcon className="h-4 w-4 shrink-0 text-text-muted" />
+            </Button>
+          </DropdownTrigger>
+          <DropdownContent align="start" className="max-h-80 overflow-y-auto">
+            <MenuItem
+              selected={!selectedLibrary}
+              onSelect={() => onLibraryToggle(undefined)}
             >
-              <span className="max-w-[16ch] truncate">
-                {activeAuthor ?? 'All authors'}
+              <span className="truncate">
+                All topics
+                <Count value={totalCount} />
               </span>
-              <CaretDownIcon className="h-4 w-4 shrink-0 text-text-muted" />
-            </Button>
-          </DropdownTrigger>
-          <DropdownContent align="start" className="max-h-80 overflow-y-auto">
-            <MenuItem
-              selected={!activeAuthor}
-              onSelect={() => onAuthorChange(undefined)}
-            >
-              <span className="truncate">All authors</span>
             </MenuItem>
-            {authors.map((name) => {
-              const isActive = activeAuthor === name
+            {topics.map(({ library, count }) => {
+              const Icon = libraryIcons[library.id] ?? fallbackLibraryIcon
+              const category = libraryCategories[library.id] ?? 'tooling'
+              const isActive = selectedLibrary === library.id
               return (
                 <MenuItem
-                  key={name}
+                  key={library.id}
                   selected={isActive}
-                  onSelect={() => onAuthorChange(isActive ? undefined : name)}
+                  onSelect={() =>
+                    onLibraryToggle(isActive ? undefined : library.id)
+                  }
                 >
-                  <span className="truncate">{name}</span>
-                </MenuItem>
-              )
-            })}
-          </DropdownContent>
-        </Dropdown>
-      ) : null}
-
-      {years.length ? (
-        <Dropdown>
-          <DropdownTrigger>
-            <Button
-              variant={selectedYear ? 'secondary' : 'ghost'}
-              className="h-10 shrink-0"
-            >
-              <span className="truncate">{selectedYear ?? 'All years'}</span>
-              <CaretDownIcon className="h-4 w-4 shrink-0 text-text-muted" />
-            </Button>
-          </DropdownTrigger>
-          <DropdownContent align="start" className="max-h-80 overflow-y-auto">
-            <MenuItem
-              selected={!selectedYear}
-              onSelect={() => onYearToggle(undefined)}
-            >
-              <span className="truncate">All years</span>
-            </MenuItem>
-            {years.map(({ year, count }) => {
-              const isActive = selectedYear === year
-              return (
-                <MenuItem
-                  key={year}
-                  selected={isActive}
-                  onSelect={() => onYearToggle(isActive ? undefined : year)}
-                >
+                  <Icon
+                    className={twMerge(
+                      'h-4 w-4 shrink-0',
+                      categoryTextColor[category],
+                    )}
+                  />
                   <span className="truncate">
-                    {year}
+                    {library.name.replace('TanStack ', '')}
                     <Count value={count} />
                   </span>
                 </MenuItem>
@@ -244,21 +176,94 @@ export function BlogFilterBar({
             })}
           </DropdownContent>
         </Dropdown>
-      ) : null}
 
-      {hasActiveFilters ? (
-        <Button
-          variant="link"
-          color="blue"
-          size="sm"
-          onClick={onClearAll}
-          className="shrink-0"
-        >
-          Clear
-        </Button>
-      ) : null}
-    </>
-  )
+        {authors.length ? (
+          <Dropdown>
+            <DropdownTrigger>
+              <Button
+                variant={activeAuthor ? 'secondary' : 'ghost'}
+                className={triggerClass}
+              >
+                <span className="max-w-[16ch] truncate">
+                  {activeAuthor ?? 'All authors'}
+                </span>
+                <CaretDownIcon className="h-4 w-4 shrink-0 text-text-muted" />
+              </Button>
+            </DropdownTrigger>
+            <DropdownContent align="start" className="max-h-80 overflow-y-auto">
+              <MenuItem
+                selected={!activeAuthor}
+                onSelect={() => onAuthorChange(undefined)}
+              >
+                <span className="truncate">All authors</span>
+              </MenuItem>
+              {authors.map((name) => {
+                const isActive = activeAuthor === name
+                return (
+                  <MenuItem
+                    key={name}
+                    selected={isActive}
+                    onSelect={() => onAuthorChange(isActive ? undefined : name)}
+                  >
+                    <span className="truncate">{name}</span>
+                  </MenuItem>
+                )
+              })}
+            </DropdownContent>
+          </Dropdown>
+        ) : null}
+
+        {years.length ? (
+          <Dropdown>
+            <DropdownTrigger>
+              <Button
+                variant={selectedYear ? 'secondary' : 'ghost'}
+                className={triggerClass}
+              >
+                <span className="truncate">{selectedYear ?? 'All years'}</span>
+                <CaretDownIcon className="h-4 w-4 shrink-0 text-text-muted" />
+              </Button>
+            </DropdownTrigger>
+            <DropdownContent align="start" className="max-h-80 overflow-y-auto">
+              <MenuItem
+                selected={!selectedYear}
+                onSelect={() => onYearToggle(undefined)}
+              >
+                <span className="truncate">All years</span>
+              </MenuItem>
+              {years.map(({ year, count }) => {
+                const isActive = selectedYear === year
+                return (
+                  <MenuItem
+                    key={year}
+                    selected={isActive}
+                    onSelect={() => onYearToggle(isActive ? undefined : year)}
+                  >
+                    <span className="truncate">
+                      {year}
+                      <Count value={count} />
+                    </span>
+                  </MenuItem>
+                )
+              })}
+            </DropdownContent>
+          </Dropdown>
+        ) : null}
+
+        {hasActiveFilters ? (
+          <Button
+            variant="link"
+            color="blue"
+            size="sm"
+            onClick={onClearAll}
+            className={block ? 'w-full' : 'shrink-0'}
+          >
+            Clear
+          </Button>
+        ) : null}
+      </>
+    )
+  }
 
   return (
     <div className="w-full">
@@ -316,8 +321,8 @@ export function BlogFilterBar({
         </div>
       </div>
 
-      {/* Mobile-only expandable row: a horizontal, scrollable set of the facet
-          dropdowns, animated open via a grid-rows height transition. */}
+      {/* Mobile-only expandable column: the facet dropdowns stacked full-width,
+          animated open via a grid-rows height transition. */}
       <div
         className={twMerge(
           'grid transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none md:hidden',
@@ -325,9 +330,7 @@ export function BlogFilterBar({
         )}
       >
         <div className="min-h-0 overflow-hidden">
-          <div className="fade-x fade-size-x-sm flex items-center gap-2 overflow-x-auto pt-3 scrollbar-hide">
-            {renderFilters()}
-          </div>
+          <div className="flex flex-col gap-2 pt-3">{renderFilters(true)}</div>
         </div>
       </div>
     </div>

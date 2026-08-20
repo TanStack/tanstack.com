@@ -119,16 +119,56 @@ const railTierLayout: Record<
   },
 }
 
+// The stepladder is a single right-aligned column: one partner per row, the
+// row (and its logo) narrowing tier by tier so gold sits widest at the top and
+// bronze narrowest at the bottom — a ladder stepping down and in.
+const stepladderTierLayout: Record<
+  PartnerTier,
+  {
+    width: string
+    minHeight: string
+    logoMaxWidth: string
+    logoMaxHeight: string
+    padding: string
+  }
+> = {
+  gold: {
+    width: 'w-full',
+    minHeight: 'min-h-[76px]',
+    logoMaxWidth: 'max-w-[190px]',
+    logoMaxHeight: 'max-h-[42px]',
+    padding: 'px-5 py-4',
+  },
+  silver: {
+    width: 'w-[80%]',
+    minHeight: 'min-h-[62px]',
+    logoMaxWidth: 'max-w-[130px]',
+    logoMaxHeight: 'max-h-[30px]',
+    padding: 'px-4 py-3',
+  },
+  bronze: {
+    width: 'w-[62%]',
+    minHeight: 'min-h-[50px]',
+    logoMaxWidth: 'max-w-[90px]',
+    logoMaxHeight: 'max-h-[24px]',
+    padding: 'px-3 py-2.5',
+  },
+}
+
 export function PartnersRail({
   analyticsPlacement,
   partners,
   title = 'Partners',
   titleTo = '/partners',
+  layout = 'grid',
 }: {
   analyticsPlacement: PartnerPlacement
   partners: Array<RailPartner>
   title?: string
   titleTo?: '/partners'
+  /** `grid` (default) tiles logos in tier rows; `stepladder` is a single
+   *  right-aligned column that narrows tier by tier. */
+  layout?: 'grid' | 'stepladder'
 }) {
   const placementContext = usePartnerPlacementContext({
     orderStrategy: 'tier-rotated',
@@ -141,6 +181,45 @@ export function PartnersRail({
   )
 
   let slotIndex = 0
+
+  if (layout === 'stepladder') {
+    return (
+      <div className="flex w-full flex-col gap-3">
+        <div className="flex w-full items-center justify-between gap-2">
+          <Link
+            className="text-xs font-medium opacity-60 hover:opacity-100"
+            to={titleTo}
+          >
+            {title}
+          </Link>
+          <a
+            href={PARTNER_INQUIRY_HREF}
+            className="text-xs font-medium opacity-60 hover:underline hover:opacity-100"
+            onClick={() => trackPartnerInquiry(analyticsPlacement)}
+          >
+            Become a Partner
+          </a>
+        </div>
+        <div className="group/rail flex w-full flex-col items-end gap-2">
+          {rowsByTier.map((row) =>
+            row.partners.map((partner) => {
+              const index = slotIndex++
+              return (
+                <PartnersRailItem
+                  key={partner.id}
+                  analyticsPlacement={analyticsPlacement}
+                  index={index}
+                  placementContext={placementContext}
+                  partner={partner}
+                  variant="stepladder"
+                />
+              )
+            }),
+          )}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="group/rail flex flex-col border-l border-gray-500/20 rounded-bl-lg overflow-hidden w-full">
@@ -201,13 +280,26 @@ function PartnersRailItem({
   index,
   placementContext,
   partner,
+  variant = 'grid',
 }: {
   analyticsPlacement: PartnerPlacement
   index: number
   placementContext: PartnerPlacementContext
   partner: RailPartner
+  variant?: 'grid' | 'stepladder'
 }) {
-  const layout = railTierLayout[partner.tier ?? 'bronze']
+  const tier = partner.tier ?? 'bronze'
+  // Stepladder rows are self-contained rounded cards sized by tier width; grid
+  // cells are borderless tiles that share edges within a tier row.
+  const isStepladder = variant === 'stepladder'
+  const layout = isStepladder
+    ? stepladderTierLayout[tier]
+    : railTierLayout[tier]
+  // Read the differing size key from the concretely-typed config so the union
+  // stays narrowed (grid → flexBasis, stepladder → width).
+  const sizingClass = isStepladder
+    ? stepladderTierLayout[tier].width
+    : railTierLayout[tier].flexBasis
   const analyticsMetadata = getPartnerPlacementAnalyticsMetadata(
     partner,
     placementContext,
@@ -229,8 +321,11 @@ function PartnersRailItem({
       target="_blank"
       rel="noreferrer"
       className={twMerge(
-        'flex items-center justify-center overflow-hidden border-r border-b border-gray-500/20 hover:bg-gray-500/10 transition-colors duration-150 ease-out',
-        layout.flexBasis,
+        'flex items-center justify-center overflow-hidden transition-colors duration-150 ease-out hover:bg-gray-500/10',
+        isStepladder
+          ? 'rounded-lg border border-gray-500/20'
+          : 'border-b border-r border-gray-500/20',
+        sizingClass,
         layout.minHeight,
         layout.padding,
       )}

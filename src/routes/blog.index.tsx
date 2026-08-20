@@ -1,10 +1,9 @@
 import * as React from 'react'
-import { SlidersHorizontalIcon, RssIcon } from '@phosphor-icons/react'
 import { createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
-import { BlogBrowseNav } from '~/components/BlogBrowseNav'
+import { BlogFilterBar } from '~/components/BlogFilterBar'
 import { type BlogCardPost } from '~/components/BlogCard'
-import { Eyebrow, SearchInput } from '~/components/ds/ui'
+import { Eyebrow } from '~/components/ds/ui'
 import { BlogPostCard } from '~/components/ds/ui/BlogPostCard'
 import { PageHeader } from '~/components/ds/ui/PageHeader'
 import { PartnersRail } from '~/components/RightRail'
@@ -138,7 +137,6 @@ function BlogIndex() {
   const featuredPost = hasActiveFilters ? undefined : filteredPosts[0]
   const gridPosts = featuredPost ? filteredPosts.slice(1) : filteredPosts
 
-  const [filtersOpen, setFiltersOpen] = React.useState(false)
   const [visibleCount, setVisibleCount] = React.useState(POSTS_PER_PAGE)
   // Index from which cards animate in. Set only when "Load more" reveals a
   // batch, so the entrance never fires on first paint or filter changes.
@@ -163,8 +161,10 @@ function BlogIndex() {
       replace: true,
     })
 
-  // Shared by the desktop sidebar and the mobile disclosure copies of the nav.
-  const browseNavProps = {
+  // Everything the inline filter bar needs: search + the three URL-backed facets.
+  const filterBarProps = {
+    searchQuery,
+    onSearchChange,
     topics,
     totalCount: frontMatters.length,
     selectedLibrary,
@@ -195,81 +195,25 @@ function BlogIndex() {
     <div className="flex flex-col max-w-full min-h-screen">
       <div className="relative flex-1 w-full mb-16">
         <div className="p-4 md:p-8">
-          <div className="mx-auto w-full max-w-[1280px] space-y-10">
-            <div className="space-y-6 border-b border-border-subtle pb-14 pt-6">
+          <div className="mx-auto w-full max-w-[1280px]">
+            <div className="space-y-6 pt-6">
               <PageHeader
                 align="center"
                 title="Blog"
                 lede="The latest news and blog posts from TanStack"
               />
-              {/* One cohesive pill: the search field, then the RSS feed and the
-                  filter toggle as icons inside it, each parted by a faint
-                  divider. Centered beneath the masthead. */}
-              <div className="mx-auto w-full max-w-md">
-                <SearchInput
-                  pill
-                  aria-label="Search posts"
-                  placeholder="Search posts..."
-                  value={searchQuery}
-                  onChange={(event) =>
-                    onSearchChange(event.currentTarget.value)
-                  }
-                  trailing={
-                    <div className="flex items-center gap-1">
-                      <span
-                        aria-hidden
-                        className="h-5 w-px bg-border-default"
-                      />
-                      <a
-                        href="/rss.xml"
-                        target="_blank"
-                        rel="noreferrer"
-                        title="RSS feed"
-                        aria-label="RSS feed"
-                        className="grid place-items-center rounded-full p-1.5 text-text-secondary transition-colors hover:bg-surface-state-hover hover:text-text-primary"
-                      >
-                        <RssIcon weight="bold" className="h-[18px] w-[18px]" />
-                      </a>
-                      <span
-                        aria-hidden
-                        className="h-5 w-px bg-border-default"
-                      />
-                      <button
-                        type="button"
-                        aria-label="Filters"
-                        aria-expanded={filtersOpen}
-                        onClick={() => setFiltersOpen((open) => !open)}
-                        className="relative -mr-1 grid place-items-center rounded-full p-1.5 text-text-secondary transition-colors hover:bg-surface-state-hover hover:text-text-primary aria-expanded:text-text-primary"
-                      >
-                        <SlidersHorizontalIcon
-                          weight="bold"
-                          className="h-[18px] w-[18px]"
-                        />
-                        {hasActiveFilters ? (
-                          <span className="pointer-events-none absolute right-0.5 top-0.5 h-1.5 w-1.5 rounded-full bg-blue-500 ring-2 ring-background-surface" />
-                        ) : null}
-                      </button>
-                    </div>
-                  }
-                />
-              </div>
+              {/* Search on the left, the facet filters and RSS on the right —
+                  one toolbar spanning the content width. On narrow screens the
+                  facets collapse behind a single toggle. */}
+              <BlogFilterBar {...filterBarProps} />
             </div>
 
-            {/* The browse nav slides in on the left when the filter toggle is
-                on; the content column reflows to make room. */}
-            <div className="flex">
-              <aside
-                aria-label="Browse the blog"
-                className={`shrink-0 overflow-hidden transition-[width] duration-300 ease-out motion-reduce:transition-none ${
-                  filtersOpen ? 'w-[256px]' : 'w-0'
-                }`}
-              >
-                <div className="w-[256px] pr-8">
-                  <BlogBrowseNav {...browseNavProps} />
-                </div>
-              </aside>
+            {/* The toolbar sits 8px above this divider, which tops the content
+                column beneath it. */}
+            <div className="mt-2 border-t border-border-subtle" />
 
-              <div className="min-w-0 flex-1 space-y-8">
+            <div className="mt-10">
+              <div className="min-w-0 space-y-8">
                 {featuredPost ? (
                   <section aria-label="Latest post">
                     <BlogPostCard
@@ -363,6 +307,7 @@ function BlogIndex() {
             <PartnersRail
               analyticsPlacement="blog_rail"
               partners={activePartners}
+              layout="stepladder"
             />
           </div>
         </div>

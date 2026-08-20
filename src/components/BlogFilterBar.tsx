@@ -7,17 +7,14 @@ import {
 } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import {
+  Button,
   Dropdown,
   DropdownContent,
   DropdownItem,
   DropdownTrigger,
   SearchInput,
 } from '~/components/ds/ui'
-import {
-  categoryTextColor,
-  libraryCategories,
-  type LibraryCategory,
-} from '~/libraries/categories'
+import { categoryTextColor, libraryCategories } from '~/libraries/categories'
 import { fallbackLibraryIcon, libraryIcons } from '~/libraries/icons'
 import type { LibrarySlim } from '~/libraries'
 
@@ -39,29 +36,6 @@ type BlogFilterBarProps = {
   onYearToggle: (year: string | undefined) => void
   hasActiveFilters: boolean
   onClearAll: () => void
-}
-
-// A selected topic pill is tinted to its library's category rather than the
-// generic blue the other facets use. Literal classes so Tailwind's JIT emits
-// each category utility.
-const categoryActivePill: Record<LibraryCategory, string> = {
-  framework: 'bg-category-framework/10 text-category-framework',
-  data: 'bg-category-data/10 text-category-data',
-  ui: 'bg-category-ui/10 text-category-ui',
-  performance: 'bg-category-performance/10 text-category-performance',
-  tooling: 'bg-category-tooling/10 text-category-tooling',
-}
-
-function filterTriggerClass(isActive: boolean, activeClassName?: string) {
-  return twMerge(
-    'inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full border px-4 text-sm transition-colors',
-    isActive
-      ? twMerge(
-          'border-transparent font-semibold',
-          activeClassName ?? 'bg-blue-500/10 text-blue-700 dark:text-blue-300',
-        )
-      : 'border-border-default text-text-secondary hover:bg-surface-state-hover hover:text-text-primary',
-  )
 }
 
 // The count rides alongside the label in parens, matching the old browse nav.
@@ -136,19 +110,16 @@ export function BlogFilterBar({
     : null
 
   // The facet dropdowns, rendered in both the desktop inline row and the
-  // mobile expandable row (a fresh call so each slot owns its instances).
+  // mobile expandable row (a fresh call so each slot owns its instances). Each
+  // is the DS Dropdown + a DS Button trigger (ghost when idle, secondary when a
+  // selection is active), matching the canonical Dropdown pattern.
   const renderFilters = () => (
     <>
       <Dropdown>
         <DropdownTrigger>
-          <button
-            type="button"
-            className={filterTriggerClass(
-              Boolean(selectedLibrary),
-              selectedTopicCategory
-                ? categoryActivePill[selectedTopicCategory]
-                : undefined,
-            )}
+          <Button
+            variant={selectedLibrary ? 'secondary' : 'ghost'}
+            className="h-10 shrink-0"
           >
             {SelectedTopicIcon ? (
               <SelectedTopicIcon
@@ -162,7 +133,7 @@ export function BlogFilterBar({
             ) : null}
             <span className="max-w-[16ch] truncate">{topicLabel}</span>
             <CaretDownIcon className="h-4 w-4 shrink-0 text-text-muted" />
-          </button>
+          </Button>
         </DropdownTrigger>
         <DropdownContent align="start" className="max-h-80 overflow-y-auto">
           <MenuItem
@@ -205,15 +176,15 @@ export function BlogFilterBar({
       {authors.length ? (
         <Dropdown>
           <DropdownTrigger>
-            <button
-              type="button"
-              className={filterTriggerClass(Boolean(activeAuthor))}
+            <Button
+              variant={activeAuthor ? 'secondary' : 'ghost'}
+              className="h-10 shrink-0"
             >
               <span className="max-w-[16ch] truncate">
                 {activeAuthor ?? 'All authors'}
               </span>
               <CaretDownIcon className="h-4 w-4 shrink-0 text-text-muted" />
-            </button>
+            </Button>
           </DropdownTrigger>
           <DropdownContent align="start" className="max-h-80 overflow-y-auto">
             <MenuItem
@@ -241,13 +212,13 @@ export function BlogFilterBar({
       {years.length ? (
         <Dropdown>
           <DropdownTrigger>
-            <button
-              type="button"
-              className={filterTriggerClass(Boolean(selectedYear))}
+            <Button
+              variant={selectedYear ? 'secondary' : 'ghost'}
+              className="h-10 shrink-0"
             >
               <span className="truncate">{selectedYear ?? 'All years'}</span>
               <CaretDownIcon className="h-4 w-4 shrink-0 text-text-muted" />
-            </button>
+            </Button>
           </DropdownTrigger>
           <DropdownContent align="start" className="max-h-80 overflow-y-auto">
             <MenuItem
@@ -276,13 +247,15 @@ export function BlogFilterBar({
       ) : null}
 
       {hasActiveFilters ? (
-        <button
-          type="button"
+        <Button
+          variant="link"
+          color="blue"
+          size="sm"
           onClick={onClearAll}
-          className="shrink-0 px-2 text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+          className="shrink-0"
         >
           Clear
-        </button>
+        </Button>
       ) : null}
     </>
   )
@@ -307,14 +280,15 @@ export function BlogFilterBar({
           </div>
 
           {/* Narrow screens: one toggle that expands the horizontal set below. */}
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="icon-md"
             aria-label="Filters"
             aria-expanded={mobileOpen}
             onClick={() => setMobileOpen((open) => !open)}
             className={twMerge(
-              'relative grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border-default text-text-secondary transition-colors hover:bg-surface-state-hover hover:text-text-primary md:hidden',
-              mobileOpen && 'text-text-primary',
+              'relative h-10 w-10 md:hidden',
+              mobileOpen && 'bg-background-subtle',
             )}
           >
             <SlidersHorizontalIcon
@@ -324,18 +298,21 @@ export function BlogFilterBar({
             {hasActiveFilters ? (
               <span className="pointer-events-none absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-blue-500 ring-2 ring-background-surface" />
             ) : null}
-          </button>
+          </Button>
 
-          <a
+          <Button
+            as="a"
             href="/rss.xml"
             target="_blank"
             rel="noreferrer"
             title="RSS feed"
             aria-label="RSS feed"
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border-default text-text-secondary transition-colors hover:bg-surface-state-hover hover:text-text-primary"
+            variant="ghost"
+            size="icon-md"
+            className="h-10 w-10 shrink-0"
           >
             <RssIcon weight="bold" className="h-[18px] w-[18px]" />
-          </a>
+          </Button>
         </div>
       </div>
 

@@ -444,23 +444,18 @@ export interface GetMyShowcasesOptions {
     page?: number
     pageSize?: number
   }
-  status?: ShowcaseStatus
 }
 
 /**
  * Core: Get user's own showcases
  */
 export async function getMyShowcasesCore(options: GetMyShowcasesOptions) {
-  const { userId, pagination = {}, status } = options
+  const { userId, pagination = {} } = options
   const page = pagination.page ?? 1
   const pageSize = pagination.pageSize ?? 20
 
   // Build where conditions
   const conditions = [eq(showcases.userId, userId)]
-
-  if (status) {
-    conditions.push(eq(showcases.status, status))
-  }
 
   const whereClause = and(...conditions)
 

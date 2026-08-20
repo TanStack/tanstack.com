@@ -9,16 +9,10 @@
  *   handleAdminError(error, 'Failed to delete role')
  * }
  */
-export function handleAdminError(
-  error: unknown,
-  context: string,
-  options?: { silent?: boolean },
-): string {
+export function handleAdminError(error: unknown, context: string): string {
   const message = error instanceof Error ? error.message : 'Unknown error'
   console.error(`${context}:`, error)
-  if (!options?.silent) {
-    alert(`${context}: ${message}`)
-  }
+  alert(`${context}: ${message}`)
   return message
 }
 

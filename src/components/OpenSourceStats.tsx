@@ -4,20 +4,9 @@ import {
   DownloadSimpleIcon,
   StarIcon,
 } from '@phosphor-icons/react'
-import { type Library } from '~/libraries'
-import {
-  homepageNpmStatsSummaryQuery,
-  ossStatsQuery,
-  recentDownloadsQuery,
-} from '~/queries/stats'
+import { homepageNpmStatsSummaryQuery, ossStatsQuery } from '~/queries/stats'
 import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
-import {
-  StatsSection,
-  type StatItem,
-  type StatsLayout,
-  type StatsPage,
-} from '~/components/ds/ui'
-import { tanStackTotalNpmStatsLibrary } from '~/utils/tanstack-npm-stats'
+import { StatsSection, type StatItem, type StatsPage } from '~/components/ds/ui'
 
 /** Compact count with a single-letter magnitude, e.g. 2_340_000_000 → "2.3B". */
 function formatCompact(value: number) {
@@ -39,40 +28,19 @@ function isValidMetric(value: number | undefined | null): boolean {
 
 export default function OssStats({
   className,
-  layout = 'landscape',
-  library,
   page = 'home',
 }: {
   className?: string
-  layout?: StatsLayout
-  library?: Library
   page?: StatsPage
 }) {
-  const { data: stats, isLoading } = useQuery(ossStatsQuery({ library }))
+  const { data: stats, isLoading } = useQuery(ossStatsQuery())
   const { data: homepageNpmSummary, isLoading: isLoadingHomepageNpmSummary } =
-    useQuery({
-      ...homepageNpmStatsSummaryQuery(),
-      enabled: !library,
-    })
-  const { data: recentDownloads, isLoading: isLoadingRecentDownloads } =
-    useQuery({
-      ...recentDownloadsQuery({
-        library: library ?? tanStackTotalNpmStatsLibrary,
-      }),
-      enabled: Boolean(library),
-    })
+    useQuery(homepageNpmStatsSummaryQuery())
 
-  const totalNpmStats = stats?.npm
-  const npmDownloads = library
-    ? (totalNpmStats?.totalDownloads ?? 0)
-    : (homepageNpmSummary?.totalDownloads ?? 0)
+  const npmDownloads = homepageNpmSummary?.totalDownloads ?? 0
   const starCount = stats?.github?.starCount ?? 0
-  const weeklyDownloads = library
-    ? (recentDownloads?.weeklyDownloads ?? 0)
-    : (homepageNpmSummary?.weeklyDownloads ?? 0)
-  const weeklyRatePerDay = library
-    ? undefined
-    : homepageNpmSummary?.weeklyRatePerDay
+  const weeklyDownloads = homepageNpmSummary?.weeklyDownloads ?? 0
+  const weeklyRatePerDay = homepageNpmSummary?.weeklyRatePerDay
 
   // Live-ticking weekly counter — writes into the value node after mount.
   const weeklyRef = useNpmDownloadCounter({
@@ -81,20 +49,14 @@ export default function OssStats({
   })
 
   const hasNpmDownloads =
-    !(library ? isLoading : isLoadingHomepageNpmSummary) &&
-    isValidMetric(npmDownloads)
+    !isLoadingHomepageNpmSummary && isValidMetric(npmDownloads)
   const hasStarCount = !isLoading && isValidMetric(starCount)
   const hasWeeklyDownloads =
-    !(library ? isLoadingRecentDownloads : isLoadingHomepageNpmSummary) &&
-    isValidMetric(weeklyDownloads)
+    !isLoadingHomepageNpmSummary && isValidMetric(weeklyDownloads)
 
   const loading = isLoading || !stats
-  const npmLoading = library
-    ? isLoading || !totalNpmStats
-    : isLoadingHomepageNpmSummary || !homepageNpmSummary
-  const weeklyLoading = library
-    ? isLoadingRecentDownloads || !recentDownloads
-    : isLoadingHomepageNpmSummary || !homepageNpmSummary
+  const npmLoading = isLoadingHomepageNpmSummary || !homepageNpmSummary
+  const weeklyLoading = isLoadingHomepageNpmSummary || !homepageNpmSummary
 
   const items: Array<StatItem> = []
 
@@ -139,7 +101,7 @@ export default function OssStats({
     <StatsSection
       className={className}
       page={page}
-      layout={layout}
+      layout="landscape"
       stats={items}
     />
   )

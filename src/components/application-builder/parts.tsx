@@ -22,7 +22,6 @@ export function StarterChipButton({
   className,
   children,
   compact = false,
-  disabled = false,
   onClick,
   palette,
   selected,
@@ -31,7 +30,6 @@ export function StarterChipButton({
   className?: string
   children: React.ReactNode
   compact?: boolean
-  disabled?: boolean
   onClick?: () => void
   palette: StarterPalette
   selected: boolean
@@ -41,7 +39,6 @@ export function StarterChipButton({
     <button
       type="button"
       aria-pressed={selected}
-      disabled={disabled}
       onClick={onClick}
       className={twMerge(
         compact
@@ -57,7 +54,6 @@ export function StarterChipButton({
               'translate-y-[-1px] opacity-100 shadow-[0_4px_12px_rgba(15,23,42,0.08)]',
             )
           : palette.chip,
-        disabled && 'cursor-default opacity-70',
         className,
       )}
     >
@@ -733,35 +729,16 @@ export function GeneratedPromptPreviewFooter({
 }
 
 export function GeneratedPromptPreviewCard({
-  copiedPrompt = false,
-  copyNotice,
-  footer,
-  onDismissCopyNotice,
-  onCopyPrompt,
   prompt,
   title = 'Prompt Preview',
 }: {
-  copiedPrompt?: boolean
-  copyNotice?: boolean
-  footer?: React.ReactNode
-  onDismissCopyNotice?: () => void
-  onCopyPrompt?: () => void
   prompt: string
   title?: string
 }) {
   return (
     <div className="overflow-hidden rounded-[1rem] border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-950">
-      <GeneratedPromptPreviewHeader
-        copiedPrompt={copiedPrompt}
-        copyNotice={copyNotice}
-        onDismissCopyNotice={onDismissCopyNotice}
-        onCopyPrompt={onCopyPrompt}
-        title={title}
-      />
+      <GeneratedPromptPreviewHeader title={title} />
       <GeneratedPromptPreviewBody prompt={prompt} />
-      {footer ? (
-        <GeneratedPromptPreviewFooter>{footer}</GeneratedPromptPreviewFooter>
-      ) : null}
     </div>
   )
 }

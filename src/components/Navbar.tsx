@@ -556,7 +556,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     }
   }, [mobileMenuOpen])
 
-  const getLoginButtonFallback = (className?: string) => (
+  const getLoginButtonFallback = () => (
     <Link
       to="/login"
       aria-label="Log In"
@@ -565,20 +565,19 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         'bg-black dark:bg-white text-white dark:text-black',
         'hover:bg-gray-800 dark:hover:bg-gray-200',
         'transition-colors duration-200 text-xs font-medium',
-        className,
       )}
     >
       <span className="hidden min-[430px]:inline">Log In</span>
       <SignInIcon className="size-4" weight="bold" />
     </Link>
   )
-  const renderAuthControls = (className?: string) =>
+  const renderAuthControls = () =>
     canLoadAuthControls ? (
-      <React.Suspense fallback={getLoginButtonFallback(className)}>
-        <LazyNavbarAuthControls className={className} />
+      <React.Suspense fallback={getLoginButtonFallback()}>
+        <LazyNavbarAuthControls />
       </React.Suspense>
     ) : (
-      getLoginButtonFallback(className)
+      getLoginButtonFallback()
     )
 
   const socialLinks = <SocialStack />

@@ -134,12 +134,9 @@ export async function getHostRuntimeEnv() {
   }
 }
 
-export async function fetchStaticAsset(
-  input: RequestInfo | URL,
-  init?: RequestInit,
-) {
+export async function fetchStaticAsset(input: RequestInfo | URL) {
   const staticAssets = await getStaticAssetService()
-  return staticAssets ? staticAssets.fetch(input, init) : fetch(input, init)
+  return staticAssets ? staticAssets.fetch(input) : fetch(input)
 }
 
 export async function getDatabaseConnectionString() {

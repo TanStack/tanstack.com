@@ -31,11 +31,9 @@ type PendingSandboxCapture = {
 export function ChartsCatalogResult({
   definition,
   height,
-  onStatus,
 }: {
   definition: ExampleDefinition
   height: number
-  onStatus?: (status: 'ready' | 'error') => void
 }) {
   const [sourceDocument, setSourceDocument] = React.useState('')
   const [status, setStatus] = React.useState<
@@ -57,11 +55,6 @@ export function ChartsCatalogResult({
     undefined,
   )
   const compileRequestRef = React.useRef(0)
-  const onStatusRef = React.useRef(onStatus)
-
-  React.useEffect(() => {
-    onStatusRef.current = onStatus
-  }, [onStatus])
 
   React.useEffect(() => {
     previewHistoryRef.current = previewHistory
@@ -116,7 +109,6 @@ export function ChartsCatalogResult({
           error,
         )
         setStatus('error')
-        onStatusRef.current?.('error')
       })
 
     return () => {
@@ -213,9 +205,6 @@ export function ChartsCatalogResult({
       if (message.kind !== 'status') return
 
       setStatus(message.status)
-      if (message.status === 'ready' || message.status === 'error') {
-        onStatusRef.current?.(message.status)
-      }
     }
 
     window.addEventListener('message', handleMessage)

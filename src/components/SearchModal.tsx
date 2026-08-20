@@ -1409,7 +1409,7 @@ function MessageActionButton({
   )
 }
 
-function AIMessageHeader({ action }: { action?: React.ReactNode }) {
+function AIMessageHeader() {
   return (
     <div className="flex items-center justify-between mb-1.5">
       <div className="flex items-center gap-1.5 min-w-0">
@@ -1440,7 +1440,6 @@ function AIMessageHeader({ action }: { action?: React.ReactNode }) {
           </a>
         </div>
       </div>
-      {action}
     </div>
   )
 }
@@ -2935,13 +2934,11 @@ function SearchResultsInChat({ surface }: { surface: SearchSurface }) {
 const Hit = ({
   hit,
   commandValue,
-  isFocused,
   refinedLibrary,
   refinedFramework,
 }: {
   hit: AlgoliaHit
   commandValue?: string
-  isFocused?: boolean
   refinedLibrary: string | null
   refinedFramework: string | null
 }) => {
@@ -2985,12 +2982,6 @@ const Hit = ({
   }
 
   const ref = React.useRef<HTMLAnchorElement>(null!)
-
-  React.useEffect(() => {
-    if (isFocused) {
-      ref.current?.scrollIntoView({ behavior: 'instant', block: 'nearest' })
-    }
-  }, [isFocused])
 
   // Get library and framework info for this hit
   const hitLibrary = hit.library as string | undefined
@@ -3128,13 +3119,13 @@ const Hit = ({
       href={hitUrl}
       className={twMerge(
         'block px-4 py-2.5 focus:outline-none border-b border-gray-300 dark:border-gray-700',
-        isFocused ? 'bg-gray-500/20' : 'hover:bg-gray-500/10',
+        'hover:bg-gray-500/10',
       )}
       onKeyDown={handleKeyDown}
       onFocus={() => ref.current?.focus()}
       onClick={handleClick}
       role="option"
-      aria-selected={isFocused}
+      aria-selected={false}
       tabIndex={-1}
       data-search-hit="true"
       ref={ref}

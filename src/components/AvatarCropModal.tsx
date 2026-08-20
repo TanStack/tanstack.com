@@ -12,11 +12,8 @@ interface AvatarCropModalProps {
   onCropComplete: (croppedBlob: Blob) => void
 }
 
-async function getCroppedImg(
-  imageSrc: string,
-  pixelCrop: Area,
-  outputSize: number = 256,
-): Promise<Blob> {
+async function getCroppedImg(imageSrc: string, pixelCrop: Area): Promise<Blob> {
+  const outputSize = 256
   const image = new Image()
   image.crossOrigin = 'anonymous'
 

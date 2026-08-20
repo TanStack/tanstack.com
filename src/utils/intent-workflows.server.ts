@@ -40,16 +40,14 @@ export const INTENT_PROCESS_WORKFLOW_ID = 'intent-process-workflow'
 export const INTENT_DISCOVER_SCHEDULE_ID = 'intent-discover-every-6h'
 export const INTENT_PROCESS_SCHEDULE_ID = 'intent-process-every-15m'
 
-function createIntentDiscoverWorkflow(
-  operations: IntentSyncOperations = defaultIntentSyncOperations,
-) {
+function createIntentDiscoverWorkflow() {
   return createWorkflow({
     id: INTENT_DISCOVER_WORKFLOW_ID,
     input: intentDiscoverInputSchema,
   }).handler((ctx) =>
     ctx.step(
       'discover-intent-packages',
-      () => operations.discoverIntentPackages(),
+      () => defaultIntentSyncOperations.discoverIntentPackages(),
       discoverStepOptions,
     ),
   )

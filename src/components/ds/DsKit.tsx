@@ -104,15 +104,11 @@ export function DsSection({
  * component on a contrasting surface and lets maintainers grab the source.
  */
 export function ComponentPreview({
-  title,
-  description,
   code,
   codePlacement = 'below',
   children,
   className,
 }: {
-  title?: string
-  description?: string
   code?: string
   codePlacement?: 'below' | 'side'
   children: React.ReactNode
@@ -129,24 +125,12 @@ export function ComponentPreview({
     window.setTimeout(() => setCopied(false), 1500)
   }, [code])
 
-  const hasHeader = Boolean(
-    title || description || (code && codePlacement === 'below'),
-  )
+  const hasHeader = Boolean(code && codePlacement === 'below')
 
   return (
     <div className="overflow-hidden rounded-xl border border-border-default bg-background-surface">
       {hasHeader ? (
-        <div className="flex items-center justify-between gap-3 border-b border-border-default px-4 py-2.5">
-          <div className="min-w-0">
-            {title ? (
-              <div className="truncate font-ds-display text-ds-heading-5 text-text-primary">
-                {title}
-              </div>
-            ) : null}
-            {description ? (
-              <DsDescription variant="preview">{description}</DsDescription>
-            ) : null}
-          </div>
+        <div className="flex items-center justify-end gap-3 border-b border-border-default px-4 py-2.5">
           {code ? (
             <div className="flex shrink-0 items-center gap-1">
               <button

@@ -27,22 +27,15 @@ export function NotebookAgentActivity({
   activity,
   className,
   defaultOpen,
-  open: controlledOpen,
-  onOpenChange,
 }: {
   activity: NotebookAiActivity
   className?: string
   defaultOpen?: boolean
-  open?: boolean
-  onOpenChange?: (open: boolean) => void
 }) {
   const triggerId = React.useId()
   const contentId = React.useId()
   const previousActivityIdRef = React.useRef(activity.id)
-  const [uncontrolledOpen, setUncontrolledOpen] = React.useState(
-    defaultOpen ?? false,
-  )
-  const open = controlledOpen ?? uncontrolledOpen
+  const [open, setOpen] = React.useState(defaultOpen ?? false)
   const summary = getNotebookAiActivitySummary(activity)
   const actionCount = activity.items.length
   const actionCountLabel = formatCount(actionCount, 'action')
@@ -54,11 +47,9 @@ export function NotebookAgentActivity({
   React.useEffect(() => {
     if (previousActivityIdRef.current !== activity.id) {
       previousActivityIdRef.current = activity.id
-      if (controlledOpen === undefined) {
-        setUncontrolledOpen(defaultOpen ?? false)
-      }
+      setOpen(defaultOpen ?? false)
     }
-  }, [activity.id, controlledOpen, defaultOpen])
+  }, [activity.id, defaultOpen])
 
   return (
     <section
@@ -66,13 +57,7 @@ export function NotebookAgentActivity({
       aria-busy={activity.status === 'running'}
       className={twMerge('w-full text-sm', className)}
     >
-      <Collapsible
-        open={open}
-        onOpenChange={(nextOpen) => {
-          if (controlledOpen === undefined) setUncontrolledOpen(nextOpen)
-          onOpenChange?.(nextOpen)
-        }}
-      >
+      <Collapsible open={open} onOpenChange={setOpen}>
         <CollapsibleTrigger
           id={triggerId}
           aria-controls={contentId}

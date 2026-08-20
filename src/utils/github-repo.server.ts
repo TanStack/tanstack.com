@@ -9,7 +9,6 @@ export interface CreateRepoOptions {
   name: string
   description?: string
   isPrivate?: boolean
-  autoInit?: boolean
 }
 
 export interface CreateRepoResult {
@@ -76,12 +75,8 @@ function isSafeGitHubPath(path: string) {
 
 export function validateGitHubFiles(
   files: Record<string, string>,
-  options: GitHubFileBudgetOptions = {},
 ): { valid: true } | { valid: false; error: string } {
-  const budget = {
-    ...DEFAULT_GITHUB_FILE_BUDGET,
-    ...options,
-  }
+  const budget = DEFAULT_GITHUB_FILE_BUDGET
   const entries = Object.entries(files)
 
   if (entries.length === 0) {
@@ -141,7 +136,7 @@ export async function createRepository(
       name: options.name,
       description: options.description,
       private: options.isPrivate ?? false,
-      auto_init: options.autoInit ?? false,
+      auto_init: false,
     }),
   })
 
@@ -312,7 +307,6 @@ export interface PushFilesOptions {
   repo: string
   files: Record<string, string>
   message?: string
-  branch?: string
 }
 
 /**
@@ -343,8 +337,8 @@ export async function pushFiles(
     repo,
     files,
     message = 'Initial commit from TanStack Builder',
-    branch = 'main',
   } = options
+  const branch = 'main'
 
   const fileValidation = validateGitHubFiles(files)
   if (!fileValidation.valid) {

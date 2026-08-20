@@ -7,6 +7,7 @@ import {
   streamNotebookAiResponse,
   type NotebookAiExecution,
 } from '../src/utils/notebook-ai'
+import { getNotebookAiValidationClientToolDeclaration } from '../src/utils/notebook-ai-validation'
 
 const execution: NotebookAiExecution = {
   runtime: null,
@@ -30,7 +31,7 @@ function requestBody(messages: Array<unknown>) {
     runId: 'run-1',
     state: {},
     messages,
-    tools: [],
+    tools: [getNotebookAiValidationClientToolDeclaration()],
     context: [],
     forwardedProps,
   }
@@ -90,7 +91,7 @@ test('notebook BYOK parses canonical AG-UI input and preserves tool history', as
   assert.deepEqual(input.execution, execution)
 })
 
-test('notebook BYOK rejects extra forwarded properties and client tools', async () => {
+test('notebook BYOK rejects extra forwarded properties and untrusted client tools', async () => {
   const body = requestBody([
     {
       id: 'user-1',
@@ -117,6 +118,146 @@ test('notebook BYOK rejects extra forwarded properties and client tools', async 
           parameters: { type: 'object' },
         },
       ],
+    }),
+    /Invalid notebook AI request/,
+  )
+  await assert.rejects(
+    parseNotebookAiRequest({
+      ...body,
+      tools: [
+        {
+          ...getNotebookAiValidationClientToolDeclaration(),
+          description: 'Run arbitrary client code',
+        },
+      ],
+    }),
+    /Invalid notebook AI request/,
+  )
+})
+
+test('notebook BYOK strictly accepts a validation-tool resume', async () => {
+  const result = {
+    status: 'repair',
+    phase: 'compile',
+    diagnostic: 'Unexpected token',
+    evidence: 'Compiler: Unexpected token',
+  }
+  const input = await parseNotebookAiRequest({
+    ...requestBody([
+      {
+        id: 'user-1',
+        role: 'user',
+        parts: [{ type: 'text', content: 'Change the notebook.' }],
+        content: 'Change the notebook.',
+      },
+      {
+        id: 'assistant-1',
+        role: 'assistant',
+        parts: [
+          {
+            type: 'tool-call',
+            id: 'tool-1',
+            name: 'validate_notebook',
+            arguments: '{}',
+            state: 'complete',
+          },
+          {
+            type: 'tool-result',
+            toolCallId: 'tool-1',
+            content: JSON.stringify(result),
+            state: 'complete',
+          },
+        ],
+        toolCalls: [
+          {
+            id: 'tool-1',
+            type: 'function',
+            function: { name: 'validate_notebook', arguments: '{}' },
+          },
+        ],
+      },
+    ]),
+    runId: 'run-2',
+    parentRunId: 'run-1',
+    resume: [
+      {
+        interruptId: 'client_tool_tool-1',
+        status: 'resolved',
+        payload: result,
+      },
+    ],
+  })
+
+  assert.equal(input.parentRunId, 'run-1')
+  assert.deepEqual(input.resume, [
+    {
+      interruptId: 'client_tool_tool-1',
+      status: 'resolved',
+      payload: result,
+    },
+  ])
+  assert.equal(input.messages.at(-1)?.role, 'assistant')
+})
+
+test('notebook BYOK rejects uncorrelated and malformed validation resumes', async () => {
+  const body = requestBody([
+    {
+      id: 'user-1',
+      role: 'user',
+      parts: [{ type: 'text', content: 'Change the notebook.' }],
+      content: 'Change the notebook.',
+    },
+  ])
+
+  await assert.rejects(
+    parseNotebookAiRequest({
+      ...body,
+      resume: [
+        {
+          interruptId: 'client_tool_tool-1',
+          status: 'resolved',
+          payload: { status: 'complete' },
+        },
+      ],
+    }),
+    /Invalid notebook AI request/,
+  )
+  await assert.rejects(
+    parseNotebookAiRequest({
+      ...body,
+      parentRunId: 'run-1',
+      resume: [
+        {
+          interruptId: 'client_tool_tool-1',
+          status: 'resolved',
+          payload: {
+            status: 'repair',
+            phase: 'compile',
+            diagnostic: 'Unexpected token',
+          },
+        },
+      ],
+    }),
+    /Invalid notebook AI request/,
+  )
+  await assert.rejects(
+    parseNotebookAiRequest({
+      ...body,
+      parentRunId: 'run-1',
+      resume: [
+        {
+          interruptId: 'client_tool_tool-1',
+          status: 'approved',
+          payload: { status: 'complete' },
+        },
+      ],
+    }),
+    /status must be "resolved" or "cancelled"/,
+  )
+  await assert.rejects(
+    parseNotebookAiRequest({
+      ...body,
+      state: { execution },
     }),
     /Invalid notebook AI request/,
   )

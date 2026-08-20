@@ -5,11 +5,15 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { load } from 'cheerio'
 import { SandboxBrowser } from '../src/components/examples/SandboxBrowser.client'
 
-function renderBrowser(reloadDisabled: boolean, error?: string) {
+function renderBrowser(
+  reloadDisabled: boolean,
+  error?: string,
+  currentUrl = '/',
+) {
   const props = {
     canGoBack: false,
     canGoForward: false,
-    currentUrl: '/',
+    currentUrl,
     history: ['/'],
     error,
     onBack() {},
@@ -22,6 +26,23 @@ function renderBrowser(reloadDisabled: boolean, error?: string) {
     createElement(SandboxBrowser, props, createElement('div')),
   )
 }
+
+test('renders a fixed preview origin beside an editable path', () => {
+  const page = load(
+    renderBrowser(
+      false,
+      undefined,
+      'https://3000-example.webcontainer-api.io/products?sort=name#list',
+    ),
+  )
+  const input = page('input[type="text"]')
+  const label = input.closest('label')
+  const origin = label.find('span[aria-hidden="true"]')
+
+  assert.match(label.text(), /Preview address\s*localhost:3000/)
+  assert.equal(origin.text().trim(), 'localhost:3000')
+  assert.equal(input.attr('value'), '/products?sort=name#list')
+})
 
 function renderAnnotatedBrowser(annotationMode: boolean) {
   return renderToStaticMarkup(

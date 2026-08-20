@@ -4,7 +4,6 @@ import {
   BrowserIcon,
   ChatCircleDotsIcon,
   CodeIcon,
-  DotsThreeIcon,
   FolderOpenIcon,
   PlayIcon,
   PlusIcon,
@@ -152,6 +151,12 @@ type NotebookChatResize = {
   pointerId: number
   previousCursor: string
   previousUserSelect: string
+}
+type NotebookLayoutStyle = React.CSSProperties & {
+  '--notebook-chat-desktop-track': string
+  '--notebook-chat-mobile-track': string
+  '--notebook-workspace-desktop-track': string
+  '--notebook-workspace-mobile-track': string
 }
 type NotebookTabDrag = {
   active: boolean
@@ -333,8 +338,6 @@ export function ExampleWorkbench({
   const notebookPaneRefs = React.useRef(new Map<string, HTMLDivElement>())
   const notebookLayoutRef = React.useRef<HTMLDivElement>(null)
   const notebookWorkspaceRef = React.useRef<HTMLDivElement>(null)
-  const notebookChatRef = React.useRef<HTMLElement>(null)
-  const notebookChatSeparatorRef = React.useRef<HTMLDivElement>(null)
   const notebookContainerRef = React.useRef<HTMLElement>(null)
   const notebookPaneGridRef = React.useRef<HTMLDivElement>(null)
   const notebookPaneResizeRef = React.useRef<NotebookPaneResize>(null)
@@ -343,6 +346,8 @@ export function ExampleWorkbench({
   const notebookTabDidDragRef = React.useRef(false)
   const [notebookTabDrag, setNotebookTabDrag] =
     React.useState<NotebookTabDrag>()
+  const [notebookArrangeTabId, setNotebookArrangeTabId] =
+    React.useState<string>()
   const [isNotebookPaneResizing, setIsNotebookPaneResizing] =
     React.useState(false)
   const [notebookContainerWidth, setNotebookContainerWidth] = React.useState(0)
@@ -795,7 +800,10 @@ export function ExampleWorkbench({
     setPreviewHistory(initialPreviewHistory)
     const notebookChanged = notebookDefinitionIdRef.current !== definition.id
     notebookDefinitionIdRef.current = definition.id
-    if (notebookChanged) setNotebookWorkspaceVisible(true)
+    if (notebookChanged) {
+      setNotebookArrangeTabId(undefined)
+      setNotebookWorkspaceVisible(true)
+    }
     const previousNotebookTabs = notebookTabsRef.current
     const availablePaths = Object.keys(nextWorkspace.files).filter(
       (path) => !definition.hiddenFiles?.includes(path),
@@ -1850,6 +1858,7 @@ export function ExampleWorkbench({
   }
 
   function activateNotebookTab(tab: NotebookWorkbenchTab) {
+    setNotebookArrangeTabId(undefined)
     setNotebookTabs((current) => activateNotebookWorkbenchTab(current, tab.id))
     if (tab.kind === 'editor') {
       setActivePath(tab.path)
@@ -1890,6 +1899,9 @@ export function ExampleWorkbench({
   }
 
   function closeNotebookTab(tabId: string) {
+    setNotebookArrangeTabId((current) =>
+      current === tabId ? undefined : current,
+    )
     const pane = getNotebookWorkbenchPaneForTab(notebookTabs, tabId)
     const base = pane
       ? activateNotebookWorkbenchPane(notebookTabs, pane.id)
@@ -2295,6 +2307,7 @@ export function ExampleWorkbench({
     if (!workspace) return
     if (!drag.active) {
       drag.active = true
+      setNotebookArrangeTabId(undefined)
       drag.frames = [...notebookPreviewFrameRefs.current.values()].map(
         (frame) => ({ frame, pointerEvents: frame.style.pointerEvents }),
       )
@@ -2459,33 +2472,6 @@ export function ExampleWorkbench({
     setNotebookTabs((current) => resizeNotebookWorkbenchPanes(current, 0.5))
   }
 
-  function applyNotebookChatSplit(
-    percent: number | undefined,
-    splitChat = true,
-  ) {
-    const workspace = notebookWorkspaceRef.current
-    const chat = notebookChatRef.current
-    const separator = notebookChatSeparatorRef.current
-
-    if (percent === undefined) {
-      workspace?.style.removeProperty('left')
-      workspace?.style.removeProperty('width')
-      chat?.style.removeProperty('width')
-      separator?.style.removeProperty('left')
-      return
-    }
-
-    if (workspace) {
-      workspace.style.left = `${percent}%`
-      workspace.style.width = `${100 - percent}%`
-    }
-    if (chat) {
-      if (splitChat) chat.style.width = `${percent}%`
-      else chat.style.removeProperty('width')
-    }
-    if (separator) separator.style.left = `${percent}%`
-  }
-
   function startNotebookChatResize(event: React.PointerEvent<HTMLDivElement>) {
     if (event.button !== 0 || !showsNotebookChatSplit) return
 
@@ -2523,7 +2509,7 @@ export function ExampleWorkbench({
       bounds.max,
     )
     resize.percent = percent
-    applyNotebookChatSplit(percent)
+    setNotebookChatPercent(percent)
   }
 
   function finishNotebookChatResize(event: React.PointerEvent<HTMLDivElement>) {
@@ -2552,14 +2538,13 @@ export function ExampleWorkbench({
     }
 
     const layout = notebookLayoutRef.current
-    const chat = notebookChatRef.current
-    if (!layout || !chat) return
+    if (!layout) return
     event.preventDefault()
 
     const width = layout.getBoundingClientRect().width
     if (width <= 0) return
     const bounds = getNotebookChatPercentBounds(width)
-    const currentWidth = chat.getBoundingClientRect().width
+    const currentWidth = (notebookChatPercent / 100) * width
     const minWidth = (bounds.min / 100) * width
     const maxWidth = (bounds.max / 100) * width
     const nextWidth =
@@ -2576,14 +2561,12 @@ export function ExampleWorkbench({
             )
     const percent = (nextWidth / width) * 100
     setNotebookChatPercent(percent)
-    applyNotebookChatSplit(percent)
   }
 
   function resetNotebookChatSize() {
     const bounds = getNotebookChatPercentBounds(notebookContainerWidth)
     const percent = clamp(DEFAULT_NOTEBOOK_CHAT_PERCENT, bounds.min, bounds.max)
     setNotebookChatPercent(percent)
-    applyNotebookChatSplit(percent)
   }
 
   function startCodePanelResize(event: React.PointerEvent<HTMLDivElement>) {
@@ -2736,8 +2719,6 @@ export function ExampleWorkbench({
   const notebookChatOpen = alternateEditorActive || !notebookWorkspaceOpen
   const showsNotebookChatSplit =
     notebookMode && isDesktop && notebookWorkspaceOpen && notebookChatOpen
-  const keepsNotebookWorkspaceSplit =
-    notebookMode && isDesktop && hasNotebookTabs && notebookChatOpen
   const notebookWorkspaceControls = React.useMemo(
     () => ({
       controlsId: notebookWorkspaceId,
@@ -2748,20 +2729,17 @@ export function ExampleWorkbench({
   )
 
   React.useLayoutEffect(() => {
-    if (!keepsNotebookWorkspaceSplit) {
-      applyNotebookChatSplit(undefined)
-      return
-    }
+    if (!notebookMode || !isDesktop || !hasNotebookTabs) return
 
     const bounds = getNotebookChatPercentBounds(notebookContainerWidth)
     const next = clamp(notebookChatPercent, bounds.min, bounds.max)
-    applyNotebookChatSplit(next, notebookWorkspaceOpen)
     if (next !== notebookChatPercent) setNotebookChatPercent(next)
   }, [
-    keepsNotebookWorkspaceSplit,
+    hasNotebookTabs,
+    isDesktop,
+    notebookMode,
     notebookChatPercent,
     notebookContainerWidth,
-    notebookWorkspaceOpen,
   ])
 
   React.useEffect(() => {
@@ -3267,18 +3245,18 @@ export function ExampleWorkbench({
           if (element) notebookPaneRefs.current.set(pane.id, element)
           else notebookPaneRefs.current.delete(pane.id)
         }}
-        className="grid min-h-0 min-w-0 grid-rows-[2.75rem_minmax(0,1fr)] overflow-hidden bg-background-default @min-[900px]:grid-rows-[2.25rem_minmax(0,1fr)]"
+        className="grid min-h-0 min-w-0 grid-rows-[2.25rem_minmax(0,1fr)] overflow-hidden bg-background-default"
         onPointerDownCapture={() => {
           setNotebookTabs((current) =>
             activateNotebookWorkbenchPane(current, pane.id),
           )
         }}
       >
-        <header className="relative z-20 flex min-w-0 items-center gap-0.5 border-b border-border-default bg-background-default p-0.5 @min-[900px]:gap-1 @min-[900px]:p-1">
+        <header className="relative z-20 flex min-w-0 items-center gap-1 border-b border-border-default bg-background-default p-1">
           <div
             role="tablist"
             aria-label={paneLabel}
-            className="fade-x flex min-w-0 shrink items-center gap-0.5 overflow-x-auto @min-[900px]:gap-1"
+            className="fade-x flex min-w-0 shrink items-center gap-1 overflow-x-auto"
           >
             {paneTabs.map((tab) => {
               const label = getNotebookWorkbenchTabLabel(notebookTabs.tabs, tab)
@@ -3304,91 +3282,113 @@ export function ExampleWorkbench({
               )
               const active = tab.id === paneTab?.id
               const dragging = tab.id === notebookTabDrag?.tabId
+              const canArrange = paneTabs.length > 1 || Boolean(otherPane)
+
+              const tabButton = (
+                <button
+                  ref={(element) => {
+                    if (element) {
+                      notebookTabButtonRefs.current.set(tab.id, element)
+                    } else {
+                      notebookTabButtonRefs.current.delete(tab.id)
+                    }
+                  }}
+                  type="button"
+                  role="tab"
+                  id={getNotebookTabButtonId(tab.id)}
+                  data-tab-id={tab.id}
+                  aria-controls={getNotebookPanelId(tab)}
+                  aria-selected={active}
+                  aria-label={label}
+                  title={label}
+                  tabIndex={active ? 0 : -1}
+                  className="flex min-w-0 touch-pan-x items-center gap-2 px-2.5 text-[13px] focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus"
+                  onClick={() => {
+                    if (notebookTabDidDragRef.current) {
+                      notebookTabDidDragRef.current = false
+                      return
+                    }
+                    if (active && canArrange) {
+                      setNotebookArrangeTabId((current) =>
+                        current === tab.id ? undefined : tab.id,
+                      )
+                      return
+                    }
+                    activateNotebookTab(tab)
+                    focusNotebookTab(tab.id)
+                  }}
+                  onKeyDown={(event) => {
+                    const opensMenu =
+                      active &&
+                      canArrange &&
+                      (event.key === 'Enter' ||
+                        event.key === ' ' ||
+                        event.key === 'ArrowDown' ||
+                        (event.shiftKey && event.key === 'F10'))
+                    if (opensMenu) {
+                      event.preventDefault()
+                      setNotebookArrangeTabId(tab.id)
+                      return
+                    }
+                    navigateNotebookTabs(event)
+                  }}
+                  onPointerDown={(event) => {
+                    if (active && canArrange && event.button === 0) {
+                      event.preventDefault()
+                    }
+                    startNotebookTabDrag(event, tab.id)
+                  }}
+                  onPointerMove={moveNotebookTabDrag}
+                  onPointerUp={finishNotebookTabDrag}
+                  onPointerCancel={cancelNotebookTabDrag}
+                  onLostPointerCapture={cancelNotebookTabDrag}
+                >
+                  {tab.kind === 'preview' ? (
+                    <BrowserIcon className="size-3.5" aria-hidden="true" />
+                  ) : tab.kind === 'editor' ? (
+                    <CodeIcon className="size-3.5" aria-hidden="true" />
+                  ) : (
+                    <TerminalWindowIcon
+                      className="size-3.5"
+                      aria-hidden="true"
+                    />
+                  )}
+                  {tab.kind === 'editor' ? (
+                    <span className="flex min-w-0 max-w-40 items-center overflow-hidden font-ds-mono @min-[900px]:max-w-56">
+                      {editorDirectory ? (
+                        <span className="min-w-0 overflow-hidden whitespace-nowrap text-right text-text-muted">
+                          {editorDirectory}
+                        </span>
+                      ) : null}
+                      <span className="shrink-0">{editorFileName}</span>
+                    </span>
+                  ) : (
+                    <span>{label}</span>
+                  )}
+                </button>
+              )
 
               return (
                 <div
                   key={tab.id}
                   role="presentation"
-                  className={`corner-squircle flex h-10 shrink-0 items-stretch overflow-hidden rounded-lg transition-colors duration-100 motion-reduce:transition-none @min-[900px]:h-7 ${
+                  className={`corner-squircle flex h-7 shrink-0 items-stretch overflow-hidden rounded-lg transition-colors duration-100 motion-reduce:transition-none ${
                     active
-                      ? 'bg-surface-state-pressed text-text-primary'
+                      ? 'bg-surface-state-hover text-text-primary'
                       : 'text-text-secondary hover:bg-surface-state-hover hover:text-text-primary'
                   } ${dragging ? 'opacity-50' : ''}`}
                 >
-                  <button
-                    ref={(element) => {
-                      if (element) {
-                        notebookTabButtonRefs.current.set(tab.id, element)
-                      } else {
-                        notebookTabButtonRefs.current.delete(tab.id)
-                      }
-                    }}
-                    type="button"
-                    role="tab"
-                    id={getNotebookTabButtonId(tab.id)}
-                    data-tab-id={tab.id}
-                    aria-controls={getNotebookPanelId(tab)}
-                    aria-selected={active}
-                    aria-label={label}
-                    title={label}
-                    tabIndex={active ? 0 : -1}
-                    className="flex min-w-0 touch-pan-x items-center gap-2 px-2.5 text-[13px] focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus"
-                    onClick={() => {
-                      if (notebookTabDidDragRef.current) {
-                        notebookTabDidDragRef.current = false
-                        return
-                      }
-                      activateNotebookTab(tab)
-                    }}
-                    onKeyDown={navigateNotebookTabs}
-                    onPointerDown={(event) =>
-                      startNotebookTabDrag(event, tab.id)
-                    }
-                    onPointerMove={moveNotebookTabDrag}
-                    onPointerUp={finishNotebookTabDrag}
-                    onPointerCancel={cancelNotebookTabDrag}
-                    onLostPointerCapture={cancelNotebookTabDrag}
-                  >
-                    {tab.kind === 'preview' ? (
-                      <BrowserIcon className="size-3.5" aria-hidden="true" />
-                    ) : tab.kind === 'editor' ? (
-                      <CodeIcon className="size-3.5" aria-hidden="true" />
-                    ) : (
-                      <TerminalWindowIcon
-                        className="size-3.5"
-                        aria-hidden="true"
-                      />
-                    )}
-                    {tab.kind === 'editor' ? (
-                      <span className="flex min-w-0 max-w-40 items-center overflow-hidden font-ds-mono @min-[900px]:max-w-56">
-                        {editorDirectory ? (
-                          <span className="min-w-0 overflow-hidden whitespace-nowrap text-right text-text-muted">
-                            {editorDirectory}
-                          </span>
-                        ) : null}
-                        <span className="shrink-0">{editorFileName}</span>
-                      </span>
-                    ) : (
-                      <span>{label}</span>
-                    )}
-                  </button>
-
-                  {paneTabs.length > 1 || otherPane ? (
-                    <Dropdown>
-                      <DropdownTrigger>
-                        <button
-                          type="button"
-                          aria-label={`Arrange ${label}`}
-                          className="flex w-10 items-center justify-center text-text-secondary hover:bg-surface-state-pressed hover:text-text-primary focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus @min-[900px]:w-7"
-                        >
-                          <DotsThreeIcon
-                            className="size-3.5"
-                            aria-hidden="true"
-                          />
-                        </button>
-                      </DropdownTrigger>
+                  {active && canArrange ? (
+                    <Dropdown
+                      open={notebookArrangeTabId === tab.id}
+                      onOpenChange={(open) => {
+                        if (!open) setNotebookArrangeTabId(undefined)
+                      }}
+                    >
+                      <DropdownTrigger>{tabButton}</DropdownTrigger>
                       <DropdownContent
                         align="start"
+                        ariaLabelledBy={getNotebookTabButtonId(tab.id)}
                         className="sandbox-ui min-w-44 border-black/10 dark:border-white/10"
                       >
                         {otherPane ? (
@@ -3414,13 +3414,15 @@ export function ExampleWorkbench({
                         )}
                       </DropdownContent>
                     </Dropdown>
-                  ) : null}
+                  ) : (
+                    tabButton
+                  )}
 
                   <Tooltip content={`Close ${label}`} side="bottom">
                     <button
                       type="button"
                       aria-label={`Close ${label}`}
-                      className="flex w-10 items-center justify-center text-text-secondary hover:bg-surface-state-pressed hover:text-text-primary focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus @min-[900px]:w-7"
+                      className="flex w-7 items-center justify-center text-text-secondary hover:bg-surface-state-pressed hover:text-text-primary focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus"
                       onClick={() => closeNotebookTab(tab.id)}
                     >
                       <XIcon className="size-3.5" aria-hidden="true" />
@@ -3444,7 +3446,7 @@ export function ExampleWorkbench({
                 color="gray"
                 size="icon-sm"
                 rounded="lg"
-                className="size-10 shrink-0 bg-surface-state-hover text-text-primary transition-colors duration-100 hover:bg-surface-state-pressed active:scale-95 max-[899px]:bg-surface-state-hover max-[899px]:text-text-primary motion-reduce:transition-none @min-[900px]:size-7"
+                className="size-7 shrink-0 bg-transparent text-text-primary transition-colors duration-100 hover:bg-surface-state-hover active:scale-95 max-[899px]:bg-transparent max-[899px]:text-text-primary max-[899px]:hover:bg-surface-state-hover motion-reduce:transition-none"
                 aria-label={newTabLabel}
               >
                 <PlusIcon className="size-3.5" aria-hidden="true" />
@@ -3504,7 +3506,7 @@ export function ExampleWorkbench({
                     color="gray"
                     size="icon-sm"
                     rounded="lg"
-                    className="size-10 shrink-0 transition-colors duration-100 hover:bg-surface-state-hover active:scale-95 motion-reduce:transition-none @min-[900px]:size-7"
+                    className="size-7 shrink-0 bg-transparent transition-colors duration-100 hover:bg-surface-state-hover active:scale-95 disabled:hover:bg-transparent max-[899px]:bg-transparent max-[899px]:hover:bg-surface-state-hover motion-reduce:transition-none"
                     aria-label="Copy share link"
                     disabled={shareState === 'sharing'}
                     onClick={() => void share()}
@@ -3516,21 +3518,26 @@ export function ExampleWorkbench({
 
               {(flattened || paneIndex === 0) && !notebookChatOpen ? (
                 <>
-                  <Button
-                    ref={notebookShowChatButtonRef}
-                    type="button"
-                    variant="ghost"
-                    size="xs"
-                    rounded="lg"
-                    className="h-10 shrink-0 transition-colors duration-100 hover:translate-y-0 hover:shadow-none motion-reduce:transition-none @min-[900px]:h-7"
-                    onClick={() => alternateEditor?.onActiveChange(true)}
-                  >
-                    <ChatCircleDotsIcon
-                      className="size-3.5"
-                      aria-hidden="true"
-                    />
-                    Show chat
-                  </Button>
+                  <Tooltip content="Show chat" side="bottom">
+                    <Button
+                      ref={notebookShowChatButtonRef}
+                      type="button"
+                      variant="icon"
+                      color="gray"
+                      size="icon-sm"
+                      rounded="lg"
+                      className="size-7 shrink-0 bg-transparent transition-colors duration-100 hover:bg-surface-state-hover active:scale-95 max-[899px]:bg-transparent max-[899px]:hover:bg-surface-state-hover motion-reduce:transition-none"
+                      aria-label="Show chat"
+                      aria-controls={notebookChatId}
+                      aria-expanded={notebookChatOpen}
+                      onClick={() => alternateEditor?.onActiveChange(true)}
+                    >
+                      <ChatCircleDotsIcon
+                        className="size-3.5"
+                        aria-hidden="true"
+                      />
+                    </Button>
+                  </Tooltip>
                   <Tooltip content="Hide side panel">
                     <Button
                       type="button"
@@ -3538,7 +3545,7 @@ export function ExampleWorkbench({
                       color="gray"
                       size="icon-sm"
                       rounded="lg"
-                      className="size-10 shrink-0 transition-colors duration-100 hover:bg-surface-state-hover active:scale-95 motion-reduce:transition-none @min-[900px]:size-7"
+                      className="size-7 shrink-0 bg-transparent transition-colors duration-100 hover:bg-surface-state-hover active:scale-95 max-[899px]:bg-transparent max-[899px]:hover:bg-surface-state-hover motion-reduce:transition-none"
                       aria-label="Hide side panel"
                       aria-controls={notebookWorkspaceId}
                       aria-expanded={true}
@@ -3571,19 +3578,6 @@ export function ExampleWorkbench({
   }
 
   if (alternateEditor) {
-    const notebookWorkspaceClass = hasNotebookTabs
-      ? notebookWorkspaceOpen
-        ? notebookChatOpen
-          ? 'top-0 right-0 left-0 h-1/2 @min-[900px]:bottom-0 @min-[900px]:left-auto @min-[900px]:h-auto @min-[900px]:w-[62%]'
-          : 'inset-0'
-        : 'pointer-events-none invisible top-0 right-0 left-0 h-1/2 @min-[900px]:bottom-0 @min-[900px]:left-auto @min-[900px]:h-auto @min-[900px]:w-[62%]'
-      : 'pointer-events-none invisible inset-0'
-    const notebookChatGeometryClass = notebookWorkspaceOpen
-      ? 'right-0 bottom-0 left-0 h-1/2 border-t border-border-default @min-[900px]:top-0 @min-[900px]:right-auto @min-[900px]:h-auto @min-[900px]:w-[38%] @min-[900px]:border-r @min-[900px]:border-t-0'
-      : 'inset-0'
-    const notebookChatTransformClass = notebookChatOpen
-      ? 'translate-x-0 translate-y-0'
-      : 'pointer-events-none translate-y-full @min-[900px]:-translate-x-full @min-[900px]:translate-y-0'
     const upperFraction = notebookTabs.panes[0]?.fraction ?? 1
     const lowerFraction = notebookTabs.panes[1]?.fraction ?? 0
     const showsNotebookSplit = isDesktop && visibleNotebookPanes.length === 2
@@ -3598,14 +3592,30 @@ export function ExampleWorkbench({
       notebookChatBounds.min,
       notebookChatBounds.max,
     )
+    const notebookLayoutStyle: NotebookLayoutStyle = {
+      '--notebook-chat-desktop-track': notebookWorkspaceOpen
+        ? notebookChatOpen
+          ? `${currentNotebookChatPercent}fr`
+          : '0fr'
+        : '1fr',
+      '--notebook-chat-mobile-track': notebookChatOpen ? '1fr' : '0fr',
+      '--notebook-workspace-desktop-track': notebookWorkspaceOpen
+        ? notebookChatOpen
+          ? `${100 - currentNotebookChatPercent}fr`
+          : '1fr'
+        : '0fr',
+      '--notebook-workspace-mobile-track': notebookWorkspaceOpen
+        ? '1fr'
+        : '0fr',
+    }
 
     return (
       <section
         ref={notebookContainerRef}
-        className={`sandbox-ui @container not-prose relative flex min-w-0 flex-col overflow-hidden border border-border-default bg-background-default text-text-primary ${
+        className={`sandbox-ui @container not-prose relative flex min-w-0 flex-col overflow-hidden bg-background-default text-text-primary ${
           fullscreen
-            ? 'min-h-0 flex-1 rounded-none border-x-0 border-b-0'
-            : 'h-[clamp(520px,75dvh,720px)] rounded-lg'
+            ? 'min-h-0 flex-1 rounded-none'
+            : 'h-[clamp(520px,75dvh,720px)] rounded-lg border border-border-default'
         } ${className ?? ''}`}
         aria-label={`${definition.title} workbench`}
       >
@@ -3638,132 +3648,141 @@ export function ExampleWorkbench({
 
         <div
           ref={notebookLayoutRef}
-          className="relative min-h-0 flex-1 overflow-hidden"
+          className={`relative grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)] grid-rows-[minmax(0,var(--notebook-workspace-mobile-track))_minmax(0,var(--notebook-chat-mobile-track))] overflow-hidden duration-[180ms] [transition-timing-function:cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none @min-[900px]:grid-cols-[minmax(0,var(--notebook-chat-desktop-track))_minmax(0,var(--notebook-workspace-desktop-track))] @min-[900px]:grid-rows-[minmax(0,1fr)] ${
+            isNotebookChatResizing
+              ? 'transition-none'
+              : 'transition-[grid-template-columns,grid-template-rows]'
+          }`}
+          style={notebookLayoutStyle}
         >
           <div
             id={notebookWorkspaceId}
             ref={notebookWorkspaceRef}
             aria-hidden={!notebookWorkspaceOpen}
             inert={!notebookWorkspaceOpen}
-            className={`absolute min-h-0 min-w-0 overflow-hidden ${notebookWorkspaceClass}`}
+            className={`z-20 col-start-1 row-start-1 min-h-0 min-w-0 overflow-hidden @min-[900px]:col-start-2 ${
+              notebookWorkspaceOpen ? '' : 'pointer-events-none'
+            } ${hasNotebookTabs ? '' : 'invisible'}`}
           >
-            <div
-              ref={notebookPaneGridRef}
-              className="grid size-full min-h-0 min-w-0 overflow-hidden"
-              style={splitStyle}
-            >
-              {visibleNotebookPanes.map((pane, index) => (
-                <React.Fragment key={pane.id}>
-                  {renderNotebookPane(
-                    pane,
-                    index,
-                    !isDesktop && notebookTabs.panes.length === 2,
-                  )}
-                  {showsNotebookSplit && index === 0 ? (
-                    <div
-                      role="separator"
-                      tabIndex={0}
-                      aria-label="Resize notebook panes"
-                      aria-orientation="horizontal"
-                      aria-controls={visibleNotebookPanes
-                        .map((candidate) => getNotebookPaneId(candidate.id))
-                        .join(' ')}
-                      aria-valuemin={20}
-                      aria-valuemax={80}
-                      aria-valuenow={Math.round(upperFraction * 100)}
-                      aria-valuetext={`Upper ${Math.round(
-                        upperFraction * 100,
-                      )}%, lower ${Math.round(lowerFraction * 100)}%`}
-                      className="group relative z-20 touch-none cursor-row-resize bg-border-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus"
-                      onDoubleClick={resetNotebookPaneSizes}
-                      onKeyDown={resizeNotebookPanesWithKeyboard}
-                      onPointerDown={startNotebookPaneResize}
-                      onPointerMove={moveNotebookPaneResize}
-                      onPointerUp={finishNotebookPaneResize}
-                      onPointerCancel={finishNotebookPaneResize}
-                      onLostPointerCapture={finishNotebookPaneResize}
-                    >
-                      <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-border-default group-hover:bg-border-focus group-focus-visible:bg-border-focus" />
-                    </div>
-                  ) : null}
-                </React.Fragment>
-              ))}
-            </div>
-
-            {needsNotebookValidationFrame && (previewUrl || sourceDocument) ? (
-              previewUrl ? (
-                <iframe
-                  ref={notebookValidationFrameRef}
-                  title={`${definition.title} validation output`}
-                  aria-hidden="true"
-                  tabIndex={-1}
-                  allow="cross-origin-isolated"
-                  sandbox="allow-forms allow-same-origin allow-scripts"
-                  src={previewUrl}
-                  onLoad={() => handlePreviewLoad()}
-                  className="pointer-events-none absolute size-px opacity-0"
-                />
-              ) : (
-                <iframe
-                  ref={notebookValidationFrameRef}
-                  title={`${definition.title} validation output`}
-                  aria-hidden="true"
-                  tabIndex={-1}
-                  sandbox="allow-scripts"
-                  srcDoc={sourceDocument}
-                  onLoad={() => handlePreviewLoad()}
-                  className="pointer-events-none absolute size-px opacity-0"
-                />
-              )
-            ) : null}
-
-            {notebookTabDrag?.active ? (
+            <div className="relative size-full min-h-0 min-w-0 overflow-hidden">
               <div
-                className="pointer-events-none absolute inset-0 z-40 grid grid-rows-2 gap-2 bg-background-default/40 p-3"
-                aria-hidden="true"
+                ref={notebookPaneGridRef}
+                className="grid size-full min-h-0 min-w-0 overflow-hidden"
+                style={splitStyle}
               >
-                {notebookTabs.panes.length === 1 ? (
-                  <>
-                    <div
-                      className={`flex items-center justify-center rounded-lg border-2 border-dashed text-xs font-medium ${
-                        notebookTabDrag.targetPosition === 'before'
-                          ? 'border-border-focus bg-background-elevated text-text-primary'
-                          : 'border-border-default bg-background-subtle/70 text-text-muted'
-                      }`}
-                    >
-                      Tile above
-                    </div>
-                    <div
-                      className={`flex items-center justify-center rounded-lg border-2 border-dashed text-xs font-medium ${
-                        notebookTabDrag.targetPosition === 'after'
-                          ? 'border-border-focus bg-background-elevated text-text-primary'
-                          : 'border-border-default bg-background-subtle/70 text-text-muted'
-                      }`}
-                    >
-                      Tile below
-                    </div>
-                  </>
-                ) : (
-                  notebookTabs.panes.map((pane, index) => (
-                    <div
-                      key={pane.id}
-                      className={`flex items-center justify-center rounded-lg border-2 border-dashed text-xs font-medium ${
-                        notebookTabDrag.targetPaneId === pane.id
-                          ? 'border-border-focus bg-background-elevated text-text-primary'
-                          : 'border-border-default bg-background-subtle/70 text-text-muted'
-                      }`}
-                    >
-                      Move to {index === 0 ? 'upper' : 'lower'} pane
-                    </div>
-                  ))
-                )}
+                {visibleNotebookPanes.map((pane, index) => (
+                  <React.Fragment key={pane.id}>
+                    {renderNotebookPane(
+                      pane,
+                      index,
+                      !isDesktop && notebookTabs.panes.length === 2,
+                    )}
+                    {showsNotebookSplit && index === 0 ? (
+                      <div
+                        role="separator"
+                        tabIndex={0}
+                        aria-label="Resize notebook panes"
+                        aria-orientation="horizontal"
+                        aria-controls={visibleNotebookPanes
+                          .map((candidate) => getNotebookPaneId(candidate.id))
+                          .join(' ')}
+                        aria-valuemin={20}
+                        aria-valuemax={80}
+                        aria-valuenow={Math.round(upperFraction * 100)}
+                        aria-valuetext={`Upper ${Math.round(
+                          upperFraction * 100,
+                        )}%, lower ${Math.round(lowerFraction * 100)}%`}
+                        className="group relative z-20 touch-none cursor-row-resize bg-border-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus"
+                        onDoubleClick={resetNotebookPaneSizes}
+                        onKeyDown={resizeNotebookPanesWithKeyboard}
+                        onPointerDown={startNotebookPaneResize}
+                        onPointerMove={moveNotebookPaneResize}
+                        onPointerUp={finishNotebookPaneResize}
+                        onPointerCancel={finishNotebookPaneResize}
+                        onLostPointerCapture={finishNotebookPaneResize}
+                      >
+                        <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-border-default group-hover:bg-border-focus group-focus-visible:bg-border-focus" />
+                      </div>
+                    ) : null}
+                  </React.Fragment>
+                ))}
               </div>
-            ) : null}
+
+              {needsNotebookValidationFrame &&
+              (previewUrl || sourceDocument) ? (
+                previewUrl ? (
+                  <iframe
+                    ref={notebookValidationFrameRef}
+                    title={`${definition.title} validation output`}
+                    aria-hidden="true"
+                    tabIndex={-1}
+                    allow="cross-origin-isolated"
+                    sandbox="allow-forms allow-same-origin allow-scripts"
+                    src={previewUrl}
+                    onLoad={() => handlePreviewLoad()}
+                    className="pointer-events-none absolute size-px opacity-0"
+                  />
+                ) : (
+                  <iframe
+                    ref={notebookValidationFrameRef}
+                    title={`${definition.title} validation output`}
+                    aria-hidden="true"
+                    tabIndex={-1}
+                    sandbox="allow-scripts"
+                    srcDoc={sourceDocument}
+                    onLoad={() => handlePreviewLoad()}
+                    className="pointer-events-none absolute size-px opacity-0"
+                  />
+                )
+              ) : null}
+
+              {notebookTabDrag?.active ? (
+                <div
+                  className="pointer-events-none absolute inset-0 z-40 grid grid-rows-2 gap-2 bg-background-default/40 p-3"
+                  aria-hidden="true"
+                >
+                  {notebookTabs.panes.length === 1 ? (
+                    <>
+                      <div
+                        className={`flex items-center justify-center rounded-lg border-2 border-dashed text-xs font-medium ${
+                          notebookTabDrag.targetPosition === 'before'
+                            ? 'border-border-focus bg-background-elevated text-text-primary'
+                            : 'border-border-default bg-background-subtle/70 text-text-muted'
+                        }`}
+                      >
+                        Tile above
+                      </div>
+                      <div
+                        className={`flex items-center justify-center rounded-lg border-2 border-dashed text-xs font-medium ${
+                          notebookTabDrag.targetPosition === 'after'
+                            ? 'border-border-focus bg-background-elevated text-text-primary'
+                            : 'border-border-default bg-background-subtle/70 text-text-muted'
+                        }`}
+                      >
+                        Tile below
+                      </div>
+                    </>
+                  ) : (
+                    notebookTabs.panes.map((pane, index) => (
+                      <div
+                        key={pane.id}
+                        className={`flex items-center justify-center rounded-lg border-2 border-dashed text-xs font-medium ${
+                          notebookTabDrag.targetPaneId === pane.id
+                            ? 'border-border-focus bg-background-elevated text-text-primary'
+                            : 'border-border-default bg-background-subtle/70 text-text-muted'
+                        }`}
+                      >
+                        Move to {index === 0 ? 'upper' : 'lower'} pane
+                      </div>
+                    ))
+                  )}
+                </div>
+              ) : null}
+            </div>
           </div>
 
           {showsNotebookChatSplit ? (
             <div
-              ref={notebookChatSeparatorRef}
               data-notebook-chat-separator=""
               role="separator"
               tabIndex={0}
@@ -3777,6 +3796,7 @@ export function ExampleWorkbench({
                 currentNotebookChatPercent,
               )}%, side panel ${Math.round(100 - currentNotebookChatPercent)}%`}
               className="group absolute inset-y-0 left-[38%] z-20 w-2 -translate-x-1/2 touch-none cursor-col-resize focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus"
+              style={{ left: `${currentNotebookChatPercent}%` }}
               onDoubleClick={resetNotebookChatSize}
               onKeyDown={resizeNotebookChatWithKeyboard}
               onPointerDown={startNotebookChatResize}
@@ -3797,11 +3817,14 @@ export function ExampleWorkbench({
 
           <aside
             id={notebookChatId}
-            ref={notebookChatRef}
             aria-label={alternateEditor.label}
             aria-hidden={!notebookChatOpen}
             inert={!notebookChatOpen}
-            className={`absolute z-10 flex min-h-0 min-w-0 overflow-hidden bg-background-default transition-transform duration-[180ms] [transition-timing-function:cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none ${notebookChatGeometryClass} ${notebookChatTransformClass}`}
+            className={`z-10 col-start-1 row-start-2 flex min-h-0 min-w-0 overflow-hidden bg-background-default @min-[900px]:row-start-1 ${
+              notebookWorkspaceOpen && notebookChatOpen
+                ? 'border-t border-border-default @min-[900px]:border-r @min-[900px]:border-t-0'
+                : ''
+            } ${notebookChatOpen ? '' : 'pointer-events-none'}`}
           >
             <NotebookWorkspaceControlsContext.Provider
               value={notebookWorkspaceControls}
@@ -3820,10 +3843,10 @@ export function ExampleWorkbench({
 
   return (
     <section
-      className={`sandbox-ui not-prose relative flex min-w-0 flex-col overflow-hidden border border-border-default bg-background-default text-text-primary ${
+      className={`sandbox-ui not-prose relative flex min-w-0 flex-col overflow-hidden bg-background-default text-text-primary ${
         fullscreen
-          ? 'min-h-0 flex-1 rounded-none border-x-0 border-b-0'
-          : 'h-[clamp(520px,75dvh,720px)] rounded-lg'
+          ? 'min-h-0 flex-1 rounded-none'
+          : 'h-[clamp(520px,75dvh,720px)] rounded-lg border border-border-default'
       } ${className ?? ''}`}
       aria-label={`${definition.title} workbench`}
     >

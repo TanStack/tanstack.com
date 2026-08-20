@@ -8,6 +8,34 @@ export type TabDefinition = {
   headers?: Array<string>
 }
 
+// Roving-tabindex keyboard nav for a horizontal tablist, mirroring the DS
+// `Tabs` component: Arrow keys move (and wrap) focus between triggers, Home/End
+// jump to the ends, and automatic activation clicks the newly focused trigger
+// so selection follows focus.
+function handleTabListKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+  const keys = ['ArrowRight', 'ArrowLeft', 'Home', 'End']
+  if (!keys.includes(event.key)) return
+  const tabs = Array.from(
+    event.currentTarget.querySelectorAll<HTMLButtonElement>(
+      '[role="tab"]:not(:disabled)',
+    ),
+  )
+  if (tabs.length === 0) return
+  const current = tabs.indexOf(document.activeElement as HTMLButtonElement)
+  let next = current
+  if (event.key === 'ArrowRight')
+    next = current < 0 ? 0 : (current + 1) % tabs.length
+  else if (event.key === 'ArrowLeft')
+    next =
+      current < 0 ? tabs.length - 1 : (current - 1 + tabs.length) % tabs.length
+  else if (event.key === 'Home') next = 0
+  else if (event.key === 'End') next = tabs.length - 1
+  event.preventDefault()
+  const target = tabs[next]
+  target.focus()
+  target.click()
+}
+
 export type TabsProps = {
   tabs?: Array<TabDefinition>
   children?: Array<React.ReactNode> | React.ReactNode
@@ -56,6 +84,7 @@ export function Tabs({
     <div className="my-4">
       <div
         role="tablist"
+        onKeyDown={handleTabListKeyDown}
         className="not-prose fade-x fade-size-x-sm flex items-center justify-start gap-1 overflow-x-auto overflow-y-hidden border-b border-border-default"
       >
         {tabsProp.map((tab) => {
@@ -132,6 +161,7 @@ const Tab = React.memo(function Tab({
       aria-label={tab.name}
       title={tab.name}
       type="button"
+      tabIndex={isActive ? 0 : -1}
       onClick={() => setActiveSlug(tab.slug)}
       className={`relative -mb-px inline-flex shrink-0 items-center justify-center gap-2 border-b-2 px-3 py-2 text-sm font-semibold transition-colors ${
         isActive

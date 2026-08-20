@@ -323,7 +323,14 @@ function PartnersRailItem({
   const grid = railTierLayout[tier]
   const tiered = tieredTierLayout[tier]
   const logoMaxWidth = isTiered ? tiered.logoMaxWidth : grid.logoMaxWidth
-  const logoMaxHeight = isTiered ? tiered.logoMaxHeight : grid.logoMaxHeight
+  // Netlify's wordmark is short for its width, so it reads smaller than its
+  // gold peers; give it ~20px more height in the tiered rail (62px × the 1.25
+  // image scale ≈ 78px, still within the 80px gold row).
+  const logoMaxHeight = isTiered
+    ? partner.id === 'netlify'
+      ? 'max-h-[62px]'
+      : tiered.logoMaxHeight
+    : grid.logoMaxHeight
   const cellClass = isTiered
     ? twMerge('w-full px-2', tiered.rowHeight)
     : twMerge(

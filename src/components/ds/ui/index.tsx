@@ -509,7 +509,7 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
 
     if (!progressive) {
       return (
-        <label
+        <div
           className={twMerge(
             'flex w-full items-center border border-border-default bg-background-surface text-text-muted transition-[border-color,box-shadow] duration-150 focus-within:border-border-focus focus-within:text-text-primary focus-within:ring-2 focus-within:ring-border-focus/40 motion-reduce:transition-none',
             size === 'large'
@@ -518,15 +518,28 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
             pill && 'rounded-full',
           )}
         >
-          <MagnifyingGlassIcon
-            size={size === 'large' ? 21 : 18}
-            weight="bold"
-            aria-hidden="true"
-            className="shrink-0"
-          />
-          {input}
-          {trailing ? <span className="shrink-0">{trailing}</span> : null}
-        </label>
+          {/* The label wraps only the icon + input so clicking the field
+              focuses it. Interactive `trailing` controls (links, buttons) sit
+              outside the label — a form control inside a <label> that also
+              contains other interactive controls is invalid HTML. */}
+          <label
+            className={twMerge(
+              'flex min-w-0 flex-1 items-center',
+              size === 'large' ? 'gap-3' : 'gap-2.5',
+            )}
+          >
+            <MagnifyingGlassIcon
+              size={size === 'large' ? 21 : 18}
+              weight="bold"
+              aria-hidden="true"
+              className="shrink-0"
+            />
+            {input}
+          </label>
+          {trailing ? (
+            <span className="flex shrink-0 items-center">{trailing}</span>
+          ) : null}
+        </div>
       )
     }
 

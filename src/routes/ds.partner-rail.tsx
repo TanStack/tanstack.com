@@ -37,7 +37,11 @@ function PartnerRailPage() {
   const [scales, setScales] = React.useState<Record<string, number>>(() =>
     Object.fromEntries(activePartners.map((p) => [p.id, p.image.scale ?? 1])),
   )
-  const [rowGap, setRowGap] = React.useState(0)
+  const [rowGaps, setRowGaps] = React.useState<Record<PartnerTier, number>>({
+    gold: 0,
+    silver: 0,
+    bronze: 0,
+  })
 
   return (
     <DsPage
@@ -57,13 +61,13 @@ function PartnerRailPage() {
               mode="light"
               sizing={sizing}
               scales={scales}
-              rowGap={rowGap}
+              rowGaps={rowGaps}
             />
             <RailMode
               mode="dark"
               sizing={sizing}
               scales={scales}
-              rowGap={rowGap}
+              rowGaps={rowGaps}
             />
           </div>
         </ComponentPreview>
@@ -72,8 +76,8 @@ function PartnerRailPage() {
           setSizing={setSizing}
           scales={scales}
           setScales={setScales}
-          rowGap={rowGap}
-          setRowGap={setRowGap}
+          rowGaps={rowGaps}
+          setRowGaps={setRowGaps}
         />
       </DsSection>
 
@@ -132,12 +136,12 @@ function RailMode({
   mode,
   sizing,
   scales,
-  rowGap,
+  rowGaps,
 }: {
   mode: 'light' | 'dark'
   sizing: PartnerLogoSizing
   scales: Record<string, number>
-  rowGap: number
+  rowGaps: Record<PartnerTier, number>
 }) {
   return (
     <div
@@ -159,7 +163,7 @@ function RailMode({
           partners={activePartners}
           sizing={sizing}
           scaleOverrides={scales}
-          rowGap={rowGap}
+          rowGaps={rowGaps}
         />
       </div>
     </div>
@@ -177,15 +181,15 @@ function PartnerRailWorkshop({
   setSizing,
   scales,
   setScales,
-  rowGap,
-  setRowGap,
+  rowGaps,
+  setRowGaps,
 }: {
   sizing: PartnerLogoSizing
   setSizing: React.Dispatch<React.SetStateAction<PartnerLogoSizing>>
   scales: Record<string, number>
   setScales: React.Dispatch<React.SetStateAction<Record<string, number>>>
-  rowGap: number
-  setRowGap: React.Dispatch<React.SetStateAction<number>>
+  rowGaps: Record<PartnerTier, number>
+  setRowGaps: React.Dispatch<React.SetStateAction<Record<PartnerTier, number>>>
 }) {
   return (
     <div className="mt-4 rounded-lg border border-dashed border-amber-500/40 bg-amber-500/5 p-4">
@@ -217,14 +221,17 @@ function PartnerRailWorkshop({
           value={sizing.tierStep}
           onChange={(v) => setSizing((s) => ({ ...s, tierStep: v }))}
         />
-        <Slider
-          label={`Vertical spacing · ${rowGap}px`}
-          min={0}
-          max={48}
-          step={1}
-          value={rowGap}
-          onChange={setRowGap}
-        />
+        {TIERS.map((tier) => (
+          <Slider
+            key={tier}
+            label={`${tier} spacing · ${rowGaps[tier]}px`}
+            min={0}
+            max={48}
+            step={1}
+            value={rowGaps[tier]}
+            onChange={(v) => setRowGaps((g) => ({ ...g, [tier]: v }))}
+          />
+        ))}
       </div>
       <div className="mt-4">
         <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-text-muted">
@@ -244,7 +251,7 @@ function PartnerRailWorkshop({
           ))}
         </div>
       </div>
-      <ConfigOutput sizing={sizing} scales={scales} rowGap={rowGap} />
+      <ConfigOutput sizing={sizing} scales={scales} rowGaps={rowGaps} />
     </div>
   )
 }
@@ -283,11 +290,11 @@ function Slider({
 function ConfigOutput({
   sizing,
   scales,
-  rowGap,
+  rowGaps,
 }: {
   sizing: PartnerLogoSizing
   scales: Record<string, number>
-  rowGap: number
+  rowGaps: Record<PartnerTier, number>
 }) {
   const scaleLines = activePartners
     .filter((p) => Math.abs((scales[p.id] ?? 1) - 1) > 0.001)
@@ -295,7 +302,7 @@ function ConfigOutput({
     .join('\n')
   const text = `PARTNER_LOGO_GOLD = { maxWidth: ${sizing.goldMaxWidth}, maxHeight: ${sizing.goldMaxHeight} }
 PARTNER_LOGO_TIER_STEP = ${sizing.tierStep.toFixed(2)}
-row gap (between logos) = ${rowGap}px
+row gap per tier = gold ${rowGaps.gold}px · silver ${rowGaps.silver}px · bronze ${rowGaps.bronze}px
 
 // image.scale per partner (paste into partners.tsx):
 ${scaleLines || '  (all default 1.0)'}`

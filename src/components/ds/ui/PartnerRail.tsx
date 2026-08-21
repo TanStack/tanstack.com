@@ -23,14 +23,15 @@ import {
 } from '~/utils/partner-inquiry'
 import { PartnerTierLogo, type PartnerLogoSizing } from './PartnerTierLogo'
 
-// Per-tier LAYOUT (not logo size — that lives in the rubric). Gold and silver
-// stack one-up; bronze is two-up. Lower tiers rest more muted and lift on hover.
+// Per-tier LAYOUT (not logo size — that lives in the rubric). Gold stacks
+// one-up; silver and bronze are two-up. Lower tiers rest more muted and lift
+// on hover.
 const tierLayout: Record<
   PartnerTier,
   { rowHeight: string; perRow: 1 | 2; idleOpacity: string }
 > = {
   gold: { rowHeight: 'h-[80px]', perRow: 1, idleOpacity: '' },
-  silver: { rowHeight: 'h-[62px]', perRow: 1, idleOpacity: 'opacity-80' },
+  silver: { rowHeight: 'h-[62px]', perRow: 2, idleOpacity: 'opacity-80' },
   bronze: { rowHeight: 'h-[56px]', perRow: 2, idleOpacity: 'opacity-65' },
 }
 

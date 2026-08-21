@@ -135,15 +135,15 @@ const tieredTierLayout: Record<
 > = {
   gold: {
     rowHeight: 'h-[80px]',
-    logoMaxWidth: 'max-w-[210px]',
-    logoMaxHeight: 'max-h-[46px]',
+    logoMaxWidth: 'max-w-[105px]',
+    logoMaxHeight: 'max-h-[23px]',
     perRow: 1,
     idleOpacity: '',
   },
   silver: {
     rowHeight: 'h-[62px]',
-    logoMaxWidth: 'max-w-[145px]',
-    logoMaxHeight: 'max-h-[30px]',
+    logoMaxWidth: 'max-w-[109px]',
+    logoMaxHeight: 'max-h-[23px]',
     perRow: 1,
     idleOpacity: 'opacity-80',
   },
@@ -324,11 +324,11 @@ function PartnersRailItem({
   const tiered = tieredTierLayout[tier]
   const logoMaxWidth = isTiered ? tiered.logoMaxWidth : grid.logoMaxWidth
   // Netlify's wordmark is short for its width, so it reads smaller than its
-  // gold peers; give it ~20px more height in the tiered rail (62px × the 1.25
-  // image scale ≈ 78px, still within the 80px gold row).
+  // gold peers; give it a proportional height boost in the tiered rail
+  // (~1.35× the gold base height).
   const logoMaxHeight = isTiered
     ? partner.id === 'netlify'
-      ? 'max-h-[62px]'
+      ? 'max-h-[31px]'
       : tiered.logoMaxHeight
     : grid.logoMaxHeight
   const cellClass = isTiered

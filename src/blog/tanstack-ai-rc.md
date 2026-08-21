@@ -157,7 +157,7 @@ We wanted to highlight what each of us is most proud of.
 
 > **Tom:** The type safety and the care taken with the core design are things I'm really proud of. It's elegantly designed. The persistence and durability systems are pretty amazing as well. I'm also proud that it works regardless of which hosting platform or provider you use, and that we treated every capability with the same level of care.
 
-> **Alem:** These guys left me with nothing to highlight. I'm proud of the team, what we've accomplished, and the architecture, I guess...
+> **Alem:** These guys left me with nothing to highlight. I'm proud of the architecture, and honestly how fast we pulled all of this off. It's proof that with the right minds no feat is impossible.
 
 ## What's Next?
 

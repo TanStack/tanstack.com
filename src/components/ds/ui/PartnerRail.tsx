@@ -63,6 +63,7 @@ export function PartnerRail({
   titleTo = '/partners',
   sizing,
   scaleOverrides,
+  rowGap,
 }: {
   analyticsPlacement: PartnerPlacement
   partners: Array<RailPartner>
@@ -70,6 +71,8 @@ export function PartnerRail({
   titleTo?: '/partners'
   sizing?: PartnerLogoSizing
   scaleOverrides?: Record<string, number>
+  /** Vertical gap (px) between logo rows within a tier — workshop hook. */
+  rowGap?: number
 }) {
   const placementContext = usePartnerPlacementContext({
     orderStrategy: 'tier-rotated',
@@ -109,6 +112,7 @@ export function PartnerRail({
                 ? 'grid grid-cols-2'
                 : 'flex flex-col'
             }
+            style={rowGap !== undefined ? { rowGap } : undefined}
           >
             {row.partners.map((partner) => {
               const index = slotIndex++

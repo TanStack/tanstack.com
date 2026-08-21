@@ -237,7 +237,7 @@ function PartnerRailWorkshop({
               <Slider
                 label={`Vertical spacing · ${rowGaps[tier]}px`}
                 min={0}
-                max={48}
+                max={100}
                 step={1}
                 value={rowGaps[tier]}
                 onChange={(v) => setRowGaps((g) => ({ ...g, [tier]: v }))}

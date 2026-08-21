@@ -9,6 +9,8 @@ authors:
   - Tom Beckenham
 ---
 
+![TanStack AI Enters the RC Phase](/blog-assets/tanstack-ai-rc/header.png)
+
 The journey of TanStack AI started with a humble `chat()` method, four providers, a custom protocol with ambitious goals, and two people who wanted to make working with AI great.
 
 We've come a long way since then. We made our adapters small and tree-shakable. We grew from four providers to 24, and that number continues to increase. We adopted AG-UI as our official protocol, which is supported by more than 20 agent frameworks across many programming languages. That means you can bring TanStack AI into virtually any stack, on either the client or the server.

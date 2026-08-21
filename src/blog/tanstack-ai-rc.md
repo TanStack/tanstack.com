@@ -21,7 +21,7 @@ Today, TanStack AI officially enters the release candidate phase.
 
 ## The Journey So Far
 
-*Cue "Carry On Wayward Son" by Kansas.*
+_Cue "Carry On Wayward Son" by Kansas._
 
 We've been very busy.
 

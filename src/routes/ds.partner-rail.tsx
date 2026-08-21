@@ -157,7 +157,7 @@ function RailMode({
       <div className="absolute left-6 top-4 font-ds-mono text-ds-mono-caps-xs uppercase text-text-muted">
         {mode}
       </div>
-      <div className="w-[300px]">
+      <div className="w-[260px]">
         <PartnerRail
           analyticsPlacement="blog_rail"
           partners={activePartners}

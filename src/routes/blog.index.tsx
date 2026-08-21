@@ -4,9 +4,9 @@ import * as v from 'valibot'
 import { BlogFilterBar } from '~/components/BlogFilterBar'
 import { type BlogCardPost } from '~/components/BlogCard'
 import { Eyebrow } from '~/components/ds/ui'
+import { PartnerRail } from '~/components/ds/ui/PartnerRail'
 import { BlogPostCard } from '~/components/ds/ui/BlogPostCard'
 import { PageHeader } from '~/components/ds/ui/PageHeader'
-import { PartnersRail } from '~/components/RightRail'
 import { libraries, type LibrarySlim } from '~/libraries'
 import {
   getDistinctAuthors,
@@ -304,10 +304,9 @@ function BlogIndex() {
             rail beside the centered 1280px content without overlapping it. */}
         <div className="pointer-events-none absolute inset-y-0 right-0 hidden min-[1900px]:block">
           <div className="pointer-events-auto sticky top-[calc(var(--navbar-height)+1.5rem)] mr-4 flex max-h-[calc(100dvh-var(--navbar-height)-2rem)] w-[300px] flex-col overflow-y-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            <PartnersRail
+            <PartnerRail
               analyticsPlacement="blog_rail"
               partners={activePartners}
-              layout="tiered"
             />
           </div>
         </div>

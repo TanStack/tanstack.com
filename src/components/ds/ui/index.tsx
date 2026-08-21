@@ -911,3 +911,8 @@ export {
   type StatsLayout,
   type StatItem,
 } from './StatsSection'
+// NOTE: PartnerRail / PartnerTierLogo are intentionally NOT re-exported here.
+// They import ~/utils/partners (which imports many .svg assets), and this
+// barrel is imported by components covered by the .svg-less unit test runner —
+// pulling partners in through the barrel breaks those tests. Import them
+// directly from './PartnerRail' / './PartnerTierLogo' instead.

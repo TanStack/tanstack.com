@@ -77,6 +77,7 @@ import { Route as DsStatsRouteImport } from './routes/ds.stats'
 import { Route as DsSpinnerRouteImport } from './routes/ds.spinner'
 import { Route as DsShadowsRouteImport } from './routes/ds.shadows'
 import { Route as DsSemanticRouteImport } from './routes/ds.semantic'
+import { Route as DsPartnerRailRouteImport } from './routes/ds.partner-rail'
 import { Route as DsPanelRouteImport } from './routes/ds.panel'
 import { Route as DsPaletteRouteImport } from './routes/ds.palette'
 import { Route as DsPageHeaderRouteImport } from './routes/ds.page-header'
@@ -550,6 +551,11 @@ const DsShadowsRoute = DsShadowsRouteImport.update({
 const DsSemanticRoute = DsSemanticRouteImport.update({
   id: '/semantic',
   path: '/semantic',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsPartnerRailRoute = DsPartnerRailRouteImport.update({
+  id: '/partner-rail',
+  path: '/partner-rail',
   getParentRoute: () => DsRoute,
 } as any)
 const DsPanelRoute = DsPanelRouteImport.update({
@@ -1355,6 +1361,7 @@ export interface FileRoutesByFullPath {
   '/ds/page-header': typeof DsPageHeaderRoute
   '/ds/palette': typeof DsPaletteRoute
   '/ds/panel': typeof DsPanelRoute
+  '/ds/partner-rail': typeof DsPartnerRailRoute
   '/ds/semantic': typeof DsSemanticRoute
   '/ds/shadows': typeof DsShadowsRoute
   '/ds/spinner': typeof DsSpinnerRoute
@@ -1551,6 +1558,7 @@ export interface FileRoutesByTo {
   '/ds/page-header': typeof DsPageHeaderRoute
   '/ds/palette': typeof DsPaletteRoute
   '/ds/panel': typeof DsPanelRoute
+  '/ds/partner-rail': typeof DsPartnerRailRoute
   '/ds/semantic': typeof DsSemanticRoute
   '/ds/shadows': typeof DsShadowsRoute
   '/ds/spinner': typeof DsSpinnerRoute
@@ -1753,6 +1761,7 @@ export interface FileRoutesById {
   '/ds/page-header': typeof DsPageHeaderRoute
   '/ds/palette': typeof DsPaletteRoute
   '/ds/panel': typeof DsPanelRoute
+  '/ds/partner-rail': typeof DsPartnerRailRoute
   '/ds/semantic': typeof DsSemanticRoute
   '/ds/shadows': typeof DsShadowsRoute
   '/ds/spinner': typeof DsSpinnerRoute
@@ -1959,6 +1968,7 @@ export interface FileRouteTypes {
     | '/ds/page-header'
     | '/ds/palette'
     | '/ds/panel'
+    | '/ds/partner-rail'
     | '/ds/semantic'
     | '/ds/shadows'
     | '/ds/spinner'
@@ -2155,6 +2165,7 @@ export interface FileRouteTypes {
     | '/ds/page-header'
     | '/ds/palette'
     | '/ds/panel'
+    | '/ds/partner-rail'
     | '/ds/semantic'
     | '/ds/shadows'
     | '/ds/spinner'
@@ -2356,6 +2367,7 @@ export interface FileRouteTypes {
     | '/ds/page-header'
     | '/ds/palette'
     | '/ds/panel'
+    | '/ds/partner-rail'
     | '/ds/semantic'
     | '/ds/shadows'
     | '/ds/spinner'
@@ -3061,6 +3073,13 @@ declare module '@tanstack/react-router' {
       path: '/semantic'
       fullPath: '/ds/semantic'
       preLoaderRoute: typeof DsSemanticRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/partner-rail': {
+      id: '/ds/partner-rail'
+      path: '/partner-rail'
+      fullPath: '/ds/partner-rail'
+      preLoaderRoute: typeof DsPartnerRailRouteImport
       parentRoute: typeof DsRoute
     }
     '/ds/panel': {
@@ -4281,6 +4300,7 @@ interface DsRouteChildren {
   DsPageHeaderRoute: typeof DsPageHeaderRoute
   DsPaletteRoute: typeof DsPaletteRoute
   DsPanelRoute: typeof DsPanelRoute
+  DsPartnerRailRoute: typeof DsPartnerRailRoute
   DsSemanticRoute: typeof DsSemanticRoute
   DsShadowsRoute: typeof DsShadowsRoute
   DsSpinnerRoute: typeof DsSpinnerRoute
@@ -4308,6 +4328,7 @@ const DsRouteChildren: DsRouteChildren = {
   DsPageHeaderRoute: DsPageHeaderRoute,
   DsPaletteRoute: DsPaletteRoute,
   DsPanelRoute: DsPanelRoute,
+  DsPartnerRailRoute: DsPartnerRailRoute,
   DsSemanticRoute: DsSemanticRoute,
   DsShadowsRoute: DsShadowsRoute,
   DsSpinnerRoute: DsSpinnerRoute,

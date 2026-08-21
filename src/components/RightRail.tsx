@@ -5,8 +5,8 @@ import {
   PartnerImage,
   partnerTierFlares,
   partnerTierLabels,
-  type Partner,
   type PartnerTier,
+  type RailPartner,
 } from '~/utils/partners'
 import {
   getPartnerPlacementAnalyticsMetadata,
@@ -23,16 +23,6 @@ import {
   PARTNER_INQUIRY_HREF,
   trackPartnerInquiry,
 } from '~/utils/partner-inquiry'
-
-type RailPartner = {
-  category: Partner['category']
-  id: string
-  name: string
-  href: string
-  score: number
-  tier?: PartnerTier
-  image: Parameters<typeof PartnerImage>[0]['config']
-}
 
 type RightRailProps = {
   children: React.ReactNode
@@ -119,74 +109,16 @@ const railTierLayout: Record<
   },
 }
 
-// The tiered rail groups partners into centered tier sections (a hairline +
-// icon + label header per tier). Logos scale down tier by tier — gold largest
-// and one-up, silver medium and one-up, bronze smallest and two-up — and fade
-// slightly, matching the design reference's spacing and relative scale.
-const tieredTierLayout: Record<
-  PartnerTier,
-  {
-    rowHeight: string
-    logoMaxWidth: string
-    logoMaxHeight: string
-    perRow: 1 | 2
-    idleOpacity: string
-  }
-> = {
-  gold: {
-    rowHeight: 'h-[80px]',
-    logoMaxWidth: 'max-w-[105px]',
-    logoMaxHeight: 'max-h-[23px]',
-    perRow: 1,
-    idleOpacity: '',
-  },
-  silver: {
-    rowHeight: 'h-[62px]',
-    logoMaxWidth: 'max-w-[109px]',
-    logoMaxHeight: 'max-h-[23px]',
-    perRow: 1,
-    idleOpacity: 'opacity-80',
-  },
-  bronze: {
-    rowHeight: 'h-[56px]',
-    logoMaxWidth: 'max-w-[100px]',
-    logoMaxHeight: 'max-h-[22px]',
-    perRow: 2,
-    idleOpacity: 'opacity-65',
-  },
-}
-
-// Centered tier header: a hairline on each side of the tier's icon + label.
-function TierHeader({ tier }: { tier: PartnerTier }) {
-  const flare = partnerTierFlares[tier]
-  return (
-    <div className="flex w-full items-center gap-2">
-      <span className="h-px flex-1 bg-border-default" />
-      <span className={twMerge('flex items-center gap-1.5', flare.labelColor)}>
-        <span className={flare.iconColor}>{flare.icon}</span>
-        <span className="text-[10px] font-semibold uppercase tracking-[0.18em]">
-          {partnerTierLabels[tier]}
-        </span>
-      </span>
-      <span className="h-px flex-1 bg-border-default" />
-    </div>
-  )
-}
-
 export function PartnersRail({
   analyticsPlacement,
   partners,
   title = 'Partners',
   titleTo = '/partners',
-  layout = 'grid',
 }: {
   analyticsPlacement: PartnerPlacement
   partners: Array<RailPartner>
   title?: string
   titleTo?: '/partners'
-  /** `grid` (default) tiles logos in tier rows; `tiered` stacks centered tier
-   *  sections whose logos scale down tier by tier (bronze is two-up). */
-  layout?: 'grid' | 'tiered'
 }) {
   const placementContext = usePartnerPlacementContext({
     orderStrategy: 'tier-rotated',
@@ -199,54 +131,6 @@ export function PartnersRail({
   )
 
   let slotIndex = 0
-
-  if (layout === 'tiered') {
-    return (
-      <div className="group/rail flex w-full flex-col gap-6">
-        <div className="flex w-full items-center justify-between gap-2">
-          <Link
-            className="text-xs font-medium opacity-60 hover:opacity-100"
-            to={titleTo}
-          >
-            {title}
-          </Link>
-          <a
-            href={PARTNER_INQUIRY_HREF}
-            className="text-xs font-medium opacity-60 hover:underline hover:opacity-100"
-            onClick={() => trackPartnerInquiry(analyticsPlacement)}
-          >
-            Become a Partner
-          </a>
-        </div>
-        {rowsByTier.map((row) => (
-          <section key={row.tier} className="flex w-full flex-col gap-2.5">
-            <TierHeader tier={row.tier} />
-            <div
-              className={
-                tieredTierLayout[row.tier].perRow === 2
-                  ? 'grid grid-cols-2'
-                  : 'flex flex-col'
-              }
-            >
-              {row.partners.map((partner) => {
-                const index = slotIndex++
-                return (
-                  <PartnersRailItem
-                    key={partner.id}
-                    analyticsPlacement={analyticsPlacement}
-                    index={index}
-                    placementContext={placementContext}
-                    partner={partner}
-                    variant="tiered"
-                  />
-                )
-              })}
-            </div>
-          </section>
-        ))}
-      </div>
-    )
-  }
 
   return (
     <div className="group/rail flex flex-col border-l border-gray-500/20 rounded-bl-lg overflow-hidden w-full">
@@ -307,42 +191,13 @@ function PartnersRailItem({
   index,
   placementContext,
   partner,
-  variant = 'grid',
 }: {
   analyticsPlacement: PartnerPlacement
   index: number
   placementContext: PartnerPlacementContext
   partner: RailPartner
-  variant?: 'grid' | 'tiered'
 }) {
-  const tier = partner.tier ?? 'bronze'
-  // Tiered cells are borderless, fixed-height logo slots that fade by tier; grid
-  // cells are borderless tiles that share edges within a tier row. Both read
-  // logo bounds from their own concretely-typed config.
-  const isTiered = variant === 'tiered'
-  const grid = railTierLayout[tier]
-  const tiered = tieredTierLayout[tier]
-  const logoMaxWidth = isTiered ? tiered.logoMaxWidth : grid.logoMaxWidth
-  // Netlify's wordmark is short for its width, so it reads smaller than its
-  // gold peers; give it a proportional height boost in the tiered rail
-  // (~1.35× the gold base height).
-  const logoMaxHeight = isTiered
-    ? partner.id === 'netlify'
-      ? 'max-h-[31px]'
-      : tiered.logoMaxHeight
-    : grid.logoMaxHeight
-  const cellClass = isTiered
-    ? twMerge('w-full px-2', tiered.rowHeight)
-    : twMerge(
-        'border-b border-r border-gray-500/20',
-        grid.flexBasis,
-        grid.minHeight,
-        grid.padding,
-      )
-  // Lower tiers rest more muted and lift to full opacity/color on rail hover.
-  const logoIdleClass = isTiered
-    ? twMerge(tiered.idleOpacity, 'group-hover/rail:opacity-100')
-    : ''
+  const layout = railTierLayout[partner.tier ?? 'bronze']
   const analyticsMetadata = getPartnerPlacementAnalyticsMetadata(
     partner,
     placementContext,
@@ -364,8 +219,10 @@ function PartnersRailItem({
       target="_blank"
       rel="noreferrer"
       className={twMerge(
-        'flex items-center justify-center overflow-hidden transition-colors duration-150 ease-out hover:bg-gray-500/10',
-        cellClass,
+        'flex items-center justify-center overflow-hidden border-b border-r border-gray-500/20 transition-colors duration-150 ease-out hover:bg-gray-500/10',
+        layout.flexBasis,
+        layout.minHeight,
+        layout.padding,
       )}
       onClick={() => {
         let destinationHost: string | undefined
@@ -386,13 +243,12 @@ function PartnersRailItem({
     >
       <div
         className={twMerge(
-          'w-full flex items-center justify-center mx-auto grayscale brightness-90 group-hover/rail:grayscale-0 group-hover/rail:brightness-100 transition-[filter,opacity] duration-500 ease-out',
-          logoMaxWidth,
-          logoIdleClass,
+          'w-full flex items-center justify-center mx-auto grayscale brightness-90 group-hover/rail:grayscale-0 group-hover/rail:brightness-100 transition-[filter] duration-500 ease-out',
+          layout.logoMaxWidth,
         )}
       >
         <PartnerImage
-          className={twMerge('w-full object-contain', logoMaxHeight)}
+          className={twMerge('w-full object-contain', layout.logoMaxHeight)}
           config={partner.image}
           alt={partner.name}
         />

@@ -31,6 +31,7 @@ import strapiLightSvg from '~/images/strapi-light.svg'
 import strapiDarkSvg from '~/images/strapi-dark.svg'
 import serpapiWhiteSvg from '~/images/serpapi-white.svg'
 import serpapiBlackSvg from '~/images/serpapi-black.svg'
+import type { CSSProperties } from 'react'
 import type { Library } from '~/libraries'
 import cloudflareWhiteSvg from '~/images/cloudflare-white.svg'
 import cloudflareBlackSvg from '~/images/cloudflare-black.svg'
@@ -56,7 +57,7 @@ function LearnMoreButton() {
   )
 }
 
-type PartnerImageConfig =
+export type PartnerImageConfig =
   | { light: string; dark: string; scale?: number }
   | { src: string; scale?: number }
 
@@ -171,10 +172,14 @@ export function PartnerImage({
   className,
   config,
   alt,
+  style,
 }: {
   className?: string
   config: PartnerImageConfig
   alt: string
+  /** Merged onto the <img> — e.g. a runtime-derived `maxHeight` from the
+   *  tier-sizing rubric that can't be expressed as a static Tailwind class. */
+  style?: CSSProperties
 }) {
   const scaleStyle = config.scale ? { transform: `scale(${config.scale})` } : {}
 
@@ -191,6 +196,7 @@ export function PartnerImage({
           className={
             className ? `${className} dark:hidden` : 'w-full dark:hidden'
           }
+          style={style}
           width={200}
           height={100}
           sizes="(max-width: 640px) 80px, (max-width: 1024px) 150px, 200px"
@@ -204,6 +210,7 @@ export function PartnerImage({
               ? `${className} hidden dark:block`
               : 'w-full hidden dark:block'
           }
+          style={style}
           width={200}
           height={100}
           sizes="(max-width: 640px) 80px, (max-width: 1024px) 150px, 200px"
@@ -218,6 +225,7 @@ export function PartnerImage({
         src={config.src}
         alt={alt}
         className={className ?? 'w-full'}
+        style={style}
         width={200}
         height={100}
         loading="lazy"
@@ -225,6 +233,19 @@ export function PartnerImage({
       />
     </div>
   )
+}
+
+// Shared shape for the partner rails — a slim projection of a Partner plus the
+// image config the rail renders. Lives here so the DS PartnerRail and the
+// legacy RightRail can share one type.
+export type RailPartner = {
+  category: Partner['category']
+  id: string
+  name: string
+  href: string
+  score: number
+  tier?: PartnerTier
+  image: PartnerImageConfig
 }
 
 export const partnerCategories = [

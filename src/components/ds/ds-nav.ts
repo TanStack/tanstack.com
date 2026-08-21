@@ -185,6 +185,11 @@ export const dsNav: Array<DsNavSection> = [
         sections: ['Disclosure'],
       },
       {
+        label: 'Partner Rail',
+        to: '/ds/partner-rail',
+        sections: ['Rail', 'Tiers', 'Per-logo scale'],
+      },
+      {
         label: 'Spinner',
         to: '/ds/spinner',
         sections: ['Sizes & color', 'Headbanger'],

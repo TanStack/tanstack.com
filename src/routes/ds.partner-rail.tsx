@@ -196,6 +196,7 @@ function PartnerRailWorkshop({
       <div className="mb-3 text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400">
         Workshop controls · temporary — remove once balanced
       </div>
+      {/* Rubric (applies across all tiers) */}
       <div className="grid gap-4 sm:grid-cols-3">
         <Slider
           label={`Gold max-width · ${sizing.goldMaxWidth}px`}
@@ -221,36 +222,43 @@ function PartnerRailWorkshop({
           value={sizing.tierStep}
           onChange={(v) => setSizing((s) => ({ ...s, tierStep: v }))}
         />
-        {TIERS.map((tier) => (
-          <Slider
-            key={tier}
-            label={`${tier} spacing · ${rowGaps[tier]}px`}
-            min={0}
-            max={48}
-            step={1}
-            value={rowGaps[tier]}
-            onChange={(v) => setRowGaps((g) => ({ ...g, [tier]: v }))}
-          />
-        ))}
       </div>
-      <div className="mt-4">
-        <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-text-muted">
-          Per-logo scale
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {activePartners.map((p) => (
-            <Slider
-              key={p.id}
-              label={`${p.name} · ${(scales[p.id] ?? 1).toFixed(2)}`}
-              min={0.5}
-              max={1.6}
-              step={0.01}
-              value={scales[p.id] ?? 1}
-              onChange={(v) => setScales((s) => ({ ...s, [p.id]: v }))}
-            />
-          ))}
-        </div>
-      </div>
+
+      {/* One group per tier: the tier's vertical spacing sits right above the
+          per-logo scale controls for exactly that tier's logos. */}
+      {TIERS.map((tier) => {
+        const tierPartners = activePartners.filter((p) => p.tier === tier)
+        return (
+          <div key={tier} className="mt-5 border-t border-amber-500/20 pt-4">
+            <div className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-amber-600 dark:text-amber-400">
+              {tier} · {tierPartners.length} logos
+            </div>
+            <div className="mb-3 max-w-xs">
+              <Slider
+                label={`Vertical spacing · ${rowGaps[tier]}px`}
+                min={0}
+                max={48}
+                step={1}
+                value={rowGaps[tier]}
+                onChange={(v) => setRowGaps((g) => ({ ...g, [tier]: v }))}
+              />
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {tierPartners.map((p) => (
+                <Slider
+                  key={p.id}
+                  label={`${p.name} · ${(scales[p.id] ?? 1).toFixed(2)}`}
+                  min={0.5}
+                  max={1.6}
+                  step={0.01}
+                  value={scales[p.id] ?? 1}
+                  onChange={(v) => setScales((s) => ({ ...s, [p.id]: v }))}
+                />
+              ))}
+            </div>
+          </div>
+        )
+      })}
       <ConfigOutput sizing={sizing} scales={scales} rowGaps={rowGaps} />
     </div>
   )

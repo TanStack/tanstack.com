@@ -92,8 +92,8 @@ function getCanonicalHeadTags(matches: ReadonlyArray<CanonicalHeadMatch>): {
     (match) => match.staticData?.includeSearchInCanonical === true,
   )
   // Routes whose canonical depends on loader data (e.g. old-version docs
-  // canonicalizing to /latest) emit their own link tag from their head().
-  // The root must not also emit one — the router does not dedupe links, and
+  // canonicalizing to /latest) emit their own URL tags from their head().
+  // The root must not also emit them — the router does not dedupe links, and
   // this head only sees pre-loader match snapshots, so it can't compute the
   // override itself.
   const ownsCanonicalLink = matches.some(
@@ -120,8 +120,12 @@ function getCanonicalHeadTags(matches: ReadonlyArray<CanonicalHeadMatch>): {
           ]
         : [],
     meta: [
-      { property: 'og:url', content: pageUrl },
-      { name: 'twitter:url', content: pageUrl },
+      ...(!ownsCanonicalLink
+        ? [
+            { property: 'og:url', content: pageUrl },
+            { name: 'twitter:url', content: pageUrl },
+          ]
+        : []),
       ...(!shouldIndexPath(canonicalPath)
         ? [{ name: 'robots', content: 'noindex, nofollow' }]
         : []),

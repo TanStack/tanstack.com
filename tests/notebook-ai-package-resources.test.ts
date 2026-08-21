@@ -397,6 +397,26 @@ test('rejects oversized package responses before reading them', async () => {
   )
 })
 
+test('checks package redirects without using the unsupported edge redirect mode', async () => {
+  let redirect: RequestRedirect | undefined
+  const fetcher: typeof fetch = async (_input, init) => {
+    redirect = init?.redirect
+    return new Response(null, {
+      status: 302,
+      headers: { location: 'https://example.com/package.json' },
+    })
+  }
+
+  await assert.rejects(
+    inspectNotebookAiModule(clientExecution, '@tanstack/charts', {
+      fetchState: createNotebookAiPackageFetchState(),
+      fetcher,
+    }),
+    /Package resource request failed \(302\)/,
+  )
+  assert.equal(redirect, 'manual')
+})
+
 function createFetcher(responses: Record<string, string>): typeof fetch {
   return async (input) => {
     const url =

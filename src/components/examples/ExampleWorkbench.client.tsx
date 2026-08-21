@@ -81,6 +81,7 @@ import {
   type NotebookWorkbenchPane,
   type NotebookWorkbenchTab,
 } from '~/utils/notebook-workbench-tabs'
+import type { NotebookAiPromptLifecycle } from '~/utils/notebook-ai-prompt-queue'
 import {
   createExampleWorkspace,
   type ExampleDefinition,
@@ -88,7 +89,10 @@ import {
 } from '~/utils/example-workspace'
 import { CodeMirrorEditor } from './CodeMirrorEditor.client'
 import {
+  MAX_SANDBOX_BROWSER_ANNOTATION_PROMPT_LENGTH,
   SandboxBrowser,
+  formatSandboxBrowserAnnotations,
+  type SandboxBrowserAnnotation,
   type SandboxBrowserAnnotationTarget,
 } from './SandboxBrowser.client'
 
@@ -251,6 +255,10 @@ export function ExampleWorkbench({
     content: React.ReactNode
     label: string
     onActiveChange(active: boolean): void
+    submitPrompt?(
+      content: string,
+      lifecycle?: NotebookAiPromptLifecycle,
+    ): boolean
   }
   autoRun?: boolean
   className?: string
@@ -382,12 +390,18 @@ export function ExampleWorkbench({
   const notebookPreviewAnnotationTargetsRef = React.useRef(
     new Map<string, SandboxBrowserAnnotationTarget>(),
   )
+  const notebookPreviewAnnotationsRef = React.useRef(
+    new Map<string, ReadonlyArray<SandboxBrowserAnnotation>>(),
+  )
   const [, setNotebookPreviewRevision] = React.useState(0)
   const [previewNavigationError, setPreviewNavigationError] = React.useState('')
   const [previewAnnotationMode, setPreviewAnnotationModeActive] =
     React.useState(false)
   const [previewAnnotationTarget, setPreviewAnnotationTarget] =
     React.useState<SandboxBrowserAnnotationTarget>()
+  const [previewAnnotations, setPreviewAnnotations] = React.useState<
+    ReadonlyArray<SandboxBrowserAnnotation>
+  >([])
   const [webContainerSession, setWebContainerSession] = React.useState<
     WebContainerExampleSession | undefined
   >()
@@ -803,6 +817,8 @@ export function ExampleWorkbench({
     if (notebookChanged) {
       setNotebookArrangeTabId(undefined)
       setNotebookWorkspaceVisible(true)
+      notebookPreviewAnnotationsRef.current.clear()
+      setPreviewAnnotations([])
     }
     const previousNotebookTabs = notebookTabsRef.current
     const availablePaths = Object.keys(nextWorkspace.files).filter(
@@ -1914,6 +1930,7 @@ export function ExampleWorkbench({
     notebookPreviewNavigationErrorsRef.current.delete(tabId)
     notebookPreviewAnnotationModesRef.current.delete(tabId)
     notebookPreviewAnnotationTargetsRef.current.delete(tabId)
+    notebookPreviewAnnotationsRef.current.delete(tabId)
     if (currentNotebookPreviewTabIdRef.current === tabId) {
       currentNotebookPreviewTabIdRef.current = next.tabs.find(
         (tab) => tab.kind === 'preview',
@@ -2242,6 +2259,83 @@ export function ExampleWorkbench({
     }
     setPreviewAnnotationTarget(undefined)
     sendPreviewBrowserCommand({ kind: 'annotation', enabled: true })
+  }
+
+  function addPreviewAnnotation(
+    annotation: SandboxBrowserAnnotation,
+    tabId?: string,
+  ) {
+    if (tabId) {
+      const current = notebookPreviewAnnotationsRef.current.get(tabId) ?? []
+      notebookPreviewAnnotationsRef.current.set(tabId, [...current, annotation])
+      setNotebookPreviewRevision((revision) => revision + 1)
+      return
+    }
+    setPreviewAnnotations((current) => [...current, annotation])
+  }
+
+  function removePreviewAnnotation(annotationId: string, tabId?: string) {
+    if (tabId) {
+      const current = notebookPreviewAnnotationsRef.current.get(tabId) ?? []
+      const next = current.filter(
+        (annotation) => annotation.id !== annotationId,
+      )
+      if (next.length) {
+        notebookPreviewAnnotationsRef.current.set(tabId, next)
+      } else {
+        notebookPreviewAnnotationsRef.current.delete(tabId)
+      }
+      setNotebookPreviewRevision((revision) => revision + 1)
+      return
+    }
+    setPreviewAnnotations((current) =>
+      current.filter((annotation) => annotation.id !== annotationId),
+    )
+  }
+
+  function submitPreviewAnnotations(
+    annotations: ReadonlyArray<SandboxBrowserAnnotation>,
+    tabId: string,
+  ) {
+    if (!alternateEditor?.submitPrompt || annotations.length === 0) return false
+    const content = formatSandboxBrowserAnnotations(annotations)
+    if (content.length > MAX_SANDBOX_BROWSER_ANNOTATION_PROMPT_LENGTH) {
+      return false
+    }
+
+    const definitionId = notebookDefinitionIdRef.current
+    const accepted = alternateEditor.submitPrompt(content, {
+      onDiscarded() {
+        if (
+          notebookDefinitionIdRef.current !== definitionId ||
+          !notebookTabsRef.current.tabs.some((tab) => tab.id === tabId)
+        ) {
+          return
+        }
+        const current = notebookPreviewAnnotationsRef.current.get(tabId) ?? []
+        const currentIds = new Set(current.map((annotation) => annotation.id))
+        notebookPreviewAnnotationsRef.current.set(tabId, [
+          ...annotations.filter((annotation) => !currentIds.has(annotation.id)),
+          ...current,
+        ])
+        setNotebookPreviewRevision((revision) => revision + 1)
+      },
+    })
+    alternateEditor.onActiveChange(true)
+    if (!accepted) return false
+
+    const submittedIds = new Set(annotations.map((annotation) => annotation.id))
+    const current = notebookPreviewAnnotationsRef.current.get(tabId) ?? []
+    const next = current.filter(
+      (annotation) => !submittedIds.has(annotation.id),
+    )
+    if (next.length) {
+      notebookPreviewAnnotationsRef.current.set(tabId, next)
+    } else {
+      notebookPreviewAnnotationsRef.current.delete(tabId)
+    }
+    setNotebookPreviewRevision((revision) => revision + 1)
+    return true
   }
 
   function capturePreview(tabId?: string) {
@@ -2871,6 +2965,7 @@ export function ExampleWorkbench({
       >
         <SandboxBrowser
           annotationAvailable={Boolean(previewUrl || sourceDocument)}
+          annotations={notebookPreviewAnnotationsRef.current.get(tab.id) ?? []}
           annotationMode={notebookPreviewAnnotationModesRef.current.has(tab.id)}
           annotationTarget={notebookPreviewAnnotationTargetsRef.current.get(
             tab.id,
@@ -2889,15 +2984,26 @@ export function ExampleWorkbench({
           onAnnotationModeChange={(active) =>
             setPreviewAnnotationMode(active, tab.id)
           }
+          onAddAnnotation={(annotation) =>
+            addPreviewAnnotation(annotation, tab.id)
+          }
           onBack={() => navigateNotebookPreviewHistory(tab.id, -1)}
           onClearAnnotationTarget={() => clearPreviewAnnotationTarget(tab.id)}
           onForward={() => navigateNotebookPreviewHistory(tab.id, 1)}
           onNavigate={(url) =>
             sendPreviewBrowserCommand({ kind: 'navigate', url }, tab.id)
           }
+          onRemoveAnnotation={(annotationId) =>
+            removePreviewAnnotation(annotationId, tab.id)
+          }
           onReload={() => reloadPreview(tab.id)}
           openExternalUrl={tabExternalPreviewUrl}
           reloadDisabled={runActive || runDisabled}
+          onSubmitAnnotations={
+            alternateEditor?.submitPrompt
+              ? (annotations) => submitPreviewAnnotations(annotations, tab.id)
+              : undefined
+          }
         >
           {previewUrl ? (
             <iframe
@@ -4137,6 +4243,7 @@ export function ExampleWorkbench({
           >
             <SandboxBrowser
               annotationAvailable={Boolean(previewUrl || sourceDocument)}
+              annotations={previewAnnotations}
               annotationMode={previewAnnotationMode}
               annotationTarget={previewAnnotationTarget}
               canGoBack={canGoBackInExamplePreview(previewHistory)}
@@ -4149,11 +4256,15 @@ export function ExampleWorkbench({
               history={[...new Set(previewHistory.entries)]}
               navigationAvailable={Boolean(previewUrl || sourceDocument)}
               onAnnotationModeChange={setPreviewAnnotationMode}
+              onAddAnnotation={(annotation) => addPreviewAnnotation(annotation)}
               onBack={() => sendPreviewBrowserCommand({ kind: 'back' })}
               onClearAnnotationTarget={clearPreviewAnnotationTarget}
               onForward={() => sendPreviewBrowserCommand({ kind: 'forward' })}
               onNavigate={(url) =>
                 sendPreviewBrowserCommand({ kind: 'navigate', url })
+              }
+              onRemoveAnnotation={(annotationId) =>
+                removePreviewAnnotation(annotationId)
               }
               onReload={reloadPreview}
               openExternalUrl={externalPreviewUrl}

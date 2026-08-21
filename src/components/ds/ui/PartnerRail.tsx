@@ -39,14 +39,18 @@ function TierHeader({ tier }: { tier: PartnerTier }) {
   const flare = partnerTierFlares[tier]
   return (
     <div className="flex w-full items-center gap-2">
-      <span className={twMerge('h-px flex-1 bg-current', flare.labelColor)} />
+      <span
+        className={twMerge('h-px flex-1 bg-current/40', flare.labelColor)}
+      />
       <span className={twMerge('flex items-center gap-1.5', flare.labelColor)}>
         <span className={flare.iconColor}>{flare.icon}</span>
         <span className="text-[10px] font-semibold uppercase tracking-[0.18em]">
           {partnerTierLabels[tier]}
         </span>
       </span>
-      <span className={twMerge('h-px flex-1 bg-current', flare.labelColor)} />
+      <span
+        className={twMerge('h-px flex-1 bg-current/40', flare.labelColor)}
+      />
     </div>
   )
 }

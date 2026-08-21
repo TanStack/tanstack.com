@@ -47,6 +47,7 @@ export function PartnerTierLogo({
   tier,
   sizing,
   scaleOverride,
+  mode,
   className,
 }: {
   image: PartnerImageConfig
@@ -56,6 +57,9 @@ export function PartnerTierLogo({
   sizing?: PartnerLogoSizing
   /** Workshop-only per-logo optical weight; production reads image.scale. */
   scaleOverride?: number
+  /** Force the light/dark logo variant (for dual-theme previews); production
+   *  omits it so the logo follows the global theme. */
+  mode?: 'light' | 'dark'
   /** Wrapper presentation (grayscale / idle opacity) supplied by the caller. */
   className?: string
 }) {
@@ -76,6 +80,7 @@ export function PartnerTierLogo({
         style={{ maxHeight }}
         config={config}
         alt={name}
+        mode={mode}
       />
     </div>
   )

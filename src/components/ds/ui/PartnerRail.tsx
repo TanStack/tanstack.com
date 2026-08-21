@@ -68,6 +68,7 @@ export function PartnerRail({
   sizing,
   scaleOverrides,
   rowGaps,
+  mode,
 }: {
   analyticsPlacement: PartnerPlacement
   partners: Array<RailPartner>
@@ -77,6 +78,8 @@ export function PartnerRail({
   scaleOverrides?: Record<string, number>
   /** Vertical gap (px) between logo rows, per tier — workshop hook. */
   rowGaps?: Partial<Record<PartnerTier, number>>
+  /** Force the light/dark logo variant (for dual-theme previews). */
+  mode?: 'light' | 'dark'
 }) {
   const placementContext = usePartnerPlacementContext({
     orderStrategy: 'tier-rotated',
@@ -129,6 +132,7 @@ export function PartnerRail({
                   partner={partner}
                   sizing={sizing}
                   scaleOverride={scaleOverrides?.[partner.id]}
+                  mode={mode}
                 />
               )
             })}
@@ -146,6 +150,7 @@ function PartnerRailLogo({
   partner,
   sizing,
   scaleOverride,
+  mode,
 }: {
   analyticsPlacement: PartnerPlacement
   index: number
@@ -153,6 +158,7 @@ function PartnerRailLogo({
   partner: RailPartner
   sizing?: PartnerLogoSizing
   scaleOverride?: number
+  mode?: 'light' | 'dark'
 }) {
   const tier = partner.tier ?? 'bronze'
   const layout = tierLayout[tier]
@@ -203,6 +209,7 @@ function PartnerRailLogo({
         tier={tier}
         sizing={sizing}
         scaleOverride={scaleOverride}
+        mode={mode}
         className={twMerge(
           'grayscale brightness-90 transition-[filter,opacity] duration-500 ease-out group-hover/rail:grayscale-0 group-hover/rail:brightness-100 group-hover/rail:opacity-100',
           layout.idleOpacity,

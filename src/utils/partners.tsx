@@ -173,6 +173,7 @@ export function PartnerImage({
   config,
   alt,
   style,
+  mode,
 }: {
   className?: string
   config: PartnerImageConfig
@@ -180,10 +181,34 @@ export function PartnerImage({
   /** Merged onto the <img> — e.g. a runtime-derived `maxHeight` from the
    *  tier-sizing rubric that can't be expressed as a static Tailwind class. */
   style?: CSSProperties
+  /** Force the light or dark logo variant instead of following the global
+   *  `dark:` theme. Used by previews that render both themes on one page (where
+   *  the CSS `dark:` variant can't be scoped per panel). */
+  mode?: 'light' | 'dark'
 }) {
   const scaleStyle = config.scale ? { transform: `scale(${config.scale})` } : {}
 
   if ('light' in config && 'dark' in config) {
+    // Forced variant: render only the requested asset, no `dark:` toggling.
+    if (mode) {
+      return (
+        <div
+          className="w-full flex items-center justify-center"
+          style={scaleStyle}
+        >
+          <img
+            src={mode === 'dark' ? config.dark : config.light}
+            alt={alt}
+            loading="lazy"
+            className={className ?? 'w-full'}
+            style={style}
+            width={200}
+            height={100}
+            sizes="(max-width: 640px) 80px, (max-width: 1024px) 150px, 200px"
+          />
+        </div>
+      )
+    }
     return (
       <div
         className="w-full flex items-center justify-center"

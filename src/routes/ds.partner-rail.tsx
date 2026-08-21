@@ -164,6 +164,7 @@ function RailMode({
           sizing={sizing}
           scaleOverrides={scales}
           rowGaps={rowGaps}
+          mode={mode}
         />
       </div>
     </div>

@@ -23,16 +23,15 @@ import {
 } from '~/utils/partner-inquiry'
 import { PartnerTierLogo, type PartnerLogoSizing } from './PartnerTierLogo'
 
-// Per-tier LAYOUT (not logo size — that lives in the rubric). Gold stacks
-// one-up; silver and bronze are two-up. Lower tiers rest more muted and lift
-// on hover.
+// Per-tier LAYOUT (not logo size — that lives in the rubric). Every tier is a
+// single column; lower tiers rest more muted and lift to color on hover.
 const tierLayout: Record<
   PartnerTier,
-  { rowHeight: string; perRow: 1 | 2; idleOpacity: string }
+  { rowHeight: string; idleOpacity: string }
 > = {
-  gold: { rowHeight: 'h-[80px]', perRow: 1, idleOpacity: '' },
-  silver: { rowHeight: 'h-[62px]', perRow: 2, idleOpacity: 'opacity-80' },
-  bronze: { rowHeight: 'h-[56px]', perRow: 2, idleOpacity: 'opacity-65' },
+  gold: { rowHeight: 'h-[80px]', idleOpacity: '' },
+  silver: { rowHeight: 'h-[62px]', idleOpacity: 'opacity-80' },
+  bronze: { rowHeight: 'h-[56px]', idleOpacity: 'opacity-65' },
 }
 
 // Centered tier header: a hairline on each side of the tier's icon + label.
@@ -108,11 +107,7 @@ export function PartnerRail({
         <section key={row.tier} className="flex w-full flex-col gap-2.5">
           <TierHeader tier={row.tier} />
           <div
-            className={
-              tierLayout[row.tier].perRow === 2
-                ? 'grid grid-cols-2'
-                : 'flex flex-col'
-            }
+            className="flex flex-col"
             style={
               rowGaps?.[row.tier] !== undefined
                 ? { rowGap: rowGaps[row.tier] }

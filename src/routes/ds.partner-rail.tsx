@@ -126,7 +126,10 @@ function RailMode({
 }) {
   return (
     <div
-      className={`ds-mode-${mode} relative flex justify-center bg-background-default px-6 pb-8 pt-10 text-text-primary ${
+      // `dark` (not just `ds-mode-dark`) so PartnerImage's Tailwind `dark:`
+      // logo swap fires locally — otherwise the dark panel shows the light,
+      // dark-ink logos on a dark background (i.e. nothing visible).
+      className={`${mode === 'dark' ? 'dark ' : ''}ds-mode-${mode} relative flex justify-center bg-background-default px-6 pb-8 pt-10 text-text-primary ${
         mode === 'dark'
           ? 'border-t border-white/10 lg:border-l lg:border-t-0'
           : ''

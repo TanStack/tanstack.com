@@ -13,7 +13,7 @@ authors:
 
 The journey of TanStack AI started with a humble `chat()` method, four providers, a custom protocol with ambitious goals, and two people who wanted to make working with AI great.
 
-We've come a long way since then. We made our adapters small and tree-shakable. We grew from four providers to 24, and that number continues to increase. We adopted AG-UI as our official protocol, which is supported by more than 20 agent frameworks across many programming languages. That means you can bring TanStack AI into virtually any stack, on either the client or the server.
+We've come a long way since then. We made our adapters small and tree-shakable. We grew from four providers to 24, and that number continues to increase. We adopted [AG-UI](https://tanstack.com/ai/latest/docs/migration/ag-ui-compliance) as our official protocol, which is supported by more than 20 agent frameworks across many programming languages. That means you can bring TanStack AI into virtually any stack, on either the client or the server.
 
 We've also expanded into areas such as media generation, MCP, sandboxing, agent harnesses, and much more.
 
@@ -29,11 +29,11 @@ We've been very busy.
 
 Our initial goal was to create an architecture that could be easily extended not only by us, but also by third parties. Over the past year, we've achieved that.
 
-One of the biggest payoffs since we started has been making the right architectural decisions early and building everything on top of those foundations. One of the strongest parts of that architecture is our middleware system.
+One of the biggest payoffs since we started has been making the right architectural decisions early and building everything on top of those foundations. One of the strongest parts of that architecture is our [middleware system](https://tanstack.com/ai/latest/docs/advanced/middleware).
 
 You can build just about anything with middleware. Chat persistence, agent harnesses running inside sandboxes, memory, telemetry, durability, and many other features are simply middleware functions that you pass into your `chat()` method.
 
-Another powerful feature we offer is lazy tool calling, which can help reduce token costs with a simple Boolean flag. We also support advanced interrupt scenarios driven by your schemas. You can modify tool-call arguments, trigger multiple interrupts, and mix and match these capabilities while keeping everything completely type-safe from end to end.
+Another powerful feature we offer is [lazy tool calling](https://tanstack.com/ai/latest/docs/tools/lazy-tool-discovery), which can help reduce token costs with a simple Boolean flag. We also support advanced [interrupt scenarios](https://tanstack.com/ai/latest/docs/interrupts/overview) driven by your schemas. You can modify tool-call arguments, trigger multiple interrupts, and mix and match these capabilities while keeping everything completely type-safe from end to end.
 
 ### Transport Without Lock-In
 
@@ -43,9 +43,9 @@ We don't want to lock you into a particular way of building applications. From t
 
 That philosophy is reflected across our entire API surface, and transport is no exception.
 
-We currently provide first-party primitives for streaming through classic SSE, WebSockets, and HTTP streams, as well as support for Cap'n Web. You can also build custom adapters to stream over something even more specialized.
+We currently provide first-party primitives for [streaming](https://tanstack.com/ai/latest/docs/chat/streaming) through classic SSE, WebSockets, and HTTP streams, as well as support for Cap'n Web. You can also build custom adapters to stream over something even more specialized.
 
-On the client, these streams are consumed through custom connection types, giving you complete control over your transport layer from end to end.
+On the client, these streams are consumed through custom [connection adapters](https://tanstack.com/ai/latest/docs/chat/connection-adapters), giving you complete control over your transport layer from end to end.
 
 ### Consistency and a Minimal API Surface
 
@@ -87,9 +87,9 @@ Those features include persistence and durability, which allow users to refresh 
 
 You can also sandbox your agents. For example, you can run Codex inside a remote or local sandbox, give it a task, and have it report the results back to your application.
 
-The `chat()` method also supports telemetry, structured outputs, model-specific type safety, an ever-growing provider list, and multi-turn structured outputs that let users continue talking to an LLM while receiving structured results between turns.
+The `chat()` method also supports [telemetry](https://tanstack.com/ai/latest/docs/advanced/otel), [structured outputs](https://tanstack.com/ai/latest/docs/structured-outputs/overview), model-specific type safety, an ever-growing provider list, and [multi-turn structured outputs](https://tanstack.com/ai/latest/docs/structured-outputs/multi-turn) that let users continue talking to an LLM while receiving structured results between turns.
 
-Then there's code mode: a powerful feature that allows agents to write code and execute it inside isolates. This can improve tool-calling performance, optimize costs, and reduce response times.
+Then there's [code mode](https://tanstack.com/ai/latest/docs/code-mode/code-mode): a powerful feature that allows agents to write code and execute it inside isolates. This can improve tool-calling performance, optimize costs, and reduce response times.
 
 Add MCP support, generic interrupts, and everything else in the system, and `chat()` becomes the foundation for applications ranging from simple assistants to sophisticated agent platforms.
 
@@ -97,7 +97,7 @@ Add MCP support, generic interrupts, and everything else in the system, and `cha
 
 We treat generation APIs as first-class features. They aren't afterthoughts bolted onto the framework for the five people who might use them.
 
-We support real-time audio, text-to-speech, image generation, video generation, audio generation, transcription, and music generation. These APIs are considered stable and ready to use across more than 100 models.
+We support [real-time audio](https://tanstack.com/ai/latest/docs/media/realtime-chat), [text-to-speech](https://tanstack.com/ai/latest/docs/media/text-to-speech), [image generation](https://tanstack.com/ai/latest/docs/media/image-generation), [video generation](https://tanstack.com/ai/latest/docs/media/video-generation), [audio generation](https://tanstack.com/ai/latest/docs/media/audio-generation), [transcription](https://tanstack.com/ai/latest/docs/media/transcription), and music generation. These APIs are considered stable and ready to use across more than 100 models.
 
 Depending on your use case, we support either streaming work directly to the client or performing one-off generations. Switching between these approaches is seamless.
 
@@ -105,13 +105,13 @@ We also support passing images as references for new generations, provide access
 
 ### Embeddings, Reranking, and Memory
 
-For the RAG fans out there, we support embeddings and reranking through providers such as Cohere and OpenRouter.
+For the RAG fans out there, we support [embeddings](https://tanstack.com/ai/latest/docs/embeddings) and [reranking](https://tanstack.com/ai/latest/docs/rerank/rerank) through providers such as Cohere and OpenRouter.
 
-We also support agent memory from every major vendor in the industry, allowing your agents to remember user preferences, retain context, and recall important facts across conversations.
+We also support [agent memory](https://tanstack.com/ai/latest/docs/memory/overview) from every major vendor in the industry, allowing your agents to remember user preferences, retain context, and recall important facts across conversations.
 
 ### Sandboxes and Agent Harnesses
 
-Our sandbox and agent-harness primitives allow you to build anything from a simple "fix this PR" agent to a sophisticated, Lovable-style application powered by conversational coding agents.
+Our [sandbox](https://tanstack.com/ai/latest/docs/sandbox/overview) and [agent-harness](https://tanstack.com/ai/latest/docs/sandbox/harnesses) primitives allow you to build anything from a simple "fix this PR" agent to a sophisticated, Lovable-style application powered by conversational coding agents.
 
 You can branch conversations, start multiple runs simultaneously, switch between them, show users several versions generated from the same prompt, persist every run, and make generated artifacts durable and easily accessible.
 
@@ -125,21 +125,21 @@ We even give you the building blocks required to create a custom coding agent th
 
 ### MCP
 
-Our MCP support is designed not only to let you connect to external MCP servers, but also to make those servers type-safe.
+Our [MCP support](https://tanstack.com/ai/latest/docs/tools/mcp) is designed not only to let you connect to external MCP servers, but also to make those servers type-safe.
 
-The TanStack AI MCP package includes a CLI that generates types for tools exposed by remote MCP servers, preserving type safety across the entire integration.
+The TanStack AI MCP package includes a [CLI that generates types](https://tanstack.com/ai/latest/docs/tools/mcp-codegen) for tools exposed by remote MCP servers, preserving type safety across the entire integration.
 
 You can also create MCP connection pools and control their lifecycle. Your application can decide whether a chat should close a connection, keep it open, return it to a pool, or apply some other connection strategy.
 
 ### Persistence and Durability
 
-Finally, our persistence story is one of the areas where TanStack AI truly shines.
+Finally, our [persistence](https://tanstack.com/ai/latest/docs/persistence/overview) story is one of the areas where TanStack AI truly shines.
 
 We provide the primitives required to build stores that expose the data you need to persist conversations into your databases and services. You implement your store, run it against our conformance suite to verify that it behaves correctly, and then pass it into the persistence middleware.
 
 At that point, you have fully persisted conversations.
 
-Users can return after a month and continue exactly where they left off. Even if they refresh the website while a response is being generated, our pluggable durability adapters can persist the stream chunks in memory, Durable Streams, or another supported system.
+Users can return after a month and continue exactly where they left off. Even if they refresh the website while a response is being generated, our pluggable [durability adapters](https://tanstack.com/ai/latest/docs/resumable-streams/overview) can persist the stream chunks in memory, Durable Streams, or another supported system.
 
 When the user reconnects, they can resume the stream without missing anything.
 

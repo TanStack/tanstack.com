@@ -21,7 +21,7 @@ import {
   getExampleStartingFileName,
   getExampleStartingPath,
 } from '~/utils/sandbox'
-import { seo } from '~/utils/seo'
+import { canonicalUrl, seo } from '~/utils/seo'
 import { ogImageUrl } from '~/utils/og'
 import { capitalize, slugToTitle } from '~/utils/utils'
 import * as v from 'valibot'
@@ -112,6 +112,11 @@ export const Route = createFileRoute(
   '/_library/$libraryId/$version/docs/framework/$framework/examples/$',
 )({
   component: RouteComponent,
+  // This route's head() emits the rel=canonical link (it may point at the
+  // /latest equivalent), so the root route must not emit its own.
+  staticData: {
+    ownsCanonicalLink: true,
+  },
   validateSearch: v.object({
     path: v.optional(v.string()),
     panel: v.optional(v.string()),
@@ -136,6 +141,16 @@ export const Route = createFileRoute(
 
     // Used to tell the github contents api where to start looking for files in the target repository
     const repoStartingDirPath = `examples/${examplePath}`
+
+    // Old-version examples that still exist on latest canonicalize to /latest,
+    // mirroring the docs routes. Resolved in parallel with the example fetch.
+    const canonicalPathOverridePromise = findLatestExampleCanonicalPath({
+      branch,
+      latestBranch: getBranch(library, 'latest'),
+      params,
+      repo: library.repo,
+      repoStartingDirPath,
+    })
 
     try {
       const clientConfig = getClientExampleConfig({
@@ -163,6 +178,7 @@ export const Route = createFileRoute(
         return {
           kind: 'client' as const,
           autoStart: clientConfig.autoStart,
+          canonicalPathOverride: await canonicalPathOverridePromise,
           definition: createRepositoryExampleDefinition({
             binaryFiles: result.binaryFiles,
             entry: clientConfig.entry,
@@ -236,6 +252,7 @@ export const Route = createFileRoute(
 
       return {
         kind: 'external' as const,
+        canonicalPathOverride: await canonicalPathOverridePromise,
         currentCode,
         repoStartingDirPath,
         currentPath,
@@ -247,23 +264,32 @@ export const Route = createFileRoute(
       throw error
     }
   },
-  head: ({ params }) => {
+  head: ({ params, loaderData }) => {
     const library = getLibrary(params.libraryId)
     const exampleName = slugToTitle(params._splat || '')
     const frameworkName = capitalize(params.framework)
     const ogTitle = `${frameworkName} ${library.name} ${exampleName} Example`
     const ogDescription = `An example showing how to implement ${exampleName} in ${frameworkName} using ${library.name}.`
 
+    const canonicalHref = canonicalUrl(
+      loaderData?.canonicalPathOverride ?? buildExamplePath(params),
+    )
+
     return {
-      meta: seo({
-        title: `${ogTitle} | ${library.name} Docs`,
-        description: ogDescription,
-        image: ogImageUrl(library.id, {
-          title: ogTitle,
+      meta: [
+        ...seo({
+          title: `${ogTitle} | ${library.name} Docs`,
           description: ogDescription,
+          image: ogImageUrl(library.id, {
+            title: ogTitle,
+            description: ogDescription,
+          }),
+          noindex: library.visible === false,
         }),
-        noindex: library.visible === false,
-      }),
+        { property: 'og:url', content: canonicalHref },
+        { name: 'twitter:url', content: canonicalHref },
+      ],
+      links: [{ rel: 'canonical', href: canonicalHref }],
     }
   },
   headers: ({ params }) => {
@@ -730,6 +756,55 @@ function isRouteNotFoundError(error: unknown) {
     isNotFound(error) ||
     (error !== null && typeof error === 'object' && 'isNotFound' in error)
   )
+}
+
+function buildExamplePath(params: {
+  libraryId: string
+  version: string
+  framework: string
+  _splat?: string
+}) {
+  return `/${params.libraryId}/${params.version}/docs/framework/${params.framework}/examples/${params._splat ?? ''}`
+}
+
+/**
+ * When serving an old version, checks whether the same example directory
+ * exists on the latest branch so the page can canonicalize to its /latest
+ * equivalent. Fails open (undefined) so a lookup hiccup never breaks the page.
+ */
+async function findLatestExampleCanonicalPath(opts: {
+  branch: string
+  latestBranch: string
+  params: {
+    libraryId: string
+    version: string
+    framework: string
+    _splat?: string
+  }
+  repo: string
+  repoStartingDirPath: string
+}): Promise<string | undefined> {
+  if (opts.latestBranch === opts.branch) {
+    return undefined
+  }
+
+  try {
+    const contents = await fetchRepoDirectoryContents({
+      data: {
+        repo: opts.repo,
+        branch: opts.latestBranch,
+        startingPath: opts.repoStartingDirPath,
+      },
+    })
+
+    if (!contents || contents.length === 0) {
+      return undefined
+    }
+
+    return buildExamplePath({ ...opts.params, version: 'latest' })
+  } catch {
+    return undefined
+  }
 }
 
 function getExampleWorkspacePath(

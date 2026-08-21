@@ -12,7 +12,10 @@ import {
   type ExampleWorkbenchRunResult,
   type ExampleWorkbenchRunRequest,
 } from '~/components/examples/ExampleWorkbench.client'
-import { NotebookAssistant } from '~/components/notebook/NotebookAssistant.client'
+import {
+  NotebookAssistant,
+  type NotebookAssistantHandle,
+} from '~/components/notebook/NotebookAssistant.client'
 import { NotebookDraftSkeleton } from '~/components/notebook/NotebookLoading'
 import { useLoginModal } from '~/contexts/LoginModalContext'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
@@ -94,6 +97,7 @@ export function NotebookDraftPage({ template }: { template?: string }) {
   const [assistantRunning, setAssistantRunning] = React.useState(false)
   const [runRequest, setRunRequest] =
     React.useState<ExampleWorkbenchRunRequest>()
+  const assistantRef = React.useRef<NotebookAssistantHandle>(null)
   const workbenchRef = React.useRef<ExampleWorkbenchHandle>(null)
   const projectRef = React.useRef(initialProject)
   const workspaceRef = React.useRef<ExampleWorkspace>(initialProject.workspace)
@@ -485,8 +489,11 @@ export function NotebookDraftPage({ template }: { template?: string }) {
             active: activeView === 'chat',
             label: 'Chat',
             onActiveChange: (active) => setActiveView(active ? 'chat' : 'code'),
+            submitPrompt: (content, lifecycle) =>
+              assistantRef.current?.submitPrompt(content, lifecycle) ?? false,
             content: (
               <NotebookAssistant
+                ref={assistantRef}
                 credentialScope={user?.userId ?? 'anonymous'}
                 enabled
                 getExecution={() => ({

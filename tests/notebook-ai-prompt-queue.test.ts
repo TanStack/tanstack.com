@@ -73,3 +73,25 @@ test('notebook AI prompt queue clears pending prompts without releasing its runn
   assert.equal(queue.active, true)
   assert.equal(queue.clear(), 0)
 })
+
+test('notebook AI prompt queue reports prompts discarded before they start', () => {
+  const queue = new NotebookAiPromptQueue()
+  const discarded: Array<string> = []
+  const canceled = queue.enqueue('Cancel me', 'queue', {
+    onDiscarded: () => discarded.push('canceled'),
+  })
+  queue.enqueue('Clear me', 'queue', {
+    onDiscarded: () => discarded.push('cleared'),
+  })
+
+  assert.equal(queue.cancel(canceled.id), true)
+  assert.equal(queue.clear(), 1)
+  assert.deepEqual(discarded, ['canceled', 'cleared'])
+
+  queue.enqueue('Run me', 'queue', {
+    onDiscarded: () => discarded.push('started'),
+  })
+  assert.equal(queue.take()?.content, 'Run me')
+  assert.equal(queue.clear(), 0)
+  assert.deepEqual(discarded, ['canceled', 'cleared'])
+})

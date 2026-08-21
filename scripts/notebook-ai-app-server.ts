@@ -1680,7 +1680,7 @@ async function resolveNpmPackageVersion(name: string, signal: AbortSignal) {
     `https://registry.npmjs.org/${encodeURIComponent(name)}/latest`,
     {
       headers: { Accept: 'application/json' },
-      redirect: 'error',
+      redirect: 'manual',
       signal,
     },
   )

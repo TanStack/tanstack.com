@@ -303,7 +303,7 @@ function BlogIndex() {
             shows only when the viewport is wide enough (~1900px) to seat a 300px
             rail beside the centered 1280px content without overlapping it. */}
         <div className="pointer-events-none absolute inset-y-0 right-0 hidden min-[1900px]:block">
-          <div className="pointer-events-auto sticky top-[calc(var(--navbar-height)+1.5rem)] mr-4 flex max-h-[calc(100dvh-var(--navbar-height)-2rem)] w-[260px] flex-col overflow-y-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="pointer-events-auto sticky top-[calc(var(--navbar-height)+1.5rem)] mr-4 flex max-h-[calc(100dvh-var(--navbar-height)-2rem)] w-[220px] flex-col overflow-y-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <PartnerRail
               analyticsPlacement="blog_rail"
               partners={activePartners}

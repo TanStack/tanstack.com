@@ -31,7 +31,7 @@ Our initial goal was to create an architecture that could be easily extended not
 
 One of the biggest payoffs since we started has been making the right architectural decisions early and building everything on top of those foundations. One of the strongest parts of that architecture is our [middleware system](https://tanstack.com/ai/latest/docs/advanced/middleware).
 
-You can build just about anything with middleware. Chat persistence, agent harnesses running inside sandboxes, memory, telemetry, and many other features are middleware functions that you pass into your `chat()` method. Durability is separate and plugs into the streaming response through an adapter.
+You can build just about anything with middleware. Chat persistence, agent harnesses running inside sandboxes, memory, telemetry, and many other features are middleware you pass into your `chat()` method. Durability is separate and plugs into the streaming response through an adapter.
 
 Another powerful feature we offer is [lazy tool calling](https://tanstack.com/ai/latest/docs/tools/lazy-tool-discovery), which can help reduce token costs with a simple Boolean flag. We also support advanced [interrupt scenarios](https://tanstack.com/ai/latest/docs/interrupts/overview) driven by your schemas. You can modify tool-call arguments, trigger multiple interrupts, and mix and match these capabilities while keeping everything completely type-safe from end to end.
 

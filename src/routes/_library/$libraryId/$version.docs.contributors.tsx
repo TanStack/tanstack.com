@@ -92,14 +92,14 @@ function RouteComponent() {
               </div>
             </div>
 
-            <section>
+            <section className="@container">
               <div
                 className={`transition-all duration-300 ${
                   viewMode === 'compact'
                     ? 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4'
                     : viewMode === 'row'
                       ? 'flex flex-col gap-4'
-                      : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'
+                      : 'grid grid-cols-2 gap-6 [&>*>*]:max-w-none @[28rem]:grid-cols-[repeat(auto-fit,minmax(180px,1fr))] @[43rem]:grid-cols-3'
                 } mb-8 pt-8`}
               >
                 {libraryContributors.map((maintainer, index) => (

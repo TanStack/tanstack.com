@@ -26,12 +26,7 @@ import {
   DownloadIcon,
   ListIcon,
 } from '@phosphor-icons/react'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@radix-ui/react-dropdown-menu'
+import { Menu } from '@base-ui/react/menu'
 import { twMerge } from 'tailwind-merge'
 import { Tooltip } from '~/components/Tooltip'
 import {
@@ -1523,7 +1518,7 @@ function ChartActions({
 
   return (
     <div className="flex items-center gap-1">
-      <DropdownMenu>
+      <Menu.Root>
         <Tooltip
           content={
             exportingFormat
@@ -1533,42 +1528,49 @@ function ChartActions({
                 : 'Export chart'
           }
         >
-          <DropdownMenuTrigger asChild>
-            <button
-              aria-label="Export chart"
-              className={buttonStyles}
-              disabled={disabled}
-              type="button"
-            >
-              <DownloadIcon className="size-3" />
-            </button>
-          </DropdownMenuTrigger>
-        </Tooltip>
-        <DropdownMenuContent
-          className={chartActionDropdownContentStyles}
-          collisionPadding={8}
-          sideOffset={5}
-        >
-          <div className="mb-1 flex items-center justify-between px-0.5 text-xs font-medium">
-            <span>Export</span>
-          </div>
-          {chartExportOptions
-            .filter(
-              ({ value }) =>
-                canExportAnimation || !isAnimatedExportFormat(value),
-            )
-            .map(({ label, value }) => (
-              <DropdownMenuItem
-                className={chartActionDropdownItemStyles}
+          <Menu.Trigger
+            render={
+              <button
+                aria-label="Export chart"
+                className={buttonStyles}
                 disabled={disabled}
-                key={value}
-                onSelect={() => onExport(value)}
+                type="button"
               >
-                {label}
-              </DropdownMenuItem>
-            ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
+                <DownloadIcon className="size-3" />
+              </button>
+            }
+          />
+        </Tooltip>
+        <Menu.Portal>
+          <Menu.Positioner
+            align="start"
+            sideOffset={5}
+            collisionPadding={8}
+            className="z-50"
+          >
+            <Menu.Popup className={chartActionDropdownContentStyles}>
+              <div className="mb-1 flex items-center justify-between px-0.5 text-xs font-medium">
+                <span>Export</span>
+              </div>
+              {chartExportOptions
+                .filter(
+                  ({ value }) =>
+                    canExportAnimation || !isAnimatedExportFormat(value),
+                )
+                .map(({ label, value }) => (
+                  <Menu.Item
+                    className={chartActionDropdownItemStyles}
+                    disabled={disabled}
+                    key={value}
+                    onClick={() => onExport(value)}
+                  >
+                    {label}
+                  </Menu.Item>
+                ))}
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>
       <Tooltip
         content={
           disabled
@@ -1711,104 +1713,118 @@ function EmbedChartAction({
   )
 
   return (
-    <DropdownMenu>
+    <Menu.Root>
       <Tooltip content="Embed chart">
-        <DropdownMenuTrigger asChild>
-          <button
-            aria-label="Embed chart"
-            className={chartActionButtonStyles}
-            type="button"
-          >
-            <CodeIcon className="size-3" />
-          </button>
-        </DropdownMenuTrigger>
+        <Menu.Trigger
+          render={
+            <button
+              aria-label="Embed chart"
+              className={chartActionButtonStyles}
+              type="button"
+            >
+              <CodeIcon className="size-3" />
+            </button>
+          }
+        />
       </Tooltip>
-      <DropdownMenuContent
-        align="end"
-        className="z-50 w-[min(420px,calc(100vw-2rem))] rounded-md bg-white p-3 text-gray-900 shadow-lg dark:bg-gray-800 dark:text-gray-100"
-        collisionPadding={8}
-        sideOffset={5}
-      >
-        <div className="space-y-3">
-          <div className="flex items-center justify-between gap-3">
-            <div className="text-xs font-medium">Embed chart</div>
-            <label className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300">
-              <span>Iframe height</span>
-              <input
-                className="w-16 rounded border border-gray-500/20 bg-gray-50 px-1.5 py-1 text-right font-mono text-[11px] outline-none focus:border-blue-500 dark:bg-gray-900"
-                max={1200}
-                min={240}
-                onChange={(event) => {
-                  const nextHeight = Number(event.currentTarget.value)
-                  if (!Number.isFinite(nextHeight)) return
-                  setIframeHeight(Math.max(240, Math.min(1200, nextHeight)))
-                }}
-                type="number"
-                value={iframeHeight}
-              />
-            </label>
-          </div>
+      <Menu.Portal>
+        <Menu.Positioner
+          align="end"
+          sideOffset={5}
+          collisionPadding={8}
+          className="z-50"
+        >
+          <Menu.Popup className="z-50 w-[min(420px,calc(100vw-2rem))] rounded-md bg-white p-3 text-gray-900 shadow-lg dark:bg-gray-800 dark:text-gray-100">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between gap-3">
+                <div className="text-xs font-medium">Embed chart</div>
+                <label className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300">
+                  <span>Iframe height</span>
+                  <input
+                    className="w-16 rounded border border-gray-500/20 bg-gray-50 px-1.5 py-1 text-right font-mono text-[11px] outline-none focus:border-blue-500 dark:bg-gray-900"
+                    max={1200}
+                    min={240}
+                    onChange={(event) => {
+                      const nextHeight = Number(event.currentTarget.value)
+                      if (!Number.isFinite(nextHeight)) return
+                      setIframeHeight(Math.max(240, Math.min(1200, nextHeight)))
+                    }}
+                    type="number"
+                    value={iframeHeight}
+                  />
+                </label>
+              </div>
 
-          <div className="grid gap-1.5">
-            <EmbedOption checked={showLegend} onCheckedChange={setShowLegend}>
-              Show legend by default
-            </EmbedOption>
-            <EmbedOption
-              checked={includeTimelineRange}
-              disabled={!embedConfig.hasTimelineRange}
-              onCheckedChange={setIncludeTimelineRange}
-            >
-              Include current timeline zoom
-            </EmbedOption>
-            <EmbedOption
-              checked={lockWidth}
-              disabled={!embedConfig.hasWidth}
-              onCheckedChange={setLockWidth}
-            >
-              Lock current chart width
-            </EmbedOption>
-          </div>
+              <div className="grid gap-1.5">
+                <EmbedOption
+                  checked={showLegend}
+                  onCheckedChange={setShowLegend}
+                >
+                  Show legend by default
+                </EmbedOption>
+                <EmbedOption
+                  checked={includeTimelineRange}
+                  disabled={!embedConfig.hasTimelineRange}
+                  onCheckedChange={setIncludeTimelineRange}
+                >
+                  Include current timeline zoom
+                </EmbedOption>
+                <EmbedOption
+                  checked={lockWidth}
+                  disabled={!embedConfig.hasWidth}
+                  onCheckedChange={setLockWidth}
+                >
+                  Lock current chart width
+                </EmbedOption>
+              </div>
 
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-[11px] font-medium text-gray-500">URL</span>
-              <CopyButton
-                copied={copiedTarget === 'url'}
-                label="Copy URL"
-                onCopy={() => {
-                  void copyText('url', embedUrl)
-                }}
-              />
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[11px] font-medium text-gray-500">
+                    URL
+                  </span>
+                  <CopyButton
+                    copied={copiedTarget === 'url'}
+                    label="Copy URL"
+                    onCopy={() => {
+                      void copyText('url', embedUrl)
+                    }}
+                  />
+                </div>
+                <input
+                  className={chartEmbedInputStyles}
+                  readOnly
+                  value={embedUrl}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[11px] font-medium text-gray-500">
+                    Iframe
+                  </span>
+                  <CopyButton
+                    copied={copiedTarget === 'iframe'}
+                    label="Copy iframe"
+                    onCopy={() => {
+                      void copyText('iframe', iframeCode)
+                    }}
+                  />
+                </div>
+                <textarea
+                  className={twMerge(
+                    chartEmbedInputStyles,
+                    'min-h-20 resize-none',
+                  )}
+                  readOnly
+                  value={iframeCode}
+                />
+              </div>
             </div>
-            <input
-              className={chartEmbedInputStyles}
-              readOnly
-              value={embedUrl}
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-[11px] font-medium text-gray-500">
-                Iframe
-              </span>
-              <CopyButton
-                copied={copiedTarget === 'iframe'}
-                label="Copy iframe"
-                onCopy={() => {
-                  void copyText('iframe', iframeCode)
-                }}
-              />
-            </div>
-            <textarea
-              className={twMerge(chartEmbedInputStyles, 'min-h-20 resize-none')}
-              readOnly
-              value={iframeCode}
-            />
-          </div>
-        </div>
-      </DropdownMenuContent>
-    </DropdownMenu>
+          </Menu.Popup>
+        </Menu.Positioner>
+      </Menu.Portal>
+    </Menu.Root>
   )
 }
 

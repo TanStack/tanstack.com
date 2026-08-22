@@ -3491,7 +3491,7 @@ export function ExampleWorkbench({
                         if (!open) setNotebookArrangeTabId(undefined)
                       }}
                     >
-                      <DropdownTrigger>{tabButton}</DropdownTrigger>
+                      <DropdownTrigger render={tabButton} />
                       <DropdownContent
                         align="start"
                         ariaLabelledBy={getNotebookTabButtonId(tab.id)}
@@ -3540,29 +3540,31 @@ export function ExampleWorkbench({
           </div>
 
           <Dropdown>
-            <DropdownTrigger>
-              <Button
-                ref={
-                  pane.id === notebookTabs.activePaneId
-                    ? notebookAddTabButtonRef
-                    : undefined
-                }
-                type="button"
-                variant="icon"
-                color="gray"
-                size="icon-sm"
-                rounded="lg"
-                className="size-7 shrink-0 bg-transparent text-text-primary transition-colors duration-100 hover:bg-surface-state-hover active:scale-95 max-[899px]:bg-transparent max-[899px]:text-text-primary max-[899px]:hover:bg-surface-state-hover motion-reduce:transition-none"
-                aria-label={newTabLabel}
-              >
-                <PlusIcon className="size-3.5" aria-hidden="true" />
-              </Button>
-            </DropdownTrigger>
+            <DropdownTrigger
+              render={
+                <Button
+                  ref={
+                    pane.id === notebookTabs.activePaneId
+                      ? notebookAddTabButtonRef
+                      : undefined
+                  }
+                  type="button"
+                  variant="icon"
+                  color="gray"
+                  size="icon-sm"
+                  rounded="lg"
+                  className="size-7 shrink-0 bg-transparent text-text-primary transition-colors duration-100 hover:bg-surface-state-hover active:scale-95 max-[899px]:bg-transparent max-[899px]:text-text-primary max-[899px]:hover:bg-surface-state-hover motion-reduce:transition-none"
+                  aria-label={newTabLabel}
+                >
+                  <PlusIcon className="size-3.5" aria-hidden="true" />
+                </Button>
+              }
+            />
             <DropdownContent
               align="start"
               sideOffset={4}
               collisionPadding={8}
-              className="sandbox-ui w-64 max-w-[calc(100vw-1rem)] origin-[var(--radix-dropdown-menu-content-transform-origin)] rounded-xl border-black/10 p-1 shadow-xl duration-100 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 dark:border-white/10 motion-reduce:animate-none"
+              className="sandbox-ui w-64 max-w-[calc(100vw-1rem)] rounded-xl border-black/10 p-1 shadow-xl dark:border-white/10 motion-reduce:animate-none"
             >
               <DropdownItem
                 className="min-h-10 gap-2 rounded-lg px-2 py-1 text-[13px] text-text-primary transition-colors duration-100 hover:bg-surface-state-hover focus:bg-surface-state-hover motion-reduce:transition-none min-[900px]:min-h-9"

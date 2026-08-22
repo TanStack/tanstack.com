@@ -1,5 +1,5 @@
 import * as React from 'react'
-import * as DialogPrimitive from '@radix-ui/react-dialog'
+import { Dialog } from '@base-ui/react/dialog'
 import {
   ArrowDownIcon,
   CaretDownIcon,
@@ -1620,22 +1620,24 @@ export const NotebookAssistant = React.forwardRef<
           {threads.length > 1 ? (
             <Dropdown>
               <Tooltip content="Recent conversations">
-                <DropdownTrigger>
-                  <Button
-                    type="button"
-                    variant="icon"
-                    color="gray"
-                    size="icon-sm"
-                    className={floatingChatButtonClass}
-                    aria-label="Recent AI conversations"
-                    disabled={running}
-                  >
-                    <ClockCounterClockwiseIcon
-                      className="size-3.5"
-                      aria-hidden="true"
-                    />
-                  </Button>
-                </DropdownTrigger>
+                <DropdownTrigger
+                  render={
+                    <Button
+                      type="button"
+                      variant="icon"
+                      color="gray"
+                      size="icon-sm"
+                      className={floatingChatButtonClass}
+                      aria-label="Recent AI conversations"
+                      disabled={running}
+                    >
+                      <ClockCounterClockwiseIcon
+                        className="size-3.5"
+                        aria-hidden="true"
+                      />
+                    </Button>
+                  }
+                />
               </Tooltip>
               <DropdownContent
                 align="end"
@@ -2291,21 +2293,23 @@ function ModelPicker({
 }) {
   return (
     <Dropdown>
-      <DropdownTrigger>
-        <Button
-          type="button"
-          variant="ghost"
-          color="gray"
-          size="xs"
-          disabled={disabled}
-          aria-label={`Select model, current ${selected.label}`}
-          data-notebook-ai-selected-model={selected.model}
-          className="max-w-52 px-2"
-        >
-          <span className="truncate">{selected.label}</span>
-          <CaretDownIcon className="size-3" aria-hidden="true" />
-        </Button>
-      </DropdownTrigger>
+      <DropdownTrigger
+        render={
+          <Button
+            type="button"
+            variant="ghost"
+            color="gray"
+            size="xs"
+            disabled={disabled}
+            aria-label={`Select model, current ${selected.label}`}
+            data-notebook-ai-selected-model={selected.model}
+            className="max-w-52 px-2"
+          >
+            <span className="truncate">{selected.label}</span>
+            <CaretDownIcon className="size-3" aria-hidden="true" />
+          </Button>
+        }
+      />
       <DropdownContent
         align="start"
         side="top"
@@ -2374,19 +2378,21 @@ function SendModePicker({
 }) {
   return (
     <Dropdown>
-      <DropdownTrigger>
-        <Button
-          type="button"
-          variant="ghost"
-          color="gray"
-          size="xs"
-          aria-label={`Send mode: ${mode === 'queue' ? 'Queue' : 'Steer'}`}
-          className="px-2"
-        >
-          {mode === 'queue' ? 'Queue' : 'Steer'}
-          <CaretDownIcon className="size-3" aria-hidden="true" />
-        </Button>
-      </DropdownTrigger>
+      <DropdownTrigger
+        render={
+          <Button
+            type="button"
+            variant="ghost"
+            color="gray"
+            size="xs"
+            aria-label={`Send mode: ${mode === 'queue' ? 'Queue' : 'Steer'}`}
+            className="px-2"
+          >
+            {mode === 'queue' ? 'Queue' : 'Steer'}
+            <CaretDownIcon className="size-3" aria-hidden="true" />
+          </Button>
+        }
+      />
       <DropdownContent
         align="end"
         side="top"
@@ -2527,29 +2533,31 @@ function ConnectionsDialog({
   ) => void
 }) {
   return (
-    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
-      <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-[999] bg-black/45 backdrop-blur-[1px] data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0 motion-reduce:animate-none" />
-        <DialogPrimitive.Content className="sandbox-ui fixed top-1/2 left-1/2 z-[1000] max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border border-border-default bg-background-surface text-text-primary shadow-2xl outline-none data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 motion-reduce:animate-none">
+    <Dialog.Root open={open} onOpenChange={onOpenChange}>
+      <Dialog.Portal>
+        <Dialog.Backdrop className="fixed inset-0 z-[999] bg-black/45 backdrop-blur-[1px]" />
+        <Dialog.Popup className="sandbox-ui fixed top-1/2 left-1/2 z-[1000] max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border border-border-default bg-background-surface text-text-primary shadow-2xl outline-none">
           <header className="flex h-14 items-center justify-between border-b border-border-default px-5">
-            <DialogPrimitive.Title className="text-sm font-semibold">
+            <Dialog.Title className="text-sm font-semibold">
               Model connections
-            </DialogPrimitive.Title>
-            <DialogPrimitive.Close asChild>
-              <Button
-                type="button"
-                variant="icon"
-                color="gray"
-                size="icon-sm"
-                aria-label="Close model connections"
-              >
-                <XIcon className="size-4" aria-hidden="true" />
-              </Button>
-            </DialogPrimitive.Close>
+            </Dialog.Title>
+            <Dialog.Close
+              render={
+                <Button
+                  type="button"
+                  variant="icon"
+                  color="gray"
+                  size="icon-sm"
+                  aria-label="Close model connections"
+                >
+                  <XIcon className="size-4" aria-hidden="true" />
+                </Button>
+              }
+            />
           </header>
-          <DialogPrimitive.Description className="sr-only">
+          <Dialog.Description className="sr-only">
             Connect a ChatGPT plan or configure an API key.
-          </DialogPrimitive.Description>
+          </Dialog.Description>
           <div className="space-y-6 p-5">
             {showChatGpt ? (
               <div>
@@ -2626,9 +2634,9 @@ function ConnectionsDialog({
               />
             </div>
           </div>
-        </DialogPrimitive.Content>
-      </DialogPrimitive.Portal>
-    </DialogPrimitive.Root>
+        </Dialog.Popup>
+      </Dialog.Portal>
+    </Dialog.Root>
   )
 }
 

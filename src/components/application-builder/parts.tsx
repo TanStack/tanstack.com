@@ -1,5 +1,5 @@
 import * as React from 'react'
-import * as TooltipPrimitive from '@radix-ui/react-tooltip'
+import { Tooltip } from '@base-ui/react/tooltip'
 import { CheckIcon, CopyIcon, SparkleIcon, XIcon } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import {
@@ -72,9 +72,9 @@ export function StarterTooltipProvider({
   children: React.ReactNode
 }) {
   return (
-    <TooltipPrimitive.Provider delayDuration={1000} skipDelayDuration={500}>
+    <Tooltip.Provider delay={1000} timeout={500}>
       {children}
-    </TooltipPrimitive.Provider>
+    </Tooltip.Provider>
   )
 }
 
@@ -615,19 +615,16 @@ function StarterHoverTooltip({
   content: React.ReactNode
 }) {
   return (
-    <TooltipPrimitive.Root>
-      <TooltipPrimitive.Trigger asChild>{children}</TooltipPrimitive.Trigger>
-      <TooltipPrimitive.Portal>
-        <TooltipPrimitive.Content
-          side="bottom"
-          align="center"
-          sideOffset={8}
-          className="z-[500] transition-opacity duration-150 data-[state=closed]:opacity-0 data-[state=delayed-open]:opacity-100"
-        >
-          {content}
-        </TooltipPrimitive.Content>
-      </TooltipPrimitive.Portal>
-    </TooltipPrimitive.Root>
+    <Tooltip.Root>
+      <Tooltip.Trigger render={children} />
+      <Tooltip.Portal>
+        <Tooltip.Positioner side="bottom" align="center" sideOffset={8}>
+          <Tooltip.Popup className="z-[500] transition-opacity duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0">
+            {content}
+          </Tooltip.Popup>
+        </Tooltip.Positioner>
+      </Tooltip.Portal>
+    </Tooltip.Root>
   )
 }
 

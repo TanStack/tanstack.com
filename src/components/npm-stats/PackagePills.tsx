@@ -7,12 +7,7 @@ import {
   EyeSlashIcon,
   DotsThreeVerticalIcon,
 } from '@phosphor-icons/react'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@radix-ui/react-dropdown-menu'
+import { Menu } from '@base-ui/react/menu'
 import { Tooltip } from '~/components/Tooltip'
 import {
   type PackageGroup,
@@ -127,151 +122,155 @@ export function PackagePill({
           {/* Advanced dropdown menu (main page only) */}
           {showAdvancedMenu && (
             <div className="relative flex items-center">
-              <DropdownMenu
+              <Menu.Root
                 open={openMenuPackage === mainPackage.name}
                 onOpenChange={(open) =>
                   onMenuOpenChange(mainPackage.name, open)
                 }
               >
                 <Tooltip content="More options">
-                  <DropdownMenuTrigger asChild>
-                    <button className="px-0.5 hover:text-blue-500">
-                      <DotsThreeVerticalIcon className="size-3.5" />
-                    </button>
-                  </DropdownMenuTrigger>
+                  <Menu.Trigger
+                    render={
+                      <button className="px-0.5 hover:text-blue-500">
+                        <DotsThreeVerticalIcon className="size-3.5" />
+                      </button>
+                    }
+                  />
                 </Tooltip>
-                <DropdownMenuContent
-                  className="z-50 max-h-[var(--radix-dropdown-menu-content-available-height)] min-w-[200px] overflow-y-auto rounded-lg bg-white p-2 shadow-lg dark:bg-gray-800"
-                  collisionPadding={8}
-                  sideOffset={5}
-                >
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium">Options</span>
-                  </div>
-                  <div className="space-y-1">
-                    {onLabelChange && (
-                      <div className="px-2 py-1.5 space-y-1">
-                        <label
-                          className="block text-xs font-medium text-gray-500"
-                          htmlFor={labelInputId}
-                        >
-                          Label
-                        </label>
-                        <input
-                          className="w-full rounded border border-gray-500/20 bg-white px-2 py-1 text-sm outline-none focus:border-blue-500 dark:bg-gray-900"
-                          id={labelInputId}
-                          maxLength={80}
-                          onBlur={handleLabelBlur}
-                          onChange={(event) =>
-                            setDraftLabel(event.currentTarget.value)
-                          }
-                          onClick={(event) => event.stopPropagation()}
-                          onKeyDown={(event) => {
-                            event.stopPropagation()
-                            if (event.key === 'Enter') {
-                              event.currentTarget.blur()
-                            }
-                          }}
-                          placeholder={mainPackage.name}
-                          value={draftLabel}
-                        />
+                <Menu.Portal>
+                  <Menu.Positioner
+                    align="start"
+                    sideOffset={5}
+                    collisionPadding={8}
+                    className="z-50"
+                  >
+                    <Menu.Popup className="z-50 max-h-(--available-height) min-w-[200px] overflow-y-auto rounded-lg bg-white p-2 shadow-lg dark:bg-gray-800">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-medium">Options</span>
                       </div>
-                    )}
-                    <DropdownMenuItem
-                      onSelect={(e) => {
-                        e.preventDefault()
-                        onToggleVisibility(
-                          index,
-                          hasLabel ? label : mainPackage.name,
-                        )
-                      }}
-                      className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer"
-                    >
-                      {isGroupHidden ? (
-                        <EyeSlashIcon className="text-sm" />
-                      ) : (
-                        <EyeIcon className="text-sm" />
-                      )}
-                      {isGroupHidden ? 'Show Package' : 'Hide Package'}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onSelect={(e) => {
-                        e.preventDefault()
-                        onColorClick(
-                          mainPackage.name,
-                          e as unknown as React.MouseEvent,
-                        )
-                      }}
-                      className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer"
-                    >
-                      <div
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: color }}
-                      />
-                      Change Color
-                    </DropdownMenuItem>
-                    {showPackageList && onRemoveFromGroup && (
-                      <>
-                        <div className="h-px bg-gray-500/20 my-1" />
-                        <div className="px-2 py-1 text-xs font-medium text-gray-500">
-                          {hasLabel ? 'Packages' : 'Sub-packages'}
-                        </div>
-                        {listedPackages.map((subPackage) => (
-                          <DropdownMenuItem
-                            key={subPackage.name}
-                            onSelect={(e) => {
-                              e.preventDefault()
-                              onToggleVisibility(index, subPackage.name)
+                      <div className="space-y-1">
+                        {onLabelChange && (
+                          <div className="px-2 py-1.5 space-y-1">
+                            <label
+                              className="block text-xs font-medium text-gray-500"
+                              htmlFor={labelInputId}
+                            >
+                              Label
+                            </label>
+                            <input
+                              className="w-full rounded border border-gray-500/20 bg-white px-2 py-1 text-sm outline-none focus:border-blue-500 dark:bg-gray-900"
+                              id={labelInputId}
+                              maxLength={80}
+                              onBlur={handleLabelBlur}
+                              onChange={(event) =>
+                                setDraftLabel(event.currentTarget.value)
+                              }
+                              onClick={(event) => event.stopPropagation()}
+                              onKeyDown={(event) => {
+                                event.stopPropagation()
+                                if (event.key === 'Enter') {
+                                  event.currentTarget.blur()
+                                }
+                              }}
+                              placeholder={mainPackage.name}
+                              value={draftLabel}
+                            />
+                          </div>
+                        )}
+                        <Menu.Item
+                          closeOnClick={false}
+                          onClick={() => {
+                            onToggleVisibility(
+                              index,
+                              hasLabel ? label : mainPackage.name,
+                            )
+                          }}
+                          className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer"
+                        >
+                          {isGroupHidden ? (
+                            <EyeSlashIcon className="text-sm" />
+                          ) : (
+                            <EyeIcon className="text-sm" />
+                          )}
+                          {isGroupHidden ? 'Show Package' : 'Hide Package'}
+                        </Menu.Item>
+                        <Menu.Item
+                          closeOnClick={false}
+                          onClick={(e) => {
+                            onColorClick(mainPackage.name, e)
+                          }}
+                          className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer"
+                        >
+                          <div
+                            className="w-3 h-3 rounded-full"
+                            style={{ backgroundColor: color }}
+                          />
+                          Change Color
+                        </Menu.Item>
+                        {showPackageList && onRemoveFromGroup && (
+                          <>
+                            <div className="h-px bg-gray-500/20 my-1" />
+                            <div className="px-2 py-1 text-xs font-medium text-gray-500">
+                              {hasLabel ? 'Packages' : 'Sub-packages'}
+                            </div>
+                            {listedPackages.map((subPackage) => (
+                              <Menu.Item
+                                key={subPackage.name}
+                                closeOnClick={false}
+                                onClick={() => {
+                                  onToggleVisibility(index, subPackage.name)
+                                }}
+                                className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer"
+                              >
+                                <div className="flex-1 flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    {subPackage.hidden ? (
+                                      <EyeSlashIcon className="text-sm" />
+                                    ) : (
+                                      <EyeIcon className="text-sm" />
+                                    )}
+                                    <span
+                                      className={
+                                        subPackage.hidden ? 'opacity-50' : ''
+                                      }
+                                    >
+                                      {subPackage.name}
+                                    </span>
+                                  </div>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      onRemoveFromGroup(
+                                        mainPackage.name,
+                                        subPackage.name,
+                                      )
+                                    }}
+                                    className="p-1 text-gray-400 hover:text-red-500"
+                                  >
+                                    <XIcon className="w-3 h-3" />
+                                  </button>
+                                </div>
+                              </Menu.Item>
+                            ))}
+                          </>
+                        )}
+                        {onCombinePackage && (
+                          <Menu.Item
+                            closeOnClick={false}
+                            onClick={() => {
+                              onCombinePackage(mainPackage.name)
                             }}
                             className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer"
                           >
-                            <div className="flex-1 flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                {subPackage.hidden ? (
-                                  <EyeSlashIcon className="text-sm" />
-                                ) : (
-                                  <EyeIcon className="text-sm" />
-                                )}
-                                <span
-                                  className={
-                                    subPackage.hidden ? 'opacity-50' : ''
-                                  }
-                                >
-                                  {subPackage.name}
-                                </span>
-                              </div>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  onRemoveFromGroup(
-                                    mainPackage.name,
-                                    subPackage.name,
-                                  )
-                                }}
-                                className="p-1 text-gray-400 hover:text-red-500"
-                              >
-                                <XIcon className="w-3 h-3" />
-                              </button>
-                            </div>
-                          </DropdownMenuItem>
-                        ))}
-                      </>
-                    )}
-                    {onCombinePackage && (
-                      <DropdownMenuItem
-                        onSelect={(e) => {
-                          e.preventDefault()
-                          onCombinePackage(mainPackage.name)
-                        }}
-                        className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer"
-                      >
-                        <PlusIcon className="text-sm" />
-                        Add Packages
-                      </DropdownMenuItem>
-                    )}
-                  </div>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                            <PlusIcon className="text-sm" />
+                            Add Packages
+                          </Menu.Item>
+                        )}
+                      </div>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
             </div>
           )}
 

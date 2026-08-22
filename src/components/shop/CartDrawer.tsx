@@ -1,4 +1,4 @@
-import * as Dialog from '@radix-ui/react-dialog'
+import { Dialog } from '@base-ui/react/dialog'
 import { Link } from '@tanstack/react-router'
 import {
   MinusIcon,
@@ -30,8 +30,8 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="cart-overlay fixed inset-0 z-[100] bg-black/40" />
-        <Dialog.Content
+        <Dialog.Backdrop className="cart-overlay fixed inset-0 z-[100] bg-black/40" />
+        <Dialog.Popup
           className={twMerge(
             'shop-scope cart-panel',
             'fixed right-4 top-[calc(var(--navbar-height,56px)+0.5rem)] z-[100]',
@@ -41,14 +41,15 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
             'bg-shop-bg-2 border border-shop-line text-shop-text',
             'shadow-2xl',
           )}
-          aria-describedby={undefined}
         >
           <header className="flex items-center justify-between px-5 py-3 border-b border-shop-line">
-            <Dialog.Title asChild>
-              <ShopLabel as="h2">
-                Cart{totalQuantity > 0 ? ` (${totalQuantity})` : ''}
-              </ShopLabel>
-            </Dialog.Title>
+            <Dialog.Title
+              render={
+                <ShopLabel as="h2">
+                  Cart{totalQuantity > 0 ? ` (${totalQuantity})` : ''}
+                </ShopLabel>
+              }
+            />
             <Dialog.Close
               aria-label="Close cart"
               className="p-1 rounded-md text-shop-text-2 hover:text-shop-text"
@@ -73,7 +74,7 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
           ) : (
             <DrawerEmpty onClose={() => onOpenChange(false)} />
           )}
-        </Dialog.Content>
+        </Dialog.Popup>
       </Dialog.Portal>
     </Dialog.Root>
   )

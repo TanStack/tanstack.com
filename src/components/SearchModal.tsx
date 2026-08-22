@@ -55,6 +55,7 @@ import { CodeBlock } from '~/components/markdown/CodeBlock'
 import { InlineCode } from '~/ui/InlineCode'
 import { env } from '~/utils/env'
 import { getRoutableInternalLinkTarget, isSafeHref } from '~/utils/url-boundary'
+import { focusSearchInputInContainer } from '~/utils/searchFocus'
 
 /**
  * Safely decode HTML entities without using innerHTML.
@@ -3365,6 +3366,23 @@ function isSearchModalPortalTarget(target: EventTarget | null) {
 
 const searchModalTransitionMs = 140
 
+function scheduleSearchInputFocus(container: HTMLElement | null): () => void {
+  let secondFrame: number | null = null
+  const firstFrame = requestAnimationFrame(() => {
+    secondFrame = requestAnimationFrame(() => {
+      focusSearchInputInContainer(container)
+    })
+  })
+
+  return () => {
+    cancelAnimationFrame(firstFrame)
+
+    if (secondFrame !== null) {
+      cancelAnimationFrame(secondFrame)
+    }
+  }
+}
+
 export function SearchModal() {
   const { isOpen, closeSearch } = useSearchContext()
   const contentRef = React.useRef<HTMLDivElement>(null)
@@ -3404,13 +3422,7 @@ export function SearchModal() {
       return
     }
 
-    const frame = requestAnimationFrame(() => {
-      contentRef.current
-        ?.querySelector<HTMLInputElement>('input[type="search"]')
-        ?.focus({ preventScroll: true })
-    })
-
-    return () => cancelAnimationFrame(frame)
+    return scheduleSearchInputFocus(contentRef.current)
   }, [isOpen])
 
   React.useEffect(() => {
@@ -3470,6 +3482,9 @@ export function SearchModal() {
                 'search-modal-content fixed z-[1000] inset-0 sm:inset-auto sm:top-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-[96%] xl:w-full sm:max-w-4xl text-left outline-none',
                 isFullHeight && 'sm:bottom-4',
               )}
+              onOpenAutoFocus={(event) => {
+                event.preventDefault()
+              }}
               onInteractOutside={(event) => {
                 if (isSearchModalPortalTarget(event.target)) {
                   event.preventDefault()
@@ -3573,13 +3588,7 @@ export function AiDock() {
       return
     }
 
-    const frame = requestAnimationFrame(() => {
-      contentRef.current
-        ?.querySelector<HTMLInputElement>('input[type="search"]')
-        ?.focus({ preventScroll: true })
-    })
-
-    return () => cancelAnimationFrame(frame)
+    return scheduleSearchInputFocus(contentRef.current)
   }, [isAiDockOpen, isDockVisible])
 
   const toggleDockMaximized = React.useCallback(() => {

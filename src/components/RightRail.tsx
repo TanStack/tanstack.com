@@ -122,13 +122,9 @@ const railTierLayout: Record<
 export function PartnersRail({
   analyticsPlacement,
   partners,
-  title = 'Partners',
-  titleTo = '/partners',
 }: {
   analyticsPlacement: PartnerPlacement
   partners: Array<RailPartner>
-  title?: string
-  titleTo?: '/partners'
 }) {
   const placementContext = usePartnerPlacementContext({
     orderStrategy: 'tier-rotated',
@@ -147,9 +143,9 @@ export function PartnersRail({
       <div className="w-full flex gap-2 justify-between items-center border-b border-gray-500/20 px-3 py-2">
         <Link
           className="font-medium opacity-60 hover:opacity-100 text-xs"
-          to={titleTo}
+          to="/partners"
         >
-          {title}
+          Partners
         </Link>
         <a
           href={PARTNER_INQUIRY_HREF}

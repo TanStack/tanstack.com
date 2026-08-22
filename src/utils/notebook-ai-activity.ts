@@ -514,13 +514,11 @@ export function getNotebookAiActivityItemLabel(item: NotebookAiActivityItem) {
   return complete ? `Completed ${label.toLowerCase()}` : label
 }
 
-export function formatNotebookAiActivityDuration(
-  activity: NotebookAiActivity,
-  now = activity.completedAt ?? activity.startedAt,
-) {
+export function formatNotebookAiActivityDuration(activity: NotebookAiActivity) {
   const milliseconds = Math.max(
     0,
-    (activity.completedAt ?? cleanTimestamp(now)) - activity.startedAt,
+    (activity.completedAt ?? cleanTimestamp(activity.startedAt)) -
+      activity.startedAt,
   )
   const seconds = Math.max(1, Math.round(milliseconds / 1_000))
   if (seconds < 60) return `${seconds}s`

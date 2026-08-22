@@ -7,10 +7,6 @@ type UseDeleteWithConfirmationOptions<TItem> = {
   deleteFn: (item: TItem) => Promise<void>
   /** Label for the item type (e.g., "role", "banner") */
   itemLabel?: string
-  /** Callback after successful delete */
-  onSuccess?: () => void
-  /** Callback on error (defaults to alert) */
-  onError?: (error: Error, item: TItem) => void
 }
 
 /**
@@ -43,15 +39,10 @@ export function useDeleteWithConfirmation<TItem>(
       setDeletingItem(item)
       try {
         await options.deleteFn(item)
-        options.onSuccess?.()
       } catch (err) {
         const error = err instanceof Error ? err : new Error('Unknown error')
         console.error(`Failed to delete ${label}:`, error)
-        if (options.onError) {
-          options.onError(error, item)
-        } else {
-          alert(`Failed to delete ${label}: ${error.message}`)
-        }
+        alert(`Failed to delete ${label}: ${error.message}`)
       } finally {
         setIsDeleting(false)
         setDeletingItem(null)

@@ -44,7 +44,6 @@ export async function runNotebookAiStream({
   activityId,
   includeReasoningSummaries = false,
   onActivityEvent,
-  onChunk,
   onText,
   onLocalValidate,
   onValidate,
@@ -57,7 +56,6 @@ export async function runNotebookAiStream({
   activityId: string
   includeReasoningSummaries?: boolean
   onActivityEvent?: (event: NotebookAiActivityEvent) => void
-  onChunk?: (chunk: StreamChunk) => void
   onText?: (text: string) => void
   onLocalValidate?: (
     state: NotebookAiValidationState,
@@ -329,7 +327,6 @@ export async function runNotebookAiStream({
       throw new Error('Notebook AI returned an invalid execution result')
     }
 
-    onChunk?.(chunk)
     observeTextChunk(chunk)
     observeActivityChunk(chunk)
 

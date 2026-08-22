@@ -3,7 +3,6 @@ import { Toaster, toast } from 'sonner'
 import { useTheme } from '~/components/ThemeProvider'
 
 type ToastOptions = {
-  durationMs?: number
   id?: number | string
 }
 
@@ -31,7 +30,7 @@ export function ToastProvider({
   const notify = React.useCallback(
     (content: React.ReactNode, options?: ToastOptions) => {
       const id = toast(content, {
-        duration: options?.durationMs ?? 2500,
+        duration: 2500,
         id: options?.id,
       })
       return String(id)

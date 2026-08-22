@@ -1,4 +1,3 @@
-import { type AddOnCompiled } from './compile'
 import { compileWithAttributionHandler, type ProjectDefinition } from './compile'
 import { type FrameworkId } from './config'
 
@@ -8,7 +7,6 @@ export interface FeatureArtifactsRequest {
   framework?: FrameworkId
   tailwind?: boolean
   featureOptions?: Record<string, Record<string, unknown>>
-  customIntegrations?: Array<AddOnCompiled>
 }
 
 export interface FeatureArtifact {
@@ -44,7 +42,6 @@ export async function featureArtifactsHandler(
     tailwind,
     features: request.features,
     featureOptions: request.featureOptions ?? {},
-    customIntegrations: request.customIntegrations,
   }
 
   const output = await compileWithAttributionHandler(definition)

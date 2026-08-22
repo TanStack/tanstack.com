@@ -6,7 +6,6 @@ interface TooltipProps {
   children: React.ReactNode
   content: React.ReactNode
   side?: 'top' | 'right' | 'bottom' | 'left'
-  align?: 'start' | 'center' | 'end'
   delayDuration?: number
   className?: string
 }
@@ -15,7 +14,6 @@ export function Tooltip({
   children,
   content,
   side = 'top',
-  align = 'center',
   delayDuration = 200,
   className,
 }: TooltipProps) {
@@ -30,7 +28,7 @@ export function Tooltip({
         <TooltipPrimitive.Portal>
           <TooltipPrimitive.Content
             side={side}
-            align={align}
+            align="center"
             sideOffset={5}
             className={twMerge(
               'z-1300 rounded-lg px-3 py-2 text-xs',

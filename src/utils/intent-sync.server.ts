@@ -164,12 +164,11 @@ export async function selectPendingIntentVersions(options: {
 
 export function summarizeIntentProcessResults(
   results: Array<IntentVersionProcessResult>,
-  options?: { deferred?: number },
 ): IntentProcessResult {
   return {
     processed: results.filter((result) => result.status === 'synced').length,
     failed: results.filter((result) => result.status === 'failed').length,
-    deferred: options?.deferred ?? 0,
+    deferred: 0,
     results,
   }
 }

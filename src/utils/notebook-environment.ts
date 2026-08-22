@@ -52,13 +52,12 @@ export const notebookImports = {
 
 function defineExampleEnvironmentProfile({
   createEntrySource,
-  entryPath = '/__tanstack-example-entry.ts',
   outputSelector,
 }: {
   createEntrySource: (entry: string, outputSource: string) => string
-  entryPath?: string
   outputSelector: `#${string}`
 }) {
+  const entryPath = '/__tanstack-example-entry.ts'
   return {
     entryPath,
     outputSelector,

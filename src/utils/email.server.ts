@@ -32,7 +32,6 @@ type ModeratorNotification = {
   capability: Capability
   subject: string
   text: string
-  html?: string
   // Extended fields for Discord notifications
   _showcase?: ShowcaseData
   _feedback?: FeedbackData

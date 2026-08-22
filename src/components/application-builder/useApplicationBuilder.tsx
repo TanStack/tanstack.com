@@ -49,7 +49,6 @@ interface UseApplicationBuilderOptions {
   onDirtyStateChange?: (dirty: boolean) => void
   onResolvedResult?: (result: ApplicationStarterResult | null) => void
   revealOptionsImmediately?: boolean
-  suggestionContext?: ApplicationStarterContext
 }
 
 type CopyTrigger = 'automatic' | 'user'
@@ -90,10 +89,9 @@ export function useApplicationBuilder({
   onDirtyStateChange,
   onResolvedResult,
   revealOptionsImmediately = false,
-  suggestionContext = context,
 }: UseApplicationBuilderOptions) {
   const { notify } = useToast()
-  const suggestions = getApplicationStarterSuggestions(suggestionContext)
+  const suggestions = getApplicationStarterSuggestions(context)
   const partnerPlacementContext = usePartnerPlacementContext({
     orderStrategy: 'tier-rotated',
     surface: 'application_starter_suggestions',

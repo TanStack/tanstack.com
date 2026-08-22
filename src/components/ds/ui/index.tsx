@@ -418,18 +418,16 @@ export const FormInput = React.forwardRef<HTMLInputElement, FormInputProps>(
   },
 )
 
-type FormSelectProps = React.SelectHTMLAttributes<HTMLSelectElement> & {
-  focusRing?: 'blue' | 'orange' | 'purple'
-}
+type FormSelectProps = React.SelectHTMLAttributes<HTMLSelectElement>
 
 export const FormSelect = React.forwardRef<HTMLSelectElement, FormSelectProps>(
-  function FormSelect({ className, focusRing = 'blue', ...props }, ref) {
+  function FormSelect({ className, ...props }, ref) {
     return (
       <select
         ref={ref}
         className={twMerge(
           'w-full rounded-lg border border-border-default bg-background-surface px-3 py-2 text-text-primary transition focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-40',
-          ringStyles[focusRing],
+          ringStyles.blue,
           className,
         )}
         {...props}
@@ -647,33 +645,18 @@ function getInitials(name?: string | null, email?: string | null): string {
 }
 
 export function Avatar({
-  image,
-  oauthImage,
   name,
   email,
   size = 'md',
   className = '',
 }: {
-  image?: string | null
-  oauthImage?: string | null
   name?: string | null
   email?: string | null
   size?: AvatarSize
   className?: string
 }) {
-  const displayImage = image || oauthImage
   const initials = getInitials(name, email)
   const { container, text } = avatarSizeClasses[size]
-
-  if (displayImage) {
-    return (
-      <img
-        src={displayImage}
-        alt={name || email || 'User avatar'}
-        className={twMerge(container, 'rounded-full object-cover', className)}
-      />
-    )
-  }
 
   return (
     <div
@@ -695,15 +678,13 @@ export function Dropdown({
   children,
   open,
   onOpenChange,
-  modal = false,
 }: {
   children: React.ReactNode
   open?: boolean
   onOpenChange?: (open: boolean) => void
-  modal?: boolean
 }) {
   return (
-    <DropdownMenu.Root open={open} onOpenChange={onOpenChange} modal={modal}>
+    <DropdownMenu.Root open={open} onOpenChange={onOpenChange} modal={false}>
       {children}
     </DropdownMenu.Root>
   )
@@ -712,14 +693,12 @@ export function Dropdown({
 export function DropdownTrigger({
   children,
   className,
-  asChild = true,
 }: {
   children: React.ReactNode
   className?: string
-  asChild?: boolean
 }) {
   return (
-    <DropdownMenu.Trigger asChild={asChild} className={className}>
+    <DropdownMenu.Trigger asChild className={className}>
       {children}
     </DropdownMenu.Trigger>
   )

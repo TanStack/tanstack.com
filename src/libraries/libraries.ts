@@ -693,7 +693,7 @@ export const ai: LibrarySlim = {
   tagline: 'The headless agent framework for TypeScript. Bring your own stack',
   description:
     'The headless agent framework for TypeScript. TanStack AI runs the agent loop as typed primitives you compose yourself: tool calls, reasoning, human-in-the-loop interrupts, memory, and streaming state. Eleven provider adapters, seven UI framework bindings, sandboxed code execution, MCP, and coding-agent harnesses behind one interface. Native AG-UI over the wire, MIT licensed, no hosted gateway and no platform to buy into.',
-  badge: 'beta',
+  badge: 'RC',
   repo: 'tanstack/ai',
   frameworks: [
     'react',

@@ -853,7 +853,7 @@ export function ApplicationStarter({
                   <div className="border-t border-gray-200 px-3 py-2 dark:border-gray-800">
                     <Button
                       color="emerald"
-                      className="pr-1"
+                      className="gap-1.5"
                       size="xs"
                       type="submit"
                       disabled={!canRevealOptions}

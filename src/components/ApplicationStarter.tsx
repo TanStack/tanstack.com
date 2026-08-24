@@ -964,7 +964,7 @@ export function ApplicationStarter({
                   // Light: a subtle recessed fill at rest that brightens to white
                   // on focus (no shadow). Dark keeps its #171717 fill.
                   isHomeStarter &&
-                    (isPromptFocused ? 'bg-white' : 'bg-gray-100'),
+                    (isPromptFocused ? 'bg-white' : 'bg-gray-50'),
                 )}
               >
                 {/* Home: a warm terracotta glow that grows in from behind the card

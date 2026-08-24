@@ -156,7 +156,7 @@ export const dsNav: Array<DsNavSection> = [
         to: '/ds/inputs',
         sections: [
           'Default',
-          'Focus rings',
+          'Focus',
           'With a label & disabled',
           'Progressive search',
           'Persistent search',

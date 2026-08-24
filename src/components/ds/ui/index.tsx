@@ -392,24 +392,20 @@ export function Eyebrow({
 
 /* -------------------------------------------------------------- FormInput -- */
 
-type FormInputProps = React.InputHTMLAttributes<HTMLInputElement> & {
-  focusRing?: 'blue' | 'orange' | 'purple'
-}
+type FormInputProps = React.InputHTMLAttributes<HTMLInputElement>
 
-const ringStyles: Record<NonNullable<FormInputProps['focusRing']>, string> = {
-  blue: 'focus:border-border-focus focus:ring-border-focus/40',
-  orange: 'focus:border-accent-warm focus:ring-accent-warm/40',
-  purple: 'focus:border-accent-creative focus:ring-accent-creative/40',
-}
+// Focus is a single neutral border-color change (no ring): the border lifts to
+// the strong neutral token — the lightest neutral on dark surfaces.
+const inputFocusClass = 'focus:border-border-strong focus:outline-none'
 
 export const FormInput = React.forwardRef<HTMLInputElement, FormInputProps>(
-  function FormInput({ className, focusRing = 'blue', ...props }, ref) {
+  function FormInput({ className, ...props }, ref) {
     return (
       <input
         ref={ref}
         className={twMerge(
-          'w-full rounded-lg border border-border-default bg-background-surface px-3 py-2 text-text-primary placeholder-text-muted transition focus:outline-none focus:ring-2',
-          ringStyles[focusRing],
+          'w-full rounded-lg border border-border-default bg-background-surface px-3 py-2 text-text-primary placeholder-text-muted transition',
+          inputFocusClass,
           className,
         )}
         {...props}
@@ -418,18 +414,16 @@ export const FormInput = React.forwardRef<HTMLInputElement, FormInputProps>(
   },
 )
 
-type FormSelectProps = React.SelectHTMLAttributes<HTMLSelectElement> & {
-  focusRing?: 'blue' | 'orange' | 'purple'
-}
+type FormSelectProps = React.SelectHTMLAttributes<HTMLSelectElement>
 
 export const FormSelect = React.forwardRef<HTMLSelectElement, FormSelectProps>(
-  function FormSelect({ className, focusRing = 'blue', ...props }, ref) {
+  function FormSelect({ className, ...props }, ref) {
     return (
       <select
         ref={ref}
         className={twMerge(
-          'w-full rounded-lg border border-border-default bg-background-surface px-3 py-2 text-text-primary transition focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-40',
-          ringStyles[focusRing],
+          'w-full rounded-lg border border-border-default bg-background-surface px-3 py-2 text-text-primary transition disabled:cursor-not-allowed disabled:opacity-40',
+          inputFocusClass,
           className,
         )}
         {...props}
@@ -504,7 +498,7 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
           className={twMerge(
             // Search reads as a distinct, fully-rounded pill so it never
             // reads as just another rounded-corner control (buttons, dropdowns).
-            'flex w-full items-center rounded-full border border-border-default bg-background-surface text-text-muted transition-[border-color,box-shadow] duration-150 focus-within:border-border-focus focus-within:text-text-primary focus-within:ring-2 focus-within:ring-border-focus/40 motion-reduce:transition-none',
+            'flex w-full items-center rounded-full border border-border-default bg-background-surface text-text-muted transition-[border-color,box-shadow] duration-150 focus-within:border-border-strong focus-within:text-text-primary motion-reduce:transition-none',
             size === 'large' ? 'min-h-14 gap-3 px-4' : 'h-10 gap-2.5 px-3',
           )}
         >

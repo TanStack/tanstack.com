@@ -446,22 +446,13 @@ type SearchInputProps = Omit<
 > & {
   size?: 'default' | 'large'
   progressive?: boolean
-  /** Fully-rounded pill shape (default is the standard rounded-lg/xl). */
-  pill?: boolean
   /** Node rendered inside the field, right of the input (e.g. an RSS link). */
   trailing?: React.ReactNode
 }
 
 export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
   function SearchInput(
-    {
-      className,
-      size = 'default',
-      progressive = false,
-      pill = false,
-      trailing,
-      ...props
-    },
+    { className, size = 'default', progressive = false, trailing, ...props },
     forwardedRef,
   ) {
     const [open, setOpen] = React.useState(!progressive)
@@ -511,11 +502,10 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
       return (
         <div
           className={twMerge(
-            'flex w-full items-center border border-border-default bg-background-surface text-text-muted transition-[border-color,box-shadow] duration-150 focus-within:border-border-focus focus-within:text-text-primary focus-within:ring-2 focus-within:ring-border-focus/40 motion-reduce:transition-none',
-            size === 'large'
-              ? 'min-h-14 gap-3 rounded-xl px-4'
-              : 'h-10 gap-2.5 rounded-lg px-3',
-            pill && 'rounded-full',
+            // Search reads as a distinct, fully-rounded pill so it never
+            // reads as just another rounded-corner control (buttons, dropdowns).
+            'flex w-full items-center rounded-full border border-border-default bg-background-surface text-text-muted transition-[border-color,box-shadow] duration-150 focus-within:border-border-focus focus-within:text-text-primary focus-within:ring-2 focus-within:ring-border-focus/40 motion-reduce:transition-none',
+            size === 'large' ? 'min-h-14 gap-3 px-4' : 'h-10 gap-2.5 px-3',
           )}
         >
           {/* The label wraps only the icon + input so clicking the field
@@ -784,7 +774,11 @@ export function DropdownContent({
         collisionPadding={collisionPadding}
         style={scrollable ? { maxHeight } : undefined}
         className={twMerge(
-          'z-[1200] min-w-48 rounded-lg border border-border-default bg-background-elevated p-1.5 shadow-lg',
+          // Width wraps the content, but never narrower than the trigger it
+          // opened from (Radix's --radix-dropdown-menu-trigger-width), with a
+          // 12rem floor. So a compact trigger gets a content-hugging menu, and a
+          // wide/full-width trigger gets a menu that fills the same span.
+          'z-[1200] min-w-[max(12rem,var(--radix-dropdown-menu-trigger-width,12rem))] rounded-lg border border-border-default bg-background-elevated p-1.5 shadow-lg',
           scrollable && 'overflow-y-auto overscroll-contain ds-scroll-subtle',
           className,
         )}

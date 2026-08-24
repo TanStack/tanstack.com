@@ -287,7 +287,6 @@ export function BlogFilterBar({
       <div className="flex items-center gap-3">
         <div className="min-w-0 flex-1 sm:max-w-sm">
           <SearchInput
-            pill
             aria-label="Search posts"
             placeholder="Search posts..."
             value={searchQuery}

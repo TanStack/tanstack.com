@@ -38,6 +38,14 @@ type BlogFilterBarProps = {
   onClearAll: () => void
 }
 
+// The DS ghost Button pre-applies its hover treatment below 900px as a touch
+// affordance; in this outlined toolbar that reads as a filled/"selected" state.
+// Keep the DS Button but flatten it back to a plain outlined pill on mobile so
+// it matches the search field. (Applied only to idle/ghost buttons — an active
+// facet keeps its filled secondary look.)
+const FLAT_ON_MOBILE =
+  'max-[899px]:border-border-default max-[899px]:bg-transparent max-[899px]:shadow-none'
+
 // The count rides alongside the label in parens, matching the old browse nav.
 function Count({ value }: { value: number }) {
   return <span className="text-text-muted"> ({value})</span>
@@ -123,7 +131,10 @@ export function BlogFilterBar({
           <DropdownTrigger>
             <Button
               variant={selectedLibrary ? 'secondary' : 'ghost'}
-              className={triggerClass}
+              className={twMerge(
+                triggerClass,
+                !selectedLibrary && FLAT_ON_MOBILE,
+              )}
             >
               {SelectedTopicIcon ? (
                 <SelectedTopicIcon
@@ -182,7 +193,10 @@ export function BlogFilterBar({
             <DropdownTrigger>
               <Button
                 variant={activeAuthor ? 'secondary' : 'ghost'}
-                className={triggerClass}
+                className={twMerge(
+                  triggerClass,
+                  !activeAuthor && FLAT_ON_MOBILE,
+                )}
               >
                 <span className="max-w-[16ch] truncate">
                   {activeAuthor ?? 'All authors'}
@@ -218,7 +232,10 @@ export function BlogFilterBar({
             <DropdownTrigger>
               <Button
                 variant={selectedYear ? 'secondary' : 'ghost'}
-                className={triggerClass}
+                className={twMerge(
+                  triggerClass,
+                  !selectedYear && FLAT_ON_MOBILE,
+                )}
               >
                 <span className="truncate">{selectedYear ?? 'All years'}</span>
                 <CaretDownIcon className="h-4 w-4 shrink-0 text-text-muted" />
@@ -293,7 +310,10 @@ export function BlogFilterBar({
             onClick={() => setMobileOpen((open) => !open)}
             className={twMerge(
               'relative h-10 w-10 md:hidden',
-              mobileOpen && 'bg-background-subtle',
+              FLAT_ON_MOBILE,
+              // Expanded = active, so keep it filled on mobile too.
+              mobileOpen &&
+                'bg-background-subtle max-[899px]:bg-background-subtle',
             )}
           >
             <SlidersHorizontalIcon
@@ -314,7 +334,7 @@ export function BlogFilterBar({
             aria-label="RSS feed"
             variant="ghost"
             size="icon-md"
-            className="h-10 w-10 shrink-0"
+            className={twMerge('h-10 w-10 shrink-0', FLAT_ON_MOBILE)}
           >
             <RssIcon weight="bold" className="h-[18px] w-[18px]" />
           </Button>

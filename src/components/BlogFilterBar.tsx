@@ -150,7 +150,7 @@ export function BlogFilterBar({
               <CaretDownIcon className="h-4 w-4 shrink-0 text-text-muted" />
             </Button>
           </DropdownTrigger>
-          <DropdownContent align="start" className="max-h-80 overflow-y-auto">
+          <DropdownContent align="start" maxHeight="20rem">
             <MenuItem
               selected={!selectedLibrary}
               onSelect={() => onLibraryToggle(undefined)}
@@ -204,7 +204,7 @@ export function BlogFilterBar({
                 <CaretDownIcon className="h-4 w-4 shrink-0 text-text-muted" />
               </Button>
             </DropdownTrigger>
-            <DropdownContent align="start" className="max-h-80 overflow-y-auto">
+            <DropdownContent align="start" maxHeight="20rem">
               <MenuItem
                 selected={!activeAuthor}
                 onSelect={() => onAuthorChange(undefined)}
@@ -241,7 +241,7 @@ export function BlogFilterBar({
                 <CaretDownIcon className="h-4 w-4 shrink-0 text-text-muted" />
               </Button>
             </DropdownTrigger>
-            <DropdownContent align="start" className="max-h-80 overflow-y-auto">
+            <DropdownContent align="start" maxHeight="20rem">
               <MenuItem
                 selected={!selectedYear}
                 onSelect={() => onYearToggle(undefined)}

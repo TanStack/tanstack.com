@@ -759,6 +759,7 @@ export function DropdownContent({
   side = 'bottom',
   sideOffset = 6,
   collisionPadding = 0,
+  maxHeight,
 }: {
   children: React.ReactNode
   className?: string
@@ -767,7 +768,13 @@ export function DropdownContent({
   side?: 'top' | 'right' | 'bottom' | 'left'
   sideOffset?: number
   collisionPadding?: number
+  /** Cap the menu height and reveal overflow with a subtle scroll indicator —
+   *  a thin, low-opacity scrollbar that appears only when the list overflows,
+   *  signalling "more content" without inviting a drag. Accepts any CSS length
+   *  (e.g. '20rem') or a px number. */
+  maxHeight?: number | string
 }) {
+  const scrollable = maxHeight !== undefined
   return (
     <DropdownMenu.Portal container={container ?? undefined}>
       <DropdownMenu.Content
@@ -775,8 +782,10 @@ export function DropdownContent({
         side={side}
         sideOffset={sideOffset}
         collisionPadding={collisionPadding}
+        style={scrollable ? { maxHeight } : undefined}
         className={twMerge(
           'z-[1200] min-w-48 rounded-lg border border-border-default bg-background-elevated p-1.5 shadow-lg',
+          scrollable && 'overflow-y-auto overscroll-contain ds-scroll-subtle',
           className,
         )}
       >

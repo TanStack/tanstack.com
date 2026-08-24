@@ -1355,6 +1355,36 @@ button {
     background: color-mix(in srgb, var(--color-text-primary) 40%, transparent);
   }
 
+  /* Subtle, track-less scrollbar for scrollable menus (DropdownContent
+     maxHeight). A thin, low-opacity thumb meant to read only as a "more
+     content" indicator, not a grab target. Prefixed with `html` to out-specify
+     the global scrollbar rules above (equal specificity, later source order
+     wins). */
+  html .ds-scroll-subtle {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(
+        in srgb,
+        var(--color-text-primary) 18%,
+        transparent
+      )
+      transparent;
+  }
+  html .ds-scroll-subtle::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  html .ds-scroll-subtle::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  html .ds-scroll-subtle::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--color-text-primary) 18%, transparent);
+    border: 0;
+    border-radius: 9999px;
+  }
+  html .ds-scroll-subtle::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--color-text-primary) 30%, transparent);
+  }
+
   [disabled] {
     @apply opacity-50 pointer-events-none;
   }

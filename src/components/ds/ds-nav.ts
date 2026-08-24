@@ -144,7 +144,7 @@ export const dsNav: Array<DsNavSection> = [
       {
         label: 'Dropdown',
         to: '/ds/dropdown',
-        sections: ['Basic menu'],
+        sections: ['Basic menu', 'Scrollable'],
       },
       {
         label: 'Eyebrow',

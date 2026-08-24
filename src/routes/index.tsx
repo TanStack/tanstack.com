@@ -499,7 +499,7 @@ function WhyTanStackSection() {
         </div>
 
         {/* features-stack — 478:1742 */}
-        <ol className="mt-12 rounded-[20px]">
+        <ol className="mt-2 rounded-[20px]">
           {whyTanStackPrinciples.map((principle, index) => (
             <li
               key={principle.title}

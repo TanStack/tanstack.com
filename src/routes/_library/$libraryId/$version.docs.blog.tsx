@@ -1,11 +1,10 @@
 import { ArrowLeftIcon } from '@phosphor-icons/react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
-import { BlogAuthorFilter } from '~/components/BlogAuthorFilter'
-import { BlogCard } from '~/components/BlogCard'
-import { BlogSearchFilter } from '~/components/BlogSearchFilter'
+import { BlogPostCard } from '~/components/ds/ui/BlogPostCard'
+import { PageHeader } from '~/components/ds/ui/PageHeader'
+import { Button, FormSelect, SearchInput } from '~/components/ds/ui'
 import { DocContainer } from '~/components/DocContainer'
-import { DocTitle } from '~/components/DocTitle'
 import { getLibrary, type LibraryId } from '~/libraries'
 import {
   getDistinctAuthors,
@@ -49,72 +48,79 @@ function RouteComponent() {
     <DocContainer>
       <div className="w-full max-w-[1600px] mx-auto">
         <div className="flex overflow-auto flex-col w-full p-4 lg:p-6">
-          <Link
-            to="/blog"
-            className="inline-flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors mb-4"
-          >
-            <ArrowLeftIcon className="w-4 h-4" />
-            Back to all posts
-          </Link>
+          <div className="flex flex-col items-center border-b border-border-subtle pb-6 text-center">
+            <PageHeader
+              align="center"
+              title={`${library.name.replace('TanStack ', '')} Blog`}
+            />
+            <Button
+              as={Link}
+              to="/blog"
+              variant="link"
+              color="gray"
+              className="mt-3.5"
+            >
+              <ArrowLeftIcon className="h-4 w-4" />
+              See all blog posts
+            </Button>
+          </div>
 
-          <DocTitle>{library.name} Blog</DocTitle>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Posts about {library.name}.
-          </p>
-
-          <div className="flex flex-wrap items-center gap-3 mt-6">
-            <div className="flex items-center gap-3">
-              <label
-                htmlFor="docs-blog-search-filter"
-                className="text-sm font-medium text-gray-600 dark:text-gray-400"
-              >
-                Search
-              </label>
-              <BlogSearchFilter
+          {/* Centered search + single-select author filter, DS input styles. */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <div className="w-72 max-w-full">
+              <SearchInput
                 id="docs-blog-search-filter"
                 value={searchQuery}
-                onChange={(nextQuery) =>
+                onChange={(event) =>
                   navigate({
                     search: (prev) => ({
                       ...prev,
-                      q: nextQuery || undefined,
+                      q: event.currentTarget.value || undefined,
                     }),
                     replace: true,
                   })
                 }
-                className="w-72 max-w-full"
+                placeholder="Search posts..."
               />
             </div>
             {authors.length > 0 ? (
-              <div className="flex items-center gap-3">
-                <label
-                  htmlFor="docs-blog-author-filter"
-                  className="text-sm font-medium text-gray-600 dark:text-gray-400"
+              <div className="w-56 max-w-full">
+                <FormSelect
+                  aria-label="Filter by author"
+                  value={
+                    selectedAuthor && authors.includes(selectedAuthor)
+                      ? selectedAuthor
+                      : ''
+                  }
+                  onChange={(event) =>
+                    navigate({
+                      search: (prev) => ({
+                        ...prev,
+                        author: event.currentTarget.value || undefined,
+                      }),
+                      replace: true,
+                    })
+                  }
                 >
-                  Author
-                </label>
-                <div id="docs-blog-author-filter" className="w-64 max-w-full">
-                  <BlogAuthorFilter
-                    authors={authors}
-                    selected={selectedAuthor}
-                    onSelect={(nextAuthor) =>
-                      navigate({
-                        search: (prev) => ({
-                          ...prev,
-                          author: nextAuthor,
-                        }),
-                        replace: true,
-                      })
-                    }
-                  />
-                </div>
+                  <option value="">All authors</option>
+                  {authors.map((name) => (
+                    <option key={name} value={name}>
+                      {name}
+                    </option>
+                  ))}
+                </FormSelect>
               </div>
             ) : null}
           </div>
 
           <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-8">
             {filteredPosts.map((post) => (
-              <BlogCard key={post.slug} post={post} showLibraryBadges={false} />
+              <BlogPostCard
+                key={post.slug}
+                post={post}
+                size="lg"
+                showLibraryBadges={false}
+              />
             ))}
           </section>
 

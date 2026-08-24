@@ -392,24 +392,20 @@ export function Eyebrow({
 
 /* -------------------------------------------------------------- FormInput -- */
 
-type FormInputProps = React.InputHTMLAttributes<HTMLInputElement> & {
-  focusRing?: 'blue' | 'orange' | 'purple'
-}
+type FormInputProps = React.InputHTMLAttributes<HTMLInputElement>
 
-const ringStyles: Record<NonNullable<FormInputProps['focusRing']>, string> = {
-  blue: 'focus:border-border-focus focus:ring-border-focus/40',
-  orange: 'focus:border-accent-warm focus:ring-accent-warm/40',
-  purple: 'focus:border-accent-creative focus:ring-accent-creative/40',
-}
+// Focus is a single neutral border-color change (no ring): the border lifts to
+// the strong neutral token — the lightest neutral on dark surfaces.
+const inputFocusClass = 'focus:border-border-strong focus:outline-none'
 
 export const FormInput = React.forwardRef<HTMLInputElement, FormInputProps>(
-  function FormInput({ className, focusRing = 'blue', ...props }, ref) {
+  function FormInput({ className, ...props }, ref) {
     return (
       <input
         ref={ref}
         className={twMerge(
-          'w-full rounded-lg border border-border-default bg-background-surface px-3 py-2 text-text-primary placeholder-text-muted transition focus:outline-none focus:ring-2',
-          ringStyles[focusRing],
+          'w-full rounded-lg border border-border-default bg-background-surface px-3 py-2 text-text-primary placeholder-text-muted transition',
+          inputFocusClass,
           className,
         )}
         {...props}
@@ -418,18 +414,16 @@ export const FormInput = React.forwardRef<HTMLInputElement, FormInputProps>(
   },
 )
 
-type FormSelectProps = React.SelectHTMLAttributes<HTMLSelectElement> & {
-  focusRing?: 'blue' | 'orange' | 'purple'
-}
+type FormSelectProps = React.SelectHTMLAttributes<HTMLSelectElement>
 
 export const FormSelect = React.forwardRef<HTMLSelectElement, FormSelectProps>(
-  function FormSelect({ className, focusRing = 'blue', ...props }, ref) {
+  function FormSelect({ className, ...props }, ref) {
     return (
       <select
         ref={ref}
         className={twMerge(
-          'w-full rounded-lg border border-border-default bg-background-surface px-3 py-2 text-text-primary transition focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-40',
-          ringStyles[focusRing],
+          'w-full rounded-lg border border-border-default bg-background-surface px-3 py-2 text-text-primary transition disabled:cursor-not-allowed disabled:opacity-40',
+          inputFocusClass,
           className,
         )}
         {...props}
@@ -446,11 +440,13 @@ type SearchInputProps = Omit<
 > & {
   size?: 'default' | 'large'
   progressive?: boolean
+  /** Node rendered inside the field, right of the input (e.g. an RSS link). */
+  trailing?: React.ReactNode
 }
 
 export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
   function SearchInput(
-    { className, size = 'default', progressive = false, ...props },
+    { className, size = 'default', progressive = false, trailing, ...props },
     forwardedRef,
   ) {
     const [open, setOpen] = React.useState(!progressive)
@@ -498,22 +494,36 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
 
     if (!progressive) {
       return (
-        <label
+        <div
           className={twMerge(
-            'flex w-full items-center border border-border-default bg-background-surface text-text-muted transition-[border-color,box-shadow] duration-150 focus-within:border-border-focus focus-within:text-text-primary focus-within:ring-2 focus-within:ring-border-focus/40 motion-reduce:transition-none',
-            size === 'large'
-              ? 'min-h-14 gap-3 rounded-xl px-4'
-              : 'h-10 gap-2.5 rounded-lg px-3',
+            // Search reads as a distinct, fully-rounded pill so it never
+            // reads as just another rounded-corner control (buttons, dropdowns).
+            'flex w-full items-center rounded-full border border-border-default bg-background-surface text-text-muted transition-[border-color,box-shadow] duration-150 focus-within:border-border-strong focus-within:text-text-primary motion-reduce:transition-none',
+            size === 'large' ? 'min-h-14 gap-3 px-4' : 'h-10 gap-2.5 px-3',
           )}
         >
-          <MagnifyingGlassIcon
-            size={size === 'large' ? 21 : 18}
-            weight="bold"
-            aria-hidden="true"
-            className="shrink-0"
-          />
-          {input}
-        </label>
+          {/* The label wraps only the icon + input so clicking the field
+              focuses it. Interactive `trailing` controls (links, buttons) sit
+              outside the label — a form control inside a <label> that also
+              contains other interactive controls is invalid HTML. */}
+          <label
+            className={twMerge(
+              'flex min-w-0 flex-1 items-center',
+              size === 'large' ? 'gap-3' : 'gap-2.5',
+            )}
+          >
+            <MagnifyingGlassIcon
+              size={size === 'large' ? 21 : 18}
+              weight="bold"
+              aria-hidden="true"
+              className="shrink-0"
+            />
+            {input}
+          </label>
+          {trailing ? (
+            <span className="flex shrink-0 items-center">{trailing}</span>
+          ) : null}
+        </div>
       )
     }
 
@@ -581,7 +591,7 @@ export function Card({
   return (
     <div
       className={twMerge(
-        'rounded-lg border border-border-default bg-background-surface shadow-md',
+        'rounded-lg corner-squircle border border-border-default bg-background-surface shadow-md',
         className,
       )}
     >
@@ -733,6 +743,7 @@ export function DropdownContent({
   side = 'bottom',
   sideOffset = 6,
   collisionPadding = 0,
+  maxHeight,
   ariaLabelledBy,
 }: {
   children: React.ReactNode
@@ -742,8 +753,14 @@ export function DropdownContent({
   side?: 'top' | 'right' | 'bottom' | 'left'
   sideOffset?: number
   collisionPadding?: number
+  /** Cap the menu height and reveal overflow with a subtle scroll indicator —
+   *  a thin, low-opacity scrollbar that appears only when the list overflows,
+   *  signalling "more content" without inviting a drag. Accepts any CSS length
+   *  (e.g. '20rem') or a px number. */
+  maxHeight?: number | string
   ariaLabelledBy?: string
 }) {
+  const scrollable = maxHeight !== undefined
   return (
     <DropdownMenu.Portal container={container ?? undefined}>
       <DropdownMenu.Content
@@ -751,11 +768,17 @@ export function DropdownContent({
         side={side}
         sideOffset={sideOffset}
         collisionPadding={collisionPadding}
+        style={scrollable ? { maxHeight } : undefined}
         {...(ariaLabelledBy
           ? { 'aria-labelledby': ariaLabelledBy }
           : undefined)}
         className={twMerge(
-          'z-[1200] min-w-48 rounded-lg border border-border-default bg-background-elevated p-1.5 shadow-lg',
+          // Width wraps the content, but never narrower than the trigger it
+          // opened from (Radix's --radix-dropdown-menu-trigger-width), with a
+          // 12rem floor. So a compact trigger gets a content-hugging menu, and a
+          // wide/full-width trigger gets a menu that fills the same span.
+          'z-[1200] min-w-[max(12rem,var(--radix-dropdown-menu-trigger-width,12rem))] rounded-lg border border-border-default bg-background-elevated p-1.5 shadow-lg',
+          scrollable && 'overflow-y-auto overscroll-contain ds-scroll-subtle',
           className,
         )}
       >
@@ -793,7 +816,13 @@ export function DropdownItem({
 export function DropdownSeparator({ className }: { className?: string }) {
   return (
     <DropdownMenu.Separator
-      className={twMerge('my-1 h-px bg-border-subtle', className)}
+      // On the elevated menu surface, dark `border-subtle` (#232323) is darker
+      // than the surface and recedes; use the site's subtle dark-surface line
+      // (a faint white hairline, as in the mega/mobile menus) for dark mode.
+      className={twMerge(
+        'my-1 h-px bg-border-subtle dark:bg-white/10',
+        className,
+      )}
     />
   )
 }
@@ -867,6 +896,15 @@ export function Breadcrumbs({
   )
 }
 
+export {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsPanel,
+  segmentClasses,
+  segmentTrackClasses,
+  type SegmentSize,
+} from './Tabs'
 export { PalmSpinner } from './PalmSpinner'
 export { PixelSpinner } from './PixelSpinner'
 export {
@@ -875,3 +913,8 @@ export {
   type StatsLayout,
   type StatItem,
 } from './StatsSection'
+// NOTE: PartnerRail / PartnerTierLogo are intentionally NOT re-exported here.
+// They import ~/utils/partners (which imports many .svg assets), and this
+// barrel is imported by components covered by the .svg-less unit test runner —
+// pulling partners in through the barrel breaks those tests. Import them
+// directly from './PartnerRail' / './PartnerTierLogo' instead.

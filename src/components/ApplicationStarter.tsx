@@ -959,12 +959,12 @@ export function ApplicationStarter({
                   // Home: 36px full-squircle corners. `overflow-visible` lets the
                   // focus glow (an absolute child at -z-10) bleed out from behind
                   // the card; the inner wrapper below re-clips the card content.
-                  // Light mode has no fill difference from the near-white page, so
-                  // the box is elevated with a soft shadow + slightly stronger
-                  // border to read as a raised panel — the light analog of dark
-                  // mode's lighter #171717 fill (which needs no shadow/border).
                   isHomeStarter &&
-                    'overflow-visible rounded-[36px] border-gray-300 [corner-shape:squircle] shadow-[0_1px_2px_rgba(17,17,17,0.04),0_18px_44px_-18px_rgba(17,17,17,0.12)] dark:border-transparent dark:bg-[#171717] dark:shadow-none',
+                    'overflow-visible rounded-[36px] [corner-shape:squircle] transition-colors dark:border-transparent dark:bg-[#171717]',
+                  // Light: a subtle recessed fill at rest that brightens to white
+                  // on focus (no shadow). Dark keeps its #171717 fill.
+                  isHomeStarter &&
+                    (isPromptFocused ? 'bg-white' : 'bg-gray-100'),
                 )}
               >
                 {/* Home: a warm terracotta glow that grows in from behind the card
@@ -1108,9 +1108,11 @@ export function ApplicationStarter({
                     ) : null}
 
                     {/* Home: the hint sits lateral to the prompt text (top-right);
-                        once the user types, the gradient Go CTA replaces it. */}
+                        once the user types, the gradient Go CTA replaces it. The
+                        h-6 box matches the prompt's first line (leading-6 at top-6)
+                        so the hint text is vertically centered on that line. */}
                     {isHomeStarter ? (
-                      <div className="absolute right-6 top-5 flex items-center">
+                      <div className="absolute right-6 top-6 flex h-6 items-center">
                         {showActionSection ? (
                           <Button
                             variant="ghost"

@@ -72,7 +72,6 @@ import {
   formatNotebookAiEnvironmentEvidence,
   shouldRestoreNotebookAiCheckpoint,
   validateNotebookAiCompletion,
-  type NotebookAiEnvironmentSnapshot,
 } from '~/utils/notebook-ai-environment'
 import {
   createNotebookAiThreadId,
@@ -86,14 +85,18 @@ import {
   fingerprintNotebookAiValue,
   recordNotebookAiFailure,
   type NotebookAiFailureObservation,
-  type NotebookAiRepairContext,
 } from '~/utils/notebook-ai-progress'
 import {
   NotebookAiPromptQueue,
+  type NotebookAiPromptLifecycle,
   type NotebookAiQueuedPrompt,
   type NotebookAiSendMode,
 } from '~/utils/notebook-ai-prompt-queue'
-import { runNotebookAiStream } from '~/utils/notebook-ai-stream.client'
+import {
+  runNotebookAiStream,
+  type NotebookAiStreamValidationOutcome,
+} from '~/utils/notebook-ai-stream.client'
+import type { NotebookAiValidationState } from '~/utils/notebook-ai-validation'
 
 type ByokModelChoice = {
   connection: 'byok'
@@ -134,8 +137,7 @@ type RollbackCheckpoint = {
   persisted?: NotebookAiCheckpoint
 }
 
-const maxRepairAttempts = 2
-const maxRuntimeErrorCharacters = 4_000
+const maxContinuousValidationAttempts = 8
 const supportsChatGptLogin = import.meta.env.DEV
 
 const openAiDefault = {
@@ -213,20 +215,11 @@ function getInitialModelChoice(state: ApiKeyState): ModelChoice {
       : openAiDefault
 }
 
-export function NotebookAssistant({
-  credentialScope,
-  enabled,
-  getExecution,
-  hiddenFiles,
-  onApply,
-  onCommit,
-  onDismiss,
-  onFinish,
-  onPrepare,
-  onRestore,
-  onRunningChange,
-  storageScope,
-}: {
+export type NotebookAssistantHandle = {
+  submitPrompt(content: string, lifecycle?: NotebookAiPromptLifecycle): boolean
+}
+
+type NotebookAssistantProps = {
   credentialScope?: string
   enabled: boolean
   getExecution: () => NotebookAiExecution
@@ -245,7 +238,28 @@ export function NotebookAssistant({
   ) => void | Promise<void>
   onRunningChange?: (running: boolean) => void
   storageScope?: string
-}) {
+}
+
+export const NotebookAssistant = React.forwardRef<
+  NotebookAssistantHandle,
+  NotebookAssistantProps
+>(function NotebookAssistant(
+  {
+    credentialScope,
+    enabled,
+    getExecution,
+    hiddenFiles,
+    onApply,
+    onCommit,
+    onDismiss,
+    onFinish,
+    onPrepare,
+    onRestore,
+    onRunningChange,
+    storageScope,
+  },
+  ref,
+) {
   const [initialApiKeyState] = React.useState(() =>
     loadInitialApiKeyState(credentialScope),
   )
@@ -309,6 +323,9 @@ export function NotebookAssistant({
     undefined,
   )
   const promptQueueRef = React.useRef(new NotebookAiPromptQueue())
+  const unrecordedPromptRef = React.useRef<NotebookAiQueuedPrompt | undefined>(
+    undefined,
+  )
   const transcriptRef = React.useRef<HTMLDivElement>(null)
   const promptRef = React.useRef<HTMLTextAreaElement>(null)
   const didInitialScrollRef = React.useRef(false)
@@ -338,6 +355,7 @@ export function NotebookAssistant({
     credentialScopeRef.current = credentialScope
     abortIntentRef.current = 'stop'
     abortRef.current?.abort()
+    discardUnrecordedPrompt()
     promptQueueRef.current.clear()
     setQueuedPrompts([])
 
@@ -427,7 +445,7 @@ export function NotebookAssistant({
     getScrollElement: () => transcriptRef.current,
     estimateSize: () => 96,
     getItemKey,
-    paddingStart: 64,
+    paddingStart: 48,
     anchorTo: 'end',
     followOnAppend: true,
     scrollEndThreshold: 80,
@@ -628,6 +646,8 @@ export function NotebookAssistant({
   React.useEffect(
     () => () => {
       abortRef.current?.abort()
+      discardUnrecordedPrompt()
+      promptQueueRef.current.clear()
       onRunningChangeRef.current?.(false)
     },
     [],
@@ -889,7 +909,12 @@ export function NotebookAssistant({
     setQueuedPrompts(promptQueueRef.current.items)
   }
 
-  function queuePrompt(instruction: string, mode: NotebookAiSendMode) {
+  function queuePrompt(
+    instruction: string,
+    mode: NotebookAiSendMode,
+    clearComposer: boolean,
+    lifecycle?: NotebookAiPromptLifecycle,
+  ) {
     const promptQueue = promptQueueRef.current
     const effectiveMode =
       mode === 'steer' &&
@@ -897,10 +922,12 @@ export function NotebookAssistant({
       abortIntentRef.current !== 'steer'
         ? 'steer'
         : 'queue'
-    promptQueue.enqueue(instruction, effectiveMode)
+    promptQueue.enqueue(instruction, effectiveMode, lifecycle)
     syncQueuedPrompts()
-    setPrompt('')
-    setSendMode('queue')
+    if (clearComposer) {
+      setPrompt('')
+      setSendMode('queue')
+    }
     setError('')
 
     if (effectiveMode === 'steer') {
@@ -940,40 +967,67 @@ export function NotebookAssistant({
         : `Response stopped. Cleared ${cleared} queued ${cleared === 1 ? 'message' : 'messages'}.`,
     )
     abortRef.current?.abort()
+    discardUnrecordedPrompt()
   }
 
   function submit(event: React.FormEvent) {
     event.preventDefault()
-    const instruction = prompt.trim()
-    if (!enabled || !instruction || hydrating) return
-    if (needsConnection) return
+    submitInstruction(prompt, sendMode, true)
+  }
+
+  function submitInstruction(
+    content: string,
+    mode: NotebookAiSendMode,
+    clearComposer: boolean,
+    lifecycle?: NotebookAiPromptLifecycle,
+  ) {
+    const instruction = content.trim()
+    if (
+      !enabled ||
+      !instruction ||
+      instruction.length > 10_000 ||
+      hydrating ||
+      needsConnection
+    ) {
+      return false
+    }
 
     const promptQueue = promptQueueRef.current
     if (!promptQueue.claim()) {
-      queuePrompt(instruction, sendMode)
-      return
+      queuePrompt(instruction, mode, clearComposer, lifecycle)
+      return true
     }
 
     const initialPrompt = {
       id: crypto.randomUUID(),
       content: instruction,
       createdAt: Date.now(),
+      lifecycle,
       mode: 'queue',
     } satisfies NotebookAiQueuedPrompt
-    setPrompt('')
+    if (clearComposer) {
+      setPrompt('')
+      setSendMode('queue')
+    }
     setError('')
     setRunning(true)
     onRunningChangeRef.current?.(true)
-    setSendMode('queue')
     void runPromptSequence(initialPrompt)
+    return true
   }
+
+  React.useImperativeHandle(ref, () => ({
+    submitPrompt(content, lifecycle) {
+      return submitInstruction(content, 'queue', false, lifecycle)
+    },
+  }))
 
   async function runPromptSequence(initialPrompt: NotebookAiQueuedPrompt) {
     let nextPrompt: NotebookAiQueuedPrompt | undefined = initialPrompt
 
     try {
       while (nextPrompt) {
-        const outcome = await runPrompt(nextPrompt.content)
+        const outcome = await runPrompt(nextPrompt)
         const shouldContinue =
           outcome === 'success' ||
           (outcome === 'aborted' && abortIntentRef.current === 'steer')
@@ -1004,34 +1058,50 @@ export function NotebookAssistant({
   }
 
   async function runPrompt(
-    instruction: string,
+    prompt: NotebookAiQueuedPrompt,
   ): Promise<'success' | 'error' | 'aborted'> {
+    const abortController = new AbortController()
+    abortRef.current = abortController
+    unrecordedPromptRef.current = prompt
     let initialExecution: NotebookAiExecution
     try {
       await dismissRollbackCheckpoint()
+      if (abortController.signal.aborted) {
+        discardUnrecordedPrompt(prompt)
+        if (abortRef.current === abortController) abortRef.current = null
+        return 'aborted'
+      }
       initialExecution = onPrepare ? await onPrepare() : getExecution()
+      if (abortController.signal.aborted) {
+        discardUnrecordedPrompt(prompt)
+        if (abortRef.current === abortController) abortRef.current = null
+        onFinish?.()
+        return 'aborted'
+      }
     } catch (cause) {
+      discardUnrecordedPrompt(prompt)
+      if (abortRef.current === abortController) abortRef.current = null
+      if (abortController.signal.aborted) return 'aborted'
       setError(`Could not prepare the notebook: ${formatError(cause)}`)
       return 'error'
     }
+    const instruction = prompt.content
     const checkpointExecution = cloneNotebookAiExecution(initialExecution)
     const userMessage = createTranscriptMessage('user', instruction)
     const nextMessages = [...messagesRef.current, userMessage]
     messagesRef.current = nextMessages
-    let requestMessages: Array<NotebookAiMessage> = nextMessages
+    recordPrompt(prompt)
+    const requestMessages: Array<NotebookAiMessage> = nextMessages
       .slice(-20)
       .map(({ role, content }) => ({ role, content }))
-    let requestExecution = initialExecution
-    let repairAttempt = 0
-    let repair: NotebookAiRepairContext | undefined
     let repairHistory: Array<NotebookAiFailureObservation> = []
+    let continuousValidationAttempt = 0
     let checkpoint: RollbackCheckpoint | undefined
     let didStageExecution = false
     let lastStagedExecution: NotebookAiExecution | undefined
+    let preserveStoppedExecution = false
     const activityId = crypto.randomUUID()
     let currentActivity: NotebookAiActivity | undefined
-    const abortController = new AbortController()
-    abortRef.current = abortController
     setMessages(nextMessages)
     setError('')
     setStreamingMessage('')
@@ -1045,287 +1115,86 @@ export function NotebookAssistant({
     )
 
     try {
-      while (!abortController.signal.aborted) {
-        const base = serializeNotebookAiExecution(requestExecution)
-        setStreamingMessage('')
-
-        agentStreamingRef.current = true
-        setAgentStreaming(true)
-        let response
-        try {
-          response =
-            selectedModel.connection === 'chatgpt'
-              ? await runChatGptAgent({
-                  activityId,
-                  abortController,
-                  execution: requestExecution,
-                  hiddenFiles,
-                  messages: requestMessages,
-                  model: selectedModel.model,
-                  onActivityEvent: updateActivity,
-                  onText: setStreamingMessage,
-                  repair,
-                  threadId,
-                })
-              : await runRemoteAgent({
-                  activityId,
-                  abortController,
-                  apiKey,
-                  execution: requestExecution,
-                  hiddenFiles,
-                  messages: requestMessages,
-                  model: selectedModel.model,
-                  onActivityEvent: updateActivity,
-                  onText: setStreamingMessage,
-                  provider: selectedModel.provider,
-                  repair,
-                  threadId,
-                })
-        } finally {
-          agentStreamingRef.current = false
-          setAgentStreaming(false)
-          setSendMode('queue')
-        }
-        if (abortController.signal.aborted) {
-          await rollbackStagedExecution()
-          stopActivity()
-          return 'aborted'
-        }
-
-        const currentExecution = getExecution()
-        if (serializeNotebookAiExecution(currentExecution) !== base) {
-          const message =
-            'The notebook changed while the assistant was working.'
-          failRepair(message)
-          failActivity(message)
-          setError(
-            'The notebook changed while the assistant was working. Send the request again.',
-          )
-          await discardCheckpoint()
-          return 'error'
-        }
-
-        if (response.changedFiles.length === 0 && !response.runtimeChanged) {
-          if (repairAttempt > 0) {
-            const message =
-              'The notebook still has an error and no repair was applied.'
-            failRepair(message)
-            await rollbackStagedExecution()
-            failActivity(message)
-          } else {
-            completeActivity()
-          }
-          commitAssistant(response.message)
-          if (repairAttempt > 0) {
-            setError(
-              'The notebook still has an error and no repair was applied.',
-            )
-            return 'error'
-          }
-          return 'success'
-        }
-
-        if (!checkpoint) {
-          checkpoint = {
-            id: activityId,
-            execution: checkpointExecution,
-          }
-          if (storageScope) {
-            const storedCheckpoint = await createNotebookAiCheckpoint(
-              storageScope,
-              checkpoint.id,
-              checkpoint.execution,
-            )
-            checkpoint.persisted = storedCheckpoint
-          }
-        }
-        didStageExecution = true
-        lastStagedExecution = cloneNotebookAiExecution(response.execution)
-        if (storageScope && checkpoint.persisted) {
-          checkpoint.persisted =
-            await updateNotebookAiCheckpointExpectedExecution(
-              storageScope,
-              checkpoint.id,
-              response.execution,
-            )
-        }
-
-        const applyItemId = `apply:${repairAttempt}`
-        updateActivity({
-          type: 'item-running',
-          runId: activityId,
-          itemId: applyItemId,
-          source: 'harness',
-          name: 'apply_workspace',
-          timestamp: Date.now(),
-          input: { paths: response.changedFiles },
-        })
-        const runItemId = `run:${repairAttempt}`
-        updateActivity({
-          type: 'item-running',
-          runId: activityId,
-          itemId: runItemId,
-          source: 'harness',
-          name: 'run_notebook',
-          timestamp: Date.now(),
-        })
-        const runResult = await onApply(
-          response.execution,
-          abortController.signal,
-        )
-        updateActivity({
-          type: 'item-completed',
-          runId: activityId,
-          itemId: applyItemId,
-          source: 'harness',
-          name: 'apply_workspace',
-          timestamp: Date.now(),
-          output: { paths: response.changedFiles },
-        })
-
-        const environmentSnapshot = createNotebookAiEnvironmentSnapshot({
-          actualExecution: getExecution(),
-          expectedExecution: response.execution,
-          run: runResult,
-        })
-        const completion = validateNotebookAiCompletion(environmentSnapshot)
-
-        if (completion.status === 'complete') {
-          updateActivity({
-            type: 'item-completed',
-            runId: activityId,
-            itemId: runItemId,
-            source: 'harness',
-            name: 'run_notebook',
-            timestamp: Date.now(),
-            output: { runtime: environmentSnapshot.run.snapshot.runtime },
-          })
-          if (repairAttempt > 0) {
-            updateActivity({
-              type: 'item-completed',
-              runId: activityId,
-              itemId: `repair:${repairAttempt}`,
-              source: 'harness',
-              name: 'repair_notebook',
-              timestamp: Date.now(),
-            })
-          }
-          try {
-            await onCommit?.(response.execution)
-          } catch (cause) {
-            const message = `The notebook ran successfully but could not be saved: ${formatError(cause)}`
-            retainCheckpoint()
-            failActivity(message)
-            commitAssistant(response.message)
-            setError(message)
-            return 'error'
-          }
-          await discardCheckpoint()
-          completeActivity()
-          commitAssistant(response.message)
-          return 'success'
-        }
-
-        updateActivity({
-          type: 'item-failed',
-          runId: activityId,
-          itemId: runItemId,
-          source: 'harness',
-          name: 'run_notebook',
-          timestamp: Date.now(),
-          error: completion.diagnostic,
-          output: {
-            runtime: environmentSnapshot.run.snapshot.runtime,
-            phase:
-              completion.status === 'repair'
-                ? completion.phase
-                : runResult.ok
-                  ? 'validation'
-                  : runResult.phase,
-          },
-        })
-        failRepair(completion.diagnostic)
-
-        if (abortController.signal.aborted) {
-          await rollbackStagedExecution()
-          stopActivity()
-          return 'aborted'
-        }
-
-        if (completion.status === 'stop') {
-          if (completion.preserveCurrentExecution) {
-            await discardCheckpoint()
-          } else {
-            await rollbackStagedExecution()
-          }
-          failActivity(completion.diagnostic)
-          commitAssistant(response.message)
-          setError(completion.diagnostic)
-          return 'error'
-        }
-
-        const failureFingerprint = fingerprintNotebookAiDiagnostic(
-          completion.phase,
-          completion.diagnostic,
-        )
-        const executionFingerprint = fingerprintNotebookAiValue(
-          response.execution,
-        )
-        const progress = recordNotebookAiFailure(repairHistory, {
-          failureFingerprint,
-          executionFingerprint,
-          evidenceFingerprints: response.trace.evidenceFingerprints,
-          mutationFingerprints: response.trace.mutationFingerprints,
-        })
-        repairHistory = progress.history
-
-        if (progress.repeatedState) {
-          const runError =
-            'The repair stopped because it returned to a notebook state that already failed with the same error.'
-          await rollbackStagedExecution()
-          failActivity(runError)
-          commitAssistant(response.message)
-          setError(runError)
-          return 'error'
-        }
-
-        if (repairAttempt >= maxRepairAttempts) {
-          const runError = `The notebook still fails after ${maxRepairAttempts} repair attempts: ${completion.diagnostic}`
-          await rollbackStagedExecution()
-          failActivity(runError)
-          commitAssistant(response.message)
-          setError(runError)
-          return 'error'
-        }
-
-        repairAttempt += 1
-        updateActivity({
-          type: 'item-running',
-          runId: activityId,
-          itemId: `repair:${repairAttempt}`,
-          source: 'harness',
-          name: 'repair_notebook',
-          timestamp: Date.now(),
-          input: {
-            phase: completion.phase,
-            attempt: repairAttempt,
-            maxAttempts: maxRepairAttempts,
-          },
-        })
-        const diagnostic = createRepairDiagnostic(
-          completion.phase,
-          completion.diagnostic,
-          environmentSnapshot,
-        )
-        repair = progress.repair
-        requestMessages = requestMessages
-          .concat(
-            { role: 'assistant', content: response.message },
-            { role: 'user', content: diagnostic },
-          )
-          .slice(-20)
-        requestExecution = response.execution
+      setStreamingMessage('')
+      agentStreamingRef.current = true
+      setAgentStreaming(true)
+      let response
+      try {
+        response =
+          selectedModel.connection === 'chatgpt'
+            ? await runChatGptAgent({
+                activityId,
+                abortController,
+                execution: initialExecution,
+                hiddenFiles,
+                messages: requestMessages,
+                model: selectedModel.model,
+                onActivityEvent: updateActivity,
+                onText: setStreamingMessage,
+                onValidate: validateContinuousCandidate,
+                threadId,
+              })
+            : await runRemoteAgent({
+                activityId,
+                abortController,
+                apiKey,
+                execution: initialExecution,
+                hiddenFiles,
+                messages: requestMessages,
+                model: selectedModel.model,
+                onActivityEvent: updateActivity,
+                onText: setStreamingMessage,
+                onValidate: validateContinuousCandidate,
+                provider: selectedModel.provider,
+                threadId,
+              })
+      } finally {
+        agentStreamingRef.current = false
+        setAgentStreaming(false)
+        setSendMode('queue')
       }
+      if (abortController.signal.aborted) {
+        await rollbackStagedExecution()
+        stopActivity()
+        return 'aborted'
+      }
+
+      const expectedCurrentExecution =
+        response.changedFiles.length > 0 || response.runtimeChanged
+          ? response.execution
+          : initialExecution
+      if (
+        serializeNotebookAiExecution(getExecution()) !==
+        serializeNotebookAiExecution(expectedCurrentExecution)
+      ) {
+        const message = 'The notebook changed while the assistant was working.'
+        await discardCheckpoint()
+        failActivity(message)
+        setError(`${message} Send the request again.`)
+        return 'error'
+      }
+
+      if (response.changedFiles.length === 0 && !response.runtimeChanged) {
+        await discardCheckpoint()
+        completeActivity()
+        commitAssistant(response.message)
+        return 'success'
+      }
+
+      try {
+        await onCommit?.(response.execution)
+      } catch (cause) {
+        const message = `The notebook ran successfully but could not be saved: ${formatError(cause)}`
+        retainCheckpoint()
+        failActivity(message)
+        commitAssistant(response.message)
+        setError(message)
+        return 'error'
+      }
+      await discardCheckpoint()
+      completeActivity()
+      commitAssistant(response.message)
+      return 'success'
     } catch (cause) {
       if (isAbortError(cause) || abortController.signal.aborted) {
         await rollbackStagedExecution()
@@ -1333,18 +1202,202 @@ export function NotebookAssistant({
         return 'aborted'
       } else {
         const message = formatError(cause)
-        failRepair(message)
-        await rollbackStagedExecution()
+        if (preserveStoppedExecution) await discardCheckpoint()
+        else await rollbackStagedExecution()
         failActivity(message)
         setError(message)
         return 'error'
       }
     } finally {
+      abortController.abort()
       if (abortRef.current === abortController) abortRef.current = null
       onFinish?.()
     }
 
     return 'aborted'
+
+    async function validateContinuousCandidate(
+      state: NotebookAiValidationState,
+    ): Promise<NotebookAiStreamValidationOutcome> {
+      preserveStoppedExecution = false
+      continuousValidationAttempt += 1
+      if (continuousValidationAttempt > maxContinuousValidationAttempts) {
+        return {
+          result: {
+            status: 'stop',
+            preserveCurrentExecution: false,
+            diagnostic:
+              'The notebook validation budget was reached without a working result.',
+          },
+        }
+      }
+
+      const expectedCurrentExecution = lastStagedExecution ?? initialExecution
+      if (
+        serializeNotebookAiExecution(getExecution()) !==
+        serializeNotebookAiExecution(expectedCurrentExecution)
+      ) {
+        preserveStoppedExecution = true
+        return {
+          result: {
+            status: 'stop',
+            preserveCurrentExecution: true,
+            diagnostic:
+              'The notebook changed while the staged execution was being validated.',
+          },
+        }
+      }
+
+      const candidateChanged =
+        serializeNotebookAiExecution(state.execution) !==
+        serializeNotebookAiExecution(checkpointExecution)
+      if (candidateChanged && !checkpoint) {
+        checkpoint = { id: activityId, execution: checkpointExecution }
+        if (storageScope) {
+          const storedCheckpoint = await createNotebookAiCheckpoint(
+            storageScope,
+            checkpoint.id,
+            checkpoint.execution,
+          )
+          checkpoint.persisted = storedCheckpoint
+        }
+      }
+      didStageExecution ||= candidateChanged
+      lastStagedExecution = cloneNotebookAiExecution(state.execution)
+      if (storageScope && checkpoint?.persisted) {
+        checkpoint.persisted =
+          await updateNotebookAiCheckpointExpectedExecution(
+            storageScope,
+            checkpoint.id,
+            state.execution,
+          )
+      }
+      if (
+        serializeNotebookAiExecution(getExecution()) !==
+        serializeNotebookAiExecution(expectedCurrentExecution)
+      ) {
+        preserveStoppedExecution = true
+        return {
+          result: {
+            status: 'stop',
+            preserveCurrentExecution: true,
+            diagnostic:
+              'The notebook changed while the staged execution was being validated.',
+          },
+        }
+      }
+
+      const applyItemId = `validate:${continuousValidationAttempt}:apply`
+      updateActivity({
+        type: 'item-running',
+        runId: activityId,
+        itemId: applyItemId,
+        source: 'harness',
+        name: 'apply_workspace',
+        timestamp: Date.now(),
+        input: { paths: state.changedFiles },
+      })
+      const runItemId = `validate:${continuousValidationAttempt}:run`
+      updateActivity({
+        type: 'item-running',
+        runId: activityId,
+        itemId: runItemId,
+        source: 'harness',
+        name: 'run_notebook',
+        timestamp: Date.now(),
+      })
+      const runResult = await onApply(state.execution, abortController.signal)
+      updateActivity({
+        type: 'item-completed',
+        runId: activityId,
+        itemId: applyItemId,
+        source: 'harness',
+        name: 'apply_workspace',
+        timestamp: Date.now(),
+        output: { paths: state.changedFiles },
+      })
+
+      const environmentSnapshot = createNotebookAiEnvironmentSnapshot({
+        actualExecution: getExecution(),
+        expectedExecution: state.execution,
+        run: runResult,
+      })
+      const completion = validateNotebookAiCompletion(environmentSnapshot)
+      if (completion.status === 'complete') {
+        updateActivity({
+          type: 'item-completed',
+          runId: activityId,
+          itemId: runItemId,
+          source: 'harness',
+          name: 'run_notebook',
+          timestamp: Date.now(),
+          output: { runtime: environmentSnapshot.run.snapshot.runtime },
+        })
+        return { result: completion }
+      }
+
+      updateActivity({
+        type: 'item-failed',
+        runId: activityId,
+        itemId: runItemId,
+        source: 'harness',
+        name: 'run_notebook',
+        timestamp: Date.now(),
+        error: completion.diagnostic,
+        output: {
+          runtime: environmentSnapshot.run.snapshot.runtime,
+          phase:
+            completion.status === 'repair'
+              ? completion.phase
+              : runResult.ok
+                ? 'validation'
+                : runResult.phase,
+        },
+      })
+
+      if (completion.status === 'stop') {
+        preserveStoppedExecution = completion.preserveCurrentExecution
+        return { result: completion }
+      }
+
+      const progress = recordNotebookAiFailure(repairHistory, {
+        failureFingerprint: fingerprintNotebookAiDiagnostic(
+          completion.phase,
+          completion.diagnostic,
+        ),
+        executionFingerprint: fingerprintNotebookAiValue(state.execution),
+        evidenceFingerprints: state.trace.evidenceFingerprints,
+        mutationFingerprints: state.trace.mutationFingerprints,
+      })
+      repairHistory = progress.history
+      if (progress.repeatedState) {
+        return {
+          result: {
+            status: 'stop',
+            preserveCurrentExecution: false,
+            diagnostic:
+              'The repair returned to a notebook state that already failed with the same error.',
+          },
+        }
+      }
+      if (continuousValidationAttempt >= maxContinuousValidationAttempts) {
+        return {
+          result: {
+            status: 'stop',
+            preserveCurrentExecution: false,
+            diagnostic: `The notebook validation budget was reached: ${completion.diagnostic}`,
+          },
+        }
+      }
+
+      return {
+        result: {
+          ...completion,
+          evidence: formatNotebookAiEnvironmentEvidence(environmentSnapshot),
+        },
+        repair: progress.repair,
+      }
+    }
 
     function updateActivity(event: NotebookAiActivityEvent) {
       currentActivity = reduceNotebookAiActivity(currentActivity, event)
@@ -1373,19 +1426,6 @@ export function NotebookAssistant({
         type: 'run-stopped',
         runId: activityId,
         timestamp: Date.now(),
-      })
-    }
-
-    function failRepair(message: string) {
-      if (repairAttempt === 0) return
-      updateActivity({
-        type: 'item-failed',
-        runId: activityId,
-        itemId: `repair:${repairAttempt}`,
-        source: 'harness',
-        name: 'repair_notebook',
-        timestamp: Date.now(),
-        error: message,
       })
     }
 
@@ -1476,6 +1516,21 @@ export function NotebookAssistant({
     }
   }
 
+  function discardUnrecordedPrompt(prompt?: NotebookAiQueuedPrompt) {
+    const unrecordedPrompt = unrecordedPromptRef.current
+    if (!unrecordedPrompt || (prompt && unrecordedPrompt.id !== prompt.id)) {
+      return
+    }
+    unrecordedPromptRef.current = undefined
+    unrecordedPrompt.lifecycle?.onDiscarded?.()
+  }
+
+  function recordPrompt(prompt: NotebookAiQueuedPrompt) {
+    if (unrecordedPromptRef.current?.id === prompt.id) {
+      unrecordedPromptRef.current = undefined
+    }
+  }
+
   const submitDisabled = hydrating || !prompt.trim() || needsConnection
   const stopLabel =
     queuedPrompts.length === 0
@@ -1486,8 +1541,50 @@ export function NotebookAssistant({
       ? 'Steer current response'
       : 'Queue message'
     : 'Send message'
+  const copyDebugTranscript = React.useCallback(
+    () =>
+      copyTextToClipboard(
+        JSON.stringify(
+          {
+            version: 1,
+            copiedAt: new Date().toISOString(),
+            url: window.location.href,
+            threadId,
+            model:
+              selectedModel.connection === 'byok'
+                ? {
+                    connection: selectedModel.connection,
+                    provider: selectedModel.provider,
+                    model: selectedModel.model,
+                  }
+                : {
+                    connection: selectedModel.connection,
+                    model: selectedModel.model,
+                  },
+            messages,
+            current: {
+              activity: liveActivity ?? null,
+              response: streamingMessage || null,
+              queuedPrompts,
+              error: error || null,
+            },
+          },
+          null,
+          2,
+        ),
+      ),
+    [
+      error,
+      liveActivity,
+      messages,
+      queuedPrompts,
+      selectedModel,
+      streamingMessage,
+      threadId,
+    ],
+  )
   const floatingChatButtonClass =
-    'pointer-events-auto size-11 bg-surface-state-hover hover:bg-surface-state-pressed @min-[900px]:size-8'
+    'pointer-events-auto size-7 border border-border-default bg-background-elevated p-0 text-text-muted shadow-sm hover:bg-background-elevated hover:text-text-primary max-[899px]:bg-background-elevated max-[899px]:text-text-muted disabled:opacity-100 disabled:text-text-disabled'
 
   return (
     <section
@@ -1712,6 +1809,7 @@ export function NotebookAssistant({
                       <TranscriptRowView
                         row={row}
                         onCancelQueued={cancelQueuedPrompt}
+                        onCopyDebugTranscript={copyDebugTranscript}
                         onDismissCheckpoint={() =>
                           void dismissRollbackCheckpoint()
                         }
@@ -1857,7 +1955,7 @@ export function NotebookAssistant({
       />
     </section>
   )
-}
+})
 
 function SetupState({
   align = 'center',
@@ -1996,25 +2094,65 @@ function DeviceLogin({
   )
 }
 
-function ErrorMessage({ message }: { message: string }) {
+function ErrorMessage({
+  message,
+  onCopyDebugTranscript,
+}: {
+  message: string
+  onCopyDebugTranscript?: () => Promise<void>
+}) {
+  const [copied, setCopied] = React.useState(false)
+
   return (
-    <p
-      className="mt-4 rounded-md border border-border-default bg-background-surface px-2.5 py-2 text-xs/5 whitespace-pre-wrap text-text-secondary"
-      role="alert"
-    >
-      {message}
-    </p>
+    <div className="group/error relative mt-4 rounded-md border border-border-default bg-background-surface px-2.5 py-2">
+      <p
+        className="pr-7 text-xs/5 whitespace-pre-wrap text-text-secondary"
+        role="alert"
+      >
+        {message}
+      </p>
+      {onCopyDebugTranscript ? (
+        <Tooltip
+          content={copied ? 'Debug transcript copied' : 'Copy debug transcript'}
+        >
+          <Button
+            type="button"
+            variant="icon"
+            color="gray"
+            size="icon-sm"
+            className="absolute top-1 right-1 size-6 bg-transparent p-0 opacity-0 hover:bg-surface-state-hover focus-visible:opacity-100 group-hover/error:opacity-100"
+            aria-label={
+              copied ? 'Debug transcript copied' : 'Copy debug transcript'
+            }
+            onClick={() => {
+              void onCopyDebugTranscript().then(() => setCopied(true))
+            }}
+          >
+            {copied ? (
+              <CheckIcon className="size-3.5" aria-hidden="true" />
+            ) : (
+              <CopyIcon className="size-3.5" aria-hidden="true" />
+            )}
+          </Button>
+        </Tooltip>
+      ) : null}
+      <span className="sr-only" role="status" aria-live="polite">
+        {copied ? 'Debug transcript copied.' : ''}
+      </span>
+    </div>
   )
 }
 
 function TranscriptRowView({
   row,
   onCancelQueued,
+  onCopyDebugTranscript,
   onDismissCheckpoint,
   onRestoreCheckpoint,
 }: {
   row: TranscriptRow
   onCancelQueued: (id: string) => void
+  onCopyDebugTranscript: () => Promise<void>
   onDismissCheckpoint: () => void
   onRestoreCheckpoint: () => void
 }) {
@@ -2048,7 +2186,10 @@ function TranscriptRowView({
             onRestore={onRestoreCheckpoint}
           />
         ) : (
-          <ErrorMessage message={row.message} />
+          <ErrorMessage
+            message={row.message}
+            onCopyDebugTranscript={onCopyDebugTranscript}
+          />
         )}
       </div>
     </div>
@@ -2629,7 +2770,7 @@ async function runChatGptAgent({
   model,
   onActivityEvent,
   onText,
-  repair,
+  onValidate,
   threadId,
 }: {
   activityId: string
@@ -2640,7 +2781,9 @@ async function runChatGptAgent({
   model: string
   onActivityEvent: (event: NotebookAiActivityEvent) => void
   onText: (text: string) => void
-  repair?: NotebookAiRepairContext
+  onValidate: (
+    state: NotebookAiValidationState,
+  ) => Promise<NotebookAiStreamValidationOutcome>
   threadId: string
 }) {
   return runNotebookAiStream({
@@ -2650,11 +2793,11 @@ async function runChatGptAgent({
       model,
       execution,
       hiddenFiles,
-      ...(repair ? { repair } : {}),
     },
     includeReasoningSummaries: true,
     messages,
     onActivityEvent,
+    onLocalValidate: onValidate,
     onText,
     signal: abortController.signal,
     threadId,
@@ -2671,8 +2814,8 @@ async function runRemoteAgent({
   model,
   onActivityEvent,
   onText,
+  onValidate,
   provider,
-  repair,
   threadId,
 }: {
   activityId: string
@@ -2684,8 +2827,10 @@ async function runRemoteAgent({
   model: string
   onActivityEvent: (event: NotebookAiActivityEvent) => void
   onText: (text: string) => void
+  onValidate: (
+    state: NotebookAiValidationState,
+  ) => Promise<NotebookAiStreamValidationOutcome>
   provider: NotebookAiRemoteProvider
-  repair?: NotebookAiRepairContext
   threadId: string
 }) {
   return runNotebookAiStream({
@@ -2697,11 +2842,11 @@ async function runRemoteAgent({
       apiKey,
       execution,
       hiddenFiles,
-      ...(repair ? { repair } : {}),
     },
     messages,
     onActivityEvent,
     onText,
+    onValidate,
     signal: abortController.signal,
     threadId,
   })
@@ -2730,16 +2875,6 @@ function getPreferredChatGptModel(connection: NotebookChatGptConnection) {
     connection.models.find((model) => model.isDefault) ??
     connection.models[0]
   )
-}
-
-function createRepairDiagnostic(
-  phase: 'compile' | 'runtime',
-  diagnostic: string,
-  snapshot: NotebookAiEnvironmentSnapshot,
-) {
-  const message = diagnostic.slice(0, maxRuntimeErrorCharacters)
-  const evidence = formatNotebookAiEnvironmentEvidence(snapshot)
-  return `The staged notebook failed during ${phase}:\n\n${message}${evidence ? `\n\nEnvironment snapshot:\n${evidence}` : ''}\n\nGather new authoritative evidence before editing. Inspect current source, diagnostics, runtime output, exact package metadata, declarations, implementation, documentation, or a relevant skill. The host rejects evidence results and mutations already tried against this failure. Make only the necessary change and keep the requested behavior.`
 }
 
 function createTranscriptMessage(

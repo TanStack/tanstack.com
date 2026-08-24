@@ -321,7 +321,39 @@ test('notebook activity settles unfinished items when a run completes', () => {
   )
 })
 
-test('notebook agent activity renders accessible expandable details', () => {
+test('notebook agent activity summaries are collapsed by default', () => {
+  const activities = [
+    reduceEvents([{ type: 'run-started', runId: 'running', timestamp: 1_000 }]),
+    reduceEvents([
+      { type: 'run-started', runId: 'complete', timestamp: 1_000 },
+      { type: 'run-completed', runId: 'complete', timestamp: 2_000 },
+    ]),
+    reduceEvents([
+      { type: 'run-started', runId: 'error', timestamp: 1_000 },
+      {
+        type: 'run-failed',
+        runId: 'error',
+        timestamp: 2_000,
+        error: 'Failed',
+      },
+    ]),
+    reduceEvents([
+      { type: 'run-started', runId: 'stopped', timestamp: 1_000 },
+      { type: 'run-stopped', runId: 'stopped', timestamp: 2_000 },
+    ]),
+  ]
+
+  for (const activity of activities) {
+    const markup = renderToStaticMarkup(
+      React.createElement(NotebookAgentActivity, { activity }),
+    )
+
+    assert.match(markup, /aria-expanded="false"/)
+    assert.match(markup, /aria-hidden="true"/)
+  }
+})
+
+test('notebook agent activity supports explicitly expanded details', () => {
   const activity = reduceEvents([
     { type: 'run-started', runId: 'run-4', timestamp: 1_000 },
     {

@@ -1,4 +1,4 @@
-import type { StreamChunk } from '@tanstack/ai'
+import { EventType, type StreamChunk } from '@tanstack/ai'
 import { isExampleRuntime } from './example-project'
 import {
   parseExampleWorkspace,
@@ -118,6 +118,7 @@ export async function* streamNotebookAiResponse(
 ): AsyncGenerator<StreamChunk> {
   let message = ''
   let messageId = ''
+  let sawTerminal = false
 
   try {
     for await (const chunk of stream) {
@@ -132,6 +133,7 @@ export async function* streamNotebookAiResponse(
       }
 
       if (chunk.type === 'RUN_ERROR') {
+        sawTerminal = true
         const { rawEvent, ...safeChunk } = chunk
         void rawEvent
         const redactedMessage = redactNotebookAiKey(chunk.message, apiKey)
@@ -164,7 +166,21 @@ export async function* streamNotebookAiResponse(
         }
       }
 
+      if (
+        chunk.type === 'RUN_FINISHED' &&
+        (chunk.finishReason !== 'tool_calls' ||
+          chunk.outcome?.type === 'interrupt')
+      ) {
+        sawTerminal = true
+      }
+
       yield chunk
+    }
+    if (!sawTerminal) {
+      yield {
+        type: EventType.RUN_ERROR,
+        message: 'Notebook AI provider stream ended before the run finished',
+      }
     }
   } catch (error) {
     const redactedError = new Error(

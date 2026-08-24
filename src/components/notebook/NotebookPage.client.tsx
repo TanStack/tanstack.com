@@ -17,7 +17,10 @@ import {
   type ExampleWorkbenchRunRequest,
 } from '~/components/examples/ExampleWorkbench.client'
 import { createEmptyExampleEnvironmentSnapshot } from '~/utils/example-run-observation'
-import { NotebookAssistant } from '~/components/notebook/NotebookAssistant.client'
+import {
+  NotebookAssistant,
+  type NotebookAssistantHandle,
+} from '~/components/notebook/NotebookAssistant.client'
 import { NotebookEditorSkeleton } from '~/components/notebook/NotebookLoading'
 import { useLoginModal } from '~/contexts/LoginModalContext'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
@@ -67,6 +70,7 @@ export function NotebookPage({ id }: { id: string }) {
   const [assistantRunning, setAssistantRunning] = React.useState(false)
   const [runRequest, setRunRequest] =
     React.useState<ExampleWorkbenchRunRequest>()
+  const assistantRef = React.useRef<NotebookAssistantHandle>(null)
   const workbenchRef = React.useRef<ExampleWorkbenchHandle>(null)
   const workspaceRef = React.useRef<ExampleWorkspace | undefined>(undefined)
   const recordRef = React.useRef<NotebookRecord | undefined>(undefined)
@@ -484,7 +488,7 @@ export function NotebookPage({ id }: { id: string }) {
 
   return (
     <main className="fixed inset-x-0 top-[var(--navbar-height)] bottom-0 z-20 flex min-h-0 flex-col overflow-hidden bg-background-default text-text-primary">
-      <header className="flex h-16 shrink-0 items-center gap-2 border-b border-border-default bg-background-default px-2 sm:gap-3 sm:px-4">
+      <header className="flex h-16 shrink-0 items-center gap-2 border-b border-border-subtle bg-background-default px-2 sm:gap-3 sm:px-4">
         <Button
           as={Link}
           to="/notebook"
@@ -695,9 +699,12 @@ export function NotebookPage({ id }: { id: string }) {
             active: activeView === 'chat',
             label: 'Chat',
             onActiveChange: (active) => setActiveView(active ? 'chat' : 'code'),
+            submitPrompt: (content, lifecycle) =>
+              assistantRef.current?.submitPrompt(content, lifecycle) ?? false,
             content: (
               <NotebookAssistant
                 key={`${record.id}:${user?.userId ?? 'anonymous'}`}
+                ref={assistantRef}
                 credentialScope={user?.userId ?? 'anonymous'}
                 enabled
                 getExecution={() => {

@@ -34,11 +34,9 @@ export function NotebookAgentActivity({
 }) {
   const triggerId = React.useId()
   const contentId = React.useId()
-  const manuallyChangedRef = React.useRef(false)
-  const previousStatusRef = React.useRef(activity.status)
   const previousActivityIdRef = React.useRef(activity.id)
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(
-    defaultOpen ?? shouldOpenActivity(activity.status),
+    defaultOpen ?? false,
   )
   const open = controlledOpen ?? uncontrolledOpen
   const summary = getNotebookAiActivitySummary(activity)
@@ -52,19 +50,11 @@ export function NotebookAgentActivity({
   React.useEffect(() => {
     if (previousActivityIdRef.current !== activity.id) {
       previousActivityIdRef.current = activity.id
-      manuallyChangedRef.current = false
       if (controlledOpen === undefined) {
-        setUncontrolledOpen(defaultOpen ?? shouldOpenActivity(activity.status))
+        setUncontrolledOpen(defaultOpen ?? false)
       }
-    } else if (
-      previousStatusRef.current !== activity.status &&
-      !manuallyChangedRef.current &&
-      controlledOpen === undefined
-    ) {
-      setUncontrolledOpen(shouldOpenActivity(activity.status))
     }
-    previousStatusRef.current = activity.status
-  }, [activity.id, activity.status, controlledOpen, defaultOpen])
+  }, [activity.id, controlledOpen, defaultOpen])
 
   return (
     <section
@@ -75,7 +65,6 @@ export function NotebookAgentActivity({
       <Panel
         open={open}
         onOpenChange={(nextOpen) => {
-          manuallyChangedRef.current = true
           if (controlledOpen === undefined) setUncontrolledOpen(nextOpen)
           onOpenChange?.(nextOpen)
         }}
@@ -322,10 +311,6 @@ function ActivityItemStatusIcon({
   return (
     <XIcon className="size-3.5 shrink-0 text-text-error" aria-hidden="true" />
   )
-}
-
-function shouldOpenActivity(status: NotebookAiActivityStatus) {
-  return status === 'running' || status === 'error' || status === 'stopped'
 }
 
 function hasActivityDetails(details: NotebookAiActivityDetails) {

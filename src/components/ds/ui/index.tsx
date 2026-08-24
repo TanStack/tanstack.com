@@ -744,6 +744,7 @@ export function DropdownContent({
   sideOffset = 6,
   collisionPadding = 0,
   maxHeight,
+  ariaLabelledBy,
 }: {
   children: React.ReactNode
   className?: string
@@ -757,6 +758,7 @@ export function DropdownContent({
    *  signalling "more content" without inviting a drag. Accepts any CSS length
    *  (e.g. '20rem') or a px number. */
   maxHeight?: number | string
+  ariaLabelledBy?: string
 }) {
   const scrollable = maxHeight !== undefined
   return (
@@ -767,6 +769,9 @@ export function DropdownContent({
         sideOffset={sideOffset}
         collisionPadding={collisionPadding}
         style={scrollable ? { maxHeight } : undefined}
+        {...(ariaLabelledBy
+          ? { 'aria-labelledby': ariaLabelledBy }
+          : undefined)}
         className={twMerge(
           // Width wraps the content, but never narrower than the trigger it
           // opened from (Radix's --radix-dropdown-menu-trigger-width), with a

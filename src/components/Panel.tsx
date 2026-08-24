@@ -3,14 +3,18 @@ import { twMerge } from 'tailwind-merge'
 
 type PanelRenderProps = {
   open: boolean
+  orientation: 'horizontal' | 'vertical'
   toggle: () => void
 }
 
 type PanelProps = {
   open?: boolean
   defaultOpen?: boolean
+  orientation?: 'horizontal' | 'vertical'
   onOpenChange?: (open: boolean) => void
-  children: React.ReactNode | ((props: PanelRenderProps) => React.ReactNode)
+  children:
+    | React.ReactNode
+    | ((props: PanelRenderProps) => React.ReactNode)
   className?: string
 }
 
@@ -22,7 +26,9 @@ type PanelContentProps = React.HTMLAttributes<HTMLDivElement> & {
   children: React.ReactNode
 }
 
-const PanelContext = React.createContext<PanelRenderProps | null>(null)
+const PanelContext = React.createContext<PanelRenderProps | null>(
+  null,
+)
 
 function usePanel() {
   const context = React.useContext(PanelContext)
@@ -35,6 +41,7 @@ function usePanel() {
 export function Panel({
   open: controlledOpen,
   defaultOpen = false,
+  orientation = 'vertical',
   onOpenChange,
   children,
   className,
@@ -56,11 +63,18 @@ export function Panel({
     }
   }, [isControlled, open, onOpenChange])
 
-  const value = React.useMemo(() => ({ open, toggle }), [open, toggle])
+  const value = React.useMemo(
+    () => ({ open, orientation, toggle }),
+    [open, orientation, toggle],
+  )
 
   return (
     <PanelContext.Provider value={value}>
-      <div className={className} data-panel>
+      <div
+        className={className}
+        data-panel
+        data-orientation={orientation}
+      >
         {typeof children === 'function' ? children(value) : children}
       </div>
     </PanelContext.Provider>
@@ -99,24 +113,42 @@ export function PanelTrigger({
   )
 }
 
-export const PanelContent = React.forwardRef<HTMLDivElement, PanelContentProps>(
-  function PanelContent({ children, className, ...props }, ref) {
-    const { open } = usePanel()
+export const PanelContent = React.forwardRef<
+  HTMLDivElement,
+  PanelContentProps
+>(function PanelContent({ children, className, ...props }, ref) {
+  const { open, orientation } = usePanel()
+  const horizontal = orientation === 'horizontal'
 
-    return (
+  return (
+    <div
+      {...props}
+      ref={ref}
+      aria-hidden={!open}
+      inert={open ? undefined : true}
+      className={twMerge(
+        'grid overflow-hidden duration-200 [transition-timing-function:cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none',
+        horizontal
+          ? 'transition-[grid-template-columns]'
+          : 'transition-[grid-template-rows]',
+        horizontal
+          ? open
+            ? 'grid-cols-[1fr]'
+            : 'grid-cols-[0fr]'
+          : open
+            ? 'grid-rows-[1fr]'
+            : 'grid-rows-[0fr]',
+        className,
+      )}
+    >
       <div
-        {...props}
-        ref={ref}
-        aria-hidden={!open}
-        inert={open ? undefined : true}
         className={twMerge(
-          'grid transition-[grid-template-rows] duration-200 ease-out',
-          open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
-          className,
+          'overflow-hidden',
+          horizontal ? 'min-w-0' : 'min-h-0',
         )}
       >
-        <div className="overflow-hidden">{children}</div>
+        {children}
       </div>
-    )
-  },
-)
+    </div>
+  )
+})

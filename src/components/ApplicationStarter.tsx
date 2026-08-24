@@ -964,7 +964,7 @@ export function ApplicationStarter({
                   // border to read as a raised panel — the light analog of dark
                   // mode's lighter #171717 fill (which needs no shadow/border).
                   isHomeStarter &&
-                    'overflow-visible rounded-[36px] border-gray-300 [corner-shape:squircle] shadow-[0_1px_2px_rgba(17,17,17,0.06),0_16px_40px_-16px_rgba(17,17,17,0.20)] dark:border-transparent dark:bg-[#171717] dark:shadow-none',
+                    'overflow-visible rounded-[36px] border-gray-300 [corner-shape:squircle] shadow-[0_1px_2px_rgba(17,17,17,0.04),0_18px_44px_-18px_rgba(17,17,17,0.12)] dark:border-transparent dark:bg-[#171717] dark:shadow-none',
                 )}
               >
                 {/* Home: a warm terracotta glow that grows in from behind the card

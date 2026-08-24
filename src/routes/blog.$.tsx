@@ -5,7 +5,8 @@ import { MarkdownContent } from '~/components/markdown'
 import { Card } from '~/components/Card'
 import { LibrariesWidget } from '~/components/LibrariesWidget'
 import { partners } from '~/utils/partners'
-import { PartnersRail, RightRail } from '~/components/RightRail'
+import { RightRail } from '~/components/RightRail'
+import { PartnerRail } from '~/components/ds/ui/PartnerRail'
 import { RecentPostsWidget } from '~/components/RecentPostsWidget'
 import { useMediaQuery } from '~/utils/useMediaQuery'
 
@@ -170,7 +171,7 @@ function BlogPost() {
             </div>
           </div>
           <RightRail breakpoint="md">
-            <PartnersRail
+            <PartnerRail
               analyticsPlacement="blog_rail"
               partners={activePartners}
             />

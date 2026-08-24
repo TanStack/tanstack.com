@@ -35,7 +35,8 @@ import { SearchButton } from './SearchButton'
 import { FrameworkSelect, useCurrentFramework } from './FrameworkSelect'
 import { VersionSelect } from './VersionSelect'
 import { Card } from './Card'
-import { PartnersRail, RightRail } from './RightRail'
+import { RightRail } from './RightRail'
+import { PartnerRail } from './ds/ui/PartnerRail'
 import { trackEvent, useTrackedImpression } from '~/utils/analytics'
 import {
   getLibraryLayoutVersion,
@@ -1504,7 +1505,7 @@ export function LibraryLayout({
                 className="md:w-[220px]"
                 stickyOffset="docs-tabs"
               >
-                <PartnersRail
+                <PartnerRail
                   analyticsPlacement="docs_rail"
                   partners={activePartners}
                 />

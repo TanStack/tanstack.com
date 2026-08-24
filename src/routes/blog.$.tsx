@@ -170,7 +170,7 @@ function BlogPost() {
               </div>
             </div>
           </div>
-          <RightRail breakpoint="md">
+          <RightRail breakpoint="md" className="md:w-[220px]">
             <PartnerRail
               analyticsPlacement="blog_rail"
               partners={activePartners}

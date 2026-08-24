@@ -20,9 +20,7 @@ test('panel supports horizontal disclosure', () => {
     orientation: 'horizontal',
     children: createContent('Side panel'),
   }
-  const openMarkup = renderToStaticMarkup(
-    React.createElement(Panel, openProps),
-  )
+  const openMarkup = renderToStaticMarkup(React.createElement(Panel, openProps))
   const closedMarkup = renderToStaticMarkup(
     React.createElement(Panel, closedProps),
   )

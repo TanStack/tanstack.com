@@ -1,11 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { CaretDownIcon } from '@phosphor-icons/react'
 import { seo } from '~/utils/seo'
-import {
-  Panel,
-  PanelContent,
-  PanelTrigger,
-} from '~/components/Panel'
+import { Panel, PanelContent, PanelTrigger } from '~/components/Panel'
 import { ComponentPreview, DsPage, DsSection } from '~/components/ds/DsKit'
 
 export const Route = createFileRoute('/ds/panel')({

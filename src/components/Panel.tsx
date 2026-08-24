@@ -12,9 +12,7 @@ type PanelProps = {
   defaultOpen?: boolean
   orientation?: 'horizontal' | 'vertical'
   onOpenChange?: (open: boolean) => void
-  children:
-    | React.ReactNode
-    | ((props: PanelRenderProps) => React.ReactNode)
+  children: React.ReactNode | ((props: PanelRenderProps) => React.ReactNode)
   className?: string
 }
 
@@ -26,9 +24,7 @@ type PanelContentProps = React.HTMLAttributes<HTMLDivElement> & {
   children: React.ReactNode
 }
 
-const PanelContext = React.createContext<PanelRenderProps | null>(
-  null,
-)
+const PanelContext = React.createContext<PanelRenderProps | null>(null)
 
 function usePanel() {
   const context = React.useContext(PanelContext)
@@ -70,11 +66,7 @@ export function Panel({
 
   return (
     <PanelContext.Provider value={value}>
-      <div
-        className={className}
-        data-panel
-        data-orientation={orientation}
-      >
+      <div className={className} data-panel data-orientation={orientation}>
         {typeof children === 'function' ? children(value) : children}
       </div>
     </PanelContext.Provider>
@@ -113,42 +105,41 @@ export function PanelTrigger({
   )
 }
 
-export const PanelContent = React.forwardRef<
-  HTMLDivElement,
-  PanelContentProps
->(function PanelContent({ children, className, ...props }, ref) {
-  const { open, orientation } = usePanel()
-  const horizontal = orientation === 'horizontal'
+export const PanelContent = React.forwardRef<HTMLDivElement, PanelContentProps>(
+  function PanelContent({ children, className, ...props }, ref) {
+    const { open, orientation } = usePanel()
+    const horizontal = orientation === 'horizontal'
 
-  return (
-    <div
-      {...props}
-      ref={ref}
-      aria-hidden={!open}
-      inert={open ? undefined : true}
-      className={twMerge(
-        'grid overflow-hidden duration-200 [transition-timing-function:cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none',
-        horizontal
-          ? 'transition-[grid-template-columns]'
-          : 'transition-[grid-template-rows]',
-        horizontal
-          ? open
-            ? 'grid-cols-[1fr]'
-            : 'grid-cols-[0fr]'
-          : open
-            ? 'grid-rows-[1fr]'
-            : 'grid-rows-[0fr]',
-        className,
-      )}
-    >
+    return (
       <div
+        {...props}
+        ref={ref}
+        aria-hidden={!open}
+        inert={open ? undefined : true}
         className={twMerge(
-          'overflow-hidden',
-          horizontal ? 'min-w-0' : 'min-h-0',
+          'grid overflow-hidden duration-200 [transition-timing-function:cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none',
+          horizontal
+            ? 'transition-[grid-template-columns]'
+            : 'transition-[grid-template-rows]',
+          horizontal
+            ? open
+              ? 'grid-cols-[1fr]'
+              : 'grid-cols-[0fr]'
+            : open
+              ? 'grid-rows-[1fr]'
+              : 'grid-rows-[0fr]',
+          className,
         )}
       >
-        {children}
+        <div
+          className={twMerge(
+            'overflow-hidden',
+            horizontal ? 'min-w-0' : 'min-h-0',
+          )}
+        >
+          {children}
+        </div>
       </div>
-    </div>
-  )
-})
+    )
+  },
+)

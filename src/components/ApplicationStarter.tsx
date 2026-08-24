@@ -959,8 +959,12 @@ export function ApplicationStarter({
                   // Home: 36px full-squircle corners. `overflow-visible` lets the
                   // focus glow (an absolute child at -z-10) bleed out from behind
                   // the card; the inner wrapper below re-clips the card content.
+                  // Light mode has no fill difference from the near-white page, so
+                  // the box is elevated with a soft shadow + slightly stronger
+                  // border to read as a raised panel — the light analog of dark
+                  // mode's lighter #171717 fill (which needs no shadow/border).
                   isHomeStarter &&
-                    'overflow-visible rounded-[36px] [corner-shape:squircle] dark:border-transparent dark:bg-[#171717]',
+                    'overflow-visible rounded-[36px] border-gray-300 [corner-shape:squircle] shadow-[0_1px_2px_rgba(17,17,17,0.06),0_16px_40px_-16px_rgba(17,17,17,0.20)] dark:border-transparent dark:bg-[#171717] dark:shadow-none',
                 )}
               >
                 {/* Home: a warm terracotta glow that grows in from behind the card

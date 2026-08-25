@@ -168,15 +168,12 @@ export function ChartsCatalogResult({
           if (!trustedUrl) return
           const currentHistory = previewHistoryRef.current
           const currentUrl = currentHistory.entries[currentHistory.index] ?? '/'
-
-          setPreviewHistory((current) => {
-            const next = updateExamplePreviewHistory(current, {
-              kind: message.navigationKind,
-              url: trustedUrl,
-            })
-            previewHistoryRef.current = next
-            return next
+          const nextHistory = updateExamplePreviewHistory(currentHistory, {
+            kind: message.navigationKind,
+            url: trustedUrl,
           })
+          previewHistoryRef.current = nextHistory
+          setPreviewHistory(nextHistory)
           setPreviewNavigationError('')
           if (message.navigationKind === 'load' || currentUrl !== trustedUrl) {
             setPreviewAnnotationTarget(undefined)

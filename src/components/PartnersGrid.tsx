@@ -177,7 +177,7 @@ export function PartnersGrid({
   // followed by its logo grid; the negative right/bottom margins let the cell
   // dividers meet the container edge so overflow-hidden trims the outer line.
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800">
+    <div className="overflow-hidden rounded-2xl corner-squircle border border-gray-200 dark:border-gray-800">
       {tiersWithPartners.map((row) => (
         <React.Fragment key={row.tier}>
           <TierBand

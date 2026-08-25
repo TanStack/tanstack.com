@@ -20,6 +20,7 @@ import {
 import type { Icon } from '@phosphor-icons/react'
 import { seo } from '~/utils/seo'
 import { DsPage, DsSection } from '~/components/ds/DsKit'
+import { PageHeader } from '~/components/ds/ui/PageHeader'
 import { dsNav } from '~/components/ds/ds-nav'
 
 // A correlating icon per section so users can orient themselves at a glance.
@@ -36,7 +37,7 @@ const SECTION_ICONS: Record<string, Icon> = {
   '/ds/dropdown': CaretDownIcon,
   '/ds/avatar': UserCircleIcon,
   '/ds/spinner': CircleNotchIcon,
-  '/ds/collapsible': CaretUpDownIcon,
+  '/ds/panel': CaretUpDownIcon,
   '/ds/breadcrumbs': MapPinLineIcon,
   '/ds/cards': StackIcon,
   '/ds/navbar': BrowserIcon,
@@ -56,8 +57,13 @@ export const Route = createFileRoute('/ds/')({
 function DesignSystemOverview() {
   return (
     <DsPage
-      title="TanStack Design System"
-      description="A living catalog of the design tokens and components that power TanStack sites, library docs, and landing pages. Everything here renders with the real production styles — toggle light/dark from the navbar to preview both."
+      header={
+        <PageHeader
+          align="center"
+          title="Design System"
+          lede="A living catalog of the design tokens and components that power TanStack sites, library docs, and landing pages. Everything here renders with the real production styles — toggle light/dark from the navbar to preview both."
+        />
+      }
     >
       <DsSection
         title="How to use this"

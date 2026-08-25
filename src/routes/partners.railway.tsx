@@ -17,11 +17,7 @@ import {
 import { twMerge } from 'tailwind-merge'
 import { Card } from '~/components/Card'
 import { Button } from '~/ui'
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '~/components/Collapsible'
+import { Panel, PanelContent, PanelTrigger } from '~/components/Panel'
 import { CodeBlock } from '~/components/markdown/CodeBlock'
 import { seo } from '~/utils/seo'
 import {
@@ -692,13 +688,13 @@ function RailwayPartnerPage() {
             {faqs.map(({ q, a }, i) => {
               const isOpen = openFaq === i
               return (
-                <Collapsible
+                <Panel
                   key={q}
                   open={isOpen}
                   onOpenChange={(next) => setOpenFaq(next ? i : null)}
                   className="border-b border-gray-200 dark:border-gray-800"
                 >
-                  <CollapsibleTrigger className="flex w-full items-center justify-between gap-4 py-4 text-left">
+                  <PanelTrigger className="flex w-full items-center justify-between gap-4 py-4 text-left">
                     <span className="text-sm font-medium md:text-[15px]">
                       {q}
                     </span>
@@ -708,13 +704,13 @@ function RailwayPartnerPage() {
                         isOpen && 'rotate-45',
                       )}
                     />
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
+                  </PanelTrigger>
+                  <PanelContent>
                     <p className="max-w-2xl pb-4 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
                       {a}
                     </p>
-                  </CollapsibleContent>
-                </Collapsible>
+                  </PanelContent>
+                </Panel>
               )
             })}
           </div>

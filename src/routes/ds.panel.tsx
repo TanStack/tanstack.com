@@ -1,69 +1,65 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { CaretDownIcon } from '@phosphor-icons/react'
 import { seo } from '~/utils/seo'
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '~/components/Collapsible'
+import { Panel, PanelContent, PanelTrigger } from '~/components/Panel'
 import { ComponentPreview, DsPage, DsSection } from '~/components/ds/DsKit'
 
-export const Route = createFileRoute('/ds/collapsible')({
-  component: CollapsiblePage,
+export const Route = createFileRoute('/ds/panel')({
+  component: PanelPage,
   head: () => ({
     meta: seo({
-      title: 'Collapsible | TanStack Design System',
-      description: 'The Collapsible disclosure component.',
+      title: 'Panel | TanStack Design System',
+      description: 'The Panel disclosure component.',
     }),
   }),
 })
 
-function CollapsiblePage() {
+function PanelPage() {
   return (
     <DsPage
-      title="Collapsible"
-      description="A vertical or horizontal disclosure. Controlled or uncontrolled; children may be a render function exposing `open`. Source: src/components/Collapsible.tsx."
+      title="Panel"
+      description="A vertical or horizontal disclosure. Controlled or uncontrolled; children may be a render function exposing `open`. Source: src/components/Panel.tsx."
     >
       <DsSection title="Disclosure">
         <ComponentPreview
           className="block"
-          code={`<Collapsible defaultOpen>
+          code={`<Panel defaultOpen>
   {({ open }) => (
     <>
-      <CollapsibleTrigger className="flex w-full items-center justify-between px-4 py-3">
+      <PanelTrigger className="flex w-full items-center justify-between px-4 py-3">
         <span>What is TanStack?</span>
         <CaretDownIcon className={open ? 'rotate-180' : ''} />
-      </CollapsibleTrigger>
-      <CollapsibleContent>
+      </PanelTrigger>
+      <PanelContent>
         <p className="px-4 pb-4">…</p>
-      </CollapsibleContent>
+      </PanelContent>
     </>
   )}
-</Collapsible>`}
+</Panel>`}
         >
-          <Collapsible
+          <Panel
             defaultOpen
             className="w-full max-w-md overflow-hidden rounded-lg border border-border-default bg-background-surface"
           >
             {({ open }) => (
               <>
-                <CollapsibleTrigger className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-text-primary">
+                <PanelTrigger className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-text-primary">
                   <span>What is TanStack?</span>
                   <CaretDownIcon
                     className={`h-4 w-4 text-icon-muted transition-transform ${
                       open ? 'rotate-180' : ''
                     }`}
                   />
-                </CollapsibleTrigger>
-                <CollapsibleContent>
+                </PanelTrigger>
+                <PanelContent>
                   <p className="px-4 pb-4 text-sm text-text-muted">
                     A suite of headless, type-safe libraries for building modern
                     web applications — Query, Router, Table, Form, and more.
                   </p>
-                </CollapsibleContent>
+                </PanelContent>
               </>
             )}
-          </Collapsible>
+          </Panel>
         </ComponentPreview>
       </DsSection>
     </DsPage>

@@ -1,13 +1,12 @@
 import * as React from 'react'
-import { CaretDownIcon } from '@phosphor-icons/react'
 import { createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
-import { BlogBrowseNav } from '~/components/BlogBrowseNav'
+import { BlogFilterBar } from '~/components/BlogFilterBar'
 import { type BlogCardPost } from '~/components/BlogCard'
 import { Eyebrow } from '~/components/ds/ui'
+import { PartnerRail } from '~/components/ds/ui/PartnerRail'
 import { BlogPostCard } from '~/components/ds/ui/BlogPostCard'
 import { PageHeader } from '~/components/ds/ui/PageHeader'
-import { PartnersRail, RightRail } from '~/components/RightRail'
 import { libraries, type LibrarySlim } from '~/libraries'
 import {
   getDistinctAuthors,
@@ -139,21 +138,33 @@ function BlogIndex() {
   const gridPosts = featuredPost ? filteredPosts.slice(1) : filteredPosts
 
   const [visibleCount, setVisibleCount] = React.useState(POSTS_PER_PAGE)
+  // Index from which cards animate in. Set only when "Load more" reveals a
+  // batch, so the entrance never fires on first paint or filter changes.
+  const [animateFrom, setAnimateFrom] = React.useState(Number.POSITIVE_INFINITY)
   // Collapse back to the first page whenever the filtered set changes.
   React.useEffect(() => {
     setVisibleCount(POSTS_PER_PAGE)
+    setAnimateFrom(Number.POSITIVE_INFINITY)
   }, [searchQuery, selectedAuthor, selectedLibrary, selectedYear])
   const visiblePosts = gridPosts.slice(0, visibleCount)
   const remainingCount = gridPosts.length - visiblePosts.length
+  // Flat position of each visible post, so the grouped-by-year grid can tell
+  // which cards belong to the freshly revealed batch.
+  const postIndexBySlug = new Map(
+    visiblePosts.map((post, index) => [post.slug, index]),
+  )
 
-  // Shared by the desktop sidebar and the mobile disclosure copies of the nav.
-  const browseNavProps = {
+  // Search moved to the top bar; the sidebar/mobile nav only carry the facets.
+  const onSearchChange = (query: string) =>
+    navigate({
+      search: (prev) => ({ ...prev, q: query || undefined }),
+      replace: true,
+    })
+
+  // Everything the inline filter bar needs: search + the three URL-backed facets.
+  const filterBarProps = {
     searchQuery,
-    onSearchChange: (query: string) =>
-      navigate({
-        search: (prev) => ({ ...prev, q: query || undefined }),
-        replace: true,
-      }),
+    onSearchChange,
     topics,
     totalCount: frontMatters.length,
     selectedLibrary,
@@ -182,69 +193,77 @@ function BlogIndex() {
 
   return (
     <div className="flex flex-col max-w-full min-h-screen">
-      <div className="flex-1 flex w-full mb-16">
-        <div className="flex-1 p-4 md:p-8 min-w-0">
-          <div className="mx-auto w-full max-w-[1280px] space-y-10">
-            <PageHeader
-              align="center"
-              withDivider
-              title="Blog"
-              lede="The latest news and blog posts from TanStack"
-            />
+      <div className="relative flex-1 w-full mb-16">
+        <div className="p-4 md:p-8">
+          <div className="mx-auto w-full max-w-[1280px]">
+            <div className="space-y-6 pt-6">
+              <PageHeader
+                align="center"
+                title="Blog"
+                lede="The latest news and blog posts from TanStack"
+              />
+              {/* Search on the left, the facet filters and RSS on the right —
+                  one toolbar spanning the content width. On narrow screens the
+                  facets collapse behind a single toggle. */}
+              <BlogFilterBar {...filterBarProps} />
+            </div>
 
-            <div className="flex gap-8">
-              {/* Desktop: the browse rail floats to the left of the content. */}
-              <aside className="hidden w-[224px] shrink-0 xl:block">
-                <div className="sticky top-[calc(var(--navbar-height)+1.5rem)]">
-                  <BlogBrowseNav
-                    idPrefix="blog-nav-desktop"
-                    {...browseNavProps}
-                  />
-                </div>
-              </aside>
+            {/* The toolbar sits 8px above this divider, which tops the content
+                column beneath it. */}
+            <div className="mt-2 border-t border-border-subtle" />
 
-              <div className="min-w-0 flex-1 space-y-8">
-                {/* Below xl the same nav collapses into a disclosure. */}
-                <details className="group rounded-lg border border-border-subtle xl:hidden">
-                  <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-semibold [&::-webkit-details-marker]:hidden">
-                    Filter &amp; browse
-                    <CaretDownIcon className="h-4 w-4 transition-transform group-open:rotate-180" />
-                  </summary>
-                  <div className="border-t border-border-subtle px-4 py-4">
-                    <BlogBrowseNav
-                      idPrefix="blog-nav-mobile"
-                      {...browseNavProps}
-                    />
-                  </div>
-                </details>
-
+            <div className="mt-10">
+              <div className="min-w-0 space-y-8">
                 {featuredPost ? (
                   <section aria-label="Latest post">
-                    <BlogPostCard post={featuredPost} featured />
+                    <BlogPostCard
+                      post={featuredPost}
+                      featured
+                      showCategory
+                      showLibraryBadges={false}
+                    />
                   </section>
                 ) : null}
 
-                <section className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="space-y-10">
                   {groupPostsByYear(visiblePosts).map((group) => (
-                    <React.Fragment key={group.year}>
-                      <div className="col-span-full flex items-center gap-3 pt-2 first:pt-0">
+                    <section key={group.year} className="space-y-5">
+                      <div className="flex items-center gap-3">
                         <Eyebrow tone="muted">{group.year}</Eyebrow>
                         <span className="h-px flex-1 bg-border-subtle" />
                       </div>
-                      {group.posts.map((post) => (
-                        <BlogPostCard key={post.slug} post={post} size="lg" />
-                      ))}
-                    </React.Fragment>
+                      <div className="blog-year-grid">
+                        {group.posts.map((post) => {
+                          const offset =
+                            (postIndexBySlug.get(post.slug) ?? 0) - animateFrom
+                          const enterClass =
+                            offset >= 0
+                              ? `blog-card-enter enter-${Math.min(offset, 5)}`
+                              : undefined
+                          return (
+                            <BlogPostCard
+                              key={post.slug}
+                              post={post}
+                              size="lg"
+                              showCategory
+                              showLibraryBadges={false}
+                              className={enterClass}
+                            />
+                          )
+                        })}
+                      </div>
+                    </section>
                   ))}
-                </section>
+                </div>
 
                 {remainingCount > 0 ? (
                   <div className="flex justify-center">
                     <button
                       type="button"
-                      onClick={() =>
+                      onClick={() => {
+                        setAnimateFrom(visibleCount)
                         setVisibleCount((count) => count + POSTS_PER_PAGE)
-                      }
+                      }}
                       className="inline-flex items-center gap-2 rounded-lg border border-border-default px-5 py-2.5 text-sm font-bold transition-colors hover:border-blue-500 hover:text-blue-500"
                     >
                       Load more posts
@@ -278,12 +297,19 @@ function BlogIndex() {
             </div>
           </div>
         </div>
-        <RightRail breakpoint="md">
-          <PartnersRail
-            analyticsPlacement="blog_rail"
-            partners={activePartners}
-          />
-        </RightRail>
+        {/* Partner rail floats in the right gutter — absolutely positioned, so
+            it's OUT of the content's layout flow and the masthead/posts stay
+            centered on the page (under the main nav) regardless of the rail. It
+            shows only when the viewport is wide enough (~1900px) to seat a 300px
+            rail beside the centered 1280px content without overlapping it. */}
+        <div className="pointer-events-none absolute inset-y-0 right-0 hidden min-[1900px]:block">
+          <div className="pointer-events-auto sticky top-[calc(var(--navbar-height)+1.5rem)] mr-4 flex max-h-[calc(100dvh-var(--navbar-height)-2rem)] w-[220px] flex-col overflow-y-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <PartnerRail
+              analyticsPlacement="blog_rail"
+              partners={activePartners}
+            />
+          </div>
+        </div>
       </div>
     </div>
   )

@@ -13,7 +13,7 @@ import { createHighlighter } from '@tanstack/highlight/core'
 import { tsx } from '@tanstack/highlight/languages/tsx'
 import * as esbuild from 'esbuild-wasm'
 import esbuildWasmUrl from 'esbuild-wasm/esbuild.wasm?url'
-import { Collapsible, CollapsibleContent } from '~/components/Collapsible'
+import { Panel, PanelContent } from '~/components/Panel'
 import { ButtonGroup } from '~/components/ButtonGroup'
 import { NotebookGuideDialog } from '~/components/charts/NotebookGuideDialog'
 import { Button } from '~/components/ds/ui'
@@ -1351,11 +1351,7 @@ export function ChartsNotebookPage() {
   }
 
   return (
-    <Collapsible
-      open={showSource}
-      onOpenChange={setSourceOpen}
-      className="contents"
-    >
+    <Panel open={showSource} onOpenChange={setSourceOpen} className="contents">
       {({ open }) => (
         <main
           className={`flex min-h-[calc(100dvh-var(--navbar-height))] w-full flex-col bg-gray-50 text-gray-950 dark:bg-gray-950 dark:text-white ${
@@ -1509,7 +1505,7 @@ export function ChartsNotebookPage() {
               fluidOutput ? '' : 'min-h-0 overflow-hidden'
             }`}
           >
-            <CollapsibleContent
+            <PanelContent
               ref={sourcePanelRef}
               id="notebook-source"
               style={
@@ -1596,9 +1592,9 @@ export function ChartsNotebookPage() {
                   <div className="h-px w-10 bg-gray-500 group-hover:bg-blue-400 group-focus-visible:bg-blue-400 lg:h-10 lg:w-px" />
                 </div>
               </section>
-            </CollapsibleContent>
+            </PanelContent>
 
-            <Collapsible
+            <Panel
               open={showConsole}
               onOpenChange={setShowConsole}
               className="contents"
@@ -1694,7 +1690,7 @@ export function ChartsNotebookPage() {
                       </SandboxBrowser>
                     </div>
                   </div>
-                  <CollapsibleContent
+                  <PanelContent
                     ref={consolePanelRef}
                     id="notebook-console"
                     style={{ height: consoleHeight }}
@@ -1750,13 +1746,13 @@ export function ChartsNotebookPage() {
                         )}
                       </div>
                     </div>
-                  </CollapsibleContent>
+                  </PanelContent>
                 </section>
               )}
-            </Collapsible>
+            </Panel>
           </div>
         </main>
       )}
-    </Collapsible>
+    </Panel>
   )
 }

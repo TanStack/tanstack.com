@@ -8,6 +8,7 @@ export const docsNavTabIds = [
   'guides',
   'api',
   'examples',
+  'theme-editor',
 ] as const
 
 export type DocsNavTabId = (typeof docsNavTabIds)[number]

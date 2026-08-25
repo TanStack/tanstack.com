@@ -192,6 +192,7 @@ import { Route as ApiBuilderDeployGithubRouteImport } from './routes/api/builder
 import { Route as ApiBuilderDeployCheckNameRouteImport } from './routes/api/builder/deploy/check-name'
 import { Route as ApiAuthCliCreateTicketRouteImport } from './routes/api/auth/cli/create-ticket'
 import { Route as ApiAuthCallbackProviderRouteImport } from './routes/api/auth/callback/$provider'
+import { Route as LibraryHighlightVersionThemeEditorRouteImport } from './routes/_library/highlight.$version.theme-editor'
 import { Route as LibraryChartsCatalogAllRouteImport } from './routes/_library/charts.catalog.all'
 import { Route as LibraryLibraryIdVersionLlmsDottxtRouteImport } from './routes/_library/$libraryId/$version.llms[.]txt'
 import { Route as LibraryLibraryIdVersionDocsRouteImport } from './routes/_library/$libraryId/$version.docs'
@@ -1162,6 +1163,12 @@ const ApiAuthCallbackProviderRoute = ApiAuthCallbackProviderRouteImport.update({
   path: '/api/auth/callback/$provider',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LibraryHighlightVersionThemeEditorRoute =
+  LibraryHighlightVersionThemeEditorRouteImport.update({
+    id: '/highlight/$version/theme-editor',
+    path: '/highlight/$version/theme-editor',
+    getParentRoute: () => LibraryRoute,
+  } as any)
 const LibraryChartsCatalogAllRoute = LibraryChartsCatalogAllRouteImport.update({
   id: '/all',
   path: '/all',
@@ -1445,6 +1452,7 @@ export interface FileRoutesByFullPath {
   '/$libraryId/$version/docs': typeof LibraryLibraryIdVersionDocsRouteWithChildren
   '/$libraryId/$version/llms.txt': typeof LibraryLibraryIdVersionLlmsDottxtRoute
   '/charts/catalog/all': typeof LibraryChartsCatalogAllRoute
+  '/highlight/$version/theme-editor': typeof LibraryHighlightVersionThemeEditorRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
   '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
@@ -1638,6 +1646,7 @@ export interface FileRoutesByTo {
   '/stats/npm': typeof StatsNpmIndexRoute
   '/$libraryId/$version/llms.txt': typeof LibraryLibraryIdVersionLlmsDottxtRoute
   '/charts/catalog/all': typeof LibraryChartsCatalogAllRoute
+  '/highlight/$version/theme-editor': typeof LibraryHighlightVersionThemeEditorRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
   '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
@@ -1845,6 +1854,7 @@ export interface FileRoutesById {
   '/_library/$libraryId/$version/docs': typeof LibraryLibraryIdVersionDocsRouteWithChildren
   '/_library/$libraryId/$version/llms.txt': typeof LibraryLibraryIdVersionLlmsDottxtRoute
   '/_library/charts/catalog/all': typeof LibraryChartsCatalogAllRoute
+  '/_library/highlight/$version/theme-editor': typeof LibraryHighlightVersionThemeEditorRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
   '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
@@ -2052,6 +2062,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs'
     | '/$libraryId/$version/llms.txt'
     | '/charts/catalog/all'
+    | '/highlight/$version/theme-editor'
     | '/api/auth/callback/$provider'
     | '/api/auth/cli/create-ticket'
     | '/api/builder/deploy/check-name'
@@ -2245,6 +2256,7 @@ export interface FileRouteTypes {
     | '/stats/npm'
     | '/$libraryId/$version/llms.txt'
     | '/charts/catalog/all'
+    | '/highlight/$version/theme-editor'
     | '/api/auth/callback/$provider'
     | '/api/auth/cli/create-ticket'
     | '/api/builder/deploy/check-name'
@@ -2451,6 +2463,7 @@ export interface FileRouteTypes {
     | '/_library/$libraryId/$version/docs'
     | '/_library/$libraryId/$version/llms.txt'
     | '/_library/charts/catalog/all'
+    | '/_library/highlight/$version/theme-editor'
     | '/api/auth/callback/$provider'
     | '/api/auth/cli/create-ticket'
     | '/api/builder/deploy/check-name'
@@ -3880,6 +3893,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthCallbackProviderRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_library/highlight/$version/theme-editor': {
+      id: '/_library/highlight/$version/theme-editor'
+      path: '/highlight/$version/theme-editor'
+      fullPath: '/highlight/$version/theme-editor'
+      preLoaderRoute: typeof LibraryHighlightVersionThemeEditorRouteImport
+      parentRoute: typeof LibraryRoute
+    }
     '/_library/charts/catalog/all': {
       id: '/_library/charts/catalog/all'
       path: '/all'
@@ -4188,6 +4208,7 @@ const LibraryChartsCatalogRouteWithChildren =
 interface LibraryRouteChildren {
   LibraryLibraryIdRouteRoute: typeof LibraryLibraryIdRouteRouteWithChildren
   LibraryChartsCatalogRoute: typeof LibraryChartsCatalogRouteWithChildren
+  LibraryHighlightVersionThemeEditorRoute: typeof LibraryHighlightVersionThemeEditorRoute
   LibraryAiVersionIndexRoute: typeof LibraryAiVersionIndexRoute
   LibraryChartsVersionIndexRoute: typeof LibraryChartsVersionIndexRoute
   LibraryCliVersionIndexRoute: typeof LibraryCliVersionIndexRoute
@@ -4213,6 +4234,8 @@ interface LibraryRouteChildren {
 const LibraryRouteChildren: LibraryRouteChildren = {
   LibraryLibraryIdRouteRoute: LibraryLibraryIdRouteRouteWithChildren,
   LibraryChartsCatalogRoute: LibraryChartsCatalogRouteWithChildren,
+  LibraryHighlightVersionThemeEditorRoute:
+    LibraryHighlightVersionThemeEditorRoute,
   LibraryAiVersionIndexRoute: LibraryAiVersionIndexRoute,
   LibraryChartsVersionIndexRoute: LibraryChartsVersionIndexRoute,
   LibraryCliVersionIndexRoute: LibraryCliVersionIndexRoute,

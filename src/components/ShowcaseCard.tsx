@@ -36,7 +36,7 @@ export function ShowcaseCard({
   return (
     <div
       className={twMerge(
-        'group relative rounded-xl overflow-hidden bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700 flex flex-col h-full',
+        'group relative rounded-xl corner-squircle overflow-hidden bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700 flex flex-col h-full',
         className,
       )}
     >
@@ -192,7 +192,7 @@ export function ShowcaseCard({
 
 export function ShowcaseCardSkeleton() {
   return (
-    <div className="rounded-xl overflow-hidden bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 animate-pulse">
+    <div className="rounded-xl corner-squircle overflow-hidden bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 animate-pulse">
       <div className="aspect-video bg-gray-200 dark:bg-gray-700" />
       <div className="p-4">
         <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />

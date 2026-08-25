@@ -644,6 +644,18 @@ html.dark {
   --color-category-tooling: var(--color-ds-neutral-400);
   --color-surface-state-hover: #1111110f;
   --color-surface-state-pressed: #1111111f;
+
+  /* Light surfaces carry the stronger mono weights (mirrors html.light) so a
+     forced-light subtree renders mono as medium / regular — not regular /
+     light — matching the real site's light mode. */
+  --text-ds-mono-display--font-weight: 500;
+  --text-ds-mono-lg--font-weight: 500;
+  --text-ds-mono-md--font-weight: 400;
+  --text-ds-mono-sm--font-weight: 400;
+  --text-ds-mono-xs--font-weight: 400;
+  --text-ds-mono-2xs--font-weight: 400;
+  --text-ds-mono-caps--font-weight: 500;
+  --text-ds-mono-caps-xs--font-weight: 500;
 }
 
 .ds-mode-dark {
@@ -885,6 +897,101 @@ button {
 
 .mobile-mega-menu-enter .mobile-mega-menu-enter-item:nth-child(n + 6) {
   animation-delay: 140ms;
+}
+
+/* ------------------------------------------------------------------ *
+ * Blog filter motion — native <details> reveals animated via the
+ * ::details-content pseudo, driven off the [open] attribute. This path is
+ * reliable even when React controls `open` (animating on the display:none→
+ * block toggle is not). `interpolate-size` lets height animate to/from auto.
+ * ------------------------------------------------------------------ */
+
+/* Facet accordion sections (Topics / Author / Archive) expand their height
+   over 250ms so it's clear which one is open — on open and on close. */
+.ts-accordion {
+  interpolate-size: allow-keywords;
+}
+
+.ts-accordion::details-content {
+  block-size: 0;
+  overflow: clip;
+  opacity: 0;
+  transition:
+    block-size 250ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 200ms ease,
+    content-visibility 250ms allow-discrete;
+}
+
+.ts-accordion[open]::details-content {
+  block-size: auto;
+  opacity: 1;
+}
+
+/* Newly revealed "Load more" cards fade up, staggered by batch position.
+   Only the appended batch carries this class (see blog.index.tsx), so it
+   never fires on first paint or filter changes. */
+@keyframes blog-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.blog-card-enter {
+  animation: blog-card-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.blog-card-enter.enter-1 {
+  animation-delay: 40ms;
+}
+.blog-card-enter.enter-2 {
+  animation-delay: 80ms;
+}
+.blog-card-enter.enter-3 {
+  animation-delay: 120ms;
+}
+.blog-card-enter.enter-4 {
+  animation-delay: 160ms;
+}
+.blog-card-enter.enter-5 {
+  animation-delay: 200ms;
+}
+
+/* Skip the movement for reduced-motion users; the panels just appear. */
+@media (prefers-reduced-motion: reduce) {
+  .ts-accordion::details-content {
+    transition-property: content-visibility;
+  }
+
+  .blog-card-enter {
+    animation: none;
+  }
+}
+
+/* Blog index year grid: 1 → 2 → 3 columns with faint full-height column
+   dividers in the gutters, drawn as a left border on non-first-column cards
+   (grid cells stretch to the row height, so the line is full-height). Lives
+   in CSS because the per-breakpoint column math is awkward as Tailwind
+   nth-child variants. */
+.blog-year-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .blog-year-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 2rem;
+  }
+  .blog-year-grid > *:nth-child(2n) {
+    border-left: 1px solid var(--color-border-subtle);
+    padding-left: 2rem;
+  }
 }
 
 .ts-mega-dropdown-panel {
@@ -1246,6 +1353,36 @@ button {
 
   html .libraries-overlay-scroll::-webkit-scrollbar-thumb:hover {
     background: color-mix(in srgb, var(--color-text-primary) 40%, transparent);
+  }
+
+  /* Subtle, track-less scrollbar for scrollable menus (DropdownContent
+     maxHeight). A thin, low-opacity thumb meant to read only as a "more
+     content" indicator, not a grab target. Prefixed with `html` to out-specify
+     the global scrollbar rules above (equal specificity, later source order
+     wins). */
+  html .ds-scroll-subtle {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(
+        in srgb,
+        var(--color-text-primary) 18%,
+        transparent
+      )
+      transparent;
+  }
+  html .ds-scroll-subtle::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  html .ds-scroll-subtle::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  html .ds-scroll-subtle::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--color-text-primary) 18%, transparent);
+    border: 0;
+    border-radius: 9999px;
+  }
+  html .ds-scroll-subtle::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--color-text-primary) 30%, transparent);
   }
 
   [disabled] {

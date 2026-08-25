@@ -70,12 +70,22 @@ export function NavbarAuthControls({ className }: NavbarAuthControlsProps) {
     )
   }
 
+  const loadingPlaceholder = (
+    <div
+      aria-hidden="true"
+      className={twMerge(
+        'size-[26px] animate-pulse rounded-full bg-gray-200 dark:bg-gray-700',
+        className,
+      )}
+    />
+  )
+
   return (
     <>
-      <AuthLoading>{loginButton}</AuthLoading>
+      <AuthLoading>{loadingPlaceholder}</AuthLoading>
       <Unauthenticated>{loginButton}</Unauthenticated>
       <Authenticated>
-        <React.Suspense fallback={loginButton}>
+        <React.Suspense fallback={loadingPlaceholder}>
           <LazyAuthenticatedUserMenu
             user={user ?? null}
             canAdmin={canAdmin}

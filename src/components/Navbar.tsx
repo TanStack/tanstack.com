@@ -66,7 +66,7 @@ import { BrandXIcon } from '~/components/icons/BrandXIcon'
 import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
 import { BlogPostCard } from '~/components/ds/ui/BlogPostCard'
 import { Button } from '~/components/ds/ui'
-import { Collapsible, CollapsibleContent } from '~/components/Collapsible'
+import { Panel, PanelContent } from '~/components/Panel'
 import { getProducts } from '~/utils/shop.functions'
 import { formatMoney, shopifyImageUrl } from '~/utils/shopify-format'
 import type { ProductListItem } from '~/utils/shopify-queries'
@@ -677,12 +677,12 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   )
 
   const mobileMenu = (
-    <Collapsible
+    <Panel
       open={mobileMenuOpen}
       onOpenChange={setMobileMenuOpen}
       className={MOBILE_NAV_CLASS}
     >
-      <CollapsibleContent
+      <PanelContent
         className={twMerge(
           'fixed left-0 right-0 top-[var(--navbar-height)] z-[90]',
           'motion-reduce:transition-none',
@@ -715,8 +715,8 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             />
           </div>
         </div>
-      </CollapsibleContent>
-    </Collapsible>
+      </PanelContent>
+    </Panel>
   )
 
   return (

@@ -84,7 +84,7 @@ function StatValue({
 
 function HomeStatCard({ stat, iconTop }: { stat: StatItem; iconTop: boolean }) {
   const className = twMerge(
-    'rounded-xl border border-border-subtle bg-background-surface p-5',
+    'rounded-xl corner-squircle border border-border-subtle bg-background-surface p-5',
     iconTop ? 'flex flex-col items-start gap-4' : 'flex items-center gap-4',
   )
 
@@ -272,7 +272,7 @@ export function StatsSection({
     return (
       <div
         className={twMerge(
-          'overflow-hidden rounded-xl border border-border-subtle bg-background-surface',
+          'overflow-hidden rounded-xl corner-squircle border border-border-subtle bg-background-surface',
           stacked
             ? 'flex max-w-xs flex-col divide-y divide-border-subtle'
             : 'grid divide-y divide-border-subtle sm:grid-cols-3 sm:divide-x sm:divide-y-0',

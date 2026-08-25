@@ -4,15 +4,6 @@ import type { LibrarySlim } from '~/libraries'
 
 type LibraryBadge = NonNullable<LibrarySlim['badge']>
 
-const libraryBadgeVariants = {
-  new: 'success',
-  fresh: 'success',
-  soon: 'default',
-  alpha: 'info',
-  beta: 'warning',
-  RC: 'warning',
-} as const
-
 export function LibraryStatusBadge({
   badge,
   className,
@@ -20,12 +11,15 @@ export function LibraryStatusBadge({
   badge: LibraryBadge
   className?: string
 }) {
+  // Status badges are intentionally neutral: the word (ALPHA / BETA / RC…)
+  // carries the meaning, color carries none. A single quiet chip never competes
+  // with a library's brand color and reads consistently across every surface.
   return (
     <Badge
-      variant={libraryBadgeVariants[badge]}
+      variant="default"
       rounded="md"
       className={twMerge(
-        'font-ds-mono text-ds-mono-caps-xs uppercase',
+        'border border-border-subtle font-ds-mono text-ds-mono-caps-xs uppercase',
         className,
       )}
     >

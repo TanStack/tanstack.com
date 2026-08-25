@@ -48,22 +48,30 @@ export function DsDescription({
 export function DsPage({
   title,
   description,
+  header,
   children,
 }: {
-  title: string
+  title?: string
   description?: React.ReactNode
+  /** Replace the default title header entirely (e.g. the emblem PageHeader on
+   *  the overview). When set, `title`/`description` are ignored. */
+  header?: React.ReactNode
   children: React.ReactNode
 }) {
   return (
     <div className="mx-auto max-w-7xl px-6 pt-10 pb-28 lg:px-10">
-      <header className="mb-10">
-        <h1 className="font-ds-display text-ds-display-sm text-text-primary">
-          {title}
-        </h1>
-        {description ? (
-          <DsDescription variant="page">{description}</DsDescription>
-        ) : null}
-      </header>
+      {header ? (
+        <div className="mb-10">{header}</div>
+      ) : (
+        <header className="mb-10">
+          <h1 className="font-ds-display text-ds-display-sm text-text-primary">
+            {title}
+          </h1>
+          {description ? (
+            <DsDescription variant="page">{description}</DsDescription>
+          ) : null}
+        </header>
+      )}
       <div className="space-y-12">{children}</div>
     </div>
   )

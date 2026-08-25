@@ -142,9 +142,16 @@ export function MobileNavbarAuthControls({
     </Link>
   )
 
+  const loadingPlaceholder = (
+    <div
+      aria-hidden="true"
+      className="h-16 w-full animate-pulse rounded-xl bg-[#171717]"
+    />
+  )
+
   return (
     <>
-      <AuthLoading>{signIn}</AuthLoading>
+      <AuthLoading>{loadingPlaceholder}</AuthLoading>
       <Unauthenticated>{signIn}</Unauthenticated>
       <Authenticated>
         <Link

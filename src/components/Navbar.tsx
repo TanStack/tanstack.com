@@ -864,6 +864,7 @@ function MobileNavigation({
 }) {
   const activeGroup = NAV_GROUPS.find((group) => group.key === activeKey)
   const { openAiDock, openSearch } = useSearchContext()
+  const userQuery = useCurrentUserQuery()
 
   const openUtility = (utility: 'ai' | 'search') => {
     onNavigate()
@@ -940,7 +941,18 @@ function MobileNavigation({
               Ask AI
             </button>
             {loadAuthControls ? (
-              <React.Suspense fallback={signIn}>
+              <React.Suspense
+                fallback={
+                  userQuery.data || userQuery.isLoading ? (
+                    <div
+                      aria-hidden="true"
+                      className="h-16 w-full animate-pulse rounded-xl bg-[#171717]"
+                    />
+                  ) : (
+                    signIn
+                  )
+                }
+              >
                 <LazyMobileNavbarAuthControls
                   tabIndex={activeGroup ? -1 : 0}
                   onNavigate={onNavigate}

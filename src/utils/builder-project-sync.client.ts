@@ -476,7 +476,6 @@ function parseBuilderProjectRunEnqueueCommands({
 export async function postBuilderProjectSyncCommand(
   projectId: string,
   command: BuilderProjectSyncCommand,
-  signal?: AbortSignal,
 ) {
   if (!isUuid(projectId)) throw new Error('Invalid Builder project ID')
   return requireBuilderProjectSyncCommandResult(
@@ -484,7 +483,6 @@ export async function postBuilderProjectSyncCommand(
       url: `/api/builder/projects/${projectId}/sync`,
       command,
       fetchRequest: globalThis.fetch,
-      ...(signal ? { signal } : {}),
     }),
   )
 }

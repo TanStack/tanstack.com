@@ -156,10 +156,8 @@ export type BuilderProjectQuotaUsage = {
 }
 
 export class BuilderProjectLimitError extends BuilderProjectConflictError {
-  constructor(
-    message = `Builder project limit of ${builderProjectOwnerLimit} reached`,
-  ) {
-    super(message)
+  constructor() {
+    super(`Builder project limit of ${builderProjectOwnerLimit} reached`)
     this.name = 'BuilderProjectLimitError'
   }
 }
@@ -306,10 +304,8 @@ export async function getBuilderProjectState({
 
 export async function listBuilderProjectStates({
   ownerId,
-  limit = 100,
 }: {
   ownerId: string
-  limit?: number
 }) {
   return db
     .select({
@@ -350,7 +346,7 @@ export async function listBuilderProjectStates({
       ),
     )
     .orderBy(desc(builderProjects.updatedAt))
-    .limit(limit)
+    .limit(100)
 }
 
 export type CreateBuilderProjectStateInput = {
@@ -631,7 +627,6 @@ export async function updateBuilderProjectState(input: {
   title?: string
   description?: string
   expectedRevisionNumber?: number
-  occurredAt?: Date
 }) {
   return withBuilderProjectConstraintErrors(
     () =>
@@ -701,7 +696,7 @@ export async function updateBuilderProjectState(input: {
           .limit(1)
         if (!parentRevision) throw new BuilderProjectConflictError()
 
-        const now = input.occurredAt ?? new Date()
+        const now = new Date()
         const nextRevisionNumber = project.currentRevisionNumber + 1
         const [revision] = await transaction
           .insert(builderProjectRevisions)
@@ -768,15 +763,13 @@ export async function deleteBuilderProjectState(input: {
   projectId: string
   ownerId: string
   clientMutationId: string
-  actorId?: string
-  occurredAt?: Date
 }) {
   const requestHash = await getBuilderProjectMutationRequestHash({
     type: 'project.delete',
     projectId: input.projectId,
     ownerId: input.ownerId,
     clientMutationId: input.clientMutationId,
-    actorId: input.actorId ?? input.ownerId,
+    actorId: input.ownerId,
   })
   return db.transaction(async (transaction) => {
     const project = await lockOwnedProject(
@@ -792,7 +785,7 @@ export async function deleteBuilderProjectState(input: {
       requestHash,
     })
 
-    const now = input.occurredAt ?? new Date()
+    const now = new Date()
     await cancelNonterminalRunsForDeletedProjectInTransaction(
       transaction,
       project,
@@ -805,7 +798,7 @@ export async function deleteBuilderProjectState(input: {
       .update(builderProjects)
       .set({
         deletedAt: now,
-        deletedById: input.actorId ?? input.ownerId,
+        deletedById: input.ownerId,
         updatedAt: now,
       })
       .where(eq(builderProjects.id, input.projectId))
@@ -827,7 +820,7 @@ export async function deleteBuilderProjectState(input: {
       payload: {
         projectId: input.projectId,
         deletedAt: now.toISOString(),
-        actorId: input.actorId ?? input.ownerId,
+        actorId: input.ownerId,
       },
       occurredAt: now,
       allowQuotaOverflow: true,
@@ -839,12 +832,11 @@ export async function deleteBuilderProjectState(input: {
 export async function quarantineBuilderProjectsBySnapshotHash({
   snapshotHash,
   actorId,
-  occurredAt = new Date(),
 }: {
   snapshotHash: string
   actorId: string
-  occurredAt?: Date
 }) {
+  const occurredAt = new Date()
   return db.transaction(async (transaction) => {
     const projects = await transaction
       .select()
@@ -1218,7 +1210,6 @@ export async function enqueueBuilderProjectRun(input: {
   queueKind: 'queue' | 'steer'
   provider: string
   model: string
-  occurredAt?: Date
   userMessage: {
     id: string
     clientMutationId: string
@@ -1273,7 +1264,7 @@ export async function enqueueBuilderProjectRun(input: {
           throw new BuilderProjectConflictError('Builder thread not found')
         }
 
-        const now = input.occurredAt ?? new Date()
+        const now = new Date()
         const firstMessageTitle =
           thread.lastMessagePosition === 0
             ? getBuilderThreadTitle(input.userMessage.content)
@@ -1385,10 +1376,8 @@ export async function claimBuilderProjectRun(input: {
   clientMutationId: string
   requestHash: string
   leaseOwnerId: string
-  leaseDurationMs?: number
-  occurredAt?: Date
 }) {
-  const leaseDurationMs = getLeaseDuration(input.leaseDurationMs)
+  const leaseDurationMs = 30_000
   const result = await db.transaction(async (transaction) => {
     const project = await lockOwnedProject(
       transaction,
@@ -1428,7 +1417,7 @@ export async function claimBuilderProjectRun(input: {
       )
     }
 
-    const now = input.occurredAt ?? new Date()
+    const now = new Date()
     await interruptExpiredRunsInTransaction(
       transaction,
       input.projectId,
@@ -1548,7 +1537,6 @@ export async function cancelPendingBuilderProjectRun(input: {
   clientMutationId: string
   requestHash: string
   browserSessionId: string
-  occurredAt?: Date
 }) {
   return db.transaction(async (transaction) => {
     await lockOwnedProject(transaction, input.projectId, input.ownerId)
@@ -1570,7 +1558,7 @@ export async function cancelPendingBuilderProjectRun(input: {
       return commandResult(input.clientMutationId, existingEvents)
     }
 
-    const now = input.occurredAt ?? new Date()
+    const now = new Date()
     const [run] = await transaction
       .update(builderProjectRuns)
       .set({
@@ -1611,13 +1599,11 @@ export async function renewBuilderProjectRunLease(input: {
   leaseOwnerId: string
   fencingToken: number
   clientMutationId: string
-  leaseDurationMs?: number
-  occurredAt?: Date
 }) {
-  const leaseDurationMs = getLeaseDuration(input.leaseDurationMs)
+  const leaseDurationMs = 30_000
   const result = await db.transaction(async (transaction) => {
     await lockOwnedProject(transaction, input.projectId, input.ownerId)
-    const now = input.occurredAt ?? new Date()
+    const now = new Date()
     const expired = await interruptExpiredRunsInTransaction(
       transaction,
       input.projectId,
@@ -1685,7 +1671,6 @@ export async function finishBuilderProjectRun(input: {
     clientMutationId: string
     error: BuilderJsonObject
   }
-  occurredAt?: Date
   assistantMessage?: {
     id: string
     clientMutationId: string
@@ -1744,7 +1729,7 @@ export async function finishBuilderProjectRun(input: {
           }
         }
 
-        const now = input.occurredAt ?? new Date()
+        const now = new Date()
         await interruptExpiredRunsInTransaction(
           transaction,
           input.projectId,
@@ -2031,12 +2016,10 @@ export async function finishBuilderProjectRun(input: {
 export async function interruptExpiredBuilderProjectRuns({
   projectId,
   ownerId,
-  occurredAt,
   includeDeleted = false,
 }: {
   projectId: string
   ownerId: string
-  occurredAt?: Date
   includeDeleted?: boolean
 }) {
   return db.transaction(async (transaction) => {
@@ -2050,30 +2033,19 @@ export async function interruptExpiredBuilderProjectRuns({
       return cancelNonterminalRunsForDeletedProjectInTransaction(
         transaction,
         project,
-        occurredAt ?? new Date(),
+        new Date(),
         crypto.randomUUID(),
       )
     }
-    return interruptExpiredRunsInTransaction(
-      transaction,
-      projectId,
-      ownerId,
-      occurredAt,
-    )
+    return interruptExpiredRunsInTransaction(transaction, projectId, ownerId)
   })
 }
 
 export async function interruptExpiredBuilderProjectRunLeases({
   occurredAt = new Date(),
-  limit = 100,
 }: {
   occurredAt?: Date
-  limit?: number
 } = {}) {
-  if (!Number.isInteger(limit) || limit < 1 || limit > 1_000) {
-    throw new Error('Invalid Builder run lease sweep limit')
-  }
-
   const candidates = await db
     .select({
       projectId: builderProjectRuns.projectId,
@@ -2087,7 +2059,7 @@ export async function interruptExpiredBuilderProjectRunLeases({
       ),
     )
     .orderBy(asc(builderProjectRuns.leaseExpiresAt))
-    .limit(limit)
+    .limit(100)
 
   const projects = new Map<string, string>()
   for (const candidate of candidates) {
@@ -2767,13 +2739,6 @@ function commandResult(
   }
 }
 
-function getLeaseDuration(value = 30_000) {
-  if (!Number.isSafeInteger(value) || value < 5_000 || value > 300_000) {
-    throw new Error('Invalid Builder project run lease duration')
-  }
-  return value
-}
-
 function getBuilderThreadTitle(content: string) {
   return content.trim().replace(/\s+/g, ' ').slice(0, 160)
 }
@@ -3104,9 +3069,8 @@ export function isMatchingBuilderProjectCreationReplay(
 async function findProjectCreationByMutation(
   input: CreateBuilderProjectStateInput,
   matchRevisionId = true,
-  database: Pick<typeof db, 'select'> = db,
 ) {
-  const [row] = await database
+  const [row] = await db
     .select({ id: builderProjects.id })
     .from(builderProjects)
     .where(
@@ -3117,12 +3081,7 @@ async function findProjectCreationByMutation(
     )
     .limit(1)
   return row
-    ? requireMatchingBuilderProjectCreation(
-        input,
-        row.id,
-        database,
-        matchRevisionId,
-      )
+    ? requireMatchingBuilderProjectCreation(input, row.id, db, matchRevisionId)
     : undefined
 }
 

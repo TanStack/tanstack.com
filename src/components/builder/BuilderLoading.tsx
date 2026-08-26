@@ -88,7 +88,7 @@ export function BuilderEditorSkeleton({
   headerActions = true,
   subtitle,
   title,
-}: BuilderEditorSkeletonProps = {}) {
+}: BuilderEditorSkeletonProps) {
   return (
     <main
       data-builder-loading="editor"

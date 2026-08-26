@@ -114,7 +114,7 @@ export function CopyPageDropdown({
   currentFramework,
   content: rawContent,
   label = 'Copy page',
-}: CopyPageDropdownProps = {}) {
+}: CopyPageDropdownProps) {
   const [open, setOpen] = React.useState(false)
   const copied = useTemporaryFlag()
   const { notify } = useToast()

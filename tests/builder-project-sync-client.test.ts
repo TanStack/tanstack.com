@@ -646,6 +646,109 @@ test('a terminal Builder EventSource recovers from an authoritative snapshot', a
   })
 })
 
+test('Builder stream recovery backs off repeated snapshot failures', async (context) => {
+  context.mock.timers.enable({ apis: ['setTimeout'] })
+
+  await withFakeIndexedDb(async () => {
+    let snapshotRequestCount = 0
+    let notifySecondRequest: (() => void) | undefined
+    let notifyThirdRequest: (() => void) | undefined
+    let notifyFourthRequest: (() => void) | undefined
+    let backgroundErrorCount = 0
+    let notifyFirstSnapshotFailure: (() => void) | undefined
+    let notifySecondSnapshotFailure: (() => void) | undefined
+    let notifyThirdSnapshotFailure: (() => void) | undefined
+    const secondRequest = new Promise<void>((resolve) => {
+      notifySecondRequest = resolve
+    })
+    const thirdRequest = new Promise<void>((resolve) => {
+      notifyThirdRequest = resolve
+    })
+    const fourthRequest = new Promise<void>((resolve) => {
+      notifyFourthRequest = resolve
+    })
+    const firstSnapshotFailure = new Promise<void>((resolve) => {
+      notifyFirstSnapshotFailure = resolve
+    })
+    const secondSnapshotFailure = new Promise<void>((resolve) => {
+      notifySecondSnapshotFailure = resolve
+    })
+    const thirdSnapshotFailure = new Promise<void>((resolve) => {
+      notifyThirdSnapshotFailure = resolve
+    })
+
+    const client = await createBuilderProjectSyncClient({
+      projectId,
+      sessionStorage: memoryStorage(),
+      createBrowserSessionId: () => sessionId,
+      fetch: async (_input, init) => {
+        assert.equal(init?.method ?? 'GET', 'GET')
+        snapshotRequestCount += 1
+        if (snapshotRequestCount === 1) return jsonSnapshotPage(snapshot)
+
+        if (snapshotRequestCount === 2) notifySecondRequest?.()
+        if (snapshotRequestCount === 3) notifyThirdRequest?.()
+        if (snapshotRequestCount === 4) notifyFourthRequest?.()
+        return new Response(JSON.stringify({ error: 'Try again later' }), {
+          status: 503,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      },
+      createEventSource: () => {
+        const listeners = new Map<
+          string,
+          (event: MessageEvent<string>) => void
+        >()
+        queueMicrotask(() => {
+          listeners
+            .get('error')
+            ?.call(undefined, new MessageEvent('error', { data: '' }))
+        })
+        return {
+          readyState: 2,
+          addEventListener: (type, listener) => {
+            listeners.set(type, listener)
+          },
+          removeEventListener: (type) => {
+            listeners.delete(type)
+          },
+          close: () => undefined,
+        }
+      },
+      onBackgroundError: () => {
+        backgroundErrorCount += 1
+        if (backgroundErrorCount === 2) notifyFirstSnapshotFailure?.()
+        if (backgroundErrorCount === 3) notifySecondSnapshotFailure?.()
+        if (backgroundErrorCount === 4) notifyThirdSnapshotFailure?.()
+      },
+    })
+
+    await secondRequest
+    await firstSnapshotFailure
+    assert.equal(snapshotRequestCount, 2)
+
+    context.mock.timers.tick(499)
+    await Promise.resolve()
+    assert.equal(snapshotRequestCount, 2)
+
+    context.mock.timers.tick(1)
+    await thirdRequest
+    await secondSnapshotFailure
+    assert.equal(snapshotRequestCount, 3)
+
+    context.mock.timers.tick(999)
+    await Promise.resolve()
+    assert.equal(snapshotRequestCount, 3)
+
+    context.mock.timers.tick(1)
+    await fourthRequest
+    await thirdSnapshotFailure
+    assert.equal(snapshotRequestCount, 4)
+
+    await client.cleanup()
+  })
+})
+
 test('Builder project sync commands are optimistic, durable, and confirmed by replay', async () => {
   await withFakeIndexedDb(async (indexedDb) => {
     const eventListeners = new Map<

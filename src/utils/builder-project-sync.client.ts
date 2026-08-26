@@ -38,6 +38,8 @@ const commandRequestTimeoutMs = 20_000
 const heartbeatRequestTimeoutMs = 8_000
 const outboxRetryInitialDelayMs = 500
 const outboxRetryMaxDelayMs = 30_000
+const streamRecoveryRetryInitialDelayMs = 500
+const streamRecoveryRetryMaxDelayMs = 30_000
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
@@ -1169,6 +1171,7 @@ function openBuilderProjectStream({
 
   let stopped = false
   let recovering = false
+  let recoveryRetryDelayMs = streamRecoveryRetryInitialDelayMs
   let closeSource: (() => void) | undefined
 
   const markCaughtUpIfReady = () => {
@@ -1211,6 +1214,7 @@ function openBuilderProjectStream({
           project = authoritative.snapshot.project
           knownKeys = replacement.keys
           readyCursor = authoritative.headCursor
+          recoveryRetryDelayMs = streamRecoveryRetryInitialDelayMs
           recovering = false
           closeSource?.()
           openSource()
@@ -1218,7 +1222,14 @@ function openBuilderProjectStream({
         } catch (error) {
           if (stopped || context.signal.aborted) return
           reportStreamError(error)
-          await waitForBuilderProjectSyncRetry(context.signal)
+          await waitForBuilderProjectSyncRetry(
+            context.signal,
+            recoveryRetryDelayMs,
+          )
+          recoveryRetryDelayMs = Math.min(
+            recoveryRetryDelayMs * 2,
+            streamRecoveryRetryMaxDelayMs,
+          )
         }
       }
     })()
@@ -1419,7 +1430,7 @@ function rememberBuilderProjectSyncChanges(
   }
 }
 
-function waitForBuilderProjectSyncRetry(signal: AbortSignal) {
+function waitForBuilderProjectSyncRetry(signal: AbortSignal, delayMs: number) {
   if (signal.aborted) return Promise.resolve()
 
   return new Promise<void>((resolve) => {
@@ -1428,7 +1439,7 @@ function waitForBuilderProjectSyncRetry(signal: AbortSignal) {
       signal.removeEventListener('abort', finish)
       resolve()
     }
-    const timeout = setTimeout(finish, 500)
+    const timeout = setTimeout(finish, delayMs)
     signal.addEventListener('abort', finish, { once: true })
   })
 }

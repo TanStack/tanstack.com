@@ -70,12 +70,22 @@ export function NavbarAuthControls({ className }: NavbarAuthControlsProps) {
     )
   }
 
+  const loadingPlaceholder = (
+    <div
+      aria-hidden="true"
+      className={twMerge(
+        'size-[26px] animate-pulse rounded-full bg-gray-200 dark:bg-gray-700',
+        className,
+      )}
+    />
+  )
+
   return (
     <>
-      <AuthLoading>{loginButton}</AuthLoading>
+      <AuthLoading>{loadingPlaceholder}</AuthLoading>
       <Unauthenticated>{loginButton}</Unauthenticated>
       <Authenticated>
-        <React.Suspense fallback={loginButton}>
+        <React.Suspense fallback={loadingPlaceholder}>
           <LazyAuthenticatedUserMenu
             user={user ?? null}
             canAdmin={canAdmin}
@@ -132,9 +142,16 @@ export function MobileNavbarAuthControls({
     </Link>
   )
 
+  const loadingPlaceholder = (
+    <div
+      aria-hidden="true"
+      className="h-16 w-full animate-pulse rounded-xl bg-[#171717]"
+    />
+  )
+
   return (
     <>
-      <AuthLoading>{signIn}</AuthLoading>
+      <AuthLoading>{loadingPlaceholder}</AuthLoading>
       <Unauthenticated>{signIn}</Unauthenticated>
       <Authenticated>
         <Link

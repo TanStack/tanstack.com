@@ -75,6 +75,7 @@ import {
   trackPartnerInquiry,
 } from '~/utils/partner-inquiry'
 import { fetchRecentPosts, type RecentPost } from '~/utils/blog.functions'
+import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 
 const LogoSection = () => {
   return (
@@ -483,7 +484,6 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   )
   const [dismissedDesktopMenuKey, setDismissedDesktopMenuKey] =
     React.useState<NavMenuKey | null>(null)
-  const [canLoadAuthControls, setCanLoadAuthControls] = React.useState(false)
   const [isScrolled, setIsScrolled] = React.useState(false)
 
   React.useEffect(() => {
@@ -533,10 +533,6 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     [blurActiveNavigationElement],
   )
 
-  const requestAuthControls = React.useCallback(() => {
-    setCanLoadAuthControls(true)
-  }, [])
-
   React.useEffect(() => {
     if (!mobileMenuOpen) {
       return
@@ -555,6 +551,8 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     }
   }, [mobileMenuOpen])
 
+  const userQuery = useCurrentUserQuery()
+
   const getLoginButtonFallback = (className?: string) => (
     <Link
       to="/login"
@@ -571,14 +569,23 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       <SignInIcon className="size-4" weight="bold" />
     </Link>
   )
-  const renderAuthControls = (className?: string) =>
-    canLoadAuthControls ? (
-      <React.Suspense fallback={getLoginButtonFallback(className)}>
-        <LazyNavbarAuthControls className={className} />
-      </React.Suspense>
+  const getAuthControlsFallback = (className?: string) =>
+    userQuery.data || userQuery.isLoading ? (
+      <div
+        aria-hidden="true"
+        className={twMerge(
+          'size-[26px] animate-pulse rounded-full bg-gray-200 dark:bg-gray-700',
+          className,
+        )}
+      />
     ) : (
       getLoginButtonFallback(className)
     )
+  const renderAuthControls = (className?: string) => (
+    <React.Suspense fallback={getAuthControlsFallback(className)}>
+      <LazyNavbarAuthControls className={className} />
+    </React.Suspense>
+  )
 
   const socialLinks = <SocialStack />
   const siteBackdropActive = mobileMenuOpen
@@ -642,12 +649,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         <div className={DESKTOP_NAV_CLASS}>
           <AiDockButton />
         </div>
-        <div
-          className={twMerge(DESKTOP_NAV_CLASS, 'items-center gap-2')}
-          onFocusCapture={requestAuthControls}
-          onPointerEnter={requestAuthControls}
-          onTouchStart={requestAuthControls}
-        >
+        <div className={twMerge(DESKTOP_NAV_CLASS, 'items-center gap-2')}>
           {renderAuthControls()}
         </div>
         <button
@@ -861,6 +863,7 @@ function MobileNavigation({
 }) {
   const activeGroup = NAV_GROUPS.find((group) => group.key === activeKey)
   const { openAiDock, openSearch } = useSearchContext()
+  const userQuery = useCurrentUserQuery()
 
   const openUtility = (utility: 'ai' | 'search') => {
     onNavigate()
@@ -937,7 +940,18 @@ function MobileNavigation({
               Ask AI
             </button>
             {loadAuthControls ? (
-              <React.Suspense fallback={signIn}>
+              <React.Suspense
+                fallback={
+                  userQuery.data || userQuery.isLoading ? (
+                    <div
+                      aria-hidden="true"
+                      className="h-16 w-full animate-pulse rounded-xl bg-[#171717]"
+                    />
+                  ) : (
+                    signIn
+                  )
+                }
+              >
                 <LazyMobileNavbarAuthControls
                   tabIndex={activeGroup ? -1 : 0}
                   onNavigate={onNavigate}

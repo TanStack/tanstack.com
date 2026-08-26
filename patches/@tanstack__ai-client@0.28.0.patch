@@ -1,0 +1,109 @@
+diff --git a/dist/esm/byok/passkey.d.ts b/dist/esm/byok/passkey.d.ts
+index f1286b36e88ed7d9decac31899e55a38637eb9fa..caf4104413156698f00371014747f672fbf5e76b 100644
+--- a/dist/esm/byok/passkey.d.ts
++++ b/dist/esm/byok/passkey.d.ts
+@@ -6,7 +6,7 @@ import { Keyring, KeyringStorage } from './storage.js';
+  */
+ export declare function isPasskeyStorageSupported(): boolean;
+ /** Derive a non-extractable AES-256-GCM key from a 32-byte PRF output. */
+-export declare function deriveAesKey(prfOutput: BufferSource): Promise<CryptoKey>;
++export declare function deriveAesKey(prfOutput: BufferSource | ReadonlyArray<number>): Promise<CryptoKey>;
+ export declare function encryptKeyring(key: CryptoKey, keys: Keyring): Promise<{
+     iv: ArrayBuffer;
+     ciphertext: ArrayBuffer;
+diff --git a/dist/esm/byok/passkey.js b/dist/esm/byok/passkey.js
+index 13e37f5144544e408d12c9fee563a8528c20da1b..22067c91a53941ddbd47b2f1fc8de2991fe1fa88 100644
+--- a/dist/esm/byok/passkey.js
++++ b/dist/esm/byok/passkey.js
+@@ -41,9 +41,26 @@ function previewOf(keys) {
+ function isPasskeyStorageSupported() {
+ 	return typeof globalThis !== "undefined" && typeof globalThis.PublicKeyCredential !== "undefined" && typeof globalThis.navigator !== "undefined" && typeof globalThis.navigator.credentials.create === "function";
+ }
++function isByte(value) {
++	return typeof value === "number" && Number.isInteger(value) && value >= 0 && value <= 255;
++}
++function isArrayBuffer(value) {
++	return Object.prototype.toString.call(value) === "[object ArrayBuffer]";
++}
++function normalizePrfOutput(value) {
++	let bytes;
++	if (Array.isArray(value)) {
++		if (!value.every(isByte)) throw new Error("Authenticator returned an invalid 32-byte PRF result");
++		bytes = Uint8Array.from(value);
++	} else if (isArrayBuffer(value)) bytes = Uint8Array.from(new Uint8Array(value));
++	else if (ArrayBuffer.isView(value)) bytes = Uint8Array.from(new Uint8Array(value.buffer, value.byteOffset, value.byteLength));
++	else throw new Error("Authenticator returned an invalid 32-byte PRF result");
++	if (bytes.byteLength !== 32) throw new Error("Authenticator returned an invalid 32-byte PRF result");
++	return bytes;
++}
+ /** Derive a non-extractable AES-256-GCM key from a 32-byte PRF output. */
+ async function deriveAesKey(prfOutput) {
+-	const base = await crypto.subtle.importKey("raw", prfOutput, "HKDF", false, ["deriveKey"]);
++	const base = await crypto.subtle.importKey("raw", normalizePrfOutput(prfOutput), "HKDF", false, ["deriveKey"]);
+ 	return crypto.subtle.deriveKey({
+ 		name: "HKDF",
+ 		hash: "SHA-256",
+diff --git a/src/byok/passkey.ts b/src/byok/passkey.ts
+index f6d61bf55b3964797576e8d73c6cdd2653296df9..3356b594ace0071a0e4c2a09ae6f3e8b88c6d0ef 100644
+--- a/src/byok/passkey.ts
++++ b/src/byok/passkey.ts
+@@ -79,13 +79,55 @@ export function isPasskeyStorageSupported(): boolean {
+ // Crypto (exported for testing; the WebAuthn ceremony below feeds `deriveAesKey`)
+ // ---------------------------------------------------------------------------
+ 
++function isByte(value: unknown): value is number {
++  return (
++    typeof value === 'number' &&
++    Number.isInteger(value) &&
++    value >= 0 &&
++    value <= 255
++  )
++}
++
++function isArrayBuffer(value: unknown): value is ArrayBuffer {
++  return Object.prototype.toString.call(value) === '[object ArrayBuffer]'
++}
++
++function normalizePrfOutput(
++  value: BufferSource | ReadonlyArray<number>,
++): Uint8Array<ArrayBuffer> {
++  let bytes: Uint8Array<ArrayBuffer>
++  if (Array.isArray(value)) {
++    if (!value.every(isByte)) {
++      throw new Error('Authenticator returned an invalid 32-byte PRF result')
++    }
++    bytes = Uint8Array.from(value)
++  } else if (isArrayBuffer(value)) {
++    bytes = Uint8Array.from(new Uint8Array(value))
++  } else if (ArrayBuffer.isView(value)) {
++    bytes = Uint8Array.from(
++      new Uint8Array(value.buffer, value.byteOffset, value.byteLength),
++    )
++  } else {
++    throw new Error('Authenticator returned an invalid 32-byte PRF result')
++  }
++
++  if (bytes.byteLength !== 32) {
++    throw new Error('Authenticator returned an invalid 32-byte PRF result')
++  }
++  return bytes
++}
++
+ /** Derive a non-extractable AES-256-GCM key from a 32-byte PRF output. */
+ export async function deriveAesKey(
+-  prfOutput: BufferSource,
++  prfOutput: BufferSource | ReadonlyArray<number>,
+ ): Promise<CryptoKey> {
+-  const base = await crypto.subtle.importKey('raw', prfOutput, 'HKDF', false, [
+-    'deriveKey',
+-  ])
++  const base = await crypto.subtle.importKey(
++    'raw',
++    normalizePrfOutput(prfOutput),
++    'HKDF',
++    false,
++    ['deriveKey'],
++  )
+   return crypto.subtle.deriveKey(
+     {
+       name: 'HKDF',

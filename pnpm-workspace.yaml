@@ -40,4 +40,5 @@ allowBuilds:
   workerd: true
 
 patchedDependencies:
+  '@tanstack/ai-client@0.28.0': patches/@tanstack__ai-client@0.28.0.patch
   '@tanstack/openai-base@0.10.5': patches/@tanstack__openai-base@0.10.5.patch

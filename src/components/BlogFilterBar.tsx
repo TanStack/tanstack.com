@@ -343,6 +343,8 @@ export function BlogFilterBar({
       {/* Mobile-only expandable column: the facet dropdowns stacked full-width,
           animated open via a grid-rows height transition. */}
       <div
+        aria-hidden={!mobileOpen}
+        inert={mobileOpen ? undefined : true}
         className={twMerge(
           'grid transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none md:hidden',
           mobileOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',

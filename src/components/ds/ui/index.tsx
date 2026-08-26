@@ -440,13 +440,11 @@ type SearchInputProps = Omit<
 > & {
   size?: 'default' | 'large'
   progressive?: boolean
-  /** Node rendered inside the field, right of the input (e.g. an RSS link). */
-  trailing?: React.ReactNode
 }
 
 export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
   function SearchInput(
-    { className, size = 'default', progressive = false, trailing, ...props },
+    { className, size = 'default', progressive = false, ...props },
     forwardedRef,
   ) {
     const [open, setOpen] = React.useState(!progressive)
@@ -502,10 +500,6 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
             size === 'large' ? 'min-h-14 gap-3 px-4' : 'h-10 gap-2.5 px-3',
           )}
         >
-          {/* The label wraps only the icon + input so clicking the field
-              focuses it. Interactive `trailing` controls (links, buttons) sit
-              outside the label — a form control inside a <label> that also
-              contains other interactive controls is invalid HTML. */}
           <label
             className={twMerge(
               'flex min-w-0 flex-1 items-center',
@@ -520,9 +514,6 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
             />
             {input}
           </label>
-          {trailing ? (
-            <span className="flex shrink-0 items-center">{trailing}</span>
-          ) : null}
         </div>
       )
     }
@@ -657,33 +648,18 @@ function getInitials(name?: string | null, email?: string | null): string {
 }
 
 export function Avatar({
-  image,
-  oauthImage,
   name,
   email,
   size = 'md',
   className = '',
 }: {
-  image?: string | null
-  oauthImage?: string | null
   name?: string | null
   email?: string | null
   size?: AvatarSize
   className?: string
 }) {
-  const displayImage = image || oauthImage
   const initials = getInitials(name, email)
   const { container, text } = avatarSizeClasses[size]
-
-  if (displayImage) {
-    return (
-      <img
-        src={displayImage}
-        alt={name || email || 'User avatar'}
-        className={twMerge(container, 'rounded-full object-cover', className)}
-      />
-    )
-  }
 
   return (
     <div
@@ -705,15 +681,13 @@ export function Dropdown({
   children,
   open,
   onOpenChange,
-  modal = false,
 }: {
   children: React.ReactNode
   open?: boolean
   onOpenChange?: (open: boolean) => void
-  modal?: boolean
 }) {
   return (
-    <DropdownMenu.Root open={open} onOpenChange={onOpenChange} modal={modal}>
+    <DropdownMenu.Root open={open} onOpenChange={onOpenChange} modal={false}>
       {children}
     </DropdownMenu.Root>
   )
@@ -722,14 +696,12 @@ export function Dropdown({
 export function DropdownTrigger({
   children,
   className,
-  asChild = true,
 }: {
   children: React.ReactNode
   className?: string
-  asChild?: boolean
 }) {
   return (
-    <DropdownMenu.Trigger asChild={asChild} className={className}>
+    <DropdownMenu.Trigger asChild className={className}>
       {children}
     </DropdownMenu.Trigger>
   )

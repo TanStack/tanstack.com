@@ -74,14 +74,13 @@ export function normalizePublicHttpUrl(value: string | undefined | null) {
 export function normalizeSameOriginPath(
   value: string | undefined | null,
   baseUrlOrOrigin: string,
-  maxLength = 2048,
 ) {
   if (!value) {
     return null
   }
 
   const trimmed = value.trim()
-  if (!trimmed || trimmed.length > maxLength) {
+  if (!trimmed || trimmed.length > 2048) {
     return null
   }
 
@@ -110,10 +109,7 @@ function isStaticAssetPath(pathname: string) {
   )
 }
 
-export function getRoutableInternalLinkTarget(
-  href: string | undefined | null,
-  siteOrigin = DEFAULT_SITE_ORIGIN,
-) {
+export function getRoutableInternalLinkTarget(href: string | undefined | null) {
   if (!href) {
     return null
   }
@@ -131,7 +127,7 @@ export function getRoutableInternalLinkTarget(
     return null
   }
 
-  const baseOrigin = getBaseOrigin(siteOrigin)
+  const baseOrigin = getBaseOrigin(DEFAULT_SITE_ORIGIN)
 
   let url: URL
   try {

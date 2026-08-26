@@ -123,9 +123,7 @@ type GeneratedAddOnMetadata = Omit<
   | 'partner'
   | 'packageAdditions'
 > &
-  GeneratedAddOnFields & {
-    packageAdditions?: GeneratedAddOnPackageAdditions
-  }
+  GeneratedAddOnFields
 
 type GeneratedWorkerAddOnManifestModule = GeneratedWorkerManifestModule & {
   addOn: GeneratedAddOnManifest
@@ -365,7 +363,6 @@ function getAddOnMetadata(
     envVars: getAddOnEnvVars(addOn.envVars),
     options: getAddOnOptions(addOn.options),
     partner: getAddOnPartner(addOn.partner),
-    packageAdditions: getPackageAdditions(addOn.packageAdditions),
   }
 }
 

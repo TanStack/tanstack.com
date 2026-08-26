@@ -14,12 +14,6 @@ type BuilderProjectEventStreamOptions = {
     afterSequence: number,
   ) => Promise<ReadonlyArray<BuilderProjectSyncEvent>>
   interruptExpiredRuns?: () => Promise<void>
-  durationMs?: number
-  pollIntervalMs?: number
-  heartbeatIntervalMs?: number
-  maxEvents?: number
-  now?: () => number
-  wait?: (milliseconds: number) => Promise<void>
 }
 
 export function parseBuilderProjectSyncCursor(request: Request) {
@@ -58,13 +52,12 @@ export function encodeBuilderProjectSyncEvent(event: BuilderProjectSyncEvent) {
 export function createBuilderProjectEventStreamResponse(
   options: BuilderProjectEventStreamOptions,
 ) {
-  const now = options.now ?? Date.now
-  const wait = options.wait ?? waitForDelay
-  const durationMs = options.durationMs ?? defaultStreamDurationMs
-  const pollIntervalMs = options.pollIntervalMs ?? defaultPollIntervalMs
-  const heartbeatIntervalMs =
-    options.heartbeatIntervalMs ?? defaultHeartbeatIntervalMs
-  const maxEvents = options.maxEvents ?? defaultMaxEvents
+  const now = Date.now
+  const wait = waitForDelay
+  const durationMs = defaultStreamDurationMs
+  const pollIntervalMs = defaultPollIntervalMs
+  const heartbeatIntervalMs = defaultHeartbeatIntervalMs
+  const maxEvents = defaultMaxEvents
   const headers = new Headers(options.headers)
   headers.set('Cache-Control', 'no-store, no-transform')
   headers.set('Content-Type', 'text/event-stream; charset=utf-8')

@@ -7,10 +7,7 @@ import {
   defaultIntentSyncOperations,
   summarizeIntentProcessResults,
 } from '~/utils/intent-sync.server'
-import type {
-  IntentSyncOperations,
-  IntentVersionProcessResult,
-} from '~/utils/intent-sync.server'
+import type { IntentVersionProcessResult } from '~/utils/intent-sync.server'
 
 const intentDiscoverInputSchema = z.object({
   source: z.enum(['schedule', 'admin']).default('schedule'),
@@ -40,24 +37,20 @@ export const INTENT_PROCESS_WORKFLOW_ID = 'intent-process-workflow'
 export const INTENT_DISCOVER_SCHEDULE_ID = 'intent-discover-every-6h'
 export const INTENT_PROCESS_SCHEDULE_ID = 'intent-process-every-15m'
 
-function createIntentDiscoverWorkflow(
-  operations: IntentSyncOperations = defaultIntentSyncOperations,
-) {
+function createIntentDiscoverWorkflow() {
   return createWorkflow({
     id: INTENT_DISCOVER_WORKFLOW_ID,
     input: intentDiscoverInputSchema,
   }).handler((ctx) =>
     ctx.step(
       'discover-intent-packages',
-      () => operations.discoverIntentPackages(),
+      () => defaultIntentSyncOperations.discoverIntentPackages(),
       discoverStepOptions,
     ),
   )
 }
 
-export function createIntentProcessWorkflow(
-  operations: IntentSyncOperations = defaultIntentSyncOperations,
-) {
+export function createIntentProcessWorkflow() {
   return createWorkflow({
     id: INTENT_PROCESS_WORKFLOW_ID,
     input: intentProcessInputSchema,
@@ -70,7 +63,7 @@ export function createIntentProcessWorkflow(
       const versions = await ctx.step(
         `select-pending-versions:${selectIteration}`,
         () =>
-          operations.selectPendingIntentVersions({
+          defaultIntentSyncOperations.selectPendingIntentVersions({
             limit: PROCESS_WORKFLOW_SELECT_LIMIT,
             excludeIds: [...attemptedIds],
           }),
@@ -92,7 +85,8 @@ export function createIntentProcessWorkflow(
           results.push(
             await ctx.step(
               `process-version:${version.id}`,
-              () => operations.processIntentVersion(version.id),
+              () =>
+                defaultIntentSyncOperations.processIntentVersion(version.id),
               processVersionStepOptions,
             ),
           )

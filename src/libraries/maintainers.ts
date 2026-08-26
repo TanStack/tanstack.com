@@ -586,19 +586,14 @@ export function getLibraryCreators(libraryId: string): Maintainer[] {
   )
 }
 
-export function getLibraryMaintainers(
-  libraryId: string,
-  includeCreators = true,
-): Maintainer[] {
+export function getLibraryMaintainers(libraryId: string): Maintainer[] {
   const creators = getLibraryCreators(libraryId)
   const maintainers = allMaintainers.filter((maintainer) =>
     maintainer.maintainerOf?.includes(libraryId as Library['id']),
   )
 
   // Use Set to dedupe while preserving order
-  const libraryMaintainers = includeCreators
-    ? [...new Set([...creators, ...maintainers])]
-    : maintainers
+  const libraryMaintainers = [...new Set([...creators, ...maintainers])]
 
   return sortLibraryMaintainers(libraryId, libraryMaintainers)
 }
@@ -639,35 +634,25 @@ function sortLibraryMaintainers(
   })
 }
 
-export function getLibraryContributors(
-  libraryId: string,
-  includeMaintainers = true,
-): Maintainer[] {
+export function getLibraryContributors(libraryId: string): Maintainer[] {
   const maintainers = getLibraryMaintainers(libraryId)
   const contributors = allMaintainers.filter((maintainer) =>
     maintainer.contributorOf?.includes(libraryId as Library['id']),
   )
 
-  return includeMaintainers
-    ? [...new Set([...maintainers, ...contributors])]
-    : contributors
+  return [...new Set([...maintainers, ...contributors])]
 }
 
 export function getPersonsCreatorOf(person: Maintainer): LibrarySlim[] {
   return person.creatorOf?.map((libraryId) => getLibrary(libraryId)) || []
 }
 
-export function getPersonsMaintainerOf(
-  person: Maintainer,
-  includeCreatorOf = true,
-): LibrarySlim[] {
+export function getPersonsMaintainerOf(person: Maintainer): LibrarySlim[] {
   const creatorOf = getPersonsCreatorOf(person)
   const maintainerOf =
     person.maintainerOf?.map((libraryId) => getLibrary(libraryId)) || []
 
-  return includeCreatorOf
-    ? [...new Set([...creatorOf, ...maintainerOf])]
-    : maintainerOf
+  return [...new Set([...creatorOf, ...maintainerOf])]
 }
 
 export function getIsCreatorOfLibrary(person: Maintainer, libraryId: string) {

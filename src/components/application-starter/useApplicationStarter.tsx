@@ -49,10 +49,7 @@ interface UseApplicationStarterOptions {
   onDirtyStateChange?: (dirty: boolean) => void
   onResolvedResult?: (result: ApplicationStarterResult | null) => void
   revealOptionsImmediately?: boolean
-  suggestionContext?: ApplicationStarterContext
 }
-
-type CopyTrigger = 'automatic' | 'user'
 
 function openPendingDeployWindow(providerName: string) {
   const deployWindow = window.open('', '_blank')
@@ -90,10 +87,9 @@ export function useApplicationStarter({
   onDirtyStateChange,
   onResolvedResult,
   revealOptionsImmediately = false,
-  suggestionContext = context,
 }: UseApplicationStarterOptions) {
   const { notify } = useToast()
-  const suggestions = getApplicationStarterSuggestions(suggestionContext)
+  const suggestions = getApplicationStarterSuggestions(context)
   const partnerPlacementContext = usePartnerPlacementContext({
     orderStrategy: 'tier-rotated',
     surface: 'application_starter_suggestions',
@@ -284,19 +280,15 @@ export function useApplicationStarter({
   )
 
   const buildDebouncedSubmittedInput = React.useCallback(
-    (
-      nextSelectedPartners: Array<string> = explicitlySelectedPartners,
-      nextInferredPartners: Array<string> = [],
-      nextSelectedLibraries: Array<LibraryId> = selectedLibraries,
-    ) =>
+    () =>
       composeStarterInput({
         forceRouterOnly,
-        inferredPartners: nextInferredPartners,
+        inferredPartners: [],
         input: debouncedInput,
         migrationRepositoryUrl: debouncedMigrationRepositoryUrl,
         packageManager: selectedPackageManager,
-        selectedLibraries: nextSelectedLibraries,
-        selectedPartners: nextSelectedPartners,
+        selectedLibraries,
+        selectedPartners: explicitlySelectedPartners,
         toolchain: selectedToolchain,
       }),
     [
@@ -387,10 +379,7 @@ export function useApplicationStarter({
   }, [])
 
   const markCopied = React.useCallback(
-    (
-      kind: string,
-      options?: { showPromptNotice?: boolean; trigger?: CopyTrigger },
-    ) => {
+    (kind: string, options?: { showPromptNotice?: boolean }) => {
       setCopiedKind(kind)
       setTimeout(
         () => setCopiedKind((current) => (current === kind ? null : current)),
@@ -401,10 +390,7 @@ export function useApplicationStarter({
         revealPromptCopyNotice()
       }
 
-      // Only treat user-driven copies as activation. Automatic copies that
-      // fire as a side-effect of generation are not activation signals.
-      const trigger = options?.trigger ?? 'user'
-      if (trigger === 'user' && kind === 'prompt') {
+      if (kind === 'prompt') {
         trackEvent('application_starter_activated', {
           ...sessionContextRef.current,
           action: 'copy_prompt',
@@ -423,13 +409,11 @@ export function useApplicationStarter({
       options?: {
         notify?: boolean
         showPromptNotice?: boolean
-        trigger?: CopyTrigger
       },
     ) => {
       await navigator.clipboard.writeText(value)
       markCopied(kind, {
         showPromptNotice: options?.showPromptNotice,
-        trigger: options?.trigger,
       })
 
       if (options?.notify === false) {

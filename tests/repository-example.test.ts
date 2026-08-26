@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { getClientExampleConfig } from '../src/utils/client-example-config'
 import {
-  resolveExampleWorkspaceImports,
+  resolveExampleWorkspaceImports as resolveExampleWorkspaceImportsImpl,
   type ExampleImportMetadataFetch,
 } from '../src/utils/example-imports'
 import { createRepositoryExampleDefinition } from '../src/utils/repository-example'
@@ -412,6 +412,28 @@ test('workspace imports remain the final override', async () => {
 
   assert.equal(imports.react, 'https://example.com/react.js')
 })
+
+async function resolveExampleWorkspaceImports(
+  workspace: Parameters<typeof resolveExampleWorkspaceImportsImpl>[0],
+  files: Parameters<typeof resolveExampleWorkspaceImportsImpl>[1],
+  specifiers?: Parameters<typeof resolveExampleWorkspaceImportsImpl>[2],
+  options: { fetch?: ExampleImportMetadataFetch } = {},
+) {
+  const previous = globalThis.fetch
+  if (options.fetch) {
+    globalThis.fetch = options.fetch as typeof globalThis.fetch
+  }
+  try {
+    return await resolveExampleWorkspaceImportsImpl(
+      workspace,
+      files,
+      specifiers,
+      { signal: new AbortController().signal },
+    )
+  } finally {
+    globalThis.fetch = previous
+  }
+}
 
 function createRepositoryMetadataFetch(): ExampleImportMetadataFetch {
   return async (input) => {

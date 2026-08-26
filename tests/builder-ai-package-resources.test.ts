@@ -300,12 +300,12 @@ test('coalesces concurrent reads of one package resource', async () => {
   assert.equal(fetchCount, 1)
 })
 
-test('budgets unique package downloads by UTF-8 bytes', async () => {
+test('caches UTF-8 package resources across later reads', async () => {
   const fetcher = createFetcher({
     'https://unpkg.com/@tanstack/charts@0.13.0/docs/exact.md': 'é',
     'https://unpkg.com/@tanstack/charts@0.13.0/docs/extra.md': 'x',
   })
-  const fetchState = createBuilderAiPackageFetchState({ maxBytes: 2 })
+  const fetchState = createBuilderAiPackageFetchState()
 
   const exact = await readBuilderAiPackageResource(
     clientExecution,
@@ -316,16 +316,14 @@ test('budgets unique package downloads by UTF-8 bytes', async () => {
   )
   assert.equal(exact.content, 'é')
 
-  await assert.rejects(
-    readBuilderAiPackageResource(
-      clientExecution,
-      '@tanstack/charts',
-      '/docs/extra.md',
-      0,
-      { fetchState, fetcher },
-    ),
-    /package download budget reached/,
+  const extra = await readBuilderAiPackageResource(
+    clientExecution,
+    '@tanstack/charts',
+    '/docs/extra.md',
+    0,
+    { fetchState, fetcher },
   )
+  assert.equal(extra.content, 'x')
 
   const cached = await readBuilderAiPackageResource(
     clientExecution,
@@ -338,17 +336,23 @@ test('budgets unique package downloads by UTF-8 bytes', async () => {
 })
 
 test('retries transient package fetches without bypassing the resource budget', async () => {
-  const baseFetcher = createFetcher({
+  const responses: Record<string, string> = {
     'https://unpkg.com/@tanstack/charts@0.13.0/docs/retry.md': 'ready',
     'https://unpkg.com/@tanstack/charts@0.13.0/docs/other.md': 'other',
-  })
+  }
+  for (let index = 0; index < 31; index++) {
+    responses[
+      `https://unpkg.com/@tanstack/charts@0.13.0/docs/filled-${index}.md`
+    ] = 'ok'
+  }
+  const baseFetcher = createFetcher(responses)
   let fetchCount = 0
   const fetcher: typeof fetch = async (input, init) => {
     fetchCount += 1
     if (fetchCount === 1) throw new TypeError('Temporary network failure')
     return baseFetcher(input, init)
   }
-  const fetchState = createBuilderAiPackageFetchState({ maxResources: 1 })
+  const fetchState = createBuilderAiPackageFetchState()
 
   await assert.rejects(
     readBuilderAiPackageResource(
@@ -369,6 +373,17 @@ test('retries transient package fetches without bypassing the resource budget', 
   )
   assert.equal(retried.content, 'ready')
   assert.equal(fetchCount, 2)
+
+  for (let index = 0; index < 31; index++) {
+    const filled = await readBuilderAiPackageResource(
+      clientExecution,
+      '@tanstack/charts',
+      `/docs/filled-${index}.md`,
+      0,
+      { fetchState, fetcher },
+    )
+    assert.equal(filled.content, 'ok')
+  }
 
   await assert.rejects(
     readBuilderAiPackageResource(

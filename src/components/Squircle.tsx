@@ -25,10 +25,7 @@ function supportsNativeSquircle(): boolean {
   )
 }
 
-export function useSquircleFallback(
-  ref: React.RefObject<HTMLElement | null>,
-  smoothing = 0.6,
-) {
+export function useSquircleFallback(ref: React.RefObject<HTMLElement | null>) {
   React.useEffect(() => {
     const el = ref.current
     if (!el || supportsNativeSquircle()) return
@@ -54,7 +51,7 @@ export function useSquircleFallback(
       el.style.clipPath = `path('${getSvgPath({
         width,
         height,
-        cornerSmoothing: smoothing,
+        cornerSmoothing: 0.6,
         ...corners,
       })}')`
     }
@@ -71,20 +68,17 @@ export function useSquircleFallback(
       window.removeEventListener('resize', apply)
       el.style.clipPath = ''
     }
-  }, [ref, smoothing])
+  }, [ref])
 }
 
-type SquircleProps = React.HTMLAttributes<HTMLDivElement> & {
-  /** 0–1; 0.6 approximates the native `squircle` (superellipse(2)) curve. */
-  smoothing?: number
-}
+type SquircleProps = React.HTMLAttributes<HTMLDivElement>
 
 /** A `<div>` that carries a squircle shape cross-browser (see useSquircleFallback). */
 export const Squircle = React.forwardRef<HTMLDivElement, SquircleProps>(
-  function Squircle({ smoothing, children, ...rest }, forwardedRef) {
+  function Squircle({ children, ...rest }, forwardedRef) {
     const localRef = React.useRef<HTMLDivElement>(null)
     React.useImperativeHandle(forwardedRef, () => localRef.current!, [])
-    useSquircleFallback(localRef, smoothing)
+    useSquircleFallback(localRef)
     return (
       <div ref={localRef} {...rest}>
         {children}

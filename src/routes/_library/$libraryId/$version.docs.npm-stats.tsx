@@ -549,7 +549,7 @@ function RouteComponent() {
   // Get available competitor packages that aren't already in the chart
   const availableCompetitors = getAvailableCompetitors(library, packageGroups)
 
-  const handleAddBaseline = (packageName: string, color?: string) => {
+  const handleAddBaseline = (packageName: string) => {
     navigate({
       to: '.',
       search: (prev: NpmStatsSearch) => {
@@ -565,7 +565,6 @@ function RouteComponent() {
             ...groups,
             {
               packages: [{ name: packageName, hidden: true }],
-              color,
               baseline: true,
             },
           ],

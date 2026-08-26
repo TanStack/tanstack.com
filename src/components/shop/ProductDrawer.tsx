@@ -48,23 +48,13 @@ function findExactVariant(
 
 type ProductDrawerProps = {
   productHandle: string | null
-  initialProduct?: ProductDetail | null
   allHandles: string[]
   onClose: () => void
   onChange: (handle: string) => void
 }
 
-function getInitialProduct(
-  handle: string | null,
-  product: ProductDetail | null | undefined,
-) {
-  if (!handle || product?.handle !== handle) return undefined
-  return product
-}
-
 export function ProductDrawer({
   productHandle,
-  initialProduct,
   allHandles,
   onClose,
   onChange,
@@ -110,7 +100,6 @@ export function ProductDrawer({
     queryKey: ['shopify', 'product', displayHandle ?? ''],
     queryFn: () => getProduct({ data: { handle: displayHandle! } }),
     enabled: !!displayHandle,
-    initialData: getInitialProduct(displayHandle, initialProduct),
     placeholderData: (previousProduct) => previousProduct,
     staleTime: 5 * 60 * 1000,
   })

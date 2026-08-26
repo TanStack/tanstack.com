@@ -256,116 +256,110 @@ export function BuilderProjectPage({ id }: { id: string }) {
     [createCurrentProjectSnapshot, getOrCreateSaveMutation, id],
   )
 
-  const flushPendingSave = React.useCallback(
-    (options?: { allowAiTransaction?: boolean }) => {
-      if (saveConflictRef.current) {
-        return Promise.reject(
-          new Error(
-            'Recovered changes conflict with the current project revision.',
-          ),
-        )
-      }
-      if (
-        aiTransactionActiveRef.current &&
-        options?.allowAiTransaction !== true
-      ) {
-        return Promise.reject(
-          new Error('The builder is still validating an assistant edit.'),
-        )
-      }
+  const flushPendingSave = React.useCallback(() => {
+    if (saveConflictRef.current) {
+      return Promise.reject(
+        new Error(
+          'Recovered changes conflict with the current project revision.',
+        ),
+      )
+    }
+    if (aiTransactionActiveRef.current) {
+      return Promise.reject(
+        new Error('The builder is still validating an assistant edit.'),
+      )
+    }
 
-      const queuedSave = saveQueueRef.current
-        .catch(() => {})
-        .then(async () => {
-          while (
-            isOwnerRef.current &&
-            editRevisionRef.current > savedRevisionRef.current
-          ) {
-            const currentBuilderProject = builderProjectRef.current
-            const syncClient = projectSyncClientRef.current
-            if (!currentBuilderProject || !syncClient) return
+    const queuedSave = saveQueueRef.current
+      .catch(() => {})
+      .then(async () => {
+        while (
+          isOwnerRef.current &&
+          editRevisionRef.current > savedRevisionRef.current
+        ) {
+          const currentBuilderProject = builderProjectRef.current
+          const syncClient = projectSyncClientRef.current
+          if (!currentBuilderProject || !syncClient) return
 
-            const revision = editRevisionRef.current
-            setSaveState('saving')
-            setSaveError('')
-            setSaveConflict(false)
+          const revision = editRevisionRef.current
+          setSaveState('saving')
+          setSaveError('')
+          setSaveConflict(false)
 
-            let attemptedWorkingCopy: BuilderProjectWorkingCopy | undefined
-            try {
-              const {
-                project: nextProject,
-                saveMutation,
-                workingCopy,
-              } = await persistWorkingCopy(revision)
-              attemptedWorkingCopy = workingCopy
-              inFlightSaveMutationRef.current = saveMutation
-              await syncClient.executeCommand({
-                type: 'project.revise',
-                clientMutationId: saveMutation.clientMutationId,
-                revisionId: saveMutation.revisionId,
-                expectedRevisionNumber: saveMutation.expectedRevisionNumber,
-                project: nextProject,
-              })
-              const syncedProject = getBuilderProjectSyncProject(syncClient)
-              if (
-                !syncedProject ||
-                syncedProject.currentRevisionId !== saveMutation.revisionId
-              ) {
-                throw new Error(
-                  'The Builder project revision was not acknowledged.',
-                )
-              }
-              const nextBuilderProject = mergeBuilderProjectSyncState(
-                currentBuilderProject,
-                syncedProject,
+          let attemptedWorkingCopy: BuilderProjectWorkingCopy | undefined
+          try {
+            const {
+              project: nextProject,
+              saveMutation,
+              workingCopy,
+            } = await persistWorkingCopy(revision)
+            attemptedWorkingCopy = workingCopy
+            inFlightSaveMutationRef.current = saveMutation
+            await syncClient.executeCommand({
+              type: 'project.revise',
+              clientMutationId: saveMutation.clientMutationId,
+              revisionId: saveMutation.revisionId,
+              expectedRevisionNumber: saveMutation.expectedRevisionNumber,
+              project: nextProject,
+            })
+            const syncedProject = getBuilderProjectSyncProject(syncClient)
+            if (
+              !syncedProject ||
+              syncedProject.currentRevisionId !== saveMutation.revisionId
+            ) {
+              throw new Error(
+                'The Builder project revision was not acknowledged.',
               )
-              builderProjectRef.current = nextBuilderProject
-              savedRevisionRef.current = revision
-              setBuilderProject(nextBuilderProject)
-              await clearBuilderProjectWorkingCopy({
-                projectId: id,
-                clientMutationId: saveMutation.clientMutationId,
-                revisionId: saveMutation.revisionId,
-              })
-              if (
-                saveMutationRef.current?.clientMutationId ===
-                saveMutation.clientMutationId
-              ) {
-                saveMutationRef.current = undefined
-              }
-              conflictingWorkingCopyRef.current = undefined
-              setSaveState(
-                editRevisionRef.current === revision ? 'saved' : 'saving',
-              )
-            } catch (cause) {
-              const conflict =
-                cause instanceof BuilderProjectSyncCommandRejectedError &&
-                cause.rejection.code === 'project-revision-conflict'
-              if (conflict) {
-                conflictingWorkingCopyRef.current = attemptedWorkingCopy
-                saveConflictRef.current = true
-              }
-              setSaveState('error')
-              setSaveConflict(conflict)
-              setSaveError(
-                conflict
-                  ? 'This project changed in another tab. Save this version as a fork.'
-                  : formatError(cause),
-              )
-              throw cause
-            } finally {
-              if (inFlightSaveMutationRef.current?.editRevision === revision) {
-                inFlightSaveMutationRef.current = undefined
-              }
+            }
+            const nextBuilderProject = mergeBuilderProjectSyncState(
+              currentBuilderProject,
+              syncedProject,
+            )
+            builderProjectRef.current = nextBuilderProject
+            savedRevisionRef.current = revision
+            setBuilderProject(nextBuilderProject)
+            await clearBuilderProjectWorkingCopy({
+              projectId: id,
+              clientMutationId: saveMutation.clientMutationId,
+              revisionId: saveMutation.revisionId,
+            })
+            if (
+              saveMutationRef.current?.clientMutationId ===
+              saveMutation.clientMutationId
+            ) {
+              saveMutationRef.current = undefined
+            }
+            conflictingWorkingCopyRef.current = undefined
+            setSaveState(
+              editRevisionRef.current === revision ? 'saved' : 'saving',
+            )
+          } catch (cause) {
+            const conflict =
+              cause instanceof BuilderProjectSyncCommandRejectedError &&
+              cause.rejection.code === 'project-revision-conflict'
+            if (conflict) {
+              conflictingWorkingCopyRef.current = attemptedWorkingCopy
+              saveConflictRef.current = true
+            }
+            setSaveState('error')
+            setSaveConflict(conflict)
+            setSaveError(
+              conflict
+                ? 'This project changed in another tab. Save this version as a fork.'
+                : formatError(cause),
+            )
+            throw cause
+          } finally {
+            if (inFlightSaveMutationRef.current?.editRevision === revision) {
+              inFlightSaveMutationRef.current = undefined
             }
           }
-        })
+        }
+      })
 
-      saveQueueRef.current = queuedSave
-      return queuedSave
-    },
-    [id, persistWorkingCopy],
-  )
+    saveQueueRef.current = queuedSave
+    return queuedSave
+  }, [id, persistWorkingCopy])
 
   const hasPendingSave = React.useCallback(
     () =>

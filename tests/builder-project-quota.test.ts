@@ -1,7 +1,5 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { drizzle } from 'drizzle-orm/pg-proxy'
-import * as schema from '../src/db/schema'
 import {
   assertBuilderProjectQuotaHardUsage,
   assertBuilderProjectQuotaUsage,
@@ -103,12 +101,11 @@ test('accepts the exact owner snapshot budget without resetting it', () => {
 })
 
 test('referenced snapshot reservations are filtered before the GC batch limit', () => {
+  process.env.DATABASE_URL ??= 'postgres://127.0.0.1:9/unused-signatures'
   const limit = 25
-  const database = drizzle(async () => ({ rows: [] }), { schema })
   const query = getBuilderProjectSnapshotReservationGcCandidates({
     cutoff: new Date(0),
     limit,
-    database,
   }).toSQL()
   const eligibilityIndex = query.sql.indexOf('not exists')
   const limitIndex = query.sql.lastIndexOf('limit')
@@ -119,12 +116,11 @@ test('referenced snapshot reservations are filtered before the GC batch limit', 
 })
 
 test('referenced snapshots are filtered before the GC batch limit', () => {
+  process.env.DATABASE_URL ??= 'postgres://127.0.0.1:9/unused-signatures'
   const limit = 25
-  const database = drizzle(async () => ({ rows: [] }), { schema })
   const query = getBuilderProjectSnapshotGcCandidates({
     cutoff: new Date(0),
     limit,
-    database,
   }).toSQL()
   const eligibilityMatches = query.sql.match(/not exists/g) ?? []
   const limitIndex = query.sql.lastIndexOf('limit')
@@ -136,17 +132,15 @@ test('referenced snapshots are filtered before the GC batch limit', () => {
 })
 
 test('legacy-referenced snapshots are deferred behind the next GC batch', () => {
+  process.env.DATABASE_URL ??= 'postgres://127.0.0.1:9/unused-signatures'
   const occurredAt = new Date('2026-08-20T12:00:00.000Z')
-  const database = drizzle(async () => ({ rows: [] }), { schema })
   const deferred = deferLegacyReferencedBuilderProjectSnapshotGcCandidate({
     hash: 'a'.repeat(64),
     occurredAt,
-    database,
   }).toSQL()
   const candidates = getBuilderProjectSnapshotGcCandidates({
     cutoff: new Date(0),
     limit: 25,
-    database,
   }).toSQL()
 
   assert.match(deferred.sql, /set "deleting_at" = \$1, "updated_at" = \$2/)

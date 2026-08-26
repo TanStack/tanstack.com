@@ -783,19 +783,21 @@ test('serializes replayable events with the sequence as the SSE id', () => {
   )
 })
 
-test('streams gap-free events, heartbeats, and then reconnects', async () => {
+test('streams gap-free events, heartbeats, and then reconnects', async (t) => {
   let time = 0
+  t.mock.method(Date, 'now', () => time)
+  t.mock.method(globalThis, 'setTimeout', ((
+    handler: TimerHandler,
+    milliseconds?: number,
+  ) => {
+    time += Number(milliseconds) || 0
+    if (typeof handler === 'function') handler()
+    return 0
+  }) as typeof setTimeout)
   let expiredRunChecks = 0
   const response = createBuilderProjectEventStreamResponse({
     cursor: 0,
     signal: new AbortController().signal,
-    durationMs: 5,
-    pollIntervalMs: 1,
-    heartbeatIntervalMs: 2,
-    now: () => time,
-    wait: async (milliseconds) => {
-      time += milliseconds
-    },
     interruptExpiredRuns: async () => {
       expiredRunChecks += 1
     },
@@ -812,7 +814,7 @@ test('streams gap-free events, heartbeats, and then reconnects', async () => {
   assert.match(body, /id: 1/)
   assert.match(body, /id: 2/)
   assert.match(body, /: heartbeat/)
-  assert.equal(expiredRunChecks, 3)
+  assert.equal(expiredRunChecks, 2)
 })
 
 test('stops a replay before emitting an event across a sequence gap', async () => {
@@ -822,7 +824,6 @@ test('stops a replay before emitting an event across a sequence gap', async () =
     const response = createBuilderProjectEventStreamResponse({
       cursor: 0,
       signal: new AbortController().signal,
-      durationMs: 1,
       listEvents: async () => [createEvent(2)],
     })
     const body = await response.text()
@@ -833,17 +834,18 @@ test('stops a replay before emitting an event across a sequence gap', async () =
 })
 
 test('bounds events buffered by one stream response', async () => {
+  const events = Array.from({ length: 26 }, (_, index) =>
+    createEvent(index + 1),
+  )
   const response = createBuilderProjectEventStreamResponse({
     cursor: 0,
     signal: new AbortController().signal,
-    durationMs: 1_000,
-    maxEvents: 2,
-    listEvents: async () => [createEvent(1), createEvent(2), createEvent(3)],
+    listEvents: async (afterSequence) => (afterSequence === 0 ? events : []),
   })
   const body = await response.text()
-  assert.match(body, /id: 1/)
-  assert.match(body, /id: 2/)
-  assert.doesNotMatch(body, /id: 3/)
+  assert.match(body, /^id: 1\r?$/m)
+  assert.match(body, /id: 25/)
+  assert.doesNotMatch(body, /id: 26/)
 })
 
 function createEvent(sequence: number): BuilderProjectSyncEvent {

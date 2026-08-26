@@ -77,35 +77,38 @@ test('draft transcript stays local and queued until the server acknowledges it',
         events: [],
       }
     }
+    const restoreFetch = installSyncCommandFetch(send)
 
-    await assert.rejects(
-      promoteBuilderProjectTranscript({
+    try {
+      await assert.rejects(
+        promoteBuilderProjectTranscript({
+          projectId,
+          scope,
+          clientMutationId: transcriptImportMutationId,
+        }),
+        /Offline/,
+      )
+
+      const [queued] = await listBuilderProjectSyncOutbox(projectId)
+      assert.ok(queued)
+      assert.equal(queued.command.type, 'transcript.import')
+      assert.equal(listBuilderAiThreads(scope).length, 1)
+      assert.equal((await loadBuilderAiTranscript(scope, threadId))?.length, 2)
+
+      offline = false
+      await promoteBuilderProjectTranscript({
         projectId,
         scope,
         clientMutationId: transcriptImportMutationId,
-        send,
-      }),
-      /Offline/,
-    )
+      })
 
-    const [queued] = await listBuilderProjectSyncOutbox(projectId)
-    assert.ok(queued)
-    assert.equal(queued.command.type, 'transcript.import')
-    assert.equal(listBuilderAiThreads(scope).length, 1)
-    assert.equal((await loadBuilderAiTranscript(scope, threadId))?.length, 2)
-
-    offline = false
-    await promoteBuilderProjectTranscript({
-      projectId,
-      scope,
-      clientMutationId: transcriptImportMutationId,
-      send,
-    })
-
-    assert.deepEqual(sent, [queued.command, queued.command])
-    assert.deepEqual(await listBuilderProjectSyncOutbox(projectId), [])
-    assert.deepEqual(listBuilderAiThreads(scope), [])
-    assert.equal(await loadBuilderAiTranscript(scope, threadId), undefined)
+      assert.deepEqual(sent, [queued.command, queued.command])
+      assert.deepEqual(await listBuilderProjectSyncOutbox(projectId), [])
+      assert.deepEqual(listBuilderAiThreads(scope), [])
+      assert.equal(await loadBuilderAiTranscript(scope, threadId), undefined)
+    } finally {
+      restoreFetch()
+    }
   })
 })
 
@@ -169,35 +172,38 @@ test('large transcripts queue stable bounded chunks before sending and clear aft
         events: [],
       }
     }
+    const restoreFetch = installSyncCommandFetch(send)
 
-    await assert.rejects(
-      promoteBuilderProjectTranscript({
+    try {
+      await assert.rejects(
+        promoteBuilderProjectTranscript({
+          projectId,
+          scope,
+          clientMutationId: transcriptImportMutationId,
+        }),
+        /Offline/,
+      )
+      assert.deepEqual(new Set(queueSnapshots[0]), new Set(chunkIds))
+      assert.equal(listBuilderAiThreads(scope).length, 1)
+      assert.ok((await loadBuilderAiTranscript(scope, threadId))?.length)
+
+      fail = false
+      const retrySnapshotIndex = queueSnapshots.length
+      await promoteBuilderProjectTranscript({
         projectId,
         scope,
         clientMutationId: transcriptImportMutationId,
-        send,
-      }),
-      /Offline/,
-    )
-    assert.deepEqual(new Set(queueSnapshots[0]), new Set(chunkIds))
-    assert.equal(listBuilderAiThreads(scope).length, 1)
-    assert.ok((await loadBuilderAiTranscript(scope, threadId))?.length)
-
-    fail = false
-    const retrySnapshotIndex = queueSnapshots.length
-    await promoteBuilderProjectTranscript({
-      projectId,
-      scope,
-      clientMutationId: transcriptImportMutationId,
-      send,
-    })
-    assert.deepEqual(
-      new Set(queueSnapshots[retrySnapshotIndex]),
-      new Set(chunkIds),
-    )
-    assert.deepEqual(await listBuilderProjectSyncOutbox(projectId), [])
-    assert.deepEqual(listBuilderAiThreads(scope), [])
-    assert.equal(await loadBuilderAiTranscript(scope, threadId), undefined)
+      })
+      assert.deepEqual(
+        new Set(queueSnapshots[retrySnapshotIndex]),
+        new Set(chunkIds),
+      )
+      assert.deepEqual(await listBuilderProjectSyncOutbox(projectId), [])
+      assert.deepEqual(listBuilderAiThreads(scope), [])
+      assert.equal(await loadBuilderAiTranscript(scope, threadId), undefined)
+    } finally {
+      restoreFetch()
+    }
   })
 })
 
@@ -381,16 +387,20 @@ test('a failed fork import keeps its exact commands queued and its local source 
       source: { type: 'local', scope: forkScope },
     })
 
-    await assert.rejects(
-      importBuilderProjectTranscriptCommands({
-        projectId,
-        commands,
-        send: async () => {
-          throw new Error('Offline')
-        },
-      }),
-      /Offline/,
-    )
+    const restoreFetch = installSyncCommandFetch(async () => {
+      throw new Error('Offline')
+    })
+    try {
+      await assert.rejects(
+        importBuilderProjectTranscriptCommands({
+          projectId,
+          commands,
+        }),
+        /Offline/,
+      )
+    } finally {
+      restoreFetch()
+    }
 
     assert.deepEqual(
       (await listBuilderProjectSyncOutbox(projectId)).map(
@@ -611,6 +621,32 @@ class FakeIndexedDb {
       request.onsuccess?.()
     })
     return request
+  }
+}
+
+function installSyncCommandFetch(
+  send: (command: BuilderProjectSyncCommand) => Promise<{
+    clientMutationId: string
+    sequence: number
+    events: Array<never>
+  }>,
+) {
+  const previous = globalThis.fetch
+  globalThis.fetch = (async (_input, init) => {
+    const body =
+      typeof init?.body === 'string' ? JSON.parse(init.body) : undefined
+    const command = body?.commands?.[0] as BuilderProjectSyncCommand
+    const result = await send(command)
+    return new Response(
+      JSON.stringify({
+        cursor: result.sequence,
+        results: [result],
+      }),
+      { headers: { 'Content-Type': 'application/json' } },
+    )
+  }) as typeof fetch
+  return () => {
+    globalThis.fetch = previous
   }
 }
 

@@ -564,13 +564,10 @@ export function getBuilderAiActivityItemLabel(item: BuilderAiActivityItem) {
   return complete ? `Completed ${label.toLowerCase()}` : label
 }
 
-export function formatBuilderAiActivityDuration(
-  activity: BuilderAiActivity,
-  now = activity.completedAt ?? activity.startedAt,
-) {
+export function formatBuilderAiActivityDuration(activity: BuilderAiActivity) {
   const milliseconds = Math.max(
     0,
-    (activity.completedAt ?? cleanTimestamp(now)) - activity.startedAt,
+    (activity.completedAt ?? Date.now()) - activity.startedAt,
   )
   const seconds = Math.max(1, Math.round(milliseconds / 1_000))
   if (seconds < 60) return `${seconds}s`

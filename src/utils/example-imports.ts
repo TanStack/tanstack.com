@@ -21,7 +21,6 @@ export type ExampleImportMetadataFetch = (
 ) => Promise<Response>
 
 export type ResolveExampleWorkspaceImportsOptions = {
-  fetch?: ExampleImportMetadataFetch
   signal?: AbortSignal
 }
 
@@ -116,7 +115,7 @@ export async function resolveExampleWorkspaceImports(
 
   const resolvedGroups = await Promise.all(
     [...groups.values()].map((group) =>
-      resolvePackageGroup(group, options.fetch, options.signal),
+      resolvePackageGroup(group, options.signal),
     ),
   )
   const resolvedPackageNames = new Set(
@@ -159,9 +158,7 @@ export async function resolveExampleWorkspaceImports(
       }
     })
     const resolvedPeers = await Promise.all(
-      peerGroups.map((group) =>
-        resolvePackageGroup(group, options.fetch, options.signal),
-      ),
+      peerGroups.map((group) => resolvePackageGroup(group, options.signal)),
     )
     for (const group of resolvedPeers) {
       resolvedGroups.push(group)
@@ -324,7 +321,6 @@ export function getExampleWorkspaceImports(
 
 async function resolvePackageGroup(
   group: PackageGroup,
-  metadataFetch: ExampleImportMetadataFetch | undefined,
   signal: AbortSignal | undefined,
 ): Promise<ResolvedPackageGroup> {
   const representative = group.specifiers[0]
@@ -336,21 +332,17 @@ async function resolvePackageGroup(
     group.requestedVersion,
     representative.subpath,
   )
-  const requestedMetadata = await getEsmMetadata(
-    requestedUrl,
-    metadataFetch,
-    signal,
-  )
+  const requestedMetadata = await getEsmMetadata(requestedUrl, signal)
   const exactVersion = requestedMetadata.version
   const [packageManifest, ...additionalMetadata] = await Promise.all([
-    getPackageManifest(group.packageName, exactVersion, metadataFetch, signal),
+    getPackageManifest(group.packageName, exactVersion, signal),
     ...group.specifiers.slice(1).map((specifier) => {
       const exactUrl = createEsmMetadataUrl(
         group.packageName,
         exactVersion,
         specifier.subpath,
       )
-      return getEsmMetadata(exactUrl, metadataFetch, signal)
+      return getEsmMetadata(exactUrl, signal)
     }),
   ])
   const metadata = [requestedMetadata, ...additionalMetadata]
@@ -527,13 +519,9 @@ function createEsmModuleUrl(
     : url
 }
 
-async function getEsmMetadata(
-  url: string,
-  metadataFetch: ExampleImportMetadataFetch | undefined,
-  signal: AbortSignal | undefined,
-) {
-  if (metadataFetch || signal) {
-    return requestEsmMetadata(url, metadataFetch ?? globalThis.fetch, signal)
+async function getEsmMetadata(url: string, signal: AbortSignal | undefined) {
+  if (signal) {
+    return requestEsmMetadata(url, globalThis.fetch, signal)
   }
 
   const cached = metadataCache.get(url)
@@ -589,15 +577,14 @@ async function requestEsmMetadata(
 async function getPackageManifest(
   packageName: string,
   exactVersion: string,
-  metadataFetch: ExampleImportMetadataFetch | undefined,
   signal: AbortSignal | undefined,
 ) {
   const cacheKey = `${packageName}@${exactVersion}`
-  if (metadataFetch || signal) {
+  if (signal) {
     return requestPackageManifest(
       packageName,
       exactVersion,
-      metadataFetch ?? globalThis.fetch,
+      globalThis.fetch,
       signal,
     )
   }

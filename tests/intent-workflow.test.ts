@@ -8,10 +8,11 @@ import {
 } from '@tanstack/workflow-runtime'
 import type { WorkflowExecutionStore } from '@tanstack/workflow-runtime'
 import { createIntentProcessWorkflow } from '../src/utils/intent-workflows.server'
-import type {
-  IntentProcessResult,
-  IntentSyncOperations,
-  IntentVersionProcessResult,
+import {
+  defaultIntentSyncOperations,
+  type IntentProcessResult,
+  type IntentSyncOperations,
+  type IntentVersionProcessResult,
 } from '../src/utils/intent-sync.server'
 
 test('duplicate scheduled invocation with the same bucket is idempotent', async () => {
@@ -41,22 +42,26 @@ test('duplicate scheduled invocation with the same bucket is idempotent', async 
   )
   const now = Date.UTC(2026, 4, 26, 12, 0, 0)
 
-  await materializeWorkflowSchedules(runtime, { now })
-  const first = await runtime.sweep({ now, includeEvents: false })
-  await materializeWorkflowSchedules(runtime, { now })
-  const second = await runtime.sweep({ now, includeEvents: false })
+  try {
+    await materializeWorkflowSchedules(runtime, { now })
+    const first = await runtime.sweep({ now, includeEvents: false })
+    await materializeWorkflowSchedules(runtime, { now })
+    const second = await runtime.sweep({ now, includeEvents: false })
 
-  const processRun = first.scheduled.find(
-    (run) => run.workflowId === processWorkflow.id,
-  )
-  assert.ok(processRun)
-  assert.equal(
-    processRun.runId,
-    `${processWorkflow.id}:${processSchedule.id}:${now}`,
-  )
-  assert.equal(second.scheduled.length, 0)
-  assert.equal(selectCalls, 1)
-  assert.equal(processCalls, 1)
+    const processRun = first.scheduled.find(
+      (run) => run.workflowId === processWorkflow.id,
+    )
+    assert.ok(processRun)
+    assert.equal(
+      processRun.runId,
+      `${processWorkflow.id}:${processSchedule.id}:${now}`,
+    )
+    assert.equal(second.scheduled.length, 0)
+    assert.equal(selectCalls, 1)
+    assert.equal(processCalls, 1)
+  } finally {
+    mock.restoreAll()
+  }
 })
 
 test('failed package version step does not prevent other versions from processing', async () => {
@@ -101,17 +106,21 @@ test('failed package version step does not prevent other versions from processin
     },
   })
 
-  const result = await runtime.startRun({
-    workflowId: processWorkflow.id,
-    runId: 'intent-process:test-partial-failure',
-    input: { source: 'admin' },
-    now: Date.UTC(2026, 4, 26, 12, 15, 0),
-    includeEvents: false,
-  })
+  try {
+    const result = await runtime.startRun({
+      workflowId: processWorkflow.id,
+      runId: 'intent-process:test-partial-failure',
+      input: { source: 'admin' },
+      now: Date.UTC(2026, 4, 26, 12, 15, 0),
+      includeEvents: false,
+    })
 
-  assert.equal(result.kind, 'completed')
-  assert.ok(result.run)
-  assert.deepEqual(result.run.output, expected)
+    assert.equal(result.kind, 'completed')
+    assert.ok(result.run)
+    assert.deepEqual(result.run.output, expected)
+  } finally {
+    mock.restoreAll()
+  }
 })
 
 test('process workflow yields near its runtime deadline and resumes the same run', async () => {
@@ -212,7 +221,22 @@ function createTestIntentRuntime(options: {
   operations: IntentSyncOperations
   store?: WorkflowExecutionStore
 }) {
-  const processWorkflow = createIntentProcessWorkflow(options.operations)
+  mock.method(
+    defaultIntentSyncOperations,
+    'discoverIntentPackages',
+    options.operations.discoverIntentPackages,
+  )
+  mock.method(
+    defaultIntentSyncOperations,
+    'selectPendingIntentVersions',
+    options.operations.selectPendingIntentVersions,
+  )
+  mock.method(
+    defaultIntentSyncOperations,
+    'processIntentVersion',
+    options.operations.processIntentVersion,
+  )
+  const processWorkflow = createIntentProcessWorkflow()
   const processSchedule = {
     id: 'intent-process-every-15m',
     schedule: every.minutes(15),

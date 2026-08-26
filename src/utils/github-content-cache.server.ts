@@ -1475,14 +1475,9 @@ export async function listDocsCacheRepoStats() {
   return backend.listRepoStats()
 }
 
-export async function pruneStaleCacheRows(
-  opts: {
-    maxAgeMs?: number
-    negativeMaxAgeMs?: number
-  } = {},
-) {
+export async function pruneStaleCacheRows() {
   const backend = await getCacheBackend()
-  return backend.pruneStaleCacheRows(opts)
+  return backend.pruneStaleCacheRows({})
 }
 
 export async function markGitHubContentStale(

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
   getExampleWorkspaceImports,
-  resolveExampleWorkspaceImports,
+  resolveExampleWorkspaceImports as resolveExampleWorkspaceImportsImpl,
   type ExampleImportMetadataFetch,
 } from '../src/utils/example-imports'
 import { createExampleWorkspace } from '../src/utils/example-workspace'
@@ -465,6 +465,35 @@ test('ignores direct URLs and rejects unsafe package subpaths', async () => {
     /Unsupported external module specifier/,
   )
 })
+
+async function withExampleImportFetch<T>(
+  fetch: ExampleImportMetadataFetch,
+  run: () => Promise<T>,
+) {
+  const previous = globalThis.fetch
+  globalThis.fetch = fetch as typeof globalThis.fetch
+  try {
+    return await run()
+  } finally {
+    globalThis.fetch = previous
+  }
+}
+
+async function resolveExampleWorkspaceImports(
+  workspace: Parameters<typeof resolveExampleWorkspaceImportsImpl>[0],
+  files: Parameters<typeof resolveExampleWorkspaceImportsImpl>[1],
+  specifiers?: Parameters<typeof resolveExampleWorkspaceImportsImpl>[2],
+  options: {
+    fetch?: ExampleImportMetadataFetch
+    signal?: AbortSignal
+  } = {},
+) {
+  const run = () =>
+    resolveExampleWorkspaceImportsImpl(workspace, files, specifiers, {
+      signal: options.signal ?? new AbortController().signal,
+    })
+  return options.fetch ? withExampleImportFetch(options.fetch, run) : run()
+}
 
 function createMetadataFetch(
   requests: Array<string>,

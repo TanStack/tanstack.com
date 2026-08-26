@@ -65,12 +65,9 @@ export interface WorkflowRuntimeReconcileResult {
   unregisteredSchedules: Array<WorkflowRuntimeScheduleHealth>
 }
 
-export async function getWorkflowRuntimeHealth(options?: {
-  now?: number
-  staleRunMs?: number
-}): Promise<WorkflowRuntimeHealth> {
-  const now = options?.now ?? Date.now()
-  const staleRunMs = options?.staleRunMs ?? DEFAULT_STALE_RUN_MS
+export async function getWorkflowRuntimeHealth(): Promise<WorkflowRuntimeHealth> {
+  const now = Date.now()
+  const staleRunMs = DEFAULT_STALE_RUN_MS
   const [
     staleRuns,
     unregisteredSchedules,
@@ -96,12 +93,9 @@ export async function getWorkflowRuntimeHealth(options?: {
   }
 }
 
-export async function reconcileWorkflowRuntimeStore(options?: {
-  now?: number
-  staleRunMs?: number
-}): Promise<WorkflowRuntimeReconcileResult> {
-  const now = options?.now ?? Date.now()
-  const staleRunMs = options?.staleRunMs ?? DEFAULT_STALE_RUN_MS
+export async function reconcileWorkflowRuntimeStore(): Promise<WorkflowRuntimeReconcileResult> {
+  const now = Date.now()
+  const staleRunMs = DEFAULT_STALE_RUN_MS
   const [staleRuns, unregisteredSchedules] = await Promise.all([
     listStaleWorkflowRuns({ now, staleRunMs }),
     listUnregisteredWorkflowSchedules(),

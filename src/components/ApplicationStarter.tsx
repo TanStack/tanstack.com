@@ -43,21 +43,12 @@ export interface ApplicationStarterProps {
   applicationStarterIntegration?: ApplicationStarterIntegration
   className?: string
   context: ApplicationStarterContext
-  footerContent?: React.ReactNode
   enableHotkeys?: boolean
-  forceRouterOnly?: boolean
-  formId?: string
   headerAction?: React.ReactNode
-  mode?: 'compact' | 'full'
   onDirtyStateChange?: (dirty: boolean) => void
   onResolvedResult?: (result: ApplicationStarterResult | null) => void
-  primaryActionLabel?: string
   revealOptionsImmediately?: boolean
-  secondaryActionLabel?: string
-  showCliExportActions?: boolean
   showPromptPreview?: boolean
-  suggestionContext?: ApplicationStarterContext
-  submitButton?: React.ReactNode
   title?: React.ReactNode
   tone?: StarterTone
 }
@@ -139,21 +130,12 @@ export function ApplicationStarter({
   applicationStarterIntegration,
   className,
   context,
-  footerContent,
   enableHotkeys = false,
-  forceRouterOnly = false,
-  formId,
   headerAction,
-  mode = 'full',
   onDirtyStateChange,
   onResolvedResult,
-  primaryActionLabel = 'Copy Prompt',
   revealOptionsImmediately = false,
-  secondaryActionLabel = 'Build with Netlify',
-  showCliExportActions = true,
   showPromptPreview = true,
-  suggestionContext,
-  submitButton,
   title = 'What would you like to build?',
   tone = 'cyan',
 }: ApplicationStarterProps) {
@@ -200,16 +182,15 @@ export function ApplicationStarter({
   } = useApplicationStarter({
     applicationStarterIntegration,
     context,
-    forceRouterOnly,
-    mode,
+    forceRouterOnly: false,
+    mode: 'full',
     onDirtyStateChange,
     onResolvedResult,
     revealOptionsImmediately,
-    suggestionContext,
   })
 
   const palette = toneClasses[tone]
-  const compact = mode === 'compact'
+  const compact = false
   const isHomeStarter = context === 'home'
   const [pendingHostingDeployPartner, setPendingHostingDeployPartner] =
     React.useState<HostingDeployPartnerId | null>(null)
@@ -378,13 +359,6 @@ export function ApplicationStarter({
         : undefined,
     [result?.prompt, selectedPromptDeployProvider],
   )
-  const netlifyStartHref = React.useMemo(
-    () =>
-      resultPrompt
-        ? buildStarterPromptDeployUrl('netlify', resultPrompt)
-        : undefined,
-    [resultPrompt],
-  )
   const codexStartHref = React.useMemo(
     () => (resultPrompt ? buildCodexStartUrl(resultPrompt) : undefined),
     [resultPrompt],
@@ -458,7 +432,7 @@ export function ApplicationStarter({
         ? loadingPhrase
         : isPromptCopied
           ? 'Copied'
-          : primaryActionLabel}
+          : 'Copy Prompt'}
     </Button>
   )
   const renderCopyCliCommandButton = () => (
@@ -494,9 +468,7 @@ export function ApplicationStarter({
     label,
     iconOnly = false,
     onTrack,
-    rel = 'noopener noreferrer',
     size,
-    target = '_blank',
     variant = 'primary',
   }: {
     action: StarterTransientAction
@@ -506,13 +478,13 @@ export function ApplicationStarter({
     label: string
     iconOnly?: boolean
     onTrack: () => void
-    rel?: string
     size: 'xs' | 'sm'
-    target?: string
     variant?: 'primary' | 'secondary'
   }) => {
     const disabled = !canUseFinalActions || !href || transientAction === action
     const waitingForHref = !href
+    const opensInCurrentTab =
+      href?.startsWith('codex:') || href?.startsWith('cursor:')
 
     const button = (
       <Button
@@ -521,8 +493,8 @@ export function ApplicationStarter({
         color={iconOnly ? 'gray' : undefined}
         size={iconOnly ? 'icon-sm' : size}
         href={disabled ? undefined : href}
-        target={target}
-        rel={rel}
+        target={opensInCurrentTab ? '_self' : '_blank'}
+        rel={opensInCurrentTab ? undefined : 'noopener noreferrer'}
         aria-disabled={disabled}
         aria-label={iconOnly ? label : undefined}
         tabIndex={disabled ? -1 : undefined}
@@ -761,7 +733,6 @@ export function ApplicationStarter({
         ) : null}
 
         <form
-          id={formId}
           className={twMerge('space-y-3', compact ? 'mt-3' : 'mt-0')}
           onSubmit={(event) => {
             event.preventDefault()
@@ -1313,10 +1284,6 @@ export function ApplicationStarter({
                               </div>
                             </div>
                           </StarterTooltipProvider>
-
-                          {footerContent ? (
-                            <div className="mt-4">{footerContent}</div>
-                          ) : null}
                         </div>
                       ) : null}
                     </PanelContent>
@@ -1343,45 +1310,6 @@ export function ApplicationStarter({
                               isHomeStarter && 'items-end',
                             )}
                           >
-                            {!showCliExportActions ? (
-                              <div className="flex flex-wrap items-center gap-3">
-                                {!selectedHostingDeployPartner
-                                  ? renderActionAnchor({
-                                      action: 'netlify',
-                                      className:
-                                        'border-[#00AD9F] bg-[#00AD9F] text-white hover:bg-[#009a8e]',
-                                      href: netlifyStartHref,
-                                      icon: <RocketIcon className="h-4 w-4" />,
-                                      label: secondaryActionLabel,
-                                      onTrack: () => {
-                                        trackActivation({
-                                          action: 'netlify_start',
-                                          surface: 'result_panel',
-                                          provider: 'netlify',
-                                        })
-                                      },
-                                      size: 'sm',
-                                    })
-                                  : null}
-
-                                {renderActionAnchor({
-                                  action: 'codex',
-                                  className:
-                                    'border-gray-900 bg-gray-900 text-white hover:bg-gray-800 dark:border-gray-100 dark:bg-gray-100 dark:text-gray-950 dark:hover:bg-gray-200',
-                                  href: codexStartHref,
-                                  icon: <OpenAiLogoIcon className="h-4 w-4" />,
-                                  label: 'Open in Codex',
-                                  onTrack: () => {
-                                    trackActivation({
-                                      action: 'open_codex',
-                                      surface: 'result_panel',
-                                    })
-                                  },
-                                  size: 'sm',
-                                })}
-                              </div>
-                            ) : null}
-
                             <div
                               className={twMerge(
                                 'flex flex-wrap items-center gap-3',
@@ -1389,130 +1317,123 @@ export function ApplicationStarter({
                               )}
                             >
                               {renderSelectedHostingDeployButton()}
-                              {showCliExportActions
-                                ? renderCopyCliCommandButton()
-                                : null}
+                              {renderCopyCliCommandButton()}
                               {renderCopyPromptButton()}
                             </div>
 
-                            {showCliExportActions ? (
-                              <div
-                                className={twMerge(
-                                  'flex flex-wrap items-center gap-2',
-                                  isHomeStarter && 'justify-end',
-                                )}
-                              >
-                                {renderActionAnchor({
-                                  action: 'codex',
-                                  className:
-                                    'text-text-secondary hover:text-text-primary',
-                                  href: codexStartHref,
-                                  icon: (
-                                    <OpenAiLogoIcon
-                                      className="h-6 w-6"
-                                      weight="regular"
-                                    />
-                                  ),
-                                  iconOnly: true,
-                                  label: 'Open in Codex',
-                                  onTrack: () => {
-                                    trackActivation({
-                                      action: 'open_codex',
-                                      surface: 'result_panel',
-                                    })
-                                  },
-                                  size: 'xs',
-                                })}
+                            <div
+                              className={twMerge(
+                                'flex flex-wrap items-center gap-2',
+                                isHomeStarter && 'justify-end',
+                              )}
+                            >
+                              {renderActionAnchor({
+                                action: 'codex',
+                                className:
+                                  'text-text-secondary hover:text-text-primary',
+                                href: codexStartHref,
+                                icon: (
+                                  <OpenAiLogoIcon
+                                    className="h-6 w-6"
+                                    weight="regular"
+                                  />
+                                ),
+                                iconOnly: true,
+                                label: 'Open in Codex',
+                                onTrack: () => {
+                                  trackActivation({
+                                    action: 'open_codex',
+                                    surface: 'result_panel',
+                                  })
+                                },
+                                size: 'xs',
+                              })}
 
-                                {renderActionAnchor({
-                                  action: 'claude',
-                                  className:
-                                    'text-text-secondary hover:text-text-primary',
-                                  href: claudeStartHref,
-                                  icon: <ClaudeIcon className="h-6 w-6" />,
-                                  iconOnly: true,
-                                  label: 'Open in Claude',
-                                  onTrack: () => {
-                                    trackActivation({
-                                      action: 'open_claude',
-                                      surface: 'result_panel',
-                                    })
-                                  },
-                                  size: 'xs',
-                                })}
+                              {renderActionAnchor({
+                                action: 'claude',
+                                className:
+                                  'text-text-secondary hover:text-text-primary',
+                                href: claudeStartHref,
+                                icon: <ClaudeIcon className="h-6 w-6" />,
+                                iconOnly: true,
+                                label: 'Open in Claude',
+                                onTrack: () => {
+                                  trackActivation({
+                                    action: 'open_claude',
+                                    surface: 'result_panel',
+                                  })
+                                },
+                                size: 'xs',
+                              })}
 
-                                {renderActionAnchor({
-                                  action: 'cursor',
-                                  className:
-                                    'text-text-secondary hover:text-text-primary',
-                                  href: cursorStartHref,
-                                  icon: <CursorIcon className="h-6 w-6" />,
-                                  iconOnly: true,
-                                  label: 'Open in Cursor',
-                                  onTrack: () => {
-                                    trackActivation({
-                                      action: 'open_cursor',
-                                      surface: 'result_panel',
-                                    })
-                                  },
-                                  size: 'xs',
-                                })}
+                              {renderActionAnchor({
+                                action: 'cursor',
+                                className:
+                                  'text-text-secondary hover:text-text-primary',
+                                href: cursorStartHref,
+                                icon: <CursorIcon className="h-6 w-6" />,
+                                iconOnly: true,
+                                label: 'Open in Cursor',
+                                onTrack: () => {
+                                  trackActivation({
+                                    action: 'open_cursor',
+                                    surface: 'result_panel',
+                                  })
+                                },
+                                size: 'xs',
+                              })}
 
-                                <Tooltip
-                                  content="Clone to GitHub"
-                                  side="bottom"
+                              <Tooltip content="Clone to GitHub" side="bottom">
+                                <Button
+                                  variant="icon"
+                                  color="gray"
+                                  size="icon-sm"
+                                  type="button"
+                                  aria-label="Clone to GitHub"
+                                  onClick={() => {
+                                    showTransientActionFeedback('clone')
+                                    void openDeployDialog(null)
+                                  }}
+                                  disabled={
+                                    !canUseFinalActions ||
+                                    transientAction === 'clone'
+                                  }
+                                  className="text-text-secondary hover:text-text-primary"
                                 >
-                                  <Button
-                                    variant="icon"
-                                    color="gray"
-                                    size="icon-sm"
-                                    type="button"
-                                    aria-label="Clone to GitHub"
-                                    onClick={() => {
-                                      showTransientActionFeedback('clone')
-                                      void openDeployDialog(null)
-                                    }}
-                                    disabled={
-                                      !canUseFinalActions ||
-                                      transientAction === 'clone'
-                                    }
-                                    className="text-text-secondary hover:text-text-primary"
-                                  >
-                                    {transientAction === 'clone' ? (
-                                      <CircleNotchIcon className="h-6 w-6 animate-spin" />
-                                    ) : (
-                                      <GithubLogoIcon
-                                        className="h-6 w-6"
-                                        weight="regular"
-                                      />
-                                    )}
-                                  </Button>
-                                </Tooltip>
-
-                                {renderActionAnchor({
-                                  action: 'download',
-                                  className:
-                                    'text-text-secondary hover:text-text-primary',
-                                  href: downloadHref,
-                                  icon: (
-                                    <DownloadSimpleIcon
+                                  {transientAction === 'clone' ? (
+                                    <CircleNotchIcon className="h-6 w-6 animate-spin" />
+                                  ) : (
+                                    <GithubLogoIcon
                                       className="h-6 w-6"
                                       weight="regular"
                                     />
-                                  ),
-                                  iconOnly: true,
-                                  label: 'Download ZIP',
-                                  onTrack: () => {
-                                    trackActivation({
-                                      action: 'download',
-                                      surface: 'result_panel',
-                                    })
-                                  },
-                                  size: 'xs',
-                                  variant: 'secondary',
-                                })}
-                              </div>
-                            ) : null}
+                                  )}
+                                </Button>
+                              </Tooltip>
+
+                              {renderActionAnchor({
+                                action: 'download',
+                                className:
+                                  'text-text-secondary hover:text-text-primary',
+                                href: downloadHref,
+                                icon: (
+                                  <DownloadSimpleIcon
+                                    className="h-6 w-6"
+                                    weight="regular"
+                                  />
+                                ),
+                                iconOnly: true,
+                                label: 'Download ZIP',
+                                onTrack: () => {
+                                  trackActivation({
+                                    action: 'download',
+                                    surface: 'result_panel',
+                                  })
+                                },
+                                size: 'xs',
+                                variant: 'secondary',
+                              })}
+                            </div>
                           </div>
                         </div>
                       ) : null}
@@ -1538,8 +1459,6 @@ export function ApplicationStarter({
               </div>
             </>
           )}
-
-          {compact ? submitButton : null}
         </form>
       </div>
     </div>

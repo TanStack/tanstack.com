@@ -567,8 +567,7 @@ export function getBuilderAiActivityItemLabel(item: BuilderAiActivityItem) {
 export function formatBuilderAiActivityDuration(activity: BuilderAiActivity) {
   const milliseconds = Math.max(
     0,
-    (activity.completedAt ?? cleanTimestamp(activity.startedAt)) -
-      activity.startedAt,
+    (activity.completedAt ?? Date.now()) - activity.startedAt,
   )
   const seconds = Math.max(1, Math.round(milliseconds / 1_000))
   if (seconds < 60) return `${seconds}s`

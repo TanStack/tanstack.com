@@ -483,6 +483,8 @@ export function ApplicationStarter({
   }) => {
     const disabled = !canUseFinalActions || !href || transientAction === action
     const waitingForHref = !href
+    const opensInCurrentTab =
+      href?.startsWith('codex:') || href?.startsWith('cursor:')
 
     const button = (
       <Button
@@ -491,8 +493,8 @@ export function ApplicationStarter({
         color={iconOnly ? 'gray' : undefined}
         size={iconOnly ? 'icon-sm' : size}
         href={disabled ? undefined : href}
-        target="_blank"
-        rel="noopener noreferrer"
+        target={opensInCurrentTab ? '_self' : '_blank'}
+        rel={opensInCurrentTab ? undefined : 'noopener noreferrer'}
         aria-disabled={disabled}
         aria-label={iconOnly ? label : undefined}
         tabIndex={disabled ? -1 : undefined}

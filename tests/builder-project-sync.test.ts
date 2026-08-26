@@ -843,7 +843,7 @@ test('bounds events buffered by one stream response', async () => {
     listEvents: async (afterSequence) => (afterSequence === 0 ? events : []),
   })
   const body = await response.text()
-  assert.match(body, /id: 1/)
+  assert.match(body, /^id: 1\r?$/m)
   assert.match(body, /id: 25/)
   assert.doesNotMatch(body, /id: 26/)
 })

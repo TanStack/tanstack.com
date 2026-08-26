@@ -223,27 +223,8 @@ test('replayable EventSource resumes from a cursor and closes on abort', () => {
   let openedUrl = ''
   let closeCount = 0
 
-  openReplayableEventSource({
-    url: '/api/builder/projects/project-id/sync?mode=events',
-    after: 14,
-    signal: abortController.signal,
-    eventType: 'project-event',
-    parse: (value) => {
-      if (
-        typeof value !== 'object' ||
-        value === null ||
-        !('sequence' in value) ||
-        typeof value.sequence !== 'number'
-      ) {
-        throw new Error('Invalid event')
-      }
-      return { sequence: value.sequence }
-    },
-    onEvent: (event) => received.push(event),
-    onError: (error) => {
-      throw error
-    },
-    createEventSource: (url) => {
+  withMockEventSource(
+    (url) => {
       openedUrl = url
       return {
         readyState: 1,
@@ -258,22 +239,45 @@ test('replayable EventSource resumes from a cursor and closes on abort', () => {
         },
       }
     },
-  })
+    () => {
+      openReplayableEventSource({
+        url: '/api/builder/projects/project-id/sync?mode=events',
+        after: 14,
+        signal: abortController.signal,
+        eventType: 'project-event',
+        parse: (value) => {
+          if (
+            typeof value !== 'object' ||
+            value === null ||
+            !('sequence' in value) ||
+            typeof value.sequence !== 'number'
+          ) {
+            throw new Error('Invalid event')
+          }
+          return { sequence: value.sequence }
+        },
+        onEvent: (event) => received.push(event),
+        onError: (error) => {
+          throw error
+        },
+      })
 
-  assert.equal(
-    openedUrl,
-    '/api/builder/projects/project-id/sync?mode=events&stream=1&after=14',
+      assert.equal(
+        openedUrl,
+        '/api/builder/projects/project-id/sync?mode=events&stream=1&after=14',
+      )
+      listeners
+        .get('project-event')
+        ?.call(
+          undefined,
+          new MessageEvent('project-event', { data: '{"sequence":15}' }),
+        )
+      assert.deepEqual(received, [{ sequence: 15 }])
+
+      abortController.abort()
+      assert.equal(closeCount, 1)
+    },
   )
-  listeners
-    .get('project-event')
-    ?.call(
-      undefined,
-      new MessageEvent('project-event', { data: '{"sequence":15}' }),
-    )
-  assert.deepEqual(received, [{ sequence: 15 }])
-
-  abortController.abort()
-  assert.equal(closeCount, 1)
 })
 
 test('replayable EventSource recovers only after a terminal native error', () => {
@@ -282,15 +286,8 @@ test('replayable EventSource recovers only after a terminal native error', () =>
   let readyState = 0
   let closeCount = 0
 
-  const cleanup = openReplayableEventSource({
-    url: '/api/builder/projects/project-id/sync',
-    after: 0,
-    signal: new AbortController().signal,
-    eventType: 'project-event',
-    parse: (value) => value,
-    onEvent: () => undefined,
-    onError: (error) => errors.push(error),
-    createEventSource: () => ({
+  withMockEventSource(
+    () => ({
       get readyState() {
         return readyState
       },
@@ -304,26 +301,65 @@ test('replayable EventSource recovers only after a terminal native error', () =>
         closeCount += 1
       },
     }),
-  })
+    () => {
+      const cleanup = openReplayableEventSource({
+        url: '/api/builder/projects/project-id/sync',
+        after: 0,
+        signal: new AbortController().signal,
+        eventType: 'project-event',
+        parse: (value) => value,
+        onEvent: () => undefined,
+        onError: (error) => errors.push(error),
+      })
 
-  listeners
-    .get('error')
-    ?.call(undefined, new MessageEvent('error', { data: '' }))
-  assert.deepEqual(errors, [])
-  assert.equal(closeCount, 0)
+      listeners
+        .get('error')
+        ?.call(undefined, new MessageEvent('error', { data: '' }))
+      assert.deepEqual(errors, [])
+      assert.equal(closeCount, 0)
 
-  readyState = 2
-  listeners
-    .get('error')
-    ?.call(undefined, new MessageEvent('error', { data: '' }))
-  assert.equal(errors.length, 1)
-  assert.match(String(errors[0]), /event stream closed/)
-  assert.equal(closeCount, 1)
+      readyState = 2
+      listeners
+        .get('error')
+        ?.call(undefined, new MessageEvent('error', { data: '' }))
+      assert.equal(errors.length, 1)
+      assert.match(String(errors[0]), /event stream closed/)
+      assert.equal(closeCount, 1)
 
-  cleanup()
-  assert.equal(listeners.size, 0)
-  assert.equal(closeCount, 1)
+      cleanup()
+      assert.equal(listeners.size, 0)
+      assert.equal(closeCount, 1)
+    },
+  )
 })
+
+function withMockEventSource(
+  factory: (url: string) => {
+    readonly readyState: number
+    addEventListener: (
+      type: string,
+      listener: (event: MessageEvent<string>) => void,
+    ) => void
+    removeEventListener: (
+      type: string,
+      listener: (event: MessageEvent<string>) => void,
+    ) => void
+    close: () => void
+  },
+  run: () => void,
+) {
+  const previous = globalThis.EventSource
+  globalThis.EventSource = class {
+    constructor(url: string | URL) {
+      return factory(String(url)) as EventSource
+    }
+  } as typeof EventSource
+  try {
+    run()
+  } finally {
+    globalThis.EventSource = previous
+  }
+}
 
 function requireStream<T>(stream: T | undefined): T {
   if (!stream) throw new Error('Stream did not open')

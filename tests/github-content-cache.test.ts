@@ -283,10 +283,14 @@ async function testArtifactInvalidationAndPruneDelete() {
   assert.equal(await markGitHubContentStale({ repo, gitRef }), 1)
   assert.equal(await markDocsArtifactsStale({ repo, gitRef }), 1)
 
-  const prune = await pruneStaleCacheRows({
-    maxAgeMs: -1,
-    negativeMaxAgeMs: -1,
-  })
+  const originalNow = Date.now
+  Date.now = () => originalNow() + 31 * 24 * 60 * 60 * 1000
+  let prune
+  try {
+    prune = await pruneStaleCacheRows()
+  } finally {
+    Date.now = originalNow
+  }
 
   assert.equal(prune.githubContentDeleted, 1)
   assert.equal(prune.docsArtifactDeleted, 1)

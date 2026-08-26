@@ -21,7 +21,7 @@ import {
 } from '~/utils/builder-project-storage.server'
 import { quarantineBuilderProjectsBySnapshotHash } from '~/utils/builder-project-events.server'
 
-type BuilderProjectQuarantineOperations = {
+export type BuilderProjectQuarantineOperations = {
   quarantineSnapshot: (hash: string, userId: string) => Promise<boolean>
   isSnapshotQuarantined: (hash: string) => Promise<boolean>
   purgeCacheTags: (tags: Array<string>) => Promise<PurgeResult>
@@ -35,6 +35,15 @@ type BuilderProjectQuarantineOperations = {
   ) => Promise<number>
 }
 
+export const builderProjectQuarantineOperations: BuilderProjectQuarantineOperations =
+  {
+    quarantineSnapshot: quarantineBuilderProjectSnapshot,
+    isSnapshotQuarantined: isBuilderProjectSnapshotQuarantined,
+    purgeCacheTags: purgeHostingCacheTags,
+    quarantineProjects: quarantineBuilderProjectsBySnapshotHash,
+    quarantineStableProjects: quarantineStoredBuilderProjectsBySnapshotHash,
+  }
+
 export class BuilderProjectQuarantineCleanupError extends Error {
   constructor(readonly failures: Array<unknown>) {
     super('Builder project quarantine cleanup did not finish')
@@ -42,22 +51,14 @@ export class BuilderProjectQuarantineCleanupError extends Error {
   }
 }
 
-export async function quarantineBuilderProjectSnapshotForAdmin(
-  {
-    hash,
-    actorId,
-  }: {
-    hash: string
-    actorId: string
-  },
-  operations: BuilderProjectQuarantineOperations = {
-    quarantineSnapshot: quarantineBuilderProjectSnapshot,
-    isSnapshotQuarantined: isBuilderProjectSnapshotQuarantined,
-    purgeCacheTags: purgeHostingCacheTags,
-    quarantineProjects: quarantineBuilderProjectsBySnapshotHash,
-    quarantineStableProjects: quarantineStoredBuilderProjectsBySnapshotHash,
-  },
-) {
+export async function quarantineBuilderProjectSnapshotForAdmin({
+  hash,
+  actorId,
+}: {
+  hash: string
+  actorId: string
+}) {
+  const operations = builderProjectQuarantineOperations
   const failures: Array<unknown> = []
   let tombstoned = false
   try {

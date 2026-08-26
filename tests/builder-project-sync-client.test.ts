@@ -4,7 +4,7 @@ import {
   builderProjectSyncProjectRow,
   builderProjectSyncRowKey,
   builderProjectSyncThreadRow,
-  createBuilderProjectSyncClient,
+  createBuilderProjectSyncClient as createBuilderProjectSyncClientImpl,
   getBuilderProjectBrowserSessionId,
   getBuilderProjectSyncEventChanges,
   type BuilderProjectBrowserSessionLockManager,
@@ -1556,7 +1556,120 @@ async function withFakeIndexedDb(
   try {
     await run(indexedDb)
   } finally {
+    restoreSyncClientGlobals()
     if (descriptor) Object.defineProperty(globalThis, 'indexedDB', descriptor)
     else Reflect.deleteProperty(globalThis, 'indexedDB')
   }
+}
+
+const syncClientGlobalRestores: Array<() => void> = []
+
+function restoreSyncClientGlobals() {
+  while (syncClientGlobalRestores.length > 0) {
+    syncClientGlobalRestores.pop()?.()
+  }
+}
+
+function createBuilderProjectSyncClient(options: {
+  projectId: string
+  fetch: (
+    input: string | URL | Request,
+    init?: RequestInit,
+  ) => Promise<Response>
+  createEventSource: (url: string) => {
+    readonly readyState: number
+    addEventListener: (
+      type: string,
+      listener: (event: MessageEvent<string>) => void,
+    ) => void
+    removeEventListener: (
+      type: string,
+      listener?: (event: MessageEvent<string>) => void,
+    ) => void
+    close: () => void
+  }
+  sessionStorage?: Pick<Storage, 'getItem' | 'setItem'>
+  createBrowserSessionId?: () => string
+  browserSessionLockManager?: BuilderProjectBrowserSessionLockManager
+  onBackgroundError?: (error: unknown) => void
+}) {
+  const restore: Array<() => void> = []
+  const previousFetch = globalThis.fetch
+  globalThis.fetch = options.fetch as typeof fetch
+  restore.push(() => {
+    globalThis.fetch = previousFetch
+  })
+
+  const previousEventSource = globalThis.EventSource
+  globalThis.EventSource = class {
+    constructor(url: string | URL) {
+      return options.createEventSource(String(url)) as EventSource
+    }
+  } as typeof EventSource
+  restore.push(() => {
+    globalThis.EventSource = previousEventSource
+  })
+
+  const previousSessionStorage = Object.getOwnPropertyDescriptor(
+    globalThis,
+    'sessionStorage',
+  )
+  Object.defineProperty(globalThis, 'sessionStorage', {
+    configurable: true,
+    value: options.sessionStorage ?? memoryStorage(),
+  })
+  restore.push(() => {
+    if (previousSessionStorage) {
+      Object.defineProperty(
+        globalThis,
+        'sessionStorage',
+        previousSessionStorage,
+      )
+    } else {
+      Reflect.deleteProperty(globalThis, 'sessionStorage')
+    }
+  })
+
+  if (options.createBrowserSessionId) {
+    const previousRandomUUID = crypto.randomUUID.bind(crypto)
+    Object.defineProperty(crypto, 'randomUUID', {
+      configurable: true,
+      value: options.createBrowserSessionId,
+    })
+    restore.push(() => {
+      Object.defineProperty(crypto, 'randomUUID', {
+        configurable: true,
+        value: previousRandomUUID,
+      })
+    })
+  }
+
+  if (options.browserSessionLockManager) {
+    const previousNavigator = Object.getOwnPropertyDescriptor(
+      globalThis,
+      'navigator',
+    )
+    Object.defineProperty(globalThis, 'navigator', {
+      configurable: true,
+      value: { locks: options.browserSessionLockManager },
+    })
+    restore.push(() => {
+      if (previousNavigator) {
+        Object.defineProperty(globalThis, 'navigator', previousNavigator)
+      } else {
+        Reflect.deleteProperty(globalThis, 'navigator')
+      }
+    })
+  }
+
+  syncClientGlobalRestores.push(() => {
+    for (const fn of restore.reverse()) fn()
+  })
+
+  return createBuilderProjectSyncClientImpl({
+    projectId: options.projectId,
+    ...(options.onBackgroundError
+      ? { onBackgroundError: options.onBackgroundError }
+      : {}),
+  })
 }

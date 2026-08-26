@@ -70,19 +70,6 @@ type BuilderProjectSyncRowChange = ReplayableRowChange<
   string
 >
 
-interface EventSourceLike {
-  readonly readyState: number
-  addEventListener: (
-    type: string,
-    listener: (event: MessageEvent<string>) => void,
-  ) => void
-  removeEventListener: (
-    type: string,
-    listener: (event: MessageEvent<string>) => void,
-  ) => void
-  close: () => void
-}
-
 export interface BuilderProjectBrowserSessionLockManager {
   request: (
     name: string,
@@ -98,11 +85,6 @@ type FetchLike = (
 
 export interface CreateBuilderProjectSyncClientOptions {
   projectId: string
-  fetch?: FetchLike
-  createEventSource?: (url: string) => EventSourceLike
-  sessionStorage?: Pick<Storage, 'getItem' | 'setItem'>
-  browserSessionLockManager?: BuilderProjectBrowserSessionLockManager
-  createBrowserSessionId?: () => string
   onBackgroundError?: (error: unknown) => void
 }
 
@@ -164,7 +146,7 @@ export async function createBuilderProjectSyncClient(
     throw new Error('Invalid Builder project ID')
   }
 
-  const fetchRequest = options.fetch ?? globalThis.fetch
+  const fetchRequest = globalThis.fetch
   const syncUrl = `/api/builder/projects/${options.projectId}/sync`
   const bootstrap = await fetchBuilderProjectSyncSnapshot(
     syncUrl,
@@ -181,15 +163,7 @@ export async function createBuilderProjectSyncClient(
 
   const abortController = new AbortController()
   const db = new DbClient()
-  const browserSession = await claimBuilderProjectBrowserSession({
-    ...(options.sessionStorage ? { storage: options.sessionStorage } : {}),
-    ...(options.browserSessionLockManager
-      ? { lockManager: options.browserSessionLockManager }
-      : {}),
-    ...(options.createBrowserSessionId
-      ? { createId: options.createBrowserSessionId }
-      : {}),
-  })
+  const browserSession = await claimBuilderProjectBrowserSession()
   const browserSessionId = browserSession.id
   const collection = createBuilderProjectCollection({
     db,
@@ -199,9 +173,6 @@ export async function createBuilderProjectSyncClient(
     fetchRequest,
     ...(options.onBackgroundError
       ? { onStreamError: options.onBackgroundError }
-      : {}),
-    ...(options.createEventSource
-      ? { createEventSource: options.createEventSource }
       : {}),
   })
   try {
@@ -507,15 +478,10 @@ export function getBuilderProjectBrowserSessionId({
   return created
 }
 
-async function claimBuilderProjectBrowserSession({
-  storage = getSessionStorage(),
-  lockManager = getBrowserSessionLockManager(),
-  createId = crypto.randomUUID,
-}: {
-  storage?: Pick<Storage, 'getItem' | 'setItem'>
-  lockManager?: BuilderProjectBrowserSessionLockManager
-  createId?: () => string
-} = {}) {
+async function claimBuilderProjectBrowserSession() {
+  const storage = getSessionStorage()
+  const lockManager = getBrowserSessionLockManager()
+  const createId = crypto.randomUUID.bind(crypto)
   const stored = storage.getItem(browserSessionStorageKey)
   const preferredId =
     stored && isUuid(stored)
@@ -1105,7 +1071,6 @@ function createBuilderProjectCollection({
   snapshot,
   headCursor,
   fetchRequest,
-  createEventSource,
   onStreamError,
 }: {
   db: DbClient
@@ -1113,7 +1078,6 @@ function createBuilderProjectCollection({
   snapshot: BuilderProjectSyncSnapshot
   headCursor: number
   fetchRequest: FetchLike
-  createEventSource?: (url: string) => EventSourceLike
   onStreamError?: (error: unknown) => void
 }) {
   return db.collection(
@@ -1128,7 +1092,6 @@ function createBuilderProjectCollection({
           headCursor,
           fetchRequest,
           ...(onStreamError ? { onStreamError } : {}),
-          ...(createEventSource ? { createEventSource } : {}),
         }),
     }),
   )
@@ -1140,7 +1103,6 @@ function openBuilderProjectStream({
   snapshot,
   headCursor,
   fetchRequest,
-  createEventSource,
   onStreamError,
 }: {
   context: ReplayableStreamContext<BuilderProjectSyncRow, string>
@@ -1148,7 +1110,6 @@ function openBuilderProjectStream({
   snapshot: BuilderProjectSyncSnapshot
   headCursor: number
   fetchRequest: FetchLike
-  createEventSource?: (url: string) => EventSourceLike
   onStreamError?: (error: unknown) => void
 }) {
   if (context.after > snapshot.cursor) {
@@ -1256,7 +1217,6 @@ function openBuilderProjectStream({
         if (mapped.project) project = mapped.project
         markCaughtUpIfReady()
       },
-      ...(createEventSource ? { createEventSource } : {}),
     })
   }
 

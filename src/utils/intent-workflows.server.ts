@@ -7,10 +7,7 @@ import {
   defaultIntentSyncOperations,
   summarizeIntentProcessResults,
 } from '~/utils/intent-sync.server'
-import type {
-  IntentSyncOperations,
-  IntentVersionProcessResult,
-} from '~/utils/intent-sync.server'
+import type { IntentVersionProcessResult } from '~/utils/intent-sync.server'
 
 const intentDiscoverInputSchema = z.object({
   source: z.enum(['schedule', 'admin']).default('schedule'),
@@ -53,9 +50,7 @@ function createIntentDiscoverWorkflow() {
   )
 }
 
-export function createIntentProcessWorkflow(
-  operations: IntentSyncOperations = defaultIntentSyncOperations,
-) {
+export function createIntentProcessWorkflow() {
   return createWorkflow({
     id: INTENT_PROCESS_WORKFLOW_ID,
     input: intentProcessInputSchema,
@@ -68,7 +63,7 @@ export function createIntentProcessWorkflow(
       const versions = await ctx.step(
         `select-pending-versions:${selectIteration}`,
         () =>
-          operations.selectPendingIntentVersions({
+          defaultIntentSyncOperations.selectPendingIntentVersions({
             limit: PROCESS_WORKFLOW_SELECT_LIMIT,
             excludeIds: [...attemptedIds],
           }),
@@ -90,7 +85,8 @@ export function createIntentProcessWorkflow(
           results.push(
             await ctx.step(
               `process-version:${version.id}`,
-              () => operations.processIntentVersion(version.id),
+              () =>
+                defaultIntentSyncOperations.processIntentVersion(version.id),
               processVersionStepOptions,
             ),
           )

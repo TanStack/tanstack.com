@@ -69,13 +69,15 @@ const editorialTheme = defineChart({
       curve: d3Curve(curveMonotoneX),
     }),
   ],
-  x: {
-    scale: scaleLinear().domain([1, 10]),
-    axis: { ticks: { count: 4, format: (month) => `M${month}` } },
-  },
-  y: {
-    scale: scaleLinear().domain(themeDomain).nice(),
-    axis: { ticks: { count: 3 } },
+  scales: {
+    x: {
+      scale: scaleLinear().domain([1, 10]),
+      axis: { ticks: { count: 4, format: (month) => `M${month}` } },
+    },
+    y: {
+      scale: scaleLinear().domain(themeDomain).nice(),
+      axis: { ticks: { count: 3 } },
+    },
   },
   theme: {
     foreground: '#3e3529',
@@ -106,14 +108,16 @@ const productTheme = defineChart({
       r: 4,
     }),
   ],
-  x: {
-    scale: scaleLinear().domain([1, 10]),
-    axis: { ticks: { count: 4, format: (month) => `M${month}` } },
-  },
-  y: {
-    scale: scaleLinear().domain(themeDomain).nice(),
-    axis: { ticks: { count: 4 } },
-    grid: true,
+  scales: {
+    x: {
+      scale: scaleLinear().domain([1, 10]),
+      axis: { ticks: { count: 4, format: (month) => `M${month}` } },
+    },
+    y: {
+      scale: scaleLinear().domain(themeDomain).nice(),
+      axis: { ticks: { count: 4 } },
+      grid: true,
+    },
   },
   theme: {
     foreground: '#003e53',
@@ -145,16 +149,18 @@ const terminalTheme = defineChart({
       curve: d3Curve(curveStepAfter),
     }),
   ],
-  x: {
-    scale: scaleLinear().domain([1, 10]),
-    axis: {
-      ticks: { count: 4, format: (month) => String(month).padStart(2, '0') },
+  scales: {
+    x: {
+      scale: scaleLinear().domain([1, 10]),
+      axis: {
+        ticks: { count: 4, format: (month) => String(month).padStart(2, '0') },
+      },
     },
-  },
-  y: {
-    scale: scaleLinear().domain(themeDomain).nice(),
-    axis: { ticks: { count: 4 } },
-    grid: true,
+    y: {
+      scale: scaleLinear().domain(themeDomain).nice(),
+      axis: { ticks: { count: 4 } },
+      grid: true,
+    },
   },
   theme: {
     foreground: '#a2e1a9',
@@ -194,15 +200,16 @@ const monokaiTheme = defineChart({
       strokeWidth: 3,
     }),
   ],
-  x: {
-    scale: scaleLinear().domain([1, 10]),
-    ticks: 4,
-    format: (month: number) => `M${month}`,
-  },
-  y: {
-    scale: scaleLinear().domain(themeDomain).nice(),
-    ticks: 4,
-    grid: true,
+  scales: {
+    x: {
+      scale: scaleLinear().domain([1, 10]),
+      axis: { ticks: { count: 4, format: (month) => `M${month}` } },
+    },
+    y: {
+      scale: scaleLinear().domain(themeDomain).nice(),
+      axis: { ticks: { count: 4 } },
+      grid: true,
+    },
   },
   theme: {
     foreground: '#f8f8f2',

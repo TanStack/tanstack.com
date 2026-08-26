@@ -30,40 +30,40 @@ test('uses TanStack category colors in the starter sandbox', () => {
 test('exposes unified Charts subpaths without duplicate framework runtimes', () => {
   assert.equal(
     builderImports['@tanstack/charts'],
-    'https://esm.sh/@tanstack/charts@0.13.0',
+    'https://esm.sh/@tanstack/charts@0.16.0',
   )
   assert.equal(
     builderImports['@tanstack/charts/'],
-    'https://esm.sh/@tanstack/charts@0.13.0/',
+    'https://esm.sh/@tanstack/charts@0.16.0/',
   )
 
   assert.equal(
     builderImports['@tanstack/charts/react'],
-    'https://esm.sh/@tanstack/charts@0.13.0/react?external=react,react-dom',
+    'https://esm.sh/@tanstack/charts@0.16.0/react?external=react,react-dom',
   )
   assert.equal(
     builderImports['@tanstack/charts/react/canvas'],
-    'https://esm.sh/@tanstack/charts@0.13.0/react/canvas?external=react,react-dom',
+    'https://esm.sh/@tanstack/charts@0.16.0/react/canvas?external=react,react-dom',
   )
   assert.equal(
     builderImports['@tanstack/charts/react/core'],
-    'https://esm.sh/@tanstack/charts@0.13.0/react/core?external=react,react-dom',
+    'https://esm.sh/@tanstack/charts@0.16.0/react/core?external=react,react-dom',
   )
   assert.equal(
     builderImports['@tanstack/charts/react/tooltip'],
-    'https://esm.sh/@tanstack/charts@0.13.0/react/tooltip?external=react,react-dom',
+    'https://esm.sh/@tanstack/charts@0.16.0/react/tooltip?external=react,react-dom',
   )
   assert.equal(
     builderImports['@tanstack/charts/octane'],
-    'https://esm.sh/@tanstack/charts@0.13.0/octane?external=octane',
+    'https://esm.sh/@tanstack/charts@0.16.0/octane?external=octane',
   )
   assert.equal(
     builderImports['@tanstack/charts/octane/canvas'],
-    'https://esm.sh/@tanstack/charts@0.13.0/octane/canvas?external=octane',
+    'https://esm.sh/@tanstack/charts@0.16.0/octane/canvas?external=octane',
   )
   assert.equal(
     builderImports['@tanstack/charts/octane/core'],
-    'https://esm.sh/@tanstack/charts@0.13.0/octane/core?external=octane',
+    'https://esm.sh/@tanstack/charts@0.16.0/octane/core?external=octane',
   )
 
   assert.equal(

@@ -22,11 +22,13 @@ export const kineticHeatmapChart = defineChart({
       strokeWidth: 2,
     }),
   ],
-  x: {
-    scale: scaleBand<string>().domain(productNames).padding(0.04),
-  },
-  y: {
-    scale: scaleBand<string>().domain(heatmapMetrics).padding(0.08),
+  scales: {
+    x: {
+      scale: scaleBand<string>().domain(productNames).padding(0.04),
+    },
+    y: {
+      scale: scaleBand<string>().domain(heatmapMetrics).padding(0.08),
+    },
   },
   color: {
     domain: ['Building', 'Strong', 'Peak'],

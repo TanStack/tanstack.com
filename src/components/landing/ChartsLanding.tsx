@@ -151,15 +151,17 @@ const accountHealth = defineChart({
       key: 'id',
     }),
   ],
-  x: {
-    scale: scaleLinear,
-    axis: { label: 'Monthly revenue ($k)' },
-  },
-  y: {
-    scale: scaleLinear,
-    axis: {
-      label: '90-day retention',
-      ticks: { format: (value) => percent.format(value) },
+  scales: {
+    x: {
+      scale: scaleLinear,
+      axis: { label: 'Monthly revenue ($k)' },
+    },
+    y: {
+      scale: scaleLinear,
+      axis: {
+        label: '90-day retention',
+        ticks: { format: (value) => percent.format(value) },
+      },
     },
   },
   tooltip,

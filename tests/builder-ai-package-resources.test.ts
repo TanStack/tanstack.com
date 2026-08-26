@@ -24,7 +24,7 @@ test('resolves exact built-in and installed package versions', () => {
     {
       specifier: '@tanstack/charts/scales/band',
       packageName: '@tanstack/charts',
-      packageVersion: '0.13.0',
+      packageVersion: '0.16.0',
       exportKey: './scales/band',
     },
   )
@@ -70,7 +70,7 @@ test('resolves exact built-in and installed package versions', () => {
 
 test('inspects exact module exports and declarations', async () => {
   const baseFetcher = createFetcher({
-    'https://unpkg.com/@tanstack/charts@0.13.0/package.json': JSON.stringify({
+    'https://unpkg.com/@tanstack/charts@0.16.0/package.json': JSON.stringify({
       exports: {
         './scales/band': {
           types: './dist/scales/band.d.ts',
@@ -78,9 +78,9 @@ test('inspects exact module exports and declarations', async () => {
         },
       },
     }),
-    'https://unpkg.com/@tanstack/charts@0.13.0/dist/scales/band.d.ts':
+    'https://unpkg.com/@tanstack/charts@0.16.0/dist/scales/band.d.ts':
       'export declare function scaleBand(): BandScale;\nexport type { BandScale };',
-    'https://unpkg.com/@tanstack/charts@0.13.0/dist/scales/band.js':
+    'https://unpkg.com/@tanstack/charts@0.16.0/dist/scales/band.js':
       'function scaleBand() {}\nexport { scaleBand };',
   })
   let fetchCount = 0
@@ -145,7 +145,7 @@ test('searches bounded docs, declarations, and trusted TanStack skills', async (
     ],
   })
   const baseFetcher = createFetcher({
-    'https://unpkg.com/@tanstack/charts@0.13.0/?meta': metadata,
+    'https://unpkg.com/@tanstack/charts@0.16.0/?meta': metadata,
   })
   let fetchCount = 0
   const fetcher: typeof fetch = (input, init) => {
@@ -182,7 +182,7 @@ test('searches bounded docs, declarations, and trusted TanStack skills', async (
 test('reads package resources in chunks and trusts only TanStack skills', async () => {
   const skill = 'Use scaleBand from the exact scale subpath.'
   const fetcher = createFetcher({
-    'https://unpkg.com/@tanstack/charts@0.13.0/skills/design/SKILL.md': skill,
+    'https://unpkg.com/@tanstack/charts@0.16.0/skills/design/SKILL.md': skill,
   })
   const result = await readBuilderAiPackageResource(
     clientExecution,
@@ -237,7 +237,7 @@ test('reads package resources in chunks and trusts only TanStack skills', async 
 test('reuses one package download across chunked reads', async () => {
   const source = `${'a'.repeat(50_000)}tail`
   const baseFetcher = createFetcher({
-    'https://unpkg.com/@tanstack/charts@0.13.0/docs/large.md': source,
+    'https://unpkg.com/@tanstack/charts@0.16.0/docs/large.md': source,
   })
   let fetchCount = 0
   const fetcher: typeof fetch = (input, init) => {
@@ -268,7 +268,7 @@ test('reuses one package download across chunked reads', async () => {
 
 test('coalesces concurrent reads of one package resource', async () => {
   const baseFetcher = createFetcher({
-    'https://unpkg.com/@tanstack/charts@0.13.0/docs/shared.md': 'shared',
+    'https://unpkg.com/@tanstack/charts@0.16.0/docs/shared.md': 'shared',
   })
   let fetchCount = 0
   const fetcher: typeof fetch = async (input, init) => {
@@ -302,8 +302,8 @@ test('coalesces concurrent reads of one package resource', async () => {
 
 test('budgets unique package downloads by UTF-8 bytes', async () => {
   const fetcher = createFetcher({
-    'https://unpkg.com/@tanstack/charts@0.13.0/docs/exact.md': 'é',
-    'https://unpkg.com/@tanstack/charts@0.13.0/docs/extra.md': 'x',
+    'https://unpkg.com/@tanstack/charts@0.16.0/docs/exact.md': 'é',
+    'https://unpkg.com/@tanstack/charts@0.16.0/docs/extra.md': 'x',
   })
   const fetchState = createBuilderAiPackageFetchState({ maxBytes: 2 })
 
@@ -339,8 +339,8 @@ test('budgets unique package downloads by UTF-8 bytes', async () => {
 
 test('retries transient package fetches without bypassing the resource budget', async () => {
   const baseFetcher = createFetcher({
-    'https://unpkg.com/@tanstack/charts@0.13.0/docs/retry.md': 'ready',
-    'https://unpkg.com/@tanstack/charts@0.13.0/docs/other.md': 'other',
+    'https://unpkg.com/@tanstack/charts@0.16.0/docs/retry.md': 'ready',
+    'https://unpkg.com/@tanstack/charts@0.16.0/docs/other.md': 'other',
   })
   let fetchCount = 0
   const fetcher: typeof fetch = async (input, init) => {

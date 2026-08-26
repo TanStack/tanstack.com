@@ -2,7 +2,7 @@ packages:
   - .
 
 minimumReleaseAgeExclude:
-  - '@tanstack/charts@0.13.0'
+  - '@tanstack/charts@0.16.0'
   - '@tanstack/react-table@9.0.0'
   - '@tanstack/table-core@9.0.0'
 

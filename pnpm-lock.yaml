@@ -18,7 +18,6 @@ overrides:
   npm-run-path@6.0.0>unicorn-magic: 0.4.0
 
 patchedDependencies:
-  '@tanstack/ai-client@0.28.0': 01083530a645954d0ab0f0a9d16d7e75a8c54dc326d736c4f15003d424824454
   '@tanstack/openai-base@0.10.5': 41fed8635cd0bbcbab0eb14571557a734529b70073f8f45bcc30bc5384d9b148
 
 importers:
@@ -105,7 +104,7 @@ importers:
         version: 0.18.0(@tanstack/ai@0.49.1(@opentelemetry/api@1.9.1)(zod@4.3.6))(zod@4.3.6)
       '@tanstack/ai-client':
         specifier: ^0.28.0
-        version: 0.28.0(patch_hash=01083530a645954d0ab0f0a9d16d7e75a8c54dc326d736c4f15003d424824454)(@opentelemetry/api@1.9.1)(zod@4.3.6)
+        version: 0.28.0(@opentelemetry/api@1.9.1)(zod@4.3.6)
       '@tanstack/ai-openai':
         specifier: ^0.22.0
         version: 0.22.0(@tanstack/ai@0.49.1(@opentelemetry/api@1.9.1)(zod@4.3.6))(ws@8.21.0)(zod@4.3.6)
@@ -9789,7 +9788,7 @@ snapshots:
       '@tanstack/ai-utils': 0.4.0
       zod: 4.3.6
 
-  '@tanstack/ai-client@0.28.0(patch_hash=01083530a645954d0ab0f0a9d16d7e75a8c54dc326d736c4f15003d424824454)(@opentelemetry/api@1.9.1)(zod@4.3.6)':
+  '@tanstack/ai-client@0.28.0(@opentelemetry/api@1.9.1)(zod@4.3.6)':
     dependencies:
       '@tanstack/ai': 0.49.1(@opentelemetry/api@1.9.1)(zod@4.3.6)
       '@tanstack/ai-event-client': 0.10.0

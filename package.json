@@ -19,6 +19,7 @@
     "preview:cloudflare": "pnpm run preview",
     "eval:builder-ai": "tsx scripts/builder-ai-eval/run.ts",
     "deploy:cloudflare": "pnpm run db:migrate && pnpm run db:verify-builder && pnpm run build:cloudflare && wrangler deploy --name tanstack-com && pnpm run purge:cloudflare",
+    "deploy:cloudflare:ci": "pnpm run db:prepare-builder && wrangler deploy --name tanstack-com",
     "purge:cloudflare": "pnpm run with-env -- node scripts/purge-cloudflare-cache.mjs",
     "cf:typegen": "wrangler types",
     "content:build": "node scripts/build-content-collections.mjs",

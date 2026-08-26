@@ -38,6 +38,15 @@ Additional checks used `curl`, Node fetch scripts, Wrangler tail, and Playwright
 
 `pnpm run deploy:cloudflare` builds, deploys the Worker, then runs `pnpm run purge:cloudflare`. The purge step clears the Cloudflare zone cache with `purge_everything` so stale HTML documents cannot keep pointing at removed route chunks after a deploy.
 
+Cloudflare Workers Builds is the production deployment owner. Its production trigger must use:
+
+- Build command: `pnpm run build:cloudflare`
+- Deploy command: `pnpm run deploy:cloudflare:ci`
+- Production branch: `main`
+- Encrypted build secret: `DATABASE_URL`
+
+The CI deploy command applies every committed migration and verifies the exact Builder schema before `wrangler deploy` can run. Preview builds use `wrangler versions upload` and must not receive the production database secret.
+
 Required environment:
 
 - `DATABASE_URL`: the production Postgres connection used to verify the Builder schema before the Worker is deployed. Run `pnpm run db:prepare-builder` once after a Builder schema change.

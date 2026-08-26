@@ -139,7 +139,7 @@ export function createExampleSandboxDocument({
   const head = [
     '<meta name="color-scheme" content="light dark">',
     `<script type="importmap">${importMap}</script>`,
-    `<style>:root{--notebook-background:#fff;--notebook-foreground:#111;--notebook-error:#b91c1c;--ts-chart-1:#3aa3c4;--ts-chart-2:#d3481b;--ts-chart-3:#39af46;--ts-chart-4:#b64cc7;--ts-chart-5:#ffa216;--ts-chart-6:#3e3529;background:var(--notebook-background);color:var(--notebook-foreground)}:root.dark{--notebook-background:#111;--notebook-foreground:#d4d4d4;--notebook-error:#e06e49;--ts-chart-1:#9cd5e2;--ts-chart-2:#edaa8d;--ts-chart-3:#a2e1a9;--ts-chart-4:#ca8ec5;--ts-chart-5:#fae884;--ts-chart-6:#aea691}</style>`,
+    `<style>:root{--builder-background:#fff;--builder-foreground:#111;--builder-error:#b91c1c;--ts-chart-1:#3aa3c4;--ts-chart-2:#d3481b;--ts-chart-3:#39af46;--ts-chart-4:#b64cc7;--ts-chart-5:#ffa216;--ts-chart-6:#3e3529;background:var(--builder-background);color:var(--builder-foreground)}:root.dark{--builder-background:#111;--builder-foreground:#d4d4d4;--builder-error:#e06e49;--ts-chart-1:#9cd5e2;--ts-chart-2:#edaa8d;--ts-chart-3:#a2e1a9;--ts-chart-4:#ca8ec5;--ts-chart-5:#fae884;--ts-chart-6:#aea691}</style>`,
     compiled.css ? `<style>${escapeStyleText(compiled.css)}</style>` : '',
     `<script>${bridge}</script><script>${browserBridge}</script>`,
   ].join('')

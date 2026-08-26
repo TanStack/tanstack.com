@@ -14,10 +14,13 @@ import {
   uniqueIndex,
   unique,
   date,
+  check,
+  foreignKey,
+  primaryKey,
 } from 'drizzle-orm/pg-core'
-import { relations } from 'drizzle-orm'
+import { relations, sql } from 'drizzle-orm'
 import type { InferSelectModel, InferInsertModel } from 'drizzle-orm'
-import type { SignupSource } from './types'
+import type { BuilderJsonObject, SignupSource } from './types'
 
 // Re-export client-safe types and constants
 export type {
@@ -30,6 +33,11 @@ export type {
   AuditAction,
   ReleaseLevel,
   SignupSource,
+  BuilderMessageRole,
+  BuilderRunStatus,
+  BuilderProjectEventType,
+  BuilderJsonValue,
+  BuilderJsonObject,
 } from './types'
 
 import {
@@ -40,6 +48,9 @@ import {
   SHOWCASE_STATUSES,
   SHOWCASE_USE_CASES,
   AUDIT_ACTIONS,
+  BUILDER_MESSAGE_ROLES,
+  BUILDER_RUN_STATUSES,
+  BUILDER_PROJECT_EVENT_TYPES,
 } from './types'
 
 export {
@@ -53,6 +64,9 @@ export {
   AUDIT_ACTIONS,
   RELEASE_LEVELS,
   SIGNUP_SOURCES,
+  BUILDER_MESSAGE_ROLES,
+  BUILDER_RUN_STATUSES,
+  BUILDER_PROJECT_EVENT_TYPES,
 } from './types'
 
 // Enums - using imported constants as single source of truth
@@ -73,6 +87,18 @@ export const showcaseUseCaseEnum = pgEnum(
   SHOWCASE_USE_CASES,
 )
 export const auditActionEnum = pgEnum('audit_action', AUDIT_ACTIONS)
+export const builderMessageRoleEnum = pgEnum(
+  'builder_message_role',
+  BUILDER_MESSAGE_ROLES,
+)
+export const builderRunStatusEnum = pgEnum(
+  'builder_run_status',
+  BUILDER_RUN_STATUSES,
+)
+export const builderProjectEventTypeEnum = pgEnum(
+  'builder_project_event_type',
+  BUILDER_PROJECT_EVENT_TYPES,
+)
 
 // Note: Types and constants are defined in ./types.ts and re-exported above
 // This keeps client-safe exports separate from server-only drizzle schema
@@ -992,6 +1018,815 @@ export const oauthRefreshTokens = pgTable(
 
 export type OAuthRefreshToken = InferSelectModel<typeof oauthRefreshTokens>
 export type NewOAuthRefreshToken = InferInsertModel<typeof oauthRefreshTokens>
+
+// =============================================================================
+// Builder durable project state
+// =============================================================================
+
+export const builderProjectLegacyImports = pgTable(
+  'builder_project_legacy_imports',
+  {
+    ownerId: uuid('owner_id')
+      .primaryKey()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    completedAt: timestamp('completed_at', {
+      withTimezone: true,
+      mode: 'date',
+    })
+      .notNull()
+      .defaultNow(),
+  },
+)
+
+export const builderProjectSnapshots = pgTable(
+  'builder_project_snapshots',
+  {
+    hash: varchar('hash', { length: 64 }).primaryKey(),
+    sourceBytes: integer('source_bytes'),
+    storedAt: timestamp('stored_at', { withTimezone: true, mode: 'date' }),
+    deletingAt: timestamp('deleting_at', {
+      withTimezone: true,
+      mode: 'date',
+    }),
+    quarantinedAt: timestamp('quarantined_at', {
+      withTimezone: true,
+      mode: 'date',
+    }),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    storedAtIdx: index('builder_project_snapshots_stored_at_idx').on(
+      table.storedAt,
+    ),
+    hashCheck: check(
+      'builder_project_snapshots_hash_check',
+      sql`${table.hash} ~ '^[a-f0-9]{64}$'`,
+    ),
+    sourceBytesCheck: check(
+      'builder_project_snapshots_source_bytes_check',
+      sql`${table.sourceBytes} IS NULL OR ${table.sourceBytes} BETWEEN 1 AND 1048576`,
+    ),
+  }),
+)
+
+export const builderProjectSnapshotReservations = pgTable(
+  'builder_project_snapshot_reservations',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    ownerId: uuid('owner_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    snapshotHash: varchar('snapshot_hash', { length: 64 })
+      .notNull()
+      .references(() => builderProjectSnapshots.hash, {
+        onDelete: 'cascade',
+      }),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    ownerSnapshotUnique: unique(
+      'builder_project_snapshot_reservations_owner_snapshot_unique',
+    ).on(table.ownerId, table.snapshotHash),
+    ownerCreatedAtIdx: index(
+      'builder_project_snapshot_reservations_owner_created_at_idx',
+    ).on(table.ownerId, table.createdAt),
+    snapshotHashIdx: index(
+      'builder_project_snapshot_reservations_snapshot_hash_idx',
+    ).on(table.snapshotHash),
+  }),
+)
+
+export type BuilderProjectSnapshotRow = InferSelectModel<
+  typeof builderProjectSnapshots
+>
+export type NewBuilderProjectSnapshotRow = InferInsertModel<
+  typeof builderProjectSnapshots
+>
+export type BuilderProjectSnapshotReservation = InferSelectModel<
+  typeof builderProjectSnapshotReservations
+>
+
+export const builderProjects = pgTable(
+  'builder_projects',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    ownerId: uuid('owner_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'restrict' }),
+    clientMutationId: uuid('client_mutation_id').notNull(),
+    forkedFromId: uuid('forked_from_id'),
+    title: varchar('title', { length: 160 }).notNull(),
+    description: varchar('description', { length: 1_000 })
+      .notNull()
+      .default(''),
+    snapshotHash: varchar('snapshot_hash', { length: 64 }).notNull(),
+    currentRevisionNumber: integer('current_revision_number')
+      .notNull()
+      .default(1),
+    lastEventSequence: bigint('last_event_sequence', { mode: 'number' })
+      .notNull()
+      .default(0),
+    lastLeaseFencingToken: bigint('last_lease_fencing_token', {
+      mode: 'number',
+    })
+      .notNull()
+      .default(0),
+    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'date' }),
+    deletedById: uuid('deleted_by_id').references(() => users.id, {
+      onDelete: 'set null',
+    }),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    ownerIdIdx: index('builder_projects_owner_id_idx').on(table.ownerId),
+    ownerUpdatedAtIdx: index('builder_projects_owner_updated_at_idx').on(
+      table.ownerId,
+      table.updatedAt,
+    ),
+    deletedAtIdx: index('builder_projects_deleted_at_idx').on(table.deletedAt),
+    idOwnerUnique: unique('builder_projects_id_owner_unique').on(
+      table.id,
+      table.ownerId,
+    ),
+    ownerMutationUnique: unique('builder_projects_owner_mutation_unique').on(
+      table.ownerId,
+      table.clientMutationId,
+    ),
+    forkedFromFk: foreignKey({
+      columns: [table.forkedFromId],
+      foreignColumns: [table.id],
+      name: 'builder_projects_forked_from_fk',
+    }).onDelete('set null'),
+    snapshotHashFk: foreignKey({
+      columns: [table.snapshotHash],
+      foreignColumns: [builderProjectSnapshots.hash],
+      name: 'builder_projects_snapshot_hash_fk',
+    }).onDelete('restrict'),
+    snapshotHashCheck: check(
+      'builder_projects_snapshot_hash_check',
+      sql`${table.snapshotHash} ~ '^[a-f0-9]{64}$'`,
+    ),
+    revisionNumberCheck: check(
+      'builder_projects_revision_number_check',
+      sql`${table.currentRevisionNumber} > 0`,
+    ),
+    eventSequenceCheck: check(
+      'builder_projects_event_sequence_check',
+      sql`${table.lastEventSequence} BETWEEN 0 AND 9007199254740991`,
+    ),
+    leaseFencingTokenCheck: check(
+      'builder_projects_lease_fencing_token_check',
+      sql`${table.lastLeaseFencingToken} BETWEEN 0 AND 9007199254740991`,
+    ),
+  }),
+)
+
+export type BuilderProjectRow = InferSelectModel<typeof builderProjects>
+export type NewBuilderProjectRow = InferInsertModel<typeof builderProjects>
+
+export const builderProjectUsage = pgTable(
+  'builder_project_usage',
+  {
+    projectId: uuid('project_id')
+      .primaryKey()
+      .references(() => builderProjects.id, { onDelete: 'cascade' }),
+    threads: integer('threads').notNull().default(0),
+    messages: integer('messages').notNull().default(0),
+    runs: integer('runs').notNull().default(0),
+    revisions: integer('revisions').notNull().default(0),
+    events: integer('events').notNull().default(0),
+    payloadBytes: bigint('payload_bytes', { mode: 'number' })
+      .notNull()
+      .default(0),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    nonnegativeCheck: check(
+      'builder_project_usage_nonnegative_check',
+      sql`${table.threads} >= 0 AND ${table.messages} >= 0 AND ${table.runs} >= 0 AND ${table.revisions} >= 0 AND ${table.events} >= 0 AND ${table.payloadBytes} >= 0`,
+    ),
+  }),
+)
+
+export type BuilderProjectUsage = InferSelectModel<typeof builderProjectUsage>
+
+export const builderProjectTombstones = pgTable(
+  'builder_project_tombstones',
+  {
+    projectId: uuid('project_id').primaryKey(),
+    ownerId: uuid('owner_id').references(() => users.id, {
+      onDelete: 'set null',
+    }),
+    deletedAt: timestamp('deleted_at', {
+      withTimezone: true,
+      mode: 'date',
+    }).notNull(),
+  },
+  (table) => ({
+    ownerDeletedAtIdx: index(
+      'builder_project_tombstones_owner_deleted_at_idx',
+    ).on(table.ownerId, table.deletedAt),
+  }),
+)
+
+export const builderProjectMutationReceipts = pgTable(
+  'builder_project_mutation_receipts',
+  {
+    projectId: uuid('project_id').notNull(),
+    clientMutationId: uuid('client_mutation_id').notNull(),
+    commandType: varchar('command_type', { length: 40 }).notNull(),
+    requestHash: varchar('request_hash', { length: 64 }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    primaryKey: primaryKey({
+      columns: [table.projectId, table.clientMutationId],
+      name: 'builder_project_mutation_receipts_pk',
+    }),
+    projectFk: foreignKey({
+      columns: [table.projectId],
+      foreignColumns: [builderProjects.id],
+      name: 'builder_project_mutation_receipts_project_fk',
+    }).onDelete('cascade'),
+    commandTypeCheck: check(
+      'builder_project_mutation_receipts_command_type_check',
+      sql`${table.commandType} IN ('project.create', 'project.revise', 'project.delete', 'thread.create', 'run.enqueue', 'run.claim', 'run.cancel', 'run.finish', 'run.finish.fallback', 'transcript.import')`,
+    ),
+    requestHashCheck: check(
+      'builder_project_mutation_receipts_request_hash_check',
+      sql`${table.requestHash} ~ '^[a-f0-9]{64}$'`,
+    ),
+  }),
+)
+
+export type BuilderProjectMutationReceipt = InferSelectModel<
+  typeof builderProjectMutationReceipts
+>
+
+export const builderProjectRevisions = pgTable(
+  'builder_project_revisions',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    projectId: uuid('project_id').notNull(),
+    ownerId: uuid('owner_id').notNull(),
+    clientMutationId: uuid('client_mutation_id').notNull(),
+    parentRevisionId: uuid('parent_revision_id'),
+    revisionNumber: integer('revision_number').notNull(),
+    snapshotHash: varchar('snapshot_hash', { length: 64 }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    projectOwnerFk: foreignKey({
+      columns: [table.projectId, table.ownerId],
+      foreignColumns: [builderProjects.id, builderProjects.ownerId],
+      name: 'builder_project_revisions_project_owner_fk',
+    }).onDelete('cascade'),
+    parentRevisionFk: foreignKey({
+      columns: [table.projectId, table.parentRevisionId],
+      foreignColumns: [table.projectId, table.id],
+      name: 'builder_project_revisions_parent_fk',
+    }).onDelete('cascade'),
+    snapshotHashFk: foreignKey({
+      columns: [table.snapshotHash],
+      foreignColumns: [builderProjectSnapshots.hash],
+      name: 'builder_project_revisions_snapshot_hash_fk',
+    }).onDelete('restrict'),
+    projectRevisionUnique: unique(
+      'builder_project_revisions_project_revision_unique',
+    ).on(table.projectId, table.revisionNumber),
+    projectIdUnique: unique('builder_project_revisions_project_id_unique').on(
+      table.projectId,
+      table.id,
+    ),
+    projectMutationUnique: unique(
+      'builder_project_revisions_project_mutation_unique',
+    ).on(table.projectId, table.clientMutationId),
+    projectCreatedAtIdx: index(
+      'builder_project_revisions_project_created_at_idx',
+    ).on(table.projectId, table.createdAt),
+    snapshotHashIdx: index('builder_project_revisions_snapshot_hash_idx').on(
+      table.snapshotHash,
+    ),
+    snapshotHashCheck: check(
+      'builder_project_revisions_snapshot_hash_check',
+      sql`${table.snapshotHash} ~ '^[a-f0-9]{64}$'`,
+    ),
+    revisionNumberCheck: check(
+      'builder_project_revisions_revision_number_check',
+      sql`${table.revisionNumber} > 0`,
+    ),
+  }),
+)
+
+export type BuilderProjectRevision = InferSelectModel<
+  typeof builderProjectRevisions
+>
+export type NewBuilderProjectRevision = InferInsertModel<
+  typeof builderProjectRevisions
+>
+
+export const builderProjectThreads = pgTable(
+  'builder_project_threads',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    projectId: uuid('project_id').notNull(),
+    ownerId: uuid('owner_id').notNull(),
+    clientMutationId: uuid('client_mutation_id').notNull(),
+    title: varchar('title', { length: 160 }).notNull(),
+    lastMessagePosition: bigint('last_message_position', { mode: 'number' })
+      .notNull()
+      .default(0),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+    archivedAt: timestamp('archived_at', {
+      withTimezone: true,
+      mode: 'date',
+    }),
+  },
+  (table) => ({
+    projectOwnerFk: foreignKey({
+      columns: [table.projectId, table.ownerId],
+      foreignColumns: [builderProjects.id, builderProjects.ownerId],
+      name: 'builder_project_threads_project_owner_fk',
+    }).onDelete('cascade'),
+    projectIdUnique: unique('builder_project_threads_project_id_unique').on(
+      table.projectId,
+      table.id,
+    ),
+    projectMutationUnique: unique(
+      'builder_project_threads_project_mutation_unique',
+    ).on(table.projectId, table.clientMutationId),
+    projectUpdatedAtIdx: index(
+      'builder_project_threads_project_updated_at_idx',
+    ).on(table.projectId, table.updatedAt),
+    messagePositionCheck: check(
+      'builder_project_threads_message_position_check',
+      sql`${table.lastMessagePosition} BETWEEN 0 AND 9007199254740991`,
+    ),
+  }),
+)
+
+export type BuilderProjectThread = InferSelectModel<
+  typeof builderProjectThreads
+>
+export type NewBuilderProjectThread = InferInsertModel<
+  typeof builderProjectThreads
+>
+
+export const builderProjectRuns = pgTable(
+  'builder_project_runs',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    projectId: uuid('project_id').notNull(),
+    ownerId: uuid('owner_id').notNull(),
+    threadId: uuid('thread_id').notNull(),
+    clientMutationId: uuid('client_mutation_id').notNull(),
+    status: builderRunStatusEnum('status').notNull().default('pending'),
+    queueKind: varchar('queue_kind', { length: 10 }).notNull().default('queue'),
+    provider: varchar('provider', { length: 50 }).notNull(),
+    model: varchar('model', { length: 100 }).notNull(),
+    baseRevisionId: uuid('base_revision_id'),
+    resultRevisionId: uuid('result_revision_id'),
+    leaseOwnerId: uuid('lease_owner_id'),
+    leaseFencingToken: bigint('lease_fencing_token', { mode: 'number' })
+      .notNull()
+      .default(0),
+    leaseExpiresAt: timestamp('lease_expires_at', {
+      withTimezone: true,
+      mode: 'date',
+    }),
+    lastHeartbeatAt: timestamp('last_heartbeat_at', {
+      withTimezone: true,
+      mode: 'date',
+    }),
+    error: jsonb('error').$type<BuilderJsonObject>(),
+    activity: jsonb('activity').$type<BuilderJsonObject>(),
+    startedAt: timestamp('started_at', { withTimezone: true, mode: 'date' }),
+    completedAt: timestamp('completed_at', {
+      withTimezone: true,
+      mode: 'date',
+    }),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    projectOwnerFk: foreignKey({
+      columns: [table.projectId, table.ownerId],
+      foreignColumns: [builderProjects.id, builderProjects.ownerId],
+      name: 'builder_project_runs_project_owner_fk',
+    }).onDelete('cascade'),
+    threadFk: foreignKey({
+      columns: [table.projectId, table.threadId],
+      foreignColumns: [
+        builderProjectThreads.projectId,
+        builderProjectThreads.id,
+      ],
+      name: 'builder_project_runs_thread_fk',
+    }).onDelete('cascade'),
+    baseRevisionFk: foreignKey({
+      columns: [table.projectId, table.baseRevisionId],
+      foreignColumns: [
+        builderProjectRevisions.projectId,
+        builderProjectRevisions.id,
+      ],
+      name: 'builder_project_runs_base_revision_fk',
+    }).onDelete('cascade'),
+    resultRevisionFk: foreignKey({
+      columns: [table.projectId, table.resultRevisionId],
+      foreignColumns: [
+        builderProjectRevisions.projectId,
+        builderProjectRevisions.id,
+      ],
+      name: 'builder_project_runs_result_revision_fk',
+    }).onDelete('cascade'),
+    projectIdUnique: unique('builder_project_runs_project_id_unique').on(
+      table.projectId,
+      table.id,
+    ),
+    projectThreadIdUnique: unique(
+      'builder_project_runs_project_thread_id_unique',
+    ).on(table.projectId, table.threadId, table.id),
+    projectMutationUnique: unique(
+      'builder_project_runs_project_mutation_unique',
+    ).on(table.projectId, table.clientMutationId),
+    projectThreadCreatedAtIdx: index(
+      'builder_project_runs_project_thread_created_at_idx',
+    ).on(table.projectId, table.threadId, table.createdAt),
+    activeLeaseIdx: index('builder_project_runs_active_lease_idx').on(
+      table.status,
+      table.leaseExpiresAt,
+    ),
+    activeProjectUnique: uniqueIndex(
+      'builder_project_runs_active_project_unique',
+    )
+      .on(table.projectId)
+      .where(sql`${table.status} = 'running'`),
+    queueKindCheck: check(
+      'builder_project_runs_queue_kind_check',
+      sql`${table.queueKind} IN ('queue', 'steer')`,
+    ),
+    fencingTokenCheck: check(
+      'builder_project_runs_fencing_token_check',
+      sql`${table.leaseFencingToken} BETWEEN 0 AND 9007199254740991`,
+    ),
+    leasePairCheck: check(
+      'builder_project_runs_lease_pair_check',
+      sql`(${table.leaseOwnerId} IS NULL) = (${table.leaseExpiresAt} IS NULL)`,
+    ),
+    runningLeaseCheck: check(
+      'builder_project_runs_running_lease_check',
+      sql`(${table.status} = 'running') = (${table.leaseOwnerId} IS NOT NULL)`,
+    ),
+    terminalStateCheck: check(
+      'builder_project_runs_terminal_state_check',
+      sql`(${table.status} IN ('interrupted', 'completed', 'failed', 'cancelled')) = (${table.completedAt} IS NOT NULL)`,
+    ),
+    timestampOrderCheck: check(
+      'builder_project_runs_timestamp_order_check',
+      sql`${table.completedAt} IS NULL OR ${table.startedAt} IS NULL OR ${table.completedAt} >= ${table.startedAt}`,
+    ),
+    activitySizeCheck: check(
+      'builder_project_runs_activity_size_check',
+      sql`${table.activity} IS NULL OR (jsonb_typeof(${table.activity}) = 'object' AND pg_column_size(${table.activity}) <= 262144)`,
+    ),
+    errorSizeCheck: check(
+      'builder_project_runs_error_size_check',
+      sql`${table.error} IS NULL OR (jsonb_typeof(${table.error}) = 'object' AND pg_column_size(${table.error}) <= 262144)`,
+    ),
+    resultRevisionCheck: check(
+      'builder_project_runs_result_revision_check',
+      sql`${table.resultRevisionId} IS NULL OR ${table.status} = 'completed'`,
+    ),
+  }),
+)
+
+export type BuilderProjectRun = InferSelectModel<typeof builderProjectRuns>
+export type NewBuilderProjectRun = InferInsertModel<typeof builderProjectRuns>
+
+export const builderProjectMessages = pgTable(
+  'builder_project_messages',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    projectId: uuid('project_id').notNull(),
+    ownerId: uuid('owner_id').notNull(),
+    threadId: uuid('thread_id').notNull(),
+    runId: uuid('run_id'),
+    clientMutationId: uuid('client_mutation_id').notNull(),
+    position: bigint('position', { mode: 'number' }).notNull(),
+    role: builderMessageRoleEnum('role').notNull(),
+    content: text('content').notNull(),
+    parts: jsonb('parts').$type<Array<BuilderJsonObject>>().notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    projectOwnerFk: foreignKey({
+      columns: [table.projectId, table.ownerId],
+      foreignColumns: [builderProjects.id, builderProjects.ownerId],
+      name: 'builder_project_messages_project_owner_fk',
+    }).onDelete('cascade'),
+    threadFk: foreignKey({
+      columns: [table.projectId, table.threadId],
+      foreignColumns: [
+        builderProjectThreads.projectId,
+        builderProjectThreads.id,
+      ],
+      name: 'builder_project_messages_thread_fk',
+    }).onDelete('cascade'),
+    runFk: foreignKey({
+      columns: [table.projectId, table.threadId, table.runId],
+      foreignColumns: [
+        builderProjectRuns.projectId,
+        builderProjectRuns.threadId,
+        builderProjectRuns.id,
+      ],
+      name: 'builder_project_messages_run_fk',
+    }).onDelete('cascade'),
+    projectIdUnique: unique('builder_project_messages_project_id_unique').on(
+      table.projectId,
+      table.id,
+    ),
+    projectMutationUnique: unique(
+      'builder_project_messages_project_mutation_unique',
+    ).on(table.projectId, table.clientMutationId),
+    threadPositionUnique: unique(
+      'builder_project_messages_thread_position_unique',
+    ).on(table.projectId, table.threadId, table.position),
+    projectThreadCreatedAtIdx: index(
+      'builder_project_messages_project_thread_created_at_idx',
+    ).on(table.projectId, table.threadId, table.createdAt),
+    runIdIdx: index('builder_project_messages_run_id_idx').on(table.runId),
+    partsCheck: check(
+      'builder_project_messages_parts_check',
+      sql`jsonb_typeof(${table.parts}) = 'array' AND pg_column_size(${table.parts}) <= 1048576`,
+    ),
+    contentSizeCheck: check(
+      'builder_project_messages_content_size_check',
+      sql`octet_length(${table.content}) <= 1048576`,
+    ),
+    positionCheck: check(
+      'builder_project_messages_position_check',
+      sql`${table.position} BETWEEN 1 AND 9007199254740991`,
+    ),
+  }),
+)
+
+export type BuilderProjectMessage = InferSelectModel<
+  typeof builderProjectMessages
+>
+export type NewBuilderProjectMessage = InferInsertModel<
+  typeof builderProjectMessages
+>
+
+export const builderProjectEvents = pgTable(
+  'builder_project_events',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    projectId: uuid('project_id').notNull(),
+    ownerId: uuid('owner_id').notNull(),
+    threadId: uuid('thread_id'),
+    revisionId: uuid('revision_id'),
+    messageId: uuid('message_id'),
+    runId: uuid('run_id'),
+    sequence: bigint('sequence', { mode: 'number' }).notNull(),
+    clientEventId: uuid('client_event_id').notNull(),
+    clientMutationId: uuid('client_mutation_id'),
+    browserSessionId: uuid('browser_session_id'),
+    type: builderProjectEventTypeEnum('type').notNull(),
+    payload: jsonb('payload').$type<BuilderJsonObject>().notNull(),
+    occurredAt: timestamp('occurred_at', {
+      withTimezone: true,
+      mode: 'date',
+    }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    projectOwnerFk: foreignKey({
+      columns: [table.projectId, table.ownerId],
+      foreignColumns: [builderProjects.id, builderProjects.ownerId],
+      name: 'builder_project_events_project_owner_fk',
+    }).onDelete('cascade'),
+    threadFk: foreignKey({
+      columns: [table.projectId, table.threadId],
+      foreignColumns: [
+        builderProjectThreads.projectId,
+        builderProjectThreads.id,
+      ],
+      name: 'builder_project_events_thread_fk',
+    }).onDelete('cascade'),
+    revisionFk: foreignKey({
+      columns: [table.projectId, table.revisionId],
+      foreignColumns: [
+        builderProjectRevisions.projectId,
+        builderProjectRevisions.id,
+      ],
+      name: 'builder_project_events_revision_fk',
+    }).onDelete('cascade'),
+    messageFk: foreignKey({
+      columns: [table.projectId, table.messageId],
+      foreignColumns: [
+        builderProjectMessages.projectId,
+        builderProjectMessages.id,
+      ],
+      name: 'builder_project_events_message_fk',
+    }).onDelete('cascade'),
+    runFk: foreignKey({
+      columns: [table.projectId, table.runId],
+      foreignColumns: [builderProjectRuns.projectId, builderProjectRuns.id],
+      name: 'builder_project_events_run_fk',
+    }).onDelete('cascade'),
+    projectSequenceUnique: unique(
+      'builder_project_events_project_sequence_unique',
+    ).on(table.projectId, table.sequence),
+    projectClientEventUnique: unique(
+      'builder_project_events_project_client_event_unique',
+    ).on(table.projectId, table.clientEventId),
+    projectCreatedAtIdx: index(
+      'builder_project_events_project_created_at_idx',
+    ).on(table.projectId, table.createdAt),
+    runSequenceIdx: index('builder_project_events_run_sequence_idx').on(
+      table.runId,
+      table.sequence,
+    ),
+    clientMutationIdx: index('builder_project_events_client_mutation_idx').on(
+      table.projectId,
+      table.clientMutationId,
+    ),
+    sequenceCheck: check(
+      'builder_project_events_sequence_check',
+      sql`${table.sequence} BETWEEN 1 AND 9007199254740991`,
+    ),
+    payloadCheck: check(
+      'builder_project_events_payload_check',
+      sql`jsonb_typeof(${table.payload}) = 'object' AND pg_column_size(${table.payload}) <= 262144`,
+    ),
+    entityReferenceCheck: check(
+      'builder_project_events_entity_reference_check',
+      sql`((${table.type}::text NOT LIKE 'revision.%') OR ${table.revisionId} IS NOT NULL)
+        AND ((${table.type}::text NOT LIKE 'thread.%') OR ${table.threadId} IS NOT NULL)
+        AND ((${table.type}::text NOT LIKE 'message.%') OR ${table.messageId} IS NOT NULL)
+        AND ((${table.type}::text NOT LIKE 'run.%') OR ${table.runId} IS NOT NULL)`,
+    ),
+  }),
+)
+
+export type BuilderProjectEventRow = InferSelectModel<
+  typeof builderProjectEvents
+>
+export type NewBuilderProjectEventRow = InferInsertModel<
+  typeof builderProjectEvents
+>
+
+export const builderProjectsRelations = relations(
+  builderProjects,
+  ({ one, many }) => ({
+    owner: one(users, {
+      fields: [builderProjects.ownerId],
+      references: [users.id],
+    }),
+    revisions: many(builderProjectRevisions),
+    threads: many(builderProjectThreads),
+    runs: many(builderProjectRuns),
+    messages: many(builderProjectMessages),
+    events: many(builderProjectEvents),
+  }),
+)
+
+export const builderProjectRevisionsRelations = relations(
+  builderProjectRevisions,
+  ({ one, many }) => ({
+    project: one(builderProjects, {
+      fields: [builderProjectRevisions.projectId],
+      references: [builderProjects.id],
+    }),
+    runsFromRevision: many(builderProjectRuns, {
+      relationName: 'builderRunBaseRevision',
+    }),
+    runsToRevision: many(builderProjectRuns, {
+      relationName: 'builderRunResultRevision',
+    }),
+    events: many(builderProjectEvents),
+  }),
+)
+
+export const builderProjectThreadsRelations = relations(
+  builderProjectThreads,
+  ({ one, many }) => ({
+    project: one(builderProjects, {
+      fields: [builderProjectThreads.projectId],
+      references: [builderProjects.id],
+    }),
+    runs: many(builderProjectRuns),
+    messages: many(builderProjectMessages),
+    events: many(builderProjectEvents),
+  }),
+)
+
+export const builderProjectRunsRelations = relations(
+  builderProjectRuns,
+  ({ one, many }) => ({
+    project: one(builderProjects, {
+      fields: [builderProjectRuns.projectId],
+      references: [builderProjects.id],
+    }),
+    thread: one(builderProjectThreads, {
+      fields: [builderProjectRuns.threadId],
+      references: [builderProjectThreads.id],
+    }),
+    baseRevision: one(builderProjectRevisions, {
+      fields: [builderProjectRuns.baseRevisionId],
+      references: [builderProjectRevisions.id],
+      relationName: 'builderRunBaseRevision',
+    }),
+    resultRevision: one(builderProjectRevisions, {
+      fields: [builderProjectRuns.resultRevisionId],
+      references: [builderProjectRevisions.id],
+      relationName: 'builderRunResultRevision',
+    }),
+    messages: many(builderProjectMessages),
+    events: many(builderProjectEvents),
+  }),
+)
+
+export const builderProjectMessagesRelations = relations(
+  builderProjectMessages,
+  ({ one, many }) => ({
+    project: one(builderProjects, {
+      fields: [builderProjectMessages.projectId],
+      references: [builderProjects.id],
+    }),
+    thread: one(builderProjectThreads, {
+      fields: [builderProjectMessages.threadId],
+      references: [builderProjectThreads.id],
+    }),
+    run: one(builderProjectRuns, {
+      fields: [builderProjectMessages.runId],
+      references: [builderProjectRuns.id],
+    }),
+    events: many(builderProjectEvents),
+  }),
+)
+
+export const builderProjectEventsRelations = relations(
+  builderProjectEvents,
+  ({ one }) => ({
+    project: one(builderProjects, {
+      fields: [builderProjectEvents.projectId],
+      references: [builderProjects.id],
+    }),
+    thread: one(builderProjectThreads, {
+      fields: [builderProjectEvents.threadId],
+      references: [builderProjectThreads.id],
+    }),
+    revision: one(builderProjectRevisions, {
+      fields: [builderProjectEvents.revisionId],
+      references: [builderProjectRevisions.id],
+    }),
+    message: one(builderProjectMessages, {
+      fields: [builderProjectEvents.messageId],
+      references: [builderProjectMessages.id],
+    }),
+    run: one(builderProjectRuns, {
+      fields: [builderProjectEvents.runId],
+      references: [builderProjectRuns.id],
+    }),
+  }),
+)
 
 // =============================================================================
 // Intent Registry Tables

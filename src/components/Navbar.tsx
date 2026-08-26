@@ -30,7 +30,6 @@ import { ListIcon } from '@phosphor-icons/react/List'
 import { LinkedinLogoIcon } from '@phosphor-icons/react/LinkedinLogo'
 import { MagnifyingGlassIcon } from '@phosphor-icons/react/MagnifyingGlass'
 import { MailboxIcon } from '@phosphor-icons/react/Mailbox'
-import { NotebookIcon } from '@phosphor-icons/react/Notebook'
 import { ShieldCheckIcon } from '@phosphor-icons/react/ShieldCheck'
 import { ShoppingBagIcon } from '@phosphor-icons/react/ShoppingBag'
 import { SignInIcon } from '@phosphor-icons/react/SignIn'
@@ -230,18 +229,18 @@ const NAV_GROUPS = [
         label: 'Tools',
         items: [
           {
-            label: 'Builder',
-            to: '/builder',
+            label: 'Application Starter',
+            to: '/application-starter',
             description: 'Generate TanStack app starters.',
             badge: 'Alpha',
             icon: HammerIcon,
           },
           {
-            label: 'Notebooks',
-            to: '/notebook',
-            description: 'Create and share browser sandboxes.',
+            label: 'Builder',
+            to: '/builder',
+            description: 'Build and share TanStack projects.',
             badge: 'Alpha',
-            icon: NotebookIcon,
+            icon: HammerIcon,
           },
           {
             label: 'Stats',

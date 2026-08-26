@@ -40,10 +40,17 @@ Additional checks used `curl`, Node fetch scripts, Wrangler tail, and Playwright
 
 Required environment:
 
+- `DATABASE_URL`: the production Postgres connection used to verify the Builder schema before the Worker is deployed. Run `pnpm run db:prepare-builder` once after a Builder schema change.
 - `CLOUDFLARE_ZONE_ID`: the active `tanstack.com` zone ID.
 - `CLOUDFLARE_CACHE_PURGE_TOKEN`: Cloudflare API token with `Cache Purge` permission for that zone.
 
 `CLOUDFLARE_API_TOKEN` / `CF_API_TOKEN` and `CF_ZONE_ID` are accepted as aliases. If `CLOUDFLARE_ZONE_ID` is missing, the script can discover it only when the token also has zone read access.
+
+## Builder Database Cutover
+
+1. Run `pnpm run db:prepare-builder` against production before deploying the Worker.
+2. Stop the old Notebook write routes, then deploy the Builder Worker. Do not allow an old writer to add R2 records after the new Worker records an owner's completed legacy import.
+3. Keep `BUILDER_PROJECTS` bound to the existing `tanstack-notebook-projects` bucket until every legacy owner has been imported.
 
 ## Worker
 

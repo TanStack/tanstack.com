@@ -56,6 +56,23 @@ export async function checkIpRateLimit(
   }
 }
 
+export async function checkUserRateLimit(
+  identifier: string,
+  options: RateLimitOptions,
+): Promise<RateLimitResult> {
+  const scopedIdentifier = options.keyPrefix
+    ? `${options.keyPrefix}:${identifier}`
+    : identifier
+  const result = await checkRateLimit(
+    scopedIdentifier,
+    'user',
+    options.limitPerMinute,
+  )
+  const headers = createRateLimitHeaders(options.limitPerMinute, result)
+
+  return { ...result, headers }
+}
+
 /**
  * Create a rate-limited error response.
  */
@@ -126,6 +143,24 @@ export async function checkIpWindowRateLimit(
 ): Promise<RateLimitResult> {
   const ip = getClientIp(request)
   const identifier = options.keyPrefix ? `${options.keyPrefix}:${ip}` : ip
+  return checkWindowRateLimit(identifier, 'ip', options)
+}
+
+export async function checkUserWindowRateLimit(
+  userId: string,
+  options: WindowRateLimitOptions,
+): Promise<RateLimitResult> {
+  const identifier = options.keyPrefix
+    ? `${options.keyPrefix}:${userId}`
+    : userId
+  return checkWindowRateLimit(identifier, 'user', options)
+}
+
+async function checkWindowRateLimit(
+  identifier: string,
+  identifierType: 'ip' | 'user',
+  options: WindowRateLimitOptions,
+): Promise<RateLimitResult> {
   const now = Date.now()
   const windowStart = new Date(
     Math.floor(now / options.windowMs) * options.windowMs,
@@ -136,7 +171,7 @@ export async function checkIpWindowRateLimit(
     .insert(mcpRateLimits)
     .values({
       identifier,
-      identifierType: 'ip',
+      identifierType,
       requestCount: 1,
       windowStart,
     })
@@ -185,32 +220,91 @@ export const RATE_LIMITS = {
     limit: 1_000_000,
     windowMs: 24 * 60 * 60 * 1000,
   },
-  // Builder remote loading: 30 requests/minute (generous for UX)
-  builderRemote: { limitPerMinute: 30, keyPrefix: 'builder-remote' },
-  // Builder compile: 60 requests/minute
-  builderCompile: { limitPerMinute: 60, keyPrefix: 'builder-compile' },
+  // Application Starter remote loading: 30 requests/minute
+  applicationStarterRemote: {
+    limitPerMinute: 30,
+    keyPrefix: 'application-starter-remote',
+  },
+  // Application Starter compile: 60 requests/minute
+  applicationStarterCompile: {
+    limitPerMinute: 60,
+    keyPrefix: 'application-starter-compile',
+  },
   // Deploy endpoint: 10 requests/minute (more sensitive)
   deploy: { limitPerMinute: 10, keyPrefix: 'deploy' },
   // CLI auth ticket creation: public endpoint polled by local tools
   cliAuthTicket: { limitPerMinute: 20, keyPrefix: 'cli-auth-ticket' },
-  notebookProjectWrite: {
+  builderProjectWrite: {
     limitPerMinute: 10,
-    keyPrefix: 'notebook-project-write',
+    keyPrefix: 'builder-project-write',
   },
-  notebookRecordSave: {
+  builderProjectCreateDaily: {
+    keyPrefix: 'builder-project-create-day',
+    limit: 100,
+    windowMs: 24 * 60 * 60 * 1000,
+  },
+  builderProjectSave: {
     limitPerMinute: 30,
-    keyPrefix: 'notebook-record-save',
+    keyPrefix: 'builder-project-save',
   },
-  notebookRecordList: {
+  builderProjectList: {
     limitPerMinute: 30,
-    keyPrefix: 'notebook-record-list',
+    keyPrefix: 'builder-project-list',
   },
-  notebookAi: {
+  builderProjectSyncStream: {
+    limitPerMinute: 180,
+    keyPrefix: 'builder-project-sync-stream',
+  },
+  builderProjectSyncStreamIp: {
+    limitPerMinute: 1_000,
+    keyPrefix: 'builder-project-sync-stream-ip',
+  },
+  builderProjectSyncSnapshotPage: {
+    limitPerMinute: 6_000,
+    keyPrefix: 'builder-project-sync-snapshot-page',
+  },
+  builderProjectSyncSnapshotPageIp: {
+    limitPerMinute: 20_000,
+    keyPrefix: 'builder-project-sync-snapshot-page-ip',
+  },
+  builderProjectSyncCommand: {
+    limitPerMinute: 180,
+    keyPrefix: 'builder-project-sync-command',
+  },
+  builderProjectSyncCommandIp: {
+    limitPerMinute: 1_000,
+    keyPrefix: 'builder-project-sync-command-ip',
+  },
+  builderAi: {
     limitPerMinute: 12,
-    keyPrefix: 'notebook-ai',
+    keyPrefix: 'builder-ai',
   },
-  notebookAiAuth: {
+  builderAiAuth: {
     limitPerMinute: 30,
-    keyPrefix: 'notebook-ai-auth',
+    keyPrefix: 'builder-ai-auth',
   },
 } as const
+
+function createRateLimitHeaders(
+  limit: number,
+  result: {
+    allowed: boolean
+    remaining: number
+    resetAt: Date
+  },
+) {
+  const headers = new Headers()
+  headers.set('X-RateLimit-Limit', limit.toString())
+  headers.set('X-RateLimit-Remaining', result.remaining.toString())
+  headers.set(
+    'X-RateLimit-Reset',
+    Math.floor(result.resetAt.getTime() / 1000).toString(),
+  )
+  if (!result.allowed) {
+    headers.set(
+      'Retry-After',
+      Math.ceil((result.resetAt.getTime() - Date.now()) / 1000).toString(),
+    )
+  }
+  return headers
+}

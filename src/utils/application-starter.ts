@@ -1,4 +1,4 @@
-import type { FrameworkId } from '~/builder/frameworks'
+import type { FrameworkId } from '~/application-starter/frameworks'
 import type { LibraryId } from '~/libraries'
 import {
   getApplicationStarterForceRouterOnly,
@@ -10,7 +10,11 @@ import {
   hasApplicationStarterPartnerConflictWithAny,
 } from '~/utils/partners'
 
-export type ApplicationStarterContext = 'builder' | 'home' | 'router' | 'start'
+export type ApplicationStarterContext =
+  | 'application-starter'
+  | 'home'
+  | 'router'
+  | 'start'
 export type ApplicationStarterResultType =
   | 'fallback'
   | 'migration'
@@ -36,7 +40,7 @@ export interface ApplicationStarterRequest {
 }
 
 export interface ApplicationStarterResult {
-  advancedBuilderUrl?: string
+  advancedApplicationStarterUrl?: string
   cliCommand: string
   downloadUrl?: string
   headline: string
@@ -219,7 +223,7 @@ type ContextSuggestion = {
 
 const DEFAULT_PROJECT_NAME = 'my-tanstack-app'
 
-const sharedHomeAndBuilderPrompts: Array<ContextSuggestion> = [
+const sharedHomeAndApplicationStarterPrompts: Array<ContextSuggestion> = [
   {
     label: 'Blank starter',
     input:
@@ -247,7 +251,9 @@ const sharedHomeAndBuilderPrompts: Array<ContextSuggestion> = [
   },
 ]
 
-export function getRecipeBuilderFeatures(recipe: ApplicationStarterRecipe) {
+export function getRecipeApplicationStarterFeatures(
+  recipe: ApplicationStarterRecipe,
+) {
   const seen = new Set<string>()
 
   return [...recipe.features, recipe.deployment, recipe.toolchain].filter(
@@ -266,7 +272,7 @@ const quickPrompts: Record<
   ApplicationStarterContext,
   Array<ContextSuggestion>
 > = {
-  home: sharedHomeAndBuilderPrompts,
+  home: sharedHomeAndApplicationStarterPrompts,
   start: [
     {
       label: 'Blank starter',
@@ -321,7 +327,7 @@ const quickPrompts: Record<
         'Build a content-focused app with strong routing, nested layouts, and a clean blog-style reading flow.',
     },
   ],
-  builder: sharedHomeAndBuilderPrompts,
+  'application-starter': sharedHomeAndApplicationStarterPrompts,
 }
 
 const starterLibraryInferenceRules: Array<{
@@ -558,7 +564,7 @@ export function composeApplicationStarterResult({
   resultType: ApplicationStarterResultType
 }): ApplicationStarterResult {
   return {
-    advancedBuilderUrl:
+    advancedApplicationStarterUrl:
       recipe.target === 'start' ? buildAdvancedBuilderUrl(recipe) : undefined,
     cliCommand: buildCliCommand(recipe),
     downloadUrl:
@@ -628,7 +634,7 @@ function buildRecipe(
       input,
     )
   const routerOnly =
-    context !== 'builder' &&
+    context !== 'application-starter' &&
     detectRouterOnly(input) &&
     !/\bssr\b/i.test(input) &&
     !/\bserver functions?\b/i.test(input)
@@ -1325,7 +1331,7 @@ function isMinimalRequest(input: string) {
 
 export function buildAdvancedBuilderUrl(recipe: ApplicationStarterRecipe) {
   const params = new URLSearchParams()
-  const featureIds = getRecipeBuilderFeatures(recipe)
+  const featureIds = getRecipeApplicationStarterFeatures(recipe)
 
   params.set('name', recipe.projectName || DEFAULT_PROJECT_NAME)
 
@@ -1351,7 +1357,7 @@ export function buildAdvancedBuilderUrl(recipe: ApplicationStarterRecipe) {
 
   appendFeatureOptionParams(params, recipe.featureOptions)
 
-  return `/builder?${params.toString()}`
+  return `/application-starter?${params.toString()}`
 }
 
 const CLI_TEMPLATE_IDS = new Set<string>(['shopify-storefront'])
@@ -1434,7 +1440,7 @@ export function buildCliCommand(recipe: ApplicationStarterRecipe) {
 
 export function buildDownloadUrl(recipe: ApplicationStarterRecipe) {
   const params = new URLSearchParams()
-  const featureIds = getRecipeBuilderFeatures(recipe)
+  const featureIds = getRecipeApplicationStarterFeatures(recipe)
 
   params.set('name', recipe.projectName || DEFAULT_PROJECT_NAME)
   params.set('framework', recipe.framework)
@@ -1450,5 +1456,5 @@ export function buildDownloadUrl(recipe: ApplicationStarterRecipe) {
 
   appendFeatureOptionParams(params, recipe.featureOptions)
 
-  return `/api/builder/download?${params.toString()}`
+  return `/api/application-starter/download?${params.toString()}`
 }

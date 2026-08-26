@@ -1,9 +1,6 @@
 packages:
   - .
 
-patchedDependencies:
-  '@tanstack/openai-base@0.9.12': patches/@tanstack__openai-base@0.9.12.patch
-
 minimumReleaseAgeExclude:
   - '@tanstack/charts@0.13.0'
   - '@tanstack/react-table@9.0.0'
@@ -41,3 +38,6 @@ allowBuilds:
 
   # Cloudflare Workers local runtime
   workerd: true
+
+patchedDependencies:
+  '@tanstack/openai-base@0.10.5': patches/@tanstack__openai-base@0.10.5.patch

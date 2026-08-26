@@ -38,9 +38,9 @@ import { ThemeProvider, useHtmlClass } from '~/components/ThemeProvider'
 import { Navbar } from '~/components/Navbar'
 import { Footer } from '~/components/Footer'
 import {
-  NotebookRouteFrame,
-  NotebookRouteSkeleton,
-} from '~/components/notebook/NotebookLoading'
+  BuilderRouteFrame,
+  BuilderRouteSkeleton,
+} from '~/components/builder/BuilderLoading'
 import { THEME_COLORS } from '~/utils/utils'
 import { trackPageView } from '~/utils/analytics'
 import { createPartnerPlacementSessionSeed } from '~/utils/partner-placement'
@@ -319,16 +319,15 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
   const hideNavbar = useMatches({
     select: (s) => s.some((d) => d.staticData?.showNavbar === false),
   })
-  const hideFooter =
-    pathname === '/notebook' || pathname.startsWith('/notebook/')
+  const hideFooter = pathname === '/builder' || pathname.startsWith('/builder/')
 
   const htmlClass = useHtmlClass()
   const routeContent = (
-    <NotebookRouteFrame pathname={pathname}>
-      <React.Suspense fallback={<NotebookRouteSkeleton pathname={pathname} />}>
+    <BuilderRouteFrame pathname={pathname}>
+      <React.Suspense fallback={<BuilderRouteSkeleton pathname={pathname} />}>
         {children}
       </React.Suspense>
-    </NotebookRouteFrame>
+    </BuilderRouteFrame>
   )
 
   return (

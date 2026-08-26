@@ -188,14 +188,12 @@ test('social images reuse the route image transformation and stay absolute', () 
 })
 
 test('drafts, future posts, and failed loads do not emit BlogPosting JSON-LD', () => {
-  const now = new Date('2026-08-14T12:00:00.000Z')
-
   assert.equal(
-    isBlogPostUnpublished({ draft: true, published: '2026-08-01' }, now),
+    isBlogPostUnpublished({ draft: true, published: '2026-08-01' }),
     true,
   )
-  assert.equal(isBlogPostUnpublished({ published: '2026-08-15' }, now), true)
-  assert.equal(isBlogPostUnpublished({ published: '2026-08-14' }, now), false)
+  assert.equal(isBlogPostUnpublished({ published: '2099-01-01' }), true)
+  assert.equal(isBlogPostUnpublished({ published: '2020-01-01' }), false)
 
   const unpublishedHead = getBlogPostHead({
     ...basePost,

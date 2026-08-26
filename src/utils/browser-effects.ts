@@ -91,18 +91,15 @@ export function useTemporaryFlag(defaultDurationMs = 2000) {
     }
   }, [])
 
-  const trigger = React.useCallback(
-    (durationMs = defaultDurationMs) => {
-      clearTimer()
+  const trigger = React.useCallback(() => {
+    clearTimer()
 
-      setActive(true)
-      timeoutRef.current = window.setTimeout(() => {
-        setActive(false)
-        timeoutRef.current = null
-      }, durationMs)
-    },
-    [clearTimer, defaultDurationMs],
-  )
+    setActive(true)
+    timeoutRef.current = window.setTimeout(() => {
+      setActive(false)
+      timeoutRef.current = null
+    }, defaultDurationMs)
+  }, [clearTimer, defaultDurationMs])
 
   React.useEffect(() => clearTimer, [clearTimer])
 

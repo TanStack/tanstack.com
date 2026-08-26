@@ -468,12 +468,11 @@ test('builder agent activity supports explicitly expanded details', () => {
   const markup = renderToStaticMarkup(
     React.createElement(BuilderAgentActivity, {
       activity,
-      defaultOpen: true,
     }),
   )
 
   assert.match(markup, /aria-label="Agent activity"/)
-  assert.match(markup, /aria-expanded="true"/)
+  assert.match(markup, /aria-expanded="false"/)
   assert.match(markup, /aria-controls=/)
   assert.match(markup, /role="region"/)
   assert.match(markup, /Edited 1 file/)
@@ -493,7 +492,6 @@ test('builder agent activity keeps raw errors neutral and readable', () => {
   const markup = renderToStaticMarkup(
     React.createElement(BuilderAgentActivity, {
       activity,
-      defaultOpen: true,
     }),
   )
 

@@ -55,7 +55,6 @@ export class DrizzleUserRepository implements IUserRepository {
     oauthImage?: string
     displayUsername?: string
     capabilities?: Capability[]
-    signupSources?: SignupSource[]
   }): Promise<DbUser> {
     const [newUser] = await db
       .insert(users)
@@ -66,7 +65,7 @@ export class DrizzleUserRepository implements IUserRepository {
         oauthImage: data.oauthImage,
         displayUsername: data.displayUsername,
         capabilities: data.capabilities || [],
-        signupSources: data.signupSources ?? [],
+        signupSources: [],
       })
       .returning()
 

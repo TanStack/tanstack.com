@@ -22,16 +22,14 @@ import {
 export function BuilderAgentActivity({
   activity,
   className,
-  defaultOpen,
 }: {
   activity: BuilderAiActivity
   className?: string
-  defaultOpen?: boolean
 }) {
   const triggerId = React.useId()
   const contentId = React.useId()
   const previousActivityIdRef = React.useRef(activity.id)
-  const [open, setOpen] = React.useState(defaultOpen ?? false)
+  const [open, setOpen] = React.useState(false)
   const summary = getBuilderAiActivitySummary(activity)
   const actionCount = activity.items.length
   const actionCountLabel = formatCount(actionCount, 'action')
@@ -43,9 +41,9 @@ export function BuilderAgentActivity({
   React.useEffect(() => {
     if (previousActivityIdRef.current !== activity.id) {
       previousActivityIdRef.current = activity.id
-      setOpen(defaultOpen ?? false)
+      setOpen(false)
     }
-  }, [activity.id, defaultOpen])
+  }, [activity.id])
 
   return (
     <section

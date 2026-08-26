@@ -110,15 +110,15 @@ export function formatPublishedDate(published: string) {
   })
 }
 
-export function isPublishedDateReleased(published: string, now = new Date()) {
-  return published <= getUtcDateString(now)
+export function isPublishedDateReleased(published: string) {
+  return published <= getUtcDateString(new Date())
 }
 
-export function isBlogPostUnpublished(
-  post: { draft?: boolean; published: string },
-  now = new Date(),
-) {
-  return Boolean(post.draft) || !isPublishedDateReleased(post.published, now)
+export function isBlogPostUnpublished(post: {
+  draft?: boolean
+  published: string
+}) {
+  return Boolean(post.draft) || !isPublishedDateReleased(post.published)
 }
 
 export function publishedDateToUTCString(published: string) {

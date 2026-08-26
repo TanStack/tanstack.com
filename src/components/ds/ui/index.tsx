@@ -440,13 +440,11 @@ type SearchInputProps = Omit<
 > & {
   size?: 'default' | 'large'
   progressive?: boolean
-  /** Node rendered inside the field, right of the input (e.g. an RSS link). */
-  trailing?: React.ReactNode
 }
 
 export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
   function SearchInput(
-    { className, size = 'default', progressive = false, trailing, ...props },
+    { className, size = 'default', progressive = false, ...props },
     forwardedRef,
   ) {
     const [open, setOpen] = React.useState(!progressive)
@@ -502,10 +500,6 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
             size === 'large' ? 'min-h-14 gap-3 px-4' : 'h-10 gap-2.5 px-3',
           )}
         >
-          {/* The label wraps only the icon + input so clicking the field
-              focuses it. Interactive `trailing` controls (links, buttons) sit
-              outside the label — a form control inside a <label> that also
-              contains other interactive controls is invalid HTML. */}
           <label
             className={twMerge(
               'flex min-w-0 flex-1 items-center',
@@ -520,9 +514,6 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
             />
             {input}
           </label>
-          {trailing ? (
-            <span className="flex shrink-0 items-center">{trailing}</span>
-          ) : null}
         </div>
       )
     }

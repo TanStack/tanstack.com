@@ -3,14 +3,12 @@ import { twMerge } from 'tailwind-merge'
 
 type PanelRenderProps = {
   open: boolean
-  orientation: 'horizontal' | 'vertical'
   toggle: () => void
 }
 
 type PanelProps = {
   open?: boolean
   defaultOpen?: boolean
-  orientation?: 'horizontal' | 'vertical'
   onOpenChange?: (open: boolean) => void
   children: React.ReactNode | ((props: PanelRenderProps) => React.ReactNode)
   className?: string
@@ -37,7 +35,6 @@ function usePanel() {
 export function Panel({
   open: controlledOpen,
   defaultOpen = false,
-  orientation = 'vertical',
   onOpenChange,
   children,
   className,
@@ -59,14 +56,11 @@ export function Panel({
     }
   }, [isControlled, open, onOpenChange])
 
-  const value = React.useMemo(
-    () => ({ open, orientation, toggle }),
-    [open, orientation, toggle],
-  )
+  const value = React.useMemo(() => ({ open, toggle }), [open, toggle])
 
   return (
     <PanelContext.Provider value={value}>
-      <div className={className} data-panel data-orientation={orientation}>
+      <div className={className} data-panel>
         {typeof children === 'function' ? children(value) : children}
       </div>
     </PanelContext.Provider>
@@ -107,8 +101,7 @@ export function PanelTrigger({
 
 export const PanelContent = React.forwardRef<HTMLDivElement, PanelContentProps>(
   function PanelContent({ children, className, ...props }, ref) {
-    const { open, orientation } = usePanel()
-    const horizontal = orientation === 'horizontal'
+    const { open } = usePanel()
 
     return (
       <div
@@ -118,27 +111,12 @@ export const PanelContent = React.forwardRef<HTMLDivElement, PanelContentProps>(
         inert={open ? undefined : true}
         className={twMerge(
           'grid overflow-hidden duration-200 [transition-timing-function:cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none',
-          horizontal
-            ? 'transition-[grid-template-columns]'
-            : 'transition-[grid-template-rows]',
-          horizontal
-            ? open
-              ? 'grid-cols-[1fr]'
-              : 'grid-cols-[0fr]'
-            : open
-              ? 'grid-rows-[1fr]'
-              : 'grid-rows-[0fr]',
+          'transition-[grid-template-rows]',
+          open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
           className,
         )}
       >
-        <div
-          className={twMerge(
-            'overflow-hidden',
-            horizontal ? 'min-w-0' : 'min-h-0',
-          )}
-        >
-          {children}
-        </div>
+        <div className="min-h-0 overflow-hidden">{children}</div>
       </div>
     )
   },

@@ -2563,12 +2563,6 @@ html:not(.dark) .library-landing-graphic [style*='drop-shadow'] {
   @apply my-4;
 }
 
-/* Kapa injects invisible reCAPTCHA; keep it from occupying the UI corner. */
-.grecaptcha-badge {
-  display: none !important;
-  pointer-events: none !important;
-}
-
 button[aria-label='Open TanStack Devtools'] {
   display: none !important;
 }

@@ -161,7 +161,7 @@ const useSyncExternalStoreShimIndexAlias = {
 const serverBundledClientPackages = [
   ...(shouldUseRedact ? ['@tanstack/redact'] : []),
   /^@radix-ui\//,
-  '@kapaai/react-sdk',
+  /^@tanstack\/ai(?:-|$)/,
   '@tanstack/highlight',
   '@tanstack/markdown',
   '@tanstack/react-hotkeys',

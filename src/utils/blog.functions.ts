@@ -170,20 +170,24 @@ export const fetchBlogPostsForLibrary = createServerFn({ method: 'GET' })
 
 export const fetchRecentPosts = createServerFn({ method: 'GET' }).handler(
   async (): Promise<Array<RecentPost>> => {
-    setExistingBlogListResponseHeaders()
+    try {
+      setExistingBlogListResponseHeaders()
 
-    return getInternalBlogCardPosts()
-      .slice(0, 3)
-      .map((post) => ({
-        slug: post.slug,
-        title: post.title,
-        published: post.published,
-        excerpt: post.excerpt,
-        headerImage: post.headerImage,
-        authors: post.authors,
-        externalUrl: post.externalUrl,
-        source: post.source,
-      }))
+      return getInternalBlogCardPosts()
+        .slice(0, 3)
+        .map((post) => ({
+          slug: post.slug,
+          title: post.title,
+          published: post.published,
+          excerpt: post.excerpt,
+          headerImage: post.headerImage,
+          authors: post.authors,
+          externalUrl: post.externalUrl,
+          source: post.source,
+        }))
+    } catch {
+      return []
+    }
   },
 )
 

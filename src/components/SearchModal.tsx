@@ -38,7 +38,6 @@ import {
 import {
   fetchServerSentEvents,
   useChat,
-  type ConnectConnectionAdapter,
   type UIMessage,
 } from '@tanstack/ai-react'
 import { streamingMarkdownExtension } from '@tanstack/markdown/extensions/streaming'
@@ -983,51 +982,13 @@ function messagesToDisplayQAs(
  * `threadId` on the server, so resuming a thread only needs the same id.
  */
 function useAgentStudioChat(threadId: string) {
-  const connection = React.useMemo(() => {
-    const transport = fetchServerSentEvents(AGENT_STUDIO_COMPLETIONS_URL, {
-      headers: AGENT_STUDIO_AUTH_HEADERS,
-    })
-
-    // Two Agent Studio quirks to work around when replaying history:
-    // - TanStack AI stamps `metadata.tanstack` on every wire message (from
-    //   the UIMessage's `metadata` and `createdAt`), but the AG-UI request
-    //   model rejects `metadata` on assistant messages ("Extra inputs are
-    //   not permitted") and 422s.
-    // - A run that ends mid-search leaves a tool call without a result in
-    //   history; replaying that orphan `tool_use` makes the LLM provider
-    //   reject the whole conversation ("Bad request to provider").
-    // Both are stripped from the outgoing copies only.
-    const sanitizingConnect: ConnectConnectionAdapter['connect'] = (
-      messages,
-      data,
-      abortSignal,
-      runContext,
-    ) =>
-      transport.connect(
-        isUIMessageArray(messages)
-          ? messages.map(
-              ({ metadata: _metadata, createdAt: _createdAt, ...message }) => ({
-                ...message,
-                parts: message.parts.filter(
-                  (part) =>
-                    part.type !== 'tool-call' ||
-                    part.output !== undefined ||
-                    message.parts.some(
-                      (sibling) =>
-                        sibling.type === 'tool-result' &&
-                        sibling.toolCallId === part.id,
-                    ),
-                ),
-              }),
-            )
-          : messages,
-        data,
-        abortSignal,
-        runContext,
-      )
-
-    return { ...transport, connect: sanitizingConnect }
-  }, [])
+  const connection = React.useMemo(
+    () =>
+      fetchServerSentEvents(AGENT_STUDIO_COMPLETIONS_URL, {
+        headers: AGENT_STUDIO_AUTH_HEADERS,
+      }),
+    [],
+  )
   const { messages, sendMessage, isLoading, error, stop } = useChat({
     connection,
     threadId,
@@ -1072,13 +1033,6 @@ function useAgentStudioChat(threadId: string) {
     addFeedback,
     errorMessage: error?.message ?? null,
   }
-}
-
-/** AG-UI adapters accept UI or model messages; only UI messages carry parts. */
-function isUIMessageArray(
-  messages: Parameters<ConnectConnectionAdapter['connect']>[0],
-): messages is Array<UIMessage> {
-  return messages.every((message) => 'parts' in message)
 }
 
 function isUnknownRecord(value: unknown): value is Record<string, unknown> {

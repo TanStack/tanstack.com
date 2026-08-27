@@ -901,6 +901,19 @@ function describeToolCallQuery(input: unknown, rawArguments: string) {
   return queryTexts.join(', ') || readString(parsed.originalQuery)
 }
 
+/** Tool results arrive as JSON strings on the wire; parse them for source extraction. */
+function parseToolResult(content: string | Array<unknown>): unknown {
+  if (typeof content !== 'string') {
+    return content
+  }
+
+  try {
+    return JSON.parse(content)
+  } catch {
+    return undefined
+  }
+}
+
 /**
  * Fold the AG-UI message list into the question/answer pairs the panel
  * renders: each user message opens a QA, and the assistant messages that
@@ -939,23 +952,35 @@ function messagesToDisplayQAs(
     )
     const segments = current.segments ?? []
 
+    // A completed tool call carries its output inline while streaming, but a
+    // hydrated or replayed thread can represent it as a sibling tool-result
+    // part instead. Index those so both shapes yield sources.
+    const toolResultOutputs = new Map<string, unknown>()
+    for (const part of message.parts) {
+      if (part.type === 'tool-result' && part.error === undefined) {
+        toolResultOutputs.set(part.toolCallId, parseToolResult(part.content))
+      }
+    }
+
     for (const part of message.parts) {
       if (part.type === 'text' && part.content.trim()) {
         segments.push({ type: 'text', content: part.content.trim() })
       }
 
       if (part.type === 'tool-call') {
+        const output = part.output ?? toolResultOutputs.get(part.id)
+
         segments.push({
           type: 'tool-call',
           toolCall: {
             id: part.id,
             query: describeToolCallQuery(part.input, part.arguments),
-            isPending: part.output === undefined && part.state !== 'error',
+            isPending: output === undefined && part.state !== 'error',
           },
         })
 
-        if (part.output !== undefined) {
-          collectSourcesFromToolOutput(part.output, sources)
+        if (output !== undefined) {
+          collectSourcesFromToolOutput(output, sources)
         }
       }
     }
@@ -1015,11 +1040,22 @@ function useAgentStudioChat(threadId: string) {
         },
         body: JSON.stringify({
           messageId,
+          agentId: AGENT_STUDIO_AGENT_ID,
           vote: reaction === 'upvote' ? 1 : 0,
         }),
-      }).catch(() => {
-        // Keep the optimistic reaction; feedback is best-effort.
       })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`feedback rejected: ${response.status}`)
+          }
+        })
+        .catch(() => {
+          // Unlock the buttons so the vote can be retried.
+          setReactions((current) => {
+            const { [messageId]: _failed, ...rest } = current
+            return rest
+          })
+        })
     },
     [],
   )

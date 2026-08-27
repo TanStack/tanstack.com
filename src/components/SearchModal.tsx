@@ -42,6 +42,7 @@ import {
 } from '@tanstack/ai-react'
 import { streamingMarkdownExtension } from '@tanstack/markdown/extensions/streaming'
 import { Markdown as TanStackMarkdown } from '@tanstack/markdown/react'
+import type { InlineNode, MarkdownExtension } from '@tanstack/markdown'
 import { Link, useRouterState } from '@tanstack/react-router'
 import { useSearchContext } from '~/contexts/SearchContext'
 import { publicLibraries, type Framework } from '~/libraries'
@@ -613,7 +614,7 @@ function AiMarkdownLink({
   return (
     <SafeLink
       href={href}
-      className="font-medium text-gray-900 dark:text-gray-100 border-b border-gray-400/60 dark:border-gray-500/60 hover:border-gray-900 dark:hover:border-gray-100 transition-colors pb-px"
+      className="font-medium text-gray-900 dark:text-gray-100 border-b border-gray-400/60 dark:border-gray-500/60 hover:border-gray-900 dark:hover:border-gray-100 transition-colors pb-px [overflow-wrap:anywhere]"
       {...props}
     >
       {children}
@@ -760,7 +761,66 @@ const aiMarkdownComponents = {
   ),
 }
 
-const aiMarkdownExtensions = [streamingMarkdownExtension()]
+// The agent often emits bare URLs in prose, and CommonMark only autolinks
+// URLs wrapped in angle brackets. Turn bare http(s) URLs inside text nodes
+// into links. Code spans and existing links are separate inline node types,
+// so this transform can never touch them.
+const BARE_URL_PATTERN = /https?:\/\/[^\s<>]+/g
+const TRAILING_PUNCTUATION_PATTERN = /[.,;:!?)'"\]]+$/
+
+function autolinkInlineNodes(nodes: Array<InlineNode>): Array<InlineNode> {
+  return nodes.flatMap((node): Array<InlineNode> => {
+    if (
+      node.type === 'strong' ||
+      node.type === 'emphasis' ||
+      node.type === 'strike'
+    ) {
+      return [{ ...node, children: autolinkInlineNodes(node.children) }]
+    }
+
+    if (node.type !== 'text') {
+      return [node]
+    }
+
+    const parts: Array<InlineNode> = []
+    let cursor = 0
+
+    for (const match of node.value.matchAll(BARE_URL_PATTERN)) {
+      const index = match.index ?? 0
+      const url = match[0].replace(TRAILING_PUNCTUATION_PATTERN, '')
+
+      if (index > cursor) {
+        parts.push({ type: 'text', value: node.value.slice(cursor, index) })
+      }
+      parts.push({
+        type: 'link',
+        href: url,
+        children: [{ type: 'text', value: url }],
+      })
+      cursor = index + url.length
+    }
+
+    if (parts.length === 0) {
+      return [node]
+    }
+
+    if (cursor < node.value.length) {
+      parts.push({ type: 'text', value: node.value.slice(cursor) })
+    }
+
+    return parts
+  })
+}
+
+const autolinkBareUrlsExtension: MarkdownExtension = {
+  name: 'autolink-bare-urls',
+  transformInline: autolinkInlineNodes,
+}
+
+const aiMarkdownExtensions = [
+  streamingMarkdownExtension(),
+  autolinkBareUrlsExtension,
+]
 
 type FeedbackReaction = 'upvote' | 'downvote'
 

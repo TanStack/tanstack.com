@@ -15,8 +15,10 @@ export const kineticDonutChart = defineChart({
       id: 'hero-donut',
       inset: 10,
       radiusRatio: 0.78,
-      angle: { scale: scaleLinear().domain([0, 1]) },
-      radius: { scale: scaleLinear().domain([0, 1]) },
+      scales: {
+        angle: { scale: scaleLinear().domain([0, 1]) },
+        radius: { scale: scaleLinear().domain([0, 1]) },
+      },
       marks: [
         radialArc(productShareSlices, {
           id: 'hero-arcs',
@@ -44,6 +46,7 @@ export const kineticDonutChart = defineChart({
       ],
     }),
   ],
+  scales: { x: null, y: null },
   color: {
     domain: productShare.map((row) => row.segment),
     range: ['#61e8ff', '#ff806f', '#b9f227', '#a78bfa', '#77929f'],

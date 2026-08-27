@@ -75,7 +75,7 @@
     "@tanstack/ai-anthropic": "^0.18.0",
     "@tanstack/ai-client": "^0.28.0",
     "@tanstack/ai-openai": "^0.22.0",
-    "@tanstack/charts": "0.13.0",
+    "@tanstack/charts": "0.16.0",
     "@tanstack/create": "^0.69.0",
     "@tanstack/highlight": "^0.0.9",
     "@tanstack/markdown": "^0.0.11",

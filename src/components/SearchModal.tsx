@@ -223,14 +223,13 @@ const AI_DOCK_MAX_WIDTH_RATIO = 0.5
 const AI_DOCK_MAXIMIZED_WIDTH = 1200
 const DEFAULT_SEARCH_FRAMEWORK: Framework = 'react'
 
-// Algolia Agent Studio (staging while the AG-UI compatibility mode rolls out
-// to production). The API key is search-ACL only and safe to ship to browsers;
-// abuse is bounded by Agent Studio's approved domains and per-agent/per-IP
-// rate limits.
-const AGENT_STUDIO_APP_ID = 'betaHAXPMHIMMC'
-const AGENT_STUDIO_SEARCH_API_KEY = '8b00405cba281a7d800ccec393e9af24'
-const AGENT_STUDIO_AGENT_ID = '97a1b15d-9837-48ed-b4b4-f905b0199cee'
-const AGENT_STUDIO_BASE_URL = 'https://agent-studio.staging.eu.algolia.com/1'
+// Algolia Agent Studio. The API key is search-ACL only and safe to ship to
+// browsers; abuse is bounded by Agent Studio's approved domains and
+// per-agent/per-IP rate limits.
+const AGENT_STUDIO_APP_ID = 'FQ0DQ6MA3C'
+const AGENT_STUDIO_SEARCH_API_KEY = '2a257513b7a9e64906b9e0e53a6bc3ce'
+const AGENT_STUDIO_AGENT_ID = 'eeaedc22-16c5-4314-974f-38d93631761b'
+const AGENT_STUDIO_BASE_URL = `https://${AGENT_STUDIO_APP_ID.toLowerCase()}.algolia.net/agent-studio/1`
 const AGENT_STUDIO_COMPLETIONS_URL = `${AGENT_STUDIO_BASE_URL}/agents/${AGENT_STUDIO_AGENT_ID}/completions?compatibilityMode=ag-ui&stream=true`
 const AGENT_STUDIO_FEEDBACK_URL = `${AGENT_STUDIO_BASE_URL}/feedback`
 const AGENT_STUDIO_AUTH_HEADERS = {

@@ -243,7 +243,7 @@ export const SPECIMENS: Array<SpecimenMeta> = [
     scrollLock: true,
     animated: true,
     notes:
-      'Command palette. forceMount + bespoke CSS transitions; overrides onInteractOutside for nested portals. Migrate last.',
+      'TOKENS ADOPTED, POSTURE NOT EXTRACTED. Now on bg-scrim and the --z-scrim / --z-overlay / --z-above-overlay tiers, which closes the last bespoke values in the audit. The shell itself stays: it is already Radix, already accessible, and already has real data-state animation, so extracting a CommandPalette buys no correctness — and it would need five caller-specific escape hatches (forceMount on Portal/Overlay/Content to keep InstantSearch state alive; animation on an inner panel because Content is a full-bleed hit area on mobile; the top-anchored responsive posture; a conditional sm:bottom-4; and a scrim that lightens at xl). One caller is below the extraction threshold. Revisit if a second command palette appears.',
   },
 ]
 
@@ -253,7 +253,7 @@ export const DIVERGENCE = [
     property: 'z-index tier',
     values: ['50', '60/70/71', '100', '110/111/112', '999/1000'],
     verdict:
-      'Five unrelated stacking families. Now a documented pair (--z-scrim / --z-overlay) that every migrated overlay uses; only SearchModal and LibrariesOverlay still declare their own.',
+      'Five unrelated stacking families. Now a documented scale — --z-scrim, --z-overlay, and --z-above-overlay for chrome that must float over an open overlay. No overlay declares its own tier any more.',
   },
   {
     property: 'Scrim',

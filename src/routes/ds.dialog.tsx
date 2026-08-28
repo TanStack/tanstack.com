@@ -93,7 +93,7 @@ const TOKEN_COVERAGE: Array<{
     attribute: 'Stacking tier',
     token: 'z-[var(--z-scrim)] / z-[var(--z-overlay)]',
     status: 'added',
-    note: 'Did not exist. Five unrelated z-index families were in use. Values set to 999/1000 — the existing majority — so adopting them moves nothing.',
+    note: 'Did not exist. Five unrelated z-index families were in use. Values set to 999/1000 — the existing majority — so adopting them moves nothing. A third tier, --z-above-overlay (1200), covers chrome that must float over an open overlay, such as a tooltip on a control inside a modal.',
   },
   {
     attribute: 'Motion',

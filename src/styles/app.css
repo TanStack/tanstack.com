@@ -161,6 +161,10 @@ html.theme-switching *::after {
      majority of overlays, so adopting them moves nothing. */
   --z-scrim: 999;
   --z-overlay: 1000;
+  /* Floats above an open overlay — a tooltip on a control inside a modal has
+     nowhere else to go. Kept well clear of --z-overlay so overlay-internal
+     chrome can still stack between them. */
+  --z-above-overlay: 1200;
 }
 
 /* ----------------------------------------------------------------- Dialog --

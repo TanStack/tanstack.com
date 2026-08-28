@@ -128,6 +128,7 @@ export async function resolveExampleWorkspaceImports(
     for (const group of resolvedGroups) {
       for (const peerPackage of group.peerPackages) {
         if (
+          !peerPackage.startsWith('@types/') &&
           packageVersions.has(peerPackage) &&
           !resolvedPackageNames.has(peerPackage) &&
           !hasWorkspacePackageImport(workspaceImports, peerPackage)

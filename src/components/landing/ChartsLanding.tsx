@@ -65,9 +65,8 @@ export default function ChartsLanding({
             A lot of chart. Not a lot of bundle.
           </h2>
           <p className="max-w-2xl border-l-2 border-[var(--landing-accent)] pl-5 text-ds-body-sm text-text-secondary sm:text-ds-body-md">
-            TanStack Charts starts at 40 kB minified and gzip compressed in the
-            current matched suite, with its SVG renderer, scales, axes, and
-            styles included.
+            Basic React line, 29 kB minified + gzip. SVG, compact scales, axes
+            included.
           </p>
         </div>
 

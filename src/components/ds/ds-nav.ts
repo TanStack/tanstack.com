@@ -142,6 +142,32 @@ export const dsNav: Array<DsNavSection> = [
         sections: ['Card', 'Inline code', 'Blog post card', 'Tooltip'],
       },
       {
+        label: 'Dialog',
+        to: '/ds/dialog',
+        sections: [
+          'Basic',
+          'Sizes',
+          'Scrolling body',
+          'Destructive confirm',
+          'Tinted header',
+          'Status panel',
+          'Token coverage',
+          'Behaviour from Radix',
+        ],
+      },
+      {
+        label: 'Drawer',
+        to: '/ds/drawer',
+        sections: [
+          'Sides',
+          'Sizes',
+          'Fit to content',
+          'Header actions',
+          'With a footer',
+          'Motion',
+        ],
+      },
+      {
         label: 'Dropdown',
         to: '/ds/dropdown',
         sections: ['Basic menu', 'Scrollable'],
@@ -172,6 +198,16 @@ export const dsNav: Array<DsNavSection> = [
           'Layout & spacing',
           'Responsive behavior',
           'Source',
+        ],
+      },
+      {
+        label: 'Overlay Audit',
+        to: '/ds/overlays',
+        sections: [
+          'Launch',
+          'Property matrix',
+          'Divergence',
+          'Notes per specimen',
         ],
       },
       {

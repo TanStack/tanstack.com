@@ -905,6 +905,29 @@ export {
   segmentTrackClasses,
   type SegmentSize,
 } from './Tabs'
+export {
+  Dialog,
+  DialogBody,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogStatus,
+  DialogTrigger,
+  type DialogSize,
+  type DialogStatusTone,
+} from './Dialog'
+export {
+  Drawer,
+  DrawerBody,
+  DrawerClose,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTrigger,
+  type DrawerSide,
+  type DrawerSize,
+} from './Drawer'
 export { PalmSpinner } from './PalmSpinner'
 export { PixelSpinner } from './PixelSpinner'
 export {

@@ -224,7 +224,7 @@ export const SPECIMENS: Array<SpecimenMeta> = [
     scrollLock: true,
     animated: true,
     notes:
-      'Immersive: no panel at all, content scrolls edge to edge with a floating close button on its own tier.',
+      'MIGRATED — now Takeover with scrim="glass". Its bespoke glass treatment became the DS\'s second scrim, which is the pair the audit asked for after finding seven. LibrariesBrowser also dropped its direct Radix import in favour of TakeoverTitle / TakeoverDescription.',
   },
   {
     id: 'search-modal',
@@ -266,7 +266,8 @@ export const DIVERGENCE = [
       'black/60→30 responsive',
       'bespoke glass',
     ],
-    verdict: 'Seven scrims. Should be two: standard and immersive.',
+    verdict:
+      "Seven scrims. Now two, as recommended: --color-scrim for panels, and the glass treatment as Takeover's immersive variant. Only SearchModal still declares its own.",
   },
   {
     property: 'Base',

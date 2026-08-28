@@ -931,6 +931,15 @@ export {
   type DrawerSide,
   type DrawerSize,
 } from './Drawer'
+export {
+  Takeover,
+  TakeoverClose,
+  TakeoverContent,
+  TakeoverDescription,
+  TakeoverTitle,
+  TakeoverTrigger,
+  type TakeoverScrim,
+} from './Takeover'
 export { PalmSpinner } from './PalmSpinner'
 export { PixelSpinner } from './PixelSpinner'
 export {

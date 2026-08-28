@@ -67,6 +67,7 @@ import { Route as OauthRegisterRouteImport } from './routes/oauth/register'
 import { Route as OauthAuthorizeRouteImport } from './routes/oauth/authorize'
 import { Route as LibrariesFrameworkRouteImport } from './routes/libraries_.$framework'
 import { Route as DsTypographyRouteImport } from './routes/ds.typography'
+import { Route as DsTakeoverRouteImport } from './routes/ds.takeover'
 import { Route as DsTabsRouteImport } from './routes/ds.tabs'
 import { Route as DsStatsRouteImport } from './routes/ds.stats'
 import { Route as DsSpinnerRouteImport } from './routes/ds.spinner'
@@ -505,6 +506,11 @@ const LibrariesFrameworkRoute = LibrariesFrameworkRouteImport.update({
 const DsTypographyRoute = DsTypographyRouteImport.update({
   id: '/typography',
   path: '/typography',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsTakeoverRoute = DsTakeoverRouteImport.update({
+  id: '/takeover',
+  path: '/takeover',
   getParentRoute: () => DsRoute,
 } as any)
 const DsTabsRoute = DsTabsRouteImport.update({
@@ -1409,6 +1415,7 @@ export interface FileRoutesByFullPath {
   '/ds/spinner': typeof DsSpinnerRoute
   '/ds/stats': typeof DsStatsRoute
   '/ds/tabs': typeof DsTabsRoute
+  '/ds/takeover': typeof DsTakeoverRoute
   '/ds/typography': typeof DsTypographyRoute
   '/libraries/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
@@ -1610,6 +1617,7 @@ export interface FileRoutesByTo {
   '/ds/spinner': typeof DsSpinnerRoute
   '/ds/stats': typeof DsStatsRoute
   '/ds/tabs': typeof DsTabsRoute
+  '/ds/takeover': typeof DsTakeoverRoute
   '/ds/typography': typeof DsTypographyRoute
   '/libraries/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
@@ -1817,6 +1825,7 @@ export interface FileRoutesById {
   '/ds/spinner': typeof DsSpinnerRoute
   '/ds/stats': typeof DsStatsRoute
   '/ds/tabs': typeof DsTabsRoute
+  '/ds/takeover': typeof DsTakeoverRoute
   '/ds/typography': typeof DsTypographyRoute
   '/libraries_/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
@@ -2028,6 +2037,7 @@ export interface FileRouteTypes {
     | '/ds/spinner'
     | '/ds/stats'
     | '/ds/tabs'
+    | '/ds/takeover'
     | '/ds/typography'
     | '/libraries/$framework'
     | '/oauth/authorize'
@@ -2229,6 +2239,7 @@ export interface FileRouteTypes {
     | '/ds/spinner'
     | '/ds/stats'
     | '/ds/tabs'
+    | '/ds/takeover'
     | '/ds/typography'
     | '/libraries/$framework'
     | '/oauth/authorize'
@@ -2435,6 +2446,7 @@ export interface FileRouteTypes {
     | '/ds/spinner'
     | '/ds/stats'
     | '/ds/tabs'
+    | '/ds/takeover'
     | '/ds/typography'
     | '/libraries_/$framework'
     | '/oauth/authorize'
@@ -3061,6 +3073,13 @@ declare module '@tanstack/react-router' {
       path: '/typography'
       fullPath: '/ds/typography'
       preLoaderRoute: typeof DsTypographyRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/takeover': {
+      id: '/ds/takeover'
+      path: '/takeover'
+      fullPath: '/ds/takeover'
+      preLoaderRoute: typeof DsTakeoverRouteImport
       parentRoute: typeof DsRoute
     }
     '/ds/tabs': {
@@ -4395,6 +4414,7 @@ interface DsRouteChildren {
   DsSpinnerRoute: typeof DsSpinnerRoute
   DsStatsRoute: typeof DsStatsRoute
   DsTabsRoute: typeof DsTabsRoute
+  DsTakeoverRoute: typeof DsTakeoverRoute
   DsTypographyRoute: typeof DsTypographyRoute
   DsIndexRoute: typeof DsIndexRoute
 }
@@ -4426,6 +4446,7 @@ const DsRouteChildren: DsRouteChildren = {
   DsSpinnerRoute: DsSpinnerRoute,
   DsStatsRoute: DsStatsRoute,
   DsTabsRoute: DsTabsRoute,
+  DsTakeoverRoute: DsTakeoverRoute,
   DsTypographyRoute: DsTypographyRoute,
   DsIndexRoute: DsIndexRoute,
 }

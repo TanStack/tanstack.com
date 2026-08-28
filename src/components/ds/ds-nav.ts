@@ -237,6 +237,11 @@ export const dsNav: Array<DsNavSection> = [
         sections: ['Preview'],
       },
       {
+        label: 'Takeover',
+        to: '/ds/takeover',
+        sections: ['Scrims', 'Leading action', 'Notes'],
+      },
+      {
         label: 'Tabs',
         to: '/ds/tabs',
         sections: ['Primary', 'Secondary', 'Icon only'],

@@ -236,6 +236,64 @@ html.theme-switching *::after {
 /* The dialog is the first DS component with real motion, so it states the
    reduced-motion contract the rest of the system should follow: the state
    change still happens, it just stops moving. */
+/* --------------------------------------------------------------- Takeover --
+   The full-bleed posture. Two scrims, which is what the overlay audit asked
+   for: `standard` is the same --color-scrim every other overlay uses, and
+   `glass` is the immersive treatment that dissolves the page behind a heavy
+   blur instead of dimming it. Seven hand-picked scrims existed before this.
+
+   The panel fades rather than slides — nothing is arriving from an edge, the
+   whole surface is being replaced.
+   -------------------------------------------------------------------------- */
+[data-ds-takeover-scrim='standard'] {
+  background: var(--color-scrim);
+}
+
+[data-ds-takeover-scrim='glass'] {
+  background: rgb(255 255 255 / 0.95);
+  -webkit-backdrop-filter: blur(40px) saturate(1.5);
+  backdrop-filter: blur(40px) saturate(1.5);
+}
+
+html.dark [data-ds-takeover-scrim='glass'] {
+  background: rgb(0 0 0 / 0.95);
+}
+
+@keyframes takeover-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes takeover-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+[data-ds-takeover-scrim][data-state='open'],
+[data-ds-takeover-panel][data-state='open'] {
+  animation: takeover-in var(--motion-duration-fast) var(--motion-ease-standard)
+    both;
+}
+[data-ds-takeover-scrim][data-state='closed'],
+[data-ds-takeover-panel][data-state='closed'] {
+  animation: takeover-out var(--motion-duration-fast)
+    var(--motion-ease-standard) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-ds-takeover-scrim],
+  [data-ds-takeover-panel] {
+    animation: none !important;
+  }
+}
+
 /* ----------------------------------------------------------------- Drawer --
    Edge-anchored panels. Slides only — the panel does not fade, because a
    sheet reads as a physical surface arriving from off-screen and a

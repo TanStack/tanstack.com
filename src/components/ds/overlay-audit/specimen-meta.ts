@@ -205,7 +205,7 @@ export const SPECIMENS: Array<SpecimenMeta> = [
     scrollLock: false,
     animated: true,
     notes:
-      'Only bottom-sheet posture. Hand-rolls its own Escape listener. The one overlay already using the motion tokens.',
+      'MIGRATED — now Drawer side="bottom" fit. Was the last hand-rolled overlay on the site; Radix now supplies the focus trap, focus restoration, Escape and scroll lock it never had. Its prev/next arrows moved from viewport-fixed on a third z-tier to panel-absolute, because Radix traps focus inside the panel and viewport-level siblings would have been unreachable by keyboard.',
   },
   {
     id: 'libraries-overlay',
@@ -252,7 +252,8 @@ export const DIVERGENCE = [
   {
     property: 'z-index tier',
     values: ['50', '60/70/71', '100', '110/111/112', '999/1000'],
-    verdict: 'Five unrelated stacking families. Needs a documented scale.',
+    verdict:
+      'Five unrelated stacking families. Now a documented pair (--z-scrim / --z-overlay) that every migrated overlay uses; only SearchModal and LibrariesOverlay still declare their own.',
   },
   {
     property: 'Scrim',
@@ -271,7 +272,7 @@ export const DIVERGENCE = [
     property: 'Base',
     values: ['Radix (7)', 'hand-rolled (4)'],
     verdict:
-      'The 4 hand-rolled ones accounted for every a11y failure in the audit. Three are now migrated; ProductDrawer is the last one left.',
+      'The 4 hand-rolled ones accounted for every a11y failure in the audit. All four are now migrated — every overlay on the site is Radix-backed.',
   },
   {
     property: 'Token layer',

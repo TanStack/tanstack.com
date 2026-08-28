@@ -20,9 +20,19 @@ import {
   ShopSize,
 } from './ui'
 import { useAddToCart } from '~/hooks/useCart'
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerTitle,
+} from '~/components/ds/ui'
 import { useCartDrawerStore } from './cartDrawerStore'
 
 const MAX_INLINE_OPTION_VALUES = 8
+
+const ARROW_CLS =
+  'absolute top-1/2 z-[3] flex size-11 -translate-y-1/2 items-center justify-center rounded-full border border-shop-line bg-shop-bg/90 text-shop-text shadow-xl backdrop-blur-sm transition-[transform,background-color] duration-[var(--motion-duration-fast)] ease-[var(--motion-ease-standard)] hover:bg-shop-surface-hover active:scale-95 motion-reduce:transition-none'
 
 function findMatchingVariant(
   variants: Array<ProductDetailVariant>,
@@ -164,54 +174,48 @@ export function ProductDrawer({
     }
   }, [allHandles, productHandle, queryClient])
 
-  // Keyboard nav
+  // Arrow-key navigation between products. Escape, focus trapping, focus
+  // restoration and scroll lock all come from the DS Drawer now.
   React.useEffect(() => {
     if (!isOpen) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
       if (e.key === 'ArrowRight') navigateStep(1)
       if (e.key === 'ArrowLeft') navigateStep(-1)
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [isOpen, onClose, navigateStep])
+  }, [isOpen, navigateStep])
 
   return (
-    <>
-      {/* Scrim */}
-      <button
-        type="button"
-        aria-label="Close product drawer"
-        tabIndex={isAnimatedOpen ? 0 : -1}
-        onClick={onClose}
+    <Drawer
+      open={isAnimatedOpen}
+      onOpenChange={(open) => {
+        if (!open) onClose()
+      }}
+    >
+      <DrawerContent
+        side="bottom"
+        fit
         className={twMerge(
-          'shop-product-scrim fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm transition-opacity motion-reduce:transition-none',
-          isAnimatedOpen
-            ? 'opacity-100 pointer-events-auto'
-            : 'opacity-0 pointer-events-none',
-        )}
-      />
-
-      {/* Drawer */}
-      <aside
-        aria-label="Product detail"
-        aria-hidden={!isAnimatedOpen}
-        className={twMerge(
-          'fixed left-1/2 bottom-0 z-[70] -translate-x-1/2',
-          'flex w-[calc(100%-2rem)] max-w-[1400px] flex-col overflow-hidden',
-          'rounded-t-2xl border border-b-0 border-shop-line',
-          'shop-product-sheet shadow-2xl',
-          'transition-transform motion-reduce:transition-none',
-          isAnimatedOpen ? 'translate-y-0' : 'translate-y-[calc(100%+1px)]',
+          'shop-scope shop-product-sheet border-shop-line text-shop-text',
+          // Wins over the DS `fit` cap via twMerge, so the sheet keeps its own
+          // navbar-aware height rather than the generic 85dvh.
+          'max-h-[calc(100svh-var(--shop-product-sheet-top))]',
         )}
       >
-        {/* Close button — pinned to top-left of drawer, above scroll content */}
-        <button
-          type="button"
+        {/* The sheet has no visible title bar, so the accessible name is
+            supplied directly rather than through DrawerHeader. */}
+        <DrawerTitle className="sr-only">
+          {visibleProduct?.title ?? 'Product detail'}
+        </DrawerTitle>
+        <DrawerDescription className="sr-only">
+          Product details, options and add to cart.
+        </DrawerDescription>
+
+        <DrawerClose
           aria-label="Close product detail"
           title="Close (Esc)"
-          onClick={onClose}
-          className="absolute top-3 left-3 z-[3] p-1 text-shop-muted hover:text-shop-text transition-colors"
+          className="absolute top-3 left-3 z-[3] p-1 text-shop-muted transition-colors hover:text-shop-text"
         >
           <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden>
             <path
@@ -220,80 +224,71 @@ export function ProductDrawer({
               strokeWidth="1.6"
             />
           </svg>
-        </button>
+        </DrawerClose>
+
+        {allHandles.length > 1 ? (
+          <>
+            {/* Anchored to the panel, not the viewport. Radix traps focus
+                inside the panel, so viewport-level siblings would be
+                unreachable by keyboard — and it retires the third z-tier the
+                overlay audit flagged. */}
+            <button
+              type="button"
+              aria-label="View previous product"
+              title="Previous product (Left arrow)"
+              onClick={() => navigateStep(-1)}
+              className={twMerge(ARROW_CLS, 'left-4')}
+            >
+              <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden>
+                <path
+                  d="M12.5 4.5 7 10l5.5 5.5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="1.75"
+                />
+              </svg>
+            </button>
+            <button
+              type="button"
+              aria-label="View next product"
+              title="Next product (Right arrow)"
+              onClick={() => navigateStep(1)}
+              className={twMerge(ARROW_CLS, 'right-4')}
+            >
+              <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden>
+                <path
+                  d="m7.5 4.5 5.5 5.5-5.5 5.5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="1.75"
+                />
+              </svg>
+            </button>
+          </>
+        ) : null}
 
         {/* Keep the sheet mounted; only replace its product content. */}
         {visibleProduct ? (
           <div className="flex min-h-0 flex-1">
-            <DrawerContent
+            <ProductPanel
               key={visibleProduct.handle}
               product={visibleProduct}
               animateIn={shouldAnimateContent}
             />
           </div>
         ) : null}
-      </aside>
-
-      {allHandles.length > 1 ? (
-        <>
-          <button
-            type="button"
-            aria-label="View previous product"
-            title="Previous product (Left arrow)"
-            tabIndex={isAnimatedOpen ? 0 : -1}
-            onClick={() => navigateStep(-1)}
-            className={twMerge(
-              'fixed left-6 top-1/2 z-[71] flex size-11 -translate-y-1/2 items-center justify-center rounded-full border border-shop-line bg-shop-bg/90 text-shop-text shadow-xl backdrop-blur-sm transition-[transform,background-color,opacity] duration-[var(--motion-duration-fast)] ease-[var(--motion-ease-standard)] hover:bg-shop-surface-hover active:scale-95 motion-reduce:transition-none min-[1584px]:left-[calc(50%_-_768px)]',
-              isAnimatedOpen
-                ? 'pointer-events-auto opacity-100'
-                : 'pointer-events-none opacity-0',
-            )}
-          >
-            <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden>
-              <path
-                d="M12.5 4.5 7 10l5.5 5.5"
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="1.75"
-              />
-            </svg>
-          </button>
-
-          <button
-            type="button"
-            aria-label="View next product"
-            title="Next product (Right arrow)"
-            tabIndex={isAnimatedOpen ? 0 : -1}
-            onClick={() => navigateStep(1)}
-            className={twMerge(
-              'fixed right-6 top-1/2 z-[71] flex size-11 -translate-y-1/2 items-center justify-center rounded-full border border-shop-line bg-shop-bg/90 text-shop-text shadow-xl backdrop-blur-sm transition-[transform,background-color,opacity] duration-[var(--motion-duration-fast)] ease-[var(--motion-ease-standard)] hover:bg-shop-surface-hover active:scale-95 motion-reduce:transition-none min-[1584px]:right-[calc(50%_-_768px)]',
-              isAnimatedOpen
-                ? 'pointer-events-auto opacity-100'
-                : 'pointer-events-none opacity-0',
-            )}
-          >
-            <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden>
-              <path
-                d="m7.5 4.5 5.5 5.5-5.5 5.5"
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="1.75"
-              />
-            </svg>
-          </button>
-        </>
-      ) : null}
-    </>
+      </DrawerContent>
+    </Drawer>
   )
 }
 
 /* ─── Full product content ────────────────────────────────────────────── */
 
-function DrawerContent({
+function ProductPanel({
   product,
   animateIn,
 }: {

@@ -24,6 +24,15 @@ export const Drawer = DialogPrimitive.Root
 export const DrawerTrigger = DialogPrimitive.Trigger
 export const DrawerClose = DialogPrimitive.Close
 
+/**
+ * The accessible name and description, for panels that do not use
+ * DrawerHeader. A drawer whose design has no visible title bar still needs a
+ * name, so it renders one of these with `className="sr-only"`. Use these OR
+ * DrawerHeader — never both, or the dialog ends up with two titles.
+ */
+export const DrawerTitle = DialogPrimitive.Title
+export const DrawerDescription = DialogPrimitive.Description
+
 export type DrawerSide = 'right' | 'left' | 'bottom'
 /**
  * What the panel is pinned to. `viewport` sits in the window's top gutter;

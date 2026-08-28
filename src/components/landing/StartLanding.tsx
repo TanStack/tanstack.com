@@ -200,7 +200,7 @@ function ExecutionMapHero() {
           />
         </div>
 
-        <div className="mt-4 rounded-lg border-l-2 border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.1)] px-4 py-3">
+        <div className="mt-4 rounded-r-lg border-l-2 border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.1)] px-4 py-3">
           <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
             {mode.label}
           </p>

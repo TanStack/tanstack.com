@@ -240,6 +240,90 @@ html.theme-switching *::after {
 /* The dialog is the first DS component with real motion, so it states the
    reduced-motion contract the rest of the system should follow: the state
    change still happens, it just stops moving. */
+/* ------------------------------------------------- Transient surfaces & --
+   ------------------------------------------------- one-shot entrances --
+   Same reason as the dialog keyframes: the `animate-in` / `fade-in-0` /
+   `zoom-in-95` / `slide-in-from-*` classes these replaced come from
+   tailwindcss-animate, which is not installed. They matched no CSS rule and
+   animated nothing. The `duration-*` utilities alongside them were inert too —
+   Tailwind's duration sets transition-duration, not animation-duration.
+
+   `transform` carries scale/offset only, never a centring translate: Tailwind
+   v4 compiles `-translate-x-1/2` to the independent `translate` property,
+   which composes with `transform` rather than being replaced by it. That also
+   leaves Radix's --radix-*-content-transform-origin free to govern where a
+   popover grows from.
+   -------------------------------------------------------------------------- */
+@keyframes ds-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes ds-pop-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+/* Radix-driven transient surfaces: tooltips, dropdown menus.
+   Tooltip does not use `open` — it reports `delayed-open` when it appears
+   after the hover delay and `instant-open` inside the skip-delay window, so
+   all three have to be matched or tooltips silently never animate. */
+[data-ds-pop][data-state='open'],
+[data-ds-pop][data-state='delayed-open'],
+[data-ds-pop][data-state='instant-open'] {
+  animation: ds-pop-in var(--motion-duration-fast) var(--motion-ease-standard)
+    both;
+}
+[data-ds-pop][data-state='closed'] {
+  animation: ds-pop-out var(--motion-duration-fast) var(--motion-ease-standard)
+    both;
+}
+
+/* One-shot entrances for content that mounts already open. */
+@keyframes ds-enter-rise {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ds-enter-fade {
+  animation: takeover-in var(--motion-duration-sheet)
+    var(--motion-ease-standard) both;
+}
+.ds-enter-rise {
+  animation: ds-enter-rise var(--motion-duration-sheet)
+    var(--motion-ease-standard) both;
+}
+.ds-enter-pop {
+  animation: ds-pop-in var(--motion-duration-sheet) var(--motion-ease-standard)
+    both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-ds-pop],
+  .ds-enter-fade,
+  .ds-enter-rise,
+  .ds-enter-pop {
+    animation: none !important;
+  }
+}
+
 /* --------------------------------------------------------------- Takeover --
    The full-bleed posture. Two scrims, which is what the overlay audit asked
    for: `standard` is the same --color-scrim every other overlay uses, and

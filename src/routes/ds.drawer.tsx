@@ -10,6 +10,7 @@ import {
   DrawerContent,
   DrawerFooter,
   DrawerHeader,
+  type DrawerAnchor,
   type DrawerSide,
   type DrawerSize,
 } from '~/components/ds/ui'
@@ -35,6 +36,7 @@ function DrawerPage() {
   const [guide, setGuide] = React.useState(false)
   const [footer, setFooter] = React.useState(false)
   const [fitDemo, setFitDemo] = React.useState<'full' | 'fit' | null>(null)
+  const [anchorDemo, setAnchorDemo] = React.useState<DrawerAnchor | null>(null)
 
   return (
     <DsPage
@@ -167,6 +169,56 @@ function DrawerPage() {
                   <Button size="md">Primary action</Button>
                 </DrawerClose>
               </DrawerFooter>
+            </DrawerContent>
+          </Drawer>
+        </ComponentPreview>
+      </DsSection>
+
+      <DsSection
+        title="Anchor"
+        description="Where a right or left panel's top edge sits. `viewport` uses the window's top gutter; `navbar` clears the site header so the panel reads as belonging to the chrome that opened it. This is the audit's sixth posture — the shipping CartDrawer was a separate implementation only because its top offset had nowhere to live. The offset reads --navbar-height with the same 56px fallback the navbar uses, so the panel stays correct if the header resizes."
+      >
+        <ComponentPreview
+          code={`{/* sits in the window's top gutter */}
+<DrawerContent side="right" size="sm" fit>…</DrawerContent>
+
+{/* clears the site header */}
+<DrawerContent side="right" size="sm" fit anchor="navbar">…</DrawerContent>`}
+        >
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setAnchorDemo('viewport')}
+            >
+              viewport
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setAnchorDemo('navbar')}
+            >
+              navbar
+            </Button>
+          </div>
+          <Drawer
+            open={anchorDemo !== null}
+            onOpenChange={(open) => !open && setAnchorDemo(null)}
+          >
+            <DrawerContent
+              side="right"
+              size="sm"
+              fit
+              anchor={anchorDemo ?? 'viewport'}
+            >
+              <DrawerHeader title={`anchor="${anchorDemo ?? ''}"`} />
+              <DrawerBody>
+                <p className="text-sm text-text-secondary">
+                  Scroll up to the header and compare where the panel's top edge
+                  lands. `navbar` also shortens the height cap by the same
+                  amount, so a `fit` panel still never runs off the bottom.
+                </p>
+              </DrawerBody>
             </DrawerContent>
           </Drawer>
         </ComponentPreview>

@@ -25,6 +25,14 @@ export const DrawerTrigger = DialogPrimitive.Trigger
 export const DrawerClose = DialogPrimitive.Close
 
 export type DrawerSide = 'right' | 'left' | 'bottom'
+/**
+ * What the panel is pinned to. `viewport` sits in the window's top gutter;
+ * `navbar` clears the site header, so the panel reads as belonging to the
+ * chrome that opened it rather than floating over it. This is the audit's
+ * "anchored panel" posture — it was a separate implementation in CartDrawer
+ * only because a top offset had nowhere to live.
+ */
+export type DrawerAnchor = 'viewport' | 'navbar'
 export type DrawerSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl'
 
 /** Width for right/left; the panel spans the full height minus a gutter. */
@@ -50,8 +58,8 @@ const sideStyles: Record<DrawerSide, string> = {
   // the posture change BuilderGuideDialog established and it is the right
   // default: a 24rem side panel on a 375px screen is not a side panel.
   right:
-    'left-3 right-3 top-3 rounded-xl corner-squircle sm:left-auto sm:right-3 sm:w-full',
-  left: 'left-3 right-3 top-3 rounded-xl corner-squircle sm:right-auto sm:left-3 sm:w-full',
+    'left-3 right-3 rounded-xl corner-squircle sm:left-auto sm:right-3 sm:w-full',
+  left: 'left-3 right-3 rounded-xl corner-squircle sm:right-auto sm:left-3 sm:w-full',
   // Centred with auto margins, not a translate — see the note in app.css.
   bottom:
     'left-4 right-4 bottom-0 mx-auto max-w-[1400px] rounded-t-2xl border-b-0',
@@ -68,10 +76,32 @@ const horizontalHeight = {
   fit: 'bottom-auto max-h-[calc(100dvh-1.5rem)]',
 } as const
 
+/**
+ * Top edge and, when `fit`, the height cap that follows from it. The navbar
+ * height is read from `--navbar-height` with the same 56px fallback the
+ * navbar itself uses, so the panel stays correct if the header resizes.
+ */
+const horizontalAnchor: Record<DrawerAnchor, { top: string; fitCap: string }> =
+  {
+    viewport: {
+      top: 'top-3',
+      fitCap: 'max-h-[calc(100dvh-1.5rem)]',
+    },
+    navbar: {
+      top: 'top-[calc(var(--navbar-height,56px)+0.5rem)]',
+      fitCap: 'max-h-[calc(100dvh-var(--navbar-height,56px)-1rem)]',
+    },
+  }
+
 type DrawerContentProps = {
   children: React.ReactNode
   side?: DrawerSide
   size?: DrawerSize
+  /**
+   * Where a right/left panel's top edge sits. Ignored for `side="bottom"`,
+   * which is anchored to the opposite edge.
+   */
+  anchor?: DrawerAnchor
   /**
    * Size the panel to its content instead of filling the edge, capped at the
    * viewport. Use it when the drawer's content is short and self-contained (a
@@ -91,6 +121,7 @@ export const DrawerContent = React.forwardRef<
     children,
     side = 'right',
     size = 'md',
+    anchor = 'viewport',
     fit = false,
     className,
     onInteractOutside,
@@ -116,7 +147,13 @@ export const DrawerContent = React.forwardRef<
             ? fit
               ? 'h-auto max-h-[85dvh]'
               : bottomSize[size]
-            : [horizontalSize[size], horizontalHeight[fit ? 'fit' : 'full']],
+            : [
+                horizontalSize[size],
+                horizontalAnchor[anchor].top,
+                fit
+                  ? ['bottom-auto', horizontalAnchor[anchor].fitCap]
+                  : horizontalHeight.full,
+              ],
           className,
         )}
       >

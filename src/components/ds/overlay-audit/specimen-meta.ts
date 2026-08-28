@@ -186,7 +186,7 @@ export const SPECIMENS: Array<SpecimenMeta> = [
     scrollLock: true,
     animated: false,
     notes:
-      'Header / scroll body / footer — the only three-region layout, and the shape the DS panel should adopt. Separate token namespace loaded only on /shop. No animation: shop.css defines no cart-panel transition.',
+      'MIGRATED — now Drawer side="right" size="sm" fit anchor="navbar". Its navbar offset became the DS `anchor` prop, which is the whole of this posture. Keeps its own surface colours by passing shop-scope through className: the primitive supplies posture and behaviour, the shop supplies the palette.',
   },
   {
     id: 'product-drawer',
@@ -271,7 +271,7 @@ export const DIVERGENCE = [
     property: 'Base',
     values: ['Radix (7)', 'hand-rolled (4)'],
     verdict:
-      'The 4 hand-rolled ones account for every a11y failure in the audit.',
+      'The 4 hand-rolled ones accounted for every a11y failure in the audit. Three are now migrated; ProductDrawer is the last one left.',
   },
   {
     property: 'Token layer',

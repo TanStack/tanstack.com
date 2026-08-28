@@ -925,6 +925,7 @@ export {
   DrawerFooter,
   DrawerHeader,
   DrawerTrigger,
+  type DrawerAnchor,
   type DrawerSide,
   type DrawerSize,
 } from './Drawer'

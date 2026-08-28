@@ -162,6 +162,7 @@ export const dsNav: Array<DsNavSection> = [
           'Sides',
           'Sizes',
           'Fit to content',
+          'Anchor',
           'Header actions',
           'With a footer',
           'Motion',

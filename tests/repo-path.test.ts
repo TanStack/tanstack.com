@@ -35,9 +35,7 @@ assert.equal(
 )
 
 assert.equal(
-  isValidRepoPath(
-    'examples/svelte/basic/src/routes/[postId]/+page.svelte',
-  ),
+  isValidRepoPath('examples/svelte/basic/src/routes/[postId]/+page.svelte'),
   true,
   'SvelteKit bracket-style dynamic route segments are valid repo path segments',
 )

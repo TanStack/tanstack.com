@@ -5,7 +5,7 @@ import { DefaultCatchBoundary } from './components/DefaultCatchBoundary'
 import { NotFound } from './components/NotFound'
 import { QueryClient } from '@tanstack/react-query'
 import * as Sentry from '@sentry/tanstackstart-react'
-import { installStaleAppReloadHandlers } from './utils/stale-app-reload'
+import { installStaleAppReloadHandlers, staleAppErrorPatterns } from './utils/stale-app-reload'
 import { redactByokRequestHeaders } from './utils/sentry-redaction'
 
 if (typeof document !== 'undefined') {
@@ -14,6 +14,7 @@ if (typeof document !== 'undefined') {
   Sentry.init({
     dsn: 'https://ac4bfc43ff4a892f8dc7053c4a50d92f@o4507236158537728.ingest.us.sentry.io/4507236163649536',
     sendDefaultPii: true,
+    ignoreErrors: staleAppErrorPatterns,
     // Performance Monitoring
     tracesSampleRate: 1.0, //  Capture 100% of the transactions
     // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled

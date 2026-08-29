@@ -35,6 +35,26 @@ assert.equal(
 )
 
 assert.equal(
+  isValidRepoPath(
+    'examples/svelte/basic/src/routes/[postId]/+page.svelte',
+  ),
+  true,
+  'SvelteKit bracket-style dynamic route segments are valid repo path segments',
+)
+
+assert.equal(
+  isValidRepoPath('examples/react/start-basic/src/routes/(auth)/login.tsx'),
+  true,
+  'Next.js/Remix parenthesis route group segments are valid repo path segments',
+)
+
+assert.equal(
+  isValidRepoPath('examples/react/start-basic/src/@components/Button.tsx'),
+  true,
+  'at-sign path segments are valid repo path segments',
+)
+
+assert.equal(
   joinRepoPath('examples/react/start-basic', 'src/routes/__root.tsx'),
   'examples/react/start-basic/src/routes/__root.tsx',
   'relative example paths are resolved under the example directory',

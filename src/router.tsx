@@ -5,7 +5,10 @@ import { DefaultCatchBoundary } from './components/DefaultCatchBoundary'
 import { NotFound } from './components/NotFound'
 import { QueryClient } from '@tanstack/react-query'
 import * as Sentry from '@sentry/tanstackstart-react'
-import { installStaleAppReloadHandlers, staleAppErrorPatterns } from './utils/stale-app-reload'
+import {
+  installStaleAppReloadHandlers,
+  staleAppErrorPatterns,
+} from './utils/stale-app-reload'
 import { redactByokRequestHeaders } from './utils/sentry-redaction'
 
 if (typeof document !== 'undefined') {

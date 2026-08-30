@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { ExampleWorkbench } from './ExampleWorkbench.client'
-import { NotebookEmbeddedSkeleton } from '~/components/notebook/NotebookLoading'
+import { BuilderEmbeddedSkeleton } from '~/components/builder/BuilderLoading'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { shouldAutoRunNotebook } from '~/utils/notebook-auto-run.client'
+import { shouldAutoRunBuilder } from '~/utils/builder-auto-run.client'
 import { decodeSharedExampleProject } from '~/utils/example-share.client'
 import {
   parseSharedExampleProject,
@@ -17,7 +17,7 @@ export function SharedExamplePage({ hash }: { hash?: string }) {
   const definition = React.useMemo(
     () =>
       project
-        ? sharedProjectToExampleDefinition(hash ?? 'shared-notebook', project)
+        ? sharedProjectToExampleDefinition(hash ?? 'shared-builder', project)
         : undefined,
     [hash, project],
   )
@@ -31,7 +31,7 @@ export function SharedExamplePage({ hash }: { hash?: string }) {
           ? await fetchStoredProject(hash)
           : await decodeSharedExampleProject(window.location.hash)
 
-        if (!nextProject) throw new Error('This notebook link is invalid.')
+        if (!nextProject) throw new Error('This builder link is invalid.')
         if (active) setProject(nextProject)
       } catch (cause) {
         if (active) setError(formatError(cause))
@@ -47,13 +47,13 @@ export function SharedExamplePage({ hash }: { hash?: string }) {
   if (error) {
     return (
       <main className="mx-auto w-full max-w-3xl p-6">
-        <h1 className="text-xl font-semibold">Unable to open notebook</h1>
+        <h1 className="text-xl font-semibold">Unable to open builder</h1>
         <p className="mt-2 text-sm text-text-muted">{error}</p>
       </main>
     )
   }
 
-  if (!project || !definition) return <NotebookEmbeddedSkeleton />
+  if (!project || !definition) return <BuilderEmbeddedSkeleton />
 
   return (
     <main className="w-full p-3 sm:p-4">
@@ -67,17 +67,17 @@ export function SharedExamplePage({ hash }: { hash?: string }) {
       </header>
       <ExampleWorkbench
         allowSharing={Boolean(user)}
-        autoRun={shouldAutoRunNotebook(window.navigator)}
+        autoRun={shouldAutoRunBuilder(window.navigator)}
         definition={definition}
-        runLabel="Run notebook"
+        runLabel="Run builder"
       />
     </main>
   )
 }
 
 async function fetchStoredProject(hash: string) {
-  const response = await fetch(`/api/notebook/projects/${hash}`)
-  if (!response.ok) throw new Error('This notebook was not found.')
+  const response = await fetch(`/api/builder/projects/${hash}`)
+  if (!response.ok) throw new Error('This builder was not found.')
   return parseSharedExampleProject(await response.json())
 }
 

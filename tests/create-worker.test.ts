@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { create } from '../src/builder/api/create-worker'
+import { create } from '../src/application-starter/api/create-worker'
 
 const react = await create.getFrameworkById('react')
 if (!react) throw new Error('React framework not found')

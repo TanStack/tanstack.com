@@ -13,7 +13,7 @@ type HostRuntimeEnv = Record<string, unknown> & {
     connectionString: string
   }
   NPM_DOWNLOAD_CACHE?: unknown
-  NOTEBOOK_PROJECTS?: unknown
+  BUILDER_PROJECTS?: unknown
 }
 
 type HostRuntimeModule = {

@@ -29,52 +29,76 @@ const catalog = {
   revision: 'a'.repeat(40),
   cases: [
     {
-      id: '03-temperature-range-band',
-      family: 'range',
-      order: 1,
-      title: 'Temperature Range Band',
-    },
-    {
       id: 'bar-grouped',
       family: 'bar',
-      order: 2,
-      title: 'Grouped Bars',
-    },
-    {
-      id: 'scatter-bubble',
-      family: 'relationship',
-      order: 3,
-      title: 'Bubble Scatter',
-    },
-    {
-      id: '04-stacked-time-area',
-      family: 'composition',
-      order: 4,
-      title: 'Stacked Time Area',
+      order: 1,
+      title: 'Grouped bars',
     },
     {
       id: '14-error-bars',
       family: 'uncertainty',
-      order: 5,
-      title: 'Error Bars',
+      order: 2,
+      title: 'Point estimates with error bars',
     },
     {
       id: 'heatmap-labeled',
       family: 'matrix',
+      order: 3,
+      title: 'Labeled ordinal heatmap',
+    },
+    {
+      id: '70-composed-chart',
+      family: 'composition',
+      order: 4,
+      title: 'Seattle weather with three y axes',
+    },
+    {
+      id: '84-pinned-nested-chart-tooltip',
+      family: 'interaction',
+      order: 5,
+      title: 'Expanding pinned energy tooltip',
+    },
+    {
+      id: '90-zoomable-time-window',
+      family: 'interaction',
       order: 6,
-      title: 'Labeled Heatmap',
+      title: 'Wheel zoom and pan over AAPL closes',
     },
     {
-      id: '36-hierarchy-tree',
-      family: 'hierarchy',
-      order: 7,
-      title: 'Hierarchy Tree',
-    },
-    {
-      id: '76-pie',
+      id: '99-comparative-radar',
       family: 'polar',
+      order: 7,
+      title: 'Comparative radar chart',
+    },
+    {
+      id: '101-sunburst',
+      family: 'hierarchy',
       order: 8,
-      title: 'Pie',
+      title: 'Flare analytics sunburst',
+    },
+    {
+      id: '103-bubble-map',
+      family: 'geography',
+      order: 9,
+      title: 'World population bubble map',
+    },
+    {
+      id: '116-geometry-morph',
+      family: 'motion',
+      order: 10,
+      title: 'Cross-chart geometry morph',
+    },
+    {
+      id: '127-shadcn-dashboard',
+      family: 'application',
+      order: 11,
+      title: 'shadcn dashboard',
+    },
+    {
+      id: '131-shadcn-radial-text',
+      family: 'radial',
+      order: 12,
+      title: 'shadcn radial chart with text',
     },
   ],
 }
@@ -85,9 +109,9 @@ test('the landing hero uses a fixed set of distinct catalog cases', () => {
     chartsLandingHeroCaseIds.length,
   )
   assert.deepEqual(chartsLandingHeroCaseIds, [
-    '03-temperature-range-band',
-    'bar-grouped',
-    'scatter-bubble',
+    '70-composed-chart',
+    '101-sunburst',
+    '127-shadcn-dashboard',
   ])
 })
 
@@ -164,6 +188,14 @@ test('the landing server-renders revision-pinned chart preview assets', () => {
 
   assert.equal(
     $('img[src^="/charts/catalog/previews/"]').length,
+    catalog.cases.length + chartsLandingHeroCaseIds.length,
+  )
+  assert.equal(
+    $('img[data-catalog-preview-case][loading="lazy"]').length,
+    catalog.cases.length + chartsLandingHeroCaseIds.length,
+  )
+  assert.equal(
+    $('img[data-catalog-preview-case][decoding="async"]').length,
     catalog.cases.length + chartsLandingHeroCaseIds.length,
   )
   assert.equal($('.charts-catalog-chart').length, 0)

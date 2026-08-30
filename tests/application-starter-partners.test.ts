@@ -21,7 +21,7 @@ const {
 }: typeof import('../src/utils/partners') = require('../src/utils/partners')
 const {
   TEMPLATES,
-}: typeof import('../src/builder/templates') = require('../src/builder/templates')
+}: typeof import('../src/application-starter/templates') = require('../src/application-starter/templates')
 const {
   getPartnerSitemapEntries,
 }: typeof import('../src/utils/partner-pages') = require('../src/utils/partner-pages')
@@ -291,7 +291,7 @@ test('database constraints survive starter defaults and inference', async () => 
   assert.match(withoutHosted.cliCommand, /prisma/)
   assert.match(withoutHosted.cliCommand, /database.*sqlite/)
   assert.match(
-    withoutHosted.advancedBuilderUrl ?? '',
+    withoutHosted.advancedApplicationStarterUrl ?? '',
     /prisma\.database=sqlite/,
   )
   assert.match(withoutHosted.downloadUrl ?? '', /prisma\.database=sqlite/)

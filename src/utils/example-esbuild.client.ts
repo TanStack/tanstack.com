@@ -1,6 +1,6 @@
 import * as esbuild from 'esbuild-wasm'
 import esbuildWasmUrl from 'esbuild-wasm/esbuild.wasm?url'
-import { getExampleEnvironmentProfile } from './notebook-environment'
+import { getExampleEnvironmentProfile } from './builder-environment'
 import {
   getExampleWorkspaceImports,
   resolveExampleWorkspaceImports,

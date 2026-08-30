@@ -37,9 +37,9 @@ export type PartnerTierValue = 'gold' | 'silver' | 'bronze'
 
 export type PartnerFilterChange = 'status_changed'
 
-export type BuilderMode = 'lucky' | 'confident' | 'none'
+export type ApplicationStarterMode = 'lucky' | 'confident' | 'none'
 
-export type BuilderAction =
+export type ApplicationStarterAction =
   | 'copy_prompt'
   | 'deploy'
   | 'clone_repo'
@@ -53,18 +53,21 @@ export type BuilderAction =
   | 'provider_redirect_auto'
   | 'open_repo'
 
-export type BuilderSurface = 'result_panel' | 'deploy_dialog'
+export type ApplicationStarterSurface = 'result_panel' | 'deploy_dialog'
 
-export type BuilderFailureStage = 'analysis' | 'generation' | 'login_blocked'
+export type ApplicationStarterFailureStage =
+  | 'analysis'
+  | 'generation'
+  | 'login_blocked'
 
 // ---------- Session context ----------
 
 /**
- * Slow-changing context stamped on every builder event so any breakdown
+ * Slow-changing context stamped on every Application Starter event so any breakdown
  * works in GA4 without joining sessions in BigQuery.
  */
-export interface BuilderSessionContext {
-  mode_used: BuilderMode
+export interface ApplicationStarterSessionContext {
+  mode_used: ApplicationStarterMode
   idea_used: string
 }
 
@@ -118,8 +121,8 @@ export type AnalyticsEvent =
       }
     }
   | {
-      name: 'builder_analyzed'
-      props: BuilderSessionContext & {
+      name: 'application_starter_analyzed'
+      props: ApplicationStarterSessionContext & {
         analysis_deployment?: string
         inferred_library_count: number
         inferred_partner_count: number
@@ -127,8 +130,8 @@ export type AnalyticsEvent =
       }
     }
   | {
-      name: 'builder_generated'
-      props: BuilderSessionContext & {
+      name: 'application_starter_generated'
+      props: ApplicationStarterSessionContext & {
         final_deployment?: string
         final_package_manager?: string
         final_library_count: number
@@ -140,19 +143,19 @@ export type AnalyticsEvent =
       }
     }
   | {
-      name: 'builder_failed'
-      props: BuilderSessionContext & {
-        stage: BuilderFailureStage
+      name: 'application_starter_failed'
+      props: ApplicationStarterSessionContext & {
+        stage: ApplicationStarterFailureStage
         error_message?: string
         retry_after?: number
         anonymous_generations_remaining?: number
       }
     }
   | {
-      name: 'builder_activated'
-      props: BuilderSessionContext & {
-        action: BuilderAction
-        surface: BuilderSurface
+      name: 'application_starter_activated'
+      props: ApplicationStarterSessionContext & {
+        action: ApplicationStarterAction
+        surface: ApplicationStarterSurface
         provider?: string
         automatic: boolean
       }
@@ -168,11 +171,12 @@ export type AnalyticsEventProps<TName extends AnalyticsEventName> = Extract<
 >['props']
 
 /**
- * Default session context for new builder sessions. `mode_used = 'none'`
+ * Default session context for new Application Starter sessions. `mode_used = 'none'`
  * means the user hasn't picked Lucky or Confident yet; `idea_used = 'none'`
  * means they haven't selected a suggested idea.
  */
-export const defaultBuilderSessionContext: BuilderSessionContext = {
-  mode_used: 'none',
-  idea_used: 'none',
-}
+export const defaultApplicationStarterSessionContext: ApplicationStarterSessionContext =
+  {
+    mode_used: 'none',
+    idea_used: 'none',
+  }

@@ -2585,6 +2585,6 @@ html.dark .sandbox-ui {
   --color-text-muted: #8a8a8a;
 }
 
-[data-notebook-shell]:has([data-notebook-ready]) > [data-notebook-initial] {
+[data-builder-shell]:has([data-builder-ready]) > [data-builder-initial] {
   display: none;
 }

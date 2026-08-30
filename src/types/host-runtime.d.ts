@@ -6,6 +6,6 @@ declare module 'cloudflare:workers' {
       connectionString: string
     }
     NPM_DOWNLOAD_CACHE?: unknown
-    NOTEBOOK_PROJECTS?: unknown
+    BUILDER_PROJECTS?: unknown
   }
 }

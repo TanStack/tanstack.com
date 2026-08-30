@@ -69,7 +69,7 @@ export async function checkRepoNameAvailability(
   name: string,
 ): Promise<{ available: boolean }> {
   const response = await fetch(
-    `/api/builder/deploy/check-name?name=${encodeURIComponent(name)}`,
+    `/api/application-starter/deploy/check-name?name=${encodeURIComponent(name)}`,
   )
   return response.json()
 }

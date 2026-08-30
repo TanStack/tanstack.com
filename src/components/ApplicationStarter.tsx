@@ -26,21 +26,21 @@ import {
   StarterLibraryRows,
   StarterPartnerRows,
   StarterTooltipProvider,
-} from '~/components/application-builder/parts'
+} from '~/components/application-starter/prompt-parts'
 import {
   buildStarterPromptDeployUrl,
   toneClasses,
-  type ApplicationStarterBuilderIntegration,
+  type ApplicationStarterIntegration,
   type StarterPromptDeployProvider,
   type StarterTone,
-} from '~/components/application-builder/shared'
-import { useApplicationBuilder } from '~/components/application-builder/useApplicationBuilder'
+} from '~/components/application-starter/prompt-shared'
+import { useApplicationStarter } from '~/components/application-starter/useApplicationStarter'
 import { PixelSpinner } from '~/components/ds/ui/PixelSpinner'
 import { usePrefersReducedMotion } from '~/utils/usePrefersReducedMotion'
 import { Button, Tooltip } from '~/ui'
 
 export interface ApplicationStarterProps {
-  builderIntegration?: ApplicationStarterBuilderIntegration
+  applicationStarterIntegration?: ApplicationStarterIntegration
   className?: string
   context: ApplicationStarterContext
   footerContent?: React.ReactNode
@@ -69,7 +69,7 @@ const LazyApplicationStarterHotkeys = React.lazy(() =>
 )
 
 const LazyDeployDialog = React.lazy(() =>
-  import('~/components/builder/DeployDialog').then((m) => ({
+  import('~/components/application-starter/DeployDialog').then((m) => ({
     default: m.DeployDialog,
   })),
 )
@@ -136,7 +136,7 @@ function buildCursorStartUrl(prompt: string) {
 }
 
 export function ApplicationStarter({
-  builderIntegration,
+  applicationStarterIntegration,
   className,
   context,
   footerContent,
@@ -179,7 +179,7 @@ export function ApplicationStarter({
     partnerSuggestions,
     promptCopyNotice,
     result,
-    resetBuilder,
+    resetApplicationStarter,
     selectSuggestion,
     selectedPackageManager,
     selectedLibraries,
@@ -197,8 +197,8 @@ export function ApplicationStarter({
     toggleToolchain,
     updateInput,
     updateMigrationRepositoryUrl,
-  } = useApplicationBuilder({
-    builderIntegration,
+  } = useApplicationStarter({
+    applicationStarterIntegration,
     context,
     forceRouterOnly,
     mode,
@@ -269,7 +269,7 @@ export function ApplicationStarter({
     setIsHomePayoffLoading(false)
     void submitCurrentInput(overrideInput)
   }, [submitCurrentInput])
-  const resetHomeBuilder = React.useCallback(() => {
+  const resetHomeApplicationStarter = React.useCallback(() => {
     homePayoffLoadingRef.current = false
     pendingHomeSubmissionRef.current = undefined
     setIsHomePayoffLoading(false)
@@ -278,8 +278,8 @@ export function ApplicationStarter({
     hasPlayedHomeRevealRef.current = false
     setShowToolchainOptions(false)
     setShowPackageManagerOptions(false)
-    resetBuilder()
-  }, [resetBuilder])
+    resetApplicationStarter()
+  }, [resetApplicationStarter])
   const [placeholderIndex, setPlaceholderIndex] = React.useState(0)
   const [placeholderShowing, setPlaceholderShowing] = React.useState(true)
   React.useEffect(() => {
@@ -947,7 +947,7 @@ export function ApplicationStarter({
             </>
           ) : (
             <>
-              {/* Figma StackBuilder: the heading floats above the box. */}
+              {/* Figma StackApplicationStarter: the heading floats above the box. */}
               {isHomeStarter ? (
                 <p className="mx-auto mb-6 max-w-4xl text-balance text-center font-ds-display text-ds-heading-3 font-light leading-tight text-gray-950 dark:text-white">
                   {title}
@@ -1118,7 +1118,7 @@ export function ApplicationStarter({
                             variant="ghost"
                             size="sm"
                             type="button"
-                            onClick={resetHomeBuilder}
+                            onClick={resetHomeApplicationStarter}
                             className="rounded-lg border-0 bg-transparent text-xs font-medium text-gray-500 shadow-none hover:bg-gray-950/5 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-white"
                           >
                             <ArrowCounterClockwiseIcon className="h-3.5 w-3.5" />
@@ -1194,7 +1194,7 @@ export function ApplicationStarter({
                                   'mb-4',
                                   isHomeStarter &&
                                     !reducedMotion &&
-                                    'home-stack-builder-section-reveal',
+                                    'home-stack-applicationStarter-section-reveal',
                                 )}
                               >
                                 <div className={starterEyebrowClassName}>
@@ -1217,7 +1217,7 @@ export function ApplicationStarter({
                                 className={twMerge(
                                   isHomeStarter &&
                                     !reducedMotion &&
-                                    'home-stack-builder-section-reveal home-stack-builder-section-reveal-delayed',
+                                    'home-stack-applicationStarter-section-reveal home-stack-applicationStarter-section-reveal-delayed',
                                 )}
                               >
                                 <div className={starterEyebrowClassName}>
@@ -1246,7 +1246,7 @@ export function ApplicationStarter({
                                 className={twMerge(
                                   isHomeStarter &&
                                     !reducedMotion &&
-                                    'home-stack-builder-section-reveal home-stack-builder-section-reveal-third',
+                                    'home-stack-applicationStarter-section-reveal home-stack-applicationStarter-section-reveal-third',
                                 )}
                               >
                                 <StarterCustomizationSection
@@ -1279,7 +1279,7 @@ export function ApplicationStarter({
                                 className={twMerge(
                                   isHomeStarter &&
                                     !reducedMotion &&
-                                    'home-stack-builder-section-reveal home-stack-builder-section-reveal-fourth',
+                                    'home-stack-applicationStarter-section-reveal home-stack-applicationStarter-section-reveal-fourth',
                                 )}
                               >
                                 <StarterCustomizationSection
@@ -1334,7 +1334,7 @@ export function ApplicationStarter({
                           className={twMerge(
                             'bg-gray-50/70 px-5 py-4 dark:bg-gray-900/50',
                             isHomeStarter &&
-                              'home-stack-builder-reveal home-stack-builder-reveal-delayed bg-transparent dark:bg-transparent',
+                              'home-stack-applicationStarter-reveal home-stack-applicationStarter-reveal-delayed bg-transparent dark:bg-transparent',
                           )}
                         >
                           <div

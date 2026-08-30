@@ -9,9 +9,9 @@ type ChartsLandingCatalog = Awaited<ReturnType<typeof getChartsCatalogLanding>>
 type CatalogCase = ChartsLandingCatalog['cases'][number]
 
 export const chartsLandingHeroCaseIds = [
-  '03-temperature-range-band',
-  'bar-grouped',
-  'scatter-bubble',
+  '70-composed-chart',
+  '101-sunburst',
+  '127-shadcn-dashboard',
 ] as const
 
 export function CatalogChartsHero({
@@ -122,6 +122,10 @@ export function ChartsCatalogGallery({
   )
 }
 
+function compareCatalogCases(left: CatalogCase, right: CatalogCase) {
+  return left.order - right.order
+}
+
 function CatalogChartCard({
   catalogCase,
   revision,
@@ -158,8 +162,4 @@ function CatalogChartCard({
       />
     </div>
   )
-}
-
-function compareCatalogCases(left: CatalogCase, right: CatalogCase) {
-  return left.order - right.order
 }

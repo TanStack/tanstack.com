@@ -6,6 +6,7 @@ import { NotFound } from './components/NotFound'
 import { QueryClient } from '@tanstack/react-query'
 import * as Sentry from '@sentry/tanstackstart-react'
 import { installStaleAppReloadHandlers } from './utils/stale-app-reload'
+import { redactByokRequestHeaders } from './utils/sentry-redaction'
 
 if (typeof document !== 'undefined') {
   installStaleAppReloadHandlers()
@@ -18,6 +19,7 @@ if (typeof document !== 'undefined') {
     // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
     tracePropagationTargets: ['localhost', /^https:\/\/tanstack\.com\//],
     beforeSend(event) {
+      redactByokRequestHeaders(event)
       // Filter out errors from third-party ad tech scripts (e.g. Publift's
       // Fuse Platform ftUtils.js) that are not actionable by us.
       const frames = event.exception?.values?.flatMap(
@@ -71,7 +73,11 @@ export function getRouter() {
     )
   }
 
-  setupRouterSsrQueryIntegration({ router, queryClient })
+  setupRouterSsrQueryIntegration({
+    router,
+    queryClient,
+    wrapQueryClient: false,
+  })
 
   return router
 }

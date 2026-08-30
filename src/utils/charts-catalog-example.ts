@@ -259,8 +259,8 @@ function createCatalogDocument(chartHeight: number) {
     <style>
       html, body { margin: 0; min-width: 0; }
       body {
-        background: var(--notebook-background);
-        color: var(--notebook-foreground);
+        background: var(--builder-background);
+        color: var(--builder-foreground);
       }
       #root { width: 100%; height: ${chartHeight}px; min-width: 0; }
     </style>

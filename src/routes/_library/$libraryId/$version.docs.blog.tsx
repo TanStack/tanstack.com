@@ -33,11 +33,15 @@ function RouteComponent() {
   const { author, q } = Route.useSearch()
   const navigate = Route.useNavigate()
   const library = getLibrary(libraryId as LibraryId)
-  const selectedAuthor = author ? normalizeBlogAuthor(author) : undefined
   const searchQuery = q ?? ''
 
   const posts = Route.useLoaderData()
   const authors = getDistinctAuthors(posts)
+  const normalizedAuthor = author ? normalizeBlogAuthor(author) : undefined
+  const selectedAuthor =
+    normalizedAuthor && authors.includes(normalizedAuthor)
+      ? normalizedAuthor
+      : undefined
 
   const authorFilteredPosts = selectedAuthor
     ? posts.filter((post) => post.authors.includes(selectedAuthor))
@@ -87,11 +91,7 @@ function RouteComponent() {
               <div className="w-56 max-w-full">
                 <FormSelect
                   aria-label="Filter by author"
-                  value={
-                    selectedAuthor && authors.includes(selectedAuthor)
-                      ? selectedAuthor
-                      : ''
-                  }
+                  value={selectedAuthor ?? ''}
                   onChange={(event) =>
                     navigate({
                       search: (prev) => ({

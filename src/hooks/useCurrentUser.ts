@@ -1,5 +1,5 @@
 import { useQuery, queryOptions } from '@tanstack/react-query'
-import { useRouteContext } from '@tanstack/react-router'
+import { useRouterState } from '@tanstack/react-router'
 import { getCurrentUser } from '~/utils/auth.functions'
 
 export const currentUserQueryOptions = queryOptions({
@@ -11,9 +11,12 @@ export const currentUserQueryOptions = queryOptions({
 })
 
 export function useCurrentUserQuery() {
-  // Get user from route context (set in beforeLoad)
-  const routeContext = useRouteContext({ strict: false })
-  const contextUser = routeContext?.user
+  const contextUser = useRouterState({
+    select: (state) => {
+      const context = state.matches[state.matches.length - 1]?.context
+      return context && 'user' in context ? context.user : undefined
+    },
+  })
 
   return useQuery({
     ...currentUserQueryOptions,

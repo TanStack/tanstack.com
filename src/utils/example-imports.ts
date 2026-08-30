@@ -1,4 +1,4 @@
-import { notebookImports } from './notebook-environment'
+import { builderImports } from './builder-environment'
 import type { ExampleWorkspace } from './example-workspace'
 
 const esmOrigin = 'https://esm.sh'
@@ -7,7 +7,7 @@ const packageMetadataResponseLimit = 512 * 1024
 const esmMetadataTimeout = 10_000
 const externalSpecifierLimit = 100
 const chartsDataPrefix = '@tanstack/charts-data/'
-const chartsDataUrl = notebookImports[chartsDataPrefix]
+const chartsDataUrl = builderImports[chartsDataPrefix]
 const exactVersionPattern =
   /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/
 const requestedVersionPattern = /^[0-9A-Za-z*.+~^<>=| -]+$/
@@ -263,7 +263,7 @@ export function getExampleWorkspaceImports(
   files: Record<string, string>,
   externalSpecifiers: ReadonlySet<string> = new Set(),
 ) {
-  const imports: Record<string, string> = { ...notebookImports }
+  const imports: Record<string, string> = { ...builderImports }
   const packageSource = files['/package.json']
 
   if (!packageSource) return { ...imports, ...workspace.imports }

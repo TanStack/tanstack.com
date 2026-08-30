@@ -18,7 +18,7 @@ import {
 import { twMerge } from 'tailwind-merge'
 import { useAsyncDebouncer } from '@tanstack/react-pacer'
 import { Button, GitHub } from '~/ui'
-import { useDeployAuth } from './builder/useDeployAuth'
+import { useDeployAuth } from './application-starter/useDeployAuth'
 import {
   type DeployProvider,
   type DeployState,

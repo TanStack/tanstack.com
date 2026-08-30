@@ -23,7 +23,7 @@ import {
   DropdownItem,
   DropdownTrigger,
 } from '~/components/ds/ui'
-import { NotebookWorkspaceControlsContext } from '~/components/notebook/notebook-workspace-controls.client'
+import { BuilderWorkspaceControlsContext } from '~/components/builder/builder-workspace-controls.client'
 import { Tooltip } from '~/ui'
 import { copyTextToClipboard } from '~/utils/browser-effects'
 import {
@@ -61,27 +61,27 @@ import {
   type ExamplePreviewHistory,
 } from '~/utils/example-preview-history'
 import {
-  activateNotebookWorkbenchTab,
-  activateNotebookWorkbenchPane,
-  addNotebookWorkbenchTab,
-  closeNotebookWorkbenchTab,
-  createNotebookWorkbenchTabsState,
-  getActiveNotebookWorkbenchPane,
-  getActiveNotebookWorkbenchTab,
-  getNotebookWorkbenchPaneForTab,
-  getNotebookWorkbenchPaneTabs,
-  getNotebookWorkbenchTabLabel,
-  getNotebookWorkbenchTabNavigationTarget,
-  moveNotebookWorkbenchTab,
-  repairNotebookWorkbenchEditorPaths,
-  resizeNotebookWorkbenchPanes,
-  splitNotebookWorkbenchTab,
-  updateNotebookWorkbenchEditorTab,
-  type NewNotebookWorkbenchTab,
-  type NotebookWorkbenchPane,
-  type NotebookWorkbenchTab,
-} from '~/utils/notebook-workbench-tabs'
-import type { NotebookAiPromptLifecycle } from '~/utils/notebook-ai-prompt-queue'
+  activateBuilderWorkbenchTab,
+  activateBuilderWorkbenchPane,
+  addBuilderWorkbenchTab,
+  closeBuilderWorkbenchTab,
+  createBuilderWorkbenchTabsState,
+  getActiveBuilderWorkbenchPane,
+  getActiveBuilderWorkbenchTab,
+  getBuilderWorkbenchPaneForTab,
+  getBuilderWorkbenchPaneTabs,
+  getBuilderWorkbenchTabLabel,
+  getBuilderWorkbenchTabNavigationTarget,
+  moveBuilderWorkbenchTab,
+  repairBuilderWorkbenchEditorPaths,
+  resizeBuilderWorkbenchPanes,
+  splitBuilderWorkbenchTab,
+  updateBuilderWorkbenchEditorTab,
+  type NewBuilderWorkbenchTab,
+  type BuilderWorkbenchPane,
+  type BuilderWorkbenchTab,
+} from '~/utils/builder-workbench-tabs'
+import type { BuilderAiPromptLifecycle } from '~/utils/builder-ai-prompt-queue'
 import {
   createExampleWorkspace,
   type ExampleDefinition,
@@ -141,14 +141,14 @@ type CodePanelResize = {
   previousFramePointerEvents: string
   previousUserSelect: string
 }
-type NotebookPaneResize = {
+type BuilderPaneResize = {
   frames: Array<{ frame: HTMLIFrameElement; pointerEvents: string }>
   ownerDocument: Document
   pointerId: number
   previousCursor: string
   previousUserSelect: string
 }
-type NotebookChatResize = {
+type BuilderChatResize = {
   frames: Array<{ frame: HTMLIFrameElement; pointerEvents: string }>
   ownerDocument: Document
   percent: number
@@ -156,13 +156,13 @@ type NotebookChatResize = {
   previousCursor: string
   previousUserSelect: string
 }
-type NotebookLayoutStyle = React.CSSProperties & {
-  '--notebook-chat-desktop-track': string
-  '--notebook-chat-mobile-track': string
-  '--notebook-workspace-desktop-track': string
-  '--notebook-workspace-mobile-track': string
+type BuilderLayoutStyle = React.CSSProperties & {
+  '--builder-chat-desktop-track': string
+  '--builder-chat-mobile-track': string
+  '--builder-workspace-desktop-track': string
+  '--builder-workspace-mobile-track': string
 }
-type NotebookTabDrag = {
+type BuilderTabDrag = {
   active: boolean
   frames?: Array<{ frame: HTMLIFrameElement; pointerEvents: string }>
   pointerId: number
@@ -174,7 +174,7 @@ type NotebookTabDrag = {
 }
 
 const DEFAULT_CODE_PANEL_PERCENT = 67
-const DEFAULT_NOTEBOOK_CHAT_PERCENT = 38
+const DEFAULT_BUILDER_CHAT_PERCENT = 38
 const MIN_DESKTOP_PANEL_WIDTH = 280
 const MAX_PROCESS_OUTPUT_LENGTH = 500_000
 const RUN_SETTLE_DELAY_MS = 750
@@ -257,7 +257,7 @@ export function ExampleWorkbench({
     onActiveChange(active: boolean): void
     submitPrompt?(
       content: string,
-      lifecycle?: NotebookAiPromptLifecycle,
+      lifecycle?: BuilderAiPromptLifecycle,
     ): boolean
   }
   autoRun?: boolean
@@ -280,13 +280,13 @@ export function ExampleWorkbench({
   const outputPanelId = React.useId()
   const previewPanelId = React.useId()
   const processPanelId = React.useId()
-  const notebookTabsId = React.useId()
-  const notebookWorkspaceId = `${notebookTabsId}-workspace`
-  const notebookChatId = `${notebookTabsId}-chat`
+  const builderTabsId = React.useId()
+  const builderWorkspaceId = `${builderTabsId}-workspace`
+  const builderChatId = `${builderTabsId}-chat`
   const [workspace, setWorkspace] = React.useState(() =>
     cloneWorkspace(definition.workspace),
   )
-  const notebookMode = alternateEditor !== undefined
+  const builderMode = alternateEditor !== undefined
   const alternateEditorActive = alternateEditor?.active ?? false
   const workspaceRef = React.useRef(workspace)
   const [activePath, setActivePath] = React.useState(() =>
@@ -310,12 +310,12 @@ export function ExampleWorkbench({
     DEFAULT_CODE_PANEL_PERCENT,
   )
   const [isCodePanelResizing, setIsCodePanelResizing] = React.useState(false)
-  const [notebookChatPercent, setNotebookChatPercent] = React.useState(
-    DEFAULT_NOTEBOOK_CHAT_PERCENT,
+  const [builderChatPercent, setBuilderChatPercent] = React.useState(
+    DEFAULT_BUILDER_CHAT_PERCENT,
   )
-  const [notebookWorkspaceVisible, setNotebookWorkspaceVisible] =
+  const [builderWorkspaceVisible, setBuilderWorkspaceVisible] =
     React.useState(true)
-  const [isNotebookChatResizing, setIsNotebookChatResizing] =
+  const [isBuilderChatResizing, setIsBuilderChatResizing] =
     React.useState(false)
   const [status, setStatus] = React.useState<WorkbenchStatus>('idle')
   const [runActive, setRunActive] = React.useState(false)
@@ -334,66 +334,64 @@ export function ExampleWorkbench({
     createExamplePreviewHistory(),
   )
   const previewHistoryRef = React.useRef(previewHistory)
-  const [notebookTabs, setNotebookTabs] = React.useState(() =>
-    createNotebookWorkbenchTabsState(),
+  const [builderTabs, setBuilderTabs] = React.useState(() =>
+    createBuilderWorkbenchTabsState(),
   )
-  const notebookTabsRef = React.useRef(notebookTabs)
-  const notebookDefinitionIdRef = React.useRef(definition.id)
-  const notebookTabButtonRefs = React.useRef(
+  const builderTabsRef = React.useRef(builderTabs)
+  const builderDefinitionIdRef = React.useRef(definition.id)
+  const builderTabButtonRefs = React.useRef(
     new Map<string, HTMLButtonElement>(),
   )
-  const notebookAddTabButtonRef = React.useRef<HTMLButtonElement>(null)
-  const notebookPaneRefs = React.useRef(new Map<string, HTMLDivElement>())
-  const notebookLayoutRef = React.useRef<HTMLDivElement>(null)
-  const notebookWorkspaceRef = React.useRef<HTMLDivElement>(null)
-  const notebookContainerRef = React.useRef<HTMLElement>(null)
-  const notebookPaneGridRef = React.useRef<HTMLDivElement>(null)
-  const notebookPaneResizeRef = React.useRef<NotebookPaneResize>(null)
-  const notebookChatResizeRef = React.useRef<NotebookChatResize>(null)
-  const notebookTabDragRef = React.useRef<NotebookTabDrag>(null)
-  const notebookTabDidDragRef = React.useRef(false)
-  const [notebookTabDrag, setNotebookTabDrag] =
-    React.useState<NotebookTabDrag>()
-  const [notebookArrangeTabId, setNotebookArrangeTabId] =
-    React.useState<string>()
-  const [isNotebookPaneResizing, setIsNotebookPaneResizing] =
+  const builderAddTabButtonRef = React.useRef<HTMLButtonElement>(null)
+  const builderPaneRefs = React.useRef(new Map<string, HTMLDivElement>())
+  const builderLayoutRef = React.useRef<HTMLDivElement>(null)
+  const builderWorkspaceRef = React.useRef<HTMLDivElement>(null)
+  const builderContainerRef = React.useRef<HTMLElement>(null)
+  const builderPaneGridRef = React.useRef<HTMLDivElement>(null)
+  const builderPaneResizeRef = React.useRef<BuilderPaneResize>(null)
+  const builderChatResizeRef = React.useRef<BuilderChatResize>(null)
+  const builderTabDragRef = React.useRef<BuilderTabDrag>(null)
+  const builderTabDidDragRef = React.useRef(false)
+  const [builderTabDrag, setBuilderTabDrag] = React.useState<BuilderTabDrag>()
+  const [builderArrangeTabId, setBuilderArrangeTabId] = React.useState<string>()
+  const [isBuilderPaneResizing, setIsBuilderPaneResizing] =
     React.useState(false)
-  const [notebookContainerWidth, setNotebookContainerWidth] = React.useState(0)
-  const [notebookLayoutAnnouncement, setNotebookLayoutAnnouncement] =
+  const [builderContainerWidth, setBuilderContainerWidth] = React.useState(0)
+  const [builderLayoutAnnouncement, setBuilderLayoutAnnouncement] =
     React.useState('')
-  const notebookShowChatButtonRef = React.useRef<HTMLButtonElement>(null)
-  const previousNotebookChatOpenRef = React.useRef(
-    alternateEditorActive || notebookTabs.tabs.length === 0,
+  const builderShowChatButtonRef = React.useRef<HTMLButtonElement>(null)
+  const previousBuilderChatOpenRef = React.useRef(
+    alternateEditorActive || builderTabs.tabs.length === 0,
   )
-  const notebookPreviewHistoriesRef = React.useRef(
+  const builderPreviewHistoriesRef = React.useRef(
     new Map<string, ExamplePreviewHistory>(),
   )
-  const currentNotebookPreviewTabIdRef = React.useRef<string | undefined>(
+  const currentBuilderPreviewTabIdRef = React.useRef<string | undefined>(
     undefined,
   )
-  const notebookPreviewFrameRefs = React.useRef(
+  const builderPreviewFrameRefs = React.useRef(
     new Map<string, HTMLIFrameElement>(),
   )
-  const notebookPreviewRestoredRunTokensRef = React.useRef(
+  const builderPreviewRestoredRunTokensRef = React.useRef(
     new Map<string, string>(),
   )
-  const notebookValidationFrameRef = React.useRef<HTMLIFrameElement>(null)
-  const [needsNotebookValidationFrame, setNeedsNotebookValidationFrame] =
+  const builderValidationFrameRef = React.useRef<HTMLIFrameElement>(null)
+  const [needsBuilderValidationFrame, setNeedsBuilderValidationFrame] =
     React.useState(false)
-  const needsNotebookValidationFrameRef = React.useRef(
-    needsNotebookValidationFrame,
+  const needsBuilderValidationFrameRef = React.useRef(
+    needsBuilderValidationFrame,
   )
-  const notebookPreviewNavigationErrorsRef = React.useRef(
+  const builderPreviewNavigationErrorsRef = React.useRef(
     new Map<string, string>(),
   )
-  const notebookPreviewAnnotationModesRef = React.useRef(new Set<string>())
-  const notebookPreviewAnnotationTargetsRef = React.useRef(
+  const builderPreviewAnnotationModesRef = React.useRef(new Set<string>())
+  const builderPreviewAnnotationTargetsRef = React.useRef(
     new Map<string, SandboxBrowserAnnotationTarget>(),
   )
-  const notebookPreviewAnnotationsRef = React.useRef(
+  const builderPreviewAnnotationsRef = React.useRef(
     new Map<string, ReadonlyArray<SandboxBrowserAnnotation>>(),
   )
-  const [, setNotebookPreviewRevision] = React.useState(0)
+  const [, setBuilderPreviewRevision] = React.useState(0)
   const [previewNavigationError, setPreviewNavigationError] = React.useState('')
   const [previewAnnotationMode, setPreviewAnnotationModeActive] =
     React.useState(false)
@@ -440,12 +438,12 @@ export function ExampleWorkbench({
   const usesWebContainer = definition.runtime?.type === 'webcontainer'
   const shouldAutoRun = autoRun ?? !usesWebContainer
 
-  notebookTabsRef.current = notebookTabs
-  needsNotebookValidationFrameRef.current = needsNotebookValidationFrame
+  builderTabsRef.current = builderTabs
+  needsBuilderValidationFrameRef.current = needsBuilderValidationFrame
 
-  const getVisibleNotebookPreviewTab = React.useCallback(() => {
-    const tabs = notebookTabsRef.current
-    const activePane = getActiveNotebookWorkbenchPane(tabs)
+  const getVisibleBuilderPreviewTab = React.useCallback(() => {
+    const tabs = builderTabsRef.current
+    const activePane = getActiveBuilderWorkbenchPane(tabs)
     const visiblePanes =
       isDesktop && tabs.panes.length === 2
         ? tabs.panes
@@ -457,56 +455,53 @@ export function ExampleWorkbench({
       .find((tab) => tab?.kind === 'preview')
   }, [isDesktop])
 
-  const revealNotebookPreviewTab = React.useCallback(() => {
-    setNotebookWorkspaceVisible(true)
-    setNotebookTabs((current) => {
-      const activeTab = getActiveNotebookWorkbenchTab(current)
+  const revealBuilderPreviewTab = React.useCallback(() => {
+    setBuilderWorkspaceVisible(true)
+    setBuilderTabs((current) => {
+      const activeTab = getActiveBuilderWorkbenchTab(current)
       if (activeTab?.kind === 'preview') return current
 
       const previewTab =
         current.tabs.find(
-          (tab) => tab.id === currentNotebookPreviewTabIdRef.current,
+          (tab) => tab.id === currentBuilderPreviewTabIdRef.current,
         ) ?? current.tabs.find((tab) => tab.kind === 'preview')
       return previewTab
-        ? activateNotebookWorkbenchTab(current, previewTab.id)
-        : addNotebookWorkbenchTab(current, { kind: 'preview' })
+        ? activateBuilderWorkbenchTab(current, previewTab.id)
+        : addBuilderWorkbenchTab(current, { kind: 'preview' })
     })
   }, [])
 
-  const showNotebookWorkspace = React.useCallback(() => {
-    setNotebookWorkspaceVisible(true)
-    const current = notebookTabsRef.current
+  const showBuilderWorkspace = React.useCallback(() => {
+    setBuilderWorkspaceVisible(true)
+    const current = builderTabsRef.current
     if (current.tabs.length > 0) {
-      setNotebookLayoutAnnouncement('Side panel shown.')
+      setBuilderLayoutAnnouncement('Side panel shown.')
       return
     }
 
-    const next = addNotebookWorkbenchTab(current, { kind: 'preview' })
+    const next = addBuilderWorkbenchTab(current, { kind: 'preview' })
     const previewTab = next.tabs.find((tab) => tab.kind === 'preview')
-    notebookTabsRef.current = next
-    setNotebookTabs(next)
+    builderTabsRef.current = next
+    setBuilderTabs(next)
     if (previewTab) {
-      notebookPreviewHistoriesRef.current.set(
+      builderPreviewHistoriesRef.current.set(
         previewTab.id,
         createExamplePreviewHistory(),
       )
     }
-    setNotebookLayoutAnnouncement('Side panel shown.')
+    setBuilderLayoutAnnouncement('Side panel shown.')
   }, [])
 
-  const toggleNotebookWorkspace = React.useCallback(() => {
-    if (
-      !notebookWorkspaceVisible ||
-      notebookTabsRef.current.tabs.length === 0
-    ) {
-      showNotebookWorkspace()
+  const toggleBuilderWorkspace = React.useCallback(() => {
+    if (!builderWorkspaceVisible || builderTabsRef.current.tabs.length === 0) {
+      showBuilderWorkspace()
       return
     }
 
     alternateEditor?.onActiveChange(true)
-    setNotebookWorkspaceVisible(false)
-    setNotebookLayoutAnnouncement('Side panel hidden.')
-  }, [alternateEditor, notebookWorkspaceVisible, showNotebookWorkspace])
+    setBuilderWorkspaceVisible(false)
+    setBuilderLayoutAnnouncement('Side panel hidden.')
+  }, [alternateEditor, builderWorkspaceVisible, showBuilderWorkspace])
 
   React.useEffect(() => {
     previewHistoryRef.current = previewHistory
@@ -603,7 +598,7 @@ export function ExampleWorkbench({
           ? {
               ok: false,
               phase: 'superseded',
-              message: 'The notebook changed before validation completed.',
+              message: 'The builder changed before validation completed.',
               snapshot,
             }
           : outcome.ok && !snapshot.preview.observed
@@ -625,13 +620,13 @@ export function ExampleWorkbench({
       }
       pendingRunRef.current = undefined
       setRunActive(false)
-      if (notebookMode) {
-        needsNotebookValidationFrameRef.current = false
-        setNeedsNotebookValidationFrame(false)
+      if (builderMode) {
+        needsBuilderValidationFrameRef.current = false
+        setNeedsBuilderValidationFrame(false)
       }
       pending.resolve(result)
     },
-    [captureEnvironmentSnapshot, notebookMode],
+    [captureEnvironmentSnapshot, builderMode],
   )
 
   const finishCurrentRun = React.useCallback(
@@ -672,7 +667,7 @@ export function ExampleWorkbench({
             finishRun(token, {
               ok: false,
               phase: 'aborted',
-              message: 'The notebook run was stopped.',
+              message: 'The builder run was stopped.',
             })
           }
           pending.abortListener = abortListener
@@ -786,7 +781,7 @@ export function ExampleWorkbench({
     finishCurrentRun({
       ok: false,
       phase: 'superseded',
-      message: 'The notebook changed before the preview finished.',
+      message: 'The builder changed before the preview finished.',
     })
     compileRequestRef.current += 1
     cancelPreviewCapture('The preview changed before capture completed.')
@@ -812,59 +807,55 @@ export function ExampleWorkbench({
     const initialPreviewHistory = createExamplePreviewHistory()
     previewHistoryRef.current = initialPreviewHistory
     setPreviewHistory(initialPreviewHistory)
-    const notebookChanged = notebookDefinitionIdRef.current !== definition.id
-    notebookDefinitionIdRef.current = definition.id
-    if (notebookChanged) {
-      setNotebookArrangeTabId(undefined)
-      setNotebookWorkspaceVisible(true)
-      notebookPreviewAnnotationsRef.current.clear()
+    const builderChanged = builderDefinitionIdRef.current !== definition.id
+    builderDefinitionIdRef.current = definition.id
+    if (builderChanged) {
+      setBuilderArrangeTabId(undefined)
+      setBuilderWorkspaceVisible(true)
+      builderPreviewAnnotationsRef.current.clear()
       setPreviewAnnotations([])
     }
-    const previousNotebookTabs = notebookTabsRef.current
+    const previousBuilderTabs = builderTabsRef.current
     const availablePaths = Object.keys(nextWorkspace.files).filter(
       (path) => !definition.hiddenFiles?.includes(path),
     )
-    const nextNotebookTabs = repairNotebookWorkbenchEditorPaths(
-      notebookChanged
-        ? createNotebookWorkbenchTabsState()
-        : previousNotebookTabs,
+    const nextBuilderTabs = repairBuilderWorkbenchEditorPaths(
+      builderChanged ? createBuilderWorkbenchTabsState() : previousBuilderTabs,
       availablePaths,
       initialFile,
     )
-    notebookTabsRef.current = nextNotebookTabs
-    if (notebookChanged || nextNotebookTabs !== previousNotebookTabs) {
-      setNotebookTabs(nextNotebookTabs)
+    builderTabsRef.current = nextBuilderTabs
+    if (builderChanged || nextBuilderTabs !== previousBuilderTabs) {
+      setBuilderTabs(nextBuilderTabs)
     }
-    const activeNotebookTab = getActiveNotebookWorkbenchTab(nextNotebookTabs)
+    const activeBuilderTab = getActiveBuilderWorkbenchTab(nextBuilderTabs)
     setActivePath(
-      activeNotebookTab?.kind === 'editor'
-        ? activeNotebookTab.path
-        : initialFile,
+      activeBuilderTab?.kind === 'editor' ? activeBuilderTab.path : initialFile,
     )
-    if (activeNotebookTab?.kind === 'editor') {
-      setShowFiles(activeNotebookTab.filesOpen)
+    if (activeBuilderTab?.kind === 'editor') {
+      setShowFiles(activeBuilderTab.filesOpen)
     }
-    const activeNotebookPreviewTab =
-      activeNotebookTab?.kind === 'preview' ? activeNotebookTab : undefined
-    const nextNotebookPreviewTab =
-      activeNotebookPreviewTab ??
-      nextNotebookTabs.tabs.find((tab) => tab.kind === 'preview')
-    currentNotebookPreviewTabIdRef.current = nextNotebookPreviewTab?.id
+    const activeBuilderPreviewTab =
+      activeBuilderTab?.kind === 'preview' ? activeBuilderTab : undefined
+    const nextBuilderPreviewTab =
+      activeBuilderPreviewTab ??
+      nextBuilderTabs.tabs.find((tab) => tab.kind === 'preview')
+    currentBuilderPreviewTabIdRef.current = nextBuilderPreviewTab?.id
     const nextPreviewHistories = new Map<string, ExamplePreviewHistory>()
-    for (const tab of nextNotebookTabs.tabs) {
+    for (const tab of nextBuilderTabs.tabs) {
       if (tab.kind !== 'preview') continue
       nextPreviewHistories.set(
         tab.id,
-        tab.id === nextNotebookPreviewTab?.id
+        tab.id === nextBuilderPreviewTab?.id
           ? initialPreviewHistory
           : createExamplePreviewHistory(),
       )
     }
-    notebookPreviewHistoriesRef.current = nextPreviewHistories
-    notebookPreviewRestoredRunTokensRef.current.clear()
-    notebookPreviewNavigationErrorsRef.current.clear()
-    notebookPreviewAnnotationModesRef.current.clear()
-    notebookPreviewAnnotationTargetsRef.current.clear()
+    builderPreviewHistoriesRef.current = nextPreviewHistories
+    builderPreviewRestoredRunTokensRef.current.clear()
+    builderPreviewNavigationErrorsRef.current.clear()
+    builderPreviewAnnotationModesRef.current.clear()
+    builderPreviewAnnotationTargetsRef.current.clear()
     setPreviewNavigationError('')
     setPreviewAnnotationModeActive(false)
     setPreviewAnnotationTarget(undefined)
@@ -930,13 +921,13 @@ export function ExampleWorkbench({
 
   React.useEffect(() => {
     if (!error) return
-    if (notebookMode) {
-      revealNotebookPreviewTab()
+    if (builderMode) {
+      revealBuilderPreviewTab()
     } else {
       setShowPreview(true)
       setMobileView('preview')
     }
-  }, [error, notebookMode, revealNotebookPreviewTab])
+  }, [error, builderMode, revealBuilderPreviewTab])
 
   React.useEffect(
     () => () => {
@@ -1045,7 +1036,7 @@ export function ExampleWorkbench({
         return Promise.resolve({
           ok: false,
           phase: 'aborted',
-          message: 'The notebook run was stopped.',
+          message: 'The builder run was stopped.',
           snapshot: createEmptyExampleEnvironmentSnapshot({
             runId,
             runtime: usesWebContainer ? 'webcontainer' : 'client',
@@ -1078,11 +1069,11 @@ export function ExampleWorkbench({
 
       setPreviewAnnotationModeActive(false)
       setPreviewAnnotationTarget(undefined)
-      if (notebookMode) {
-        notebookPreviewAnnotationModesRef.current.clear()
-        notebookPreviewAnnotationTargetsRef.current.clear()
-        setNotebookPreviewRevision((current) => current + 1)
-        for (const frame of notebookPreviewFrameRefs.current.values()) {
+      if (builderMode) {
+        builderPreviewAnnotationModesRef.current.clear()
+        builderPreviewAnnotationTargetsRef.current.clear()
+        setBuilderPreviewRevision((current) => current + 1)
+        for (const frame of builderPreviewFrameRefs.current.values()) {
           postExampleSandboxBrowserCommand({
             channel: browserChannelRef.current,
             command: { kind: 'annotation', enabled: false },
@@ -1099,15 +1090,15 @@ export function ExampleWorkbench({
         })
       }
 
-      if (notebookMode) {
-        const visiblePreviewTab = getVisibleNotebookPreviewTab()
+      if (builderMode) {
+        const visiblePreviewTab = getVisibleBuilderPreviewTab()
         const visibleFrame = visiblePreviewTab
-          ? notebookPreviewFrameRefs.current.get(visiblePreviewTab.id)
+          ? builderPreviewFrameRefs.current.get(visiblePreviewTab.id)
           : undefined
         frameRef.current = visibleFrame ?? null
         const needsValidationFrame = !visibleFrame && !visiblePreviewTab
-        needsNotebookValidationFrameRef.current = needsValidationFrame
-        setNeedsNotebookValidationFrame(needsValidationFrame)
+        needsBuilderValidationFrameRef.current = needsValidationFrame
+        setNeedsBuilderValidationFrame(needsValidationFrame)
       }
 
       const request = compileRequestRef.current + 1
@@ -1219,7 +1210,7 @@ export function ExampleWorkbench({
                         ok: false,
                         phase: 'runtime',
                         message:
-                          'The notebook server stopped before it was ready.',
+                          'The builder server stopped before it was ready.',
                       })
                     }
                     break
@@ -1243,7 +1234,7 @@ export function ExampleWorkbench({
                       ok: false,
                       phase: 'superseded',
                       message:
-                        'Another WebContainer notebook started in this tab.',
+                        'Another WebContainer builder started in this tab.',
                     })
                     break
                 }
@@ -1312,8 +1303,8 @@ export function ExampleWorkbench({
       finishCurrentRun,
       finishRun,
       flushWebContainerWrites,
-      getVisibleNotebookPreviewTab,
-      notebookMode,
+      getVisibleBuilderPreviewTab,
+      builderMode,
       packageResolution,
       revealWebContainerOutput,
       resetProcessOutput,
@@ -1372,10 +1363,10 @@ export function ExampleWorkbench({
 
   const syncTheme = React.useCallback(() => {
     if (usesWebContainer) return
-    const frames = notebookMode
+    const frames = builderMode
       ? [
           ...new Set([
-            ...notebookPreviewFrameRefs.current.values(),
+            ...builderPreviewFrameRefs.current.values(),
             frameRef.current,
           ]),
         ]
@@ -1387,24 +1378,24 @@ export function ExampleWorkbench({
         theme: readTheme(),
       })
     }
-  }, [notebookMode, usesWebContainer])
+  }, [builderMode, usesWebContainer])
 
   const handlePreviewLoad = React.useCallback(
     (tabId?: string) => {
       const frame = tabId
-        ? notebookPreviewFrameRefs.current.get(tabId)
-        : notebookMode
-          ? notebookValidationFrameRef.current
+        ? builderPreviewFrameRefs.current.get(tabId)
+        : builderMode
+          ? builderValidationFrameRef.current
           : frameRef.current
-      if (notebookMode && !tabId && frame) frameRef.current = frame
+      if (builderMode && !tabId && frame) frameRef.current = frame
       const pendingRunToken = pendingRunRef.current?.token
       postExampleSandboxBrowserCommand({
         channel: browserChannelRef.current,
         command: {
           kind: 'annotation',
           enabled: tabId
-            ? notebookPreviewAnnotationModesRef.current.has(tabId)
-            : notebookMode
+            ? builderPreviewAnnotationModesRef.current.has(tabId)
+            : builderMode
               ? false
               : previewAnnotationMode,
         },
@@ -1414,15 +1405,15 @@ export function ExampleWorkbench({
       if (
         tabId &&
         frame &&
-        notebookPreviewRestoredRunTokensRef.current.get(tabId) !==
+        builderPreviewRestoredRunTokensRef.current.get(tabId) !==
           runTokenRef.current
       ) {
-        notebookPreviewRestoredRunTokensRef.current.set(
+        builderPreviewRestoredRunTokensRef.current.set(
           tabId,
           runTokenRef.current,
         )
         const history =
-          notebookPreviewHistoriesRef.current.get(tabId) ??
+          builderPreviewHistoriesRef.current.get(tabId) ??
           createExamplePreviewHistory()
         const targetUrl = history.entries[history.index] ?? '/'
         if (targetUrl !== '/') {
@@ -1456,7 +1447,7 @@ export function ExampleWorkbench({
     },
     [
       markRunReady,
-      notebookMode,
+      builderMode,
       previewAnnotationMode,
       syncTheme,
       usesWebContainer,
@@ -1465,30 +1456,30 @@ export function ExampleWorkbench({
 
   React.useEffect(() => {
     function handleMessage(event: MessageEvent<unknown>) {
-      const notebookPreview = notebookMode
-        ? [...notebookPreviewFrameRefs.current.entries()].find(
+      const builderPreview = builderMode
+        ? [...builderPreviewFrameRefs.current.entries()].find(
             ([, frame]) => event.source === frame.contentWindow,
           )
         : undefined
       const isHiddenValidationFrame =
-        notebookMode &&
-        event.source === notebookValidationFrameRef.current?.contentWindow
+        builderMode &&
+        event.source === builderValidationFrameRef.current?.contentWindow
       const sourceFrame =
-        notebookPreview?.[1] ??
+        builderPreview?.[1] ??
         (isHiddenValidationFrame
-          ? notebookValidationFrameRef.current
+          ? builderValidationFrameRef.current
           : frameRef.current)
       const isValidationFrame =
         event.source === frameRef.current?.contentWindow ||
-        (needsNotebookValidationFrameRef.current && isHiddenValidationFrame)
+        (needsBuilderValidationFrameRef.current && isHiddenValidationFrame)
       if (
-        notebookMode
-          ? !notebookPreview && !isValidationFrame
+        builderMode
+          ? !builderPreview && !isValidationFrame
           : event.source !== sourceFrame?.contentWindow
       ) {
         return
       }
-      const notebookPreviewTabId = notebookPreview?.[0]
+      const builderPreviewTabId = builderPreview?.[0]
       const previewOrigin = getPreviewTargetOrigin(
         sourceFrame?.src ?? previewUrl,
       )
@@ -1541,11 +1532,11 @@ export function ExampleWorkbench({
               url: trustedUrl,
             }
             markRunObserved(message.observationId)
-            if (notebookMode) markRunReady(message.observationId)
+            if (builderMode) markRunReady(message.observationId)
           }
-          if (isValidationFrame && notebookMode && !notebookPreviewTabId) return
-          const currentHistory = notebookPreviewTabId
-            ? (notebookPreviewHistoriesRef.current.get(notebookPreviewTabId) ??
+          if (isValidationFrame && builderMode && !builderPreviewTabId) return
+          const currentHistory = builderPreviewTabId
+            ? (builderPreviewHistoriesRef.current.get(builderPreviewTabId) ??
               createExamplePreviewHistory())
             : previewHistoryRef.current
           const currentUrl = currentHistory.entries[currentHistory.index] ?? '/'
@@ -1553,18 +1544,16 @@ export function ExampleWorkbench({
             kind: message.navigationKind,
             url: trustedUrl,
           })
-          if (notebookPreviewTabId) {
-            notebookPreviewHistoriesRef.current.set(
-              notebookPreviewTabId,
+          if (builderPreviewTabId) {
+            builderPreviewHistoriesRef.current.set(
+              builderPreviewTabId,
               nextHistory,
             )
-            notebookPreviewNavigationErrorsRef.current.delete(
-              notebookPreviewTabId,
+            builderPreviewNavigationErrorsRef.current.delete(
+              builderPreviewTabId,
             )
-            setNotebookPreviewRevision((current) => current + 1)
-            if (
-              notebookPreviewTabId === currentNotebookPreviewTabIdRef.current
-            ) {
+            setBuilderPreviewRevision((current) => current + 1)
+            if (builderPreviewTabId === currentBuilderPreviewTabIdRef.current) {
               previewHistoryRef.current = nextHistory
               setPreviewHistory(nextHistory)
               setPreviewNavigationError('')
@@ -1575,18 +1564,18 @@ export function ExampleWorkbench({
             setPreviewNavigationError('')
           }
           if (message.navigationKind === 'load' || currentUrl !== trustedUrl) {
-            if (notebookPreviewTabId) {
-              notebookPreviewAnnotationTargetsRef.current.delete(
-                notebookPreviewTabId,
+            if (builderPreviewTabId) {
+              builderPreviewAnnotationTargetsRef.current.delete(
+                builderPreviewTabId,
               )
-              setNotebookPreviewRevision((current) => current + 1)
+              setBuilderPreviewRevision((current) => current + 1)
             } else {
               setPreviewAnnotationTarget(undefined)
             }
           }
           if (message.navigationKind === 'push' && revealPreviewOnPush) {
-            if (notebookMode) {
-              revealNotebookPreviewTab()
+            if (builderMode) {
+              revealBuilderPreviewTab()
             } else {
               setShowPreview(true)
               setMobileView('preview')
@@ -1599,44 +1588,41 @@ export function ExampleWorkbench({
           const navigationError = usesWebContainer
             ? 'Preview navigation must stay on the current origin.'
             : 'This client preview only supports in-page links.'
-          if (notebookPreviewTabId) {
-            notebookPreviewNavigationErrorsRef.current.set(
-              notebookPreviewTabId,
+          if (builderPreviewTabId) {
+            builderPreviewNavigationErrorsRef.current.set(
+              builderPreviewTabId,
               navigationError,
             )
-            setNotebookPreviewRevision((current) => current + 1)
+            setBuilderPreviewRevision((current) => current + 1)
           }
           setPreviewNavigationError(navigationError)
           return
         }
 
-        if (notebookPreviewTabId) {
+        if (builderPreviewTabId) {
           if (
-            !notebookPreviewAnnotationModesRef.current.has(notebookPreviewTabId)
+            !builderPreviewAnnotationModesRef.current.has(builderPreviewTabId)
           ) {
             return
           }
           const currentHistory =
-            notebookPreviewHistoriesRef.current.get(notebookPreviewTabId) ??
+            builderPreviewHistoriesRef.current.get(builderPreviewTabId) ??
             createExamplePreviewHistory()
           const currentUrl = currentHistory.entries[currentHistory.index] ?? '/'
-          notebookPreviewAnnotationTargetsRef.current.set(
-            notebookPreviewTabId,
-            {
-              rect: message.rect,
-              selector: message.selector,
-              tagName: message.tag,
-              text: message.text,
-              url: currentUrl,
-            },
-          )
-          setNotebookPreviewRevision((current) => current + 1)
+          builderPreviewAnnotationTargetsRef.current.set(builderPreviewTabId, {
+            rect: message.rect,
+            selector: message.selector,
+            tagName: message.tag,
+            text: message.text,
+            url: currentUrl,
+          })
+          setBuilderPreviewRevision((current) => current + 1)
           return
         }
 
         if (!previewAnnotationMode) return
-        const currentHistory = notebookPreviewTabId
-          ? (notebookPreviewHistoriesRef.current.get(notebookPreviewTabId) ??
+        const currentHistory = builderPreviewTabId
+          ? (builderPreviewHistoriesRef.current.get(builderPreviewTabId) ??
             createExamplePreviewHistory())
           : previewHistoryRef.current
         const currentUrl = currentHistory.entries[currentHistory.index] ?? '/'
@@ -1665,13 +1651,13 @@ export function ExampleWorkbench({
         if (observesRun) recordRunConsoleEntry(message.level, text)
         setConsoleEntries((current) => [...current, entry].slice(-500))
         if (message.level === 'error') {
-          const consoleError = text || 'The notebook logged an error.'
-          if (!observesRun && notebookPreviewTabId) {
-            notebookPreviewNavigationErrorsRef.current.set(
-              notebookPreviewTabId,
+          const consoleError = text || 'The builder logged an error.'
+          if (!observesRun && builderPreviewTabId) {
+            builderPreviewNavigationErrorsRef.current.set(
+              builderPreviewTabId,
               consoleError,
             )
-            setNotebookPreviewRevision((current) => current + 1)
+            setBuilderPreviewRevision((current) => current + 1)
             return
           }
           setStatus('error')
@@ -1691,12 +1677,12 @@ export function ExampleWorkbench({
       }
 
       if (!observesRun) {
-        if (message.status === 'error' && notebookPreviewTabId) {
-          notebookPreviewNavigationErrorsRef.current.set(
-            notebookPreviewTabId,
-            message.message || 'The notebook failed while running.',
+        if (message.status === 'error' && builderPreviewTabId) {
+          builderPreviewNavigationErrorsRef.current.set(
+            builderPreviewTabId,
+            message.message || 'The builder failed while running.',
           )
-          setNotebookPreviewRevision((current) => current + 1)
+          setBuilderPreviewRevision((current) => current + 1)
         }
         return
       }
@@ -1708,12 +1694,12 @@ export function ExampleWorkbench({
       } else if (message.status === 'error') {
         recordRunConsoleEntry(
           'error',
-          message.message || 'The notebook failed while running.',
+          message.message || 'The builder failed while running.',
         )
         finishRun(message.runToken, {
           ok: false,
           phase: 'runtime',
-          message: message.message || 'The notebook failed while running.',
+          message: message.message || 'The builder failed while running.',
         })
       }
     }
@@ -1726,8 +1712,8 @@ export function ExampleWorkbench({
     markRunReady,
     previewAnnotationMode,
     revealPreviewOnPush,
-    revealNotebookPreviewTab,
-    notebookMode,
+    revealBuilderPreviewTab,
+    builderMode,
     previewUrl,
     recordRunConsoleEntry,
     syncTheme,
@@ -1751,43 +1737,43 @@ export function ExampleWorkbench({
   }, [isCodePanelResizing])
 
   React.useEffect(() => {
-    if (!isNotebookPaneResizing) return
-    const resize = notebookPaneResizeRef.current
-    return () => restoreNotebookPaneResize(resize)
-  }, [isNotebookPaneResizing])
+    if (!isBuilderPaneResizing) return
+    const resize = builderPaneResizeRef.current
+    return () => restoreBuilderPaneResize(resize)
+  }, [isBuilderPaneResizing])
 
   React.useEffect(() => {
-    if (!isNotebookChatResizing) return
-    const resize = notebookChatResizeRef.current
-    return () => restoreNotebookChatResize(resize)
-  }, [isNotebookChatResizing])
+    if (!isBuilderChatResizing) return
+    const resize = builderChatResizeRef.current
+    return () => restoreBuilderChatResize(resize)
+  }, [isBuilderChatResizing])
 
   React.useEffect(() => {
-    if (!notebookTabDrag?.active) return
+    if (!builderTabDrag?.active) return
     const cancel = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return
-      const drag = notebookTabDragRef.current
-      restoreNotebookTabDrag(drag)
+      const drag = builderTabDragRef.current
+      restoreBuilderTabDrag(drag)
       const button = drag
-        ? notebookTabButtonRefs.current.get(drag.tabId)
+        ? builderTabButtonRefs.current.get(drag.tabId)
         : undefined
       if (drag && button?.hasPointerCapture(drag.pointerId)) {
         button.releasePointerCapture(drag.pointerId)
       }
-      notebookTabDragRef.current = null
-      notebookTabDidDragRef.current = false
-      setNotebookTabDrag(undefined)
+      builderTabDragRef.current = null
+      builderTabDidDragRef.current = false
+      setBuilderTabDrag(undefined)
     }
     window.addEventListener('keydown', cancel)
     return () => window.removeEventListener('keydown', cancel)
-  }, [notebookTabDrag?.active])
+  }, [builderTabDrag?.active])
 
   React.useEffect(() => {
-    const container = notebookContainerRef.current
+    const container = builderContainerRef.current
     if (!container) return
     const syncDesktopState = () => {
       setIsDesktop(container.clientWidth >= 900)
-      setNotebookContainerWidth(container.clientWidth)
+      setBuilderContainerWidth(container.clientWidth)
     }
     syncDesktopState()
     const observer = new ResizeObserver(syncDesktopState)
@@ -1812,70 +1798,70 @@ export function ExampleWorkbench({
     onWorkspaceChange?.(next)
   }
 
-  function getNotebookPanelId(tab: NotebookWorkbenchTab) {
-    return `${notebookTabsId}-${tab.id}-panel`
+  function getBuilderPanelId(tab: BuilderWorkbenchTab) {
+    return `${builderTabsId}-${tab.id}-panel`
   }
 
-  function assignNotebookRunFrame(frame: HTMLIFrameElement) {
+  function assignBuilderRunFrame(frame: HTMLIFrameElement) {
     frameRef.current = frame
-    needsNotebookValidationFrameRef.current = false
-    setNeedsNotebookValidationFrame(false)
+    needsBuilderValidationFrameRef.current = false
+    setNeedsBuilderValidationFrame(false)
   }
 
-  function setNotebookPreviewFrame(
+  function setBuilderPreviewFrame(
     tabId: string,
     frame: HTMLIFrameElement | null,
   ) {
     if (frame) {
-      notebookPreviewFrameRefs.current.set(tabId, frame)
+      builderPreviewFrameRefs.current.set(tabId, frame)
       if (
         pendingRunRef.current &&
         !frameRef.current &&
-        !needsNotebookValidationFrameRef.current
+        !needsBuilderValidationFrameRef.current
       ) {
-        assignNotebookRunFrame(frame)
+        assignBuilderRunFrame(frame)
       }
       return
     }
-    const previous = notebookPreviewFrameRefs.current.get(tabId)
-    notebookPreviewFrameRefs.current.delete(tabId)
+    const previous = builderPreviewFrameRefs.current.get(tabId)
+    builderPreviewFrameRefs.current.delete(tabId)
     if (frameRef.current !== previous) return
     window.requestAnimationFrame(() => {
       if (
         frameRef.current !== previous ||
-        notebookPreviewFrameRefs.current.get(tabId) === previous
+        builderPreviewFrameRefs.current.get(tabId) === previous
       ) {
         return
       }
       frameRef.current = null
       if (pendingRunRef.current) {
-        needsNotebookValidationFrameRef.current = true
-        setNeedsNotebookValidationFrame(true)
+        needsBuilderValidationFrameRef.current = true
+        setNeedsBuilderValidationFrame(true)
       }
     })
   }
 
-  function getNotebookTabButtonId(tabId: string) {
-    return `${notebookTabsId}-${tabId}`
+  function getBuilderTabButtonId(tabId: string) {
+    return `${builderTabsId}-${tabId}`
   }
 
-  function getNotebookPaneId(paneId: string) {
-    return `${notebookTabsId}-${paneId}`
+  function getBuilderPaneId(paneId: string) {
+    return `${builderTabsId}-${paneId}`
   }
 
-  function focusNotebookTab(tabId: string | null) {
+  function focusBuilderTab(tabId: string | null) {
     window.requestAnimationFrame(() => {
       if (tabId) {
-        notebookTabButtonRefs.current.get(tabId)?.focus()
+        builderTabButtonRefs.current.get(tabId)?.focus()
       } else {
-        notebookAddTabButtonRef.current?.focus()
+        builderAddTabButtonRef.current?.focus()
       }
     })
   }
 
-  function activateNotebookTab(tab: NotebookWorkbenchTab) {
-    setNotebookArrangeTabId(undefined)
-    setNotebookTabs((current) => activateNotebookWorkbenchTab(current, tab.id))
+  function activateBuilderTab(tab: BuilderWorkbenchTab) {
+    setBuilderArrangeTabId(undefined)
+    setBuilderTabs((current) => activateBuilderWorkbenchTab(current, tab.id))
     if (tab.kind === 'editor') {
       setActivePath(tab.path)
       setShowFiles(tab.filesOpen)
@@ -1883,25 +1869,25 @@ export function ExampleWorkbench({
     if (tab.kind === 'console') setOutputActivated(true)
   }
 
-  function addNotebookTab(tab: NewNotebookWorkbenchTab, paneId?: string) {
+  function addBuilderTab(tab: NewBuilderWorkbenchTab, paneId?: string) {
     if (tab.kind === 'console') {
-      const existing = notebookTabs.tabs.find(
+      const existing = builderTabs.tabs.find(
         (candidate) => candidate.kind === 'console',
       )
       if (existing) {
-        activateNotebookTab(existing)
-        window.requestAnimationFrame(() => focusNotebookTab(existing.id))
+        activateBuilderTab(existing)
+        window.requestAnimationFrame(() => focusBuilderTab(existing.id))
         return
       }
     }
     const base = paneId
-      ? activateNotebookWorkbenchPane(notebookTabs, paneId)
-      : notebookTabs
-    const next = addNotebookWorkbenchTab(base, tab)
+      ? activateBuilderWorkbenchPane(builderTabs, paneId)
+      : builderTabs
+    const next = addBuilderWorkbenchTab(base, tab)
     const addedTab = next.tabs.at(-1)
-    setNotebookTabs(next)
+    setBuilderTabs(next)
     if (addedTab?.kind === 'preview') {
-      notebookPreviewHistoriesRef.current.set(
+      builderPreviewHistoriesRef.current.set(
         addedTab.id,
         createExamplePreviewHistory(),
       )
@@ -1911,28 +1897,28 @@ export function ExampleWorkbench({
     } else if (addedTab?.kind === 'console') {
       setOutputActivated(true)
     }
-    window.requestAnimationFrame(() => focusNotebookTab(addedTab?.id ?? null))
+    window.requestAnimationFrame(() => focusBuilderTab(addedTab?.id ?? null))
   }
 
-  function closeNotebookTab(tabId: string) {
-    setNotebookArrangeTabId((current) =>
+  function closeBuilderTab(tabId: string) {
+    setBuilderArrangeTabId((current) =>
       current === tabId ? undefined : current,
     )
-    const pane = getNotebookWorkbenchPaneForTab(notebookTabs, tabId)
+    const pane = getBuilderWorkbenchPaneForTab(builderTabs, tabId)
     const base = pane
-      ? activateNotebookWorkbenchPane(notebookTabs, pane.id)
-      : notebookTabs
-    const next = closeNotebookWorkbenchTab(base, tabId)
-    const nextActiveTab = getActiveNotebookWorkbenchTab(next)
-    setNotebookTabs(next)
-    notebookPreviewHistoriesRef.current.delete(tabId)
-    notebookPreviewRestoredRunTokensRef.current.delete(tabId)
-    notebookPreviewNavigationErrorsRef.current.delete(tabId)
-    notebookPreviewAnnotationModesRef.current.delete(tabId)
-    notebookPreviewAnnotationTargetsRef.current.delete(tabId)
-    notebookPreviewAnnotationsRef.current.delete(tabId)
-    if (currentNotebookPreviewTabIdRef.current === tabId) {
-      currentNotebookPreviewTabIdRef.current = next.tabs.find(
+      ? activateBuilderWorkbenchPane(builderTabs, pane.id)
+      : builderTabs
+    const next = closeBuilderWorkbenchTab(base, tabId)
+    const nextActiveTab = getActiveBuilderWorkbenchTab(next)
+    setBuilderTabs(next)
+    builderPreviewHistoriesRef.current.delete(tabId)
+    builderPreviewRestoredRunTokensRef.current.delete(tabId)
+    builderPreviewNavigationErrorsRef.current.delete(tabId)
+    builderPreviewAnnotationModesRef.current.delete(tabId)
+    builderPreviewAnnotationTargetsRef.current.delete(tabId)
+    builderPreviewAnnotationsRef.current.delete(tabId)
+    if (currentBuilderPreviewTabIdRef.current === tabId) {
+      currentBuilderPreviewTabIdRef.current = next.tabs.find(
         (tab) => tab.kind === 'preview',
       )?.id
     }
@@ -1944,45 +1930,45 @@ export function ExampleWorkbench({
     }
     if (next.tabs.length === 0) {
       alternateEditor?.onActiveChange(true)
-      setNotebookLayoutAnnouncement('Side panel hidden.')
+      setBuilderLayoutAnnouncement('Side panel hidden.')
     } else {
-      focusNotebookTab(nextActiveTab?.id ?? null)
+      focusBuilderTab(nextActiveTab?.id ?? null)
     }
   }
 
-  function splitNotebookTab(
-    tab: NotebookWorkbenchTab,
+  function splitBuilderTab(
+    tab: BuilderWorkbenchTab,
     position: 'before' | 'after',
   ) {
-    const next = splitNotebookWorkbenchTab(notebookTabs, tab.id, position)
-    if (next === notebookTabs) return
-    setNotebookTabs(next)
-    const pane = getNotebookWorkbenchPaneForTab(next, tab.id)
-    setNotebookLayoutAnnouncement(
-      `${getNotebookWorkbenchTabLabel(next.tabs, tab)} moved to ${
+    const next = splitBuilderWorkbenchTab(builderTabs, tab.id, position)
+    if (next === builderTabs) return
+    setBuilderTabs(next)
+    const pane = getBuilderWorkbenchPaneForTab(next, tab.id)
+    setBuilderLayoutAnnouncement(
+      `${getBuilderWorkbenchTabLabel(next.tabs, tab)} moved to ${
         position === 'before' ? 'upper' : 'lower'
       } pane.`,
     )
-    focusNotebookTab(pane?.activeTabId ?? tab.id)
+    focusBuilderTab(pane?.activeTabId ?? tab.id)
   }
 
-  function moveNotebookTab(tab: NotebookWorkbenchTab, paneId: string) {
-    const next = moveNotebookWorkbenchTab(notebookTabs, tab.id, paneId)
-    if (next === notebookTabs) return
-    setNotebookTabs(next)
+  function moveBuilderTab(tab: BuilderWorkbenchTab, paneId: string) {
+    const next = moveBuilderWorkbenchTab(builderTabs, tab.id, paneId)
+    if (next === builderTabs) return
+    setBuilderTabs(next)
     const paneIndex = next.panes.findIndex((pane) => pane.id === paneId)
-    setNotebookLayoutAnnouncement(
-      `${getNotebookWorkbenchTabLabel(next.tabs, tab)} moved to ${
+    setBuilderLayoutAnnouncement(
+      `${getBuilderWorkbenchTabLabel(next.tabs, tab)} moved to ${
         paneIndex === 0 ? 'upper' : 'lower'
       } pane.`,
     )
-    focusNotebookTab(tab.id)
+    focusBuilderTab(tab.id)
   }
 
-  function navigateNotebookTabs(event: React.KeyboardEvent<HTMLButtonElement>) {
+  function navigateBuilderTabs(event: React.KeyboardEvent<HTMLButtonElement>) {
     if (event.key === 'Delete') {
       event.preventDefault()
-      closeNotebookTab(event.currentTarget.dataset.tabId ?? '')
+      closeBuilderTab(event.currentTarget.dataset.tabId ?? '')
       return
     }
     if (
@@ -1995,26 +1981,26 @@ export function ExampleWorkbench({
     }
 
     event.preventDefault()
-    const target = getNotebookWorkbenchTabNavigationTarget(
-      notebookTabs,
+    const target = getBuilderWorkbenchTabNavigationTarget(
+      builderTabs,
       event.currentTarget.dataset.tabId ?? '',
       event.key,
     )
     if (!target) return
-    const tab = notebookTabs.tabs.find((candidate) => candidate.id === target)
+    const tab = builderTabs.tabs.find((candidate) => candidate.id === target)
     if (!tab) return
-    activateNotebookTab(tab)
-    focusNotebookTab(tab.id)
+    activateBuilderTab(tab)
+    focusBuilderTab(tab.id)
   }
 
-  function setNotebookFilesOpen(open: boolean, tabId?: string) {
+  function setBuilderFilesOpen(open: boolean, tabId?: string) {
     setShowFiles(open)
     const activeTab = tabId
-      ? notebookTabs.tabs.find((tab) => tab.id === tabId)
-      : getActiveNotebookWorkbenchTab(notebookTabs)
+      ? builderTabs.tabs.find((tab) => tab.id === tabId)
+      : getActiveBuilderWorkbenchTab(builderTabs)
     if (activeTab?.kind !== 'editor') return
-    setNotebookTabs((current) =>
-      updateNotebookWorkbenchEditorTab(current, activeTab.id, {
+    setBuilderTabs((current) =>
+      updateBuilderWorkbenchEditorTab(current, activeTab.id, {
         filesOpen: open,
       }),
     )
@@ -2023,12 +2009,12 @@ export function ExampleWorkbench({
   function selectFile(path: string, tabId?: string) {
     setActivePath(path)
     const activeTab = tabId
-      ? notebookTabs.tabs.find((tab) => tab.id === tabId)
-      : getActiveNotebookWorkbenchTab(notebookTabs)
+      ? builderTabs.tabs.find((tab) => tab.id === tabId)
+      : getActiveBuilderWorkbenchTab(builderTabs)
     const closeFiles = !window.matchMedia('(min-width: 1024px)').matches
     if (alternateEditor && activeTab?.kind === 'editor') {
-      setNotebookTabs((current) =>
-        updateNotebookWorkbenchEditorTab(current, activeTab.id, {
+      setBuilderTabs((current) =>
+        updateBuilderWorkbenchEditorTab(current, activeTab.id, {
           path,
           filesOpen: closeFiles ? false : undefined,
         }),
@@ -2043,17 +2029,17 @@ export function ExampleWorkbench({
     setMobileView('code')
     const next = !showFiles
     setShowFiles(next)
-    const activeTab = getActiveNotebookWorkbenchTab(notebookTabs)
+    const activeTab = getActiveBuilderWorkbenchTab(builderTabs)
     if (alternateEditor && activeTab?.kind === 'editor') {
-      setNotebookTabs((current) =>
-        updateNotebookWorkbenchEditorTab(current, activeTab.id, {
+      setBuilderTabs((current) =>
+        updateBuilderWorkbenchEditorTab(current, activeTab.id, {
           filesOpen: next,
         }),
       )
     }
   }
 
-  function updateNotebookSource(path: string, source: string) {
+  function updateBuilderSource(path: string, source: string) {
     if (usesWebContainer) scheduleWebContainerWrite(path, source)
 
     const current = workspaceRef.current
@@ -2170,9 +2156,9 @@ export function ExampleWorkbench({
     tabId?: string,
   ) {
     const frame =
-      notebookMode || tabId
-        ? notebookPreviewFrameRefs.current.get(
-            tabId ?? currentNotebookPreviewTabIdRef.current ?? '',
+      builderMode || tabId
+        ? builderPreviewFrameRefs.current.get(
+            tabId ?? currentBuilderPreviewTabIdRef.current ?? '',
           )
         : frameRef.current
     postExampleSandboxBrowserCommand({
@@ -2186,9 +2172,9 @@ export function ExampleWorkbench({
   function reloadPreview(tabId?: string) {
     if (runActive || runDisabled) return
     const frame =
-      notebookMode || tabId
-        ? notebookPreviewFrameRefs.current.get(
-            tabId ?? currentNotebookPreviewTabIdRef.current ?? '',
+      builderMode || tabId
+        ? builderPreviewFrameRefs.current.get(
+            tabId ?? currentBuilderPreviewTabIdRef.current ?? '',
           )
         : frameRef.current
     const session = webContainerSessionRef.current
@@ -2196,8 +2182,8 @@ export function ExampleWorkbench({
       void session.reloadPreview(frame).catch((cause: unknown) => {
         const message = formatError(cause)
         if (tabId) {
-          notebookPreviewNavigationErrorsRef.current.set(tabId, message)
-          setNotebookPreviewRevision((current) => current + 1)
+          builderPreviewNavigationErrorsRef.current.set(tabId, message)
+          setBuilderPreviewRevision((current) => current + 1)
         } else {
           setPreviewNavigationError(message)
         }
@@ -2207,41 +2193,41 @@ export function ExampleWorkbench({
     sendPreviewBrowserCommand({ kind: 'reload' }, tabId)
   }
 
-  function navigateNotebookPreviewHistory(
+  function navigateBuilderPreviewHistory(
     tabIdOrOffset: string | -1 | 1,
     requestedOffset?: -1 | 1,
   ) {
     const tabId =
       typeof tabIdOrOffset === 'string'
         ? tabIdOrOffset
-        : currentNotebookPreviewTabIdRef.current
+        : currentBuilderPreviewTabIdRef.current
     const offset =
       typeof tabIdOrOffset === 'number' ? tabIdOrOffset : requestedOffset
     if (!tabId || !offset) return
     const current =
-      notebookPreviewHistoriesRef.current.get(tabId) ??
+      builderPreviewHistoriesRef.current.get(tabId) ??
       createExamplePreviewHistory()
     const index = current.index + offset
     const url = current.entries[index]
     if (!url) return
 
     const next = { entries: current.entries, index }
-    notebookPreviewHistoriesRef.current.set(tabId, next)
-    if (tabId === currentNotebookPreviewTabIdRef.current) {
+    builderPreviewHistoriesRef.current.set(tabId, next)
+    if (tabId === currentBuilderPreviewTabIdRef.current) {
       previewHistoryRef.current = next
       setPreviewHistory(next)
     }
-    setNotebookPreviewRevision((revision) => revision + 1)
+    setBuilderPreviewRevision((revision) => revision + 1)
     sendPreviewBrowserCommand({ kind: 'navigate', url }, tabId)
   }
 
   function setPreviewAnnotationMode(active: boolean, tabId?: string) {
     if (tabId) {
-      currentNotebookPreviewTabIdRef.current = tabId
-      if (active) notebookPreviewAnnotationModesRef.current.add(tabId)
-      else notebookPreviewAnnotationModesRef.current.delete(tabId)
-      notebookPreviewAnnotationTargetsRef.current.delete(tabId)
-      setNotebookPreviewRevision((current) => current + 1)
+      currentBuilderPreviewTabIdRef.current = tabId
+      if (active) builderPreviewAnnotationModesRef.current.add(tabId)
+      else builderPreviewAnnotationModesRef.current.delete(tabId)
+      builderPreviewAnnotationTargetsRef.current.delete(tabId)
+      setBuilderPreviewRevision((current) => current + 1)
       sendPreviewBrowserCommand({ kind: 'annotation', enabled: active }, tabId)
       return
     }
@@ -2252,8 +2238,8 @@ export function ExampleWorkbench({
 
   function clearPreviewAnnotationTarget(tabId?: string) {
     if (tabId) {
-      notebookPreviewAnnotationTargetsRef.current.delete(tabId)
-      setNotebookPreviewRevision((current) => current + 1)
+      builderPreviewAnnotationTargetsRef.current.delete(tabId)
+      setBuilderPreviewRevision((current) => current + 1)
       sendPreviewBrowserCommand({ kind: 'annotation', enabled: true }, tabId)
       return
     }
@@ -2266,9 +2252,9 @@ export function ExampleWorkbench({
     tabId?: string,
   ) {
     if (tabId) {
-      const current = notebookPreviewAnnotationsRef.current.get(tabId) ?? []
-      notebookPreviewAnnotationsRef.current.set(tabId, [...current, annotation])
-      setNotebookPreviewRevision((revision) => revision + 1)
+      const current = builderPreviewAnnotationsRef.current.get(tabId) ?? []
+      builderPreviewAnnotationsRef.current.set(tabId, [...current, annotation])
+      setBuilderPreviewRevision((revision) => revision + 1)
       return
     }
     setPreviewAnnotations((current) => [...current, annotation])
@@ -2276,16 +2262,16 @@ export function ExampleWorkbench({
 
   function removePreviewAnnotation(annotationId: string, tabId?: string) {
     if (tabId) {
-      const current = notebookPreviewAnnotationsRef.current.get(tabId) ?? []
+      const current = builderPreviewAnnotationsRef.current.get(tabId) ?? []
       const next = current.filter(
         (annotation) => annotation.id !== annotationId,
       )
       if (next.length) {
-        notebookPreviewAnnotationsRef.current.set(tabId, next)
+        builderPreviewAnnotationsRef.current.set(tabId, next)
       } else {
-        notebookPreviewAnnotationsRef.current.delete(tabId)
+        builderPreviewAnnotationsRef.current.delete(tabId)
       }
-      setNotebookPreviewRevision((revision) => revision + 1)
+      setBuilderPreviewRevision((revision) => revision + 1)
       return
     }
     setPreviewAnnotations((current) =>
@@ -2303,38 +2289,38 @@ export function ExampleWorkbench({
       return false
     }
 
-    const definitionId = notebookDefinitionIdRef.current
+    const definitionId = builderDefinitionIdRef.current
     const accepted = alternateEditor.submitPrompt(content, {
       onDiscarded() {
         if (
-          notebookDefinitionIdRef.current !== definitionId ||
-          !notebookTabsRef.current.tabs.some((tab) => tab.id === tabId)
+          builderDefinitionIdRef.current !== definitionId ||
+          !builderTabsRef.current.tabs.some((tab) => tab.id === tabId)
         ) {
           return
         }
-        const current = notebookPreviewAnnotationsRef.current.get(tabId) ?? []
+        const current = builderPreviewAnnotationsRef.current.get(tabId) ?? []
         const currentIds = new Set(current.map((annotation) => annotation.id))
-        notebookPreviewAnnotationsRef.current.set(tabId, [
+        builderPreviewAnnotationsRef.current.set(tabId, [
           ...annotations.filter((annotation) => !currentIds.has(annotation.id)),
           ...current,
         ])
-        setNotebookPreviewRevision((revision) => revision + 1)
+        setBuilderPreviewRevision((revision) => revision + 1)
       },
     })
     alternateEditor.onActiveChange(true)
     if (!accepted) return false
 
     const submittedIds = new Set(annotations.map((annotation) => annotation.id))
-    const current = notebookPreviewAnnotationsRef.current.get(tabId) ?? []
+    const current = builderPreviewAnnotationsRef.current.get(tabId) ?? []
     const next = current.filter(
       (annotation) => !submittedIds.has(annotation.id),
     )
     if (next.length) {
-      notebookPreviewAnnotationsRef.current.set(tabId, next)
+      builderPreviewAnnotationsRef.current.set(tabId, next)
     } else {
-      notebookPreviewAnnotationsRef.current.delete(tabId)
+      builderPreviewAnnotationsRef.current.delete(tabId)
     }
-    setNotebookPreviewRevision((revision) => revision + 1)
+    setBuilderPreviewRevision((revision) => revision + 1)
     return true
   }
 
@@ -2359,7 +2345,7 @@ export function ExampleWorkbench({
     })
   }
 
-  function startNotebookTabDrag(
+  function startBuilderTabDrag(
     event: React.PointerEvent<HTMLButtonElement>,
     tabId: string,
   ) {
@@ -2371,7 +2357,7 @@ export function ExampleWorkbench({
       return
     }
     event.currentTarget.setPointerCapture(event.pointerId)
-    notebookTabDragRef.current = {
+    builderTabDragRef.current = {
       active: false,
       pointerId: event.pointerId,
       startX: event.clientX,
@@ -2380,11 +2366,11 @@ export function ExampleWorkbench({
     }
   }
 
-  function moveNotebookTabDrag(event: React.PointerEvent<HTMLButtonElement>) {
-    const drag = notebookTabDragRef.current
+  function moveBuilderTabDrag(event: React.PointerEvent<HTMLButtonElement>) {
+    const drag = builderTabDragRef.current
     if (!drag || event.pointerId !== drag.pointerId) return
-    const sourcePane = getNotebookWorkbenchPaneForTab(
-      notebookTabsRef.current,
+    const sourcePane = getBuilderWorkbenchPaneForTab(
+      builderTabsRef.current,
       drag.tabId,
     )
     if (!sourcePane || sourcePane.tabIds.length === 1) return
@@ -2397,19 +2383,19 @@ export function ExampleWorkbench({
       return
     }
 
-    const workspace = notebookWorkspaceRef.current
+    const workspace = builderWorkspaceRef.current
     if (!workspace) return
     if (!drag.active) {
       drag.active = true
-      setNotebookArrangeTabId(undefined)
-      drag.frames = [...notebookPreviewFrameRefs.current.values()].map(
+      setBuilderArrangeTabId(undefined)
+      drag.frames = [...builderPreviewFrameRefs.current.values()].map(
         (frame) => ({ frame, pointerEvents: frame.style.pointerEvents }),
       )
       for (const { frame } of drag.frames) frame.style.pointerEvents = 'none'
-      notebookTabDidDragRef.current = true
+      builderTabDidDragRef.current = true
     }
 
-    if (notebookTabsRef.current.panes.length === 1) {
+    if (builderTabsRef.current.panes.length === 1) {
       const rect = workspace.getBoundingClientRect()
       drag.targetPaneId = undefined
       drag.targetPosition =
@@ -2421,9 +2407,9 @@ export function ExampleWorkbench({
               ? 'after'
               : undefined
     } else {
-      const targetPane = notebookTabsRef.current.panes.find((pane) => {
+      const targetPane = builderTabsRef.current.panes.find((pane) => {
         if (pane.id === sourcePane.id) return false
-        const rect = notebookPaneRefs.current
+        const rect = builderPaneRefs.current
           .get(pane.id)
           ?.getBoundingClientRect()
         return rect && event.clientY >= rect.top && event.clientY <= rect.bottom
@@ -2431,68 +2417,68 @@ export function ExampleWorkbench({
       drag.targetPaneId = targetPane?.id
       drag.targetPosition = undefined
     }
-    setNotebookTabDrag({ ...drag })
+    setBuilderTabDrag({ ...drag })
   }
 
-  function finishNotebookTabDrag(event: React.PointerEvent<HTMLButtonElement>) {
-    const drag = notebookTabDragRef.current
+  function finishBuilderTabDrag(event: React.PointerEvent<HTMLButtonElement>) {
+    const drag = builderTabDragRef.current
     if (!drag || event.pointerId !== drag.pointerId) return
 
     if (drag.active) {
-      const current = notebookTabsRef.current
+      const current = builderTabsRef.current
       const next = drag.targetPaneId
-        ? moveNotebookWorkbenchTab(current, drag.tabId, drag.targetPaneId)
+        ? moveBuilderWorkbenchTab(current, drag.tabId, drag.targetPaneId)
         : drag.targetPosition
-          ? splitNotebookWorkbenchTab(current, drag.tabId, drag.targetPosition)
+          ? splitBuilderWorkbenchTab(current, drag.tabId, drag.targetPosition)
           : current
       if (next !== current) {
-        notebookTabsRef.current = next
-        setNotebookTabs(next)
+        builderTabsRef.current = next
+        setBuilderTabs(next)
         const tab = next.tabs.find((candidate) => candidate.id === drag.tabId)
-        const pane = getNotebookWorkbenchPaneForTab(next, drag.tabId)
+        const pane = getBuilderWorkbenchPaneForTab(next, drag.tabId)
         if (tab && pane) {
           const paneIndex = next.panes.findIndex(
             (candidate) => candidate.id === pane.id,
           )
-          setNotebookLayoutAnnouncement(
-            `${getNotebookWorkbenchTabLabel(next.tabs, tab)} moved to ${
+          setBuilderLayoutAnnouncement(
+            `${getBuilderWorkbenchTabLabel(next.tabs, tab)} moved to ${
               paneIndex === 0 ? 'upper' : 'lower'
             } pane.`,
           )
-          focusNotebookTab(tab.id)
+          focusBuilderTab(tab.id)
         }
       }
     }
 
-    restoreNotebookTabDrag(drag)
-    notebookTabDragRef.current = null
-    setNotebookTabDrag(undefined)
+    restoreBuilderTabDrag(drag)
+    builderTabDragRef.current = null
+    setBuilderTabDrag(undefined)
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId)
     }
   }
 
-  function cancelNotebookTabDrag(event: React.PointerEvent<HTMLButtonElement>) {
-    const drag = notebookTabDragRef.current
+  function cancelBuilderTabDrag(event: React.PointerEvent<HTMLButtonElement>) {
+    const drag = builderTabDragRef.current
     if (!drag || event.pointerId !== drag.pointerId) return
-    restoreNotebookTabDrag(drag)
-    notebookTabDragRef.current = null
-    notebookTabDidDragRef.current = false
-    setNotebookTabDrag(undefined)
+    restoreBuilderTabDrag(drag)
+    builderTabDragRef.current = null
+    builderTabDidDragRef.current = false
+    setBuilderTabDrag(undefined)
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId)
     }
   }
 
-  function startNotebookPaneResize(event: React.PointerEvent<HTMLDivElement>) {
-    if (event.button !== 0 || notebookTabs.panes.length !== 2) return
+  function startBuilderPaneResize(event: React.PointerEvent<HTMLDivElement>) {
+    if (event.button !== 0 || builderTabs.panes.length !== 2) return
     event.preventDefault()
     event.currentTarget.setPointerCapture(event.pointerId)
     const ownerDocument = event.currentTarget.ownerDocument
-    const frames = [...notebookPreviewFrameRefs.current.values()].map(
+    const frames = [...builderPreviewFrameRefs.current.values()].map(
       (frame) => ({ frame, pointerEvents: frame.style.pointerEvents }),
     )
-    notebookPaneResizeRef.current = {
+    builderPaneResizeRef.current = {
       frames,
       ownerDocument,
       pointerId: event.pointerId,
@@ -2502,12 +2488,12 @@ export function ExampleWorkbench({
     ownerDocument.body.style.cursor = 'row-resize'
     ownerDocument.body.style.userSelect = 'none'
     for (const { frame } of frames) frame.style.pointerEvents = 'none'
-    setIsNotebookPaneResizing(true)
+    setIsBuilderPaneResizing(true)
   }
 
-  function moveNotebookPaneResize(event: React.PointerEvent<HTMLDivElement>) {
-    const resize = notebookPaneResizeRef.current
-    const grid = notebookPaneGridRef.current
+  function moveBuilderPaneResize(event: React.PointerEvent<HTMLDivElement>) {
+    const resize = builderPaneResizeRef.current
+    const grid = builderPaneGridRef.current
     if (!resize || !grid || event.pointerId !== resize.pointerId) return
     const rect = grid.getBoundingClientRect()
     const availableHeight = rect.height - 8
@@ -2517,23 +2503,23 @@ export function ExampleWorkbench({
       0.2,
       0.8,
     )
-    setNotebookTabs((current) =>
-      resizeNotebookWorkbenchPanes(current, upperFraction),
+    setBuilderTabs((current) =>
+      resizeBuilderWorkbenchPanes(current, upperFraction),
     )
   }
 
-  function finishNotebookPaneResize(event: React.PointerEvent<HTMLDivElement>) {
-    const resize = notebookPaneResizeRef.current
+  function finishBuilderPaneResize(event: React.PointerEvent<HTMLDivElement>) {
+    const resize = builderPaneResizeRef.current
     if (!resize || event.pointerId !== resize.pointerId) return
-    restoreNotebookPaneResize(resize)
-    notebookPaneResizeRef.current = null
-    setIsNotebookPaneResizing(false)
+    restoreBuilderPaneResize(resize)
+    builderPaneResizeRef.current = null
+    setIsBuilderPaneResizing(false)
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId)
     }
   }
 
-  function resizeNotebookPanesWithKeyboard(
+  function resizeBuilderPanesWithKeyboard(
     event: React.KeyboardEvent<HTMLDivElement>,
   ) {
     if (
@@ -2544,12 +2530,12 @@ export function ExampleWorkbench({
     ) {
       return
     }
-    const grid = notebookPaneGridRef.current
-    if (!grid || notebookTabs.panes.length !== 2) return
+    const grid = builderPaneGridRef.current
+    if (!grid || builderTabs.panes.length !== 2) return
     event.preventDefault()
     const availableHeight = grid.getBoundingClientRect().height - 8
     if (availableHeight <= 0) return
-    const current = notebookTabs.panes[0].fraction
+    const current = builderTabs.panes[0].fraction
     const step = (event.shiftKey ? 64 : 24) / availableHeight
     const next =
       event.key === 'Home'
@@ -2557,28 +2543,28 @@ export function ExampleWorkbench({
         : event.key === 'End'
           ? 0.8
           : current + (event.key === 'ArrowDown' ? step : -step)
-    setNotebookTabs((state) =>
-      resizeNotebookWorkbenchPanes(state, clamp(next, 0.2, 0.8)),
+    setBuilderTabs((state) =>
+      resizeBuilderWorkbenchPanes(state, clamp(next, 0.2, 0.8)),
     )
   }
 
-  function resetNotebookPaneSizes() {
-    setNotebookTabs((current) => resizeNotebookWorkbenchPanes(current, 0.5))
+  function resetBuilderPaneSizes() {
+    setBuilderTabs((current) => resizeBuilderWorkbenchPanes(current, 0.5))
   }
 
-  function startNotebookChatResize(event: React.PointerEvent<HTMLDivElement>) {
-    if (event.button !== 0 || !showsNotebookChatSplit) return
+  function startBuilderChatResize(event: React.PointerEvent<HTMLDivElement>) {
+    if (event.button !== 0 || !showsBuilderChatSplit) return
 
     event.preventDefault()
     event.currentTarget.setPointerCapture(event.pointerId)
     const ownerDocument = event.currentTarget.ownerDocument
-    const frames = [...notebookPreviewFrameRefs.current.values()].map(
+    const frames = [...builderPreviewFrameRefs.current.values()].map(
       (frame) => ({ frame, pointerEvents: frame.style.pointerEvents }),
     )
-    notebookChatResizeRef.current = {
+    builderChatResizeRef.current = {
       frames,
       ownerDocument,
-      percent: notebookChatPercent,
+      percent: builderChatPercent,
       pointerId: event.pointerId,
       previousCursor: ownerDocument.body.style.cursor,
       previousUserSelect: ownerDocument.body.style.userSelect,
@@ -2586,40 +2572,40 @@ export function ExampleWorkbench({
     ownerDocument.body.style.cursor = 'col-resize'
     ownerDocument.body.style.userSelect = 'none'
     for (const { frame } of frames) frame.style.pointerEvents = 'none'
-    setIsNotebookChatResizing(true)
+    setIsBuilderChatResizing(true)
   }
 
-  function moveNotebookChatResize(event: React.PointerEvent<HTMLDivElement>) {
-    const resize = notebookChatResizeRef.current
-    const layout = notebookLayoutRef.current
+  function moveBuilderChatResize(event: React.PointerEvent<HTMLDivElement>) {
+    const resize = builderChatResizeRef.current
+    const layout = builderLayoutRef.current
     if (!resize || !layout || event.pointerId !== resize.pointerId) return
 
     const rect = layout.getBoundingClientRect()
     if (rect.width <= 0) return
-    const bounds = getNotebookChatPercentBounds(rect.width)
+    const bounds = getBuilderChatPercentBounds(rect.width)
     const percent = clamp(
       ((event.clientX - rect.left) / rect.width) * 100,
       bounds.min,
       bounds.max,
     )
     resize.percent = percent
-    setNotebookChatPercent(percent)
+    setBuilderChatPercent(percent)
   }
 
-  function finishNotebookChatResize(event: React.PointerEvent<HTMLDivElement>) {
-    const resize = notebookChatResizeRef.current
+  function finishBuilderChatResize(event: React.PointerEvent<HTMLDivElement>) {
+    const resize = builderChatResizeRef.current
     if (!resize || event.pointerId !== resize.pointerId) return
 
-    setNotebookChatPercent(resize.percent)
-    restoreNotebookChatResize(resize)
-    notebookChatResizeRef.current = null
-    setIsNotebookChatResizing(false)
+    setBuilderChatPercent(resize.percent)
+    restoreBuilderChatResize(resize)
+    builderChatResizeRef.current = null
+    setIsBuilderChatResizing(false)
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId)
     }
   }
 
-  function resizeNotebookChatWithKeyboard(
+  function resizeBuilderChatWithKeyboard(
     event: React.KeyboardEvent<HTMLDivElement>,
   ) {
     if (
@@ -2631,14 +2617,14 @@ export function ExampleWorkbench({
       return
     }
 
-    const layout = notebookLayoutRef.current
+    const layout = builderLayoutRef.current
     if (!layout) return
     event.preventDefault()
 
     const width = layout.getBoundingClientRect().width
     if (width <= 0) return
-    const bounds = getNotebookChatPercentBounds(width)
-    const currentWidth = (notebookChatPercent / 100) * width
+    const bounds = getBuilderChatPercentBounds(width)
+    const currentWidth = (builderChatPercent / 100) * width
     const minWidth = (bounds.min / 100) * width
     const maxWidth = (bounds.max / 100) * width
     const nextWidth =
@@ -2654,13 +2640,13 @@ export function ExampleWorkbench({
               maxWidth,
             )
     const percent = (nextWidth / width) * 100
-    setNotebookChatPercent(percent)
+    setBuilderChatPercent(percent)
   }
 
-  function resetNotebookChatSize() {
-    const bounds = getNotebookChatPercentBounds(notebookContainerWidth)
-    const percent = clamp(DEFAULT_NOTEBOOK_CHAT_PERCENT, bounds.min, bounds.max)
-    setNotebookChatPercent(percent)
+  function resetBuilderChatSize() {
+    const bounds = getBuilderChatPercentBounds(builderContainerWidth)
+    const percent = clamp(DEFAULT_BUILDER_CHAT_PERCENT, bounds.min, bounds.max)
+    setBuilderChatPercent(percent)
   }
 
   function startCodePanelResize(event: React.PointerEvent<HTMLDivElement>) {
@@ -2798,47 +2784,47 @@ export function ExampleWorkbench({
     [definition.hiddenFiles, workspace.files],
   )
   const fileTree = React.useMemo(() => createFileTree(filePaths), [filePaths])
-  const activeNotebookPane = getActiveNotebookWorkbenchPane(notebookTabs)
-  const activeNotebookTab = getActiveNotebookWorkbenchTab(notebookTabs)
-  const visibleNotebookPanes =
-    isDesktop && notebookTabs.panes.length === 2
-      ? notebookTabs.panes
-      : activeNotebookPane
-        ? [activeNotebookPane]
+  const activeBuilderPane = getActiveBuilderWorkbenchPane(builderTabs)
+  const activeBuilderTab = getActiveBuilderWorkbenchTab(builderTabs)
+  const visibleBuilderPanes =
+    isDesktop && builderTabs.panes.length === 2
+      ? builderTabs.panes
+      : activeBuilderPane
+        ? [activeBuilderPane]
         : []
-  const activeNotebookEditorTab =
-    activeNotebookTab?.kind === 'editor' ? activeNotebookTab : undefined
-  const hasNotebookTabs = notebookTabs.tabs.length > 0
-  const notebookWorkspaceOpen = notebookWorkspaceVisible && hasNotebookTabs
-  const notebookChatOpen = alternateEditorActive || !notebookWorkspaceOpen
-  const showsNotebookChatSplit =
-    notebookMode && isDesktop && notebookWorkspaceOpen && notebookChatOpen
-  const notebookWorkspaceControls = React.useMemo(
+  const activeBuilderEditorTab =
+    activeBuilderTab?.kind === 'editor' ? activeBuilderTab : undefined
+  const hasBuilderTabs = builderTabs.tabs.length > 0
+  const builderWorkspaceOpen = builderWorkspaceVisible && hasBuilderTabs
+  const builderChatOpen = alternateEditorActive || !builderWorkspaceOpen
+  const showsBuilderChatSplit =
+    builderMode && isDesktop && builderWorkspaceOpen && builderChatOpen
+  const builderWorkspaceControls = React.useMemo(
     () => ({
-      controlsId: notebookWorkspaceId,
-      open: notebookWorkspaceOpen,
-      toggle: toggleNotebookWorkspace,
+      controlsId: builderWorkspaceId,
+      open: builderWorkspaceOpen,
+      toggle: toggleBuilderWorkspace,
     }),
-    [notebookWorkspaceId, notebookWorkspaceOpen, toggleNotebookWorkspace],
+    [builderWorkspaceId, builderWorkspaceOpen, toggleBuilderWorkspace],
   )
 
   React.useLayoutEffect(() => {
-    if (!notebookMode || !isDesktop || !hasNotebookTabs) return
+    if (!builderMode || !isDesktop || !hasBuilderTabs) return
 
-    const bounds = getNotebookChatPercentBounds(notebookContainerWidth)
-    const next = clamp(notebookChatPercent, bounds.min, bounds.max)
-    if (next !== notebookChatPercent) setNotebookChatPercent(next)
+    const bounds = getBuilderChatPercentBounds(builderContainerWidth)
+    const next = clamp(builderChatPercent, bounds.min, bounds.max)
+    if (next !== builderChatPercent) setBuilderChatPercent(next)
   }, [
-    hasNotebookTabs,
+    hasBuilderTabs,
     isDesktop,
-    notebookMode,
-    notebookChatPercent,
-    notebookContainerWidth,
+    builderMode,
+    builderChatPercent,
+    builderContainerWidth,
   ])
 
   React.useEffect(() => {
-    setNotebookTabs((current) =>
-      repairNotebookWorkbenchEditorPaths(
+    setBuilderTabs((current) =>
+      repairBuilderWorkbenchEditorPaths(
         current,
         filePaths,
         getInitialFile(definition, workspace),
@@ -2847,29 +2833,29 @@ export function ExampleWorkbench({
   }, [definition, filePaths, workspace])
 
   React.useEffect(() => {
-    if (!activeNotebookEditorTab) return
-    setActivePath(activeNotebookEditorTab.path)
-    setShowFiles(activeNotebookEditorTab.filesOpen)
-  }, [activeNotebookEditorTab])
+    if (!activeBuilderEditorTab) return
+    setActivePath(activeBuilderEditorTab.path)
+    setShowFiles(activeBuilderEditorTab.filesOpen)
+  }, [activeBuilderEditorTab])
 
   React.useEffect(() => {
-    if (activeNotebookTab?.kind !== 'preview') return
+    if (activeBuilderTab?.kind !== 'preview') return
 
     const currentHistory = previewHistoryRef.current
     const currentUrl = currentHistory.entries[currentHistory.index] ?? '/'
     const history =
-      notebookPreviewHistoriesRef.current.get(activeNotebookTab.id) ??
+      builderPreviewHistoriesRef.current.get(activeBuilderTab.id) ??
       previewHistoryRef.current
-    notebookPreviewHistoriesRef.current.set(activeNotebookTab.id, history)
-    currentNotebookPreviewTabIdRef.current = activeNotebookTab.id
+    builderPreviewHistoriesRef.current.set(activeBuilderTab.id, history)
+    currentBuilderPreviewTabIdRef.current = activeBuilderTab.id
     previewHistoryRef.current = history
     setPreviewHistory(history)
 
     const targetUrl = history.entries[history.index] ?? '/'
     if (targetUrl === currentUrl) return
     const frame = window.requestAnimationFrame(() => {
-      const previewFrame = notebookPreviewFrameRefs.current.get(
-        activeNotebookTab.id,
+      const previewFrame = builderPreviewFrameRefs.current.get(
+        activeBuilderTab.id,
       )
       postExampleSandboxBrowserCommand({
         channel: browserChannelRef.current,
@@ -2879,32 +2865,32 @@ export function ExampleWorkbench({
       })
     })
     return () => window.cancelAnimationFrame(frame)
-  }, [activeNotebookTab?.id, activeNotebookTab?.kind])
+  }, [activeBuilderTab?.id, activeBuilderTab?.kind])
 
   React.useEffect(() => {
     if (
       alternateEditor &&
-      notebookTabs.tabs.length === 0 &&
+      builderTabs.tabs.length === 0 &&
       !alternateEditorActive
     ) {
-      revealNotebookPreviewTab()
+      revealBuilderPreviewTab()
     }
   }, [
     alternateEditor,
     alternateEditorActive,
-    notebookTabs.tabs.length,
-    revealNotebookPreviewTab,
+    builderTabs.tabs.length,
+    revealBuilderPreviewTab,
   ])
 
   React.useEffect(() => {
-    const wasOpen = previousNotebookChatOpenRef.current
-    previousNotebookChatOpenRef.current = notebookChatOpen
-    if (!wasOpen || notebookChatOpen) return
+    const wasOpen = previousBuilderChatOpenRef.current
+    previousBuilderChatOpenRef.current = builderChatOpen
+    if (!wasOpen || builderChatOpen) return
     const frame = window.requestAnimationFrame(() => {
-      notebookShowChatButtonRef.current?.focus()
+      builderShowChatButtonRef.current?.focus()
     })
     return () => window.cancelAnimationFrame(frame)
-  }, [notebookChatOpen])
+  }, [builderChatOpen])
 
   const activeSource = workspace.files[activePath] ?? ''
   const statusLabel = getStatusLabel(status)
@@ -2944,30 +2930,30 @@ export function ExampleWorkbench({
     ? getExternalPreviewUrl(currentPreviewUrl)
     : undefined
 
-  function renderNotebookPreviewPanel(tab: NotebookWorkbenchTab) {
+  function renderBuilderPreviewPanel(tab: BuilderWorkbenchTab) {
     if (tab.kind !== 'preview') return null
     const history =
-      notebookPreviewHistoriesRef.current.get(tab.id) ??
+      builderPreviewHistoriesRef.current.get(tab.id) ??
       createExamplePreviewHistory()
     const tabPreviewUrl = history.entries[history.index] ?? '/'
     const tabExternalPreviewUrl = usesWebContainer
       ? getExternalPreviewUrl(tabPreviewUrl)
       : undefined
     const navigationError =
-      notebookPreviewNavigationErrorsRef.current.get(tab.id) ?? ''
+      builderPreviewNavigationErrorsRef.current.get(tab.id) ?? ''
 
     return (
       <section
-        id={getNotebookPanelId(tab)}
+        id={getBuilderPanelId(tab)}
         role="tabpanel"
-        aria-labelledby={getNotebookTabButtonId(tab.id)}
+        aria-labelledby={getBuilderTabButtonId(tab.id)}
         className="size-full min-h-0 overflow-hidden bg-background-default"
       >
         <SandboxBrowser
           annotationAvailable={Boolean(previewUrl || sourceDocument)}
-          annotations={notebookPreviewAnnotationsRef.current.get(tab.id) ?? []}
-          annotationMode={notebookPreviewAnnotationModesRef.current.has(tab.id)}
-          annotationTarget={notebookPreviewAnnotationTargetsRef.current.get(
+          annotations={builderPreviewAnnotationsRef.current.get(tab.id) ?? []}
+          annotationMode={builderPreviewAnnotationModesRef.current.has(tab.id)}
+          annotationTarget={builderPreviewAnnotationTargetsRef.current.get(
             tab.id,
           )}
           canGoBack={canGoBackInExamplePreview(history)}
@@ -2987,9 +2973,9 @@ export function ExampleWorkbench({
           onAddAnnotation={(annotation) =>
             addPreviewAnnotation(annotation, tab.id)
           }
-          onBack={() => navigateNotebookPreviewHistory(tab.id, -1)}
+          onBack={() => navigateBuilderPreviewHistory(tab.id, -1)}
           onClearAnnotationTarget={() => clearPreviewAnnotationTarget(tab.id)}
-          onForward={() => navigateNotebookPreviewHistory(tab.id, 1)}
+          onForward={() => navigateBuilderPreviewHistory(tab.id, 1)}
           onNavigate={(url) =>
             sendPreviewBrowserCommand({ kind: 'navigate', url }, tab.id)
           }
@@ -3007,8 +2993,8 @@ export function ExampleWorkbench({
         >
           {previewUrl ? (
             <iframe
-              ref={(frame) => setNotebookPreviewFrame(tab.id, frame)}
-              title={`${definition.title} ${getNotebookWorkbenchTabLabel(notebookTabs.tabs, tab)} output`}
+              ref={(frame) => setBuilderPreviewFrame(tab.id, frame)}
+              title={`${definition.title} ${getBuilderWorkbenchTabLabel(builderTabs.tabs, tab)} output`}
               allow="cross-origin-isolated"
               sandbox="allow-forms allow-same-origin allow-scripts"
               src={previewUrl}
@@ -3017,8 +3003,8 @@ export function ExampleWorkbench({
             />
           ) : sourceDocument ? (
             <iframe
-              ref={(frame) => setNotebookPreviewFrame(tab.id, frame)}
-              title={`${definition.title} ${getNotebookWorkbenchTabLabel(notebookTabs.tabs, tab)} output`}
+              ref={(frame) => setBuilderPreviewFrame(tab.id, frame)}
+              title={`${definition.title} ${getBuilderWorkbenchTabLabel(builderTabs.tabs, tab)} output`}
               sandbox="allow-scripts"
               srcDoc={sourceDocument}
               onLoad={() => handlePreviewLoad(tab.id)}
@@ -3071,15 +3057,15 @@ export function ExampleWorkbench({
     )
   }
 
-  function renderNotebookEditorPanel(tab: NotebookWorkbenchTab) {
+  function renderBuilderEditorPanel(tab: BuilderWorkbenchTab) {
     if (tab.kind !== 'editor') return null
     const source = workspace.files[tab.path] ?? ''
 
     return (
       <section
-        id={getNotebookPanelId(tab)}
+        id={getBuilderPanelId(tab)}
         role="tabpanel"
-        aria-labelledby={getNotebookTabButtonId(tab.id)}
+        aria-labelledby={getBuilderTabButtonId(tab.id)}
         className="size-full min-h-0 overflow-hidden bg-[var(--th-background)]"
       >
         <div className="flex size-full min-h-0 flex-col">
@@ -3097,7 +3083,7 @@ export function ExampleWorkbench({
                 className="size-9 shrink-0 transition-none active:scale-100"
                 aria-pressed={tab.filesOpen}
                 aria-label={tab.filesOpen ? 'Hide files' : 'Show files'}
-                onClick={() => setNotebookFilesOpen(!tab.filesOpen, tab.id)}
+                onClick={() => setBuilderFilesOpen(!tab.filesOpen, tab.id)}
               >
                 <FolderOpenIcon className="size-3.5" aria-hidden="true" />
               </Button>
@@ -3113,7 +3099,7 @@ export function ExampleWorkbench({
               files={fileTree}
               isSidebarOpen={tab.filesOpen}
               libraryColor={libraryColor}
-              onSidebarClose={() => setNotebookFilesOpen(false, tab.id)}
+              onSidebarClose={() => setBuilderFilesOpen(false, tab.id)}
               prefetchFileContent={() => {}}
               setCurrentPath={(path) => selectFile(path, tab.id)}
             />
@@ -3142,7 +3128,7 @@ export function ExampleWorkbench({
                   path={tab.path}
                   theme={resolvedTheme}
                   value={source}
-                  onChange={(value) => updateNotebookSource(tab.path, value)}
+                  onChange={(value) => updateBuilderSource(tab.path, value)}
                   onRun={() => {
                     if (!manualRunDisabled) void run()
                   }}
@@ -3155,10 +3141,10 @@ export function ExampleWorkbench({
     )
   }
 
-  function renderNotebookConsolePanel(tab: NotebookWorkbenchTab) {
+  function renderBuilderConsolePanel(tab: BuilderWorkbenchTab) {
     if (tab.kind !== 'console') return null
-    const panelId = getNotebookPanelId(tab)
-    const tabButtonId = getNotebookTabButtonId(tab.id)
+    const panelId = getBuilderPanelId(tab)
+    const tabButtonId = getBuilderTabButtonId(tab.id)
 
     if (!usesWebContainer) {
       return (
@@ -3320,41 +3306,41 @@ export function ExampleWorkbench({
     )
   }
 
-  function renderNotebookPane(
-    pane: NotebookWorkbenchPane,
+  function renderBuilderPane(
+    pane: BuilderWorkbenchPane,
     paneIndex: number,
     flattened = false,
   ) {
     const paneTabs = flattened
-      ? notebookTabs.tabs
-      : getNotebookWorkbenchPaneTabs(notebookTabs, pane)
+      ? builderTabs.tabs
+      : getBuilderWorkbenchPaneTabs(builderTabs, pane)
     const paneTab = flattened
-      ? activeNotebookTab
+      ? activeBuilderTab
       : paneTabs.find((tab) => tab.id === pane.activeTabId)
     const paneLabel = flattened
-      ? 'Notebook workspace'
+      ? 'Builder workspace'
       : paneIndex === 0
         ? 'Upper workspace'
         : 'Lower workspace'
     const newTabLabel =
-      flattened || notebookTabs.panes.length === 1
+      flattened || builderTabs.panes.length === 1
         ? 'New tab'
         : `New tab in ${paneIndex === 0 ? 'upper' : 'lower'} pane`
     const showPaneActions =
-      (flattened || paneIndex === 0) && (allowSharing || !notebookChatOpen)
+      (flattened || paneIndex === 0) && (allowSharing || !builderChatOpen)
 
     return (
       <div
         key={pane.id}
-        id={getNotebookPaneId(pane.id)}
+        id={getBuilderPaneId(pane.id)}
         ref={(element) => {
-          if (element) notebookPaneRefs.current.set(pane.id, element)
-          else notebookPaneRefs.current.delete(pane.id)
+          if (element) builderPaneRefs.current.set(pane.id, element)
+          else builderPaneRefs.current.delete(pane.id)
         }}
         className="grid min-h-0 min-w-0 grid-rows-[2.25rem_minmax(0,1fr)] overflow-hidden bg-background-default"
         onPointerDownCapture={() => {
-          setNotebookTabs((current) =>
-            activateNotebookWorkbenchPane(current, pane.id),
+          setBuilderTabs((current) =>
+            activateBuilderWorkbenchPane(current, pane.id),
           )
         }}
       >
@@ -3365,7 +3351,7 @@ export function ExampleWorkbench({
             className="fade-x flex min-w-0 shrink items-center gap-1 overflow-x-auto"
           >
             {paneTabs.map((tab) => {
-              const label = getNotebookWorkbenchTabLabel(notebookTabs.tabs, tab)
+              const label = getBuilderWorkbenchTabLabel(builderTabs.tabs, tab)
               const editorPathSeparator =
                 tab.kind === 'editor' ? tab.path.lastIndexOf('/') : -1
               const editorDirectory =
@@ -3376,52 +3362,49 @@ export function ExampleWorkbench({
                 tab.kind === 'editor'
                   ? tab.path.slice(editorPathSeparator + 1)
                   : ''
-              const tabPane = getNotebookWorkbenchPaneForTab(
-                notebookTabs,
-                tab.id,
-              )
-              const tabPaneIndex = notebookTabs.panes.findIndex(
+              const tabPane = getBuilderWorkbenchPaneForTab(builderTabs, tab.id)
+              const tabPaneIndex = builderTabs.panes.findIndex(
                 (candidate) => candidate.id === tabPane?.id,
               )
-              const otherPane = notebookTabs.panes.find(
+              const otherPane = builderTabs.panes.find(
                 (candidate) => candidate.id !== tabPane?.id,
               )
               const active = tab.id === paneTab?.id
-              const dragging = tab.id === notebookTabDrag?.tabId
+              const dragging = tab.id === builderTabDrag?.tabId
               const canArrange = paneTabs.length > 1 || Boolean(otherPane)
 
               const tabButton = (
                 <button
                   ref={(element) => {
                     if (element) {
-                      notebookTabButtonRefs.current.set(tab.id, element)
+                      builderTabButtonRefs.current.set(tab.id, element)
                     } else {
-                      notebookTabButtonRefs.current.delete(tab.id)
+                      builderTabButtonRefs.current.delete(tab.id)
                     }
                   }}
                   type="button"
                   role="tab"
-                  id={getNotebookTabButtonId(tab.id)}
+                  id={getBuilderTabButtonId(tab.id)}
                   data-tab-id={tab.id}
-                  aria-controls={getNotebookPanelId(tab)}
+                  aria-controls={getBuilderPanelId(tab)}
                   aria-selected={active}
                   aria-label={label}
                   title={label}
                   tabIndex={active ? 0 : -1}
                   className="flex min-w-0 touch-pan-x items-center gap-2 px-2.5 text-[13px] focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus"
                   onClick={() => {
-                    if (notebookTabDidDragRef.current) {
-                      notebookTabDidDragRef.current = false
+                    if (builderTabDidDragRef.current) {
+                      builderTabDidDragRef.current = false
                       return
                     }
                     if (active && canArrange) {
-                      setNotebookArrangeTabId((current) =>
+                      setBuilderArrangeTabId((current) =>
                         current === tab.id ? undefined : tab.id,
                       )
                       return
                     }
-                    activateNotebookTab(tab)
-                    focusNotebookTab(tab.id)
+                    activateBuilderTab(tab)
+                    focusBuilderTab(tab.id)
                   }}
                   onKeyDown={(event) => {
                     const opensMenu =
@@ -3433,21 +3416,21 @@ export function ExampleWorkbench({
                         (event.shiftKey && event.key === 'F10'))
                     if (opensMenu) {
                       event.preventDefault()
-                      setNotebookArrangeTabId(tab.id)
+                      setBuilderArrangeTabId(tab.id)
                       return
                     }
-                    navigateNotebookTabs(event)
+                    navigateBuilderTabs(event)
                   }}
                   onPointerDown={(event) => {
                     if (active && canArrange && event.button === 0) {
                       event.preventDefault()
                     }
-                    startNotebookTabDrag(event, tab.id)
+                    startBuilderTabDrag(event, tab.id)
                   }}
-                  onPointerMove={moveNotebookTabDrag}
-                  onPointerUp={finishNotebookTabDrag}
-                  onPointerCancel={cancelNotebookTabDrag}
-                  onLostPointerCapture={cancelNotebookTabDrag}
+                  onPointerMove={moveBuilderTabDrag}
+                  onPointerUp={finishBuilderTabDrag}
+                  onPointerCancel={cancelBuilderTabDrag}
+                  onLostPointerCapture={cancelBuilderTabDrag}
                 >
                   {tab.kind === 'preview' ? (
                     <BrowserIcon className="size-3.5" aria-hidden="true" />
@@ -3486,20 +3469,20 @@ export function ExampleWorkbench({
                 >
                   {active && canArrange ? (
                     <Dropdown
-                      open={notebookArrangeTabId === tab.id}
+                      open={builderArrangeTabId === tab.id}
                       onOpenChange={(open) => {
-                        if (!open) setNotebookArrangeTabId(undefined)
+                        if (!open) setBuilderArrangeTabId(undefined)
                       }}
                     >
                       <DropdownTrigger render={tabButton} />
                       <DropdownContent
                         align="start"
-                        ariaLabelledBy={getNotebookTabButtonId(tab.id)}
+                        ariaLabelledBy={getBuilderTabButtonId(tab.id)}
                         className="sandbox-ui min-w-44 border-black/10 dark:border-white/10"
                       >
                         {otherPane ? (
                           <DropdownItem
-                            onSelect={() => moveNotebookTab(tab, otherPane.id)}
+                            onSelect={() => moveBuilderTab(tab, otherPane.id)}
                           >
                             Move to {tabPaneIndex === 0 ? 'lower' : 'upper'}{' '}
                             pane
@@ -3507,12 +3490,12 @@ export function ExampleWorkbench({
                         ) : (
                           <>
                             <DropdownItem
-                              onSelect={() => splitNotebookTab(tab, 'before')}
+                              onSelect={() => splitBuilderTab(tab, 'before')}
                             >
                               Split above
                             </DropdownItem>
                             <DropdownItem
-                              onSelect={() => splitNotebookTab(tab, 'after')}
+                              onSelect={() => splitBuilderTab(tab, 'after')}
                             >
                               Split below
                             </DropdownItem>
@@ -3529,7 +3512,7 @@ export function ExampleWorkbench({
                       type="button"
                       aria-label={`Close ${label}`}
                       className="flex w-7 items-center justify-center text-text-secondary hover:bg-surface-state-pressed hover:text-text-primary focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus"
-                      onClick={() => closeNotebookTab(tab.id)}
+                      onClick={() => closeBuilderTab(tab.id)}
                     >
                       <XIcon className="size-3.5" aria-hidden="true" />
                     </button>
@@ -3544,8 +3527,8 @@ export function ExampleWorkbench({
               render={
                 <Button
                   ref={
-                    pane.id === notebookTabs.activePaneId
-                      ? notebookAddTabButtonRef
+                    pane.id === builderTabs.activePaneId
+                      ? builderAddTabButtonRef
                       : undefined
                   }
                   type="button"
@@ -3568,7 +3551,7 @@ export function ExampleWorkbench({
             >
               <DropdownItem
                 className="min-h-10 gap-2 rounded-lg px-2 py-1 text-[13px] text-text-primary transition-colors duration-100 hover:bg-surface-state-hover focus:bg-surface-state-hover motion-reduce:transition-none min-[900px]:min-h-9"
-                onSelect={() => addNotebookTab({ kind: 'preview' }, pane.id)}
+                onSelect={() => addBuilderTab({ kind: 'preview' }, pane.id)}
               >
                 <BrowserIcon className="size-4" aria-hidden="true" />
                 Preview
@@ -3576,7 +3559,7 @@ export function ExampleWorkbench({
               <DropdownItem
                 className="min-h-10 gap-2 rounded-lg px-2 py-1 text-[13px] text-text-primary transition-colors duration-100 hover:bg-surface-state-hover focus:bg-surface-state-hover motion-reduce:transition-none min-[900px]:min-h-9"
                 onSelect={() =>
-                  addNotebookTab(
+                  addBuilderTab(
                     {
                       kind: 'editor',
                       path: activePath,
@@ -3591,7 +3574,7 @@ export function ExampleWorkbench({
               </DropdownItem>
               <DropdownItem
                 className="min-h-10 gap-2 rounded-lg px-2 py-1 text-[13px] text-text-primary transition-colors duration-100 hover:bg-surface-state-hover focus:bg-surface-state-hover motion-reduce:transition-none min-[900px]:min-h-9"
-                onSelect={() => addNotebookTab({ kind: 'console' }, pane.id)}
+                onSelect={() => addBuilderTab({ kind: 'console' }, pane.id)}
               >
                 <TerminalWindowIcon className="size-4" aria-hidden="true" />
                 Console
@@ -3624,11 +3607,11 @@ export function ExampleWorkbench({
                 </Tooltip>
               ) : null}
 
-              {(flattened || paneIndex === 0) && !notebookChatOpen ? (
+              {(flattened || paneIndex === 0) && !builderChatOpen ? (
                 <>
                   <Tooltip content="Show chat" side="bottom">
                     <Button
-                      ref={notebookShowChatButtonRef}
+                      ref={builderShowChatButtonRef}
                       type="button"
                       variant="icon"
                       color="gray"
@@ -3636,8 +3619,8 @@ export function ExampleWorkbench({
                       rounded="lg"
                       className="size-7 shrink-0 bg-transparent transition-colors duration-100 hover:bg-surface-state-hover active:scale-95 max-[899px]:bg-transparent max-[899px]:hover:bg-surface-state-hover motion-reduce:transition-none"
                       aria-label="Show chat"
-                      aria-controls={notebookChatId}
-                      aria-expanded={notebookChatOpen}
+                      aria-controls={builderChatId}
+                      aria-expanded={builderChatOpen}
                       onClick={() => alternateEditor?.onActiveChange(true)}
                     >
                       <ChatCircleDotsIcon
@@ -3655,9 +3638,9 @@ export function ExampleWorkbench({
                       rounded="lg"
                       className="size-7 shrink-0 bg-transparent transition-colors duration-100 hover:bg-surface-state-hover active:scale-95 max-[899px]:bg-transparent max-[899px]:hover:bg-surface-state-hover motion-reduce:transition-none"
                       aria-label="Hide side panel"
-                      aria-controls={notebookWorkspaceId}
+                      aria-controls={builderWorkspaceId}
                       aria-expanded={true}
-                      onClick={toggleNotebookWorkspace}
+                      onClick={toggleBuilderWorkspace}
                     >
                       <SidebarSimpleIcon
                         className="size-3.5"
@@ -3674,11 +3657,11 @@ export function ExampleWorkbench({
 
         <div className="min-h-0 min-w-0 overflow-hidden">
           {paneTab?.kind === 'preview'
-            ? renderNotebookPreviewPanel(paneTab)
+            ? renderBuilderPreviewPanel(paneTab)
             : paneTab?.kind === 'editor'
-              ? renderNotebookEditorPanel(paneTab)
+              ? renderBuilderEditorPanel(paneTab)
               : paneTab
-                ? renderNotebookConsolePanel(paneTab)
+                ? renderBuilderConsolePanel(paneTab)
                 : null}
         </div>
       </div>
@@ -3686,40 +3669,36 @@ export function ExampleWorkbench({
   }
 
   if (alternateEditor) {
-    const upperFraction = notebookTabs.panes[0]?.fraction ?? 1
-    const lowerFraction = notebookTabs.panes[1]?.fraction ?? 0
-    const showsNotebookSplit = isDesktop && visibleNotebookPanes.length === 2
-    const splitStyle = showsNotebookSplit
+    const upperFraction = builderTabs.panes[0]?.fraction ?? 1
+    const lowerFraction = builderTabs.panes[1]?.fraction ?? 0
+    const showsBuilderSplit = isDesktop && visibleBuilderPanes.length === 2
+    const splitStyle = showsBuilderSplit
       ? { gridTemplateRows: `${upperFraction}fr 8px ${lowerFraction}fr` }
       : { gridTemplateRows: 'minmax(0, 1fr)' }
-    const notebookChatBounds = getNotebookChatPercentBounds(
-      notebookContainerWidth,
+    const builderChatBounds = getBuilderChatPercentBounds(builderContainerWidth)
+    const currentBuilderChatPercent = clamp(
+      builderChatPercent,
+      builderChatBounds.min,
+      builderChatBounds.max,
     )
-    const currentNotebookChatPercent = clamp(
-      notebookChatPercent,
-      notebookChatBounds.min,
-      notebookChatBounds.max,
-    )
-    const notebookLayoutStyle: NotebookLayoutStyle = {
-      '--notebook-chat-desktop-track': notebookWorkspaceOpen
-        ? notebookChatOpen
-          ? `${currentNotebookChatPercent}fr`
+    const builderLayoutStyle: BuilderLayoutStyle = {
+      '--builder-chat-desktop-track': builderWorkspaceOpen
+        ? builderChatOpen
+          ? `${currentBuilderChatPercent}fr`
           : '0fr'
         : '1fr',
-      '--notebook-chat-mobile-track': notebookChatOpen ? '1fr' : '0fr',
-      '--notebook-workspace-desktop-track': notebookWorkspaceOpen
-        ? notebookChatOpen
-          ? `${100 - currentNotebookChatPercent}fr`
+      '--builder-chat-mobile-track': builderChatOpen ? '1fr' : '0fr',
+      '--builder-workspace-desktop-track': builderWorkspaceOpen
+        ? builderChatOpen
+          ? `${100 - currentBuilderChatPercent}fr`
           : '1fr'
         : '0fr',
-      '--notebook-workspace-mobile-track': notebookWorkspaceOpen
-        ? '1fr'
-        : '0fr',
+      '--builder-workspace-mobile-track': builderWorkspaceOpen ? '1fr' : '0fr',
     }
 
     return (
       <section
-        ref={notebookContainerRef}
+        ref={builderContainerRef}
         className={`sandbox-ui @container not-prose relative flex min-w-0 flex-col overflow-hidden bg-background-default text-text-primary ${
           fullscreen
             ? 'min-h-0 flex-1 rounded-none'
@@ -3755,44 +3734,44 @@ export function ExampleWorkbench({
         ) : null}
 
         <div
-          ref={notebookLayoutRef}
-          className={`relative grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)] grid-rows-[minmax(0,var(--notebook-workspace-mobile-track))_minmax(0,var(--notebook-chat-mobile-track))] overflow-hidden duration-[180ms] [transition-timing-function:cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none @min-[900px]:grid-cols-[minmax(0,var(--notebook-chat-desktop-track))_minmax(0,var(--notebook-workspace-desktop-track))] @min-[900px]:grid-rows-[minmax(0,1fr)] ${
-            isNotebookChatResizing
+          ref={builderLayoutRef}
+          className={`relative grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)] grid-rows-[minmax(0,var(--builder-workspace-mobile-track))_minmax(0,var(--builder-chat-mobile-track))] overflow-hidden duration-[180ms] [transition-timing-function:cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none @min-[900px]:grid-cols-[minmax(0,var(--builder-chat-desktop-track))_minmax(0,var(--builder-workspace-desktop-track))] @min-[900px]:grid-rows-[minmax(0,1fr)] ${
+            isBuilderChatResizing
               ? 'transition-none'
               : 'transition-[grid-template-columns,grid-template-rows]'
           }`}
-          style={notebookLayoutStyle}
+          style={builderLayoutStyle}
         >
           <div
-            id={notebookWorkspaceId}
-            ref={notebookWorkspaceRef}
-            aria-hidden={!notebookWorkspaceOpen}
-            inert={!notebookWorkspaceOpen}
+            id={builderWorkspaceId}
+            ref={builderWorkspaceRef}
+            aria-hidden={!builderWorkspaceOpen}
+            inert={!builderWorkspaceOpen}
             className={`z-20 col-start-1 row-start-1 min-h-0 min-w-0 overflow-hidden @min-[900px]:col-start-2 ${
-              notebookWorkspaceOpen ? '' : 'pointer-events-none'
-            } ${hasNotebookTabs ? '' : 'invisible'}`}
+              builderWorkspaceOpen ? '' : 'pointer-events-none'
+            } ${hasBuilderTabs ? '' : 'invisible'}`}
           >
             <div className="relative size-full min-h-0 min-w-0 overflow-hidden">
               <div
-                ref={notebookPaneGridRef}
+                ref={builderPaneGridRef}
                 className="grid size-full min-h-0 min-w-0 overflow-hidden"
                 style={splitStyle}
               >
-                {visibleNotebookPanes.map((pane, index) => (
+                {visibleBuilderPanes.map((pane, index) => (
                   <React.Fragment key={pane.id}>
-                    {renderNotebookPane(
+                    {renderBuilderPane(
                       pane,
                       index,
-                      !isDesktop && notebookTabs.panes.length === 2,
+                      !isDesktop && builderTabs.panes.length === 2,
                     )}
-                    {showsNotebookSplit && index === 0 ? (
+                    {showsBuilderSplit && index === 0 ? (
                       <div
                         role="separator"
                         tabIndex={0}
-                        aria-label="Resize notebook panes"
+                        aria-label="Resize builder panes"
                         aria-orientation="horizontal"
-                        aria-controls={visibleNotebookPanes
-                          .map((candidate) => getNotebookPaneId(candidate.id))
+                        aria-controls={visibleBuilderPanes
+                          .map((candidate) => getBuilderPaneId(candidate.id))
                           .join(' ')}
                         aria-valuemin={20}
                         aria-valuemax={80}
@@ -3801,13 +3780,13 @@ export function ExampleWorkbench({
                           upperFraction * 100,
                         )}%, lower ${Math.round(lowerFraction * 100)}%`}
                         className="group relative z-20 touch-none cursor-row-resize bg-border-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus"
-                        onDoubleClick={resetNotebookPaneSizes}
-                        onKeyDown={resizeNotebookPanesWithKeyboard}
-                        onPointerDown={startNotebookPaneResize}
-                        onPointerMove={moveNotebookPaneResize}
-                        onPointerUp={finishNotebookPaneResize}
-                        onPointerCancel={finishNotebookPaneResize}
-                        onLostPointerCapture={finishNotebookPaneResize}
+                        onDoubleClick={resetBuilderPaneSizes}
+                        onKeyDown={resizeBuilderPanesWithKeyboard}
+                        onPointerDown={startBuilderPaneResize}
+                        onPointerMove={moveBuilderPaneResize}
+                        onPointerUp={finishBuilderPaneResize}
+                        onPointerCancel={finishBuilderPaneResize}
+                        onLostPointerCapture={finishBuilderPaneResize}
                       >
                         <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-border-default group-hover:bg-border-focus group-focus-visible:bg-border-focus" />
                       </div>
@@ -3816,11 +3795,10 @@ export function ExampleWorkbench({
                 ))}
               </div>
 
-              {needsNotebookValidationFrame &&
-              (previewUrl || sourceDocument) ? (
+              {needsBuilderValidationFrame && (previewUrl || sourceDocument) ? (
                 previewUrl ? (
                   <iframe
-                    ref={notebookValidationFrameRef}
+                    ref={builderValidationFrameRef}
                     title={`${definition.title} validation output`}
                     aria-hidden="true"
                     tabIndex={-1}
@@ -3832,7 +3810,7 @@ export function ExampleWorkbench({
                   />
                 ) : (
                   <iframe
-                    ref={notebookValidationFrameRef}
+                    ref={builderValidationFrameRef}
                     title={`${definition.title} validation output`}
                     aria-hidden="true"
                     tabIndex={-1}
@@ -3844,16 +3822,16 @@ export function ExampleWorkbench({
                 )
               ) : null}
 
-              {notebookTabDrag?.active ? (
+              {builderTabDrag?.active ? (
                 <div
                   className="pointer-events-none absolute inset-0 z-40 grid grid-rows-2 gap-2 bg-background-default/40 p-3"
                   aria-hidden="true"
                 >
-                  {notebookTabs.panes.length === 1 ? (
+                  {builderTabs.panes.length === 1 ? (
                     <>
                       <div
                         className={`flex items-center justify-center rounded-lg border-2 border-dashed text-xs font-medium ${
-                          notebookTabDrag.targetPosition === 'before'
+                          builderTabDrag.targetPosition === 'before'
                             ? 'border-border-focus bg-background-elevated text-text-primary'
                             : 'border-border-default bg-background-subtle/70 text-text-muted'
                         }`}
@@ -3862,7 +3840,7 @@ export function ExampleWorkbench({
                       </div>
                       <div
                         className={`flex items-center justify-center rounded-lg border-2 border-dashed text-xs font-medium ${
-                          notebookTabDrag.targetPosition === 'after'
+                          builderTabDrag.targetPosition === 'after'
                             ? 'border-border-focus bg-background-elevated text-text-primary'
                             : 'border-border-default bg-background-subtle/70 text-text-muted'
                         }`}
@@ -3871,11 +3849,11 @@ export function ExampleWorkbench({
                       </div>
                     </>
                   ) : (
-                    notebookTabs.panes.map((pane, index) => (
+                    builderTabs.panes.map((pane, index) => (
                       <div
                         key={pane.id}
                         className={`flex items-center justify-center rounded-lg border-2 border-dashed text-xs font-medium ${
-                          notebookTabDrag.targetPaneId === pane.id
+                          builderTabDrag.targetPaneId === pane.id
                             ? 'border-border-focus bg-background-elevated text-text-primary'
                             : 'border-border-default bg-background-subtle/70 text-text-muted'
                         }`}
@@ -3889,33 +3867,33 @@ export function ExampleWorkbench({
             </div>
           </div>
 
-          {showsNotebookChatSplit ? (
+          {showsBuilderChatSplit ? (
             <div
-              data-notebook-chat-separator=""
+              data-builder-chat-separator=""
               role="separator"
               tabIndex={0}
               aria-label="Resize chat and side panel"
               aria-orientation="vertical"
-              aria-controls={`${notebookChatId} ${notebookWorkspaceId}`}
-              aria-valuemin={Math.round(notebookChatBounds.min)}
-              aria-valuemax={Math.round(notebookChatBounds.max)}
-              aria-valuenow={Math.round(currentNotebookChatPercent)}
+              aria-controls={`${builderChatId} ${builderWorkspaceId}`}
+              aria-valuemin={Math.round(builderChatBounds.min)}
+              aria-valuemax={Math.round(builderChatBounds.max)}
+              aria-valuenow={Math.round(currentBuilderChatPercent)}
               aria-valuetext={`Chat ${Math.round(
-                currentNotebookChatPercent,
-              )}%, side panel ${Math.round(100 - currentNotebookChatPercent)}%`}
+                currentBuilderChatPercent,
+              )}%, side panel ${Math.round(100 - currentBuilderChatPercent)}%`}
               className="group absolute inset-y-0 left-[38%] z-20 w-2 -translate-x-1/2 touch-none cursor-col-resize focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus"
-              style={{ left: `${currentNotebookChatPercent}%` }}
-              onDoubleClick={resetNotebookChatSize}
-              onKeyDown={resizeNotebookChatWithKeyboard}
-              onPointerDown={startNotebookChatResize}
-              onPointerMove={moveNotebookChatResize}
-              onPointerUp={finishNotebookChatResize}
-              onPointerCancel={finishNotebookChatResize}
-              onLostPointerCapture={finishNotebookChatResize}
+              style={{ left: `${currentBuilderChatPercent}%` }}
+              onDoubleClick={resetBuilderChatSize}
+              onKeyDown={resizeBuilderChatWithKeyboard}
+              onPointerDown={startBuilderChatResize}
+              onPointerMove={moveBuilderChatResize}
+              onPointerUp={finishBuilderChatResize}
+              onPointerCancel={finishBuilderChatResize}
+              onLostPointerCapture={finishBuilderChatResize}
             >
               <div
                 className={`absolute inset-y-0 left-1/2 w-px -translate-x-1/2 group-hover:bg-border-focus group-focus-visible:bg-border-focus ${
-                  isNotebookChatResizing
+                  isBuilderChatResizing
                     ? 'bg-border-focus'
                     : 'bg-border-default'
                 }`}
@@ -3924,26 +3902,26 @@ export function ExampleWorkbench({
           ) : null}
 
           <aside
-            id={notebookChatId}
+            id={builderChatId}
             aria-label={alternateEditor.label}
-            aria-hidden={!notebookChatOpen}
-            inert={!notebookChatOpen}
+            aria-hidden={!builderChatOpen}
+            inert={!builderChatOpen}
             className={`z-10 col-start-1 row-start-2 flex min-h-0 min-w-0 overflow-hidden bg-background-default @min-[900px]:row-start-1 ${
-              notebookWorkspaceOpen && notebookChatOpen
+              builderWorkspaceOpen && builderChatOpen
                 ? 'border-t border-border-default @min-[900px]:border-r @min-[900px]:border-t-0'
                 : ''
-            } ${notebookChatOpen ? '' : 'pointer-events-none'}`}
+            } ${builderChatOpen ? '' : 'pointer-events-none'}`}
           >
-            <NotebookWorkspaceControlsContext.Provider
-              value={notebookWorkspaceControls}
+            <BuilderWorkspaceControlsContext.Provider
+              value={builderWorkspaceControls}
             >
               {alternateEditor.content}
-            </NotebookWorkspaceControlsContext.Provider>
+            </BuilderWorkspaceControlsContext.Provider>
           </aside>
         </div>
 
         <div className="sr-only" aria-live="polite">
-          {notebookLayoutAnnouncement}
+          {builderLayoutAnnouncement}
         </div>
       </section>
     )
@@ -4668,7 +4646,7 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max)
 }
 
-function getNotebookChatPercentBounds(width: number) {
+function getBuilderChatPercentBounds(width: number) {
   if (width <= 0) return { min: 0, max: 100 }
   const minWidth = Math.min(MIN_DESKTOP_PANEL_WIDTH, width / 2)
   const min = (minWidth / width) * 100
@@ -4685,7 +4663,7 @@ function restoreCodePanelResize(resize: CodePanelResize | null) {
   }
 }
 
-function restoreNotebookPaneResize(resize: NotebookPaneResize | null) {
+function restoreBuilderPaneResize(resize: BuilderPaneResize | null) {
   if (!resize) return
 
   resize.ownerDocument.body.style.cursor = resize.previousCursor
@@ -4695,7 +4673,7 @@ function restoreNotebookPaneResize(resize: NotebookPaneResize | null) {
   }
 }
 
-function restoreNotebookChatResize(resize: NotebookChatResize | null) {
+function restoreBuilderChatResize(resize: BuilderChatResize | null) {
   if (!resize) return
 
   resize.ownerDocument.body.style.cursor = resize.previousCursor
@@ -4705,7 +4683,7 @@ function restoreNotebookChatResize(resize: NotebookChatResize | null) {
   }
 }
 
-function restoreNotebookTabDrag(drag: NotebookTabDrag | null) {
+function restoreBuilderTabDrag(drag: BuilderTabDrag | null) {
   if (!drag?.frames) return
   for (const { frame, pointerEvents } of drag.frames) {
     frame.style.pointerEvents = pointerEvents

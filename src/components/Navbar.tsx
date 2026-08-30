@@ -30,7 +30,6 @@ import { ListIcon } from '@phosphor-icons/react/List'
 import { LinkedinLogoIcon } from '@phosphor-icons/react/LinkedinLogo'
 import { MagnifyingGlassIcon } from '@phosphor-icons/react/MagnifyingGlass'
 import { MailboxIcon } from '@phosphor-icons/react/Mailbox'
-import { NotebookIcon } from '@phosphor-icons/react/Notebook'
 import { ShieldCheckIcon } from '@phosphor-icons/react/ShieldCheck'
 import { ShoppingBagIcon } from '@phosphor-icons/react/ShoppingBag'
 import { SignInIcon } from '@phosphor-icons/react/SignIn'
@@ -66,7 +65,7 @@ import { BrandXIcon } from '~/components/icons/BrandXIcon'
 import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
 import { BlogPostCard } from '~/components/ds/ui/BlogPostCard'
 import { Button } from '~/components/ds/ui'
-import { Collapsible, CollapsibleContent } from '~/components/Collapsible'
+import { Panel, PanelContent } from '~/components/Panel'
 import { getProducts } from '~/utils/shop.functions'
 import { formatMoney, shopifyImageUrl } from '~/utils/shopify-format'
 import type { ProductListItem } from '~/utils/shopify-queries'
@@ -76,6 +75,7 @@ import {
   trackPartnerInquiry,
 } from '~/utils/partner-inquiry'
 import { fetchRecentPosts, type RecentPost } from '~/utils/blog.functions'
+import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 
 const LogoSection = () => {
   return (
@@ -230,18 +230,18 @@ const NAV_GROUPS = [
         label: 'Tools',
         items: [
           {
-            label: 'Builder',
-            to: '/builder',
+            label: 'Application Starter',
+            to: '/application-starter',
             description: 'Generate TanStack app starters.',
             badge: 'Alpha',
             icon: HammerIcon,
           },
           {
-            label: 'Notebooks',
-            to: '/notebook',
-            description: 'Create and share browser sandboxes.',
+            label: 'Builder',
+            to: '/builder',
+            description: 'Build and share TanStack projects.',
             badge: 'Alpha',
-            icon: NotebookIcon,
+            icon: HammerIcon,
           },
           {
             label: 'Stats',
@@ -484,7 +484,6 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   )
   const [dismissedDesktopMenuKey, setDismissedDesktopMenuKey] =
     React.useState<NavMenuKey | null>(null)
-  const [canLoadAuthControls, setCanLoadAuthControls] = React.useState(false)
   const [isScrolled, setIsScrolled] = React.useState(false)
 
   React.useEffect(() => {
@@ -534,10 +533,6 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     [blurActiveNavigationElement],
   )
 
-  const requestAuthControls = React.useCallback(() => {
-    setCanLoadAuthControls(true)
-  }, [])
-
   React.useEffect(() => {
     if (!mobileMenuOpen) {
       return
@@ -556,6 +551,8 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     }
   }, [mobileMenuOpen])
 
+  const userQuery = useCurrentUserQuery()
+
   const getLoginButtonFallback = (className?: string) => (
     <Link
       to="/login"
@@ -572,14 +569,23 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       <SignInIcon className="size-4" weight="bold" />
     </Link>
   )
-  const renderAuthControls = (className?: string) =>
-    canLoadAuthControls ? (
-      <React.Suspense fallback={getLoginButtonFallback(className)}>
-        <LazyNavbarAuthControls className={className} />
-      </React.Suspense>
+  const getAuthControlsFallback = (className?: string) =>
+    userQuery.data || userQuery.isLoading ? (
+      <div
+        aria-hidden="true"
+        className={twMerge(
+          'size-[26px] animate-pulse rounded-full bg-gray-200 dark:bg-gray-700',
+          className,
+        )}
+      />
     ) : (
       getLoginButtonFallback(className)
     )
+  const renderAuthControls = (className?: string) => (
+    <React.Suspense fallback={getAuthControlsFallback(className)}>
+      <LazyNavbarAuthControls className={className} />
+    </React.Suspense>
+  )
 
   const socialLinks = <SocialStack />
   const siteBackdropActive = mobileMenuOpen
@@ -643,12 +649,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         <div className={DESKTOP_NAV_CLASS}>
           <AiDockButton />
         </div>
-        <div
-          className={twMerge(DESKTOP_NAV_CLASS, 'items-center gap-2')}
-          onFocusCapture={requestAuthControls}
-          onPointerEnter={requestAuthControls}
-          onTouchStart={requestAuthControls}
-        >
+        <div className={twMerge(DESKTOP_NAV_CLASS, 'items-center gap-2')}>
           {renderAuthControls()}
         </div>
         <button
@@ -675,12 +676,12 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   )
 
   const mobileMenu = (
-    <Collapsible
+    <Panel
       open={mobileMenuOpen}
       onOpenChange={setMobileMenuOpen}
       className={MOBILE_NAV_CLASS}
     >
-      <CollapsibleContent
+      <PanelContent
         className={twMerge(
           'fixed left-0 right-0 top-[var(--navbar-height)] z-[90]',
           'motion-reduce:transition-none',
@@ -713,8 +714,8 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             />
           </div>
         </div>
-      </CollapsibleContent>
-    </Collapsible>
+      </PanelContent>
+    </Panel>
   )
 
   return (
@@ -862,6 +863,7 @@ function MobileNavigation({
 }) {
   const activeGroup = NAV_GROUPS.find((group) => group.key === activeKey)
   const { openAiDock, openSearch } = useSearchContext()
+  const userQuery = useCurrentUserQuery()
 
   const openUtility = (utility: 'ai' | 'search') => {
     onNavigate()
@@ -938,7 +940,18 @@ function MobileNavigation({
               Ask AI
             </button>
             {loadAuthControls ? (
-              <React.Suspense fallback={signIn}>
+              <React.Suspense
+                fallback={
+                  userQuery.data || userQuery.isLoading ? (
+                    <div
+                      aria-hidden="true"
+                      className="h-16 w-full animate-pulse rounded-xl bg-[#171717]"
+                    />
+                  ) : (
+                    signIn
+                  )
+                }
+              >
                 <LazyMobileNavbarAuthControls
                   tabIndex={activeGroup ? -1 : 0}
                   onNavigate={onNavigate}

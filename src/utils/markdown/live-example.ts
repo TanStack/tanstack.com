@@ -10,7 +10,7 @@ import {
   isExampleEnvironment,
   serializeExampleWorkspace,
 } from '~/utils/example-workspace'
-import { getExampleEnvironmentProfile } from '~/utils/notebook-environment'
+import { getExampleEnvironmentProfile } from '~/utils/builder-environment'
 
 type TransformState = {
   groupOccurrences: Map<string, number>

@@ -1,13 +1,15 @@
 import * as React from 'react'
 import {
   createRootRouteWithContext,
+  RouterContextProvider,
   useMatches,
+  useRouter,
   useRouterState,
   HeadContent,
   Scripts,
   defaultStringifySearch,
 } from '@tanstack/react-router'
-import { QueryClient } from '@tanstack/react-query'
+import { QueryClientProvider, type QueryClient } from '@tanstack/react-query'
 import { createThemeCss, type HighlightTheme } from '@tanstack/highlight/theme'
 import { auroraXTheme } from '@tanstack/highlight/themes/aurora-x'
 import { githubLightTheme } from '@tanstack/highlight/themes/github-light'
@@ -38,9 +40,9 @@ import { ThemeProvider, useHtmlClass } from '~/components/ThemeProvider'
 import { Navbar } from '~/components/Navbar'
 import { Footer } from '~/components/Footer'
 import {
-  NotebookRouteFrame,
-  NotebookRouteSkeleton,
-} from '~/components/notebook/NotebookLoading'
+  BuilderRouteFrame,
+  BuilderRouteSkeleton,
+} from '~/components/builder/BuilderLoading'
 import { THEME_COLORS } from '~/utils/utils'
 import { trackPageView } from '~/utils/analytics'
 import { createPartnerPlacementSessionSeed } from '~/utils/partner-placement'
@@ -256,24 +258,14 @@ export const Route = createRootRouteWithContext<{
   },
   headers: () => DOCUMENT_CACHE_HEADERS,
   staleTime: Infinity,
-  shellComponent: ({ children }) => {
-    return <RootShell>{children}</RootShell>
-  },
+  shellComponent: ShellComponent,
   errorComponent: DefaultCatchBoundary,
   notFoundComponent: () => <NotFound />,
 })
 
-function RootShell({ children }: { children: React.ReactNode }) {
-  return (
-    <ThemeProvider>
-      <SearchProvider>
-        <ShellComponent>{children}</ShellComponent>
-      </SearchProvider>
-    </ThemeProvider>
-  )
-}
-
 function ShellComponent({ children }: { children: React.ReactNode }) {
+  const router = useRouter()
+  const { queryClient } = Route.useRouteContext()
   const hasBaseParent = useMatches({
     select: (matches) => matches.find((d) => d.staticData?.baseParent),
   })
@@ -319,16 +311,15 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
   const hideNavbar = useMatches({
     select: (s) => s.some((d) => d.staticData?.showNavbar === false),
   })
-  const hideFooter =
-    pathname === '/notebook' || pathname.startsWith('/notebook/')
+  const hideFooter = pathname === '/builder' || pathname.startsWith('/builder/')
 
   const htmlClass = useHtmlClass()
   const routeContent = (
-    <NotebookRouteFrame pathname={pathname}>
-      <React.Suspense fallback={<NotebookRouteSkeleton pathname={pathname} />}>
+    <BuilderRouteFrame pathname={pathname}>
+      <React.Suspense fallback={<BuilderRouteSkeleton pathname={pathname} />}>
         {children}
       </React.Suspense>
-    </NotebookRouteFrame>
+    </BuilderRouteFrame>
   )
 
   return (
@@ -346,56 +337,64 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
         {hasBaseParent ? <base target="_parent" /> : null}
       </head>
       <body className="overflow-x-hidden">
-        <LoginModalProvider>
-          <ToastProvider>
-            <PageViewTracker />
-            <LibrariesOverlayProvider>
-              {hideNavbar ? (
-                routeContent
-              ) : (
-                <Navbar>
-                  {routeContent}
-                  {hideFooter ? null : <Footer />}
-                </Navbar>
-              )}
-            </LibrariesOverlayProvider>
-            {showDevtools && LazyAppDevtools ? (
-              <OptionalDevtoolsBoundary>
-                <React.Suspense fallback={null}>
-                  <LazyAppDevtools />
-                </React.Suspense>
-              </OptionalDevtoolsBoundary>
-            ) : null}
-            <div
-              aria-hidden="true"
-              className={twMerge(
-                'pointer-events-none fixed top-0 left-0 z-99999999 h-[320px] w-full select-none',
-              )}
-            >
-              <div
-                className={twMerge(
-                  'absolute top-0 w-full h-80 rounded-[100%] bg-amber-500/30 blur-3xl transition-all duration-500 dark:bg-sky-400/25',
-                  showNavigationSpinner
-                    ? '-translate-y-1/2 opacity-100'
-                    : '-translate-y-full opacity-0',
-                )}
-              />
-              <div
-                className={twMerge(
-                  'absolute top-6 left-1/2 -translate-x-1/2 rounded-full bg-white/75 p-2 shadow-lg backdrop-blur-lg transition-all duration-300 dark:bg-slate-900/40',
-                  showNavigationSpinner
-                    ? 'translate-y-0 opacity-100'
-                    : '-translate-y-6 opacity-0',
-                )}
-              >
-                {isNavigating && showNavigationSpinner ? (
-                  <Spinner className="text-4xl" />
-                ) : null}
-              </div>
-            </div>
-          </ToastProvider>
-        </LoginModalProvider>
-        <Scripts />
+        <RouterContextProvider router={router}>
+          <QueryClientProvider client={queryClient}>
+            <ThemeProvider>
+              <SearchProvider>
+                <LoginModalProvider>
+                  <ToastProvider>
+                    <PageViewTracker />
+                    <LibrariesOverlayProvider>
+                      {hideNavbar ? (
+                        routeContent
+                      ) : (
+                        <Navbar>
+                          {routeContent}
+                          {hideFooter ? null : <Footer />}
+                        </Navbar>
+                      )}
+                    </LibrariesOverlayProvider>
+                    {showDevtools && LazyAppDevtools ? (
+                      <OptionalDevtoolsBoundary>
+                        <React.Suspense fallback={null}>
+                          <LazyAppDevtools />
+                        </React.Suspense>
+                      </OptionalDevtoolsBoundary>
+                    ) : null}
+                    <div
+                      aria-hidden="true"
+                      className={twMerge(
+                        'pointer-events-none fixed top-0 left-0 z-99999999 h-[320px] w-full select-none',
+                      )}
+                    >
+                      <div
+                        className={twMerge(
+                          'absolute top-0 w-full h-80 rounded-[100%] bg-amber-500/30 blur-3xl transition-all duration-500 dark:bg-sky-400/25',
+                          showNavigationSpinner
+                            ? '-translate-y-1/2 opacity-100'
+                            : '-translate-y-full opacity-0',
+                        )}
+                      />
+                      <div
+                        className={twMerge(
+                          'absolute top-6 left-1/2 -translate-x-1/2 rounded-full bg-white/75 p-2 shadow-lg backdrop-blur-lg transition-all duration-300 dark:bg-slate-900/40',
+                          showNavigationSpinner
+                            ? 'translate-y-0 opacity-100'
+                            : '-translate-y-6 opacity-0',
+                        )}
+                      >
+                        {isNavigating && showNavigationSpinner ? (
+                          <Spinner className="text-4xl" />
+                        ) : null}
+                      </div>
+                    </div>
+                  </ToastProvider>
+                </LoginModalProvider>
+              </SearchProvider>
+            </ThemeProvider>
+          </QueryClientProvider>
+          <Scripts />
+        </RouterContextProvider>
       </body>
     </html>
   )

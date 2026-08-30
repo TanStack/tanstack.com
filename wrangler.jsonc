@@ -30,7 +30,7 @@
       "bucket_name": "tanstack-npm-download-cache",
     },
     {
-      "binding": "NOTEBOOK_PROJECTS",
+      "binding": "BUILDER_PROJECTS",
       "bucket_name": "tanstack-notebook-projects",
     },
   ],

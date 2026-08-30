@@ -2,7 +2,7 @@ import * as React from 'react'
 import { GearIcon } from '@phosphor-icons/react/Gear'
 import { KeyIcon } from '@phosphor-icons/react/Key'
 import { LockIcon } from '@phosphor-icons/react/Lock'
-import { NotebookIcon } from '@phosphor-icons/react/Notebook'
+import { HammerIcon } from '@phosphor-icons/react/Hammer'
 import { SignInIcon } from '@phosphor-icons/react/SignIn'
 import { SignOutIcon } from '@phosphor-icons/react/SignOut'
 import { SparkleIcon } from '@phosphor-icons/react/Sparkle'
@@ -70,12 +70,22 @@ export function NavbarAuthControls({ className }: NavbarAuthControlsProps) {
     )
   }
 
+  const loadingPlaceholder = (
+    <div
+      aria-hidden="true"
+      className={twMerge(
+        'size-[26px] animate-pulse rounded-full bg-gray-200 dark:bg-gray-700',
+        className,
+      )}
+    />
+  )
+
   return (
     <>
-      <AuthLoading>{loginButton}</AuthLoading>
+      <AuthLoading>{loadingPlaceholder}</AuthLoading>
       <Unauthenticated>{loginButton}</Unauthenticated>
       <Authenticated>
-        <React.Suspense fallback={loginButton}>
+        <React.Suspense fallback={loadingPlaceholder}>
           <LazyAuthenticatedUserMenu
             user={user ?? null}
             canAdmin={canAdmin}
@@ -132,9 +142,16 @@ export function MobileNavbarAuthControls({
     </Link>
   )
 
+  const loadingPlaceholder = (
+    <div
+      aria-hidden="true"
+      className="h-16 w-full animate-pulse rounded-xl bg-[#171717]"
+    />
+  )
+
   return (
     <>
-      <AuthLoading>{signIn}</AuthLoading>
+      <AuthLoading>{loadingPlaceholder}</AuthLoading>
       <Unauthenticated>{signIn}</Unauthenticated>
       <Authenticated>
         <Link
@@ -147,13 +164,13 @@ export function MobileNavbarAuthControls({
           Account
         </Link>
         <Link
-          to="/notebook"
+          to="/builder"
           tabIndex={tabIndex}
           onClick={onNavigate}
           className={itemClassName}
         >
-          <NotebookIcon className="size-8 shrink-0" />
-          My Notebooks
+          <HammerIcon className="size-8 shrink-0" />
+          My Projects
         </Link>
         <Link
           to="/account/submissions"

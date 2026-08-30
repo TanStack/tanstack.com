@@ -6,7 +6,7 @@ import {
   readJsonBody,
   validateJsonRequest,
 } from "~/utils/api-boundary.server";
-import { parseBuilderRequest } from "~/builder/api/request-schema.server";
+import { parseApplicationStarterRequest } from "~/application-starter/api/request-schema.server";
 import {
   checkIpRateLimit,
   rateLimitedResponse,
@@ -183,7 +183,7 @@ export const Route = createFileRoute("/api/example/deploy")({
           if (!bodyResult.success) {
             throw new Error(bodyResult.error.message);
           }
-          body = parseBuilderRequest(exampleDeployBodySchema, bodyResult.body);
+          body = parseApplicationStarterRequest(exampleDeployBodySchema, bodyResult.body);
         } catch {
           return deployErrorResponse(
             {

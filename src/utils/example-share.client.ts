@@ -9,12 +9,12 @@ const inlineUrlLimit = 8_000
 
 export async function createSharedExampleUrl(project: SharedExampleProject) {
   const encoded = await encodeSharedExampleProject(project)
-  const inlineUrl = new URL('/notebook', window.location.origin)
+  const inlineUrl = new URL('/builder', window.location.origin)
   inlineUrl.hash = `${sharedProjectFragmentPrefix.slice(1)}${encoded}`
 
   if (inlineUrl.href.length <= inlineUrlLimit) return inlineUrl
 
-  const response = await fetch('/api/notebook/projects', {
+  const response = await fetch('/api/builder/projects', {
     method: 'POST',
     credentials: 'same-origin',
     headers: { 'content-type': 'application/json' },
@@ -23,7 +23,7 @@ export async function createSharedExampleUrl(project: SharedExampleProject) {
 
   if (!response.ok) {
     if (response.status === 401) {
-      throw new Error('Sign in to share notebooks larger than 8 KB.')
+      throw new Error('Sign in to share projects larger than 8 KB.')
     }
 
     throw new Error(await readShareError(response))
@@ -31,7 +31,7 @@ export async function createSharedExampleUrl(project: SharedExampleProject) {
 
   const result: unknown = await response.json()
   if (!isRecord(result) || typeof result.url !== 'string') {
-    throw new Error('The notebook share response was invalid.')
+    throw new Error('The builder share response was invalid.')
   }
 
   return new URL(result.url, window.location.origin)
@@ -72,7 +72,7 @@ async function encodeSharedExampleProject(project: SharedExampleProject) {
 async function readShareError(response: Response) {
   const value: unknown = await response.json().catch(() => undefined)
   if (isRecord(value) && typeof value.error === 'string') return value.error
-  return 'Unable to share this notebook.'
+  return 'Unable to share this builder.'
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

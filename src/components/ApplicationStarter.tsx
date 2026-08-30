@@ -18,11 +18,7 @@ import type {
   ApplicationStarterContext,
   ApplicationStarterResult,
 } from '~/utils/application-starter'
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '~/components/Collapsible'
+import { Panel, PanelContent, PanelTrigger } from '~/components/Panel'
 import {
   GeneratedPromptPreviewBody,
   GeneratedPromptPreviewHeader,
@@ -30,21 +26,21 @@ import {
   StarterLibraryRows,
   StarterPartnerRows,
   StarterTooltipProvider,
-} from '~/components/application-builder/parts'
+} from '~/components/application-starter/prompt-parts'
 import {
   buildStarterPromptDeployUrl,
   toneClasses,
-  type ApplicationStarterBuilderIntegration,
+  type ApplicationStarterIntegration,
   type StarterPromptDeployProvider,
   type StarterTone,
-} from '~/components/application-builder/shared'
-import { useApplicationBuilder } from '~/components/application-builder/useApplicationBuilder'
+} from '~/components/application-starter/prompt-shared'
+import { useApplicationStarter } from '~/components/application-starter/useApplicationStarter'
 import { PixelSpinner } from '~/components/ds/ui/PixelSpinner'
 import { usePrefersReducedMotion } from '~/utils/usePrefersReducedMotion'
 import { Button, Tooltip } from '~/ui'
 
 export interface ApplicationStarterProps {
-  builderIntegration?: ApplicationStarterBuilderIntegration
+  applicationStarterIntegration?: ApplicationStarterIntegration
   className?: string
   context: ApplicationStarterContext
   footerContent?: React.ReactNode
@@ -73,7 +69,7 @@ const LazyApplicationStarterHotkeys = React.lazy(() =>
 )
 
 const LazyDeployDialog = React.lazy(() =>
-  import('~/components/builder/DeployDialog').then((m) => ({
+  import('~/components/application-starter/DeployDialog').then((m) => ({
     default: m.DeployDialog,
   })),
 )
@@ -140,7 +136,7 @@ function buildCursorStartUrl(prompt: string) {
 }
 
 export function ApplicationStarter({
-  builderIntegration,
+  applicationStarterIntegration,
   className,
   context,
   footerContent,
@@ -183,7 +179,7 @@ export function ApplicationStarter({
     partnerSuggestions,
     promptCopyNotice,
     result,
-    resetBuilder,
+    resetApplicationStarter,
     selectSuggestion,
     selectedPackageManager,
     selectedLibraries,
@@ -201,8 +197,8 @@ export function ApplicationStarter({
     toggleToolchain,
     updateInput,
     updateMigrationRepositoryUrl,
-  } = useApplicationBuilder({
-    builderIntegration,
+  } = useApplicationStarter({
+    applicationStarterIntegration,
     context,
     forceRouterOnly,
     mode,
@@ -273,7 +269,7 @@ export function ApplicationStarter({
     setIsHomePayoffLoading(false)
     void submitCurrentInput(overrideInput)
   }, [submitCurrentInput])
-  const resetHomeBuilder = React.useCallback(() => {
+  const resetHomeApplicationStarter = React.useCallback(() => {
     homePayoffLoadingRef.current = false
     pendingHomeSubmissionRef.current = undefined
     setIsHomePayoffLoading(false)
@@ -282,8 +278,8 @@ export function ApplicationStarter({
     hasPlayedHomeRevealRef.current = false
     setShowToolchainOptions(false)
     setShowPackageManagerOptions(false)
-    resetBuilder()
-  }, [resetBuilder])
+    resetApplicationStarter()
+  }, [resetApplicationStarter])
   const [placeholderIndex, setPlaceholderIndex] = React.useState(0)
   const [placeholderShowing, setPlaceholderShowing] = React.useState(true)
   React.useEffect(() => {
@@ -868,8 +864,8 @@ export function ApplicationStarter({
                 ) : null}
               </div>
 
-              <Collapsible open={showOptionsSection}>
-                <CollapsibleContent className="mt-3">
+              <Panel open={showOptionsSection}>
+                <PanelContent className="mt-3">
                   {showOptionsSection ? (
                     <StarterTooltipProvider>
                       <div className="space-y-2 rounded-lg border border-gray-200 bg-white px-3 py-3 dark:border-gray-800 dark:bg-gray-950">
@@ -946,12 +942,12 @@ export function ApplicationStarter({
                       </div>
                     </StarterTooltipProvider>
                   ) : null}
-                </CollapsibleContent>
-              </Collapsible>
+                </PanelContent>
+              </Panel>
             </>
           ) : (
             <>
-              {/* Figma StackBuilder: the heading floats above the box. */}
+              {/* Figma StackApplicationStarter: the heading floats above the box. */}
               {isHomeStarter ? (
                 <p className="mx-auto mb-6 max-w-4xl text-balance text-center font-ds-display text-ds-heading-3 font-light leading-tight text-gray-950 dark:text-white">
                   {title}
@@ -964,7 +960,11 @@ export function ApplicationStarter({
                   // focus glow (an absolute child at -z-10) bleed out from behind
                   // the card; the inner wrapper below re-clips the card content.
                   isHomeStarter &&
-                    'overflow-visible rounded-[36px] [corner-shape:squircle] dark:border-transparent dark:bg-[#171717]',
+                    'overflow-visible rounded-[36px] [corner-shape:squircle] transition-colors dark:border-transparent dark:bg-[#171717]',
+                  // Light: a subtle recessed fill at rest that brightens to white
+                  // on focus (no shadow). Dark keeps its #171717 fill.
+                  isHomeStarter &&
+                    (isPromptFocused ? 'bg-white' : 'bg-gray-50'),
                 )}
               >
                 {/* Home: a warm terracotta glow that grows in from behind the card
@@ -1108,15 +1108,17 @@ export function ApplicationStarter({
                     ) : null}
 
                     {/* Home: the hint sits lateral to the prompt text (top-right);
-                        once the user types, the gradient Go CTA replaces it. */}
+                        once the user types, the gradient Go CTA replaces it. The
+                        h-6 box matches the prompt's first line (leading-6 at top-6)
+                        so the hint text is vertically centered on that line. */}
                     {isHomeStarter ? (
-                      <div className="absolute right-6 top-5 flex items-center">
+                      <div className="absolute right-6 top-6 flex h-6 items-center">
                         {showActionSection ? (
                           <Button
                             variant="ghost"
                             size="sm"
                             type="button"
-                            onClick={resetHomeBuilder}
+                            onClick={resetHomeApplicationStarter}
                             className="rounded-lg border-0 bg-transparent text-xs font-medium text-gray-500 shadow-none hover:bg-gray-950/5 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-white"
                           >
                             <ArrowCounterClockwiseIcon className="h-3.5 w-3.5" />
@@ -1170,8 +1172,8 @@ export function ApplicationStarter({
                     ) : null}
                   </div>
 
-                  <Collapsible open={showOptionsSection}>
-                    <CollapsibleContent
+                  <Panel open={showOptionsSection}>
+                    <PanelContent
                       className={twMerge(
                         isHomeStarter &&
                           'duration-[350ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none',
@@ -1192,7 +1194,7 @@ export function ApplicationStarter({
                                   'mb-4',
                                   isHomeStarter &&
                                     !reducedMotion &&
-                                    'home-stack-builder-section-reveal',
+                                    'home-stack-applicationStarter-section-reveal',
                                 )}
                               >
                                 <div className={starterEyebrowClassName}>
@@ -1215,7 +1217,7 @@ export function ApplicationStarter({
                                 className={twMerge(
                                   isHomeStarter &&
                                     !reducedMotion &&
-                                    'home-stack-builder-section-reveal home-stack-builder-section-reveal-delayed',
+                                    'home-stack-applicationStarter-section-reveal home-stack-applicationStarter-section-reveal-delayed',
                                 )}
                               >
                                 <div className={starterEyebrowClassName}>
@@ -1244,7 +1246,7 @@ export function ApplicationStarter({
                                 className={twMerge(
                                   isHomeStarter &&
                                     !reducedMotion &&
-                                    'home-stack-builder-section-reveal home-stack-builder-section-reveal-third',
+                                    'home-stack-applicationStarter-section-reveal home-stack-applicationStarter-section-reveal-third',
                                 )}
                               >
                                 <StarterCustomizationSection
@@ -1277,7 +1279,7 @@ export function ApplicationStarter({
                                 className={twMerge(
                                   isHomeStarter &&
                                     !reducedMotion &&
-                                    'home-stack-builder-section-reveal home-stack-builder-section-reveal-fourth',
+                                    'home-stack-applicationStarter-section-reveal home-stack-applicationStarter-section-reveal-fourth',
                                 )}
                               >
                                 <StarterCustomizationSection
@@ -1317,11 +1319,11 @@ export function ApplicationStarter({
                           ) : null}
                         </div>
                       ) : null}
-                    </CollapsibleContent>
-                  </Collapsible>
+                    </PanelContent>
+                  </Panel>
 
-                  <Collapsible open={showStagedActionSection}>
-                    <CollapsibleContent
+                  <Panel open={showStagedActionSection}>
+                    <PanelContent
                       className={twMerge(
                         isHomeStarter &&
                           'duration-[350ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none',
@@ -1332,7 +1334,7 @@ export function ApplicationStarter({
                           className={twMerge(
                             'bg-gray-50/70 px-5 py-4 dark:bg-gray-900/50',
                             isHomeStarter &&
-                              'home-stack-builder-reveal home-stack-builder-reveal-delayed bg-transparent dark:bg-transparent',
+                              'home-stack-applicationStarter-reveal home-stack-applicationStarter-reveal-delayed bg-transparent dark:bg-transparent',
                           )}
                         >
                           <div
@@ -1514,8 +1516,8 @@ export function ApplicationStarter({
                           </div>
                         </div>
                       ) : null}
-                    </CollapsibleContent>
-                  </Collapsible>
+                    </PanelContent>
+                  </Panel>
 
                   {showPromptPreview && hasGeneratedPrompt ? (
                     <div className="border-t border-gray-200 dark:border-gray-800">
@@ -1571,9 +1573,9 @@ function StarterCustomizationSection({
   title: string
 }) {
   return (
-    <Collapsible open={open} onOpenChange={onOpenChange}>
+    <Panel open={open} onOpenChange={onOpenChange}>
       <div className={twMerge(compact ? 'pt-1' : 'pt-4')}>
-        <CollapsibleTrigger
+        <PanelTrigger
           className={twMerge(
             starterEyebrowClassName,
             'inline-flex appearance-none items-center gap-1 border-0 bg-transparent p-0 text-left transition-colors hover:text-text-secondary',
@@ -1586,9 +1588,9 @@ function StarterCustomizationSection({
               open && 'rotate-180',
             )}
           />
-        </CollapsibleTrigger>
-        <CollapsibleContent>{open ? children : null}</CollapsibleContent>
+        </PanelTrigger>
+        <PanelContent>{open ? children : null}</PanelContent>
       </div>
-    </Collapsible>
+    </Panel>
   )
 }

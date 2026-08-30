@@ -89,7 +89,9 @@ export function MegaMenuItem({
             {title}
           </span>
           {badge ? (
-            <span className="rounded-md bg-status-success px-1.5 py-0.5 text-[0.6rem] font-black uppercase leading-none text-text-inverse">
+            // Neutral status chip — the word carries the meaning, not the color,
+            // so it stays consistent with the library hero badge.
+            <span className="rounded-md border border-border-subtle bg-background-subtle px-1.5 py-0.5 text-[0.6rem] font-black uppercase leading-none text-text-secondary">
               {badge}
             </span>
           ) : null}

@@ -26,6 +26,26 @@ export const Route = createFileRoute('/ds/dropdown')({
   }),
 })
 
+const SCROLL_ITEMS = [
+  'Start',
+  'Router',
+  'Query',
+  'Table',
+  'Form',
+  'Store',
+  'DB',
+  'AI',
+  'Virtual',
+  'Pacer',
+  'Ranger',
+  'Devtools',
+  'Config',
+  'CLI',
+  'Intent',
+  'Highlight',
+  'Markdown',
+]
+
 function DropdownPage() {
   return (
     <DsPage
@@ -68,6 +88,34 @@ function DropdownPage() {
               <DropdownItem>
                 <SignOutIcon className="h-4 w-4" /> Sign out
               </DropdownItem>
+            </DropdownContent>
+          </Dropdown>
+        </ComponentPreview>
+      </DsSection>
+
+      <DsSection
+        title="Scrollable"
+        description="Pass `maxHeight` to cap a long menu. Overflow reveals a thin, low-opacity scrollbar meant to read only as a 'more content' indicator — not a grab target."
+      >
+        <ComponentPreview
+          code={`<DropdownContent align="start" maxHeight="14rem">
+  {items.map((label) => (
+    <DropdownItem key={label}>{label}</DropdownItem>
+  ))}
+</DropdownContent>`}
+        >
+          <Dropdown>
+            <DropdownTrigger
+              render={
+                <Button variant="secondary">
+                  Pick a library <CaretDownIcon className="h-4 w-4" />
+                </Button>
+              }
+            />
+            <DropdownContent align="start" maxHeight="14rem">
+              {SCROLL_ITEMS.map((label) => (
+                <DropdownItem key={label}>{label}</DropdownItem>
+              ))}
             </DropdownContent>
           </Dropdown>
         </ComponentPreview>

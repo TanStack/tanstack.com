@@ -35,7 +35,8 @@ import { SearchButton } from './SearchButton'
 import { FrameworkSelect, useCurrentFramework } from './FrameworkSelect'
 import { VersionSelect } from './VersionSelect'
 import { Card } from './Card'
-import { PartnersRail, RightRail } from './RightRail'
+import { RightRail } from './RightRail'
+import { PartnerRail } from './ds/ui/PartnerRail'
 import { trackEvent, useTrackedImpression } from '~/utils/analytics'
 import {
   getLibraryLayoutVersion,
@@ -832,6 +833,10 @@ export function LibraryLayout({
 
   const isNpmStats = matches.some((d) => d.pathname.includes('/docs/npm-stats'))
 
+  // The library blog already lists posts, so the "Latest Posts" rail widget is
+  // redundant there — hide it on the blog while keeping it on other docs pages.
+  const isBlog = matches.some((d) => d.pathname.includes('/docs/blog'))
+
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
   const mobileMenuDialogRef = React.useRef<HTMLDivElement>(null)
   const mobileMenuToggleId = 'docs-mobile-menu-toggle'
@@ -1500,13 +1505,15 @@ export function LibraryLayout({
                 className="md:w-[220px]"
                 stickyOffset="docs-tabs"
               >
-                <PartnersRail
+                <PartnerRail
                   analyticsPlacement="docs_rail"
                   partners={activePartners}
                 />
-                <div className="hidden md:block border border-gray-500/20 rounded-l-lg overflow-hidden w-full">
-                  <RecentPostsWidget enabled={isDesktopViewport} />
-                </div>
+                {!isBlog && (
+                  <div className="hidden md:block border border-gray-500/20 rounded-l-lg overflow-hidden w-full">
+                    <RecentPostsWidget enabled={isDesktopViewport} />
+                  </div>
+                )}
               </RightRail>
             )}
           </div>

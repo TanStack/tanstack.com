@@ -9,9 +9,9 @@ type ChartsLandingCatalog = Awaited<ReturnType<typeof getChartsCatalogLanding>>
 type CatalogCase = ChartsLandingCatalog['cases'][number]
 
 export const chartsLandingHeroCaseIds = [
-  '03-temperature-range-band',
-  'bar-grouped',
-  'scatter-bubble',
+  '70-composed-chart',
+  '101-sunburst',
+  '127-shadcn-dashboard',
 ] as const
 
 export function CatalogChartsHero({
@@ -63,7 +63,7 @@ function HeroChartTile({
         featured ? 'col-span-2 min-w-0 sm:col-span-1 sm:row-span-2' : 'min-w-0'
       }
     >
-      <div className="group relative overflow-hidden rounded-2xl border border-border-subtle bg-background-surface shadow-[0_24px_55px_-28px_rgb(3_18_25/0.42)]">
+      <div className="group relative overflow-hidden rounded-2xl corner-squircle border border-border-subtle bg-background-surface shadow-[0_24px_55px_-28px_rgb(3_18_25/0.42)]">
         <div className="aspect-[3/2]">
           <ChartsCatalogPreview caseId={catalogCase.id} revision={revision} />
         </div>
@@ -122,6 +122,10 @@ export function ChartsCatalogGallery({
   )
 }
 
+function compareCatalogCases(left: CatalogCase, right: CatalogCase) {
+  return left.order - right.order
+}
+
 function CatalogChartCard({
   catalogCase,
   revision,
@@ -130,7 +134,7 @@ function CatalogChartCard({
   revision: string
 }) {
   return (
-    <div className="charts-catalog-gallery-card group relative block snap-start overflow-hidden rounded-xl border border-border-subtle bg-background-surface shadow-[0_16px_35px_-26px_rgb(3_18_25/0.5)]">
+    <div className="charts-catalog-gallery-card group relative block snap-start overflow-hidden rounded-xl corner-squircle border border-border-subtle bg-background-surface shadow-[0_16px_35px_-26px_rgb(3_18_25/0.5)]">
       <div aria-hidden="true" className="relative aspect-[3/2] overflow-hidden">
         <ChartsCatalogPreview caseId={catalogCase.id} revision={revision} />
       </div>
@@ -158,8 +162,4 @@ function CatalogChartCard({
       />
     </div>
   )
-}
-
-function compareCatalogCases(left: CatalogCase, right: CatalogCase) {
-  return left.order - right.order
 }

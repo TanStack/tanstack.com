@@ -1,0 +1,321 @@
+diff --git a/dist/esm/adapters/responses-text.d.ts b/dist/esm/adapters/responses-text.d.ts
+index dd7529e056ea12b66a8fd8b6e040a4a5c117f38b..bf708a53546e0937ca4e2c32834e3f888b377c72 100644
+--- a/dist/esm/adapters/responses-text.d.ts
++++ b/dist/esm/adapters/responses-text.d.ts
+@@ -9,10 +9,15 @@ import { ContentPart, DefaultMessageMetadataByModality, Modality, ModelMessage,
+  * Responses function calls have two identifiers: `call_id` correlates the
+  * function output with the call, while `id` identifies the output item itself.
+  * TanStack AI uses `call_id` as the canonical tool-call ID and carries the
+- * item ID here so stateless follow-up requests can replay both values.
++ * item ID here so stateless follow-up requests can replay both values. The
++ * response ID lets an immediately-following server tool result continue the
++ * complete provider response, including opaque reasoning items that must not
++ * be exposed through AG-UI.
+  */
+ export interface OpenAIResponsesToolCallMetadata {
+     itemId: string;
++    responseId?: string;
++    model?: string;
+ }
+ interface StreamedFunctionCallMetadata {
+     callId: string;
+@@ -138,6 +143,7 @@ export declare abstract class OpenAIBaseResponsesTextAdapter<TModel extends stri
+      * that route to providers without this capability should override.
+      */
+     supportsCombinedToolsAndSchema(): boolean;
++    private getToolContinuation;
+     /**
+      * Converts ModelMessage[] to Responses API ResponseInput format.
+      * Override this in subclasses for provider-specific message format quirks.
+diff --git a/dist/esm/adapters/responses-text.js b/dist/esm/adapters/responses-text.js
+index 19340f93dc462ac43f18e808c12a49ee4d127356..b1f947e193edb3eec90ca007e1b76cdb518313bb 100644
+--- a/dist/esm/adapters/responses-text.js
++++ b/dist/esm/adapters/responses-text.js
+@@ -523,6 +523,7 @@ var OpenAIBaseResponsesTextAdapter = class extends BaseTextAdapter {
+ 		let hasStreamedContentDeltas = false;
+ 		let hasStreamedReasoningDeltas = false;
+ 		let model = options.model;
++		let responseId;
+ 		let stepId = null;
+ 		let hasEmittedTextMessageStart = false;
+ 		let reasoningMessageId;
+@@ -648,6 +649,7 @@ var OpenAIBaseResponsesTextAdapter = class extends BaseTextAdapter {
+ 				};
+ 				if (chunk.type === "response.created" || chunk.type === "response.incomplete" || chunk.type === "response.failed") model = chunk.response.model;
+ 				if (chunk.type === "response.created") {
++					responseId = chunk.response.id;
+ 					hasStreamedContentDeltas = false;
+ 					hasStreamedReasoningDeltas = false;
+ 					hasEmittedTextMessageStart = false;
+@@ -790,7 +792,10 @@ var OpenAIBaseResponsesTextAdapter = class extends BaseTextAdapter {
+ 								model: model || options.model,
+ 								timestamp: Date.now(),
+ 								index: chunk.output_index,
+-								metadata: { itemId: item.id }
++								metadata: {
++									itemId: item.id,
++									...responseId && { responseId, model }
++								}
+ 							};
+ 							metadata.started = true;
+ 						}
+@@ -879,7 +884,10 @@ var OpenAIBaseResponsesTextAdapter = class extends BaseTextAdapter {
+ 								model: model || options.model,
+ 								timestamp: Date.now(),
+ 								index: metadata.index,
+-								metadata: { itemId: item.id }
++								metadata: {
++									itemId: item.id,
++									...responseId && { responseId, model }
++								}
+ 							};
+ 							metadata.started = true;
+ 						}
+@@ -916,6 +924,7 @@ var OpenAIBaseResponsesTextAdapter = class extends BaseTextAdapter {
+ 					}
+ 				}
+ 				if (chunk.type === "response.completed") {
++					responseId = chunk.response.id;
+ 					const completedText = chunk.response.output.flatMap((item) => item.type === "message" ? item.content : []).filter((part) => part.type === "output_text").map((part) => part.text).join("");
+ 					if (accumulatedContent.length === 0 && completedText.length > 0) {
+ 						if (!hasEmittedTextMessageStart) {
+@@ -962,7 +971,11 @@ var OpenAIBaseResponsesTextAdapter = class extends BaseTextAdapter {
+ 								model: model || options.model,
+ 								timestamp: Date.now(),
+ 								index: metadata.index,
+-								metadata: { itemId: item.id }
++								metadata: {
++									itemId: item.id,
++									responseId,
++									model
++								}
+ 							};
+ 							metadata.started = true;
+ 						}
+@@ -1081,7 +1094,8 @@ var OpenAIBaseResponsesTextAdapter = class extends BaseTextAdapter {
+ 	* Override this in subclasses to add provider-specific options.
+ 	*/
+ 	mapOptionsToRequest(options) {
+-		const input = this.convertMessagesToInput(options.messages);
++		const continuation = this.getToolContinuation(options.messages, options.model);
++		const input = continuation?.input ?? this.convertMessagesToInput(options.messages);
+ 		const tools = options.tools ? convertToolsToResponsesFormat(options.tools, this.makeStructuredOutputCompatible.bind(this)) : void 0;
+ 		const modelOptions = options.modelOptions;
+ 		const combinedSchema = options.outputSchema;
+@@ -1094,6 +1108,7 @@ var OpenAIBaseResponsesTextAdapter = class extends BaseTextAdapter {
+ 		return {
+ 			...modelOptions,
+ 			model: options.model,
++			...continuation && { previous_response_id: continuation.responseId },
+ 			...options.metadata !== void 0 && { metadata: options.metadata },
+ 			...(() => {
+ 				const prompts = normalizeSystemPrompts(options.systemPrompts);
+@@ -1114,6 +1129,43 @@ var OpenAIBaseResponsesTextAdapter = class extends BaseTextAdapter {
+ 		return true;
+ 	}
+ 	/**
++	* Continue the provider response only for the server-tool phase immediately
++	* following it. `previous_response_id` makes OpenAI restore every output
++	* item in its original order, including reasoning items that cannot safely
++	* cross the public AG-UI stream.
++	*/
++	getToolContinuation(messages, model) {
++		for (let index = messages.length - 1; index >= 0; index--) {
++			const message = messages[index];
++			if (!message) continue;
++			if (message.role === "user") return;
++			if (message.role !== "assistant" || !message.toolCalls?.length) continue;
++			const responseIds = /* @__PURE__ */ new Set();
++			const toolCallIds = /* @__PURE__ */ new Set();
++			for (const toolCall of message.toolCalls) {
++				const metadata = toolCall.metadata;
++				if (typeof metadata !== "object" || metadata === null || !("responseId" in metadata) || typeof metadata.responseId !== "string" || !("model" in metadata) || metadata.model !== model) return;
++				responseIds.add(metadata.responseId);
++				toolCallIds.add(toolCall.id);
++			}
++			if (responseIds.size !== 1) return;
++			const toolResults = messages.slice(index + 1);
++			if (toolResults.length !== toolCallIds.size) return;
++			const resultIds = /* @__PURE__ */ new Set();
++			for (const toolResult of toolResults) {
++				if (toolResult.role !== "tool" || !toolResult.toolCallId || !toolCallIds.has(toolResult.toolCallId)) return;
++				resultIds.add(toolResult.toolCallId);
++			}
++			if (resultIds.size !== toolCallIds.size) return;
++			const responseId = responseIds.values().next().value;
++			if (!responseId) return;
++			return {
++				responseId,
++				input: this.convertMessagesToInput(toolResults)
++			};
++		}
++	}
++	/**
+ 	* Converts ModelMessage[] to Responses API ResponseInput format.
+ 	* Override this in subclasses for provider-specific message format quirks.
+ 	*
+diff --git a/src/adapters/responses-text.ts b/src/adapters/responses-text.ts
+index 88e42f57f3d01dc784bd8b67231c230ee249a590..d137c6f12662486addbf4368b24714238e12e176 100644
+--- a/src/adapters/responses-text.ts
++++ b/src/adapters/responses-text.ts
+@@ -43,10 +43,15 @@ const PDF_BASE64_MAGIC = 'JVBERi'
+  * Responses function calls have two identifiers: `call_id` correlates the
+  * function output with the call, while `id` identifies the output item itself.
+  * TanStack AI uses `call_id` as the canonical tool-call ID and carries the
+- * item ID here so stateless follow-up requests can replay both values.
++ * item ID here so stateless follow-up requests can replay both values. The
++ * response ID lets an immediately-following server tool result continue the
++ * complete provider response, including opaque reasoning items that must not
++ * be exposed through AG-UI.
+  */
+ export interface OpenAIResponsesToolCallMetadata {
+   itemId: string
++  responseId?: string
++  model?: string
+ }
+ 
+ interface StreamedFunctionCallMetadata {
+@@ -831,6 +836,7 @@ export abstract class OpenAIBaseResponsesTextAdapter<
+ 
+     // Preserve response metadata across events
+     let model: string = options.model
++    let responseId: string | undefined
+ 
+     // AG-UI lifecycle tracking
+     let stepId: string | null = null
+@@ -992,6 +998,7 @@ export abstract class OpenAIBaseResponsesTextAdapter<
+         // response.created marks the start of a fresh run — safe to reset
+         // the per-run accumulators here.
+         if (chunk.type === 'response.created') {
++          responseId = chunk.response.id
+           hasStreamedContentDeltas = false
+           hasStreamedReasoningDeltas = false
+           hasEmittedTextMessageStart = false
+@@ -1260,6 +1267,7 @@ export abstract class OpenAIBaseResponsesTextAdapter<
+                 index: chunk.output_index,
+                 metadata: {
+                   itemId: item.id,
++                  ...(responseId && { responseId, model }),
+                 } satisfies OpenAIResponsesToolCallMetadata,
+               }
+               metadata.started = true
+@@ -1414,6 +1422,7 @@ export abstract class OpenAIBaseResponsesTextAdapter<
+                 index: metadata.index,
+                 metadata: {
+                   itemId: item.id,
++                  ...(responseId && { responseId, model }),
+                 } satisfies OpenAIResponsesToolCallMetadata,
+               }
+               metadata.started = true
+@@ -1468,6 +1477,7 @@ export abstract class OpenAIBaseResponsesTextAdapter<
+         }
+ 
+         if (chunk.type === 'response.completed') {
++          responseId = chunk.response.id
+           // Some Responses API streams, notably reasoning-model responses,
+           // can omit text deltas and carry the successful final text only in
+           // response.completed.output. Recover that text so consumers never
+@@ -1535,6 +1545,8 @@ export abstract class OpenAIBaseResponsesTextAdapter<
+                 index: metadata.index,
+                 metadata: {
+                   itemId: item.id,
++                  responseId,
++                  model,
+                 } satisfies OpenAIResponsesToolCallMetadata,
+               }
+               metadata.started = true
+@@ -1727,7 +1739,12 @@ export abstract class OpenAIBaseResponsesTextAdapter<
+   protected mapOptionsToRequest(
+     options: TextOptions<TProviderOptions>,
+   ): Omit<ResponseCreateParams, 'stream'> {
+-    const input = this.convertMessagesToInput(options.messages)
++    const continuation = this.getToolContinuation(
++      options.messages,
++      options.model,
++    )
++    const input =
++      continuation?.input ?? this.convertMessagesToInput(options.messages)
+ 
+     const tools = options.tools
+       ? convertToolsToResponsesFormat(
+@@ -1774,6 +1791,9 @@ export abstract class OpenAIBaseResponsesTextAdapter<
+     return {
+       ...modelOptions,
+       model: options.model,
++      ...(continuation && {
++        previous_response_id: continuation.responseId,
++      }),
+       ...(options.metadata !== undefined && { metadata: options.metadata }),
+       ...(() => {
+         const prompts = normalizeSystemPrompts(options.systemPrompts)
+@@ -1797,6 +1817,70 @@ export abstract class OpenAIBaseResponsesTextAdapter<
+     return true
+   }
+ 
++  /**
++   * Continue the provider response only for the server-tool phase immediately
++   * following it. `previous_response_id` makes OpenAI restore every output
++   * item in its original order, including reasoning items that cannot safely
++   * cross the public AG-UI stream.
++   */
++  private getToolContinuation(
++    messages: Array<ModelMessage>,
++    model: string,
++  ): { responseId: string; input: ResponseInput } | undefined {
++    for (let index = messages.length - 1; index >= 0; index--) {
++      const message = messages[index]
++      if (!message) continue
++
++      if (message.role === 'user') return undefined
++      if (message.role !== 'assistant' || !message.toolCalls?.length) continue
++
++      const responseIds = new Set<string>()
++      const toolCallIds = new Set<string>()
++      for (const toolCall of message.toolCalls) {
++        const metadata = toolCall.metadata
++        if (
++          typeof metadata !== 'object' ||
++          metadata === null ||
++          !('responseId' in metadata) ||
++          typeof metadata.responseId !== 'string' ||
++          !('model' in metadata) ||
++          metadata.model !== model
++        ) {
++          return undefined
++        }
++        responseIds.add(metadata.responseId)
++        toolCallIds.add(toolCall.id)
++      }
++
++      if (responseIds.size !== 1) return undefined
++
++      const toolResults = messages.slice(index + 1)
++      if (toolResults.length !== toolCallIds.size) return undefined
++
++      const resultIds = new Set<string>()
++      for (const toolResult of toolResults) {
++        if (
++          toolResult.role !== 'tool' ||
++          !toolResult.toolCallId ||
++          !toolCallIds.has(toolResult.toolCallId)
++        ) {
++          return undefined
++        }
++        resultIds.add(toolResult.toolCallId)
++      }
++      if (resultIds.size !== toolCallIds.size) return undefined
++
++      const responseId = responseIds.values().next().value
++      if (!responseId) return undefined
++      return {
++        responseId,
++        input: this.convertMessagesToInput(toolResults),
++      }
++    }
++
++    return undefined
++  }
++
+   /**
+    * Converts ModelMessage[] to Responses API ResponseInput format.
+    * Override this in subclasses for provider-specific message format quirks.

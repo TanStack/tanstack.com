@@ -14,7 +14,7 @@ import {
 } from './TableComponents'
 import { PaginationControls } from './PaginationControls'
 import { twMerge } from 'tailwind-merge'
-import { Medal, Trophy } from '@phosphor-icons/react'
+import { MedalIcon, TrophyIcon } from '@phosphor-icons/react'
 
 export function FeedbackLeaderboard() {
   const navigate = useNavigate({ from: '/feedback-leaderboard' })
@@ -67,9 +67,9 @@ export function FeedbackLeaderboard() {
   }
 
   const getRankIcon = (rank: number) => {
-    if (rank === 1) return <Trophy className="text-yellow-500" />
-    if (rank === 2) return <Medal className="text-gray-400" />
-    if (rank === 3) return <Medal className="text-amber-600" />
+    if (rank === 1) return <TrophyIcon className="text-yellow-500" />
+    if (rank === 2) return <MedalIcon className="text-gray-400" />
+    if (rank === 3) return <MedalIcon className="text-amber-600" />
     return null
   }
 
@@ -79,7 +79,7 @@ export function FeedbackLeaderboard() {
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center gap-3 mb-2">
-            <Medal className="text-3xl text-blue-500" />
+            <MedalIcon className="text-3xl text-blue-500" />
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
               Documentation Feedback Leaderboard
             </h1>

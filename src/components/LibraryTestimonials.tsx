@@ -1,4 +1,4 @@
-import { Star } from '@phosphor-icons/react'
+import { StarIcon } from '@phosphor-icons/react'
 import type { Testimonial } from '~/libraries/types'
 import { Card } from './Card'
 
@@ -54,7 +54,7 @@ function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
     <Card className="shrink-0 w-72 md:w-80 p-5">
       <div className="flex items-start gap-1 mb-3">
         {[...Array(5)].map((_, j) => (
-          <Star
+          <StarIcon
             key={j}
             className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500"
           />

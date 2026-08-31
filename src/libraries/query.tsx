@@ -1,4 +1,4 @@
-import { MagicWand, Lightning, Gear } from '@phosphor-icons/react'
+import { MagicWandIcon, LightningIcon, GearIcon } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { query } from './libraries'
 
@@ -59,7 +59,7 @@ export const queryProject = {
     {
       title: 'Declarative & Automatic',
       icon: (
-        <MagicWand
+        <MagicWandIcon
           className={twMerge('motion-safe:animate-pulse', textStyles)}
           style={{
             animationDuration: '5s',
@@ -83,7 +83,7 @@ export const queryProject = {
     {
       title: 'Simple & Familiar',
       icon: (
-        <Lightning
+        <LightningIcon
           className={twMerge('motion-safe:animate-bounce', textStyles)}
           style={{
             animationDuration: '2s',
@@ -107,7 +107,7 @@ export const queryProject = {
     {
       title: 'Extensible',
       icon: (
-        <Gear
+        <GearIcon
           className={twMerge('motion-safe:animate-spin', textStyles)}
           style={{
             animationDuration: '10s',

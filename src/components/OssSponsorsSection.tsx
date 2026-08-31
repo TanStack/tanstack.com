@@ -2,7 +2,7 @@ import type { CSSProperties, ReactNode } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Hydrate } from '@tanstack/react-start'
 import { visible } from '@tanstack/react-start/hydration'
-import { ArrowRight } from '@phosphor-icons/react'
+import { ArrowRightIcon } from '@phosphor-icons/react/ArrowRight'
 import { getOssSponsors } from '~/utils/sponsors.functions'
 import { Button } from '~/ui'
 import OssSponsors from './OssSponsors'
@@ -54,7 +54,7 @@ export function OssSponsorsSection({
           <div className="flex justify-center">
             <Button as="a" href="https://github.com/sponsors/tannerlinsley">
               Become a Sponsor
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRightIcon className="w-4 h-4" />
             </Button>
           </div>
         ) : null}

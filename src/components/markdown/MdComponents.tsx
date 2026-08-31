@@ -1,4 +1,6 @@
 import * as React from 'react'
+import { ChartsCatalogDocExample } from '~/components/charts/ChartsCatalogDocExample'
+import { parseChartsCatalogExampleAttributes } from '~/utils/charts-catalog-embed'
 import { FileTabs } from './FileTabs'
 import { FrameworkContent } from './FrameworkContent'
 import { PackageManagerTabs } from './PackageManagerTabs'
@@ -156,6 +158,18 @@ export function MdCommentComponent({
       : {}
 
   const normalizedComponentName = componentName?.toLowerCase()
+
+  if (normalizedComponentName === 'chart-example') {
+    const example = parseChartsCatalogExampleAttributes(parsedAttributes)
+    if (!example) return null
+
+    return (
+      <ChartsCatalogDocExample
+        caseId={example.caseId}
+        height={example.height}
+      />
+    )
+  }
 
   if (normalizedComponentName === 'tabs') {
     const parsedPackageManagerMeta = parseJson(packageManagerMeta)

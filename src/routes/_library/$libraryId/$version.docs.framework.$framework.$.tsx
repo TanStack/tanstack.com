@@ -4,10 +4,14 @@ import {
   useMatch,
   createFileRoute,
 } from '@tanstack/react-router'
-import { seo } from '~/utils/seo'
+import { canonicalUrl, seo } from '~/utils/seo'
 import { ogImageUrl } from '~/utils/og'
 import { Doc } from '~/components/Doc'
-import { buildDocsRedirectHref, loadDocsRoute } from '~/utils/docs'
+import {
+  appendPathToDocsHref,
+  buildDocsRedirectHref,
+  loadDocsRoute,
+} from '~/utils/docs'
 import { getBranch, getLibrary } from '~/libraries'
 import { capitalize } from '~/utils/utils'
 import { DocContainer } from '~/components/DocContainer'
@@ -17,6 +21,11 @@ export const Route = createFileRoute(
   '/_library/$libraryId/$version/docs/framework/$framework/$',
 )({
   staleTime: 1000 * 60 * 5,
+  // This route's head() emits the rel=canonical link (it may point at the
+  // /latest equivalent), so the root route must not emit its own.
+  staticData: {
+    ownsCanonicalLink: true,
+  },
   loader: async (ctx) => {
     const { _splat: docsPath, framework, version, libraryId } = ctx.params
 
@@ -31,6 +40,7 @@ export const Route = createFileRoute(
       docsPath: requestedDocsPath,
       defaultDocs: library.defaultDocs ?? 'overview',
       frameworks: library.frameworks,
+      latestBranch: getBranch(library, 'latest'),
       redirectFromPaths: docsPath
         ? [requestedDocsPath, `${framework}/${docsPath}`]
         : [requestedDocsPath],
@@ -55,7 +65,18 @@ export const Route = createFileRoute(
       })
     }
 
-    return result.doc
+    return {
+      ...result.doc,
+      // Old-version pages that still exist on latest canonicalize to /latest
+      // (read by getCanonicalHeadTags in __root.tsx).
+      canonicalPathOverride: result.latestDocsPath
+        ? appendPathToDocsHref({
+            docsPath: result.latestDocsPath,
+            libraryId,
+            version: 'latest',
+          })
+        : undefined,
+    }
   },
   component: Docs,
   headers: ({ params }) => {
@@ -64,22 +85,37 @@ export const Route = createFileRoute(
     return getDocsCacheHeaders({ libraryId, version })
   },
   head: (ctx) => {
-    const library = getLibrary(ctx.params.libraryId)
-    const tail = `${library.name} ${capitalize(ctx.params.framework)} Docs`
+    const { libraryId, version, framework, _splat: docsPath } = ctx.params
+    const library = getLibrary(libraryId)
+    const tail = `${library.name} ${capitalize(framework)} Docs`
+
+    const canonicalHref = canonicalUrl(
+      ctx.loaderData?.canonicalPathOverride ??
+        appendPathToDocsHref({
+          docsPath: `framework/${framework}/${docsPath ?? ''}`,
+          libraryId,
+          version,
+        }),
+    )
 
     return {
-      meta: seo({
-        title: ctx.loaderData?.title
-          ? `${ctx.loaderData.title} | ${tail}`
-          : tail,
-        description: ctx.loaderData?.description,
-        keywords: ctx.loaderData?.keywords,
-        image: ogImageUrl(library.id, {
-          title: ctx.loaderData?.title,
+      meta: [
+        ...seo({
+          title: ctx.loaderData?.title
+            ? `${ctx.loaderData.title} | ${tail}`
+            : tail,
           description: ctx.loaderData?.description,
+          keywords: ctx.loaderData?.keywords,
+          image: ogImageUrl(library.id, {
+            title: ctx.loaderData?.title,
+            description: ctx.loaderData?.description,
+          }),
+          noindex: library.visible === false,
         }),
-        noindex: library.visible === false,
-      }),
+        { property: 'og:url', content: canonicalHref },
+        { name: 'twitter:url', content: canonicalHref },
+      ],
+      links: [{ rel: 'canonical', href: canonicalHref }],
     }
   },
 })

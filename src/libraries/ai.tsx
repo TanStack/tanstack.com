@@ -1,5 +1,5 @@
 import { Library } from '.'
-import { Plug, Lightning, Gear } from '@phosphor-icons/react'
+import { PlugIcon, LightningIcon, GearIcon } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { ai } from './libraries'
 
@@ -13,7 +13,7 @@ export const aiProject = {
   featureHighlights: [
     {
       title: 'A Real Agent Loop',
-      icon: <Gear className={twMerge(textStyles)} />,
+      icon: <GearIcon className={twMerge(textStyles)} />,
       description: (
         <div>
           <code>chat()</code> drives the loop and you control every part of it:
@@ -26,7 +26,7 @@ export const aiProject = {
     },
     {
       title: 'Bring Your Own Everything',
-      icon: <Plug className={twMerge(textStyles)} />,
+      icon: <PlugIcon className={twMerge(textStyles)} />,
       description: (
         <div>
           Your provider, server, transport, auth, and deploy target. Official
@@ -40,7 +40,7 @@ export const aiProject = {
     },
     {
       title: 'Headless, Not Opinionated',
-      icon: <Lightning className={twMerge(textStyles)} />,
+      icon: <LightningIcon className={twMerge(textStyles)} />,
       description: (
         <div>
           A framework-free core with React, Vue, Solid, Svelte, Preact, Angular,

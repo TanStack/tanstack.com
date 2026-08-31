@@ -31,9 +31,11 @@ export function getExampleStartingFileName(
       ? 'svelte'
       : framework === 'vue'
         ? 'vue'
-        : ['angular', 'lit'].includes(framework)
-          ? 'ts'
-          : 'tsx'
+        : framework === 'octane'
+          ? 'tsrx'
+          : ['angular', 'lit'].includes(framework)
+            ? 'ts'
+            : 'tsx'
 
   return `${file}.${ext}` as const
 }

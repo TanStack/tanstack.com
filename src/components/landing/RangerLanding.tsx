@@ -1,10 +1,10 @@
 import * as React from 'react'
 import {
-  ArrowsLeftRight,
-  BracketsCurly,
-  Palette,
-  Ruler,
-  SlidersHorizontal,
+  ArrowsLeftRightIcon,
+  BracketsCurlyIcon,
+  PaletteIcon,
+  RulerIcon,
+  SlidersHorizontalIcon,
 } from '@phosphor-icons/react'
 
 import {
@@ -60,7 +60,7 @@ export default function RangerLanding() {
           <LandingSectionIntro
             body="Prices, audio gain, risk scores, and timelines do not all move through value space the same way. Supply the interpolation instead of forcing the product into a linear track."
             eyebrow="Custom interpolation"
-            icon={<Ruler aria-hidden="true" size={17} />}
+            icon={<RulerIcon aria-hidden="true" size={17} />}
             title="Not every useful scale is linear."
           />
           <ScaleLab />
@@ -71,7 +71,7 @@ export default function RangerLanding() {
         <LandingSectionIntro
           body="A set of values produces handles. The spaces around them produce meaningful regions: selected, excluded, buffered, safe, risky, or already played."
           eyebrow="Multi-value geometry"
-          icon={<ArrowsLeftRight aria-hidden="true" size={17} />}
+          icon={<ArrowsLeftRightIcon aria-hidden="true" size={17} />}
           title="Values become handles. Gaps become segments."
         />
 
@@ -116,7 +116,7 @@ export default function RangerLanding() {
           <LandingSectionIntro
             body="Ranger provides positions, ticks, segments, and event handlers. Your interface decides whether those numbers become a price filter, a timeline, a color ramp, or something nobody has shipped yet."
             eyebrow="Headless boundary"
-            icon={<Palette aria-hidden="true" size={17} />}
+            icon={<PaletteIcon aria-hidden="true" size={17} />}
             title="The engine ends where the product begins."
           />
 
@@ -143,7 +143,7 @@ export default function RangerLanding() {
               />
             </div>
             <div className="border-t border-border-subtle px-5 py-4 font-ds-mono text-ds-mono-2xs text-text-primary/35">
-              <BracketsCurly
+              <BracketsCurlyIcon
                 aria-hidden="true"
                 className="mr-2 inline text-[var(--landing-accent-bright)]"
                 size={15}
@@ -319,7 +319,7 @@ function ScaleLab() {
           </svg>
           <div>
             <LandingEyebrow
-              icon={<SlidersHorizontal aria-hidden="true" size={14} />}
+              icon={<SlidersHorizontalIcon aria-hidden="true" size={14} />}
             >
               position → value
             </LandingEyebrow>

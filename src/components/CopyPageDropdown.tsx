@@ -1,6 +1,6 @@
 'use client'
 import * as React from 'react'
-import { CaretDown, Copy, Check } from '@phosphor-icons/react'
+import { CaretDownIcon, CopyIcon, CheckIcon } from '@phosphor-icons/react'
 import { useToast } from '~/components/ToastProvider'
 import { Button } from '~/ui'
 import { ButtonGroup } from './ButtonGroup'
@@ -38,7 +38,7 @@ function MarkdownIcon({ className }: { className?: string }) {
 }
 
 // Claude/Anthropic icon
-function ClaudeIcon({ className }: { className?: string }) {
+export function ClaudeIcon({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -61,7 +61,7 @@ function ChatGPTIcon({ className }: { className?: string }) {
 }
 
 // Cursor icon
-function CursorIcon({ className }: { className?: string }) {
+export function CursorIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
       <path d="M22.106 5.68L12.5.135a.998.998 0 00-.998 0L1.893 5.68a.84.84 0 00-.419.726v11.186c0 .3.16.577.42.727l9.607 5.547a.999.999 0 00.998 0l9.608-5.547a.84.84 0 00.42-.727V6.407a.84.84 0 00-.42-.726zm-.603 1.176L12.228 22.92c-.063.108-.228.064-.228-.061V12.34a.59.59 0 00-.295-.51l-9.11-5.26c-.107-.062-.063-.228.062-.228h18.55c.264 0 .428.286.296.514z"></path>
@@ -140,8 +140,11 @@ export function CopyPageDropdown({
     return queryString ? `${base}?${queryString}` : base
   })()
 
+  const hasPageMarkdownEndpoint =
+    typeof window !== 'undefined' && window.location.pathname.includes('/docs/')
+
   const sourceMarkdownUrl =
-    repo === 'tanstack/tanstack.com'
+    repo === 'tanstack/tanstack.com' && hasPageMarkdownEndpoint
       ? pageMarkdownUrl
       : repo && branch && filePath
         ? `https://raw.githubusercontent.com/${repo}/${branch}/${filePath}`
@@ -155,6 +158,7 @@ export function CopyPageDropdown({
         <div>
           <div className="font-medium">Copied to clipboard</div>
         </div>,
+        { id: 'page-copied' },
       )
       return
     }
@@ -172,6 +176,7 @@ export function CopyPageDropdown({
             {source}
           </div>
         </div>,
+        { id: 'page-copied' },
       )
     }
 
@@ -187,7 +192,7 @@ export function CopyPageDropdown({
       markdownCache.set(urlToFetch, content)
       await copyContent(
         content,
-        repo === 'tanstack/tanstack.com'
+        repo === 'tanstack/tanstack.com' && hasPageMarkdownEndpoint
           ? 'Markdown content copied from markdown endpoint'
           : 'Markdown content copied from GitHub',
       )
@@ -208,6 +213,7 @@ export function CopyPageDropdown({
               Page URL copied
             </div>
           </div>,
+          { id: 'page-copied' },
         )
       }
     }
@@ -301,12 +307,12 @@ export function CopyPageDropdown({
       >
         {copied.active ? (
           <>
-            <Check className="w-3 h-3" />
+            <CheckIcon className="w-3 h-3" />
             Copied!
           </>
         ) : (
           <>
-            <Copy className="w-3 h-3" />
+            <CopyIcon className="w-3 h-3" />
             {label}
           </>
         )}
@@ -321,7 +327,7 @@ export function CopyPageDropdown({
             className="border-0 px-1.5"
             aria-label={`More ${label} options`}
           >
-            <CaretDown className="w-3 h-3" />
+            <CaretDownIcon className="w-3 h-3" />
           </Button>
         </DropdownTrigger>
         <DropdownContent align="end" className="min-w-72">

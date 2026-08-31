@@ -2,3033 +2,3033 @@
 // Importing individual icon modules keeps this registry out of the shared
 // @phosphor-icons/react barrel used by the rest of the site.
 import type { Icon } from '@phosphor-icons/react'
-import { Acorn } from '@phosphor-icons/react/Acorn'
-import { AddressBook } from '@phosphor-icons/react/AddressBook'
-import { AddressBookTabs } from '@phosphor-icons/react/AddressBookTabs'
-import { Airplane } from '@phosphor-icons/react/Airplane'
-import { AirplaneInFlight } from '@phosphor-icons/react/AirplaneInFlight'
-import { AirplaneLanding } from '@phosphor-icons/react/AirplaneLanding'
-import { AirplaneTakeoff } from '@phosphor-icons/react/AirplaneTakeoff'
-import { AirplaneTaxiing } from '@phosphor-icons/react/AirplaneTaxiing'
-import { AirplaneTilt } from '@phosphor-icons/react/AirplaneTilt'
-import { Airplay } from '@phosphor-icons/react/Airplay'
-import { AirTrafficControl } from '@phosphor-icons/react/AirTrafficControl'
-import { Alarm } from '@phosphor-icons/react/Alarm'
-import { Alien } from '@phosphor-icons/react/Alien'
-import { AlignBottom } from '@phosphor-icons/react/AlignBottom'
-import { AlignBottomSimple } from '@phosphor-icons/react/AlignBottomSimple'
-import { AlignCenterHorizontal } from '@phosphor-icons/react/AlignCenterHorizontal'
-import { AlignCenterHorizontalSimple } from '@phosphor-icons/react/AlignCenterHorizontalSimple'
-import { AlignCenterVertical } from '@phosphor-icons/react/AlignCenterVertical'
-import { AlignCenterVerticalSimple } from '@phosphor-icons/react/AlignCenterVerticalSimple'
-import { AlignLeft } from '@phosphor-icons/react/AlignLeft'
-import { AlignLeftSimple } from '@phosphor-icons/react/AlignLeftSimple'
-import { AlignRight } from '@phosphor-icons/react/AlignRight'
-import { AlignRightSimple } from '@phosphor-icons/react/AlignRightSimple'
-import { AlignTop } from '@phosphor-icons/react/AlignTop'
-import { AlignTopSimple } from '@phosphor-icons/react/AlignTopSimple'
-import { AmazonLogo } from '@phosphor-icons/react/AmazonLogo'
-import { Ambulance } from '@phosphor-icons/react/Ambulance'
-import { Anchor } from '@phosphor-icons/react/Anchor'
-import { AnchorSimple } from '@phosphor-icons/react/AnchorSimple'
-import { AndroidLogo } from '@phosphor-icons/react/AndroidLogo'
-import { Angle } from '@phosphor-icons/react/Angle'
-import { AngularLogo } from '@phosphor-icons/react/AngularLogo'
-import { Aperture } from '@phosphor-icons/react/Aperture'
-import { AppleLogo } from '@phosphor-icons/react/AppleLogo'
-import { ApplePodcastsLogo } from '@phosphor-icons/react/ApplePodcastsLogo'
-import { ApproximateEquals } from '@phosphor-icons/react/ApproximateEquals'
-import { AppStoreLogo } from '@phosphor-icons/react/AppStoreLogo'
-import { AppWindow } from '@phosphor-icons/react/AppWindow'
-import { Archive } from '@phosphor-icons/react/Archive'
-import { Armchair } from '@phosphor-icons/react/Armchair'
-import { ArrowArcLeft } from '@phosphor-icons/react/ArrowArcLeft'
-import { ArrowArcRight } from '@phosphor-icons/react/ArrowArcRight'
-import { ArrowBendDoubleUpLeft } from '@phosphor-icons/react/ArrowBendDoubleUpLeft'
-import { ArrowBendDoubleUpRight } from '@phosphor-icons/react/ArrowBendDoubleUpRight'
-import { ArrowBendDownLeft } from '@phosphor-icons/react/ArrowBendDownLeft'
-import { ArrowBendDownRight } from '@phosphor-icons/react/ArrowBendDownRight'
-import { ArrowBendLeftDown } from '@phosphor-icons/react/ArrowBendLeftDown'
-import { ArrowBendLeftUp } from '@phosphor-icons/react/ArrowBendLeftUp'
-import { ArrowBendRightDown } from '@phosphor-icons/react/ArrowBendRightDown'
-import { ArrowBendRightUp } from '@phosphor-icons/react/ArrowBendRightUp'
-import { ArrowBendUpLeft } from '@phosphor-icons/react/ArrowBendUpLeft'
-import { ArrowBendUpRight } from '@phosphor-icons/react/ArrowBendUpRight'
-import { ArrowCircleDown } from '@phosphor-icons/react/ArrowCircleDown'
-import { ArrowCircleDownLeft } from '@phosphor-icons/react/ArrowCircleDownLeft'
-import { ArrowCircleDownRight } from '@phosphor-icons/react/ArrowCircleDownRight'
-import { ArrowCircleLeft } from '@phosphor-icons/react/ArrowCircleLeft'
-import { ArrowCircleRight } from '@phosphor-icons/react/ArrowCircleRight'
-import { ArrowCircleUp } from '@phosphor-icons/react/ArrowCircleUp'
-import { ArrowCircleUpLeft } from '@phosphor-icons/react/ArrowCircleUpLeft'
-import { ArrowCircleUpRight } from '@phosphor-icons/react/ArrowCircleUpRight'
-import { ArrowClockwise } from '@phosphor-icons/react/ArrowClockwise'
-import { ArrowCounterClockwise } from '@phosphor-icons/react/ArrowCounterClockwise'
-import { ArrowDown } from '@phosphor-icons/react/ArrowDown'
-import { ArrowDownLeft } from '@phosphor-icons/react/ArrowDownLeft'
-import { ArrowDownRight } from '@phosphor-icons/react/ArrowDownRight'
-import { ArrowElbowDownLeft } from '@phosphor-icons/react/ArrowElbowDownLeft'
-import { ArrowElbowDownRight } from '@phosphor-icons/react/ArrowElbowDownRight'
-import { ArrowElbowLeft } from '@phosphor-icons/react/ArrowElbowLeft'
-import { ArrowElbowLeftDown } from '@phosphor-icons/react/ArrowElbowLeftDown'
-import { ArrowElbowLeftUp } from '@phosphor-icons/react/ArrowElbowLeftUp'
-import { ArrowElbowRight } from '@phosphor-icons/react/ArrowElbowRight'
-import { ArrowElbowRightDown } from '@phosphor-icons/react/ArrowElbowRightDown'
-import { ArrowElbowRightUp } from '@phosphor-icons/react/ArrowElbowRightUp'
-import { ArrowElbowUpLeft } from '@phosphor-icons/react/ArrowElbowUpLeft'
-import { ArrowElbowUpRight } from '@phosphor-icons/react/ArrowElbowUpRight'
-import { ArrowFatDown } from '@phosphor-icons/react/ArrowFatDown'
-import { ArrowFatLeft } from '@phosphor-icons/react/ArrowFatLeft'
-import { ArrowFatLineDown } from '@phosphor-icons/react/ArrowFatLineDown'
-import { ArrowFatLineLeft } from '@phosphor-icons/react/ArrowFatLineLeft'
-import { ArrowFatLineRight } from '@phosphor-icons/react/ArrowFatLineRight'
-import { ArrowFatLinesDown } from '@phosphor-icons/react/ArrowFatLinesDown'
-import { ArrowFatLinesLeft } from '@phosphor-icons/react/ArrowFatLinesLeft'
-import { ArrowFatLinesRight } from '@phosphor-icons/react/ArrowFatLinesRight'
-import { ArrowFatLinesUp } from '@phosphor-icons/react/ArrowFatLinesUp'
-import { ArrowFatLineUp } from '@phosphor-icons/react/ArrowFatLineUp'
-import { ArrowFatRight } from '@phosphor-icons/react/ArrowFatRight'
-import { ArrowFatUp } from '@phosphor-icons/react/ArrowFatUp'
-import { ArrowLeft } from '@phosphor-icons/react/ArrowLeft'
-import { ArrowLineDown } from '@phosphor-icons/react/ArrowLineDown'
-import { ArrowLineDownLeft } from '@phosphor-icons/react/ArrowLineDownLeft'
-import { ArrowLineDownRight } from '@phosphor-icons/react/ArrowLineDownRight'
-import { ArrowLineLeft } from '@phosphor-icons/react/ArrowLineLeft'
-import { ArrowLineRight } from '@phosphor-icons/react/ArrowLineRight'
-import { ArrowLineUp } from '@phosphor-icons/react/ArrowLineUp'
-import { ArrowLineUpLeft } from '@phosphor-icons/react/ArrowLineUpLeft'
-import { ArrowLineUpRight } from '@phosphor-icons/react/ArrowLineUpRight'
-import { ArrowRight } from '@phosphor-icons/react/ArrowRight'
-import { ArrowsClockwise } from '@phosphor-icons/react/ArrowsClockwise'
-import { ArrowsCounterClockwise } from '@phosphor-icons/react/ArrowsCounterClockwise'
-import { ArrowsDownUp } from '@phosphor-icons/react/ArrowsDownUp'
-import { ArrowsHorizontal } from '@phosphor-icons/react/ArrowsHorizontal'
-import { ArrowsIn } from '@phosphor-icons/react/ArrowsIn'
-import { ArrowsInCardinal } from '@phosphor-icons/react/ArrowsInCardinal'
-import { ArrowsInLineHorizontal } from '@phosphor-icons/react/ArrowsInLineHorizontal'
-import { ArrowsInLineVertical } from '@phosphor-icons/react/ArrowsInLineVertical'
-import { ArrowsInSimple } from '@phosphor-icons/react/ArrowsInSimple'
-import { ArrowsLeftRight } from '@phosphor-icons/react/ArrowsLeftRight'
-import { ArrowsMerge } from '@phosphor-icons/react/ArrowsMerge'
-import { ArrowsOut } from '@phosphor-icons/react/ArrowsOut'
-import { ArrowsOutCardinal } from '@phosphor-icons/react/ArrowsOutCardinal'
-import { ArrowsOutLineHorizontal } from '@phosphor-icons/react/ArrowsOutLineHorizontal'
-import { ArrowsOutLineVertical } from '@phosphor-icons/react/ArrowsOutLineVertical'
-import { ArrowsOutSimple } from '@phosphor-icons/react/ArrowsOutSimple'
-import { ArrowSquareDown } from '@phosphor-icons/react/ArrowSquareDown'
-import { ArrowSquareDownLeft } from '@phosphor-icons/react/ArrowSquareDownLeft'
-import { ArrowSquareDownRight } from '@phosphor-icons/react/ArrowSquareDownRight'
-import { ArrowSquareIn } from '@phosphor-icons/react/ArrowSquareIn'
-import { ArrowSquareLeft } from '@phosphor-icons/react/ArrowSquareLeft'
-import { ArrowSquareOut } from '@phosphor-icons/react/ArrowSquareOut'
-import { ArrowSquareRight } from '@phosphor-icons/react/ArrowSquareRight'
-import { ArrowSquareUp } from '@phosphor-icons/react/ArrowSquareUp'
-import { ArrowSquareUpLeft } from '@phosphor-icons/react/ArrowSquareUpLeft'
-import { ArrowSquareUpRight } from '@phosphor-icons/react/ArrowSquareUpRight'
-import { ArrowsSplit } from '@phosphor-icons/react/ArrowsSplit'
-import { ArrowsVertical } from '@phosphor-icons/react/ArrowsVertical'
-import { ArrowUDownLeft } from '@phosphor-icons/react/ArrowUDownLeft'
-import { ArrowUDownRight } from '@phosphor-icons/react/ArrowUDownRight'
-import { ArrowULeftDown } from '@phosphor-icons/react/ArrowULeftDown'
-import { ArrowULeftUp } from '@phosphor-icons/react/ArrowULeftUp'
-import { ArrowUp } from '@phosphor-icons/react/ArrowUp'
-import { ArrowUpLeft } from '@phosphor-icons/react/ArrowUpLeft'
-import { ArrowUpRight } from '@phosphor-icons/react/ArrowUpRight'
-import { ArrowURightDown } from '@phosphor-icons/react/ArrowURightDown'
-import { ArrowURightUp } from '@phosphor-icons/react/ArrowURightUp'
-import { ArrowUUpLeft } from '@phosphor-icons/react/ArrowUUpLeft'
-import { ArrowUUpRight } from '@phosphor-icons/react/ArrowUUpRight'
-import { Article } from '@phosphor-icons/react/Article'
-import { ArticleMedium } from '@phosphor-icons/react/ArticleMedium'
-import { ArticleNyTimes } from '@phosphor-icons/react/ArticleNyTimes'
-import { Asclepius } from '@phosphor-icons/react/Asclepius'
-import { Asterisk } from '@phosphor-icons/react/Asterisk'
-import { AsteriskSimple } from '@phosphor-icons/react/AsteriskSimple'
-import { At } from '@phosphor-icons/react/At'
-import { Atom } from '@phosphor-icons/react/Atom'
-import { Avocado } from '@phosphor-icons/react/Avocado'
-import { Axe } from '@phosphor-icons/react/Axe'
-import { Baby } from '@phosphor-icons/react/Baby'
-import { BabyCarriage } from '@phosphor-icons/react/BabyCarriage'
-import { Backpack } from '@phosphor-icons/react/Backpack'
-import { Backspace } from '@phosphor-icons/react/Backspace'
-import { Bag } from '@phosphor-icons/react/Bag'
-import { BagSimple } from '@phosphor-icons/react/BagSimple'
-import { Balloon } from '@phosphor-icons/react/Balloon'
-import { Bandaids } from '@phosphor-icons/react/Bandaids'
-import { Bank } from '@phosphor-icons/react/Bank'
-import { Barbell } from '@phosphor-icons/react/Barbell'
-import { Barcode } from '@phosphor-icons/react/Barcode'
-import { Barn } from '@phosphor-icons/react/Barn'
-import { Barricade } from '@phosphor-icons/react/Barricade'
-import { Baseball } from '@phosphor-icons/react/Baseball'
-import { BaseballCap } from '@phosphor-icons/react/BaseballCap'
-import { BaseballHelmet } from '@phosphor-icons/react/BaseballHelmet'
-import { Basket } from '@phosphor-icons/react/Basket'
-import { Basketball } from '@phosphor-icons/react/Basketball'
-import { Bathtub } from '@phosphor-icons/react/Bathtub'
-import { BatteryCharging } from '@phosphor-icons/react/BatteryCharging'
-import { BatteryChargingVertical } from '@phosphor-icons/react/BatteryChargingVertical'
-import { BatteryEmpty } from '@phosphor-icons/react/BatteryEmpty'
-import { BatteryFull } from '@phosphor-icons/react/BatteryFull'
-import { BatteryHigh } from '@phosphor-icons/react/BatteryHigh'
-import { BatteryLow } from '@phosphor-icons/react/BatteryLow'
-import { BatteryMedium } from '@phosphor-icons/react/BatteryMedium'
-import { BatteryPlus } from '@phosphor-icons/react/BatteryPlus'
-import { BatteryPlusVertical } from '@phosphor-icons/react/BatteryPlusVertical'
-import { BatteryVerticalEmpty } from '@phosphor-icons/react/BatteryVerticalEmpty'
-import { BatteryVerticalFull } from '@phosphor-icons/react/BatteryVerticalFull'
-import { BatteryVerticalHigh } from '@phosphor-icons/react/BatteryVerticalHigh'
-import { BatteryVerticalLow } from '@phosphor-icons/react/BatteryVerticalLow'
-import { BatteryVerticalMedium } from '@phosphor-icons/react/BatteryVerticalMedium'
-import { BatteryWarning } from '@phosphor-icons/react/BatteryWarning'
-import { BatteryWarningVertical } from '@phosphor-icons/react/BatteryWarningVertical'
-import { BeachBall } from '@phosphor-icons/react/BeachBall'
-import { Beanie } from '@phosphor-icons/react/Beanie'
-import { Bed } from '@phosphor-icons/react/Bed'
-import { BeerBottle } from '@phosphor-icons/react/BeerBottle'
-import { BeerStein } from '@phosphor-icons/react/BeerStein'
-import { BehanceLogo } from '@phosphor-icons/react/BehanceLogo'
-import { Bell } from '@phosphor-icons/react/Bell'
-import { BellRinging } from '@phosphor-icons/react/BellRinging'
-import { BellSimple } from '@phosphor-icons/react/BellSimple'
-import { BellSimpleRinging } from '@phosphor-icons/react/BellSimpleRinging'
-import { BellSimpleSlash } from '@phosphor-icons/react/BellSimpleSlash'
-import { BellSimpleZ } from '@phosphor-icons/react/BellSimpleZ'
-import { BellSlash } from '@phosphor-icons/react/BellSlash'
-import { BellZ } from '@phosphor-icons/react/BellZ'
-import { Belt } from '@phosphor-icons/react/Belt'
-import { BezierCurve } from '@phosphor-icons/react/BezierCurve'
-import { Bicycle } from '@phosphor-icons/react/Bicycle'
-import { Binary } from '@phosphor-icons/react/Binary'
-import { Binoculars } from '@phosphor-icons/react/Binoculars'
-import { Biohazard } from '@phosphor-icons/react/Biohazard'
-import { Bird } from '@phosphor-icons/react/Bird'
-import { Blueprint } from '@phosphor-icons/react/Blueprint'
-import { Bluetooth } from '@phosphor-icons/react/Bluetooth'
-import { BluetoothConnected } from '@phosphor-icons/react/BluetoothConnected'
-import { BluetoothSlash } from '@phosphor-icons/react/BluetoothSlash'
-import { BluetoothX } from '@phosphor-icons/react/BluetoothX'
-import { Boat } from '@phosphor-icons/react/Boat'
-import { Bomb } from '@phosphor-icons/react/Bomb'
-import { Bone } from '@phosphor-icons/react/Bone'
-import { Book } from '@phosphor-icons/react/Book'
-import { BookBookmark } from '@phosphor-icons/react/BookBookmark'
-import { Bookmark } from '@phosphor-icons/react/Bookmark'
-import { Bookmarks } from '@phosphor-icons/react/Bookmarks'
-import { BookmarkSimple } from '@phosphor-icons/react/BookmarkSimple'
-import { BookmarksSimple } from '@phosphor-icons/react/BookmarksSimple'
-import { BookOpen } from '@phosphor-icons/react/BookOpen'
-import { BookOpenText } from '@phosphor-icons/react/BookOpenText'
-import { BookOpenUser } from '@phosphor-icons/react/BookOpenUser'
-import { Books } from '@phosphor-icons/react/Books'
-import { Boot } from '@phosphor-icons/react/Boot'
-import { Boules } from '@phosphor-icons/react/Boules'
-import { BoundingBox } from '@phosphor-icons/react/BoundingBox'
-import { BowlFood } from '@phosphor-icons/react/BowlFood'
-import { BowlingBall } from '@phosphor-icons/react/BowlingBall'
-import { BowlSteam } from '@phosphor-icons/react/BowlSteam'
-import { BoxArrowDown } from '@phosphor-icons/react/BoxArrowDown'
-import { BoxArrowUp } from '@phosphor-icons/react/BoxArrowUp'
-import { BoxingGlove } from '@phosphor-icons/react/BoxingGlove'
-import { BracketsAngle } from '@phosphor-icons/react/BracketsAngle'
-import { BracketsCurly } from '@phosphor-icons/react/BracketsCurly'
-import { BracketsRound } from '@phosphor-icons/react/BracketsRound'
-import { BracketsSquare } from '@phosphor-icons/react/BracketsSquare'
-import { Brain } from '@phosphor-icons/react/Brain'
-import { Brandy } from '@phosphor-icons/react/Brandy'
-import { Bread } from '@phosphor-icons/react/Bread'
-import { Bridge } from '@phosphor-icons/react/Bridge'
-import { Briefcase } from '@phosphor-icons/react/Briefcase'
-import { BriefcaseMetal } from '@phosphor-icons/react/BriefcaseMetal'
-import { Broadcast } from '@phosphor-icons/react/Broadcast'
-import { Broom } from '@phosphor-icons/react/Broom'
-import { Browser } from '@phosphor-icons/react/Browser'
-import { Browsers } from '@phosphor-icons/react/Browsers'
-import { Bug } from '@phosphor-icons/react/Bug'
-import { BugBeetle } from '@phosphor-icons/react/BugBeetle'
-import { BugDroid } from '@phosphor-icons/react/BugDroid'
-import { Building } from '@phosphor-icons/react/Building'
-import { BuildingApartment } from '@phosphor-icons/react/BuildingApartment'
-import { BuildingOffice } from '@phosphor-icons/react/BuildingOffice'
-import { Buildings } from '@phosphor-icons/react/Buildings'
-import { Bulldozer } from '@phosphor-icons/react/Bulldozer'
-import { Bus } from '@phosphor-icons/react/Bus'
-import { Butterfly } from '@phosphor-icons/react/Butterfly'
-import { CableCar } from '@phosphor-icons/react/CableCar'
-import { Cactus } from '@phosphor-icons/react/Cactus'
-import { Cake } from '@phosphor-icons/react/Cake'
-import { Calculator } from '@phosphor-icons/react/Calculator'
-import { Calendar } from '@phosphor-icons/react/Calendar'
-import { CalendarBlank } from '@phosphor-icons/react/CalendarBlank'
-import { CalendarCheck } from '@phosphor-icons/react/CalendarCheck'
-import { CalendarDot } from '@phosphor-icons/react/CalendarDot'
-import { CalendarDots } from '@phosphor-icons/react/CalendarDots'
-import { CalendarHeart } from '@phosphor-icons/react/CalendarHeart'
-import { CalendarMinus } from '@phosphor-icons/react/CalendarMinus'
-import { CalendarPlus } from '@phosphor-icons/react/CalendarPlus'
-import { CalendarSlash } from '@phosphor-icons/react/CalendarSlash'
-import { CalendarStar } from '@phosphor-icons/react/CalendarStar'
-import { CalendarX } from '@phosphor-icons/react/CalendarX'
-import { CallBell } from '@phosphor-icons/react/CallBell'
-import { Camera } from '@phosphor-icons/react/Camera'
-import { CameraPlus } from '@phosphor-icons/react/CameraPlus'
-import { CameraRotate } from '@phosphor-icons/react/CameraRotate'
-import { CameraSlash } from '@phosphor-icons/react/CameraSlash'
-import { Campfire } from '@phosphor-icons/react/Campfire'
-import { Car } from '@phosphor-icons/react/Car'
-import { CarBattery } from '@phosphor-icons/react/CarBattery'
-import { Cardholder } from '@phosphor-icons/react/Cardholder'
-import { Cards } from '@phosphor-icons/react/Cards'
-import { CardsThree } from '@phosphor-icons/react/CardsThree'
-import { CaretCircleDoubleDown } from '@phosphor-icons/react/CaretCircleDoubleDown'
-import { CaretCircleDoubleLeft } from '@phosphor-icons/react/CaretCircleDoubleLeft'
-import { CaretCircleDoubleRight } from '@phosphor-icons/react/CaretCircleDoubleRight'
-import { CaretCircleDoubleUp } from '@phosphor-icons/react/CaretCircleDoubleUp'
-import { CaretCircleDown } from '@phosphor-icons/react/CaretCircleDown'
-import { CaretCircleLeft } from '@phosphor-icons/react/CaretCircleLeft'
-import { CaretCircleRight } from '@phosphor-icons/react/CaretCircleRight'
-import { CaretCircleUp } from '@phosphor-icons/react/CaretCircleUp'
-import { CaretCircleUpDown } from '@phosphor-icons/react/CaretCircleUpDown'
-import { CaretDoubleDown } from '@phosphor-icons/react/CaretDoubleDown'
-import { CaretDoubleLeft } from '@phosphor-icons/react/CaretDoubleLeft'
-import { CaretDoubleRight } from '@phosphor-icons/react/CaretDoubleRight'
-import { CaretDoubleUp } from '@phosphor-icons/react/CaretDoubleUp'
-import { CaretDown } from '@phosphor-icons/react/CaretDown'
-import { CaretLeft } from '@phosphor-icons/react/CaretLeft'
-import { CaretLineDown } from '@phosphor-icons/react/CaretLineDown'
-import { CaretLineLeft } from '@phosphor-icons/react/CaretLineLeft'
-import { CaretLineRight } from '@phosphor-icons/react/CaretLineRight'
-import { CaretLineUp } from '@phosphor-icons/react/CaretLineUp'
-import { CaretRight } from '@phosphor-icons/react/CaretRight'
-import { CaretUp } from '@phosphor-icons/react/CaretUp'
-import { CaretUpDown } from '@phosphor-icons/react/CaretUpDown'
-import { CarProfile } from '@phosphor-icons/react/CarProfile'
-import { Carrot } from '@phosphor-icons/react/Carrot'
-import { CarSimple } from '@phosphor-icons/react/CarSimple'
-import { CashRegister } from '@phosphor-icons/react/CashRegister'
-import { CassetteTape } from '@phosphor-icons/react/CassetteTape'
-import { CastleTurret } from '@phosphor-icons/react/CastleTurret'
-import { Cat } from '@phosphor-icons/react/Cat'
-import { CellSignalFull } from '@phosphor-icons/react/CellSignalFull'
-import { CellSignalHigh } from '@phosphor-icons/react/CellSignalHigh'
-import { CellSignalLow } from '@phosphor-icons/react/CellSignalLow'
-import { CellSignalMedium } from '@phosphor-icons/react/CellSignalMedium'
-import { CellSignalNone } from '@phosphor-icons/react/CellSignalNone'
-import { CellSignalSlash } from '@phosphor-icons/react/CellSignalSlash'
-import { CellSignalX } from '@phosphor-icons/react/CellSignalX'
-import { CellTower } from '@phosphor-icons/react/CellTower'
-import { Certificate } from '@phosphor-icons/react/Certificate'
-import { Chair } from '@phosphor-icons/react/Chair'
-import { Chalkboard } from '@phosphor-icons/react/Chalkboard'
-import { ChalkboardSimple } from '@phosphor-icons/react/ChalkboardSimple'
-import { ChalkboardTeacher } from '@phosphor-icons/react/ChalkboardTeacher'
-import { Champagne } from '@phosphor-icons/react/Champagne'
-import { ChargingStation } from '@phosphor-icons/react/ChargingStation'
-import { ChartBar } from '@phosphor-icons/react/ChartBar'
-import { ChartBarHorizontal } from '@phosphor-icons/react/ChartBarHorizontal'
-import { ChartDonut } from '@phosphor-icons/react/ChartDonut'
-import { ChartLine } from '@phosphor-icons/react/ChartLine'
-import { ChartLineDown } from '@phosphor-icons/react/ChartLineDown'
-import { ChartLineUp } from '@phosphor-icons/react/ChartLineUp'
-import { ChartPie } from '@phosphor-icons/react/ChartPie'
-import { ChartPieSlice } from '@phosphor-icons/react/ChartPieSlice'
-import { ChartPolar } from '@phosphor-icons/react/ChartPolar'
-import { ChartScatter } from '@phosphor-icons/react/ChartScatter'
-import { Chat } from '@phosphor-icons/react/Chat'
-import { ChatCentered } from '@phosphor-icons/react/ChatCentered'
-import { ChatCenteredDots } from '@phosphor-icons/react/ChatCenteredDots'
-import { ChatCenteredSlash } from '@phosphor-icons/react/ChatCenteredSlash'
-import { ChatCenteredText } from '@phosphor-icons/react/ChatCenteredText'
-import { ChatCircle } from '@phosphor-icons/react/ChatCircle'
-import { ChatCircleDots } from '@phosphor-icons/react/ChatCircleDots'
-import { ChatCircleSlash } from '@phosphor-icons/react/ChatCircleSlash'
-import { ChatCircleText } from '@phosphor-icons/react/ChatCircleText'
-import { ChatDots } from '@phosphor-icons/react/ChatDots'
-import { Chats } from '@phosphor-icons/react/Chats'
-import { ChatsCircle } from '@phosphor-icons/react/ChatsCircle'
-import { ChatSlash } from '@phosphor-icons/react/ChatSlash'
-import { ChatsTeardrop } from '@phosphor-icons/react/ChatsTeardrop'
-import { ChatTeardrop } from '@phosphor-icons/react/ChatTeardrop'
-import { ChatTeardropDots } from '@phosphor-icons/react/ChatTeardropDots'
-import { ChatTeardropSlash } from '@phosphor-icons/react/ChatTeardropSlash'
-import { ChatTeardropText } from '@phosphor-icons/react/ChatTeardropText'
-import { ChatText } from '@phosphor-icons/react/ChatText'
-import { Check } from '@phosphor-icons/react/Check'
-import { CheckCircle } from '@phosphor-icons/react/CheckCircle'
-import { Checkerboard } from '@phosphor-icons/react/Checkerboard'
-import { CheckFat } from '@phosphor-icons/react/CheckFat'
-import { Checks } from '@phosphor-icons/react/Checks'
-import { CheckSquare } from '@phosphor-icons/react/CheckSquare'
-import { CheckSquareOffset } from '@phosphor-icons/react/CheckSquareOffset'
-import { Cheers } from '@phosphor-icons/react/Cheers'
-import { Cheese } from '@phosphor-icons/react/Cheese'
-import { ChefHat } from '@phosphor-icons/react/ChefHat'
-import { Cherries } from '@phosphor-icons/react/Cherries'
-import { Church } from '@phosphor-icons/react/Church'
-import { Cigarette } from '@phosphor-icons/react/Cigarette'
-import { CigaretteSlash } from '@phosphor-icons/react/CigaretteSlash'
-import { Circle } from '@phosphor-icons/react/Circle'
-import { CircleDashed } from '@phosphor-icons/react/CircleDashed'
-import { CircleHalf } from '@phosphor-icons/react/CircleHalf'
-import { CircleHalfTilt } from '@phosphor-icons/react/CircleHalfTilt'
-import { CircleNotch } from '@phosphor-icons/react/CircleNotch'
-import { CirclesFour } from '@phosphor-icons/react/CirclesFour'
-import { CirclesThree } from '@phosphor-icons/react/CirclesThree'
-import { CirclesThreePlus } from '@phosphor-icons/react/CirclesThreePlus'
-import { Circuitry } from '@phosphor-icons/react/Circuitry'
-import { City } from '@phosphor-icons/react/City'
-import { Clipboard } from '@phosphor-icons/react/Clipboard'
-import { ClipboardText } from '@phosphor-icons/react/ClipboardText'
-import { Clock } from '@phosphor-icons/react/Clock'
-import { ClockAfternoon } from '@phosphor-icons/react/ClockAfternoon'
-import { ClockClockwise } from '@phosphor-icons/react/ClockClockwise'
-import { ClockCountdown } from '@phosphor-icons/react/ClockCountdown'
-import { ClockCounterClockwise } from '@phosphor-icons/react/ClockCounterClockwise'
-import { ClockUser } from '@phosphor-icons/react/ClockUser'
-import { ClosedCaptioning } from '@phosphor-icons/react/ClosedCaptioning'
-import { Cloud } from '@phosphor-icons/react/Cloud'
-import { CloudArrowDown } from '@phosphor-icons/react/CloudArrowDown'
-import { CloudArrowUp } from '@phosphor-icons/react/CloudArrowUp'
-import { CloudCheck } from '@phosphor-icons/react/CloudCheck'
-import { CloudFog } from '@phosphor-icons/react/CloudFog'
-import { CloudLightning } from '@phosphor-icons/react/CloudLightning'
-import { CloudMoon } from '@phosphor-icons/react/CloudMoon'
-import { CloudRain } from '@phosphor-icons/react/CloudRain'
-import { CloudSlash } from '@phosphor-icons/react/CloudSlash'
-import { CloudSnow } from '@phosphor-icons/react/CloudSnow'
-import { CloudSun } from '@phosphor-icons/react/CloudSun'
-import { CloudWarning } from '@phosphor-icons/react/CloudWarning'
-import { CloudX } from '@phosphor-icons/react/CloudX'
-import { Clover } from '@phosphor-icons/react/Clover'
-import { Club } from '@phosphor-icons/react/Club'
-import { CoatHanger } from '@phosphor-icons/react/CoatHanger'
-import { CodaLogo } from '@phosphor-icons/react/CodaLogo'
-import { Code } from '@phosphor-icons/react/Code'
-import { CodeBlock } from '@phosphor-icons/react/CodeBlock'
-import { CodepenLogo } from '@phosphor-icons/react/CodepenLogo'
-import { CodesandboxLogo } from '@phosphor-icons/react/CodesandboxLogo'
-import { CodeSimple } from '@phosphor-icons/react/CodeSimple'
-import { Coffee } from '@phosphor-icons/react/Coffee'
-import { CoffeeBean } from '@phosphor-icons/react/CoffeeBean'
-import { Coin } from '@phosphor-icons/react/Coin'
-import { Coins } from '@phosphor-icons/react/Coins'
-import { CoinVertical } from '@phosphor-icons/react/CoinVertical'
-import { Columns } from '@phosphor-icons/react/Columns'
-import { ColumnsPlusLeft } from '@phosphor-icons/react/ColumnsPlusLeft'
-import { ColumnsPlusRight } from '@phosphor-icons/react/ColumnsPlusRight'
-import { Command } from '@phosphor-icons/react/Command'
-import { Compass } from '@phosphor-icons/react/Compass'
-import { CompassRose } from '@phosphor-icons/react/CompassRose'
-import { CompassTool } from '@phosphor-icons/react/CompassTool'
-import { ComputerTower } from '@phosphor-icons/react/ComputerTower'
-import { Confetti } from '@phosphor-icons/react/Confetti'
-import { ContactlessPayment } from '@phosphor-icons/react/ContactlessPayment'
-import { Control } from '@phosphor-icons/react/Control'
-import { Cookie } from '@phosphor-icons/react/Cookie'
-import { CookingPot } from '@phosphor-icons/react/CookingPot'
-import { Copy } from '@phosphor-icons/react/Copy'
-import { Copyleft } from '@phosphor-icons/react/Copyleft'
-import { Copyright } from '@phosphor-icons/react/Copyright'
-import { CopySimple } from '@phosphor-icons/react/CopySimple'
-import { CornersIn } from '@phosphor-icons/react/CornersIn'
-import { CornersOut } from '@phosphor-icons/react/CornersOut'
-import { Couch } from '@phosphor-icons/react/Couch'
-import { CourtBasketball } from '@phosphor-icons/react/CourtBasketball'
-import { Cow } from '@phosphor-icons/react/Cow'
-import { CowboyHat } from '@phosphor-icons/react/CowboyHat'
-import { Cpu } from '@phosphor-icons/react/Cpu'
-import { Crane } from '@phosphor-icons/react/Crane'
-import { CraneTower } from '@phosphor-icons/react/CraneTower'
-import { CreditCard } from '@phosphor-icons/react/CreditCard'
-import { Cricket } from '@phosphor-icons/react/Cricket'
-import { Crop } from '@phosphor-icons/react/Crop'
-import { Cross } from '@phosphor-icons/react/Cross'
-import { Crosshair } from '@phosphor-icons/react/Crosshair'
-import { CrosshairSimple } from '@phosphor-icons/react/CrosshairSimple'
-import { Crown } from '@phosphor-icons/react/Crown'
-import { CrownCross } from '@phosphor-icons/react/CrownCross'
-import { CrownSimple } from '@phosphor-icons/react/CrownSimple'
-import { Cube } from '@phosphor-icons/react/Cube'
-import { CubeFocus } from '@phosphor-icons/react/CubeFocus'
-import { CubeTransparent } from '@phosphor-icons/react/CubeTransparent'
-import { CurrencyBtc } from '@phosphor-icons/react/CurrencyBtc'
-import { CurrencyCircleDollar } from '@phosphor-icons/react/CurrencyCircleDollar'
-import { CurrencyCny } from '@phosphor-icons/react/CurrencyCny'
-import { CurrencyDollar } from '@phosphor-icons/react/CurrencyDollar'
-import { CurrencyDollarSimple } from '@phosphor-icons/react/CurrencyDollarSimple'
-import { CurrencyEth } from '@phosphor-icons/react/CurrencyEth'
-import { CurrencyEur } from '@phosphor-icons/react/CurrencyEur'
-import { CurrencyGbp } from '@phosphor-icons/react/CurrencyGbp'
-import { CurrencyInr } from '@phosphor-icons/react/CurrencyInr'
-import { CurrencyJpy } from '@phosphor-icons/react/CurrencyJpy'
-import { CurrencyKrw } from '@phosphor-icons/react/CurrencyKrw'
-import { CurrencyKzt } from '@phosphor-icons/react/CurrencyKzt'
-import { CurrencyNgn } from '@phosphor-icons/react/CurrencyNgn'
-import { CurrencyRub } from '@phosphor-icons/react/CurrencyRub'
-import { Cursor } from '@phosphor-icons/react/Cursor'
-import { CursorClick } from '@phosphor-icons/react/CursorClick'
-import { CursorText } from '@phosphor-icons/react/CursorText'
-import { Cylinder } from '@phosphor-icons/react/Cylinder'
-import { Database } from '@phosphor-icons/react/Database'
-import { Desk } from '@phosphor-icons/react/Desk'
-import { Desktop } from '@phosphor-icons/react/Desktop'
-import { DesktopTower } from '@phosphor-icons/react/DesktopTower'
-import { Detective } from '@phosphor-icons/react/Detective'
-import { DeviceMobile } from '@phosphor-icons/react/DeviceMobile'
-import { DeviceMobileCamera } from '@phosphor-icons/react/DeviceMobileCamera'
-import { DeviceMobileSlash } from '@phosphor-icons/react/DeviceMobileSlash'
-import { DeviceMobileSpeaker } from '@phosphor-icons/react/DeviceMobileSpeaker'
-import { DeviceRotate } from '@phosphor-icons/react/DeviceRotate'
-import { Devices } from '@phosphor-icons/react/Devices'
-import { DeviceTablet } from '@phosphor-icons/react/DeviceTablet'
-import { DeviceTabletCamera } from '@phosphor-icons/react/DeviceTabletCamera'
-import { DeviceTabletSpeaker } from '@phosphor-icons/react/DeviceTabletSpeaker'
-import { DevToLogo } from '@phosphor-icons/react/DevToLogo'
-import { Diamond } from '@phosphor-icons/react/Diamond'
-import { DiamondsFour } from '@phosphor-icons/react/DiamondsFour'
-import { DiceFive } from '@phosphor-icons/react/DiceFive'
-import { DiceFour } from '@phosphor-icons/react/DiceFour'
-import { DiceOne } from '@phosphor-icons/react/DiceOne'
-import { DiceSix } from '@phosphor-icons/react/DiceSix'
-import { DiceThree } from '@phosphor-icons/react/DiceThree'
-import { DiceTwo } from '@phosphor-icons/react/DiceTwo'
-import { Disc } from '@phosphor-icons/react/Disc'
-import { DiscoBall } from '@phosphor-icons/react/DiscoBall'
-import { DiscordLogo } from '@phosphor-icons/react/DiscordLogo'
-import { Divide } from '@phosphor-icons/react/Divide'
-import { Dna } from '@phosphor-icons/react/Dna'
-import { Dog } from '@phosphor-icons/react/Dog'
-import { Door } from '@phosphor-icons/react/Door'
-import { DoorOpen } from '@phosphor-icons/react/DoorOpen'
-import { Dot } from '@phosphor-icons/react/Dot'
-import { DotOutline } from '@phosphor-icons/react/DotOutline'
-import { DotsNine } from '@phosphor-icons/react/DotsNine'
-import { DotsSix } from '@phosphor-icons/react/DotsSix'
-import { DotsSixVertical } from '@phosphor-icons/react/DotsSixVertical'
-import { DotsThree } from '@phosphor-icons/react/DotsThree'
-import { DotsThreeCircle } from '@phosphor-icons/react/DotsThreeCircle'
-import { DotsThreeCircleVertical } from '@phosphor-icons/react/DotsThreeCircleVertical'
-import { DotsThreeOutline } from '@phosphor-icons/react/DotsThreeOutline'
-import { DotsThreeOutlineVertical } from '@phosphor-icons/react/DotsThreeOutlineVertical'
-import { DotsThreeVertical } from '@phosphor-icons/react/DotsThreeVertical'
-import { Download } from '@phosphor-icons/react/Download'
-import { DownloadSimple } from '@phosphor-icons/react/DownloadSimple'
-import { Dress } from '@phosphor-icons/react/Dress'
-import { Dresser } from '@phosphor-icons/react/Dresser'
-import { DribbbleLogo } from '@phosphor-icons/react/DribbbleLogo'
-import { Drone } from '@phosphor-icons/react/Drone'
-import { Drop } from '@phosphor-icons/react/Drop'
-import { DropboxLogo } from '@phosphor-icons/react/DropboxLogo'
-import { DropHalf } from '@phosphor-icons/react/DropHalf'
-import { DropHalfBottom } from '@phosphor-icons/react/DropHalfBottom'
-import { DropSimple } from '@phosphor-icons/react/DropSimple'
-import { DropSlash } from '@phosphor-icons/react/DropSlash'
-import { Ear } from '@phosphor-icons/react/Ear'
-import { EarSlash } from '@phosphor-icons/react/EarSlash'
-import { Egg } from '@phosphor-icons/react/Egg'
-import { EggCrack } from '@phosphor-icons/react/EggCrack'
-import { Eject } from '@phosphor-icons/react/Eject'
-import { EjectSimple } from '@phosphor-icons/react/EjectSimple'
-import { Elevator } from '@phosphor-icons/react/Elevator'
-import { Empty } from '@phosphor-icons/react/Empty'
-import { Engine } from '@phosphor-icons/react/Engine'
-import { Envelope } from '@phosphor-icons/react/Envelope'
-import { EnvelopeOpen } from '@phosphor-icons/react/EnvelopeOpen'
-import { EnvelopeSimple } from '@phosphor-icons/react/EnvelopeSimple'
-import { EnvelopeSimpleOpen } from '@phosphor-icons/react/EnvelopeSimpleOpen'
-import { Equalizer } from '@phosphor-icons/react/Equalizer'
-import { Equals } from '@phosphor-icons/react/Equals'
-import { Eraser } from '@phosphor-icons/react/Eraser'
-import { EscalatorDown } from '@phosphor-icons/react/EscalatorDown'
-import { EscalatorUp } from '@phosphor-icons/react/EscalatorUp'
-import { Exam } from '@phosphor-icons/react/Exam'
-import { ExclamationMark } from '@phosphor-icons/react/ExclamationMark'
-import { Exclude } from '@phosphor-icons/react/Exclude'
-import { ExcludeSquare } from '@phosphor-icons/react/ExcludeSquare'
-import { Export } from '@phosphor-icons/react/Export'
-import { Eye } from '@phosphor-icons/react/Eye'
-import { EyeClosed } from '@phosphor-icons/react/EyeClosed'
-import { Eyedropper } from '@phosphor-icons/react/Eyedropper'
-import { EyedropperSample } from '@phosphor-icons/react/EyedropperSample'
-import { Eyeglasses } from '@phosphor-icons/react/Eyeglasses'
-import { Eyes } from '@phosphor-icons/react/Eyes'
-import { EyeSlash } from '@phosphor-icons/react/EyeSlash'
-import { FacebookLogo } from '@phosphor-icons/react/FacebookLogo'
-import { FaceMask } from '@phosphor-icons/react/FaceMask'
-import { Factory } from '@phosphor-icons/react/Factory'
-import { Faders } from '@phosphor-icons/react/Faders'
-import { FadersHorizontal } from '@phosphor-icons/react/FadersHorizontal'
-import { FalloutShelter } from '@phosphor-icons/react/FalloutShelter'
-import { Fan } from '@phosphor-icons/react/Fan'
-import { Farm } from '@phosphor-icons/react/Farm'
-import { FastForward } from '@phosphor-icons/react/FastForward'
-import { FastForwardCircle } from '@phosphor-icons/react/FastForwardCircle'
-import { Feather } from '@phosphor-icons/react/Feather'
-import { FediverseLogo } from '@phosphor-icons/react/FediverseLogo'
-import { FigmaLogo } from '@phosphor-icons/react/FigmaLogo'
-import { File } from '@phosphor-icons/react/File'
-import { FileArchive } from '@phosphor-icons/react/FileArchive'
-import { FileArrowDown } from '@phosphor-icons/react/FileArrowDown'
-import { FileArrowUp } from '@phosphor-icons/react/FileArrowUp'
-import { FileAudio } from '@phosphor-icons/react/FileAudio'
-import { FileC } from '@phosphor-icons/react/FileC'
-import { FileCloud } from '@phosphor-icons/react/FileCloud'
-import { FileCode } from '@phosphor-icons/react/FileCode'
-import { FileCpp } from '@phosphor-icons/react/FileCpp'
-import { FileCSharp } from '@phosphor-icons/react/FileCSharp'
-import { FileCss } from '@phosphor-icons/react/FileCss'
-import { FileCsv } from '@phosphor-icons/react/FileCsv'
-import { FileDashed } from '@phosphor-icons/react/FileDashed'
-import { FileDoc } from '@phosphor-icons/react/FileDoc'
-import { FileHtml } from '@phosphor-icons/react/FileHtml'
-import { FileImage } from '@phosphor-icons/react/FileImage'
-import { FileIni } from '@phosphor-icons/react/FileIni'
-import { FileJpg } from '@phosphor-icons/react/FileJpg'
-import { FileJs } from '@phosphor-icons/react/FileJs'
-import { FileJsx } from '@phosphor-icons/react/FileJsx'
-import { FileLock } from '@phosphor-icons/react/FileLock'
-import { FileMagnifyingGlass } from '@phosphor-icons/react/FileMagnifyingGlass'
-import { FileMd } from '@phosphor-icons/react/FileMd'
-import { FileMinus } from '@phosphor-icons/react/FileMinus'
-import { FilePdf } from '@phosphor-icons/react/FilePdf'
-import { FilePlus } from '@phosphor-icons/react/FilePlus'
-import { FilePng } from '@phosphor-icons/react/FilePng'
-import { FilePpt } from '@phosphor-icons/react/FilePpt'
-import { FilePy } from '@phosphor-icons/react/FilePy'
-import { FileRs } from '@phosphor-icons/react/FileRs'
-import { Files } from '@phosphor-icons/react/Files'
-import { FileSql } from '@phosphor-icons/react/FileSql'
-import { FileSvg } from '@phosphor-icons/react/FileSvg'
-import { FileText } from '@phosphor-icons/react/FileText'
-import { FileTs } from '@phosphor-icons/react/FileTs'
-import { FileTsx } from '@phosphor-icons/react/FileTsx'
-import { FileTxt } from '@phosphor-icons/react/FileTxt'
-import { FileVideo } from '@phosphor-icons/react/FileVideo'
-import { FileVue } from '@phosphor-icons/react/FileVue'
-import { FileX } from '@phosphor-icons/react/FileX'
-import { FileXls } from '@phosphor-icons/react/FileXls'
-import { FileZip } from '@phosphor-icons/react/FileZip'
-import { FilmReel } from '@phosphor-icons/react/FilmReel'
-import { FilmScript } from '@phosphor-icons/react/FilmScript'
-import { FilmSlate } from '@phosphor-icons/react/FilmSlate'
-import { FilmStrip } from '@phosphor-icons/react/FilmStrip'
-import { Fingerprint } from '@phosphor-icons/react/Fingerprint'
-import { FingerprintSimple } from '@phosphor-icons/react/FingerprintSimple'
-import { FinnTheHuman } from '@phosphor-icons/react/FinnTheHuman'
-import { Fire } from '@phosphor-icons/react/Fire'
-import { FireExtinguisher } from '@phosphor-icons/react/FireExtinguisher'
-import { FireSimple } from '@phosphor-icons/react/FireSimple'
-import { FireTruck } from '@phosphor-icons/react/FireTruck'
-import { FirstAid } from '@phosphor-icons/react/FirstAid'
-import { FirstAidKit } from '@phosphor-icons/react/FirstAidKit'
-import { Fish } from '@phosphor-icons/react/Fish'
-import { FishSimple } from '@phosphor-icons/react/FishSimple'
-import { Flag } from '@phosphor-icons/react/Flag'
-import { FlagBanner } from '@phosphor-icons/react/FlagBanner'
-import { FlagBannerFold } from '@phosphor-icons/react/FlagBannerFold'
-import { FlagCheckered } from '@phosphor-icons/react/FlagCheckered'
-import { FlagPennant } from '@phosphor-icons/react/FlagPennant'
-import { Flame } from '@phosphor-icons/react/Flame'
-import { Flashlight } from '@phosphor-icons/react/Flashlight'
-import { Flask } from '@phosphor-icons/react/Flask'
-import { FlipHorizontal } from '@phosphor-icons/react/FlipHorizontal'
-import { FlipVertical } from '@phosphor-icons/react/FlipVertical'
-import { FloppyDisk } from '@phosphor-icons/react/FloppyDisk'
-import { FloppyDiskBack } from '@phosphor-icons/react/FloppyDiskBack'
-import { FlowArrow } from '@phosphor-icons/react/FlowArrow'
-import { Flower } from '@phosphor-icons/react/Flower'
-import { FlowerLotus } from '@phosphor-icons/react/FlowerLotus'
-import { FlowerTulip } from '@phosphor-icons/react/FlowerTulip'
-import { FlyingSaucer } from '@phosphor-icons/react/FlyingSaucer'
-import { Folder } from '@phosphor-icons/react/Folder'
-import { FolderDashed } from '@phosphor-icons/react/FolderDashed'
-import { FolderLock } from '@phosphor-icons/react/FolderLock'
-import { FolderMinus } from '@phosphor-icons/react/FolderMinus'
-import { FolderOpen } from '@phosphor-icons/react/FolderOpen'
-import { FolderPlus } from '@phosphor-icons/react/FolderPlus'
-import { Folders } from '@phosphor-icons/react/Folders'
-import { FolderSimple } from '@phosphor-icons/react/FolderSimple'
-import { FolderSimpleDashed } from '@phosphor-icons/react/FolderSimpleDashed'
-import { FolderSimpleLock } from '@phosphor-icons/react/FolderSimpleLock'
-import { FolderSimpleMinus } from '@phosphor-icons/react/FolderSimpleMinus'
-import { FolderSimplePlus } from '@phosphor-icons/react/FolderSimplePlus'
-import { FolderSimpleStar } from '@phosphor-icons/react/FolderSimpleStar'
-import { FolderSimpleUser } from '@phosphor-icons/react/FolderSimpleUser'
-import { FolderStar } from '@phosphor-icons/react/FolderStar'
-import { FolderUser } from '@phosphor-icons/react/FolderUser'
-import { Football } from '@phosphor-icons/react/Football'
-import { FootballHelmet } from '@phosphor-icons/react/FootballHelmet'
-import { Footprints } from '@phosphor-icons/react/Footprints'
-import { ForkKnife } from '@phosphor-icons/react/ForkKnife'
-import { FourK } from '@phosphor-icons/react/FourK'
-import { FrameCorners } from '@phosphor-icons/react/FrameCorners'
-import { FramerLogo } from '@phosphor-icons/react/FramerLogo'
-import { Function } from '@phosphor-icons/react/Function'
-import { Funnel } from '@phosphor-icons/react/Funnel'
-import { FunnelSimple } from '@phosphor-icons/react/FunnelSimple'
-import { FunnelSimpleX } from '@phosphor-icons/react/FunnelSimpleX'
-import { FunnelX } from '@phosphor-icons/react/FunnelX'
-import { GameController } from '@phosphor-icons/react/GameController'
-import { Garage } from '@phosphor-icons/react/Garage'
-import { GasCan } from '@phosphor-icons/react/GasCan'
-import { GasPump } from '@phosphor-icons/react/GasPump'
-import { Gauge } from '@phosphor-icons/react/Gauge'
-import { Gavel } from '@phosphor-icons/react/Gavel'
-import { Gear } from '@phosphor-icons/react/Gear'
-import { GearFine } from '@phosphor-icons/react/GearFine'
-import { GearSix } from '@phosphor-icons/react/GearSix'
-import { GenderFemale } from '@phosphor-icons/react/GenderFemale'
-import { GenderIntersex } from '@phosphor-icons/react/GenderIntersex'
-import { GenderMale } from '@phosphor-icons/react/GenderMale'
-import { GenderNeuter } from '@phosphor-icons/react/GenderNeuter'
-import { GenderNonbinary } from '@phosphor-icons/react/GenderNonbinary'
-import { GenderTransgender } from '@phosphor-icons/react/GenderTransgender'
-import { Ghost } from '@phosphor-icons/react/Ghost'
-import { Gif } from '@phosphor-icons/react/Gif'
-import { Gift } from '@phosphor-icons/react/Gift'
-import { GitBranch } from '@phosphor-icons/react/GitBranch'
-import { GitCommit } from '@phosphor-icons/react/GitCommit'
-import { GitDiff } from '@phosphor-icons/react/GitDiff'
-import { GitFork } from '@phosphor-icons/react/GitFork'
-import { GithubLogo } from '@phosphor-icons/react/GithubLogo'
-import { GitlabLogo } from '@phosphor-icons/react/GitlabLogo'
-import { GitlabLogoSimple } from '@phosphor-icons/react/GitlabLogoSimple'
-import { GitMerge } from '@phosphor-icons/react/GitMerge'
-import { GitPullRequest } from '@phosphor-icons/react/GitPullRequest'
-import { Globe } from '@phosphor-icons/react/Globe'
-import { GlobeHemisphereEast } from '@phosphor-icons/react/GlobeHemisphereEast'
-import { GlobeHemisphereWest } from '@phosphor-icons/react/GlobeHemisphereWest'
-import { GlobeSimple } from '@phosphor-icons/react/GlobeSimple'
-import { GlobeSimpleX } from '@phosphor-icons/react/GlobeSimpleX'
-import { GlobeStand } from '@phosphor-icons/react/GlobeStand'
-import { GlobeX } from '@phosphor-icons/react/GlobeX'
-import { Goggles } from '@phosphor-icons/react/Goggles'
-import { Golf } from '@phosphor-icons/react/Golf'
-import { GoodreadsLogo } from '@phosphor-icons/react/GoodreadsLogo'
-import { GoogleCardboardLogo } from '@phosphor-icons/react/GoogleCardboardLogo'
-import { GoogleChromeLogo } from '@phosphor-icons/react/GoogleChromeLogo'
-import { GoogleDriveLogo } from '@phosphor-icons/react/GoogleDriveLogo'
-import { GoogleLogo } from '@phosphor-icons/react/GoogleLogo'
-import { GooglePhotosLogo } from '@phosphor-icons/react/GooglePhotosLogo'
-import { GooglePlayLogo } from '@phosphor-icons/react/GooglePlayLogo'
-import { GooglePodcastsLogo } from '@phosphor-icons/react/GooglePodcastsLogo'
-import { Gps } from '@phosphor-icons/react/Gps'
-import { GpsFix } from '@phosphor-icons/react/GpsFix'
-import { GpsSlash } from '@phosphor-icons/react/GpsSlash'
-import { Gradient } from '@phosphor-icons/react/Gradient'
-import { GraduationCap } from '@phosphor-icons/react/GraduationCap'
-import { Grains } from '@phosphor-icons/react/Grains'
-import { GrainsSlash } from '@phosphor-icons/react/GrainsSlash'
-import { Graph } from '@phosphor-icons/react/Graph'
-import { GraphicsCard } from '@phosphor-icons/react/GraphicsCard'
-import { GreaterThan } from '@phosphor-icons/react/GreaterThan'
-import { GreaterThanOrEqual } from '@phosphor-icons/react/GreaterThanOrEqual'
-import { GridFour } from '@phosphor-icons/react/GridFour'
-import { GridNine } from '@phosphor-icons/react/GridNine'
-import { Guitar } from '@phosphor-icons/react/Guitar'
-import { HairDryer } from '@phosphor-icons/react/HairDryer'
-import { Hamburger } from '@phosphor-icons/react/Hamburger'
-import { Hammer } from '@phosphor-icons/react/Hammer'
-import { Hand } from '@phosphor-icons/react/Hand'
-import { HandArrowDown } from '@phosphor-icons/react/HandArrowDown'
-import { HandArrowUp } from '@phosphor-icons/react/HandArrowUp'
-import { Handbag } from '@phosphor-icons/react/Handbag'
-import { HandbagSimple } from '@phosphor-icons/react/HandbagSimple'
-import { HandCoins } from '@phosphor-icons/react/HandCoins'
-import { HandDeposit } from '@phosphor-icons/react/HandDeposit'
-import { HandEye } from '@phosphor-icons/react/HandEye'
-import { HandFist } from '@phosphor-icons/react/HandFist'
-import { HandGrabbing } from '@phosphor-icons/react/HandGrabbing'
-import { HandHeart } from '@phosphor-icons/react/HandHeart'
-import { HandPalm } from '@phosphor-icons/react/HandPalm'
-import { HandPeace } from '@phosphor-icons/react/HandPeace'
-import { HandPointing } from '@phosphor-icons/react/HandPointing'
-import { HandsClapping } from '@phosphor-icons/react/HandsClapping'
-import { Handshake } from '@phosphor-icons/react/Handshake'
-import { HandSoap } from '@phosphor-icons/react/HandSoap'
-import { HandsPraying } from '@phosphor-icons/react/HandsPraying'
-import { HandSwipeLeft } from '@phosphor-icons/react/HandSwipeLeft'
-import { HandSwipeRight } from '@phosphor-icons/react/HandSwipeRight'
-import { HandTap } from '@phosphor-icons/react/HandTap'
-import { HandWaving } from '@phosphor-icons/react/HandWaving'
-import { HandWithdraw } from '@phosphor-icons/react/HandWithdraw'
-import { HardDrive } from '@phosphor-icons/react/HardDrive'
-import { HardDrives } from '@phosphor-icons/react/HardDrives'
-import { HardHat } from '@phosphor-icons/react/HardHat'
-import { Hash } from '@phosphor-icons/react/Hash'
-import { HashStraight } from '@phosphor-icons/react/HashStraight'
-import { HeadCircuit } from '@phosphor-icons/react/HeadCircuit'
-import { Headlights } from '@phosphor-icons/react/Headlights'
-import { Headphones } from '@phosphor-icons/react/Headphones'
-import { Headset } from '@phosphor-icons/react/Headset'
-import { Heart } from '@phosphor-icons/react/Heart'
-import { Heartbeat } from '@phosphor-icons/react/Heartbeat'
-import { HeartBreak } from '@phosphor-icons/react/HeartBreak'
-import { HeartHalf } from '@phosphor-icons/react/HeartHalf'
-import { HeartStraight } from '@phosphor-icons/react/HeartStraight'
-import { HeartStraightBreak } from '@phosphor-icons/react/HeartStraightBreak'
-import { Hexagon } from '@phosphor-icons/react/Hexagon'
-import { HighDefinition } from '@phosphor-icons/react/HighDefinition'
-import { HighHeel } from '@phosphor-icons/react/HighHeel'
-import { Highlighter } from '@phosphor-icons/react/Highlighter'
-import { HighlighterCircle } from '@phosphor-icons/react/HighlighterCircle'
-import { Hockey } from '@phosphor-icons/react/Hockey'
-import { Hoodie } from '@phosphor-icons/react/Hoodie'
-import { Horse } from '@phosphor-icons/react/Horse'
-import { Hospital } from '@phosphor-icons/react/Hospital'
-import { Hourglass } from '@phosphor-icons/react/Hourglass'
-import { HourglassHigh } from '@phosphor-icons/react/HourglassHigh'
-import { HourglassLow } from '@phosphor-icons/react/HourglassLow'
-import { HourglassMedium } from '@phosphor-icons/react/HourglassMedium'
-import { HourglassSimple } from '@phosphor-icons/react/HourglassSimple'
-import { HourglassSimpleHigh } from '@phosphor-icons/react/HourglassSimpleHigh'
-import { HourglassSimpleLow } from '@phosphor-icons/react/HourglassSimpleLow'
-import { HourglassSimpleMedium } from '@phosphor-icons/react/HourglassSimpleMedium'
-import { House } from '@phosphor-icons/react/House'
-import { HouseLine } from '@phosphor-icons/react/HouseLine'
-import { HouseSimple } from '@phosphor-icons/react/HouseSimple'
-import { Hurricane } from '@phosphor-icons/react/Hurricane'
-import { IceCream } from '@phosphor-icons/react/IceCream'
-import { IdentificationBadge } from '@phosphor-icons/react/IdentificationBadge'
-import { IdentificationCard } from '@phosphor-icons/react/IdentificationCard'
-import { Image } from '@phosphor-icons/react/Image'
-import { ImageBroken } from '@phosphor-icons/react/ImageBroken'
-import { Images } from '@phosphor-icons/react/Images'
-import { ImageSquare } from '@phosphor-icons/react/ImageSquare'
-import { ImagesSquare } from '@phosphor-icons/react/ImagesSquare'
-import { Infinity as InfinityIcon } from '@phosphor-icons/react/Infinity'
-import { Info } from '@phosphor-icons/react/Info'
-import { InstagramLogo } from '@phosphor-icons/react/InstagramLogo'
-import { Intersect } from '@phosphor-icons/react/Intersect'
-import { Intersection } from '@phosphor-icons/react/Intersection'
-import { IntersectSquare } from '@phosphor-icons/react/IntersectSquare'
-import { IntersectThree } from '@phosphor-icons/react/IntersectThree'
-import { Invoice } from '@phosphor-icons/react/Invoice'
-import { Island } from '@phosphor-icons/react/Island'
-import { Jar } from '@phosphor-icons/react/Jar'
-import { JarLabel } from '@phosphor-icons/react/JarLabel'
-import { Jeep } from '@phosphor-icons/react/Jeep'
-import { Joystick } from '@phosphor-icons/react/Joystick'
-import { Kanban } from '@phosphor-icons/react/Kanban'
-import { Key } from '@phosphor-icons/react/Key'
-import { Keyboard } from '@phosphor-icons/react/Keyboard'
-import { Keyhole } from '@phosphor-icons/react/Keyhole'
-import { KeyReturn } from '@phosphor-icons/react/KeyReturn'
-import { Knife } from '@phosphor-icons/react/Knife'
-import { Ladder } from '@phosphor-icons/react/Ladder'
-import { LadderSimple } from '@phosphor-icons/react/LadderSimple'
-import { Lamp } from '@phosphor-icons/react/Lamp'
-import { LampPendant } from '@phosphor-icons/react/LampPendant'
-import { Laptop } from '@phosphor-icons/react/Laptop'
-import { Lasso } from '@phosphor-icons/react/Lasso'
-import { LastfmLogo } from '@phosphor-icons/react/LastfmLogo'
-import { Layout } from '@phosphor-icons/react/Layout'
-import { Leaf } from '@phosphor-icons/react/Leaf'
-import { Lectern } from '@phosphor-icons/react/Lectern'
-import { Lego } from '@phosphor-icons/react/Lego'
-import { LegoSmiley } from '@phosphor-icons/react/LegoSmiley'
-import { LessThan } from '@phosphor-icons/react/LessThan'
-import { LessThanOrEqual } from '@phosphor-icons/react/LessThanOrEqual'
-import { LetterCircleH } from '@phosphor-icons/react/LetterCircleH'
-import { LetterCircleP } from '@phosphor-icons/react/LetterCircleP'
-import { LetterCircleV } from '@phosphor-icons/react/LetterCircleV'
-import { Lifebuoy } from '@phosphor-icons/react/Lifebuoy'
-import { Lightbulb } from '@phosphor-icons/react/Lightbulb'
-import { LightbulbFilament } from '@phosphor-icons/react/LightbulbFilament'
-import { Lighthouse } from '@phosphor-icons/react/Lighthouse'
-import { Lightning } from '@phosphor-icons/react/Lightning'
-import { LightningA } from '@phosphor-icons/react/LightningA'
-import { LightningSlash } from '@phosphor-icons/react/LightningSlash'
-import { LineSegment } from '@phosphor-icons/react/LineSegment'
-import { LineSegments } from '@phosphor-icons/react/LineSegments'
-import { LineVertical } from '@phosphor-icons/react/LineVertical'
-import { Link } from '@phosphor-icons/react/Link'
-import { LinkBreak } from '@phosphor-icons/react/LinkBreak'
-import { LinkedinLogo } from '@phosphor-icons/react/LinkedinLogo'
-import { LinkSimple } from '@phosphor-icons/react/LinkSimple'
-import { LinkSimpleBreak } from '@phosphor-icons/react/LinkSimpleBreak'
-import { LinkSimpleHorizontal } from '@phosphor-icons/react/LinkSimpleHorizontal'
-import { LinkSimpleHorizontalBreak } from '@phosphor-icons/react/LinkSimpleHorizontalBreak'
-import { LinktreeLogo } from '@phosphor-icons/react/LinktreeLogo'
-import { LinuxLogo } from '@phosphor-icons/react/LinuxLogo'
-import { List } from '@phosphor-icons/react/List'
-import { ListBullets } from '@phosphor-icons/react/ListBullets'
-import { ListChecks } from '@phosphor-icons/react/ListChecks'
-import { ListDashes } from '@phosphor-icons/react/ListDashes'
-import { ListHeart } from '@phosphor-icons/react/ListHeart'
-import { ListMagnifyingGlass } from '@phosphor-icons/react/ListMagnifyingGlass'
-import { ListNumbers } from '@phosphor-icons/react/ListNumbers'
-import { ListPlus } from '@phosphor-icons/react/ListPlus'
-import { ListStar } from '@phosphor-icons/react/ListStar'
-import { Lock } from '@phosphor-icons/react/Lock'
-import { Lockers } from '@phosphor-icons/react/Lockers'
-import { LockKey } from '@phosphor-icons/react/LockKey'
-import { LockKeyOpen } from '@phosphor-icons/react/LockKeyOpen'
-import { LockLaminated } from '@phosphor-icons/react/LockLaminated'
-import { LockLaminatedOpen } from '@phosphor-icons/react/LockLaminatedOpen'
-import { LockOpen } from '@phosphor-icons/react/LockOpen'
-import { LockSimple } from '@phosphor-icons/react/LockSimple'
-import { LockSimpleOpen } from '@phosphor-icons/react/LockSimpleOpen'
-import { Log } from '@phosphor-icons/react/Log'
-import { MagicWand } from '@phosphor-icons/react/MagicWand'
-import { Magnet } from '@phosphor-icons/react/Magnet'
-import { MagnetStraight } from '@phosphor-icons/react/MagnetStraight'
-import { MagnifyingGlass } from '@phosphor-icons/react/MagnifyingGlass'
-import { MagnifyingGlassMinus } from '@phosphor-icons/react/MagnifyingGlassMinus'
-import { MagnifyingGlassPlus } from '@phosphor-icons/react/MagnifyingGlassPlus'
-import { Mailbox } from '@phosphor-icons/react/Mailbox'
-import { MapPin } from '@phosphor-icons/react/MapPin'
-import { MapPinArea } from '@phosphor-icons/react/MapPinArea'
-import { MapPinLine } from '@phosphor-icons/react/MapPinLine'
-import { MapPinPlus } from '@phosphor-icons/react/MapPinPlus'
-import { MapPinSimple } from '@phosphor-icons/react/MapPinSimple'
-import { MapPinSimpleArea } from '@phosphor-icons/react/MapPinSimpleArea'
-import { MapPinSimpleLine } from '@phosphor-icons/react/MapPinSimpleLine'
-import { MapTrifold } from '@phosphor-icons/react/MapTrifold'
-import { MarkdownLogo } from '@phosphor-icons/react/MarkdownLogo'
-import { MarkerCircle } from '@phosphor-icons/react/MarkerCircle'
-import { Martini } from '@phosphor-icons/react/Martini'
-import { MaskHappy } from '@phosphor-icons/react/MaskHappy'
-import { MaskSad } from '@phosphor-icons/react/MaskSad'
-import { MastodonLogo } from '@phosphor-icons/react/MastodonLogo'
-import { MathOperations } from '@phosphor-icons/react/MathOperations'
-import { MatrixLogo } from '@phosphor-icons/react/MatrixLogo'
-import { Medal } from '@phosphor-icons/react/Medal'
-import { MedalMilitary } from '@phosphor-icons/react/MedalMilitary'
-import { MediumLogo } from '@phosphor-icons/react/MediumLogo'
-import { Megaphone } from '@phosphor-icons/react/Megaphone'
-import { MegaphoneSimple } from '@phosphor-icons/react/MegaphoneSimple'
-import { MemberOf } from '@phosphor-icons/react/MemberOf'
-import { Memory } from '@phosphor-icons/react/Memory'
-import { MessengerLogo } from '@phosphor-icons/react/MessengerLogo'
-import { MetaLogo } from '@phosphor-icons/react/MetaLogo'
-import { Meteor } from '@phosphor-icons/react/Meteor'
-import { Metronome } from '@phosphor-icons/react/Metronome'
-import { Microphone } from '@phosphor-icons/react/Microphone'
-import { MicrophoneSlash } from '@phosphor-icons/react/MicrophoneSlash'
-import { MicrophoneStage } from '@phosphor-icons/react/MicrophoneStage'
-import { Microscope } from '@phosphor-icons/react/Microscope'
-import { MicrosoftExcelLogo } from '@phosphor-icons/react/MicrosoftExcelLogo'
-import { MicrosoftOutlookLogo } from '@phosphor-icons/react/MicrosoftOutlookLogo'
-import { MicrosoftPowerpointLogo } from '@phosphor-icons/react/MicrosoftPowerpointLogo'
-import { MicrosoftTeamsLogo } from '@phosphor-icons/react/MicrosoftTeamsLogo'
-import { MicrosoftWordLogo } from '@phosphor-icons/react/MicrosoftWordLogo'
-import { Minus } from '@phosphor-icons/react/Minus'
-import { MinusCircle } from '@phosphor-icons/react/MinusCircle'
-import { MinusSquare } from '@phosphor-icons/react/MinusSquare'
-import { Money } from '@phosphor-icons/react/Money'
-import { MoneyWavy } from '@phosphor-icons/react/MoneyWavy'
-import { Monitor } from '@phosphor-icons/react/Monitor'
-import { MonitorArrowUp } from '@phosphor-icons/react/MonitorArrowUp'
-import { MonitorPlay } from '@phosphor-icons/react/MonitorPlay'
-import { Moon } from '@phosphor-icons/react/Moon'
-import { MoonStars } from '@phosphor-icons/react/MoonStars'
-import { Moped } from '@phosphor-icons/react/Moped'
-import { MopedFront } from '@phosphor-icons/react/MopedFront'
-import { Mosque } from '@phosphor-icons/react/Mosque'
-import { Motorcycle } from '@phosphor-icons/react/Motorcycle'
-import { Mountains } from '@phosphor-icons/react/Mountains'
-import { Mouse } from '@phosphor-icons/react/Mouse'
-import { MouseLeftClick } from '@phosphor-icons/react/MouseLeftClick'
-import { MouseMiddleClick } from '@phosphor-icons/react/MouseMiddleClick'
-import { MouseRightClick } from '@phosphor-icons/react/MouseRightClick'
-import { MouseScroll } from '@phosphor-icons/react/MouseScroll'
-import { MouseSimple } from '@phosphor-icons/react/MouseSimple'
-import { MusicNote } from '@phosphor-icons/react/MusicNote'
-import { MusicNotes } from '@phosphor-icons/react/MusicNotes'
-import { MusicNoteSimple } from '@phosphor-icons/react/MusicNoteSimple'
-import { MusicNotesMinus } from '@phosphor-icons/react/MusicNotesMinus'
-import { MusicNotesPlus } from '@phosphor-icons/react/MusicNotesPlus'
-import { MusicNotesSimple } from '@phosphor-icons/react/MusicNotesSimple'
-import { NavigationArrow } from '@phosphor-icons/react/NavigationArrow'
-import { Needle } from '@phosphor-icons/react/Needle'
-import { Network } from '@phosphor-icons/react/Network'
-import { NetworkSlash } from '@phosphor-icons/react/NetworkSlash'
-import { NetworkX } from '@phosphor-icons/react/NetworkX'
-import { Newspaper } from '@phosphor-icons/react/Newspaper'
-import { NewspaperClipping } from '@phosphor-icons/react/NewspaperClipping'
-import { Notches } from '@phosphor-icons/react/Notches'
-import { Note } from '@phosphor-icons/react/Note'
-import { NoteBlank } from '@phosphor-icons/react/NoteBlank'
-import { Notebook } from '@phosphor-icons/react/Notebook'
-import { Notepad } from '@phosphor-icons/react/Notepad'
-import { NotePencil } from '@phosphor-icons/react/NotePencil'
-import { NotEquals } from '@phosphor-icons/react/NotEquals'
-import { Notification } from '@phosphor-icons/react/Notification'
-import { NotionLogo } from '@phosphor-icons/react/NotionLogo'
-import { NotMemberOf } from '@phosphor-icons/react/NotMemberOf'
-import { NotSubsetOf } from '@phosphor-icons/react/NotSubsetOf'
-import { NotSupersetOf } from '@phosphor-icons/react/NotSupersetOf'
-import { NuclearPlant } from '@phosphor-icons/react/NuclearPlant'
-import { NumberCircleEight } from '@phosphor-icons/react/NumberCircleEight'
-import { NumberCircleFive } from '@phosphor-icons/react/NumberCircleFive'
-import { NumberCircleFour } from '@phosphor-icons/react/NumberCircleFour'
-import { NumberCircleNine } from '@phosphor-icons/react/NumberCircleNine'
-import { NumberCircleOne } from '@phosphor-icons/react/NumberCircleOne'
-import { NumberCircleSeven } from '@phosphor-icons/react/NumberCircleSeven'
-import { NumberCircleSix } from '@phosphor-icons/react/NumberCircleSix'
-import { NumberCircleThree } from '@phosphor-icons/react/NumberCircleThree'
-import { NumberCircleTwo } from '@phosphor-icons/react/NumberCircleTwo'
-import { NumberCircleZero } from '@phosphor-icons/react/NumberCircleZero'
-import { NumberEight } from '@phosphor-icons/react/NumberEight'
-import { NumberFive } from '@phosphor-icons/react/NumberFive'
-import { NumberFour } from '@phosphor-icons/react/NumberFour'
-import { NumberNine } from '@phosphor-icons/react/NumberNine'
-import { NumberOne } from '@phosphor-icons/react/NumberOne'
-import { NumberSeven } from '@phosphor-icons/react/NumberSeven'
-import { NumberSix } from '@phosphor-icons/react/NumberSix'
-import { NumberSquareEight } from '@phosphor-icons/react/NumberSquareEight'
-import { NumberSquareFive } from '@phosphor-icons/react/NumberSquareFive'
-import { NumberSquareFour } from '@phosphor-icons/react/NumberSquareFour'
-import { NumberSquareNine } from '@phosphor-icons/react/NumberSquareNine'
-import { NumberSquareOne } from '@phosphor-icons/react/NumberSquareOne'
-import { NumberSquareSeven } from '@phosphor-icons/react/NumberSquareSeven'
-import { NumberSquareSix } from '@phosphor-icons/react/NumberSquareSix'
-import { NumberSquareThree } from '@phosphor-icons/react/NumberSquareThree'
-import { NumberSquareTwo } from '@phosphor-icons/react/NumberSquareTwo'
-import { NumberSquareZero } from '@phosphor-icons/react/NumberSquareZero'
-import { NumberThree } from '@phosphor-icons/react/NumberThree'
-import { NumberTwo } from '@phosphor-icons/react/NumberTwo'
-import { NumberZero } from '@phosphor-icons/react/NumberZero'
-import { Numpad } from '@phosphor-icons/react/Numpad'
-import { Nut } from '@phosphor-icons/react/Nut'
-import { NyTimesLogo } from '@phosphor-icons/react/NyTimesLogo'
-import { Octagon } from '@phosphor-icons/react/Octagon'
-import { OfficeChair } from '@phosphor-icons/react/OfficeChair'
-import { Onigiri } from '@phosphor-icons/react/Onigiri'
-import { OpenAiLogo } from '@phosphor-icons/react/OpenAiLogo'
-import { Option } from '@phosphor-icons/react/Option'
-import { Orange } from '@phosphor-icons/react/Orange'
-import { OrangeSlice } from '@phosphor-icons/react/OrangeSlice'
-import { Oven } from '@phosphor-icons/react/Oven'
-import { Package } from '@phosphor-icons/react/Package'
-import { PaintBrush } from '@phosphor-icons/react/PaintBrush'
-import { PaintBrushBroad } from '@phosphor-icons/react/PaintBrushBroad'
-import { PaintBrushHousehold } from '@phosphor-icons/react/PaintBrushHousehold'
-import { PaintBucket } from '@phosphor-icons/react/PaintBucket'
-import { PaintRoller } from '@phosphor-icons/react/PaintRoller'
-import { Palette } from '@phosphor-icons/react/Palette'
-import { Panorama } from '@phosphor-icons/react/Panorama'
-import { Pants } from '@phosphor-icons/react/Pants'
-import { Paperclip } from '@phosphor-icons/react/Paperclip'
-import { PaperclipHorizontal } from '@phosphor-icons/react/PaperclipHorizontal'
-import { PaperPlane } from '@phosphor-icons/react/PaperPlane'
-import { PaperPlaneRight } from '@phosphor-icons/react/PaperPlaneRight'
-import { PaperPlaneTilt } from '@phosphor-icons/react/PaperPlaneTilt'
-import { Parachute } from '@phosphor-icons/react/Parachute'
-import { Paragraph } from '@phosphor-icons/react/Paragraph'
-import { Parallelogram } from '@phosphor-icons/react/Parallelogram'
-import { Park } from '@phosphor-icons/react/Park'
-import { Password } from '@phosphor-icons/react/Password'
-import { Path } from '@phosphor-icons/react/Path'
-import { PatreonLogo } from '@phosphor-icons/react/PatreonLogo'
-import { Pause } from '@phosphor-icons/react/Pause'
-import { PauseCircle } from '@phosphor-icons/react/PauseCircle'
-import { PawPrint } from '@phosphor-icons/react/PawPrint'
-import { PaypalLogo } from '@phosphor-icons/react/PaypalLogo'
-import { Peace } from '@phosphor-icons/react/Peace'
-import { Pen } from '@phosphor-icons/react/Pen'
-import { Pencil } from '@phosphor-icons/react/Pencil'
-import { PencilCircle } from '@phosphor-icons/react/PencilCircle'
-import { PencilLine } from '@phosphor-icons/react/PencilLine'
-import { PencilRuler } from '@phosphor-icons/react/PencilRuler'
-import { PencilSimple } from '@phosphor-icons/react/PencilSimple'
-import { PencilSimpleLine } from '@phosphor-icons/react/PencilSimpleLine'
-import { PencilSimpleSlash } from '@phosphor-icons/react/PencilSimpleSlash'
-import { PencilSlash } from '@phosphor-icons/react/PencilSlash'
-import { PenNib } from '@phosphor-icons/react/PenNib'
-import { PenNibStraight } from '@phosphor-icons/react/PenNibStraight'
-import { Pentagon } from '@phosphor-icons/react/Pentagon'
-import { Pentagram } from '@phosphor-icons/react/Pentagram'
-import { Pepper } from '@phosphor-icons/react/Pepper'
-import { Percent } from '@phosphor-icons/react/Percent'
-import { Person } from '@phosphor-icons/react/Person'
-import { PersonArmsSpread } from '@phosphor-icons/react/PersonArmsSpread'
-import { PersonSimple } from '@phosphor-icons/react/PersonSimple'
-import { PersonSimpleBike } from '@phosphor-icons/react/PersonSimpleBike'
-import { PersonSimpleCircle } from '@phosphor-icons/react/PersonSimpleCircle'
-import { PersonSimpleHike } from '@phosphor-icons/react/PersonSimpleHike'
-import { PersonSimpleRun } from '@phosphor-icons/react/PersonSimpleRun'
-import { PersonSimpleSki } from '@phosphor-icons/react/PersonSimpleSki'
-import { PersonSimpleSnowboard } from '@phosphor-icons/react/PersonSimpleSnowboard'
-import { PersonSimpleSwim } from '@phosphor-icons/react/PersonSimpleSwim'
-import { PersonSimpleTaiChi } from '@phosphor-icons/react/PersonSimpleTaiChi'
-import { PersonSimpleThrow } from '@phosphor-icons/react/PersonSimpleThrow'
-import { PersonSimpleWalk } from '@phosphor-icons/react/PersonSimpleWalk'
-import { Perspective } from '@phosphor-icons/react/Perspective'
-import { Phone } from '@phosphor-icons/react/Phone'
-import { PhoneCall } from '@phosphor-icons/react/PhoneCall'
-import { PhoneDisconnect } from '@phosphor-icons/react/PhoneDisconnect'
-import { PhoneIncoming } from '@phosphor-icons/react/PhoneIncoming'
-import { PhoneList } from '@phosphor-icons/react/PhoneList'
-import { PhoneOutgoing } from '@phosphor-icons/react/PhoneOutgoing'
-import { PhonePause } from '@phosphor-icons/react/PhonePause'
-import { PhonePlus } from '@phosphor-icons/react/PhonePlus'
-import { PhoneSlash } from '@phosphor-icons/react/PhoneSlash'
-import { PhoneTransfer } from '@phosphor-icons/react/PhoneTransfer'
-import { PhoneX } from '@phosphor-icons/react/PhoneX'
-import { PhosphorLogo } from '@phosphor-icons/react/PhosphorLogo'
-import { Pi } from '@phosphor-icons/react/Pi'
-import { PianoKeys } from '@phosphor-icons/react/PianoKeys'
-import { PicnicTable } from '@phosphor-icons/react/PicnicTable'
-import { PictureInPicture } from '@phosphor-icons/react/PictureInPicture'
-import { PiggyBank } from '@phosphor-icons/react/PiggyBank'
-import { Pill } from '@phosphor-icons/react/Pill'
-import { PingPong } from '@phosphor-icons/react/PingPong'
-import { PinterestLogo } from '@phosphor-icons/react/PinterestLogo'
-import { PintGlass } from '@phosphor-icons/react/PintGlass'
-import { Pinwheel } from '@phosphor-icons/react/Pinwheel'
-import { Pipe } from '@phosphor-icons/react/Pipe'
-import { PipeWrench } from '@phosphor-icons/react/PipeWrench'
-import { PixLogo } from '@phosphor-icons/react/PixLogo'
-import { Pizza } from '@phosphor-icons/react/Pizza'
-import { Placeholder } from '@phosphor-icons/react/Placeholder'
-import { Planet } from '@phosphor-icons/react/Planet'
-import { Plant } from '@phosphor-icons/react/Plant'
-import { Play } from '@phosphor-icons/react/Play'
-import { PlayCircle } from '@phosphor-icons/react/PlayCircle'
-import { Playlist } from '@phosphor-icons/react/Playlist'
-import { PlayPause } from '@phosphor-icons/react/PlayPause'
-import { Plug } from '@phosphor-icons/react/Plug'
-import { PlugCharging } from '@phosphor-icons/react/PlugCharging'
-import { Plugs } from '@phosphor-icons/react/Plugs'
-import { PlugsConnected } from '@phosphor-icons/react/PlugsConnected'
-import { Plus } from '@phosphor-icons/react/Plus'
-import { PlusCircle } from '@phosphor-icons/react/PlusCircle'
-import { PlusMinus } from '@phosphor-icons/react/PlusMinus'
-import { PlusSquare } from '@phosphor-icons/react/PlusSquare'
-import { PokerChip } from '@phosphor-icons/react/PokerChip'
-import { PoliceCar } from '@phosphor-icons/react/PoliceCar'
-import { Polygon } from '@phosphor-icons/react/Polygon'
-import { Popcorn } from '@phosphor-icons/react/Popcorn'
-import { Popsicle } from '@phosphor-icons/react/Popsicle'
-import { PottedPlant } from '@phosphor-icons/react/PottedPlant'
-import { Power } from '@phosphor-icons/react/Power'
-import { Prescription } from '@phosphor-icons/react/Prescription'
-import { Presentation } from '@phosphor-icons/react/Presentation'
-import { PresentationChart } from '@phosphor-icons/react/PresentationChart'
-import { Printer } from '@phosphor-icons/react/Printer'
-import { Prohibit } from '@phosphor-icons/react/Prohibit'
-import { ProhibitInset } from '@phosphor-icons/react/ProhibitInset'
-import { ProjectorScreen } from '@phosphor-icons/react/ProjectorScreen'
-import { ProjectorScreenChart } from '@phosphor-icons/react/ProjectorScreenChart'
-import { Pulse } from '@phosphor-icons/react/Pulse'
-import { PushPin } from '@phosphor-icons/react/PushPin'
-import { PushPinSimple } from '@phosphor-icons/react/PushPinSimple'
-import { PushPinSimpleSlash } from '@phosphor-icons/react/PushPinSimpleSlash'
-import { PushPinSlash } from '@phosphor-icons/react/PushPinSlash'
-import { PuzzlePiece } from '@phosphor-icons/react/PuzzlePiece'
-import { QrCode } from '@phosphor-icons/react/QrCode'
-import { Question } from '@phosphor-icons/react/Question'
-import { QuestionMark } from '@phosphor-icons/react/QuestionMark'
-import { Queue } from '@phosphor-icons/react/Queue'
-import { Quotes } from '@phosphor-icons/react/Quotes'
-import { Rabbit } from '@phosphor-icons/react/Rabbit'
-import { Racquet } from '@phosphor-icons/react/Racquet'
-import { Radical } from '@phosphor-icons/react/Radical'
-import { Radio } from '@phosphor-icons/react/Radio'
-import { Radioactive } from '@phosphor-icons/react/Radioactive'
-import { RadioButton } from '@phosphor-icons/react/RadioButton'
-import { Rainbow } from '@phosphor-icons/react/Rainbow'
-import { RainbowCloud } from '@phosphor-icons/react/RainbowCloud'
-import { Ranking } from '@phosphor-icons/react/Ranking'
-import { ReadCvLogo } from '@phosphor-icons/react/ReadCvLogo'
-import { Receipt } from '@phosphor-icons/react/Receipt'
-import { ReceiptX } from '@phosphor-icons/react/ReceiptX'
-import { Record } from '@phosphor-icons/react/Record'
-import { Rectangle } from '@phosphor-icons/react/Rectangle'
-import { RectangleDashed } from '@phosphor-icons/react/RectangleDashed'
-import { Recycle } from '@phosphor-icons/react/Recycle'
-import { RedditLogo } from '@phosphor-icons/react/RedditLogo'
-import { Repeat } from '@phosphor-icons/react/Repeat'
-import { RepeatOnce } from '@phosphor-icons/react/RepeatOnce'
-import { ReplitLogo } from '@phosphor-icons/react/ReplitLogo'
-import { Resize } from '@phosphor-icons/react/Resize'
-import { Rewind } from '@phosphor-icons/react/Rewind'
-import { RewindCircle } from '@phosphor-icons/react/RewindCircle'
-import { RoadHorizon } from '@phosphor-icons/react/RoadHorizon'
-import { Robot } from '@phosphor-icons/react/Robot'
-import { Rocket } from '@phosphor-icons/react/Rocket'
-import { RocketLaunch } from '@phosphor-icons/react/RocketLaunch'
-import { Rows } from '@phosphor-icons/react/Rows'
-import { RowsPlusBottom } from '@phosphor-icons/react/RowsPlusBottom'
-import { RowsPlusTop } from '@phosphor-icons/react/RowsPlusTop'
-import { Rss } from '@phosphor-icons/react/Rss'
-import { RssSimple } from '@phosphor-icons/react/RssSimple'
-import { Rug } from '@phosphor-icons/react/Rug'
-import { Ruler } from '@phosphor-icons/react/Ruler'
-import { Sailboat } from '@phosphor-icons/react/Sailboat'
-import { Scales } from '@phosphor-icons/react/Scales'
-import { Scan } from '@phosphor-icons/react/Scan'
-import { ScanSmiley } from '@phosphor-icons/react/ScanSmiley'
-import { Scissors } from '@phosphor-icons/react/Scissors'
-import { Scooter } from '@phosphor-icons/react/Scooter'
-import { Screencast } from '@phosphor-icons/react/Screencast'
-import { Screwdriver } from '@phosphor-icons/react/Screwdriver'
-import { Scribble } from '@phosphor-icons/react/Scribble'
-import { ScribbleLoop } from '@phosphor-icons/react/ScribbleLoop'
-import { Scroll } from '@phosphor-icons/react/Scroll'
-import { Seal } from '@phosphor-icons/react/Seal'
-import { SealCheck } from '@phosphor-icons/react/SealCheck'
-import { SealPercent } from '@phosphor-icons/react/SealPercent'
-import { SealQuestion } from '@phosphor-icons/react/SealQuestion'
-import { SealWarning } from '@phosphor-icons/react/SealWarning'
-import { Seat } from '@phosphor-icons/react/Seat'
-import { Seatbelt } from '@phosphor-icons/react/Seatbelt'
-import { SecurityCamera } from '@phosphor-icons/react/SecurityCamera'
-import { Selection } from '@phosphor-icons/react/Selection'
-import { SelectionAll } from '@phosphor-icons/react/SelectionAll'
-import { SelectionBackground } from '@phosphor-icons/react/SelectionBackground'
-import { SelectionForeground } from '@phosphor-icons/react/SelectionForeground'
-import { SelectionInverse } from '@phosphor-icons/react/SelectionInverse'
-import { SelectionPlus } from '@phosphor-icons/react/SelectionPlus'
-import { SelectionSlash } from '@phosphor-icons/react/SelectionSlash'
-import { Shapes } from '@phosphor-icons/react/Shapes'
-import { Share } from '@phosphor-icons/react/Share'
-import { ShareFat } from '@phosphor-icons/react/ShareFat'
-import { ShareNetwork } from '@phosphor-icons/react/ShareNetwork'
-import { Shield } from '@phosphor-icons/react/Shield'
-import { ShieldCheck } from '@phosphor-icons/react/ShieldCheck'
-import { ShieldCheckered } from '@phosphor-icons/react/ShieldCheckered'
-import { ShieldChevron } from '@phosphor-icons/react/ShieldChevron'
-import { ShieldPlus } from '@phosphor-icons/react/ShieldPlus'
-import { ShieldSlash } from '@phosphor-icons/react/ShieldSlash'
-import { ShieldStar } from '@phosphor-icons/react/ShieldStar'
-import { ShieldWarning } from '@phosphor-icons/react/ShieldWarning'
-import { ShippingContainer } from '@phosphor-icons/react/ShippingContainer'
-import { ShirtFolded } from '@phosphor-icons/react/ShirtFolded'
-import { ShootingStar } from '@phosphor-icons/react/ShootingStar'
-import { ShoppingBag } from '@phosphor-icons/react/ShoppingBag'
-import { ShoppingBagOpen } from '@phosphor-icons/react/ShoppingBagOpen'
-import { ShoppingCart } from '@phosphor-icons/react/ShoppingCart'
-import { ShoppingCartSimple } from '@phosphor-icons/react/ShoppingCartSimple'
-import { Shovel } from '@phosphor-icons/react/Shovel'
-import { Shower } from '@phosphor-icons/react/Shower'
-import { Shrimp } from '@phosphor-icons/react/Shrimp'
-import { Shuffle } from '@phosphor-icons/react/Shuffle'
-import { ShuffleAngular } from '@phosphor-icons/react/ShuffleAngular'
-import { ShuffleSimple } from '@phosphor-icons/react/ShuffleSimple'
-import { Sidebar } from '@phosphor-icons/react/Sidebar'
-import { SidebarSimple } from '@phosphor-icons/react/SidebarSimple'
-import { Sigma } from '@phosphor-icons/react/Sigma'
-import { Signature } from '@phosphor-icons/react/Signature'
-import { SignIn } from '@phosphor-icons/react/SignIn'
-import { SignOut } from '@phosphor-icons/react/SignOut'
-import { Signpost } from '@phosphor-icons/react/Signpost'
-import { SimCard } from '@phosphor-icons/react/SimCard'
-import { Siren } from '@phosphor-icons/react/Siren'
-import { SketchLogo } from '@phosphor-icons/react/SketchLogo'
-import { SkipBack } from '@phosphor-icons/react/SkipBack'
-import { SkipBackCircle } from '@phosphor-icons/react/SkipBackCircle'
-import { SkipForward } from '@phosphor-icons/react/SkipForward'
-import { SkipForwardCircle } from '@phosphor-icons/react/SkipForwardCircle'
-import { Skull } from '@phosphor-icons/react/Skull'
-import { SkypeLogo } from '@phosphor-icons/react/SkypeLogo'
-import { SlackLogo } from '@phosphor-icons/react/SlackLogo'
-import { Sliders } from '@phosphor-icons/react/Sliders'
-import { SlidersHorizontal } from '@phosphor-icons/react/SlidersHorizontal'
-import { Slideshow } from '@phosphor-icons/react/Slideshow'
-import { Smiley } from '@phosphor-icons/react/Smiley'
-import { SmileyAngry } from '@phosphor-icons/react/SmileyAngry'
-import { SmileyBlank } from '@phosphor-icons/react/SmileyBlank'
-import { SmileyMeh } from '@phosphor-icons/react/SmileyMeh'
-import { SmileyMelting } from '@phosphor-icons/react/SmileyMelting'
-import { SmileyNervous } from '@phosphor-icons/react/SmileyNervous'
-import { SmileySad } from '@phosphor-icons/react/SmileySad'
-import { SmileySticker } from '@phosphor-icons/react/SmileySticker'
-import { SmileyWink } from '@phosphor-icons/react/SmileyWink'
-import { SmileyXEyes } from '@phosphor-icons/react/SmileyXEyes'
-import { SnapchatLogo } from '@phosphor-icons/react/SnapchatLogo'
-import { Sneaker } from '@phosphor-icons/react/Sneaker'
-import { SneakerMove } from '@phosphor-icons/react/SneakerMove'
-import { Snowflake } from '@phosphor-icons/react/Snowflake'
-import { SoccerBall } from '@phosphor-icons/react/SoccerBall'
-import { Sock } from '@phosphor-icons/react/Sock'
-import { SolarPanel } from '@phosphor-icons/react/SolarPanel'
-import { SolarRoof } from '@phosphor-icons/react/SolarRoof'
-import { SortAscending } from '@phosphor-icons/react/SortAscending'
-import { SortDescending } from '@phosphor-icons/react/SortDescending'
-import { SoundcloudLogo } from '@phosphor-icons/react/SoundcloudLogo'
-import { Spade } from '@phosphor-icons/react/Spade'
-import { Sparkle } from '@phosphor-icons/react/Sparkle'
-import { SpeakerHifi } from '@phosphor-icons/react/SpeakerHifi'
-import { SpeakerHigh } from '@phosphor-icons/react/SpeakerHigh'
-import { SpeakerLow } from '@phosphor-icons/react/SpeakerLow'
-import { SpeakerNone } from '@phosphor-icons/react/SpeakerNone'
-import { SpeakerSimpleHigh } from '@phosphor-icons/react/SpeakerSimpleHigh'
-import { SpeakerSimpleLow } from '@phosphor-icons/react/SpeakerSimpleLow'
-import { SpeakerSimpleNone } from '@phosphor-icons/react/SpeakerSimpleNone'
-import { SpeakerSimpleSlash } from '@phosphor-icons/react/SpeakerSimpleSlash'
-import { SpeakerSimpleX } from '@phosphor-icons/react/SpeakerSimpleX'
-import { SpeakerSlash } from '@phosphor-icons/react/SpeakerSlash'
-import { SpeakerX } from '@phosphor-icons/react/SpeakerX'
-import { Speedometer } from '@phosphor-icons/react/Speedometer'
-import { Sphere } from '@phosphor-icons/react/Sphere'
-import { Spinner } from '@phosphor-icons/react/Spinner'
-import { SpinnerBall } from '@phosphor-icons/react/SpinnerBall'
-import { SpinnerGap } from '@phosphor-icons/react/SpinnerGap'
-import { Spiral } from '@phosphor-icons/react/Spiral'
-import { SplitHorizontal } from '@phosphor-icons/react/SplitHorizontal'
-import { SplitVertical } from '@phosphor-icons/react/SplitVertical'
-import { SpotifyLogo } from '@phosphor-icons/react/SpotifyLogo'
-import { SprayBottle } from '@phosphor-icons/react/SprayBottle'
-import { Square } from '@phosphor-icons/react/Square'
-import { SquareHalf } from '@phosphor-icons/react/SquareHalf'
-import { SquareHalfBottom } from '@phosphor-icons/react/SquareHalfBottom'
-import { SquareLogo } from '@phosphor-icons/react/SquareLogo'
-import { SquaresFour } from '@phosphor-icons/react/SquaresFour'
-import { SquareSplitHorizontal } from '@phosphor-icons/react/SquareSplitHorizontal'
-import { SquareSplitVertical } from '@phosphor-icons/react/SquareSplitVertical'
-import { Stack } from '@phosphor-icons/react/Stack'
-import { StackMinus } from '@phosphor-icons/react/StackMinus'
-import { StackOverflowLogo } from '@phosphor-icons/react/StackOverflowLogo'
-import { StackPlus } from '@phosphor-icons/react/StackPlus'
-import { StackSimple } from '@phosphor-icons/react/StackSimple'
-import { Stairs } from '@phosphor-icons/react/Stairs'
-import { Stamp } from '@phosphor-icons/react/Stamp'
-import { StandardDefinition } from '@phosphor-icons/react/StandardDefinition'
-import { Star } from '@phosphor-icons/react/Star'
-import { StarAndCrescent } from '@phosphor-icons/react/StarAndCrescent'
-import { StarFour } from '@phosphor-icons/react/StarFour'
-import { StarHalf } from '@phosphor-icons/react/StarHalf'
-import { StarOfDavid } from '@phosphor-icons/react/StarOfDavid'
-import { SteamLogo } from '@phosphor-icons/react/SteamLogo'
-import { SteeringWheel } from '@phosphor-icons/react/SteeringWheel'
-import { Steps } from '@phosphor-icons/react/Steps'
-import { Stethoscope } from '@phosphor-icons/react/Stethoscope'
-import { Sticker } from '@phosphor-icons/react/Sticker'
-import { Stool } from '@phosphor-icons/react/Stool'
-import { Stop } from '@phosphor-icons/react/Stop'
-import { StopCircle } from '@phosphor-icons/react/StopCircle'
-import { Storefront } from '@phosphor-icons/react/Storefront'
-import { Strategy } from '@phosphor-icons/react/Strategy'
-import { StripeLogo } from '@phosphor-icons/react/StripeLogo'
-import { Student } from '@phosphor-icons/react/Student'
-import { SubsetOf } from '@phosphor-icons/react/SubsetOf'
-import { SubsetProperOf } from '@phosphor-icons/react/SubsetProperOf'
-import { Subtitles } from '@phosphor-icons/react/Subtitles'
-import { SubtitlesSlash } from '@phosphor-icons/react/SubtitlesSlash'
-import { Subtract } from '@phosphor-icons/react/Subtract'
-import { SubtractSquare } from '@phosphor-icons/react/SubtractSquare'
-import { Subway } from '@phosphor-icons/react/Subway'
-import { Suitcase } from '@phosphor-icons/react/Suitcase'
-import { SuitcaseRolling } from '@phosphor-icons/react/SuitcaseRolling'
-import { SuitcaseSimple } from '@phosphor-icons/react/SuitcaseSimple'
-import { Sun } from '@phosphor-icons/react/Sun'
-import { SunDim } from '@phosphor-icons/react/SunDim'
-import { Sunglasses } from '@phosphor-icons/react/Sunglasses'
-import { SunHorizon } from '@phosphor-icons/react/SunHorizon'
-import { SupersetOf } from '@phosphor-icons/react/SupersetOf'
-import { SupersetProperOf } from '@phosphor-icons/react/SupersetProperOf'
-import { Swap } from '@phosphor-icons/react/Swap'
-import { Swatches } from '@phosphor-icons/react/Swatches'
-import { SwimmingPool } from '@phosphor-icons/react/SwimmingPool'
-import { Sword } from '@phosphor-icons/react/Sword'
-import { Synagogue } from '@phosphor-icons/react/Synagogue'
-import { Syringe } from '@phosphor-icons/react/Syringe'
-import { Table } from '@phosphor-icons/react/Table'
-import { Tabs } from '@phosphor-icons/react/Tabs'
-import { Tag } from '@phosphor-icons/react/Tag'
-import { TagChevron } from '@phosphor-icons/react/TagChevron'
-import { TagSimple } from '@phosphor-icons/react/TagSimple'
-import { Target } from '@phosphor-icons/react/Target'
-import { Taxi } from '@phosphor-icons/react/Taxi'
-import { TeaBag } from '@phosphor-icons/react/TeaBag'
-import { TelegramLogo } from '@phosphor-icons/react/TelegramLogo'
-import { Television } from '@phosphor-icons/react/Television'
-import { TelevisionSimple } from '@phosphor-icons/react/TelevisionSimple'
-import { TennisBall } from '@phosphor-icons/react/TennisBall'
-import { Tent } from '@phosphor-icons/react/Tent'
-import { Terminal } from '@phosphor-icons/react/Terminal'
-import { TerminalWindow } from '@phosphor-icons/react/TerminalWindow'
-import { TestTube } from '@phosphor-icons/react/TestTube'
-import { TextAa } from '@phosphor-icons/react/TextAa'
-import { TextAlignCenter } from '@phosphor-icons/react/TextAlignCenter'
-import { TextAlignJustify } from '@phosphor-icons/react/TextAlignJustify'
-import { TextAlignLeft } from '@phosphor-icons/react/TextAlignLeft'
-import { TextAlignRight } from '@phosphor-icons/react/TextAlignRight'
-import { TextAUnderline } from '@phosphor-icons/react/TextAUnderline'
-import { TextB } from '@phosphor-icons/react/TextB'
-import { Textbox } from '@phosphor-icons/react/Textbox'
-import { TextColumns } from '@phosphor-icons/react/TextColumns'
-import { TextH } from '@phosphor-icons/react/TextH'
-import { TextHFive } from '@phosphor-icons/react/TextHFive'
-import { TextHFour } from '@phosphor-icons/react/TextHFour'
-import { TextHOne } from '@phosphor-icons/react/TextHOne'
-import { TextHSix } from '@phosphor-icons/react/TextHSix'
-import { TextHThree } from '@phosphor-icons/react/TextHThree'
-import { TextHTwo } from '@phosphor-icons/react/TextHTwo'
-import { TextIndent } from '@phosphor-icons/react/TextIndent'
-import { TextItalic } from '@phosphor-icons/react/TextItalic'
-import { TextOutdent } from '@phosphor-icons/react/TextOutdent'
-import { TextStrikethrough } from '@phosphor-icons/react/TextStrikethrough'
-import { TextSubscript } from '@phosphor-icons/react/TextSubscript'
-import { TextSuperscript } from '@phosphor-icons/react/TextSuperscript'
-import { TextT } from '@phosphor-icons/react/TextT'
-import { TextTSlash } from '@phosphor-icons/react/TextTSlash'
-import { TextUnderline } from '@phosphor-icons/react/TextUnderline'
-import { Thermometer } from '@phosphor-icons/react/Thermometer'
-import { ThermometerCold } from '@phosphor-icons/react/ThermometerCold'
-import { ThermometerHot } from '@phosphor-icons/react/ThermometerHot'
-import { ThermometerSimple } from '@phosphor-icons/react/ThermometerSimple'
-import { ThreadsLogo } from '@phosphor-icons/react/ThreadsLogo'
-import { ThreeD } from '@phosphor-icons/react/ThreeD'
-import { ThumbsDown } from '@phosphor-icons/react/ThumbsDown'
-import { ThumbsUp } from '@phosphor-icons/react/ThumbsUp'
-import { Ticket } from '@phosphor-icons/react/Ticket'
-import { TidalLogo } from '@phosphor-icons/react/TidalLogo'
-import { TiktokLogo } from '@phosphor-icons/react/TiktokLogo'
-import { Tilde } from '@phosphor-icons/react/Tilde'
-import { Timer } from '@phosphor-icons/react/Timer'
-import { Tipi } from '@phosphor-icons/react/Tipi'
-import { TipJar } from '@phosphor-icons/react/TipJar'
-import { Tire } from '@phosphor-icons/react/Tire'
-import { ToggleLeft } from '@phosphor-icons/react/ToggleLeft'
-import { ToggleRight } from '@phosphor-icons/react/ToggleRight'
-import { Toilet } from '@phosphor-icons/react/Toilet'
-import { ToiletPaper } from '@phosphor-icons/react/ToiletPaper'
-import { Toolbox } from '@phosphor-icons/react/Toolbox'
-import { Tooth } from '@phosphor-icons/react/Tooth'
-import { Tornado } from '@phosphor-icons/react/Tornado'
-import { Tote } from '@phosphor-icons/react/Tote'
-import { ToteSimple } from '@phosphor-icons/react/ToteSimple'
-import { Towel } from '@phosphor-icons/react/Towel'
-import { Tractor } from '@phosphor-icons/react/Tractor'
-import { Trademark } from '@phosphor-icons/react/Trademark'
-import { TrademarkRegistered } from '@phosphor-icons/react/TrademarkRegistered'
-import { TrafficCone } from '@phosphor-icons/react/TrafficCone'
-import { TrafficSign } from '@phosphor-icons/react/TrafficSign'
-import { TrafficSignal } from '@phosphor-icons/react/TrafficSignal'
-import { Train } from '@phosphor-icons/react/Train'
-import { TrainRegional } from '@phosphor-icons/react/TrainRegional'
-import { TrainSimple } from '@phosphor-icons/react/TrainSimple'
-import { Tram } from '@phosphor-icons/react/Tram'
-import { Translate } from '@phosphor-icons/react/Translate'
-import { Trash } from '@phosphor-icons/react/Trash'
-import { TrashSimple } from '@phosphor-icons/react/TrashSimple'
-import { Tray } from '@phosphor-icons/react/Tray'
-import { TrayArrowDown } from '@phosphor-icons/react/TrayArrowDown'
-import { TrayArrowUp } from '@phosphor-icons/react/TrayArrowUp'
-import { TreasureChest } from '@phosphor-icons/react/TreasureChest'
-import { Tree } from '@phosphor-icons/react/Tree'
-import { TreeEvergreen } from '@phosphor-icons/react/TreeEvergreen'
-import { TreePalm } from '@phosphor-icons/react/TreePalm'
-import { TreeStructure } from '@phosphor-icons/react/TreeStructure'
-import { TreeView } from '@phosphor-icons/react/TreeView'
-import { TrendDown } from '@phosphor-icons/react/TrendDown'
-import { TrendUp } from '@phosphor-icons/react/TrendUp'
-import { Triangle } from '@phosphor-icons/react/Triangle'
-import { TriangleDashed } from '@phosphor-icons/react/TriangleDashed'
-import { Trolley } from '@phosphor-icons/react/Trolley'
-import { TrolleySuitcase } from '@phosphor-icons/react/TrolleySuitcase'
-import { Trophy } from '@phosphor-icons/react/Trophy'
-import { Truck } from '@phosphor-icons/react/Truck'
-import { TruckTrailer } from '@phosphor-icons/react/TruckTrailer'
-import { TShirt } from '@phosphor-icons/react/TShirt'
-import { TumblrLogo } from '@phosphor-icons/react/TumblrLogo'
-import { TwitchLogo } from '@phosphor-icons/react/TwitchLogo'
-import { TwitterLogo } from '@phosphor-icons/react/TwitterLogo'
-import { Umbrella } from '@phosphor-icons/react/Umbrella'
-import { UmbrellaSimple } from '@phosphor-icons/react/UmbrellaSimple'
-import { Union } from '@phosphor-icons/react/Union'
-import { Unite } from '@phosphor-icons/react/Unite'
-import { UniteSquare } from '@phosphor-icons/react/UniteSquare'
-import { Upload } from '@phosphor-icons/react/Upload'
-import { UploadSimple } from '@phosphor-icons/react/UploadSimple'
-import { Usb } from '@phosphor-icons/react/Usb'
-import { User } from '@phosphor-icons/react/User'
-import { UserCheck } from '@phosphor-icons/react/UserCheck'
-import { UserCircle } from '@phosphor-icons/react/UserCircle'
-import { UserCircleCheck } from '@phosphor-icons/react/UserCircleCheck'
-import { UserCircleDashed } from '@phosphor-icons/react/UserCircleDashed'
-import { UserCircleGear } from '@phosphor-icons/react/UserCircleGear'
-import { UserCircleMinus } from '@phosphor-icons/react/UserCircleMinus'
-import { UserCirclePlus } from '@phosphor-icons/react/UserCirclePlus'
-import { UserFocus } from '@phosphor-icons/react/UserFocus'
-import { UserGear } from '@phosphor-icons/react/UserGear'
-import { UserList } from '@phosphor-icons/react/UserList'
-import { UserMinus } from '@phosphor-icons/react/UserMinus'
-import { UserPlus } from '@phosphor-icons/react/UserPlus'
-import { UserRectangle } from '@phosphor-icons/react/UserRectangle'
-import { Users } from '@phosphor-icons/react/Users'
-import { UsersFour } from '@phosphor-icons/react/UsersFour'
-import { UserSound } from '@phosphor-icons/react/UserSound'
-import { UserSquare } from '@phosphor-icons/react/UserSquare'
-import { UsersThree } from '@phosphor-icons/react/UsersThree'
-import { UserSwitch } from '@phosphor-icons/react/UserSwitch'
-import { Van } from '@phosphor-icons/react/Van'
-import { Vault } from '@phosphor-icons/react/Vault'
-import { VectorThree } from '@phosphor-icons/react/VectorThree'
-import { VectorTwo } from '@phosphor-icons/react/VectorTwo'
-import { Vibrate } from '@phosphor-icons/react/Vibrate'
-import { Video } from '@phosphor-icons/react/Video'
-import { VideoCamera } from '@phosphor-icons/react/VideoCamera'
-import { VideoCameraSlash } from '@phosphor-icons/react/VideoCameraSlash'
-import { VideoConference } from '@phosphor-icons/react/VideoConference'
-import { Vignette } from '@phosphor-icons/react/Vignette'
-import { VinylRecord } from '@phosphor-icons/react/VinylRecord'
-import { VirtualReality } from '@phosphor-icons/react/VirtualReality'
-import { Virus } from '@phosphor-icons/react/Virus'
-import { Visor } from '@phosphor-icons/react/Visor'
-import { Voicemail } from '@phosphor-icons/react/Voicemail'
-import { Volleyball } from '@phosphor-icons/react/Volleyball'
-import { Wall } from '@phosphor-icons/react/Wall'
-import { Wallet } from '@phosphor-icons/react/Wallet'
-import { Warehouse } from '@phosphor-icons/react/Warehouse'
-import { Warning } from '@phosphor-icons/react/Warning'
-import { WarningCircle } from '@phosphor-icons/react/WarningCircle'
-import { WarningDiamond } from '@phosphor-icons/react/WarningDiamond'
-import { WarningOctagon } from '@phosphor-icons/react/WarningOctagon'
-import { WashingMachine } from '@phosphor-icons/react/WashingMachine'
-import { Watch } from '@phosphor-icons/react/Watch'
-import { Waveform } from '@phosphor-icons/react/Waveform'
-import { WaveformSlash } from '@phosphor-icons/react/WaveformSlash'
-import { Waves } from '@phosphor-icons/react/Waves'
-import { WaveSawtooth } from '@phosphor-icons/react/WaveSawtooth'
-import { WaveSine } from '@phosphor-icons/react/WaveSine'
-import { WaveSquare } from '@phosphor-icons/react/WaveSquare'
-import { WaveTriangle } from '@phosphor-icons/react/WaveTriangle'
-import { Webcam } from '@phosphor-icons/react/Webcam'
-import { WebcamSlash } from '@phosphor-icons/react/WebcamSlash'
-import { WebhooksLogo } from '@phosphor-icons/react/WebhooksLogo'
-import { WechatLogo } from '@phosphor-icons/react/WechatLogo'
-import { WhatsappLogo } from '@phosphor-icons/react/WhatsappLogo'
-import { Wheelchair } from '@phosphor-icons/react/Wheelchair'
-import { WheelchairMotion } from '@phosphor-icons/react/WheelchairMotion'
-import { WifiHigh } from '@phosphor-icons/react/WifiHigh'
-import { WifiLow } from '@phosphor-icons/react/WifiLow'
-import { WifiMedium } from '@phosphor-icons/react/WifiMedium'
-import { WifiNone } from '@phosphor-icons/react/WifiNone'
-import { WifiSlash } from '@phosphor-icons/react/WifiSlash'
-import { WifiX } from '@phosphor-icons/react/WifiX'
-import { Wind } from '@phosphor-icons/react/Wind'
-import { Windmill } from '@phosphor-icons/react/Windmill'
-import { WindowsLogo } from '@phosphor-icons/react/WindowsLogo'
-import { Wine } from '@phosphor-icons/react/Wine'
-import { Wrench } from '@phosphor-icons/react/Wrench'
-import { X } from '@phosphor-icons/react/X'
-import { XCircle } from '@phosphor-icons/react/XCircle'
-import { XLogo } from '@phosphor-icons/react/XLogo'
-import { XSquare } from '@phosphor-icons/react/XSquare'
-import { Yarn } from '@phosphor-icons/react/Yarn'
-import { YinYang } from '@phosphor-icons/react/YinYang'
-import { YoutubeLogo } from '@phosphor-icons/react/YoutubeLogo'
+import { AcornIcon } from '@phosphor-icons/react/Acorn'
+import { AddressBookIcon } from '@phosphor-icons/react/AddressBook'
+import { AddressBookTabsIcon } from '@phosphor-icons/react/AddressBookTabs'
+import { AirplaneIcon } from '@phosphor-icons/react/Airplane'
+import { AirplaneInFlightIcon } from '@phosphor-icons/react/AirplaneInFlight'
+import { AirplaneLandingIcon } from '@phosphor-icons/react/AirplaneLanding'
+import { AirplaneTakeoffIcon } from '@phosphor-icons/react/AirplaneTakeoff'
+import { AirplaneTaxiingIcon } from '@phosphor-icons/react/AirplaneTaxiing'
+import { AirplaneTiltIcon } from '@phosphor-icons/react/AirplaneTilt'
+import { AirplayIcon } from '@phosphor-icons/react/Airplay'
+import { AirTrafficControlIcon } from '@phosphor-icons/react/AirTrafficControl'
+import { AlarmIcon } from '@phosphor-icons/react/Alarm'
+import { AlienIcon } from '@phosphor-icons/react/Alien'
+import { AlignBottomIcon } from '@phosphor-icons/react/AlignBottom'
+import { AlignBottomSimpleIcon } from '@phosphor-icons/react/AlignBottomSimple'
+import { AlignCenterHorizontalIcon } from '@phosphor-icons/react/AlignCenterHorizontal'
+import { AlignCenterHorizontalSimpleIcon } from '@phosphor-icons/react/AlignCenterHorizontalSimple'
+import { AlignCenterVerticalIcon } from '@phosphor-icons/react/AlignCenterVertical'
+import { AlignCenterVerticalSimpleIcon } from '@phosphor-icons/react/AlignCenterVerticalSimple'
+import { AlignLeftIcon } from '@phosphor-icons/react/AlignLeft'
+import { AlignLeftSimpleIcon } from '@phosphor-icons/react/AlignLeftSimple'
+import { AlignRightIcon } from '@phosphor-icons/react/AlignRight'
+import { AlignRightSimpleIcon } from '@phosphor-icons/react/AlignRightSimple'
+import { AlignTopIcon } from '@phosphor-icons/react/AlignTop'
+import { AlignTopSimpleIcon } from '@phosphor-icons/react/AlignTopSimple'
+import { AmazonLogoIcon } from '@phosphor-icons/react/AmazonLogo'
+import { AmbulanceIcon } from '@phosphor-icons/react/Ambulance'
+import { AnchorIcon } from '@phosphor-icons/react/Anchor'
+import { AnchorSimpleIcon } from '@phosphor-icons/react/AnchorSimple'
+import { AndroidLogoIcon } from '@phosphor-icons/react/AndroidLogo'
+import { AngleIcon } from '@phosphor-icons/react/Angle'
+import { AngularLogoIcon } from '@phosphor-icons/react/AngularLogo'
+import { ApertureIcon } from '@phosphor-icons/react/Aperture'
+import { AppleLogoIcon } from '@phosphor-icons/react/AppleLogo'
+import { ApplePodcastsLogoIcon } from '@phosphor-icons/react/ApplePodcastsLogo'
+import { ApproximateEqualsIcon } from '@phosphor-icons/react/ApproximateEquals'
+import { AppStoreLogoIcon } from '@phosphor-icons/react/AppStoreLogo'
+import { AppWindowIcon } from '@phosphor-icons/react/AppWindow'
+import { ArchiveIcon } from '@phosphor-icons/react/Archive'
+import { ArmchairIcon } from '@phosphor-icons/react/Armchair'
+import { ArrowArcLeftIcon } from '@phosphor-icons/react/ArrowArcLeft'
+import { ArrowArcRightIcon } from '@phosphor-icons/react/ArrowArcRight'
+import { ArrowBendDoubleUpLeftIcon } from '@phosphor-icons/react/ArrowBendDoubleUpLeft'
+import { ArrowBendDoubleUpRightIcon } from '@phosphor-icons/react/ArrowBendDoubleUpRight'
+import { ArrowBendDownLeftIcon } from '@phosphor-icons/react/ArrowBendDownLeft'
+import { ArrowBendDownRightIcon } from '@phosphor-icons/react/ArrowBendDownRight'
+import { ArrowBendLeftDownIcon } from '@phosphor-icons/react/ArrowBendLeftDown'
+import { ArrowBendLeftUpIcon } from '@phosphor-icons/react/ArrowBendLeftUp'
+import { ArrowBendRightDownIcon } from '@phosphor-icons/react/ArrowBendRightDown'
+import { ArrowBendRightUpIcon } from '@phosphor-icons/react/ArrowBendRightUp'
+import { ArrowBendUpLeftIcon } from '@phosphor-icons/react/ArrowBendUpLeft'
+import { ArrowBendUpRightIcon } from '@phosphor-icons/react/ArrowBendUpRight'
+import { ArrowCircleDownIcon } from '@phosphor-icons/react/ArrowCircleDown'
+import { ArrowCircleDownLeftIcon } from '@phosphor-icons/react/ArrowCircleDownLeft'
+import { ArrowCircleDownRightIcon } from '@phosphor-icons/react/ArrowCircleDownRight'
+import { ArrowCircleLeftIcon } from '@phosphor-icons/react/ArrowCircleLeft'
+import { ArrowCircleRightIcon } from '@phosphor-icons/react/ArrowCircleRight'
+import { ArrowCircleUpIcon } from '@phosphor-icons/react/ArrowCircleUp'
+import { ArrowCircleUpLeftIcon } from '@phosphor-icons/react/ArrowCircleUpLeft'
+import { ArrowCircleUpRightIcon } from '@phosphor-icons/react/ArrowCircleUpRight'
+import { ArrowClockwiseIcon } from '@phosphor-icons/react/ArrowClockwise'
+import { ArrowCounterClockwiseIcon } from '@phosphor-icons/react/ArrowCounterClockwise'
+import { ArrowDownIcon } from '@phosphor-icons/react/ArrowDown'
+import { ArrowDownLeftIcon } from '@phosphor-icons/react/ArrowDownLeft'
+import { ArrowDownRightIcon } from '@phosphor-icons/react/ArrowDownRight'
+import { ArrowElbowDownLeftIcon } from '@phosphor-icons/react/ArrowElbowDownLeft'
+import { ArrowElbowDownRightIcon } from '@phosphor-icons/react/ArrowElbowDownRight'
+import { ArrowElbowLeftIcon } from '@phosphor-icons/react/ArrowElbowLeft'
+import { ArrowElbowLeftDownIcon } from '@phosphor-icons/react/ArrowElbowLeftDown'
+import { ArrowElbowLeftUpIcon } from '@phosphor-icons/react/ArrowElbowLeftUp'
+import { ArrowElbowRightIcon } from '@phosphor-icons/react/ArrowElbowRight'
+import { ArrowElbowRightDownIcon } from '@phosphor-icons/react/ArrowElbowRightDown'
+import { ArrowElbowRightUpIcon } from '@phosphor-icons/react/ArrowElbowRightUp'
+import { ArrowElbowUpLeftIcon } from '@phosphor-icons/react/ArrowElbowUpLeft'
+import { ArrowElbowUpRightIcon } from '@phosphor-icons/react/ArrowElbowUpRight'
+import { ArrowFatDownIcon } from '@phosphor-icons/react/ArrowFatDown'
+import { ArrowFatLeftIcon } from '@phosphor-icons/react/ArrowFatLeft'
+import { ArrowFatLineDownIcon } from '@phosphor-icons/react/ArrowFatLineDown'
+import { ArrowFatLineLeftIcon } from '@phosphor-icons/react/ArrowFatLineLeft'
+import { ArrowFatLineRightIcon } from '@phosphor-icons/react/ArrowFatLineRight'
+import { ArrowFatLinesDownIcon } from '@phosphor-icons/react/ArrowFatLinesDown'
+import { ArrowFatLinesLeftIcon } from '@phosphor-icons/react/ArrowFatLinesLeft'
+import { ArrowFatLinesRightIcon } from '@phosphor-icons/react/ArrowFatLinesRight'
+import { ArrowFatLinesUpIcon } from '@phosphor-icons/react/ArrowFatLinesUp'
+import { ArrowFatLineUpIcon } from '@phosphor-icons/react/ArrowFatLineUp'
+import { ArrowFatRightIcon } from '@phosphor-icons/react/ArrowFatRight'
+import { ArrowFatUpIcon } from '@phosphor-icons/react/ArrowFatUp'
+import { ArrowLeftIcon } from '@phosphor-icons/react/ArrowLeft'
+import { ArrowLineDownIcon } from '@phosphor-icons/react/ArrowLineDown'
+import { ArrowLineDownLeftIcon } from '@phosphor-icons/react/ArrowLineDownLeft'
+import { ArrowLineDownRightIcon } from '@phosphor-icons/react/ArrowLineDownRight'
+import { ArrowLineLeftIcon } from '@phosphor-icons/react/ArrowLineLeft'
+import { ArrowLineRightIcon } from '@phosphor-icons/react/ArrowLineRight'
+import { ArrowLineUpIcon } from '@phosphor-icons/react/ArrowLineUp'
+import { ArrowLineUpLeftIcon } from '@phosphor-icons/react/ArrowLineUpLeft'
+import { ArrowLineUpRightIcon } from '@phosphor-icons/react/ArrowLineUpRight'
+import { ArrowRightIcon } from '@phosphor-icons/react/ArrowRight'
+import { ArrowsClockwiseIcon } from '@phosphor-icons/react/ArrowsClockwise'
+import { ArrowsCounterClockwiseIcon } from '@phosphor-icons/react/ArrowsCounterClockwise'
+import { ArrowsDownUpIcon } from '@phosphor-icons/react/ArrowsDownUp'
+import { ArrowsHorizontalIcon } from '@phosphor-icons/react/ArrowsHorizontal'
+import { ArrowsInIcon } from '@phosphor-icons/react/ArrowsIn'
+import { ArrowsInCardinalIcon } from '@phosphor-icons/react/ArrowsInCardinal'
+import { ArrowsInLineHorizontalIcon } from '@phosphor-icons/react/ArrowsInLineHorizontal'
+import { ArrowsInLineVerticalIcon } from '@phosphor-icons/react/ArrowsInLineVertical'
+import { ArrowsInSimpleIcon } from '@phosphor-icons/react/ArrowsInSimple'
+import { ArrowsLeftRightIcon } from '@phosphor-icons/react/ArrowsLeftRight'
+import { ArrowsMergeIcon } from '@phosphor-icons/react/ArrowsMerge'
+import { ArrowsOutIcon } from '@phosphor-icons/react/ArrowsOut'
+import { ArrowsOutCardinalIcon } from '@phosphor-icons/react/ArrowsOutCardinal'
+import { ArrowsOutLineHorizontalIcon } from '@phosphor-icons/react/ArrowsOutLineHorizontal'
+import { ArrowsOutLineVerticalIcon } from '@phosphor-icons/react/ArrowsOutLineVertical'
+import { ArrowsOutSimpleIcon } from '@phosphor-icons/react/ArrowsOutSimple'
+import { ArrowSquareDownIcon } from '@phosphor-icons/react/ArrowSquareDown'
+import { ArrowSquareDownLeftIcon } from '@phosphor-icons/react/ArrowSquareDownLeft'
+import { ArrowSquareDownRightIcon } from '@phosphor-icons/react/ArrowSquareDownRight'
+import { ArrowSquareInIcon } from '@phosphor-icons/react/ArrowSquareIn'
+import { ArrowSquareLeftIcon } from '@phosphor-icons/react/ArrowSquareLeft'
+import { ArrowSquareOutIcon } from '@phosphor-icons/react/ArrowSquareOut'
+import { ArrowSquareRightIcon } from '@phosphor-icons/react/ArrowSquareRight'
+import { ArrowSquareUpIcon } from '@phosphor-icons/react/ArrowSquareUp'
+import { ArrowSquareUpLeftIcon } from '@phosphor-icons/react/ArrowSquareUpLeft'
+import { ArrowSquareUpRightIcon } from '@phosphor-icons/react/ArrowSquareUpRight'
+import { ArrowsSplitIcon } from '@phosphor-icons/react/ArrowsSplit'
+import { ArrowsVerticalIcon } from '@phosphor-icons/react/ArrowsVertical'
+import { ArrowUDownLeftIcon } from '@phosphor-icons/react/ArrowUDownLeft'
+import { ArrowUDownRightIcon } from '@phosphor-icons/react/ArrowUDownRight'
+import { ArrowULeftDownIcon } from '@phosphor-icons/react/ArrowULeftDown'
+import { ArrowULeftUpIcon } from '@phosphor-icons/react/ArrowULeftUp'
+import { ArrowUpIcon } from '@phosphor-icons/react/ArrowUp'
+import { ArrowUpLeftIcon } from '@phosphor-icons/react/ArrowUpLeft'
+import { ArrowUpRightIcon } from '@phosphor-icons/react/ArrowUpRight'
+import { ArrowURightDownIcon } from '@phosphor-icons/react/ArrowURightDown'
+import { ArrowURightUpIcon } from '@phosphor-icons/react/ArrowURightUp'
+import { ArrowUUpLeftIcon } from '@phosphor-icons/react/ArrowUUpLeft'
+import { ArrowUUpRightIcon } from '@phosphor-icons/react/ArrowUUpRight'
+import { ArticleIcon } from '@phosphor-icons/react/Article'
+import { ArticleMediumIcon } from '@phosphor-icons/react/ArticleMedium'
+import { ArticleNyTimesIcon } from '@phosphor-icons/react/ArticleNyTimes'
+import { AsclepiusIcon } from '@phosphor-icons/react/Asclepius'
+import { AsteriskIcon } from '@phosphor-icons/react/Asterisk'
+import { AsteriskSimpleIcon } from '@phosphor-icons/react/AsteriskSimple'
+import { AtIcon } from '@phosphor-icons/react/At'
+import { AtomIcon } from '@phosphor-icons/react/Atom'
+import { AvocadoIcon } from '@phosphor-icons/react/Avocado'
+import { AxeIcon } from '@phosphor-icons/react/Axe'
+import { BabyIcon } from '@phosphor-icons/react/Baby'
+import { BabyCarriageIcon } from '@phosphor-icons/react/BabyCarriage'
+import { BackpackIcon } from '@phosphor-icons/react/Backpack'
+import { BackspaceIcon } from '@phosphor-icons/react/Backspace'
+import { BagIcon } from '@phosphor-icons/react/Bag'
+import { BagSimpleIcon } from '@phosphor-icons/react/BagSimple'
+import { BalloonIcon } from '@phosphor-icons/react/Balloon'
+import { BandaidsIcon } from '@phosphor-icons/react/Bandaids'
+import { BankIcon } from '@phosphor-icons/react/Bank'
+import { BarbellIcon } from '@phosphor-icons/react/Barbell'
+import { BarcodeIcon } from '@phosphor-icons/react/Barcode'
+import { BarnIcon } from '@phosphor-icons/react/Barn'
+import { BarricadeIcon } from '@phosphor-icons/react/Barricade'
+import { BaseballIcon } from '@phosphor-icons/react/Baseball'
+import { BaseballCapIcon } from '@phosphor-icons/react/BaseballCap'
+import { BaseballHelmetIcon } from '@phosphor-icons/react/BaseballHelmet'
+import { BasketIcon } from '@phosphor-icons/react/Basket'
+import { BasketballIcon } from '@phosphor-icons/react/Basketball'
+import { BathtubIcon } from '@phosphor-icons/react/Bathtub'
+import { BatteryChargingIcon } from '@phosphor-icons/react/BatteryCharging'
+import { BatteryChargingVerticalIcon } from '@phosphor-icons/react/BatteryChargingVertical'
+import { BatteryEmptyIcon } from '@phosphor-icons/react/BatteryEmpty'
+import { BatteryFullIcon } from '@phosphor-icons/react/BatteryFull'
+import { BatteryHighIcon } from '@phosphor-icons/react/BatteryHigh'
+import { BatteryLowIcon } from '@phosphor-icons/react/BatteryLow'
+import { BatteryMediumIcon } from '@phosphor-icons/react/BatteryMedium'
+import { BatteryPlusIcon } from '@phosphor-icons/react/BatteryPlus'
+import { BatteryPlusVerticalIcon } from '@phosphor-icons/react/BatteryPlusVertical'
+import { BatteryVerticalEmptyIcon } from '@phosphor-icons/react/BatteryVerticalEmpty'
+import { BatteryVerticalFullIcon } from '@phosphor-icons/react/BatteryVerticalFull'
+import { BatteryVerticalHighIcon } from '@phosphor-icons/react/BatteryVerticalHigh'
+import { BatteryVerticalLowIcon } from '@phosphor-icons/react/BatteryVerticalLow'
+import { BatteryVerticalMediumIcon } from '@phosphor-icons/react/BatteryVerticalMedium'
+import { BatteryWarningIcon } from '@phosphor-icons/react/BatteryWarning'
+import { BatteryWarningVerticalIcon } from '@phosphor-icons/react/BatteryWarningVertical'
+import { BeachBallIcon } from '@phosphor-icons/react/BeachBall'
+import { BeanieIcon } from '@phosphor-icons/react/Beanie'
+import { BedIcon } from '@phosphor-icons/react/Bed'
+import { BeerBottleIcon } from '@phosphor-icons/react/BeerBottle'
+import { BeerSteinIcon } from '@phosphor-icons/react/BeerStein'
+import { BehanceLogoIcon } from '@phosphor-icons/react/BehanceLogo'
+import { BellIcon } from '@phosphor-icons/react/Bell'
+import { BellRingingIcon } from '@phosphor-icons/react/BellRinging'
+import { BellSimpleIcon } from '@phosphor-icons/react/BellSimple'
+import { BellSimpleRingingIcon } from '@phosphor-icons/react/BellSimpleRinging'
+import { BellSimpleSlashIcon } from '@phosphor-icons/react/BellSimpleSlash'
+import { BellSimpleZIcon } from '@phosphor-icons/react/BellSimpleZ'
+import { BellSlashIcon } from '@phosphor-icons/react/BellSlash'
+import { BellZIcon } from '@phosphor-icons/react/BellZ'
+import { BeltIcon } from '@phosphor-icons/react/Belt'
+import { BezierCurveIcon } from '@phosphor-icons/react/BezierCurve'
+import { BicycleIcon } from '@phosphor-icons/react/Bicycle'
+import { BinaryIcon } from '@phosphor-icons/react/Binary'
+import { BinocularsIcon } from '@phosphor-icons/react/Binoculars'
+import { BiohazardIcon } from '@phosphor-icons/react/Biohazard'
+import { BirdIcon } from '@phosphor-icons/react/Bird'
+import { BlueprintIcon } from '@phosphor-icons/react/Blueprint'
+import { BluetoothIcon } from '@phosphor-icons/react/Bluetooth'
+import { BluetoothConnectedIcon } from '@phosphor-icons/react/BluetoothConnected'
+import { BluetoothSlashIcon } from '@phosphor-icons/react/BluetoothSlash'
+import { BluetoothXIcon } from '@phosphor-icons/react/BluetoothX'
+import { BoatIcon } from '@phosphor-icons/react/Boat'
+import { BombIcon } from '@phosphor-icons/react/Bomb'
+import { BoneIcon } from '@phosphor-icons/react/Bone'
+import { BookIcon } from '@phosphor-icons/react/Book'
+import { BookBookmarkIcon } from '@phosphor-icons/react/BookBookmark'
+import { BookmarkIcon } from '@phosphor-icons/react/Bookmark'
+import { BookmarksIcon } from '@phosphor-icons/react/Bookmarks'
+import { BookmarkSimpleIcon } from '@phosphor-icons/react/BookmarkSimple'
+import { BookmarksSimpleIcon } from '@phosphor-icons/react/BookmarksSimple'
+import { BookOpenIcon } from '@phosphor-icons/react/BookOpen'
+import { BookOpenTextIcon } from '@phosphor-icons/react/BookOpenText'
+import { BookOpenUserIcon } from '@phosphor-icons/react/BookOpenUser'
+import { BooksIcon } from '@phosphor-icons/react/Books'
+import { BootIcon } from '@phosphor-icons/react/Boot'
+import { BoulesIcon } from '@phosphor-icons/react/Boules'
+import { BoundingBoxIcon } from '@phosphor-icons/react/BoundingBox'
+import { BowlFoodIcon } from '@phosphor-icons/react/BowlFood'
+import { BowlingBallIcon } from '@phosphor-icons/react/BowlingBall'
+import { BowlSteamIcon } from '@phosphor-icons/react/BowlSteam'
+import { BoxArrowDownIcon } from '@phosphor-icons/react/BoxArrowDown'
+import { BoxArrowUpIcon } from '@phosphor-icons/react/BoxArrowUp'
+import { BoxingGloveIcon } from '@phosphor-icons/react/BoxingGlove'
+import { BracketsAngleIcon } from '@phosphor-icons/react/BracketsAngle'
+import { BracketsCurlyIcon } from '@phosphor-icons/react/BracketsCurly'
+import { BracketsRoundIcon } from '@phosphor-icons/react/BracketsRound'
+import { BracketsSquareIcon } from '@phosphor-icons/react/BracketsSquare'
+import { BrainIcon } from '@phosphor-icons/react/Brain'
+import { BrandyIcon } from '@phosphor-icons/react/Brandy'
+import { BreadIcon } from '@phosphor-icons/react/Bread'
+import { BridgeIcon } from '@phosphor-icons/react/Bridge'
+import { BriefcaseIcon } from '@phosphor-icons/react/Briefcase'
+import { BriefcaseMetalIcon } from '@phosphor-icons/react/BriefcaseMetal'
+import { BroadcastIcon } from '@phosphor-icons/react/Broadcast'
+import { BroomIcon } from '@phosphor-icons/react/Broom'
+import { BrowserIcon } from '@phosphor-icons/react/Browser'
+import { BrowsersIcon } from '@phosphor-icons/react/Browsers'
+import { BugIcon } from '@phosphor-icons/react/Bug'
+import { BugBeetleIcon } from '@phosphor-icons/react/BugBeetle'
+import { BugDroidIcon } from '@phosphor-icons/react/BugDroid'
+import { BuildingIcon } from '@phosphor-icons/react/Building'
+import { BuildingApartmentIcon } from '@phosphor-icons/react/BuildingApartment'
+import { BuildingOfficeIcon } from '@phosphor-icons/react/BuildingOffice'
+import { BuildingsIcon } from '@phosphor-icons/react/Buildings'
+import { BulldozerIcon } from '@phosphor-icons/react/Bulldozer'
+import { BusIcon } from '@phosphor-icons/react/Bus'
+import { ButterflyIcon } from '@phosphor-icons/react/Butterfly'
+import { CableCarIcon } from '@phosphor-icons/react/CableCar'
+import { CactusIcon } from '@phosphor-icons/react/Cactus'
+import { CakeIcon } from '@phosphor-icons/react/Cake'
+import { CalculatorIcon } from '@phosphor-icons/react/Calculator'
+import { CalendarIcon } from '@phosphor-icons/react/Calendar'
+import { CalendarBlankIcon } from '@phosphor-icons/react/CalendarBlank'
+import { CalendarCheckIcon } from '@phosphor-icons/react/CalendarCheck'
+import { CalendarDotIcon } from '@phosphor-icons/react/CalendarDot'
+import { CalendarDotsIcon } from '@phosphor-icons/react/CalendarDots'
+import { CalendarHeartIcon } from '@phosphor-icons/react/CalendarHeart'
+import { CalendarMinusIcon } from '@phosphor-icons/react/CalendarMinus'
+import { CalendarPlusIcon } from '@phosphor-icons/react/CalendarPlus'
+import { CalendarSlashIcon } from '@phosphor-icons/react/CalendarSlash'
+import { CalendarStarIcon } from '@phosphor-icons/react/CalendarStar'
+import { CalendarXIcon } from '@phosphor-icons/react/CalendarX'
+import { CallBellIcon } from '@phosphor-icons/react/CallBell'
+import { CameraIcon } from '@phosphor-icons/react/Camera'
+import { CameraPlusIcon } from '@phosphor-icons/react/CameraPlus'
+import { CameraRotateIcon } from '@phosphor-icons/react/CameraRotate'
+import { CameraSlashIcon } from '@phosphor-icons/react/CameraSlash'
+import { CampfireIcon } from '@phosphor-icons/react/Campfire'
+import { CarIcon } from '@phosphor-icons/react/Car'
+import { CarBatteryIcon } from '@phosphor-icons/react/CarBattery'
+import { CardholderIcon } from '@phosphor-icons/react/Cardholder'
+import { CardsIcon } from '@phosphor-icons/react/Cards'
+import { CardsThreeIcon } from '@phosphor-icons/react/CardsThree'
+import { CaretCircleDoubleDownIcon } from '@phosphor-icons/react/CaretCircleDoubleDown'
+import { CaretCircleDoubleLeftIcon } from '@phosphor-icons/react/CaretCircleDoubleLeft'
+import { CaretCircleDoubleRightIcon } from '@phosphor-icons/react/CaretCircleDoubleRight'
+import { CaretCircleDoubleUpIcon } from '@phosphor-icons/react/CaretCircleDoubleUp'
+import { CaretCircleDownIcon } from '@phosphor-icons/react/CaretCircleDown'
+import { CaretCircleLeftIcon } from '@phosphor-icons/react/CaretCircleLeft'
+import { CaretCircleRightIcon } from '@phosphor-icons/react/CaretCircleRight'
+import { CaretCircleUpIcon } from '@phosphor-icons/react/CaretCircleUp'
+import { CaretCircleUpDownIcon } from '@phosphor-icons/react/CaretCircleUpDown'
+import { CaretDoubleDownIcon } from '@phosphor-icons/react/CaretDoubleDown'
+import { CaretDoubleLeftIcon } from '@phosphor-icons/react/CaretDoubleLeft'
+import { CaretDoubleRightIcon } from '@phosphor-icons/react/CaretDoubleRight'
+import { CaretDoubleUpIcon } from '@phosphor-icons/react/CaretDoubleUp'
+import { CaretDownIcon } from '@phosphor-icons/react/CaretDown'
+import { CaretLeftIcon } from '@phosphor-icons/react/CaretLeft'
+import { CaretLineDownIcon } from '@phosphor-icons/react/CaretLineDown'
+import { CaretLineLeftIcon } from '@phosphor-icons/react/CaretLineLeft'
+import { CaretLineRightIcon } from '@phosphor-icons/react/CaretLineRight'
+import { CaretLineUpIcon } from '@phosphor-icons/react/CaretLineUp'
+import { CaretRightIcon } from '@phosphor-icons/react/CaretRight'
+import { CaretUpIcon } from '@phosphor-icons/react/CaretUp'
+import { CaretUpDownIcon } from '@phosphor-icons/react/CaretUpDown'
+import { CarProfileIcon } from '@phosphor-icons/react/CarProfile'
+import { CarrotIcon } from '@phosphor-icons/react/Carrot'
+import { CarSimpleIcon } from '@phosphor-icons/react/CarSimple'
+import { CashRegisterIcon } from '@phosphor-icons/react/CashRegister'
+import { CassetteTapeIcon } from '@phosphor-icons/react/CassetteTape'
+import { CastleTurretIcon } from '@phosphor-icons/react/CastleTurret'
+import { CatIcon } from '@phosphor-icons/react/Cat'
+import { CellSignalFullIcon } from '@phosphor-icons/react/CellSignalFull'
+import { CellSignalHighIcon } from '@phosphor-icons/react/CellSignalHigh'
+import { CellSignalLowIcon } from '@phosphor-icons/react/CellSignalLow'
+import { CellSignalMediumIcon } from '@phosphor-icons/react/CellSignalMedium'
+import { CellSignalNoneIcon } from '@phosphor-icons/react/CellSignalNone'
+import { CellSignalSlashIcon } from '@phosphor-icons/react/CellSignalSlash'
+import { CellSignalXIcon } from '@phosphor-icons/react/CellSignalX'
+import { CellTowerIcon } from '@phosphor-icons/react/CellTower'
+import { CertificateIcon } from '@phosphor-icons/react/Certificate'
+import { ChairIcon } from '@phosphor-icons/react/Chair'
+import { ChalkboardIcon } from '@phosphor-icons/react/Chalkboard'
+import { ChalkboardSimpleIcon } from '@phosphor-icons/react/ChalkboardSimple'
+import { ChalkboardTeacherIcon } from '@phosphor-icons/react/ChalkboardTeacher'
+import { ChampagneIcon } from '@phosphor-icons/react/Champagne'
+import { ChargingStationIcon } from '@phosphor-icons/react/ChargingStation'
+import { ChartBarIcon } from '@phosphor-icons/react/ChartBar'
+import { ChartBarHorizontalIcon } from '@phosphor-icons/react/ChartBarHorizontal'
+import { ChartDonutIcon } from '@phosphor-icons/react/ChartDonut'
+import { ChartLineIcon } from '@phosphor-icons/react/ChartLine'
+import { ChartLineDownIcon } from '@phosphor-icons/react/ChartLineDown'
+import { ChartLineUpIcon } from '@phosphor-icons/react/ChartLineUp'
+import { ChartPieIcon } from '@phosphor-icons/react/ChartPie'
+import { ChartPieSliceIcon } from '@phosphor-icons/react/ChartPieSlice'
+import { ChartPolarIcon } from '@phosphor-icons/react/ChartPolar'
+import { ChartScatterIcon } from '@phosphor-icons/react/ChartScatter'
+import { ChatIcon } from '@phosphor-icons/react/Chat'
+import { ChatCenteredIcon } from '@phosphor-icons/react/ChatCentered'
+import { ChatCenteredDotsIcon } from '@phosphor-icons/react/ChatCenteredDots'
+import { ChatCenteredSlashIcon } from '@phosphor-icons/react/ChatCenteredSlash'
+import { ChatCenteredTextIcon } from '@phosphor-icons/react/ChatCenteredText'
+import { ChatCircleIcon } from '@phosphor-icons/react/ChatCircle'
+import { ChatCircleDotsIcon } from '@phosphor-icons/react/ChatCircleDots'
+import { ChatCircleSlashIcon } from '@phosphor-icons/react/ChatCircleSlash'
+import { ChatCircleTextIcon } from '@phosphor-icons/react/ChatCircleText'
+import { ChatDotsIcon } from '@phosphor-icons/react/ChatDots'
+import { ChatsIcon } from '@phosphor-icons/react/Chats'
+import { ChatsCircleIcon } from '@phosphor-icons/react/ChatsCircle'
+import { ChatSlashIcon } from '@phosphor-icons/react/ChatSlash'
+import { ChatsTeardropIcon } from '@phosphor-icons/react/ChatsTeardrop'
+import { ChatTeardropIcon } from '@phosphor-icons/react/ChatTeardrop'
+import { ChatTeardropDotsIcon } from '@phosphor-icons/react/ChatTeardropDots'
+import { ChatTeardropSlashIcon } from '@phosphor-icons/react/ChatTeardropSlash'
+import { ChatTeardropTextIcon } from '@phosphor-icons/react/ChatTeardropText'
+import { ChatTextIcon } from '@phosphor-icons/react/ChatText'
+import { CheckIcon } from '@phosphor-icons/react/Check'
+import { CheckCircleIcon } from '@phosphor-icons/react/CheckCircle'
+import { CheckerboardIcon } from '@phosphor-icons/react/Checkerboard'
+import { CheckFatIcon } from '@phosphor-icons/react/CheckFat'
+import { ChecksIcon } from '@phosphor-icons/react/Checks'
+import { CheckSquareIcon } from '@phosphor-icons/react/CheckSquare'
+import { CheckSquareOffsetIcon } from '@phosphor-icons/react/CheckSquareOffset'
+import { CheersIcon } from '@phosphor-icons/react/Cheers'
+import { CheeseIcon } from '@phosphor-icons/react/Cheese'
+import { ChefHatIcon } from '@phosphor-icons/react/ChefHat'
+import { CherriesIcon } from '@phosphor-icons/react/Cherries'
+import { ChurchIcon } from '@phosphor-icons/react/Church'
+import { CigaretteIcon } from '@phosphor-icons/react/Cigarette'
+import { CigaretteSlashIcon } from '@phosphor-icons/react/CigaretteSlash'
+import { CircleIcon } from '@phosphor-icons/react/Circle'
+import { CircleDashedIcon } from '@phosphor-icons/react/CircleDashed'
+import { CircleHalfIcon } from '@phosphor-icons/react/CircleHalf'
+import { CircleHalfTiltIcon } from '@phosphor-icons/react/CircleHalfTilt'
+import { CircleNotchIcon } from '@phosphor-icons/react/CircleNotch'
+import { CirclesFourIcon } from '@phosphor-icons/react/CirclesFour'
+import { CirclesThreeIcon } from '@phosphor-icons/react/CirclesThree'
+import { CirclesThreePlusIcon } from '@phosphor-icons/react/CirclesThreePlus'
+import { CircuitryIcon } from '@phosphor-icons/react/Circuitry'
+import { CityIcon } from '@phosphor-icons/react/City'
+import { ClipboardIcon } from '@phosphor-icons/react/Clipboard'
+import { ClipboardTextIcon } from '@phosphor-icons/react/ClipboardText'
+import { ClockIcon } from '@phosphor-icons/react/Clock'
+import { ClockAfternoonIcon } from '@phosphor-icons/react/ClockAfternoon'
+import { ClockClockwiseIcon } from '@phosphor-icons/react/ClockClockwise'
+import { ClockCountdownIcon } from '@phosphor-icons/react/ClockCountdown'
+import { ClockCounterClockwiseIcon } from '@phosphor-icons/react/ClockCounterClockwise'
+import { ClockUserIcon } from '@phosphor-icons/react/ClockUser'
+import { ClosedCaptioningIcon } from '@phosphor-icons/react/ClosedCaptioning'
+import { CloudIcon } from '@phosphor-icons/react/Cloud'
+import { CloudArrowDownIcon } from '@phosphor-icons/react/CloudArrowDown'
+import { CloudArrowUpIcon } from '@phosphor-icons/react/CloudArrowUp'
+import { CloudCheckIcon } from '@phosphor-icons/react/CloudCheck'
+import { CloudFogIcon } from '@phosphor-icons/react/CloudFog'
+import { CloudLightningIcon } from '@phosphor-icons/react/CloudLightning'
+import { CloudMoonIcon } from '@phosphor-icons/react/CloudMoon'
+import { CloudRainIcon } from '@phosphor-icons/react/CloudRain'
+import { CloudSlashIcon } from '@phosphor-icons/react/CloudSlash'
+import { CloudSnowIcon } from '@phosphor-icons/react/CloudSnow'
+import { CloudSunIcon } from '@phosphor-icons/react/CloudSun'
+import { CloudWarningIcon } from '@phosphor-icons/react/CloudWarning'
+import { CloudXIcon } from '@phosphor-icons/react/CloudX'
+import { CloverIcon } from '@phosphor-icons/react/Clover'
+import { ClubIcon } from '@phosphor-icons/react/Club'
+import { CoatHangerIcon } from '@phosphor-icons/react/CoatHanger'
+import { CodaLogoIcon } from '@phosphor-icons/react/CodaLogo'
+import { CodeIcon } from '@phosphor-icons/react/Code'
+import { CodeBlockIcon } from '@phosphor-icons/react/CodeBlock'
+import { CodepenLogoIcon } from '@phosphor-icons/react/CodepenLogo'
+import { CodesandboxLogoIcon } from '@phosphor-icons/react/CodesandboxLogo'
+import { CodeSimpleIcon } from '@phosphor-icons/react/CodeSimple'
+import { CoffeeIcon } from '@phosphor-icons/react/Coffee'
+import { CoffeeBeanIcon } from '@phosphor-icons/react/CoffeeBean'
+import { CoinIcon } from '@phosphor-icons/react/Coin'
+import { CoinsIcon } from '@phosphor-icons/react/Coins'
+import { CoinVerticalIcon } from '@phosphor-icons/react/CoinVertical'
+import { ColumnsIcon } from '@phosphor-icons/react/Columns'
+import { ColumnsPlusLeftIcon } from '@phosphor-icons/react/ColumnsPlusLeft'
+import { ColumnsPlusRightIcon } from '@phosphor-icons/react/ColumnsPlusRight'
+import { CommandIcon } from '@phosphor-icons/react/Command'
+import { CompassIcon } from '@phosphor-icons/react/Compass'
+import { CompassRoseIcon } from '@phosphor-icons/react/CompassRose'
+import { CompassToolIcon } from '@phosphor-icons/react/CompassTool'
+import { ComputerTowerIcon } from '@phosphor-icons/react/ComputerTower'
+import { ConfettiIcon } from '@phosphor-icons/react/Confetti'
+import { ContactlessPaymentIcon } from '@phosphor-icons/react/ContactlessPayment'
+import { ControlIcon } from '@phosphor-icons/react/Control'
+import { CookieIcon } from '@phosphor-icons/react/Cookie'
+import { CookingPotIcon } from '@phosphor-icons/react/CookingPot'
+import { CopyIcon } from '@phosphor-icons/react/Copy'
+import { CopyleftIcon } from '@phosphor-icons/react/Copyleft'
+import { CopyrightIcon } from '@phosphor-icons/react/Copyright'
+import { CopySimpleIcon } from '@phosphor-icons/react/CopySimple'
+import { CornersInIcon } from '@phosphor-icons/react/CornersIn'
+import { CornersOutIcon } from '@phosphor-icons/react/CornersOut'
+import { CouchIcon } from '@phosphor-icons/react/Couch'
+import { CourtBasketballIcon } from '@phosphor-icons/react/CourtBasketball'
+import { CowIcon } from '@phosphor-icons/react/Cow'
+import { CowboyHatIcon } from '@phosphor-icons/react/CowboyHat'
+import { CpuIcon } from '@phosphor-icons/react/Cpu'
+import { CraneIcon } from '@phosphor-icons/react/Crane'
+import { CraneTowerIcon } from '@phosphor-icons/react/CraneTower'
+import { CreditCardIcon } from '@phosphor-icons/react/CreditCard'
+import { CricketIcon } from '@phosphor-icons/react/Cricket'
+import { CropIcon } from '@phosphor-icons/react/Crop'
+import { CrossIcon } from '@phosphor-icons/react/Cross'
+import { CrosshairIcon } from '@phosphor-icons/react/Crosshair'
+import { CrosshairSimpleIcon } from '@phosphor-icons/react/CrosshairSimple'
+import { CrownIcon } from '@phosphor-icons/react/Crown'
+import { CrownCrossIcon } from '@phosphor-icons/react/CrownCross'
+import { CrownSimpleIcon } from '@phosphor-icons/react/CrownSimple'
+import { CubeIcon } from '@phosphor-icons/react/Cube'
+import { CubeFocusIcon } from '@phosphor-icons/react/CubeFocus'
+import { CubeTransparentIcon } from '@phosphor-icons/react/CubeTransparent'
+import { CurrencyBtcIcon } from '@phosphor-icons/react/CurrencyBtc'
+import { CurrencyCircleDollarIcon } from '@phosphor-icons/react/CurrencyCircleDollar'
+import { CurrencyCnyIcon } from '@phosphor-icons/react/CurrencyCny'
+import { CurrencyDollarIcon } from '@phosphor-icons/react/CurrencyDollar'
+import { CurrencyDollarSimpleIcon } from '@phosphor-icons/react/CurrencyDollarSimple'
+import { CurrencyEthIcon } from '@phosphor-icons/react/CurrencyEth'
+import { CurrencyEurIcon } from '@phosphor-icons/react/CurrencyEur'
+import { CurrencyGbpIcon } from '@phosphor-icons/react/CurrencyGbp'
+import { CurrencyInrIcon } from '@phosphor-icons/react/CurrencyInr'
+import { CurrencyJpyIcon } from '@phosphor-icons/react/CurrencyJpy'
+import { CurrencyKrwIcon } from '@phosphor-icons/react/CurrencyKrw'
+import { CurrencyKztIcon } from '@phosphor-icons/react/CurrencyKzt'
+import { CurrencyNgnIcon } from '@phosphor-icons/react/CurrencyNgn'
+import { CurrencyRubIcon } from '@phosphor-icons/react/CurrencyRub'
+import { CursorIcon } from '@phosphor-icons/react/Cursor'
+import { CursorClickIcon } from '@phosphor-icons/react/CursorClick'
+import { CursorTextIcon } from '@phosphor-icons/react/CursorText'
+import { CylinderIcon } from '@phosphor-icons/react/Cylinder'
+import { DatabaseIcon } from '@phosphor-icons/react/Database'
+import { DeskIcon } from '@phosphor-icons/react/Desk'
+import { DesktopIcon } from '@phosphor-icons/react/Desktop'
+import { DesktopTowerIcon } from '@phosphor-icons/react/DesktopTower'
+import { DetectiveIcon } from '@phosphor-icons/react/Detective'
+import { DeviceMobileIcon } from '@phosphor-icons/react/DeviceMobile'
+import { DeviceMobileCameraIcon } from '@phosphor-icons/react/DeviceMobileCamera'
+import { DeviceMobileSlashIcon } from '@phosphor-icons/react/DeviceMobileSlash'
+import { DeviceMobileSpeakerIcon } from '@phosphor-icons/react/DeviceMobileSpeaker'
+import { DeviceRotateIcon } from '@phosphor-icons/react/DeviceRotate'
+import { DevicesIcon } from '@phosphor-icons/react/Devices'
+import { DeviceTabletIcon } from '@phosphor-icons/react/DeviceTablet'
+import { DeviceTabletCameraIcon } from '@phosphor-icons/react/DeviceTabletCamera'
+import { DeviceTabletSpeakerIcon } from '@phosphor-icons/react/DeviceTabletSpeaker'
+import { DevToLogoIcon } from '@phosphor-icons/react/DevToLogo'
+import { DiamondIcon } from '@phosphor-icons/react/Diamond'
+import { DiamondsFourIcon } from '@phosphor-icons/react/DiamondsFour'
+import { DiceFiveIcon } from '@phosphor-icons/react/DiceFive'
+import { DiceFourIcon } from '@phosphor-icons/react/DiceFour'
+import { DiceOneIcon } from '@phosphor-icons/react/DiceOne'
+import { DiceSixIcon } from '@phosphor-icons/react/DiceSix'
+import { DiceThreeIcon } from '@phosphor-icons/react/DiceThree'
+import { DiceTwoIcon } from '@phosphor-icons/react/DiceTwo'
+import { DiscIcon } from '@phosphor-icons/react/Disc'
+import { DiscoBallIcon } from '@phosphor-icons/react/DiscoBall'
+import { DiscordLogoIcon } from '@phosphor-icons/react/DiscordLogo'
+import { DivideIcon } from '@phosphor-icons/react/Divide'
+import { DnaIcon } from '@phosphor-icons/react/Dna'
+import { DogIcon } from '@phosphor-icons/react/Dog'
+import { DoorIcon } from '@phosphor-icons/react/Door'
+import { DoorOpenIcon } from '@phosphor-icons/react/DoorOpen'
+import { DotIcon } from '@phosphor-icons/react/Dot'
+import { DotOutlineIcon } from '@phosphor-icons/react/DotOutline'
+import { DotsNineIcon } from '@phosphor-icons/react/DotsNine'
+import { DotsSixIcon } from '@phosphor-icons/react/DotsSix'
+import { DotsSixVerticalIcon } from '@phosphor-icons/react/DotsSixVertical'
+import { DotsThreeIcon } from '@phosphor-icons/react/DotsThree'
+import { DotsThreeCircleIcon } from '@phosphor-icons/react/DotsThreeCircle'
+import { DotsThreeCircleVerticalIcon } from '@phosphor-icons/react/DotsThreeCircleVertical'
+import { DotsThreeOutlineIcon } from '@phosphor-icons/react/DotsThreeOutline'
+import { DotsThreeOutlineVerticalIcon } from '@phosphor-icons/react/DotsThreeOutlineVertical'
+import { DotsThreeVerticalIcon } from '@phosphor-icons/react/DotsThreeVertical'
+import { DownloadIcon } from '@phosphor-icons/react/Download'
+import { DownloadSimpleIcon } from '@phosphor-icons/react/DownloadSimple'
+import { DressIcon } from '@phosphor-icons/react/Dress'
+import { DresserIcon } from '@phosphor-icons/react/Dresser'
+import { DribbbleLogoIcon } from '@phosphor-icons/react/DribbbleLogo'
+import { DroneIcon } from '@phosphor-icons/react/Drone'
+import { DropIcon } from '@phosphor-icons/react/Drop'
+import { DropboxLogoIcon } from '@phosphor-icons/react/DropboxLogo'
+import { DropHalfIcon } from '@phosphor-icons/react/DropHalf'
+import { DropHalfBottomIcon } from '@phosphor-icons/react/DropHalfBottom'
+import { DropSimpleIcon } from '@phosphor-icons/react/DropSimple'
+import { DropSlashIcon } from '@phosphor-icons/react/DropSlash'
+import { EarIcon } from '@phosphor-icons/react/Ear'
+import { EarSlashIcon } from '@phosphor-icons/react/EarSlash'
+import { EggIcon } from '@phosphor-icons/react/Egg'
+import { EggCrackIcon } from '@phosphor-icons/react/EggCrack'
+import { EjectIcon } from '@phosphor-icons/react/Eject'
+import { EjectSimpleIcon } from '@phosphor-icons/react/EjectSimple'
+import { ElevatorIcon } from '@phosphor-icons/react/Elevator'
+import { EmptyIcon } from '@phosphor-icons/react/Empty'
+import { EngineIcon } from '@phosphor-icons/react/Engine'
+import { EnvelopeIcon } from '@phosphor-icons/react/Envelope'
+import { EnvelopeOpenIcon } from '@phosphor-icons/react/EnvelopeOpen'
+import { EnvelopeSimpleIcon } from '@phosphor-icons/react/EnvelopeSimple'
+import { EnvelopeSimpleOpenIcon } from '@phosphor-icons/react/EnvelopeSimpleOpen'
+import { EqualizerIcon } from '@phosphor-icons/react/Equalizer'
+import { EqualsIcon } from '@phosphor-icons/react/Equals'
+import { EraserIcon } from '@phosphor-icons/react/Eraser'
+import { EscalatorDownIcon } from '@phosphor-icons/react/EscalatorDown'
+import { EscalatorUpIcon } from '@phosphor-icons/react/EscalatorUp'
+import { ExamIcon } from '@phosphor-icons/react/Exam'
+import { ExclamationMarkIcon } from '@phosphor-icons/react/ExclamationMark'
+import { ExcludeIcon } from '@phosphor-icons/react/Exclude'
+import { ExcludeSquareIcon } from '@phosphor-icons/react/ExcludeSquare'
+import { ExportIcon } from '@phosphor-icons/react/Export'
+import { EyeIcon } from '@phosphor-icons/react/Eye'
+import { EyeClosedIcon } from '@phosphor-icons/react/EyeClosed'
+import { EyedropperIcon } from '@phosphor-icons/react/Eyedropper'
+import { EyedropperSampleIcon } from '@phosphor-icons/react/EyedropperSample'
+import { EyeglassesIcon } from '@phosphor-icons/react/Eyeglasses'
+import { EyesIcon } from '@phosphor-icons/react/Eyes'
+import { EyeSlashIcon } from '@phosphor-icons/react/EyeSlash'
+import { FacebookLogoIcon } from '@phosphor-icons/react/FacebookLogo'
+import { FaceMaskIcon } from '@phosphor-icons/react/FaceMask'
+import { FactoryIcon } from '@phosphor-icons/react/Factory'
+import { FadersIcon } from '@phosphor-icons/react/Faders'
+import { FadersHorizontalIcon } from '@phosphor-icons/react/FadersHorizontal'
+import { FalloutShelterIcon } from '@phosphor-icons/react/FalloutShelter'
+import { FanIcon } from '@phosphor-icons/react/Fan'
+import { FarmIcon } from '@phosphor-icons/react/Farm'
+import { FastForwardIcon } from '@phosphor-icons/react/FastForward'
+import { FastForwardCircleIcon } from '@phosphor-icons/react/FastForwardCircle'
+import { FeatherIcon } from '@phosphor-icons/react/Feather'
+import { FediverseLogoIcon } from '@phosphor-icons/react/FediverseLogo'
+import { FigmaLogoIcon } from '@phosphor-icons/react/FigmaLogo'
+import { FileIcon } from '@phosphor-icons/react/File'
+import { FileArchiveIcon } from '@phosphor-icons/react/FileArchive'
+import { FileArrowDownIcon } from '@phosphor-icons/react/FileArrowDown'
+import { FileArrowUpIcon } from '@phosphor-icons/react/FileArrowUp'
+import { FileAudioIcon } from '@phosphor-icons/react/FileAudio'
+import { FileCIcon } from '@phosphor-icons/react/FileC'
+import { FileCloudIcon } from '@phosphor-icons/react/FileCloud'
+import { FileCodeIcon } from '@phosphor-icons/react/FileCode'
+import { FileCppIcon } from '@phosphor-icons/react/FileCpp'
+import { FileCSharpIcon } from '@phosphor-icons/react/FileCSharp'
+import { FileCssIcon } from '@phosphor-icons/react/FileCss'
+import { FileCsvIcon } from '@phosphor-icons/react/FileCsv'
+import { FileDashedIcon } from '@phosphor-icons/react/FileDashed'
+import { FileDocIcon } from '@phosphor-icons/react/FileDoc'
+import { FileHtmlIcon } from '@phosphor-icons/react/FileHtml'
+import { FileImageIcon } from '@phosphor-icons/react/FileImage'
+import { FileIniIcon } from '@phosphor-icons/react/FileIni'
+import { FileJpgIcon } from '@phosphor-icons/react/FileJpg'
+import { FileJsIcon } from '@phosphor-icons/react/FileJs'
+import { FileJsxIcon } from '@phosphor-icons/react/FileJsx'
+import { FileLockIcon } from '@phosphor-icons/react/FileLock'
+import { FileMagnifyingGlassIcon } from '@phosphor-icons/react/FileMagnifyingGlass'
+import { FileMdIcon } from '@phosphor-icons/react/FileMd'
+import { FileMinusIcon } from '@phosphor-icons/react/FileMinus'
+import { FilePdfIcon } from '@phosphor-icons/react/FilePdf'
+import { FilePlusIcon } from '@phosphor-icons/react/FilePlus'
+import { FilePngIcon } from '@phosphor-icons/react/FilePng'
+import { FilePptIcon } from '@phosphor-icons/react/FilePpt'
+import { FilePyIcon } from '@phosphor-icons/react/FilePy'
+import { FileRsIcon } from '@phosphor-icons/react/FileRs'
+import { FilesIcon } from '@phosphor-icons/react/Files'
+import { FileSqlIcon } from '@phosphor-icons/react/FileSql'
+import { FileSvgIcon } from '@phosphor-icons/react/FileSvg'
+import { FileTextIcon } from '@phosphor-icons/react/FileText'
+import { FileTsIcon } from '@phosphor-icons/react/FileTs'
+import { FileTsxIcon } from '@phosphor-icons/react/FileTsx'
+import { FileTxtIcon } from '@phosphor-icons/react/FileTxt'
+import { FileVideoIcon } from '@phosphor-icons/react/FileVideo'
+import { FileVueIcon } from '@phosphor-icons/react/FileVue'
+import { FileXIcon } from '@phosphor-icons/react/FileX'
+import { FileXlsIcon } from '@phosphor-icons/react/FileXls'
+import { FileZipIcon } from '@phosphor-icons/react/FileZip'
+import { FilmReelIcon } from '@phosphor-icons/react/FilmReel'
+import { FilmScriptIcon } from '@phosphor-icons/react/FilmScript'
+import { FilmSlateIcon } from '@phosphor-icons/react/FilmSlate'
+import { FilmStripIcon } from '@phosphor-icons/react/FilmStrip'
+import { FingerprintIcon } from '@phosphor-icons/react/Fingerprint'
+import { FingerprintSimpleIcon } from '@phosphor-icons/react/FingerprintSimple'
+import { FinnTheHumanIcon } from '@phosphor-icons/react/FinnTheHuman'
+import { FireIcon } from '@phosphor-icons/react/Fire'
+import { FireExtinguisherIcon } from '@phosphor-icons/react/FireExtinguisher'
+import { FireSimpleIcon } from '@phosphor-icons/react/FireSimple'
+import { FireTruckIcon } from '@phosphor-icons/react/FireTruck'
+import { FirstAidIcon } from '@phosphor-icons/react/FirstAid'
+import { FirstAidKitIcon } from '@phosphor-icons/react/FirstAidKit'
+import { FishIcon } from '@phosphor-icons/react/Fish'
+import { FishSimpleIcon } from '@phosphor-icons/react/FishSimple'
+import { FlagIcon } from '@phosphor-icons/react/Flag'
+import { FlagBannerIcon } from '@phosphor-icons/react/FlagBanner'
+import { FlagBannerFoldIcon } from '@phosphor-icons/react/FlagBannerFold'
+import { FlagCheckeredIcon } from '@phosphor-icons/react/FlagCheckered'
+import { FlagPennantIcon } from '@phosphor-icons/react/FlagPennant'
+import { FlameIcon } from '@phosphor-icons/react/Flame'
+import { FlashlightIcon } from '@phosphor-icons/react/Flashlight'
+import { FlaskIcon } from '@phosphor-icons/react/Flask'
+import { FlipHorizontalIcon } from '@phosphor-icons/react/FlipHorizontal'
+import { FlipVerticalIcon } from '@phosphor-icons/react/FlipVertical'
+import { FloppyDiskIcon } from '@phosphor-icons/react/FloppyDisk'
+import { FloppyDiskBackIcon } from '@phosphor-icons/react/FloppyDiskBack'
+import { FlowArrowIcon } from '@phosphor-icons/react/FlowArrow'
+import { FlowerIcon } from '@phosphor-icons/react/Flower'
+import { FlowerLotusIcon } from '@phosphor-icons/react/FlowerLotus'
+import { FlowerTulipIcon } from '@phosphor-icons/react/FlowerTulip'
+import { FlyingSaucerIcon } from '@phosphor-icons/react/FlyingSaucer'
+import { FolderIcon } from '@phosphor-icons/react/Folder'
+import { FolderDashedIcon } from '@phosphor-icons/react/FolderDashed'
+import { FolderLockIcon } from '@phosphor-icons/react/FolderLock'
+import { FolderMinusIcon } from '@phosphor-icons/react/FolderMinus'
+import { FolderOpenIcon } from '@phosphor-icons/react/FolderOpen'
+import { FolderPlusIcon } from '@phosphor-icons/react/FolderPlus'
+import { FoldersIcon } from '@phosphor-icons/react/Folders'
+import { FolderSimpleIcon } from '@phosphor-icons/react/FolderSimple'
+import { FolderSimpleDashedIcon } from '@phosphor-icons/react/FolderSimpleDashed'
+import { FolderSimpleLockIcon } from '@phosphor-icons/react/FolderSimpleLock'
+import { FolderSimpleMinusIcon } from '@phosphor-icons/react/FolderSimpleMinus'
+import { FolderSimplePlusIcon } from '@phosphor-icons/react/FolderSimplePlus'
+import { FolderSimpleStarIcon } from '@phosphor-icons/react/FolderSimpleStar'
+import { FolderSimpleUserIcon } from '@phosphor-icons/react/FolderSimpleUser'
+import { FolderStarIcon } from '@phosphor-icons/react/FolderStar'
+import { FolderUserIcon } from '@phosphor-icons/react/FolderUser'
+import { FootballIcon } from '@phosphor-icons/react/Football'
+import { FootballHelmetIcon } from '@phosphor-icons/react/FootballHelmet'
+import { FootprintsIcon } from '@phosphor-icons/react/Footprints'
+import { ForkKnifeIcon } from '@phosphor-icons/react/ForkKnife'
+import { FourKIcon } from '@phosphor-icons/react/FourK'
+import { FrameCornersIcon } from '@phosphor-icons/react/FrameCorners'
+import { FramerLogoIcon } from '@phosphor-icons/react/FramerLogo'
+import { FunctionIcon } from '@phosphor-icons/react/Function'
+import { FunnelIcon } from '@phosphor-icons/react/Funnel'
+import { FunnelSimpleIcon } from '@phosphor-icons/react/FunnelSimple'
+import { FunnelSimpleXIcon } from '@phosphor-icons/react/FunnelSimpleX'
+import { FunnelXIcon } from '@phosphor-icons/react/FunnelX'
+import { GameControllerIcon } from '@phosphor-icons/react/GameController'
+import { GarageIcon } from '@phosphor-icons/react/Garage'
+import { GasCanIcon } from '@phosphor-icons/react/GasCan'
+import { GasPumpIcon } from '@phosphor-icons/react/GasPump'
+import { GaugeIcon } from '@phosphor-icons/react/Gauge'
+import { GavelIcon } from '@phosphor-icons/react/Gavel'
+import { GearIcon } from '@phosphor-icons/react/Gear'
+import { GearFineIcon } from '@phosphor-icons/react/GearFine'
+import { GearSixIcon } from '@phosphor-icons/react/GearSix'
+import { GenderFemaleIcon } from '@phosphor-icons/react/GenderFemale'
+import { GenderIntersexIcon } from '@phosphor-icons/react/GenderIntersex'
+import { GenderMaleIcon } from '@phosphor-icons/react/GenderMale'
+import { GenderNeuterIcon } from '@phosphor-icons/react/GenderNeuter'
+import { GenderNonbinaryIcon } from '@phosphor-icons/react/GenderNonbinary'
+import { GenderTransgenderIcon } from '@phosphor-icons/react/GenderTransgender'
+import { GhostIcon } from '@phosphor-icons/react/Ghost'
+import { GifIcon } from '@phosphor-icons/react/Gif'
+import { GiftIcon } from '@phosphor-icons/react/Gift'
+import { GitBranchIcon } from '@phosphor-icons/react/GitBranch'
+import { GitCommitIcon } from '@phosphor-icons/react/GitCommit'
+import { GitDiffIcon } from '@phosphor-icons/react/GitDiff'
+import { GitForkIcon } from '@phosphor-icons/react/GitFork'
+import { GithubLogoIcon } from '@phosphor-icons/react/GithubLogo'
+import { GitlabLogoIcon } from '@phosphor-icons/react/GitlabLogo'
+import { GitlabLogoSimpleIcon } from '@phosphor-icons/react/GitlabLogoSimple'
+import { GitMergeIcon } from '@phosphor-icons/react/GitMerge'
+import { GitPullRequestIcon } from '@phosphor-icons/react/GitPullRequest'
+import { GlobeIcon } from '@phosphor-icons/react/Globe'
+import { GlobeHemisphereEastIcon } from '@phosphor-icons/react/GlobeHemisphereEast'
+import { GlobeHemisphereWestIcon } from '@phosphor-icons/react/GlobeHemisphereWest'
+import { GlobeSimpleIcon } from '@phosphor-icons/react/GlobeSimple'
+import { GlobeSimpleXIcon } from '@phosphor-icons/react/GlobeSimpleX'
+import { GlobeStandIcon } from '@phosphor-icons/react/GlobeStand'
+import { GlobeXIcon } from '@phosphor-icons/react/GlobeX'
+import { GogglesIcon } from '@phosphor-icons/react/Goggles'
+import { GolfIcon } from '@phosphor-icons/react/Golf'
+import { GoodreadsLogoIcon } from '@phosphor-icons/react/GoodreadsLogo'
+import { GoogleCardboardLogoIcon } from '@phosphor-icons/react/GoogleCardboardLogo'
+import { GoogleChromeLogoIcon } from '@phosphor-icons/react/GoogleChromeLogo'
+import { GoogleDriveLogoIcon } from '@phosphor-icons/react/GoogleDriveLogo'
+import { GoogleLogoIcon } from '@phosphor-icons/react/GoogleLogo'
+import { GooglePhotosLogoIcon } from '@phosphor-icons/react/GooglePhotosLogo'
+import { GooglePlayLogoIcon } from '@phosphor-icons/react/GooglePlayLogo'
+import { GooglePodcastsLogoIcon } from '@phosphor-icons/react/GooglePodcastsLogo'
+import { GpsIcon } from '@phosphor-icons/react/Gps'
+import { GpsFixIcon } from '@phosphor-icons/react/GpsFix'
+import { GpsSlashIcon } from '@phosphor-icons/react/GpsSlash'
+import { GradientIcon } from '@phosphor-icons/react/Gradient'
+import { GraduationCapIcon } from '@phosphor-icons/react/GraduationCap'
+import { GrainsIcon } from '@phosphor-icons/react/Grains'
+import { GrainsSlashIcon } from '@phosphor-icons/react/GrainsSlash'
+import { GraphIcon } from '@phosphor-icons/react/Graph'
+import { GraphicsCardIcon } from '@phosphor-icons/react/GraphicsCard'
+import { GreaterThanIcon } from '@phosphor-icons/react/GreaterThan'
+import { GreaterThanOrEqualIcon } from '@phosphor-icons/react/GreaterThanOrEqual'
+import { GridFourIcon } from '@phosphor-icons/react/GridFour'
+import { GridNineIcon } from '@phosphor-icons/react/GridNine'
+import { GuitarIcon } from '@phosphor-icons/react/Guitar'
+import { HairDryerIcon } from '@phosphor-icons/react/HairDryer'
+import { HamburgerIcon } from '@phosphor-icons/react/Hamburger'
+import { HammerIcon } from '@phosphor-icons/react/Hammer'
+import { HandIcon } from '@phosphor-icons/react/Hand'
+import { HandArrowDownIcon } from '@phosphor-icons/react/HandArrowDown'
+import { HandArrowUpIcon } from '@phosphor-icons/react/HandArrowUp'
+import { HandbagIcon } from '@phosphor-icons/react/Handbag'
+import { HandbagSimpleIcon } from '@phosphor-icons/react/HandbagSimple'
+import { HandCoinsIcon } from '@phosphor-icons/react/HandCoins'
+import { HandDepositIcon } from '@phosphor-icons/react/HandDeposit'
+import { HandEyeIcon } from '@phosphor-icons/react/HandEye'
+import { HandFistIcon } from '@phosphor-icons/react/HandFist'
+import { HandGrabbingIcon } from '@phosphor-icons/react/HandGrabbing'
+import { HandHeartIcon } from '@phosphor-icons/react/HandHeart'
+import { HandPalmIcon } from '@phosphor-icons/react/HandPalm'
+import { HandPeaceIcon } from '@phosphor-icons/react/HandPeace'
+import { HandPointingIcon } from '@phosphor-icons/react/HandPointing'
+import { HandsClappingIcon } from '@phosphor-icons/react/HandsClapping'
+import { HandshakeIcon } from '@phosphor-icons/react/Handshake'
+import { HandSoapIcon } from '@phosphor-icons/react/HandSoap'
+import { HandsPrayingIcon } from '@phosphor-icons/react/HandsPraying'
+import { HandSwipeLeftIcon } from '@phosphor-icons/react/HandSwipeLeft'
+import { HandSwipeRightIcon } from '@phosphor-icons/react/HandSwipeRight'
+import { HandTapIcon } from '@phosphor-icons/react/HandTap'
+import { HandWavingIcon } from '@phosphor-icons/react/HandWaving'
+import { HandWithdrawIcon } from '@phosphor-icons/react/HandWithdraw'
+import { HardDriveIcon } from '@phosphor-icons/react/HardDrive'
+import { HardDrivesIcon } from '@phosphor-icons/react/HardDrives'
+import { HardHatIcon } from '@phosphor-icons/react/HardHat'
+import { HashIcon } from '@phosphor-icons/react/Hash'
+import { HashStraightIcon } from '@phosphor-icons/react/HashStraight'
+import { HeadCircuitIcon } from '@phosphor-icons/react/HeadCircuit'
+import { HeadlightsIcon } from '@phosphor-icons/react/Headlights'
+import { HeadphonesIcon } from '@phosphor-icons/react/Headphones'
+import { HeadsetIcon } from '@phosphor-icons/react/Headset'
+import { HeartIcon } from '@phosphor-icons/react/Heart'
+import { HeartbeatIcon } from '@phosphor-icons/react/Heartbeat'
+import { HeartBreakIcon } from '@phosphor-icons/react/HeartBreak'
+import { HeartHalfIcon } from '@phosphor-icons/react/HeartHalf'
+import { HeartStraightIcon } from '@phosphor-icons/react/HeartStraight'
+import { HeartStraightBreakIcon } from '@phosphor-icons/react/HeartStraightBreak'
+import { HexagonIcon } from '@phosphor-icons/react/Hexagon'
+import { HighDefinitionIcon } from '@phosphor-icons/react/HighDefinition'
+import { HighHeelIcon } from '@phosphor-icons/react/HighHeel'
+import { HighlighterIcon } from '@phosphor-icons/react/Highlighter'
+import { HighlighterCircleIcon } from '@phosphor-icons/react/HighlighterCircle'
+import { HockeyIcon } from '@phosphor-icons/react/Hockey'
+import { HoodieIcon } from '@phosphor-icons/react/Hoodie'
+import { HorseIcon } from '@phosphor-icons/react/Horse'
+import { HospitalIcon } from '@phosphor-icons/react/Hospital'
+import { HourglassIcon } from '@phosphor-icons/react/Hourglass'
+import { HourglassHighIcon } from '@phosphor-icons/react/HourglassHigh'
+import { HourglassLowIcon } from '@phosphor-icons/react/HourglassLow'
+import { HourglassMediumIcon } from '@phosphor-icons/react/HourglassMedium'
+import { HourglassSimpleIcon } from '@phosphor-icons/react/HourglassSimple'
+import { HourglassSimpleHighIcon } from '@phosphor-icons/react/HourglassSimpleHigh'
+import { HourglassSimpleLowIcon } from '@phosphor-icons/react/HourglassSimpleLow'
+import { HourglassSimpleMediumIcon } from '@phosphor-icons/react/HourglassSimpleMedium'
+import { HouseIcon } from '@phosphor-icons/react/House'
+import { HouseLineIcon } from '@phosphor-icons/react/HouseLine'
+import { HouseSimpleIcon } from '@phosphor-icons/react/HouseSimple'
+import { HurricaneIcon } from '@phosphor-icons/react/Hurricane'
+import { IceCreamIcon } from '@phosphor-icons/react/IceCream'
+import { IdentificationBadgeIcon } from '@phosphor-icons/react/IdentificationBadge'
+import { IdentificationCardIcon } from '@phosphor-icons/react/IdentificationCard'
+import { ImageIcon } from '@phosphor-icons/react/Image'
+import { ImageBrokenIcon } from '@phosphor-icons/react/ImageBroken'
+import { ImagesIcon } from '@phosphor-icons/react/Images'
+import { ImageSquareIcon } from '@phosphor-icons/react/ImageSquare'
+import { ImagesSquareIcon } from '@phosphor-icons/react/ImagesSquare'
+import { InfinityIcon } from '@phosphor-icons/react/Infinity'
+import { InfoIcon } from '@phosphor-icons/react/Info'
+import { InstagramLogoIcon } from '@phosphor-icons/react/InstagramLogo'
+import { IntersectIcon } from '@phosphor-icons/react/Intersect'
+import { IntersectionIcon } from '@phosphor-icons/react/Intersection'
+import { IntersectSquareIcon } from '@phosphor-icons/react/IntersectSquare'
+import { IntersectThreeIcon } from '@phosphor-icons/react/IntersectThree'
+import { InvoiceIcon } from '@phosphor-icons/react/Invoice'
+import { IslandIcon } from '@phosphor-icons/react/Island'
+import { JarIcon } from '@phosphor-icons/react/Jar'
+import { JarLabelIcon } from '@phosphor-icons/react/JarLabel'
+import { JeepIcon } from '@phosphor-icons/react/Jeep'
+import { JoystickIcon } from '@phosphor-icons/react/Joystick'
+import { KanbanIcon } from '@phosphor-icons/react/Kanban'
+import { KeyIcon } from '@phosphor-icons/react/Key'
+import { KeyboardIcon } from '@phosphor-icons/react/Keyboard'
+import { KeyholeIcon } from '@phosphor-icons/react/Keyhole'
+import { KeyReturnIcon } from '@phosphor-icons/react/KeyReturn'
+import { KnifeIcon } from '@phosphor-icons/react/Knife'
+import { LadderIcon } from '@phosphor-icons/react/Ladder'
+import { LadderSimpleIcon } from '@phosphor-icons/react/LadderSimple'
+import { LampIcon } from '@phosphor-icons/react/Lamp'
+import { LampPendantIcon } from '@phosphor-icons/react/LampPendant'
+import { LaptopIcon } from '@phosphor-icons/react/Laptop'
+import { LassoIcon } from '@phosphor-icons/react/Lasso'
+import { LastfmLogoIcon } from '@phosphor-icons/react/LastfmLogo'
+import { LayoutIcon } from '@phosphor-icons/react/Layout'
+import { LeafIcon } from '@phosphor-icons/react/Leaf'
+import { LecternIcon } from '@phosphor-icons/react/Lectern'
+import { LegoIcon } from '@phosphor-icons/react/Lego'
+import { LegoSmileyIcon } from '@phosphor-icons/react/LegoSmiley'
+import { LessThanIcon } from '@phosphor-icons/react/LessThan'
+import { LessThanOrEqualIcon } from '@phosphor-icons/react/LessThanOrEqual'
+import { LetterCircleHIcon } from '@phosphor-icons/react/LetterCircleH'
+import { LetterCirclePIcon } from '@phosphor-icons/react/LetterCircleP'
+import { LetterCircleVIcon } from '@phosphor-icons/react/LetterCircleV'
+import { LifebuoyIcon } from '@phosphor-icons/react/Lifebuoy'
+import { LightbulbIcon } from '@phosphor-icons/react/Lightbulb'
+import { LightbulbFilamentIcon } from '@phosphor-icons/react/LightbulbFilament'
+import { LighthouseIcon } from '@phosphor-icons/react/Lighthouse'
+import { LightningIcon } from '@phosphor-icons/react/Lightning'
+import { LightningAIcon } from '@phosphor-icons/react/LightningA'
+import { LightningSlashIcon } from '@phosphor-icons/react/LightningSlash'
+import { LineSegmentIcon } from '@phosphor-icons/react/LineSegment'
+import { LineSegmentsIcon } from '@phosphor-icons/react/LineSegments'
+import { LineVerticalIcon } from '@phosphor-icons/react/LineVertical'
+import { LinkIcon } from '@phosphor-icons/react/Link'
+import { LinkBreakIcon } from '@phosphor-icons/react/LinkBreak'
+import { LinkedinLogoIcon } from '@phosphor-icons/react/LinkedinLogo'
+import { LinkSimpleIcon } from '@phosphor-icons/react/LinkSimple'
+import { LinkSimpleBreakIcon } from '@phosphor-icons/react/LinkSimpleBreak'
+import { LinkSimpleHorizontalIcon } from '@phosphor-icons/react/LinkSimpleHorizontal'
+import { LinkSimpleHorizontalBreakIcon } from '@phosphor-icons/react/LinkSimpleHorizontalBreak'
+import { LinktreeLogoIcon } from '@phosphor-icons/react/LinktreeLogo'
+import { LinuxLogoIcon } from '@phosphor-icons/react/LinuxLogo'
+import { ListIcon } from '@phosphor-icons/react/List'
+import { ListBulletsIcon } from '@phosphor-icons/react/ListBullets'
+import { ListChecksIcon } from '@phosphor-icons/react/ListChecks'
+import { ListDashesIcon } from '@phosphor-icons/react/ListDashes'
+import { ListHeartIcon } from '@phosphor-icons/react/ListHeart'
+import { ListMagnifyingGlassIcon } from '@phosphor-icons/react/ListMagnifyingGlass'
+import { ListNumbersIcon } from '@phosphor-icons/react/ListNumbers'
+import { ListPlusIcon } from '@phosphor-icons/react/ListPlus'
+import { ListStarIcon } from '@phosphor-icons/react/ListStar'
+import { LockIcon } from '@phosphor-icons/react/Lock'
+import { LockersIcon } from '@phosphor-icons/react/Lockers'
+import { LockKeyIcon } from '@phosphor-icons/react/LockKey'
+import { LockKeyOpenIcon } from '@phosphor-icons/react/LockKeyOpen'
+import { LockLaminatedIcon } from '@phosphor-icons/react/LockLaminated'
+import { LockLaminatedOpenIcon } from '@phosphor-icons/react/LockLaminatedOpen'
+import { LockOpenIcon } from '@phosphor-icons/react/LockOpen'
+import { LockSimpleIcon } from '@phosphor-icons/react/LockSimple'
+import { LockSimpleOpenIcon } from '@phosphor-icons/react/LockSimpleOpen'
+import { LogIcon } from '@phosphor-icons/react/Log'
+import { MagicWandIcon } from '@phosphor-icons/react/MagicWand'
+import { MagnetIcon } from '@phosphor-icons/react/Magnet'
+import { MagnetStraightIcon } from '@phosphor-icons/react/MagnetStraight'
+import { MagnifyingGlassIcon } from '@phosphor-icons/react/MagnifyingGlass'
+import { MagnifyingGlassMinusIcon } from '@phosphor-icons/react/MagnifyingGlassMinus'
+import { MagnifyingGlassPlusIcon } from '@phosphor-icons/react/MagnifyingGlassPlus'
+import { MailboxIcon } from '@phosphor-icons/react/Mailbox'
+import { MapPinIcon } from '@phosphor-icons/react/MapPin'
+import { MapPinAreaIcon } from '@phosphor-icons/react/MapPinArea'
+import { MapPinLineIcon } from '@phosphor-icons/react/MapPinLine'
+import { MapPinPlusIcon } from '@phosphor-icons/react/MapPinPlus'
+import { MapPinSimpleIcon } from '@phosphor-icons/react/MapPinSimple'
+import { MapPinSimpleAreaIcon } from '@phosphor-icons/react/MapPinSimpleArea'
+import { MapPinSimpleLineIcon } from '@phosphor-icons/react/MapPinSimpleLine'
+import { MapTrifoldIcon } from '@phosphor-icons/react/MapTrifold'
+import { MarkdownLogoIcon } from '@phosphor-icons/react/MarkdownLogo'
+import { MarkerCircleIcon } from '@phosphor-icons/react/MarkerCircle'
+import { MartiniIcon } from '@phosphor-icons/react/Martini'
+import { MaskHappyIcon } from '@phosphor-icons/react/MaskHappy'
+import { MaskSadIcon } from '@phosphor-icons/react/MaskSad'
+import { MastodonLogoIcon } from '@phosphor-icons/react/MastodonLogo'
+import { MathOperationsIcon } from '@phosphor-icons/react/MathOperations'
+import { MatrixLogoIcon } from '@phosphor-icons/react/MatrixLogo'
+import { MedalIcon } from '@phosphor-icons/react/Medal'
+import { MedalMilitaryIcon } from '@phosphor-icons/react/MedalMilitary'
+import { MediumLogoIcon } from '@phosphor-icons/react/MediumLogo'
+import { MegaphoneIcon } from '@phosphor-icons/react/Megaphone'
+import { MegaphoneSimpleIcon } from '@phosphor-icons/react/MegaphoneSimple'
+import { MemberOfIcon } from '@phosphor-icons/react/MemberOf'
+import { MemoryIcon } from '@phosphor-icons/react/Memory'
+import { MessengerLogoIcon } from '@phosphor-icons/react/MessengerLogo'
+import { MetaLogoIcon } from '@phosphor-icons/react/MetaLogo'
+import { MeteorIcon } from '@phosphor-icons/react/Meteor'
+import { MetronomeIcon } from '@phosphor-icons/react/Metronome'
+import { MicrophoneIcon } from '@phosphor-icons/react/Microphone'
+import { MicrophoneSlashIcon } from '@phosphor-icons/react/MicrophoneSlash'
+import { MicrophoneStageIcon } from '@phosphor-icons/react/MicrophoneStage'
+import { MicroscopeIcon } from '@phosphor-icons/react/Microscope'
+import { MicrosoftExcelLogoIcon } from '@phosphor-icons/react/MicrosoftExcelLogo'
+import { MicrosoftOutlookLogoIcon } from '@phosphor-icons/react/MicrosoftOutlookLogo'
+import { MicrosoftPowerpointLogoIcon } from '@phosphor-icons/react/MicrosoftPowerpointLogo'
+import { MicrosoftTeamsLogoIcon } from '@phosphor-icons/react/MicrosoftTeamsLogo'
+import { MicrosoftWordLogoIcon } from '@phosphor-icons/react/MicrosoftWordLogo'
+import { MinusIcon } from '@phosphor-icons/react/Minus'
+import { MinusCircleIcon } from '@phosphor-icons/react/MinusCircle'
+import { MinusSquareIcon } from '@phosphor-icons/react/MinusSquare'
+import { MoneyIcon } from '@phosphor-icons/react/Money'
+import { MoneyWavyIcon } from '@phosphor-icons/react/MoneyWavy'
+import { MonitorIcon } from '@phosphor-icons/react/Monitor'
+import { MonitorArrowUpIcon } from '@phosphor-icons/react/MonitorArrowUp'
+import { MonitorPlayIcon } from '@phosphor-icons/react/MonitorPlay'
+import { MoonIcon } from '@phosphor-icons/react/Moon'
+import { MoonStarsIcon } from '@phosphor-icons/react/MoonStars'
+import { MopedIcon } from '@phosphor-icons/react/Moped'
+import { MopedFrontIcon } from '@phosphor-icons/react/MopedFront'
+import { MosqueIcon } from '@phosphor-icons/react/Mosque'
+import { MotorcycleIcon } from '@phosphor-icons/react/Motorcycle'
+import { MountainsIcon } from '@phosphor-icons/react/Mountains'
+import { MouseIcon } from '@phosphor-icons/react/Mouse'
+import { MouseLeftClickIcon } from '@phosphor-icons/react/MouseLeftClick'
+import { MouseMiddleClickIcon } from '@phosphor-icons/react/MouseMiddleClick'
+import { MouseRightClickIcon } from '@phosphor-icons/react/MouseRightClick'
+import { MouseScrollIcon } from '@phosphor-icons/react/MouseScroll'
+import { MouseSimpleIcon } from '@phosphor-icons/react/MouseSimple'
+import { MusicNoteIcon } from '@phosphor-icons/react/MusicNote'
+import { MusicNotesIcon } from '@phosphor-icons/react/MusicNotes'
+import { MusicNoteSimpleIcon } from '@phosphor-icons/react/MusicNoteSimple'
+import { MusicNotesMinusIcon } from '@phosphor-icons/react/MusicNotesMinus'
+import { MusicNotesPlusIcon } from '@phosphor-icons/react/MusicNotesPlus'
+import { MusicNotesSimpleIcon } from '@phosphor-icons/react/MusicNotesSimple'
+import { NavigationArrowIcon } from '@phosphor-icons/react/NavigationArrow'
+import { NeedleIcon } from '@phosphor-icons/react/Needle'
+import { NetworkIcon } from '@phosphor-icons/react/Network'
+import { NetworkSlashIcon } from '@phosphor-icons/react/NetworkSlash'
+import { NetworkXIcon } from '@phosphor-icons/react/NetworkX'
+import { NewspaperIcon } from '@phosphor-icons/react/Newspaper'
+import { NewspaperClippingIcon } from '@phosphor-icons/react/NewspaperClipping'
+import { NotchesIcon } from '@phosphor-icons/react/Notches'
+import { NoteIcon } from '@phosphor-icons/react/Note'
+import { NoteBlankIcon } from '@phosphor-icons/react/NoteBlank'
+import { NotebookIcon } from '@phosphor-icons/react/Notebook'
+import { NotepadIcon } from '@phosphor-icons/react/Notepad'
+import { NotePencilIcon } from '@phosphor-icons/react/NotePencil'
+import { NotEqualsIcon } from '@phosphor-icons/react/NotEquals'
+import { NotificationIcon } from '@phosphor-icons/react/Notification'
+import { NotionLogoIcon } from '@phosphor-icons/react/NotionLogo'
+import { NotMemberOfIcon } from '@phosphor-icons/react/NotMemberOf'
+import { NotSubsetOfIcon } from '@phosphor-icons/react/NotSubsetOf'
+import { NotSupersetOfIcon } from '@phosphor-icons/react/NotSupersetOf'
+import { NuclearPlantIcon } from '@phosphor-icons/react/NuclearPlant'
+import { NumberCircleEightIcon } from '@phosphor-icons/react/NumberCircleEight'
+import { NumberCircleFiveIcon } from '@phosphor-icons/react/NumberCircleFive'
+import { NumberCircleFourIcon } from '@phosphor-icons/react/NumberCircleFour'
+import { NumberCircleNineIcon } from '@phosphor-icons/react/NumberCircleNine'
+import { NumberCircleOneIcon } from '@phosphor-icons/react/NumberCircleOne'
+import { NumberCircleSevenIcon } from '@phosphor-icons/react/NumberCircleSeven'
+import { NumberCircleSixIcon } from '@phosphor-icons/react/NumberCircleSix'
+import { NumberCircleThreeIcon } from '@phosphor-icons/react/NumberCircleThree'
+import { NumberCircleTwoIcon } from '@phosphor-icons/react/NumberCircleTwo'
+import { NumberCircleZeroIcon } from '@phosphor-icons/react/NumberCircleZero'
+import { NumberEightIcon } from '@phosphor-icons/react/NumberEight'
+import { NumberFiveIcon } from '@phosphor-icons/react/NumberFive'
+import { NumberFourIcon } from '@phosphor-icons/react/NumberFour'
+import { NumberNineIcon } from '@phosphor-icons/react/NumberNine'
+import { NumberOneIcon } from '@phosphor-icons/react/NumberOne'
+import { NumberSevenIcon } from '@phosphor-icons/react/NumberSeven'
+import { NumberSixIcon } from '@phosphor-icons/react/NumberSix'
+import { NumberSquareEightIcon } from '@phosphor-icons/react/NumberSquareEight'
+import { NumberSquareFiveIcon } from '@phosphor-icons/react/NumberSquareFive'
+import { NumberSquareFourIcon } from '@phosphor-icons/react/NumberSquareFour'
+import { NumberSquareNineIcon } from '@phosphor-icons/react/NumberSquareNine'
+import { NumberSquareOneIcon } from '@phosphor-icons/react/NumberSquareOne'
+import { NumberSquareSevenIcon } from '@phosphor-icons/react/NumberSquareSeven'
+import { NumberSquareSixIcon } from '@phosphor-icons/react/NumberSquareSix'
+import { NumberSquareThreeIcon } from '@phosphor-icons/react/NumberSquareThree'
+import { NumberSquareTwoIcon } from '@phosphor-icons/react/NumberSquareTwo'
+import { NumberSquareZeroIcon } from '@phosphor-icons/react/NumberSquareZero'
+import { NumberThreeIcon } from '@phosphor-icons/react/NumberThree'
+import { NumberTwoIcon } from '@phosphor-icons/react/NumberTwo'
+import { NumberZeroIcon } from '@phosphor-icons/react/NumberZero'
+import { NumpadIcon } from '@phosphor-icons/react/Numpad'
+import { NutIcon } from '@phosphor-icons/react/Nut'
+import { NyTimesLogoIcon } from '@phosphor-icons/react/NyTimesLogo'
+import { OctagonIcon } from '@phosphor-icons/react/Octagon'
+import { OfficeChairIcon } from '@phosphor-icons/react/OfficeChair'
+import { OnigiriIcon } from '@phosphor-icons/react/Onigiri'
+import { OpenAiLogoIcon } from '@phosphor-icons/react/OpenAiLogo'
+import { OptionIcon } from '@phosphor-icons/react/Option'
+import { OrangeIcon } from '@phosphor-icons/react/Orange'
+import { OrangeSliceIcon } from '@phosphor-icons/react/OrangeSlice'
+import { OvenIcon } from '@phosphor-icons/react/Oven'
+import { PackageIcon } from '@phosphor-icons/react/Package'
+import { PaintBrushIcon } from '@phosphor-icons/react/PaintBrush'
+import { PaintBrushBroadIcon } from '@phosphor-icons/react/PaintBrushBroad'
+import { PaintBrushHouseholdIcon } from '@phosphor-icons/react/PaintBrushHousehold'
+import { PaintBucketIcon } from '@phosphor-icons/react/PaintBucket'
+import { PaintRollerIcon } from '@phosphor-icons/react/PaintRoller'
+import { PaletteIcon } from '@phosphor-icons/react/Palette'
+import { PanoramaIcon } from '@phosphor-icons/react/Panorama'
+import { PantsIcon } from '@phosphor-icons/react/Pants'
+import { PaperclipIcon } from '@phosphor-icons/react/Paperclip'
+import { PaperclipHorizontalIcon } from '@phosphor-icons/react/PaperclipHorizontal'
+import { PaperPlaneIcon } from '@phosphor-icons/react/PaperPlane'
+import { PaperPlaneRightIcon } from '@phosphor-icons/react/PaperPlaneRight'
+import { PaperPlaneTiltIcon } from '@phosphor-icons/react/PaperPlaneTilt'
+import { ParachuteIcon } from '@phosphor-icons/react/Parachute'
+import { ParagraphIcon } from '@phosphor-icons/react/Paragraph'
+import { ParallelogramIcon } from '@phosphor-icons/react/Parallelogram'
+import { ParkIcon } from '@phosphor-icons/react/Park'
+import { PasswordIcon } from '@phosphor-icons/react/Password'
+import { PathIcon } from '@phosphor-icons/react/Path'
+import { PatreonLogoIcon } from '@phosphor-icons/react/PatreonLogo'
+import { PauseIcon } from '@phosphor-icons/react/Pause'
+import { PauseCircleIcon } from '@phosphor-icons/react/PauseCircle'
+import { PawPrintIcon } from '@phosphor-icons/react/PawPrint'
+import { PaypalLogoIcon } from '@phosphor-icons/react/PaypalLogo'
+import { PeaceIcon } from '@phosphor-icons/react/Peace'
+import { PenIcon } from '@phosphor-icons/react/Pen'
+import { PencilIcon } from '@phosphor-icons/react/Pencil'
+import { PencilCircleIcon } from '@phosphor-icons/react/PencilCircle'
+import { PencilLineIcon } from '@phosphor-icons/react/PencilLine'
+import { PencilRulerIcon } from '@phosphor-icons/react/PencilRuler'
+import { PencilSimpleIcon } from '@phosphor-icons/react/PencilSimple'
+import { PencilSimpleLineIcon } from '@phosphor-icons/react/PencilSimpleLine'
+import { PencilSimpleSlashIcon } from '@phosphor-icons/react/PencilSimpleSlash'
+import { PencilSlashIcon } from '@phosphor-icons/react/PencilSlash'
+import { PenNibIcon } from '@phosphor-icons/react/PenNib'
+import { PenNibStraightIcon } from '@phosphor-icons/react/PenNibStraight'
+import { PentagonIcon } from '@phosphor-icons/react/Pentagon'
+import { PentagramIcon } from '@phosphor-icons/react/Pentagram'
+import { PepperIcon } from '@phosphor-icons/react/Pepper'
+import { PercentIcon } from '@phosphor-icons/react/Percent'
+import { PersonIcon } from '@phosphor-icons/react/Person'
+import { PersonArmsSpreadIcon } from '@phosphor-icons/react/PersonArmsSpread'
+import { PersonSimpleIcon } from '@phosphor-icons/react/PersonSimple'
+import { PersonSimpleBikeIcon } from '@phosphor-icons/react/PersonSimpleBike'
+import { PersonSimpleCircleIcon } from '@phosphor-icons/react/PersonSimpleCircle'
+import { PersonSimpleHikeIcon } from '@phosphor-icons/react/PersonSimpleHike'
+import { PersonSimpleRunIcon } from '@phosphor-icons/react/PersonSimpleRun'
+import { PersonSimpleSkiIcon } from '@phosphor-icons/react/PersonSimpleSki'
+import { PersonSimpleSnowboardIcon } from '@phosphor-icons/react/PersonSimpleSnowboard'
+import { PersonSimpleSwimIcon } from '@phosphor-icons/react/PersonSimpleSwim'
+import { PersonSimpleTaiChiIcon } from '@phosphor-icons/react/PersonSimpleTaiChi'
+import { PersonSimpleThrowIcon } from '@phosphor-icons/react/PersonSimpleThrow'
+import { PersonSimpleWalkIcon } from '@phosphor-icons/react/PersonSimpleWalk'
+import { PerspectiveIcon } from '@phosphor-icons/react/Perspective'
+import { PhoneIcon } from '@phosphor-icons/react/Phone'
+import { PhoneCallIcon } from '@phosphor-icons/react/PhoneCall'
+import { PhoneDisconnectIcon } from '@phosphor-icons/react/PhoneDisconnect'
+import { PhoneIncomingIcon } from '@phosphor-icons/react/PhoneIncoming'
+import { PhoneListIcon } from '@phosphor-icons/react/PhoneList'
+import { PhoneOutgoingIcon } from '@phosphor-icons/react/PhoneOutgoing'
+import { PhonePauseIcon } from '@phosphor-icons/react/PhonePause'
+import { PhonePlusIcon } from '@phosphor-icons/react/PhonePlus'
+import { PhoneSlashIcon } from '@phosphor-icons/react/PhoneSlash'
+import { PhoneTransferIcon } from '@phosphor-icons/react/PhoneTransfer'
+import { PhoneXIcon } from '@phosphor-icons/react/PhoneX'
+import { PhosphorLogoIcon } from '@phosphor-icons/react/PhosphorLogo'
+import { PiIcon } from '@phosphor-icons/react/Pi'
+import { PianoKeysIcon } from '@phosphor-icons/react/PianoKeys'
+import { PicnicTableIcon } from '@phosphor-icons/react/PicnicTable'
+import { PictureInPictureIcon } from '@phosphor-icons/react/PictureInPicture'
+import { PiggyBankIcon } from '@phosphor-icons/react/PiggyBank'
+import { PillIcon } from '@phosphor-icons/react/Pill'
+import { PingPongIcon } from '@phosphor-icons/react/PingPong'
+import { PinterestLogoIcon } from '@phosphor-icons/react/PinterestLogo'
+import { PintGlassIcon } from '@phosphor-icons/react/PintGlass'
+import { PinwheelIcon } from '@phosphor-icons/react/Pinwheel'
+import { PipeIcon } from '@phosphor-icons/react/Pipe'
+import { PipeWrenchIcon } from '@phosphor-icons/react/PipeWrench'
+import { PixLogoIcon } from '@phosphor-icons/react/PixLogo'
+import { PizzaIcon } from '@phosphor-icons/react/Pizza'
+import { PlaceholderIcon } from '@phosphor-icons/react/Placeholder'
+import { PlanetIcon } from '@phosphor-icons/react/Planet'
+import { PlantIcon } from '@phosphor-icons/react/Plant'
+import { PlayIcon } from '@phosphor-icons/react/Play'
+import { PlayCircleIcon } from '@phosphor-icons/react/PlayCircle'
+import { PlaylistIcon } from '@phosphor-icons/react/Playlist'
+import { PlayPauseIcon } from '@phosphor-icons/react/PlayPause'
+import { PlugIcon } from '@phosphor-icons/react/Plug'
+import { PlugChargingIcon } from '@phosphor-icons/react/PlugCharging'
+import { PlugsIcon } from '@phosphor-icons/react/Plugs'
+import { PlugsConnectedIcon } from '@phosphor-icons/react/PlugsConnected'
+import { PlusIcon } from '@phosphor-icons/react/Plus'
+import { PlusCircleIcon } from '@phosphor-icons/react/PlusCircle'
+import { PlusMinusIcon } from '@phosphor-icons/react/PlusMinus'
+import { PlusSquareIcon } from '@phosphor-icons/react/PlusSquare'
+import { PokerChipIcon } from '@phosphor-icons/react/PokerChip'
+import { PoliceCarIcon } from '@phosphor-icons/react/PoliceCar'
+import { PolygonIcon } from '@phosphor-icons/react/Polygon'
+import { PopcornIcon } from '@phosphor-icons/react/Popcorn'
+import { PopsicleIcon } from '@phosphor-icons/react/Popsicle'
+import { PottedPlantIcon } from '@phosphor-icons/react/PottedPlant'
+import { PowerIcon } from '@phosphor-icons/react/Power'
+import { PrescriptionIcon } from '@phosphor-icons/react/Prescription'
+import { PresentationIcon } from '@phosphor-icons/react/Presentation'
+import { PresentationChartIcon } from '@phosphor-icons/react/PresentationChart'
+import { PrinterIcon } from '@phosphor-icons/react/Printer'
+import { ProhibitIcon } from '@phosphor-icons/react/Prohibit'
+import { ProhibitInsetIcon } from '@phosphor-icons/react/ProhibitInset'
+import { ProjectorScreenIcon } from '@phosphor-icons/react/ProjectorScreen'
+import { ProjectorScreenChartIcon } from '@phosphor-icons/react/ProjectorScreenChart'
+import { PulseIcon } from '@phosphor-icons/react/Pulse'
+import { PushPinIcon } from '@phosphor-icons/react/PushPin'
+import { PushPinSimpleIcon } from '@phosphor-icons/react/PushPinSimple'
+import { PushPinSimpleSlashIcon } from '@phosphor-icons/react/PushPinSimpleSlash'
+import { PushPinSlashIcon } from '@phosphor-icons/react/PushPinSlash'
+import { PuzzlePieceIcon } from '@phosphor-icons/react/PuzzlePiece'
+import { QrCodeIcon } from '@phosphor-icons/react/QrCode'
+import { QuestionIcon } from '@phosphor-icons/react/Question'
+import { QuestionMarkIcon } from '@phosphor-icons/react/QuestionMark'
+import { QueueIcon } from '@phosphor-icons/react/Queue'
+import { QuotesIcon } from '@phosphor-icons/react/Quotes'
+import { RabbitIcon } from '@phosphor-icons/react/Rabbit'
+import { RacquetIcon } from '@phosphor-icons/react/Racquet'
+import { RadicalIcon } from '@phosphor-icons/react/Radical'
+import { RadioIcon } from '@phosphor-icons/react/Radio'
+import { RadioactiveIcon } from '@phosphor-icons/react/Radioactive'
+import { RadioButtonIcon } from '@phosphor-icons/react/RadioButton'
+import { RainbowIcon } from '@phosphor-icons/react/Rainbow'
+import { RainbowCloudIcon } from '@phosphor-icons/react/RainbowCloud'
+import { RankingIcon } from '@phosphor-icons/react/Ranking'
+import { ReadCvLogoIcon } from '@phosphor-icons/react/ReadCvLogo'
+import { ReceiptIcon } from '@phosphor-icons/react/Receipt'
+import { ReceiptXIcon } from '@phosphor-icons/react/ReceiptX'
+import { RecordIcon } from '@phosphor-icons/react/Record'
+import { RectangleIcon } from '@phosphor-icons/react/Rectangle'
+import { RectangleDashedIcon } from '@phosphor-icons/react/RectangleDashed'
+import { RecycleIcon } from '@phosphor-icons/react/Recycle'
+import { RedditLogoIcon } from '@phosphor-icons/react/RedditLogo'
+import { RepeatIcon } from '@phosphor-icons/react/Repeat'
+import { RepeatOnceIcon } from '@phosphor-icons/react/RepeatOnce'
+import { ReplitLogoIcon } from '@phosphor-icons/react/ReplitLogo'
+import { ResizeIcon } from '@phosphor-icons/react/Resize'
+import { RewindIcon } from '@phosphor-icons/react/Rewind'
+import { RewindCircleIcon } from '@phosphor-icons/react/RewindCircle'
+import { RoadHorizonIcon } from '@phosphor-icons/react/RoadHorizon'
+import { RobotIcon } from '@phosphor-icons/react/Robot'
+import { RocketIcon } from '@phosphor-icons/react/Rocket'
+import { RocketLaunchIcon } from '@phosphor-icons/react/RocketLaunch'
+import { RowsIcon } from '@phosphor-icons/react/Rows'
+import { RowsPlusBottomIcon } from '@phosphor-icons/react/RowsPlusBottom'
+import { RowsPlusTopIcon } from '@phosphor-icons/react/RowsPlusTop'
+import { RssIcon } from '@phosphor-icons/react/Rss'
+import { RssSimpleIcon } from '@phosphor-icons/react/RssSimple'
+import { RugIcon } from '@phosphor-icons/react/Rug'
+import { RulerIcon } from '@phosphor-icons/react/Ruler'
+import { SailboatIcon } from '@phosphor-icons/react/Sailboat'
+import { ScalesIcon } from '@phosphor-icons/react/Scales'
+import { ScanIcon } from '@phosphor-icons/react/Scan'
+import { ScanSmileyIcon } from '@phosphor-icons/react/ScanSmiley'
+import { ScissorsIcon } from '@phosphor-icons/react/Scissors'
+import { ScooterIcon } from '@phosphor-icons/react/Scooter'
+import { ScreencastIcon } from '@phosphor-icons/react/Screencast'
+import { ScrewdriverIcon } from '@phosphor-icons/react/Screwdriver'
+import { ScribbleIcon } from '@phosphor-icons/react/Scribble'
+import { ScribbleLoopIcon } from '@phosphor-icons/react/ScribbleLoop'
+import { ScrollIcon } from '@phosphor-icons/react/Scroll'
+import { SealIcon } from '@phosphor-icons/react/Seal'
+import { SealCheckIcon } from '@phosphor-icons/react/SealCheck'
+import { SealPercentIcon } from '@phosphor-icons/react/SealPercent'
+import { SealQuestionIcon } from '@phosphor-icons/react/SealQuestion'
+import { SealWarningIcon } from '@phosphor-icons/react/SealWarning'
+import { SeatIcon } from '@phosphor-icons/react/Seat'
+import { SeatbeltIcon } from '@phosphor-icons/react/Seatbelt'
+import { SecurityCameraIcon } from '@phosphor-icons/react/SecurityCamera'
+import { SelectionIcon } from '@phosphor-icons/react/Selection'
+import { SelectionAllIcon } from '@phosphor-icons/react/SelectionAll'
+import { SelectionBackgroundIcon } from '@phosphor-icons/react/SelectionBackground'
+import { SelectionForegroundIcon } from '@phosphor-icons/react/SelectionForeground'
+import { SelectionInverseIcon } from '@phosphor-icons/react/SelectionInverse'
+import { SelectionPlusIcon } from '@phosphor-icons/react/SelectionPlus'
+import { SelectionSlashIcon } from '@phosphor-icons/react/SelectionSlash'
+import { ShapesIcon } from '@phosphor-icons/react/Shapes'
+import { ShareIcon } from '@phosphor-icons/react/Share'
+import { ShareFatIcon } from '@phosphor-icons/react/ShareFat'
+import { ShareNetworkIcon } from '@phosphor-icons/react/ShareNetwork'
+import { ShieldIcon } from '@phosphor-icons/react/Shield'
+import { ShieldCheckIcon } from '@phosphor-icons/react/ShieldCheck'
+import { ShieldCheckeredIcon } from '@phosphor-icons/react/ShieldCheckered'
+import { ShieldChevronIcon } from '@phosphor-icons/react/ShieldChevron'
+import { ShieldPlusIcon } from '@phosphor-icons/react/ShieldPlus'
+import { ShieldSlashIcon } from '@phosphor-icons/react/ShieldSlash'
+import { ShieldStarIcon } from '@phosphor-icons/react/ShieldStar'
+import { ShieldWarningIcon } from '@phosphor-icons/react/ShieldWarning'
+import { ShippingContainerIcon } from '@phosphor-icons/react/ShippingContainer'
+import { ShirtFoldedIcon } from '@phosphor-icons/react/ShirtFolded'
+import { ShootingStarIcon } from '@phosphor-icons/react/ShootingStar'
+import { ShoppingBagIcon } from '@phosphor-icons/react/ShoppingBag'
+import { ShoppingBagOpenIcon } from '@phosphor-icons/react/ShoppingBagOpen'
+import { ShoppingCartIcon } from '@phosphor-icons/react/ShoppingCart'
+import { ShoppingCartSimpleIcon } from '@phosphor-icons/react/ShoppingCartSimple'
+import { ShovelIcon } from '@phosphor-icons/react/Shovel'
+import { ShowerIcon } from '@phosphor-icons/react/Shower'
+import { ShrimpIcon } from '@phosphor-icons/react/Shrimp'
+import { ShuffleIcon } from '@phosphor-icons/react/Shuffle'
+import { ShuffleAngularIcon } from '@phosphor-icons/react/ShuffleAngular'
+import { ShuffleSimpleIcon } from '@phosphor-icons/react/ShuffleSimple'
+import { SidebarIcon } from '@phosphor-icons/react/Sidebar'
+import { SidebarSimpleIcon } from '@phosphor-icons/react/SidebarSimple'
+import { SigmaIcon } from '@phosphor-icons/react/Sigma'
+import { SignatureIcon } from '@phosphor-icons/react/Signature'
+import { SignInIcon } from '@phosphor-icons/react/SignIn'
+import { SignOutIcon } from '@phosphor-icons/react/SignOut'
+import { SignpostIcon } from '@phosphor-icons/react/Signpost'
+import { SimCardIcon } from '@phosphor-icons/react/SimCard'
+import { SirenIcon } from '@phosphor-icons/react/Siren'
+import { SketchLogoIcon } from '@phosphor-icons/react/SketchLogo'
+import { SkipBackIcon } from '@phosphor-icons/react/SkipBack'
+import { SkipBackCircleIcon } from '@phosphor-icons/react/SkipBackCircle'
+import { SkipForwardIcon } from '@phosphor-icons/react/SkipForward'
+import { SkipForwardCircleIcon } from '@phosphor-icons/react/SkipForwardCircle'
+import { SkullIcon } from '@phosphor-icons/react/Skull'
+import { SkypeLogoIcon } from '@phosphor-icons/react/SkypeLogo'
+import { SlackLogoIcon } from '@phosphor-icons/react/SlackLogo'
+import { SlidersIcon } from '@phosphor-icons/react/Sliders'
+import { SlidersHorizontalIcon } from '@phosphor-icons/react/SlidersHorizontal'
+import { SlideshowIcon } from '@phosphor-icons/react/Slideshow'
+import { SmileyIcon } from '@phosphor-icons/react/Smiley'
+import { SmileyAngryIcon } from '@phosphor-icons/react/SmileyAngry'
+import { SmileyBlankIcon } from '@phosphor-icons/react/SmileyBlank'
+import { SmileyMehIcon } from '@phosphor-icons/react/SmileyMeh'
+import { SmileyMeltingIcon } from '@phosphor-icons/react/SmileyMelting'
+import { SmileyNervousIcon } from '@phosphor-icons/react/SmileyNervous'
+import { SmileySadIcon } from '@phosphor-icons/react/SmileySad'
+import { SmileyStickerIcon } from '@phosphor-icons/react/SmileySticker'
+import { SmileyWinkIcon } from '@phosphor-icons/react/SmileyWink'
+import { SmileyXEyesIcon } from '@phosphor-icons/react/SmileyXEyes'
+import { SnapchatLogoIcon } from '@phosphor-icons/react/SnapchatLogo'
+import { SneakerIcon } from '@phosphor-icons/react/Sneaker'
+import { SneakerMoveIcon } from '@phosphor-icons/react/SneakerMove'
+import { SnowflakeIcon } from '@phosphor-icons/react/Snowflake'
+import { SoccerBallIcon } from '@phosphor-icons/react/SoccerBall'
+import { SockIcon } from '@phosphor-icons/react/Sock'
+import { SolarPanelIcon } from '@phosphor-icons/react/SolarPanel'
+import { SolarRoofIcon } from '@phosphor-icons/react/SolarRoof'
+import { SortAscendingIcon } from '@phosphor-icons/react/SortAscending'
+import { SortDescendingIcon } from '@phosphor-icons/react/SortDescending'
+import { SoundcloudLogoIcon } from '@phosphor-icons/react/SoundcloudLogo'
+import { SpadeIcon } from '@phosphor-icons/react/Spade'
+import { SparkleIcon } from '@phosphor-icons/react/Sparkle'
+import { SpeakerHifiIcon } from '@phosphor-icons/react/SpeakerHifi'
+import { SpeakerHighIcon } from '@phosphor-icons/react/SpeakerHigh'
+import { SpeakerLowIcon } from '@phosphor-icons/react/SpeakerLow'
+import { SpeakerNoneIcon } from '@phosphor-icons/react/SpeakerNone'
+import { SpeakerSimpleHighIcon } from '@phosphor-icons/react/SpeakerSimpleHigh'
+import { SpeakerSimpleLowIcon } from '@phosphor-icons/react/SpeakerSimpleLow'
+import { SpeakerSimpleNoneIcon } from '@phosphor-icons/react/SpeakerSimpleNone'
+import { SpeakerSimpleSlashIcon } from '@phosphor-icons/react/SpeakerSimpleSlash'
+import { SpeakerSimpleXIcon } from '@phosphor-icons/react/SpeakerSimpleX'
+import { SpeakerSlashIcon } from '@phosphor-icons/react/SpeakerSlash'
+import { SpeakerXIcon } from '@phosphor-icons/react/SpeakerX'
+import { SpeedometerIcon } from '@phosphor-icons/react/Speedometer'
+import { SphereIcon } from '@phosphor-icons/react/Sphere'
+import { SpinnerIcon } from '@phosphor-icons/react/Spinner'
+import { SpinnerBallIcon } from '@phosphor-icons/react/SpinnerBall'
+import { SpinnerGapIcon } from '@phosphor-icons/react/SpinnerGap'
+import { SpiralIcon } from '@phosphor-icons/react/Spiral'
+import { SplitHorizontalIcon } from '@phosphor-icons/react/SplitHorizontal'
+import { SplitVerticalIcon } from '@phosphor-icons/react/SplitVertical'
+import { SpotifyLogoIcon } from '@phosphor-icons/react/SpotifyLogo'
+import { SprayBottleIcon } from '@phosphor-icons/react/SprayBottle'
+import { SquareIcon } from '@phosphor-icons/react/Square'
+import { SquareHalfIcon } from '@phosphor-icons/react/SquareHalf'
+import { SquareHalfBottomIcon } from '@phosphor-icons/react/SquareHalfBottom'
+import { SquareLogoIcon } from '@phosphor-icons/react/SquareLogo'
+import { SquaresFourIcon } from '@phosphor-icons/react/SquaresFour'
+import { SquareSplitHorizontalIcon } from '@phosphor-icons/react/SquareSplitHorizontal'
+import { SquareSplitVerticalIcon } from '@phosphor-icons/react/SquareSplitVertical'
+import { StackIcon } from '@phosphor-icons/react/Stack'
+import { StackMinusIcon } from '@phosphor-icons/react/StackMinus'
+import { StackOverflowLogoIcon } from '@phosphor-icons/react/StackOverflowLogo'
+import { StackPlusIcon } from '@phosphor-icons/react/StackPlus'
+import { StackSimpleIcon } from '@phosphor-icons/react/StackSimple'
+import { StairsIcon } from '@phosphor-icons/react/Stairs'
+import { StampIcon } from '@phosphor-icons/react/Stamp'
+import { StandardDefinitionIcon } from '@phosphor-icons/react/StandardDefinition'
+import { StarIcon } from '@phosphor-icons/react/Star'
+import { StarAndCrescentIcon } from '@phosphor-icons/react/StarAndCrescent'
+import { StarFourIcon } from '@phosphor-icons/react/StarFour'
+import { StarHalfIcon } from '@phosphor-icons/react/StarHalf'
+import { StarOfDavidIcon } from '@phosphor-icons/react/StarOfDavid'
+import { SteamLogoIcon } from '@phosphor-icons/react/SteamLogo'
+import { SteeringWheelIcon } from '@phosphor-icons/react/SteeringWheel'
+import { StepsIcon } from '@phosphor-icons/react/Steps'
+import { StethoscopeIcon } from '@phosphor-icons/react/Stethoscope'
+import { StickerIcon } from '@phosphor-icons/react/Sticker'
+import { StoolIcon } from '@phosphor-icons/react/Stool'
+import { StopIcon } from '@phosphor-icons/react/Stop'
+import { StopCircleIcon } from '@phosphor-icons/react/StopCircle'
+import { StorefrontIcon } from '@phosphor-icons/react/Storefront'
+import { StrategyIcon } from '@phosphor-icons/react/Strategy'
+import { StripeLogoIcon } from '@phosphor-icons/react/StripeLogo'
+import { StudentIcon } from '@phosphor-icons/react/Student'
+import { SubsetOfIcon } from '@phosphor-icons/react/SubsetOf'
+import { SubsetProperOfIcon } from '@phosphor-icons/react/SubsetProperOf'
+import { SubtitlesIcon } from '@phosphor-icons/react/Subtitles'
+import { SubtitlesSlashIcon } from '@phosphor-icons/react/SubtitlesSlash'
+import { SubtractIcon } from '@phosphor-icons/react/Subtract'
+import { SubtractSquareIcon } from '@phosphor-icons/react/SubtractSquare'
+import { SubwayIcon } from '@phosphor-icons/react/Subway'
+import { SuitcaseIcon } from '@phosphor-icons/react/Suitcase'
+import { SuitcaseRollingIcon } from '@phosphor-icons/react/SuitcaseRolling'
+import { SuitcaseSimpleIcon } from '@phosphor-icons/react/SuitcaseSimple'
+import { SunIcon } from '@phosphor-icons/react/Sun'
+import { SunDimIcon } from '@phosphor-icons/react/SunDim'
+import { SunglassesIcon } from '@phosphor-icons/react/Sunglasses'
+import { SunHorizonIcon } from '@phosphor-icons/react/SunHorizon'
+import { SupersetOfIcon } from '@phosphor-icons/react/SupersetOf'
+import { SupersetProperOfIcon } from '@phosphor-icons/react/SupersetProperOf'
+import { SwapIcon } from '@phosphor-icons/react/Swap'
+import { SwatchesIcon } from '@phosphor-icons/react/Swatches'
+import { SwimmingPoolIcon } from '@phosphor-icons/react/SwimmingPool'
+import { SwordIcon } from '@phosphor-icons/react/Sword'
+import { SynagogueIcon } from '@phosphor-icons/react/Synagogue'
+import { SyringeIcon } from '@phosphor-icons/react/Syringe'
+import { TableIcon } from '@phosphor-icons/react/Table'
+import { TabsIcon } from '@phosphor-icons/react/Tabs'
+import { TagIcon } from '@phosphor-icons/react/Tag'
+import { TagChevronIcon } from '@phosphor-icons/react/TagChevron'
+import { TagSimpleIcon } from '@phosphor-icons/react/TagSimple'
+import { TargetIcon } from '@phosphor-icons/react/Target'
+import { TaxiIcon } from '@phosphor-icons/react/Taxi'
+import { TeaBagIcon } from '@phosphor-icons/react/TeaBag'
+import { TelegramLogoIcon } from '@phosphor-icons/react/TelegramLogo'
+import { TelevisionIcon } from '@phosphor-icons/react/Television'
+import { TelevisionSimpleIcon } from '@phosphor-icons/react/TelevisionSimple'
+import { TennisBallIcon } from '@phosphor-icons/react/TennisBall'
+import { TentIcon } from '@phosphor-icons/react/Tent'
+import { TerminalIcon } from '@phosphor-icons/react/Terminal'
+import { TerminalWindowIcon } from '@phosphor-icons/react/TerminalWindow'
+import { TestTubeIcon } from '@phosphor-icons/react/TestTube'
+import { TextAaIcon } from '@phosphor-icons/react/TextAa'
+import { TextAlignCenterIcon } from '@phosphor-icons/react/TextAlignCenter'
+import { TextAlignJustifyIcon } from '@phosphor-icons/react/TextAlignJustify'
+import { TextAlignLeftIcon } from '@phosphor-icons/react/TextAlignLeft'
+import { TextAlignRightIcon } from '@phosphor-icons/react/TextAlignRight'
+import { TextAUnderlineIcon } from '@phosphor-icons/react/TextAUnderline'
+import { TextBIcon } from '@phosphor-icons/react/TextB'
+import { TextboxIcon } from '@phosphor-icons/react/Textbox'
+import { TextColumnsIcon } from '@phosphor-icons/react/TextColumns'
+import { TextHIcon } from '@phosphor-icons/react/TextH'
+import { TextHFiveIcon } from '@phosphor-icons/react/TextHFive'
+import { TextHFourIcon } from '@phosphor-icons/react/TextHFour'
+import { TextHOneIcon } from '@phosphor-icons/react/TextHOne'
+import { TextHSixIcon } from '@phosphor-icons/react/TextHSix'
+import { TextHThreeIcon } from '@phosphor-icons/react/TextHThree'
+import { TextHTwoIcon } from '@phosphor-icons/react/TextHTwo'
+import { TextIndentIcon } from '@phosphor-icons/react/TextIndent'
+import { TextItalicIcon } from '@phosphor-icons/react/TextItalic'
+import { TextOutdentIcon } from '@phosphor-icons/react/TextOutdent'
+import { TextStrikethroughIcon } from '@phosphor-icons/react/TextStrikethrough'
+import { TextSubscriptIcon } from '@phosphor-icons/react/TextSubscript'
+import { TextSuperscriptIcon } from '@phosphor-icons/react/TextSuperscript'
+import { TextTIcon } from '@phosphor-icons/react/TextT'
+import { TextTSlashIcon } from '@phosphor-icons/react/TextTSlash'
+import { TextUnderlineIcon } from '@phosphor-icons/react/TextUnderline'
+import { ThermometerIcon } from '@phosphor-icons/react/Thermometer'
+import { ThermometerColdIcon } from '@phosphor-icons/react/ThermometerCold'
+import { ThermometerHotIcon } from '@phosphor-icons/react/ThermometerHot'
+import { ThermometerSimpleIcon } from '@phosphor-icons/react/ThermometerSimple'
+import { ThreadsLogoIcon } from '@phosphor-icons/react/ThreadsLogo'
+import { ThreeDIcon } from '@phosphor-icons/react/ThreeD'
+import { ThumbsDownIcon } from '@phosphor-icons/react/ThumbsDown'
+import { ThumbsUpIcon } from '@phosphor-icons/react/ThumbsUp'
+import { TicketIcon } from '@phosphor-icons/react/Ticket'
+import { TidalLogoIcon } from '@phosphor-icons/react/TidalLogo'
+import { TiktokLogoIcon } from '@phosphor-icons/react/TiktokLogo'
+import { TildeIcon } from '@phosphor-icons/react/Tilde'
+import { TimerIcon } from '@phosphor-icons/react/Timer'
+import { TipiIcon } from '@phosphor-icons/react/Tipi'
+import { TipJarIcon } from '@phosphor-icons/react/TipJar'
+import { TireIcon } from '@phosphor-icons/react/Tire'
+import { ToggleLeftIcon } from '@phosphor-icons/react/ToggleLeft'
+import { ToggleRightIcon } from '@phosphor-icons/react/ToggleRight'
+import { ToiletIcon } from '@phosphor-icons/react/Toilet'
+import { ToiletPaperIcon } from '@phosphor-icons/react/ToiletPaper'
+import { ToolboxIcon } from '@phosphor-icons/react/Toolbox'
+import { ToothIcon } from '@phosphor-icons/react/Tooth'
+import { TornadoIcon } from '@phosphor-icons/react/Tornado'
+import { ToteIcon } from '@phosphor-icons/react/Tote'
+import { ToteSimpleIcon } from '@phosphor-icons/react/ToteSimple'
+import { TowelIcon } from '@phosphor-icons/react/Towel'
+import { TractorIcon } from '@phosphor-icons/react/Tractor'
+import { TrademarkIcon } from '@phosphor-icons/react/Trademark'
+import { TrademarkRegisteredIcon } from '@phosphor-icons/react/TrademarkRegistered'
+import { TrafficConeIcon } from '@phosphor-icons/react/TrafficCone'
+import { TrafficSignIcon } from '@phosphor-icons/react/TrafficSign'
+import { TrafficSignalIcon } from '@phosphor-icons/react/TrafficSignal'
+import { TrainIcon } from '@phosphor-icons/react/Train'
+import { TrainRegionalIcon } from '@phosphor-icons/react/TrainRegional'
+import { TrainSimpleIcon } from '@phosphor-icons/react/TrainSimple'
+import { TramIcon } from '@phosphor-icons/react/Tram'
+import { TranslateIcon } from '@phosphor-icons/react/Translate'
+import { TrashIcon } from '@phosphor-icons/react/Trash'
+import { TrashSimpleIcon } from '@phosphor-icons/react/TrashSimple'
+import { TrayIcon } from '@phosphor-icons/react/Tray'
+import { TrayArrowDownIcon } from '@phosphor-icons/react/TrayArrowDown'
+import { TrayArrowUpIcon } from '@phosphor-icons/react/TrayArrowUp'
+import { TreasureChestIcon } from '@phosphor-icons/react/TreasureChest'
+import { TreeIcon } from '@phosphor-icons/react/Tree'
+import { TreeEvergreenIcon } from '@phosphor-icons/react/TreeEvergreen'
+import { TreePalmIcon } from '@phosphor-icons/react/TreePalm'
+import { TreeStructureIcon } from '@phosphor-icons/react/TreeStructure'
+import { TreeViewIcon } from '@phosphor-icons/react/TreeView'
+import { TrendDownIcon } from '@phosphor-icons/react/TrendDown'
+import { TrendUpIcon } from '@phosphor-icons/react/TrendUp'
+import { TriangleIcon } from '@phosphor-icons/react/Triangle'
+import { TriangleDashedIcon } from '@phosphor-icons/react/TriangleDashed'
+import { TrolleyIcon } from '@phosphor-icons/react/Trolley'
+import { TrolleySuitcaseIcon } from '@phosphor-icons/react/TrolleySuitcase'
+import { TrophyIcon } from '@phosphor-icons/react/Trophy'
+import { TruckIcon } from '@phosphor-icons/react/Truck'
+import { TruckTrailerIcon } from '@phosphor-icons/react/TruckTrailer'
+import { TShirtIcon } from '@phosphor-icons/react/TShirt'
+import { TumblrLogoIcon } from '@phosphor-icons/react/TumblrLogo'
+import { TwitchLogoIcon } from '@phosphor-icons/react/TwitchLogo'
+import { TwitterLogoIcon } from '@phosphor-icons/react/TwitterLogo'
+import { UmbrellaIcon } from '@phosphor-icons/react/Umbrella'
+import { UmbrellaSimpleIcon } from '@phosphor-icons/react/UmbrellaSimple'
+import { UnionIcon } from '@phosphor-icons/react/Union'
+import { UniteIcon } from '@phosphor-icons/react/Unite'
+import { UniteSquareIcon } from '@phosphor-icons/react/UniteSquare'
+import { UploadIcon } from '@phosphor-icons/react/Upload'
+import { UploadSimpleIcon } from '@phosphor-icons/react/UploadSimple'
+import { UsbIcon } from '@phosphor-icons/react/Usb'
+import { UserIcon } from '@phosphor-icons/react/User'
+import { UserCheckIcon } from '@phosphor-icons/react/UserCheck'
+import { UserCircleIcon } from '@phosphor-icons/react/UserCircle'
+import { UserCircleCheckIcon } from '@phosphor-icons/react/UserCircleCheck'
+import { UserCircleDashedIcon } from '@phosphor-icons/react/UserCircleDashed'
+import { UserCircleGearIcon } from '@phosphor-icons/react/UserCircleGear'
+import { UserCircleMinusIcon } from '@phosphor-icons/react/UserCircleMinus'
+import { UserCirclePlusIcon } from '@phosphor-icons/react/UserCirclePlus'
+import { UserFocusIcon } from '@phosphor-icons/react/UserFocus'
+import { UserGearIcon } from '@phosphor-icons/react/UserGear'
+import { UserListIcon } from '@phosphor-icons/react/UserList'
+import { UserMinusIcon } from '@phosphor-icons/react/UserMinus'
+import { UserPlusIcon } from '@phosphor-icons/react/UserPlus'
+import { UserRectangleIcon } from '@phosphor-icons/react/UserRectangle'
+import { UsersIcon } from '@phosphor-icons/react/Users'
+import { UsersFourIcon } from '@phosphor-icons/react/UsersFour'
+import { UserSoundIcon } from '@phosphor-icons/react/UserSound'
+import { UserSquareIcon } from '@phosphor-icons/react/UserSquare'
+import { UsersThreeIcon } from '@phosphor-icons/react/UsersThree'
+import { UserSwitchIcon } from '@phosphor-icons/react/UserSwitch'
+import { VanIcon } from '@phosphor-icons/react/Van'
+import { VaultIcon } from '@phosphor-icons/react/Vault'
+import { VectorThreeIcon } from '@phosphor-icons/react/VectorThree'
+import { VectorTwoIcon } from '@phosphor-icons/react/VectorTwo'
+import { VibrateIcon } from '@phosphor-icons/react/Vibrate'
+import { VideoIcon } from '@phosphor-icons/react/Video'
+import { VideoCameraIcon } from '@phosphor-icons/react/VideoCamera'
+import { VideoCameraSlashIcon } from '@phosphor-icons/react/VideoCameraSlash'
+import { VideoConferenceIcon } from '@phosphor-icons/react/VideoConference'
+import { VignetteIcon } from '@phosphor-icons/react/Vignette'
+import { VinylRecordIcon } from '@phosphor-icons/react/VinylRecord'
+import { VirtualRealityIcon } from '@phosphor-icons/react/VirtualReality'
+import { VirusIcon } from '@phosphor-icons/react/Virus'
+import { VisorIcon } from '@phosphor-icons/react/Visor'
+import { VoicemailIcon } from '@phosphor-icons/react/Voicemail'
+import { VolleyballIcon } from '@phosphor-icons/react/Volleyball'
+import { WallIcon } from '@phosphor-icons/react/Wall'
+import { WalletIcon } from '@phosphor-icons/react/Wallet'
+import { WarehouseIcon } from '@phosphor-icons/react/Warehouse'
+import { WarningIcon } from '@phosphor-icons/react/Warning'
+import { WarningCircleIcon } from '@phosphor-icons/react/WarningCircle'
+import { WarningDiamondIcon } from '@phosphor-icons/react/WarningDiamond'
+import { WarningOctagonIcon } from '@phosphor-icons/react/WarningOctagon'
+import { WashingMachineIcon } from '@phosphor-icons/react/WashingMachine'
+import { WatchIcon } from '@phosphor-icons/react/Watch'
+import { WaveformIcon } from '@phosphor-icons/react/Waveform'
+import { WaveformSlashIcon } from '@phosphor-icons/react/WaveformSlash'
+import { WavesIcon } from '@phosphor-icons/react/Waves'
+import { WaveSawtoothIcon } from '@phosphor-icons/react/WaveSawtooth'
+import { WaveSineIcon } from '@phosphor-icons/react/WaveSine'
+import { WaveSquareIcon } from '@phosphor-icons/react/WaveSquare'
+import { WaveTriangleIcon } from '@phosphor-icons/react/WaveTriangle'
+import { WebcamIcon } from '@phosphor-icons/react/Webcam'
+import { WebcamSlashIcon } from '@phosphor-icons/react/WebcamSlash'
+import { WebhooksLogoIcon } from '@phosphor-icons/react/WebhooksLogo'
+import { WechatLogoIcon } from '@phosphor-icons/react/WechatLogo'
+import { WhatsappLogoIcon } from '@phosphor-icons/react/WhatsappLogo'
+import { WheelchairIcon } from '@phosphor-icons/react/Wheelchair'
+import { WheelchairMotionIcon } from '@phosphor-icons/react/WheelchairMotion'
+import { WifiHighIcon } from '@phosphor-icons/react/WifiHigh'
+import { WifiLowIcon } from '@phosphor-icons/react/WifiLow'
+import { WifiMediumIcon } from '@phosphor-icons/react/WifiMedium'
+import { WifiNoneIcon } from '@phosphor-icons/react/WifiNone'
+import { WifiSlashIcon } from '@phosphor-icons/react/WifiSlash'
+import { WifiXIcon } from '@phosphor-icons/react/WifiX'
+import { WindIcon } from '@phosphor-icons/react/Wind'
+import { WindmillIcon } from '@phosphor-icons/react/Windmill'
+import { WindowsLogoIcon } from '@phosphor-icons/react/WindowsLogo'
+import { WineIcon } from '@phosphor-icons/react/Wine'
+import { WrenchIcon } from '@phosphor-icons/react/Wrench'
+import { XIcon } from '@phosphor-icons/react/X'
+import { XCircleIcon } from '@phosphor-icons/react/XCircle'
+import { XLogoIcon } from '@phosphor-icons/react/XLogo'
+import { XSquareIcon } from '@phosphor-icons/react/XSquare'
+import { YarnIcon } from '@phosphor-icons/react/Yarn'
+import { YinYangIcon } from '@phosphor-icons/react/YinYang'
+import { YoutubeLogoIcon } from '@phosphor-icons/react/YoutubeLogo'
 
 export const phosphorIconRegistry: ReadonlyArray<{
   name: string
   Cmp: Icon
 }> = [
-  { name: 'Acorn', Cmp: Acorn },
-  { name: 'AddressBook', Cmp: AddressBook },
-  { name: 'AddressBookTabs', Cmp: AddressBookTabs },
-  { name: 'Airplane', Cmp: Airplane },
-  { name: 'AirplaneInFlight', Cmp: AirplaneInFlight },
-  { name: 'AirplaneLanding', Cmp: AirplaneLanding },
-  { name: 'AirplaneTakeoff', Cmp: AirplaneTakeoff },
-  { name: 'AirplaneTaxiing', Cmp: AirplaneTaxiing },
-  { name: 'AirplaneTilt', Cmp: AirplaneTilt },
-  { name: 'Airplay', Cmp: Airplay },
-  { name: 'AirTrafficControl', Cmp: AirTrafficControl },
-  { name: 'Alarm', Cmp: Alarm },
-  { name: 'Alien', Cmp: Alien },
-  { name: 'AlignBottom', Cmp: AlignBottom },
-  { name: 'AlignBottomSimple', Cmp: AlignBottomSimple },
-  { name: 'AlignCenterHorizontal', Cmp: AlignCenterHorizontal },
-  { name: 'AlignCenterHorizontalSimple', Cmp: AlignCenterHorizontalSimple },
-  { name: 'AlignCenterVertical', Cmp: AlignCenterVertical },
-  { name: 'AlignCenterVerticalSimple', Cmp: AlignCenterVerticalSimple },
-  { name: 'AlignLeft', Cmp: AlignLeft },
-  { name: 'AlignLeftSimple', Cmp: AlignLeftSimple },
-  { name: 'AlignRight', Cmp: AlignRight },
-  { name: 'AlignRightSimple', Cmp: AlignRightSimple },
-  { name: 'AlignTop', Cmp: AlignTop },
-  { name: 'AlignTopSimple', Cmp: AlignTopSimple },
-  { name: 'AmazonLogo', Cmp: AmazonLogo },
-  { name: 'Ambulance', Cmp: Ambulance },
-  { name: 'Anchor', Cmp: Anchor },
-  { name: 'AnchorSimple', Cmp: AnchorSimple },
-  { name: 'AndroidLogo', Cmp: AndroidLogo },
-  { name: 'Angle', Cmp: Angle },
-  { name: 'AngularLogo', Cmp: AngularLogo },
-  { name: 'Aperture', Cmp: Aperture },
-  { name: 'AppleLogo', Cmp: AppleLogo },
-  { name: 'ApplePodcastsLogo', Cmp: ApplePodcastsLogo },
-  { name: 'ApproximateEquals', Cmp: ApproximateEquals },
-  { name: 'AppStoreLogo', Cmp: AppStoreLogo },
-  { name: 'AppWindow', Cmp: AppWindow },
-  { name: 'Archive', Cmp: Archive },
-  { name: 'Armchair', Cmp: Armchair },
-  { name: 'ArrowArcLeft', Cmp: ArrowArcLeft },
-  { name: 'ArrowArcRight', Cmp: ArrowArcRight },
-  { name: 'ArrowBendDoubleUpLeft', Cmp: ArrowBendDoubleUpLeft },
-  { name: 'ArrowBendDoubleUpRight', Cmp: ArrowBendDoubleUpRight },
-  { name: 'ArrowBendDownLeft', Cmp: ArrowBendDownLeft },
-  { name: 'ArrowBendDownRight', Cmp: ArrowBendDownRight },
-  { name: 'ArrowBendLeftDown', Cmp: ArrowBendLeftDown },
-  { name: 'ArrowBendLeftUp', Cmp: ArrowBendLeftUp },
-  { name: 'ArrowBendRightDown', Cmp: ArrowBendRightDown },
-  { name: 'ArrowBendRightUp', Cmp: ArrowBendRightUp },
-  { name: 'ArrowBendUpLeft', Cmp: ArrowBendUpLeft },
-  { name: 'ArrowBendUpRight', Cmp: ArrowBendUpRight },
-  { name: 'ArrowCircleDown', Cmp: ArrowCircleDown },
-  { name: 'ArrowCircleDownLeft', Cmp: ArrowCircleDownLeft },
-  { name: 'ArrowCircleDownRight', Cmp: ArrowCircleDownRight },
-  { name: 'ArrowCircleLeft', Cmp: ArrowCircleLeft },
-  { name: 'ArrowCircleRight', Cmp: ArrowCircleRight },
-  { name: 'ArrowCircleUp', Cmp: ArrowCircleUp },
-  { name: 'ArrowCircleUpLeft', Cmp: ArrowCircleUpLeft },
-  { name: 'ArrowCircleUpRight', Cmp: ArrowCircleUpRight },
-  { name: 'ArrowClockwise', Cmp: ArrowClockwise },
-  { name: 'ArrowCounterClockwise', Cmp: ArrowCounterClockwise },
-  { name: 'ArrowDown', Cmp: ArrowDown },
-  { name: 'ArrowDownLeft', Cmp: ArrowDownLeft },
-  { name: 'ArrowDownRight', Cmp: ArrowDownRight },
-  { name: 'ArrowElbowDownLeft', Cmp: ArrowElbowDownLeft },
-  { name: 'ArrowElbowDownRight', Cmp: ArrowElbowDownRight },
-  { name: 'ArrowElbowLeft', Cmp: ArrowElbowLeft },
-  { name: 'ArrowElbowLeftDown', Cmp: ArrowElbowLeftDown },
-  { name: 'ArrowElbowLeftUp', Cmp: ArrowElbowLeftUp },
-  { name: 'ArrowElbowRight', Cmp: ArrowElbowRight },
-  { name: 'ArrowElbowRightDown', Cmp: ArrowElbowRightDown },
-  { name: 'ArrowElbowRightUp', Cmp: ArrowElbowRightUp },
-  { name: 'ArrowElbowUpLeft', Cmp: ArrowElbowUpLeft },
-  { name: 'ArrowElbowUpRight', Cmp: ArrowElbowUpRight },
-  { name: 'ArrowFatDown', Cmp: ArrowFatDown },
-  { name: 'ArrowFatLeft', Cmp: ArrowFatLeft },
-  { name: 'ArrowFatLineDown', Cmp: ArrowFatLineDown },
-  { name: 'ArrowFatLineLeft', Cmp: ArrowFatLineLeft },
-  { name: 'ArrowFatLineRight', Cmp: ArrowFatLineRight },
-  { name: 'ArrowFatLinesDown', Cmp: ArrowFatLinesDown },
-  { name: 'ArrowFatLinesLeft', Cmp: ArrowFatLinesLeft },
-  { name: 'ArrowFatLinesRight', Cmp: ArrowFatLinesRight },
-  { name: 'ArrowFatLinesUp', Cmp: ArrowFatLinesUp },
-  { name: 'ArrowFatLineUp', Cmp: ArrowFatLineUp },
-  { name: 'ArrowFatRight', Cmp: ArrowFatRight },
-  { name: 'ArrowFatUp', Cmp: ArrowFatUp },
-  { name: 'ArrowLeft', Cmp: ArrowLeft },
-  { name: 'ArrowLineDown', Cmp: ArrowLineDown },
-  { name: 'ArrowLineDownLeft', Cmp: ArrowLineDownLeft },
-  { name: 'ArrowLineDownRight', Cmp: ArrowLineDownRight },
-  { name: 'ArrowLineLeft', Cmp: ArrowLineLeft },
-  { name: 'ArrowLineRight', Cmp: ArrowLineRight },
-  { name: 'ArrowLineUp', Cmp: ArrowLineUp },
-  { name: 'ArrowLineUpLeft', Cmp: ArrowLineUpLeft },
-  { name: 'ArrowLineUpRight', Cmp: ArrowLineUpRight },
-  { name: 'ArrowRight', Cmp: ArrowRight },
-  { name: 'ArrowsClockwise', Cmp: ArrowsClockwise },
-  { name: 'ArrowsCounterClockwise', Cmp: ArrowsCounterClockwise },
-  { name: 'ArrowsDownUp', Cmp: ArrowsDownUp },
-  { name: 'ArrowsHorizontal', Cmp: ArrowsHorizontal },
-  { name: 'ArrowsIn', Cmp: ArrowsIn },
-  { name: 'ArrowsInCardinal', Cmp: ArrowsInCardinal },
-  { name: 'ArrowsInLineHorizontal', Cmp: ArrowsInLineHorizontal },
-  { name: 'ArrowsInLineVertical', Cmp: ArrowsInLineVertical },
-  { name: 'ArrowsInSimple', Cmp: ArrowsInSimple },
-  { name: 'ArrowsLeftRight', Cmp: ArrowsLeftRight },
-  { name: 'ArrowsMerge', Cmp: ArrowsMerge },
-  { name: 'ArrowsOut', Cmp: ArrowsOut },
-  { name: 'ArrowsOutCardinal', Cmp: ArrowsOutCardinal },
-  { name: 'ArrowsOutLineHorizontal', Cmp: ArrowsOutLineHorizontal },
-  { name: 'ArrowsOutLineVertical', Cmp: ArrowsOutLineVertical },
-  { name: 'ArrowsOutSimple', Cmp: ArrowsOutSimple },
-  { name: 'ArrowSquareDown', Cmp: ArrowSquareDown },
-  { name: 'ArrowSquareDownLeft', Cmp: ArrowSquareDownLeft },
-  { name: 'ArrowSquareDownRight', Cmp: ArrowSquareDownRight },
-  { name: 'ArrowSquareIn', Cmp: ArrowSquareIn },
-  { name: 'ArrowSquareLeft', Cmp: ArrowSquareLeft },
-  { name: 'ArrowSquareOut', Cmp: ArrowSquareOut },
-  { name: 'ArrowSquareRight', Cmp: ArrowSquareRight },
-  { name: 'ArrowSquareUp', Cmp: ArrowSquareUp },
-  { name: 'ArrowSquareUpLeft', Cmp: ArrowSquareUpLeft },
-  { name: 'ArrowSquareUpRight', Cmp: ArrowSquareUpRight },
-  { name: 'ArrowsSplit', Cmp: ArrowsSplit },
-  { name: 'ArrowsVertical', Cmp: ArrowsVertical },
-  { name: 'ArrowUDownLeft', Cmp: ArrowUDownLeft },
-  { name: 'ArrowUDownRight', Cmp: ArrowUDownRight },
-  { name: 'ArrowULeftDown', Cmp: ArrowULeftDown },
-  { name: 'ArrowULeftUp', Cmp: ArrowULeftUp },
-  { name: 'ArrowUp', Cmp: ArrowUp },
-  { name: 'ArrowUpLeft', Cmp: ArrowUpLeft },
-  { name: 'ArrowUpRight', Cmp: ArrowUpRight },
-  { name: 'ArrowURightDown', Cmp: ArrowURightDown },
-  { name: 'ArrowURightUp', Cmp: ArrowURightUp },
-  { name: 'ArrowUUpLeft', Cmp: ArrowUUpLeft },
-  { name: 'ArrowUUpRight', Cmp: ArrowUUpRight },
-  { name: 'Article', Cmp: Article },
-  { name: 'ArticleMedium', Cmp: ArticleMedium },
-  { name: 'ArticleNyTimes', Cmp: ArticleNyTimes },
-  { name: 'Asclepius', Cmp: Asclepius },
-  { name: 'Asterisk', Cmp: Asterisk },
-  { name: 'AsteriskSimple', Cmp: AsteriskSimple },
-  { name: 'At', Cmp: At },
-  { name: 'Atom', Cmp: Atom },
-  { name: 'Avocado', Cmp: Avocado },
-  { name: 'Axe', Cmp: Axe },
-  { name: 'Baby', Cmp: Baby },
-  { name: 'BabyCarriage', Cmp: BabyCarriage },
-  { name: 'Backpack', Cmp: Backpack },
-  { name: 'Backspace', Cmp: Backspace },
-  { name: 'Bag', Cmp: Bag },
-  { name: 'BagSimple', Cmp: BagSimple },
-  { name: 'Balloon', Cmp: Balloon },
-  { name: 'Bandaids', Cmp: Bandaids },
-  { name: 'Bank', Cmp: Bank },
-  { name: 'Barbell', Cmp: Barbell },
-  { name: 'Barcode', Cmp: Barcode },
-  { name: 'Barn', Cmp: Barn },
-  { name: 'Barricade', Cmp: Barricade },
-  { name: 'Baseball', Cmp: Baseball },
-  { name: 'BaseballCap', Cmp: BaseballCap },
-  { name: 'BaseballHelmet', Cmp: BaseballHelmet },
-  { name: 'Basket', Cmp: Basket },
-  { name: 'Basketball', Cmp: Basketball },
-  { name: 'Bathtub', Cmp: Bathtub },
-  { name: 'BatteryCharging', Cmp: BatteryCharging },
-  { name: 'BatteryChargingVertical', Cmp: BatteryChargingVertical },
-  { name: 'BatteryEmpty', Cmp: BatteryEmpty },
-  { name: 'BatteryFull', Cmp: BatteryFull },
-  { name: 'BatteryHigh', Cmp: BatteryHigh },
-  { name: 'BatteryLow', Cmp: BatteryLow },
-  { name: 'BatteryMedium', Cmp: BatteryMedium },
-  { name: 'BatteryPlus', Cmp: BatteryPlus },
-  { name: 'BatteryPlusVertical', Cmp: BatteryPlusVertical },
-  { name: 'BatteryVerticalEmpty', Cmp: BatteryVerticalEmpty },
-  { name: 'BatteryVerticalFull', Cmp: BatteryVerticalFull },
-  { name: 'BatteryVerticalHigh', Cmp: BatteryVerticalHigh },
-  { name: 'BatteryVerticalLow', Cmp: BatteryVerticalLow },
-  { name: 'BatteryVerticalMedium', Cmp: BatteryVerticalMedium },
-  { name: 'BatteryWarning', Cmp: BatteryWarning },
-  { name: 'BatteryWarningVertical', Cmp: BatteryWarningVertical },
-  { name: 'BeachBall', Cmp: BeachBall },
-  { name: 'Beanie', Cmp: Beanie },
-  { name: 'Bed', Cmp: Bed },
-  { name: 'BeerBottle', Cmp: BeerBottle },
-  { name: 'BeerStein', Cmp: BeerStein },
-  { name: 'BehanceLogo', Cmp: BehanceLogo },
-  { name: 'Bell', Cmp: Bell },
-  { name: 'BellRinging', Cmp: BellRinging },
-  { name: 'BellSimple', Cmp: BellSimple },
-  { name: 'BellSimpleRinging', Cmp: BellSimpleRinging },
-  { name: 'BellSimpleSlash', Cmp: BellSimpleSlash },
-  { name: 'BellSimpleZ', Cmp: BellSimpleZ },
-  { name: 'BellSlash', Cmp: BellSlash },
-  { name: 'BellZ', Cmp: BellZ },
-  { name: 'Belt', Cmp: Belt },
-  { name: 'BezierCurve', Cmp: BezierCurve },
-  { name: 'Bicycle', Cmp: Bicycle },
-  { name: 'Binary', Cmp: Binary },
-  { name: 'Binoculars', Cmp: Binoculars },
-  { name: 'Biohazard', Cmp: Biohazard },
-  { name: 'Bird', Cmp: Bird },
-  { name: 'Blueprint', Cmp: Blueprint },
-  { name: 'Bluetooth', Cmp: Bluetooth },
-  { name: 'BluetoothConnected', Cmp: BluetoothConnected },
-  { name: 'BluetoothSlash', Cmp: BluetoothSlash },
-  { name: 'BluetoothX', Cmp: BluetoothX },
-  { name: 'Boat', Cmp: Boat },
-  { name: 'Bomb', Cmp: Bomb },
-  { name: 'Bone', Cmp: Bone },
-  { name: 'Book', Cmp: Book },
-  { name: 'BookBookmark', Cmp: BookBookmark },
-  { name: 'Bookmark', Cmp: Bookmark },
-  { name: 'Bookmarks', Cmp: Bookmarks },
-  { name: 'BookmarkSimple', Cmp: BookmarkSimple },
-  { name: 'BookmarksSimple', Cmp: BookmarksSimple },
-  { name: 'BookOpen', Cmp: BookOpen },
-  { name: 'BookOpenText', Cmp: BookOpenText },
-  { name: 'BookOpenUser', Cmp: BookOpenUser },
-  { name: 'Books', Cmp: Books },
-  { name: 'Boot', Cmp: Boot },
-  { name: 'Boules', Cmp: Boules },
-  { name: 'BoundingBox', Cmp: BoundingBox },
-  { name: 'BowlFood', Cmp: BowlFood },
-  { name: 'BowlingBall', Cmp: BowlingBall },
-  { name: 'BowlSteam', Cmp: BowlSteam },
-  { name: 'BoxArrowDown', Cmp: BoxArrowDown },
-  { name: 'BoxArrowUp', Cmp: BoxArrowUp },
-  { name: 'BoxingGlove', Cmp: BoxingGlove },
-  { name: 'BracketsAngle', Cmp: BracketsAngle },
-  { name: 'BracketsCurly', Cmp: BracketsCurly },
-  { name: 'BracketsRound', Cmp: BracketsRound },
-  { name: 'BracketsSquare', Cmp: BracketsSquare },
-  { name: 'Brain', Cmp: Brain },
-  { name: 'Brandy', Cmp: Brandy },
-  { name: 'Bread', Cmp: Bread },
-  { name: 'Bridge', Cmp: Bridge },
-  { name: 'Briefcase', Cmp: Briefcase },
-  { name: 'BriefcaseMetal', Cmp: BriefcaseMetal },
-  { name: 'Broadcast', Cmp: Broadcast },
-  { name: 'Broom', Cmp: Broom },
-  { name: 'Browser', Cmp: Browser },
-  { name: 'Browsers', Cmp: Browsers },
-  { name: 'Bug', Cmp: Bug },
-  { name: 'BugBeetle', Cmp: BugBeetle },
-  { name: 'BugDroid', Cmp: BugDroid },
-  { name: 'Building', Cmp: Building },
-  { name: 'BuildingApartment', Cmp: BuildingApartment },
-  { name: 'BuildingOffice', Cmp: BuildingOffice },
-  { name: 'Buildings', Cmp: Buildings },
-  { name: 'Bulldozer', Cmp: Bulldozer },
-  { name: 'Bus', Cmp: Bus },
-  { name: 'Butterfly', Cmp: Butterfly },
-  { name: 'CableCar', Cmp: CableCar },
-  { name: 'Cactus', Cmp: Cactus },
-  { name: 'Cake', Cmp: Cake },
-  { name: 'Calculator', Cmp: Calculator },
-  { name: 'Calendar', Cmp: Calendar },
-  { name: 'CalendarBlank', Cmp: CalendarBlank },
-  { name: 'CalendarCheck', Cmp: CalendarCheck },
-  { name: 'CalendarDot', Cmp: CalendarDot },
-  { name: 'CalendarDots', Cmp: CalendarDots },
-  { name: 'CalendarHeart', Cmp: CalendarHeart },
-  { name: 'CalendarMinus', Cmp: CalendarMinus },
-  { name: 'CalendarPlus', Cmp: CalendarPlus },
-  { name: 'CalendarSlash', Cmp: CalendarSlash },
-  { name: 'CalendarStar', Cmp: CalendarStar },
-  { name: 'CalendarX', Cmp: CalendarX },
-  { name: 'CallBell', Cmp: CallBell },
-  { name: 'Camera', Cmp: Camera },
-  { name: 'CameraPlus', Cmp: CameraPlus },
-  { name: 'CameraRotate', Cmp: CameraRotate },
-  { name: 'CameraSlash', Cmp: CameraSlash },
-  { name: 'Campfire', Cmp: Campfire },
-  { name: 'Car', Cmp: Car },
-  { name: 'CarBattery', Cmp: CarBattery },
-  { name: 'Cardholder', Cmp: Cardholder },
-  { name: 'Cards', Cmp: Cards },
-  { name: 'CardsThree', Cmp: CardsThree },
-  { name: 'CaretCircleDoubleDown', Cmp: CaretCircleDoubleDown },
-  { name: 'CaretCircleDoubleLeft', Cmp: CaretCircleDoubleLeft },
-  { name: 'CaretCircleDoubleRight', Cmp: CaretCircleDoubleRight },
-  { name: 'CaretCircleDoubleUp', Cmp: CaretCircleDoubleUp },
-  { name: 'CaretCircleDown', Cmp: CaretCircleDown },
-  { name: 'CaretCircleLeft', Cmp: CaretCircleLeft },
-  { name: 'CaretCircleRight', Cmp: CaretCircleRight },
-  { name: 'CaretCircleUp', Cmp: CaretCircleUp },
-  { name: 'CaretCircleUpDown', Cmp: CaretCircleUpDown },
-  { name: 'CaretDoubleDown', Cmp: CaretDoubleDown },
-  { name: 'CaretDoubleLeft', Cmp: CaretDoubleLeft },
-  { name: 'CaretDoubleRight', Cmp: CaretDoubleRight },
-  { name: 'CaretDoubleUp', Cmp: CaretDoubleUp },
-  { name: 'CaretDown', Cmp: CaretDown },
-  { name: 'CaretLeft', Cmp: CaretLeft },
-  { name: 'CaretLineDown', Cmp: CaretLineDown },
-  { name: 'CaretLineLeft', Cmp: CaretLineLeft },
-  { name: 'CaretLineRight', Cmp: CaretLineRight },
-  { name: 'CaretLineUp', Cmp: CaretLineUp },
-  { name: 'CaretRight', Cmp: CaretRight },
-  { name: 'CaretUp', Cmp: CaretUp },
-  { name: 'CaretUpDown', Cmp: CaretUpDown },
-  { name: 'CarProfile', Cmp: CarProfile },
-  { name: 'Carrot', Cmp: Carrot },
-  { name: 'CarSimple', Cmp: CarSimple },
-  { name: 'CashRegister', Cmp: CashRegister },
-  { name: 'CassetteTape', Cmp: CassetteTape },
-  { name: 'CastleTurret', Cmp: CastleTurret },
-  { name: 'Cat', Cmp: Cat },
-  { name: 'CellSignalFull', Cmp: CellSignalFull },
-  { name: 'CellSignalHigh', Cmp: CellSignalHigh },
-  { name: 'CellSignalLow', Cmp: CellSignalLow },
-  { name: 'CellSignalMedium', Cmp: CellSignalMedium },
-  { name: 'CellSignalNone', Cmp: CellSignalNone },
-  { name: 'CellSignalSlash', Cmp: CellSignalSlash },
-  { name: 'CellSignalX', Cmp: CellSignalX },
-  { name: 'CellTower', Cmp: CellTower },
-  { name: 'Certificate', Cmp: Certificate },
-  { name: 'Chair', Cmp: Chair },
-  { name: 'Chalkboard', Cmp: Chalkboard },
-  { name: 'ChalkboardSimple', Cmp: ChalkboardSimple },
-  { name: 'ChalkboardTeacher', Cmp: ChalkboardTeacher },
-  { name: 'Champagne', Cmp: Champagne },
-  { name: 'ChargingStation', Cmp: ChargingStation },
-  { name: 'ChartBar', Cmp: ChartBar },
-  { name: 'ChartBarHorizontal', Cmp: ChartBarHorizontal },
-  { name: 'ChartDonut', Cmp: ChartDonut },
-  { name: 'ChartLine', Cmp: ChartLine },
-  { name: 'ChartLineDown', Cmp: ChartLineDown },
-  { name: 'ChartLineUp', Cmp: ChartLineUp },
-  { name: 'ChartPie', Cmp: ChartPie },
-  { name: 'ChartPieSlice', Cmp: ChartPieSlice },
-  { name: 'ChartPolar', Cmp: ChartPolar },
-  { name: 'ChartScatter', Cmp: ChartScatter },
-  { name: 'Chat', Cmp: Chat },
-  { name: 'ChatCentered', Cmp: ChatCentered },
-  { name: 'ChatCenteredDots', Cmp: ChatCenteredDots },
-  { name: 'ChatCenteredSlash', Cmp: ChatCenteredSlash },
-  { name: 'ChatCenteredText', Cmp: ChatCenteredText },
-  { name: 'ChatCircle', Cmp: ChatCircle },
-  { name: 'ChatCircleDots', Cmp: ChatCircleDots },
-  { name: 'ChatCircleSlash', Cmp: ChatCircleSlash },
-  { name: 'ChatCircleText', Cmp: ChatCircleText },
-  { name: 'ChatDots', Cmp: ChatDots },
-  { name: 'Chats', Cmp: Chats },
-  { name: 'ChatsCircle', Cmp: ChatsCircle },
-  { name: 'ChatSlash', Cmp: ChatSlash },
-  { name: 'ChatsTeardrop', Cmp: ChatsTeardrop },
-  { name: 'ChatTeardrop', Cmp: ChatTeardrop },
-  { name: 'ChatTeardropDots', Cmp: ChatTeardropDots },
-  { name: 'ChatTeardropSlash', Cmp: ChatTeardropSlash },
-  { name: 'ChatTeardropText', Cmp: ChatTeardropText },
-  { name: 'ChatText', Cmp: ChatText },
-  { name: 'Check', Cmp: Check },
-  { name: 'CheckCircle', Cmp: CheckCircle },
-  { name: 'Checkerboard', Cmp: Checkerboard },
-  { name: 'CheckFat', Cmp: CheckFat },
-  { name: 'Checks', Cmp: Checks },
-  { name: 'CheckSquare', Cmp: CheckSquare },
-  { name: 'CheckSquareOffset', Cmp: CheckSquareOffset },
-  { name: 'Cheers', Cmp: Cheers },
-  { name: 'Cheese', Cmp: Cheese },
-  { name: 'ChefHat', Cmp: ChefHat },
-  { name: 'Cherries', Cmp: Cherries },
-  { name: 'Church', Cmp: Church },
-  { name: 'Cigarette', Cmp: Cigarette },
-  { name: 'CigaretteSlash', Cmp: CigaretteSlash },
-  { name: 'Circle', Cmp: Circle },
-  { name: 'CircleDashed', Cmp: CircleDashed },
-  { name: 'CircleHalf', Cmp: CircleHalf },
-  { name: 'CircleHalfTilt', Cmp: CircleHalfTilt },
-  { name: 'CircleNotch', Cmp: CircleNotch },
-  { name: 'CirclesFour', Cmp: CirclesFour },
-  { name: 'CirclesThree', Cmp: CirclesThree },
-  { name: 'CirclesThreePlus', Cmp: CirclesThreePlus },
-  { name: 'Circuitry', Cmp: Circuitry },
-  { name: 'City', Cmp: City },
-  { name: 'Clipboard', Cmp: Clipboard },
-  { name: 'ClipboardText', Cmp: ClipboardText },
-  { name: 'Clock', Cmp: Clock },
-  { name: 'ClockAfternoon', Cmp: ClockAfternoon },
-  { name: 'ClockClockwise', Cmp: ClockClockwise },
-  { name: 'ClockCountdown', Cmp: ClockCountdown },
-  { name: 'ClockCounterClockwise', Cmp: ClockCounterClockwise },
-  { name: 'ClockUser', Cmp: ClockUser },
-  { name: 'ClosedCaptioning', Cmp: ClosedCaptioning },
-  { name: 'Cloud', Cmp: Cloud },
-  { name: 'CloudArrowDown', Cmp: CloudArrowDown },
-  { name: 'CloudArrowUp', Cmp: CloudArrowUp },
-  { name: 'CloudCheck', Cmp: CloudCheck },
-  { name: 'CloudFog', Cmp: CloudFog },
-  { name: 'CloudLightning', Cmp: CloudLightning },
-  { name: 'CloudMoon', Cmp: CloudMoon },
-  { name: 'CloudRain', Cmp: CloudRain },
-  { name: 'CloudSlash', Cmp: CloudSlash },
-  { name: 'CloudSnow', Cmp: CloudSnow },
-  { name: 'CloudSun', Cmp: CloudSun },
-  { name: 'CloudWarning', Cmp: CloudWarning },
-  { name: 'CloudX', Cmp: CloudX },
-  { name: 'Clover', Cmp: Clover },
-  { name: 'Club', Cmp: Club },
-  { name: 'CoatHanger', Cmp: CoatHanger },
-  { name: 'CodaLogo', Cmp: CodaLogo },
-  { name: 'Code', Cmp: Code },
-  { name: 'CodeBlock', Cmp: CodeBlock },
-  { name: 'CodepenLogo', Cmp: CodepenLogo },
-  { name: 'CodesandboxLogo', Cmp: CodesandboxLogo },
-  { name: 'CodeSimple', Cmp: CodeSimple },
-  { name: 'Coffee', Cmp: Coffee },
-  { name: 'CoffeeBean', Cmp: CoffeeBean },
-  { name: 'Coin', Cmp: Coin },
-  { name: 'Coins', Cmp: Coins },
-  { name: 'CoinVertical', Cmp: CoinVertical },
-  { name: 'Columns', Cmp: Columns },
-  { name: 'ColumnsPlusLeft', Cmp: ColumnsPlusLeft },
-  { name: 'ColumnsPlusRight', Cmp: ColumnsPlusRight },
-  { name: 'Command', Cmp: Command },
-  { name: 'Compass', Cmp: Compass },
-  { name: 'CompassRose', Cmp: CompassRose },
-  { name: 'CompassTool', Cmp: CompassTool },
-  { name: 'ComputerTower', Cmp: ComputerTower },
-  { name: 'Confetti', Cmp: Confetti },
-  { name: 'ContactlessPayment', Cmp: ContactlessPayment },
-  { name: 'Control', Cmp: Control },
-  { name: 'Cookie', Cmp: Cookie },
-  { name: 'CookingPot', Cmp: CookingPot },
-  { name: 'Copy', Cmp: Copy },
-  { name: 'Copyleft', Cmp: Copyleft },
-  { name: 'Copyright', Cmp: Copyright },
-  { name: 'CopySimple', Cmp: CopySimple },
-  { name: 'CornersIn', Cmp: CornersIn },
-  { name: 'CornersOut', Cmp: CornersOut },
-  { name: 'Couch', Cmp: Couch },
-  { name: 'CourtBasketball', Cmp: CourtBasketball },
-  { name: 'Cow', Cmp: Cow },
-  { name: 'CowboyHat', Cmp: CowboyHat },
-  { name: 'Cpu', Cmp: Cpu },
-  { name: 'Crane', Cmp: Crane },
-  { name: 'CraneTower', Cmp: CraneTower },
-  { name: 'CreditCard', Cmp: CreditCard },
-  { name: 'Cricket', Cmp: Cricket },
-  { name: 'Crop', Cmp: Crop },
-  { name: 'Cross', Cmp: Cross },
-  { name: 'Crosshair', Cmp: Crosshair },
-  { name: 'CrosshairSimple', Cmp: CrosshairSimple },
-  { name: 'Crown', Cmp: Crown },
-  { name: 'CrownCross', Cmp: CrownCross },
-  { name: 'CrownSimple', Cmp: CrownSimple },
-  { name: 'Cube', Cmp: Cube },
-  { name: 'CubeFocus', Cmp: CubeFocus },
-  { name: 'CubeTransparent', Cmp: CubeTransparent },
-  { name: 'CurrencyBtc', Cmp: CurrencyBtc },
-  { name: 'CurrencyCircleDollar', Cmp: CurrencyCircleDollar },
-  { name: 'CurrencyCny', Cmp: CurrencyCny },
-  { name: 'CurrencyDollar', Cmp: CurrencyDollar },
-  { name: 'CurrencyDollarSimple', Cmp: CurrencyDollarSimple },
-  { name: 'CurrencyEth', Cmp: CurrencyEth },
-  { name: 'CurrencyEur', Cmp: CurrencyEur },
-  { name: 'CurrencyGbp', Cmp: CurrencyGbp },
-  { name: 'CurrencyInr', Cmp: CurrencyInr },
-  { name: 'CurrencyJpy', Cmp: CurrencyJpy },
-  { name: 'CurrencyKrw', Cmp: CurrencyKrw },
-  { name: 'CurrencyKzt', Cmp: CurrencyKzt },
-  { name: 'CurrencyNgn', Cmp: CurrencyNgn },
-  { name: 'CurrencyRub', Cmp: CurrencyRub },
-  { name: 'Cursor', Cmp: Cursor },
-  { name: 'CursorClick', Cmp: CursorClick },
-  { name: 'CursorText', Cmp: CursorText },
-  { name: 'Cylinder', Cmp: Cylinder },
-  { name: 'Database', Cmp: Database },
-  { name: 'Desk', Cmp: Desk },
-  { name: 'Desktop', Cmp: Desktop },
-  { name: 'DesktopTower', Cmp: DesktopTower },
-  { name: 'Detective', Cmp: Detective },
-  { name: 'DeviceMobile', Cmp: DeviceMobile },
-  { name: 'DeviceMobileCamera', Cmp: DeviceMobileCamera },
-  { name: 'DeviceMobileSlash', Cmp: DeviceMobileSlash },
-  { name: 'DeviceMobileSpeaker', Cmp: DeviceMobileSpeaker },
-  { name: 'DeviceRotate', Cmp: DeviceRotate },
-  { name: 'Devices', Cmp: Devices },
-  { name: 'DeviceTablet', Cmp: DeviceTablet },
-  { name: 'DeviceTabletCamera', Cmp: DeviceTabletCamera },
-  { name: 'DeviceTabletSpeaker', Cmp: DeviceTabletSpeaker },
-  { name: 'DevToLogo', Cmp: DevToLogo },
-  { name: 'Diamond', Cmp: Diamond },
-  { name: 'DiamondsFour', Cmp: DiamondsFour },
-  { name: 'DiceFive', Cmp: DiceFive },
-  { name: 'DiceFour', Cmp: DiceFour },
-  { name: 'DiceOne', Cmp: DiceOne },
-  { name: 'DiceSix', Cmp: DiceSix },
-  { name: 'DiceThree', Cmp: DiceThree },
-  { name: 'DiceTwo', Cmp: DiceTwo },
-  { name: 'Disc', Cmp: Disc },
-  { name: 'DiscoBall', Cmp: DiscoBall },
-  { name: 'DiscordLogo', Cmp: DiscordLogo },
-  { name: 'Divide', Cmp: Divide },
-  { name: 'Dna', Cmp: Dna },
-  { name: 'Dog', Cmp: Dog },
-  { name: 'Door', Cmp: Door },
-  { name: 'DoorOpen', Cmp: DoorOpen },
-  { name: 'Dot', Cmp: Dot },
-  { name: 'DotOutline', Cmp: DotOutline },
-  { name: 'DotsNine', Cmp: DotsNine },
-  { name: 'DotsSix', Cmp: DotsSix },
-  { name: 'DotsSixVertical', Cmp: DotsSixVertical },
-  { name: 'DotsThree', Cmp: DotsThree },
-  { name: 'DotsThreeCircle', Cmp: DotsThreeCircle },
-  { name: 'DotsThreeCircleVertical', Cmp: DotsThreeCircleVertical },
-  { name: 'DotsThreeOutline', Cmp: DotsThreeOutline },
-  { name: 'DotsThreeOutlineVertical', Cmp: DotsThreeOutlineVertical },
-  { name: 'DotsThreeVertical', Cmp: DotsThreeVertical },
-  { name: 'Download', Cmp: Download },
-  { name: 'DownloadSimple', Cmp: DownloadSimple },
-  { name: 'Dress', Cmp: Dress },
-  { name: 'Dresser', Cmp: Dresser },
-  { name: 'DribbbleLogo', Cmp: DribbbleLogo },
-  { name: 'Drone', Cmp: Drone },
-  { name: 'Drop', Cmp: Drop },
-  { name: 'DropboxLogo', Cmp: DropboxLogo },
-  { name: 'DropHalf', Cmp: DropHalf },
-  { name: 'DropHalfBottom', Cmp: DropHalfBottom },
-  { name: 'DropSimple', Cmp: DropSimple },
-  { name: 'DropSlash', Cmp: DropSlash },
-  { name: 'Ear', Cmp: Ear },
-  { name: 'EarSlash', Cmp: EarSlash },
-  { name: 'Egg', Cmp: Egg },
-  { name: 'EggCrack', Cmp: EggCrack },
-  { name: 'Eject', Cmp: Eject },
-  { name: 'EjectSimple', Cmp: EjectSimple },
-  { name: 'Elevator', Cmp: Elevator },
-  { name: 'Empty', Cmp: Empty },
-  { name: 'Engine', Cmp: Engine },
-  { name: 'Envelope', Cmp: Envelope },
-  { name: 'EnvelopeOpen', Cmp: EnvelopeOpen },
-  { name: 'EnvelopeSimple', Cmp: EnvelopeSimple },
-  { name: 'EnvelopeSimpleOpen', Cmp: EnvelopeSimpleOpen },
-  { name: 'Equalizer', Cmp: Equalizer },
-  { name: 'Equals', Cmp: Equals },
-  { name: 'Eraser', Cmp: Eraser },
-  { name: 'EscalatorDown', Cmp: EscalatorDown },
-  { name: 'EscalatorUp', Cmp: EscalatorUp },
-  { name: 'Exam', Cmp: Exam },
-  { name: 'ExclamationMark', Cmp: ExclamationMark },
-  { name: 'Exclude', Cmp: Exclude },
-  { name: 'ExcludeSquare', Cmp: ExcludeSquare },
-  { name: 'Export', Cmp: Export },
-  { name: 'Eye', Cmp: Eye },
-  { name: 'EyeClosed', Cmp: EyeClosed },
-  { name: 'Eyedropper', Cmp: Eyedropper },
-  { name: 'EyedropperSample', Cmp: EyedropperSample },
-  { name: 'Eyeglasses', Cmp: Eyeglasses },
-  { name: 'Eyes', Cmp: Eyes },
-  { name: 'EyeSlash', Cmp: EyeSlash },
-  { name: 'FacebookLogo', Cmp: FacebookLogo },
-  { name: 'FaceMask', Cmp: FaceMask },
-  { name: 'Factory', Cmp: Factory },
-  { name: 'Faders', Cmp: Faders },
-  { name: 'FadersHorizontal', Cmp: FadersHorizontal },
-  { name: 'FalloutShelter', Cmp: FalloutShelter },
-  { name: 'Fan', Cmp: Fan },
-  { name: 'Farm', Cmp: Farm },
-  { name: 'FastForward', Cmp: FastForward },
-  { name: 'FastForwardCircle', Cmp: FastForwardCircle },
-  { name: 'Feather', Cmp: Feather },
-  { name: 'FediverseLogo', Cmp: FediverseLogo },
-  { name: 'FigmaLogo', Cmp: FigmaLogo },
-  { name: 'File', Cmp: File },
-  { name: 'FileArchive', Cmp: FileArchive },
-  { name: 'FileArrowDown', Cmp: FileArrowDown },
-  { name: 'FileArrowUp', Cmp: FileArrowUp },
-  { name: 'FileAudio', Cmp: FileAudio },
-  { name: 'FileC', Cmp: FileC },
-  { name: 'FileCloud', Cmp: FileCloud },
-  { name: 'FileCode', Cmp: FileCode },
-  { name: 'FileCpp', Cmp: FileCpp },
-  { name: 'FileCSharp', Cmp: FileCSharp },
-  { name: 'FileCss', Cmp: FileCss },
-  { name: 'FileCsv', Cmp: FileCsv },
-  { name: 'FileDashed', Cmp: FileDashed },
-  { name: 'FileDoc', Cmp: FileDoc },
-  { name: 'FileHtml', Cmp: FileHtml },
-  { name: 'FileImage', Cmp: FileImage },
-  { name: 'FileIni', Cmp: FileIni },
-  { name: 'FileJpg', Cmp: FileJpg },
-  { name: 'FileJs', Cmp: FileJs },
-  { name: 'FileJsx', Cmp: FileJsx },
-  { name: 'FileLock', Cmp: FileLock },
-  { name: 'FileMagnifyingGlass', Cmp: FileMagnifyingGlass },
-  { name: 'FileMd', Cmp: FileMd },
-  { name: 'FileMinus', Cmp: FileMinus },
-  { name: 'FilePdf', Cmp: FilePdf },
-  { name: 'FilePlus', Cmp: FilePlus },
-  { name: 'FilePng', Cmp: FilePng },
-  { name: 'FilePpt', Cmp: FilePpt },
-  { name: 'FilePy', Cmp: FilePy },
-  { name: 'FileRs', Cmp: FileRs },
-  { name: 'Files', Cmp: Files },
-  { name: 'FileSql', Cmp: FileSql },
-  { name: 'FileSvg', Cmp: FileSvg },
-  { name: 'FileText', Cmp: FileText },
-  { name: 'FileTs', Cmp: FileTs },
-  { name: 'FileTsx', Cmp: FileTsx },
-  { name: 'FileTxt', Cmp: FileTxt },
-  { name: 'FileVideo', Cmp: FileVideo },
-  { name: 'FileVue', Cmp: FileVue },
-  { name: 'FileX', Cmp: FileX },
-  { name: 'FileXls', Cmp: FileXls },
-  { name: 'FileZip', Cmp: FileZip },
-  { name: 'FilmReel', Cmp: FilmReel },
-  { name: 'FilmScript', Cmp: FilmScript },
-  { name: 'FilmSlate', Cmp: FilmSlate },
-  { name: 'FilmStrip', Cmp: FilmStrip },
-  { name: 'Fingerprint', Cmp: Fingerprint },
-  { name: 'FingerprintSimple', Cmp: FingerprintSimple },
-  { name: 'FinnTheHuman', Cmp: FinnTheHuman },
-  { name: 'Fire', Cmp: Fire },
-  { name: 'FireExtinguisher', Cmp: FireExtinguisher },
-  { name: 'FireSimple', Cmp: FireSimple },
-  { name: 'FireTruck', Cmp: FireTruck },
-  { name: 'FirstAid', Cmp: FirstAid },
-  { name: 'FirstAidKit', Cmp: FirstAidKit },
-  { name: 'Fish', Cmp: Fish },
-  { name: 'FishSimple', Cmp: FishSimple },
-  { name: 'Flag', Cmp: Flag },
-  { name: 'FlagBanner', Cmp: FlagBanner },
-  { name: 'FlagBannerFold', Cmp: FlagBannerFold },
-  { name: 'FlagCheckered', Cmp: FlagCheckered },
-  { name: 'FlagPennant', Cmp: FlagPennant },
-  { name: 'Flame', Cmp: Flame },
-  { name: 'Flashlight', Cmp: Flashlight },
-  { name: 'Flask', Cmp: Flask },
-  { name: 'FlipHorizontal', Cmp: FlipHorizontal },
-  { name: 'FlipVertical', Cmp: FlipVertical },
-  { name: 'FloppyDisk', Cmp: FloppyDisk },
-  { name: 'FloppyDiskBack', Cmp: FloppyDiskBack },
-  { name: 'FlowArrow', Cmp: FlowArrow },
-  { name: 'Flower', Cmp: Flower },
-  { name: 'FlowerLotus', Cmp: FlowerLotus },
-  { name: 'FlowerTulip', Cmp: FlowerTulip },
-  { name: 'FlyingSaucer', Cmp: FlyingSaucer },
-  { name: 'Folder', Cmp: Folder },
-  { name: 'FolderDashed', Cmp: FolderDashed },
-  { name: 'FolderLock', Cmp: FolderLock },
-  { name: 'FolderMinus', Cmp: FolderMinus },
-  { name: 'FolderOpen', Cmp: FolderOpen },
-  { name: 'FolderPlus', Cmp: FolderPlus },
-  { name: 'Folders', Cmp: Folders },
-  { name: 'FolderSimple', Cmp: FolderSimple },
-  { name: 'FolderSimpleDashed', Cmp: FolderSimpleDashed },
-  { name: 'FolderSimpleLock', Cmp: FolderSimpleLock },
-  { name: 'FolderSimpleMinus', Cmp: FolderSimpleMinus },
-  { name: 'FolderSimplePlus', Cmp: FolderSimplePlus },
-  { name: 'FolderSimpleStar', Cmp: FolderSimpleStar },
-  { name: 'FolderSimpleUser', Cmp: FolderSimpleUser },
-  { name: 'FolderStar', Cmp: FolderStar },
-  { name: 'FolderUser', Cmp: FolderUser },
-  { name: 'Football', Cmp: Football },
-  { name: 'FootballHelmet', Cmp: FootballHelmet },
-  { name: 'Footprints', Cmp: Footprints },
-  { name: 'ForkKnife', Cmp: ForkKnife },
-  { name: 'FourK', Cmp: FourK },
-  { name: 'FrameCorners', Cmp: FrameCorners },
-  { name: 'FramerLogo', Cmp: FramerLogo },
-  { name: 'Function', Cmp: Function },
-  { name: 'Funnel', Cmp: Funnel },
-  { name: 'FunnelSimple', Cmp: FunnelSimple },
-  { name: 'FunnelSimpleX', Cmp: FunnelSimpleX },
-  { name: 'FunnelX', Cmp: FunnelX },
-  { name: 'GameController', Cmp: GameController },
-  { name: 'Garage', Cmp: Garage },
-  { name: 'GasCan', Cmp: GasCan },
-  { name: 'GasPump', Cmp: GasPump },
-  { name: 'Gauge', Cmp: Gauge },
-  { name: 'Gavel', Cmp: Gavel },
-  { name: 'Gear', Cmp: Gear },
-  { name: 'GearFine', Cmp: GearFine },
-  { name: 'GearSix', Cmp: GearSix },
-  { name: 'GenderFemale', Cmp: GenderFemale },
-  { name: 'GenderIntersex', Cmp: GenderIntersex },
-  { name: 'GenderMale', Cmp: GenderMale },
-  { name: 'GenderNeuter', Cmp: GenderNeuter },
-  { name: 'GenderNonbinary', Cmp: GenderNonbinary },
-  { name: 'GenderTransgender', Cmp: GenderTransgender },
-  { name: 'Ghost', Cmp: Ghost },
-  { name: 'Gif', Cmp: Gif },
-  { name: 'Gift', Cmp: Gift },
-  { name: 'GitBranch', Cmp: GitBranch },
-  { name: 'GitCommit', Cmp: GitCommit },
-  { name: 'GitDiff', Cmp: GitDiff },
-  { name: 'GitFork', Cmp: GitFork },
-  { name: 'GithubLogo', Cmp: GithubLogo },
-  { name: 'GitlabLogo', Cmp: GitlabLogo },
-  { name: 'GitlabLogoSimple', Cmp: GitlabLogoSimple },
-  { name: 'GitMerge', Cmp: GitMerge },
-  { name: 'GitPullRequest', Cmp: GitPullRequest },
-  { name: 'Globe', Cmp: Globe },
-  { name: 'GlobeHemisphereEast', Cmp: GlobeHemisphereEast },
-  { name: 'GlobeHemisphereWest', Cmp: GlobeHemisphereWest },
-  { name: 'GlobeSimple', Cmp: GlobeSimple },
-  { name: 'GlobeSimpleX', Cmp: GlobeSimpleX },
-  { name: 'GlobeStand', Cmp: GlobeStand },
-  { name: 'GlobeX', Cmp: GlobeX },
-  { name: 'Goggles', Cmp: Goggles },
-  { name: 'Golf', Cmp: Golf },
-  { name: 'GoodreadsLogo', Cmp: GoodreadsLogo },
-  { name: 'GoogleCardboardLogo', Cmp: GoogleCardboardLogo },
-  { name: 'GoogleChromeLogo', Cmp: GoogleChromeLogo },
-  { name: 'GoogleDriveLogo', Cmp: GoogleDriveLogo },
-  { name: 'GoogleLogo', Cmp: GoogleLogo },
-  { name: 'GooglePhotosLogo', Cmp: GooglePhotosLogo },
-  { name: 'GooglePlayLogo', Cmp: GooglePlayLogo },
-  { name: 'GooglePodcastsLogo', Cmp: GooglePodcastsLogo },
-  { name: 'Gps', Cmp: Gps },
-  { name: 'GpsFix', Cmp: GpsFix },
-  { name: 'GpsSlash', Cmp: GpsSlash },
-  { name: 'Gradient', Cmp: Gradient },
-  { name: 'GraduationCap', Cmp: GraduationCap },
-  { name: 'Grains', Cmp: Grains },
-  { name: 'GrainsSlash', Cmp: GrainsSlash },
-  { name: 'Graph', Cmp: Graph },
-  { name: 'GraphicsCard', Cmp: GraphicsCard },
-  { name: 'GreaterThan', Cmp: GreaterThan },
-  { name: 'GreaterThanOrEqual', Cmp: GreaterThanOrEqual },
-  { name: 'GridFour', Cmp: GridFour },
-  { name: 'GridNine', Cmp: GridNine },
-  { name: 'Guitar', Cmp: Guitar },
-  { name: 'HairDryer', Cmp: HairDryer },
-  { name: 'Hamburger', Cmp: Hamburger },
-  { name: 'Hammer', Cmp: Hammer },
-  { name: 'Hand', Cmp: Hand },
-  { name: 'HandArrowDown', Cmp: HandArrowDown },
-  { name: 'HandArrowUp', Cmp: HandArrowUp },
-  { name: 'Handbag', Cmp: Handbag },
-  { name: 'HandbagSimple', Cmp: HandbagSimple },
-  { name: 'HandCoins', Cmp: HandCoins },
-  { name: 'HandDeposit', Cmp: HandDeposit },
-  { name: 'HandEye', Cmp: HandEye },
-  { name: 'HandFist', Cmp: HandFist },
-  { name: 'HandGrabbing', Cmp: HandGrabbing },
-  { name: 'HandHeart', Cmp: HandHeart },
-  { name: 'HandPalm', Cmp: HandPalm },
-  { name: 'HandPeace', Cmp: HandPeace },
-  { name: 'HandPointing', Cmp: HandPointing },
-  { name: 'HandsClapping', Cmp: HandsClapping },
-  { name: 'Handshake', Cmp: Handshake },
-  { name: 'HandSoap', Cmp: HandSoap },
-  { name: 'HandsPraying', Cmp: HandsPraying },
-  { name: 'HandSwipeLeft', Cmp: HandSwipeLeft },
-  { name: 'HandSwipeRight', Cmp: HandSwipeRight },
-  { name: 'HandTap', Cmp: HandTap },
-  { name: 'HandWaving', Cmp: HandWaving },
-  { name: 'HandWithdraw', Cmp: HandWithdraw },
-  { name: 'HardDrive', Cmp: HardDrive },
-  { name: 'HardDrives', Cmp: HardDrives },
-  { name: 'HardHat', Cmp: HardHat },
-  { name: 'Hash', Cmp: Hash },
-  { name: 'HashStraight', Cmp: HashStraight },
-  { name: 'HeadCircuit', Cmp: HeadCircuit },
-  { name: 'Headlights', Cmp: Headlights },
-  { name: 'Headphones', Cmp: Headphones },
-  { name: 'Headset', Cmp: Headset },
-  { name: 'Heart', Cmp: Heart },
-  { name: 'Heartbeat', Cmp: Heartbeat },
-  { name: 'HeartBreak', Cmp: HeartBreak },
-  { name: 'HeartHalf', Cmp: HeartHalf },
-  { name: 'HeartStraight', Cmp: HeartStraight },
-  { name: 'HeartStraightBreak', Cmp: HeartStraightBreak },
-  { name: 'Hexagon', Cmp: Hexagon },
-  { name: 'HighDefinition', Cmp: HighDefinition },
-  { name: 'HighHeel', Cmp: HighHeel },
-  { name: 'Highlighter', Cmp: Highlighter },
-  { name: 'HighlighterCircle', Cmp: HighlighterCircle },
-  { name: 'Hockey', Cmp: Hockey },
-  { name: 'Hoodie', Cmp: Hoodie },
-  { name: 'Horse', Cmp: Horse },
-  { name: 'Hospital', Cmp: Hospital },
-  { name: 'Hourglass', Cmp: Hourglass },
-  { name: 'HourglassHigh', Cmp: HourglassHigh },
-  { name: 'HourglassLow', Cmp: HourglassLow },
-  { name: 'HourglassMedium', Cmp: HourglassMedium },
-  { name: 'HourglassSimple', Cmp: HourglassSimple },
-  { name: 'HourglassSimpleHigh', Cmp: HourglassSimpleHigh },
-  { name: 'HourglassSimpleLow', Cmp: HourglassSimpleLow },
-  { name: 'HourglassSimpleMedium', Cmp: HourglassSimpleMedium },
-  { name: 'House', Cmp: House },
-  { name: 'HouseLine', Cmp: HouseLine },
-  { name: 'HouseSimple', Cmp: HouseSimple },
-  { name: 'Hurricane', Cmp: Hurricane },
-  { name: 'IceCream', Cmp: IceCream },
-  { name: 'IdentificationBadge', Cmp: IdentificationBadge },
-  { name: 'IdentificationCard', Cmp: IdentificationCard },
-  { name: 'Image', Cmp: Image },
-  { name: 'ImageBroken', Cmp: ImageBroken },
-  { name: 'Images', Cmp: Images },
-  { name: 'ImageSquare', Cmp: ImageSquare },
-  { name: 'ImagesSquare', Cmp: ImagesSquare },
+  { name: 'Acorn', Cmp: AcornIcon },
+  { name: 'AddressBook', Cmp: AddressBookIcon },
+  { name: 'AddressBookTabs', Cmp: AddressBookTabsIcon },
+  { name: 'Airplane', Cmp: AirplaneIcon },
+  { name: 'AirplaneInFlight', Cmp: AirplaneInFlightIcon },
+  { name: 'AirplaneLanding', Cmp: AirplaneLandingIcon },
+  { name: 'AirplaneTakeoff', Cmp: AirplaneTakeoffIcon },
+  { name: 'AirplaneTaxiing', Cmp: AirplaneTaxiingIcon },
+  { name: 'AirplaneTilt', Cmp: AirplaneTiltIcon },
+  { name: 'Airplay', Cmp: AirplayIcon },
+  { name: 'AirTrafficControl', Cmp: AirTrafficControlIcon },
+  { name: 'Alarm', Cmp: AlarmIcon },
+  { name: 'Alien', Cmp: AlienIcon },
+  { name: 'AlignBottom', Cmp: AlignBottomIcon },
+  { name: 'AlignBottomSimple', Cmp: AlignBottomSimpleIcon },
+  { name: 'AlignCenterHorizontal', Cmp: AlignCenterHorizontalIcon },
+  { name: 'AlignCenterHorizontalSimple', Cmp: AlignCenterHorizontalSimpleIcon },
+  { name: 'AlignCenterVertical', Cmp: AlignCenterVerticalIcon },
+  { name: 'AlignCenterVerticalSimple', Cmp: AlignCenterVerticalSimpleIcon },
+  { name: 'AlignLeft', Cmp: AlignLeftIcon },
+  { name: 'AlignLeftSimple', Cmp: AlignLeftSimpleIcon },
+  { name: 'AlignRight', Cmp: AlignRightIcon },
+  { name: 'AlignRightSimple', Cmp: AlignRightSimpleIcon },
+  { name: 'AlignTop', Cmp: AlignTopIcon },
+  { name: 'AlignTopSimple', Cmp: AlignTopSimpleIcon },
+  { name: 'AmazonLogo', Cmp: AmazonLogoIcon },
+  { name: 'Ambulance', Cmp: AmbulanceIcon },
+  { name: 'Anchor', Cmp: AnchorIcon },
+  { name: 'AnchorSimple', Cmp: AnchorSimpleIcon },
+  { name: 'AndroidLogo', Cmp: AndroidLogoIcon },
+  { name: 'Angle', Cmp: AngleIcon },
+  { name: 'AngularLogo', Cmp: AngularLogoIcon },
+  { name: 'Aperture', Cmp: ApertureIcon },
+  { name: 'AppleLogo', Cmp: AppleLogoIcon },
+  { name: 'ApplePodcastsLogo', Cmp: ApplePodcastsLogoIcon },
+  { name: 'ApproximateEquals', Cmp: ApproximateEqualsIcon },
+  { name: 'AppStoreLogo', Cmp: AppStoreLogoIcon },
+  { name: 'AppWindow', Cmp: AppWindowIcon },
+  { name: 'Archive', Cmp: ArchiveIcon },
+  { name: 'Armchair', Cmp: ArmchairIcon },
+  { name: 'ArrowArcLeft', Cmp: ArrowArcLeftIcon },
+  { name: 'ArrowArcRight', Cmp: ArrowArcRightIcon },
+  { name: 'ArrowBendDoubleUpLeft', Cmp: ArrowBendDoubleUpLeftIcon },
+  { name: 'ArrowBendDoubleUpRight', Cmp: ArrowBendDoubleUpRightIcon },
+  { name: 'ArrowBendDownLeft', Cmp: ArrowBendDownLeftIcon },
+  { name: 'ArrowBendDownRight', Cmp: ArrowBendDownRightIcon },
+  { name: 'ArrowBendLeftDown', Cmp: ArrowBendLeftDownIcon },
+  { name: 'ArrowBendLeftUp', Cmp: ArrowBendLeftUpIcon },
+  { name: 'ArrowBendRightDown', Cmp: ArrowBendRightDownIcon },
+  { name: 'ArrowBendRightUp', Cmp: ArrowBendRightUpIcon },
+  { name: 'ArrowBendUpLeft', Cmp: ArrowBendUpLeftIcon },
+  { name: 'ArrowBendUpRight', Cmp: ArrowBendUpRightIcon },
+  { name: 'ArrowCircleDown', Cmp: ArrowCircleDownIcon },
+  { name: 'ArrowCircleDownLeft', Cmp: ArrowCircleDownLeftIcon },
+  { name: 'ArrowCircleDownRight', Cmp: ArrowCircleDownRightIcon },
+  { name: 'ArrowCircleLeft', Cmp: ArrowCircleLeftIcon },
+  { name: 'ArrowCircleRight', Cmp: ArrowCircleRightIcon },
+  { name: 'ArrowCircleUp', Cmp: ArrowCircleUpIcon },
+  { name: 'ArrowCircleUpLeft', Cmp: ArrowCircleUpLeftIcon },
+  { name: 'ArrowCircleUpRight', Cmp: ArrowCircleUpRightIcon },
+  { name: 'ArrowClockwise', Cmp: ArrowClockwiseIcon },
+  { name: 'ArrowCounterClockwise', Cmp: ArrowCounterClockwiseIcon },
+  { name: 'ArrowDown', Cmp: ArrowDownIcon },
+  { name: 'ArrowDownLeft', Cmp: ArrowDownLeftIcon },
+  { name: 'ArrowDownRight', Cmp: ArrowDownRightIcon },
+  { name: 'ArrowElbowDownLeft', Cmp: ArrowElbowDownLeftIcon },
+  { name: 'ArrowElbowDownRight', Cmp: ArrowElbowDownRightIcon },
+  { name: 'ArrowElbowLeft', Cmp: ArrowElbowLeftIcon },
+  { name: 'ArrowElbowLeftDown', Cmp: ArrowElbowLeftDownIcon },
+  { name: 'ArrowElbowLeftUp', Cmp: ArrowElbowLeftUpIcon },
+  { name: 'ArrowElbowRight', Cmp: ArrowElbowRightIcon },
+  { name: 'ArrowElbowRightDown', Cmp: ArrowElbowRightDownIcon },
+  { name: 'ArrowElbowRightUp', Cmp: ArrowElbowRightUpIcon },
+  { name: 'ArrowElbowUpLeft', Cmp: ArrowElbowUpLeftIcon },
+  { name: 'ArrowElbowUpRight', Cmp: ArrowElbowUpRightIcon },
+  { name: 'ArrowFatDown', Cmp: ArrowFatDownIcon },
+  { name: 'ArrowFatLeft', Cmp: ArrowFatLeftIcon },
+  { name: 'ArrowFatLineDown', Cmp: ArrowFatLineDownIcon },
+  { name: 'ArrowFatLineLeft', Cmp: ArrowFatLineLeftIcon },
+  { name: 'ArrowFatLineRight', Cmp: ArrowFatLineRightIcon },
+  { name: 'ArrowFatLinesDown', Cmp: ArrowFatLinesDownIcon },
+  { name: 'ArrowFatLinesLeft', Cmp: ArrowFatLinesLeftIcon },
+  { name: 'ArrowFatLinesRight', Cmp: ArrowFatLinesRightIcon },
+  { name: 'ArrowFatLinesUp', Cmp: ArrowFatLinesUpIcon },
+  { name: 'ArrowFatLineUp', Cmp: ArrowFatLineUpIcon },
+  { name: 'ArrowFatRight', Cmp: ArrowFatRightIcon },
+  { name: 'ArrowFatUp', Cmp: ArrowFatUpIcon },
+  { name: 'ArrowLeft', Cmp: ArrowLeftIcon },
+  { name: 'ArrowLineDown', Cmp: ArrowLineDownIcon },
+  { name: 'ArrowLineDownLeft', Cmp: ArrowLineDownLeftIcon },
+  { name: 'ArrowLineDownRight', Cmp: ArrowLineDownRightIcon },
+  { name: 'ArrowLineLeft', Cmp: ArrowLineLeftIcon },
+  { name: 'ArrowLineRight', Cmp: ArrowLineRightIcon },
+  { name: 'ArrowLineUp', Cmp: ArrowLineUpIcon },
+  { name: 'ArrowLineUpLeft', Cmp: ArrowLineUpLeftIcon },
+  { name: 'ArrowLineUpRight', Cmp: ArrowLineUpRightIcon },
+  { name: 'ArrowRight', Cmp: ArrowRightIcon },
+  { name: 'ArrowsClockwise', Cmp: ArrowsClockwiseIcon },
+  { name: 'ArrowsCounterClockwise', Cmp: ArrowsCounterClockwiseIcon },
+  { name: 'ArrowsDownUp', Cmp: ArrowsDownUpIcon },
+  { name: 'ArrowsHorizontal', Cmp: ArrowsHorizontalIcon },
+  { name: 'ArrowsIn', Cmp: ArrowsInIcon },
+  { name: 'ArrowsInCardinal', Cmp: ArrowsInCardinalIcon },
+  { name: 'ArrowsInLineHorizontal', Cmp: ArrowsInLineHorizontalIcon },
+  { name: 'ArrowsInLineVertical', Cmp: ArrowsInLineVerticalIcon },
+  { name: 'ArrowsInSimple', Cmp: ArrowsInSimpleIcon },
+  { name: 'ArrowsLeftRight', Cmp: ArrowsLeftRightIcon },
+  { name: 'ArrowsMerge', Cmp: ArrowsMergeIcon },
+  { name: 'ArrowsOut', Cmp: ArrowsOutIcon },
+  { name: 'ArrowsOutCardinal', Cmp: ArrowsOutCardinalIcon },
+  { name: 'ArrowsOutLineHorizontal', Cmp: ArrowsOutLineHorizontalIcon },
+  { name: 'ArrowsOutLineVertical', Cmp: ArrowsOutLineVerticalIcon },
+  { name: 'ArrowsOutSimple', Cmp: ArrowsOutSimpleIcon },
+  { name: 'ArrowSquareDown', Cmp: ArrowSquareDownIcon },
+  { name: 'ArrowSquareDownLeft', Cmp: ArrowSquareDownLeftIcon },
+  { name: 'ArrowSquareDownRight', Cmp: ArrowSquareDownRightIcon },
+  { name: 'ArrowSquareIn', Cmp: ArrowSquareInIcon },
+  { name: 'ArrowSquareLeft', Cmp: ArrowSquareLeftIcon },
+  { name: 'ArrowSquareOut', Cmp: ArrowSquareOutIcon },
+  { name: 'ArrowSquareRight', Cmp: ArrowSquareRightIcon },
+  { name: 'ArrowSquareUp', Cmp: ArrowSquareUpIcon },
+  { name: 'ArrowSquareUpLeft', Cmp: ArrowSquareUpLeftIcon },
+  { name: 'ArrowSquareUpRight', Cmp: ArrowSquareUpRightIcon },
+  { name: 'ArrowsSplit', Cmp: ArrowsSplitIcon },
+  { name: 'ArrowsVertical', Cmp: ArrowsVerticalIcon },
+  { name: 'ArrowUDownLeft', Cmp: ArrowUDownLeftIcon },
+  { name: 'ArrowUDownRight', Cmp: ArrowUDownRightIcon },
+  { name: 'ArrowULeftDown', Cmp: ArrowULeftDownIcon },
+  { name: 'ArrowULeftUp', Cmp: ArrowULeftUpIcon },
+  { name: 'ArrowUp', Cmp: ArrowUpIcon },
+  { name: 'ArrowUpLeft', Cmp: ArrowUpLeftIcon },
+  { name: 'ArrowUpRight', Cmp: ArrowUpRightIcon },
+  { name: 'ArrowURightDown', Cmp: ArrowURightDownIcon },
+  { name: 'ArrowURightUp', Cmp: ArrowURightUpIcon },
+  { name: 'ArrowUUpLeft', Cmp: ArrowUUpLeftIcon },
+  { name: 'ArrowUUpRight', Cmp: ArrowUUpRightIcon },
+  { name: 'Article', Cmp: ArticleIcon },
+  { name: 'ArticleMedium', Cmp: ArticleMediumIcon },
+  { name: 'ArticleNyTimes', Cmp: ArticleNyTimesIcon },
+  { name: 'Asclepius', Cmp: AsclepiusIcon },
+  { name: 'Asterisk', Cmp: AsteriskIcon },
+  { name: 'AsteriskSimple', Cmp: AsteriskSimpleIcon },
+  { name: 'At', Cmp: AtIcon },
+  { name: 'Atom', Cmp: AtomIcon },
+  { name: 'Avocado', Cmp: AvocadoIcon },
+  { name: 'Axe', Cmp: AxeIcon },
+  { name: 'Baby', Cmp: BabyIcon },
+  { name: 'BabyCarriage', Cmp: BabyCarriageIcon },
+  { name: 'Backpack', Cmp: BackpackIcon },
+  { name: 'Backspace', Cmp: BackspaceIcon },
+  { name: 'Bag', Cmp: BagIcon },
+  { name: 'BagSimple', Cmp: BagSimpleIcon },
+  { name: 'Balloon', Cmp: BalloonIcon },
+  { name: 'Bandaids', Cmp: BandaidsIcon },
+  { name: 'Bank', Cmp: BankIcon },
+  { name: 'Barbell', Cmp: BarbellIcon },
+  { name: 'Barcode', Cmp: BarcodeIcon },
+  { name: 'Barn', Cmp: BarnIcon },
+  { name: 'Barricade', Cmp: BarricadeIcon },
+  { name: 'Baseball', Cmp: BaseballIcon },
+  { name: 'BaseballCap', Cmp: BaseballCapIcon },
+  { name: 'BaseballHelmet', Cmp: BaseballHelmetIcon },
+  { name: 'Basket', Cmp: BasketIcon },
+  { name: 'Basketball', Cmp: BasketballIcon },
+  { name: 'Bathtub', Cmp: BathtubIcon },
+  { name: 'BatteryCharging', Cmp: BatteryChargingIcon },
+  { name: 'BatteryChargingVertical', Cmp: BatteryChargingVerticalIcon },
+  { name: 'BatteryEmpty', Cmp: BatteryEmptyIcon },
+  { name: 'BatteryFull', Cmp: BatteryFullIcon },
+  { name: 'BatteryHigh', Cmp: BatteryHighIcon },
+  { name: 'BatteryLow', Cmp: BatteryLowIcon },
+  { name: 'BatteryMedium', Cmp: BatteryMediumIcon },
+  { name: 'BatteryPlus', Cmp: BatteryPlusIcon },
+  { name: 'BatteryPlusVertical', Cmp: BatteryPlusVerticalIcon },
+  { name: 'BatteryVerticalEmpty', Cmp: BatteryVerticalEmptyIcon },
+  { name: 'BatteryVerticalFull', Cmp: BatteryVerticalFullIcon },
+  { name: 'BatteryVerticalHigh', Cmp: BatteryVerticalHighIcon },
+  { name: 'BatteryVerticalLow', Cmp: BatteryVerticalLowIcon },
+  { name: 'BatteryVerticalMedium', Cmp: BatteryVerticalMediumIcon },
+  { name: 'BatteryWarning', Cmp: BatteryWarningIcon },
+  { name: 'BatteryWarningVertical', Cmp: BatteryWarningVerticalIcon },
+  { name: 'BeachBall', Cmp: BeachBallIcon },
+  { name: 'Beanie', Cmp: BeanieIcon },
+  { name: 'Bed', Cmp: BedIcon },
+  { name: 'BeerBottle', Cmp: BeerBottleIcon },
+  { name: 'BeerStein', Cmp: BeerSteinIcon },
+  { name: 'BehanceLogo', Cmp: BehanceLogoIcon },
+  { name: 'Bell', Cmp: BellIcon },
+  { name: 'BellRinging', Cmp: BellRingingIcon },
+  { name: 'BellSimple', Cmp: BellSimpleIcon },
+  { name: 'BellSimpleRinging', Cmp: BellSimpleRingingIcon },
+  { name: 'BellSimpleSlash', Cmp: BellSimpleSlashIcon },
+  { name: 'BellSimpleZ', Cmp: BellSimpleZIcon },
+  { name: 'BellSlash', Cmp: BellSlashIcon },
+  { name: 'BellZ', Cmp: BellZIcon },
+  { name: 'Belt', Cmp: BeltIcon },
+  { name: 'BezierCurve', Cmp: BezierCurveIcon },
+  { name: 'Bicycle', Cmp: BicycleIcon },
+  { name: 'Binary', Cmp: BinaryIcon },
+  { name: 'Binoculars', Cmp: BinocularsIcon },
+  { name: 'Biohazard', Cmp: BiohazardIcon },
+  { name: 'Bird', Cmp: BirdIcon },
+  { name: 'Blueprint', Cmp: BlueprintIcon },
+  { name: 'Bluetooth', Cmp: BluetoothIcon },
+  { name: 'BluetoothConnected', Cmp: BluetoothConnectedIcon },
+  { name: 'BluetoothSlash', Cmp: BluetoothSlashIcon },
+  { name: 'BluetoothX', Cmp: BluetoothXIcon },
+  { name: 'Boat', Cmp: BoatIcon },
+  { name: 'Bomb', Cmp: BombIcon },
+  { name: 'Bone', Cmp: BoneIcon },
+  { name: 'Book', Cmp: BookIcon },
+  { name: 'BookBookmark', Cmp: BookBookmarkIcon },
+  { name: 'Bookmark', Cmp: BookmarkIcon },
+  { name: 'Bookmarks', Cmp: BookmarksIcon },
+  { name: 'BookmarkSimple', Cmp: BookmarkSimpleIcon },
+  { name: 'BookmarksSimple', Cmp: BookmarksSimpleIcon },
+  { name: 'BookOpen', Cmp: BookOpenIcon },
+  { name: 'BookOpenText', Cmp: BookOpenTextIcon },
+  { name: 'BookOpenUser', Cmp: BookOpenUserIcon },
+  { name: 'Books', Cmp: BooksIcon },
+  { name: 'Boot', Cmp: BootIcon },
+  { name: 'Boules', Cmp: BoulesIcon },
+  { name: 'BoundingBox', Cmp: BoundingBoxIcon },
+  { name: 'BowlFood', Cmp: BowlFoodIcon },
+  { name: 'BowlingBall', Cmp: BowlingBallIcon },
+  { name: 'BowlSteam', Cmp: BowlSteamIcon },
+  { name: 'BoxArrowDown', Cmp: BoxArrowDownIcon },
+  { name: 'BoxArrowUp', Cmp: BoxArrowUpIcon },
+  { name: 'BoxingGlove', Cmp: BoxingGloveIcon },
+  { name: 'BracketsAngle', Cmp: BracketsAngleIcon },
+  { name: 'BracketsCurly', Cmp: BracketsCurlyIcon },
+  { name: 'BracketsRound', Cmp: BracketsRoundIcon },
+  { name: 'BracketsSquare', Cmp: BracketsSquareIcon },
+  { name: 'Brain', Cmp: BrainIcon },
+  { name: 'Brandy', Cmp: BrandyIcon },
+  { name: 'Bread', Cmp: BreadIcon },
+  { name: 'Bridge', Cmp: BridgeIcon },
+  { name: 'Briefcase', Cmp: BriefcaseIcon },
+  { name: 'BriefcaseMetal', Cmp: BriefcaseMetalIcon },
+  { name: 'Broadcast', Cmp: BroadcastIcon },
+  { name: 'Broom', Cmp: BroomIcon },
+  { name: 'Browser', Cmp: BrowserIcon },
+  { name: 'Browsers', Cmp: BrowsersIcon },
+  { name: 'Bug', Cmp: BugIcon },
+  { name: 'BugBeetle', Cmp: BugBeetleIcon },
+  { name: 'BugDroid', Cmp: BugDroidIcon },
+  { name: 'Building', Cmp: BuildingIcon },
+  { name: 'BuildingApartment', Cmp: BuildingApartmentIcon },
+  { name: 'BuildingOffice', Cmp: BuildingOfficeIcon },
+  { name: 'Buildings', Cmp: BuildingsIcon },
+  { name: 'Bulldozer', Cmp: BulldozerIcon },
+  { name: 'Bus', Cmp: BusIcon },
+  { name: 'Butterfly', Cmp: ButterflyIcon },
+  { name: 'CableCar', Cmp: CableCarIcon },
+  { name: 'Cactus', Cmp: CactusIcon },
+  { name: 'Cake', Cmp: CakeIcon },
+  { name: 'Calculator', Cmp: CalculatorIcon },
+  { name: 'Calendar', Cmp: CalendarIcon },
+  { name: 'CalendarBlank', Cmp: CalendarBlankIcon },
+  { name: 'CalendarCheck', Cmp: CalendarCheckIcon },
+  { name: 'CalendarDot', Cmp: CalendarDotIcon },
+  { name: 'CalendarDots', Cmp: CalendarDotsIcon },
+  { name: 'CalendarHeart', Cmp: CalendarHeartIcon },
+  { name: 'CalendarMinus', Cmp: CalendarMinusIcon },
+  { name: 'CalendarPlus', Cmp: CalendarPlusIcon },
+  { name: 'CalendarSlash', Cmp: CalendarSlashIcon },
+  { name: 'CalendarStar', Cmp: CalendarStarIcon },
+  { name: 'CalendarX', Cmp: CalendarXIcon },
+  { name: 'CallBell', Cmp: CallBellIcon },
+  { name: 'Camera', Cmp: CameraIcon },
+  { name: 'CameraPlus', Cmp: CameraPlusIcon },
+  { name: 'CameraRotate', Cmp: CameraRotateIcon },
+  { name: 'CameraSlash', Cmp: CameraSlashIcon },
+  { name: 'Campfire', Cmp: CampfireIcon },
+  { name: 'Car', Cmp: CarIcon },
+  { name: 'CarBattery', Cmp: CarBatteryIcon },
+  { name: 'Cardholder', Cmp: CardholderIcon },
+  { name: 'Cards', Cmp: CardsIcon },
+  { name: 'CardsThree', Cmp: CardsThreeIcon },
+  { name: 'CaretCircleDoubleDown', Cmp: CaretCircleDoubleDownIcon },
+  { name: 'CaretCircleDoubleLeft', Cmp: CaretCircleDoubleLeftIcon },
+  { name: 'CaretCircleDoubleRight', Cmp: CaretCircleDoubleRightIcon },
+  { name: 'CaretCircleDoubleUp', Cmp: CaretCircleDoubleUpIcon },
+  { name: 'CaretCircleDown', Cmp: CaretCircleDownIcon },
+  { name: 'CaretCircleLeft', Cmp: CaretCircleLeftIcon },
+  { name: 'CaretCircleRight', Cmp: CaretCircleRightIcon },
+  { name: 'CaretCircleUp', Cmp: CaretCircleUpIcon },
+  { name: 'CaretCircleUpDown', Cmp: CaretCircleUpDownIcon },
+  { name: 'CaretDoubleDown', Cmp: CaretDoubleDownIcon },
+  { name: 'CaretDoubleLeft', Cmp: CaretDoubleLeftIcon },
+  { name: 'CaretDoubleRight', Cmp: CaretDoubleRightIcon },
+  { name: 'CaretDoubleUp', Cmp: CaretDoubleUpIcon },
+  { name: 'CaretDown', Cmp: CaretDownIcon },
+  { name: 'CaretLeft', Cmp: CaretLeftIcon },
+  { name: 'CaretLineDown', Cmp: CaretLineDownIcon },
+  { name: 'CaretLineLeft', Cmp: CaretLineLeftIcon },
+  { name: 'CaretLineRight', Cmp: CaretLineRightIcon },
+  { name: 'CaretLineUp', Cmp: CaretLineUpIcon },
+  { name: 'CaretRight', Cmp: CaretRightIcon },
+  { name: 'CaretUp', Cmp: CaretUpIcon },
+  { name: 'CaretUpDown', Cmp: CaretUpDownIcon },
+  { name: 'CarProfile', Cmp: CarProfileIcon },
+  { name: 'Carrot', Cmp: CarrotIcon },
+  { name: 'CarSimple', Cmp: CarSimpleIcon },
+  { name: 'CashRegister', Cmp: CashRegisterIcon },
+  { name: 'CassetteTape', Cmp: CassetteTapeIcon },
+  { name: 'CastleTurret', Cmp: CastleTurretIcon },
+  { name: 'Cat', Cmp: CatIcon },
+  { name: 'CellSignalFull', Cmp: CellSignalFullIcon },
+  { name: 'CellSignalHigh', Cmp: CellSignalHighIcon },
+  { name: 'CellSignalLow', Cmp: CellSignalLowIcon },
+  { name: 'CellSignalMedium', Cmp: CellSignalMediumIcon },
+  { name: 'CellSignalNone', Cmp: CellSignalNoneIcon },
+  { name: 'CellSignalSlash', Cmp: CellSignalSlashIcon },
+  { name: 'CellSignalX', Cmp: CellSignalXIcon },
+  { name: 'CellTower', Cmp: CellTowerIcon },
+  { name: 'Certificate', Cmp: CertificateIcon },
+  { name: 'Chair', Cmp: ChairIcon },
+  { name: 'Chalkboard', Cmp: ChalkboardIcon },
+  { name: 'ChalkboardSimple', Cmp: ChalkboardSimpleIcon },
+  { name: 'ChalkboardTeacher', Cmp: ChalkboardTeacherIcon },
+  { name: 'Champagne', Cmp: ChampagneIcon },
+  { name: 'ChargingStation', Cmp: ChargingStationIcon },
+  { name: 'ChartBar', Cmp: ChartBarIcon },
+  { name: 'ChartBarHorizontal', Cmp: ChartBarHorizontalIcon },
+  { name: 'ChartDonut', Cmp: ChartDonutIcon },
+  { name: 'ChartLine', Cmp: ChartLineIcon },
+  { name: 'ChartLineDown', Cmp: ChartLineDownIcon },
+  { name: 'ChartLineUp', Cmp: ChartLineUpIcon },
+  { name: 'ChartPie', Cmp: ChartPieIcon },
+  { name: 'ChartPieSlice', Cmp: ChartPieSliceIcon },
+  { name: 'ChartPolar', Cmp: ChartPolarIcon },
+  { name: 'ChartScatter', Cmp: ChartScatterIcon },
+  { name: 'Chat', Cmp: ChatIcon },
+  { name: 'ChatCentered', Cmp: ChatCenteredIcon },
+  { name: 'ChatCenteredDots', Cmp: ChatCenteredDotsIcon },
+  { name: 'ChatCenteredSlash', Cmp: ChatCenteredSlashIcon },
+  { name: 'ChatCenteredText', Cmp: ChatCenteredTextIcon },
+  { name: 'ChatCircle', Cmp: ChatCircleIcon },
+  { name: 'ChatCircleDots', Cmp: ChatCircleDotsIcon },
+  { name: 'ChatCircleSlash', Cmp: ChatCircleSlashIcon },
+  { name: 'ChatCircleText', Cmp: ChatCircleTextIcon },
+  { name: 'ChatDots', Cmp: ChatDotsIcon },
+  { name: 'Chats', Cmp: ChatsIcon },
+  { name: 'ChatsCircle', Cmp: ChatsCircleIcon },
+  { name: 'ChatSlash', Cmp: ChatSlashIcon },
+  { name: 'ChatsTeardrop', Cmp: ChatsTeardropIcon },
+  { name: 'ChatTeardrop', Cmp: ChatTeardropIcon },
+  { name: 'ChatTeardropDots', Cmp: ChatTeardropDotsIcon },
+  { name: 'ChatTeardropSlash', Cmp: ChatTeardropSlashIcon },
+  { name: 'ChatTeardropText', Cmp: ChatTeardropTextIcon },
+  { name: 'ChatText', Cmp: ChatTextIcon },
+  { name: 'Check', Cmp: CheckIcon },
+  { name: 'CheckCircle', Cmp: CheckCircleIcon },
+  { name: 'Checkerboard', Cmp: CheckerboardIcon },
+  { name: 'CheckFat', Cmp: CheckFatIcon },
+  { name: 'Checks', Cmp: ChecksIcon },
+  { name: 'CheckSquare', Cmp: CheckSquareIcon },
+  { name: 'CheckSquareOffset', Cmp: CheckSquareOffsetIcon },
+  { name: 'Cheers', Cmp: CheersIcon },
+  { name: 'Cheese', Cmp: CheeseIcon },
+  { name: 'ChefHat', Cmp: ChefHatIcon },
+  { name: 'Cherries', Cmp: CherriesIcon },
+  { name: 'Church', Cmp: ChurchIcon },
+  { name: 'Cigarette', Cmp: CigaretteIcon },
+  { name: 'CigaretteSlash', Cmp: CigaretteSlashIcon },
+  { name: 'Circle', Cmp: CircleIcon },
+  { name: 'CircleDashed', Cmp: CircleDashedIcon },
+  { name: 'CircleHalf', Cmp: CircleHalfIcon },
+  { name: 'CircleHalfTilt', Cmp: CircleHalfTiltIcon },
+  { name: 'CircleNotch', Cmp: CircleNotchIcon },
+  { name: 'CirclesFour', Cmp: CirclesFourIcon },
+  { name: 'CirclesThree', Cmp: CirclesThreeIcon },
+  { name: 'CirclesThreePlus', Cmp: CirclesThreePlusIcon },
+  { name: 'Circuitry', Cmp: CircuitryIcon },
+  { name: 'City', Cmp: CityIcon },
+  { name: 'Clipboard', Cmp: ClipboardIcon },
+  { name: 'ClipboardText', Cmp: ClipboardTextIcon },
+  { name: 'Clock', Cmp: ClockIcon },
+  { name: 'ClockAfternoon', Cmp: ClockAfternoonIcon },
+  { name: 'ClockClockwise', Cmp: ClockClockwiseIcon },
+  { name: 'ClockCountdown', Cmp: ClockCountdownIcon },
+  { name: 'ClockCounterClockwise', Cmp: ClockCounterClockwiseIcon },
+  { name: 'ClockUser', Cmp: ClockUserIcon },
+  { name: 'ClosedCaptioning', Cmp: ClosedCaptioningIcon },
+  { name: 'Cloud', Cmp: CloudIcon },
+  { name: 'CloudArrowDown', Cmp: CloudArrowDownIcon },
+  { name: 'CloudArrowUp', Cmp: CloudArrowUpIcon },
+  { name: 'CloudCheck', Cmp: CloudCheckIcon },
+  { name: 'CloudFog', Cmp: CloudFogIcon },
+  { name: 'CloudLightning', Cmp: CloudLightningIcon },
+  { name: 'CloudMoon', Cmp: CloudMoonIcon },
+  { name: 'CloudRain', Cmp: CloudRainIcon },
+  { name: 'CloudSlash', Cmp: CloudSlashIcon },
+  { name: 'CloudSnow', Cmp: CloudSnowIcon },
+  { name: 'CloudSun', Cmp: CloudSunIcon },
+  { name: 'CloudWarning', Cmp: CloudWarningIcon },
+  { name: 'CloudX', Cmp: CloudXIcon },
+  { name: 'Clover', Cmp: CloverIcon },
+  { name: 'Club', Cmp: ClubIcon },
+  { name: 'CoatHanger', Cmp: CoatHangerIcon },
+  { name: 'CodaLogo', Cmp: CodaLogoIcon },
+  { name: 'Code', Cmp: CodeIcon },
+  { name: 'CodeBlock', Cmp: CodeBlockIcon },
+  { name: 'CodepenLogo', Cmp: CodepenLogoIcon },
+  { name: 'CodesandboxLogo', Cmp: CodesandboxLogoIcon },
+  { name: 'CodeSimple', Cmp: CodeSimpleIcon },
+  { name: 'Coffee', Cmp: CoffeeIcon },
+  { name: 'CoffeeBean', Cmp: CoffeeBeanIcon },
+  { name: 'Coin', Cmp: CoinIcon },
+  { name: 'Coins', Cmp: CoinsIcon },
+  { name: 'CoinVertical', Cmp: CoinVerticalIcon },
+  { name: 'Columns', Cmp: ColumnsIcon },
+  { name: 'ColumnsPlusLeft', Cmp: ColumnsPlusLeftIcon },
+  { name: 'ColumnsPlusRight', Cmp: ColumnsPlusRightIcon },
+  { name: 'Command', Cmp: CommandIcon },
+  { name: 'Compass', Cmp: CompassIcon },
+  { name: 'CompassRose', Cmp: CompassRoseIcon },
+  { name: 'CompassTool', Cmp: CompassToolIcon },
+  { name: 'ComputerTower', Cmp: ComputerTowerIcon },
+  { name: 'Confetti', Cmp: ConfettiIcon },
+  { name: 'ContactlessPayment', Cmp: ContactlessPaymentIcon },
+  { name: 'Control', Cmp: ControlIcon },
+  { name: 'Cookie', Cmp: CookieIcon },
+  { name: 'CookingPot', Cmp: CookingPotIcon },
+  { name: 'Copy', Cmp: CopyIcon },
+  { name: 'Copyleft', Cmp: CopyleftIcon },
+  { name: 'Copyright', Cmp: CopyrightIcon },
+  { name: 'CopySimple', Cmp: CopySimpleIcon },
+  { name: 'CornersIn', Cmp: CornersInIcon },
+  { name: 'CornersOut', Cmp: CornersOutIcon },
+  { name: 'Couch', Cmp: CouchIcon },
+  { name: 'CourtBasketball', Cmp: CourtBasketballIcon },
+  { name: 'Cow', Cmp: CowIcon },
+  { name: 'CowboyHat', Cmp: CowboyHatIcon },
+  { name: 'Cpu', Cmp: CpuIcon },
+  { name: 'Crane', Cmp: CraneIcon },
+  { name: 'CraneTower', Cmp: CraneTowerIcon },
+  { name: 'CreditCard', Cmp: CreditCardIcon },
+  { name: 'Cricket', Cmp: CricketIcon },
+  { name: 'Crop', Cmp: CropIcon },
+  { name: 'Cross', Cmp: CrossIcon },
+  { name: 'Crosshair', Cmp: CrosshairIcon },
+  { name: 'CrosshairSimple', Cmp: CrosshairSimpleIcon },
+  { name: 'Crown', Cmp: CrownIcon },
+  { name: 'CrownCross', Cmp: CrownCrossIcon },
+  { name: 'CrownSimple', Cmp: CrownSimpleIcon },
+  { name: 'Cube', Cmp: CubeIcon },
+  { name: 'CubeFocus', Cmp: CubeFocusIcon },
+  { name: 'CubeTransparent', Cmp: CubeTransparentIcon },
+  { name: 'CurrencyBtc', Cmp: CurrencyBtcIcon },
+  { name: 'CurrencyCircleDollar', Cmp: CurrencyCircleDollarIcon },
+  { name: 'CurrencyCny', Cmp: CurrencyCnyIcon },
+  { name: 'CurrencyDollar', Cmp: CurrencyDollarIcon },
+  { name: 'CurrencyDollarSimple', Cmp: CurrencyDollarSimpleIcon },
+  { name: 'CurrencyEth', Cmp: CurrencyEthIcon },
+  { name: 'CurrencyEur', Cmp: CurrencyEurIcon },
+  { name: 'CurrencyGbp', Cmp: CurrencyGbpIcon },
+  { name: 'CurrencyInr', Cmp: CurrencyInrIcon },
+  { name: 'CurrencyJpy', Cmp: CurrencyJpyIcon },
+  { name: 'CurrencyKrw', Cmp: CurrencyKrwIcon },
+  { name: 'CurrencyKzt', Cmp: CurrencyKztIcon },
+  { name: 'CurrencyNgn', Cmp: CurrencyNgnIcon },
+  { name: 'CurrencyRub', Cmp: CurrencyRubIcon },
+  { name: 'Cursor', Cmp: CursorIcon },
+  { name: 'CursorClick', Cmp: CursorClickIcon },
+  { name: 'CursorText', Cmp: CursorTextIcon },
+  { name: 'Cylinder', Cmp: CylinderIcon },
+  { name: 'Database', Cmp: DatabaseIcon },
+  { name: 'Desk', Cmp: DeskIcon },
+  { name: 'Desktop', Cmp: DesktopIcon },
+  { name: 'DesktopTower', Cmp: DesktopTowerIcon },
+  { name: 'Detective', Cmp: DetectiveIcon },
+  { name: 'DeviceMobile', Cmp: DeviceMobileIcon },
+  { name: 'DeviceMobileCamera', Cmp: DeviceMobileCameraIcon },
+  { name: 'DeviceMobileSlash', Cmp: DeviceMobileSlashIcon },
+  { name: 'DeviceMobileSpeaker', Cmp: DeviceMobileSpeakerIcon },
+  { name: 'DeviceRotate', Cmp: DeviceRotateIcon },
+  { name: 'Devices', Cmp: DevicesIcon },
+  { name: 'DeviceTablet', Cmp: DeviceTabletIcon },
+  { name: 'DeviceTabletCamera', Cmp: DeviceTabletCameraIcon },
+  { name: 'DeviceTabletSpeaker', Cmp: DeviceTabletSpeakerIcon },
+  { name: 'DevToLogo', Cmp: DevToLogoIcon },
+  { name: 'Diamond', Cmp: DiamondIcon },
+  { name: 'DiamondsFour', Cmp: DiamondsFourIcon },
+  { name: 'DiceFive', Cmp: DiceFiveIcon },
+  { name: 'DiceFour', Cmp: DiceFourIcon },
+  { name: 'DiceOne', Cmp: DiceOneIcon },
+  { name: 'DiceSix', Cmp: DiceSixIcon },
+  { name: 'DiceThree', Cmp: DiceThreeIcon },
+  { name: 'DiceTwo', Cmp: DiceTwoIcon },
+  { name: 'Disc', Cmp: DiscIcon },
+  { name: 'DiscoBall', Cmp: DiscoBallIcon },
+  { name: 'DiscordLogo', Cmp: DiscordLogoIcon },
+  { name: 'Divide', Cmp: DivideIcon },
+  { name: 'Dna', Cmp: DnaIcon },
+  { name: 'Dog', Cmp: DogIcon },
+  { name: 'Door', Cmp: DoorIcon },
+  { name: 'DoorOpen', Cmp: DoorOpenIcon },
+  { name: 'Dot', Cmp: DotIcon },
+  { name: 'DotOutline', Cmp: DotOutlineIcon },
+  { name: 'DotsNine', Cmp: DotsNineIcon },
+  { name: 'DotsSix', Cmp: DotsSixIcon },
+  { name: 'DotsSixVertical', Cmp: DotsSixVerticalIcon },
+  { name: 'DotsThree', Cmp: DotsThreeIcon },
+  { name: 'DotsThreeCircle', Cmp: DotsThreeCircleIcon },
+  { name: 'DotsThreeCircleVertical', Cmp: DotsThreeCircleVerticalIcon },
+  { name: 'DotsThreeOutline', Cmp: DotsThreeOutlineIcon },
+  { name: 'DotsThreeOutlineVertical', Cmp: DotsThreeOutlineVerticalIcon },
+  { name: 'DotsThreeVertical', Cmp: DotsThreeVerticalIcon },
+  { name: 'Download', Cmp: DownloadIcon },
+  { name: 'DownloadSimple', Cmp: DownloadSimpleIcon },
+  { name: 'Dress', Cmp: DressIcon },
+  { name: 'Dresser', Cmp: DresserIcon },
+  { name: 'DribbbleLogo', Cmp: DribbbleLogoIcon },
+  { name: 'Drone', Cmp: DroneIcon },
+  { name: 'Drop', Cmp: DropIcon },
+  { name: 'DropboxLogo', Cmp: DropboxLogoIcon },
+  { name: 'DropHalf', Cmp: DropHalfIcon },
+  { name: 'DropHalfBottom', Cmp: DropHalfBottomIcon },
+  { name: 'DropSimple', Cmp: DropSimpleIcon },
+  { name: 'DropSlash', Cmp: DropSlashIcon },
+  { name: 'Ear', Cmp: EarIcon },
+  { name: 'EarSlash', Cmp: EarSlashIcon },
+  { name: 'Egg', Cmp: EggIcon },
+  { name: 'EggCrack', Cmp: EggCrackIcon },
+  { name: 'Eject', Cmp: EjectIcon },
+  { name: 'EjectSimple', Cmp: EjectSimpleIcon },
+  { name: 'Elevator', Cmp: ElevatorIcon },
+  { name: 'Empty', Cmp: EmptyIcon },
+  { name: 'Engine', Cmp: EngineIcon },
+  { name: 'Envelope', Cmp: EnvelopeIcon },
+  { name: 'EnvelopeOpen', Cmp: EnvelopeOpenIcon },
+  { name: 'EnvelopeSimple', Cmp: EnvelopeSimpleIcon },
+  { name: 'EnvelopeSimpleOpen', Cmp: EnvelopeSimpleOpenIcon },
+  { name: 'Equalizer', Cmp: EqualizerIcon },
+  { name: 'Equals', Cmp: EqualsIcon },
+  { name: 'Eraser', Cmp: EraserIcon },
+  { name: 'EscalatorDown', Cmp: EscalatorDownIcon },
+  { name: 'EscalatorUp', Cmp: EscalatorUpIcon },
+  { name: 'Exam', Cmp: ExamIcon },
+  { name: 'ExclamationMark', Cmp: ExclamationMarkIcon },
+  { name: 'Exclude', Cmp: ExcludeIcon },
+  { name: 'ExcludeSquare', Cmp: ExcludeSquareIcon },
+  { name: 'Export', Cmp: ExportIcon },
+  { name: 'Eye', Cmp: EyeIcon },
+  { name: 'EyeClosed', Cmp: EyeClosedIcon },
+  { name: 'Eyedropper', Cmp: EyedropperIcon },
+  { name: 'EyedropperSample', Cmp: EyedropperSampleIcon },
+  { name: 'Eyeglasses', Cmp: EyeglassesIcon },
+  { name: 'Eyes', Cmp: EyesIcon },
+  { name: 'EyeSlash', Cmp: EyeSlashIcon },
+  { name: 'FacebookLogo', Cmp: FacebookLogoIcon },
+  { name: 'FaceMask', Cmp: FaceMaskIcon },
+  { name: 'Factory', Cmp: FactoryIcon },
+  { name: 'Faders', Cmp: FadersIcon },
+  { name: 'FadersHorizontal', Cmp: FadersHorizontalIcon },
+  { name: 'FalloutShelter', Cmp: FalloutShelterIcon },
+  { name: 'Fan', Cmp: FanIcon },
+  { name: 'Farm', Cmp: FarmIcon },
+  { name: 'FastForward', Cmp: FastForwardIcon },
+  { name: 'FastForwardCircle', Cmp: FastForwardCircleIcon },
+  { name: 'Feather', Cmp: FeatherIcon },
+  { name: 'FediverseLogo', Cmp: FediverseLogoIcon },
+  { name: 'FigmaLogo', Cmp: FigmaLogoIcon },
+  { name: 'File', Cmp: FileIcon },
+  { name: 'FileArchive', Cmp: FileArchiveIcon },
+  { name: 'FileArrowDown', Cmp: FileArrowDownIcon },
+  { name: 'FileArrowUp', Cmp: FileArrowUpIcon },
+  { name: 'FileAudio', Cmp: FileAudioIcon },
+  { name: 'FileC', Cmp: FileCIcon },
+  { name: 'FileCloud', Cmp: FileCloudIcon },
+  { name: 'FileCode', Cmp: FileCodeIcon },
+  { name: 'FileCpp', Cmp: FileCppIcon },
+  { name: 'FileCSharp', Cmp: FileCSharpIcon },
+  { name: 'FileCss', Cmp: FileCssIcon },
+  { name: 'FileCsv', Cmp: FileCsvIcon },
+  { name: 'FileDashed', Cmp: FileDashedIcon },
+  { name: 'FileDoc', Cmp: FileDocIcon },
+  { name: 'FileHtml', Cmp: FileHtmlIcon },
+  { name: 'FileImage', Cmp: FileImageIcon },
+  { name: 'FileIni', Cmp: FileIniIcon },
+  { name: 'FileJpg', Cmp: FileJpgIcon },
+  { name: 'FileJs', Cmp: FileJsIcon },
+  { name: 'FileJsx', Cmp: FileJsxIcon },
+  { name: 'FileLock', Cmp: FileLockIcon },
+  { name: 'FileMagnifyingGlass', Cmp: FileMagnifyingGlassIcon },
+  { name: 'FileMd', Cmp: FileMdIcon },
+  { name: 'FileMinus', Cmp: FileMinusIcon },
+  { name: 'FilePdf', Cmp: FilePdfIcon },
+  { name: 'FilePlus', Cmp: FilePlusIcon },
+  { name: 'FilePng', Cmp: FilePngIcon },
+  { name: 'FilePpt', Cmp: FilePptIcon },
+  { name: 'FilePy', Cmp: FilePyIcon },
+  { name: 'FileRs', Cmp: FileRsIcon },
+  { name: 'Files', Cmp: FilesIcon },
+  { name: 'FileSql', Cmp: FileSqlIcon },
+  { name: 'FileSvg', Cmp: FileSvgIcon },
+  { name: 'FileText', Cmp: FileTextIcon },
+  { name: 'FileTs', Cmp: FileTsIcon },
+  { name: 'FileTsx', Cmp: FileTsxIcon },
+  { name: 'FileTxt', Cmp: FileTxtIcon },
+  { name: 'FileVideo', Cmp: FileVideoIcon },
+  { name: 'FileVue', Cmp: FileVueIcon },
+  { name: 'FileX', Cmp: FileXIcon },
+  { name: 'FileXls', Cmp: FileXlsIcon },
+  { name: 'FileZip', Cmp: FileZipIcon },
+  { name: 'FilmReel', Cmp: FilmReelIcon },
+  { name: 'FilmScript', Cmp: FilmScriptIcon },
+  { name: 'FilmSlate', Cmp: FilmSlateIcon },
+  { name: 'FilmStrip', Cmp: FilmStripIcon },
+  { name: 'Fingerprint', Cmp: FingerprintIcon },
+  { name: 'FingerprintSimple', Cmp: FingerprintSimpleIcon },
+  { name: 'FinnTheHuman', Cmp: FinnTheHumanIcon },
+  { name: 'Fire', Cmp: FireIcon },
+  { name: 'FireExtinguisher', Cmp: FireExtinguisherIcon },
+  { name: 'FireSimple', Cmp: FireSimpleIcon },
+  { name: 'FireTruck', Cmp: FireTruckIcon },
+  { name: 'FirstAid', Cmp: FirstAidIcon },
+  { name: 'FirstAidKit', Cmp: FirstAidKitIcon },
+  { name: 'Fish', Cmp: FishIcon },
+  { name: 'FishSimple', Cmp: FishSimpleIcon },
+  { name: 'Flag', Cmp: FlagIcon },
+  { name: 'FlagBanner', Cmp: FlagBannerIcon },
+  { name: 'FlagBannerFold', Cmp: FlagBannerFoldIcon },
+  { name: 'FlagCheckered', Cmp: FlagCheckeredIcon },
+  { name: 'FlagPennant', Cmp: FlagPennantIcon },
+  { name: 'Flame', Cmp: FlameIcon },
+  { name: 'Flashlight', Cmp: FlashlightIcon },
+  { name: 'Flask', Cmp: FlaskIcon },
+  { name: 'FlipHorizontal', Cmp: FlipHorizontalIcon },
+  { name: 'FlipVertical', Cmp: FlipVerticalIcon },
+  { name: 'FloppyDisk', Cmp: FloppyDiskIcon },
+  { name: 'FloppyDiskBack', Cmp: FloppyDiskBackIcon },
+  { name: 'FlowArrow', Cmp: FlowArrowIcon },
+  { name: 'Flower', Cmp: FlowerIcon },
+  { name: 'FlowerLotus', Cmp: FlowerLotusIcon },
+  { name: 'FlowerTulip', Cmp: FlowerTulipIcon },
+  { name: 'FlyingSaucer', Cmp: FlyingSaucerIcon },
+  { name: 'Folder', Cmp: FolderIcon },
+  { name: 'FolderDashed', Cmp: FolderDashedIcon },
+  { name: 'FolderLock', Cmp: FolderLockIcon },
+  { name: 'FolderMinus', Cmp: FolderMinusIcon },
+  { name: 'FolderOpen', Cmp: FolderOpenIcon },
+  { name: 'FolderPlus', Cmp: FolderPlusIcon },
+  { name: 'Folders', Cmp: FoldersIcon },
+  { name: 'FolderSimple', Cmp: FolderSimpleIcon },
+  { name: 'FolderSimpleDashed', Cmp: FolderSimpleDashedIcon },
+  { name: 'FolderSimpleLock', Cmp: FolderSimpleLockIcon },
+  { name: 'FolderSimpleMinus', Cmp: FolderSimpleMinusIcon },
+  { name: 'FolderSimplePlus', Cmp: FolderSimplePlusIcon },
+  { name: 'FolderSimpleStar', Cmp: FolderSimpleStarIcon },
+  { name: 'FolderSimpleUser', Cmp: FolderSimpleUserIcon },
+  { name: 'FolderStar', Cmp: FolderStarIcon },
+  { name: 'FolderUser', Cmp: FolderUserIcon },
+  { name: 'Football', Cmp: FootballIcon },
+  { name: 'FootballHelmet', Cmp: FootballHelmetIcon },
+  { name: 'Footprints', Cmp: FootprintsIcon },
+  { name: 'ForkKnife', Cmp: ForkKnifeIcon },
+  { name: 'FourK', Cmp: FourKIcon },
+  { name: 'FrameCorners', Cmp: FrameCornersIcon },
+  { name: 'FramerLogo', Cmp: FramerLogoIcon },
+  { name: 'Function', Cmp: FunctionIcon },
+  { name: 'Funnel', Cmp: FunnelIcon },
+  { name: 'FunnelSimple', Cmp: FunnelSimpleIcon },
+  { name: 'FunnelSimpleX', Cmp: FunnelSimpleXIcon },
+  { name: 'FunnelX', Cmp: FunnelXIcon },
+  { name: 'GameController', Cmp: GameControllerIcon },
+  { name: 'Garage', Cmp: GarageIcon },
+  { name: 'GasCan', Cmp: GasCanIcon },
+  { name: 'GasPump', Cmp: GasPumpIcon },
+  { name: 'Gauge', Cmp: GaugeIcon },
+  { name: 'Gavel', Cmp: GavelIcon },
+  { name: 'Gear', Cmp: GearIcon },
+  { name: 'GearFine', Cmp: GearFineIcon },
+  { name: 'GearSix', Cmp: GearSixIcon },
+  { name: 'GenderFemale', Cmp: GenderFemaleIcon },
+  { name: 'GenderIntersex', Cmp: GenderIntersexIcon },
+  { name: 'GenderMale', Cmp: GenderMaleIcon },
+  { name: 'GenderNeuter', Cmp: GenderNeuterIcon },
+  { name: 'GenderNonbinary', Cmp: GenderNonbinaryIcon },
+  { name: 'GenderTransgender', Cmp: GenderTransgenderIcon },
+  { name: 'Ghost', Cmp: GhostIcon },
+  { name: 'Gif', Cmp: GifIcon },
+  { name: 'Gift', Cmp: GiftIcon },
+  { name: 'GitBranch', Cmp: GitBranchIcon },
+  { name: 'GitCommit', Cmp: GitCommitIcon },
+  { name: 'GitDiff', Cmp: GitDiffIcon },
+  { name: 'GitFork', Cmp: GitForkIcon },
+  { name: 'GithubLogo', Cmp: GithubLogoIcon },
+  { name: 'GitlabLogo', Cmp: GitlabLogoIcon },
+  { name: 'GitlabLogoSimple', Cmp: GitlabLogoSimpleIcon },
+  { name: 'GitMerge', Cmp: GitMergeIcon },
+  { name: 'GitPullRequest', Cmp: GitPullRequestIcon },
+  { name: 'Globe', Cmp: GlobeIcon },
+  { name: 'GlobeHemisphereEast', Cmp: GlobeHemisphereEastIcon },
+  { name: 'GlobeHemisphereWest', Cmp: GlobeHemisphereWestIcon },
+  { name: 'GlobeSimple', Cmp: GlobeSimpleIcon },
+  { name: 'GlobeSimpleX', Cmp: GlobeSimpleXIcon },
+  { name: 'GlobeStand', Cmp: GlobeStandIcon },
+  { name: 'GlobeX', Cmp: GlobeXIcon },
+  { name: 'Goggles', Cmp: GogglesIcon },
+  { name: 'Golf', Cmp: GolfIcon },
+  { name: 'GoodreadsLogo', Cmp: GoodreadsLogoIcon },
+  { name: 'GoogleCardboardLogo', Cmp: GoogleCardboardLogoIcon },
+  { name: 'GoogleChromeLogo', Cmp: GoogleChromeLogoIcon },
+  { name: 'GoogleDriveLogo', Cmp: GoogleDriveLogoIcon },
+  { name: 'GoogleLogo', Cmp: GoogleLogoIcon },
+  { name: 'GooglePhotosLogo', Cmp: GooglePhotosLogoIcon },
+  { name: 'GooglePlayLogo', Cmp: GooglePlayLogoIcon },
+  { name: 'GooglePodcastsLogo', Cmp: GooglePodcastsLogoIcon },
+  { name: 'Gps', Cmp: GpsIcon },
+  { name: 'GpsFix', Cmp: GpsFixIcon },
+  { name: 'GpsSlash', Cmp: GpsSlashIcon },
+  { name: 'Gradient', Cmp: GradientIcon },
+  { name: 'GraduationCap', Cmp: GraduationCapIcon },
+  { name: 'Grains', Cmp: GrainsIcon },
+  { name: 'GrainsSlash', Cmp: GrainsSlashIcon },
+  { name: 'Graph', Cmp: GraphIcon },
+  { name: 'GraphicsCard', Cmp: GraphicsCardIcon },
+  { name: 'GreaterThan', Cmp: GreaterThanIcon },
+  { name: 'GreaterThanOrEqual', Cmp: GreaterThanOrEqualIcon },
+  { name: 'GridFour', Cmp: GridFourIcon },
+  { name: 'GridNine', Cmp: GridNineIcon },
+  { name: 'Guitar', Cmp: GuitarIcon },
+  { name: 'HairDryer', Cmp: HairDryerIcon },
+  { name: 'Hamburger', Cmp: HamburgerIcon },
+  { name: 'Hammer', Cmp: HammerIcon },
+  { name: 'Hand', Cmp: HandIcon },
+  { name: 'HandArrowDown', Cmp: HandArrowDownIcon },
+  { name: 'HandArrowUp', Cmp: HandArrowUpIcon },
+  { name: 'Handbag', Cmp: HandbagIcon },
+  { name: 'HandbagSimple', Cmp: HandbagSimpleIcon },
+  { name: 'HandCoins', Cmp: HandCoinsIcon },
+  { name: 'HandDeposit', Cmp: HandDepositIcon },
+  { name: 'HandEye', Cmp: HandEyeIcon },
+  { name: 'HandFist', Cmp: HandFistIcon },
+  { name: 'HandGrabbing', Cmp: HandGrabbingIcon },
+  { name: 'HandHeart', Cmp: HandHeartIcon },
+  { name: 'HandPalm', Cmp: HandPalmIcon },
+  { name: 'HandPeace', Cmp: HandPeaceIcon },
+  { name: 'HandPointing', Cmp: HandPointingIcon },
+  { name: 'HandsClapping', Cmp: HandsClappingIcon },
+  { name: 'Handshake', Cmp: HandshakeIcon },
+  { name: 'HandSoap', Cmp: HandSoapIcon },
+  { name: 'HandsPraying', Cmp: HandsPrayingIcon },
+  { name: 'HandSwipeLeft', Cmp: HandSwipeLeftIcon },
+  { name: 'HandSwipeRight', Cmp: HandSwipeRightIcon },
+  { name: 'HandTap', Cmp: HandTapIcon },
+  { name: 'HandWaving', Cmp: HandWavingIcon },
+  { name: 'HandWithdraw', Cmp: HandWithdrawIcon },
+  { name: 'HardDrive', Cmp: HardDriveIcon },
+  { name: 'HardDrives', Cmp: HardDrivesIcon },
+  { name: 'HardHat', Cmp: HardHatIcon },
+  { name: 'Hash', Cmp: HashIcon },
+  { name: 'HashStraight', Cmp: HashStraightIcon },
+  { name: 'HeadCircuit', Cmp: HeadCircuitIcon },
+  { name: 'Headlights', Cmp: HeadlightsIcon },
+  { name: 'Headphones', Cmp: HeadphonesIcon },
+  { name: 'Headset', Cmp: HeadsetIcon },
+  { name: 'Heart', Cmp: HeartIcon },
+  { name: 'Heartbeat', Cmp: HeartbeatIcon },
+  { name: 'HeartBreak', Cmp: HeartBreakIcon },
+  { name: 'HeartHalf', Cmp: HeartHalfIcon },
+  { name: 'HeartStraight', Cmp: HeartStraightIcon },
+  { name: 'HeartStraightBreak', Cmp: HeartStraightBreakIcon },
+  { name: 'Hexagon', Cmp: HexagonIcon },
+  { name: 'HighDefinition', Cmp: HighDefinitionIcon },
+  { name: 'HighHeel', Cmp: HighHeelIcon },
+  { name: 'Highlighter', Cmp: HighlighterIcon },
+  { name: 'HighlighterCircle', Cmp: HighlighterCircleIcon },
+  { name: 'Hockey', Cmp: HockeyIcon },
+  { name: 'Hoodie', Cmp: HoodieIcon },
+  { name: 'Horse', Cmp: HorseIcon },
+  { name: 'Hospital', Cmp: HospitalIcon },
+  { name: 'Hourglass', Cmp: HourglassIcon },
+  { name: 'HourglassHigh', Cmp: HourglassHighIcon },
+  { name: 'HourglassLow', Cmp: HourglassLowIcon },
+  { name: 'HourglassMedium', Cmp: HourglassMediumIcon },
+  { name: 'HourglassSimple', Cmp: HourglassSimpleIcon },
+  { name: 'HourglassSimpleHigh', Cmp: HourglassSimpleHighIcon },
+  { name: 'HourglassSimpleLow', Cmp: HourglassSimpleLowIcon },
+  { name: 'HourglassSimpleMedium', Cmp: HourglassSimpleMediumIcon },
+  { name: 'House', Cmp: HouseIcon },
+  { name: 'HouseLine', Cmp: HouseLineIcon },
+  { name: 'HouseSimple', Cmp: HouseSimpleIcon },
+  { name: 'Hurricane', Cmp: HurricaneIcon },
+  { name: 'IceCream', Cmp: IceCreamIcon },
+  { name: 'IdentificationBadge', Cmp: IdentificationBadgeIcon },
+  { name: 'IdentificationCard', Cmp: IdentificationCardIcon },
+  { name: 'Image', Cmp: ImageIcon },
+  { name: 'ImageBroken', Cmp: ImageBrokenIcon },
+  { name: 'Images', Cmp: ImagesIcon },
+  { name: 'ImageSquare', Cmp: ImageSquareIcon },
+  { name: 'ImagesSquare', Cmp: ImagesSquareIcon },
   { name: 'Infinity', Cmp: InfinityIcon },
-  { name: 'Info', Cmp: Info },
-  { name: 'InstagramLogo', Cmp: InstagramLogo },
-  { name: 'Intersect', Cmp: Intersect },
-  { name: 'Intersection', Cmp: Intersection },
-  { name: 'IntersectSquare', Cmp: IntersectSquare },
-  { name: 'IntersectThree', Cmp: IntersectThree },
-  { name: 'Invoice', Cmp: Invoice },
-  { name: 'Island', Cmp: Island },
-  { name: 'Jar', Cmp: Jar },
-  { name: 'JarLabel', Cmp: JarLabel },
-  { name: 'Jeep', Cmp: Jeep },
-  { name: 'Joystick', Cmp: Joystick },
-  { name: 'Kanban', Cmp: Kanban },
-  { name: 'Key', Cmp: Key },
-  { name: 'Keyboard', Cmp: Keyboard },
-  { name: 'Keyhole', Cmp: Keyhole },
-  { name: 'KeyReturn', Cmp: KeyReturn },
-  { name: 'Knife', Cmp: Knife },
-  { name: 'Ladder', Cmp: Ladder },
-  { name: 'LadderSimple', Cmp: LadderSimple },
-  { name: 'Lamp', Cmp: Lamp },
-  { name: 'LampPendant', Cmp: LampPendant },
-  { name: 'Laptop', Cmp: Laptop },
-  { name: 'Lasso', Cmp: Lasso },
-  { name: 'LastfmLogo', Cmp: LastfmLogo },
-  { name: 'Layout', Cmp: Layout },
-  { name: 'Leaf', Cmp: Leaf },
-  { name: 'Lectern', Cmp: Lectern },
-  { name: 'Lego', Cmp: Lego },
-  { name: 'LegoSmiley', Cmp: LegoSmiley },
-  { name: 'LessThan', Cmp: LessThan },
-  { name: 'LessThanOrEqual', Cmp: LessThanOrEqual },
-  { name: 'LetterCircleH', Cmp: LetterCircleH },
-  { name: 'LetterCircleP', Cmp: LetterCircleP },
-  { name: 'LetterCircleV', Cmp: LetterCircleV },
-  { name: 'Lifebuoy', Cmp: Lifebuoy },
-  { name: 'Lightbulb', Cmp: Lightbulb },
-  { name: 'LightbulbFilament', Cmp: LightbulbFilament },
-  { name: 'Lighthouse', Cmp: Lighthouse },
-  { name: 'Lightning', Cmp: Lightning },
-  { name: 'LightningA', Cmp: LightningA },
-  { name: 'LightningSlash', Cmp: LightningSlash },
-  { name: 'LineSegment', Cmp: LineSegment },
-  { name: 'LineSegments', Cmp: LineSegments },
-  { name: 'LineVertical', Cmp: LineVertical },
-  { name: 'Link', Cmp: Link },
-  { name: 'LinkBreak', Cmp: LinkBreak },
-  { name: 'LinkedinLogo', Cmp: LinkedinLogo },
-  { name: 'LinkSimple', Cmp: LinkSimple },
-  { name: 'LinkSimpleBreak', Cmp: LinkSimpleBreak },
-  { name: 'LinkSimpleHorizontal', Cmp: LinkSimpleHorizontal },
-  { name: 'LinkSimpleHorizontalBreak', Cmp: LinkSimpleHorizontalBreak },
-  { name: 'LinktreeLogo', Cmp: LinktreeLogo },
-  { name: 'LinuxLogo', Cmp: LinuxLogo },
-  { name: 'List', Cmp: List },
-  { name: 'ListBullets', Cmp: ListBullets },
-  { name: 'ListChecks', Cmp: ListChecks },
-  { name: 'ListDashes', Cmp: ListDashes },
-  { name: 'ListHeart', Cmp: ListHeart },
-  { name: 'ListMagnifyingGlass', Cmp: ListMagnifyingGlass },
-  { name: 'ListNumbers', Cmp: ListNumbers },
-  { name: 'ListPlus', Cmp: ListPlus },
-  { name: 'ListStar', Cmp: ListStar },
-  { name: 'Lock', Cmp: Lock },
-  { name: 'Lockers', Cmp: Lockers },
-  { name: 'LockKey', Cmp: LockKey },
-  { name: 'LockKeyOpen', Cmp: LockKeyOpen },
-  { name: 'LockLaminated', Cmp: LockLaminated },
-  { name: 'LockLaminatedOpen', Cmp: LockLaminatedOpen },
-  { name: 'LockOpen', Cmp: LockOpen },
-  { name: 'LockSimple', Cmp: LockSimple },
-  { name: 'LockSimpleOpen', Cmp: LockSimpleOpen },
-  { name: 'Log', Cmp: Log },
-  { name: 'MagicWand', Cmp: MagicWand },
-  { name: 'Magnet', Cmp: Magnet },
-  { name: 'MagnetStraight', Cmp: MagnetStraight },
-  { name: 'MagnifyingGlass', Cmp: MagnifyingGlass },
-  { name: 'MagnifyingGlassMinus', Cmp: MagnifyingGlassMinus },
-  { name: 'MagnifyingGlassPlus', Cmp: MagnifyingGlassPlus },
-  { name: 'Mailbox', Cmp: Mailbox },
-  { name: 'MapPin', Cmp: MapPin },
-  { name: 'MapPinArea', Cmp: MapPinArea },
-  { name: 'MapPinLine', Cmp: MapPinLine },
-  { name: 'MapPinPlus', Cmp: MapPinPlus },
-  { name: 'MapPinSimple', Cmp: MapPinSimple },
-  { name: 'MapPinSimpleArea', Cmp: MapPinSimpleArea },
-  { name: 'MapPinSimpleLine', Cmp: MapPinSimpleLine },
-  { name: 'MapTrifold', Cmp: MapTrifold },
-  { name: 'MarkdownLogo', Cmp: MarkdownLogo },
-  { name: 'MarkerCircle', Cmp: MarkerCircle },
-  { name: 'Martini', Cmp: Martini },
-  { name: 'MaskHappy', Cmp: MaskHappy },
-  { name: 'MaskSad', Cmp: MaskSad },
-  { name: 'MastodonLogo', Cmp: MastodonLogo },
-  { name: 'MathOperations', Cmp: MathOperations },
-  { name: 'MatrixLogo', Cmp: MatrixLogo },
-  { name: 'Medal', Cmp: Medal },
-  { name: 'MedalMilitary', Cmp: MedalMilitary },
-  { name: 'MediumLogo', Cmp: MediumLogo },
-  { name: 'Megaphone', Cmp: Megaphone },
-  { name: 'MegaphoneSimple', Cmp: MegaphoneSimple },
-  { name: 'MemberOf', Cmp: MemberOf },
-  { name: 'Memory', Cmp: Memory },
-  { name: 'MessengerLogo', Cmp: MessengerLogo },
-  { name: 'MetaLogo', Cmp: MetaLogo },
-  { name: 'Meteor', Cmp: Meteor },
-  { name: 'Metronome', Cmp: Metronome },
-  { name: 'Microphone', Cmp: Microphone },
-  { name: 'MicrophoneSlash', Cmp: MicrophoneSlash },
-  { name: 'MicrophoneStage', Cmp: MicrophoneStage },
-  { name: 'Microscope', Cmp: Microscope },
-  { name: 'MicrosoftExcelLogo', Cmp: MicrosoftExcelLogo },
-  { name: 'MicrosoftOutlookLogo', Cmp: MicrosoftOutlookLogo },
-  { name: 'MicrosoftPowerpointLogo', Cmp: MicrosoftPowerpointLogo },
-  { name: 'MicrosoftTeamsLogo', Cmp: MicrosoftTeamsLogo },
-  { name: 'MicrosoftWordLogo', Cmp: MicrosoftWordLogo },
-  { name: 'Minus', Cmp: Minus },
-  { name: 'MinusCircle', Cmp: MinusCircle },
-  { name: 'MinusSquare', Cmp: MinusSquare },
-  { name: 'Money', Cmp: Money },
-  { name: 'MoneyWavy', Cmp: MoneyWavy },
-  { name: 'Monitor', Cmp: Monitor },
-  { name: 'MonitorArrowUp', Cmp: MonitorArrowUp },
-  { name: 'MonitorPlay', Cmp: MonitorPlay },
-  { name: 'Moon', Cmp: Moon },
-  { name: 'MoonStars', Cmp: MoonStars },
-  { name: 'Moped', Cmp: Moped },
-  { name: 'MopedFront', Cmp: MopedFront },
-  { name: 'Mosque', Cmp: Mosque },
-  { name: 'Motorcycle', Cmp: Motorcycle },
-  { name: 'Mountains', Cmp: Mountains },
-  { name: 'Mouse', Cmp: Mouse },
-  { name: 'MouseLeftClick', Cmp: MouseLeftClick },
-  { name: 'MouseMiddleClick', Cmp: MouseMiddleClick },
-  { name: 'MouseRightClick', Cmp: MouseRightClick },
-  { name: 'MouseScroll', Cmp: MouseScroll },
-  { name: 'MouseSimple', Cmp: MouseSimple },
-  { name: 'MusicNote', Cmp: MusicNote },
-  { name: 'MusicNotes', Cmp: MusicNotes },
-  { name: 'MusicNoteSimple', Cmp: MusicNoteSimple },
-  { name: 'MusicNotesMinus', Cmp: MusicNotesMinus },
-  { name: 'MusicNotesPlus', Cmp: MusicNotesPlus },
-  { name: 'MusicNotesSimple', Cmp: MusicNotesSimple },
-  { name: 'NavigationArrow', Cmp: NavigationArrow },
-  { name: 'Needle', Cmp: Needle },
-  { name: 'Network', Cmp: Network },
-  { name: 'NetworkSlash', Cmp: NetworkSlash },
-  { name: 'NetworkX', Cmp: NetworkX },
-  { name: 'Newspaper', Cmp: Newspaper },
-  { name: 'NewspaperClipping', Cmp: NewspaperClipping },
-  { name: 'Notches', Cmp: Notches },
-  { name: 'Note', Cmp: Note },
-  { name: 'NoteBlank', Cmp: NoteBlank },
-  { name: 'Notebook', Cmp: Notebook },
-  { name: 'Notepad', Cmp: Notepad },
-  { name: 'NotePencil', Cmp: NotePencil },
-  { name: 'NotEquals', Cmp: NotEquals },
-  { name: 'Notification', Cmp: Notification },
-  { name: 'NotionLogo', Cmp: NotionLogo },
-  { name: 'NotMemberOf', Cmp: NotMemberOf },
-  { name: 'NotSubsetOf', Cmp: NotSubsetOf },
-  { name: 'NotSupersetOf', Cmp: NotSupersetOf },
-  { name: 'NuclearPlant', Cmp: NuclearPlant },
-  { name: 'NumberCircleEight', Cmp: NumberCircleEight },
-  { name: 'NumberCircleFive', Cmp: NumberCircleFive },
-  { name: 'NumberCircleFour', Cmp: NumberCircleFour },
-  { name: 'NumberCircleNine', Cmp: NumberCircleNine },
-  { name: 'NumberCircleOne', Cmp: NumberCircleOne },
-  { name: 'NumberCircleSeven', Cmp: NumberCircleSeven },
-  { name: 'NumberCircleSix', Cmp: NumberCircleSix },
-  { name: 'NumberCircleThree', Cmp: NumberCircleThree },
-  { name: 'NumberCircleTwo', Cmp: NumberCircleTwo },
-  { name: 'NumberCircleZero', Cmp: NumberCircleZero },
-  { name: 'NumberEight', Cmp: NumberEight },
-  { name: 'NumberFive', Cmp: NumberFive },
-  { name: 'NumberFour', Cmp: NumberFour },
-  { name: 'NumberNine', Cmp: NumberNine },
-  { name: 'NumberOne', Cmp: NumberOne },
-  { name: 'NumberSeven', Cmp: NumberSeven },
-  { name: 'NumberSix', Cmp: NumberSix },
-  { name: 'NumberSquareEight', Cmp: NumberSquareEight },
-  { name: 'NumberSquareFive', Cmp: NumberSquareFive },
-  { name: 'NumberSquareFour', Cmp: NumberSquareFour },
-  { name: 'NumberSquareNine', Cmp: NumberSquareNine },
-  { name: 'NumberSquareOne', Cmp: NumberSquareOne },
-  { name: 'NumberSquareSeven', Cmp: NumberSquareSeven },
-  { name: 'NumberSquareSix', Cmp: NumberSquareSix },
-  { name: 'NumberSquareThree', Cmp: NumberSquareThree },
-  { name: 'NumberSquareTwo', Cmp: NumberSquareTwo },
-  { name: 'NumberSquareZero', Cmp: NumberSquareZero },
-  { name: 'NumberThree', Cmp: NumberThree },
-  { name: 'NumberTwo', Cmp: NumberTwo },
-  { name: 'NumberZero', Cmp: NumberZero },
-  { name: 'Numpad', Cmp: Numpad },
-  { name: 'Nut', Cmp: Nut },
-  { name: 'NyTimesLogo', Cmp: NyTimesLogo },
-  { name: 'Octagon', Cmp: Octagon },
-  { name: 'OfficeChair', Cmp: OfficeChair },
-  { name: 'Onigiri', Cmp: Onigiri },
-  { name: 'OpenAiLogo', Cmp: OpenAiLogo },
-  { name: 'Option', Cmp: Option },
-  { name: 'Orange', Cmp: Orange },
-  { name: 'OrangeSlice', Cmp: OrangeSlice },
-  { name: 'Oven', Cmp: Oven },
-  { name: 'Package', Cmp: Package },
-  { name: 'PaintBrush', Cmp: PaintBrush },
-  { name: 'PaintBrushBroad', Cmp: PaintBrushBroad },
-  { name: 'PaintBrushHousehold', Cmp: PaintBrushHousehold },
-  { name: 'PaintBucket', Cmp: PaintBucket },
-  { name: 'PaintRoller', Cmp: PaintRoller },
-  { name: 'Palette', Cmp: Palette },
-  { name: 'Panorama', Cmp: Panorama },
-  { name: 'Pants', Cmp: Pants },
-  { name: 'Paperclip', Cmp: Paperclip },
-  { name: 'PaperclipHorizontal', Cmp: PaperclipHorizontal },
-  { name: 'PaperPlane', Cmp: PaperPlane },
-  { name: 'PaperPlaneRight', Cmp: PaperPlaneRight },
-  { name: 'PaperPlaneTilt', Cmp: PaperPlaneTilt },
-  { name: 'Parachute', Cmp: Parachute },
-  { name: 'Paragraph', Cmp: Paragraph },
-  { name: 'Parallelogram', Cmp: Parallelogram },
-  { name: 'Park', Cmp: Park },
-  { name: 'Password', Cmp: Password },
-  { name: 'Path', Cmp: Path },
-  { name: 'PatreonLogo', Cmp: PatreonLogo },
-  { name: 'Pause', Cmp: Pause },
-  { name: 'PauseCircle', Cmp: PauseCircle },
-  { name: 'PawPrint', Cmp: PawPrint },
-  { name: 'PaypalLogo', Cmp: PaypalLogo },
-  { name: 'Peace', Cmp: Peace },
-  { name: 'Pen', Cmp: Pen },
-  { name: 'Pencil', Cmp: Pencil },
-  { name: 'PencilCircle', Cmp: PencilCircle },
-  { name: 'PencilLine', Cmp: PencilLine },
-  { name: 'PencilRuler', Cmp: PencilRuler },
-  { name: 'PencilSimple', Cmp: PencilSimple },
-  { name: 'PencilSimpleLine', Cmp: PencilSimpleLine },
-  { name: 'PencilSimpleSlash', Cmp: PencilSimpleSlash },
-  { name: 'PencilSlash', Cmp: PencilSlash },
-  { name: 'PenNib', Cmp: PenNib },
-  { name: 'PenNibStraight', Cmp: PenNibStraight },
-  { name: 'Pentagon', Cmp: Pentagon },
-  { name: 'Pentagram', Cmp: Pentagram },
-  { name: 'Pepper', Cmp: Pepper },
-  { name: 'Percent', Cmp: Percent },
-  { name: 'Person', Cmp: Person },
-  { name: 'PersonArmsSpread', Cmp: PersonArmsSpread },
-  { name: 'PersonSimple', Cmp: PersonSimple },
-  { name: 'PersonSimpleBike', Cmp: PersonSimpleBike },
-  { name: 'PersonSimpleCircle', Cmp: PersonSimpleCircle },
-  { name: 'PersonSimpleHike', Cmp: PersonSimpleHike },
-  { name: 'PersonSimpleRun', Cmp: PersonSimpleRun },
-  { name: 'PersonSimpleSki', Cmp: PersonSimpleSki },
-  { name: 'PersonSimpleSnowboard', Cmp: PersonSimpleSnowboard },
-  { name: 'PersonSimpleSwim', Cmp: PersonSimpleSwim },
-  { name: 'PersonSimpleTaiChi', Cmp: PersonSimpleTaiChi },
-  { name: 'PersonSimpleThrow', Cmp: PersonSimpleThrow },
-  { name: 'PersonSimpleWalk', Cmp: PersonSimpleWalk },
-  { name: 'Perspective', Cmp: Perspective },
-  { name: 'Phone', Cmp: Phone },
-  { name: 'PhoneCall', Cmp: PhoneCall },
-  { name: 'PhoneDisconnect', Cmp: PhoneDisconnect },
-  { name: 'PhoneIncoming', Cmp: PhoneIncoming },
-  { name: 'PhoneList', Cmp: PhoneList },
-  { name: 'PhoneOutgoing', Cmp: PhoneOutgoing },
-  { name: 'PhonePause', Cmp: PhonePause },
-  { name: 'PhonePlus', Cmp: PhonePlus },
-  { name: 'PhoneSlash', Cmp: PhoneSlash },
-  { name: 'PhoneTransfer', Cmp: PhoneTransfer },
-  { name: 'PhoneX', Cmp: PhoneX },
-  { name: 'PhosphorLogo', Cmp: PhosphorLogo },
-  { name: 'Pi', Cmp: Pi },
-  { name: 'PianoKeys', Cmp: PianoKeys },
-  { name: 'PicnicTable', Cmp: PicnicTable },
-  { name: 'PictureInPicture', Cmp: PictureInPicture },
-  { name: 'PiggyBank', Cmp: PiggyBank },
-  { name: 'Pill', Cmp: Pill },
-  { name: 'PingPong', Cmp: PingPong },
-  { name: 'PinterestLogo', Cmp: PinterestLogo },
-  { name: 'PintGlass', Cmp: PintGlass },
-  { name: 'Pinwheel', Cmp: Pinwheel },
-  { name: 'Pipe', Cmp: Pipe },
-  { name: 'PipeWrench', Cmp: PipeWrench },
-  { name: 'PixLogo', Cmp: PixLogo },
-  { name: 'Pizza', Cmp: Pizza },
-  { name: 'Placeholder', Cmp: Placeholder },
-  { name: 'Planet', Cmp: Planet },
-  { name: 'Plant', Cmp: Plant },
-  { name: 'Play', Cmp: Play },
-  { name: 'PlayCircle', Cmp: PlayCircle },
-  { name: 'Playlist', Cmp: Playlist },
-  { name: 'PlayPause', Cmp: PlayPause },
-  { name: 'Plug', Cmp: Plug },
-  { name: 'PlugCharging', Cmp: PlugCharging },
-  { name: 'Plugs', Cmp: Plugs },
-  { name: 'PlugsConnected', Cmp: PlugsConnected },
-  { name: 'Plus', Cmp: Plus },
-  { name: 'PlusCircle', Cmp: PlusCircle },
-  { name: 'PlusMinus', Cmp: PlusMinus },
-  { name: 'PlusSquare', Cmp: PlusSquare },
-  { name: 'PokerChip', Cmp: PokerChip },
-  { name: 'PoliceCar', Cmp: PoliceCar },
-  { name: 'Polygon', Cmp: Polygon },
-  { name: 'Popcorn', Cmp: Popcorn },
-  { name: 'Popsicle', Cmp: Popsicle },
-  { name: 'PottedPlant', Cmp: PottedPlant },
-  { name: 'Power', Cmp: Power },
-  { name: 'Prescription', Cmp: Prescription },
-  { name: 'Presentation', Cmp: Presentation },
-  { name: 'PresentationChart', Cmp: PresentationChart },
-  { name: 'Printer', Cmp: Printer },
-  { name: 'Prohibit', Cmp: Prohibit },
-  { name: 'ProhibitInset', Cmp: ProhibitInset },
-  { name: 'ProjectorScreen', Cmp: ProjectorScreen },
-  { name: 'ProjectorScreenChart', Cmp: ProjectorScreenChart },
-  { name: 'Pulse', Cmp: Pulse },
-  { name: 'PushPin', Cmp: PushPin },
-  { name: 'PushPinSimple', Cmp: PushPinSimple },
-  { name: 'PushPinSimpleSlash', Cmp: PushPinSimpleSlash },
-  { name: 'PushPinSlash', Cmp: PushPinSlash },
-  { name: 'PuzzlePiece', Cmp: PuzzlePiece },
-  { name: 'QrCode', Cmp: QrCode },
-  { name: 'Question', Cmp: Question },
-  { name: 'QuestionMark', Cmp: QuestionMark },
-  { name: 'Queue', Cmp: Queue },
-  { name: 'Quotes', Cmp: Quotes },
-  { name: 'Rabbit', Cmp: Rabbit },
-  { name: 'Racquet', Cmp: Racquet },
-  { name: 'Radical', Cmp: Radical },
-  { name: 'Radio', Cmp: Radio },
-  { name: 'Radioactive', Cmp: Radioactive },
-  { name: 'RadioButton', Cmp: RadioButton },
-  { name: 'Rainbow', Cmp: Rainbow },
-  { name: 'RainbowCloud', Cmp: RainbowCloud },
-  { name: 'Ranking', Cmp: Ranking },
-  { name: 'ReadCvLogo', Cmp: ReadCvLogo },
-  { name: 'Receipt', Cmp: Receipt },
-  { name: 'ReceiptX', Cmp: ReceiptX },
-  { name: 'Record', Cmp: Record },
-  { name: 'Rectangle', Cmp: Rectangle },
-  { name: 'RectangleDashed', Cmp: RectangleDashed },
-  { name: 'Recycle', Cmp: Recycle },
-  { name: 'RedditLogo', Cmp: RedditLogo },
-  { name: 'Repeat', Cmp: Repeat },
-  { name: 'RepeatOnce', Cmp: RepeatOnce },
-  { name: 'ReplitLogo', Cmp: ReplitLogo },
-  { name: 'Resize', Cmp: Resize },
-  { name: 'Rewind', Cmp: Rewind },
-  { name: 'RewindCircle', Cmp: RewindCircle },
-  { name: 'RoadHorizon', Cmp: RoadHorizon },
-  { name: 'Robot', Cmp: Robot },
-  { name: 'Rocket', Cmp: Rocket },
-  { name: 'RocketLaunch', Cmp: RocketLaunch },
-  { name: 'Rows', Cmp: Rows },
-  { name: 'RowsPlusBottom', Cmp: RowsPlusBottom },
-  { name: 'RowsPlusTop', Cmp: RowsPlusTop },
-  { name: 'Rss', Cmp: Rss },
-  { name: 'RssSimple', Cmp: RssSimple },
-  { name: 'Rug', Cmp: Rug },
-  { name: 'Ruler', Cmp: Ruler },
-  { name: 'Sailboat', Cmp: Sailboat },
-  { name: 'Scales', Cmp: Scales },
-  { name: 'Scan', Cmp: Scan },
-  { name: 'ScanSmiley', Cmp: ScanSmiley },
-  { name: 'Scissors', Cmp: Scissors },
-  { name: 'Scooter', Cmp: Scooter },
-  { name: 'Screencast', Cmp: Screencast },
-  { name: 'Screwdriver', Cmp: Screwdriver },
-  { name: 'Scribble', Cmp: Scribble },
-  { name: 'ScribbleLoop', Cmp: ScribbleLoop },
-  { name: 'Scroll', Cmp: Scroll },
-  { name: 'Seal', Cmp: Seal },
-  { name: 'SealCheck', Cmp: SealCheck },
-  { name: 'SealPercent', Cmp: SealPercent },
-  { name: 'SealQuestion', Cmp: SealQuestion },
-  { name: 'SealWarning', Cmp: SealWarning },
-  { name: 'Seat', Cmp: Seat },
-  { name: 'Seatbelt', Cmp: Seatbelt },
-  { name: 'SecurityCamera', Cmp: SecurityCamera },
-  { name: 'Selection', Cmp: Selection },
-  { name: 'SelectionAll', Cmp: SelectionAll },
-  { name: 'SelectionBackground', Cmp: SelectionBackground },
-  { name: 'SelectionForeground', Cmp: SelectionForeground },
-  { name: 'SelectionInverse', Cmp: SelectionInverse },
-  { name: 'SelectionPlus', Cmp: SelectionPlus },
-  { name: 'SelectionSlash', Cmp: SelectionSlash },
-  { name: 'Shapes', Cmp: Shapes },
-  { name: 'Share', Cmp: Share },
-  { name: 'ShareFat', Cmp: ShareFat },
-  { name: 'ShareNetwork', Cmp: ShareNetwork },
-  { name: 'Shield', Cmp: Shield },
-  { name: 'ShieldCheck', Cmp: ShieldCheck },
-  { name: 'ShieldCheckered', Cmp: ShieldCheckered },
-  { name: 'ShieldChevron', Cmp: ShieldChevron },
-  { name: 'ShieldPlus', Cmp: ShieldPlus },
-  { name: 'ShieldSlash', Cmp: ShieldSlash },
-  { name: 'ShieldStar', Cmp: ShieldStar },
-  { name: 'ShieldWarning', Cmp: ShieldWarning },
-  { name: 'ShippingContainer', Cmp: ShippingContainer },
-  { name: 'ShirtFolded', Cmp: ShirtFolded },
-  { name: 'ShootingStar', Cmp: ShootingStar },
-  { name: 'ShoppingBag', Cmp: ShoppingBag },
-  { name: 'ShoppingBagOpen', Cmp: ShoppingBagOpen },
-  { name: 'ShoppingCart', Cmp: ShoppingCart },
-  { name: 'ShoppingCartSimple', Cmp: ShoppingCartSimple },
-  { name: 'Shovel', Cmp: Shovel },
-  { name: 'Shower', Cmp: Shower },
-  { name: 'Shrimp', Cmp: Shrimp },
-  { name: 'Shuffle', Cmp: Shuffle },
-  { name: 'ShuffleAngular', Cmp: ShuffleAngular },
-  { name: 'ShuffleSimple', Cmp: ShuffleSimple },
-  { name: 'Sidebar', Cmp: Sidebar },
-  { name: 'SidebarSimple', Cmp: SidebarSimple },
-  { name: 'Sigma', Cmp: Sigma },
-  { name: 'Signature', Cmp: Signature },
-  { name: 'SignIn', Cmp: SignIn },
-  { name: 'SignOut', Cmp: SignOut },
-  { name: 'Signpost', Cmp: Signpost },
-  { name: 'SimCard', Cmp: SimCard },
-  { name: 'Siren', Cmp: Siren },
-  { name: 'SketchLogo', Cmp: SketchLogo },
-  { name: 'SkipBack', Cmp: SkipBack },
-  { name: 'SkipBackCircle', Cmp: SkipBackCircle },
-  { name: 'SkipForward', Cmp: SkipForward },
-  { name: 'SkipForwardCircle', Cmp: SkipForwardCircle },
-  { name: 'Skull', Cmp: Skull },
-  { name: 'SkypeLogo', Cmp: SkypeLogo },
-  { name: 'SlackLogo', Cmp: SlackLogo },
-  { name: 'Sliders', Cmp: Sliders },
-  { name: 'SlidersHorizontal', Cmp: SlidersHorizontal },
-  { name: 'Slideshow', Cmp: Slideshow },
-  { name: 'Smiley', Cmp: Smiley },
-  { name: 'SmileyAngry', Cmp: SmileyAngry },
-  { name: 'SmileyBlank', Cmp: SmileyBlank },
-  { name: 'SmileyMeh', Cmp: SmileyMeh },
-  { name: 'SmileyMelting', Cmp: SmileyMelting },
-  { name: 'SmileyNervous', Cmp: SmileyNervous },
-  { name: 'SmileySad', Cmp: SmileySad },
-  { name: 'SmileySticker', Cmp: SmileySticker },
-  { name: 'SmileyWink', Cmp: SmileyWink },
-  { name: 'SmileyXEyes', Cmp: SmileyXEyes },
-  { name: 'SnapchatLogo', Cmp: SnapchatLogo },
-  { name: 'Sneaker', Cmp: Sneaker },
-  { name: 'SneakerMove', Cmp: SneakerMove },
-  { name: 'Snowflake', Cmp: Snowflake },
-  { name: 'SoccerBall', Cmp: SoccerBall },
-  { name: 'Sock', Cmp: Sock },
-  { name: 'SolarPanel', Cmp: SolarPanel },
-  { name: 'SolarRoof', Cmp: SolarRoof },
-  { name: 'SortAscending', Cmp: SortAscending },
-  { name: 'SortDescending', Cmp: SortDescending },
-  { name: 'SoundcloudLogo', Cmp: SoundcloudLogo },
-  { name: 'Spade', Cmp: Spade },
-  { name: 'Sparkle', Cmp: Sparkle },
-  { name: 'SpeakerHifi', Cmp: SpeakerHifi },
-  { name: 'SpeakerHigh', Cmp: SpeakerHigh },
-  { name: 'SpeakerLow', Cmp: SpeakerLow },
-  { name: 'SpeakerNone', Cmp: SpeakerNone },
-  { name: 'SpeakerSimpleHigh', Cmp: SpeakerSimpleHigh },
-  { name: 'SpeakerSimpleLow', Cmp: SpeakerSimpleLow },
-  { name: 'SpeakerSimpleNone', Cmp: SpeakerSimpleNone },
-  { name: 'SpeakerSimpleSlash', Cmp: SpeakerSimpleSlash },
-  { name: 'SpeakerSimpleX', Cmp: SpeakerSimpleX },
-  { name: 'SpeakerSlash', Cmp: SpeakerSlash },
-  { name: 'SpeakerX', Cmp: SpeakerX },
-  { name: 'Speedometer', Cmp: Speedometer },
-  { name: 'Sphere', Cmp: Sphere },
-  { name: 'Spinner', Cmp: Spinner },
-  { name: 'SpinnerBall', Cmp: SpinnerBall },
-  { name: 'SpinnerGap', Cmp: SpinnerGap },
-  { name: 'Spiral', Cmp: Spiral },
-  { name: 'SplitHorizontal', Cmp: SplitHorizontal },
-  { name: 'SplitVertical', Cmp: SplitVertical },
-  { name: 'SpotifyLogo', Cmp: SpotifyLogo },
-  { name: 'SprayBottle', Cmp: SprayBottle },
-  { name: 'Square', Cmp: Square },
-  { name: 'SquareHalf', Cmp: SquareHalf },
-  { name: 'SquareHalfBottom', Cmp: SquareHalfBottom },
-  { name: 'SquareLogo', Cmp: SquareLogo },
-  { name: 'SquaresFour', Cmp: SquaresFour },
-  { name: 'SquareSplitHorizontal', Cmp: SquareSplitHorizontal },
-  { name: 'SquareSplitVertical', Cmp: SquareSplitVertical },
-  { name: 'Stack', Cmp: Stack },
-  { name: 'StackMinus', Cmp: StackMinus },
-  { name: 'StackOverflowLogo', Cmp: StackOverflowLogo },
-  { name: 'StackPlus', Cmp: StackPlus },
-  { name: 'StackSimple', Cmp: StackSimple },
-  { name: 'Stairs', Cmp: Stairs },
-  { name: 'Stamp', Cmp: Stamp },
-  { name: 'StandardDefinition', Cmp: StandardDefinition },
-  { name: 'Star', Cmp: Star },
-  { name: 'StarAndCrescent', Cmp: StarAndCrescent },
-  { name: 'StarFour', Cmp: StarFour },
-  { name: 'StarHalf', Cmp: StarHalf },
-  { name: 'StarOfDavid', Cmp: StarOfDavid },
-  { name: 'SteamLogo', Cmp: SteamLogo },
-  { name: 'SteeringWheel', Cmp: SteeringWheel },
-  { name: 'Steps', Cmp: Steps },
-  { name: 'Stethoscope', Cmp: Stethoscope },
-  { name: 'Sticker', Cmp: Sticker },
-  { name: 'Stool', Cmp: Stool },
-  { name: 'Stop', Cmp: Stop },
-  { name: 'StopCircle', Cmp: StopCircle },
-  { name: 'Storefront', Cmp: Storefront },
-  { name: 'Strategy', Cmp: Strategy },
-  { name: 'StripeLogo', Cmp: StripeLogo },
-  { name: 'Student', Cmp: Student },
-  { name: 'SubsetOf', Cmp: SubsetOf },
-  { name: 'SubsetProperOf', Cmp: SubsetProperOf },
-  { name: 'Subtitles', Cmp: Subtitles },
-  { name: 'SubtitlesSlash', Cmp: SubtitlesSlash },
-  { name: 'Subtract', Cmp: Subtract },
-  { name: 'SubtractSquare', Cmp: SubtractSquare },
-  { name: 'Subway', Cmp: Subway },
-  { name: 'Suitcase', Cmp: Suitcase },
-  { name: 'SuitcaseRolling', Cmp: SuitcaseRolling },
-  { name: 'SuitcaseSimple', Cmp: SuitcaseSimple },
-  { name: 'Sun', Cmp: Sun },
-  { name: 'SunDim', Cmp: SunDim },
-  { name: 'Sunglasses', Cmp: Sunglasses },
-  { name: 'SunHorizon', Cmp: SunHorizon },
-  { name: 'SupersetOf', Cmp: SupersetOf },
-  { name: 'SupersetProperOf', Cmp: SupersetProperOf },
-  { name: 'Swap', Cmp: Swap },
-  { name: 'Swatches', Cmp: Swatches },
-  { name: 'SwimmingPool', Cmp: SwimmingPool },
-  { name: 'Sword', Cmp: Sword },
-  { name: 'Synagogue', Cmp: Synagogue },
-  { name: 'Syringe', Cmp: Syringe },
-  { name: 'Table', Cmp: Table },
-  { name: 'Tabs', Cmp: Tabs },
-  { name: 'Tag', Cmp: Tag },
-  { name: 'TagChevron', Cmp: TagChevron },
-  { name: 'TagSimple', Cmp: TagSimple },
-  { name: 'Target', Cmp: Target },
-  { name: 'Taxi', Cmp: Taxi },
-  { name: 'TeaBag', Cmp: TeaBag },
-  { name: 'TelegramLogo', Cmp: TelegramLogo },
-  { name: 'Television', Cmp: Television },
-  { name: 'TelevisionSimple', Cmp: TelevisionSimple },
-  { name: 'TennisBall', Cmp: TennisBall },
-  { name: 'Tent', Cmp: Tent },
-  { name: 'Terminal', Cmp: Terminal },
-  { name: 'TerminalWindow', Cmp: TerminalWindow },
-  { name: 'TestTube', Cmp: TestTube },
-  { name: 'TextAa', Cmp: TextAa },
-  { name: 'TextAlignCenter', Cmp: TextAlignCenter },
-  { name: 'TextAlignJustify', Cmp: TextAlignJustify },
-  { name: 'TextAlignLeft', Cmp: TextAlignLeft },
-  { name: 'TextAlignRight', Cmp: TextAlignRight },
-  { name: 'TextAUnderline', Cmp: TextAUnderline },
-  { name: 'TextB', Cmp: TextB },
-  { name: 'Textbox', Cmp: Textbox },
-  { name: 'TextColumns', Cmp: TextColumns },
-  { name: 'TextH', Cmp: TextH },
-  { name: 'TextHFive', Cmp: TextHFive },
-  { name: 'TextHFour', Cmp: TextHFour },
-  { name: 'TextHOne', Cmp: TextHOne },
-  { name: 'TextHSix', Cmp: TextHSix },
-  { name: 'TextHThree', Cmp: TextHThree },
-  { name: 'TextHTwo', Cmp: TextHTwo },
-  { name: 'TextIndent', Cmp: TextIndent },
-  { name: 'TextItalic', Cmp: TextItalic },
-  { name: 'TextOutdent', Cmp: TextOutdent },
-  { name: 'TextStrikethrough', Cmp: TextStrikethrough },
-  { name: 'TextSubscript', Cmp: TextSubscript },
-  { name: 'TextSuperscript', Cmp: TextSuperscript },
-  { name: 'TextT', Cmp: TextT },
-  { name: 'TextTSlash', Cmp: TextTSlash },
-  { name: 'TextUnderline', Cmp: TextUnderline },
-  { name: 'Thermometer', Cmp: Thermometer },
-  { name: 'ThermometerCold', Cmp: ThermometerCold },
-  { name: 'ThermometerHot', Cmp: ThermometerHot },
-  { name: 'ThermometerSimple', Cmp: ThermometerSimple },
-  { name: 'ThreadsLogo', Cmp: ThreadsLogo },
-  { name: 'ThreeD', Cmp: ThreeD },
-  { name: 'ThumbsDown', Cmp: ThumbsDown },
-  { name: 'ThumbsUp', Cmp: ThumbsUp },
-  { name: 'Ticket', Cmp: Ticket },
-  { name: 'TidalLogo', Cmp: TidalLogo },
-  { name: 'TiktokLogo', Cmp: TiktokLogo },
-  { name: 'Tilde', Cmp: Tilde },
-  { name: 'Timer', Cmp: Timer },
-  { name: 'Tipi', Cmp: Tipi },
-  { name: 'TipJar', Cmp: TipJar },
-  { name: 'Tire', Cmp: Tire },
-  { name: 'ToggleLeft', Cmp: ToggleLeft },
-  { name: 'ToggleRight', Cmp: ToggleRight },
-  { name: 'Toilet', Cmp: Toilet },
-  { name: 'ToiletPaper', Cmp: ToiletPaper },
-  { name: 'Toolbox', Cmp: Toolbox },
-  { name: 'Tooth', Cmp: Tooth },
-  { name: 'Tornado', Cmp: Tornado },
-  { name: 'Tote', Cmp: Tote },
-  { name: 'ToteSimple', Cmp: ToteSimple },
-  { name: 'Towel', Cmp: Towel },
-  { name: 'Tractor', Cmp: Tractor },
-  { name: 'Trademark', Cmp: Trademark },
-  { name: 'TrademarkRegistered', Cmp: TrademarkRegistered },
-  { name: 'TrafficCone', Cmp: TrafficCone },
-  { name: 'TrafficSign', Cmp: TrafficSign },
-  { name: 'TrafficSignal', Cmp: TrafficSignal },
-  { name: 'Train', Cmp: Train },
-  { name: 'TrainRegional', Cmp: TrainRegional },
-  { name: 'TrainSimple', Cmp: TrainSimple },
-  { name: 'Tram', Cmp: Tram },
-  { name: 'Translate', Cmp: Translate },
-  { name: 'Trash', Cmp: Trash },
-  { name: 'TrashSimple', Cmp: TrashSimple },
-  { name: 'Tray', Cmp: Tray },
-  { name: 'TrayArrowDown', Cmp: TrayArrowDown },
-  { name: 'TrayArrowUp', Cmp: TrayArrowUp },
-  { name: 'TreasureChest', Cmp: TreasureChest },
-  { name: 'Tree', Cmp: Tree },
-  { name: 'TreeEvergreen', Cmp: TreeEvergreen },
-  { name: 'TreePalm', Cmp: TreePalm },
-  { name: 'TreeStructure', Cmp: TreeStructure },
-  { name: 'TreeView', Cmp: TreeView },
-  { name: 'TrendDown', Cmp: TrendDown },
-  { name: 'TrendUp', Cmp: TrendUp },
-  { name: 'Triangle', Cmp: Triangle },
-  { name: 'TriangleDashed', Cmp: TriangleDashed },
-  { name: 'Trolley', Cmp: Trolley },
-  { name: 'TrolleySuitcase', Cmp: TrolleySuitcase },
-  { name: 'Trophy', Cmp: Trophy },
-  { name: 'Truck', Cmp: Truck },
-  { name: 'TruckTrailer', Cmp: TruckTrailer },
-  { name: 'TShirt', Cmp: TShirt },
-  { name: 'TumblrLogo', Cmp: TumblrLogo },
-  { name: 'TwitchLogo', Cmp: TwitchLogo },
-  { name: 'TwitterLogo', Cmp: TwitterLogo },
-  { name: 'Umbrella', Cmp: Umbrella },
-  { name: 'UmbrellaSimple', Cmp: UmbrellaSimple },
-  { name: 'Union', Cmp: Union },
-  { name: 'Unite', Cmp: Unite },
-  { name: 'UniteSquare', Cmp: UniteSquare },
-  { name: 'Upload', Cmp: Upload },
-  { name: 'UploadSimple', Cmp: UploadSimple },
-  { name: 'Usb', Cmp: Usb },
-  { name: 'User', Cmp: User },
-  { name: 'UserCheck', Cmp: UserCheck },
-  { name: 'UserCircle', Cmp: UserCircle },
-  { name: 'UserCircleCheck', Cmp: UserCircleCheck },
-  { name: 'UserCircleDashed', Cmp: UserCircleDashed },
-  { name: 'UserCircleGear', Cmp: UserCircleGear },
-  { name: 'UserCircleMinus', Cmp: UserCircleMinus },
-  { name: 'UserCirclePlus', Cmp: UserCirclePlus },
-  { name: 'UserFocus', Cmp: UserFocus },
-  { name: 'UserGear', Cmp: UserGear },
-  { name: 'UserList', Cmp: UserList },
-  { name: 'UserMinus', Cmp: UserMinus },
-  { name: 'UserPlus', Cmp: UserPlus },
-  { name: 'UserRectangle', Cmp: UserRectangle },
-  { name: 'Users', Cmp: Users },
-  { name: 'UsersFour', Cmp: UsersFour },
-  { name: 'UserSound', Cmp: UserSound },
-  { name: 'UserSquare', Cmp: UserSquare },
-  { name: 'UsersThree', Cmp: UsersThree },
-  { name: 'UserSwitch', Cmp: UserSwitch },
-  { name: 'Van', Cmp: Van },
-  { name: 'Vault', Cmp: Vault },
-  { name: 'VectorThree', Cmp: VectorThree },
-  { name: 'VectorTwo', Cmp: VectorTwo },
-  { name: 'Vibrate', Cmp: Vibrate },
-  { name: 'Video', Cmp: Video },
-  { name: 'VideoCamera', Cmp: VideoCamera },
-  { name: 'VideoCameraSlash', Cmp: VideoCameraSlash },
-  { name: 'VideoConference', Cmp: VideoConference },
-  { name: 'Vignette', Cmp: Vignette },
-  { name: 'VinylRecord', Cmp: VinylRecord },
-  { name: 'VirtualReality', Cmp: VirtualReality },
-  { name: 'Virus', Cmp: Virus },
-  { name: 'Visor', Cmp: Visor },
-  { name: 'Voicemail', Cmp: Voicemail },
-  { name: 'Volleyball', Cmp: Volleyball },
-  { name: 'Wall', Cmp: Wall },
-  { name: 'Wallet', Cmp: Wallet },
-  { name: 'Warehouse', Cmp: Warehouse },
-  { name: 'Warning', Cmp: Warning },
-  { name: 'WarningCircle', Cmp: WarningCircle },
-  { name: 'WarningDiamond', Cmp: WarningDiamond },
-  { name: 'WarningOctagon', Cmp: WarningOctagon },
-  { name: 'WashingMachine', Cmp: WashingMachine },
-  { name: 'Watch', Cmp: Watch },
-  { name: 'Waveform', Cmp: Waveform },
-  { name: 'WaveformSlash', Cmp: WaveformSlash },
-  { name: 'Waves', Cmp: Waves },
-  { name: 'WaveSawtooth', Cmp: WaveSawtooth },
-  { name: 'WaveSine', Cmp: WaveSine },
-  { name: 'WaveSquare', Cmp: WaveSquare },
-  { name: 'WaveTriangle', Cmp: WaveTriangle },
-  { name: 'Webcam', Cmp: Webcam },
-  { name: 'WebcamSlash', Cmp: WebcamSlash },
-  { name: 'WebhooksLogo', Cmp: WebhooksLogo },
-  { name: 'WechatLogo', Cmp: WechatLogo },
-  { name: 'WhatsappLogo', Cmp: WhatsappLogo },
-  { name: 'Wheelchair', Cmp: Wheelchair },
-  { name: 'WheelchairMotion', Cmp: WheelchairMotion },
-  { name: 'WifiHigh', Cmp: WifiHigh },
-  { name: 'WifiLow', Cmp: WifiLow },
-  { name: 'WifiMedium', Cmp: WifiMedium },
-  { name: 'WifiNone', Cmp: WifiNone },
-  { name: 'WifiSlash', Cmp: WifiSlash },
-  { name: 'WifiX', Cmp: WifiX },
-  { name: 'Wind', Cmp: Wind },
-  { name: 'Windmill', Cmp: Windmill },
-  { name: 'WindowsLogo', Cmp: WindowsLogo },
-  { name: 'Wine', Cmp: Wine },
-  { name: 'Wrench', Cmp: Wrench },
-  { name: 'X', Cmp: X },
-  { name: 'XCircle', Cmp: XCircle },
-  { name: 'XLogo', Cmp: XLogo },
-  { name: 'XSquare', Cmp: XSquare },
-  { name: 'Yarn', Cmp: Yarn },
-  { name: 'YinYang', Cmp: YinYang },
-  { name: 'YoutubeLogo', Cmp: YoutubeLogo },
+  { name: 'Info', Cmp: InfoIcon },
+  { name: 'InstagramLogo', Cmp: InstagramLogoIcon },
+  { name: 'Intersect', Cmp: IntersectIcon },
+  { name: 'Intersection', Cmp: IntersectionIcon },
+  { name: 'IntersectSquare', Cmp: IntersectSquareIcon },
+  { name: 'IntersectThree', Cmp: IntersectThreeIcon },
+  { name: 'Invoice', Cmp: InvoiceIcon },
+  { name: 'Island', Cmp: IslandIcon },
+  { name: 'Jar', Cmp: JarIcon },
+  { name: 'JarLabel', Cmp: JarLabelIcon },
+  { name: 'Jeep', Cmp: JeepIcon },
+  { name: 'Joystick', Cmp: JoystickIcon },
+  { name: 'Kanban', Cmp: KanbanIcon },
+  { name: 'Key', Cmp: KeyIcon },
+  { name: 'Keyboard', Cmp: KeyboardIcon },
+  { name: 'Keyhole', Cmp: KeyholeIcon },
+  { name: 'KeyReturn', Cmp: KeyReturnIcon },
+  { name: 'Knife', Cmp: KnifeIcon },
+  { name: 'Ladder', Cmp: LadderIcon },
+  { name: 'LadderSimple', Cmp: LadderSimpleIcon },
+  { name: 'Lamp', Cmp: LampIcon },
+  { name: 'LampPendant', Cmp: LampPendantIcon },
+  { name: 'Laptop', Cmp: LaptopIcon },
+  { name: 'Lasso', Cmp: LassoIcon },
+  { name: 'LastfmLogo', Cmp: LastfmLogoIcon },
+  { name: 'Layout', Cmp: LayoutIcon },
+  { name: 'Leaf', Cmp: LeafIcon },
+  { name: 'Lectern', Cmp: LecternIcon },
+  { name: 'Lego', Cmp: LegoIcon },
+  { name: 'LegoSmiley', Cmp: LegoSmileyIcon },
+  { name: 'LessThan', Cmp: LessThanIcon },
+  { name: 'LessThanOrEqual', Cmp: LessThanOrEqualIcon },
+  { name: 'LetterCircleH', Cmp: LetterCircleHIcon },
+  { name: 'LetterCircleP', Cmp: LetterCirclePIcon },
+  { name: 'LetterCircleV', Cmp: LetterCircleVIcon },
+  { name: 'Lifebuoy', Cmp: LifebuoyIcon },
+  { name: 'Lightbulb', Cmp: LightbulbIcon },
+  { name: 'LightbulbFilament', Cmp: LightbulbFilamentIcon },
+  { name: 'Lighthouse', Cmp: LighthouseIcon },
+  { name: 'Lightning', Cmp: LightningIcon },
+  { name: 'LightningA', Cmp: LightningAIcon },
+  { name: 'LightningSlash', Cmp: LightningSlashIcon },
+  { name: 'LineSegment', Cmp: LineSegmentIcon },
+  { name: 'LineSegments', Cmp: LineSegmentsIcon },
+  { name: 'LineVertical', Cmp: LineVerticalIcon },
+  { name: 'Link', Cmp: LinkIcon },
+  { name: 'LinkBreak', Cmp: LinkBreakIcon },
+  { name: 'LinkedinLogo', Cmp: LinkedinLogoIcon },
+  { name: 'LinkSimple', Cmp: LinkSimpleIcon },
+  { name: 'LinkSimpleBreak', Cmp: LinkSimpleBreakIcon },
+  { name: 'LinkSimpleHorizontal', Cmp: LinkSimpleHorizontalIcon },
+  { name: 'LinkSimpleHorizontalBreak', Cmp: LinkSimpleHorizontalBreakIcon },
+  { name: 'LinktreeLogo', Cmp: LinktreeLogoIcon },
+  { name: 'LinuxLogo', Cmp: LinuxLogoIcon },
+  { name: 'List', Cmp: ListIcon },
+  { name: 'ListBullets', Cmp: ListBulletsIcon },
+  { name: 'ListChecks', Cmp: ListChecksIcon },
+  { name: 'ListDashes', Cmp: ListDashesIcon },
+  { name: 'ListHeart', Cmp: ListHeartIcon },
+  { name: 'ListMagnifyingGlass', Cmp: ListMagnifyingGlassIcon },
+  { name: 'ListNumbers', Cmp: ListNumbersIcon },
+  { name: 'ListPlus', Cmp: ListPlusIcon },
+  { name: 'ListStar', Cmp: ListStarIcon },
+  { name: 'Lock', Cmp: LockIcon },
+  { name: 'Lockers', Cmp: LockersIcon },
+  { name: 'LockKey', Cmp: LockKeyIcon },
+  { name: 'LockKeyOpen', Cmp: LockKeyOpenIcon },
+  { name: 'LockLaminated', Cmp: LockLaminatedIcon },
+  { name: 'LockLaminatedOpen', Cmp: LockLaminatedOpenIcon },
+  { name: 'LockOpen', Cmp: LockOpenIcon },
+  { name: 'LockSimple', Cmp: LockSimpleIcon },
+  { name: 'LockSimpleOpen', Cmp: LockSimpleOpenIcon },
+  { name: 'Log', Cmp: LogIcon },
+  { name: 'MagicWand', Cmp: MagicWandIcon },
+  { name: 'Magnet', Cmp: MagnetIcon },
+  { name: 'MagnetStraight', Cmp: MagnetStraightIcon },
+  { name: 'MagnifyingGlass', Cmp: MagnifyingGlassIcon },
+  { name: 'MagnifyingGlassMinus', Cmp: MagnifyingGlassMinusIcon },
+  { name: 'MagnifyingGlassPlus', Cmp: MagnifyingGlassPlusIcon },
+  { name: 'Mailbox', Cmp: MailboxIcon },
+  { name: 'MapPin', Cmp: MapPinIcon },
+  { name: 'MapPinArea', Cmp: MapPinAreaIcon },
+  { name: 'MapPinLine', Cmp: MapPinLineIcon },
+  { name: 'MapPinPlus', Cmp: MapPinPlusIcon },
+  { name: 'MapPinSimple', Cmp: MapPinSimpleIcon },
+  { name: 'MapPinSimpleArea', Cmp: MapPinSimpleAreaIcon },
+  { name: 'MapPinSimpleLine', Cmp: MapPinSimpleLineIcon },
+  { name: 'MapTrifold', Cmp: MapTrifoldIcon },
+  { name: 'MarkdownLogo', Cmp: MarkdownLogoIcon },
+  { name: 'MarkerCircle', Cmp: MarkerCircleIcon },
+  { name: 'Martini', Cmp: MartiniIcon },
+  { name: 'MaskHappy', Cmp: MaskHappyIcon },
+  { name: 'MaskSad', Cmp: MaskSadIcon },
+  { name: 'MastodonLogo', Cmp: MastodonLogoIcon },
+  { name: 'MathOperations', Cmp: MathOperationsIcon },
+  { name: 'MatrixLogo', Cmp: MatrixLogoIcon },
+  { name: 'Medal', Cmp: MedalIcon },
+  { name: 'MedalMilitary', Cmp: MedalMilitaryIcon },
+  { name: 'MediumLogo', Cmp: MediumLogoIcon },
+  { name: 'Megaphone', Cmp: MegaphoneIcon },
+  { name: 'MegaphoneSimple', Cmp: MegaphoneSimpleIcon },
+  { name: 'MemberOf', Cmp: MemberOfIcon },
+  { name: 'Memory', Cmp: MemoryIcon },
+  { name: 'MessengerLogo', Cmp: MessengerLogoIcon },
+  { name: 'MetaLogo', Cmp: MetaLogoIcon },
+  { name: 'Meteor', Cmp: MeteorIcon },
+  { name: 'Metronome', Cmp: MetronomeIcon },
+  { name: 'Microphone', Cmp: MicrophoneIcon },
+  { name: 'MicrophoneSlash', Cmp: MicrophoneSlashIcon },
+  { name: 'MicrophoneStage', Cmp: MicrophoneStageIcon },
+  { name: 'Microscope', Cmp: MicroscopeIcon },
+  { name: 'MicrosoftExcelLogo', Cmp: MicrosoftExcelLogoIcon },
+  { name: 'MicrosoftOutlookLogo', Cmp: MicrosoftOutlookLogoIcon },
+  { name: 'MicrosoftPowerpointLogo', Cmp: MicrosoftPowerpointLogoIcon },
+  { name: 'MicrosoftTeamsLogo', Cmp: MicrosoftTeamsLogoIcon },
+  { name: 'MicrosoftWordLogo', Cmp: MicrosoftWordLogoIcon },
+  { name: 'Minus', Cmp: MinusIcon },
+  { name: 'MinusCircle', Cmp: MinusCircleIcon },
+  { name: 'MinusSquare', Cmp: MinusSquareIcon },
+  { name: 'Money', Cmp: MoneyIcon },
+  { name: 'MoneyWavy', Cmp: MoneyWavyIcon },
+  { name: 'Monitor', Cmp: MonitorIcon },
+  { name: 'MonitorArrowUp', Cmp: MonitorArrowUpIcon },
+  { name: 'MonitorPlay', Cmp: MonitorPlayIcon },
+  { name: 'Moon', Cmp: MoonIcon },
+  { name: 'MoonStars', Cmp: MoonStarsIcon },
+  { name: 'Moped', Cmp: MopedIcon },
+  { name: 'MopedFront', Cmp: MopedFrontIcon },
+  { name: 'Mosque', Cmp: MosqueIcon },
+  { name: 'Motorcycle', Cmp: MotorcycleIcon },
+  { name: 'Mountains', Cmp: MountainsIcon },
+  { name: 'Mouse', Cmp: MouseIcon },
+  { name: 'MouseLeftClick', Cmp: MouseLeftClickIcon },
+  { name: 'MouseMiddleClick', Cmp: MouseMiddleClickIcon },
+  { name: 'MouseRightClick', Cmp: MouseRightClickIcon },
+  { name: 'MouseScroll', Cmp: MouseScrollIcon },
+  { name: 'MouseSimple', Cmp: MouseSimpleIcon },
+  { name: 'MusicNote', Cmp: MusicNoteIcon },
+  { name: 'MusicNotes', Cmp: MusicNotesIcon },
+  { name: 'MusicNoteSimple', Cmp: MusicNoteSimpleIcon },
+  { name: 'MusicNotesMinus', Cmp: MusicNotesMinusIcon },
+  { name: 'MusicNotesPlus', Cmp: MusicNotesPlusIcon },
+  { name: 'MusicNotesSimple', Cmp: MusicNotesSimpleIcon },
+  { name: 'NavigationArrow', Cmp: NavigationArrowIcon },
+  { name: 'Needle', Cmp: NeedleIcon },
+  { name: 'Network', Cmp: NetworkIcon },
+  { name: 'NetworkSlash', Cmp: NetworkSlashIcon },
+  { name: 'NetworkX', Cmp: NetworkXIcon },
+  { name: 'Newspaper', Cmp: NewspaperIcon },
+  { name: 'NewspaperClipping', Cmp: NewspaperClippingIcon },
+  { name: 'Notches', Cmp: NotchesIcon },
+  { name: 'Note', Cmp: NoteIcon },
+  { name: 'NoteBlank', Cmp: NoteBlankIcon },
+  { name: 'Notebook', Cmp: NotebookIcon },
+  { name: 'Notepad', Cmp: NotepadIcon },
+  { name: 'NotePencil', Cmp: NotePencilIcon },
+  { name: 'NotEquals', Cmp: NotEqualsIcon },
+  { name: 'Notification', Cmp: NotificationIcon },
+  { name: 'NotionLogo', Cmp: NotionLogoIcon },
+  { name: 'NotMemberOf', Cmp: NotMemberOfIcon },
+  { name: 'NotSubsetOf', Cmp: NotSubsetOfIcon },
+  { name: 'NotSupersetOf', Cmp: NotSupersetOfIcon },
+  { name: 'NuclearPlant', Cmp: NuclearPlantIcon },
+  { name: 'NumberCircleEight', Cmp: NumberCircleEightIcon },
+  { name: 'NumberCircleFive', Cmp: NumberCircleFiveIcon },
+  { name: 'NumberCircleFour', Cmp: NumberCircleFourIcon },
+  { name: 'NumberCircleNine', Cmp: NumberCircleNineIcon },
+  { name: 'NumberCircleOne', Cmp: NumberCircleOneIcon },
+  { name: 'NumberCircleSeven', Cmp: NumberCircleSevenIcon },
+  { name: 'NumberCircleSix', Cmp: NumberCircleSixIcon },
+  { name: 'NumberCircleThree', Cmp: NumberCircleThreeIcon },
+  { name: 'NumberCircleTwo', Cmp: NumberCircleTwoIcon },
+  { name: 'NumberCircleZero', Cmp: NumberCircleZeroIcon },
+  { name: 'NumberEight', Cmp: NumberEightIcon },
+  { name: 'NumberFive', Cmp: NumberFiveIcon },
+  { name: 'NumberFour', Cmp: NumberFourIcon },
+  { name: 'NumberNine', Cmp: NumberNineIcon },
+  { name: 'NumberOne', Cmp: NumberOneIcon },
+  { name: 'NumberSeven', Cmp: NumberSevenIcon },
+  { name: 'NumberSix', Cmp: NumberSixIcon },
+  { name: 'NumberSquareEight', Cmp: NumberSquareEightIcon },
+  { name: 'NumberSquareFive', Cmp: NumberSquareFiveIcon },
+  { name: 'NumberSquareFour', Cmp: NumberSquareFourIcon },
+  { name: 'NumberSquareNine', Cmp: NumberSquareNineIcon },
+  { name: 'NumberSquareOne', Cmp: NumberSquareOneIcon },
+  { name: 'NumberSquareSeven', Cmp: NumberSquareSevenIcon },
+  { name: 'NumberSquareSix', Cmp: NumberSquareSixIcon },
+  { name: 'NumberSquareThree', Cmp: NumberSquareThreeIcon },
+  { name: 'NumberSquareTwo', Cmp: NumberSquareTwoIcon },
+  { name: 'NumberSquareZero', Cmp: NumberSquareZeroIcon },
+  { name: 'NumberThree', Cmp: NumberThreeIcon },
+  { name: 'NumberTwo', Cmp: NumberTwoIcon },
+  { name: 'NumberZero', Cmp: NumberZeroIcon },
+  { name: 'Numpad', Cmp: NumpadIcon },
+  { name: 'Nut', Cmp: NutIcon },
+  { name: 'NyTimesLogo', Cmp: NyTimesLogoIcon },
+  { name: 'Octagon', Cmp: OctagonIcon },
+  { name: 'OfficeChair', Cmp: OfficeChairIcon },
+  { name: 'Onigiri', Cmp: OnigiriIcon },
+  { name: 'OpenAiLogo', Cmp: OpenAiLogoIcon },
+  { name: 'Option', Cmp: OptionIcon },
+  { name: 'Orange', Cmp: OrangeIcon },
+  { name: 'OrangeSlice', Cmp: OrangeSliceIcon },
+  { name: 'Oven', Cmp: OvenIcon },
+  { name: 'Package', Cmp: PackageIcon },
+  { name: 'PaintBrush', Cmp: PaintBrushIcon },
+  { name: 'PaintBrushBroad', Cmp: PaintBrushBroadIcon },
+  { name: 'PaintBrushHousehold', Cmp: PaintBrushHouseholdIcon },
+  { name: 'PaintBucket', Cmp: PaintBucketIcon },
+  { name: 'PaintRoller', Cmp: PaintRollerIcon },
+  { name: 'Palette', Cmp: PaletteIcon },
+  { name: 'Panorama', Cmp: PanoramaIcon },
+  { name: 'Pants', Cmp: PantsIcon },
+  { name: 'Paperclip', Cmp: PaperclipIcon },
+  { name: 'PaperclipHorizontal', Cmp: PaperclipHorizontalIcon },
+  { name: 'PaperPlane', Cmp: PaperPlaneIcon },
+  { name: 'PaperPlaneRight', Cmp: PaperPlaneRightIcon },
+  { name: 'PaperPlaneTilt', Cmp: PaperPlaneTiltIcon },
+  { name: 'Parachute', Cmp: ParachuteIcon },
+  { name: 'Paragraph', Cmp: ParagraphIcon },
+  { name: 'Parallelogram', Cmp: ParallelogramIcon },
+  { name: 'Park', Cmp: ParkIcon },
+  { name: 'Password', Cmp: PasswordIcon },
+  { name: 'Path', Cmp: PathIcon },
+  { name: 'PatreonLogo', Cmp: PatreonLogoIcon },
+  { name: 'Pause', Cmp: PauseIcon },
+  { name: 'PauseCircle', Cmp: PauseCircleIcon },
+  { name: 'PawPrint', Cmp: PawPrintIcon },
+  { name: 'PaypalLogo', Cmp: PaypalLogoIcon },
+  { name: 'Peace', Cmp: PeaceIcon },
+  { name: 'Pen', Cmp: PenIcon },
+  { name: 'Pencil', Cmp: PencilIcon },
+  { name: 'PencilCircle', Cmp: PencilCircleIcon },
+  { name: 'PencilLine', Cmp: PencilLineIcon },
+  { name: 'PencilRuler', Cmp: PencilRulerIcon },
+  { name: 'PencilSimple', Cmp: PencilSimpleIcon },
+  { name: 'PencilSimpleLine', Cmp: PencilSimpleLineIcon },
+  { name: 'PencilSimpleSlash', Cmp: PencilSimpleSlashIcon },
+  { name: 'PencilSlash', Cmp: PencilSlashIcon },
+  { name: 'PenNib', Cmp: PenNibIcon },
+  { name: 'PenNibStraight', Cmp: PenNibStraightIcon },
+  { name: 'Pentagon', Cmp: PentagonIcon },
+  { name: 'Pentagram', Cmp: PentagramIcon },
+  { name: 'Pepper', Cmp: PepperIcon },
+  { name: 'Percent', Cmp: PercentIcon },
+  { name: 'Person', Cmp: PersonIcon },
+  { name: 'PersonArmsSpread', Cmp: PersonArmsSpreadIcon },
+  { name: 'PersonSimple', Cmp: PersonSimpleIcon },
+  { name: 'PersonSimpleBike', Cmp: PersonSimpleBikeIcon },
+  { name: 'PersonSimpleCircle', Cmp: PersonSimpleCircleIcon },
+  { name: 'PersonSimpleHike', Cmp: PersonSimpleHikeIcon },
+  { name: 'PersonSimpleRun', Cmp: PersonSimpleRunIcon },
+  { name: 'PersonSimpleSki', Cmp: PersonSimpleSkiIcon },
+  { name: 'PersonSimpleSnowboard', Cmp: PersonSimpleSnowboardIcon },
+  { name: 'PersonSimpleSwim', Cmp: PersonSimpleSwimIcon },
+  { name: 'PersonSimpleTaiChi', Cmp: PersonSimpleTaiChiIcon },
+  { name: 'PersonSimpleThrow', Cmp: PersonSimpleThrowIcon },
+  { name: 'PersonSimpleWalk', Cmp: PersonSimpleWalkIcon },
+  { name: 'Perspective', Cmp: PerspectiveIcon },
+  { name: 'Phone', Cmp: PhoneIcon },
+  { name: 'PhoneCall', Cmp: PhoneCallIcon },
+  { name: 'PhoneDisconnect', Cmp: PhoneDisconnectIcon },
+  { name: 'PhoneIncoming', Cmp: PhoneIncomingIcon },
+  { name: 'PhoneList', Cmp: PhoneListIcon },
+  { name: 'PhoneOutgoing', Cmp: PhoneOutgoingIcon },
+  { name: 'PhonePause', Cmp: PhonePauseIcon },
+  { name: 'PhonePlus', Cmp: PhonePlusIcon },
+  { name: 'PhoneSlash', Cmp: PhoneSlashIcon },
+  { name: 'PhoneTransfer', Cmp: PhoneTransferIcon },
+  { name: 'PhoneX', Cmp: PhoneXIcon },
+  { name: 'PhosphorLogo', Cmp: PhosphorLogoIcon },
+  { name: 'Pi', Cmp: PiIcon },
+  { name: 'PianoKeys', Cmp: PianoKeysIcon },
+  { name: 'PicnicTable', Cmp: PicnicTableIcon },
+  { name: 'PictureInPicture', Cmp: PictureInPictureIcon },
+  { name: 'PiggyBank', Cmp: PiggyBankIcon },
+  { name: 'Pill', Cmp: PillIcon },
+  { name: 'PingPong', Cmp: PingPongIcon },
+  { name: 'PinterestLogo', Cmp: PinterestLogoIcon },
+  { name: 'PintGlass', Cmp: PintGlassIcon },
+  { name: 'Pinwheel', Cmp: PinwheelIcon },
+  { name: 'Pipe', Cmp: PipeIcon },
+  { name: 'PipeWrench', Cmp: PipeWrenchIcon },
+  { name: 'PixLogo', Cmp: PixLogoIcon },
+  { name: 'Pizza', Cmp: PizzaIcon },
+  { name: 'Placeholder', Cmp: PlaceholderIcon },
+  { name: 'Planet', Cmp: PlanetIcon },
+  { name: 'Plant', Cmp: PlantIcon },
+  { name: 'Play', Cmp: PlayIcon },
+  { name: 'PlayCircle', Cmp: PlayCircleIcon },
+  { name: 'Playlist', Cmp: PlaylistIcon },
+  { name: 'PlayPause', Cmp: PlayPauseIcon },
+  { name: 'Plug', Cmp: PlugIcon },
+  { name: 'PlugCharging', Cmp: PlugChargingIcon },
+  { name: 'Plugs', Cmp: PlugsIcon },
+  { name: 'PlugsConnected', Cmp: PlugsConnectedIcon },
+  { name: 'Plus', Cmp: PlusIcon },
+  { name: 'PlusCircle', Cmp: PlusCircleIcon },
+  { name: 'PlusMinus', Cmp: PlusMinusIcon },
+  { name: 'PlusSquare', Cmp: PlusSquareIcon },
+  { name: 'PokerChip', Cmp: PokerChipIcon },
+  { name: 'PoliceCar', Cmp: PoliceCarIcon },
+  { name: 'Polygon', Cmp: PolygonIcon },
+  { name: 'Popcorn', Cmp: PopcornIcon },
+  { name: 'Popsicle', Cmp: PopsicleIcon },
+  { name: 'PottedPlant', Cmp: PottedPlantIcon },
+  { name: 'Power', Cmp: PowerIcon },
+  { name: 'Prescription', Cmp: PrescriptionIcon },
+  { name: 'Presentation', Cmp: PresentationIcon },
+  { name: 'PresentationChart', Cmp: PresentationChartIcon },
+  { name: 'Printer', Cmp: PrinterIcon },
+  { name: 'Prohibit', Cmp: ProhibitIcon },
+  { name: 'ProhibitInset', Cmp: ProhibitInsetIcon },
+  { name: 'ProjectorScreen', Cmp: ProjectorScreenIcon },
+  { name: 'ProjectorScreenChart', Cmp: ProjectorScreenChartIcon },
+  { name: 'Pulse', Cmp: PulseIcon },
+  { name: 'PushPin', Cmp: PushPinIcon },
+  { name: 'PushPinSimple', Cmp: PushPinSimpleIcon },
+  { name: 'PushPinSimpleSlash', Cmp: PushPinSimpleSlashIcon },
+  { name: 'PushPinSlash', Cmp: PushPinSlashIcon },
+  { name: 'PuzzlePiece', Cmp: PuzzlePieceIcon },
+  { name: 'QrCode', Cmp: QrCodeIcon },
+  { name: 'Question', Cmp: QuestionIcon },
+  { name: 'QuestionMark', Cmp: QuestionMarkIcon },
+  { name: 'Queue', Cmp: QueueIcon },
+  { name: 'Quotes', Cmp: QuotesIcon },
+  { name: 'Rabbit', Cmp: RabbitIcon },
+  { name: 'Racquet', Cmp: RacquetIcon },
+  { name: 'Radical', Cmp: RadicalIcon },
+  { name: 'Radio', Cmp: RadioIcon },
+  { name: 'Radioactive', Cmp: RadioactiveIcon },
+  { name: 'RadioButton', Cmp: RadioButtonIcon },
+  { name: 'Rainbow', Cmp: RainbowIcon },
+  { name: 'RainbowCloud', Cmp: RainbowCloudIcon },
+  { name: 'Ranking', Cmp: RankingIcon },
+  { name: 'ReadCvLogo', Cmp: ReadCvLogoIcon },
+  { name: 'Receipt', Cmp: ReceiptIcon },
+  { name: 'ReceiptX', Cmp: ReceiptXIcon },
+  { name: 'Record', Cmp: RecordIcon },
+  { name: 'Rectangle', Cmp: RectangleIcon },
+  { name: 'RectangleDashed', Cmp: RectangleDashedIcon },
+  { name: 'Recycle', Cmp: RecycleIcon },
+  { name: 'RedditLogo', Cmp: RedditLogoIcon },
+  { name: 'Repeat', Cmp: RepeatIcon },
+  { name: 'RepeatOnce', Cmp: RepeatOnceIcon },
+  { name: 'ReplitLogo', Cmp: ReplitLogoIcon },
+  { name: 'Resize', Cmp: ResizeIcon },
+  { name: 'Rewind', Cmp: RewindIcon },
+  { name: 'RewindCircle', Cmp: RewindCircleIcon },
+  { name: 'RoadHorizon', Cmp: RoadHorizonIcon },
+  { name: 'Robot', Cmp: RobotIcon },
+  { name: 'Rocket', Cmp: RocketIcon },
+  { name: 'RocketLaunch', Cmp: RocketLaunchIcon },
+  { name: 'Rows', Cmp: RowsIcon },
+  { name: 'RowsPlusBottom', Cmp: RowsPlusBottomIcon },
+  { name: 'RowsPlusTop', Cmp: RowsPlusTopIcon },
+  { name: 'Rss', Cmp: RssIcon },
+  { name: 'RssSimple', Cmp: RssSimpleIcon },
+  { name: 'Rug', Cmp: RugIcon },
+  { name: 'Ruler', Cmp: RulerIcon },
+  { name: 'Sailboat', Cmp: SailboatIcon },
+  { name: 'Scales', Cmp: ScalesIcon },
+  { name: 'Scan', Cmp: ScanIcon },
+  { name: 'ScanSmiley', Cmp: ScanSmileyIcon },
+  { name: 'Scissors', Cmp: ScissorsIcon },
+  { name: 'Scooter', Cmp: ScooterIcon },
+  { name: 'Screencast', Cmp: ScreencastIcon },
+  { name: 'Screwdriver', Cmp: ScrewdriverIcon },
+  { name: 'Scribble', Cmp: ScribbleIcon },
+  { name: 'ScribbleLoop', Cmp: ScribbleLoopIcon },
+  { name: 'Scroll', Cmp: ScrollIcon },
+  { name: 'Seal', Cmp: SealIcon },
+  { name: 'SealCheck', Cmp: SealCheckIcon },
+  { name: 'SealPercent', Cmp: SealPercentIcon },
+  { name: 'SealQuestion', Cmp: SealQuestionIcon },
+  { name: 'SealWarning', Cmp: SealWarningIcon },
+  { name: 'Seat', Cmp: SeatIcon },
+  { name: 'Seatbelt', Cmp: SeatbeltIcon },
+  { name: 'SecurityCamera', Cmp: SecurityCameraIcon },
+  { name: 'Selection', Cmp: SelectionIcon },
+  { name: 'SelectionAll', Cmp: SelectionAllIcon },
+  { name: 'SelectionBackground', Cmp: SelectionBackgroundIcon },
+  { name: 'SelectionForeground', Cmp: SelectionForegroundIcon },
+  { name: 'SelectionInverse', Cmp: SelectionInverseIcon },
+  { name: 'SelectionPlus', Cmp: SelectionPlusIcon },
+  { name: 'SelectionSlash', Cmp: SelectionSlashIcon },
+  { name: 'Shapes', Cmp: ShapesIcon },
+  { name: 'Share', Cmp: ShareIcon },
+  { name: 'ShareFat', Cmp: ShareFatIcon },
+  { name: 'ShareNetwork', Cmp: ShareNetworkIcon },
+  { name: 'Shield', Cmp: ShieldIcon },
+  { name: 'ShieldCheck', Cmp: ShieldCheckIcon },
+  { name: 'ShieldCheckered', Cmp: ShieldCheckeredIcon },
+  { name: 'ShieldChevron', Cmp: ShieldChevronIcon },
+  { name: 'ShieldPlus', Cmp: ShieldPlusIcon },
+  { name: 'ShieldSlash', Cmp: ShieldSlashIcon },
+  { name: 'ShieldStar', Cmp: ShieldStarIcon },
+  { name: 'ShieldWarning', Cmp: ShieldWarningIcon },
+  { name: 'ShippingContainer', Cmp: ShippingContainerIcon },
+  { name: 'ShirtFolded', Cmp: ShirtFoldedIcon },
+  { name: 'ShootingStar', Cmp: ShootingStarIcon },
+  { name: 'ShoppingBag', Cmp: ShoppingBagIcon },
+  { name: 'ShoppingBagOpen', Cmp: ShoppingBagOpenIcon },
+  { name: 'ShoppingCart', Cmp: ShoppingCartIcon },
+  { name: 'ShoppingCartSimple', Cmp: ShoppingCartSimpleIcon },
+  { name: 'Shovel', Cmp: ShovelIcon },
+  { name: 'Shower', Cmp: ShowerIcon },
+  { name: 'Shrimp', Cmp: ShrimpIcon },
+  { name: 'Shuffle', Cmp: ShuffleIcon },
+  { name: 'ShuffleAngular', Cmp: ShuffleAngularIcon },
+  { name: 'ShuffleSimple', Cmp: ShuffleSimpleIcon },
+  { name: 'Sidebar', Cmp: SidebarIcon },
+  { name: 'SidebarSimple', Cmp: SidebarSimpleIcon },
+  { name: 'Sigma', Cmp: SigmaIcon },
+  { name: 'Signature', Cmp: SignatureIcon },
+  { name: 'SignIn', Cmp: SignInIcon },
+  { name: 'SignOut', Cmp: SignOutIcon },
+  { name: 'Signpost', Cmp: SignpostIcon },
+  { name: 'SimCard', Cmp: SimCardIcon },
+  { name: 'Siren', Cmp: SirenIcon },
+  { name: 'SketchLogo', Cmp: SketchLogoIcon },
+  { name: 'SkipBack', Cmp: SkipBackIcon },
+  { name: 'SkipBackCircle', Cmp: SkipBackCircleIcon },
+  { name: 'SkipForward', Cmp: SkipForwardIcon },
+  { name: 'SkipForwardCircle', Cmp: SkipForwardCircleIcon },
+  { name: 'Skull', Cmp: SkullIcon },
+  { name: 'SkypeLogo', Cmp: SkypeLogoIcon },
+  { name: 'SlackLogo', Cmp: SlackLogoIcon },
+  { name: 'Sliders', Cmp: SlidersIcon },
+  { name: 'SlidersHorizontal', Cmp: SlidersHorizontalIcon },
+  { name: 'Slideshow', Cmp: SlideshowIcon },
+  { name: 'Smiley', Cmp: SmileyIcon },
+  { name: 'SmileyAngry', Cmp: SmileyAngryIcon },
+  { name: 'SmileyBlank', Cmp: SmileyBlankIcon },
+  { name: 'SmileyMeh', Cmp: SmileyMehIcon },
+  { name: 'SmileyMelting', Cmp: SmileyMeltingIcon },
+  { name: 'SmileyNervous', Cmp: SmileyNervousIcon },
+  { name: 'SmileySad', Cmp: SmileySadIcon },
+  { name: 'SmileySticker', Cmp: SmileyStickerIcon },
+  { name: 'SmileyWink', Cmp: SmileyWinkIcon },
+  { name: 'SmileyXEyes', Cmp: SmileyXEyesIcon },
+  { name: 'SnapchatLogo', Cmp: SnapchatLogoIcon },
+  { name: 'Sneaker', Cmp: SneakerIcon },
+  { name: 'SneakerMove', Cmp: SneakerMoveIcon },
+  { name: 'Snowflake', Cmp: SnowflakeIcon },
+  { name: 'SoccerBall', Cmp: SoccerBallIcon },
+  { name: 'Sock', Cmp: SockIcon },
+  { name: 'SolarPanel', Cmp: SolarPanelIcon },
+  { name: 'SolarRoof', Cmp: SolarRoofIcon },
+  { name: 'SortAscending', Cmp: SortAscendingIcon },
+  { name: 'SortDescending', Cmp: SortDescendingIcon },
+  { name: 'SoundcloudLogo', Cmp: SoundcloudLogoIcon },
+  { name: 'Spade', Cmp: SpadeIcon },
+  { name: 'Sparkle', Cmp: SparkleIcon },
+  { name: 'SpeakerHifi', Cmp: SpeakerHifiIcon },
+  { name: 'SpeakerHigh', Cmp: SpeakerHighIcon },
+  { name: 'SpeakerLow', Cmp: SpeakerLowIcon },
+  { name: 'SpeakerNone', Cmp: SpeakerNoneIcon },
+  { name: 'SpeakerSimpleHigh', Cmp: SpeakerSimpleHighIcon },
+  { name: 'SpeakerSimpleLow', Cmp: SpeakerSimpleLowIcon },
+  { name: 'SpeakerSimpleNone', Cmp: SpeakerSimpleNoneIcon },
+  { name: 'SpeakerSimpleSlash', Cmp: SpeakerSimpleSlashIcon },
+  { name: 'SpeakerSimpleX', Cmp: SpeakerSimpleXIcon },
+  { name: 'SpeakerSlash', Cmp: SpeakerSlashIcon },
+  { name: 'SpeakerX', Cmp: SpeakerXIcon },
+  { name: 'Speedometer', Cmp: SpeedometerIcon },
+  { name: 'Sphere', Cmp: SphereIcon },
+  { name: 'Spinner', Cmp: SpinnerIcon },
+  { name: 'SpinnerBall', Cmp: SpinnerBallIcon },
+  { name: 'SpinnerGap', Cmp: SpinnerGapIcon },
+  { name: 'Spiral', Cmp: SpiralIcon },
+  { name: 'SplitHorizontal', Cmp: SplitHorizontalIcon },
+  { name: 'SplitVertical', Cmp: SplitVerticalIcon },
+  { name: 'SpotifyLogo', Cmp: SpotifyLogoIcon },
+  { name: 'SprayBottle', Cmp: SprayBottleIcon },
+  { name: 'Square', Cmp: SquareIcon },
+  { name: 'SquareHalf', Cmp: SquareHalfIcon },
+  { name: 'SquareHalfBottom', Cmp: SquareHalfBottomIcon },
+  { name: 'SquareLogo', Cmp: SquareLogoIcon },
+  { name: 'SquaresFour', Cmp: SquaresFourIcon },
+  { name: 'SquareSplitHorizontal', Cmp: SquareSplitHorizontalIcon },
+  { name: 'SquareSplitVertical', Cmp: SquareSplitVerticalIcon },
+  { name: 'Stack', Cmp: StackIcon },
+  { name: 'StackMinus', Cmp: StackMinusIcon },
+  { name: 'StackOverflowLogo', Cmp: StackOverflowLogoIcon },
+  { name: 'StackPlus', Cmp: StackPlusIcon },
+  { name: 'StackSimple', Cmp: StackSimpleIcon },
+  { name: 'Stairs', Cmp: StairsIcon },
+  { name: 'Stamp', Cmp: StampIcon },
+  { name: 'StandardDefinition', Cmp: StandardDefinitionIcon },
+  { name: 'Star', Cmp: StarIcon },
+  { name: 'StarAndCrescent', Cmp: StarAndCrescentIcon },
+  { name: 'StarFour', Cmp: StarFourIcon },
+  { name: 'StarHalf', Cmp: StarHalfIcon },
+  { name: 'StarOfDavid', Cmp: StarOfDavidIcon },
+  { name: 'SteamLogo', Cmp: SteamLogoIcon },
+  { name: 'SteeringWheel', Cmp: SteeringWheelIcon },
+  { name: 'Steps', Cmp: StepsIcon },
+  { name: 'Stethoscope', Cmp: StethoscopeIcon },
+  { name: 'Sticker', Cmp: StickerIcon },
+  { name: 'Stool', Cmp: StoolIcon },
+  { name: 'Stop', Cmp: StopIcon },
+  { name: 'StopCircle', Cmp: StopCircleIcon },
+  { name: 'Storefront', Cmp: StorefrontIcon },
+  { name: 'Strategy', Cmp: StrategyIcon },
+  { name: 'StripeLogo', Cmp: StripeLogoIcon },
+  { name: 'Student', Cmp: StudentIcon },
+  { name: 'SubsetOf', Cmp: SubsetOfIcon },
+  { name: 'SubsetProperOf', Cmp: SubsetProperOfIcon },
+  { name: 'Subtitles', Cmp: SubtitlesIcon },
+  { name: 'SubtitlesSlash', Cmp: SubtitlesSlashIcon },
+  { name: 'Subtract', Cmp: SubtractIcon },
+  { name: 'SubtractSquare', Cmp: SubtractSquareIcon },
+  { name: 'Subway', Cmp: SubwayIcon },
+  { name: 'Suitcase', Cmp: SuitcaseIcon },
+  { name: 'SuitcaseRolling', Cmp: SuitcaseRollingIcon },
+  { name: 'SuitcaseSimple', Cmp: SuitcaseSimpleIcon },
+  { name: 'Sun', Cmp: SunIcon },
+  { name: 'SunDim', Cmp: SunDimIcon },
+  { name: 'Sunglasses', Cmp: SunglassesIcon },
+  { name: 'SunHorizon', Cmp: SunHorizonIcon },
+  { name: 'SupersetOf', Cmp: SupersetOfIcon },
+  { name: 'SupersetProperOf', Cmp: SupersetProperOfIcon },
+  { name: 'Swap', Cmp: SwapIcon },
+  { name: 'Swatches', Cmp: SwatchesIcon },
+  { name: 'SwimmingPool', Cmp: SwimmingPoolIcon },
+  { name: 'Sword', Cmp: SwordIcon },
+  { name: 'Synagogue', Cmp: SynagogueIcon },
+  { name: 'Syringe', Cmp: SyringeIcon },
+  { name: 'Table', Cmp: TableIcon },
+  { name: 'Tabs', Cmp: TabsIcon },
+  { name: 'Tag', Cmp: TagIcon },
+  { name: 'TagChevron', Cmp: TagChevronIcon },
+  { name: 'TagSimple', Cmp: TagSimpleIcon },
+  { name: 'Target', Cmp: TargetIcon },
+  { name: 'Taxi', Cmp: TaxiIcon },
+  { name: 'TeaBag', Cmp: TeaBagIcon },
+  { name: 'TelegramLogo', Cmp: TelegramLogoIcon },
+  { name: 'Television', Cmp: TelevisionIcon },
+  { name: 'TelevisionSimple', Cmp: TelevisionSimpleIcon },
+  { name: 'TennisBall', Cmp: TennisBallIcon },
+  { name: 'Tent', Cmp: TentIcon },
+  { name: 'Terminal', Cmp: TerminalIcon },
+  { name: 'TerminalWindow', Cmp: TerminalWindowIcon },
+  { name: 'TestTube', Cmp: TestTubeIcon },
+  { name: 'TextAa', Cmp: TextAaIcon },
+  { name: 'TextAlignCenter', Cmp: TextAlignCenterIcon },
+  { name: 'TextAlignJustify', Cmp: TextAlignJustifyIcon },
+  { name: 'TextAlignLeft', Cmp: TextAlignLeftIcon },
+  { name: 'TextAlignRight', Cmp: TextAlignRightIcon },
+  { name: 'TextAUnderline', Cmp: TextAUnderlineIcon },
+  { name: 'TextB', Cmp: TextBIcon },
+  { name: 'Textbox', Cmp: TextboxIcon },
+  { name: 'TextColumns', Cmp: TextColumnsIcon },
+  { name: 'TextH', Cmp: TextHIcon },
+  { name: 'TextHFive', Cmp: TextHFiveIcon },
+  { name: 'TextHFour', Cmp: TextHFourIcon },
+  { name: 'TextHOne', Cmp: TextHOneIcon },
+  { name: 'TextHSix', Cmp: TextHSixIcon },
+  { name: 'TextHThree', Cmp: TextHThreeIcon },
+  { name: 'TextHTwo', Cmp: TextHTwoIcon },
+  { name: 'TextIndent', Cmp: TextIndentIcon },
+  { name: 'TextItalic', Cmp: TextItalicIcon },
+  { name: 'TextOutdent', Cmp: TextOutdentIcon },
+  { name: 'TextStrikethrough', Cmp: TextStrikethroughIcon },
+  { name: 'TextSubscript', Cmp: TextSubscriptIcon },
+  { name: 'TextSuperscript', Cmp: TextSuperscriptIcon },
+  { name: 'TextT', Cmp: TextTIcon },
+  { name: 'TextTSlash', Cmp: TextTSlashIcon },
+  { name: 'TextUnderline', Cmp: TextUnderlineIcon },
+  { name: 'Thermometer', Cmp: ThermometerIcon },
+  { name: 'ThermometerCold', Cmp: ThermometerColdIcon },
+  { name: 'ThermometerHot', Cmp: ThermometerHotIcon },
+  { name: 'ThermometerSimple', Cmp: ThermometerSimpleIcon },
+  { name: 'ThreadsLogo', Cmp: ThreadsLogoIcon },
+  { name: 'ThreeD', Cmp: ThreeDIcon },
+  { name: 'ThumbsDown', Cmp: ThumbsDownIcon },
+  { name: 'ThumbsUp', Cmp: ThumbsUpIcon },
+  { name: 'Ticket', Cmp: TicketIcon },
+  { name: 'TidalLogo', Cmp: TidalLogoIcon },
+  { name: 'TiktokLogo', Cmp: TiktokLogoIcon },
+  { name: 'Tilde', Cmp: TildeIcon },
+  { name: 'Timer', Cmp: TimerIcon },
+  { name: 'Tipi', Cmp: TipiIcon },
+  { name: 'TipJar', Cmp: TipJarIcon },
+  { name: 'Tire', Cmp: TireIcon },
+  { name: 'ToggleLeft', Cmp: ToggleLeftIcon },
+  { name: 'ToggleRight', Cmp: ToggleRightIcon },
+  { name: 'Toilet', Cmp: ToiletIcon },
+  { name: 'ToiletPaper', Cmp: ToiletPaperIcon },
+  { name: 'Toolbox', Cmp: ToolboxIcon },
+  { name: 'Tooth', Cmp: ToothIcon },
+  { name: 'Tornado', Cmp: TornadoIcon },
+  { name: 'Tote', Cmp: ToteIcon },
+  { name: 'ToteSimple', Cmp: ToteSimpleIcon },
+  { name: 'Towel', Cmp: TowelIcon },
+  { name: 'Tractor', Cmp: TractorIcon },
+  { name: 'Trademark', Cmp: TrademarkIcon },
+  { name: 'TrademarkRegistered', Cmp: TrademarkRegisteredIcon },
+  { name: 'TrafficCone', Cmp: TrafficConeIcon },
+  { name: 'TrafficSign', Cmp: TrafficSignIcon },
+  { name: 'TrafficSignal', Cmp: TrafficSignalIcon },
+  { name: 'Train', Cmp: TrainIcon },
+  { name: 'TrainRegional', Cmp: TrainRegionalIcon },
+  { name: 'TrainSimple', Cmp: TrainSimpleIcon },
+  { name: 'Tram', Cmp: TramIcon },
+  { name: 'Translate', Cmp: TranslateIcon },
+  { name: 'Trash', Cmp: TrashIcon },
+  { name: 'TrashSimple', Cmp: TrashSimpleIcon },
+  { name: 'Tray', Cmp: TrayIcon },
+  { name: 'TrayArrowDown', Cmp: TrayArrowDownIcon },
+  { name: 'TrayArrowUp', Cmp: TrayArrowUpIcon },
+  { name: 'TreasureChest', Cmp: TreasureChestIcon },
+  { name: 'Tree', Cmp: TreeIcon },
+  { name: 'TreeEvergreen', Cmp: TreeEvergreenIcon },
+  { name: 'TreePalm', Cmp: TreePalmIcon },
+  { name: 'TreeStructure', Cmp: TreeStructureIcon },
+  { name: 'TreeView', Cmp: TreeViewIcon },
+  { name: 'TrendDown', Cmp: TrendDownIcon },
+  { name: 'TrendUp', Cmp: TrendUpIcon },
+  { name: 'Triangle', Cmp: TriangleIcon },
+  { name: 'TriangleDashed', Cmp: TriangleDashedIcon },
+  { name: 'Trolley', Cmp: TrolleyIcon },
+  { name: 'TrolleySuitcase', Cmp: TrolleySuitcaseIcon },
+  { name: 'Trophy', Cmp: TrophyIcon },
+  { name: 'Truck', Cmp: TruckIcon },
+  { name: 'TruckTrailer', Cmp: TruckTrailerIcon },
+  { name: 'TShirt', Cmp: TShirtIcon },
+  { name: 'TumblrLogo', Cmp: TumblrLogoIcon },
+  { name: 'TwitchLogo', Cmp: TwitchLogoIcon },
+  { name: 'TwitterLogo', Cmp: TwitterLogoIcon },
+  { name: 'Umbrella', Cmp: UmbrellaIcon },
+  { name: 'UmbrellaSimple', Cmp: UmbrellaSimpleIcon },
+  { name: 'Union', Cmp: UnionIcon },
+  { name: 'Unite', Cmp: UniteIcon },
+  { name: 'UniteSquare', Cmp: UniteSquareIcon },
+  { name: 'Upload', Cmp: UploadIcon },
+  { name: 'UploadSimple', Cmp: UploadSimpleIcon },
+  { name: 'Usb', Cmp: UsbIcon },
+  { name: 'User', Cmp: UserIcon },
+  { name: 'UserCheck', Cmp: UserCheckIcon },
+  { name: 'UserCircle', Cmp: UserCircleIcon },
+  { name: 'UserCircleCheck', Cmp: UserCircleCheckIcon },
+  { name: 'UserCircleDashed', Cmp: UserCircleDashedIcon },
+  { name: 'UserCircleGear', Cmp: UserCircleGearIcon },
+  { name: 'UserCircleMinus', Cmp: UserCircleMinusIcon },
+  { name: 'UserCirclePlus', Cmp: UserCirclePlusIcon },
+  { name: 'UserFocus', Cmp: UserFocusIcon },
+  { name: 'UserGear', Cmp: UserGearIcon },
+  { name: 'UserList', Cmp: UserListIcon },
+  { name: 'UserMinus', Cmp: UserMinusIcon },
+  { name: 'UserPlus', Cmp: UserPlusIcon },
+  { name: 'UserRectangle', Cmp: UserRectangleIcon },
+  { name: 'Users', Cmp: UsersIcon },
+  { name: 'UsersFour', Cmp: UsersFourIcon },
+  { name: 'UserSound', Cmp: UserSoundIcon },
+  { name: 'UserSquare', Cmp: UserSquareIcon },
+  { name: 'UsersThree', Cmp: UsersThreeIcon },
+  { name: 'UserSwitch', Cmp: UserSwitchIcon },
+  { name: 'Van', Cmp: VanIcon },
+  { name: 'Vault', Cmp: VaultIcon },
+  { name: 'VectorThree', Cmp: VectorThreeIcon },
+  { name: 'VectorTwo', Cmp: VectorTwoIcon },
+  { name: 'Vibrate', Cmp: VibrateIcon },
+  { name: 'Video', Cmp: VideoIcon },
+  { name: 'VideoCamera', Cmp: VideoCameraIcon },
+  { name: 'VideoCameraSlash', Cmp: VideoCameraSlashIcon },
+  { name: 'VideoConference', Cmp: VideoConferenceIcon },
+  { name: 'Vignette', Cmp: VignetteIcon },
+  { name: 'VinylRecord', Cmp: VinylRecordIcon },
+  { name: 'VirtualReality', Cmp: VirtualRealityIcon },
+  { name: 'Virus', Cmp: VirusIcon },
+  { name: 'Visor', Cmp: VisorIcon },
+  { name: 'Voicemail', Cmp: VoicemailIcon },
+  { name: 'Volleyball', Cmp: VolleyballIcon },
+  { name: 'Wall', Cmp: WallIcon },
+  { name: 'Wallet', Cmp: WalletIcon },
+  { name: 'Warehouse', Cmp: WarehouseIcon },
+  { name: 'Warning', Cmp: WarningIcon },
+  { name: 'WarningCircle', Cmp: WarningCircleIcon },
+  { name: 'WarningDiamond', Cmp: WarningDiamondIcon },
+  { name: 'WarningOctagon', Cmp: WarningOctagonIcon },
+  { name: 'WashingMachine', Cmp: WashingMachineIcon },
+  { name: 'Watch', Cmp: WatchIcon },
+  { name: 'Waveform', Cmp: WaveformIcon },
+  { name: 'WaveformSlash', Cmp: WaveformSlashIcon },
+  { name: 'Waves', Cmp: WavesIcon },
+  { name: 'WaveSawtooth', Cmp: WaveSawtoothIcon },
+  { name: 'WaveSine', Cmp: WaveSineIcon },
+  { name: 'WaveSquare', Cmp: WaveSquareIcon },
+  { name: 'WaveTriangle', Cmp: WaveTriangleIcon },
+  { name: 'Webcam', Cmp: WebcamIcon },
+  { name: 'WebcamSlash', Cmp: WebcamSlashIcon },
+  { name: 'WebhooksLogo', Cmp: WebhooksLogoIcon },
+  { name: 'WechatLogo', Cmp: WechatLogoIcon },
+  { name: 'WhatsappLogo', Cmp: WhatsappLogoIcon },
+  { name: 'Wheelchair', Cmp: WheelchairIcon },
+  { name: 'WheelchairMotion', Cmp: WheelchairMotionIcon },
+  { name: 'WifiHigh', Cmp: WifiHighIcon },
+  { name: 'WifiLow', Cmp: WifiLowIcon },
+  { name: 'WifiMedium', Cmp: WifiMediumIcon },
+  { name: 'WifiNone', Cmp: WifiNoneIcon },
+  { name: 'WifiSlash', Cmp: WifiSlashIcon },
+  { name: 'WifiX', Cmp: WifiXIcon },
+  { name: 'Wind', Cmp: WindIcon },
+  { name: 'Windmill', Cmp: WindmillIcon },
+  { name: 'WindowsLogo', Cmp: WindowsLogoIcon },
+  { name: 'Wine', Cmp: WineIcon },
+  { name: 'Wrench', Cmp: WrenchIcon },
+  { name: 'X', Cmp: XIcon },
+  { name: 'XCircle', Cmp: XCircleIcon },
+  { name: 'XLogo', Cmp: XLogoIcon },
+  { name: 'XSquare', Cmp: XSquareIcon },
+  { name: 'Yarn', Cmp: YarnIcon },
+  { name: 'YinYang', Cmp: YinYangIcon },
+  { name: 'YoutubeLogo', Cmp: YoutubeLogoIcon },
 ]

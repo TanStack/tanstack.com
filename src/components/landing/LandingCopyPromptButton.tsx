@@ -1,5 +1,6 @@
 import * as React from 'react'
-import { CheckCircle, Copy } from '@phosphor-icons/react'
+import { CheckCircleIcon } from '@phosphor-icons/react/CheckCircle'
+import { CopyIcon } from '@phosphor-icons/react/Copy'
 import { twMerge } from 'tailwind-merge'
 import { copyTextToClipboard } from '~/utils/browser-effects'
 
@@ -61,9 +62,9 @@ export function LandingCopyPromptButton({
       }}
     >
       {status === 'copied' ? (
-        <CheckCircle size={16} aria-hidden="true" />
+        <CheckCircleIcon size={16} aria-hidden="true" />
       ) : (
-        <Copy size={16} aria-hidden="true" />
+        <CopyIcon size={16} aria-hidden="true" />
       )}
       {status === 'copied'
         ? 'Copied'

@@ -1,22 +1,22 @@
 import * as React from 'react'
 import { Link, useParams } from '@tanstack/react-router'
 import {
-  ArrowDown,
-  ArrowRight,
-  ArrowsDownUp,
-  ArrowsLeftRight,
-  BracketsCurly,
-  Bug,
-  Code,
-  Cube,
-  Database,
-  HardDrives,
-  Microphone,
-  Plug,
-  Radio,
-  Robot,
-  Terminal,
-  Waveform,
+  ArrowDownIcon,
+  ArrowRightIcon,
+  ArrowsDownUpIcon,
+  ArrowsLeftRightIcon,
+  BracketsCurlyIcon,
+  BugIcon,
+  CodeIcon,
+  CubeIcon,
+  DatabaseIcon,
+  HardDrivesIcon,
+  MicrophoneIcon,
+  PlugIcon,
+  RadioIcon,
+  RobotIcon,
+  TerminalIcon,
+  WaveformIcon,
   type Icon,
 } from '@phosphor-icons/react'
 
@@ -195,7 +195,7 @@ export default function AiLanding() {
         <LandingSectionIntro
           centered
           eyebrow="Two files"
-          icon={<Terminal aria-hidden="true" size={15} />}
+          icon={<TerminalIcon aria-hidden="true" size={15} />}
           title="Own both sides of the AI interaction."
           body="One route on the server, one hook in the client, and the transport between them is yours. Nothing here is a wrapper around a service we run."
         />
@@ -206,7 +206,7 @@ export default function AiLanding() {
         <div className="grid items-center gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16">
           <LandingSectionIntro
             eyebrow="Isomorphic tools"
-            icon={<BracketsCurly aria-hidden="true" size={15} />}
+            icon={<BracketsCurlyIcon aria-hidden="true" size={15} />}
             title="Define your agent tools once, re-use them on the server and client."
             body={
               <>
@@ -231,7 +231,7 @@ export default function AiLanding() {
           <ProviderWorkbench />
           <LandingSectionIntro
             eyebrow="Typesafe models"
-            icon={<Plug aria-hidden="true" size={15} />}
+            icon={<PlugIcon aria-hidden="true" size={15} />}
             title="Swap an LLM provider. Keep the typesafety."
             body={
               <>
@@ -255,7 +255,7 @@ export default function AiLanding() {
         <LandingSectionIntro
           centered
           eyebrow="Open protocol"
-          icon={<Radio aria-hidden="true" size={15} />}
+          icon={<RadioIcon aria-hidden="true" size={15} />}
           title="AG-UI compliant, in both directions."
           body="The client sends AG-UI requests and consumes AG-UI events, with no proprietary stream format and no translation layer in between. That is what makes the agent on the other end replaceable: point the same client at a Python, Go, or PHP AG-UI runtime and it keeps working. The transport is yours too, whether that is SSE, HTTP streams, XHR, RPC, a raw async iterable, or a fetcher you wrote. Nothing to sign up for, no key to hand over, no traffic through us."
         />
@@ -266,7 +266,7 @@ export default function AiLanding() {
         <div className="grid gap-12 lg:grid-cols-[0.78fr_1.22fr] lg:items-start lg:gap-16">
           <LandingSectionIntro
             eyebrow="More than just a chat function"
-            icon={<Cube aria-hidden="true" size={15} />}
+            icon={<CubeIcon aria-hidden="true" size={15} />}
             title="Sandboxes, code mode, MCP, memory, compaction, skills and more."
             body="We offer more than just a simple chat interface. We allow you to build any AI feature you might need, from automated AI workflows in CI, to web apps consuming LLM providers, chatbots and more."
           />
@@ -278,7 +278,7 @@ export default function AiLanding() {
         <div className="grid gap-12 lg:grid-cols-[0.78fr_1.22fr] lg:items-start lg:gap-16">
           <LandingSectionIntro
             eyebrow="Beyond chat"
-            icon={<Microphone aria-hidden="true" size={15} />}
+            icon={<MicrophoneIcon aria-hidden="true" size={15} />}
             title="Need to generate images, video, audio and more? We have you covered."
             body="We equally care about every generation, not just text. We offer you a whole suite of utilities to generate images, video, speech, transcription, music and realtime voice with full observability and cost tracking."
           />
@@ -290,7 +290,7 @@ export default function AiLanding() {
         <div className="grid gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:items-center lg:gap-16">
           <LandingSectionIntro
             eyebrow="Devtools"
-            icon={<Bug aria-hidden="true" size={15} />}
+            icon={<BugIcon aria-hidden="true" size={15} />}
             title="Full observability of every action with our devtools"
             body="Our devtools show you every detail about every part of your system, whether you are generating images, video or using chat you can see every action that happened on both the server and the client and easily debug what is going on on both sides."
           />
@@ -764,7 +764,7 @@ function AiGraphChatHero() {
         >
           <div
             ref={chatScrollRef}
-            className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="fade-y fade-size-y-sm min-h-0 flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             <div className="flex min-h-full flex-col justify-end gap-2.5 p-4">
               {chatMessages.map((message) => (
@@ -1163,8 +1163,8 @@ function ProtocolConnector({ bidirectional }: { bidirectional: boolean }) {
     >
       {bidirectional ? (
         <>
-          <ArrowsDownUp className="md:hidden" size={22} weight="bold" />
-          <ArrowsLeftRight
+          <ArrowsDownUpIcon className="md:hidden" size={22} weight="bold" />
+          <ArrowsLeftRightIcon
             className="hidden md:block"
             size={22}
             weight="bold"
@@ -1172,8 +1172,8 @@ function ProtocolConnector({ bidirectional }: { bidirectional: boolean }) {
         </>
       ) : (
         <>
-          <ArrowDown className="md:hidden" size={20} weight="bold" />
-          <ArrowRight className="hidden md:block" size={20} weight="bold" />
+          <ArrowDownIcon className="md:hidden" size={20} weight="bold" />
+          <ArrowRightIcon className="hidden md:block" size={20} weight="bold" />
         </>
       )}
     </div>
@@ -1192,31 +1192,31 @@ const agentStack: Array<RailItem> = [
     label: 'Code Mode',
     detail: '@tanstack/ai-code-mode',
     body: 'You provide a special tool to the LLM provider that allows it to chain tools (functions) into a single executable script and call it in a local or remote isolate, producing results that it further processes. It writes code and calls it.',
-    icon: Code,
+    icon: CodeIcon,
   },
   {
     label: 'Coding-agent harnesses',
     detail: '@tanstack/ai-sandbox',
     body: 'Run Claude Code, Codex, OpenCode, Grok Build, or any ACP agent as a chat backend, inside a local process, Docker, Daytona, Vercel, Sprites, or Cloudflare sandbox. Their tool activity streams back as AG-UI events your UI already renders.',
-    icon: Terminal,
+    icon: TerminalIcon,
   },
   {
     label: 'MCP + MCP Apps',
     detail: '@tanstack/ai-mcp',
     body: 'A host-side MCP client with a type-generating CLI, provider-routed mcpTool(), and interactive ui:// widgets rendered from tool results across multiple servers.',
-    icon: Cube,
+    icon: CubeIcon,
   },
   {
     label: 'Memory + compaction',
     detail: '@tanstack/ai-memory · @tanstack/ai-compaction',
     body: 'memoryMiddleware recalls across sessions through Redis, mem0, Honcho, or Hindsight adapters. Compaction keeps long threads inside the model window so the agent does not lose the thread as context grows.',
-    icon: Database,
+    icon: DatabaseIcon,
   },
   {
     label: 'Durability + persistence',
     detail: '@tanstack/ai-persistence · @tanstack/ai-durable-stream',
     body: 'Persistence keeps an authoritative server thread, resumes a stream through a dropped connection, and survives a reload. Durability lets a run continue after a process restart.',
-    icon: HardDrives,
+    icon: HardDrivesIcon,
   },
 ]
 
@@ -1225,25 +1225,25 @@ const modalities: Array<RailItem> = [
     label: 'Text, objects, reasoning',
     detail: 'chat · outputSchema · summarize',
     body: 'Generate an output from an AI that matches your validation schema exactly using structured output.',
-    icon: Robot,
+    icon: RobotIcon,
   },
   {
     label: 'Speech, transcription, music',
     detail: 'generateSpeech · generateTranscription · generateAudio',
     body: 'Six speech formats with speed control, transcription with word timestamps and diarization, plus music and sound effects.',
-    icon: Microphone,
+    icon: MicrophoneIcon,
   },
   {
     label: 'Realtime voice',
     detail: 'openaiRealtimeToken · RealtimeClient',
     body: 'OpenAI, Grok, and ElevenLabs with VAD modes and tool calling inside a live session.',
-    icon: Waveform,
+    icon: WaveformIcon,
   },
   {
     label: 'Images + video',
     detail: 'generateImage · generateVideo',
     body: 'Generate images and videos, edit existing generations and show progress updates to your users with ease.',
-    icon: Radio,
+    icon: RadioIcon,
   },
 ]
 

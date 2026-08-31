@@ -1,7 +1,8 @@
 import * as React from 'react'
 import * as d3 from 'd3'
 import { defineChart, rect, type ChartPoint } from '@tanstack/charts'
-import { Chart } from '@tanstack/react-charts'
+import { tooltip } from '@tanstack/charts/tooltip'
+import { Chart } from '@tanstack/charts/react'
 import type { SkillHistoryEntry } from '~/utils/intent.functions'
 
 const changeColors = {
@@ -32,99 +33,102 @@ type SparkRect = {
   y2: number
 }
 
-type SkillSparklineInput = {
-  history: Array<SkillHistoryEntry>
-  slots: number
-}
+function createSkillSparkline(
+  history: Array<SkillHistoryEntry>,
+  slots: number,
+  keyboard: boolean,
+) {
+  const responsiveDefinition = defineChart(({ width }) => {
+    const offset = slots - history.length
+    const pxPerSlot = width / slots
+    const barPx = Math.min(10, pxPerSlot * 0.6)
+    const barWidth = (barPx / 2) * (slots / width)
+    const data: Array<SparkRect> = []
 
-const skillSparkline = defineChart<SkillSparklineInput>()(({
-  input,
-  width,
-}) => {
-  const offset = input.slots - input.history.length
-  const pxPerSlot = width / input.slots
-  const barPx = Math.min(10, pxPerSlot * 0.6)
-  const barWidth = (barPx / 2) * (input.slots / width)
-  const data: Array<SparkRect> = []
+    history.forEach((entry, historyIndex) => {
+      const x = historyIndex + offset
+      const changes = [
+        ['added', entry.added],
+        ['modified', entry.modified],
+        ['removed', entry.removed],
+      ] as const
+      let y = 0
 
-  input.history.forEach((entry, historyIndex) => {
-    const x = historyIndex + offset
-    const changes = [
-      ['added', entry.added],
-      ['modified', entry.modified],
-      ['removed', entry.removed],
-    ] as const
-    let y = 0
-
-    changes.forEach(([type, value]) => {
-      if (value <= 0) return
-      data.push({
-        entry,
-        historyIndex,
-        id: `${historyIndex}:${type}`,
-        type,
-        x,
-        x1: x - barWidth,
-        x2: x + barWidth,
-        y: y + value / 2,
-        y1: y,
-        y2: y + value,
+      changes.forEach(([type, value]) => {
+        if (value <= 0) return
+        data.push({
+          entry,
+          historyIndex,
+          id: `${historyIndex}:${type}`,
+          type,
+          x,
+          x1: x - barWidth,
+          x2: x + barWidth,
+          y: y + value / 2,
+          y1: y,
+          y2: y + value,
+        })
+        y += value
       })
-      y += value
+
+      if (y === 0) {
+        data.push({
+          entry,
+          historyIndex,
+          id: `${historyIndex}:unchanged`,
+          type: 'unchanged',
+          x,
+          x1: x - barWidth,
+          x2: x + barWidth,
+          y: entry.total / 2,
+          y1: 0,
+          y2: entry.total,
+        })
+      }
     })
 
-    if (y === 0) {
-      data.push({
-        entry,
-        historyIndex,
-        id: `${historyIndex}:unchanged`,
-        type: 'unchanged',
-        x,
-        x1: x - barWidth,
-        x2: x + barWidth,
-        y: entry.total / 2,
-        y1: 0,
-        y2: entry.total,
-      })
+    return {
+      marks: [
+        rect(data, {
+          id: 'skill-history',
+          x: 'x',
+          x1: 'x1',
+          x2: 'x2',
+          y: 'y',
+          y1: 'y1',
+          y2: 'y2',
+          z: 'type',
+          key: 'id',
+          inset: 0,
+        }),
+      ],
+      scales: {
+        x: {
+          scale: d3.scaleLinear().domain([-0.5, slots - 0.5]),
+        },
+        y: {
+          scale: d3
+            .scaleLinear()
+            .domain([0, d3.max(history, (entry) => entry.total) ?? 1]),
+        },
+      },
+      color: {
+        scale: d3
+          .scaleOrdinal<ChangeType, string>()
+          .domain(changeTypes)
+          .range(changeTypes.map((type) => changeColors[type])),
+      },
+      guides: false,
+      margin: 2,
+      theme: { background: 'transparent' },
     }
   })
 
-  return {
-    marks: [
-      rect(data, {
-        id: 'skill-history',
-        x: 'x',
-        x1: 'x1',
-        x2: 'x2',
-        y: 'y',
-        y1: 'y1',
-        y2: 'y2',
-        z: 'type',
-        key: 'id',
-        inset: 0,
-      }),
-    ],
-    x: {
-      scale: d3.scaleLinear().domain([-0.5, input.slots - 0.5]),
-      guide: false,
-    },
-    y: {
-      scale: d3
-        .scaleLinear()
-        .domain([0, d3.max(input.history, (entry) => entry.total) ?? 1]),
-      guide: false,
-    },
-    color: {
-      scale: d3
-        .scaleOrdinal<ChangeType, string>()
-        .domain(changeTypes)
-        .range(changeTypes.map((type) => changeColors[type])),
-    },
-    guides: false,
-    margin: 2,
-    theme: { background: 'transparent' },
-  }
-})
+  return defineChart(responsiveDefinition, {
+    keyboard,
+    tooltip: { use: tooltip, format: formatSparkTooltip },
+  })
+}
 
 export function SkillSparklinePlaceholder({
   height = 40,
@@ -152,21 +156,22 @@ export function SkillSparkline({
   maxSlots,
   onVersionClick,
 }: SkillSparklineProps) {
+  const slots = Math.max(maxSlots ?? history.length, history.length)
+  const keyboard = Boolean(onVersionClick)
+  const skillSparkline = React.useMemo(
+    () => createSkillSparkline(history, slots, keyboard),
+    [history, keyboard, slots],
+  )
+
   if (history.length === 0) return null
 
   return (
     <Chart
       definition={skillSparkline}
-      input={{
-        history,
-        slots: Math.max(maxSlots ?? history.length, history.length),
-      }}
       height={height}
       initialWidth={320}
       ariaLabel="Skill changes by version"
-      keyboard={!!onVersionClick}
       tabIndex={onVersionClick ? 0 : -1}
-      tooltip={{ format: formatSparkTooltip }}
       onSelect={
         onVersionClick
           ? (point) => {

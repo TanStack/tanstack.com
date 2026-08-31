@@ -3,6 +3,11 @@ import test from 'node:test'
 import { defaultHighlighter } from '@tanstack/highlight'
 import { renderCodeFence } from '@tanstack/highlight/markdown'
 import { createThemeBaseCss } from '@tanstack/highlight/theme'
+import { getCodeBlockLanguageFromFilePath } from '../src/components/markdown/codeBlock.shared'
+
+test('TSRX files use TypeScript JSX highlighting', () => {
+  assert.equal(getCodeBlockLanguageFromFilePath('src/main.tsrx'), 'tsx')
+})
 
 test('inline diff notation renders as line decorations', () => {
   const rendered = renderCodeFence(

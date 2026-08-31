@@ -1,18 +1,16 @@
 import * as React from 'react'
 import { Link, useRouterState } from '@tanstack/react-router'
-import {
-  ArrowRight,
-  BookOpen,
-  Stack,
-  Compass,
-  Question,
-  House,
-  Lifebuoy,
-  Newspaper,
-  ShoppingBag,
-  Sparkle,
-  type Icon,
-} from '@phosphor-icons/react'
+import { ArrowRightIcon } from '@phosphor-icons/react/ArrowRight'
+import { BookOpenIcon } from '@phosphor-icons/react/BookOpen'
+import { CompassIcon } from '@phosphor-icons/react/Compass'
+import { HouseIcon } from '@phosphor-icons/react/House'
+import { LifebuoyIcon } from '@phosphor-icons/react/Lifebuoy'
+import { NewspaperIcon } from '@phosphor-icons/react/Newspaper'
+import { QuestionIcon } from '@phosphor-icons/react/Question'
+import { ShoppingBagIcon } from '@phosphor-icons/react/ShoppingBag'
+import { SparkleIcon } from '@phosphor-icons/react/Sparkle'
+import { StackIcon } from '@phosphor-icons/react/Stack'
+import type { Icon } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { libraries, type LibrarySlim } from '~/libraries'
 import { Button } from '~/ui'
@@ -47,7 +45,7 @@ const fallbackDestinations: NotFoundDestination[] = [
     label: 'All libraries',
     description: 'Browse TanStack Query, Router, Table, Start, and more.',
     href: '/libraries',
-    icon: Stack,
+    icon: StackIcon,
     accent: 'emerald',
     score: 1,
   },
@@ -56,7 +54,7 @@ const fallbackDestinations: NotFoundDestination[] = [
     label: 'Blog',
     description: 'Read release notes, deep dives, and project updates.',
     href: '/blog',
-    icon: Newspaper,
+    icon: NewspaperIcon,
     accent: 'cyan',
     score: 1,
   },
@@ -65,7 +63,7 @@ const fallbackDestinations: NotFoundDestination[] = [
     label: 'Support',
     description: 'Find paid support, community help, and project resources.',
     href: '/support',
-    icon: Lifebuoy,
+    icon: LifebuoyIcon,
     accent: 'amber',
     score: 1,
   },
@@ -77,7 +75,7 @@ const sectionDestinations: NotFoundDestination[] = [
     label: 'Shop',
     description: 'Find TanStack merch and products.',
     href: '/shop',
-    icon: ShoppingBag,
+    icon: ShoppingBagIcon,
     accent: 'rose',
     score: 0,
   },
@@ -86,7 +84,7 @@ const sectionDestinations: NotFoundDestination[] = [
     label: 'Showcase',
     description: 'Explore projects built with TanStack.',
     href: '/showcase',
-    icon: Sparkle,
+    icon: SparkleIcon,
     accent: 'cyan',
     score: 0,
   },
@@ -95,7 +93,7 @@ const sectionDestinations: NotFoundDestination[] = [
     label: 'Explore',
     description: 'Sail through the TanStack ecosystem.',
     href: '/explore',
-    icon: Compass,
+    icon: CompassIcon,
     accent: 'blue',
     score: 0,
   },
@@ -176,7 +174,7 @@ function getLibraryDestinations(pathname: string) {
           label: library.name,
           description: library.tagline,
           href: library.to,
-          icon: BookOpen,
+          icon: BookOpenIcon,
           accent: 'emerald',
           score: score + 2,
         })
@@ -188,7 +186,7 @@ function getLibraryDestinations(pathname: string) {
           label: `${library.name.replace(/^TanStack\s+/i, '')} docs`,
           description: 'Open the current docs for this project.',
           href: `/${library.id}/latest/docs/${library.defaultDocs ?? 'overview'}`,
-          icon: BookOpen,
+          icon: BookOpenIcon,
           accent: 'cyan',
           score: score + 1,
         })
@@ -249,7 +247,7 @@ function getSectionDestinations(pathname: string) {
     label: 'Docs',
     description: 'Pick a library, then jump into its current documentation.',
     href: '/libraries',
-    icon: BookOpen,
+    icon: BookOpenIcon,
     accent: 'emerald',
     score: 0,
   }
@@ -259,7 +257,7 @@ function getSectionDestinations(pathname: string) {
     label: 'Support',
     description: 'Get help when the missing page was supposed to unblock you.',
     href: '/support',
-    icon: Question,
+    icon: QuestionIcon,
     accent: 'amber',
     score: 0,
   }
@@ -319,7 +317,7 @@ function DestinationCard({
           {destination.description}
         </span>
       </span>
-      <ArrowRight className="mt-1 h-4 w-4 shrink-0 opacity-50 transition-transform group-hover:translate-x-0.5 group-hover:opacity-100" />
+      <ArrowRightIcon className="mt-1 h-4 w-4 shrink-0 opacity-50 transition-transform group-hover:translate-x-0.5 group-hover:opacity-100" />
     </Link>
   )
 }
@@ -340,7 +338,7 @@ export function NotFound({ children }: { children?: React.ReactNode }) {
       <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 md:px-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(360px,1.05fr)] lg:items-center lg:py-16">
         <section className="space-y-7 lg:self-start">
           <div className="inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-1 text-xs font-semibold uppercase text-gray-500 shadow-sm dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400">
-            <Compass className="h-3.5 w-3.5" />
+            <CompassIcon className="h-3.5 w-3.5" />
             404 Not Found
           </div>
 
@@ -366,15 +364,15 @@ export function NotFound({ children }: { children?: React.ReactNode }) {
 
           <div className="flex flex-wrap gap-3">
             <Button onClick={() => openLibraries()} color="emerald">
-              <Stack className="h-4 w-4" />
+              <StackIcon className="h-4 w-4" />
               Browse libraries
             </Button>
             <Button as={Link} to="/support" variant="ghost">
-              <Lifebuoy className="h-4 w-4" />
+              <LifebuoyIcon className="h-4 w-4" />
               Support
             </Button>
             <Button as={Link} to="/" variant="ghost">
-              <House className="h-4 w-4" />
+              <HouseIcon className="h-4 w-4" />
               Home
             </Button>
           </div>

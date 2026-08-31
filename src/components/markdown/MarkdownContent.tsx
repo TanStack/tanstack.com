@@ -1,5 +1,9 @@
 import * as React from 'react'
-import { CaretDown, Copy, PencilSimpleLine } from '@phosphor-icons/react'
+import {
+  CaretDownIcon,
+  CopyIcon,
+  PencilSimpleLineIcon,
+} from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { ButtonGroup } from '~/components/ButtonGroup'
 import { DocTitle } from '~/components/DocTitle'
@@ -47,7 +51,7 @@ function CopyPageDropdownFallback() {
         className="border-0"
         disabled
       >
-        <Copy className="w-3 h-3" />
+        <CopyIcon className="w-3 h-3" />
         Copy page
       </Button>
       <Button
@@ -58,7 +62,7 @@ function CopyPageDropdownFallback() {
         disabled
         aria-label="More copy actions"
       >
-        <CaretDown className="w-3 h-3" />
+        <CaretDownIcon className="w-3 h-3" />
       </Button>
     </ButtonGroup>
   )
@@ -89,7 +93,7 @@ export function MarkdownContent({
   const renderedMarkdown = (
     <Markdown
       document={markdown}
-      chartEmbedSource={libraryId === 'charts' ? 'expanded' : undefined}
+      chartEmbedSource={libraryId === 'charts' ? 'collapsed' : undefined}
       preserveTabPanels={preserveTabPanels}
       eagerFirstImage={eagerFirstImage}
     />
@@ -164,7 +168,7 @@ export function MarkdownContent({
           as="a"
           href={`https://github.com/${repo}/edit/${branch}/${filePath}`}
         >
-          <PencilSimpleLine className="w-3.5 h-3.5" />
+          <PencilSimpleLineIcon className="w-3.5 h-3.5" />
           Edit on GitHub
         </Button>
       </div>

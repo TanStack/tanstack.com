@@ -11,7 +11,8 @@ import {
   type SimulationNodeDatum,
 } from 'd3'
 import { arrow, defineChart, dot, text } from '@tanstack/charts'
-import { Chart } from '@tanstack/react-charts'
+import { tooltip } from '@tanstack/charts/tooltip'
+import { Chart } from '@tanstack/charts/react'
 import { useNavigate } from '@tanstack/react-router'
 import { SKILL_TYPE_STYLES } from '~/routes/intent/registry/$packageName'
 
@@ -49,8 +50,6 @@ interface PositionedLink {
   y2: number
 }
 
-type GraphDatum = PositionedNode | PositionedLink
-
 type DependencyGraphInput = {
   height: number
   links: Array<PositionedLink>
@@ -68,60 +67,67 @@ const typeColors = {
   default: '#9ca3af',
 } as const
 
-const dependencyGraph = defineChart<DependencyGraphInput>()(({ input }) => ({
-  marks: [
-    arrow(input.links, {
-      id: 'skill-dependencies',
-      x1: 'x1',
-      y1: 'y1',
-      x2: 'x2',
-      y2: 'y2',
-      key: 'id',
-      stroke: 'currentColor',
-      strokeOpacity: 0.24,
-      strokeWidth: 1.5,
-      headLength: 7,
-    }),
-    dot(input.nodes, {
-      id: 'skills',
-      x: 'x',
-      y: 'y',
-      z: 'type',
-      key: 'id',
-      r: 6,
-      stroke: 'currentColor',
-      strokeOpacity: 0.3,
-      strokeWidth: 1.5,
-    }),
-    text(input.nodes, {
-      id: 'skill-labels',
-      x: 'x',
-      y: 'y',
-      text: 'id',
-      key: 'id',
-      fill: 'currentColor',
-      fontSize: 10,
-      fontWeight: 500,
-      dy: 18,
-    }),
-  ],
-  x: {
-    scale: scaleLinear().domain([0, input.width]),
-    guide: false,
-  },
-  y: {
-    scale: scaleLinear().domain([input.height, 0]),
-    guide: false,
-  },
-  color: {
-    scale: scaleOrdinal<string, string>()
-      .domain(Object.keys(typeColors))
-      .range(Object.values(typeColors)),
-  },
-  guides: false,
-  margin: 0,
-  theme: { background: 'transparent' },
-}))
+function createDependencyGraph(input: DependencyGraphInput) {
+  return defineChart({
+    marks: [
+      arrow(input.links, {
+        id: 'skill-dependencies',
+        x1: 'x1',
+        y1: 'y1',
+        x2: 'x2',
+        y2: 'y2',
+        key: 'id',
+        stroke: 'currentColor',
+        strokeOpacity: 0.24,
+        strokeWidth: 1.5,
+        headLength: 7,
+      }),
+      dot(input.nodes, {
+        id: 'skills',
+        x: 'x',
+        y: 'y',
+        z: 'type',
+        key: 'id',
+        r: 6,
+        stroke: 'currentColor',
+        strokeOpacity: 0.3,
+        strokeWidth: 1.5,
+      }),
+      text(input.nodes, {
+        id: 'skill-labels',
+        x: 'x',
+        y: 'y',
+        text: 'id',
+        key: 'id',
+        fill: 'currentColor',
+        fontSize: 10,
+        fontWeight: 500,
+        dy: 18,
+      }),
+    ],
+    scales: {
+      x: {
+        scale: scaleLinear().domain([0, input.width]),
+      },
+      y: {
+        scale: scaleLinear().domain([input.height, 0]),
+      },
+    },
+    color: {
+      scale: scaleOrdinal<string, string>()
+        .domain(Object.keys(typeColors))
+        .range(Object.values(typeColors)),
+    },
+    guides: false,
+    margin: 0,
+    theme: { background: 'transparent' },
+    tooltip: {
+      use: tooltip,
+      format: (point) =>
+        point.datum.kind === 'node' ? point.datum.id : 'Dependency',
+    },
+  })
+}
 
 export function SkillDependencyGraph({
   skills,
@@ -240,6 +246,11 @@ export function SkillDependencyGraph({
     }
   }, [dimensions, graph])
 
+  const dependencyGraph = React.useMemo(
+    () => createDependencyGraph({ ...layout, ...dimensions }),
+    [dimensions, layout],
+  )
+
   if (graph.links.length === 0) return null
 
   return (
@@ -250,21 +261,16 @@ export function SkillDependencyGraph({
       {dimensions.width > 0 && layout.nodes.length > 0 ? (
         <Chart
           definition={dependencyGraph}
-          input={{ ...layout, ...dimensions }}
           width={dimensions.width}
           height={dimensions.height}
           ariaLabel={`Dependencies between skills in ${packageName}`}
           onSelect={(point) => {
-            const datum: GraphDatum | undefined = point?.datum
+            const datum = point?.datum
             if (!datum || datum.kind !== 'node') return
             void navigate({
               to: '/intent/registry/$packageName/$skillName',
               params: { packageName, skillName: datum.id },
             })
-          }}
-          tooltip={{
-            format: (point) =>
-              point.datum.kind === 'node' ? point.datum.id : 'Dependency',
           }}
         />
       ) : null}

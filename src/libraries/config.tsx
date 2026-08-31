@@ -1,4 +1,4 @@
-import { MagicWand, Lightning, Gear } from '@phosphor-icons/react'
+import { MagicWandIcon, LightningIcon, GearIcon } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { config } from './libraries'
 
@@ -11,7 +11,7 @@ export const configProject = {
   featureHighlights: [
     {
       title: 'Intuitive Configuration',
-      icon: <MagicWand className="text-category-tooling" />,
+      icon: <MagicWandIcon className="text-category-tooling" />,
       description: (
         <div>
           TanStack Config offers a seamless and intuitive configuration
@@ -27,7 +27,7 @@ export const configProject = {
     },
     {
       title: 'Vite-Powered Builds',
-      icon: <Lightning className="text-category-tooling" />,
+      icon: <LightningIcon className="text-category-tooling" />,
       description: (
         <div>
           TanStack Config's build configuration harnesses the Vite ecosystem.
@@ -44,7 +44,7 @@ export const configProject = {
     },
     {
       title: 'Effortless Publication',
-      icon: <Gear className="text-category-tooling" />,
+      icon: <GearIcon className="text-category-tooling" />,
       description: (
         <div>
           Say goodbye to the complexities of code publishing. This package

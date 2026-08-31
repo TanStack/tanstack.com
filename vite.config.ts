@@ -19,6 +19,7 @@ import {
   localDocsDevPath,
   localDocsDevTokenHeader,
 } from './src/utils/local-repo-path.server'
+import { localBuilderAi } from './scripts/local-builder-ai-vite'
 
 const isDev = process.env.NODE_ENV !== 'production'
 const shouldUseRedact = process.env.DISABLE_REDACT !== 'true'
@@ -319,6 +320,7 @@ export default defineConfig({
     },
   },
   plugins: [
+    localBuilderAi(),
     localDocsDevFiles(),
     cloudflare({
       viteEnvironment: { name: 'ssr' },

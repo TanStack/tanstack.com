@@ -2,7 +2,11 @@ import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { Link } from '@tanstack/react-router'
-import { CaretDown, CircleNotch, User } from '@phosphor-icons/react'
+import { CaretDownIcon } from '@phosphor-icons/react/CaretDown'
+import { CircleNotchIcon } from '@phosphor-icons/react/CircleNotch'
+import { MagnifyingGlassIcon } from '@phosphor-icons/react/MagnifyingGlass'
+import { UserIcon } from '@phosphor-icons/react/User'
+import { XIcon } from '@phosphor-icons/react/X'
 import type { MarkdownHeading } from '~/utils/markdown'
 import type { LibraryId } from '~/libraries/ids'
 import type { LibraryCategory } from '~/libraries/categories'
@@ -25,6 +29,7 @@ type ButtonVariant =
   | 'ghost'
   | 'icon'
   | 'link'
+  | 'subtle-link'
   | 'gradient'
 type ButtonColor =
   | 'neutral'
@@ -68,46 +73,59 @@ type ButtonInnerProps = ButtonOwnProps & Record<string, unknown>
 // near-black on light, white on dark — via the inverse semantic tokens.
 const primaryColorStyles: Record<ButtonColor, string> = {
   neutral:
-    'bg-background-inverse text-text-inverse border-background-inverse hover:bg-background-inverse/90',
-  blue: 'bg-ds-blue-500 text-white border-ds-blue-500 hover:bg-ds-blue-400',
-  green: 'bg-ds-green-400 text-white border-ds-green-400 hover:bg-ds-green-300',
-  red: 'bg-ds-terracotta-400 text-white border-ds-terracotta-400 hover:bg-ds-terracotta-300',
+    'bg-background-inverse text-text-inverse border-background-inverse hover:bg-background-inverse/90 max-[899px]:bg-background-inverse/90',
+  blue: 'bg-ds-blue-500 text-white border-ds-blue-500 hover:bg-ds-blue-400 max-[899px]:bg-ds-blue-400',
+  green:
+    'bg-ds-green-400 text-white border-ds-green-400 hover:bg-ds-green-300 max-[899px]:bg-ds-green-300',
+  red: 'bg-ds-terracotta-400 text-white border-ds-terracotta-400 hover:bg-ds-terracotta-300 max-[899px]:bg-ds-terracotta-300',
   orange:
-    'bg-ds-terracotta-300 text-white border-ds-terracotta-300 hover:bg-ds-terracotta-200',
+    'bg-ds-terracotta-300 text-white border-ds-terracotta-300 hover:bg-ds-terracotta-200 max-[899px]:bg-ds-terracotta-200',
   purple:
-    'bg-ds-purple-400 text-white border-ds-purple-400 hover:bg-ds-purple-300',
-  gray: 'bg-ds-neutral-400 text-white border-ds-neutral-400 hover:bg-ds-neutral-300',
+    'bg-ds-purple-400 text-white border-ds-purple-400 hover:bg-ds-purple-300 max-[899px]:bg-ds-purple-300',
+  gray: 'bg-ds-neutral-400 text-white border-ds-neutral-400 hover:bg-ds-neutral-300 max-[899px]:bg-ds-neutral-300',
   emerald:
-    'bg-ds-green-400 text-white border-ds-green-400 hover:bg-ds-green-300',
-  cyan: 'bg-lib-start text-white border-lib-start hover:bg-lib-start/90',
+    'bg-ds-green-400 text-white border-ds-green-400 hover:bg-ds-green-300 max-[899px]:bg-ds-green-300',
+  cyan: 'bg-lib-start text-white border-lib-start hover:bg-lib-start/90 max-[899px]:bg-lib-start/90',
   yellow:
-    'bg-ds-amber-300 text-ds-neutral-500 border-ds-amber-300 hover:bg-ds-amber-200',
+    'bg-ds-amber-300 text-ds-neutral-500 border-ds-amber-300 hover:bg-ds-amber-200 max-[899px]:bg-ds-amber-200',
 }
 
 const iconColorStyles: Record<ButtonColor, string> = {
-  neutral: 'text-text-primary hover:bg-background-subtle',
-  blue: 'text-ds-blue-500 hover:bg-ds-blue-500/10',
-  green: 'text-ds-green-400 hover:bg-ds-green-400/10',
-  red: 'text-ds-terracotta-400 hover:bg-ds-terracotta-400/10',
-  orange: 'text-ds-terracotta-300 hover:bg-ds-terracotta-300/10',
-  purple: 'text-ds-purple-400 hover:bg-ds-purple-400/10',
-  gray: 'text-text-muted hover:bg-background-subtle',
-  emerald: 'text-ds-green-400 hover:bg-ds-green-400/10',
-  cyan: 'text-lib-start hover:bg-lib-start/10',
-  yellow: 'text-ds-amber-400 hover:bg-ds-amber-400/10',
+  neutral:
+    'text-text-primary hover:bg-surface-state-hover max-[899px]:bg-surface-state-hover',
+  blue: 'text-ds-blue-500 hover:bg-ds-blue-500/10 max-[899px]:bg-ds-blue-500/10',
+  green:
+    'text-ds-green-400 hover:bg-ds-green-400/10 max-[899px]:bg-ds-green-400/10',
+  red: 'text-ds-terracotta-400 hover:bg-ds-terracotta-400/10 max-[899px]:bg-ds-terracotta-400/10',
+  orange:
+    'text-ds-terracotta-300 hover:bg-ds-terracotta-300/10 max-[899px]:bg-ds-terracotta-300/10',
+  purple:
+    'text-ds-purple-400 hover:bg-ds-purple-400/10 max-[899px]:bg-ds-purple-400/10',
+  gray: 'text-text-muted hover:bg-surface-state-hover max-[899px]:bg-surface-state-hover max-[899px]:text-text-primary',
+  emerald:
+    'text-ds-green-400 hover:bg-ds-green-400/10 max-[899px]:bg-ds-green-400/10',
+  cyan: 'text-lib-start hover:bg-lib-start/10 max-[899px]:bg-lib-start/10',
+  yellow:
+    'text-ds-amber-400 hover:bg-ds-amber-400/10 max-[899px]:bg-ds-amber-400/10',
 }
 
 const linkColorStyles: Record<ButtonColor, string> = {
-  neutral: 'text-text-primary hover:text-text-primary/70',
-  blue: 'text-ds-blue-500 hover:text-ds-blue-400',
-  green: 'text-ds-green-400 hover:text-ds-green-300',
-  red: 'text-ds-terracotta-400 hover:text-ds-terracotta-300',
-  orange: 'text-ds-terracotta-300 hover:text-ds-terracotta-200',
-  purple: 'text-ds-purple-400 hover:text-ds-purple-300',
-  gray: 'text-text-secondary hover:text-text-primary',
-  emerald: 'text-ds-green-400 hover:text-ds-green-300',
-  cyan: 'text-lib-start hover:text-lib-start/80',
-  yellow: 'text-ds-amber-400 hover:text-ds-amber-300',
+  neutral:
+    'text-text-primary hover:text-text-primary/70 max-[899px]:text-text-primary/70',
+  blue: 'text-ds-blue-500 hover:text-ds-blue-400 max-[899px]:text-ds-blue-400',
+  green:
+    'text-ds-green-400 hover:text-ds-green-300 max-[899px]:text-ds-green-300',
+  red: 'text-ds-terracotta-400 hover:text-ds-terracotta-300 max-[899px]:text-ds-terracotta-300',
+  orange:
+    'text-ds-terracotta-300 hover:text-ds-terracotta-200 max-[899px]:text-ds-terracotta-200',
+  purple:
+    'text-ds-purple-400 hover:text-ds-purple-300 max-[899px]:text-ds-purple-300',
+  gray: 'text-text-secondary hover:text-text-primary max-[899px]:text-text-primary',
+  emerald:
+    'text-ds-green-400 hover:text-ds-green-300 max-[899px]:text-ds-green-300',
+  cyan: 'text-lib-start hover:text-lib-start/80 max-[899px]:text-lib-start/80',
+  yellow:
+    'text-ds-amber-400 hover:text-ds-amber-300 max-[899px]:text-ds-amber-300',
 }
 
 // Gradient (landing-CTA) colors. Each color feeds the four --btn-grad-* vars
@@ -137,18 +155,20 @@ const gradientColorStyles: Record<ButtonColor, string> = {
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    'border font-medium shadow-[0_1px_2px_0_rgba(0,0,0,0.12),inset_0_1px_0_0_rgba(255,255,255,0.18)] hover:-translate-y-px hover:shadow-[0_6px_16px_-4px_rgba(0,0,0,0.28),inset_0_1px_0_0_rgba(255,255,255,0.25)] active:translate-y-0 active:shadow-[0_1px_2px_0_rgba(0,0,0,0.12)]',
+    'border font-medium shadow-[0_1px_2px_0_rgba(0,0,0,0.12),inset_0_1px_0_0_rgba(255,255,255,0.18)] hover:-translate-y-px hover:shadow-[0_6px_16px_-4px_rgba(0,0,0,0.28),inset_0_1px_0_0_rgba(255,255,255,0.25)] max-[899px]:-translate-y-px max-[899px]:shadow-[0_6px_16px_-4px_rgba(0,0,0,0.28),inset_0_1px_0_0_rgba(255,255,255,0.25)] active:translate-y-0 active:shadow-[0_1px_2px_0_rgba(0,0,0,0.12)]',
   secondary:
-    'bg-action-secondary text-text-primary hover:bg-action-secondary-hover border-transparent font-medium shadow-sm hover:-translate-y-px hover:shadow-md active:translate-y-0',
+    'bg-action-secondary text-text-primary hover:bg-action-secondary-hover max-[899px]:bg-action-secondary-hover border-transparent font-medium shadow-sm hover:-translate-y-px hover:shadow-md max-[899px]:-translate-y-px max-[899px]:shadow-md active:translate-y-0',
   ghost:
-    'border border-border-default text-text-primary hover:bg-background-subtle hover:border-border-strong font-medium hover:shadow-sm',
+    'border border-border-default text-text-primary hover:bg-background-subtle hover:border-border-strong max-[899px]:bg-background-subtle max-[899px]:border-border-strong font-medium hover:shadow-sm max-[899px]:shadow-sm',
   icon: 'border-transparent active:scale-90',
-  link: 'border-transparent font-medium underline-offset-2 hover:underline',
+  link: 'border-transparent font-medium underline-offset-2 hover:underline max-[899px]:underline',
+  'subtle-link':
+    'border-transparent font-ds-mono uppercase tracking-wider no-underline hover:no-underline [&>svg:last-child]:size-3.5 [&>svg:last-child]:transition-transform hover:[&>svg:last-child]:translate-x-0.5 max-[899px]:[&>svg:last-child]:translate-x-0.5 motion-reduce:[&>svg:last-child]:transition-none',
   // Library-landing primary CTA: accent→bright gradient with an inner highlight,
   // a colored glow, ink text, and a hover lift. Colors come from
   // gradientColorStyles (the --btn-grad-* vars).
   gradient:
-    'border-transparent font-medium text-[var(--btn-grad-ink)] [background-image:linear-gradient(105deg,var(--btn-grad-accent),var(--btn-grad-bright))] shadow-[inset_-5px_-5px_7px_-5px_var(--btn-grad-tint),0_12px_35px_-6px_rgb(var(--btn-grad-glow)/0.35)] transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-[inset_-5px_-5px_7px_-5px_var(--btn-grad-tint),0_18px_45px_-6px_rgb(var(--btn-grad-glow)/0.5)] active:translate-y-0 focus-visible:ring-[var(--btn-grad-bright)]',
+    'border-transparent font-medium text-[var(--btn-grad-ink)] [background-image:linear-gradient(105deg,var(--btn-grad-accent),var(--btn-grad-bright))] shadow-[inset_-5px_-5px_7px_-5px_var(--btn-grad-tint),0_12px_35px_-6px_rgb(var(--btn-grad-glow)/0.35)] transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-[inset_-5px_-5px_7px_-5px_var(--btn-grad-tint),0_18px_45px_-6px_rgb(var(--btn-grad-glow)/0.5)] max-[899px]:-translate-y-0.5 max-[899px]:shadow-[inset_-5px_-5px_7px_-5px_var(--btn-grad-tint),0_18px_45px_-6px_rgb(var(--btn-grad-glow)/0.5)] active:translate-y-0 focus-visible:ring-[var(--btn-grad-bright)]',
 }
 
 const sizeStyles: Record<ButtonSize, string> = {
@@ -169,17 +189,12 @@ const roundedStyles: Record<ButtonRounded, string> = {
 }
 
 const baseStyles =
-  'inline-flex items-center justify-center gap-2 cursor-pointer transition-all duration-150 ease-out disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none disabled:hover:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-1 focus-visible:ring-offset-background-default'
+  'inline-flex items-center justify-center gap-2 corner-squircle cursor-pointer transition-all duration-150 ease-out disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none disabled:hover:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-1 focus-visible:ring-offset-background-default'
 
 function getDefaultSize(variant: ButtonVariant): ButtonSize {
   if (variant === 'icon') return 'icon-md'
   if (variant === 'gradient') return 'lg'
   return 'md'
-}
-
-function getDefaultRounded(size: ButtonSize): ButtonRounded {
-  if (size === 'xs' || size === 'sm') return 'md'
-  return 'lg'
 }
 
 export const Button: ButtonComponent = React.forwardRef<
@@ -198,14 +213,16 @@ export const Button: ButtonComponent = React.forwardRef<
   } = props as ButtonOwnProps & Record<string, unknown>
   const Component = as || 'button'
   const resolvedSize = size ?? getDefaultSize(variant)
-  const resolvedRounded =
-    rounded ?? (variant === 'gradient' ? 'xl' : getDefaultRounded(resolvedSize))
+  // All variants default to fully-rounded pills; the base `corner-squircle`
+  // gives the rounding an organic superellipse shape. Callers can still opt out
+  // via the `rounded` prop.
+  const resolvedRounded = rounded ?? 'full'
   const colorStyles =
     variant === 'primary'
       ? primaryColorStyles[color]
       : variant === 'icon'
         ? iconColorStyles[color]
-        : variant === 'link'
+        : variant === 'link' || variant === 'subtle-link'
           ? linkColorStyles[color]
           : variant === 'gradient'
             ? gradientColorStyles[color]
@@ -240,6 +257,7 @@ type BadgeVariant =
   | 'purple'
   | 'teal'
   | 'orange'
+type BadgeRounded = 'md' | 'full'
 
 const badgeVariantStyles: Record<BadgeVariant, string> = {
   default: 'bg-background-subtle text-text-secondary',
@@ -255,16 +273,19 @@ const badgeVariantStyles: Record<BadgeVariant, string> = {
 export function Badge({
   children,
   variant = 'default',
+  rounded = 'full',
   className,
 }: {
   children: React.ReactNode
   variant?: BadgeVariant
+  rounded?: BadgeRounded
   className?: string
 }) {
   return (
     <span
       className={twMerge(
-        'inline-flex items-center rounded-full px-2 py-1 text-xs font-medium',
+        'inline-flex items-center px-2 py-1 text-xs font-medium',
+        rounded === 'full' ? 'rounded-full' : 'rounded-md',
         badgeVariantStyles[variant],
         className,
       )}
@@ -276,12 +297,13 @@ export function Badge({
 
 /* ---------------------------------------------------------------- Eyebrow -- */
 
-type EyebrowTone = 'muted' | 'secondary' | 'accent'
+type EyebrowTone = 'muted' | 'secondary' | 'accent' | 'warning'
 
 const eyebrowToneStyles: Record<EyebrowTone, string> = {
   muted: 'text-text-muted',
   secondary: 'text-text-secondary',
   accent: 'text-text-accent',
+  warning: 'text-text-warning',
 }
 
 // Libraries that ship a `--color-lib-*` brand token. Written as literal classes
@@ -370,28 +392,189 @@ export function Eyebrow({
 
 /* -------------------------------------------------------------- FormInput -- */
 
-type FormInputProps = React.InputHTMLAttributes<HTMLInputElement> & {
-  focusRing?: 'blue' | 'orange' | 'purple'
-}
+type FormInputProps = React.InputHTMLAttributes<HTMLInputElement>
 
-const ringStyles: Record<NonNullable<FormInputProps['focusRing']>, string> = {
-  blue: 'focus:border-border-focus focus:ring-border-focus/40',
-  orange: 'focus:border-accent-warm focus:ring-accent-warm/40',
-  purple: 'focus:border-accent-creative focus:ring-accent-creative/40',
-}
+// Focus is a single neutral border-color change (no ring): the border lifts to
+// the strong neutral token — the lightest neutral on dark surfaces.
+const inputFocusClass = 'focus:border-border-strong focus:outline-none'
 
 export const FormInput = React.forwardRef<HTMLInputElement, FormInputProps>(
-  function FormInput({ className, focusRing = 'blue', ...props }, ref) {
+  function FormInput({ className, ...props }, ref) {
     return (
       <input
         ref={ref}
         className={twMerge(
-          'w-full rounded-lg border border-border-default bg-background-surface px-3 py-2 text-text-primary placeholder-text-muted transition focus:outline-none focus:ring-2',
-          ringStyles[focusRing],
+          'w-full rounded-lg border border-border-default bg-background-surface px-3 py-2 text-text-primary placeholder-text-muted transition',
+          inputFocusClass,
           className,
         )}
         {...props}
       />
+    )
+  },
+)
+
+type FormSelectProps = React.SelectHTMLAttributes<HTMLSelectElement>
+
+export const FormSelect = React.forwardRef<HTMLSelectElement, FormSelectProps>(
+  function FormSelect({ className, ...props }, ref) {
+    return (
+      <select
+        ref={ref}
+        className={twMerge(
+          'w-full rounded-lg border border-border-default bg-background-surface px-3 py-2 text-text-primary transition disabled:cursor-not-allowed disabled:opacity-40',
+          inputFocusClass,
+          className,
+        )}
+        {...props}
+      />
+    )
+  },
+)
+
+/* ------------------------------------------------------------- SearchInput -- */
+
+type SearchInputProps = Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  'size' | 'type'
+> & {
+  size?: 'default' | 'large'
+  progressive?: boolean
+  /** Node rendered inside the field, right of the input (e.g. an RSS link). */
+  trailing?: React.ReactNode
+}
+
+export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
+  function SearchInput(
+    { className, size = 'default', progressive = false, trailing, ...props },
+    forwardedRef,
+  ) {
+    const [open, setOpen] = React.useState(!progressive)
+    const [skipMotion, setSkipMotion] = React.useState(false)
+    const inputRef = React.useRef<HTMLInputElement>(null)
+    const triggerRef = React.useRef<HTMLButtonElement>(null)
+
+    React.useImperativeHandle(forwardedRef, () => inputRef.current!)
+
+    React.useEffect(() => {
+      if (open && progressive) inputRef.current?.focus()
+    }, [open, progressive])
+
+    const reveal = (event: React.MouseEvent<HTMLButtonElement>) => {
+      setSkipMotion(event.detail === 0)
+      if (open) {
+        inputRef.current?.focus()
+      } else {
+        setOpen(true)
+      }
+    }
+
+    const close = (keyboardInitiated: boolean) => {
+      setSkipMotion(keyboardInitiated)
+      setOpen(false)
+      window.requestAnimationFrame(() => triggerRef.current?.focus())
+    }
+
+    const input = (
+      <input
+        ref={inputRef}
+        type="search"
+        className={twMerge(
+          'min-w-0 flex-1 bg-transparent text-text-primary placeholder-text-muted outline-none [&::-webkit-search-cancel-button]:hidden',
+          size === 'large' ? 'text-base' : 'text-sm',
+          className,
+        )}
+        {...props}
+        onKeyDown={(event) => {
+          props.onKeyDown?.(event)
+          if (progressive && event.key === 'Escape') close(true)
+        }}
+      />
+    )
+
+    if (!progressive) {
+      return (
+        <div
+          className={twMerge(
+            // Search reads as a distinct, fully-rounded pill so it never
+            // reads as just another rounded-corner control (buttons, dropdowns).
+            'flex w-full items-center rounded-full border border-border-default bg-background-surface text-text-muted transition-[border-color,box-shadow] duration-150 focus-within:border-border-strong focus-within:text-text-primary motion-reduce:transition-none',
+            size === 'large' ? 'min-h-14 gap-3 px-4' : 'h-10 gap-2.5 px-3',
+          )}
+        >
+          {/* The label wraps only the icon + input so clicking the field
+              focuses it. Interactive `trailing` controls (links, buttons) sit
+              outside the label — a form control inside a <label> that also
+              contains other interactive controls is invalid HTML. */}
+          <label
+            className={twMerge(
+              'flex min-w-0 flex-1 items-center',
+              size === 'large' ? 'gap-3' : 'gap-2.5',
+            )}
+          >
+            <MagnifyingGlassIcon
+              size={size === 'large' ? 21 : 18}
+              weight="bold"
+              aria-hidden="true"
+              className="shrink-0"
+            />
+            {input}
+          </label>
+          {trailing ? (
+            <span className="flex shrink-0 items-center">{trailing}</span>
+          ) : null}
+        </div>
+      )
+    }
+
+    return (
+      <div className="relative h-12 w-full max-w-72">
+        <div className="absolute inset-0 flex items-start text-text-muted focus-within:text-text-primary">
+          <button
+            ref={triggerRef}
+            type="button"
+            aria-label={open ? 'Focus search' : 'Open search'}
+            aria-expanded={open}
+            onClick={reveal}
+            className="grid size-10 shrink-0 place-items-center transition-colors duration-150 hover:text-text-primary focus-visible:text-text-accent focus-visible:outline-none motion-reduce:transition-none"
+          >
+            <MagnifyingGlassIcon size={18} weight="bold" aria-hidden="true" />
+          </button>
+          {React.cloneElement(input, {
+            tabIndex: open ? props.tabIndex : -1,
+            'aria-hidden': !open,
+            className: twMerge(
+              input.props.className,
+              'h-12 pb-4 pt-2 transition-opacity ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none',
+              open
+                ? 'opacity-100 duration-[220ms]'
+                : 'pointer-events-none opacity-0 duration-100',
+              skipMotion && 'transition-none',
+            ),
+          })}
+          <button
+            type="button"
+            aria-label="Close search"
+            tabIndex={open ? 0 : -1}
+            onClick={(event) => close(event.detail === 0)}
+            className={twMerge(
+              'grid size-10 shrink-0 place-items-center text-text-muted transition-opacity duration-100 hover:text-text-primary focus-visible:text-text-accent focus-visible:outline-none motion-reduce:transition-none',
+              open ? 'opacity-100' : 'pointer-events-none opacity-0',
+              skipMotion && 'transition-none',
+            )}
+          >
+            <XIcon size={16} weight="bold" aria-hidden="true" />
+          </button>
+          <span
+            aria-hidden="true"
+            className={twMerge(
+              'pointer-events-none absolute inset-x-0 bottom-0 h-px origin-left bg-border-focus transition-transform ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none',
+              open ? 'scale-x-100 duration-[240ms]' : 'scale-x-0 duration-100',
+              skipMotion && 'transition-none',
+            )}
+          />
+        </div>
+      </div>
     )
   },
 )
@@ -408,7 +591,7 @@ export function Card({
   return (
     <div
       className={twMerge(
-        'rounded-lg border border-border-default bg-background-surface shadow-md',
+        'rounded-lg corner-squircle border border-border-default bg-background-surface shadow-md',
         className,
       )}
     >
@@ -438,7 +621,7 @@ export function InlineCode({
 
 export function Spinner({ className }: { className?: string }) {
   return (
-    <CircleNotch
+    <CircleNotchIcon
       className={twMerge('h-6 w-6 animate-spin text-text-primary', className)}
       aria-label="Loading"
     />
@@ -511,7 +694,7 @@ export function Avatar({
         className,
       )}
     >
-      {initials || <User className="h-1/2 w-1/2 text-text-muted" />}
+      {initials || <UserIcon className="h-1/2 w-1/2 text-text-muted" />}
     </div>
   )
 }
@@ -555,21 +738,47 @@ export function DropdownTrigger({
 export function DropdownContent({
   children,
   className,
+  container,
   align = 'end',
+  side = 'bottom',
   sideOffset = 6,
+  collisionPadding = 0,
+  maxHeight,
+  ariaLabelledBy,
 }: {
   children: React.ReactNode
   className?: string
+  container?: HTMLElement | null
   align?: 'start' | 'center' | 'end'
+  side?: 'top' | 'right' | 'bottom' | 'left'
   sideOffset?: number
+  collisionPadding?: number
+  /** Cap the menu height and reveal overflow with a subtle scroll indicator —
+   *  a thin, low-opacity scrollbar that appears only when the list overflows,
+   *  signalling "more content" without inviting a drag. Accepts any CSS length
+   *  (e.g. '20rem') or a px number. */
+  maxHeight?: number | string
+  ariaLabelledBy?: string
 }) {
+  const scrollable = maxHeight !== undefined
   return (
-    <DropdownMenu.Portal>
+    <DropdownMenu.Portal container={container ?? undefined}>
       <DropdownMenu.Content
         align={align}
+        side={side}
         sideOffset={sideOffset}
+        collisionPadding={collisionPadding}
+        style={scrollable ? { maxHeight } : undefined}
+        {...(ariaLabelledBy
+          ? { 'aria-labelledby': ariaLabelledBy }
+          : undefined)}
         className={twMerge(
-          'z-[1200] min-w-48 rounded-lg border border-border-default bg-background-elevated p-1.5 shadow-lg',
+          // Width wraps the content, but never narrower than the trigger it
+          // opened from (Radix's --radix-dropdown-menu-trigger-width), with a
+          // 12rem floor. So a compact trigger gets a content-hugging menu, and a
+          // wide/full-width trigger gets a menu that fills the same span.
+          'z-[1200] min-w-[max(12rem,var(--radix-dropdown-menu-trigger-width,12rem))] rounded-lg border border-border-default bg-background-elevated p-1.5 shadow-lg',
+          scrollable && 'overflow-y-auto overscroll-contain ds-scroll-subtle',
           className,
         )}
       >
@@ -607,7 +816,13 @@ export function DropdownItem({
 export function DropdownSeparator({ className }: { className?: string }) {
   return (
     <DropdownMenu.Separator
-      className={twMerge('my-1 h-px bg-border-subtle', className)}
+      // On the elevated menu surface, dark `border-subtle` (#232323) is darker
+      // than the surface and recedes; use the site's subtle dark-surface line
+      // (a faint white hairline, as in the mega/mobile menus) for dark mode.
+      className={twMerge(
+        'my-1 h-px bg-border-subtle dark:bg-white/10',
+        className,
+      )}
     />
   )
 }
@@ -655,7 +870,7 @@ export function Breadcrumbs({
               )}
             >
               <span>On this page</span>
-              <CaretDown className="h-3.5 w-3.5" />
+              <CaretDownIcon className="h-3.5 w-3.5" />
             </button>
           </DropdownTrigger>
           <DropdownContent align="end" sideOffset={8} className={hiddenClass}>
@@ -681,6 +896,15 @@ export function Breadcrumbs({
   )
 }
 
+export {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsPanel,
+  segmentClasses,
+  segmentTrackClasses,
+  type SegmentSize,
+} from './Tabs'
 export { PalmSpinner } from './PalmSpinner'
 export { PixelSpinner } from './PixelSpinner'
 export {
@@ -689,3 +913,8 @@ export {
   type StatsLayout,
   type StatItem,
 } from './StatsSection'
+// NOTE: PartnerRail / PartnerTierLogo are intentionally NOT re-exported here.
+// They import ~/utils/partners (which imports many .svg assets), and this
+// barrel is imported by components covered by the .svg-less unit test runner —
+// pulling partners in through the barrel breaks those tests. Import them
+// directly from './PartnerRail' / './PartnerTierLogo' instead.

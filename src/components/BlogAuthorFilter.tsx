@@ -1,4 +1,4 @@
-import { Check, CaretUpDown } from '@phosphor-icons/react'
+import { CheckIcon, CaretUpDownIcon } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import {
   Dropdown,
@@ -42,13 +42,13 @@ export function BlogAuthorFilter({
               'focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500',
               activeAuthor
                 ? 'bg-blue-50 dark:bg-blue-950/40 ring-1 ring-blue-500/50 text-blue-700 dark:text-blue-200'
-                : 'hover:bg-gray-500/10',
+                : 'hover:bg-surface-state-hover',
             )}
           >
             <span
               className={twMerge(
                 'flex items-center justify-center w-6 h-6 rounded border overflow-hidden shrink-0',
-                activeAuthor ? 'border-blue-500/30' : 'border-gray-500/20',
+                activeAuthor ? 'border-blue-500/30' : 'border-border-subtle',
               )}
             >
               <img
@@ -67,7 +67,10 @@ export function BlogAuthorFilter({
               {activeAuthor ?? 'All authors'}
             </span>
             <span className="flex items-center pr-1">
-              <CaretUpDown className="h-4 w-4 opacity-40" aria-hidden="true" />
+              <CaretUpDownIcon
+                className="h-4 w-4 opacity-40"
+                aria-hidden="true"
+              />
             </span>
           </button>
         </DropdownTrigger>
@@ -86,7 +89,7 @@ export function BlogAuthorFilter({
           >
             <span className="truncate">All authors</span>
             {!activeAuthor ? (
-              <Check
+              <CheckIcon
                 className="h-4 w-4 absolute right-2 text-blue-600 dark:text-blue-300"
                 aria-hidden="true"
               />
@@ -115,7 +118,7 @@ export function BlogAuthorFilter({
                 />
                 <span className="truncate">{name}</span>
                 {isSelected ? (
-                  <Check
+                  <CheckIcon
                     className="h-4 w-4 absolute right-2 text-blue-600 dark:text-blue-300"
                     aria-hidden="true"
                   />

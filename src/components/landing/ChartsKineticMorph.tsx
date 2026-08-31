@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { interpolateString } from 'd3'
+import { interpolateString } from 'd3-interpolate'
 
 import {
   LandingChartGraphic,
@@ -87,7 +87,7 @@ export function ChartsKineticMorph({
       animations.push(
         guide.animate([{ opacity: 0.18 }, { opacity: 1 }], {
           duration: 720,
-          easing: 'ease-out',
+          easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
           fill: 'both',
         }),
       )
@@ -99,13 +99,13 @@ export function ChartsKineticMorph({
         animations.push(
           element.animate(
             [
-              { opacity: 0, transform: 'scale(0.88)' },
+              { opacity: 0, transform: 'scale(0.92)' },
               { opacity: 1, transform: 'scale(1)' },
             ],
             {
               delay: 220,
               duration: 560,
-              easing: 'cubic-bezier(0.34, 1.2, 0.64, 1)',
+              easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
               fill: 'both',
             },
           ),

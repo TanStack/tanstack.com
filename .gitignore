@@ -2,8 +2,6 @@ node_modules
 .pnpm-store/
 package-lock.json
 yarn.lock
-drizzle/migrations
-
 .tanstack
 .DS_Store
 .cache
@@ -38,3 +36,4 @@ test-results
 .tsbuildinfo
 src/routeTree.gen.ts
 .og-preview/
+.readme-preview/

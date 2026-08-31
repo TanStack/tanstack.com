@@ -8,8 +8,8 @@ import {
 } from '@tanstack/react-router'
 import { useSuspenseQuery, useQuery } from '@tanstack/react-query'
 import * as v from 'valibot'
-import { Copy, Check } from '@phosphor-icons/react'
-import { Collapsible, CollapsibleContent } from '~/components/Collapsible'
+import { CopyIcon, CheckIcon } from '@phosphor-icons/react'
+import { Panel, PanelContent } from '~/components/Panel'
 import { seo } from '~/utils/seo'
 import {
   intentPackageDetailQueryOptions,
@@ -339,6 +339,7 @@ This will detect all Agent Skills in ${name} and configure them for your coding 
             Paste into your coding agent
           </div>
         </div>,
+        { id: 'install-prompt-copied' },
       )
     } catch (error) {
       console.error('Failed to copy install prompt', error)
@@ -349,6 +350,7 @@ This will detect all Agent Skills in ${name} and configure them for your coding 
             Try again or copy the prompt manually
           </div>
         </div>,
+        { id: 'install-prompt-copy-failed' },
       )
     }
   }
@@ -360,9 +362,9 @@ This will detect all Agent Skills in ${name} and configure them for your coding 
       className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 text-xs font-medium text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-900 hover:border-sky-300 dark:hover:border-sky-700 hover:text-sky-600 dark:hover:text-sky-400 transition-colors"
     >
       {copied.active ? (
-        <Check className="w-3.5 h-3.5 text-green-500" />
+        <CheckIcon className="w-3.5 h-3.5 text-green-500" />
       ) : (
-        <Copy className="w-3.5 h-3.5" />
+        <CopyIcon className="w-3.5 h-3.5" />
       )}
       Copy install prompt
     </button>
@@ -506,9 +508,9 @@ function MobileSkillsDrawer({
           />
         </svg>
       </button>
-      <Collapsible open={open}>
-        <CollapsibleContent>
-          <div className="px-4 pb-4 max-h-64 overflow-y-auto">
+      <Panel open={open}>
+        <PanelContent>
+          <div className="fade-y fade-size-y-sm max-h-64 overflow-y-auto px-4 pb-4">
             <SkillsNav
               skills={skills}
               packageName={packageName}
@@ -516,8 +518,8 @@ function MobileSkillsDrawer({
               onNavigate={() => setOpen(false)}
             />
           </div>
-        </CollapsibleContent>
-      </Collapsible>
+        </PanelContent>
+      </Panel>
     </div>
   )
 }

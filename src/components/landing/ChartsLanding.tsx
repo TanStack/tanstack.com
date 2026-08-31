@@ -1,37 +1,33 @@
-import { ArrowRight } from '@phosphor-icons/react'
+import { ArrowRightIcon } from '@phosphor-icons/react/ArrowRight'
 
 import { CodeBlock } from '~/components/markdown/CodeBlock'
+import { charts } from '~/libraries'
+import type { getChartsCatalogLanding } from '~/utils/charts-catalog.functions'
 
 import activationChartSource from '../../../scripts/charts-landing/activation-chart.ts?raw'
 import { LandingSection, LibraryLandingShell } from './LibraryLanding'
 import {
   AccountChart,
   ActivationChart,
-  BundleSizeFigure,
-  KineticChartsHero,
-  ResponsiveChartComparison,
+  BundleSizeChart,
   ThemeGallery,
 } from './ChartsLandingGraphics'
-import {
-  ChartsCatalogGallery,
-  type ChartsLandingCatalog,
-} from './ChartsCatalogGallery'
-import { LandingCopyPromptButton } from './LandingCopyPromptButton'
+import { CatalogChartsHero, ChartsCatalogGallery } from './ChartsCatalogGallery'
 
-const chartPrompt = `Using TanStack Charts and the accounts array in this project, plot monthlyRevenue on x and retention on y. Size each point by seats, color it by segment, and keep the original Account type in tooltip and focus callbacks. Use explicit D3 scales with empty-data fallbacks, add a useful ariaLabel, and render it through the React adapter with a tooltip.`
+const chartPrompt = `Using TanStack Charts and the accounts array in this project, plot monthlyRevenue on x and retention on y. Size each point by seats with an explicit square-root radius scale, color it by segment, and preserve the original Account rows for typed tooltip and focus callbacks. Use the compact linear scale from @tanstack/charts/scales/linear so TanStack Charts can infer the domains, add the tooltip behavior from @tanstack/charts/tooltip, and render it through the React adapter with a useful ariaLabel.`
 
 export default function ChartsLanding({
   catalog,
-  version,
+  catalogOrderSeed,
 }: {
-  catalog: ChartsLandingCatalog
-  version: string
+  catalog: Awaited<ReturnType<typeof getChartsCatalogLanding>>
+  catalogOrderSeed: string
 }) {
   return (
     <LibraryLandingShell
-      description="Build the chart you need from typed data, marks, channels, and D3 scales—then render responsive SVG in React or vanilla TypeScript."
+      description={charts.description}
       headline="A chart grammar you don't have to outgrow."
-      hero={<KineticChartsHero />}
+      hero={<CatalogChartsHero catalog={catalog} />}
       libraryId="charts"
       prompt={chartPrompt}
       promptLabel="Copy Charts prompt"
@@ -43,62 +39,98 @@ export default function ChartsLanding({
         tone="raised"
         className="py-12 lg:py-14"
       >
-        <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
-          <h2 className="font-ds-display text-ds-heading-1 md:text-ds-display-sm">
-            Examples, not presets.
+        <div className="mb-8 grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.72fr)] lg:items-end lg:gap-12">
+          <h2 className="max-w-4xl font-ds-display text-ds-heading-1 md:text-ds-display-sm">
+            Your next chart, already working.
           </h2>
-          <a
-            href="/charts/catalog/"
-            className="group inline-flex items-center gap-3 font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)] transition-colors hover:text-text-primary"
-          >
-            Browse all examples
-            <ArrowRight
-              aria-hidden="true"
-              className="size-4 transition-transform group-hover:translate-x-1"
-            />
-          </a>
+          <div className="flex items-start lg:justify-end">
+            <a
+              href="/charts/catalog/"
+              className="group inline-flex items-center gap-3 font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)] transition-colors hover:text-text-primary"
+            >
+              Browse all {catalog.cases.length} examples
+              <ArrowRightIcon
+                aria-hidden="true"
+                className="size-4 transition-transform group-hover:translate-x-1"
+              />
+            </a>
+          </div>
         </div>
-        <ChartsCatalogGallery
-          catalog={catalog}
-          variant="compact"
-          version={version}
-        />
+        <ChartsCatalogGallery catalog={catalog} orderSeed={catalogOrderSeed} />
+      </LandingSection>
+
+      <LandingSection id="bundle-size" tone="accent">
+        <div className="grid gap-6 md:grid-cols-[0.82fr_1.18fr] md:items-end md:gap-12">
+          <h2 className="max-w-4xl font-ds-display text-ds-heading-1 md:text-ds-display-md">
+            A lot of chart. Not a lot of bundle.
+          </h2>
+          <p className="max-w-2xl border-l-2 border-[var(--landing-accent)] pl-5 text-ds-body-sm text-text-secondary sm:text-ds-body-md">
+            Basic React line, 29 kB minified + gzip. SVG, compact scales, axes
+            included.
+          </p>
+        </div>
+
+        <div className="mt-10">
+          <BundleSizeChart />
+        </div>
+
+        <a
+          href="/charts/latest/docs/comparison"
+          className="group mt-6 inline-flex items-center gap-3 font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)] transition-colors hover:text-text-primary"
+        >
+          See the full bundle comparison
+          <ArrowRightIcon
+            aria-hidden="true"
+            className="size-4 transition-transform group-hover:translate-x-1"
+          />
+        </a>
       </LandingSection>
 
       <LandingSection id="agent-authoring" tone="ink">
-        <div className="grid gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:items-start lg:gap-14">
-          <div className="lg:sticky lg:top-24">
+        <div className="grid min-w-0 gap-12 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)] lg:items-start lg:gap-14">
+          <div className="min-w-0 lg:sticky lg:top-24">
             <h2 className="max-w-xl font-ds-display text-ds-heading-1 md:text-ds-display-md">
-              Agents write the chart. TypeScript checks the result.
+              Types stay connected to the source row.
             </h2>
             <p className="mt-6 max-w-xl text-ds-body-sm text-text-secondary sm:text-ds-body-md">
-              Every example compiles under strict TypeScript. Fields, datum
-              types, domains, tooltips, and focus callbacks stay connected to
-              the source datum; the type suite rejects eight invalid
-              definitions.
+              Fields, datum types, inferred domains and keys, tooltips, and
+              focus callbacks all trace back to the data you passed in. Every
+              example compiles under strict TypeScript, and invalid definitions
+              fail before they reach the browser.
             </p>
-
-            <div className="mt-8 rounded-xl border border-[color:rgb(var(--landing-glow)/0.3)] bg-background-surface p-5 shadow-[0_18px_50px_-30px_rgb(var(--landing-glow)/0.45)]">
-              <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
-                Example prompt
-              </p>
-              <p className="mt-3 text-ds-body-sm text-text-secondary">
-                Plot monthly revenue against retention. Size each account by
-                seats, color it by segment, add tooltips, and keep the Account
-                type in every callback.
-              </p>
-              <div className="mt-4">
-                <LandingCopyPromptButton
-                  label="Copy full prompt"
-                  prompt={chartPrompt}
-                />
-              </div>
-            </div>
 
             <TypedDotExample />
           </div>
 
           <AccountChart />
+        </div>
+      </LandingSection>
+
+      <LandingSection id="renderers" tone="raised">
+        <div className="grid gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:items-start lg:gap-14">
+          <div>
+            <h2 className="max-w-xl font-ds-display text-ds-heading-1 md:text-ds-display-md">
+              SVG by default. Canvas where it earns its weight.
+            </h2>
+            <p className="mt-6 max-w-xl text-ds-body-sm text-text-secondary sm:text-ds-body-md">
+              Move one paint-heavy mark to Canvas while axes, labels, focus,
+              tooltips, responsive layout, hydration, and export keep working
+              through one definition. Canvas and motion stay out of the default
+              bundle until you import them.
+            </p>
+            <a
+              href="/charts/latest/docs/reference/rendering-and-export"
+              className="group mt-6 inline-flex items-center gap-3 font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)] transition-colors hover:text-text-primary"
+            >
+              Rendering and export reference
+              <ArrowRightIcon
+                aria-hidden="true"
+                className="size-4 transition-transform group-hover:translate-x-1"
+              />
+            </a>
+          </div>
+
+          <RendererSurfaceProof />
         </div>
       </LandingSection>
 
@@ -108,8 +140,9 @@ export default function ChartsLanding({
             Make it look like your product.
           </h2>
           <p className="max-w-2xl border-l-2 border-[var(--landing-accent)] pl-5 text-ds-body-sm text-text-secondary sm:text-ds-body-md">
-            Same data and scales. CSS variables, themes, mark props, custom
-            tooltips, or your own renderer control the rest.
+            Same data, scales, and interactions. CSS variables, themes, mark
+            props, and custom tooltip content make the chart belong to your
+            product.
           </p>
         </div>
 
@@ -118,36 +151,20 @@ export default function ChartsLanding({
         </div>
       </LandingSection>
 
-      <LandingSection tone="raised">
-        <div className="grid gap-8 lg:grid-cols-[0.88fr_1.12fr] lg:items-end lg:gap-16">
-          <h2 className="max-w-3xl font-ds-display text-ds-heading-1 md:text-ds-display-md">
-            Complete SVG charts. 18.5–19.2 kB gzip.
-          </h2>
-          <p className="max-w-2xl text-ds-body-sm text-text-secondary sm:text-ds-body-md">
-            Measured minified and gzipped from one-series charts using the
-            vanilla renderer. Granular imports leave unrelated marks and D3
-            modules out.
-          </p>
-        </div>
-
-        <div className="mt-10 grid gap-5 xl:grid-cols-[0.62fr_1.38fr]">
-          <BundleSizeFigure />
-          <ResponsiveChartComparison />
-        </div>
-      </LandingSection>
-
       <LandingSection tone="ink">
         <div className="grid gap-6 md:grid-cols-[0.82fr_1.18fr] md:items-end md:gap-12">
           <h2 className="max-w-4xl font-ds-display text-ds-heading-1 md:text-ds-display-md">
-            Layer marks over shared scales.
+            Add ranges, goals, and events without switching APIs.
           </h2>
           <p className="max-w-2xl text-ds-body-sm text-text-secondary sm:text-ds-body-md">
-            Area, rules, lines, points, and labels share one coordinate system.
-            The definition beside the chart is the whole composition.
+            The area, goal rule, activation line, release points, and labels
+            each use the rows and channels they need, then share one coordinate
+            system. The same definition mixes a compact linear scale with
+            D3&apos;s UTC scale and monotone curve.
           </p>
         </div>
 
-        <div className="mt-10 grid min-w-0 overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.38)] bg-[#0b1728] shadow-[0_24px_70px_-35px_rgb(var(--landing-glow)/0.5)] lg:grid-cols-[1.15fr_0.85fr]">
+        <div className="mt-10 grid min-w-0 overflow-hidden rounded-xl border border-border-subtle bg-background-surface shadow-[0_24px_70px_-35px_rgb(var(--landing-glow)/0.5)] lg:grid-cols-[1.15fr_0.85fr]">
           <ActivationChart />
 
           <CodeBlock
@@ -164,31 +181,28 @@ export default function ChartsLanding({
           marks-and-channels API is most directly inspired by Observable Plot,
           but the runtime is an independent implementation.
         </p>
-      </LandingSection>
 
-      <LandingSection id="chart-atlas" tone="accent">
-        <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
-          <h2 className="max-w-4xl font-ds-display text-ds-heading-1 md:text-ds-display-sm">
-            Choose the chart by the question you&apos;re answering.
-          </h2>
+        <div className="mt-8 flex flex-wrap gap-x-7 gap-y-4">
           <a
-            href="/charts/catalog/"
+            href="/charts/latest/docs/quick-start"
             className="group inline-flex items-center gap-3 font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)] transition-colors hover:text-text-primary"
           >
-            All 100 examples
-            <ArrowRight
+            Build your first chart
+            <ArrowRightIcon
               aria-hidden="true"
               className="size-4 transition-transform group-hover:translate-x-1"
             />
           </a>
-        </div>
-
-        <div className="mt-8 sm:mt-10">
-          <ChartsCatalogGallery
-            catalog={catalog}
-            variant="expanded"
-            version={version}
-          />
+          <a
+            href="/charts/catalog/"
+            className="group inline-flex items-center gap-3 font-ds-mono text-ds-mono-caps-xs uppercase text-text-secondary transition-colors hover:text-text-primary"
+          >
+            Browse examples
+            <ArrowRightIcon
+              aria-hidden="true"
+              className="size-4 transition-transform group-hover:translate-x-1"
+            />
+          </a>
         </div>
       </LandingSection>
     </LibraryLandingShell>
@@ -197,60 +211,194 @@ export default function ChartsLanding({
 
 function TypedDotExample() {
   return (
-    <div className="mt-5 overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.3)] bg-[#0c1420] text-ds-neutral-100 shadow-[0_18px_50px_-30px_rgb(var(--landing-glow)/0.45)]">
-      <div className="flex justify-end border-b border-white/10 px-4 py-3 font-ds-mono text-ds-mono-caps-xs uppercase text-ds-neutral-200">
-        <span className="text-ds-green-200">Account → SVG</span>
+    <CodeBlock
+      dataCodeTitle="account-health.tsx"
+      className="mt-8 min-w-0 overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.3)] bg-[#0c1420] shadow-[0_18px_50px_-30px_rgb(var(--landing-glow)/0.45)] [&>div:first-child]:rounded-none [&_pre]:max-h-[30rem] [&_pre]:overflow-auto [&_pre]:rounded-none [&_pre]:text-[11px] [&_pre]:leading-5 sm:[&_pre]:text-xs"
+    >
+      <code className="language-ts">{accountChartSource}</code>
+    </CodeBlock>
+  )
+}
+
+function RendererSurfaceProof() {
+  return (
+    <div className="min-w-0 overflow-hidden rounded-xl border border-border-subtle bg-background-surface shadow-[0_22px_60px_-38px_rgb(var(--landing-glow)/0.45)]">
+      <div className="border-b border-border-subtle px-5 py-4">
+        <p className="font-ds-display text-ds-heading-5 text-text-primary">
+          One definition, three surface choices
+        </p>
       </div>
-      <pre className="overflow-x-auto p-4 font-ds-mono text-ds-mono-xs leading-6">
-        <code>
-          <span className="text-ds-blue-200">dot</span>
-          <span className="text-ds-neutral-200">(</span>
-          <span className="text-white">accounts</span>
-          <span className="text-ds-neutral-200">{`, {\n`}</span>
-          <span className="text-ds-neutral-300"> x: </span>
-          <span className="text-ds-amber-200">&apos;monthlyRevenue&apos;</span>
-          <span className="text-ds-neutral-200">{`,\n`}</span>
-          <span className="text-ds-neutral-300"> y: </span>
-          <span className="text-ds-amber-200">&apos;retention&apos;</span>
-          <span className="text-ds-neutral-200">{`,\n`}</span>
-          <span className="text-ds-neutral-300"> r: </span>
-          <span className="text-ds-amber-200">&apos;seats&apos;</span>
-          <span className="text-ds-neutral-200">{`,\n`}</span>
-          <span className="text-ds-neutral-300"> z: </span>
-          <span className="text-ds-amber-200">&apos;segment&apos;</span>
-          <span className="text-ds-neutral-200">{`,\n`}</span>
-          <span className="text-ds-neutral-300"> key: </span>
-          <span className="text-ds-amber-200">&apos;id&apos;</span>
-          <span className="text-ds-neutral-200">{`,\n})`}</span>
-        </code>
-      </pre>
+
+      <div className="grid min-w-0 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.9fr)]">
+        <CodeBlock
+          dataCodeTitle="mixed-surface.ts"
+          className="m-0 min-w-0 rounded-none border-0 border-b border-border-subtle lg:border-b-0 lg:border-r [&>div:first-child]:rounded-none [&_pre]:max-h-[24rem] [&_pre]:overflow-auto [&_pre]:rounded-none [&_pre]:text-[11px] [&_pre]:leading-5 sm:[&_pre]:text-xs"
+        >
+          <code className="language-ts">{mixedRendererSource}</code>
+        </CodeBlock>
+
+        <div className="divide-y divide-border-subtle">
+          <RendererSurfaceRow
+            change="Nothing"
+            detail="Axes, labels, marks, and focus render as accessible SVG. Tooltips use an accessible HTML live region."
+            title="Default SVG"
+          />
+          <RendererSurfaceRow
+            change="One mark option"
+            detail="Only the dense mark paints to Canvas. SVG guides and shared interaction stay in place."
+            title="Mixed SVG + Canvas"
+          />
+          <RendererSurfaceRow
+            change="One adapter import"
+            detail="The whole chart paints to Canvas while the definition and host callbacks stay the same."
+            title="Full Canvas"
+          />
+        </div>
+      </div>
+
+      <p className="border-t border-border-subtle px-5 py-4 text-ds-body-xs text-text-muted">
+        The same definition also feeds the web adapters, vanilla DOM, static
+        output, and the experimental React Native adapter.
+      </p>
     </div>
   )
 }
 
+function RendererSurfaceRow({
+  change,
+  detail,
+  title,
+}: {
+  change: string
+  detail: string
+  title: string
+}) {
+  return (
+    <div className="p-5">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <p className="font-ds-display text-ds-heading-6 text-text-primary">
+          {title}
+        </p>
+        <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
+          {change}
+        </span>
+      </div>
+      <p className="mt-2 text-ds-body-xs text-text-secondary">{detail}</p>
+    </div>
+  )
+}
+
+const mixedRendererSource = `import { canvasChartRenderer } from '@tanstack/charts/canvas'
+import { defineChart, dot, lineY } from '@tanstack/charts'
+
+const activity = defineChart({
+  marks: [
+    lineY(summary, {
+      x: 'time',
+      y: 'average',
+    }),
+    dot(events, {
+      x: 'time',
+      y: 'latency',
+      renderer: canvasChartRenderer,
+    }),
+  ],
+  scales,
+  tooltip,
+})`
+
+const accountChartSource = `import { scaleLinear } from '@tanstack/charts/scales/linear'
+import { defineChart, dot } from '@tanstack/charts'
+import { tooltip } from '@tanstack/charts/tooltip'
+import { Chart } from '@tanstack/charts/react'
+import { scaleSqrt } from 'd3-scale'
+
+const accountHealth = defineChart({
+  marks: [
+    dot(accounts, {
+      x: 'monthlyRevenue',
+      y: 'retention',
+      r: 'seats',
+      rScale: {
+        scale: () => scaleSqrt().range([4, 22]),
+      },
+      z: 'segment',
+      key: 'id',
+    }),
+  ],
+  scales: {
+    x: {
+      scale: scaleLinear,
+      axis: { label: 'Monthly revenue ($k)' },
+    },
+    y: {
+      scale: scaleLinear,
+      axis: {
+        label: '90-day retention',
+        ticks: { format: (value) => percent.format(value) },
+      },
+    },
+  },
+  tooltip,
+})
+
+export function AccountHealthChart({
+  onFocus,
+}: {
+  onFocus: (account: Account | null) => void
+}) {
+  return (
+    <Chart
+      definition={accountHealth}
+      ariaLabel="Account health by revenue, retention, segment, and seats"
+      onFocusChange={(point) => onFocus(point?.datum ?? null)}
+    />
+  )
+}`
+
 const chartsLandingStyles = `
+  .charts-activation {
+    --activation-bg: var(--color-background-surface);
+    --activation-foreground: #15242b;
+    --activation-muted: #66767c;
+    --activation-border: rgb(21 36 43 / 0.13);
+    --activation-grid: #4b7280;
+    --activation-grid-opacity: 0.12;
+    --activation-line: #087f8c;
+    --activation-range: #48b9d4;
+    --activation-range-opacity: 0.2;
+    --activation-goal: #e4543d;
+    --activation-release: #7c4dff;
+  }
+
+  .dark .charts-activation {
+    --activation-bg: #071219;
+    --activation-foreground: #edf8f8;
+    --activation-muted: #91a9b2;
+    --activation-border: rgb(237 248 248 / 0.13);
+    --activation-grid: #8bb5c0;
+    --activation-grid-opacity: 0.14;
+    --activation-line: #5ee7ff;
+    --activation-range: #3c98db;
+    --activation-range-opacity: 0.28;
+    --activation-goal: #ff806f;
+    --activation-release: #ffd85e;
+  }
+
   .charts-activation-graphic svg {
     overflow: hidden !important;
   }
 
-  .charts-kinetic-meta-enter {
-    animation: charts-kinetic-meta-enter 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  .charts-activation-graphic .ts-chart__grid {
+    stroke-opacity: var(--activation-grid-opacity);
   }
 
-  @keyframes charts-kinetic-meta-enter {
-    from {
-      opacity: 0;
-      transform: translateY(3px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  .charts-activation-graphic .ts-chart__area path {
+    fill-opacity: var(--activation-range-opacity);
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .charts-kinetic-meta-enter {
-      animation: none;
-    }
+  .charts-catalog-gallery-card {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 288px auto 248px;
   }
 `

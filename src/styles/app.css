@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import 'tw-fade';
 
 @plugin "@tailwindcss/typography";
 
@@ -24,19 +25,23 @@ html.theme-switching *::after {
   --font-sans:
     'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
     'Segoe UI Emoji', Segoe UI Symbol, 'Noto Color Emoji';
-  --font-shop-display: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
-  --font-shop-mono: 'DM Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-shop-display: var(--font-ds-display);
+  --font-shop-mono: var(--font-ds-mono);
 
   /* Shop type scale */
-  --text-shop-display: clamp(36px, 5vw, 52px);
-  --text-shop-heading: 22px;
-  --text-shop-title: 18px;
-  --text-shop-price: 20px;
-  --text-shop-body: 13.5px;
-  --text-shop-ui: 13px;
-  --text-shop-sm: 12px;
-  --text-shop-xs: 10.5px;
-  --text-shop-2xs: 9.5px;
+  --text-shop-display: clamp(
+    var(--text-ds-heading-1),
+    5vw,
+    var(--text-ds-display-md)
+  );
+  --text-shop-heading: var(--text-ds-heading-3);
+  --text-shop-title: var(--text-ds-body-lg);
+  --text-shop-price: var(--text-ds-body-xl);
+  --text-shop-body: var(--text-ds-body-sm);
+  --text-shop-ui: var(--text-ds-label-md);
+  --text-shop-sm: var(--text-ds-label-sm);
+  --text-shop-xs: var(--text-ds-mono-2xs);
+  --text-shop-2xs: var(--text-ds-mono-2xs);
 
   /* Shadows */
   --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
@@ -115,10 +120,40 @@ html.theme-switching *::after {
   --color-shop-muted: var(--shop-muted);
   --color-shop-accent: var(--shop-accent);
   --color-shop-accent-ink: var(--shop-accent-ink);
-  --color-shop-green: #22c993;
-  --color-shop-orange: #ff7a3a;
-  --font-shop-display: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
-  --font-shop-mono: 'DM Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --color-shop-green: var(--color-status-success);
+  --color-shop-orange: var(--color-status-warning);
+  --font-shop-display: var(--font-ds-display);
+  --font-shop-mono: var(--font-ds-mono);
+}
+
+:root {
+  --gradient-commerce-spectrum: conic-gradient(
+    from 30deg,
+    var(--color-accent-warm),
+    var(--color-accent-highlight),
+    var(--color-accent-nature),
+    var(--color-accent-brand),
+    var(--color-accent-creative),
+    var(--color-accent-warm)
+  );
+  --gradient-commerce-new: linear-gradient(
+    180deg,
+    #74dcff 8.23%,
+    #fff27c 29.88%,
+    #ffa05c 61.46%,
+    #ff5f5f 89.43%
+  );
+  --gradient-commerce-cta: linear-gradient(
+    235.54deg,
+    #74dcff 3.4%,
+    #fff27c 13.1%,
+    #ffa05c 27.1%,
+    #ff5f5f 39.5%
+  );
+  --motion-duration-fast: 180ms;
+  --motion-duration-sheet: 280ms;
+  --motion-ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --motion-ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 /* ============================================================================
@@ -289,7 +324,7 @@ html.theme-switching *::after {
   --color-border-error: var(--color-ds-terracotta-400);
   --color-border-success: var(--color-ds-green-400);
 
-  --color-icon-default: var(--color-ds-neutral-400);
+  --color-icon-default: var(--color-ds-neutral-500);
   --color-icon-accent: var(--color-ds-blue-500);
   --color-icon-muted: var(--color-ds-neutral-300);
   --color-icon-inverse: #ffffff;
@@ -511,7 +546,7 @@ html.dark {
   --color-text-inverse: #111111;
   --color-text-success: #69bc75;
   --color-text-warning: #f4d648;
-  --color-text-error: #e06e49;
+  --color-text-error: var(--color-ds-terracotta-200);
   --color-text-info: #9cd5e2;
 
   --color-background-default: #111111;
@@ -533,7 +568,7 @@ html.dark {
   --color-icon-inverse: #111111;
   --color-icon-success: #69bc75;
   --color-icon-warning: #f4d648;
-  --color-icon-error: #e06e49;
+  --color-icon-error: var(--color-ds-terracotta-200);
 
   --color-action-primary: #3aa3c4;
   --color-action-primary-hover: #61adbf;
@@ -547,8 +582,8 @@ html.dark {
   --color-status-success-bg: #1d4226;
   --color-status-warning: #f4d648;
   --color-status-warning-bg: #624a00;
-  --color-status-error: #e06e49;
-  --color-status-error-bg: #5f1a06;
+  --color-status-error: var(--color-ds-terracotta-200);
+  --color-status-error-bg: #2b1711;
   --color-status-info: #61adbf;
   --color-status-info-bg: #003e53;
 
@@ -569,12 +604,89 @@ html.dark {
   /* Interaction-state overlays — white tints for dark surfaces (Figma values
      used directly where provided: input/background/hover, menu/item/pressed,
      divider/subtle). */
-  --color-surface-state-hover: #ffffff14; /* white 8% */
-  --color-surface-state-pressed: #ffffff1f; /* white 12% */
+  --color-surface-state-hover: #ffffff1f; /* white 12% */
+  --color-surface-state-pressed: #ffffff29; /* white 16% */
   --color-input-bg-hover: #ffffff0a; /* white 4% */
   --color-menu-item-pressed: #ffffff1f; /* white 12% */
   --color-divider-subtle: #1e1e1e;
   --color-divider-on-inverse: #1e1e1e;
+}
+
+/* Fixed theme scopes for side-by-side design-system specimens. These mirror
+   the semantic values above so previews can show both modes independently of
+   the active site theme. */
+.ds-mode-light {
+  color-scheme: light;
+  --color-text-primary: var(--color-ds-neutral-500);
+  --color-text-secondary: var(--color-ds-neutral-400);
+  --color-text-muted: var(--color-ds-neutral-300);
+  --color-text-inverse: #ffffff;
+  --color-text-error: var(--color-ds-terracotta-500);
+  --color-background-default: #ffffff;
+  --color-background-surface: #ffffff;
+  --color-background-elevated: #ffffff;
+  --color-background-subtle: #fafafa;
+  --color-background-inverse: var(--color-ds-neutral-500);
+  --color-border-default: var(--color-ds-neutral-200);
+  --color-border-subtle: var(--color-ds-neutral-100);
+  --color-border-strong: var(--color-ds-neutral-400);
+  --color-border-focus: var(--color-ds-blue-400);
+  --color-border-error: var(--color-ds-terracotta-400);
+  --color-icon-error: var(--color-ds-terracotta-400);
+  --color-action-secondary: var(--color-ds-neutral-100);
+  --color-action-secondary-hover: var(--color-ds-neutral-200);
+  --color-status-error: var(--color-ds-terracotta-400);
+  --color-status-error-bg: var(--color-ds-terracotta-100);
+  --color-category-framework: var(--color-ds-green-400);
+  --color-category-data: var(--color-ds-terracotta-400);
+  --color-category-ui: var(--color-ds-blue-400);
+  --color-category-performance: var(--color-ds-amber-400);
+  --color-category-tooling: var(--color-ds-neutral-400);
+  --color-surface-state-hover: #1111110f;
+  --color-surface-state-pressed: #1111111f;
+
+  /* Light surfaces carry the stronger mono weights (mirrors html.light) so a
+     forced-light subtree renders mono as medium / regular — not regular /
+     light — matching the real site's light mode. */
+  --text-ds-mono-display--font-weight: 500;
+  --text-ds-mono-lg--font-weight: 500;
+  --text-ds-mono-md--font-weight: 400;
+  --text-ds-mono-sm--font-weight: 400;
+  --text-ds-mono-xs--font-weight: 400;
+  --text-ds-mono-2xs--font-weight: 400;
+  --text-ds-mono-caps--font-weight: 500;
+  --text-ds-mono-caps-xs--font-weight: 500;
+}
+
+.ds-mode-dark {
+  color-scheme: dark;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #aea691;
+  --color-text-muted: #756c5b;
+  --color-text-inverse: #111111;
+  --color-text-error: var(--color-ds-terracotta-200);
+  --color-background-default: #111111;
+  --color-background-surface: #1f1f1f;
+  --color-background-elevated: #2b2b2b;
+  --color-background-subtle: #1b1b1b;
+  --color-background-inverse: #ffffff;
+  --color-border-default: #2d2d2d;
+  --color-border-subtle: #232323;
+  --color-border-strong: #aea691;
+  --color-border-focus: #61adbf;
+  --color-border-error: #e06e49;
+  --color-icon-error: var(--color-ds-terracotta-200);
+  --color-action-secondary: #2b2b2b;
+  --color-action-secondary-hover: #3a3a3a;
+  --color-status-error: var(--color-ds-terracotta-200);
+  --color-status-error-bg: #2b1711;
+  --color-category-framework: var(--color-ds-green-300);
+  --color-category-data: var(--color-ds-terracotta-300);
+  --color-category-ui: var(--color-ds-blue-300);
+  --color-category-performance: var(--color-ds-amber-300);
+  --color-category-tooling: var(--color-ds-neutral-200);
+  --color-surface-state-hover: #ffffff1f;
+  --color-surface-state-pressed: #ffffff29;
 }
 
 /* Safelist for dynamic colors */
@@ -644,6 +756,7 @@ html.dark {
 
   :root {
     --navbar-height: 58px;
+    --ts-mega-open-delay: 80ms;
     --docs-tabs-height: 0px;
     --anchor-scroll-padding-top: calc(
       var(--navbar-height) + var(--docs-tabs-height)
@@ -734,7 +847,151 @@ button {
   visibility: visible;
   pointer-events: auto;
   transform: translate3d(var(--ts-mega-dropdown-x), 0, 0) scale(1);
+}
+
+/* Keep hover intent in CSS so the SSR menu works before React hydrates. */
+.ts-mega-trigger-wrap:not([data-menu-dismissed='true']):hover
+  > .ts-mega-dropdown {
+  transition-delay: var(--ts-mega-open-delay);
+}
+
+.ts-mega-trigger-wrap:not([data-menu-dismissed='true']):focus-within
+  > .ts-mega-dropdown {
   transition-delay: 0s;
+}
+
+@keyframes mobile-mega-menu-item-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+    filter: blur(2px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.mobile-mega-menu-enter .mobile-mega-menu-enter-item {
+  animation: mobile-mega-menu-item-in 160ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: 40ms;
+}
+
+.mobile-mega-menu-enter .mobile-mega-menu-enter-item:nth-child(2) {
+  animation-delay: 60ms;
+}
+
+.mobile-mega-menu-enter .mobile-mega-menu-enter-item:nth-child(3) {
+  animation-delay: 80ms;
+}
+
+.mobile-mega-menu-enter .mobile-mega-menu-enter-item:nth-child(4) {
+  animation-delay: 100ms;
+}
+
+.mobile-mega-menu-enter .mobile-mega-menu-enter-item:nth-child(5) {
+  animation-delay: 120ms;
+}
+
+.mobile-mega-menu-enter .mobile-mega-menu-enter-item:nth-child(n + 6) {
+  animation-delay: 140ms;
+}
+
+/* ------------------------------------------------------------------ *
+ * Blog filter motion — native <details> reveals animated via the
+ * ::details-content pseudo, driven off the [open] attribute. This path is
+ * reliable even when React controls `open` (animating on the display:none→
+ * block toggle is not). `interpolate-size` lets height animate to/from auto.
+ * ------------------------------------------------------------------ */
+
+/* Facet accordion sections (Topics / Author / Archive) expand their height
+   over 250ms so it's clear which one is open — on open and on close. */
+.ts-accordion {
+  interpolate-size: allow-keywords;
+}
+
+.ts-accordion::details-content {
+  block-size: 0;
+  overflow: clip;
+  opacity: 0;
+  transition:
+    block-size 250ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 200ms ease,
+    content-visibility 250ms allow-discrete;
+}
+
+.ts-accordion[open]::details-content {
+  block-size: auto;
+  opacity: 1;
+}
+
+/* Newly revealed "Load more" cards fade up, staggered by batch position.
+   Only the appended batch carries this class (see blog.index.tsx), so it
+   never fires on first paint or filter changes. */
+@keyframes blog-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.blog-card-enter {
+  animation: blog-card-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.blog-card-enter.enter-1 {
+  animation-delay: 40ms;
+}
+.blog-card-enter.enter-2 {
+  animation-delay: 80ms;
+}
+.blog-card-enter.enter-3 {
+  animation-delay: 120ms;
+}
+.blog-card-enter.enter-4 {
+  animation-delay: 160ms;
+}
+.blog-card-enter.enter-5 {
+  animation-delay: 200ms;
+}
+
+/* Skip the movement for reduced-motion users; the panels just appear. */
+@media (prefers-reduced-motion: reduce) {
+  .ts-accordion::details-content {
+    transition-property: content-visibility;
+  }
+
+  .blog-card-enter {
+    animation: none;
+  }
+}
+
+/* Blog index year grid: 1 → 2 → 3 columns with faint full-height column
+   dividers in the gutters, drawn as a left border on non-first-column cards
+   (grid cells stretch to the row height, so the line is full-height). Lives
+   in CSS because the per-breakpoint column math is awkward as Tailwind
+   nth-child variants. */
+.blog-year-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .blog-year-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 2rem;
+  }
+  .blog-year-grid > *:nth-child(2n) {
+    border-left: 1px solid var(--color-border-subtle);
+    padding-left: 2rem;
+  }
 }
 
 .ts-mega-dropdown-panel {
@@ -742,7 +999,7 @@ button {
   isolation: isolate;
   background-color: color-mix(
     in srgb,
-    var(--color-background-subtle) 95%,
+    var(--color-background-default) 95%,
     transparent
   );
   backdrop-filter: blur(6px);
@@ -919,33 +1176,62 @@ button {
       .ts-mega-trigger-wrap:not([data-menu-dismissed='true']):hover
         > .ts-mega-dropdown
     )
-    [data-site-menu-tint],
+    [data-site-menu-tint] {
+    opacity: 1;
+    transition-delay: var(--ts-mega-open-delay);
+  }
+
   body:has(
       .ts-mega-trigger-wrap:not([data-menu-dismissed='true']):focus-within
         > .ts-mega-dropdown
     )
     [data-site-menu-tint] {
     opacity: 1;
+    transition-delay: 0s;
   }
 
   body:has(
       .ts-mega-trigger-wrap:not([data-menu-dismissed='true']):hover
         > .ts-mega-dropdown
     )
-    [data-site-content],
+    [data-site-content] {
+    filter: blur(4px);
+    transition-delay: var(--ts-mega-open-delay);
+  }
+
   body:has(
       .ts-mega-trigger-wrap:not([data-menu-dismissed='true']):focus-within
         > .ts-mega-dropdown
     )
     [data-site-content] {
     filter: blur(4px);
+    transition-delay: 0s;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ts-mega-trigger::after,
   .ts-mega-dropdown {
-    transition: none;
+    transition: visibility 0s linear 0s;
+  }
+
+  body:has(
+      .ts-mega-trigger-wrap:not([data-menu-dismissed='true']):hover
+        > .ts-mega-dropdown
+    )
+    [data-site-menu-tint] {
+    transition: opacity 0s linear var(--ts-mega-open-delay);
+  }
+
+  body:has(
+      .ts-mega-trigger-wrap:not([data-menu-dismissed='true']):hover
+        > .ts-mega-dropdown
+    )
+    [data-site-content] {
+    transition: filter 0s linear var(--ts-mega-open-delay);
+  }
+
+  .mobile-mega-menu-enter .mobile-mega-menu-enter-item {
+    animation: none;
   }
 }
 
@@ -1067,6 +1353,36 @@ button {
 
   html .libraries-overlay-scroll::-webkit-scrollbar-thumb:hover {
     background: color-mix(in srgb, var(--color-text-primary) 40%, transparent);
+  }
+
+  /* Subtle, track-less scrollbar for scrollable menus (DropdownContent
+     maxHeight). A thin, low-opacity thumb meant to read only as a "more
+     content" indicator, not a grab target. Prefixed with `html` to out-specify
+     the global scrollbar rules above (equal specificity, later source order
+     wins). */
+  html .ds-scroll-subtle {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(
+        in srgb,
+        var(--color-text-primary) 18%,
+        transparent
+      )
+      transparent;
+  }
+  html .ds-scroll-subtle::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  html .ds-scroll-subtle::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  html .ds-scroll-subtle::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--color-text-primary) 18%, transparent);
+    border: 0;
+    border-radius: 9999px;
+  }
+  html .ds-scroll-subtle::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--color-text-primary) 30%, transparent);
   }
 
   [disabled] {
@@ -1265,7 +1581,7 @@ button {
 /* ============================================================================ */
 
 pre {
-  @apply text-black overflow-x-auto relative leading-tight;
+  @apply overflow-x-auto relative leading-tight;
 }
 
 .th-line--deleted,
@@ -1699,6 +2015,44 @@ mark {
 }
 .home-prompt-ph-in {
   animation: home-prompt-ph-in 520ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Home prompt focus glow: a slow horizontal wave (with a gentle width pulse) so
+   the terracotta bloom feels alive instead of static. The wrapper handles the
+   opacity/scale grow-in on focus (see ApplicationStarter); this drives only the
+   flowing drift, on a separate nested element so the two transforms compose. */
+@keyframes prompt-glow-flow {
+  0%,
+  100% {
+    transform: translate3d(-5%, 0, 0) scaleX(1);
+  }
+  50% {
+    transform: translate3d(5%, 0, 0) scaleX(1.12);
+  }
+}
+.prompt-glow-flow {
+  animation: prompt-glow-flow 5.5s ease-in-out infinite;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .prompt-glow-flow {
+    animation: none;
+  }
+}
+
+/* DS brand mark — the TanStack emblem as a monochrome glyph tinted with
+   currentColor, for pairing with a page title (see PageHeader). Sized relative
+   to the title (em units) so it scales with the fluid display type. */
+.ds-brand-mark {
+  display: inline-block;
+  width: 0.82em;
+  height: 0.82em;
+  flex: none;
+  background-color: currentColor;
+  -webkit-mask: url('/images/brand/tanstack-emblem-black.svg') center / contain
+    no-repeat;
+  mask: url('/images/brand/tanstack-emblem-black.svg') center / contain
+    no-repeat;
 }
 
 @keyframes home-stack-builder-reveal {
@@ -2219,20 +2573,18 @@ button[aria-label='Open TanStack Devtools'] {
   display: none !important;
 }
 
-.charts-catalog-chart {
-  --ts-chart-1: var(--color-ds-blue-400);
-  --ts-chart-2: var(--color-ds-terracotta-400);
-  --ts-chart-3: var(--color-ds-green-400);
-  --ts-chart-4: var(--color-ds-purple-400);
-  --ts-chart-5: var(--color-ds-amber-400);
-  --ts-chart-6: var(--color-ds-neutral-400);
+.sandbox-ui {
+  --color-border-default: #1111111a;
+  --color-text-secondary: #525252;
+  --color-text-muted: #737373;
 }
 
-.dark .charts-catalog-chart {
-  --ts-chart-1: var(--color-ds-blue-200);
-  --ts-chart-2: var(--color-ds-terracotta-200);
-  --ts-chart-3: var(--color-ds-green-200);
-  --ts-chart-4: var(--color-ds-purple-200);
-  --ts-chart-5: var(--color-ds-amber-200);
-  --ts-chart-6: var(--color-ds-neutral-200);
+html.dark .sandbox-ui {
+  --color-border-default: #ffffff1f;
+  --color-text-secondary: #b8b8b8;
+  --color-text-muted: #8a8a8a;
+}
+
+[data-builder-shell]:has([data-builder-ready]) > [data-builder-initial] {
+  display: none;
 }

@@ -1,7 +1,40 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
-import { Check, CaretDown, Code, Copy } from '@phosphor-icons/react'
+import {
+  CheckIcon,
+  CaretDownIcon,
+  CodeIcon,
+  CopyIcon,
+} from '@phosphor-icons/react'
 import { copyTextToClipboard } from '~/utils/browser-effects'
+import { toDsSectionId } from '~/components/ds/ds-nav'
+
+const descriptionStyles = {
+  page: 'mt-3 max-w-[716px] text-ds-body-sm text-text-secondary',
+  section: 'mt-1 max-w-2xl text-ds-body-xs font-extralight text-text-secondary',
+  preview: 'truncate text-ds-body-sm text-text-muted',
+} as const
+
+/** Semantic explanatory copy used throughout the design-system catalog. */
+export function DsDescription({
+  children,
+  className,
+  variant,
+}: {
+  children: React.ReactNode
+  className?: string
+  variant: keyof typeof descriptionStyles
+}) {
+  return (
+    <p
+      className={[descriptionStyles[variant], className]
+        .filter(Boolean)
+        .join(' ')}
+    >
+      {children}
+    </p>
+  )
+}
 
 /**
  * Presentational building blocks for the Design System pages (`/ds`).
@@ -15,24 +48,30 @@ import { copyTextToClipboard } from '~/utils/browser-effects'
 export function DsPage({
   title,
   description,
+  header,
   children,
 }: {
-  title: string
+  title?: string
   description?: React.ReactNode
+  /** Replace the default title header entirely (e.g. the emblem PageHeader on
+   *  the overview). When set, `title`/`description` are ignored. */
+  header?: React.ReactNode
   children: React.ReactNode
 }) {
   return (
-    <div className="mx-auto max-w-7xl px-6 py-10 lg:px-10">
-      <header className="mb-10">
-        <h1 className="font-ds-display text-ds-display-sm text-text-primary">
-          {title}
-        </h1>
-        {description ? (
-          <p className="mt-3 max-w-2xl text-ds-body-md text-text-secondary">
-            {description}
-          </p>
-        ) : null}
-      </header>
+    <div className="mx-auto max-w-7xl px-6 pt-10 pb-28 lg:px-10">
+      {header ? (
+        <div className="mb-10">{header}</div>
+      ) : (
+        <header className="mb-10">
+          <h1 className="font-ds-display text-ds-display-sm text-text-primary">
+            {title}
+          </h1>
+          {description ? (
+            <DsDescription variant="page">{description}</DsDescription>
+          ) : null}
+        </header>
+      )}
       <div className="space-y-12">{children}</div>
     </div>
   )
@@ -42,21 +81,24 @@ export function DsSection({
   title,
   description,
   children,
+  className,
 }: {
   title: string
   description?: React.ReactNode
   children: React.ReactNode
+  className?: string
 }) {
   return (
-    <section className="space-y-4">
-      <div>
+    <section
+      id={toDsSectionId(title)}
+      className={twMerge('scroll-mt-24 space-y-5', className)}
+    >
+      <div className={description ? 'min-h-[70px]' : undefined}>
         <h2 className="font-ds-display text-ds-heading-4 text-text-primary">
           {title}
         </h2>
         {description ? (
-          <p className="mt-1 max-w-2xl text-ds-body-sm text-text-muted">
-            {description}
-          </p>
+          <DsDescription variant="section">{description}</DsDescription>
         ) : null}
       </div>
       {children}
@@ -110,9 +152,7 @@ export function ComponentPreview({
               </div>
             ) : null}
             {description ? (
-              <div className="truncate text-ds-body-sm text-text-muted">
-                {description}
-              </div>
+              <DsDescription variant="preview">{description}</DsDescription>
             ) : null}
           </div>
           {code ? (
@@ -122,9 +162,9 @@ export function ComponentPreview({
                 onClick={() => setShowCode((s) => !s)}
                 className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-text-muted transition-colors hover:bg-background-subtle hover:text-text-primary"
               >
-                <Code className="h-3.5 w-3.5" />
+                <CodeIcon className="h-3.5 w-3.5" />
                 Code
-                <CaretDown
+                <CaretDownIcon
                   className={twMerge(
                     'h-3.5 w-3.5 transition-transform',
                     showCode && 'rotate-180',
@@ -138,9 +178,9 @@ export function ComponentPreview({
                 className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-text-muted transition-colors hover:bg-background-subtle hover:text-text-primary"
               >
                 {copied ? (
-                  <Check className="h-3.5 w-3.5 text-green-500" />
+                  <CheckIcon className="h-3.5 w-3.5 text-green-500" />
                 ) : (
-                  <Copy className="h-3.5 w-3.5" />
+                  <CopyIcon className="h-3.5 w-3.5" />
                 )}
               </button>
             </div>
@@ -166,7 +206,7 @@ export function ComponentPreview({
                 onClick={() => setShowCode((visible) => !visible)}
                 className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-text-muted transition-colors hover:bg-background-subtle hover:text-text-primary"
               >
-                <Code className="h-3.5 w-3.5" />
+                <CodeIcon className="h-3.5 w-3.5" />
                 Code
               </button>
               <button
@@ -176,9 +216,9 @@ export function ComponentPreview({
                 className="inline-flex items-center justify-center rounded-md px-2 py-1 text-xs font-medium text-text-muted transition-colors hover:bg-background-subtle hover:text-text-primary"
               >
                 {copied ? (
-                  <Check className="h-3.5 w-3.5 text-green-500" />
+                  <CheckIcon className="h-3.5 w-3.5 text-green-500" />
                 ) : (
-                  <Copy className="h-3.5 w-3.5" />
+                  <CopyIcon className="h-3.5 w-3.5" />
                 )}
               </button>
             </div>
@@ -265,9 +305,9 @@ export function Swatch({ token }: { token: string }) {
       <div className="mt-1.5 flex items-center gap-1 text-xs font-medium text-text-primary">
         {token}
         {copied ? (
-          <Check className="h-3 w-3 text-status-success" />
+          <CheckIcon className="h-3 w-3 text-status-success" />
         ) : (
-          <Copy className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-60" />
+          <CopyIcon className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-60" />
         )}
       </div>
       <div className="font-ds-mono text-[11px] uppercase text-text-muted">

@@ -1,28 +1,23 @@
 import * as React from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import {
-  ArrowUpRight,
-  Check,
-  CurrencyDollar as DollarSign,
-  GitPullRequest,
-  Globe,
-  Infinity as InfinityIcon,
-  ChartLine as LineChart,
-  Network,
-  Plus,
-  Rocket,
-  ShieldCheck,
-  ArrowUUpLeft as Undo2,
+  ArrowUpRightIcon,
+  ArrowUUpLeftIcon,
+  ChartLineIcon,
+  CheckIcon,
+  CurrencyDollarIcon,
+  GitPullRequestIcon,
+  GlobeIcon,
+  InfinityIcon,
+  NetworkIcon,
+  PlusIcon,
+  RocketIcon,
+  ShieldCheckIcon,
 } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
-import { Footer } from '~/components/Footer'
 import { Card } from '~/components/Card'
 import { Button } from '~/ui'
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '~/components/Collapsible'
+import { Panel, PanelContent, PanelTrigger } from '~/components/Panel'
 import { CodeBlock } from '~/components/markdown/CodeBlock'
 import { seo } from '~/utils/seo'
 import {
@@ -76,37 +71,37 @@ type FeatureIcon = React.ComponentType<{ className?: string }>
 
 const features: Array<{ Icon: FeatureIcon; title: string; desc: string }> = [
   {
-    Icon: Rocket,
+    Icon: RocketIcon,
     title: 'Node service deploys',
     desc: 'TanStack Start builds a Node server for SSR, server functions, and static assets. Railway deploys it as a standard Node service.',
   },
   {
-    Icon: GitPullRequest,
+    Icon: GitPullRequestIcon,
     title: 'Live PR previews',
     desc: 'Enable PR Environments on a GitHub-connected project to spin up isolated previews for eligible pull requests.',
   },
   {
-    Icon: LineChart,
+    Icon: ChartLineIcon,
     title: 'Logs, metrics, and alerts',
     desc: 'Logs and metrics are built in. Pro workspaces can configure Monitors that notify Slack, Discord, or email.',
   },
   {
-    Icon: Network,
+    Icon: NetworkIcon,
     title: 'Up to 100 Gbps private networking',
     desc: 'Services in a project talk over private IPs at up to 100 Gbps. HTTP, TCP, gRPC, and WebSockets handled for you.',
   },
   {
-    Icon: Undo2,
+    Icon: ArrowUUpLeftIcon,
     title: 'Retained deployment versions',
     desc: 'Redeploy an earlier version while its image is retained. Retention ranges from 24 hours to 360 hours by plan.',
   },
   {
-    Icon: ShieldCheck,
+    Icon: ShieldCheckIcon,
     title: 'Hard spending limits',
     desc: 'Set a hard limit for workspace compute usage. Railway sends alerts as you approach it and stops workloads at the limit.',
   },
   {
-    Icon: Globe,
+    Icon: GlobeIcon,
     title: 'Global regions',
     desc: 'Run your app close to your users. Pro and above can deploy to multiple regions concurrently.',
   },
@@ -284,7 +279,7 @@ export const Route = createFileRoute('/partners/railway')({
 function CheckBadge() {
   return (
     <span className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white">
-      <Check className="h-2.5 w-2.5" strokeWidth={3} />
+      <CheckIcon className="h-2.5 w-2.5" weight="bold" />
     </span>
   )
 }
@@ -410,7 +405,7 @@ function RailwayPartnerPage() {
               className="bg-gray-950 text-white border-gray-950 hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:border-white dark:hover:bg-gray-200"
             >
               Start free on Railway
-              <ArrowUpRight className="h-4 w-4" />
+              <ArrowUpRightIcon className="h-4 w-4" />
             </Button>
             <Button as="a" href="#how-it-works" variant="ghost" size="lg">
               See how it works
@@ -511,7 +506,7 @@ function RailwayPartnerPage() {
               className="bg-gray-950 text-white border-gray-950 hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:border-white dark:hover:bg-gray-200"
             >
               Deploy on Railway
-              <ArrowUpRight className="h-4 w-4" />
+              <ArrowUpRightIcon className="h-4 w-4" />
             </Button>
             <Button
               as={Link}
@@ -621,7 +616,7 @@ function RailwayPartnerPage() {
               className="bg-gray-950 text-white border-gray-950 hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:border-white dark:hover:bg-gray-200"
             >
               Start with $5 in credits
-              <ArrowUpRight className="h-4 w-4" />
+              <ArrowUpRightIcon className="h-4 w-4" />
             </Button>
             <Button
               as="a"
@@ -671,10 +666,10 @@ function RailwayPartnerPage() {
               className="bg-gray-950 text-white border-gray-950 hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:border-white dark:hover:bg-gray-200"
             >
               Move your app to Railway
-              <ArrowUpRight className="h-4 w-4" />
+              <ArrowUpRightIcon className="h-4 w-4" />
             </Button>
             <span className="inline-flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
-              <DollarSign className="h-3.5 w-3.5" />
+              <CurrencyDollarIcon className="h-3.5 w-3.5" />
               Per-second billing, no credit card required
             </span>
           </div>
@@ -693,29 +688,29 @@ function RailwayPartnerPage() {
             {faqs.map(({ q, a }, i) => {
               const isOpen = openFaq === i
               return (
-                <Collapsible
+                <Panel
                   key={q}
                   open={isOpen}
                   onOpenChange={(next) => setOpenFaq(next ? i : null)}
                   className="border-b border-gray-200 dark:border-gray-800"
                 >
-                  <CollapsibleTrigger className="flex w-full items-center justify-between gap-4 py-4 text-left">
+                  <PanelTrigger className="flex w-full items-center justify-between gap-4 py-4 text-left">
                     <span className="text-sm font-medium md:text-[15px]">
                       {q}
                     </span>
-                    <Plus
+                    <PlusIcon
                       className={twMerge(
                         'h-4 w-4 shrink-0 text-gray-500 transition-transform duration-200 dark:text-gray-400',
                         isOpen && 'rotate-45',
                       )}
                     />
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
+                  </PanelTrigger>
+                  <PanelContent>
                     <p className="max-w-2xl pb-4 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
                       {a}
                     </p>
-                  </CollapsibleContent>
-                </Collapsible>
+                  </PanelContent>
+                </Panel>
               )
             })}
           </div>
@@ -748,7 +743,7 @@ function RailwayPartnerPage() {
               className="bg-white text-gray-950 border-white hover:bg-gray-100"
             >
               Deploy your TanStack app
-              <ArrowUpRight className="h-4 w-4" />
+              <ArrowUpRightIcon className="h-4 w-4" />
             </Button>
             <Button
               as={Link}
@@ -785,8 +780,6 @@ function RailwayPartnerPage() {
           </a>
         </p>
       </div>
-
-      <Footer />
     </div>
   )
 }

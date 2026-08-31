@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
-import { FormInput } from '~/components/ds/ui'
+import { FormInput, SearchInput } from '~/components/ds/ui'
 import { ComponentPreview, DsPage, DsSection } from '~/components/ds/DsKit'
 
 export const Route = createFileRoute('/ds/inputs')({
@@ -8,7 +8,8 @@ export const Route = createFileRoute('/ds/inputs')({
   head: () => ({
     meta: seo({
       title: 'Inputs | TanStack Design System',
-      description: 'The FormInput component — text fields and focus rings.',
+      description:
+        'The FormInput component — text fields with a neutral focus.',
     }),
   }),
 })
@@ -17,7 +18,7 @@ function InputsPage() {
   return (
     <DsPage
       title="Inputs"
-      description="Text inputs with consistent borders, dark-mode surfaces, and a configurable focus ring. Source: src/ui/FormInput.tsx."
+      description="Text inputs with consistent borders and dark-mode surfaces. Focus is a single neutral border-color change — no ring. Source: src/ui/FormInput.tsx."
     >
       <DsSection
         title="Default"
@@ -32,18 +33,14 @@ function InputsPage() {
       </DsSection>
 
       <DsSection
-        title="Focus rings"
-        description="Focus a field to see its ring. Choose blue (default), orange, or purple."
+        title="Focus"
+        description="Focus is a single neutral border-color change — the border lifts to the strong neutral token, with no ring or accent."
       >
         <ComponentPreview
-          className="block max-w-sm space-y-3"
-          code={`<FormInput focusRing="blue" placeholder="Blue ring (default)" />
-<FormInput focusRing="orange" placeholder="Orange ring" />
-<FormInput focusRing="purple" placeholder="Purple ring" />`}
+          className="block max-w-sm"
+          code={`<FormInput placeholder="Focus me" />`}
         >
-          <FormInput focusRing="blue" placeholder="Blue ring (default)" />
-          <FormInput focusRing="orange" placeholder="Orange ring" />
-          <FormInput focusRing="purple" placeholder="Purple ring" />
+          <FormInput placeholder="Focus me" />
         </ComponentPreview>
       </DsSection>
 
@@ -66,6 +63,42 @@ function InputsPage() {
             <FormInput id="project-name" placeholder="my-app" />
           </label>
           <FormInput disabled value="Disabled" readOnly />
+        </ComponentPreview>
+      </DsSection>
+
+      <DsSection
+        title="Progressive search"
+        description="Starts as a compact search action. Activating it reveals the field from the icon and moves focus directly into the input. Escape closes it."
+      >
+        <ComponentPreview
+          className="block min-h-24"
+          code={`<SearchInput progressive placeholder="Search documentation…" />`}
+        >
+          <SearchInput progressive placeholder="Search documentation…" />
+        </ComponentPreview>
+      </DsSection>
+
+      <DsSection
+        title="Persistent search"
+        description="Use when search is a primary task and should remain visible."
+      >
+        <ComponentPreview
+          className="block max-w-md"
+          code={`<SearchInput placeholder="Search documentation…" />`}
+        >
+          <SearchInput placeholder="Search documentation…" />
+        </ComponentPreview>
+      </DsSection>
+
+      <DsSection
+        title="Large search target"
+        description="A larger, highly visible target for prominent search experiences and touch-heavy layouts."
+      >
+        <ComponentPreview
+          className="block max-w-xl"
+          code={`<SearchInput size="large" placeholder="What are you looking for?" />`}
+        >
+          <SearchInput size="large" placeholder="What are you looking for?" />
         </ComponentPreview>
       </DsSection>
     </DsPage>

@@ -1,21 +1,20 @@
 import * as React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link, useParams } from '@tanstack/react-router'
-import {
-  ArrowRight,
-  ArrowsClockwise,
-  CalendarDots,
-  DownloadSimple,
-  Plus,
-  Star,
-  Swap,
-  type Icon,
-} from '@phosphor-icons/react'
+import { ArrowRightIcon } from '@phosphor-icons/react/ArrowRight'
+import { ArrowsClockwiseIcon } from '@phosphor-icons/react/ArrowsClockwise'
+import { CalendarDotsIcon } from '@phosphor-icons/react/CalendarDots'
+import { DownloadSimpleIcon } from '@phosphor-icons/react/DownloadSimple'
+import { PlusIcon } from '@phosphor-icons/react/Plus'
+import { StarIcon } from '@phosphor-icons/react/Star'
+import { SwapIcon } from '@phosphor-icons/react/Swap'
+import type { Icon } from '@phosphor-icons/react'
 
 import { libraryCategories, type LibraryCategory } from '~/libraries/categories'
 import { getLibrary } from '~/libraries'
 import type { LibraryId } from '~/libraries'
 import { PartnersSponsorsSection } from '~/components/PartnersSponsorsSection'
+import { LibraryStatusBadge } from '~/components/LibraryStatusBadge'
 import { ossStatsQuery, recentDownloadsQuery } from '~/queries/stats'
 import { LandingCopyPromptButton } from './LandingCopyPromptButton'
 
@@ -67,6 +66,7 @@ export type LibraryLandingConfig = {
     items: readonly LibraryLandingWorkbenchItem[]
     label: string
   }
+  heroRender?: React.ReactNode
   libraryId: LibraryLandingId
   lifecycle: {
     body: string
@@ -80,7 +80,7 @@ export type LibraryLandingConfig = {
 
 export type LibraryLandingShellProps = {
   children: React.ReactNode
-  description: string
+  description: React.ReactNode
   headline: string
   hero: React.ReactNode
   libraryId: LibraryLandingId
@@ -190,7 +190,7 @@ export function LibraryLanding({ config }: { config: LibraryLandingConfig }) {
     <LibraryLandingShell
       description={config.description}
       headline={config.headline}
-      hero={<LandingWorkbench config={config.hero} />}
+      hero={config.heroRender ?? <LandingWorkbench config={config.hero} />}
       libraryId={config.libraryId}
       prompt={config.prompt}
       promptLabel={config.promptLabel}
@@ -269,9 +269,10 @@ export function LibraryLandingShell({
                   </h1>
                 </div>
                 {library.badge ? (
-                  <span className="mt-1 rounded-md border border-text-primary/15 bg-text-primary/5 px-2 py-1 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/60">
-                    {library.badge}
-                  </span>
+                  <LibraryStatusBadge
+                    badge={library.badge}
+                    className="mt-[22px]"
+                  />
                 ) : null}
               </div>
 
@@ -296,7 +297,7 @@ export function LibraryLandingShell({
                   }}
                 >
                   Docs
-                  <ArrowRight aria-hidden="true" size={20} weight="bold" />
+                  <ArrowRightIcon aria-hidden="true" size={20} weight="bold" />
                 </Link>
                 <LandingCopyPromptButton
                   className="rounded-xl border-[var(--landing-accent)] bg-transparent px-5 py-3 font-ds-mono text-ds-mono-caps uppercase text-[var(--landing-accent-bright)] hover:border-[var(--landing-accent-bright)] hover:bg-[color:rgb(var(--landing-glow)/0.1)] sm:w-auto"
@@ -499,7 +500,7 @@ function LandingWorkbench({
                 )
               }
             >
-              <Plus aria-hidden="true" size={13} weight="bold" />
+              <PlusIcon aria-hidden="true" size={13} weight="bold" />
               {config.actionLabel}
             </button>
           </div>
@@ -539,19 +540,19 @@ function LandingStats({ libraryId }: { libraryId: LibraryLandingId }) {
   const metrics = [
     {
       href: 'https://www.npmjs.com/org/tanstack',
-      icon: DownloadSimple,
+      icon: DownloadSimpleIcon,
       label: 'total downloads',
       value: formatCompactNumber(stats?.npm?.totalDownloads),
     },
     {
       href: 'https://www.npmjs.com/org/tanstack',
-      icon: CalendarDots,
+      icon: CalendarDotsIcon,
       label: 'weekly downloads',
       value: formatFullNumber(downloads?.weeklyDownloads),
     },
     {
       href: `https://github.com/${library.repo}`,
-      icon: Star,
+      icon: StarIcon,
       label: 'GitHub stars',
       value: formatFullNumber(stats?.github?.starCount),
     },
@@ -617,15 +618,17 @@ function FeatureSection({
   return (
     <section className="border-b border-border-subtle bg-background-default px-5 py-16 md:px-10 lg:px-12 lg:py-20 2xl:px-20">
       <div className="mx-auto w-full max-w-[96rem]">
-        <LandingEyebrow icon={<ArrowsClockwise aria-hidden="true" size={14} />}>
+        <LandingEyebrow
+          icon={<ArrowsClockwiseIcon aria-hidden="true" size={14} />}
+        >
           {distinction}
         </LandingEyebrow>
 
-        <div className="mt-12 grid items-stretch gap-10 lg:grid-cols-[15.5rem_minmax(0,1fr)] lg:gap-14">
+        <div className="mt-12 grid items-stretch gap-10 lg:grid-cols-[minmax(15.5rem,max-content)_minmax(0,1fr)] lg:gap-14">
           <div
             role="tablist"
             aria-label="Product capabilities"
-            className="flex gap-5 overflow-x-auto pb-2 lg:flex-col lg:items-start lg:overflow-visible lg:pb-0"
+            className="fade-x fade-size-x-sm flex gap-5 overflow-x-auto pb-2 lg:flex-col lg:items-start lg:overflow-visible lg:pb-0 lg:fade-none-x"
           >
             {features.map((feature, index) => {
               const FeatureIcon = feature.icon
@@ -642,7 +645,7 @@ function FeatureSection({
                   aria-controls={tabPanelId}
                   aria-selected={index === activeIndex}
                   tabIndex={index === activeIndex ? 0 : -1}
-                  className="inline-flex shrink-0 items-center gap-3 border-b border-border-default pb-4 text-left font-ds-display text-ds-heading-5 text-text-muted transition-colors hover:text-text-primary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-selected:border-[var(--landing-accent-bright)] aria-selected:text-[var(--landing-accent-bright)] lg:text-ds-heading-3"
+                  className="inline-flex shrink-0 items-center gap-3 whitespace-nowrap border-b border-border-default pb-4 text-left font-ds-display text-ds-heading-5 text-text-muted transition-colors hover:text-text-primary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-selected:border-[var(--landing-accent-bright)] aria-selected:text-[var(--landing-accent-bright)] lg:text-ds-heading-3"
                   onClick={() => setActiveIndex(index)}
                   onKeyDown={(event) => {
                     let nextIndex: number | undefined
@@ -706,7 +709,7 @@ function LifecycleSection({
       <div className="mx-auto grid w-full max-w-[90rem] items-center gap-14 lg:grid-cols-[minmax(18rem,0.9fr)_minmax(32rem,1.1fr)] lg:gap-16">
         <div className="max-w-[36rem]">
           <LandingEyebrow
-            icon={<ArrowsClockwise aria-hidden="true" size={14} />}
+            icon={<ArrowsClockwiseIcon aria-hidden="true" size={14} />}
           >
             {lifecycle.label}
           </LandingEyebrow>
@@ -752,7 +755,7 @@ function FlowSection({ flow }: { flow: LibraryLandingConfig['flow'] }) {
   return (
     <section className="min-h-[37.5rem] border-b border-border-subtle bg-background-default px-5 py-16 md:px-10 lg:px-12 lg:py-20 2xl:px-20">
       <div className="mx-auto flex w-full max-w-[70rem] flex-col items-center text-center">
-        <LandingEyebrow icon={<Swap aria-hidden="true" size={16} />}>
+        <LandingEyebrow icon={<SwapIcon aria-hidden="true" size={16} />}>
           {flow.label}
         </LandingEyebrow>
         <h2 className="mt-6 max-w-[47rem] text-ds-heading-1 md:text-ds-display-sm">

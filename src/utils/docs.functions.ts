@@ -9,6 +9,8 @@ import { isValidRepoPath, MAX_REPO_PATH_LENGTH } from './repo-path'
 import { removeLeadingSlash } from './utils'
 import type { DocsRedirectManifest } from './docs-redirects'
 import type { GitHubFileNode } from './documents.server'
+import { getBranch, getLibrary } from '~/libraries'
+import { getClientExampleConfig } from './client-example-config'
 
 export type DocsTreeNode = {
   path: string
@@ -27,6 +29,13 @@ type RepoDirectoryRequest = {
   repo: string
   branch: string
   startingPath: string
+}
+
+type ClientExampleRequest = {
+  example: string
+  framework: string
+  libraryId: string
+  version: string
 }
 
 // Inputs feed into a database cache key + a GitHub API URL. They must be
@@ -70,6 +79,13 @@ const repoDirectoryInput = v.object({
   repo: repoSchema,
   branch: branchSchema,
   startingPath: repoPathSchema,
+})
+
+const clientExampleInput = v.object({
+  example: repoPathSchema,
+  framework: v.pipe(v.string(), v.maxLength(50)),
+  libraryId: v.pipe(v.string(), v.maxLength(50)),
+  version: branchSchema,
 })
 
 const docsManifestInput = v.object({
@@ -124,6 +140,10 @@ const loadGitHubContentCacheServerModule = createServerOnlyFn(
   () => import('./github-content-cache.server'),
 )
 
+const loadGitHubExampleServerModule = createServerOnlyFn(
+  () => import('./github-example.server'),
+)
+
 function buildUnavailableFile(filePath: string) {
   if (filePath.toLowerCase().endsWith('.md')) {
     return temporarilyUnavailableMarkdown
@@ -141,13 +161,19 @@ async function readRepoFileOrFallback(
     await loadDocumentsServerModule()
 
   try {
-    return await fetchRepoFile(repo, branch, filePath)
+    return {
+      file: await fetchRepoFile(repo, branch, filePath),
+      isFallback: false,
+    }
   } catch (error) {
     if (!isRecoverableGitHubContentError(error)) {
       throw error
     }
 
-    return buildUnavailableFile(filePath)
+    return {
+      file: buildUnavailableFile(filePath),
+      isFallback: true,
+    }
   }
 }
 
@@ -403,19 +429,24 @@ export const fetchDocs = createServerFn({ method: 'GET' })
   .validator(repoFileInput)
   .handler(async ({ data }: { data: RepoFileRequest }) => {
     const { repo, branch, filePath } = data
-    const file = await readRepoFileOrFallback(repo, branch, filePath)
+    const result = await readRepoFileOrFallback(repo, branch, filePath)
 
-    if (!file) {
+    if (!result.file) {
       throw notFound()
     }
 
     const { extractFrontMatter } = await loadDocumentsServerModule()
-    const frontMatter = extractFrontMatter(file)
+    const frontMatter = extractFrontMatter(result.file)
     const description =
       frontMatter.userDescription ?? removeMarkdown(frontMatter.excerpt ?? '')
     const keywords = extractFrontMatterKeywords(frontMatter.data.keywords)
 
-    setDocsCacheHeaders('public, max-age=60, stale-while-revalidate=60')
+    setDocsCacheHeaders(
+      result.isFallback
+        ? 'no-store'
+        : 'public, max-age=3600, stale-while-revalidate=86400',
+    )
+    if (result.isFallback) setResponseHeader('Cache-Control', 'no-store')
 
     return {
       content: frontMatter.content,
@@ -450,15 +481,20 @@ export const fetchFile = createServerFn({ method: 'GET' })
   .validator(repoFileInput)
   .handler(async ({ data }: { data: RepoFileRequest }) => {
     const { repo, branch, filePath } = data
-    const file = await readRepoFileOrFallback(repo, branch, filePath)
+    const result = await readRepoFileOrFallback(repo, branch, filePath)
 
-    if (!file) {
+    if (!result.file) {
       throw notFound()
     }
 
-    setDocsCacheHeaders('public, max-age=300, stale-while-revalidate=300')
+    setDocsCacheHeaders(
+      result.isFallback
+        ? 'no-store'
+        : 'public, max-age=300, stale-while-revalidate=300',
+    )
+    if (result.isFallback) setResponseHeader('Cache-Control', 'no-store')
 
-    return file
+    return result.file
   })
 
 export const fetchRepoDirectoryContents = createServerFn({
@@ -484,6 +520,53 @@ export const fetchRepoDirectoryContents = createServerFn({
     setDocsCacheHeaders('public, max-age=300, stale-while-revalidate=300')
 
     return githubContents
+  })
+
+export const fetchClientExampleFiles = createServerFn({ method: 'GET' })
+  .validator(clientExampleInput)
+  .handler(async ({ data }: { data: ClientExampleRequest }) => {
+    const config = getClientExampleConfig({
+      framework: data.framework,
+      libraryId: data.libraryId,
+      slug: data.example,
+      version: data.version,
+    })
+
+    if (!config) {
+      return {
+        success: false as const,
+        error: 'Example is not supported by the client runtime',
+        reason: 'not-found' as const,
+      }
+    }
+
+    const library = getLibrary(config.libraryId)
+    const gitRef = getBranch(library, data.version)
+    const examplePath = `examples/${config.framework}/${config.slug}`
+    const {
+      ensureCacheableFetchExampleFilesResponse,
+      fetchExampleFiles,
+      isFetchExampleFilesResponse,
+    } = await loadGitHubExampleServerModule()
+    const { getCachedDocsArtifact } = await loadGitHubContentCacheServerModule()
+    const result = await getCachedDocsArtifact({
+      artifactKey: 'workspace-v1',
+      artifactType: 'client-example',
+      build: async () =>
+        ensureCacheableFetchExampleFilesResponse(
+          await fetchExampleFiles(library.repo, gitRef, examplePath, {
+            preserveBinary: true,
+          }),
+        ),
+      docsRoot: examplePath,
+      gitRef,
+      isValue: isFetchExampleFilesResponse,
+      repo: library.repo,
+    })
+
+    setDocsCacheHeaders('public, max-age=300, stale-while-revalidate=300')
+
+    return result
   })
 
 function flattenDocsNodes(nodes: Array<DocsTreeNode>): Array<DocsTreeNode> {

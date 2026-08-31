@@ -1,16 +1,94 @@
+import { matchSorter } from 'match-sorter'
 import { findLibrary, type LibrarySlim } from '~/libraries'
+import { SITE_URL } from '~/utils/site'
 
 const listJoiner = new Intl.ListFormat('en-US', {
   style: 'long',
   type: 'conjunction',
 })
 
+const authorAliases = new Map<string, string>([
+  ['TkDodo', 'Dominik Dorfmeister'],
+])
+
+export type BlogCardPost = {
+  slug: string
+  title: string
+  published: string
+  excerpt: string
+  headerImage: string | undefined
+  authors: Array<string>
+  library: string | undefined
+  externalUrl?: string
+  source?: string
+}
+
+export type BlogAuthorIdentity = {
+  type: 'Organization' | 'Person'
+  name: string
+  url?: string
+}
+
+type BlogAuthorProfile = {
+  name: string
+  github: string
+}
+
+export function normalizeBlogAuthor(author: string) {
+  return authorAliases.get(author) ?? author
+}
+
+export function normalizeBlogAuthors(authors: Array<string>) {
+  const normalizedAuthors: Array<string> = []
+  const seen = new Set<string>()
+
+  for (const author of authors) {
+    const normalizedAuthor = normalizeBlogAuthor(author)
+
+    if (!seen.has(normalizedAuthor)) {
+      seen.add(normalizedAuthor)
+      normalizedAuthors.push(normalizedAuthor)
+    }
+  }
+
+  return normalizedAuthors
+}
+
+export function getBlogAuthorIdentities(
+  authors: Array<string>,
+  profiles: ReadonlyArray<BlogAuthorProfile>,
+): Array<BlogAuthorIdentity> {
+  const normalizedAuthors = normalizeBlogAuthors(authors)
+
+  if (!normalizedAuthors.length) {
+    return [
+      {
+        type: 'Organization',
+        name: 'TanStack',
+        url: `${SITE_URL}/`,
+      },
+    ]
+  }
+
+  return normalizedAuthors.map((name) => {
+    const profile = profiles.find((candidate) => candidate.name === name)
+
+    return {
+      type: 'Person',
+      name,
+      ...(profile ? { url: `https://github.com/${profile.github}` } : {}),
+    }
+  })
+}
+
 export function formatAuthors(authors: Array<string>) {
-  if (!authors.length) {
+  const normalizedAuthors = normalizeBlogAuthors(authors)
+
+  if (!normalizedAuthors.length) {
     return 'TanStack'
   }
 
-  return listJoiner.format(authors)
+  return listJoiner.format(normalizedAuthors)
 }
 
 function getUtcDateString(date = new Date()) {
@@ -34,6 +112,13 @@ export function formatPublishedDate(published: string) {
 
 export function isPublishedDateReleased(published: string, now = new Date()) {
   return published <= getUtcDateString(now)
+}
+
+export function isBlogPostUnpublished(
+  post: { draft?: boolean; published: string },
+  now = new Date(),
+) {
+  return Boolean(post.draft) || !isPublishedDateReleased(post.published, now)
 }
 
 export function publishedDateToUTCString(published: string) {
@@ -63,8 +148,32 @@ export function getDistinctAuthors(
   const authors = new Set<string>()
   for (const post of posts) {
     for (const author of post.authors) {
-      authors.add(author)
+      authors.add(normalizeBlogAuthor(author))
     }
   }
   return [...authors].sort((a, b) => a.localeCompare(b))
+}
+
+export function searchBlogCardPosts(
+  posts: Array<BlogCardPost>,
+  query: string | undefined,
+) {
+  const trimmedQuery = query?.trim()
+
+  if (!trimmedQuery) {
+    return posts
+  }
+
+  return matchSorter(posts, trimmedQuery, {
+    keys: [
+      'title',
+      'excerpt',
+      (post) => post.authors.join(' '),
+      (post) =>
+        getBlogLibraries(post.library)
+          .map((library) => `${library.id} ${library.name}`)
+          .join(' '),
+      (post) => post.library ?? '',
+    ],
+  })
 }

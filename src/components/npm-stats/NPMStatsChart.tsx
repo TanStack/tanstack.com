@@ -13,17 +13,18 @@ import {
   ruleY,
   type ChartLinearGradient,
   type ChartPoint,
+  type ChartTooltipContentContext,
 } from '@tanstack/charts'
-import { focusX, focusY } from '@tanstack/charts/focus'
 import { renderChartSvgWithResources } from '@tanstack/charts/svg/resources'
-import { Chart } from '@tanstack/react-charts'
+import { tooltip } from '@tanstack/charts/tooltip'
+import { Chart } from '@tanstack/charts/react'
 import { GIFEncoder, applyPalette, quantize } from 'gifenc'
 import {
-  Check,
-  Code as Code2,
-  Copy,
-  Download,
-  List,
+  CheckIcon,
+  CodeIcon,
+  CopyIcon,
+  DownloadIcon,
+  ListIcon,
 } from '@phosphor-icons/react'
 import {
   DropdownMenu,
@@ -357,7 +358,6 @@ function getVerticalCategoricalXAxisLayout({
 
   if (!shouldRotateTicks) {
     return {
-      labelOffset: 35,
       marginBottom: 64,
       tickRotate: undefined,
     }
@@ -371,7 +371,6 @@ function getVerticalCategoricalXAxisLayout({
   const maxMarginBottom = clampNumber(Math.round(height * 0.45), 88, 160)
 
   return {
-    labelOffset: 55,
     marginBottom: clampNumber(44 + rotatedTickHeight, 76, maxMarginBottom),
     tickRotate: -30,
   }
@@ -798,27 +797,33 @@ function createLatestBarExportChart({
                 radius: 2,
               }),
         ],
-    x: isHorizontalBar
-      ? {
-          scale: numericScale,
-          label: 'Downloads',
-          labelOffset: 35,
-          format: formatCompactAxisNumber,
-          grid: true,
-        }
-      : {
-          scale: categoricalScale,
-          labelOffset: verticalXAxisLayout.labelOffset,
-          tickRotate: verticalXAxisLayout.tickRotate,
-        },
-    y: isHorizontalBar
-      ? { scale: categoricalScale }
-      : {
-          scale: numericScale,
-          label: 'Downloads',
-          format: formatCompactAxisNumber,
-          grid: true,
-        },
+    scales: {
+      x: isHorizontalBar
+        ? {
+            scale: numericScale,
+            axis: {
+              label: { text: 'Downloads', offset: 35 },
+              ticks: { format: formatCompactAxisNumber },
+            },
+            grid: true,
+          }
+        : {
+            scale: categoricalScale,
+            axis: {
+              tickLabels: { rotate: verticalXAxisLayout.tickRotate },
+            },
+          },
+      y: isHorizontalBar
+        ? { scale: categoricalScale }
+        : {
+            scale: numericScale,
+            axis: {
+              label: 'Downloads',
+              ticks: { format: formatCompactAxisNumber },
+            },
+            grid: true,
+          },
+    },
     gradients: getTanStackGradients(fillGradients),
     margin: {
       top: 20,
@@ -1537,7 +1542,7 @@ function ChartActions({
               disabled={disabled}
               type="button"
             >
-              <Download className="size-3" />
+              <DownloadIcon className="size-3" />
             </button>
           </DropdownMenuTrigger>
         </Tooltip>
@@ -1586,7 +1591,7 @@ function ChartActions({
           onClick={onToggleLegend}
           type="button"
         >
-          <List className="size-3" />
+          <ListIcon className="size-3" />
         </button>
       </Tooltip>
       {embedConfig ? <EmbedChartAction embedConfig={embedConfig} /> : null}
@@ -1618,7 +1623,11 @@ function CopyButton({
       onClick={onCopy}
       type="button"
     >
-      {copied ? <Check className="size-3" /> : <Copy className="size-3" />}
+      {copied ? (
+        <CheckIcon className="size-3" />
+      ) : (
+        <CopyIcon className="size-3" />
+      )}
       {copied ? 'Copied' : label}
     </button>
   )
@@ -1712,7 +1721,7 @@ function EmbedChartAction({
             className={chartActionButtonStyles}
             type="button"
           >
-            <Code2 className="size-3" />
+            <CodeIcon className="size-3" />
           </button>
         </DropdownMenuTrigger>
       </Tooltip>
@@ -2174,6 +2183,8 @@ type NpmBarPoint = {
   value2: number
 }
 
+type NpmChartDatum = NpmHistoryPoint | NpmStackedHistoryPoint | NpmBarPoint
+
 type NpmStatsChartInput = {
   barOrientation: BarOrientation
   bars: Array<NpmBarPoint>
@@ -2192,7 +2203,84 @@ type NpmStatsChartInput = {
   yLabel?: string
 }
 
-const npmStatsChart = defineChart<NpmStatsChartInput>()(({ input }) => {
+function getNpmChartTooltipContent(
+  points: ReadonlyArray<ChartPoint<NpmChartDatum>>,
+  context: ChartTooltipContentContext,
+  input: NpmStatsChartInput,
+) {
+  const first = points[0]
+  if (!first) return { rows: [] }
+
+  const formatValue = (point: ChartPoint<NpmChartDatum>) => {
+    const datum = point.datum
+    const value = 'value1' in datum ? datum.value2 - datum.value1 : datum.value
+
+    return input.yFormat?.(value) ?? value.toLocaleString()
+  }
+
+  if (points.length > 1) {
+    const title =
+      input.viewMode === 'history'
+        ? `Date: ${context.formatX(first.xValue)}`
+        : input.barOrientation === 'horizontal'
+          ? context.formatY(first.yValue)
+          : context.formatX(first.xValue)
+
+    return {
+      title,
+      rows: points.map((point) => ({
+        color: point.datum.color,
+        label: point.groupLabel,
+        value: formatValue(point),
+      })),
+    }
+  }
+
+  return {
+    title: first.groupLabel,
+    color: first.datum.color,
+    rows:
+      input.viewMode === 'history'
+        ? [
+            { label: 'Date', value: context.formatX(first.xValue) },
+            {
+              label: input.yLabel ?? 'Downloads',
+              value: formatValue(first),
+            },
+          ]
+        : [
+            {
+              label: input.xLabel ?? input.yLabel ?? 'Downloads',
+              value: formatValue(first),
+            },
+          ],
+  }
+}
+
+function createNpmStatsChart(input: NpmStatsChartInput) {
+  const definition = defineChart(() => createNpmStatsChartSpec(input))
+
+  return defineChart(definition, {
+    svgAnimation: {
+      duration: chartUpdateTransitionDurationMs,
+      easing: 'ease-out',
+    },
+    focus:
+      input.viewMode === 'latest' && input.barOrientation === 'horizontal'
+        ? 'group-y'
+        : 'group-x',
+    tooltip: {
+      use: tooltip,
+      anchor: 'pointer',
+      content: (points, context) =>
+        getNpmChartTooltipContent(points, context, input),
+      placement: ['top', 'right', 'left', 'bottom'],
+      sort: 'color-domain',
+    },
+  })
+}
+
+function createNpmStatsChartSpec(input: NpmStatsChartInput) {
   const common = {
     gradients: input.gradients,
     margin: {
@@ -2236,13 +2324,17 @@ const npmStatsChart = defineChart<NpmStatsChartInput>()(({ input }) => {
             radius: input.chartType === 'stacked-bar' ? undefined : 2,
           }),
         ],
-        x: {
-          scale: numericScale,
-          label: input.xLabel,
-          format: formatCompactAxisNumber,
-          grid: true,
+        scales: {
+          x: {
+            scale: numericScale,
+            axis: {
+              label: input.xLabel,
+              ticks: { format: formatCompactAxisNumber },
+            },
+            grid: true,
+          },
+          y: { scale: categoricalScale },
         },
-        y: { scale: categoricalScale },
       }
     }
 
@@ -2266,12 +2358,16 @@ const npmStatsChart = defineChart<NpmStatsChartInput>()(({ input }) => {
           radius: input.chartType === 'stacked-bar' ? undefined : 2,
         }),
       ],
-      x: { scale: categoricalScale },
-      y: {
-        scale: numericScale,
-        label: input.yLabel,
-        format: input.yFormat,
-        grid: true,
+      scales: {
+        x: { scale: categoricalScale },
+        y: {
+          scale: numericScale,
+          axis: {
+            label: input.yLabel,
+            ticks: { format: input.yFormat },
+          },
+          grid: true,
+        },
       },
     }
   }
@@ -2289,7 +2385,7 @@ const npmStatsChart = defineChart<NpmStatsChartInput>()(({ input }) => {
       : [new Date(0), new Date(86_400_000)])
   const x = {
     scale: d3.scaleUtc().domain(dateDomain),
-    label: input.xLabel,
+    axis: { label: input.xLabel },
     grid: true,
   }
   const curve = d3Curve(d3.curveMonotoneX)
@@ -2332,15 +2428,19 @@ const npmStatsChart = defineChart<NpmStatsChartInput>()(({ input }) => {
           curve,
         }),
       ],
-      x,
-      y: {
-        scale: d3
-          .scaleLinear()
-          .domain([valueExtent[0] ?? 0, valueExtent[1] ?? 1])
-          .nice(5),
-        label: input.yLabel,
-        format: input.yFormat,
-        grid: true,
+      scales: {
+        x,
+        y: {
+          scale: d3
+            .scaleLinear()
+            .domain([valueExtent[0] ?? 0, valueExtent[1] ?? 1])
+            .nice(5),
+          axis: {
+            label: input.yLabel,
+            ticks: { format: input.yFormat },
+          },
+          grid: true,
+        },
       },
       clip: !!input.timelineDomain,
     }
@@ -2382,22 +2482,67 @@ const npmStatsChart = defineChart<NpmStatsChartInput>()(({ input }) => {
         curve,
       }),
     ],
-    x,
-    y: {
-      scale: d3
-        .scaleLinear()
-        .domain([stackedExtent[0] ?? 0, stackedExtent[1] ?? 1])
-        .nice(5),
-      label: input.yLabel,
-      format: input.yFormat,
-      grid: true,
+    scales: {
+      x,
+      y: {
+        scale: d3
+          .scaleLinear()
+          .domain([stackedExtent[0] ?? 0, stackedExtent[1] ?? 1])
+          .nice(5),
+        axis: {
+          label: input.yLabel,
+          ticks: { format: input.yFormat },
+        },
+        grid: true,
+      },
     },
     clip: !!input.timelineDomain,
   }
-})
+}
+
+type NpmStatsChartDefinitionRevision = {
+  barOrientation: BarOrientation
+  barSort: LatestBarSort
+  binType: BinType
+  chartType: ChartType
+  gradientIdPrefix: string
+  height: number
+  normalizeBaseline: boolean
+  packages: PackageGroup[]
+  queryData: NpmQueryData | undefined
+  range: TimeRange
+  showBaseline: boolean
+  showDataMode: ShowDataMode
+  timelineEnd: number | undefined
+  timelineStart: number | undefined
+  today: number
+  transform: TransformMode
+  viewMode: ViewMode
+  width: number
+}
+
+function useNpmStatsChartDefinition(
+  input: NpmStatsChartInput,
+  revision: NpmStatsChartDefinitionRevision,
+) {
+  const cached = React.useRef<{
+    definition: ReturnType<typeof createNpmStatsChart>
+    revision: NpmStatsChartDefinitionRevision
+  }>(undefined)
+
+  if (!cached.current || cached.current.revision !== revision) {
+    cached.current = {
+      definition: createNpmStatsChart(input),
+      revision,
+    }
+  }
+
+  return cached.current.definition
+}
 
 function ChartFigure({
   colorLegendEntries,
+  definitionRevision,
   footer,
   height,
   input,
@@ -2408,6 +2553,7 @@ function ChartFigure({
   width,
 }: {
   colorLegendEntries: Array<ColorLegendEntry>
+  definitionRevision: NpmStatsChartDefinitionRevision
   footer?: React.ReactNode
   height: number
   input: NpmStatsChartInput
@@ -2432,6 +2578,7 @@ function ChartFigure({
     reservedHeight: legendHeight + footerHeight,
     totalHeight: height,
   })
+  const definition = useNpmStatsChartDefinition(input, definitionRevision)
 
   React.useEffect(() => {
     return () => {
@@ -2465,8 +2612,7 @@ function ChartFigure({
         ))}
       </div>
       <Chart
-        definition={npmStatsChart}
-        input={input}
+        definition={definition}
         width={width}
         height={chartHeight}
         ariaLabel={
@@ -2474,16 +2620,6 @@ function ChartFigure({
             ? 'npm download totals by package'
             : 'npm downloads by date'
         }
-        animate={{
-          duration: chartUpdateTransitionDurationMs,
-          easing: 'ease-out',
-        }}
-        focus={
-          input.viewMode === 'latest' && input.barOrientation === 'horizontal'
-            ? focusY
-            : focusX
-        }
-        tooltip={{ formatGroup: formatNpmChartTooltip }}
         renderSvg={renderChartSvgWithResources}
         onRender={({ svg }) => {
           svgRef.current = svg
@@ -2498,26 +2634,6 @@ function ChartFigure({
     </div>
   )
 }
-
-function formatNpmChartTooltip(
-  points: ReadonlyArray<ChartPoint<NpmChartDatum>>,
-) {
-  const first = points[0]
-  if (!first) return ''
-
-  const date =
-    'date' in first.datum
-      ? first.datum.date.toLocaleDateString('en-US', {
-          month: 'long',
-          day: 'numeric',
-          year: 'numeric',
-        })
-      : undefined
-  const labels = [...new Set(points.map((point) => point.datum.label))]
-  return [date, ...labels].filter(Boolean).join('\n')
-}
-
-type NpmChartDatum = NpmHistoryPoint | NpmStackedHistoryPoint | NpmBarPoint
 
 // Props for the NPMStatsChart component
 export type NPMStatsChartProps = {
@@ -2579,6 +2695,50 @@ export function NPMStatsChart({
     /[^a-zA-Z0-9_-]/g,
     '',
   )}`
+  const now = getUtcToday()
+  const today = now.getTime()
+  const chartDefinitionRevision = React.useMemo(
+    (): NpmStatsChartDefinitionRevision => ({
+      barOrientation,
+      barSort,
+      binType,
+      chartType,
+      gradientIdPrefix,
+      height,
+      normalizeBaseline,
+      packages,
+      queryData,
+      range,
+      showBaseline,
+      showDataMode,
+      timelineEnd,
+      timelineStart,
+      today,
+      transform,
+      viewMode,
+      width,
+    }),
+    [
+      barOrientation,
+      barSort,
+      binType,
+      chartType,
+      gradientIdPrefix,
+      height,
+      normalizeBaseline,
+      packages,
+      queryData,
+      range,
+      showBaseline,
+      showDataMode,
+      timelineEnd,
+      timelineStart,
+      today,
+      transform,
+      viewMode,
+      width,
+    ],
+  )
   const legendRef = React.useRef<HTMLDivElement>(null)
   const svgRef = React.useRef<SVGSVGElement | null>(null)
   const [uncontrolledShowLegend, setUncontrolledShowLegend] =
@@ -2767,8 +2927,6 @@ export function NPMStatsChart({
   const effectiveTransform =
     viewMode === 'history' && chartType === 'line' ? transform : 'none'
   const useBaseline = viewMode === 'history'
-
-  const now = getUtcToday()
 
   let startDate = (() => {
     if (viewMode === 'latest') {
@@ -3419,6 +3577,7 @@ export function NPMStatsChart({
       {width > 0 ? (
         <ChartFigure
           colorLegendEntries={colorLegendEntries}
+          definitionRevision={chartDefinitionRevision}
           footer={
             viewMode === 'history' && timelineScrubberMaxIndex > 0 ? (
               <TimelineRangeScrubber

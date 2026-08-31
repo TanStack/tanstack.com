@@ -5,19 +5,19 @@ import { renderDocument, renderHtml } from '@tanstack/markdown/html'
 import { Markdown } from '@tanstack/markdown/react'
 import { streamingMarkdownExtension } from '@tanstack/markdown/extensions/streaming'
 import {
-  ArrowRight,
-  BracketsCurly as Braces,
-  Check,
-  FileText,
-  Highlighter,
-  LockKey as LockKeyhole,
-  Package as PackageOpen,
-  Pause,
-  Play,
-  Radio,
-  ArrowCounterClockwise as RotateCcw,
-  ShieldCheck,
-  X,
+  ArrowRightIcon,
+  BracketsCurlyIcon,
+  CheckIcon,
+  FileTextIcon,
+  HighlighterIcon,
+  LockKeyIcon,
+  PackageIcon,
+  PauseIcon,
+  PlayIcon,
+  RadioIcon,
+  ArrowCounterClockwiseIcon,
+  ShieldCheckIcon,
+  XIcon,
 } from '@phosphor-icons/react'
 
 import { LibraryWordmark } from '~/components/LibraryWordmark'
@@ -172,7 +172,7 @@ export default function MarkdownLanding() {
         <LandingSectionIntro
           centered
           eyebrow="The durable layer"
-          icon={<Braces aria-hidden="true" size={15} />}
+          icon={<BracketsCurlyIcon aria-hidden="true" size={15} />}
           title="The AST is the product."
           body="Parsing does not trap content inside a renderer. Edit the source and inspect the serializable tree, deterministic HTML, or React output."
         />
@@ -183,7 +183,7 @@ export default function MarkdownLanding() {
         <div className="grid items-center gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
           <LandingSectionIntro
             eyebrow="Accumulated AI responses"
-            icon={<Radio aria-hidden="true" size={15} />}
+            icon={<RadioIcon aria-hidden="true" size={15} />}
             title="Stream the text. Keep the parser stateless."
             body="Append each chunk and pass the complete string through Markdown. The optional streaming profile reparses synchronously, with no incremental state to coordinate or recover."
           />
@@ -195,7 +195,7 @@ export default function MarkdownLanding() {
         <div className="grid items-center gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
           <LandingSectionIntro
             eyebrow="A deliberate profile"
-            icon={<FileText aria-hidden="true" size={15} />}
+            icon={<FileTextIcon aria-hidden="true" size={15} />}
             title="It does less Markdown on purpose."
             body="Technical docs need a known vocabulary, not an open-ended compiler platform. New syntax has to justify its bytes, ambiguity, and maintenance cost."
           />
@@ -215,7 +215,7 @@ export default function MarkdownLanding() {
         <div className="mt-12 grid items-center gap-12 border-t border-border-subtle pt-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
           <LandingSectionIntro
             eyebrow="Boundary behavior"
-            icon={<ShieldCheck aria-hidden="true" size={15} />}
+            icon={<ShieldCheckIcon aria-hidden="true" size={15} />}
             title="Unsafe surprises are opt-in."
             body="Raw HTML starts escaped, executable URL schemes are stripped, and text, attributes, and code are encoded at render time."
           />
@@ -227,7 +227,7 @@ export default function MarkdownLanding() {
         <div className="grid items-center gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
           <LandingSectionIntro
             eyebrow="Size ledger"
-            icon={<PackageOpen aria-hidden="true" size={15} />}
+            icon={<PackageIcon aria-hidden="true" size={15} />}
             title="A parser should not outweigh the page."
             body="Split entry points keep the parser, renderers, framework adapters, and docs extensions independent. Import only the layer the page needs."
           />
@@ -239,7 +239,7 @@ export default function MarkdownLanding() {
         <div className="grid items-center gap-12 lg:grid-cols-[1.08fr_0.92fr] lg:gap-16">
           <LandingSectionIntro
             eyebrow="Content, then color"
-            icon={<Highlighter aria-hidden="true" size={15} />}
+            icon={<HighlighterIcon aria-hidden="true" size={15} />}
             title="Syntax highlighting stays outside the parser."
             body="Code fences carry language and metadata. An explicit highlighter renders them later, so the core never silently imports a grammar engine."
           />
@@ -260,7 +260,7 @@ export default function MarkdownLanding() {
             </p>
             <span className="mt-6 inline-flex items-center gap-2 text-ds-label-md">
               Explore Highlight
-              <ArrowRight
+              <ArrowRightIcon
                 aria-hidden="true"
                 className="transition-transform group-hover:translate-x-1"
                 size={16}
@@ -566,11 +566,11 @@ function StreamingReplay() {
           }}
         >
           {isComplete ? (
-            <RotateCcw size={13} aria-hidden="true" />
+            <ArrowCounterClockwiseIcon size={13} aria-hidden="true" />
           ) : isPlaying ? (
-            <Pause size={13} aria-hidden="true" />
+            <PauseIcon size={13} aria-hidden="true" />
           ) : (
-            <Play size={13} aria-hidden="true" />
+            <PlayIcon size={13} aria-hidden="true" />
           )}
           {isComplete ? 'Replay stream' : isPlaying ? 'Pause' : 'Resume'}
         </button>
@@ -645,13 +645,13 @@ function SyntaxList({
         {items.map((item) => (
           <li key={item} className="flex items-start gap-3 text-sm font-bold">
             {included ? (
-              <Check
+              <CheckIcon
                 size={16}
                 aria-hidden="true"
                 className="mt-0.5 shrink-0 text-emerald-600"
               />
             ) : (
-              <X
+              <XIcon
                 size={16}
                 aria-hidden="true"
                 className="mt-0.5 shrink-0 text-zinc-400"
@@ -690,7 +690,7 @@ function SafetyProof() {
       </div>
       <div className="flex flex-wrap gap-x-5 gap-y-2 border-t border-border-subtle px-4 py-3 font-ds-mono text-ds-mono-caps-xs uppercase text-emerald-700 dark:text-emerald-400">
         <span className="inline-flex items-center gap-1.5">
-          <LockKeyhole size={12} aria-hidden="true" /> HTML escaped
+          <LockKeyIcon size={12} aria-hidden="true" /> HTML escaped
         </span>
         <span>Executable URL removed</span>
         <span>Markdown preserved</span>

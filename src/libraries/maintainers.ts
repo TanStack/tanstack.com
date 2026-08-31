@@ -145,7 +145,7 @@ export const allMaintainers: Maintainer[] = [
     maintainerOf: ['table', 'store'],
     contributorOf: ['virtual'],
     consultantOf: ['query'],
-    frameworkExpertise: ['react', 'preact', 'solid'],
+    frameworkExpertise: ['react', 'preact', 'solid', 'octane'],
     specialties: ['Data Grids', 'Performance', 'Dashboards'],
     social: {
       twitter: 'https://x.com/kevinvancott',
@@ -262,6 +262,19 @@ export const allMaintainers: Maintainer[] = [
     specialties: ['Sync Engines', 'Incremental View Maintenance'],
   },
   {
+    name: 'Wonsuk Choi',
+    avatar: 'https://github.com/sukvvon.png',
+    github: 'sukvvon',
+    maintainerOf: ['query'],
+    frameworkExpertise: ['react', 'preact'],
+    specialties: ['TypeScript', 'Test', 'Documentation'],
+    social: {
+      linkedIn: 'https://www.linkedin.com/in/sukvvon',
+      twitter: 'https://x.com/sukvvon',
+      bluesky: 'https://bsky.app/profile/sukvvon.bsky.social',
+    },
+  },
+  {
     name: 'Vedanta Somnathe',
     avatar: 'https://github.com/theVedanta.png',
     github: 'theVedanta',
@@ -339,19 +352,6 @@ export const allMaintainers: Maintainer[] = [
       twitter: 'https://x.com/manudeli_',
       bluesky: 'https://bsky.app/profile/manudeli.bsky.social',
       linkedIn: 'https://www.linkedin.com/in/jonghyeonko',
-    },
-  },
-  {
-    name: 'Wonsuk Choi',
-    avatar: 'https://github.com/sukvvon.png',
-    github: 'sukvvon',
-    maintainerOf: ['query'],
-    frameworkExpertise: ['react'],
-    specialties: ['TypeScript', 'Test'],
-    social: {
-      linkedIn: 'https://www.linkedin.com/in/sukvvon',
-      twitter: 'https://x.com/sukvvon',
-      bluesky: 'https://bsky.app/profile/sukvvon.bsky.social',
     },
   },
   {

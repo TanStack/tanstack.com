@@ -5,10 +5,10 @@ import { PaginationControls } from './PaginationControls'
 import { Spinner } from './Spinner'
 import { calculatePoints } from '~/utils/docFeedback.shared'
 import {
-  Medal,
-  ArrowSquareOut,
-  Lightbulb,
-  ChatCentered,
+  MedalIcon,
+  ArrowSquareOutIcon,
+  LightbulbIcon,
+  ChatCenteredIcon,
 } from '@phosphor-icons/react'
 import { Badge } from '~/ui'
 import { useState } from 'react'
@@ -43,7 +43,7 @@ export function UserFeedbackSection(_props: UserFeedbackSectionProps) {
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <Medal className="text-2xl text-blue-600 dark:text-blue-400" />
+              <MedalIcon className="text-2xl text-blue-600 dark:text-blue-400" />
               <h3 className="text-lg font-bold text-gray-900 dark:text-white">
                 Feedback Points
               </h3>
@@ -87,7 +87,7 @@ export function UserFeedbackSection(_props: UserFeedbackSectionProps) {
             className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1"
           >
             View Leaderboard
-            <ArrowSquareOut className="text-xs" />
+            <ArrowSquareOutIcon className="text-xs" />
           </Link>
         </div>
       </div>
@@ -125,9 +125,9 @@ export function UserFeedbackSection(_props: UserFeedbackSectionProps) {
                       {/* Icon */}
                       <div className="mt-1">
                         {item.type === 'note' ? (
-                          <ChatCentered className="text-blue-500" />
+                          <ChatCenteredIcon className="text-blue-500" />
                         ) : (
-                          <Lightbulb className="text-yellow-500" />
+                          <LightbulbIcon className="text-yellow-500" />
                         )}
                       </div>
 

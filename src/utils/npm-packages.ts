@@ -31,6 +31,7 @@ export const frameworkMeta: Record<Framework, { name: string; color: string }> =
     alpine: { name: 'Alpine', color: '#77C1D2' },
     marko: { name: 'Marko', color: '#44bfef' },
     ember: { name: 'Ember', color: '#E04E39' },
+    octane: { name: 'Octane', color: '#FF415A' },
     qwik: { name: 'Qwik', color: '#18B6F6' },
     vanilla: { name: 'Vanilla', color: '#F7DF1E' },
   }
@@ -83,6 +84,12 @@ export function getFrameworkPackageName(
   library: LibrarySlim,
   framework: Framework,
 ): string | null {
+  const packageName = library.frameworkPackageNames?.[framework]
+
+  if (packageName) {
+    return packageName
+  }
+
   // Vanilla doesn't have a framework adapter (uses core package)
   if (framework === 'vanilla') {
     return null

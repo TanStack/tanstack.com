@@ -1,14 +1,14 @@
 import * as React from 'react'
 import {
-  Check,
-  CaretDown as ChevronDown,
-  CaretLeft as ChevronLeft,
-  CaretRight as ChevronRight,
-  CaretDoubleLeft as ChevronsLeft,
-  CaretDoubleRight as ChevronsRight,
-  DotsThree as MoreHorizontal,
-  Pause,
-  Play,
+  CheckIcon,
+  CaretDownIcon,
+  CaretLeftIcon,
+  CaretRightIcon,
+  CaretDoubleLeftIcon,
+  CaretDoubleRightIcon,
+  DotsThreeIcon,
+  PauseIcon,
+  PlayIcon,
 } from '@phosphor-icons/react'
 import {
   DropdownMenu,
@@ -197,7 +197,7 @@ export function LatestBucketNavigator({
             </option>
           ))}
         </select>
-        <ChevronDown className="pointer-events-none absolute right-1.5 top-1/2 size-3 -translate-y-1/2 text-gray-500" />
+        <CaretDownIcon className="pointer-events-none absolute right-1.5 top-1/2 size-3 -translate-y-1/2 text-gray-500" />
       </div>
       <div className="flex items-center overflow-hidden rounded border border-gray-500/15 bg-white/70 shadow-xs dark:bg-gray-900/70">
         <button
@@ -207,7 +207,7 @@ export function LatestBucketNavigator({
           onClick={() => onBucketOffsetChange(bounds.minOffset)}
           type="button"
         >
-          <ChevronsLeft className="size-3.5" />
+          <CaretDoubleLeftIcon className="size-3.5" />
         </button>
         <button
           aria-label={`Previous ${binLabel}`}
@@ -216,7 +216,7 @@ export function LatestBucketNavigator({
           onClick={() => onBucketOffsetChange(clampedBucketOffset - 1)}
           type="button"
         >
-          <ChevronLeft className="size-3.5" />
+          <CaretLeftIcon className="size-3.5" />
         </button>
         <button
           aria-label={`Next ${binLabel}`}
@@ -225,7 +225,7 @@ export function LatestBucketNavigator({
           onClick={() => onBucketOffsetChange(clampedBucketOffset + 1)}
           type="button"
         >
-          <ChevronRight className="size-3.5" />
+          <CaretRightIcon className="size-3.5" />
         </button>
         <button
           aria-label={`Last ${binLabel}`}
@@ -234,7 +234,7 @@ export function LatestBucketNavigator({
           onClick={() => onBucketOffsetChange(bounds.maxOffset)}
           type="button"
         >
-          <ChevronsRight className="size-3.5" />
+          <CaretDoubleRightIcon className="size-3.5" />
         </button>
       </div>
       <div className="flex max-w-[348px] flex-1 items-center overflow-hidden rounded border border-gray-500/15 bg-white/70 shadow-xs dark:bg-gray-900/70">
@@ -247,9 +247,9 @@ export function LatestBucketNavigator({
           type="button"
         >
           {isPlaying ? (
-            <Pause className="size-3.5" />
+            <PauseIcon className="size-3.5" />
           ) : (
-            <Play className="size-3.5" />
+            <PlayIcon className="size-3.5" />
           )}
         </button>
         <DropdownMenu>
@@ -259,7 +259,7 @@ export function LatestBucketNavigator({
               className={borderedNavigatorButtonStyles}
               type="button"
             >
-              <MoreHorizontal className="size-3.5" />
+              <DotsThreeIcon className="size-3.5" />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -277,7 +277,7 @@ export function LatestBucketNavigator({
                 key={option.intervalMs}
                 onSelect={() => onPlaybackIntervalChange(option.intervalMs)}
               >
-                <Check
+                <CheckIcon
                   className={
                     option.intervalMs === playbackIntervalMs
                       ? 'size-3 opacity-100'
@@ -311,7 +311,7 @@ export function LatestBucketNavigator({
               className={menuItemStyles}
               onSelect={() => onLoopingChange(!isLooping)}
             >
-              <Check
+              <CheckIcon
                 className={
                   isLooping ? 'size-3 opacity-100' : 'size-3 opacity-0'
                 }

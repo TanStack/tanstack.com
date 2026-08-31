@@ -1,29 +1,24 @@
 import * as React from 'react'
 import { ClientOnly } from '@tanstack/react-router'
 import {
-  ArrowRight,
-  Atom,
-  Check,
-  CaretDown,
-  Copy,
-  Cube,
-  DownloadSimple,
-  GithubLogo,
-  OpenAiLogo,
-  CircleNotch,
-  ArrowCounterClockwise,
-  Rocket,
+  ArrowRightIcon,
+  CheckIcon,
+  CaretDownIcon,
+  CopyIcon,
+  DownloadSimpleIcon,
+  GithubLogoIcon,
+  OpenAiLogoIcon,
+  CircleNotchIcon,
+  ArrowCounterClockwiseIcon,
+  RocketIcon,
 } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
+import { ClaudeIcon, CursorIcon } from '~/components/CopyPageDropdown'
 import type {
   ApplicationStarterContext,
   ApplicationStarterResult,
 } from '~/utils/application-starter'
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '~/components/Collapsible'
+import { Panel, PanelContent, PanelTrigger } from '~/components/Panel'
 import {
   GeneratedPromptPreviewBody,
   GeneratedPromptPreviewHeader,
@@ -31,21 +26,21 @@ import {
   StarterLibraryRows,
   StarterPartnerRows,
   StarterTooltipProvider,
-} from '~/components/application-builder/parts'
+} from '~/components/application-starter/prompt-parts'
 import {
   buildStarterPromptDeployUrl,
   toneClasses,
-  type ApplicationStarterBuilderIntegration,
+  type ApplicationStarterIntegration,
   type StarterPromptDeployProvider,
   type StarterTone,
-} from '~/components/application-builder/shared'
-import { useApplicationBuilder } from '~/components/application-builder/useApplicationBuilder'
+} from '~/components/application-starter/prompt-shared'
+import { useApplicationStarter } from '~/components/application-starter/useApplicationStarter'
 import { PixelSpinner } from '~/components/ds/ui/PixelSpinner'
 import { usePrefersReducedMotion } from '~/utils/usePrefersReducedMotion'
 import { Button, Tooltip } from '~/ui'
 
 export interface ApplicationStarterProps {
-  builderIntegration?: ApplicationStarterBuilderIntegration
+  applicationStarterIntegration?: ApplicationStarterIntegration
   className?: string
   context: ApplicationStarterContext
   footerContent?: React.ReactNode
@@ -74,13 +69,15 @@ const LazyApplicationStarterHotkeys = React.lazy(() =>
 )
 
 const LazyDeployDialog = React.lazy(() =>
-  import('~/components/builder/DeployDialog').then((m) => ({
+  import('~/components/application-starter/DeployDialog').then((m) => ({
     default: m.DeployDialog,
   })),
 )
 
 const starterPackageManagers = ['pnpm', 'npm', 'yarn', 'bun'] as const
 const starterToolchains = ['biome', 'eslint'] as const
+const starterEyebrowClassName =
+  'font-ds-mono text-ds-mono-xs uppercase tracking-wider text-text-muted'
 
 type HostingDeployPartnerId = 'cloudflare' | 'lovable' | 'netlify' | 'railway'
 type StarterTransientAction =
@@ -139,7 +136,7 @@ function buildCursorStartUrl(prompt: string) {
 }
 
 export function ApplicationStarter({
-  builderIntegration,
+  applicationStarterIntegration,
   className,
   context,
   footerContent,
@@ -182,7 +179,7 @@ export function ApplicationStarter({
     partnerSuggestions,
     promptCopyNotice,
     result,
-    resetBuilder,
+    resetApplicationStarter,
     selectSuggestion,
     selectedPackageManager,
     selectedLibraries,
@@ -200,8 +197,8 @@ export function ApplicationStarter({
     toggleToolchain,
     updateInput,
     updateMigrationRepositoryUrl,
-  } = useApplicationBuilder({
-    builderIntegration,
+  } = useApplicationStarter({
+    applicationStarterIntegration,
     context,
     forceRouterOnly,
     mode,
@@ -272,7 +269,7 @@ export function ApplicationStarter({
     setIsHomePayoffLoading(false)
     void submitCurrentInput(overrideInput)
   }, [submitCurrentInput])
-  const resetHomeBuilder = React.useCallback(() => {
+  const resetHomeApplicationStarter = React.useCallback(() => {
     homePayoffLoadingRef.current = false
     pendingHomeSubmissionRef.current = undefined
     setIsHomePayoffLoading(false)
@@ -281,8 +278,8 @@ export function ApplicationStarter({
     hasPlayedHomeRevealRef.current = false
     setShowToolchainOptions(false)
     setShowPackageManagerOptions(false)
-    resetBuilder()
-  }, [resetBuilder])
+    resetApplicationStarter()
+  }, [resetApplicationStarter])
   const [placeholderIndex, setPlaceholderIndex] = React.useState(0)
   const [placeholderShowing, setPlaceholderShowing] = React.useState(true)
   React.useEffect(() => {
@@ -451,11 +448,11 @@ export function ApplicationStarter({
       disabled={!canUseFinalActions}
     >
       {isGeneratingPrompt ? (
-        <CircleNotch className="h-4 w-4 animate-spin" />
+        <CircleNotchIcon className="h-4 w-4 animate-spin" />
       ) : isPromptCopied ? (
-        <Check className="h-4 w-4" />
+        <CheckIcon className="h-4 w-4" />
       ) : (
-        <Copy className="h-4 w-4" />
+        <CopyIcon className="h-4 w-4" />
       )}
       {isGeneratingPrompt
         ? loadingPhrase
@@ -476,11 +473,11 @@ export function ApplicationStarter({
       disabled={!canUseFinalActions}
     >
       {isGeneratingPrompt ? (
-        <CircleNotch className="h-4 w-4 animate-spin" />
+        <CircleNotchIcon className="h-4 w-4 animate-spin" />
       ) : isCommandCopied ? (
-        <Check className="h-4 w-4" />
+        <CheckIcon className="h-4 w-4" />
       ) : (
-        <Copy className="h-4 w-4" />
+        <CopyIcon className="h-4 w-4" />
       )}
       {isGeneratingPrompt
         ? 'Preparing...'
@@ -544,7 +541,7 @@ export function ApplicationStarter({
         )}
       >
         {transientAction === action || waitingForHref ? (
-          <CircleNotch
+          <CircleNotchIcon
             className={twMerge(
               'animate-spin',
               iconOnly ? 'h-6 w-6' : size === 'xs' ? 'h-3.5 w-3.5' : 'h-4 w-4',
@@ -607,9 +604,9 @@ export function ApplicationStarter({
           aria-label={`Deploy to ${hostingDeployPartnerLabels[selectedHostingDeployPartner]}`}
         >
           {isDeployFeedbackActive || waitingForHref ? (
-            <CircleNotch className="h-4 w-4 animate-spin" />
+            <CircleNotchIcon className="h-4 w-4 animate-spin" />
           ) : (
-            <Rocket className="h-4 w-4" />
+            <RocketIcon className="h-4 w-4" />
           )}
           {isDeployFeedbackActive
             ? 'Opening...'
@@ -638,9 +635,9 @@ export function ApplicationStarter({
         aria-label={`Deploy to ${hostingDeployPartnerLabels[selectedHostingDeployPartner]}`}
       >
         {isDeployFeedbackActive ? (
-          <CircleNotch className="h-4 w-4 animate-spin" />
+          <CircleNotchIcon className="h-4 w-4 animate-spin" />
         ) : (
-          <Rocket className="h-4 w-4" />
+          <RocketIcon className="h-4 w-4" />
         )}
         {isDeployFeedbackActive ? 'Opening...' : 'Deploy'}
       </Button>
@@ -775,9 +772,7 @@ export function ApplicationStarter({
             <>
               <div className="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950">
                 <div className="border-b border-gray-200 px-3 py-2 dark:border-gray-800">
-                  <div className="font-ds-mono text-ds-mono-xs uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                    Ideas
-                  </div>
+                  <div className={starterEyebrowClassName}>Ideas</div>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {suggestions.map((suggestion) => (
                       <StarterChipButton
@@ -797,7 +792,7 @@ export function ApplicationStarter({
 
                 {showMigrationRepositoryInput ? (
                   <div className="border-b border-gray-200 px-3 py-2 dark:border-gray-800">
-                    <div className="font-ds-mono text-ds-mono-xs uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                    <div className={starterEyebrowClassName}>
                       Existing Repository URL
                     </div>
                     <input
@@ -824,7 +819,9 @@ export function ApplicationStarter({
                 ) : null}
 
                 <div className="relative">
-                  <div className="px-3 pt-2 font-ds-mono text-ds-mono-xs uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                  <div
+                    className={twMerge('px-3 pt-2', starterEyebrowClassName)}
+                  >
                     Prompt
                   </div>
                   <textarea
@@ -857,7 +854,7 @@ export function ApplicationStarter({
                       type="submit"
                       disabled={!canRevealOptions}
                     >
-                      <ArrowRight className="h-4 w-4" />
+                      <ArrowRightIcon className="h-4 w-4" />
                       Next
                       {enableHotkeys ? (
                         <SubmitShortcutHint isMac={isMacShortcutPlatform} />
@@ -867,13 +864,13 @@ export function ApplicationStarter({
                 ) : null}
               </div>
 
-              <Collapsible open={showOptionsSection}>
-                <CollapsibleContent className="mt-3">
+              <Panel open={showOptionsSection}>
+                <PanelContent className="mt-3">
                   {showOptionsSection ? (
                     <StarterTooltipProvider>
                       <div className="space-y-2 rounded-lg border border-gray-200 bg-white px-3 py-3 dark:border-gray-800 dark:bg-gray-950">
                         <div className="mb-3">
-                          <div className="font-ds-mono text-ds-mono-xs uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                          <div className={starterEyebrowClassName}>
                             TanStack Libraries
                           </div>
 
@@ -886,7 +883,7 @@ export function ApplicationStarter({
                           </div>
                         </div>
 
-                        <div className="font-ds-mono text-ds-mono-xs uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                        <div className={starterEyebrowClassName}>
                           Partner Integrations
                         </div>
                         <StarterPartnerRows
@@ -945,12 +942,12 @@ export function ApplicationStarter({
                       </div>
                     </StarterTooltipProvider>
                   ) : null}
-                </CollapsibleContent>
-              </Collapsible>
+                </PanelContent>
+              </Panel>
             </>
           ) : (
             <>
-              {/* Figma StackBuilder: the heading floats above the box. */}
+              {/* Figma StackApplicationStarter: the heading floats above the box. */}
               {isHomeStarter ? (
                 <p className="mx-auto mb-6 max-w-4xl text-balance text-center font-ds-display text-ds-heading-3 font-light leading-tight text-gray-950 dark:text-white">
                   {title}
@@ -959,12 +956,46 @@ export function ApplicationStarter({
               <div
                 className={twMerge(
                   'relative overflow-hidden rounded-[1rem] border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950',
-                  // Home: 36px full-squircle corners and a tight terracotta glow.
+                  // Home: 36px full-squircle corners. `overflow-visible` lets the
+                  // focus glow (an absolute child at -z-10) bleed out from behind
+                  // the card; the inner wrapper below re-clips the card content.
                   isHomeStarter &&
-                    'rounded-[36px] [corner-shape:squircle] shadow-[0px_21px_39.2px_-38px_var(--color-ds-terracotta-300)] dark:border-transparent dark:bg-[#171717]',
+                    'overflow-visible rounded-[36px] [corner-shape:squircle] transition-colors dark:border-transparent dark:bg-[#171717]',
+                  // Light: a subtle recessed fill at rest that brightens to white
+                  // on focus (no shadow). Dark keeps its #171717 fill.
+                  isHomeStarter &&
+                    (isPromptFocused ? 'bg-white' : 'bg-gray-50'),
                 )}
               >
-                <div>
+                {/* Home: a warm terracotta glow that grows in from behind the card
+                  while the prompt is focused, drifting in a slow wave. Sits at
+                  -z-10 so the opaque card hides all but the bottom bleed. */}
+                {isHomeStarter ? (
+                  <div
+                    aria-hidden
+                    className={twMerge(
+                      'pointer-events-none absolute inset-x-24 -bottom-2 -z-10 h-20 origin-bottom transition-[opacity,transform] duration-700 ease-out',
+                      isPromptFocused
+                        ? 'opacity-100 scale-100'
+                        : 'opacity-0 scale-75',
+                      reducedMotion && 'transition-none',
+                    )}
+                  >
+                    <div
+                      className={twMerge(
+                        'h-full w-full rounded-[100%] bg-ds-terracotta-300/50 blur-2xl',
+                        !reducedMotion && isPromptFocused && 'prompt-glow-flow',
+                      )}
+                    />
+                  </div>
+                ) : null}
+                <div
+                  className={
+                    isHomeStarter
+                      ? 'overflow-hidden rounded-[36px] [corner-shape:squircle]'
+                      : undefined
+                  }
+                >
                   {/* Home renders its heading above the box (see the fragment
                     above); other contexts keep the in-box header bar. */}
                   {isHomeStarter ? null : (
@@ -988,7 +1019,7 @@ export function ApplicationStarter({
                   >
                     {showMigrationRepositoryInput ? (
                       <div className="border-b border-gray-200 px-5 py-4 dark:border-gray-800">
-                        <div className="font-ds-mono text-ds-mono-xs uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                        <div className={starterEyebrowClassName}>
                           Existing Repository URL
                         </div>
                         <input
@@ -1015,7 +1046,12 @@ export function ApplicationStarter({
                     ) : null}
 
                     {isHomeStarter ? null : (
-                      <div className="px-5 pt-4 font-ds-mono text-ds-mono-xs uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                      <div
+                        className={twMerge(
+                          'px-5 pt-4',
+                          starterEyebrowClassName,
+                        )}
+                      >
                         Prompt
                       </div>
                     )}
@@ -1072,18 +1108,20 @@ export function ApplicationStarter({
                     ) : null}
 
                     {/* Home: the hint sits lateral to the prompt text (top-right);
-                        once the user types, the gradient Go CTA replaces it. */}
+                        once the user types, the gradient Go CTA replaces it. The
+                        h-6 box matches the prompt's first line (leading-6 at top-6)
+                        so the hint text is vertically centered on that line. */}
                     {isHomeStarter ? (
-                      <div className="absolute right-6 top-5 flex items-center">
+                      <div className="absolute right-6 top-6 flex h-6 items-center">
                         {showActionSection ? (
                           <Button
                             variant="ghost"
                             size="sm"
                             type="button"
-                            onClick={resetHomeBuilder}
-                            className="rounded-lg text-xs font-medium text-gray-500 hover:bg-gray-950/5 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-white"
+                            onClick={resetHomeApplicationStarter}
+                            className="rounded-lg border-0 bg-transparent text-xs font-medium text-gray-500 shadow-none hover:bg-gray-950/5 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-white"
                           >
-                            <ArrowCounterClockwise className="h-3.5 w-3.5" />
+                            <ArrowCounterClockwiseIcon className="h-3.5 w-3.5" />
                             Start over
                           </Button>
                         ) : isHomePayoffLoading ? (
@@ -1105,7 +1143,7 @@ export function ApplicationStarter({
                             className="rounded-[11px] border-transparent bg-[linear-gradient(117deg,#ff5f5f,#ffa05c,#fff27c,#74dcff)] font-ds-display font-bold text-ds-neutral-500 shadow-md transition-[filter] hover:text-ds-neutral-500 hover:brightness-105 disabled:grayscale"
                           >
                             Go
-                            <ArrowRight className="h-4 w-4" />
+                            <ArrowRightIcon className="h-4 w-4" />
                           </Button>
                         )}
                       </div>
@@ -1122,7 +1160,7 @@ export function ApplicationStarter({
                             className="rounded-[11px] border-transparent bg-[linear-gradient(117deg,#ff5f5f,#ffa05c,#fff27c,#74dcff)] font-ds-display font-bold text-ds-neutral-500 shadow-md transition-[filter] hover:text-ds-neutral-500 hover:brightness-105 disabled:grayscale"
                           >
                             Go
-                            <ArrowRight className="h-4 w-4" />
+                            <ArrowRightIcon className="h-4 w-4" />
                             {enableHotkeys ? (
                               <SubmitShortcutHint
                                 isMac={isMacShortcutPlatform}
@@ -1134,8 +1172,8 @@ export function ApplicationStarter({
                     ) : null}
                   </div>
 
-                  <Collapsible open={showOptionsSection}>
-                    <CollapsibleContent
+                  <Panel open={showOptionsSection}>
+                    <PanelContent
                       className={twMerge(
                         isHomeStarter &&
                           'duration-[350ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none',
@@ -1156,10 +1194,10 @@ export function ApplicationStarter({
                                   'mb-4',
                                   isHomeStarter &&
                                     !reducedMotion &&
-                                    'home-stack-builder-section-reveal',
+                                    'home-stack-applicationStarter-section-reveal',
                                 )}
                               >
-                                <div className="font-ds-mono text-ds-mono-xs uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                                <div className={starterEyebrowClassName}>
                                   TanStack Libraries
                                 </div>
 
@@ -1179,10 +1217,10 @@ export function ApplicationStarter({
                                 className={twMerge(
                                   isHomeStarter &&
                                     !reducedMotion &&
-                                    'home-stack-builder-section-reveal home-stack-builder-section-reveal-delayed',
+                                    'home-stack-applicationStarter-section-reveal home-stack-applicationStarter-section-reveal-delayed',
                                 )}
                               >
-                                <div className="font-ds-mono text-ds-mono-xs uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                                <div className={starterEyebrowClassName}>
                                   Add Integrations
                                 </div>
                                 <div className="mt-3 w-full">
@@ -1208,7 +1246,7 @@ export function ApplicationStarter({
                                 className={twMerge(
                                   isHomeStarter &&
                                     !reducedMotion &&
-                                    'home-stack-builder-section-reveal home-stack-builder-section-reveal-third',
+                                    'home-stack-applicationStarter-section-reveal home-stack-applicationStarter-section-reveal-third',
                                 )}
                               >
                                 <StarterCustomizationSection
@@ -1241,7 +1279,7 @@ export function ApplicationStarter({
                                 className={twMerge(
                                   isHomeStarter &&
                                     !reducedMotion &&
-                                    'home-stack-builder-section-reveal home-stack-builder-section-reveal-fourth',
+                                    'home-stack-applicationStarter-section-reveal home-stack-applicationStarter-section-reveal-fourth',
                                 )}
                               >
                                 <StarterCustomizationSection
@@ -1281,11 +1319,11 @@ export function ApplicationStarter({
                           ) : null}
                         </div>
                       ) : null}
-                    </CollapsibleContent>
-                  </Collapsible>
+                    </PanelContent>
+                  </Panel>
 
-                  <Collapsible open={showStagedActionSection}>
-                    <CollapsibleContent
+                  <Panel open={showStagedActionSection}>
+                    <PanelContent
                       className={twMerge(
                         isHomeStarter &&
                           'duration-[350ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none',
@@ -1296,7 +1334,7 @@ export function ApplicationStarter({
                           className={twMerge(
                             'bg-gray-50/70 px-5 py-4 dark:bg-gray-900/50',
                             isHomeStarter &&
-                              'home-stack-builder-reveal home-stack-builder-reveal-delayed bg-transparent dark:bg-transparent',
+                              'home-stack-applicationStarter-reveal home-stack-applicationStarter-reveal-delayed bg-transparent dark:bg-transparent',
                           )}
                         >
                           <div
@@ -1313,7 +1351,7 @@ export function ApplicationStarter({
                                       className:
                                         'border-[#00AD9F] bg-[#00AD9F] text-white hover:bg-[#009a8e]',
                                       href: netlifyStartHref,
-                                      icon: <Rocket className="h-4 w-4" />,
+                                      icon: <RocketIcon className="h-4 w-4" />,
                                       label: secondaryActionLabel,
                                       onTrack: () => {
                                         trackActivation({
@@ -1331,7 +1369,7 @@ export function ApplicationStarter({
                                   className:
                                     'border-gray-900 bg-gray-900 text-white hover:bg-gray-800 dark:border-gray-100 dark:bg-gray-100 dark:text-gray-950 dark:hover:bg-gray-200',
                                   href: codexStartHref,
-                                  icon: <OpenAiLogo className="h-4 w-4" />,
+                                  icon: <OpenAiLogoIcon className="h-4 w-4" />,
                                   label: 'Open in Codex',
                                   onTrack: () => {
                                     trackActivation({
@@ -1370,7 +1408,7 @@ export function ApplicationStarter({
                                     'text-text-secondary hover:text-text-primary',
                                   href: codexStartHref,
                                   icon: (
-                                    <OpenAiLogo
+                                    <OpenAiLogoIcon
                                       className="h-6 w-6"
                                       weight="regular"
                                     />
@@ -1391,12 +1429,7 @@ export function ApplicationStarter({
                                   className:
                                     'text-text-secondary hover:text-text-primary',
                                   href: claudeStartHref,
-                                  icon: (
-                                    <Atom
-                                      className="h-6 w-6"
-                                      weight="regular"
-                                    />
-                                  ),
+                                  icon: <ClaudeIcon className="h-6 w-6" />,
                                   iconOnly: true,
                                   label: 'Open in Claude',
                                   onTrack: () => {
@@ -1413,12 +1446,7 @@ export function ApplicationStarter({
                                   className:
                                     'text-text-secondary hover:text-text-primary',
                                   href: cursorStartHref,
-                                  icon: (
-                                    <Cube
-                                      className="h-6 w-6"
-                                      weight="regular"
-                                    />
-                                  ),
+                                  icon: <CursorIcon className="h-6 w-6" />,
                                   iconOnly: true,
                                   label: 'Open in Cursor',
                                   onTrack: () => {
@@ -1451,9 +1479,9 @@ export function ApplicationStarter({
                                     className="text-text-secondary hover:text-text-primary"
                                   >
                                     {transientAction === 'clone' ? (
-                                      <CircleNotch className="h-6 w-6 animate-spin" />
+                                      <CircleNotchIcon className="h-6 w-6 animate-spin" />
                                     ) : (
-                                      <GithubLogo
+                                      <GithubLogoIcon
                                         className="h-6 w-6"
                                         weight="regular"
                                       />
@@ -1467,7 +1495,7 @@ export function ApplicationStarter({
                                     'text-text-secondary hover:text-text-primary',
                                   href: downloadHref,
                                   icon: (
-                                    <DownloadSimple
+                                    <DownloadSimpleIcon
                                       className="h-6 w-6"
                                       weight="regular"
                                     />
@@ -1488,8 +1516,8 @@ export function ApplicationStarter({
                           </div>
                         </div>
                       ) : null}
-                    </CollapsibleContent>
-                  </Collapsible>
+                    </PanelContent>
+                  </Panel>
 
                   {showPromptPreview && hasGeneratedPrompt ? (
                     <div className="border-t border-gray-200 dark:border-gray-800">
@@ -1545,23 +1573,24 @@ function StarterCustomizationSection({
   title: string
 }) {
   return (
-    <Collapsible open={open} onOpenChange={onOpenChange}>
-      <div className={twMerge(compact ? 'pt-1' : 'pt-2')}>
-        <CollapsibleTrigger
+    <Panel open={open} onOpenChange={onOpenChange}>
+      <div className={twMerge(compact ? 'pt-1' : 'pt-4')}>
+        <PanelTrigger
           className={twMerge(
-            'inline-flex items-center gap-1 font-ds-mono text-ds-mono-xs uppercase tracking-wider text-gray-400 transition-colors hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300',
+            starterEyebrowClassName,
+            'inline-flex appearance-none items-center gap-1 border-0 bg-transparent p-0 text-left transition-colors hover:text-text-secondary',
           )}
         >
           {title}
-          <CaretDown
+          <CaretDownIcon
             className={twMerge(
               'h-3 w-3 transition-transform duration-200',
               open && 'rotate-180',
             )}
           />
-        </CollapsibleTrigger>
-        <CollapsibleContent>{open ? children : null}</CollapsibleContent>
+        </PanelTrigger>
+        <PanelContent>{open ? children : null}</PanelContent>
       </div>
-    </Collapsible>
+    </Panel>
   )
 }

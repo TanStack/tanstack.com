@@ -9,6 +9,7 @@ export type Framework =
   | 'ember'
   | 'lit'
   | 'marko'
+  | 'octane'
   | 'preact'
   | 'qwik'
   | 'react'

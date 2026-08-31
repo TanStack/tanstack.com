@@ -261,7 +261,7 @@ function getLocalRepoBaseDirs(repo: string) {
 async function fetchFs(repo: string, filepath: string) {
   if (!isValidFilepath(filepath)) {
     console.warn(`[fetchFs] Invalid filepath rejected: ${filepath}\n`)
-    return ''
+    return null
   }
 
   if (isIsolateRuntime()) {
@@ -279,7 +279,7 @@ async function fetchFs(repo: string, filepath: string) {
       console.warn(
         `[fetchFs] Path traversal attempt blocked: ${filepath} resolved to ${localFilePath}\n`,
       )
-      return ''
+      return null
     }
 
     const exists = fs.existsSync(localFilePath)
@@ -294,7 +294,7 @@ async function fetchFs(repo: string, filepath: string) {
   console.warn(
     `[fetchFs] Tried to read file that does not exist: ${attemptedPaths.join(', ')}\n`,
   )
-  return ''
+  return null
 }
 
 async function fetchFsFromDevServer(repo: string, filepath: string) {
@@ -307,7 +307,7 @@ async function fetchFsFromDevServer(repo: string, filepath: string) {
     console.warn(
       `[fetchFs] Local docs requested without an active server request: ${repo}/${filepath}\n`,
     )
-    return ''
+    return null
   }
 
   const url = new URL(localDocsDevPath, request.url)
@@ -322,7 +322,7 @@ async function fetchFsFromDevServer(repo: string, filepath: string) {
 
   if (response.status === 404) {
     console.warn(`[fetchFs] Local file does not exist: ${repo}/${filepath}\n`)
-    return ''
+    return null
   }
 
   if (!response.ok) {
@@ -353,14 +353,14 @@ function replaceContent(text: string, frontmatter: FrontMatterFile) {
  * Perform tokenized sections replace in text.
  * - Discover sections based on token marker via RegExp in origin file.
  * - Discover sections based on token marker via RegExp in target file.
- * - replace sections in target file staring from the end, with sections defined in origin file
+ * - replace sections in target file starting from the end, with sections defined in origin file
  * @param text File content
  * @param frontmatter Referencing file front-matter
  * @returns File content with replaced sections
  */
 function replaceSections(text: string, frontmatter: FrontMatterFile) {
   let result = text
-  // RegExp defining token pair to dicover sections in the document
+  // RegExp defining token pair to discover sections in the document
   // [//]: # (<Section Token>)
   const sectionMarkerRegex = /\[\/\/\]: # '([a-zA-Z\d]*)'/g
   const sectionRegex =
@@ -371,7 +371,7 @@ function replaceSections(text: string, frontmatter: FrontMatterFile) {
   for (const match of frontmatter.content.matchAll(sectionRegex)) {
     if (match[1] !== match[2]) {
       console.error(
-        `Origin section '${match[1]}' does not have matching closing token (found '${match[2]}'). Please make sure that each section has corresponsing closing token and that sections are not nested.`,
+        `Origin section '${match[1]}' does not have matching closing token (found '${match[2]}'). Please make sure that each section has corresponding closing token and that sections are not nested.`,
       )
     }
 
@@ -383,7 +383,7 @@ function replaceSections(text: string, frontmatter: FrontMatterFile) {
   for (const match of result.matchAll(sectionRegex)) {
     if (match[1] !== match[2]) {
       console.error(
-        `Target section '${match[1]}' does not have matching closing token (found '${match[2]}'). Please make sure that each section has corresponsing closing token and that sections are not nested.`,
+        `Target section '${match[1]}' does not have matching closing token (found '${match[2]}'). Please make sure that each section has corresponding closing token and that sections are not nested.`,
       )
     }
 
@@ -604,6 +604,33 @@ export async function fetchRepoRawFile(
       gitRef: ref,
       path: `.tanstack-raw/${filepath}`,
       origin: () => fetchRepoRawFileFromOrigin(repoPair, ref, filepath),
+    })
+  } catch (error) {
+    if (error instanceof InvalidCacheKeyError) return null
+    throw error
+  }
+}
+
+export async function fetchRemoteRepoRawFile(
+  repoPair: string,
+  ref: string,
+  filepath: string,
+) {
+  assertValidGitHubRepoPair(repoPair)
+  assertValidGitHubRef(ref)
+  if (!filepath || !isValidRepoPath(filepath)) {
+    throw new InvalidCacheKeyError('path', filepath)
+  }
+
+  try {
+    return await getCachedGitHubTextFile({
+      repo: repoPair,
+      gitRef: ref,
+      path: `.tanstack-raw/${filepath}`,
+      origin: async () => {
+        const [owner, repo] = repoPair.split('/')
+        return fetchRemote(owner, repo, ref, filepath)
+      },
     })
   } catch (error) {
     if (error instanceof InvalidCacheKeyError) return null

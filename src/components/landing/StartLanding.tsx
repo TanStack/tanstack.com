@@ -1,15 +1,15 @@
 import * as React from 'react'
 import {
-  ArrowRight,
-  BracketsCurly,
-  Cloud,
-  Code,
-  GitBranch,
-  HardDrives,
-  Network,
-  Rocket,
-  ShieldCheck,
-  Stack,
+  ArrowRightIcon,
+  BracketsCurlyIcon,
+  CloudIcon,
+  CodeIcon,
+  GitBranchIcon,
+  HardDrivesIcon,
+  NetworkIcon,
+  RocketIcon,
+  ShieldCheckIcon,
+  StackIcon,
 } from '@phosphor-icons/react'
 
 import {
@@ -110,7 +110,7 @@ export default function StartLanding() {
         <div className="grid items-center gap-14 lg:grid-cols-[0.82fr_1.18fr] lg:gap-20">
           <LandingSectionIntro
             eyebrow="Router at the core"
-            icon={<GitBranch aria-hidden="true" size={15} />}
+            icon={<GitBranchIcon aria-hidden="true" size={15} />}
             title="The framework does not replace the application model."
             body="Routes, params, search schemas, loaders, links, pending states, and boundaries stay TanStack Router. Start adds the server and build layers around that same tree."
           />
@@ -122,7 +122,7 @@ export default function StartLanding() {
         <div className="grid items-start gap-12 lg:grid-cols-[0.75fr_1.25fr] lg:gap-16">
           <LandingSectionIntro
             eyebrow="Explicit boundaries"
-            icon={<ShieldCheck aria-hidden="true" size={15} />}
+            icon={<ShieldCheckIcon aria-hidden="true" size={15} />}
             title="Server work is visible in the code that calls it."
             body="Use server functions for type-safe app calls, server routes for outside callers, and composable middleware for authentication, context, logging, and policy."
           />
@@ -134,7 +134,7 @@ export default function StartLanding() {
         <LandingSectionIntro
           centered
           eyebrow="Portable application model"
-          icon={<Rocket aria-hidden="true" size={15} />}
+          icon={<RocketIcon aria-hidden="true" size={15} />}
           title="Keep the routes. Change the output."
           body="Start supports Vite and Rsbuild and is designed for different hosting providers and runtimes. Deployment configuration changes; route authoring and server boundaries do not."
         />
@@ -182,19 +182,19 @@ function ExecutionMapHero() {
           aria-live="polite"
         >
           <RuntimeColumn
-            icon={<HardDrives aria-hidden="true" size={17} />}
+            icon={<HardDrivesIcon aria-hidden="true" size={17} />}
             label="server"
             steps={mode.server}
           />
           <div className="flex items-center justify-center py-1 text-[var(--landing-accent-bright)] md:px-1">
-            <ArrowRight
+            <ArrowRightIcon
               aria-hidden="true"
               className="rotate-90 md:rotate-0"
               size={22}
             />
           </div>
           <RuntimeColumn
-            icon={<Code aria-hidden="true" size={17} />}
+            icon={<CodeIcon aria-hidden="true" size={17} />}
             label="browser"
             steps={mode.browser}
           />
@@ -252,19 +252,19 @@ function RouterFoundation() {
     {
       label: 'Start server layer',
       detail: 'SSR · streaming · server functions · routes · middleware',
-      icon: HardDrives,
+      icon: HardDrivesIcon,
       accent: true,
     },
     {
       label: 'TanStack Router',
       detail: 'route tree · URL state · loaders · links · boundaries',
-      icon: Network,
+      icon: NetworkIcon,
       accent: false,
     },
     {
       label: 'Your application',
       detail: 'components · data clients · product behavior',
-      icon: Stack,
+      icon: StackIcon,
       accent: false,
     },
   ] as const
@@ -375,7 +375,7 @@ function DeploymentSelector() {
             onClick={() => setActiveIndex(index)}
           >
             <span className="text-ds-label-md">{target.label}</span>
-            <Cloud aria-hidden="true" className="shrink-0" size={19} />
+            <CloudIcon aria-hidden="true" className="shrink-0" size={19} />
           </button>
         ))}
       </div>
@@ -387,7 +387,7 @@ function DeploymentSelector() {
               <LandingEyebrow>selected target</LandingEyebrow>
               <h3 className="mt-4 text-ds-heading-2">{active.label}</h3>
             </div>
-            <Rocket
+            <RocketIcon
               aria-hidden="true"
               className="text-[var(--landing-accent-bright)]"
               size={30}
@@ -423,7 +423,7 @@ function DeploymentSelector() {
                 key={item}
                 className="flex items-center gap-2 rounded-lg border border-border-subtle bg-background-default px-3 py-2.5 font-ds-mono text-ds-mono-2xs text-text-primary/55"
               >
-                <BracketsCurly
+                <BracketsCurlyIcon
                   aria-hidden="true"
                   className="text-[var(--landing-accent-bright)]"
                   size={14}

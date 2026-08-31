@@ -44,7 +44,7 @@ export function Toc({ headings, activeHeadings, currentFramework }: TocProps) {
       </div>
       <ul
         className={twMerge(
-          'py-1 flex flex-col overflow-y-auto text-[.6em] lg:text-[.65em] xl:text-[.7em] 2xl:text-[.75em]',
+          'fade-y fade-size-y-sm flex flex-col overflow-y-auto py-1 text-[.6em] lg:text-[.65em] xl:text-[.7em] 2xl:text-[.75em]',
         )}
       >
         {visibleHeadings?.map((heading) => (
@@ -63,7 +63,6 @@ export function Toc({ headings, activeHeadings, currentFramework }: TocProps) {
                   ? 'border-current text-text-primary opacity-100'
                   : 'border-transparent',
               )}
-              resetScroll={false}
               hashScrollIntoView={{
                 behavior: 'smooth',
               }}

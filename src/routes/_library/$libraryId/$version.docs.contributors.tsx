@@ -11,7 +11,8 @@ import {
   MaintainerRowCard,
 } from '~/components/MaintainerCard'
 import { useState } from 'react'
-import { GridFour, GridNine, Rows } from '@phosphor-icons/react'
+import { GridFourIcon, GridNineIcon, RowsIcon } from '@phosphor-icons/react'
+import { SegmentedControl } from '~/components/ButtonGroup'
 
 export const Route = createFileRoute(
   '/_library/$libraryId/$version/docs/contributors',
@@ -55,41 +56,29 @@ function RouteComponent() {
 
             {/* View Mode Toggle */}
             <div className="flex justify-start my-6">
-              <div className="flex items-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
-                <button
-                  onClick={() => setViewMode('compact')}
-                  className={`p-2 rounded-l-lg transition-colors ${
-                    viewMode === 'compact'
-                      ? 'bg-blue-500 text-white'
-                      : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
-                  }`}
-                  title="Compact cards"
-                >
-                  <GridNine className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => setViewMode('full')}
-                  className={`p-2 transition-colors ${
-                    viewMode === 'full'
-                      ? 'bg-blue-500 text-white'
-                      : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
-                  }`}
-                  title="Full cards"
-                >
-                  <GridFour className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => setViewMode('row')}
-                  className={`p-2 rounded-r-lg transition-colors ${
-                    viewMode === 'row'
-                      ? 'bg-blue-500 text-white'
-                      : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
-                  }`}
-                  title="Row cards"
-                >
-                  <Rows className="w-5 h-5" />
-                </button>
-              </div>
+              <SegmentedControl
+                aria-label="Card layout"
+                size="sm"
+                value={viewMode}
+                onValueChange={setViewMode}
+                options={[
+                  {
+                    value: 'compact',
+                    label: <GridNineIcon />,
+                    'aria-label': 'Compact cards',
+                  },
+                  {
+                    value: 'full',
+                    label: <GridFourIcon />,
+                    'aria-label': 'Full cards',
+                  },
+                  {
+                    value: 'row',
+                    label: <RowsIcon />,
+                    'aria-label': 'Row cards',
+                  },
+                ]}
+              />
             </div>
 
             <section>

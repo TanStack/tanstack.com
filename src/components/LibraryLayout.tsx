@@ -1,5 +1,8 @@
 import * as React from 'react'
-import { CaretLeft, CaretRight, List, X } from '@phosphor-icons/react'
+import { CaretLeftIcon } from '@phosphor-icons/react/CaretLeft'
+import { CaretRightIcon } from '@phosphor-icons/react/CaretRight'
+import { ListIcon } from '@phosphor-icons/react/List'
+import { XIcon } from '@phosphor-icons/react/X'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { DiscordIcon } from '~/components/icons/DiscordIcon'
 import { Link, useMatches, useParams } from '@tanstack/react-router'
@@ -10,7 +13,9 @@ import { last } from '~/utils/utils'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
 import { getActiveDocsNavTabId, getTabbedMenuConfig } from '~/utils/docsNavTabs'
 import { getLibrary, type Framework, type LibraryId } from '~/libraries'
+import { categoryOf, categoryTextColor } from '~/libraries/categories'
 import { frameworkOptions } from '~/libraries/frameworks'
+import { fallbackLibraryIcon, libraryIcons } from '~/libraries/icons'
 import { twMerge } from 'tailwind-merge'
 import {
   partners,
@@ -25,14 +30,20 @@ import {
   type PartnerPlacementContext,
 } from '~/utils/partner-placement'
 import { usePartnerPlacementContext } from '~/utils/usePartnerPlacementContext'
-import { Footer } from './Footer'
 import { RecentPostsWidget } from './RecentPostsWidget'
 import { SearchButton } from './SearchButton'
 import { FrameworkSelect, useCurrentFramework } from './FrameworkSelect'
 import { VersionSelect } from './VersionSelect'
 import { Card } from './Card'
-import { PartnersRail, RightRail } from './RightRail'
+import { RightRail } from './RightRail'
+import { PartnerRail } from './ds/ui/PartnerRail'
 import { trackEvent, useTrackedImpression } from '~/utils/analytics'
+import {
+  getLibraryLayoutVersion,
+  getLibraryTabLinkOptions,
+  getMenuGroupInitialOpenState,
+  isChartsCatalogTarget,
+} from './library-layout-navigation'
 
 // Number of days a doc page is flagged as "New"/"Updated" in the sidebar.
 const RECENCY_WINDOW_DAYS = 7
@@ -581,7 +592,7 @@ function DocNavigationCard({
   const children =
     direction === 'previous' ? (
       <>
-        <CaretLeft className="w-3 h-3 sm:w-4 sm:h-4" />
+        <CaretLeftIcon className="w-3 h-3 sm:w-4 sm:h-4" />
         <div className="flex flex-col">
           <span className="hidden sm:block text-[10px] uppercase tracking-wider opacity-60 mb-0.5">
             Previous
@@ -599,7 +610,7 @@ function DocNavigationCard({
             {item.label}
           </span>
         </div>
-        <CaretRight className="h-3 w-3 text-text-primary sm:h-4 sm:w-4" />
+        <CaretRightIcon className="h-3 w-3 text-text-primary sm:h-4 sm:w-4" />
       </>
     )
 
@@ -791,6 +802,7 @@ type LibraryLayoutProps = {
 
 export function LibraryLayout({
   libraryId,
+  name,
   version: layoutVersion,
   colorFrom,
   colorTo,
@@ -802,12 +814,16 @@ export function LibraryLayout({
   isLandingPage = false,
 }: LibraryLayoutProps) {
   const { _splat, version: routeVersion } = useParams({ strict: false })
-  const version =
-    typeof routeVersion === 'string' ? routeVersion : layoutVersion
-  const menuConfig = useMenuConfig({ config, frameworks, repo, libraryId })
-
   const matches = useMatches()
   const lastMatch = last(matches)
+  const version = getLibraryLayoutVersion({
+    layoutVersion,
+    pathname: lastMatch.pathname,
+    routeVersion,
+  })
+  const menuConfig = useMenuConfig({ config, frameworks, repo, libraryId })
+  const LibraryIcon = libraryIcons[libraryId] ?? fallbackLibraryIcon
+  const libraryGroupColor = categoryTextColor[categoryOf(libraryId)]
 
   const isExample = matches.some(
     (d) =>
@@ -816,6 +832,10 @@ export function LibraryLayout({
   )
 
   const isNpmStats = matches.some((d) => d.pathname.includes('/docs/npm-stats'))
+
+  // The library blog already lists posts, so the "Latest Posts" rail widget is
+  // redundant there — hide it on the blog while keeping it on other docs pages.
+  const isBlog = matches.some((d) => d.pathname.includes('/docs/blog'))
 
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
   const mobileMenuDialogRef = React.useRef<HTMLDivElement>(null)
@@ -906,24 +926,12 @@ export function LibraryLayout({
   const isDesktopViewport = useMediaQuery('(min-width: 768px)')
 
   const groupInitialOpenState = React.useMemo(() => {
-    return visibleMenuConfig.reduce<Record<string, boolean>>(
-      (acc, group, index) => {
-        const isChildActive = group.children.some(
-          (child) => child.to === _splat,
-        )
-        const key = `${index}:${String(group.label)}`
-
-        acc[key] = isChildActive
-          ? true
-          : typeof group.defaultCollapsed !== 'undefined'
-            ? !group.defaultCollapsed
-            : false
-
-        return acc
-      },
-      {},
+    return getMenuGroupInitialOpenState(
+      visibleMenuConfig,
+      _splat,
+      lastMatch.pathname,
     )
-  }, [visibleMenuConfig, _splat])
+  }, [lastMatch.pathname, visibleMenuConfig, _splat])
 
   const [openGroups, setOpenGroups] = React.useState(groupInitialOpenState)
 
@@ -953,12 +961,13 @@ export function LibraryLayout({
 
   const menuItems = visibleMenuConfig.map((group, i) => {
     const groupKey = `${i}:${String(group.label)}`
+    const isGroupOpen = openGroups[groupKey] ?? false
 
     const groupContent = (
       <>
         {group.collapsible ? (
           <summary
-            className="text-[.8em] font-bold leading-4 px-2 ts-sidebar-label"
+            className="ts-sidebar-label flex min-h-6 cursor-pointer list-none items-center justify-between rounded-md px-2 text-[11px] font-bold uppercase leading-none tracking-[0.075em] text-text-secondary hover:bg-background-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus [&::-webkit-details-marker]:hidden"
             onClick={(event) => {
               event.preventDefault()
               setOpenGroups((prev) => ({
@@ -967,23 +976,36 @@ export function LibraryLayout({
               }))
             }}
           >
-            {group.label}
+            <span>{group.label}</span>
+            <CaretRightIcon
+              aria-hidden="true"
+              className={twMerge(
+                'size-3.5 shrink-0 transition-transform duration-150 ease-[cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none',
+                isGroupOpen && 'rotate-90',
+              )}
+              weight="bold"
+            />
           </summary>
         ) : (
-          <div className="text-[.8em] font-bold leading-4 px-2 ts-sidebar-label">
+          <div className="ts-sidebar-label flex min-h-6 items-center px-2 text-[11px] font-bold uppercase leading-none tracking-[0.075em] text-text-secondary">
             {group.label}
           </div>
         )}
-        <div className="h-2" />
-        <ul className="text-[.85em] leading-snug list-none">
+        <div className="h-1" />
+        <ul className="list-none text-[.85em] leading-snug">
           {group?.children?.map((child, i) => {
-            const linkClasses = `flex gap-2 items-center justify-between group px-2 py-1.5 rounded-lg hover:bg-gray-500/10 opacity-60 hover:opacity-100`
+            const linkClasses =
+              'relative flex items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-text-muted transition-colors duration-150 hover:bg-background-subtle hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus motion-reduce:transition-none'
+            const internalLinkClasses = twMerge(
+              'relative block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current',
+              libraryGroupColor,
+            )
             const linkParams =
               !child.to.startsWith('/') || child.to.includes('/$libraryId')
                 ? ({ libraryId, version } as never)
                 : undefined
             const isHomeLink = child.to === '..'
-            const isChartsExamplesLink = child.to === '/charts/catalog'
+            const isChartsExamplesLink = isChartsCatalogTarget(child.to)
             const frameworkDocsTarget = getFrameworkDocsLinkTarget(child.to)
 
             const recency = getDocRecency(child.addedAt, child.updatedAt)
@@ -995,15 +1017,15 @@ export function LibraryLayout({
             ) : null
 
             const renderLinkContent = (isActive: boolean) => (
-              <div className={twMerge(linkClasses, isActive && 'opacity-100')}>
-                <div
-                  className={twMerge(
-                    'w-full',
-                    isActive ? 'font-bold text-text-primary' : '',
-                  )}
-                >
-                  {child.label}
-                </div>
+              <div
+                className={twMerge(
+                  linkClasses,
+                  isActive &&
+                    'bg-current/10 font-bold before:absolute before:inset-y-1.5 before:left-0 before:w-0.5 before:rounded-r-full before:bg-current',
+                  isActive && libraryGroupColor,
+                )}
+              >
+                <div className="w-full">{child.label}</div>
                 {recencyPill}
               </div>
             )
@@ -1024,23 +1046,9 @@ export function LibraryLayout({
                   <Link
                     to={libraryHomePath}
                     onClick={closeMobileMenu}
-                    className="relative"
+                    className={internalLinkClasses}
                   >
-                    <div
-                      className={twMerge(
-                        linkClasses,
-                        !docsMatch && 'opacity-100',
-                      )}
-                    >
-                      <div
-                        className={twMerge(
-                          'w-full',
-                          !docsMatch ? 'font-bold text-text-primary' : '',
-                        )}
-                      >
-                        {child.label}
-                      </div>
-                    </div>
+                    {renderLinkContent(!docsMatch)}
                   </Link>
                 ) : frameworkDocsTarget?.kind === 'examples' ? (
                   <Link
@@ -1058,7 +1066,7 @@ export function LibraryLayout({
                       includeHash: false,
                       includeSearch: false,
                     }}
-                    className="relative"
+                    className={internalLinkClasses}
                   >
                     {(props) => renderLinkContent(props.isActive)}
                   </Link>
@@ -1078,7 +1086,7 @@ export function LibraryLayout({
                       includeHash: false,
                       includeSearch: false,
                     }}
-                    className="relative"
+                    className={internalLinkClasses}
                   >
                     {(props) => renderLinkContent(props.isActive)}
                   </Link>
@@ -1092,13 +1100,13 @@ export function LibraryLayout({
                     to={child.to}
                     params={linkParams}
                     onClick={closeMobileMenu}
-                    preload="intent"
+                    preload={isChartsExamplesLink ? false : 'intent'}
                     activeOptions={{
                       exact: true,
                       includeHash: false,
                       includeSearch: false,
                     }}
-                    className="relative"
+                    className={internalLinkClasses}
                   >
                     {(props) => renderLinkContent(props.isActive)}
                   </Link>
@@ -1113,16 +1121,13 @@ export function LibraryLayout({
     return group.collapsible ? (
       <details
         key={`group-${i}`}
-        className="[&>summary]:before:mr-1 [&>summary]:marker:text-[0.8em] [&>summary]:marker:leading-4 relative select-none"
-        open={openGroups[groupKey] ?? false}
+        className="relative select-none"
+        open={isGroupOpen}
       >
         {groupContent}
       </details>
     ) : (
-      <div
-        key={`group-${i}`}
-        className="[&>summary]:before:mr-1 [&>summary]:marker:text-[0.8em] [&>summary]:marker:leading-4 relative select-none"
-      >
+      <div key={`group-${i}`} className="relative select-none">
         {groupContent}
       </div>
     )
@@ -1161,7 +1166,7 @@ export function LibraryLayout({
         bg-white dark:bg-black/95 backdrop-blur-lg border-b border-gray-500/20 shadow-xl"
       >
         <div className="flex items-center justify-between py-2 px-4 border-b border-gray-500/20">
-          <span className="font-bold">Docs</span>
+          <span className="font-bold">{name} Docs</span>
           <button
             type="button"
             aria-label="Close menu"
@@ -1169,7 +1174,7 @@ export function LibraryLayout({
             className="p-1 rounded-md hover:bg-gray-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current cursor-pointer"
             onClick={closeMobileMenu}
           >
-            <X className="w-5 h-5" />
+            <XIcon className="w-5 h-5" />
           </button>
         </div>
         <div className="flex flex-col gap-4 p-4 text-lg">
@@ -1178,7 +1183,52 @@ export function LibraryLayout({
             <VersionSelect libraryId={libraryId} />
           </div>
           <SearchButton />
-          {menuItems}
+          <nav aria-label={`${name} documentation`}>
+            <ul className="mb-4 flex list-none gap-4 overflow-x-auto border-b border-gray-500/20 px-2 text-sm [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:hidden">
+              {tabbedMenuConfig.map((tab) => {
+                const target = tab.firstItem
+
+                if (!target) {
+                  return null
+                }
+
+                const linkOptions = getLibraryTabLinkOptions({
+                  libraryId,
+                  version,
+                  to: target.to,
+                })
+                const isActive = tab.id === activeTabId
+
+                return (
+                  <li key={tab.id}>
+                    <Link
+                      from={linkOptions.from as never}
+                      to={linkOptions.to as never}
+                      params={linkOptions.params as never}
+                      onClick={closeMobileMenu}
+                      preload={
+                        isChartsCatalogTarget(target.to) ? false : 'intent'
+                      }
+                      aria-current={isActive ? 'page' : undefined}
+                      className={twMerge(
+                        'relative block whitespace-nowrap pb-2 font-semibold',
+                        isActive ? 'text-text-primary' : 'text-text-secondary',
+                      )}
+                    >
+                      {tab.label}
+                      {isActive ? (
+                        <span
+                          aria-hidden="true"
+                          className="absolute right-0 -bottom-px left-0 h-[3px] rounded-t-full bg-text-primary"
+                        />
+                      ) : null}
+                    </Link>
+                  </li>
+                )
+              })}
+            </ul>
+            <div className="flex flex-col gap-4">{menuItems}</div>
+          </nav>
         </div>
       </div>
     </div>
@@ -1266,10 +1316,21 @@ export function LibraryLayout({
   const docsTabs = (
     <div
       className={twMerge(
-        'sticky top-[var(--navbar-height)] z-30 border-b border-gray-500/20 bg-white/90 dark:bg-black/80 backdrop-blur-lg',
+        'sticky top-[var(--navbar-height)] z-30 h-[var(--docs-tabs-height)] border-b border-gray-500/20 bg-white/90 dark:bg-black/80 backdrop-blur-lg',
       )}
     >
-      <div className="flex items-stretch">
+      <div className="flex h-full items-stretch">
+        <Link
+          to={libraryHomePath}
+          aria-label={`${name} home`}
+          className={twMerge(
+            'flex max-w-[50vw] shrink-0 items-center gap-2 border-r border-gray-500/20 px-3 font-ds-display text-[20px] font-semibold leading-none hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current md:max-w-none md:text-[24px] min-[900px]:px-5',
+            libraryGroupColor,
+          )}
+        >
+          <LibraryIcon className="size-5 shrink-0 md:size-6" weight="bold" />
+          <span className="truncate">{name}</span>
+        </Link>
         <button
           type="button"
           aria-label="Documentation menu"
@@ -1279,8 +1340,8 @@ export function LibraryLayout({
           data-docs-mobile-trigger
           className="min-[900px]:hidden flex items-center gap-1.5 shrink-0 px-3 border-r border-gray-500/20 text-slate-600 dark:text-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current"
         >
-          <List className="w-4 h-4" data-docs-mobile-closed-icon />
-          <X className="w-4 h-4" data-docs-mobile-open-icon />
+          <ListIcon className="w-4 h-4" data-docs-mobile-closed-icon />
+          <XIcon className="w-4 h-4" data-docs-mobile-open-icon />
           <span className="text-xs font-medium max-[479.98px]:sr-only">
             Menu
           </span>
@@ -1302,13 +1363,13 @@ export function LibraryLayout({
           data-docs-menu-trigger
           className="hidden min-[900px]:flex xl:hidden items-center gap-1 shrink-0 px-2 border-r border-gray-500/20 text-xs font-medium text-slate-600 dark:text-slate-300 min-[1120px]:gap-1.5 min-[1120px]:px-3 min-[1120px]:text-[13px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current"
         >
-          <List className="w-4 h-4" />
+          <ListIcon className="w-4 h-4" />
           <span className="text-xs font-medium">Menu</span>
         </button>
-        <div className="relative flex min-w-0 flex-1 items-stretch">
+        <div className="relative hidden min-w-0 flex-1 items-stretch md:flex">
           <nav
             aria-label="Documentation sections"
-            className="flex min-w-0 flex-1 items-stretch gap-3 overflow-x-auto overflow-y-hidden px-3 text-xs min-[1120px]:gap-6 min-[1120px]:px-6 min-[1120px]:text-[13px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="fade-x fade-size-x-sm flex min-w-0 flex-1 items-stretch gap-3 overflow-x-auto overflow-y-hidden px-3 text-xs min-[1120px]:gap-6 min-[1120px]:px-6 min-[1120px]:text-[13px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             {tabbedMenuConfig.map((tab) => {
               const target = tab.firstItem
@@ -1318,21 +1379,19 @@ export function LibraryLayout({
                 return null
               }
 
-              const linkParams =
-                !target.to.startsWith('/') || target.to.includes('/$libraryId')
-                  ? ({ libraryId, version } as never)
-                  : undefined
+              const linkOptions = getLibraryTabLinkOptions({
+                libraryId,
+                version,
+                to: target.to,
+              })
 
               return (
                 <Link
                   key={tab.id}
-                  from={
-                    target.to === '/charts/catalog'
-                      ? undefined
-                      : '/$libraryId/$version/docs'
-                  }
-                  to={target.to}
-                  params={linkParams}
+                  from={linkOptions.from as never}
+                  to={linkOptions.to as never}
+                  params={linkOptions.params as never}
+                  preload={isChartsCatalogTarget(target.to) ? false : 'intent'}
                   activeOptions={{
                     exact: true,
                     includeHash: false,
@@ -1358,11 +1417,6 @@ export function LibraryLayout({
               )
             })}
           </nav>
-          <div
-            aria-hidden="true"
-            data-docs-tabs-scroll-fade
-            className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-linear-to-r from-white/0 to-white/95 dark:from-black/0 dark:to-black/90 min-[640px]:w-10"
-          />
         </div>
         {isLandingPage ? (
           <div className="hidden shrink-0 items-center gap-4 px-5 text-[11px] text-text-primary/35 xl:flex">
@@ -1416,7 +1470,7 @@ export function LibraryLayout({
           data-docs-layout
           data-docs-menu-open={showLargeMenu ? 'true' : undefined}
           className={twMerge(
-            'flex w-full flex-col [overflow-x:clip] md:min-h-[calc(100dvh-var(--navbar-height))] transition-all duration-300',
+            'flex w-full flex-col md:min-h-[calc(100dvh-var(--navbar-height))] transition-all duration-300',
             isLandingPage && 'bg-background-default text-text-primary',
           )}
         >
@@ -1426,7 +1480,7 @@ export function LibraryLayout({
             {largeMenu}
             <div
               className={twMerge(
-                'flex flex-col max-w-full min-w-0 flex-1 min-h-0 relative',
+                'relative flex min-h-0 min-w-0 max-w-full flex-1 flex-col [overflow-x:clip]',
               )}
             >
               <div
@@ -1444,11 +1498,6 @@ export function LibraryLayout({
               >
                 {children}
               </div>
-              {!isLandingPage && (
-                <div className="pt-8 md:pt-12">
-                  <Footer />
-                </div>
-              )}
             </div>
             {!isLandingPage && (
               <RightRail
@@ -1456,13 +1505,15 @@ export function LibraryLayout({
                 className="md:w-[220px]"
                 stickyOffset="docs-tabs"
               >
-                <PartnersRail
+                <PartnerRail
                   analyticsPlacement="docs_rail"
                   partners={activePartners}
                 />
-                <div className="hidden md:block border border-gray-500/20 rounded-l-lg overflow-hidden w-full">
-                  <RecentPostsWidget enabled={isDesktopViewport} />
-                </div>
+                {!isBlog && (
+                  <div className="hidden md:block border border-gray-500/20 rounded-l-lg overflow-hidden w-full">
+                    <RecentPostsWidget enabled={isDesktopViewport} />
+                  </div>
+                )}
               </RightRail>
             )}
           </div>

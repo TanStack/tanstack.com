@@ -1,6 +1,7 @@
+import type * as React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
-import { DsPage, DsSection } from '~/components/ds/DsKit'
+import { DsDescription, DsPage, DsSection } from '~/components/ds/DsKit'
 
 export const Route = createFileRoute('/ds/typography')({
   component: TypographyPage,
@@ -106,22 +107,22 @@ const GROUPS: Array<TypeGroup> = [
       {
         name: 'mono/display',
         cls: 'text-ds-mono-display',
-        spec: '24 / 31 · Regular',
+        spec: '24 / 31 · Medium',
       },
-      { name: 'mono/lg', cls: 'text-ds-mono-lg', spec: '18 / 27 · Regular' },
-      { name: 'mono/md', cls: 'text-ds-mono-md', spec: '16 / 24 · Light' },
-      { name: 'mono/sm', cls: 'text-ds-mono-sm', spec: '14 / 21 · Light' },
-      { name: 'mono/xs', cls: 'text-ds-mono-xs', spec: '12 / 16 · Light' },
-      { name: 'mono/2xs', cls: 'text-ds-mono-2xs', spec: '10 / 14 · Light' },
+      { name: 'mono/lg', cls: 'text-ds-mono-lg', spec: '18 / 27 · Medium' },
+      { name: 'mono/md', cls: 'text-ds-mono-md', spec: '16 / 24 · Regular' },
+      { name: 'mono/sm', cls: 'text-ds-mono-sm', spec: '14 / 21 · Regular' },
+      { name: 'mono/xs', cls: 'text-ds-mono-xs', spec: '12 / 16 · Regular' },
+      { name: 'mono/2xs', cls: 'text-ds-mono-2xs', spec: '10 / 14 · Regular' },
       {
         name: 'mono/caps',
         cls: 'text-ds-mono-caps uppercase',
-        spec: '12 / 14 · Regular · +1.5 · UPPER',
+        spec: '12 / 14 · Medium · +1.5 · UPPER',
       },
       {
         name: 'mono/caps-xs',
         cls: 'text-ds-mono-caps-xs uppercase',
-        spec: '10 / 12 · Regular · +1.2 · UPPER',
+        spec: '10 / 12 · Medium · +1.2 · UPPER',
       },
     ],
   },
@@ -187,57 +188,165 @@ function TypographyPage() {
 
       {GROUPS.map((group) => (
         <DsSection key={group.title} title={group.title}>
-          <div className="divide-y divide-border-default overflow-hidden rounded-xl border border-border-default">
-            {group.items.map((item) => (
-              <div
-                key={item.name}
-                className="flex items-baseline justify-between gap-6 bg-background-surface px-5 py-4"
-              >
-                <span
-                  className={`${group.font} ${item.cls} min-w-0 truncate text-text-primary`}
-                >
-                  {group.sample}
-                </span>
-                <span className="shrink-0 text-right">
-                  <span className="block font-ds-mono text-xs text-text-secondary">
-                    {item.name}
-                  </span>
-                  <span className="block text-[11px] text-text-muted">
-                    {item.spec}
-                  </span>
-                </span>
-              </div>
-            ))}
+          <div className="grid overflow-hidden rounded-xl border border-border-default lg:grid-cols-2">
+            <TypeGroupMode group={group} mode="light" />
+            <TypeGroupMode group={group} mode="dark" />
           </div>
         </DsSection>
       ))}
 
       <DsSection
+        title="Documentation roles"
+        description="Named text roles keep explanatory copy on the same typography and semantic color tokens throughout the design-system catalog."
+      >
+        <div className="grid gap-3 md:grid-cols-3">
+          <DescriptionRoleCard
+            name="Page description"
+            variant="page"
+            typeToken="body/md"
+            colorToken="text-secondary"
+          >
+            Introduces the purpose and scope of a design-system page.
+          </DescriptionRoleCard>
+          <DescriptionRoleCard
+            name="Section description"
+            variant="section"
+            typeToken="body/sm"
+            colorToken="text-secondary"
+          >
+            Explains usage, behavior, and guidance for a component section.
+          </DescriptionRoleCard>
+          <DescriptionRoleCard
+            name="Preview description"
+            variant="preview"
+            typeToken="body/sm"
+            colorToken="text-muted"
+          >
+            Adds compact supporting context inside a component preview.
+          </DescriptionRoleCard>
+        </div>
+      </DsSection>
+
+      <DsSection
         title="Semantic headings"
         description="Convenience classes that bundle the display font with each heading size — apply h1–h6 directly to an element instead of pairing font-ds-display with text-ds-heading-*. Aliases of the heading scale above, defined in app.css."
       >
-        <div className="divide-y divide-border-default overflow-hidden rounded-xl border border-border-default">
-          {SEMANTIC_HEADINGS.map((h) => (
-            <div
-              key={h.cls}
-              className="flex items-baseline justify-between gap-6 bg-background-surface px-5 py-4"
-            >
-              <span className={`${h.cls} min-w-0 truncate text-text-primary`}>
-                Type-safe by default
-              </span>
-              <span className="shrink-0 text-right">
-                <span className="block font-ds-mono text-xs text-text-secondary">
-                  .{h.cls}
-                </span>
-                <span className="block text-[11px] text-text-muted">
-                  {h.alias}
-                </span>
-              </span>
-            </div>
-          ))}
+        <div className="grid overflow-hidden rounded-xl border border-border-default lg:grid-cols-2">
+          <SemanticHeadingMode mode="light" />
+          <SemanticHeadingMode mode="dark" />
         </div>
       </DsSection>
     </DsPage>
+  )
+}
+
+function TypeGroupMode({
+  group,
+  mode,
+}: {
+  group: TypeGroup
+  mode: 'light' | 'dark'
+}) {
+  return (
+    <div
+      className={`ds-mode-${mode} min-w-0 bg-background-default text-text-primary ${
+        mode === 'dark'
+          ? 'border-t border-border-default lg:border-l lg:border-t-0'
+          : ''
+      }`}
+    >
+      <div className="border-b border-border-default px-5 py-3 font-ds-mono text-ds-mono-caps-xs uppercase text-text-muted">
+        {mode}
+      </div>
+      <div className="divide-y divide-border-default">
+        {group.items.map((item) => (
+          <div
+            key={item.name}
+            className="flex min-w-0 items-baseline justify-between gap-4 bg-background-surface px-5 py-4"
+          >
+            <span
+              className={`${group.font} ${item.cls} min-w-0 truncate text-text-primary`}
+            >
+              {group.sample}
+            </span>
+            <span className="shrink-0 text-right">
+              <span className="block font-ds-mono text-xs text-text-secondary">
+                {item.name}
+              </span>
+              <span className="block text-[11px] text-text-muted">
+                {item.spec}
+              </span>
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function SemanticHeadingMode({ mode }: { mode: 'light' | 'dark' }) {
+  return (
+    <div
+      className={`ds-mode-${mode} min-w-0 bg-background-default text-text-primary ${
+        mode === 'dark'
+          ? 'border-t border-border-default lg:border-l lg:border-t-0'
+          : ''
+      }`}
+    >
+      <div className="border-b border-border-default px-5 py-3 font-ds-mono text-ds-mono-caps-xs uppercase text-text-muted">
+        {mode}
+      </div>
+      <div className="divide-y divide-border-default">
+        {SEMANTIC_HEADINGS.map((heading) => (
+          <div
+            key={heading.cls}
+            className="flex min-w-0 items-baseline justify-between gap-4 bg-background-surface px-5 py-4"
+          >
+            <span
+              className={`${heading.cls} min-w-0 truncate text-text-primary`}
+            >
+              Type-safe by default
+            </span>
+            <span className="shrink-0 text-right">
+              <span className="block font-ds-mono text-xs text-text-secondary">
+                .{heading.cls}
+              </span>
+              <span className="block text-[11px] text-text-muted">
+                {heading.alias}
+              </span>
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function DescriptionRoleCard({
+  children,
+  colorToken,
+  name,
+  variant,
+  typeToken,
+}: {
+  children: React.ReactNode
+  colorToken: string
+  name: string
+  variant: React.ComponentProps<typeof DsDescription>['variant']
+  typeToken: string
+}) {
+  return (
+    <div className="rounded-lg border border-border-default bg-background-surface p-4">
+      <div className="font-ds-display text-ds-heading-6 text-text-primary">
+        {name}
+      </div>
+      <DsDescription variant={variant} className="mt-2">
+        {children}
+      </DsDescription>
+      <div className="mt-4 font-ds-mono text-ds-mono-2xs text-text-muted">
+        {typeToken} · {colorToken}
+      </div>
+    </div>
   )
 }
 

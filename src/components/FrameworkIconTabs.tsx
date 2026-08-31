@@ -21,20 +21,27 @@ export function FrameworkIconTabs({
     [frameworks],
   )
 
+  // Not a real tablist: these buttons don't switch a tab panel, they swap the
+  // StackBlitz embed via `onChange`. So this is a labeled group of toggle
+  // buttons (`aria-pressed`) rather than tabs — each button is individually
+  // Tab-focusable, no roving tabindex needed.
   return (
     <div
+      role="group"
+      aria-label="Choose framework"
       className={twMerge(
-        `flex items-center justify-start gap-2 border-b border-gray-200 dark:border-gray-700 overflow-x-auto scrollbar-hide`,
+        'fade-x fade-size-x-sm flex items-center justify-start gap-1 overflow-x-auto overflow-y-hidden border-b border-border-default scrollbar-hide',
         className,
       )}
     >
       {options.map((opt) => (
         <button
           key={opt.value}
-          className={`inline-flex items-center justify-center gap-2 px-3 py-1.5 -mb-[1px] border-b-2 text-sm font-bold transition-colors ${
+          aria-pressed={value === opt.value}
+          className={`relative -mb-px inline-flex shrink-0 items-center justify-center gap-2 border-b-2 px-3 py-2 text-sm font-semibold transition-colors ${
             value === opt.value
-              ? 'border-current text-current'
-              : 'border-transparent text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
+              ? 'border-text-primary text-text-primary'
+              : 'border-transparent text-text-secondary hover:text-text-primary'
           }`}
           onClick={() => onChange(opt.value as Framework)}
           aria-label={opt.label}

@@ -13,7 +13,7 @@ import {
   getBlockIdentifier,
 } from '~/utils/docFeedback'
 import type { DocFeedback } from '~/db/types'
-import { Lightbulb, ChatCentered } from '@phosphor-icons/react'
+import { LightbulbIcon, ChatCenteredIcon } from '@phosphor-icons/react'
 
 interface DocFeedbackProviderProps {
   children: React.ReactNode
@@ -584,7 +584,7 @@ function CreatingFeedbackNote({
 
   // Theme based on type
   const isImprovement = type === 'improvement'
-  const Icon = isImprovement ? Lightbulb : ChatCentered
+  const Icon = isImprovement ? LightbulbIcon : ChatCenteredIcon
 
   const colors = isImprovement
     ? {

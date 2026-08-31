@@ -1,94 +1,97 @@
 import { createServerFn } from '@tanstack/react-start'
 import { setResponseHeader } from '@tanstack/react-start/server'
 import * as v from 'valibot'
-import type {
-  ChartsCatalogCase,
-  ChartsCatalogPublication,
-} from './charts-catalog'
 import {
   chartsCatalogCaseIdSchema,
-  chartsCatalogPublicationCacheHeaders,
+  chartsCatalogCollectionIdSchema,
+  findChartsCatalogCollection,
 } from './charts-catalog'
-
-const defaultReferenceRenderer = 'observable-plot'
-
-const comparisonInputSchema = v.strictObject({
-  comparison: v.boolean(),
-})
+import { chartsCatalogIndexCacheHeaders } from './charts-catalog-index'
 
 const caseInputSchema = v.strictObject({
   caseId: chartsCatalogCaseIdSchema,
-  comparison: v.boolean(),
+})
+
+const collectionInputSchema = v.strictObject({
+  collectionId: chartsCatalogCollectionIdSchema,
 })
 
 const embedCaseInputSchema = v.strictObject({
   caseId: chartsCatalogCaseIdSchema,
+  height: v.pipe(v.number(), v.integer(), v.minValue(120), v.maxValue(1_200)),
+  revision: v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(10_000)),
   source: v.boolean(),
 })
 
-export const getChartsCatalogAll = createServerFn({ method: 'GET' })
-  .validator(comparisonInputSchema)
-  .handler(async ({ data }) => {
+export const getChartsCatalogAll = createServerFn({ method: 'GET' }).handler(
+  async () => {
     const publication = await loadPublication()
     setCatalogResponseHeaders()
     return {
-      artifactRevision: publication.artifactRevision,
-      revision: publication.manifest.revision,
-      cases: publication.manifest.cases.map((catalogCase) => ({
-        ...getCaseMetadata(catalogCase),
-        modules: data.comparison
-          ? catalogCase.modules
-          : { tanstack: catalogCase.modules.tanstack },
-      })),
+      revision: publication.revision,
+      cases: publication.index.cases,
+    }
+  },
+)
+
+export const getChartsCatalogCollection = createServerFn({ method: 'GET' })
+  .validator(collectionInputSchema)
+  .handler(async ({ data }) => {
+    const collection = findChartsCatalogCollection(data.collectionId)
+    if (!collection) return null
+
+    const publication = await loadPublication()
+    const cases = publication.index.cases.filter(
+      (catalogCase) => catalogCase.collection === collection.id,
+    )
+    if (cases.length === 0) return null
+
+    setCatalogResponseHeaders()
+    return {
+      collection,
+      revision: publication.revision,
+      cases,
     }
   })
+
+export const getChartsCatalogLanding = createServerFn({
+  method: 'GET',
+}).handler(async () => {
+  const publication = await loadPublication()
+  setCatalogResponseHeaders()
+  return {
+    revision: publication.revision,
+    cases: publication.index.cases.map((catalogCase) => ({
+      id: catalogCase.id,
+      family: catalogCase.family,
+      order: catalogCase.order,
+      title: catalogCase.title,
+    })),
+  }
+})
 
 export const getChartsCatalogCase = createServerFn({ method: 'GET' })
   .validator(caseInputSchema)
   .handler(async ({ data }) => {
     const publication = await loadPublication()
-    const catalogCase = publication.manifest.cases.find(
+    const catalogCase = publication.index.cases.find(
       (entry) => entry.id === data.caseId,
     )
     if (!catalogCase) return null
 
-    const { getChartsCatalogSource } = await import('./charts-catalog.server')
-    const [tanstackSource, comparisonSource] = await Promise.all([
-      getChartsCatalogSource(
-        publication.manifest.revision,
-        catalogCase.code.tanstack,
-      ),
-      data.comparison
-        ? getChartsCatalogSource(
-            publication.manifest.revision,
-            catalogCase.code.reference,
-          )
-        : Promise.resolve(undefined),
-    ])
+    const { getChartsCatalogExample } = await import('./charts-catalog.server')
+    const { authoredSource, example } = await getChartsCatalogExample(
+      publication,
+      catalogCase.id,
+    )
 
     setCatalogResponseHeaders()
     return {
-      artifactRevision: publication.artifactRevision,
-      revision: publication.manifest.revision,
+      revision: publication.revision,
       case: {
-        ...getCaseMetadata(catalogCase),
-        modules: data.comparison
-          ? catalogCase.modules
-          : { tanstack: catalogCase.modules.tanstack },
-        code: {
-          tanstack: {
-            path: catalogCase.code.tanstack,
-            source: tanstackSource,
-          },
-          ...(data.comparison
-            ? {
-                comparison: {
-                  path: catalogCase.code.reference,
-                  source: comparisonSource,
-                },
-              }
-            : {}),
-        },
+        ...catalogCase,
+        authoredSource: { tanstack: authoredSource },
+        example,
       },
     }
   })
@@ -97,67 +100,40 @@ export const getChartsCatalogEmbedCase = createServerFn({ method: 'GET' })
   .validator(embedCaseInputSchema)
   .handler(async ({ data }) => {
     const publication = await loadPublication()
-    const catalogCase = publication.manifest.cases.find(
+    const catalogCase = publication.index.cases.find(
       (entry) => entry.id === data.caseId,
     )
     if (!catalogCase) return null
 
-    const source = data.source
-      ? await (
-          await import('./charts-catalog.server')
-        ).getChartsCatalogSource(
-          publication.manifest.revision,
-          catalogCase.code.tanstack,
-        )
-      : undefined
+    const { getChartsCatalogExample } = await import('./charts-catalog.server')
+    const { authoredSource, example } = await getChartsCatalogExample(
+      publication,
+      catalogCase.id,
+      {
+        chartHeight: data.height,
+        renderRevision: data.revision,
+      },
+    )
 
     setCatalogResponseHeaders()
     return {
-      artifactRevision: publication.artifactRevision,
-      revision: publication.manifest.revision,
       case: {
         id: catalogCase.id,
         title: catalogCase.title,
-        module: catalogCase.modules.tanstack,
-        code: source
-          ? {
-              path: catalogCase.code.tanstack,
-              source,
-            }
-          : undefined,
+        authoredSource: data.source ? authoredSource : undefined,
+        example,
       },
     }
   })
 
-async function loadPublication(): Promise<ChartsCatalogPublication> {
-  const { getChartsCatalogPublication } =
-    await import('./charts-catalog.server')
-  return getChartsCatalogPublication()
-}
-
-function getCaseMetadata(catalogCase: ChartsCatalogCase) {
-  return {
-    schemaVersion: catalogCase.schemaVersion,
-    referenceRenderer:
-      catalogCase.referenceRenderer ?? defaultReferenceRenderer,
-    order: catalogCase.order,
-    id: catalogCase.id,
-    title: catalogCase.title,
-    family: catalogCase.family,
-    intent: catalogCase.intent,
-    support: catalogCase.support,
-    features: catalogCase.features,
-    geometry: catalogCase.geometry,
-    source: catalogCase.source,
-    ai: catalogCase.ai,
-    routes: catalogCase.routes,
-  }
+async function loadPublication() {
+  const { getChartsCatalogIndexPublication } =
+    await import('./charts-catalog-index.server')
+  return getChartsCatalogIndexPublication()
 }
 
 function setCatalogResponseHeaders() {
-  for (const [name, value] of Object.entries(
-    chartsCatalogPublicationCacheHeaders,
-  )) {
+  for (const [name, value] of Object.entries(chartsCatalogIndexCacheHeaders)) {
     setResponseHeader(name, value)
   }
 }

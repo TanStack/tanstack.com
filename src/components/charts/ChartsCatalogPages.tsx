@@ -1,45 +1,36 @@
-import { ArrowsOutSimple, GridFour } from '@phosphor-icons/react'
-import { Link } from '@tanstack/react-router'
-import * as React from 'react'
-import { CodeBlock } from '~/components/markdown/CodeBlock'
-import type { ChartsCatalogCase } from '~/utils/charts-catalog'
 import {
-  ChartsCatalogChart,
-  type ChartsCatalogModuleReference,
-} from './ChartsCatalogChart'
-import { Resizable, type ResizableSizeChange } from '../npm-stats/Resizable'
+  ArrowsOutSimpleIcon,
+  ArrowUpRightIcon,
+  GridFourIcon,
+} from '@phosphor-icons/react'
+import { ClientOnly, Link } from '@tanstack/react-router'
+import * as React from 'react'
+import type { ChartsCatalogIndexCase } from '~/utils/charts-catalog-index'
+import type { ExampleDefinition } from '~/utils/example-workspace'
+import {
+  chartsCatalogCollections,
+  findChartsCatalogCollection,
+  type ChartsCatalogAuthoredSource,
+} from '~/utils/charts-catalog'
+import { ChartsCatalogPreview } from './ChartsCatalogPreview'
+import { ChartsCatalogSource } from './ChartsCatalogSource'
 
-type CatalogCaseMetadata = Pick<
-  ChartsCatalogCase,
-  | 'ai'
-  | 'family'
-  | 'features'
-  | 'geometry'
-  | 'id'
-  | 'intent'
-  | 'order'
-  | 'referenceRenderer'
-  | 'routes'
-  | 'schemaVersion'
-  | 'source'
-  | 'support'
-  | 'title'
->
+const LazyExampleWorkbench = React.lazy(() =>
+  import('~/components/examples/ExampleWorkbench.client').then((module) => ({
+    default: module.ExampleWorkbench,
+  })),
+)
 
-type CatalogCaseModules = {
-  tanstack: ChartsCatalogModuleReference
-  comparison?: ChartsCatalogModuleReference & {
-    renderer: 'observable-plot' | 'recharts' | 'echarts'
-    visibility: 'debug'
-  }
-}
+type CatalogCaseMetadata = ChartsCatalogIndexCase
 
 export function ChartsCatalog({
-  artifactRevision,
   cases,
+  collection,
+  revision,
 }: {
-  artifactRevision: string
-  cases: Array<CatalogCaseMetadata & { modules: CatalogCaseModules }>
+  cases: Array<CatalogCaseMetadata>
+  collection?: (typeof chartsCatalogCollections)[number]
+  revision: string
 }) {
   const [query, setQuery] = React.useState('')
   const [family, setFamily] = React.useState('all')
@@ -60,9 +51,51 @@ export function ChartsCatalog({
         ))
     )
   })
+  const availableCollections = chartsCatalogCollections
+    .map((metadata) => ({
+      metadata,
+      count: cases.filter(
+        (catalogCase) => catalogCase.collection === metadata.id,
+      ).length,
+    }))
+    .filter((entry) => entry.count > 0)
 
   return (
     <CatalogSurface>
+      {collection ? (
+        <header className="mb-6 max-w-2xl">
+          <Link
+            className="text-sm text-text-muted hover:text-action-primary"
+            preload={false}
+            search={true}
+            to="/charts/catalog"
+          >
+            All examples
+          </Link>
+          <h1 className="mt-2 font-ds-display text-3xl font-bold tracking-tight text-text-primary">
+            {collection.title}
+          </h1>
+          <p className="mt-2 text-text-secondary">{collection.description}</p>
+        </header>
+      ) : availableCollections.length > 0 ? (
+        <nav aria-label="Chart collections" className="mb-4 flex gap-2">
+          {availableCollections.map((entry) => (
+            <Link
+              key={entry.metadata.id}
+              className="rounded-lg border border-border-subtle bg-background-surface px-3 py-2 text-sm font-medium text-text-primary hover:border-action-primary"
+              params={{ collectionId: entry.metadata.id }}
+              preload={false}
+              search={true}
+              to="/charts/catalog/collections/$collectionId"
+            >
+              {entry.metadata.title}
+              <span className="ml-2 font-ds-mono text-ds-mono-caps-xs text-text-muted">
+                {entry.count}
+              </span>
+            </Link>
+          ))}
+        </nav>
+      ) : null}
       <CatalogToolbar
         count={filtered.length}
         family={family}
@@ -81,31 +114,36 @@ export function ChartsCatalog({
         {filtered.map((catalogCase) => (
           <article
             key={catalogCase.id}
-            className="min-w-0 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-950"
+            className="group relative min-w-0 overflow-hidden rounded-xl border border-border-subtle bg-background-surface"
           >
-            <div className="flex items-start justify-between gap-4">
-              <Link
-                to="/charts/catalog/charts/$caseId"
-                params={{ caseId: catalogCase.id }}
-                search={true}
-                className="font-semibold leading-snug text-gray-950 hover:text-blue-600 dark:text-white dark:hover:text-blue-400"
-              >
+            <div aria-hidden="true" className="relative aspect-[3/2]">
+              <ChartsCatalogPreview
+                caseId={catalogCase.id}
+                revision={revision}
+              />
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-background-default/60 opacity-0 backdrop-blur-[1px] transition-opacity duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:opacity-100 group-focus-within:opacity-100 motion-reduce:transition-none">
+                <span className="inline-flex items-center gap-1.5 rounded-lg border border-border-default bg-background-surface/95 px-3 py-2 font-ds-display text-sm font-semibold text-text-primary shadow-sm">
+                  Open example
+                  <ArrowUpRightIcon aria-hidden="true" className="size-4" />
+                </span>
+              </div>
+            </div>
+            <div className="flex min-h-16 items-center justify-between gap-4 border-t border-border-subtle px-4 py-3">
+              <p className="min-w-0 truncate font-ds-display text-sm font-semibold text-text-primary">
                 {catalogCase.title}
-              </Link>
-              <span className="shrink-0 text-xs text-gray-500">
+              </p>
+              <span className="shrink-0 font-ds-mono text-ds-mono-caps-xs uppercase text-text-muted">
                 {catalogCase.family}
               </span>
             </div>
-            <div className="mt-4">
-              <ResizableCatalogChart
-                key={`${catalogCase.id}:${fullWidth ? 'full' : 'grid'}`}
-                artifactRevision={artifactRevision}
-                caseId={catalogCase.id}
-                defer
-                initialHeight={fullWidth ? 420 : 320}
-                module={catalogCase.modules.tanstack}
-              />
-            </div>
+            <Link
+              aria-label={`Open the ${catalogCase.title} catalog example`}
+              className="absolute inset-0 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action-primary focus-visible:ring-inset"
+              params={{ caseId: catalogCase.id }}
+              preload={false}
+              search={true}
+              to="/charts/catalog/charts/$caseId"
+            />
           </article>
         ))}
       </div>
@@ -114,31 +152,43 @@ export function ChartsCatalog({
 }
 
 export function ChartsCatalogDetail({
-  artifactRevision,
   catalogCase,
 }: {
-  artifactRevision: string
   catalogCase: CatalogCaseMetadata & {
-    modules: CatalogCaseModules
-    code: {
-      tanstack: { path: string; source: string }
-      comparison?: { path: string; source?: string }
+    example: ExampleDefinition
+    authoredSource: {
+      tanstack: ChartsCatalogAuthoredSource
     }
   }
 }) {
-  const comparison = catalogCase.modules.comparison
+  const collection = catalogCase.collection
+    ? findChartsCatalogCollection(catalogCase.collection)
+    : undefined
 
   return (
     <CatalogSurface wide>
       <div className="mb-6 flex flex-wrap items-start justify-between gap-5">
         <div>
-          <Link
-            to="/charts/catalog"
-            search={true}
-            className="text-sm text-gray-500 hover:text-blue-600 dark:hover:text-blue-400"
-          >
-            Catalog
-          </Link>
+          {collection ? (
+            <Link
+              className="text-sm text-gray-500 hover:text-blue-600 dark:hover:text-blue-400"
+              params={{ collectionId: collection.id }}
+              preload={false}
+              search={true}
+              to="/charts/catalog/collections/$collectionId"
+            >
+              {collection.title}
+            </Link>
+          ) : (
+            <Link
+              className="text-sm text-gray-500 hover:text-blue-600 dark:hover:text-blue-400"
+              preload={false}
+              search={true}
+              to="/charts/catalog"
+            >
+              Catalog
+            </Link>
+          )}
           <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-950 dark:text-white sm:text-3xl">
             {catalogCase.title}
           </h1>
@@ -146,72 +196,45 @@ export function ChartsCatalogDetail({
         </div>
       </div>
 
-      <div className={`grid gap-6 ${comparison ? 'xl:grid-cols-2' : ''}`}>
-        <ChartPanel label="TanStack">
-          <ResizableCatalogChart
-            artifactRevision={artifactRevision}
-            caseId={catalogCase.id}
-            module={catalogCase.modules.tanstack}
+      <ClientOnly
+        fallback={<CatalogWorkbenchFallback catalogCase={catalogCase} />}
+      >
+        <React.Suspense
+          fallback={<CatalogWorkbenchFallback catalogCase={catalogCase} />}
+        >
+          <LazyExampleWorkbench
+            definition={catalogCase.example}
+            packageResolution="dynamic"
           />
-        </ChartPanel>
-        {comparison ? (
-          <ChartPanel label={rendererLabel(comparison.renderer)}>
-            <ResizableCatalogChart
-              artifactRevision={artifactRevision}
-              caseId={`${catalogCase.id}-comparison`}
-              module={comparison}
-            />
-          </ChartPanel>
-        ) : null}
-      </div>
-
-      <div className={`mt-6 grid gap-3 ${comparison ? 'xl:grid-cols-2' : ''}`}>
-        <SourceBlock
-          path={catalogCase.code.tanstack.path}
-          source={catalogCase.code.tanstack.source}
-        />
-        {catalogCase.code.comparison?.source ? (
-          <SourceBlock
-            path={catalogCase.code.comparison.path}
-            source={catalogCase.code.comparison.source}
-          />
-        ) : null}
-      </div>
+        </React.Suspense>
+      </ClientOnly>
     </CatalogSurface>
   )
 }
 
-function ResizableCatalogChart({
-  artifactRevision,
-  caseId,
-  defer = false,
-  initialHeight = 360,
-  module,
-}: {
-  artifactRevision: string
-  caseId: string
-  defer?: boolean
-  initialHeight?: number
-  module: ChartsCatalogModuleReference
-}) {
-  const [height, setHeight] = React.useState(initialHeight)
-  const [width, setWidth] = React.useState<number | undefined>(undefined)
-
-  const onSizeChange = React.useCallback((size: ResizableSizeChange) => {
-    if (size.height !== undefined) setHeight(size.height)
-    if ('width' in size) setWidth(size.width)
-  }, [])
-
+export function ChartsCatalogDetailPending() {
   return (
-    <Resizable height={height} width={width} onSizeChange={onSizeChange}>
-      <ChartsCatalogChart
-        artifactRevision={artifactRevision}
-        caseId={caseId}
-        defer={defer}
-        height={height}
-        module={module}
-      />
-    </Resizable>
+    <CatalogSurface wide>
+      <p
+        aria-live="polite"
+        className="rounded-lg border border-gray-200 p-6 text-sm text-gray-500 dark:border-gray-800"
+        role="status"
+      >
+        Loading chart example…
+      </p>
+    </CatalogSurface>
+  )
+}
+
+function CatalogWorkbenchFallback({
+  catalogCase,
+}: {
+  catalogCase: { authoredSource: { tanstack: ChartsCatalogAuthoredSource } }
+}) {
+  return (
+    <div className="rounded-lg border border-gray-200 dark:border-gray-800">
+      <ChartsCatalogSource source={catalogCase.authoredSource.tanstack} />
+    </div>
   )
 }
 
@@ -279,12 +302,12 @@ function CatalogToolbar({
         type="button"
         aria-pressed={fullWidth}
         onClick={() => setFullWidth(!fullWidth)}
-        className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 hover:text-gray-950 aria-pressed:border-blue-500 aria-pressed:text-blue-600 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-400 dark:hover:text-white dark:aria-pressed:border-blue-500 dark:aria-pressed:text-blue-400"
+        className="hidden items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 hover:text-gray-950 aria-pressed:border-blue-500 aria-pressed:text-blue-600 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-400 dark:hover:text-white dark:aria-pressed:border-blue-500 dark:aria-pressed:text-blue-400 sm:inline-flex"
       >
         {fullWidth ? (
-          <GridFour aria-hidden="true" className="size-4" />
+          <GridFourIcon aria-hidden="true" className="size-4" />
         ) : (
-          <ArrowsOutSimple aria-hidden="true" className="size-4" />
+          <ArrowsOutSimpleIcon aria-hidden="true" className="size-4" />
         )}
         Full width
       </button>
@@ -293,41 +316,4 @@ function CatalogToolbar({
       </span>
     </div>
   )
-}
-
-function ChartPanel({
-  children,
-  label,
-}: {
-  children: React.ReactNode
-  label: string
-}) {
-  return (
-    <div className="min-w-0">
-      <p className="mb-2 text-xs font-medium text-gray-500">{label}</p>
-      {children}
-    </div>
-  )
-}
-
-function SourceBlock({ path, source }: { path: string; source: string }) {
-  return (
-    <details className="min-w-0 rounded-lg border border-gray-200 dark:border-gray-800">
-      <summary className="cursor-pointer px-4 py-3 font-mono text-xs text-gray-600 dark:text-gray-400">
-        {path}
-      </summary>
-      <CodeBlock
-        showTypeCopyButton={false}
-        className="max-h-[32rem] rounded-none border-x-0 border-b-0 [&_pre]:max-h-[32rem] [&_pre]:overflow-auto"
-      >
-        <code className="language-ts">{source}</code>
-      </CodeBlock>
-    </details>
-  )
-}
-
-function rendererLabel(renderer: 'observable-plot' | 'recharts' | 'echarts') {
-  if (renderer === 'observable-plot') return 'Observable Plot'
-  if (renderer === 'recharts') return 'Recharts'
-  return 'Apache ECharts'
 }

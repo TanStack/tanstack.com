@@ -40,6 +40,7 @@ const frameworkLabels: Record<Framework, string> = {
   ember: 'Ember',
   lit: 'Lit',
   marko: 'Marko',
+  octane: 'Octane',
   preact: 'Preact',
   qwik: 'Qwik',
   react: 'React',
@@ -100,6 +101,9 @@ export function generateLlmsTxt(): string {
   )
   lines.push(
     '- [NPM Stats](https://tanstack.com/stats/npm): Compare npm package download statistics across TanStack packages and related ecosystem packages.',
+  )
+  lines.push(
+    '- [Builder authoring guide](https://tanstack.com/builder/llms.txt): Create shareable client-side TypeScript and JSX modules with the supported runtime, import aliases, and URL protocol.',
   )
   lines.push('')
 

@@ -9,7 +9,8 @@ import {
   lineY,
   type ChartPoint,
 } from '@tanstack/charts'
-import { Chart } from '@tanstack/react-charts'
+import { tooltip } from '@tanstack/charts/tooltip'
+import { Chart } from '@tanstack/charts/react'
 import { type BinType, binTimeSeriesData } from '~/utils/chart'
 
 export type ChartVariant = 'area' | 'bar' | 'cumulative'
@@ -28,13 +29,13 @@ type TimeSeriesChartInput = {
   yLabel: string
 }
 
-const timeSeriesChart = defineChart<TimeSeriesChartInput>()(({ input }) => {
+function createTimeSeriesChart(input: TimeSeriesChartInput) {
   const firstDate = input.data[0]?.date ?? new Date(0)
   const lastDate = input.data.at(-1)?.date ?? new Date(86_400_000)
   const maxValue = d3.max(input.data, (datum) => datum.value) ?? 1
   const curve = d3Curve(d3.curveMonotoneX)
 
-  return {
+  return defineChart({
     marks:
       input.variant === 'bar'
         ? [
@@ -77,20 +78,24 @@ const timeSeriesChart = defineChart<TimeSeriesChartInput>()(({ input }) => {
               r: 3,
             }),
           ],
-    x: {
-      scale: d3.scaleUtc().domain([firstDate, lastDate]).nice(),
-      label: 'Date',
-      grid: true,
-    },
-    y: {
-      scale: d3.scaleLinear().domain([0, maxValue]).nice(),
-      label: input.yLabel,
-      grid: true,
+    scales: {
+      x: {
+        scale: d3.scaleUtc().domain([firstDate, lastDate]).nice(),
+        axis: { label: 'Date' },
+        grid: true,
+      },
+      y: {
+        scale: d3.scaleLinear().domain([0, maxValue]).nice(),
+        axis: { label: input.yLabel },
+        grid: true,
+      },
     },
     margin: { top: 20, right: 20, bottom: 40, left: 60 },
     theme: { background: 'transparent' },
-  }
-})
+    svgAnimation: true,
+    tooltip: { use: tooltip, format: formatTooltip },
+  })
+}
 
 type TimeSeriesChartProps = {
   data: Array<{ date: string; count: number }>
@@ -121,6 +126,16 @@ export function TimeSeriesChart({
       }
     })
   }, [binType, data, variant])
+  const definition = React.useMemo(
+    () =>
+      createTimeSeriesChart({
+        color,
+        data: chartData,
+        variant,
+        yLabel: yLabel ?? (variant === 'cumulative' ? 'Total' : 'Count'),
+      }),
+    [chartData, color, variant, yLabel],
+  )
 
   if (chartData.length === 0) {
     return (
@@ -132,18 +147,10 @@ export function TimeSeriesChart({
 
   return (
     <Chart
-      definition={timeSeriesChart}
-      input={{
-        color,
-        data: chartData,
-        variant,
-        yLabel: yLabel ?? (variant === 'cumulative' ? 'Total' : 'Count'),
-      }}
+      definition={definition}
       height={height}
       initialWidth={640}
       ariaLabel={`${variant === 'cumulative' ? 'Cumulative' : variant} count by date`}
-      animate
-      tooltip={{ format: formatTooltip }}
     />
   )
 }

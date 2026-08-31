@@ -84,7 +84,7 @@ function StatValue({
 
 function HomeStatCard({ stat, iconTop }: { stat: StatItem; iconTop: boolean }) {
   const className = twMerge(
-    'rounded-xl border border-border-subtle bg-background-surface p-5',
+    'rounded-xl corner-squircle border border-border-subtle bg-background-surface p-5',
     iconTop ? 'flex flex-col items-start gap-4' : 'flex items-center gap-4',
   )
 
@@ -197,29 +197,50 @@ function LibraryStat({ iconTop, stat }: { iconTop: boolean; stat: StatItem }) {
 
 /* --------------------------------------------------------------- hero stats -- */
 
-function HeroStat({ iconTop, stat }: { iconTop: boolean; stat: StatItem }) {
+function HeroStat({
+  iconTop,
+  stat,
+  onImage,
+}: {
+  iconTop: boolean
+  stat: StatItem
+  onImage?: boolean
+}) {
   return (
     <span
       className={twMerge(
-        'inline-flex min-w-0 gap-3 text-ds-neutral-400',
+        'inline-flex min-w-0 gap-4 md:gap-3.5 xl:gap-4',
+        // Over a (light) image the theme-adaptive text is illegible, so force
+        // dark ink; otherwise follow the surface via the semantic token.
+        onImage ? 'text-gray-900' : 'text-text-primary',
         iconTop ? 'flex-col items-start' : 'items-center',
       )}
     >
       {stat.icon ? (
-        <span className="shrink-0 text-ds-neutral-400/90 [&>svg]:size-[22px]">
+        <span
+          className={twMerge(
+            'shrink-0 [&>svg]:size-6 md:[&>svg]:size-5 xl:[&>svg]:size-6',
+            onImage ? 'text-gray-700' : 'text-icon-muted',
+          )}
+        >
           {stat.icon}
         </span>
       ) : null}
-      <span className="min-w-0">
+      <span className="flex min-w-0 items-center gap-4 whitespace-nowrap md:gap-3.5 xl:gap-4">
         <span
-          className="block font-ds-display text-xl font-black leading-none"
+          className="font-ds-display text-ds-heading-3 font-bold leading-none md:text-[21px] xl:text-ds-heading-3"
           style={{ fontVariantNumeric: 'tabular-nums' }}
         >
           <StatValue placeholder={stat.placeholder} valueRef={stat.valueRef}>
             {stat.value}
           </StatValue>
         </span>
-        <span className="mt-2 block font-ds-mono text-ds-mono-caps-xs font-bold uppercase text-ds-neutral-400/90">
+        <span
+          className={twMerge(
+            'font-ds-mono text-ds-mono-caps-xs font-medium uppercase tracking-[1.75px] md:text-[9.5px] md:tracking-[1.5px] xl:text-ds-mono-caps-xs xl:tracking-[1.75px]',
+            onImage ? 'text-gray-700' : 'text-text-secondary',
+          )}
+        >
           {stat.label}
         </span>
       </span>
@@ -234,11 +255,15 @@ export function StatsSection({
   layout = 'landscape',
   stats,
   className,
+  onImage = false,
 }: {
   page?: StatsPage
   layout?: StatsLayout
   stats: Array<StatItem>
   className?: string
+  /** Forces dark ink for legibility when the stats are overlaid on a light
+   *  image (the `hero` inline variant). Defaults to theme-adaptive colors. */
+  onImage?: boolean
 }) {
   if (page === 'unified') {
     const stacked = layout === 'stacked'
@@ -247,7 +272,7 @@ export function StatsSection({
     return (
       <div
         className={twMerge(
-          'overflow-hidden rounded-xl border border-border-subtle bg-background-surface',
+          'overflow-hidden rounded-xl corner-squircle border border-border-subtle bg-background-surface',
           stacked
             ? 'flex max-w-xs flex-col divide-y divide-border-subtle'
             : 'grid divide-y divide-border-subtle sm:grid-cols-3 sm:divide-x sm:divide-y-0',
@@ -269,12 +294,17 @@ export function StatsSection({
         className={twMerge(
           layout === 'stacked'
             ? 'flex flex-col items-start gap-5'
-            : 'flex flex-wrap items-center gap-x-8 gap-y-5',
+            : 'flex flex-col items-center gap-4 md:flex-row md:flex-wrap md:justify-center md:gap-x-3.5 md:gap-y-5 xl:gap-x-9',
           className,
         )}
       >
         {stats.map((stat) => (
-          <HeroStat key={stat.key} iconTop={iconTop} stat={stat} />
+          <HeroStat
+            key={stat.key}
+            iconTop={iconTop}
+            stat={stat}
+            onImage={onImage}
+          />
         ))}
       </div>
     )

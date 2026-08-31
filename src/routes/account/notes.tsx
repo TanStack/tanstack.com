@@ -6,7 +6,7 @@ import { PaginationControls } from '~/components/PaginationControls'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { DocFeedbackNote } from '~/components/DocFeedbackNote'
 import { Spinner } from '~/components/Spinner'
-import { ArrowSquareOut } from '@phosphor-icons/react'
+import { ArrowSquareOutIcon } from '@phosphor-icons/react'
 
 export const Route = createFileRoute('/account/notes')({
   component: AccountNotesPage,
@@ -80,7 +80,7 @@ function AccountNotesPage() {
                   >
                     {item.libraryId}
                     {item.pagePath}
-                    <ArrowSquareOut className="text-[10px]" />
+                    <ArrowSquareOutIcon className="text-[10px]" />
                   </Link>
 
                   {/* Feedback card */}

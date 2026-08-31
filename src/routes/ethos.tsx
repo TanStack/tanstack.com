@@ -1,13 +1,12 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { Footer } from '~/components/Footer'
 import { Card } from '~/components/Card'
 import { seo } from '~/utils/seo'
 import {
-  Shield,
-  Plant,
-  Stack,
-  Handshake,
-  FileText,
+  ShieldIcon,
+  PlantIcon,
+  StackIcon,
+  HandshakeIcon,
+  FileTextIcon,
 } from '@phosphor-icons/react'
 
 export const Route = createFileRoute('/ethos')({
@@ -24,7 +23,7 @@ export const Route = createFileRoute('/ethos')({
 const sections = [
   {
     title: 'Independently Owned, Unbiased by Design',
-    icon: Shield,
+    icon: ShieldIcon,
     gradient: 'from-amber-500 to-orange-500',
     borderColor: 'hover:border-amber-500/50',
     content: (
@@ -41,7 +40,7 @@ const sections = [
   },
   {
     title: 'A Sustainable Future',
-    icon: Plant,
+    icon: PlantIcon,
     gradient: 'from-lime-500 to-green-500',
     borderColor: 'hover:border-lime-500/50',
     content: (
@@ -73,7 +72,7 @@ const sections = [
   },
   {
     title: 'Technology-Agnostic by Default',
-    icon: Stack,
+    icon: StackIcon,
     gradient: 'from-sky-500 to-indigo-500',
     borderColor: 'hover:border-sky-500/50',
     content: (
@@ -93,7 +92,7 @@ const sections = [
   },
   {
     title: 'Open Partners',
-    icon: Handshake,
+    icon: HandshakeIcon,
     gradient: 'from-rose-500 to-pink-500',
     borderColor: 'hover:border-rose-500/50',
     content: (
@@ -200,7 +199,7 @@ function RouteComp() {
         >
           <div className="flex items-start gap-4">
             <div className="shrink-0 w-12 h-12 rounded-lg bg-linear-to-br from-violet-500 to-purple-500 flex items-center justify-center">
-              <FileText className="w-6 h-6 text-white" />
+              <FileTextIcon className="w-6 h-6 text-white" />
             </div>
             <div>
               <h2 className="text-xl font-semibold mb-2">
@@ -220,7 +219,6 @@ function RouteComp() {
           </div>
         </Card>
       </div>
-      <Footer />
     </div>
   )
 }

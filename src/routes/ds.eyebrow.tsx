@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-import { Sparkle, GitBranch, Database } from '@phosphor-icons/react'
+import { SparkleIcon, GitBranchIcon, DatabaseIcon } from '@phosphor-icons/react'
 import { seo } from '~/utils/seo'
-import { Eyebrow } from '~/components/ds/ui'
+import { Eyebrow, FormSelect } from '~/components/ds/ui'
 import { ComponentPreview, DsPage, DsSection } from '~/components/ds/DsKit'
 import type { LibraryId } from '~/libraries/ids'
 
@@ -42,24 +42,29 @@ function EyebrowPlayground() {
         </label>
         <label className="flex items-center gap-2 text-sm text-text-secondary">
           Category
-          <select
+          <FormSelect
             value={library}
             disabled={!branded}
-            onChange={(e) => setLibrary(e.target.value as LibraryId)}
-            className="rounded-lg border border-border-default bg-background-default px-3 py-1.5 text-sm text-text-primary transition disabled:opacity-40"
+            onChange={(event) => {
+              const selectedLibrary = BRAND_LIBRARIES.find(
+                (id) => id === event.target.value,
+              )
+              if (selectedLibrary) setLibrary(selectedLibrary)
+            }}
+            className="w-auto py-1.5 text-sm"
           >
             {BRAND_LIBRARIES.map((id) => (
               <option key={id} value={id}>
                 {id[0].toUpperCase() + id.slice(1)}
               </option>
             ))}
-          </select>
+          </FormSelect>
         </label>
       </div>
 
       <div className="mt-6 border-t border-border-subtle pt-6">
         <Eyebrow
-          icon={<Sparkle size={14} />}
+          icon={<SparkleIcon size={14} />}
           library={branded ? library : undefined}
         >
           {branded ? `${library} · section kicker` : 'section kicker'}
@@ -117,11 +122,11 @@ function EyebrowPage() {
         description="An optional leading icon — use Phosphor icons at 14px."
       >
         <ComponentPreview
-          code={`<Eyebrow icon={<Sparkle size={14} />}>Why Query</Eyebrow>
-<Eyebrow icon={<GitBranch size={14} />}>Cache lifecycle</Eyebrow>`}
+          code={`<Eyebrow icon={<SparkleIcon size={14} />}>Why Query</Eyebrow>
+<Eyebrow icon={<GitBranchIcon size={14} />}>Cache lifecycle</Eyebrow>`}
         >
-          <Eyebrow icon={<Sparkle size={14} />}>Why Query</Eyebrow>
-          <Eyebrow icon={<GitBranch size={14} />}>Cache lifecycle</Eyebrow>
+          <Eyebrow icon={<SparkleIcon size={14} />}>Why Query</Eyebrow>
+          <Eyebrow icon={<GitBranchIcon size={14} />}>Cache lifecycle</Eyebrow>
         </ComponentPreview>
       </DsSection>
 
@@ -130,11 +135,11 @@ function EyebrowPage() {
         description="Library pages pass a brand color via className. The label-sm type role stays locked — only the color changes. (Pick a shade that clears text contrast; the lightest library brand tokens are not legible as small text on light surfaces.)"
       >
         <ComponentPreview
-          code={`<Eyebrow icon={<Database size={14} />} className="text-lib-cli">
+          code={`<Eyebrow icon={<DatabaseIcon size={14} />} className="text-lib-cli">
   Server-state manager
 </Eyebrow>`}
         >
-          <Eyebrow icon={<Database size={14} />} className="text-lib-cli">
+          <Eyebrow icon={<DatabaseIcon size={14} />} className="text-lib-cli">
             Server-state manager
           </Eyebrow>
         </ComponentPreview>

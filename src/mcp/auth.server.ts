@@ -162,7 +162,7 @@ async function validateApiKey(rawKey: string): Promise<AuthResult> {
  */
 export async function checkRateLimit(
   identifier: string,
-  identifierType: 'api_key' | 'ip',
+  identifierType: 'api_key' | 'ip' | 'user',
   limitPerMinute: number,
 ): Promise<{ allowed: boolean; remaining: number; resetAt: Date }> {
   const scopedIdentifier = `${identifierType}:${identifier}`

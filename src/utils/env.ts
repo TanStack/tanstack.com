@@ -25,6 +25,7 @@ const serverEnvSchema = v.object({
 const clientEnvSchema = v.object({
   VITE_KAPA_INTEGRATION_ID: v.optional(v.string()),
   VITE_KAPA_SOURCE_GROUP_IDS: v.optional(v.string()),
+  VITE_WEBCONTAINER_API_KEY: v.optional(v.string()),
 })
 
 // Validate and parse environment variables

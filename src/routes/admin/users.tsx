@@ -12,13 +12,15 @@ import {
   TableRow,
   TableCell,
 } from '~/components/TableComponents'
+import { flexRender } from '@tanstack/react-table'
 import {
-  useReactTable,
   getCoreRowModel,
-  flexRender,
-  type ColumnDef,
-  type Column,
-} from '@tanstack/react-table'
+  useLegacyTable as useReactTable,
+} from '@tanstack/react-table/legacy'
+import type {
+  LegacyColumn as Column,
+  LegacyColumnDef as ColumnDef,
+} from '@tanstack/react-table/legacy'
 import {
   useUpdateUserCapabilities,
   useAdminSetAdsDisabled,
@@ -39,7 +41,12 @@ import {
   getBulkEffectiveCapabilitiesQueryOptions,
 } from '~/queries/roles'
 import { getUserRoles } from '~/utils/roles.functions'
-import { FloppyDisk, PencilSimpleLine, X, Users } from '@phosphor-icons/react'
+import {
+  FloppyDiskIcon,
+  PencilSimpleLineIcon,
+  XIcon,
+  UsersIcon,
+} from '@phosphor-icons/react'
 import {
   AdminAccessDenied,
   AdminLoading,
@@ -701,13 +708,13 @@ function UsersPage() {
                 onClick={handleSaveUser}
                 className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
               >
-                <FloppyDisk className="w-4 h-4" />
+                <FloppyDiskIcon className="w-4 h-4" />
               </button>
               <button
                 onClick={handleCancelEdit}
                 className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
               >
-                <X className="w-4 h-4" />
+                <XIcon className="w-4 h-4" />
               </button>
             </div>
           ) : (
@@ -715,7 +722,7 @@ function UsersPage() {
               onClick={() => handleEditUser(user)}
               className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
             >
-              <PencilSimpleLine className="w-4 h-4" />
+              <PencilSimpleLineIcon className="w-4 h-4" />
             </button>
           )
         },
@@ -786,7 +793,7 @@ function UsersPage() {
     <div className="w-full p-4">
       <div className="flex flex-col gap-4">
         <AdminPageHeader
-          icon={<Users />}
+          icon={<UsersIcon />}
           title="Manage Users"
           isLoading={usersQuery.isFetching}
         />
@@ -935,7 +942,7 @@ function UsersPage() {
 
           {(!usersQuery.data || usersQuery.data?.page.length === 0) && (
             <AdminEmptyState
-              icon={<Users className="w-12 h-12" />}
+              icon={<UsersIcon className="w-12 h-12" />}
               title="No users found"
               description="There are currently no users in the system."
             />

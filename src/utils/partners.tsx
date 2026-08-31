@@ -31,6 +31,7 @@ import strapiLightSvg from '~/images/strapi-light.svg'
 import strapiDarkSvg from '~/images/strapi-dark.svg'
 import serpapiWhiteSvg from '~/images/serpapi-white.svg'
 import serpapiBlackSvg from '~/images/serpapi-black.svg'
+import type { CSSProperties } from 'react'
 import type { Library } from '~/libraries'
 import cloudflareWhiteSvg from '~/images/cloudflare-white.svg'
 import cloudflareBlackSvg from '~/images/cloudflare-black.svg'
@@ -56,7 +57,7 @@ function LearnMoreButton() {
   )
 }
 
-type PartnerImageConfig =
+export type PartnerImageConfig =
   | { light: string; dark: string; scale?: number }
   | { src: string; scale?: number }
 
@@ -171,14 +172,43 @@ export function PartnerImage({
   className,
   config,
   alt,
+  style,
+  mode,
 }: {
   className?: string
   config: PartnerImageConfig
   alt: string
+  /** Merged onto the <img> — e.g. a runtime-derived `maxHeight` from the
+   *  tier-sizing rubric that can't be expressed as a static Tailwind class. */
+  style?: CSSProperties
+  /** Force the light or dark logo variant instead of following the global
+   *  `dark:` theme. Used by previews that render both themes on one page (where
+   *  the CSS `dark:` variant can't be scoped per panel). */
+  mode?: 'light' | 'dark'
 }) {
   const scaleStyle = config.scale ? { transform: `scale(${config.scale})` } : {}
 
   if ('light' in config && 'dark' in config) {
+    // Forced variant: render only the requested asset, no `dark:` toggling.
+    if (mode) {
+      return (
+        <div
+          className="w-full flex items-center justify-center"
+          style={scaleStyle}
+        >
+          <img
+            src={mode === 'dark' ? config.dark : config.light}
+            alt={alt}
+            loading="lazy"
+            className={className ?? 'w-full'}
+            style={style}
+            width={200}
+            height={100}
+            sizes="(max-width: 640px) 80px, (max-width: 1024px) 150px, 200px"
+          />
+        </div>
+      )
+    }
     return (
       <div
         className="w-full flex items-center justify-center"
@@ -191,6 +221,7 @@ export function PartnerImage({
           className={
             className ? `${className} dark:hidden` : 'w-full dark:hidden'
           }
+          style={style}
           width={200}
           height={100}
           sizes="(max-width: 640px) 80px, (max-width: 1024px) 150px, 200px"
@@ -204,6 +235,7 @@ export function PartnerImage({
               ? `${className} hidden dark:block`
               : 'w-full hidden dark:block'
           }
+          style={style}
           width={200}
           height={100}
           sizes="(max-width: 640px) 80px, (max-width: 1024px) 150px, 200px"
@@ -218,6 +250,7 @@ export function PartnerImage({
         src={config.src}
         alt={alt}
         className={className ?? 'w-full'}
+        style={style}
         width={200}
         height={100}
         loading="lazy"
@@ -225,6 +258,19 @@ export function PartnerImage({
       />
     </div>
   )
+}
+
+// Shared shape for the partner rails — a slim projection of a Partner plus the
+// image config the rail renders. Lives here so the DS PartnerRail and the
+// legacy RightRail can share one type.
+export type RailPartner = {
+  category: Partner['category']
+  id: string
+  name: string
+  href: string
+  score: number
+  tier?: PartnerTier
+  image: PartnerImageConfig
 }
 
 export const partnerCategories = [
@@ -653,7 +699,7 @@ const netlify = ((): Partner => {
       },
     ],
     brandColor: '#00C7B7',
-    tagline: 'Web Deployment',
+    tagline: 'The Complete Web Platform',
     applicationStarterIcon: {
       mode: 'contain',
       src: netlifyLightSvg,
@@ -664,7 +710,7 @@ const netlify = ((): Partner => {
       scale: 1.25,
     },
     llmDescription:
-      'Deployment platform for web applications with Deploy Previews, Functions, Edge Functions, and an official TanStack Start integration guide.',
+      "Where AI apps go from idea to production — build, deploy, and scale it all in one place: Git-to-edge deployment, serverless and edge functions, Deploy Previews, and native support for AI-generated apps (including TanStack Start), so you're not stitching together separate tools for building and shipping.",
     category: 'deployment',
     content: (
       <>
@@ -756,7 +802,7 @@ const lovable = ((): Partner => {
     tier: 'gold' as const,
     uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,
     brandColor: '#FF7EB0',
-    tagline: 'AI App Builder',
+    tagline: 'AI App Builder + Hosting',
     applicationStarterPromptInstructions: [
       'Treat Lovable as the AI app-building and hosting path, not as a TanStack CLI deployment flag or npm package.',
       'Keep the generated app portable: start with the TanStack CLI output, preserve GitHub/project ownership notes, and call out any Lovable Cloud setup that cannot be automated from code.',

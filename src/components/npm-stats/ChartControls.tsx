@@ -1,18 +1,17 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import {
-  SortDescending as ArrowDownWideNarrow,
-  ChartLineUp as ChartArea,
-  ChartBar,
-  ChartBar as ChartBarStacked,
-  ChartLine,
-  Clock as Clock3,
-  Columns as Columns3,
-  ClockCounterClockwise as History,
-  Stack as Layers,
-  Rows as Rows3,
-  Waves,
-  type Icon as LucideIcon,
+  SortDescendingIcon,
+  ChartLineUpIcon,
+  ChartBarIcon,
+  ChartLineIcon,
+  ClockIcon,
+  ColumnsIcon,
+  ClockCounterClockwiseIcon,
+  StackIcon,
+  RowsIcon,
+  WavesIcon,
+  type Icon,
 } from '@phosphor-icons/react'
 import {
   DropdownMenu,
@@ -55,13 +54,13 @@ const iconSegmentedButtonStyles =
   'flex size-5 items-center justify-center rounded'
 
 const chartTypeIcons = {
-  line: ChartLine,
-  stacked: Layers,
-  'stacked-area': ChartArea,
-  'stacked-stream': Waves,
-  bar: ChartBar,
-  'stacked-bar': ChartBarStacked,
-} as const satisfies Partial<Record<ChartType, LucideIcon>>
+  line: ChartLineIcon,
+  stacked: StackIcon,
+  'stacked-area': ChartLineUpIcon,
+  'stacked-stream': WavesIcon,
+  bar: ChartBarIcon,
+  'stacked-bar': ChartBarIcon,
+} as const satisfies Partial<Record<ChartType, Icon>>
 
 const transformOptions = [
   { value: 'none', label: 'Actual Values' },
@@ -136,7 +135,7 @@ export function ChartControls({
                 : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100',
             )}
           >
-            <History className="size-3" />
+            <ClockCounterClockwiseIcon className="size-3" />
             Timeline
           </button>
         </Tooltip>
@@ -150,7 +149,7 @@ export function ChartControls({
                 : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100',
             )}
           >
-            <Clock3 className="size-3" />
+            <ClockIcon className="size-3" />
             Snapshot
           </button>
         </Tooltip>
@@ -230,7 +229,7 @@ export function ChartControls({
       {/* Chart Type */}
       <div aria-label="Chart type" className={segmentedControlStyles}>
         {chartTypeOptions.map(({ value, label }) => {
-          const Icon = chartTypeIcons[value] ?? ChartBar
+          const Icon = chartTypeIcons[value] ?? ChartBarIcon
 
           return (
             <Tooltip content={label} key={value}>
@@ -265,7 +264,7 @@ export function ChartControls({
                   : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100',
               )}
             >
-              <Columns3 className="size-3" />
+              <ColumnsIcon className="size-3" />
               Vertical
             </button>
           </Tooltip>
@@ -279,7 +278,7 @@ export function ChartControls({
                   : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100',
               )}
             >
-              <Rows3 className="size-3" />
+              <RowsIcon className="size-3" />
               Horizontal
             </button>
           </Tooltip>
@@ -303,7 +302,7 @@ export function ChartControls({
               onBarSortChange(barSort === 'value' ? 'name' : 'value')
             }
           >
-            <ArrowDownWideNarrow className="size-3" />
+            <SortDescendingIcon className="size-3" />
             {barSort === 'value' ? 'Value Sort' : 'Name Sort'}
           </button>
         </Tooltip>

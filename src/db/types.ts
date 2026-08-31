@@ -61,6 +61,37 @@ export const RELEASE_LEVELS = ['major', 'minor', 'patch'] as const
 
 export const SIGNUP_SOURCES = ['newsletter'] as const
 
+export const BUILDER_MESSAGE_ROLES = ['user', 'assistant'] as const
+
+export const BUILDER_RUN_STATUSES = [
+  'pending',
+  'running',
+  'interrupted',
+  'completed',
+  'failed',
+  'cancelled',
+] as const
+
+export const BUILDER_PROJECT_EVENT_TYPES = [
+  'project.created',
+  'project.updated',
+  'project.deleted',
+  'thread.created',
+  'thread.updated',
+  'thread.archived',
+  'revision.created',
+  'message.created',
+  'message.updated',
+  'message.deleted',
+  'run.created',
+  'run.started',
+  'run.activity',
+  'run.interrupted',
+  'run.completed',
+  'run.failed',
+  'run.cancelled',
+] as const
+
 // Derived types from constants
 export type Capability = (typeof CAPABILITIES)[number]
 export type OAuthProvider = (typeof OAUTH_PROVIDERS)[number]
@@ -71,6 +102,20 @@ export type ShowcaseUseCase = (typeof SHOWCASE_USE_CASES)[number]
 export type AuditAction = (typeof AUDIT_ACTIONS)[number]
 export type ReleaseLevel = (typeof RELEASE_LEVELS)[number]
 export type SignupSource = (typeof SIGNUP_SOURCES)[number]
+export type BuilderMessageRole = (typeof BUILDER_MESSAGE_ROLES)[number]
+export type BuilderRunStatus = (typeof BUILDER_RUN_STATUSES)[number]
+export type BuilderProjectEventType =
+  (typeof BUILDER_PROJECT_EVENT_TYPES)[number]
+
+export type BuilderJsonValue =
+  | null
+  | boolean
+  | number
+  | string
+  | Array<BuilderJsonValue>
+  | { [key: string]: BuilderJsonValue }
+
+export type BuilderJsonObject = { [key: string]: BuilderJsonValue }
 
 // Legacy aliases for backwards compatibility
 /** @deprecated Use CAPABILITIES instead */

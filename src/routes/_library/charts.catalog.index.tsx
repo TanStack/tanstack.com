@@ -4,7 +4,7 @@ import { getChartsCatalogAll } from '~/utils/charts-catalog.functions'
 import { seo } from '~/utils/seo'
 
 export const Route = createFileRoute('/_library/charts/catalog/')({
-  loader: () => getChartsCatalogAll({ data: { comparison: false } }),
+  loader: () => getChartsCatalogAll(),
   component: ChartsCatalogIndexRoute,
   head: () => ({
     meta: seo({
@@ -16,10 +16,5 @@ export const Route = createFileRoute('/_library/charts/catalog/')({
 
 function ChartsCatalogIndexRoute() {
   const data = Route.useLoaderData()
-  return (
-    <ChartsCatalog
-      artifactRevision={data.artifactRevision}
-      cases={data.cases}
-    />
-  )
+  return <ChartsCatalog cases={data.cases} revision={data.revision} />
 }

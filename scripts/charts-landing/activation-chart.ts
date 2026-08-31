@@ -1,4 +1,6 @@
-import { curveMonotoneX, scaleLinear, scaleUtc } from 'd3'
+import { scaleLinear } from '@tanstack/charts/scales/linear'
+import { scaleUtc } from 'd3-scale'
+import { curveMonotoneX } from 'd3-shape'
 import {
   areaY,
   d3Curve,
@@ -26,13 +28,13 @@ export const activationChart = defineChart({
       y1: 'expectedLow',
       y2: 'expectedHigh',
       key: 'id',
-      fill: '#3aa3c4',
-      fillOpacity: 0.2,
+      fill: 'var(--activation-range)',
+      fillOpacity: 0.22,
       curve: d3Curve(curveMonotoneX),
     }),
     ruleY([70], {
       id: 'activation-goal',
-      stroke: '#e06e49',
+      stroke: 'var(--activation-goal)',
       strokeOpacity: 0.95,
       strokeWidth: 2,
       strokeDasharray: '7 7',
@@ -42,8 +44,8 @@ export const activationChart = defineChart({
       x: 'date',
       y: 'activation',
       key: 'id',
-      stroke: '#61adbf',
-      strokeWidth: 3.25,
+      stroke: 'var(--activation-line)',
+      strokeWidth: 4.25,
       points: true,
       curve: d3Curve(curveMonotoneX),
     }),
@@ -53,8 +55,8 @@ export const activationChart = defineChart({
       y: 'activation',
       key: 'id',
       r: 6,
-      fill: '#ffffff',
-      stroke: '#3aa3c4',
+      fill: 'var(--activation-bg)',
+      stroke: 'var(--activation-release)',
       strokeWidth: 3,
     }),
     text(releases, {
@@ -63,24 +65,29 @@ export const activationChart = defineChart({
       y: 'activation',
       text: 'label',
       key: 'id',
-      fill: '#ffffff',
+      fill: 'var(--activation-foreground)',
       fontSize: 12,
       fontWeight: 650,
       dy: -21,
     }),
   ],
-  x: {
-    scale: scaleUtc().domain([weeks[0]!.date, weeks.at(-1)!.date]),
-    label: 'Week ending',
-    format: (value) => monthDay.format(value),
-    grid: false,
-  },
-  y: {
-    scale: scaleLinear().domain([40, 82]),
-    label: 'Activation rate (%)',
-    format: (value) => `${Math.round(value)}%`,
-    grid: true,
-    ticks: 5,
+  scales: {
+    x: {
+      scale: scaleUtc().domain([weeks[0]!.date, weeks.at(-1)!.date]),
+      axis: {
+        label: 'Week ending',
+        ticks: { format: (value) => monthDay.format(value) },
+      },
+      grid: false,
+    },
+    y: {
+      scale: scaleLinear().domain([40, 82]),
+      axis: {
+        label: 'Activation rate (%)',
+        ticks: { count: 5, format: (value) => `${Math.round(value)}%` },
+      },
+      grid: true,
+    },
   },
   theme: activationTheme,
 })

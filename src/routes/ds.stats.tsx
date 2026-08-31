@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-import { Download, Star, TrendUp } from '@phosphor-icons/react'
+import { DownloadIcon, StarIcon, TrendUpIcon } from '@phosphor-icons/react'
 import { seo } from '~/utils/seo'
 import { StatsSection, type StatItem } from '~/components/ds/ui'
 import { ComponentPreview, DsPage, DsSection } from '~/components/ds/DsKit'
@@ -20,21 +20,21 @@ export const Route = createFileRoute('/ds/stats')({
 const stats: Array<StatItem> = [
   {
     key: 'total',
-    icon: <TrendUp weight="regular" />,
+    icon: <TrendUpIcon weight="regular" />,
     value: '2.2B',
     placeholder: '0.0B',
     label: 'Total Downloads',
   },
   {
     key: 'weekly',
-    icon: <Download weight="regular" />,
+    icon: <DownloadIcon weight="regular" />,
     value: '65,395,147',
     placeholder: '00,000,000',
     label: 'Weekly Downloads',
   },
   {
     key: 'stars',
-    icon: <Star weight="regular" />,
+    icon: <StarIcon weight="regular" />,
     value: '49,973',
     placeholder: '000,000',
     label: 'GitHub Stars',
@@ -118,7 +118,12 @@ function StatsPage() {
           code={`<StatsSection page="${page}" layout="${layout}" stats={stats} />`}
           codePlacement="side"
         >
-          <StatsSection page={page} layout={layout} stats={stats} />
+          <StatsSection
+            page={page}
+            layout={layout}
+            stats={stats}
+            onImage={page === 'hero'}
+          />
         </ComponentPreview>
       </DsSection>
     </DsPage>

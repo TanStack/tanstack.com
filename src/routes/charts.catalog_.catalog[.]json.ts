@@ -1,18 +1,18 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { chartsCatalogPublicationCacheHeaders } from '~/utils/charts-catalog'
+import { chartsCatalogIndexCacheHeaders } from '~/utils/charts-catalog-index'
 
 export const Route = createFileRoute('/charts/catalog_/catalog.json')({
   server: {
     handlers: {
       GET: async () => {
-        const { getChartsCatalogPublication } =
-          await import('~/utils/charts-catalog.server')
-        const publication = await getChartsCatalogPublication()
+        const { getChartsCatalogIndexPublication } =
+          await import('~/utils/charts-catalog-index.server')
+        const publication = await getChartsCatalogIndexPublication()
 
-        return Response.json(publication.manifest, {
+        return Response.json(publication.index, {
           headers: {
-            ...chartsCatalogPublicationCacheHeaders,
-            'X-Charts-Catalog-Artifact-Revision': publication.artifactRevision,
+            ...chartsCatalogIndexCacheHeaders,
+            'X-Charts-Catalog-Source-Revision': publication.revision,
           },
         })
       },

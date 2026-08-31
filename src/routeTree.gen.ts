@@ -38,6 +38,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as BuilderRouteImport } from './routes/builder'
 import { Route as BrandGuideRouteImport } from './routes/brand-guide'
 import { Route as BlogRouteImport } from './routes/blog'
+import { Route as ApplicationStarterRouteImport } from './routes/application-starter'
 import { Route as AdsRouteImport } from './routes/ads'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as LibraryRouteImport } from './routes/_library'
@@ -48,8 +49,8 @@ import { Route as ShowcaseIndexRouteImport } from './routes/showcase/index'
 import { Route as ShopIndexRouteImport } from './routes/shop.index'
 import { Route as PartnersIndexRouteImport } from './routes/partners.index'
 import { Route as DsIndexRouteImport } from './routes/ds.index'
-import { Route as BuilderIndexRouteImport } from './routes/builder.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
+import { Route as ApplicationStarterIndexRouteImport } from './routes/application-starter.index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AccountIndexRouteImport } from './routes/account/index'
 import { Route as StackCategoryRouteImport } from './routes/stack.$category'
@@ -59,18 +60,24 @@ import { Route as ShopSearchRouteImport } from './routes/shop.search'
 import { Route as ShopCartRouteImport } from './routes/shop.cart'
 import { Route as ShopHandleRouteImport } from './routes/shop.$handle'
 import { Route as PartnersRailwayRouteImport } from './routes/partners.railway'
+import { Route as PartnersNetlifyRouteImport } from './routes/partners.netlify'
 import { Route as PartnersPartnerRouteImport } from './routes/partners.$partner'
 import { Route as OauthTokenRouteImport } from './routes/oauth/token'
 import { Route as OauthRegisterRouteImport } from './routes/oauth/register'
 import { Route as OauthAuthorizeRouteImport } from './routes/oauth/authorize'
 import { Route as LibrariesFrameworkRouteImport } from './routes/libraries_.$framework'
 import { Route as DsTypographyRouteImport } from './routes/ds.typography'
+import { Route as DsTabsRouteImport } from './routes/ds.tabs'
 import { Route as DsStatsRouteImport } from './routes/ds.stats'
 import { Route as DsSpinnerRouteImport } from './routes/ds.spinner'
 import { Route as DsShadowsRouteImport } from './routes/ds.shadows'
 import { Route as DsSemanticRouteImport } from './routes/ds.semantic'
+import { Route as DsPartnerRailRouteImport } from './routes/ds.partner-rail'
+import { Route as DsPanelRouteImport } from './routes/ds.panel'
 import { Route as DsPaletteRouteImport } from './routes/ds.palette'
+import { Route as DsPageHeaderRouteImport } from './routes/ds.page-header'
 import { Route as DsNavbarRouteImport } from './routes/ds.navbar'
+import { Route as DsMaintainersRouteImport } from './routes/ds.maintainers'
 import { Route as DsLogosRouteImport } from './routes/ds.logos'
 import { Route as DsInputsRouteImport } from './routes/ds.inputs'
 import { Route as DsIconographyRouteImport } from './routes/ds.iconography'
@@ -78,17 +85,21 @@ import { Route as DsEyebrowRouteImport } from './routes/ds.eyebrow'
 import { Route as DsEffectsRouteImport } from './routes/ds.effects'
 import { Route as DsDropdownRouteImport } from './routes/ds.dropdown'
 import { Route as DsColorsRouteImport } from './routes/ds.colors'
-import { Route as DsCollapsibleRouteImport } from './routes/ds.collapsible'
 import { Route as DsCardsRouteImport } from './routes/ds.cards'
 import { Route as DsButtonsRouteImport } from './routes/ds.buttons'
 import { Route as DsBreadcrumbsRouteImport } from './routes/ds.breadcrumbs'
 import { Route as DsBadgesRouteImport } from './routes/ds.badges'
 import { Route as DsAvatarRouteImport } from './routes/ds.avatar'
-import { Route as BuilderDocsRouteImport } from './routes/builder.docs'
+import { Route as BuilderNewRouteImport } from './routes/builder_.new'
+import { Route as BuilderLlmsDottxtRouteImport } from './routes/builder_.llms[.]txt'
+import { Route as BuilderEsbuildRouteImport } from './routes/builder_.esbuild'
+import { Route as BuilderAiRouteImport } from './routes/builder_.ai'
+import { Route as BuilderIdRouteImport } from './routes/builder_.$id'
 import { Route as BlogSplatRouteImport } from './routes/blog.$'
 import { Route as AuthSignoutRouteImport } from './routes/auth/signout'
 import { Route as AuthPopupSuccessRouteImport } from './routes/auth/popup-success'
 import { Route as AuthCliRouteImport } from './routes/auth/cli'
+import { Route as ApplicationStarterDocsRouteImport } from './routes/application-starter.docs'
 import { Route as ApiUploadthingRouteImport } from './routes/api/uploadthing'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as AdminNpmStatsRouteImport } from './routes/admin/npm-stats'
@@ -120,7 +131,9 @@ import { Route as ShopPagesHandleRouteImport } from './routes/shop.pages.$handle
 import { Route as ShopCollectionsHandleRouteImport } from './routes/shop.collections.$handle'
 import { Route as IntentRegistryPackageNameRouteImport } from './routes/intent/registry/$packageName'
 import { Route as ChartsCatalogCatalogDotjsonRouteImport } from './routes/charts.catalog_.catalog[.]json'
+import { Route as BuilderPHashRouteImport } from './routes/builder_.p.$hash'
 import { Route as AuthProviderStartRouteImport } from './routes/auth/$provider/start'
+import { Route as ApiReadmeChar123Char125DotpngRouteImport } from './routes/api/readme/{$}[.]png'
 import { Route as ApiOgChar123Char125DotpngRouteImport } from './routes/api/og/{$}[.]png'
 import { Route as ApiMcpSplatRouteImport } from './routes/api/mcp/$'
 import { Route as ApiGithubWebhookRouteImport } from './routes/api/github/webhook'
@@ -128,17 +141,20 @@ import { Route as ApiExampleDeployRouteImport } from './routes/api/example/deplo
 import { Route as ApiDiscordInteractionsRouteImport } from './routes/api/discord/interactions'
 import { Route as ApiDataPartnersRouteImport } from './routes/api/data/partners'
 import { Route as ApiDataLibrariesRouteImport } from './routes/api/data/libraries'
-import { Route as ApiBuilderValidateRouteImport } from './routes/api/builder/validate'
-import { Route as ApiBuilderSuggestRouteImport } from './routes/api/builder/suggest'
-import { Route as ApiBuilderLoadTemplateRouteImport } from './routes/api/builder/load-template'
-import { Route as ApiBuilderLoadRemoteTemplateRouteImport } from './routes/api/builder/load-remote-template'
-import { Route as ApiBuilderLoadRemoteAddonRouteImport } from './routes/api/builder/load-remote-addon'
-import { Route as ApiBuilderFeaturesRouteImport } from './routes/api/builder/features'
-import { Route as ApiBuilderFeatureArtifactsRouteImport } from './routes/api/builder/feature-artifacts'
-import { Route as ApiBuilderDownloadRouteImport } from './routes/api/builder/download'
-import { Route as ApiBuilderCompileAttributedRouteImport } from './routes/api/builder/compile-attributed'
-import { Route as ApiBuilderCompileRouteImport } from './routes/api/builder/compile'
+import { Route as ApiBuilderProjectsRouteImport } from './routes/api/builder/projects'
+import { Route as ApiBuilderProjectSnapshotsRouteImport } from './routes/api/builder/project-snapshots'
+import { Route as ApiBuilderAssistRouteImport } from './routes/api/builder/assist'
+import { Route as ApiApplicationStarterValidateRouteImport } from './routes/api/application-starter/validate'
+import { Route as ApiApplicationStarterSuggestRouteImport } from './routes/api/application-starter/suggest'
 import { Route as ApiApplicationStarterResolveRouteImport } from './routes/api/application-starter/resolve'
+import { Route as ApiApplicationStarterLoadTemplateRouteImport } from './routes/api/application-starter/load-template'
+import { Route as ApiApplicationStarterLoadRemoteTemplateRouteImport } from './routes/api/application-starter/load-remote-template'
+import { Route as ApiApplicationStarterLoadRemoteAddonRouteImport } from './routes/api/application-starter/load-remote-addon'
+import { Route as ApiApplicationStarterFeaturesRouteImport } from './routes/api/application-starter/features'
+import { Route as ApiApplicationStarterFeatureArtifactsRouteImport } from './routes/api/application-starter/feature-artifacts'
+import { Route as ApiApplicationStarterDownloadRouteImport } from './routes/api/application-starter/download'
+import { Route as ApiApplicationStarterCompileAttributedRouteImport } from './routes/api/application-starter/compile-attributed'
+import { Route as ApiApplicationStarterCompileRouteImport } from './routes/api/application-starter/compile'
 import { Route as AdminUsersUserIdRouteImport } from './routes/admin/users.$userId'
 import { Route as AdminShowcasesIdRouteImport } from './routes/admin/showcases_.$id'
 import { Route as AdminRolesRoleIdRouteImport } from './routes/admin/roles.$roleId'
@@ -170,17 +186,21 @@ import { Route as LibraryAiVersionIndexRouteImport } from './routes/_library/ai.
 import { Route as LibraryLibraryIdVersionIndexRouteImport } from './routes/_library/$libraryId/$version.index'
 import { Route as IntentRegistryPackageNameChar123Char125DotmdRouteImport } from './routes/intent/registry/$packageName.{$}[.]md'
 import { Route as IntentRegistryPackageNameSkillNameRouteImport } from './routes/intent/registry/$packageName.$skillName'
-import { Route as ChartsCatalogEmbedCaseIdRouteImport } from './routes/charts.catalog_.embed.$caseId'
-import { Route as ApiBuilderDeployGithubRouteImport } from './routes/api/builder/deploy/github'
-import { Route as ApiBuilderDeployCheckNameRouteImport } from './routes/api/builder/deploy/check-name'
+import { Route as ApiBuilderProjectsIdRouteImport } from './routes/api/builder/projects.$id'
+import { Route as ApiBuilderProjectSnapshotsHashRouteImport } from './routes/api/builder/project-snapshots.$hash'
 import { Route as ApiAuthCliCreateTicketRouteImport } from './routes/api/auth/cli/create-ticket'
 import { Route as ApiAuthCallbackProviderRouteImport } from './routes/api/auth/callback/$provider'
+import { Route as ApiApplicationStarterDeployGithubRouteImport } from './routes/api/application-starter/deploy/github'
+import { Route as ApiApplicationStarterDeployCheckNameRouteImport } from './routes/api/application-starter/deploy/check-name'
 import { Route as LibraryChartsCatalogAllRouteImport } from './routes/_library/charts.catalog.all'
 import { Route as LibraryLibraryIdVersionLlmsDottxtRouteImport } from './routes/_library/$libraryId/$version.llms[.]txt'
 import { Route as LibraryLibraryIdVersionDocsRouteImport } from './routes/_library/$libraryId/$version.docs'
 import { Route as LibraryLibraryIdVersionDocsIndexRouteImport } from './routes/_library/$libraryId/$version.docs.index'
-import { Route as ChartsCatalogAssetsArtifactRevisionSplatRouteImport } from './routes/charts.catalog_.assets.$artifactRevision.$'
+import { Route as ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRouteImport } from './routes/charts.catalog_.previews.$revision.{$caseId}[.]svg'
+import { Route as ApiBuilderProjectsIdSyncRouteImport } from './routes/api/builder/projects.$id.sync'
+import { Route as ApiBuilderProjectSnapshotsHashQuarantineRouteImport } from './routes/api/builder/project-snapshots.$hash.quarantine'
 import { Route as ApiAuthCliStatusTicketIdRouteImport } from './routes/api/auth/cli/status.$ticketId'
+import { Route as LibraryChartsCatalogCollectionsCollectionIdRouteImport } from './routes/_library/charts.catalog.collections.$collectionId'
 import { Route as LibraryChartsCatalogChartsCaseIdRouteImport } from './routes/_library/charts.catalog.charts.$caseId'
 import { Route as LibraryLibraryIdVersionDocsChar123Char125DotmdRouteImport } from './routes/_library/$libraryId/$version.docs.{$}[.]md'
 import { Route as LibraryLibraryIdVersionDocsNpmStatsRouteImport } from './routes/_library/$libraryId/$version.docs.npm-stats'
@@ -340,6 +360,11 @@ const BlogRoute = BlogRouteImport.update({
   path: '/blog',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApplicationStarterRoute = ApplicationStarterRouteImport.update({
+  id: '/application-starter',
+  path: '/application-starter',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdsRoute = AdsRouteImport.update({
   id: '/ads',
   path: '/ads',
@@ -389,15 +414,15 @@ const DsIndexRoute = DsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DsRoute,
 } as any)
-const BuilderIndexRoute = BuilderIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => BuilderRoute,
-} as any)
 const BlogIndexRoute = BlogIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => BlogRoute,
+} as any)
+const ApplicationStarterIndexRoute = ApplicationStarterIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ApplicationStarterRoute,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
@@ -444,6 +469,11 @@ const PartnersRailwayRoute = PartnersRailwayRouteImport.update({
   path: '/railway',
   getParentRoute: () => PartnersRoute,
 } as any)
+const PartnersNetlifyRoute = PartnersNetlifyRouteImport.update({
+  id: '/netlify',
+  path: '/netlify',
+  getParentRoute: () => PartnersRoute,
+} as any)
 const PartnersPartnerRoute = PartnersPartnerRouteImport.update({
   id: '/$partner',
   path: '/$partner',
@@ -474,6 +504,11 @@ const DsTypographyRoute = DsTypographyRouteImport.update({
   path: '/typography',
   getParentRoute: () => DsRoute,
 } as any)
+const DsTabsRoute = DsTabsRouteImport.update({
+  id: '/tabs',
+  path: '/tabs',
+  getParentRoute: () => DsRoute,
+} as any)
 const DsStatsRoute = DsStatsRouteImport.update({
   id: '/stats',
   path: '/stats',
@@ -494,14 +529,34 @@ const DsSemanticRoute = DsSemanticRouteImport.update({
   path: '/semantic',
   getParentRoute: () => DsRoute,
 } as any)
+const DsPartnerRailRoute = DsPartnerRailRouteImport.update({
+  id: '/partner-rail',
+  path: '/partner-rail',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsPanelRoute = DsPanelRouteImport.update({
+  id: '/panel',
+  path: '/panel',
+  getParentRoute: () => DsRoute,
+} as any)
 const DsPaletteRoute = DsPaletteRouteImport.update({
   id: '/palette',
   path: '/palette',
   getParentRoute: () => DsRoute,
 } as any)
+const DsPageHeaderRoute = DsPageHeaderRouteImport.update({
+  id: '/page-header',
+  path: '/page-header',
+  getParentRoute: () => DsRoute,
+} as any)
 const DsNavbarRoute = DsNavbarRouteImport.update({
   id: '/navbar',
   path: '/navbar',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsMaintainersRoute = DsMaintainersRouteImport.update({
+  id: '/maintainers',
+  path: '/maintainers',
   getParentRoute: () => DsRoute,
 } as any)
 const DsLogosRoute = DsLogosRouteImport.update({
@@ -541,11 +596,6 @@ const DsColorsRoute = DsColorsRouteImport.update({
   path: '/colors',
   getParentRoute: () => DsRoute,
 } as any)
-const DsCollapsibleRoute = DsCollapsibleRouteImport.update({
-  id: '/collapsible',
-  path: '/collapsible',
-  getParentRoute: () => DsRoute,
-} as any)
 const DsCardsRoute = DsCardsRouteImport.update({
   id: '/cards',
   path: '/cards',
@@ -571,10 +621,30 @@ const DsAvatarRoute = DsAvatarRouteImport.update({
   path: '/avatar',
   getParentRoute: () => DsRoute,
 } as any)
-const BuilderDocsRoute = BuilderDocsRouteImport.update({
-  id: '/docs',
-  path: '/docs',
-  getParentRoute: () => BuilderRoute,
+const BuilderNewRoute = BuilderNewRouteImport.update({
+  id: '/builder_/new',
+  path: '/builder/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuilderLlmsDottxtRoute = BuilderLlmsDottxtRouteImport.update({
+  id: '/builder_/llms.txt',
+  path: '/builder/llms.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuilderEsbuildRoute = BuilderEsbuildRouteImport.update({
+  id: '/builder_/esbuild',
+  path: '/builder/esbuild',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuilderAiRoute = BuilderAiRouteImport.update({
+  id: '/builder_/ai',
+  path: '/builder/ai',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuilderIdRoute = BuilderIdRouteImport.update({
+  id: '/builder_/$id',
+  path: '/builder/$id',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const BlogSplatRoute = BlogSplatRouteImport.update({
   id: '/$',
@@ -595,6 +665,11 @@ const AuthCliRoute = AuthCliRouteImport.update({
   id: '/auth/cli',
   path: '/auth/cli',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ApplicationStarterDocsRoute = ApplicationStarterDocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => ApplicationStarterRoute,
 } as any)
 const ApiUploadthingRoute = ApiUploadthingRouteImport.update({
   id: '/api/uploadthing',
@@ -754,11 +829,22 @@ const ChartsCatalogCatalogDotjsonRoute =
     path: '/charts/catalog/catalog.json',
     getParentRoute: () => rootRouteImport,
   } as any)
+const BuilderPHashRoute = BuilderPHashRouteImport.update({
+  id: '/builder_/p/$hash',
+  path: '/builder/p/$hash',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthProviderStartRoute = AuthProviderStartRouteImport.update({
   id: '/auth/$provider/start',
   path: '/auth/$provider/start',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiReadmeChar123Char125DotpngRoute =
+  ApiReadmeChar123Char125DotpngRouteImport.update({
+    id: '/api/readme/{$}.png',
+    path: '/api/readme/{$}.png',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiOgChar123Char125DotpngRoute =
   ApiOgChar123Char125DotpngRouteImport.update({
     id: '/api/og/{$}.png',
@@ -795,64 +881,86 @@ const ApiDataLibrariesRoute = ApiDataLibrariesRouteImport.update({
   path: '/api/data/libraries',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiBuilderValidateRoute = ApiBuilderValidateRouteImport.update({
-  id: '/api/builder/validate',
-  path: '/api/builder/validate',
+const ApiBuilderProjectsRoute = ApiBuilderProjectsRouteImport.update({
+  id: '/api/builder/projects',
+  path: '/api/builder/projects',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiBuilderSuggestRoute = ApiBuilderSuggestRouteImport.update({
-  id: '/api/builder/suggest',
-  path: '/api/builder/suggest',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiBuilderLoadTemplateRoute = ApiBuilderLoadTemplateRouteImport.update({
-  id: '/api/builder/load-template',
-  path: '/api/builder/load-template',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiBuilderLoadRemoteTemplateRoute =
-  ApiBuilderLoadRemoteTemplateRouteImport.update({
-    id: '/api/builder/load-remote-template',
-    path: '/api/builder/load-remote-template',
+const ApiBuilderProjectSnapshotsRoute =
+  ApiBuilderProjectSnapshotsRouteImport.update({
+    id: '/api/builder/project-snapshots',
+    path: '/api/builder/project-snapshots',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiBuilderLoadRemoteAddonRoute =
-  ApiBuilderLoadRemoteAddonRouteImport.update({
-    id: '/api/builder/load-remote-addon',
-    path: '/api/builder/load-remote-addon',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiBuilderFeaturesRoute = ApiBuilderFeaturesRouteImport.update({
-  id: '/api/builder/features',
-  path: '/api/builder/features',
+const ApiBuilderAssistRoute = ApiBuilderAssistRouteImport.update({
+  id: '/api/builder/assist',
+  path: '/api/builder/assist',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiBuilderFeatureArtifactsRoute =
-  ApiBuilderFeatureArtifactsRouteImport.update({
-    id: '/api/builder/feature-artifacts',
-    path: '/api/builder/feature-artifacts',
+const ApiApplicationStarterValidateRoute =
+  ApiApplicationStarterValidateRouteImport.update({
+    id: '/api/application-starter/validate',
+    path: '/api/application-starter/validate',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiBuilderDownloadRoute = ApiBuilderDownloadRouteImport.update({
-  id: '/api/builder/download',
-  path: '/api/builder/download',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiBuilderCompileAttributedRoute =
-  ApiBuilderCompileAttributedRouteImport.update({
-    id: '/api/builder/compile-attributed',
-    path: '/api/builder/compile-attributed',
+const ApiApplicationStarterSuggestRoute =
+  ApiApplicationStarterSuggestRouteImport.update({
+    id: '/api/application-starter/suggest',
+    path: '/api/application-starter/suggest',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiBuilderCompileRoute = ApiBuilderCompileRouteImport.update({
-  id: '/api/builder/compile',
-  path: '/api/builder/compile',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiApplicationStarterResolveRoute =
   ApiApplicationStarterResolveRouteImport.update({
     id: '/api/application-starter/resolve',
     path: '/api/application-starter/resolve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiApplicationStarterLoadTemplateRoute =
+  ApiApplicationStarterLoadTemplateRouteImport.update({
+    id: '/api/application-starter/load-template',
+    path: '/api/application-starter/load-template',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiApplicationStarterLoadRemoteTemplateRoute =
+  ApiApplicationStarterLoadRemoteTemplateRouteImport.update({
+    id: '/api/application-starter/load-remote-template',
+    path: '/api/application-starter/load-remote-template',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiApplicationStarterLoadRemoteAddonRoute =
+  ApiApplicationStarterLoadRemoteAddonRouteImport.update({
+    id: '/api/application-starter/load-remote-addon',
+    path: '/api/application-starter/load-remote-addon',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiApplicationStarterFeaturesRoute =
+  ApiApplicationStarterFeaturesRouteImport.update({
+    id: '/api/application-starter/features',
+    path: '/api/application-starter/features',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiApplicationStarterFeatureArtifactsRoute =
+  ApiApplicationStarterFeatureArtifactsRouteImport.update({
+    id: '/api/application-starter/feature-artifacts',
+    path: '/api/application-starter/feature-artifacts',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiApplicationStarterDownloadRoute =
+  ApiApplicationStarterDownloadRouteImport.update({
+    id: '/api/application-starter/download',
+    path: '/api/application-starter/download',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiApplicationStarterCompileAttributedRoute =
+  ApiApplicationStarterCompileAttributedRouteImport.update({
+    id: '/api/application-starter/compile-attributed',
+    path: '/api/application-starter/compile-attributed',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiApplicationStarterCompileRoute =
+  ApiApplicationStarterCompileRouteImport.update({
+    id: '/api/application-starter/compile',
+    path: '/api/application-starter/compile',
     getParentRoute: () => rootRouteImport,
   } as any)
 const AdminUsersUserIdRoute = AdminUsersUserIdRouteImport.update({
@@ -1031,22 +1139,16 @@ const IntentRegistryPackageNameSkillNameRoute =
     path: '/$skillName',
     getParentRoute: () => IntentRegistryPackageNameRoute,
   } as any)
-const ChartsCatalogEmbedCaseIdRoute =
-  ChartsCatalogEmbedCaseIdRouteImport.update({
-    id: '/charts/catalog_/embed/$caseId',
-    path: '/charts/catalog/embed/$caseId',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiBuilderDeployGithubRoute = ApiBuilderDeployGithubRouteImport.update({
-  id: '/api/builder/deploy/github',
-  path: '/api/builder/deploy/github',
-  getParentRoute: () => rootRouteImport,
+const ApiBuilderProjectsIdRoute = ApiBuilderProjectsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiBuilderProjectsRoute,
 } as any)
-const ApiBuilderDeployCheckNameRoute =
-  ApiBuilderDeployCheckNameRouteImport.update({
-    id: '/api/builder/deploy/check-name',
-    path: '/api/builder/deploy/check-name',
-    getParentRoute: () => rootRouteImport,
+const ApiBuilderProjectSnapshotsHashRoute =
+  ApiBuilderProjectSnapshotsHashRouteImport.update({
+    id: '/$hash',
+    path: '/$hash',
+    getParentRoute: () => ApiBuilderProjectSnapshotsRoute,
   } as any)
 const ApiAuthCliCreateTicketRoute = ApiAuthCliCreateTicketRouteImport.update({
   id: '/api/auth/cli/create-ticket',
@@ -1058,6 +1160,18 @@ const ApiAuthCallbackProviderRoute = ApiAuthCallbackProviderRouteImport.update({
   path: '/api/auth/callback/$provider',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiApplicationStarterDeployGithubRoute =
+  ApiApplicationStarterDeployGithubRouteImport.update({
+    id: '/api/application-starter/deploy/github',
+    path: '/api/application-starter/deploy/github',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiApplicationStarterDeployCheckNameRoute =
+  ApiApplicationStarterDeployCheckNameRouteImport.update({
+    id: '/api/application-starter/deploy/check-name',
+    path: '/api/application-starter/deploy/check-name',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const LibraryChartsCatalogAllRoute = LibraryChartsCatalogAllRouteImport.update({
   id: '/all',
   path: '/all',
@@ -1081,17 +1195,35 @@ const LibraryLibraryIdVersionDocsIndexRoute =
     path: '/',
     getParentRoute: () => LibraryLibraryIdVersionDocsRoute,
   } as any)
-const ChartsCatalogAssetsArtifactRevisionSplatRoute =
-  ChartsCatalogAssetsArtifactRevisionSplatRouteImport.update({
-    id: '/charts/catalog_/assets/$artifactRevision/$',
-    path: '/charts/catalog/assets/$artifactRevision/$',
+const ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute =
+  ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRouteImport.update({
+    id: '/charts/catalog_/previews/$revision/{$caseId}.svg',
+    path: '/charts/catalog/previews/$revision/{$caseId}.svg',
     getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiBuilderProjectsIdSyncRoute =
+  ApiBuilderProjectsIdSyncRouteImport.update({
+    id: '/sync',
+    path: '/sync',
+    getParentRoute: () => ApiBuilderProjectsIdRoute,
+  } as any)
+const ApiBuilderProjectSnapshotsHashQuarantineRoute =
+  ApiBuilderProjectSnapshotsHashQuarantineRouteImport.update({
+    id: '/quarantine',
+    path: '/quarantine',
+    getParentRoute: () => ApiBuilderProjectSnapshotsHashRoute,
   } as any)
 const ApiAuthCliStatusTicketIdRoute =
   ApiAuthCliStatusTicketIdRouteImport.update({
     id: '/api/auth/cli/status/$ticketId',
     path: '/api/auth/cli/status/$ticketId',
     getParentRoute: () => rootRouteImport,
+  } as any)
+const LibraryChartsCatalogCollectionsCollectionIdRoute =
+  LibraryChartsCatalogCollectionsCollectionIdRouteImport.update({
+    id: '/collections/$collectionId',
+    path: '/collections/$collectionId',
+    getParentRoute: () => LibraryChartsCatalogRoute,
   } as any)
 const LibraryChartsCatalogChartsCaseIdRoute =
   LibraryChartsCatalogChartsCaseIdRouteImport.update({
@@ -1179,9 +1311,10 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteRouteWithChildren
   '/account': typeof AccountRouteWithChildren
   '/ads': typeof AdsRoute
+  '/application-starter': typeof ApplicationStarterRouteWithChildren
   '/blog': typeof BlogRouteWithChildren
   '/brand-guide': typeof BrandGuideRoute
-  '/builder': typeof BuilderRouteWithChildren
+  '/builder': typeof BuilderRoute
   '/dashboard': typeof DashboardRoute
   '/ds': typeof DsRouteWithChildren
   '/ethos': typeof EthosRoute
@@ -1222,17 +1355,21 @@ export interface FileRoutesByFullPath {
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
   '/api/uploadthing': typeof ApiUploadthingRoute
+  '/application-starter/docs': typeof ApplicationStarterDocsRoute
   '/auth/cli': typeof AuthCliRoute
   '/auth/popup-success': typeof AuthPopupSuccessRoute
   '/auth/signout': typeof AuthSignoutRoute
   '/blog/$': typeof BlogSplatRoute
-  '/builder/docs': typeof BuilderDocsRoute
+  '/builder/$id': typeof BuilderIdRoute
+  '/builder/ai': typeof BuilderAiRoute
+  '/builder/esbuild': typeof BuilderEsbuildRoute
+  '/builder/llms.txt': typeof BuilderLlmsDottxtRoute
+  '/builder/new': typeof BuilderNewRoute
   '/ds/avatar': typeof DsAvatarRoute
   '/ds/badges': typeof DsBadgesRoute
   '/ds/breadcrumbs': typeof DsBreadcrumbsRoute
   '/ds/buttons': typeof DsButtonsRoute
   '/ds/cards': typeof DsCardsRoute
-  '/ds/collapsible': typeof DsCollapsibleRoute
   '/ds/colors': typeof DsColorsRoute
   '/ds/dropdown': typeof DsDropdownRoute
   '/ds/effects': typeof DsEffectsRoute
@@ -1240,18 +1377,24 @@ export interface FileRoutesByFullPath {
   '/ds/iconography': typeof DsIconographyRoute
   '/ds/inputs': typeof DsInputsRoute
   '/ds/logos': typeof DsLogosRoute
+  '/ds/maintainers': typeof DsMaintainersRoute
   '/ds/navbar': typeof DsNavbarRoute
+  '/ds/page-header': typeof DsPageHeaderRoute
   '/ds/palette': typeof DsPaletteRoute
+  '/ds/panel': typeof DsPanelRoute
+  '/ds/partner-rail': typeof DsPartnerRailRoute
   '/ds/semantic': typeof DsSemanticRoute
   '/ds/shadows': typeof DsShadowsRoute
   '/ds/spinner': typeof DsSpinnerRoute
   '/ds/stats': typeof DsStatsRoute
+  '/ds/tabs': typeof DsTabsRoute
   '/ds/typography': typeof DsTypographyRoute
   '/libraries/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
   '/oauth/token': typeof OauthTokenRoute
   '/partners/$partner': typeof PartnersPartnerRoute
+  '/partners/netlify': typeof PartnersNetlifyRoute
   '/partners/railway': typeof PartnersRailwayRoute
   '/shop/$handle': typeof ShopHandleRoute
   '/shop/cart': typeof ShopCartRoute
@@ -1261,8 +1404,8 @@ export interface FileRoutesByFullPath {
   '/stack/$category': typeof StackCategoryRoute
   '/account/': typeof AccountIndexRoute
   '/admin/': typeof AdminIndexRoute
+  '/application-starter/': typeof ApplicationStarterIndexRoute
   '/blog/': typeof BlogIndexRoute
-  '/builder/': typeof BuilderIndexRoute
   '/ds/': typeof DsIndexRoute
   '/partners/': typeof PartnersIndexRoute
   '/shop/': typeof ShopIndexRoute
@@ -1274,17 +1417,20 @@ export interface FileRoutesByFullPath {
   '/admin/roles/$roleId': typeof AdminRolesRoleIdRoute
   '/admin/showcases/$id': typeof AdminShowcasesIdRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
+  '/api/application-starter/compile': typeof ApiApplicationStarterCompileRoute
+  '/api/application-starter/compile-attributed': typeof ApiApplicationStarterCompileAttributedRoute
+  '/api/application-starter/download': typeof ApiApplicationStarterDownloadRoute
+  '/api/application-starter/feature-artifacts': typeof ApiApplicationStarterFeatureArtifactsRoute
+  '/api/application-starter/features': typeof ApiApplicationStarterFeaturesRoute
+  '/api/application-starter/load-remote-addon': typeof ApiApplicationStarterLoadRemoteAddonRoute
+  '/api/application-starter/load-remote-template': typeof ApiApplicationStarterLoadRemoteTemplateRoute
+  '/api/application-starter/load-template': typeof ApiApplicationStarterLoadTemplateRoute
   '/api/application-starter/resolve': typeof ApiApplicationStarterResolveRoute
-  '/api/builder/compile': typeof ApiBuilderCompileRoute
-  '/api/builder/compile-attributed': typeof ApiBuilderCompileAttributedRoute
-  '/api/builder/download': typeof ApiBuilderDownloadRoute
-  '/api/builder/feature-artifacts': typeof ApiBuilderFeatureArtifactsRoute
-  '/api/builder/features': typeof ApiBuilderFeaturesRoute
-  '/api/builder/load-remote-addon': typeof ApiBuilderLoadRemoteAddonRoute
-  '/api/builder/load-remote-template': typeof ApiBuilderLoadRemoteTemplateRoute
-  '/api/builder/load-template': typeof ApiBuilderLoadTemplateRoute
-  '/api/builder/suggest': typeof ApiBuilderSuggestRoute
-  '/api/builder/validate': typeof ApiBuilderValidateRoute
+  '/api/application-starter/suggest': typeof ApiApplicationStarterSuggestRoute
+  '/api/application-starter/validate': typeof ApiApplicationStarterValidateRoute
+  '/api/builder/assist': typeof ApiBuilderAssistRoute
+  '/api/builder/project-snapshots': typeof ApiBuilderProjectSnapshotsRouteWithChildren
+  '/api/builder/projects': typeof ApiBuilderProjectsRouteWithChildren
   '/api/data/libraries': typeof ApiDataLibrariesRoute
   '/api/data/partners': typeof ApiDataPartnersRoute
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
@@ -1292,7 +1438,9 @@ export interface FileRoutesByFullPath {
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/api/og/{$}.png': typeof ApiOgChar123Char125DotpngRoute
+  '/api/readme/{$}.png': typeof ApiReadmeChar123Char125DotpngRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
+  '/builder/p/$hash': typeof BuilderPHashRoute
   '/charts/catalog/catalog.json': typeof ChartsCatalogCatalogDotjsonRoute
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameRouteWithChildren
   '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
@@ -1313,11 +1461,12 @@ export interface FileRoutesByFullPath {
   '/$libraryId/$version/docs': typeof LibraryLibraryIdVersionDocsRouteWithChildren
   '/$libraryId/$version/llms.txt': typeof LibraryLibraryIdVersionLlmsDottxtRoute
   '/charts/catalog/all': typeof LibraryChartsCatalogAllRoute
+  '/api/application-starter/deploy/check-name': typeof ApiApplicationStarterDeployCheckNameRoute
+  '/api/application-starter/deploy/github': typeof ApiApplicationStarterDeployGithubRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
   '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
-  '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
-  '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
-  '/charts/catalog/embed/$caseId': typeof ChartsCatalogEmbedCaseIdRoute
+  '/api/builder/project-snapshots/$hash': typeof ApiBuilderProjectSnapshotsHashRouteWithChildren
+  '/api/builder/projects/$id': typeof ApiBuilderProjectsIdRouteWithChildren
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/$libraryId/$version/': typeof LibraryLibraryIdVersionIndexRoute
@@ -1351,8 +1500,11 @@ export interface FileRoutesByFullPath {
   '/$libraryId/$version/docs/npm-stats': typeof LibraryLibraryIdVersionDocsNpmStatsRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryLibraryIdVersionDocsChar123Char125DotmdRoute
   '/charts/catalog/charts/$caseId': typeof LibraryChartsCatalogChartsCaseIdRoute
+  '/charts/catalog/collections/$collectionId': typeof LibraryChartsCatalogCollectionsCollectionIdRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
-  '/charts/catalog/assets/$artifactRevision/$': typeof ChartsCatalogAssetsArtifactRevisionSplatRoute
+  '/api/builder/project-snapshots/$hash/quarantine': typeof ApiBuilderProjectSnapshotsHashQuarantineRoute
+  '/api/builder/projects/$id/sync': typeof ApiBuilderProjectsIdSyncRoute
+  '/charts/catalog/previews/$revision/{$caseId}.svg': typeof ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute
   '/$libraryId/$version/docs/': typeof LibraryLibraryIdVersionDocsIndexRoute
   '/$libraryId/$version/docs/framework/': typeof LibraryLibraryIdVersionDocsFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/$': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkSplatRoute
@@ -1364,6 +1516,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ads': typeof AdsRoute
   '/brand-guide': typeof BrandGuideRoute
+  '/builder': typeof BuilderRoute
   '/dashboard': typeof DashboardRoute
   '/ethos': typeof EthosRoute
   '/explore': typeof ExploreRoute
@@ -1400,17 +1553,21 @@ export interface FileRoutesByTo {
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
   '/api/uploadthing': typeof ApiUploadthingRoute
+  '/application-starter/docs': typeof ApplicationStarterDocsRoute
   '/auth/cli': typeof AuthCliRoute
   '/auth/popup-success': typeof AuthPopupSuccessRoute
   '/auth/signout': typeof AuthSignoutRoute
   '/blog/$': typeof BlogSplatRoute
-  '/builder/docs': typeof BuilderDocsRoute
+  '/builder/$id': typeof BuilderIdRoute
+  '/builder/ai': typeof BuilderAiRoute
+  '/builder/esbuild': typeof BuilderEsbuildRoute
+  '/builder/llms.txt': typeof BuilderLlmsDottxtRoute
+  '/builder/new': typeof BuilderNewRoute
   '/ds/avatar': typeof DsAvatarRoute
   '/ds/badges': typeof DsBadgesRoute
   '/ds/breadcrumbs': typeof DsBreadcrumbsRoute
   '/ds/buttons': typeof DsButtonsRoute
   '/ds/cards': typeof DsCardsRoute
-  '/ds/collapsible': typeof DsCollapsibleRoute
   '/ds/colors': typeof DsColorsRoute
   '/ds/dropdown': typeof DsDropdownRoute
   '/ds/effects': typeof DsEffectsRoute
@@ -1418,18 +1575,24 @@ export interface FileRoutesByTo {
   '/ds/iconography': typeof DsIconographyRoute
   '/ds/inputs': typeof DsInputsRoute
   '/ds/logos': typeof DsLogosRoute
+  '/ds/maintainers': typeof DsMaintainersRoute
   '/ds/navbar': typeof DsNavbarRoute
+  '/ds/page-header': typeof DsPageHeaderRoute
   '/ds/palette': typeof DsPaletteRoute
+  '/ds/panel': typeof DsPanelRoute
+  '/ds/partner-rail': typeof DsPartnerRailRoute
   '/ds/semantic': typeof DsSemanticRoute
   '/ds/shadows': typeof DsShadowsRoute
   '/ds/spinner': typeof DsSpinnerRoute
   '/ds/stats': typeof DsStatsRoute
+  '/ds/tabs': typeof DsTabsRoute
   '/ds/typography': typeof DsTypographyRoute
   '/libraries/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
   '/oauth/token': typeof OauthTokenRoute
   '/partners/$partner': typeof PartnersPartnerRoute
+  '/partners/netlify': typeof PartnersNetlifyRoute
   '/partners/railway': typeof PartnersRailwayRoute
   '/shop/$handle': typeof ShopHandleRoute
   '/shop/cart': typeof ShopCartRoute
@@ -1439,8 +1602,8 @@ export interface FileRoutesByTo {
   '/stack/$category': typeof StackCategoryRoute
   '/account': typeof AccountIndexRoute
   '/admin': typeof AdminIndexRoute
+  '/application-starter': typeof ApplicationStarterIndexRoute
   '/blog': typeof BlogIndexRoute
-  '/builder': typeof BuilderIndexRoute
   '/ds': typeof DsIndexRoute
   '/partners': typeof PartnersIndexRoute
   '/shop': typeof ShopIndexRoute
@@ -1450,17 +1613,20 @@ export interface FileRoutesByTo {
   '/admin/roles/$roleId': typeof AdminRolesRoleIdRoute
   '/admin/showcases/$id': typeof AdminShowcasesIdRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
+  '/api/application-starter/compile': typeof ApiApplicationStarterCompileRoute
+  '/api/application-starter/compile-attributed': typeof ApiApplicationStarterCompileAttributedRoute
+  '/api/application-starter/download': typeof ApiApplicationStarterDownloadRoute
+  '/api/application-starter/feature-artifacts': typeof ApiApplicationStarterFeatureArtifactsRoute
+  '/api/application-starter/features': typeof ApiApplicationStarterFeaturesRoute
+  '/api/application-starter/load-remote-addon': typeof ApiApplicationStarterLoadRemoteAddonRoute
+  '/api/application-starter/load-remote-template': typeof ApiApplicationStarterLoadRemoteTemplateRoute
+  '/api/application-starter/load-template': typeof ApiApplicationStarterLoadTemplateRoute
   '/api/application-starter/resolve': typeof ApiApplicationStarterResolveRoute
-  '/api/builder/compile': typeof ApiBuilderCompileRoute
-  '/api/builder/compile-attributed': typeof ApiBuilderCompileAttributedRoute
-  '/api/builder/download': typeof ApiBuilderDownloadRoute
-  '/api/builder/feature-artifacts': typeof ApiBuilderFeatureArtifactsRoute
-  '/api/builder/features': typeof ApiBuilderFeaturesRoute
-  '/api/builder/load-remote-addon': typeof ApiBuilderLoadRemoteAddonRoute
-  '/api/builder/load-remote-template': typeof ApiBuilderLoadRemoteTemplateRoute
-  '/api/builder/load-template': typeof ApiBuilderLoadTemplateRoute
-  '/api/builder/suggest': typeof ApiBuilderSuggestRoute
-  '/api/builder/validate': typeof ApiBuilderValidateRoute
+  '/api/application-starter/suggest': typeof ApiApplicationStarterSuggestRoute
+  '/api/application-starter/validate': typeof ApiApplicationStarterValidateRoute
+  '/api/builder/assist': typeof ApiBuilderAssistRoute
+  '/api/builder/project-snapshots': typeof ApiBuilderProjectSnapshotsRouteWithChildren
+  '/api/builder/projects': typeof ApiBuilderProjectsRouteWithChildren
   '/api/data/libraries': typeof ApiDataLibrariesRoute
   '/api/data/partners': typeof ApiDataPartnersRoute
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
@@ -1468,7 +1634,9 @@ export interface FileRoutesByTo {
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/api/og/{$}.png': typeof ApiOgChar123Char125DotpngRoute
+  '/api/readme/{$}.png': typeof ApiReadmeChar123Char125DotpngRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
+  '/builder/p/$hash': typeof BuilderPHashRoute
   '/charts/catalog/catalog.json': typeof ChartsCatalogCatalogDotjsonRoute
   '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
   '/shop/pages/$handle': typeof ShopPagesHandleRoute
@@ -1487,11 +1655,12 @@ export interface FileRoutesByTo {
   '/stats/npm': typeof StatsNpmIndexRoute
   '/$libraryId/$version/llms.txt': typeof LibraryLibraryIdVersionLlmsDottxtRoute
   '/charts/catalog/all': typeof LibraryChartsCatalogAllRoute
+  '/api/application-starter/deploy/check-name': typeof ApiApplicationStarterDeployCheckNameRoute
+  '/api/application-starter/deploy/github': typeof ApiApplicationStarterDeployGithubRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
   '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
-  '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
-  '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
-  '/charts/catalog/embed/$caseId': typeof ChartsCatalogEmbedCaseIdRoute
+  '/api/builder/project-snapshots/$hash': typeof ApiBuilderProjectSnapshotsHashRouteWithChildren
+  '/api/builder/projects/$id': typeof ApiBuilderProjectsIdRouteWithChildren
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/$libraryId/$version': typeof LibraryLibraryIdVersionIndexRoute
@@ -1525,8 +1694,11 @@ export interface FileRoutesByTo {
   '/$libraryId/$version/docs/npm-stats': typeof LibraryLibraryIdVersionDocsNpmStatsRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryLibraryIdVersionDocsChar123Char125DotmdRoute
   '/charts/catalog/charts/$caseId': typeof LibraryChartsCatalogChartsCaseIdRoute
+  '/charts/catalog/collections/$collectionId': typeof LibraryChartsCatalogCollectionsCollectionIdRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
-  '/charts/catalog/assets/$artifactRevision/$': typeof ChartsCatalogAssetsArtifactRevisionSplatRoute
+  '/api/builder/project-snapshots/$hash/quarantine': typeof ApiBuilderProjectSnapshotsHashQuarantineRoute
+  '/api/builder/projects/$id/sync': typeof ApiBuilderProjectsIdSyncRoute
+  '/charts/catalog/previews/$revision/{$caseId}.svg': typeof ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute
   '/$libraryId/$version/docs': typeof LibraryLibraryIdVersionDocsIndexRoute
   '/$libraryId/$version/docs/framework': typeof LibraryLibraryIdVersionDocsFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/$': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkSplatRoute
@@ -1541,9 +1713,10 @@ export interface FileRoutesById {
   '/_library': typeof LibraryRouteWithChildren
   '/account': typeof AccountRouteWithChildren
   '/ads': typeof AdsRoute
+  '/application-starter': typeof ApplicationStarterRouteWithChildren
   '/blog': typeof BlogRouteWithChildren
   '/brand-guide': typeof BrandGuideRoute
-  '/builder': typeof BuilderRouteWithChildren
+  '/builder': typeof BuilderRoute
   '/dashboard': typeof DashboardRoute
   '/ds': typeof DsRouteWithChildren
   '/ethos': typeof EthosRoute
@@ -1584,17 +1757,21 @@ export interface FileRoutesById {
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
   '/api/uploadthing': typeof ApiUploadthingRoute
+  '/application-starter/docs': typeof ApplicationStarterDocsRoute
   '/auth/cli': typeof AuthCliRoute
   '/auth/popup-success': typeof AuthPopupSuccessRoute
   '/auth/signout': typeof AuthSignoutRoute
   '/blog/$': typeof BlogSplatRoute
-  '/builder/docs': typeof BuilderDocsRoute
+  '/builder_/$id': typeof BuilderIdRoute
+  '/builder_/ai': typeof BuilderAiRoute
+  '/builder_/esbuild': typeof BuilderEsbuildRoute
+  '/builder_/llms.txt': typeof BuilderLlmsDottxtRoute
+  '/builder_/new': typeof BuilderNewRoute
   '/ds/avatar': typeof DsAvatarRoute
   '/ds/badges': typeof DsBadgesRoute
   '/ds/breadcrumbs': typeof DsBreadcrumbsRoute
   '/ds/buttons': typeof DsButtonsRoute
   '/ds/cards': typeof DsCardsRoute
-  '/ds/collapsible': typeof DsCollapsibleRoute
   '/ds/colors': typeof DsColorsRoute
   '/ds/dropdown': typeof DsDropdownRoute
   '/ds/effects': typeof DsEffectsRoute
@@ -1602,18 +1779,24 @@ export interface FileRoutesById {
   '/ds/iconography': typeof DsIconographyRoute
   '/ds/inputs': typeof DsInputsRoute
   '/ds/logos': typeof DsLogosRoute
+  '/ds/maintainers': typeof DsMaintainersRoute
   '/ds/navbar': typeof DsNavbarRoute
+  '/ds/page-header': typeof DsPageHeaderRoute
   '/ds/palette': typeof DsPaletteRoute
+  '/ds/panel': typeof DsPanelRoute
+  '/ds/partner-rail': typeof DsPartnerRailRoute
   '/ds/semantic': typeof DsSemanticRoute
   '/ds/shadows': typeof DsShadowsRoute
   '/ds/spinner': typeof DsSpinnerRoute
   '/ds/stats': typeof DsStatsRoute
+  '/ds/tabs': typeof DsTabsRoute
   '/ds/typography': typeof DsTypographyRoute
   '/libraries_/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
   '/oauth/token': typeof OauthTokenRoute
   '/partners/$partner': typeof PartnersPartnerRoute
+  '/partners/netlify': typeof PartnersNetlifyRoute
   '/partners/railway': typeof PartnersRailwayRoute
   '/shop/$handle': typeof ShopHandleRoute
   '/shop/cart': typeof ShopCartRoute
@@ -1623,8 +1806,8 @@ export interface FileRoutesById {
   '/stack/$category': typeof StackCategoryRoute
   '/account/': typeof AccountIndexRoute
   '/admin/': typeof AdminIndexRoute
+  '/application-starter/': typeof ApplicationStarterIndexRoute
   '/blog/': typeof BlogIndexRoute
-  '/builder/': typeof BuilderIndexRoute
   '/ds/': typeof DsIndexRoute
   '/partners/': typeof PartnersIndexRoute
   '/shop/': typeof ShopIndexRoute
@@ -1636,17 +1819,20 @@ export interface FileRoutesById {
   '/admin/roles/$roleId': typeof AdminRolesRoleIdRoute
   '/admin/showcases_/$id': typeof AdminShowcasesIdRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
+  '/api/application-starter/compile': typeof ApiApplicationStarterCompileRoute
+  '/api/application-starter/compile-attributed': typeof ApiApplicationStarterCompileAttributedRoute
+  '/api/application-starter/download': typeof ApiApplicationStarterDownloadRoute
+  '/api/application-starter/feature-artifacts': typeof ApiApplicationStarterFeatureArtifactsRoute
+  '/api/application-starter/features': typeof ApiApplicationStarterFeaturesRoute
+  '/api/application-starter/load-remote-addon': typeof ApiApplicationStarterLoadRemoteAddonRoute
+  '/api/application-starter/load-remote-template': typeof ApiApplicationStarterLoadRemoteTemplateRoute
+  '/api/application-starter/load-template': typeof ApiApplicationStarterLoadTemplateRoute
   '/api/application-starter/resolve': typeof ApiApplicationStarterResolveRoute
-  '/api/builder/compile': typeof ApiBuilderCompileRoute
-  '/api/builder/compile-attributed': typeof ApiBuilderCompileAttributedRoute
-  '/api/builder/download': typeof ApiBuilderDownloadRoute
-  '/api/builder/feature-artifacts': typeof ApiBuilderFeatureArtifactsRoute
-  '/api/builder/features': typeof ApiBuilderFeaturesRoute
-  '/api/builder/load-remote-addon': typeof ApiBuilderLoadRemoteAddonRoute
-  '/api/builder/load-remote-template': typeof ApiBuilderLoadRemoteTemplateRoute
-  '/api/builder/load-template': typeof ApiBuilderLoadTemplateRoute
-  '/api/builder/suggest': typeof ApiBuilderSuggestRoute
-  '/api/builder/validate': typeof ApiBuilderValidateRoute
+  '/api/application-starter/suggest': typeof ApiApplicationStarterSuggestRoute
+  '/api/application-starter/validate': typeof ApiApplicationStarterValidateRoute
+  '/api/builder/assist': typeof ApiBuilderAssistRoute
+  '/api/builder/project-snapshots': typeof ApiBuilderProjectSnapshotsRouteWithChildren
+  '/api/builder/projects': typeof ApiBuilderProjectsRouteWithChildren
   '/api/data/libraries': typeof ApiDataLibrariesRoute
   '/api/data/partners': typeof ApiDataPartnersRoute
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
@@ -1654,7 +1840,9 @@ export interface FileRoutesById {
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/api/og/{$}.png': typeof ApiOgChar123Char125DotpngRoute
+  '/api/readme/{$}.png': typeof ApiReadmeChar123Char125DotpngRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
+  '/builder_/p/$hash': typeof BuilderPHashRoute
   '/charts/catalog_/catalog.json': typeof ChartsCatalogCatalogDotjsonRoute
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameRouteWithChildren
   '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
@@ -1675,11 +1863,12 @@ export interface FileRoutesById {
   '/_library/$libraryId/$version/docs': typeof LibraryLibraryIdVersionDocsRouteWithChildren
   '/_library/$libraryId/$version/llms.txt': typeof LibraryLibraryIdVersionLlmsDottxtRoute
   '/_library/charts/catalog/all': typeof LibraryChartsCatalogAllRoute
+  '/api/application-starter/deploy/check-name': typeof ApiApplicationStarterDeployCheckNameRoute
+  '/api/application-starter/deploy/github': typeof ApiApplicationStarterDeployGithubRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
   '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
-  '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
-  '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
-  '/charts/catalog_/embed/$caseId': typeof ChartsCatalogEmbedCaseIdRoute
+  '/api/builder/project-snapshots/$hash': typeof ApiBuilderProjectSnapshotsHashRouteWithChildren
+  '/api/builder/projects/$id': typeof ApiBuilderProjectsIdRouteWithChildren
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/_library/$libraryId/$version/': typeof LibraryLibraryIdVersionIndexRoute
@@ -1713,8 +1902,11 @@ export interface FileRoutesById {
   '/_library/$libraryId/$version/docs/npm-stats': typeof LibraryLibraryIdVersionDocsNpmStatsRoute
   '/_library/$libraryId/$version/docs/{$}.md': typeof LibraryLibraryIdVersionDocsChar123Char125DotmdRoute
   '/_library/charts/catalog/charts/$caseId': typeof LibraryChartsCatalogChartsCaseIdRoute
+  '/_library/charts/catalog/collections/$collectionId': typeof LibraryChartsCatalogCollectionsCollectionIdRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
-  '/charts/catalog_/assets/$artifactRevision/$': typeof ChartsCatalogAssetsArtifactRevisionSplatRoute
+  '/api/builder/project-snapshots/$hash/quarantine': typeof ApiBuilderProjectSnapshotsHashQuarantineRoute
+  '/api/builder/projects/$id/sync': typeof ApiBuilderProjectsIdSyncRoute
+  '/charts/catalog_/previews/$revision/{$caseId}.svg': typeof ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute
   '/_library/$libraryId/$version/docs/': typeof LibraryLibraryIdVersionDocsIndexRoute
   '/_library/$libraryId/$version/docs/framework/': typeof LibraryLibraryIdVersionDocsFrameworkIndexRoute
   '/_library/$libraryId/$version/docs/framework/$framework/$': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkSplatRoute
@@ -1729,6 +1921,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/account'
     | '/ads'
+    | '/application-starter'
     | '/blog'
     | '/brand-guide'
     | '/builder'
@@ -1772,17 +1965,21 @@ export interface FileRouteTypes {
     | '/admin/npm-stats'
     | '/admin/users'
     | '/api/uploadthing'
+    | '/application-starter/docs'
     | '/auth/cli'
     | '/auth/popup-success'
     | '/auth/signout'
     | '/blog/$'
-    | '/builder/docs'
+    | '/builder/$id'
+    | '/builder/ai'
+    | '/builder/esbuild'
+    | '/builder/llms.txt'
+    | '/builder/new'
     | '/ds/avatar'
     | '/ds/badges'
     | '/ds/breadcrumbs'
     | '/ds/buttons'
     | '/ds/cards'
-    | '/ds/collapsible'
     | '/ds/colors'
     | '/ds/dropdown'
     | '/ds/effects'
@@ -1790,18 +1987,24 @@ export interface FileRouteTypes {
     | '/ds/iconography'
     | '/ds/inputs'
     | '/ds/logos'
+    | '/ds/maintainers'
     | '/ds/navbar'
+    | '/ds/page-header'
     | '/ds/palette'
+    | '/ds/panel'
+    | '/ds/partner-rail'
     | '/ds/semantic'
     | '/ds/shadows'
     | '/ds/spinner'
     | '/ds/stats'
+    | '/ds/tabs'
     | '/ds/typography'
     | '/libraries/$framework'
     | '/oauth/authorize'
     | '/oauth/register'
     | '/oauth/token'
     | '/partners/$partner'
+    | '/partners/netlify'
     | '/partners/railway'
     | '/shop/$handle'
     | '/shop/cart'
@@ -1811,8 +2014,8 @@ export interface FileRouteTypes {
     | '/stack/$category'
     | '/account/'
     | '/admin/'
+    | '/application-starter/'
     | '/blog/'
-    | '/builder/'
     | '/ds/'
     | '/partners/'
     | '/shop/'
@@ -1824,17 +2027,20 @@ export interface FileRouteTypes {
     | '/admin/roles/$roleId'
     | '/admin/showcases/$id'
     | '/admin/users/$userId'
+    | '/api/application-starter/compile'
+    | '/api/application-starter/compile-attributed'
+    | '/api/application-starter/download'
+    | '/api/application-starter/feature-artifacts'
+    | '/api/application-starter/features'
+    | '/api/application-starter/load-remote-addon'
+    | '/api/application-starter/load-remote-template'
+    | '/api/application-starter/load-template'
     | '/api/application-starter/resolve'
-    | '/api/builder/compile'
-    | '/api/builder/compile-attributed'
-    | '/api/builder/download'
-    | '/api/builder/feature-artifacts'
-    | '/api/builder/features'
-    | '/api/builder/load-remote-addon'
-    | '/api/builder/load-remote-template'
-    | '/api/builder/load-template'
-    | '/api/builder/suggest'
-    | '/api/builder/validate'
+    | '/api/application-starter/suggest'
+    | '/api/application-starter/validate'
+    | '/api/builder/assist'
+    | '/api/builder/project-snapshots'
+    | '/api/builder/projects'
     | '/api/data/libraries'
     | '/api/data/partners'
     | '/api/discord/interactions'
@@ -1842,7 +2048,9 @@ export interface FileRouteTypes {
     | '/api/github/webhook'
     | '/api/mcp/$'
     | '/api/og/{$}.png'
+    | '/api/readme/{$}.png'
     | '/auth/$provider/start'
+    | '/builder/p/$hash'
     | '/charts/catalog/catalog.json'
     | '/intent/registry/$packageName'
     | '/shop/collections/$handle'
@@ -1863,11 +2071,12 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs'
     | '/$libraryId/$version/llms.txt'
     | '/charts/catalog/all'
+    | '/api/application-starter/deploy/check-name'
+    | '/api/application-starter/deploy/github'
     | '/api/auth/callback/$provider'
     | '/api/auth/cli/create-ticket'
-    | '/api/builder/deploy/check-name'
-    | '/api/builder/deploy/github'
-    | '/charts/catalog/embed/$caseId'
+    | '/api/builder/project-snapshots/$hash'
+    | '/api/builder/projects/$id'
     | '/intent/registry/$packageName/$skillName'
     | '/intent/registry/$packageName/{$}.md'
     | '/$libraryId/$version/'
@@ -1901,8 +2110,11 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/npm-stats'
     | '/$libraryId/$version/docs/{$}.md'
     | '/charts/catalog/charts/$caseId'
+    | '/charts/catalog/collections/$collectionId'
     | '/api/auth/cli/status/$ticketId'
-    | '/charts/catalog/assets/$artifactRevision/$'
+    | '/api/builder/project-snapshots/$hash/quarantine'
+    | '/api/builder/projects/$id/sync'
+    | '/charts/catalog/previews/$revision/{$caseId}.svg'
     | '/$libraryId/$version/docs/'
     | '/$libraryId/$version/docs/framework/'
     | '/$libraryId/$version/docs/framework/$framework/$'
@@ -1914,6 +2126,7 @@ export interface FileRouteTypes {
     | '/'
     | '/ads'
     | '/brand-guide'
+    | '/builder'
     | '/dashboard'
     | '/ethos'
     | '/explore'
@@ -1950,17 +2163,21 @@ export interface FileRouteTypes {
     | '/admin/npm-stats'
     | '/admin/users'
     | '/api/uploadthing'
+    | '/application-starter/docs'
     | '/auth/cli'
     | '/auth/popup-success'
     | '/auth/signout'
     | '/blog/$'
-    | '/builder/docs'
+    | '/builder/$id'
+    | '/builder/ai'
+    | '/builder/esbuild'
+    | '/builder/llms.txt'
+    | '/builder/new'
     | '/ds/avatar'
     | '/ds/badges'
     | '/ds/breadcrumbs'
     | '/ds/buttons'
     | '/ds/cards'
-    | '/ds/collapsible'
     | '/ds/colors'
     | '/ds/dropdown'
     | '/ds/effects'
@@ -1968,18 +2185,24 @@ export interface FileRouteTypes {
     | '/ds/iconography'
     | '/ds/inputs'
     | '/ds/logos'
+    | '/ds/maintainers'
     | '/ds/navbar'
+    | '/ds/page-header'
     | '/ds/palette'
+    | '/ds/panel'
+    | '/ds/partner-rail'
     | '/ds/semantic'
     | '/ds/shadows'
     | '/ds/spinner'
     | '/ds/stats'
+    | '/ds/tabs'
     | '/ds/typography'
     | '/libraries/$framework'
     | '/oauth/authorize'
     | '/oauth/register'
     | '/oauth/token'
     | '/partners/$partner'
+    | '/partners/netlify'
     | '/partners/railway'
     | '/shop/$handle'
     | '/shop/cart'
@@ -1989,8 +2212,8 @@ export interface FileRouteTypes {
     | '/stack/$category'
     | '/account'
     | '/admin'
+    | '/application-starter'
     | '/blog'
-    | '/builder'
     | '/ds'
     | '/partners'
     | '/shop'
@@ -2000,17 +2223,20 @@ export interface FileRouteTypes {
     | '/admin/roles/$roleId'
     | '/admin/showcases/$id'
     | '/admin/users/$userId'
+    | '/api/application-starter/compile'
+    | '/api/application-starter/compile-attributed'
+    | '/api/application-starter/download'
+    | '/api/application-starter/feature-artifacts'
+    | '/api/application-starter/features'
+    | '/api/application-starter/load-remote-addon'
+    | '/api/application-starter/load-remote-template'
+    | '/api/application-starter/load-template'
     | '/api/application-starter/resolve'
-    | '/api/builder/compile'
-    | '/api/builder/compile-attributed'
-    | '/api/builder/download'
-    | '/api/builder/feature-artifacts'
-    | '/api/builder/features'
-    | '/api/builder/load-remote-addon'
-    | '/api/builder/load-remote-template'
-    | '/api/builder/load-template'
-    | '/api/builder/suggest'
-    | '/api/builder/validate'
+    | '/api/application-starter/suggest'
+    | '/api/application-starter/validate'
+    | '/api/builder/assist'
+    | '/api/builder/project-snapshots'
+    | '/api/builder/projects'
     | '/api/data/libraries'
     | '/api/data/partners'
     | '/api/discord/interactions'
@@ -2018,7 +2244,9 @@ export interface FileRouteTypes {
     | '/api/github/webhook'
     | '/api/mcp/$'
     | '/api/og/{$}.png'
+    | '/api/readme/{$}.png'
     | '/auth/$provider/start'
+    | '/builder/p/$hash'
     | '/charts/catalog/catalog.json'
     | '/shop/collections/$handle'
     | '/shop/pages/$handle'
@@ -2037,11 +2265,12 @@ export interface FileRouteTypes {
     | '/stats/npm'
     | '/$libraryId/$version/llms.txt'
     | '/charts/catalog/all'
+    | '/api/application-starter/deploy/check-name'
+    | '/api/application-starter/deploy/github'
     | '/api/auth/callback/$provider'
     | '/api/auth/cli/create-ticket'
-    | '/api/builder/deploy/check-name'
-    | '/api/builder/deploy/github'
-    | '/charts/catalog/embed/$caseId'
+    | '/api/builder/project-snapshots/$hash'
+    | '/api/builder/projects/$id'
     | '/intent/registry/$packageName/$skillName'
     | '/intent/registry/$packageName/{$}.md'
     | '/$libraryId/$version'
@@ -2075,8 +2304,11 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/npm-stats'
     | '/$libraryId/$version/docs/{$}.md'
     | '/charts/catalog/charts/$caseId'
+    | '/charts/catalog/collections/$collectionId'
     | '/api/auth/cli/status/$ticketId'
-    | '/charts/catalog/assets/$artifactRevision/$'
+    | '/api/builder/project-snapshots/$hash/quarantine'
+    | '/api/builder/projects/$id/sync'
+    | '/charts/catalog/previews/$revision/{$caseId}.svg'
     | '/$libraryId/$version/docs'
     | '/$libraryId/$version/docs/framework'
     | '/$libraryId/$version/docs/framework/$framework/$'
@@ -2090,6 +2322,7 @@ export interface FileRouteTypes {
     | '/_library'
     | '/account'
     | '/ads'
+    | '/application-starter'
     | '/blog'
     | '/brand-guide'
     | '/builder'
@@ -2133,17 +2366,21 @@ export interface FileRouteTypes {
     | '/admin/npm-stats'
     | '/admin/users'
     | '/api/uploadthing'
+    | '/application-starter/docs'
     | '/auth/cli'
     | '/auth/popup-success'
     | '/auth/signout'
     | '/blog/$'
-    | '/builder/docs'
+    | '/builder_/$id'
+    | '/builder_/ai'
+    | '/builder_/esbuild'
+    | '/builder_/llms.txt'
+    | '/builder_/new'
     | '/ds/avatar'
     | '/ds/badges'
     | '/ds/breadcrumbs'
     | '/ds/buttons'
     | '/ds/cards'
-    | '/ds/collapsible'
     | '/ds/colors'
     | '/ds/dropdown'
     | '/ds/effects'
@@ -2151,18 +2388,24 @@ export interface FileRouteTypes {
     | '/ds/iconography'
     | '/ds/inputs'
     | '/ds/logos'
+    | '/ds/maintainers'
     | '/ds/navbar'
+    | '/ds/page-header'
     | '/ds/palette'
+    | '/ds/panel'
+    | '/ds/partner-rail'
     | '/ds/semantic'
     | '/ds/shadows'
     | '/ds/spinner'
     | '/ds/stats'
+    | '/ds/tabs'
     | '/ds/typography'
     | '/libraries_/$framework'
     | '/oauth/authorize'
     | '/oauth/register'
     | '/oauth/token'
     | '/partners/$partner'
+    | '/partners/netlify'
     | '/partners/railway'
     | '/shop/$handle'
     | '/shop/cart'
@@ -2172,8 +2415,8 @@ export interface FileRouteTypes {
     | '/stack/$category'
     | '/account/'
     | '/admin/'
+    | '/application-starter/'
     | '/blog/'
-    | '/builder/'
     | '/ds/'
     | '/partners/'
     | '/shop/'
@@ -2185,17 +2428,20 @@ export interface FileRouteTypes {
     | '/admin/roles/$roleId'
     | '/admin/showcases_/$id'
     | '/admin/users/$userId'
+    | '/api/application-starter/compile'
+    | '/api/application-starter/compile-attributed'
+    | '/api/application-starter/download'
+    | '/api/application-starter/feature-artifacts'
+    | '/api/application-starter/features'
+    | '/api/application-starter/load-remote-addon'
+    | '/api/application-starter/load-remote-template'
+    | '/api/application-starter/load-template'
     | '/api/application-starter/resolve'
-    | '/api/builder/compile'
-    | '/api/builder/compile-attributed'
-    | '/api/builder/download'
-    | '/api/builder/feature-artifacts'
-    | '/api/builder/features'
-    | '/api/builder/load-remote-addon'
-    | '/api/builder/load-remote-template'
-    | '/api/builder/load-template'
-    | '/api/builder/suggest'
-    | '/api/builder/validate'
+    | '/api/application-starter/suggest'
+    | '/api/application-starter/validate'
+    | '/api/builder/assist'
+    | '/api/builder/project-snapshots'
+    | '/api/builder/projects'
     | '/api/data/libraries'
     | '/api/data/partners'
     | '/api/discord/interactions'
@@ -2203,7 +2449,9 @@ export interface FileRouteTypes {
     | '/api/github/webhook'
     | '/api/mcp/$'
     | '/api/og/{$}.png'
+    | '/api/readme/{$}.png'
     | '/auth/$provider/start'
+    | '/builder_/p/$hash'
     | '/charts/catalog_/catalog.json'
     | '/intent/registry/$packageName'
     | '/shop/collections/$handle'
@@ -2224,11 +2472,12 @@ export interface FileRouteTypes {
     | '/_library/$libraryId/$version/docs'
     | '/_library/$libraryId/$version/llms.txt'
     | '/_library/charts/catalog/all'
+    | '/api/application-starter/deploy/check-name'
+    | '/api/application-starter/deploy/github'
     | '/api/auth/callback/$provider'
     | '/api/auth/cli/create-ticket'
-    | '/api/builder/deploy/check-name'
-    | '/api/builder/deploy/github'
-    | '/charts/catalog_/embed/$caseId'
+    | '/api/builder/project-snapshots/$hash'
+    | '/api/builder/projects/$id'
     | '/intent/registry/$packageName/$skillName'
     | '/intent/registry/$packageName/{$}.md'
     | '/_library/$libraryId/$version/'
@@ -2262,8 +2511,11 @@ export interface FileRouteTypes {
     | '/_library/$libraryId/$version/docs/npm-stats'
     | '/_library/$libraryId/$version/docs/{$}.md'
     | '/_library/charts/catalog/charts/$caseId'
+    | '/_library/charts/catalog/collections/$collectionId'
     | '/api/auth/cli/status/$ticketId'
-    | '/charts/catalog_/assets/$artifactRevision/$'
+    | '/api/builder/project-snapshots/$hash/quarantine'
+    | '/api/builder/projects/$id/sync'
+    | '/charts/catalog_/previews/$revision/{$caseId}.svg'
     | '/_library/$libraryId/$version/docs/'
     | '/_library/$libraryId/$version/docs/framework/'
     | '/_library/$libraryId/$version/docs/framework/$framework/$'
@@ -2278,9 +2530,10 @@ export interface RootRouteChildren {
   LibraryRoute: typeof LibraryRouteWithChildren
   AccountRoute: typeof AccountRouteWithChildren
   AdsRoute: typeof AdsRoute
+  ApplicationStarterRoute: typeof ApplicationStarterRouteWithChildren
   BlogRoute: typeof BlogRouteWithChildren
   BrandGuideRoute: typeof BrandGuideRoute
-  BuilderRoute: typeof BuilderRouteWithChildren
+  BuilderRoute: typeof BuilderRoute
   DashboardRoute: typeof DashboardRoute
   DsRoute: typeof DsRouteWithChildren
   EthosRoute: typeof EthosRoute
@@ -2312,6 +2565,11 @@ export interface RootRouteChildren {
   AuthCliRoute: typeof AuthCliRoute
   AuthPopupSuccessRoute: typeof AuthPopupSuccessRoute
   AuthSignoutRoute: typeof AuthSignoutRoute
+  BuilderIdRoute: typeof BuilderIdRoute
+  BuilderAiRoute: typeof BuilderAiRoute
+  BuilderEsbuildRoute: typeof BuilderEsbuildRoute
+  BuilderLlmsDottxtRoute: typeof BuilderLlmsDottxtRoute
+  BuilderNewRoute: typeof BuilderNewRoute
   LibrariesFrameworkRoute: typeof LibrariesFrameworkRoute
   OauthAuthorizeRoute: typeof OauthAuthorizeRoute
   OauthRegisterRoute: typeof OauthRegisterRoute
@@ -2321,17 +2579,20 @@ export interface RootRouteChildren {
   StackCategoryRoute: typeof StackCategoryRoute
   ShowcaseIndexRoute: typeof ShowcaseIndexRoute
   StatsIndexRoute: typeof StatsIndexRoute
+  ApiApplicationStarterCompileRoute: typeof ApiApplicationStarterCompileRoute
+  ApiApplicationStarterCompileAttributedRoute: typeof ApiApplicationStarterCompileAttributedRoute
+  ApiApplicationStarterDownloadRoute: typeof ApiApplicationStarterDownloadRoute
+  ApiApplicationStarterFeatureArtifactsRoute: typeof ApiApplicationStarterFeatureArtifactsRoute
+  ApiApplicationStarterFeaturesRoute: typeof ApiApplicationStarterFeaturesRoute
+  ApiApplicationStarterLoadRemoteAddonRoute: typeof ApiApplicationStarterLoadRemoteAddonRoute
+  ApiApplicationStarterLoadRemoteTemplateRoute: typeof ApiApplicationStarterLoadRemoteTemplateRoute
+  ApiApplicationStarterLoadTemplateRoute: typeof ApiApplicationStarterLoadTemplateRoute
   ApiApplicationStarterResolveRoute: typeof ApiApplicationStarterResolveRoute
-  ApiBuilderCompileRoute: typeof ApiBuilderCompileRoute
-  ApiBuilderCompileAttributedRoute: typeof ApiBuilderCompileAttributedRoute
-  ApiBuilderDownloadRoute: typeof ApiBuilderDownloadRoute
-  ApiBuilderFeatureArtifactsRoute: typeof ApiBuilderFeatureArtifactsRoute
-  ApiBuilderFeaturesRoute: typeof ApiBuilderFeaturesRoute
-  ApiBuilderLoadRemoteAddonRoute: typeof ApiBuilderLoadRemoteAddonRoute
-  ApiBuilderLoadRemoteTemplateRoute: typeof ApiBuilderLoadRemoteTemplateRoute
-  ApiBuilderLoadTemplateRoute: typeof ApiBuilderLoadTemplateRoute
-  ApiBuilderSuggestRoute: typeof ApiBuilderSuggestRoute
-  ApiBuilderValidateRoute: typeof ApiBuilderValidateRoute
+  ApiApplicationStarterSuggestRoute: typeof ApiApplicationStarterSuggestRoute
+  ApiApplicationStarterValidateRoute: typeof ApiApplicationStarterValidateRoute
+  ApiBuilderAssistRoute: typeof ApiBuilderAssistRoute
+  ApiBuilderProjectSnapshotsRoute: typeof ApiBuilderProjectSnapshotsRouteWithChildren
+  ApiBuilderProjectsRoute: typeof ApiBuilderProjectsRouteWithChildren
   ApiDataLibrariesRoute: typeof ApiDataLibrariesRoute
   ApiDataPartnersRoute: typeof ApiDataPartnersRoute
   ApiDiscordInteractionsRoute: typeof ApiDiscordInteractionsRoute
@@ -2339,7 +2600,9 @@ export interface RootRouteChildren {
   ApiGithubWebhookRoute: typeof ApiGithubWebhookRoute
   ApiMcpSplatRoute: typeof ApiMcpSplatRoute
   ApiOgChar123Char125DotpngRoute: typeof ApiOgChar123Char125DotpngRoute
+  ApiReadmeChar123Char125DotpngRoute: typeof ApiReadmeChar123Char125DotpngRoute
   AuthProviderStartRoute: typeof AuthProviderStartRoute
+  BuilderPHashRoute: typeof BuilderPHashRoute
   ChartsCatalogCatalogDotjsonRoute: typeof ChartsCatalogCatalogDotjsonRoute
   IntentRegistryPackageNameRoute: typeof IntentRegistryPackageNameRouteWithChildren
   ShowcaseEditIdRoute: typeof ShowcaseEditIdRoute
@@ -2348,13 +2611,12 @@ export interface RootRouteChildren {
   ApiMcpIndexRoute: typeof ApiMcpIndexRoute
   IntentRegistryIndexRoute: typeof IntentRegistryIndexRoute
   StatsNpmIndexRoute: typeof StatsNpmIndexRoute
+  ApiApplicationStarterDeployCheckNameRoute: typeof ApiApplicationStarterDeployCheckNameRoute
+  ApiApplicationStarterDeployGithubRoute: typeof ApiApplicationStarterDeployGithubRoute
   ApiAuthCallbackProviderRoute: typeof ApiAuthCallbackProviderRoute
   ApiAuthCliCreateTicketRoute: typeof ApiAuthCliCreateTicketRoute
-  ApiBuilderDeployCheckNameRoute: typeof ApiBuilderDeployCheckNameRoute
-  ApiBuilderDeployGithubRoute: typeof ApiBuilderDeployGithubRoute
-  ChartsCatalogEmbedCaseIdRoute: typeof ChartsCatalogEmbedCaseIdRoute
   ApiAuthCliStatusTicketIdRoute: typeof ApiAuthCliStatusTicketIdRoute
-  ChartsCatalogAssetsArtifactRevisionSplatRoute: typeof ChartsCatalogAssetsArtifactRevisionSplatRoute
+  ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute: typeof ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -2562,6 +2824,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/application-starter': {
+      id: '/application-starter'
+      path: '/application-starter'
+      fullPath: '/application-starter'
+      preLoaderRoute: typeof ApplicationStarterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ads': {
       id: '/ads'
       path: '/ads'
@@ -2632,19 +2901,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DsIndexRouteImport
       parentRoute: typeof DsRoute
     }
-    '/builder/': {
-      id: '/builder/'
-      path: '/'
-      fullPath: '/builder/'
-      preLoaderRoute: typeof BuilderIndexRouteImport
-      parentRoute: typeof BuilderRoute
-    }
     '/blog/': {
       id: '/blog/'
       path: '/'
       fullPath: '/blog/'
       preLoaderRoute: typeof BlogIndexRouteImport
       parentRoute: typeof BlogRoute
+    }
+    '/application-starter/': {
+      id: '/application-starter/'
+      path: '/'
+      fullPath: '/application-starter/'
+      preLoaderRoute: typeof ApplicationStarterIndexRouteImport
+      parentRoute: typeof ApplicationStarterRoute
     }
     '/admin/': {
       id: '/admin/'
@@ -2709,6 +2978,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PartnersRailwayRouteImport
       parentRoute: typeof PartnersRoute
     }
+    '/partners/netlify': {
+      id: '/partners/netlify'
+      path: '/netlify'
+      fullPath: '/partners/netlify'
+      preLoaderRoute: typeof PartnersNetlifyRouteImport
+      parentRoute: typeof PartnersRoute
+    }
     '/partners/$partner': {
       id: '/partners/$partner'
       path: '/$partner'
@@ -2751,6 +3027,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DsTypographyRouteImport
       parentRoute: typeof DsRoute
     }
+    '/ds/tabs': {
+      id: '/ds/tabs'
+      path: '/tabs'
+      fullPath: '/ds/tabs'
+      preLoaderRoute: typeof DsTabsRouteImport
+      parentRoute: typeof DsRoute
+    }
     '/ds/stats': {
       id: '/ds/stats'
       path: '/stats'
@@ -2779,6 +3062,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DsSemanticRouteImport
       parentRoute: typeof DsRoute
     }
+    '/ds/partner-rail': {
+      id: '/ds/partner-rail'
+      path: '/partner-rail'
+      fullPath: '/ds/partner-rail'
+      preLoaderRoute: typeof DsPartnerRailRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/panel': {
+      id: '/ds/panel'
+      path: '/panel'
+      fullPath: '/ds/panel'
+      preLoaderRoute: typeof DsPanelRouteImport
+      parentRoute: typeof DsRoute
+    }
     '/ds/palette': {
       id: '/ds/palette'
       path: '/palette'
@@ -2786,11 +3083,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DsPaletteRouteImport
       parentRoute: typeof DsRoute
     }
+    '/ds/page-header': {
+      id: '/ds/page-header'
+      path: '/page-header'
+      fullPath: '/ds/page-header'
+      preLoaderRoute: typeof DsPageHeaderRouteImport
+      parentRoute: typeof DsRoute
+    }
     '/ds/navbar': {
       id: '/ds/navbar'
       path: '/navbar'
       fullPath: '/ds/navbar'
       preLoaderRoute: typeof DsNavbarRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/maintainers': {
+      id: '/ds/maintainers'
+      path: '/maintainers'
+      fullPath: '/ds/maintainers'
+      preLoaderRoute: typeof DsMaintainersRouteImport
       parentRoute: typeof DsRoute
     }
     '/ds/logos': {
@@ -2842,13 +3153,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DsColorsRouteImport
       parentRoute: typeof DsRoute
     }
-    '/ds/collapsible': {
-      id: '/ds/collapsible'
-      path: '/collapsible'
-      fullPath: '/ds/collapsible'
-      preLoaderRoute: typeof DsCollapsibleRouteImport
-      parentRoute: typeof DsRoute
-    }
     '/ds/cards': {
       id: '/ds/cards'
       path: '/cards'
@@ -2884,12 +3188,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DsAvatarRouteImport
       parentRoute: typeof DsRoute
     }
-    '/builder/docs': {
-      id: '/builder/docs'
-      path: '/docs'
-      fullPath: '/builder/docs'
-      preLoaderRoute: typeof BuilderDocsRouteImport
-      parentRoute: typeof BuilderRoute
+    '/builder_/new': {
+      id: '/builder_/new'
+      path: '/builder/new'
+      fullPath: '/builder/new'
+      preLoaderRoute: typeof BuilderNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/builder_/llms.txt': {
+      id: '/builder_/llms.txt'
+      path: '/builder/llms.txt'
+      fullPath: '/builder/llms.txt'
+      preLoaderRoute: typeof BuilderLlmsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/builder_/esbuild': {
+      id: '/builder_/esbuild'
+      path: '/builder/esbuild'
+      fullPath: '/builder/esbuild'
+      preLoaderRoute: typeof BuilderEsbuildRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/builder_/ai': {
+      id: '/builder_/ai'
+      path: '/builder/ai'
+      fullPath: '/builder/ai'
+      preLoaderRoute: typeof BuilderAiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/builder_/$id': {
+      id: '/builder_/$id'
+      path: '/builder/$id'
+      fullPath: '/builder/$id'
+      preLoaderRoute: typeof BuilderIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/blog/$': {
       id: '/blog/$'
@@ -2918,6 +3250,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth/cli'
       preLoaderRoute: typeof AuthCliRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/application-starter/docs': {
+      id: '/application-starter/docs'
+      path: '/docs'
+      fullPath: '/application-starter/docs'
+      preLoaderRoute: typeof ApplicationStarterDocsRouteImport
+      parentRoute: typeof ApplicationStarterRoute
     }
     '/api/uploadthing': {
       id: '/api/uploadthing'
@@ -3136,11 +3475,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChartsCatalogCatalogDotjsonRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/builder_/p/$hash': {
+      id: '/builder_/p/$hash'
+      path: '/builder/p/$hash'
+      fullPath: '/builder/p/$hash'
+      preLoaderRoute: typeof BuilderPHashRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/$provider/start': {
       id: '/auth/$provider/start'
       path: '/auth/$provider/start'
       fullPath: '/auth/$provider/start'
       preLoaderRoute: typeof AuthProviderStartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/readme/{$}.png': {
+      id: '/api/readme/{$}.png'
+      path: '/api/readme/{$}.png'
+      fullPath: '/api/readme/{$}.png'
+      preLoaderRoute: typeof ApiReadmeChar123Char125DotpngRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/og/{$}.png': {
@@ -3192,74 +3545,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDataLibrariesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/builder/validate': {
-      id: '/api/builder/validate'
-      path: '/api/builder/validate'
-      fullPath: '/api/builder/validate'
-      preLoaderRoute: typeof ApiBuilderValidateRouteImport
+    '/api/builder/projects': {
+      id: '/api/builder/projects'
+      path: '/api/builder/projects'
+      fullPath: '/api/builder/projects'
+      preLoaderRoute: typeof ApiBuilderProjectsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/builder/suggest': {
-      id: '/api/builder/suggest'
-      path: '/api/builder/suggest'
-      fullPath: '/api/builder/suggest'
-      preLoaderRoute: typeof ApiBuilderSuggestRouteImport
+    '/api/builder/project-snapshots': {
+      id: '/api/builder/project-snapshots'
+      path: '/api/builder/project-snapshots'
+      fullPath: '/api/builder/project-snapshots'
+      preLoaderRoute: typeof ApiBuilderProjectSnapshotsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/builder/load-template': {
-      id: '/api/builder/load-template'
-      path: '/api/builder/load-template'
-      fullPath: '/api/builder/load-template'
-      preLoaderRoute: typeof ApiBuilderLoadTemplateRouteImport
+    '/api/builder/assist': {
+      id: '/api/builder/assist'
+      path: '/api/builder/assist'
+      fullPath: '/api/builder/assist'
+      preLoaderRoute: typeof ApiBuilderAssistRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/builder/load-remote-template': {
-      id: '/api/builder/load-remote-template'
-      path: '/api/builder/load-remote-template'
-      fullPath: '/api/builder/load-remote-template'
-      preLoaderRoute: typeof ApiBuilderLoadRemoteTemplateRouteImport
+    '/api/application-starter/validate': {
+      id: '/api/application-starter/validate'
+      path: '/api/application-starter/validate'
+      fullPath: '/api/application-starter/validate'
+      preLoaderRoute: typeof ApiApplicationStarterValidateRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/builder/load-remote-addon': {
-      id: '/api/builder/load-remote-addon'
-      path: '/api/builder/load-remote-addon'
-      fullPath: '/api/builder/load-remote-addon'
-      preLoaderRoute: typeof ApiBuilderLoadRemoteAddonRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/builder/features': {
-      id: '/api/builder/features'
-      path: '/api/builder/features'
-      fullPath: '/api/builder/features'
-      preLoaderRoute: typeof ApiBuilderFeaturesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/builder/feature-artifacts': {
-      id: '/api/builder/feature-artifacts'
-      path: '/api/builder/feature-artifacts'
-      fullPath: '/api/builder/feature-artifacts'
-      preLoaderRoute: typeof ApiBuilderFeatureArtifactsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/builder/download': {
-      id: '/api/builder/download'
-      path: '/api/builder/download'
-      fullPath: '/api/builder/download'
-      preLoaderRoute: typeof ApiBuilderDownloadRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/builder/compile-attributed': {
-      id: '/api/builder/compile-attributed'
-      path: '/api/builder/compile-attributed'
-      fullPath: '/api/builder/compile-attributed'
-      preLoaderRoute: typeof ApiBuilderCompileAttributedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/builder/compile': {
-      id: '/api/builder/compile'
-      path: '/api/builder/compile'
-      fullPath: '/api/builder/compile'
-      preLoaderRoute: typeof ApiBuilderCompileRouteImport
+    '/api/application-starter/suggest': {
+      id: '/api/application-starter/suggest'
+      path: '/api/application-starter/suggest'
+      fullPath: '/api/application-starter/suggest'
+      preLoaderRoute: typeof ApiApplicationStarterSuggestRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/application-starter/resolve': {
@@ -3267,6 +3585,62 @@ declare module '@tanstack/react-router' {
       path: '/api/application-starter/resolve'
       fullPath: '/api/application-starter/resolve'
       preLoaderRoute: typeof ApiApplicationStarterResolveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/application-starter/load-template': {
+      id: '/api/application-starter/load-template'
+      path: '/api/application-starter/load-template'
+      fullPath: '/api/application-starter/load-template'
+      preLoaderRoute: typeof ApiApplicationStarterLoadTemplateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/application-starter/load-remote-template': {
+      id: '/api/application-starter/load-remote-template'
+      path: '/api/application-starter/load-remote-template'
+      fullPath: '/api/application-starter/load-remote-template'
+      preLoaderRoute: typeof ApiApplicationStarterLoadRemoteTemplateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/application-starter/load-remote-addon': {
+      id: '/api/application-starter/load-remote-addon'
+      path: '/api/application-starter/load-remote-addon'
+      fullPath: '/api/application-starter/load-remote-addon'
+      preLoaderRoute: typeof ApiApplicationStarterLoadRemoteAddonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/application-starter/features': {
+      id: '/api/application-starter/features'
+      path: '/api/application-starter/features'
+      fullPath: '/api/application-starter/features'
+      preLoaderRoute: typeof ApiApplicationStarterFeaturesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/application-starter/feature-artifacts': {
+      id: '/api/application-starter/feature-artifacts'
+      path: '/api/application-starter/feature-artifacts'
+      fullPath: '/api/application-starter/feature-artifacts'
+      preLoaderRoute: typeof ApiApplicationStarterFeatureArtifactsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/application-starter/download': {
+      id: '/api/application-starter/download'
+      path: '/api/application-starter/download'
+      fullPath: '/api/application-starter/download'
+      preLoaderRoute: typeof ApiApplicationStarterDownloadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/application-starter/compile-attributed': {
+      id: '/api/application-starter/compile-attributed'
+      path: '/api/application-starter/compile-attributed'
+      fullPath: '/api/application-starter/compile-attributed'
+      preLoaderRoute: typeof ApiApplicationStarterCompileAttributedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/application-starter/compile': {
+      id: '/api/application-starter/compile'
+      path: '/api/application-starter/compile'
+      fullPath: '/api/application-starter/compile'
+      preLoaderRoute: typeof ApiApplicationStarterCompileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/users/$userId': {
@@ -3486,26 +3860,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IntentRegistryPackageNameSkillNameRouteImport
       parentRoute: typeof IntentRegistryPackageNameRoute
     }
-    '/charts/catalog_/embed/$caseId': {
-      id: '/charts/catalog_/embed/$caseId'
-      path: '/charts/catalog/embed/$caseId'
-      fullPath: '/charts/catalog/embed/$caseId'
-      preLoaderRoute: typeof ChartsCatalogEmbedCaseIdRouteImport
-      parentRoute: typeof rootRouteImport
+    '/api/builder/projects/$id': {
+      id: '/api/builder/projects/$id'
+      path: '/$id'
+      fullPath: '/api/builder/projects/$id'
+      preLoaderRoute: typeof ApiBuilderProjectsIdRouteImport
+      parentRoute: typeof ApiBuilderProjectsRoute
     }
-    '/api/builder/deploy/github': {
-      id: '/api/builder/deploy/github'
-      path: '/api/builder/deploy/github'
-      fullPath: '/api/builder/deploy/github'
-      preLoaderRoute: typeof ApiBuilderDeployGithubRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/builder/deploy/check-name': {
-      id: '/api/builder/deploy/check-name'
-      path: '/api/builder/deploy/check-name'
-      fullPath: '/api/builder/deploy/check-name'
-      preLoaderRoute: typeof ApiBuilderDeployCheckNameRouteImport
-      parentRoute: typeof rootRouteImport
+    '/api/builder/project-snapshots/$hash': {
+      id: '/api/builder/project-snapshots/$hash'
+      path: '/$hash'
+      fullPath: '/api/builder/project-snapshots/$hash'
+      preLoaderRoute: typeof ApiBuilderProjectSnapshotsHashRouteImport
+      parentRoute: typeof ApiBuilderProjectSnapshotsRoute
     }
     '/api/auth/cli/create-ticket': {
       id: '/api/auth/cli/create-ticket'
@@ -3519,6 +3886,20 @@ declare module '@tanstack/react-router' {
       path: '/api/auth/callback/$provider'
       fullPath: '/api/auth/callback/$provider'
       preLoaderRoute: typeof ApiAuthCallbackProviderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/application-starter/deploy/github': {
+      id: '/api/application-starter/deploy/github'
+      path: '/api/application-starter/deploy/github'
+      fullPath: '/api/application-starter/deploy/github'
+      preLoaderRoute: typeof ApiApplicationStarterDeployGithubRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/application-starter/deploy/check-name': {
+      id: '/api/application-starter/deploy/check-name'
+      path: '/api/application-starter/deploy/check-name'
+      fullPath: '/api/application-starter/deploy/check-name'
+      preLoaderRoute: typeof ApiApplicationStarterDeployCheckNameRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_library/charts/catalog/all': {
@@ -3549,12 +3930,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryLibraryIdVersionDocsIndexRouteImport
       parentRoute: typeof LibraryLibraryIdVersionDocsRoute
     }
-    '/charts/catalog_/assets/$artifactRevision/$': {
-      id: '/charts/catalog_/assets/$artifactRevision/$'
-      path: '/charts/catalog/assets/$artifactRevision/$'
-      fullPath: '/charts/catalog/assets/$artifactRevision/$'
-      preLoaderRoute: typeof ChartsCatalogAssetsArtifactRevisionSplatRouteImport
+    '/charts/catalog_/previews/$revision/{$caseId}.svg': {
+      id: '/charts/catalog_/previews/$revision/{$caseId}.svg'
+      path: '/charts/catalog/previews/$revision/{$caseId}.svg'
+      fullPath: '/charts/catalog/previews/$revision/{$caseId}.svg'
+      preLoaderRoute: typeof ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/api/builder/projects/$id/sync': {
+      id: '/api/builder/projects/$id/sync'
+      path: '/sync'
+      fullPath: '/api/builder/projects/$id/sync'
+      preLoaderRoute: typeof ApiBuilderProjectsIdSyncRouteImport
+      parentRoute: typeof ApiBuilderProjectsIdRoute
+    }
+    '/api/builder/project-snapshots/$hash/quarantine': {
+      id: '/api/builder/project-snapshots/$hash/quarantine'
+      path: '/quarantine'
+      fullPath: '/api/builder/project-snapshots/$hash/quarantine'
+      preLoaderRoute: typeof ApiBuilderProjectSnapshotsHashQuarantineRouteImport
+      parentRoute: typeof ApiBuilderProjectSnapshotsHashRoute
     }
     '/api/auth/cli/status/$ticketId': {
       id: '/api/auth/cli/status/$ticketId'
@@ -3562,6 +3957,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/auth/cli/status/$ticketId'
       preLoaderRoute: typeof ApiAuthCliStatusTicketIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_library/charts/catalog/collections/$collectionId': {
+      id: '/_library/charts/catalog/collections/$collectionId'
+      path: '/collections/$collectionId'
+      fullPath: '/charts/catalog/collections/$collectionId'
+      preLoaderRoute: typeof LibraryChartsCatalogCollectionsCollectionIdRouteImport
+      parentRoute: typeof LibraryChartsCatalogRoute
     }
     '/_library/charts/catalog/charts/$caseId': {
       id: '/_library/charts/catalog/charts/$caseId'
@@ -3798,12 +4200,15 @@ interface LibraryChartsCatalogRouteChildren {
   LibraryChartsCatalogAllRoute: typeof LibraryChartsCatalogAllRoute
   LibraryChartsCatalogIndexRoute: typeof LibraryChartsCatalogIndexRoute
   LibraryChartsCatalogChartsCaseIdRoute: typeof LibraryChartsCatalogChartsCaseIdRoute
+  LibraryChartsCatalogCollectionsCollectionIdRoute: typeof LibraryChartsCatalogCollectionsCollectionIdRoute
 }
 
 const LibraryChartsCatalogRouteChildren: LibraryChartsCatalogRouteChildren = {
   LibraryChartsCatalogAllRoute: LibraryChartsCatalogAllRoute,
   LibraryChartsCatalogIndexRoute: LibraryChartsCatalogIndexRoute,
   LibraryChartsCatalogChartsCaseIdRoute: LibraryChartsCatalogChartsCaseIdRoute,
+  LibraryChartsCatalogCollectionsCollectionIdRoute:
+    LibraryChartsCatalogCollectionsCollectionIdRoute,
 }
 
 const LibraryChartsCatalogRouteWithChildren =
@@ -3881,6 +4286,19 @@ const AccountRouteChildren: AccountRouteChildren = {
 const AccountRouteWithChildren =
   AccountRoute._addFileChildren(AccountRouteChildren)
 
+interface ApplicationStarterRouteChildren {
+  ApplicationStarterDocsRoute: typeof ApplicationStarterDocsRoute
+  ApplicationStarterIndexRoute: typeof ApplicationStarterIndexRoute
+}
+
+const ApplicationStarterRouteChildren: ApplicationStarterRouteChildren = {
+  ApplicationStarterDocsRoute: ApplicationStarterDocsRoute,
+  ApplicationStarterIndexRoute: ApplicationStarterIndexRoute,
+}
+
+const ApplicationStarterRouteWithChildren =
+  ApplicationStarterRoute._addFileChildren(ApplicationStarterRouteChildren)
+
 interface BlogRouteChildren {
   BlogSplatRoute: typeof BlogSplatRoute
   BlogIndexRoute: typeof BlogIndexRoute
@@ -3893,26 +4311,12 @@ const BlogRouteChildren: BlogRouteChildren = {
 
 const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
 
-interface BuilderRouteChildren {
-  BuilderDocsRoute: typeof BuilderDocsRoute
-  BuilderIndexRoute: typeof BuilderIndexRoute
-}
-
-const BuilderRouteChildren: BuilderRouteChildren = {
-  BuilderDocsRoute: BuilderDocsRoute,
-  BuilderIndexRoute: BuilderIndexRoute,
-}
-
-const BuilderRouteWithChildren =
-  BuilderRoute._addFileChildren(BuilderRouteChildren)
-
 interface DsRouteChildren {
   DsAvatarRoute: typeof DsAvatarRoute
   DsBadgesRoute: typeof DsBadgesRoute
   DsBreadcrumbsRoute: typeof DsBreadcrumbsRoute
   DsButtonsRoute: typeof DsButtonsRoute
   DsCardsRoute: typeof DsCardsRoute
-  DsCollapsibleRoute: typeof DsCollapsibleRoute
   DsColorsRoute: typeof DsColorsRoute
   DsDropdownRoute: typeof DsDropdownRoute
   DsEffectsRoute: typeof DsEffectsRoute
@@ -3920,12 +4324,17 @@ interface DsRouteChildren {
   DsIconographyRoute: typeof DsIconographyRoute
   DsInputsRoute: typeof DsInputsRoute
   DsLogosRoute: typeof DsLogosRoute
+  DsMaintainersRoute: typeof DsMaintainersRoute
   DsNavbarRoute: typeof DsNavbarRoute
+  DsPageHeaderRoute: typeof DsPageHeaderRoute
   DsPaletteRoute: typeof DsPaletteRoute
+  DsPanelRoute: typeof DsPanelRoute
+  DsPartnerRailRoute: typeof DsPartnerRailRoute
   DsSemanticRoute: typeof DsSemanticRoute
   DsShadowsRoute: typeof DsShadowsRoute
   DsSpinnerRoute: typeof DsSpinnerRoute
   DsStatsRoute: typeof DsStatsRoute
+  DsTabsRoute: typeof DsTabsRoute
   DsTypographyRoute: typeof DsTypographyRoute
   DsIndexRoute: typeof DsIndexRoute
 }
@@ -3936,7 +4345,6 @@ const DsRouteChildren: DsRouteChildren = {
   DsBreadcrumbsRoute: DsBreadcrumbsRoute,
   DsButtonsRoute: DsButtonsRoute,
   DsCardsRoute: DsCardsRoute,
-  DsCollapsibleRoute: DsCollapsibleRoute,
   DsColorsRoute: DsColorsRoute,
   DsDropdownRoute: DsDropdownRoute,
   DsEffectsRoute: DsEffectsRoute,
@@ -3944,12 +4352,17 @@ const DsRouteChildren: DsRouteChildren = {
   DsIconographyRoute: DsIconographyRoute,
   DsInputsRoute: DsInputsRoute,
   DsLogosRoute: DsLogosRoute,
+  DsMaintainersRoute: DsMaintainersRoute,
   DsNavbarRoute: DsNavbarRoute,
+  DsPageHeaderRoute: DsPageHeaderRoute,
   DsPaletteRoute: DsPaletteRoute,
+  DsPanelRoute: DsPanelRoute,
+  DsPartnerRailRoute: DsPartnerRailRoute,
   DsSemanticRoute: DsSemanticRoute,
   DsShadowsRoute: DsShadowsRoute,
   DsSpinnerRoute: DsSpinnerRoute,
   DsStatsRoute: DsStatsRoute,
+  DsTabsRoute: DsTabsRoute,
   DsTypographyRoute: DsTypographyRoute,
   DsIndexRoute: DsIndexRoute,
 }
@@ -3958,12 +4371,14 @@ const DsRouteWithChildren = DsRoute._addFileChildren(DsRouteChildren)
 
 interface PartnersRouteChildren {
   PartnersPartnerRoute: typeof PartnersPartnerRoute
+  PartnersNetlifyRoute: typeof PartnersNetlifyRoute
   PartnersRailwayRoute: typeof PartnersRailwayRoute
   PartnersIndexRoute: typeof PartnersIndexRoute
 }
 
 const PartnersRouteChildren: PartnersRouteChildren = {
   PartnersPartnerRoute: PartnersPartnerRoute,
+  PartnersNetlifyRoute: PartnersNetlifyRoute,
   PartnersRailwayRoute: PartnersRailwayRoute,
   PartnersIndexRoute: PartnersIndexRoute,
 }
@@ -3996,6 +4411,58 @@ const ShopRouteChildren: ShopRouteChildren = {
 
 const ShopRouteWithChildren = ShopRoute._addFileChildren(ShopRouteChildren)
 
+interface ApiBuilderProjectSnapshotsHashRouteChildren {
+  ApiBuilderProjectSnapshotsHashQuarantineRoute: typeof ApiBuilderProjectSnapshotsHashQuarantineRoute
+}
+
+const ApiBuilderProjectSnapshotsHashRouteChildren: ApiBuilderProjectSnapshotsHashRouteChildren =
+  {
+    ApiBuilderProjectSnapshotsHashQuarantineRoute:
+      ApiBuilderProjectSnapshotsHashQuarantineRoute,
+  }
+
+const ApiBuilderProjectSnapshotsHashRouteWithChildren =
+  ApiBuilderProjectSnapshotsHashRoute._addFileChildren(
+    ApiBuilderProjectSnapshotsHashRouteChildren,
+  )
+
+interface ApiBuilderProjectSnapshotsRouteChildren {
+  ApiBuilderProjectSnapshotsHashRoute: typeof ApiBuilderProjectSnapshotsHashRouteWithChildren
+}
+
+const ApiBuilderProjectSnapshotsRouteChildren: ApiBuilderProjectSnapshotsRouteChildren =
+  {
+    ApiBuilderProjectSnapshotsHashRoute:
+      ApiBuilderProjectSnapshotsHashRouteWithChildren,
+  }
+
+const ApiBuilderProjectSnapshotsRouteWithChildren =
+  ApiBuilderProjectSnapshotsRoute._addFileChildren(
+    ApiBuilderProjectSnapshotsRouteChildren,
+  )
+
+interface ApiBuilderProjectsIdRouteChildren {
+  ApiBuilderProjectsIdSyncRoute: typeof ApiBuilderProjectsIdSyncRoute
+}
+
+const ApiBuilderProjectsIdRouteChildren: ApiBuilderProjectsIdRouteChildren = {
+  ApiBuilderProjectsIdSyncRoute: ApiBuilderProjectsIdSyncRoute,
+}
+
+const ApiBuilderProjectsIdRouteWithChildren =
+  ApiBuilderProjectsIdRoute._addFileChildren(ApiBuilderProjectsIdRouteChildren)
+
+interface ApiBuilderProjectsRouteChildren {
+  ApiBuilderProjectsIdRoute: typeof ApiBuilderProjectsIdRouteWithChildren
+}
+
+const ApiBuilderProjectsRouteChildren: ApiBuilderProjectsRouteChildren = {
+  ApiBuilderProjectsIdRoute: ApiBuilderProjectsIdRouteWithChildren,
+}
+
+const ApiBuilderProjectsRouteWithChildren =
+  ApiBuilderProjectsRoute._addFileChildren(ApiBuilderProjectsRouteChildren)
+
 interface IntentRegistryPackageNameRouteChildren {
   IntentRegistryPackageNameSkillNameRoute: typeof IntentRegistryPackageNameSkillNameRoute
   IntentRegistryPackageNameChar123Char125DotmdRoute: typeof IntentRegistryPackageNameChar123Char125DotmdRoute
@@ -4022,9 +4489,10 @@ const rootRouteChildren: RootRouteChildren = {
   LibraryRoute: LibraryRouteWithChildren,
   AccountRoute: AccountRouteWithChildren,
   AdsRoute: AdsRoute,
+  ApplicationStarterRoute: ApplicationStarterRouteWithChildren,
   BlogRoute: BlogRouteWithChildren,
   BrandGuideRoute: BrandGuideRoute,
-  BuilderRoute: BuilderRouteWithChildren,
+  BuilderRoute: BuilderRoute,
   DashboardRoute: DashboardRoute,
   DsRoute: DsRouteWithChildren,
   EthosRoute: EthosRoute,
@@ -4057,6 +4525,11 @@ const rootRouteChildren: RootRouteChildren = {
   AuthCliRoute: AuthCliRoute,
   AuthPopupSuccessRoute: AuthPopupSuccessRoute,
   AuthSignoutRoute: AuthSignoutRoute,
+  BuilderIdRoute: BuilderIdRoute,
+  BuilderAiRoute: BuilderAiRoute,
+  BuilderEsbuildRoute: BuilderEsbuildRoute,
+  BuilderLlmsDottxtRoute: BuilderLlmsDottxtRoute,
+  BuilderNewRoute: BuilderNewRoute,
   LibrariesFrameworkRoute: LibrariesFrameworkRoute,
   OauthAuthorizeRoute: OauthAuthorizeRoute,
   OauthRegisterRoute: OauthRegisterRoute,
@@ -4066,17 +4539,25 @@ const rootRouteChildren: RootRouteChildren = {
   StackCategoryRoute: StackCategoryRoute,
   ShowcaseIndexRoute: ShowcaseIndexRoute,
   StatsIndexRoute: StatsIndexRoute,
+  ApiApplicationStarterCompileRoute: ApiApplicationStarterCompileRoute,
+  ApiApplicationStarterCompileAttributedRoute:
+    ApiApplicationStarterCompileAttributedRoute,
+  ApiApplicationStarterDownloadRoute: ApiApplicationStarterDownloadRoute,
+  ApiApplicationStarterFeatureArtifactsRoute:
+    ApiApplicationStarterFeatureArtifactsRoute,
+  ApiApplicationStarterFeaturesRoute: ApiApplicationStarterFeaturesRoute,
+  ApiApplicationStarterLoadRemoteAddonRoute:
+    ApiApplicationStarterLoadRemoteAddonRoute,
+  ApiApplicationStarterLoadRemoteTemplateRoute:
+    ApiApplicationStarterLoadRemoteTemplateRoute,
+  ApiApplicationStarterLoadTemplateRoute:
+    ApiApplicationStarterLoadTemplateRoute,
   ApiApplicationStarterResolveRoute: ApiApplicationStarterResolveRoute,
-  ApiBuilderCompileRoute: ApiBuilderCompileRoute,
-  ApiBuilderCompileAttributedRoute: ApiBuilderCompileAttributedRoute,
-  ApiBuilderDownloadRoute: ApiBuilderDownloadRoute,
-  ApiBuilderFeatureArtifactsRoute: ApiBuilderFeatureArtifactsRoute,
-  ApiBuilderFeaturesRoute: ApiBuilderFeaturesRoute,
-  ApiBuilderLoadRemoteAddonRoute: ApiBuilderLoadRemoteAddonRoute,
-  ApiBuilderLoadRemoteTemplateRoute: ApiBuilderLoadRemoteTemplateRoute,
-  ApiBuilderLoadTemplateRoute: ApiBuilderLoadTemplateRoute,
-  ApiBuilderSuggestRoute: ApiBuilderSuggestRoute,
-  ApiBuilderValidateRoute: ApiBuilderValidateRoute,
+  ApiApplicationStarterSuggestRoute: ApiApplicationStarterSuggestRoute,
+  ApiApplicationStarterValidateRoute: ApiApplicationStarterValidateRoute,
+  ApiBuilderAssistRoute: ApiBuilderAssistRoute,
+  ApiBuilderProjectSnapshotsRoute: ApiBuilderProjectSnapshotsRouteWithChildren,
+  ApiBuilderProjectsRoute: ApiBuilderProjectsRouteWithChildren,
   ApiDataLibrariesRoute: ApiDataLibrariesRoute,
   ApiDataPartnersRoute: ApiDataPartnersRoute,
   ApiDiscordInteractionsRoute: ApiDiscordInteractionsRoute,
@@ -4084,7 +4565,9 @@ const rootRouteChildren: RootRouteChildren = {
   ApiGithubWebhookRoute: ApiGithubWebhookRoute,
   ApiMcpSplatRoute: ApiMcpSplatRoute,
   ApiOgChar123Char125DotpngRoute: ApiOgChar123Char125DotpngRoute,
+  ApiReadmeChar123Char125DotpngRoute: ApiReadmeChar123Char125DotpngRoute,
   AuthProviderStartRoute: AuthProviderStartRoute,
+  BuilderPHashRoute: BuilderPHashRoute,
   ChartsCatalogCatalogDotjsonRoute: ChartsCatalogCatalogDotjsonRoute,
   IntentRegistryPackageNameRoute: IntentRegistryPackageNameRouteWithChildren,
   ShowcaseEditIdRoute: ShowcaseEditIdRoute,
@@ -4093,14 +4576,15 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMcpIndexRoute: ApiMcpIndexRoute,
   IntentRegistryIndexRoute: IntentRegistryIndexRoute,
   StatsNpmIndexRoute: StatsNpmIndexRoute,
+  ApiApplicationStarterDeployCheckNameRoute:
+    ApiApplicationStarterDeployCheckNameRoute,
+  ApiApplicationStarterDeployGithubRoute:
+    ApiApplicationStarterDeployGithubRoute,
   ApiAuthCallbackProviderRoute: ApiAuthCallbackProviderRoute,
   ApiAuthCliCreateTicketRoute: ApiAuthCliCreateTicketRoute,
-  ApiBuilderDeployCheckNameRoute: ApiBuilderDeployCheckNameRoute,
-  ApiBuilderDeployGithubRoute: ApiBuilderDeployGithubRoute,
-  ChartsCatalogEmbedCaseIdRoute: ChartsCatalogEmbedCaseIdRoute,
   ApiAuthCliStatusTicketIdRoute: ApiAuthCliStatusTicketIdRoute,
-  ChartsCatalogAssetsArtifactRevisionSplatRoute:
-    ChartsCatalogAssetsArtifactRevisionSplatRoute,
+  ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute:
+    ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

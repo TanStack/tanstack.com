@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useUploadThing } from '~/utils/uploadthing.client'
 import { useToast } from './ToastProvider'
-import { Upload, X, CircleNotch } from '@phosphor-icons/react'
+import { UploadIcon, XIcon, CircleNotchIcon } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import {
   SHOWCASE_IMAGE_MAX_BYTES,
@@ -143,7 +143,7 @@ export function ImageUploadClient({
             )}
             title="Remove image"
           >
-            <X className={isSmall ? 'w-3 h-3' : 'w-4 h-4'} />
+            <XIcon className={isSmall ? 'w-3 h-3' : 'w-4 h-4'} />
           </button>
         </div>
       ) : (
@@ -165,7 +165,7 @@ export function ImageUploadClient({
         >
           {isUploading ? (
             <div className="p-4 text-center">
-              <CircleNotch
+              <CircleNotchIcon
                 className={twMerge(
                   'text-blue-500 animate-spin mx-auto',
                   isSmall ? 'w-5 h-5' : 'w-8 h-8',
@@ -179,7 +179,7 @@ export function ImageUploadClient({
             </div>
           ) : (
             <div className="p-4 text-center">
-              <Upload
+              <UploadIcon
                 className={twMerge(
                   'text-gray-400 mx-auto',
                   isSmall ? 'w-5 h-5' : 'w-8 h-8',

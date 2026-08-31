@@ -1,4 +1,4 @@
-import { CaretDown, DownloadSimple } from '@phosphor-icons/react'
+import { CaretDownIcon, DownloadSimpleIcon } from '@phosphor-icons/react'
 import { createFileRoute } from '@tanstack/react-router'
 import { CurrentBrandAssets } from '~/components/ds/BrandAssets'
 import { DsPage } from '~/components/ds/DsKit'
@@ -64,7 +64,7 @@ function PreviousAssetCard({ asset }: { asset: PreviousAsset }) {
           download
           className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-border-default px-2.5 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:bg-background-subtle hover:text-text-primary"
         >
-          <DownloadSimple size={14} />
+          <DownloadSimpleIcon size={14} />
           {format}
         </a>
       </div>
@@ -83,7 +83,7 @@ function BrandGuidePage() {
       <details className="group border-t border-border-default pt-8">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-ds-heading-lg font-semibold text-text-primary [&::-webkit-details-marker]:hidden">
           Previous Assets
-          <CaretDown
+          <CaretDownIcon
             aria-hidden
             className="transition-transform group-open:rotate-180"
           />

@@ -1,13 +1,15 @@
 import * as React from 'react'
 import {
   createRootRouteWithContext,
+  RouterContextProvider,
   useMatches,
+  useRouter,
   useRouterState,
   HeadContent,
   Scripts,
   defaultStringifySearch,
 } from '@tanstack/react-router'
-import { QueryClient } from '@tanstack/react-query'
+import { QueryClientProvider, type QueryClient } from '@tanstack/react-query'
 import { createThemeCss, type HighlightTheme } from '@tanstack/highlight/theme'
 import { auroraXTheme } from '@tanstack/highlight/themes/aurora-x'
 import { githubLightTheme } from '@tanstack/highlight/themes/github-light'
@@ -36,6 +38,11 @@ import { LibrariesOverlayProvider } from '~/contexts/LibrariesOverlayContext'
 import { Spinner } from '~/components/Spinner'
 import { ThemeProvider, useHtmlClass } from '~/components/ThemeProvider'
 import { Navbar } from '~/components/Navbar'
+import { Footer } from '~/components/Footer'
+import {
+  BuilderRouteFrame,
+  BuilderRouteSkeleton,
+} from '~/components/builder/BuilderLoading'
 import { THEME_COLORS } from '~/utils/utils'
 import { trackPageView } from '~/utils/analytics'
 import { createPartnerPlacementSessionSeed } from '~/utils/partner-placement'
@@ -44,8 +51,8 @@ import { twMerge } from 'tailwind-merge'
 const GOOGLE_ANALYTICS_ID = 'G-JMT1Z50SPS'
 const GOOGLE_ANALYTICS_PROXY_PREFIX = '/_a'
 const GOOGLE_ANALYTICS_SCRIPT_SRC = `${GOOGLE_ANALYTICS_PROXY_PREFIX}/gtag.js`
-const THEME_BOOTSTRAP = `(function(){try{var t=localStorage.getItem('theme')||'auto';var v=['light','dark','auto'].includes(t)?t:'auto';var r=v==='auto'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):v;document.documentElement.classList.add(r);if(v==='auto')document.documentElement.classList.add('auto');document.documentElement.style.colorScheme=r}catch(e){var r=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.classList.add(r,'auto');document.documentElement.style.colorScheme=r}})()`
-const GOOGLE_ANALYTICS_BOOTSTRAP = `(function(){var id='${GOOGLE_ANALYTICS_ID}';var src='${GOOGLE_ANALYTICS_SCRIPT_SRC}';window.dataLayer=window.dataLayer||[];window.gtag=window.gtag||function(){window.dataLayer.push(arguments)};window.gtag('js',new Date());window.gtag('config',id,{transport_url:window.location.origin+'${GOOGLE_ANALYTICS_PROXY_PREFIX}'});var loaded=false;var load=function(){if(loaded)return;loaded=true;var script=document.createElement('script');script.async=true;script.src=src;script.setAttribute('data-ga-loader','true');document.head.appendChild(script)};if(typeof window.requestIdleCallback==='function'){window.requestIdleCallback(load,{timeout:3000});return}if(document.readyState==='complete'){window.setTimeout(load,1500);return}window.addEventListener('load',function(){window.setTimeout(load,1500)},{once:true})})();`
+const THEME_BOOTSTRAP = `(function(){try{var t=localStorage.getItem('theme')||'auto';var v=['light','dark','auto'].includes(t)?t:'auto';var r=v==='auto'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):v;if(document.documentElement){document.documentElement.classList.add(r);if(v==='auto')document.documentElement.classList.add('auto');document.documentElement.style.colorScheme=r}}catch(e){if(document.documentElement){var r=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.classList.add(r,'auto');document.documentElement.style.colorScheme=r}}})()`
+const GOOGLE_ANALYTICS_BOOTSTRAP = `(function(){var id='${GOOGLE_ANALYTICS_ID}';var src='${GOOGLE_ANALYTICS_SCRIPT_SRC}';window.dataLayer=window.dataLayer||[];window.gtag=window.gtag||function(){window.dataLayer.push(arguments)};window.gtag('js',new Date());window.gtag('config',id,{transport_url:window.location.origin+'${GOOGLE_ANALYTICS_PROXY_PREFIX}'});var loaded=false;var load=function(){if(loaded)return;var parent=document.head||document.documentElement;if(!parent){window.setTimeout(load,100);return}loaded=true;var script=document.createElement('script');script.async=true;script.src=src;script.setAttribute('data-ga-loader','true');parent.appendChild(script)};if(typeof window.requestIdleCallback==='function'){window.requestIdleCallback(load,{timeout:3000});return}if(document.readyState==='complete'){window.setTimeout(load,1500);return}window.addEventListener('load',function(){window.setTimeout(load,1500)},{once:true})})();`
 const DOCUMENT_CACHE_HEADERS = {
   'Cache-Control': 'public, max-age=0, must-revalidate',
   'Cloudflare-CDN-Cache-Control': 'no-store',
@@ -73,6 +80,7 @@ type CanonicalHeadMatch = {
   search: Record<string, unknown>
   staticData?: {
     includeSearchInCanonical?: boolean
+    ownsCanonicalLink?: boolean
   }
 }
 
@@ -85,6 +93,14 @@ function getCanonicalHeadTags(matches: ReadonlyArray<CanonicalHeadMatch>): {
   const includeSearchInCanonical = matches.some(
     (match) => match.staticData?.includeSearchInCanonical === true,
   )
+  // Routes whose canonical depends on loader data (e.g. old-version docs
+  // canonicalizing to /latest) emit their own URL tags from their head().
+  // The root must not also emit them — the router does not dedupe links, and
+  // this head only sees pre-loader match snapshots, so it can't compute the
+  // override itself.
+  const ownsCanonicalLink = matches.some(
+    (match) => match.staticData?.ownsCanonicalLink === true,
+  )
   const canonicalSearch =
     includeSearchInCanonical && lastMatch
       ? defaultStringifySearch(lastMatch.search)
@@ -96,17 +112,22 @@ function getCanonicalHeadTags(matches: ReadonlyArray<CanonicalHeadMatch>): {
   )
 
   return {
-    links: preferredCanonicalPath
-      ? [
-          {
-            rel: 'canonical',
-            href: canonicalUrl(preferredCanonicalPath, canonicalSearch),
-          },
-        ]
-      : [],
+    links:
+      preferredCanonicalPath && !ownsCanonicalLink
+        ? [
+            {
+              rel: 'canonical',
+              href: canonicalUrl(preferredCanonicalPath, canonicalSearch),
+            },
+          ]
+        : [],
     meta: [
-      { property: 'og:url', content: pageUrl },
-      { name: 'twitter:url', content: pageUrl },
+      ...(!ownsCanonicalLink
+        ? [
+            { property: 'og:url', content: pageUrl },
+            { name: 'twitter:url', content: pageUrl },
+          ]
+        : []),
       ...(!shouldIndexPath(canonicalPath)
         ? [{ name: 'robots', content: 'noindex, nofollow' }]
         : []),
@@ -207,6 +228,18 @@ export const Route = createRootRouteWithContext<{
         },
         {
           rel: 'icon',
+          type: 'image/svg+xml',
+          href: '/favicon-light.svg',
+          media: '(prefers-color-scheme: light)',
+        },
+        {
+          rel: 'icon',
+          type: 'image/svg+xml',
+          href: '/favicon-dark.svg',
+          media: '(prefers-color-scheme: dark)',
+        },
+        {
+          rel: 'icon',
           type: 'image/png',
           sizes: '32x32',
           href: '/favicon-32x32.png',
@@ -225,30 +258,23 @@ export const Route = createRootRouteWithContext<{
   },
   headers: () => DOCUMENT_CACHE_HEADERS,
   staleTime: Infinity,
-  shellComponent: ({ children }) => {
-    return <RootShell>{children}</RootShell>
-  },
+  shellComponent: ShellComponent,
   errorComponent: DefaultCatchBoundary,
   notFoundComponent: () => <NotFound />,
 })
 
-function RootShell({ children }: { children: React.ReactNode }) {
-  return (
-    <ThemeProvider>
-      <SearchProvider>
-        <ShellComponent>{children}</ShellComponent>
-      </SearchProvider>
-    </ThemeProvider>
-  )
-}
-
 function ShellComponent({ children }: { children: React.ReactNode }) {
+  const router = useRouter()
+  const { queryClient } = Route.useRouteContext()
   const hasBaseParent = useMatches({
     select: (matches) => matches.find((d) => d.staticData?.baseParent),
   })
 
   const isNavigating = useRouterState({
     select: (s) => s.isLoading || s.isTransitioning,
+  })
+  const pathname = useRouterState({
+    select: (s) => s.location.pathname,
   })
 
   const [canShowDevtools, setCanShowDevtools] = React.useState(false)
@@ -285,8 +311,16 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
   const hideNavbar = useMatches({
     select: (s) => s.some((d) => d.staticData?.showNavbar === false),
   })
+  const hideFooter = pathname === '/builder' || pathname.startsWith('/builder/')
 
   const htmlClass = useHtmlClass()
+  const routeContent = (
+    <BuilderRouteFrame pathname={pathname}>
+      <React.Suspense fallback={<BuilderRouteSkeleton pathname={pathname} />}>
+        {children}
+      </React.Suspense>
+    </BuilderRouteFrame>
+  )
 
   return (
     <html lang="en" className={htmlClass} suppressHydrationWarning>
@@ -303,47 +337,64 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
         {hasBaseParent ? <base target="_parent" /> : null}
       </head>
       <body className="overflow-x-hidden">
-        <LoginModalProvider>
-          <ToastProvider>
-            <PageViewTracker />
-            <LibrariesOverlayProvider>
-              {hideNavbar ? children : <Navbar>{children}</Navbar>}
-            </LibrariesOverlayProvider>
-            {showDevtools && LazyAppDevtools ? (
-              <OptionalDevtoolsBoundary>
-                <React.Suspense fallback={null}>
-                  <LazyAppDevtools />
-                </React.Suspense>
-              </OptionalDevtoolsBoundary>
-            ) : null}
-            <div
-              aria-hidden="true"
-              className={twMerge(
-                'pointer-events-none fixed top-0 left-0 z-99999999 h-[320px] w-full select-none',
-              )}
-            >
-              <div
-                className={twMerge(
-                  'absolute top-0 w-full h-80 rounded-[100%] bg-amber-500/30 blur-3xl transition-all duration-500 dark:bg-sky-400/25',
-                  showNavigationSpinner
-                    ? '-translate-y-1/2 opacity-100'
-                    : '-translate-y-full opacity-0',
-                )}
-              />
-              <div
-                className={twMerge(
-                  'absolute top-6 left-1/2 -translate-x-1/2 rounded-full bg-white/75 p-2 shadow-lg backdrop-blur-lg transition-all duration-300 dark:bg-slate-900/40',
-                  showNavigationSpinner
-                    ? 'translate-y-0 opacity-100'
-                    : '-translate-y-6 opacity-0',
-                )}
-              >
-                <Spinner className="text-4xl" />
-              </div>
-            </div>
-          </ToastProvider>
-        </LoginModalProvider>
-        <Scripts />
+        <RouterContextProvider router={router}>
+          <QueryClientProvider client={queryClient}>
+            <ThemeProvider>
+              <SearchProvider>
+                <LoginModalProvider>
+                  <ToastProvider>
+                    <PageViewTracker />
+                    <LibrariesOverlayProvider>
+                      {hideNavbar ? (
+                        routeContent
+                      ) : (
+                        <Navbar>
+                          {routeContent}
+                          {hideFooter ? null : <Footer />}
+                        </Navbar>
+                      )}
+                    </LibrariesOverlayProvider>
+                    {showDevtools && LazyAppDevtools ? (
+                      <OptionalDevtoolsBoundary>
+                        <React.Suspense fallback={null}>
+                          <LazyAppDevtools />
+                        </React.Suspense>
+                      </OptionalDevtoolsBoundary>
+                    ) : null}
+                    <div
+                      aria-hidden="true"
+                      className={twMerge(
+                        'pointer-events-none fixed top-0 left-0 z-99999999 h-[320px] w-full select-none',
+                      )}
+                    >
+                      <div
+                        className={twMerge(
+                          'absolute top-0 w-full h-80 rounded-[100%] bg-amber-500/30 blur-3xl transition-all duration-500 dark:bg-sky-400/25',
+                          showNavigationSpinner
+                            ? '-translate-y-1/2 opacity-100'
+                            : '-translate-y-full opacity-0',
+                        )}
+                      />
+                      <div
+                        className={twMerge(
+                          'absolute top-6 left-1/2 -translate-x-1/2 rounded-full bg-white/75 p-2 shadow-lg backdrop-blur-lg transition-all duration-300 dark:bg-slate-900/40',
+                          showNavigationSpinner
+                            ? 'translate-y-0 opacity-100'
+                            : '-translate-y-6 opacity-0',
+                        )}
+                      >
+                        {isNavigating && showNavigationSpinner ? (
+                          <Spinner className="text-4xl" />
+                        ) : null}
+                      </div>
+                    </div>
+                  </ToastProvider>
+                </LoginModalProvider>
+              </SearchProvider>
+            </ThemeProvider>
+          </QueryClientProvider>
+          <Scripts />
+        </RouterContextProvider>
       </body>
     </html>
   )

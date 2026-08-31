@@ -1,23 +1,27 @@
 import * as React from 'react'
-import { Pause, Play, Shuffle } from '@phosphor-icons/react'
+import { PauseIcon } from '@phosphor-icons/react/Pause'
+import { PlayIcon } from '@phosphor-icons/react/Play'
+import { ShuffleIcon } from '@phosphor-icons/react/Shuffle'
 
-import kineticAreaChartSource from '../../../scripts/charts-landing/kinetic-area-chart.ts?raw'
-import kineticDumbbellChartSource from '../../../scripts/charts-landing/kinetic-dumbbell-chart.ts?raw'
+import { useIsDark } from '~/hooks/useIsDark'
+import { useInView } from '~/hooks/useInView'
+
+import kineticBarChartSource from '../../../scripts/charts-landing/kinetic-bar-chart.ts?raw'
+import kineticDonutChartSource from '../../../scripts/charts-landing/kinetic-donut-chart.ts?raw'
+import kineticHeatmapChartSource from '../../../scripts/charts-landing/kinetic-heatmap-chart.ts?raw'
 import kineticLayeredChartSource from '../../../scripts/charts-landing/kinetic-layered-chart.ts?raw'
-import kineticLineChartSource from '../../../scripts/charts-landing/kinetic-line-chart.ts?raw'
-import kineticLollipopChartSource from '../../../scripts/charts-landing/kinetic-lollipop-chart.ts?raw'
+import kineticRadarChartSource from '../../../scripts/charts-landing/kinetic-radar-chart.ts?raw'
 import kineticScatterChartSource from '../../../scripts/charts-landing/kinetic-scatter-chart.ts?raw'
 import { ChartsKineticCode } from './ChartsKineticCode'
 import { ChartsKineticMorph } from './ChartsKineticMorph'
 import {
-  LANDING_CHART_TOOLTIP_OPEN_EVENT,
   LandingChartGraphic,
-  LandingChartTooltipSurface,
   type LandingChartTooltipConfig,
   type LandingChartTooltipPoint,
 } from './ChartsLandingTooltip'
 import {
   chartsThemeEditorialSvg,
+  chartsThemeMonokaiSvg,
   chartsThemeProductSvg,
   chartsThemeTerminalSvg,
 } from './chartsCommonSvg'
@@ -26,19 +30,18 @@ import {
   chartsActivationSvg,
 } from './chartsActivationSvg'
 import {
-  chartsKineticAreaSvg,
-  chartsKineticDumbbellSvg,
+  chartsBundleSizeCompactSvg,
+  chartsBundleSizeSvg,
+} from './chartsBundleSizeSvg'
+import {
+  chartsKineticBarSvg,
+  chartsKineticDonutSvg,
+  chartsKineticHeatmapSvg,
   chartsKineticLayeredSvg,
-  chartsKineticLineSvg,
-  chartsKineticLollipopSvg,
+  chartsKineticRadarSvg,
   chartsKineticScatterSvg,
 } from './chartsKineticSvg'
-import {
-  chartsAccountsCompactSvg,
-  chartsAccountsSvg,
-  chartsRevenueCompactSvg,
-  chartsRevenueWideSvg,
-} from './chartsHeroSvg'
+import { chartsAccountsCompactSvg, chartsAccountsSvg } from './chartsHeroSvg'
 
 const landingDateFormatter = new Intl.DateTimeFormat('en-US', {
   day: 'numeric',
@@ -87,7 +90,7 @@ const kineticScatterTooltip = {
   theme: 'dark',
 } satisfies LandingChartTooltipConfig
 
-const kineticLollipopTooltip = {
+const kineticBarTooltip = {
   format: (points) => {
     const point = firstPoint(points)
     return {
@@ -104,18 +107,60 @@ const kineticLollipopTooltip = {
   theme: 'dark',
 } satisfies LandingChartTooltipConfig
 
-const kineticDumbbellTooltip = {
+const kineticHeatmapTooltip = {
   format: (points) => {
     const point = firstPoint(points)
-    const comparison = point.elementKey.startsWith('hero-secondary:')
     return {
       rows: [
         {
-          label: comparison ? 'Previous' : 'Current',
-          value: Math.round(asNumber(point.xValue)).toLocaleString(),
+          label: 'Dimension',
+          value: String(point.yValue),
         },
       ],
-      title: String(point.yValue),
+      title: String(point.xValue),
+    }
+  },
+  initialPoint: 'first',
+  theme: 'dark',
+} satisfies LandingChartTooltipConfig
+
+const kineticRadarTooltip = {
+  format: (points) => {
+    const point = firstPoint(points)
+    return {
+      rows: [
+        {
+          label: 'Score',
+          value: `${Math.round(asNumber(point.yValue))}%`,
+        },
+      ],
+      title: String(point.xValue),
+    }
+  },
+  initialPoint: 'first',
+  theme: 'dark',
+} satisfies LandingChartTooltipConfig
+
+const productShare = new Map([
+  ['Core', '31%'],
+  ['Data', '25%'],
+  ['Other', '11%'],
+  ['Runtime', '19%'],
+  ['UI', '14%'],
+])
+
+const kineticDonutTooltip = {
+  format: (points) => {
+    const point = firstPoint(points)
+    const segment = point.elementKey.match(/:string:([^:]+)$/)?.[1] ?? 'Segment'
+    return {
+      rows: [
+        {
+          label: 'Share',
+          value: productShare.get(segment) ?? '—',
+        },
+      ],
+      title: segment,
     }
   },
   initialPoint: 'first',
@@ -146,62 +191,6 @@ const accountTooltip = {
   theme: 'light',
 } satisfies LandingChartTooltipConfig
 
-const themeTooltip = {
-  format: (points) => {
-    const point = firstPoint(points)
-    return {
-      rows: [
-        {
-          label: 'Active teams',
-          value: Math.round(asNumber(point.yValue)).toLocaleString(),
-        },
-      ],
-      title: `Month ${Math.round(asNumber(point.xValue))}`,
-    }
-  },
-  mode: 'x',
-  theme: 'light',
-} satisfies LandingChartTooltipConfig
-
-const terminalThemeTooltip = {
-  ...themeTooltip,
-  theme: 'dark',
-} satisfies LandingChartTooltipConfig
-
-const revenueColors = {
-  Query: '#61adbf',
-  Router: '#e06e49',
-  Table: '#69bc75',
-} as const
-
-const revenueTooltip = {
-  format: (points) => {
-    const date = dateFromPoint(firstPoint(points))
-    const rows = ['Query', 'Router', 'Table'].flatMap((series) => {
-      const point = points.find((candidate) =>
-        candidate.elementKey.startsWith(
-          `product-revenue:string:${series}:string:${series}:`,
-        ),
-      )
-      return point
-        ? [
-            {
-              color: revenueColors[series as keyof typeof revenueColors],
-              label: series,
-              value: `$${Math.round(asNumber(point.yValue))}k`,
-            },
-          ]
-        : []
-    })
-    return {
-      rows,
-      title: landingDateFormatter.format(date),
-    }
-  },
-  mode: 'x',
-  theme: 'dark',
-} satisfies LandingChartTooltipConfig
-
 const activationTooltip = {
   format: (points) => {
     const activation =
@@ -212,12 +201,12 @@ const activationTooltip = {
     )
     const rows = [
       {
-        color: '#61adbf',
+        color: 'var(--activation-line)',
         label: 'Activation',
         value: `${Math.round(asNumber(activation.yValue))}%`,
       },
       {
-        color: '#e06e49',
+        color: 'var(--activation-goal)',
         label: 'Goal',
         value: '70%',
       },
@@ -226,7 +215,7 @@ const activationTooltip = {
       const slug =
         release.elementKey.match(/:string:([^:]+)$/)?.[1] ?? 'Release'
       rows.push({
-        color: '#eeebd4',
+        color: 'var(--activation-release)',
         label: 'Release',
         value: titleCase(slug),
       })
@@ -238,63 +227,86 @@ const activationTooltip = {
     }
   },
   mode: 'x',
-  theme: 'dark',
 } satisfies LandingChartTooltipConfig
 
 const kineticCharts = [
   {
     code: extractChartDefinition(kineticLayeredChartSource),
     data: 'productSignals · 8 rows',
-    id: 'layers',
-    marks: 'areaY + ruleY + lineY + dot + text',
+    id: 'composed',
+    label: 'Composed',
+    legend: [
+      { color: 'bg-[#61e8ff]', label: 'Core' },
+      { color: 'bg-[#ff806f]', label: 'Data' },
+      { color: 'bg-[#b9f227]', label: 'Runtime' },
+    ],
     scales: 'linear × linear',
     svg: chartsKineticLayeredSvg,
     tooltip: kineticTrendTooltip,
   },
   {
-    code: extractChartDefinition(kineticLineChartSource),
+    code: extractChartDefinition(kineticBarChartSource),
     data: 'productSignals · 8 rows',
-    id: 'line',
-    marks: 'lineY + dot',
-    scales: 'linear × linear',
-    svg: chartsKineticLineSvg,
-    tooltip: kineticTrendTooltip,
+    id: 'bars',
+    label: 'Bars',
+    legend: [
+      { color: 'bg-[#61e8ff]', label: 'Core' },
+      { color: 'bg-[#ff806f]', label: 'Data' },
+      { color: 'bg-[#b9f227]', label: 'Runtime' },
+    ],
+    scales: 'band × linear',
+    svg: chartsKineticBarSvg,
+    tooltip: kineticBarTooltip,
   },
   {
-    code: extractChartDefinition(kineticAreaChartSource),
-    data: 'productSignals · 8 rows',
-    id: 'area',
-    marks: 'areaY + lineY + dot',
-    scales: 'linear × linear',
-    svg: chartsKineticAreaSvg,
-    tooltip: kineticTrendTooltip,
+    code: extractChartDefinition(kineticHeatmapChartSource),
+    data: 'heatmapSignals · 32 rows',
+    id: 'heatmap',
+    label: 'Heatmap',
+    legend: [],
+    scales: 'band × band',
+    svg: chartsKineticHeatmapSvg,
+    tooltip: kineticHeatmapTooltip,
   },
   {
     code: extractChartDefinition(kineticScatterChartSource),
     data: 'productSignals · 8 rows',
-    id: 'scatter',
-    marks: 'dot',
+    id: 'bubble',
+    label: 'Bubble',
+    legend: [
+      { color: 'bg-[#61e8ff]', label: 'Core' },
+      { color: 'bg-[#ff806f]', label: 'Data' },
+      { color: 'bg-[#b9f227]', label: 'Runtime' },
+    ],
     scales: 'linear × linear',
     svg: chartsKineticScatterSvg,
     tooltip: kineticScatterTooltip,
   },
   {
-    code: extractChartDefinition(kineticLollipopChartSource),
-    data: 'productSignals · 8 rows',
-    id: 'lollipop',
-    marks: 'link + dot',
-    scales: 'band × linear',
-    svg: chartsKineticLollipopSvg,
-    tooltip: kineticLollipopTooltip,
+    code: extractChartDefinition(kineticRadarChartSource),
+    data: 'radarDimensions · 6 rows',
+    id: 'radar',
+    label: 'Radar',
+    legend: [],
+    scales: 'point × linear',
+    svg: chartsKineticRadarSvg,
+    tooltip: kineticRadarTooltip,
   },
   {
-    code: extractChartDefinition(kineticDumbbellChartSource),
-    data: 'productSignals · 8 rows',
-    id: 'dumbbell',
-    marks: 'link + dot + dot',
-    scales: 'linear × band',
-    svg: chartsKineticDumbbellSvg,
-    tooltip: kineticDumbbellTooltip,
+    code: extractChartDefinition(kineticDonutChartSource),
+    data: 'productShare · 5 rows',
+    id: 'donut',
+    label: 'Donut',
+    legend: [
+      { color: 'bg-[#61e8ff]', label: 'Core' },
+      { color: 'bg-[#ff806f]', label: 'Data' },
+      { color: 'bg-[#b9f227]', label: 'Runtime' },
+      { color: 'bg-[#a78bfa]', label: 'UI' },
+      { color: 'bg-[#77929f]', label: 'Other' },
+    ],
+    scales: 'angle × radius',
+    svg: chartsKineticDonutSvg,
+    tooltip: kineticDonutTooltip,
   },
 ] as const
 
@@ -303,46 +315,21 @@ const themePreviews = [
     className: 'bg-[#efe7d8] text-[#211d18]',
     label: 'Editorial',
     svg: chartsThemeEditorialSvg,
-    tooltip: themeTooltip,
   },
   {
     className: 'bg-[#eff6ff] text-[#172554]',
     label: 'Product',
     svg: chartsThemeProductSvg,
-    tooltip: themeTooltip,
   },
   {
     className: 'bg-[#03110a] text-[#bbf7d0]',
     label: 'Terminal',
     svg: chartsThemeTerminalSvg,
-    tooltip: terminalThemeTooltip,
-  },
-] as const
-
-const bundleRows = [
-  {
-    color: 'bg-[#69bc75]',
-    label: 'Scatter',
-    paint: '#69bc75',
-    value: 18.515,
   },
   {
-    color: 'bg-[#9cd5e2]',
-    label: 'Area',
-    paint: '#9cd5e2',
-    value: 18.687,
-  },
-  {
-    color: 'bg-[#61adbf]',
-    label: 'Line',
-    paint: '#61adbf',
-    value: 18.701,
-  },
-  {
-    color: 'bg-[#e06e49]',
-    label: 'Bar',
-    paint: '#e06e49',
-    value: 19.239,
+    className: 'bg-[#272822] text-[#f8f8f2]',
+    label: 'Monokai',
+    svg: chartsThemeMonokaiSvg,
   },
 ] as const
 
@@ -357,7 +344,7 @@ export function KineticChartsHero() {
   const [outgoingIndex, setOutgoingIndex] = React.useState<number | null>(null)
   const [focusWithin, setFocusWithin] = React.useState(false)
   const [hovered, setHovered] = React.useState(false)
-  const [inView, setInView] = React.useState(true)
+  const inView = useInView(rootRef, { threshold: 0.18 })
   const [autoAdvanceOverride, setAutoAdvanceOverride] = React.useState(false)
   const [pageVisible, setPageVisible] = React.useState(true)
   const [paused, setPaused] = React.useState(false)
@@ -419,20 +406,6 @@ export function KineticChartsHero() {
   }, [autoPlay, interacting, showNewVariation])
 
   React.useEffect(() => {
-    const root = rootRef.current
-    if (!root || !('IntersectionObserver' in window)) {
-      return
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => setInView(Boolean(entry?.isIntersecting)),
-      { threshold: 0.18 },
-    )
-    observer.observe(root)
-    return () => observer.disconnect()
-  }, [])
-
-  React.useEffect(() => {
     const updateVisibility = () =>
       setPageVisible(document.visibilityState === 'visible')
     updateVisibility()
@@ -453,7 +426,7 @@ export function KineticChartsHero() {
   return (
     <figure
       ref={rootRef}
-      className="library-landing-graphic min-w-0 overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.45)] bg-background-surface shadow-[0_24px_70px_-28px_rgb(var(--landing-glow)/0.45)]"
+      className="library-landing-graphic charts-kinetic-hero min-w-0 overflow-hidden rounded-2xl border border-white/15 bg-[#050a12] text-white shadow-[0_36px_90px_-32px_rgb(var(--landing-glow)/0.7)]"
       onBlurCapture={(event) => {
         if (
           !(event.relatedTarget instanceof Node) ||
@@ -466,49 +439,90 @@ export function KineticChartsHero() {
       onPointerEnter={() => setHovered(true)}
       onPointerLeave={() => setHovered(false)}
     >
-      <figcaption className="flex min-w-0 flex-col gap-4 border-b border-border-subtle px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-        <dl
-          key={activeChart.id}
-          className="charts-kinetic-meta-enter flex min-w-0 flex-wrap gap-x-5 gap-y-2"
-        >
-          <GrammarValue label="Data" value={activeChart.data} />
-          <GrammarValue label="Marks" value={activeChart.marks} />
-          <GrammarValue label="Scales" value={activeChart.scales} />
-        </dl>
+      <figcaption className="border-b border-white/10 bg-[#07101b] px-3 py-3 sm:px-4">
+        <div className="flex min-w-0 items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="relative flex size-2.5 shrink-0">
+              <span className="absolute inset-0 rounded-full bg-[#b9f227] opacity-45 blur-[3px]" />
+              <span className="relative size-2.5 rounded-full bg-[#b9f227]" />
+            </span>
+            <p
+              key={activeChart.id}
+              aria-live="polite"
+              className="charts-kinetic-meta-enter truncate font-ds-display text-ds-heading-6 text-white"
+            >
+              {activeChart.label}
+            </p>
+            <span className="shrink-0 font-ds-mono text-ds-mono-2xs text-white/35">
+              {String(activeIndex + 1).padStart(2, '0')} /{' '}
+              {String(kineticCharts.length).padStart(2, '0')}
+            </span>
+          </div>
 
-        <div className="flex shrink-0 items-center gap-1">
-          <button
-            type="button"
-            className="inline-flex min-h-9 items-center gap-2 rounded-md border border-border-default bg-background-subtle px-3 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/65 transition-colors hover:border-[var(--landing-accent)] hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
-            onClick={() => {
-              if (reducedMotion && !autoAdvanceOverride) {
-                setAutoAdvanceOverride(true)
-                setPaused(false)
-                return
+          <div className="flex shrink-0 items-center gap-1">
+            <button
+              type="button"
+              aria-label={
+                autoPlay ? 'Pause chart variations' : 'Play chart variations'
               }
-              setPaused((value) => !value)
-            }}
-          >
-            {autoPlay ? (
-              <Pause aria-hidden="true" className="size-3" />
-            ) : (
-              <Play aria-hidden="true" className="size-3" />
-            )}
-            {autoPlay ? 'Pause' : 'Play'}
-          </button>
-          <button
-            type="button"
-            className="inline-flex min-h-9 items-center gap-2 rounded-md border border-border-default bg-background-subtle px-3 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/65 transition-colors hover:border-[var(--landing-accent)] hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
-            onClick={showNewVariation}
-          >
-            <Shuffle aria-hidden="true" className="size-3" />
-            New variation
-          </button>
+              className="inline-flex size-9 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-white/60 transition-[color,background-color,border-color] duration-200 hover:border-white/25 hover:bg-white/[0.08] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#61e8ff]"
+              onClick={() => {
+                if (reducedMotion && !autoAdvanceOverride) {
+                  setAutoAdvanceOverride(true)
+                  setPaused(false)
+                  return
+                }
+                setPaused((value) => !value)
+              }}
+            >
+              {autoPlay ? (
+                <PauseIcon aria-hidden="true" className="size-3.5" />
+              ) : (
+                <PlayIcon aria-hidden="true" className="size-3.5" />
+              )}
+            </button>
+            <button
+              type="button"
+              className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-3 font-ds-mono text-ds-mono-caps-xs uppercase text-white/60 transition-[color,background-color,border-color] duration-200 hover:border-white/25 hover:bg-white/[0.08] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#61e8ff]"
+              onClick={showNewVariation}
+            >
+              <ShuffleIcon aria-hidden="true" className="size-3.5" />
+              <span className="hidden sm:inline">New variation</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="fade-x fade-size-x-sm -mx-3 mt-3 overflow-x-auto px-3 sm:-mx-4 sm:px-4">
+          <div className="flex min-w-max gap-0.5 sm:gap-1">
+            {kineticCharts.map((chart, index) => (
+              <button
+                key={chart.id}
+                type="button"
+                aria-pressed={index === activeIndex}
+                className="rounded-md px-2 py-1.5 font-ds-mono text-ds-mono-2xs uppercase text-white/35 transition-[color,background-color] duration-200 hover:text-white/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#61e8ff] aria-pressed:bg-white/10 aria-pressed:text-white sm:px-2.5 sm:text-ds-mono-caps-xs"
+                onClick={() => showChart(index)}
+              >
+                {chart.label}
+              </button>
+            ))}
+          </div>
         </div>
       </figcaption>
 
-      <div className="grid min-w-0 sm:h-[30rem] sm:grid-cols-[minmax(0,0.85fr)_minmax(19rem,1.15fr)] lg:h-[clamp(28rem,38vw,34rem)]">
-        <div className="relative aspect-[23/13] min-w-0 overflow-hidden border-b border-white/10 bg-[#081625] p-3 sm:aspect-auto sm:h-full sm:border-b-0 sm:border-r sm:p-5">
+      <div className="grid min-w-0 grid-rows-[minmax(19rem,1.35fr)_minmax(17rem,0.65fr)] sm:h-[38rem] sm:grid-rows-[minmax(0,1.28fr)_minmax(0,0.72fr)] xl:h-[42rem]">
+        <div className="charts-kinetic-stage relative min-w-0 overflow-hidden border-b border-white/10 p-4 sm:p-7">
+          {activeChart.legend.length ? (
+            <div className="pointer-events-none absolute bottom-4 left-4 z-20 flex max-w-[calc(100%-2rem)] flex-wrap items-center gap-x-4 gap-y-1 rounded-lg border border-white/10 bg-[#07111e]/75 px-3 py-2 font-ds-mono text-ds-mono-caps-xs uppercase text-white/45 backdrop-blur-md sm:bottom-6 sm:left-6">
+              {activeChart.legend.map((item) => (
+                <LegendItem
+                  key={item.label}
+                  color={`rounded-full ${item.color}`}
+                  label={item.label}
+                />
+              ))}
+            </div>
+          ) : null}
+
           <ChartsKineticMorph
             current={activeChart}
             previous={outgoingChart}
@@ -516,12 +530,23 @@ export function KineticChartsHero() {
           />
         </div>
 
-        <div className="relative h-[22rem] min-w-0 overflow-hidden bg-[#050a12] sm:h-full">
-          <ChartsKineticCode
-            currentSource={activeChart.code}
-            previousSource={outgoingChart?.code}
-            reducedMotion={reducedMotion}
-          />
+        <div className="relative min-h-0 min-w-0 overflow-hidden bg-[#05080d]">
+          <div className="absolute inset-x-0 top-0 z-20 flex h-10 items-center justify-between border-b border-white/10 bg-[#080d14]/90 px-4 font-ds-mono text-ds-mono-caps-xs uppercase backdrop-blur-md sm:px-5">
+            <div className="flex min-w-0 items-center gap-4">
+              <span className="shrink-0 text-white/65">chart.ts</span>
+              <div className="hidden min-w-0 sm:block">
+                <GrammarValue label="Data" value={activeChart.data} />
+              </div>
+            </div>
+            <GrammarValue label="Scales" value={activeChart.scales} />
+          </div>
+          <div className="absolute inset-0 pt-10">
+            <ChartsKineticCode
+              currentSource={activeChart.code}
+              previousSource={outgoingChart?.code}
+              reducedMotion={reducedMotion}
+            />
+          </div>
         </div>
       </div>
     </figure>
@@ -531,12 +556,12 @@ export function KineticChartsHero() {
 function GrammarValue({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex min-w-0 items-baseline gap-2">
-      <dt className="font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
+      <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-[#61e8ff]">
         {label}
-      </dt>
-      <dd className="truncate font-ds-mono text-ds-mono-2xs text-text-primary/55">
+      </span>
+      <span className="truncate font-ds-mono text-ds-mono-2xs text-white/45">
         {value}
-      </dd>
+      </span>
     </div>
   )
 }
@@ -551,7 +576,7 @@ export function AccountChart() {
               Account health
             </p>
             <p className="mt-1 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/40">
-              Example account dataset · Q2 2026
+              Illustrative account dataset
             </p>
           </div>
           <p className="max-w-xs text-ds-body-xs text-text-secondary">
@@ -578,10 +603,31 @@ export function AccountChart() {
   )
 }
 
+export function BundleSizeChart() {
+  return (
+    <figure className="library-landing-graphic min-w-0 overflow-hidden rounded-xl border border-[#294651] bg-[#07111e] shadow-[0_28px_80px_-38px_rgb(var(--landing-glow)/0.7)]">
+      <figcaption className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 px-4 py-3 font-ds-mono text-ds-mono-caps-xs uppercase sm:px-6 sm:py-4">
+        <span className="text-white/75">Bundle size snapshot</span>
+        <span className="text-[#61e8ff]">
+          August 2026 · rendered with TanStack Charts
+        </span>
+      </figcaption>
+      <StaticGraphic
+        className="aspect-[520/820] w-full sm:hidden"
+        svg={chartsBundleSizeCompactSvg}
+      />
+      <StaticGraphic
+        className="hidden aspect-[1200/820] w-full sm:block"
+        svg={chartsBundleSizeSvg}
+      />
+    </figure>
+  )
+}
+
 export function ThemeGallery() {
   return (
-    <div className="-mx-4 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 md:mx-auto md:max-w-[54rem] md:overflow-visible md:px-0">
-      <div className="grid min-w-max grid-flow-col auto-cols-[18rem] gap-3 md:min-w-0 md:grid-flow-row md:auto-cols-auto md:grid-cols-3">
+    <div className="fade-x fade-size-x-sm -mx-4 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 md:mx-auto md:max-w-[72rem] md:overflow-visible md:px-0 md:fade-none-x">
+      <div className="grid min-w-max grid-flow-col auto-cols-[18rem] gap-3 md:min-w-0 md:grid-flow-row md:auto-cols-auto md:grid-cols-4">
         {themePreviews.map((preview) => (
           <figure
             key={preview.label}
@@ -592,10 +638,9 @@ export function ThemeGallery() {
                 {preview.label}
               </p>
             </figcaption>
-            <RendererGraphic
+            <StaticGraphic
               className="mt-2 aspect-[520/320] w-full"
               svg={preview.svg}
-              tooltip={preview.tooltip}
             />
           </figure>
         ))}
@@ -604,198 +649,41 @@ export function ThemeGallery() {
   )
 }
 
-export function BundleSizeFigure() {
-  const rootRef = React.useRef<HTMLDivElement>(null)
-  const [activeIndex, setActiveIndex] = React.useState<number | null>(null)
-  const activeRow = activeIndex === null ? undefined : bundleRows[activeIndex]
-
-  React.useEffect(() => {
-    if (activeIndex !== null && rootRef.current) {
-      document.dispatchEvent(
-        new CustomEvent(LANDING_CHART_TOOLTIP_OPEN_EVENT, {
-          detail: rootRef.current,
-        }),
-      )
-    }
-  }, [activeIndex])
-
-  React.useEffect(() => {
-    const clearWhenAnotherTooltipOpens = (event: Event) => {
-      if ((event as CustomEvent<HTMLElement>).detail !== rootRef.current) {
-        setActiveIndex(null)
-      }
-    }
-
-    document.addEventListener(
-      LANDING_CHART_TOOLTIP_OPEN_EVENT,
-      clearWhenAnotherTooltipOpens,
-    )
-    return () =>
-      document.removeEventListener(
-        LANDING_CHART_TOOLTIP_OPEN_EVENT,
-        clearWhenAnotherTooltipOpens,
-      )
-  }, [])
-
-  React.useEffect(() => {
-    if (activeIndex === null) {
-      return
-    }
-
-    const clearOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        event.preventDefault()
-        setActiveIndex(null)
-      }
-    }
-
-    document.addEventListener('keydown', clearOnEscape)
-    return () => document.removeEventListener('keydown', clearOnEscape)
-  }, [activeIndex])
-
-  return (
-    <div
-      ref={rootRef}
-      aria-label="Common chart bundle sizes"
-      aria-roledescription="chart"
-      className="relative overflow-hidden rounded-xl border border-border-subtle bg-background-surface p-4 sm:p-6"
-      data-chart-tooltip-root=""
-      role="group"
-    >
-      <div className="flex flex-wrap items-end justify-between gap-4 border-b border-border-subtle pb-5">
-        <div>
-          <p className="font-ds-display text-ds-heading-5 text-text-primary">
-            Common chart bundles
-          </p>
-          <p className="mt-1 text-ds-body-xs text-text-primary/45">
-            Minified + gzip
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-6 space-y-5">
-        {bundleRows.map((row, index) => (
-          <button
-            key={row.label}
-            aria-label={`${row.label}: ${row.value.toFixed(1)} kilobytes gzip`}
-            className={`grid w-full grid-cols-[4.5rem_1fr_4.5rem] items-center gap-3 rounded-md text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] ${
-              activeIndex === index ? 'translate-x-0.5' : ''
-            }`}
-            type="button"
-            onBlur={() => setActiveIndex(null)}
-            onFocus={() => setActiveIndex(index)}
-            onPointerEnter={() => setActiveIndex(index)}
-            onPointerLeave={(event) => {
-              if (document.activeElement !== event.currentTarget) {
-                setActiveIndex(null)
-              }
-            }}
-          >
-            <span className="text-ds-label-sm text-text-secondary">
-              {row.label}
-            </span>
-            <span className="h-4 overflow-hidden rounded-full bg-background-subtle">
-              <span
-                className={`block h-full rounded-full ${row.color}`}
-                style={{ width: `${(row.value / 20) * 100}%` }}
-              />
-            </span>
-            <span className="text-right font-ds-mono text-ds-mono-xs text-text-primary">
-              {row.value.toFixed(1)} kB
-            </span>
-          </button>
-        ))}
-      </div>
-      {activeRow ? (
-        <div className="absolute right-3 top-[5.25rem] sm:right-5 sm:top-[6.25rem]">
-          <LandingChartTooltipSurface
-            content={{
-              rows: [
-                {
-                  color: activeRow.paint,
-                  label: 'Bundle size',
-                  value: `${activeRow.value.toFixed(1)} kB`,
-                },
-              ],
-              title: activeRow.label,
-            }}
-            theme="light"
-          />
-        </div>
-      ) : null}
-    </div>
-  )
-}
-
-export function ResponsiveChartComparison() {
-  return (
-    <figure className="overflow-hidden rounded-xl border border-border-subtle bg-background-surface p-3 sm:p-5">
-      <figcaption className="flex flex-wrap items-end justify-between gap-3 border-b border-border-subtle pb-4">
-        <div>
-          <p className="font-ds-display text-ds-heading-5 text-text-primary">
-            Weekly revenue by product
-          </p>
-          <p className="mt-1 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/40">
-            One definition · two container sizes
-          </p>
-        </div>
-      </figcaption>
-
-      <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,1.55fr)_minmax(12rem,0.85fr)]">
-        <div className="min-w-0 overflow-hidden rounded-lg border border-white/10 bg-[#0b1728] p-2 sm:p-3">
-          <div className="flex items-center justify-between border-b border-white/10 px-1 pb-2 font-ds-mono text-ds-mono-caps-xs uppercase text-white/45">
-            <span>Wide container</span>
-            <span>900 × 420</span>
-          </div>
-          <RendererGraphic
-            className="aspect-[900/420] w-full"
-            svg={chartsRevenueWideSvg}
-            tooltip={revenueTooltip}
-          />
-        </div>
-
-        <div className="mx-auto w-full max-w-96 overflow-hidden rounded-lg border border-white/10 bg-[#0b1728] p-2 sm:p-3">
-          <div className="flex items-center justify-between border-b border-white/10 px-1 pb-2 font-ds-mono text-ds-mono-caps-xs uppercase text-white/45">
-            <span>Compact container</span>
-            <span>420 × 420</span>
-          </div>
-          <RendererGraphic
-            className="aspect-square w-full"
-            svg={chartsRevenueCompactSvg}
-            tooltip={revenueTooltip}
-          />
-        </div>
-      </div>
-    </figure>
-  )
-}
-
 export function ActivationChart() {
+  const isDark = useIsDark()
+  const tooltip = React.useMemo(
+    () => ({ ...activationTooltip, theme: isDark ? 'dark' : 'light' }) as const,
+    [isDark],
+  )
+
   return (
-    <figure className="min-w-0 bg-[#0b1728]">
-      <figcaption className="border-b border-white/10 px-4 py-4 sm:px-5">
+    <figure className="charts-activation min-w-0 bg-[var(--activation-bg)] text-[var(--activation-foreground)]">
+      <figcaption className="border-b border-[var(--activation-border)] px-4 py-4 sm:px-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="font-ds-display text-ds-heading-5 text-white">
+            <p className="font-ds-display text-ds-heading-5">
               Weekly activation rate
             </p>
-            <p className="mt-1 font-ds-mono text-ds-mono-caps-xs uppercase text-white/45">
-              Jan–May 2026 · illustrative product telemetry
+            <p className="mt-1 font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--activation-muted)]">
+              Illustrative product telemetry
             </p>
           </div>
           <div className="text-left sm:text-right">
-            <p className="font-ds-display text-ds-heading-3 text-white">78%</p>
-            <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-status-success">
+            <p className="font-ds-display text-ds-heading-3">78%</p>
+            <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--activation-line)]">
               above 70% goal
             </p>
           </div>
         </div>
-        <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 font-ds-mono text-ds-mono-caps-xs uppercase text-white/45">
-          <LegendItem color="bg-[#61adbf]" label="Activation" />
-          <LegendItem color="bg-[#3aa3c4]/45" label="Expected range" />
-          <LegendItem color="bg-[#e06e49]" label="Goal" />
+        <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--activation-muted)]">
+          <LegendItem color="bg-[var(--activation-line)]" label="Activation" />
           <LegendItem
-            color="bg-[#eeebd4] ring-1 ring-[#61adbf]"
+            color="bg-[var(--activation-range)]"
+            label="Expected range"
+          />
+          <LegendItem color="bg-[var(--activation-goal)]" label="Goal" />
+          <LegendItem
+            color="bg-[var(--activation-bg)] ring-1 ring-[var(--activation-release)]"
             label="Releases"
           />
         </div>
@@ -805,7 +693,7 @@ export function ActivationChart() {
         className="charts-activation-graphic aspect-[520/560] w-full sm:aspect-[1200/620]"
         compactSvg={chartsActivationCompactSvg}
         svg={chartsActivationSvg}
-        tooltip={activationTooltip}
+        tooltip={tooltip}
       />
     </figure>
   )
@@ -858,6 +746,20 @@ function RendererGraphic({
 }) {
   return (
     <LandingChartGraphic className={className} svg={svg} tooltip={tooltip} />
+  )
+}
+
+function StaticGraphic({ className, svg }: { className: string; svg: string }) {
+  const staticSvg = React.useMemo(
+    () => svg.replace('tabindex="0"', 'tabindex="-1"'),
+    [svg],
+  )
+
+  return (
+    <div
+      className={`${className} pointer-events-none [&_svg]:h-full [&_svg]:w-full`}
+      dangerouslySetInnerHTML={{ __html: staticSvg }}
+    />
   )
 }
 

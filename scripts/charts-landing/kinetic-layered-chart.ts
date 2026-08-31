@@ -1,4 +1,5 @@
-import { curveMonotoneX, scaleLinear } from 'd3'
+import { scaleLinear } from '@tanstack/charts/scales/linear'
+import { curveMonotoneX } from 'd3-shape'
 import {
   areaY,
   d3Curve,
@@ -23,14 +24,14 @@ export const kineticLayeredChart = defineChart({
       y1: 'previous',
       y2: 'forecast',
       key: 'id',
-      fill: '#3aa3c4',
-      fillOpacity: 0.24,
+      fill: '#27d9f0',
+      fillOpacity: 0.26,
       curve: d3Curve(curveMonotoneX),
     }),
     ruleY([70], {
       id: 'hero-rule',
-      stroke: '#e06e49',
-      strokeWidth: 2,
+      stroke: '#ff806f',
+      strokeWidth: 2.5,
       strokeDasharray: '7 7',
     }),
     lineY(productSignals, {
@@ -38,8 +39,8 @@ export const kineticLayeredChart = defineChart({
       x: 'month',
       y: 'value',
       key: 'id',
-      stroke: '#61adbf',
-      strokeWidth: 3,
+      stroke: '#f7ffcc',
+      strokeWidth: 5,
       curve: d3Curve(curveMonotoneX),
     }),
     dot(productSignals, {
@@ -48,9 +49,9 @@ export const kineticLayeredChart = defineChart({
       y: 'value',
       z: 'segment',
       key: 'id',
-      stroke: '#9cd5e2',
-      strokeWidth: 2,
-      r: 4,
+      stroke: '#07111e',
+      strokeWidth: 3,
+      r: 7,
     }),
     text(releases, {
       id: 'hero-labels',
@@ -59,20 +60,21 @@ export const kineticLayeredChart = defineChart({
       text: 'product',
       key: 'id',
       fill: '#ffffff',
-      fontSize: 11,
-      fontWeight: 650,
-      dy: -18,
+      fontSize: 13,
+      fontWeight: 700,
+      dy: -22,
     }),
   ],
-  x: {
-    scale: scaleLinear().domain([1, 8]),
-    ticks: 4,
-    format: (month) => `M${month}`,
-  },
-  y: {
-    scale: scaleLinear().domain([30, 100]),
-    ticks: 4,
-    grid: true,
+  scales: {
+    x: {
+      scale: scaleLinear().domain([1, 8]),
+      axis: { ticks: { count: 4, format: (month) => `M${month}` } },
+    },
+    y: {
+      scale: scaleLinear().domain([30, 100]),
+      axis: { ticks: { count: 4 } },
+      grid: true,
+    },
   },
   theme: kineticDarkTheme,
 })

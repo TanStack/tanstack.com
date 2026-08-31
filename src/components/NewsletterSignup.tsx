@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Check, SignIn, Envelope } from '@phosphor-icons/react'
+import { CheckIcon, SignInIcon, EnvelopeIcon } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { useToast } from '~/components/ToastProvider'
 import { useLoginModal } from '~/contexts/LoginModalContext'
@@ -80,7 +80,7 @@ export function NewsletterSignup({
           successClassName,
         )}
       >
-        <Check className="h-3.5 w-3.5" />
+        <CheckIcon className="h-3.5 w-3.5" />
         You're subscribed
       </p>
     )
@@ -95,9 +95,9 @@ export function NewsletterSignup({
         className={twMerge('w-full', buttonClassName)}
       >
         {user ? (
-          <Envelope className="h-4 w-4" />
+          <EnvelopeIcon className="h-4 w-4" />
         ) : (
-          <SignIn className="h-4 w-4" />
+          <SignInIcon className="h-4 w-4" />
         )}
         {isPending
           ? 'Subscribing...'

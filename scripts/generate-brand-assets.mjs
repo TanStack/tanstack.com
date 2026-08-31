@@ -28,6 +28,7 @@ const colors = {
 }
 
 const emblemPath = join(brandDir, 'tanstack-emblem-charcoal.svg')
+const creamEmblemPath = join(brandDir, 'tanstack-emblem-cream.svg')
 const landscapePath = join(brandDir, 'tanstack-landscape-black.svg')
 const heroPath = join(publicDir, 'images', 'hero-palm-gradient-1600.webp')
 const displayFontPath = join(fontsDir, 'BricolageGrotesque-Bold.ttf')
@@ -166,6 +167,27 @@ await writeFile(
   landscapePng,
 )
 
+// Raster emblems for the README header renderer (takumi takes raster data).
+// Transparent background so one file works on either theme surface.
+const transparent = { r: 0, g: 0, b: 0, alpha: 0 }
+
+for (const [source, output] of [
+  [emblemPath, 'tanstack-emblem-charcoal-256.png'],
+  [creamEmblemPath, 'tanstack-emblem-cream-256.png'],
+]) {
+  const png = await sharp(source, { density: 1200 })
+    .resize({
+      width: 256,
+      height: 256,
+      fit: 'contain',
+      background: transparent,
+    })
+    .png()
+    .toBuffer()
+
+  await writeFile(join(brandDir, output), png)
+}
+
 const ogLogo = await sharp(landscapePng).resize({ width: 360 }).png().toBuffer()
 const ogHeadline = await renderText(
   'The open source\napplication stack\nfor the web',
@@ -198,6 +220,8 @@ const outputs = [
   'public/android-chrome-192x192.png',
   'public/android-chrome-512x512.png',
   'public/images/brand/tanstack-landscape-black-640.png',
+  'public/images/brand/tanstack-emblem-charcoal-256.png',
+  'public/images/brand/tanstack-emblem-cream-256.png',
   'src/images/og.png',
   'src/images/og-light.png',
 ]

@@ -1,4 +1,5 @@
-import { curveMonotoneX, scaleLinear } from 'd3'
+import { scaleLinear } from '@tanstack/charts/scales/linear'
+import { curveMonotoneX } from 'd3-shape'
 import { areaY, d3Curve, defineChart, dot, lineY } from '@tanstack/charts'
 
 import { kineticDarkTheme, productSignals } from './kinetic-data'
@@ -34,15 +35,16 @@ export const kineticAreaChart = defineChart({
       r: 4,
     }),
   ],
-  x: {
-    scale: scaleLinear().domain([1, 8]),
-    ticks: 4,
-    format: (month) => `M${month}`,
-  },
-  y: {
-    scale: scaleLinear().domain([30, 100]),
-    ticks: 4,
-    grid: true,
+  scales: {
+    x: {
+      scale: scaleLinear().domain([1, 8]),
+      axis: { ticks: { count: 4, format: (month) => `M${month}` } },
+    },
+    y: {
+      scale: scaleLinear().domain([30, 100]),
+      axis: { ticks: { count: 4 } },
+      grid: true,
+    },
   },
   theme: kineticDarkTheme,
 })

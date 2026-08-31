@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CheckCircle } from '@phosphor-icons/react'
+import { CheckCircleIcon } from '@phosphor-icons/react'
 
 type FeatureGridProps = {
   title?: string
@@ -23,7 +23,7 @@ export function FeatureGrid({ title, items, gridClassName }: FeatureGridProps) {
       >
         {items.map((d, i) => (
           <span key={i} className="flex gap-2">
-            <CheckCircle className="text-green-500 h-lh w-4 shrink-0" /> {d}
+            <CheckCircleIcon className="text-green-500 h-lh w-4 shrink-0" /> {d}
           </span>
         ))}
       </div>

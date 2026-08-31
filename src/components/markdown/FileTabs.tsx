@@ -1,5 +1,33 @@
 import * as React from 'react'
 
+// Roving-tabindex keyboard nav for a horizontal tablist, mirroring the DS
+// `Tabs` component: Arrow keys move (and wrap) focus between triggers, Home/End
+// jump to the ends, and automatic activation clicks the newly focused trigger
+// so selection follows focus.
+function handleTabListKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+  const keys = ['ArrowRight', 'ArrowLeft', 'Home', 'End']
+  if (!keys.includes(event.key)) return
+  const tabs = Array.from(
+    event.currentTarget.querySelectorAll<HTMLButtonElement>(
+      '[role="tab"]:not(:disabled)',
+    ),
+  )
+  if (tabs.length === 0) return
+  const current = tabs.indexOf(document.activeElement as HTMLButtonElement)
+  let next = current
+  if (event.key === 'ArrowRight')
+    next = current < 0 ? 0 : (current + 1) % tabs.length
+  else if (event.key === 'ArrowLeft')
+    next =
+      current < 0 ? tabs.length - 1 : (current - 1 + tabs.length) % tabs.length
+  else if (event.key === 'Home') next = 0
+  else if (event.key === 'End') next = tabs.length - 1
+  event.preventDefault()
+  const target = tabs[next]
+  target.focus()
+  target.click()
+}
+
 export type FileTabDefinition = {
   slug: string
   name: string
@@ -19,23 +47,35 @@ export function FileTabs({ tabs, children }: FileTabsProps) {
 
   return (
     <div className="not-prose my-4">
-      <div className="flex items-center justify-start gap-0 overflow-x-auto overflow-y-hidden bg-gray-100 dark:bg-gray-900 border border-b-0 border-gray-500/20 rounded-t-md">
-        {tabs.map((tab) => (
-          <button
-            key={`${id}-${tab.slug}`}
-            type="button"
-            onClick={() => setActiveSlug(tab.slug)}
-            aria-label={tab.name}
-            title={tab.name}
-            className={`px-3 py-1.5 text-sm font-medium transition-colors border-b-2 -mb-[1px] ${
-              activeSlug === tab.slug
-                ? 'border-current text-current bg-white dark:bg-gray-950'
-                : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-800'
-            }`}
-          >
-            {tab.name}
-          </button>
-        ))}
+      <div
+        role="tablist"
+        onKeyDown={handleTabListKeyDown}
+        className="fade-x fade-size-x-sm flex items-center justify-start gap-1 overflow-x-auto overflow-y-hidden border-b border-border-default"
+      >
+        {tabs.map((tab) => {
+          const isActive = activeSlug === tab.slug
+          return (
+            <button
+              key={`${id}-${tab.slug}`}
+              type="button"
+              role="tab"
+              id={`${id}-tab-${tab.slug}`}
+              aria-selected={isActive}
+              aria-controls={`${id}-panel-${tab.slug}`}
+              tabIndex={isActive ? 0 : -1}
+              onClick={() => setActiveSlug(tab.slug)}
+              aria-label={tab.name}
+              title={tab.name}
+              className={`relative -mb-px shrink-0 border-b-2 px-3 py-2 text-sm font-semibold transition-colors ${
+                isActive
+                  ? 'border-text-primary text-text-primary'
+                  : 'border-transparent text-text-secondary hover:text-text-primary'
+              }`}
+            >
+              {tab.name}
+            </button>
+          )
+        })}
       </div>
       <div>
         {childrenArray.map((child, index) => {
@@ -45,9 +85,12 @@ export function FileTabs({ tabs, children }: FileTabsProps) {
           return (
             <div
               key={`${id}-${tab.slug}-panel`}
+              role="tabpanel"
+              id={`${id}-panel-${tab.slug}`}
+              aria-labelledby={`${id}-tab-${tab.slug}`}
               data-tab={tab.slug}
               data-content="code-only"
-              className={`border border-t-0 border-gray-500/20 rounded-b-md overflow-hidden ${
+              className={`overflow-hidden rounded-b-md border border-t-0 border-border-default ${
                 isActive ? '' : 'hidden'
               }`}
             >

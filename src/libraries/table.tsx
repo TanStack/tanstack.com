@@ -1,4 +1,8 @@
-import { PersonSimple, Lightning, Gear } from '@phosphor-icons/react'
+import {
+  BracketsCurlyIcon,
+  LightningIcon,
+  GearIcon,
+} from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { table } from './libraries'
 
@@ -6,7 +10,7 @@ const textStyles = 'text-category-ui'
 
 export const tableProject = {
   ...table,
-  description: `Supercharge your tables or build a datagrid from scratch for TS/JS, React, Vue, Solid, Svelte, Qwik, Angular, and Lit while retaining 100% control over markup and styles.`,
+  description: `Headless, type-safe table and data-grid infrastructure with feature-level tree shaking, reactive state, fast row models, and adapters for React, Preact, Vue, Solid, Svelte, Angular, Ember, Lit, Alpine, and Octane.`,
   latestBranch: 'main',
   defaultDocs: 'introduction',
   legacyPackages: ['react-table'],
@@ -42,52 +46,54 @@ export const tableProject = {
   ],
   featureHighlights: [
     {
-      title: 'Designed for zero design',
+      title: '100% Control',
       icon: (
         <div className="text-center overflow-hidden">
-          <PersonSimple className={twMerge(textStyles)} />
+          <BracketsCurlyIcon className={twMerge(textStyles)} />
         </div>
       ),
       description: (
         <div>
-          What good is a powerful table if that super hip designer you just
-          hired can't work their UI magic on it?{' '}
+          TanStack Table provides the state, row processing, and typed APIs
+          without prescribing your markup or styles. Having 100% control of your
+          code matters more than ever.{' '}
           <span className={twMerge('font-semibold', textStyles)}>
-            TanStack Table is headless by design
+            Your semantics, components, design system, interactions, and source
+            code stay yours. Use any component library or design system,
+            including your own.
           </span>
-          , which means 100% control down to the very smallest HTML tag,
-          component, class and style. Pixel Perfection? Go for it!
-        </div>
-      ),
-    },
-    {
-      title: 'Big Power, Small Package',
-      icon: <Lightning className={twMerge(textStyles)} />,
-      description: (
-        <div>
-          Don't be fooled by the small bundle size. TanStack Table is a
-          workhorse. It's built to materialize, filter, sort, group, aggregate,
-          paginate and display massive data sets using a very small API surface.
-          Wire up your new or existing tables and{' '}
-          <span className={twMerge('font-semibold', textStyles)}>
-            watch your users become instantly more productive
-          </span>
-          .
         </div>
       ),
     },
     {
-      title: 'Extensible',
-      icon: <Gear className={twMerge(textStyles)} />,
+      title: 'Reactive by Design',
+      icon: <LightningIcon className={twMerge(textStyles)} />,
       description: (
         <div>
-          TanStack table ships with excellent defaults to get you off the ground
-          as fast as possible, but nothing is stopping you from{' '}
+          Every registered state slice is backed by TanStack Store, whose
+          fine-grained reactivity is built on alien-signals. Read a selected
+          snapshot, subscribe exactly where state is rendered, or own a slice
+          with an external atom.{' '}
           <span className={twMerge('font-semibold', textStyles)}>
-            customizing and overriding literally everything to your liking
+            Fine-grained reactivity keeps unrelated parts of a large table out
+            of the render path.
           </span>
-          . Feeling tenacious enough to build your own Sheets/Excel/AirTable
-          clone? Be our guest 😉
+        </div>
+      ),
+    },
+    {
+      title: 'Built to Extend',
+      icon: <GearIcon className={twMerge(textStyles)} />,
+      description: (
+        <div>
+          Custom features use the same extension points as Table's built-ins.
+          Compose shared options with tableOptions, build app-level table
+          systems with createTableHook, and inspect live instances with the
+          supported Devtools integration.{' '}
+          <span className={twMerge('font-semibold', textStyles)}>
+            Scale from one headless table to a typed table platform for your
+            whole product.
+          </span>
         </div>
       ),
     },

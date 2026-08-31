@@ -2,7 +2,7 @@ import * as React from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useMutation } from '@tanstack/react-query'
 import * as v from 'valibot'
-import { MagnifyingGlass as SearchIcon } from '@phosphor-icons/react'
+import { MagnifyingGlassIcon } from '@phosphor-icons/react'
 import { ProductCard } from '~/components/shop/ProductCard'
 import { ShopHero } from '~/components/shop/ShopHero'
 import { ShopButton, ShopInput, ShopLabel } from '~/components/shop/ui'
@@ -93,7 +93,7 @@ function SearchPage() {
         className="flex items-center gap-2 max-w-xl"
       >
         <div className="relative flex-1">
-          <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-shop-muted" />
+          <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-shop-muted" />
           <ShopInput
             type="search"
             value={inputValue}

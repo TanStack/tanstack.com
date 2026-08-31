@@ -1,4 +1,5 @@
-import { scaleBand, scaleLinear } from 'd3'
+import { scaleBand } from '@tanstack/charts/scales/band'
+import { scaleLinear } from '@tanstack/charts/scales/linear'
 import { defineChart, dot, link } from '@tanstack/charts'
 
 import { kineticDarkTheme, productNames, productSignals } from './kinetic-data'
@@ -33,13 +34,15 @@ export const kineticDumbbellChart = defineChart({
       r: 5,
     }),
   ],
-  x: {
-    scale: scaleLinear().domain([30, 100]),
-    ticks: 4,
-    grid: true,
-  },
-  y: {
-    scale: scaleBand<string>().domain(productNames).padding(0.28),
+  scales: {
+    x: {
+      scale: scaleLinear().domain([30, 100]),
+      axis: { ticks: { count: 4 } },
+      grid: true,
+    },
+    y: {
+      scale: scaleBand<string>().domain(productNames).padding(0.28),
+    },
   },
   theme: kineticDarkTheme,
 })

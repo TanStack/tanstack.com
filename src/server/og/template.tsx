@@ -15,7 +15,7 @@ const HEIGHT = 630
 // "TanStack AI" → ["TanStack", "AI"]
 // "TanStack Router" → ["TanStack", "Router"]
 // "Create TS Router App" → ["Create TS Router", "App"] (fallback: last word)
-function splitName(name: string): [string, string] {
+export function splitName(name: string): [string, string] {
   const parts = name.split(' ')
   if (parts.length < 2) return [name, '']
   const last = parts[parts.length - 1]

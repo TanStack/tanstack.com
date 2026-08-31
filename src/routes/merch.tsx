@@ -1,13 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router'
 import * as React from 'react'
-import { Footer } from '~/components/Footer'
 import { seo } from '~/utils/seo'
 import {
-  TShirt,
-  ShoppingBag,
-  DeviceMobile,
-  Tag,
-  Circle,
+  TShirtIcon,
+  ShoppingBagIcon,
+  DeviceMobileIcon,
+  TagIcon,
+  CircleIcon,
 } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { BaseballCapIcon } from '~/components/icons/BaseballCapIcon'
@@ -29,10 +28,10 @@ const merchItems = [
     description:
       'T-shirts, sweatshirts, hoodies, onesies, hats, totes, and phone cases featuring TanStack designs',
     icons: [
-      { Icon: TShirt, label: 'T-shirts' },
+      { Icon: TShirtIcon, label: 'T-shirts' },
       { Icon: BaseballCapIcon, label: 'Hats' },
-      { Icon: ShoppingBag, label: 'Totes' },
-      { Icon: DeviceMobile, label: 'Phone cases' },
+      { Icon: ShoppingBagIcon, label: 'Totes' },
+      { Icon: DeviceMobileIcon, label: 'Phone cases' },
     ],
     href: 'https://cottonbureau.com/people/tanstack',
     iconColor: 'text-blue-500',
@@ -44,8 +43,8 @@ const merchItems = [
     description:
       'High-quality vinyl stickers and small buttons for your laptop, water bottle, and more',
     icons: [
-      { Icon: Tag, label: 'Stickers' },
-      { Icon: Circle, label: 'Buttons' },
+      { Icon: TagIcon, label: 'Stickers' },
+      { Icon: CircleIcon, label: 'Buttons' },
     ],
     href: 'https://www.stickermule.com/tanstack',
     iconColor: 'text-purple-500',
@@ -134,7 +133,6 @@ function RouteComp() {
           ))}
         </section>
       </div>
-      <Footer />
     </div>
   )
 }

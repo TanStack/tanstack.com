@@ -142,6 +142,33 @@ export const dsNav: Array<DsNavSection> = [
         sections: ['Card', 'Inline code', 'Blog post card', 'Tooltip'],
       },
       {
+        label: 'Dialog',
+        to: '/ds/dialog',
+        sections: [
+          'Basic',
+          'Sizes',
+          'Scrolling body',
+          'Destructive confirm',
+          'Tinted header',
+          'Status panel',
+          'Token coverage',
+          'Behaviour from Radix',
+        ],
+      },
+      {
+        label: 'Drawer',
+        to: '/ds/drawer',
+        sections: [
+          'Sides',
+          'Sizes',
+          'Fit to content',
+          'Anchor',
+          'Header actions',
+          'With a footer',
+          'Motion',
+        ],
+      },
+      {
         label: 'Dropdown',
         to: '/ds/dropdown',
         sections: ['Basic menu', 'Scrollable'],
@@ -175,6 +202,16 @@ export const dsNav: Array<DsNavSection> = [
         ],
       },
       {
+        label: 'Overlay Audit',
+        to: '/ds/overlays',
+        sections: [
+          'Launch',
+          'Property matrix',
+          'Divergence',
+          'Notes per specimen',
+        ],
+      },
+      {
         label: 'Page Header',
         to: '/ds/page-header',
         sections: ['Left-aligned', 'Centered', 'Marks & actions'],
@@ -198,6 +235,11 @@ export const dsNav: Array<DsNavSection> = [
         label: 'Stats Section',
         to: '/ds/stats',
         sections: ['Preview'],
+      },
+      {
+        label: 'Takeover',
+        to: '/ds/takeover',
+        sections: ['Scrims', 'Leading action', 'Notes'],
       },
       {
         label: 'Tabs',

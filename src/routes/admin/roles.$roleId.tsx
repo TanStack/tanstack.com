@@ -20,6 +20,12 @@ import {
 import { requireCapability } from '~/utils/auth.functions'
 import { hasCapability } from '~/db/types'
 import { Badge, Button } from '~/ui'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+} from '~/components/ds/ui'
 
 export const Route = createFileRoute('/admin/roles/$roleId')({
   beforeLoad: async () => {
@@ -322,52 +328,56 @@ function RoleDetailPage() {
           </div>
         )}
 
-        {confirmRemove && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                Confirm Removal
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
-                Remove {confirmRemove.name} from role &quot;{role?.name}&quot;?
-              </p>
-              <div className="flex gap-2 justify-end">
-                <Button
-                  onClick={() => setConfirmRemove(null)}
-                  variant="secondary"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={async () => {
-                    try {
-                      await removeUsersFromRole.mutateAsync({
-                        roleId: roleId,
-                        userIds: [confirmRemove.userId],
-                      })
-                      setConfirmRemove(null)
-                    } catch (error) {
-                      console.error(
-                        'Failed to remove user from role:',
-                        error instanceof Error
-                          ? error.message
-                          : 'Unknown error',
-                      )
-                      alert(
-                        error instanceof Error
-                          ? error.message
-                          : 'Failed to remove user',
-                      )
-                    }
-                  }}
-                  color="red"
-                >
-                  Remove
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
+        <Dialog
+          open={confirmRemove !== null}
+          onOpenChange={(open) => {
+            if (!open) setConfirmRemove(null)
+          }}
+        >
+          <DialogContent size="sm">
+            <DialogHeader
+              title="Confirm Removal"
+              description={
+                confirmRemove
+                  ? `Remove ${confirmRemove.name} from role "${role?.name}"?`
+                  : undefined
+              }
+            />
+            <DialogFooter>
+              <Button
+                onClick={() => setConfirmRemove(null)}
+                variant="secondary"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={async () => {
+                  if (!confirmRemove) return
+                  try {
+                    await removeUsersFromRole.mutateAsync({
+                      roleId: roleId,
+                      userIds: [confirmRemove.userId],
+                    })
+                    setConfirmRemove(null)
+                  } catch (error) {
+                    console.error(
+                      'Failed to remove user from role:',
+                      error instanceof Error ? error.message : 'Unknown error',
+                    )
+                    alert(
+                      error instanceof Error
+                        ? error.message
+                        : 'Failed to remove user',
+                    )
+                  }
+                }}
+                color="red"
+              >
+                Remove
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
           <div className="overflow-x-auto">

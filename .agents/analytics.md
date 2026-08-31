@@ -203,6 +203,7 @@ User took an action on the generated result. Single event with `action` prop cov
 | `open_codex`               | Opened the result in Codex                                             |
 | `open_claude`              | Opened the result in Claude                                            |
 | `open_cursor`              | Opened the result in Cursor                                            |
+| `open_prompt_builder`      | Opened the result in a partner's prompt-based builder                  |
 | `download`                 | Downloaded the project as a zip                                        |
 | `open_advanced`            | Opened the advanced builder editor                                     |
 | `netlify_start`            | Started a Netlify deploy from the result                               |

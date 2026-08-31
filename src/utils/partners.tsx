@@ -799,7 +799,7 @@ const lovable = ((): Partner => {
     applicationStarterPromptInstructions: [
       'Treat Lovable as the AI app-building and hosting path, not as a TanStack CLI deployment flag or npm package.',
       'Keep the generated app portable: start with the TanStack CLI output, preserve GitHub/project ownership notes, and call out any Lovable Cloud setup that cannot be automated from code.',
-      'When Lovable is selected, do not add a separate Cloudflare, Netlify, or Railway deployment target unless the user explicitly asks for a handoff path.',
+      'When Lovable is selected, do not add a separate Cloudflare, Netlify, Railway, Render, or Vercel deployment target unless the user explicitly asks for a handoff path.',
     ],
     image: {
       light: lovableBlackSvg,
@@ -1766,6 +1766,10 @@ const applicationStarterInferenceRules: Array<{
   {
     partnerId: 'railway',
     patterns: [/\brailway\b/i],
+  },
+  {
+    partnerId: 'vercel',
+    patterns: [/\b(vercel|v0)\b/i],
   },
   {
     partnerId: 'sentry',

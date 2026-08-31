@@ -25,8 +25,8 @@ import {
 } from '~/utils/partners'
 import { usePartnerPlacementContext } from '~/utils/usePartnerPlacementContext'
 import type { LibraryId } from '~/libraries'
+import { buildStarterPromptDeployUrl } from './prompt-deploy'
 import {
-  buildStarterPromptDeployUrl,
   composeStarterInput,
   isNextJsMigrationInput,
   isPinnedStarterLibrary,
@@ -839,7 +839,7 @@ export function useApplicationStarter({
     try {
       await withResolvedPrompt((nextResult) => {
         trackActivation({
-          action: 'deploy',
+          action: 'open_prompt_builder',
           surface: 'result_panel',
           provider: 'lovable',
         })

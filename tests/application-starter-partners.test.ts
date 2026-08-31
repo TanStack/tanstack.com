@@ -359,6 +359,36 @@ test('OpenRouter guidance prefers the TanStack AI adapter', async () => {
   assert.match(result.prompt, /@tanstack\/ai-openrouter/)
 })
 
+test('selected Vercel partner uses the Vercel deployment target', async () => {
+  const input = composeApplicationStarterInput(
+    'Build a full-stack app.',
+    ['vercel'],
+    [],
+  )
+  const result = await resolveApplicationStarterDeterministically({
+    context: 'home',
+    input,
+  })
+
+  assert.equal(result.recipe.deployment, 'vercel')
+  assert.match(result.cliCommand, /--deployment vercel/)
+})
+
+test('selected Render partner uses the Render deployment target', async () => {
+  const input = composeApplicationStarterInput(
+    'Build a full-stack app.',
+    ['render'],
+    [],
+  )
+  const result = await resolveApplicationStarterDeterministically({
+    context: 'home',
+    input,
+  })
+
+  assert.equal(result.recipe.deployment, 'render')
+  assert.match(result.cliCommand, /--deployment render/)
+})
+
 test('Render uses per-placement UTM content for approved surfaces', () => {
   const renderPartner = partners.find((p) => p.id === 'render')
   assert.ok(renderPartner, 'Render partner should exist')

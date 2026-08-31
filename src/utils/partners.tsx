@@ -270,7 +270,6 @@ export type RailPartner = {
   id: string
   name: string
   href: string
-  score: number
   tier?: PartnerTier
   image: PartnerImageConfig
 }
@@ -315,7 +314,6 @@ type PartnerBase = {
   llmDescription: string
   category: PartnerCategory
   lastReviewedAt?: string
-  score: number
   uniqueConstraints?: ReadonlyArray<PartnerUniqueConstraint>
   brandColor?: string // Primary brand color for game elements
   tagline?: string // Short tagline for game info cards
@@ -434,7 +432,6 @@ const neon = ((): Partner => {
     status: 'inactive' as const,
     startDate: null,
     endDate: 'Apr 2026',
-    score: 0.297,
     href,
     brandColor: '#00E599',
     tagline: 'Serverless Postgres',
@@ -469,7 +466,6 @@ const convex = ((): Partner => {
     status: 'inactive' as const,
     startDate: 'May 2024',
     endDate: 'Mar 2026',
-    score: 0.286,
     href,
     brandColor: '#F3A712',
     tagline: 'Real-time Database',
@@ -517,7 +513,6 @@ const clerk = ((): Partner => {
     relatedProducts: ['start', 'router'],
     status: 'active' as const,
     lastReviewedAt: currentPartnerReviewDate,
-    score: 0.286,
     tier: 'silver' as const,
     uniqueConstraints: [
       'auth-provider',
@@ -574,7 +569,6 @@ const workos = ((): Partner => {
     relatedProducts: ['start', 'router'] as const,
     status: 'active' as const,
     lastReviewedAt: currentPartnerReviewDate,
-    score: 0.314,
     tier: 'silver' as const,
     uniqueConstraints: [
       'auth-provider',
@@ -616,7 +610,6 @@ const agGrid = ((): Partner => {
     relatedProducts: ['table'] as const,
     status: 'active' as const,
     lastReviewedAt: currentPartnerReviewDate,
-    score: 0.497,
     tier: 'silver' as const,
     href,
     canonicalHref: 'https://www.ag-grid.com/',
@@ -683,7 +676,6 @@ const netlify = ((): Partner => {
     relatedProducts: ['start', 'router'],
     status: 'active' as const,
     lastReviewedAt: currentPartnerReviewDate,
-    score: 0.343,
     tier: 'gold' as const,
     uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,
     href,
@@ -751,7 +743,6 @@ const cloudflare = ((): Partner => {
     relatedProducts: ['start'],
     status: 'active' as const,
     lastReviewedAt: currentPartnerReviewDate,
-    score: 0.857,
     tier: 'gold' as const,
     uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,
     startDate: 'Sep 2025',
@@ -800,7 +791,6 @@ const lovable = ((): Partner => {
     relatedProducts: ['start', 'router'] as const,
     status: 'active' as const,
     lastReviewedAt: currentPartnerReviewDate,
-    score: 0.714,
     tier: 'gold' as const,
     uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,
     brandColor: '#FF7EB0',
@@ -842,7 +832,6 @@ const sentry = ((): Partner => {
     relatedProducts: ['start', 'router'],
     status: 'active' as const,
     lastReviewedAt: currentPartnerReviewDate,
-    score: 0.229,
     tier: 'bronze' as const,
     href,
     canonicalHref: 'https://sentry.io/',
@@ -886,7 +875,6 @@ const fireship = ((): Partner => {
     status: 'inactive' as const,
     startDate: null,
     endDate: null,
-    score: 0.014,
     href,
     tagline: 'Dev Education',
     image: {
@@ -944,7 +932,6 @@ const nozzle = ((): Partner => {
     status: 'inactive' as const,
     startDate: null,
     endDate: null,
-    score: 0.014,
     tagline: 'Enterprise SEO',
     image: {
       src: nozzleImage,
@@ -978,7 +965,6 @@ const speakeasy = ((): Partner => {
     status: 'inactive' as const,
     startDate: 'Feb 2025',
     endDate: 'Jul 2025',
-    score: 0,
     image: {
       light: speakeasyLightSvg,
       dark: speakeasyDarkSvg,
@@ -1011,7 +997,6 @@ const unkey = ((): Partner => {
     relatedProducts: ['start'] as const,
     status: 'active' as const,
     lastReviewedAt: currentPartnerReviewDate,
-    score: 0.051,
     tier: 'bronze' as const,
     href,
     canonicalHref: 'https://www.unkey.com/',
@@ -1065,7 +1050,6 @@ const serpApi = ((): Partner => {
     relatedProducts: ['start', 'ai', 'mcp'],
     status: 'active' as const,
     lastReviewedAt: currentPartnerReviewDate,
-    score: 0.41,
     tier: 'silver' as const,
     href,
     canonicalHref: 'https://serpapi.com/',
@@ -1123,7 +1107,6 @@ const electric = ((): Partner => {
     relatedProducts: ['db'] as const,
     status: 'active' as const,
     lastReviewedAt: currentPartnerReviewDate,
-    score: 0.283,
     tier: 'bronze' as const,
     href,
     canonicalHref: 'https://electric.ax/',
@@ -1182,7 +1165,6 @@ const vercel = ((): Partner => {
     relatedProducts: ['start', 'router'] as const,
     status: 'active' as const,
     lastReviewedAt: currentPartnerReviewDate,
-    score: 0.543,
     tier: 'gold' as const,
     uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,
     brandColor: '#000000',
@@ -1232,7 +1214,6 @@ const prisma = ((): Partner => {
     lastReviewedAt: currentPartnerReviewDate,
     relatedProducts: ['db', 'start'] as const,
     startDate: 'Aug 2025',
-    score: 0.143,
     tier: 'bronze' as const,
     brandColor: '#2D3748',
     tagline: 'Database ORM',
@@ -1277,7 +1258,6 @@ const codeRabbit = ((): Partner => {
     lastReviewedAt: currentPartnerReviewDate,
     relatedProducts: [],
     startDate: 'Aug 2025',
-    score: 1,
     tier: 'gold' as const,
     brandColor: '#FF6B2B',
     tagline: 'AI Code Review',
@@ -1317,7 +1297,6 @@ const strapi = ((): Partner => {
     status: 'inactive' as const,
     startDate: null,
     endDate: null,
-    score: 0.069,
     tier: 'bronze' as const,
     href,
     brandColor: '#4945FF',
@@ -1355,7 +1334,6 @@ const powerSync = ((): Partner => {
     status: 'inactive' as const,
     startDate: 'Jan 2026',
     endDate: 'Jun 2026',
-    score: 0.143,
     tier: 'bronze' as const,
     href,
     canonicalHref: 'https://www.powersync.com/',
@@ -1409,7 +1387,6 @@ const railway = ((): Partner => {
     relatedProducts: ['start'],
     status: 'active' as const,
     lastReviewedAt: currentPartnerReviewDate,
-    score: 0.145,
     tier: 'gold' as const,
     uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,
     href,
@@ -1455,7 +1432,6 @@ const render = ((): Partner => {
     relatedProducts: ['start'],
     status: 'active' as const,
     lastReviewedAt: currentPartnerReviewDate,
-    score: 0.429,
     tier: 'gold' as const,
     uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,
     href,
@@ -1519,7 +1495,6 @@ const openRouter = ((): Partner => {
     status: 'active' as const,
     lastReviewedAt: currentPartnerReviewDate,
     startDate: 'Mar 2026',
-    score: 0.344,
     tier: 'silver' as const,
     brandColor: '#7C3AED',
     tagline: 'Unified LLM API',

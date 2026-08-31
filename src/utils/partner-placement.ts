@@ -24,7 +24,7 @@ export type PartnerPlacementAnalyticsMetadata = {
 
 type PartnerForPlacement = Pick<
   Partner,
-  'category' | 'id' | 'name' | 'score' | 'tier'
+  'category' | 'id' | 'name' | 'tier'
 > & {
   placementWeight?: number
 }
@@ -240,12 +240,6 @@ function compareLegacyPartnerPriority<TPartner extends PartnerForPlacement>(
   left: TPartner,
   right: TPartner,
 ) {
-  const scoreComparison = right.score - left.score
-
-  if (scoreComparison !== 0) {
-    return scoreComparison
-  }
-
   return comparePartnerIdentity(left, right)
 }
 

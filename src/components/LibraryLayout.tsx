@@ -57,7 +57,6 @@ const docsPartnerTierWeights: Record<PartnerTier, number> = {
 type DocRecency = 'new' | 'updated' | null
 type DocsPartner = {
   category: Partner['category']
-  score: Partner['score']
   tier?: Partner['tier']
   id: string
   name: string

@@ -1735,6 +1735,18 @@ export function hasApplicationStarterPartnerUniqueConstraint(
   return partner?.uniqueConstraints.includes(uniqueConstraint) ?? false
 }
 
+const renderDeploymentPatterns = [
+  /\brender\.com\b/i,
+  /\brender\s+blueprints?\b/i,
+  /\b(?:deploy|deploying|deployment|host|hosting)\b[^.!?\n]{0,40}\b(?:to|on|with|via)\s+render\b(?=\s*(?:$|[,.!?;:]|\b(?:hosting|cloud|platform)\b))/i,
+  /\brender\s+(?:hosting|deployment)\b/i,
+  /\buse\s+render\s+(?:for\s+)?(?:hosting|deployment)\b/i,
+]
+
+export function isRenderDeploymentRequest(input: string) {
+  return renderDeploymentPatterns.some((pattern) => pattern.test(input))
+}
+
 const applicationStarterInferenceRules: Array<{
   partnerId: string
   patterns: Array<RegExp>
@@ -1769,7 +1781,7 @@ const applicationStarterInferenceRules: Array<{
   },
   {
     partnerId: 'render',
-    patterns: [/\brender\b/i],
+    patterns: renderDeploymentPatterns,
   },
   {
     partnerId: 'vercel',

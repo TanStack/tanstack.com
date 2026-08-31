@@ -8,6 +8,7 @@ import {
   getApplicationStarterSelectedPartnerIds,
   getApplicationStarterUserBrief,
   hasApplicationStarterPartnerConflictWithAny,
+  isRenderDeploymentRequest,
 } from '~/utils/partners'
 
 export type ApplicationStarterContext =
@@ -1079,7 +1080,7 @@ function detectDeployment(input: string) {
   if (/\brailway\b/i.test(input)) {
     return 'railway' as const
   }
-  if (/\brender\b/i.test(input)) {
+  if (isRenderDeploymentRequest(input)) {
     return 'render'
   }
   if (/\b(vercel|v0)\b/i.test(input)) {

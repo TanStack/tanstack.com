@@ -409,6 +409,25 @@ test('hosting names infer their matching partner and deployment target', async (
   }
 })
 
+test('ordinary rendering language does not select Render hosting', async () => {
+  for (const input of [
+    'Render a chart with server data.',
+    'Server render this page before hydration.',
+    'Deploy a canvas app that uses WebGL to render charts.',
+  ]) {
+    const inferredPartnerIds =
+      getInferredApplicationStarterPartnerIdsFromUserInput(input, [])
+    const result = await resolveApplicationStarterDeterministically({
+      context: 'home',
+      input,
+    })
+
+    assert.equal(inferredPartnerIds.includes('render'), false)
+    assert.notEqual(result.recipe.deployment, 'render')
+    assert.doesNotMatch(result.cliCommand, /--deployment render/)
+  }
+})
+
 test('Render uses per-placement UTM content for approved surfaces', () => {
   const renderPartner = partners.find((p) => p.id === 'render')
   assert.ok(renderPartner, 'Render partner should exist')

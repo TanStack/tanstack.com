@@ -254,13 +254,26 @@ export function ApplicationStarter({
   const homeSelectedOptionCountRef = React.useRef(0)
   homeSelectedOptionCountRef.current =
     selectedLibraries.length + selectedPartners.length
+  const [placeholderIndex, setPlaceholderIndex] = React.useState(0)
+  const [placeholderShowing, setPlaceholderShowing] = React.useState(true)
+  const currentSuggestion =
+    suggestions.length > 0
+      ? suggestions[placeholderIndex % suggestions.length]
+      : undefined
+  const rotatingPlaceholder =
+    currentSuggestion?.input ??
+    'Build a SaaS app with auth, Postgres, nested routes, and Sentry. Use pnpm and deploy to Cloudflare.'
   const [isHomePayoffLoading, setIsHomePayoffLoading] = React.useState(false)
   const homePayoffLoadingRef = React.useRef(false)
   const pendingHomeSubmissionRef = React.useRef<string | undefined>(undefined)
   const submitWithHomePayoff = React.useCallback(
     (overrideInput?: string) => {
+      const submissionInput =
+        overrideInput ??
+        (isHomeStarter && !hasInput ? rotatingPlaceholder : undefined)
+
       if (!isHomeStarter || reducedMotion) {
-        void submitCurrentInput(overrideInput)
+        void submitCurrentInput(submissionInput)
         return
       }
 
@@ -269,10 +282,16 @@ export function ApplicationStarter({
       }
 
       homePayoffLoadingRef.current = true
-      pendingHomeSubmissionRef.current = overrideInput
+      pendingHomeSubmissionRef.current = submissionInput
       setIsHomePayoffLoading(true)
     },
-    [isHomeStarter, reducedMotion, submitCurrentInput],
+    [
+      hasInput,
+      isHomeStarter,
+      reducedMotion,
+      rotatingPlaceholder,
+      submitCurrentInput,
+    ],
   )
   const completeHomePayoff = React.useCallback(() => {
     if (!homePayoffLoadingRef.current) {
@@ -296,8 +315,6 @@ export function ApplicationStarter({
     setShowPackageManagerOptions(false)
     resetApplicationStarter()
   }, [resetApplicationStarter])
-  const [placeholderIndex, setPlaceholderIndex] = React.useState(0)
-  const [placeholderShowing, setPlaceholderShowing] = React.useState(true)
   React.useEffect(() => {
     if (suggestions.length <= 1 || hasInput || isPromptFocused) {
       return
@@ -320,13 +337,6 @@ export function ApplicationStarter({
       clearTimeout(swapTimer)
     }
   }, [suggestions.length, hasInput, isPromptFocused, reducedMotion])
-  const currentSuggestion =
-    suggestions.length > 0
-      ? suggestions[placeholderIndex % suggestions.length]
-      : undefined
-  const rotatingPlaceholder =
-    currentSuggestion?.input ??
-    'Build a SaaS app with auth, Postgres, nested routes, and Sentry. Use pnpm and deploy to Cloudflare.'
   const handlePromptShiftEnter = (
     event: React.KeyboardEvent<HTMLTextAreaElement>,
   ) => {
@@ -334,7 +344,7 @@ export function ApplicationStarter({
       return
     }
     event.preventDefault()
-    submitWithHomePayoff(hasInput ? undefined : currentSuggestion?.input)
+    submitWithHomePayoff()
   }
 
   const canRevealOptions =

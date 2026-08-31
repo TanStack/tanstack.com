@@ -7,7 +7,7 @@ const textStyles = `text-category-data`
 
 export const aiProject = {
   ...ai,
-  description: `The headless agent framework for TypeScript. TanStack AI runs the agent loop as typed primitives you compose yourself: tool calls, reasoning, human-in-the-loop interrupts, memory, and streaming state. Bring your own UI framework, model provider, server, and transport. Native AG-UI over the wire, MIT licensed, no hosted gateway and no platform to buy into.`,
+  description: `TanStack AI is a pluggable AI ecosystem that makes it easy for you to build AI features into your apps. Provide tools to LLMs, interrupt chat for user approval, run agents in sandboxes, build headless chat UI, stream from your server to your client, and connect to any AG-UI compatible server or client. Bring your own infrastructure. We offer the pluggable APIs to build on top of.`,
   latestBranch: 'main',
   defaultDocs: 'getting-started/overview',
   featureHighlights: [
@@ -29,9 +29,10 @@ export const aiProject = {
       icon: <Plug className={twMerge(textStyles)} />,
       description: (
         <div>
-          Your provider, server, transport, auth, and deploy target. Adapters
-          for OpenRouter, OpenAI, Anthropic, Gemini, Bedrock, Mistral, Groq,
-          Grok/xAI, Ollama, ElevenLabs, and fal.ai, plus{' '}
+          Your provider, server, transport, auth, and deploy target. Official
+          adapters for OpenRouter, OpenAI, Anthropic, Gemini, Vertex, Bedrock,
+          Mistral, Groq, Grok, Ollama, Cohere, Perplexity, BytePlus, ElevenLabs,
+          fal.ai, Lovable, LLM Gateway, and Vercel AI Gateway, plus{' '}
           <code>openaiCompatible</code> for anything else. Import only what you
           use: every activity is a separate, tree-shakeable module.
         </div>

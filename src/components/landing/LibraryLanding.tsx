@@ -358,7 +358,7 @@ export function LandingSectionIntro({
   icon,
   title,
 }: {
-  body: string
+  body: React.ReactNode
   centered?: boolean
   eyebrow: string
   icon?: React.ReactNode

@@ -519,7 +519,7 @@ export function StarterPartnerRows({
       case 6:
         return 'grid-cols-2 min-[480px]:grid-cols-3 min-[900px]:grid-cols-6'
       case 7:
-        return 'grid-cols-2 min-[480px]:grid-cols-4 min-[900px]:grid-cols-12'
+        return 'grid-cols-2 min-[480px]:grid-cols-4 min-[900px]:grid-cols-8'
       default:
         return 'grid-cols-2 min-[480px]:grid-cols-3'
     }
@@ -538,6 +538,8 @@ export function StarterPartnerRows({
               twMerge(
                 'grid w-full gap-[2px] overflow-hidden rounded-xl bg-gray-950/[0.10] dark:bg-white/[0.12]',
                 getLargeGridColumns(row.partners.length),
+                row.partners.length === 7 &&
+                  'min-[900px]:overflow-visible min-[900px]:rounded-none min-[900px]:bg-transparent min-[900px]:dark:bg-transparent',
               ),
           )}
         >
@@ -568,9 +570,27 @@ export function StarterPartnerRows({
                     size === 'large' && 'min-w-0 w-full justify-center',
                     size === 'large' &&
                       row.partners.length === 7 &&
-                      (partnerIndex < 4
-                        ? 'min-[900px]:col-span-3'
-                        : 'min-[900px]:col-span-4'),
+                      'min-[900px]:col-span-2',
+                    size === 'large' &&
+                      row.partners.length === 7 &&
+                      partnerIndex === 4 &&
+                      'min-[900px]:col-start-2',
+                    size === 'large' &&
+                      row.partners.length === 7 &&
+                      partnerIndex === 0 &&
+                      'min-[900px]:rounded-tl-xl',
+                    size === 'large' &&
+                      row.partners.length === 7 &&
+                      partnerIndex === 3 &&
+                      'min-[900px]:rounded-tr-xl',
+                    size === 'large' &&
+                      row.partners.length === 7 &&
+                      partnerIndex === 4 &&
+                      'min-[900px]:rounded-bl-xl',
+                    size === 'large' &&
+                      row.partners.length === 7 &&
+                      partnerIndex === 6 &&
+                      'min-[900px]:rounded-br-xl',
                   )}
                 />
               </StarterHoverTooltip>

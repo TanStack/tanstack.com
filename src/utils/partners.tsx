@@ -50,6 +50,7 @@ import {
   getPartnersForPlacement,
   type PartnerPlacementContext,
 } from '~/utils/partner-placement'
+import type { PartnerPlacement } from '~/utils/analytics'
 
 function LearnMoreButton() {
   return (
@@ -2087,4 +2088,27 @@ export function composeApplicationStarterInput(
 
 export function getPartnerById(partnerId: string) {
   return partners.find((partner) => partner.id === partnerId)
+}
+
+const renderPlacementUtmContent: Partial<Record<PartnerPlacement, string>> = {
+  home_grid: 'home_grid',
+  library_grid: 'library_grid',
+  docs_rail: 'docs_rail',
+  docs_strip: 'docs_strip',
+}
+
+export function getPartnerHref(
+  partner: Pick<Partner, 'id' | 'href'>,
+  placement?: PartnerPlacement,
+): string {
+  if (partner.id !== 'render' || !placement) {
+    return partner.href
+  }
+
+  const utmContent = renderPlacementUtmContent[placement]
+  if (!utmContent) {
+    return partner.href
+  }
+
+  return `https://render.com/?utm_source=tanstack&utm_medium=referral&utm_campaign=gold-launch&utm_content=${utmContent}`
 }

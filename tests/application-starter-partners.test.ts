@@ -17,6 +17,7 @@ const {
 const {
   composeApplicationStarterInput,
   getInferredApplicationStarterPartnerIdsFromUserInput,
+  getPartnerHref,
   partners,
 }: typeof import('../src/utils/partners') = require('../src/utils/partners')
 const {
@@ -356,4 +357,40 @@ test('OpenRouter guidance prefers the TanStack AI adapter', async () => {
   })
 
   assert.match(result.prompt, /@tanstack\/ai-openrouter/)
+})
+
+test('Render uses per-placement UTM content for approved surfaces', () => {
+  const renderPartner = partners.find((p) => p.id === 'render')
+  assert.ok(renderPartner, 'Render partner should exist')
+
+  const placements = ['home_grid', 'library_grid', 'docs_rail', 'docs_strip'] as const
+  for (const placement of placements) {
+    const href = getPartnerHref(renderPartner, placement)
+    assert.match(
+      href,
+      new RegExp(`utm_content=${placement}`),
+      `Render href for ${placement} should include utm_content=${placement}`,
+    )
+    assert.match(href, /render\.com/, 'Should point to render.com')
+    assert.match(href, /utm_source=tanstack/, 'Should include utm_source')
+    assert.match(href, /utm_campaign=gold-launch/, 'Should include utm_campaign')
+  }
+
+  const defaultHref = getPartnerHref(renderPartner, 'directory')
+  assert.doesNotMatch(
+    defaultHref,
+    /utm_content/,
+    'Render href for other placements should not include utm_content',
+  )
+})
+
+test('other partners use their default href regardless of placement', () => {
+  const vercel = partners.find((p) => p.id === 'vercel')
+  assert.ok(vercel, 'Vercel partner should exist')
+
+  const placements = ['home_grid', 'library_grid', 'docs_rail', 'docs_strip', 'directory'] as const
+  for (const placement of placements) {
+    const href = getPartnerHref(vercel, placement)
+    assert.equal(href, vercel.href, `Vercel href should be unchanged for ${placement}`)
+  }
 })

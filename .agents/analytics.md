@@ -166,7 +166,7 @@ User took an action on the generated result. Single event with `action` prop cov
 | `idea_used` | string  | Session context                                                                                                              |
 | `action`    | enum    | See `BuilderAction` below                                                                                                    |
 | `surface`   | enum    | `result_panel` (main builder UI) or `deploy_dialog`                                                                          |
-| `provider`  | string? | Deploy provider when applicable: `vercel`, `netlify`, `cloudflare`                                                           |
+| `provider`  | string? | Build or deploy provider when applicable: `cloudflare`, `lovable`, `netlify`, `railway`, `render`, `vercel`                  |
 | `automatic` | boolean | `true` for system-driven actions (e.g., deploy_dialog auto-redirect countdown). Filter to `false` for true user click rates. |
 
 **Important:** automatic prompt-copies that fire as a side-effect of generation do NOT emit `builder_activated`. Only user-driven actions count as activation.

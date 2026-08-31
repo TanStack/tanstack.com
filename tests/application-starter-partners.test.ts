@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { existsSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { test } from 'node:test'
+import type { PartnerPlacement } from '../src/utils/analytics'
 
 const require = createRequire(import.meta.url)
 const loadAsset: NodeJS.RequireExtensions[string] = (module, filename) => {
@@ -389,16 +390,35 @@ test('selected Render partner uses the Render deployment target', async () => {
   assert.match(result.cliCommand, /--deployment render/)
 })
 
+test('hosting names infer their matching partner and deployment target', async () => {
+  for (const hosting of [
+    { id: 'render', name: 'Render' },
+    { id: 'vercel', name: 'Vercel' },
+  ]) {
+    const input = `Build a full-stack app and deploy to ${hosting.name}.`
+    const inferredPartnerIds =
+      getInferredApplicationStarterPartnerIdsFromUserInput(input, [])
+    const result = await resolveApplicationStarterDeterministically({
+      context: 'home',
+      input,
+    })
+
+    assert.ok(inferredPartnerIds.includes(hosting.id))
+    assert.equal(result.recipe.deployment, hosting.id)
+    assert.match(result.cliCommand, new RegExp(`--deployment ${hosting.id}`))
+  }
+})
+
 test('Render uses per-placement UTM content for approved surfaces', () => {
   const renderPartner = partners.find((p) => p.id === 'render')
   assert.ok(renderPartner, 'Render partner should exist')
 
-  const placements = [
+  const placements: PartnerPlacement[] = [
     'home_grid',
     'library_grid',
     'docs_rail',
     'docs_strip',
-  ] as const
+  ]
   for (const placement of placements) {
     const href = getPartnerHref(renderPartner, placement)
     assert.match(
@@ -427,13 +447,13 @@ test('other partners use their default href regardless of placement', () => {
   const vercel = partners.find((p) => p.id === 'vercel')
   assert.ok(vercel, 'Vercel partner should exist')
 
-  const placements = [
+  const placements: PartnerPlacement[] = [
     'home_grid',
     'library_grid',
     'docs_rail',
     'docs_strip',
     'directory',
-  ] as const
+  ]
   for (const placement of placements) {
     const href = getPartnerHref(vercel, placement)
     assert.equal(

@@ -1163,11 +1163,11 @@ const vercel = ((): Partner => {
         href: '/start/latest/docs/framework/react/guide/hosting',
       },
     ],
-    relatedProducts: ['start', 'router'] as const,
-    status: 'active' as const,
+    relatedProducts: ['start', 'router'],
+    status: 'active',
     lastReviewedAt: currentPartnerReviewDate,
-    tier: 'gold' as const,
-    uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,
+    tier: 'gold',
+    uniqueConstraints: ['hosting'],
     brandColor: '#000000',
     tagline: 'Agentic Infrastructure',
     applicationStarterIcon: {
@@ -1431,10 +1431,10 @@ const render = ((): Partner => {
     name: 'Render',
     id: 'render',
     relatedProducts: ['start'],
-    status: 'active' as const,
+    status: 'active',
     lastReviewedAt: currentPartnerReviewDate,
-    tier: 'gold' as const,
-    uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,
+    tier: 'gold',
+    uniqueConstraints: ['hosting'],
     href,
     canonicalHref: 'https://render.com/',
     resources: [
@@ -1766,6 +1766,10 @@ const applicationStarterInferenceRules: Array<{
   {
     partnerId: 'railway',
     patterns: [/\brailway\b/i],
+  },
+  {
+    partnerId: 'render',
+    patterns: [/\brender\b/i],
   },
   {
     partnerId: 'vercel',

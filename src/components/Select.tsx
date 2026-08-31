@@ -45,37 +45,41 @@ export function Select<T extends SelectOption>({
   return (
     <div className={twMerge('w-full', className)}>
       <Dropdown>
-        <DropdownTrigger>
-          <button
-            type="button"
-            className="relative items-center w-full gap-2 flex hover:bg-gray-500/10 cursor-pointer rounded-md py-1.5 px-2 text-left focus:outline-none text-sm"
-          >
-            {icon ? (
-              <span className="flex items-center justify-center w-6 h-6 rounded border border-gray-500/20">
-                {icon}
+        <DropdownTrigger
+          render={
+            <button
+              type="button"
+              className="relative items-center w-full gap-2 flex hover:bg-gray-500/10 cursor-pointer rounded-md py-1.5 px-2 text-left focus:outline-none text-sm"
+            >
+              {icon ? (
+                <span className="flex items-center justify-center w-6 h-6 rounded border border-gray-500/20">
+                  {icon}
+                </span>
+              ) : selectedOption.logo ? (
+                <span className="flex items-center justify-center w-6 h-6 rounded border border-gray-500/20">
+                  <img
+                    height={16}
+                    width={16}
+                    src={selectedOption.logo}
+                    alt={`${selectedOption.label} logo`}
+                  />
+                </span>
+              ) : null}
+              <span className="truncate font-medium">
+                {selectedOption.label}
               </span>
-            ) : selectedOption.logo ? (
-              <span className="flex items-center justify-center w-6 h-6 rounded border border-gray-500/20">
-                <img
-                  height={16}
-                  width={16}
-                  src={selectedOption.logo}
-                  alt={`${selectedOption.label} logo`}
+              {selectedOption.badge ? (
+                <Badge>{selectedOption.badge}</Badge>
+              ) : null}
+              <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                <CaretUpDownIcon
+                  className="h-4 w-4 opacity-40"
+                  aria-hidden="true"
                 />
               </span>
-            ) : null}
-            <span className="truncate font-medium">{selectedOption.label}</span>
-            {selectedOption.badge ? (
-              <Badge>{selectedOption.badge}</Badge>
-            ) : null}
-            <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-              <CaretUpDownIcon
-                className="h-4 w-4 opacity-40"
-                aria-hidden="true"
-              />
-            </span>
-          </button>
-        </DropdownTrigger>
+            </button>
+          }
+        />
         <DropdownContent align="start" className="max-h-80 overflow-auto">
           {available.map((option) => (
             <DropdownItem

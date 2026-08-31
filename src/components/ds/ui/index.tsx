@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
+import { Menu } from '@base-ui/react/menu'
 import { Link } from '@tanstack/react-router'
 import { CaretDownIcon } from '@phosphor-icons/react/CaretDown'
 import { CircleNotchIcon } from '@phosphor-icons/react/CircleNotch'
@@ -713,26 +713,20 @@ export function Dropdown({
   modal?: boolean
 }) {
   return (
-    <DropdownMenu.Root open={open} onOpenChange={onOpenChange} modal={modal}>
+    <Menu.Root open={open} onOpenChange={onOpenChange} modal={modal}>
       {children}
-    </DropdownMenu.Root>
+    </Menu.Root>
   )
 }
 
 export function DropdownTrigger({
-  children,
+  render,
   className,
-  asChild = true,
 }: {
-  children: React.ReactNode
+  render: React.ReactElement
   className?: string
-  asChild?: boolean
 }) {
-  return (
-    <DropdownMenu.Trigger asChild={asChild} className={className}>
-      {children}
-    </DropdownMenu.Trigger>
-  )
+  return <Menu.Trigger className={className} render={render} />
 }
 
 export function DropdownContent({
@@ -762,29 +756,33 @@ export function DropdownContent({
 }) {
   const scrollable = maxHeight !== undefined
   return (
-    <DropdownMenu.Portal container={container ?? undefined}>
-      <DropdownMenu.Content
+    <Menu.Portal container={container ?? undefined}>
+      <Menu.Positioner
         align={align}
         side={side}
         sideOffset={sideOffset}
         collisionPadding={collisionPadding}
-        style={scrollable ? { maxHeight } : undefined}
         {...(ariaLabelledBy
           ? { 'aria-labelledby': ariaLabelledBy }
           : undefined)}
-        className={twMerge(
-          // Width wraps the content, but never narrower than the trigger it
-          // opened from (Radix's --radix-dropdown-menu-trigger-width), with a
-          // 12rem floor. So a compact trigger gets a content-hugging menu, and a
-          // wide/full-width trigger gets a menu that fills the same span.
-          'z-[1200] min-w-[max(12rem,var(--radix-dropdown-menu-trigger-width,12rem))] rounded-lg border border-border-default bg-background-elevated p-1.5 shadow-lg',
-          scrollable && 'overflow-y-auto overscroll-contain ds-scroll-subtle',
-          className,
-        )}
+        className="z-[1200]"
       >
-        {children}
-      </DropdownMenu.Content>
-    </DropdownMenu.Portal>
+        <Menu.Popup
+          style={scrollable ? { maxHeight } : undefined}
+          className={twMerge(
+            // Width wraps the content, but never narrower than the trigger it
+            // opened from (Base UI's --anchor-width), with a 12rem floor. So a
+            // compact trigger gets a content-hugging menu, and a wide/full-width
+            // trigger gets a menu that fills the same span.
+            'min-w-[max(12rem,var(--anchor-width,12rem))] rounded-lg border border-border-default bg-background-elevated p-1.5 shadow-lg',
+            scrollable && 'overflow-y-auto overscroll-contain ds-scroll-subtle',
+            className,
+          )}
+        >
+          {children}
+        </Menu.Popup>
+      </Menu.Positioner>
+    </Menu.Portal>
   )
 }
 
@@ -792,30 +790,34 @@ export function DropdownItem({
   children,
   className,
   onSelect,
-  asChild,
+  render,
 }: {
-  children: React.ReactNode
+  children?: React.ReactNode
   className?: string
   onSelect?: () => void
-  asChild?: boolean
+  render?: React.ReactElement
 }) {
+  const itemClassName = twMerge(
+    'flex cursor-pointer select-none items-center gap-2 rounded-md px-2 py-1.5 text-sm text-text-secondary outline-none transition-colors hover:bg-background-subtle hover:text-text-primary data-highlighted:bg-background-subtle data-highlighted:text-text-primary',
+    className,
+  )
+
+  if (render) {
+    return (
+      <Menu.Item onClick={onSelect} className={itemClassName} render={render} />
+    )
+  }
+
   return (
-    <DropdownMenu.Item
-      asChild={asChild}
-      onSelect={onSelect}
-      className={twMerge(
-        'flex cursor-pointer select-none items-center gap-2 rounded-md px-2 py-1.5 text-sm text-text-secondary outline-none transition-colors hover:bg-background-subtle hover:text-text-primary focus:bg-background-subtle focus:text-text-primary',
-        className,
-      )}
-    >
+    <Menu.Item onClick={onSelect} className={itemClassName}>
       {children}
-    </DropdownMenu.Item>
+    </Menu.Item>
   )
 }
 
 export function DropdownSeparator({ className }: { className?: string }) {
   return (
-    <DropdownMenu.Separator
+    <Menu.Separator
       // On the elevated menu surface, dark `border-subtle` (#232323) is darker
       // than the surface and recedes; use the site's subtle dark-surface line
       // (a faint white hairline, as in the mega/mobile menus) for dark mode.
@@ -862,32 +864,37 @@ export function Breadcrumbs({
       )}
       {showTocToggle ? (
         <Dropdown>
-          <DropdownTrigger>
-            <button
-              className={twMerge(
-                hiddenClass,
-                'inline-flex cursor-pointer items-center gap-1 whitespace-nowrap text-text-muted transition-colors hover:text-text-primary',
-              )}
-            >
-              <span>On this page</span>
-              <CaretDownIcon className="h-3.5 w-3.5" />
-            </button>
-          </DropdownTrigger>
+          <DropdownTrigger
+            render={
+              <button
+                className={twMerge(
+                  hiddenClass,
+                  'inline-flex cursor-pointer items-center gap-1 whitespace-nowrap text-text-muted transition-colors hover:text-text-primary',
+                )}
+              >
+                <span>On this page</span>
+                <CaretDownIcon className="h-3.5 w-3.5" />
+              </button>
+            }
+          />
           <DropdownContent align="end" sideOffset={8} className={hiddenClass}>
             {headings.map((heading) => (
-              <DropdownItem key={`breadcrumb-toc-${heading.id}`} asChild>
-                <Link
-                  to="."
-                  hash={heading.id}
-                  style={{
-                    paddingLeft: `${(heading.level - 2) * 0.5 + 0.5}rem`,
-                  }}
-                  resetScroll={false}
-                  hashScrollIntoView={{ behavior: 'smooth' }}
-                >
-                  <span dangerouslySetInnerHTML={{ __html: heading.text }} />
-                </Link>
-              </DropdownItem>
+              <DropdownItem
+                key={`breadcrumb-toc-${heading.id}`}
+                render={
+                  <Link
+                    to="."
+                    hash={heading.id}
+                    style={{
+                      paddingLeft: `${(heading.level - 2) * 0.5 + 0.5}rem`,
+                    }}
+                    resetScroll={false}
+                    hashScrollIntoView={{ behavior: 'smooth' }}
+                  >
+                    <span dangerouslySetInnerHTML={{ __html: heading.text }} />
+                  </Link>
+                }
+              />
             ))}
           </DropdownContent>
         </Dropdown>

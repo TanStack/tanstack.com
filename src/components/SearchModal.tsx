@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { createPortal } from 'react-dom'
-import * as DialogPrimitive from '@radix-ui/react-dialog'
+import { Dialog } from '@base-ui/react/dialog'
 import { Command } from 'cmdk'
 import { twMerge } from 'tailwind-merge'
 import {
@@ -1308,27 +1308,29 @@ function KapaHistoryButton({
         }
       }}
     >
-      <DropdownTrigger>
-        <button
-          type="button"
-          disabled={isBusy}
-          aria-label="Chat history"
-          title="Chat history"
-          className={twMerge(
-            'pointer-events-auto flex items-center text-xs backdrop-blur-sm border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-white dark:hover:bg-black/90 disabled:opacity-40 disabled:hover:text-gray-400 dark:disabled:hover:text-gray-500 shadow-sm transition-colors',
-            compact
-              ? compactChatControlClass
-              : 'gap-1 px-1.5 sm:px-2 py-1 rounded-md bg-white/80 dark:bg-black/80',
-          )}
-        >
-          <ClockCounterClockwiseIcon className="w-3 h-3" />
-          {compact ? (
-            <ChatControlTooltip>Chat history</ChatControlTooltip>
-          ) : (
-            <span className="hidden sm:inline">History</span>
-          )}
-        </button>
-      </DropdownTrigger>
+      <DropdownTrigger
+        render={
+          <button
+            type="button"
+            disabled={isBusy}
+            aria-label="Chat history"
+            title="Chat history"
+            className={twMerge(
+              'pointer-events-auto flex items-center text-xs backdrop-blur-sm border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-white dark:hover:bg-black/90 disabled:opacity-40 disabled:hover:text-gray-400 dark:disabled:hover:text-gray-500 shadow-sm transition-colors',
+              compact
+                ? compactChatControlClass
+                : 'gap-1 px-1.5 sm:px-2 py-1 rounded-md bg-white/80 dark:bg-black/80',
+            )}
+          >
+            <ClockCounterClockwiseIcon className="w-3 h-3" />
+            {compact ? (
+              <ChatControlTooltip>Chat history</ChatControlTooltip>
+            ) : (
+              <span className="hidden sm:inline">History</span>
+            )}
+          </button>
+        }
+      />
       <DropdownContent
         align="end"
         sideOffset={8}
@@ -3159,27 +3161,29 @@ function LibraryRefinement({ compact = false }: SearchScopePickerProps) {
 
   return (
     <Dropdown modal={false}>
-      <DropdownTrigger>
-        <button
-          type="button"
-          className={twMerge(
-            'flex min-w-0 items-center gap-1 p-0.5 cursor-pointer font-bold rounded focus:ring-2 text-gray-900 dark:text-gray-100',
-            compact ? 'max-w-[10rem] text-xs' : 'text-sm',
-          )}
-        >
-          {currentLibrary ? (
-            <span className="min-w-0 truncate uppercase font-black">
-              <span className="opacity-50">TanStack</span>{' '}
-              <span className={currentLibrary.textStyle}>
-                {currentLibrary.id.toUpperCase()}
+      <DropdownTrigger
+        render={
+          <button
+            type="button"
+            className={twMerge(
+              'flex min-w-0 items-center gap-1 p-0.5 cursor-pointer font-bold rounded focus:ring-2 text-gray-900 dark:text-gray-100',
+              compact ? 'max-w-[10rem] text-xs' : 'text-sm',
+            )}
+          >
+            {currentLibrary ? (
+              <span className="min-w-0 truncate uppercase font-black">
+                <span className="opacity-50">TanStack</span>{' '}
+                <span className={currentLibrary.textStyle}>
+                  {currentLibrary.id.toUpperCase()}
+                </span>
               </span>
-            </span>
-          ) : (
-            <span className="truncate">All Libraries</span>
-          )}
-          <CaretDownIcon className="w-3 h-3 opacity-50 shrink-0" />
-        </button>
-      </DropdownTrigger>
+            ) : (
+              <span className="truncate">All Libraries</span>
+            )}
+            <CaretDownIcon className="w-3 h-3 opacity-50 shrink-0" />
+          </button>
+        }
+      />
       <DropdownContent align="end" className="max-h-[60vh] w-64 overflow-auto">
         <DropdownItem
           onSelect={() => setSelectedLibrary('')}
@@ -3231,33 +3235,35 @@ function FrameworkRefinement({ compact = false }: SearchScopePickerProps) {
 
   return (
     <Dropdown modal={false}>
-      <DropdownTrigger>
-        <button
-          type="button"
-          className={twMerge(
-            'flex min-w-0 items-center gap-1 p-0.5 font-bold rounded cursor-pointer focus:ring-2 text-gray-900 dark:text-gray-100',
-            compact ? 'max-w-[9rem] text-xs' : 'text-sm',
-          )}
-        >
-          {currentFramework && (
-            <img
-              src={currentFramework.logo}
-              alt=""
-              aria-hidden="true"
-              className={twMerge(
-                'shrink-0',
-                compact ? 'w-3.5 h-3.5' : 'w-4 h-4',
-              )}
-            />
-          )}
-          <span className="truncate">
-            {currentFramework
-              ? capitalize(currentFramework.label)
-              : 'All Frameworks'}
-          </span>
-          <CaretDownIcon className="w-3 h-3 opacity-50 shrink-0" />
-        </button>
-      </DropdownTrigger>
+      <DropdownTrigger
+        render={
+          <button
+            type="button"
+            className={twMerge(
+              'flex min-w-0 items-center gap-1 p-0.5 font-bold rounded cursor-pointer focus:ring-2 text-gray-900 dark:text-gray-100',
+              compact ? 'max-w-[9rem] text-xs' : 'text-sm',
+            )}
+          >
+            {currentFramework && (
+              <img
+                src={currentFramework.logo}
+                alt=""
+                aria-hidden="true"
+                className={twMerge(
+                  'shrink-0',
+                  compact ? 'w-3.5 h-3.5' : 'w-4 h-4',
+                )}
+              />
+            )}
+            <span className="truncate">
+              {currentFramework
+                ? capitalize(currentFramework.label)
+                : 'All Frameworks'}
+            </span>
+            <CaretDownIcon className="w-3 h-3 opacity-50 shrink-0" />
+          </button>
+        }
+      />
       <DropdownContent align="end" className="max-h-[60vh] w-52 overflow-auto">
         <DropdownItem onSelect={() => handleSelect('')} className="font-bold">
           All Frameworks
@@ -3363,13 +3369,9 @@ function isSearchModalPortalTarget(target: EventTarget | null) {
   return target instanceof Element && !!target.closest('.dropdown-content')
 }
 
-const searchModalTransitionMs = 140
-
 export function SearchModal() {
   const { isOpen, closeSearch } = useSearchContext()
   const contentRef = React.useRef<HTMLDivElement>(null)
-  const bodyPointerEventsRef = React.useRef('')
-  const [shouldRenderSearch, setShouldRenderSearch] = React.useState(isOpen)
   const [isFullHeight, setIsFullHeight] = React.useState(() => {
     if (typeof window === 'undefined') return false
     return localStorage.getItem('search-full-height') === 'true'
@@ -3382,22 +3384,6 @@ export function SearchModal() {
       return next
     })
   }, [])
-
-  React.useEffect(() => {
-    if (isOpen) {
-      setShouldRenderSearch(true)
-      return
-    }
-
-    const timeout = window.setTimeout(() => {
-      setShouldRenderSearch(false)
-      requestAnimationFrame(() => {
-        document.body.style.pointerEvents = bodyPointerEventsRef.current
-      })
-    }, searchModalTransitionMs)
-
-    return () => window.clearTimeout(timeout)
-  }, [isOpen])
 
   React.useEffect(() => {
     if (!isOpen) {
@@ -3413,94 +3399,53 @@ export function SearchModal() {
     return () => cancelAnimationFrame(frame)
   }, [isOpen])
 
-  React.useEffect(() => {
-    if (typeof document === 'undefined') {
-      return
-    }
-
-    if (isOpen) {
-      document.body.style.pointerEvents = 'none'
-      return
-    }
-
-    const frame = requestAnimationFrame(() => {
-      document.body.style.pointerEvents = bodyPointerEventsRef.current
-    })
-
-    return () => cancelAnimationFrame(frame)
-  }, [isOpen])
-
-  React.useEffect(() => {
-    if (typeof document === 'undefined') {
-      return
-    }
-
-    bodyPointerEventsRef.current =
-      document.body.style.pointerEvents === 'none'
-        ? ''
-        : document.body.style.pointerEvents
-
-    return () => {
-      document.body.style.pointerEvents = bodyPointerEventsRef.current
-    }
-  }, [])
-
-  const shouldMountSearch = isOpen || shouldRenderSearch
-
   return (
-    <DialogPrimitive.Root
+    <Dialog.Root
       open={isOpen}
-      onOpenChange={(open) => {
-        if (!open) {
-          closeSearch()
+      onOpenChange={(open, eventDetails) => {
+        if (open) return
+
+        if (
+          eventDetails.reason === 'outside-press' &&
+          isSearchModalPortalTarget(eventDetails.event.target)
+        ) {
+          eventDetails.cancel()
+          return
         }
+
+        closeSearch()
       }}
     >
-      <DialogPrimitive.Portal forceMount>
-        {shouldMountSearch ? (
-          <>
-            <DialogPrimitive.Overlay
-              forceMount
-              className="search-modal-overlay fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm xl:bg-black/30"
-            />
-            <DialogPrimitive.Content
-              forceMount
-              ref={contentRef}
-              className={twMerge(
-                'search-modal-content fixed z-[1000] inset-0 sm:inset-auto sm:top-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-[96%] xl:w-full sm:max-w-4xl text-left outline-none',
-                isFullHeight && 'sm:bottom-4',
-              )}
-              onInteractOutside={(event) => {
-                if (isSearchModalPortalTarget(event.target)) {
-                  event.preventDefault()
-                }
-              }}
+      <Dialog.Portal>
+        <Dialog.Backdrop className="search-modal-overlay fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm xl:bg-black/30" />
+        <Dialog.Popup
+          ref={contentRef}
+          className={twMerge(
+            'search-modal-content fixed z-[1000] inset-0 sm:inset-auto sm:top-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-[96%] xl:w-full sm:max-w-4xl text-left outline-none',
+            isFullHeight && 'sm:bottom-4',
+          )}
+        >
+          <Dialog.Title className="sr-only">Search TanStack</Dialog.Title>
+          <Dialog.Description className="sr-only">
+            Search TanStack and open TanStack AI from the current query.
+          </Dialog.Description>
+          <div className="search-modal-panel-transition h-full">
+            <InstantSearch
+              searchClient={searchClient}
+              indexName={searchIndexName}
             >
-              <DialogPrimitive.Title className="sr-only">
-                Search TanStack
-              </DialogPrimitive.Title>
-              <DialogPrimitive.Description className="sr-only">
-                Search TanStack and open TanStack AI from the current query.
-              </DialogPrimitive.Description>
-              <div className="search-modal-panel-transition h-full">
-                <InstantSearch
-                  searchClient={searchClient}
-                  indexName={searchIndexName}
-                >
-                  <SearchFiltersProvider resetFiltersOnOpen={isOpen}>
-                    <DynamicFilters />
-                    <CommandSearchPanel
-                      isFullHeight={isFullHeight}
-                      onToggleFullHeight={toggleFullHeight}
-                    />
-                  </SearchFiltersProvider>
-                </InstantSearch>
-              </div>
-            </DialogPrimitive.Content>
-          </>
-        ) : null}
-      </DialogPrimitive.Portal>
-    </DialogPrimitive.Root>
+              <SearchFiltersProvider resetFiltersOnOpen={isOpen}>
+                <DynamicFilters />
+                <CommandSearchPanel
+                  isFullHeight={isFullHeight}
+                  onToggleFullHeight={toggleFullHeight}
+                />
+              </SearchFiltersProvider>
+            </InstantSearch>
+          </div>
+        </Dialog.Popup>
+      </Dialog.Portal>
+    </Dialog.Root>
   )
 }
 

@@ -79,13 +79,15 @@ function SizeSelector({
   const current = TAB_SIZES.find((s) => s.value === value) ?? TAB_SIZES[1]
   return (
     <Dropdown>
-      <DropdownTrigger>
-        <button type="button" className={selectorTriggerClass}>
-          <span>{current.label}</span>
-          <span className="tabular-nums text-text-muted">{current.px}px</span>
-          <CaretDownIcon size={13} className="text-text-muted" />
-        </button>
-      </DropdownTrigger>
+      <DropdownTrigger
+        render={
+          <button type="button" className={selectorTriggerClass}>
+            <span>{current.label}</span>
+            <span className="tabular-nums text-text-muted">{current.px}px</span>
+            <CaretDownIcon size={13} className="text-text-muted" />
+          </button>
+        }
+      />
       <DropdownContent align="start" className="min-w-40">
         {TAB_SIZES.map((s) => (
           <DropdownItem key={s.value} onSelect={() => onChange(s.value)}>

@@ -568,20 +568,22 @@ export function SandboxBrowser({
         ) : null}
 
         <Dropdown>
-          <DropdownTrigger>
-            <Button
-              ref={previewActionsButtonRef}
-              type="button"
-              variant="icon"
-              color="gray"
-              size="icon-sm"
-              rounded="md"
-              className="shrink-0 bg-transparent text-text-muted transition-none hover:bg-surface-state-hover hover:text-text-primary active:scale-100 max-[899px]:bg-transparent max-[899px]:text-text-muted max-[899px]:hover:bg-surface-state-hover max-[899px]:hover:text-text-primary"
-              aria-label="Preview actions"
-            >
-              <DotsThreeIcon className="size-3.5" aria-hidden="true" />
-            </Button>
-          </DropdownTrigger>
+          <DropdownTrigger
+            render={
+              <Button
+                ref={previewActionsButtonRef}
+                type="button"
+                variant="icon"
+                color="gray"
+                size="icon-sm"
+                rounded="md"
+                className="shrink-0 bg-transparent text-text-muted transition-none hover:bg-surface-state-hover hover:text-text-primary active:scale-100 max-[899px]:bg-transparent max-[899px]:text-text-muted max-[899px]:hover:bg-surface-state-hover max-[899px]:hover:text-text-primary"
+                aria-label="Preview actions"
+              >
+                <DotsThreeIcon className="size-3.5" aria-hidden="true" />
+              </Button>
+            }
+          />
           <DropdownContent
             align="end"
             container={isFullscreen ? rootRef.current : undefined}
@@ -598,16 +600,18 @@ export function SandboxBrowser({
               {copiedUrl ? 'Copied address' : 'Copy address'}
             </DropdownItem>
             {openExternalUrl ? (
-              <DropdownItem asChild>
-                <a
-                  href={openExternalUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <ArrowSquareOutIcon className="size-4" aria-hidden="true" />
-                  Open in new tab
-                </a>
-              </DropdownItem>
+              <DropdownItem
+                render={
+                  <a
+                    href={openExternalUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <ArrowSquareOutIcon className="size-4" aria-hidden="true" />
+                    Open in new tab
+                  </a>
+                }
+              />
             ) : null}
             {captureScreenshot ? (
               <DropdownItem onSelect={() => void takeScreenshot()}>

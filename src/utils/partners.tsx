@@ -1169,7 +1169,7 @@ const vercel = ((): Partner => {
     tier: 'gold' as const,
     uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,
     brandColor: '#000000',
-    tagline: 'Frontend Cloud',
+    tagline: 'Agentic Infrastructure',
     applicationStarterIcon: {
       mode: 'contain',
       src: vercelLightSvg,
@@ -1179,16 +1179,16 @@ const vercel = ((): Partner => {
       dark: vercelDarkSvg,
     },
     llmDescription:
-      'Frontend cloud platform for deploying and scaling web applications with Git-based workflows, preview environments, global delivery, v0 AI app generation, and Vercel Functions.',
+      'Agentic infrastructure for building, deploying, and running apps and agents, with Git-based workflows, preview deployments, global delivery, serverless compute, and AI tooling.',
     category: 'deployment',
     content: (
       <>
         <div className="text-xs">
-          Vercel provides <strong>Git-based deployments</strong>, preview
-          environments, global delivery, v0 for AI-generated apps, and
-          server-side compute through Vercel Functions. That makes it a familiar
-          deployment option for TanStack Start and Router teams building
-          full-stack apps.
+          Vercel provides <strong>agentic infrastructure</strong> for building,
+          deploying, and running apps and agents, with Git-based workflows,
+          preview deployments, global delivery, serverless compute, and AI
+          tooling. It is a familiar deployment option for TanStack Start and
+          Router teams shipping full-stack applications.
         </div>
         <LearnMoreButton />
       </>

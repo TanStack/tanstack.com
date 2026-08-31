@@ -519,7 +519,7 @@ export function StarterPartnerRows({
       case 6:
         return 'grid-cols-2 min-[480px]:grid-cols-3 min-[900px]:grid-cols-6'
       case 7:
-        return 'grid-cols-4 min-[900px]:grid-cols-7'
+        return 'grid-cols-2 min-[480px]:grid-cols-4 min-[900px]:grid-cols-12'
       default:
         return 'grid-cols-2 min-[480px]:grid-cols-3'
     }
@@ -541,7 +541,7 @@ export function StarterPartnerRows({
               ),
           )}
         >
-          {row.partners.map((partner) => {
+          {row.partners.map((partner, partnerIndex) => {
             const selected = selectedPartners.includes(partner.id)
             const muted = mutedPartnerIds.has(partner.id)
             const selectionIndex = selected ? selectedOrdinal++ : -1
@@ -566,6 +566,11 @@ export function StarterPartnerRows({
                   visuallySelected={visuallySelected}
                   className={twMerge(
                     size === 'large' && 'min-w-0 w-full justify-center',
+                    size === 'large' &&
+                      row.partners.length === 7 &&
+                      (partnerIndex < 4
+                        ? 'min-[900px]:col-span-3'
+                        : 'min-[900px]:col-span-4'),
                   )}
                 />
               </StarterHoverTooltip>

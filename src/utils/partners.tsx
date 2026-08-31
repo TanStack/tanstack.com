@@ -41,6 +41,8 @@ import powersyncBlackSvg from '~/images/powersync-black.svg'
 import powersyncWhiteSvg from '~/images/powersync-white.svg'
 import railwayBlackSvg from '~/images/railway-black.svg'
 import railwayWhiteSvg from '~/images/railway-white.svg'
+import renderBlackSvg from '~/images/render-black.svg'
+import renderWhiteSvg from '~/images/render-white.svg'
 import openrouterBlackSvg from '~/images/openrouter-black.svg'
 import openrouterWhiteSvg from '~/images/openrouter-white.svg'
 import {
@@ -1162,32 +1164,48 @@ const electric = ((): Partner => {
 })()
 
 const vercel = ((): Partner => {
-  const href = 'https://vercel.com?utm_source=tanstack'
+  const href =
+    'https://vercel.com?utm_source=tanstack&utm_medium=referral&utm_campaign=gold-launch'
 
   return {
     name: 'Vercel',
     id: 'vercel',
     href,
+    canonicalHref: 'https://vercel.com/',
+    resources: [
+      {
+        kind: 'documentation',
+        label: 'TanStack Start hosting guide',
+        href: '/start/latest/docs/framework/react/guide/hosting',
+      },
+    ],
     relatedProducts: ['start', 'router'] as const,
-    status: 'inactive' as const,
-    startDate: 'May 2024',
-    endDate: 'Oct 2024',
-    score: 0,
+    status: 'active' as const,
+    lastReviewedAt: currentPartnerReviewDate,
+    score: 0.543,
+    tier: 'gold' as const,
     uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,
+    brandColor: '#000000',
+    tagline: 'Frontend Cloud',
+    applicationStarterIcon: {
+      mode: 'contain',
+      src: vercelLightSvg,
+    },
     image: {
       light: vercelLightSvg,
       dark: vercelDarkSvg,
     },
     llmDescription:
-      'Cloud platform for deploying and scaling web applications with Git-based workflows, preview environments, global delivery, and Vercel Functions.',
+      'Frontend cloud platform for deploying and scaling web applications with Git-based workflows, preview environments, global delivery, v0 AI app generation, and Vercel Functions.',
     category: 'deployment',
     content: (
       <>
         <div className="text-xs">
           Vercel provides <strong>Git-based deployments</strong>, preview
-          environments, global delivery, and server-side compute through Vercel
-          Functions. That makes it a familiar deployment option for TanStack
-          Start and Router teams building full-stack apps.
+          environments, global delivery, v0 for AI-generated apps, and
+          server-side compute through Vercel Functions. That makes it a familiar
+          deployment option for TanStack Start and Router teams building
+          full-stack apps.
         </div>
         <LearnMoreButton />
       </>
@@ -1427,6 +1445,56 @@ const railway = ((): Partner => {
   }
 })()
 
+const render = ((): Partner => {
+  const href =
+    'https://render.com?utm_source=tanstack&utm_medium=referral&utm_campaign=gold-launch'
+
+  return {
+    name: 'Render',
+    id: 'render',
+    relatedProducts: ['start'],
+    status: 'active' as const,
+    lastReviewedAt: currentPartnerReviewDate,
+    score: 0.429,
+    tier: 'gold' as const,
+    uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,
+    href,
+    canonicalHref: 'https://render.com/',
+    resources: [
+      {
+        kind: 'documentation',
+        label: 'TanStack Start hosting guide',
+        href: '/start/latest/docs/framework/react/guide/hosting',
+      },
+    ],
+    brandColor: '#000000',
+    tagline: 'Intuitive Cloud Infrastructure',
+    applicationStarterIcon: {
+      mode: 'contain',
+      src: renderBlackSvg,
+    },
+    image: {
+      light: renderBlackSvg,
+      dark: renderWhiteSvg,
+    },
+    llmDescription:
+      'Cloud platform for deploying and scaling apps and agents with intuitive infrastructure, managed databases, autoscaling, pull request previews, and zero-ops deployment from GitHub.',
+    category: 'deployment',
+    content: (
+      <>
+        <div className="text-xs">
+          Render provides <strong>intuitive cloud infrastructure</strong> for
+          deploying apps, APIs, databases, and background services. With
+          autoscaling, PR previews, and managed infrastructure, it is a
+          practical fit for TanStack teams that want to ship without ops
+          overhead.
+        </div>
+        <LearnMoreButton />
+      </>
+    ),
+  }
+})()
+
 const openRouter = ((): Partner => {
   const href = 'https://openrouter.ai?utm_source=tanstack'
 
@@ -1498,6 +1566,8 @@ export const partners = [
   codeRabbit,
   cloudflare,
   lovable,
+  vercel,
+  render,
   agGrid,
   serpApi,
   netlify,
@@ -1515,7 +1585,6 @@ export const partners = [
   unkey,
   fireship,
   nozzle,
-  vercel,
   speakeasy,
 ] satisfies Array<Partner>
 

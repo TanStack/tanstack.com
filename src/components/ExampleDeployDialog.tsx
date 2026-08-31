@@ -18,6 +18,13 @@ import {
 import { twMerge } from 'tailwind-merge'
 import { useAsyncDebouncer } from '@tanstack/react-pacer'
 import { Button, GitHub } from '~/ui'
+import {
+  Dialog,
+  DialogBody,
+  DialogContent,
+  DialogHeader,
+  DialogStatus,
+} from '~/components/ds/ui'
 import { useDeployAuth } from './application-starter/useDeployAuth'
 import {
   type DeployProvider,
@@ -222,259 +229,234 @@ export function ExampleDeployDialog({
     exampleName,
   ])
 
-  if (!isOpen) return null
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
-      <button
-        type="button"
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-        aria-label="Close dialog"
-      />
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent size="md">
+        <DialogHeader
+          title={`Deploy to ${providerInfo.name}`}
+          description={exampleName}
+          media={<RocketIcon className="w-5 h-5 text-white" />}
+          tint={providerInfo.color}
+        />
 
-      {/* Dialog */}
-      <div className="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-        {/* Header */}
-        <div
-          className="px-6 py-4 border-b border-gray-200 dark:border-gray-700"
-          style={{ backgroundColor: `${providerInfo.color}10` }}
-        >
-          <div className="flex items-center gap-3">
-            <div
-              className="w-10 h-10 rounded-lg flex items-center justify-center"
-              style={{ backgroundColor: providerInfo.color }}
-            >
-              <RocketIcon className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                Deploy to {providerInfo.name}
-              </h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                {exampleName}
-              </p>
-            </div>
-          </div>
-        </div>
+        <DialogBody className="py-6">
+          <div key={state.step} data-ds-dialog-step="">
+            {state.step === 'auth-check' && (
+              <DialogStatus
+                tone="loading"
+                description="Checking authentication..."
+              />
+            )}
 
-        {/* Content */}
-        <div className="p-6">
-          {state.step === 'auth-check' && (
-            <div className="flex flex-col items-center justify-center py-8">
-              <CircleNotchIcon className="w-8 h-8 animate-spin text-gray-400" />
-              <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-                Checking authentication...
-              </p>
-            </div>
-          )}
+            {state.step === 'needs-auth' && (
+              <DialogStatus
+                tone="neutral"
+                icon={<GitHub />}
+                title="GitHub Authorization Required"
+                description="To deploy this example, we need permission to create a repository on your GitHub account."
+                actions={
+                  <Button
+                    variant="primary"
+                    onClick={auth.redirectToGitHubAuth}
+                    className="gap-2"
+                  >
+                    <GitHub className="w-4 h-4" />
+                    Connect GitHub
+                  </Button>
+                }
+              />
+            )}
 
-          {state.step === 'needs-auth' && (
-            <div className="flex flex-col items-center text-center py-4">
-              <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
-                <GitHub className="w-8 h-8 text-gray-600 dark:text-gray-400" />
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                GitHub Authorization Required
-              </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-                To deploy this example, we need permission to create a
-                repository on your GitHub account.
-              </p>
-              <Button
-                variant="primary"
-                onClick={auth.redirectToGitHubAuth}
-                className="gap-2"
-              >
-                <GitHub className="w-4 h-4" />
-                Connect GitHub
-              </Button>
-            </div>
-          )}
+            {state.step === 'form' && (
+              <div className="space-y-4">
+                <div>
+                  <label
+                    htmlFor="repo-name"
+                    className="block text-sm font-medium text-text-secondary mb-1.5"
+                  >
+                    Repository Name
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="repo-name"
+                      type="text"
+                      value={repoName}
+                      onChange={(e) => setRepoName(e.target.value)}
+                      placeholder="my-tanstack-app"
+                      aria-invalid={
+                        repoNameStatus === 'taken' ||
+                        repoNameStatus === 'invalid'
+                      }
+                      aria-describedby={
+                        repoNameError ? 'repo-name-error' : undefined
+                      }
+                      className={twMerge(
+                        'w-full px-3 py-2 pr-9 text-sm bg-background-default border rounded-lg focus:outline-none focus:ring-2',
+                        repoNameStatus === 'taken' ||
+                          repoNameStatus === 'invalid'
+                          ? 'border-border-error focus:ring-status-error'
+                          : repoNameStatus === 'available'
+                            ? 'border-border-success focus:ring-status-success'
+                            : 'border-border-default focus:ring-border-focus',
+                      )}
+                    />
+                    <div className="absolute right-2.5 top-1/2 -translate-y-1/2">
+                      {repoNameStatus === 'checking' && (
+                        <CircleNotchIcon className="w-4 h-4 animate-spin text-icon-muted" />
+                      )}
+                      {repoNameStatus === 'available' && (
+                        <CheckIcon className="w-4 h-4 text-icon-success" />
+                      )}
+                      {(repoNameStatus === 'taken' ||
+                        repoNameStatus === 'invalid') && (
+                        <WarningCircleIcon className="w-4 h-4 text-icon-error" />
+                      )}
+                    </div>
+                  </div>
+                  {repoNameError && (
+                    <p
+                      id="repo-name-error"
+                      className="mt-1 text-xs text-text-error"
+                    >
+                      {repoNameError}
+                    </p>
+                  )}
+                </div>
 
-          {state.step === 'form' && (
-            <div className="space-y-4">
-              <div>
-                <label
-                  htmlFor="repo-name"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
-                >
-                  Repository Name
-                </label>
-                <div className="relative">
-                  <input
-                    id="repo-name"
-                    type="text"
-                    value={repoName}
-                    onChange={(e) => setRepoName(e.target.value)}
-                    placeholder="my-tanstack-app"
-                    className={twMerge(
-                      'w-full px-3 py-2 pr-9 text-sm bg-white dark:bg-gray-800 border rounded-lg focus:outline-none focus:ring-2',
-                      repoNameStatus === 'taken' || repoNameStatus === 'invalid'
-                        ? 'border-red-400 dark:border-red-500 focus:ring-red-500'
-                        : repoNameStatus === 'available'
-                          ? 'border-green-400 dark:border-green-500 focus:ring-green-500'
-                          : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500 dark:focus:ring-cyan-500',
-                    )}
-                  />
-                  <div className="absolute right-2.5 top-1/2 -translate-y-1/2">
-                    {repoNameStatus === 'checking' && (
-                      <CircleNotchIcon className="w-4 h-4 animate-spin text-gray-400" />
-                    )}
-                    {repoNameStatus === 'available' && (
-                      <CheckIcon className="w-4 h-4 text-green-500" />
-                    )}
-                    {(repoNameStatus === 'taken' ||
-                      repoNameStatus === 'invalid') && (
-                      <WarningCircleIcon className="w-4 h-4 text-red-500" />
-                    )}
+                <div>
+                  <span className="block text-sm font-medium text-text-secondary mb-1.5">
+                    Visibility
+                  </span>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setIsPrivate(false)}
+                      aria-pressed={!isPrivate}
+                      className={twMerge(
+                        'flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-medium transition-colors',
+                        !isPrivate
+                          ? 'bg-status-info-bg border-border-focus text-text-accent'
+                          : 'bg-background-default border-border-default text-text-secondary hover:bg-surface-state-hover',
+                      )}
+                    >
+                      <GlobeIcon className="w-4 h-4" />
+                      Public
+                    </button>
+                    <button
+                      onClick={() => setIsPrivate(true)}
+                      aria-pressed={isPrivate}
+                      className={twMerge(
+                        'flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-medium transition-colors',
+                        isPrivate
+                          ? 'bg-status-info-bg border-border-focus text-text-accent'
+                          : 'bg-background-default border-border-default text-text-secondary hover:bg-surface-state-hover',
+                      )}
+                    >
+                      <LockIcon className="w-4 h-4" />
+                      Private
+                    </button>
                   </div>
                 </div>
-                {repoNameError && (
-                  <p className="mt-1 text-xs text-red-500">{repoNameError}</p>
-                )}
-              </div>
 
-              <div>
-                <span className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                  Visibility
-                </span>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setIsPrivate(false)}
-                    className={twMerge(
-                      'flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-medium transition-colors',
-                      !isPrivate
-                        ? 'bg-blue-50 dark:bg-cyan-900/30 border-blue-500 dark:border-cyan-500 text-blue-700 dark:text-cyan-300'
-                        : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700',
-                    )}
+                <div className="text-xs text-text-muted bg-background-subtle rounded-lg p-3">
+                  <span className="font-medium">Source: </span>
+                  {libraryName} / {examplePath}
+                </div>
+
+                <div className="flex gap-3 pt-2">
+                  <Button
+                    variant="secondary"
+                    onClick={onClose}
+                    className="flex-1"
                   >
-                    <GlobeIcon className="w-4 h-4" />
-                    Public
-                  </button>
-                  <button
-                    onClick={() => setIsPrivate(true)}
-                    className={twMerge(
-                      'flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-medium transition-colors',
-                      isPrivate
-                        ? 'bg-blue-50 dark:bg-cyan-900/30 border-blue-500 dark:border-cyan-500 text-blue-700 dark:text-cyan-300'
-                        : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700',
-                    )}
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="primary"
+                    onClick={handleDeploy}
+                    disabled={
+                      !repoName.trim() ||
+                      repoNameStatus === 'taken' ||
+                      repoNameStatus === 'invalid' ||
+                      repoNameStatus === 'checking'
+                    }
+                    className="flex-1 gap-2"
                   >
-                    <LockIcon className="w-4 h-4" />
-                    Private
-                  </button>
+                    <GitHub className="w-4 h-4" />
+                    Create & Deploy
+                  </Button>
                 </div>
               </div>
+            )}
 
-              <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                <span className="font-medium">Source: </span>
-                {libraryName} / {examplePath}
-              </div>
+            {state.step === 'deploying' && (
+              <DialogStatus tone="loading" description={state.message} />
+            )}
 
-              <div className="flex gap-3 pt-2">
-                <Button
-                  variant="secondary"
-                  onClick={onClose}
-                  className="flex-1"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="primary"
-                  onClick={handleDeploy}
-                  disabled={
-                    !repoName.trim() ||
-                    repoNameStatus === 'taken' ||
-                    repoNameStatus === 'invalid' ||
-                    repoNameStatus === 'checking'
-                  }
-                  className="flex-1 gap-2"
-                >
-                  <GitHub className="w-4 h-4" />
-                  Create & Deploy
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {state.step === 'deploying' && (
-            <div className="flex flex-col items-center justify-center py-8">
-              <CircleNotchIcon className="w-8 h-8 animate-spin text-blue-500 dark:text-cyan-400" />
-              <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
-                {state.message}
-              </p>
-            </div>
-          )}
-
-          {state.step === 'success' && (
-            <div className="flex flex-col items-center text-center py-4">
-              <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4">
-                <CheckIcon className="w-8 h-8 text-green-600 dark:text-green-400" />
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                Repository Created!
-              </h3>
-              <a
-                href={state.repoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-blue-600 dark:text-cyan-400 hover:underline flex items-center gap-1 mb-4"
+            {state.step === 'success' && (
+              <DialogStatus
+                tone="success"
+                icon={<CheckIcon />}
+                title="Repository Created!"
+                actions={
+                  <Button
+                    variant="primary"
+                    onClick={() => {
+                      setCountdown(null)
+                      const deployUrl = providerInfo.deployUrl(
+                        state.owner,
+                        state.repoName,
+                      )
+                      window.open(deployUrl, '_blank')
+                    }}
+                    className="gap-2"
+                    style={{ backgroundColor: providerInfo.color }}
+                  >
+                    <RocketIcon className="w-4 h-4" />
+                    Deploy Now
+                  </Button>
+                }
               >
-                {state.owner}/{state.repoName}
-                <ArrowSquareOutIcon className="w-3 h-3" />
-              </a>
-              {countdown !== null && countdown > 0 && (
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                  Redirecting to {providerInfo.name} in {countdown}s...
-                </p>
-              )}
-              <Button
-                variant="primary"
-                onClick={() => {
-                  setCountdown(null)
-                  const deployUrl = providerInfo.deployUrl(
-                    state.owner,
-                    state.repoName,
-                  )
-                  window.open(deployUrl, '_blank')
-                }}
-                className="gap-2"
-                style={{ backgroundColor: providerInfo.color }}
-              >
-                <RocketIcon className="w-4 h-4" />
-                Deploy Now
-              </Button>
-            </div>
-          )}
-
-          {state.step === 'error' && (
-            <div className="flex flex-col items-center text-center py-4">
-              <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4">
-                <WarningCircleIcon className="w-8 h-8 text-red-600 dark:text-red-400" />
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                Deployment Failed
-              </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                {state.message}
-              </p>
-              <div className="flex gap-3">
-                <Button variant="secondary" onClick={onClose}>
-                  Cancel
-                </Button>
-                <Button
-                  variant="primary"
-                  onClick={() => setState({ step: 'form' })}
+                <a
+                  href={state.repoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-text-accent hover:underline flex items-center gap-1"
                 >
-                  Try Again
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+                  {state.owner}/{state.repoName}
+                  <ArrowSquareOutIcon className="w-3 h-3" />
+                </a>
+                {countdown !== null && countdown > 0 && (
+                  <p className="mt-4 text-sm text-text-muted">
+                    Redirecting to {providerInfo.name} in {countdown}state...
+                  </p>
+                )}
+              </DialogStatus>
+            )}
+
+            {state.step === 'error' && (
+              <DialogStatus
+                tone="error"
+                icon={<WarningCircleIcon />}
+                title="Deployment Failed"
+                description={state.message}
+                actions={
+                  <>
+                    <Button variant="secondary" onClick={onClose}>
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="primary"
+                      onClick={() => setState({ step: 'form' })}
+                    >
+                      Try Again
+                    </Button>
+                  </>
+                }
+              />
+            )}
+          </div>
+        </DialogBody>
+      </DialogContent>
+    </Dialog>
   )
 }

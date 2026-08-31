@@ -905,6 +905,41 @@ export {
   segmentTrackClasses,
   type SegmentSize,
 } from './Tabs'
+export {
+  Dialog,
+  DialogBody,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogStatus,
+  DialogTrigger,
+  type DialogSize,
+  type DialogStatusTone,
+} from './Dialog'
+export {
+  Drawer,
+  DrawerBody,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+  type DrawerAnchor,
+  type DrawerSide,
+  type DrawerSize,
+} from './Drawer'
+export {
+  Takeover,
+  TakeoverClose,
+  TakeoverContent,
+  TakeoverDescription,
+  TakeoverTitle,
+  TakeoverTrigger,
+  type TakeoverScrim,
+} from './Takeover'
 export { PalmSpinner } from './PalmSpinner'
 export { PixelSpinner } from './PixelSpinner'
 export {

@@ -154,6 +154,361 @@ html.theme-switching *::after {
   --motion-duration-sheet: 280ms;
   --motion-ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
   --motion-ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* Stacking tiers, shared by every modal posture (dialog, drawer, …).
+     Tailwind has no `--z-*` theme namespace, so these are applied as
+     `z-[var(--z-overlay)]`. Values match the 999/1000 pair already used by the
+     majority of overlays, so adopting them moves nothing. */
+  --z-scrim: 999;
+  --z-overlay: 1000;
+  /* Floats above an open overlay — a tooltip on a control inside a modal has
+     nowhere else to go. Kept well clear of --z-overlay so overlay-internal
+     chrome can still stack between them. */
+  --z-above-overlay: 1200;
+}
+
+/* ----------------------------------------------------------------- Dialog --
+   Enter/exit motion for the DS Dialog, driven off Radix's data-state rather
+   than utility classes. Written as real keyframes on purpose: the
+   `animate-in` / `fade-in-0` / `zoom-in-95` classes used elsewhere in this
+   codebase come from tailwindcss-animate, which is NOT installed — they match
+   no CSS rule and animate nothing. Timing reuses the existing motion tokens.
+
+   Radix's Presence waits for animationend before unmounting, so the closed
+   state genuinely plays instead of being cut off.
+
+   The panel keyframes animate `transform` only. Tailwind v4's
+   `-translate-x-1/2 -translate-y-1/2` compile to the independent `translate`
+   property, which composes with `transform` rather than being overwritten by
+   it — repeating the centring translate here would shift the panel a full
+   height instead of half and hang it off the top of the viewport.
+   -------------------------------------------------------------------------- */
+@keyframes dialog-scrim-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes dialog-scrim-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes dialog-panel-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes dialog-panel-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+[data-ds-dialog-scrim][data-state='open'] {
+  animation: dialog-scrim-in var(--motion-duration-fast)
+    var(--motion-ease-standard) both;
+}
+[data-ds-dialog-scrim][data-state='closed'] {
+  animation: dialog-scrim-out var(--motion-duration-fast)
+    var(--motion-ease-standard) both;
+}
+[data-ds-dialog-panel][data-state='open'] {
+  animation: dialog-panel-in var(--motion-duration-fast)
+    var(--motion-ease-standard) both;
+}
+[data-ds-dialog-panel][data-state='closed'] {
+  animation: dialog-panel-out var(--motion-duration-fast)
+    var(--motion-ease-standard) both;
+}
+
+/* The dialog is the first DS component with real motion, so it states the
+   reduced-motion contract the rest of the system should follow: the state
+   change still happens, it just stops moving. */
+/* ------------------------------------------------- Transient surfaces & --
+   ------------------------------------------------- one-shot entrances --
+   Same reason as the dialog keyframes: the `animate-in` / `fade-in-0` /
+   `zoom-in-95` / `slide-in-from-*` classes these replaced come from
+   tailwindcss-animate, which is not installed. They matched no CSS rule and
+   animated nothing. The `duration-*` utilities alongside them were inert too —
+   Tailwind's duration sets transition-duration, not animation-duration.
+
+   `transform` carries scale/offset only, never a centring translate: Tailwind
+   v4 compiles `-translate-x-1/2` to the independent `translate` property,
+   which composes with `transform` rather than being replaced by it. That also
+   leaves Radix's --radix-*-content-transform-origin free to govern where a
+   popover grows from.
+   -------------------------------------------------------------------------- */
+@keyframes ds-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes ds-pop-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+/* Radix-driven transient surfaces: tooltips, dropdown menus.
+   Tooltip does not use `open` — it reports `delayed-open` when it appears
+   after the hover delay and `instant-open` inside the skip-delay window, so
+   all three have to be matched or tooltips silently never animate. */
+[data-ds-pop][data-state='open'],
+[data-ds-pop][data-state='delayed-open'],
+[data-ds-pop][data-state='instant-open'] {
+  animation: ds-pop-in var(--motion-duration-fast) var(--motion-ease-standard)
+    both;
+}
+[data-ds-pop][data-state='closed'] {
+  animation: ds-pop-out var(--motion-duration-fast) var(--motion-ease-standard)
+    both;
+}
+
+/* One-shot entrances for content that mounts already open. */
+@keyframes ds-enter-rise {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ds-enter-fade {
+  animation: takeover-in var(--motion-duration-sheet)
+    var(--motion-ease-standard) both;
+}
+.ds-enter-rise {
+  animation: ds-enter-rise var(--motion-duration-sheet)
+    var(--motion-ease-standard) both;
+}
+.ds-enter-pop {
+  animation: ds-pop-in var(--motion-duration-sheet) var(--motion-ease-standard)
+    both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-ds-pop],
+  .ds-enter-fade,
+  .ds-enter-rise,
+  .ds-enter-pop {
+    animation: none !important;
+  }
+}
+
+/* --------------------------------------------------------------- Takeover --
+   The full-bleed posture. Two scrims, which is what the overlay audit asked
+   for: `standard` is the same --color-scrim every other overlay uses, and
+   `glass` is the immersive treatment that dissolves the page behind a heavy
+   blur instead of dimming it. Seven hand-picked scrims existed before this.
+
+   The panel fades rather than slides — nothing is arriving from an edge, the
+   whole surface is being replaced.
+   -------------------------------------------------------------------------- */
+[data-ds-takeover-scrim='standard'] {
+  background: var(--color-scrim);
+}
+
+[data-ds-takeover-scrim='glass'] {
+  background: rgb(255 255 255 / 0.95);
+  -webkit-backdrop-filter: blur(40px) saturate(1.5);
+  backdrop-filter: blur(40px) saturate(1.5);
+}
+
+html.dark [data-ds-takeover-scrim='glass'] {
+  background: rgb(0 0 0 / 0.95);
+}
+
+@keyframes takeover-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes takeover-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+[data-ds-takeover-scrim][data-state='open'],
+[data-ds-takeover-panel][data-state='open'] {
+  animation: takeover-in var(--motion-duration-fast) var(--motion-ease-standard)
+    both;
+}
+[data-ds-takeover-scrim][data-state='closed'],
+[data-ds-takeover-panel][data-state='closed'] {
+  animation: takeover-out var(--motion-duration-fast)
+    var(--motion-ease-standard) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-ds-takeover-scrim],
+  [data-ds-takeover-panel] {
+    animation: none !important;
+  }
+}
+
+/* ----------------------------------------------------------------- Drawer --
+   Edge-anchored panels. Slides only — the panel does not fade, because a
+   sheet reads as a physical surface arriving from off-screen and a
+   simultaneous fade makes it read as a dissolve instead. The scrim fades.
+
+   Timing uses --motion-duration-sheet / --motion-ease-sheet, which already
+   existed for exactly this and were previously used only by /shop.
+
+   `bottom` is centred with `left-4 right-4 mx-auto` rather than a translate,
+   which deliberately leaves `transform` free for the slide. Do not swap that
+   for `left-1/2 -translate-x-1/2`: Tailwind v4 compiles those to the
+   independent `translate` property, which composes with `transform`.
+   -------------------------------------------------------------------------- */
+@keyframes drawer-right-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes drawer-right-out {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+@keyframes drawer-left-in {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes drawer-left-out {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+@keyframes drawer-bottom-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes drawer-bottom-out {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+[data-ds-drawer-panel][data-side='right'][data-state='open'] {
+  animation: drawer-right-in var(--motion-duration-sheet)
+    var(--motion-ease-sheet) both;
+}
+[data-ds-drawer-panel][data-side='right'][data-state='closed'] {
+  animation: drawer-right-out var(--motion-duration-sheet)
+    var(--motion-ease-sheet) both;
+}
+[data-ds-drawer-panel][data-side='left'][data-state='open'] {
+  animation: drawer-left-in var(--motion-duration-sheet)
+    var(--motion-ease-sheet) both;
+}
+[data-ds-drawer-panel][data-side='left'][data-state='closed'] {
+  animation: drawer-left-out var(--motion-duration-sheet)
+    var(--motion-ease-sheet) both;
+}
+[data-ds-drawer-panel][data-side='bottom'][data-state='open'] {
+  animation: drawer-bottom-in var(--motion-duration-sheet)
+    var(--motion-ease-sheet) both;
+}
+[data-ds-drawer-panel][data-side='bottom'][data-state='closed'] {
+  animation: drawer-bottom-out var(--motion-duration-sheet)
+    var(--motion-ease-sheet) both;
+}
+
+/* Wizard step cross-fade. Steps swap instantly today, so an outcome can
+   replace a spinner with no visual connection between them. Short and
+   opacity-only: the panel must not resize or shift, or the footer buttons jump
+   under the cursor mid-click. */
+@keyframes dialog-step-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+[data-ds-dialog-step] {
+  animation: dialog-step-in var(--motion-duration-fast)
+    var(--motion-ease-standard) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-ds-dialog-step] {
+    animation: none !important;
+  }
+}
+
+[data-ds-drawer-scrim][data-state='open'] {
+  animation: dialog-scrim-in var(--motion-duration-sheet)
+    var(--motion-ease-sheet) both;
+}
+[data-ds-drawer-scrim][data-state='closed'] {
+  animation: dialog-scrim-out var(--motion-duration-sheet)
+    var(--motion-ease-sheet) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-ds-dialog-scrim],
+  [data-ds-dialog-panel],
+  [data-ds-drawer-scrim],
+  [data-ds-drawer-panel] {
+    animation: none !important;
+  }
 }
 
 /* ============================================================================
@@ -199,8 +554,15 @@ html.theme-switching *::after {
 
   --color-ds-neutral-0: #ffffff;
   --color-ds-neutral-100: #eeebd4;
+  /* Half-steps. Both are the exact midpoint of their neighbours, so they sit
+     on the ramp's hue rather than beside it. They exist because the text scale
+     needed a legible `secondary` in dark (200 was only 7.8:1 against #111111,
+     against 12.0:1 for its light counterpart) and a legible `muted` in light
+     (300 was 5.2:1). NOTE: not yet in Figma — add them there when syncing. */
+  --color-ds-neutral-150: #cec8b2;
   --color-ds-neutral-200: #aea691;
   --color-ds-neutral-300: #756c5b;
+  --color-ds-neutral-350: #5a5042;
   --color-ds-neutral-400: #3e3529;
   --color-ds-neutral-500: #111111;
 
@@ -299,7 +661,7 @@ html.theme-switching *::after {
      using neutral-500 for the light context. Confirm intended value. */
   --color-text-primary: var(--color-ds-neutral-500);
   --color-text-secondary: var(--color-ds-neutral-400);
-  --color-text-muted: var(--color-ds-neutral-300);
+  --color-text-muted: var(--color-ds-neutral-350);
   /* Mega-menu item title rest color; brightens to text-primary on hover.
      Light menu → muted dark; dark menu → neutral tint (see html.dark). */
   --color-text-menu-title: var(--color-ds-neutral-400);
@@ -316,6 +678,11 @@ html.theme-switching *::after {
   --color-background-elevated: #ffffff;
   --color-background-subtle: #fafafa;
   --color-background-inverse: var(--color-ds-neutral-500);
+
+  /* Scrim behind modal surfaces. Deliberately heavier in dark mode: an
+     identical alpha reads as weaker separation once the page beneath it is
+     already dark. Replaces seven hand-picked black/NN values. */
+  --color-scrim: rgb(0 0 0 / 0.5);
 
   --color-border-default: var(--color-ds-neutral-200);
   --color-border-strong: var(--color-ds-neutral-400);
@@ -538,8 +905,11 @@ html.light body {
    Primitives don't change between modes — only these semantic mappings do. */
 html.dark {
   --color-text-primary: #ffffff;
-  --color-text-secondary: #aea691;
-  --color-text-muted: #756c5b;
+  /* = ds-neutral-150 and ds-neutral-200. Kept as literals to match the rest of
+     this block; secondary and muted each moved one step lighter so both clear
+     AA against #111111 (11.3:1 and 7.8:1, from 7.8:1 and a failing 3.6:1). */
+  --color-text-secondary: #cec8b2;
+  --color-text-muted: #aea691;
   --color-text-menu-title: var(--color-ds-neutral-tint-200);
   --color-text-accent: #61adbf;
   --color-text-disabled: #3e3529;
@@ -554,6 +924,8 @@ html.dark {
   --color-background-elevated: #2b2b2b;
   --color-background-subtle: #1b1b1b;
   --color-background-inverse: #ffffff;
+
+  --color-scrim: rgb(0 0 0 / 0.65);
 
   --color-border-default: #2d2d2d;
   --color-border-strong: #aea691;
@@ -619,7 +991,7 @@ html.dark {
   color-scheme: light;
   --color-text-primary: var(--color-ds-neutral-500);
   --color-text-secondary: var(--color-ds-neutral-400);
-  --color-text-muted: var(--color-ds-neutral-300);
+  --color-text-muted: var(--color-ds-neutral-350);
   --color-text-inverse: #ffffff;
   --color-text-error: var(--color-ds-terracotta-500);
   --color-background-default: #ffffff;
@@ -627,6 +999,7 @@ html.dark {
   --color-background-elevated: #ffffff;
   --color-background-subtle: #fafafa;
   --color-background-inverse: var(--color-ds-neutral-500);
+  --color-scrim: rgb(0 0 0 / 0.5);
   --color-border-default: var(--color-ds-neutral-200);
   --color-border-subtle: var(--color-ds-neutral-100);
   --color-border-strong: var(--color-ds-neutral-400);
@@ -661,8 +1034,11 @@ html.dark {
 .ds-mode-dark {
   color-scheme: dark;
   --color-text-primary: #ffffff;
-  --color-text-secondary: #aea691;
-  --color-text-muted: #756c5b;
+  /* = ds-neutral-150 and ds-neutral-200. Kept as literals to match the rest of
+     this block; secondary and muted each moved one step lighter so both clear
+     AA against #111111 (11.3:1 and 7.8:1, from 7.8:1 and a failing 3.6:1). */
+  --color-text-secondary: #cec8b2;
+  --color-text-muted: #aea691;
   --color-text-inverse: #111111;
   --color-text-error: var(--color-ds-terracotta-200);
   --color-background-default: #111111;
@@ -670,6 +1046,7 @@ html.dark {
   --color-background-elevated: #2b2b2b;
   --color-background-subtle: #1b1b1b;
   --color-background-inverse: #ffffff;
+  --color-scrim: rgb(0 0 0 / 0.65);
   --color-border-default: #2d2d2d;
   --color-border-subtle: #232323;
   --color-border-strong: #aea691;

@@ -2,7 +2,6 @@ import * as React from 'react'
 import { Link, createFileRoute, notFound } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 import { ProductImage } from '~/components/shop/ProductImage'
-import { useCartDrawerStore } from '~/components/shop/cartDrawerStore'
 import { ShopNote } from '~/components/shop/ShopNote'
 import { ShopSpecs } from '~/components/shop/ShopSpecs'
 import {
@@ -19,6 +18,8 @@ import {
 import { useAddToCart } from '~/hooks/useCart'
 import { getProduct } from '~/utils/shop.functions'
 import {
+  findExactVariant,
+  findMatchingVariant,
   hasAvailableVariant,
   type ProductDetail,
   type ProductDetailVariant,
@@ -85,29 +86,36 @@ export function ProductPage({
   )
   const [quantity, setQuantity] = React.useState(1)
 
-  const selectedVariant = findMatchingVariant(variants, selected)
-  const variantImage = selectedVariant?.image ?? null
-  const initialImageIndex = React.useMemo(() => {
+  const selectedVariant = findExactVariant(variants, selected)
+  const variantForImage = findMatchingVariant(variants, selected)
+  const variantImage = variantForImage?.image ?? null
+  const matchingImageIndex = React.useMemo(() => {
     if (!variantImage) return 0
     const i = product.images.nodes.findIndex(
       (img) => img.url === variantImage.url,
     )
     return i
   }, [variantImage, product.images.nodes])
-  const [activeImageIndex, setActiveImageIndex] =
-    React.useState(initialImageIndex)
+  const [activeImageIndex, setActiveImageIndex] = React.useState(() =>
+    matchingImageIndex >= 0 ? matchingImageIndex : 0,
+  )
 
   React.useEffect(() => {
-    setActiveImageIndex(initialImageIndex)
-  }, [initialImageIndex, selectedVariant?.id])
+    if (matchingImageIndex >= 0) setActiveImageIndex(matchingImageIndex)
+  }, [matchingImageIndex, variantForImage?.id])
 
   const heroImage =
+    (matchingImageIndex < 0 ? variantImage : null) ??
     product.images.nodes[activeImageIndex] ??
     variantImage ??
     product.images.nodes[0] ??
     null
 
-  const displayPrice = selectedVariant?.price ?? variants[0]?.price ?? null
+  const displayPrice =
+    selectedVariant?.price ??
+    variantForImage?.price ??
+    variants[0]?.price ??
+    null
   const inStock = selectedVariant
     ? selectedVariant.availableForSale
     : variants.some((variant) => variant.availableForSale)
@@ -237,6 +245,7 @@ function ProductGallery({
     <div>
       <div className="aspect-square rounded-xl border border-shop-line bg-shop-panel overflow-hidden">
         <ProductImage
+          key={hero.url}
           image={hero}
           alt={title}
           width={1200}
@@ -320,9 +329,17 @@ function VariantSelector({
             <legend className="flex items-center justify-between w-full mb-2.5">
               <ShopLabel as="span">
                 {option.name}
-                <span className="ml-2 font-sans normal-case tracking-normal text-ds-mono-xs text-shop-text">
-                  {selected[option.name]}
-                </span>
+                {selected[option.name] ? (
+                  <span className="ml-2 font-sans normal-case tracking-normal text-ds-mono-xs text-shop-text">
+                    {selected[option.name]}
+                  </span>
+                ) : !isEnabled && optionIndex > 0 ? (
+                  <span className="ml-2 font-sans normal-case tracking-normal text-ds-mono-xs text-shop-muted">
+                    Pick a{' '}
+                    {selectableOptions[optionIndex - 1]?.name.toLowerCase()}{' '}
+                    first
+                  </span>
+                ) : null}
               </ShopLabel>
             </legend>
             {shouldUseSelect ? (
@@ -417,7 +434,6 @@ function QuantityAdd({
   product: ProductDetail
 }) {
   const addToCart = useAddToCart()
-  const openDrawer = useCartDrawerStore((s) => s.openDrawer)
   const [showAdded, setShowAdded] = React.useState(false)
 
   const disabled =
@@ -456,7 +472,6 @@ function QuantityAdd({
         onClick={() => {
           if (!variant) return
           setShowAdded(true)
-          openDrawer()
           addToCart.mutate({
             variantId: variant.id,
             quantity,
@@ -505,15 +520,6 @@ function ProductDescription({ html }: { html: string }) {
       // eslint-disable-next-line react/no-danger
       dangerouslySetInnerHTML={{ __html: html }}
     />
-  )
-}
-
-function findMatchingVariant(
-  variants: Array<ProductDetailVariant>,
-  selected: Record<string, string>,
-): ProductDetailVariant | undefined {
-  return variants.find((v) =>
-    v.selectedOptions.every((opt) => selected[opt.name] === opt.value),
   )
 }
 

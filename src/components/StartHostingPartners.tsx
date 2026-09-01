@@ -6,7 +6,6 @@ import {
   partners,
   partnerTierFlares,
   partnerTierLabels,
-  type Partner,
 } from '~/utils/partners'
 import {
   getPartnerPlacementAnalyticsMetadata,
@@ -15,6 +14,7 @@ import {
 } from '~/utils/partner-placement'
 import { usePartnerPlacementContext } from '~/utils/usePartnerPlacementContext'
 import { trackEvent, useTrackedImpression } from '~/utils/analytics'
+import { getStartHostingPartners } from '~/utils/start-hosting-partners'
 
 const startHostingGuideAnchors: Record<string, string | undefined> = {
   cloudflare: 'cloudflare-workers-official-partner',
@@ -50,15 +50,6 @@ export function StartHostingRenderLogo() {
 
 export function StartHostingVercelLogo() {
   return <StartHostingPartnerLogo partnerId="vercel" />
-}
-
-export function getStartHostingPartners(): Array<Partner> {
-  return partners.filter(
-    (partner) =>
-      partner.status === 'active' &&
-      partner.uniqueConstraints?.includes('hosting') &&
-      partner.relatedProducts?.includes('start'),
-  )
 }
 
 export function useStartHostingPartners() {

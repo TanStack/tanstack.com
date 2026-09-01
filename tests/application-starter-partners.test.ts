@@ -33,7 +33,7 @@ const {
 }: typeof import('../src/utils/railway-partner') = require('../src/utils/railway-partner')
 const {
   getStartHostingPartners,
-}: typeof import('../src/components/StartHostingPartners') = require('../src/components/StartHostingPartners')
+}: typeof import('../src/utils/start-hosting-partners') = require('../src/utils/start-hosting-partners')
 const {
   getPartnerPlacementContext,
   getPartnerTierGroupsForPlacement,

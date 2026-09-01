@@ -29,9 +29,12 @@ import {
 } from '~/components/application-starter/prompt-parts'
 import {
   buildStarterPromptDeployUrl,
+  getStarterPromptBuildLabel,
+  type StarterPromptDeployProvider,
+} from '~/components/application-starter/prompt-deploy'
+import {
   toneClasses,
   type ApplicationStarterIntegration,
-  type StarterPromptDeployProvider,
   type StarterTone,
 } from '~/components/application-starter/prompt-shared'
 import { useApplicationStarter } from '~/components/application-starter/useApplicationStarter'
@@ -79,7 +82,13 @@ const starterToolchains = ['biome', 'eslint'] as const
 const starterEyebrowClassName =
   'font-ds-mono text-ds-mono-xs uppercase tracking-wider text-text-muted'
 
-type HostingDeployPartnerId = 'cloudflare' | 'lovable' | 'netlify' | 'railway'
+type HostingDeployPartnerId =
+  | 'cloudflare'
+  | 'lovable'
+  | 'netlify'
+  | 'render'
+  | 'railway'
+  | 'vercel'
 type StarterTransientAction =
   | 'claude'
   | 'clone'
@@ -93,7 +102,9 @@ const hostingDeployPartnerLabels: Record<HostingDeployPartnerId, string> = {
   cloudflare: 'Cloudflare',
   lovable: 'Lovable',
   netlify: 'Netlify',
+  render: 'Render',
   railway: 'Railway',
+  vercel: 'Vercel',
 }
 
 function getHostingDeployPartnerId(
@@ -103,7 +114,9 @@ function getHostingDeployPartnerId(
     case 'cloudflare':
     case 'lovable':
     case 'netlify':
+    case 'render':
     case 'railway':
+    case 'vercel':
       return partnerId
     default:
       return undefined
@@ -117,7 +130,10 @@ function getPromptDeployProvider(
     case 'lovable':
     case 'netlify':
       return partnerId
+    case 'vercel':
+      return 'v0'
     case 'cloudflare':
+    case 'render':
     case 'railway':
       return undefined
   }
@@ -238,13 +254,26 @@ export function ApplicationStarter({
   const homeSelectedOptionCountRef = React.useRef(0)
   homeSelectedOptionCountRef.current =
     selectedLibraries.length + selectedPartners.length
+  const [placeholderIndex, setPlaceholderIndex] = React.useState(0)
+  const [placeholderShowing, setPlaceholderShowing] = React.useState(true)
+  const currentSuggestion =
+    suggestions.length > 0
+      ? suggestions[placeholderIndex % suggestions.length]
+      : undefined
+  const rotatingPlaceholder =
+    currentSuggestion?.input ??
+    'Build a SaaS app with auth, Postgres, nested routes, and Sentry. Use pnpm and deploy to Cloudflare.'
   const [isHomePayoffLoading, setIsHomePayoffLoading] = React.useState(false)
   const homePayoffLoadingRef = React.useRef(false)
   const pendingHomeSubmissionRef = React.useRef<string | undefined>(undefined)
   const submitWithHomePayoff = React.useCallback(
     (overrideInput?: string) => {
+      const submissionInput =
+        overrideInput ??
+        (isHomeStarter && !hasInput ? rotatingPlaceholder : undefined)
+
       if (!isHomeStarter || reducedMotion) {
-        void submitCurrentInput(overrideInput)
+        void submitCurrentInput(submissionInput)
         return
       }
 
@@ -253,10 +282,16 @@ export function ApplicationStarter({
       }
 
       homePayoffLoadingRef.current = true
-      pendingHomeSubmissionRef.current = overrideInput
+      pendingHomeSubmissionRef.current = submissionInput
       setIsHomePayoffLoading(true)
     },
-    [isHomeStarter, reducedMotion, submitCurrentInput],
+    [
+      hasInput,
+      isHomeStarter,
+      reducedMotion,
+      rotatingPlaceholder,
+      submitCurrentInput,
+    ],
   )
   const completeHomePayoff = React.useCallback(() => {
     if (!homePayoffLoadingRef.current) {
@@ -280,8 +315,6 @@ export function ApplicationStarter({
     setShowPackageManagerOptions(false)
     resetApplicationStarter()
   }, [resetApplicationStarter])
-  const [placeholderIndex, setPlaceholderIndex] = React.useState(0)
-  const [placeholderShowing, setPlaceholderShowing] = React.useState(true)
   React.useEffect(() => {
     if (suggestions.length <= 1 || hasInput || isPromptFocused) {
       return
@@ -304,13 +337,6 @@ export function ApplicationStarter({
       clearTimeout(swapTimer)
     }
   }, [suggestions.length, hasInput, isPromptFocused, reducedMotion])
-  const currentSuggestion =
-    suggestions.length > 0
-      ? suggestions[placeholderIndex % suggestions.length]
-      : undefined
-  const rotatingPlaceholder =
-    currentSuggestion?.input ??
-    'Build a SaaS app with auth, Postgres, nested routes, and Sentry. Use pnpm and deploy to Cloudflare.'
   const handlePromptShiftEnter = (
     event: React.KeyboardEvent<HTMLTextAreaElement>,
   ) => {
@@ -318,7 +344,7 @@ export function ApplicationStarter({
       return
     }
     event.preventDefault()
-    submitWithHomePayoff(hasInput ? undefined : currentSuggestion?.input)
+    submitWithHomePayoff()
   }
 
   const canRevealOptions =
@@ -405,7 +431,9 @@ export function ApplicationStarter({
 
     trackActivation({
       action:
-        selectedHostingDeployPartner === 'netlify' ? 'netlify_start' : 'deploy',
+        selectedHostingDeployPartner === 'netlify'
+          ? 'netlify_start'
+          : 'open_prompt_builder',
       surface: 'result_panel',
       provider: selectedHostingDeployPartner,
     })
@@ -426,8 +454,13 @@ export function ApplicationStarter({
           break
         case 'netlify':
           break
+        case 'render':
+          await openDeployDialog('render')
+          break
         case 'railway':
           await openDeployDialog('railway')
+          break
+        case 'vercel':
           break
       }
     } finally {
@@ -574,6 +607,9 @@ export function ApplicationStarter({
     }
 
     if (selectedPromptDeployProvider) {
+      const buildLabel = getStarterPromptBuildLabel(
+        selectedPromptDeployProvider,
+      )
       const disabled =
         !canUseFinalActions ||
         !selectedHostingDeployHref ||
@@ -601,7 +637,7 @@ export function ApplicationStarter({
             showTransientActionFeedback('deploy')
           }}
           className={disabled ? 'pointer-events-none opacity-50' : undefined}
-          aria-label={`Deploy to ${hostingDeployPartnerLabels[selectedHostingDeployPartner]}`}
+          aria-label={buildLabel}
         >
           {isDeployFeedbackActive || waitingForHref ? (
             <CircleNotchIcon className="h-4 w-4 animate-spin" />
@@ -612,7 +648,7 @@ export function ApplicationStarter({
             ? 'Opening...'
             : waitingForHref
               ? 'Preparing...'
-              : 'Deploy'}
+              : buildLabel}
         </Button>
       )
     }

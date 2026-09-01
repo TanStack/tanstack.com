@@ -8,6 +8,7 @@ import {
   getApplicationStarterSelectedPartnerIds,
   getApplicationStarterUserBrief,
   hasApplicationStarterPartnerConflictWithAny,
+  isRenderDeploymentRequest,
 } from '~/utils/partners'
 
 export type ApplicationStarterContext =
@@ -21,7 +22,13 @@ export type ApplicationStarterResultType =
   | 'scaffoldable'
 
 export interface ApplicationStarterRecipe {
-  deployment?: 'cloudflare' | 'netlify' | 'nitro' | 'railway'
+  deployment?:
+    | 'cloudflare'
+    | 'netlify'
+    | 'nitro'
+    | 'railway'
+    | 'render'
+    | 'vercel'
   featureOptions: Record<string, Record<string, unknown>>
   features: Array<string>
   framework: FrameworkId
@@ -759,6 +766,10 @@ function applyPartnerOverrides(
     recipe.deployment = 'netlify'
   } else if (partnerIds.has('railway')) {
     recipe.deployment = 'railway'
+  } else if (partnerIds.has('render')) {
+    recipe.deployment = 'render'
+  } else if (partnerIds.has('vercel')) {
+    recipe.deployment = 'vercel'
   }
 
   if (partnerIds.has('workos')) {
@@ -1068,6 +1079,12 @@ function detectDeployment(input: string) {
   }
   if (/\brailway\b/i.test(input)) {
     return 'railway' as const
+  }
+  if (isRenderDeploymentRequest(input)) {
+    return 'render'
+  }
+  if (/\b(vercel|v0)\b/i.test(input)) {
+    return 'vercel'
   }
   if (/\bnitro\b/i.test(input)) {
     return 'nitro' as const

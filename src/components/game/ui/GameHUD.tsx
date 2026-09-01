@@ -136,7 +136,7 @@ export function GameHUD() {
     <div className="absolute inset-0 z-10 pointer-events-none">
       {/* Coin hint */}
       {showCoinHint && (
-        <div className="absolute top-16 left-1/2 -translate-x-1/2 animate-in fade-in slide-in-from-top-2 duration-300">
+        <div className="absolute top-16 left-1/2 -translate-x-1/2 ds-enter-rise">
           <div className="bg-black/60 backdrop-blur-sm rounded-xl px-4 py-2 text-center text-white text-sm max-w-xs relative">
             <button
               onClick={() => {
@@ -237,7 +237,7 @@ export function GameHUD() {
 
       {/* Upgrade notification */}
       {showUpgradeNotification && upgradeInfo && (
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-in fade-in zoom-in duration-300">
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 ds-enter-pop">
           <div className="bg-linear-to-br from-yellow-500/90 to-amber-600/90 backdrop-blur-md rounded-2xl px-8 py-5 text-center shadow-2xl border border-yellow-300/30">
             <div className="text-4xl mb-2">{upgradeInfo.icon}</div>
             <div className="text-white font-bold text-xl mb-1">
@@ -252,7 +252,7 @@ export function GameHUD() {
 
       {/* Showcase unlock notification */}
       {showShowcaseUnlock && (
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-in fade-in zoom-in duration-300">
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 ds-enter-pop">
           <div className="bg-linear-to-br from-purple-500/90 to-violet-600/90 backdrop-blur-md rounded-2xl px-8 py-6 text-center shadow-2xl border border-purple-300/30 max-w-sm">
             <div className="text-5xl mb-3">🏝️</div>
             <div className="text-white font-bold text-xl mb-2">
@@ -274,7 +274,7 @@ export function GameHUD() {
 
       {/* Corners unlock notification */}
       {showCornersUnlock && (
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-in fade-in zoom-in duration-300">
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 ds-enter-pop">
           <div className="bg-linear-to-br from-gray-900/95 to-red-950/95 backdrop-blur-md rounded-2xl px-8 py-6 text-center shadow-2xl border border-red-500/30 max-w-sm">
             <div className="text-5xl mb-3">💀</div>
             <div className="text-red-400 font-bold text-xl mb-2">

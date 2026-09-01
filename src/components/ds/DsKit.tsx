@@ -277,11 +277,24 @@ export function Swatch({ token }: { token: string }) {
   const swatchRef = React.useRef<HTMLDivElement>(null)
 
   React.useEffect(() => {
-    if (!swatchRef.current) return
+    const el = swatchRef.current
+    if (!el) return
+
     // Read the *computed* background so var()-referencing semantic tokens
     // resolve to a real color, not the literal "var(--…)" declaration.
-    const resolved = getComputedStyle(swatchRef.current).backgroundColor
-    setHex(rgbToHex(resolved))
+    const read = () => setHex(rgbToHex(getComputedStyle(el).backgroundColor))
+    read()
+
+    // Re-read on theme change. The swatch itself recolours on its own because
+    // it renders `var(--color-…)`, but the hex label is state and would other-
+    // wise keep the value it was mounted with — showing #FFFFFF next to a
+    // black chip after a toggle.
+    const observer = new MutationObserver(read)
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    })
+    return () => observer.disconnect()
   }, [token])
 
   const handleCopy = React.useCallback(async () => {

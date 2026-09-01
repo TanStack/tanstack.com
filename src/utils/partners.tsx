@@ -41,6 +41,8 @@ import powersyncBlackSvg from '~/images/powersync-black.svg'
 import powersyncWhiteSvg from '~/images/powersync-white.svg'
 import railwayBlackSvg from '~/images/railway-black.svg'
 import railwayWhiteSvg from '~/images/railway-white.svg'
+import renderBlackSvg from '~/images/render-black.svg'
+import renderWhiteSvg from '~/images/render-white.svg'
 import openrouterBlackSvg from '~/images/openrouter-black.svg'
 import openrouterWhiteSvg from '~/images/openrouter-white.svg'
 import {
@@ -48,6 +50,7 @@ import {
   getPartnersForPlacement,
   type PartnerPlacementContext,
 } from '~/utils/partner-placement'
+import type { PartnerPlacement } from '~/utils/analytics'
 
 function LearnMoreButton() {
   return (
@@ -268,7 +271,6 @@ export type RailPartner = {
   id: string
   name: string
   href: string
-  score: number
   tier?: PartnerTier
   image: PartnerImageConfig
 }
@@ -313,7 +315,6 @@ type PartnerBase = {
   llmDescription: string
   category: PartnerCategory
   lastReviewedAt?: string
-  score: number
   uniqueConstraints?: ReadonlyArray<PartnerUniqueConstraint>
   brandColor?: string // Primary brand color for game elements
   tagline?: string // Short tagline for game info cards
@@ -432,7 +433,6 @@ const neon = ((): Partner => {
     status: 'inactive' as const,
     startDate: null,
     endDate: 'Apr 2026',
-    score: 0.297,
     href,
     brandColor: '#00E599',
     tagline: 'Serverless Postgres',
@@ -467,7 +467,6 @@ const convex = ((): Partner => {
     status: 'inactive' as const,
     startDate: 'May 2024',
     endDate: 'Mar 2026',
-    score: 0.286,
     href,
     brandColor: '#F3A712',
     tagline: 'Real-time Database',
@@ -515,7 +514,6 @@ const clerk = ((): Partner => {
     relatedProducts: ['start', 'router'],
     status: 'active' as const,
     lastReviewedAt: currentPartnerReviewDate,
-    score: 0.286,
     tier: 'silver' as const,
     uniqueConstraints: [
       'auth-provider',
@@ -572,7 +570,6 @@ const workos = ((): Partner => {
     relatedProducts: ['start', 'router'] as const,
     status: 'active' as const,
     lastReviewedAt: currentPartnerReviewDate,
-    score: 0.314,
     tier: 'silver' as const,
     uniqueConstraints: [
       'auth-provider',
@@ -614,7 +611,6 @@ const agGrid = ((): Partner => {
     relatedProducts: ['table'] as const,
     status: 'active' as const,
     lastReviewedAt: currentPartnerReviewDate,
-    score: 0.497,
     tier: 'silver' as const,
     href,
     canonicalHref: 'https://www.ag-grid.com/',
@@ -681,7 +677,6 @@ const netlify = ((): Partner => {
     relatedProducts: ['start', 'router'],
     status: 'active' as const,
     lastReviewedAt: currentPartnerReviewDate,
-    score: 0.343,
     tier: 'gold' as const,
     uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,
     href,
@@ -749,7 +744,6 @@ const cloudflare = ((): Partner => {
     relatedProducts: ['start'],
     status: 'active' as const,
     lastReviewedAt: currentPartnerReviewDate,
-    score: 0.857,
     tier: 'gold' as const,
     uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,
     startDate: 'Sep 2025',
@@ -798,7 +792,6 @@ const lovable = ((): Partner => {
     relatedProducts: ['start', 'router'] as const,
     status: 'active' as const,
     lastReviewedAt: currentPartnerReviewDate,
-    score: 0.714,
     tier: 'gold' as const,
     uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,
     brandColor: '#FF7EB0',
@@ -806,7 +799,7 @@ const lovable = ((): Partner => {
     applicationStarterPromptInstructions: [
       'Treat Lovable as the AI app-building and hosting path, not as a TanStack CLI deployment flag or npm package.',
       'Keep the generated app portable: start with the TanStack CLI output, preserve GitHub/project ownership notes, and call out any Lovable Cloud setup that cannot be automated from code.',
-      'When Lovable is selected, do not add a separate Cloudflare, Netlify, or Railway deployment target unless the user explicitly asks for a handoff path.',
+      'When Lovable is selected, do not add a separate Cloudflare, Netlify, Railway, Render, or Vercel deployment target unless the user explicitly asks for a handoff path.',
     ],
     image: {
       light: lovableBlackSvg,
@@ -840,7 +833,6 @@ const sentry = ((): Partner => {
     relatedProducts: ['start', 'router'],
     status: 'active' as const,
     lastReviewedAt: currentPartnerReviewDate,
-    score: 0.229,
     tier: 'bronze' as const,
     href,
     canonicalHref: 'https://sentry.io/',
@@ -884,7 +876,6 @@ const fireship = ((): Partner => {
     status: 'inactive' as const,
     startDate: null,
     endDate: null,
-    score: 0.014,
     href,
     tagline: 'Dev Education',
     image: {
@@ -942,7 +933,6 @@ const nozzle = ((): Partner => {
     status: 'inactive' as const,
     startDate: null,
     endDate: null,
-    score: 0.014,
     tagline: 'Enterprise SEO',
     image: {
       src: nozzleImage,
@@ -976,7 +966,6 @@ const speakeasy = ((): Partner => {
     status: 'inactive' as const,
     startDate: 'Feb 2025',
     endDate: 'Jul 2025',
-    score: 0,
     image: {
       light: speakeasyLightSvg,
       dark: speakeasyDarkSvg,
@@ -1009,7 +998,6 @@ const unkey = ((): Partner => {
     relatedProducts: ['start'] as const,
     status: 'active' as const,
     lastReviewedAt: currentPartnerReviewDate,
-    score: 0.051,
     tier: 'bronze' as const,
     href,
     canonicalHref: 'https://www.unkey.com/',
@@ -1063,7 +1051,6 @@ const serpApi = ((): Partner => {
     relatedProducts: ['start', 'ai', 'mcp'],
     status: 'active' as const,
     lastReviewedAt: currentPartnerReviewDate,
-    score: 0.41,
     tier: 'silver' as const,
     href,
     canonicalHref: 'https://serpapi.com/',
@@ -1121,7 +1108,6 @@ const electric = ((): Partner => {
     relatedProducts: ['db'] as const,
     status: 'active' as const,
     lastReviewedAt: currentPartnerReviewDate,
-    score: 0.283,
     tier: 'bronze' as const,
     href,
     canonicalHref: 'https://electric.ax/',
@@ -1162,32 +1148,47 @@ const electric = ((): Partner => {
 })()
 
 const vercel = ((): Partner => {
-  const href = 'https://vercel.com?utm_source=tanstack'
+  const href =
+    'https://vercel.com?utm_source=tanstack&utm_medium=referral&utm_campaign=gold-launch'
 
   return {
     name: 'Vercel',
     id: 'vercel',
     href,
-    relatedProducts: ['start', 'router'] as const,
-    status: 'inactive' as const,
-    startDate: 'May 2024',
-    endDate: 'Oct 2024',
-    score: 0,
-    uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,
+    canonicalHref: 'https://vercel.com/',
+    resources: [
+      {
+        kind: 'documentation',
+        label: 'TanStack Start hosting guide',
+        href: '/start/latest/docs/framework/react/guide/hosting',
+      },
+    ],
+    relatedProducts: ['start', 'router'],
+    status: 'active',
+    lastReviewedAt: currentPartnerReviewDate,
+    tier: 'gold',
+    uniqueConstraints: ['hosting'],
+    brandColor: '#000000',
+    tagline: 'Agentic Infrastructure',
+    applicationStarterIcon: {
+      mode: 'contain',
+      src: vercelLightSvg,
+    },
     image: {
       light: vercelLightSvg,
       dark: vercelDarkSvg,
     },
     llmDescription:
-      'Cloud platform for deploying and scaling web applications with Git-based workflows, preview environments, global delivery, and Vercel Functions.',
+      'Agentic infrastructure for building, deploying, and running apps and agents, with Git-based workflows, preview deployments, global delivery, serverless compute, and AI tooling.',
     category: 'deployment',
     content: (
       <>
         <div className="text-xs">
-          Vercel provides <strong>Git-based deployments</strong>, preview
-          environments, global delivery, and server-side compute through Vercel
-          Functions. That makes it a familiar deployment option for TanStack
-          Start and Router teams building full-stack apps.
+          Vercel provides <strong>agentic infrastructure</strong> for building,
+          deploying, and running apps and agents, with Git-based workflows,
+          preview deployments, global delivery, serverless compute, and AI
+          tooling. It is a familiar deployment option for TanStack Start and
+          Router teams shipping full-stack applications.
         </div>
         <LearnMoreButton />
       </>
@@ -1214,7 +1215,6 @@ const prisma = ((): Partner => {
     lastReviewedAt: currentPartnerReviewDate,
     relatedProducts: ['db', 'start'] as const,
     startDate: 'Aug 2025',
-    score: 0.143,
     tier: 'bronze' as const,
     brandColor: '#2D3748',
     tagline: 'Database ORM',
@@ -1259,7 +1259,6 @@ const codeRabbit = ((): Partner => {
     lastReviewedAt: currentPartnerReviewDate,
     relatedProducts: [],
     startDate: 'Aug 2025',
-    score: 1,
     tier: 'gold' as const,
     brandColor: '#FF6B2B',
     tagline: 'AI Code Review',
@@ -1299,7 +1298,6 @@ const strapi = ((): Partner => {
     status: 'inactive' as const,
     startDate: null,
     endDate: null,
-    score: 0.069,
     tier: 'bronze' as const,
     href,
     brandColor: '#4945FF',
@@ -1337,7 +1335,6 @@ const powerSync = ((): Partner => {
     status: 'inactive' as const,
     startDate: 'Jan 2026',
     endDate: 'Jun 2026',
-    score: 0.143,
     tier: 'bronze' as const,
     href,
     canonicalHref: 'https://www.powersync.com/',
@@ -1391,7 +1388,6 @@ const railway = ((): Partner => {
     relatedProducts: ['start'],
     status: 'active' as const,
     lastReviewedAt: currentPartnerReviewDate,
-    score: 0.145,
     tier: 'gold' as const,
     uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,
     href,
@@ -1427,6 +1423,55 @@ const railway = ((): Partner => {
   }
 })()
 
+const render = ((): Partner => {
+  const href =
+    'https://render.com?utm_source=tanstack&utm_medium=referral&utm_campaign=gold-launch'
+
+  return {
+    name: 'Render',
+    id: 'render',
+    relatedProducts: ['start'],
+    status: 'active',
+    lastReviewedAt: currentPartnerReviewDate,
+    tier: 'gold',
+    uniqueConstraints: ['hosting'],
+    href,
+    canonicalHref: 'https://render.com/',
+    resources: [
+      {
+        kind: 'documentation',
+        label: 'TanStack Start hosting guide',
+        href: '/start/latest/docs/framework/react/guide/hosting',
+      },
+    ],
+    brandColor: '#000000',
+    tagline: 'Intuitive Cloud Infrastructure',
+    applicationStarterIcon: {
+      mode: 'contain',
+      src: renderBlackSvg,
+    },
+    image: {
+      light: renderBlackSvg,
+      dark: renderWhiteSvg,
+    },
+    llmDescription:
+      'Cloud platform for deploying and scaling apps and agents with intuitive infrastructure, managed databases, autoscaling, pull request previews, and zero-ops deployment from GitHub.',
+    category: 'deployment',
+    content: (
+      <>
+        <div className="text-xs">
+          Render provides <strong>intuitive cloud infrastructure</strong> for
+          deploying apps, APIs, databases, and background services. With
+          autoscaling, PR previews, and managed infrastructure, it is a
+          practical fit for TanStack teams that want to ship without ops
+          overhead.
+        </div>
+        <LearnMoreButton />
+      </>
+    ),
+  }
+})()
+
 const openRouter = ((): Partner => {
   const href = 'https://openrouter.ai?utm_source=tanstack'
 
@@ -1451,7 +1496,6 @@ const openRouter = ((): Partner => {
     status: 'active' as const,
     lastReviewedAt: currentPartnerReviewDate,
     startDate: 'Mar 2026',
-    score: 0.344,
     tier: 'silver' as const,
     brandColor: '#7C3AED',
     tagline: 'Unified LLM API',
@@ -1498,6 +1542,8 @@ export const partners = [
   codeRabbit,
   cloudflare,
   lovable,
+  vercel,
+  render,
   agGrid,
   serpApi,
   netlify,
@@ -1515,7 +1561,6 @@ export const partners = [
   unkey,
   fireship,
   nozzle,
-  vercel,
   speakeasy,
 ] satisfies Array<Partner>
 
@@ -1690,6 +1735,18 @@ export function hasApplicationStarterPartnerUniqueConstraint(
   return partner?.uniqueConstraints.includes(uniqueConstraint) ?? false
 }
 
+const renderDeploymentPatterns = [
+  /\brender\.com\b/i,
+  /\brender\s+blueprints?\b/i,
+  /\b(?:deploy|deploying|deployment|host|hosting)\b[^.!?\n]{0,40}\b(?:to|on|with|via)\s+render\b(?=\s*(?:$|[,.!?;:]|\b(?:hosting|cloud|platform)\b))/i,
+  /\brender\s+(?:hosting|deployment)\b/i,
+  /\buse\s+render\s+(?:for\s+)?(?:hosting|deployment)\b/i,
+]
+
+export function isRenderDeploymentRequest(input: string) {
+  return renderDeploymentPatterns.some((pattern) => pattern.test(input))
+}
+
 const applicationStarterInferenceRules: Array<{
   partnerId: string
   patterns: Array<RegExp>
@@ -1721,6 +1778,14 @@ const applicationStarterInferenceRules: Array<{
   {
     partnerId: 'railway',
     patterns: [/\brailway\b/i],
+  },
+  {
+    partnerId: 'render',
+    patterns: renderDeploymentPatterns,
+  },
+  {
+    partnerId: 'vercel',
+    patterns: [/\b(vercel|v0)\b/i],
   },
   {
     partnerId: 'sentry',
@@ -2043,4 +2108,27 @@ export function composeApplicationStarterInput(
 
 export function getPartnerById(partnerId: string) {
   return partners.find((partner) => partner.id === partnerId)
+}
+
+const renderPlacementUtmContent: Partial<Record<PartnerPlacement, string>> = {
+  home_grid: 'home_grid',
+  library_grid: 'library_grid',
+  docs_rail: 'docs_rail',
+  docs_strip: 'docs_strip',
+}
+
+export function getPartnerHref(
+  partner: Pick<Partner, 'id' | 'href'>,
+  placement?: PartnerPlacement,
+): string {
+  if (partner.id !== 'render' || !placement) {
+    return partner.href
+  }
+
+  const utmContent = renderPlacementUtmContent[placement]
+  if (!utmContent) {
+    return partner.href
+  }
+
+  return `https://render.com/?utm_source=tanstack&utm_medium=referral&utm_campaign=gold-launch&utm_content=${utmContent}`
 }

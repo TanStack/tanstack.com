@@ -95,16 +95,11 @@ html.dark .shop-scope {
   min-height: 100%;
 }
 
-.shop-product-scrim {
-  transition-duration: var(--motion-duration-fast);
-}
-
+/* Height and enter/exit motion now come from the DS Drawer. This keeps only
+   the custom property, which descendant rules below still read, so the cap
+   has exactly one source of truth (applied as a max-h utility on the panel). */
 .shop-product-sheet {
   --shop-product-sheet-top: calc(var(--navbar-height, 56px) + 48px);
-
-  max-height: calc(100svh - var(--shop-product-sheet-top));
-  transition-duration: var(--motion-duration-sheet);
-  transition-timing-function: var(--motion-ease-sheet);
 }
 
 .shop-product-animate .shop-product-reveal {

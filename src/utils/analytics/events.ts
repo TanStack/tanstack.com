@@ -46,6 +46,7 @@ export type ApplicationStarterAction =
   | 'open_codex'
   | 'open_claude'
   | 'open_cursor'
+  | 'open_prompt_builder'
   | 'download'
   | 'open_advanced'
   | 'netlify_start'

@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router'
+import { useIsMutating } from '@tanstack/react-query'
 import {
   MinusIcon,
   PlusIcon,
@@ -6,7 +7,12 @@ import {
   TrashIcon,
 } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
-import { useCart, useRemoveCartLine, useUpdateCartLine } from '~/hooks/useCart'
+import {
+  CART_MUTATION_KEY,
+  useCart,
+  useRemoveCartLine,
+  useUpdateCartLine,
+} from '~/hooks/useCart'
 import { formatMoney, shopifyImageUrl } from '~/utils/shopify-format'
 import type { CartLineDetail } from '~/utils/shopify-queries'
 import { ShopLabel, ShopMono } from './ui'
@@ -29,7 +35,9 @@ type CartDrawerProps = {
  */
 export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
   const { cart, totalQuantity } = useCart()
+  const mutating = useIsMutating({ mutationKey: CART_MUTATION_KEY })
   const hasLines = !!cart && cart.lines.nodes.length > 0
+  const awaitingCart = !hasLines && mutating > 0
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
@@ -70,11 +78,22 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
             </DrawerBody>
             <CartFooter cart={cart} onClose={() => onOpenChange(false)} />
           </>
+        ) : awaitingCart ? (
+          <CartPending />
         ) : (
           <CartEmpty onClose={() => onOpenChange(false)} />
         )}
       </DrawerContent>
     </Drawer>
+  )
+}
+
+function CartPending() {
+  return (
+    <div className="flex-1 flex flex-col items-center justify-center gap-4 p-8 text-center text-shop-text-2">
+      <ShoppingCartIcon className="w-10 h-10 text-shop-muted" />
+      <p>Adding to cart…</p>
+    </div>
   )
 }
 
@@ -120,19 +139,31 @@ function CartFooter({
       <p className="font-shop-mono text-xs text-shop-muted tracking-[0.06em]">
         Shipping and taxes calculated at checkout.
       </p>
-      <a
-        href={cart.checkoutUrl}
-        className="
-          w-full h-10 rounded-md bg-shop-accent text-shop-accent-ink
-          font-semibold text-shop-ui flex items-center justify-center gap-2
-          transition-[filter] hover:brightness-110 group
-        "
-      >
-        Checkout
-        <span className="transition-transform group-hover:translate-x-[3px]">
-          →
+      {cart.checkoutUrl ? (
+        <a
+          href={cart.checkoutUrl}
+          className="
+            w-full h-10 rounded-md bg-shop-accent text-shop-accent-ink
+            font-semibold text-shop-ui flex items-center justify-center gap-2
+            transition-[filter] hover:brightness-110 group
+          "
+        >
+          Checkout
+          <span className="transition-transform group-hover:translate-x-[3px]">
+            →
+          </span>
+        </a>
+      ) : (
+        <span
+          className="
+            w-full h-10 rounded-md bg-shop-accent text-shop-accent-ink
+            font-semibold text-shop-ui flex items-center justify-center
+            opacity-50
+          "
+        >
+          Checkout
         </span>
-      </a>
+      )}
       <Link
         to="/shop/cart"
         onClick={onClose}

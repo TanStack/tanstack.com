@@ -3,9 +3,10 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { twMerge } from 'tailwind-merge'
 import { getProduct } from '~/utils/shop.functions'
 import {
+  findExactVariant,
+  findMatchingVariant,
   hasAvailableVariant,
   type ProductDetail,
-  type ProductDetailVariant,
 } from '~/utils/shopify-queries'
 import { formatMoney } from '~/utils/shopify-format'
 import { resolveShopProductColor, shopColorContrast } from '~/utils/shop-color'
@@ -27,34 +28,11 @@ import {
   DrawerDescription,
   DrawerTitle,
 } from '~/components/ds/ui'
-import { useCartDrawerStore } from './cartDrawerStore'
 
 const MAX_INLINE_OPTION_VALUES = 8
 
 const ARROW_CLS =
   'absolute top-1/2 z-[3] flex size-11 -translate-y-1/2 items-center justify-center rounded-full border border-shop-line bg-shop-bg/90 text-shop-text shadow-xl backdrop-blur-sm transition-[transform,background-color] duration-[var(--motion-duration-fast)] ease-[var(--motion-ease-standard)] hover:bg-shop-surface-hover active:scale-95 motion-reduce:transition-none'
-
-function findMatchingVariant(
-  variants: Array<ProductDetailVariant>,
-  selected: Record<string, string>,
-): ProductDetailVariant | undefined {
-  // Empty string means "not yet chosen" — treated as wildcard for availability checks
-  return variants.find((v) =>
-    v.selectedOptions.every((o) => {
-      const s = selected[o.name]
-      return !s || s === o.value
-    }),
-  )
-}
-
-function findExactVariant(
-  variants: Array<ProductDetailVariant>,
-  selected: Record<string, string>,
-): ProductDetailVariant | undefined {
-  return variants.find((v) =>
-    v.selectedOptions.every((o) => selected[o.name] === o.value),
-  )
-}
 
 type ProductDrawerProps = {
   productHandle: string | null
@@ -352,7 +330,6 @@ function ProductPanel({
   }
 
   const addToCart = useAddToCart()
-  const openCartDrawer = useCartDrawerStore((s) => s.openDrawer)
 
   React.useEffect(() => {
     if (!showAdded) return
@@ -601,7 +578,6 @@ function ProductPanel({
               onClick={() => {
                 if (!selectedVariant) return
                 setShowAdded(true)
-                openCartDrawer()
                 addToCart.mutate({
                   variantId: selectedVariant.id,
                   quantity,

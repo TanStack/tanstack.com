@@ -1162,6 +1162,11 @@ const vercel = ((): Partner => {
         label: 'TanStack Start hosting guide',
         href: '/start/latest/docs/framework/react/guide/hosting',
       },
+      {
+        kind: 'documentation',
+        label: 'TanStack Start on Vercel',
+        href: 'https://vercel.com/kb/guide/deploy-a-tanstack-start-app-to-vercel',
+      },
     ],
     relatedProducts: ['start', 'router'],
     status: 'active',
@@ -1442,6 +1447,11 @@ const render = ((): Partner => {
         kind: 'documentation',
         label: 'TanStack Start hosting guide',
         href: '/start/latest/docs/framework/react/guide/hosting',
+      },
+      {
+        kind: 'documentation',
+        label: 'Render Blueprints',
+        href: 'https://render.com/docs/infrastructure-as-code',
       },
     ],
     brandColor: '#000000',

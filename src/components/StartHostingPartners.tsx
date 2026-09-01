@@ -6,6 +6,7 @@ import {
   partners,
   partnerTierFlares,
   partnerTierLabels,
+  type Partner,
 } from '~/utils/partners'
 import {
   getPartnerPlacementAnalyticsMetadata,
@@ -20,21 +21,43 @@ const startHostingGuideAnchors: Record<string, string | undefined> = {
   lovable: 'lovable-official-partner',
   netlify: 'netlify-official-partner',
   railway: 'railway-official-partner',
+  render: 'render-official-partner',
+  vercel: 'vercel-official-partner',
 }
 
-const lovablePartner = partners.find((partner) => partner.id === 'lovable')
-
-export function StartHostingLovableLogo() {
-  if (!lovablePartner) return null
+function StartHostingPartnerLogo({ partnerId }: { partnerId: string }) {
+  const partner = partners.find((candidate) => candidate.id === partnerId)
+  if (!partner) return null
 
   return (
     <div className="not-prose my-6 [&>div]:justify-start">
       <PartnerImage
-        alt="Lovable"
+        alt={partner.name}
         className="h-16 w-auto max-w-64 object-contain object-left"
-        config={lovablePartner.image}
+        config={partner.image}
       />
     </div>
+  )
+}
+
+export function StartHostingLovableLogo() {
+  return <StartHostingPartnerLogo partnerId="lovable" />
+}
+
+export function StartHostingRenderLogo() {
+  return <StartHostingPartnerLogo partnerId="render" />
+}
+
+export function StartHostingVercelLogo() {
+  return <StartHostingPartnerLogo partnerId="vercel" />
+}
+
+export function getStartHostingPartners(): Array<Partner> {
+  return partners.filter(
+    (partner) =>
+      partner.status === 'active' &&
+      partner.uniqueConstraints?.includes('hosting') &&
+      partner.relatedProducts?.includes('start'),
   )
 }
 
@@ -44,16 +67,7 @@ export function useStartHostingPartners() {
     orderStrategy: 'tier-rotated',
     surface: 'docs_strip',
   })
-  const hostingPartners = React.useMemo(
-    () =>
-      partners.filter(
-        (partner) =>
-          partner.status === 'active' &&
-          partner.uniqueConstraints?.includes('hosting') &&
-          partner.relatedProducts?.includes('start'),
-      ),
-    [],
-  )
+  const hostingPartners = React.useMemo(getStartHostingPartners, [])
   const groups = React.useMemo(
     () => getPartnerTierGroupsForPlacement(hostingPartners, placementContext),
     [hostingPartners, placementContext],

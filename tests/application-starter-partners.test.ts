@@ -32,6 +32,13 @@ const {
   getRailwayPartnerPageModel,
 }: typeof import('../src/utils/railway-partner') = require('../src/utils/railway-partner')
 const {
+  getStartHostingPartners,
+}: typeof import('../src/components/StartHostingPartners') = require('../src/components/StartHostingPartners')
+const {
+  getPartnerPlacementContext,
+  getPartnerTierGroupsForPlacement,
+}: typeof import('../src/utils/partner-placement') = require('../src/utils/partner-placement')
+const {
   addOn: reactRailwayAddOn,
 }: typeof import('@tanstack/create/worker-manifest/frameworks/react/add-ons/railway') = require('@tanstack/create/worker-manifest/frameworks/react/add-ons/railway')
 
@@ -480,5 +487,49 @@ test('other partners use their default href regardless of placement', () => {
       vercel.href,
       `Vercel href should be unchanged for ${placement}`,
     )
+  }
+})
+
+test('Vercel and Render rotate with the gold Start hosting partners', () => {
+  const hostingPartners = getStartHostingPartners()
+
+  for (const partnerId of ['vercel', 'render']) {
+    const partner = hostingPartners.find(
+      (candidate) => candidate.id === partnerId,
+    )
+
+    assert.ok(partner)
+    assert.equal(partner.tier, 'gold')
+  }
+
+  const positions = new Map([
+    ['vercel', new Set<number>()],
+    ['render', new Set<number>()],
+  ])
+
+  for (let seedIndex = 0; seedIndex < 32; seedIndex++) {
+    const context = getPartnerPlacementContext({
+      category: 'deployment',
+      orderStrategy: 'tier-rotated',
+      seed: `start-hosting-test-${seedIndex}`,
+      surface: 'docs_strip',
+    })
+    const goldPartners = getPartnerTierGroupsForPlacement(
+      hostingPartners,
+      context,
+    ).find((group) => group.tier === 'gold')?.partners
+
+    assert.ok(goldPartners)
+    for (const [partnerId, partnerPositions] of positions) {
+      const position = goldPartners.findIndex(
+        (partner) => partner.id === partnerId,
+      )
+      assert.notEqual(position, -1)
+      partnerPositions.add(position)
+    }
+  }
+
+  for (const partnerPositions of positions.values()) {
+    assert.ok(partnerPositions.size > 1)
   }
 })

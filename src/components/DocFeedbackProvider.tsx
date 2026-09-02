@@ -401,8 +401,12 @@ function BlockButton({
   if (!portalContainer) {
     portalContainer = document.createElement('div')
     portalContainer.setAttribute('data-button-portal', blockId)
-    portalContainer.className =
-      'absolute top-0 right-0 -translate-y-full z-[100]'
+    // Nudge down when following a <code> block so the button doesn't overlap with the code's top bar
+    const precedesCodeBlock = block.lastElementChild?.tagName === 'CODE'
+    portalContainer.className = twMerge(
+      'absolute right-0 -translate-y-full z-[100]',
+      precedesCodeBlock ? 'top-6' : 'top-0',
+    )
     portalContainer.style.position = 'absolute'
 
     // Make the block relatively positioned if not already

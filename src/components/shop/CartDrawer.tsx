@@ -8,7 +8,7 @@ import {
 } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import {
-  CART_MUTATION_KEY,
+  CART_ADD_MUTATION_KEY,
   useCart,
   useRemoveCartLine,
   useUpdateCartLine,
@@ -35,7 +35,7 @@ type CartDrawerProps = {
  */
 export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
   const { cart, totalQuantity } = useCart()
-  const mutating = useIsMutating({ mutationKey: CART_MUTATION_KEY })
+  const mutating = useIsMutating({ mutationKey: CART_ADD_MUTATION_KEY })
   const hasLines = !!cart && cart.lines.nodes.length > 0
   const awaitingCart = !hasLines && mutating > 0
 

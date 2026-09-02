@@ -178,7 +178,9 @@ function HeroPalmMedia() {
     if (!video) return
 
     if (video.paused) {
-      video.play().catch(e => { if (e.name !== 'AbortError') throw e })
+      video.play().catch((e) => {
+        if (e.name !== 'AbortError') throw e
+      })
     } else {
       video.pause()
     }

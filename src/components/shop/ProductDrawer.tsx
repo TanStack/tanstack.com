@@ -573,7 +573,7 @@ function ProductPanel({
               disabled={
                 !isComplete ||
                 !selectedVariant?.availableForSale ||
-                (addToCart.isPending && !showAdded)
+                addToCart.isPending
               }
               onClick={() => {
                 if (!selectedVariant) return

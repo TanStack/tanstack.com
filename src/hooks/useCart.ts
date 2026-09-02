@@ -25,12 +25,17 @@ import type { CartDetail } from '~/utils/shopify-queries'
 export const CART_QUERY_KEY = ['shopify', 'cart'] as const
 
 /**
- * Mutation key shared across all cart-mutating hooks. Used by
- * `settleWhenIdle` to determine whether other cart mutations are still
- * in flight before triggering a background refetch, and by the cart
- * drawer to avoid flashing the empty state during a successful add.
+ * Mutation key shared across cart-mutating hooks other than add-to-cart.
+ * Used by `settleWhenIdle` to determine whether other cart mutations are still
+ * in flight before triggering a background refetch.
  */
 export const CART_MUTATION_KEY = ['shopify', 'cart', 'mutate'] as const
+
+/**
+ * Distinct from `CART_MUTATION_KEY` (and not a prefix of it) so
+ * `useIsMutating` in the cart drawer matches add-to-cart only.
+ */
+export const CART_ADD_MUTATION_KEY = ['shopify', 'cart', 'add'] as const
 
 /**
  * Explicit in-flight counter. We don't rely on `queryClient.isMutating()`
@@ -111,7 +116,7 @@ export function useAddToCart() {
   const qc = useQueryClient()
 
   return useMutation({
-    mutationKey: CART_MUTATION_KEY,
+    mutationKey: CART_ADD_MUTATION_KEY,
     mutationFn: (input: AddToCartInput) =>
       addToCart({
         data: { variantId: input.variantId, quantity: input.quantity ?? 1 },

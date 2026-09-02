@@ -436,8 +436,7 @@ function QuantityAdd({
   const addToCart = useAddToCart()
   const [showAdded, setShowAdded] = React.useState(false)
 
-  const disabled =
-    !variant || !variant.availableForSale || (addToCart.isPending && !showAdded)
+  const disabled = !variant || !variant.availableForSale || addToCart.isPending
   const price = variant?.price
 
   const label = showAdded

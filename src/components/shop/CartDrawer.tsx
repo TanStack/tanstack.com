@@ -49,7 +49,7 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
         <DrawerHeader
           className="border-shop-line px-5 py-3"
           title={
-            <ShopLabel as="h2">
+            <ShopLabel as="span">
               Cart{totalQuantity > 0 ? ` (${totalQuantity})` : ''}
             </ShopLabel>
           }

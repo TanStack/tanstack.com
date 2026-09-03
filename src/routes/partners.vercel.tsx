@@ -1,18 +1,18 @@
 import * as React from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import {
-  ArrowUpRightIcon,
   ArrowUUpLeftIcon,
+  ArrowUpRightIcon,
   ChartLineIcon,
   CheckIcon,
-  CurrencyDollarIcon,
+  CpuIcon,
   GitPullRequestIcon,
   GlobeIcon,
-  InfinityIcon,
-  NetworkIcon,
+  LightningIcon,
   PlusIcon,
   RocketIcon,
   ShieldCheckIcon,
+  SparkleIcon,
 } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { Card } from '~/components/Card'
@@ -27,44 +27,46 @@ import {
 } from '~/utils/partners'
 import { getPartnerJsonLd } from '~/utils/partner-pages'
 import { trackEvent } from '~/utils/analytics'
-import { getRailwayPartnerPageModel } from '~/utils/railway-partner'
+import { getVercelPartnerPageModel } from '~/utils/vercel-partner'
 import { SITE_URL } from '~/utils/site'
 import defaultOgImage from '~/images/og.png'
 
-const RAILWAY_PAGE_MODEL = getRailwayPartnerPageModel()
+const VERCEL_PAGE_MODEL = getVercelPartnerPageModel()
 const {
-  docsHash: TANSTACK_START_RAILWAY_DOCS_HASH,
-  docsResource: RAILWAY_DOCS_RESOURCE,
-  partner: RAILWAY_PARTNER,
-} = RAILWAY_PAGE_MODEL
-const RAILWAY_HREF =
-  'https://railway.com/new?utm_medium=sponsor&utm_source=tanstack&utm_campaign=partner-page'
-const TANSTACK_START_RAILWAY_DOCS_PATH = RAILWAY_DOCS_RESOURCE.href
-const RAILWAY_CANONICAL_HREF =
-  RAILWAY_PARTNER.canonicalHref ?? RAILWAY_PARTNER.href
-const railwayHomeUrl = new URL(RAILWAY_CANONICAL_HREF)
-railwayHomeUrl.search = new URL(RAILWAY_HREF).search
-const RAILWAY_HOME_HREF = railwayHomeUrl.toString()
-const railwayPricingUrl = new URL('/pricing', RAILWAY_CANONICAL_HREF)
-railwayPricingUrl.search = railwayHomeUrl.search
-const RAILWAY_PRICING_HREF = railwayPricingUrl.toString()
-const RAILWAY_OG_IMAGE = new URL(defaultOgImage, SITE_URL).toString()
-const RAILWAY_TIER_LABEL = RAILWAY_PARTNER.tier
-  ? partnerTierLabels[RAILWAY_PARTNER.tier]
+  docsHash: TANSTACK_START_VERCEL_DOCS_HASH,
+  docsResource: VERCEL_DOCS_RESOURCE,
+  partner: VERCEL_PARTNER,
+} = VERCEL_PAGE_MODEL
+const VERCEL_HREF =
+  'https://vercel.com/new?utm_medium=sponsor&utm_source=tanstack&utm_campaign=partner-page'
+const VERCEL_START_GUIDE_HREF =
+  'https://vercel.com/kb/guide/deploy-a-tanstack-start-app-to-vercel?utm_medium=sponsor&utm_source=tanstack&utm_campaign=partner-page'
+const TANSTACK_START_VERCEL_DOCS_PATH = VERCEL_DOCS_RESOURCE.href
+const VERCEL_CANONICAL_HREF =
+  VERCEL_PARTNER.canonicalHref ?? VERCEL_PARTNER.href
+const vercelHomeUrl = new URL(VERCEL_CANONICAL_HREF)
+vercelHomeUrl.search = new URL(VERCEL_HREF).search
+const VERCEL_HOME_HREF = vercelHomeUrl.toString()
+const vercelPricingUrl = new URL('/pricing', VERCEL_CANONICAL_HREF)
+vercelPricingUrl.search = vercelHomeUrl.search
+const VERCEL_PRICING_HREF = vercelPricingUrl.toString()
+const VERCEL_OG_IMAGE = new URL(defaultOgImage, SITE_URL).toString()
+const VERCEL_TIER_LABEL = VERCEL_PARTNER.tier
+  ? partnerTierLabels[VERCEL_PARTNER.tier]
   : undefined
-const RAILWAY_PARTNERSHIP_LABEL =
-  RAILWAY_PARTNER.status === 'active'
+const VERCEL_PARTNERSHIP_LABEL =
+  VERCEL_PARTNER.status === 'active'
     ? 'Current TanStack partner'
     : 'Previous TanStack partner'
-const RAILWAY_PARTNER_TITLE_LABEL =
-  RAILWAY_PARTNER.status === 'active'
-    ? `${partnerTierLabels[RAILWAY_PARTNER.tier]} TanStack Partner`
+const VERCEL_PARTNER_TITLE_LABEL =
+  VERCEL_PARTNER.status === 'active'
+    ? `${partnerTierLabels[VERCEL_PARTNER.tier]} TanStack Partner`
     : 'Previous TanStack Partner'
-const RAILWAY_PARTNER_BADGE_LABEL =
-  RAILWAY_PARTNER.status === 'active'
-    ? `${partnerTierLabels[RAILWAY_PARTNER.tier]} Partner`
-    : RAILWAY_TIER_LABEL
-      ? `Previous ${RAILWAY_TIER_LABEL} Partner`
+const VERCEL_PARTNER_BADGE_LABEL =
+  VERCEL_PARTNER.status === 'active'
+    ? `${partnerTierLabels[VERCEL_PARTNER.tier]} Partner`
+    : VERCEL_TIER_LABEL
+      ? `Previous ${VERCEL_TIER_LABEL} Partner`
       : 'Previous Partner'
 
 type FeatureIcon = React.ComponentType<{ className?: string }>
@@ -72,43 +74,43 @@ type FeatureIcon = React.ComponentType<{ className?: string }>
 const features: Array<{ Icon: FeatureIcon; title: string; desc: string }> = [
   {
     Icon: RocketIcon,
-    title: 'Node service deploys',
-    desc: 'TanStack Start builds a Node server for SSR, server functions, and static assets. Railway deploys it as a standard Node service.',
+    title: 'Zero-config framework detection',
+    desc: 'Once Nitro is configured, Vercel detects TanStack Start and supplies the build command and output settings for you.',
   },
   {
     Icon: GitPullRequestIcon,
-    title: 'Live PR previews',
-    desc: 'Enable PR Environments on a GitHub-connected project to spin up isolated previews for eligible pull requests.',
+    title: 'Preview deployments',
+    desc: 'Every push gets its own deployment URL, so a branch or pull request can be reviewed running in production-like conditions.',
   },
   {
-    Icon: ChartLineIcon,
-    title: 'Logs, metrics, and alerts',
-    desc: 'Logs and metrics are built in. Pro workspaces can configure Monitors that notify Slack, Discord, or email.',
-  },
-  {
-    Icon: NetworkIcon,
-    title: 'Up to 100 Gbps private networking',
-    desc: 'Services in a project talk over private IPs at up to 100 Gbps. HTTP, TCP, gRPC, and WebSockets handled for you.',
-  },
-  {
-    Icon: ArrowUUpLeftIcon,
-    title: 'Retained deployment versions',
-    desc: 'Redeploy an earlier version while its image is retained. Retention ranges from 24 hours to 360 hours by plan.',
-  },
-  {
-    Icon: ShieldCheckIcon,
-    title: 'Hard spending limits',
-    desc: 'Set a hard limit for workspace compute usage. Railway sends alerts as you approach it and stops workloads at the limit.',
+    Icon: CpuIcon,
+    title: 'Fluid compute',
+    desc: 'The Nitro Vite plugin compiles your server code into Vercel Functions. They run on Fluid compute by default and scale automatically.',
   },
   {
     Icon: GlobeIcon,
-    title: 'Global regions',
-    desc: 'Run your app close to your users. Pro and above can deploy to multiple regions concurrently.',
+    title: 'Global delivery',
+    desc: 'Responses are served from Vercel’s global points of presence, with regions you can configure per project.',
   },
   {
-    Icon: InfinityIcon,
-    title: 'Unlimited environments',
-    desc: 'Spin up as many staging, preview, or branch environments as your team needs. No per-env fees.',
+    Icon: ArrowUUpLeftIcon,
+    title: 'Instant rollbacks',
+    desc: 'Every deployment keeps its own immutable URL. Promote an earlier deployment to production when you need to roll back.',
+  },
+  {
+    Icon: ShieldCheckIcon,
+    title: 'Web Application Firewall',
+    desc: 'Managed WAF with configurable firewall rules, plus TLS/SSL encryption and HTTPS certificates on every plan.',
+  },
+  {
+    Icon: LightningIcon,
+    title: 'Skew Protection',
+    desc: 'Clients keep talking to the deployment version they loaded, so in-flight sessions do not break mid-deploy. Included on Pro.',
+  },
+  {
+    Icon: SparkleIcon,
+    title: 'AI Gateway and Sandbox',
+    desc: 'Route model traffic through AI Gateway and run untrusted or agent-generated code in isolated Sandbox environments.',
   },
 ]
 
@@ -120,12 +122,27 @@ const steps: Array<{ num: string; title: string; code: string }> = [
   },
   {
     num: '02',
-    title: 'Install the Railway CLI',
-    code: 'npm install -g @railway/cli',
+    title: 'Install the Vercel CLI',
+    code: 'npm install -g vercel',
   },
-  { num: '03', title: 'Authenticate', code: 'railway login' },
-  { num: '04', title: 'Deploy', code: 'railway init && railway up' },
+  { num: '03', title: 'Authenticate', code: 'vercel login' },
+  { num: '04', title: 'Deploy to production', code: 'vercel --prod' },
 ]
+
+const NITRO_VITE_CONFIG = `// vite.config.ts
+import { tanstackStart } from '@tanstack/react-start/plugin/vite'
+import { defineConfig } from 'vite'
+import { nitro } from 'nitro/vite'
+import viteReact from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [tanstackStart(), nitro(), viteReact()],
+})`
+
+const VERCEL_JSON = `{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "tanstack-start"
+}`
 
 const pricing: Array<{
   plan: string
@@ -135,37 +152,27 @@ const pricing: Array<{
   highlight?: boolean
 }> = [
   {
-    plan: 'Free',
-    price: '$0',
-    note: '30-day trial, then $1 monthly credit',
-    features: [
-      'Up to 1 vCPU / 0.5 GB RAM',
-      '0.5 GB volume storage',
-      'Community support',
-      'No credit card required',
-    ],
-  },
-  {
     plan: 'Hobby',
-    price: '$5',
-    note: 'month, includes $5 of usage',
+    price: '$0',
+    note: 'for personal, non-commercial projects',
     features: [
-      'Up to 48 vCPU / 48 GB RAM',
-      'Up to 5 GB storage',
-      '7-day log history',
-      'Global regions',
+      '1M edge requests per month',
+      '100 GB data transfer per month',
+      'Up to 3 firewall rules',
+      'HTTPS certificates included',
+      'No credit card required',
     ],
   },
   {
     plan: 'Pro',
     price: '$20',
-    note: 'min/month, includes $20 credits',
+    note: 'per user/month, includes $20 of usage',
     features: [
-      'Up to 1,000 vCPU / 1 TB RAM',
-      'Up to 1 TB storage',
-      '30-day log history',
-      'Unlimited workspace seats',
-      'Concurrent global regions',
+      '10M edge requests per month',
+      '1 TB data transfer per month',
+      'Up to 40 firewall rules',
+      '1 custom environment',
+      'Skew Protection',
     ],
     highlight: true,
   },
@@ -174,70 +181,76 @@ const pricing: Array<{
     price: 'Custom',
     note: 'for teams at scale',
     features: [
-      'Up to 2,400 vCPU / 2.4 TB RAM',
-      '90-day log history',
-      'SSO + RBAC + HIPAA BAA',
-      'Dedicated VMs',
-      'Bring your own cloud',
+      'Role-based access control',
+      'Audit logs',
+      'SAML SSO and Directory Sync',
+      'Custom limits on metered services',
+      'Platform SLAs and support',
     ],
   },
 ]
 
 const meteredPricing: Array<[string, string]> = [
-  ['Memory', '$0.00000386 / GB-sec'],
-  ['CPU', '$0.00000772 / vCPU-sec'],
-  ['Egress', '$0.05 / GB'],
+  ['Edge requests', '$2.00 / 1M'],
+  ['Data transfer', '$0.15 / GB'],
+  ['Function invocations', '$0.60 / 1M'],
 ]
 
 const testimonials: Array<{ quote: string; author: string; role: string }> = [
   {
-    quote: 'We cut our hosting costs by 75% migrating from Heroku to Railway.',
-    author: 'Dillon Chen',
-    role: 'Founder at Common',
+    quote:
+      'We needed a quality product for a quality product. We evaluated other options, but really Vercel was a no-brainer.',
+    author: 'Jonathan Lemon',
+    role: 'Software Engineering Manager at Sonos',
   },
   {
     quote:
-      "I've moved $4.5k per month from AWS and $1k per month from Heroku […] and my railway bill is like $300 per month.",
-    author: 'John Nunemaker',
-    role: 'Founder at BoxOutSports',
+      'We try not to reinvent infrastructure we don’t have to. We’d rather spend that engineering energy on the product.',
+    author: 'Sherwin Yu',
+    role: 'Head of AI and Product Engineering at Gamma',
   },
   {
-    quote: 'We went from a $1,600 Heroku bill to a $300 Railway bill.',
-    author: 'Brandon Gell',
-    role: 'Head of Consulting at Every',
+    quote:
+      'With Vercel, I was able to quickly set up wildcard subdomains for my users and upsell them with custom domains.',
+    author: 'Noah Bragg',
+    role: 'Founder at Potion.so',
   },
 ]
 
 const faqs: Array<{ q: string; a: string }> = [
   {
-    q: 'Does Railway support TanStack Start SSR and streaming?',
-    a: 'Yes. Create a Railway-ready TanStack Start app with the TanStack CLI, or add the Nitro setup from the Start hosting guide to an existing app.',
+    q: 'Does Vercel support TanStack Start SSR and streaming?',
+    a: 'Yes. TanStack Start runs on Vercel through Nitro. Create a Vercel-ready app with the TanStack CLI, or add the Nitro setup from the Start hosting guide to an existing app.',
   },
   {
-    q: 'Can I run a database alongside my TanStack app?',
-    a: "Absolutely. Railway lets you provision Postgres, MySQL, Redis, or MongoDB in the same project as your app. They communicate over Railway's private network at up to 100 Gbps, with no VPC setup needed.",
+    q: 'Do I need to configure a build command?',
+    a: 'Usually not. Vercel detects TanStack Start and supplies the build command and output settings. If detection fails, add a vercel.json with "framework": "tanstack-start" to make it explicit. The TanStack CLI writes that file for you.',
   },
   {
-    q: 'How does Railway pricing actually work?',
-    a: 'Railway bills resource usage by the second. After the 30-day trial, the Free plan costs $0 and includes $1 of monthly resource credit. Hobby costs $5/month and includes $5 of monthly usage; you pay the difference if usage exceeds $5.',
+    q: 'How does Vercel pricing actually work?',
+    a: 'Hobby is $0 and covers personal, non-commercial projects with 1M edge requests and 100 GB of data transfer per month. Pro is $20 per user/month and includes $20 of monthly usage credit, with metered rates beyond it. Enterprise is custom.',
   },
   {
-    q: 'What makes Railway different from Vercel or Render?',
-    a: 'Railway is a full-stack cloud. You can run your TanStack app server, managed databases, background workers, cron jobs, and private networking in one project. Configurable usage alerts and hard limits help keep resource spending under control.',
+    q: 'What makes Vercel different from Railway or Render?',
+    a: 'Vercel is strongest when preview workflows, Git-based deployment, global delivery, and serverless compute are central to how the team works. Server code deploys as Vercel Functions on Fluid compute rather than a long-running container you size yourself.',
   },
   {
-    q: 'Does Railway have PR preview environments?',
-    a: 'Yes. Connect the project to GitHub and enable PR Environments in project settings. Railway then creates an isolated preview for eligible pull requests and removes it after the pull request is merged or closed.',
+    q: 'Does every pull request get a preview deployment?',
+    a: 'Yes. Connect the project to Git and each push produces its own deployment with a unique URL, so a change can be reviewed running before it is promoted to production.',
   },
   {
-    q: 'Can I migrate an existing TanStack app to Railway?',
-    a: 'Yes. If your app already builds to a Node server or has a Dockerfile, Railway can deploy it from GitHub. For TanStack Start, make sure the Nitro Vite setup and Node start script are in place.',
+    q: 'How do I add environment variables?',
+    a: 'Add them under Settings > Environment Variables, or with vercel env add MY_KEY. Do not prefix server secrets with VITE_, since VITE_ values are inlined into browser code.',
+  },
+  {
+    q: 'Can I migrate an existing TanStack app to Vercel?',
+    a: 'Yes. Install Nitro, add the nitro() plugin to your Vite config, then import the Git repository in Vercel or run npx vercel. If routes 404 after deploying, confirm nitro() is present in the Vite config and redeploy.',
   },
 ]
 
-const PAGE_TITLE = `Deploy TanStack to ${RAILWAY_PARTNER.name} | ${RAILWAY_PARTNER_TITLE_LABEL}`
+const PAGE_TITLE = `Deploy TanStack to ${VERCEL_PARTNER.name} | ${VERCEL_PARTNER_TITLE_LABEL}`
 const PAGE_DESCRIPTION =
-  'Railway gives TanStack teams a single place to run app services, databases, and supporting infrastructure. Nitro-powered TanStack Start deploys, optional PR preview environments, up to 100 Gbps private networking, and hard spending limits. Resource usage is billed by the second.'
+  'Vercel runs TanStack Start through Nitro, with zero-config framework detection, a preview deployment for every push, Vercel Functions on Fluid compute, and global delivery. Hobby is free and Pro is $20 per user/month.'
 
 function getFaqJsonLd() {
   return {
@@ -254,18 +267,18 @@ function getFaqJsonLd() {
   }
 }
 
-export const Route = createFileRoute('/partners/railway')({
+export const Route = createFileRoute('/partners/vercel')({
   head: () => ({
     meta: seo({
       title: PAGE_TITLE,
       description: PAGE_DESCRIPTION,
-      keywords: `deploy tanstack to railway, tanstack start railway, tanstack router railway, railway hosting, tanstack deployment, railway tanstack partner`,
-      image: RAILWAY_OG_IMAGE,
+      keywords: `deploy tanstack to vercel, tanstack start vercel, tanstack router vercel, vercel hosting, tanstack deployment, vercel tanstack partner`,
+      image: VERCEL_OG_IMAGE,
     }),
     scripts: [
       {
         type: 'application/ld+json',
-        children: JSON.stringify(getPartnerJsonLd(RAILWAY_PARTNER)),
+        children: JSON.stringify(getPartnerJsonLd(VERCEL_PARTNER)),
       },
       {
         type: 'application/ld+json',
@@ -273,7 +286,7 @@ export const Route = createFileRoute('/partners/railway')({
       },
     ],
   }),
-  component: RailwayPartnerPage,
+  component: VercelPartnerPage,
 })
 
 function CheckBadge() {
@@ -284,26 +297,26 @@ function CheckBadge() {
   )
 }
 
-function trackRailwayClick() {
+function trackVercelClick() {
   trackEvent('partner_clicked', {
-    partner_id: RAILWAY_PARTNER.id,
+    partner_id: VERCEL_PARTNER.id,
     placement: 'detail',
     destination: 'external',
-    destination_host: new URL(RAILWAY_CANONICAL_HREF).host,
-    partner_tier: RAILWAY_PARTNER.tier,
+    destination_host: new URL(VERCEL_CANONICAL_HREF).host,
+    partner_tier: VERCEL_PARTNER.tier,
   })
 }
 
 function trackTanStackDocsClick() {
   trackEvent('partner_clicked', {
-    partner_id: RAILWAY_PARTNER.id,
+    partner_id: VERCEL_PARTNER.id,
     placement: 'detail',
     destination: 'internal_resource',
-    partner_tier: RAILWAY_PARTNER.tier,
+    partner_tier: VERCEL_PARTNER.tier,
   })
 }
 
-function RailwayCodeExample({
+function VercelCodeExample({
   code,
   lang,
   title,
@@ -319,14 +332,14 @@ function RailwayCodeExample({
   )
 }
 
-function RailwayPartnerPage() {
+function VercelPartnerPage() {
   const [openFaq, setOpenFaq] = React.useState<number | null>(null)
 
   React.useEffect(() => {
     trackEvent('partner_viewed', {
-      partner_id: RAILWAY_PARTNER.id,
+      partner_id: VERCEL_PARTNER.id,
       placement: 'detail',
-      partner_tier: RAILWAY_PARTNER.tier,
+      partner_tier: VERCEL_PARTNER.tier,
     })
   }, [])
 
@@ -342,7 +355,7 @@ function RailwayPartnerPage() {
           </Link>
           <span>/</span>
           <span className="text-gray-900 dark:text-white">
-            {RAILWAY_PARTNER.name}
+            {VERCEL_PARTNER.name}
           </span>
         </nav>
 
@@ -351,26 +364,26 @@ function RailwayPartnerPage() {
           <div className="mb-5 flex items-center gap-4">
             <div className="flex h-12 w-44 items-center justify-start">
               <PartnerImage
-                config={RAILWAY_PARTNER.image}
-                alt={RAILWAY_PARTNER.name}
+                config={VERCEL_PARTNER.image}
+                alt={VERCEL_PARTNER.name}
                 className="max-h-10 w-auto"
               />
             </div>
             <div>
               <span className="text-[11px] font-medium uppercase tracking-[0.08em] text-gray-500 dark:text-gray-400">
-                {RAILWAY_PARTNER_BADGE_LABEL} ·{' '}
-                {partnerCategoryLabels[RAILWAY_PARTNER.category]}
+                {VERCEL_PARTNER_BADGE_LABEL} ·{' '}
+                {partnerCategoryLabels[VERCEL_PARTNER.category]}
               </span>
               <div className="mt-1 flex items-center gap-2">
                 <span
                   className={`inline-block h-2 w-2 rounded-full ${
-                    RAILWAY_PARTNER.status === 'active'
+                    VERCEL_PARTNER.status === 'active'
                       ? 'bg-emerald-500'
                       : 'bg-gray-400'
                   }`}
                 />
                 <span className="text-xs text-gray-500 dark:text-gray-400">
-                  {RAILWAY_PARTNERSHIP_LABEL}
+                  {VERCEL_PARTNERSHIP_LABEL}
                 </span>
               </div>
             </div>
@@ -379,32 +392,32 @@ function RailwayPartnerPage() {
           <h1 className="text-4xl font-black leading-[1.1] tracking-tight text-gray-950 dark:text-white md:text-5xl">
             Ship TanStack apps
             <br />
-            peacefully with Railway
+            on agentic infrastructure
           </h1>
 
           <p className="mt-5 max-w-xl text-base leading-relaxed text-gray-600 dark:text-gray-300 md:text-lg">
-            Railway gives TanStack teams a single place to run app services,
-            databases, and supporting infrastructure. Deploy a TanStack Start
-            app from GitHub or the CLI, with resource usage billed by the
-            second.
+            Vercel builds, deploys, and runs TanStack Start apps through Nitro.
+            Push to Git and every change gets its own preview deployment, while
+            server code runs as Vercel Functions on Fluid compute.
           </p>
 
           <p className="mt-3 max-w-xl text-sm italic leading-relaxed text-gray-500 dark:text-gray-400">
-            "Services that took 1 week to configure elsewhere take 1 day to spin
-            up in Railway." - Daniel Lobaton, CTO at G2X
+            "Vercel has just completely scaled with that usage. We've never had
+            it fall over due to capacity or had to provision anything extra." -
+            Andy Yoon, Lead Frontend Engineer at OpenEvidence
           </p>
 
           <div className="mt-7 flex flex-wrap gap-3">
             <Button
               as="a"
-              href={RAILWAY_HREF}
+              href={VERCEL_HREF}
               target="_blank"
               rel="noreferrer"
-              onClick={trackRailwayClick}
+              onClick={trackVercelClick}
               size="lg"
               className="bg-gray-950 text-white border-gray-950 hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:border-white dark:hover:bg-gray-200"
             >
-              Start free on Railway
+              Start free on Vercel
               <ArrowUpRightIcon className="h-4 w-4" />
             </Button>
             <Button as="a" href="#how-it-works" variant="ghost" size="lg">
@@ -412,16 +425,17 @@ function RailwayPartnerPage() {
             </Button>
           </div>
           <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
-            No credit card required. $5 in trial credits on signup.
+            No credit card required. Hobby is free for personal, non-commercial
+            projects.
           </p>
         </section>
 
         {/* Stats */}
         <section className="grid grid-cols-2 gap-x-8 gap-y-5 border-b border-gray-200 py-7 sm:flex sm:flex-wrap sm:gap-10 dark:border-gray-800">
           {[
-            ['2M+', 'Developers on Railway'],
-            ['Per-second', 'Resource billing'],
-            ['100 Gbps', 'Private network maximum'],
+            ['Zero-config', 'TanStack Start detection'],
+            ['Every push', 'Preview deployment'],
+            ['Fluid compute', 'Default for functions'],
             ['$0', 'To get started'],
           ].map(([value, label]) => (
             <div key={label}>
@@ -436,11 +450,12 @@ function RailwayPartnerPage() {
         {/* Features */}
         <section className="py-10">
           <h2 className="text-2xl font-black tracking-tight md:text-3xl">
-            Why TanStack teams choose Railway
+            Why TanStack teams choose Vercel
           </h2>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-gray-600 dark:text-gray-300 md:text-base">
-            Railway eliminates infrastructure complexity so your team ships
-            faster. Here's what makes it the right fit for TanStack developers.
+            Vercel is strongest when preview workflows, Git-based deployment,
+            global delivery, and serverless compute are central to how your team
+            ships.
           </p>
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
             {features.map(({ Icon, title, desc }) => (
@@ -461,22 +476,27 @@ function RailwayPartnerPage() {
           className="border-t border-gray-200 py-10 dark:border-gray-800"
         >
           <h2 className="text-2xl font-black tracking-tight md:text-3xl">
-            Create a Railway-ready app
+            Create a Vercel-ready app
           </h2>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-gray-600 dark:text-gray-300 md:text-base">
-            The TanStack CLI adds the Railway deployment setup while it creates
-            your app.
+            The TanStack CLI adds the Vercel deployment setup while it creates
+            your app, including the <code>vercel.json</code> that makes
+            framework detection explicit.
           </p>
 
           <div className="mt-6">
-            <RailwayCodeExample
-              code={RAILWAY_PAGE_MODEL.create.command}
+            <VercelCodeExample
+              code={VERCEL_PAGE_MODEL.create.command}
               lang="bash"
               title="terminal"
             />
           </div>
 
           <h3 className="mt-8 text-lg font-bold">Deploy the app</h3>
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-gray-600 dark:text-gray-300">
+            Import the Git repository in Vercel to deploy on every push, or ship
+            it from the CLI.
+          </p>
           <div className="mt-6 flex flex-col gap-3">
             {steps.map(({ num, title, code }) => (
               <Card
@@ -499,19 +519,19 @@ function RailwayPartnerPage() {
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <Button
               as="a"
-              href={RAILWAY_HREF}
+              href={VERCEL_HREF}
               target="_blank"
               rel="noreferrer"
-              onClick={trackRailwayClick}
+              onClick={trackVercelClick}
               className="bg-gray-950 text-white border-gray-950 hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:border-white dark:hover:bg-gray-200"
             >
-              Deploy on Railway
+              Deploy on Vercel
               <ArrowUpRightIcon className="h-4 w-4" />
             </Button>
             <Button
               as={Link}
-              to={TANSTACK_START_RAILWAY_DOCS_PATH}
-              hash={TANSTACK_START_RAILWAY_DOCS_HASH}
+              to={TANSTACK_START_VERCEL_DOCS_PATH}
+              hash={TANSTACK_START_VERCEL_DOCS_HASH}
               onClick={trackTanStackDocsClick}
               variant="ghost"
             >
@@ -523,22 +543,54 @@ function RailwayPartnerPage() {
         {/* Existing TanStack Start apps */}
         <section className="border-t border-gray-200 py-10 dark:border-gray-800">
           <h2 className="text-2xl font-black tracking-tight md:text-3xl">
-            Add Railway to an existing app
+            Add Vercel to an existing app
           </h2>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-gray-600 dark:text-gray-300 md:text-base">
-            Follow the TanStack Start hosting guide to install Nitro, configure
-            Vite, and add the Node start command Railway needs.
+            Install Nitro and register its Vite plugin. Nitro compiles your
+            server code into output that Vercel deploys as Vercel Functions.
           </p>
 
-          <div className="mt-5">
+          <div className="mt-6">
+            <VercelCodeExample
+              code={NITRO_VITE_CONFIG}
+              lang="ts"
+              title="vite.config.ts"
+            />
+          </div>
+
+          <p className="mt-6 max-w-xl text-sm leading-relaxed text-gray-600 dark:text-gray-300">
+            If framework detection does not pick up TanStack Start, set it
+            explicitly:
+          </p>
+
+          <div className="mt-4">
+            <VercelCodeExample
+              code={VERCEL_JSON}
+              lang="json"
+              title="vercel.json"
+            />
+          </div>
+
+          <div className="mt-6 flex flex-wrap items-center gap-3">
             <Button
               as={Link}
-              to={TANSTACK_START_RAILWAY_DOCS_PATH}
-              hash={TANSTACK_START_RAILWAY_DOCS_HASH}
+              to={TANSTACK_START_VERCEL_DOCS_PATH}
+              hash={TANSTACK_START_VERCEL_DOCS_HASH}
               onClick={trackTanStackDocsClick}
               variant="ghost"
             >
-              Open the Railway hosting guide
+              Open the Vercel hosting guide
+            </Button>
+            <Button
+              as="a"
+              href={VERCEL_START_GUIDE_HREF}
+              target="_blank"
+              rel="noreferrer"
+              onClick={trackVercelClick}
+              variant="ghost"
+            >
+              Vercel's TanStack Start guide
+              <ArrowUpRightIcon className="h-4 w-4" />
             </Button>
           </div>
         </section>
@@ -549,12 +601,12 @@ function RailwayPartnerPage() {
             Pricing that scales with you
           </h2>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-gray-600 dark:text-gray-300 md:text-base">
-            Railway bills resource usage by the second. After the trial, Free
-            includes $1 of monthly resource credit. Hobby costs $5/month and
-            includes $5 of monthly usage.
+            Hobby is free for personal, non-commercial projects. Pro is $20 per
+            user/month and includes $20 of monthly usage credit, with metered
+            rates beyond it.
           </p>
 
-          <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {pricing.map(({ plan, price, note, features: pf, highlight }) => (
               <Card
                 key={plan}
@@ -605,28 +657,32 @@ function RailwayPartnerPage() {
               </div>
             ))}
           </div>
+          <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+            Pro overage rates. See Vercel's pricing page for the full list of
+            metered services.
+          </p>
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <Button
               as="a"
-              href={RAILWAY_HREF}
+              href={VERCEL_HREF}
               target="_blank"
               rel="noreferrer"
-              onClick={trackRailwayClick}
+              onClick={trackVercelClick}
               className="bg-gray-950 text-white border-gray-950 hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:border-white dark:hover:bg-gray-200"
             >
-              Start with $5 in credits
+              Start on the free plan
               <ArrowUpRightIcon className="h-4 w-4" />
             </Button>
             <Button
               as="a"
-              href={RAILWAY_PRICING_HREF}
+              href={VERCEL_PRICING_HREF}
               target="_blank"
               rel="noreferrer"
-              onClick={trackRailwayClick}
+              onClick={trackVercelClick}
               variant="ghost"
             >
-              Estimate your costs
+              Compare plans
             </Button>
           </div>
         </section>
@@ -634,11 +690,11 @@ function RailwayPartnerPage() {
         {/* Testimonials */}
         <section className="border-t border-gray-200 py-10 dark:border-gray-800">
           <h2 className="text-2xl font-black tracking-tight md:text-3xl">
-            What teams say after switching
+            What teams say about shipping on Vercel
           </h2>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-gray-600 dark:text-gray-300 md:text-base">
-            Real teams, real bills. These are quotes from founders and engineers
-            who moved their production workloads onto Railway.
+            Quotes from engineers and founders running production workloads on
+            Vercel.
           </p>
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
             {testimonials.map(({ quote, author, role }) => (
@@ -659,18 +715,18 @@ function RailwayPartnerPage() {
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <Button
               as="a"
-              href={RAILWAY_HREF}
+              href={VERCEL_HREF}
               target="_blank"
               rel="noreferrer"
-              onClick={trackRailwayClick}
+              onClick={trackVercelClick}
               className="bg-gray-950 text-white border-gray-950 hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:border-white dark:hover:bg-gray-200"
             >
-              Move your app to Railway
+              Move your app to Vercel
               <ArrowUpRightIcon className="h-4 w-4" />
             </Button>
             <span className="inline-flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
-              <CurrencyDollarIcon className="h-3.5 w-3.5" />
-              Per-second billing, no credit card required
+              <ChartLineIcon className="h-3.5 w-3.5" />
+              Deploy from Git, no credit card required
             </span>
           </div>
         </section>
@@ -681,7 +737,7 @@ function RailwayPartnerPage() {
             Frequently asked questions
           </h2>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-gray-600 dark:text-gray-300 md:text-base">
-            Common questions from TanStack developers evaluating Railway.
+            Common questions from TanStack developers evaluating Vercel.
           </p>
 
           <div className="mt-5 flex flex-col">
@@ -719,26 +775,26 @@ function RailwayPartnerPage() {
         {/* CTA */}
         <section className="mt-6 rounded-2xl bg-gray-950 px-6 py-10 text-center md:px-10 md:py-12 dark:bg-gray-900">
           <div className="inline-block rounded-full bg-white/5 px-3 py-1 text-[11px] text-gray-400">
-            Railway V3 is faster and cheaper
+            TanStack Start runs on Vercel through Nitro
           </div>
           <h2 className="mt-4 text-2xl font-black tracking-tight text-white md:text-3xl">
-            Ready to ship TanStack peacefully?
+            Ready to ship your TanStack app?
           </h2>
           <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-gray-400">
-            No credit card required to start. Set a hard usage limit to keep
-            resource spending under control.
+            Import a Git repository and Vercel handles the build, the preview
+            deployments, and the production rollout.
           </p>
           <p className="mt-1 text-xs text-gray-500">
-            Most customers save ~40% by switching to Railway.
+            Hobby is free for personal, non-commercial projects.
           </p>
 
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Button
               as="a"
-              href={RAILWAY_HREF}
+              href={VERCEL_HREF}
               target="_blank"
               rel="noreferrer"
-              onClick={trackRailwayClick}
+              onClick={trackVercelClick}
               size="lg"
               className="bg-white text-gray-950 border-white hover:bg-gray-100"
             >
@@ -747,8 +803,8 @@ function RailwayPartnerPage() {
             </Button>
             <Button
               as={Link}
-              to={TANSTACK_START_RAILWAY_DOCS_PATH}
-              hash={TANSTACK_START_RAILWAY_DOCS_HASH}
+              to={TANSTACK_START_VERCEL_DOCS_PATH}
+              hash={TANSTACK_START_VERCEL_DOCS_HASH}
               onClick={trackTanStackDocsClick}
               size="lg"
               className="bg-transparent text-white border-gray-700 hover:bg-white/5"
@@ -759,9 +815,9 @@ function RailwayPartnerPage() {
         </section>
 
         <p className="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
-          {RAILWAY_PARTNER.status === 'active'
-            ? `${RAILWAY_PARTNER.name} is a ${RAILWAY_TIER_LABEL} TanStack partner. `
-            : `${RAILWAY_PARTNER.name} is a previous TanStack partner. `}
+          {VERCEL_PARTNER.status === 'active'
+            ? `${VERCEL_PARTNER.name} is a ${VERCEL_TIER_LABEL} TanStack partner. `
+            : `${VERCEL_PARTNER.name} is a previous TanStack partner. `}
           <Link
             to="/partners"
             className="underline decoration-dotted underline-offset-2 hover:text-gray-700 dark:hover:text-gray-300"
@@ -770,13 +826,13 @@ function RailwayPartnerPage() {
           </Link>
           .{' '}
           <a
-            href={RAILWAY_HOME_HREF}
+            href={VERCEL_HOME_HREF}
             target="_blank"
             rel="noreferrer"
-            onClick={trackRailwayClick}
+            onClick={trackVercelClick}
             className="underline decoration-dotted underline-offset-2 hover:text-gray-700 dark:hover:text-gray-300"
           >
-            railway.com
+            vercel.com
           </a>
         </p>
       </div>

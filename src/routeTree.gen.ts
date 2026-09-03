@@ -59,6 +59,7 @@ import { Route as ShowcaseIdRouteImport } from './routes/showcase/$id'
 import { Route as ShopSearchRouteImport } from './routes/shop.search'
 import { Route as ShopCartRouteImport } from './routes/shop.cart'
 import { Route as ShopHandleRouteImport } from './routes/shop.$handle'
+import { Route as PartnersVercelRouteImport } from './routes/partners.vercel'
 import { Route as PartnersRailwayRouteImport } from './routes/partners.railway'
 import { Route as PartnersNetlifyRouteImport } from './routes/partners.netlify'
 import { Route as PartnersPartnerRouteImport } from './routes/partners.$partner'
@@ -467,6 +468,11 @@ const ShopHandleRoute = ShopHandleRouteImport.update({
   id: '/$handle',
   path: '/$handle',
   getParentRoute: () => ShopRoute,
+} as any)
+const PartnersVercelRoute = PartnersVercelRouteImport.update({
+  id: '/vercel',
+  path: '/vercel',
+  getParentRoute: () => PartnersRoute,
 } as any)
 const PartnersRailwayRoute = PartnersRailwayRouteImport.update({
   id: '/railway',
@@ -1424,6 +1430,7 @@ export interface FileRoutesByFullPath {
   '/partners/$partner': typeof PartnersPartnerRoute
   '/partners/netlify': typeof PartnersNetlifyRoute
   '/partners/railway': typeof PartnersRailwayRoute
+  '/partners/vercel': typeof PartnersVercelRoute
   '/shop/$handle': typeof ShopHandleRoute
   '/shop/cart': typeof ShopCartRoute
   '/shop/search': typeof ShopSearchRoute
@@ -1626,6 +1633,7 @@ export interface FileRoutesByTo {
   '/partners/$partner': typeof PartnersPartnerRoute
   '/partners/netlify': typeof PartnersNetlifyRoute
   '/partners/railway': typeof PartnersRailwayRoute
+  '/partners/vercel': typeof PartnersVercelRoute
   '/shop/$handle': typeof ShopHandleRoute
   '/shop/cart': typeof ShopCartRoute
   '/shop/search': typeof ShopSearchRoute
@@ -1834,6 +1842,7 @@ export interface FileRoutesById {
   '/partners/$partner': typeof PartnersPartnerRoute
   '/partners/netlify': typeof PartnersNetlifyRoute
   '/partners/railway': typeof PartnersRailwayRoute
+  '/partners/vercel': typeof PartnersVercelRoute
   '/shop/$handle': typeof ShopHandleRoute
   '/shop/cart': typeof ShopCartRoute
   '/shop/search': typeof ShopSearchRoute
@@ -2046,6 +2055,7 @@ export interface FileRouteTypes {
     | '/partners/$partner'
     | '/partners/netlify'
     | '/partners/railway'
+    | '/partners/vercel'
     | '/shop/$handle'
     | '/shop/cart'
     | '/shop/search'
@@ -2248,6 +2258,7 @@ export interface FileRouteTypes {
     | '/partners/$partner'
     | '/partners/netlify'
     | '/partners/railway'
+    | '/partners/vercel'
     | '/shop/$handle'
     | '/shop/cart'
     | '/shop/search'
@@ -2455,6 +2466,7 @@ export interface FileRouteTypes {
     | '/partners/$partner'
     | '/partners/netlify'
     | '/partners/railway'
+    | '/partners/vercel'
     | '/shop/$handle'
     | '/shop/cart'
     | '/shop/search'
@@ -3018,6 +3030,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/shop/$handle'
       preLoaderRoute: typeof ShopHandleRouteImport
       parentRoute: typeof ShopRoute
+    }
+    '/partners/vercel': {
+      id: '/partners/vercel'
+      path: '/vercel'
+      fullPath: '/partners/vercel'
+      preLoaderRoute: typeof PartnersVercelRouteImport
+      parentRoute: typeof PartnersRoute
     }
     '/partners/railway': {
       id: '/partners/railway'
@@ -4457,6 +4476,7 @@ interface PartnersRouteChildren {
   PartnersPartnerRoute: typeof PartnersPartnerRoute
   PartnersNetlifyRoute: typeof PartnersNetlifyRoute
   PartnersRailwayRoute: typeof PartnersRailwayRoute
+  PartnersVercelRoute: typeof PartnersVercelRoute
   PartnersIndexRoute: typeof PartnersIndexRoute
 }
 
@@ -4464,6 +4484,7 @@ const PartnersRouteChildren: PartnersRouteChildren = {
   PartnersPartnerRoute: PartnersPartnerRoute,
   PartnersNetlifyRoute: PartnersNetlifyRoute,
   PartnersRailwayRoute: PartnersRailwayRoute,
+  PartnersVercelRoute: PartnersVercelRoute,
   PartnersIndexRoute: PartnersIndexRoute,
 }
 

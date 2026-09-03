@@ -32,6 +32,10 @@ const {
   getRailwayPartnerPageModel,
 }: typeof import('../src/utils/railway-partner') = require('../src/utils/railway-partner')
 const {
+  createVercelPartnerPageModel,
+  getVercelPartnerPageModel,
+}: typeof import('../src/utils/vercel-partner') = require('../src/utils/vercel-partner')
+const {
   getStartHostingPartners,
 }: typeof import('../src/utils/start-hosting-partners') = require('../src/utils/start-hosting-partners')
 const {
@@ -41,6 +45,9 @@ const {
 const {
   addOn: reactRailwayAddOn,
 }: typeof import('@tanstack/create/worker-manifest/frameworks/react/add-ons/railway') = require('@tanstack/create/worker-manifest/frameworks/react/add-ons/railway')
+const {
+  addOn: reactVercelAddOn,
+}: typeof import('@tanstack/create/worker-manifest/frameworks/react/add-ons/vercel') = require('@tanstack/create/worker-manifest/frameworks/react/add-ons/vercel')
 
 const formerPartnerFeatures = ['convex', 'neon', 'strapi']
 
@@ -158,6 +165,35 @@ test('custom Railway page derives its partner contract from central data', () =>
   )
 
   const previousModel = createRailwayPartnerPageModel({
+    ...partner,
+    status: 'inactive',
+    startDate: null,
+    endDate: null,
+    tier: undefined,
+  })
+
+  assert.equal(previousModel.partner.status, 'inactive')
+  assert.equal(previousModel.partner.tier, undefined)
+  assert.equal(previousModel.docsResource, docsResource)
+})
+
+test('custom Vercel page derives its partner contract from central data', () => {
+  const model = getVercelPartnerPageModel()
+  const { create, docsResource, partner } = model
+  const centralPartner = partners.find((candidate) => candidate.id === 'vercel')
+
+  assert.equal(partner, centralPartner)
+  assert.ok(partner)
+  assert.equal(centralPartner?.category, 'deployment')
+  assert.ok(centralPartner?.resources?.includes(docsResource))
+  assert.equal(create.deploymentId, reactVercelAddOn.id)
+  assert.equal(reactVercelAddOn.partner.id, partner.id)
+  assert.equal(
+    create.command,
+    `npx @tanstack/cli@latest create my-tanstack-app --deployment ${reactVercelAddOn.id}`,
+  )
+
+  const previousModel = createVercelPartnerPageModel({
     ...partner,
     status: 'inactive',
     startDate: null,

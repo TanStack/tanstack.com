@@ -20,6 +20,8 @@ import { MarkdownLink } from './MarkdownLink'
 import {
   StartHostingLovableLogo,
   StartHostingPartners,
+  StartHostingRenderLogo,
+  StartHostingVercelLogo,
 } from '~/components/StartHostingPartners'
 import {
   MdCommentComponent,
@@ -257,6 +259,8 @@ function createMarkdownComponents(
     pre: CodeBlock,
     'start-hosting-lovable-logo': StartHostingLovableLogo,
     'start-hosting-partners': StartHostingPartners,
+    'start-hosting-render-logo': StartHostingRenderLogo,
+    'start-hosting-vercel-logo': StartHostingVercelLogo,
     table: TableElement,
   }
 }

@@ -14,7 +14,8 @@ test('external HTTPS Markdown links open in a new tab', () => {
   const html = renderLink('https://example.com/docs')
 
   assert.match(html, /target="_blank"/)
-  assert.match(html, /rel="noopener noreferrer"/)
+  assert.match(html, /rel="noopener"/)
+  assert.doesNotMatch(html, /noreferrer/)
 })
 
 test('TanStack HTTPS Markdown links stay in the current tab', () => {
@@ -33,7 +34,8 @@ test('lookalike TanStack hostnames still open in a new tab', () => {
   const html = renderLink('https://tanstack.com.example.org/docs')
 
   assert.match(html, /target="_blank"/)
-  assert.match(html, /rel="noopener noreferrer"/)
+  assert.match(html, /rel="noopener"/)
+  assert.doesNotMatch(html, /noreferrer/)
 })
 
 test('non-HTTPS Markdown links keep their existing behavior', () => {

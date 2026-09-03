@@ -89,14 +89,7 @@ type HostingDeployPartnerId =
   | 'render'
   | 'railway'
   | 'vercel'
-type StarterTransientAction =
-  | 'claude'
-  | 'clone'
-  | 'codex'
-  | 'cursor'
-  | 'deploy'
-  | 'download'
-  | 'netlify'
+type StarterTransientAction = 'clone' | 'deploy'
 
 const hostingDeployPartnerLabels: Record<HostingDeployPartnerId, string> = {
   cloudflare: 'Cloudflare',
@@ -520,19 +513,17 @@ export function ApplicationStarter({
     </Button>
   )
   const renderActionAnchor = ({
-    action,
     className,
     href,
     icon,
     label,
     iconOnly = false,
     onTrack,
-    rel = 'noopener noreferrer',
+    rel = 'noopener',
     size,
     target = '_blank',
     variant = 'primary',
   }: {
-    action: StarterTransientAction
     className?: string
     href?: string
     icon: React.ReactNode
@@ -544,7 +535,7 @@ export function ApplicationStarter({
     target?: string
     variant?: 'primary' | 'secondary'
   }) => {
-    const disabled = !canUseFinalActions || !href || transientAction === action
+    const disabled = !canUseFinalActions || !href
     const waitingForHref = !href
 
     const button = (
@@ -566,14 +557,13 @@ export function ApplicationStarter({
           }
 
           onTrack()
-          showTransientActionFeedback(action)
         }}
         className={twMerge(
           className,
           disabled && 'pointer-events-none opacity-50',
         )}
       >
-        {transientAction === action || waitingForHref ? (
+        {waitingForHref ? (
           <CircleNotchIcon
             className={twMerge(
               'animate-spin',
@@ -583,13 +573,7 @@ export function ApplicationStarter({
         ) : (
           icon
         )}
-        {!iconOnly
-          ? transientAction === action
-            ? 'Opening...'
-            : waitingForHref
-              ? 'Preparing...'
-              : label
-          : null}
+        {!iconOnly ? (waitingForHref ? 'Preparing...' : label) : null}
       </Button>
     )
 
@@ -610,10 +594,7 @@ export function ApplicationStarter({
       const buildLabel = getStarterPromptBuildLabel(
         selectedPromptDeployProvider,
       )
-      const disabled =
-        !canUseFinalActions ||
-        !selectedHostingDeployHref ||
-        transientAction === 'deploy'
+      const disabled = !canUseFinalActions || !selectedHostingDeployHref
       const waitingForHref = !selectedHostingDeployHref
 
       return (
@@ -624,7 +605,7 @@ export function ApplicationStarter({
           size={isHomeStarter ? 'md' : 'sm'}
           href={disabled ? undefined : selectedHostingDeployHref}
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noopener"
           aria-disabled={disabled}
           tabIndex={disabled ? -1 : undefined}
           onClick={(event) => {
@@ -634,21 +615,16 @@ export function ApplicationStarter({
             }
 
             trackSelectedHostingDeployLink()
-            showTransientActionFeedback('deploy')
           }}
           className={disabled ? 'pointer-events-none opacity-50' : undefined}
           aria-label={buildLabel}
         >
-          {isDeployFeedbackActive || waitingForHref ? (
+          {waitingForHref ? (
             <CircleNotchIcon className="h-4 w-4 animate-spin" />
           ) : (
             <RocketIcon className="h-4 w-4" />
           )}
-          {isDeployFeedbackActive
-            ? 'Opening...'
-            : waitingForHref
-              ? 'Preparing...'
-              : buildLabel}
+          {waitingForHref ? 'Preparing...' : buildLabel}
         </Button>
       )
     }
@@ -1383,7 +1359,6 @@ export function ApplicationStarter({
                               <div className="flex flex-wrap items-center gap-3">
                                 {!selectedHostingDeployPartner
                                   ? renderActionAnchor({
-                                      action: 'netlify',
                                       className:
                                         'border-[#00AD9F] bg-[#00AD9F] text-white hover:bg-[#009a8e]',
                                       href: netlifyStartHref,
@@ -1401,7 +1376,6 @@ export function ApplicationStarter({
                                   : null}
 
                                 {renderActionAnchor({
-                                  action: 'codex',
                                   className:
                                     'border-gray-900 bg-gray-900 text-white hover:bg-gray-800 dark:border-gray-100 dark:bg-gray-100 dark:text-gray-950 dark:hover:bg-gray-200',
                                   href: codexStartHref,
@@ -1439,7 +1413,6 @@ export function ApplicationStarter({
                                 )}
                               >
                                 {renderActionAnchor({
-                                  action: 'codex',
                                   className:
                                     'text-text-secondary hover:text-text-primary',
                                   href: codexStartHref,
@@ -1461,7 +1434,6 @@ export function ApplicationStarter({
                                 })}
 
                                 {renderActionAnchor({
-                                  action: 'claude',
                                   className:
                                     'text-text-secondary hover:text-text-primary',
                                   href: claudeStartHref,
@@ -1478,7 +1450,6 @@ export function ApplicationStarter({
                                 })}
 
                                 {renderActionAnchor({
-                                  action: 'cursor',
                                   className:
                                     'text-text-secondary hover:text-text-primary',
                                   href: cursorStartHref,
@@ -1526,7 +1497,6 @@ export function ApplicationStarter({
                                 </Tooltip>
 
                                 {renderActionAnchor({
-                                  action: 'download',
                                   className:
                                     'text-text-secondary hover:text-text-primary',
                                   href: downloadHref,

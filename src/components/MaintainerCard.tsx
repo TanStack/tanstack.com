@@ -395,7 +395,7 @@ export function MaintainerRowCard({
 export function MaintainerCard({ maintainer }: MaintainerCardProps) {
   return (
     <div
-      className="group flex w-full max-w-[190px] flex-col items-center rounded-[20px] corner-squircle p-1 transition-colors duration-200 hover:bg-[#f2f2f2] focus-within:bg-[#f2f2f2] active:bg-[#e5e5e5] motion-reduce:transition-none sm:max-w-[252px] sm:rounded-[26px] sm:p-1.5 dark:hover:bg-[#262626] dark:focus-within:bg-[#262626] dark:active:bg-[#404040]"
+      className="group @container flex w-full max-w-[190px] flex-col items-center rounded-[20px] corner-squircle p-1 transition-colors duration-200 hover:bg-[#f2f2f2] focus-within:bg-[#f2f2f2] active:bg-[#e5e5e5] motion-reduce:transition-none sm:max-w-[252px] sm:rounded-[26px] sm:p-1.5 dark:hover:bg-[#262626] dark:focus-within:bg-[#262626] dark:active:bg-[#404040]"
       aria-label={`Maintainer card for ${maintainer.name}`}
     >
       <a
@@ -416,7 +416,7 @@ export function MaintainerCard({ maintainer }: MaintainerCardProps) {
       </a>
       <div className="flex w-full flex-col items-start gap-2 pb-[18px] pt-4 sm:pb-[27px] sm:pt-5">
         <span
-          className="text-left font-ds-mono text-ds-mono-sm text-text-primary sm:text-ds-mono-lg"
+          className="text-left font-ds-mono text-ds-mono-sm text-text-primary @[13rem]:text-ds-mono-lg"
           id={`maintainer-name-${maintainer.github}`}
         >
           {maintainer.name}

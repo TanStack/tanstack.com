@@ -9,5 +9,8 @@ Sentry.init({
   tracesSampleRate: 1.0, //  Capture 100% of the transactions
   // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
   tracePropagationTargets: ['localhost', /^https:\/\/tanstack\.com\//],
-  beforeSend: redactByokRequestHeaders,
+  beforeSend: (event, hint) => {
+    if (hint.originalException?.isNotFound) return null
+    return redactByokRequestHeaders(event, hint)
+  },
 })

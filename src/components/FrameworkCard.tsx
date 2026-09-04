@@ -66,6 +66,7 @@ export function FrameworkCard({
           version,
           _splat: installationPath,
         }}
+        preload={false}
         hash={installationHash}
         className="flex flex-col flex-1 gap-4"
       >
@@ -117,6 +118,7 @@ export function FrameworkCard({
             version,
             _splat: installationPath,
           }}
+          preload={false}
           hash={installationHash}
           className="block w-full text-center text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 underline transition-colors"
         >

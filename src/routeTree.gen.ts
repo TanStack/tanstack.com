@@ -205,6 +205,7 @@ import { Route as ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRouteIm
 import { Route as ApiBuilderProjectsIdSyncRouteImport } from './routes/api/builder/projects.$id.sync'
 import { Route as ApiBuilderProjectSnapshotsHashQuarantineRouteImport } from './routes/api/builder/project-snapshots.$hash.quarantine'
 import { Route as ApiAuthCliStatusTicketIdRouteImport } from './routes/api/auth/cli/status.$ticketId'
+import { Route as LibraryMarkdownVersionReportsSizesRouteImport } from './routes/_library/markdown.$version.reports.sizes'
 import { Route as LibraryChartsCatalogCollectionsCollectionIdRouteImport } from './routes/_library/charts.catalog.collections.$collectionId'
 import { Route as LibraryChartsCatalogChartsCaseIdRouteImport } from './routes/_library/charts.catalog.charts.$caseId'
 import { Route as LibraryLibraryIdVersionDocsChar123Char125DotmdRouteImport } from './routes/_library/$libraryId/$version.docs.{$}[.]md'
@@ -1249,6 +1250,12 @@ const ApiAuthCliStatusTicketIdRoute =
     path: '/api/auth/cli/status/$ticketId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const LibraryMarkdownVersionReportsSizesRoute =
+  LibraryMarkdownVersionReportsSizesRouteImport.update({
+    id: '/markdown/$version/reports/sizes',
+    path: '/markdown/$version/reports/sizes',
+    getParentRoute: () => LibraryRoute,
+  } as any)
 const LibraryChartsCatalogCollectionsCollectionIdRoute =
   LibraryChartsCatalogCollectionsCollectionIdRouteImport.update({
     id: '/collections/$collectionId',
@@ -1536,6 +1543,7 @@ export interface FileRoutesByFullPath {
   '/$libraryId/$version/docs/{$}.md': typeof LibraryLibraryIdVersionDocsChar123Char125DotmdRoute
   '/charts/catalog/charts/$caseId': typeof LibraryChartsCatalogChartsCaseIdRoute
   '/charts/catalog/collections/$collectionId': typeof LibraryChartsCatalogCollectionsCollectionIdRoute
+  '/markdown/$version/reports/sizes': typeof LibraryMarkdownVersionReportsSizesRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
   '/api/builder/project-snapshots/$hash/quarantine': typeof ApiBuilderProjectSnapshotsHashQuarantineRoute
   '/api/builder/projects/$id/sync': typeof ApiBuilderProjectsIdSyncRoute
@@ -1735,6 +1743,7 @@ export interface FileRoutesByTo {
   '/$libraryId/$version/docs/{$}.md': typeof LibraryLibraryIdVersionDocsChar123Char125DotmdRoute
   '/charts/catalog/charts/$caseId': typeof LibraryChartsCatalogChartsCaseIdRoute
   '/charts/catalog/collections/$collectionId': typeof LibraryChartsCatalogCollectionsCollectionIdRoute
+  '/markdown/$version/reports/sizes': typeof LibraryMarkdownVersionReportsSizesRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
   '/api/builder/project-snapshots/$hash/quarantine': typeof ApiBuilderProjectSnapshotsHashQuarantineRoute
   '/api/builder/projects/$id/sync': typeof ApiBuilderProjectsIdSyncRoute
@@ -1948,6 +1957,7 @@ export interface FileRoutesById {
   '/_library/$libraryId/$version/docs/{$}.md': typeof LibraryLibraryIdVersionDocsChar123Char125DotmdRoute
   '/_library/charts/catalog/charts/$caseId': typeof LibraryChartsCatalogChartsCaseIdRoute
   '/_library/charts/catalog/collections/$collectionId': typeof LibraryChartsCatalogCollectionsCollectionIdRoute
+  '/_library/markdown/$version/reports/sizes': typeof LibraryMarkdownVersionReportsSizesRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
   '/api/builder/project-snapshots/$hash/quarantine': typeof ApiBuilderProjectSnapshotsHashQuarantineRoute
   '/api/builder/projects/$id/sync': typeof ApiBuilderProjectsIdSyncRoute
@@ -2161,6 +2171,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/{$}.md'
     | '/charts/catalog/charts/$caseId'
     | '/charts/catalog/collections/$collectionId'
+    | '/markdown/$version/reports/sizes'
     | '/api/auth/cli/status/$ticketId'
     | '/api/builder/project-snapshots/$hash/quarantine'
     | '/api/builder/projects/$id/sync'
@@ -2360,6 +2371,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/{$}.md'
     | '/charts/catalog/charts/$caseId'
     | '/charts/catalog/collections/$collectionId'
+    | '/markdown/$version/reports/sizes'
     | '/api/auth/cli/status/$ticketId'
     | '/api/builder/project-snapshots/$hash/quarantine'
     | '/api/builder/projects/$id/sync'
@@ -2572,6 +2584,7 @@ export interface FileRouteTypes {
     | '/_library/$libraryId/$version/docs/{$}.md'
     | '/_library/charts/catalog/charts/$caseId'
     | '/_library/charts/catalog/collections/$collectionId'
+    | '/_library/markdown/$version/reports/sizes'
     | '/api/auth/cli/status/$ticketId'
     | '/api/builder/project-snapshots/$hash/quarantine'
     | '/api/builder/projects/$id/sync'
@@ -4053,6 +4066,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthCliStatusTicketIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_library/markdown/$version/reports/sizes': {
+      id: '/_library/markdown/$version/reports/sizes'
+      path: '/markdown/$version/reports/sizes'
+      fullPath: '/markdown/$version/reports/sizes'
+      preLoaderRoute: typeof LibraryMarkdownVersionReportsSizesRouteImport
+      parentRoute: typeof LibraryRoute
+    }
     '/_library/charts/catalog/collections/$collectionId': {
       id: '/_library/charts/catalog/collections/$collectionId'
       path: '/collections/$collectionId'
@@ -4332,6 +4352,7 @@ interface LibraryRouteChildren {
   LibraryTableVersionIndexRoute: typeof LibraryTableVersionIndexRoute
   LibraryVirtualVersionIndexRoute: typeof LibraryVirtualVersionIndexRoute
   LibraryWorkflowVersionIndexRoute: typeof LibraryWorkflowVersionIndexRoute
+  LibraryMarkdownVersionReportsSizesRoute: typeof LibraryMarkdownVersionReportsSizesRoute
 }
 
 const LibraryRouteChildren: LibraryRouteChildren = {
@@ -4357,6 +4378,8 @@ const LibraryRouteChildren: LibraryRouteChildren = {
   LibraryTableVersionIndexRoute: LibraryTableVersionIndexRoute,
   LibraryVirtualVersionIndexRoute: LibraryVirtualVersionIndexRoute,
   LibraryWorkflowVersionIndexRoute: LibraryWorkflowVersionIndexRoute,
+  LibraryMarkdownVersionReportsSizesRoute:
+    LibraryMarkdownVersionReportsSizesRoute,
 }
 
 const LibraryRouteWithChildren =

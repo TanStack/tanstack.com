@@ -70,6 +70,11 @@ test(
       return paths
     })
 
+    cases.push({
+      path: '/markdown/latest/reports/sizes',
+      expected: 'ok',
+    })
+
     for (const smokeCase of cases) {
       const result = await fetchWithRedirects(new URL(smokeCase.path, baseUrl))
 

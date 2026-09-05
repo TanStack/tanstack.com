@@ -364,6 +364,7 @@ export const BuilderAssistant = React.forwardRef<
   const [queueAnnouncement, setQueueAnnouncement] = React.useState('')
   const [showLatest, setShowLatest] = React.useState(false)
   const abortRef = React.useRef<AbortController>(null)
+  const unlockingRef = React.useRef(false)
   const onRunningChangeRef = React.useRef(onRunningChange)
   const abortIntentRef = React.useRef<'steer' | 'stop' | undefined>(undefined)
   const agentStreamingRef = React.useRef(false)
@@ -1395,13 +1396,24 @@ export const BuilderAssistant = React.forwardRef<
     // prompt (it silently never resolves) if the unlock runs later in the
     // async send pipeline, past the activation window.
     if (selectedModel.connection === 'byok') {
-      await unlockApiKey(selectedModel.provider)
+      // Guard the async unlock window: ignore repeat submits while the passkey
+      // ceremony is pending (a second ceremony would be rejected anyway), and
+      // read the model once so a mid-await model change cannot alter the target.
+      if (unlockingRef.current) return
+      const provider = selectedModel.provider
+      unlockingRef.current = true
+      try {
+        await unlockApiKey(provider)
+      } finally {
+        unlockingRef.current = false
+      }
       // Bail if it is still locked (unlock cancelled or failed) — the run
       // pipeline can no longer surface the WebAuthn prompt itself.
-      const client = byokConnection.getClient(selectedModel.provider, {
-        allowUnlock: false,
-      })
-      if (!client) return
+      const client = byokConnection.getClient(provider, { allowUnlock: false })
+      if (!client) {
+        setError('Could not unlock the API key. Try again.')
+        return
+      }
     }
     submitInstruction(prompt, sendMode, true)
   }

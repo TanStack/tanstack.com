@@ -99,7 +99,9 @@ export const Route = createFileRoute('/_library/$libraryId/$version/docs/$')({
     return {
       meta: [
         ...seo({
-          title: `${loaderData?.title} | ${library.name} Docs`,
+          title: loaderData?.title
+            ? `${loaderData.title} | ${library.name} Docs`
+            : `${library.name} Docs`,
           description: loaderData?.description,
           keywords: loaderData?.keywords,
           image: ogImageUrl(library.id, {

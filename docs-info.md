@@ -89,7 +89,23 @@ body {
 
 ### Package manager tabs
 
-Package-manager tabs are a special `tabs` variant. The parser reads framework lines like `react: ...` or `solid: ...`, groups packages, and later generates package-manager-specific commands.
+Package-manager tabs are a special `tabs` variant. Lines without a framework prefix apply to every framework. Use prefixes like `react: ...` or `solid: ...` only for framework-specific packages or commands.
+
+Each line produces a separate command for the selected package manager. For example, this block shows three commands:
+
+```md
+<!-- ::start:tabs variant="package-manager" mode="local-install" -->
+
+@tanstack/intent@latest list
+@tanstack/intent@latest validate
+@tanstack/intent@latest review
+
+<!-- ::end:tabs -->
+```
+
+Shared lines can be mixed with framework-specific lines. The selected framework receives its own lines plus every shared line, in source order. A framework without its own lines receives only the shared lines.
+
+Wrap the lines in a fenced text block inside the component when arguments contain literal Markdown characters such as `<package>#<skill>` or `*`.
 
 There are various supported package manager formats, including npm, yarn, pnpm, and bun.
 

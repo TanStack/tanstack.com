@@ -5,6 +5,10 @@ const hostingPartnersElement =
   '<start-hosting-partners></start-hosting-partners>'
 const lovableLogoElement =
   '<start-hosting-lovable-logo></start-hosting-lovable-logo>'
+const renderLogoElement =
+  '<start-hosting-render-logo></start-hosting-render-logo>'
+const vercelLogoElement =
+  '<start-hosting-vercel-logo></start-hosting-vercel-logo>'
 
 type HostingPartner = Pick<Partner, 'id' | 'name'>
 
@@ -26,12 +30,112 @@ Create a project in [Lovable](https://lovable.dev/?utm_source=tanstack), describ
     isOfficialPartner: true,
     partnerId: 'lovable',
   },
+  {
+    content: `### Vercel ⭐ _Official Partner_
+
+${vercelLogoElement}
+
+Vercel supports TanStack Start through Nitro. Once Nitro is configured, Vercel detects the framework and supplies the build command and output settings.
+
+For a new app, let the TanStack CLI add the current Vercel setup:
+
+\`\`\`bash
+npx @tanstack/cli@latest create my-tanstack-app --deployment vercel
+\`\`\`
+
+For an existing Vite app, install Nitro and add its Vite plugin:
+
+\`\`\`bash
+pnpm add nitro
+\`\`\`
+
+\`\`\`ts
+// vite.config.ts
+import { tanstackStart } from '@tanstack/react-start/plugin/vite'
+import { defineConfig } from 'vite'
+import { nitro } from 'nitro/vite'
+import viteReact from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [tanstackStart(), nitro(), viteReact()],
+})
+\`\`\`
+
+The TanStack CLI also adds a \`vercel.json\` file so framework detection is explicit:
+
+\`\`\`json
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "tanstack-start"
+}
+\`\`\`
+
+Import the Git repository in [Vercel](https://vercel.com/new?utm_source=tanstack&utm_medium=referral&utm_campaign=gold-launch), or deploy it with \`npx vercel\`. Add secrets under **Settings > Environment Variables** without a \`VITE_\` prefix, since \`VITE_\` values are included in browser code.
+
+See Vercel's [TanStack Start deployment guide](https://vercel.com/kb/guide/deploy-a-tanstack-start-app-to-vercel) for framework detection, Git deployments, preview deployments, and environment configuration.`,
+    isOfficialPartner: true,
+    partnerId: 'vercel',
+  },
+  {
+    content: `### Render ⭐ _Official Partner_
+
+${renderLogoElement}
+
+TanStack Start runs on Render as a Node web service built with Nitro. The TanStack CLI can add the current Nitro setup, start script, and Render Blueprint:
+
+\`\`\`bash
+npx @tanstack/cli@latest create my-tanstack-app --deployment render
+\`\`\`
+
+For an existing Vite app, install Nitro, add \`nitro()\` to the Vite plugins as shown in the [Nitro guide](#nitro), and make sure \`package.json\` has a production start script:
+
+\`\`\`json
+{
+  "scripts": {
+    "build": "vite build",
+    "start": "node .output/server/index.mjs"
+  }
+}
+\`\`\`
+
+Add this \`render.yaml\` Blueprint at the repository root, adjusting the package manager commands when needed:
+
+\`\`\`yaml
+services:
+  - type: web
+    runtime: node
+    name: tanstack-start-app
+    buildCommand: pnpm install && pnpm build
+    startCommand: pnpm start
+    envVars:
+      - key: NITRO_PRESET
+        value: render-com
+      - key: HOST
+        value: 0.0.0.0
+\`\`\`
+
+Push the repository to GitHub, GitLab, or Bitbucket, then choose **New > Blueprint** in [Render](https://dashboard.render.com/select-repo?type=blueprint&utm_source=tanstack&utm_medium=referral&utm_campaign=gold-launch). Render supplies \`PORT\`, and Nitro reads it at runtime. Add secret environment values in the Render Dashboard instead of committing them to \`render.yaml\`.
+
+See Render's [Blueprint documentation](https://render.com/docs/infrastructure-as-code) and [environment variable documentation](https://render.com/docs/configure-environment-variables) for more configuration options.`,
+    isOfficialPartner: true,
+    partnerId: 'render',
+  },
 ]
+
+const generatedHostingPartnerIds = new Set(
+  generatedHostingPartnerSections.flatMap((section) =>
+    section.partnerId ? [section.partnerId] : [],
+  ),
+)
 
 const hostingPartnersElementPattern =
   /^\s*<start-hosting-partners>\s*<\/start-hosting-partners>\s*$/i
 const lovableLogoElementPattern =
   /^\s*<start-hosting-lovable-logo>\s*<\/start-hosting-lovable-logo>\s*$/i
+const renderLogoElementPattern =
+  /^\s*<start-hosting-render-logo>\s*<\/start-hosting-render-logo>\s*$/i
+const vercelLogoElementPattern =
+  /^\s*<start-hosting-vercel-logo>\s*<\/start-hosting-vercel-logo>\s*$/i
 
 export function isStartHostingGuide({
   filePath,
@@ -92,7 +196,13 @@ export function renderDynamicStartHostingGuide(
   const unmatchedPartnerSections = partnerSections.filter(
     (section) => !orderedPartnerIds.has(section.partnerId),
   )
-  const otherSections = sections.slice(firstOtherSectionIndex)
+  const otherSections = sections
+    .slice(firstOtherSectionIndex)
+    .filter(
+      (section) =>
+        !section.partnerId ||
+        !generatedHostingPartnerIds.has(section.partnerId),
+    )
 
   return [
     content.slice(0, recommendationStart).trimEnd(),
@@ -125,6 +235,14 @@ export function mapStartHostingPartnerElements(
 
       if (lovableLogoElementPattern.test(block.value)) {
         return createComponentBlock('start-hosting-lovable-logo')
+      }
+
+      if (renderLogoElementPattern.test(block.value)) {
+        return createComponentBlock('start-hosting-render-logo')
+      }
+
+      if (vercelLogoElementPattern.test(block.value)) {
+        return createComponentBlock('start-hosting-vercel-logo')
       }
 
       return block
@@ -166,10 +284,6 @@ function findHeadingPartnerId(
   heading: string,
   partners: Array<HostingPartner>,
 ) {
-  if (!heading.toLowerCase().includes('official partner')) {
-    return undefined
-  }
-
   const normalizedHeading = normalizeName(heading)
 
   return partners.find((partner) =>

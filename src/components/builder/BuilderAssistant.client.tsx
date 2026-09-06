@@ -1,5 +1,4 @@
 import * as React from 'react'
-import * as DialogPrimitive from '@radix-ui/react-dialog'
 import {
   ArrowDownIcon,
   CaretDownIcon,
@@ -19,6 +18,10 @@ import type { ByokClient, ByokSnapshot } from '@tanstack/ai-client/byok'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import {
   Button,
+  Dialog,
+  DialogBody,
+  DialogContent,
+  DialogHeader,
   Dropdown,
   DropdownContent,
   DropdownItem,
@@ -3654,110 +3657,89 @@ function ConnectionsDialog({
   onUnlock: (provider: BuilderAiRemoteProvider) => Promise<void>
 }) {
   return (
-    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
-      <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-[999] bg-black/45 backdrop-blur-[1px] data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0 motion-reduce:animate-none" />
-        <DialogPrimitive.Content className="sandbox-ui fixed top-1/2 left-1/2 z-[1000] max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border border-border-default bg-background-surface text-text-primary shadow-2xl outline-none data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 motion-reduce:animate-none">
-          <header className="flex h-14 items-center justify-between border-b border-border-default px-5">
-            <DialogPrimitive.Title className="text-sm font-semibold">
-              Model connections
-            </DialogPrimitive.Title>
-            <DialogPrimitive.Close asChild>
-              <Button
-                type="button"
-                variant="icon"
-                color="gray"
-                size="icon-sm"
-                aria-label="Close model connections"
-              >
-                <XIcon className="size-4" aria-hidden="true" />
-              </Button>
-            </DialogPrimitive.Close>
-          </header>
-          <DialogPrimitive.Description className="sr-only">
-            Connect a ChatGPT plan or configure an API key.
-          </DialogPrimitive.Description>
-          <div className="space-y-6 p-5">
-            {showChatGpt ? (
-              <div>
-                <h3 className="text-sm font-medium">ChatGPT</h3>
-                {chatGpt.connected ? (
-                  <div className="mt-3 flex items-center justify-between gap-4 rounded-xl border border-border-default p-3">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm">
-                        {chatGpt.email || 'Connected'}
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      {/* `sandbox-ui` scopes the builder's own type/colour context; the DS
+          panel supplies posture, elevation and behaviour. */}
+      <DialogContent size="md" className="sandbox-ui">
+        <DialogHeader title="Model connections" />
+        <DialogBody className="space-y-6 pb-5">
+          {showChatGpt ? (
+            <div>
+              <h3 className="text-sm font-medium">ChatGPT</h3>
+              {chatGpt.connected ? (
+                <div className="mt-3 flex items-center justify-between gap-4 rounded-xl border border-border-default p-3">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm">
+                      {chatGpt.email || 'Connected'}
+                    </p>
+                    {chatGpt.planType ? (
+                      <p className="mt-0.5 text-xs text-text-muted">
+                        {formatPlan(chatGpt.planType)} plan
                       </p>
-                      {chatGpt.planType ? (
-                        <p className="mt-0.5 text-xs text-text-muted">
-                          {formatPlan(chatGpt.planType)} plan
-                        </p>
-                      ) : null}
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="xs"
-                      disabled={busy}
-                      onClick={onDisconnect}
-                    >
-                      Disconnect
-                    </Button>
-                  </div>
-                ) : chatGptLogin ? (
-                  <DeviceLogin
-                    busy={busy}
-                    error={chatGptError}
-                    login={chatGptLogin}
-                    onCancel={onCancelLogin}
-                    onRefresh={onRefresh}
-                  />
-                ) : (
-                  <>
-                    <Button
-                      type="button"
-                      size="sm"
-                      className="mt-3"
-                      disabled={busy}
-                      onClick={onConnect}
-                    >
-                      {busy ? (
-                        <SpinnerGapIcon
-                          className="size-4 animate-spin motion-reduce:animate-none"
-                          aria-hidden="true"
-                        />
-                      ) : null}
-                      Continue with ChatGPT
-                    </Button>
-                    {chatGptError ? (
-                      <ErrorMessage message={chatGptError} />
                     ) : null}
-                  </>
-                )}
-              </div>
-            ) : null}
-            <div
-              className={
-                showChatGpt ? 'border-t border-border-default pt-5' : ''
-              }
-            >
-              <h3 className="text-sm font-medium">API key</h3>
-              <ProviderSettingsForm
-                byok={byok}
-                byokSnapshot={byokSnapshot}
-                error={apiKeyError}
-                legacyByokSnapshot={legacyByokSnapshot}
-                provider={provider}
-                onClear={onClear}
-                onMigrate={onMigrate}
-                onProviderChange={onProviderChange}
-                onSave={onSave}
-                onUnlock={onUnlock}
-              />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="xs"
+                    disabled={busy}
+                    onClick={onDisconnect}
+                  >
+                    Disconnect
+                  </Button>
+                </div>
+              ) : chatGptLogin ? (
+                <DeviceLogin
+                  busy={busy}
+                  error={chatGptError}
+                  login={chatGptLogin}
+                  onCancel={onCancelLogin}
+                  onRefresh={onRefresh}
+                />
+              ) : (
+                <>
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="mt-3"
+                    disabled={busy}
+                    onClick={onConnect}
+                  >
+                    {busy ? (
+                      <SpinnerGapIcon
+                        className="size-4 animate-spin motion-reduce:animate-none"
+                        aria-hidden="true"
+                      />
+                    ) : null}
+                    Continue with ChatGPT
+                  </Button>
+                  {chatGptError ? (
+                    <ErrorMessage message={chatGptError} />
+                  ) : null}
+                </>
+              )}
             </div>
+          ) : null}
+          <div
+            className={showChatGpt ? 'border-t border-border-default pt-5' : ''}
+          >
+            <h3 className="text-sm font-medium">API key</h3>
+            <ProviderSettingsForm
+              byok={byok}
+              byokSnapshot={byokSnapshot}
+              error={apiKeyError}
+              legacyByokSnapshot={legacyByokSnapshot}
+              provider={provider}
+              onClear={onClear}
+              onMigrate={onMigrate}
+              onProviderChange={onProviderChange}
+              onSave={onSave}
+              onUnlock={onUnlock}
+            />
           </div>
-        </DialogPrimitive.Content>
-      </DialogPrimitive.Portal>
-    </DialogPrimitive.Root>
+        </DialogBody>
+      </DialogContent>
+    </Dialog>
   )
 }
 

@@ -2763,7 +2763,7 @@ function SearchResultsToggle() {
       {tooltipRect && typeof document !== 'undefined'
         ? createPortal(
             <div
-              className="pointer-events-none fixed z-[1200] whitespace-nowrap px-2.5 py-1.5 rounded-md bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs shadow-lg"
+              className="pointer-events-none fixed z-[var(--z-above-overlay)] whitespace-nowrap px-2.5 py-1.5 rounded-md bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs shadow-lg"
               style={{
                 top: tooltipRect.top - 8,
                 left: tooltipRect.right,
@@ -3461,13 +3461,16 @@ export function SearchModal() {
           <>
             <DialogPrimitive.Overlay
               forceMount
-              className="search-modal-overlay fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm xl:bg-black/30"
+              // xl keeps a deliberately lighter scrim: past that width the
+              // palette covers a small share of the screen, and the full
+              // --color-scrim reads as heavier than the interaction warrants.
+              className="search-modal-overlay fixed inset-0 z-[var(--z-scrim)] bg-scrim backdrop-blur-sm xl:bg-black/30"
             />
             <DialogPrimitive.Content
               forceMount
               ref={contentRef}
               className={twMerge(
-                'search-modal-content fixed z-[1000] inset-0 sm:inset-auto sm:top-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-[96%] xl:w-full sm:max-w-4xl text-left outline-none',
+                'search-modal-content fixed z-[var(--z-overlay)] inset-0 sm:inset-auto sm:top-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-[96%] xl:w-full sm:max-w-4xl text-left outline-none',
                 isFullHeight && 'sm:bottom-4',
               )}
               onInteractOutside={(event) => {
@@ -3706,7 +3709,7 @@ export function AiDock() {
       inert={!isAiDockOpen}
       style={dockStyle}
       className={twMerge(
-        'fixed top-[var(--navbar-height)] right-0 bottom-0 z-[1000] w-full max-w-full pointer-events-none',
+        'fixed top-[var(--navbar-height)] right-0 bottom-0 z-[var(--z-overlay)] w-full max-w-full pointer-events-none',
         isDockMaximized
           ? 'sm:w-[min(var(--ai-dock-max-width),100vw)]'
           : 'sm:w-[var(--ai-dock-width)]',

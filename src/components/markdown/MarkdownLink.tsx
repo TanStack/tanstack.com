@@ -96,7 +96,7 @@ export function MarkdownLink({
         {...rest}
         href={hrefProp}
         target={openInNewTab ? '_blank' : undefined}
-        rel={openInNewTab ? 'noopener noreferrer' : undefined}
+        rel={openInNewTab ? 'noopener' : undefined}
       >
         {rest.children}
       </a>

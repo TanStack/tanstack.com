@@ -18,6 +18,7 @@ import { frameworkOptions } from '~/libraries/frameworks'
 import { fallbackLibraryIcon, libraryIcons } from '~/libraries/icons'
 import { twMerge } from 'tailwind-merge'
 import {
+  getPartnerHref,
   partners,
   PartnerImage,
   partnerTiers,
@@ -57,7 +58,6 @@ const docsPartnerTierWeights: Record<PartnerTier, number> = {
 type DocRecency = 'new' | 'updated' | null
 type DocsPartner = {
   category: Partner['category']
-  score: Partner['score']
   tier?: Partner['tier']
   id: string
   name: string
@@ -192,11 +192,12 @@ function DocsPartnerSlotLink({
     },
   })
   const compactImageConfig = getCompactPartnerImageConfig(partner.image)
+  const href = getPartnerHref(partner, 'docs_strip')
 
   const onClick = () => {
     let destinationHost: string | undefined
     try {
-      destinationHost = new URL(partner.href).host
+      destinationHost = new URL(href).host
     } catch {
       // Bad/relative href — track without host rather than dropping.
     }
@@ -213,7 +214,7 @@ function DocsPartnerSlotLink({
   return (
     <a
       ref={ref}
-      href={partner.href}
+      href={href}
       target="_blank"
       rel="noreferrer"
       aria-label={`${partner.name} partner`}

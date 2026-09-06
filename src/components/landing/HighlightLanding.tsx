@@ -179,8 +179,8 @@ export default function HighlightLanding() {
             body="Every renderer and adapter receives the highlighter you assembled; none imports every language behind your back."
           />
           <Link
-            to="/$libraryId"
-            params={{ libraryId: markdownLibrary.id }}
+            to="/markdown/$version"
+            params={{ version: 'latest' }}
             className="group rounded-xl border border-border-subtle bg-background-surface p-6 transition-colors hover:border-border-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
           >
             <p className="font-ds-mono text-ds-mono-caps uppercase text-[var(--landing-accent-bright)]">

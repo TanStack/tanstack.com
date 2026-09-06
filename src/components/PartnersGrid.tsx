@@ -1,5 +1,6 @@
 import * as React from 'react'
 import {
+  getPartnerHref,
   partners as allPartners,
   PartnerImage,
   partnerTierBandColor,
@@ -111,11 +112,12 @@ function PartnerGridItem({
   })
 
   const layout = tierLayout[partner.tier ?? 'bronze']
+  const href = getPartnerHref(partner, analyticsPlacement)
 
   return (
     <a
       ref={ref}
-      href={partner.href}
+      href={href}
       target="_blank"
       rel="noreferrer"
       className={`flex items-center justify-center
@@ -125,7 +127,7 @@ function PartnerGridItem({
       onClick={() => {
         let destinationHost: string | undefined
         try {
-          destinationHost = new URL(partner.href).host
+          destinationHost = new URL(href).host
         } catch {
           // Bad/relative href — track without host rather than dropping.
         }

@@ -8,6 +8,7 @@ import {
   HeadContent,
   Scripts,
   defaultStringifySearch,
+  type ErrorComponentProps,
 } from '@tanstack/react-router'
 import { QueryClientProvider, type QueryClient } from '@tanstack/react-query'
 import { createThemeCss, type HighlightTheme } from '@tanstack/highlight/theme'
@@ -259,9 +260,43 @@ export const Route = createRootRouteWithContext<{
   headers: () => DOCUMENT_CACHE_HEADERS,
   staleTime: Infinity,
   shellComponent: ShellComponent,
-  errorComponent: DefaultCatchBoundary,
-  notFoundComponent: () => <NotFound />,
+  errorComponent: RootErrorBoundary,
+  notFoundComponent: RootNotFound,
 })
+
+function RootDocumentShell({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP }}
+          suppressHydrationWarning
+        />
+        <HeadContent />
+      </head>
+      <body>
+        {children}
+        <Scripts />
+      </body>
+    </html>
+  )
+}
+
+function RootErrorBoundary(props: ErrorComponentProps) {
+  return (
+    <RootDocumentShell>
+      <DefaultCatchBoundary {...props} />
+    </RootDocumentShell>
+  )
+}
+
+function RootNotFound() {
+  return (
+    <RootDocumentShell>
+      <NotFound />
+    </RootDocumentShell>
+  )
+}
 
 function ShellComponent({ children }: { children: React.ReactNode }) {
   const router = useRouter()

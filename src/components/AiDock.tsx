@@ -95,7 +95,8 @@ function readAiDockWidth() {
     return AI_DOCK_DEFAULT_WIDTH
   }
 
-  const storedWidth = Number(localStorage.getItem(AI_DOCK_WIDTH_STORAGE_KEY))
+  const storedValue = localStorage.getItem(AI_DOCK_WIDTH_STORAGE_KEY)
+  const storedWidth = Number(storedValue?.trim() || AI_DOCK_DEFAULT_WIDTH)
 
   if (!Number.isFinite(storedWidth)) {
     return clampAiDockWidth(AI_DOCK_DEFAULT_WIDTH, window.innerWidth)
@@ -2097,6 +2098,8 @@ function SearchResultsInChat({ surface }: { surface: SearchSurface }) {
   return (
     <div
       className="overflow-hidden transition-[height] duration-300"
+      aria-hidden={!isOpen}
+      inert={!isOpen}
       style={{
         height: isOpen ? (isDock ? '260px' : '210px') : '0px',
         transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',

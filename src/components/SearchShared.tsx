@@ -10,7 +10,7 @@ import {
 import { Snippet, Configure, useInstantSearch } from 'react-instantsearch'
 import { liteClient } from 'algoliasearch/lite'
 import { CaretDownIcon, ArrowElbowDownLeftIcon } from '@phosphor-icons/react'
-import { Link, useRouterState } from '@tanstack/react-router'
+import { Link, useNavigate, useRouterState } from '@tanstack/react-router'
 import { useSearchContext } from '~/contexts/SearchContext'
 import { publicLibraries, type Framework } from '~/libraries'
 import { frameworkOptions } from '~/libraries/frameworks'
@@ -78,7 +78,7 @@ export interface AlgoliaHit extends Record<string, unknown> {
   library?: string
   framework?: string
   routeStyle?: string
-  hierarchy: AlgoliaHierarchy
+  hierarchy?: AlgoliaHierarchy
   content?: string
   type?: string
   __position: number
@@ -550,6 +550,7 @@ export const Hit = ({
   refinedFramework: string | null
 }) => {
   const { closeSearch } = useSearchContext()
+  const navigate = useNavigate()
   const persistFramework = usePersistFrameworkPreference()
 
   const handleActivate = () => {
@@ -582,8 +583,15 @@ export const Hit = ({
   }
 
   const handleCommandSelect = () => {
+    if (!isSafeHref(hitUrl)) {
+      return
+    }
+
     handleActivate()
-    if (typeof window !== 'undefined') {
+    const internalTarget = getInternalLinkTarget(hitUrl)
+    if (internalTarget) {
+      void navigate({ to: internalTarget.path, hash: internalTarget.hash })
+    } else if (typeof window !== 'undefined') {
       window.location.assign(hitUrl)
     }
   }
@@ -651,7 +659,7 @@ export const Hit = ({
     'lvl4',
     'lvl5',
     'lvl6',
-  ].filter((lvl) => hit.hierarchy[lvl])
+  ].filter((lvl) => hit.hierarchy?.[lvl])
 
   const content = (
     <article className="flex items-start gap-4">

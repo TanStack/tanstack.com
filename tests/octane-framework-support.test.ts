@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict'
-import { charts, libraries, store, table } from '../src/libraries/libraries'
+import { ai, charts, libraries, store, table } from '../src/libraries/libraries'
 import { getFrameworkPackageName } from '../src/libraries/frameworkSupport'
 
 assert.deepEqual(
   libraries
     .filter((library) => library.frameworks.includes('octane'))
     .map((library) => library.id),
-  ['table', 'charts', 'store'],
-  'Table, Charts, and Store advertise Octane support',
+  ['table', 'charts', 'ai', 'store'],
+  'Table, Charts, AI, and Store advertise Octane support',
 )
 
 assert.equal(
@@ -18,6 +18,11 @@ assert.equal(
 assert.equal(
   getFrameworkPackageName('octane', charts.id, charts),
   '@tanstack/charts',
+)
+
+assert.equal(
+  getFrameworkPackageName('octane', ai.id, ai),
+  '@tanstack/ai-octane',
 )
 
 assert.equal(

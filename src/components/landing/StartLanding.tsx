@@ -11,6 +11,9 @@ import {
   ShieldCheckIcon,
   StackIcon,
 } from '@phosphor-icons/react'
+import { getStartHostingPartners } from '~/utils/start-hosting-partners'
+import { getPartnersForPlacement } from '~/utils/partner-placement'
+import { usePartnerPlacementContext } from '~/utils/usePartnerPlacementContext'
 
 import {
   LandingEyebrow,
@@ -81,20 +84,28 @@ const boundaryExamples = [
   },
 ] as const
 
-const deploymentTargets = [
+const deploymentDetails: Record<string, { output: string; command?: string }> =
   {
-    label: 'Cloudflare Workers',
-    output: 'Worker runtime',
-    command: 'wrangler deploy',
-  },
-  {
-    label: 'Node.js',
-    output: 'Node server',
-    command: 'node .output/server/index.mjs',
-  },
-  { label: 'Netlify', output: 'Netlify functions', command: 'netlify deploy' },
-  { label: 'Railway', output: 'Node service', command: 'railway up' },
-] as const
+    cloudflare: {
+      output: 'Worker runtime',
+      command: 'wrangler deploy',
+    },
+    netlify: { output: 'Netlify functions', command: 'netlify deploy' },
+    railway: { output: 'Node service', command: 'railway up' },
+    lovable: { output: 'Lovable Cloud' },
+    vercel: { output: 'Vercel functions', command: 'npx vercel' },
+    render: { output: 'Node web service' },
+  }
+
+const hostingPartners = getStartHostingPartners()
+
+const nodeDeploymentTarget = {
+  id: 'node',
+  label: 'Node.js',
+  output: 'Node server',
+  command: 'node .output/server/index.mjs',
+  href: undefined,
+}
 
 export default function StartLanding() {
   return (
@@ -360,19 +371,41 @@ function ServerBoundaryLab() {
 }
 
 function DeploymentSelector() {
-  const [activeIndex, setActiveIndex] = React.useState(0)
-  const active = deploymentTargets[activeIndex] ?? deploymentTargets[0]
+  const placementContext = usePartnerPlacementContext({
+    category: 'deployment',
+    orderStrategy: 'tier-rotated',
+    surface: 'start_deployment',
+  })
+  const deploymentTargets = [
+    ...getPartnersForPlacement(hostingPartners, placementContext).map(
+      (partner) => ({
+        id: partner.id,
+        label: partner.name,
+        output:
+          deploymentDetails[partner.id]?.output ??
+          partner.tagline ??
+          partner.name,
+        command: deploymentDetails[partner.id]?.command,
+        href: partner.href,
+      }),
+    ),
+    nodeDeploymentTarget,
+  ]
+  const [activeId, setActiveId] = React.useState<string | null>(null)
+  const active =
+    deploymentTargets.find((target) => target.id === activeId) ??
+    deploymentTargets[0]
 
   return (
     <div className="mx-auto mt-14 grid max-w-[72rem] gap-5 lg:grid-cols-[0.72fr_1.28fr]">
       <div className="space-y-2" role="group" aria-label="Deployment target">
-        {deploymentTargets.map((target, index) => (
+        {deploymentTargets.map((target) => (
           <button
-            key={target.label}
+            key={target.id}
             type="button"
-            aria-pressed={index === activeIndex}
+            aria-pressed={target.id === active.id}
             className="flex w-full items-center justify-between gap-4 rounded-xl border border-border-subtle bg-background-subtle px-5 py-4 text-left text-text-primary/45 hover:border-border-default hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.12)] aria-pressed:text-text-primary"
-            onClick={() => setActiveIndex(index)}
+            onClick={() => setActiveId(target.id)}
           >
             <span className="text-ds-label-md">{target.label}</span>
             <CloudIcon aria-hidden="true" className="shrink-0" size={19} />
@@ -408,7 +441,16 @@ function DeploymentSelector() {
                 deploy
               </dt>
               <dd className="mt-2 break-words font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
-                {active.command}
+                {active.command ?? (
+                  <a
+                    href={active.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="underline underline-offset-4"
+                  >
+                    Open {active.label}
+                  </a>
+                )}
               </dd>
             </div>
           </dl>

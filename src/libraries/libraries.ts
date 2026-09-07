@@ -691,9 +691,9 @@ export const ai: LibrarySlim = {
   ...categoryStyles.data,
   name: 'TanStack AI',
   to: '/ai/latest',
-  tagline: 'The headless agent framework for TypeScript. Bring your own stack',
+  tagline: 'Composable AI building blocks. Your server, database, and UI',
   description:
-    'TanStack AI is a pluggable AI ecosystem that makes it easy for you to build AI features into your apps. Provide tools to LLMs, interrupt chat for user approval, run agents in sandboxes, build headless chat UI, stream from your server to your client, and connect to any AG-UI compatible server or client. Bring your own infrastructure. We offer the pluggable APIs to build on top of.',
+    'TanStack AI gives you composable building blocks for everything you should not write yourself: the agent loop, provider adapters, durability, interrupts, sandboxes, and tools. It leaves you everything a one-size-fits-all framework gets wrong past the prototype: your server, your database, your UI. Typed end to end, AG-UI native, and no TanStack service in the request path.',
   badge: 'RC',
   repo: 'tanstack/ai',
   frameworks: [

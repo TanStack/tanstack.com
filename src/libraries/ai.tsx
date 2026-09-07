@@ -7,47 +7,43 @@ const textStyles = `text-category-data`
 
 export const aiProject = {
   ...ai,
-  description: `TanStack AI is a pluggable AI ecosystem that makes it easy for you to build AI features into your apps. Provide tools to LLMs, interrupt chat for user approval, run agents in sandboxes, build headless chat UI, stream from your server to your client, and connect to any AG-UI compatible server or client. Bring your own infrastructure. We offer the pluggable APIs to build on top of.`,
+  description: `TanStack AI gives you composable building blocks for everything you should not write yourself: the agent loop, provider adapters, durability, interrupts, sandboxes, and tools. It leaves you everything a one-size-fits-all framework gets wrong past the prototype: your server, your database, your UI. Typed end to end, AG-UI native, and no TanStack service in the request path.`,
   latestBranch: 'main',
   defaultDocs: 'getting-started/overview',
   featureHighlights: [
     {
-      title: 'A Real Agent Loop',
+      title: "We Build What You Shouldn't",
       icon: <GearIcon className={twMerge(textStyles)} />,
       description: (
         <div>
-          <code>chat()</code> drives the loop and you control every part of it:
-          isomorphic tools you place on the client or the server, composable{' '}
-          <code>{`(state) => boolean`}</code> stop strategies, and interrupts
-          that pause a run for human approval and resume exactly where it
-          stopped, with no database required.
+          <code>chat()</code> drives the agent loop: typed tools that run on the
+          server or the client, stop strategies, interrupts that pause a run for
+          a human and resume at the exact step, and a durability log that
+          survives a dropped socket or a reload without re-running the model.
         </div>
       ),
     },
     {
-      title: 'Bring Your Own Everything',
+      title: 'You Own What Outgrows a Framework',
       icon: <PlugIcon className={twMerge(textStyles)} />,
       description: (
         <div>
-          Your provider, server, transport, auth, and deploy target. Official
-          adapters for OpenRouter, OpenAI, Anthropic, Gemini, Vertex, Bedrock,
-          Mistral, Groq, Grok, Ollama, Cohere, Perplexity, BytePlus, ElevenLabs,
-          fal.ai, Lovable, LLM Gateway, and Vercel AI Gateway, plus{' '}
-          <code>openaiCompatible</code> for anything else. Import only what you
-          use: every activity is a separate, tree-shakeable module.
+          Your route, your database, your UI. Persistence is two store functions
+          against your own schema. The server is one call and a Response in any
+          framework. Your requests, credentials, and data never pass through
+          TanStack.
         </div>
       ),
     },
     {
-      title: 'Headless, Not Opinionated',
+      title: 'One Mental Model, Typed End to End',
       icon: <LightningIcon className={twMerge(textStyles)} />,
       description: (
         <div>
-          A framework-free core with React, Vue, Solid, Svelte, Preact, Angular,
-          and React Native bindings on top, plus official Octane bindings from
-          the Octane team. All of them speak native AG-UI over SSE, HTTP
-          streams, XHR, RPC, or your own transport. No components to fight, no
-          styles to override.
+          Every major provider behind one call, each model typed down to its
+          options and modalities. A framework-free core with React, Vue, Solid,
+          Svelte, Preact, Angular, React Native, and Octane bindings, all
+          speaking native AG-UI over the transport you choose.
         </div>
       ),
     },

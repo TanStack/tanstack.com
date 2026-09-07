@@ -11,16 +11,19 @@ import {
   CubeIcon,
   DatabaseIcon,
   HardDrivesIcon,
+  LayoutIcon,
   MicrophoneIcon,
   PlugIcon,
   RadioIcon,
   RobotIcon,
+  ScalesIcon,
   TerminalIcon,
   WaveformIcon,
   type Icon,
 } from '@phosphor-icons/react'
 
 import { getLibrary } from '~/libraries'
+import { CodeBlock } from '~/components/markdown/CodeBlock'
 import {
   LandingSection,
   LandingSectionIntro,
@@ -185,8 +188,8 @@ export default function AiLanding() {
   return (
     <LibraryLandingShell
       libraryId="ai"
-      headline="The headless agent framework. Bring your own stack."
-      description="TanStack AI is a pluggable AI ecosystem that makes it easy for you to build AI features into your apps. It offers a toolkit that allows you to provide tools to the LLMs, interrupt the chat for user approval, run agents inside of sandboxes, build headless UI for your chats, stream the data from your server to your client, and connect to any AG-UI protocol compatible server or client. No opinions on how you should add AI into your apps: you bring your own existing infrastructure, we offer you the pluggable APIs to build on top of."
+      headline="We build the parts you shouldn't. You own the parts you must."
+      description="TanStack AI gives you composable building blocks for everything you should not write yourself: the agent loop, provider adapters, durability, interrupts, sandboxes, and tools. It leaves you everything a one-size-fits-all framework gets wrong the moment you are past a prototype: your server, your database, your UI."
       hero={<AiGraphChatHero />}
       prompt={aiPrompt}
       promptLabel="Copy AI prompt"
@@ -194,33 +197,68 @@ export default function AiLanding() {
       <LandingSection tone="ink">
         <LandingSectionIntro
           centered
-          eyebrow="Two files"
-          icon={<TerminalIcon aria-hidden="true" size={15} />}
-          title="Own both sides of the AI interaction."
-          body="One route on the server, one hook in the client, and the transport between them is yours. Nothing here is a wrapper around a service we run."
+          eyebrow="Who owns what"
+          icon={<ScalesIcon aria-hidden="true" size={15} />}
+          title="One rule decides every API."
+          body="If it is hard to get right and identical in every app, we own it. If it stops fitting the day your app is no longer a prototype, you own it and we hand you typed helpers. Nothing here is a wrapper around a service we run."
         />
-        <QuickStart />
+        <OwnershipMap />
+      </LandingSection>
+
+      <LandingSection tone="raised">
+        <div className="grid items-center gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:gap-16">
+          <LandingSectionIntro
+            eyebrow="You own the server"
+            icon={<TerminalIcon aria-hidden="true" size={15} />}
+            title="One call, one Response, any framework."
+            body="chat() takes messages and returns a stream. Turn it into a Response and return it from whatever route you already have. Auth, rate limits, and the deploy target stay in your code, where you can see them."
+          />
+          <ServerRoutes />
+        </div>
+      </LandingSection>
+
+      <LandingSection tone="ink">
+        <LandingSectionIntro
+          centered
+          eyebrow="You own persistence"
+          icon={<DatabaseIcon aria-hidden="true" size={15} />}
+          title="Your database. Your schema. Two functions."
+          body="A framework that owns your tables is great until you need soft delete, archiving, or a column it never imagined. So the core never sees your schema. Load a thread, save a thread, and the transcript, run status, and pending approvals land wherever you point them."
+        />
+        <PersistenceContract />
+      </LandingSection>
+
+      <LandingSection tone="raised">
+        <div className="grid items-center gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:gap-16">
+          <LandingSectionIntro
+            eyebrow="Durability you can move"
+            icon={<HardDrivesIcon aria-hidden="true" size={15} />}
+            title="A stream survives the reload. The log is yours."
+            body="Every chunk is written to a log before it is delivered. Drop the socket, refresh the page, open a second tab, and the client replays from its last offset instead of paying for the model again. Start in memory, move to a hosted log, or write five methods against the store you already run."
+          />
+          <DurabilityTiers />
+        </div>
+      </LandingSection>
+
+      <LandingSection tone="ink">
+        <div className="grid items-center gap-12 lg:grid-cols-[1.08fr_0.92fr] lg:gap-16">
+          <MessageParts />
+          <LandingSectionIntro
+            eyebrow="You own the UI"
+            icon={<LayoutIcon aria-hidden="true" size={15} />}
+            title="Typed parts, honest states, no components to fight."
+            body="A message is a list of parts, and every part carries its own lifecycle. Text streams, a tool call moves through input, approval, and result, and an error is a state rather than an exception you missed. Render them yourself or register one component per part type."
+          />
+        </div>
       </LandingSection>
 
       <LandingSection tone="raised">
         <div className="grid items-center gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16">
           <LandingSectionIntro
-            eyebrow="Isomorphic tools"
+            eyebrow="We handle tools"
             icon={<BracketsCurlyIcon aria-hidden="true" size={15} />}
-            title="Define your agent tools once, re-use them on the server and client."
-            body={
-              <>
-                Our <code>chat()</code> function allows you to define custom
-                functions the LLM provider can call (tools) and you define the
-                input and output to these functions once and re-use them across
-                server and client by providing the specific implementations. Our
-                library automatically calls these tools, stops and asks for
-                approvals if needed, updates the input to the tools if the user
-                changes it after the approval is granted and handles all the
-                back and forth between the LLM provider and your app under the
-                hood. You only define the tool, we handle the rest.
-              </>
-            }
+            title="Define a tool once. Run it on either side."
+            body="One schema gives you the input and output types on the server and the client. The loop calls the tool, pauses for approval when you ask it to, applies the user's edits, and feeds the result back to the model."
           />
           <ToolBoundary />
         </div>
@@ -230,21 +268,16 @@ export default function AiLanding() {
         <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
           <ProviderWorkbench />
           <LandingSectionIntro
-            eyebrow="Typesafe models"
+            eyebrow="We handle providers"
             icon={<PlugIcon aria-hidden="true" size={15} />}
-            title="Swap an LLM provider. Keep the typesafety."
+            title="Swap the model. Keep the types."
             body={
               <>
-                OpenRouter, OpenAI, Anthropic, Gemini, Vertex, Bedrock, Mistral,
-                Groq, Grok, Ollama, Cohere, Perplexity, BytePlus, ElevenLabs,
-                fal.ai, Lovable, LLM Gateway, and Vercel AI Gateway ship as
-                official adapters, and openaiCompatible covers any endpoint that
-                speaks the same shape, including a model on your own hardware.{' '}
-                <AdapterDocsLink /> Every model from every provider is typesafe.
-                When you need to send custom configuration for a specific model,
-                send images, files and audio, or native tools like web search,
-                every model is type-constrained and if it does not accept those
-                options natively you learn about it at compile-time.
+                Connect directly to OpenAI, Anthropic, Gemini, Bedrock, Ollama,
+                and the rest, or through the gateway you choose, and
+                openaiCompatible covers any endpoint with the same shape.{' '}
+                <AdapterDocsLink /> Each model's options, modalities, and native
+                tools are typed, so an unsupported option fails at compile time.
               </>
             }
           />
@@ -256,8 +289,8 @@ export default function AiLanding() {
           centered
           eyebrow="Open protocol"
           icon={<RadioIcon aria-hidden="true" size={15} />}
-          title="AG-UI compliant, in both directions."
-          body="The client sends AG-UI requests and consumes AG-UI events, with no proprietary stream format and no translation layer in between. That is what makes the agent on the other end replaceable: point the same client at a Python, Go, or PHP AG-UI runtime and it keeps working. The transport is yours too, whether that is SSE, HTTP streams, XHR, RPC, a raw async iterable, or a fetcher you wrote. Nothing to sign up for, no key to hand over, no traffic through us."
+          title="AG-UI in both directions."
+          body="The client speaks AG-UI with no proprietary stream format in between, so the agent on the other end is replaceable: point it at a Python, Go, or PHP runtime and it keeps working. SSE, HTTP streams, XHR, RPC, or a fetcher you wrote. No TanStack service sits in the request path."
         />
         <ProtocolMap />
       </LandingSection>
@@ -265,10 +298,10 @@ export default function AiLanding() {
       <LandingSection tone="raised">
         <div className="grid gap-12 lg:grid-cols-[0.78fr_1.22fr] lg:items-start lg:gap-16">
           <LandingSectionIntro
-            eyebrow="More than just a chat function"
+            eyebrow="We handle the hard parts"
             icon={<CubeIcon aria-hidden="true" size={15} />}
-            title="Sandboxes, code mode, MCP, memory, compaction, skills and more."
-            body="We offer more than just a simple chat interface. We allow you to build any AI feature you might need, from automated AI workflows in CI, to web apps consuming LLM providers, chatbots and more."
+            title="Sandboxes, Code Mode, MCP, memory, compaction."
+            body="Each one is a separate package with the same shape as the core. Reach for it when the task needs it, and leave it out of the bundle when it does not."
           />
           <FeatureRail items={agentStack} />
         </div>
@@ -279,8 +312,8 @@ export default function AiLanding() {
           <LandingSectionIntro
             eyebrow="Beyond chat"
             icon={<MicrophoneIcon aria-hidden="true" size={15} />}
-            title="Need to generate images, video, audio and more? We have you covered."
-            body="We equally care about every generation, not just text. We offer you a whole suite of utilities to generate images, video, speech, transcription, music and realtime voice with full observability and cost tracking."
+            title="Images, video, speech, and realtime voice."
+            body="The same adapters and the same persistence cover every modality, with progress updates and cost tracking built in."
           />
           <FeatureRail items={modalities} />
         </div>
@@ -291,180 +324,466 @@ export default function AiLanding() {
           <LandingSectionIntro
             eyebrow="Devtools"
             icon={<BugIcon aria-hidden="true" size={15} />}
-            title="Full observability of every action with our devtools"
-            body="Our devtools show you every detail about every part of your system, whether you are generating images, video or using chat you can see every action that happened on both the server and the client and easily debug what is going on on both sides."
+            title="See every action on both sides."
+            body="Every tool call, interrupt, memory recall, and finish reason, on the server and in the client, in one timeline."
           />
           <DevtoolsPanel />
         </div>
+      </LandingSection>
+
+      <LandingSection tone="ink">
+        <LandingSectionIntro
+          centered
+          eyebrow="Start here"
+          icon={<ArrowRightIcon aria-hidden="true" size={15} />}
+          title="Pick the page that matches your next hour."
+          body="Each one is a short guide with copyable code, not a tour."
+        />
+        <StartingPoints />
       </LandingSection>
     </LibraryLandingShell>
   )
 }
 
-function CodeLine({
-  children,
-  indent = 0,
+const codeWindowClass =
+  'm-0 min-w-0 rounded-none border-0 [&>div:first-child]:rounded-none [&_pre]:max-h-[26rem] [&_pre]:overflow-auto [&_pre]:rounded-none [&_pre]:text-[11px] [&_pre]:leading-5 sm:[&_pre]:text-xs'
+
+function CodeTabs({
+  label,
+  samples,
 }: {
-  children?: React.ReactNode
-  indent?: number
+  label: string
+  samples: Array<{ code: string; file: string; name: string }>
 }) {
-  return <p style={{ paddingLeft: `${indent * 0.75}rem` }}>{children || ' '}</p>
-}
+  const [activeIndex, setActiveIndex] = React.useState(0)
+  const sample = samples[activeIndex] ?? samples[0]
 
-function Kw({ children }: { children: React.ReactNode }) {
-  return <span className="text-pink-300">{children}</span>
-}
-
-// ponytail: the code surface is always dark, so these use fixed token colors.
-// --landing-accent-bright resolves to a dark terracotta in light mode and is
-// unreadable here.
-function Fn({ children }: { children: React.ReactNode }) {
-  return <span className="text-orange-300">{children}</span>
-}
-
-function Str({ children }: { children: React.ReactNode }) {
-  return <span className="text-emerald-300">{children}</span>
-}
-
-function Cmt({ children }: { children: React.ReactNode }) {
-  return <span className="text-white/30">{children}</span>
-}
-
-function CodeSurface({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex-1 overflow-x-auto bg-ds-neutral-500 p-5 font-ds-mono text-ds-mono-xs leading-relaxed text-white/70">
-      {children}
+    <LandingWindow label={label}>
+      <div
+        className="flex gap-1 border-b border-border-subtle p-2"
+        role="tablist"
+      >
+        {samples.map((item, index) => (
+          <button
+            key={item.name}
+            type="button"
+            role="tab"
+            aria-selected={index === activeIndex}
+            className="rounded-lg px-3 py-1.5 text-ds-label-sm text-text-primary/40 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-selected:bg-[color:rgb(var(--landing-glow)/0.14)] aria-selected:text-[var(--landing-accent-bright)]"
+            onClick={() => setActiveIndex(index)}
+          >
+            {item.name}
+          </button>
+        ))}
+      </div>
+      <CodeBlock
+        key={sample.file}
+        dataCodeTitle={sample.file}
+        className={codeWindowClass}
+        showTypeCopyButton={false}
+      >
+        <code className="language-ts">{sample.code}</code>
+      </CodeBlock>
+    </LandingWindow>
+  )
+}
+
+const ownership = {
+  handled: [
+    {
+      label: 'Agent loop',
+      body: 'Tool calls, stop conditions, and every model round-trip. Easy to start, wrong in a hundred small ways.',
+    },
+    {
+      label: 'Providers',
+      body: 'Every major provider behind one call, each model typed down to its options and modalities.',
+    },
+    {
+      label: 'Durability',
+      body: 'A dropped socket, a reload, or a restart replays from a log. The model is never re-run.',
+    },
+    {
+      label: 'Interrupts',
+      body: 'A run pauses for a human, then resumes at the exact step with their edits applied.',
+    },
+    {
+      label: 'Sandboxes',
+      body: 'Coding agents and Code Mode run in an isolate or a container. Their activity is ordinary events.',
+    },
+    {
+      label: 'Tools',
+      body: 'One schema, typed on both ends, executed on the server or the client.',
+    },
+  ],
+  owned: [
+    {
+      label: 'Server',
+      body: 'Any route, any runtime. Your auth check sits next to the call, not behind a config flag.',
+    },
+    {
+      label: 'Persistence',
+      body: 'Your database and your schema. Two store functions are the whole contract.',
+    },
+    {
+      label: 'UI',
+      body: 'Typed messages, parts, and states. You render them.',
+    },
+    {
+      label: 'Deploy',
+      body: 'Your requests, credentials, and data never pass through TanStack.',
+    },
+  ],
+}
+
+function OwnershipMap() {
+  return (
+    <div className="mt-14 grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
+      <OwnershipColumn
+        eyebrow="TanStack AI handles"
+        items={ownership.handled}
+        note="Hard to get right, the same in every app, and a bug in any of them costs you a user or a bill."
+      />
+      <OwnershipColumn
+        eyebrow="You own"
+        items={ownership.owned}
+        note="A framework managing these feels great in a prototype and becomes a wall the day you need one thing it did not anticipate."
+      />
     </div>
   )
 }
 
-function QuickStart() {
+function OwnershipColumn({
+  eyebrow,
+  items,
+  note,
+}: {
+  eyebrow: string
+  items: Array<{ body: string; label: string }>
+  note: string
+}) {
   return (
-    <div className="mt-14 grid gap-5 lg:grid-cols-2">
-      <LandingWindow
-        className="flex flex-col"
-        label="server · routes/api.chat.ts"
-      >
-        <CodeSurface>
-          <CodeLine>
-            <Kw>import</Kw> {'{ chat, toServerSentEventsResponse }'}{' '}
-            <Kw>from</Kw> <Str>'@tanstack/ai'</Str>
-          </CodeLine>
-          <CodeLine>
-            <Kw>import</Kw> {'{ openRouterText }'} <Kw>from</Kw>{' '}
-            <Str>'@tanstack/ai-openrouter'</Str>
-          </CodeLine>
-          <CodeLine>
-            <Kw>import</Kw> {'{ createFileRoute }'} <Kw>from</Kw>{' '}
-            <Str>'@tanstack/react-router'</Str>
-          </CodeLine>
-          <CodeLine />
-          <CodeLine>
-            <Kw>export const</Kw> Route = <Fn>createFileRoute</Fn>(
-            <Str>'/api/chat'</Str>)({'{'}
-          </CodeLine>
-          <CodeLine indent={2}>server: {'{'}</CodeLine>
-          <CodeLine indent={4}>handlers: {'{'}</CodeLine>
-          <CodeLine indent={6}>
-            <Fn>POST</Fn>: <Kw>async</Kw> ({'{ request }'}) =&gt; {'{'}
-          </CodeLine>
-          <CodeLine indent={8}>
-            <Kw>const</Kw> {'{ messages }'} = <Kw>await</Kw> request.
-            <Fn>json</Fn>()
-          </CodeLine>
-          <CodeLine />
-          <CodeLine indent={8}>
-            <Kw>const</Kw> stream = <Fn>chat</Fn>({'{'}
-          </CodeLine>
-          <CodeLine indent={10}>
-            adapter: <Fn>openRouterText</Fn>(
-            <Str>'anthropic/claude-sonnet-4.5'</Str>),
-          </CodeLine>
-          <CodeLine indent={10}>messages,</CodeLine>
-          <CodeLine indent={10}>tools: [lookupInvoice],</CodeLine>
-          <CodeLine indent={8}>{'})'}</CodeLine>
-          <CodeLine />
-          <CodeLine indent={8}>
-            <Cmt>// your route, your auth, your deploy target</Cmt>
-          </CodeLine>
-          <CodeLine indent={8}>
-            <Kw>return</Kw> <Fn>toServerSentEventsResponse</Fn>(stream)
-          </CodeLine>
-          <CodeLine indent={6}>{'},'}</CodeLine>
-          <CodeLine indent={4}>{'},'}</CodeLine>
-          <CodeLine indent={2}>{'},'}</CodeLine>
-          <CodeLine>{'})'}</CodeLine>
-        </CodeSurface>
-      </LandingWindow>
-
-      <LandingWindow className="flex flex-col" label="client · chat.tsx">
-        <CodeSurface>
-          <CodeLine>
-            <Kw>import</Kw> {'{ useChat, fetchServerSentEvents }'} <Kw>from</Kw>{' '}
-            <Str>'@tanstack/ai-react'</Str>
-          </CodeLine>
-          <CodeLine />
-          <CodeLine>
-            <Kw>export function</Kw> <Fn>Chat</Fn>() {'{'}
-          </CodeLine>
-          <CodeLine indent={2}>
-            <Kw>const</Kw> {'{ messages, sendMessage, interrupts }'} ={' '}
-            <Fn>useChat</Fn>({'{'}
-          </CodeLine>
-          <CodeLine indent={4}>
-            connection: <Fn>fetchServerSentEvents</Fn>(<Str>'/api/chat'</Str>),
-          </CodeLine>
-          <CodeLine indent={2}>{'})'}</CodeLine>
-          <CodeLine />
-          <CodeLine indent={2}>
-            <Cmt>// typed state and events. no components, no styles.</Cmt>
-          </CodeLine>
-          <CodeLine indent={2}>
-            <Kw>return</Kw> (
-          </CodeLine>
-          <CodeLine indent={4}>&lt;&gt;</CodeLine>
-          <CodeLine indent={6}>
-            {'{'}messages.<Fn>map</Fn>((message) =&gt; (
-          </CodeLine>
-          <CodeLine indent={8}>
-            &lt;<Fn>Bubble</Fn> key={'{'}message.id{'}'} {'{'}...message{'}'}{' '}
-            /&gt;
-          </CodeLine>
-          <CodeLine indent={6}>)){'}'}</CodeLine>
-          <CodeLine />
-          <CodeLine indent={6}>
-            <Cmt>
-              {'{/* the loop paused. you decide when it continues. */}'}
-            </Cmt>
-          </CodeLine>
-          <CodeLine indent={6}>
-            {'{'}interrupts.<Fn>map</Fn>((interrupt) =&gt; (
-          </CodeLine>
-          <CodeLine indent={8}>
-            &lt;<Fn>button</Fn> key={'{'}interrupt.id{'}'}
-          </CodeLine>
-          <CodeLine indent={10}>
-            onClick={'{'}() =&gt; interrupt.<Fn>resolveInterrupt</Fn>(
-            <Kw>true</Kw>){'}'}&gt;
-          </CodeLine>
-          <CodeLine indent={10}>
-            Approve {'{'}interrupt.toolName{'}'}
-          </CodeLine>
-          <CodeLine indent={8}>
-            &lt;/<Fn>button</Fn>&gt;
-          </CodeLine>
-          <CodeLine indent={6}>)){'}'}</CodeLine>
-          <CodeLine indent={4}>&lt;/&gt;</CodeLine>
-          <CodeLine indent={2}>)</CodeLine>
-          <CodeLine>{'}'}</CodeLine>
-        </CodeSurface>
-      </LandingWindow>
-
-      <p className="text-center text-ds-body-xs text-text-primary/35 lg:col-span-2">
-        Swap React for any other framework and keep your server-side code
-        identical.
+    <div className="flex flex-col rounded-xl border border-border-default bg-background-surface">
+      <p className="border-b border-border-subtle px-5 py-3 font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
+        {eyebrow}
+      </p>
+      <ul className="grid flex-1 sm:grid-cols-2">
+        {items.map((item) => (
+          <li
+            key={item.label}
+            className="border-b border-border-subtle p-5 sm:[&:nth-last-child(-n+2)]:border-b-0 sm:odd:border-r"
+          >
+            <p className="text-ds-label-md text-text-primary">{item.label}</p>
+            <p className="mt-1.5 text-ds-body-xs text-text-primary/45">
+              {item.body}
+            </p>
+          </li>
+        ))}
+      </ul>
+      <p className="border-t border-border-subtle px-5 py-3 text-ds-body-xs text-text-primary/35">
+        {note}
       </p>
     </div>
+  )
+}
+
+const serverRoutes = [
+  {
+    name: 'TanStack Start',
+    file: 'routes/api.chat.ts',
+    code: `import { chat, toServerSentEventsResponse } from '@tanstack/ai'
+import { openRouterText } from '@tanstack/ai-openrouter'
+import { createFileRoute } from '@tanstack/react-router'
+import { lookupInvoice } from './tools'
+
+export const Route = createFileRoute('/api/chat')({
+  server: {
+    handlers: {
+      POST: async ({ request }) => {
+        const { messages } = await request.json()
+
+        const stream = chat({
+          adapter: openRouterText('anthropic/claude-sonnet-4.5'),
+          messages,
+          tools: [lookupInvoice],
+        })
+
+        return toServerSentEventsResponse(stream)
+      },
+    },
+  },
+})`,
+  },
+  {
+    name: 'Next.js',
+    file: 'app/api/chat/route.ts',
+    code: `import { chat, toServerSentEventsResponse } from '@tanstack/ai'
+import { openRouterText } from '@tanstack/ai-openrouter'
+import { lookupInvoice } from './tools'
+
+export async function POST(request: Request) {
+  const { messages } = await request.json()
+
+  const stream = chat({
+    adapter: openRouterText('anthropic/claude-sonnet-4.5'),
+    messages,
+    tools: [lookupInvoice],
+  })
+
+  return toServerSentEventsResponse(stream)
+}`,
+  },
+  {
+    name: 'Hono',
+    file: 'server.ts',
+    code: `import { Hono } from 'hono'
+import { chat, toServerSentEventsResponse } from '@tanstack/ai'
+import { openRouterText } from '@tanstack/ai-openrouter'
+import { lookupInvoice } from './tools'
+
+const app = new Hono()
+
+app.post('/api/chat', async (c) => {
+  const { messages } = await c.req.json()
+
+  const stream = chat({
+    adapter: openRouterText('anthropic/claude-sonnet-4.5'),
+    messages,
+    tools: [lookupInvoice],
+  })
+
+  return toServerSentEventsResponse(stream)
+})`,
+  },
+]
+
+function ServerRoutes() {
+  return <CodeTabs label="your route" samples={serverRoutes} />
+}
+
+const persistenceContract = `import { defineAIPersistence, defineMessageStore } from '@tanstack/ai-persistence'
+import { db } from './db'
+
+// The whole contract. Your tables, your columns, your types.
+export const persistence = defineAIPersistence({
+  stores: {
+    messages: defineMessageStore({
+      loadThread: (threadId) => db.threads.messages(threadId),
+      saveThread: (threadId, messages) => db.threads.save(threadId, messages),
+    }),
+  },
+})
+
+// chat({ ..., middleware: [withPersistence(persistence)] })`
+
+const persistenceStores = [
+  'Postgres',
+  'MySQL',
+  'SQLite',
+  'MongoDB',
+  'Cloudflare D1',
+  'Redis',
+  'Drizzle',
+  'Prisma',
+  'localStorage',
+  'IndexedDB',
+]
+
+function PersistenceContract() {
+  return (
+    <div className="mt-14 flex flex-col items-center gap-6">
+      <ul
+        className="flex flex-wrap justify-center gap-2"
+        aria-label="Works with"
+      >
+        {persistenceStores.map((store) => (
+          <li
+            key={store}
+            className="rounded-full border border-border-subtle px-3 py-1.5 font-ds-mono text-ds-mono-2xs text-text-primary/45"
+          >
+            {store}
+          </li>
+        ))}
+      </ul>
+      <LandingWindow className="w-full max-w-[46rem]" label="persistence.ts">
+        <CodeBlock className={codeWindowClass} showTypeCopyButton={false}>
+          <code className="language-ts">{persistenceContract}</code>
+        </CodeBlock>
+      </LandingWindow>
+      <p className="max-w-[40rem] text-center text-ds-body-xs text-text-primary/35">
+        Add a runs store to rejoin a run after a reload and an interrupts store
+        to hold an approval for days. Start with memoryPersistence() on the
+        server or localStoragePersistence() in the browser, and swap it out
+        without touching the route.
+      </p>
+    </div>
+  )
+}
+
+const durabilityTiers = [
+  {
+    name: 'In memory',
+    file: 'routes/api.chat.ts',
+    code: `import { memoryStream, toServerSentEventsResponse } from '@tanstack/ai'
+
+// Development and single-process apps. Zero setup.
+export async function POST(request: Request) {
+  const stream = chat({ /* ... */ })
+
+  return toServerSentEventsResponse(stream, {
+    durability: { adapter: memoryStream(request) },
+  })
+}`,
+  },
+  {
+    name: 'Hosted log',
+    file: 'routes/api.chat.ts',
+    code: `import { toServerSentEventsResponse } from '@tanstack/ai'
+import { durableStream } from '@tanstack/ai-durable-stream'
+
+// Many processes, many regions. The route does not change.
+export async function POST(request: Request) {
+  const stream = chat({ /* ... */ })
+
+  return toServerSentEventsResponse(stream, {
+    durability: {
+      adapter: durableStream(request, { server: process.env.DURABLE_STREAMS_URL }),
+    },
+  })
+}`,
+  },
+  {
+    name: 'Your store',
+    file: 'redis-stream.ts',
+    code: `import type { StreamDurability } from '@tanstack/ai'
+
+// Five methods against anything: Redis, Postgres, a queue.
+// Offsets are opaque strings. Core never reads your store.
+export function redisStream(request: Request): StreamDurability {
+  const key = runKey(request)
+
+  return {
+    resumeFrom: () => resumeOffset(request),
+    append: (chunks) => appendAll(key, chunks),
+    read: (offset, signal) => readAfter(key, offset, signal),
+    snapshot: () => readAll(key),
+    close: () => markDone(key),
+  }
+}`,
+  },
+]
+
+function DurabilityTiers() {
+  return <CodeTabs label="stream durability" samples={durabilityTiers} />
+}
+
+const toolCallStates = [
+  'awaiting-input',
+  'input-streaming',
+  'input-complete',
+  'approval-requested',
+  'approval-responded',
+  'complete',
+] as const
+
+function MessageParts() {
+  const [stateIndex, setStateIndex] = React.useState(toolCallStates.length - 1)
+
+  React.useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return
+    }
+
+    const intervalId = window.setInterval(() => {
+      setStateIndex((current) => (current + 1) % toolCallStates.length)
+    }, 1400)
+
+    return () => window.clearInterval(intervalId)
+  }, [])
+
+  const toolState = toolCallStates[stateIndex] ?? 'complete'
+  const parts = [
+    {
+      type: 'thinking',
+      detail: 'Checking the invoice before answering.',
+      state: 'complete',
+    },
+    {
+      type: 'tool-call',
+      detail: 'lookup_invoice({ id: "inv_2231" })',
+      state: toolState,
+    },
+    // The result and the reply only exist once the call is complete.
+    ...(toolState === 'complete'
+      ? [
+          {
+            type: 'tool-result',
+            detail: '{ total: 1240, status: "paid" }',
+            state: 'complete',
+          },
+          {
+            type: 'text',
+            detail: 'Invoice 2231 was paid in full on',
+            state: 'streaming',
+          },
+        ]
+      : []),
+  ]
+
+  return (
+    <LandingWindow label="message.parts">
+      <ul className="divide-y divide-border-subtle" aria-live="polite">
+        {parts.map((part) => (
+          <li
+            key={part.type}
+            className="grid gap-1 p-4 sm:grid-cols-[7.5rem_1fr_auto] sm:items-center sm:gap-4"
+          >
+            <span className="font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
+              {part.type}
+            </span>
+            <span className="truncate font-ds-mono text-ds-mono-xs text-text-primary/70">
+              {part.detail}
+              {part.state === 'streaming' ? (
+                <span className="ml-0.5 inline-block h-3 w-1.5 animate-pulse bg-[var(--landing-accent-bright)] align-middle motion-reduce:animate-none" />
+              ) : null}
+            </span>
+            <span
+              className={
+                part.state === 'complete'
+                  ? 'rounded-full border border-border-subtle px-2.5 py-1 font-ds-mono text-ds-mono-2xs text-text-primary/35'
+                  : 'rounded-full border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.14)] px-2.5 py-1 font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]'
+              }
+            >
+              {part.state}
+            </span>
+          </li>
+        ))}
+      </ul>
+      <div className="border-t border-border-subtle p-4">
+        <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+          tool-call lifecycle
+        </p>
+        <ol className="mt-3 flex flex-wrap gap-1.5">
+          {toolCallStates.map((state, index) => (
+            <li
+              key={state}
+              className={
+                index === stateIndex
+                  ? 'rounded-md bg-[color:rgb(var(--landing-glow)/0.18)] px-2 py-1 font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]'
+                  : index < stateIndex
+                    ? 'rounded-md px-2 py-1 font-ds-mono text-ds-mono-2xs text-text-primary/45'
+                    : 'rounded-md px-2 py-1 font-ds-mono text-ds-mono-2xs text-text-primary/20'
+              }
+            >
+              {state}
+            </li>
+          ))}
+          <li className="rounded-md px-2 py-1 font-ds-mono text-ds-mono-2xs text-text-primary/20">
+            error
+          </li>
+        </ol>
+      </div>
+    </LandingWindow>
   )
 }
 
@@ -1365,13 +1684,13 @@ function DevtoolsPanel() {
 function FeatureRail({ items }: { items: Array<RailItem> }) {
   return (
     <div className="overflow-hidden rounded-xl border border-border-default bg-background-surface">
-      {items.map((item, index) => {
+      {items.map((item) => {
         const Icon = item.icon
 
         return (
           <div
             key={item.label}
-            className="grid gap-3 border-b border-border-subtle p-5 last:border-b-0 sm:grid-cols-[3rem_1fr_auto] sm:items-start"
+            className="grid gap-3 border-b border-border-subtle p-5 last:border-b-0 sm:grid-cols-[3rem_1fr] sm:items-start"
           >
             <span className="flex size-10 items-center justify-center rounded-full bg-[color:rgb(var(--landing-glow)/0.18)] text-[var(--landing-accent-bright)]">
               <Icon aria-hidden="true" size={19} />
@@ -1385,12 +1704,45 @@ function FeatureRail({ items }: { items: Array<RailItem> }) {
                 {item.body}
               </p>
             </div>
-            <span className="font-ds-mono text-ds-mono-2xs text-text-primary/20">
-              0{index + 1}
-            </span>
           </div>
         )
       })}
     </div>
+  )
+}
+
+const startingPoints = [
+  { label: 'Build streaming chat', to: 'getting-started/quick-start' },
+  {
+    label: 'Start from a server route',
+    to: 'getting-started/quick-start-server',
+  },
+  { label: 'Add persistence', to: 'persistence/overview' },
+  { label: 'Compare with Vercel AI SDK', to: 'comparison/vercel-ai-sdk' },
+]
+
+function StartingPoints() {
+  const { version } = useParams({ strict: false })
+  const library = getLibrary('ai')
+
+  return (
+    <ul className="mx-auto mt-10 grid max-w-[52rem] gap-3 sm:grid-cols-2">
+      {startingPoints.map((point) => (
+        <li key={point.to}>
+          <Link
+            to="/$libraryId/$version/docs/$"
+            params={{
+              libraryId: library.id,
+              version: version ?? library.latestVersion,
+              _splat: point.to,
+            }}
+            className="flex items-center justify-between gap-3 rounded-xl border border-border-default bg-background-surface px-5 py-4 text-ds-label-md text-text-primary transition-colors hover:border-[var(--landing-accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
+          >
+            {point.label}
+            <ArrowRightIcon aria-hidden="true" size={16} />
+          </Link>
+        </li>
+      ))}
+    </ul>
   )
 }

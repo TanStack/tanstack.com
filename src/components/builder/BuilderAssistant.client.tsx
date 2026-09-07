@@ -364,6 +364,8 @@ export const BuilderAssistant = React.forwardRef<
   const [queueAnnouncement, setQueueAnnouncement] = React.useState('')
   const [showLatest, setShowLatest] = React.useState(false)
   const abortRef = React.useRef<AbortController>(null)
+  const unlockingRef = React.useRef(false)
+  const [unlocking, setUnlocking] = React.useState(false)
   const onRunningChangeRef = React.useRef(onRunningChange)
   const abortIntentRef = React.useRef<'steer' | 'stop' | undefined>(undefined)
   const agentStreamingRef = React.useRef(false)
@@ -411,6 +413,10 @@ export const BuilderAssistant = React.forwardRef<
   promptValueRef.current = prompt
   canUsePendingPromptRef.current = canUsePendingPrompt
   startPromptSequenceRef.current = startPromptSequence
+
+  React.useLayoutEffect(() => {
+    pendingSubmissionGenerationRef.current += 1
+  }, [threadId, storageScope, credentialScope, selectedModel])
 
   React.useLayoutEffect(() => {
     if (credentialScopeRef.current === credentialScope) return
@@ -660,7 +666,17 @@ export const BuilderAssistant = React.forwardRef<
       setHydratedThreadId(threadId)
       return
     }
+  }, [
+    hydratedThreadId,
+    syncedMessages,
+    syncedProjectId,
+    syncedRuns,
+    syncedThreads,
+    threadId,
+  ])
 
+  React.useEffect(() => {
+    if (syncedProjectId) return
     const generation = hydrationGenerationRef.current + 1
     hydrationGenerationRef.current = generation
     setHydratedThreadId(undefined)
@@ -691,16 +707,7 @@ export const BuilderAssistant = React.forwardRef<
         hydrationGenerationRef.current += 1
       }
     }
-  }, [
-    hydratedThreadId,
-    refreshThreads,
-    storageScope,
-    syncedMessages,
-    syncedProjectId,
-    syncedRuns,
-    syncedThreads,
-    threadId,
-  ])
+  }, [refreshThreads, storageScope, syncedProjectId, threadId])
 
   React.useEffect(() => {
     const currentProjectSync = projectSync
@@ -1028,7 +1035,7 @@ export const BuilderAssistant = React.forwardRef<
   }, [])
 
   function selectModel(model: ModelChoice) {
-    if (running) return
+    if (running || unlockingRef.current) return
     didSelectConnectionRef.current =
       model.connection !== 'chatgpt' || Boolean(model.model)
     setSelectedModel(model)
@@ -1325,7 +1332,10 @@ export const BuilderAssistant = React.forwardRef<
     const promptQueue = promptQueueRef.current
     promptQueue.enqueuePrompt(queuedPrompt)
     syncQueuedPrompts()
-    if (clearComposer) {
+    if (
+      clearComposer &&
+      promptValueRef.current.trim() === queuedPrompt.content
+    ) {
       promptValueRef.current = ''
       setPrompt('')
       setSendMode('queue')
@@ -1410,11 +1420,50 @@ export const BuilderAssistant = React.forwardRef<
       !instruction ||
       instruction.length > 10_000 ||
       hydrating ||
-      needsConnection
+      needsConnection ||
+      unlockingRef.current
     ) {
       return false
     }
 
+    // Both the composer and preview comments enter here, directly from the
+    // user action, before persistence or sandbox work can expire activation.
+    if (
+      selectedModel.connection === 'byok' &&
+      !byokConnection.getClient(selectedModel.provider, { allowUnlock: false })
+    ) {
+      const provider = selectedModel.provider
+      const generation = pendingSubmissionGenerationRef.current
+      unlockingRef.current = true
+      setUnlocking(true)
+      void unlockApiKey(provider).then(() => {
+        unlockingRef.current = false
+        if (mountedRef.current) setUnlocking(false)
+        if (
+          !mountedRef.current ||
+          generation !== pendingSubmissionGenerationRef.current
+        ) {
+          lifecycle?.onDiscarded?.()
+          return
+        }
+        if (!byokConnection.getClient(provider, { allowUnlock: false })) {
+          setError('Could not unlock the API key. Try again.')
+          lifecycle?.onDiscarded?.()
+          return
+        }
+        enqueueInstruction(instruction, mode, clearComposer, lifecycle)
+      })
+      return true
+    }
+    return enqueueInstruction(instruction, mode, clearComposer, lifecycle)
+  }
+
+  function enqueueInstruction(
+    instruction: string,
+    mode: BuilderAiSendMode,
+    clearComposer: boolean,
+    lifecycle?: BuilderAiPromptLifecycle,
+  ) {
     const promptQueue = promptQueueRef.current
     const claimed = promptQueue.claim()
     const queuedPrompt: BuilderAiQueuedPrompt = {
@@ -1515,7 +1564,10 @@ export const BuilderAssistant = React.forwardRef<
     initialPrompt: BuilderAiQueuedPrompt,
     clearComposer: boolean,
   ) {
-    if (clearComposer) {
+    if (
+      clearComposer &&
+      promptValueRef.current.trim() === initialPrompt.content
+    ) {
       promptValueRef.current = ''
       setPrompt('')
       setSendMode('queue')
@@ -2616,7 +2668,8 @@ export const BuilderAssistant = React.forwardRef<
     }
   }
 
-  const submitDisabled = hydrating || !prompt.trim() || needsConnection
+  const submitDisabled =
+    hydrating || unlocking || !prompt.trim() || needsConnection
   const stopLabel =
     queuedPrompts.length === 0
       ? 'Stop response'
@@ -2943,6 +2996,7 @@ export const BuilderAssistant = React.forwardRef<
                 ref={promptRef}
                 id="builder-ai-prompt"
                 value={prompt}
+                disabled={unlocking}
                 rows={1}
                 maxLength={10_000}
                 placeholder="Describe a builder change"
@@ -2962,7 +3016,7 @@ export const BuilderAssistant = React.forwardRef<
               <div className="flex items-center justify-between gap-3 pl-1">
                 <ModelPicker
                   chatGptModels={chatGptModels}
-                  disabled={running}
+                  disabled={running || unlocking}
                   selected={selectedModel}
                   showChatGpt={supportsChatGptLogin}
                   onSelect={selectModel}

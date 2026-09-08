@@ -57,7 +57,7 @@ export function BlogPostCard({
     // the focus ring keeps keyboard focus visible now the bg cue is gone.
     'group/post flex flex-col rounded-xl corner-squircle transition-transform duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background-default motion-safe:hover:-translate-y-0.5',
     featured
-      ? 'gap-4 md:min-h-[410px] md:flex-row md:gap-6'
+      ? 'gap-4 md:flex-row md:items-center md:gap-6'
       : isLarge
         ? 'gap-4'
         : 'gap-3',
@@ -69,7 +69,8 @@ export function BlogPostCard({
       <Squircle
         className={twMerge(
           'relative aspect-video w-full overflow-hidden rounded-lg corner-squircle border border-border-subtle bg-background-subtle',
-          featured && 'md:aspect-auto md:w-2/3',
+          featured && 'md:w-2/3',
+          featured && post.headerImage && 'aspect-auto',
         )}
       >
         {post.headerImage ? (
@@ -83,7 +84,9 @@ export function BlogPostCard({
             alt=""
             loading={featured ? 'eager' : 'lazy'}
             decoding="async"
-            className="h-full w-full object-cover"
+            className={
+              featured ? 'block h-auto w-full' : 'h-full w-full object-cover'
+            }
           />
         ) : (
           <CoverFallback

@@ -527,6 +527,9 @@ function RenderPartnerPage() {
             >
               Read the deployment guide
             </Button>
+            <Button as={Link} to="/blog/render-partnership" variant="ghost">
+              TanStack + Render partnership
+            </Button>
           </div>
         </section>
 

@@ -501,6 +501,11 @@ const clerk = ((): Partner => {
     canonicalHref: 'https://clerk.com/',
     resources: [
       {
+        kind: 'announcement',
+        label: 'TanStack + Clerk partnership',
+        href: '/blog/clerk-partnership',
+      },
+      {
         kind: 'documentation',
         label: 'Clerk TanStack Start quickstart',
         href: 'https://clerk.com/docs/tanstack-react-start/getting-started/quickstart',
@@ -556,6 +561,11 @@ const workos = ((): Partner => {
     href,
     canonicalHref: 'https://workos.com/',
     resources: [
+      {
+        kind: 'announcement',
+        label: 'TanStack + WorkOS partnership',
+        href: '/blog/workos-partnership',
+      },
       {
         kind: 'documentation',
         label: 'WorkOS AuthKit TanStack Start SDK',
@@ -731,6 +741,11 @@ const cloudflare = ((): Partner => {
     canonicalHref: 'https://www.cloudflare.com/',
     resources: [
       {
+        kind: 'announcement',
+        label: 'TanStack + Cloudflare partnership',
+        href: '/blog/cloudflare-partnership',
+      },
+      {
         kind: 'documentation',
         label: 'Cloudflare TanStack Start guide',
         href: 'https://developers.cloudflare.com/workers/framework-guides/web-apps/tanstack-start/',
@@ -778,6 +793,11 @@ const lovable = ((): Partner => {
     href,
     canonicalHref: 'https://lovable.dev/',
     resources: [
+      {
+        kind: 'announcement',
+        label: 'TanStack + Lovable partnership',
+        href: '/blog/lovable-partnership',
+      },
       {
         kind: 'documentation',
         label: 'Build with a URL in Lovable',
@@ -837,6 +857,11 @@ const sentry = ((): Partner => {
     href,
     canonicalHref: 'https://sentry.io/',
     resources: [
+      {
+        kind: 'announcement',
+        label: 'TanStack + Sentry partnership',
+        href: '/blog/sentry-partnership',
+      },
       {
         kind: 'documentation',
         label: 'Sentry for TanStack Start',
@@ -1003,6 +1028,11 @@ const unkey = ((): Partner => {
     canonicalHref: 'https://www.unkey.com/',
     resources: [
       {
+        kind: 'announcement',
+        label: 'TanStack + Unkey partnership',
+        href: '/blog/unkey-partnership',
+      },
+      {
         kind: 'documentation',
         label: 'Unkey server-side rate limiting',
         href: 'https://www.unkey.com/docs/platform/ratelimiting/introduction',
@@ -1055,6 +1085,11 @@ const serpApi = ((): Partner => {
     href,
     canonicalHref: 'https://serpapi.com/',
     resources: [
+      {
+        kind: 'announcement',
+        label: 'TanStack + SerpApi partnership',
+        href: '/blog/serpapi-partnership',
+      },
       {
         kind: 'documentation',
         label: 'SerpApi JavaScript integration',
@@ -1113,6 +1148,11 @@ const electric = ((): Partner => {
     canonicalHref: 'https://electric.ax/',
     resources: [
       {
+        kind: 'announcement',
+        label: 'TanStack + Electric partnership',
+        href: '/blog/electric-partnership',
+      },
+      {
         kind: 'documentation',
         label: 'TanStack DB Electric collection',
         href: '/db/latest/docs/collections/electric-collection',
@@ -1167,8 +1207,28 @@ const vercel = ((): Partner => {
         label: 'TanStack Start on Vercel',
         href: 'https://vercel.com/kb/guide/deploy-a-tanstack-start-app-to-vercel',
       },
+      {
+        kind: 'documentation',
+        label: 'Vercel AI Gateway adapter',
+        href: '/ai/latest/docs/adapters/vercel-gateway',
+      },
+      {
+        kind: 'documentation',
+        label: 'TanStack AI with Vercel Sandbox',
+        href: 'https://vercel.com/kb/guide/tanstack-ai-vercel-sandbox',
+      },
+      {
+        kind: 'documentation',
+        label: 'TanStack AI with Vercel AI Gateway',
+        href: 'https://vercel.com/kb/guide/tanstack-ai-vercel-ai-gateway',
+      },
+      {
+        kind: 'announcement',
+        label: 'TanStack + Vercel partnership',
+        href: '/blog/vercel-partnership',
+      },
     ],
-    relatedProducts: ['start', 'router'],
+    relatedProducts: ['start', 'router', 'ai'],
     status: 'active',
     lastReviewedAt: currentPartnerReviewDate,
     tier: 'gold',
@@ -1210,6 +1270,11 @@ const prisma = ((): Partner => {
     href,
     canonicalHref: 'https://www.prisma.io/',
     resources: [
+      {
+        kind: 'announcement',
+        label: 'TanStack + Prisma partnership',
+        href: '/blog/prisma-partnership',
+      },
       {
         kind: 'documentation',
         label: 'Prisma with TanStack Start',
@@ -1254,6 +1319,11 @@ const codeRabbit = ((): Partner => {
     href,
     canonicalHref: 'https://www.coderabbit.ai/',
     resources: [
+      {
+        kind: 'announcement',
+        label: 'TanStack + CodeRabbit partnership',
+        href: '/blog/coderabbit-partnership',
+      },
       {
         kind: 'documentation',
         label: 'CodeRabbit quickstart',
@@ -1399,6 +1469,11 @@ const railway = ((): Partner => {
     canonicalHref: 'https://railway.com/',
     resources: [
       {
+        kind: 'announcement',
+        label: 'TanStack + Railway partnership',
+        href: '/blog/railway-partnership',
+      },
+      {
         kind: 'documentation',
         label: 'TanStack Start hosting guide',
         href: '/start/latest/docs/framework/react/guide/hosting',
@@ -1443,6 +1518,11 @@ const render = ((): Partner => {
     href,
     canonicalHref: 'https://render.com/',
     resources: [
+      {
+        kind: 'announcement',
+        label: 'TanStack + Render partnership',
+        href: '/blog/render-partnership',
+      },
       {
         kind: 'documentation',
         label: 'TanStack Start hosting guide',

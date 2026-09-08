@@ -186,7 +186,7 @@ export default defineConfig({
   envDir,
   define: {
     __TANSTACK_ENABLE_SERVER_BUILDER_GENERATION__: JSON.stringify(true),
-    __TANSTACK_ENABLE_IMAGE_TRANSFORMATIONS__: JSON.stringify(true),
+    __TANSTACK_ENABLE_IMAGE_TRANSFORMATIONS__: JSON.stringify(!isDev),
     __TANSTACK_LOCAL_DOCS_TOKEN__: JSON.stringify(localDocsDevToken),
     __TANSTACK_SITE_URL__: JSON.stringify(SITE_URL),
   },

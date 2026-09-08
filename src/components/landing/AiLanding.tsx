@@ -48,7 +48,7 @@ export default function AiLanding() {
   return (
     <LibraryLandingShell
       libraryId="ai"
-      headline="The AI SDK for TypeScript. We build the hard parts, you keep your stack."
+      headline="AI building blocks for TypeScript. We build the hard parts, you keep your stack."
       description="TanStack AI gives you composable building blocks for everything you should not write yourself: the agent loop, provider adapters, durability, interrupts, sandboxes, and tools. It leaves you everything a one-size-fits-all framework gets wrong the moment you are past a prototype: your server, your database, your UI."
       hero={<WriteOnceHero />}
       prompt={aiPrompt}

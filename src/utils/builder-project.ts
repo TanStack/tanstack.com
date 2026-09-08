@@ -41,6 +41,30 @@ export function isBuilderProjectId(value: string) {
   return builderProjectIdPattern.test(value)
 }
 
+export function getBuilderProjectDraftPromotionIds(draftId: string) {
+  if (!isBuilderProjectId(draftId)) {
+    throw new Error('Invalid Builder project draft ID')
+  }
+
+  return {
+    revisionId: derivePromotionId(draftId, 1),
+    transcriptImportMutationId:
+      getBuilderProjectTranscriptImportMutationId(draftId),
+  }
+}
+
+export function getBuilderProjectTranscriptImportMutationId(projectId: string) {
+  if (!isBuilderProjectId(projectId)) {
+    throw new Error('Invalid Builder project ID')
+  }
+  return derivePromotionId(projectId, 2)
+}
+
+function derivePromotionId(draftId: string, discriminator: number) {
+  const firstNibble = Number.parseInt(draftId[0] ?? '', 16)
+  return `${(firstNibble ^ discriminator).toString(16)}${draftId.slice(1)}`
+}
+
 export function isBuilderProjectTimestamp(value: string) {
   const date = new Date(value)
   return !Number.isNaN(date.getTime()) && date.toISOString() === value

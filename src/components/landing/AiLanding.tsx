@@ -48,7 +48,7 @@ export default function AiLanding() {
   return (
     <LibraryLandingShell
       libraryId="ai"
-      headline="AI building blocks for TypeScript. We build the hard parts, you keep your stack."
+      headline="AI building blocks for TypeScript. We build the hard parts, you keep the stack."
       description="TanStack AI gives you composable building blocks for everything you should not write yourself: the agent loop, provider adapters, durability, interrupts, sandboxes, and tools. It leaves you everything a one-size-fits-all framework gets wrong the moment you are past a prototype: your server, your database, your UI."
       hero={<WriteOnceHero />}
       prompt={aiPrompt}
@@ -202,11 +202,13 @@ const codeWindowClass =
   'm-0 min-w-0 rounded-none border-0 [&>div:first-child]:rounded-none [&_pre]:max-h-[26rem] [&_pre]:overflow-auto [&_pre]:rounded-none [&_pre]:text-[11px] [&_pre]:leading-5 sm:[&_pre]:text-xs'
 
 function CodeTabs({
+  preHeightClass,
   label,
   samples,
 }: {
   label: string
   samples: Array<{ code: string; file: string; name: string }>
+  preHeightClass: string
 }) {
   const [activeIndex, setActiveIndex] = React.useState(0)
   const sample = samples[activeIndex] ?? samples[0]
@@ -233,7 +235,7 @@ function CodeTabs({
       <CodeBlock
         key={sample.file}
         dataCodeTitle={sample.file}
-        className={codeWindowClass}
+        className={`${codeWindowClass} ${preHeightClass}`}
         showTypeCopyButton={false}
       >
         <code className="language-ts">{sample.code}</code>
@@ -411,7 +413,13 @@ app.post('/api/chat', async (c) => {
 ]
 
 function ServerRoutes() {
-  return <CodeTabs label="your route" samples={serverRoutes} />
+  return (
+    <CodeTabs
+      preHeightClass="[&_pre]:h-[26rem]"
+      label="your route"
+      samples={serverRoutes}
+    />
+  )
 }
 
 const persistenceContract = `import { defineAIPersistence, defineMessageStore } from '@tanstack/ai-persistence'
@@ -527,7 +535,13 @@ export function redisStream(request: Request): StreamDurability {
 ]
 
 function DurabilityTiers() {
-  return <CodeTabs label="stream durability" samples={durabilityTiers} />
+  return (
+    <CodeTabs
+      preHeightClass="[&_pre]:h-[19rem]"
+      label="stream durability"
+      samples={durabilityTiers}
+    />
+  )
 }
 
 const toolCallStates = [
@@ -566,21 +580,18 @@ function MessageParts() {
       detail: 'lookup_invoice({ id: "inv_2231" })',
       state: toolState,
     },
-    // The result and the reply only exist once the call is complete.
-    ...(toolState === 'complete'
-      ? [
-          {
-            type: 'tool-result',
-            detail: '{ total: 1240, status: "paid" }',
-            state: 'complete',
-          },
-          {
-            type: 'text',
-            detail: 'Invoice 2231 was paid in full on',
-            state: 'streaming',
-          },
-        ]
-      : []),
+    // The result and the reply only exist once the call is complete. Keep
+    // their rows mounted so the list never changes height.
+    {
+      type: 'tool-result',
+      detail: '{ total: 1240, status: "paid" }',
+      state: toolState === 'complete' ? 'complete' : 'pending',
+    },
+    {
+      type: 'text',
+      detail: 'Invoice 2231 was paid in full on',
+      state: toolState === 'complete' ? 'streaming' : 'pending',
+    },
   ]
 
   return (
@@ -589,7 +600,11 @@ function MessageParts() {
         {parts.map((part) => (
           <li
             key={part.type}
-            className="grid gap-1 p-4 sm:grid-cols-[7.5rem_1fr_auto] sm:items-center sm:gap-4"
+            className={
+              part.state === 'pending'
+                ? 'grid gap-1 p-4 opacity-25 sm:grid-cols-[7.5rem_1fr_auto] sm:items-center sm:gap-4'
+                : 'grid gap-1 p-4 sm:grid-cols-[7.5rem_1fr_auto] sm:items-center sm:gap-4'
+            }
           >
             <span className="font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
               {part.type}
@@ -602,7 +617,7 @@ function MessageParts() {
             </span>
             <span
               className={
-                part.state === 'complete'
+                part.state === 'complete' || part.state === 'pending'
                   ? 'rounded-full border border-border-subtle px-2.5 py-1 font-ds-mono text-ds-mono-2xs text-text-primary/35'
                   : 'rounded-full border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.14)] px-2.5 py-1 font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]'
               }
@@ -664,7 +679,7 @@ function ToolBoundary() {
             </button>
           ))}
         </div>
-        <div className="mt-5 overflow-x-auto rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-ds-mono-xs text-white/65">
+        <div className="mt-5 min-h-[13rem] overflow-x-auto rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-ds-mono-xs text-white/65">
           <p>
             <span className="text-pink-300">const</span> lookupInvoice =
             toolDefinition({'{'}
@@ -716,7 +731,7 @@ function ToolBoundary() {
           )}
         </div>
         <p
-          className="mt-4 text-ds-body-xs text-text-primary/35"
+          className="mt-4 min-h-[2.5rem] text-ds-body-xs text-text-primary/35"
           aria-live="polite"
         >
           {boundary === 'client'
@@ -1379,28 +1394,37 @@ function WriteOnceHero() {
             </div>
           )}
         </div>
-        {side === 'server' ? (
-          <div className="flex flex-wrap items-center gap-1 border-b border-border-subtle px-3 py-2">
-            <span className="mr-2 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
-              provider
-            </span>
-            {heroProviders.map((item, index) => (
-              <button
-                key={item.name}
-                type="button"
-                aria-pressed={index === providerIndex}
-                className={heroChipClass}
-                onClick={() => pin(() => setProviderIndex(index))}
-              >
-                {item.name}
-              </button>
-            ))}
-          </div>
-        ) : null}
+        <div
+          className={
+            side === 'server'
+              ? 'flex flex-wrap items-center gap-1 border-b border-border-subtle px-3 py-2'
+              : 'flex flex-wrap items-center gap-1 border-b border-border-subtle px-3 py-2 opacity-40'
+          }
+        >
+          <span className="mr-2 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+            provider
+          </span>
+          {heroProviders.map((item, index) => (
+            <button
+              key={item.name}
+              type="button"
+              aria-pressed={index === providerIndex}
+              className={heroChipClass}
+              onClick={() =>
+                pin(() => {
+                  setSide('server')
+                  setProviderIndex(index)
+                })
+              }
+            >
+              {item.name}
+            </button>
+          ))}
+        </div>
         <CodeBlock
           key={`${sample.file}-${provider.name}`}
           dataCodeTitle={sample.file}
-          className={codeWindowClass}
+          className={`${codeWindowClass} [&_pre]:h-[19rem]`}
           showTypeCopyButton={false}
         >
           <code className={`language-${sample.lang}`}>{sample.code}</code>
@@ -1542,11 +1566,11 @@ function ProviderWorkbench() {
               )}
             </div>
             {acceptsImage ? (
-              <p className="mt-4 font-ds-mono text-ds-mono-2xs text-emerald-400/80">
+              <p className="mt-4 min-h-[2.5rem] font-ds-mono text-ds-mono-2xs text-emerald-400/80">
                 ✓ no errors. {model.name} accepts image input.
               </p>
             ) : (
-              <p className="mt-4 font-ds-mono text-ds-mono-2xs text-red-400/90">
+              <p className="mt-4 min-h-[2.5rem] font-ds-mono text-ds-mono-2xs text-red-400/90">
                 error TS2322: Type 'ImagePart' is not assignable to type
                 'TextPart'. {model.name} accepts {model.input.join(', ')} input
                 only.

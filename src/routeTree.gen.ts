@@ -165,7 +165,7 @@ import { Route as AdminShowcasesIdRouteImport } from './routes/admin/showcases_.
 import { Route as AdminRolesRoleIdRouteImport } from './routes/admin/roles.$roleId'
 import { Route as AdminFeedbackIdRouteImport } from './routes/admin/feedback_.$id'
 import { Route as LibraryChartsCatalogRouteImport } from './routes/_library/charts.catalog'
-import { Route as LibraryAiCoverageRouteImport } from './routes/_library/ai.coverage'
+import { Route as LibraryAiAdaptersRouteImport } from './routes/_library/ai.adapters'
 import { Route as LibraryLibraryIdVersionRouteImport } from './routes/_library/$libraryId/$version'
 import { Route as IntentRegistryPackageNameIndexRouteImport } from './routes/intent/registry/$packageName.index'
 import { Route as LibraryWorkflowVersionIndexRouteImport } from './routes/_library/workflow.$version.index'
@@ -1019,9 +1019,9 @@ const LibraryChartsCatalogRoute = LibraryChartsCatalogRouteImport.update({
   path: '/charts/catalog',
   getParentRoute: () => LibraryRoute,
 } as any)
-const LibraryAiCoverageRoute = LibraryAiCoverageRouteImport.update({
-  id: '/ai/coverage',
-  path: '/ai/coverage',
+const LibraryAiAdaptersRoute = LibraryAiAdaptersRouteImport.update({
+  id: '/ai/adapters',
+  path: '/ai/adapters',
   getParentRoute: () => LibraryRoute,
 } as any)
 const LibraryLibraryIdVersionRoute = LibraryLibraryIdVersionRouteImport.update({
@@ -1453,7 +1453,7 @@ export interface FileRoutesByFullPath {
   '/showcase/': typeof ShowcaseIndexRoute
   '/stats/': typeof StatsIndexRoute
   '/$libraryId/$version': typeof LibraryLibraryIdVersionRouteWithChildren
-  '/ai/coverage': typeof LibraryAiCoverageRoute
+  '/ai/adapters': typeof LibraryAiAdaptersRoute
   '/charts/catalog': typeof LibraryChartsCatalogRouteWithChildren
   '/admin/feedback/$id': typeof AdminFeedbackIdRoute
   '/admin/roles/$roleId': typeof AdminRolesRoleIdRoute
@@ -1656,7 +1656,7 @@ export interface FileRoutesByTo {
   '/shop': typeof ShopIndexRoute
   '/showcase': typeof ShowcaseIndexRoute
   '/stats': typeof StatsIndexRoute
-  '/ai/coverage': typeof LibraryAiCoverageRoute
+  '/ai/adapters': typeof LibraryAiAdaptersRoute
   '/admin/feedback/$id': typeof AdminFeedbackIdRoute
   '/admin/roles/$roleId': typeof AdminRolesRoleIdRoute
   '/admin/showcases/$id': typeof AdminShowcasesIdRoute
@@ -1867,7 +1867,7 @@ export interface FileRoutesById {
   '/showcase/': typeof ShowcaseIndexRoute
   '/stats/': typeof StatsIndexRoute
   '/_library/$libraryId/$version': typeof LibraryLibraryIdVersionRouteWithChildren
-  '/_library/ai/coverage': typeof LibraryAiCoverageRoute
+  '/_library/ai/adapters': typeof LibraryAiAdaptersRoute
   '/_library/charts/catalog': typeof LibraryChartsCatalogRouteWithChildren
   '/admin/feedback_/$id': typeof AdminFeedbackIdRoute
   '/admin/roles/$roleId': typeof AdminRolesRoleIdRoute
@@ -2081,7 +2081,7 @@ export interface FileRouteTypes {
     | '/showcase/'
     | '/stats/'
     | '/$libraryId/$version'
-    | '/ai/coverage'
+    | '/ai/adapters'
     | '/charts/catalog'
     | '/admin/feedback/$id'
     | '/admin/roles/$roleId'
@@ -2284,7 +2284,7 @@ export interface FileRouteTypes {
     | '/shop'
     | '/showcase'
     | '/stats'
-    | '/ai/coverage'
+    | '/ai/adapters'
     | '/admin/feedback/$id'
     | '/admin/roles/$roleId'
     | '/admin/showcases/$id'
@@ -2494,7 +2494,7 @@ export interface FileRouteTypes {
     | '/showcase/'
     | '/stats/'
     | '/_library/$libraryId/$version'
-    | '/_library/ai/coverage'
+    | '/_library/ai/adapters'
     | '/_library/charts/catalog'
     | '/admin/feedback_/$id'
     | '/admin/roles/$roleId'
@@ -3785,11 +3785,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryChartsCatalogRouteImport
       parentRoute: typeof LibraryRoute
     }
-    '/_library/ai/coverage': {
-      id: '/_library/ai/coverage'
-      path: '/ai/coverage'
-      fullPath: '/ai/coverage'
-      preLoaderRoute: typeof LibraryAiCoverageRouteImport
+    '/_library/ai/adapters': {
+      id: '/_library/ai/adapters'
+      path: '/ai/adapters'
+      fullPath: '/ai/adapters'
+      preLoaderRoute: typeof LibraryAiAdaptersRouteImport
       parentRoute: typeof LibraryRoute
     }
     '/_library/$libraryId/$version': {
@@ -4330,7 +4330,7 @@ const LibraryChartsCatalogRouteWithChildren =
 
 interface LibraryRouteChildren {
   LibraryLibraryIdRouteRoute: typeof LibraryLibraryIdRouteRouteWithChildren
-  LibraryAiCoverageRoute: typeof LibraryAiCoverageRoute
+  LibraryAiAdaptersRoute: typeof LibraryAiAdaptersRoute
   LibraryChartsCatalogRoute: typeof LibraryChartsCatalogRouteWithChildren
   LibraryAiVersionIndexRoute: typeof LibraryAiVersionIndexRoute
   LibraryChartsVersionIndexRoute: typeof LibraryChartsVersionIndexRoute
@@ -4356,7 +4356,7 @@ interface LibraryRouteChildren {
 
 const LibraryRouteChildren: LibraryRouteChildren = {
   LibraryLibraryIdRouteRoute: LibraryLibraryIdRouteRouteWithChildren,
-  LibraryAiCoverageRoute: LibraryAiCoverageRoute,
+  LibraryAiAdaptersRoute: LibraryAiAdaptersRoute,
   LibraryChartsCatalogRoute: LibraryChartsCatalogRouteWithChildren,
   LibraryAiVersionIndexRoute: LibraryAiVersionIndexRoute,
   LibraryChartsVersionIndexRoute: LibraryChartsVersionIndexRoute,

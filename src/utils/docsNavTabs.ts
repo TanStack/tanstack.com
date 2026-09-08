@@ -6,6 +6,7 @@ export const docsNavTabIds = [
   'get-started',
   'tutorial',
   'guides',
+  'adapters',
   'api',
   'examples',
 ] as const
@@ -17,6 +18,7 @@ export const docsNavTabs: Array<{ id: DocsNavTabId; label: string }> = [
   { id: 'get-started', label: 'Get Started' },
   { id: 'tutorial', label: 'Tutorial' },
   { id: 'guides', label: 'Guides' },
+  { id: 'adapters', label: 'Adapters' },
   { id: 'api', label: 'API' },
   { id: 'examples', label: 'Examples' },
 ]
@@ -193,6 +195,15 @@ export function getActiveDocsNavTabId({
 }) {
   if (isExample) {
     return 'examples'
+  }
+
+  // A menu child that names this exact path wins over pattern matches such
+  // as Home's `..`, which also matches two-segment library pages.
+  for (const group of menuConfig) {
+    const exact = group.children.find((child) => child.to === pathname)
+    if (exact) {
+      return getDocsNavTabId(group, exact)
+    }
   }
 
   const activeGroup = menuConfig.find((group) =>

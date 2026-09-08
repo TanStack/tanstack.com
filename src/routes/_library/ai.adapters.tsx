@@ -1,11 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { AiCoverage } from '~/components/ai-coverage/AiCoverage'
+import { AiAdapters } from '~/components/ai-adapters/AiAdapters'
 import { docsConfigQueryOptions } from '~/queries/docsConfig'
 import { aiCoverageQueryOptions } from '~/utils/ai-coverage'
 import { seo } from '~/utils/seo'
 
-export const Route = createFileRoute('/_library/ai/coverage')({
+export const Route = createFileRoute('/_library/ai/adapters')({
   staleTime: 1000 * 60 * 5,
   loader: async ({ context: { queryClient } }) => {
     const [config] = await Promise.all([
@@ -16,15 +16,15 @@ export const Route = createFileRoute('/_library/ai/coverage')({
   },
   head: () => ({
     meta: seo({
-      title: 'TanStack AI Coverage',
+      title: 'TanStack AI Adapters',
       description:
-        'Every TanStack AI adapter and the activities, models, and modalities it supports, generated from the packages.',
+        'Every TanStack AI adapter package and the activities it supports, read from the packages.',
     }),
   }),
-  component: AiCoverageRoute,
+  component: AiAdaptersRoute,
 })
 
-function AiCoverageRoute() {
+function AiAdaptersRoute() {
   const { data: coverage } = useSuspenseQuery(aiCoverageQueryOptions('latest'))
-  return <AiCoverage coverage={coverage} />
+  return <AiAdapters coverage={coverage} />
 }

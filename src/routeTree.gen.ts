@@ -210,6 +210,7 @@ import { Route as LibraryChartsCatalogChartsCaseIdRouteImport } from './routes/_
 import { Route as LibraryLibraryIdVersionDocsChar123Char125DotmdRouteImport } from './routes/_library/$libraryId/$version.docs.{$}[.]md'
 import { Route as LibraryLibraryIdVersionDocsNpmStatsRouteImport } from './routes/_library/$libraryId/$version.docs.npm-stats'
 import { Route as LibraryLibraryIdVersionDocsIndexDotmdRouteImport } from './routes/_library/$libraryId/$version.docs.index[.]md'
+import { Route as LibraryLibraryIdVersionDocsCoverageRouteImport } from './routes/_library/$libraryId/$version.docs.coverage'
 import { Route as LibraryLibraryIdVersionDocsContributorsRouteImport } from './routes/_library/$libraryId/$version.docs.contributors'
 import { Route as LibraryLibraryIdVersionDocsCommunityResourcesRouteImport } from './routes/_library/$libraryId/$version.docs.community-resources'
 import { Route as LibraryLibraryIdVersionDocsBlogRouteImport } from './routes/_library/$libraryId/$version.docs.blog'
@@ -1279,6 +1280,12 @@ const LibraryLibraryIdVersionDocsIndexDotmdRoute =
     path: '/index.md',
     getParentRoute: () => LibraryLibraryIdVersionDocsRoute,
   } as any)
+const LibraryLibraryIdVersionDocsCoverageRoute =
+  LibraryLibraryIdVersionDocsCoverageRouteImport.update({
+    id: '/coverage',
+    path: '/coverage',
+    getParentRoute: () => LibraryLibraryIdVersionDocsRoute,
+  } as any)
 const LibraryLibraryIdVersionDocsContributorsRoute =
   LibraryLibraryIdVersionDocsContributorsRouteImport.update({
     id: '/contributors',
@@ -1531,6 +1538,7 @@ export interface FileRoutesByFullPath {
   '/$libraryId/$version/docs/blog': typeof LibraryLibraryIdVersionDocsBlogRoute
   '/$libraryId/$version/docs/community-resources': typeof LibraryLibraryIdVersionDocsCommunityResourcesRoute
   '/$libraryId/$version/docs/contributors': typeof LibraryLibraryIdVersionDocsContributorsRoute
+  '/$libraryId/$version/docs/coverage': typeof LibraryLibraryIdVersionDocsCoverageRoute
   '/$libraryId/$version/docs/index.md': typeof LibraryLibraryIdVersionDocsIndexDotmdRoute
   '/$libraryId/$version/docs/npm-stats': typeof LibraryLibraryIdVersionDocsNpmStatsRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryLibraryIdVersionDocsChar123Char125DotmdRoute
@@ -1730,6 +1738,7 @@ export interface FileRoutesByTo {
   '/$libraryId/$version/docs/blog': typeof LibraryLibraryIdVersionDocsBlogRoute
   '/$libraryId/$version/docs/community-resources': typeof LibraryLibraryIdVersionDocsCommunityResourcesRoute
   '/$libraryId/$version/docs/contributors': typeof LibraryLibraryIdVersionDocsContributorsRoute
+  '/$libraryId/$version/docs/coverage': typeof LibraryLibraryIdVersionDocsCoverageRoute
   '/$libraryId/$version/docs/index.md': typeof LibraryLibraryIdVersionDocsIndexDotmdRoute
   '/$libraryId/$version/docs/npm-stats': typeof LibraryLibraryIdVersionDocsNpmStatsRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryLibraryIdVersionDocsChar123Char125DotmdRoute
@@ -1943,6 +1952,7 @@ export interface FileRoutesById {
   '/_library/$libraryId/$version/docs/blog': typeof LibraryLibraryIdVersionDocsBlogRoute
   '/_library/$libraryId/$version/docs/community-resources': typeof LibraryLibraryIdVersionDocsCommunityResourcesRoute
   '/_library/$libraryId/$version/docs/contributors': typeof LibraryLibraryIdVersionDocsContributorsRoute
+  '/_library/$libraryId/$version/docs/coverage': typeof LibraryLibraryIdVersionDocsCoverageRoute
   '/_library/$libraryId/$version/docs/index.md': typeof LibraryLibraryIdVersionDocsIndexDotmdRoute
   '/_library/$libraryId/$version/docs/npm-stats': typeof LibraryLibraryIdVersionDocsNpmStatsRoute
   '/_library/$libraryId/$version/docs/{$}.md': typeof LibraryLibraryIdVersionDocsChar123Char125DotmdRoute
@@ -2156,6 +2166,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/blog'
     | '/$libraryId/$version/docs/community-resources'
     | '/$libraryId/$version/docs/contributors'
+    | '/$libraryId/$version/docs/coverage'
     | '/$libraryId/$version/docs/index.md'
     | '/$libraryId/$version/docs/npm-stats'
     | '/$libraryId/$version/docs/{$}.md'
@@ -2355,6 +2366,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/blog'
     | '/$libraryId/$version/docs/community-resources'
     | '/$libraryId/$version/docs/contributors'
+    | '/$libraryId/$version/docs/coverage'
     | '/$libraryId/$version/docs/index.md'
     | '/$libraryId/$version/docs/npm-stats'
     | '/$libraryId/$version/docs/{$}.md'
@@ -2567,6 +2579,7 @@ export interface FileRouteTypes {
     | '/_library/$libraryId/$version/docs/blog'
     | '/_library/$libraryId/$version/docs/community-resources'
     | '/_library/$libraryId/$version/docs/contributors'
+    | '/_library/$libraryId/$version/docs/coverage'
     | '/_library/$libraryId/$version/docs/index.md'
     | '/_library/$libraryId/$version/docs/npm-stats'
     | '/_library/$libraryId/$version/docs/{$}.md'
@@ -4088,6 +4101,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryLibraryIdVersionDocsIndexDotmdRouteImport
       parentRoute: typeof LibraryLibraryIdVersionDocsRoute
     }
+    '/_library/$libraryId/$version/docs/coverage': {
+      id: '/_library/$libraryId/$version/docs/coverage'
+      path: '/coverage'
+      fullPath: '/$libraryId/$version/docs/coverage'
+      preLoaderRoute: typeof LibraryLibraryIdVersionDocsCoverageRouteImport
+      parentRoute: typeof LibraryLibraryIdVersionDocsRoute
+    }
     '/_library/$libraryId/$version/docs/contributors': {
       id: '/_library/$libraryId/$version/docs/contributors'
       path: '/contributors'
@@ -4211,6 +4231,7 @@ interface LibraryLibraryIdVersionDocsRouteChildren {
   LibraryLibraryIdVersionDocsBlogRoute: typeof LibraryLibraryIdVersionDocsBlogRoute
   LibraryLibraryIdVersionDocsCommunityResourcesRoute: typeof LibraryLibraryIdVersionDocsCommunityResourcesRoute
   LibraryLibraryIdVersionDocsContributorsRoute: typeof LibraryLibraryIdVersionDocsContributorsRoute
+  LibraryLibraryIdVersionDocsCoverageRoute: typeof LibraryLibraryIdVersionDocsCoverageRoute
   LibraryLibraryIdVersionDocsIndexDotmdRoute: typeof LibraryLibraryIdVersionDocsIndexDotmdRoute
   LibraryLibraryIdVersionDocsNpmStatsRoute: typeof LibraryLibraryIdVersionDocsNpmStatsRoute
   LibraryLibraryIdVersionDocsChar123Char125DotmdRoute: typeof LibraryLibraryIdVersionDocsChar123Char125DotmdRoute
@@ -4231,6 +4252,8 @@ const LibraryLibraryIdVersionDocsRouteChildren: LibraryLibraryIdVersionDocsRoute
       LibraryLibraryIdVersionDocsCommunityResourcesRoute,
     LibraryLibraryIdVersionDocsContributorsRoute:
       LibraryLibraryIdVersionDocsContributorsRoute,
+    LibraryLibraryIdVersionDocsCoverageRoute:
+      LibraryLibraryIdVersionDocsCoverageRoute,
     LibraryLibraryIdVersionDocsIndexDotmdRoute:
       LibraryLibraryIdVersionDocsIndexDotmdRoute,
     LibraryLibraryIdVersionDocsNpmStatsRoute:

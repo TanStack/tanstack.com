@@ -715,6 +715,14 @@ const useMenuConfig = ({
             },
           ]
         : []),
+      ...(libraryId === 'ai'
+        ? [
+            {
+              label: 'Coverage',
+              to: '/$libraryId/$version/docs/coverage',
+            },
+          ]
+        : []),
       {
         label: 'Contributors',
         to: '/$libraryId/$version/docs/contributors',

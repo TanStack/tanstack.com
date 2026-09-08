@@ -687,6 +687,10 @@ const useMenuConfig = ({
     },
   ]
 
+  const aiMenuItems: MenuItem['children'] = [
+    { label: 'Coverage', to: '/ai/coverage', tab: 'home' },
+  ]
+
   const localMenu: MenuItem = {
     label: 'Menu',
     children: [
@@ -715,14 +719,7 @@ const useMenuConfig = ({
             },
           ]
         : []),
-      ...(libraryId === 'ai'
-        ? [
-            {
-              label: 'Coverage',
-              to: '/$libraryId/$version/docs/coverage',
-            },
-          ]
-        : []),
+      ...(libraryId === 'ai' ? aiMenuItems : []),
       {
         label: 'Contributors',
         to: '/$libraryId/$version/docs/contributors',

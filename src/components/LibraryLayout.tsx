@@ -11,11 +11,7 @@ import { useMediaQuery } from '~/utils/useMediaQuery'
 import { useClickOutside } from '~/hooks/useClickOutside'
 import { last } from '~/utils/utils'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
-import {
-  getActiveDocsNavTabId,
-  getTabbedMenuConfig,
-  type DocsNavTabId,
-} from '~/utils/docsNavTabs'
+import { getActiveDocsNavTabId, getTabbedMenuConfig } from '~/utils/docsNavTabs'
 import { getLibrary, type Framework, type LibraryId } from '~/libraries'
 import { categoryOf, categoryTextColor } from '~/libraries/categories'
 import { frameworkOptions } from '~/libraries/frameworks'
@@ -664,13 +660,6 @@ function DocNavigationCard({
   )
 }
 
-const libraryTabLandings: Partial<
-  Record<string, Partial<Record<DocsNavTabId, string>>>
-> = {
-  ai: { adapters: '/ai/adapters' },
-  charts: { examples: '/charts/catalog' },
-}
-
 const useMenuConfig = ({
   config,
   repo,
@@ -696,10 +685,6 @@ const useMenuConfig = ({
       to: '/charts/catalog',
       tab: 'examples',
     },
-  ]
-
-  const aiMenuItems: MenuItem['children'] = [
-    { label: 'All adapters', to: '/ai/adapters', tab: 'adapters' },
   ]
 
   const localMenu: MenuItem = {
@@ -730,7 +715,6 @@ const useMenuConfig = ({
             },
           ]
         : []),
-      ...(libraryId === 'ai' ? aiMenuItems : []),
       {
         label: 'Contributors',
         to: '/$libraryId/$version/docs/contributors',
@@ -881,15 +865,21 @@ export function LibraryLayout({
 
   const tabbedMenuConfig = React.useMemo(() => {
     const tabs = getTabbedMenuConfig(menuConfig)
-    // Tabs whose landing page is a library page rather than a doc.
-    const landing = libraryTabLandings[libraryId] ?? {}
 
-    return tabs.map((tab) => {
-      const to = landing[tab.id]
-      return to
-        ? { ...tab, firstItem: { label: tab.label, to, tab: tab.id } }
-        : tab
-    })
+    return libraryId === 'charts'
+      ? tabs.map((tab) =>
+          tab.id === 'examples'
+            ? {
+                ...tab,
+                firstItem: {
+                  label: 'Examples',
+                  to: '/charts/catalog',
+                  tab: 'examples',
+                },
+              }
+            : tab,
+        )
+      : tabs
   }, [libraryId, menuConfig])
 
   const activeTabId = React.useMemo(() => {

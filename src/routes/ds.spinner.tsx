@@ -16,10 +16,29 @@ export const Route = createFileRoute('/ds/spinner')({
 function SpinnerPage() {
   return (
     <DsPage
-      title="Spinner"
-      description="A simple animated loading indicator. Size it with w-/h- utilities and recolor it with text-* (it inherits currentColor). Source: src/components/Spinner.tsx."
+      title="Spinners"
+      description="A collection of TanStack spinners produced by us for the community."
     >
-      <DsSection title="Sizes & color">
+      <DsSection
+        title="Spinner"
+        description={
+          <>
+            A simple animated loading indicator. Size it with w-/h- utilities
+            and recolor it with text-* (it inherits currentColor).
+            <br />
+            Source:{' '}
+            <a
+              href="https://github.com/TanStack/tanstack.com/blob/main/src/components/Spinner.tsx"
+              target="_blank"
+              rel="noreferrer"
+              className="underline underline-offset-2 hover:text-text-primary"
+            >
+              src/components/Spinner.tsx
+            </a>
+            .
+          </>
+        }
+      >
         <ComponentPreview
           code={`<Spinner className="w-4 h-4" />
 <Spinner />
@@ -35,7 +54,25 @@ function SpinnerPage() {
 
       <DsSection
         title="Headbanger"
-        description="A branded pixel-art loader — a 12-frame sprite animation on a canvas. Multi-color by design (it does not inherit currentColor); size it with w-/h- utilities. Holds on the first frame when prefers-reduced-motion is set. Source: src/components/ds/ui/PixelSpinner.tsx."
+        description={
+          <>
+            A branded pixel-art loader — a 12-frame sprite animation on a
+            canvas. Multi-color by design (it does not inherit currentColor);
+            size it with w-/h- utilities. Holds on the first frame when
+            prefers-reduced-motion is set.
+            <br />
+            Source:{' '}
+            <a
+              href="https://github.com/TanStack/tanstack.com/blob/main/src/components/ds/ui/PixelSpinner.tsx"
+              target="_blank"
+              rel="noreferrer"
+              className="underline underline-offset-2 hover:text-text-primary"
+            >
+              src/components/ds/ui/PixelSpinner.tsx
+            </a>
+            .
+          </>
+        }
       >
         <ComponentPreview
           code={`<PixelSpinner className="w-8 h-8" />

@@ -24,6 +24,7 @@ import {
 
 import { getLibrary } from '~/libraries'
 import { CodeBlock } from '~/components/markdown/CodeBlock'
+import { usePrefersReducedMotion } from '~/utils/usePrefersReducedMotion'
 import {
   LandingSection,
   LandingSectionIntro,
@@ -38,57 +39,10 @@ const aiPrompt = [
   'Never introduce a hosted gateway, a prescribed UI kit, or a provider-specific wire format. Keep provider capabilities honest: model options, tool support, and modality-specific results stay typed at the adapter boundary, and media or realtime primitives appear only where the selected model supports them.',
 ].join(' ')
 
-const providers = [
-  {
-    name: 'OpenRouter',
-    model: 'any of 300+ models',
-    capabilities: ['text', 'reasoning', 'tools', 'image'],
-  },
-  {
-    name: 'OpenAI',
-    model: 'gpt-5',
-    capabilities: ['text', 'reasoning', 'tools', 'image'],
-  },
-  {
-    name: 'Anthropic',
-    model: 'claude-sonnet-4',
-    capabilities: ['text', 'reasoning', 'tools'],
-  },
-  {
-    name: 'Gemini',
-    model: 'gemini-2.5-pro',
-    capabilities: ['text', 'reasoning', 'tools', 'media'],
-  },
-  {
-    name: 'Ollama',
-    model: 'local model',
-    capabilities: ['text', 'tools'],
-  },
-]
-
 // ponytail: the shared --landing-accent-ink is pure black, which reads badly on the
 // orange accent fill. Darken the fill instead and use white text on it.
 const accentFillClass =
   'bg-[linear-gradient(135deg,color-mix(in_srgb,var(--landing-accent)_84%,black),color-mix(in_srgb,var(--landing-accent)_52%,black))] text-white'
-
-function AdapterDocsLink() {
-  const { version } = useParams({ strict: false })
-  const library = getLibrary('ai')
-
-  return (
-    <Link
-      to="/$libraryId/$version/docs/$"
-      params={{
-        libraryId: library.id,
-        version: version ?? library.latestVersion,
-        _splat: 'getting-started/overview',
-      }}
-      className="text-[var(--landing-accent-bright)] underline decoration-[color:rgb(var(--landing-glow)/0.45)] underline-offset-2 hover:decoration-[var(--landing-accent-bright)]"
-    >
-      See the adapter docs for more.
-    </Link>
-  )
-}
 
 export default function AiLanding() {
   return (
@@ -96,7 +50,7 @@ export default function AiLanding() {
       libraryId="ai"
       headline="The AI SDK for TypeScript. We build the hard parts, you keep your stack."
       description="TanStack AI gives you composable building blocks for everything you should not write yourself: the agent loop, provider adapters, durability, interrupts, sandboxes, and tools. It leaves you everything a one-size-fits-all framework gets wrong the moment you are past a prototype: your server, your database, your UI."
-      hero={<HeroWireframe />}
+      hero={<WriteOnceHero />}
       prompt={aiPrompt}
       promptLabel="Copy AI prompt"
     >
@@ -121,6 +75,7 @@ export default function AiLanding() {
           />
           <ServerRoutes />
         </div>
+        <RequestPath />
       </LandingSection>
 
       <LandingSection tone="ink">
@@ -176,16 +131,8 @@ export default function AiLanding() {
           <LandingSectionIntro
             eyebrow="We handle providers"
             icon={<PlugIcon aria-hidden="true" size={15} />}
-            title="Swap the model. Keep the types."
-            body={
-              <>
-                Connect directly to OpenAI, Anthropic, Gemini, Bedrock, Ollama,
-                and the rest, or through the gateway you choose, and
-                openaiCompatible covers any endpoint with the same shape.{' '}
-                <AdapterDocsLink /> Each model's options, modalities, and native
-                tools are typed, so an unsupported option fails at compile time.
-              </>
-            }
+            title="The types know which model you picked."
+            body="Select a model and TypeScript narrows its options, capabilities, and input modalities. Pass an image to a text-only model and it fails in the editor, not in production. Connect directly to the provider or through the gateway you choose."
           />
         </div>
       </LandingSection>
@@ -195,8 +142,8 @@ export default function AiLanding() {
           centered
           eyebrow="Open protocol"
           icon={<RadioIcon aria-hidden="true" size={15} />}
-          title="AG-UI in both directions."
-          body="The client speaks AG-UI with no proprietary stream format in between, so the agent on the other end is replaceable: point it at a Python, Go, or PHP runtime and it keeps working. SSE, HTTP streams, XHR, RPC, or a fetcher you wrote. No TanStack service sits in the request path."
+          title="AG-UI compliant, in both directions."
+          body="The client sends AG-UI requests and consumes AG-UI events, with no proprietary stream format and no translation layer in between. That is what makes the agent on the other end replaceable: point the same client at a Python, Go, or PHP AG-UI runtime and it keeps working. The transport is yours too, whether that is SSE, HTTP streams, XHR, RPC, a raw async iterable, or a fetcher you wrote. Nothing to sign up for, no key to hand over, no traffic through us."
         />
         <ProtocolMap />
       </LandingSection>
@@ -781,63 +728,6 @@ function ToolBoundary() {
   )
 }
 
-function ProviderWorkbench() {
-  const [activeIndex, setActiveIndex] = React.useState(0)
-  const provider = providers[activeIndex] ?? providers[0]
-
-  return (
-    <LandingWindow label="provider capability types">
-      <div className="grid sm:grid-cols-[10rem_1fr]">
-        <div className="border-border-subtle p-3 sm:border-r">
-          {providers.map((item, index) => (
-            <button
-              key={item.name}
-              type="button"
-              aria-pressed={index === activeIndex}
-              className="mb-1 block w-full rounded-lg px-3 py-2 text-left text-ds-label-sm text-text-primary/35 hover:bg-text-primary/5 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.14)] aria-pressed:text-[var(--landing-accent-bright)]"
-              onClick={() => setActiveIndex(index)}
-            >
-              {item.name}
-            </button>
-          ))}
-        </div>
-        <div className="p-5" aria-live="polite">
-          <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
-            selected model
-          </p>
-          <p className="mt-2 font-ds-mono text-ds-mono-xs text-text-primary">
-            {provider.model}
-          </p>
-          <div className="mt-6 flex flex-wrap gap-2">
-            {['text', 'reasoning', 'tools', 'image', 'media'].map(
-              (capability) => {
-                const supported = provider.capabilities.includes(capability)
-                return (
-                  <span
-                    key={capability}
-                    className={
-                      supported
-                        ? 'rounded-full border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.14)] px-3 py-1.5 font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]'
-                        : 'rounded-full border border-border-subtle px-3 py-1.5 font-ds-mono text-ds-mono-2xs text-text-primary/20 line-through'
-                    }
-                  >
-                    {capability}
-                  </span>
-                )
-              },
-            )}
-          </div>
-          <p className="mt-6 text-ds-body-xs text-text-primary/35">
-            Types narrow to this exact model: its options, its capabilities, its
-            input modalities. Pass an image to a text-only model and it fails at
-            compile time, not in production.
-          </p>
-        </div>
-      </div>
-    </LandingWindow>
-  )
-}
-
 function ProtocolMap() {
   const nodes = [
     { label: 'CLIENT', detail: 'your web app', highlight: false },
@@ -1175,31 +1065,567 @@ function StartingPoints() {
     </ul>
   )
 }
+const heroTools = `import { toolDefinition } from '@tanstack/ai'
+import { z } from 'zod'
 
-// ponytail: placeholder until the hero visual is designed. Replace the whole component.
-function HeroWireframe() {
+export const lookupInvoice = toolDefinition({
+  name: 'lookup_invoice',
+  description: 'Find an invoice by id',
+  inputSchema: z.object({ id: z.string() }),
+  outputSchema: z.object({
+    total: z.number(),
+    status: z.enum(['draft', 'sent', 'paid']),
+  }),
+})`
+
+const heroProviders = [
+  {
+    name: 'OpenAI',
+    pkg: '@tanstack/ai-openai',
+    call: "openaiText('gpt-5.5')",
+  },
+  {
+    name: 'Anthropic',
+    pkg: '@tanstack/ai-anthropic',
+    call: "anthropicText('claude-sonnet-4-5')",
+  },
+  {
+    name: 'Gemini',
+    pkg: '@tanstack/ai-gemini',
+    call: "geminiText('gemini-3-flash-preview')",
+  },
+  {
+    name: 'Ollama',
+    pkg: '@tanstack/ai-ollama',
+    call: "ollamaText('llama3')",
+  },
+]
+
+type HeroProvider = (typeof heroProviders)[number]
+
+const heroServers = [
+  {
+    name: 'TanStack Start',
+    file: 'routes/api.chat.ts',
+    code: (
+      provider: HeroProvider,
+    ) => `import { chat, toServerSentEventsResponse } from '@tanstack/ai'
+import { ${provider.call.split('(')[0]} } from '${provider.pkg}'
+import { createFileRoute } from '@tanstack/react-router'
+import { lookupInvoice } from './tools'
+
+export const Route = createFileRoute('/api/chat')({
+  server: {
+    handlers: {
+      POST: async ({ request }) => {
+        const { messages } = await request.json()
+        const stream = chat({
+          adapter: ${provider.call},
+          messages,
+          tools: [lookupInvoice.server(findInvoice)],
+        })
+        return toServerSentEventsResponse(stream)
+      },
+    },
+  },
+})`,
+  },
+  {
+    name: 'Next.js',
+    file: 'app/api/chat/route.ts',
+    code: (
+      provider: HeroProvider,
+    ) => `import { chat, toServerSentEventsResponse } from '@tanstack/ai'
+import { ${provider.call.split('(')[0]} } from '${provider.pkg}'
+import { lookupInvoice } from './tools'
+
+export async function POST(request: Request) {
+  const { messages } = await request.json()
+  const stream = chat({
+    adapter: ${provider.call},
+    messages,
+    tools: [lookupInvoice.server(findInvoice)],
+  })
+  return toServerSentEventsResponse(stream)
+}`,
+  },
+  {
+    name: 'Hono',
+    file: 'server.ts',
+    code: (provider: HeroProvider) => `import { Hono } from 'hono'
+import { chat, toServerSentEventsResponse } from '@tanstack/ai'
+import { ${provider.call.split('(')[0]} } from '${provider.pkg}'
+import { lookupInvoice } from './tools'
+
+const app = new Hono()
+
+app.post('/api/chat', async (c) => {
+  const { messages } = await c.req.json()
+  const stream = chat({
+    adapter: ${provider.call},
+    messages,
+    tools: [lookupInvoice.server(findInvoice)],
+  })
+  return toServerSentEventsResponse(stream)
+})`,
+  },
+]
+
+const heroClients = [
+  {
+    name: 'React',
+    file: 'chat.tsx',
+    lang: 'tsx',
+    code: `import { useChat, fetchServerSentEvents } from '@tanstack/ai-react'
+import { lookupInvoice } from './tools'
+
+export function Chat() {
+  const { messages, sendMessage } = useChat({
+    connection: fetchServerSentEvents('/api/chat'),
+    tools: [lookupInvoice.client(openInvoice)],
+  })
+
+  return messages.map((message) => (
+    <Bubble key={message.id} {...message} />
+  ))
+}`,
+  },
+  {
+    name: 'Vue',
+    file: 'Chat.vue',
+    lang: 'html',
+    code: `<script setup lang="ts">
+import { useChat, fetchServerSentEvents } from '@tanstack/ai-vue'
+import { lookupInvoice } from './tools'
+
+const { messages, sendMessage } = useChat({
+  connection: fetchServerSentEvents('/api/chat'),
+  tools: [lookupInvoice.client(openInvoice)],
+})
+</script>
+
+<template>
+  <Bubble v-for="message in messages" :key="message.id" v-bind="message" />
+</template>`,
+  },
+  {
+    name: 'Solid',
+    file: 'chat.tsx',
+    lang: 'tsx',
+    code: `import { useChat, fetchServerSentEvents } from '@tanstack/ai-solid'
+import { lookupInvoice } from './tools'
+
+export function Chat() {
+  const chat = useChat({
+    connection: fetchServerSentEvents('/api/chat'),
+    tools: [lookupInvoice.client(openInvoice)],
+  })
+
+  return <For each={chat.messages}>{(message) => <Bubble {...message} />}</For>
+}`,
+  },
+  {
+    name: 'Svelte',
+    file: 'Chat.svelte',
+    lang: 'html',
+    code: `<script lang="ts">
+  import { createChat, fetchServerSentEvents } from '@tanstack/ai-svelte'
+  import { lookupInvoice } from './tools'
+
+  const chat = createChat({
+    connection: fetchServerSentEvents('/api/chat'),
+    tools: [lookupInvoice.client(openInvoice)],
+  })
+</script>
+
+{#each chat.messages as message (message.id)}
+  <Bubble {...message} />
+{/each}`,
+  },
+]
+
+// One selector changes per tick so the eye can follow what moved.
+const heroMoves: Array<
+  | { kind: 'client'; index: number }
+  | { kind: 'provider'; index: number }
+  | { kind: 'server'; index: number }
+> = [
+  { kind: 'server', index: 1 },
+  { kind: 'provider', index: 1 },
+  { kind: 'client', index: 1 },
+  { kind: 'server', index: 2 },
+  { kind: 'provider', index: 2 },
+  { kind: 'client', index: 2 },
+  { kind: 'server', index: 0 },
+  { kind: 'provider', index: 3 },
+  { kind: 'client', index: 3 },
+  { kind: 'provider', index: 0 },
+  { kind: 'client', index: 0 },
+]
+
+const heroChipClass =
+  'rounded-md px-2 py-1 font-ds-mono text-ds-mono-2xs text-text-primary/40 transition-colors hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.16)] aria-pressed:text-[var(--landing-accent-bright)]'
+
+function WriteOnceHero() {
+  const reducedMotion = usePrefersReducedMotion()
+  const [side, setSide] = React.useState<'client' | 'server'>('server')
+  const [serverIndex, setServerIndex] = React.useState(0)
+  const [clientIndex, setClientIndex] = React.useState(0)
+  const [providerIndex, setProviderIndex] = React.useState(0)
+  const [pinned, setPinned] = React.useState(false)
+
+  React.useEffect(() => {
+    if (pinned || reducedMotion !== false) {
+      return
+    }
+
+    let step = 0
+    const intervalId = window.setInterval(() => {
+      const move = heroMoves[step % heroMoves.length]
+      step += 1
+      if (!move) {
+        return
+      }
+      if (move.kind === 'provider') {
+        setSide('server')
+        setProviderIndex(move.index)
+      } else if (move.kind === 'server') {
+        setSide('server')
+        setServerIndex(move.index)
+      } else {
+        setSide('client')
+        setClientIndex(move.index)
+      }
+    }, 2600)
+
+    return () => window.clearInterval(intervalId)
+  }, [pinned, reducedMotion])
+
+  const pin = (update: () => void) => {
+    setPinned(true)
+    update()
+  }
+
+  const server = heroServers[serverIndex] ?? heroServers[0]
+  const client = heroClients[clientIndex] ?? heroClients[0]
+  const provider = heroProviders[providerIndex] ?? heroProviders[0]
+  const sample =
+    side === 'server'
+      ? { file: server.file, lang: 'ts', code: server.code(provider) }
+      : { file: client.file, lang: client.lang, code: client.code }
+
   return (
-    <div
-      aria-hidden="true"
-      className="grid w-full min-w-0 gap-4 rounded-xl border-2 border-dashed border-border-default p-4 lg:grid-cols-[1.05fr_0.95fr]"
-    >
-      <div className="grid h-[20rem] grid-rows-[auto_1fr_auto] gap-3 rounded-lg border border-dashed border-border-default p-4 sm:h-[23rem]">
-        <div className="h-4 w-1/3 rounded bg-text-primary/10" />
-        <div className="grid grid-cols-4 gap-2">
-          {Array.from({ length: 8 }, (_, index) => (
-            <div key={index} className="rounded bg-text-primary/5" />
+    <div className="grid w-full min-w-0 max-w-full items-start gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+      <LandingWindow
+        className="ring-2 ring-[color:rgb(var(--landing-glow)/0.35)]"
+        label="tools.ts · written once"
+      >
+        <CodeBlock className={codeWindowClass} showTypeCopyButton={false}>
+          <code className="language-ts">{heroTools}</code>
+        </CodeBlock>
+        <p className="border-t border-border-subtle px-4 py-3 text-ds-body-xs text-text-primary/40">
+          This file never changes. Everything on the right is a destination for
+          it.
+        </p>
+      </LandingWindow>
+
+      <LandingWindow label="runs anywhere">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-border-subtle p-3">
+          <div className="flex gap-1" role="group" aria-label="Side">
+            {(['server', 'client'] as const).map((option) => (
+              <button
+                key={option}
+                type="button"
+                aria-pressed={side === option}
+                className={heroChipClass}
+                onClick={() => pin(() => setSide(option))}
+              >
+                {option}
+              </button>
+            ))}
+          </div>
+          <span className="hidden h-4 w-px bg-border-subtle sm:block" />
+          {side === 'server' ? (
+            <div
+              className="flex gap-1"
+              role="group"
+              aria-label="Server framework"
+            >
+              {heroServers.map((item, index) => (
+                <button
+                  key={item.name}
+                  type="button"
+                  aria-pressed={index === serverIndex}
+                  className={heroChipClass}
+                  onClick={() => pin(() => setServerIndex(index))}
+                >
+                  {item.name}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="flex gap-1" role="group" aria-label="UI framework">
+              {heroClients.map((item, index) => (
+                <button
+                  key={item.name}
+                  type="button"
+                  aria-pressed={index === clientIndex}
+                  className={heroChipClass}
+                  onClick={() => pin(() => setClientIndex(index))}
+                >
+                  {item.name}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        {side === 'server' ? (
+          <div className="flex flex-wrap items-center gap-1 border-b border-border-subtle px-3 py-2">
+            <span className="mr-2 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+              provider
+            </span>
+            {heroProviders.map((item, index) => (
+              <button
+                key={item.name}
+                type="button"
+                aria-pressed={index === providerIndex}
+                className={heroChipClass}
+                onClick={() => pin(() => setProviderIndex(index))}
+              >
+                {item.name}
+              </button>
+            ))}
+          </div>
+        ) : null}
+        <CodeBlock
+          key={`${sample.file}-${provider.name}`}
+          dataCodeTitle={sample.file}
+          className={codeWindowClass}
+          showTypeCopyButton={false}
+        >
+          <code className={`language-${sample.lang}`}>{sample.code}</code>
+        </CodeBlock>
+      </LandingWindow>
+    </div>
+  )
+}
+
+const compilerModels = [
+  {
+    name: 'gpt-5.5',
+    adapter: "openaiText('gpt-5.5')",
+    pkg: '@tanstack/ai-openai',
+    input: ['text', 'image', 'document'],
+  },
+  {
+    name: 'claude-sonnet-4-5',
+    adapter: "anthropicText('claude-sonnet-4-5')",
+    pkg: '@tanstack/ai-anthropic',
+    input: ['text', 'image', 'document'],
+  },
+  {
+    name: 'gemini-3-flash-preview',
+    adapter: "geminiText('gemini-3-flash-preview')",
+    pkg: '@tanstack/ai-gemini',
+    input: ['text', 'image', 'audio', 'video', 'document'],
+  },
+  {
+    name: 'gpt-4o-audio',
+    adapter: "openaiText('gpt-4o-audio')",
+    pkg: '@tanstack/ai-openai',
+    input: ['text', 'audio'],
+  },
+  {
+    name: 'llama-3.3-70b-versatile',
+    adapter: "groqText('llama-3.3-70b-versatile')",
+    pkg: '@tanstack/ai-groq',
+    input: ['text'],
+  },
+]
+
+// ponytail: the code surface is always dark, so these use fixed token colors.
+function Kw({ children }: { children: React.ReactNode }) {
+  return <span className="text-pink-300">{children}</span>
+}
+
+function Fn({ children }: { children: React.ReactNode }) {
+  return <span className="text-orange-300">{children}</span>
+}
+
+function Str({ children }: { children: React.ReactNode }) {
+  return <span className="text-emerald-300">{children}</span>
+}
+
+function ProviderWorkbench() {
+  const [activeIndex, setActiveIndex] = React.useState(0)
+  const model = compilerModels[activeIndex] ?? compilerModels[0]
+  const acceptsImage = model.input.includes('image')
+
+  return (
+    <LandingWindow label="the types know the model">
+      <div className="grid sm:grid-cols-[12rem_1fr]">
+        <div
+          className="border-border-subtle p-3 sm:border-r"
+          role="group"
+          aria-label="Model"
+        >
+          {compilerModels.map((item, index) => (
+            <button
+              key={item.name}
+              type="button"
+              aria-pressed={index === activeIndex}
+              className="mb-1 block w-full rounded-lg px-3 py-2 text-left font-ds-mono text-ds-mono-2xs text-text-primary/35 hover:bg-text-primary/5 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.14)] aria-pressed:text-[var(--landing-accent-bright)]"
+              onClick={() => setActiveIndex(index)}
+            >
+              {item.name}
+            </button>
           ))}
         </div>
-        <div className="h-4 w-1/2 rounded bg-text-primary/10" />
+        <div aria-live="polite">
+          <div className="overflow-x-auto bg-ds-neutral-500 p-4 font-ds-mono text-ds-mono-xs leading-relaxed text-white/70">
+            <p>
+              <Kw>import</Kw> {'{ '}
+              {model.adapter.split('(')[0]}
+              {' }'} <Kw>from</Kw> <Str>'{model.pkg}'</Str>
+            </p>
+            <p>&nbsp;</p>
+            <p>
+              <Kw>const</Kw> stream = <Fn>chat</Fn>({'{'}
+            </p>
+            <p>
+              &nbsp;&nbsp;adapter: <Fn>{model.adapter.split('(')[0]}</Fn>(
+              <Str>'{model.name}'</Str>),
+            </p>
+            <p>&nbsp;&nbsp;messages: [{'{'}</p>
+            <p>
+              &nbsp;&nbsp;&nbsp;&nbsp;role: <Str>'user'</Str>,
+            </p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;content: [</p>
+            <p>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{'{ '}type: <Str>'text'</Str>,
+              content: <Str>'What is on this receipt?'</Str>
+              {' }'},
+            </p>
+            <p
+              className={
+                acceptsImage
+                  ? ''
+                  : 'underline decoration-red-400 decoration-wavy underline-offset-4'
+              }
+            >
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{'{ '}type: <Str>'image'</Str>
+              , source: {'{ '}type: <Str>'url'</Str>, value: receiptUrl{' }'}
+              {' }'},
+            </p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;],</p>
+            <p>&nbsp;&nbsp;{'}'}],</p>
+            <p>{'})'}</p>
+          </div>
+          <div className="border-t border-border-subtle p-4">
+            <div className="flex flex-wrap gap-2">
+              {['text', 'image', 'audio', 'video', 'document'].map(
+                (modality) => {
+                  const supported = model.input.includes(modality)
+                  return (
+                    <span
+                      key={modality}
+                      className={
+                        supported
+                          ? 'rounded-full border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.14)] px-3 py-1 font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]'
+                          : 'rounded-full border border-border-subtle px-3 py-1 font-ds-mono text-ds-mono-2xs text-text-primary/20 line-through'
+                      }
+                    >
+                      {modality}
+                    </span>
+                  )
+                },
+              )}
+            </div>
+            {acceptsImage ? (
+              <p className="mt-4 font-ds-mono text-ds-mono-2xs text-emerald-400/80">
+                ✓ no errors. {model.name} accepts image input.
+              </p>
+            ) : (
+              <p className="mt-4 font-ds-mono text-ds-mono-2xs text-red-400/90">
+                error TS2322: Type 'ImagePart' is not assignable to type
+                'TextPart'. {model.name} accepts {model.input.join(', ')} input
+                only.
+              </p>
+            )}
+          </div>
+        </div>
       </div>
-      <div className="flex h-[20rem] flex-col justify-end gap-3 rounded-lg border border-dashed border-border-default p-4 sm:h-[23rem]">
-        <div className="ml-auto h-8 w-3/5 rounded-lg bg-text-primary/10" />
-        <div className="h-14 w-4/5 rounded-lg bg-text-primary/5" />
-        <div className="h-9 rounded-lg border border-dashed border-border-default" />
+    </LandingWindow>
+  )
+}
+
+const requestPathNodes = [
+  { label: 'Your UI', detail: 'React, Vue, Solid, Svelte…' },
+  { label: 'Your server', detail: 'any route, any runtime' },
+  { label: 'Provider or gateway', detail: 'direct, or one you choose' },
+]
+
+function RequestPath() {
+  const reducedMotion = usePrefersReducedMotion()
+
+  return (
+    <div className="mt-14 rounded-xl border border-border-default bg-background-surface p-5 sm:p-6">
+      <div className="grid items-center gap-3 sm:grid-cols-[1fr_auto_1fr_auto_1fr]">
+        {requestPathNodes.map((node, index) => (
+          <React.Fragment key={node.label}>
+            {index > 0 ? <PathLink animate={reducedMotion === false} /> : null}
+            <div className="rounded-lg border border-border-subtle px-4 py-3 text-center">
+              <p className="text-ds-label-md text-text-primary">{node.label}</p>
+              <p className="mt-1 font-ds-mono text-ds-mono-2xs text-text-primary/35">
+                {node.detail}
+              </p>
+            </div>
+          </React.Fragment>
+        ))}
       </div>
-      <p className="text-center font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/30 lg:col-span-2">
-        hero visual placeholder
+      <p className="mt-5 text-center text-ds-body-xs text-text-primary/40">
+        That is the whole path. TanStack ships the library and does not sit in
+        it, so your requests, credentials, and data never pass through us.
       </p>
     </div>
+  )
+}
+
+function PathLink({ animate }: { animate: boolean }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className="mx-auto h-10 w-10 rotate-90 text-[var(--landing-accent-bright)] sm:h-6 sm:w-16 sm:rotate-0"
+      viewBox="0 0 64 24"
+    >
+      <path
+        d="M2 12 H62"
+        stroke="currentColor"
+        strokeOpacity="0.3"
+        strokeWidth="2"
+        strokeDasharray="4 4"
+      />
+      {animate ? (
+        <>
+          <circle r="3" fill="currentColor">
+            <animateMotion
+              dur="1.6s"
+              repeatCount="indefinite"
+              path="M2 12 H62"
+            />
+          </circle>
+          <circle r="2" fill="currentColor" fillOpacity="0.6">
+            <animateMotion
+              dur="1.6s"
+              begin="0.8s"
+              repeatCount="indefinite"
+              path="M62 12 H2"
+            />
+          </circle>
+        </>
+      ) : (
+        <circle cx="32" cy="12" r="3" fill="currentColor" />
+      )}
+    </svg>
   )
 }

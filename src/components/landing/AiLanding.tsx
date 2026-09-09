@@ -239,53 +239,123 @@ function CodeTabs({
   )
 }
 
-const persistenceContract = `import { defineAIPersistence, defineMessageStore } from '@tanstack/ai-persistence'
-import { db } from './db'
+// Every server backend fills the same two methods. Only those lines change.
+// localStorage and IndexedDB are client adapters with no server package, so
+// they swap the whole window for the useChat call.
+const persistenceStores: Array<
+  | { name: string; load: string; save: string }
+  | { name: string; client: string }
+> = [
+  {
+    name: 'Postgres',
+    load: 'sql`select messages from threads where id = ${threadId}`.then((rows) => rows[0]?.messages ?? [])',
+    save: 'sql`insert into threads (id, messages) values (${threadId}, ${sql.json(messages)})\n          on conflict (id) do update set messages = excluded.messages`',
+  },
+  {
+    name: 'MySQL',
+    load: "pool.query('select messages from threads where id = ?', [threadId]).then(([rows]) => rows[0]?.messages ?? [])",
+    save: "pool.query('replace into threads (id, messages) values (?, ?)', [threadId, JSON.stringify(messages)])",
+  },
+  {
+    name: 'SQLite',
+    load: "JSON.parse(db.prepare('select messages from threads where id = ?').get(threadId)?.messages ?? '[]')",
+    save: "db.prepare('insert or replace into threads values (?, ?)').run(threadId, JSON.stringify(messages))",
+  },
+  {
+    name: 'MongoDB',
+    load: 'threads.findOne({ _id: threadId }).then((doc) => doc?.messages ?? [])',
+    save: 'threads.updateOne({ _id: threadId }, { $set: { messages } }, { upsert: true })',
+  },
+  {
+    name: 'Cloudflare D1',
+    load: "env.DB.prepare('select messages from threads where id = ?').bind(threadId).first('messages').then((json) => JSON.parse(json ?? '[]'))",
+    save: "env.DB.prepare('insert or replace into threads values (?, ?)').bind(threadId, JSON.stringify(messages)).run()",
+  },
+  {
+    name: 'Redis',
+    load: "redis.get(`thread:${threadId}`).then((json) => JSON.parse(json ?? '[]'))",
+    save: 'redis.set(`thread:${threadId}`, JSON.stringify(messages))',
+  },
+  {
+    name: 'Drizzle',
+    load: 'db.select().from(threads).where(eq(threads.id, threadId)).then((rows) => rows[0]?.messages ?? [])',
+    save: 'db.insert(threads).values({ id: threadId, messages }).onConflictDoUpdate({ target: threads.id, set: { messages } })',
+  },
+  {
+    name: 'Prisma',
+    load: 'prisma.thread.findUnique({ where: { id: threadId } }).then((row) => row?.messages ?? [])',
+    save: 'prisma.thread.upsert({ where: { id: threadId }, create: { id: threadId, messages }, update: { messages } })',
+  },
+  { name: 'localStorage', client: 'localStoragePersistence' },
+  { name: 'IndexedDB', client: 'indexedDBPersistence' },
+]
+
+function persistenceSnippet(store: (typeof persistenceStores)[number]) {
+  if ('client' in store) {
+    return {
+      file: 'chat.tsx',
+      code: `import { useChat, fetchServerSentEvents, ${store.client} } from '@tanstack/ai-react'
+
+// No server package. The transcript lives in the browser and survives a reload.
+const { messages, sendMessage } = useChat({
+  threadId: 'support-chat',
+  connection: fetchServerSentEvents('/api/chat'),
+  persistence: ${store.client}(),
+})`,
+    }
+  }
+  return {
+    file: 'persistence.ts',
+    code: `import { defineAIPersistence, defineMessageStore } from '@tanstack/ai-persistence'
 
 // The whole contract. Your tables, your columns, your types.
 export const persistence = defineAIPersistence({
   stores: {
     messages: defineMessageStore({
-      loadThread: (threadId) => db.threads.messages(threadId),
-      saveThread: (threadId, messages) => db.threads.save(threadId, messages),
+      loadThread: (threadId) =>
+        ${store.load},
+      saveThread: async (threadId, messages) => {
+        await ${store.save}
+      },
     }),
   },
 })
 
-// chat({ ..., middleware: [withPersistence(persistence)] })`
-
-const persistenceStores = [
-  'Postgres',
-  'MySQL',
-  'SQLite',
-  'MongoDB',
-  'Cloudflare D1',
-  'Redis',
-  'Drizzle',
-  'Prisma',
-  'localStorage',
-  'IndexedDB',
-]
+// chat({ ..., middleware: [withPersistence(persistence)] })`,
+  }
+}
 
 function PersistenceContract() {
+  const [activeIndex, setActiveIndex] = React.useState(0)
+  const store = persistenceStores[activeIndex] ?? persistenceStores[0]
+  const snippet = persistenceSnippet(store)
+
   return (
     <div className="mt-14 flex flex-col items-center gap-6">
-      <ul
+      <div
         className="flex flex-wrap justify-center gap-2"
-        aria-label="Works with"
+        role="group"
+        aria-label="Backend"
       >
-        {persistenceStores.map((store) => (
-          <li
-            key={store}
-            className="rounded-full border border-border-subtle px-3 py-1.5 font-ds-mono text-ds-mono-2xs text-text-primary/45"
+        {persistenceStores.map((item, index) => (
+          <button
+            key={item.name}
+            type="button"
+            aria-pressed={index === activeIndex}
+            className="rounded-full border border-border-subtle px-3 py-1.5 font-ds-mono text-ds-mono-2xs text-text-primary/45 transition-colors hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-pressed:border-(--landing-accent) aria-pressed:bg-[rgb(var(--landing-glow)/0.14)] aria-pressed:text-(--landing-accent-bright)"
+            onClick={() => setActiveIndex(index)}
           >
-            {store}
-          </li>
+            {item.name}
+          </button>
         ))}
-      </ul>
-      <LandingWindow className="w-full max-w-184" label="persistence.ts">
-        <CodeBlock className={codeWindowClass} showTypeCopyButton={false}>
-          <code className="language-ts">{persistenceContract}</code>
+      </div>
+      <LandingWindow className="w-full max-w-184" label={snippet.file}>
+        <CodeBlock
+          key={store.name}
+          className={`${codeWindowClass} [&_pre]:h-88`}
+          showTypeCopyButton={false}
+        >
+          <code className="language-ts">{snippet.code}</code>
         </CodeBlock>
       </LandingWindow>
     </div>

@@ -5,7 +5,7 @@ import {
 import { decodeExampleBinaryFile } from './example-workspace'
 
 const maxCanonicalBytes = 1024 * 1024
-const maxFileBytes = 512 * 1024
+const maxFileBytes = maxCanonicalBytes
 const maxFiles = 128
 const maxPathBytes = 512
 const maxTitleCharacters = 160
@@ -41,7 +41,7 @@ export function validateBuilderProjectSnapshot(project: SharedExampleProject) {
       throw new Error(`Builder path exceeds 512 bytes: ${path}`)
     }
     if (byteLength > maxFileBytes) {
-      throw new Error(`Builder file exceeds 512 KiB: ${path}`)
+      throw new Error(`Builder file exceeds 1 MiB: ${path}`)
     }
   }
 

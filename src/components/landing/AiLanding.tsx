@@ -16,7 +16,6 @@ import {
   PlugIcon,
   RadioIcon,
   RobotIcon,
-  ScalesIcon,
   TerminalIcon,
   WaveformIcon,
   type Icon,
@@ -25,6 +24,7 @@ import {
 import { getLibrary } from '~/libraries'
 import { CodeBlock } from '~/components/markdown/CodeBlock'
 import { usePrefersReducedMotion } from '~/utils/usePrefersReducedMotion'
+import { LandingPromptBox } from './LandingPromptBox'
 import {
   LandingSection,
   LandingSectionIntro,
@@ -32,12 +32,8 @@ import {
   LibraryLandingShell,
 } from './LibraryLanding'
 
-const aiPrompt = [
-  'Build me a TanStack Start app using TanStack AI as its driver to showcase AI features, if run inside of an existing app then add a single new page and endpoint to showcase the power of TanStack AI.',
-  'Drive the agent loop with chat(): isomorphic tools via toolDefinition().server() / .client(), add at least 1 tool on the server and on the client, use the headless UI features to build the UI, add a tool that needs approval.',
-  'Reach for the rest of the stack only when the task needs it: Code Mode in an isolate for multi-tool orchestration, a sandboxed coding-agent harness, @tanstack/ai-mcp for MCP servers, memoryMiddleware for cross-session recall, @tanstack/ai-persistence for durable threads and resumable streams.',
-  'Never introduce a hosted gateway, a prescribed UI kit, or a provider-specific wire format. Keep provider capabilities honest: model options, tool support, and modality-specific results stay typed at the adapter boundary, and media or realtime primitives appear only where the selected model supports them.',
-].join(' ')
+const aiPrompt =
+  'Install the agent skills from the skills folder of https://github.com/TanStack/ai for my user, read them, then ask me what AI features I want to build, or suggest some.'
 
 // ponytail: the shared --landing-accent-ink is pure black, which reads badly on the
 // orange accent fill. Darken the fill instead and use white text on it.
@@ -49,66 +45,39 @@ export default function AiLanding() {
     <LibraryLandingShell
       libraryId="ai"
       headline="AI building blocks for TypeScript. We build the hard parts, you keep the stack."
-      description="TanStack AI gives you composable building blocks for everything you should not write yourself: the agent loop, provider adapters, durability, interrupts, sandboxes, and tools. It leaves you everything a one-size-fits-all framework gets wrong the moment you are past a prototype: your server, your database, your UI."
+      description="TanStack AI is a TypeScript library for building AI features and agents. It ships the agent loop, provider adapters, durability, interrupts, sandboxes, and tools, and plugs into the server, database, and UI you already have."
       hero={<WriteOnceHero />}
-      prompt={aiPrompt}
-      promptLabel="Copy AI prompt"
+      beforeActions={<LandingPromptBox heading="Skills" prompt={aiPrompt} />}
     >
-      <LandingSection tone="ink">
+      <LandingSection tone="accent">
         <LandingSectionIntro
           centered
-          eyebrow="Who owns what"
-          icon={<ScalesIcon aria-hidden="true" size={15} />}
-          title="One rule decides every API."
-          body="If it is hard to get right and identical in every app, we own it. If it stops fitting the day your app is no longer a prototype, you own it and we hand you typed helpers. Nothing here is a wrapper around a service we run."
+          eyebrow="Open protocol"
+          icon={<RadioIcon aria-hidden="true" size={15} />}
+          title="AG-UI compliant, in both directions."
+          body="The client sends AG-UI requests and consumes AG-UI events, so the agent on the other end is replaceable: point the same client at a Python, Go, or PHP runtime and it keeps working. Bring your own transport."
+          action={
+            <DocsLink to="migration/ag-ui-compliance">
+              AG-UI compliance
+            </DocsLink>
+          }
         />
-        <OwnershipMap />
-      </LandingSection>
-
-      <LandingSection tone="raised">
-        <div className="grid items-center gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:gap-16">
-          <LandingSectionIntro
-            eyebrow="You own the server"
-            icon={<TerminalIcon aria-hidden="true" size={15} />}
-            title="One call, one Response, any framework."
-            body="chat() takes messages and returns a stream. Turn it into a Response and return it from whatever route you already have. Auth, rate limits, and the deploy target stay in your code, where you can see them."
-          />
-          <ServerRoutes />
-        </div>
-        <RequestPath />
+        <ProtocolMap />
       </LandingSection>
 
       <LandingSection tone="ink">
-        <LandingSectionIntro
-          centered
-          eyebrow="You own persistence"
-          icon={<DatabaseIcon aria-hidden="true" size={15} />}
-          title="Your database. Your schema. Two functions."
-          body="A framework that owns your tables is great until you need soft delete, archiving, or a column it never imagined. So the core never sees your schema. Load a thread, save a thread, and the transcript, run status, and pending approvals land wherever you point them."
-        />
-        <PersistenceContract />
-      </LandingSection>
-
-      <LandingSection tone="raised">
-        <div className="grid items-center gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:gap-16">
+        <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
+          <ProviderWorkbench />
           <LandingSectionIntro
-            eyebrow="Durability you can move"
-            icon={<HardDrivesIcon aria-hidden="true" size={15} />}
-            title="A stream survives the reload. The log is yours."
-            body="Every chunk is written to a log before it is delivered. Drop the socket, refresh the page, open a second tab, and the client replays from its last offset instead of paying for the model again. Start in memory, move to a hosted log, or write five methods against the store you already run."
-          />
-          <DurabilityTiers />
-        </div>
-      </LandingSection>
-
-      <LandingSection tone="ink">
-        <div className="grid items-center gap-12 lg:grid-cols-[1.08fr_0.92fr] lg:gap-16">
-          <MessageParts />
-          <LandingSectionIntro
-            eyebrow="You own the UI"
-            icon={<LayoutIcon aria-hidden="true" size={15} />}
-            title="Typed parts, honest states, no components to fight."
-            body="A message is a list of parts, and every part carries its own lifecycle. Text streams, a tool call moves through input, approval, and result, and an error is a state rather than an exception you missed. Render them yourself or register one component per part type."
+            eyebrow="Typesafe models"
+            icon={<PlugIcon aria-hidden="true" size={15} />}
+            title="Typed options for every model."
+            body="Pick a model and TypeScript narrows the fields to what it supports. Input parts for chat. Pixel sizes on one image model and aspect ratio plus resolution on the next. Durations and tiers for video. Resolution for world models. The wrong value fails in the editor, not in production."
+            action={
+              <DocsLink to="chat/connection-adapters">
+                Connection adapters
+              </DocsLink>
+            }
           />
         </div>
       </LandingSection>
@@ -120,32 +89,52 @@ export default function AiLanding() {
             icon={<BracketsCurlyIcon aria-hidden="true" size={15} />}
             title="Define a tool once. Run it on either side."
             body="One schema gives you the input and output types on the server and the client. The loop calls the tool, pauses for approval when you ask it to, applies the user's edits, and feeds the result back to the model."
+            action={<DocsLink to="tools/tools">Tools</DocsLink>}
           />
           <ToolBoundary />
         </div>
       </LandingSection>
 
       <LandingSection tone="ink">
-        <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
-          <ProviderWorkbench />
+        <div className="grid items-center gap-12 lg:grid-cols-[1.08fr_0.92fr] lg:gap-16">
+          <MessageParts />
           <LandingSectionIntro
-            eyebrow="We handle providers"
-            icon={<PlugIcon aria-hidden="true" size={15} />}
-            title="The types know which model you picked."
-            body="Select a model and TypeScript narrows its options, capabilities, and input modalities. Pass an image to a text-only model and it fails in the editor, not in production. Connect directly to the provider or through the gateway you choose."
+            eyebrow="You own the UI"
+            icon={<LayoutIcon aria-hidden="true" size={15} />}
+            title="Typed parts, honest states, no components to fight."
+            body="A message is a list of parts, and every part carries its own lifecycle. Render them yourself or register one component per part type."
+            action={<DocsLink to="ui/react">UI integrations</DocsLink>}
           />
         </div>
       </LandingSection>
 
-      <LandingSection tone="accent">
+      <LandingSection tone="raised">
         <LandingSectionIntro
           centered
-          eyebrow="Open protocol"
-          icon={<RadioIcon aria-hidden="true" size={15} />}
-          title="AG-UI compliant, in both directions."
-          body="The client sends AG-UI requests and consumes AG-UI events, with no proprietary stream format and no translation layer in between. That is what makes the agent on the other end replaceable: point the same client at a Python, Go, or PHP AG-UI runtime and it keeps working. The transport is yours too, whether that is SSE, HTTP streams, XHR, RPC, a raw async iterable, or a fetcher you wrote. Nothing to sign up for, no key to hand over, no traffic through us."
+          eyebrow="You own persistence"
+          icon={<DatabaseIcon aria-hidden="true" size={15} />}
+          title="Your database. Your schema."
+          body="Persistence is two functions: load a thread and save a thread. The ai-persistence skill ships with the package, so your coding agent can wire them to your tables and ORM in one pass."
+          action={<DocsLink to="persistence/overview">Persistence</DocsLink>}
         />
-        <ProtocolMap />
+        <PersistenceContract />
+      </LandingSection>
+
+      <LandingSection tone="ink">
+        <div className="grid items-center gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:gap-16">
+          <LandingSectionIntro
+            eyebrow="Durability you can move"
+            icon={<HardDrivesIcon aria-hidden="true" size={15} />}
+            title="Refresh mid-answer and nothing is lost."
+            body="Every chunk is written to a log before it is delivered. Drop the socket or refresh the page and the client replays from its last offset instead of paying for the model again."
+            action={
+              <DocsLink to="resumable-streams/overview">
+                Resumable streams
+              </DocsLink>
+            }
+          />
+          <DurabilityTiers />
+        </div>
       </LandingSection>
 
       <LandingSection tone="raised">
@@ -165,8 +154,9 @@ export default function AiLanding() {
           <LandingSectionIntro
             eyebrow="Beyond chat"
             icon={<MicrophoneIcon aria-hidden="true" size={15} />}
-            title="Images, video, speech, and realtime voice."
+            title="Images, video, speech, voice, and live worlds."
             body="The same adapters and the same persistence cover every modality, with progress updates and cost tracking built in."
+            action={<DocsLink to="media/generations">Generations</DocsLink>}
           />
           <FeatureRail items={modalities} />
         </div>
@@ -179,6 +169,7 @@ export default function AiLanding() {
             icon={<BugIcon aria-hidden="true" size={15} />}
             title="See every action on both sides."
             body="Every tool call, interrupt, memory recall, and finish reason, on the server and in the client, in one timeline."
+            action={<DocsLink to="getting-started/devtools">Devtools</DocsLink>}
           />
           <DevtoolsPanel />
         </div>
@@ -244,184 +235,6 @@ function CodeTabs({
   )
 }
 
-const ownership = {
-  handled: [
-    {
-      label: 'Agent loop',
-      body: 'Tool calls, stop conditions, and every model round-trip. Easy to start, wrong in a hundred small ways.',
-    },
-    {
-      label: 'Providers',
-      body: 'Every major provider behind one call, each model typed down to its options and modalities.',
-    },
-    {
-      label: 'Durability',
-      body: 'A dropped socket, a reload, or a restart replays from a log. The model is never re-run.',
-    },
-    {
-      label: 'Interrupts',
-      body: 'A run pauses for a human, then resumes at the exact step with their edits applied.',
-    },
-    {
-      label: 'Sandboxes',
-      body: 'Coding agents and Code Mode run in an isolate or a container. Their activity is ordinary events.',
-    },
-    {
-      label: 'Tools',
-      body: 'One schema, typed on both ends, executed on the server or the client.',
-    },
-  ],
-  owned: [
-    {
-      label: 'Server',
-      body: 'Any route, any runtime. Your auth check sits next to the call, not behind a config flag.',
-    },
-    {
-      label: 'Persistence',
-      body: 'Your database and your schema. Two store functions are the whole contract.',
-    },
-    {
-      label: 'UI',
-      body: 'Typed messages, parts, and states. You render them.',
-    },
-    {
-      label: 'Deploy',
-      body: 'Your requests, credentials, and data never pass through TanStack.',
-    },
-  ],
-}
-
-function OwnershipMap() {
-  return (
-    <div className="mt-14 grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
-      <OwnershipColumn
-        eyebrow="TanStack AI handles"
-        items={ownership.handled}
-        note="Hard to get right, the same in every app, and a bug in any of them costs you a user or a bill."
-      />
-      <OwnershipColumn
-        eyebrow="You own"
-        items={ownership.owned}
-        note="A framework managing these feels great in a prototype and becomes a wall the day you need one thing it did not anticipate."
-      />
-    </div>
-  )
-}
-
-function OwnershipColumn({
-  eyebrow,
-  items,
-  note,
-}: {
-  eyebrow: string
-  items: Array<{ body: string; label: string }>
-  note: string
-}) {
-  return (
-    <div className="flex flex-col rounded-xl border border-border-default bg-background-surface">
-      <p className="border-b border-border-subtle px-5 py-3 font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
-        {eyebrow}
-      </p>
-      <ul className="grid flex-1 sm:grid-cols-2">
-        {items.map((item) => (
-          <li
-            key={item.label}
-            className="border-b border-border-subtle p-5 sm:[&:nth-last-child(-n+2)]:border-b-0 sm:odd:border-r"
-          >
-            <p className="text-ds-label-md text-text-primary">{item.label}</p>
-            <p className="mt-1.5 text-ds-body-xs text-text-primary/45">
-              {item.body}
-            </p>
-          </li>
-        ))}
-      </ul>
-      <p className="border-t border-border-subtle px-5 py-3 text-ds-body-xs text-text-primary/35">
-        {note}
-      </p>
-    </div>
-  )
-}
-
-const serverRoutes = [
-  {
-    name: 'TanStack Start',
-    file: 'routes/api.chat.ts',
-    code: `import { chat, toServerSentEventsResponse } from '@tanstack/ai'
-import { openRouterText } from '@tanstack/ai-openrouter'
-import { createFileRoute } from '@tanstack/react-router'
-import { lookupInvoice } from './tools'
-
-export const Route = createFileRoute('/api/chat')({
-  server: {
-    handlers: {
-      POST: async ({ request }) => {
-        const { messages } = await request.json()
-
-        const stream = chat({
-          adapter: openRouterText('anthropic/claude-sonnet-4.5'),
-          messages,
-          tools: [lookupInvoice],
-        })
-
-        return toServerSentEventsResponse(stream)
-      },
-    },
-  },
-})`,
-  },
-  {
-    name: 'Next.js',
-    file: 'app/api/chat/route.ts',
-    code: `import { chat, toServerSentEventsResponse } from '@tanstack/ai'
-import { openRouterText } from '@tanstack/ai-openrouter'
-import { lookupInvoice } from './tools'
-
-export async function POST(request: Request) {
-  const { messages } = await request.json()
-
-  const stream = chat({
-    adapter: openRouterText('anthropic/claude-sonnet-4.5'),
-    messages,
-    tools: [lookupInvoice],
-  })
-
-  return toServerSentEventsResponse(stream)
-}`,
-  },
-  {
-    name: 'Hono',
-    file: 'server.ts',
-    code: `import { Hono } from 'hono'
-import { chat, toServerSentEventsResponse } from '@tanstack/ai'
-import { openRouterText } from '@tanstack/ai-openrouter'
-import { lookupInvoice } from './tools'
-
-const app = new Hono()
-
-app.post('/api/chat', async (c) => {
-  const { messages } = await c.req.json()
-
-  const stream = chat({
-    adapter: openRouterText('anthropic/claude-sonnet-4.5'),
-    messages,
-    tools: [lookupInvoice],
-  })
-
-  return toServerSentEventsResponse(stream)
-})`,
-  },
-]
-
-function ServerRoutes() {
-  return (
-    <CodeTabs
-      preHeightClass="[&_pre]:h-[26rem]"
-      label="your route"
-      samples={serverRoutes}
-    />
-  )
-}
-
 const persistenceContract = `import { defineAIPersistence, defineMessageStore } from '@tanstack/ai-persistence'
 import { db } from './db'
 
@@ -471,12 +284,6 @@ function PersistenceContract() {
           <code className="language-ts">{persistenceContract}</code>
         </CodeBlock>
       </LandingWindow>
-      <p className="max-w-[40rem] text-center text-ds-body-xs text-text-primary/35">
-        Add a runs store to rejoin a run after a reload and an interrupts store
-        to hold an approval for days. Start with memoryPersistence() on the
-        server or localStoragePersistence() in the browser, and swap it out
-        without touching the route.
-      </p>
     </div>
   )
 }
@@ -838,38 +645,37 @@ type RailItem = {
   detail: string
   icon: Icon
   label: string
+  to: string
 }
 
 const agentStack: Array<RailItem> = [
   {
     label: 'Code Mode',
     detail: '@tanstack/ai-code-mode',
-    body: 'You provide a special tool to the LLM provider that allows it to chain tools (functions) into a single executable script and call it in a local or remote isolate, producing results that it further processes. It writes code and calls it.',
+    to: 'code-mode/code-mode',
+    body: 'The model chains your tools into one script and runs it in an isolate, instead of one round-trip per call.',
     icon: CodeIcon,
   },
   {
     label: 'Coding-agent harnesses',
     detail: '@tanstack/ai-sandbox',
-    body: 'Run Claude Code, Codex, OpenCode, Grok Build, or any ACP agent as a chat backend, inside a local process, Docker, Daytona, Vercel, Sprites, or Cloudflare sandbox. Their tool activity streams back as AG-UI events your UI already renders.',
+    to: 'sandbox/overview',
+    body: 'Run Claude Code, Codex, or any ACP agent as a chat backend in a local process or a sandbox. Its activity streams back as events your UI already renders.',
     icon: TerminalIcon,
   },
   {
     label: 'MCP + MCP Apps',
     detail: '@tanstack/ai-mcp',
-    body: 'A host-side MCP client with a type-generating CLI, provider-routed mcpTool(), and interactive ui:// widgets rendered from tool results across multiple servers.',
+    to: 'tools/mcp',
+    body: 'A typed MCP client with a CLI that generates the types, plus interactive widgets rendered from tool results.',
     icon: CubeIcon,
   },
   {
     label: 'Memory + compaction',
     detail: '@tanstack/ai-memory · @tanstack/ai-compaction',
-    body: 'memoryMiddleware recalls across sessions through Redis, mem0, Honcho, or Hindsight adapters. Compaction keeps long threads inside the model window so the agent does not lose the thread as context grows.',
+    to: 'memory/overview',
+    body: 'Recall across sessions through Redis, mem0, Honcho, or Hindsight. Compaction keeps long threads inside the model window.',
     icon: DatabaseIcon,
-  },
-  {
-    label: 'Durability + persistence',
-    detail: '@tanstack/ai-persistence · @tanstack/ai-durable-stream',
-    body: 'Persistence keeps an authoritative server thread, resumes a stream through a dropped connection, and survives a reload. Durability lets a run continue after a process restart.',
-    icon: HardDrivesIcon,
   },
 ]
 
@@ -877,26 +683,37 @@ const modalities: Array<RailItem> = [
   {
     label: 'Text, objects, reasoning',
     detail: 'chat · outputSchema · summarize',
-    body: 'Generate an output from an AI that matches your validation schema exactly using structured output.',
+    to: 'chat/structured-outputs',
+    body: 'Structured output that matches your schema exactly.',
     icon: RobotIcon,
   },
   {
     label: 'Speech, transcription, music',
     detail: 'generateSpeech · generateTranscription · generateAudio',
-    body: 'Six speech formats with speed control, transcription with word timestamps and diarization, plus music and sound effects.',
+    to: 'media/text-to-speech',
+    body: 'Transcription with word timestamps and diarization, plus music and sound effects.',
     icon: MicrophoneIcon,
   },
   {
     label: 'Realtime voice',
     detail: 'openaiRealtimeToken · RealtimeClient',
+    to: 'media/realtime-chat',
     body: 'OpenAI, Grok, and ElevenLabs with VAD modes and tool calling inside a live session.',
     icon: WaveformIcon,
   },
   {
     label: 'Images + video',
     detail: 'generateImage · generateVideo',
-    body: 'Generate images and videos, edit existing generations and show progress updates to your users with ease.',
+    to: 'media/video-generation',
+    body: 'Generate, edit, and stream progress to the user.',
     icon: RadioIcon,
+  },
+  {
+    label: 'World models + live video',
+    detail: 'generateWorld · generateLiveVideo',
+    to: 'media/world-generation',
+    body: 'Mint a session on the server and stream an explorable world or live video into the browser over WebRTC.',
+    icon: CubeIcon,
   },
 ]
 
@@ -1030,7 +847,11 @@ function FeatureRail({ items }: { items: Array<RailItem> }) {
               <Icon aria-hidden="true" size={19} />
             </span>
             <div>
-              <p className="text-ds-label-md text-text-primary">{item.label}</p>
+              <p className="text-ds-label-md text-text-primary">
+                <DocsLink to={item.to} plain>
+                  {item.label}
+                </DocsLink>
+              </p>
               <p className="mt-1 font-ds-mono text-ds-mono-2xs text-text-primary/30">
                 {item.detail}
               </p>
@@ -1054,6 +875,38 @@ const startingPoints = [
   { label: 'Add persistence', to: 'persistence/overview' },
   { label: 'Compare with Vercel AI SDK', to: 'comparison/vercel-ai-sdk' },
 ]
+
+function DocsLink({
+  children,
+  plain = false,
+  to,
+}: {
+  children: React.ReactNode
+  plain?: boolean
+  to: string
+}) {
+  const { version } = useParams({ strict: false })
+  const library = getLibrary('ai')
+
+  return (
+    <Link
+      to="/$libraryId/$version/docs/$"
+      params={{
+        libraryId: library.id,
+        version: version ?? library.latestVersion,
+        _splat: to,
+      }}
+      className={
+        plain
+          ? 'hover:text-[var(--landing-accent-bright)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]'
+          : 'inline-flex items-center gap-1.5 text-ds-label-sm text-[var(--landing-accent-bright)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]'
+      }
+    >
+      {children}
+      {plain ? null : <ArrowRightIcon aria-hidden="true" size={14} />}
+    </Link>
+  )
+}
 
 function StartingPoints() {
   const { version } = useParams({ strict: false })
@@ -1434,36 +1287,118 @@ function WriteOnceHero() {
   )
 }
 
+// Each model shows one field the types narrow per model. `picked` is what the
+// snippet passes; when it is not in `allowed` the snippet shows a type error.
 const compilerModels = [
   {
-    name: 'gpt-5.5',
-    adapter: "openaiText('gpt-5.5')",
+    name: 'gpt-6-astra',
     pkg: '@tanstack/ai-openai',
-    input: ['text', 'image', 'document'],
+    fn: 'chat',
+    adapter: "openaiText('gpt-6-astra')",
+    setup: [],
+    line: (value: string) =>
+      `messages: [{ role: 'user', content: [{ type: '${value}', source: receiptUrl }] }]`,
+    field: 'input',
+    allowed: ['text', 'image'],
+    picked: 'image',
+    note: 'Input parts are typed per model.',
   },
   {
-    name: 'claude-sonnet-4-5',
-    adapter: "anthropicText('claude-sonnet-4-5')",
+    name: 'claude-fable-5-1',
     pkg: '@tanstack/ai-anthropic',
-    input: ['text', 'image', 'document'],
-  },
-  {
-    name: 'gemini-3-flash-preview',
-    adapter: "geminiText('gemini-3-flash-preview')",
-    pkg: '@tanstack/ai-gemini',
-    input: ['text', 'image', 'audio', 'video', 'document'],
-  },
-  {
-    name: 'gpt-4o-audio',
-    adapter: "openaiText('gpt-4o-audio')",
-    pkg: '@tanstack/ai-openai',
-    input: ['text', 'audio'],
+    fn: 'chat',
+    adapter: "anthropicText('claude-fable-5-1')",
+    setup: [],
+    line: (value: string) =>
+      `messages: [{ role: 'user', content: [{ type: '${value}', source: invoicePdf }] }]`,
+    field: 'input',
+    allowed: ['text', 'image', 'document'],
+    picked: 'document',
+    note: 'PDFs go in as document parts on models that read them.',
   },
   {
     name: 'llama-3.3-70b-versatile',
-    adapter: "groqText('llama-3.3-70b-versatile')",
     pkg: '@tanstack/ai-groq',
-    input: ['text'],
+    fn: 'chat',
+    adapter: "groqText('llama-3.3-70b-versatile')",
+    setup: [],
+    line: (value: string) =>
+      `messages: [{ role: 'user', content: [{ type: '${value}', source: receiptUrl }] }]`,
+    field: 'input',
+    allowed: ['text'],
+    picked: 'image',
+    note: 'Text-only model, so the image part fails to type.',
+  },
+  {
+    name: 'gpt-image-2',
+    pkg: '@tanstack/ai-openai',
+    fn: 'generateImage',
+    adapter: "openaiImage('gpt-image-2')",
+    setup: ["prompt: 'A neon city at night'"],
+    line: (value: string) => `size: '${value}'`,
+    field: 'size',
+    allowed: ['1024x1024', '1536x1024', '1024x1536', 'auto'],
+    picked: '1536x1024',
+    note: 'OpenAI sizes are pixels, width by height.',
+  },
+  {
+    name: 'grok-imagine-image-2.0',
+    pkg: '@tanstack/ai-grok',
+    fn: 'generateImage',
+    adapter: "grokImage('grok-imagine-image-2.0')",
+    setup: ["prompt: 'A neon city at night'"],
+    line: (value: string) => `size: '${value}'`,
+    field: 'size',
+    allowed: ['1:1', '16:9', '9:16', '3:2', 'auto', '16:9_1k', '16:9_2k'],
+    picked: '16:9_2k',
+    note: 'Grok sizes are an aspect ratio, or ratio_resolution. Fourteen ratios at 1k or 2k, all typed.',
+  },
+  {
+    name: 'gemini-omni-1.1-flash',
+    pkg: '@tanstack/ai-gemini',
+    fn: 'generateVideo',
+    adapter: "geminiVideo('gemini-omni-1.1-flash')",
+    setup: [
+      'prompt: [',
+      "  { type: 'image', source: { type: 'url', value: firstFrame } },",
+      "  { type: 'text', content: 'Slow push in, rain on neon' },",
+      ']',
+    ],
+    line: (value: string) => `size: '${value}'`,
+    field: 'size',
+    allowed: ['16:9', '9:16', '16:9_720p', '16:9_1080p', '16:9_4k'],
+    picked: '16:9_4k',
+    note: 'Image and video parts in the prompt. Same ratio_resolution template, with tiers up to 4k, and any duration from 3 to 10 seconds.',
+  },
+  {
+    name: 'dreamina-seedance-2-5-260628',
+    pkg: '@tanstack/ai-byteplus',
+    fn: 'generateVideo',
+    adapter: "byteplusVideo('dreamina-seedance-2-5-260628')",
+    setup: [
+      'prompt: [',
+      "  { type: 'image', role: 'reference', source: { type: 'url', value: heroShot } },",
+      "  { type: 'audio', source: { type: 'url', value: beatUrl } },",
+      "  { type: 'text', content: 'Cut on the beat, keep the outfit' },",
+      ']',
+    ],
+    line: (value: string) => `size: '${value}'`,
+    field: 'size',
+    allowed: ['16:9', '9:16', '1:1', '21:9', '16:9_720p', '16:9_1080p'],
+    picked: '16:9_4k',
+    note: 'Reference image, video, and audio parts in the prompt. Seedance 2.5 stops at 1080p. The 4k tier only exists on Seedance 2.0, and the types know that.',
+  },
+  {
+    name: 'visko-orbis-stable',
+    pkg: '@tanstack/ai-reactor',
+    fn: 'generateWorld',
+    adapter: "reactorWorld('visko-orbis-stable')",
+    setup: ["prompt: 'A neon city at night'"],
+    line: (value: string) => `modelOptions: { resolution: '${value}' }`,
+    field: 'resolution',
+    allowed: ['1080p', '2k', '4k'],
+    picked: '4k',
+    note: 'World models stream over WebRTC. Resolution is a delivery tier.',
   },
 ]
 
@@ -1483,11 +1418,12 @@ function Str({ children }: { children: React.ReactNode }) {
 function ProviderWorkbench() {
   const [activeIndex, setActiveIndex] = React.useState(0)
   const model = compilerModels[activeIndex] ?? compilerModels[0]
-  const acceptsImage = model.input.includes('image')
+  const valid = model.allowed.includes(model.picked)
+  const adapterName = model.adapter.split('(')[0]
 
   return (
     <LandingWindow label="the types know the model">
-      <div className="grid sm:grid-cols-[12rem_1fr]">
+      <div className="grid sm:grid-cols-[13rem_1fr]">
         <div
           className="border-border-subtle p-3 sm:border-r"
           role="group"
@@ -1502,6 +1438,9 @@ function ProviderWorkbench() {
               onClick={() => setActiveIndex(index)}
             >
               {item.name}
+              <span className="mt-0.5 block text-text-primary/25">
+                {item.fn}
+              </span>
             </button>
           ))}
         </div>
@@ -1509,147 +1448,71 @@ function ProviderWorkbench() {
           <div className="overflow-x-auto bg-ds-neutral-500 p-4 font-ds-mono text-ds-mono-xs leading-relaxed text-white/70">
             <p>
               <Kw>import</Kw> {'{ '}
-              {model.adapter.split('(')[0]}
+              {adapterName}
               {' }'} <Kw>from</Kw> <Str>'{model.pkg}'</Str>
             </p>
             <p>&nbsp;</p>
             <p>
-              <Kw>const</Kw> stream = <Fn>chat</Fn>({'{'}
+              <Kw>const</Kw> result = <Kw>await</Kw> <Fn>{model.fn}</Fn>({'{'}
             </p>
             <p>
-              &nbsp;&nbsp;adapter: <Fn>{model.adapter.split('(')[0]}</Fn>(
+              &nbsp;&nbsp;adapter: <Fn>{adapterName}</Fn>(
               <Str>'{model.name}'</Str>),
             </p>
-            <p>&nbsp;&nbsp;messages: [{'{'}</p>
-            <p>
-              &nbsp;&nbsp;&nbsp;&nbsp;role: <Str>'user'</Str>,
-            </p>
-            <p>&nbsp;&nbsp;&nbsp;&nbsp;content: [</p>
-            <p>
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{'{ '}type: <Str>'text'</Str>,
-              content: <Str>'What is on this receipt?'</Str>
-              {' }'},
-            </p>
+            {model.setup.map((line) => (
+              <p key={line} className="whitespace-pre">
+                {'  '}
+                {line}
+                {line.endsWith('[') ? '' : ','}
+              </p>
+            ))}
             <p
               className={
-                acceptsImage
+                valid
                   ? ''
                   : 'underline decoration-red-400 decoration-wavy underline-offset-4'
               }
             >
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{'{ '}type: <Str>'image'</Str>
-              , source: {'{ '}type: <Str>'url'</Str>, value: receiptUrl{' }'}
-              {' }'},
+              &nbsp;&nbsp;{model.line(model.picked)},
             </p>
-            <p>&nbsp;&nbsp;&nbsp;&nbsp;],</p>
-            <p>&nbsp;&nbsp;{'}'}],</p>
             <p>{'})'}</p>
           </div>
           <div className="border-t border-border-subtle p-4">
-            <div className="flex flex-wrap gap-2">
-              {['text', 'image', 'audio', 'video', 'document'].map(
-                (modality) => {
-                  const supported = model.input.includes(modality)
-                  return (
-                    <span
-                      key={modality}
-                      className={
-                        supported
-                          ? 'rounded-full border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.14)] px-3 py-1 font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]'
-                          : 'rounded-full border border-border-subtle px-3 py-1 font-ds-mono text-ds-mono-2xs text-text-primary/20 line-through'
-                      }
-                    >
-                      {modality}
-                    </span>
-                  )
-                },
+            <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+              {model.field} for {model.name}
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {model.allowed.map((value) => (
+                <span
+                  key={value}
+                  className="rounded-full border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.14)] px-3 py-1 font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]"
+                >
+                  {value}
+                </span>
+              ))}
+              {valid ? null : (
+                <span className="rounded-full border border-red-400/60 px-3 py-1 font-ds-mono text-ds-mono-2xs text-red-400/90 line-through">
+                  {model.picked}
+                </span>
               )}
             </div>
-            {acceptsImage ? (
+            <p className="mt-3 text-ds-body-xs text-text-primary/40">
+              {model.note}
+            </p>
+            {valid ? (
               <p className="mt-4 min-h-[2.5rem] font-ds-mono text-ds-mono-2xs text-emerald-400/80">
-                ✓ no errors. {model.name} accepts image input.
+                ✓ no errors. '{model.picked}' is a valid {model.field} for{' '}
+                {model.name}.
               </p>
             ) : (
               <p className="mt-4 min-h-[2.5rem] font-ds-mono text-ds-mono-2xs text-red-400/90">
-                error TS2322: Type 'ImagePart' is not assignable to type
-                'TextPart'. {model.name} accepts {model.input.join(', ')} input
-                only.
+                error TS2322: Type '{model.picked}' is not assignable to type '
+                {model.allowed.join(' | ')}'.
               </p>
             )}
           </div>
         </div>
       </div>
     </LandingWindow>
-  )
-}
-
-const requestPathNodes = [
-  { label: 'Your UI', detail: 'React, Vue, Solid, Svelte…' },
-  { label: 'Your server', detail: 'any route, any runtime' },
-  { label: 'Provider or gateway', detail: 'direct, or one you choose' },
-]
-
-function RequestPath() {
-  const reducedMotion = usePrefersReducedMotion()
-
-  return (
-    <div className="mt-14 rounded-xl border border-border-default bg-background-surface p-5 sm:p-6">
-      <div className="grid items-center gap-3 sm:grid-cols-[1fr_auto_1fr_auto_1fr]">
-        {requestPathNodes.map((node, index) => (
-          <React.Fragment key={node.label}>
-            {index > 0 ? <PathLink animate={reducedMotion === false} /> : null}
-            <div className="rounded-lg border border-border-subtle px-4 py-3 text-center">
-              <p className="text-ds-label-md text-text-primary">{node.label}</p>
-              <p className="mt-1 font-ds-mono text-ds-mono-2xs text-text-primary/35">
-                {node.detail}
-              </p>
-            </div>
-          </React.Fragment>
-        ))}
-      </div>
-      <p className="mt-5 text-center text-ds-body-xs text-text-primary/40">
-        That is the whole path. TanStack ships the library and does not sit in
-        it, so your requests, credentials, and data never pass through us.
-      </p>
-    </div>
-  )
-}
-
-function PathLink({ animate }: { animate: boolean }) {
-  return (
-    <svg
-      aria-hidden="true"
-      className="mx-auto h-10 w-10 rotate-90 text-[var(--landing-accent-bright)] sm:h-6 sm:w-16 sm:rotate-0"
-      viewBox="0 0 64 24"
-    >
-      <path
-        d="M2 12 H62"
-        stroke="currentColor"
-        strokeOpacity="0.3"
-        strokeWidth="2"
-        strokeDasharray="4 4"
-      />
-      {animate ? (
-        <>
-          <circle r="3" fill="currentColor">
-            <animateMotion
-              dur="1.6s"
-              repeatCount="indefinite"
-              path="M2 12 H62"
-            />
-          </circle>
-          <circle r="2" fill="currentColor" fillOpacity="0.6">
-            <animateMotion
-              dur="1.6s"
-              begin="0.8s"
-              repeatCount="indefinite"
-              path="M62 12 H2"
-            />
-          </circle>
-        </>
-      ) : (
-        <circle cx="32" cy="12" r="3" fill="currentColor" />
-      )}
-    </svg>
   )
 }

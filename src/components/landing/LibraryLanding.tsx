@@ -83,8 +83,9 @@ export type LibraryLandingShellProps = {
   description: React.ReactNode
   headline: string
   hero: React.ReactNode
+  beforeActions?: React.ReactNode
   libraryId: LibraryLandingId
-  prompt: string
+  prompt?: string
   promptLabel?: string
 }
 
@@ -211,6 +212,7 @@ export function LibraryLandingShell({
   description,
   headline,
   hero,
+  beforeActions,
   libraryId,
   prompt,
   promptLabel,
@@ -283,7 +285,11 @@ export function LibraryLandingShell({
                 {description}
               </p>
 
-              <div className="mt-9 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-7">
+              {beforeActions}
+
+              <div
+                className={`${beforeActions ? 'mt-6' : 'mt-9'} flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-7`}
+              >
                 <Link
                   to="/$libraryId/$version/docs"
                   params={{
@@ -299,11 +305,13 @@ export function LibraryLandingShell({
                   Docs
                   <ArrowRightIcon aria-hidden="true" size={20} weight="bold" />
                 </Link>
-                <LandingCopyPromptButton
-                  className="rounded-xl border-[var(--landing-accent)] bg-transparent px-5 py-3 font-ds-mono text-ds-mono-caps uppercase text-[var(--landing-accent-bright)] hover:border-[var(--landing-accent-bright)] hover:bg-[color:rgb(var(--landing-glow)/0.1)] sm:w-auto"
-                  label={promptLabel ?? 'Copy prompt'}
-                  prompt={prompt}
-                />
+                {prompt ? (
+                  <LandingCopyPromptButton
+                    className="rounded-xl border-[var(--landing-accent)] bg-transparent px-5 py-3 font-ds-mono text-ds-mono-caps uppercase text-[var(--landing-accent-bright)] hover:border-[var(--landing-accent-bright)] hover:bg-[color:rgb(var(--landing-glow)/0.1)] sm:w-auto"
+                    label={promptLabel ?? 'Copy prompt'}
+                    prompt={prompt}
+                  />
+                ) : null}
               </div>
             </div>
 
@@ -353,12 +361,14 @@ export function LandingSection({
 }
 
 export function LandingSectionIntro({
+  action,
   body,
   centered = false,
   eyebrow,
   icon,
   title,
 }: {
+  action?: React.ReactNode
   body: React.ReactNode
   centered?: boolean
   eyebrow: string
@@ -376,6 +386,7 @@ export function LandingSectionIntro({
       <p className="mt-6 text-ds-body-sm text-text-primary/55 sm:text-ds-body-md">
         {body}
       </p>
+      {action ? <div className="mt-5">{action}</div> : null}
     </div>
   )
 }

@@ -37,6 +37,13 @@ const showcaseLimitSchema = v.pipe(
   v.minValue(1),
   v.maxValue(24),
 )
+
+const showcasePageSizeSchema = v.pipe(
+  v.number(),
+  v.integer(),
+  v.minValue(1),
+  v.maxValue(192),
+)
 const showcaseTextSchema = (maxLength: number) =>
   v.pipe(v.string(), v.minLength(1), v.maxLength(maxLength))
 const optionalShowcaseTextSchema = (maxLength: number) =>
@@ -202,7 +209,7 @@ export const getApprovedShowcases = createServerFn({ method: 'POST' })
     v.object({
       pagination: v.object({
         page: v.optional(pageNumberSchema, 1),
-        pageSize: v.optional(pageSizeSchema, 24),
+        pageSize: v.optional(showcasePageSizeSchema, 24),
       }),
       filters: v.optional(
         v.object({

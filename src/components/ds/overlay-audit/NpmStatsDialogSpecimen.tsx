@@ -5,7 +5,7 @@ import type { SpecimenProps } from './types'
 /**
  * AUDIT SPECIMEN — verbatim shell of the inline dialog in
  * `src/routes/stats/npm/index.tsx` (~line 1084). A fourth independent
- * re-declaration of the centered Radix panel, defined inside a route file
+ * re-declaration of the centered Base UI panel, defined inside a route file
  * rather than a component.
  */
 export function NpmStatsDialogSpecimen({ open, onOpenChange }: SpecimenProps) {

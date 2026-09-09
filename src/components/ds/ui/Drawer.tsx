@@ -6,7 +6,7 @@ import { twMerge } from 'tailwind-merge'
 /**
  * Edge-anchored panel — the drawer / side sheet.
  *
- * Same foundation as Dialog (focus trap, focus restoration, Escape,
+ * Same Base UI foundation as Dialog (focus trap, focus restoration, Escape,
  * scroll lock) and the same three-region layout, but anchored to an edge
  * instead of centred. `side` covers right, left and bottom: they are one
  * mechanism — a surface arriving from off-screen — differing only in axis.

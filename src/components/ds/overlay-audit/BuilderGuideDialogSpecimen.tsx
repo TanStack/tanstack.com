@@ -13,12 +13,9 @@ import type { SpecimenProps } from './types'
  * independently scrolling body, and a responsive posture that is full-bleed on
  * mobile and a right-edge sheet from `sm` up.
  *
- * It animated nothing, though — the `animate-in` / `fade-out-0` /
- * `slide-in-from-right` classes it carried come from tailwindcss-animate,
- * which is not installed, and they were keyed off a `data-state` attribute the
- * primitives no longer emit. Dropped rather than translated: the specimen
- * records the posture the audit found, and the motion is the DS primitive's
- * job now (see the drawer keyframes in app.css).
+ * It animated nothing, though — the `animate-in` / `slide-in-from-right`
+ * classes it carried come from tailwindcss-animate, which is not installed.
+ * Dropped rather than translated: motion is the DS primitive's job now.
  */
 export function BuilderGuideDialogSpecimen({
   open,

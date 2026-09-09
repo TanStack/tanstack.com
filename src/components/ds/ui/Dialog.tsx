@@ -7,7 +7,7 @@ import { twMerge } from 'tailwind-merge'
 /**
  * Centered modal dialog.
  *
- * Always primitive-backed, which is the whole point: focus trapping, focus
+ * Always Base UI-backed, which is the whole point: focus trapping, focus
  * restoration on close, Escape-to-dismiss and scroll lock come from the
  * primitive rather than from each call site remembering to implement them.
  * The overlay audit at /ds/overlays found that every accessibility failure on

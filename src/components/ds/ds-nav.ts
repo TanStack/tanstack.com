@@ -152,7 +152,7 @@ export const dsNav: Array<DsNavSection> = [
           'Tinted header',
           'Status panel',
           'Token coverage',
-          'Behaviour from Radix',
+          'Behaviour from Base UI',
         ],
       },
       {

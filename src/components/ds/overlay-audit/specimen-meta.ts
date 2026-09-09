@@ -11,7 +11,7 @@ export type Posture =
   | 'top-anchored'
   | 'full-bleed'
 
-export type Base = 'radix' | 'hand-rolled'
+export type Base = 'base-ui' | 'hand-rolled'
 
 export type TokenLayer = 'semantic' | 'raw-tailwind' | 'shop-scope'
 
@@ -26,7 +26,7 @@ export type SpecimenMeta = {
   zIndex: string
   overlay: string
   width: string
-  /** Radix supplies these for free; hand-rolled dialogs must implement them. */
+  /** Base UI supplies these for free; hand-rolled dialogs must implement them. */
   focusTrap: boolean
   focusRestore: boolean
   escape: boolean
@@ -42,7 +42,7 @@ export const SPECIMENS: Array<SpecimenMeta> = [
     source: 'src/components/LoginModal.tsx',
     sourceLines: 73,
     posture: 'centered',
-    base: 'radix',
+    base: 'base-ui',
     tokens: 'raw-tailwind',
     zIndex: '999 / 1000',
     overlay: 'bg-black/60 backdrop-blur-sm',
@@ -61,7 +61,7 @@ export const SPECIMENS: Array<SpecimenMeta> = [
     source: 'src/components/AvatarCropModal.tsx',
     sourceLines: 176,
     posture: 'centered',
-    base: 'radix',
+    base: 'base-ui',
     tokens: 'raw-tailwind',
     zIndex: '999 / 1000',
     overlay: 'bg-black/60 backdrop-blur-sm',
@@ -80,7 +80,7 @@ export const SPECIMENS: Array<SpecimenMeta> = [
     source: 'src/routes/stats/npm/index.tsx',
     sourceLines: 40,
     posture: 'centered',
-    base: 'radix',
+    base: 'base-ui',
     tokens: 'raw-tailwind',
     zIndex: '999 / 1000',
     overlay: 'bg-black/60 backdrop-blur-sm',
@@ -156,7 +156,7 @@ export const SPECIMENS: Array<SpecimenMeta> = [
     source: 'src/components/charts/BuilderGuideDialog.tsx',
     sourceLines: 150,
     posture: 'edge-sheet',
-    base: 'radix',
+    base: 'base-ui',
     tokens: 'semantic',
     zIndex: '999 / 1000',
     overlay: 'bg-black/45 backdrop-blur-[1px]',
@@ -175,7 +175,7 @@ export const SPECIMENS: Array<SpecimenMeta> = [
     source: 'src/components/shop/CartDrawer.tsx',
     sourceLines: 257,
     posture: 'anchored-panel',
-    base: 'radix',
+    base: 'base-ui',
     tokens: 'shop-scope',
     zIndex: '100',
     overlay: 'bg-black/40 (no blur)',
@@ -205,7 +205,7 @@ export const SPECIMENS: Array<SpecimenMeta> = [
     scrollLock: false,
     animated: true,
     notes:
-      'MIGRATED — now Drawer side="bottom" fit. Was the last hand-rolled overlay on the site; Radix now supplies the focus trap, focus restoration, Escape and scroll lock it never had. Its prev/next arrows moved from viewport-fixed on a third z-tier to panel-absolute, because Radix traps focus inside the panel and viewport-level siblings would have been unreachable by keyboard.',
+      'MIGRATED — now Drawer side="bottom" fit. Was the last hand-rolled overlay on the site; Base UI now supplies the focus trap, focus restoration, Escape and scroll lock it never had. Its prev/next arrows moved from viewport-fixed on a third z-tier to panel-absolute, because focus is trapped inside the panel and viewport-level siblings would have been unreachable by keyboard.',
   },
   {
     id: 'libraries-overlay',
@@ -213,7 +213,7 @@ export const SPECIMENS: Array<SpecimenMeta> = [
     source: 'src/components/LibrariesOverlay.tsx',
     sourceLines: 57,
     posture: 'full-bleed',
-    base: 'radix',
+    base: 'base-ui',
     tokens: 'semantic',
     zIndex: '110 / 111 / 112',
     overlay: 'bespoke .libraries-overlay-glass',
@@ -224,7 +224,7 @@ export const SPECIMENS: Array<SpecimenMeta> = [
     scrollLock: true,
     animated: true,
     notes:
-      'MIGRATED — now Takeover with scrim="glass". Its bespoke glass treatment became the DS\'s second scrim, which is the pair the audit asked for after finding seven. LibrariesBrowser also dropped its direct Radix import in favour of TakeoverTitle / TakeoverDescription.',
+      'MIGRATED — now Takeover with scrim="glass". Its bespoke glass treatment became the DS\'s second scrim, which is the pair the audit asked for after finding seven. LibrariesBrowser also dropped its direct Base UI import in favour of TakeoverTitle / TakeoverDescription.',
   },
   {
     id: 'search-modal',
@@ -232,7 +232,7 @@ export const SPECIMENS: Array<SpecimenMeta> = [
     source: 'src/components/SearchModal.tsx',
     sourceLines: 3766,
     posture: 'top-anchored',
-    base: 'radix',
+    base: 'base-ui',
     tokens: 'raw-tailwind',
     zIndex: '999 / 1000',
     overlay: 'bg-black/60 → xl:bg-black/30',
@@ -271,9 +271,9 @@ export const DIVERGENCE = [
   },
   {
     property: 'Base',
-    values: ['Radix (7)', 'hand-rolled (4)'],
+    values: ['Base UI (7)', 'hand-rolled (4)'],
     verdict:
-      'The 4 hand-rolled ones accounted for every a11y failure in the audit. All four are now migrated — every overlay on the site is Radix-backed.',
+      'The 4 hand-rolled ones accounted for every a11y failure in the audit. All four are now migrated — every overlay on the site is Base UI-backed.',
   },
   {
     property: 'Token layer',

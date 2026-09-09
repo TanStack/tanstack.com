@@ -27,7 +27,7 @@ export const Route = createFileRoute('/ds/dialog')({
     meta: seo({
       title: 'Dialog | TanStack Design System',
       description:
-        'The centered modal dialog — Radix-backed, on the semantic token layer.',
+        'The centered modal dialog — Base UI-backed, on the semantic token layer.',
     }),
   }),
 })
@@ -116,7 +116,7 @@ function DialogPage() {
   return (
     <DsPage
       title="Dialog"
-      description="The centered modal. Always Radix-backed — focus trapping, focus restoration, Escape-to-dismiss and scroll lock come from the primitive, not from each call site. Composed from Dialog + DialogContent + DialogHeader / DialogBody / DialogFooter. Source: src/components/ds/ui/Dialog.tsx."
+      description="The centered modal. Always Base UI-backed — focus trapping, focus restoration, Escape-to-dismiss and scroll lock come from the primitive, not from each call site. Composed from Dialog + DialogContent + DialogHeader / DialogBody / DialogFooter. Source: src/components/ds/ui/Dialog.tsx."
     >
       <DsSection
         title="Basic"
@@ -448,7 +448,7 @@ function DialogPage() {
       </DsSection>
 
       <DsSection
-        title="Behaviour from Radix"
+        title="Behaviour from Base UI"
         description="Not configurable, by design. Every accessibility failure in the overlay audit came from a hand-rolled dialog missing one of these."
       >
         <ul className="flex flex-col gap-2 text-sm text-text-secondary">

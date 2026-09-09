@@ -22,7 +22,7 @@ const STEPS: Array<Step> = [
  *
  * Note the shell is byte-identical to StarterDeployDialogSpecimen: same
  * `fixed inset-0 z-50`, same button-as-backdrop, same
- * `max-w-md ... rounded-xl shadow-2xl border` panel. Neither uses Radix, so
+ * `max-w-md ... rounded-xl shadow-2xl border` panel. Neither used Base UI, so
  * neither traps focus, restores focus on close, or closes on Escape.
  *
  * The step switcher is an audit affordance, not part of the original — it

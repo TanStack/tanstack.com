@@ -194,7 +194,7 @@ export default function AiLanding() {
 }
 
 const codeWindowClass =
-  'm-0 min-w-0 rounded-none border-0 [&>div:first-child]:rounded-none [&_pre]:max-h-[26rem] [&_pre]:overflow-auto [&_pre]:rounded-none [&_pre]:text-[11px] [&_pre]:leading-5 sm:[&_pre]:text-xs'
+  'm-0 min-w-0 rounded-none border-0 [&>div:first-child]:rounded-none [&_pre]:max-h-104 [&_pre]:overflow-auto [&_pre]:rounded-none [&_pre]:text-[11px] [&_pre]:leading-5 sm:[&_pre]:text-xs'
 
 function CodeTabs({
   preHeightClass,
@@ -220,7 +220,7 @@ function CodeTabs({
             key={item.name}
             type="button"
             aria-pressed={index === activeIndex}
-            className="rounded-lg px-3 py-1.5 text-ds-label-sm text-text-primary/40 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.14)] aria-pressed:text-[var(--landing-accent-bright)]"
+            className="rounded-lg px-3 py-1.5 text-ds-label-sm text-text-primary/40 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-pressed:bg-[rgb(var(--landing-glow)/0.14)] aria-pressed:text-(--landing-accent-bright)"
             onClick={() => setActiveIndex(index)}
           >
             {item.name}
@@ -283,7 +283,7 @@ function PersistenceContract() {
           </li>
         ))}
       </ul>
-      <LandingWindow className="w-full max-w-[46rem]" label="persistence.ts">
+      <LandingWindow className="w-full max-w-184" label="persistence.ts">
         <CodeBlock className={codeWindowClass} showTypeCopyButton={false}>
           <code className="language-ts">{persistenceContract}</code>
         </CodeBlock>
@@ -348,7 +348,7 @@ export function redisStream(request: Request): StreamDurability {
 function DurabilityTiers() {
   return (
     <CodeTabs
-      preHeightClass="[&_pre]:h-[19rem]"
+      preHeightClass="[&_pre]:h-76"
       label="stream durability"
       samples={durabilityTiers}
     />
@@ -422,20 +422,20 @@ function MessageParts() {
                 : 'grid gap-1 p-4 sm:grid-cols-[7.5rem_1fr_auto] sm:items-center sm:gap-4'
             }
           >
-            <span className="font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
+            <span className="font-ds-mono text-ds-mono-2xs text-(--landing-accent-bright)">
               {part.type}
             </span>
             <span className="truncate font-ds-mono text-ds-mono-xs text-text-primary/70">
               {part.detail}
               {part.state === 'streaming' ? (
-                <span className="ml-0.5 inline-block h-3 w-1.5 animate-pulse bg-[var(--landing-accent-bright)] align-middle motion-reduce:animate-none" />
+                <span className="ml-0.5 inline-block h-3 w-1.5 animate-pulse bg-(--landing-accent-bright) align-middle motion-reduce:animate-none" />
               ) : null}
             </span>
             <span
               className={
                 part.state === 'complete' || part.state === 'pending'
                   ? 'rounded-full border border-border-subtle px-2.5 py-1 font-ds-mono text-ds-mono-2xs text-text-primary/35'
-                  : 'rounded-full border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.14)] px-2.5 py-1 font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]'
+                  : 'rounded-full border border-(--landing-accent) bg-[rgb(var(--landing-glow)/0.14)] px-2.5 py-1 font-ds-mono text-ds-mono-2xs text-(--landing-accent-bright)'
               }
             >
               {part.state}
@@ -453,7 +453,7 @@ function MessageParts() {
               key={state}
               className={
                 index === stateIndex
-                  ? 'rounded-md bg-[color:rgb(var(--landing-glow)/0.18)] px-2 py-1 font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]'
+                  ? 'rounded-md bg-[rgb(var(--landing-glow)/0.18)] px-2 py-1 font-ds-mono text-ds-mono-2xs text-(--landing-accent-bright)'
                   : index < stateIndex
                     ? 'rounded-md px-2 py-1 font-ds-mono text-ds-mono-2xs text-text-primary/45'
                     : 'rounded-md px-2 py-1 font-ds-mono text-ds-mono-2xs text-text-primary/20'
@@ -488,14 +488,14 @@ function ToolBoundary() {
               key={option}
               type="button"
               aria-pressed={boundary === option}
-              className="flex-1 rounded-lg border border-border-default px-3 py-2 text-ds-label-sm capitalize text-text-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.14)] aria-pressed:text-[var(--landing-accent-bright)]"
+              className="flex-1 rounded-lg border border-border-default px-3 py-2 text-ds-label-sm capitalize text-text-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-pressed:border-(--landing-accent) aria-pressed:bg-[rgb(var(--landing-glow)/0.14)] aria-pressed:text-(--landing-accent-bright)"
               onClick={() => setBoundary(option)}
             >
               {option}
             </button>
           ))}
         </div>
-        <div className="mt-5 min-h-[13rem] overflow-x-auto rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-ds-mono-xs text-white/65">
+        <div className="mt-5 min-h-52 overflow-x-auto rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-ds-mono-xs text-white/65">
           <p>
             <span className="text-pink-300">const</span> lookupInvoice =
             toolDefinition({'{'}
@@ -509,45 +509,45 @@ function ToolBoundary() {
           <p>{'}'})</p>
           {boundary === 'client' ? (
             <>
-              <p className="text-[var(--landing-accent-bright)]">
+              <p className="text-(--landing-accent-bright)">
                 lookupInvoice.client(async ({'{'} id {'}'}) =&gt; {'{'}
               </p>
-              <p className="text-[var(--landing-accent-bright)]">
+              <p className="text-(--landing-accent-bright)">
                 &nbsp;&nbsp;
                 {`const url = new URL(\`/invoices/\${id}\`, window.location.origin)`}
               </p>
-              <p className="text-[var(--landing-accent-bright)]">
+              <p className="text-(--landing-accent-bright)">
                 &nbsp;&nbsp;window.history.pushState({'{'} id {'}'}, '', url)
               </p>
-              <p className="text-[var(--landing-accent-bright)]">
+              <p className="text-(--landing-accent-bright)">
                 &nbsp;&nbsp;return {'{'} id, href: url.pathname {'}'}
               </p>
-              <p className="text-[var(--landing-accent-bright)]">{'})'}</p>
+              <p className="text-(--landing-accent-bright)">{'})'}</p>
             </>
           ) : (
             <>
-              <p className="text-[var(--landing-accent-bright)]">
+              <p className="text-(--landing-accent-bright)">
                 lookupInvoice.server(async ({'{'} id {'}'}) =&gt; {'{'}
               </p>
-              <p className="text-[var(--landing-accent-bright)]">
+              <p className="text-(--landing-accent-bright)">
                 &nbsp;&nbsp;return db.invoices.update({'{'}
               </p>
-              <p className="text-[var(--landing-accent-bright)]">
+              <p className="text-(--landing-accent-bright)">
                 &nbsp;&nbsp;&nbsp;&nbsp;where: {'{'} id {'}'},
               </p>
-              <p className="text-[var(--landing-accent-bright)]">
+              <p className="text-(--landing-accent-bright)">
                 &nbsp;&nbsp;&nbsp;&nbsp;data: {'{'} lastViewedAt: new Date(){' '}
                 {'}'},
               </p>
-              <p className="text-[var(--landing-accent-bright)]">
+              <p className="text-(--landing-accent-bright)">
                 &nbsp;&nbsp;{'}'})
               </p>
-              <p className="text-[var(--landing-accent-bright)]">{'})'}</p>
+              <p className="text-(--landing-accent-bright)">{'})'}</p>
             </>
           )}
         </div>
         <p
-          className="mt-4 min-h-[2.5rem] text-ds-body-xs text-text-primary/35"
+          className="mt-4 min-h-10 text-ds-body-xs text-text-primary/35"
           aria-live="polite"
         >
           {boundary === 'client'
@@ -574,7 +574,7 @@ function ProtocolMap() {
         both directions. The server then talks to a provider such as OpenAI or
         Anthropic.
       </p>
-      <div className="mx-auto mt-14 flex max-w-[68rem] flex-col items-stretch gap-2 md:flex-row md:items-center md:gap-0">
+      <div className="mx-auto mt-14 flex max-w-272 flex-col items-stretch gap-2 md:flex-row md:items-center md:gap-0">
         {nodes.map((node, index) => (
           <React.Fragment key={node.label}>
             <ProtocolCard highlight={node.highlight} node={node} />
@@ -600,10 +600,10 @@ function ProtocolCard({
       <div className="relative min-w-0 flex-1 md:flex-[1.2]">
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -inset-2 rounded-2xl bg-[var(--landing-accent)] opacity-40 blur-md motion-safe:animate-pulse motion-reduce:hidden"
+          className="pointer-events-none absolute -inset-2 rounded-2xl bg-(--landing-accent) opacity-40 blur-md motion-safe:animate-pulse motion-reduce:hidden"
         />
         <div
-          className={`relative rounded-xl border-2 border-[var(--landing-accent)] p-6 text-center shadow-[0_12px_28px_rgb(var(--landing-glow)/0.28)] ring-2 ring-[color:rgb(var(--landing-glow)/0.24)] ${accentFillClass}`}
+          className={`relative rounded-xl border-2 border-(--landing-accent) p-6 text-center shadow-[0_12px_28px_rgb(var(--landing-glow)/0.28)] ring-2 ring-[rgb(var(--landing-glow)/0.24)] ${accentFillClass}`}
         >
           <p className="text-ds-heading-4">{node.label}</p>
           <p className="mt-2 font-ds-mono text-ds-mono-2xs opacity-80">
@@ -615,9 +615,9 @@ function ProtocolCard({
   }
 
   return (
-    <div className="min-w-0 flex-1 rounded-xl border border-[color:rgb(var(--landing-glow)/0.45)] bg-background-subtle p-5 text-center">
+    <div className="min-w-0 flex-1 rounded-xl border border-[rgb(var(--landing-glow)/0.45)] bg-background-subtle p-5 text-center">
       <p className="text-ds-heading-4 text-text-primary">{node.label}</p>
-      <p className="mt-2 font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
+      <p className="mt-2 font-ds-mono text-ds-mono-2xs text-(--landing-accent-bright)">
         {node.detail}
       </p>
     </div>
@@ -628,7 +628,7 @@ function ProtocolConnector({ bidirectional }: { bidirectional: boolean }) {
   return (
     <div
       aria-hidden="true"
-      className="flex h-8 items-center justify-center text-[var(--landing-accent)] md:h-auto md:w-12"
+      className="flex h-8 items-center justify-center text-(--landing-accent) md:h-auto md:w-12"
     >
       {bidirectional ? (
         <>
@@ -783,14 +783,14 @@ function DevtoolsPanel() {
               key={hook.name}
               className={
                 hook.selected
-                  ? 'mb-1 rounded-lg bg-[color:rgb(var(--landing-glow)/0.14)] px-3 py-2'
+                  ? 'mb-1 rounded-lg bg-[rgb(var(--landing-glow)/0.14)] px-3 py-2'
                   : 'mb-1 rounded-lg px-3 py-2'
               }
             >
               <p
                 className={
                   hook.selected
-                    ? 'text-ds-label-sm text-[var(--landing-accent-bright)]'
+                    ? 'text-ds-label-sm text-(--landing-accent-bright)'
                     : 'text-ds-label-sm text-text-primary/40'
                 }
               >
@@ -821,7 +821,7 @@ function DevtoolsPanel() {
                 <span
                   className={
                     event.tone === 'accent'
-                      ? 'font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]'
+                      ? 'font-ds-mono text-ds-mono-caps-xs uppercase text-(--landing-accent-bright)'
                       : event.tone === 'warn'
                         ? 'font-ds-mono text-ds-mono-caps-xs uppercase text-amber-500'
                         : 'font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/30'
@@ -852,7 +852,7 @@ function FeatureRail({ items }: { items: Array<RailItem> }) {
             key={item.label}
             className="grid gap-3 border-b border-border-subtle p-5 last:border-b-0 sm:grid-cols-[3rem_1fr] sm:items-start"
           >
-            <span className="flex size-10 items-center justify-center rounded-full bg-[color:rgb(var(--landing-glow)/0.18)] text-[var(--landing-accent-bright)]">
+            <span className="flex size-10 items-center justify-center rounded-full bg-[rgb(var(--landing-glow)/0.18)] text-(--landing-accent-bright)">
               <Icon aria-hidden="true" size={19} />
             </span>
             <div>
@@ -907,8 +907,8 @@ function DocsLink({
       }}
       className={
         plain
-          ? 'hover:text-[var(--landing-accent-bright)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]'
-          : 'inline-flex items-center gap-1.5 text-ds-label-sm text-[var(--landing-accent-bright)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]'
+          ? 'hover:text-(--landing-accent-bright) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright)'
+          : 'inline-flex items-center gap-1.5 text-ds-label-sm text-(--landing-accent-bright) hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright)'
       }
     >
       {children}
@@ -922,7 +922,7 @@ function StartingPoints() {
   const library = getLibrary('ai')
 
   return (
-    <ul className="mx-auto mt-10 grid max-w-[52rem] gap-3 sm:grid-cols-2">
+    <ul className="mx-auto mt-10 grid max-w-208 gap-3 sm:grid-cols-2">
       {startingPoints.map((point) => (
         <li key={point.to}>
           <Link
@@ -932,7 +932,7 @@ function StartingPoints() {
               version: version ?? library.latestVersion,
               _splat: point.to,
             }}
-            className="flex items-center justify-between gap-3 rounded-xl border border-border-default bg-background-surface px-5 py-4 text-ds-label-md text-text-primary transition-colors hover:border-[var(--landing-accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
+            className="flex items-center justify-between gap-3 rounded-xl border border-border-default bg-background-surface px-5 py-4 text-ds-label-md text-text-primary transition-colors hover:border-(--landing-accent) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright)"
           >
             {point.label}
             <ArrowRightIcon aria-hidden="true" size={16} />
@@ -1141,7 +1141,7 @@ const heroMoves: Array<
 ]
 
 const heroChipClass =
-  'rounded-md px-2 py-1 font-ds-mono text-ds-mono-2xs text-text-primary/40 transition-colors hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.16)] aria-pressed:text-[var(--landing-accent-bright)]'
+  'rounded-md px-2 py-1 font-ds-mono text-ds-mono-2xs text-text-primary/40 transition-colors hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-pressed:bg-[rgb(var(--landing-glow)/0.16)] aria-pressed:text-(--landing-accent-bright)'
 
 function WriteOnceHero() {
   const reducedMotion = usePrefersReducedMotion()
@@ -1204,7 +1204,7 @@ function WriteOnceHero() {
   return (
     <div className="grid w-full min-w-0 max-w-full items-start gap-4 lg:grid-cols-[0.9fr_1.1fr]">
       <LandingWindow
-        className="ring-2 ring-[color:rgb(var(--landing-glow)/0.35)]"
+        className="ring-2 ring-[rgb(var(--landing-glow)/0.35)]"
         label="tools.ts · written once"
       >
         <CodeBlock className={codeWindowClass} showTypeCopyButton={false}>
@@ -1296,7 +1296,7 @@ function WriteOnceHero() {
         <CodeBlock
           key={`${sample.name}-${provider.name}`}
           dataCodeTitle={sample.file}
-          className={`${codeWindowClass} [&_pre]:h-[19rem]`}
+          className={`${codeWindowClass} [&_pre]:h-76`}
           showTypeCopyButton={false}
         >
           <code className={`language-${sample.lang}`}>{sample.code}</code>
@@ -1453,7 +1453,7 @@ function ProviderWorkbench() {
               key={item.name}
               type="button"
               aria-pressed={index === activeIndex}
-              className="mb-1 block w-full rounded-lg px-3 py-2 text-left font-ds-mono text-ds-mono-2xs text-text-primary/35 hover:bg-text-primary/5 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.14)] aria-pressed:text-[var(--landing-accent-bright)]"
+              className="mb-1 block w-full rounded-lg px-3 py-2 text-left font-ds-mono text-ds-mono-2xs text-text-primary/35 hover:bg-text-primary/5 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-pressed:bg-[rgb(var(--landing-glow)/0.14)] aria-pressed:text-(--landing-accent-bright)"
               onClick={() => setActiveIndex(index)}
             >
               {item.name}
@@ -1504,7 +1504,7 @@ function ProviderWorkbench() {
               {model.allowed.map((value) => (
                 <span
                   key={value}
-                  className="rounded-full border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.14)] px-3 py-1 font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]"
+                  className="rounded-full border border-(--landing-accent) bg-[rgb(var(--landing-glow)/0.14)] px-3 py-1 font-ds-mono text-ds-mono-2xs text-(--landing-accent-bright)"
                 >
                   {value}
                 </span>
@@ -1519,12 +1519,12 @@ function ProviderWorkbench() {
               {model.note}
             </p>
             {valid ? (
-              <p className="mt-4 min-h-[2.5rem] font-ds-mono text-ds-mono-2xs text-emerald-400/80">
+              <p className="mt-4 min-h-10 font-ds-mono text-ds-mono-2xs text-emerald-400/80">
                 ✓ no errors. '{model.picked}' is a valid {model.field} for{' '}
                 {model.name}.
               </p>
             ) : (
-              <p className="mt-4 min-h-[2.5rem] font-ds-mono text-ds-mono-2xs text-red-400/90">
+              <p className="mt-4 min-h-10 font-ds-mono text-ds-mono-2xs text-red-400/90">
                 error TS2322: Type '{model.picked}' is not assignable to type '
                 {model.allowed.join(' | ')}'.
               </p>

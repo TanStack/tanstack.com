@@ -13,7 +13,7 @@ export function LandingPromptBox({
   const [copied, onCopy] = useCopyButton(() => copyTextToClipboard(prompt))
 
   return (
-    <div className="mt-6 w-full max-w-[34rem] rounded-lg border border-border-default bg-background-surface px-4 py-3">
+    <div className="mt-6 w-full max-w-136 rounded-lg border border-border-default bg-background-surface px-4 py-3">
       <div className="flex items-start gap-3">
         <p className="min-w-0 flex-1 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/65">
           {heading}

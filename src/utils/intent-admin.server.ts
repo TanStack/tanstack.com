@@ -202,10 +202,25 @@ export async function triggerIntentDiscover() {
     workflowId: INTENT_DISCOVER_WORKFLOW_ID,
     runId: createAdminRunId(INTENT_DISCOVER_WORKFLOW_ID),
     input: { source: 'admin' },
+    maxDurationMs: WORKFLOW_RUNTIME_MAX_DURATION_MS,
+    minYieldRemainingMs: WORKFLOW_RUNTIME_MIN_REMAINING_MS,
     includeEvents: false,
   })
 
-  return intentDiscoveryResultSchema.parse(getCompletedWorkflowOutput(result))
+  if (result.kind === 'paused') {
+    return {
+      kind: 'continuing' as const,
+      runId: result.runId,
+    }
+  }
+
+  return {
+    kind: 'completed' as const,
+    runId: result.runId,
+    summary: intentDiscoveryResultSchema.parse(
+      getCompletedWorkflowOutput(result),
+    ),
+  }
 }
 
 // ---------------------------------------------------------------------------

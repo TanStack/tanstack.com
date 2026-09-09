@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { Dialog } from '@base-ui/react/dialog'
 import {
   ArrowDownIcon,
   CaretDownIcon,
@@ -19,6 +18,10 @@ import type { ByokClient, ByokSnapshot } from '@tanstack/ai-client/byok'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import {
   Button,
+  Dialog,
+  DialogBody,
+  DialogContent,
+  DialogHeader,
   Dropdown,
   DropdownContent,
   DropdownItem,
@@ -361,6 +364,8 @@ export const BuilderAssistant = React.forwardRef<
   const [queueAnnouncement, setQueueAnnouncement] = React.useState('')
   const [showLatest, setShowLatest] = React.useState(false)
   const abortRef = React.useRef<AbortController>(null)
+  const unlockingRef = React.useRef(false)
+  const [unlocking, setUnlocking] = React.useState(false)
   const onRunningChangeRef = React.useRef(onRunningChange)
   const abortIntentRef = React.useRef<'steer' | 'stop' | undefined>(undefined)
   const agentStreamingRef = React.useRef(false)
@@ -408,6 +413,10 @@ export const BuilderAssistant = React.forwardRef<
   promptValueRef.current = prompt
   canUsePendingPromptRef.current = canUsePendingPrompt
   startPromptSequenceRef.current = startPromptSequence
+
+  React.useLayoutEffect(() => {
+    pendingSubmissionGenerationRef.current += 1
+  }, [threadId, storageScope, credentialScope, selectedModel])
 
   React.useLayoutEffect(() => {
     if (credentialScopeRef.current === credentialScope) return
@@ -657,7 +666,17 @@ export const BuilderAssistant = React.forwardRef<
       setHydratedThreadId(threadId)
       return
     }
+  }, [
+    hydratedThreadId,
+    syncedMessages,
+    syncedProjectId,
+    syncedRuns,
+    syncedThreads,
+    threadId,
+  ])
 
+  React.useEffect(() => {
+    if (syncedProjectId) return
     const generation = hydrationGenerationRef.current + 1
     hydrationGenerationRef.current = generation
     setHydratedThreadId(undefined)
@@ -688,16 +707,7 @@ export const BuilderAssistant = React.forwardRef<
         hydrationGenerationRef.current += 1
       }
     }
-  }, [
-    hydratedThreadId,
-    refreshThreads,
-    storageScope,
-    syncedMessages,
-    syncedProjectId,
-    syncedRuns,
-    syncedThreads,
-    threadId,
-  ])
+  }, [refreshThreads, storageScope, syncedProjectId, threadId])
 
   React.useEffect(() => {
     const currentProjectSync = projectSync
@@ -1025,7 +1035,7 @@ export const BuilderAssistant = React.forwardRef<
   }, [])
 
   function selectModel(model: ModelChoice) {
-    if (running) return
+    if (running || unlockingRef.current) return
     didSelectConnectionRef.current =
       model.connection !== 'chatgpt' || Boolean(model.model)
     setSelectedModel(model)
@@ -1322,7 +1332,10 @@ export const BuilderAssistant = React.forwardRef<
     const promptQueue = promptQueueRef.current
     promptQueue.enqueuePrompt(queuedPrompt)
     syncQueuedPrompts()
-    if (clearComposer) {
+    if (
+      clearComposer &&
+      promptValueRef.current.trim() === queuedPrompt.content
+    ) {
       promptValueRef.current = ''
       setPrompt('')
       setSendMode('queue')
@@ -1407,11 +1420,50 @@ export const BuilderAssistant = React.forwardRef<
       !instruction ||
       instruction.length > 10_000 ||
       hydrating ||
-      needsConnection
+      needsConnection ||
+      unlockingRef.current
     ) {
       return false
     }
 
+    // Both the composer and preview comments enter here, directly from the
+    // user action, before persistence or sandbox work can expire activation.
+    if (
+      selectedModel.connection === 'byok' &&
+      !byokConnection.getClient(selectedModel.provider, { allowUnlock: false })
+    ) {
+      const provider = selectedModel.provider
+      const generation = pendingSubmissionGenerationRef.current
+      unlockingRef.current = true
+      setUnlocking(true)
+      void unlockApiKey(provider).then(() => {
+        unlockingRef.current = false
+        if (mountedRef.current) setUnlocking(false)
+        if (
+          !mountedRef.current ||
+          generation !== pendingSubmissionGenerationRef.current
+        ) {
+          lifecycle?.onDiscarded?.()
+          return
+        }
+        if (!byokConnection.getClient(provider, { allowUnlock: false })) {
+          setError('Could not unlock the API key. Try again.')
+          lifecycle?.onDiscarded?.()
+          return
+        }
+        enqueueInstruction(instruction, mode, clearComposer, lifecycle)
+      })
+      return true
+    }
+    return enqueueInstruction(instruction, mode, clearComposer, lifecycle)
+  }
+
+  function enqueueInstruction(
+    instruction: string,
+    mode: BuilderAiSendMode,
+    clearComposer: boolean,
+    lifecycle?: BuilderAiPromptLifecycle,
+  ) {
     const promptQueue = promptQueueRef.current
     const claimed = promptQueue.claim()
     const queuedPrompt: BuilderAiQueuedPrompt = {
@@ -1512,7 +1564,10 @@ export const BuilderAssistant = React.forwardRef<
     initialPrompt: BuilderAiQueuedPrompt,
     clearComposer: boolean,
   ) {
-    if (clearComposer) {
+    if (
+      clearComposer &&
+      promptValueRef.current.trim() === initialPrompt.content
+    ) {
       promptValueRef.current = ''
       setPrompt('')
       setSendMode('queue')
@@ -2613,7 +2668,8 @@ export const BuilderAssistant = React.forwardRef<
     }
   }
 
-  const submitDisabled = hydrating || !prompt.trim() || needsConnection
+  const submitDisabled =
+    hydrating || unlocking || !prompt.trim() || needsConnection
   const stopLabel =
     queuedPrompts.length === 0
       ? 'Stop response'
@@ -2942,6 +2998,7 @@ export const BuilderAssistant = React.forwardRef<
                 ref={promptRef}
                 id="builder-ai-prompt"
                 value={prompt}
+                disabled={unlocking}
                 rows={1}
                 maxLength={10_000}
                 placeholder="Describe a builder change"
@@ -2961,7 +3018,7 @@ export const BuilderAssistant = React.forwardRef<
               <div className="flex items-center justify-between gap-3 pl-1">
                 <ModelPicker
                   chatGptModels={chatGptModels}
-                  disabled={running}
+                  disabled={running || unlocking}
                   selected={selectedModel}
                   showChatGpt={supportsChatGptLogin}
                   onSelect={selectModel}
@@ -3660,112 +3717,89 @@ function ConnectionsDialog({
   onUnlock: (provider: BuilderAiRemoteProvider) => Promise<void>
 }) {
   return (
-    <Dialog.Root open={open} onOpenChange={onOpenChange}>
-      <Dialog.Portal>
-        <Dialog.Backdrop className="fixed inset-0 z-[999] bg-black/45 backdrop-blur-[1px]" />
-        <Dialog.Popup className="sandbox-ui fixed top-1/2 left-1/2 z-[1000] max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border border-border-default bg-background-surface text-text-primary shadow-2xl outline-none">
-          <header className="flex h-14 items-center justify-between border-b border-border-default px-5">
-            <Dialog.Title className="text-sm font-semibold">
-              Model connections
-            </Dialog.Title>
-            <Dialog.Close
-              render={
-                <Button
-                  type="button"
-                  variant="icon"
-                  color="gray"
-                  size="icon-sm"
-                  aria-label="Close model connections"
-                >
-                  <XIcon className="size-4" aria-hidden="true" />
-                </Button>
-              }
-            />
-          </header>
-          <Dialog.Description className="sr-only">
-            Connect a ChatGPT plan or configure an API key.
-          </Dialog.Description>
-          <div className="space-y-6 p-5">
-            {showChatGpt ? (
-              <div>
-                <h3 className="text-sm font-medium">ChatGPT</h3>
-                {chatGpt.connected ? (
-                  <div className="mt-3 flex items-center justify-between gap-4 rounded-xl border border-border-default p-3">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm">
-                        {chatGpt.email || 'Connected'}
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      {/* `sandbox-ui` scopes the builder's own type/colour context; the DS
+          panel supplies posture, elevation and behaviour. */}
+      <DialogContent size="md" className="sandbox-ui">
+        <DialogHeader title="Model connections" />
+        <DialogBody className="space-y-6 pb-5">
+          {showChatGpt ? (
+            <div>
+              <h3 className="text-sm font-medium">ChatGPT</h3>
+              {chatGpt.connected ? (
+                <div className="mt-3 flex items-center justify-between gap-4 rounded-xl border border-border-default p-3">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm">
+                      {chatGpt.email || 'Connected'}
+                    </p>
+                    {chatGpt.planType ? (
+                      <p className="mt-0.5 text-xs text-text-muted">
+                        {formatPlan(chatGpt.planType)} plan
                       </p>
-                      {chatGpt.planType ? (
-                        <p className="mt-0.5 text-xs text-text-muted">
-                          {formatPlan(chatGpt.planType)} plan
-                        </p>
-                      ) : null}
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="xs"
-                      disabled={busy}
-                      onClick={onDisconnect}
-                    >
-                      Disconnect
-                    </Button>
-                  </div>
-                ) : chatGptLogin ? (
-                  <DeviceLogin
-                    busy={busy}
-                    error={chatGptError}
-                    login={chatGptLogin}
-                    onCancel={onCancelLogin}
-                    onRefresh={onRefresh}
-                  />
-                ) : (
-                  <>
-                    <Button
-                      type="button"
-                      size="sm"
-                      className="mt-3"
-                      disabled={busy}
-                      onClick={onConnect}
-                    >
-                      {busy ? (
-                        <SpinnerGapIcon
-                          className="size-4 animate-spin motion-reduce:animate-none"
-                          aria-hidden="true"
-                        />
-                      ) : null}
-                      Continue with ChatGPT
-                    </Button>
-                    {chatGptError ? (
-                      <ErrorMessage message={chatGptError} />
                     ) : null}
-                  </>
-                )}
-              </div>
-            ) : null}
-            <div
-              className={
-                showChatGpt ? 'border-t border-border-default pt-5' : ''
-              }
-            >
-              <h3 className="text-sm font-medium">API key</h3>
-              <ProviderSettingsForm
-                byok={byok}
-                byokSnapshot={byokSnapshot}
-                error={apiKeyError}
-                legacyByokSnapshot={legacyByokSnapshot}
-                provider={provider}
-                onClear={onClear}
-                onMigrate={onMigrate}
-                onProviderChange={onProviderChange}
-                onSave={onSave}
-                onUnlock={onUnlock}
-              />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="xs"
+                    disabled={busy}
+                    onClick={onDisconnect}
+                  >
+                    Disconnect
+                  </Button>
+                </div>
+              ) : chatGptLogin ? (
+                <DeviceLogin
+                  busy={busy}
+                  error={chatGptError}
+                  login={chatGptLogin}
+                  onCancel={onCancelLogin}
+                  onRefresh={onRefresh}
+                />
+              ) : (
+                <>
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="mt-3"
+                    disabled={busy}
+                    onClick={onConnect}
+                  >
+                    {busy ? (
+                      <SpinnerGapIcon
+                        className="size-4 animate-spin motion-reduce:animate-none"
+                        aria-hidden="true"
+                      />
+                    ) : null}
+                    Continue with ChatGPT
+                  </Button>
+                  {chatGptError ? (
+                    <ErrorMessage message={chatGptError} />
+                  ) : null}
+                </>
+              )}
             </div>
+          ) : null}
+          <div
+            className={showChatGpt ? 'border-t border-border-default pt-5' : ''}
+          >
+            <h3 className="text-sm font-medium">API key</h3>
+            <ProviderSettingsForm
+              byok={byok}
+              byokSnapshot={byokSnapshot}
+              error={apiKeyError}
+              legacyByokSnapshot={legacyByokSnapshot}
+              provider={provider}
+              onClear={onClear}
+              onMigrate={onMigrate}
+              onProviderChange={onProviderChange}
+              onSave={onSave}
+              onUnlock={onUnlock}
+            />
           </div>
-        </Dialog.Popup>
-      </Dialog.Portal>
-    </Dialog.Root>
+        </DialogBody>
+      </DialogContent>
+    </Dialog>
   )
 }
 

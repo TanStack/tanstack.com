@@ -29,14 +29,12 @@ export function Tooltip({
       <BaseTooltip.Portal>
         <BaseTooltip.Positioner side={side} align={align} sideOffset={5}>
           <BaseTooltip.Popup
+            data-ds-pop=""
             className={twMerge(
-              'z-1300 rounded-lg px-3 py-2 text-xs',
+              'z-[var(--z-above-overlay)] rounded-lg px-3 py-2 text-xs',
               'bg-background-inverse text-text-inverse',
               'shadow-lg',
-              'origin-(--transform-origin) transition',
-              'data-starting-style:scale-95 data-starting-style:opacity-0',
-              'data-ending-style:scale-95 data-ending-style:opacity-0',
-              'motion-reduce:transition-none',
+              'origin-(--transform-origin)',
               className,
             )}
           >

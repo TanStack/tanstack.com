@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 const LazyAiDock = React.lazy(() =>
-  import('./SearchModal').then((m) => ({ default: m.AiDock })),
+  import('./AiDock').then((m) => ({ default: m.AiDock })),
 )
 const LazyNavbarAuthControls = React.lazy(() =>
   import('./NavbarAuthControls').then((m) => ({

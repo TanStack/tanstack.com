@@ -32,6 +32,10 @@ Railway instructions.
 
 Nitro instructions.
 
+### Vercel
+
+Legacy Vercel instructions.
+
 ### Node.js / Docker
 
 Node instructions.`
@@ -41,7 +45,9 @@ describe('renderDynamicStartHostingGuide', () => {
     const result = renderDynamicStartHostingGuide(source, [
       { id: 'railway', name: 'Railway' },
       { id: 'cloudflare', name: 'Cloudflare' },
+      { id: 'render', name: 'Render' },
       { id: 'lovable', name: 'Lovable' },
+      { id: 'vercel', name: 'Vercel' },
       { id: 'netlify', name: 'Netlify' },
     ])
 
@@ -52,16 +58,33 @@ describe('renderDynamicStartHostingGuide', () => {
       result,
       /<start-hosting-lovable-logo><\/start-hosting-lovable-logo>/,
     )
+    assert.match(
+      result,
+      /<start-hosting-render-logo><\/start-hosting-render-logo>/,
+    )
+    assert.match(
+      result,
+      /<start-hosting-vercel-logo><\/start-hosting-vercel-logo>/,
+    )
+    assert.doesNotMatch(result, /Legacy Vercel instructions/)
     assert.ok(
       result.indexOf('Railway instructions.') <
         result.indexOf('Cloudflare instructions.'),
     )
     assert.ok(
       result.indexOf('Cloudflare instructions.') <
+        result.indexOf('TanStack Start runs on Render as a Node web service'),
+    )
+    assert.ok(
+      result.indexOf('TanStack Start runs on Render as a Node web service') <
         result.indexOf('Lovable is different from a general-purpose'),
     )
     assert.ok(
       result.indexOf('Lovable is different from a general-purpose') <
+        result.indexOf('Vercel supports TanStack Start through Nitro'),
+    )
+    assert.ok(
+      result.indexOf('Vercel supports TanStack Start through Nitro') <
         result.indexOf('Netlify instructions.'),
     )
     assert.ok(
@@ -103,15 +126,16 @@ describe('renderDynamicStartHostingGuide', () => {
     assert.equal(document.children[0].tagName, 'start-hosting-partners')
   })
 
-  it('maps the Lovable logo placeholder to a renderable component node', () => {
-    const document = mapStartHostingPartnerElements(
-      parseSiteMarkdown(
-        '<start-hosting-lovable-logo></start-hosting-lovable-logo>',
-      ),
-    )
+  it('maps partner logo placeholders to renderable component nodes', () => {
+    for (const partnerId of ['lovable', 'render', 'vercel']) {
+      const tagName = `start-hosting-${partnerId}-logo`
+      const document = mapStartHostingPartnerElements(
+        parseSiteMarkdown(`<${tagName}></${tagName}>`),
+      )
 
-    assert.equal(document.children[0]?.type, 'component')
-    if (document.children[0]?.type !== 'component') return
-    assert.equal(document.children[0].tagName, 'start-hosting-lovable-logo')
+      assert.equal(document.children[0]?.type, 'component')
+      if (document.children[0]?.type !== 'component') continue
+      assert.equal(document.children[0].tagName, tagName)
+    }
   })
 })

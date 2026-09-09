@@ -244,8 +244,8 @@ export default function MarkdownLanding() {
             body="Code fences carry language and metadata. An explicit highlighter renders them later, so the core never silently imports a grammar engine."
           />
           <Link
-            to="/$libraryId"
-            params={{ libraryId: highlightLibrary.id }}
+            to="/highlight/$version"
+            params={{ version: 'latest' }}
             className="group rounded-xl border border-border-subtle bg-background-surface p-6 transition-colors hover:border-border-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
           >
             <p className="font-ds-mono text-ds-mono-caps uppercase text-[var(--landing-accent-bright)]">

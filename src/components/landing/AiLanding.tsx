@@ -1,10 +1,16 @@
 import * as React from 'react'
+import { Link, useParams } from '@tanstack/react-router'
 import {
+  ArrowDownIcon,
+  ArrowRightIcon,
+  ArrowsDownUpIcon,
+  ArrowsLeftRightIcon,
   BracketsCurlyIcon,
   BugIcon,
   CodeIcon,
   CubeIcon,
   DatabaseIcon,
+  HardDrivesIcon,
   MicrophoneIcon,
   PlugIcon,
   RadioIcon,
@@ -14,6 +20,7 @@ import {
   type Icon,
 } from '@phosphor-icons/react'
 
+import { getLibrary } from '~/libraries'
 import {
   LandingSection,
   LandingSectionIntro,
@@ -22,8 +29,8 @@ import {
 } from './LibraryLanding'
 
 const aiPrompt = [
-  'Build an agent with TanStack AI, the headless agent framework for TypeScript.',
-  'Drive the agent loop with chat(): isomorphic tools via toolDefinition().server() / .client(), composable (state) => boolean stop strategies, needsApproval interrupts resolved on the client, and native AG-UI request and event streams consumed by the headless client or a framework adapter.',
+  'Build me a TanStack Start app using TanStack AI as its driver to showcase AI features, if run inside of an existing app then add a single new page and endpoint to showcase the power of TanStack AI.',
+  'Drive the agent loop with chat(): isomorphic tools via toolDefinition().server() / .client(), add at least 1 tool on the server and on the client, use the headless UI features to build the UI, add a tool that needs approval.',
   'Reach for the rest of the stack only when the task needs it: Code Mode in an isolate for multi-tool orchestration, a sandboxed coding-agent harness, @tanstack/ai-mcp for MCP servers, memoryMiddleware for cross-session recall, @tanstack/ai-persistence for durable threads and resumable streams.',
   'Never introduce a hosted gateway, a prescribed UI kit, or a provider-specific wire format. Keep provider capabilities honest: model options, tool support, and modality-specific results stay typed at the adapter boundary, and media or realtime primitives appear only where the selected model supports them.',
 ].join(' ')
@@ -148,6 +155,25 @@ const aiHeroMessages = [
 const accentFillClass =
   'bg-[linear-gradient(135deg,color-mix(in_srgb,var(--landing-accent)_84%,black),color-mix(in_srgb,var(--landing-accent)_52%,black))] text-white'
 
+function AdapterDocsLink() {
+  const { version } = useParams({ strict: false })
+  const library = getLibrary('ai')
+
+  return (
+    <Link
+      to="/$libraryId/$version/docs/$"
+      params={{
+        libraryId: library.id,
+        version: version ?? library.latestVersion,
+        _splat: 'getting-started/overview',
+      }}
+      className="text-[var(--landing-accent-bright)] underline decoration-[color:rgb(var(--landing-glow)/0.45)] underline-offset-2 hover:decoration-[var(--landing-accent-bright)]"
+    >
+      See the adapter docs for more.
+    </Link>
+  )
+}
+
 type AiHeroChatMessage = {
   assistant: string
   id: string
@@ -160,7 +186,7 @@ export default function AiLanding() {
     <LibraryLandingShell
       libraryId="ai"
       headline="The headless agent framework. Bring your own stack."
-      description="TanStack AI runs the agent loop as typed TypeScript primitives you compose yourself: tool calls, reasoning, human-in-the-loop interrupts, sandboxed code execution, memory, and streaming state. Eleven provider adapters, seven UI framework bindings on top of a framework-free core, native AG-UI over the wire. No hosted gateway, no proprietary stream format, no platform to buy into."
+      description="TanStack AI is a pluggable AI ecosystem that makes it easy for you to build AI features into your apps. It offers a toolkit that allows you to provide tools to the LLMs, interrupt the chat for user approval, run agents inside of sandboxes, build headless UI for your chats, stream the data from your server to your client, and connect to any AG-UI protocol compatible server or client. No opinions on how you should add AI into your apps: you bring your own existing infrastructure, we offer you the pluggable APIs to build on top of."
       hero={<AiGraphChatHero />}
       prompt={aiPrompt}
       promptLabel="Copy AI prompt"
@@ -170,7 +196,7 @@ export default function AiLanding() {
           centered
           eyebrow="Two files"
           icon={<TerminalIcon aria-hidden="true" size={15} />}
-          title="An agent on your own server, end to end."
+          title="Own both sides of the AI interaction."
           body="One route on the server, one hook in the client, and the transport between them is yours. Nothing here is a wrapper around a service we run."
         />
         <QuickStart />
@@ -179,10 +205,22 @@ export default function AiLanding() {
       <LandingSection tone="raised">
         <div className="grid items-center gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16">
           <LandingSectionIntro
-            eyebrow="The agent loop"
+            eyebrow="Isomorphic tools"
             icon={<BracketsCurlyIcon aria-hidden="true" size={15} />}
-            title="An agent loop you can read, and stop where you want."
-            body="chat() runs the cycle: the model calls a tool, the result goes back, it keeps reasoning. You decide the boundary. Client tools touch local UI state, server tools use your credentials, isomorphic tools share one definition. Stop conditions are plain (state) => boolean functions you compose. Mark a tool needsApproval and the run ends as an interrupt your UI resolves, then resumes exactly where it stopped, on a stateless server, no database required."
+            title="Define your agent tools once, re-use them on the server and client."
+            body={
+              <>
+                Our <code>chat()</code> function allows you to define custom
+                functions the LLM provider can call (tools) and you define the
+                input and output to these functions once and re-use them across
+                server and client by providing the specific implementations. Our
+                library automatically calls these tools, stops and asks for
+                approvals if needed, updates the input to the tools if the user
+                changes it after the approval is granted and handles all the
+                back and forth between the LLM provider and your app under the
+                hood. You only define the tool, we handle the rest.
+              </>
+            }
           />
           <ToolBoundary />
         </div>
@@ -192,10 +230,23 @@ export default function AiLanding() {
         <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
           <ProviderWorkbench />
           <LandingSectionIntro
-            eyebrow="Provider types"
+            eyebrow="Typesafe models"
             icon={<PlugIcon aria-hidden="true" size={15} />}
-            title="Swap the model. Keep the agent."
-            body="OpenRouter, OpenAI, Anthropic, Gemini, Bedrock, Mistral, Groq, Grok, Ollama, ElevenLabs, and fal.ai ship as official adapters, and openaiCompatible covers any endpoint that speaks the same shape, including a model on your own hardware. Switching is a line of config, not a migration. And no adapter pretends every model is identical: write openaiText('gpt-5.5') and TypeScript narrows to that model's real options, capabilities, and input modalities."
+            title="Swap an LLM provider. Keep the typesafety."
+            body={
+              <>
+                OpenRouter, OpenAI, Anthropic, Gemini, Vertex, Bedrock, Mistral,
+                Groq, Grok, Ollama, Cohere, Perplexity, BytePlus, ElevenLabs,
+                fal.ai, Lovable, LLM Gateway, and Vercel AI Gateway ship as
+                official adapters, and openaiCompatible covers any endpoint that
+                speaks the same shape, including a model on your own hardware.{' '}
+                <AdapterDocsLink /> Every model from every provider is typesafe.
+                When you need to send custom configuration for a specific model,
+                send images, files and audio, or native tools like web search,
+                every model is type-constrained and if it does not accept those
+                options natively you learn about it at compile-time.
+              </>
+            }
           />
         </div>
       </LandingSection>
@@ -214,10 +265,10 @@ export default function AiLanding() {
       <LandingSection tone="raised">
         <div className="grid gap-12 lg:grid-cols-[0.78fr_1.22fr] lg:items-start lg:gap-16">
           <LandingSectionIntro
-            eyebrow="The rest of the agent stack"
+            eyebrow="More than just a chat function"
             icon={<CubeIcon aria-hidden="true" size={15} />}
-            title="Sandboxes, code mode, MCP, memory. Shipped, not planned."
-            body="An agent framework is more than a loop around a model. Each of these is a separate package you opt into, running on infrastructure you already own. Each ships an Agent Skill so your coding assistant wires it up correctly."
+            title="Sandboxes, code mode, MCP, memory, compaction, skills and more."
+            body="We offer more than just a simple chat interface. We allow you to build any AI feature you might need, from automated AI workflows in CI, to web apps consuming LLM providers, chatbots and more."
           />
           <FeatureRail items={agentStack} />
         </div>
@@ -228,8 +279,8 @@ export default function AiLanding() {
           <LandingSectionIntro
             eyebrow="Beyond chat"
             icon={<MicrophoneIcon aria-hidden="true" size={15} />}
-            title="Not a chatbot library. Every modality, one runtime."
-            body="Text and structured output sit beside image, video, speech, transcription, music, and realtime voice. One hook per activity, each a separate tree-shakeable import, none of it wrapped in a chat UI you have to accept. Middleware, devtools, and OpenTelemetry observe every run at the activity level."
+            title="Need to generate images, video, audio and more? We have you covered."
+            body="We equally care about every generation, not just text. We offer you a whole suite of utilities to generate images, video, speech, transcription, music and realtime voice with full observability and cost tracking."
           />
           <FeatureRail items={modalities} />
         </div>
@@ -240,8 +291,8 @@ export default function AiLanding() {
           <LandingSectionIntro
             eyebrow="Devtools"
             icon={<BugIcon aria-hidden="true" size={15} />}
-            title="Watch the loop run instead of guessing."
-            body="Agent bugs live between the turns: which tool ran, what came back, what memory injected, where the run stopped. The TanStack Devtools panel finds every AI hook on the page and gives each one a turn-by-turn timeline with tool inputs and outputs, state snapshots, and errors. You can even replay a tool from a saved fixture instead of prompting your way back to the same state."
+            title="Full observability of every action with our devtools"
+            body="Our devtools show you every detail about every part of your system, whether you are generating images, video or using chat you can see every action that happened on both the server and the client and easily debug what is going on on both sides."
           />
           <DevtoolsPanel />
         </div>
@@ -410,8 +461,8 @@ function QuickStart() {
       </LandingWindow>
 
       <p className="text-center text-ds-body-xs text-text-primary/35 lg:col-span-2">
-        Swap ai-react for ai-vue, ai-solid, ai-svelte, ai-preact, ai-angular, or
-        the framework-free ai-client. The server route never changes.
+        Swap React for any other framework and keep your server-side code
+        identical.
       </p>
     </div>
   )
@@ -930,18 +981,52 @@ function ToolBoundary() {
           <p>&nbsp;&nbsp;outputSchema: invoiceSchema,</p>
           <p>&nbsp;&nbsp;needsApproval: true,</p>
           <p>{'}'})</p>
-          <p className="text-[var(--landing-accent-bright)]">
-            lookupInvoice.{boundary}(
-            {boundary === 'client' ? 'openInvoicePanel' : 'readPrivateLedger'})
-          </p>
+          {boundary === 'client' ? (
+            <>
+              <p className="text-[var(--landing-accent-bright)]">
+                lookupInvoice.client(async ({'{'} id {'}'}) =&gt; {'{'}
+              </p>
+              <p className="text-[var(--landing-accent-bright)]">
+                &nbsp;&nbsp;
+                {`const url = new URL(\`/invoices/\${id}\`, window.location.origin)`}
+              </p>
+              <p className="text-[var(--landing-accent-bright)]">
+                &nbsp;&nbsp;window.history.pushState({'{'} id {'}'}, '', url)
+              </p>
+              <p className="text-[var(--landing-accent-bright)]">
+                &nbsp;&nbsp;return {'{'} id, href: url.pathname {'}'}
+              </p>
+              <p className="text-[var(--landing-accent-bright)]">{'})'}</p>
+            </>
+          ) : (
+            <>
+              <p className="text-[var(--landing-accent-bright)]">
+                lookupInvoice.server(async ({'{'} id {'}'}) =&gt; {'{'}
+              </p>
+              <p className="text-[var(--landing-accent-bright)]">
+                &nbsp;&nbsp;return db.invoices.update({'{'}
+              </p>
+              <p className="text-[var(--landing-accent-bright)]">
+                &nbsp;&nbsp;&nbsp;&nbsp;where: {'{'} id {'}'},
+              </p>
+              <p className="text-[var(--landing-accent-bright)]">
+                &nbsp;&nbsp;&nbsp;&nbsp;data: {'{'} lastViewedAt: new Date(){' '}
+                {'}'},
+              </p>
+              <p className="text-[var(--landing-accent-bright)]">
+                &nbsp;&nbsp;{'}'})
+              </p>
+              <p className="text-[var(--landing-accent-bright)]">{'})'}</p>
+            </>
+          )}
         </div>
         <p
           className="mt-4 text-ds-body-xs text-text-primary/35"
           aria-live="polite"
         >
           {boundary === 'client'
-            ? 'Runs beside the UI and can update local application state. The loop waits for it and feeds the result back to the model.'
-            : 'Runs behind your server boundary with private credentials and data. The model never sees them.'}
+            ? 'The client implementation uses the typed id to call a browser API. The loop waits for it and feeds the result back to the model.'
+            : 'The server implementation uses the same typed id to update a row in your database. The model never sees your credentials.'}
         </p>
       </div>
     </LandingWindow>
@@ -1007,30 +1092,90 @@ function ProviderWorkbench() {
 
 function ProtocolMap() {
   const nodes = [
-    ['UI', 'headless client'],
-    ['AG-UI', 'request + events'],
-    ['Agent loop', 'your server'],
-    ['Provider', 'typed adapter'],
+    { label: 'CLIENT', detail: 'your web app', highlight: false },
+    { label: 'AG-UI', detail: 'communication protocol', highlight: true },
+    { label: 'Server', detail: 'your ai endpoint', highlight: false },
+    { label: 'Provider', detail: 'openai, anthropic', highlight: false },
   ]
 
   return (
-    <div className="mx-auto mt-14 flex max-w-[68rem] flex-col items-stretch gap-2 md:flex-row md:items-center md:gap-0">
-      {nodes.map(([label, detail], index) => (
-        <React.Fragment key={label}>
-          <div className="min-w-0 flex-1 rounded-xl border border-[color:rgb(var(--landing-glow)/0.45)] bg-background-subtle p-5 text-center">
-            <p className="text-ds-heading-4 text-text-primary">{label}</p>
-            <p className="mt-2 font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
-              {detail}
-            </p>
-          </div>
-          {index < nodes.length - 1 ? (
-            <div
-              aria-hidden="true"
-              className="mx-auto h-6 w-px bg-[var(--landing-accent)] md:h-px md:w-10"
-            />
-          ) : null}
-        </React.Fragment>
-      ))}
+    <>
+      <p className="sr-only">
+        AG-UI sits between your web app and your AI endpoint, with traffic in
+        both directions. The server then talks to a provider such as OpenAI or
+        Anthropic.
+      </p>
+      <div className="mx-auto mt-14 flex max-w-[68rem] flex-col items-stretch gap-2 md:flex-row md:items-center md:gap-0">
+        {nodes.map((node, index) => (
+          <React.Fragment key={node.label}>
+            <ProtocolCard highlight={node.highlight} node={node} />
+            {index < nodes.length - 1 ? (
+              <ProtocolConnector bidirectional={index < 2} />
+            ) : null}
+          </React.Fragment>
+        ))}
+      </div>
+    </>
+  )
+}
+
+function ProtocolCard({
+  highlight,
+  node,
+}: {
+  highlight: boolean
+  node: { detail: string; label: string }
+}) {
+  if (highlight) {
+    return (
+      <div className="relative min-w-0 flex-1 md:flex-[1.2]">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -inset-2 rounded-2xl bg-[var(--landing-accent)] opacity-40 blur-md motion-safe:animate-pulse motion-reduce:hidden"
+        />
+        <div
+          className={`relative rounded-xl border-2 border-[var(--landing-accent)] p-6 text-center shadow-[0_12px_28px_rgb(var(--landing-glow)/0.28)] ring-2 ring-[color:rgb(var(--landing-glow)/0.24)] ${accentFillClass}`}
+        >
+          <p className="text-ds-heading-4">{node.label}</p>
+          <p className="mt-2 font-ds-mono text-ds-mono-2xs opacity-80">
+            {node.detail}
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-w-0 flex-1 rounded-xl border border-[color:rgb(var(--landing-glow)/0.45)] bg-background-subtle p-5 text-center">
+      <p className="text-ds-heading-4 text-text-primary">{node.label}</p>
+      <p className="mt-2 font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
+        {node.detail}
+      </p>
+    </div>
+  )
+}
+
+function ProtocolConnector({ bidirectional }: { bidirectional: boolean }) {
+  return (
+    <div
+      aria-hidden="true"
+      className="flex h-8 items-center justify-center text-[var(--landing-accent)] md:h-auto md:w-12"
+    >
+      {bidirectional ? (
+        <>
+          <ArrowsDownUpIcon className="md:hidden" size={22} weight="bold" />
+          <ArrowsLeftRightIcon
+            className="hidden md:block"
+            size={22}
+            weight="bold"
+          />
+        </>
+      ) : (
+        <>
+          <ArrowDownIcon className="md:hidden" size={20} weight="bold" />
+          <ArrowRightIcon className="hidden md:block" size={20} weight="bold" />
+        </>
+      )}
     </div>
   )
 }
@@ -1046,7 +1191,7 @@ const agentStack: Array<RailItem> = [
   {
     label: 'Code Mode',
     detail: '@tanstack/ai-code-mode',
-    body: 'The model writes one TypeScript program that calls your tools with loops and Promise.all, instead of a round trip per call. It runs in a V8 isolate, QuickJS WASM, or a Cloudflare Worker, with no host filesystem, network, or process.',
+    body: 'You provide a special tool to the LLM provider that allows it to chain tools (functions) into a single executable script and call it in a local or remote isolate, producing results that it further processes. It writes code and calls it.',
     icon: CodeIcon,
   },
   {
@@ -1062,10 +1207,16 @@ const agentStack: Array<RailItem> = [
     icon: CubeIcon,
   },
   {
-    label: 'Memory + persistence',
-    detail: '@tanstack/ai-memory · -persistence',
-    body: 'memoryMiddleware recalls across sessions through Redis, mem0, Honcho, or Hindsight adapters. Persistence keeps an authoritative server thread, resumes a stream through a dropped connection, and survives a reload.',
+    label: 'Memory + compaction',
+    detail: '@tanstack/ai-memory · @tanstack/ai-compaction',
+    body: 'memoryMiddleware recalls across sessions through Redis, mem0, Honcho, or Hindsight adapters. Compaction keeps long threads inside the model window so the agent does not lose the thread as context grows.',
     icon: DatabaseIcon,
+  },
+  {
+    label: 'Durability + persistence',
+    detail: '@tanstack/ai-persistence · @tanstack/ai-durable-stream',
+    body: 'Persistence keeps an authoritative server thread, resumes a stream through a dropped connection, and survives a reload. Durability lets a run continue after a process restart.',
+    icon: HardDrivesIcon,
   },
 ]
 
@@ -1073,7 +1224,7 @@ const modalities: Array<RailItem> = [
   {
     label: 'Text, objects, reasoning',
     detail: 'chat · outputSchema · summarize',
-    body: 'Structured output streams as a typed message part beside tool calls and is preserved per turn in history, not a separate one-shot call.',
+    body: 'Generate an output from an AI that matches your validation schema exactly using structured output.',
     icon: RobotIcon,
   },
   {
@@ -1091,7 +1242,7 @@ const modalities: Array<RailItem> = [
   {
     label: 'Images + video',
     detail: 'generateImage · generateVideo',
-    body: 'Per-model typed options across OpenAI, Gemini, Grok, OpenRouter, and fal.ai, with an async job lifecycle for video.',
+    body: 'Generate images and videos, edit existing generations and show progress updates to your users with ease.',
     icon: RadioIcon,
   },
 ]

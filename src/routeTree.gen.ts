@@ -59,6 +59,7 @@ import { Route as ShowcaseIdRouteImport } from './routes/showcase/$id'
 import { Route as ShopSearchRouteImport } from './routes/shop.search'
 import { Route as ShopCartRouteImport } from './routes/shop.cart'
 import { Route as ShopHandleRouteImport } from './routes/shop.$handle'
+import { Route as PartnersRenderRouteImport } from './routes/partners.render'
 import { Route as PartnersRailwayRouteImport } from './routes/partners.railway'
 import { Route as PartnersNetlifyRouteImport } from './routes/partners.netlify'
 import { Route as PartnersPartnerRouteImport } from './routes/partners.$partner'
@@ -67,6 +68,7 @@ import { Route as OauthRegisterRouteImport } from './routes/oauth/register'
 import { Route as OauthAuthorizeRouteImport } from './routes/oauth/authorize'
 import { Route as LibrariesFrameworkRouteImport } from './routes/libraries_.$framework'
 import { Route as DsTypographyRouteImport } from './routes/ds.typography'
+import { Route as DsTakeoverRouteImport } from './routes/ds.takeover'
 import { Route as DsTabsRouteImport } from './routes/ds.tabs'
 import { Route as DsStatsRouteImport } from './routes/ds.stats'
 import { Route as DsSpinnerRouteImport } from './routes/ds.spinner'
@@ -76,6 +78,7 @@ import { Route as DsPartnerRailRouteImport } from './routes/ds.partner-rail'
 import { Route as DsPanelRouteImport } from './routes/ds.panel'
 import { Route as DsPaletteRouteImport } from './routes/ds.palette'
 import { Route as DsPageHeaderRouteImport } from './routes/ds.page-header'
+import { Route as DsOverlaysRouteImport } from './routes/ds.overlays'
 import { Route as DsNavbarRouteImport } from './routes/ds.navbar'
 import { Route as DsMaintainersRouteImport } from './routes/ds.maintainers'
 import { Route as DsLogosRouteImport } from './routes/ds.logos'
@@ -84,6 +87,8 @@ import { Route as DsIconographyRouteImport } from './routes/ds.iconography'
 import { Route as DsEyebrowRouteImport } from './routes/ds.eyebrow'
 import { Route as DsEffectsRouteImport } from './routes/ds.effects'
 import { Route as DsDropdownRouteImport } from './routes/ds.dropdown'
+import { Route as DsDrawerRouteImport } from './routes/ds.drawer'
+import { Route as DsDialogRouteImport } from './routes/ds.dialog'
 import { Route as DsColorsRouteImport } from './routes/ds.colors'
 import { Route as DsCardsRouteImport } from './routes/ds.cards'
 import { Route as DsButtonsRouteImport } from './routes/ds.buttons'
@@ -464,6 +469,11 @@ const ShopHandleRoute = ShopHandleRouteImport.update({
   path: '/$handle',
   getParentRoute: () => ShopRoute,
 } as any)
+const PartnersRenderRoute = PartnersRenderRouteImport.update({
+  id: '/render',
+  path: '/render',
+  getParentRoute: () => PartnersRoute,
+} as any)
 const PartnersRailwayRoute = PartnersRailwayRouteImport.update({
   id: '/railway',
   path: '/railway',
@@ -502,6 +512,11 @@ const LibrariesFrameworkRoute = LibrariesFrameworkRouteImport.update({
 const DsTypographyRoute = DsTypographyRouteImport.update({
   id: '/typography',
   path: '/typography',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsTakeoverRoute = DsTakeoverRouteImport.update({
+  id: '/takeover',
+  path: '/takeover',
   getParentRoute: () => DsRoute,
 } as any)
 const DsTabsRoute = DsTabsRouteImport.update({
@@ -549,6 +564,11 @@ const DsPageHeaderRoute = DsPageHeaderRouteImport.update({
   path: '/page-header',
   getParentRoute: () => DsRoute,
 } as any)
+const DsOverlaysRoute = DsOverlaysRouteImport.update({
+  id: '/overlays',
+  path: '/overlays',
+  getParentRoute: () => DsRoute,
+} as any)
 const DsNavbarRoute = DsNavbarRouteImport.update({
   id: '/navbar',
   path: '/navbar',
@@ -589,6 +609,16 @@ const DsEffectsRoute = DsEffectsRouteImport.update({
 const DsDropdownRoute = DsDropdownRouteImport.update({
   id: '/dropdown',
   path: '/dropdown',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsDrawerRoute = DsDrawerRouteImport.update({
+  id: '/drawer',
+  path: '/drawer',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsDialogRoute = DsDialogRouteImport.update({
+  id: '/dialog',
+  path: '/dialog',
   getParentRoute: () => DsRoute,
 } as any)
 const DsColorsRoute = DsColorsRouteImport.update({
@@ -1371,6 +1401,8 @@ export interface FileRoutesByFullPath {
   '/ds/buttons': typeof DsButtonsRoute
   '/ds/cards': typeof DsCardsRoute
   '/ds/colors': typeof DsColorsRoute
+  '/ds/dialog': typeof DsDialogRoute
+  '/ds/drawer': typeof DsDrawerRoute
   '/ds/dropdown': typeof DsDropdownRoute
   '/ds/effects': typeof DsEffectsRoute
   '/ds/eyebrow': typeof DsEyebrowRoute
@@ -1379,6 +1411,7 @@ export interface FileRoutesByFullPath {
   '/ds/logos': typeof DsLogosRoute
   '/ds/maintainers': typeof DsMaintainersRoute
   '/ds/navbar': typeof DsNavbarRoute
+  '/ds/overlays': typeof DsOverlaysRoute
   '/ds/page-header': typeof DsPageHeaderRoute
   '/ds/palette': typeof DsPaletteRoute
   '/ds/panel': typeof DsPanelRoute
@@ -1388,6 +1421,7 @@ export interface FileRoutesByFullPath {
   '/ds/spinner': typeof DsSpinnerRoute
   '/ds/stats': typeof DsStatsRoute
   '/ds/tabs': typeof DsTabsRoute
+  '/ds/takeover': typeof DsTakeoverRoute
   '/ds/typography': typeof DsTypographyRoute
   '/libraries/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
@@ -1396,6 +1430,7 @@ export interface FileRoutesByFullPath {
   '/partners/$partner': typeof PartnersPartnerRoute
   '/partners/netlify': typeof PartnersNetlifyRoute
   '/partners/railway': typeof PartnersRailwayRoute
+  '/partners/render': typeof PartnersRenderRoute
   '/shop/$handle': typeof ShopHandleRoute
   '/shop/cart': typeof ShopCartRoute
   '/shop/search': typeof ShopSearchRoute
@@ -1569,6 +1604,8 @@ export interface FileRoutesByTo {
   '/ds/buttons': typeof DsButtonsRoute
   '/ds/cards': typeof DsCardsRoute
   '/ds/colors': typeof DsColorsRoute
+  '/ds/dialog': typeof DsDialogRoute
+  '/ds/drawer': typeof DsDrawerRoute
   '/ds/dropdown': typeof DsDropdownRoute
   '/ds/effects': typeof DsEffectsRoute
   '/ds/eyebrow': typeof DsEyebrowRoute
@@ -1577,6 +1614,7 @@ export interface FileRoutesByTo {
   '/ds/logos': typeof DsLogosRoute
   '/ds/maintainers': typeof DsMaintainersRoute
   '/ds/navbar': typeof DsNavbarRoute
+  '/ds/overlays': typeof DsOverlaysRoute
   '/ds/page-header': typeof DsPageHeaderRoute
   '/ds/palette': typeof DsPaletteRoute
   '/ds/panel': typeof DsPanelRoute
@@ -1586,6 +1624,7 @@ export interface FileRoutesByTo {
   '/ds/spinner': typeof DsSpinnerRoute
   '/ds/stats': typeof DsStatsRoute
   '/ds/tabs': typeof DsTabsRoute
+  '/ds/takeover': typeof DsTakeoverRoute
   '/ds/typography': typeof DsTypographyRoute
   '/libraries/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
@@ -1594,6 +1633,7 @@ export interface FileRoutesByTo {
   '/partners/$partner': typeof PartnersPartnerRoute
   '/partners/netlify': typeof PartnersNetlifyRoute
   '/partners/railway': typeof PartnersRailwayRoute
+  '/partners/render': typeof PartnersRenderRoute
   '/shop/$handle': typeof ShopHandleRoute
   '/shop/cart': typeof ShopCartRoute
   '/shop/search': typeof ShopSearchRoute
@@ -1773,6 +1813,8 @@ export interface FileRoutesById {
   '/ds/buttons': typeof DsButtonsRoute
   '/ds/cards': typeof DsCardsRoute
   '/ds/colors': typeof DsColorsRoute
+  '/ds/dialog': typeof DsDialogRoute
+  '/ds/drawer': typeof DsDrawerRoute
   '/ds/dropdown': typeof DsDropdownRoute
   '/ds/effects': typeof DsEffectsRoute
   '/ds/eyebrow': typeof DsEyebrowRoute
@@ -1781,6 +1823,7 @@ export interface FileRoutesById {
   '/ds/logos': typeof DsLogosRoute
   '/ds/maintainers': typeof DsMaintainersRoute
   '/ds/navbar': typeof DsNavbarRoute
+  '/ds/overlays': typeof DsOverlaysRoute
   '/ds/page-header': typeof DsPageHeaderRoute
   '/ds/palette': typeof DsPaletteRoute
   '/ds/panel': typeof DsPanelRoute
@@ -1790,6 +1833,7 @@ export interface FileRoutesById {
   '/ds/spinner': typeof DsSpinnerRoute
   '/ds/stats': typeof DsStatsRoute
   '/ds/tabs': typeof DsTabsRoute
+  '/ds/takeover': typeof DsTakeoverRoute
   '/ds/typography': typeof DsTypographyRoute
   '/libraries_/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
@@ -1798,6 +1842,7 @@ export interface FileRoutesById {
   '/partners/$partner': typeof PartnersPartnerRoute
   '/partners/netlify': typeof PartnersNetlifyRoute
   '/partners/railway': typeof PartnersRailwayRoute
+  '/partners/render': typeof PartnersRenderRoute
   '/shop/$handle': typeof ShopHandleRoute
   '/shop/cart': typeof ShopCartRoute
   '/shop/search': typeof ShopSearchRoute
@@ -1981,6 +2026,8 @@ export interface FileRouteTypes {
     | '/ds/buttons'
     | '/ds/cards'
     | '/ds/colors'
+    | '/ds/dialog'
+    | '/ds/drawer'
     | '/ds/dropdown'
     | '/ds/effects'
     | '/ds/eyebrow'
@@ -1989,6 +2036,7 @@ export interface FileRouteTypes {
     | '/ds/logos'
     | '/ds/maintainers'
     | '/ds/navbar'
+    | '/ds/overlays'
     | '/ds/page-header'
     | '/ds/palette'
     | '/ds/panel'
@@ -1998,6 +2046,7 @@ export interface FileRouteTypes {
     | '/ds/spinner'
     | '/ds/stats'
     | '/ds/tabs'
+    | '/ds/takeover'
     | '/ds/typography'
     | '/libraries/$framework'
     | '/oauth/authorize'
@@ -2006,6 +2055,7 @@ export interface FileRouteTypes {
     | '/partners/$partner'
     | '/partners/netlify'
     | '/partners/railway'
+    | '/partners/render'
     | '/shop/$handle'
     | '/shop/cart'
     | '/shop/search'
@@ -2179,6 +2229,8 @@ export interface FileRouteTypes {
     | '/ds/buttons'
     | '/ds/cards'
     | '/ds/colors'
+    | '/ds/dialog'
+    | '/ds/drawer'
     | '/ds/dropdown'
     | '/ds/effects'
     | '/ds/eyebrow'
@@ -2187,6 +2239,7 @@ export interface FileRouteTypes {
     | '/ds/logos'
     | '/ds/maintainers'
     | '/ds/navbar'
+    | '/ds/overlays'
     | '/ds/page-header'
     | '/ds/palette'
     | '/ds/panel'
@@ -2196,6 +2249,7 @@ export interface FileRouteTypes {
     | '/ds/spinner'
     | '/ds/stats'
     | '/ds/tabs'
+    | '/ds/takeover'
     | '/ds/typography'
     | '/libraries/$framework'
     | '/oauth/authorize'
@@ -2204,6 +2258,7 @@ export interface FileRouteTypes {
     | '/partners/$partner'
     | '/partners/netlify'
     | '/partners/railway'
+    | '/partners/render'
     | '/shop/$handle'
     | '/shop/cart'
     | '/shop/search'
@@ -2382,6 +2437,8 @@ export interface FileRouteTypes {
     | '/ds/buttons'
     | '/ds/cards'
     | '/ds/colors'
+    | '/ds/dialog'
+    | '/ds/drawer'
     | '/ds/dropdown'
     | '/ds/effects'
     | '/ds/eyebrow'
@@ -2390,6 +2447,7 @@ export interface FileRouteTypes {
     | '/ds/logos'
     | '/ds/maintainers'
     | '/ds/navbar'
+    | '/ds/overlays'
     | '/ds/page-header'
     | '/ds/palette'
     | '/ds/panel'
@@ -2399,6 +2457,7 @@ export interface FileRouteTypes {
     | '/ds/spinner'
     | '/ds/stats'
     | '/ds/tabs'
+    | '/ds/takeover'
     | '/ds/typography'
     | '/libraries_/$framework'
     | '/oauth/authorize'
@@ -2407,6 +2466,7 @@ export interface FileRouteTypes {
     | '/partners/$partner'
     | '/partners/netlify'
     | '/partners/railway'
+    | '/partners/render'
     | '/shop/$handle'
     | '/shop/cart'
     | '/shop/search'
@@ -2971,6 +3031,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShopHandleRouteImport
       parentRoute: typeof ShopRoute
     }
+    '/partners/render': {
+      id: '/partners/render'
+      path: '/render'
+      fullPath: '/partners/render'
+      preLoaderRoute: typeof PartnersRenderRouteImport
+      parentRoute: typeof PartnersRoute
+    }
     '/partners/railway': {
       id: '/partners/railway'
       path: '/railway'
@@ -3025,6 +3092,13 @@ declare module '@tanstack/react-router' {
       path: '/typography'
       fullPath: '/ds/typography'
       preLoaderRoute: typeof DsTypographyRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/takeover': {
+      id: '/ds/takeover'
+      path: '/takeover'
+      fullPath: '/ds/takeover'
+      preLoaderRoute: typeof DsTakeoverRouteImport
       parentRoute: typeof DsRoute
     }
     '/ds/tabs': {
@@ -3090,6 +3164,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DsPageHeaderRouteImport
       parentRoute: typeof DsRoute
     }
+    '/ds/overlays': {
+      id: '/ds/overlays'
+      path: '/overlays'
+      fullPath: '/ds/overlays'
+      preLoaderRoute: typeof DsOverlaysRouteImport
+      parentRoute: typeof DsRoute
+    }
     '/ds/navbar': {
       id: '/ds/navbar'
       path: '/navbar'
@@ -3144,6 +3225,20 @@ declare module '@tanstack/react-router' {
       path: '/dropdown'
       fullPath: '/ds/dropdown'
       preLoaderRoute: typeof DsDropdownRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/drawer': {
+      id: '/ds/drawer'
+      path: '/drawer'
+      fullPath: '/ds/drawer'
+      preLoaderRoute: typeof DsDrawerRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/dialog': {
+      id: '/ds/dialog'
+      path: '/dialog'
+      fullPath: '/ds/dialog'
+      preLoaderRoute: typeof DsDialogRouteImport
       parentRoute: typeof DsRoute
     }
     '/ds/colors': {
@@ -4318,6 +4413,8 @@ interface DsRouteChildren {
   DsButtonsRoute: typeof DsButtonsRoute
   DsCardsRoute: typeof DsCardsRoute
   DsColorsRoute: typeof DsColorsRoute
+  DsDialogRoute: typeof DsDialogRoute
+  DsDrawerRoute: typeof DsDrawerRoute
   DsDropdownRoute: typeof DsDropdownRoute
   DsEffectsRoute: typeof DsEffectsRoute
   DsEyebrowRoute: typeof DsEyebrowRoute
@@ -4326,6 +4423,7 @@ interface DsRouteChildren {
   DsLogosRoute: typeof DsLogosRoute
   DsMaintainersRoute: typeof DsMaintainersRoute
   DsNavbarRoute: typeof DsNavbarRoute
+  DsOverlaysRoute: typeof DsOverlaysRoute
   DsPageHeaderRoute: typeof DsPageHeaderRoute
   DsPaletteRoute: typeof DsPaletteRoute
   DsPanelRoute: typeof DsPanelRoute
@@ -4335,6 +4433,7 @@ interface DsRouteChildren {
   DsSpinnerRoute: typeof DsSpinnerRoute
   DsStatsRoute: typeof DsStatsRoute
   DsTabsRoute: typeof DsTabsRoute
+  DsTakeoverRoute: typeof DsTakeoverRoute
   DsTypographyRoute: typeof DsTypographyRoute
   DsIndexRoute: typeof DsIndexRoute
 }
@@ -4346,6 +4445,8 @@ const DsRouteChildren: DsRouteChildren = {
   DsButtonsRoute: DsButtonsRoute,
   DsCardsRoute: DsCardsRoute,
   DsColorsRoute: DsColorsRoute,
+  DsDialogRoute: DsDialogRoute,
+  DsDrawerRoute: DsDrawerRoute,
   DsDropdownRoute: DsDropdownRoute,
   DsEffectsRoute: DsEffectsRoute,
   DsEyebrowRoute: DsEyebrowRoute,
@@ -4354,6 +4455,7 @@ const DsRouteChildren: DsRouteChildren = {
   DsLogosRoute: DsLogosRoute,
   DsMaintainersRoute: DsMaintainersRoute,
   DsNavbarRoute: DsNavbarRoute,
+  DsOverlaysRoute: DsOverlaysRoute,
   DsPageHeaderRoute: DsPageHeaderRoute,
   DsPaletteRoute: DsPaletteRoute,
   DsPanelRoute: DsPanelRoute,
@@ -4363,6 +4465,7 @@ const DsRouteChildren: DsRouteChildren = {
   DsSpinnerRoute: DsSpinnerRoute,
   DsStatsRoute: DsStatsRoute,
   DsTabsRoute: DsTabsRoute,
+  DsTakeoverRoute: DsTakeoverRoute,
   DsTypographyRoute: DsTypographyRoute,
   DsIndexRoute: DsIndexRoute,
 }
@@ -4373,6 +4476,7 @@ interface PartnersRouteChildren {
   PartnersPartnerRoute: typeof PartnersPartnerRoute
   PartnersNetlifyRoute: typeof PartnersNetlifyRoute
   PartnersRailwayRoute: typeof PartnersRailwayRoute
+  PartnersRenderRoute: typeof PartnersRenderRoute
   PartnersIndexRoute: typeof PartnersIndexRoute
 }
 
@@ -4380,6 +4484,7 @@ const PartnersRouteChildren: PartnersRouteChildren = {
   PartnersPartnerRoute: PartnersPartnerRoute,
   PartnersNetlifyRoute: PartnersNetlifyRoute,
   PartnersRailwayRoute: PartnersRailwayRoute,
+  PartnersRenderRoute: PartnersRenderRoute,
   PartnersIndexRoute: PartnersIndexRoute,
 }
 

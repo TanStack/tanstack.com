@@ -3547,7 +3547,8 @@ export function ExampleWorkbench({
               align="start"
               sideOffset={4}
               collisionPadding={8}
-              className="sandbox-ui w-64 max-w-[calc(100vw-1rem)] rounded-xl border-black/10 p-1 shadow-xl dark:border-white/10 motion-reduce:animate-none"
+              data-ds-pop=""
+              className="sandbox-ui w-64 max-w-[calc(100vw-1rem)] origin-(--transform-origin) rounded-xl border-black/10 p-1 shadow-xl dark:border-white/10"
             >
               <DropdownItem
                 className="min-h-10 gap-2 rounded-lg px-2 py-1 text-[13px] text-text-primary transition-colors duration-100 hover:bg-surface-state-hover focus:bg-surface-state-hover motion-reduce:transition-none min-[900px]:min-h-9"

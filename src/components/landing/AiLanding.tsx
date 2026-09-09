@@ -90,7 +90,7 @@ export default function AiLanding() {
             eyebrow="We handle tools"
             icon={<BracketsCurlyIcon aria-hidden="true" size={15} />}
             title="Define a tool once. Run it on either side."
-            body="One schema gives you the input and output types on the server and the client. The loop calls the tool, pauses for approval when you ask it to, applies the user's edits, and feeds the result back to the model."
+            body="One schema gives you the input and output types on the server and the client. The loop calls the tool, waits for approval when asked to, applies user's edits, and feeds the result back to the model."
             action={<DocsLink to="tools/tools">Tools</DocsLink>}
           />
           <ToolBoundary />
@@ -118,7 +118,7 @@ export default function AiLanding() {
           eyebrow="You own persistence"
           icon={<DatabaseIcon aria-hidden="true" size={15} />}
           title="Your database. Your schema."
-          body="Persistence is two functions: load a thread and save a thread. The ai-persistence skill ships with the package, so your coding agent can wire them to your tables and ORM in one pass."
+          body="Persistence is two functions: loading and saving a thread. With the ai-persistence skill shipped with the package, your coding agent can wire them to your tables and ORM in one pass."
           action={<DocsLink to="persistence/overview">Persistence</DocsLink>}
         />
         <PersistenceContract />
@@ -130,7 +130,7 @@ export default function AiLanding() {
             eyebrow="Durability you can move"
             icon={<HardDrivesIcon aria-hidden="true" size={15} />}
             title="Refresh mid-answer and nothing is lost."
-            body="Every chunk is written to a log before it is delivered. Drop the socket or refresh the page and the client replays from its last offset instead of paying for the model again."
+            body="Every chunk is written to a log before it is delivered. Drop the socket or refresh the page and the client replays from the last offset instead of losing the model's answer."
             action={
               <DocsLink to="resumable-streams/overview">
                 Resumable streams
@@ -147,7 +147,7 @@ export default function AiLanding() {
             eyebrow="We handle the hard parts"
             icon={<CubeIcon aria-hidden="true" size={15} />}
             title="Sandboxes, Code Mode, MCP, memory, compaction."
-            body="Each one is a separate package with the same shape as the core. Reach for it when the task needs it, and leave it out of the bundle when it does not."
+            body="With each feature as its own package, load what the task needs and leave out the rest."
           />
           <FeatureRail items={agentStack} />
         </div>
@@ -1387,7 +1387,7 @@ const compilerModels = [
     field: 'size',
     allowed: ['16:9', '9:16', '16:9_720p', '16:9_1080p', '16:9_4k'],
     picked: '16:9_4k',
-    note: 'Image and video parts in the prompt. Same ratio_resolution template, with tiers up to 4k, and any duration from 3 to 10 seconds.',
+    note: 'A start frame image plus text, and video parts too. Same ratio_resolution template, with tiers up to 4k, and any duration from 3 to 10 seconds.',
   },
   {
     name: 'dreamina-seedance-2-5-260628',

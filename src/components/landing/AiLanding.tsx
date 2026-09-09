@@ -212,15 +212,15 @@ function CodeTabs({
     <LandingWindow label={label}>
       <div
         className="flex gap-1 border-b border-border-subtle p-2"
-        role="tablist"
+        role="group"
+        aria-label={label}
       >
         {samples.map((item, index) => (
           <button
             key={item.name}
             type="button"
-            role="tab"
-            aria-selected={index === activeIndex}
-            className="rounded-lg px-3 py-1.5 text-ds-label-sm text-text-primary/40 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-selected:bg-[color:rgb(var(--landing-glow)/0.14)] aria-selected:text-[var(--landing-accent-bright)]"
+            aria-pressed={index === activeIndex}
+            className="rounded-lg px-3 py-1.5 text-ds-label-sm text-text-primary/40 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.14)] aria-pressed:text-[var(--landing-accent-bright)]"
             onClick={() => setActiveIndex(index)}
           >
             {item.name}
@@ -228,7 +228,7 @@ function CodeTabs({
         ))}
       </div>
       <CodeBlock
-        key={sample.file}
+        key={sample.name}
         dataCodeTitle={sample.file}
         className={`${codeWindowClass} ${preHeightClass}`}
         showTypeCopyButton={false}
@@ -296,7 +296,7 @@ const durabilityTiers = [
   {
     name: 'In memory',
     file: 'routes/api.chat.ts',
-    code: `import { memoryStream, toServerSentEventsResponse } from '@tanstack/ai'
+    code: `import { chat, memoryStream, toServerSentEventsResponse } from '@tanstack/ai'
 
 // Development and single-process apps. Zero setup.
 export async function POST(request: Request) {
@@ -310,7 +310,7 @@ export async function POST(request: Request) {
   {
     name: 'Hosted log',
     file: 'routes/api.chat.ts',
-    code: `import { toServerSentEventsResponse } from '@tanstack/ai'
+    code: `import { chat, toServerSentEventsResponse } from '@tanstack/ai'
 import { durableStream } from '@tanstack/ai-durable-stream'
 
 // Many processes, many regions. The route does not change.
@@ -407,7 +407,12 @@ function MessageParts() {
 
   return (
     <LandingWindow label="message.parts">
-      <ul className="divide-y divide-border-subtle" aria-live="polite">
+      <p className="sr-only">
+        A message is a list of parts. A thinking part, then a tool call that
+        moves from awaiting input through approval to complete, then the tool
+        result and the streamed text reply.
+      </p>
+      <ul className="divide-y divide-border-subtle" aria-hidden="true">
         {parts.map((part) => (
           <li
             key={part.type}
@@ -438,7 +443,7 @@ function MessageParts() {
           </li>
         ))}
       </ul>
-      <div className="border-t border-border-subtle p-4">
+      <div className="border-t border-border-subtle p-4" aria-hidden="true">
         <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
           tool-call lifecycle
         </p>
@@ -1183,8 +1188,18 @@ function WriteOnceHero() {
   const provider = heroProviders[providerIndex] ?? heroProviders[0]
   const sample =
     side === 'server'
-      ? { file: server.file, lang: 'ts', code: server.code(provider) }
-      : { file: client.file, lang: client.lang, code: client.code }
+      ? {
+          name: server.name,
+          file: server.file,
+          lang: 'ts',
+          code: server.code(provider),
+        }
+      : {
+          name: client.name,
+          file: client.file,
+          lang: client.lang,
+          code: client.code,
+        }
 
   return (
     <div className="grid w-full min-w-0 max-w-full items-start gap-4 lg:grid-cols-[0.9fr_1.1fr]">
@@ -1279,7 +1294,7 @@ function WriteOnceHero() {
           ))}
         </div>
         <CodeBlock
-          key={`${sample.file}-${provider.name}`}
+          key={`${sample.name}-${provider.name}`}
           dataCodeTitle={sample.file}
           className={`${codeWindowClass} [&_pre]:h-[19rem]`}
           showTypeCopyButton={false}
@@ -1390,7 +1405,7 @@ const compilerModels = [
     field: 'size',
     allowed: ['16:9', '9:16', '1:1', '21:9', '16:9_720p', '16:9_1080p'],
     picked: '16:9_4k',
-    note: 'Reference image, video, and audio parts in the prompt. Seedance 2.5 stops at 1080p. The 4k tier only exists on Seedance 2.0, and the types know that.',
+    note: 'Reference image and audio parts in the prompt, and video parts too. Seedance 2.5 stops at 1080p. The 4k tier only exists on Seedance 2.0, and the types know that.',
   },
   {
     name: 'visko-orbis-stable',

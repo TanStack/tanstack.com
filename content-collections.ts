@@ -31,6 +31,7 @@ const posts = defineCollection({
       published: z.iso.date(),
       updated: z.iso.date().optional(),
       draft: z.boolean().optional(),
+      rss: z.boolean().optional(),
       excerpt: z.string(),
       authors: z.string().array(),
       library: libraryListSchema.optional(),

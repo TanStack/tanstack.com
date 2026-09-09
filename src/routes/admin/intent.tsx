@@ -234,16 +234,28 @@ function IntentAdminPage() {
       {/* Mutation result banners */}
       {discoverMutation.data && (
         <ResultBanner
-          title="Discovery complete"
-          items={[
-            `${discoverMutation.data.packagesDiscovered} found on NPM`,
-            `${discoverMutation.data.packagesVerified} verified`,
-            `${discoverMutation.data.versionsEnqueued} versions enqueued`,
-            ...(discoverMutation.data.errors.length > 0
-              ? [`${discoverMutation.data.errors.length} errors`]
-              : []),
-          ]}
-          errors={discoverMutation.data.errors}
+          title={
+            discoverMutation.data.kind === 'completed'
+              ? 'Discovery complete'
+              : 'Discovery started'
+          }
+          items={
+            discoverMutation.data.kind === 'completed'
+              ? [
+                  `${discoverMutation.data.summary.packagesDiscovered} found on NPM`,
+                  `${discoverMutation.data.summary.packagesVerified} verified`,
+                  `${discoverMutation.data.summary.versionsEnqueued} versions enqueued`,
+                  ...(discoverMutation.data.summary.errors.length > 0
+                    ? [`${discoverMutation.data.summary.errors.length} errors`]
+                    : []),
+                ]
+              : ['Discovery will continue during scheduled processing.']
+          }
+          errors={
+            discoverMutation.data.kind === 'completed'
+              ? discoverMutation.data.summary.errors
+              : []
+          }
           onDismiss={() => discoverMutation.reset()}
         />
       )}

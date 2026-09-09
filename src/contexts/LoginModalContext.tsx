@@ -1,7 +1,10 @@
 import * as React from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { LoginModal } from '~/components/LoginModal'
 import { currentUserQueryOptions } from '~/hooks/useCurrentUser'
+
+const LazyLoginModal = React.lazy(() =>
+  import('~/components/LoginModal').then((m) => ({ default: m.LoginModal })),
+)
 
 interface LoginModalContextValue {
   openLoginModal: (options?: {
@@ -38,6 +41,7 @@ interface LoginModalProviderProps {
 export function LoginModalProvider({ children }: LoginModalProviderProps) {
   const queryClient = useQueryClient()
   const [isOpen, setIsOpen] = React.useState(false)
+  const [hasLoadedModal, setHasLoadedModal] = React.useState(false)
   const [description, setDescription] = React.useState<string>()
   const pendingOnSuccessRef = React.useRef<(() => void) | undefined>(undefined)
 
@@ -45,6 +49,7 @@ export function LoginModalProvider({ children }: LoginModalProviderProps) {
     (options?: { description?: string; onSuccess?: () => void }) => {
       pendingOnSuccessRef.current = options?.onSuccess
       setDescription(options?.description)
+      setHasLoadedModal(true)
       setIsOpen(true)
     },
     [],
@@ -89,11 +94,15 @@ export function LoginModalProvider({ children }: LoginModalProviderProps) {
   return (
     <LoginModalContext.Provider value={value}>
       {children}
-      <LoginModal
-        open={isOpen}
-        description={description}
-        onOpenChange={handleOpenChange}
-      />
+      {hasLoadedModal ? (
+        <React.Suspense fallback={null}>
+          <LazyLoginModal
+            open={isOpen}
+            description={description}
+            onOpenChange={handleOpenChange}
+          />
+        </React.Suspense>
+      ) : null}
     </LoginModalContext.Provider>
   )
 }

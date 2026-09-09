@@ -90,7 +90,7 @@ export default function AiLanding() {
             eyebrow="We handle tools"
             icon={<BracketsCurlyIcon aria-hidden="true" size={15} />}
             title="Define a tool once. Run it on either side."
-            body="One schema gives you the input and output types on the server and the client. The loop calls the tool, waits for approval when asked to, applies user's edits, and feeds the result back to the model."
+            body="One schema gives you the input and output types on the server and the client. The loop calls the tool, waits for approval when asked, applies the user's edits, and feeds the result back to the model."
             action={<DocsLink to="tools/tools">Tools</DocsLink>}
           />
           <ToolBoundary />
@@ -102,8 +102,8 @@ export default function AiLanding() {
           <LandingSectionIntro
             eyebrow="You own the UI"
             icon={<LayoutIcon aria-hidden="true" size={15} />}
-            title="Typed parts, honest states, no components to fight."
-            body="A message is a list of parts, and every part carries its own lifecycle. Render them yourself or register one component per part type."
+            title="Messages are parts. Render however you like."
+            body="Text, thinking, tool calls and results all arrive as typed parts with their own state. Loop over the parts and render each one, or hand a component per part type to createChatHook and it picks the right one for you."
             action={<DocsLink to="ui/react">UI integrations</DocsLink>}
           />
           <div className="min-w-0 lg:order-first">
@@ -364,35 +364,184 @@ const toolCallStates = [
   'complete',
 ] as const
 
+type ToolCallState = (typeof toolCallStates)[number]
+
+// Both snippets stay put while the cycle runs; only the highlighted line
+// moves. A line tagged with a part lights up when that part is active, and a
+// line tagged with a tool state only when the tool call is in that state.
+type CodeLine = {
+  text: string
+  part?: 'thinking' | 'tool-call' | 'tool-result' | 'text'
+  toolState?: ToolCallState
+}
+
+const toolBranches: Array<CodeLine> = [
+  {
+    text: "if (part.state === 'awaiting-input') return <Spinner />",
+    part: 'tool-call',
+    toolState: 'awaiting-input',
+  },
+  {
+    text: "if (part.state === 'input-streaming') return <Spinner />",
+    part: 'tool-call',
+    toolState: 'input-streaming',
+  },
+  {
+    text: "if (part.state === 'input-complete') return <p>Looking up {part.input?.id}</p>",
+    part: 'tool-call',
+    toolState: 'input-complete',
+  },
+  {
+    text: "if (interrupt?.status === 'pending') return <button onClick={() => interrupt.resolveInterrupt(true)}>Approve</button>",
+    part: 'tool-call',
+    toolState: 'approval-requested',
+  },
+  {
+    text: "if (part.state === 'approval-responded') return <p>Approved</p>",
+    part: 'tool-call',
+    toolState: 'approval-responded',
+  },
+  {
+    text: "if (part.state === 'error') return <p>Lookup failed</p>",
+    part: 'tool-call',
+  },
+  {
+    text: 'return <InvoiceCard invoice={part.output} />',
+    part: 'tool-call',
+    toolState: 'complete',
+  },
+]
+
+const loopCode: Array<CodeLine> = [
+  { text: 'const { messages } = useChat({' },
+  { text: "  connection: fetchServerSentEvents('/api/chat')," },
+  { text: '})' },
+  { text: '' },
+  { text: 'return messages.map((message) => (' },
+  { text: '  <article key={message.id}>' },
+  { text: '    {message.parts.map((part, index) => {' },
+  { text: '      switch (part.type) {' },
+  { text: "        case 'thinking':", part: 'thinking' },
+  {
+    text: '          return <details key={index}><summary>Thinking</summary>{part.content}</details>',
+    part: 'thinking',
+  },
+  { text: "        case 'tool-call':", part: 'tool-call' },
+  {
+    text: '          return <ToolCall key={index} part={part} />',
+    part: 'tool-call',
+  },
+  { text: "        case 'tool-result':", part: 'tool-result' },
+  {
+    text: '          return <pre key={index}>{String(part.content)}</pre>',
+    part: 'tool-result',
+  },
+  { text: "        case 'text':", part: 'text' },
+  {
+    text: '          return <Markdown key={index}>{part.content}</Markdown>',
+    part: 'text',
+  },
+  { text: '        default:' },
+  { text: '          return null' },
+  { text: '      }' },
+  { text: '    })}' },
+  { text: '  </article>' },
+  { text: '))' },
+]
+
+const hookCode: Array<CodeLine> = [
+  { text: 'const { useAppChat } = createChatHook({' },
+  { text: '  options: chatOptions,' },
+  { text: '  components: {' },
+  { text: '    layout: ({ Messages }) => <main><Messages /></main>,' },
+  { text: '    message: ({ Parts }) => <article><Parts /></article>,' },
+  { text: '  },' },
+  { text: '  partsComponents: {' },
+  {
+    text: '    thinking: ({ part }) => <details><summary>Thinking</summary>{part.content}</details>,',
+    part: 'thinking',
+  },
+  {
+    text: '    toolResult: ({ part }) => <pre>{String(part.content)}</pre>,',
+    part: 'tool-result',
+  },
+  {
+    text: '    text: ({ part }) => <Markdown>{part.content}</Markdown>,',
+    part: 'text',
+  },
+  { text: '    fallback: () => null,' },
+  { text: '  },' },
+  { text: '  toolsComponents: {' },
+  { text: '    lookupInvoice: ({ part, interrupt }) => {' },
+  ...toolBranches.map((line) => ({ ...line, text: `      ${line.text}` })),
+  { text: '    },' },
+  { text: '  },' },
+  { text: '})' },
+  { text: '' },
+  { text: 'const chat = useAppChat()' },
+  { text: 'return <chat.AppChat />' },
+]
+
+// The cycle walks the message: thinking, then every tool-call state, then the
+// result and the streamed reply.
+const partSteps: Array<
+  | { part: 'thinking' | 'tool-result' | 'text' }
+  | { part: 'tool-call'; toolState: ToolCallState }
+> = [
+  { part: 'thinking' },
+  ...toolCallStates.map((toolState) => ({
+    part: 'tool-call' as const,
+    toolState,
+  })),
+  { part: 'tool-result' },
+  { part: 'text' },
+]
+
 function MessageParts() {
-  const [stateIndex, setStateIndex] = React.useState(toolCallStates.length - 1)
+  const [stepIndex, setStepIndex] = React.useState(partSteps.length - 1)
+  const [pinned, setPinned] = React.useState(false)
+  const [useHook, setUseHook] = React.useState(true)
 
   React.useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (
+      pinned ||
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
       return
     }
 
     const intervalId = window.setInterval(() => {
-      setStateIndex((current) => (current + 1) % toolCallStates.length)
-    }, 1400)
+      setStepIndex((current) => (current + 1) % partSteps.length)
+    }, 2200)
 
     return () => window.clearInterval(intervalId)
-  }, [])
+  }, [pinned])
 
-  const toolState = toolCallStates[stateIndex] ?? 'complete'
+  const pin = (index: number) => {
+    setPinned(true)
+    setStepIndex(index)
+  }
+
+  const step = partSteps[stepIndex] ?? { part: 'text' }
+  const toolState: ToolCallState | 'pending' =
+    step.part === 'thinking'
+      ? 'pending'
+      : step.part === 'tool-call'
+        ? step.toolState
+        : 'complete'
   const parts = [
     {
       type: 'thinking',
       detail: 'Checking the invoice before answering.',
       state: 'complete',
     },
+    // Rows after the active one stay mounted as pending so the list never
+    // changes height.
     {
       type: 'tool-call',
-      detail: 'lookup_invoice({ id: "inv_2231" })',
+      detail: 'lookupInvoice({ id: "inv_2231" })',
       state: toolState,
     },
-    // The result and the reply only exist once the call is complete. Keep
-    // their rows mounted so the list never changes height.
     {
       type: 'tool-result',
       detail: '{ total: 1240, status: "paid" }',
@@ -401,25 +550,46 @@ function MessageParts() {
     {
       type: 'text',
       detail: 'Invoice 2231 was paid in full on',
-      state: toolState === 'complete' ? 'streaming' : 'pending',
+      state:
+        step.part === 'text'
+          ? 'streaming'
+          : toolState === 'complete'
+            ? 'complete'
+            : 'pending',
     },
   ]
+
+  const code = useHook ? hookCode : loopCode
+  const isActive = (line: CodeLine) =>
+    line.part === step.part &&
+    (line.toolState === undefined ||
+      (step.part === 'tool-call' && line.toolState === step.toolState))
 
   return (
     <LandingWindow label="message.parts">
       <p className="sr-only">
         A message is a list of parts. A thinking part, then a tool call that
         moves from awaiting input through approval to complete, then the tool
-        result and the streamed text reply.
+        result and the streamed text reply. Below the list, the component
+        registered for the active part.
       </p>
-      <ul className="divide-y divide-border-subtle" aria-hidden="true">
+      <div
+        className="divide-y divide-border-subtle"
+        role="group"
+        aria-label="Message parts"
+      >
         {parts.map((part) => (
-          <li
+          <button
             key={part.type}
+            type="button"
+            aria-pressed={part.type === step.part}
             className={
               part.state === 'pending'
-                ? 'grid gap-1 p-4 opacity-25 sm:grid-cols-[7.5rem_1fr_auto] sm:items-center sm:gap-4'
-                : 'grid gap-1 p-4 sm:grid-cols-[7.5rem_1fr_auto] sm:items-center sm:gap-4'
+                ? 'grid w-full gap-1 p-4 text-left opacity-25 hover:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--landing-accent-bright) sm:grid-cols-[7.5rem_1fr_auto] sm:items-center sm:gap-4'
+                : 'grid w-full gap-1 p-4 text-left hover:bg-text-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--landing-accent-bright) aria-pressed:bg-[rgb(var(--landing-glow)/0.06)] sm:grid-cols-[7.5rem_1fr_auto] sm:items-center sm:gap-4'
+            }
+            onClick={() =>
+              pin(partSteps.findIndex((item) => item.part === part.type))
             }
           >
             <span className="font-ds-mono text-ds-mono-2xs text-(--landing-accent-bright)">
@@ -440,32 +610,62 @@ function MessageParts() {
             >
               {part.state}
             </span>
-          </li>
+          </button>
         ))}
-      </ul>
-      <div className="border-t border-border-subtle p-4" aria-hidden="true">
+      </div>
+      <div className="border-t border-border-subtle p-4">
         <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
           tool-call lifecycle
         </p>
-        <ol className="mt-3 flex flex-wrap gap-1.5">
+        <div
+          className="mt-3 flex flex-wrap gap-1.5"
+          role="group"
+          aria-label="Tool call state"
+        >
           {toolCallStates.map((state, index) => (
-            <li
+            <button
               key={state}
-              className={
-                index === stateIndex
-                  ? 'rounded-md bg-[rgb(var(--landing-glow)/0.18)] px-2 py-1 font-ds-mono text-ds-mono-2xs text-(--landing-accent-bright)'
-                  : index < stateIndex
-                    ? 'rounded-md px-2 py-1 font-ds-mono text-ds-mono-2xs text-text-primary/45'
-                    : 'rounded-md px-2 py-1 font-ds-mono text-ds-mono-2xs text-text-primary/20'
-              }
+              type="button"
+              aria-pressed={toolState === state}
+              className="rounded-md px-2 py-1 font-ds-mono text-ds-mono-2xs text-text-primary/35 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-pressed:bg-[rgb(var(--landing-glow)/0.18)] aria-pressed:text-(--landing-accent-bright)"
+              onClick={() => pin(index + 1)}
             >
               {state}
-            </li>
+            </button>
           ))}
-          <li className="rounded-md px-2 py-1 font-ds-mono text-ds-mono-2xs text-text-primary/20">
-            error
-          </li>
-        </ol>
+        </div>
+      </div>
+      <div className="border-t border-border-subtle bg-ds-neutral-500">
+        <div className="flex items-center gap-3 px-4 pt-3 font-ds-mono text-ds-mono-2xs text-white/60">
+          <button
+            type="button"
+            role="switch"
+            aria-checked={useHook}
+            aria-label="createChatHook"
+            className="group relative h-5 w-9 shrink-0 rounded-full bg-white/15 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-checked:bg-(--landing-accent)"
+            onClick={() => setUseHook((current) => !current)}
+          >
+            <span className="absolute top-0.5 left-0.5 size-4 rounded-full bg-white transition-transform group-aria-checked:translate-x-4" />
+          </button>
+          <span aria-hidden="true">createChatHook</span>
+        </div>
+        <div
+          className="min-h-96 overflow-x-auto p-4 font-ds-mono text-ds-mono-xs leading-relaxed text-white/70"
+          aria-hidden="true"
+        >
+          {code.map((line, index) => (
+            <p
+              key={index}
+              className={
+                isActive(line)
+                  ? 'whitespace-pre text-(--landing-accent-bright)'
+                  : 'whitespace-pre text-white/40'
+              }
+            >
+              {line.text}
+            </p>
+          ))}
+        </div>
       </div>
     </LandingWindow>
   )
@@ -726,96 +926,175 @@ const modalities: Array<RailItem> = [
   },
 ]
 
-const devtoolsHooks = [
-  { detail: 'useChat · 12 msgs', name: 'Support Chat', selected: true },
-  { detail: 'useGenerateImage', name: 'Image Studio' },
-  { detail: 'useObject', name: 'Invoice Extract' },
-  { detail: 'useTranscription', name: 'Call Notes' },
-]
-
-const devtoolsTimeline: Array<{
+type DevtoolsEvent = {
   detail: string
   label: string
   tone: 'accent' | 'muted' | 'warn'
+}
+
+// ponytail: useObject is not a hook. Structured output is useChat + outputSchema.
+const devtoolsHooks: Array<{
+  detail: string
+  name: string
+  run: string
+  timeline: Array<DevtoolsEvent>
 }> = [
   {
-    label: 'user turn',
-    detail: '"refund the duplicate charge"',
-    tone: 'muted',
+    name: 'Support Chat',
+    detail: 'useChat · 12 msgs',
+    run: 'thread_7f2 · run_3',
+    timeline: [
+      {
+        label: 'user turn',
+        detail: '"refund the duplicate charge"',
+        tone: 'muted',
+      },
+      {
+        label: 'memory recall',
+        detail: '3 facts injected · 214 tokens',
+        tone: 'accent',
+      },
+      {
+        label: 'tool call',
+        detail: 'lookupInvoice { id: "inv_8841" }',
+        tone: 'accent',
+      },
+      {
+        label: 'tool result',
+        detail: '{ total: 4200, status: "paid" }',
+        tone: 'accent',
+      },
+      {
+        label: 'interrupt',
+        detail: 'chargeCard · awaiting approval',
+        tone: 'warn',
+      },
+      {
+        label: 'finish reason',
+        detail: 'interrupt · run resumable',
+        tone: 'muted',
+      },
+    ],
   },
   {
-    label: 'memory recall',
-    detail: '3 facts injected · 214 tokens',
-    tone: 'accent',
+    name: 'Image Studio',
+    detail: 'useGenerateImage',
+    run: 'gen_c41 · run_1',
+    timeline: [
+      {
+        label: 'prompt',
+        detail: '"a neon city at night, 16:9"',
+        tone: 'muted',
+      },
+      {
+        label: 'adapter',
+        detail: "openaiImage('gpt-image-2') · 1536x1024",
+        tone: 'accent',
+      },
+      { label: 'progress', detail: 'partial image · 3 of 4', tone: 'accent' },
+      {
+        label: 'artifact',
+        detail: 'image/png · 1.2 MB · stored',
+        tone: 'accent',
+      },
+      { label: 'usage', detail: '1 image · $0.04', tone: 'muted' },
+      { label: 'finish reason', detail: 'complete', tone: 'muted' },
+    ],
   },
   {
-    label: 'tool call',
-    detail: 'lookupInvoice { id: "inv_8841" }',
-    tone: 'accent',
+    name: 'Invoice Extract',
+    detail: 'useChat · outputSchema',
+    run: 'thread_a19 · run_1',
+    timeline: [
+      { label: 'user turn', detail: '[image] receipt.jpg', tone: 'muted' },
+      {
+        label: 'output schema',
+        detail: 'invoiceSchema · 7 fields',
+        tone: 'accent',
+      },
+      {
+        label: 'partial',
+        detail: '{ vendor, total } · 2 of 7',
+        tone: 'accent',
+      },
+      {
+        label: 'partial',
+        detail: '{ ..., lineItems[3] } · 6 of 7',
+        tone: 'accent',
+      },
+      { label: 'final', detail: 'validated · 7 of 7', tone: 'accent' },
+      { label: 'finish reason', detail: 'complete', tone: 'muted' },
+    ],
   },
   {
-    label: 'tool result',
-    detail: '{ total: 4200, status: "paid" }',
-    tone: 'accent',
-  },
-  {
-    label: 'interrupt',
-    detail: 'chargeCard · awaiting approval',
-    tone: 'warn',
-  },
-  {
-    label: 'finish reason',
-    detail: 'interrupt · run resumable',
-    tone: 'muted',
+    name: 'Call Notes',
+    detail: 'useTranscription',
+    run: 'gen_e08 · run_2',
+    timeline: [
+      { label: 'audio in', detail: 'call-0912.m4a · 14:32', tone: 'muted' },
+      {
+        label: 'adapter',
+        detail: "elevenlabsTranscription('scribe-v2')",
+        tone: 'accent',
+      },
+      { label: 'segments', detail: '212 · 2 speakers', tone: 'accent' },
+      {
+        label: 'transcript',
+        detail: '2,140 words · timestamps',
+        tone: 'accent',
+      },
+      { label: 'retry', detail: 'segment 87 · rate limited', tone: 'warn' },
+      { label: 'finish reason', detail: 'complete', tone: 'muted' },
+    ],
   },
 ]
 
 function DevtoolsPanel() {
+  const [activeIndex, setActiveIndex] = React.useState(0)
+  const hook = devtoolsHooks[activeIndex] ?? devtoolsHooks[0]
+
   return (
     <LandingWindow label="tanstack devtools · ai">
       <div className="grid bg-background-default sm:grid-cols-[11rem_1fr]">
-        <div className="border-border-subtle p-3 sm:border-r">
+        <div
+          className="border-border-subtle p-3 sm:border-r"
+          role="group"
+          aria-label="Hooks"
+        >
           <p className="px-2 pb-2 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
             hooks
           </p>
-          {devtoolsHooks.map((hook) => (
-            <div
-              key={hook.name}
-              className={
-                hook.selected
-                  ? 'mb-1 rounded-lg bg-[rgb(var(--landing-glow)/0.14)] px-3 py-2'
-                  : 'mb-1 rounded-lg px-3 py-2'
-              }
+          {devtoolsHooks.map((item, index) => (
+            <button
+              key={item.name}
+              type="button"
+              aria-pressed={index === activeIndex}
+              className="group mb-1 block w-full rounded-lg px-3 py-2 text-left hover:bg-text-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-pressed:bg-[rgb(var(--landing-glow)/0.14)]"
+              onClick={() => setActiveIndex(index)}
             >
-              <p
-                className={
-                  hook.selected
-                    ? 'text-ds-label-sm text-(--landing-accent-bright)'
-                    : 'text-ds-label-sm text-text-primary/40'
-                }
-              >
-                {hook.name}
+              <p className="text-ds-label-sm text-text-primary/40 group-hover:text-text-primary group-aria-pressed:text-(--landing-accent-bright)">
+                {item.name}
               </p>
               <p className="mt-0.5 font-ds-mono text-ds-mono-2xs text-text-primary/25">
-                {hook.detail}
+                {item.detail}
               </p>
-            </div>
+            </button>
           ))}
         </div>
 
-        <div className="p-4">
+        <div className="p-4" aria-live="polite">
           <div className="flex items-center justify-between">
             <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
               run timeline
             </p>
             <p className="font-ds-mono text-ds-mono-2xs text-text-primary/25">
-              thread_7f2 · run_3
+              {hook.run}
             </p>
           </div>
           <div className="mt-3 space-y-1.5">
-            {devtoolsTimeline.map((event) => (
+            {hook.timeline.map((event, index) => (
               <div
-                key={event.label}
+                key={`${event.label}-${index}`}
                 className="grid gap-1 rounded-lg bg-background-subtle px-3 py-2 sm:grid-cols-[8.5rem_1fr] sm:items-baseline"
               >
                 <span
@@ -1173,7 +1452,7 @@ function WriteOnceHero() {
         setSide('client')
         setClientIndex(move.index)
       }
-    }, 2600)
+    }, 6000)
 
     return () => window.clearInterval(intervalId)
   }, [pinned, reducedMotion])
@@ -1307,7 +1586,7 @@ function WriteOnceHero() {
 }
 
 // Each model shows one field the types narrow per model. `picked` is what the
-// snippet passes; when it is not in `allowed` the snippet shows a type error.
+// snippet passes; "break me" swaps in `broken`, which the types reject.
 const compilerModels = [
   {
     name: 'gpt-6-astra',
@@ -1320,6 +1599,7 @@ const compilerModels = [
     field: 'input',
     allowed: ['text', 'image'],
     picked: 'image',
+    broken: 'audio',
     note: 'Input parts are typed per model.',
   },
   {
@@ -1333,6 +1613,7 @@ const compilerModels = [
     field: 'input',
     allowed: ['text', 'image', 'document'],
     picked: 'document',
+    broken: 'video',
     note: 'PDFs go in as document parts on models that read them.',
   },
   {
@@ -1345,8 +1626,9 @@ const compilerModels = [
       `messages: [{ role: 'user', content: [{ type: '${value}', source: receiptUrl }] }]`,
     field: 'input',
     allowed: ['text'],
-    picked: 'image',
-    note: 'Text-only model, so the image part fails to type.',
+    picked: 'text',
+    broken: 'image',
+    note: 'Text-only model. An image part fails to type.',
   },
   {
     name: 'gpt-image-2',
@@ -1358,6 +1640,7 @@ const compilerModels = [
     field: 'size',
     allowed: ['1024x1024', '1536x1024', '1024x1536', 'auto'],
     picked: '1536x1024',
+    broken: '1920x1080',
     note: 'OpenAI sizes are pixels, width by height.',
   },
   {
@@ -1370,6 +1653,7 @@ const compilerModels = [
     field: 'size',
     allowed: ['1:1', '16:9', '9:16', '3:2', 'auto', '16:9_1k', '16:9_2k'],
     picked: '16:9_2k',
+    broken: '16:9_4k',
     note: 'Grok sizes are an aspect ratio, or ratio_resolution. Fourteen ratios at 1k or 2k, all typed.',
   },
   {
@@ -1387,6 +1671,7 @@ const compilerModels = [
     field: 'size',
     allowed: ['16:9', '9:16', '16:9_720p', '16:9_1080p', '16:9_4k'],
     picked: '16:9_4k',
+    broken: '16:9_8k',
     note: 'A start frame image plus text, and video parts too. Same ratio_resolution template, with tiers up to 4k, and any duration from 3 to 10 seconds.',
   },
   {
@@ -1404,7 +1689,8 @@ const compilerModels = [
     line: (value: string) => `size: '${value}'`,
     field: 'size',
     allowed: ['16:9', '9:16', '1:1', '21:9', '16:9_720p', '16:9_1080p'],
-    picked: '16:9_4k',
+    picked: '16:9_1080p',
+    broken: '16:9_4k',
     note: 'Reference image and audio parts in the prompt, and video parts too. Seedance 2.5 stops at 1080p. The 4k tier only exists on Seedance 2.0, and the types know that.',
   },
   {
@@ -1417,6 +1703,7 @@ const compilerModels = [
     field: 'resolution',
     allowed: ['1080p', '2k', '4k'],
     picked: '4k',
+    broken: '8k',
     note: 'World models stream over WebRTC. Resolution is a delivery tier.',
   },
 ]
@@ -1436,8 +1723,10 @@ function Str({ children }: { children: React.ReactNode }) {
 
 function ProviderWorkbench() {
   const [activeIndex, setActiveIndex] = React.useState(0)
+  const [isBroken, setIsBroken] = React.useState(false)
   const model = compilerModels[activeIndex] ?? compilerModels[0]
-  const valid = model.allowed.includes(model.picked)
+  const picked = isBroken ? model.broken : model.picked
+  const valid = !isBroken
   const adapterName = model.adapter.split('(')[0]
 
   return (
@@ -1492,14 +1781,24 @@ function ProviderWorkbench() {
                   : 'underline decoration-red-400 decoration-wavy underline-offset-4'
               }
             >
-              &nbsp;&nbsp;{model.line(model.picked)},
+              &nbsp;&nbsp;{model.line(picked)},
             </p>
             <p>{'})'}</p>
           </div>
           <div className="border-t border-border-subtle p-4">
-            <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
-              {model.field} for {model.name}
-            </p>
+            <div className="flex items-center justify-between gap-3">
+              <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+                {model.field} for {model.name}
+              </p>
+              <button
+                type="button"
+                aria-pressed={isBroken}
+                className="relative shrink-0 overflow-hidden rounded-full border border-(--landing-accent) px-3 py-1 font-ds-mono text-ds-mono-2xs text-(--landing-accent-bright) transition-colors before:absolute before:inset-y-0 before:w-1/2 before:bg-linear-to-r before:from-transparent before:via-white/25 before:to-transparent motion-safe:before:animate-shimmer hover:bg-[rgb(var(--landing-glow)/0.14)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-pressed:border-emerald-400/60 aria-pressed:text-emerald-400/90 aria-pressed:before:hidden"
+                onClick={() => setIsBroken((current) => !current)}
+              >
+                {isBroken ? 'fix me' : 'break me'}
+              </button>
+            </div>
             <div className="mt-3 flex flex-wrap gap-2">
               {model.allowed.map((value) => (
                 <span
@@ -1511,7 +1810,7 @@ function ProviderWorkbench() {
               ))}
               {valid ? null : (
                 <span className="rounded-full border border-red-400/60 px-3 py-1 font-ds-mono text-ds-mono-2xs text-red-400/90 line-through">
-                  {model.picked}
+                  {picked}
                 </span>
               )}
             </div>
@@ -1520,12 +1819,12 @@ function ProviderWorkbench() {
             </p>
             {valid ? (
               <p className="mt-4 min-h-10 font-ds-mono text-ds-mono-2xs text-emerald-400/80">
-                ✓ no errors. '{model.picked}' is a valid {model.field} for{' '}
+                ✓ no errors. '{picked}' is a valid {model.field} for{' '}
                 {model.name}.
               </p>
             ) : (
               <p className="mt-4 min-h-10 font-ds-mono text-ds-mono-2xs text-red-400/90">
-                error TS2322: Type '{model.picked}' is not assignable to type '
+                error TS2322: Type '{picked}' is not assignable to type '
                 {model.allowed.join(' | ')}'.
               </p>
             )}

@@ -67,7 +67,6 @@ export default function AiLanding() {
 
       <LandingSection tone="ink">
         <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
-          <ProviderWorkbench />
           <LandingSectionIntro
             eyebrow="Typesafe models"
             icon={<PlugIcon aria-hidden="true" size={15} />}
@@ -79,6 +78,9 @@ export default function AiLanding() {
               </DocsLink>
             }
           />
+          <div className="min-w-0 lg:order-first">
+            <ProviderWorkbench />
+          </div>
         </div>
       </LandingSection>
 
@@ -97,7 +99,6 @@ export default function AiLanding() {
 
       <LandingSection tone="ink">
         <div className="grid items-center gap-12 lg:grid-cols-[1.08fr_0.92fr] lg:gap-16">
-          <MessageParts />
           <LandingSectionIntro
             eyebrow="You own the UI"
             icon={<LayoutIcon aria-hidden="true" size={15} />}
@@ -105,6 +106,9 @@ export default function AiLanding() {
             body="A message is a list of parts, and every part carries its own lifecycle. Render them yourself or register one component per part type."
             action={<DocsLink to="ui/react">UI integrations</DocsLink>}
           />
+          <div className="min-w-0 lg:order-first">
+            <MessageParts />
+          </div>
         </div>
       </LandingSection>
 
@@ -1360,8 +1364,8 @@ const compilerModels = [
     adapter: "geminiVideo('gemini-omni-1.1-flash')",
     setup: [
       'prompt: [',
-      "  { type: 'image', source: { type: 'url', value: firstFrame } },",
-      "  { type: 'text', content: 'Slow push in, rain on neon' },",
+      "  { type: 'image', source: { type: 'url', value: firstFrame } }",
+      "  { type: 'text', content: 'Slow push in, rain on neon' }",
       ']',
     ],
     line: (value: string) => `size: '${value}'`,
@@ -1377,9 +1381,9 @@ const compilerModels = [
     adapter: "byteplusVideo('dreamina-seedance-2-5-260628')",
     setup: [
       'prompt: [',
-      "  { type: 'image', role: 'reference', source: { type: 'url', value: heroShot } },",
-      "  { type: 'audio', source: { type: 'url', value: beatUrl } },",
-      "  { type: 'text', content: 'Cut on the beat, keep the outfit' },",
+      "  { type: 'image', role: 'reference', source: { type: 'url', value: heroShot } }",
+      "  { type: 'audio', source: { type: 'url', value: beatUrl } }",
+      "  { type: 'text', content: 'Cut on the beat, keep the outfit' }",
       ']',
     ],
     line: (value: string) => `size: '${value}'`,
@@ -1444,7 +1448,7 @@ function ProviderWorkbench() {
             </button>
           ))}
         </div>
-        <div aria-live="polite">
+        <div aria-live="polite" className="min-w-0">
           <div className="overflow-x-auto bg-ds-neutral-500 p-4 font-ds-mono text-ds-mono-xs leading-relaxed text-white/70">
             <p>
               <Kw>import</Kw> {'{ '}

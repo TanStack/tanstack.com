@@ -32,6 +32,7 @@ import {
 } from '~/components/ds/ui'
 import type { ExampleWorkbenchRunResult } from '~/components/examples/ExampleWorkbench.client'
 import { BuilderAgentActivity } from '~/components/builder/BuilderAgentActivity'
+import { BuilderUserMessageContent } from '~/components/builder/BuilderUserMessageContent'
 import { useBuilderWorkspaceControls } from '~/components/builder/builder-workspace-controls.client'
 import { Tooltip } from '~/ui'
 import { copyTextToClipboard } from '~/utils/browser-effects'
@@ -3318,7 +3319,7 @@ function TranscriptRowView({
               aria-label="You"
               className="ml-auto w-fit max-w-[85%] whitespace-pre-wrap rounded-2xl bg-background-subtle px-4 py-2.5 text-sm/6 text-text-primary"
             >
-              {row.message.content}
+              <BuilderUserMessageContent content={row.message.content} />
             </article>
           ) : (
             <AssistantMessage
@@ -3405,7 +3406,7 @@ function QueuedPrompt({
       className="ml-auto flex w-fit max-w-[85%] items-start gap-1 rounded-2xl bg-background-subtle py-2 pr-1.5 pl-4 text-sm/6 text-text-primary"
     >
       <div className="min-w-0">
-        <p className="whitespace-pre-wrap">{prompt.content}</p>
+        <BuilderUserMessageContent content={prompt.content} />
         <p className="mt-1 font-ds-mono text-[10px] uppercase tracking-wide text-text-muted">
           {label}
         </p>

@@ -579,6 +579,8 @@ function nativeValidationStream({
     },
   ]
   if (index > 0) events.push(validationResultEvent(index - 1))
+  // Native client tools execute from the RUN_FINISHED interrupt. The legacy
+  // tool-input-available event would execute the same tool a second time.
   events.push(
     {
       type: EventType.TOOL_CALL_START,
@@ -589,18 +591,12 @@ function nativeValidationStream({
     {
       type: EventType.TOOL_CALL_ARGS,
       toolCallId,
-      args: '{}',
-      delta: '',
+      delta: '{}',
     },
     {
       type: EventType.TOOL_CALL_END,
       toolCallId,
       input: {},
-    },
-    {
-      type: EventType.CUSTOM,
-      name: 'tool-input-available',
-      value: { toolCallId, toolName: 'validate_project', input: {} },
     },
     {
       type: EventType.MESSAGES_SNAPSHOT,
@@ -633,7 +629,7 @@ function nativeValidationStream({
       type: EventType.RUN_FINISHED,
       threadId: 'thread-1',
       runId,
-      finishReason: 'tool_calls',
+      metadata: { tanstack: { finishReason: 'tool_calls' } },
       outcome: {
         type: 'interrupt',
         interrupts: [

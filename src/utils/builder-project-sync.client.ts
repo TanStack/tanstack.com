@@ -495,7 +495,7 @@ export type BuilderProjectSyncCollection = ReturnType<
 
 export function getBuilderProjectBrowserSessionId({
   storage = getSessionStorage(),
-  createId = crypto.randomUUID,
+  createId = () => crypto.randomUUID(),
 }: {
   storage?: Pick<Storage, 'getItem' | 'setItem'>
   createId?: () => string
@@ -512,7 +512,7 @@ export function getBuilderProjectBrowserSessionId({
 async function claimBuilderProjectBrowserSession({
   storage = getSessionStorage(),
   lockManager = getBrowserSessionLockManager(),
-  createId = crypto.randomUUID,
+  createId = () => crypto.randomUUID(),
 }: {
   storage?: Pick<Storage, 'getItem' | 'setItem'>
   lockManager?: BuilderProjectBrowserSessionLockManager

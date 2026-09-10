@@ -8,6 +8,7 @@ import {
 import {
   decodeExampleBinaryFile,
   normalizeExamplePath,
+  resolveExampleWorkspaceImport,
   type ExampleWorkspace,
 } from './example-workspace'
 
@@ -70,7 +71,7 @@ export async function compileExampleWorkspace(
     metafile: true,
     outdir: '/out',
     platform: 'browser',
-    plugins: [createWorkspacePlugin(files)],
+    plugins: [createWorkspacePlugin(files, workspace.imports)],
     sourcemap: 'inline',
     target: 'es2022',
     write: false,
@@ -122,7 +123,10 @@ function getExternalSpecifiers(metafile: esbuild.Metafile) {
   )
 }
 
-function createWorkspacePlugin(files: WorkspaceBuildFiles): esbuild.Plugin {
+function createWorkspacePlugin(
+  files: WorkspaceBuildFiles,
+  imports: ExampleWorkspace['imports'],
+): esbuild.Plugin {
   return {
     name: workspaceNamespace,
     setup(build) {
@@ -130,7 +134,8 @@ function createWorkspacePlugin(files: WorkspaceBuildFiles): esbuild.Plugin {
         if (args.path.startsWith('https://')) {
           return { external: true, path: args.path }
         }
-        if (isBareSpecifier(args.path)) {
+        const mappedPath = resolveExampleWorkspaceImport(args.path, imports)
+        if (!mappedPath && isBareSpecifier(args.path)) {
           return {
             external: true,
             path: args.path.endsWith('.json')
@@ -140,9 +145,10 @@ function createWorkspacePlugin(files: WorkspaceBuildFiles): esbuild.Plugin {
         }
 
         const unresolvedPath =
-          args.kind === 'entry-point'
+          mappedPath ??
+          (args.kind === 'entry-point'
             ? normalizeExamplePath(args.path)
-            : resolveRelativePath(args.importer, args.path)
+            : resolveRelativePath(args.importer, args.path))
         const path = resolveWorkspacePath(unresolvedPath, files)
 
         if (!path) {

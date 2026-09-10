@@ -2245,6 +2245,7 @@ function getNpmChartTooltipContent(
     return {
       title,
       rows: points.map((point) => ({
+        active: point === context.primaryPoint,
         color: point.datum.color,
         label: point.groupLabel,
         value: formatValue(point),
@@ -2291,7 +2292,6 @@ function createNpmStatsChart(input: NpmStatsChartInput) {
       content: (points, context) =>
         getNpmChartTooltipContent(points, context, input),
       placement: ['top', 'right', 'left', 'bottom'],
-      sort: 'color-domain',
     },
   })
 }

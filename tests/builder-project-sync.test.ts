@@ -93,7 +93,7 @@ test('rejects unsendable project revisions before they enter the outbox', () => 
     initialFile: '/index.tsx',
     workspace: createExampleWorkspace({
       entry: '/index.tsx',
-      files: { '/index.tsx': 'a'.repeat(512 * 1024 + 1) },
+      files: { '/index.tsx': 'a'.repeat(1024 * 1024 + 1) },
     }),
   })
 

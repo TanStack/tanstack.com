@@ -1,0 +1,202 @@
+diff --git a/dist/core/internal.d.ts b/dist/core/internal.d.ts
+index dfebe5a6b45aede44bdd4b266208a13fb9b36b58..4a69f68500239ab58fc02d03495168edf2d358ad 100644
+--- a/dist/core/internal.d.ts
++++ b/dist/core/internal.d.ts
+@@ -22,7 +22,7 @@ export interface Hook {
+     n: Hook | null;
+ }
+ export interface Effect {
+-    t: 0 | 1;
++    t: 0 | 1 | 2;
+     c: () => any;
+ }
+ export interface Fiber {
+diff --git a/dist/dom/dispatcher.js b/dist/dom/dispatcher.js
+index 8323447dd1b5f73151359f66664090c76ed1ac37..fee14c3cb99dc887706e63f0e4bb350f41776f17 100644
+--- a/dist/dom/dispatcher.js
++++ b/dist/dom/dispatcher.js
+@@ -132,7 +132,31 @@ function makeDispatcherImpl() {
+       enqueueEffect(fiber, effect);
+     },
+     useInsertionEffect(create, deps) {
+-      return this.useLayoutEffect(create, deps);
++      const hook = nextHook();
++      const fiber = getCurrentFiber();
++      const prevDeps = hook.d;
++      if (prevDeps !== void 0 && depsEqual(prevDeps, deps)) return;
++      hook.d = deps;
++      const effect = {
++        t: 2,
++        c: () => {
++          if (hook.c) {
++            try {
++              hook.c();
++            } catch {
++            }
++            if (fiber.cu) {
++              const i = fiber.cu.indexOf(hook.c);
++              if (i >= 0) fiber.cu.splice(i, 1);
++            }
++            hook.c = null;
++          }
++          const c = create();
++          hook.c = typeof c == "function" ? c : null;
++          return hook.c;
++        }
++      };
++      enqueueEffect(fiber, effect);
+     },
+     useRef(initial) {
+       const hook = nextHook();
+diff --git a/dist/dom/reconcile.js b/dist/dom/reconcile.js
+index 3dde84206050a49f6cbb41825e9c9bd97d4ca3a1..7cb9f3a6c2653e3ca134d73a94f23d523cb9e750 100644
+--- a/dist/dom/reconcile.js
++++ b/dist/dom/reconcile.js
+@@ -792,7 +792,8 @@ function attachRef(fiber, value) {
+   const ref = fiber.ref ?? (fiber.pp?.ref ?? null);
+   if (!ref) return;
+   if (typeof ref == "function") {
+-    scheduleLifecycle(fiber, () => {
++    pendingRefs.push(() => {
++      if (fiber.um) return;
+       const cleanup = ref(value);
+       fiber.cu ||= [];
+       fiber.cu.push(typeof cleanup == "function" ? cleanup : () => ref(null));
+@@ -812,10 +813,14 @@ function detachRef(ref) {
+   }
+ }
+ var pendingEffects = [];
++var pendingInsertionEffects = [];
++var pendingRefs = [];
+ var pendingLayoutEffects = [];
+ var pendingLifecycles = [];
+ function enqueueEffect(fiber, effect) {
+-  if (effect.t) {
++  if (effect.t === 2) {
++    pendingInsertionEffects.push([fiber, effect]);
++  } else if (effect.t) {
+     pendingLayoutEffects.push([fiber, effect]);
+   } else {
+     pendingEffects.push([fiber, effect]);
+@@ -827,6 +832,20 @@ function scheduleLifecycle(fiber, fn) {
+   });
+ }
+ function runEffects(root) {
++  // Insertion effects prepare styles and event callbacks before refs attach.
++  // Layout effects can then measure the DOM through those refs.
++  while (pendingInsertionEffects.length) {
++    const [fiber, effect] = pendingInsertionEffects.shift();
++    runEffect(fiber, effect, root);
++  }
++  while (pendingRefs.length) {
++    const fn = pendingRefs.shift();
++    try {
++      fn();
++    } catch (e) {
++      if (root.ce) root.ce(e);
++    }
++  }
+   while (pendingLayoutEffects.length) {
+     const [fiber, effect] = pendingLayoutEffects.shift();
+     runEffect(fiber, effect, root);
+diff --git a/src/core/internal.ts b/src/core/internal.ts
+index 3ec9b40eb76582f29dfc461f46f31890a2d4b45f..db28a88be8d3e72edf0557dc24e028c72c048fd4 100644
+--- a/src/core/internal.ts
++++ b/src/core/internal.ts
+@@ -25,7 +25,7 @@ export interface Hook {
+ }
+ 
+ export interface Effect {
+-  t: 0 | 1
++  t: 0 | 1 | 2
+   c: () => any
+ }
+ 
+diff --git a/src/dom/dispatcher.ts b/src/dom/dispatcher.ts
+index 2eadebdd4a3d6d34a8ce7695588f3886c728d848..f747d3ce6011df93caa1dd5ea66e80fc193587c1 100644
+--- a/src/dom/dispatcher.ts
++++ b/src/dom/dispatcher.ts
+@@ -160,7 +160,30 @@ function makeDispatcherImpl() {
+     },
+ 
+     useInsertionEffect(create: () => any, deps?: ReadonlyArray<unknown>) {
+-      return this.useLayoutEffect(create, deps)
++      const hook = nextHook()
++      const fiber = getCurrentFiber()
++      const prevDeps = hook.d
++      if (prevDeps !== undefined && depsEqual(prevDeps, deps)) return
++      hook.d = deps
++      const effect: Effect = {
++        t: 2,
++        c: () => {
++          // Mirror useEffect: tear down the prior cleanup at run time so
++          // coalesced renders don't leak side-fx.
++          if (hook.c) {
++            try { hook.c() } catch {}
++            if (fiber.cu) {
++              const i = fiber.cu.indexOf(hook.c)
++              if (i >= 0) fiber.cu.splice(i, 1)
++            }
++            hook.c = null
++          }
++          const c = create()
++          hook.c = typeof c == 'function' ? c : null
++          return hook.c
++        },
++      }
++      enqueueEffect(fiber, effect)
+     },
+ 
+     useRef<T>(initial: T) {
+diff --git a/src/dom/reconcile.ts b/src/dom/reconcile.ts
+index ec054eec305a7be71a85549dc3daa91df12833de..83be6fa5833c333f91740bb6a1f751bb35cb40de 100644
+--- a/src/dom/reconcile.ts
++++ b/src/dom/reconcile.ts
+@@ -1180,7 +1180,8 @@ function attachRef(fiber: Fiber, value: any): void {
+     // (during the layout/commit phase), not during render. Calling them
+     // synchronously here breaks libraries that assert no event handlers run
+     // during render (e.g. base-ui's useStableCallback trampoline).
+-    scheduleLifecycle(fiber, () => {
++    pendingRefs.push(() => {
++      if (fiber.um) return
+       const cleanup = ref(value)
+       fiber.cu ||= []
+       fiber.cu.push(typeof cleanup == 'function' ? cleanup : () => ref(null))
+@@ -1210,11 +1211,15 @@ function detachRef(ref: any): void {
+ // ---------------------------------------------------------------------------
+ 
+ const pendingEffects: Array<[Fiber, Effect]> = []
++const pendingInsertionEffects: Array<[Fiber, Effect]> = []
++const pendingRefs: Array<() => void> = []
+ const pendingLayoutEffects: Array<[Fiber, Effect]> = []
+ const pendingLifecycles: Array<() => void> = []
+ 
+ export function enqueueEffect(fiber: Fiber, effect: Effect): void {
+-  if (effect.t) {
++  if (effect.t === 2) {
++    pendingInsertionEffects.push([fiber, effect])
++  } else if (effect.t) {
+     pendingLayoutEffects.push([fiber, effect])
+   } else {
+     pendingEffects.push([fiber, effect])
+@@ -1226,6 +1231,20 @@ export function scheduleLifecycle(fiber: Fiber, fn: () => void): void {
+ }
+ 
+ export function runEffects(root: FiberRoot): void {
++  // Insertion effects prepare styles and event callbacks before refs attach.
++  // Layout effects can then measure the DOM through those refs.
++  while (pendingInsertionEffects.length) {
++    const [fiber, effect] = pendingInsertionEffects.shift()!
++    runEffect(fiber, effect, root)
++  }
++  while (pendingRefs.length) {
++    const fn = pendingRefs.shift()!
++    try {
++      fn()
++    } catch (e) {
++      if (root.ce) root.ce(e)
++    }
++  }
+   // Layout fx synchronously
+   while (pendingLayoutEffects.length) {
+     const [fiber, effect] = pendingLayoutEffects.shift()!

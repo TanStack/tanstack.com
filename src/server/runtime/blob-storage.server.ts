@@ -1,6 +1,7 @@
 import { getHostRuntimeEnv, isIsolateRuntime } from './host.server'
 
 export type BlobStorageName =
+  | 'dashboardDemo'
   | 'githubContentCache'
   | 'builderProjects'
   | 'npmDownloadCache'
@@ -174,6 +175,8 @@ function readMetadataHeader(value: string | null) {
 
 function getRuntimeBindingName(name: BlobStorageName) {
   switch (name) {
+    case 'dashboardDemo':
+      return 'DASHBOARD_DEMO'
     case 'githubContentCache':
       return 'GITHUB_CONTENT_CACHE'
     case 'builderProjects':

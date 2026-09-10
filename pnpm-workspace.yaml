@@ -41,3 +41,4 @@ allowBuilds:
 
 patchedDependencies:
   '@tanstack/openai-base@0.10.11': patches/@tanstack__openai-base@0.10.11.patch
+  '@tanstack/redact@0.0.21': patches/@tanstack__redact@0.0.21.patch

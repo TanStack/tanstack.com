@@ -356,6 +356,7 @@ export const allMaintainers: Maintainer[] = [
   },
   {
     name: 'Sarah Gerrard',
+    isCoreMaintainer: true,
     avatar: 'https://github.com/ladybluenotes.png',
     github: 'ladybluenotes',
     creatorOf: ['intent'],
@@ -376,7 +377,7 @@ export const allMaintainers: Maintainer[] = [
       'virtual',
     ],
     frameworkExpertise: ['react', 'solid'],
-    specialties: ['Documentation', 'Architecture'],
+    specialties: ['Documentation', 'Architecture', 'Performance'],
     social: {
       bluesky: 'https://bsky.app/profile/ladybluenotes.dev',
       twitter: 'https://x.com/ladybluenotes',

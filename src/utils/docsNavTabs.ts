@@ -6,6 +6,7 @@ export const docsNavTabIds = [
   'get-started',
   'tutorial',
   'guides',
+  'adapters',
   'api',
   'examples',
 ] as const
@@ -17,6 +18,8 @@ export const docsNavTabs: Array<{ id: DocsNavTabId; label: string }> = [
   { id: 'get-started', label: 'Get Started' },
   { id: 'tutorial', label: 'Tutorial' },
   { id: 'guides', label: 'Guides' },
+  // Only shown for libraries whose docs config tags sections with it.
+  { id: 'adapters', label: 'Adapters' },
   { id: 'api', label: 'API' },
   { id: 'examples', label: 'Examples' },
 ]

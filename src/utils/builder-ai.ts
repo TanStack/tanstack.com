@@ -121,6 +121,19 @@ export async function* streamBuilderAiResponse(
 
   try {
     for await (const chunk of stream) {
+      // Provider reasoning signatures are for server-side continuation only.
+      if (chunk.type === 'REASONING_ENCRYPTED_VALUE') continue
+      if (chunk.type === 'STEP_FINISHED') {
+        yield {
+          type: chunk.type,
+          stepName: chunk.stepName,
+          ...(chunk.timestamp !== undefined
+            ? { timestamp: chunk.timestamp }
+            : {}),
+        }
+        continue
+      }
+
       if (chunk.type === 'TEXT_MESSAGE_START') {
         messageId = chunk.messageId
         message = ''
@@ -153,7 +166,8 @@ export async function* streamBuilderAiResponse(
 
       if (
         chunk.type === 'RUN_FINISHED' &&
-        chunk.finishReason !== 'tool_calls' &&
+        (chunk.metadata?.tanstack?.finishReason ?? chunk.finishReason) !==
+          'tool_calls' &&
         chunk.outcome?.type !== 'interrupt'
       ) {
         yield {
@@ -165,7 +179,8 @@ export async function* streamBuilderAiResponse(
 
       if (
         chunk.type === 'RUN_FINISHED' &&
-        (chunk.finishReason !== 'tool_calls' ||
+        ((chunk.metadata?.tanstack?.finishReason ?? chunk.finishReason) !==
+          'tool_calls' ||
           chunk.outcome?.type === 'interrupt')
       ) {
         sawTerminal = true

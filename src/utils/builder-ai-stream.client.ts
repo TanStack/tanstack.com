@@ -358,7 +358,10 @@ export async function runBuilderAiStream({
     }
     if (chunk.type === 'RUN_ERROR') throw new Error(chunk.message)
     if (chunk.type !== 'RUN_FINISHED') return
-    if (chunk.finishReason === 'tool_calls') {
+    if (
+      (chunk.metadata?.tanstack?.finishReason ?? chunk.finishReason) ===
+      'tool_calls'
+    ) {
       if (pendingResult) {
         throw new Error('Builder AI returned a partial execution result')
       }

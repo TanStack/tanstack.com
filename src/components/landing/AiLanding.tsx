@@ -44,7 +44,7 @@ export default function AiLanding() {
   return (
     <LibraryLandingShell
       libraryId="ai"
-      headline="AI building blocks for TypeScript. We build the hard parts, you keep the stack."
+      headline="AI building blocks for TypeScript. We build the hard parts, you keep your stack."
       description="TanStack AI is a TypeScript library for building AI features and agents. It ships the agent loop, provider adapters, durability, interrupts, sandboxes, and tools, and plugs into the server, database, and UI you already have."
       hero={<WriteOnceHero />}
       beforeActions={<LandingPromptBox heading="Skills" prompt={aiPrompt} />}
@@ -184,7 +184,7 @@ export default function AiLanding() {
           centered
           eyebrow="Start here"
           icon={<ArrowRightIcon aria-hidden="true" size={15} />}
-          title="Pick the page that matches your next hour."
+          title="Choose what you want to do next."
           body="Each one is a short guide with copyable code, not a tour."
         />
         <StartingPoints />

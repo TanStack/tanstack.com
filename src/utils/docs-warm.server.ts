@@ -6,10 +6,7 @@
  * triggering an on-request N+1 GitHub API call.
  */
 import { getCachedDocsArtifact } from './github-content-cache.server'
-import {
-  buildDocsManifest,
-  buildDocsPathManifest,
-} from './docs.functions'
+import { buildDocsManifest, buildDocsPathManifest } from './docs.functions'
 
 type DocsManifest = {
   paths: Array<string>

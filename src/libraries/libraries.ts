@@ -263,7 +263,7 @@ export const start: LibrarySlim = {
   tagline:
     'Full-stack Framework powered by TanStack Router for React and Solid',
   description:
-    'Full-document SSR, Streaming, Server Functions, bundling and more, powered by TanStack Router and Vite - Ready to deploy to your favorite hosting provider.',
+    'TanStack Start is a full-stack framework for React and Solid, with type-safe routing, server-side rendering, streaming, and server functions.',
   badge: 'RC',
   repo: 'tanstack/router',
   frameworks: ['react', 'solid'],

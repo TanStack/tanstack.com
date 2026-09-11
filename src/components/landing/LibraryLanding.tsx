@@ -371,14 +371,18 @@ export function LandingSectionIntro({
   action?: React.ReactNode
   body: React.ReactNode
   centered?: boolean
-  eyebrow: string
+  eyebrow?: string
   icon?: React.ReactNode
   title: string
 }) {
   return (
     <div className={centered ? 'mx-auto max-w-208 text-center' : 'max-w-168'}>
-      <LandingEyebrow icon={icon}>{eyebrow}</LandingEyebrow>
-      <h2 className="mt-6 text-ds-heading-1 md:text-ds-display-sm">{title}</h2>
+      {eyebrow ? <LandingEyebrow icon={icon}>{eyebrow}</LandingEyebrow> : null}
+      <h2
+        className={`text-ds-heading-1 md:text-ds-display-sm ${eyebrow ? 'mt-6' : ''}`}
+      >
+        {title}
+      </h2>
       <p className="mt-6 text-ds-body-sm text-text-primary/55 sm:text-ds-body-md">
         {body}
       </p>

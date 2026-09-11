@@ -605,7 +605,10 @@ export const BuilderAssistant = React.forwardRef<
       return
     }
 
-    const hydration = loadLatestBuilderAiCheckpoint(storageScope)
+    const hydration = loadLatestBuilderAiCheckpoint(
+      storageScope,
+      getExecutionRef.current(),
+    )
       .then(async (snapshot) => {
         if (!snapshot) return undefined
         const currentExecution = getExecutionRef.current()
@@ -1324,22 +1327,22 @@ export const BuilderAssistant = React.forwardRef<
         setError('The project changed after this checkpoint was created.')
         return
       }
-      if (
-        checkpoint.persisted &&
-        !(await builderAiCheckpointMatchesExecution(
+      const matchesExpected =
+        !checkpoint.persisted ||
+        (await builderAiCheckpointMatchesExecution(
           checkpoint.persisted,
           getExecution(),
         ))
-      ) {
-        await dismissRollbackCheckpoint()
-        setError('The project changed after this checkpoint was created.')
-        return
-      }
       if (
         generation !== checkpointHydrationGenerationRef.current ||
         rollbackCheckpointRef.current !== checkpoint
       )
         return
+      if (!matchesExpected) {
+        await dismissRollbackCheckpoint()
+        setError('The project changed after this checkpoint was created.')
+        return
+      }
       if (
         serializeBuilderAiExecution(getExecution()) !== expectedCurrentExecution
       ) {
@@ -2141,7 +2144,6 @@ export const BuilderAssistant = React.forwardRef<
       }
 
       if (response.changedFiles.length === 0 && !response.runtimeChanged) {
-        await discardValidatedCheckpoint()
         completeActivity()
         const assistantMessage = createTranscriptMessage(
           'assistant',
@@ -2161,6 +2163,7 @@ export const BuilderAssistant = React.forwardRef<
           )
           return 'error'
         }
+        await discardValidatedCheckpoint()
         await discardCheckpoint()
         return 'success'
       }
@@ -2192,7 +2195,6 @@ export const BuilderAssistant = React.forwardRef<
         return 'error'
       }
       completeActivity()
-      await discardValidatedCheckpoint()
       const assistantMessage = createTranscriptMessage(
         'assistant',
         response.message,
@@ -2213,6 +2215,7 @@ export const BuilderAssistant = React.forwardRef<
         )
         return 'error'
       }
+      await discardValidatedCheckpoint()
       await discardCheckpoint()
       return 'success'
     } catch (cause) {

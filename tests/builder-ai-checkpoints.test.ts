@@ -9,7 +9,11 @@ import {
   removeBuilderAiCheckpoint,
   updateBuilderAiCheckpointExpectedExecution,
 } from '../src/utils/builder-ai-checkpoints.client'
-import type { BuilderAiExecution } from '../src/utils/builder-ai'
+import {
+  parseBuilderAiExecution,
+  serializeBuilderAiExecution,
+  type BuilderAiExecution,
+} from '../src/utils/builder-ai'
 
 class MemoryStorage implements Storage {
   readonly values = new Map<string, string>()
@@ -116,9 +120,16 @@ class FakeOpenRequest {
 
 class FakeIndexedDb {
   readonly values = new Map<string, unknown>()
+  readonly legacyValues = new Map<string, unknown>()
 
-  open() {
-    const request = new FakeOpenRequest(new FakeDatabase(this.values))
+  open(name: string) {
+    const request = new FakeOpenRequest(
+      new FakeDatabase(
+        name === 'tanstack-builder-ai-checkpoints'
+          ? this.legacyValues
+          : this.values,
+      ),
+    )
     queueMicrotask(() => {
       request.onupgradeneeded?.()
       request.onsuccess?.()
@@ -172,6 +183,47 @@ test('builder AI checkpoints deduplicate, roll back, and stay LRU bounded', asyn
   Date.now = () => now
 
   try {
+    const legacyExecution = parseBuilderAiExecution(
+      createExecution('export default "legacy"'),
+    )
+    const legacySerialized = serializeBuilderAiExecution(legacyExecution)
+    const legacyBytes = new TextEncoder().encode(legacySerialized)
+    const legacyId = Array.from(
+      new Uint8Array(await crypto.subtle.digest('SHA-256', legacyBytes)),
+      (byte) => byte.toString(16).padStart(2, '0'),
+    ).join('')
+    const legacyIndex = JSON.stringify({
+      version: 1,
+      checkpoints: [
+        {
+          scope: 'legacy-project',
+          id: 'legacy-run',
+          createdAt: now,
+          lastAccessedAt: now,
+          sizeBytes: legacyBytes.byteLength,
+          executionId: legacyId,
+          expectedExecutionId: legacyId,
+        },
+      ],
+    })
+    localStorage.setItem('tanstack-builder-ai:checkpoints:v1', legacyIndex)
+    indexedDb.legacyValues.set(legacyId, legacySerialized)
+    assert.deepEqual(
+      (await loadLatestBuilderAiCheckpoint('legacy-project'))?.execution,
+      legacyExecution,
+    )
+    assert.equal(
+      localStorage.getItem('tanstack-builder-ai:checkpoints:v1'),
+      legacyIndex,
+    )
+    // An older tab can delete its own copy without removing the migrated checkpoint.
+    indexedDb.legacyValues.clear()
+    assert.deepEqual(
+      await loadBuilderAiCheckpoint('legacy-project', 'legacy-run'),
+      legacyExecution,
+    )
+    await removeBuilderAiCheckpoint('legacy-project', 'legacy-run')
+    localStorage.removeItem('tanstack-builder-ai:checkpoints:v1')
     const firstExecution = createExecution('export default "first"', {
       '/other.ts': 'export const other = true',
       '/index.tsx': 'export default "first"',
@@ -354,6 +406,27 @@ test('builder AI checkpoints deduplicate, roll back, and stay LRU bounded', asyn
     const recovered = await loadLatestBuilderAiCheckpoint('builder-recovery')
     assert.equal(recovered?.checkpoint.kind, 'validated')
     assert.deepEqual(recovered?.execution, validated)
+    now += 1
+    await createBuilderAiCheckpoint(
+      'builder-recovery',
+      'newer-unrelated',
+      firstExecution,
+    )
+    assert.equal(
+      (
+        await loadLatestBuilderAiCheckpoint(
+          'builder-recovery',
+          fallbackExecution,
+        )
+      )?.checkpoint.id,
+      'run:validated',
+    )
+    assert.equal(
+      await loadLatestBuilderAiCheckpoint('builder-recovery', validated),
+      undefined,
+    )
+    assert.equal(listBuilderAiCheckpoints('builder-recovery').length, 2)
+    await removeBuilderAiCheckpoint('builder-recovery', 'newer-unrelated')
     assert.equal(
       await loadLatestBuilderAiCheckpoint('another-owner'),
       undefined,

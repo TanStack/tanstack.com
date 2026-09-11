@@ -395,21 +395,22 @@ export const moderateShowcase = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     const moderator = await requireModerateShowcases()
 
-    // Get existing for audit log
-    const existing = await db
-      .select()
-      .from(showcases)
-      .where(eq(showcases.id, data.showcaseId))
-      .limit(1)
-
-    if (!existing[0]) {
-      throw new Error('Showcase not found')
-    }
-
-    const status: ShowcaseStatus =
-      data.action === 'approve' ? 'approved' : 'denied'
-
     await db.transaction(async (tx) => {
+      // Lock the current state before updating it or recording the audit.
+      const existing = await tx
+        .select()
+        .from(showcases)
+        .where(eq(showcases.id, data.showcaseId))
+        .limit(1)
+        .for('update')
+
+      if (!existing[0]) {
+        throw new Error('Showcase not found')
+      }
+
+      const status: ShowcaseStatus =
+        data.action === 'approve' ? 'approved' : 'denied'
+
       await tx
         .update(showcases)
         .set({
@@ -463,26 +464,27 @@ export const setShowcaseFeatured = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     const moderator = await requireModerateShowcases()
 
-    // Get existing for audit log
-    const existing = await db
-      .select()
-      .from(showcases)
-      .where(eq(showcases.id, data.showcaseId))
-      .limit(1)
-
-    if (!existing[0]) {
-      throw new Error('Showcase not found')
-    }
-
-    if (
-      data.isFeatured &&
-      (existing[0].status !== 'approved' ||
-        existing[0].placement !== 'showcase')
-    ) {
-      throw new Error('Only approved Showcase projects can be featured')
-    }
-
     await db.transaction(async (tx) => {
+      // Lock the current state before updating it or recording the audit.
+      const existing = await tx
+        .select()
+        .from(showcases)
+        .where(eq(showcases.id, data.showcaseId))
+        .limit(1)
+        .for('update')
+
+      if (!existing[0]) {
+        throw new Error('Showcase not found')
+      }
+
+      if (
+        data.isFeatured &&
+        (existing[0].status !== 'approved' ||
+          existing[0].placement !== 'showcase')
+      ) {
+        throw new Error('Only approved Showcase projects can be featured')
+      }
+
       await tx
         .update(showcases)
         .set({
@@ -641,6 +643,11 @@ export const adminUpdateShowcase = createServerFn({ method: 'POST' })
       )
     }
 
+    const isFeatured =
+      data.status === 'approved' &&
+      data.placement === 'showcase' &&
+      data.isFeatured
+
     // Update showcase
     await db.transaction(async (tx) => {
       const updated = await tx
@@ -658,10 +665,7 @@ export const adminUpdateShowcase = createServerFn({ method: 'POST' })
           status: data.status,
           placement: data.placement,
           reviewReason: data.reviewReason,
-          isFeatured:
-            data.status === 'approved' &&
-            data.placement === 'showcase' &&
-            data.isFeatured,
+          isFeatured,
           moderationNote: data.moderationNote ?? null,
           moderatedBy: moderator.userId,
           moderatedAt: new Date(),
@@ -705,7 +709,7 @@ export const adminUpdateShowcase = createServerFn({ method: 'POST' })
             status: data.status,
             placement: data.placement,
             reviewReason: data.reviewReason,
-            isFeatured: data.isFeatured,
+            isFeatured,
             voteScore: data.voteScore,
           },
         },

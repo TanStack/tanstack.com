@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises'
-import { parseArgs } from 'node:util'
+import { isDeepStrictEqual, parseArgs } from 'node:util'
 import postgres from 'postgres'
 import * as v from 'valibot'
 
@@ -47,9 +47,9 @@ try {
       const [rawActor] = await tx.unsafe(
         `SELECT EXISTS (
         SELECT 1 FROM users WHERE id = $1 AND (
-          capabilities && ARRAY['admin', 'moderate-showcases']::capability[] OR
+          capabilities::text::capability[] && ARRAY['admin', 'moderate-showcases']::capability[] OR
           EXISTS (SELECT 1 FROM role_assignments a JOIN roles r ON r.id = a.role_id
-            WHERE a.user_id = users.id AND r.capabilities && ARRAY['admin', 'moderate-showcases']::capability[])
+            WHERE a.user_id = users.id AND r.capabilities::text::capability[] && ARRAY['admin', 'moderate-showcases']::capability[])
         )) AS allowed`,
         [actorId],
       )
@@ -95,12 +95,28 @@ try {
             : 'denied'
           : 'approved'
       if (
+        row.name === item.name &&
+        new URL(row.url).href === new URL(item.url).href &&
         row.placement === item.placement &&
         row.status === status &&
         row.review_reason === item.reason
       ) {
-        unchanged++
-        continue
+        // A prior apply updates updated_at. Only treat that newer row as an
+        // idempotent replay when it still matches the persisted audit snapshot.
+        const [audit] = await tx.unsafe(
+          `SELECT details->'after' AS after FROM audit_logs
+           WHERE target_type = 'showcase' AND target_id = $1
+             AND details->>'source' = 'showcase-review-migration'
+           ORDER BY created_at DESC LIMIT 1`,
+          [item.id],
+        )
+        if (
+          row.updated_at <= new Date(item.reviewedAt) ||
+          isDeepStrictEqual(audit?.after, JSON.parse(JSON.stringify(raw)))
+        ) {
+          unchanged++
+          continue
+        }
       }
       if (
         row.name !== item.name ||
@@ -136,7 +152,7 @@ try {
         )
         await tx.unsafe(
           `INSERT INTO audit_logs (actor_id, action, target_type, target_id, details)
-          VALUES ($1, 'showcase.moderate', 'showcase', $2, $3::jsonb)`,
+          VALUES ($1, 'showcase.moderate', 'showcase', $2, $3::text::jsonb)`,
           [
             actorId,
             item.id,

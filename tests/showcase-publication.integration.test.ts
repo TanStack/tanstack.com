@@ -1,22 +1,25 @@
 import assert from 'node:assert/strict'
 import { createHmac, randomUUID } from 'node:crypto'
 import { test } from 'node:test'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import postgres from 'postgres'
 import { chromium } from 'playwright-core'
 
 // Opt in with an isolated local database and preview server. Never use production.
 const databaseUrl = process.env.SHOWCASE_TEST_DATABASE_URL
-const previewUrl = process.env.SHOWCASE_TEST_PREVIEW_URL
+const previewUrl = process.env.SHOWCASE_TEST_PREVIEW_URL?.replace(/\/+$/, '')
+const browserPath = process.env.SHOWCASE_TEST_BROWSER_PATH
 const secret = process.env.SHOWCASE_TEST_SESSION_SECRET
 
 test(
   'showcase placement, privacy, review controls, and resubmission',
   {
-    skip: !databaseUrl || !previewUrl || !secret,
+    skip: !databaseUrl || !previewUrl || !secret || !browserPath,
     timeout: 180_000,
   },
   async () => {
-    assert.ok(databaseUrl && previewUrl && secret)
+    assert.ok(databaseUrl && previewUrl && secret && browserPath)
     assert.equal(new URL(databaseUrl).hostname, '127.0.0.1')
     assert.equal(new URL(previewUrl).hostname, '127.0.0.1')
     const sql = postgres(databaseUrl, { max: 1 })
@@ -27,13 +30,12 @@ test(
     const hiddenId = randomUUID()
     const pendingId = randomUUID()
     const browser = await chromium.launch({
-      executablePath:
-        '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+      executablePath: browserPath,
       headless: true,
     })
     const context = await browser.newContext()
     await context.route('**/*', (route) =>
-      new URL(route.request().url()).origin === previewUrl
+      new URL(route.request().url()).origin === new URL(previewUrl).origin
         ? route.continue()
         : route.abort(),
     )
@@ -85,7 +87,7 @@ test(
       )
       assert.ok(!(await page.content()).includes('INTERNAL-NOTE-MUST-NOT-LEAK'))
       await page.screenshot({
-        path: '/private/tmp/showcase-curated-preview.png',
+        path: join(tmpdir(), 'showcase-curated-preview.png'),
         fullPage: true,
       })
 
@@ -108,12 +110,12 @@ test(
       assert.match((await outbound.getAttribute('rel')) || '', /ugc/)
       assert.match((await outbound.getAttribute('rel')) || '', /nofollow/)
       await page.screenshot({
-        path: '/private/tmp/showcase-community-preview.png',
+        path: join(tmpdir(), 'showcase-community-preview.png'),
         fullPage: true,
       })
       await page.setViewportSize({ width: 390, height: 844 })
       await page.screenshot({
-        path: '/private/tmp/showcase-community-mobile.png',
+        path: join(tmpdir(), 'showcase-community-mobile.png'),
         fullPage: true,
       })
       await page.setViewportSize({ width: 1280, height: 900 })
@@ -166,7 +168,7 @@ test(
         .getByLabel('Reason for this decision')
         .fill('The submitted destination needs correction.')
       await page.screenshot({
-        path: '/private/tmp/showcase-review-editor.png',
+        path: join(tmpdir(), 'showcase-review-editor.png'),
         fullPage: true,
       })
       await page.getByRole('button', { name: 'Save Changes' }).click()
@@ -223,13 +225,25 @@ test(
       assert.equal(edited.placement, 'private')
       assert.equal(edited.moderation_note, 'INTERNAL-NOTE-MUST-NOT-LEAK')
     } catch (error) {
-      console.error((await page.locator('body').innerText()).slice(-6000))
+      console.error(
+        await page
+          .locator('body')
+          .innerText({ timeout: 2000 })
+          .then((text) => text.slice(-6000))
+          .catch(() => 'Page diagnostics unavailable'),
+      )
       throw error
     } finally {
-      await browser.close()
-      await sql`DELETE FROM audit_logs WHERE actor_id IN (${ownerId}, ${moderatorId})`
-      await sql`DELETE FROM users WHERE id IN (${ownerId}, ${moderatorId})`
-      await sql.end()
+      try {
+        await browser.close()
+      } finally {
+        try {
+          await sql`DELETE FROM audit_logs WHERE actor_id IN (${ownerId}, ${moderatorId})`
+          await sql`DELETE FROM users WHERE id IN (${ownerId}, ${moderatorId})`
+        } finally {
+          await sql.end()
+        }
+      }
     }
   },
 )

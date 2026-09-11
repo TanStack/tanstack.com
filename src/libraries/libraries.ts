@@ -24,6 +24,7 @@ export const query: LibrarySlim = {
   corePackageName: '@tanstack/query-core',
   npmPackageNames: ['@tanstack/query-core', 'react-query'],
   availableVersions: ['v5', 'v4', 'v3'],
+  scarfId: '53afb586-3934-4624-a37a-e680c1528e17',
   defaultDocs: 'framework/react/overview',
   sitemap: {
     includeLandingPage: true,
@@ -208,6 +209,7 @@ export const router: LibrarySlim = {
   latestVersion: 'v1',
   latestBranch: 'main',
   availableVersions: ['v1'],
+  scarfId: '3d14fff2-f326-4929-b5e1-6ecf953d24f4',
   docsRoot: 'docs/router',
   sitemap: {
     includeLandingPage: true,
@@ -270,6 +272,7 @@ export const start: LibrarySlim = {
   availableVersions: ['v0'],
   corePackageName: '@tanstack/start-client-core',
   npmPackageNames: ['@tanstack/start-client-core'],
+  scarfId: 'b6e2134f-e805-401d-95c3-2a7765d49a3d',
   docsRoot: 'docs/start',
   defaultDocs: 'framework/react/overview',
   sitemap: {
@@ -310,6 +313,7 @@ export const table: LibrarySlim = {
   latestVersion: 'v9',
   latestBranch: 'main',
   availableVersions: ['v9', 'v8'],
+  scarfId: 'dc8b39e1-3fe9-4f3a-8e56-d4e2cf420a9e',
   defaultDocs: 'overview',
   sitemap: {
     includeLandingPage: true,
@@ -435,6 +439,7 @@ export const form: LibrarySlim = {
   latestVersion: 'v1',
   latestBranch: 'main',
   availableVersions: ['v1', 'alpha'],
+  scarfId: '72ec4452-5d77-427c-b44a-57515d2d83aa',
   sitemap: {
     includeLandingPage: true,
     includeDocsPages: true,
@@ -457,6 +462,7 @@ export const virtual: LibrarySlim = {
   latestVersion: 'v3',
   latestBranch: 'main',
   availableVersions: ['v3'],
+  scarfId: '32372eb1-91e0-48e7-8df1-4808a7be6b94',
   defaultDocs: 'introduction',
   legacyPackages: ['react-virtual'],
   sitemap: {
@@ -482,6 +488,7 @@ export const ranger: LibrarySlim = {
   latestVersion: 'v0',
   latestBranch: 'main',
   availableVersions: ['v0'],
+  scarfId: 'dd278e06-bb3f-420c-85c6-6e42d14d8f61',
   visible: false,
   sitemap: {
     includeLandingPage: true,
@@ -514,6 +521,7 @@ export const store: LibrarySlim = {
   latestVersion: 'v0',
   latestBranch: 'main',
   availableVersions: ['v0'],
+  scarfId: '302d0fef-cb3f-43c6-b45c-f055b9745edb',
   defaultDocs: 'overview',
   sitemap: {
     includeLandingPage: true,
@@ -539,6 +547,7 @@ export const pacer: LibrarySlim = {
   latestVersion: 'v0',
   latestBranch: 'main',
   availableVersions: ['v0'],
+  scarfId: '302d0fef-cb3f-43c6-b45c-f055b9745edb',
   defaultDocs: 'overview',
   sitemap: {
     includeLandingPage: true,
@@ -669,6 +678,7 @@ export const db: LibrarySlim = {
   latestVersion: 'v0',
   latestBranch: 'main',
   availableVersions: ['v0'],
+  scarfId: '302d0fef-cb3f-43c6-b45c-f055b9745edb',
   defaultDocs: 'overview',
   sitemap: {
     includeLandingPage: true,

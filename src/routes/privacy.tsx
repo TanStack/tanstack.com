@@ -85,10 +85,11 @@ function RouteComp() {
             page paths without query strings and referring website origins. We
             temporarily process IP addresses through ipapi.is to look up
             associated company networks. A network match does not identify a
-            person or confirm that a company uses TanStack. Encrypted IPs expire
-            within 24 hours, company lookup cache entries within seven days, and
-            activity records within 30 days. This tracker respects Do Not Track
-            and Global Privacy Control.
+            person or confirm that a company uses TanStack. Encrypted addresses
+            are held only for delivery and retries, and company lookups stop
+            after 24 hours. Our daily cleanup removes company cache entries
+            older than seven days and activity older than 30 days. This tracker
+            respects Do Not Track and Global Privacy Control.
           </p>
           <p>
             The Site uses cookies and similar tracking technologies to analyze

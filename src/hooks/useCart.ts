@@ -1,4 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useCartDrawerStore } from '~/components/shop/cartDrawerStore'
+import {
+  applyOptimisticAddToCart,
+  cartHasLines,
+  type AddToCartLineSnapshot,
+} from '~/utils/cart-optimistic'
 import {
   addToCart,
   applyDiscountCode,
@@ -7,7 +13,7 @@ import {
   removeDiscountCode,
   updateCartLine,
 } from '~/utils/shop.functions'
-import type { CartDetail, CartLineDetail } from '~/utils/shopify-queries'
+import type { CartDetail } from '~/utils/shopify-queries'
 
 /**
  * Shared React Query key for the current user's cart.
@@ -19,11 +25,17 @@ import type { CartDetail, CartLineDetail } from '~/utils/shopify-queries'
 export const CART_QUERY_KEY = ['shopify', 'cart'] as const
 
 /**
- * Mutation key shared across all cart-mutating hooks. Used by
- * `settleWhenIdle` to determine whether other cart mutations are still
+ * Mutation key shared across cart-mutating hooks other than add-to-cart.
+ * Used by `settleWhenIdle` to determine whether other cart mutations are still
  * in flight before triggering a background refetch.
  */
-const CART_MUTATION_KEY = ['shopify', 'cart', 'mutate'] as const
+export const CART_MUTATION_KEY = ['shopify', 'cart', 'mutate'] as const
+
+/**
+ * Distinct from `CART_MUTATION_KEY` (and not a prefix of it) so
+ * `useIsMutating` in the cart drawer matches add-to-cart only.
+ */
+export const CART_ADD_MUTATION_KEY = ['shopify', 'cart', 'add'] as const
 
 /**
  * Explicit in-flight counter. We don't rely on `queryClient.isMutating()`
@@ -55,15 +67,30 @@ function settleWhenIdle(qc: ReturnType<typeof useQueryClient>) {
   }
 }
 
+function openDrawerIfCartHasLines(cart: CartDetail | null | undefined) {
+  if (cartHasLines(cart)) useCartDrawerStore.getState().openDrawer()
+}
+
 /**
  * Read the current cart. Data is loader-seeded on shop routes, so there is
  * no hydration gap — components that call this render with real data on the
  * first frame. On non-shop routes the hook falls back to fetching on mount.
+ *
+ * After cartCreate the httpOnly cookie may not have landed on the immediate
+ * refetch. If Shopify says there is no cart but we already have lines in
+ * cache (optimistic or the mutation result), keep those lines.
  */
 export function useCart() {
-  const query = useQuery<CartDetail | null>({
+  const qc = useQueryClient()
+  const query = useQuery({
     queryKey: CART_QUERY_KEY,
-    queryFn: () => getCart(),
+    queryFn: async () => {
+      const cart = await getCart()
+      if (cart) return cart
+      const cached = qc.getQueryData<CartDetail | null>(CART_QUERY_KEY)
+      if (cartHasLines(cached)) return cached ?? null
+      return null
+    },
     staleTime: 30_000,
   })
 
@@ -78,24 +105,6 @@ export function useCart() {
   }
 }
 
-/**
- * Snapshot of the product/variant from the PDP, passed through to
- * onMutate so a full optimistic cart line can be rendered instantly.
- */
-type AddToCartLineSnapshot = {
-  productTitle: string
-  productHandle: string
-  variantTitle: string
-  price: { amount: string; currencyCode: string }
-  image: {
-    url: string
-    altText?: string | null
-    width?: number | null
-    height?: number | null
-  } | null
-  selectedOptions: Array<{ name: string; value: string }>
-}
-
 type AddToCartInput = {
   variantId: string
   quantity?: number
@@ -107,7 +116,7 @@ export function useAddToCart() {
   const qc = useQueryClient()
 
   return useMutation({
-    mutationKey: CART_MUTATION_KEY,
+    mutationKey: CART_ADD_MUTATION_KEY,
     mutationFn: (input: AddToCartInput) =>
       addToCart({
         data: { variantId: input.variantId, quantity: input.quantity ?? 1 },
@@ -115,65 +124,15 @@ export function useAddToCart() {
 
     onMutate: async (input) => {
       trackMutationStart()
-      const quantity = input.quantity ?? 1
       await qc.cancelQueries({ queryKey: CART_QUERY_KEY })
       const previous = qc.getQueryData<CartDetail | null>(CART_QUERY_KEY)
-
-      if (previous && input.line) {
-        const snap = input.line
-
-        // Does this variant already have a line in the cart?
-        const existingIdx = previous.lines.nodes.findIndex(
-          (l) => l.merchandise.id === input.variantId,
-        )
-
-        let nextLines: CartDetail['lines']['nodes']
-        if (existingIdx >= 0) {
-          nextLines = previous.lines.nodes.map((l, i) =>
-            i === existingIdx ? { ...l, quantity: l.quantity + quantity } : l,
-          )
-        } else {
-          const lineTotal = String(Number(snap.price.amount) * quantity)
-          nextLines = [
-            {
-              id: `optimistic-${Date.now()}`,
-              quantity,
-              merchandise: {
-                id: input.variantId,
-                title: snap.variantTitle,
-                availableForSale: true,
-                selectedOptions: snap.selectedOptions,
-                price: snap.price,
-                image: snap.image,
-                product: {
-                  handle: snap.productHandle,
-                  title: snap.productTitle,
-                },
-              },
-              cost: {
-                totalAmount: {
-                  amount: lineTotal,
-                  currencyCode: snap.price.currencyCode,
-                },
-              },
-            } as CartLineDetail,
-            ...previous.lines.nodes,
-          ]
-        }
-
-        qc.setQueryData<CartDetail | null>(CART_QUERY_KEY, {
-          ...previous,
-          totalQuantity: nextLines.reduce((s, l) => s + l.quantity, 0),
-          lines: { ...previous.lines, nodes: nextLines },
-        })
-      } else if (previous) {
-        // No snapshot — fall back to just bumping the count
-        qc.setQueryData<CartDetail | null>(CART_QUERY_KEY, {
-          ...previous,
-          totalQuantity: (previous.totalQuantity ?? 0) + quantity,
-        })
-      }
-
+      const next = applyOptimisticAddToCart(previous, {
+        variantId: input.variantId,
+        quantity: input.quantity ?? 1,
+        line: input.line,
+      })
+      qc.setQueryData(CART_QUERY_KEY, next)
+      openDrawerIfCartHasLines(next)
       return { previous }
     },
 
@@ -186,6 +145,7 @@ export function useAddToCart() {
     // totals) with the real server response.
     onSuccess: (cart) => {
       qc.setQueryData(CART_QUERY_KEY, cart)
+      openDrawerIfCartHasLines(cart)
     },
 
     onSettled: () => settleWhenIdle(qc),
@@ -210,7 +170,7 @@ export function useUpdateCartLine() {
             : line,
         )
         const nextQty = nextLines.reduce((sum, line) => sum + line.quantity, 0)
-        qc.setQueryData<CartDetail | null>(CART_QUERY_KEY, {
+        qc.setQueryData(CART_QUERY_KEY, {
           ...previous,
           totalQuantity: nextQty,
           lines: { ...previous.lines, nodes: nextLines },
@@ -243,7 +203,7 @@ export function useRemoveCartLine() {
           (line) => line.id !== input.lineId,
         )
         const nextQty = nextLines.reduce((sum, line) => sum + line.quantity, 0)
-        qc.setQueryData<CartDetail | null>(CART_QUERY_KEY, {
+        qc.setQueryData(CART_QUERY_KEY, {
           ...previous,
           totalQuantity: nextQty,
           lines: { ...previous.lines, nodes: nextLines },
@@ -288,7 +248,7 @@ export function useRemoveDiscountCode() {
       await qc.cancelQueries({ queryKey: CART_QUERY_KEY })
       const previous = qc.getQueryData<CartDetail | null>(CART_QUERY_KEY)
       if (previous) {
-        qc.setQueryData<CartDetail | null>(CART_QUERY_KEY, {
+        qc.setQueryData(CART_QUERY_KEY, {
           ...previous,
           discountCodes: [],
         })

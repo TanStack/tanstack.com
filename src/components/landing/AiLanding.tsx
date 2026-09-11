@@ -32,9 +32,6 @@ import {
   LibraryLandingShell,
 } from './LibraryLanding'
 
-const aiPrompt =
-  'Install the agent skills from the skills folder of https://github.com/TanStack/ai for my user, read them, then ask me what AI features I want to build, or suggest some.'
-
 // ponytail: the shared --landing-accent-ink is pure black, which reads badly on the
 // orange accent fill. Darken the fill instead and use white text on it.
 const accentFillClass =
@@ -47,7 +44,7 @@ export default function AiLanding() {
       headline="AI building blocks for TypeScript. We build the hard parts, you keep your stack."
       description="TanStack AI is a TypeScript library for building AI features and agents. It ships the agent loop, provider adapters, durability, interrupts, sandboxes, and tools, and plugs into the server, database, and UI you already have."
       hero={<WriteOnceHero />}
-      beforeActions={<LandingPromptBox heading="Skills" prompt={aiPrompt} />}
+      beforeActions={<LandingPromptBox />}
     >
       <LandingSection tone="accent">
         <LandingSectionIntro
@@ -66,7 +63,7 @@ export default function AiLanding() {
       </LandingSection>
 
       <LandingSection tone="ink">
-        <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
+        <div className="grid items-center gap-12 xl:grid-cols-[1.1fr_0.9fr] xl:gap-16">
           <LandingSectionIntro
             eyebrow="Typesafe models"
             icon={<PlugIcon aria-hidden="true" size={15} />}
@@ -78,14 +75,14 @@ export default function AiLanding() {
               </DocsLink>
             }
           />
-          <div className="min-w-0 lg:order-first">
+          <div className="min-w-0 xl:order-first">
             <ProviderWorkbench />
           </div>
         </div>
       </LandingSection>
 
       <LandingSection tone="raised">
-        <div className="grid items-center gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16">
+        <div className="grid items-center gap-12 xl:grid-cols-[0.92fr_1.08fr] xl:gap-16">
           <LandingSectionIntro
             eyebrow="We handle tools"
             icon={<BracketsCurlyIcon aria-hidden="true" size={15} />}
@@ -98,7 +95,7 @@ export default function AiLanding() {
       </LandingSection>
 
       <LandingSection tone="ink">
-        <div className="grid items-center gap-12 lg:grid-cols-[1.08fr_0.92fr] lg:gap-16">
+        <div className="grid items-center gap-12 xl:grid-cols-[1.08fr_0.92fr] xl:gap-16">
           <LandingSectionIntro
             eyebrow="You own the UI"
             icon={<LayoutIcon aria-hidden="true" size={15} />}
@@ -106,7 +103,7 @@ export default function AiLanding() {
             body="Text, thinking, tool calls and results all arrive as typed parts with their own state. Loop over the parts and render each one, or hand a component per part type to createChatHook and it picks the right one for you."
             action={<DocsLink to="ui/react">UI integrations</DocsLink>}
           />
-          <div className="min-w-0 lg:order-first">
+          <div className="min-w-0 xl:order-first">
             <MessageParts />
           </div>
         </div>
@@ -125,7 +122,7 @@ export default function AiLanding() {
       </LandingSection>
 
       <LandingSection tone="ink">
-        <div className="grid items-center gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:gap-16">
+        <div className="grid items-center gap-12 xl:grid-cols-[0.82fr_1.18fr] xl:gap-16">
           <LandingSectionIntro
             eyebrow="Durability you can move"
             icon={<HardDrivesIcon aria-hidden="true" size={15} />}
@@ -142,7 +139,7 @@ export default function AiLanding() {
       </LandingSection>
 
       <LandingSection tone="raised">
-        <div className="grid gap-12 lg:grid-cols-[0.78fr_1.22fr] lg:items-start lg:gap-16">
+        <div className="grid gap-12 xl:grid-cols-[0.78fr_1.22fr] xl:items-start xl:gap-16">
           <LandingSectionIntro
             eyebrow="We handle the hard parts"
             icon={<CubeIcon aria-hidden="true" size={15} />}
@@ -154,7 +151,7 @@ export default function AiLanding() {
       </LandingSection>
 
       <LandingSection tone="ink">
-        <div className="grid gap-12 lg:grid-cols-[0.78fr_1.22fr] lg:items-start lg:gap-16">
+        <div className="grid gap-12 xl:grid-cols-[0.78fr_1.22fr] xl:items-start xl:gap-16">
           <LandingSectionIntro
             eyebrow="Beyond chat"
             icon={<MicrophoneIcon aria-hidden="true" size={15} />}
@@ -167,7 +164,7 @@ export default function AiLanding() {
       </LandingSection>
 
       <LandingSection tone="raised">
-        <div className="grid gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:items-center lg:gap-16">
+        <div className="grid gap-12 xl:grid-cols-[0.82fr_1.18fr] xl:items-center xl:gap-16">
           <LandingSectionIntro
             eyebrow="Devtools"
             icon={<BugIcon aria-hidden="true" size={15} />}
@@ -193,48 +190,68 @@ export default function AiLanding() {
   )
 }
 
-const codeWindowClass =
-  'm-0 min-w-0 rounded-none border-0 [&>div:first-child]:rounded-none [&_pre]:max-h-104 [&_pre]:overflow-auto [&_pre]:rounded-none [&_pre]:text-[11px] [&_pre]:leading-5 sm:[&_pre]:text-xs'
+// Same treatment as Start's server-boundary graphic: light window, inset
+// rounded well. Nested `.dark` keeps highlight tokens on the well, not the page.
+const codeWellClass =
+  'dark scheme-dark m-0 min-w-0 overflow-hidden rounded-lg border-0 bg-ds-neutral-500 [&_pre]:overflow-x-auto [&_pre]:rounded-none [&_pre]:bg-transparent [&_pre]:p-4 [&_pre]:text-xs [&_pre]:leading-6'
+
+const codeSurfaceClass =
+  'scheme-dark overflow-x-auto rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-ds-mono-xs leading-6 text-white/65 [&_p]:whitespace-pre'
+
+function CodeWell({
+  children,
+  codeKey,
+  lang = 'ts',
+}: {
+  children: string
+  codeKey?: string
+  lang?: string
+}) {
+  return (
+    <div className="p-5">
+      <CodeBlock
+        key={codeKey}
+        className={codeWellClass}
+        showTypeCopyButton={false}
+      >
+        <code className={`language-${lang}`}>{children}</code>
+      </CodeBlock>
+    </div>
+  )
+}
 
 function CodeTabs({
-  preHeightClass,
   label,
   samples,
 }: {
   label: string
   samples: Array<{ code: string; file: string; name: string }>
-  preHeightClass: string
 }) {
   const [activeIndex, setActiveIndex] = React.useState(0)
   const sample = samples[activeIndex] ?? samples[0]
 
   return (
     <LandingWindow label={label}>
-      <div
-        className="flex gap-1 border-b border-border-subtle p-2"
-        role="group"
-        aria-label={label}
-      >
-        {samples.map((item, index) => (
-          <button
-            key={item.name}
-            type="button"
-            aria-pressed={index === activeIndex}
-            className="rounded-lg px-3 py-1.5 text-ds-label-sm text-text-primary/40 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-pressed:bg-[rgb(var(--landing-glow)/0.14)] aria-pressed:text-(--landing-accent-bright)"
-            onClick={() => setActiveIndex(index)}
-          >
-            {item.name}
-          </button>
-        ))}
+      <div className="border-b border-border-subtle px-4 pt-4">
+        <div
+          className="flex gap-5 overflow-x-auto"
+          role="group"
+          aria-label={label}
+        >
+          {samples.map((item, index) => (
+            <button
+              key={item.name}
+              type="button"
+              aria-pressed={index === activeIndex}
+              className="shrink-0 border-b-2 border-transparent pb-3 text-ds-label-sm text-text-primary/35 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-pressed:border-(--landing-accent) aria-pressed:text-text-primary"
+              onClick={() => setActiveIndex(index)}
+            >
+              {item.name}
+            </button>
+          ))}
+        </div>
       </div>
-      <CodeBlock
-        key={sample.name}
-        dataCodeTitle={sample.file}
-        className={`${codeWindowClass} ${preHeightClass}`}
-        showTypeCopyButton={false}
-      >
-        <code className="language-ts">{sample.code}</code>
-      </CodeBlock>
+      <CodeWell codeKey={sample.name}>{sample.code}</CodeWell>
     </LandingWindow>
   )
 }
@@ -350,13 +367,7 @@ function PersistenceContract() {
         ))}
       </div>
       <LandingWindow className="w-full max-w-184" label={snippet.file}>
-        <CodeBlock
-          key={store.name}
-          className={`${codeWindowClass} [&_pre]:h-88`}
-          showTypeCopyButton={false}
-        >
-          <code className="language-ts">{snippet.code}</code>
-        </CodeBlock>
+        <CodeWell codeKey={store.name}>{snippet.code}</CodeWell>
       </LandingWindow>
     </div>
   )
@@ -416,13 +427,7 @@ export function redisStream(request: Request): StreamDurability {
 ]
 
 function DurabilityTiers() {
-  return (
-    <CodeTabs
-      preHeightClass="[&_pre]:h-76"
-      label="stream durability"
-      samples={durabilityTiers}
-    />
-  )
+  return <CodeTabs label="stream durability" samples={durabilityTiers} />
 }
 
 const toolCallStates = [
@@ -705,24 +710,21 @@ function MessageParts() {
           ))}
         </div>
       </div>
-      <div className="border-t border-border-subtle bg-ds-neutral-500">
-        <div className="flex items-center gap-3 px-4 pt-3 font-ds-mono text-ds-mono-2xs text-white/60">
+      <div className="p-5">
+        <div className="mb-4 flex items-center gap-3 font-ds-mono text-ds-mono-2xs text-text-primary/50">
           <button
             type="button"
             role="switch"
             aria-checked={useHook}
             aria-label="createChatHook"
-            className="group relative h-5 w-9 shrink-0 rounded-full bg-white/15 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-checked:bg-(--landing-accent)"
+            className="group relative h-5 w-9 shrink-0 rounded-full bg-text-primary/15 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-checked:bg-(--landing-accent)"
             onClick={() => setUseHook((current) => !current)}
           >
             <span className="absolute top-0.5 left-0.5 size-4 rounded-full bg-white transition-transform group-aria-checked:translate-x-4" />
           </button>
           <span aria-hidden="true">createChatHook</span>
         </div>
-        <div
-          className="min-h-96 overflow-x-auto p-4 font-ds-mono text-ds-mono-xs leading-relaxed text-white/70"
-          aria-hidden="true"
-        >
+        <div className={codeSurfaceClass} aria-hidden="true">
           {code.map((line, index) => (
             <p
               key={index}
@@ -765,7 +767,7 @@ function ToolBoundary() {
             </button>
           ))}
         </div>
-        <div className="mt-5 min-h-52 overflow-x-auto rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-ds-mono-xs text-white/65">
+        <div className={`mt-5 rounded-lg ${codeSurfaceClass}`}>
           <p>
             <span className="text-pink-300">const</span> lookupInvoice =
             toolDefinition({'{'}
@@ -1551,14 +1553,12 @@ function WriteOnceHero() {
         }
 
   return (
-    <div className="grid w-full min-w-0 max-w-full items-start gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+    <div className="grid w-full min-w-0 max-w-full items-start gap-4 xl:grid-cols-[0.9fr_1.1fr]">
       <LandingWindow
         className="ring-2 ring-[rgb(var(--landing-glow)/0.35)]"
         label="tools.ts · written once"
       >
-        <CodeBlock className={codeWindowClass} showTypeCopyButton={false}>
-          <code className="language-ts">{heroTools}</code>
-        </CodeBlock>
+        <CodeWell>{heroTools}</CodeWell>
         <p className="border-t border-border-subtle px-4 py-3 text-ds-body-xs text-text-primary/40">
           This file never changes. Everything on the right is a destination for
           it.
@@ -1642,14 +1642,12 @@ function WriteOnceHero() {
             </button>
           ))}
         </div>
-        <CodeBlock
-          key={`${sample.name}-${provider.name}`}
-          dataCodeTitle={sample.file}
-          className={`${codeWindowClass} [&_pre]:h-76`}
-          showTypeCopyButton={false}
+        <CodeWell
+          codeKey={`${sample.name}-${provider.name}`}
+          lang={sample.lang}
         >
-          <code className={`language-${sample.lang}`}>{sample.code}</code>
-        </CodeBlock>
+          {sample.code}
+        </CodeWell>
       </LandingWindow>
     </div>
   )
@@ -1801,104 +1799,98 @@ function ProviderWorkbench() {
 
   return (
     <LandingWindow label="the types know the model">
-      <div className="grid sm:grid-cols-[13rem_1fr]">
-        <div
-          className="border-border-subtle p-3 sm:border-r"
-          role="group"
-          aria-label="Model"
-        >
-          {compilerModels.map((item, index) => (
-            <button
-              key={item.name}
-              type="button"
-              aria-pressed={index === activeIndex}
-              className="mb-1 block w-full rounded-lg px-3 py-2 text-left font-ds-mono text-ds-mono-2xs text-text-primary/35 hover:bg-text-primary/5 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-pressed:bg-[rgb(var(--landing-glow)/0.14)] aria-pressed:text-(--landing-accent-bright)"
-              onClick={() => setActiveIndex(index)}
-            >
-              {item.name}
-              <span className="mt-0.5 block text-text-primary/25">
-                {item.fn}
-              </span>
-            </button>
+      <div
+        className="flex flex-wrap gap-1 border-b border-border-subtle p-2"
+        role="group"
+        aria-label="Model"
+      >
+        {compilerModels.map((item, index) => (
+          <button
+            key={item.name}
+            type="button"
+            aria-pressed={index === activeIndex}
+            className="rounded-lg px-3 py-1.5 text-left font-ds-mono text-ds-mono-2xs text-text-primary/35 hover:bg-text-primary/5 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-pressed:bg-[rgb(var(--landing-glow)/0.14)] aria-pressed:text-(--landing-accent-bright)"
+            onClick={() => setActiveIndex(index)}
+          >
+            {item.name}
+          </button>
+        ))}
+      </div>
+      <div aria-live="polite" className="min-w-0 p-5">
+        <div className={codeSurfaceClass}>
+          <p>
+            <Kw>import</Kw> {'{ '}
+            {adapterName}
+            {' }'} <Kw>from</Kw> <Str>'{model.pkg}'</Str>
+          </p>
+          <p>&nbsp;</p>
+          <p>
+            <Kw>const</Kw> result = <Kw>await</Kw> <Fn>{model.fn}</Fn>({'{'}
+          </p>
+          <p>
+            &nbsp;&nbsp;adapter: <Fn>{adapterName}</Fn>(
+            <Str>'{model.name}'</Str>),
+          </p>
+          {model.setup.map((line) => (
+            <p key={line} className="whitespace-pre">
+              {'  '}
+              {line}
+              {line.endsWith('[') ? '' : ','}
+            </p>
           ))}
+          <p
+            className={
+              valid
+                ? ''
+                : 'underline decoration-red-400 decoration-wavy underline-offset-4'
+            }
+          >
+            &nbsp;&nbsp;{model.line(picked)},
+          </p>
+          <p>{'})'}</p>
         </div>
-        <div aria-live="polite" className="min-w-0">
-          <div className="overflow-x-auto bg-ds-neutral-500 p-4 font-ds-mono text-ds-mono-xs leading-relaxed text-white/70">
-            <p>
-              <Kw>import</Kw> {'{ '}
-              {adapterName}
-              {' }'} <Kw>from</Kw> <Str>'{model.pkg}'</Str>
+        <div className="mt-5">
+          <div className="flex items-center justify-between gap-3">
+            <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+              {model.field} for {model.name}
             </p>
-            <p>&nbsp;</p>
-            <p>
-              <Kw>const</Kw> result = <Kw>await</Kw> <Fn>{model.fn}</Fn>({'{'}
-            </p>
-            <p>
-              &nbsp;&nbsp;adapter: <Fn>{adapterName}</Fn>(
-              <Str>'{model.name}'</Str>),
-            </p>
-            {model.setup.map((line) => (
-              <p key={line} className="whitespace-pre">
-                {'  '}
-                {line}
-                {line.endsWith('[') ? '' : ','}
-              </p>
-            ))}
-            <p
-              className={
-                valid
-                  ? ''
-                  : 'underline decoration-red-400 decoration-wavy underline-offset-4'
-              }
+            <button
+              type="button"
+              aria-pressed={isBroken}
+              className="relative shrink-0 overflow-hidden rounded-full border border-(--landing-accent) px-3 py-1 font-ds-mono text-ds-mono-2xs text-(--landing-accent-bright) transition-colors before:absolute before:inset-y-0 before:w-1/2 before:bg-linear-to-r before:from-transparent before:via-white/25 before:to-transparent motion-safe:before:animate-shimmer hover:bg-[rgb(var(--landing-glow)/0.14)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-pressed:border-emerald-400/60 aria-pressed:text-emerald-400/90 aria-pressed:before:hidden"
+              onClick={() => setIsBroken((current) => !current)}
             >
-              &nbsp;&nbsp;{model.line(picked)},
-            </p>
-            <p>{'})'}</p>
+              {isBroken ? 'fix me' : 'break me'}
+            </button>
           </div>
-          <div className="border-t border-border-subtle p-4">
-            <div className="flex items-center justify-between gap-3">
-              <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
-                {model.field} for {model.name}
-              </p>
-              <button
-                type="button"
-                aria-pressed={isBroken}
-                className="relative shrink-0 overflow-hidden rounded-full border border-(--landing-accent) px-3 py-1 font-ds-mono text-ds-mono-2xs text-(--landing-accent-bright) transition-colors before:absolute before:inset-y-0 before:w-1/2 before:bg-linear-to-r before:from-transparent before:via-white/25 before:to-transparent motion-safe:before:animate-shimmer hover:bg-[rgb(var(--landing-glow)/0.14)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-pressed:border-emerald-400/60 aria-pressed:text-emerald-400/90 aria-pressed:before:hidden"
-                onClick={() => setIsBroken((current) => !current)}
+          <div className="mt-3 flex flex-wrap gap-2">
+            {model.allowed.map((value) => (
+              <span
+                key={value}
+                className="rounded-full border border-(--landing-accent) bg-[rgb(var(--landing-glow)/0.14)] px-3 py-1 font-ds-mono text-ds-mono-2xs text-(--landing-accent-bright)"
               >
-                {isBroken ? 'fix me' : 'break me'}
-              </button>
-            </div>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {model.allowed.map((value) => (
-                <span
-                  key={value}
-                  className="rounded-full border border-(--landing-accent) bg-[rgb(var(--landing-glow)/0.14)] px-3 py-1 font-ds-mono text-ds-mono-2xs text-(--landing-accent-bright)"
-                >
-                  {value}
-                </span>
-              ))}
-              {valid ? null : (
-                <span className="rounded-full border border-red-400/60 px-3 py-1 font-ds-mono text-ds-mono-2xs text-red-400/90 line-through">
-                  {picked}
-                </span>
-              )}
-            </div>
-            <p className="mt-3 text-ds-body-xs text-text-primary/40">
-              {model.note}
-            </p>
-            {valid ? (
-              <p className="mt-4 min-h-10 font-ds-mono text-ds-mono-2xs text-emerald-400/80">
-                ✓ no errors. '{picked}' is a valid {model.field} for{' '}
-                {model.name}.
-              </p>
-            ) : (
-              <p className="mt-4 min-h-10 font-ds-mono text-ds-mono-2xs text-red-400/90">
-                error TS2322: Type '{picked}' is not assignable to type '
-                {model.allowed.join(' | ')}'.
-              </p>
+                {value}
+              </span>
+            ))}
+            {valid ? null : (
+              <span className="rounded-full border border-red-400/60 px-3 py-1 font-ds-mono text-ds-mono-2xs text-red-400/90 line-through">
+                {picked}
+              </span>
             )}
           </div>
+          <p className="mt-3 text-ds-body-xs text-text-primary/40">
+            {model.note}
+          </p>
+          {valid ? (
+            <p className="mt-4 min-h-10 font-ds-mono text-ds-mono-2xs text-emerald-400/80">
+              ✓ no errors. '{picked}' is a valid {model.field} for {model.name}.
+            </p>
+          ) : (
+            <p className="mt-4 min-h-10 font-ds-mono text-ds-mono-2xs text-red-400/90">
+              error TS2322: Type '{picked}' is not assignable to type '
+              {model.allowed.join(' | ')}'.
+            </p>
+          )}
         </div>
       </div>
     </LandingWindow>

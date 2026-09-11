@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises'
-import { parseArgs } from 'node:util'
+import { isDeepStrictEqual, parseArgs } from 'node:util'
 import postgres from 'postgres'
 import * as v from 'valibot'
 
@@ -95,12 +95,28 @@ try {
             : 'denied'
           : 'approved'
       if (
+        row.name === item.name &&
+        new URL(row.url).href === new URL(item.url).href &&
         row.placement === item.placement &&
         row.status === status &&
         row.review_reason === item.reason
       ) {
-        unchanged++
-        continue
+        // A prior apply updates updated_at. Only treat that newer row as an
+        // idempotent replay when it still matches the persisted audit snapshot.
+        const [audit] = await tx.unsafe(
+          `SELECT details->'after' AS after FROM audit_logs
+           WHERE target_type = 'showcase' AND target_id = $1
+             AND details->>'source' = 'showcase-review-migration'
+           ORDER BY created_at DESC LIMIT 1`,
+          [item.id],
+        )
+        if (
+          row.updated_at <= new Date(item.reviewedAt) ||
+          isDeepStrictEqual(audit?.after, JSON.parse(JSON.stringify(raw)))
+        ) {
+          unchanged++
+          continue
+        }
       }
       if (
         row.name !== item.name ||
@@ -136,7 +152,7 @@ try {
         )
         await tx.unsafe(
           `INSERT INTO audit_logs (actor_id, action, target_type, target_id, details)
-          VALUES ($1, 'showcase.moderate', 'showcase', $2, $3::jsonb)`,
+          VALUES ($1, 'showcase.moderate', 'showcase', $2, $3::text::jsonb)`,
           [
             actorId,
             item.id,

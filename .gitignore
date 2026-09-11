@@ -37,3 +37,8 @@ test-results
 src/routeTree.gen.ts
 .og-preview/
 .readme-preview/
+
+# Isolated dashboard development database
+.dashboard-db/
+
+.dev.vars

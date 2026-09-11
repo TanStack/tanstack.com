@@ -67,6 +67,7 @@ import { Route as OauthTokenRouteImport } from './routes/oauth/token'
 import { Route as OauthRegisterRouteImport } from './routes/oauth/register'
 import { Route as OauthAuthorizeRouteImport } from './routes/oauth/authorize'
 import { Route as LibrariesFrameworkRouteImport } from './routes/libraries_.$framework'
+import { Route as ExamplesDashboardRouteImport } from './routes/examples.dashboard'
 import { Route as DsTypographyRouteImport } from './routes/ds.typography'
 import { Route as DsTakeoverRouteImport } from './routes/ds.takeover'
 import { Route as DsTabsRouteImport } from './routes/ds.tabs'
@@ -106,6 +107,7 @@ import { Route as AuthPopupSuccessRouteImport } from './routes/auth/popup-succes
 import { Route as AuthCliRouteImport } from './routes/auth/cli'
 import { Route as ApplicationStarterDocsRouteImport } from './routes/application-starter.docs'
 import { Route as ApiUploadthingRouteImport } from './routes/api/uploadthing'
+import { Route as ApiDashboardExportRouteImport } from './routes/api/dashboard-export'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as AdminNpmStatsRouteImport } from './routes/admin/npm-stats'
 import { Route as AdminLoginsRouteImport } from './routes/admin/logins'
@@ -510,6 +512,11 @@ const LibrariesFrameworkRoute = LibrariesFrameworkRouteImport.update({
   path: '/libraries/$framework',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ExamplesDashboardRoute = ExamplesDashboardRouteImport.update({
+  id: '/examples/dashboard',
+  path: '/examples/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DsTypographyRoute = DsTypographyRouteImport.update({
   id: '/typography',
   path: '/typography',
@@ -705,6 +712,11 @@ const ApplicationStarterDocsRoute = ApplicationStarterDocsRouteImport.update({
 const ApiUploadthingRoute = ApiUploadthingRouteImport.update({
   id: '/api/uploadthing',
   path: '/api/uploadthing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDashboardExportRoute = ApiDashboardExportRouteImport.update({
+  id: '/api/dashboard-export',
+  path: '/api/dashboard-export',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
@@ -1391,6 +1403,7 @@ export interface FileRoutesByFullPath {
   '/admin/logins': typeof AdminLoginsRoute
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
+  '/api/dashboard-export': typeof ApiDashboardExportRoute
   '/api/uploadthing': typeof ApiUploadthingRoute
   '/application-starter/docs': typeof ApplicationStarterDocsRoute
   '/auth/cli': typeof AuthCliRoute
@@ -1430,6 +1443,7 @@ export interface FileRoutesByFullPath {
   '/ds/tabs': typeof DsTabsRoute
   '/ds/takeover': typeof DsTakeoverRoute
   '/ds/typography': typeof DsTypographyRoute
+  '/examples/dashboard': typeof ExamplesDashboardRoute
   '/libraries/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
@@ -1595,6 +1609,7 @@ export interface FileRoutesByTo {
   '/admin/logins': typeof AdminLoginsRoute
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
+  '/api/dashboard-export': typeof ApiDashboardExportRoute
   '/api/uploadthing': typeof ApiUploadthingRoute
   '/application-starter/docs': typeof ApplicationStarterDocsRoute
   '/auth/cli': typeof AuthCliRoute
@@ -1634,6 +1649,7 @@ export interface FileRoutesByTo {
   '/ds/tabs': typeof DsTabsRoute
   '/ds/takeover': typeof DsTakeoverRoute
   '/ds/typography': typeof DsTypographyRoute
+  '/examples/dashboard': typeof ExamplesDashboardRoute
   '/libraries/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
@@ -1805,6 +1821,7 @@ export interface FileRoutesById {
   '/admin/logins': typeof AdminLoginsRoute
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
+  '/api/dashboard-export': typeof ApiDashboardExportRoute
   '/api/uploadthing': typeof ApiUploadthingRoute
   '/application-starter/docs': typeof ApplicationStarterDocsRoute
   '/auth/cli': typeof AuthCliRoute
@@ -1844,6 +1861,7 @@ export interface FileRoutesById {
   '/ds/tabs': typeof DsTabsRoute
   '/ds/takeover': typeof DsTakeoverRoute
   '/ds/typography': typeof DsTypographyRoute
+  '/examples/dashboard': typeof ExamplesDashboardRoute
   '/libraries_/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
@@ -2019,6 +2037,7 @@ export interface FileRouteTypes {
     | '/admin/logins'
     | '/admin/npm-stats'
     | '/admin/users'
+    | '/api/dashboard-export'
     | '/api/uploadthing'
     | '/application-starter/docs'
     | '/auth/cli'
@@ -2058,6 +2077,7 @@ export interface FileRouteTypes {
     | '/ds/tabs'
     | '/ds/takeover'
     | '/ds/typography'
+    | '/examples/dashboard'
     | '/libraries/$framework'
     | '/oauth/authorize'
     | '/oauth/register'
@@ -2223,6 +2243,7 @@ export interface FileRouteTypes {
     | '/admin/logins'
     | '/admin/npm-stats'
     | '/admin/users'
+    | '/api/dashboard-export'
     | '/api/uploadthing'
     | '/application-starter/docs'
     | '/auth/cli'
@@ -2262,6 +2283,7 @@ export interface FileRouteTypes {
     | '/ds/tabs'
     | '/ds/takeover'
     | '/ds/typography'
+    | '/examples/dashboard'
     | '/libraries/$framework'
     | '/oauth/authorize'
     | '/oauth/register'
@@ -2432,6 +2454,7 @@ export interface FileRouteTypes {
     | '/admin/logins'
     | '/admin/npm-stats'
     | '/admin/users'
+    | '/api/dashboard-export'
     | '/api/uploadthing'
     | '/application-starter/docs'
     | '/auth/cli'
@@ -2471,6 +2494,7 @@ export interface FileRouteTypes {
     | '/ds/tabs'
     | '/ds/takeover'
     | '/ds/typography'
+    | '/examples/dashboard'
     | '/libraries_/$framework'
     | '/oauth/authorize'
     | '/oauth/register'
@@ -2634,6 +2658,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   WorkshopsRoute: typeof WorkshopsRoute
   DotwellKnownOauthAuthorizationServerRoute: typeof DotwellKnownOauthAuthorizationServerRoute
+  ApiDashboardExportRoute: typeof ApiDashboardExportRoute
   ApiUploadthingRoute: typeof ApiUploadthingRoute
   AuthCliRoute: typeof AuthCliRoute
   AuthPopupSuccessRoute: typeof AuthPopupSuccessRoute
@@ -2643,6 +2668,7 @@ export interface RootRouteChildren {
   BuilderEsbuildRoute: typeof BuilderEsbuildRoute
   BuilderLlmsDottxtRoute: typeof BuilderLlmsDottxtRoute
   BuilderNewRoute: typeof BuilderNewRoute
+  ExamplesDashboardRoute: typeof ExamplesDashboardRoute
   LibrariesFrameworkRoute: typeof LibrariesFrameworkRoute
   OauthAuthorizeRoute: typeof OauthAuthorizeRoute
   OauthRegisterRoute: typeof OauthRegisterRoute
@@ -3101,6 +3127,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibrariesFrameworkRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/examples/dashboard': {
+      id: '/examples/dashboard'
+      path: '/examples/dashboard'
+      fullPath: '/examples/dashboard'
+      preLoaderRoute: typeof ExamplesDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ds/typography': {
       id: '/ds/typography'
       path: '/typography'
@@ -3372,6 +3405,13 @@ declare module '@tanstack/react-router' {
       path: '/api/uploadthing'
       fullPath: '/api/uploadthing'
       preLoaderRoute: typeof ApiUploadthingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard-export': {
+      id: '/api/dashboard-export'
+      path: '/api/dashboard-export'
+      fullPath: '/api/dashboard-export'
+      preLoaderRoute: typeof ApiDashboardExportRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/users': {
@@ -4647,6 +4687,7 @@ const rootRouteChildren: RootRouteChildren = {
   WorkshopsRoute: WorkshopsRoute,
   DotwellKnownOauthAuthorizationServerRoute:
     DotwellKnownOauthAuthorizationServerRoute,
+  ApiDashboardExportRoute: ApiDashboardExportRoute,
   ApiUploadthingRoute: ApiUploadthingRoute,
   AuthCliRoute: AuthCliRoute,
   AuthPopupSuccessRoute: AuthPopupSuccessRoute,
@@ -4656,6 +4697,7 @@ const rootRouteChildren: RootRouteChildren = {
   BuilderEsbuildRoute: BuilderEsbuildRoute,
   BuilderLlmsDottxtRoute: BuilderLlmsDottxtRoute,
   BuilderNewRoute: BuilderNewRoute,
+  ExamplesDashboardRoute: ExamplesDashboardRoute,
   LibrariesFrameworkRoute: LibrariesFrameworkRoute,
   OauthAuthorizeRoute: OauthAuthorizeRoute,
   OauthRegisterRoute: OauthRegisterRoute,

@@ -1,0 +1,166 @@
+import {
+  tableFeatures,
+  columnFilteringFeature,
+  globalFilteringFeature,
+  columnFacetingFeature,
+  columnGroupingFeature,
+  columnOrderingFeature,
+  columnPinningFeature,
+  columnSizingFeature,
+  columnResizingFeature,
+  columnVisibilityFeature,
+  rowSortingFeature,
+  rowSelectionFeature,
+  rowPaginationFeature,
+  rowExpandingFeature,
+  rowAggregationFeature,
+  createFilteredRowModel,
+  createSortedRowModel,
+  createGroupedRowModel,
+  createExpandedRowModel,
+  createPaginatedRowModel,
+  createFacetedRowModel,
+  createFacetedUniqueValues,
+  createFacetedMinMaxValues,
+  filterFn_includesString,
+  filterFn_inNumberRange,
+  filterFn_equalsString,
+  sortFn_basic,
+  sortFn_text,
+  aggregationFn_sum,
+  aggregationFn_mean,
+  type ColumnDef,
+} from '@tanstack/react-table'
+import { dollars, type RecordRow } from './model'
+
+export const gridFeatures = tableFeatures({
+  columnFilteringFeature,
+  globalFilteringFeature,
+  columnFacetingFeature,
+  columnGroupingFeature,
+  columnOrderingFeature,
+  columnPinningFeature,
+  columnSizingFeature,
+  columnResizingFeature,
+  columnVisibilityFeature,
+  rowSortingFeature,
+  rowSelectionFeature,
+  rowPaginationFeature,
+  rowExpandingFeature,
+  rowAggregationFeature,
+  filteredRowModel: createFilteredRowModel(),
+  sortedRowModel: createSortedRowModel(),
+  groupedRowModel: createGroupedRowModel(),
+  expandedRowModel: createExpandedRowModel(),
+  paginatedRowModel: createPaginatedRowModel(),
+  facetedRowModel: createFacetedRowModel(),
+  facetedUniqueValues: createFacetedUniqueValues(),
+  facetedMinMaxValues: createFacetedMinMaxValues(),
+  filterFns: {
+    includesString: filterFn_includesString,
+    inNumberRange: filterFn_inNumberRange,
+    equalsString: filterFn_equalsString,
+  },
+  sortFns: { basic: sortFn_basic, text: sortFn_text },
+  aggregationFns: { sum: aggregationFn_sum, mean: aggregationFn_mean },
+})
+
+export const gridColumns: ColumnDef<typeof gridFeatures, RecordRow>[] = [
+  {
+    id: 'select',
+    header: 'Select',
+    size: 46,
+    minSize: 46,
+    maxSize: 46,
+    enableHiding: false,
+    enableResizing: false,
+    enableSorting: false,
+    enableColumnFilter: false,
+    enableGrouping: false,
+  },
+  {
+    id: 'id',
+    accessorFn: (row) => row.id,
+    header: 'Trip ID',
+    size: 100,
+    sortFn: 'basic',
+    filterFn: 'inNumberRange',
+    enableGrouping: false,
+  },
+  {
+    id: 'pickup',
+    accessorFn: (row) => row.pickup.replace('T', ' '),
+    header: 'Pickup, NYC time',
+    size: 196,
+    sortFn: 'text',
+    filterFn: 'includesString',
+    enableGrouping: false,
+  },
+  {
+    id: 'day',
+    accessorFn: (row) => row.day,
+    header: 'Day',
+    size: 100,
+    sortFn: 'basic',
+    filterFn: 'inNumberRange',
+  },
+  {
+    id: 'borough',
+    accessorFn: (row) => row.borough,
+    header: 'Borough',
+    size: 145,
+    sortFn: 'text',
+    filterFn: 'equalsString',
+  },
+  {
+    id: 'zone',
+    accessorFn: (row) => row.zone,
+    header: 'Pickup zone',
+    size: 220,
+    sortFn: 'text',
+    filterFn: 'includesString',
+  },
+  {
+    id: 'minutes',
+    accessorFn: (row) => row.minutes,
+    header: 'Duration (min)',
+    size: 155,
+    sortFn: 'basic',
+    filterFn: 'inNumberRange',
+    aggregationFn: 'mean',
+    enableGrouping: false,
+  },
+  {
+    id: 'miles',
+    accessorFn: (row) => row.miles,
+    header: 'Miles',
+    size: 125,
+    sortFn: 'basic',
+    filterFn: 'inNumberRange',
+    aggregationFn: 'sum',
+    enableGrouping: false,
+  },
+  {
+    id: 'fareCents',
+    accessorFn: (row) => row.fareCents / 100,
+    header: 'Base fare ($)',
+    size: 145,
+    sortFn: 'basic',
+    filterFn: 'inNumberRange',
+    aggregationFn: 'sum',
+    enableGrouping: false,
+  },
+]
+
+export function formatGridValue(id: string, value: unknown) {
+  if (value == null) return ''
+  if (typeof value === 'number') {
+    if (id === 'fareCents') return dollars(Math.round(value * 100))
+    if (id === 'minutes' || id === 'miles')
+      return value.toLocaleString('en-US', { maximumFractionDigits: 1 })
+    if (id === 'day') return `Jan ${value}`
+  }
+  return String(value)
+}
+
+export { tripCsv } from './csv'

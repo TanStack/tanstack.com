@@ -15,9 +15,9 @@ import {
   type ChartPoint,
   type ChartTooltipContentContext,
 } from '@tanstack/charts'
-import { renderChartSvgWithResources } from '@tanstack/charts/svg/resources'
 import { tooltip } from '@tanstack/charts/tooltip'
-import { Chart } from '@tanstack/charts/react'
+import { Chart } from '~/components/charts/Chart'
+import { renderChartSvgWithResources } from '@tanstack/charts/svg/resources'
 import { GIFEncoder, applyPalette, quantize } from 'gifenc'
 import {
   CheckIcon,
@@ -2620,9 +2620,9 @@ function ChartFigure({
             ? 'npm download totals by package'
             : 'npm downloads by date'
         }
-        renderSvg={renderChartSvgWithResources}
-        onRender={({ svg }) => {
-          svgRef.current = svg
+        onRender={({ surface }) => {
+          if (!(surface.element instanceof SVGSVGElement)) return
+          svgRef.current = surface.element
           onRenderedChange(true)
         }}
       />

@@ -332,7 +332,7 @@ function isValidApiKey(value: unknown): value is string {
 function isBuilderAiRemoteProvider(
   value: string,
 ): value is BuilderAiRemoteProvider {
-  return value === 'openai' || value === 'anthropic'
+  return value === 'openai' || value === 'anthropic' || value === 'openrouter'
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

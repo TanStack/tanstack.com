@@ -83,8 +83,9 @@ export type LibraryLandingShellProps = {
   description: React.ReactNode
   headline: string
   hero: React.ReactNode
+  beforeActions?: React.ReactNode
   libraryId: LibraryLandingId
-  prompt: string
+  prompt?: string
   promptLabel?: string
 }
 
@@ -211,6 +212,7 @@ export function LibraryLandingShell({
   description,
   headline,
   hero,
+  beforeActions,
   libraryId,
   prompt,
   promptLabel,
@@ -246,9 +248,9 @@ export function LibraryLandingShell({
           }}
         />
 
-        <div className="relative mx-auto w-full max-w-[96rem] px-5 py-14 md:px-10 lg:px-12 lg:py-16 2xl:px-20">
-          <div className="grid items-start gap-12 xl:min-h-[29rem] xl:grid-cols-[minmax(25rem,0.82fr)_minmax(34rem,1.18fr)] xl:gap-10">
-            <div className="max-w-[35rem]">
+        <div className="relative mx-auto w-full max-w-384 px-5 py-14 md:px-10 lg:px-12 lg:py-16 2xl:px-20">
+          <div className="grid items-start gap-12 xl:min-h-116 xl:grid-cols-[minmax(25rem,0.82fr)_minmax(34rem,1.18fr)] xl:gap-10">
+            <div className="max-w-140">
               <div className="flex flex-wrap items-start gap-3">
                 <div>
                   <img
@@ -276,21 +278,25 @@ export function LibraryLandingShell({
                 ) : null}
               </div>
 
-              <p className="mt-10 max-w-[30rem] text-ds-heading-4 text-text-primary">
+              <p className="mt-10 max-w-120 text-ds-heading-4 text-text-primary">
                 {headline}
               </p>
-              <p className="mt-5 max-w-[34rem] text-ds-body-sm text-text-secondary sm:text-ds-body-md">
+              <p className="mt-5 max-w-136 text-ds-body-sm text-text-secondary sm:text-ds-body-md">
                 {description}
               </p>
 
-              <div className="mt-9 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-7">
+              {beforeActions}
+
+              <div
+                className={`${beforeActions ? 'mt-6' : 'mt-9'} flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-7`}
+              >
                 <Link
                   to="/$libraryId/$version/docs"
                   params={{
                     libraryId,
                     version: resolvedVersion,
                   }}
-                  className="inline-flex items-center gap-3 rounded-xl px-5 py-3 text-ds-label-lg text-[var(--landing-accent-ink)] shadow-[inset_-5px_-5px_7px_-5px_var(--landing-accent-muted),0_12px_24px_-14px_rgb(var(--landing-glow)/0.55)] transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] motion-reduce:transition-none dark:shadow-[inset_-5px_-5px_7px_-5px_var(--landing-accent-muted),0_12px_35px_rgb(var(--landing-glow)/0.2)]"
+                  className="inline-flex items-center gap-3 rounded-xl px-5 py-3 text-ds-label-lg text-(--landing-accent-ink) shadow-[inset_-5px_-5px_7px_-5px_var(--landing-accent-muted),0_12px_24px_-14px_rgb(var(--landing-glow)/0.55)] transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) motion-reduce:transition-none dark:shadow-[inset_-5px_-5px_7px_-5px_var(--landing-accent-muted),0_12px_35px_rgb(var(--landing-glow)/0.2)]"
                   style={{
                     backgroundImage:
                       'linear-gradient(105deg, var(--landing-cta-start), var(--landing-cta-end))',
@@ -299,11 +305,13 @@ export function LibraryLandingShell({
                   Docs
                   <ArrowRightIcon aria-hidden="true" size={20} weight="bold" />
                 </Link>
-                <LandingCopyPromptButton
-                  className="rounded-xl border-[var(--landing-accent)] bg-transparent px-5 py-3 font-ds-mono text-ds-mono-caps uppercase text-[var(--landing-accent-bright)] hover:border-[var(--landing-accent-bright)] hover:bg-[color:rgb(var(--landing-glow)/0.1)] sm:w-auto"
-                  label={promptLabel ?? 'Copy prompt'}
-                  prompt={prompt}
-                />
+                {prompt ? (
+                  <LandingCopyPromptButton
+                    className="rounded-xl border-(--landing-accent) bg-transparent px-5 py-3 font-ds-mono text-ds-mono-caps uppercase text-(--landing-accent-bright) hover:border-(--landing-accent-bright) hover:bg-[rgb(var(--landing-glow)/0.1)] sm:w-auto"
+                    label={promptLabel ?? 'Copy prompt'}
+                    prompt={prompt}
+                  />
+                ) : null}
               </div>
             </div>
 
@@ -337,7 +345,7 @@ export function LandingSection({
   tone?: 'accent' | 'ink' | 'raised'
 }) {
   const toneClassName = {
-    accent: 'border-border-subtle bg-[color:rgb(var(--landing-glow)/0.08)]',
+    accent: 'border-border-subtle bg-[rgb(var(--landing-glow)/0.08)]',
     ink: 'border-border-subtle bg-background-default',
     raised: 'border-border-subtle bg-background-subtle',
   }[tone]
@@ -347,18 +355,20 @@ export function LandingSection({
       id={id}
       className={`border-b px-5 py-16 md:px-10 lg:px-12 lg:py-20 2xl:px-20 ${toneClassName} ${className}`}
     >
-      <div className="mx-auto w-full max-w-[90rem]">{children}</div>
+      <div className="mx-auto w-full max-w-360">{children}</div>
     </section>
   )
 }
 
 export function LandingSectionIntro({
+  action,
   body,
   centered = false,
   eyebrow,
   icon,
   title,
 }: {
+  action?: React.ReactNode
   body: React.ReactNode
   centered?: boolean
   eyebrow: string
@@ -366,16 +376,13 @@ export function LandingSectionIntro({
   title: string
 }) {
   return (
-    <div
-      className={
-        centered ? 'mx-auto max-w-[52rem] text-center' : 'max-w-[42rem]'
-      }
-    >
+    <div className={centered ? 'mx-auto max-w-208 text-center' : 'max-w-168'}>
       <LandingEyebrow icon={icon}>{eyebrow}</LandingEyebrow>
       <h2 className="mt-6 text-ds-heading-1 md:text-ds-display-sm">{title}</h2>
       <p className="mt-6 text-ds-body-sm text-text-primary/55 sm:text-ds-body-md">
         {body}
       </p>
+      {action ? <div className="mt-5">{action}</div> : null}
     </div>
   )
 }
@@ -391,7 +398,7 @@ export function LandingWindow({
 }) {
   return (
     <div
-      className={`library-landing-graphic min-w-0 overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.45)] bg-background-surface shadow-[0_24px_70px_-28px_rgb(var(--landing-glow)/0.45)] dark:shadow-[inset_-3px_-4px_18px_-7px_var(--landing-accent),0_24px_70px_rgb(0_0_0/0.18)] ${className}`}
+      className={`library-landing-graphic min-w-0 overflow-hidden rounded-xl border border-[rgb(var(--landing-glow)/0.45)] bg-background-surface shadow-[0_24px_70px_-28px_rgb(var(--landing-glow)/0.45)] dark:shadow-[inset_-3px_-4px_18px_-7px_var(--landing-accent),0_24px_70px_rgb(0_0_0/0.18)] ${className}`}
     >
       <div className="flex items-center justify-between border-b border-border-subtle px-4 py-3">
         <div aria-hidden="true" className="flex gap-1.5">
@@ -418,7 +425,7 @@ function LandingWorkbench({
   const activeItem = config.items[activeIndex]
 
   return (
-    <div className="library-landing-graphic min-w-0 overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.45)] bg-background-surface shadow-[0_24px_70px_-28px_rgb(var(--landing-glow)/0.45)] dark:shadow-[inset_-3px_-4px_18px_-7px_var(--landing-accent),0_24px_70px_rgb(0_0_0/0.18)]">
+    <div className="library-landing-graphic min-w-0 overflow-hidden rounded-xl border border-[rgb(var(--landing-glow)/0.45)] bg-background-surface shadow-[0_24px_70px_-28px_rgb(var(--landing-glow)/0.45)] dark:shadow-[inset_-3px_-4px_18px_-7px_var(--landing-accent),0_24px_70px_rgb(0_0_0/0.18)]">
       <div className="flex items-center justify-between border-b border-border-subtle px-4 py-3">
         <div aria-hidden="true" className="flex gap-1.5">
           <span className="size-2.5 rounded-full bg-[#ff5f57]" />
@@ -430,7 +437,7 @@ function LandingWorkbench({
         </span>
       </div>
 
-      <div className="grid min-h-[22rem] lg:grid-cols-[1.08fr_0.82fr]">
+      <div className="grid min-h-88 lg:grid-cols-[1.08fr_0.82fr]">
         <div className="space-y-3 border-border-subtle p-4 lg:border-r">
           <div className="mb-4 flex flex-wrap items-center gap-2 font-ds-mono text-ds-mono-caps-xs uppercase">
             <span className="rounded-sm bg-emerald-500 px-2 py-1 text-emerald-950">
@@ -449,7 +456,7 @@ function LandingWorkbench({
                 key={item.key}
                 type="button"
                 aria-pressed={isActive}
-                className="block w-full rounded-lg border border-transparent bg-background-subtle p-4 text-left transition-colors hover:border-text-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[color:rgb(var(--landing-glow)/0.42)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.1)]"
+                className="block w-full rounded-lg border border-transparent bg-background-subtle p-4 text-left transition-colors hover:border-text-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-pressed:border-[rgb(var(--landing-glow)/0.42)] aria-pressed:bg-[rgb(var(--landing-glow)/0.1)]"
                 onClick={() => setActiveIndex(index)}
               >
                 <span className="flex items-start justify-between gap-4">
@@ -461,14 +468,14 @@ function LandingWorkbench({
                       {item.title}
                     </span>
                   </span>
-                  <span className="shrink-0 rounded bg-[var(--landing-accent)] px-2 py-1 font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-ink)]">
+                  <span className="shrink-0 rounded bg-(--landing-accent) px-2 py-1 font-ds-mono text-ds-mono-2xs text-(--landing-accent-ink)">
                     {item.badge}
                   </span>
                 </span>
                 <span className="mt-4 flex items-center gap-3">
                   <span className="h-1 flex-1 overflow-hidden rounded-full bg-text-primary/5">
                     <span
-                      className="block h-full rounded-full bg-[var(--landing-accent)] transition-[width] duration-500 motion-reduce:transition-none"
+                      className="block h-full rounded-full bg-(--landing-accent) transition-[width] duration-500 motion-reduce:transition-none"
                       style={{ width: `${item.activity}%` }}
                     />
                   </span>
@@ -508,7 +515,7 @@ function LandingWorkbench({
           <div className="mt-7" aria-live="polite">
             <p className="text-ds-heading-4">{config.detailTitle}</p>
             {activeItem ? (
-              <p className="mt-2 truncate font-ds-mono text-ds-mono-xs text-[var(--landing-accent-bright)]">
+              <p className="mt-2 truncate font-ds-mono text-ds-mono-xs text-(--landing-accent-bright)">
                 {activeItem.key}
               </p>
             ) : null}
@@ -559,7 +566,7 @@ function LandingStats({ libraryId }: { libraryId: LibraryLandingId }) {
   ]
 
   return (
-    <div className="mx-auto mt-12 grid w-full max-w-[44rem] overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.22)] bg-background-surface sm:grid-cols-3">
+    <div className="mx-auto mt-12 grid w-full max-w-176 overflow-hidden rounded-xl border border-[rgb(var(--landing-glow)/0.22)] bg-background-surface sm:grid-cols-3">
       {metrics.map((metric) => {
         const Icon = metric.icon
 
@@ -569,11 +576,11 @@ function LandingStats({ libraryId }: { libraryId: LibraryLandingId }) {
             href={metric.href}
             target="_blank"
             rel="noreferrer"
-            className="group flex items-center gap-4 border-b border-border-subtle px-5 py-4 last:border-b-0 hover:bg-text-primary/[0.025] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--landing-accent-bright)] sm:border-r sm:border-b-0 sm:last:border-r-0"
+            className="group flex items-center gap-4 border-b border-border-subtle px-5 py-4 last:border-b-0 hover:bg-text-primary/[0.025] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--landing-accent-bright) sm:border-r sm:border-b-0 sm:last:border-r-0"
           >
             <Icon
               aria-hidden="true"
-              className="shrink-0 text-[var(--landing-accent-bright)]"
+              className="shrink-0 text-(--landing-accent-bright)"
               size={24}
               weight="light"
             />
@@ -581,7 +588,7 @@ function LandingStats({ libraryId }: { libraryId: LibraryLandingId }) {
               <span className="block text-ds-heading-4 text-text-primary/65 tabular-nums transition-colors group-hover:text-text-primary">
                 {metric.value}
               </span>
-              <span className="mt-1 block font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
+              <span className="mt-1 block font-ds-mono text-ds-mono-caps-xs uppercase text-(--landing-accent-bright)">
                 {metric.label}
               </span>
             </span>
@@ -617,7 +624,7 @@ function FeatureSection({
 
   return (
     <section className="border-b border-border-subtle bg-background-default px-5 py-16 md:px-10 lg:px-12 lg:py-20 2xl:px-20">
-      <div className="mx-auto w-full max-w-[96rem]">
+      <div className="mx-auto w-full max-w-384">
         <LandingEyebrow
           icon={<ArrowsClockwiseIcon aria-hidden="true" size={14} />}
         >
@@ -645,7 +652,7 @@ function FeatureSection({
                   aria-controls={tabPanelId}
                   aria-selected={index === activeIndex}
                   tabIndex={index === activeIndex ? 0 : -1}
-                  className="inline-flex shrink-0 items-center gap-3 whitespace-nowrap border-b border-border-default pb-4 text-left font-ds-display text-ds-heading-5 text-text-muted transition-colors hover:text-text-primary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-selected:border-[var(--landing-accent-bright)] aria-selected:text-[var(--landing-accent-bright)] lg:text-ds-heading-3"
+                  className="inline-flex shrink-0 items-center gap-3 whitespace-nowrap border-b border-border-default pb-4 text-left font-ds-display text-ds-heading-5 text-text-muted transition-colors hover:text-text-primary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-selected:border-(--landing-accent-bright) aria-selected:text-(--landing-accent-bright) lg:text-ds-heading-3"
                   onClick={() => setActiveIndex(index)}
                   onKeyDown={(event) => {
                     let nextIndex: number | undefined
@@ -684,12 +691,12 @@ function FeatureSection({
             id={tabPanelId}
             role="tabpanel"
             aria-labelledby={`${libraryId}-feature-${activeIndex}`}
-            className="flex min-h-[18rem] flex-col justify-between rounded-xl border border-[color:rgb(var(--landing-glow)/0.34)] bg-[color:rgb(var(--landing-glow)/0.14)] px-7 py-8 md:px-12 md:py-10 lg:px-16"
+            className="flex min-h-72 flex-col justify-between rounded-xl border border-[rgb(var(--landing-glow)/0.34)] bg-[rgb(var(--landing-glow)/0.14)] px-7 py-8 md:px-12 md:py-10 lg:px-16"
           >
-            <h2 className="max-w-[41rem] text-ds-heading-1 md:text-ds-display-sm">
+            <h2 className="max-w-164 text-ds-heading-1 md:text-ds-display-sm">
               {activeFeature.title}
             </h2>
-            <p className="mt-12 max-w-[34rem] text-ds-body-md text-[var(--landing-accent-muted)] md:text-ds-body-lg">
+            <p className="mt-12 max-w-136 text-ds-body-md text-(--landing-accent-muted) md:text-ds-body-lg">
               {activeFeature.body}
             </p>
           </div>
@@ -706,8 +713,8 @@ function LifecycleSection({
 }) {
   return (
     <section className="border-b border-border-subtle bg-background-subtle px-5 py-16 md:px-10 lg:px-12 lg:py-20 2xl:px-20">
-      <div className="mx-auto grid w-full max-w-[90rem] items-center gap-14 lg:grid-cols-[minmax(18rem,0.9fr)_minmax(32rem,1.1fr)] lg:gap-16">
-        <div className="max-w-[36rem]">
+      <div className="mx-auto grid w-full max-w-360 items-center gap-14 lg:grid-cols-[minmax(18rem,0.9fr)_minmax(32rem,1.1fr)] lg:gap-16">
+        <div className="max-w-144">
           <LandingEyebrow
             icon={<ArrowsClockwiseIcon aria-hidden="true" size={14} />}
           >
@@ -716,7 +723,7 @@ function LifecycleSection({
           <h2 className="mt-8 text-ds-display-sm md:text-ds-display-md">
             {lifecycle.title}
           </h2>
-          <p className="mt-7 max-w-[34rem] text-ds-body-sm text-text-primary/55">
+          <p className="mt-7 max-w-136 text-ds-body-sm text-text-primary/55">
             {lifecycle.body}
           </p>
         </div>
@@ -725,13 +732,13 @@ function LifecycleSection({
           {lifecycle.steps.map((step, index) => (
             <div
               key={step.label}
-              className="min-h-[11.75rem] border-b border-border-default p-6 sm:[&:nth-child(odd)]:border-r"
+              className="min-h-47 border-b border-border-default p-6 sm:[&:nth-child(odd)]:border-r"
             >
               <p
                 className={
                   index === 0
-                    ? 'font-ds-display text-ds-display-md text-[var(--landing-accent-muted)]'
-                    : 'font-ds-display text-ds-display-md text-[var(--landing-accent-bright)]'
+                    ? 'font-ds-display text-ds-display-md text-(--landing-accent-muted)'
+                    : 'font-ds-display text-ds-display-md text-(--landing-accent-bright)'
                 }
               >
                 {index + 1}
@@ -753,19 +760,19 @@ function FlowSection({ flow }: { flow: LibraryLandingConfig['flow'] }) {
   const branchStep = flow.steps[3]
 
   return (
-    <section className="min-h-[37.5rem] border-b border-border-subtle bg-background-default px-5 py-16 md:px-10 lg:px-12 lg:py-20 2xl:px-20">
-      <div className="mx-auto flex w-full max-w-[70rem] flex-col items-center text-center">
+    <section className="min-h-150 border-b border-border-subtle bg-background-default px-5 py-16 md:px-10 lg:px-12 lg:py-20 2xl:px-20">
+      <div className="mx-auto flex w-full max-w-280 flex-col items-center text-center">
         <LandingEyebrow icon={<SwapIcon aria-hidden="true" size={16} />}>
           {flow.label}
         </LandingEyebrow>
-        <h2 className="mt-6 max-w-[47rem] text-ds-heading-1 md:text-ds-display-sm">
+        <h2 className="mt-6 max-w-188 text-ds-heading-1 md:text-ds-display-sm">
           {flow.title}
         </h2>
-        <p className="mt-6 max-w-[47rem] text-ds-body-sm text-text-primary/45">
+        <p className="mt-6 max-w-188 text-ds-body-sm text-text-primary/45">
           {flow.body}
         </p>
 
-        <div className="mt-14 w-full max-w-[58rem]">
+        <div className="mt-14 w-full max-w-232">
           <div className="flex flex-col items-stretch gap-3 lg:flex-row lg:items-center lg:gap-0">
             {primarySteps.map((step, index) => (
               <React.Fragment key={step.label}>
@@ -773,7 +780,7 @@ function FlowSection({ flow }: { flow: LibraryLandingConfig['flow'] }) {
                 {index < primarySteps.length - 1 ? (
                   <span
                     aria-hidden="true"
-                    className="mx-auto h-7 w-px bg-[color:rgb(var(--landing-glow)/0.7)] lg:h-px lg:w-10"
+                    className="mx-auto h-7 w-px bg-[rgb(var(--landing-glow)/0.7)] lg:h-px lg:w-10"
                   />
                 ) : null}
               </React.Fragment>
@@ -785,7 +792,7 @@ function FlowSection({ flow }: { flow: LibraryLandingConfig['flow'] }) {
               <div className="flex flex-col items-center">
                 <span
                   aria-hidden="true"
-                  className="h-8 border-l border-dashed border-[var(--landing-accent)]"
+                  className="h-8 border-l border-dashed border-(--landing-accent)"
                 />
                 <FlowStep accent step={branchStep} />
               </div>
@@ -808,15 +815,15 @@ function FlowStep({
     <div
       className={
         accent
-          ? 'min-w-0 rounded-3xl border border-[var(--landing-accent)] bg-[var(--landing-accent-dark)] px-5 py-4 text-left text-[var(--landing-accent-ink)] lg:min-w-[12rem]'
-          : 'min-w-0 flex-1 rounded-3xl border border-[var(--landing-accent)] bg-background-subtle px-5 py-4 text-left lg:min-w-[12rem]'
+          ? 'min-w-0 rounded-3xl border border-(--landing-accent) bg-(--landing-accent-dark) px-5 py-4 text-left text-(--landing-accent-ink) lg:min-w-48'
+          : 'min-w-0 flex-1 rounded-3xl border border-(--landing-accent) bg-background-subtle px-5 py-4 text-left lg:min-w-48'
       }
     >
       <p
         className={
           accent
-            ? 'font-ds-mono text-ds-mono-caps uppercase text-[var(--landing-accent-ink)]'
-            : 'font-ds-mono text-ds-mono-caps uppercase text-[var(--landing-accent-bright)]'
+            ? 'font-ds-mono text-ds-mono-caps uppercase text-(--landing-accent-ink)'
+            : 'font-ds-mono text-ds-mono-caps uppercase text-(--landing-accent-bright)'
         }
       >
         {step.label}
@@ -836,7 +843,7 @@ export function LandingEyebrow({
   icon?: React.ReactNode
 }) {
   return (
-    <p className="inline-flex items-center gap-2 font-ds-mono text-ds-mono-caps uppercase text-[var(--landing-accent-bright)]">
+    <p className="inline-flex items-center gap-2 font-ds-mono text-ds-mono-caps uppercase text-(--landing-accent-bright)">
       {icon}
       {children}
     </p>

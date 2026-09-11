@@ -32,9 +32,6 @@ import {
   LibraryLandingShell,
 } from './LibraryLanding'
 
-const aiPrompt =
-  'Install the agent skills from the skills folder of https://github.com/TanStack/ai for my user, read them, then ask me what AI features I want to build, or suggest some.'
-
 // ponytail: the shared --landing-accent-ink is pure black, which reads badly on the
 // orange accent fill. Darken the fill instead and use white text on it.
 const accentFillClass =
@@ -47,7 +44,7 @@ export default function AiLanding() {
       headline="AI building blocks for TypeScript. We build the hard parts, you keep your stack."
       description="TanStack AI is a TypeScript library for building AI features and agents. It ships the agent loop, provider adapters, durability, interrupts, sandboxes, and tools, and plugs into the server, database, and UI you already have."
       hero={<WriteOnceHero />}
-      beforeActions={<LandingPromptBox heading="Skills" prompt={aiPrompt} />}
+      beforeActions={<LandingPromptBox />}
     >
       <LandingSection tone="accent">
         <LandingSectionIntro

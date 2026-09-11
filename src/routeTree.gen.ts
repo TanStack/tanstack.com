@@ -35,6 +35,7 @@ import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as EthosRouteImport } from './routes/ethos'
 import { Route as DsRouteImport } from './routes/ds'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CommunityProjectsRouteImport } from './routes/community-projects'
 import { Route as BuilderRouteImport } from './routes/builder'
 import { Route as BrandGuideRouteImport } from './routes/brand-guide'
 import { Route as BlogRouteImport } from './routes/blog'
@@ -349,6 +350,11 @@ const DsRoute = DsRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommunityProjectsRoute = CommunityProjectsRouteImport.update({
+  id: '/community-projects',
+  path: '/community-projects',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BuilderRoute = BuilderRouteImport.update({
@@ -1352,6 +1358,7 @@ export interface FileRoutesByFullPath {
   '/blog': typeof BlogRouteWithChildren
   '/brand-guide': typeof BrandGuideRoute
   '/builder': typeof BuilderRoute
+  '/community-projects': typeof CommunityProjectsRoute
   '/dashboard': typeof DashboardRoute
   '/ds': typeof DsRouteWithChildren
   '/ethos': typeof EthosRoute
@@ -1560,6 +1567,7 @@ export interface FileRoutesByTo {
   '/ads': typeof AdsRoute
   '/brand-guide': typeof BrandGuideRoute
   '/builder': typeof BuilderRoute
+  '/community-projects': typeof CommunityProjectsRoute
   '/dashboard': typeof DashboardRoute
   '/ethos': typeof EthosRoute
   '/explore': typeof ExploreRoute
@@ -1766,6 +1774,7 @@ export interface FileRoutesById {
   '/blog': typeof BlogRouteWithChildren
   '/brand-guide': typeof BrandGuideRoute
   '/builder': typeof BuilderRoute
+  '/community-projects': typeof CommunityProjectsRoute
   '/dashboard': typeof DashboardRoute
   '/ds': typeof DsRouteWithChildren
   '/ethos': typeof EthosRoute
@@ -1980,6 +1989,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/brand-guide'
     | '/builder'
+    | '/community-projects'
     | '/dashboard'
     | '/ds'
     | '/ethos'
@@ -2188,6 +2198,7 @@ export interface FileRouteTypes {
     | '/ads'
     | '/brand-guide'
     | '/builder'
+    | '/community-projects'
     | '/dashboard'
     | '/ethos'
     | '/explore'
@@ -2393,6 +2404,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/brand-guide'
     | '/builder'
+    | '/community-projects'
     | '/dashboard'
     | '/ds'
     | '/ethos'
@@ -2607,6 +2619,7 @@ export interface RootRouteChildren {
   BlogRoute: typeof BlogRouteWithChildren
   BrandGuideRoute: typeof BrandGuideRoute
   BuilderRoute: typeof BuilderRoute
+  CommunityProjectsRoute: typeof CommunityProjectsRoute
   DashboardRoute: typeof DashboardRoute
   DsRoute: typeof DsRouteWithChildren
   EthosRoute: typeof EthosRoute
@@ -2875,6 +2888,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/community-projects': {
+      id: '/community-projects'
+      path: '/community-projects'
+      fullPath: '/community-projects'
+      preLoaderRoute: typeof CommunityProjectsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/builder': {
@@ -4619,6 +4639,7 @@ const rootRouteChildren: RootRouteChildren = {
   BlogRoute: BlogRouteWithChildren,
   BrandGuideRoute: BrandGuideRoute,
   BuilderRoute: BuilderRoute,
+  CommunityProjectsRoute: CommunityProjectsRoute,
   DashboardRoute: DashboardRoute,
   DsRoute: DsRouteWithChildren,
   EthosRoute: EthosRoute,

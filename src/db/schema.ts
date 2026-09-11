@@ -46,6 +46,7 @@ import {
   DOC_FEEDBACK_TYPES,
   DOC_FEEDBACK_STATUSES,
   SHOWCASE_STATUSES,
+  SHOWCASE_PLACEMENTS,
   SHOWCASE_USE_CASES,
   AUDIT_ACTIONS,
   BUILDER_MESSAGE_ROLES,
@@ -60,6 +61,7 @@ export {
   DOC_FEEDBACK_TYPES,
   DOC_FEEDBACK_STATUSES,
   SHOWCASE_STATUSES,
+  SHOWCASE_PLACEMENTS,
   SHOWCASE_USE_CASES,
   AUDIT_ACTIONS,
   RELEASE_LEVELS,
@@ -80,6 +82,10 @@ export const docFeedbackTypeEnum = pgEnum(
 export const docFeedbackStatusEnum = pgEnum(
   'doc_feedback_status',
   DOC_FEEDBACK_STATUSES,
+)
+export const showcasePlacementEnum = pgEnum(
+  'showcase_placement',
+  SHOWCASE_PLACEMENTS,
 )
 export const showcaseStatusEnum = pgEnum('showcase_status', SHOWCASE_STATUSES)
 export const showcaseUseCaseEnum = pgEnum(
@@ -653,6 +659,8 @@ export const showcases = pgTable(
 
     // Moderation
     status: showcaseStatusEnum('status').notNull().default('pending'),
+    placement: showcasePlacementEnum('placement').notNull().default('private'),
+    reviewReason: text('review_reason'),
     moderatedBy: uuid('moderated_by').references(() => users.id, {
       onDelete: 'set null',
     }),
@@ -683,6 +691,10 @@ export const showcases = pgTable(
   (table) => ({
     userIdIdx: index('showcases_user_id_idx').on(table.userId),
     statusIdx: index('showcases_status_idx').on(table.status),
+    placementIdx: index('showcases_status_placement_idx').on(
+      table.status,
+      table.placement,
+    ),
     isFeaturedIdx: index('showcases_is_featured_idx').on(table.isFeatured),
     createdAtIdx: index('showcases_created_at_idx').on(table.createdAt),
     moderatedByIdx: index('showcases_moderated_by_idx').on(table.moderatedBy),

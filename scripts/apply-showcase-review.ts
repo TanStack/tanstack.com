@@ -47,9 +47,9 @@ try {
       const [rawActor] = await tx.unsafe(
         `SELECT EXISTS (
         SELECT 1 FROM users WHERE id = $1 AND (
-          capabilities && ARRAY['admin', 'moderate-showcases']::capability[] OR
+          capabilities::text::capability[] && ARRAY['admin', 'moderate-showcases']::capability[] OR
           EXISTS (SELECT 1 FROM role_assignments a JOIN roles r ON r.id = a.role_id
-            WHERE a.user_id = users.id AND r.capabilities && ARRAY['admin', 'moderate-showcases']::capability[])
+            WHERE a.user_id = users.id AND r.capabilities::text::capability[] && ARRAY['admin', 'moderate-showcases']::capability[])
         )) AS allowed`,
         [actorId],
       )

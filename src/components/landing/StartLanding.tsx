@@ -120,7 +120,7 @@ export default function StartLanding() {
         >
           <a
             className="text-text-primary underline underline-offset-4 hover:text-(--landing-accent-bright)"
-            href="/start/latest/docs/framework/react/start-vs-nextjs"
+            href="/start/latest/docs/framework/react/comparison"
           >
             Compare with Next.js
           </a>

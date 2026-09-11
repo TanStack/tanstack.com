@@ -44,6 +44,7 @@ export type LibrarySlim = {
   latestVersion: string
   latestBranch?: string
   availableVersions: string[]
+  scarfId?: string
   defaultDocs?: string
   docsRoot?: string
   hideCodesandboxUrl?: true

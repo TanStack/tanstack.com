@@ -1,3 +1,5 @@
+import { StartExampleOverview } from '~/components/StartExampleOverview'
+import { getStartExamplePage } from '~/utils/start-example-pages'
 import {
   ClientOnly,
   isNotFound,
@@ -268,8 +270,13 @@ export const Route = createFileRoute(
     const library = getLibrary(params.libraryId)
     const exampleName = slugToTitle(params._splat || '')
     const frameworkName = capitalize(params.framework)
-    const ogTitle = `${frameworkName} ${library.name} ${exampleName} Example`
-    const ogDescription = `An example showing how to implement ${exampleName} in ${frameworkName} using ${library.name}.`
+    const overview = getStartExamplePage(params)
+    const ogTitle =
+      overview?.title ??
+      `${frameworkName} ${library.name} ${exampleName} Example`
+    const ogDescription =
+      overview?.description ??
+      `An example showing how to implement ${exampleName} in ${frameworkName} using ${library.name}.`
 
     const canonicalHref = canonicalUrl(
       loaderData?.canonicalPathOverride ?? buildExamplePath(params),
@@ -532,7 +539,9 @@ function ExternalExamplePage({
       <div className="p-4 lg:p-6">
         <DocTitle>
           <span>
-            {capitalize(framework)} Example: {slugToTitle(_splat!)}
+            {getStartExamplePage({ libraryId, version, framework, _splat })
+              ?.title ??
+              `${capitalize(framework)} Example: ${slugToTitle(_splat!)}`}
           </span>
           <div className="flex items-center gap-4 flex-wrap font-normal text-xs">
             {orderedExampleDeployProviders.map((provider) =>
@@ -569,6 +578,9 @@ function ExternalExamplePage({
           </div>
         </DocTitle>
       </div>
+      <StartExampleOverview
+        params={{ libraryId, version, framework, _splat }}
+      />
       <div className="flex-1 lg:px-6 flex flex-col min-h-0">
         <CodeExplorer
           activeTab={activeTab}
@@ -634,7 +646,9 @@ function ClientExamplePage({
       <div className="p-4 lg:p-6">
         <DocTitle>
           <span>
-            {capitalize(framework)} Example: {slugToTitle(_splat!)}
+            {getStartExamplePage({ libraryId, version, framework, _splat })
+              ?.title ??
+              `${capitalize(framework)} Example: ${slugToTitle(_splat!)}`}
           </span>
           <a
             href={githubUrl}
@@ -646,6 +660,9 @@ function ClientExamplePage({
           </a>
         </DocTitle>
       </div>
+      <StartExampleOverview
+        params={{ libraryId, version, framework, _splat }}
+      />
       <div className="flex min-h-0 flex-1 flex-col lg:px-6">
         <ClientOnly fallback={fallback}>
           <React.Suspense fallback={fallback}>

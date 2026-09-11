@@ -148,12 +148,8 @@
           "name": "audit_logs_actor_id_users_id_fk",
           "tableFrom": "audit_logs",
           "tableTo": "users",
-          "columnsFrom": [
-            "actor_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["actor_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -332,14 +328,8 @@
           "name": "builder_project_events_project_owner_fk",
           "tableFrom": "builder_project_events",
           "tableTo": "builder_projects",
-          "columnsFrom": [
-            "project_id",
-            "owner_id"
-          ],
-          "columnsTo": [
-            "id",
-            "owner_id"
-          ],
+          "columnsFrom": ["project_id", "owner_id"],
+          "columnsTo": ["id", "owner_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -347,14 +337,8 @@
           "name": "builder_project_events_thread_fk",
           "tableFrom": "builder_project_events",
           "tableTo": "builder_project_threads",
-          "columnsFrom": [
-            "project_id",
-            "thread_id"
-          ],
-          "columnsTo": [
-            "project_id",
-            "id"
-          ],
+          "columnsFrom": ["project_id", "thread_id"],
+          "columnsTo": ["project_id", "id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -362,14 +346,8 @@
           "name": "builder_project_events_revision_fk",
           "tableFrom": "builder_project_events",
           "tableTo": "builder_project_revisions",
-          "columnsFrom": [
-            "project_id",
-            "revision_id"
-          ],
-          "columnsTo": [
-            "project_id",
-            "id"
-          ],
+          "columnsFrom": ["project_id", "revision_id"],
+          "columnsTo": ["project_id", "id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -377,14 +355,8 @@
           "name": "builder_project_events_message_fk",
           "tableFrom": "builder_project_events",
           "tableTo": "builder_project_messages",
-          "columnsFrom": [
-            "project_id",
-            "message_id"
-          ],
-          "columnsTo": [
-            "project_id",
-            "id"
-          ],
+          "columnsFrom": ["project_id", "message_id"],
+          "columnsTo": ["project_id", "id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -392,14 +364,8 @@
           "name": "builder_project_events_run_fk",
           "tableFrom": "builder_project_events",
           "tableTo": "builder_project_runs",
-          "columnsFrom": [
-            "project_id",
-            "run_id"
-          ],
-          "columnsTo": [
-            "project_id",
-            "id"
-          ],
+          "columnsFrom": ["project_id", "run_id"],
+          "columnsTo": ["project_id", "id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -409,18 +375,12 @@
         "builder_project_events_project_sequence_unique": {
           "name": "builder_project_events_project_sequence_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "project_id",
-            "sequence"
-          ]
+          "columns": ["project_id", "sequence"]
         },
         "builder_project_events_project_client_event_unique": {
           "name": "builder_project_events_project_client_event_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "project_id",
-            "client_event_id"
-          ]
+          "columns": ["project_id", "client_event_id"]
         }
       },
       "policies": {},
@@ -464,12 +424,8 @@
           "name": "builder_project_legacy_imports_owner_id_users_id_fk",
           "tableFrom": "builder_project_legacy_imports",
           "tableTo": "users",
-          "columnsFrom": [
-            "owner_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["owner_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -610,14 +566,8 @@
           "name": "builder_project_messages_project_owner_fk",
           "tableFrom": "builder_project_messages",
           "tableTo": "builder_projects",
-          "columnsFrom": [
-            "project_id",
-            "owner_id"
-          ],
-          "columnsTo": [
-            "id",
-            "owner_id"
-          ],
+          "columnsFrom": ["project_id", "owner_id"],
+          "columnsTo": ["id", "owner_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -625,14 +575,8 @@
           "name": "builder_project_messages_thread_fk",
           "tableFrom": "builder_project_messages",
           "tableTo": "builder_project_threads",
-          "columnsFrom": [
-            "project_id",
-            "thread_id"
-          ],
-          "columnsTo": [
-            "project_id",
-            "id"
-          ],
+          "columnsFrom": ["project_id", "thread_id"],
+          "columnsTo": ["project_id", "id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -640,16 +584,8 @@
           "name": "builder_project_messages_run_fk",
           "tableFrom": "builder_project_messages",
           "tableTo": "builder_project_runs",
-          "columnsFrom": [
-            "project_id",
-            "thread_id",
-            "run_id"
-          ],
-          "columnsTo": [
-            "project_id",
-            "thread_id",
-            "id"
-          ],
+          "columnsFrom": ["project_id", "thread_id", "run_id"],
+          "columnsTo": ["project_id", "thread_id", "id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -659,27 +595,17 @@
         "builder_project_messages_project_id_unique": {
           "name": "builder_project_messages_project_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "project_id",
-            "id"
-          ]
+          "columns": ["project_id", "id"]
         },
         "builder_project_messages_project_mutation_unique": {
           "name": "builder_project_messages_project_mutation_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "project_id",
-            "client_mutation_id"
-          ]
+          "columns": ["project_id", "client_mutation_id"]
         },
         "builder_project_messages_thread_position_unique": {
           "name": "builder_project_messages_thread_position_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "project_id",
-            "thread_id",
-            "position"
-          ]
+          "columns": ["project_id", "thread_id", "position"]
         }
       },
       "policies": {},
@@ -741,12 +667,8 @@
           "name": "builder_project_mutation_receipts_project_fk",
           "tableFrom": "builder_project_mutation_receipts",
           "tableTo": "builder_projects",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -754,10 +676,7 @@
       "compositePrimaryKeys": {
         "builder_project_mutation_receipts_pk": {
           "name": "builder_project_mutation_receipts_pk",
-          "columns": [
-            "project_id",
-            "client_mutation_id"
-          ]
+          "columns": ["project_id", "client_mutation_id"]
         }
       },
       "uniqueConstraints": {},
@@ -872,14 +791,8 @@
           "name": "builder_project_revisions_project_owner_fk",
           "tableFrom": "builder_project_revisions",
           "tableTo": "builder_projects",
-          "columnsFrom": [
-            "project_id",
-            "owner_id"
-          ],
-          "columnsTo": [
-            "id",
-            "owner_id"
-          ],
+          "columnsFrom": ["project_id", "owner_id"],
+          "columnsTo": ["id", "owner_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -887,14 +800,8 @@
           "name": "builder_project_revisions_parent_fk",
           "tableFrom": "builder_project_revisions",
           "tableTo": "builder_project_revisions",
-          "columnsFrom": [
-            "project_id",
-            "parent_revision_id"
-          ],
-          "columnsTo": [
-            "project_id",
-            "id"
-          ],
+          "columnsFrom": ["project_id", "parent_revision_id"],
+          "columnsTo": ["project_id", "id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -902,12 +809,8 @@
           "name": "builder_project_revisions_snapshot_hash_fk",
           "tableFrom": "builder_project_revisions",
           "tableTo": "builder_project_snapshots",
-          "columnsFrom": [
-            "snapshot_hash"
-          ],
-          "columnsTo": [
-            "hash"
-          ],
+          "columnsFrom": ["snapshot_hash"],
+          "columnsTo": ["hash"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -917,26 +820,17 @@
         "builder_project_revisions_project_revision_unique": {
           "name": "builder_project_revisions_project_revision_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "project_id",
-            "revision_number"
-          ]
+          "columns": ["project_id", "revision_number"]
         },
         "builder_project_revisions_project_id_unique": {
           "name": "builder_project_revisions_project_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "project_id",
-            "id"
-          ]
+          "columns": ["project_id", "id"]
         },
         "builder_project_revisions_project_mutation_unique": {
           "name": "builder_project_revisions_project_mutation_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "project_id",
-            "client_mutation_id"
-          ]
+          "columns": ["project_id", "client_mutation_id"]
         }
       },
       "policies": {},
@@ -1161,14 +1055,8 @@
           "name": "builder_project_runs_project_owner_fk",
           "tableFrom": "builder_project_runs",
           "tableTo": "builder_projects",
-          "columnsFrom": [
-            "project_id",
-            "owner_id"
-          ],
-          "columnsTo": [
-            "id",
-            "owner_id"
-          ],
+          "columnsFrom": ["project_id", "owner_id"],
+          "columnsTo": ["id", "owner_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1176,14 +1064,8 @@
           "name": "builder_project_runs_thread_fk",
           "tableFrom": "builder_project_runs",
           "tableTo": "builder_project_threads",
-          "columnsFrom": [
-            "project_id",
-            "thread_id"
-          ],
-          "columnsTo": [
-            "project_id",
-            "id"
-          ],
+          "columnsFrom": ["project_id", "thread_id"],
+          "columnsTo": ["project_id", "id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1191,14 +1073,8 @@
           "name": "builder_project_runs_base_revision_fk",
           "tableFrom": "builder_project_runs",
           "tableTo": "builder_project_revisions",
-          "columnsFrom": [
-            "project_id",
-            "base_revision_id"
-          ],
-          "columnsTo": [
-            "project_id",
-            "id"
-          ],
+          "columnsFrom": ["project_id", "base_revision_id"],
+          "columnsTo": ["project_id", "id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1206,14 +1082,8 @@
           "name": "builder_project_runs_result_revision_fk",
           "tableFrom": "builder_project_runs",
           "tableTo": "builder_project_revisions",
-          "columnsFrom": [
-            "project_id",
-            "result_revision_id"
-          ],
-          "columnsTo": [
-            "project_id",
-            "id"
-          ],
+          "columnsFrom": ["project_id", "result_revision_id"],
+          "columnsTo": ["project_id", "id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1223,27 +1093,17 @@
         "builder_project_runs_project_id_unique": {
           "name": "builder_project_runs_project_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "project_id",
-            "id"
-          ]
+          "columns": ["project_id", "id"]
         },
         "builder_project_runs_project_thread_id_unique": {
           "name": "builder_project_runs_project_thread_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "project_id",
-            "thread_id",
-            "id"
-          ]
+          "columns": ["project_id", "thread_id", "id"]
         },
         "builder_project_runs_project_mutation_unique": {
           "name": "builder_project_runs_project_mutation_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "project_id",
-            "client_mutation_id"
-          ]
+          "columns": ["project_id", "client_mutation_id"]
         }
       },
       "policies": {},
@@ -1368,12 +1228,8 @@
           "name": "builder_project_snapshot_reservations_owner_id_users_id_fk",
           "tableFrom": "builder_project_snapshot_reservations",
           "tableTo": "users",
-          "columnsFrom": [
-            "owner_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["owner_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1381,12 +1237,8 @@
           "name": "builder_project_snapshot_reservations_snapshot_hash_builder_project_snapshots_hash_fk",
           "tableFrom": "builder_project_snapshot_reservations",
           "tableTo": "builder_project_snapshots",
-          "columnsFrom": [
-            "snapshot_hash"
-          ],
-          "columnsTo": [
-            "hash"
-          ],
+          "columnsFrom": ["snapshot_hash"],
+          "columnsTo": ["hash"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1396,10 +1248,7 @@
         "builder_project_snapshot_reservations_owner_snapshot_unique": {
           "name": "builder_project_snapshot_reservations_owner_snapshot_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "owner_id",
-            "snapshot_hash"
-          ]
+          "columns": ["owner_id", "snapshot_hash"]
         }
       },
       "policies": {},
@@ -1579,14 +1428,8 @@
           "name": "builder_project_threads_project_owner_fk",
           "tableFrom": "builder_project_threads",
           "tableTo": "builder_projects",
-          "columnsFrom": [
-            "project_id",
-            "owner_id"
-          ],
-          "columnsTo": [
-            "id",
-            "owner_id"
-          ],
+          "columnsFrom": ["project_id", "owner_id"],
+          "columnsTo": ["id", "owner_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1596,18 +1439,12 @@
         "builder_project_threads_project_id_unique": {
           "name": "builder_project_threads_project_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "project_id",
-            "id"
-          ]
+          "columns": ["project_id", "id"]
         },
         "builder_project_threads_project_mutation_unique": {
           "name": "builder_project_threads_project_mutation_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "project_id",
-            "client_mutation_id"
-          ]
+          "columns": ["project_id", "client_mutation_id"]
         }
       },
       "policies": {},
@@ -1670,12 +1507,8 @@
           "name": "builder_project_tombstones_owner_id_users_id_fk",
           "tableFrom": "builder_project_tombstones",
           "tableTo": "users",
-          "columnsFrom": [
-            "owner_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["owner_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -1752,12 +1585,8 @@
           "name": "builder_project_usage_project_id_builder_projects_id_fk",
           "tableFrom": "builder_project_usage",
           "tableTo": "builder_projects",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1927,12 +1756,8 @@
           "name": "builder_projects_owner_id_users_id_fk",
           "tableFrom": "builder_projects",
           "tableTo": "users",
-          "columnsFrom": [
-            "owner_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["owner_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -1940,12 +1765,8 @@
           "name": "builder_projects_deleted_by_id_users_id_fk",
           "tableFrom": "builder_projects",
           "tableTo": "users",
-          "columnsFrom": [
-            "deleted_by_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -1953,12 +1774,8 @@
           "name": "builder_projects_forked_from_fk",
           "tableFrom": "builder_projects",
           "tableTo": "builder_projects",
-          "columnsFrom": [
-            "forked_from_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["forked_from_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -1966,12 +1783,8 @@
           "name": "builder_projects_snapshot_hash_fk",
           "tableFrom": "builder_projects",
           "tableTo": "builder_project_snapshots",
-          "columnsFrom": [
-            "snapshot_hash"
-          ],
-          "columnsTo": [
-            "hash"
-          ],
+          "columnsFrom": ["snapshot_hash"],
+          "columnsTo": ["hash"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -1981,18 +1794,12 @@
         "builder_projects_id_owner_unique": {
           "name": "builder_projects_id_owner_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id",
-            "owner_id"
-          ]
+          "columns": ["id", "owner_id"]
         },
         "builder_projects_owner_mutation_unique": {
           "name": "builder_projects_owner_mutation_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "owner_id",
-            "client_mutation_id"
-          ]
+          "columns": ["owner_id", "client_mutation_id"]
         }
       },
       "policies": {},
@@ -2255,12 +2062,8 @@
           "name": "doc_feedback_user_id_users_id_fk",
           "tableFrom": "doc_feedback",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2268,12 +2071,8 @@
           "name": "doc_feedback_moderated_by_users_id_fk",
           "tableFrom": "doc_feedback",
           "tableTo": "users",
-          "columnsFrom": [
-            "moderated_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["moderated_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -2683,9 +2482,7 @@
         "github_stats_cache_cache_key_unique": {
           "name": "github_stats_cache_cache_key_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "cache_key"
-          ]
+          "columns": ["cache_key"]
         }
       },
       "policies": {},
@@ -2829,12 +2626,8 @@
           "name": "intent_package_versions_package_name_intent_packages_name_fk",
           "tableFrom": "intent_package_versions",
           "tableTo": "intent_packages",
-          "columnsFrom": [
-            "package_name"
-          ],
-          "columnsTo": [
-            "name"
-          ],
+          "columnsFrom": ["package_name"],
+          "columnsTo": ["name"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -3082,12 +2875,8 @@
           "name": "intent_skills_package_version_id_intent_package_versions_id_fk",
           "tableFrom": "intent_skills",
           "tableTo": "intent_package_versions",
-          "columnsFrom": [
-            "package_version_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["package_version_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3095,12 +2884,8 @@
           "name": "intent_skills_content_hash_intent_skill_content_content_hash_fk",
           "tableFrom": "intent_skills",
           "tableTo": "intent_skill_content",
-          "columnsFrom": [
-            "content_hash"
-          ],
-          "columnsTo": [
-            "content_hash"
-          ],
+          "columnsFrom": ["content_hash"],
+          "columnsTo": ["content_hash"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -3214,12 +2999,8 @@
           "name": "login_history_user_id_users_id_fk",
           "tableFrom": "login_history",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -3351,12 +3132,8 @@
           "name": "mcp_api_keys_user_id_users_id_fk",
           "tableFrom": "mcp_api_keys",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -3366,9 +3143,7 @@
         "mcp_api_keys_key_hash_unique": {
           "name": "mcp_api_keys_key_hash_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "key_hash"
-          ]
+          "columns": ["key_hash"]
         }
       },
       "policies": {},
@@ -3773,12 +3548,8 @@
           "name": "oauth_mcp_access_tokens_user_id_users_id_fk",
           "tableFrom": "oauth_mcp_access_tokens",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -3788,9 +3559,7 @@
         "oauth_mcp_access_tokens_token_hash_unique": {
           "name": "oauth_mcp_access_tokens_token_hash_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "token_hash"
-          ]
+          "columns": ["token_hash"]
         }
       },
       "policies": {},
@@ -3917,12 +3686,8 @@
           "name": "oauth_accounts_user_id_users_id_fk",
           "tableFrom": "oauth_accounts",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -4039,12 +3804,8 @@
           "name": "oauth_mcp_authorization_codes_user_id_users_id_fk",
           "tableFrom": "oauth_mcp_authorization_codes",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -4054,9 +3815,7 @@
         "oauth_mcp_authorization_codes_code_hash_unique": {
           "name": "oauth_mcp_authorization_codes_code_hash_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "code_hash"
-          ]
+          "columns": ["code_hash"]
         }
       },
       "policies": {},
@@ -4149,12 +3908,8 @@
           "name": "oauth_mcp_refresh_tokens_user_id_users_id_fk",
           "tableFrom": "oauth_mcp_refresh_tokens",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -4162,12 +3917,8 @@
           "name": "oauth_mcp_refresh_tokens_access_token_id_oauth_mcp_access_tokens_id_fk",
           "tableFrom": "oauth_mcp_refresh_tokens",
           "tableTo": "oauth_mcp_access_tokens",
-          "columnsFrom": [
-            "access_token_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["access_token_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -4177,9 +3928,7 @@
         "oauth_mcp_refresh_tokens_token_hash_unique": {
           "name": "oauth_mcp_refresh_tokens_token_hash_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "token_hash"
-          ]
+          "columns": ["token_hash"]
         }
       },
       "policies": {},
@@ -4467,12 +4216,8 @@
           "name": "role_assignments_user_id_users_id_fk",
           "tableFrom": "role_assignments",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -4480,12 +4225,8 @@
           "name": "role_assignments_role_id_roles_id_fk",
           "tableFrom": "role_assignments",
           "tableTo": "roles",
-          "columnsFrom": [
-            "role_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["role_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -4565,9 +4306,7 @@
         "roles_name_unique": {
           "name": "roles_name_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "name"
-          ]
+          "columns": ["name"]
         }
       },
       "policies": {},
@@ -4675,12 +4414,8 @@
           "name": "sessions_user_id_users_id_fk",
           "tableFrom": "sessions",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -4690,9 +4425,7 @@
         "sessions_token_unique": {
           "name": "sessions_token_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "token"
-          ]
+          "columns": ["token"]
         }
       },
       "policies": {},
@@ -4780,12 +4513,8 @@
           "name": "showcase_votes_showcase_id_showcases_id_fk",
           "tableFrom": "showcase_votes",
           "tableTo": "showcases",
-          "columnsFrom": [
-            "showcase_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["showcase_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -4793,12 +4522,8 @@
           "name": "showcase_votes_user_id_users_id_fk",
           "tableFrom": "showcase_votes",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -4808,10 +4533,7 @@
         "showcase_votes_showcase_id_user_id_unique": {
           "name": "showcase_votes_showcase_id_user_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "showcase_id",
-            "user_id"
-          ]
+          "columns": ["showcase_id", "user_id"]
         }
       },
       "policies": {},
@@ -5105,12 +4827,8 @@
           "name": "showcases_user_id_users_id_fk",
           "tableFrom": "showcases",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -5118,12 +4836,8 @@
           "name": "showcases_moderated_by_users_id_fk",
           "tableFrom": "showcases",
           "tableTo": "users",
-          "columnsFrom": [
-            "moderated_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["moderated_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -5223,12 +4937,8 @@
           "name": "user_activity_user_id_users_id_fk",
           "tableFrom": "user_activity",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -5375,9 +5085,7 @@
         "users_email_unique": {
           "name": "users_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},
@@ -5408,10 +5116,7 @@
     "public.builder_message_role": {
       "name": "builder_message_role",
       "schema": "public",
-      "values": [
-        "user",
-        "assistant"
-      ]
+      "values": ["user", "assistant"]
     },
     "public.builder_project_event_type": {
       "name": "builder_project_event_type",
@@ -5464,45 +5169,27 @@
     "public.doc_feedback_status": {
       "name": "doc_feedback_status",
       "schema": "public",
-      "values": [
-        "pending",
-        "approved",
-        "denied"
-      ]
+      "values": ["pending", "approved", "denied"]
     },
     "public.doc_feedback_type": {
       "name": "doc_feedback_type",
       "schema": "public",
-      "values": [
-        "note",
-        "improvement"
-      ]
+      "values": ["note", "improvement"]
     },
     "public.oauth_provider": {
       "name": "oauth_provider",
       "schema": "public",
-      "values": [
-        "github",
-        "google"
-      ]
+      "values": ["github", "google"]
     },
     "public.showcase_placement": {
       "name": "showcase_placement",
       "schema": "public",
-      "values": [
-        "showcase",
-        "community",
-        "private"
-      ]
+      "values": ["showcase", "community", "private"]
     },
     "public.showcase_status": {
       "name": "showcase_status",
       "schema": "public",
-      "values": [
-        "pending",
-        "approved",
-        "denied"
-      ]
+      "values": ["pending", "approved", "denied"]
     },
     "public.showcase_use_case": {
       "name": "showcase_use_case",

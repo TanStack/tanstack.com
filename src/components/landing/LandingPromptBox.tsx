@@ -26,30 +26,28 @@ const skillAgents: Array<SkillAgent> = [
   {
     id: 'claude',
     name: 'Claude Code',
-    description: 'Install the TanStack AI plugin in Claude Code.',
+    description: 'Paste these into Claude Code.',
     command: '/plugin marketplace add TanStack/ai\n/plugin install tanstack-ai',
     pinned: true,
   },
   {
     id: 'grok',
     name: 'Grok Build',
-    description: 'Install the TanStack AI plugin in Grok Build.',
-    command:
-      'grok plugin marketplace add TanStack/ai\ngrok plugin install tanstack-ai --trust',
+    description: 'Paste this into Grok Build. Or open /plugins → Marketplace.',
+    command: '/plugins install TanStack/ai',
     pinned: true,
   },
   {
     id: 'codex',
     name: 'Codex',
-    description: 'Install the TanStack AI skills in Codex.',
-    command:
-      'npx skills add TanStack/ai -g --skill tanstack-ai tanstack-ai-migration',
+    description: 'Paste this into Codex. Or open /plugins to browse.',
+    command: '$skill-installer TanStack/ai',
     pinned: true,
   },
   {
     id: 'cursor',
     name: 'Cursor',
-    description: 'Install the TanStack AI plugin in Cursor.',
+    description: 'Paste these into Cursor Agent chat.',
     command: '/plugin marketplace add TanStack/ai\n/plugin install tanstack-ai',
   },
   {
@@ -62,7 +60,8 @@ const skillAgents: Array<SkillAgent> = [
   {
     id: 'npx',
     name: 'Skills (npx)',
-    description: 'Install the TanStack AI skills with the Agent Skills CLI.',
+    description:
+      'Run this in a terminal. Works for any agent that reads SKILL.md.',
     command:
       'npx skills add TanStack/ai -g --skill tanstack-ai tanstack-ai-migration',
   },

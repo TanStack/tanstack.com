@@ -60,10 +60,7 @@ export const Route = createFileRoute(
     }
 
     if (result.type === 'not-found') {
-      throw redirect({
-        to: '/$libraryId/$version/docs/framework/$framework',
-        params: { libraryId, version, framework },
-      })
+      throw notFound()
     }
 
     return {

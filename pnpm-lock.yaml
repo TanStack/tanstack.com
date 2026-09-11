@@ -108,6 +108,9 @@ importers:
       '@tanstack/ai-openai':
         specifier: ^0.22.6
         version: 0.22.6(@tanstack/ai@0.54.0(@opentelemetry/api@1.9.1)(zod@4.3.6))(ws@8.21.0)(zod@4.3.6)
+      '@tanstack/ai-openrouter':
+        specifier: ^0.19.9
+        version: 0.19.9(@tanstack/ai@0.54.0(@opentelemetry/api@1.9.1)(zod@4.3.6))
       '@tanstack/charts':
         specifier: 0.16.1
         version: 0.16.1(lit@3.3.2)(octane@0.1.13(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(vite@8.0.16(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0)))(preact@10.29.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(solid-js@1.9.12)
@@ -1714,6 +1717,9 @@ packages:
   '@oozcitak/util@10.0.0':
     resolution: {integrity: sha512-hAX0pT/73190NLqBPPWSdBVGtbY6VOhWYK3qqHqtXQ1gK7kS2yz4+ivsN07hpJ6I3aeMtKP6J6npsEKOAzuTLA==}
     engines: {node: '>=20.0'}
+
+  '@openrouter/sdk@0.13.20':
+    resolution: {integrity: sha512-fx4o19FHgadEldfrSOgSbXAi32hCE3O708q1nxcoxYrW6fP6/WggX3o5PmnlnObzmxrqLMkZpqg188K+Twguhg==}
 
   '@opentelemetry/api-logs@0.207.0':
     resolution: {integrity: sha512-lAb0jQRVyleQQGiuuvCOTDVspc14nx6XJjP4FspJ1sNARo3Regq4ZZbrc3rN4b1TYSuUCvgH+UXUPug4SLOqEQ==}
@@ -3346,6 +3352,11 @@ packages:
 
   '@tanstack/ai-openai@0.22.6':
     resolution: {integrity: sha512-7jnWe1ljFUgyELnYk598N5SRDcj2WklpL+NL0FCQxxV5M7VctPzEu28pdifBftoVyyCjO/H+9T+0PsZo9mOQoA==}
+    peerDependencies:
+      '@tanstack/ai': ^0.54.0
+
+  '@tanstack/ai-openrouter@0.19.9':
+    resolution: {integrity: sha512-+ZywWhgRYaRqWULyGiHLhnaOt0GmAEJmr57s6O6aG/wVWOpM0e43lXd7wArST0Gd+Sk51dXFXnAXE7YWtbRRBw==}
     peerDependencies:
       '@tanstack/ai': ^0.54.0
 
@@ -8154,6 +8165,10 @@ snapshots:
 
   '@oozcitak/util@10.0.0': {}
 
+  '@openrouter/sdk@0.13.20':
+    dependencies:
+      zod: 4.4.3
+
   '@opentelemetry/api-logs@0.207.0':
     dependencies:
       '@opentelemetry/api': 1.9.1
@@ -9543,6 +9558,12 @@ snapshots:
       - '@smithy/signature-v4'
       - ws
       - zod
+
+  '@tanstack/ai-openrouter@0.19.9(@tanstack/ai@0.54.0(@opentelemetry/api@1.9.1)(zod@4.3.6))':
+    dependencies:
+      '@openrouter/sdk': 0.13.20
+      '@tanstack/ai': 0.54.0(@opentelemetry/api@1.9.1)(zod@4.3.6)
+      '@tanstack/ai-utils': 0.4.0
 
   '@tanstack/ai-utils@0.4.0': {}
 

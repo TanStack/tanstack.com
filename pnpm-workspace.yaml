@@ -38,6 +38,8 @@ allowBuilds:
 
   # Cloudflare Workers local runtime
   workerd: true
+  # Optional remote model-type freshness check, not needed to build the SDK.
+  '@openrouter/sdk': false
 
 patchedDependencies:
   '@tanstack/openai-base@0.10.11': patches/@tanstack__openai-base@0.10.11.patch

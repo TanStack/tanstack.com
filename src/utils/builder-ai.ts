@@ -11,7 +11,17 @@ import {
   type BuilderAiAttemptTrace,
 } from './builder-ai-progress'
 
-export const builderAiRemoteProviders = ['openai', 'anthropic'] as const
+export const builderAiRemoteProviders = [
+  'openrouter',
+  'openai',
+  'anthropic',
+] as const
+
+export const builderAiProviderLabels = {
+  openrouter: 'OpenRouter',
+  openai: 'OpenAI',
+  anthropic: 'Anthropic',
+}
 
 export type BuilderAiRemoteProvider = (typeof builderAiRemoteProviders)[number]
 
@@ -36,7 +46,39 @@ export const builderAiAnthropicDefaultModel = {
   description: 'Balanced',
 } satisfies BuilderAiRemoteModel
 
+export const builderAiOpenRouterDefaultModel: BuilderAiRemoteModel = {
+  provider: 'openrouter',
+  model: 'openai/gpt-5.6-luna',
+  label: 'GPT-5.6 Luna',
+  description: 'OpenRouter',
+}
+
 export const builderAiRemoteModels: ReadonlyArray<BuilderAiRemoteModel> = [
+  builderAiOpenRouterDefaultModel,
+  {
+    provider: 'openrouter',
+    model: 'openai/gpt-5.6-sol',
+    label: 'GPT-5.6 Sol',
+    description: 'OpenRouter',
+  },
+  {
+    provider: 'openrouter',
+    model: 'anthropic/claude-sonnet-4.6',
+    label: 'Claude Sonnet 4.6',
+    description: 'OpenRouter',
+  },
+  {
+    provider: 'openrouter',
+    model: 'anthropic/claude-haiku-4.5',
+    label: 'Claude Haiku 4.5',
+    description: 'OpenRouter',
+  },
+  {
+    provider: 'openrouter',
+    model: 'google/gemini-3-flash-preview',
+    label: 'Gemini 3 Flash Preview',
+    description: 'OpenRouter',
+  },
   {
     provider: 'openai',
     model: 'gpt-5.6-sol',
@@ -66,6 +108,7 @@ export const builderAiRemoteModels: ReadonlyArray<BuilderAiRemoteModel> = [
 ]
 
 export const builderAiDefaultRemoteModels = {
+  openrouter: builderAiOpenRouterDefaultModel,
   openai: builderAiOpenAiDefaultModel,
   anthropic: builderAiAnthropicDefaultModel,
 } satisfies Record<BuilderAiRemoteProvider, BuilderAiRemoteModel>

@@ -7,6 +7,7 @@ import {
 } from '~/queries/showcases'
 import { voteShowcase } from '~/utils/showcase.functions'
 import { ShowcaseCard, ShowcaseCardSkeleton } from './ShowcaseCard'
+import { CommunityProjectCard } from './CommunityProjectCard'
 import { SubmitShowcasePlaceholder } from './ShowcaseSection'
 import { PaginationControls } from './PaginationControls'
 import { ShowcaseTopBarFilters } from './ShowcaseTopBarFilters'
@@ -23,6 +24,9 @@ export function ShowcaseGallery({
 }: {
   community?: boolean
 }) {
+  const gridClassName = community
+    ? 'grid grid-cols-1 md:grid-cols-2 gap-x-10'
+    : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'
   const from = community ? '/community-projects' : '/showcase/'
   const placement = community ? 'community' : 'showcase'
   const navigate = useNavigate({ from })
@@ -56,7 +60,7 @@ export function ShowcaseGallery({
 
   const { data: votesData } = useQuery({
     ...getMyShowcaseVotesQueryOptions(showcaseIds),
-    enabled: !!currentUser && showcaseIds.length > 0,
+    enabled: !community && !!currentUser && showcaseIds.length > 0,
   })
 
   const votesMap = React.useMemo(() => {
@@ -308,11 +312,21 @@ export function ShowcaseGallery({
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <div className="bg-linear-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-950">
-        <div className="max-w-7xl mx-auto px-4 py-12 sm:py-16">
+      <div
+        className={
+          community
+            ? 'bg-white dark:bg-gray-950'
+            : 'bg-linear-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-950'
+        }
+      >
+        <div
+          className={`max-w-7xl mx-auto px-4 ${community ? 'py-8' : 'py-12 sm:py-16'}`}
+        >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
+              <h1
+                className={`${community ? 'text-3xl' : 'text-4xl'} font-bold text-gray-900 dark:text-white`}
+              >
                 {community ? 'Community projects' : 'Showcase'}
               </h1>
               {!community && (
@@ -366,27 +380,38 @@ export function ShowcaseGallery({
       {/* Grid */}
       <div className="max-w-7xl mx-auto px-4 py-8">
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <ShowcaseCardSkeleton key={i} />
-            ))}
+          <div className={gridClassName}>
+            {Array.from({ length: 6 }).map((_, i) =>
+              community ? (
+                <div
+                  key={i}
+                  className="h-32 animate-pulse border-b border-gray-200 dark:border-gray-800"
+                />
+              ) : (
+                <ShowcaseCardSkeleton key={i} />
+              ),
+            )}
           </div>
         ) : data?.showcases && data.showcases.length > 0 ? (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {data.showcases.map(({ showcase, user }) => (
-                <ShowcaseCard
-                  key={showcase.id}
-                  showcase={showcase}
-                  user={user}
-                  currentUserVote={votesMap.get(showcase.id)}
-                  onVote={(value) => handleVote(showcase.id, value)}
-                  isVoting={
-                    voteMutation.isPending &&
-                    voteMutation.variables?.showcaseId === showcase.id
-                  }
-                />
-              ))}
+            <div className={gridClassName}>
+              {data.showcases.map(({ showcase, user }) =>
+                community ? (
+                  <CommunityProjectCard key={showcase.id} showcase={showcase} />
+                ) : (
+                  <ShowcaseCard
+                    key={showcase.id}
+                    showcase={showcase}
+                    user={user}
+                    currentUserVote={votesMap.get(showcase.id)}
+                    onVote={(value) => handleVote(showcase.id, value)}
+                    isVoting={
+                      voteMutation.isPending &&
+                      voteMutation.variables?.showcaseId === showcase.id
+                    }
+                  />
+                ),
+              )}
             </div>
 
             {data.pagination.totalPages > 1 && (

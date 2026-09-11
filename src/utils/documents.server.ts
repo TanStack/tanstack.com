@@ -3,6 +3,8 @@ import fsp from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { parse as parseYaml } from 'yaml'
+import { parseFragment } from 'parse5'
+import type { BlockNode, InlineNode } from '@tanstack/markdown'
 import {
   getCurrentHostRuntimeEnv,
   getHostRuntimeEnv,
@@ -24,6 +26,7 @@ import { isValidRepoPath } from './repo-path'
 import { multiSortBy, removeLeadingSlash } from './utils'
 import { env } from './env'
 import { fetchWithTimeout } from './outbound-fetch.server'
+import { parseSiteMarkdown } from './markdown/processor'
 
 type FrontMatterValue =
   | string
@@ -842,9 +845,10 @@ export function extractFrontMatter(content: string) {
   const title =
     typeof parsed.data.title === 'string' ? parsed.data.title : undefined
   const ref = typeof parsed.data.ref === 'string' ? parsed.data.ref : undefined
+  const excerpt = createExcerpt(parsed.content)
   const data: FrontMatterData = {
     ...parsed.data,
-    description: userDescription ?? createExcerpt(parsed.content),
+    description: userDescription ?? excerpt,
     title,
     ref,
     redirect_from: redirectFrom,
@@ -854,7 +858,7 @@ export function extractFrontMatter(content: string) {
   return {
     content: parsed.content,
     data,
-    excerpt: createRichExcerpt(parsed.content),
+    excerpt: createRichExcerpt(parsed.content, excerpt),
     userDescription,
   }
 }
@@ -935,28 +939,65 @@ function toFrontMatterValue(value: unknown): FrontMatterValue | undefined {
 }
 
 function createExcerpt(text: string, maxLength = 200) {
-  // Remove Markdown formatting using a basic regex
-
-  let cleanText = text
-    .replace(/!\[.*?\]\(.*?\)/g, '') // Remove images
-    .replace(/\[.*?\]\(.*?\)/g, '') // Remove links
-    .replace(/[`*_~>]/g, '') // Remove Markdown special characters
-    .replace(/#+\s/g, '') // Remove headers
-    .replace(/-\s/g, '') // Remove list markers
-    .replace(/\r?\n|\r/g, ' ') // Convert line breaks to spaces
-    .replace(/\s+/g, ' ') // Collapse multiple spaces
+  const cleanText = excerptBlocks(parseSiteMarkdown(text).children)
+    .replace(/\s+/g, ' ')
     .trim()
 
-  // Truncate the text to the desired length, preserving whole words
   if (cleanText.length > maxLength) {
-    cleanText = cleanText.slice(0, maxLength).trim() + '...'
+    const end = cleanText.lastIndexOf(' ', maxLength)
+    return cleanText.slice(0, end > 0 ? end : maxLength) + '...'
   }
 
   return cleanText
 }
 
-function createRichExcerpt(text: string, maxLength = 200) {
-  let cleanText = createExcerpt(text, maxLength)
+function excerptBlocks(blocks: Array<BlockNode>): string {
+  return blocks
+    .map((block): string => {
+      switch (block.type) {
+        case 'paragraph':
+          return excerptInline(block.children)
+        case 'blockquote':
+        case 'callout':
+        case 'component':
+          return excerptBlocks(block.children)
+        case 'list':
+          return block.items
+            .map((item) => excerptBlocks(item.children))
+            .join(' ')
+        default:
+          return ''
+      }
+    })
+    .join(' ')
+}
+
+function excerptInline(nodes: Array<InlineNode>): string {
+  return nodes
+    .map((node): string => {
+      switch (node.type) {
+        case 'text':
+          return parseFragment(node.value.replaceAll('<', '&lt;'))
+            .childNodes.map((child) => ('value' in child ? child.value : ''))
+            .join('')
+        case 'inlineCode':
+          return node.value
+        case 'link':
+        case 'strong':
+        case 'emphasis':
+        case 'strike':
+          return excerptInline(node.children)
+        case 'break':
+          return ' '
+        default:
+          return ''
+      }
+    })
+    .join('')
+}
+
+function createRichExcerpt(text: string, excerpt: string) {
+  let cleanText = excerpt
 
   const imageText = extractFirstImage(text)
 

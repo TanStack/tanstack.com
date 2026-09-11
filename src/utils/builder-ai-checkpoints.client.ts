@@ -15,6 +15,7 @@ let databasePromise: Promise<IDBDatabase> | undefined
 
 export type BuilderAiCheckpoint = {
   id: string
+  kind?: 'validated'
   createdAt: number
   lastAccessedAt: number
   sizeBytes: number
@@ -42,15 +43,22 @@ export async function createBuilderAiCheckpoint(
   scope: string,
   checkpointId: string,
   execution: BuilderAiExecution,
+  options?: { kind: 'validated'; expectedExecution: BuilderAiExecution },
 ) {
   if (!scope || !checkpointId) return undefined
 
   let serialized: string
   let executionId: string
+  let expectedExecutionId: string
 
   try {
     serialized = serializeCanonicalExecution(execution)
     executionId = await createExecutionId(serialized)
+    expectedExecutionId = options
+      ? await createExecutionId(
+          serializeCanonicalExecution(options.expectedExecution),
+        )
+      : executionId
     await writeExecution(executionId, serialized)
   } catch {
     return undefined
@@ -65,11 +73,12 @@ export async function createBuilderAiCheckpoint(
   const updated: StoredCheckpoint = {
     scope,
     id: checkpointId,
+    ...(options ? { kind: options.kind } : {}),
     createdAt: existing?.createdAt ?? now,
     lastAccessedAt: now,
     sizeBytes: getUtf8ByteLength(serialized),
     executionId,
-    expectedExecutionId: executionId,
+    expectedExecutionId,
   }
   const candidates = [
     updated,
@@ -368,6 +377,7 @@ function serializeCanonicalExecution(execution: BuilderAiExecution) {
 function toCheckpoint(checkpoint: StoredCheckpoint): BuilderAiCheckpoint {
   return {
     id: checkpoint.id,
+    ...(checkpoint.kind ? { kind: checkpoint.kind } : {}),
     createdAt: checkpoint.createdAt,
     lastAccessedAt: checkpoint.lastAccessedAt,
     sizeBytes: checkpoint.sizeBytes,
@@ -381,6 +391,7 @@ function isStoredCheckpoint(value: unknown): value is StoredCheckpoint {
     isRecord(value) &&
     typeof value.scope === 'string' &&
     typeof value.id === 'string' &&
+    (value.kind === undefined || value.kind === 'validated') &&
     typeof value.createdAt === 'number' &&
     Number.isFinite(value.createdAt) &&
     typeof value.lastAccessedAt === 'number' &&
@@ -395,6 +406,7 @@ function isStoredCheckpoint(value: unknown): value is StoredCheckpoint {
     hasOnlyKeys(value, [
       'scope',
       'id',
+      'kind',
       'createdAt',
       'lastAccessedAt',
       'sizeBytes',

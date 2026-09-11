@@ -327,6 +327,39 @@ test('builder AI checkpoints deduplicate, roll back, and stay LRU bounded', asyn
       fallbackExecution,
     )
 
+    const validated = createExecution('export default "validated candidate"')
+    const recovery = await createBuilderAiCheckpoint(
+      'builder-recovery',
+      'run:validated',
+      validated,
+      { kind: 'validated', expectedExecution: fallbackExecution },
+    )
+    assert.ok(recovery)
+    assert.equal(recovery.kind, 'validated')
+    assert.equal(
+      await builderAiCheckpointMatchesExecution(recovery, fallbackExecution),
+      true,
+    )
+    assert.equal(
+      await builderAiCheckpointMatchesExecution(recovery, validated),
+      false,
+    )
+    assert.equal(
+      await builderAiCheckpointMatchesExecution(
+        recovery,
+        createExecution('manual edit'),
+      ),
+      false,
+    )
+    const recovered = await loadLatestBuilderAiCheckpoint('builder-recovery')
+    assert.equal(recovered?.checkpoint.kind, 'validated')
+    assert.deepEqual(recovered?.execution, validated)
+    assert.equal(
+      await loadLatestBuilderAiCheckpoint('another-owner'),
+      undefined,
+    )
+    await removeBuilderAiCheckpoint('builder-recovery', 'run:validated')
+
     for (let index = 0; index < 51; index += 1) {
       now += 1
       await createBuilderAiCheckpoint(

@@ -101,6 +101,46 @@ test('builder stream rejects execution without a final run event', async () => {
   })
 })
 
+test('builder stream does not accept a token-limited response as success', async () => {
+  await withStream(
+    [
+      runStarted,
+      executionEvent,
+      {
+        ...finalEvent,
+        metadata: { tanstack: { finishReason: 'length' } },
+      },
+    ],
+    async () => {
+      await assert.rejects(runStream(), /response limit/)
+    },
+  )
+})
+
+test('missing validation state fails without running a tool or an unhandled rejection', async () => {
+  const chunks = nativeValidationStream({
+    execution: response.execution,
+    index: 0,
+    runId: 'run-1',
+  }).filter((chunk) => chunk.type !== 'STATE_SNAPSHOT')
+  await withStream(chunks, async () => {
+    await assert.rejects(
+      runBuilderAiStream({
+        endpoint: 'http://builder.test/assist',
+        forwardedProps: { execution: response.execution },
+        messages: [{ role: 'user', content: 'Update the builder.' }],
+        signal: new AbortController().signal,
+        threadId: 'thread-1',
+        activityId: 'activity-1',
+        onValidate: async () => {
+          throw new Error('Validation must not run without state')
+        },
+      }),
+      /no validation state/,
+    )
+  })
+})
+
 test('builder stream rejects events between execution and the final run event', async () => {
   await withStream(
     [
@@ -384,6 +424,80 @@ test('builder stream validates and repairs more than twice inside one client-too
       }
     }
   })
+})
+
+test('a lost continuation does not rerun successful browser validation', async () => {
+  const requests: Array<Record<string, unknown>> = []
+  let validations = 0
+  await withStreams(
+    [
+      (body) =>
+        nativeValidationStream({
+          execution: response.execution,
+          index: 0,
+          runId: readRequestRunId(body),
+        }),
+      () => {
+        throw new TypeError('Network disconnected')
+      },
+    ],
+    requests,
+    [],
+    async () => {
+      await assert.rejects(
+        runBuilderAiStream({
+          endpoint: 'http://builder.test/assist',
+          forwardedProps: { execution: response.execution },
+          messages: [{ role: 'user', content: 'Update the builder.' }],
+          signal: new AbortController().signal,
+          threadId: 'thread-1',
+          activityId: 'activity-1',
+          onValidate: async () => {
+            validations++
+            return { result: { status: 'complete' } }
+          },
+        }),
+        /Stream response body read failed/,
+      )
+    },
+  )
+  assert.equal(validations, 1)
+  assert.equal(requests.length, 2)
+})
+
+test('cancelling during validation never submits a continuation', async () => {
+  const requests: Array<Record<string, unknown>> = []
+  const controller = new AbortController()
+  await withStreams(
+    [
+      (body) =>
+        nativeValidationStream({
+          execution: response.execution,
+          index: 0,
+          runId: readRequestRunId(body),
+        }),
+    ],
+    requests,
+    [],
+    async () => {
+      await assert.rejects(
+        runBuilderAiStream({
+          endpoint: 'http://builder.test/assist',
+          forwardedProps: { execution: response.execution },
+          messages: [{ role: 'user', content: 'Update the builder.' }],
+          signal: controller.signal,
+          threadId: 'thread-1',
+          activityId: 'activity-1',
+          onValidate: async () => {
+            controller.abort()
+            return { result: { status: 'complete' } }
+          },
+        }),
+        { name: 'AbortError' },
+      )
+    },
+  )
+  assert.equal(requests.length, 1)
 })
 
 test('builder stream rejects a changed execution that was not validated', async () => {

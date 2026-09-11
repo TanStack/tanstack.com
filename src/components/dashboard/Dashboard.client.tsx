@@ -483,11 +483,14 @@ function DashboardView({
                 {error} <button onClick={retry}>Retry</button>
               </div>
             )}
-            {isLoading && (
-              <p role="status" className="dash-updating">
-                Updating…
-              </p>
-            )}
+            <div role="status" aria-live="polite" aria-atomic="true">
+              {isLoading && !paused && (
+                <>
+                  <div className="dash-query-progress" aria-hidden="true" />
+                  <p className="dash-updating">Updating data…</p>
+                </>
+              )}
+            </div>
             <section id="overview" aria-label="Overview">
               <div className="dash-title">
                 <div>

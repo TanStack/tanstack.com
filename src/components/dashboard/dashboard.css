@@ -1032,17 +1032,28 @@
   }
 }
 
+.dashboard .dash-query-progress {
+  position: fixed;
+  inset: 0 0 auto;
+  height: 3px;
+  background: var(--dash-accent);
+  z-index: 100;
+  pointer-events: none;
+}
 .dashboard .dash-updating {
   position: fixed;
-  top: 12px;
+  bottom: 24px;
   right: 24px;
-  z-index: 10;
+  z-index: 100;
   margin: 0;
-  padding: 4px 10px;
-  border-radius: 6px;
+  padding: 10px 16px;
+  border: 1px solid var(--dash-accent);
+  border-radius: 10px;
   background: var(--dash-panel);
-  color: var(--dash-muted, #666);
-  font-size: 12px;
+  color: var(--dash-text);
+  box-shadow: 0 4px 20px rgb(0 0 0 / 15%);
+  font-size: 13px;
+  font-weight: 600;
   pointer-events: none;
 }
 

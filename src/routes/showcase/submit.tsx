@@ -18,9 +18,10 @@ export const Route = createFileRoute('/showcase/submit')({
   component: ShowcaseSubmitForm,
   head: () => ({
     meta: seo({
+      noindex: true,
       title: 'Submit Your Project | Showcase | TanStack',
       description:
-        'Submit your project to the TanStack showcase. Share what you built with TanStack libraries.',
+        'Submit a TanStack project for Community review and possible Showcase selection.',
     }),
   }),
 })

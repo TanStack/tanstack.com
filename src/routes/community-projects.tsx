@@ -27,7 +27,7 @@ function hasNonCanonicalSearch(search: v.InferOutput<typeof searchSchema>) {
   )
 }
 
-export const Route = createFileRoute('/showcase/')({
+export const Route = createFileRoute('/community-projects')({
   validateSearch: searchSchema,
   loaderDeps: ({ search }) => ({
     page: search.page,
@@ -45,6 +45,7 @@ export const Route = createFileRoute('/showcase/')({
           pageSize: deps.pageSize,
         },
         filters: {
+          placement: 'community',
           libraryIds: deps.libraryIds,
           useCases: deps.useCases,
           hasSourceCode: deps.hasSourceCode,
@@ -57,13 +58,12 @@ export const Route = createFileRoute('/showcase/')({
       hasNonCanonicalSearch: hasNonCanonicalSearch(deps),
     }
   },
-  component: ShowcaseGallery,
-  head: ({ loaderData }) => ({
+  component: () => <ShowcaseGallery community />,
+  head: () => ({
     meta: seo({
-      title: 'Showcase | TanStack',
-      description:
-        'Projects selected by the TanStack team for their adoption, craft, and technical depth.',
-      noindex: loaderData?.hasNonCanonicalSearch,
+      title: 'Community Projects | TanStack',
+      description: 'Explore projects built by the TanStack community.',
+      noindex: true,
     }),
   }),
 })

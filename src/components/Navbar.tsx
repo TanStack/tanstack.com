@@ -215,8 +215,13 @@ const NAV_GROUPS = [
           {
             label: 'Showcase',
             to: '/showcase',
-            description: 'Teams building with TanStack.',
+            description: 'Projects selected by the TanStack team.',
             icon: SparkleIcon,
+          },
+          {
+            label: 'Community projects',
+            to: '/community-projects',
+            icon: CodeIcon,
           },
         ],
       },

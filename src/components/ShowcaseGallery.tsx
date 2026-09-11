@@ -18,9 +18,15 @@ import { useLoginModal } from '~/contexts/LoginModalContext'
 import type { LibraryId } from '~/libraries'
 import { PAGE_SIZE_OPTIONS } from '~/routes/showcase'
 
-export function ShowcaseGallery() {
-  const navigate = useNavigate({ from: '/showcase/' })
-  const search = useSearch({ from: '/showcase/' })
+export function ShowcaseGallery({
+  community = false,
+}: {
+  community?: boolean
+}) {
+  const from = community ? '/community-projects' : '/showcase/'
+  const placement = community ? 'community' : 'showcase'
+  const navigate = useNavigate({ from })
+  const search = useSearch({ from })
   const queryClient = useQueryClient()
   const currentUser = useCurrentUser()
   const { openLoginModal } = useLoginModal()
@@ -34,8 +40,9 @@ export function ShowcaseGallery() {
         pageSize,
       },
       filters: {
+        placement,
         libraryIds: search.libraryIds,
-        useCases: search.useCases as ShowcaseUseCase[],
+        useCases: search.useCases,
         hasSourceCode: search.hasSourceCode,
         q: search.q,
       },
@@ -74,8 +81,10 @@ export function ShowcaseGallery() {
         getApprovedShowcasesQueryOptions({
           pagination: { page: search.page, pageSize },
           filters: {
+            placement,
             libraryIds: search.libraryIds,
-            useCases: search.useCases as ShowcaseUseCase[],
+            useCases: search.useCases,
+            hasSourceCode: search.hasSourceCode,
             q: search.q,
           },
         }).queryKey,
@@ -118,8 +127,10 @@ export function ShowcaseGallery() {
         getApprovedShowcasesQueryOptions({
           pagination: { page: search.page, pageSize },
           filters: {
+            placement,
             libraryIds: search.libraryIds,
-            useCases: search.useCases as ShowcaseUseCase[],
+            useCases: search.useCases,
+            hasSourceCode: search.hasSourceCode,
             q: search.q,
           },
         }).queryKey,
@@ -159,8 +170,10 @@ export function ShowcaseGallery() {
           getApprovedShowcasesQueryOptions({
             pagination: { page: search.page, pageSize },
             filters: {
+              placement,
               libraryIds: search.libraryIds,
-              useCases: search.useCases as ShowcaseUseCase[],
+              useCases: search.useCases,
+              hasSourceCode: search.hasSourceCode,
               q: search.q,
             },
           }).queryKey,
@@ -300,20 +313,31 @@ export function ShowcaseGallery() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
-                Showcase
+                {community ? 'Community projects' : 'Showcase'}
               </h1>
-              <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
-                Discover projects built with TanStack libraries
-              </p>
+              {!community && (
+                <p className="mt-2 text-lg text-gray-600 dark:text-gray-400 max-w-xl">
+                  Selected by the TanStack team for their adoption, craft, and
+                  technical depth.
+                </p>
+              )}
             </div>
-            <Button
-              as={Link}
-              to="/showcase/submit"
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg border-none"
-            >
-              <PlusIcon className="w-5 h-5" />
-              Submit Your Project
-            </Button>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 shrink-0">
+              <Link
+                to={community ? '/showcase' : '/community-projects'}
+                className="text-blue-600 dark:text-blue-400 hover:underline"
+              >
+                {community ? 'Showcase' : 'Community projects'}
+              </Link>
+              <Button
+                as={Link}
+                to="/showcase/submit"
+                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg border-none"
+              >
+                <PlusIcon className="w-5 h-5" />
+                Submit Your Project
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -324,7 +348,7 @@ export function ShowcaseGallery() {
           <ShowcaseTopBarFilters
             filters={{
               libraryIds: search.libraryIds,
-              useCases: search.useCases as ShowcaseUseCase[],
+              useCases: search.useCases,
               hasSourceCode: search.hasSourceCode,
               q: search.q,
             }}

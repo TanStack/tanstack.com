@@ -1,3 +1,4 @@
+import { showcaseLinkRel } from '~/utils/showcase.shared'
 import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 import {
@@ -7,10 +8,10 @@ import {
   CodeIcon,
 } from '@phosphor-icons/react'
 import { libraries, type LibraryId } from '~/libraries'
-import type { Showcase } from '~/db/types'
+import type { PublicShowcase } from '~/db/types'
 
 interface ShowcaseCardProps {
-  showcase: Showcase
+  showcase: PublicShowcase
   user?: {
     id: string
     name: string | null
@@ -87,7 +88,7 @@ export function ShowcaseCard({
           <a
             href={showcase.sourceUrl}
             target="_blank"
-            rel="noopener noreferrer"
+            rel={showcaseLinkRel(showcase)}
             onClick={(e) => e.stopPropagation()}
             className="p-2 rounded-full bg-white/90 dark:bg-gray-800/90 shadow-sm hover:bg-white dark:hover:bg-gray-700 transition-colors"
             title="View source code"
@@ -98,7 +99,7 @@ export function ShowcaseCard({
         <a
           href={showcase.url}
           target="_blank"
-          rel="noopener noreferrer"
+          rel={showcaseLinkRel(showcase)}
           onClick={(e) => e.stopPropagation()}
           className="p-2 rounded-full bg-white/90 dark:bg-gray-800/90 shadow-sm hover:bg-white dark:hover:bg-gray-700 transition-colors"
           title="Visit site"

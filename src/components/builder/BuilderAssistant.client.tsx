@@ -32,7 +32,9 @@ import {
 } from '~/components/ds/ui'
 import type { ExampleWorkbenchRunResult } from '~/components/examples/ExampleWorkbench.client'
 import { BuilderAgentActivity } from '~/components/builder/BuilderAgentActivity'
+import { BuilderSharedChatWelcome } from '~/components/builder/BuilderSharedChatWelcome'
 import { BuilderUserMessageContent } from '~/components/builder/BuilderUserMessageContent'
+import { BuilderOpenRouterConnect } from '~/components/builder/BuilderOpenRouterConnect.client'
 import { useBuilderWorkspaceControls } from '~/components/builder/builder-workspace-controls.client'
 import { Tooltip } from '~/ui'
 import { copyTextToClipboard } from '~/utils/browser-effects'
@@ -52,6 +54,7 @@ import {
 import {
   cloneBuilderAiExecution,
   builderAiDefaultRemoteModels,
+  builderAiProviderLabels,
   builderAiRemoteModels,
   builderAiRemoteProviders,
   serializeBuilderAiExecution,
@@ -191,6 +194,7 @@ function toByokModelChoice(model: BuilderAiRemoteModel): ByokModelChoice {
 const byokModelChoices = builderAiRemoteModels.map(toByokModelChoice)
 
 const defaultModelByProvider = {
+  openrouter: toByokModelChoice(builderAiDefaultRemoteModels.openrouter),
   openai: openAiDefault,
   anthropic: anthropicDefault,
 } satisfies Record<BuilderAiRemoteProvider, ByokModelChoice>
@@ -207,7 +211,7 @@ const disconnectedChatGpt = {
 } satisfies BuilderChatGptConnection
 
 function getInitialModelChoice(): ModelChoice {
-  return supportsChatGptLogin ? chatGptPlaceholder : openAiDefault
+  return defaultModelByProvider.openrouter
 }
 
 export type BuilderAssistantHandle = {
@@ -263,6 +267,7 @@ type BuilderAssistantProps = {
   ) => void | Promise<void>
   onRunningChange?: (running: boolean) => void
   projectSync?: BuilderAssistantProjectSync
+  sharedProject?: boolean
   storageScope?: string
 }
 
@@ -284,6 +289,7 @@ export const BuilderAssistant = React.forwardRef<
     onRestore,
     onRunningChange,
     projectSync,
+    sharedProject = false,
     storageScope,
   },
   ref,
@@ -322,9 +328,9 @@ export const BuilderAssistant = React.forwardRef<
     getInitialModelChoice(),
   )
   const [settingsProvider, setSettingsProvider] =
-    React.useState<BuilderAiRemoteProvider>('openai')
+    React.useState<BuilderAiRemoteProvider>('openrouter')
   const [settingsOpen, setSettingsOpen] = React.useState(false)
-  const [showApiKeySetup, setShowApiKeySetup] = React.useState(false)
+  const [showApiKeySetup, setShowApiKeySetup] = React.useState(true)
   const [chatGptConnection, setChatGptConnection] =
     React.useState<BuilderChatGptConnection>()
   const [chatGptLogin, setChatGptLogin] = React.useState<BuilderChatGptLogin>()
@@ -1136,7 +1142,7 @@ export const BuilderAssistant = React.forwardRef<
       selectedModel.connection === 'byok' &&
       selectedModel.provider === provider
     ) {
-      const fallbackProvider = (['openai', 'anthropic'] as const).find(
+      const fallbackProvider = builderAiRemoteProviders.find(
         (candidate) =>
           candidate !== provider && byokConnection.hasConfiguredKey(candidate),
       )
@@ -1208,8 +1214,8 @@ export const BuilderAssistant = React.forwardRef<
       await requestChatGptConnection({ action: 'logout' })
       setChatGptConnection(disconnectedChatGpt)
       setChatGptLogin(undefined)
-      const fallbackProvider = (['openai', 'anthropic'] as const).find(
-        (provider) => byokConnection.hasConfiguredKey(provider),
+      const fallbackProvider = builderAiRemoteProviders.find((provider) =>
+        byokConnection.hasConfiguredKey(provider),
       )
       setSelectedModel(
         fallbackProvider
@@ -2944,6 +2950,12 @@ export const BuilderAssistant = React.forwardRef<
               aria-label="Builder AI conversation"
               className="h-full overflow-y-auto overscroll-contain [overflow-anchor:none]"
             >
+              {sharedProject &&
+              !hydrating &&
+              !running &&
+              transcriptRows.length === 0 ? (
+                <BuilderSharedChatWelcome />
+              ) : null}
               <div ref={virtualizer.containerRef} className="relative w-full">
                 {virtualizer.getVirtualItems().map((virtualItem) => {
                   const row = transcriptRows[virtualItem.index]!
@@ -3493,6 +3505,15 @@ function ModelPicker({
         side="top"
         className="sandbox-ui w-64 rounded-xl"
       >
+        <ModelGroup
+          label="OpenRouter"
+          models={byokModelChoices.filter(
+            (model) => model.provider === 'openrouter',
+          )}
+          selected={selected}
+          onSelect={onSelect}
+        />
+        <DropdownSeparator />
         {showChatGpt ? (
           <>
             {chatGptModels.length ? (
@@ -3637,9 +3658,11 @@ function ModelGroup({
             <span className="block truncate text-sm text-text-primary">
               {model.label}
             </span>
-            <span className="block truncate font-ds-mono text-[10px] text-text-muted">
-              {model.connection === 'byok' ? model.description : model.model}
-            </span>
+            {model.connection !== 'byok' || model.provider !== 'openrouter' ? (
+              <span className="block truncate font-ds-mono text-[10px] text-text-muted">
+                {model.connection === 'byok' ? model.description : model.model}
+              </span>
+            ) : null}
           </span>
           {isSelectedModel(selected, model) ? (
             <>
@@ -3778,7 +3801,6 @@ function ConnectionsDialog({
           <div
             className={showChatGpt ? 'border-t border-border-default pt-5' : ''}
           >
-            <h3 className="text-sm font-medium">API key</h3>
             <ProviderSettingsForm
               byok={byok}
               byokSnapshot={byokSnapshot}
@@ -3922,31 +3944,54 @@ function ProviderSettingsForm({
             onProviderChange(parseBuilderAiProvider(event.target.value))
           }
         >
+          <option value="openrouter">OpenRouter</option>
           <option value="openai">OpenAI</option>
           <option value="anthropic">Anthropic</option>
         </FormSelect>
       </div>
-      <div>
-        <label
-          htmlFor={apiKeyId}
-          className="block text-xs font-medium text-text-muted"
-        >
-          {provider === 'openai' ? 'OpenAI' : 'Anthropic'} API key
-        </label>
-        <FormInput
-          key={provider}
-          id={apiKeyId}
-          name="apiKey"
-          type="password"
-          maxLength={4_096}
-          autoComplete="off"
-          spellCheck={false}
-          required
-          disabled={busy}
-          placeholder={hasKey ? 'Paste a replacement key' : 'Paste API key'}
-          className="mt-1.5 font-ds-mono text-sm"
+      {provider === 'openrouter' && !hasKey ? (
+        <BuilderOpenRouterConnect
+          connection={byok}
+          onSave={(key) => onSave('openrouter', key)}
         />
-      </div>
+      ) : null}
+      <details open={provider !== 'openrouter' ? true : undefined}>
+        <summary
+          className={
+            provider === 'openrouter'
+              ? 'cursor-pointer text-xs text-text-muted'
+              : 'hidden'
+          }
+        >
+          {hasKey ? 'Replace API key' : 'Use an API key instead'}
+        </summary>
+        <div>
+          <label
+            htmlFor={apiKeyId}
+            className="block text-xs font-medium text-text-muted"
+          >
+            {builderAiProviderLabels[provider]} API key
+          </label>
+          <FormInput
+            key={provider}
+            id={apiKeyId}
+            name="apiKey"
+            type="password"
+            maxLength={4_096}
+            autoComplete="off"
+            spellCheck={false}
+            required
+            disabled={busy}
+            placeholder={hasKey ? 'Paste a replacement key' : 'Paste API key'}
+            className="mt-1.5 font-ds-mono text-sm"
+          />
+        </div>
+        {provider === 'openrouter' ? (
+          <Button type="submit" size="sm" className="mt-3" disabled={busy}>
+            Save API key
+          </Button>
+        ) : null}
+      </details>
       <div className="rounded-lg border border-border-default bg-background-subtle p-3 text-xs/5">
         {maskedKey ? (
           <p className="font-ds-mono text-text-primary">{maskedKey}</p>
@@ -3999,13 +4044,15 @@ function ProviderSettingsForm({
             {pendingAction === 'clear' ? 'Removing…' : 'Remove key'}
           </Button>
         ) : null}
-        <Button type="submit" size="sm" disabled={busy}>
-          {pendingAction === 'save'
-            ? 'Saving…'
-            : hasKey
-              ? 'Replace key'
-              : 'Use key'}
-        </Button>
+        {provider !== 'openrouter' ? (
+          <Button type="submit" size="sm" disabled={busy}>
+            {pendingAction === 'save'
+              ? 'Saving…'
+              : hasKey
+                ? 'Replace key'
+                : 'Use key'}
+          </Button>
+        ) : null}
       </div>
     </form>
   )
@@ -4336,6 +4383,7 @@ function readErrorMessage(value: unknown, status: number) {
 }
 
 function parseBuilderAiProvider(value: string): BuilderAiRemoteProvider {
+  if (value === 'openrouter') return 'openrouter'
   return value === 'anthropic' ? 'anthropic' : 'openai'
 }
 

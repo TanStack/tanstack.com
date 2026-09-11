@@ -1032,32 +1032,48 @@
   }
 }
 
-.dashboard .dash-query-progress {
-  position: fixed;
-  inset: 0 0 auto;
-  height: 3px;
-  background: var(--dash-accent);
-  z-index: 100;
-  pointer-events: none;
-}
 .dashboard .dash-updating {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
+  bottom: max(24px, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 100;
   margin: 0;
-  padding: 10px 16px;
-  border: 1px solid var(--dash-accent);
-  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 16px 10px 12px;
+  border: 1px solid var(--dash-border);
+  border-radius: 999px;
   background: var(--dash-panel);
   color: var(--dash-text);
-  box-shadow: 0 4px 20px rgb(0 0 0 / 15%);
+  box-shadow:
+    0 2px 6px rgb(0 0 0 / 4%),
+    0 8px 24px rgb(0 0 0 / 10%);
   font-size: 13px;
   font-weight: 600;
+  white-space: nowrap;
   pointer-events: none;
+  user-select: none;
 }
 
 .trip-grid td:focus-visible {
   outline: 2px solid var(--dash-accent, #6366f1);
   outline-offset: -2px;
+}
+
+.dashboard .dash-updating-spinner {
+  flex: none;
+  color: var(--dash-accent);
+  animation: dash-query-spin 800ms linear infinite;
+}
+@keyframes dash-query-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dashboard .dash-updating-spinner {
+    animation: none;
+  }
 }

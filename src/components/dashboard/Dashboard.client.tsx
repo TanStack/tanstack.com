@@ -6,6 +6,7 @@ import {
   ArrowLeftIcon,
   ChartBarIcon,
   ClockIcon,
+  CircleNotchIcon,
   TableIcon,
   MapPinIcon,
   ArrowUpRightIcon,
@@ -485,10 +486,15 @@ function DashboardView({
             )}
             <div role="status" aria-live="polite" aria-atomic="true">
               {isLoading && !paused && (
-                <>
-                  <div className="dash-query-progress" aria-hidden="true" />
-                  <p className="dash-updating">Updating data…</p>
-                </>
+                <p className="dash-updating">
+                  <CircleNotchIcon
+                    size={18}
+                    weight="bold"
+                    className="dash-updating-spinner"
+                    aria-hidden="true"
+                  />
+                  Updating data…
+                </p>
               )}
             </div>
             <section id="overview" aria-label="Overview">

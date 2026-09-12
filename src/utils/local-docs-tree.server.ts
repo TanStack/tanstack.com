@@ -22,7 +22,11 @@ export async function readLocalDocsTree(
   const root = await fs.realpath(repoDir)
   const resolved = await fs.realpath(path.resolve(repoDir, directory))
   const relative = path.relative(root, resolved)
-  if (!relative || relative.startsWith('..') || path.isAbsolute(relative))
+  if (
+    relative === '..' ||
+    relative.startsWith(`..${path.sep}`) ||
+    path.isAbsolute(relative)
+  )
     throw new Error('Directory is outside the repository')
   const entries = (await fs.readdir(resolved, { withFileTypes: true }))
     .filter((entry) => !ignored.has(entry.name) && !entry.isSymbolicLink())

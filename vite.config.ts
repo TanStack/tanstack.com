@@ -68,7 +68,8 @@ function localDocsDevFiles(): PluginOption {
         if (
           !repo ||
           !/^[a-zA-Z0-9._-]+$/.test(repo) ||
-          !filepath ||
+          filepath === null ||
+          (!isTree && !filepath) ||
           !isContainedRepoPath(filepath)
         ) {
           response.statusCode = 400
@@ -96,7 +97,8 @@ function localDocsDevFiles(): PluginOption {
           }))
           .find(
             (candidate) =>
-              isPathInside(candidate.repoDir, candidate.filepath) &&
+              (isPathInside(candidate.repoDir, candidate.filepath) ||
+                (isTree && candidate.repoDir === candidate.filepath)) &&
               fs.existsSync(candidate.filepath) &&
               (isTree
                 ? fs.statSync(candidate.filepath).isDirectory()

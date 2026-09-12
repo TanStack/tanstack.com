@@ -131,6 +131,49 @@ test('Builder project browser sessions remain stable in session storage', () => 
   )
 })
 
+test('the default browser session generator preserves the Crypto receiver', (context) => {
+  const original = crypto.randomUUID
+  context.mock.method(crypto, 'randomUUID', function (this: Crypto) {
+    if (this !== crypto) throw new TypeError('Illegal invocation')
+    return original.call(this)
+  })
+  const storage = memoryStorage()
+  const id = getBuilderProjectBrowserSessionId({ storage })
+  assert.match(id, /^[a-f0-9-]{36}$/)
+  assert.equal(getBuilderProjectBrowserSessionId({ storage }), id)
+})
+
+test('saved project sync starts with the browser-native session generator', async (context) => {
+  const original = crypto.randomUUID
+  context.mock.method(crypto, 'randomUUID', function (this: Crypto) {
+    if (this !== crypto) throw new TypeError('Illegal invocation')
+    return original.call(this)
+  })
+  await withFakeIndexedDb(async () => {
+    const storage = memoryStorage()
+    const client = await createBuilderProjectSyncClient({
+      projectId,
+      sessionStorage: storage,
+      browserSessionLockManager: memoryLockManager(),
+      fetch: async () => jsonSnapshotPage(snapshot),
+      createEventSource: () => ({
+        readyState: 1,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+        close: () => undefined,
+      }),
+    })
+    try {
+      assert.equal(
+        client.browserSessionId,
+        getBuilderProjectBrowserSessionId({ storage }),
+      )
+    } finally {
+      await client.cleanup()
+    }
+  })
+})
+
 test('durable project revisions enter the outbox before upload', async () => {
   await withFakeIndexedDb(async (indexedDb) => {
     const nextRevisionId = uuid(50)

@@ -330,6 +330,14 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
           suppressHydrationWarning
         />
         <HeadContent />
+        {import.meta.env.PROD ? (
+          <script
+            defer
+            src="https://namethathost.com/tracker.js"
+            data-site="b7d91d66-ccee-480a-9d33-f7a9f109edc4"
+            referrerPolicy="no-referrer"
+          />
+        ) : null}
         <style
           id="tanstack-highlight-theme"
           dangerouslySetInnerHTML={{ __html: HIGHLIGHT_THEME_CSS }}

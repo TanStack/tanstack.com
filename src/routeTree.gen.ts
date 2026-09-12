@@ -35,6 +35,7 @@ import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as EthosRouteImport } from './routes/ethos'
 import { Route as DsRouteImport } from './routes/ds'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CommunityProjectsRouteImport } from './routes/community-projects'
 import { Route as BuilderRouteImport } from './routes/builder'
 import { Route as BrandGuideRouteImport } from './routes/brand-guide'
 import { Route as BlogRouteImport } from './routes/blog'
@@ -193,6 +194,7 @@ import { Route as IntentRegistryPackageNameChar123Char125DotmdRouteImport } from
 import { Route as IntentRegistryPackageNameSkillNameRouteImport } from './routes/intent/registry/$packageName.$skillName'
 import { Route as ApiBuilderProjectsIdRouteImport } from './routes/api/builder/projects.$id'
 import { Route as ApiBuilderProjectSnapshotsHashRouteImport } from './routes/api/builder/project-snapshots.$hash'
+import { Route as ApiBuilderOpenrouterCallbackRouteImport } from './routes/api/builder/openrouter/callback'
 import { Route as ApiAuthCliCreateTicketRouteImport } from './routes/api/auth/cli/create-ticket'
 import { Route as ApiAuthCallbackProviderRouteImport } from './routes/api/auth/callback/$provider'
 import { Route as ApiApplicationStarterDeployGithubRouteImport } from './routes/api/application-starter/deploy/github'
@@ -348,6 +350,11 @@ const DsRoute = DsRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommunityProjectsRoute = CommunityProjectsRouteImport.update({
+  id: '/community-projects',
+  path: '/community-projects',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BuilderRoute = BuilderRouteImport.update({
@@ -1180,6 +1187,12 @@ const ApiBuilderProjectSnapshotsHashRoute =
     path: '/$hash',
     getParentRoute: () => ApiBuilderProjectSnapshotsRoute,
   } as any)
+const ApiBuilderOpenrouterCallbackRoute =
+  ApiBuilderOpenrouterCallbackRouteImport.update({
+    id: '/api/builder/openrouter/callback',
+    path: '/api/builder/openrouter/callback',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAuthCliCreateTicketRoute = ApiAuthCliCreateTicketRouteImport.update({
   id: '/api/auth/cli/create-ticket',
   path: '/api/auth/cli/create-ticket',
@@ -1345,6 +1358,7 @@ export interface FileRoutesByFullPath {
   '/blog': typeof BlogRouteWithChildren
   '/brand-guide': typeof BrandGuideRoute
   '/builder': typeof BuilderRoute
+  '/community-projects': typeof CommunityProjectsRoute
   '/dashboard': typeof DashboardRoute
   '/ds': typeof DsRouteWithChildren
   '/ethos': typeof EthosRoute
@@ -1500,6 +1514,7 @@ export interface FileRoutesByFullPath {
   '/api/application-starter/deploy/github': typeof ApiApplicationStarterDeployGithubRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
   '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
+  '/api/builder/openrouter/callback': typeof ApiBuilderOpenrouterCallbackRoute
   '/api/builder/project-snapshots/$hash': typeof ApiBuilderProjectSnapshotsHashRouteWithChildren
   '/api/builder/projects/$id': typeof ApiBuilderProjectsIdRouteWithChildren
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
@@ -1552,6 +1567,7 @@ export interface FileRoutesByTo {
   '/ads': typeof AdsRoute
   '/brand-guide': typeof BrandGuideRoute
   '/builder': typeof BuilderRoute
+  '/community-projects': typeof CommunityProjectsRoute
   '/dashboard': typeof DashboardRoute
   '/ethos': typeof EthosRoute
   '/explore': typeof ExploreRoute
@@ -1699,6 +1715,7 @@ export interface FileRoutesByTo {
   '/api/application-starter/deploy/github': typeof ApiApplicationStarterDeployGithubRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
   '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
+  '/api/builder/openrouter/callback': typeof ApiBuilderOpenrouterCallbackRoute
   '/api/builder/project-snapshots/$hash': typeof ApiBuilderProjectSnapshotsHashRouteWithChildren
   '/api/builder/projects/$id': typeof ApiBuilderProjectsIdRouteWithChildren
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
@@ -1757,6 +1774,7 @@ export interface FileRoutesById {
   '/blog': typeof BlogRouteWithChildren
   '/brand-guide': typeof BrandGuideRoute
   '/builder': typeof BuilderRoute
+  '/community-projects': typeof CommunityProjectsRoute
   '/dashboard': typeof DashboardRoute
   '/ds': typeof DsRouteWithChildren
   '/ethos': typeof EthosRoute
@@ -1912,6 +1930,7 @@ export interface FileRoutesById {
   '/api/application-starter/deploy/github': typeof ApiApplicationStarterDeployGithubRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
   '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
+  '/api/builder/openrouter/callback': typeof ApiBuilderOpenrouterCallbackRoute
   '/api/builder/project-snapshots/$hash': typeof ApiBuilderProjectSnapshotsHashRouteWithChildren
   '/api/builder/projects/$id': typeof ApiBuilderProjectsIdRouteWithChildren
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
@@ -1970,6 +1989,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/brand-guide'
     | '/builder'
+    | '/community-projects'
     | '/dashboard'
     | '/ds'
     | '/ethos'
@@ -2125,6 +2145,7 @@ export interface FileRouteTypes {
     | '/api/application-starter/deploy/github'
     | '/api/auth/callback/$provider'
     | '/api/auth/cli/create-ticket'
+    | '/api/builder/openrouter/callback'
     | '/api/builder/project-snapshots/$hash'
     | '/api/builder/projects/$id'
     | '/intent/registry/$packageName/$skillName'
@@ -2177,6 +2198,7 @@ export interface FileRouteTypes {
     | '/ads'
     | '/brand-guide'
     | '/builder'
+    | '/community-projects'
     | '/dashboard'
     | '/ethos'
     | '/explore'
@@ -2324,6 +2346,7 @@ export interface FileRouteTypes {
     | '/api/application-starter/deploy/github'
     | '/api/auth/callback/$provider'
     | '/api/auth/cli/create-ticket'
+    | '/api/builder/openrouter/callback'
     | '/api/builder/project-snapshots/$hash'
     | '/api/builder/projects/$id'
     | '/intent/registry/$packageName/$skillName'
@@ -2381,6 +2404,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/brand-guide'
     | '/builder'
+    | '/community-projects'
     | '/dashboard'
     | '/ds'
     | '/ethos'
@@ -2536,6 +2560,7 @@ export interface FileRouteTypes {
     | '/api/application-starter/deploy/github'
     | '/api/auth/callback/$provider'
     | '/api/auth/cli/create-ticket'
+    | '/api/builder/openrouter/callback'
     | '/api/builder/project-snapshots/$hash'
     | '/api/builder/projects/$id'
     | '/intent/registry/$packageName/$skillName'
@@ -2594,6 +2619,7 @@ export interface RootRouteChildren {
   BlogRoute: typeof BlogRouteWithChildren
   BrandGuideRoute: typeof BrandGuideRoute
   BuilderRoute: typeof BuilderRoute
+  CommunityProjectsRoute: typeof CommunityProjectsRoute
   DashboardRoute: typeof DashboardRoute
   DsRoute: typeof DsRouteWithChildren
   EthosRoute: typeof EthosRoute
@@ -2675,6 +2701,7 @@ export interface RootRouteChildren {
   ApiApplicationStarterDeployGithubRoute: typeof ApiApplicationStarterDeployGithubRoute
   ApiAuthCallbackProviderRoute: typeof ApiAuthCallbackProviderRoute
   ApiAuthCliCreateTicketRoute: typeof ApiAuthCliCreateTicketRoute
+  ApiBuilderOpenrouterCallbackRoute: typeof ApiBuilderOpenrouterCallbackRoute
   ApiAuthCliStatusTicketIdRoute: typeof ApiAuthCliStatusTicketIdRoute
   ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute: typeof ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute
 }
@@ -2861,6 +2888,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/community-projects': {
+      id: '/community-projects'
+      path: '/community-projects'
+      fullPath: '/community-projects'
+      preLoaderRoute: typeof CommunityProjectsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/builder': {
@@ -3969,6 +4003,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiBuilderProjectSnapshotsHashRouteImport
       parentRoute: typeof ApiBuilderProjectSnapshotsRoute
     }
+    '/api/builder/openrouter/callback': {
+      id: '/api/builder/openrouter/callback'
+      path: '/api/builder/openrouter/callback'
+      fullPath: '/api/builder/openrouter/callback'
+      preLoaderRoute: typeof ApiBuilderOpenrouterCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/cli/create-ticket': {
       id: '/api/auth/cli/create-ticket'
       path: '/api/auth/cli/create-ticket'
@@ -4598,6 +4639,7 @@ const rootRouteChildren: RootRouteChildren = {
   BlogRoute: BlogRouteWithChildren,
   BrandGuideRoute: BrandGuideRoute,
   BuilderRoute: BuilderRoute,
+  CommunityProjectsRoute: CommunityProjectsRoute,
   DashboardRoute: DashboardRoute,
   DsRoute: DsRouteWithChildren,
   EthosRoute: EthosRoute,
@@ -4687,6 +4729,7 @@ const rootRouteChildren: RootRouteChildren = {
     ApiApplicationStarterDeployGithubRoute,
   ApiAuthCallbackProviderRoute: ApiAuthCallbackProviderRoute,
   ApiAuthCliCreateTicketRoute: ApiAuthCliCreateTicketRoute,
+  ApiBuilderOpenrouterCallbackRoute: ApiBuilderOpenrouterCallbackRoute,
   ApiAuthCliStatusTicketIdRoute: ApiAuthCliStatusTicketIdRoute,
   ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute:
     ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute,

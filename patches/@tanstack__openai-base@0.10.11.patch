@@ -1,5 +1,5 @@
 diff --git a/dist/esm/adapters/responses-text.d.ts b/dist/esm/adapters/responses-text.d.ts
-index dd7529e056ea12b66a8fd8b6e040a4a5c117f38b..bf708a53546e0937ca4e2c32834e3f888b377c72 100644
+index dd7529e0..bf708a53 100644
 --- a/dist/esm/adapters/responses-text.d.ts
 +++ b/dist/esm/adapters/responses-text.d.ts
 @@ -9,10 +9,15 @@ import { ContentPart, DefaultMessageMetadataByModality, Modality, ModelMessage,
@@ -28,10 +28,10 @@ index dd7529e056ea12b66a8fd8b6e040a4a5c117f38b..bf708a53546e0937ca4e2c32834e3f88
       * Converts ModelMessage[] to Responses API ResponseInput format.
       * Override this in subclasses for provider-specific message format quirks.
 diff --git a/dist/esm/adapters/responses-text.js b/dist/esm/adapters/responses-text.js
-index 19340f93dc462ac43f18e808c12a49ee4d127356..b1f947e193edb3eec90ca007e1b76cdb518313bb 100644
+index 5428b968..46c51e3c 100644
 --- a/dist/esm/adapters/responses-text.js
 +++ b/dist/esm/adapters/responses-text.js
-@@ -523,6 +523,7 @@ var OpenAIBaseResponsesTextAdapter = class extends BaseTextAdapter {
+@@ -558,6 +558,7 @@ var OpenAIBaseResponsesTextAdapter = class extends BaseTextAdapter {
  		let hasStreamedContentDeltas = false;
  		let hasStreamedReasoningDeltas = false;
  		let model = options.model;
@@ -39,7 +39,7 @@ index 19340f93dc462ac43f18e808c12a49ee4d127356..b1f947e193edb3eec90ca007e1b76cdb
  		let stepId = null;
  		let hasEmittedTextMessageStart = false;
  		let reasoningMessageId;
-@@ -648,6 +649,7 @@ var OpenAIBaseResponsesTextAdapter = class extends BaseTextAdapter {
+@@ -699,6 +700,7 @@ var OpenAIBaseResponsesTextAdapter = class extends BaseTextAdapter {
  				};
  				if (chunk.type === "response.created" || chunk.type === "response.incomplete" || chunk.type === "response.failed") model = chunk.response.model;
  				if (chunk.type === "response.created") {
@@ -47,7 +47,7 @@ index 19340f93dc462ac43f18e808c12a49ee4d127356..b1f947e193edb3eec90ca007e1b76cdb
  					hasStreamedContentDeltas = false;
  					hasStreamedReasoningDeltas = false;
  					hasEmittedTextMessageStart = false;
-@@ -790,7 +792,10 @@ var OpenAIBaseResponsesTextAdapter = class extends BaseTextAdapter {
+@@ -845,7 +847,10 @@ var OpenAIBaseResponsesTextAdapter = class extends BaseTextAdapter {
  								model: model || options.model,
  								timestamp: Date.now(),
  								index: chunk.output_index,
@@ -59,7 +59,7 @@ index 19340f93dc462ac43f18e808c12a49ee4d127356..b1f947e193edb3eec90ca007e1b76cdb
  							};
  							metadata.started = true;
  						}
-@@ -879,7 +884,10 @@ var OpenAIBaseResponsesTextAdapter = class extends BaseTextAdapter {
+@@ -938,7 +943,10 @@ var OpenAIBaseResponsesTextAdapter = class extends BaseTextAdapter {
  								model: model || options.model,
  								timestamp: Date.now(),
  								index: metadata.index,
@@ -71,7 +71,7 @@ index 19340f93dc462ac43f18e808c12a49ee4d127356..b1f947e193edb3eec90ca007e1b76cdb
  							};
  							metadata.started = true;
  						}
-@@ -916,6 +924,7 @@ var OpenAIBaseResponsesTextAdapter = class extends BaseTextAdapter {
+@@ -975,6 +983,7 @@ var OpenAIBaseResponsesTextAdapter = class extends BaseTextAdapter {
  					}
  				}
  				if (chunk.type === "response.completed") {
@@ -79,7 +79,7 @@ index 19340f93dc462ac43f18e808c12a49ee4d127356..b1f947e193edb3eec90ca007e1b76cdb
  					const completedText = chunk.response.output.flatMap((item) => item.type === "message" ? item.content : []).filter((part) => part.type === "output_text").map((part) => part.text).join("");
  					if (accumulatedContent.length === 0 && completedText.length > 0) {
  						if (!hasEmittedTextMessageStart) {
-@@ -962,7 +971,11 @@ var OpenAIBaseResponsesTextAdapter = class extends BaseTextAdapter {
+@@ -1035,7 +1044,11 @@ var OpenAIBaseResponsesTextAdapter = class extends BaseTextAdapter {
  								model: model || options.model,
  								timestamp: Date.now(),
  								index: metadata.index,
@@ -92,7 +92,7 @@ index 19340f93dc462ac43f18e808c12a49ee4d127356..b1f947e193edb3eec90ca007e1b76cdb
  							};
  							metadata.started = true;
  						}
-@@ -1081,7 +1094,8 @@ var OpenAIBaseResponsesTextAdapter = class extends BaseTextAdapter {
+@@ -1154,7 +1167,8 @@ var OpenAIBaseResponsesTextAdapter = class extends BaseTextAdapter {
  	* Override this in subclasses to add provider-specific options.
  	*/
  	mapOptionsToRequest(options) {
@@ -102,7 +102,7 @@ index 19340f93dc462ac43f18e808c12a49ee4d127356..b1f947e193edb3eec90ca007e1b76cdb
  		const tools = options.tools ? convertToolsToResponsesFormat(options.tools, this.makeStructuredOutputCompatible.bind(this)) : void 0;
  		const modelOptions = options.modelOptions;
  		const combinedSchema = options.outputSchema;
-@@ -1094,6 +1108,7 @@ var OpenAIBaseResponsesTextAdapter = class extends BaseTextAdapter {
+@@ -1167,6 +1181,7 @@ var OpenAIBaseResponsesTextAdapter = class extends BaseTextAdapter {
  		return {
  			...modelOptions,
  			model: options.model,
@@ -110,7 +110,7 @@ index 19340f93dc462ac43f18e808c12a49ee4d127356..b1f947e193edb3eec90ca007e1b76cdb
  			...options.metadata !== void 0 && { metadata: options.metadata },
  			...(() => {
  				const prompts = normalizeSystemPrompts(options.systemPrompts);
-@@ -1114,6 +1129,43 @@ var OpenAIBaseResponsesTextAdapter = class extends BaseTextAdapter {
+@@ -1187,6 +1202,43 @@ var OpenAIBaseResponsesTextAdapter = class extends BaseTextAdapter {
  		return true;
  	}
  	/**
@@ -154,11 +154,18 @@ index 19340f93dc462ac43f18e808c12a49ee4d127356..b1f947e193edb3eec90ca007e1b76cdb
  	* Converts ModelMessage[] to Responses API ResponseInput format.
  	* Override this in subclasses for provider-specific message format quirks.
  	*
+@@ -1344,4 +1396,4 @@ var OpenAIBaseResponsesTextAdapter = class extends BaseTextAdapter {
+ //#endregion
+ export { OpenAIBaseResponsesTextAdapter };
+ 
+-//# sourceMappingURL=responses-text.js.map
+\ No newline at end of file
++//# sourceMappingURL=responses-text.js.map
 diff --git a/src/adapters/responses-text.ts b/src/adapters/responses-text.ts
-index 88e42f57f3d01dc784bd8b67231c230ee249a590..d137c6f12662486addbf4368b24714238e12e176 100644
+index 551e2084..9aa03031 100644
 --- a/src/adapters/responses-text.ts
 +++ b/src/adapters/responses-text.ts
-@@ -43,10 +43,15 @@ const PDF_BASE64_MAGIC = 'JVBERi'
+@@ -95,10 +95,15 @@ function readReasoningItem(
   * Responses function calls have two identifiers: `call_id` correlates the
   * function output with the call, while `id` identifies the output item itself.
   * TanStack AI uses `call_id` as the canonical tool-call ID and carries the
@@ -175,7 +182,7 @@ index 88e42f57f3d01dc784bd8b67231c230ee249a590..d137c6f12662486addbf4368b2471423
  }
  
  interface StreamedFunctionCallMetadata {
-@@ -831,6 +836,7 @@ export abstract class OpenAIBaseResponsesTextAdapter<
+@@ -883,6 +888,7 @@ export abstract class OpenAIBaseResponsesTextAdapter<
  
      // Preserve response metadata across events
      let model: string = options.model
@@ -183,7 +190,7 @@ index 88e42f57f3d01dc784bd8b67231c230ee249a590..d137c6f12662486addbf4368b2471423
  
      // AG-UI lifecycle tracking
      let stepId: string | null = null
-@@ -992,6 +998,7 @@ export abstract class OpenAIBaseResponsesTextAdapter<
+@@ -1064,6 +1070,7 @@ export abstract class OpenAIBaseResponsesTextAdapter<
          // response.created marks the start of a fresh run — safe to reset
          // the per-run accumulators here.
          if (chunk.type === 'response.created') {
@@ -191,7 +198,7 @@ index 88e42f57f3d01dc784bd8b67231c230ee249a590..d137c6f12662486addbf4368b2471423
            hasStreamedContentDeltas = false
            hasStreamedReasoningDeltas = false
            hasEmittedTextMessageStart = false
-@@ -1260,6 +1267,7 @@ export abstract class OpenAIBaseResponsesTextAdapter<
+@@ -1336,6 +1343,7 @@ export abstract class OpenAIBaseResponsesTextAdapter<
                  index: chunk.output_index,
                  metadata: {
                    itemId: item.id,
@@ -199,7 +206,7 @@ index 88e42f57f3d01dc784bd8b67231c230ee249a590..d137c6f12662486addbf4368b2471423
                  } satisfies OpenAIResponsesToolCallMetadata,
                }
                metadata.started = true
-@@ -1414,6 +1422,7 @@ export abstract class OpenAIBaseResponsesTextAdapter<
+@@ -1494,6 +1502,7 @@ export abstract class OpenAIBaseResponsesTextAdapter<
                  index: metadata.index,
                  metadata: {
                    itemId: item.id,
@@ -207,7 +214,7 @@ index 88e42f57f3d01dc784bd8b67231c230ee249a590..d137c6f12662486addbf4368b2471423
                  } satisfies OpenAIResponsesToolCallMetadata,
                }
                metadata.started = true
-@@ -1468,6 +1477,7 @@ export abstract class OpenAIBaseResponsesTextAdapter<
+@@ -1548,6 +1557,7 @@ export abstract class OpenAIBaseResponsesTextAdapter<
          }
  
          if (chunk.type === 'response.completed') {
@@ -215,7 +222,7 @@ index 88e42f57f3d01dc784bd8b67231c230ee249a590..d137c6f12662486addbf4368b2471423
            // Some Responses API streams, notably reasoning-model responses,
            // can omit text deltas and carry the successful final text only in
            // response.completed.output. Recover that text so consumers never
-@@ -1535,6 +1545,8 @@ export abstract class OpenAIBaseResponsesTextAdapter<
+@@ -1647,6 +1657,8 @@ export abstract class OpenAIBaseResponsesTextAdapter<
                  index: metadata.index,
                  metadata: {
                    itemId: item.id,
@@ -224,7 +231,7 @@ index 88e42f57f3d01dc784bd8b67231c230ee249a590..d137c6f12662486addbf4368b2471423
                  } satisfies OpenAIResponsesToolCallMetadata,
                }
                metadata.started = true
-@@ -1727,7 +1739,12 @@ export abstract class OpenAIBaseResponsesTextAdapter<
+@@ -1839,7 +1851,12 @@ export abstract class OpenAIBaseResponsesTextAdapter<
    protected mapOptionsToRequest(
      options: TextOptions<TProviderOptions>,
    ): Omit<ResponseCreateParams, 'stream'> {
@@ -238,7 +245,7 @@ index 88e42f57f3d01dc784bd8b67231c230ee249a590..d137c6f12662486addbf4368b2471423
  
      const tools = options.tools
        ? convertToolsToResponsesFormat(
-@@ -1774,6 +1791,9 @@ export abstract class OpenAIBaseResponsesTextAdapter<
+@@ -1886,6 +1903,9 @@ export abstract class OpenAIBaseResponsesTextAdapter<
      return {
        ...modelOptions,
        model: options.model,
@@ -248,7 +255,7 @@ index 88e42f57f3d01dc784bd8b67231c230ee249a590..d137c6f12662486addbf4368b2471423
        ...(options.metadata !== undefined && { metadata: options.metadata }),
        ...(() => {
          const prompts = normalizeSystemPrompts(options.systemPrompts)
-@@ -1797,6 +1817,70 @@ export abstract class OpenAIBaseResponsesTextAdapter<
+@@ -1909,6 +1929,70 @@ export abstract class OpenAIBaseResponsesTextAdapter<
      return true
    }
  

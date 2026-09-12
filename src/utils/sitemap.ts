@@ -89,7 +89,18 @@ async function getLibraryDocsEntries(
     repo: library.repo,
     branch,
     docsRoot,
-  }).catch(() => ({ paths: [], redirects: {}, lastModifiedByPath: undefined }))
+  }).catch((cause: unknown) => {
+    throw new Error(
+      `Sitemap docs unavailable: ${library.id} (${library.repo}@${branch}:${docsRoot})`,
+      { cause },
+    )
+  })
+
+  if (manifest.paths.length === 0) {
+    throw new Error(
+      `Sitemap docs empty: ${library.id} (${library.repo}@${branch}:${docsRoot})`,
+    )
+  }
 
   return manifest.paths
     .filter(Boolean)
@@ -146,8 +157,7 @@ async function getPublishedChartsCatalogEntries(): Promise<
     const publication = await getChartsCatalogIndexPublication()
     return getChartsCatalogSitemapEntries(publication.index)
   } catch (error) {
-    console.error('[sitemap] Charts catalog unavailable', error)
-    return [{ path: '/charts/catalog/' }]
+    throw new Error('Sitemap charts catalog unavailable', { cause: error })
   }
 }
 

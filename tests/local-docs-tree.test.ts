@@ -43,3 +43,28 @@ test('local tree reads nested docs, omits generated directories and symlinks, an
     await rm(root, { recursive: true, force: true })
   }
 })
+
+test('local trees include documentation below the former depth limit', async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'docs-depth-'))
+  try {
+    const directory = 'docs/framework/react/course/project/checkpoints/final'
+    await mkdir(path.join(root, directory), { recursive: true })
+    await writeFile(path.join(root, directory, 'index.md'), '# Final')
+    let nodes = await readLocalDocsTree(root, 'docs')
+    for (const name of [
+      'framework',
+      'react',
+      'course',
+      'project',
+      'checkpoints',
+      'final',
+    ]) {
+      assert.equal(nodes[0]?.name, name)
+      assert.ok(nodes[0].children)
+      nodes = nodes[0].children
+    }
+    assert.equal(nodes[0]?.path, `${directory}/index.md`)
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+})

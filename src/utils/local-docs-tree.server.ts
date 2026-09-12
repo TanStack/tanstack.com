@@ -46,7 +46,7 @@ export async function readLocalDocsTree(
         depth,
         parentPath: directory,
         _links: { self: filePath },
-        ...(entry.isDirectory() && depth <= 3
+        ...(entry.isDirectory()
           ? { children: await readLocalDocsTree(repoDir, filePath, depth + 1) }
           : {}),
       }

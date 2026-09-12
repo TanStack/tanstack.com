@@ -372,7 +372,8 @@ export const fetchDocsManifest = createServerFn({ method: 'GET' })
       gitRef: branch,
       docsRoot,
       artifactType: 'docs-manifest',
-      artifactKey: 'default',
+      // Older manifests may have been built from depth-limited directory trees.
+      artifactKey: 'complete-tree-v1',
       isValue: isDocsManifest,
       build: () => buildDocsManifest({ repo, branch, docsRoot }),
     })
@@ -397,7 +398,8 @@ export const fetchDocsPathManifest = createServerFn({ method: 'GET' })
       gitRef: branch,
       docsRoot,
       artifactType: 'docs-path-manifest',
-      artifactKey: 'default',
+      // Older manifests may have been built from depth-limited directory trees.
+      artifactKey: 'complete-tree-v1',
       isValue: isDocsManifest,
       build: () => buildDocsPathManifest({ repo, branch, docsRoot }),
     })

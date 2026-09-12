@@ -2,7 +2,8 @@ import fs from 'node:fs'
 import fsp from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
-import { parse as parseYaml } from 'yaml'
+import { parse as parseYaml, stringify as stringifyYaml } from 'yaml'
+import { readDocsFreshness } from './docs-freshness'
 import { parseFragment } from 'parse5'
 import type { BlockNode, InlineNode } from '@tanstack/markdown'
 import {
@@ -536,6 +537,7 @@ async function fetchRepoFileFromOrigin(
   const maxDepth = 4
   let currentDepth = 1
   let originFrontmatter: FrontMatterFile | undefined
+  const referenceMetadata: Array<Record<string, unknown>> = []
 
   while (maxDepth > currentDepth) {
     let text: string | null
@@ -557,11 +559,13 @@ async function fetchRepoFileFromOrigin(
         if (originFrontmatter) {
           text = replaceContent(text, originFrontmatter)
           text = replaceSections(text, originFrontmatter)
+          text = applyReferencedDocsFreshness(text, referenceMetadata)
         }
 
         return replaceProjectImageBranch(text, repoPair, ref)
       }
 
+      referenceMetadata.push(frontmatter.data)
       filepath = frontmatter.data.ref
       originFrontmatter = frontmatter
     } catch {
@@ -572,6 +576,38 @@ async function fetchRepoFileFromOrigin(
   }
 
   return null
+}
+
+// A rendered reference page depends on every source in the chain. Tests of
+// the source alone do not verify the referencing page's replacements.
+export function applyReferencedDocsFreshness(
+  text: string,
+  references: Array<Record<string, unknown>>,
+) {
+  const parsed = parseFrontMatter(text)
+  if (references.length === 0) return text
+  const facts = [parsed.data, ...references].map(readDocsFreshness)
+  const dates = facts.flatMap(({ updated }) => (updated ? [updated] : []))
+  const updated =
+    dates.length === facts.length ? dates.sort().at(-1) : undefined
+  const packages = readDocsFreshness(references[0]).packages
+  if (
+    !updated &&
+    packages.length === 0 &&
+    parsed.data.updated === undefined &&
+    parsed.data.testedWith === undefined
+  )
+    return text
+  const data = { ...parsed.data }
+  delete data.updated
+  delete data.testedWith
+  if (updated) data.updated = updated
+  if (packages.length > 0) {
+    data.testedWith = Object.fromEntries(
+      packages.map(({ name, version }) => [name, version]),
+    )
+  }
+  return `---\n${stringifyYaml(data)}---\n${parsed.content}`
 }
 
 async function fetchRepoRawFileFromOrigin(

@@ -1,3 +1,4 @@
+import type { readDocsFreshness } from '~/utils/docs-freshness'
 import * as React from 'react'
 import {
   ArrowsInLineHorizontalIcon,
@@ -20,6 +21,7 @@ import {
 } from '~/utils/start-hosting-guide'
 
 type DocProps = {
+  freshness?: ReturnType<typeof readDocsFreshness>
   title: string
   content: string
   repo: string
@@ -42,6 +44,7 @@ type DocProps = {
 }
 
 export function Doc({
+  freshness,
   title,
   content,
   repo,
@@ -194,6 +197,24 @@ export function Doc({
               ) : null
             }
           />
+          {freshness && (freshness.updated || freshness.packages.length > 0) ? (
+            <div className="mt-6 text-sm text-gray-600 dark:text-gray-400">
+              {freshness.updated ? (
+                <p>
+                  Updated{' '}
+                  <time dateTime={freshness.updated}>{freshness.updated}</time>
+                </p>
+              ) : null}
+              {freshness.packages.length > 0 ? (
+                <p>
+                  Tested with{' '}
+                  {freshness.packages
+                    .map(({ name, version }) => `${name} ${version}`)
+                    .join(', ')}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
           {footer ?? <DocNavigation />}
           <div className="h-4" />
         </div>

@@ -300,7 +300,11 @@ async function fetchFs(repo: string, filepath: string) {
   return null
 }
 
-async function fetchFsFromDevServer(repo: string, filepath: string) {
+async function fetchFsFromDevServer(
+  repo: string,
+  filepath: string,
+  tree = false,
+) {
   let request: Request
 
   try {
@@ -316,6 +320,7 @@ async function fetchFsFromDevServer(repo: string, filepath: string) {
   const url = new URL(localDocsDevPath, request.url)
   url.searchParams.set('repo', repo)
   url.searchParams.set('path', filepath)
+  if (tree) url.searchParams.set('kind', 'tree')
 
   const response = await fetch(url, {
     headers: {
@@ -1429,6 +1434,14 @@ async function fetchApiContentsFs(
   startingPath: string,
 ): Promise<Array<GitHubFileNode> | null> {
   const [_, repo] = repoPair.split('/')
+  if (isIsolateRuntime()) {
+    const text = await fetchFsFromDevServer(repo, startingPath, true)
+    if (text === null) return null
+    const tree: unknown = JSON.parse(text)
+    if (!isGitHubFileNodeArray(tree))
+      throw new Error('Invalid local docs directory response')
+    return tree
+  }
 
   const base = getLocalRepoBaseDirs(repo).find((candidate) =>
     fs.existsSync(path.join(candidate, removeLeadingSlash(startingPath))),

@@ -1,4 +1,5 @@
 import { canonicalUrl, seo } from '~/utils/seo'
+import { getDocsStructuredData } from '~/utils/docs-structured-data'
 import { ogImageUrl } from '~/utils/og'
 import { Doc } from '~/components/Doc'
 import {
@@ -96,7 +97,24 @@ export const Route = createFileRoute('/_library/$libraryId/$version/docs/$')({
         appendPathToDocsHref({ docsPath: docsPath ?? '', libraryId, version }),
     )
 
+    const structuredData = getDocsStructuredData({
+      doc: loaderData,
+      library,
+      canonicalHref,
+    })
+
     return {
+      scripts: structuredData
+        ? [
+            {
+              type: 'application/ld+json',
+              children: JSON.stringify(structuredData).replaceAll(
+                '<',
+                '\\u003c',
+              ),
+            },
+          ]
+        : [],
       meta: [
         ...seo({
           title: loaderData?.title

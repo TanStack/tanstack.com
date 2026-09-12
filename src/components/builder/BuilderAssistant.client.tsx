@@ -2846,22 +2846,24 @@ export const BuilderAssistant = React.forwardRef<
           {threads.length > 1 ? (
             <Dropdown>
               <Tooltip content="Recent conversations">
-                <DropdownTrigger>
-                  <Button
-                    type="button"
-                    variant="icon"
-                    color="gray"
-                    size="icon-sm"
-                    className={floatingChatButtonClass}
-                    aria-label="Recent AI conversations"
-                    disabled={running}
-                  >
-                    <ClockCounterClockwiseIcon
-                      className="size-3.5"
-                      aria-hidden="true"
-                    />
-                  </Button>
-                </DropdownTrigger>
+                <DropdownTrigger
+                  render={
+                    <Button
+                      type="button"
+                      variant="icon"
+                      color="gray"
+                      size="icon-sm"
+                      className={floatingChatButtonClass}
+                      aria-label="Recent AI conversations"
+                      disabled={running}
+                    >
+                      <ClockCounterClockwiseIcon
+                        className="size-3.5"
+                        aria-hidden="true"
+                      />
+                    </Button>
+                  }
+                />
               </Tooltip>
               <DropdownContent
                 align="end"
@@ -3571,21 +3573,23 @@ function ModelPicker({
 }) {
   return (
     <Dropdown>
-      <DropdownTrigger>
-        <Button
-          type="button"
-          variant="ghost"
-          color="gray"
-          size="xs"
-          disabled={disabled}
-          aria-label={`Select model, current ${selected.label}`}
-          data-builder-ai-selected-model={selected.model}
-          className="max-w-52 px-2"
-        >
-          <span className="truncate">{selected.label}</span>
-          <CaretDownIcon className="size-3" aria-hidden="true" />
-        </Button>
-      </DropdownTrigger>
+      <DropdownTrigger
+        render={
+          <Button
+            type="button"
+            variant="ghost"
+            color="gray"
+            size="xs"
+            disabled={disabled}
+            aria-label={`Select model, current ${selected.label}`}
+            data-builder-ai-selected-model={selected.model}
+            className="max-w-52 px-2"
+          >
+            <span className="truncate">{selected.label}</span>
+            <CaretDownIcon className="size-3" aria-hidden="true" />
+          </Button>
+        }
+      />
       <DropdownContent
         align="start"
         side="top"
@@ -3663,19 +3667,21 @@ function SendModePicker({
 }) {
   return (
     <Dropdown>
-      <DropdownTrigger>
-        <Button
-          type="button"
-          variant="ghost"
-          color="gray"
-          size="xs"
-          aria-label={`Send mode: ${mode === 'queue' ? 'Queue' : 'Steer'}`}
-          className="px-2"
-        >
-          {mode === 'queue' ? 'Queue' : 'Steer'}
-          <CaretDownIcon className="size-3" aria-hidden="true" />
-        </Button>
-      </DropdownTrigger>
+      <DropdownTrigger
+        render={
+          <Button
+            type="button"
+            variant="ghost"
+            color="gray"
+            size="xs"
+            aria-label={`Send mode: ${mode === 'queue' ? 'Queue' : 'Steer'}`}
+            className="px-2"
+          >
+            {mode === 'queue' ? 'Queue' : 'Steer'}
+            <CaretDownIcon className="size-3" aria-hidden="true" />
+          </Button>
+        }
+      />
       <DropdownContent
         align="end"
         side="top"

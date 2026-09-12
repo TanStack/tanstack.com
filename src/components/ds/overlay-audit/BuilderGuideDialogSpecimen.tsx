@@ -1,4 +1,4 @@
-import * as DialogPrimitive from '@radix-ui/react-dialog'
+import { Dialog as DialogPrimitive } from '@base-ui/react/dialog'
 import { ArrowSquareOutIcon, XIcon } from '@phosphor-icons/react'
 import { Button } from '~/components/ds/ui'
 import type { SpecimenProps } from './types'
@@ -9,10 +9,13 @@ import type { SpecimenProps } from './types'
  *
  * The strongest specimen in the set and the best starting point for the DS
  * primitive: semantic tokens throughout (`border-border-default`,
- * `bg-background-surface`, `text-text-primary`), real enter/exit animation via
- * Radix data-state, a fixed header over an independently scrolling body, and a
- * responsive posture that is full-bleed on mobile and a right-edge sheet from
- * `sm` up.
+ * `bg-background-surface`, `text-text-primary`), a fixed header over an
+ * independently scrolling body, and a responsive posture that is full-bleed on
+ * mobile and a right-edge sheet from `sm` up.
+ *
+ * It animated nothing, though — the `animate-in` / `slide-in-from-right`
+ * classes it carried come from tailwindcss-animate, which is not installed.
+ * Dropped rather than translated: motion is the DS primitive's job now.
  */
 export function BuilderGuideDialogSpecimen({
   open,
@@ -21,8 +24,8 @@ export function BuilderGuideDialogSpecimen({
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-[999] bg-black/45 backdrop-blur-[1px] data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0" />
-        <DialogPrimitive.Content className="fixed inset-3 z-[1000] flex flex-col overflow-hidden rounded-xl border border-border-default bg-background-surface text-text-primary shadow-2xl outline-none duration-300 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0 sm:top-3 sm:right-3 sm:bottom-3 sm:left-auto sm:w-full sm:max-w-2xl sm:data-[state=closed]:slide-out-to-right sm:data-[state=open]:slide-in-from-right">
+        <DialogPrimitive.Backdrop className="fixed inset-0 z-[999] bg-black/45 backdrop-blur-[1px]" />
+        <DialogPrimitive.Popup className="fixed inset-3 z-[1000] flex flex-col overflow-hidden rounded-xl border border-border-default bg-background-surface text-text-primary shadow-2xl outline-none sm:top-3 sm:right-3 sm:bottom-3 sm:left-auto sm:w-full sm:max-w-2xl">
           <header className="flex h-14 shrink-0 items-center justify-between border-b border-border-default px-4">
             <DialogPrimitive.Title className="text-sm font-semibold">
               Builder guide
@@ -32,17 +35,19 @@ export function BuilderGuideDialogSpecimen({
                 Plain text
                 <ArrowSquareOutIcon className="size-3.5" aria-hidden="true" />
               </Button>
-              <DialogPrimitive.Close asChild>
-                <Button
-                  type="button"
-                  variant="icon"
-                  size="icon-sm"
-                  color="gray"
-                  aria-label="Close builder guide"
-                >
-                  <XIcon className="size-4" aria-hidden="true" />
-                </Button>
-              </DialogPrimitive.Close>
+              <DialogPrimitive.Close
+                render={
+                  <Button
+                    type="button"
+                    variant="icon"
+                    size="icon-sm"
+                    color="gray"
+                    aria-label="Close builder guide"
+                  >
+                    <XIcon className="size-4" aria-hidden="true" />
+                  </Button>
+                }
+              />
             </div>
           </header>
 
@@ -64,7 +69,7 @@ export function BuilderGuideDialogSpecimen({
               </section>
             ))}
           </div>
-        </DialogPrimitive.Content>
+        </DialogPrimitive.Popup>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
   )

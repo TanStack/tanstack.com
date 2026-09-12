@@ -128,28 +128,30 @@ export function BlogFilterBar({
     return (
       <>
         <Dropdown>
-          <DropdownTrigger>
-            <Button
-              variant={selectedLibrary ? 'secondary' : 'ghost'}
-              className={twMerge(
-                triggerClass,
-                !selectedLibrary && FLAT_ON_MOBILE,
-              )}
-            >
-              {SelectedTopicIcon ? (
-                <SelectedTopicIcon
-                  className={twMerge(
-                    'h-4 w-4 shrink-0',
-                    selectedTopicCategory
-                      ? categoryTextColor[selectedTopicCategory]
-                      : undefined,
-                  )}
-                />
-              ) : null}
-              <span className="max-w-[16ch] truncate">{topicLabel}</span>
-              <CaretDownIcon className="h-4 w-4 shrink-0 text-text-muted" />
-            </Button>
-          </DropdownTrigger>
+          <DropdownTrigger
+            render={
+              <Button
+                variant={selectedLibrary ? 'secondary' : 'ghost'}
+                className={twMerge(
+                  triggerClass,
+                  !selectedLibrary && FLAT_ON_MOBILE,
+                )}
+              >
+                {SelectedTopicIcon ? (
+                  <SelectedTopicIcon
+                    className={twMerge(
+                      'h-4 w-4 shrink-0',
+                      selectedTopicCategory
+                        ? categoryTextColor[selectedTopicCategory]
+                        : undefined,
+                    )}
+                  />
+                ) : null}
+                <span className="max-w-[16ch] truncate">{topicLabel}</span>
+                <CaretDownIcon className="h-4 w-4 shrink-0 text-text-muted" />
+              </Button>
+            }
+          />
           <DropdownContent align="start" maxHeight="20rem">
             <MenuItem
               selected={!selectedLibrary}
@@ -190,20 +192,22 @@ export function BlogFilterBar({
 
         {authors.length ? (
           <Dropdown>
-            <DropdownTrigger>
-              <Button
-                variant={activeAuthor ? 'secondary' : 'ghost'}
-                className={twMerge(
-                  triggerClass,
-                  !activeAuthor && FLAT_ON_MOBILE,
-                )}
-              >
-                <span className="max-w-[16ch] truncate">
-                  {activeAuthor ?? 'All authors'}
-                </span>
-                <CaretDownIcon className="h-4 w-4 shrink-0 text-text-muted" />
-              </Button>
-            </DropdownTrigger>
+            <DropdownTrigger
+              render={
+                <Button
+                  variant={activeAuthor ? 'secondary' : 'ghost'}
+                  className={twMerge(
+                    triggerClass,
+                    !activeAuthor && FLAT_ON_MOBILE,
+                  )}
+                >
+                  <span className="max-w-[16ch] truncate">
+                    {activeAuthor ?? 'All authors'}
+                  </span>
+                  <CaretDownIcon className="h-4 w-4 shrink-0 text-text-muted" />
+                </Button>
+              }
+            />
             <DropdownContent align="start" maxHeight="20rem">
               <MenuItem
                 selected={!activeAuthor}
@@ -229,18 +233,22 @@ export function BlogFilterBar({
 
         {years.length ? (
           <Dropdown>
-            <DropdownTrigger>
-              <Button
-                variant={selectedYear ? 'secondary' : 'ghost'}
-                className={twMerge(
-                  triggerClass,
-                  !selectedYear && FLAT_ON_MOBILE,
-                )}
-              >
-                <span className="truncate">{selectedYear ?? 'All years'}</span>
-                <CaretDownIcon className="h-4 w-4 shrink-0 text-text-muted" />
-              </Button>
-            </DropdownTrigger>
+            <DropdownTrigger
+              render={
+                <Button
+                  variant={selectedYear ? 'secondary' : 'ghost'}
+                  className={twMerge(
+                    triggerClass,
+                    !selectedYear && FLAT_ON_MOBILE,
+                  )}
+                >
+                  <span className="truncate">
+                    {selectedYear ?? 'All years'}
+                  </span>
+                  <CaretDownIcon className="h-4 w-4 shrink-0 text-text-muted" />
+                </Button>
+              }
+            />
             <DropdownContent align="start" maxHeight="20rem">
               <MenuItem
                 selected={!selectedYear}

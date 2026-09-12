@@ -48,34 +48,41 @@ export function Breadcrumbs({
         )}
         {showTocToggle && (
           <Dropdown>
-            <DropdownTrigger>
-              <button
-                className={twMerge(
-                  hiddenClass,
-                  'whitespace-nowrap inline-flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors cursor-pointer',
-                )}
-              >
-                <span>On this page</span>
-                <CaretDownIcon className="w-3.5 h-3.5" />
-              </button>
-            </DropdownTrigger>
+            <DropdownTrigger
+              render={
+                <button
+                  className={twMerge(
+                    hiddenClass,
+                    'whitespace-nowrap inline-flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors cursor-pointer',
+                  )}
+                >
+                  <span>On this page</span>
+                  <CaretDownIcon className="w-3.5 h-3.5" />
+                </button>
+              }
+            />
             <DropdownContent align="end" sideOffset={8} className={hiddenClass}>
               {headings.map((heading) => (
-                <DropdownItem key={`breadcrumb-toc-${heading.id}`} asChild>
-                  <Link
-                    to="."
-                    hash={heading.id}
-                    style={{
-                      paddingLeft: `${(heading.level - 2) * 0.5 + 0.5}rem`,
-                    }}
-                    resetScroll={false}
-                    hashScrollIntoView={{
-                      behavior: 'smooth',
-                    }}
-                  >
-                    <span dangerouslySetInnerHTML={{ __html: heading.text }} />
-                  </Link>
-                </DropdownItem>
+                <DropdownItem
+                  key={`breadcrumb-toc-${heading.id}`}
+                  render={
+                    <Link
+                      to="."
+                      hash={heading.id}
+                      style={{
+                        paddingLeft: `${(heading.level - 2) * 0.5 + 0.5}rem`,
+                      }}
+                      resetScroll={false}
+                      hashScrollIntoView={{
+                        behavior: 'smooth',
+                      }}
+                    >
+                      <span
+                        dangerouslySetInnerHTML={{ __html: heading.text }}
+                      />
+                    </Link>
+                  }
+                />
               ))}
             </DropdownContent>
           </Dropdown>

@@ -1,5 +1,5 @@
 import * as React from 'react'
-import * as DialogPrimitive from '@radix-ui/react-dialog'
+import { Dialog as DialogPrimitive } from '@base-ui/react/dialog'
 import { CircleNotchIcon } from '@phosphor-icons/react/CircleNotch'
 import { XIcon } from '@phosphor-icons/react/X'
 import { twMerge } from 'tailwind-merge'
@@ -7,7 +7,7 @@ import { twMerge } from 'tailwind-merge'
 /**
  * Centered modal dialog.
  *
- * Always Radix-backed, which is the whole point: focus trapping, focus
+ * Always Base UI-backed, which is the whole point: focus trapping, focus
  * restoration on close, Escape-to-dismiss and scroll lock come from the
  * primitive rather than from each call site remembering to implement them.
  * The overlay audit at /ds/overlays found that every accessibility failure on
@@ -43,27 +43,21 @@ type DialogContentProps = {
   children: React.ReactNode
   size?: DialogSize
   className?: string
-  /** Escape hatch for content that manages its own dismissal (e.g. a wizard mid-submit). */
-  onInteractOutside?: DialogPrimitive.DialogContentProps['onInteractOutside']
 }
 
 export const DialogContent = React.forwardRef<
   HTMLDivElement,
   DialogContentProps
->(function DialogContent(
-  { children, size = 'sm', className, onInteractOutside },
-  ref,
-) {
+>(function DialogContent({ children, size = 'sm', className }, ref) {
   return (
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay
+      <DialogPrimitive.Backdrop
         data-ds-dialog-scrim=""
         className="fixed inset-0 z-[var(--z-scrim)] bg-scrim"
       />
-      <DialogPrimitive.Content
+      <DialogPrimitive.Popup
         ref={ref}
         data-ds-dialog-panel=""
-        onInteractOutside={onInteractOutside}
         className={twMerge(
           // Centring uses the independent `translate` property (that is what
           // Tailwind v4 compiles these to), which leaves `transform` free for
@@ -78,13 +72,13 @@ export const DialogContent = React.forwardRef<
           'max-h-[calc(100dvh-2rem)] flex flex-col',
           'rounded-xl corner-squircle border border-border-default bg-background-elevated text-text-primary shadow-2xl',
           // Enter/exit motion is attached in app.css via the data-ds-dialog-*
-          // attributes, keyed off Radix's data-state.
+          // attributes, keyed off Base UI's data-open / data-closed.
           sizeStyles[size],
           className,
         )}
       >
         {children}
-      </DialogPrimitive.Content>
+      </DialogPrimitive.Popup>
     </DialogPrimitive.Portal>
   )
 })
@@ -92,8 +86,8 @@ export const DialogContent = React.forwardRef<
 type DialogHeaderProps = {
   title: React.ReactNode
   /**
-   * Rendered under the title. Radix warns when a dialog has no description, so
-   * when this is omitted the description is still emitted, visually hidden.
+   * Rendered under the title. A dialog without one is an accessibility gap,
+   * so when this is omitted the description is still emitted, visually hidden.
    */
   description?: React.ReactNode
   /** Extra controls placed left of the close button. */

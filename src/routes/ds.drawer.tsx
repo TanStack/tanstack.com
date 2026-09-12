@@ -22,7 +22,7 @@ export const Route = createFileRoute('/ds/drawer')({
     meta: seo({
       title: 'Drawer | TanStack Design System',
       description:
-        'The edge-anchored panel — right, left and bottom, on one Radix foundation.',
+        'The edge-anchored panel — right, left and bottom, on one Base UI foundation.',
     }),
   }),
 })
@@ -41,7 +41,7 @@ function DrawerPage() {
   return (
     <DsPage
       title="Drawer"
-      description="The edge-anchored panel, also called a side sheet. Same Radix foundation and three-region layout as Dialog, anchored to an edge instead of centred. Right, left and bottom are one component because they are one mechanism — a surface arriving from off-screen — differing only in axis. Source: src/components/ds/ui/Drawer.tsx."
+      description="The edge-anchored panel, also called a side sheet. Same Base UI foundation and three-region layout as Dialog, anchored to an edge instead of centred. Right, left and bottom are one component because they are one mechanism — a surface arriving from off-screen — differing only in axis. Source: src/components/ds/ui/Drawer.tsx."
     >
       <DsSection
         title="Sides"
@@ -165,9 +165,9 @@ function DrawerPage() {
                 </p>
               </DrawerBody>
               <DrawerFooter>
-                <DrawerClose asChild>
-                  <Button size="md">Primary action</Button>
-                </DrawerClose>
+                <DrawerClose
+                  render={<Button size="md">Primary action</Button>}
+                />
               </DrawerFooter>
             </DrawerContent>
           </Drawer>
@@ -318,9 +318,7 @@ function DrawerPage() {
                   <span className="text-text-muted">Subtotal</span>
                   <span className="font-medium text-text-primary">$56.00</span>
                 </div>
-                <DrawerClose asChild>
-                  <Button size="md">Checkout</Button>
-                </DrawerClose>
+                <DrawerClose render={<Button size="md">Checkout</Button>} />
               </DrawerFooter>
             </DrawerContent>
           </Drawer>
@@ -334,7 +332,7 @@ function DrawerPage() {
         <ul className="flex flex-col gap-2 text-sm text-text-secondary">
           {[
             'The panel slides only — no fade. The scrim fades.',
-            'Exit animations play: Radix Presence waits for animationend before unmounting.',
+            'Exit animations play: Base UI waits for the animation to finish before unmounting.',
             'prefers-reduced-motion removes the movement but keeps the state change.',
             'Bottom is centred with auto margins rather than a translate, so transform stays free for the slide — Tailwind v4 compiles -translate-x-1/2 to the independent translate property, which composes with transform rather than being replaced by it.',
           ].map((line) => (

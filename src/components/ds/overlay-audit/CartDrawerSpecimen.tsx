@@ -1,4 +1,4 @@
-import * as Dialog from '@radix-ui/react-dialog'
+import { Dialog } from '@base-ui/react/dialog'
 import { ShoppingCartIcon, XIcon } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import type { SpecimenProps } from './types'
@@ -19,8 +19,8 @@ export function CartDrawerSpecimen({ open, onOpenChange }: SpecimenProps) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="cart-overlay fixed inset-0 z-[100] bg-black/40" />
-        <Dialog.Content
+        <Dialog.Backdrop className="cart-overlay fixed inset-0 z-[100] bg-black/40" />
+        <Dialog.Popup
           className={twMerge(
             'shop-scope cart-panel',
             'fixed right-4 top-[calc(var(--navbar-height,56px)+0.5rem)] z-[100]',
@@ -72,7 +72,7 @@ export function CartDrawerSpecimen({ open, onOpenChange }: SpecimenProps) {
               Checkout
             </button>
           </footer>
-        </Dialog.Content>
+        </Dialog.Popup>
       </Dialog.Portal>
     </Dialog.Root>
   )

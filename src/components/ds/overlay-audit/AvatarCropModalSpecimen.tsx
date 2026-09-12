@@ -1,4 +1,4 @@
-import * as DialogPrimitive from '@radix-ui/react-dialog'
+import { Dialog as DialogPrimitive } from '@base-ui/react/dialog'
 import { XIcon } from '@phosphor-icons/react'
 import { Button } from '~/ui'
 import type { SpecimenProps } from './types'
@@ -12,8 +12,8 @@ export function AvatarCropModalSpecimen({ open, onOpenChange }: SpecimenProps) {
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm" />
-        <DialogPrimitive.Content className="fixed left-1/2 top-1/2 z-[1000] w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+        <DialogPrimitive.Backdrop className="fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm" />
+        <DialogPrimitive.Popup className="fixed left-1/2 top-1/2 z-[1000] w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white dark:bg-gray-900 p-6 shadow-xl">
           <div className="flex items-center justify-between mb-4">
             <DialogPrimitive.Title className="text-lg font-semibold text-gray-900 dark:text-gray-100">
               Crop Profile Picture
@@ -55,7 +55,7 @@ export function AvatarCropModalSpecimen({ open, onOpenChange }: SpecimenProps) {
             </Button>
             <Button size="sm">Save</Button>
           </div>
-        </DialogPrimitive.Content>
+        </DialogPrimitive.Popup>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
   )

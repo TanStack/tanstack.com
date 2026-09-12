@@ -1,5 +1,5 @@
 import * as React from 'react'
-import * as DialogPrimitive from '@radix-ui/react-dialog'
+import { Dialog as DialogPrimitive } from '@base-ui/react/dialog'
 import { XIcon } from '@phosphor-icons/react/X'
 import { twMerge } from 'tailwind-merge'
 
@@ -50,7 +50,6 @@ type TakeoverContentProps = {
    */
   dismissOnBackdropClick?: boolean
   className?: string
-  onInteractOutside?: DialogPrimitive.DialogContentProps['onInteractOutside']
 }
 
 export const TakeoverContent = React.forwardRef<
@@ -64,25 +63,23 @@ export const TakeoverContent = React.forwardRef<
     closeLabel = 'Close',
     dismissOnBackdropClick = true,
     className,
-    onInteractOutside,
   },
   ref,
 ) {
-  // The content fills the viewport, so Radix never sees a click as "outside".
+  // The content fills the viewport, so a click is never "outside" it.
   // Backdrop dismissal therefore routes through the close button we already
   // render, rather than a second dismissal path that could drift from it.
   const closeRef = React.useRef<HTMLButtonElement>(null)
 
   return (
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay
+      <DialogPrimitive.Backdrop
         data-ds-takeover-scrim={scrim}
         className="fixed inset-0 z-[var(--z-scrim)]"
       />
-      <DialogPrimitive.Content
+      <DialogPrimitive.Popup
         ref={ref}
         data-ds-takeover-panel=""
-        onInteractOutside={onInteractOutside}
         onClick={
           dismissOnBackdropClick
             ? (event) => {
@@ -112,7 +109,7 @@ export const TakeoverContent = React.forwardRef<
         </DialogPrimitive.Close>
 
         {children}
-      </DialogPrimitive.Content>
+      </DialogPrimitive.Popup>
     </DialogPrimitive.Portal>
   )
 })

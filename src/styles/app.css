@@ -179,13 +179,14 @@ html.theme-switching *::after {
 }
 
 /* ----------------------------------------------------------------- Dialog --
-   Enter/exit motion for the DS Dialog, driven off Radix's data-state rather
+   Enter/exit motion for the DS Dialog, driven off Base UI's data-open /
+   data-closed rather
    than utility classes. Written as real keyframes on purpose: the
    `animate-in` / `fade-in-0` / `zoom-in-95` classes used elsewhere in this
    codebase come from tailwindcss-animate, which is NOT installed — they match
    no CSS rule and animate nothing. Timing reuses the existing motion tokens.
 
-   Radix's Presence waits for animationend before unmounting, so the closed
+   Base UI waits for the animation to finish before unmounting, so the closed
    state genuinely plays instead of being cut off.
 
    The panel keyframes animate `transform` only. Tailwind v4's
@@ -231,19 +232,19 @@ html.theme-switching *::after {
   }
 }
 
-[data-ds-dialog-scrim][data-state='open'] {
+[data-ds-dialog-scrim][data-open] {
   animation: dialog-scrim-in var(--motion-duration-fast)
     var(--motion-ease-standard) both;
 }
-[data-ds-dialog-scrim][data-state='closed'] {
+[data-ds-dialog-scrim][data-closed] {
   animation: dialog-scrim-out var(--motion-duration-fast)
     var(--motion-ease-standard) both;
 }
-[data-ds-dialog-panel][data-state='open'] {
+[data-ds-dialog-panel][data-open] {
   animation: dialog-panel-in var(--motion-duration-fast)
     var(--motion-ease-standard) both;
 }
-[data-ds-dialog-panel][data-state='closed'] {
+[data-ds-dialog-panel][data-closed] {
   animation: dialog-panel-out var(--motion-duration-fast)
     var(--motion-ease-standard) both;
 }
@@ -262,8 +263,8 @@ html.theme-switching *::after {
    `transform` carries scale/offset only, never a centring translate: Tailwind
    v4 compiles `-translate-x-1/2` to the independent `translate` property,
    which composes with `transform` rather than being replaced by it. That also
-   leaves Radix's --radix-*-content-transform-origin free to govern where a
-   popover grows from.
+   leaves Base UI's --transform-origin free to govern where a popover grows
+   from.
    -------------------------------------------------------------------------- */
 @keyframes ds-pop-in {
   from {
@@ -286,17 +287,14 @@ html.theme-switching *::after {
   }
 }
 
-/* Radix-driven transient surfaces: tooltips, dropdown menus.
-   Tooltip does not use `open` — it reports `delayed-open` when it appears
-   after the hover delay and `instant-open` inside the skip-delay window, so
-   all three have to be matched or tooltips silently never animate. */
-[data-ds-pop][data-state='open'],
-[data-ds-pop][data-state='delayed-open'],
-[data-ds-pop][data-state='instant-open'] {
+/* Transient surfaces: tooltips, dropdown menus. Base UI reports a single
+   `data-open` regardless of whether the tooltip appeared after the hover delay
+   or instantly inside the skip-delay window, so one selector covers both. */
+[data-ds-pop][data-open] {
   animation: ds-pop-in var(--motion-duration-fast) var(--motion-ease-standard)
     both;
 }
-[data-ds-pop][data-state='closed'] {
+[data-ds-pop][data-closed] {
   animation: ds-pop-out var(--motion-duration-fast) var(--motion-ease-standard)
     both;
 }
@@ -375,13 +373,13 @@ html.dark [data-ds-takeover-scrim='glass'] {
   }
 }
 
-[data-ds-takeover-scrim][data-state='open'],
-[data-ds-takeover-panel][data-state='open'] {
+[data-ds-takeover-scrim][data-open],
+[data-ds-takeover-panel][data-open] {
   animation: takeover-in var(--motion-duration-fast) var(--motion-ease-standard)
     both;
 }
-[data-ds-takeover-scrim][data-state='closed'],
-[data-ds-takeover-panel][data-state='closed'] {
+[data-ds-takeover-scrim][data-closed],
+[data-ds-takeover-panel][data-closed] {
   animation: takeover-out var(--motion-duration-fast)
     var(--motion-ease-standard) both;
 }
@@ -455,27 +453,27 @@ html.dark [data-ds-takeover-scrim='glass'] {
   }
 }
 
-[data-ds-drawer-panel][data-side='right'][data-state='open'] {
+[data-ds-drawer-panel][data-side='right'][data-open] {
   animation: drawer-right-in var(--motion-duration-sheet)
     var(--motion-ease-sheet) both;
 }
-[data-ds-drawer-panel][data-side='right'][data-state='closed'] {
+[data-ds-drawer-panel][data-side='right'][data-closed] {
   animation: drawer-right-out var(--motion-duration-sheet)
     var(--motion-ease-sheet) both;
 }
-[data-ds-drawer-panel][data-side='left'][data-state='open'] {
+[data-ds-drawer-panel][data-side='left'][data-open] {
   animation: drawer-left-in var(--motion-duration-sheet)
     var(--motion-ease-sheet) both;
 }
-[data-ds-drawer-panel][data-side='left'][data-state='closed'] {
+[data-ds-drawer-panel][data-side='left'][data-closed] {
   animation: drawer-left-out var(--motion-duration-sheet)
     var(--motion-ease-sheet) both;
 }
-[data-ds-drawer-panel][data-side='bottom'][data-state='open'] {
+[data-ds-drawer-panel][data-side='bottom'][data-open] {
   animation: drawer-bottom-in var(--motion-duration-sheet)
     var(--motion-ease-sheet) both;
 }
-[data-ds-drawer-panel][data-side='bottom'][data-state='closed'] {
+[data-ds-drawer-panel][data-side='bottom'][data-closed] {
   animation: drawer-bottom-out var(--motion-duration-sheet)
     var(--motion-ease-sheet) both;
 }
@@ -504,11 +502,11 @@ html.dark [data-ds-takeover-scrim='glass'] {
   }
 }
 
-[data-ds-drawer-scrim][data-state='open'] {
+[data-ds-drawer-scrim][data-open] {
   animation: dialog-scrim-in var(--motion-duration-sheet)
     var(--motion-ease-sheet) both;
 }
-[data-ds-drawer-scrim][data-state='closed'] {
+[data-ds-drawer-scrim][data-closed] {
   animation: dialog-scrim-out var(--motion-duration-sheet)
     var(--motion-ease-sheet) both;
 }
@@ -2749,7 +2747,7 @@ html:not(.dark) .library-landing-graphic [style*='drop-shadow'] {
   animation: dropdown-in 150ms ease-out;
 }
 
-.dropdown-content[data-state='closed'] {
+.dropdown-content[data-closed] {
   animation: dropdown-out 100ms ease-in;
 }
 
@@ -2794,11 +2792,11 @@ html:not(.dark) .library-landing-graphic [style*='drop-shadow'] {
   }
 }
 
-.search-modal-overlay[data-state='open'] {
+.search-modal-overlay[data-open] {
   animation: search-modal-overlay-in 140ms ease-out both;
 }
 
-.search-modal-overlay[data-state='closed'] {
+.search-modal-overlay[data-closed] {
   animation: search-modal-overlay-out 120ms ease-in both;
 }
 
@@ -2806,11 +2804,11 @@ html:not(.dark) .library-landing-graphic [style*='drop-shadow'] {
   transform-origin: top center;
 }
 
-.search-modal-content[data-state='open'] .search-modal-panel-transition {
+.search-modal-content[data-open] .search-modal-panel-transition {
   animation: search-modal-panel-in 140ms ease-out both;
 }
 
-.search-modal-content[data-state='closed'] .search-modal-panel-transition {
+.search-modal-content[data-closed] .search-modal-panel-transition {
   animation: search-modal-panel-out 120ms ease-in both;
 }
 
@@ -2862,19 +2860,19 @@ html:not(.dark) .library-landing-graphic [style*='drop-shadow'] {
   }
 }
 
-.cart-panel[data-state='open'] {
+.cart-panel[data-open] {
   animation: cart-panel-in 200ms ease-out;
 }
 
-.cart-panel[data-state='closed'] {
+.cart-panel[data-closed] {
   animation: cart-panel-out 150ms ease-in;
 }
 
-.cart-overlay[data-state='open'] {
+.cart-overlay[data-open] {
   animation: cart-overlay-in 200ms ease-out;
 }
 
-.cart-overlay[data-state='closed'] {
+.cart-overlay[data-closed] {
   animation: cart-overlay-out 150ms ease-in;
 }
 

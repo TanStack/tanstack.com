@@ -61,18 +61,21 @@ export function BrandContextMenu({ children, ...rest }: BrandContextMenuProps) {
     <div onContextMenu={onContextMenu} {...rest}>
       {children}
       <Dropdown open={open} onOpenChange={setOpen} modal>
-        <DropdownTrigger asChild={false}>
-          <span
-            ref={virtualTriggerRef}
-            style={{
-              position: 'fixed',
-              left: coords.x,
-              top: coords.y,
-              width: 1,
-              height: 1,
-            }}
-          />
-        </DropdownTrigger>
+        <DropdownTrigger
+          nativeButton={false}
+          render={
+            <span
+              ref={virtualTriggerRef}
+              style={{
+                position: 'fixed',
+                left: coords.x,
+                top: coords.y,
+                width: 1,
+                height: 1,
+              }}
+            />
+          }
+        />
         <DropdownContent
           sideOffset={4}
           align="start"

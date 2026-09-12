@@ -14,7 +14,18 @@ export function LibrariesOverlay({
   return (
     <Takeover
       open={open}
-      onOpenChange={(next) => {
+      onOpenChange={(next, details) => {
+        // The browser portals its own menus. A press inside one is outside the
+        // takeover as far as the dialog is concerned, so it would dismiss the
+        // whole overlay; keep it open and let the menu handle its own press.
+        if (
+          details.reason === 'outside-press' &&
+          details.event.target instanceof Element &&
+          details.event.target.closest('[role="menu"]')
+        ) {
+          details.cancel()
+          return
+        }
         if (!next) onClose()
       }}
     >
@@ -33,12 +44,6 @@ export function LibrariesOverlay({
             </button>
           ) : null
         }
-        onInteractOutside={(event) => {
-          const target = event.detail.originalEvent.target
-          if (target instanceof Element && target.closest('[role="menu"]')) {
-            event.preventDefault()
-          }
-        }}
       >
         <LibrariesBrowser variant="dialog" />
       </TakeoverContent>

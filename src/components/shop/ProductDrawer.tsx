@@ -228,7 +228,7 @@ export function ProductDrawer({
 
         {allHandles.length > 1 ? (
           <>
-            {/* Anchored to the panel, not the viewport. Radix traps focus
+            {/* Anchored to the panel, not the viewport. Base UI traps focus
                 inside the panel, so viewport-level siblings would be
                 unreachable by keyboard — and it retires the third z-tier the
                 overlay audit flagged. */}

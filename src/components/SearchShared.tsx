@@ -771,27 +771,29 @@ export function LibraryRefinement({ compact = false }: SearchScopePickerProps) {
 
   return (
     <Dropdown modal={false}>
-      <DropdownTrigger>
-        <button
-          type="button"
-          className={twMerge(
-            'flex min-w-0 items-center gap-1 p-0.5 cursor-pointer font-bold rounded focus:ring-2 text-gray-900 dark:text-gray-100',
-            compact ? 'max-w-[10rem] text-xs' : 'text-sm',
-          )}
-        >
-          {currentLibrary ? (
-            <span className="min-w-0 truncate uppercase font-black">
-              <span className="opacity-50">TanStack</span>{' '}
-              <span className={currentLibrary.textStyle}>
-                {currentLibrary.id.toUpperCase()}
+      <DropdownTrigger
+        render={
+          <button
+            type="button"
+            className={twMerge(
+              'flex min-w-0 items-center gap-1 p-0.5 cursor-pointer font-bold rounded focus:ring-2 text-gray-900 dark:text-gray-100',
+              compact ? 'max-w-[10rem] text-xs' : 'text-sm',
+            )}
+          >
+            {currentLibrary ? (
+              <span className="min-w-0 truncate uppercase font-black">
+                <span className="opacity-50">TanStack</span>{' '}
+                <span className={currentLibrary.textStyle}>
+                  {currentLibrary.id.toUpperCase()}
+                </span>
               </span>
-            </span>
-          ) : (
-            <span className="truncate">All Libraries</span>
-          )}
-          <CaretDownIcon className="w-3 h-3 opacity-50 shrink-0" />
-        </button>
-      </DropdownTrigger>
+            ) : (
+              <span className="truncate">All Libraries</span>
+            )}
+            <CaretDownIcon className="w-3 h-3 opacity-50 shrink-0" />
+          </button>
+        }
+      />
       <DropdownContent align="end" className="max-h-[60vh] w-64 overflow-auto">
         <DropdownItem
           onSelect={() => setSelectedLibrary('')}
@@ -845,33 +847,35 @@ export function FrameworkRefinement({
 
   return (
     <Dropdown modal={false}>
-      <DropdownTrigger>
-        <button
-          type="button"
-          className={twMerge(
-            'flex min-w-0 items-center gap-1 p-0.5 font-bold rounded cursor-pointer focus:ring-2 text-gray-900 dark:text-gray-100',
-            compact ? 'max-w-[9rem] text-xs' : 'text-sm',
-          )}
-        >
-          {currentFramework && (
-            <img
-              src={currentFramework.logo}
-              alt=""
-              aria-hidden="true"
-              className={twMerge(
-                'shrink-0',
-                compact ? 'w-3.5 h-3.5' : 'w-4 h-4',
-              )}
-            />
-          )}
-          <span className="truncate">
-            {currentFramework
-              ? capitalize(currentFramework.label)
-              : 'All Frameworks'}
-          </span>
-          <CaretDownIcon className="w-3 h-3 opacity-50 shrink-0" />
-        </button>
-      </DropdownTrigger>
+      <DropdownTrigger
+        render={
+          <button
+            type="button"
+            className={twMerge(
+              'flex min-w-0 items-center gap-1 p-0.5 font-bold rounded cursor-pointer focus:ring-2 text-gray-900 dark:text-gray-100',
+              compact ? 'max-w-[9rem] text-xs' : 'text-sm',
+            )}
+          >
+            {currentFramework && (
+              <img
+                src={currentFramework.logo}
+                alt=""
+                aria-hidden="true"
+                className={twMerge(
+                  'shrink-0',
+                  compact ? 'w-3.5 h-3.5' : 'w-4 h-4',
+                )}
+              />
+            )}
+            <span className="truncate">
+              {currentFramework
+                ? capitalize(currentFramework.label)
+                : 'All Frameworks'}
+            </span>
+            <CaretDownIcon className="w-3 h-3 opacity-50 shrink-0" />
+          </button>
+        }
+      />
       <DropdownContent align="end" className="max-h-[60vh] w-52 overflow-auto">
         <DropdownItem onSelect={() => handleSelect('')} className="font-bold">
           All Frameworks

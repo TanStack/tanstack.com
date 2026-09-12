@@ -825,27 +825,29 @@ function KapaHistoryButton({
         }
       }}
     >
-      <DropdownTrigger>
-        <button
-          type="button"
-          disabled={isBusy}
-          aria-label="Chat history"
-          title="Chat history"
-          className={twMerge(
-            'pointer-events-auto flex items-center text-xs backdrop-blur-sm border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-white dark:hover:bg-black/90 disabled:opacity-40 disabled:hover:text-gray-400 dark:disabled:hover:text-gray-500 shadow-sm transition-colors',
-            compact
-              ? compactChatControlClass
-              : 'gap-1 px-1.5 sm:px-2 py-1 rounded-md bg-white/80 dark:bg-black/80',
-          )}
-        >
-          <ClockCounterClockwiseIcon className="w-3 h-3" />
-          {compact ? (
-            <ChatControlTooltip>Chat history</ChatControlTooltip>
-          ) : (
-            <span className="hidden sm:inline">History</span>
-          )}
-        </button>
-      </DropdownTrigger>
+      <DropdownTrigger
+        render={
+          <button
+            type="button"
+            disabled={isBusy}
+            aria-label="Chat history"
+            title="Chat history"
+            className={twMerge(
+              'pointer-events-auto flex items-center text-xs backdrop-blur-sm border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-white dark:hover:bg-black/90 disabled:opacity-40 disabled:hover:text-gray-400 dark:disabled:hover:text-gray-500 shadow-sm transition-colors',
+              compact
+                ? compactChatControlClass
+                : 'gap-1 px-1.5 sm:px-2 py-1 rounded-md bg-white/80 dark:bg-black/80',
+            )}
+          >
+            <ClockCounterClockwiseIcon className="w-3 h-3" />
+            {compact ? (
+              <ChatControlTooltip>Chat history</ChatControlTooltip>
+            ) : (
+              <span className="hidden sm:inline">History</span>
+            )}
+          </button>
+        }
+      />
       <DropdownContent
         align="end"
         sideOffset={8}

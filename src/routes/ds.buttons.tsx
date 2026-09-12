@@ -351,11 +351,13 @@ function ButtonsPage() {
           code={`<div className="inline-flex overflow-hidden rounded-lg">
   <Button rounded="none">Deploy</Button>
   <Dropdown>
-    <DropdownTrigger>
-      <Button rounded="none" aria-label="More deploy options" className="border-l border-white/20 px-2">
-        <CaretDownIcon />
-      </Button>
-    </DropdownTrigger>
+    <DropdownTrigger
+      render={
+        <Button rounded="none" aria-label="More deploy options" className="border-l border-white/20 px-2">
+          <CaretDownIcon />
+        </Button>
+      }
+    />
     <DropdownContent align="end">
       <DropdownItem>Deploy to production</DropdownItem>
       <DropdownItem>Deploy a preview</DropdownItem>
@@ -368,15 +370,17 @@ function ButtonsPage() {
           <div className="inline-flex overflow-hidden rounded-lg">
             <Button rounded="none">Deploy</Button>
             <Dropdown>
-              <DropdownTrigger>
-                <Button
-                  rounded="none"
-                  aria-label="More deploy options"
-                  className="border-l border-white/20 px-2"
-                >
-                  <CaretDownIcon className="h-4 w-4" />
-                </Button>
-              </DropdownTrigger>
+              <DropdownTrigger
+                render={
+                  <Button
+                    rounded="none"
+                    aria-label="More deploy options"
+                    className="border-l border-white/20 px-2"
+                  >
+                    <CaretDownIcon className="h-4 w-4" />
+                  </Button>
+                }
+              />
               <DropdownContent align="end">
                 <DropdownItem>Deploy to production</DropdownItem>
                 <DropdownItem>Deploy a preview</DropdownItem>

@@ -1,5 +1,5 @@
 import * as React from 'react'
-import * as DialogPrimitive from '@radix-ui/react-dialog'
+import { Dialog } from '@base-ui/react/dialog'
 import { Command } from 'cmdk'
 import { twMerge } from 'tailwind-merge'
 import {
@@ -291,13 +291,9 @@ function isSearchModalPortalTarget(target: EventTarget | null) {
   return target instanceof Element && !!target.closest('.dropdown-content')
 }
 
-const searchModalTransitionMs = 140
-
 export function SearchModal() {
   const { isOpen, closeSearch } = useSearchContext()
   const contentRef = React.useRef<HTMLDivElement>(null)
-  const bodyPointerEventsRef = React.useRef('')
-  const [shouldRenderSearch, setShouldRenderSearch] = React.useState(isOpen)
   const [isFullHeight, setIsFullHeight] = React.useState(() => {
     if (typeof window === 'undefined') return false
     return localStorage.getItem('search-full-height') === 'true'
@@ -310,22 +306,6 @@ export function SearchModal() {
       return next
     })
   }, [])
-
-  React.useEffect(() => {
-    if (isOpen) {
-      setShouldRenderSearch(true)
-      return
-    }
-
-    const timeout = window.setTimeout(() => {
-      setShouldRenderSearch(false)
-      requestAnimationFrame(() => {
-        document.body.style.pointerEvents = bodyPointerEventsRef.current
-      })
-    }, searchModalTransitionMs)
-
-    return () => window.clearTimeout(timeout)
-  }, [isOpen])
 
   React.useEffect(() => {
     if (!isOpen) {
@@ -341,96 +321,59 @@ export function SearchModal() {
     return () => cancelAnimationFrame(frame)
   }, [isOpen])
 
-  React.useEffect(() => {
-    if (typeof document === 'undefined') {
-      return
-    }
-
-    if (isOpen) {
-      document.body.style.pointerEvents = 'none'
-      return
-    }
-
-    const frame = requestAnimationFrame(() => {
-      document.body.style.pointerEvents = bodyPointerEventsRef.current
-    })
-
-    return () => cancelAnimationFrame(frame)
-  }, [isOpen])
-
-  React.useEffect(() => {
-    if (typeof document === 'undefined') {
-      return
-    }
-
-    bodyPointerEventsRef.current =
-      document.body.style.pointerEvents === 'none'
-        ? ''
-        : document.body.style.pointerEvents
-
-    return () => {
-      document.body.style.pointerEvents = bodyPointerEventsRef.current
-    }
-  }, [])
-
-  const shouldMountSearch = isOpen || shouldRenderSearch
-
   return (
-    <DialogPrimitive.Root
+    <Dialog.Root
       open={isOpen}
-      onOpenChange={(open) => {
-        if (!open) {
-          closeSearch()
+      onOpenChange={(open, eventDetails) => {
+        if (open) return
+
+        // The panel portals its own dropdowns. A press inside one is outside
+        // the dialog, so it would close the whole palette.
+        if (
+          eventDetails.reason === 'outside-press' &&
+          isSearchModalPortalTarget(eventDetails.event.target)
+        ) {
+          eventDetails.cancel()
+          return
         }
+
+        closeSearch()
       }}
     >
-      <DialogPrimitive.Portal forceMount>
-        {shouldMountSearch ? (
-          <>
-            <DialogPrimitive.Overlay
-              forceMount
-              // xl keeps a deliberately lighter scrim: past that width the
-              // palette covers a small share of the screen, and the full
-              // --color-scrim reads as heavier than the interaction warrants.
-              className="search-modal-overlay fixed inset-0 z-[var(--z-scrim)] bg-scrim backdrop-blur-sm xl:bg-black/30"
-            />
-            <DialogPrimitive.Content
-              forceMount
-              ref={contentRef}
-              className={twMerge(
-                'search-modal-content fixed z-[var(--z-overlay)] inset-0 sm:inset-auto sm:top-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-[96%] xl:w-full sm:max-w-4xl text-left outline-none',
-                isFullHeight && 'sm:bottom-4',
-              )}
-              onInteractOutside={(event) => {
-                if (isSearchModalPortalTarget(event.target)) {
-                  event.preventDefault()
-                }
-              }}
+      <Dialog.Portal>
+        <Dialog.Backdrop
+          // xl keeps a deliberately lighter scrim: past that width the
+          // palette covers a small share of the screen, and the full
+          // --color-scrim reads as heavier than the interaction warrants.
+          className="search-modal-overlay fixed inset-0 z-[var(--z-scrim)] bg-scrim backdrop-blur-sm xl:bg-black/30"
+        />
+        <Dialog.Popup
+          ref={contentRef}
+          className={twMerge(
+            'search-modal-content fixed z-[var(--z-overlay)] inset-0 sm:inset-auto sm:top-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-[96%] xl:w-full sm:max-w-4xl text-left outline-none',
+            isFullHeight && 'sm:bottom-4',
+          )}
+        >
+          <Dialog.Title className="sr-only">Search TanStack</Dialog.Title>
+          <Dialog.Description className="sr-only">
+            Search TanStack and open TanStack AI from the current query.
+          </Dialog.Description>
+          <div className="search-modal-panel-transition h-full">
+            <InstantSearch
+              searchClient={searchClient}
+              indexName={searchIndexName}
             >
-              <DialogPrimitive.Title className="sr-only">
-                Search TanStack
-              </DialogPrimitive.Title>
-              <DialogPrimitive.Description className="sr-only">
-                Search TanStack and open TanStack AI from the current query.
-              </DialogPrimitive.Description>
-              <div className="search-modal-panel-transition h-full">
-                <InstantSearch
-                  searchClient={searchClient}
-                  indexName={searchIndexName}
-                >
-                  <SearchFiltersProvider resetFiltersOnOpen={isOpen}>
-                    <DynamicFilters />
-                    <CommandSearchPanel
-                      isFullHeight={isFullHeight}
-                      onToggleFullHeight={toggleFullHeight}
-                    />
-                  </SearchFiltersProvider>
-                </InstantSearch>
-              </div>
-            </DialogPrimitive.Content>
-          </>
-        ) : null}
-      </DialogPrimitive.Portal>
-    </DialogPrimitive.Root>
+              <SearchFiltersProvider resetFiltersOnOpen={isOpen}>
+                <DynamicFilters />
+                <CommandSearchPanel
+                  isFullHeight={isFullHeight}
+                  onToggleFullHeight={toggleFullHeight}
+                />
+              </SearchFiltersProvider>
+            </InstantSearch>
+          </div>
+        </Dialog.Popup>
+      </Dialog.Portal>
+    </Dialog.Root>
   )
 }

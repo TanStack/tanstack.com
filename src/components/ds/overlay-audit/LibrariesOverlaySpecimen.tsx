@@ -1,4 +1,4 @@
-import * as DialogPrimitive from '@radix-ui/react-dialog'
+import { Dialog as DialogPrimitive } from '@base-ui/react/dialog'
 import { XIcon } from '@phosphor-icons/react'
 import type { SpecimenProps } from './types'
 
@@ -18,8 +18,8 @@ export function LibrariesOverlaySpecimen({
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="animate-library-overlay-in libraries-overlay-glass fixed inset-0 z-[110]" />
-        <DialogPrimitive.Content className="animate-library-overlay-in libraries-overlay-scroll fixed inset-0 z-[111] flex flex-col overflow-y-auto outline-none">
+        <DialogPrimitive.Backdrop className="animate-library-overlay-in libraries-overlay-glass fixed inset-0 z-[110]" />
+        <DialogPrimitive.Popup className="animate-library-overlay-in libraries-overlay-scroll fixed inset-0 z-[111] flex flex-col overflow-y-auto outline-none">
           <DialogPrimitive.Title className="sr-only">
             Libraries
           </DialogPrimitive.Title>
@@ -57,7 +57,7 @@ export function LibrariesOverlaySpecimen({
               </div>
             ))}
           </div>
-        </DialogPrimitive.Content>
+        </DialogPrimitive.Popup>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
   )

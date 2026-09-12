@@ -1,4 +1,5 @@
 import { EventType, type StreamChunk } from '@tanstack/ai'
+import { getBuilderAiRunOutcome } from './builder-ai-run-outcome'
 import { isExampleRuntime } from './example-project'
 import {
   parseExampleWorkspace,
@@ -11,7 +12,17 @@ import {
   type BuilderAiAttemptTrace,
 } from './builder-ai-progress'
 
-export const builderAiRemoteProviders = ['openai', 'anthropic'] as const
+export const builderAiRemoteProviders = [
+  'openrouter',
+  'openai',
+  'anthropic',
+] as const
+
+export const builderAiProviderLabels = {
+  openrouter: 'OpenRouter',
+  openai: 'OpenAI',
+  anthropic: 'Anthropic',
+}
 
 export type BuilderAiRemoteProvider = (typeof builderAiRemoteProviders)[number]
 
@@ -36,7 +47,39 @@ export const builderAiAnthropicDefaultModel = {
   description: 'Balanced',
 } satisfies BuilderAiRemoteModel
 
+export const builderAiOpenRouterDefaultModel: BuilderAiRemoteModel = {
+  provider: 'openrouter',
+  model: 'openai/gpt-5.6-luna',
+  label: 'GPT-5.6 Luna',
+  description: 'OpenRouter',
+}
+
 export const builderAiRemoteModels: ReadonlyArray<BuilderAiRemoteModel> = [
+  builderAiOpenRouterDefaultModel,
+  {
+    provider: 'openrouter',
+    model: 'openai/gpt-5.6-sol',
+    label: 'GPT-5.6 Sol',
+    description: 'OpenRouter',
+  },
+  {
+    provider: 'openrouter',
+    model: 'anthropic/claude-sonnet-4.6',
+    label: 'Claude Sonnet 4.6',
+    description: 'OpenRouter',
+  },
+  {
+    provider: 'openrouter',
+    model: 'anthropic/claude-haiku-4.5',
+    label: 'Claude Haiku 4.5',
+    description: 'OpenRouter',
+  },
+  {
+    provider: 'openrouter',
+    model: 'google/gemini-3-flash-preview',
+    label: 'Gemini 3 Flash Preview',
+    description: 'OpenRouter',
+  },
   {
     provider: 'openai',
     model: 'gpt-5.6-sol',
@@ -66,6 +109,7 @@ export const builderAiRemoteModels: ReadonlyArray<BuilderAiRemoteModel> = [
 ]
 
 export const builderAiDefaultRemoteModels = {
+  openrouter: builderAiOpenRouterDefaultModel,
   openai: builderAiOpenAiDefaultModel,
   anthropic: builderAiAnthropicDefaultModel,
 } satisfies Record<BuilderAiRemoteProvider, BuilderAiRemoteModel>
@@ -121,6 +165,19 @@ export async function* streamBuilderAiResponse(
 
   try {
     for await (const chunk of stream) {
+      // Provider reasoning signatures are for server-side continuation only.
+      if (chunk.type === 'REASONING_ENCRYPTED_VALUE') continue
+      if (chunk.type === 'STEP_FINISHED') {
+        yield {
+          type: chunk.type,
+          stepName: chunk.stepName,
+          ...(chunk.timestamp !== undefined
+            ? { timestamp: chunk.timestamp }
+            : {}),
+        }
+        continue
+      }
+
       if (chunk.type === 'TEXT_MESSAGE_START') {
         messageId = chunk.messageId
         message = ''
@@ -148,27 +205,28 @@ export async function* streamBuilderAiResponse(
               }
             : {}),
         }
-        continue
+        return
       }
 
-      if (
-        chunk.type === 'RUN_FINISHED' &&
-        chunk.finishReason !== 'tool_calls' &&
-        chunk.outcome?.type !== 'interrupt'
-      ) {
-        yield {
-          type: 'CUSTOM',
-          name: 'builder.project.execution',
-          value: createResponse(message.trim() || 'Builder changes are ready.'),
+      if (chunk.type === 'RUN_FINISHED') {
+        const outcome = getBuilderAiRunOutcome(chunk)
+        if (outcome.status === 'failed') {
+          sawTerminal = true
+          yield { type: EventType.RUN_ERROR, message: outcome.message }
+          return
         }
-      }
-
-      if (
-        chunk.type === 'RUN_FINISHED' &&
-        (chunk.finishReason !== 'tool_calls' ||
-          chunk.outcome?.type === 'interrupt')
-      ) {
-        sawTerminal = true
+        if (outcome.status === 'complete') {
+          yield {
+            type: 'CUSTOM',
+            name: 'builder.project.execution',
+            value: createResponse(
+              message.trim() || 'Builder changes are ready.',
+            ),
+          }
+        }
+        if (outcome.status !== 'continue') {
+          sawTerminal = true
+        }
       }
 
       yield chunk

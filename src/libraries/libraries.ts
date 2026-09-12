@@ -263,7 +263,7 @@ export const start: LibrarySlim = {
   tagline:
     'Full-stack Framework powered by TanStack Router for React and Solid',
   description:
-    'Full-document SSR, Streaming, Server Functions, bundling and more, powered by TanStack Router and Vite - Ready to deploy to your favorite hosting provider.',
+    'TanStack Start is a full-stack framework for React and Solid, with type-safe routing, server-side rendering, streaming, and server functions.',
   badge: 'RC',
   repo: 'tanstack/router',
   frameworks: ['react', 'solid'],
@@ -691,9 +691,10 @@ export const ai: LibrarySlim = {
   ...categoryStyles.data,
   name: 'TanStack AI',
   to: '/ai/latest',
-  tagline: 'The headless agent framework for TypeScript. Bring your own stack',
+  tagline:
+    'AI building blocks for TypeScript. We build the hard parts, you keep the stack.',
   description:
-    'TanStack AI is a pluggable AI ecosystem that makes it easy for you to build AI features into your apps. Provide tools to LLMs, interrupt chat for user approval, run agents in sandboxes, build headless chat UI, stream from your server to your client, and connect to any AG-UI compatible server or client. Bring your own infrastructure. We offer the pluggable APIs to build on top of.',
+    'TanStack AI is a TypeScript library for building AI features and agents. It ships the agent loop, provider adapters, durability, interrupts, sandboxes, and tools, and plugs into the server, database, and UI you already have.',
   badge: 'RC',
   repo: 'tanstack/ai',
   frameworks: [

@@ -101,11 +101,13 @@ test('builder BYOK selects only the requested provider header', () => {
     headers: {
       'x-byok-anthropic': 'anthropic-test-key',
       'x-byok-openai': 'openai-test-key',
+      'x-byok-openrouter': 'openrouter-test-key',
     },
   })
 
   assert.equal(getBuilderAiApiKey(request, 'openai'), 'openai-test-key')
   assert.equal(getBuilderAiApiKey(request, 'anthropic'), 'anthropic-test-key')
+  assert.equal(getBuilderAiApiKey(request, 'openrouter'), 'openrouter-test-key')
 })
 
 test('builder BYOK ignores server keys and returns the official missing-key response', async () => {
@@ -118,6 +120,11 @@ test('builder BYOK ignores server keys and returns the official missing-key resp
     const request = new Request('https://tanstack.com/api/builder/assist')
     assert.equal(getBuilderAiApiKey(request, 'openai'), null)
     assert.equal(getBuilderAiApiKey(request, 'anthropic'), null)
+    assert.equal(getBuilderAiApiKey(request, 'openrouter'), null)
+    assert.match(
+      await getBuilderAiMissingKeyResponse('openrouter').text(),
+      /"provider":"openrouter"/,
+    )
 
     const response = getBuilderAiMissingKeyResponse('openai')
     assert.equal(response.status, 401)
@@ -139,6 +146,23 @@ test('builder BYOK ignores server keys and returns the official missing-key resp
       process.env.ANTHROPIC_API_KEY = existingAnthropicKey
     }
   }
+})
+
+test('builder accepts OpenRouter requests without putting credentials in the body', async () => {
+  const body = requestBody([
+    { id: 'user-1', role: 'user', content: 'Build a chart' },
+  ])
+  const input = await parseBuilderAiRequest({
+    ...body,
+    forwardedProps: {
+      ...body.forwardedProps,
+      provider: 'openrouter',
+      model: 'openai/gpt-5.6-luna',
+    },
+  })
+  assert.equal(input.provider, 'openrouter')
+  assert.equal(input.model, 'openai/gpt-5.6-luna')
+  assert.equal('apiKey' in input, false)
 })
 
 test('builder BYOK rejects API keys in the request body', async () => {

@@ -54,7 +54,7 @@ const finalEvent: StreamChunk = {
   threadId: 'thread-1',
   runId: 'run-1',
   outcome: { type: 'success' },
-  finishReason: 'stop',
+  metadata: { tanstack: { finishReason: 'stop' } },
 }
 
 test('builder stream accepts execution immediately followed by the final run event', async () => {
@@ -101,6 +101,46 @@ test('builder stream rejects execution without a final run event', async () => {
   })
 })
 
+test('builder stream does not accept a token-limited response as success', async () => {
+  await withStream(
+    [
+      runStarted,
+      executionEvent,
+      {
+        ...finalEvent,
+        metadata: { tanstack: { finishReason: 'length' } },
+      },
+    ],
+    async () => {
+      await assert.rejects(runStream(), /response limit/)
+    },
+  )
+})
+
+test('missing validation state fails without running a tool or an unhandled rejection', async () => {
+  const chunks = nativeValidationStream({
+    execution: response.execution,
+    index: 0,
+    runId: 'run-1',
+  }).filter((chunk) => chunk.type !== 'STATE_SNAPSHOT')
+  await withStream(chunks, async () => {
+    await assert.rejects(
+      runBuilderAiStream({
+        endpoint: 'http://builder.test/assist',
+        forwardedProps: { execution: response.execution },
+        messages: [{ role: 'user', content: 'Update the builder.' }],
+        signal: new AbortController().signal,
+        threadId: 'thread-1',
+        activityId: 'activity-1',
+        onValidate: async () => {
+          throw new Error('Validation must not run without state')
+        },
+      }),
+      /no validation state/,
+    )
+  })
+})
+
 test('builder stream rejects events between execution and the final run event', async () => {
   await withStream(
     [
@@ -127,7 +167,7 @@ test('builder stream ignores intermediate tool-loop finishes without execution',
         type: EventType.RUN_FINISHED,
         threadId: 'thread-1',
         runId: 'run-1',
-        finishReason: 'tool_calls',
+        metadata: { tanstack: { finishReason: 'tool_calls' } },
       },
       executionEvent,
       finalEvent,
@@ -386,6 +426,80 @@ test('builder stream validates and repairs more than twice inside one client-too
   })
 })
 
+test('a lost continuation does not rerun successful browser validation', async () => {
+  const requests: Array<Record<string, unknown>> = []
+  let validations = 0
+  await withStreams(
+    [
+      (body) =>
+        nativeValidationStream({
+          execution: response.execution,
+          index: 0,
+          runId: readRequestRunId(body),
+        }),
+      () => {
+        throw new TypeError('Network disconnected')
+      },
+    ],
+    requests,
+    [],
+    async () => {
+      await assert.rejects(
+        runBuilderAiStream({
+          endpoint: 'http://builder.test/assist',
+          forwardedProps: { execution: response.execution },
+          messages: [{ role: 'user', content: 'Update the builder.' }],
+          signal: new AbortController().signal,
+          threadId: 'thread-1',
+          activityId: 'activity-1',
+          onValidate: async () => {
+            validations++
+            return { result: { status: 'complete' } }
+          },
+        }),
+        /Stream response body read failed/,
+      )
+    },
+  )
+  assert.equal(validations, 1)
+  assert.equal(requests.length, 2)
+})
+
+test('cancelling during validation never submits a continuation', async () => {
+  const requests: Array<Record<string, unknown>> = []
+  const controller = new AbortController()
+  await withStreams(
+    [
+      (body) =>
+        nativeValidationStream({
+          execution: response.execution,
+          index: 0,
+          runId: readRequestRunId(body),
+        }),
+    ],
+    requests,
+    [],
+    async () => {
+      await assert.rejects(
+        runBuilderAiStream({
+          endpoint: 'http://builder.test/assist',
+          forwardedProps: { execution: response.execution },
+          messages: [{ role: 'user', content: 'Update the builder.' }],
+          signal: controller.signal,
+          threadId: 'thread-1',
+          activityId: 'activity-1',
+          onValidate: async () => {
+            controller.abort()
+            return { result: { status: 'complete' } }
+          },
+        }),
+        { name: 'AbortError' },
+      )
+    },
+  )
+  assert.equal(requests.length, 1)
+})
+
 test('builder stream rejects a changed execution that was not validated', async () => {
   const baselineExecution = {
     runtime: null,
@@ -579,6 +693,8 @@ function nativeValidationStream({
     },
   ]
   if (index > 0) events.push(validationResultEvent(index - 1))
+  // Native client tools execute from the RUN_FINISHED interrupt. The legacy
+  // tool-input-available event would execute the same tool a second time.
   events.push(
     {
       type: EventType.TOOL_CALL_START,
@@ -589,18 +705,12 @@ function nativeValidationStream({
     {
       type: EventType.TOOL_CALL_ARGS,
       toolCallId,
-      args: '{}',
-      delta: '',
+      delta: '{}',
     },
     {
       type: EventType.TOOL_CALL_END,
       toolCallId,
       input: {},
-    },
-    {
-      type: EventType.CUSTOM,
-      name: 'tool-input-available',
-      value: { toolCallId, toolName: 'validate_project', input: {} },
     },
     {
       type: EventType.MESSAGES_SNAPSHOT,
@@ -633,7 +743,7 @@ function nativeValidationStream({
       type: EventType.RUN_FINISHED,
       threadId: 'thread-1',
       runId,
-      finishReason: 'tool_calls',
+      metadata: { tanstack: { finishReason: 'tool_calls' } },
       outcome: {
         type: 'interrupt',
         interrupts: [

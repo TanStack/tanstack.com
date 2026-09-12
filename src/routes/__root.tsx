@@ -271,7 +271,7 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
   })
 
   const isNavigating = useRouterState({
-    select: (s) => s.isLoading || s.isTransitioning,
+    select: (s) => s.status === 'pending',
   })
   const pathname = useRouterState({
     select: (s) => s.location.pathname,

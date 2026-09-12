@@ -881,7 +881,14 @@ function parseFrontMatter(content: string) {
 
   const frontMatterSource = lines.slice(1, closingLineIndex).join('\n')
   const body = lines.slice(closingLineIndex + 1).join('\n')
-  const parsed = parseYaml(frontMatterSource)
+
+  let parsed: unknown
+  try {
+    parsed = parseYaml(frontMatterSource)
+  } catch (e) {
+    console.warn('Failed to parse frontmatter YAML:', e)
+    return { content: body, data: {} }
+  }
 
   return {
     content: body,

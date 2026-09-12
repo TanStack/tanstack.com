@@ -1,3 +1,4 @@
+import { readDocsFreshness } from './docs-freshness'
 import { notFound } from '@tanstack/react-router'
 import { createServerFn, createServerOnlyFn } from '@tanstack/react-start'
 import { setResponseHeader } from '@tanstack/react-start/server'
@@ -181,23 +182,36 @@ function setDocsCacheHeaders(cdnCacheControl: string) {
   setResponseHeader('Cloudflare-CDN-Cache-Control', cdnCacheControl)
 }
 
-function isDocsManifest(value: unknown): value is DocsManifest {
-  if (typeof value !== 'object' || value === null) {
+export function isDocsManifest(value: unknown): value is DocsManifest {
+  if (
+    typeof value !== 'object' ||
+    value === null ||
+    !('paths' in value) ||
+    !('redirects' in value)
+  )
     return false
-  }
-
-  const candidate = value as {
-    paths?: unknown
-    redirects?: unknown
-  }
-
+  if (
+    !Array.isArray(value.paths) ||
+    !value.paths.every((path) => typeof path === 'string') ||
+    typeof value.redirects !== 'object' ||
+    value.redirects === null ||
+    Array.isArray(value.redirects) ||
+    !Object.values(value.redirects).every(
+      (target) => typeof target === 'string',
+    )
+  )
+    return false
+  if (
+    !('lastModifiedByPath' in value) ||
+    value.lastModifiedByPath === undefined
+  )
+    return true
   return (
-    Array.isArray(candidate.paths) &&
-    candidate.paths.every((path) => typeof path === 'string') &&
-    typeof candidate.redirects === 'object' &&
-    candidate.redirects !== null &&
-    Object.entries(candidate.redirects).every(
-      ([key, target]) => typeof key === 'string' && typeof target === 'string',
+    typeof value.lastModifiedByPath === 'object' &&
+    value.lastModifiedByPath !== null &&
+    !Array.isArray(value.lastModifiedByPath) &&
+    Object.values(value.lastModifiedByPath).every(
+      (updated) => readDocsFreshness({ updated }).updated !== undefined,
     )
   )
 }
@@ -210,6 +224,7 @@ export async function collectRedirectEntriesForFile(
     docsRoot: string
     fetchFile: (filePath: string) => Promise<string | null>
     onCanonicalPath: (canonicalPath: string) => void
+    onLastModified?: (canonicalPath: string, date: string) => void
   },
 ): Promise<Array<RedirectManifestEntry>> {
   const { extractFrontMatter, isRecoverableGitHubContentError } =
@@ -238,6 +253,8 @@ export async function collectRedirectEntriesForFile(
   }
 
   const frontMatter = extractFrontMatter(file)
+  const updated = readDocsFreshness(frontMatter.data).updated
+  if (updated) opts.onLastModified?.(canonicalPath, updated)
   const entries: Array<RedirectManifestEntry> = []
 
   for (const redirectFrom of frontMatter.data.redirectFrom ?? []) {
@@ -280,6 +297,7 @@ async function buildDocsManifest({
     node.path.endsWith('.md'),
   )
   const paths = new Set<string>()
+  const lastModifiedByPath: Record<string, string> = {}
 
   // A recoverable error on one file must not fail the whole manifest build
   // (see collectRedirectEntriesForFile).
@@ -291,11 +309,15 @@ async function buildDocsManifest({
         docsRoot,
         fetchFile: (filePath) => fetchRepoFile(repo, branch, filePath),
         onCanonicalPath: (canonicalPath) => paths.add(canonicalPath),
+        onLastModified: (path, date) => {
+          lastModifiedByPath[path] = date
+        },
       }),
   )
 
   return {
     paths: Array.from(paths),
+    lastModifiedByPath,
     redirects: buildRedirectManifest(redirectsByFile.flat(), {
       label: `docs redirects for ${repo}@${branch}:${docsRoot}`,
     }),
@@ -454,6 +476,7 @@ export const fetchDocs = createServerFn({ method: 'GET' })
       frameworks: extractFrameworksFromMarkdown(frontMatter.content),
       filePath,
       frontmatter: frontMatter.data,
+      freshness: readDocsFreshness(frontMatter.data),
     }
   })
 

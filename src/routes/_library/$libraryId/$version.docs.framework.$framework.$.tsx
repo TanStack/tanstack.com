@@ -6,6 +6,7 @@ import {
   createFileRoute,
 } from '@tanstack/react-router'
 import { canonicalUrl, seo } from '~/utils/seo'
+import { getDocsStructuredData } from '~/utils/docs-structured-data'
 import { ogImageUrl } from '~/utils/og'
 import { Doc } from '~/components/Doc'
 import {
@@ -101,7 +102,24 @@ export const Route = createFileRoute(
         }),
     )
 
+    const structuredData = getDocsStructuredData({
+      doc: ctx.loaderData,
+      library,
+      canonicalHref,
+    })
+
     return {
+      scripts: structuredData
+        ? [
+            {
+              type: 'application/ld+json',
+              children: JSON.stringify(structuredData).replaceAll(
+                '<',
+                '\\u003c',
+              ),
+            },
+          ]
+        : [],
       meta: [
         ...seo({
           title: ctx.loaderData?.title

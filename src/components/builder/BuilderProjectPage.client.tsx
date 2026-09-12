@@ -1,3 +1,4 @@
+import { getBuilderProjectTranscriptImportMutationId } from '~/utils/builder-project'
 import * as React from 'react'
 import { useLiveQuery } from '@tanstack/react-db'
 import {
@@ -58,7 +59,6 @@ import {
   type BuilderProjectSyncRow,
 } from '~/utils/builder-project-sync.client'
 import {
-  getBuilderProjectTranscriptImportMutationId,
   importBuilderProjectTranscriptCommands,
   prepareBuilderProjectForkTranscriptImport,
   promoteBuilderProjectTranscript,

@@ -455,25 +455,6 @@ export async function importBuilderProjectTranscriptCommands({
   )
 }
 
-export function getBuilderProjectDraftPromotionIds(draftId: string) {
-  if (!isBuilderProjectId(draftId)) {
-    throw new Error('Invalid Builder project draft ID')
-  }
-
-  return {
-    revisionId: derivePromotionId(draftId, 1),
-    transcriptImportMutationId:
-      getBuilderProjectTranscriptImportMutationId(draftId),
-  }
-}
-
-export function getBuilderProjectTranscriptImportMutationId(projectId: string) {
-  if (!isBuilderProjectId(projectId)) {
-    throw new Error('Invalid Builder project ID')
-  }
-  return derivePromotionId(projectId, 2)
-}
-
 async function chunkTranscriptImport({
   clientMutationId,
   threads,
@@ -702,11 +683,6 @@ function assertDistinctTranscriptImportIds(
   if (new Set(runs.map((run) => run.id)).size !== runs.length) {
     throw new Error('Builder project transcript run ID is reused')
   }
-}
-
-function derivePromotionId(draftId: string, discriminator: number) {
-  const firstNibble = Number.parseInt(draftId[0] ?? '', 16)
-  return `${(firstNibble ^ discriminator).toString(16)}${draftId.slice(1)}`
 }
 
 function getQueuedTranscriptImportCommand(

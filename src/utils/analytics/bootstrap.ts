@@ -1,0 +1,7 @@
+const GOOGLE_ANALYTICS_ID = 'G-JMT1Z50SPS'
+const GOOGLE_ANALYTICS_PROXY_PREFIX = '/_a'
+export const GOOGLE_ANALYTICS_HYDRATED_EVENT = 'tanstack:analytics-ready'
+
+// Queue the initial URL before SPA navigation can change it. Load the provider
+// only once the app has hydrated, when an idle CPU also means startup has run.
+export const GOOGLE_ANALYTICS_BOOTSTRAP = `(function(){if(window.__tanstackAnalyticsBootstrapped)return;window.__tanstackAnalyticsBootstrapped=true;var id='${GOOGLE_ANALYTICS_ID}';window.dataLayer=window.dataLayer||[];window.gtag=window.gtag||function(){window.dataLayer.push(arguments)};window.gtag('js',new Date());window.gtag('config',id,{transport_url:window.location.origin+'${GOOGLE_ANALYTICS_PROXY_PREFIX}',send_page_view:false});window.gtag('event','page_view',{page_location:window.location.href.split('#')[0],page_title:document.title});var loaded=false;var load=function(){if(loaded)return;var parent=document.head||document.documentElement;if(!parent){window.setTimeout(load,100);return}loaded=true;var script=document.createElement('script');script.async=true;script.src='${GOOGLE_ANALYTICS_PROXY_PREFIX}/gtag.js';script.setAttribute('data-ga-loader','true');parent.appendChild(script)};window.addEventListener('${GOOGLE_ANALYTICS_HYDRATED_EVENT}',function(){if(typeof window.requestIdleCallback==='function'){window.requestIdleCallback(load,{timeout:3000});return}window.setTimeout(load,1500)},{once:true})})();`

@@ -141,15 +141,17 @@ export function Doc({
 
   return (
     <div className="flex-1 min-h-0 flex flex-col pt-4 lg:pt-6 xl:pt-8">
-      <a
-        href={`${pagePath}.md`}
-        className="sr-only"
-        tabIndex={-1}
-        aria-hidden="true"
-      >
-        AI/LLM: This documentation page is available in plain markdown format at
-        {pagePath}.md
-      </a>
+      {pagePath ? (
+        <a
+          href={`${pagePath}.md`}
+          className="sr-only"
+          tabIndex={-1}
+          aria-hidden="true"
+        >
+          AI/LLM: This documentation page is available in plain markdown format
+          at {pagePath}.md
+        </a>
+      ) : null}
 
       <div
         className={twMerge(

@@ -22,7 +22,7 @@ function CommunitySkeleton() {
     <div className="space-y-24">
       <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
         <div className="mb-6 h-10 w-52 animate-pulse rounded corner-squircle bg-gray-200/70 dark:bg-gray-800/70" />
-        <div className="grid grid-cols-2 gap-6 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-5">
           {Array.from({ length: 10 }).map((_, index) => (
             <div
               key={`maintainer-skeleton-${index}`}
@@ -47,7 +47,7 @@ function HomeCommunityContent() {
             Core Maintainers
           </a>
         </h3>
-        <div className="grid grid-cols-2 gap-6 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-6 [&>*]:max-w-none sm:grid-cols-3 lg:grid-cols-5">
           {coreMaintainers.map((maintainer) => (
             <MaintainerCard key={maintainer.github} maintainer={maintainer} />
           ))}

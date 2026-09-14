@@ -1,116 +1,116 @@
-import type { ReactNode } from 'react'
-import type { MenuItem } from './config'
+import type { ReactNode } from "react";
+import type { MenuItem } from "./config";
 
 export const docsNavTabIds = [
-  'home',
-  'get-started',
-  'tutorial',
-  'guides',
-  'adapters',
-  'api',
-  'examples',
-] as const
+  "home",
+  "get-started",
+  "tutorial",
+  "guides",
+  "adapters",
+  "api",
+  "examples",
+] as const;
 
-export type DocsNavTabId = (typeof docsNavTabIds)[number]
+export type DocsNavTabId = (typeof docsNavTabIds)[number];
 
 export const docsNavTabs: Array<{ id: DocsNavTabId; label: string }> = [
-  { id: 'home', label: 'Home' },
-  { id: 'get-started', label: 'Get Started' },
-  { id: 'tutorial', label: 'Tutorial' },
-  { id: 'guides', label: 'Guides' },
+  { id: "home", label: "Home" },
+  { id: "get-started", label: "Get Started" },
+  { id: "tutorial", label: "Tutorial" },
+  { id: "guides", label: "Guides" },
   // Only shown for libraries whose docs config tags sections with it.
-  { id: 'adapters', label: 'Adapters' },
-  { id: 'api', label: 'API' },
-  { id: 'examples', label: 'Examples' },
-]
+  { id: "adapters", label: "Adapters" },
+  { id: "api", label: "API" },
+  { id: "examples", label: "Examples" },
+];
 
 function getLabelText(label: ReactNode) {
-  return typeof label === 'string' ? label : ''
+  return typeof label === "string" ? label : "";
 }
 
 function getFallbackDocsNavTabId(
   group: MenuItem,
-  child: MenuItem['children'][number],
+  child: MenuItem["children"][number],
 ): DocsNavTabId {
-  const groupLabel = getLabelText(group.label).toLowerCase()
-  const childLabel = getLabelText(child.label).toLowerCase()
-  const to = child.to.toLowerCase()
-  const searchText = `${groupLabel} ${childLabel} ${to}`
+  const groupLabel = getLabelText(group.label).toLowerCase();
+  const childLabel = getLabelText(child.label).toLowerCase();
+  const to = child.to.toLowerCase();
+  const searchText = `${groupLabel} ${childLabel} ${to}`;
 
   if (
-    child.to === '..' ||
-    child.to === './framework' ||
-    childLabel === 'home' ||
-    childLabel === 'frameworks'
+    child.to === ".." ||
+    child.to === "./framework" ||
+    childLabel === "home" ||
+    childLabel === "frameworks"
   ) {
-    return 'home'
+    return "home";
   }
 
   // Community resources now live under the Home tab.
   if (
-    child.to.startsWith('http') ||
-    searchText.includes('community') ||
-    searchText.includes('contributors') ||
-    searchText.includes('npm-stats') ||
-    searchText.includes('npm stats') ||
-    searchText.includes('blog') ||
-    searchText.includes('github') ||
-    searchText.includes('discord') ||
-    searchText.includes('youtube')
+    child.to.startsWith("http") ||
+    searchText.includes("community") ||
+    searchText.includes("contributors") ||
+    searchText.includes("npm-stats") ||
+    searchText.includes("npm stats") ||
+    searchText.includes("blog") ||
+    searchText.includes("github") ||
+    searchText.includes("discord") ||
+    searchText.includes("youtube")
   ) {
-    return 'home'
+    return "home";
   }
 
-  if (searchText.includes('example')) {
-    return 'examples'
+  if (searchText.includes("example")) {
+    return "examples";
   }
 
   if (
-    to.includes('/api/') ||
-    to.startsWith('api/') ||
-    to.includes('/reference/') ||
-    to.startsWith('reference/') ||
-    groupLabel.includes('api') ||
-    groupLabel.includes('reference')
+    to.includes("/api/") ||
+    to.startsWith("api/") ||
+    to.includes("/reference/") ||
+    to.startsWith("reference/") ||
+    groupLabel.includes("api") ||
+    groupLabel.includes("reference")
   ) {
-    return 'api'
+    return "api";
   }
 
-  if (searchText.includes('tutorial')) {
-    return 'tutorial'
+  if (searchText.includes("tutorial")) {
+    return "tutorial";
   }
 
   if (
-    groupLabel.includes('get started') ||
-    groupLabel.includes('getting started') ||
-    groupLabel.includes('overview') ||
-    childLabel === 'overview' ||
-    searchText.includes('installation') ||
-    searchText.includes('quick-start') ||
-    searchText.includes('quick start') ||
-    searchText.includes('introduction')
+    groupLabel.includes("get started") ||
+    groupLabel.includes("getting started") ||
+    groupLabel.includes("overview") ||
+    childLabel === "overview" ||
+    searchText.includes("installation") ||
+    searchText.includes("quick-start") ||
+    searchText.includes("quick start") ||
+    searchText.includes("introduction")
   ) {
-    return 'get-started'
+    return "get-started";
   }
 
-  return 'guides'
+  return "guides";
 }
 
 export function getDocsNavTabId(
   group: MenuItem,
-  child: MenuItem['children'][number],
+  child: MenuItem["children"][number],
 ) {
-  return child.tab ?? group.tab ?? getFallbackDocsNavTabId(group, child)
+  return child.tab ?? group.tab ?? getFallbackDocsNavTabId(group, child);
 }
 
 // A tab's `firstItem` is the destination clicked when the user activates the
 // tab. It must point at real docs content, never a utility/special target like
 // `..` (library home), `./framework` (framework picker), or external links.
 function isDocsTabTarget(to: string) {
-  if (to.startsWith('http')) return false
-  if (to === '..' || to === './framework') return false
-  if (to.startsWith('/')) return to.includes('/docs/')
-  return true
+  if (to.startsWith("http")) return false;
+  if (to === ".." || to === "./framework") return false;
+  if (to.startsWith("/")) return to.includes("/docs/");
+  return true;
 }
 
 export function getTabbedMenuConfig(menuConfig: MenuItem[]) {
@@ -119,19 +119,19 @@ export function getTabbedMenuConfig(menuConfig: MenuItem[]) {
       const groups = menuConfig
         .map((group) => {
           const children = group.children.filter((child) => {
-            return getDocsNavTabId(group, child) === tab.id
-          })
+            return getDocsNavTabId(group, child) === tab.id;
+          });
 
           return children.length
             ? {
                 ...group,
                 children,
               }
-            : undefined
+            : undefined;
         })
-        .filter((group): group is MenuItem => group !== undefined)
+        .filter((group): group is MenuItem => group !== undefined);
 
-      const children = groups.flatMap((group) => group.children)
+      const children = groups.flatMap((group) => group.children);
 
       return {
         ...tab,
@@ -139,14 +139,14 @@ export function getTabbedMenuConfig(menuConfig: MenuItem[]) {
         firstItem:
           // The Home tab points at the library landing page (`..`), even though
           // it now also contains community docs (Blog, Contributors, etc.).
-          (tab.id === 'home'
-            ? children.find((child) => child.to === '..')
+          (tab.id === "home"
+            ? children.find((child) => child.to === "..")
             : undefined) ??
           children.find((child) => isDocsTabTarget(child.to)) ??
-          children.find((child) => !child.to.startsWith('http')),
-      }
+          children.find((child) => !child.to.startsWith("http")),
+      };
     })
-    .filter((tab) => tab.groups.length)
+    .filter((tab) => tab.groups.length);
 }
 
 // Matches a menu child's `to` against the current pathname, handling the
@@ -158,78 +158,78 @@ function isChildPathMatch({
   pathname,
   relativePathname,
 }: {
-  childTo: string
-  pathname: string
-  relativePathname: string
+  childTo: string;
+  pathname: string;
+  relativePathname: string;
 }) {
-  if (childTo === relativePathname) return true
+  if (childTo === relativePathname) return true;
 
-  if (childTo === '..') {
-    return /^\/[^/]+\/[^/]+\/?$/.test(pathname)
+  if (childTo === "..") {
+    return /^\/[^/]+\/[^/]+\/?$/.test(pathname);
   }
 
-  if (childTo === './framework') {
+  if (childTo === "./framework") {
     return (
-      pathname.includes('/docs/framework') &&
+      pathname.includes("/docs/framework") &&
       !/\/docs\/framework\/[^/]+/.test(pathname)
-    )
+    );
   }
 
-  if (childTo.includes('/$libraryId/$version/docs/')) {
-    const suffix = childTo.split('/docs/')[1]
-    return Boolean(suffix) && pathname.includes(`/docs/${suffix}`)
+  if (childTo.includes("/$libraryId/$version/docs/")) {
+    const suffix = childTo.split("/docs/")[1];
+    return Boolean(suffix) && pathname.includes(`/docs/${suffix}`);
   }
 
-  return false
+  return false;
 }
 
-export function getActiveDocsNavTabId({
-  isExample,
+export function getActiveDocsNavTabId<TTabIdOverride>({
+  tabIdOverride,
   menuConfig,
   pathname,
   relativePathname,
 }: {
-  isExample: boolean
-  menuConfig: MenuItem[]
-  pathname: string
-  relativePathname: string
+  tabIdOverride?: TTabIdOverride;
+  menuConfig: MenuItem[];
+  pathname: string;
+  relativePathname: string;
 }) {
-  if (isExample) {
-    return 'examples'
+  if (tabIdOverride) {
+    return tabIdOverride;
   }
 
   const activeGroup = menuConfig.find((group) =>
     group.children.some((child) =>
       isChildPathMatch({ childTo: child.to, pathname, relativePathname }),
     ),
-  )
+  );
   const activeChild = activeGroup?.children.find((child) =>
     isChildPathMatch({ childTo: child.to, pathname, relativePathname }),
-  )
+  );
 
   if (activeGroup && activeChild) {
-    return getDocsNavTabId(activeGroup, activeChild)
+    return getDocsNavTabId(activeGroup, activeChild);
   }
 
   if (
-    pathname.includes('/docs/api/') ||
-    pathname.includes('/docs/reference/')
+    pathname.includes("/docs/api/") ||
+    pathname.includes("/docs/reference/")
   ) {
-    return 'api'
+    return "api";
   }
 
-  if (pathname.includes('/docs/tutorial')) {
-    return 'tutorial'
+  if (pathname.includes("/docs/tutorial")) {
+    return "tutorial";
   }
 
   if (
-    pathname.includes('/docs/community') ||
-    pathname.includes('/docs/contributors') ||
-    pathname.includes('/docs/npm-stats') ||
-    pathname.includes('/docs/blog')
+    pathname.includes("/docs/community") ||
+    pathname.includes("/docs/contributors") ||
+    pathname.includes("/docs/npm-stats") ||
+    pathname.includes("/docs/blog")
   ) {
-    return 'home'
+    return "home";
   }
 
-  return 'get-started'
+  return "get-started";
 }

@@ -43,8 +43,12 @@ import {
   getLibraryLayoutVersion,
   getLibraryTabLinkOptions,
   getMenuGroupInitialOpenState,
-  isChartsCatalogTarget,
 } from './library-layout-navigation'
+import {
+  customToolTabs,
+  isCustomToolTarget,
+  type CustomToolTabId,
+} from '~/libraries/custom-tool-tabs'
 
 // Number of days a doc page is flagged as "New"/"Updated" in the sidebar.
 const RECENCY_WINDOW_DAYS = 7
@@ -674,18 +678,6 @@ const useMenuConfig = ({
   const currentFramework = useCurrentFramework(frameworks)
   const statsAvailable =
     getLibrary(libraryId as LibraryId).statsAvailable !== false
-  const chartsExamplesMenuItems: MenuItem['children'] = [
-    {
-      label: 'Examples',
-      to: '/charts/catalog',
-      tab: 'home',
-    },
-    {
-      label: 'Examples',
-      to: '/charts/catalog',
-      tab: 'examples',
-    },
-  ]
 
   const localMenu: MenuItem = {
     label: 'Menu',
@@ -694,7 +686,6 @@ const useMenuConfig = ({
         label: 'Home',
         to: '..',
       },
-      ...(libraryId === 'charts' ? chartsExamplesMenuItems : []),
       {
         label: 'Blog',
         to: '/$libraryId/$version/docs/blog',
@@ -826,13 +817,7 @@ export function LibraryLayout({
   const LibraryIcon = libraryIcons[libraryId] ?? fallbackLibraryIcon
   const libraryGroupColor = categoryTextColor[categoryOf(libraryId)]
 
-  const isExample = matches.some(
-    (d) =>
-      d.pathname.includes('/examples/') ||
-      d.routeId.startsWith('/_library/charts/catalog'),
-  )
-
-  const isNpmStats = matches.some((d) => d.pathname.includes('/docs/npm-stats'))
+  const docsTab = matches.find((d) => d.staticData.docsTab)?.staticData.docsTab
 
   // The library blog already lists posts, so the "Latest Posts" rail widget is
   // redundant there — hide it on the blog while keeping it on other docs pages.
@@ -866,30 +851,29 @@ export function LibraryLayout({
   const tabbedMenuConfig = React.useMemo(() => {
     const tabs = getTabbedMenuConfig(menuConfig)
 
-    return libraryId === 'charts'
-      ? tabs.map((tab) =>
-          tab.id === 'examples'
-            ? {
-                ...tab,
-                firstItem: {
-                  label: 'Examples',
-                  to: '/charts/catalog',
-                  tab: 'examples',
-                },
-              }
-            : tab,
-        )
-      : tabs
+    const extraTabs: Array<{
+      id: CustomToolTabId
+      label: string
+      groups: MenuItem[]
+      firstItem: MenuItem['children'][number]
+    }> = (customToolTabs[libraryId] ?? []).map((tool) => ({
+      id: tool.id,
+      label: tool.label,
+      groups: [],
+      firstItem: { label: tool.label, to: tool.to },
+    }))
+
+    return [...tabs, ...extraTabs]
   }, [libraryId, menuConfig])
 
   const activeTabId = React.useMemo(() => {
     return getActiveDocsNavTabId({
-      isExample,
+      tabIdOverride: docsTab?.id,
       menuConfig,
       pathname: lastMatch.pathname,
       relativePathname,
     })
-  }, [isExample, lastMatch.pathname, menuConfig, relativePathname])
+  }, [docsTab?.id, lastMatch.pathname, menuConfig, relativePathname])
 
   const visibleMenuConfig = React.useMemo(() => {
     return (
@@ -928,11 +912,12 @@ export function LibraryLayout({
 
   const groupInitialOpenState = React.useMemo(() => {
     return getMenuGroupInitialOpenState(
+      libraryId,
       visibleMenuConfig,
       _splat,
       lastMatch.pathname,
     )
-  }, [lastMatch.pathname, visibleMenuConfig, _splat])
+  }, [libraryId, lastMatch.pathname, visibleMenuConfig, _splat])
 
   const [openGroups, setOpenGroups] = React.useState(groupInitialOpenState)
 
@@ -1006,7 +991,7 @@ export function LibraryLayout({
                 ? ({ libraryId, version } as never)
                 : undefined
             const isHomeLink = child.to === '..'
-            const isChartsExamplesLink = isChartsCatalogTarget(child.to)
+            const isCustomToolLink = isCustomToolTarget(libraryId, child.to)
             const frameworkDocsTarget = getFrameworkDocsLinkTarget(child.to)
 
             const recency = getDocRecency(child.addedAt, child.updatedAt)
@@ -1094,14 +1079,12 @@ export function LibraryLayout({
                 ) : (
                   <Link
                     from={
-                      isChartsExamplesLink
-                        ? undefined
-                        : '/$libraryId/$version/docs'
+                      isCustomToolLink ? undefined : '/$libraryId/$version/docs'
                     }
                     to={child.to}
                     params={linkParams}
                     onClick={closeMobileMenu}
-                    preload={isChartsExamplesLink ? false : 'intent'}
+                    preload={isCustomToolLink ? false : 'intent'}
                     activeOptions={{
                       exact: true,
                       includeHash: false,
@@ -1208,7 +1191,9 @@ export function LibraryLayout({
                       params={linkOptions.params as never}
                       onClick={closeMobileMenu}
                       preload={
-                        isChartsCatalogTarget(target.to) ? false : 'intent'
+                        isCustomToolTarget(libraryId, target.to)
+                          ? false
+                          : 'intent'
                       }
                       aria-current={isActive ? 'page' : undefined}
                       className={twMerge(
@@ -1392,7 +1377,9 @@ export function LibraryLayout({
                   from={linkOptions.from as never}
                   to={linkOptions.to as never}
                   params={linkOptions.params as never}
-                  preload={isChartsCatalogTarget(target.to) ? false : 'intent'}
+                  preload={
+                    isCustomToolTarget(libraryId, target.to) ? false : 'intent'
+                  }
                   activeOptions={{
                     exact: true,
                     includeHash: false,
@@ -1491,8 +1478,7 @@ export function LibraryLayout({
                   !isLandingPage && 'px-4 md:px-8',
 
                   !isLandingPage &&
-                    !isExample &&
-                    !isNpmStats &&
+                    !docsTab?.fullBleed &&
                     !isFullWidth &&
                     'mx-auto w-[900px]',
                 )}

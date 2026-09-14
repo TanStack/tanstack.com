@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { safeRandomUUID } from '~/utils/crypto.client'
 import {
   ArrowClockwiseIcon,
   BrowserIcon,
@@ -419,7 +420,7 @@ export function ExampleWorkbench({
   const environmentSnapshotRef = React.useRef<
     ExampleEnvironmentSnapshot | undefined
   >(undefined)
-  const browserChannelRef = React.useRef(crypto.randomUUID())
+  const browserChannelRef = React.useRef(safeRandomUUID())
   const compileRequestRef = React.useRef(0)
   const nextConsoleIdRef = React.useRef(0)
   const nextTerminalIdRef = React.useRef(1)
@@ -785,7 +786,7 @@ export function ExampleWorkbench({
     })
     compileRequestRef.current += 1
     cancelPreviewCapture('The preview changed before capture completed.')
-    browserChannelRef.current = crypto.randomUUID()
+    browserChannelRef.current = safeRandomUUID()
     webContainerSessionRef.current?.dispose()
     webContainerSessionRef.current = null
     setWebContainerSession(undefined)
@@ -1032,7 +1033,7 @@ export function ExampleWorkbench({
       handledRunDefinitionRef.current = definition
 
       if (signal?.aborted) {
-        const runId = crypto.randomUUID()
+        const runId = safeRandomUUID()
         return Promise.resolve({
           ok: false,
           phase: 'aborted',
@@ -1103,7 +1104,7 @@ export function ExampleWorkbench({
 
       const request = compileRequestRef.current + 1
       compileRequestRef.current = request
-      const runToken = crypto.randomUUID()
+      const runToken = safeRandomUUID()
       runTokenRef.current = runToken
       environmentSnapshotRef.current = createEmptyExampleEnvironmentSnapshot({
         runId: runToken,
@@ -2326,7 +2327,7 @@ export function ExampleWorkbench({
 
   function capturePreview(tabId?: string) {
     cancelPreviewCapture('A newer screenshot replaced this capture.')
-    const requestId = crypto.randomUUID()
+    const requestId = safeRandomUUID()
 
     return new Promise<Blob>((resolve, reject) => {
       const timeout = window.setTimeout(() => {

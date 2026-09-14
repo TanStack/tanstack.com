@@ -183,19 +183,19 @@ function isChildPathMatch({
   return false
 }
 
-export function getActiveDocsNavTabId({
-  isExample,
+export function getActiveDocsNavTabId<TTabIdOverride>({
+  tabIdOverride,
   menuConfig,
   pathname,
   relativePathname,
 }: {
-  isExample: boolean
+  tabIdOverride?: TTabIdOverride
   menuConfig: MenuItem[]
   pathname: string
   relativePathname: string
 }) {
-  if (isExample) {
-    return 'examples'
+  if (tabIdOverride) {
+    return tabIdOverride
   }
 
   const activeGroup = menuConfig.find((group) =>

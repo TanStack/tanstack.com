@@ -9,377 +9,226 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as WorkshopsRouteImport } from './routes/workshops'
-import { Route as TermsRouteImport } from './routes/terms'
-import { Route as TenetsRouteImport } from './routes/tenets'
-import { Route as SupportRouteImport } from './routes/support'
-import { Route as SponsorsEmbedRouteImport } from './routes/sponsors-embed'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as ShowcasesRouteImport } from './routes/showcases'
-import { Route as ShopRouteImport } from './routes/shop'
-import { Route as RssDotxmlRouteImport } from './routes/rss[.]xml'
-import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
-import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as PartnersEmbedRouteImport } from './routes/partners-embed'
-import { Route as PartnersRouteImport } from './routes/partners'
-import { Route as PaidSupportRouteImport } from './routes/paid-support'
-import { Route as MerchRouteImport } from './routes/merch'
-import { Route as MaintainersRouteImport } from './routes/maintainers'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
-import { Route as LlmsFullDottxtRouteImport } from './routes/llms-full[.]txt'
-import { Route as LibrariesRouteImport } from './routes/libraries'
-import { Route as LearnRouteImport } from './routes/learn'
-import { Route as FeedbackLeaderboardRouteImport } from './routes/feedback-leaderboard'
-import { Route as ExploreRouteImport } from './routes/explore'
-import { Route as EthosRouteImport } from './routes/ethos'
-import { Route as DsRouteImport } from './routes/ds'
-import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as CommunityProjectsRouteImport } from './routes/community-projects'
-import { Route as BuilderRouteImport } from './routes/builder'
-import { Route as BrandGuideRouteImport } from './routes/brand-guide'
-import { Route as BlogRouteImport } from './routes/blog'
-import { Route as ApplicationStarterRouteImport } from './routes/application-starter'
-import { Route as AdsRouteImport } from './routes/ads'
-import { Route as AccountRouteImport } from './routes/account'
-import { Route as LibraryRouteImport } from './routes/_library'
-import { Route as AdminRouteRouteImport } from './routes/admin/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as StatsIndexRouteImport } from './routes/stats/index'
-import { Route as ShowcaseIndexRouteImport } from './routes/showcase/index'
-import { Route as ShopIndexRouteImport } from './routes/shop.index'
-import { Route as PartnersIndexRouteImport } from './routes/partners.index'
-import { Route as DsIndexRouteImport } from './routes/ds.index'
-import { Route as BlogIndexRouteImport } from './routes/blog.index'
-import { Route as ApplicationStarterIndexRouteImport } from './routes/application-starter.index'
-import { Route as AdminIndexRouteImport } from './routes/admin/index'
-import { Route as AccountIndexRouteImport } from './routes/account/index'
-import { Route as StackCategoryRouteImport } from './routes/stack.$category'
-import { Route as ShowcaseSubmitRouteImport } from './routes/showcase/submit'
-import { Route as ShowcaseIdRouteImport } from './routes/showcase/$id'
-import { Route as ShopSearchRouteImport } from './routes/shop.search'
-import { Route as ShopCartRouteImport } from './routes/shop.cart'
-import { Route as ShopHandleRouteImport } from './routes/shop.$handle'
-import { Route as PartnersRenderRouteImport } from './routes/partners.render'
-import { Route as PartnersRailwayRouteImport } from './routes/partners.railway'
-import { Route as PartnersNetlifyRouteImport } from './routes/partners.netlify'
-import { Route as PartnersPartnerRouteImport } from './routes/partners.$partner'
-import { Route as OauthTokenRouteImport } from './routes/oauth/token'
-import { Route as OauthRegisterRouteImport } from './routes/oauth/register'
-import { Route as OauthAuthorizeRouteImport } from './routes/oauth/authorize'
-import { Route as LibrariesFrameworkRouteImport } from './routes/libraries_.$framework'
-import { Route as DsTypographyRouteImport } from './routes/ds.typography'
-import { Route as DsTakeoverRouteImport } from './routes/ds.takeover'
-import { Route as DsTabsRouteImport } from './routes/ds.tabs'
-import { Route as DsStatsRouteImport } from './routes/ds.stats'
-import { Route as DsSpinnerRouteImport } from './routes/ds.spinner'
-import { Route as DsShadowsRouteImport } from './routes/ds.shadows'
-import { Route as DsSemanticRouteImport } from './routes/ds.semantic'
-import { Route as DsPartnerRailRouteImport } from './routes/ds.partner-rail'
-import { Route as DsPanelRouteImport } from './routes/ds.panel'
-import { Route as DsPaletteRouteImport } from './routes/ds.palette'
-import { Route as DsPageHeaderRouteImport } from './routes/ds.page-header'
-import { Route as DsOverlaysRouteImport } from './routes/ds.overlays'
-import { Route as DsNavbarRouteImport } from './routes/ds.navbar'
-import { Route as DsMaintainersRouteImport } from './routes/ds.maintainers'
-import { Route as DsLogosRouteImport } from './routes/ds.logos'
-import { Route as DsInputsRouteImport } from './routes/ds.inputs'
-import { Route as DsIconographyRouteImport } from './routes/ds.iconography'
-import { Route as DsEyebrowRouteImport } from './routes/ds.eyebrow'
-import { Route as DsEffectsRouteImport } from './routes/ds.effects'
-import { Route as DsDropdownRouteImport } from './routes/ds.dropdown'
-import { Route as DsDrawerRouteImport } from './routes/ds.drawer'
-import { Route as DsDialogRouteImport } from './routes/ds.dialog'
-import { Route as DsColorsRouteImport } from './routes/ds.colors'
-import { Route as DsCardsRouteImport } from './routes/ds.cards'
-import { Route as DsButtonsRouteImport } from './routes/ds.buttons'
-import { Route as DsBreadcrumbsRouteImport } from './routes/ds.breadcrumbs'
-import { Route as DsBadgesRouteImport } from './routes/ds.badges'
-import { Route as DsAvatarRouteImport } from './routes/ds.avatar'
-import { Route as BuilderNewRouteImport } from './routes/builder_.new'
-import { Route as BuilderLlmsDottxtRouteImport } from './routes/builder_.llms[.]txt'
-import { Route as BuilderEsbuildRouteImport } from './routes/builder_.esbuild'
-import { Route as BuilderAiRouteImport } from './routes/builder_.ai'
-import { Route as BuilderIdRouteImport } from './routes/builder_.$id'
-import { Route as BlogSplatRouteImport } from './routes/blog.$'
-import { Route as AuthSignoutRouteImport } from './routes/auth/signout'
-import { Route as AuthPopupSuccessRouteImport } from './routes/auth/popup-success'
-import { Route as AuthCliRouteImport } from './routes/auth/cli'
-import { Route as ApplicationStarterDocsRouteImport } from './routes/application-starter.docs'
-import { Route as ApiUploadthingRouteImport } from './routes/api/uploadthing'
-import { Route as AdminUsersRouteImport } from './routes/admin/users'
-import { Route as AdminNpmStatsRouteImport } from './routes/admin/npm-stats'
-import { Route as AdminLoginsRouteImport } from './routes/admin/logins'
-import { Route as AdminIntentRouteImport } from './routes/admin/intent'
-import { Route as AdminGithubStatsRouteImport } from './routes/admin/github-stats'
-import { Route as AdminDocsRouteImport } from './routes/admin/docs'
-import { Route as AdminAuditRouteImport } from './routes/admin/audit'
-import { Route as AccountSubmissionsRouteImport } from './routes/account/submissions'
-import { Route as AccountNotesRouteImport } from './routes/account/notes'
-import { Route as AccountIntegrationsRouteImport } from './routes/account/integrations'
-import { Route as AccountFeedbackRouteImport } from './routes/account/feedback'
+import { Route as LibraryRouteImport } from './routes/_library'
+import { Route as AccountRouteImport } from './routes/account'
+import { Route as AdminRouteRouteImport } from './routes/admin/route'
+import { Route as AdsRouteImport } from './routes/ads'
+import { Route as ApplicationStarterRouteImport } from './routes/application-starter'
+import { Route as BlogRouteImport } from './routes/blog'
+import { Route as BrandGuideRouteImport } from './routes/brand-guide'
+import { Route as BuilderRouteImport } from './routes/builder'
+import { Route as CommunityProjectsRouteImport } from './routes/community-projects'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as DsRouteImport } from './routes/ds'
+import { Route as EthosRouteImport } from './routes/ethos'
+import { Route as ExploreRouteImport } from './routes/explore'
+import { Route as FeedbackLeaderboardRouteImport } from './routes/feedback-leaderboard'
+import { Route as LearnRouteImport } from './routes/learn'
+import { Route as LibrariesRouteImport } from './routes/libraries'
+import { Route as LlmsFullDottxtRouteImport } from './routes/llms-full[.]txt'
+import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as MaintainersRouteImport } from './routes/maintainers'
+import { Route as MerchRouteImport } from './routes/merch'
+import { Route as PaidSupportRouteImport } from './routes/paid-support'
+import { Route as PartnersRouteImport } from './routes/partners'
+import { Route as PartnersEmbedRouteImport } from './routes/partners-embed'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
+import { Route as RssDotxmlRouteImport } from './routes/rss[.]xml'
+import { Route as ShopRouteImport } from './routes/shop'
+import { Route as ShowcasesRouteImport } from './routes/showcases'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SponsorsEmbedRouteImport } from './routes/sponsors-embed'
+import { Route as SupportRouteImport } from './routes/support'
+import { Route as TenetsRouteImport } from './routes/tenets'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as WorkshopsRouteImport } from './routes/workshops'
 import { Route as DotwellKnownOauthAuthorizationServerRouteImport } from './routes/[.]well-known/oauth-authorization-server'
 import { Route as LibraryLibraryIdRouteRouteImport } from './routes/_library/$libraryId/route'
-import { Route as StatsNpmIndexRouteImport } from './routes/stats/npm/index'
-import { Route as IntentRegistryIndexRouteImport } from './routes/intent/registry/index'
-import { Route as ApiMcpIndexRouteImport } from './routes/api/mcp/index'
-import { Route as AdminShowcasesIndexRouteImport } from './routes/admin/showcases.index'
-import { Route as AdminRolesIndexRouteImport } from './routes/admin/roles.index'
-import { Route as AdminNotesIndexRouteImport } from './routes/admin/notes.index'
-import { Route as AdminFeedbackIndexRouteImport } from './routes/admin/feedback.index'
+import { Route as AccountIndexRouteImport } from './routes/account/index'
+import { Route as AccountFeedbackRouteImport } from './routes/account/feedback'
+import { Route as AccountIntegrationsRouteImport } from './routes/account/integrations'
+import { Route as AccountNotesRouteImport } from './routes/account/notes'
+import { Route as AccountSubmissionsRouteImport } from './routes/account/submissions'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as AdminAuditRouteImport } from './routes/admin/audit'
+import { Route as AdminDocsRouteImport } from './routes/admin/docs'
+import { Route as AdminGithubStatsRouteImport } from './routes/admin/github-stats'
+import { Route as AdminIntentRouteImport } from './routes/admin/intent'
+import { Route as AdminLoginsRouteImport } from './routes/admin/logins'
+import { Route as AdminNpmStatsRouteImport } from './routes/admin/npm-stats'
+import { Route as AdminUsersRouteImport } from './routes/admin/users'
+import { Route as ApiUploadthingRouteImport } from './routes/api/uploadthing'
+import { Route as ApplicationStarterIndexRouteImport } from './routes/application-starter.index'
+import { Route as ApplicationStarterDocsRouteImport } from './routes/application-starter.docs'
+import { Route as AuthCliRouteImport } from './routes/auth/cli'
+import { Route as AuthPopupSuccessRouteImport } from './routes/auth/popup-success'
+import { Route as AuthSignoutRouteImport } from './routes/auth/signout'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
+import { Route as BlogSplatRouteImport } from './routes/blog.$'
+import { Route as BuilderIdRouteImport } from './routes/builder_.$id'
+import { Route as BuilderAiRouteImport } from './routes/builder_.ai'
+import { Route as BuilderEsbuildRouteImport } from './routes/builder_.esbuild'
+import { Route as BuilderLlmsDottxtRouteImport } from './routes/builder_.llms[.]txt'
+import { Route as BuilderNewRouteImport } from './routes/builder_.new'
+import { Route as DsIndexRouteImport } from './routes/ds.index'
+import { Route as DsAvatarRouteImport } from './routes/ds.avatar'
+import { Route as DsBadgesRouteImport } from './routes/ds.badges'
+import { Route as DsBreadcrumbsRouteImport } from './routes/ds.breadcrumbs'
+import { Route as DsButtonsRouteImport } from './routes/ds.buttons'
+import { Route as DsCardsRouteImport } from './routes/ds.cards'
+import { Route as DsColorsRouteImport } from './routes/ds.colors'
+import { Route as DsDialogRouteImport } from './routes/ds.dialog'
+import { Route as DsDrawerRouteImport } from './routes/ds.drawer'
+import { Route as DsDropdownRouteImport } from './routes/ds.dropdown'
+import { Route as DsEffectsRouteImport } from './routes/ds.effects'
+import { Route as DsEyebrowRouteImport } from './routes/ds.eyebrow'
+import { Route as DsIconographyRouteImport } from './routes/ds.iconography'
+import { Route as DsInputsRouteImport } from './routes/ds.inputs'
+import { Route as DsLogosRouteImport } from './routes/ds.logos'
+import { Route as DsMaintainersRouteImport } from './routes/ds.maintainers'
+import { Route as DsNavbarRouteImport } from './routes/ds.navbar'
+import { Route as DsOverlaysRouteImport } from './routes/ds.overlays'
+import { Route as DsPageHeaderRouteImport } from './routes/ds.page-header'
+import { Route as DsPaletteRouteImport } from './routes/ds.palette'
+import { Route as DsPanelRouteImport } from './routes/ds.panel'
+import { Route as DsPartnerRailRouteImport } from './routes/ds.partner-rail'
+import { Route as DsSemanticRouteImport } from './routes/ds.semantic'
+import { Route as DsShadowsRouteImport } from './routes/ds.shadows'
+import { Route as DsSpinnerRouteImport } from './routes/ds.spinner'
+import { Route as DsStatsRouteImport } from './routes/ds.stats'
+import { Route as DsTabsRouteImport } from './routes/ds.tabs'
+import { Route as DsTakeoverRouteImport } from './routes/ds.takeover'
+import { Route as DsTypographyRouteImport } from './routes/ds.typography'
+import { Route as LibrariesFrameworkRouteImport } from './routes/libraries_.$framework'
+import { Route as OauthAuthorizeRouteImport } from './routes/oauth/authorize'
+import { Route as OauthRegisterRouteImport } from './routes/oauth/register'
+import { Route as OauthTokenRouteImport } from './routes/oauth/token'
+import { Route as PartnersIndexRouteImport } from './routes/partners.index'
+import { Route as PartnersPartnerRouteImport } from './routes/partners.$partner'
+import { Route as PartnersNetlifyRouteImport } from './routes/partners.netlify'
+import { Route as PartnersRailwayRouteImport } from './routes/partners.railway'
+import { Route as PartnersRenderRouteImport } from './routes/partners.render'
+import { Route as ShopIndexRouteImport } from './routes/shop.index'
+import { Route as ShopHandleRouteImport } from './routes/shop.$handle'
+import { Route as ShopCartRouteImport } from './routes/shop.cart'
+import { Route as ShopSearchRouteImport } from './routes/shop.search'
+import { Route as ShowcaseIndexRouteImport } from './routes/showcase/index'
+import { Route as ShowcaseIdRouteImport } from './routes/showcase/$id'
+import { Route as ShowcaseSubmitRouteImport } from './routes/showcase/submit'
+import { Route as StackCategoryRouteImport } from './routes/stack.$category'
+import { Route as StatsIndexRouteImport } from './routes/stats/index'
 import { Route as LibraryLibraryIdIndexRouteImport } from './routes/_library/$libraryId/index'
-import { Route as StatsNpmEmbedRouteImport } from './routes/stats/npm/embed'
-import { Route as StatsNpmPackagesRouteImport } from './routes/stats/npm/$packages'
-import { Route as ShowcaseEditIdRouteImport } from './routes/showcase/edit.$id'
-import { Route as ShopProductsHandleRouteImport } from './routes/shop.products.$handle'
-import { Route as ShopPoliciesHandleRouteImport } from './routes/shop.policies.$handle'
-import { Route as ShopPagesHandleRouteImport } from './routes/shop.pages.$handle'
-import { Route as ShopCollectionsHandleRouteImport } from './routes/shop.collections.$handle'
-import { Route as IntentRegistryPackageNameRouteImport } from './routes/intent/registry/$packageName'
-import { Route as ChartsCatalogCatalogDotjsonRouteImport } from './routes/charts.catalog_.catalog[.]json'
-import { Route as BuilderPHashRouteImport } from './routes/builder_.p.$hash'
-import { Route as AuthProviderStartRouteImport } from './routes/auth/$provider/start'
-import { Route as ApiReadmeChar123Char125DotpngRouteImport } from './routes/api/readme/{$}[.]png'
-import { Route as ApiOgChar123Char125DotpngRouteImport } from './routes/api/og/{$}[.]png'
-import { Route as ApiMcpSplatRouteImport } from './routes/api/mcp/$'
-import { Route as ApiGithubWebhookRouteImport } from './routes/api/github/webhook'
-import { Route as ApiExampleDeployRouteImport } from './routes/api/example/deploy'
-import { Route as ApiDiscordInteractionsRouteImport } from './routes/api/discord/interactions'
-import { Route as ApiDataPartnersRouteImport } from './routes/api/data/partners'
-import { Route as ApiDataLibrariesRouteImport } from './routes/api/data/libraries'
-import { Route as ApiBuilderProjectsRouteImport } from './routes/api/builder/projects'
-import { Route as ApiBuilderProjectSnapshotsRouteImport } from './routes/api/builder/project-snapshots'
-import { Route as ApiBuilderAssistRouteImport } from './routes/api/builder/assist'
-import { Route as ApiApplicationStarterValidateRouteImport } from './routes/api/application-starter/validate'
-import { Route as ApiApplicationStarterSuggestRouteImport } from './routes/api/application-starter/suggest'
-import { Route as ApiApplicationStarterResolveRouteImport } from './routes/api/application-starter/resolve'
-import { Route as ApiApplicationStarterLoadTemplateRouteImport } from './routes/api/application-starter/load-template'
-import { Route as ApiApplicationStarterLoadRemoteTemplateRouteImport } from './routes/api/application-starter/load-remote-template'
-import { Route as ApiApplicationStarterLoadRemoteAddonRouteImport } from './routes/api/application-starter/load-remote-addon'
-import { Route as ApiApplicationStarterFeaturesRouteImport } from './routes/api/application-starter/features'
-import { Route as ApiApplicationStarterFeatureArtifactsRouteImport } from './routes/api/application-starter/feature-artifacts'
-import { Route as ApiApplicationStarterDownloadRouteImport } from './routes/api/application-starter/download'
-import { Route as ApiApplicationStarterCompileAttributedRouteImport } from './routes/api/application-starter/compile-attributed'
-import { Route as ApiApplicationStarterCompileRouteImport } from './routes/api/application-starter/compile'
-import { Route as AdminUsersUserIdRouteImport } from './routes/admin/users.$userId'
-import { Route as AdminShowcasesIdRouteImport } from './routes/admin/showcases_.$id'
-import { Route as AdminRolesRoleIdRouteImport } from './routes/admin/roles.$roleId'
-import { Route as AdminFeedbackIdRouteImport } from './routes/admin/feedback_.$id'
-import { Route as LibraryChartsCatalogRouteImport } from './routes/_library/charts.catalog'
 import { Route as LibraryLibraryIdVersionRouteImport } from './routes/_library/$libraryId/$version'
-import { Route as IntentRegistryPackageNameIndexRouteImport } from './routes/intent/registry/$packageName.index'
-import { Route as LibraryWorkflowVersionIndexRouteImport } from './routes/_library/workflow.$version.index'
-import { Route as LibraryVirtualVersionIndexRouteImport } from './routes/_library/virtual.$version.index'
-import { Route as LibraryTableVersionIndexRouteImport } from './routes/_library/table.$version.index'
-import { Route as LibraryStoreVersionIndexRouteImport } from './routes/_library/store.$version.index'
-import { Route as LibraryStartVersionIndexRouteImport } from './routes/_library/start.$version.index'
-import { Route as LibraryRouterVersionIndexRouteImport } from './routes/_library/router.$version.index'
-import { Route as LibraryRangerVersionIndexRouteImport } from './routes/_library/ranger.$version.index'
-import { Route as LibraryQueryVersionIndexRouteImport } from './routes/_library/query.$version.index'
-import { Route as LibraryPacerVersionIndexRouteImport } from './routes/_library/pacer.$version.index'
-import { Route as LibraryMarkdownVersionIndexRouteImport } from './routes/_library/markdown.$version.index'
-import { Route as LibraryIntentVersionIndexRouteImport } from './routes/_library/intent.$version.index'
-import { Route as LibraryHotkeysVersionIndexRouteImport } from './routes/_library/hotkeys.$version.index'
-import { Route as LibraryHighlightVersionIndexRouteImport } from './routes/_library/highlight.$version.index'
-import { Route as LibraryFormVersionIndexRouteImport } from './routes/_library/form.$version.index'
-import { Route as LibraryDevtoolsVersionIndexRouteImport } from './routes/_library/devtools.$version.index'
-import { Route as LibraryDbVersionIndexRouteImport } from './routes/_library/db.$version.index'
-import { Route as LibraryConfigVersionIndexRouteImport } from './routes/_library/config.$version.index'
-import { Route as LibraryCliVersionIndexRouteImport } from './routes/_library/cli.$version.index'
-import { Route as LibraryChartsCatalogIndexRouteImport } from './routes/_library/charts.catalog.index'
-import { Route as LibraryChartsVersionIndexRouteImport } from './routes/_library/charts.$version.index'
-import { Route as LibraryAiVersionIndexRouteImport } from './routes/_library/ai.$version.index'
+import { Route as LibraryChartsCatalogRouteImport } from './routes/_library/charts.catalog'
+import { Route as AdminFeedbackIndexRouteImport } from './routes/admin/feedback.index'
+import { Route as AdminFeedbackIdRouteImport } from './routes/admin/feedback_.$id'
+import { Route as AdminNotesIndexRouteImport } from './routes/admin/notes.index'
+import { Route as AdminRolesIndexRouteImport } from './routes/admin/roles.index'
+import { Route as AdminRolesRoleIdRouteImport } from './routes/admin/roles.$roleId'
+import { Route as AdminShowcasesIndexRouteImport } from './routes/admin/showcases.index'
+import { Route as AdminShowcasesIdRouteImport } from './routes/admin/showcases_.$id'
+import { Route as AdminUsersUserIdRouteImport } from './routes/admin/users.$userId'
+import { Route as ApiApplicationStarterCompileRouteImport } from './routes/api/application-starter/compile'
+import { Route as ApiApplicationStarterCompileAttributedRouteImport } from './routes/api/application-starter/compile-attributed'
+import { Route as ApiApplicationStarterDownloadRouteImport } from './routes/api/application-starter/download'
+import { Route as ApiApplicationStarterFeatureArtifactsRouteImport } from './routes/api/application-starter/feature-artifacts'
+import { Route as ApiApplicationStarterFeaturesRouteImport } from './routes/api/application-starter/features'
+import { Route as ApiApplicationStarterLoadRemoteAddonRouteImport } from './routes/api/application-starter/load-remote-addon'
+import { Route as ApiApplicationStarterLoadRemoteTemplateRouteImport } from './routes/api/application-starter/load-remote-template'
+import { Route as ApiApplicationStarterLoadTemplateRouteImport } from './routes/api/application-starter/load-template'
+import { Route as ApiApplicationStarterResolveRouteImport } from './routes/api/application-starter/resolve'
+import { Route as ApiApplicationStarterSuggestRouteImport } from './routes/api/application-starter/suggest'
+import { Route as ApiApplicationStarterValidateRouteImport } from './routes/api/application-starter/validate'
+import { Route as ApiBuilderAssistRouteImport } from './routes/api/builder/assist'
+import { Route as ApiBuilderProjectSnapshotsRouteImport } from './routes/api/builder/project-snapshots'
+import { Route as ApiBuilderProjectsRouteImport } from './routes/api/builder/projects'
+import { Route as ApiDataLibrariesRouteImport } from './routes/api/data/libraries'
+import { Route as ApiDataPartnersRouteImport } from './routes/api/data/partners'
+import { Route as ApiDiscordInteractionsRouteImport } from './routes/api/discord/interactions'
+import { Route as ApiExampleDeployRouteImport } from './routes/api/example/deploy'
+import { Route as ApiGithubWebhookRouteImport } from './routes/api/github/webhook'
+import { Route as ApiMcpIndexRouteImport } from './routes/api/mcp/index'
+import { Route as ApiMcpSplatRouteImport } from './routes/api/mcp/$'
+import { Route as ApiOgChar123Char125DotpngRouteImport } from './routes/api/og/{$}[.]png'
+import { Route as ApiReadmeChar123Char125DotpngRouteImport } from './routes/api/readme/{$}[.]png'
+import { Route as AuthProviderStartRouteImport } from './routes/auth/$provider/start'
+import { Route as BuilderPHashRouteImport } from './routes/builder_.p.$hash'
+import { Route as ChartsCatalogCatalogDotjsonRouteImport } from './routes/charts.catalog_.catalog[.]json'
+import { Route as IntentRegistryIndexRouteImport } from './routes/intent/registry/index'
+import { Route as IntentRegistryPackageNameRouteImport } from './routes/intent/registry/$packageName'
+import { Route as ShopCollectionsHandleRouteImport } from './routes/shop.collections.$handle'
+import { Route as ShopPagesHandleRouteImport } from './routes/shop.pages.$handle'
+import { Route as ShopPoliciesHandleRouteImport } from './routes/shop.policies.$handle'
+import { Route as ShopProductsHandleRouteImport } from './routes/shop.products.$handle'
+import { Route as ShowcaseEditIdRouteImport } from './routes/showcase/edit.$id'
+import { Route as StatsNpmIndexRouteImport } from './routes/stats/npm/index'
+import { Route as StatsNpmPackagesRouteImport } from './routes/stats/npm/$packages'
+import { Route as StatsNpmEmbedRouteImport } from './routes/stats/npm/embed'
 import { Route as LibraryLibraryIdVersionIndexRouteImport } from './routes/_library/$libraryId/$version.index'
-import { Route as IntentRegistryPackageNameChar123Char125DotmdRouteImport } from './routes/intent/registry/$packageName.{$}[.]md'
-import { Route as IntentRegistryPackageNameSkillNameRouteImport } from './routes/intent/registry/$packageName.$skillName'
-import { Route as ApiBuilderProjectsIdRouteImport } from './routes/api/builder/projects.$id'
-import { Route as ApiBuilderProjectSnapshotsHashRouteImport } from './routes/api/builder/project-snapshots.$hash'
-import { Route as ApiBuilderOpenrouterCallbackRouteImport } from './routes/api/builder/openrouter/callback'
-import { Route as ApiAuthCliCreateTicketRouteImport } from './routes/api/auth/cli/create-ticket'
-import { Route as ApiAuthCallbackProviderRouteImport } from './routes/api/auth/callback/$provider'
-import { Route as ApiApplicationStarterDeployGithubRouteImport } from './routes/api/application-starter/deploy/github'
-import { Route as ApiApplicationStarterDeployCheckNameRouteImport } from './routes/api/application-starter/deploy/check-name'
-import { Route as LibraryChartsCatalogAllRouteImport } from './routes/_library/charts.catalog.all'
-import { Route as LibraryLibraryIdVersionLlmsDottxtRouteImport } from './routes/_library/$libraryId/$version.llms[.]txt'
 import { Route as LibraryLibraryIdVersionDocsRouteImport } from './routes/_library/$libraryId/$version.docs'
+import { Route as LibraryLibraryIdVersionLlmsDottxtRouteImport } from './routes/_library/$libraryId/$version.llms[.]txt'
+import { Route as LibraryAiVersionIndexRouteImport } from './routes/_library/ai.$version.index'
+import { Route as LibraryChartsVersionIndexRouteImport } from './routes/_library/charts.$version.index'
+import { Route as LibraryChartsCatalogIndexRouteImport } from './routes/_library/charts.catalog.index'
+import { Route as LibraryChartsCatalogAllRouteImport } from './routes/_library/charts.catalog.all'
+import { Route as LibraryCliVersionIndexRouteImport } from './routes/_library/cli.$version.index'
+import { Route as LibraryConfigVersionIndexRouteImport } from './routes/_library/config.$version.index'
+import { Route as LibraryDbVersionIndexRouteImport } from './routes/_library/db.$version.index'
+import { Route as LibraryDevtoolsVersionIndexRouteImport } from './routes/_library/devtools.$version.index'
+import { Route as LibraryFormVersionIndexRouteImport } from './routes/_library/form.$version.index'
+import { Route as LibraryHighlightVersionIndexRouteImport } from './routes/_library/highlight.$version.index'
+import { Route as LibraryHotkeysVersionIndexRouteImport } from './routes/_library/hotkeys.$version.index'
+import { Route as LibraryIntentVersionIndexRouteImport } from './routes/_library/intent.$version.index'
+import { Route as LibraryMarkdownVersionIndexRouteImport } from './routes/_library/markdown.$version.index'
+import { Route as LibraryPacerVersionIndexRouteImport } from './routes/_library/pacer.$version.index'
+import { Route as LibraryQueryVersionIndexRouteImport } from './routes/_library/query.$version.index'
+import { Route as LibraryRangerVersionIndexRouteImport } from './routes/_library/ranger.$version.index'
+import { Route as LibraryRouterVersionIndexRouteImport } from './routes/_library/router.$version.index'
+import { Route as LibraryStartVersionIndexRouteImport } from './routes/_library/start.$version.index'
+import { Route as LibraryStoreVersionIndexRouteImport } from './routes/_library/store.$version.index'
+import { Route as LibraryTableVersionIndexRouteImport } from './routes/_library/table.$version.index'
+import { Route as LibraryVirtualVersionIndexRouteImport } from './routes/_library/virtual.$version.index'
+import { Route as LibraryWorkflowVersionIndexRouteImport } from './routes/_library/workflow.$version.index'
+import { Route as ApiApplicationStarterDeployCheckNameRouteImport } from './routes/api/application-starter/deploy/check-name'
+import { Route as ApiApplicationStarterDeployGithubRouteImport } from './routes/api/application-starter/deploy/github'
+import { Route as ApiAuthCallbackProviderRouteImport } from './routes/api/auth/callback/$provider'
+import { Route as ApiAuthCliCreateTicketRouteImport } from './routes/api/auth/cli/create-ticket'
+import { Route as ApiBuilderOpenrouterCallbackRouteImport } from './routes/api/builder/openrouter/callback'
+import { Route as ApiBuilderProjectSnapshotsHashRouteImport } from './routes/api/builder/project-snapshots.$hash'
+import { Route as ApiBuilderProjectsIdRouteImport } from './routes/api/builder/projects.$id'
+import { Route as IntentRegistryPackageNameIndexRouteImport } from './routes/intent/registry/$packageName.index'
+import { Route as IntentRegistryPackageNameSkillNameRouteImport } from './routes/intent/registry/$packageName.$skillName'
+import { Route as IntentRegistryPackageNameChar123Char125DotmdRouteImport } from './routes/intent/registry/$packageName.{$}[.]md'
 import { Route as LibraryLibraryIdVersionDocsIndexRouteImport } from './routes/_library/$libraryId/$version.docs.index'
-import { Route as ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRouteImport } from './routes/charts.catalog_.previews.$revision.{$caseId}[.]svg'
-import { Route as ApiBuilderProjectsIdSyncRouteImport } from './routes/api/builder/projects.$id.sync'
-import { Route as ApiBuilderProjectSnapshotsHashQuarantineRouteImport } from './routes/api/builder/project-snapshots.$hash.quarantine'
-import { Route as ApiAuthCliStatusTicketIdRouteImport } from './routes/api/auth/cli/status.$ticketId'
-import { Route as LibraryChartsCatalogCollectionsCollectionIdRouteImport } from './routes/_library/charts.catalog.collections.$collectionId'
-import { Route as LibraryChartsCatalogChartsCaseIdRouteImport } from './routes/_library/charts.catalog.charts.$caseId'
-import { Route as LibraryLibraryIdVersionDocsChar123Char125DotmdRouteImport } from './routes/_library/$libraryId/$version.docs.{$}[.]md'
-import { Route as LibraryLibraryIdVersionDocsNpmStatsRouteImport } from './routes/_library/$libraryId/$version.docs.npm-stats'
-import { Route as LibraryLibraryIdVersionDocsIndexDotmdRouteImport } from './routes/_library/$libraryId/$version.docs.index[.]md'
-import { Route as LibraryLibraryIdVersionDocsContributorsRouteImport } from './routes/_library/$libraryId/$version.docs.contributors'
-import { Route as LibraryLibraryIdVersionDocsCommunityResourcesRouteImport } from './routes/_library/$libraryId/$version.docs.community-resources'
-import { Route as LibraryLibraryIdVersionDocsBlogRouteImport } from './routes/_library/$libraryId/$version.docs.blog'
 import { Route as LibraryLibraryIdVersionDocsSplatRouteImport } from './routes/_library/$libraryId/$version.docs.$'
+import { Route as LibraryLibraryIdVersionDocsBlogRouteImport } from './routes/_library/$libraryId/$version.docs.blog'
+import { Route as LibraryLibraryIdVersionDocsCommunityResourcesRouteImport } from './routes/_library/$libraryId/$version.docs.community-resources'
+import { Route as LibraryLibraryIdVersionDocsContributorsRouteImport } from './routes/_library/$libraryId/$version.docs.contributors'
+import { Route as LibraryLibraryIdVersionDocsIndexDotmdRouteImport } from './routes/_library/$libraryId/$version.docs.index[.]md'
+import { Route as LibraryLibraryIdVersionDocsNpmStatsRouteImport } from './routes/_library/$libraryId/$version.docs.npm-stats'
+import { Route as LibraryLibraryIdVersionDocsChar123Char125DotmdRouteImport } from './routes/_library/$libraryId/$version.docs.{$}[.]md'
+import { Route as LibraryChartsCatalogChartsCaseIdRouteImport } from './routes/_library/charts.catalog.charts.$caseId'
+import { Route as LibraryChartsCatalogCollectionsCollectionIdRouteImport } from './routes/_library/charts.catalog.collections.$collectionId'
+import { Route as ApiAuthCliStatusTicketIdRouteImport } from './routes/api/auth/cli/status.$ticketId'
+import { Route as ApiBuilderProjectSnapshotsHashQuarantineRouteImport } from './routes/api/builder/project-snapshots.$hash.quarantine'
+import { Route as ApiBuilderProjectsIdSyncRouteImport } from './routes/api/builder/projects.$id.sync'
+import { Route as ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRouteImport } from './routes/charts.catalog_.previews.$revision.{$caseId}[.]svg'
 import { Route as LibraryLibraryIdVersionDocsFrameworkIndexRouteImport } from './routes/_library/$libraryId/$version.docs.framework.index'
 import { Route as LibraryLibraryIdVersionDocsFrameworkFrameworkIndexRouteImport } from './routes/_library/$libraryId/$version.docs.framework.$framework.index'
-import { Route as LibraryLibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRouteImport } from './routes/_library/$libraryId/$version.docs.framework.$framework.{$}[.]md'
 import { Route as LibraryLibraryIdVersionDocsFrameworkFrameworkSplatRouteImport } from './routes/_library/$libraryId/$version.docs.framework.$framework.$'
+import { Route as LibraryLibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRouteImport } from './routes/_library/$libraryId/$version.docs.framework.$framework.{$}[.]md'
 import { Route as LibraryLibraryIdVersionDocsFrameworkFrameworkExamplesSplatRouteImport } from './routes/_library/$libraryId/$version.docs.framework.$framework.examples.$'
 
-const WorkshopsRoute = WorkshopsRouteImport.update({
-  id: '/workshops',
-  path: '/workshops',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TermsRoute = TermsRouteImport.update({
-  id: '/terms',
-  path: '/terms',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TenetsRoute = TenetsRouteImport.update({
-  id: '/tenets',
-  path: '/tenets',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SupportRoute = SupportRouteImport.update({
-  id: '/support',
-  path: '/support',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SponsorsEmbedRoute = SponsorsEmbedRouteImport.update({
-  id: '/sponsors-embed',
-  path: '/sponsors-embed',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ShowcasesRoute = ShowcasesRouteImport.update({
-  id: '/showcases',
-  path: '/showcases',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ShopRoute = ShopRouteImport.update({
-  id: '/shop',
-  path: '/shop',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RssDotxmlRoute = RssDotxmlRouteImport.update({
-  id: '/rss.xml',
-  path: '/rss.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
-  id: '/robots.txt',
-  path: '/robots.txt',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacyRoute = PrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PartnersEmbedRoute = PartnersEmbedRouteImport.update({
-  id: '/partners-embed',
-  path: '/partners-embed',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PartnersRoute = PartnersRouteImport.update({
-  id: '/partners',
-  path: '/partners',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PaidSupportRoute = PaidSupportRouteImport.update({
-  id: '/paid-support',
-  path: '/paid-support',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MerchRoute = MerchRouteImport.update({
-  id: '/merch',
-  path: '/merch',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MaintainersRoute = MaintainersRouteImport.update({
-  id: '/maintainers',
-  path: '/maintainers',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LlmsDottxtRoute = LlmsDottxtRouteImport.update({
-  id: '/llms.txt',
-  path: '/llms.txt',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LlmsFullDottxtRoute = LlmsFullDottxtRouteImport.update({
-  id: '/llms-full.txt',
-  path: '/llms-full.txt',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LibrariesRoute = LibrariesRouteImport.update({
-  id: '/libraries',
-  path: '/libraries',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LearnRoute = LearnRouteImport.update({
-  id: '/learn',
-  path: '/learn',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FeedbackLeaderboardRoute = FeedbackLeaderboardRouteImport.update({
-  id: '/feedback-leaderboard',
-  path: '/feedback-leaderboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ExploreRoute = ExploreRouteImport.update({
-  id: '/explore',
-  path: '/explore',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EthosRoute = EthosRouteImport.update({
-  id: '/ethos',
-  path: '/ethos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DsRoute = DsRouteImport.update({
-  id: '/ds',
-  path: '/ds',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CommunityProjectsRoute = CommunityProjectsRouteImport.update({
-  id: '/community-projects',
-  path: '/community-projects',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BuilderRoute = BuilderRouteImport.update({
-  id: '/builder',
-  path: '/builder',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BrandGuideRoute = BrandGuideRouteImport.update({
-  id: '/brand-guide',
-  path: '/brand-guide',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BlogRoute = BlogRouteImport.update({
-  id: '/blog',
-  path: '/blog',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApplicationStarterRoute = ApplicationStarterRouteImport.update({
-  id: '/application-starter',
-  path: '/application-starter',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdsRoute = AdsRouteImport.update({
-  id: '/ads',
-  path: '/ads',
+const LibraryRoute = LibraryRouteImport.update({
+  id: '/_library',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AccountRoute = AccountRouteImport.update({
@@ -387,386 +236,170 @@ const AccountRoute = AccountRouteImport.update({
   path: '/account',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LibraryRoute = LibraryRouteImport.update({
-  id: '/_library',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AdminRouteRoute = AdminRouteRouteImport.update({
   id: '/admin',
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AdsRoute = AdsRouteImport.update({
+  id: '/ads',
+  path: '/ads',
   getParentRoute: () => rootRouteImport,
 } as any)
-const StatsIndexRoute = StatsIndexRouteImport.update({
-  id: '/stats/',
-  path: '/stats/',
+const ApplicationStarterRoute = ApplicationStarterRouteImport.update({
+  id: '/application-starter',
+  path: '/application-starter',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ShowcaseIndexRoute = ShowcaseIndexRouteImport.update({
-  id: '/showcase/',
-  path: '/showcase/',
+const BlogRoute = BlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ShopIndexRoute = ShopIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => ShopRoute,
-} as any)
-const PartnersIndexRoute = PartnersIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => PartnersRoute,
-} as any)
-const DsIndexRoute = DsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => DsRoute,
-} as any)
-const BlogIndexRoute = BlogIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => BlogRoute,
-} as any)
-const ApplicationStarterIndexRoute = ApplicationStarterIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => ApplicationStarterRoute,
-} as any)
-const AdminIndexRoute = AdminIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AdminRouteRoute,
-} as any)
-const AccountIndexRoute = AccountIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AccountRoute,
-} as any)
-const StackCategoryRoute = StackCategoryRouteImport.update({
-  id: '/stack/$category',
-  path: '/stack/$category',
+const BrandGuideRoute = BrandGuideRouteImport.update({
+  id: '/brand-guide',
+  path: '/brand-guide',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ShowcaseSubmitRoute = ShowcaseSubmitRouteImport.update({
-  id: '/showcase/submit',
-  path: '/showcase/submit',
+const BuilderRoute = BuilderRouteImport.update({
+  id: '/builder',
+  path: '/builder',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ShowcaseIdRoute = ShowcaseIdRouteImport.update({
-  id: '/showcase/$id',
-  path: '/showcase/$id',
+const CommunityProjectsRoute = CommunityProjectsRouteImport.update({
+  id: '/community-projects',
+  path: '/community-projects',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ShopSearchRoute = ShopSearchRouteImport.update({
-  id: '/search',
-  path: '/search',
-  getParentRoute: () => ShopRoute,
-} as any)
-const ShopCartRoute = ShopCartRouteImport.update({
-  id: '/cart',
-  path: '/cart',
-  getParentRoute: () => ShopRoute,
-} as any)
-const ShopHandleRoute = ShopHandleRouteImport.update({
-  id: '/$handle',
-  path: '/$handle',
-  getParentRoute: () => ShopRoute,
-} as any)
-const PartnersRenderRoute = PartnersRenderRouteImport.update({
-  id: '/render',
-  path: '/render',
-  getParentRoute: () => PartnersRoute,
-} as any)
-const PartnersRailwayRoute = PartnersRailwayRouteImport.update({
-  id: '/railway',
-  path: '/railway',
-  getParentRoute: () => PartnersRoute,
-} as any)
-const PartnersNetlifyRoute = PartnersNetlifyRouteImport.update({
-  id: '/netlify',
-  path: '/netlify',
-  getParentRoute: () => PartnersRoute,
-} as any)
-const PartnersPartnerRoute = PartnersPartnerRouteImport.update({
-  id: '/$partner',
-  path: '/$partner',
-  getParentRoute: () => PartnersRoute,
-} as any)
-const OauthTokenRoute = OauthTokenRouteImport.update({
-  id: '/oauth/token',
-  path: '/oauth/token',
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OauthRegisterRoute = OauthRegisterRouteImport.update({
-  id: '/oauth/register',
-  path: '/oauth/register',
+const DsRoute = DsRouteImport.update({
+  id: '/ds',
+  path: '/ds',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OauthAuthorizeRoute = OauthAuthorizeRouteImport.update({
-  id: '/oauth/authorize',
-  path: '/oauth/authorize',
+const EthosRoute = EthosRouteImport.update({
+  id: '/ethos',
+  path: '/ethos',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LibrariesFrameworkRoute = LibrariesFrameworkRouteImport.update({
-  id: '/libraries_/$framework',
-  path: '/libraries/$framework',
+const ExploreRoute = ExploreRouteImport.update({
+  id: '/explore',
+  path: '/explore',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DsTypographyRoute = DsTypographyRouteImport.update({
-  id: '/typography',
-  path: '/typography',
-  getParentRoute: () => DsRoute,
+const FeedbackLeaderboardRoute = FeedbackLeaderboardRouteImport.update({
+  id: '/feedback-leaderboard',
+  path: '/feedback-leaderboard',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const DsTakeoverRoute = DsTakeoverRouteImport.update({
-  id: '/takeover',
-  path: '/takeover',
-  getParentRoute: () => DsRoute,
+const LearnRoute = LearnRouteImport.update({
+  id: '/learn',
+  path: '/learn',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const DsTabsRoute = DsTabsRouteImport.update({
-  id: '/tabs',
-  path: '/tabs',
-  getParentRoute: () => DsRoute,
+const LibrariesRoute = LibrariesRouteImport.update({
+  id: '/libraries',
+  path: '/libraries',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const DsStatsRoute = DsStatsRouteImport.update({
-  id: '/stats',
-  path: '/stats',
-  getParentRoute: () => DsRoute,
+const LlmsFullDottxtRoute = LlmsFullDottxtRouteImport.update({
+  id: '/llms-full.txt',
+  path: '/llms-full.txt',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const DsSpinnerRoute = DsSpinnerRouteImport.update({
-  id: '/spinner',
-  path: '/spinner',
-  getParentRoute: () => DsRoute,
+const LlmsDottxtRoute = LlmsDottxtRouteImport.update({
+  id: '/llms.txt',
+  path: '/llms.txt',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const DsShadowsRoute = DsShadowsRouteImport.update({
-  id: '/shadows',
-  path: '/shadows',
-  getParentRoute: () => DsRoute,
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const DsSemanticRoute = DsSemanticRouteImport.update({
-  id: '/semantic',
-  path: '/semantic',
-  getParentRoute: () => DsRoute,
-} as any)
-const DsPartnerRailRoute = DsPartnerRailRouteImport.update({
-  id: '/partner-rail',
-  path: '/partner-rail',
-  getParentRoute: () => DsRoute,
-} as any)
-const DsPanelRoute = DsPanelRouteImport.update({
-  id: '/panel',
-  path: '/panel',
-  getParentRoute: () => DsRoute,
-} as any)
-const DsPaletteRoute = DsPaletteRouteImport.update({
-  id: '/palette',
-  path: '/palette',
-  getParentRoute: () => DsRoute,
-} as any)
-const DsPageHeaderRoute = DsPageHeaderRouteImport.update({
-  id: '/page-header',
-  path: '/page-header',
-  getParentRoute: () => DsRoute,
-} as any)
-const DsOverlaysRoute = DsOverlaysRouteImport.update({
-  id: '/overlays',
-  path: '/overlays',
-  getParentRoute: () => DsRoute,
-} as any)
-const DsNavbarRoute = DsNavbarRouteImport.update({
-  id: '/navbar',
-  path: '/navbar',
-  getParentRoute: () => DsRoute,
-} as any)
-const DsMaintainersRoute = DsMaintainersRouteImport.update({
+const MaintainersRoute = MaintainersRouteImport.update({
   id: '/maintainers',
   path: '/maintainers',
-  getParentRoute: () => DsRoute,
-} as any)
-const DsLogosRoute = DsLogosRouteImport.update({
-  id: '/logos',
-  path: '/logos',
-  getParentRoute: () => DsRoute,
-} as any)
-const DsInputsRoute = DsInputsRouteImport.update({
-  id: '/inputs',
-  path: '/inputs',
-  getParentRoute: () => DsRoute,
-} as any)
-const DsIconographyRoute = DsIconographyRouteImport.update({
-  id: '/iconography',
-  path: '/iconography',
-  getParentRoute: () => DsRoute,
-} as any).lazy(() =>
-  import('./routes/ds.iconography.lazy').then((d) => d.Route),
-)
-const DsEyebrowRoute = DsEyebrowRouteImport.update({
-  id: '/eyebrow',
-  path: '/eyebrow',
-  getParentRoute: () => DsRoute,
-} as any)
-const DsEffectsRoute = DsEffectsRouteImport.update({
-  id: '/effects',
-  path: '/effects',
-  getParentRoute: () => DsRoute,
-} as any)
-const DsDropdownRoute = DsDropdownRouteImport.update({
-  id: '/dropdown',
-  path: '/dropdown',
-  getParentRoute: () => DsRoute,
-} as any)
-const DsDrawerRoute = DsDrawerRouteImport.update({
-  id: '/drawer',
-  path: '/drawer',
-  getParentRoute: () => DsRoute,
-} as any)
-const DsDialogRoute = DsDialogRouteImport.update({
-  id: '/dialog',
-  path: '/dialog',
-  getParentRoute: () => DsRoute,
-} as any)
-const DsColorsRoute = DsColorsRouteImport.update({
-  id: '/colors',
-  path: '/colors',
-  getParentRoute: () => DsRoute,
-} as any)
-const DsCardsRoute = DsCardsRouteImport.update({
-  id: '/cards',
-  path: '/cards',
-  getParentRoute: () => DsRoute,
-} as any)
-const DsButtonsRoute = DsButtonsRouteImport.update({
-  id: '/buttons',
-  path: '/buttons',
-  getParentRoute: () => DsRoute,
-} as any)
-const DsBreadcrumbsRoute = DsBreadcrumbsRouteImport.update({
-  id: '/breadcrumbs',
-  path: '/breadcrumbs',
-  getParentRoute: () => DsRoute,
-} as any)
-const DsBadgesRoute = DsBadgesRouteImport.update({
-  id: '/badges',
-  path: '/badges',
-  getParentRoute: () => DsRoute,
-} as any)
-const DsAvatarRoute = DsAvatarRouteImport.update({
-  id: '/avatar',
-  path: '/avatar',
-  getParentRoute: () => DsRoute,
-} as any)
-const BuilderNewRoute = BuilderNewRouteImport.update({
-  id: '/builder_/new',
-  path: '/builder/new',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BuilderLlmsDottxtRoute = BuilderLlmsDottxtRouteImport.update({
-  id: '/builder_/llms.txt',
-  path: '/builder/llms.txt',
+const MerchRoute = MerchRouteImport.update({
+  id: '/merch',
+  path: '/merch',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BuilderEsbuildRoute = BuilderEsbuildRouteImport.update({
-  id: '/builder_/esbuild',
-  path: '/builder/esbuild',
+const PaidSupportRoute = PaidSupportRouteImport.update({
+  id: '/paid-support',
+  path: '/paid-support',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BuilderAiRoute = BuilderAiRouteImport.update({
-  id: '/builder_/ai',
-  path: '/builder/ai',
+const PartnersRoute = PartnersRouteImport.update({
+  id: '/partners',
+  path: '/partners',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BuilderIdRoute = BuilderIdRouteImport.update({
-  id: '/builder_/$id',
-  path: '/builder/$id',
+const PartnersEmbedRoute = PartnersEmbedRouteImport.update({
+  id: '/partners-embed',
+  path: '/partners-embed',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BlogSplatRoute = BlogSplatRouteImport.update({
-  id: '/$',
-  path: '/$',
-  getParentRoute: () => BlogRoute,
-} as any)
-const AuthSignoutRoute = AuthSignoutRouteImport.update({
-  id: '/auth/signout',
-  path: '/auth/signout',
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthPopupSuccessRoute = AuthPopupSuccessRouteImport.update({
-  id: '/auth/popup-success',
-  path: '/auth/popup-success',
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthCliRoute = AuthCliRouteImport.update({
-  id: '/auth/cli',
-  path: '/auth/cli',
+const RssDotxmlRoute = RssDotxmlRouteImport.update({
+  id: '/rss.xml',
+  path: '/rss.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApplicationStarterDocsRoute = ApplicationStarterDocsRouteImport.update({
-  id: '/docs',
-  path: '/docs',
-  getParentRoute: () => ApplicationStarterRoute,
-} as any)
-const ApiUploadthingRoute = ApiUploadthingRouteImport.update({
-  id: '/api/uploadthing',
-  path: '/api/uploadthing',
+const ShopRoute = ShopRouteImport.update({
+  id: '/shop',
+  path: '/shop',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminUsersRoute = AdminUsersRouteImport.update({
-  id: '/users',
-  path: '/users',
-  getParentRoute: () => AdminRouteRoute,
+const ShowcasesRoute = ShowcasesRouteImport.update({
+  id: '/showcases',
+  path: '/showcases',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AdminNpmStatsRoute = AdminNpmStatsRouteImport.update({
-  id: '/npm-stats',
-  path: '/npm-stats',
-  getParentRoute: () => AdminRouteRoute,
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AdminLoginsRoute = AdminLoginsRouteImport.update({
-  id: '/logins',
-  path: '/logins',
-  getParentRoute: () => AdminRouteRoute,
+const SponsorsEmbedRoute = SponsorsEmbedRouteImport.update({
+  id: '/sponsors-embed',
+  path: '/sponsors-embed',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AdminIntentRoute = AdminIntentRouteImport.update({
-  id: '/intent',
-  path: '/intent',
-  getParentRoute: () => AdminRouteRoute,
+const SupportRoute = SupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AdminGithubStatsRoute = AdminGithubStatsRouteImport.update({
-  id: '/github-stats',
-  path: '/github-stats',
-  getParentRoute: () => AdminRouteRoute,
+const TenetsRoute = TenetsRouteImport.update({
+  id: '/tenets',
+  path: '/tenets',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AdminDocsRoute = AdminDocsRouteImport.update({
-  id: '/docs',
-  path: '/docs',
-  getParentRoute: () => AdminRouteRoute,
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AdminAuditRoute = AdminAuditRouteImport.update({
-  id: '/audit',
-  path: '/audit',
-  getParentRoute: () => AdminRouteRoute,
-} as any)
-const AccountSubmissionsRoute = AccountSubmissionsRouteImport.update({
-  id: '/submissions',
-  path: '/submissions',
-  getParentRoute: () => AccountRoute,
-} as any)
-const AccountNotesRoute = AccountNotesRouteImport.update({
-  id: '/notes',
-  path: '/notes',
-  getParentRoute: () => AccountRoute,
-} as any)
-const AccountIntegrationsRoute = AccountIntegrationsRouteImport.update({
-  id: '/integrations',
-  path: '/integrations',
-  getParentRoute: () => AccountRoute,
-} as any)
-const AccountFeedbackRoute = AccountFeedbackRouteImport.update({
-  id: '/feedback',
-  path: '/feedback',
-  getParentRoute: () => AccountRoute,
+const WorkshopsRoute = WorkshopsRouteImport.update({
+  id: '/workshops',
+  path: '/workshops',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const DotwellKnownOauthAuthorizationServerRoute =
   DotwellKnownOauthAuthorizationServerRouteImport.update({
@@ -779,29 +412,396 @@ const LibraryLibraryIdRouteRoute = LibraryLibraryIdRouteRouteImport.update({
   path: '/$libraryId',
   getParentRoute: () => LibraryRoute,
 } as any)
-const StatsNpmIndexRoute = StatsNpmIndexRouteImport.update({
-  id: '/stats/npm/',
-  path: '/stats/npm/',
-  getParentRoute: () => rootRouteImport,
+const AccountIndexRoute = AccountIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AccountRoute,
 } as any)
-const IntentRegistryIndexRoute = IntentRegistryIndexRouteImport.update({
-  id: '/intent/registry/',
-  path: '/intent/registry/',
-  getParentRoute: () => rootRouteImport,
+const AccountFeedbackRoute = AccountFeedbackRouteImport.update({
+  id: '/feedback',
+  path: '/feedback',
+  getParentRoute: () => AccountRoute,
 } as any)
-const ApiMcpIndexRoute = ApiMcpIndexRouteImport.update({
-  id: '/api/mcp/',
-  path: '/api/mcp/',
-  getParentRoute: () => rootRouteImport,
+const AccountIntegrationsRoute = AccountIntegrationsRouteImport.update({
+  id: '/integrations',
+  path: '/integrations',
+  getParentRoute: () => AccountRoute,
 } as any)
-const AdminShowcasesIndexRoute = AdminShowcasesIndexRouteImport.update({
-  id: '/showcases/',
-  path: '/showcases/',
+const AccountNotesRoute = AccountNotesRouteImport.update({
+  id: '/notes',
+  path: '/notes',
+  getParentRoute: () => AccountRoute,
+} as any)
+const AccountSubmissionsRoute = AccountSubmissionsRouteImport.update({
+  id: '/submissions',
+  path: '/submissions',
+  getParentRoute: () => AccountRoute,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => AdminRouteRoute,
 } as any)
-const AdminRolesIndexRoute = AdminRolesIndexRouteImport.update({
-  id: '/roles/',
-  path: '/roles/',
+const AdminAuditRoute = AdminAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminDocsRoute = AdminDocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminGithubStatsRoute = AdminGithubStatsRouteImport.update({
+  id: '/github-stats',
+  path: '/github-stats',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminIntentRoute = AdminIntentRouteImport.update({
+  id: '/intent',
+  path: '/intent',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminLoginsRoute = AdminLoginsRouteImport.update({
+  id: '/logins',
+  path: '/logins',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminNpmStatsRoute = AdminNpmStatsRouteImport.update({
+  id: '/npm-stats',
+  path: '/npm-stats',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const ApiUploadthingRoute = ApiUploadthingRouteImport.update({
+  id: '/api/uploadthing',
+  path: '/api/uploadthing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApplicationStarterIndexRoute = ApplicationStarterIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ApplicationStarterRoute,
+} as any)
+const ApplicationStarterDocsRoute = ApplicationStarterDocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => ApplicationStarterRoute,
+} as any)
+const AuthCliRoute = AuthCliRouteImport.update({
+  id: '/auth/cli',
+  path: '/auth/cli',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthPopupSuccessRoute = AuthPopupSuccessRouteImport.update({
+  id: '/auth/popup-success',
+  path: '/auth/popup-success',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthSignoutRoute = AuthSignoutRouteImport.update({
+  id: '/auth/signout',
+  path: '/auth/signout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => BlogRoute,
+} as any)
+const BlogSplatRoute = BlogSplatRouteImport.update({
+  id: '/$',
+  path: '/$',
+  getParentRoute: () => BlogRoute,
+} as any)
+const BuilderIdRoute = BuilderIdRouteImport.update({
+  id: '/builder_/$id',
+  path: '/builder/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuilderAiRoute = BuilderAiRouteImport.update({
+  id: '/builder_/ai',
+  path: '/builder/ai',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuilderEsbuildRoute = BuilderEsbuildRouteImport.update({
+  id: '/builder_/esbuild',
+  path: '/builder/esbuild',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuilderLlmsDottxtRoute = BuilderLlmsDottxtRouteImport.update({
+  id: '/builder_/llms.txt',
+  path: '/builder/llms.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuilderNewRoute = BuilderNewRouteImport.update({
+  id: '/builder_/new',
+  path: '/builder/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DsIndexRoute = DsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsAvatarRoute = DsAvatarRouteImport.update({
+  id: '/avatar',
+  path: '/avatar',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsBadgesRoute = DsBadgesRouteImport.update({
+  id: '/badges',
+  path: '/badges',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsBreadcrumbsRoute = DsBreadcrumbsRouteImport.update({
+  id: '/breadcrumbs',
+  path: '/breadcrumbs',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsButtonsRoute = DsButtonsRouteImport.update({
+  id: '/buttons',
+  path: '/buttons',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsCardsRoute = DsCardsRouteImport.update({
+  id: '/cards',
+  path: '/cards',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsColorsRoute = DsColorsRouteImport.update({
+  id: '/colors',
+  path: '/colors',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsDialogRoute = DsDialogRouteImport.update({
+  id: '/dialog',
+  path: '/dialog',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsDrawerRoute = DsDrawerRouteImport.update({
+  id: '/drawer',
+  path: '/drawer',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsDropdownRoute = DsDropdownRouteImport.update({
+  id: '/dropdown',
+  path: '/dropdown',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsEffectsRoute = DsEffectsRouteImport.update({
+  id: '/effects',
+  path: '/effects',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsEyebrowRoute = DsEyebrowRouteImport.update({
+  id: '/eyebrow',
+  path: '/eyebrow',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsIconographyRoute = DsIconographyRouteImport.update({
+  id: '/iconography',
+  path: '/iconography',
+  getParentRoute: () => DsRoute,
+} as any).lazy(() =>
+  import('./routes/ds.iconography.lazy').then((d) => d.Route),
+)
+const DsInputsRoute = DsInputsRouteImport.update({
+  id: '/inputs',
+  path: '/inputs',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsLogosRoute = DsLogosRouteImport.update({
+  id: '/logos',
+  path: '/logos',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsMaintainersRoute = DsMaintainersRouteImport.update({
+  id: '/maintainers',
+  path: '/maintainers',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsNavbarRoute = DsNavbarRouteImport.update({
+  id: '/navbar',
+  path: '/navbar',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsOverlaysRoute = DsOverlaysRouteImport.update({
+  id: '/overlays',
+  path: '/overlays',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsPageHeaderRoute = DsPageHeaderRouteImport.update({
+  id: '/page-header',
+  path: '/page-header',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsPaletteRoute = DsPaletteRouteImport.update({
+  id: '/palette',
+  path: '/palette',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsPanelRoute = DsPanelRouteImport.update({
+  id: '/panel',
+  path: '/panel',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsPartnerRailRoute = DsPartnerRailRouteImport.update({
+  id: '/partner-rail',
+  path: '/partner-rail',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsSemanticRoute = DsSemanticRouteImport.update({
+  id: '/semantic',
+  path: '/semantic',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsShadowsRoute = DsShadowsRouteImport.update({
+  id: '/shadows',
+  path: '/shadows',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsSpinnerRoute = DsSpinnerRouteImport.update({
+  id: '/spinner',
+  path: '/spinner',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsStatsRoute = DsStatsRouteImport.update({
+  id: '/stats',
+  path: '/stats',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsTabsRoute = DsTabsRouteImport.update({
+  id: '/tabs',
+  path: '/tabs',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsTakeoverRoute = DsTakeoverRouteImport.update({
+  id: '/takeover',
+  path: '/takeover',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsTypographyRoute = DsTypographyRouteImport.update({
+  id: '/typography',
+  path: '/typography',
+  getParentRoute: () => DsRoute,
+} as any)
+const LibrariesFrameworkRoute = LibrariesFrameworkRouteImport.update({
+  id: '/libraries_/$framework',
+  path: '/libraries/$framework',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OauthAuthorizeRoute = OauthAuthorizeRouteImport.update({
+  id: '/oauth/authorize',
+  path: '/oauth/authorize',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OauthRegisterRoute = OauthRegisterRouteImport.update({
+  id: '/oauth/register',
+  path: '/oauth/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OauthTokenRoute = OauthTokenRouteImport.update({
+  id: '/oauth/token',
+  path: '/oauth/token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartnersIndexRoute = PartnersIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PartnersRoute,
+} as any)
+const PartnersPartnerRoute = PartnersPartnerRouteImport.update({
+  id: '/$partner',
+  path: '/$partner',
+  getParentRoute: () => PartnersRoute,
+} as any)
+const PartnersNetlifyRoute = PartnersNetlifyRouteImport.update({
+  id: '/netlify',
+  path: '/netlify',
+  getParentRoute: () => PartnersRoute,
+} as any)
+const PartnersRailwayRoute = PartnersRailwayRouteImport.update({
+  id: '/railway',
+  path: '/railway',
+  getParentRoute: () => PartnersRoute,
+} as any)
+const PartnersRenderRoute = PartnersRenderRouteImport.update({
+  id: '/render',
+  path: '/render',
+  getParentRoute: () => PartnersRoute,
+} as any)
+const ShopIndexRoute = ShopIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ShopRoute,
+} as any)
+const ShopHandleRoute = ShopHandleRouteImport.update({
+  id: '/$handle',
+  path: '/$handle',
+  getParentRoute: () => ShopRoute,
+} as any)
+const ShopCartRoute = ShopCartRouteImport.update({
+  id: '/cart',
+  path: '/cart',
+  getParentRoute: () => ShopRoute,
+} as any)
+const ShopSearchRoute = ShopSearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => ShopRoute,
+} as any)
+const ShowcaseIndexRoute = ShowcaseIndexRouteImport.update({
+  id: '/showcase/',
+  path: '/showcase/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShowcaseIdRoute = ShowcaseIdRouteImport.update({
+  id: '/showcase/$id',
+  path: '/showcase/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShowcaseSubmitRoute = ShowcaseSubmitRouteImport.update({
+  id: '/showcase/submit',
+  path: '/showcase/submit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StackCategoryRoute = StackCategoryRouteImport.update({
+  id: '/stack/$category',
+  path: '/stack/$category',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StatsIndexRoute = StatsIndexRouteImport.update({
+  id: '/stats/',
+  path: '/stats/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LibraryLibraryIdIndexRoute = LibraryLibraryIdIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LibraryLibraryIdRouteRoute,
+} as any)
+const LibraryLibraryIdVersionRoute = LibraryLibraryIdVersionRouteImport.update({
+  id: '/$version',
+  path: '/$version',
+  getParentRoute: () => LibraryLibraryIdRouteRoute,
+} as any)
+const LibraryChartsCatalogRoute = LibraryChartsCatalogRouteImport.update({
+  id: '/charts/catalog',
+  path: '/charts/catalog',
+  getParentRoute: () => LibraryRoute,
+} as any)
+const AdminFeedbackIndexRoute = AdminFeedbackIndexRouteImport.update({
+  id: '/feedback/',
+  path: '/feedback/',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminFeedbackIdRoute = AdminFeedbackIdRouteImport.update({
+  id: '/feedback_/$id',
+  path: '/feedback/$id',
   getParentRoute: () => AdminRouteRoute,
 } as any)
 const AdminNotesIndexRoute = AdminNotesIndexRouteImport.update({
@@ -809,183 +809,35 @@ const AdminNotesIndexRoute = AdminNotesIndexRouteImport.update({
   path: '/notes/',
   getParentRoute: () => AdminRouteRoute,
 } as any)
-const AdminFeedbackIndexRoute = AdminFeedbackIndexRouteImport.update({
-  id: '/feedback/',
-  path: '/feedback/',
+const AdminRolesIndexRoute = AdminRolesIndexRouteImport.update({
+  id: '/roles/',
+  path: '/roles/',
   getParentRoute: () => AdminRouteRoute,
 } as any)
-const LibraryLibraryIdIndexRoute = LibraryLibraryIdIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => LibraryLibraryIdRouteRoute,
+const AdminRolesRoleIdRoute = AdminRolesRoleIdRouteImport.update({
+  id: '/roles/$roleId',
+  path: '/roles/$roleId',
+  getParentRoute: () => AdminRouteRoute,
 } as any)
-const StatsNpmEmbedRoute = StatsNpmEmbedRouteImport.update({
-  id: '/stats/npm/embed',
-  path: '/stats/npm/embed',
-  getParentRoute: () => rootRouteImport,
+const AdminShowcasesIndexRoute = AdminShowcasesIndexRouteImport.update({
+  id: '/showcases/',
+  path: '/showcases/',
+  getParentRoute: () => AdminRouteRoute,
 } as any)
-const StatsNpmPackagesRoute = StatsNpmPackagesRouteImport.update({
-  id: '/stats/npm/$packages',
-  path: '/stats/npm/$packages',
-  getParentRoute: () => rootRouteImport,
+const AdminShowcasesIdRoute = AdminShowcasesIdRouteImport.update({
+  id: '/showcases_/$id',
+  path: '/showcases/$id',
+  getParentRoute: () => AdminRouteRoute,
 } as any)
-const ShowcaseEditIdRoute = ShowcaseEditIdRouteImport.update({
-  id: '/showcase/edit/$id',
-  path: '/showcase/edit/$id',
-  getParentRoute: () => rootRouteImport,
+const AdminUsersUserIdRoute = AdminUsersUserIdRouteImport.update({
+  id: '/$userId',
+  path: '/$userId',
+  getParentRoute: () => AdminUsersRoute,
 } as any)
-const ShopProductsHandleRoute = ShopProductsHandleRouteImport.update({
-  id: '/products/$handle',
-  path: '/products/$handle',
-  getParentRoute: () => ShopRoute,
-} as any)
-const ShopPoliciesHandleRoute = ShopPoliciesHandleRouteImport.update({
-  id: '/policies/$handle',
-  path: '/policies/$handle',
-  getParentRoute: () => ShopRoute,
-} as any)
-const ShopPagesHandleRoute = ShopPagesHandleRouteImport.update({
-  id: '/pages/$handle',
-  path: '/pages/$handle',
-  getParentRoute: () => ShopRoute,
-} as any)
-const ShopCollectionsHandleRoute = ShopCollectionsHandleRouteImport.update({
-  id: '/collections/$handle',
-  path: '/collections/$handle',
-  getParentRoute: () => ShopRoute,
-} as any)
-const IntentRegistryPackageNameRoute =
-  IntentRegistryPackageNameRouteImport.update({
-    id: '/intent/registry/$packageName',
-    path: '/intent/registry/$packageName',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ChartsCatalogCatalogDotjsonRoute =
-  ChartsCatalogCatalogDotjsonRouteImport.update({
-    id: '/charts/catalog_/catalog.json',
-    path: '/charts/catalog/catalog.json',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const BuilderPHashRoute = BuilderPHashRouteImport.update({
-  id: '/builder_/p/$hash',
-  path: '/builder/p/$hash',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthProviderStartRoute = AuthProviderStartRouteImport.update({
-  id: '/auth/$provider/start',
-  path: '/auth/$provider/start',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiReadmeChar123Char125DotpngRoute =
-  ApiReadmeChar123Char125DotpngRouteImport.update({
-    id: '/api/readme/{$}.png',
-    path: '/api/readme/{$}.png',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiOgChar123Char125DotpngRoute =
-  ApiOgChar123Char125DotpngRouteImport.update({
-    id: '/api/og/{$}.png',
-    path: '/api/og/{$}.png',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiMcpSplatRoute = ApiMcpSplatRouteImport.update({
-  id: '/api/mcp/$',
-  path: '/api/mcp/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiGithubWebhookRoute = ApiGithubWebhookRouteImport.update({
-  id: '/api/github/webhook',
-  path: '/api/github/webhook',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiExampleDeployRoute = ApiExampleDeployRouteImport.update({
-  id: '/api/example/deploy',
-  path: '/api/example/deploy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiDiscordInteractionsRoute = ApiDiscordInteractionsRouteImport.update({
-  id: '/api/discord/interactions',
-  path: '/api/discord/interactions',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiDataPartnersRoute = ApiDataPartnersRouteImport.update({
-  id: '/api/data/partners',
-  path: '/api/data/partners',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiDataLibrariesRoute = ApiDataLibrariesRouteImport.update({
-  id: '/api/data/libraries',
-  path: '/api/data/libraries',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiBuilderProjectsRoute = ApiBuilderProjectsRouteImport.update({
-  id: '/api/builder/projects',
-  path: '/api/builder/projects',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiBuilderProjectSnapshotsRoute =
-  ApiBuilderProjectSnapshotsRouteImport.update({
-    id: '/api/builder/project-snapshots',
-    path: '/api/builder/project-snapshots',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiBuilderAssistRoute = ApiBuilderAssistRouteImport.update({
-  id: '/api/builder/assist',
-  path: '/api/builder/assist',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiApplicationStarterValidateRoute =
-  ApiApplicationStarterValidateRouteImport.update({
-    id: '/api/application-starter/validate',
-    path: '/api/application-starter/validate',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiApplicationStarterSuggestRoute =
-  ApiApplicationStarterSuggestRouteImport.update({
-    id: '/api/application-starter/suggest',
-    path: '/api/application-starter/suggest',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiApplicationStarterResolveRoute =
-  ApiApplicationStarterResolveRouteImport.update({
-    id: '/api/application-starter/resolve',
-    path: '/api/application-starter/resolve',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiApplicationStarterLoadTemplateRoute =
-  ApiApplicationStarterLoadTemplateRouteImport.update({
-    id: '/api/application-starter/load-template',
-    path: '/api/application-starter/load-template',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiApplicationStarterLoadRemoteTemplateRoute =
-  ApiApplicationStarterLoadRemoteTemplateRouteImport.update({
-    id: '/api/application-starter/load-remote-template',
-    path: '/api/application-starter/load-remote-template',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiApplicationStarterLoadRemoteAddonRoute =
-  ApiApplicationStarterLoadRemoteAddonRouteImport.update({
-    id: '/api/application-starter/load-remote-addon',
-    path: '/api/application-starter/load-remote-addon',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiApplicationStarterFeaturesRoute =
-  ApiApplicationStarterFeaturesRouteImport.update({
-    id: '/api/application-starter/features',
-    path: '/api/application-starter/features',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiApplicationStarterFeatureArtifactsRoute =
-  ApiApplicationStarterFeatureArtifactsRouteImport.update({
-    id: '/api/application-starter/feature-artifacts',
-    path: '/api/application-starter/feature-artifacts',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiApplicationStarterDownloadRoute =
-  ApiApplicationStarterDownloadRouteImport.update({
-    id: '/api/application-starter/download',
-    path: '/api/application-starter/download',
+const ApiApplicationStarterCompileRoute =
+  ApiApplicationStarterCompileRouteImport.update({
+    id: '/api/application-starter/compile',
+    path: '/api/application-starter/compile',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiApplicationStarterCompileAttributedRoute =
@@ -994,236 +846,194 @@ const ApiApplicationStarterCompileAttributedRoute =
     path: '/api/application-starter/compile-attributed',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiApplicationStarterCompileRoute =
-  ApiApplicationStarterCompileRouteImport.update({
-    id: '/api/application-starter/compile',
-    path: '/api/application-starter/compile',
+const ApiApplicationStarterDownloadRoute =
+  ApiApplicationStarterDownloadRouteImport.update({
+    id: '/api/application-starter/download',
+    path: '/api/application-starter/download',
     getParentRoute: () => rootRouteImport,
   } as any)
-const AdminUsersUserIdRoute = AdminUsersUserIdRouteImport.update({
-  id: '/$userId',
-  path: '/$userId',
-  getParentRoute: () => AdminUsersRoute,
+const ApiApplicationStarterFeatureArtifactsRoute =
+  ApiApplicationStarterFeatureArtifactsRouteImport.update({
+    id: '/api/application-starter/feature-artifacts',
+    path: '/api/application-starter/feature-artifacts',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiApplicationStarterFeaturesRoute =
+  ApiApplicationStarterFeaturesRouteImport.update({
+    id: '/api/application-starter/features',
+    path: '/api/application-starter/features',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiApplicationStarterLoadRemoteAddonRoute =
+  ApiApplicationStarterLoadRemoteAddonRouteImport.update({
+    id: '/api/application-starter/load-remote-addon',
+    path: '/api/application-starter/load-remote-addon',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiApplicationStarterLoadRemoteTemplateRoute =
+  ApiApplicationStarterLoadRemoteTemplateRouteImport.update({
+    id: '/api/application-starter/load-remote-template',
+    path: '/api/application-starter/load-remote-template',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiApplicationStarterLoadTemplateRoute =
+  ApiApplicationStarterLoadTemplateRouteImport.update({
+    id: '/api/application-starter/load-template',
+    path: '/api/application-starter/load-template',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiApplicationStarterResolveRoute =
+  ApiApplicationStarterResolveRouteImport.update({
+    id: '/api/application-starter/resolve',
+    path: '/api/application-starter/resolve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiApplicationStarterSuggestRoute =
+  ApiApplicationStarterSuggestRouteImport.update({
+    id: '/api/application-starter/suggest',
+    path: '/api/application-starter/suggest',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiApplicationStarterValidateRoute =
+  ApiApplicationStarterValidateRouteImport.update({
+    id: '/api/application-starter/validate',
+    path: '/api/application-starter/validate',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiBuilderAssistRoute = ApiBuilderAssistRouteImport.update({
+  id: '/api/builder/assist',
+  path: '/api/builder/assist',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AdminShowcasesIdRoute = AdminShowcasesIdRouteImport.update({
-  id: '/showcases_/$id',
-  path: '/showcases/$id',
-  getParentRoute: () => AdminRouteRoute,
+const ApiBuilderProjectSnapshotsRoute =
+  ApiBuilderProjectSnapshotsRouteImport.update({
+    id: '/api/builder/project-snapshots',
+    path: '/api/builder/project-snapshots',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiBuilderProjectsRoute = ApiBuilderProjectsRouteImport.update({
+  id: '/api/builder/projects',
+  path: '/api/builder/projects',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AdminRolesRoleIdRoute = AdminRolesRoleIdRouteImport.update({
-  id: '/roles/$roleId',
-  path: '/roles/$roleId',
-  getParentRoute: () => AdminRouteRoute,
+const ApiDataLibrariesRoute = ApiDataLibrariesRouteImport.update({
+  id: '/api/data/libraries',
+  path: '/api/data/libraries',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AdminFeedbackIdRoute = AdminFeedbackIdRouteImport.update({
-  id: '/feedback_/$id',
-  path: '/feedback/$id',
-  getParentRoute: () => AdminRouteRoute,
+const ApiDataPartnersRoute = ApiDataPartnersRouteImport.update({
+  id: '/api/data/partners',
+  path: '/api/data/partners',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const LibraryChartsCatalogRoute = LibraryChartsCatalogRouteImport.update({
-  id: '/charts/catalog',
-  path: '/charts/catalog',
-  getParentRoute: () => LibraryRoute,
+const ApiDiscordInteractionsRoute = ApiDiscordInteractionsRouteImport.update({
+  id: '/api/discord/interactions',
+  path: '/api/discord/interactions',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const LibraryLibraryIdVersionRoute = LibraryLibraryIdVersionRouteImport.update({
-  id: '/$version',
-  path: '/$version',
-  getParentRoute: () => LibraryLibraryIdRouteRoute,
+const ApiExampleDeployRoute = ApiExampleDeployRouteImport.update({
+  id: '/api/example/deploy',
+  path: '/api/example/deploy',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const IntentRegistryPackageNameIndexRoute =
-  IntentRegistryPackageNameIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => IntentRegistryPackageNameRoute,
-  } as any)
-const LibraryWorkflowVersionIndexRoute =
-  LibraryWorkflowVersionIndexRouteImport.update({
-    id: '/workflow/$version/',
-    path: '/workflow/$version/',
-    getParentRoute: () => LibraryRoute,
-  } as any)
-const LibraryVirtualVersionIndexRoute =
-  LibraryVirtualVersionIndexRouteImport.update({
-    id: '/virtual/$version/',
-    path: '/virtual/$version/',
-    getParentRoute: () => LibraryRoute,
-  } as any)
-const LibraryTableVersionIndexRoute =
-  LibraryTableVersionIndexRouteImport.update({
-    id: '/table/$version/',
-    path: '/table/$version/',
-    getParentRoute: () => LibraryRoute,
-  } as any)
-const LibraryStoreVersionIndexRoute =
-  LibraryStoreVersionIndexRouteImport.update({
-    id: '/store/$version/',
-    path: '/store/$version/',
-    getParentRoute: () => LibraryRoute,
-  } as any)
-const LibraryStartVersionIndexRoute =
-  LibraryStartVersionIndexRouteImport.update({
-    id: '/start/$version/',
-    path: '/start/$version/',
-    getParentRoute: () => LibraryRoute,
-  } as any)
-const LibraryRouterVersionIndexRoute =
-  LibraryRouterVersionIndexRouteImport.update({
-    id: '/router/$version/',
-    path: '/router/$version/',
-    getParentRoute: () => LibraryRoute,
-  } as any)
-const LibraryRangerVersionIndexRoute =
-  LibraryRangerVersionIndexRouteImport.update({
-    id: '/ranger/$version/',
-    path: '/ranger/$version/',
-    getParentRoute: () => LibraryRoute,
-  } as any)
-const LibraryQueryVersionIndexRoute =
-  LibraryQueryVersionIndexRouteImport.update({
-    id: '/query/$version/',
-    path: '/query/$version/',
-    getParentRoute: () => LibraryRoute,
-  } as any)
-const LibraryPacerVersionIndexRoute =
-  LibraryPacerVersionIndexRouteImport.update({
-    id: '/pacer/$version/',
-    path: '/pacer/$version/',
-    getParentRoute: () => LibraryRoute,
-  } as any)
-const LibraryMarkdownVersionIndexRoute =
-  LibraryMarkdownVersionIndexRouteImport.update({
-    id: '/markdown/$version/',
-    path: '/markdown/$version/',
-    getParentRoute: () => LibraryRoute,
-  } as any)
-const LibraryIntentVersionIndexRoute =
-  LibraryIntentVersionIndexRouteImport.update({
-    id: '/intent/$version/',
-    path: '/intent/$version/',
-    getParentRoute: () => LibraryRoute,
-  } as any)
-const LibraryHotkeysVersionIndexRoute =
-  LibraryHotkeysVersionIndexRouteImport.update({
-    id: '/hotkeys/$version/',
-    path: '/hotkeys/$version/',
-    getParentRoute: () => LibraryRoute,
-  } as any)
-const LibraryHighlightVersionIndexRoute =
-  LibraryHighlightVersionIndexRouteImport.update({
-    id: '/highlight/$version/',
-    path: '/highlight/$version/',
-    getParentRoute: () => LibraryRoute,
-  } as any)
-const LibraryFormVersionIndexRoute = LibraryFormVersionIndexRouteImport.update({
-  id: '/form/$version/',
-  path: '/form/$version/',
-  getParentRoute: () => LibraryRoute,
+const ApiGithubWebhookRoute = ApiGithubWebhookRouteImport.update({
+  id: '/api/github/webhook',
+  path: '/api/github/webhook',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const LibraryDevtoolsVersionIndexRoute =
-  LibraryDevtoolsVersionIndexRouteImport.update({
-    id: '/devtools/$version/',
-    path: '/devtools/$version/',
-    getParentRoute: () => LibraryRoute,
-  } as any)
-const LibraryDbVersionIndexRoute = LibraryDbVersionIndexRouteImport.update({
-  id: '/db/$version/',
-  path: '/db/$version/',
-  getParentRoute: () => LibraryRoute,
+const ApiMcpIndexRoute = ApiMcpIndexRouteImport.update({
+  id: '/api/mcp/',
+  path: '/api/mcp/',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const LibraryConfigVersionIndexRoute =
-  LibraryConfigVersionIndexRouteImport.update({
-    id: '/config/$version/',
-    path: '/config/$version/',
-    getParentRoute: () => LibraryRoute,
-  } as any)
-const LibraryCliVersionIndexRoute = LibraryCliVersionIndexRouteImport.update({
-  id: '/cli/$version/',
-  path: '/cli/$version/',
-  getParentRoute: () => LibraryRoute,
+const ApiMcpSplatRoute = ApiMcpSplatRouteImport.update({
+  id: '/api/mcp/$',
+  path: '/api/mcp/$',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const LibraryChartsCatalogIndexRoute =
-  LibraryChartsCatalogIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => LibraryChartsCatalogRoute,
+const ApiOgChar123Char125DotpngRoute =
+  ApiOgChar123Char125DotpngRouteImport.update({
+    id: '/api/og/{$}.png',
+    path: '/api/og/{$}.png',
+    getParentRoute: () => rootRouteImport,
   } as any)
-const LibraryChartsVersionIndexRoute =
-  LibraryChartsVersionIndexRouteImport.update({
-    id: '/charts/$version/',
-    path: '/charts/$version/',
-    getParentRoute: () => LibraryRoute,
+const ApiReadmeChar123Char125DotpngRoute =
+  ApiReadmeChar123Char125DotpngRouteImport.update({
+    id: '/api/readme/{$}.png',
+    path: '/api/readme/{$}.png',
+    getParentRoute: () => rootRouteImport,
   } as any)
-const LibraryAiVersionIndexRoute = LibraryAiVersionIndexRouteImport.update({
-  id: '/ai/$version/',
-  path: '/ai/$version/',
-  getParentRoute: () => LibraryRoute,
+const AuthProviderStartRoute = AuthProviderStartRouteImport.update({
+  id: '/auth/$provider/start',
+  path: '/auth/$provider/start',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuilderPHashRoute = BuilderPHashRouteImport.update({
+  id: '/builder_/p/$hash',
+  path: '/builder/p/$hash',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChartsCatalogCatalogDotjsonRoute =
+  ChartsCatalogCatalogDotjsonRouteImport.update({
+    id: '/charts/catalog_/catalog.json',
+    path: '/charts/catalog/catalog.json',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const IntentRegistryIndexRoute = IntentRegistryIndexRouteImport.update({
+  id: '/intent/registry/',
+  path: '/intent/registry/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IntentRegistryPackageNameRoute =
+  IntentRegistryPackageNameRouteImport.update({
+    id: '/intent/registry/$packageName',
+    path: '/intent/registry/$packageName',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ShopCollectionsHandleRoute = ShopCollectionsHandleRouteImport.update({
+  id: '/collections/$handle',
+  path: '/collections/$handle',
+  getParentRoute: () => ShopRoute,
+} as any)
+const ShopPagesHandleRoute = ShopPagesHandleRouteImport.update({
+  id: '/pages/$handle',
+  path: '/pages/$handle',
+  getParentRoute: () => ShopRoute,
+} as any)
+const ShopPoliciesHandleRoute = ShopPoliciesHandleRouteImport.update({
+  id: '/policies/$handle',
+  path: '/policies/$handle',
+  getParentRoute: () => ShopRoute,
+} as any)
+const ShopProductsHandleRoute = ShopProductsHandleRouteImport.update({
+  id: '/products/$handle',
+  path: '/products/$handle',
+  getParentRoute: () => ShopRoute,
+} as any)
+const ShowcaseEditIdRoute = ShowcaseEditIdRouteImport.update({
+  id: '/showcase/edit/$id',
+  path: '/showcase/edit/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StatsNpmIndexRoute = StatsNpmIndexRouteImport.update({
+  id: '/stats/npm/',
+  path: '/stats/npm/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StatsNpmPackagesRoute = StatsNpmPackagesRouteImport.update({
+  id: '/stats/npm/$packages',
+  path: '/stats/npm/$packages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StatsNpmEmbedRoute = StatsNpmEmbedRouteImport.update({
+  id: '/stats/npm/embed',
+  path: '/stats/npm/embed',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const LibraryLibraryIdVersionIndexRoute =
   LibraryLibraryIdVersionIndexRouteImport.update({
     id: '/',
     path: '/',
-    getParentRoute: () => LibraryLibraryIdVersionRoute,
-  } as any)
-const IntentRegistryPackageNameChar123Char125DotmdRoute =
-  IntentRegistryPackageNameChar123Char125DotmdRouteImport.update({
-    id: '/{$}.md',
-    path: '/{$}.md',
-    getParentRoute: () => IntentRegistryPackageNameRoute,
-  } as any)
-const IntentRegistryPackageNameSkillNameRoute =
-  IntentRegistryPackageNameSkillNameRouteImport.update({
-    id: '/$skillName',
-    path: '/$skillName',
-    getParentRoute: () => IntentRegistryPackageNameRoute,
-  } as any)
-const ApiBuilderProjectsIdRoute = ApiBuilderProjectsIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => ApiBuilderProjectsRoute,
-} as any)
-const ApiBuilderProjectSnapshotsHashRoute =
-  ApiBuilderProjectSnapshotsHashRouteImport.update({
-    id: '/$hash',
-    path: '/$hash',
-    getParentRoute: () => ApiBuilderProjectSnapshotsRoute,
-  } as any)
-const ApiBuilderOpenrouterCallbackRoute =
-  ApiBuilderOpenrouterCallbackRouteImport.update({
-    id: '/api/builder/openrouter/callback',
-    path: '/api/builder/openrouter/callback',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiAuthCliCreateTicketRoute = ApiAuthCliCreateTicketRouteImport.update({
-  id: '/api/auth/cli/create-ticket',
-  path: '/api/auth/cli/create-ticket',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAuthCallbackProviderRoute = ApiAuthCallbackProviderRouteImport.update({
-  id: '/api/auth/callback/$provider',
-  path: '/api/auth/callback/$provider',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiApplicationStarterDeployGithubRoute =
-  ApiApplicationStarterDeployGithubRouteImport.update({
-    id: '/api/application-starter/deploy/github',
-    path: '/api/application-starter/deploy/github',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiApplicationStarterDeployCheckNameRoute =
-  ApiApplicationStarterDeployCheckNameRouteImport.update({
-    id: '/api/application-starter/deploy/check-name',
-    path: '/api/application-starter/deploy/check-name',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const LibraryChartsCatalogAllRoute = LibraryChartsCatalogAllRouteImport.update({
-  id: '/all',
-  path: '/all',
-  getParentRoute: () => LibraryChartsCatalogRoute,
-} as any)
-const LibraryLibraryIdVersionLlmsDottxtRoute =
-  LibraryLibraryIdVersionLlmsDottxtRouteImport.update({
-    id: '/llms.txt',
-    path: '/llms.txt',
     getParentRoute: () => LibraryLibraryIdVersionRoute,
   } as any)
 const LibraryLibraryIdVersionDocsRoute =
@@ -1232,76 +1042,206 @@ const LibraryLibraryIdVersionDocsRoute =
     path: '/docs',
     getParentRoute: () => LibraryLibraryIdVersionRoute,
   } as any)
+const LibraryLibraryIdVersionLlmsDottxtRoute =
+  LibraryLibraryIdVersionLlmsDottxtRouteImport.update({
+    id: '/llms.txt',
+    path: '/llms.txt',
+    getParentRoute: () => LibraryLibraryIdVersionRoute,
+  } as any)
+const LibraryAiVersionIndexRoute = LibraryAiVersionIndexRouteImport.update({
+  id: '/ai/$version/',
+  path: '/ai/$version/',
+  getParentRoute: () => LibraryRoute,
+} as any)
+const LibraryChartsVersionIndexRoute =
+  LibraryChartsVersionIndexRouteImport.update({
+    id: '/charts/$version/',
+    path: '/charts/$version/',
+    getParentRoute: () => LibraryRoute,
+  } as any)
+const LibraryChartsCatalogIndexRoute =
+  LibraryChartsCatalogIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => LibraryChartsCatalogRoute,
+  } as any)
+const LibraryChartsCatalogAllRoute = LibraryChartsCatalogAllRouteImport.update({
+  id: '/all',
+  path: '/all',
+  getParentRoute: () => LibraryChartsCatalogRoute,
+} as any)
+const LibraryCliVersionIndexRoute = LibraryCliVersionIndexRouteImport.update({
+  id: '/cli/$version/',
+  path: '/cli/$version/',
+  getParentRoute: () => LibraryRoute,
+} as any)
+const LibraryConfigVersionIndexRoute =
+  LibraryConfigVersionIndexRouteImport.update({
+    id: '/config/$version/',
+    path: '/config/$version/',
+    getParentRoute: () => LibraryRoute,
+  } as any)
+const LibraryDbVersionIndexRoute = LibraryDbVersionIndexRouteImport.update({
+  id: '/db/$version/',
+  path: '/db/$version/',
+  getParentRoute: () => LibraryRoute,
+} as any)
+const LibraryDevtoolsVersionIndexRoute =
+  LibraryDevtoolsVersionIndexRouteImport.update({
+    id: '/devtools/$version/',
+    path: '/devtools/$version/',
+    getParentRoute: () => LibraryRoute,
+  } as any)
+const LibraryFormVersionIndexRoute = LibraryFormVersionIndexRouteImport.update({
+  id: '/form/$version/',
+  path: '/form/$version/',
+  getParentRoute: () => LibraryRoute,
+} as any)
+const LibraryHighlightVersionIndexRoute =
+  LibraryHighlightVersionIndexRouteImport.update({
+    id: '/highlight/$version/',
+    path: '/highlight/$version/',
+    getParentRoute: () => LibraryRoute,
+  } as any)
+const LibraryHotkeysVersionIndexRoute =
+  LibraryHotkeysVersionIndexRouteImport.update({
+    id: '/hotkeys/$version/',
+    path: '/hotkeys/$version/',
+    getParentRoute: () => LibraryRoute,
+  } as any)
+const LibraryIntentVersionIndexRoute =
+  LibraryIntentVersionIndexRouteImport.update({
+    id: '/intent/$version/',
+    path: '/intent/$version/',
+    getParentRoute: () => LibraryRoute,
+  } as any)
+const LibraryMarkdownVersionIndexRoute =
+  LibraryMarkdownVersionIndexRouteImport.update({
+    id: '/markdown/$version/',
+    path: '/markdown/$version/',
+    getParentRoute: () => LibraryRoute,
+  } as any)
+const LibraryPacerVersionIndexRoute =
+  LibraryPacerVersionIndexRouteImport.update({
+    id: '/pacer/$version/',
+    path: '/pacer/$version/',
+    getParentRoute: () => LibraryRoute,
+  } as any)
+const LibraryQueryVersionIndexRoute =
+  LibraryQueryVersionIndexRouteImport.update({
+    id: '/query/$version/',
+    path: '/query/$version/',
+    getParentRoute: () => LibraryRoute,
+  } as any)
+const LibraryRangerVersionIndexRoute =
+  LibraryRangerVersionIndexRouteImport.update({
+    id: '/ranger/$version/',
+    path: '/ranger/$version/',
+    getParentRoute: () => LibraryRoute,
+  } as any)
+const LibraryRouterVersionIndexRoute =
+  LibraryRouterVersionIndexRouteImport.update({
+    id: '/router/$version/',
+    path: '/router/$version/',
+    getParentRoute: () => LibraryRoute,
+  } as any)
+const LibraryStartVersionIndexRoute =
+  LibraryStartVersionIndexRouteImport.update({
+    id: '/start/$version/',
+    path: '/start/$version/',
+    getParentRoute: () => LibraryRoute,
+  } as any)
+const LibraryStoreVersionIndexRoute =
+  LibraryStoreVersionIndexRouteImport.update({
+    id: '/store/$version/',
+    path: '/store/$version/',
+    getParentRoute: () => LibraryRoute,
+  } as any)
+const LibraryTableVersionIndexRoute =
+  LibraryTableVersionIndexRouteImport.update({
+    id: '/table/$version/',
+    path: '/table/$version/',
+    getParentRoute: () => LibraryRoute,
+  } as any)
+const LibraryVirtualVersionIndexRoute =
+  LibraryVirtualVersionIndexRouteImport.update({
+    id: '/virtual/$version/',
+    path: '/virtual/$version/',
+    getParentRoute: () => LibraryRoute,
+  } as any)
+const LibraryWorkflowVersionIndexRoute =
+  LibraryWorkflowVersionIndexRouteImport.update({
+    id: '/workflow/$version/',
+    path: '/workflow/$version/',
+    getParentRoute: () => LibraryRoute,
+  } as any)
+const ApiApplicationStarterDeployCheckNameRoute =
+  ApiApplicationStarterDeployCheckNameRouteImport.update({
+    id: '/api/application-starter/deploy/check-name',
+    path: '/api/application-starter/deploy/check-name',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiApplicationStarterDeployGithubRoute =
+  ApiApplicationStarterDeployGithubRouteImport.update({
+    id: '/api/application-starter/deploy/github',
+    path: '/api/application-starter/deploy/github',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAuthCallbackProviderRoute = ApiAuthCallbackProviderRouteImport.update({
+  id: '/api/auth/callback/$provider',
+  path: '/api/auth/callback/$provider',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthCliCreateTicketRoute = ApiAuthCliCreateTicketRouteImport.update({
+  id: '/api/auth/cli/create-ticket',
+  path: '/api/auth/cli/create-ticket',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiBuilderOpenrouterCallbackRoute =
+  ApiBuilderOpenrouterCallbackRouteImport.update({
+    id: '/api/builder/openrouter/callback',
+    path: '/api/builder/openrouter/callback',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiBuilderProjectSnapshotsHashRoute =
+  ApiBuilderProjectSnapshotsHashRouteImport.update({
+    id: '/$hash',
+    path: '/$hash',
+    getParentRoute: () => ApiBuilderProjectSnapshotsRoute,
+  } as any)
+const ApiBuilderProjectsIdRoute = ApiBuilderProjectsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiBuilderProjectsRoute,
+} as any)
+const IntentRegistryPackageNameIndexRoute =
+  IntentRegistryPackageNameIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => IntentRegistryPackageNameRoute,
+  } as any)
+const IntentRegistryPackageNameSkillNameRoute =
+  IntentRegistryPackageNameSkillNameRouteImport.update({
+    id: '/$skillName',
+    path: '/$skillName',
+    getParentRoute: () => IntentRegistryPackageNameRoute,
+  } as any)
+const IntentRegistryPackageNameChar123Char125DotmdRoute =
+  IntentRegistryPackageNameChar123Char125DotmdRouteImport.update({
+    id: '/{$}.md',
+    path: '/{$}.md',
+    getParentRoute: () => IntentRegistryPackageNameRoute,
+  } as any)
 const LibraryLibraryIdVersionDocsIndexRoute =
   LibraryLibraryIdVersionDocsIndexRouteImport.update({
     id: '/',
     path: '/',
     getParentRoute: () => LibraryLibraryIdVersionDocsRoute,
   } as any)
-const ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute =
-  ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRouteImport.update({
-    id: '/charts/catalog_/previews/$revision/{$caseId}.svg',
-    path: '/charts/catalog/previews/$revision/{$caseId}.svg',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiBuilderProjectsIdSyncRoute =
-  ApiBuilderProjectsIdSyncRouteImport.update({
-    id: '/sync',
-    path: '/sync',
-    getParentRoute: () => ApiBuilderProjectsIdRoute,
-  } as any)
-const ApiBuilderProjectSnapshotsHashQuarantineRoute =
-  ApiBuilderProjectSnapshotsHashQuarantineRouteImport.update({
-    id: '/quarantine',
-    path: '/quarantine',
-    getParentRoute: () => ApiBuilderProjectSnapshotsHashRoute,
-  } as any)
-const ApiAuthCliStatusTicketIdRoute =
-  ApiAuthCliStatusTicketIdRouteImport.update({
-    id: '/api/auth/cli/status/$ticketId',
-    path: '/api/auth/cli/status/$ticketId',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const LibraryChartsCatalogCollectionsCollectionIdRoute =
-  LibraryChartsCatalogCollectionsCollectionIdRouteImport.update({
-    id: '/collections/$collectionId',
-    path: '/collections/$collectionId',
-    getParentRoute: () => LibraryChartsCatalogRoute,
-  } as any)
-const LibraryChartsCatalogChartsCaseIdRoute =
-  LibraryChartsCatalogChartsCaseIdRouteImport.update({
-    id: '/charts/$caseId',
-    path: '/charts/$caseId',
-    getParentRoute: () => LibraryChartsCatalogRoute,
-  } as any)
-const LibraryLibraryIdVersionDocsChar123Char125DotmdRoute =
-  LibraryLibraryIdVersionDocsChar123Char125DotmdRouteImport.update({
-    id: '/{$}.md',
-    path: '/{$}.md',
-    getParentRoute: () => LibraryLibraryIdVersionDocsRoute,
-  } as any)
-const LibraryLibraryIdVersionDocsNpmStatsRoute =
-  LibraryLibraryIdVersionDocsNpmStatsRouteImport.update({
-    id: '/npm-stats',
-    path: '/npm-stats',
-    getParentRoute: () => LibraryLibraryIdVersionDocsRoute,
-  } as any)
-const LibraryLibraryIdVersionDocsIndexDotmdRoute =
-  LibraryLibraryIdVersionDocsIndexDotmdRouteImport.update({
-    id: '/index.md',
-    path: '/index.md',
-    getParentRoute: () => LibraryLibraryIdVersionDocsRoute,
-  } as any)
-const LibraryLibraryIdVersionDocsContributorsRoute =
-  LibraryLibraryIdVersionDocsContributorsRouteImport.update({
-    id: '/contributors',
-    path: '/contributors',
-    getParentRoute: () => LibraryLibraryIdVersionDocsRoute,
-  } as any)
-const LibraryLibraryIdVersionDocsCommunityResourcesRoute =
-  LibraryLibraryIdVersionDocsCommunityResourcesRouteImport.update({
-    id: '/community-resources',
-    path: '/community-resources',
+const LibraryLibraryIdVersionDocsSplatRoute =
+  LibraryLibraryIdVersionDocsSplatRouteImport.update({
+    id: '/$',
+    path: '/$',
     getParentRoute: () => LibraryLibraryIdVersionDocsRoute,
   } as any)
 const LibraryLibraryIdVersionDocsBlogRoute =
@@ -1310,11 +1250,71 @@ const LibraryLibraryIdVersionDocsBlogRoute =
     path: '/blog',
     getParentRoute: () => LibraryLibraryIdVersionDocsRoute,
   } as any)
-const LibraryLibraryIdVersionDocsSplatRoute =
-  LibraryLibraryIdVersionDocsSplatRouteImport.update({
-    id: '/$',
-    path: '/$',
+const LibraryLibraryIdVersionDocsCommunityResourcesRoute =
+  LibraryLibraryIdVersionDocsCommunityResourcesRouteImport.update({
+    id: '/community-resources',
+    path: '/community-resources',
     getParentRoute: () => LibraryLibraryIdVersionDocsRoute,
+  } as any)
+const LibraryLibraryIdVersionDocsContributorsRoute =
+  LibraryLibraryIdVersionDocsContributorsRouteImport.update({
+    id: '/contributors',
+    path: '/contributors',
+    getParentRoute: () => LibraryLibraryIdVersionDocsRoute,
+  } as any)
+const LibraryLibraryIdVersionDocsIndexDotmdRoute =
+  LibraryLibraryIdVersionDocsIndexDotmdRouteImport.update({
+    id: '/index.md',
+    path: '/index.md',
+    getParentRoute: () => LibraryLibraryIdVersionDocsRoute,
+  } as any)
+const LibraryLibraryIdVersionDocsNpmStatsRoute =
+  LibraryLibraryIdVersionDocsNpmStatsRouteImport.update({
+    id: '/npm-stats',
+    path: '/npm-stats',
+    getParentRoute: () => LibraryLibraryIdVersionDocsRoute,
+  } as any)
+const LibraryLibraryIdVersionDocsChar123Char125DotmdRoute =
+  LibraryLibraryIdVersionDocsChar123Char125DotmdRouteImport.update({
+    id: '/{$}.md',
+    path: '/{$}.md',
+    getParentRoute: () => LibraryLibraryIdVersionDocsRoute,
+  } as any)
+const LibraryChartsCatalogChartsCaseIdRoute =
+  LibraryChartsCatalogChartsCaseIdRouteImport.update({
+    id: '/charts/$caseId',
+    path: '/charts/$caseId',
+    getParentRoute: () => LibraryChartsCatalogRoute,
+  } as any)
+const LibraryChartsCatalogCollectionsCollectionIdRoute =
+  LibraryChartsCatalogCollectionsCollectionIdRouteImport.update({
+    id: '/collections/$collectionId',
+    path: '/collections/$collectionId',
+    getParentRoute: () => LibraryChartsCatalogRoute,
+  } as any)
+const ApiAuthCliStatusTicketIdRoute =
+  ApiAuthCliStatusTicketIdRouteImport.update({
+    id: '/api/auth/cli/status/$ticketId',
+    path: '/api/auth/cli/status/$ticketId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiBuilderProjectSnapshotsHashQuarantineRoute =
+  ApiBuilderProjectSnapshotsHashQuarantineRouteImport.update({
+    id: '/quarantine',
+    path: '/quarantine',
+    getParentRoute: () => ApiBuilderProjectSnapshotsHashRoute,
+  } as any)
+const ApiBuilderProjectsIdSyncRoute =
+  ApiBuilderProjectsIdSyncRouteImport.update({
+    id: '/sync',
+    path: '/sync',
+    getParentRoute: () => ApiBuilderProjectsIdRoute,
+  } as any)
+const ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute =
+  ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRouteImport.update({
+    id: '/charts/catalog_/previews/$revision/{$caseId}.svg',
+    path: '/charts/catalog/previews/$revision/{$caseId}.svg',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const LibraryLibraryIdVersionDocsFrameworkIndexRoute =
   LibraryLibraryIdVersionDocsFrameworkIndexRouteImport.update({
@@ -1328,6 +1328,12 @@ const LibraryLibraryIdVersionDocsFrameworkFrameworkIndexRoute =
     path: '/framework/$framework/',
     getParentRoute: () => LibraryLibraryIdVersionDocsRoute,
   } as any)
+const LibraryLibraryIdVersionDocsFrameworkFrameworkSplatRoute =
+  LibraryLibraryIdVersionDocsFrameworkFrameworkSplatRouteImport.update({
+    id: '/framework/$framework/$',
+    path: '/framework/$framework/$',
+    getParentRoute: () => LibraryLibraryIdVersionDocsRoute,
+  } as any)
 const LibraryLibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRoute =
   LibraryLibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRouteImport.update(
     {
@@ -1336,12 +1342,6 @@ const LibraryLibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRoute =
       getParentRoute: () => LibraryLibraryIdVersionDocsRoute,
     } as any,
   )
-const LibraryLibraryIdVersionDocsFrameworkFrameworkSplatRoute =
-  LibraryLibraryIdVersionDocsFrameworkFrameworkSplatRouteImport.update({
-    id: '/framework/$framework/$',
-    path: '/framework/$framework/$',
-    getParentRoute: () => LibraryLibraryIdVersionDocsRoute,
-  } as any)
 const LibraryLibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute =
   LibraryLibraryIdVersionDocsFrameworkFrameworkExamplesSplatRouteImport.update({
     id: '/framework/$framework/examples/$',
@@ -2708,235 +2708,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/workshops': {
-      id: '/workshops'
-      path: '/workshops'
-      fullPath: '/workshops'
-      preLoaderRoute: typeof WorkshopsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/terms': {
-      id: '/terms'
-      path: '/terms'
-      fullPath: '/terms'
-      preLoaderRoute: typeof TermsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/tenets': {
-      id: '/tenets'
-      path: '/tenets'
-      fullPath: '/tenets'
-      preLoaderRoute: typeof TenetsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/support': {
-      id: '/support'
-      path: '/support'
-      fullPath: '/support'
-      preLoaderRoute: typeof SupportRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sponsors-embed': {
-      id: '/sponsors-embed'
-      path: '/sponsors-embed'
-      fullPath: '/sponsors-embed'
-      preLoaderRoute: typeof SponsorsEmbedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/showcases': {
-      id: '/showcases'
-      path: '/showcases'
-      fullPath: '/showcases'
-      preLoaderRoute: typeof ShowcasesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/shop': {
-      id: '/shop'
-      path: '/shop'
-      fullPath: '/shop'
-      preLoaderRoute: typeof ShopRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/rss.xml': {
-      id: '/rss.xml'
-      path: '/rss.xml'
-      fullPath: '/rss.xml'
-      preLoaderRoute: typeof RssDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/robots.txt': {
-      id: '/robots.txt'
-      path: '/robots.txt'
-      fullPath: '/robots.txt'
-      preLoaderRoute: typeof RobotsDottxtRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacy': {
-      id: '/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/partners-embed': {
-      id: '/partners-embed'
-      path: '/partners-embed'
-      fullPath: '/partners-embed'
-      preLoaderRoute: typeof PartnersEmbedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/partners': {
-      id: '/partners'
-      path: '/partners'
-      fullPath: '/partners'
-      preLoaderRoute: typeof PartnersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/paid-support': {
-      id: '/paid-support'
-      path: '/paid-support'
-      fullPath: '/paid-support'
-      preLoaderRoute: typeof PaidSupportRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/merch': {
-      id: '/merch'
-      path: '/merch'
-      fullPath: '/merch'
-      preLoaderRoute: typeof MerchRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/maintainers': {
-      id: '/maintainers'
-      path: '/maintainers'
-      fullPath: '/maintainers'
-      preLoaderRoute: typeof MaintainersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/llms.txt': {
-      id: '/llms.txt'
-      path: '/llms.txt'
-      fullPath: '/llms.txt'
-      preLoaderRoute: typeof LlmsDottxtRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/llms-full.txt': {
-      id: '/llms-full.txt'
-      path: '/llms-full.txt'
-      fullPath: '/llms-full.txt'
-      preLoaderRoute: typeof LlmsFullDottxtRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/libraries': {
-      id: '/libraries'
-      path: '/libraries'
-      fullPath: '/libraries'
-      preLoaderRoute: typeof LibrariesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/learn': {
-      id: '/learn'
-      path: '/learn'
-      fullPath: '/learn'
-      preLoaderRoute: typeof LearnRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/feedback-leaderboard': {
-      id: '/feedback-leaderboard'
-      path: '/feedback-leaderboard'
-      fullPath: '/feedback-leaderboard'
-      preLoaderRoute: typeof FeedbackLeaderboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/explore': {
-      id: '/explore'
-      path: '/explore'
-      fullPath: '/explore'
-      preLoaderRoute: typeof ExploreRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ethos': {
-      id: '/ethos'
-      path: '/ethos'
-      fullPath: '/ethos'
-      preLoaderRoute: typeof EthosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ds': {
-      id: '/ds'
-      path: '/ds'
-      fullPath: '/ds'
-      preLoaderRoute: typeof DsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/community-projects': {
-      id: '/community-projects'
-      path: '/community-projects'
-      fullPath: '/community-projects'
-      preLoaderRoute: typeof CommunityProjectsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/builder': {
-      id: '/builder'
-      path: '/builder'
-      fullPath: '/builder'
-      preLoaderRoute: typeof BuilderRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/brand-guide': {
-      id: '/brand-guide'
-      path: '/brand-guide'
-      fullPath: '/brand-guide'
-      preLoaderRoute: typeof BrandGuideRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/blog': {
-      id: '/blog'
-      path: '/blog'
-      fullPath: '/blog'
-      preLoaderRoute: typeof BlogRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/application-starter': {
-      id: '/application-starter'
-      path: '/application-starter'
-      fullPath: '/application-starter'
-      preLoaderRoute: typeof ApplicationStarterRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ads': {
-      id: '/ads'
-      path: '/ads'
-      fullPath: '/ads'
-      preLoaderRoute: typeof AdsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/account': {
-      id: '/account'
-      path: '/account'
-      fullPath: '/account'
-      preLoaderRoute: typeof AccountRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_library': {
@@ -2946,6 +2722,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin': {
       id: '/admin'
       path: '/admin'
@@ -2953,523 +2736,229 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/ads': {
+      id: '/ads'
+      path: '/ads'
+      fullPath: '/ads'
+      preLoaderRoute: typeof AdsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/stats/': {
-      id: '/stats/'
-      path: '/stats'
-      fullPath: '/stats/'
-      preLoaderRoute: typeof StatsIndexRouteImport
+    '/application-starter': {
+      id: '/application-starter'
+      path: '/application-starter'
+      fullPath: '/application-starter'
+      preLoaderRoute: typeof ApplicationStarterRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/showcase/': {
-      id: '/showcase/'
-      path: '/showcase'
-      fullPath: '/showcase/'
-      preLoaderRoute: typeof ShowcaseIndexRouteImport
+    '/blog': {
+      id: '/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof BlogRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/shop/': {
-      id: '/shop/'
-      path: '/'
-      fullPath: '/shop/'
-      preLoaderRoute: typeof ShopIndexRouteImport
-      parentRoute: typeof ShopRoute
-    }
-    '/partners/': {
-      id: '/partners/'
-      path: '/'
-      fullPath: '/partners/'
-      preLoaderRoute: typeof PartnersIndexRouteImport
-      parentRoute: typeof PartnersRoute
-    }
-    '/ds/': {
-      id: '/ds/'
-      path: '/'
-      fullPath: '/ds/'
-      preLoaderRoute: typeof DsIndexRouteImport
-      parentRoute: typeof DsRoute
-    }
-    '/blog/': {
-      id: '/blog/'
-      path: '/'
-      fullPath: '/blog/'
-      preLoaderRoute: typeof BlogIndexRouteImport
-      parentRoute: typeof BlogRoute
-    }
-    '/application-starter/': {
-      id: '/application-starter/'
-      path: '/'
-      fullPath: '/application-starter/'
-      preLoaderRoute: typeof ApplicationStarterIndexRouteImport
-      parentRoute: typeof ApplicationStarterRoute
-    }
-    '/admin/': {
-      id: '/admin/'
-      path: '/'
-      fullPath: '/admin/'
-      preLoaderRoute: typeof AdminIndexRouteImport
-      parentRoute: typeof AdminRouteRoute
-    }
-    '/account/': {
-      id: '/account/'
-      path: '/'
-      fullPath: '/account/'
-      preLoaderRoute: typeof AccountIndexRouteImport
-      parentRoute: typeof AccountRoute
-    }
-    '/stack/$category': {
-      id: '/stack/$category'
-      path: '/stack/$category'
-      fullPath: '/stack/$category'
-      preLoaderRoute: typeof StackCategoryRouteImport
+    '/brand-guide': {
+      id: '/brand-guide'
+      path: '/brand-guide'
+      fullPath: '/brand-guide'
+      preLoaderRoute: typeof BrandGuideRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/showcase/submit': {
-      id: '/showcase/submit'
-      path: '/showcase/submit'
-      fullPath: '/showcase/submit'
-      preLoaderRoute: typeof ShowcaseSubmitRouteImport
+    '/builder': {
+      id: '/builder'
+      path: '/builder'
+      fullPath: '/builder'
+      preLoaderRoute: typeof BuilderRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/showcase/$id': {
-      id: '/showcase/$id'
-      path: '/showcase/$id'
-      fullPath: '/showcase/$id'
-      preLoaderRoute: typeof ShowcaseIdRouteImport
+    '/community-projects': {
+      id: '/community-projects'
+      path: '/community-projects'
+      fullPath: '/community-projects'
+      preLoaderRoute: typeof CommunityProjectsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/shop/search': {
-      id: '/shop/search'
-      path: '/search'
-      fullPath: '/shop/search'
-      preLoaderRoute: typeof ShopSearchRouteImport
-      parentRoute: typeof ShopRoute
-    }
-    '/shop/cart': {
-      id: '/shop/cart'
-      path: '/cart'
-      fullPath: '/shop/cart'
-      preLoaderRoute: typeof ShopCartRouteImport
-      parentRoute: typeof ShopRoute
-    }
-    '/shop/$handle': {
-      id: '/shop/$handle'
-      path: '/$handle'
-      fullPath: '/shop/$handle'
-      preLoaderRoute: typeof ShopHandleRouteImport
-      parentRoute: typeof ShopRoute
-    }
-    '/partners/render': {
-      id: '/partners/render'
-      path: '/render'
-      fullPath: '/partners/render'
-      preLoaderRoute: typeof PartnersRenderRouteImport
-      parentRoute: typeof PartnersRoute
-    }
-    '/partners/railway': {
-      id: '/partners/railway'
-      path: '/railway'
-      fullPath: '/partners/railway'
-      preLoaderRoute: typeof PartnersRailwayRouteImport
-      parentRoute: typeof PartnersRoute
-    }
-    '/partners/netlify': {
-      id: '/partners/netlify'
-      path: '/netlify'
-      fullPath: '/partners/netlify'
-      preLoaderRoute: typeof PartnersNetlifyRouteImport
-      parentRoute: typeof PartnersRoute
-    }
-    '/partners/$partner': {
-      id: '/partners/$partner'
-      path: '/$partner'
-      fullPath: '/partners/$partner'
-      preLoaderRoute: typeof PartnersPartnerRouteImport
-      parentRoute: typeof PartnersRoute
-    }
-    '/oauth/token': {
-      id: '/oauth/token'
-      path: '/oauth/token'
-      fullPath: '/oauth/token'
-      preLoaderRoute: typeof OauthTokenRouteImport
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/oauth/register': {
-      id: '/oauth/register'
-      path: '/oauth/register'
-      fullPath: '/oauth/register'
-      preLoaderRoute: typeof OauthRegisterRouteImport
+    '/ds': {
+      id: '/ds'
+      path: '/ds'
+      fullPath: '/ds'
+      preLoaderRoute: typeof DsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/oauth/authorize': {
-      id: '/oauth/authorize'
-      path: '/oauth/authorize'
-      fullPath: '/oauth/authorize'
-      preLoaderRoute: typeof OauthAuthorizeRouteImport
+    '/ethos': {
+      id: '/ethos'
+      path: '/ethos'
+      fullPath: '/ethos'
+      preLoaderRoute: typeof EthosRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/libraries_/$framework': {
-      id: '/libraries_/$framework'
-      path: '/libraries/$framework'
-      fullPath: '/libraries/$framework'
-      preLoaderRoute: typeof LibrariesFrameworkRouteImport
+    '/explore': {
+      id: '/explore'
+      path: '/explore'
+      fullPath: '/explore'
+      preLoaderRoute: typeof ExploreRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/ds/typography': {
-      id: '/ds/typography'
-      path: '/typography'
-      fullPath: '/ds/typography'
-      preLoaderRoute: typeof DsTypographyRouteImport
-      parentRoute: typeof DsRoute
+    '/feedback-leaderboard': {
+      id: '/feedback-leaderboard'
+      path: '/feedback-leaderboard'
+      fullPath: '/feedback-leaderboard'
+      preLoaderRoute: typeof FeedbackLeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/ds/takeover': {
-      id: '/ds/takeover'
-      path: '/takeover'
-      fullPath: '/ds/takeover'
-      preLoaderRoute: typeof DsTakeoverRouteImport
-      parentRoute: typeof DsRoute
+    '/learn': {
+      id: '/learn'
+      path: '/learn'
+      fullPath: '/learn'
+      preLoaderRoute: typeof LearnRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/ds/tabs': {
-      id: '/ds/tabs'
-      path: '/tabs'
-      fullPath: '/ds/tabs'
-      preLoaderRoute: typeof DsTabsRouteImport
-      parentRoute: typeof DsRoute
+    '/libraries': {
+      id: '/libraries'
+      path: '/libraries'
+      fullPath: '/libraries'
+      preLoaderRoute: typeof LibrariesRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/ds/stats': {
-      id: '/ds/stats'
-      path: '/stats'
-      fullPath: '/ds/stats'
-      preLoaderRoute: typeof DsStatsRouteImport
-      parentRoute: typeof DsRoute
+    '/llms-full.txt': {
+      id: '/llms-full.txt'
+      path: '/llms-full.txt'
+      fullPath: '/llms-full.txt'
+      preLoaderRoute: typeof LlmsFullDottxtRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/ds/spinner': {
-      id: '/ds/spinner'
-      path: '/spinner'
-      fullPath: '/ds/spinner'
-      preLoaderRoute: typeof DsSpinnerRouteImport
-      parentRoute: typeof DsRoute
+    '/llms.txt': {
+      id: '/llms.txt'
+      path: '/llms.txt'
+      fullPath: '/llms.txt'
+      preLoaderRoute: typeof LlmsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/ds/shadows': {
-      id: '/ds/shadows'
-      path: '/shadows'
-      fullPath: '/ds/shadows'
-      preLoaderRoute: typeof DsShadowsRouteImport
-      parentRoute: typeof DsRoute
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/ds/semantic': {
-      id: '/ds/semantic'
-      path: '/semantic'
-      fullPath: '/ds/semantic'
-      preLoaderRoute: typeof DsSemanticRouteImport
-      parentRoute: typeof DsRoute
-    }
-    '/ds/partner-rail': {
-      id: '/ds/partner-rail'
-      path: '/partner-rail'
-      fullPath: '/ds/partner-rail'
-      preLoaderRoute: typeof DsPartnerRailRouteImport
-      parentRoute: typeof DsRoute
-    }
-    '/ds/panel': {
-      id: '/ds/panel'
-      path: '/panel'
-      fullPath: '/ds/panel'
-      preLoaderRoute: typeof DsPanelRouteImport
-      parentRoute: typeof DsRoute
-    }
-    '/ds/palette': {
-      id: '/ds/palette'
-      path: '/palette'
-      fullPath: '/ds/palette'
-      preLoaderRoute: typeof DsPaletteRouteImport
-      parentRoute: typeof DsRoute
-    }
-    '/ds/page-header': {
-      id: '/ds/page-header'
-      path: '/page-header'
-      fullPath: '/ds/page-header'
-      preLoaderRoute: typeof DsPageHeaderRouteImport
-      parentRoute: typeof DsRoute
-    }
-    '/ds/overlays': {
-      id: '/ds/overlays'
-      path: '/overlays'
-      fullPath: '/ds/overlays'
-      preLoaderRoute: typeof DsOverlaysRouteImport
-      parentRoute: typeof DsRoute
-    }
-    '/ds/navbar': {
-      id: '/ds/navbar'
-      path: '/navbar'
-      fullPath: '/ds/navbar'
-      preLoaderRoute: typeof DsNavbarRouteImport
-      parentRoute: typeof DsRoute
-    }
-    '/ds/maintainers': {
-      id: '/ds/maintainers'
+    '/maintainers': {
+      id: '/maintainers'
       path: '/maintainers'
-      fullPath: '/ds/maintainers'
-      preLoaderRoute: typeof DsMaintainersRouteImport
-      parentRoute: typeof DsRoute
-    }
-    '/ds/logos': {
-      id: '/ds/logos'
-      path: '/logos'
-      fullPath: '/ds/logos'
-      preLoaderRoute: typeof DsLogosRouteImport
-      parentRoute: typeof DsRoute
-    }
-    '/ds/inputs': {
-      id: '/ds/inputs'
-      path: '/inputs'
-      fullPath: '/ds/inputs'
-      preLoaderRoute: typeof DsInputsRouteImport
-      parentRoute: typeof DsRoute
-    }
-    '/ds/iconography': {
-      id: '/ds/iconography'
-      path: '/iconography'
-      fullPath: '/ds/iconography'
-      preLoaderRoute: typeof DsIconographyRouteImport
-      parentRoute: typeof DsRoute
-    }
-    '/ds/eyebrow': {
-      id: '/ds/eyebrow'
-      path: '/eyebrow'
-      fullPath: '/ds/eyebrow'
-      preLoaderRoute: typeof DsEyebrowRouteImport
-      parentRoute: typeof DsRoute
-    }
-    '/ds/effects': {
-      id: '/ds/effects'
-      path: '/effects'
-      fullPath: '/ds/effects'
-      preLoaderRoute: typeof DsEffectsRouteImport
-      parentRoute: typeof DsRoute
-    }
-    '/ds/dropdown': {
-      id: '/ds/dropdown'
-      path: '/dropdown'
-      fullPath: '/ds/dropdown'
-      preLoaderRoute: typeof DsDropdownRouteImport
-      parentRoute: typeof DsRoute
-    }
-    '/ds/drawer': {
-      id: '/ds/drawer'
-      path: '/drawer'
-      fullPath: '/ds/drawer'
-      preLoaderRoute: typeof DsDrawerRouteImport
-      parentRoute: typeof DsRoute
-    }
-    '/ds/dialog': {
-      id: '/ds/dialog'
-      path: '/dialog'
-      fullPath: '/ds/dialog'
-      preLoaderRoute: typeof DsDialogRouteImport
-      parentRoute: typeof DsRoute
-    }
-    '/ds/colors': {
-      id: '/ds/colors'
-      path: '/colors'
-      fullPath: '/ds/colors'
-      preLoaderRoute: typeof DsColorsRouteImport
-      parentRoute: typeof DsRoute
-    }
-    '/ds/cards': {
-      id: '/ds/cards'
-      path: '/cards'
-      fullPath: '/ds/cards'
-      preLoaderRoute: typeof DsCardsRouteImport
-      parentRoute: typeof DsRoute
-    }
-    '/ds/buttons': {
-      id: '/ds/buttons'
-      path: '/buttons'
-      fullPath: '/ds/buttons'
-      preLoaderRoute: typeof DsButtonsRouteImport
-      parentRoute: typeof DsRoute
-    }
-    '/ds/breadcrumbs': {
-      id: '/ds/breadcrumbs'
-      path: '/breadcrumbs'
-      fullPath: '/ds/breadcrumbs'
-      preLoaderRoute: typeof DsBreadcrumbsRouteImport
-      parentRoute: typeof DsRoute
-    }
-    '/ds/badges': {
-      id: '/ds/badges'
-      path: '/badges'
-      fullPath: '/ds/badges'
-      preLoaderRoute: typeof DsBadgesRouteImport
-      parentRoute: typeof DsRoute
-    }
-    '/ds/avatar': {
-      id: '/ds/avatar'
-      path: '/avatar'
-      fullPath: '/ds/avatar'
-      preLoaderRoute: typeof DsAvatarRouteImport
-      parentRoute: typeof DsRoute
-    }
-    '/builder_/new': {
-      id: '/builder_/new'
-      path: '/builder/new'
-      fullPath: '/builder/new'
-      preLoaderRoute: typeof BuilderNewRouteImport
+      fullPath: '/maintainers'
+      preLoaderRoute: typeof MaintainersRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/builder_/llms.txt': {
-      id: '/builder_/llms.txt'
-      path: '/builder/llms.txt'
-      fullPath: '/builder/llms.txt'
-      preLoaderRoute: typeof BuilderLlmsDottxtRouteImport
+    '/merch': {
+      id: '/merch'
+      path: '/merch'
+      fullPath: '/merch'
+      preLoaderRoute: typeof MerchRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/builder_/esbuild': {
-      id: '/builder_/esbuild'
-      path: '/builder/esbuild'
-      fullPath: '/builder/esbuild'
-      preLoaderRoute: typeof BuilderEsbuildRouteImport
+    '/paid-support': {
+      id: '/paid-support'
+      path: '/paid-support'
+      fullPath: '/paid-support'
+      preLoaderRoute: typeof PaidSupportRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/builder_/ai': {
-      id: '/builder_/ai'
-      path: '/builder/ai'
-      fullPath: '/builder/ai'
-      preLoaderRoute: typeof BuilderAiRouteImport
+    '/partners': {
+      id: '/partners'
+      path: '/partners'
+      fullPath: '/partners'
+      preLoaderRoute: typeof PartnersRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/builder_/$id': {
-      id: '/builder_/$id'
-      path: '/builder/$id'
-      fullPath: '/builder/$id'
-      preLoaderRoute: typeof BuilderIdRouteImport
+    '/partners-embed': {
+      id: '/partners-embed'
+      path: '/partners-embed'
+      fullPath: '/partners-embed'
+      preLoaderRoute: typeof PartnersEmbedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/blog/$': {
-      id: '/blog/$'
-      path: '/$'
-      fullPath: '/blog/$'
-      preLoaderRoute: typeof BlogSplatRouteImport
-      parentRoute: typeof BlogRoute
-    }
-    '/auth/signout': {
-      id: '/auth/signout'
-      path: '/auth/signout'
-      fullPath: '/auth/signout'
-      preLoaderRoute: typeof AuthSignoutRouteImport
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth/popup-success': {
-      id: '/auth/popup-success'
-      path: '/auth/popup-success'
-      fullPath: '/auth/popup-success'
-      preLoaderRoute: typeof AuthPopupSuccessRouteImport
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth/cli': {
-      id: '/auth/cli'
-      path: '/auth/cli'
-      fullPath: '/auth/cli'
-      preLoaderRoute: typeof AuthCliRouteImport
+    '/rss.xml': {
+      id: '/rss.xml'
+      path: '/rss.xml'
+      fullPath: '/rss.xml'
+      preLoaderRoute: typeof RssDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/application-starter/docs': {
-      id: '/application-starter/docs'
-      path: '/docs'
-      fullPath: '/application-starter/docs'
-      preLoaderRoute: typeof ApplicationStarterDocsRouteImport
-      parentRoute: typeof ApplicationStarterRoute
-    }
-    '/api/uploadthing': {
-      id: '/api/uploadthing'
-      path: '/api/uploadthing'
-      fullPath: '/api/uploadthing'
-      preLoaderRoute: typeof ApiUploadthingRouteImport
+    '/shop': {
+      id: '/shop'
+      path: '/shop'
+      fullPath: '/shop'
+      preLoaderRoute: typeof ShopRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/users': {
-      id: '/admin/users'
-      path: '/users'
-      fullPath: '/admin/users'
-      preLoaderRoute: typeof AdminUsersRouteImport
-      parentRoute: typeof AdminRouteRoute
+    '/showcases': {
+      id: '/showcases'
+      path: '/showcases'
+      fullPath: '/showcases'
+      preLoaderRoute: typeof ShowcasesRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/admin/npm-stats': {
-      id: '/admin/npm-stats'
-      path: '/npm-stats'
-      fullPath: '/admin/npm-stats'
-      preLoaderRoute: typeof AdminNpmStatsRouteImport
-      parentRoute: typeof AdminRouteRoute
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/admin/logins': {
-      id: '/admin/logins'
-      path: '/logins'
-      fullPath: '/admin/logins'
-      preLoaderRoute: typeof AdminLoginsRouteImport
-      parentRoute: typeof AdminRouteRoute
+    '/sponsors-embed': {
+      id: '/sponsors-embed'
+      path: '/sponsors-embed'
+      fullPath: '/sponsors-embed'
+      preLoaderRoute: typeof SponsorsEmbedRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/admin/intent': {
-      id: '/admin/intent'
-      path: '/intent'
-      fullPath: '/admin/intent'
-      preLoaderRoute: typeof AdminIntentRouteImport
-      parentRoute: typeof AdminRouteRoute
+    '/support': {
+      id: '/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof SupportRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/admin/github-stats': {
-      id: '/admin/github-stats'
-      path: '/github-stats'
-      fullPath: '/admin/github-stats'
-      preLoaderRoute: typeof AdminGithubStatsRouteImport
-      parentRoute: typeof AdminRouteRoute
+    '/tenets': {
+      id: '/tenets'
+      path: '/tenets'
+      fullPath: '/tenets'
+      preLoaderRoute: typeof TenetsRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/admin/docs': {
-      id: '/admin/docs'
-      path: '/docs'
-      fullPath: '/admin/docs'
-      preLoaderRoute: typeof AdminDocsRouteImport
-      parentRoute: typeof AdminRouteRoute
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/admin/audit': {
-      id: '/admin/audit'
-      path: '/audit'
-      fullPath: '/admin/audit'
-      preLoaderRoute: typeof AdminAuditRouteImport
-      parentRoute: typeof AdminRouteRoute
-    }
-    '/account/submissions': {
-      id: '/account/submissions'
-      path: '/submissions'
-      fullPath: '/account/submissions'
-      preLoaderRoute: typeof AccountSubmissionsRouteImport
-      parentRoute: typeof AccountRoute
-    }
-    '/account/notes': {
-      id: '/account/notes'
-      path: '/notes'
-      fullPath: '/account/notes'
-      preLoaderRoute: typeof AccountNotesRouteImport
-      parentRoute: typeof AccountRoute
-    }
-    '/account/integrations': {
-      id: '/account/integrations'
-      path: '/integrations'
-      fullPath: '/account/integrations'
-      preLoaderRoute: typeof AccountIntegrationsRouteImport
-      parentRoute: typeof AccountRoute
-    }
-    '/account/feedback': {
-      id: '/account/feedback'
-      path: '/feedback'
-      fullPath: '/account/feedback'
-      preLoaderRoute: typeof AccountFeedbackRouteImport
-      parentRoute: typeof AccountRoute
+    '/workshops': {
+      id: '/workshops'
+      path: '/workshops'
+      fullPath: '/workshops'
+      preLoaderRoute: typeof WorkshopsRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/.well-known/oauth-authorization-server': {
       id: '/.well-known/oauth-authorization-server'
@@ -3485,54 +2974,516 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryLibraryIdRouteRouteImport
       parentRoute: typeof LibraryRoute
     }
-    '/stats/npm/': {
-      id: '/stats/npm/'
-      path: '/stats/npm'
-      fullPath: '/stats/npm/'
-      preLoaderRoute: typeof StatsNpmIndexRouteImport
-      parentRoute: typeof rootRouteImport
+    '/account/': {
+      id: '/account/'
+      path: '/'
+      fullPath: '/account/'
+      preLoaderRoute: typeof AccountIndexRouteImport
+      parentRoute: typeof AccountRoute
     }
-    '/intent/registry/': {
-      id: '/intent/registry/'
-      path: '/intent/registry'
-      fullPath: '/intent/registry/'
-      preLoaderRoute: typeof IntentRegistryIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/mcp/': {
-      id: '/api/mcp/'
-      path: '/api/mcp'
-      fullPath: '/api/mcp/'
-      preLoaderRoute: typeof ApiMcpIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/showcases/': {
-      id: '/admin/showcases/'
-      path: '/showcases'
-      fullPath: '/admin/showcases/'
-      preLoaderRoute: typeof AdminShowcasesIndexRouteImport
-      parentRoute: typeof AdminRouteRoute
-    }
-    '/admin/roles/': {
-      id: '/admin/roles/'
-      path: '/roles'
-      fullPath: '/admin/roles/'
-      preLoaderRoute: typeof AdminRolesIndexRouteImport
-      parentRoute: typeof AdminRouteRoute
-    }
-    '/admin/notes/': {
-      id: '/admin/notes/'
-      path: '/notes'
-      fullPath: '/admin/notes/'
-      preLoaderRoute: typeof AdminNotesIndexRouteImport
-      parentRoute: typeof AdminRouteRoute
-    }
-    '/admin/feedback/': {
-      id: '/admin/feedback/'
+    '/account/feedback': {
+      id: '/account/feedback'
       path: '/feedback'
-      fullPath: '/admin/feedback/'
-      preLoaderRoute: typeof AdminFeedbackIndexRouteImport
+      fullPath: '/account/feedback'
+      preLoaderRoute: typeof AccountFeedbackRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/account/integrations': {
+      id: '/account/integrations'
+      path: '/integrations'
+      fullPath: '/account/integrations'
+      preLoaderRoute: typeof AccountIntegrationsRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/account/notes': {
+      id: '/account/notes'
+      path: '/notes'
+      fullPath: '/account/notes'
+      preLoaderRoute: typeof AccountNotesRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/account/submissions': {
+      id: '/account/submissions'
+      path: '/submissions'
+      fullPath: '/account/submissions'
+      preLoaderRoute: typeof AccountSubmissionsRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/audit': {
+      id: '/admin/audit'
+      path: '/audit'
+      fullPath: '/admin/audit'
+      preLoaderRoute: typeof AdminAuditRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/docs': {
+      id: '/admin/docs'
+      path: '/docs'
+      fullPath: '/admin/docs'
+      preLoaderRoute: typeof AdminDocsRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/github-stats': {
+      id: '/admin/github-stats'
+      path: '/github-stats'
+      fullPath: '/admin/github-stats'
+      preLoaderRoute: typeof AdminGithubStatsRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/intent': {
+      id: '/admin/intent'
+      path: '/intent'
+      fullPath: '/admin/intent'
+      preLoaderRoute: typeof AdminIntentRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/logins': {
+      id: '/admin/logins'
+      path: '/logins'
+      fullPath: '/admin/logins'
+      preLoaderRoute: typeof AdminLoginsRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/npm-stats': {
+      id: '/admin/npm-stats'
+      path: '/npm-stats'
+      fullPath: '/admin/npm-stats'
+      preLoaderRoute: typeof AdminNpmStatsRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/api/uploadthing': {
+      id: '/api/uploadthing'
+      path: '/api/uploadthing'
+      fullPath: '/api/uploadthing'
+      preLoaderRoute: typeof ApiUploadthingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/application-starter/': {
+      id: '/application-starter/'
+      path: '/'
+      fullPath: '/application-starter/'
+      preLoaderRoute: typeof ApplicationStarterIndexRouteImport
+      parentRoute: typeof ApplicationStarterRoute
+    }
+    '/application-starter/docs': {
+      id: '/application-starter/docs'
+      path: '/docs'
+      fullPath: '/application-starter/docs'
+      preLoaderRoute: typeof ApplicationStarterDocsRouteImport
+      parentRoute: typeof ApplicationStarterRoute
+    }
+    '/auth/cli': {
+      id: '/auth/cli'
+      path: '/auth/cli'
+      fullPath: '/auth/cli'
+      preLoaderRoute: typeof AuthCliRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/popup-success': {
+      id: '/auth/popup-success'
+      path: '/auth/popup-success'
+      fullPath: '/auth/popup-success'
+      preLoaderRoute: typeof AuthPopupSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/signout': {
+      id: '/auth/signout'
+      path: '/auth/signout'
+      fullPath: '/auth/signout'
+      preLoaderRoute: typeof AuthSignoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/': {
+      id: '/blog/'
+      path: '/'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof BlogRoute
+    }
+    '/blog/$': {
+      id: '/blog/$'
+      path: '/$'
+      fullPath: '/blog/$'
+      preLoaderRoute: typeof BlogSplatRouteImport
+      parentRoute: typeof BlogRoute
+    }
+    '/builder_/$id': {
+      id: '/builder_/$id'
+      path: '/builder/$id'
+      fullPath: '/builder/$id'
+      preLoaderRoute: typeof BuilderIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/builder_/ai': {
+      id: '/builder_/ai'
+      path: '/builder/ai'
+      fullPath: '/builder/ai'
+      preLoaderRoute: typeof BuilderAiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/builder_/esbuild': {
+      id: '/builder_/esbuild'
+      path: '/builder/esbuild'
+      fullPath: '/builder/esbuild'
+      preLoaderRoute: typeof BuilderEsbuildRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/builder_/llms.txt': {
+      id: '/builder_/llms.txt'
+      path: '/builder/llms.txt'
+      fullPath: '/builder/llms.txt'
+      preLoaderRoute: typeof BuilderLlmsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/builder_/new': {
+      id: '/builder_/new'
+      path: '/builder/new'
+      fullPath: '/builder/new'
+      preLoaderRoute: typeof BuilderNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ds/': {
+      id: '/ds/'
+      path: '/'
+      fullPath: '/ds/'
+      preLoaderRoute: typeof DsIndexRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/avatar': {
+      id: '/ds/avatar'
+      path: '/avatar'
+      fullPath: '/ds/avatar'
+      preLoaderRoute: typeof DsAvatarRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/badges': {
+      id: '/ds/badges'
+      path: '/badges'
+      fullPath: '/ds/badges'
+      preLoaderRoute: typeof DsBadgesRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/breadcrumbs': {
+      id: '/ds/breadcrumbs'
+      path: '/breadcrumbs'
+      fullPath: '/ds/breadcrumbs'
+      preLoaderRoute: typeof DsBreadcrumbsRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/buttons': {
+      id: '/ds/buttons'
+      path: '/buttons'
+      fullPath: '/ds/buttons'
+      preLoaderRoute: typeof DsButtonsRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/cards': {
+      id: '/ds/cards'
+      path: '/cards'
+      fullPath: '/ds/cards'
+      preLoaderRoute: typeof DsCardsRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/colors': {
+      id: '/ds/colors'
+      path: '/colors'
+      fullPath: '/ds/colors'
+      preLoaderRoute: typeof DsColorsRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/dialog': {
+      id: '/ds/dialog'
+      path: '/dialog'
+      fullPath: '/ds/dialog'
+      preLoaderRoute: typeof DsDialogRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/drawer': {
+      id: '/ds/drawer'
+      path: '/drawer'
+      fullPath: '/ds/drawer'
+      preLoaderRoute: typeof DsDrawerRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/dropdown': {
+      id: '/ds/dropdown'
+      path: '/dropdown'
+      fullPath: '/ds/dropdown'
+      preLoaderRoute: typeof DsDropdownRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/effects': {
+      id: '/ds/effects'
+      path: '/effects'
+      fullPath: '/ds/effects'
+      preLoaderRoute: typeof DsEffectsRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/eyebrow': {
+      id: '/ds/eyebrow'
+      path: '/eyebrow'
+      fullPath: '/ds/eyebrow'
+      preLoaderRoute: typeof DsEyebrowRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/iconography': {
+      id: '/ds/iconography'
+      path: '/iconography'
+      fullPath: '/ds/iconography'
+      preLoaderRoute: typeof DsIconographyRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/inputs': {
+      id: '/ds/inputs'
+      path: '/inputs'
+      fullPath: '/ds/inputs'
+      preLoaderRoute: typeof DsInputsRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/logos': {
+      id: '/ds/logos'
+      path: '/logos'
+      fullPath: '/ds/logos'
+      preLoaderRoute: typeof DsLogosRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/maintainers': {
+      id: '/ds/maintainers'
+      path: '/maintainers'
+      fullPath: '/ds/maintainers'
+      preLoaderRoute: typeof DsMaintainersRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/navbar': {
+      id: '/ds/navbar'
+      path: '/navbar'
+      fullPath: '/ds/navbar'
+      preLoaderRoute: typeof DsNavbarRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/overlays': {
+      id: '/ds/overlays'
+      path: '/overlays'
+      fullPath: '/ds/overlays'
+      preLoaderRoute: typeof DsOverlaysRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/page-header': {
+      id: '/ds/page-header'
+      path: '/page-header'
+      fullPath: '/ds/page-header'
+      preLoaderRoute: typeof DsPageHeaderRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/palette': {
+      id: '/ds/palette'
+      path: '/palette'
+      fullPath: '/ds/palette'
+      preLoaderRoute: typeof DsPaletteRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/panel': {
+      id: '/ds/panel'
+      path: '/panel'
+      fullPath: '/ds/panel'
+      preLoaderRoute: typeof DsPanelRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/partner-rail': {
+      id: '/ds/partner-rail'
+      path: '/partner-rail'
+      fullPath: '/ds/partner-rail'
+      preLoaderRoute: typeof DsPartnerRailRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/semantic': {
+      id: '/ds/semantic'
+      path: '/semantic'
+      fullPath: '/ds/semantic'
+      preLoaderRoute: typeof DsSemanticRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/shadows': {
+      id: '/ds/shadows'
+      path: '/shadows'
+      fullPath: '/ds/shadows'
+      preLoaderRoute: typeof DsShadowsRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/spinner': {
+      id: '/ds/spinner'
+      path: '/spinner'
+      fullPath: '/ds/spinner'
+      preLoaderRoute: typeof DsSpinnerRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/stats': {
+      id: '/ds/stats'
+      path: '/stats'
+      fullPath: '/ds/stats'
+      preLoaderRoute: typeof DsStatsRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/tabs': {
+      id: '/ds/tabs'
+      path: '/tabs'
+      fullPath: '/ds/tabs'
+      preLoaderRoute: typeof DsTabsRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/takeover': {
+      id: '/ds/takeover'
+      path: '/takeover'
+      fullPath: '/ds/takeover'
+      preLoaderRoute: typeof DsTakeoverRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/typography': {
+      id: '/ds/typography'
+      path: '/typography'
+      fullPath: '/ds/typography'
+      preLoaderRoute: typeof DsTypographyRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/libraries_/$framework': {
+      id: '/libraries_/$framework'
+      path: '/libraries/$framework'
+      fullPath: '/libraries/$framework'
+      preLoaderRoute: typeof LibrariesFrameworkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/oauth/authorize': {
+      id: '/oauth/authorize'
+      path: '/oauth/authorize'
+      fullPath: '/oauth/authorize'
+      preLoaderRoute: typeof OauthAuthorizeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/oauth/register': {
+      id: '/oauth/register'
+      path: '/oauth/register'
+      fullPath: '/oauth/register'
+      preLoaderRoute: typeof OauthRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/oauth/token': {
+      id: '/oauth/token'
+      path: '/oauth/token'
+      fullPath: '/oauth/token'
+      preLoaderRoute: typeof OauthTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/partners/': {
+      id: '/partners/'
+      path: '/'
+      fullPath: '/partners/'
+      preLoaderRoute: typeof PartnersIndexRouteImport
+      parentRoute: typeof PartnersRoute
+    }
+    '/partners/$partner': {
+      id: '/partners/$partner'
+      path: '/$partner'
+      fullPath: '/partners/$partner'
+      preLoaderRoute: typeof PartnersPartnerRouteImport
+      parentRoute: typeof PartnersRoute
+    }
+    '/partners/netlify': {
+      id: '/partners/netlify'
+      path: '/netlify'
+      fullPath: '/partners/netlify'
+      preLoaderRoute: typeof PartnersNetlifyRouteImport
+      parentRoute: typeof PartnersRoute
+    }
+    '/partners/railway': {
+      id: '/partners/railway'
+      path: '/railway'
+      fullPath: '/partners/railway'
+      preLoaderRoute: typeof PartnersRailwayRouteImport
+      parentRoute: typeof PartnersRoute
+    }
+    '/partners/render': {
+      id: '/partners/render'
+      path: '/render'
+      fullPath: '/partners/render'
+      preLoaderRoute: typeof PartnersRenderRouteImport
+      parentRoute: typeof PartnersRoute
+    }
+    '/shop/': {
+      id: '/shop/'
+      path: '/'
+      fullPath: '/shop/'
+      preLoaderRoute: typeof ShopIndexRouteImport
+      parentRoute: typeof ShopRoute
+    }
+    '/shop/$handle': {
+      id: '/shop/$handle'
+      path: '/$handle'
+      fullPath: '/shop/$handle'
+      preLoaderRoute: typeof ShopHandleRouteImport
+      parentRoute: typeof ShopRoute
+    }
+    '/shop/cart': {
+      id: '/shop/cart'
+      path: '/cart'
+      fullPath: '/shop/cart'
+      preLoaderRoute: typeof ShopCartRouteImport
+      parentRoute: typeof ShopRoute
+    }
+    '/shop/search': {
+      id: '/shop/search'
+      path: '/search'
+      fullPath: '/shop/search'
+      preLoaderRoute: typeof ShopSearchRouteImport
+      parentRoute: typeof ShopRoute
+    }
+    '/showcase/': {
+      id: '/showcase/'
+      path: '/showcase'
+      fullPath: '/showcase/'
+      preLoaderRoute: typeof ShowcaseIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/showcase/$id': {
+      id: '/showcase/$id'
+      path: '/showcase/$id'
+      fullPath: '/showcase/$id'
+      preLoaderRoute: typeof ShowcaseIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/showcase/submit': {
+      id: '/showcase/submit'
+      path: '/showcase/submit'
+      fullPath: '/showcase/submit'
+      preLoaderRoute: typeof ShowcaseSubmitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stack/$category': {
+      id: '/stack/$category'
+      path: '/stack/$category'
+      fullPath: '/stack/$category'
+      preLoaderRoute: typeof StackCategoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stats/': {
+      id: '/stats/'
+      path: '/stats'
+      fullPath: '/stats/'
+      preLoaderRoute: typeof StatsIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_library/$libraryId/': {
       id: '/_library/$libraryId/'
@@ -3541,256 +3492,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryLibraryIdIndexRouteImport
       parentRoute: typeof LibraryLibraryIdRouteRoute
     }
-    '/stats/npm/embed': {
-      id: '/stats/npm/embed'
-      path: '/stats/npm/embed'
-      fullPath: '/stats/npm/embed'
-      preLoaderRoute: typeof StatsNpmEmbedRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_library/$libraryId/$version': {
+      id: '/_library/$libraryId/$version'
+      path: '/$version'
+      fullPath: '/$libraryId/$version'
+      preLoaderRoute: typeof LibraryLibraryIdVersionRouteImport
+      parentRoute: typeof LibraryLibraryIdRouteRoute
     }
-    '/stats/npm/$packages': {
-      id: '/stats/npm/$packages'
-      path: '/stats/npm/$packages'
-      fullPath: '/stats/npm/$packages'
-      preLoaderRoute: typeof StatsNpmPackagesRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_library/charts/catalog': {
+      id: '/_library/charts/catalog'
+      path: '/charts/catalog'
+      fullPath: '/charts/catalog'
+      preLoaderRoute: typeof LibraryChartsCatalogRouteImport
+      parentRoute: typeof LibraryRoute
     }
-    '/showcase/edit/$id': {
-      id: '/showcase/edit/$id'
-      path: '/showcase/edit/$id'
-      fullPath: '/showcase/edit/$id'
-      preLoaderRoute: typeof ShowcaseEditIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/shop/products/$handle': {
-      id: '/shop/products/$handle'
-      path: '/products/$handle'
-      fullPath: '/shop/products/$handle'
-      preLoaderRoute: typeof ShopProductsHandleRouteImport
-      parentRoute: typeof ShopRoute
-    }
-    '/shop/policies/$handle': {
-      id: '/shop/policies/$handle'
-      path: '/policies/$handle'
-      fullPath: '/shop/policies/$handle'
-      preLoaderRoute: typeof ShopPoliciesHandleRouteImport
-      parentRoute: typeof ShopRoute
-    }
-    '/shop/pages/$handle': {
-      id: '/shop/pages/$handle'
-      path: '/pages/$handle'
-      fullPath: '/shop/pages/$handle'
-      preLoaderRoute: typeof ShopPagesHandleRouteImport
-      parentRoute: typeof ShopRoute
-    }
-    '/shop/collections/$handle': {
-      id: '/shop/collections/$handle'
-      path: '/collections/$handle'
-      fullPath: '/shop/collections/$handle'
-      preLoaderRoute: typeof ShopCollectionsHandleRouteImport
-      parentRoute: typeof ShopRoute
-    }
-    '/intent/registry/$packageName': {
-      id: '/intent/registry/$packageName'
-      path: '/intent/registry/$packageName'
-      fullPath: '/intent/registry/$packageName'
-      preLoaderRoute: typeof IntentRegistryPackageNameRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/charts/catalog_/catalog.json': {
-      id: '/charts/catalog_/catalog.json'
-      path: '/charts/catalog/catalog.json'
-      fullPath: '/charts/catalog/catalog.json'
-      preLoaderRoute: typeof ChartsCatalogCatalogDotjsonRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/builder_/p/$hash': {
-      id: '/builder_/p/$hash'
-      path: '/builder/p/$hash'
-      fullPath: '/builder/p/$hash'
-      preLoaderRoute: typeof BuilderPHashRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth/$provider/start': {
-      id: '/auth/$provider/start'
-      path: '/auth/$provider/start'
-      fullPath: '/auth/$provider/start'
-      preLoaderRoute: typeof AuthProviderStartRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/readme/{$}.png': {
-      id: '/api/readme/{$}.png'
-      path: '/api/readme/{$}.png'
-      fullPath: '/api/readme/{$}.png'
-      preLoaderRoute: typeof ApiReadmeChar123Char125DotpngRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/og/{$}.png': {
-      id: '/api/og/{$}.png'
-      path: '/api/og/{$}.png'
-      fullPath: '/api/og/{$}.png'
-      preLoaderRoute: typeof ApiOgChar123Char125DotpngRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/mcp/$': {
-      id: '/api/mcp/$'
-      path: '/api/mcp/$'
-      fullPath: '/api/mcp/$'
-      preLoaderRoute: typeof ApiMcpSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/github/webhook': {
-      id: '/api/github/webhook'
-      path: '/api/github/webhook'
-      fullPath: '/api/github/webhook'
-      preLoaderRoute: typeof ApiGithubWebhookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/example/deploy': {
-      id: '/api/example/deploy'
-      path: '/api/example/deploy'
-      fullPath: '/api/example/deploy'
-      preLoaderRoute: typeof ApiExampleDeployRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/discord/interactions': {
-      id: '/api/discord/interactions'
-      path: '/api/discord/interactions'
-      fullPath: '/api/discord/interactions'
-      preLoaderRoute: typeof ApiDiscordInteractionsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/data/partners': {
-      id: '/api/data/partners'
-      path: '/api/data/partners'
-      fullPath: '/api/data/partners'
-      preLoaderRoute: typeof ApiDataPartnersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/data/libraries': {
-      id: '/api/data/libraries'
-      path: '/api/data/libraries'
-      fullPath: '/api/data/libraries'
-      preLoaderRoute: typeof ApiDataLibrariesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/builder/projects': {
-      id: '/api/builder/projects'
-      path: '/api/builder/projects'
-      fullPath: '/api/builder/projects'
-      preLoaderRoute: typeof ApiBuilderProjectsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/builder/project-snapshots': {
-      id: '/api/builder/project-snapshots'
-      path: '/api/builder/project-snapshots'
-      fullPath: '/api/builder/project-snapshots'
-      preLoaderRoute: typeof ApiBuilderProjectSnapshotsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/builder/assist': {
-      id: '/api/builder/assist'
-      path: '/api/builder/assist'
-      fullPath: '/api/builder/assist'
-      preLoaderRoute: typeof ApiBuilderAssistRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/application-starter/validate': {
-      id: '/api/application-starter/validate'
-      path: '/api/application-starter/validate'
-      fullPath: '/api/application-starter/validate'
-      preLoaderRoute: typeof ApiApplicationStarterValidateRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/application-starter/suggest': {
-      id: '/api/application-starter/suggest'
-      path: '/api/application-starter/suggest'
-      fullPath: '/api/application-starter/suggest'
-      preLoaderRoute: typeof ApiApplicationStarterSuggestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/application-starter/resolve': {
-      id: '/api/application-starter/resolve'
-      path: '/api/application-starter/resolve'
-      fullPath: '/api/application-starter/resolve'
-      preLoaderRoute: typeof ApiApplicationStarterResolveRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/application-starter/load-template': {
-      id: '/api/application-starter/load-template'
-      path: '/api/application-starter/load-template'
-      fullPath: '/api/application-starter/load-template'
-      preLoaderRoute: typeof ApiApplicationStarterLoadTemplateRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/application-starter/load-remote-template': {
-      id: '/api/application-starter/load-remote-template'
-      path: '/api/application-starter/load-remote-template'
-      fullPath: '/api/application-starter/load-remote-template'
-      preLoaderRoute: typeof ApiApplicationStarterLoadRemoteTemplateRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/application-starter/load-remote-addon': {
-      id: '/api/application-starter/load-remote-addon'
-      path: '/api/application-starter/load-remote-addon'
-      fullPath: '/api/application-starter/load-remote-addon'
-      preLoaderRoute: typeof ApiApplicationStarterLoadRemoteAddonRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/application-starter/features': {
-      id: '/api/application-starter/features'
-      path: '/api/application-starter/features'
-      fullPath: '/api/application-starter/features'
-      preLoaderRoute: typeof ApiApplicationStarterFeaturesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/application-starter/feature-artifacts': {
-      id: '/api/application-starter/feature-artifacts'
-      path: '/api/application-starter/feature-artifacts'
-      fullPath: '/api/application-starter/feature-artifacts'
-      preLoaderRoute: typeof ApiApplicationStarterFeatureArtifactsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/application-starter/download': {
-      id: '/api/application-starter/download'
-      path: '/api/application-starter/download'
-      fullPath: '/api/application-starter/download'
-      preLoaderRoute: typeof ApiApplicationStarterDownloadRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/application-starter/compile-attributed': {
-      id: '/api/application-starter/compile-attributed'
-      path: '/api/application-starter/compile-attributed'
-      fullPath: '/api/application-starter/compile-attributed'
-      preLoaderRoute: typeof ApiApplicationStarterCompileAttributedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/application-starter/compile': {
-      id: '/api/application-starter/compile'
-      path: '/api/application-starter/compile'
-      fullPath: '/api/application-starter/compile'
-      preLoaderRoute: typeof ApiApplicationStarterCompileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/users/$userId': {
-      id: '/admin/users/$userId'
-      path: '/$userId'
-      fullPath: '/admin/users/$userId'
-      preLoaderRoute: typeof AdminUsersUserIdRouteImport
-      parentRoute: typeof AdminUsersRoute
-    }
-    '/admin/showcases_/$id': {
-      id: '/admin/showcases_/$id'
-      path: '/showcases/$id'
-      fullPath: '/admin/showcases/$id'
-      preLoaderRoute: typeof AdminShowcasesIdRouteImport
-      parentRoute: typeof AdminRouteRoute
-    }
-    '/admin/roles/$roleId': {
-      id: '/admin/roles/$roleId'
-      path: '/roles/$roleId'
-      fullPath: '/admin/roles/$roleId'
-      preLoaderRoute: typeof AdminRolesRoleIdRouteImport
+    '/admin/feedback/': {
+      id: '/admin/feedback/'
+      path: '/feedback'
+      fullPath: '/admin/feedback/'
+      preLoaderRoute: typeof AdminFeedbackIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
     '/admin/feedback_/$id': {
@@ -3800,256 +3520,305 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminFeedbackIdRouteImport
       parentRoute: typeof AdminRouteRoute
     }
-    '/_library/charts/catalog': {
-      id: '/_library/charts/catalog'
-      path: '/charts/catalog'
-      fullPath: '/charts/catalog'
-      preLoaderRoute: typeof LibraryChartsCatalogRouteImport
-      parentRoute: typeof LibraryRoute
+    '/admin/notes/': {
+      id: '/admin/notes/'
+      path: '/notes'
+      fullPath: '/admin/notes/'
+      preLoaderRoute: typeof AdminNotesIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
     }
-    '/_library/$libraryId/$version': {
-      id: '/_library/$libraryId/$version'
-      path: '/$version'
-      fullPath: '/$libraryId/$version'
-      preLoaderRoute: typeof LibraryLibraryIdVersionRouteImport
-      parentRoute: typeof LibraryLibraryIdRouteRoute
+    '/admin/roles/': {
+      id: '/admin/roles/'
+      path: '/roles'
+      fullPath: '/admin/roles/'
+      preLoaderRoute: typeof AdminRolesIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
     }
-    '/intent/registry/$packageName/': {
-      id: '/intent/registry/$packageName/'
-      path: '/'
-      fullPath: '/intent/registry/$packageName/'
-      preLoaderRoute: typeof IntentRegistryPackageNameIndexRouteImport
-      parentRoute: typeof IntentRegistryPackageNameRoute
+    '/admin/roles/$roleId': {
+      id: '/admin/roles/$roleId'
+      path: '/roles/$roleId'
+      fullPath: '/admin/roles/$roleId'
+      preLoaderRoute: typeof AdminRolesRoleIdRouteImport
+      parentRoute: typeof AdminRouteRoute
     }
-    '/_library/workflow/$version/': {
-      id: '/_library/workflow/$version/'
-      path: '/workflow/$version'
-      fullPath: '/workflow/$version/'
-      preLoaderRoute: typeof LibraryWorkflowVersionIndexRouteImport
-      parentRoute: typeof LibraryRoute
+    '/admin/showcases/': {
+      id: '/admin/showcases/'
+      path: '/showcases'
+      fullPath: '/admin/showcases/'
+      preLoaderRoute: typeof AdminShowcasesIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
     }
-    '/_library/virtual/$version/': {
-      id: '/_library/virtual/$version/'
-      path: '/virtual/$version'
-      fullPath: '/virtual/$version/'
-      preLoaderRoute: typeof LibraryVirtualVersionIndexRouteImport
-      parentRoute: typeof LibraryRoute
+    '/admin/showcases_/$id': {
+      id: '/admin/showcases_/$id'
+      path: '/showcases/$id'
+      fullPath: '/admin/showcases/$id'
+      preLoaderRoute: typeof AdminShowcasesIdRouteImport
+      parentRoute: typeof AdminRouteRoute
     }
-    '/_library/table/$version/': {
-      id: '/_library/table/$version/'
-      path: '/table/$version'
-      fullPath: '/table/$version/'
-      preLoaderRoute: typeof LibraryTableVersionIndexRouteImport
-      parentRoute: typeof LibraryRoute
+    '/admin/users/$userId': {
+      id: '/admin/users/$userId'
+      path: '/$userId'
+      fullPath: '/admin/users/$userId'
+      preLoaderRoute: typeof AdminUsersUserIdRouteImport
+      parentRoute: typeof AdminUsersRoute
     }
-    '/_library/store/$version/': {
-      id: '/_library/store/$version/'
-      path: '/store/$version'
-      fullPath: '/store/$version/'
-      preLoaderRoute: typeof LibraryStoreVersionIndexRouteImport
-      parentRoute: typeof LibraryRoute
+    '/api/application-starter/compile': {
+      id: '/api/application-starter/compile'
+      path: '/api/application-starter/compile'
+      fullPath: '/api/application-starter/compile'
+      preLoaderRoute: typeof ApiApplicationStarterCompileRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_library/start/$version/': {
-      id: '/_library/start/$version/'
-      path: '/start/$version'
-      fullPath: '/start/$version/'
-      preLoaderRoute: typeof LibraryStartVersionIndexRouteImport
-      parentRoute: typeof LibraryRoute
+    '/api/application-starter/compile-attributed': {
+      id: '/api/application-starter/compile-attributed'
+      path: '/api/application-starter/compile-attributed'
+      fullPath: '/api/application-starter/compile-attributed'
+      preLoaderRoute: typeof ApiApplicationStarterCompileAttributedRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_library/router/$version/': {
-      id: '/_library/router/$version/'
-      path: '/router/$version'
-      fullPath: '/router/$version/'
-      preLoaderRoute: typeof LibraryRouterVersionIndexRouteImport
-      parentRoute: typeof LibraryRoute
+    '/api/application-starter/download': {
+      id: '/api/application-starter/download'
+      path: '/api/application-starter/download'
+      fullPath: '/api/application-starter/download'
+      preLoaderRoute: typeof ApiApplicationStarterDownloadRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_library/ranger/$version/': {
-      id: '/_library/ranger/$version/'
-      path: '/ranger/$version'
-      fullPath: '/ranger/$version/'
-      preLoaderRoute: typeof LibraryRangerVersionIndexRouteImport
-      parentRoute: typeof LibraryRoute
+    '/api/application-starter/feature-artifacts': {
+      id: '/api/application-starter/feature-artifacts'
+      path: '/api/application-starter/feature-artifacts'
+      fullPath: '/api/application-starter/feature-artifacts'
+      preLoaderRoute: typeof ApiApplicationStarterFeatureArtifactsRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_library/query/$version/': {
-      id: '/_library/query/$version/'
-      path: '/query/$version'
-      fullPath: '/query/$version/'
-      preLoaderRoute: typeof LibraryQueryVersionIndexRouteImport
-      parentRoute: typeof LibraryRoute
+    '/api/application-starter/features': {
+      id: '/api/application-starter/features'
+      path: '/api/application-starter/features'
+      fullPath: '/api/application-starter/features'
+      preLoaderRoute: typeof ApiApplicationStarterFeaturesRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_library/pacer/$version/': {
-      id: '/_library/pacer/$version/'
-      path: '/pacer/$version'
-      fullPath: '/pacer/$version/'
-      preLoaderRoute: typeof LibraryPacerVersionIndexRouteImport
-      parentRoute: typeof LibraryRoute
+    '/api/application-starter/load-remote-addon': {
+      id: '/api/application-starter/load-remote-addon'
+      path: '/api/application-starter/load-remote-addon'
+      fullPath: '/api/application-starter/load-remote-addon'
+      preLoaderRoute: typeof ApiApplicationStarterLoadRemoteAddonRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_library/markdown/$version/': {
-      id: '/_library/markdown/$version/'
-      path: '/markdown/$version'
-      fullPath: '/markdown/$version/'
-      preLoaderRoute: typeof LibraryMarkdownVersionIndexRouteImport
-      parentRoute: typeof LibraryRoute
+    '/api/application-starter/load-remote-template': {
+      id: '/api/application-starter/load-remote-template'
+      path: '/api/application-starter/load-remote-template'
+      fullPath: '/api/application-starter/load-remote-template'
+      preLoaderRoute: typeof ApiApplicationStarterLoadRemoteTemplateRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_library/intent/$version/': {
-      id: '/_library/intent/$version/'
-      path: '/intent/$version'
-      fullPath: '/intent/$version/'
-      preLoaderRoute: typeof LibraryIntentVersionIndexRouteImport
-      parentRoute: typeof LibraryRoute
+    '/api/application-starter/load-template': {
+      id: '/api/application-starter/load-template'
+      path: '/api/application-starter/load-template'
+      fullPath: '/api/application-starter/load-template'
+      preLoaderRoute: typeof ApiApplicationStarterLoadTemplateRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_library/hotkeys/$version/': {
-      id: '/_library/hotkeys/$version/'
-      path: '/hotkeys/$version'
-      fullPath: '/hotkeys/$version/'
-      preLoaderRoute: typeof LibraryHotkeysVersionIndexRouteImport
-      parentRoute: typeof LibraryRoute
+    '/api/application-starter/resolve': {
+      id: '/api/application-starter/resolve'
+      path: '/api/application-starter/resolve'
+      fullPath: '/api/application-starter/resolve'
+      preLoaderRoute: typeof ApiApplicationStarterResolveRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_library/highlight/$version/': {
-      id: '/_library/highlight/$version/'
-      path: '/highlight/$version'
-      fullPath: '/highlight/$version/'
-      preLoaderRoute: typeof LibraryHighlightVersionIndexRouteImport
-      parentRoute: typeof LibraryRoute
+    '/api/application-starter/suggest': {
+      id: '/api/application-starter/suggest'
+      path: '/api/application-starter/suggest'
+      fullPath: '/api/application-starter/suggest'
+      preLoaderRoute: typeof ApiApplicationStarterSuggestRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_library/form/$version/': {
-      id: '/_library/form/$version/'
-      path: '/form/$version'
-      fullPath: '/form/$version/'
-      preLoaderRoute: typeof LibraryFormVersionIndexRouteImport
-      parentRoute: typeof LibraryRoute
+    '/api/application-starter/validate': {
+      id: '/api/application-starter/validate'
+      path: '/api/application-starter/validate'
+      fullPath: '/api/application-starter/validate'
+      preLoaderRoute: typeof ApiApplicationStarterValidateRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_library/devtools/$version/': {
-      id: '/_library/devtools/$version/'
-      path: '/devtools/$version'
-      fullPath: '/devtools/$version/'
-      preLoaderRoute: typeof LibraryDevtoolsVersionIndexRouteImport
-      parentRoute: typeof LibraryRoute
+    '/api/builder/assist': {
+      id: '/api/builder/assist'
+      path: '/api/builder/assist'
+      fullPath: '/api/builder/assist'
+      preLoaderRoute: typeof ApiBuilderAssistRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_library/db/$version/': {
-      id: '/_library/db/$version/'
-      path: '/db/$version'
-      fullPath: '/db/$version/'
-      preLoaderRoute: typeof LibraryDbVersionIndexRouteImport
-      parentRoute: typeof LibraryRoute
+    '/api/builder/project-snapshots': {
+      id: '/api/builder/project-snapshots'
+      path: '/api/builder/project-snapshots'
+      fullPath: '/api/builder/project-snapshots'
+      preLoaderRoute: typeof ApiBuilderProjectSnapshotsRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_library/config/$version/': {
-      id: '/_library/config/$version/'
-      path: '/config/$version'
-      fullPath: '/config/$version/'
-      preLoaderRoute: typeof LibraryConfigVersionIndexRouteImport
-      parentRoute: typeof LibraryRoute
+    '/api/builder/projects': {
+      id: '/api/builder/projects'
+      path: '/api/builder/projects'
+      fullPath: '/api/builder/projects'
+      preLoaderRoute: typeof ApiBuilderProjectsRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_library/cli/$version/': {
-      id: '/_library/cli/$version/'
-      path: '/cli/$version'
-      fullPath: '/cli/$version/'
-      preLoaderRoute: typeof LibraryCliVersionIndexRouteImport
-      parentRoute: typeof LibraryRoute
+    '/api/data/libraries': {
+      id: '/api/data/libraries'
+      path: '/api/data/libraries'
+      fullPath: '/api/data/libraries'
+      preLoaderRoute: typeof ApiDataLibrariesRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_library/charts/catalog/': {
-      id: '/_library/charts/catalog/'
-      path: '/'
-      fullPath: '/charts/catalog/'
-      preLoaderRoute: typeof LibraryChartsCatalogIndexRouteImport
-      parentRoute: typeof LibraryChartsCatalogRoute
+    '/api/data/partners': {
+      id: '/api/data/partners'
+      path: '/api/data/partners'
+      fullPath: '/api/data/partners'
+      preLoaderRoute: typeof ApiDataPartnersRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_library/charts/$version/': {
-      id: '/_library/charts/$version/'
-      path: '/charts/$version'
-      fullPath: '/charts/$version/'
-      preLoaderRoute: typeof LibraryChartsVersionIndexRouteImport
-      parentRoute: typeof LibraryRoute
+    '/api/discord/interactions': {
+      id: '/api/discord/interactions'
+      path: '/api/discord/interactions'
+      fullPath: '/api/discord/interactions'
+      preLoaderRoute: typeof ApiDiscordInteractionsRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_library/ai/$version/': {
-      id: '/_library/ai/$version/'
-      path: '/ai/$version'
-      fullPath: '/ai/$version/'
-      preLoaderRoute: typeof LibraryAiVersionIndexRouteImport
-      parentRoute: typeof LibraryRoute
+    '/api/example/deploy': {
+      id: '/api/example/deploy'
+      path: '/api/example/deploy'
+      fullPath: '/api/example/deploy'
+      preLoaderRoute: typeof ApiExampleDeployRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/github/webhook': {
+      id: '/api/github/webhook'
+      path: '/api/github/webhook'
+      fullPath: '/api/github/webhook'
+      preLoaderRoute: typeof ApiGithubWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/mcp/': {
+      id: '/api/mcp/'
+      path: '/api/mcp'
+      fullPath: '/api/mcp/'
+      preLoaderRoute: typeof ApiMcpIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/mcp/$': {
+      id: '/api/mcp/$'
+      path: '/api/mcp/$'
+      fullPath: '/api/mcp/$'
+      preLoaderRoute: typeof ApiMcpSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/og/{$}.png': {
+      id: '/api/og/{$}.png'
+      path: '/api/og/{$}.png'
+      fullPath: '/api/og/{$}.png'
+      preLoaderRoute: typeof ApiOgChar123Char125DotpngRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/readme/{$}.png': {
+      id: '/api/readme/{$}.png'
+      path: '/api/readme/{$}.png'
+      fullPath: '/api/readme/{$}.png'
+      preLoaderRoute: typeof ApiReadmeChar123Char125DotpngRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/$provider/start': {
+      id: '/auth/$provider/start'
+      path: '/auth/$provider/start'
+      fullPath: '/auth/$provider/start'
+      preLoaderRoute: typeof AuthProviderStartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/builder_/p/$hash': {
+      id: '/builder_/p/$hash'
+      path: '/builder/p/$hash'
+      fullPath: '/builder/p/$hash'
+      preLoaderRoute: typeof BuilderPHashRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/charts/catalog_/catalog.json': {
+      id: '/charts/catalog_/catalog.json'
+      path: '/charts/catalog/catalog.json'
+      fullPath: '/charts/catalog/catalog.json'
+      preLoaderRoute: typeof ChartsCatalogCatalogDotjsonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/intent/registry/': {
+      id: '/intent/registry/'
+      path: '/intent/registry'
+      fullPath: '/intent/registry/'
+      preLoaderRoute: typeof IntentRegistryIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/intent/registry/$packageName': {
+      id: '/intent/registry/$packageName'
+      path: '/intent/registry/$packageName'
+      fullPath: '/intent/registry/$packageName'
+      preLoaderRoute: typeof IntentRegistryPackageNameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shop/collections/$handle': {
+      id: '/shop/collections/$handle'
+      path: '/collections/$handle'
+      fullPath: '/shop/collections/$handle'
+      preLoaderRoute: typeof ShopCollectionsHandleRouteImport
+      parentRoute: typeof ShopRoute
+    }
+    '/shop/pages/$handle': {
+      id: '/shop/pages/$handle'
+      path: '/pages/$handle'
+      fullPath: '/shop/pages/$handle'
+      preLoaderRoute: typeof ShopPagesHandleRouteImport
+      parentRoute: typeof ShopRoute
+    }
+    '/shop/policies/$handle': {
+      id: '/shop/policies/$handle'
+      path: '/policies/$handle'
+      fullPath: '/shop/policies/$handle'
+      preLoaderRoute: typeof ShopPoliciesHandleRouteImport
+      parentRoute: typeof ShopRoute
+    }
+    '/shop/products/$handle': {
+      id: '/shop/products/$handle'
+      path: '/products/$handle'
+      fullPath: '/shop/products/$handle'
+      preLoaderRoute: typeof ShopProductsHandleRouteImport
+      parentRoute: typeof ShopRoute
+    }
+    '/showcase/edit/$id': {
+      id: '/showcase/edit/$id'
+      path: '/showcase/edit/$id'
+      fullPath: '/showcase/edit/$id'
+      preLoaderRoute: typeof ShowcaseEditIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stats/npm/': {
+      id: '/stats/npm/'
+      path: '/stats/npm'
+      fullPath: '/stats/npm/'
+      preLoaderRoute: typeof StatsNpmIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stats/npm/$packages': {
+      id: '/stats/npm/$packages'
+      path: '/stats/npm/$packages'
+      fullPath: '/stats/npm/$packages'
+      preLoaderRoute: typeof StatsNpmPackagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stats/npm/embed': {
+      id: '/stats/npm/embed'
+      path: '/stats/npm/embed'
+      fullPath: '/stats/npm/embed'
+      preLoaderRoute: typeof StatsNpmEmbedRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_library/$libraryId/$version/': {
       id: '/_library/$libraryId/$version/'
       path: '/'
       fullPath: '/$libraryId/$version/'
       preLoaderRoute: typeof LibraryLibraryIdVersionIndexRouteImport
-      parentRoute: typeof LibraryLibraryIdVersionRoute
-    }
-    '/intent/registry/$packageName/{$}.md': {
-      id: '/intent/registry/$packageName/{$}.md'
-      path: '/{$}.md'
-      fullPath: '/intent/registry/$packageName/{$}.md'
-      preLoaderRoute: typeof IntentRegistryPackageNameChar123Char125DotmdRouteImport
-      parentRoute: typeof IntentRegistryPackageNameRoute
-    }
-    '/intent/registry/$packageName/$skillName': {
-      id: '/intent/registry/$packageName/$skillName'
-      path: '/$skillName'
-      fullPath: '/intent/registry/$packageName/$skillName'
-      preLoaderRoute: typeof IntentRegistryPackageNameSkillNameRouteImport
-      parentRoute: typeof IntentRegistryPackageNameRoute
-    }
-    '/api/builder/projects/$id': {
-      id: '/api/builder/projects/$id'
-      path: '/$id'
-      fullPath: '/api/builder/projects/$id'
-      preLoaderRoute: typeof ApiBuilderProjectsIdRouteImport
-      parentRoute: typeof ApiBuilderProjectsRoute
-    }
-    '/api/builder/project-snapshots/$hash': {
-      id: '/api/builder/project-snapshots/$hash'
-      path: '/$hash'
-      fullPath: '/api/builder/project-snapshots/$hash'
-      preLoaderRoute: typeof ApiBuilderProjectSnapshotsHashRouteImport
-      parentRoute: typeof ApiBuilderProjectSnapshotsRoute
-    }
-    '/api/builder/openrouter/callback': {
-      id: '/api/builder/openrouter/callback'
-      path: '/api/builder/openrouter/callback'
-      fullPath: '/api/builder/openrouter/callback'
-      preLoaderRoute: typeof ApiBuilderOpenrouterCallbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/cli/create-ticket': {
-      id: '/api/auth/cli/create-ticket'
-      path: '/api/auth/cli/create-ticket'
-      fullPath: '/api/auth/cli/create-ticket'
-      preLoaderRoute: typeof ApiAuthCliCreateTicketRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/callback/$provider': {
-      id: '/api/auth/callback/$provider'
-      path: '/api/auth/callback/$provider'
-      fullPath: '/api/auth/callback/$provider'
-      preLoaderRoute: typeof ApiAuthCallbackProviderRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/application-starter/deploy/github': {
-      id: '/api/application-starter/deploy/github'
-      path: '/api/application-starter/deploy/github'
-      fullPath: '/api/application-starter/deploy/github'
-      preLoaderRoute: typeof ApiApplicationStarterDeployGithubRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/application-starter/deploy/check-name': {
-      id: '/api/application-starter/deploy/check-name'
-      path: '/api/application-starter/deploy/check-name'
-      fullPath: '/api/application-starter/deploy/check-name'
-      preLoaderRoute: typeof ApiApplicationStarterDeployCheckNameRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_library/charts/catalog/all': {
-      id: '/_library/charts/catalog/all'
-      path: '/all'
-      fullPath: '/charts/catalog/all'
-      preLoaderRoute: typeof LibraryChartsCatalogAllRouteImport
-      parentRoute: typeof LibraryChartsCatalogRoute
-    }
-    '/_library/$libraryId/$version/llms.txt': {
-      id: '/_library/$libraryId/$version/llms.txt'
-      path: '/llms.txt'
-      fullPath: '/$libraryId/$version/llms.txt'
-      preLoaderRoute: typeof LibraryLibraryIdVersionLlmsDottxtRouteImport
       parentRoute: typeof LibraryLibraryIdVersionRoute
     }
     '/_library/$libraryId/$version/docs': {
@@ -4059,6 +3828,237 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryLibraryIdVersionDocsRouteImport
       parentRoute: typeof LibraryLibraryIdVersionRoute
     }
+    '/_library/$libraryId/$version/llms.txt': {
+      id: '/_library/$libraryId/$version/llms.txt'
+      path: '/llms.txt'
+      fullPath: '/$libraryId/$version/llms.txt'
+      preLoaderRoute: typeof LibraryLibraryIdVersionLlmsDottxtRouteImport
+      parentRoute: typeof LibraryLibraryIdVersionRoute
+    }
+    '/_library/ai/$version/': {
+      id: '/_library/ai/$version/'
+      path: '/ai/$version'
+      fullPath: '/ai/$version/'
+      preLoaderRoute: typeof LibraryAiVersionIndexRouteImport
+      parentRoute: typeof LibraryRoute
+    }
+    '/_library/charts/$version/': {
+      id: '/_library/charts/$version/'
+      path: '/charts/$version'
+      fullPath: '/charts/$version/'
+      preLoaderRoute: typeof LibraryChartsVersionIndexRouteImport
+      parentRoute: typeof LibraryRoute
+    }
+    '/_library/charts/catalog/': {
+      id: '/_library/charts/catalog/'
+      path: '/'
+      fullPath: '/charts/catalog/'
+      preLoaderRoute: typeof LibraryChartsCatalogIndexRouteImport
+      parentRoute: typeof LibraryChartsCatalogRoute
+    }
+    '/_library/charts/catalog/all': {
+      id: '/_library/charts/catalog/all'
+      path: '/all'
+      fullPath: '/charts/catalog/all'
+      preLoaderRoute: typeof LibraryChartsCatalogAllRouteImport
+      parentRoute: typeof LibraryChartsCatalogRoute
+    }
+    '/_library/cli/$version/': {
+      id: '/_library/cli/$version/'
+      path: '/cli/$version'
+      fullPath: '/cli/$version/'
+      preLoaderRoute: typeof LibraryCliVersionIndexRouteImport
+      parentRoute: typeof LibraryRoute
+    }
+    '/_library/config/$version/': {
+      id: '/_library/config/$version/'
+      path: '/config/$version'
+      fullPath: '/config/$version/'
+      preLoaderRoute: typeof LibraryConfigVersionIndexRouteImport
+      parentRoute: typeof LibraryRoute
+    }
+    '/_library/db/$version/': {
+      id: '/_library/db/$version/'
+      path: '/db/$version'
+      fullPath: '/db/$version/'
+      preLoaderRoute: typeof LibraryDbVersionIndexRouteImport
+      parentRoute: typeof LibraryRoute
+    }
+    '/_library/devtools/$version/': {
+      id: '/_library/devtools/$version/'
+      path: '/devtools/$version'
+      fullPath: '/devtools/$version/'
+      preLoaderRoute: typeof LibraryDevtoolsVersionIndexRouteImport
+      parentRoute: typeof LibraryRoute
+    }
+    '/_library/form/$version/': {
+      id: '/_library/form/$version/'
+      path: '/form/$version'
+      fullPath: '/form/$version/'
+      preLoaderRoute: typeof LibraryFormVersionIndexRouteImport
+      parentRoute: typeof LibraryRoute
+    }
+    '/_library/highlight/$version/': {
+      id: '/_library/highlight/$version/'
+      path: '/highlight/$version'
+      fullPath: '/highlight/$version/'
+      preLoaderRoute: typeof LibraryHighlightVersionIndexRouteImport
+      parentRoute: typeof LibraryRoute
+    }
+    '/_library/hotkeys/$version/': {
+      id: '/_library/hotkeys/$version/'
+      path: '/hotkeys/$version'
+      fullPath: '/hotkeys/$version/'
+      preLoaderRoute: typeof LibraryHotkeysVersionIndexRouteImport
+      parentRoute: typeof LibraryRoute
+    }
+    '/_library/intent/$version/': {
+      id: '/_library/intent/$version/'
+      path: '/intent/$version'
+      fullPath: '/intent/$version/'
+      preLoaderRoute: typeof LibraryIntentVersionIndexRouteImport
+      parentRoute: typeof LibraryRoute
+    }
+    '/_library/markdown/$version/': {
+      id: '/_library/markdown/$version/'
+      path: '/markdown/$version'
+      fullPath: '/markdown/$version/'
+      preLoaderRoute: typeof LibraryMarkdownVersionIndexRouteImport
+      parentRoute: typeof LibraryRoute
+    }
+    '/_library/pacer/$version/': {
+      id: '/_library/pacer/$version/'
+      path: '/pacer/$version'
+      fullPath: '/pacer/$version/'
+      preLoaderRoute: typeof LibraryPacerVersionIndexRouteImport
+      parentRoute: typeof LibraryRoute
+    }
+    '/_library/query/$version/': {
+      id: '/_library/query/$version/'
+      path: '/query/$version'
+      fullPath: '/query/$version/'
+      preLoaderRoute: typeof LibraryQueryVersionIndexRouteImport
+      parentRoute: typeof LibraryRoute
+    }
+    '/_library/ranger/$version/': {
+      id: '/_library/ranger/$version/'
+      path: '/ranger/$version'
+      fullPath: '/ranger/$version/'
+      preLoaderRoute: typeof LibraryRangerVersionIndexRouteImport
+      parentRoute: typeof LibraryRoute
+    }
+    '/_library/router/$version/': {
+      id: '/_library/router/$version/'
+      path: '/router/$version'
+      fullPath: '/router/$version/'
+      preLoaderRoute: typeof LibraryRouterVersionIndexRouteImport
+      parentRoute: typeof LibraryRoute
+    }
+    '/_library/start/$version/': {
+      id: '/_library/start/$version/'
+      path: '/start/$version'
+      fullPath: '/start/$version/'
+      preLoaderRoute: typeof LibraryStartVersionIndexRouteImport
+      parentRoute: typeof LibraryRoute
+    }
+    '/_library/store/$version/': {
+      id: '/_library/store/$version/'
+      path: '/store/$version'
+      fullPath: '/store/$version/'
+      preLoaderRoute: typeof LibraryStoreVersionIndexRouteImport
+      parentRoute: typeof LibraryRoute
+    }
+    '/_library/table/$version/': {
+      id: '/_library/table/$version/'
+      path: '/table/$version'
+      fullPath: '/table/$version/'
+      preLoaderRoute: typeof LibraryTableVersionIndexRouteImport
+      parentRoute: typeof LibraryRoute
+    }
+    '/_library/virtual/$version/': {
+      id: '/_library/virtual/$version/'
+      path: '/virtual/$version'
+      fullPath: '/virtual/$version/'
+      preLoaderRoute: typeof LibraryVirtualVersionIndexRouteImport
+      parentRoute: typeof LibraryRoute
+    }
+    '/_library/workflow/$version/': {
+      id: '/_library/workflow/$version/'
+      path: '/workflow/$version'
+      fullPath: '/workflow/$version/'
+      preLoaderRoute: typeof LibraryWorkflowVersionIndexRouteImport
+      parentRoute: typeof LibraryRoute
+    }
+    '/api/application-starter/deploy/check-name': {
+      id: '/api/application-starter/deploy/check-name'
+      path: '/api/application-starter/deploy/check-name'
+      fullPath: '/api/application-starter/deploy/check-name'
+      preLoaderRoute: typeof ApiApplicationStarterDeployCheckNameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/application-starter/deploy/github': {
+      id: '/api/application-starter/deploy/github'
+      path: '/api/application-starter/deploy/github'
+      fullPath: '/api/application-starter/deploy/github'
+      preLoaderRoute: typeof ApiApplicationStarterDeployGithubRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/callback/$provider': {
+      id: '/api/auth/callback/$provider'
+      path: '/api/auth/callback/$provider'
+      fullPath: '/api/auth/callback/$provider'
+      preLoaderRoute: typeof ApiAuthCallbackProviderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/cli/create-ticket': {
+      id: '/api/auth/cli/create-ticket'
+      path: '/api/auth/cli/create-ticket'
+      fullPath: '/api/auth/cli/create-ticket'
+      preLoaderRoute: typeof ApiAuthCliCreateTicketRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/builder/openrouter/callback': {
+      id: '/api/builder/openrouter/callback'
+      path: '/api/builder/openrouter/callback'
+      fullPath: '/api/builder/openrouter/callback'
+      preLoaderRoute: typeof ApiBuilderOpenrouterCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/builder/project-snapshots/$hash': {
+      id: '/api/builder/project-snapshots/$hash'
+      path: '/$hash'
+      fullPath: '/api/builder/project-snapshots/$hash'
+      preLoaderRoute: typeof ApiBuilderProjectSnapshotsHashRouteImport
+      parentRoute: typeof ApiBuilderProjectSnapshotsRoute
+    }
+    '/api/builder/projects/$id': {
+      id: '/api/builder/projects/$id'
+      path: '/$id'
+      fullPath: '/api/builder/projects/$id'
+      preLoaderRoute: typeof ApiBuilderProjectsIdRouteImport
+      parentRoute: typeof ApiBuilderProjectsRoute
+    }
+    '/intent/registry/$packageName/': {
+      id: '/intent/registry/$packageName/'
+      path: '/'
+      fullPath: '/intent/registry/$packageName/'
+      preLoaderRoute: typeof IntentRegistryPackageNameIndexRouteImport
+      parentRoute: typeof IntentRegistryPackageNameRoute
+    }
+    '/intent/registry/$packageName/$skillName': {
+      id: '/intent/registry/$packageName/$skillName'
+      path: '/$skillName'
+      fullPath: '/intent/registry/$packageName/$skillName'
+      preLoaderRoute: typeof IntentRegistryPackageNameSkillNameRouteImport
+      parentRoute: typeof IntentRegistryPackageNameRoute
+    }
+    '/intent/registry/$packageName/{$}.md': {
+      id: '/intent/registry/$packageName/{$}.md'
+      path: '/{$}.md'
+      fullPath: '/intent/registry/$packageName/{$}.md'
+      preLoaderRoute: typeof IntentRegistryPackageNameChar123Char125DotmdRouteImport
+      parentRoute: typeof IntentRegistryPackageNameRoute
+    }
     '/_library/$libraryId/$version/docs/': {
       id: '/_library/$libraryId/$version/docs/'
       path: '/'
@@ -4066,81 +4066,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryLibraryIdVersionDocsIndexRouteImport
       parentRoute: typeof LibraryLibraryIdVersionDocsRoute
     }
-    '/charts/catalog_/previews/$revision/{$caseId}.svg': {
-      id: '/charts/catalog_/previews/$revision/{$caseId}.svg'
-      path: '/charts/catalog/previews/$revision/{$caseId}.svg'
-      fullPath: '/charts/catalog/previews/$revision/{$caseId}.svg'
-      preLoaderRoute: typeof ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/builder/projects/$id/sync': {
-      id: '/api/builder/projects/$id/sync'
-      path: '/sync'
-      fullPath: '/api/builder/projects/$id/sync'
-      preLoaderRoute: typeof ApiBuilderProjectsIdSyncRouteImport
-      parentRoute: typeof ApiBuilderProjectsIdRoute
-    }
-    '/api/builder/project-snapshots/$hash/quarantine': {
-      id: '/api/builder/project-snapshots/$hash/quarantine'
-      path: '/quarantine'
-      fullPath: '/api/builder/project-snapshots/$hash/quarantine'
-      preLoaderRoute: typeof ApiBuilderProjectSnapshotsHashQuarantineRouteImport
-      parentRoute: typeof ApiBuilderProjectSnapshotsHashRoute
-    }
-    '/api/auth/cli/status/$ticketId': {
-      id: '/api/auth/cli/status/$ticketId'
-      path: '/api/auth/cli/status/$ticketId'
-      fullPath: '/api/auth/cli/status/$ticketId'
-      preLoaderRoute: typeof ApiAuthCliStatusTicketIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_library/charts/catalog/collections/$collectionId': {
-      id: '/_library/charts/catalog/collections/$collectionId'
-      path: '/collections/$collectionId'
-      fullPath: '/charts/catalog/collections/$collectionId'
-      preLoaderRoute: typeof LibraryChartsCatalogCollectionsCollectionIdRouteImport
-      parentRoute: typeof LibraryChartsCatalogRoute
-    }
-    '/_library/charts/catalog/charts/$caseId': {
-      id: '/_library/charts/catalog/charts/$caseId'
-      path: '/charts/$caseId'
-      fullPath: '/charts/catalog/charts/$caseId'
-      preLoaderRoute: typeof LibraryChartsCatalogChartsCaseIdRouteImport
-      parentRoute: typeof LibraryChartsCatalogRoute
-    }
-    '/_library/$libraryId/$version/docs/{$}.md': {
-      id: '/_library/$libraryId/$version/docs/{$}.md'
-      path: '/{$}.md'
-      fullPath: '/$libraryId/$version/docs/{$}.md'
-      preLoaderRoute: typeof LibraryLibraryIdVersionDocsChar123Char125DotmdRouteImport
-      parentRoute: typeof LibraryLibraryIdVersionDocsRoute
-    }
-    '/_library/$libraryId/$version/docs/npm-stats': {
-      id: '/_library/$libraryId/$version/docs/npm-stats'
-      path: '/npm-stats'
-      fullPath: '/$libraryId/$version/docs/npm-stats'
-      preLoaderRoute: typeof LibraryLibraryIdVersionDocsNpmStatsRouteImport
-      parentRoute: typeof LibraryLibraryIdVersionDocsRoute
-    }
-    '/_library/$libraryId/$version/docs/index.md': {
-      id: '/_library/$libraryId/$version/docs/index.md'
-      path: '/index.md'
-      fullPath: '/$libraryId/$version/docs/index.md'
-      preLoaderRoute: typeof LibraryLibraryIdVersionDocsIndexDotmdRouteImport
-      parentRoute: typeof LibraryLibraryIdVersionDocsRoute
-    }
-    '/_library/$libraryId/$version/docs/contributors': {
-      id: '/_library/$libraryId/$version/docs/contributors'
-      path: '/contributors'
-      fullPath: '/$libraryId/$version/docs/contributors'
-      preLoaderRoute: typeof LibraryLibraryIdVersionDocsContributorsRouteImport
-      parentRoute: typeof LibraryLibraryIdVersionDocsRoute
-    }
-    '/_library/$libraryId/$version/docs/community-resources': {
-      id: '/_library/$libraryId/$version/docs/community-resources'
-      path: '/community-resources'
-      fullPath: '/$libraryId/$version/docs/community-resources'
-      preLoaderRoute: typeof LibraryLibraryIdVersionDocsCommunityResourcesRouteImport
+    '/_library/$libraryId/$version/docs/$': {
+      id: '/_library/$libraryId/$version/docs/$'
+      path: '/$'
+      fullPath: '/$libraryId/$version/docs/$'
+      preLoaderRoute: typeof LibraryLibraryIdVersionDocsSplatRouteImport
       parentRoute: typeof LibraryLibraryIdVersionDocsRoute
     }
     '/_library/$libraryId/$version/docs/blog': {
@@ -4150,12 +4080,82 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryLibraryIdVersionDocsBlogRouteImport
       parentRoute: typeof LibraryLibraryIdVersionDocsRoute
     }
-    '/_library/$libraryId/$version/docs/$': {
-      id: '/_library/$libraryId/$version/docs/$'
-      path: '/$'
-      fullPath: '/$libraryId/$version/docs/$'
-      preLoaderRoute: typeof LibraryLibraryIdVersionDocsSplatRouteImport
+    '/_library/$libraryId/$version/docs/community-resources': {
+      id: '/_library/$libraryId/$version/docs/community-resources'
+      path: '/community-resources'
+      fullPath: '/$libraryId/$version/docs/community-resources'
+      preLoaderRoute: typeof LibraryLibraryIdVersionDocsCommunityResourcesRouteImport
       parentRoute: typeof LibraryLibraryIdVersionDocsRoute
+    }
+    '/_library/$libraryId/$version/docs/contributors': {
+      id: '/_library/$libraryId/$version/docs/contributors'
+      path: '/contributors'
+      fullPath: '/$libraryId/$version/docs/contributors'
+      preLoaderRoute: typeof LibraryLibraryIdVersionDocsContributorsRouteImport
+      parentRoute: typeof LibraryLibraryIdVersionDocsRoute
+    }
+    '/_library/$libraryId/$version/docs/index.md': {
+      id: '/_library/$libraryId/$version/docs/index.md'
+      path: '/index.md'
+      fullPath: '/$libraryId/$version/docs/index.md'
+      preLoaderRoute: typeof LibraryLibraryIdVersionDocsIndexDotmdRouteImport
+      parentRoute: typeof LibraryLibraryIdVersionDocsRoute
+    }
+    '/_library/$libraryId/$version/docs/npm-stats': {
+      id: '/_library/$libraryId/$version/docs/npm-stats'
+      path: '/npm-stats'
+      fullPath: '/$libraryId/$version/docs/npm-stats'
+      preLoaderRoute: typeof LibraryLibraryIdVersionDocsNpmStatsRouteImport
+      parentRoute: typeof LibraryLibraryIdVersionDocsRoute
+    }
+    '/_library/$libraryId/$version/docs/{$}.md': {
+      id: '/_library/$libraryId/$version/docs/{$}.md'
+      path: '/{$}.md'
+      fullPath: '/$libraryId/$version/docs/{$}.md'
+      preLoaderRoute: typeof LibraryLibraryIdVersionDocsChar123Char125DotmdRouteImport
+      parentRoute: typeof LibraryLibraryIdVersionDocsRoute
+    }
+    '/_library/charts/catalog/charts/$caseId': {
+      id: '/_library/charts/catalog/charts/$caseId'
+      path: '/charts/$caseId'
+      fullPath: '/charts/catalog/charts/$caseId'
+      preLoaderRoute: typeof LibraryChartsCatalogChartsCaseIdRouteImport
+      parentRoute: typeof LibraryChartsCatalogRoute
+    }
+    '/_library/charts/catalog/collections/$collectionId': {
+      id: '/_library/charts/catalog/collections/$collectionId'
+      path: '/collections/$collectionId'
+      fullPath: '/charts/catalog/collections/$collectionId'
+      preLoaderRoute: typeof LibraryChartsCatalogCollectionsCollectionIdRouteImport
+      parentRoute: typeof LibraryChartsCatalogRoute
+    }
+    '/api/auth/cli/status/$ticketId': {
+      id: '/api/auth/cli/status/$ticketId'
+      path: '/api/auth/cli/status/$ticketId'
+      fullPath: '/api/auth/cli/status/$ticketId'
+      preLoaderRoute: typeof ApiAuthCliStatusTicketIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/builder/project-snapshots/$hash/quarantine': {
+      id: '/api/builder/project-snapshots/$hash/quarantine'
+      path: '/quarantine'
+      fullPath: '/api/builder/project-snapshots/$hash/quarantine'
+      preLoaderRoute: typeof ApiBuilderProjectSnapshotsHashQuarantineRouteImport
+      parentRoute: typeof ApiBuilderProjectSnapshotsHashRoute
+    }
+    '/api/builder/projects/$id/sync': {
+      id: '/api/builder/projects/$id/sync'
+      path: '/sync'
+      fullPath: '/api/builder/projects/$id/sync'
+      preLoaderRoute: typeof ApiBuilderProjectsIdSyncRouteImport
+      parentRoute: typeof ApiBuilderProjectsIdRoute
+    }
+    '/charts/catalog_/previews/$revision/{$caseId}.svg': {
+      id: '/charts/catalog_/previews/$revision/{$caseId}.svg'
+      path: '/charts/catalog/previews/$revision/{$caseId}.svg'
+      fullPath: '/charts/catalog/previews/$revision/{$caseId}.svg'
+      preLoaderRoute: typeof ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_library/$libraryId/$version/docs/framework/': {
       id: '/_library/$libraryId/$version/docs/framework/'
@@ -4171,18 +4171,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryLibraryIdVersionDocsFrameworkFrameworkIndexRouteImport
       parentRoute: typeof LibraryLibraryIdVersionDocsRoute
     }
-    '/_library/$libraryId/$version/docs/framework/$framework/{$}.md': {
-      id: '/_library/$libraryId/$version/docs/framework/$framework/{$}.md'
-      path: '/framework/$framework/{$}.md'
-      fullPath: '/$libraryId/$version/docs/framework/$framework/{$}.md'
-      preLoaderRoute: typeof LibraryLibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRouteImport
-      parentRoute: typeof LibraryLibraryIdVersionDocsRoute
-    }
     '/_library/$libraryId/$version/docs/framework/$framework/$': {
       id: '/_library/$libraryId/$version/docs/framework/$framework/$'
       path: '/framework/$framework/$'
       fullPath: '/$libraryId/$version/docs/framework/$framework/$'
       preLoaderRoute: typeof LibraryLibraryIdVersionDocsFrameworkFrameworkSplatRouteImport
+      parentRoute: typeof LibraryLibraryIdVersionDocsRoute
+    }
+    '/_library/$libraryId/$version/docs/framework/$framework/{$}.md': {
+      id: '/_library/$libraryId/$version/docs/framework/$framework/{$}.md'
+      path: '/framework/$framework/{$}.md'
+      fullPath: '/$libraryId/$version/docs/framework/$framework/{$}.md'
+      preLoaderRoute: typeof LibraryLibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRouteImport
       parentRoute: typeof LibraryLibraryIdVersionDocsRoute
     }
     '/_library/$libraryId/$version/docs/framework/$framework/examples/$': {

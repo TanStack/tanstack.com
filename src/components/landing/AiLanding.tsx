@@ -32,9 +32,6 @@ import {
   LibraryLandingShell,
 } from './LibraryLanding'
 
-const aiPrompt =
-  'Install the agent skills from the skills folder of https://github.com/TanStack/ai for my user, read them, then ask me what AI features I want to build, or suggest some.'
-
 // ponytail: the shared --landing-accent-ink is pure black, which reads badly on the
 // orange accent fill. Darken the fill instead and use white text on it.
 const accentFillClass =
@@ -47,7 +44,7 @@ export default function AiLanding() {
       headline="AI building blocks for TypeScript. We build the hard parts, you keep your stack."
       description="TanStack AI is a TypeScript library for building AI features and agents. It ships the agent loop, provider adapters, durability, interrupts, sandboxes, and tools, and plugs into the server, database, and UI you already have."
       hero={<WriteOnceHero />}
-      beforeActions={<LandingPromptBox heading="Skills" prompt={aiPrompt} />}
+      beforeActions={<LandingPromptBox />}
     >
       <LandingSection tone="accent">
         <LandingSectionIntro
@@ -66,7 +63,7 @@ export default function AiLanding() {
       </LandingSection>
 
       <LandingSection tone="ink">
-        <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
+        <div className="grid items-center gap-12 xl:grid-cols-[1.1fr_0.9fr] xl:gap-16">
           <LandingSectionIntro
             eyebrow="Typesafe models"
             icon={<PlugIcon aria-hidden="true" size={15} />}
@@ -78,14 +75,14 @@ export default function AiLanding() {
               </DocsLink>
             }
           />
-          <div className="min-w-0 lg:order-first">
+          <div className="min-w-0 xl:order-first">
             <ProviderWorkbench />
           </div>
         </div>
       </LandingSection>
 
       <LandingSection tone="raised">
-        <div className="grid items-center gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16">
+        <div className="grid items-center gap-12 xl:grid-cols-[0.92fr_1.08fr] xl:gap-16">
           <LandingSectionIntro
             eyebrow="We handle tools"
             icon={<BracketsCurlyIcon aria-hidden="true" size={15} />}
@@ -98,7 +95,7 @@ export default function AiLanding() {
       </LandingSection>
 
       <LandingSection tone="ink">
-        <div className="grid items-center gap-12 lg:grid-cols-[1.08fr_0.92fr] lg:gap-16">
+        <div className="grid items-center gap-12 xl:grid-cols-[1.08fr_0.92fr] xl:gap-16">
           <LandingSectionIntro
             eyebrow="You own the UI"
             icon={<LayoutIcon aria-hidden="true" size={15} />}
@@ -106,7 +103,7 @@ export default function AiLanding() {
             body="Text, thinking, tool calls and results all arrive as typed parts with their own state. Loop over the parts and render each one, or hand a component per part type to createChatHook and it picks the right one for you."
             action={<DocsLink to="ui/react">UI integrations</DocsLink>}
           />
-          <div className="min-w-0 lg:order-first">
+          <div className="min-w-0 xl:order-first">
             <MessageParts />
           </div>
         </div>
@@ -125,7 +122,7 @@ export default function AiLanding() {
       </LandingSection>
 
       <LandingSection tone="ink">
-        <div className="grid items-center gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:gap-16">
+        <div className="grid items-center gap-12 xl:grid-cols-[0.82fr_1.18fr] xl:gap-16">
           <LandingSectionIntro
             eyebrow="Durability you can move"
             icon={<HardDrivesIcon aria-hidden="true" size={15} />}
@@ -142,7 +139,7 @@ export default function AiLanding() {
       </LandingSection>
 
       <LandingSection tone="raised">
-        <div className="grid gap-12 lg:grid-cols-[0.78fr_1.22fr] lg:items-start lg:gap-16">
+        <div className="grid gap-12 xl:grid-cols-[0.78fr_1.22fr] xl:items-start xl:gap-16">
           <LandingSectionIntro
             eyebrow="We handle the hard parts"
             icon={<CubeIcon aria-hidden="true" size={15} />}
@@ -154,7 +151,7 @@ export default function AiLanding() {
       </LandingSection>
 
       <LandingSection tone="ink">
-        <div className="grid gap-12 lg:grid-cols-[0.78fr_1.22fr] lg:items-start lg:gap-16">
+        <div className="grid gap-12 xl:grid-cols-[0.78fr_1.22fr] xl:items-start xl:gap-16">
           <LandingSectionIntro
             eyebrow="Beyond chat"
             icon={<MicrophoneIcon aria-hidden="true" size={15} />}
@@ -167,7 +164,7 @@ export default function AiLanding() {
       </LandingSection>
 
       <LandingSection tone="raised">
-        <div className="grid gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:items-center lg:gap-16">
+        <div className="grid gap-12 xl:grid-cols-[0.82fr_1.18fr] xl:items-center xl:gap-16">
           <LandingSectionIntro
             eyebrow="Devtools"
             icon={<BugIcon aria-hidden="true" size={15} />}
@@ -193,48 +190,69 @@ export default function AiLanding() {
   )
 }
 
-const codeWindowClass =
-  'm-0 min-w-0 rounded-none border-0 [&>div:first-child]:rounded-none [&_pre]:max-h-104 [&_pre]:overflow-auto [&_pre]:rounded-none [&_pre]:text-[11px] [&_pre]:leading-5 sm:[&_pre]:text-xs'
+// Paper well in light, #111 in dark. Same --th-* tokens as CodeBlock.
+const codeWellClass =
+  'm-0 min-w-0 overflow-hidden rounded-lg border-0 bg-gray-100 [--th-background:var(--color-gray-100)] dark:bg-ds-neutral-500 dark:[--th-background:var(--color-ds-neutral-500)] [&_pre]:overflow-x-auto [&_pre]:rounded-none [&_pre]:p-4 [&_pre]:text-xs [&_pre]:leading-6'
+
+const codeSurfaceClass =
+  'overflow-x-auto rounded-lg bg-gray-100 p-4 font-ds-mono text-ds-mono-xs leading-6 text-(--th-token) dark:bg-ds-neutral-500 [&_p]:whitespace-pre'
+
+function CodeWell({
+  children,
+  className = 'p-5',
+  codeKey,
+  lang = 'ts',
+}: {
+  children: string
+  className?: string
+  codeKey?: string
+  lang?: string
+}) {
+  return (
+    <div className={className}>
+      <CodeBlock
+        key={codeKey}
+        className={codeWellClass}
+        showTypeCopyButton={false}
+      >
+        <code className={`language-${lang}`}>{children}</code>
+      </CodeBlock>
+    </div>
+  )
+}
 
 function CodeTabs({
-  preHeightClass,
   label,
   samples,
 }: {
   label: string
   samples: Array<{ code: string; file: string; name: string }>
-  preHeightClass: string
 }) {
   const [activeIndex, setActiveIndex] = React.useState(0)
   const sample = samples[activeIndex] ?? samples[0]
 
   return (
     <LandingWindow label={label}>
-      <div
-        className="flex gap-1 border-b border-border-subtle p-2"
-        role="group"
-        aria-label={label}
-      >
-        {samples.map((item, index) => (
-          <button
-            key={item.name}
-            type="button"
-            aria-pressed={index === activeIndex}
-            className="rounded-lg px-3 py-1.5 text-ds-label-sm text-text-primary/40 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-pressed:bg-[rgb(var(--landing-glow)/0.14)] aria-pressed:text-(--landing-accent-bright)"
-            onClick={() => setActiveIndex(index)}
-          >
-            {item.name}
-          </button>
-        ))}
+      <div className="border-b border-border-subtle px-4 pt-4">
+        <div
+          className="flex gap-5 overflow-x-auto"
+          role="group"
+          aria-label={label}
+        >
+          {samples.map((item, index) => (
+            <button
+              key={item.name}
+              type="button"
+              aria-pressed={index === activeIndex}
+              className="shrink-0 border-b-2 border-transparent pb-3 text-ds-label-sm text-text-primary/35 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-pressed:border-(--landing-accent) aria-pressed:text-text-primary"
+              onClick={() => setActiveIndex(index)}
+            >
+              {item.name}
+            </button>
+          ))}
+        </div>
       </div>
-      <CodeBlock
-        key={sample.name}
-        dataCodeTitle={sample.file}
-        className={`${codeWindowClass} ${preHeightClass}`}
-        showTypeCopyButton={false}
-      >
-        <code className="language-ts">{sample.code}</code>
-      </CodeBlock>
+      <CodeWell codeKey={sample.name}>{sample.code}</CodeWell>
     </LandingWindow>
   )
 }
@@ -350,13 +368,7 @@ function PersistenceContract() {
         ))}
       </div>
       <LandingWindow className="w-full max-w-184" label={snippet.file}>
-        <CodeBlock
-          key={store.name}
-          className={`${codeWindowClass} [&_pre]:h-88`}
-          showTypeCopyButton={false}
-        >
-          <code className="language-ts">{snippet.code}</code>
-        </CodeBlock>
+        <CodeWell codeKey={store.name}>{snippet.code}</CodeWell>
       </LandingWindow>
     </div>
   )
@@ -416,13 +428,7 @@ export function redisStream(request: Request): StreamDurability {
 ]
 
 function DurabilityTiers() {
-  return (
-    <CodeTabs
-      preHeightClass="[&_pre]:h-76"
-      label="stream durability"
-      samples={durabilityTiers}
-    />
-  )
+  return <CodeTabs label="stream durability" samples={durabilityTiers} />
 }
 
 const toolCallStates = [
@@ -705,31 +711,28 @@ function MessageParts() {
           ))}
         </div>
       </div>
-      <div className="border-t border-border-subtle bg-ds-neutral-500">
-        <div className="flex items-center gap-3 px-4 pt-3 font-ds-mono text-ds-mono-2xs text-white/60">
+      <div className="p-5">
+        <div className="mb-4 flex items-center gap-3 font-ds-mono text-ds-mono-2xs text-text-primary/50">
           <button
             type="button"
             role="switch"
             aria-checked={useHook}
             aria-label="createChatHook"
-            className="group relative h-5 w-9 shrink-0 rounded-full bg-white/15 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-checked:bg-(--landing-accent)"
+            className="group relative h-5 w-9 shrink-0 rounded-full bg-text-primary/15 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-checked:bg-(--landing-accent)"
             onClick={() => setUseHook((current) => !current)}
           >
             <span className="absolute top-0.5 left-0.5 size-4 rounded-full bg-white transition-transform group-aria-checked:translate-x-4" />
           </button>
           <span aria-hidden="true">createChatHook</span>
         </div>
-        <div
-          className="min-h-96 overflow-x-auto p-4 font-ds-mono text-ds-mono-xs leading-relaxed text-white/70"
-          aria-hidden="true"
-        >
+        <div className={codeSurfaceClass} aria-hidden="true">
           {code.map((line, index) => (
             <p
               key={index}
               className={
                 isActive(line)
                   ? 'whitespace-pre text-(--landing-accent-bright)'
-                  : 'whitespace-pre text-white/40'
+                  : 'whitespace-pre text-text-primary/40'
               }
             >
               {line.text}
@@ -765,9 +768,9 @@ function ToolBoundary() {
             </button>
           ))}
         </div>
-        <div className="mt-5 min-h-52 overflow-x-auto rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-ds-mono-xs text-white/65">
+        <div className={`mt-5 rounded-lg ${codeSurfaceClass}`}>
           <p>
-            <span className="text-pink-300">const</span> lookupInvoice =
+            <span className="th-keyword">const</span> lookupInvoice =
             toolDefinition({'{'}
           </p>
           <p>&nbsp;&nbsp;name: 'lookup_invoice',</p>
@@ -1291,109 +1294,85 @@ function StartingPoints() {
     </ul>
   )
 }
-const heroTools = `import { toolDefinition } from '@tanstack/ai'
-import { z } from 'zod'
-
-export const lookupInvoice = toolDefinition({
-  name: 'lookup_invoice',
-  description: 'Find an invoice by id',
-  inputSchema: z.object({ id: z.string() }),
-  outputSchema: z.object({
-    total: z.number(),
-    status: z.enum(['draft', 'sent', 'paid']),
-  }),
-})`
+const heroTools = `const lookupInvoice =
+  toolDefinition({
+    name: 'lookup_invoice',
+    inputSchema: z.object({
+      id: z.string(),
+    }),
+    outputSchema: invoiceSchema,
+  })`
 
 const heroProviders = [
   {
     name: 'OpenAI',
     pkg: '@tanstack/ai-openai',
-    call: "openaiText('gpt-5.5')",
+    call: "openaiText('gpt-6-astra')",
   },
   {
     name: 'Anthropic',
     pkg: '@tanstack/ai-anthropic',
-    call: "anthropicText('claude-sonnet-4-5')",
+    call: "anthropicText('claude-fable-5-1')",
   },
   {
     name: 'Gemini',
     pkg: '@tanstack/ai-gemini',
-    call: "geminiText('gemini-3-flash-preview')",
+    call: "geminiText('gemini-3.8-flash')",
   },
   {
-    name: 'Ollama',
-    pkg: '@tanstack/ai-ollama',
-    call: "ollamaText('llama3')",
+    name: 'Grok',
+    pkg: '@tanstack/ai-grok',
+    call: "grokText('grok-4.6')",
   },
 ]
 
 type HeroProvider = (typeof heroProviders)[number]
 
+function heroChatCall(provider: HeroProvider, tool: string) {
+  const fn = provider.call.split('(')[0] ?? provider.call
+  const arg = provider.call.slice(fn.length + 1, -1)
+  const toolFn = tool.slice(0, tool.indexOf('('))
+  const toolArg = tool.slice(tool.indexOf('(') + 1, -1)
+  return `chat({
+      adapter: ${fn}(
+        ${arg},
+      ),
+      tools: [
+        ${toolFn}(
+          ${toolArg},
+        ),
+      ],
+    })`
+}
+
 const heroServers = [
   {
     name: 'TanStack Start',
     file: 'routes/api.chat.ts',
-    code: (
-      provider: HeroProvider,
-    ) => `import { chat, toServerSentEventsResponse } from '@tanstack/ai'
-import { ${provider.call.split('(')[0]} } from '${provider.pkg}'
-import { createFileRoute } from '@tanstack/react-router'
-import { lookupInvoice } from './tools'
-
-export const Route = createFileRoute('/api/chat')({
-  server: {
-    handlers: {
-      POST: async ({ request }) => {
-        const { messages } = await request.json()
-        const stream = chat({
-          adapter: ${provider.call},
-          messages,
-          tools: [lookupInvoice.server(findInvoice)],
-        })
-        return toServerSentEventsResponse(stream)
-      },
-    },
-  },
-})`,
+    code: (provider: HeroProvider) => `POST: ({ request }) =>
+  toServerSentEventsResponse(
+    ${heroChatCall(provider, 'lookupInvoice.server(findInvoice)')},
+  )`,
   },
   {
     name: 'Next.js',
     file: 'app/api/chat/route.ts',
-    code: (
-      provider: HeroProvider,
-    ) => `import { chat, toServerSentEventsResponse } from '@tanstack/ai'
-import { ${provider.call.split('(')[0]} } from '${provider.pkg}'
-import { lookupInvoice } from './tools'
-
-export async function POST(request: Request) {
-  const { messages } = await request.json()
-  const stream = chat({
-    adapter: ${provider.call},
-    messages,
-    tools: [lookupInvoice.server(findInvoice)],
-  })
-  return toServerSentEventsResponse(stream)
+    code: (provider: HeroProvider) => `export async function POST(
+  request: Request,
+) {
+  return toServerSentEventsResponse(
+    ${heroChatCall(provider, 'lookupInvoice.server(findInvoice)')},
+  )
 }`,
   },
   {
     name: 'Hono',
     file: 'server.ts',
-    code: (provider: HeroProvider) => `import { Hono } from 'hono'
-import { chat, toServerSentEventsResponse } from '@tanstack/ai'
-import { ${provider.call.split('(')[0]} } from '${provider.pkg}'
-import { lookupInvoice } from './tools'
-
-const app = new Hono()
-
-app.post('/api/chat', async (c) => {
-  const { messages } = await c.req.json()
-  const stream = chat({
-    adapter: ${provider.call},
-    messages,
-    tools: [lookupInvoice.server(findInvoice)],
-  })
-  return toServerSentEventsResponse(stream)
-})`,
+    code: (provider: HeroProvider) => `app.post('/api/chat', () =>
+  toServerSentEventsResponse(
+    ${heroChatCall(provider, 'lookupInvoice.server(findInvoice)')},
+  ),
+)`,
   },
 ]
 
@@ -1402,71 +1381,53 @@ const heroClients = [
     name: 'React',
     file: 'chat.tsx',
     lang: 'tsx',
-    code: `import { useChat, fetchServerSentEvents } from '@tanstack/ai-react'
-import { lookupInvoice } from './tools'
-
-export function Chat() {
-  const { messages, sendMessage } = useChat({
-    connection: fetchServerSentEvents('/api/chat'),
-    tools: [lookupInvoice.client(openInvoice)],
-  })
-
-  return messages.map((message) => (
-    <Bubble key={message.id} {...message} />
-  ))
-}`,
+    code: `const { messages } = useChat({
+  connection: fetchServerSentEvents(
+    '/api/chat',
+  ),
+  tools: [
+    lookupInvoice.client(openInvoice),
+  ],
+})`,
   },
   {
     name: 'Vue',
     file: 'Chat.vue',
     lang: 'html',
-    code: `<script setup lang="ts">
-import { useChat, fetchServerSentEvents } from '@tanstack/ai-vue'
-import { lookupInvoice } from './tools'
-
-const { messages, sendMessage } = useChat({
-  connection: fetchServerSentEvents('/api/chat'),
-  tools: [lookupInvoice.client(openInvoice)],
-})
-</script>
-
-<template>
-  <Bubble v-for="message in messages" :key="message.id" v-bind="message" />
-</template>`,
+    code: `const { messages } = useChat({
+  connection: fetchServerSentEvents(
+    '/api/chat',
+  ),
+  tools: [
+    lookupInvoice.client(openInvoice),
+  ],
+})`,
   },
   {
     name: 'Solid',
     file: 'chat.tsx',
     lang: 'tsx',
-    code: `import { useChat, fetchServerSentEvents } from '@tanstack/ai-solid'
-import { lookupInvoice } from './tools'
-
-export function Chat() {
-  const chat = useChat({
-    connection: fetchServerSentEvents('/api/chat'),
-    tools: [lookupInvoice.client(openInvoice)],
-  })
-
-  return <For each={chat.messages}>{(message) => <Bubble {...message} />}</For>
-}`,
+    code: `const chat = useChat({
+  connection: fetchServerSentEvents(
+    '/api/chat',
+  ),
+  tools: [
+    lookupInvoice.client(openInvoice),
+  ],
+})`,
   },
   {
     name: 'Svelte',
     file: 'Chat.svelte',
     lang: 'html',
-    code: `<script lang="ts">
-  import { createChat, fetchServerSentEvents } from '@tanstack/ai-svelte'
-  import { lookupInvoice } from './tools'
-
-  const chat = createChat({
-    connection: fetchServerSentEvents('/api/chat'),
-    tools: [lookupInvoice.client(openInvoice)],
-  })
-</script>
-
-{#each chat.messages as message (message.id)}
-  <Bubble {...message} />
-{/each}`,
+    code: `const chat = createChat({
+  connection: fetchServerSentEvents(
+    '/api/chat',
+  ),
+  tools: [
+    lookupInvoice.client(openInvoice),
+  ],
+})`,
   },
 ]
 
@@ -1551,107 +1512,104 @@ function WriteOnceHero() {
         }
 
   return (
-    <div className="grid w-full min-w-0 max-w-full items-start gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-      <LandingWindow
-        className="ring-2 ring-[rgb(var(--landing-glow)/0.35)]"
-        label="tools.ts · written once"
-      >
-        <CodeBlock className={codeWindowClass} showTypeCopyButton={false}>
-          <code className="language-ts">{heroTools}</code>
-        </CodeBlock>
-        <p className="border-t border-border-subtle px-4 py-3 text-ds-body-xs text-text-primary/40">
-          This file never changes. Everything on the right is a destination for
-          it.
-        </p>
-      </LandingWindow>
-
-      <LandingWindow label="runs anywhere">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-border-subtle p-3">
-          <div className="flex gap-1" role="group" aria-label="Side">
-            {(['server', 'client'] as const).map((option) => (
-              <button
-                key={option}
-                type="button"
-                aria-pressed={side === option}
-                className={heroChipClass}
-                onClick={() => pin(() => setSide(option))}
-              >
-                {option}
-              </button>
-            ))}
-          </div>
-          <span className="hidden h-4 w-px bg-border-subtle sm:block" />
-          {side === 'server' ? (
-            <div
-              className="flex gap-1"
-              role="group"
-              aria-label="Server framework"
-            >
-              {heroServers.map((item, index) => (
-                <button
-                  key={item.name}
-                  type="button"
-                  aria-pressed={index === serverIndex}
-                  className={heroChipClass}
-                  onClick={() => pin(() => setServerIndex(index))}
-                >
-                  {item.name}
-                </button>
-              ))}
-            </div>
-          ) : (
-            <div className="flex gap-1" role="group" aria-label="UI framework">
-              {heroClients.map((item, index) => (
-                <button
-                  key={item.name}
-                  type="button"
-                  aria-pressed={index === clientIndex}
-                  className={heroChipClass}
-                  onClick={() => pin(() => setClientIndex(index))}
-                >
-                  {item.name}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-        <div
-          className={
-            side === 'server'
-              ? 'flex flex-wrap items-center gap-1 border-b border-border-subtle px-3 py-2'
-              : 'flex flex-wrap items-center gap-1 border-b border-border-subtle px-3 py-2 opacity-40'
-          }
-        >
-          <span className="mr-2 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
-            provider
-          </span>
-          {heroProviders.map((item, index) => (
+    <LandingWindow className="w-full min-w-0" label="write once · run anywhere">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-border-subtle p-3">
+        <div className="flex gap-1" role="group" aria-label="Side">
+          {(['server', 'client'] as const).map((option) => (
             <button
-              key={item.name}
+              key={option}
               type="button"
-              aria-pressed={index === providerIndex}
+              aria-pressed={side === option}
               className={heroChipClass}
-              onClick={() =>
-                pin(() => {
-                  setSide('server')
-                  setProviderIndex(index)
-                })
-              }
+              onClick={() => pin(() => setSide(option))}
             >
-              {item.name}
+              {option}
             </button>
           ))}
         </div>
-        <CodeBlock
-          key={`${sample.name}-${provider.name}`}
-          dataCodeTitle={sample.file}
-          className={`${codeWindowClass} [&_pre]:h-76`}
-          showTypeCopyButton={false}
-        >
-          <code className={`language-${sample.lang}`}>{sample.code}</code>
-        </CodeBlock>
-      </LandingWindow>
-    </div>
+        <span className="hidden h-4 w-px bg-border-subtle sm:block" />
+        {side === 'server' ? (
+          <div
+            className="flex gap-1"
+            role="group"
+            aria-label="Server framework"
+          >
+            {heroServers.map((item, index) => (
+              <button
+                key={item.name}
+                type="button"
+                aria-pressed={index === serverIndex}
+                className={heroChipClass}
+                onClick={() => pin(() => setServerIndex(index))}
+              >
+                {item.name}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="flex gap-1" role="group" aria-label="UI framework">
+            {heroClients.map((item, index) => (
+              <button
+                key={item.name}
+                type="button"
+                aria-pressed={index === clientIndex}
+                className={heroChipClass}
+                onClick={() => pin(() => setClientIndex(index))}
+              >
+                {item.name}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+      <div
+        className={
+          side === 'server'
+            ? 'flex flex-wrap items-center gap-1 border-b border-border-subtle px-3 py-2'
+            : 'flex flex-wrap items-center gap-1 border-b border-border-subtle px-3 py-2 opacity-40'
+        }
+      >
+        <span className="mr-2 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+          provider
+        </span>
+        {heroProviders.map((item, index) => (
+          <button
+            key={item.name}
+            type="button"
+            aria-pressed={index === providerIndex}
+            className={heroChipClass}
+            onClick={() =>
+              pin(() => {
+                setSide('server')
+                setProviderIndex(index)
+              })
+            }
+          >
+            {item.name}
+          </button>
+        ))}
+      </div>
+      <div className="grid sm:grid-cols-2">
+        <div className="flex min-w-0 flex-col sm:border-r sm:border-border-subtle">
+          <p className="border-b border-border-subtle px-4 py-2 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/35">
+            tools.ts
+          </p>
+          <CodeWell className="p-4">{heroTools}</CodeWell>
+        </div>
+        <div className="flex min-w-0 flex-col border-t border-border-subtle sm:border-t-0">
+          <p className="border-b border-border-subtle px-4 py-2 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/35">
+            {sample.file}
+          </p>
+          <CodeWell
+            className="p-4"
+            codeKey={`${sample.name}-${provider.name}`}
+            lang={sample.lang}
+          >
+            {sample.code}
+          </CodeWell>
+        </div>
+      </div>
+    </LandingWindow>
   )
 }
 
@@ -1778,17 +1736,16 @@ const compilerModels = [
   },
 ]
 
-// ponytail: the code surface is always dark, so these use fixed token colors.
 function Kw({ children }: { children: React.ReactNode }) {
-  return <span className="text-pink-300">{children}</span>
+  return <span className="th-keyword">{children}</span>
 }
 
 function Fn({ children }: { children: React.ReactNode }) {
-  return <span className="text-orange-300">{children}</span>
+  return <span className="th-function">{children}</span>
 }
 
 function Str({ children }: { children: React.ReactNode }) {
-  return <span className="text-emerald-300">{children}</span>
+  return <span className="th-string">{children}</span>
 }
 
 function ProviderWorkbench() {
@@ -1823,7 +1780,7 @@ function ProviderWorkbench() {
           ))}
         </div>
         <div aria-live="polite" className="min-w-0">
-          <div className="overflow-x-auto bg-ds-neutral-500 p-4 font-ds-mono text-ds-mono-xs leading-relaxed text-white/70">
+          <div className="overflow-x-auto bg-gray-100 p-4 font-ds-mono text-ds-mono-xs leading-relaxed text-(--th-token) dark:bg-ds-neutral-500 [&_p]:whitespace-pre">
             <p>
               <Kw>import</Kw> {'{ '}
               {adapterName}

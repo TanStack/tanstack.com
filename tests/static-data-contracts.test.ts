@@ -7,6 +7,9 @@ import {
   publicLibraries,
 } from '../src/libraries/libraries'
 
+const uuidPattern =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+
 assert.deepEqual(
   publicLibraries,
   libraries.filter(isPublicLibrary),
@@ -34,6 +37,18 @@ for (const library of publicLibraries) {
     library.visible,
     false,
     `${library.id} hidden library should not be public`,
+  )
+}
+
+for (const library of libraries) {
+  if (!library.scarfId) {
+    continue
+  }
+
+  assert.match(
+    library.scarfId,
+    uuidPattern,
+    `${library.id} scarfId must be a UUID`,
   )
 }
 

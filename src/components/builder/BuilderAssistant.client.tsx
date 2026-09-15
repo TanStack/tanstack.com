@@ -166,11 +166,13 @@ type TranscriptRow =
       message: string
     }
   | { id: 'error'; kind: 'error'; message: string }
-  | { id: 'checkpoint'; kind: 'checkpoint' }
+  | { id: 'checkpoint'; kind: 'checkpoint'; validated: boolean }
 
 type RollbackCheckpoint = {
   id: string
+  kind?: 'validated'
   execution: BuilderAiExecution
+  expectedExecution?: BuilderAiExecution
   persisted?: BuilderAiCheckpoint
 }
 
@@ -544,7 +546,11 @@ export const BuilderAssistant = React.forwardRef<
     )
     if (error) rows.push({ id: 'error', kind: 'error', message: error })
     if (rollbackCheckpoint) {
-      rows.push({ id: 'checkpoint', kind: 'checkpoint' })
+      rows.push({
+        id: 'checkpoint',
+        kind: 'checkpoint',
+        validated: rollbackCheckpoint.kind === 'validated',
+      })
     }
     return rows
   }, [
@@ -599,7 +605,10 @@ export const BuilderAssistant = React.forwardRef<
       return
     }
 
-    const hydration = loadLatestBuilderAiCheckpoint(storageScope)
+    const hydration = loadLatestBuilderAiCheckpoint(
+      storageScope,
+      getExecutionRef.current(),
+    )
       .then(async (snapshot) => {
         if (!snapshot) return undefined
         const currentExecution = getExecutionRef.current()
@@ -617,6 +626,7 @@ export const BuilderAssistant = React.forwardRef<
         return {
           checkpoint: {
             id: snapshot.checkpoint.id,
+            kind: snapshot.checkpoint.kind,
             execution: snapshot.execution,
             persisted: snapshot.checkpoint,
           },
@@ -1304,17 +1314,40 @@ export const BuilderAssistant = React.forwardRef<
   async function restoreRollbackCheckpoint() {
     const checkpoint = rollbackCheckpointRef.current
     if (!checkpoint) return
+    const generation = checkpointHydrationGenerationRef.current
+    const expectedCurrentExecution = serializeBuilderAiExecution(getExecution())
 
     try {
       if (
-        checkpoint.persisted &&
-        !(await builderAiCheckpointMatchesExecution(
-          checkpoint.persisted,
-          getExecution(),
-        ))
+        checkpoint.expectedExecution &&
+        serializeBuilderAiExecution(checkpoint.expectedExecution) !==
+          serializeBuilderAiExecution(getExecution())
       ) {
         await dismissRollbackCheckpoint()
         setError('The project changed after this checkpoint was created.')
+        return
+      }
+      const matchesExpected =
+        !checkpoint.persisted ||
+        (await builderAiCheckpointMatchesExecution(
+          checkpoint.persisted,
+          getExecution(),
+        ))
+      if (
+        generation !== checkpointHydrationGenerationRef.current ||
+        rollbackCheckpointRef.current !== checkpoint
+      )
+        return
+      if (!matchesExpected) {
+        await dismissRollbackCheckpoint()
+        setError('The project changed after this checkpoint was created.')
+        return
+      }
+      if (
+        serializeBuilderAiExecution(getExecution()) !== expectedCurrentExecution
+      ) {
+        await dismissRollbackCheckpoint()
+        setError('The project changed while the checkpoint was being checked.')
         return
       }
       await onRestore(cloneBuilderAiExecution(checkpoint.execution), 'manual')
@@ -1942,6 +1975,7 @@ export const BuilderAssistant = React.forwardRef<
     let checkpoint: RollbackCheckpoint | undefined
     let didStageExecution = false
     let lastStagedExecution: BuilderAiExecution | undefined
+    let validatedCheckpoint: RollbackCheckpoint | undefined
     let preserveStoppedExecution = false
     const activityId = pendingPrompt?.runId ?? crypto.randomUUID()
     let currentActivity: BuilderAiActivity | undefined
@@ -2074,6 +2108,7 @@ export const BuilderAssistant = React.forwardRef<
           setError(withTerminalSyncFailure(message, syncFailure))
           return 'error'
         }
+        await discardValidatedCheckpoint()
         stopActivity()
         const syncFailure = await finishDurableRun({ status: 'cancelled' })
         if (syncFailure) {
@@ -2128,6 +2163,7 @@ export const BuilderAssistant = React.forwardRef<
           )
           return 'error'
         }
+        await discardValidatedCheckpoint()
         await discardCheckpoint()
         return 'success'
       }
@@ -2179,6 +2215,7 @@ export const BuilderAssistant = React.forwardRef<
         )
         return 'error'
       }
+      await discardValidatedCheckpoint()
       await discardCheckpoint()
       return 'success'
     } catch (cause) {
@@ -2222,6 +2259,7 @@ export const BuilderAssistant = React.forwardRef<
           setError(withTerminalSyncFailure(message, syncFailure))
           return 'error'
         }
+        await discardValidatedCheckpoint()
         stopActivity()
         const syncFailure = await finishDurableRun({ status: 'cancelled' })
         if (syncFailure) {
@@ -2233,7 +2271,17 @@ export const BuilderAssistant = React.forwardRef<
       } else {
         const message = formatError(cause)
         if (preserveStoppedExecution) await discardCheckpoint()
-        else await rollbackStagedExecution()
+        else {
+          await rollbackStagedExecution()
+          if (
+            validatedCheckpoint &&
+            serializeBuilderAiExecution(getExecution()) ===
+              serializeBuilderAiExecution(checkpointExecution)
+          ) {
+            rollbackCheckpointRef.current = validatedCheckpoint
+            setRollbackCheckpoint(validatedCheckpoint)
+          }
+        }
         failActivity(message)
         const syncFailure = await finishDurableRun({
           status: 'failed',
@@ -2454,6 +2502,7 @@ export const BuilderAssistant = React.forwardRef<
         timestamp: Date.now(),
       })
       const runResult = await onApply(state.execution, abortController.signal)
+      abortController.signal.throwIfAborted()
       updateActivity({
         type: 'item-completed',
         runId: activityId,
@@ -2471,6 +2520,31 @@ export const BuilderAssistant = React.forwardRef<
       })
       const completion = validateBuilderAiCompletion(environmentSnapshot)
       if (completion.status === 'complete') {
+        if (
+          serializeBuilderAiExecution(state.execution) !==
+          serializeBuilderAiExecution(checkpointExecution)
+        ) {
+          validatedCheckpoint = {
+            id: `${activityId}:validated`,
+            kind: 'validated',
+            execution: cloneBuilderAiExecution(state.execution),
+            expectedExecution: checkpointExecution,
+          }
+          if (storageScope) {
+            validatedCheckpoint.persisted = await createBuilderAiCheckpoint(
+              storageScope,
+              validatedCheckpoint.id,
+              validatedCheckpoint.execution,
+              { kind: 'validated', expectedExecution: checkpointExecution },
+            )
+          }
+          if (abortController.signal.aborted) {
+            await discardValidatedCheckpoint()
+            abortController.signal.throwIfAborted()
+          }
+        } else {
+          await discardValidatedCheckpoint()
+        }
         updateActivity({
           type: 'item-completed',
           runId: activityId,
@@ -2580,6 +2654,13 @@ export const BuilderAssistant = React.forwardRef<
       if (!checkpoint || !didStageExecution) return
       rollbackCheckpointRef.current = checkpoint
       setRollbackCheckpoint(checkpoint)
+    }
+
+    async function discardValidatedCheckpoint() {
+      if (!validatedCheckpoint) return
+      if (storageScope)
+        await removeBuilderAiCheckpoint(storageScope, validatedCheckpoint.id)
+      validatedCheckpoint = undefined
     }
 
     async function rollbackStagedExecution() {
@@ -3352,6 +3433,7 @@ function TranscriptRowView({
           />
         ) : row.kind === 'checkpoint' ? (
           <CheckpointNotice
+            validated={row.validated}
             onDismiss={onDismissCheckpoint}
             onRestore={onRestoreCheckpoint}
           />
@@ -3367,16 +3449,20 @@ function TranscriptRowView({
 }
 
 function CheckpointNotice({
+  validated,
   onDismiss,
   onRestore,
 }: {
+  validated: boolean
   onDismiss: () => void
   onRestore: () => void
 }) {
   return (
     <div className="flex items-center justify-between gap-3 rounded-lg border border-border-default bg-background-elevated px-3 py-2">
       <p className="text-xs/5 text-text-secondary">
-        The pre-run builder is available as a checkpoint.
+        {validated
+          ? 'Validated changes are available to restore.'
+          : 'The pre-run builder is available as a checkpoint.'}
       </p>
       <div className="flex shrink-0 items-center gap-1">
         <Button type="button" variant="secondary" size="xs" onClick={onRestore}>

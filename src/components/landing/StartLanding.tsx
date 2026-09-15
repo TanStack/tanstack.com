@@ -111,8 +111,27 @@ export default function StartLanding() {
   return (
     <LibraryLandingShell
       libraryId="start"
-      headline="One Router-first app, from server request to client navigation."
-      description="Start keeps TanStack Router as the application contract, then adds full-document rendering, streaming, typed server work, middleware, and output for the runtime you choose."
+      headline="A full-stack framework for React and Solid."
+      description="Build with type-safe routing, server-side rendering, streaming, and server functions, powered by TanStack Router."
+      beforeActions={
+        <nav
+          aria-label="Start guides"
+          className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-ds-body-sm"
+        >
+          <a
+            className="text-text-primary underline underline-offset-4 hover:text-(--landing-accent-bright)"
+            href="/start/latest/docs/framework/react/comparison"
+          >
+            Compare with Next.js
+          </a>
+          <a
+            className="text-text-primary underline underline-offset-4 hover:text-(--landing-accent-bright)"
+            href="/start/latest/docs/framework/react/migrate-from-next-js"
+          >
+            Migrate from Next.js
+          </a>
+        </nav>
+      }
       hero={<ExecutionMapHero />}
       prompt={startPrompt}
       promptLabel="Copy Start prompt"

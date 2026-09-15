@@ -1,4 +1,5 @@
 import { EventType, type StreamChunk } from '@tanstack/ai'
+import { getBuilderAiRunOutcome } from './builder-ai-run-outcome'
 import { isExampleRuntime } from './example-project'
 import {
   parseExampleWorkspace,
@@ -204,29 +205,28 @@ export async function* streamBuilderAiResponse(
               }
             : {}),
         }
-        continue
+        return
       }
 
-      if (
-        chunk.type === 'RUN_FINISHED' &&
-        (chunk.metadata?.tanstack?.finishReason ?? chunk.finishReason) !==
-          'tool_calls' &&
-        chunk.outcome?.type !== 'interrupt'
-      ) {
-        yield {
-          type: 'CUSTOM',
-          name: 'builder.project.execution',
-          value: createResponse(message.trim() || 'Builder changes are ready.'),
+      if (chunk.type === 'RUN_FINISHED') {
+        const outcome = getBuilderAiRunOutcome(chunk)
+        if (outcome.status === 'failed') {
+          sawTerminal = true
+          yield { type: EventType.RUN_ERROR, message: outcome.message }
+          return
         }
-      }
-
-      if (
-        chunk.type === 'RUN_FINISHED' &&
-        ((chunk.metadata?.tanstack?.finishReason ?? chunk.finishReason) !==
-          'tool_calls' ||
-          chunk.outcome?.type === 'interrupt')
-      ) {
-        sawTerminal = true
+        if (outcome.status === 'complete') {
+          yield {
+            type: 'CUSTOM',
+            name: 'builder.project.execution',
+            value: createResponse(
+              message.trim() || 'Builder changes are ready.',
+            ),
+          }
+        }
+        if (outcome.status !== 'continue') {
+          sawTerminal = true
+        }
       }
 
       yield chunk

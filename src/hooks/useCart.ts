@@ -161,14 +161,14 @@ export function useAddToCart() {
           ]
         }
 
-        qc.setQueryData<CartDetail | null>(CART_QUERY_KEY, {
+        qc.setQueryData(CART_QUERY_KEY, {
           ...previous,
           totalQuantity: nextLines.reduce((s, l) => s + l.quantity, 0),
           lines: { ...previous.lines, nodes: nextLines },
         })
       } else if (previous) {
         // No snapshot — fall back to just bumping the count
-        qc.setQueryData<CartDetail | null>(CART_QUERY_KEY, {
+        qc.setQueryData(CART_QUERY_KEY, {
           ...previous,
           totalQuantity: (previous.totalQuantity ?? 0) + quantity,
         })
@@ -210,7 +210,7 @@ export function useUpdateCartLine() {
             : line,
         )
         const nextQty = nextLines.reduce((sum, line) => sum + line.quantity, 0)
-        qc.setQueryData<CartDetail | null>(CART_QUERY_KEY, {
+        qc.setQueryData(CART_QUERY_KEY, {
           ...previous,
           totalQuantity: nextQty,
           lines: { ...previous.lines, nodes: nextLines },
@@ -243,7 +243,7 @@ export function useRemoveCartLine() {
           (line) => line.id !== input.lineId,
         )
         const nextQty = nextLines.reduce((sum, line) => sum + line.quantity, 0)
-        qc.setQueryData<CartDetail | null>(CART_QUERY_KEY, {
+        qc.setQueryData(CART_QUERY_KEY, {
           ...previous,
           totalQuantity: nextQty,
           lines: { ...previous.lines, nodes: nextLines },
@@ -288,7 +288,7 @@ export function useRemoveDiscountCode() {
       await qc.cancelQueries({ queryKey: CART_QUERY_KEY })
       const previous = qc.getQueryData<CartDetail | null>(CART_QUERY_KEY)
       if (previous) {
-        qc.setQueryData<CartDetail | null>(CART_QUERY_KEY, {
+        qc.setQueryData(CART_QUERY_KEY, {
           ...previous,
           discountCodes: [],
         })

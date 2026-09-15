@@ -20,6 +20,13 @@ export const DOC_FEEDBACK_STATUSES = ['pending', 'approved', 'denied'] as const
 
 export const SHOWCASE_STATUSES = ['pending', 'approved', 'denied'] as const
 
+export const SHOWCASE_PLACEMENTS: ['showcase', 'community', 'private'] = [
+  'showcase',
+  'community',
+  'private',
+]
+export type ShowcasePlacement = (typeof SHOWCASE_PLACEMENTS)[number]
+
 // Note: 'open-source' is kept in enum for DB compatibility but hidden from UI
 // Open source status is now derived from sourceUrl field
 export const SHOWCASE_USE_CASES = [
@@ -184,6 +191,8 @@ export interface Showcase {
   useCases: ShowcaseUseCase[]
   isFeatured: boolean
   status: ShowcaseStatus
+  placement: ShowcasePlacement
+  reviewReason: string | null
   moderatedBy: string | null
   moderatedAt: Date | null
   moderationNote: string | null
@@ -193,6 +202,11 @@ export interface Showcase {
   createdAt: Date
   updatedAt: Date
 }
+
+export type PublicShowcase = Omit<
+  Showcase,
+  'moderatedBy' | 'moderatedAt' | 'moderationNote' | 'reviewReason'
+>
 
 export interface ShowcaseVote {
   id: string

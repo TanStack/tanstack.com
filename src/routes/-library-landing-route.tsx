@@ -64,7 +64,10 @@ export function getLibraryLandingHead(libraryId: LandingLibraryId) {
 
   return {
     meta: seo({
-      title: library.name,
+      title:
+        libraryId === 'start'
+          ? 'TanStack Start | Full-stack React and Solid Framework'
+          : library.name,
       description: library.description,
       image: ogImageUrl(library.id),
       noindex: library.visible === false,

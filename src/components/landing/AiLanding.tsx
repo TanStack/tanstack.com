@@ -190,25 +190,26 @@ export default function AiLanding() {
   )
 }
 
-// Same treatment as Start's server-boundary graphic: light window, inset
-// rounded well. Nested `.dark` keeps highlight tokens on the well, not the page.
+// Paper well in light, #111 in dark. Same --th-* tokens as CodeBlock.
 const codeWellClass =
-  'dark scheme-dark m-0 min-w-0 overflow-hidden rounded-lg border-0 bg-ds-neutral-500 [&_pre]:overflow-x-auto [&_pre]:rounded-none [&_pre]:bg-transparent [&_pre]:p-4 [&_pre]:text-xs [&_pre]:leading-6'
+  'm-0 min-w-0 overflow-hidden rounded-lg border-0 bg-gray-100 [--th-background:var(--color-gray-100)] dark:bg-ds-neutral-500 dark:[--th-background:var(--color-ds-neutral-500)] [&_pre]:overflow-x-auto [&_pre]:rounded-none [&_pre]:p-4 [&_pre]:text-xs [&_pre]:leading-6'
 
 const codeSurfaceClass =
-  'scheme-dark overflow-x-auto rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-ds-mono-xs leading-6 text-white/65 [&_p]:whitespace-pre'
+  'overflow-x-auto rounded-lg bg-gray-100 p-4 font-ds-mono text-ds-mono-xs leading-6 text-(--th-token) dark:bg-ds-neutral-500 [&_p]:whitespace-pre'
 
 function CodeWell({
   children,
+  className = 'p-5',
   codeKey,
   lang = 'ts',
 }: {
   children: string
+  className?: string
   codeKey?: string
   lang?: string
 }) {
   return (
-    <div className="p-5">
+    <div className={className}>
       <CodeBlock
         key={codeKey}
         className={codeWellClass}
@@ -731,7 +732,7 @@ function MessageParts() {
               className={
                 isActive(line)
                   ? 'whitespace-pre text-(--landing-accent-bright)'
-                  : 'whitespace-pre text-white/40'
+                  : 'whitespace-pre text-text-primary/40'
               }
             >
               {line.text}
@@ -769,7 +770,7 @@ function ToolBoundary() {
         </div>
         <div className={`mt-5 rounded-lg ${codeSurfaceClass}`}>
           <p>
-            <span className="text-pink-300">const</span> lookupInvoice =
+            <span className="th-keyword">const</span> lookupInvoice =
             toolDefinition({'{'}
           </p>
           <p>&nbsp;&nbsp;name: 'lookup_invoice',</p>
@@ -1293,109 +1294,85 @@ function StartingPoints() {
     </ul>
   )
 }
-const heroTools = `import { toolDefinition } from '@tanstack/ai'
-import { z } from 'zod'
-
-export const lookupInvoice = toolDefinition({
-  name: 'lookup_invoice',
-  description: 'Find an invoice by id',
-  inputSchema: z.object({ id: z.string() }),
-  outputSchema: z.object({
-    total: z.number(),
-    status: z.enum(['draft', 'sent', 'paid']),
-  }),
-})`
+const heroTools = `const lookupInvoice =
+  toolDefinition({
+    name: 'lookup_invoice',
+    inputSchema: z.object({
+      id: z.string(),
+    }),
+    outputSchema: invoiceSchema,
+  })`
 
 const heroProviders = [
   {
     name: 'OpenAI',
     pkg: '@tanstack/ai-openai',
-    call: "openaiText('gpt-5.5')",
+    call: "openaiText('gpt-6-astra')",
   },
   {
     name: 'Anthropic',
     pkg: '@tanstack/ai-anthropic',
-    call: "anthropicText('claude-sonnet-4-5')",
+    call: "anthropicText('claude-fable-5-1')",
   },
   {
     name: 'Gemini',
     pkg: '@tanstack/ai-gemini',
-    call: "geminiText('gemini-3-flash-preview')",
+    call: "geminiText('gemini-3.8-flash')",
   },
   {
-    name: 'Ollama',
-    pkg: '@tanstack/ai-ollama',
-    call: "ollamaText('llama3')",
+    name: 'Grok',
+    pkg: '@tanstack/ai-grok',
+    call: "grokText('grok-4.6')",
   },
 ]
 
 type HeroProvider = (typeof heroProviders)[number]
 
+function heroChatCall(provider: HeroProvider, tool: string) {
+  const fn = provider.call.split('(')[0] ?? provider.call
+  const arg = provider.call.slice(fn.length + 1, -1)
+  const toolFn = tool.slice(0, tool.indexOf('('))
+  const toolArg = tool.slice(tool.indexOf('(') + 1, -1)
+  return `chat({
+      adapter: ${fn}(
+        ${arg},
+      ),
+      tools: [
+        ${toolFn}(
+          ${toolArg},
+        ),
+      ],
+    })`
+}
+
 const heroServers = [
   {
     name: 'TanStack Start',
     file: 'routes/api.chat.ts',
-    code: (
-      provider: HeroProvider,
-    ) => `import { chat, toServerSentEventsResponse } from '@tanstack/ai'
-import { ${provider.call.split('(')[0]} } from '${provider.pkg}'
-import { createFileRoute } from '@tanstack/react-router'
-import { lookupInvoice } from './tools'
-
-export const Route = createFileRoute('/api/chat')({
-  server: {
-    handlers: {
-      POST: async ({ request }) => {
-        const { messages } = await request.json()
-        const stream = chat({
-          adapter: ${provider.call},
-          messages,
-          tools: [lookupInvoice.server(findInvoice)],
-        })
-        return toServerSentEventsResponse(stream)
-      },
-    },
-  },
-})`,
+    code: (provider: HeroProvider) => `POST: ({ request }) =>
+  toServerSentEventsResponse(
+    ${heroChatCall(provider, 'lookupInvoice.server(findInvoice)')},
+  )`,
   },
   {
     name: 'Next.js',
     file: 'app/api/chat/route.ts',
-    code: (
-      provider: HeroProvider,
-    ) => `import { chat, toServerSentEventsResponse } from '@tanstack/ai'
-import { ${provider.call.split('(')[0]} } from '${provider.pkg}'
-import { lookupInvoice } from './tools'
-
-export async function POST(request: Request) {
-  const { messages } = await request.json()
-  const stream = chat({
-    adapter: ${provider.call},
-    messages,
-    tools: [lookupInvoice.server(findInvoice)],
-  })
-  return toServerSentEventsResponse(stream)
+    code: (provider: HeroProvider) => `export async function POST(
+  request: Request,
+) {
+  return toServerSentEventsResponse(
+    ${heroChatCall(provider, 'lookupInvoice.server(findInvoice)')},
+  )
 }`,
   },
   {
     name: 'Hono',
     file: 'server.ts',
-    code: (provider: HeroProvider) => `import { Hono } from 'hono'
-import { chat, toServerSentEventsResponse } from '@tanstack/ai'
-import { ${provider.call.split('(')[0]} } from '${provider.pkg}'
-import { lookupInvoice } from './tools'
-
-const app = new Hono()
-
-app.post('/api/chat', async (c) => {
-  const { messages } = await c.req.json()
-  const stream = chat({
-    adapter: ${provider.call},
-    messages,
-    tools: [lookupInvoice.server(findInvoice)],
-  })
-  return toServerSentEventsResponse(stream)
-})`,
+    code: (provider: HeroProvider) => `app.post('/api/chat', () =>
+  toServerSentEventsResponse(
+    ${heroChatCall(provider, 'lookupInvoice.server(findInvoice)')},
+  ),
+)`,
   },
 ]
 
@@ -1404,71 +1381,53 @@ const heroClients = [
     name: 'React',
     file: 'chat.tsx',
     lang: 'tsx',
-    code: `import { useChat, fetchServerSentEvents } from '@tanstack/ai-react'
-import { lookupInvoice } from './tools'
-
-export function Chat() {
-  const { messages, sendMessage } = useChat({
-    connection: fetchServerSentEvents('/api/chat'),
-    tools: [lookupInvoice.client(openInvoice)],
-  })
-
-  return messages.map((message) => (
-    <Bubble key={message.id} {...message} />
-  ))
-}`,
+    code: `const { messages } = useChat({
+  connection: fetchServerSentEvents(
+    '/api/chat',
+  ),
+  tools: [
+    lookupInvoice.client(openInvoice),
+  ],
+})`,
   },
   {
     name: 'Vue',
     file: 'Chat.vue',
     lang: 'html',
-    code: `<script setup lang="ts">
-import { useChat, fetchServerSentEvents } from '@tanstack/ai-vue'
-import { lookupInvoice } from './tools'
-
-const { messages, sendMessage } = useChat({
-  connection: fetchServerSentEvents('/api/chat'),
-  tools: [lookupInvoice.client(openInvoice)],
-})
-</script>
-
-<template>
-  <Bubble v-for="message in messages" :key="message.id" v-bind="message" />
-</template>`,
+    code: `const { messages } = useChat({
+  connection: fetchServerSentEvents(
+    '/api/chat',
+  ),
+  tools: [
+    lookupInvoice.client(openInvoice),
+  ],
+})`,
   },
   {
     name: 'Solid',
     file: 'chat.tsx',
     lang: 'tsx',
-    code: `import { useChat, fetchServerSentEvents } from '@tanstack/ai-solid'
-import { lookupInvoice } from './tools'
-
-export function Chat() {
-  const chat = useChat({
-    connection: fetchServerSentEvents('/api/chat'),
-    tools: [lookupInvoice.client(openInvoice)],
-  })
-
-  return <For each={chat.messages}>{(message) => <Bubble {...message} />}</For>
-}`,
+    code: `const chat = useChat({
+  connection: fetchServerSentEvents(
+    '/api/chat',
+  ),
+  tools: [
+    lookupInvoice.client(openInvoice),
+  ],
+})`,
   },
   {
     name: 'Svelte',
     file: 'Chat.svelte',
     lang: 'html',
-    code: `<script lang="ts">
-  import { createChat, fetchServerSentEvents } from '@tanstack/ai-svelte'
-  import { lookupInvoice } from './tools'
-
-  const chat = createChat({
-    connection: fetchServerSentEvents('/api/chat'),
-    tools: [lookupInvoice.client(openInvoice)],
-  })
-</script>
-
-{#each chat.messages as message (message.id)}
-  <Bubble {...message} />
-{/each}`,
+    code: `const chat = createChat({
+  connection: fetchServerSentEvents(
+    '/api/chat',
+  ),
+  tools: [
+    lookupInvoice.client(openInvoice),
+  ],
+})`,
   },
 ]
 
@@ -1553,103 +1512,104 @@ function WriteOnceHero() {
         }
 
   return (
-    <div className="grid w-full min-w-0 max-w-full items-start gap-4 xl:grid-cols-[0.9fr_1.1fr]">
-      <LandingWindow
-        className="ring-2 ring-[rgb(var(--landing-glow)/0.35)]"
-        label="tools.ts · written once"
-      >
-        <CodeWell>{heroTools}</CodeWell>
-        <p className="border-t border-border-subtle px-4 py-3 text-ds-body-xs text-text-primary/40">
-          This file never changes. Everything on the right is a destination for
-          it.
-        </p>
-      </LandingWindow>
-
-      <LandingWindow label="runs anywhere">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-border-subtle p-3">
-          <div className="flex gap-1" role="group" aria-label="Side">
-            {(['server', 'client'] as const).map((option) => (
-              <button
-                key={option}
-                type="button"
-                aria-pressed={side === option}
-                className={heroChipClass}
-                onClick={() => pin(() => setSide(option))}
-              >
-                {option}
-              </button>
-            ))}
-          </div>
-          <span className="hidden h-4 w-px bg-border-subtle sm:block" />
-          {side === 'server' ? (
-            <div
-              className="flex gap-1"
-              role="group"
-              aria-label="Server framework"
-            >
-              {heroServers.map((item, index) => (
-                <button
-                  key={item.name}
-                  type="button"
-                  aria-pressed={index === serverIndex}
-                  className={heroChipClass}
-                  onClick={() => pin(() => setServerIndex(index))}
-                >
-                  {item.name}
-                </button>
-              ))}
-            </div>
-          ) : (
-            <div className="flex gap-1" role="group" aria-label="UI framework">
-              {heroClients.map((item, index) => (
-                <button
-                  key={item.name}
-                  type="button"
-                  aria-pressed={index === clientIndex}
-                  className={heroChipClass}
-                  onClick={() => pin(() => setClientIndex(index))}
-                >
-                  {item.name}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-        <div
-          className={
-            side === 'server'
-              ? 'flex flex-wrap items-center gap-1 border-b border-border-subtle px-3 py-2'
-              : 'flex flex-wrap items-center gap-1 border-b border-border-subtle px-3 py-2 opacity-40'
-          }
-        >
-          <span className="mr-2 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
-            provider
-          </span>
-          {heroProviders.map((item, index) => (
+    <LandingWindow className="w-full min-w-0" label="write once · run anywhere">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-border-subtle p-3">
+        <div className="flex gap-1" role="group" aria-label="Side">
+          {(['server', 'client'] as const).map((option) => (
             <button
-              key={item.name}
+              key={option}
               type="button"
-              aria-pressed={index === providerIndex}
+              aria-pressed={side === option}
               className={heroChipClass}
-              onClick={() =>
-                pin(() => {
-                  setSide('server')
-                  setProviderIndex(index)
-                })
-              }
+              onClick={() => pin(() => setSide(option))}
             >
-              {item.name}
+              {option}
             </button>
           ))}
         </div>
-        <CodeWell
-          codeKey={`${sample.name}-${provider.name}`}
-          lang={sample.lang}
-        >
-          {sample.code}
-        </CodeWell>
-      </LandingWindow>
-    </div>
+        <span className="hidden h-4 w-px bg-border-subtle sm:block" />
+        {side === 'server' ? (
+          <div
+            className="flex gap-1"
+            role="group"
+            aria-label="Server framework"
+          >
+            {heroServers.map((item, index) => (
+              <button
+                key={item.name}
+                type="button"
+                aria-pressed={index === serverIndex}
+                className={heroChipClass}
+                onClick={() => pin(() => setServerIndex(index))}
+              >
+                {item.name}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="flex gap-1" role="group" aria-label="UI framework">
+            {heroClients.map((item, index) => (
+              <button
+                key={item.name}
+                type="button"
+                aria-pressed={index === clientIndex}
+                className={heroChipClass}
+                onClick={() => pin(() => setClientIndex(index))}
+              >
+                {item.name}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+      <div
+        className={
+          side === 'server'
+            ? 'flex flex-wrap items-center gap-1 border-b border-border-subtle px-3 py-2'
+            : 'flex flex-wrap items-center gap-1 border-b border-border-subtle px-3 py-2 opacity-40'
+        }
+      >
+        <span className="mr-2 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+          provider
+        </span>
+        {heroProviders.map((item, index) => (
+          <button
+            key={item.name}
+            type="button"
+            aria-pressed={index === providerIndex}
+            className={heroChipClass}
+            onClick={() =>
+              pin(() => {
+                setSide('server')
+                setProviderIndex(index)
+              })
+            }
+          >
+            {item.name}
+          </button>
+        ))}
+      </div>
+      <div className="grid sm:grid-cols-2">
+        <div className="flex min-w-0 flex-col sm:border-r sm:border-border-subtle">
+          <p className="border-b border-border-subtle px-4 py-2 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/35">
+            tools.ts
+          </p>
+          <CodeWell className="p-4">{heroTools}</CodeWell>
+        </div>
+        <div className="flex min-w-0 flex-col border-t border-border-subtle sm:border-t-0">
+          <p className="border-b border-border-subtle px-4 py-2 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/35">
+            {sample.file}
+          </p>
+          <CodeWell
+            className="p-4"
+            codeKey={`${sample.name}-${provider.name}`}
+            lang={sample.lang}
+          >
+            {sample.code}
+          </CodeWell>
+        </div>
+      </div>
+    </LandingWindow>
   )
 }
 
@@ -1776,17 +1736,16 @@ const compilerModels = [
   },
 ]
 
-// ponytail: the code surface is always dark, so these use fixed token colors.
 function Kw({ children }: { children: React.ReactNode }) {
-  return <span className="text-pink-300">{children}</span>
+  return <span className="th-keyword">{children}</span>
 }
 
 function Fn({ children }: { children: React.ReactNode }) {
-  return <span className="text-orange-300">{children}</span>
+  return <span className="th-function">{children}</span>
 }
 
 function Str({ children }: { children: React.ReactNode }) {
-  return <span className="text-emerald-300">{children}</span>
+  return <span className="th-string">{children}</span>
 }
 
 function ProviderWorkbench() {
@@ -1799,98 +1758,104 @@ function ProviderWorkbench() {
 
   return (
     <LandingWindow label="the types know the model">
-      <div
-        className="flex flex-wrap gap-1 border-b border-border-subtle p-2"
-        role="group"
-        aria-label="Model"
-      >
-        {compilerModels.map((item, index) => (
-          <button
-            key={item.name}
-            type="button"
-            aria-pressed={index === activeIndex}
-            className="rounded-lg px-3 py-1.5 text-left font-ds-mono text-ds-mono-2xs text-text-primary/35 hover:bg-text-primary/5 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-pressed:bg-[rgb(var(--landing-glow)/0.14)] aria-pressed:text-(--landing-accent-bright)"
-            onClick={() => setActiveIndex(index)}
-          >
-            {item.name}
-          </button>
-        ))}
-      </div>
-      <div aria-live="polite" className="min-w-0 p-5">
-        <div className={codeSurfaceClass}>
-          <p>
-            <Kw>import</Kw> {'{ '}
-            {adapterName}
-            {' }'} <Kw>from</Kw> <Str>'{model.pkg}'</Str>
-          </p>
-          <p>&nbsp;</p>
-          <p>
-            <Kw>const</Kw> result = <Kw>await</Kw> <Fn>{model.fn}</Fn>({'{'}
-          </p>
-          <p>
-            &nbsp;&nbsp;adapter: <Fn>{adapterName}</Fn>(
-            <Str>'{model.name}'</Str>),
-          </p>
-          {model.setup.map((line) => (
-            <p key={line} className="whitespace-pre">
-              {'  '}
-              {line}
-              {line.endsWith('[') ? '' : ','}
-            </p>
-          ))}
-          <p
-            className={
-              valid
-                ? ''
-                : 'underline decoration-red-400 decoration-wavy underline-offset-4'
-            }
-          >
-            &nbsp;&nbsp;{model.line(picked)},
-          </p>
-          <p>{'})'}</p>
-        </div>
-        <div className="mt-5">
-          <div className="flex items-center justify-between gap-3">
-            <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
-              {model.field} for {model.name}
-            </p>
+      <div className="grid sm:grid-cols-[13rem_1fr]">
+        <div
+          className="border-border-subtle p-3 sm:border-r"
+          role="group"
+          aria-label="Model"
+        >
+          {compilerModels.map((item, index) => (
             <button
+              key={item.name}
               type="button"
-              aria-pressed={isBroken}
-              className="relative shrink-0 overflow-hidden rounded-full border border-(--landing-accent) px-3 py-1 font-ds-mono text-ds-mono-2xs text-(--landing-accent-bright) transition-colors before:absolute before:inset-y-0 before:w-1/2 before:bg-linear-to-r before:from-transparent before:via-white/25 before:to-transparent motion-safe:before:animate-shimmer hover:bg-[rgb(var(--landing-glow)/0.14)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-pressed:border-emerald-400/60 aria-pressed:text-emerald-400/90 aria-pressed:before:hidden"
-              onClick={() => setIsBroken((current) => !current)}
+              aria-pressed={index === activeIndex}
+              className="mb-1 block w-full rounded-lg px-3 py-2 text-left font-ds-mono text-ds-mono-2xs text-text-primary/35 hover:bg-text-primary/5 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-pressed:bg-[rgb(var(--landing-glow)/0.14)] aria-pressed:text-(--landing-accent-bright)"
+              onClick={() => setActiveIndex(index)}
             >
-              {isBroken ? 'fix me' : 'break me'}
+              {item.name}
+              <span className="mt-0.5 block text-text-primary/25">
+                {item.fn}
+              </span>
             </button>
-          </div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {model.allowed.map((value) => (
-              <span
-                key={value}
-                className="rounded-full border border-(--landing-accent) bg-[rgb(var(--landing-glow)/0.14)] px-3 py-1 font-ds-mono text-ds-mono-2xs text-(--landing-accent-bright)"
-              >
-                {value}
-              </span>
+          ))}
+        </div>
+        <div aria-live="polite" className="min-w-0">
+          <div className="overflow-x-auto bg-gray-100 p-4 font-ds-mono text-ds-mono-xs leading-relaxed text-(--th-token) dark:bg-ds-neutral-500 [&_p]:whitespace-pre">
+            <p>
+              <Kw>import</Kw> {'{ '}
+              {adapterName}
+              {' }'} <Kw>from</Kw> <Str>'{model.pkg}'</Str>
+            </p>
+            <p>&nbsp;</p>
+            <p>
+              <Kw>const</Kw> result = <Kw>await</Kw> <Fn>{model.fn}</Fn>({'{'}
+            </p>
+            <p>
+              &nbsp;&nbsp;adapter: <Fn>{adapterName}</Fn>(
+              <Str>'{model.name}'</Str>),
+            </p>
+            {model.setup.map((line) => (
+              <p key={line} className="whitespace-pre">
+                {'  '}
+                {line}
+                {line.endsWith('[') ? '' : ','}
+              </p>
             ))}
-            {valid ? null : (
-              <span className="rounded-full border border-red-400/60 px-3 py-1 font-ds-mono text-ds-mono-2xs text-red-400/90 line-through">
-                {picked}
-              </span>
+            <p
+              className={
+                valid
+                  ? ''
+                  : 'underline decoration-red-400 decoration-wavy underline-offset-4'
+              }
+            >
+              &nbsp;&nbsp;{model.line(picked)},
+            </p>
+            <p>{'})'}</p>
+          </div>
+          <div className="border-t border-border-subtle p-4">
+            <div className="flex items-center justify-between gap-3">
+              <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+                {model.field} for {model.name}
+              </p>
+              <button
+                type="button"
+                aria-pressed={isBroken}
+                className="relative shrink-0 overflow-hidden rounded-full border border-(--landing-accent) px-3 py-1 font-ds-mono text-ds-mono-2xs text-(--landing-accent-bright) transition-colors before:absolute before:inset-y-0 before:w-1/2 before:bg-linear-to-r before:from-transparent before:via-white/25 before:to-transparent motion-safe:before:animate-shimmer hover:bg-[rgb(var(--landing-glow)/0.14)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-pressed:border-emerald-400/60 aria-pressed:text-emerald-400/90 aria-pressed:before:hidden"
+                onClick={() => setIsBroken((current) => !current)}
+              >
+                {isBroken ? 'fix me' : 'break me'}
+              </button>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {model.allowed.map((value) => (
+                <span
+                  key={value}
+                  className="rounded-full border border-(--landing-accent) bg-[rgb(var(--landing-glow)/0.14)] px-3 py-1 font-ds-mono text-ds-mono-2xs text-(--landing-accent-bright)"
+                >
+                  {value}
+                </span>
+              ))}
+              {valid ? null : (
+                <span className="rounded-full border border-red-400/60 px-3 py-1 font-ds-mono text-ds-mono-2xs text-red-400/90 line-through">
+                  {picked}
+                </span>
+              )}
+            </div>
+            <p className="mt-3 text-ds-body-xs text-text-primary/40">
+              {model.note}
+            </p>
+            {valid ? (
+              <p className="mt-4 min-h-10 font-ds-mono text-ds-mono-2xs text-emerald-400/80">
+                ✓ no errors. '{picked}' is a valid {model.field} for{' '}
+                {model.name}.
+              </p>
+            ) : (
+              <p className="mt-4 min-h-10 font-ds-mono text-ds-mono-2xs text-red-400/90">
+                error TS2322: Type '{picked}' is not assignable to type '
+                {model.allowed.join(' | ')}'.
+              </p>
             )}
           </div>
-          <p className="mt-3 text-ds-body-xs text-text-primary/40">
-            {model.note}
-          </p>
-          {valid ? (
-            <p className="mt-4 min-h-10 font-ds-mono text-ds-mono-2xs text-emerald-400/80">
-              ✓ no errors. '{picked}' is a valid {model.field} for {model.name}.
-            </p>
-          ) : (
-            <p className="mt-4 min-h-10 font-ds-mono text-ds-mono-2xs text-red-400/90">
-              error TS2322: Type '{picked}' is not assignable to type '
-              {model.allowed.join(' | ')}'.
-            </p>
-          )}
         </div>
       </div>
     </LandingWindow>

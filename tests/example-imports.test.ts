@@ -299,7 +299,7 @@ test('externalizes complete explicit peers that source code does not import', as
   })
 })
 
-test('resolves declared peers that source code does not import', async () => {
+test('resolves declared runtime peers but ignores type-only peers', async () => {
   const workspace = createExampleWorkspace({
     entry: '/index.ts',
     files: {
@@ -309,16 +309,20 @@ test('resolves declared peers that source code does not import', async () => {
           '@example/ui': '3.2.1',
           react: '18.3.1',
         },
+        devDependencies: { '@types/react': '18.3.1' },
       }),
     },
   })
+  const requests: Array<string> = []
   const metadataFetch = createMetadataFetch(
-    [],
+    requests,
     (url) => ({
       version: url.includes('@example/ui') ? '3.2.1' : '18.3.1',
     }),
     (url): Record<string, string> =>
-      url.includes('@example/ui') ? { react: '^18.0.0' } : {},
+      url.includes('@example/ui')
+        ? { '@types/react': '>=18.0.0', react: '^18.0.0' }
+        : {},
   )
 
   const imports = await resolveExampleWorkspaceImports(
@@ -333,6 +337,10 @@ test('resolves declared peers that source code does not import', async () => {
     react: 'https://esm.sh/react@18.3.1',
     'react/': 'https://esm.sh/react@18.3.1/',
   })
+  assert.equal(
+    requests.some((url) => url.includes('@types/react')),
+    false,
+  )
 })
 
 test('stops before resolving packages when already aborted', async () => {

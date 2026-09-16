@@ -22,6 +22,9 @@ type SkillAgent = {
   pinned?: boolean
 }
 
+const projectSkillsPrompt =
+  'Copy the tanstack-ai and tanstack-ai-migration skill folders, including their supporting files, from https://github.com/TanStack/ai/tree/main/skills into .agents/skills/ in this project. Read the installed skills.'
+
 const skillAgents: Array<SkillAgent> = [
   {
     id: 'claude',
@@ -51,19 +54,44 @@ const skillAgents: Array<SkillAgent> = [
     command: '/plugin marketplace add TanStack/ai\n/plugin install tanstack-ai',
   },
   {
-    id: 'chatgpt',
-    name: 'ChatGPT',
-    description: 'Paste this prompt into ChatGPT.',
+    id: 'opencode',
+    name: 'OpenCode',
+    description: 'Paste this into OpenCode to install project skills.',
+    command: projectSkillsPrompt,
+  },
+  {
+    id: 'amp',
+    name: 'Amp',
+    description: 'Run this in your project terminal for Amp.',
+    command: 'amp skill add https://github.com/TanStack/ai',
+  },
+  {
+    id: 't3-code',
+    name: 'T3 Code',
+    description:
+      'Paste this into T3 Code. Your selected agent installs the skills.',
     command:
-      'Install the agent skills from the skills folder of https://github.com/TanStack/ai for my user, read them, then ask me what AI features I want to build, or suggest some.',
+      'Copy the tanstack-ai and tanstack-ai-migration skill folders, including their supporting files, from https://github.com/TanStack/ai/tree/main/skills into your native project skills directory. Read the installed skills.',
+  },
+  {
+    id: 'kimi',
+    name: 'Kimi Code',
+    description: 'Paste this into Kimi Code to install project skills.',
+    command: projectSkillsPrompt,
+  },
+  {
+    id: 'antigravity',
+    name: 'Antigravity',
+    description: 'Paste this into Antigravity to install project skills.',
+    command: projectSkillsPrompt,
   },
   {
     id: 'npx',
     name: 'Skills (npx)',
     description:
-      'Run this in a terminal. Works for any agent that reads SKILL.md.',
+      'Run this in your project terminal, then select your coding agent.',
     command:
-      'npx skills add TanStack/ai -g --skill tanstack-ai tanstack-ai-migration',
+      'npx skills add TanStack/ai --skill tanstack-ai tanstack-ai-migration',
   },
 ]
 
@@ -147,12 +175,12 @@ export function LandingPromptBox() {
         {agent.description}
       </p>
       <div className="mt-3 flex items-center gap-2 rounded-lg bg-text-primary/4 px-3 py-2.5">
-        <pre className="min-w-0 flex-1 overflow-x-auto font-ds-mono text-ds-mono-xs text-text-primary/80">
+        <pre className="min-w-0 flex-1 whitespace-pre-wrap wrap-anywhere font-ds-mono text-ds-mono-xs text-text-primary/80">
           {agent.command}
         </pre>
         <button
           type="button"
-          aria-label={copied ? 'Copied' : 'Copy install command'}
+          aria-label={copied ? 'Copied' : 'Copy install instructions'}
           onClick={onCopy}
           className="shrink-0 text-text-secondary transition-colors hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright)"
         >

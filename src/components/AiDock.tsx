@@ -35,7 +35,7 @@ import {
 } from '@tanstack/ai-react'
 import { streamingMarkdownExtension } from '@tanstack/markdown/extensions/streaming'
 import { Markdown as TanStackMarkdown } from '@tanstack/markdown/react'
-import type { InlineNode, MarkdownExtension } from '@tanstack/markdown'
+import { autolinkBareUrlsExtension } from '~/components/markdown/autolinkBareUrls'
 import { useSearchContext } from '~/contexts/SearchContext'
 import { publicLibraries } from '~/libraries'
 import { frameworkOptions } from '~/libraries/frameworks'
@@ -278,62 +278,6 @@ const aiMarkdownComponents = {
   ),
 }
 
-// The agent often emits bare URLs in prose, and CommonMark only autolinks
-// URLs wrapped in angle brackets. Turn bare http(s) URLs inside text nodes
-// into links. Code spans and existing links are separate inline node types,
-// so this transform can never touch them.
-const BARE_URL_PATTERN = /https?:\/\/[^\s<>]+/g
-const TRAILING_PUNCTUATION_PATTERN = /[.,;:!?)'"\]]+$/
-
-function autolinkInlineNodes(nodes: Array<InlineNode>): Array<InlineNode> {
-  return nodes.flatMap((node): Array<InlineNode> => {
-    if (
-      node.type === 'strong' ||
-      node.type === 'emphasis' ||
-      node.type === 'strike'
-    ) {
-      return [{ ...node, children: autolinkInlineNodes(node.children) }]
-    }
-
-    if (node.type !== 'text') {
-      return [node]
-    }
-
-    const parts: Array<InlineNode> = []
-    let cursor = 0
-
-    for (const match of node.value.matchAll(BARE_URL_PATTERN)) {
-      const index = match.index ?? 0
-      const url = match[0].replace(TRAILING_PUNCTUATION_PATTERN, '')
-
-      if (index > cursor) {
-        parts.push({ type: 'text', value: node.value.slice(cursor, index) })
-      }
-      parts.push({
-        type: 'link',
-        href: url,
-        children: [{ type: 'text', value: url }],
-      })
-      cursor = index + url.length
-    }
-
-    if (parts.length === 0) {
-      return [node]
-    }
-
-    if (cursor < node.value.length) {
-      parts.push({ type: 'text', value: node.value.slice(cursor) })
-    }
-
-    return parts
-  })
-}
-
-const autolinkBareUrlsExtension: MarkdownExtension = {
-  name: 'autolink-bare-urls',
-  transformInline: autolinkInlineNodes,
-}
-
 const aiMarkdownExtensions = [
   streamingMarkdownExtension(),
   autolinkBareUrlsExtension,
@@ -383,12 +327,35 @@ type ChatHistoryItem = {
 const CHAT_HISTORY_STORAGE_KEY = 'tanstack-ai-chat-history'
 const CHAT_HISTORY_LIMIT = 5
 
-function createThreadId() {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
-    return crypto.randomUUID()
+/**
+ * Which Agent Studio thread the panel is on, plus the QAs restored from local
+ * history for that thread. Agent Studio persists conversations server-side
+ * keyed by `threadId`, so resuming only needs the id; the saved QAs render
+ * as the prefix of the transcript, ahead of whatever the live client holds.
+ */
+type ThreadSelection = {
+  threadId: string
+  savedConversation: Array<DisplayQA>
+}
+
+function freshThread(): ThreadSelection {
+  return { threadId: crypto.randomUUID(), savedConversation: [] }
+}
+
+/**
+ * Re-selecting the thread that is already live must be a no-op: the client
+ * keeps its messages when `threadId` is unchanged, so restoring the saved
+ * transcript as a prefix would duplicate every answer.
+ */
+function selectThread(
+  current: ThreadSelection,
+  item: ChatHistoryItem,
+): ThreadSelection {
+  if (item.threadId === current.threadId) {
+    return current
   }
 
-  return `thread_${Date.now().toString(36)}_${Math.random().toString(36).slice(2)}`
+  return { threadId: item.threadId, savedConversation: item.conversation }
 }
 
 function messageText(message: UIMessage) {
@@ -590,7 +557,7 @@ function useAgentStudioChat(threadId: string) {
       }),
     [],
   )
-  const { messages, sendMessage, isLoading, error, stop } = useChat({
+  const { messages, sendMessage, isLoading, error, stop, clear } = useChat({
     connection,
     threadId,
   })
@@ -642,6 +609,9 @@ function useAgentStudioChat(threadId: string) {
     submitQuery: sendMessage,
     isBusy: isLoading,
     stopGeneration: stop,
+    // Cancels any in-flight stream and drops messages *and* the error, which
+    // would otherwise outlive a threadId change (the SDK only resets messages).
+    resetChat: clear,
     addFeedback,
     errorMessage: error?.message ?? null,
   }
@@ -1571,12 +1541,14 @@ function AiChatPanel({
   isDockMaximized?: boolean
   onToggleDockMaximized?: () => void
 }) {
-  const [threadId, setThreadId] = React.useState(createThreadId)
+  const [thread, setThread] = React.useState(freshThread)
+  const { threadId, savedConversation } = thread
   const {
     conversation,
     submitQuery,
     isBusy,
     stopGeneration,
+    resetChat,
     addFeedback,
     errorMessage,
   } = useAgentStudioChat(threadId)
@@ -1590,8 +1562,6 @@ function AiChatPanel({
     useSearchFilters()
   const scrollRef = React.useRef<HTMLDivElement>(null)
   const { items: historyItems, save: saveHistory } = useChatHistory()
-  const [selectedHistoryItem, setSelectedHistoryItem] =
-    React.useState<ChatHistoryItem | null>(null)
   // Question waiting for the chat client of a freshly created thread. Changing
   // `threadId` recreates the client on the next render, so a "clear then ask"
   // flow (e.g. Ask AI from the search modal) must defer the submit.
@@ -1603,13 +1573,13 @@ function AiChatPanel({
   const lockedToBottom = React.useRef(true)
   const handledNewChatRequestId = React.useRef(newChatRequestId)
   const handledAiDockAskRequestId = React.useRef(0)
-  const displayConversation = React.useMemo<Array<DisplayQA>>(() => {
-    if (!selectedHistoryItem) {
-      return conversation
-    }
-
-    return [...selectedHistoryItem.conversation, ...conversation]
-  }, [conversation, selectedHistoryItem])
+  const displayConversation = React.useMemo<Array<DisplayQA>>(
+    () =>
+      savedConversation.length === 0
+        ? conversation
+        : [...savedConversation, ...conversation],
+    [conversation, savedConversation],
+  )
   const hasConversation = displayConversation.length > 0
   const activeThreadId = threadId
 
@@ -1683,11 +1653,7 @@ function AiChatPanel({
         return
       }
 
-      // Agent Studio persists the conversation server-side keyed by threadId,
-      // so adopting the stored id resumes the thread; the stored QAs are
-      // rendered as the prefix of the transcript.
-      setSelectedHistoryItem(item)
-      setThreadId(item.threadId)
+      setThread((current) => selectThread(current, item))
       lockedToBottom.current = true
     },
     [isBusy],
@@ -1695,19 +1661,11 @@ function AiChatPanel({
 
   const clearActiveChat = React.useCallback(() => {
     isSubmittingRef.current = false
-    setSelectedHistoryItem(null)
-    setThreadId(createThreadId())
+    resetChat()
+    setThread(freshThread())
     lockedToBottom.current = true
     onReset()
-  }, [onReset])
-
-  const startNewChat = React.useCallback(() => {
-    if (isBusy) {
-      stopGeneration()
-    }
-
-    clearActiveChat()
-  }, [clearActiveChat, isBusy, stopGeneration])
+  }, [onReset, resetChat])
 
   React.useEffect(() => {
     if (handledNewChatRequestId.current === newChatRequestId) {
@@ -1715,8 +1673,8 @@ function AiChatPanel({
     }
 
     handledNewChatRequestId.current = newChatRequestId
-    startNewChat()
-  }, [newChatRequestId, startNewChat])
+    clearActiveChat()
+  }, [newChatRequestId, clearActiveChat])
 
   React.useEffect(() => {
     if (pendingQuestion === null || isBusy) {
@@ -1836,7 +1794,7 @@ function AiChatPanel({
               />
               <button
                 type="button"
-                onClick={startNewChat}
+                onClick={clearActiveChat}
                 title="New chat"
                 aria-label="New chat"
                 className={twMerge(
@@ -1872,11 +1830,7 @@ function AiChatPanel({
           />
         ) : (
           displayConversation.map((qa, index) => {
-            const liveIndex =
-              index -
-              (selectedHistoryItem
-                ? selectedHistoryItem.conversation.length
-                : 0)
+            const liveIndex = index - savedConversation.length
             const isLiveQA = liveIndex >= 0
             const isLatestLiveQA = liveIndex === conversation.length - 1
             const isStreamingLatest = isLiveQA && isLatestLiveQA && isBusy

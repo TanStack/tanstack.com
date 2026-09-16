@@ -149,7 +149,7 @@ test('controlled grid search accepts functional updaters and resets pagination',
   let next = gridRequestSchema.parse({ query: 'Forest', page: 3 })
   let controller: ReturnType<typeof useTripGrid> | undefined
   function Harness() {
-    controller = useTripGrid(rows, undefined, {
+    controller = useTripGrid(rows, {
       state: next,
       onChange: (value) => {
         next = value

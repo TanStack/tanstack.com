@@ -156,7 +156,7 @@ function Explorer({
     performance.measure('dashboard:derive', { start, end: performance.now() })
     return result
   }, [joined, search.day, search.zone, search.grid])
-  const grid = useTripGrid(analysis.rows, undefined, {
+  const grid = useTripGrid(analysis.rows, {
     state: search.grid,
     onChange: (grid) => {
       void navigate({
@@ -295,7 +295,7 @@ function ServerDashboard() {
       form.remove()
     },
   }
-  const grid = useTripGrid(query.data?.rows ?? emptyRows, remote)
+  const grid = useTripGrid(query.data?.rows ?? emptyRows, remote, remote)
   if (!query.data)
     return (
       <div className="p-8" role={query.isError ? 'alert' : 'status'}>

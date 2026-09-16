@@ -35,6 +35,7 @@ import { ShoppingBagIcon } from '@phosphor-icons/react/ShoppingBag'
 import { SignInIcon } from '@phosphor-icons/react/SignIn'
 import { SparkleIcon } from '@phosphor-icons/react/Sparkle'
 import { TrendUpIcon } from '@phosphor-icons/react/TrendUp'
+import { UsersThreeIcon } from '@phosphor-icons/react/UsersThree'
 import { UsersIcon } from '@phosphor-icons/react/Users'
 import { XIcon } from '@phosphor-icons/react/X'
 import { ThemeToggle } from './ThemeToggle'
@@ -215,8 +216,13 @@ const NAV_GROUPS = [
           {
             label: 'Showcase',
             to: '/showcase',
-            description: 'Teams building with TanStack.',
+            description: 'Projects selected by the TanStack team.',
             icon: SparkleIcon,
+          },
+          {
+            label: 'Community projects',
+            to: '/community-projects',
+            icon: UsersThreeIcon,
           },
         ],
       },

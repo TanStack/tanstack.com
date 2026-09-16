@@ -7,15 +7,7 @@ import {
   useState,
   type CSSProperties,
 } from 'react'
-import {
-  useTable,
-  type Column,
-  type Updater,
-  type SortingState,
-  type ColumnFiltersState,
-  type GroupingState,
-  type PaginationState,
-} from '@tanstack/react-table'
+import { useTable, type Column } from '@tanstack/react-table'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import type { DashboardUI } from './ui'
 import { dollars, type RecordRow } from './model'
@@ -160,29 +152,22 @@ export type RemoteGrid = {
 }
 export function useTripGrid(
   rows: readonly RecordRow[],
+  queryState: Pick<RemoteGrid, 'state' | 'onChange'>,
   remote?: RemoteGrid,
-  queryState?: Pick<RemoteGrid, 'state' | 'onChange'>,
 ) {
-  const control = remote ?? queryState
   const [density, setDensity] = useState('comfortable')
   const [showFilters, setShowFilters] = useState(false)
   const [allRows, setAllRows] = useState(false)
-  const queryStateValue = control?.state
+  const { state, onChange } = queryState
   const controlledState = useMemo(
-    () =>
-      queryStateValue
-        ? {
-            globalFilter: queryStateValue.query,
-            columnFilters: queryStateValue.filters,
-            sorting: queryStateValue.sorting,
-            grouping: queryStateValue.group ? [queryStateValue.group] : [],
-            pagination: {
-              pageIndex: queryStateValue.page,
-              pageSize: queryStateValue.size,
-            },
-          }
-        : undefined,
-    [queryStateValue],
+    () => ({
+      globalFilter: state.query,
+      columnFilters: state.filters,
+      sorting: state.sorting,
+      grouping: state.group ? [state.group] : [],
+      pagination: { pageIndex: state.page, pageSize: state.size },
+    }),
+    [state],
   )
   const table = useTable({
     features: gridFeatures,
@@ -195,86 +180,68 @@ export function useTripGrid(
     defaultColumn: { minSize: 85, maxSize: 500 },
     enableRowSelection: (row) => !row.getIsGrouped() && !row.original.group,
     enableSubRowSelection: false,
-    autoResetPageIndex: !control,
+    autoResetPageIndex: false,
     manualPagination: Boolean(remote) || allRows,
     manualSorting: Boolean(remote),
     manualFiltering: Boolean(remote),
     manualGrouping: Boolean(remote),
     rowCount: remote?.result?.rowCount,
-    ...(control
-      ? {
-          state: controlledState,
-          onGlobalFilterChange: (updater: unknown) => {
-            const next: unknown =
-              typeof updater === 'function'
-                ? updater(control.state.query)
-                : updater
-            control.onChange({
-              ...control.state,
-              query: gridRequestSchema.shape.query.parse(next),
-              page: 0,
-            })
-          },
-          onSortingChange: (updater: Updater<SortingState>) =>
-            control.onChange({
-              ...control.state,
-              sorting: gridRequestSchema.shape.sorting.parse(
-                typeof updater === 'function'
-                  ? updater(control.state.sorting)
-                  : updater,
-              ),
-              page: 0,
-            }),
-          onColumnFiltersChange: (updater: Updater<ColumnFiltersState>) =>
-            control.onChange({
-              ...control.state,
-              filters: gridRequestSchema.shape.filters.parse(
-                typeof updater === 'function'
-                  ? updater(control.state.filters)
-                  : updater,
-              ),
-              page: 0,
-            }),
-          onGroupingChange: (updater: Updater<GroupingState>) => {
-            const next =
-              typeof updater === 'function'
-                ? updater(control.state.group ? [control.state.group] : [])
-                : updater
-            control.onChange({
-              ...control.state,
-              group: gridRequestSchema.shape.group.parse(next[0] ?? ''),
-              page: 0,
-            })
-          },
-          onPaginationChange: (updater: Updater<PaginationState>) => {
-            const previous = {
-              pageIndex: control.state.page,
-              pageSize: control.state.size,
-            }
-            const next =
-              typeof updater === 'function' ? updater(previous) : updater
-            control.onChange({
-              ...control.state,
-              page: next.pageIndex,
-              size: gridRequestSchema.shape.size.parse(next.pageSize),
-            })
-          },
-        }
-      : {}),
+    state: controlledState,
+    onGlobalFilterChange: (updater: unknown) => {
+      const next: unknown =
+        typeof updater === 'function' ? updater(state.query) : updater
+      onChange({
+        ...state,
+        query: gridRequestSchema.shape.query.parse(next),
+        page: 0,
+      })
+    },
+    onSortingChange: (updater) =>
+      onChange({
+        ...state,
+        sorting: gridRequestSchema.shape.sorting.parse(
+          typeof updater === 'function' ? updater(state.sorting) : updater,
+        ),
+        page: 0,
+      }),
+    onColumnFiltersChange: (updater) =>
+      onChange({
+        ...state,
+        filters: gridRequestSchema.shape.filters.parse(
+          typeof updater === 'function' ? updater(state.filters) : updater,
+        ),
+        page: 0,
+      }),
+    onGroupingChange: (updater) => {
+      const next =
+        typeof updater === 'function'
+          ? updater(state.group ? [state.group] : [])
+          : updater
+      onChange({
+        ...state,
+        group: gridRequestSchema.shape.group.parse(next[0] ?? ''),
+        page: 0,
+      })
+    },
+    onPaginationChange: (updater) => {
+      const previous = {
+        pageIndex: state.page,
+        pageSize: state.size,
+      }
+      const next = typeof updater === 'function' ? updater(previous) : updater
+      onChange({
+        ...state,
+        page: next.pageIndex,
+        size: gridRequestSchema.shape.size.parse(next.pageSize),
+      })
+    },
     initialState: {
-      ...(!control
-        ? {
-            globalFilter: '',
-            pagination: { pageIndex: 0, pageSize: 50 },
-            sorting: [{ id: 'pickup', desc: false }],
-          }
-        : {}),
       columnOrder: gridColumns.map((column) => column.id ?? ''),
       columnPinning: { start: ['select', 'id'], end: [] },
       columnVisibility: { day: false },
     },
   })
-  const group = control?.state.group
+  const group = state.group
   const setColumnVisibility = table.setColumnVisibility
   useEffect(() => {
     if (group) setColumnVisibility((old) => ({ ...old, [group]: true }))
@@ -282,7 +249,7 @@ export function useTripGrid(
   return {
     table,
     remote,
-    queryState: control,
+    queryState,
     density,
     setDensity,
     showFilters,
@@ -426,11 +393,8 @@ export function TripTable({
     }
   }
   const reset = () => {
-    if (queryState) {
-      queryState.onChange(gridRequestSchema.parse({}))
-      remote?.setSelection({ all: false, ids: [] })
-    } else table.reset()
-    if (!queryState) table.setGlobalFilter('')
+    queryState.onChange(gridRequestSchema.parse({}))
+    remote?.setSelection({ all: false, ids: [] })
     table.resetColumnOrder()
     table.resetColumnVisibility()
     table.resetColumnPinning()

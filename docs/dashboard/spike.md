@@ -103,11 +103,11 @@ measurement therefore received a null node and threw before leaving the exited
 state, keeping each menu at opacity 0. Accessibility selection alone did not
 catch this because the transparent options were still in the DOM.
 
-The version-pinned pnpm patch separates insertion effects from layout effects
-and attaches callback refs between those phases. It includes the source change
-and two regression tests. Insertion effects still prepare event callbacks and
-styles before refs run. The browser check now requires full menu opacity before
-selecting an option in each of the four Material controls.
+The original spike used a version-pinned patch to run insertion effects before
+callback refs and layout effects. Main now uses Redact 0.1.2, which implements
+that ordering upstream, so the old patch has been removed. The browser check
+requires full menu opacity before selecting an option in each of the four
+Material controls.
 
 Validation against an isolated copy of Redact's existing tests: 207 existing
 passes preserved, two new regressions fixed, and three unchanged baseline

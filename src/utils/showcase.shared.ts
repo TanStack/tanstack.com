@@ -1,4 +1,8 @@
-import type { ShowcaseUseCase } from '~/db/types'
+import type {
+  ShowcaseUseCase,
+  ShowcasePlacement,
+  ShowcaseStatus,
+} from '~/db/types'
 
 export function expandLibraryDependencies(libraries: Array<string>) {
   const expanded = new Set(libraries)
@@ -41,4 +45,30 @@ export const USE_CASE_LABELS: Record<ShowcaseUseCase, string> = {
   portfolio: 'Portfolio',
   saas: 'SaaS',
   social: 'Social',
+}
+
+export const PLACEMENT_LABELS: Record<ShowcasePlacement, string> = {
+  showcase: 'Showcase',
+  community: 'Community',
+  private: 'Private',
+}
+
+export function isPublicShowcase(project: {
+  status: ShowcaseStatus
+  placement: ShowcasePlacement
+}) {
+  return project.status === 'approved' && project.placement !== 'private'
+}
+
+export function isCuratedShowcase(project: {
+  status: ShowcaseStatus
+  placement: ShowcasePlacement
+}) {
+  return project.status === 'approved' && project.placement === 'showcase'
+}
+
+export function showcaseLinkRel(project: { placement: ShowcasePlacement }) {
+  return project.placement === 'showcase'
+    ? 'noopener noreferrer'
+    : 'noopener noreferrer ugc nofollow'
 }

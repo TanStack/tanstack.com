@@ -6,17 +6,11 @@ import { Markdown } from '@tanstack/markdown/react'
 import { streamingMarkdownExtension } from '@tanstack/markdown/extensions/streaming'
 import {
   ArrowRightIcon,
-  BracketsCurlyIcon,
   CheckIcon,
-  FileTextIcon,
-  HighlighterIcon,
   LockKeyIcon,
-  PackageIcon,
   PauseIcon,
   PlayIcon,
-  RadioIcon,
   ArrowCounterClockwiseIcon,
-  ShieldCheckIcon,
   XIcon,
 } from '@phosphor-icons/react'
 
@@ -138,9 +132,9 @@ const streamingExtensions = [streamingMarkdownExtension()]
 
 const bundleComparisons = [
   {
-    name: 'TanStack parser',
-    size: '4.9 KB',
-    width: 'w-[9%]',
+    name: 'TanStack HTML',
+    size: '6.7 KB',
+    width: 'w-[13%]',
     emphasis: true,
   },
   { name: 'marked', size: '12.5 KB', width: 'w-[24%]', emphasis: false },
@@ -171,8 +165,6 @@ export default function MarkdownLanding() {
       <LandingSection tone="accent">
         <LandingSectionIntro
           centered
-          eyebrow="The durable layer"
-          icon={<BracketsCurlyIcon aria-hidden="true" size={15} />}
           title="The AST is the product."
           body="Parsing does not trap content inside a renderer. Edit the source and inspect the serializable tree, deterministic HTML, or React output."
         />
@@ -182,8 +174,6 @@ export default function MarkdownLanding() {
       <LandingSection tone="ink">
         <div className="grid items-center gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
           <LandingSectionIntro
-            eyebrow="Accumulated AI responses"
-            icon={<RadioIcon aria-hidden="true" size={15} />}
             title="Stream the text. Keep the parser stateless."
             body="Append each chunk and pass the complete string through Markdown. The optional streaming profile reparses synchronously, with no incremental state to coordinate or recover."
           />
@@ -194,8 +184,6 @@ export default function MarkdownLanding() {
       <LandingSection tone="raised">
         <div className="grid items-center gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
           <LandingSectionIntro
-            eyebrow="A deliberate profile"
-            icon={<FileTextIcon aria-hidden="true" size={15} />}
             title="It does less Markdown on purpose."
             body="Technical docs need a known vocabulary, not an open-ended compiler platform. New syntax has to justify its bytes, ambiguity, and maintenance cost."
           />
@@ -214,10 +202,8 @@ export default function MarkdownLanding() {
         </div>
         <div className="mt-12 grid items-center gap-12 border-t border-border-subtle pt-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
           <LandingSectionIntro
-            eyebrow="Boundary behavior"
-            icon={<ShieldCheckIcon aria-hidden="true" size={15} />}
-            title="Unsafe surprises are opt-in."
-            body="Raw HTML starts escaped, executable URL schemes are stripped, and text, attributes, and code are encoded at render time."
+            title="Safe defaults for Markdown input."
+            body="Markdown source renders with raw HTML escaped and unsafe link and image URLs removed by default. Custom ASTs, highlighters, and HTML hooks are trusted application inputs."
           />
           <SafetyProof />
         </div>
@@ -226,8 +212,6 @@ export default function MarkdownLanding() {
       <LandingSection tone="accent">
         <div className="grid items-center gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
           <LandingSectionIntro
-            eyebrow="Size ledger"
-            icon={<PackageIcon aria-hidden="true" size={15} />}
             title="A parser should not outweigh the page."
             body="Split entry points keep the parser, renderers, framework adapters, and docs extensions independent. Import only the layer the page needs."
           />
@@ -238,10 +222,8 @@ export default function MarkdownLanding() {
       <LandingSection tone="ink">
         <div className="grid items-center gap-12 lg:grid-cols-[1.08fr_0.92fr] lg:gap-16">
           <LandingSectionIntro
-            eyebrow="Content, then color"
-            icon={<HighlighterIcon aria-hidden="true" size={15} />}
             title="Syntax highlighting stays outside the parser."
-            body="Code fences carry language and metadata. An explicit highlighter renders them later, so the core never silently imports a grammar engine."
+            body="Code fences store language and metadata in the AST. Supply a highlighter callback to render escaped token markup inside Markdown's code containers."
           />
           <Link
             to="/highlight/$version"
@@ -285,7 +267,6 @@ function ManuscriptPanel() {
     <div className="library-landing-graphic min-w-0 overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.45)] bg-background-surface shadow-[0_24px_70px_-28px_rgb(var(--landing-glow)/0.45)]">
       <div className="flex items-center justify-between border-b border-border-subtle px-4 py-3 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/55">
         <span>article.md</span>
-        <span>{document.children.length} blocks / live</span>
       </div>
       <div className="grid md:grid-cols-[0.9fr_1.1fr]">
         <pre className="max-h-[24rem] overflow-auto border-b border-border-subtle p-5 font-ds-mono text-ds-mono-xs leading-7 !text-text-secondary md:border-b-0 md:border-r [&_code]:!text-inherit">
@@ -383,7 +364,6 @@ function MarkdownWorkbench() {
     [document],
   )
   const html = React.useMemo(() => renderDocument(document), [document])
-  const nodeCount = (ast.match(/"type":/g) ?? []).length
 
   return (
     <div className="mt-10 overflow-hidden rounded-xl border border-border-subtle bg-background-surface">
@@ -434,9 +414,6 @@ function MarkdownWorkbench() {
 
         <div className="flex h-[28rem] min-w-0 flex-col lg:h-[34rem]">
           <div className="flex flex-col justify-between gap-2 border-b border-border-subtle px-4 py-2 sm:flex-row sm:items-center">
-            <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/55">
-              One document, three views
-            </span>
             <div
               className="flex rounded-md bg-text-primary/5 p-1"
               role="tablist"
@@ -481,12 +458,6 @@ function MarkdownWorkbench() {
             )}
           </div>
         </div>
-      </div>
-
-      <div className="flex flex-col justify-between gap-2 border-t border-border-subtle px-4 py-3 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/45 sm:flex-row">
-        <span>{nodeCount} typed nodes</span>
-        <span>{source.length} source characters</span>
-        <span>JSON serializable</span>
       </div>
     </div>
   )
@@ -725,10 +696,10 @@ function BundleLedger() {
       ))}
       <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-border-subtle p-px font-ds-mono text-ds-mono-xs sm:grid-cols-4">
         {[
-          ['6.7 KB', 'HTML renderer'],
-          ['6.7 KB', 'React adapter'],
-          ['6.7 KB', 'Octane adapter'],
-          ['2.4 KB', 'docs preset'],
+          ['4.9 KB', 'Parser'],
+          ['6.6 KB', 'React adapter'],
+          ['6.6 KB', 'Octane adapter'],
+          ['2.3 KB', 'docs preset'],
         ].map(([value, label]) => (
           <div key={label} className="bg-background-surface px-3 py-4">
             <div className="font-black">{value}</div>
@@ -738,6 +709,16 @@ function BundleLedger() {
           </div>
         ))}
       </div>
+      <p className="text-ds-body-sm text-text-primary/55">
+        Gzip sizes for minified browser bundles. Renderers include the parser;
+        framework runtimes and highlighters are excluded. Feature sets differ.{' '}
+        <a
+          href="https://github.com/TanStack/markdown/blob/v0.0.14/reports/sizes.md"
+          className="underline underline-offset-4"
+        >
+          Measurement details
+        </a>
+      </p>
     </div>
   )
 }

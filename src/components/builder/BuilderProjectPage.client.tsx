@@ -1232,6 +1232,7 @@ export function BuilderProjectPage({ id }: { id: string }) {
       onRestore={restoreAiExecution}
       onRunningChange={setAssistantRunning}
       projectSync={projectSync}
+      sharedProject={!isOwner}
       storageScope={
         projectSync
           ? undefined

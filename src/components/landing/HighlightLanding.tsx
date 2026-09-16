@@ -1,16 +1,6 @@
 import * as React from 'react'
 import { Link } from '@tanstack/react-router'
-import {
-  ArrowRightIcon,
-  CubeIcon,
-  BracketsCurlyIcon,
-  CheckIcon,
-  GaugeIcon,
-  StackIcon,
-  PaletteIcon,
-  ScanIcon,
-  LightningIcon,
-} from '@phosphor-icons/react'
+import { ArrowRightIcon, CheckIcon } from '@phosphor-icons/react'
 
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import { getLibrary } from '~/libraries'
@@ -33,34 +23,34 @@ const bundleProfiles = [
   {
     name: 'core',
     detail: 'no languages',
-    size: '1.74 KB',
+    size: '1.82 KB',
     width: 'w-[22%]',
   },
   {
     name: 'tsx',
     detail: 'core + TSX',
-    size: '3.86 KB',
-    width: 'w-[48%]',
+    size: '4.03 KB',
+    width: 'w-[49%]',
   },
   {
     name: 'docs',
     detail: '9 languages',
-    size: '5.83 KB',
-    width: 'w-[73%]',
+    size: '5.97 KB',
+    width: 'w-[72%]',
   },
   {
     name: 'all',
-    detail: '25 languages',
-    size: '7.96 KB',
+    detail: '26 languages',
+    size: '8.29 KB',
     width: 'w-full',
   },
 ]
 
 const languageGroups = [
   ['Web', 'TS · TSX · JS · JSX · CSS · HTML'],
-  ['Content', 'Markdown · MDX · JSON · YAML'],
-  ['Shell', 'Bash · Shell · PowerShell'],
-  ['Frameworks', 'Vue · Svelte · Astro · EJS'],
+  ['Content', 'Markdown · JSON · YAML · TOML'],
+  ['Shell', 'Bash · Shell · Zsh'],
+  ['Frameworks', 'Vue · Svelte · EJS · TSRX (Octane)'],
 ]
 
 export default function HighlightLanding() {
@@ -83,8 +73,6 @@ export default function HighlightLanding() {
       <LandingSection tone="accent">
         <div className="grid items-center gap-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
           <LandingSectionIntro
-            eyebrow="Selective assembly"
-            icon={<CubeIcon aria-hidden="true" size={15} />}
             title="The registry is the bundle plan."
             body="The core knows no languages. Direct imports make the site’s language set explicit and let the bundler discard everything else."
           />
@@ -95,8 +83,6 @@ export default function HighlightLanding() {
       <LandingSection tone="ink">
         <div className="grid items-center gap-12 lg:grid-cols-[0.76fr_1.24fr] lg:gap-16">
           <LandingSectionIntro
-            eyebrow="Semantic output"
-            icon={<PaletteIcon aria-hidden="true" size={15} />}
             title="Change the palette. Keep the markup."
             body="Tokens carry stable semantic classes instead of theme colors. CSS variables recolor the same tree without a second highlighting pass."
           />
@@ -104,10 +90,8 @@ export default function HighlightLanding() {
         </div>
         <div className="mt-12 grid items-center gap-12 border-t border-border-subtle pt-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
           <LandingSectionIntro
-            eyebrow="Context-aware scanners"
-            icon={<StackIcon aria-hidden="true" size={15} />}
             title="Web languages rarely stay in their lane."
-            body="HTML, Vue, Svelte, EJS, Markdown, and JavaScript templates delegate embedded regions only when the nested language is registered."
+            body="HTML, Vue, Svelte, EJS, and Markdown delegate embedded regions only when the nested language is registered. JavaScript and TypeScript handle their own template interpolation."
           />
           <div>
             <EmbeddedLanguageMap />
@@ -131,18 +115,14 @@ export default function HighlightLanding() {
         <div className="grid items-center gap-12 lg:grid-cols-[1.2fr_0.8fr] lg:gap-16">
           <AnnotationPanel />
           <LandingSectionIntro
-            eyebrow="Presentation metadata"
-            icon={<ScanIcon aria-hidden="true" size={15} />}
             title="Annotate the lesson, not the token stream."
             body="Highlight lines, exact character ranges, insertions, deletions, focus, errors, and warnings without changing the source or tokenizer."
           />
         </div>
         <div className="mt-12 grid items-center gap-12 border-t border-border-subtle pt-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
           <LandingSectionIntro
-            eyebrow="Corpus, not toys"
-            icon={<GaugeIcon aria-hidden="true" size={15} />}
             title="Tuned against the docs it will render."
-            body="The committed corpus samples 333 fixtures from 2,940 TanStack documentation files. Release checks cover fidelity, deterministic HTML, bundle profiles, and runtime throughput."
+            body="Release checks cover source preservation, deterministic HTML, bundle sizes, and throughput across more than 10,000 code blocks, including numbered and decorated blocks."
           />
           <BenchmarkTape />
         </div>
@@ -151,8 +131,6 @@ export default function HighlightLanding() {
       <LandingSection tone="accent">
         <div className="grid items-start gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
           <LandingSectionIntro
-            eyebrow="Choose by job"
-            icon={<LightningIcon aria-hidden="true" size={15} />}
             title="A docs highlighter is not an editor highlighter."
             body="Highlight is optimized for known web languages and compact page output, not TextMate completeness, automatic detection, or incremental editor state."
           />
@@ -173,20 +151,15 @@ export default function HighlightLanding() {
         </div>
         <div className="mt-12 grid items-center gap-12 border-t border-border-subtle pt-12 lg:grid-cols-[1.08fr_0.92fr] lg:gap-16">
           <LandingSectionIntro
-            eyebrow="Explicit integrations"
-            icon={<BracketsCurlyIcon aria-hidden="true" size={15} />}
             title="Drop it into Markdown without hiding the language set."
-            body="Every renderer and adapter receives the highlighter you assembled; none imports every language behind your back."
+            body="TanStack Markdown, Remark, Rehype, and Octane MDX adapters all take an explicit highlighter, so you control which languages ship."
           />
           <Link
             to="/markdown/$version"
             params={{ version: 'latest' }}
             className="group rounded-xl border border-border-subtle bg-background-surface p-6 transition-colors hover:border-border-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
           >
-            <p className="font-ds-mono text-ds-mono-caps uppercase text-[var(--landing-accent-bright)]">
-              Natural companion
-            </p>
-            <div className="mt-4 text-ds-heading-4">
+            <div className="text-ds-heading-4">
               <LibraryWordmark library={markdownLibrary} />
             </div>
             <p className="mt-3 text-ds-body-sm text-text-primary/55">
@@ -219,7 +192,7 @@ function CodeLab({
     <div className="library-landing-graphic min-w-0 overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.45)] bg-[#11151b] shadow-[0_24px_70px_-28px_rgb(var(--landing-glow)/0.45)]">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
         <div className="flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-widest text-zinc-500">
-          <span className="h-2 w-2 rounded-full bg-fuchsia-400" /> live output
+          example.tsx
         </div>
         <div className="flex border border-white/10 p-0.5 font-mono text-[10px] font-bold uppercase">
           <button
@@ -261,12 +234,12 @@ function CodeLab({
           <Token color="fuchsia" isLightTheme={isLightTheme}>
             import
           </Token>{' '}
-          {'{ tsx, css }'}{' '}
+          {'{ tsx }'}{' '}
           <Token color="fuchsia" isLightTheme={isLightTheme}>
             from
           </Token>{' '}
           <Token color="green" isLightTheme={isLightTheme}>
-            './languages'
+            '@tanstack/highlight/languages/tsx'
           </Token>
         </CodeLine>
         <div className="opacity-45">04</div>
@@ -275,24 +248,24 @@ function CodeLab({
             const
           </Token>{' '}
           <Token color="amber" isLightTheme={isLightTheme}>
-            highlight
+            highlighter
           </Token>{' '}
           ={' '}
           <Token color="cyan" isLightTheme={isLightTheme}>
             createHighlighter
           </Token>
-          ({'{ languages: [tsx, css] }'})
+          ({'{ languages: [tsx] }'})
         </CodeLine>
         <div className="opacity-45">06</div>
         <CodeLine number="07" isLightTheme={isLightTheme} state="insert">
           <Token color="blue" isLightTheme={isLightTheme}>
             const
           </Token>{' '}
-          html ={' '}
+          {'{ html }'} ={' '}
           <Token color="amber" isLightTheme={isLightTheme}>
-            highlight
+            highlighter
           </Token>
-          (code, {'{'}
+          .highlight('&lt;Button /&gt;', {'{'}
         </CodeLine>
         <CodeLine number="08" isLightTheme={isLightTheme} state="insert">
           {'  '}lang:{' '}
@@ -302,7 +275,7 @@ function CodeLab({
           ,
         </CodeLine>
         <CodeLine number="09" isLightTheme={isLightTheme} state="insert">
-          {'  '}highlight: [2, 4, 5],
+          {'  '}lineNumbers: true,
         </CodeLine>
         <CodeLine number="10" isLightTheme={isLightTheme} state="insert">
           {'}'})
@@ -386,8 +359,7 @@ function BundleDial() {
   return (
     <div className="rounded-xl border border-border-subtle bg-background-surface p-5 sm:p-6">
       <div className="flex items-center justify-between gap-4 border-b border-border-subtle pb-3 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/45">
-        <span>gzip profile</span>
-        <span>add only what is used →</span>
+        <span>0.0.11 · gzip · KB = 1,000 bytes</span>
       </div>
       <div className="mt-5 space-y-5">
         {bundleProfiles.map((profile) => (
@@ -468,7 +440,7 @@ function EmbeddedLanguageMap() {
     <div className="overflow-hidden rounded-xl border border-border-subtle bg-[#11151b] p-4 font-ds-mono text-ds-mono-xs text-zinc-300 sm:p-5">
       <div className="flex items-center justify-between border-b border-white/10 pb-3 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
         <span>component.vue</span>
-        <span>registered: html · ts · css</span>
+        <span>registered: vue · js · ts · css</span>
       </div>
       <div className="mt-4 space-y-2">
         <LanguageBand
@@ -478,7 +450,7 @@ function EmbeddedLanguageMap() {
           &lt;section class=&quot;result&quot;&gt;
         </LanguageBand>
         <LanguageBand
-          label="Vue expression → TS"
+          label="Vue expression → JS"
           color="border-fuchsia-400/50 bg-fuchsia-400/10 text-fuchsia-200"
         >
           {'  {{ score.toFixed(2) }}'}
@@ -534,7 +506,7 @@ function AnnotationPanel() {
     <div className="overflow-hidden rounded-xl border border-border-subtle bg-[#11151b] font-ds-mono text-ds-mono-xs leading-7 sm:text-ds-mono-sm">
       <div className="flex items-center justify-between border-b border-white/10 px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
         <span>cache.ts</span>
-        <span>{'{2,4-5} ins=5'}</span>
+        <span>{'{2,4-5} ins={5}'}</span>
       </div>
       <div className="overflow-x-auto py-4 text-zinc-300">
         <AnnotatedLine number="1">const cache = new Map()</AnnotatedLine>
@@ -583,38 +555,38 @@ function BenchmarkTape() {
   return (
     <div className="overflow-hidden rounded-xl border border-border-subtle bg-background-surface">
       <div className="grid grid-cols-[1fr_auto_auto] gap-4 border-b border-border-subtle px-4 py-3 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/45">
-        <span>TanStack docs corpus</span>
-        <span>time</span>
+        <span>334 docs fixtures</span>
+        <span>warmed time</span>
         <span>HTML</span>
       </div>
       <BenchmarkRow
         name="TanStack Highlight"
-        time="20 ms"
-        output="364 KiB"
+        time="4.6 ms"
+        output="365 KiB"
         emphasis
       />
       <BenchmarkRow
-        name="Shiki"
-        time="~1.2 s"
-        output="1,252 KiB"
+        name="Shiki 4.3.1"
+        time="182 ms"
+        output="1,257 KiB"
         emphasis={false}
       />
-      <div className="grid gap-3 border-t border-border-subtle bg-background-subtle px-4 py-4 font-ds-mono text-ds-mono-xs text-text-primary/55 sm:grid-cols-3">
-        <span>
-          <strong className="text-text-primary">2,940</strong> docs files
-          scanned
-        </span>
-        <span>
-          <strong className="text-text-primary">333</strong> committed fixtures
-        </span>
-        <span>
-          <strong className="text-text-primary">10,000+</strong> blocks per gate
-        </span>
-      </div>
       <p className="border-t border-border-subtle px-4 py-3 text-ds-body-xs text-text-primary/45">
-        Project benchmark report. This measures the tested corpus and output
-        shape, not equivalent grammar accuracy; Shiki targets deeper TextMate
-        fidelity.
+        Local measurements from the{' '}
+        <Link
+          to="/$libraryId/$version/docs/$"
+          params={{
+            libraryId: 'highlight',
+            version: 'latest',
+            _splat: 'comparison',
+          }}
+          className="underline"
+        >
+          project benchmark report
+        </Link>
+        . Shiki initialization and language loading are measured separately;
+        EJS, ENV, and TSRX use its plaintext fallback. Timings vary by machine,
+        and the tools don’t provide equivalent grammar accuracy.
       </p>
     </div>
   )

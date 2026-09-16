@@ -9,6 +9,7 @@ test('Sentry events never include BYOK request headers', () => {
         Accept: 'application/json',
         'X-Byok-OpenAI': 'openai-secret',
         'x-byok-anthropic': 'anthropic-secret',
+        'x-byok-openrouter': 'openrouter-secret',
       },
     },
   }

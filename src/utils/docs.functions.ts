@@ -1,7 +1,6 @@
 import { notFound } from '@tanstack/react-router'
 import { createServerFn, createServerOnlyFn } from '@tanstack/react-start'
 import { setResponseHeader } from '@tanstack/react-start/server'
-import removeMarkdown from 'remove-markdown'
 import * as v from 'valibot'
 import { extractFrameworksFromMarkdown } from './markdown/filterFrameworkContent'
 import { buildRedirectManifest, type RedirectManifestEntry } from './redirects'
@@ -437,8 +436,7 @@ export const fetchDocs = createServerFn({ method: 'GET' })
 
     const { extractFrontMatter } = await loadDocumentsServerModule()
     const frontMatter = extractFrontMatter(result.file)
-    const description =
-      frontMatter.userDescription ?? removeMarkdown(frontMatter.excerpt ?? '')
+    const description = frontMatter.data.description
     const keywords = extractFrontMatterKeywords(frontMatter.data.keywords)
 
     setDocsCacheHeaders(

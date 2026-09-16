@@ -32,7 +32,9 @@ import {
 } from '~/components/ds/ui'
 import type { ExampleWorkbenchRunResult } from '~/components/examples/ExampleWorkbench.client'
 import { BuilderAgentActivity } from '~/components/builder/BuilderAgentActivity'
+import { BuilderSharedChatWelcome } from '~/components/builder/BuilderSharedChatWelcome'
 import { BuilderUserMessageContent } from '~/components/builder/BuilderUserMessageContent'
+import { BuilderOpenRouterConnect } from '~/components/builder/BuilderOpenRouterConnect.client'
 import { useBuilderWorkspaceControls } from '~/components/builder/builder-workspace-controls.client'
 import { Tooltip } from '~/ui'
 import { copyTextToClipboard } from '~/utils/browser-effects'
@@ -52,6 +54,7 @@ import {
 import {
   cloneBuilderAiExecution,
   builderAiDefaultRemoteModels,
+  builderAiProviderLabels,
   builderAiRemoteModels,
   builderAiRemoteProviders,
   serializeBuilderAiExecution,
@@ -163,11 +166,13 @@ type TranscriptRow =
       message: string
     }
   | { id: 'error'; kind: 'error'; message: string }
-  | { id: 'checkpoint'; kind: 'checkpoint' }
+  | { id: 'checkpoint'; kind: 'checkpoint'; validated: boolean }
 
 type RollbackCheckpoint = {
   id: string
+  kind?: 'validated'
   execution: BuilderAiExecution
+  expectedExecution?: BuilderAiExecution
   persisted?: BuilderAiCheckpoint
 }
 
@@ -191,6 +196,7 @@ function toByokModelChoice(model: BuilderAiRemoteModel): ByokModelChoice {
 const byokModelChoices = builderAiRemoteModels.map(toByokModelChoice)
 
 const defaultModelByProvider = {
+  openrouter: toByokModelChoice(builderAiDefaultRemoteModels.openrouter),
   openai: openAiDefault,
   anthropic: anthropicDefault,
 } satisfies Record<BuilderAiRemoteProvider, ByokModelChoice>
@@ -207,7 +213,7 @@ const disconnectedChatGpt = {
 } satisfies BuilderChatGptConnection
 
 function getInitialModelChoice(): ModelChoice {
-  return supportsChatGptLogin ? chatGptPlaceholder : openAiDefault
+  return defaultModelByProvider.openrouter
 }
 
 export type BuilderAssistantHandle = {
@@ -263,6 +269,7 @@ type BuilderAssistantProps = {
   ) => void | Promise<void>
   onRunningChange?: (running: boolean) => void
   projectSync?: BuilderAssistantProjectSync
+  sharedProject?: boolean
   storageScope?: string
 }
 
@@ -284,6 +291,7 @@ export const BuilderAssistant = React.forwardRef<
     onRestore,
     onRunningChange,
     projectSync,
+    sharedProject = false,
     storageScope,
   },
   ref,
@@ -322,9 +330,9 @@ export const BuilderAssistant = React.forwardRef<
     getInitialModelChoice(),
   )
   const [settingsProvider, setSettingsProvider] =
-    React.useState<BuilderAiRemoteProvider>('openai')
+    React.useState<BuilderAiRemoteProvider>('openrouter')
   const [settingsOpen, setSettingsOpen] = React.useState(false)
-  const [showApiKeySetup, setShowApiKeySetup] = React.useState(false)
+  const [showApiKeySetup, setShowApiKeySetup] = React.useState(true)
   const [chatGptConnection, setChatGptConnection] =
     React.useState<BuilderChatGptConnection>()
   const [chatGptLogin, setChatGptLogin] = React.useState<BuilderChatGptLogin>()
@@ -538,7 +546,11 @@ export const BuilderAssistant = React.forwardRef<
     )
     if (error) rows.push({ id: 'error', kind: 'error', message: error })
     if (rollbackCheckpoint) {
-      rows.push({ id: 'checkpoint', kind: 'checkpoint' })
+      rows.push({
+        id: 'checkpoint',
+        kind: 'checkpoint',
+        validated: rollbackCheckpoint.kind === 'validated',
+      })
     }
     return rows
   }, [
@@ -593,7 +605,10 @@ export const BuilderAssistant = React.forwardRef<
       return
     }
 
-    const hydration = loadLatestBuilderAiCheckpoint(storageScope)
+    const hydration = loadLatestBuilderAiCheckpoint(
+      storageScope,
+      getExecutionRef.current(),
+    )
       .then(async (snapshot) => {
         if (!snapshot) return undefined
         const currentExecution = getExecutionRef.current()
@@ -611,6 +626,7 @@ export const BuilderAssistant = React.forwardRef<
         return {
           checkpoint: {
             id: snapshot.checkpoint.id,
+            kind: snapshot.checkpoint.kind,
             execution: snapshot.execution,
             persisted: snapshot.checkpoint,
           },
@@ -1136,7 +1152,7 @@ export const BuilderAssistant = React.forwardRef<
       selectedModel.connection === 'byok' &&
       selectedModel.provider === provider
     ) {
-      const fallbackProvider = (['openai', 'anthropic'] as const).find(
+      const fallbackProvider = builderAiRemoteProviders.find(
         (candidate) =>
           candidate !== provider && byokConnection.hasConfiguredKey(candidate),
       )
@@ -1208,8 +1224,8 @@ export const BuilderAssistant = React.forwardRef<
       await requestChatGptConnection({ action: 'logout' })
       setChatGptConnection(disconnectedChatGpt)
       setChatGptLogin(undefined)
-      const fallbackProvider = (['openai', 'anthropic'] as const).find(
-        (provider) => byokConnection.hasConfiguredKey(provider),
+      const fallbackProvider = builderAiRemoteProviders.find((provider) =>
+        byokConnection.hasConfiguredKey(provider),
       )
       setSelectedModel(
         fallbackProvider
@@ -1298,17 +1314,40 @@ export const BuilderAssistant = React.forwardRef<
   async function restoreRollbackCheckpoint() {
     const checkpoint = rollbackCheckpointRef.current
     if (!checkpoint) return
+    const generation = checkpointHydrationGenerationRef.current
+    const expectedCurrentExecution = serializeBuilderAiExecution(getExecution())
 
     try {
       if (
-        checkpoint.persisted &&
-        !(await builderAiCheckpointMatchesExecution(
-          checkpoint.persisted,
-          getExecution(),
-        ))
+        checkpoint.expectedExecution &&
+        serializeBuilderAiExecution(checkpoint.expectedExecution) !==
+          serializeBuilderAiExecution(getExecution())
       ) {
         await dismissRollbackCheckpoint()
         setError('The project changed after this checkpoint was created.')
+        return
+      }
+      const matchesExpected =
+        !checkpoint.persisted ||
+        (await builderAiCheckpointMatchesExecution(
+          checkpoint.persisted,
+          getExecution(),
+        ))
+      if (
+        generation !== checkpointHydrationGenerationRef.current ||
+        rollbackCheckpointRef.current !== checkpoint
+      )
+        return
+      if (!matchesExpected) {
+        await dismissRollbackCheckpoint()
+        setError('The project changed after this checkpoint was created.')
+        return
+      }
+      if (
+        serializeBuilderAiExecution(getExecution()) !== expectedCurrentExecution
+      ) {
+        await dismissRollbackCheckpoint()
+        setError('The project changed while the checkpoint was being checked.')
         return
       }
       await onRestore(cloneBuilderAiExecution(checkpoint.execution), 'manual')
@@ -1936,6 +1975,7 @@ export const BuilderAssistant = React.forwardRef<
     let checkpoint: RollbackCheckpoint | undefined
     let didStageExecution = false
     let lastStagedExecution: BuilderAiExecution | undefined
+    let validatedCheckpoint: RollbackCheckpoint | undefined
     let preserveStoppedExecution = false
     const activityId = pendingPrompt?.runId ?? crypto.randomUUID()
     let currentActivity: BuilderAiActivity | undefined
@@ -2068,6 +2108,7 @@ export const BuilderAssistant = React.forwardRef<
           setError(withTerminalSyncFailure(message, syncFailure))
           return 'error'
         }
+        await discardValidatedCheckpoint()
         stopActivity()
         const syncFailure = await finishDurableRun({ status: 'cancelled' })
         if (syncFailure) {
@@ -2122,6 +2163,7 @@ export const BuilderAssistant = React.forwardRef<
           )
           return 'error'
         }
+        await discardValidatedCheckpoint()
         await discardCheckpoint()
         return 'success'
       }
@@ -2173,6 +2215,7 @@ export const BuilderAssistant = React.forwardRef<
         )
         return 'error'
       }
+      await discardValidatedCheckpoint()
       await discardCheckpoint()
       return 'success'
     } catch (cause) {
@@ -2216,6 +2259,7 @@ export const BuilderAssistant = React.forwardRef<
           setError(withTerminalSyncFailure(message, syncFailure))
           return 'error'
         }
+        await discardValidatedCheckpoint()
         stopActivity()
         const syncFailure = await finishDurableRun({ status: 'cancelled' })
         if (syncFailure) {
@@ -2227,7 +2271,17 @@ export const BuilderAssistant = React.forwardRef<
       } else {
         const message = formatError(cause)
         if (preserveStoppedExecution) await discardCheckpoint()
-        else await rollbackStagedExecution()
+        else {
+          await rollbackStagedExecution()
+          if (
+            validatedCheckpoint &&
+            serializeBuilderAiExecution(getExecution()) ===
+              serializeBuilderAiExecution(checkpointExecution)
+          ) {
+            rollbackCheckpointRef.current = validatedCheckpoint
+            setRollbackCheckpoint(validatedCheckpoint)
+          }
+        }
         failActivity(message)
         const syncFailure = await finishDurableRun({
           status: 'failed',
@@ -2448,6 +2502,7 @@ export const BuilderAssistant = React.forwardRef<
         timestamp: Date.now(),
       })
       const runResult = await onApply(state.execution, abortController.signal)
+      abortController.signal.throwIfAborted()
       updateActivity({
         type: 'item-completed',
         runId: activityId,
@@ -2465,6 +2520,31 @@ export const BuilderAssistant = React.forwardRef<
       })
       const completion = validateBuilderAiCompletion(environmentSnapshot)
       if (completion.status === 'complete') {
+        if (
+          serializeBuilderAiExecution(state.execution) !==
+          serializeBuilderAiExecution(checkpointExecution)
+        ) {
+          validatedCheckpoint = {
+            id: `${activityId}:validated`,
+            kind: 'validated',
+            execution: cloneBuilderAiExecution(state.execution),
+            expectedExecution: checkpointExecution,
+          }
+          if (storageScope) {
+            validatedCheckpoint.persisted = await createBuilderAiCheckpoint(
+              storageScope,
+              validatedCheckpoint.id,
+              validatedCheckpoint.execution,
+              { kind: 'validated', expectedExecution: checkpointExecution },
+            )
+          }
+          if (abortController.signal.aborted) {
+            await discardValidatedCheckpoint()
+            abortController.signal.throwIfAborted()
+          }
+        } else {
+          await discardValidatedCheckpoint()
+        }
         updateActivity({
           type: 'item-completed',
           runId: activityId,
@@ -2574,6 +2654,13 @@ export const BuilderAssistant = React.forwardRef<
       if (!checkpoint || !didStageExecution) return
       rollbackCheckpointRef.current = checkpoint
       setRollbackCheckpoint(checkpoint)
+    }
+
+    async function discardValidatedCheckpoint() {
+      if (!validatedCheckpoint) return
+      if (storageScope)
+        await removeBuilderAiCheckpoint(storageScope, validatedCheckpoint.id)
+      validatedCheckpoint = undefined
     }
 
     async function rollbackStagedExecution() {
@@ -2944,6 +3031,12 @@ export const BuilderAssistant = React.forwardRef<
               aria-label="Builder AI conversation"
               className="h-full overflow-y-auto overscroll-contain [overflow-anchor:none]"
             >
+              {sharedProject &&
+              !hydrating &&
+              !running &&
+              transcriptRows.length === 0 ? (
+                <BuilderSharedChatWelcome />
+              ) : null}
               <div ref={virtualizer.containerRef} className="relative w-full">
                 {virtualizer.getVirtualItems().map((virtualItem) => {
                   const row = transcriptRows[virtualItem.index]!
@@ -3340,6 +3433,7 @@ function TranscriptRowView({
           />
         ) : row.kind === 'checkpoint' ? (
           <CheckpointNotice
+            validated={row.validated}
             onDismiss={onDismissCheckpoint}
             onRestore={onRestoreCheckpoint}
           />
@@ -3355,16 +3449,20 @@ function TranscriptRowView({
 }
 
 function CheckpointNotice({
+  validated,
   onDismiss,
   onRestore,
 }: {
+  validated: boolean
   onDismiss: () => void
   onRestore: () => void
 }) {
   return (
     <div className="flex items-center justify-between gap-3 rounded-lg border border-border-default bg-background-elevated px-3 py-2">
       <p className="text-xs/5 text-text-secondary">
-        The pre-run builder is available as a checkpoint.
+        {validated
+          ? 'Validated changes are available to restore.'
+          : 'The pre-run builder is available as a checkpoint.'}
       </p>
       <div className="flex shrink-0 items-center gap-1">
         <Button type="button" variant="secondary" size="xs" onClick={onRestore}>
@@ -3493,6 +3591,15 @@ function ModelPicker({
         side="top"
         className="sandbox-ui w-64 rounded-xl"
       >
+        <ModelGroup
+          label="OpenRouter"
+          models={byokModelChoices.filter(
+            (model) => model.provider === 'openrouter',
+          )}
+          selected={selected}
+          onSelect={onSelect}
+        />
+        <DropdownSeparator />
         {showChatGpt ? (
           <>
             {chatGptModels.length ? (
@@ -3637,9 +3744,11 @@ function ModelGroup({
             <span className="block truncate text-sm text-text-primary">
               {model.label}
             </span>
-            <span className="block truncate font-ds-mono text-[10px] text-text-muted">
-              {model.connection === 'byok' ? model.description : model.model}
-            </span>
+            {model.connection !== 'byok' || model.provider !== 'openrouter' ? (
+              <span className="block truncate font-ds-mono text-[10px] text-text-muted">
+                {model.connection === 'byok' ? model.description : model.model}
+              </span>
+            ) : null}
           </span>
           {isSelectedModel(selected, model) ? (
             <>
@@ -3778,7 +3887,6 @@ function ConnectionsDialog({
           <div
             className={showChatGpt ? 'border-t border-border-default pt-5' : ''}
           >
-            <h3 className="text-sm font-medium">API key</h3>
             <ProviderSettingsForm
               byok={byok}
               byokSnapshot={byokSnapshot}
@@ -3922,31 +4030,54 @@ function ProviderSettingsForm({
             onProviderChange(parseBuilderAiProvider(event.target.value))
           }
         >
+          <option value="openrouter">OpenRouter</option>
           <option value="openai">OpenAI</option>
           <option value="anthropic">Anthropic</option>
         </FormSelect>
       </div>
-      <div>
-        <label
-          htmlFor={apiKeyId}
-          className="block text-xs font-medium text-text-muted"
-        >
-          {provider === 'openai' ? 'OpenAI' : 'Anthropic'} API key
-        </label>
-        <FormInput
-          key={provider}
-          id={apiKeyId}
-          name="apiKey"
-          type="password"
-          maxLength={4_096}
-          autoComplete="off"
-          spellCheck={false}
-          required
-          disabled={busy}
-          placeholder={hasKey ? 'Paste a replacement key' : 'Paste API key'}
-          className="mt-1.5 font-ds-mono text-sm"
+      {provider === 'openrouter' && !hasKey ? (
+        <BuilderOpenRouterConnect
+          connection={byok}
+          onSave={(key) => onSave('openrouter', key)}
         />
-      </div>
+      ) : null}
+      <details open={provider !== 'openrouter' ? true : undefined}>
+        <summary
+          className={
+            provider === 'openrouter'
+              ? 'cursor-pointer text-xs text-text-muted'
+              : 'hidden'
+          }
+        >
+          {hasKey ? 'Replace API key' : 'Use an API key instead'}
+        </summary>
+        <div>
+          <label
+            htmlFor={apiKeyId}
+            className="block text-xs font-medium text-text-muted"
+          >
+            {builderAiProviderLabels[provider]} API key
+          </label>
+          <FormInput
+            key={provider}
+            id={apiKeyId}
+            name="apiKey"
+            type="password"
+            maxLength={4_096}
+            autoComplete="off"
+            spellCheck={false}
+            required
+            disabled={busy}
+            placeholder={hasKey ? 'Paste a replacement key' : 'Paste API key'}
+            className="mt-1.5 font-ds-mono text-sm"
+          />
+        </div>
+        {provider === 'openrouter' ? (
+          <Button type="submit" size="sm" className="mt-3" disabled={busy}>
+            Save API key
+          </Button>
+        ) : null}
+      </details>
       <div className="rounded-lg border border-border-default bg-background-subtle p-3 text-xs/5">
         {maskedKey ? (
           <p className="font-ds-mono text-text-primary">{maskedKey}</p>
@@ -3999,13 +4130,15 @@ function ProviderSettingsForm({
             {pendingAction === 'clear' ? 'Removing…' : 'Remove key'}
           </Button>
         ) : null}
-        <Button type="submit" size="sm" disabled={busy}>
-          {pendingAction === 'save'
-            ? 'Saving…'
-            : hasKey
-              ? 'Replace key'
-              : 'Use key'}
-        </Button>
+        {provider !== 'openrouter' ? (
+          <Button type="submit" size="sm" disabled={busy}>
+            {pendingAction === 'save'
+              ? 'Saving…'
+              : hasKey
+                ? 'Replace key'
+                : 'Use key'}
+          </Button>
+        ) : null}
       </div>
     </form>
   )
@@ -4336,6 +4469,7 @@ function readErrorMessage(value: unknown, status: number) {
 }
 
 function parseBuilderAiProvider(value: string): BuilderAiRemoteProvider {
+  if (value === 'openrouter') return 'openrouter'
   return value === 'anthropic' ? 'anthropic' : 'openai'
 }
 

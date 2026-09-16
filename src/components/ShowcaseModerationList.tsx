@@ -1,3 +1,4 @@
+import { PLACEMENT_LABELS } from '~/utils/showcase.shared'
 import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 import {
@@ -13,8 +14,6 @@ import { PaginationControls } from './PaginationControls'
 import { Spinner } from './Spinner'
 import type { Showcase } from '~/db/types'
 import {
-  CheckIcon,
-  XIcon,
   StarIcon,
   ArrowSquareOutIcon,
   TrashIcon,
@@ -23,7 +22,6 @@ import {
 } from '@phosphor-icons/react'
 import { libraries } from '~/libraries'
 import { Badge, Button } from '~/ui'
-import { getRowFieldId } from '~/utils/route-encoding'
 import { Fragment, useState } from 'react'
 
 interface ShowcaseModerationListProps {
@@ -52,11 +50,6 @@ interface ShowcaseModerationListProps {
   pageSize: number
   onPageChange: (page: number) => void
   onPageSizeChange: (pageSize: number) => void
-  onModerate: (
-    showcaseId: string,
-    action: 'approve' | 'deny',
-    note?: string,
-  ) => void
   onToggleFeatured: (showcaseId: string, isFeatured: boolean) => void
   onDelete: (showcaseId: string) => void
   onVote: (showcaseId: string, value: 1 | -1) => void
@@ -73,17 +66,12 @@ export function ShowcaseModerationList({
   pageSize,
   onPageChange,
   onPageSizeChange,
-  onModerate,
   onToggleFeatured,
   onDelete,
   onVote,
   isModeratingId,
 }: ShowcaseModerationListProps) {
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
-  const [moderationNotes, setModerationNotes] = useState<
-    Record<string, string>
-  >({})
-
   const toggleExpanded = (id: string) => {
     setExpandedIds((prev) => {
       const next = new Set(prev)
@@ -96,30 +84,12 @@ export function ShowcaseModerationList({
     })
   }
 
-  const handleModerationNoteChange = (showcaseId: string, note: string) => {
-    setModerationNotes((prev) => ({ ...prev, [showcaseId]: note }))
-  }
-
-  const handleModerate = (showcaseId: string, action: 'approve' | 'deny') => {
-    const note = moderationNotes[showcaseId]
-    onModerate(showcaseId, action, note)
-    setModerationNotes((prev) => {
-      const next = { ...prev }
-      delete next[showcaseId]
-      return next
-    })
-  }
-
-  if (error) {
+  if (error)
     return (
-      <div className="p-8 text-center">
-        <p className="text-red-600 dark:text-red-400">
-          Failed to load showcases: {error.message}
-        </p>
-      </div>
+      <p className="p-8 text-red-600">
+        Failed to load projects: {error.message}
+      </p>
     )
-  }
-
   const showcaseList = data?.showcases || []
   const pagination = data?.pagination || {
     page: 1,
@@ -127,39 +97,6 @@ export function ShowcaseModerationList({
     total: 0,
     totalPages: 0,
   }
-
-  // Compute display rank for approved showcases based on actual display order:
-  // 1. Featured first, 2. Vote score desc, 3. Tranco rank asc (nulls last), 4. Created date desc
-  const approvedShowcases = showcaseList
-    .filter((e) => e.showcase.status === 'approved')
-    .sort((a, b) => {
-      // Featured first
-      if (a.showcase.isFeatured !== b.showcase.isFeatured) {
-        return a.showcase.isFeatured ? -1 : 1
-      }
-      // Vote score desc
-      if (a.showcase.voteScore !== b.showcase.voteScore) {
-        return b.showcase.voteScore - a.showcase.voteScore
-      }
-      // Tranco rank asc (nulls last)
-      const aRank = a.showcase.trancoRank
-      const bRank = b.showcase.trancoRank
-      if (aRank !== bRank) {
-        if (aRank === null) return 1
-        if (bRank === null) return -1
-        return aRank - bRank
-      }
-      // Created date desc
-      return (
-        new Date(b.showcase.createdAt).getTime() -
-        new Date(a.showcase.createdAt).getTime()
-      )
-    })
-
-  const displayRankMap = new Map<string, number>()
-  approvedShowcases.forEach((entry, index) => {
-    displayRankMap.set(entry.showcase.id, index + 1)
-  })
 
   if (isLoading) {
     return (
@@ -194,7 +131,6 @@ export function ShowcaseModerationList({
             <TableHeaderCell>Libraries</TableHeaderCell>
             <TableHeaderCell className="w-20">Featured</TableHeaderCell>
             <TableHeaderCell className="w-20">Votes</TableHeaderCell>
-            <TableHeaderCell className="w-20">Display</TableHeaderCell>
             <TableHeaderCell className="w-24">Tranco</TableHeaderCell>
             <TableHeaderCell className="w-32">Date</TableHeaderCell>
             <TableHeaderCell className="w-40">Actions</TableHeaderCell>
@@ -206,11 +142,6 @@ export function ShowcaseModerationList({
             const isExpanded = expandedIds.has(showcase.id)
             const isPending = showcase.status === 'pending'
             const isModeratingThis = isModeratingId === showcase.id
-            const moderationNoteId = getRowFieldId(
-              'showcase-moderation',
-              showcase.id,
-              'note',
-            )
 
             return (
               <Fragment key={showcase.id}>
@@ -257,6 +188,9 @@ export function ShowcaseModerationList({
                     >
                       {showcase.status.charAt(0).toUpperCase() +
                         showcase.status.slice(1)}
+                      <span className="block">
+                        {PLACEMENT_LABELS[showcase.placement]}
+                      </span>
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -344,15 +278,6 @@ export function ShowcaseModerationList({
                       </button>
                     </div>
                   </TableCell>
-                  <TableCell className="text-xs">
-                    {showcase.status === 'approved' ? (
-                      <span className="font-medium text-blue-600 dark:text-blue-400">
-                        #{displayRankMap.get(showcase.id)}
-                      </span>
-                    ) : (
-                      <span className="text-gray-400">-</span>
-                    )}
-                  </TableCell>
                   <TableCell className="text-xs text-gray-600 dark:text-gray-400">
                     {showcase.trancoRank
                       ? `#${showcase.trancoRank.toLocaleString()}`
@@ -366,30 +291,13 @@ export function ShowcaseModerationList({
                       <div className="text-xs text-gray-500">Processing...</div>
                     ) : (
                       <div className="flex gap-1">
-                        {showcase.status !== 'approved' && (
-                          <Button
-                            variant="icon"
-                            color="green"
-                            size="icon-sm"
-                            onClick={() =>
-                              handleModerate(showcase.id, 'approve')
-                            }
-                            title="Approve"
-                          >
-                            <CheckIcon className="w-3.5 h-3.5" />
-                          </Button>
-                        )}
-                        {showcase.status !== 'denied' && (
-                          <Button
-                            variant="icon"
-                            color="orange"
-                            size="icon-sm"
-                            onClick={() => handleModerate(showcase.id, 'deny')}
-                            title="Deny"
-                          >
-                            <XIcon className="w-3.5 h-3.5" />
-                          </Button>
-                        )}
+                        <Link
+                          to="/admin/showcases/$id"
+                          params={{ id: showcase.id }}
+                          className="px-2 py-1 text-sm text-blue-600 hover:underline"
+                        >
+                          Review
+                        </Link>
                         <Button
                           variant="icon"
                           color="red"
@@ -414,7 +322,7 @@ export function ShowcaseModerationList({
                 {isExpanded && (
                   <TableRow>
                     <TableCell
-                      colSpan={11}
+                      colSpan={10}
                       className="bg-gray-50 dark:bg-gray-900"
                     >
                       <div className="p-4 space-y-4">
@@ -529,31 +437,6 @@ export function ShowcaseModerationList({
                             </p>
                           )}
                         </div>
-
-                        {/* Moderation Note Input (for pending only) */}
-                        {isPending && (
-                          <div>
-                            <label
-                              htmlFor={moderationNoteId}
-                              className="block text-sm font-semibold mb-2"
-                            >
-                              Internal Moderation Note (optional):
-                            </label>
-                            <textarea
-                              id={moderationNoteId}
-                              value={moderationNotes[showcase.id] || ''}
-                              onChange={(e) =>
-                                handleModerationNoteChange(
-                                  showcase.id,
-                                  e.target.value,
-                                )
-                              }
-                              placeholder="Add an internal note about this moderation decision..."
-                              className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              rows={2}
-                            />
-                          </div>
-                        )}
 
                         {/* Existing Moderation Info */}
                         {!isPending && showcase.moderatedBy && (

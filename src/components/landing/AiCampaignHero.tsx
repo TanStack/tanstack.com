@@ -21,6 +21,24 @@ const campaignSteps = [
       'A launch campaign for TanStack AI. Something that feels like possibility, not another robot.',
     reply: 'Let’s give your next big idea a little room to grow.',
     file: 'campaign.tsx',
+    serverFile: 'api/chat.ts',
+    activity: 'chat',
+    serverInput: '  messages,',
+    providers: [
+      {
+        name: 'Anthropic',
+        adapter: 'anthropicText',
+        model: 'claude-fable-5-1',
+        provider: 'Anthropic',
+      },
+      { name: 'Grok', adapter: 'grokText', model: 'grok-4.6', provider: 'xAI' },
+      {
+        name: 'OpenAI',
+        adapter: 'openaiText',
+        model: 'gpt-6-astra',
+        provider: 'OpenAI',
+      },
+    ],
     code: `const {\n  messages,\n  sendMessage,\n  isLoading,\n} = useChat({\n  connection:\n    fetchServerSentEvents(\n      '/api/chat',\n    ),\n})\n\nconst onSend = () =>\n  sendMessage(brief)`,
   },
   {
@@ -31,6 +49,29 @@ const campaignSteps = [
       'Give it a visual. A single palm tree against a pastel sky. Leave room for the idea.',
     reply: 'One tree. An open sky. A world of possibility.',
     file: 'artwork.tsx',
+    serverFile: 'api/image.ts',
+    activity: 'generateImage',
+    serverInput: '  prompt,\n  stream: true,',
+    providers: [
+      {
+        name: 'GPT Image 2.5',
+        adapter: 'openaiImage25',
+        model: 'gpt-image-2.5-sunburst',
+        provider: 'OpenAI',
+      },
+      {
+        name: 'Nano Banana 2',
+        adapter: 'geminiImage',
+        model: 'gemini-3.1-flash-image',
+        provider: 'Google',
+      },
+      {
+        name: 'Grok Imagine',
+        adapter: 'grokImage',
+        model: 'grok-imagine-image-2.0',
+        provider: 'xAI',
+      },
+    ],
     code: `const {\n  generate,\n  result,\n  isLoading,\n} = useGenerateImage({\n  connection:\n    fetchServerSentEvents(\n      '/api/image',\n    ),\n})\n\nconst onGenerate = () =>\n  generate({ prompt })`,
   },
   {
@@ -41,39 +82,46 @@ const campaignSteps = [
       'Now make it move. A short launch film, with the palm swaying in a soft breeze.',
     reply: 'Same idea. A little more life.',
     file: 'launch-film.tsx',
+    serverFile: 'api/video.ts',
+    activity: 'generateVideo',
+    serverInput:
+      "  prompt: [\n    { type: 'text', content: prompt },\n    {\n      type: 'image',\n      source: {\n        type: 'url',\n        value: artworkUrl,\n      },\n    },\n  ],\n  stream: true,",
+    providers: [
+      {
+        name: 'Seedance 2.5',
+        adapter: 'byteplusVideo',
+        model: 'dreamina-seedance-2-5-260628',
+        provider: 'BytePlus',
+      },
+      {
+        name: 'Google Omni',
+        adapter: 'geminiVideo',
+        model: 'gemini-omni-1.1-flash',
+        provider: 'Google',
+      },
+      {
+        name: 'MiniMax H3',
+        adapter: 'falVideo',
+        model: 'minimax/h3/image-to-video',
+        provider: 'fal',
+      },
+    ],
     code: `const {\n  generate,\n  result,\n  videoStatus,\n} = useGenerateVideo({\n  connection:\n    fetchServerSentEvents(\n      '/api/video',\n    ),\n})\n\nconst onGenerate = () =>\n  generate({ prompt })\n\nreturn <video\n  src={result?.url} controls\n/>`,
-  },
-]
-
-const videoProviders = [
-  {
-    name: 'Seedance 2.5',
-    adapter: 'byteplusVideo',
-    model: 'dreamina-seedance-2-5-260628',
-    provider: 'BytePlus',
-  },
-  {
-    name: 'Google Omni',
-    adapter: 'geminiVideo',
-    model: 'gemini-omni-1.1-flash',
-    provider: 'Google',
-  },
-  {
-    name: 'MiniMax H3',
-    adapter: 'falVideo',
-    model: 'minimax/h3/image-to-video',
-    provider: 'fal',
   },
 ]
 
 export function AiCampaignHero() {
   const [step, setStep] = React.useState(2)
   const [showServer, setShowServer] = React.useState(false)
-  const [providerIndex, setProviderIndex] = React.useState(0)
+  const [providerIndices, setProviderIndices] = React.useState([0, 0, 0])
   const reducedMotion = usePrefersReducedMotion()
   const current = campaignSteps[step]
-  const provider = videoProviders[providerIndex]
-  const serverCode = `const stream = generateVideo({\n  adapter:\n    ${provider.adapter}(\n      '${provider.model}',\n    ),\n  prompt: [\n    { type: 'text', content: prompt },\n    {\n      type: 'image',\n      source: {\n        type: 'url',\n        value: artworkUrl,\n      },\n    },\n  ],\n  stream: true,\n})\n\nreturn toServerSentEventsResponse(\n  stream,\n)`
+  const provider = current.providers[providerIndices[step]]
+  const setup =
+    provider.adapter === 'openaiImage25'
+      ? `const openaiImage25 =\n  extendAdapter(\n    openaiImage,\n    [createModel(\n      'gpt-image-2.5-sunburst',\n      ['text', 'image'],\n    )],\n  )\n\n`
+      : ''
+  const serverCode = `${setup}const stream = ${current.activity}({\n  adapter:\n    ${provider.adapter}(\n      '${provider.model}',\n    ),\n${current.serverInput}\n})\n\nreturn toServerSentEventsResponse(\n  stream,\n)`
 
   return (
     <div className="ai-campaign-hero">
@@ -213,7 +261,7 @@ export function AiCampaignHero() {
         <div className="ai-campaign-code">
           <div className="ai-campaign-code-heading">
             <CodeIcon size={15} />
-            <span>{showServer ? 'api/video.ts' : current.file}</span>
+            <span>{showServer ? current.serverFile : current.file}</span>
           </div>
           <div
             className="ai-campaign-code-tabs"
@@ -227,15 +275,13 @@ export function AiCampaignHero() {
             >
               Client hook
             </button>
-            {step === 2 && (
-              <button
-                type="button"
-                aria-pressed={showServer}
-                onClick={() => setShowServer(true)}
-              >
-                Server adapter
-              </button>
-            )}
+            <button
+              type="button"
+              aria-pressed={showServer}
+              onClick={() => setShowServer(true)}
+            >
+              Server adapter
+            </button>
           </div>
           <CodeBlock
             className="m-0 border-0 bg-transparent [&_pre]:m-0 [&_pre]:bg-transparent [&_pre]:px-4 [&_pre]:py-4 [&_pre]:text-[10px] [&_pre]:leading-[1.8]"
@@ -246,7 +292,7 @@ export function AiCampaignHero() {
             </code>
           </CodeBlock>
           <div className="ai-campaign-hook-note">
-            <span>{showServer ? 'generateVideo' : current.hook}</span>
+            <span>{showServer ? current.activity : current.hook}</span>
             <p>
               {step === 2
                 ? 'From job progress to a playable video. Your hook handles the state.'
@@ -255,26 +301,29 @@ export function AiCampaignHero() {
                   : 'Messages, streaming, and conversation state. Ready for your UI.'}
             </p>
           </div>
-          {step === 2 && (
-            <div className="ai-campaign-providers">
-              <label htmlFor="ai-campaign-provider">Swap the model</label>
-              <select
-                id="ai-campaign-provider"
-                value={providerIndex}
-                onChange={(event) => {
-                  setProviderIndex(Number(event.target.value))
-                  setShowServer(true)
-                }}
-              >
-                {videoProviders.map((item, index) => (
-                  <option key={item.name} value={index}>
-                    {item.name}
-                  </option>
-                ))}
-              </select>
-              <p>Via {provider.provider}. The client hook stays the same.</p>
-            </div>
-          )}
+          <div className="ai-campaign-providers">
+            <label htmlFor="ai-campaign-provider">Swap the model</label>
+            <select
+              id="ai-campaign-provider"
+              value={providerIndices[step]}
+              onChange={(event) => {
+                const selected = Number(event.target.value)
+                setProviderIndices((indices) =>
+                  indices.map((value, index) =>
+                    index === step ? selected : value,
+                  ),
+                )
+                setShowServer(true)
+              }}
+            >
+              {current.providers.map((item, index) => (
+                <option key={item.name} value={index}>
+                  {item.name}
+                </option>
+              ))}
+            </select>
+            <p>Via {provider.provider}. The client hook stays the same.</p>
+          </div>
         </div>
       </div>
       <div className="ai-campaign-caption">

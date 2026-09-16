@@ -1,0 +1,21 @@
+{
+  "source": "https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page",
+  "parquet": "https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2025-01.parquet",
+  "sourceSha256": "84f3a121667157efcbf012c3566a6065df6f8e0312c678cb2f29cd72cc9c0f10",
+  "lookupSha256": "1a99e105092230f8620f301edcca7f80d3080642ff404d28ed957d3fa222c8ed",
+  "snapshotSha256": "be06c9b2b653d9ba7c4a7de383a7dbb023897fbe91fcf8715fa83ab4c992e35a",
+  "bytes": 1155731,
+  "sourceRows": 48326,
+  "trips": 8936,
+  "fareCents": 15225270,
+  "dailyCounts": [
+    921,
+    1408,
+    1410,
+    1170,
+    1054,
+    1436,
+    1537
+  ],
+  "rules": "Pickups Jan 1-7 2025, NYC local wall time. Duration (0,180] minutes, distance (0,100] miles, base fare (0,500] USD. No sampling. ID is 1-based source row. Fare excludes tips, taxes and surcharges. No deduplication or claim of representativeness."
+}

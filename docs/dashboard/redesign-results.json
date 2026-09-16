@@ -1,0 +1,18 @@
+{
+  "browser": "152.0.7977.83",
+  "requests": 1,
+  "errors": [],
+  "checked": [
+    "day and zone filters",
+    "chart selection",
+    "reference totals",
+    "back/forward",
+    "selection across component kits",
+    "Material panels, table, buttons and selects",
+    "appearance",
+    "empty results",
+    "chart resizing",
+    "1440/1024/390px layouts",
+    "single snapshot request"
+  ]
+}

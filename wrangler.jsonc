@@ -22,6 +22,10 @@
   },
   "r2_buckets": [
     {
+      "binding": "DASHBOARD_DEMO",
+      "bucket_name": "tanstack-dashboard-demo",
+    },
+    {
       "binding": "GITHUB_CONTENT_CACHE",
       "bucket_name": "tanstack-github-content-cache",
     },
@@ -32,6 +36,12 @@
     {
       "binding": "BUILDER_PROJECTS",
       "bucket_name": "tanstack-notebook-projects",
+    },
+  ],
+  "hyperdrive": [
+    {
+      "binding": "DASHBOARD_HYPERDRIVE",
+      "id": "07bd2803c2c240ad81681a2233b88de4",
     },
   ],
 }

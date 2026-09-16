@@ -1,0 +1,93 @@
+{
+  "browser": "152.0.7977.83",
+  "viewport": "1440x1200, then 390x844",
+  "mode": "Vite development, no CPU throttle, no simulated delay",
+  "requests": 1,
+  "hardware": {
+    "platform": "darwin",
+    "arch": "arm64",
+    "cpu": "Apple M5 Pro"
+  },
+  "rendering": [
+    {
+      "name": "LayoutCount",
+      "delta": 55
+    },
+    {
+      "name": "LayoutDuration",
+      "delta": 0.035796
+    },
+    {
+      "name": "RecalcStyleDuration",
+      "delta": 0.059109
+    },
+    {
+      "name": "ScriptDuration",
+      "delta": 0.426704
+    },
+    {
+      "name": "TaskDuration",
+      "delta": 0.6941269999999999
+    }
+  ],
+  "materialFocusRestored": false,
+  "loadedHeap": {
+    "usedSize": 51581008,
+    "totalSize": 53641216,
+    "embedderHeapUsedSize": 14724592,
+    "backingStorageSize": 25070981
+  },
+  "finalHeap": {
+    "usedSize": 62258304,
+    "totalSize": 65896448,
+    "embedderHeapUsedSize": 15761920,
+    "backingStorageSize": 25853802
+  },
+  "metrics": [
+    {
+      "name": "dashboard:fetch",
+      "duration": 4.099999904632568
+    },
+    {
+      "name": "dashboard:parse-and-validate",
+      "duration": 6.800000071525574
+    },
+    {
+      "name": "dashboard:derive",
+      "duration": 0.3999999761581421
+    },
+    {
+      "name": "dashboard:derive",
+      "duration": 0.2999999523162842
+    },
+    {
+      "name": "dashboard:derive",
+      "duration": 0.20000004768371582
+    },
+    {
+      "name": "dashboard:derive",
+      "duration": 0.20000004768371582
+    },
+    {
+      "name": "dashboard:derive",
+      "duration": 0
+    },
+    {
+      "name": "dashboard:derive",
+      "duration": 0
+    },
+    {
+      "name": "dashboard:derive",
+      "duration": 0.30000007152557373
+    },
+    {
+      "name": "dashboard:derive",
+      "duration": 0
+    },
+    {
+      "name": "dashboard:derive",
+      "duration": 0.10000002384185791
+    }
+  ],
+  "errors": []
+}

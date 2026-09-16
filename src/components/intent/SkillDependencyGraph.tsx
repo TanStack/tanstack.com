@@ -12,7 +12,7 @@ import {
 } from 'd3'
 import { arrow, defineChart, dot, text } from '@tanstack/charts'
 import { tooltip } from '@tanstack/charts/tooltip'
-import { Chart } from '@tanstack/charts/react'
+import { Chart } from '~/components/charts/Chart'
 import { useNavigate } from '@tanstack/react-router'
 import { SKILL_TYPE_STYLES } from '~/routes/intent/registry/$packageName'
 

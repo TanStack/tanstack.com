@@ -1,0 +1,45 @@
+{
+  "measuredAt": "2026-09-09T23:48:14.636Z",
+  "database": "PostgreSQL 17, local single connection",
+  "rows": 1000832,
+  "fixture": "112 copies of the same week, unique IDs; synthetic, no new data diversity",
+  "warmupRuns": 1,
+  "measuredRuns": 3,
+  "results": [
+    {
+      "name": "overview",
+      "matched": 1000832,
+      "samplesMs": [541, 469, 477]
+    },
+    {
+      "name": "borough-day",
+      "matched": 25760,
+      "samplesMs": [84, 80, 120]
+    },
+    {
+      "name": "substring",
+      "matched": 46256,
+      "samplesMs": [2531, 2582, 2368]
+    },
+    {
+      "name": "late-page",
+      "matched": 1000832,
+      "samplesMs": [710, 706, 697]
+    },
+    {
+      "name": "fare-sort",
+      "matched": 1000832,
+      "samplesMs": [452, 499, 444]
+    },
+    {
+      "name": "group-day",
+      "matched": 1000832,
+      "samplesMs": [590, 572, 697]
+    },
+    {
+      "name": "all-selected",
+      "matched": 1000832,
+      "samplesMs": [507, 508, 483]
+    }
+  ]
+}

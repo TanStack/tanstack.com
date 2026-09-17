@@ -36,6 +36,7 @@ import {
 import { streamingMarkdownExtension } from '@tanstack/markdown/extensions/streaming'
 import { Markdown as TanStackMarkdown } from '@tanstack/markdown/react'
 import { autolinkBareUrlsExtension } from '~/components/markdown/autolinkBareUrls'
+import { AlgoliaIcon } from '~/components/icons/AlgoliaIcon'
 import { useSearchContext } from '~/contexts/SearchContext'
 import { publicLibraries } from '~/libraries'
 import { frameworkOptions } from '~/libraries/frameworks'
@@ -1180,31 +1181,9 @@ function AIMessageHeader({ action }: { action?: React.ReactNode }) {
             className="hidden w-full h-full object-contain p-0.5 dark:block"
           />
         </div>
-        <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0 min-w-0">
-          <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
-            TanStack
-          </span>
-          <a
-            href="https://www.algolia.com/products/agent-studio/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 opacity-45 hover:opacity-75 transition-opacity"
-          >
-            <span className="text-[10px] text-gray-400 dark:text-gray-500">
-              powered by
-            </span>
-            <img
-              src="/Algolia-logo-blue.svg"
-              alt="Algolia"
-              className="h-2.5 w-auto dark:hidden"
-            />
-            <img
-              src="/Algolia-logo-white.svg"
-              alt="Algolia"
-              className="h-2.5 w-auto hidden dark:block"
-            />
-          </a>
-        </div>
+        <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+          TanStack AI
+        </span>
       </div>
       {action}
     </div>
@@ -1735,10 +1714,35 @@ function AiChatPanel({
         {isDock ? null : <StickyTopBlur />}
         <div className="relative z-10 flex items-center gap-1 min-w-0">
           {isDock ? (
-            <div className="min-w-0 py-1.5">
-              <div className="truncate text-sm font-bold leading-4 text-gray-900 dark:text-white">
+            <div className="flex items-center gap-1.5 min-w-0 py-1.5">
+              <img
+                src="/images/brand/tanstack-emblem-black.svg"
+                alt=""
+                className="h-3.5 w-3.5 shrink-0 dark:hidden"
+              />
+              <img
+                src="/images/brand/tanstack-emblem-white.svg"
+                alt=""
+                className="hidden h-3.5 w-3.5 shrink-0 dark:block"
+              />
+              <span className="truncate text-sm font-bold leading-4 text-gray-900 dark:text-white">
                 TanStack AI
-              </div>
+              </span>
+              <span
+                aria-hidden="true"
+                className="text-xs leading-4 text-gray-300 dark:text-gray-600"
+              >
+                ×
+              </span>
+              <a
+                href="https://www.algolia.com/products/agent-studio/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 text-xs font-semibold leading-4 text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-200 transition-colors"
+              >
+                <AlgoliaIcon className="h-3 w-3 shrink-0" />
+                Algolia
+              </a>
             </div>
           ) : (
             <>

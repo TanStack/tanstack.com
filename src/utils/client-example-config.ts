@@ -257,6 +257,19 @@ const clientExampleConfigs: ReadonlyArray<ClientExampleConfig> = [
     autoStart: true,
     entry: '/src/routes/index.tsx',
     framework: 'react',
+    libraryId: 'ai',
+    runtime: {
+      type: 'webcontainer',
+      compatibility: 'tanstack-start-async-context',
+      install: { command: 'pnpm', args: ['install'] },
+      start: { command: 'pnpm', args: ['run', 'dev'] },
+    },
+    slug: 'basic-chat',
+  },
+  {
+    autoStart: true,
+    entry: '/src/routes/index.tsx',
+    framework: 'react',
     libraryId: 'start',
     runtime: {
       type: 'webcontainer',

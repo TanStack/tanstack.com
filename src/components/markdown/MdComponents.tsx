@@ -1,5 +1,9 @@
 import * as React from 'react'
 import { ChartsCatalogDocExample } from '~/components/charts/ChartsCatalogDocExample'
+import {
+  ClientExampleDocEmbed,
+  parseClientExampleAttributes,
+} from '~/components/examples/ClientExampleDocEmbed'
 import { parseChartsCatalogExampleAttributes } from '~/utils/charts-catalog-embed'
 import { FileTabs } from './FileTabs'
 import { FrameworkContent } from './FrameworkContent'
@@ -167,6 +171,19 @@ export function MdCommentComponent({
       <ChartsCatalogDocExample
         caseId={example.caseId}
         height={example.height}
+      />
+    )
+  }
+
+  if (normalizedComponentName === 'client-example') {
+    const example = parseClientExampleAttributes(parsedAttributes)
+    if (!example) return null
+
+    return (
+      <ClientExampleDocEmbed
+        framework={example.framework}
+        library={example.library}
+        slug={example.slug}
       />
     )
   }

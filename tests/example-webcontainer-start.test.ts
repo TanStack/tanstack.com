@@ -49,6 +49,7 @@ describe('TanStack Start WebContainer compatibility', () => {
     assert.deepEqual(getWebContainerStartEnv(startRuntime), {
       __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS: '.webcontainer-api.io',
       NAPI_RS_NATIVE_LIBRARY_PATH: '@rolldown/binding-wasm32-wasi',
+      NITRO_DEV_RUNNER: 'self',
     })
     assert.deepEqual(
       getWebContainerStartEnv({
@@ -84,6 +85,10 @@ describe('TanStack Start WebContainer compatibility', () => {
     assert.match(
       files[tanStackStartViteConfigPath] ?? '',
       /"@tanstack\/start\*\*"/,
+    )
+    assert.match(
+      files[tanStackStartViteConfigPath] ?? '',
+      /nitro: \{ devServer: \{ runner: 'self' \} \}/,
     )
     assert.equal(
       files['/.tanstack/async-context-plugin.mjs'],

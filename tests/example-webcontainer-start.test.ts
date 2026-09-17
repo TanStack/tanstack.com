@@ -46,6 +46,7 @@ describe('TanStack Start WebContainer compatibility', () => {
     )
 
     assert.equal(files['/vite.config.ts'], authoredConfig)
+    assert.match(files['/package.json'] ?? '', /"rolldown": "1\.2\.8"/)
     assert.match(
       files[tanStackStartViteConfigPath] ?? '',
       /import authoredConfig from "\.\.\/vite\.config\.ts"/,

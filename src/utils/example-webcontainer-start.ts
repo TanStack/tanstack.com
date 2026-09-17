@@ -71,11 +71,49 @@ export function prepareTanStackStartWebContainerFiles(
     )
   }
 
-  return {
+  return pinRolldownForWebContainer({
     ...files,
     [tanStackStartViteConfigPath]: createViteConfigSource(authoredConfigPath),
     [tanStackStartAsyncContextPluginPath]:
       tanStackStartAsyncContextPluginSource,
+  })
+}
+
+const webContainerRolldownVersion = '1.2.8'
+
+function pinRolldownForWebContainer(files: Record<string, string>) {
+  const packageJsonPath =
+    files['/package.json'] !== undefined
+      ? '/package.json'
+      : files['package.json'] !== undefined
+        ? 'package.json'
+        : undefined
+  if (!packageJsonPath) return files
+
+  const packageJson: unknown = JSON.parse(files[packageJsonPath] ?? '{}')
+  if (!isRecord(packageJson)) return files
+
+  const existingPnpm = isRecord(packageJson.pnpm) ? packageJson.pnpm : {}
+  const existingOverrides = isRecord(existingPnpm.overrides)
+    ? existingPnpm.overrides
+    : {}
+
+  return {
+    ...files,
+    [packageJsonPath]: `${JSON.stringify(
+      {
+        ...packageJson,
+        pnpm: {
+          ...existingPnpm,
+          overrides: {
+            ...existingOverrides,
+            rolldown: webContainerRolldownVersion,
+          },
+        },
+      },
+      null,
+      2,
+    )}\n`,
   }
 }
 

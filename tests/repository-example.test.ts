@@ -203,8 +203,78 @@ test('selects only verified current client examples', () => {
   assert.deepEqual(
     getClientExampleConfig({
       framework: 'react',
+      libraryId: 'ai',
+      slug: 'basic-chat',
+      version: 'latest',
+    }),
+    {
+      autoStart: true,
+      entry: '/src/routes/index.tsx',
+      framework: 'react',
+      libraryId: 'ai',
+      runtime: {
+        type: 'webcontainer',
+        compatibility: 'tanstack-start-async-context',
+        install: { command: 'pnpm', args: ['install'] },
+        start: { command: 'pnpm', args: ['run', 'dev'] },
+      },
+      slug: 'basic-chat',
+    },
+  )
+  assert.equal(
+    getClientExampleConfig({
+      framework: 'react',
+      libraryId: 'ai',
+      slug: 'basic-chat',
+      version: 'v0',
+    }),
+    undefined,
+  )
+  assert.deepEqual(
+    getClientExampleConfig({
+      framework: 'react',
+      libraryId: 'ai',
+      slug: 'tools-chat',
+      version: 'latest',
+    }),
+    {
+      autoStart: true,
+      entry: '/src/routes/index.tsx',
+      framework: 'react',
+      libraryId: 'ai',
+      runtime: {
+        type: 'webcontainer',
+        compatibility: 'tanstack-start-async-context',
+        install: { command: 'pnpm', args: ['install'] },
+        start: { command: 'pnpm', args: ['run', 'dev'] },
+      },
+      slug: 'tools-chat',
+    },
+  )
+  assert.equal(
+    getClientExampleConfig({
+      framework: 'react',
+      libraryId: 'ai',
+      slug: '../secret',
+      version: 'latest',
+    }),
+    undefined,
+  )
+  assert.equal(
+    getClientExampleConfig({
+      framework: 'vue',
+      libraryId: 'ai',
+      slug: 'basic-chat',
+      version: 'latest',
+    }),
+    undefined,
+  )
+  assert.deepEqual(
+    getClientExampleConfig({
+      framework: 'react',
       libraryId: 'start',
       slug: 'start-streaming-data-from-server-functions',
+
       version: 'latest',
     }),
     {

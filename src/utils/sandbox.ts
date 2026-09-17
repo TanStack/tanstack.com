@@ -8,6 +8,10 @@ export const getExampleStartingPath = (
     return 'src/routes/__root.tsx'
   }
 
+  if (libraryId === 'ai') {
+    return 'src/routes/index.tsx'
+  }
+
   const dir = framework === 'angular' ? 'src/app' : 'src'
 
   return `${dir}/${getExampleStartingFileName(framework, libraryId)}` as const

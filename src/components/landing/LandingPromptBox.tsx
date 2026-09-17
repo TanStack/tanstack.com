@@ -120,7 +120,7 @@ export function LandingPromptBox() {
   }
 
   return (
-    <div className="mt-6 w-full max-w-136">
+    <div className="mt-6 w-full">
       <p className="flex items-center gap-2 text-ds-body-sm text-text-primary">
         <SparkleIcon aria-hidden="true" size={16} weight="fill" />
         Using an AI coding agent? Install the TanStack AI skills:
@@ -171,25 +171,47 @@ export function LandingPromptBox() {
           </DropdownContent>
         </Dropdown>
       </div>
-      <p className="mt-4 text-ds-body-sm text-text-secondary">
-        {agent.description}
-      </p>
-      <div className="mt-3 flex items-center gap-2 rounded-lg bg-text-primary/4 px-3 py-2.5">
-        <pre className="min-w-0 flex-1 whitespace-pre-wrap wrap-anywhere font-ds-mono text-ds-mono-xs text-text-primary/80">
-          {agent.command}
+      <div className="mt-4 overflow-hidden rounded-xl border border-border-default bg-gray-100 dark:bg-ds-neutral-500">
+        <div className="flex items-center gap-3 border-b border-border-subtle px-3 py-2">
+          <div aria-hidden="true" className="flex gap-1.5">
+            <span className="size-2.5 rounded-full bg-[#ff5f57]" />
+            <span className="size-2.5 rounded-full bg-[#febc2e]" />
+            <span className="size-2.5 rounded-full bg-[#28c840]" />
+          </div>
+          <span className="min-w-0 flex-1 truncate font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/55">
+            {agent.name}
+          </span>
+          <button
+            type="button"
+            aria-label={copied ? 'Copied' : 'Copy install instructions'}
+            onClick={onCopy}
+            className="flex size-8 items-center justify-center rounded-md text-text-secondary transition-colors hover:bg-text-primary/8 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) active:scale-[0.96]"
+          >
+            {copied ? (
+              <CheckCircleIcon size={16} aria-hidden="true" />
+            ) : (
+              <CopyIcon size={16} aria-hidden="true" />
+            )}
+          </button>
+        </div>
+        <pre className="overflow-x-auto px-4 py-3 font-ds-mono text-ds-mono-xs leading-6 text-text-primary">
+          <span className="block text-text-primary/40">
+            # {agent.description}
+          </span>
+          {agent.command.split('\n').map((line, index) => (
+            <span key={`${agent.id}-${index}`} className="mt-1 flex gap-2">
+              <span
+                aria-hidden="true"
+                className="shrink-0 select-none text-(--landing-accent-bright)"
+              >
+                ❯
+              </span>
+              <span className="min-w-0 wrap-anywhere whitespace-pre-wrap">
+                {line}
+              </span>
+            </span>
+          ))}
         </pre>
-        <button
-          type="button"
-          aria-label={copied ? 'Copied' : 'Copy install instructions'}
-          onClick={onCopy}
-          className="shrink-0 text-text-secondary transition-colors hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright)"
-        >
-          {copied ? (
-            <CheckCircleIcon size={16} aria-hidden="true" />
-          ) : (
-            <CopyIcon size={16} aria-hidden="true" />
-          )}
-        </button>
       </div>
       <Link
         to="/$libraryId/$version/docs/$"

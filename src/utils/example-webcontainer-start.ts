@@ -79,6 +79,36 @@ export function prepareTanStackStartWebContainerFiles(
   }
 }
 
+/**
+ * Rolldown 1.2.9+ stamps `__napiBindingTarget` after load. In WebContainer
+ * the native linux addon and the WASI loader disagree on that stamp.
+ * Point the loader at the matching wasm32-wasi package instead.
+ */
+export function getRolldownWasiBindingSpecifier(rolldownPackageSource: string) {
+  const packageJson: unknown = JSON.parse(rolldownPackageSource)
+  if (!isRecord(packageJson) || typeof packageJson.version !== 'string') {
+    throw new Error('Could not determine the Rolldown version.')
+  }
+
+  if (!/^\d+\.\d+\.\d+/.test(packageJson.version)) {
+    throw new Error('Could not determine the Rolldown version.')
+  }
+
+  return `@rolldown/binding-wasm32-wasi@${packageJson.version}`
+}
+
+export function getWebContainerStartEnv(runtime: ExampleRuntime) {
+  const env: Record<string, string> = {
+    __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS: '.webcontainer-api.io',
+  }
+
+  if (runtime.compatibility === tanStackStartAsyncContextCompatibility) {
+    env.NAPI_RS_NATIVE_LIBRARY_PATH = '@rolldown/binding-wasm32-wasi'
+  }
+
+  return env
+}
+
 export function getWebContainerStartCommand(runtime: ExampleRuntime) {
   if (runtime.compatibility !== tanStackStartAsyncContextCompatibility) {
     return {

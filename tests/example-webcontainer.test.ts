@@ -132,6 +132,7 @@ describe('WebContainer example runtime', () => {
           reads.push([path, encoding])
           return Promise.resolve(
             JSON.stringify({
+              version: '1.2.9',
               dependencies: { '@oxc-project/types': '=0.144.0' },
             }),
           )
@@ -163,6 +164,7 @@ describe('WebContainer example runtime', () => {
           '--save-dev',
           '--lockfile=false',
           '@oxc-project/runtime@0.144.0',
+          '@rolldown/binding-wasm32-wasi@1.2.9',
         ],
       ],
     ])

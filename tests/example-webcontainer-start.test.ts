@@ -5,8 +5,10 @@ import { fromCrossJSON, toCrossJSONAsync } from 'seroval'
 import { transformWithOxc } from 'vite'
 import { mergeConfig } from 'vite'
 import {
+  getRolldownWasiBindingSpecifier,
   getTanStackStartOxcRuntimeSpecifier,
   getWebContainerStartCommand,
+  getWebContainerStartEnv,
   prepareTanStackStartWebContainerFiles,
   tanStackStartAsyncContextPluginSource,
   tanStackStartViteConfigPath,
@@ -32,6 +34,31 @@ describe('TanStack Start WebContainer compatibility', () => {
     )
     assert.throws(() =>
       getTanStackStartOxcRuntimeSpecifier(JSON.stringify({ dependencies: {} })),
+    )
+  })
+
+  test('installs the matching wasm32-wasi Rolldown binding', () => {
+    assert.equal(
+      getRolldownWasiBindingSpecifier(JSON.stringify({ version: '1.2.9' })),
+      '@rolldown/binding-wasm32-wasi@1.2.9',
+    )
+    assert.throws(() => getRolldownWasiBindingSpecifier(JSON.stringify({})))
+  })
+
+  test('points Vite at the WASI binding in WebContainer', () => {
+    assert.deepEqual(getWebContainerStartEnv(startRuntime), {
+      __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS: '.webcontainer-api.io',
+      NAPI_RS_NATIVE_LIBRARY_PATH: '@rolldown/binding-wasm32-wasi',
+    })
+    assert.deepEqual(
+      getWebContainerStartEnv({
+        type: 'webcontainer',
+        install: { command: 'pnpm', args: ['install'] },
+        start: { command: 'pnpm', args: ['run', 'dev'] },
+      }),
+      {
+        __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS: '.webcontainer-api.io',
+      },
     )
   })
 

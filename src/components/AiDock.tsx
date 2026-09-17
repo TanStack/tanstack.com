@@ -29,21 +29,20 @@ import {
   ArrowsInSimpleIcon,
 } from '@phosphor-icons/react'
 import {
-  DefaultKapaApiService,
-  KapaProvider,
-  processStream,
+  fetchServerSentEvents,
   useChat,
-  type StreamSource,
-} from '@kapaai/react-sdk'
+  type UIMessage,
+} from '@tanstack/ai-react'
 import { streamingMarkdownExtension } from '@tanstack/markdown/extensions/streaming'
 import { Markdown as TanStackMarkdown } from '@tanstack/markdown/react'
+import { autolinkBareUrlsExtension } from '~/components/markdown/autolinkBareUrls'
+import { LibraryWordmark } from '~/components/LibraryWordmark'
 import { useSearchContext } from '~/contexts/SearchContext'
-import { publicLibraries } from '~/libraries'
+import { ai, publicLibraries } from '~/libraries'
 import { frameworkOptions } from '~/libraries/frameworks'
 import { capitalize } from '~/utils/utils'
 import { CodeBlock } from '~/components/markdown/CodeBlock'
 import { InlineCode } from '~/ui/InlineCode'
-import { env } from '~/utils/env'
 import { isSafeHref } from '~/utils/url-boundary'
 import {
   type AlgoliaHit,
@@ -67,8 +66,20 @@ const AI_DOCK_MIN_WIDTH = 320
 const AI_DOCK_DEFAULT_WIDTH = 360
 const AI_DOCK_MAX_WIDTH_RATIO = 0.5
 const AI_DOCK_MAXIMIZED_WIDTH = 1200
-const KAPA_RECAPTCHA_READY_TIMEOUT_MS = 8_000
-const KAPA_INTEGRATION_ID = '86e864f7-401e-48c8-ac6f-5fcbc86c5668'
+
+// Algolia Agent Studio. The API key is search-ACL only and safe to ship to
+// browsers; abuse is bounded by Agent Studio's approved domains and
+// per-agent/per-IP rate limits.
+const AGENT_STUDIO_APP_ID = 'FQ0DQ6MA3C'
+const AGENT_STUDIO_SEARCH_API_KEY = '2a257513b7a9e64906b9e0e53a6bc3ce'
+const AGENT_STUDIO_AGENT_ID = 'eeaedc22-16c5-4314-974f-38d93631761b'
+const AGENT_STUDIO_BASE_URL = `https://${AGENT_STUDIO_APP_ID.toLowerCase()}.algolia.net/agent-studio/1`
+const AGENT_STUDIO_COMPLETIONS_URL = `${AGENT_STUDIO_BASE_URL}/agents/${AGENT_STUDIO_AGENT_ID}/completions?compatibilityMode=ag-ui&stream=true`
+const AGENT_STUDIO_FEEDBACK_URL = `${AGENT_STUDIO_BASE_URL}/feedback`
+const AGENT_STUDIO_AUTH_HEADERS = {
+  'X-Algolia-Application-Id': AGENT_STUDIO_APP_ID,
+  'X-Algolia-API-Key': AGENT_STUDIO_SEARCH_API_KEY,
+}
 
 type SearchSurface = 'modal' | 'dock'
 type AiDockStyle = React.CSSProperties & {
@@ -113,72 +124,7 @@ function writeAiDockWidth(width: number) {
   localStorage.setItem(AI_DOCK_WIDTH_STORAGE_KEY, String(Math.round(width)))
 }
 
-function waitForKapaRecaptchaReady() {
-  if (typeof window === 'undefined') {
-    return Promise.resolve()
-  }
-
-  return new Promise<void>((resolve) => {
-    let timeoutId: number | null = null
-    let intervalId: number | null = null
-    let isSettled = false
-    let hasRegisteredReadyCallback = false
-
-    const cleanup = () => {
-      if (timeoutId !== null) {
-        window.clearTimeout(timeoutId)
-        timeoutId = null
-      }
-
-      if (intervalId !== null) {
-        window.clearInterval(intervalId)
-        intervalId = null
-      }
-    }
-
-    const finish = () => {
-      if (isSettled) {
-        return
-      }
-
-      isSettled = true
-      cleanup()
-      window.setTimeout(resolve, 0)
-    }
-
-    const checkReady = () => {
-      if (hasRegisteredReadyCallback) {
-        return true
-      }
-
-      const enterprise = window.grecaptcha?.enterprise
-
-      if (!enterprise) {
-        return false
-      }
-
-      hasRegisteredReadyCallback = true
-
-      if (intervalId !== null) {
-        window.clearInterval(intervalId)
-        intervalId = null
-      }
-
-      enterprise.ready(finish)
-      return true
-    }
-
-    timeoutId = window.setTimeout(finish, KAPA_RECAPTCHA_READY_TIMEOUT_MS)
-
-    if (checkReady()) {
-      return
-    }
-
-    intervalId = window.setInterval(checkReady, 50)
-  })
-}
-
-function KapaMarkdownLink({
+function AiMarkdownLink({
   href,
   children,
   ...props
@@ -186,7 +132,7 @@ function KapaMarkdownLink({
   return (
     <SafeLink
       href={href}
-      className="font-medium text-gray-900 dark:text-gray-100 border-b border-gray-400/60 dark:border-gray-500/60 hover:border-gray-900 dark:hover:border-gray-100 transition-colors pb-px"
+      className="font-medium text-gray-900 dark:text-gray-100 border-b border-gray-400/60 dark:border-gray-500/60 hover:border-gray-900 dark:hover:border-gray-100 transition-colors pb-px [overflow-wrap:anywhere]"
       {...props}
     >
       {children}
@@ -194,7 +140,7 @@ function KapaMarkdownLink({
   )
 }
 
-function KapaMarkdownTable({
+function AiMarkdownTable({
   children,
   className,
   ...props
@@ -214,7 +160,7 @@ function KapaMarkdownTable({
   )
 }
 
-function KapaMarkdownTableHead({
+function AiMarkdownTableHead({
   children,
   className,
   ...props
@@ -232,7 +178,7 @@ function KapaMarkdownTableHead({
   )
 }
 
-function KapaMarkdownTableBody({
+function AiMarkdownTableBody({
   children,
   className,
   ...props
@@ -250,7 +196,7 @@ function KapaMarkdownTableBody({
   )
 }
 
-function KapaMarkdownTableCell({
+function AiMarkdownTableCell({
   children,
   className,
   ...props
@@ -268,7 +214,7 @@ function KapaMarkdownTableCell({
   )
 }
 
-function KapaMarkdownTableHeaderCell({
+function AiMarkdownTableHeaderCell({
   children,
   className,
   ...props
@@ -286,15 +232,40 @@ function KapaMarkdownTableHeaderCell({
   )
 }
 
-const kapaMarkdownComponents = {
+const aiMarkdownComponents = {
   pre: CodeBlock,
   code: InlineCode,
-  a: KapaMarkdownLink,
-  table: KapaMarkdownTable,
-  thead: KapaMarkdownTableHead,
-  tbody: KapaMarkdownTableBody,
-  td: KapaMarkdownTableCell,
-  th: KapaMarkdownTableHeaderCell,
+  a: AiMarkdownLink,
+  table: AiMarkdownTable,
+  thead: AiMarkdownTableHead,
+  tbody: AiMarkdownTableBody,
+  td: AiMarkdownTableCell,
+  th: AiMarkdownTableHeaderCell,
+  p: ({ children }: { children?: React.ReactNode }) => (
+    <p className="my-2 first:mt-0 last:mb-0 leading-relaxed">{children}</p>
+  ),
+  // Sized in em so headings scale with the compact (13px) and regular (14px)
+  // chat bubbles alike.
+  h1: ({ children }: { children?: React.ReactNode }) => (
+    <h1 className="text-[1.25em] font-bold mt-4 mb-2 first:mt-0">{children}</h1>
+  ),
+  h2: ({ children }: { children?: React.ReactNode }) => (
+    <h2 className="text-[1.15em] font-bold mt-4 mb-1.5 first:mt-0">
+      {children}
+    </h2>
+  ),
+  h3: ({ children }: { children?: React.ReactNode }) => (
+    <h3 className="text-[1.05em] font-bold mt-3 mb-1 first:mt-0">{children}</h3>
+  ),
+  h4: ({ children }: { children?: React.ReactNode }) => (
+    <h4 className="font-bold mt-3 mb-1 first:mt-0">{children}</h4>
+  ),
+  h5: ({ children }: { children?: React.ReactNode }) => (
+    <h5 className="font-semibold mt-2 mb-1 first:mt-0">{children}</h5>
+  ),
+  h6: ({ children }: { children?: React.ReactNode }) => (
+    <h6 className="font-semibold mt-2 mb-1 first:mt-0">{children}</h6>
+  ),
   ul: ({ children }: { children?: React.ReactNode }) => (
     <ul className="list-disc list-outside pl-5 space-y-1 my-2">{children}</ul>
   ),
@@ -308,75 +279,342 @@ const kapaMarkdownComponents = {
   ),
 }
 
-const kapaMarkdownExtensions = [streamingMarkdownExtension()]
+const aiMarkdownExtensions = [
+  streamingMarkdownExtension(),
+  autolinkBareUrlsExtension,
+]
 
-function parseSourceGroupIDs(value: string | undefined) {
-  if (!value) {
-    return undefined
-  }
+type FeedbackReaction = 'upvote' | 'downvote'
 
-  const ids = value
-    .split(',')
-    .map((id) => id.trim())
-    .filter((id) => id.length > 0)
-
-  return ids.length > 0 ? ids : undefined
+type AnswerSource = {
+  title: string
+  subtitle: string
+  source_url: string
+  source_type: string
 }
 
-type KapaReaction = 'upvote' | 'downvote'
+type AnswerToolCall = {
+  id: string
+  query: string
+  isPending: boolean
+}
 
-type KapaDisplayQA = {
+type AnswerSegment =
+  | { type: 'text'; content: string }
+  | { type: 'tool-call'; toolCall: AnswerToolCall }
+
+type DisplayQA = {
   id: string | null
   question: string
   answer: string
-  sources: Array<StreamSource>
+  sources: Array<AnswerSource>
+  // Ordered answer flow (text interleaved with search-tool activity) for the
+  // live conversation; not persisted to chat history, which falls back to
+  // the flat `answer` text.
+  segments?: Array<AnswerSegment>
   isGenerationAborted: boolean
   isFeedbackSubmissionEnabled?: boolean
-  reaction: KapaReaction | null
+  reaction: FeedbackReaction | null
 }
 
-type KapaHistoryItem = {
+type ChatHistoryItem = {
   threadId: string
   title: string
   createdAt: number
   updatedAt: number
-  conversation: Array<KapaDisplayQA>
+  conversation: Array<DisplayQA>
 }
 
-type KapaSubmitQueryArgs = Parameters<DefaultKapaApiService['submitQuery']>[0]
-type KapaChatStreamCallbacks = Parameters<
-  DefaultKapaApiService['submitQuery']
->[1]
-type KapaSubmitFeedbackArgs = Parameters<
-  DefaultKapaApiService['addFeedback']
->[0]
+const CHAT_HISTORY_STORAGE_KEY = 'tanstack-ai-chat-history'
+const CHAT_HISTORY_LIMIT = 5
 
-const KAPA_HISTORY_STORAGE_KEY = 'tanstack-kapa-chat-history'
-const KAPA_HISTORY_LIMIT = 5
+/**
+ * Which Agent Studio thread the panel is on, plus the QAs restored from local
+ * history for that thread. Agent Studio persists conversations server-side
+ * keyed by `threadId`, so resuming only needs the id; the saved QAs render
+ * as the prefix of the transcript, ahead of whatever the live client holds.
+ */
+type ThreadSelection = {
+  threadId: string
+  savedConversation: Array<DisplayQA>
+}
 
-class KapaThreadOverrideApiService {
-  private service = new DefaultKapaApiService(processStream)
+function freshThread(): ThreadSelection {
+  return { threadId: crypto.randomUUID(), savedConversation: [] }
+}
 
-  constructor(
-    private threadIdOverrideRef: React.MutableRefObject<string | null>,
-  ) {}
+/**
+ * Re-selecting the thread that is already live must be a no-op: the client
+ * keeps its messages when `threadId` is unchanged, so restoring the saved
+ * transcript as a prefix would duplicate every answer.
+ */
+function selectThread(
+  current: ThreadSelection,
+  item: ChatHistoryItem,
+): ThreadSelection {
+  if (item.threadId === current.threadId) {
+    return current
+  }
 
-  submitQuery(
-    args: KapaSubmitQueryArgs,
-    callbacks: KapaChatStreamCallbacks,
-  ): Promise<void> {
-    return this.service.submitQuery(
-      { ...args, threadId: this.threadIdOverrideRef.current },
-      callbacks,
+  return { threadId: item.threadId, savedConversation: item.conversation }
+}
+
+function messageText(message: UIMessage) {
+  return message.parts
+    .map((part) => (part.type === 'text' ? part.content : ''))
+    .join('')
+}
+
+/**
+ * Pull doc links out of the agent's Algolia search tool results. The tool
+ * output is provider-shaped JSON, so this walks it defensively and collects
+ * anything that looks like a hit: a record with a safe URL plus a usable
+ * title (explicit `title` or the deepest DocSearch `hierarchy` level).
+ */
+function collectSourcesFromToolOutput(
+  value: unknown,
+  into: Map<string, AnswerSource>,
+  depth = 0,
+) {
+  if (depth > 6 || into.size >= 6) {
+    return
+  }
+
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      collectSourcesFromToolOutput(item, into, depth + 1)
+    }
+    return
+  }
+
+  if (!isUnknownRecord(value)) {
+    return
+  }
+
+  const url = readString(value.url) || readString(value.source_url)
+
+  if (url && isSafeHref(url) && !into.has(url)) {
+    const hierarchy = isUnknownRecord(value.hierarchy) ? value.hierarchy : {}
+    const hierarchyLevels = ['lvl6', 'lvl5', 'lvl4', 'lvl3', 'lvl2', 'lvl1']
+      .map((level) => readString(hierarchy[level]))
+      .filter((level) => level.length > 0)
+    const title =
+      readString(value.title) ||
+      hierarchyLevels[0] ||
+      readString(hierarchy.lvl0)
+
+    if (title) {
+      into.set(url, {
+        title,
+        subtitle: readString(hierarchy.lvl0),
+        source_url: url,
+        source_type: 'documentation',
+      })
+      return
+    }
+  }
+
+  for (const nested of Object.values(value)) {
+    collectSourcesFromToolOutput(nested, into, depth + 1)
+  }
+}
+
+/**
+ * Turn the search tool's input into a human-readable label. The agent's
+ * Algolia tools take `{ queries: [{ query }], originalQuery, ... }`.
+ */
+function describeToolCallQuery(input: unknown, rawArguments: string) {
+  let parsed = input
+
+  if (parsed === undefined && rawArguments) {
+    try {
+      parsed = JSON.parse(rawArguments)
+    } catch {
+      return ''
+    }
+  }
+
+  if (!isUnknownRecord(parsed)) {
+    return ''
+  }
+
+  const queries = Array.isArray(parsed.queries) ? parsed.queries : []
+  const queryTexts = queries
+    .map((entry) => (isUnknownRecord(entry) ? readString(entry.query) : ''))
+    .filter((query) => query.length > 0)
+
+  return queryTexts.join(', ') || readString(parsed.originalQuery)
+}
+
+/** Tool results arrive as JSON strings on the wire; parse them for source extraction. */
+function parseToolResult(content: string | Array<unknown>): unknown {
+  if (typeof content !== 'string') {
+    return content
+  }
+
+  try {
+    return JSON.parse(content)
+  } catch {
+    return undefined
+  }
+}
+
+/**
+ * Fold the AG-UI message list into the question/answer pairs the panel
+ * renders: each user message opens a QA, and the assistant messages that
+ * follow contribute answer text, search-tool activity, and tool-derived
+ * sources.
+ */
+function messagesToDisplayQAs(
+  messages: Array<UIMessage>,
+  reactions: Record<string, FeedbackReaction>,
+): Array<DisplayQA> {
+  const qas: Array<DisplayQA> = []
+  let current: DisplayQA | null = null
+
+  for (const message of messages) {
+    if (message.role === 'user') {
+      current = {
+        id: null,
+        question: messageText(message),
+        answer: '',
+        sources: [],
+        segments: [],
+        isGenerationAborted: false,
+        isFeedbackSubmissionEnabled: false,
+        reaction: null,
+      }
+      qas.push(current)
+      continue
+    }
+
+    if (message.role !== 'assistant' || !current) {
+      continue
+    }
+
+    const sources = new Map<string, AnswerSource>(
+      current.sources.map((source) => [source.source_url, source]),
     )
+    const segments = current.segments ?? []
+
+    // A completed tool call carries its output inline while streaming, but a
+    // hydrated or replayed thread can represent it as a sibling tool-result
+    // part instead. Index those so both shapes yield sources.
+    const toolResultOutputs = new Map<string, unknown>()
+    for (const part of message.parts) {
+      if (part.type === 'tool-result' && part.error === undefined) {
+        toolResultOutputs.set(part.toolCallId, parseToolResult(part.content))
+      }
+    }
+
+    for (const part of message.parts) {
+      if (part.type === 'text' && part.content.trim()) {
+        segments.push({ type: 'text', content: part.content.trim() })
+      }
+
+      if (part.type === 'tool-call') {
+        const output = part.output ?? toolResultOutputs.get(part.id)
+
+        segments.push({
+          type: 'tool-call',
+          toolCall: {
+            id: part.id,
+            query: describeToolCallQuery(part.input, part.arguments),
+            isPending: output === undefined && part.state !== 'error',
+          },
+        })
+
+        if (output !== undefined) {
+          collectSourcesFromToolOutput(output, sources)
+        }
+      }
+    }
+
+    current.id = message.id
+    current.segments = segments
+    // Flat text fallback, used for chat history persistence. The agent
+    // narrates between tool calls, so join the chunks as paragraphs.
+    current.answer = segments
+      .flatMap((segment) => (segment.type === 'text' ? [segment.content] : []))
+      .join('\n\n')
+    current.sources = Array.from(sources.values())
+    current.isFeedbackSubmissionEnabled = true
+    current.reaction = reactions[message.id] ?? null
   }
 
-  addFeedback(args: KapaSubmitFeedbackArgs): Promise<void> {
-    return this.service.addFeedback(args)
-  }
+  return qas
+}
 
-  abortCurrent(): void {
-    this.service.abortCurrent()
+/**
+ * Chat state for the AI panel, backed by Algolia Agent Studio's AG-UI
+ * completions endpoint via TanStack AI. Conversations are keyed by
+ * `threadId` on the server, so resuming a thread only needs the same id.
+ */
+function useAgentStudioChat(threadId: string) {
+  const connection = React.useMemo(
+    () =>
+      fetchServerSentEvents(AGENT_STUDIO_COMPLETIONS_URL, {
+        headers: AGENT_STUDIO_AUTH_HEADERS,
+      }),
+    [],
+  )
+  const { messages, sendMessage, isLoading, error, stop, clear } = useChat({
+    connection,
+    threadId,
+  })
+  const [reactions, setReactions] = React.useState<
+    Record<string, FeedbackReaction>
+  >({})
+
+  const conversation = React.useMemo(
+    () => messagesToDisplayQAs(messages, reactions),
+    [messages, reactions],
+  )
+
+  const addFeedback = React.useCallback(
+    (messageId: string, reaction: FeedbackReaction) => {
+      // Optimistic: Agent Studio accepts a single vote per message, and the
+      // UI already locks the buttons after the first reaction.
+      setReactions((current) => ({ ...current, [messageId]: reaction }))
+
+      fetch(AGENT_STUDIO_FEEDBACK_URL, {
+        method: 'POST',
+        headers: {
+          ...AGENT_STUDIO_AUTH_HEADERS,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messageId,
+          agentId: AGENT_STUDIO_AGENT_ID,
+          vote: reaction === 'upvote' ? 1 : 0,
+        }),
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`feedback rejected: ${response.status}`)
+          }
+        })
+        .catch(() => {
+          // Unlock the buttons so the vote can be retried.
+          setReactions((current) => {
+            const { [messageId]: _failed, ...rest } = current
+            return rest
+          })
+        })
+    },
+    [],
+  )
+
+  return {
+    conversation,
+    submitQuery: sendMessage,
+    isBusy: isLoading,
+    stopGeneration: stop,
+    // Cancels any in-flight stream and drops messages *and* the error, which
+    // would otherwise outlive a threadId change (the SDK only resets messages).
+    resetChat: clear,
+    addFeedback,
+    errorMessage: error?.message ?? null,
   }
 }
 
@@ -396,7 +634,7 @@ function readNumber(value: unknown) {
   return typeof value === 'number' && Number.isFinite(value) ? value : 0
 }
 
-function parseKapaReaction(value: unknown): KapaReaction | null {
+function parseFeedbackReaction(value: unknown): FeedbackReaction | null {
   if (value === 'upvote' || value === 'downvote') {
     return value
   }
@@ -404,7 +642,7 @@ function parseKapaReaction(value: unknown): KapaReaction | null {
   return null
 }
 
-function parseKapaSource(value: unknown): StreamSource | null {
+function parseAnswerSource(value: unknown): AnswerSource | null {
   if (!isUnknownRecord(value)) {
     return null
   }
@@ -430,7 +668,7 @@ function parseKapaSource(value: unknown): StreamSource | null {
   }
 }
 
-function parseKapaHistoryQA(value: unknown): KapaDisplayQA | null {
+function parseChatHistoryQA(value: unknown): DisplayQA | null {
   if (!isUnknownRecord(value)) {
     return null
   }
@@ -447,14 +685,14 @@ function parseKapaHistoryQA(value: unknown): KapaDisplayQA | null {
     id: typeof value.id === 'string' ? value.id : null,
     question,
     answer: readString(value.answer),
-    sources: sourceValues.map(parseKapaSource).filter(isDefined),
+    sources: sourceValues.map(parseAnswerSource).filter(isDefined),
     isGenerationAborted: value.isGenerationAborted === true,
     isFeedbackSubmissionEnabled: value.isFeedbackSubmissionEnabled === true,
-    reaction: parseKapaReaction(value.reaction),
+    reaction: parseFeedbackReaction(value.reaction),
   }
 }
 
-function parseKapaHistoryItem(value: unknown): KapaHistoryItem | null {
+function parseChatHistoryItem(value: unknown): ChatHistoryItem | null {
   if (!isUnknownRecord(value)) {
     return null
   }
@@ -464,7 +702,7 @@ function parseKapaHistoryItem(value: unknown): KapaHistoryItem | null {
     ? value.conversation
     : []
   const conversation = conversationValues
-    .map(parseKapaHistoryQA)
+    .map(parseChatHistoryQA)
     .filter(isDefined)
 
   if (!threadId || conversation.length === 0) {
@@ -475,20 +713,20 @@ function parseKapaHistoryItem(value: unknown): KapaHistoryItem | null {
 
   return {
     threadId,
-    title: readString(value.title) || buildKapaHistoryTitle(conversation),
+    title: readString(value.title) || buildChatHistoryTitle(conversation),
     createdAt: readNumber(value.createdAt) || updatedAt,
     updatedAt,
     conversation,
   }
 }
 
-function readKapaHistory() {
+function readChatHistory() {
   if (typeof window === 'undefined') {
     return []
   }
 
   try {
-    const raw = localStorage.getItem(KAPA_HISTORY_STORAGE_KEY)
+    const raw = localStorage.getItem(CHAT_HISTORY_STORAGE_KEY)
     if (!raw) {
       return []
     }
@@ -499,31 +737,31 @@ function readKapaHistory() {
     }
 
     return parsed
-      .map(parseKapaHistoryItem)
+      .map(parseChatHistoryItem)
       .filter(isDefined)
       .sort((a, b) => b.updatedAt - a.updatedAt)
-      .slice(0, KAPA_HISTORY_LIMIT)
+      .slice(0, CHAT_HISTORY_LIMIT)
   } catch {
     return []
   }
 }
 
-function writeKapaHistory(items: Array<KapaHistoryItem>) {
+function writeChatHistory(items: Array<ChatHistoryItem>) {
   if (typeof window === 'undefined') {
     return
   }
 
   try {
     localStorage.setItem(
-      KAPA_HISTORY_STORAGE_KEY,
-      JSON.stringify(items.slice(0, KAPA_HISTORY_LIMIT)),
+      CHAT_HISTORY_STORAGE_KEY,
+      JSON.stringify(items.slice(0, CHAT_HISTORY_LIMIT)),
     )
   } catch {
     // Ignore storage failures so chat keeps working.
   }
 }
 
-function buildKapaHistoryTitle(conversation: Array<KapaDisplayQA>) {
+function buildChatHistoryTitle(conversation: Array<DisplayQA>) {
   const firstQuestion =
     conversation
       .find((qa) => qa.question.trim().length > 0)
@@ -535,7 +773,7 @@ function buildKapaHistoryTitle(conversation: Array<KapaDisplayQA>) {
     : firstQuestion
 }
 
-function toStoredKapaQA(qa: KapaDisplayQA): KapaDisplayQA {
+function toStoredQA(qa: DisplayQA): DisplayQA {
   return {
     id: qa.id,
     question: qa.question,
@@ -552,30 +790,30 @@ function toStoredKapaQA(qa: KapaDisplayQA): KapaDisplayQA {
   }
 }
 
-function upsertKapaHistoryItem(
+function upsertChatHistoryItem(
   threadId: string,
-  conversation: Array<KapaDisplayQA>,
+  conversation: Array<DisplayQA>,
 ) {
-  const current = readKapaHistory()
+  const current = readChatHistory()
   const existing = current.find((item) => item.threadId === threadId)
   const now = Date.now()
-  const nextItem: KapaHistoryItem = {
+  const nextItem: ChatHistoryItem = {
     threadId,
-    title: buildKapaHistoryTitle(conversation),
+    title: buildChatHistoryTitle(conversation),
     createdAt: existing?.createdAt ?? now,
     updatedAt: now,
-    conversation: conversation.map(toStoredKapaQA),
+    conversation: conversation.map(toStoredQA),
   }
   const next = [
     nextItem,
     ...current.filter((item) => item.threadId !== threadId),
-  ].slice(0, KAPA_HISTORY_LIMIT)
+  ].slice(0, CHAT_HISTORY_LIMIT)
 
-  writeKapaHistory(next)
+  writeChatHistory(next)
   return next
 }
 
-function formatKapaHistoryTime(updatedAt: number) {
+function formatChatHistoryTime(updatedAt: number) {
   const elapsed = Date.now() - updatedAt
 
   if (elapsed < 60_000) {
@@ -596,17 +834,17 @@ function formatKapaHistoryTime(updatedAt: number) {
   }).format(new Date(updatedAt))
 }
 
-function useKapaChatHistory() {
+function useChatHistory() {
   const [items, setItems] =
-    React.useState<Array<KapaHistoryItem>>(readKapaHistory)
+    React.useState<Array<ChatHistoryItem>>(readChatHistory)
 
   const save = React.useCallback(
-    (threadId: string, conversation: Array<KapaDisplayQA>) => {
+    (threadId: string, conversation: Array<DisplayQA>) => {
       if (conversation.length === 0) {
         return
       }
 
-      setItems(upsertKapaHistoryItem(threadId, conversation))
+      setItems(upsertChatHistoryItem(threadId, conversation))
     },
     [],
   )
@@ -726,7 +964,7 @@ function CopyChatButton({
   conversation,
   compact = false,
 }: {
-  conversation: Array<KapaDisplayQA>
+  conversation: Array<DisplayQA>
   compact?: boolean
 }) {
   const [copied, setCopied] = React.useState(false)
@@ -794,17 +1032,17 @@ function CopyChatButton({
   )
 }
 
-function KapaHistoryButton({
+function ChatHistoryButton({
   items,
   activeThreadId,
   isBusy,
   onSelect,
   compact = false,
 }: {
-  items: Array<KapaHistoryItem>
+  items: Array<ChatHistoryItem>
   activeThreadId: string | null
   isBusy: boolean
-  onSelect: (item: KapaHistoryItem) => void
+  onSelect: (item: ChatHistoryItem) => void
   compact?: boolean
 }) {
   const { cancelAiDockHoverClose } = useSearchContext()
@@ -875,7 +1113,7 @@ function KapaHistoryButton({
                   {item.title}
                 </span>
                 <span className="block truncate text-[10px] text-gray-400 dark:text-gray-500">
-                  {formatKapaHistoryTime(item.updatedAt)}
+                  {formatChatHistoryTime(item.updatedAt)}
                 </span>
               </span>
               {isActive ? (
@@ -926,43 +1164,7 @@ function MessageActionButton({
   )
 }
 
-function AIMessageHeader({ action }: { action?: React.ReactNode }) {
-  return (
-    <div className="flex items-center justify-between mb-1.5">
-      <div className="flex items-center gap-1.5 min-w-0">
-        <div className="w-5 h-5 rounded-full overflow-hidden ring-1 ring-black/10 dark:ring-white/10 shrink-0">
-          <img
-            src="/images/brand/tanstack-emblem-black.svg"
-            alt="TanStack"
-            className="w-full h-full object-contain p-0.5 dark:hidden"
-          />
-          <img
-            src="/images/brand/tanstack-emblem-white.svg"
-            alt="TanStack"
-            aria-hidden="true"
-            className="hidden w-full h-full object-contain p-0.5 dark:block"
-          />
-        </div>
-        <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0 min-w-0">
-          <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
-            TanStack
-          </span>
-          <a
-            href="https://www.kapa.ai/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[10px] text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-          >
-            answers by kapa.ai
-          </a>
-        </div>
-      </div>
-      {action}
-    </div>
-  )
-}
-
-function getKapaSuggestions(selectedLibrary: string) {
+function getAiSuggestions(selectedLibrary: string) {
   if (selectedLibrary === 'query') {
     return [
       'How do I invalidate a query?',
@@ -1010,7 +1212,7 @@ function getKapaSuggestions(selectedLibrary: string) {
   ]
 }
 
-function KapaWelcome({
+function AiWelcome({
   selectedLibrary,
   selectedFramework,
   onSuggestion,
@@ -1023,11 +1225,10 @@ function KapaWelcome({
   disabled?: boolean
   compact?: boolean
 }) {
-  const suggestions = getKapaSuggestions(selectedLibrary)
+  const suggestions = getAiSuggestions(selectedLibrary)
 
   return (
     <div>
-      <AIMessageHeader />
       <div className="rounded-2xl px-3.5 py-3 bg-white dark:bg-white/[0.06] border border-gray-200 dark:border-white/10 shadow-sm space-y-2.5">
         <p
           className={twMerge(
@@ -1081,7 +1282,7 @@ function KapaWelcome({
   )
 }
 
-function KapaAnswer({
+function AiAnswer({
   qa,
   isStreaming,
   error,
@@ -1089,7 +1290,7 @@ function KapaAnswer({
   onFeedback,
   compact = false,
 }: {
-  qa: KapaDisplayQA
+  qa: DisplayQA
   isStreaming: boolean
   error?: string | null
   onCopyQuestion: () => void
@@ -1099,6 +1300,8 @@ function KapaAnswer({
   const canSubmitFeedback =
     qa.id !== null && qa.isFeedbackSubmissionEnabled && qa.reaction === null
   const hasAnswerError = !isStreaming && !qa.answer && !!error
+  const segments = qa.segments ?? []
+  const hasAnswerContent = segments.length > 0 || !!qa.answer
 
   return (
     <div className="space-y-3">
@@ -1120,7 +1323,6 @@ function KapaAnswer({
         </div>
       </div>
       <div>
-        <AIMessageHeader />
         <div className="rounded-2xl px-3.5 py-2.5 bg-white dark:bg-white/[0.06] border border-gray-200 dark:border-white/10 shadow-sm">
           {hasAnswerError ? (
             <p
@@ -1131,21 +1333,58 @@ function KapaAnswer({
             >
               {error}
             </p>
-          ) : qa.answer ? (
+          ) : hasAnswerContent ? (
             <div
               className={twMerge(
                 'text-gray-800 dark:text-gray-200 leading-relaxed break-words',
                 compact ? 'text-[13px]' : 'text-sm',
               )}
             >
-              <TanStackMarkdown
-                components={kapaMarkdownComponents}
-                extensions={kapaMarkdownExtensions}
-                frontmatter={false}
-                headingIds={false}
-              >
-                {qa.answer}
-              </TanStackMarkdown>
+              {segments.length > 0 ? (
+                segments.map((segment, index) =>
+                  segment.type === 'tool-call' ? (
+                    <div
+                      key={segment.toolCall.id}
+                      className={twMerge(
+                        'flex items-center gap-1.5 my-1.5 text-[11px] text-gray-400 dark:text-gray-500',
+                        segment.toolCall.isPending &&
+                          isStreaming &&
+                          'animate-pulse',
+                      )}
+                    >
+                      <MagnifyingGlassIcon className="w-3 h-3 flex-none" />
+                      <span className="truncate">
+                        {segment.toolCall.isPending && isStreaming
+                          ? segment.toolCall.query
+                            ? `Searching the docs for “${segment.toolCall.query}”…`
+                            : 'Searching the docs…'
+                          : segment.toolCall.query
+                            ? `Searched the docs for “${segment.toolCall.query}”`
+                            : 'Searched the docs'}
+                      </span>
+                    </div>
+                  ) : (
+                    <TanStackMarkdown
+                      key={index}
+                      components={aiMarkdownComponents}
+                      extensions={aiMarkdownExtensions}
+                      frontmatter={false}
+                      headingIds={false}
+                    >
+                      {segment.content}
+                    </TanStackMarkdown>
+                  ),
+                )
+              ) : (
+                <TanStackMarkdown
+                  components={aiMarkdownComponents}
+                  extensions={aiMarkdownExtensions}
+                  frontmatter={false}
+                  headingIds={false}
+                >
+                  {qa.answer}
+                </TanStackMarkdown>
+              )}
             </div>
           ) : (
             <div className="flex items-center gap-1 py-0.5">
@@ -1236,11 +1475,10 @@ function KapaAnswer({
   )
 }
 
-function KapaChatPanel({
+function AiChatPanel({
   onReset,
   isFullHeight,
   onToggleFullHeight,
-  threadIdOverrideRef,
   newChatRequestId,
   surface,
   isDockMaximized = false,
@@ -1249,23 +1487,22 @@ function KapaChatPanel({
   onReset: () => void
   isFullHeight: boolean
   onToggleFullHeight: () => void
-  threadIdOverrideRef: React.MutableRefObject<string | null>
   newChatRequestId: number
   surface: SearchSurface
   isDockMaximized?: boolean
   onToggleDockMaximized?: () => void
 }) {
+  const [thread, setThread] = React.useState(freshThread)
+  const { threadId, savedConversation } = thread
   const {
     conversation,
-    threadId,
     submitQuery,
-    isGeneratingAnswer,
-    isPreparingAnswer,
+    isBusy,
     stopGeneration,
-    resetConversation,
+    resetChat,
     addFeedback,
-    error,
-  } = useChat()
+    errorMessage,
+  } = useAgentStudioChat(threadId)
   const {
     aiDockAskRequest,
     clearAiDockAskRequest,
@@ -1275,27 +1512,27 @@ function KapaChatPanel({
   const { selectedLibrary, selectedFramework, showSearchResults, searchQuery } =
     useSearchFilters()
   const scrollRef = React.useRef<HTMLDivElement>(null)
-  const { items: historyItems, save: saveHistory } = useKapaChatHistory()
-  const [selectedHistoryItem, setSelectedHistoryItem] =
-    React.useState<KapaHistoryItem | null>(null)
-  const isBusy = isGeneratingAnswer || isPreparingAnswer
+  const { items: historyItems, save: saveHistory } = useChatHistory()
+  // Question waiting for the chat client of a freshly created thread. Changing
+  // `threadId` recreates the client on the next render, so a "clear then ask"
+  // flow (e.g. Ask AI from the search modal) must defer the submit.
+  const [pendingQuestion, setPendingQuestion] = React.useState<string | null>(
+    null,
+  )
   const isDock = surface === 'dock'
   const isSubmittingRef = React.useRef(false)
-  const pendingSubmitIdRef = React.useRef(0)
   const lockedToBottom = React.useRef(true)
   const handledNewChatRequestId = React.useRef(newChatRequestId)
   const handledAiDockAskRequestId = React.useRef(0)
-  const displayConversation = React.useMemo<Array<KapaDisplayQA>>(() => {
-    const liveConversation = Array.from(conversation)
-
-    if (!selectedHistoryItem) {
-      return liveConversation
-    }
-
-    return [...selectedHistoryItem.conversation, ...liveConversation]
-  }, [conversation, selectedHistoryItem])
+  const displayConversation = React.useMemo<Array<DisplayQA>>(
+    () =>
+      savedConversation.length === 0
+        ? conversation
+        : [...savedConversation, ...conversation],
+    [conversation, savedConversation],
+  )
   const hasConversation = displayConversation.length > 0
-  const activeThreadId = threadId ?? selectedHistoryItem?.threadId ?? null
+  const activeThreadId = threadId
 
   React.useEffect(() => {
     if (!isDock) {
@@ -1308,13 +1545,7 @@ function KapaChatPanel({
   }, [displayConversation.length, isBusy, isDock, searchQuery, setAiDockDirty])
 
   React.useEffect(() => {
-    if (threadId) {
-      threadIdOverrideRef.current = threadId
-    }
-  }, [threadId, threadIdOverrideRef])
-
-  React.useEffect(() => {
-    if (!threadId || isBusy || displayConversation.length === 0) {
+    if (isBusy || displayConversation.length === 0) {
       return
     }
 
@@ -1361,52 +1592,31 @@ function KapaChatPanel({
         return
       }
 
-      const submitId = pendingSubmitIdRef.current + 1
-      pendingSubmitIdRef.current = submitId
       isSubmittingRef.current = true
-
-      waitForKapaRecaptchaReady().then(() => {
-        if (pendingSubmitIdRef.current !== submitId) {
-          return
-        }
-
-        submitQuery(trimmed)
-      })
+      void submitQuery(trimmed)
     },
     [isBusy, submitQuery],
   )
 
   const selectHistoryItem = React.useCallback(
-    (item: KapaHistoryItem) => {
+    (item: ChatHistoryItem) => {
       if (isBusy) {
         return
       }
 
-      resetConversation()
-      threadIdOverrideRef.current = item.threadId
-      setSelectedHistoryItem(item)
+      setThread((current) => selectThread(current, item))
       lockedToBottom.current = true
     },
-    [isBusy, resetConversation, threadIdOverrideRef],
+    [isBusy],
   )
 
   const clearActiveChat = React.useCallback(() => {
-    pendingSubmitIdRef.current += 1
     isSubmittingRef.current = false
-    resetConversation()
-    threadIdOverrideRef.current = null
-    setSelectedHistoryItem(null)
+    resetChat()
+    setThread(freshThread())
     lockedToBottom.current = true
     onReset()
-  }, [onReset, resetConversation, threadIdOverrideRef])
-
-  const startNewChat = React.useCallback(() => {
-    if (isBusy) {
-      stopGeneration()
-    }
-
-    clearActiveChat()
-  }, [clearActiveChat, isBusy, stopGeneration])
+  }, [onReset, resetChat])
 
   React.useEffect(() => {
     if (handledNewChatRequestId.current === newChatRequestId) {
@@ -1414,8 +1624,17 @@ function KapaChatPanel({
     }
 
     handledNewChatRequestId.current = newChatRequestId
-    startNewChat()
-  }, [newChatRequestId, startNewChat])
+    clearActiveChat()
+  }, [newChatRequestId, clearActiveChat])
+
+  React.useEffect(() => {
+    if (pendingQuestion === null || isBusy) {
+      return
+    }
+
+    setPendingQuestion(null)
+    ask(pendingQuestion)
+  }, [ask, isBusy, pendingQuestion])
 
   React.useEffect(() => {
     if (!isDock || !aiDockAskRequest) {
@@ -1433,10 +1652,9 @@ function KapaChatPanel({
 
     handledAiDockAskRequestId.current = aiDockAskRequest.id
     clearActiveChat()
-    ask(aiDockAskRequest.question)
+    setPendingQuestion(aiDockAskRequest.question)
     clearAiDockAskRequest(aiDockAskRequest.id)
   }, [
-    ask,
     aiDockAskRequest,
     clearActiveChat,
     clearAiDockAskRequest,
@@ -1468,10 +1686,39 @@ function KapaChatPanel({
         {isDock ? null : <StickyTopBlur />}
         <div className="relative z-10 flex items-center gap-1 min-w-0">
           {isDock ? (
-            <div className="min-w-0 py-1.5">
-              <div className="truncate text-sm font-bold leading-4 text-gray-900 dark:text-white">
-                TanStack AI
-              </div>
+            <div className="flex items-center gap-1.5 min-w-0 py-1.5">
+              <SafeLink
+                href="/ai/latest"
+                className="flex items-center min-w-0 text-gray-900 hover:opacity-80 dark:text-white transition-opacity"
+              >
+                <LibraryWordmark
+                  library={ai}
+                  className="text-sm leading-none"
+                />
+              </SafeLink>
+              <span
+                aria-hidden="true"
+                className="text-xs leading-4 text-gray-300 dark:text-gray-600"
+              >
+                ×
+              </span>
+              <SafeLink
+                href="https://www.algolia.com/products/ai/agent-studio"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex shrink-0 items-center opacity-60 hover:opacity-100 transition-opacity"
+              >
+                <img
+                  src="/Algolia-logo-blue.svg"
+                  alt="Algolia"
+                  className="h-3 w-auto dark:hidden"
+                />
+                <img
+                  src="/Algolia-logo-white.svg"
+                  alt="Algolia"
+                  className="hidden h-3 w-auto dark:block"
+                />
+              </SafeLink>
             </div>
           ) : (
             <>
@@ -1512,7 +1759,7 @@ function KapaChatPanel({
               onToggle={onToggleDockMaximized}
             />
           ) : null}
-          <KapaHistoryButton
+          <ChatHistoryButton
             items={historyItems}
             activeThreadId={activeThreadId}
             isBusy={isBusy}
@@ -1527,7 +1774,7 @@ function KapaChatPanel({
               />
               <button
                 type="button"
-                onClick={startNewChat}
+                onClick={clearActiveChat}
                 title="New chat"
                 aria-label="New chat"
                 className={twMerge(
@@ -1555,7 +1802,7 @@ function KapaChatPanel({
         )}
       >
         {displayConversation.length === 0 ? (
-          <KapaWelcome
+          <AiWelcome
             selectedLibrary={showSearchResults ? selectedLibrary : ''}
             selectedFramework={showSearchResults ? selectedFramework : ''}
             onSuggestion={ask}
@@ -1563,18 +1810,14 @@ function KapaChatPanel({
           />
         ) : (
           displayConversation.map((qa, index) => {
-            const liveIndex =
-              index -
-              (selectedHistoryItem
-                ? selectedHistoryItem.conversation.length
-                : 0)
+            const liveIndex = index - savedConversation.length
             const isLiveQA = liveIndex >= 0
             const isLatestLiveQA = liveIndex === conversation.length - 1
             const isStreamingLatest = isLiveQA && isLatestLiveQA && isBusy
-            const answerError = isLiveQA && isLatestLiveQA ? error : null
+            const answerError = isLiveQA && isLatestLiveQA ? errorMessage : null
 
             return (
-              <KapaAnswer
+              <AiAnswer
                 key={qa.id ?? `${qa.question}-${index}`}
                 qa={qa}
                 isStreaming={isStreamingLatest}
@@ -1592,9 +1835,9 @@ function KapaChatPanel({
             )
           })
         )}
-        {error && conversation.length === 0 && (
+        {errorMessage && conversation.length === 0 && (
           <div className="rounded-lg border border-red-300/70 dark:border-red-500/30 bg-red-50 dark:bg-red-500/10 px-3 py-2 text-sm text-red-700 dark:text-red-300">
-            {error}
+            {errorMessage}
           </div>
         )}
       </div>
@@ -1644,122 +1887,6 @@ function StickyTopBlur() {
   )
 }
 
-function KapaUnavailablePanel({
-  isFullHeight,
-  onToggleFullHeight,
-  surface,
-  isDockMaximized = false,
-  onToggleDockMaximized,
-}: {
-  isFullHeight: boolean
-  onToggleFullHeight: () => void
-  surface: SearchSurface
-  isDockMaximized?: boolean
-  onToggleDockMaximized?: () => void
-}) {
-  const { closeSearch, setAiDockDirty } = useSearchContext()
-  const { selectedLibrary, selectedFramework, showSearchResults, searchQuery } =
-    useSearchFilters()
-  const isDock = surface === 'dock'
-
-  React.useEffect(() => {
-    if (!isDock) {
-      return
-    }
-
-    setAiDockDirty(searchQuery.trim().length > 0)
-  }, [isDock, searchQuery, setAiDockDirty])
-
-  return (
-    <section
-      className={twMerge(
-        'overflow-y-auto flex flex-col',
-        isDock
-          ? 'flex-1 min-h-0'
-          : isFullHeight
-            ? 'flex-1 min-h-0'
-            : 'flex-1 min-h-0 sm:flex-none sm:max-h-[min(600px,calc(100dvh-2rem-90px))]',
-      )}
-    >
-      <div
-        className={twMerge(
-          'sticky top-0 flex items-center justify-between gap-1.5',
-          isDock
-            ? 'z-20 px-3 py-2 border-b border-gray-200/80 dark:border-white/10 bg-white/90 dark:bg-black/90 backdrop-blur-xl shadow-sm'
-            : 'z-10 pt-2 pb-1 px-4 sm:px-5 pointer-events-none',
-        )}
-      >
-        {isDock ? null : <StickyTopBlur />}
-        <div className="relative z-10 flex items-center gap-1 min-w-0">
-          {isDock ? (
-            <div className="min-w-0 py-1.5">
-              <div className="truncate text-sm font-bold leading-4 text-gray-900 dark:text-white">
-                TanStack AI
-              </div>
-            </div>
-          ) : (
-            <>
-              <button
-                type="button"
-                onClick={closeSearch}
-                className="pointer-events-auto flex items-center justify-center w-6 h-6 rounded-md bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-white dark:hover:bg-black/90 shadow-sm transition-colors"
-                aria-label="Close search"
-              >
-                <XIcon className="w-3.5 h-3.5" />
-              </button>
-              <button
-                type="button"
-                onClick={onToggleFullHeight}
-                className="hidden sm:flex pointer-events-auto items-center justify-center w-6 h-6 rounded-md bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-white dark:hover:bg-black/90 shadow-sm transition-colors"
-                aria-label={isFullHeight ? 'Collapse search' : 'Expand search'}
-              >
-                {isFullHeight ? (
-                  <ArrowsInSimpleIcon className="w-3 h-3" />
-                ) : (
-                  <ArrowsOutSimpleIcon className="w-3 h-3" />
-                )}
-              </button>
-            </>
-          )}
-        </div>
-        {isDock && onToggleDockMaximized ? (
-          <div className="relative z-10 flex items-center gap-0.5 rounded-xl bg-gray-500/5 dark:bg-white/[0.04] p-0.5">
-            <DockMaximizeButton
-              isMaximized={isDockMaximized}
-              onToggle={onToggleDockMaximized}
-            />
-          </div>
-        ) : null}
-      </div>
-      <div
-        className={twMerge(
-          'flex-1 pt-3 space-y-4',
-          isDock ? 'px-3 pb-[260px]' : 'px-3 sm:px-4 pb-[220px]',
-        )}
-      >
-        <div className="rounded-xl border border-amber-200 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/10 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
-          Kapa is not configured. Add{' '}
-          <code className="font-mono">VITE_KAPA_INTEGRATION_ID</code> to enable
-          AI answers.
-        </div>
-        <KapaWelcome
-          selectedLibrary={showSearchResults ? selectedLibrary : ''}
-          selectedFramework={showSearchResults ? selectedFramework : ''}
-          onSuggestion={() => {}}
-          disabled
-          compact={isDock}
-        />
-      </div>
-      <div className="sticky bottom-0">
-        <div className="absolute bottom-full left-0 right-0">
-          <SearchResultsInChat surface={surface} />
-        </div>
-        <InputBar isBusy onAskAISubmit={() => {}} surface={surface} />
-      </div>
-    </section>
-  )
-}
-
 function SearchPanel({
   isFullHeight,
   onToggleFullHeight,
@@ -1775,23 +1902,6 @@ function SearchPanel({
   isDockMaximized?: boolean
   onToggleDockMaximized?: () => void
 }) {
-  const integrationId = KAPA_INTEGRATION_ID
-  const threadIdOverrideRef = React.useRef<string | null>(null)
-  const apiService = React.useMemo(
-    () => new KapaThreadOverrideApiService(threadIdOverrideRef),
-    [],
-  )
-  const sourceGroupIDsInclude = React.useMemo(
-    () => parseSourceGroupIDs(env.VITE_KAPA_SOURCE_GROUP_IDS),
-    [],
-  )
-
-  React.useEffect(() => {
-    return () => {
-      apiService.abortCurrent()
-    }
-  }, [apiService])
-
   return (
     <div
       className={twMerge(
@@ -1803,33 +1913,15 @@ function SearchPanel({
             : 'h-dvh sm:h-auto flex flex-col',
       )}
     >
-      {integrationId ? (
-        <KapaProvider
-          integrationId={integrationId}
-          sourceGroupIDsInclude={sourceGroupIDsInclude}
-          userTrackingMode="cookie"
-          apiService={apiService}
-        >
-          <KapaChatPanel
-            onReset={() => {}}
-            isFullHeight={isFullHeight}
-            onToggleFullHeight={onToggleFullHeight}
-            threadIdOverrideRef={threadIdOverrideRef}
-            newChatRequestId={newChatRequestId}
-            surface={surface}
-            isDockMaximized={isDockMaximized}
-            onToggleDockMaximized={onToggleDockMaximized}
-          />
-        </KapaProvider>
-      ) : (
-        <KapaUnavailablePanel
-          isFullHeight={isFullHeight}
-          onToggleFullHeight={onToggleFullHeight}
-          surface={surface}
-          isDockMaximized={isDockMaximized}
-          onToggleDockMaximized={onToggleDockMaximized}
-        />
-      )}
+      <AiChatPanel
+        onReset={() => {}}
+        isFullHeight={isFullHeight}
+        onToggleFullHeight={onToggleFullHeight}
+        newChatRequestId={newChatRequestId}
+        surface={surface}
+        isDockMaximized={isDockMaximized}
+        onToggleDockMaximized={onToggleDockMaximized}
+      />
     </div>
   )
 }

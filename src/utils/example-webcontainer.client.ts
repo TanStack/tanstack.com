@@ -13,8 +13,10 @@ import {
 } from './example-workspace'
 import { env } from './env'
 import {
+  getRolldownWasiBindingSpecifier,
   getTanStackStartOxcRuntimeSpecifier,
   getWebContainerStartCommand,
+  getWebContainerStartEnv,
   prepareTanStackStartWebContainerFiles,
 } from './example-webcontainer-start'
 import { createExampleSandboxBrowserScript } from './example-sandbox.client'
@@ -592,11 +594,24 @@ class ExampleWebContainerSessionImplementation implements WebContainerExampleSes
     const runtimeSpecifier = getTanStackStartOxcRuntimeSpecifier(
       rolldownPackageSource,
     )
+    const wasiSpecifier = getRolldownWasiBindingSpecifier(rolldownPackageSource)
     const process = await container.spawn(
       packageManager,
       packageManager === 'npm'
-        ? ['install', '--no-save', '--package-lock=false', runtimeSpecifier]
-        : ['add', '--save-dev', '--lockfile=false', runtimeSpecifier],
+        ? [
+            'install',
+            '--no-save',
+            '--package-lock=false',
+            runtimeSpecifier,
+            wasiSpecifier,
+          ]
+        : [
+            'add',
+            '--save-dev',
+            '--lockfile=false',
+            runtimeSpecifier,
+            wasiSpecifier,
+          ],
     )
     this.installProcess = process
     const output = this.readOutput(process, 'install')
@@ -620,9 +635,7 @@ class ExampleWebContainerSessionImplementation implements WebContainerExampleSes
       startCommand.command,
       startCommand.args,
       {
-        env: {
-          __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS: '.webcontainer-api.io',
-        },
+        env: getWebContainerStartEnv(this.runtime),
       },
     )
     this.assertUsable()

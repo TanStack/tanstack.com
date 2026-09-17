@@ -104,6 +104,8 @@ export function getWebContainerStartEnv(runtime: ExampleRuntime) {
 
   if (runtime.compatibility === tanStackStartAsyncContextCompatibility) {
     env.NAPI_RS_NATIVE_LIBRARY_PATH = '@rolldown/binding-wasm32-wasi'
+    // Nitro's default node-worker never finishes loading in WebContainer.
+    env.NITRO_DEV_RUNNER = 'self'
   }
 
   return env
@@ -152,6 +154,7 @@ export default defineConfig(async (configEnv) => {
     plugins: [tanStackStartAsyncContextPlugin()],
     resolve: { noExternal },
     ssr: { noExternal },
+    nitro: { devServer: { runner: 'self' } },
   })
 })
 `

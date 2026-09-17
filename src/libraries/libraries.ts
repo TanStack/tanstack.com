@@ -708,7 +708,7 @@ export const ai: LibrarySlim = {
     'vanilla',
   ],
   corePackageName: '@tanstack/ai-client',
-  npmPackageNames: ['@tanstack/ai-client'],
+  npmPackageNames: ['@tanstack/ai'],
   latestVersion: 'v0',
   latestBranch: 'main',
   availableVersions: ['v0'],

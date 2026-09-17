@@ -13,6 +13,7 @@ const expectedFrameworks: Framework[] = [
   'svelte',
   'preact',
   'angular',
+  'octane',
   'vanilla',
 ]
 
@@ -23,17 +24,19 @@ const expectedPackages: Partial<Record<Framework, string>> = {
   svelte: '@tanstack/ai-svelte',
   preact: '@tanstack/ai-preact',
   angular: '@tanstack/ai-angular',
+  octane: '@tanstack/ai-octane',
   vanilla: '@tanstack/ai-client',
 }
 
 const expectedDocsPaths: Partial<Record<Framework, string>> = {
   react: 'getting-started/quick-start',
-  vue: 'getting-started/quick-start-vue',
-  solid: 'api/ai-solid',
-  svelte: 'getting-started/quick-start-svelte',
-  preact: 'api/ai-preact',
-  angular: 'getting-started/quick-start-angular',
-  vanilla: 'api/ai-client',
+  vue: 'getting-started/quick-start',
+  solid: 'getting-started/quick-start',
+  svelte: 'getting-started/quick-start',
+  preact: 'getting-started/quick-start',
+  angular: 'getting-started/quick-start',
+  octane: 'getting-started/quick-start',
+  vanilla: 'getting-started/quick-start',
 }
 
 assert.deepEqual(

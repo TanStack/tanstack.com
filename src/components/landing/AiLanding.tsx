@@ -23,7 +23,7 @@ import {
 
 import { getLibrary } from '~/libraries'
 import { CodeBlock } from '~/components/markdown/CodeBlock'
-import { usePrefersReducedMotion } from '~/utils/usePrefersReducedMotion'
+import { AiCampaignHero } from './AiCampaignHero'
 import { LandingPromptBox } from './LandingPromptBox'
 import {
   LandingSection,
@@ -31,9 +31,6 @@ import {
   LandingWindow,
   LibraryLandingShell,
 } from './LibraryLanding'
-
-const aiPrompt =
-  'Install the agent skills from the skills folder of https://github.com/TanStack/ai for my user, read them, then ask me what AI features I want to build, or suggest some.'
 
 // ponytail: the shared --landing-accent-ink is pure black, which reads badly on the
 // orange accent fill. Darken the fill instead and use white text on it.
@@ -46,8 +43,9 @@ export default function AiLanding() {
       libraryId="ai"
       headline="AI building blocks for TypeScript. We build the hard parts, you keep your stack."
       description="TanStack AI is a TypeScript library for building AI features and agents. It ships the agent loop, provider adapters, durability, interrupts, sandboxes, and tools, and plugs into the server, database, and UI you already have."
-      hero={<WriteOnceHero />}
-      beforeActions={<LandingPromptBox heading="Skills" prompt={aiPrompt} />}
+      hero={<AiCampaignHero />}
+      beforeActions={<LandingPromptBox />}
+      stackHero
     >
       <LandingSection tone="accent">
         <LandingSectionIntro
@@ -66,7 +64,7 @@ export default function AiLanding() {
       </LandingSection>
 
       <LandingSection tone="ink">
-        <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
+        <div className="grid items-center gap-12 xl:grid-cols-[1.1fr_0.9fr] xl:gap-16">
           <LandingSectionIntro
             eyebrow="Typesafe models"
             icon={<PlugIcon aria-hidden="true" size={15} />}
@@ -78,14 +76,14 @@ export default function AiLanding() {
               </DocsLink>
             }
           />
-          <div className="min-w-0 lg:order-first">
+          <div className="min-w-0 xl:order-first">
             <ProviderWorkbench />
           </div>
         </div>
       </LandingSection>
 
       <LandingSection tone="raised">
-        <div className="grid items-center gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16">
+        <div className="grid items-center gap-12 xl:grid-cols-[0.92fr_1.08fr] xl:gap-16">
           <LandingSectionIntro
             eyebrow="We handle tools"
             icon={<BracketsCurlyIcon aria-hidden="true" size={15} />}
@@ -98,17 +96,15 @@ export default function AiLanding() {
       </LandingSection>
 
       <LandingSection tone="ink">
-        <div className="grid items-center gap-12 lg:grid-cols-[1.08fr_0.92fr] lg:gap-16">
-          <LandingSectionIntro
-            eyebrow="You own the UI"
-            icon={<LayoutIcon aria-hidden="true" size={15} />}
-            title="Messages are parts. Render however you like."
-            body="Text, thinking, tool calls and results all arrive as typed parts with their own state. Loop over the parts and render each one, or hand a component per part type to createChatHook and it picks the right one for you."
-            action={<DocsLink to="ui/react">UI integrations</DocsLink>}
-          />
-          <div className="min-w-0 lg:order-first">
-            <MessageParts />
-          </div>
+        <LandingSectionIntro
+          eyebrow="You own the UI"
+          icon={<LayoutIcon aria-hidden="true" size={15} />}
+          title="Messages are parts. Render however you like."
+          body="Text, thinking, tool calls and results all arrive as typed parts with their own state. Loop over the parts and render each one, or hand a component per part type to createChatHook and it picks the right one for you."
+          action={<DocsLink to="ui/react">UI integrations</DocsLink>}
+        />
+        <div className="mt-12 min-w-0">
+          <MessageParts />
         </div>
       </LandingSection>
 
@@ -125,7 +121,7 @@ export default function AiLanding() {
       </LandingSection>
 
       <LandingSection tone="ink">
-        <div className="grid items-center gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:gap-16">
+        <div className="grid items-center gap-12 xl:grid-cols-[0.82fr_1.18fr] xl:gap-16">
           <LandingSectionIntro
             eyebrow="Durability you can move"
             icon={<HardDrivesIcon aria-hidden="true" size={15} />}
@@ -142,7 +138,7 @@ export default function AiLanding() {
       </LandingSection>
 
       <LandingSection tone="raised">
-        <div className="grid gap-12 lg:grid-cols-[0.78fr_1.22fr] lg:items-start lg:gap-16">
+        <div className="grid gap-12 xl:grid-cols-[0.78fr_1.22fr] xl:items-start xl:gap-16">
           <LandingSectionIntro
             eyebrow="We handle the hard parts"
             icon={<CubeIcon aria-hidden="true" size={15} />}
@@ -154,7 +150,7 @@ export default function AiLanding() {
       </LandingSection>
 
       <LandingSection tone="ink">
-        <div className="grid gap-12 lg:grid-cols-[0.78fr_1.22fr] lg:items-start lg:gap-16">
+        <div className="grid gap-12 xl:grid-cols-[0.78fr_1.22fr] xl:items-start xl:gap-16">
           <LandingSectionIntro
             eyebrow="Beyond chat"
             icon={<MicrophoneIcon aria-hidden="true" size={15} />}
@@ -167,7 +163,7 @@ export default function AiLanding() {
       </LandingSection>
 
       <LandingSection tone="raised">
-        <div className="grid gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:items-center lg:gap-16">
+        <div className="grid gap-12 xl:grid-cols-[0.82fr_1.18fr] xl:items-center xl:gap-16">
           <LandingSectionIntro
             eyebrow="Devtools"
             icon={<BugIcon aria-hidden="true" size={15} />}
@@ -193,48 +189,69 @@ export default function AiLanding() {
   )
 }
 
-const codeWindowClass =
-  'm-0 min-w-0 rounded-none border-0 [&>div:first-child]:rounded-none [&_pre]:max-h-104 [&_pre]:overflow-auto [&_pre]:rounded-none [&_pre]:text-[11px] [&_pre]:leading-5 sm:[&_pre]:text-xs'
+// Paper well in light, #111 in dark. Same --th-* tokens as CodeBlock.
+const codeWellClass =
+  'm-0 min-w-0 overflow-hidden rounded-lg border-0 bg-gray-100 [--th-background:var(--color-gray-100)] dark:bg-ds-neutral-500 dark:[--th-background:var(--color-ds-neutral-500)] [&_pre]:overflow-x-auto [&_pre]:rounded-none [&_pre]:p-4 [&_pre]:text-xs [&_pre]:leading-6'
+
+const codeSurfaceClass =
+  'overflow-x-auto rounded-lg bg-gray-100 p-4 font-ds-mono text-ds-mono-xs leading-6 text-(--th-token) dark:bg-ds-neutral-500 [&_p]:whitespace-pre'
+
+function CodeWell({
+  children,
+  className = 'p-5',
+  codeKey,
+  lang = 'ts',
+}: {
+  children: string
+  className?: string
+  codeKey?: string
+  lang?: string
+}) {
+  return (
+    <div className={className}>
+      <CodeBlock
+        key={codeKey}
+        className={codeWellClass}
+        showTypeCopyButton={false}
+      >
+        <code className={`language-${lang}`}>{children}</code>
+      </CodeBlock>
+    </div>
+  )
+}
 
 function CodeTabs({
-  preHeightClass,
   label,
   samples,
 }: {
   label: string
   samples: Array<{ code: string; file: string; name: string }>
-  preHeightClass: string
 }) {
   const [activeIndex, setActiveIndex] = React.useState(0)
   const sample = samples[activeIndex] ?? samples[0]
 
   return (
     <LandingWindow label={label}>
-      <div
-        className="flex gap-1 border-b border-border-subtle p-2"
-        role="group"
-        aria-label={label}
-      >
-        {samples.map((item, index) => (
-          <button
-            key={item.name}
-            type="button"
-            aria-pressed={index === activeIndex}
-            className="rounded-lg px-3 py-1.5 text-ds-label-sm text-text-primary/40 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-pressed:bg-[rgb(var(--landing-glow)/0.14)] aria-pressed:text-(--landing-accent-bright)"
-            onClick={() => setActiveIndex(index)}
-          >
-            {item.name}
-          </button>
-        ))}
+      <div className="border-b border-border-subtle px-4 pt-4">
+        <div
+          className="flex gap-5 overflow-x-auto"
+          role="group"
+          aria-label={label}
+        >
+          {samples.map((item, index) => (
+            <button
+              key={item.name}
+              type="button"
+              aria-pressed={index === activeIndex}
+              className="shrink-0 border-b-2 border-transparent pb-3 text-ds-label-sm text-text-primary/35 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-pressed:border-(--landing-accent) aria-pressed:text-text-primary"
+              onClick={() => setActiveIndex(index)}
+            >
+              {item.name}
+            </button>
+          ))}
+        </div>
       </div>
-      <CodeBlock
-        key={sample.name}
-        dataCodeTitle={sample.file}
-        className={`${codeWindowClass} ${preHeightClass}`}
-        showTypeCopyButton={false}
-      >
-        <code className="language-ts">{sample.code}</code>
-      </CodeBlock>
+      <CodeWell codeKey={sample.name}>{sample.code}</CodeWell>
     </LandingWindow>
   )
 }
@@ -350,13 +367,7 @@ function PersistenceContract() {
         ))}
       </div>
       <LandingWindow className="w-full max-w-184" label={snippet.file}>
-        <CodeBlock
-          key={store.name}
-          className={`${codeWindowClass} [&_pre]:h-88`}
-          showTypeCopyButton={false}
-        >
-          <code className="language-ts">{snippet.code}</code>
-        </CodeBlock>
+        <CodeWell codeKey={store.name}>{snippet.code}</CodeWell>
       </LandingWindow>
     </div>
   )
@@ -416,13 +427,7 @@ export function redisStream(request: Request): StreamDurability {
 ]
 
 function DurabilityTiers() {
-  return (
-    <CodeTabs
-      preHeightClass="[&_pre]:h-76"
-      label="stream durability"
-      samples={durabilityTiers}
-    />
-  )
+  return <CodeTabs label="stream durability" samples={durabilityTiers} />
 }
 
 const toolCallStates = [
@@ -439,9 +444,16 @@ type ToolCallState = (typeof toolCallStates)[number]
 // Both snippets stay put while the cycle runs; only the highlighted line
 // moves. A line tagged with a part lights up when that part is active, and a
 // line tagged with a tool state only when the tool call is in that state.
+type HighlightPart =
+  | 'message'
+  | 'thinking'
+  | 'tool-call'
+  | 'tool-result'
+  | 'text'
+
 type CodeLine = {
   text: string
-  part?: 'thinking' | 'tool-call' | 'tool-result' | 'text'
+  part?: HighlightPart
   toolState?: ToolCallState
 }
 
@@ -488,7 +500,7 @@ const loopCode: Array<CodeLine> = [
   { text: '})' },
   { text: '' },
   { text: 'return messages.map((message) => (' },
-  { text: '  <article key={message.id}>' },
+  { text: '  <article key={message.id}>', part: 'message' },
   { text: '    {message.parts.map((part, index) => {' },
   { text: '      switch (part.type) {' },
   { text: "        case 'thinking':", part: 'thinking' },
@@ -524,7 +536,10 @@ const hookCode: Array<CodeLine> = [
   { text: '  options: chatOptions,' },
   { text: '  components: {' },
   { text: '    layout: ({ Messages }) => <main><Messages /></main>,' },
-  { text: '    message: ({ Parts }) => <article><Parts /></article>,' },
+  {
+    text: '    message: ({ Parts }) => <article><Parts /></article>,',
+    part: 'message',
+  },
   { text: '  },' },
   { text: '  partsComponents: {' },
   {
@@ -552,12 +567,13 @@ const hookCode: Array<CodeLine> = [
   { text: 'return <chat.AppChat />' },
 ]
 
-// The cycle walks the message: thinking, then every tool-call state, then the
-// result and the streamed reply.
+// The cycle walks createChatHook: message, thinking, every tool-call state,
+// then the result and the streamed reply.
 const partSteps: Array<
-  | { part: 'thinking' | 'tool-result' | 'text' }
+  | { part: 'message' | 'thinking' | 'tool-result' | 'text' }
   | { part: 'tool-call'; toolState: ToolCallState }
 > = [
+  { part: 'message' },
   { part: 'thinking' },
   ...toolCallStates.map((toolState) => ({
     part: 'tool-call' as const,
@@ -566,6 +582,297 @@ const partSteps: Array<
   { part: 'tool-result' },
   { part: 'text' },
 ]
+
+const partStepIndex = {
+  message: 0,
+  thinking: 1,
+  'tool-call': 2,
+  'tool-result': 2 + toolCallStates.length,
+  text: 3 + toolCallStates.length,
+} as const
+
+function chatHighlightClass(active: boolean) {
+  return active
+    ? 'outline outline-2 outline-offset-2 outline-(--landing-accent-bright) bg-[rgb(var(--landing-glow)/0.12)]'
+    : ''
+}
+
+function InvoiceCard({ highlighted = false }: { highlighted?: boolean }) {
+  return (
+    <div
+      className={`overflow-hidden rounded-xl border ${
+        highlighted
+          ? 'border-(--landing-accent-bright) bg-[rgb(var(--landing-glow)/0.14)]'
+          : 'border-border-default bg-background-surface'
+      }`}
+    >
+      <div className="flex items-center justify-between border-b border-border-subtle px-3.5 py-2.5">
+        <p className="text-ds-label-sm text-text-primary">Invoice</p>
+        <span className="rounded-full bg-[rgb(var(--landing-glow)/0.16)] px-2 py-0.5 text-ds-label-sm text-(--landing-accent-bright)">
+          Paid
+        </span>
+      </div>
+      <div className="px-3.5 py-3">
+        <p className="font-ds-mono text-ds-mono-2xs text-text-primary/40">
+          INV-2231
+        </p>
+        <p className="mt-1 text-ds-heading-3 tabular-nums">$1,240.00</p>
+        <p className="mt-1 text-ds-body-xs text-text-primary/50">
+          Acme Labs · Paid 12 Mar 2026
+        </p>
+      </div>
+    </div>
+  )
+}
+
+function ToolCallPreview({
+  highlighted,
+  onApprove,
+  onSelect,
+  toolState,
+}: {
+  highlighted: boolean
+  onApprove: () => void
+  onSelect: () => void
+  toolState: ToolCallState | 'pending'
+}) {
+  const status =
+    toolState === 'awaiting-input' ||
+    toolState === 'input-streaming' ||
+    toolState === 'pending'
+      ? 'Running'
+      : toolState === 'input-complete'
+        ? 'Found match'
+        : toolState === 'approval-requested'
+          ? 'Needs approval'
+          : toolState === 'approval-responded'
+            ? 'Approved'
+            : 'Done'
+
+  const showApproval =
+    toolState === 'approval-requested' ||
+    toolState === 'approval-responded' ||
+    toolState === 'complete'
+  const highlightInvoice = highlighted && toolState === 'complete'
+  const highlightTool =
+    highlighted &&
+    toolState !== 'complete' &&
+    toolState !== 'approval-requested' &&
+    toolState !== 'approval-responded'
+  const highlightApproval =
+    highlighted &&
+    (toolState === 'approval-requested' || toolState === 'approval-responded')
+
+  return (
+    <div className="space-y-2 p-1">
+      <div
+        className={`overflow-hidden rounded-xl border border-border-default bg-background-surface ${chatHighlightClass(highlightTool)}`}
+      >
+        <button
+          type="button"
+          className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--landing-accent-bright)"
+          onClick={onSelect}
+        >
+          {(toolState === 'awaiting-input' ||
+            toolState === 'input-streaming' ||
+            toolState === 'pending') && (
+            <span
+              aria-hidden="true"
+              className="size-3.5 shrink-0 animate-spin rounded-full border-2 border-(--landing-accent-bright) border-t-transparent motion-reduce:animate-none"
+            />
+          )}
+          <div className="min-w-0 flex-1">
+            <p className="text-ds-label-sm text-text-primary">
+              Look up invoice
+            </p>
+            <p className="font-ds-mono text-ds-mono-2xs text-text-primary/40">
+              INV-2231
+            </p>
+          </div>
+          <span className="shrink-0 text-ds-label-sm text-text-primary/45">
+            {status}
+          </span>
+        </button>
+      </div>
+
+      {showApproval ? (
+        <div
+          className={`overflow-hidden rounded-xl border border-border-default bg-background-surface ${chatHighlightClass(highlightApproval)}`}
+        >
+          {toolState === 'approval-requested' ? (
+            <div className="flex items-center justify-between gap-3 px-3.5 py-2.5">
+              <p className="text-ds-body-sm text-text-primary">
+                This lookup needs your approval
+              </p>
+              <button
+                type="button"
+                className={`${accentFillClass} shrink-0 rounded-lg px-3 py-1.5 text-ds-label-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) active:scale-[0.96]`}
+                onClick={onApprove}
+              >
+                Approve lookup
+              </button>
+            </div>
+          ) : (
+            <p className="px-3.5 py-2.5 text-ds-body-sm text-text-primary/70">
+              You approved this lookup
+            </p>
+          )}
+        </div>
+      ) : null}
+
+      {toolState === 'complete' ? (
+        <button
+          type="button"
+          className={`block w-full rounded-xl text-left focus-visible:outline-none ${chatHighlightClass(highlightInvoice)}`}
+          onClick={onSelect}
+        >
+          <InvoiceCard highlighted={highlightInvoice} />
+        </button>
+      ) : null}
+    </div>
+  )
+}
+
+function MessagePartsChat({
+  onApprove,
+  pin,
+  step,
+  stepIndex,
+  toolState,
+}: {
+  onApprove: () => void
+  pin: (index: number) => void
+  step: (typeof partSteps)[number]
+  stepIndex: number
+  toolState: ToolCallState | 'pending'
+}) {
+  const reached = (part: HighlightPart) => stepIndex >= partStepIndex[part]
+  const showThinking = reached('thinking')
+  const showTool = reached('tool-call')
+  const showResult = reached('tool-result')
+  const showText = reached('text')
+  const previewState = toolState === 'pending' ? 'awaiting-input' : toolState
+
+  return (
+    <div className="flex h-full min-h-128 flex-col overflow-hidden rounded-lg">
+      <div className="flex items-center gap-3 border-b border-border-subtle px-4 py-3">
+        <span className="flex size-8 items-center justify-center rounded-full bg-[rgb(var(--landing-glow)/0.16)] text-(--landing-accent-bright)">
+          <RobotIcon aria-hidden="true" size={16} weight="fill" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-ds-label-md text-text-primary">
+            Invoices
+          </span>
+          <span className="block text-ds-body-xs text-text-primary/45">
+            Billing support
+          </span>
+        </span>
+        <span className="flex items-center gap-1.5 text-ds-label-sm text-text-primary/45">
+          <span
+            aria-hidden="true"
+            className="size-1.5 rounded-full bg-(--landing-accent-bright)"
+          />
+          Online
+        </span>
+      </div>
+
+      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-auto px-4 py-4">
+        <div className="max-w-[85%] self-end rounded-2xl rounded-br-md bg-[rgb(var(--landing-glow)/0.12)] px-3.5 py-2.5 text-ds-body-sm leading-6 text-text-primary">
+          Was invoice 2231 paid?
+        </div>
+
+        {reached('message') ? (
+          <div
+            className={`flex gap-3 rounded-xl p-2 ${chatHighlightClass(step.part === 'message')}`}
+          >
+            <button
+              type="button"
+              aria-label="Message component"
+              aria-pressed={step.part === 'message'}
+              className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-text-primary/8 text-text-primary/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright)"
+              onClick={() => pin(partStepIndex.message)}
+            >
+              <RobotIcon aria-hidden="true" size={14} weight="fill" />
+            </button>
+            <div className="min-w-0 flex-1 space-y-3">
+              {showThinking ? (
+                <button
+                  type="button"
+                  aria-pressed={step.part === 'thinking'}
+                  className={`block w-full rounded-lg px-1 py-0.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) ${chatHighlightClass(step.part === 'thinking')}`}
+                  onClick={() => pin(partStepIndex.thinking)}
+                >
+                  <span className="text-ds-label-sm text-text-primary/45">
+                    {step.part === 'thinking'
+                      ? 'Thinking'
+                      : 'Thought for 2 seconds'}
+                  </span>
+                  <span className="mt-1 block text-ds-body-xs leading-5 text-text-primary/55">
+                    The user asked about invoice 2231. I will look it up before
+                    I answer.
+                  </span>
+                </button>
+              ) : null}
+
+              {showTool ? (
+                <ToolCallPreview
+                  highlighted={step.part === 'tool-call'}
+                  onApprove={onApprove}
+                  onSelect={() => pin(partStepIndex['tool-call'])}
+                  toolState={previewState}
+                />
+              ) : null}
+
+              {showResult ? (
+                <button
+                  type="button"
+                  aria-pressed={step.part === 'tool-result'}
+                  className={`block w-full rounded-lg px-1 py-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) ${chatHighlightClass(step.part === 'tool-result')}`}
+                  onClick={() => pin(partStepIndex['tool-result'])}
+                >
+                  <span className="text-ds-body-xs text-text-primary/50">
+                    Loaded invoice INV-2231
+                  </span>
+                </button>
+              ) : null}
+
+              {showText ? (
+                <button
+                  type="button"
+                  aria-pressed={step.part === 'text'}
+                  className={`block w-full rounded-lg px-1 py-0.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) ${chatHighlightClass(step.part === 'text')}`}
+                  onClick={() => pin(partStepIndex.text)}
+                >
+                  <span className="block text-ds-body-sm leading-6 text-text-primary">
+                    Yes. Invoice 2231 was paid in full on 12 March 2026, for
+                    $1,240.00.
+                    {step.part === 'text' ? (
+                      <span className="ml-0.5 inline-block h-3.5 w-1.5 animate-pulse bg-(--landing-accent-bright) align-middle motion-reduce:animate-none" />
+                    ) : null}
+                  </span>
+                </button>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
+      </div>
+
+      <div className="border-t border-border-subtle p-3">
+        <div className="flex items-center gap-2 rounded-xl border border-border-default bg-background-default px-3 py-2">
+          <span className="min-w-0 flex-1 text-ds-body-sm text-text-primary/35">
+            Ask a follow-up
+          </span>
+          <span
+            aria-hidden="true"
+            className="flex size-8 items-center justify-center rounded-lg bg-text-primary/8 text-text-primary/35"
+          >
+            <ArrowRightIcon size={14} weight="bold" />
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 function MessageParts() {
   const [stepIndex, setStepIndex] = React.useState(partSteps.length - 1)
@@ -594,41 +901,11 @@ function MessageParts() {
 
   const step = partSteps[stepIndex] ?? { part: 'text' }
   const toolState: ToolCallState | 'pending' =
-    step.part === 'thinking'
-      ? 'pending'
-      : step.part === 'tool-call'
-        ? step.toolState
-        : 'complete'
-  const parts = [
-    {
-      type: 'thinking',
-      detail: 'Checking the invoice before answering.',
-      state: 'complete',
-    },
-    // Rows after the active one stay mounted as pending so the list never
-    // changes height.
-    {
-      type: 'tool-call',
-      detail: 'lookupInvoice({ id: "inv_2231" })',
-      state: toolState,
-    },
-    {
-      type: 'tool-result',
-      detail: '{ total: 1240, status: "paid" }',
-      state: toolState === 'complete' ? 'complete' : 'pending',
-    },
-    {
-      type: 'text',
-      detail: 'Invoice 2231 was paid in full on',
-      state:
-        step.part === 'text'
-          ? 'streaming'
-          : toolState === 'complete'
-            ? 'complete'
-            : 'pending',
-    },
-  ]
-
+    step.part === 'tool-call'
+      ? step.toolState
+      : step.part === 'tool-result' || step.part === 'text'
+        ? 'complete'
+        : 'pending'
   const code = useHook ? hookCode : loopCode
   const isActive = (line: CodeLine) =>
     line.part === step.part &&
@@ -638,52 +915,12 @@ function MessageParts() {
   return (
     <LandingWindow label="message.parts">
       <p className="sr-only">
-        A message is a list of parts. A thinking part, then a tool call that
+        Each message is a list of parts. A thinking part, then a tool call that
         moves from awaiting input through approval to complete, then the tool
-        result and the streamed text reply. Below the list, the component
-        registered for the active part.
+        result and the streamed text reply. The chat on the right renders the
+        message and each part.
       </p>
-      <div
-        className="divide-y divide-border-subtle"
-        role="group"
-        aria-label="Message parts"
-      >
-        {parts.map((part) => (
-          <button
-            key={part.type}
-            type="button"
-            aria-pressed={part.type === step.part}
-            className={
-              part.state === 'pending'
-                ? 'grid w-full gap-1 p-4 text-left opacity-25 hover:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--landing-accent-bright) sm:grid-cols-[7.5rem_1fr_auto] sm:items-center sm:gap-4'
-                : 'grid w-full gap-1 p-4 text-left hover:bg-text-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--landing-accent-bright) aria-pressed:bg-[rgb(var(--landing-glow)/0.06)] sm:grid-cols-[7.5rem_1fr_auto] sm:items-center sm:gap-4'
-            }
-            onClick={() =>
-              pin(partSteps.findIndex((item) => item.part === part.type))
-            }
-          >
-            <span className="font-ds-mono text-ds-mono-2xs text-(--landing-accent-bright)">
-              {part.type}
-            </span>
-            <span className="truncate font-ds-mono text-ds-mono-xs text-text-primary/70">
-              {part.detail}
-              {part.state === 'streaming' ? (
-                <span className="ml-0.5 inline-block h-3 w-1.5 animate-pulse bg-(--landing-accent-bright) align-middle motion-reduce:animate-none" />
-              ) : null}
-            </span>
-            <span
-              className={
-                part.state === 'complete' || part.state === 'pending'
-                  ? 'rounded-full border border-border-subtle px-2.5 py-1 font-ds-mono text-ds-mono-2xs text-text-primary/35'
-                  : 'rounded-full border border-(--landing-accent) bg-[rgb(var(--landing-glow)/0.14)] px-2.5 py-1 font-ds-mono text-ds-mono-2xs text-(--landing-accent-bright)'
-              }
-            >
-              {part.state}
-            </span>
-          </button>
-        ))}
-      </div>
-      <div className="border-t border-border-subtle p-4">
+      <div className="p-4">
         <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
           tool-call lifecycle
         </p>
@@ -698,43 +935,56 @@ function MessageParts() {
               type="button"
               aria-pressed={toolState === state}
               className="rounded-md px-2 py-1 font-ds-mono text-ds-mono-2xs text-text-primary/35 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-pressed:bg-[rgb(var(--landing-glow)/0.18)] aria-pressed:text-(--landing-accent-bright)"
-              onClick={() => pin(index + 1)}
+              onClick={() => pin(partStepIndex['tool-call'] + index)}
             >
               {state}
             </button>
           ))}
         </div>
       </div>
-      <div className="border-t border-border-subtle bg-ds-neutral-500">
-        <div className="flex items-center gap-3 px-4 pt-3 font-ds-mono text-ds-mono-2xs text-white/60">
-          <button
-            type="button"
-            role="switch"
-            aria-checked={useHook}
-            aria-label="createChatHook"
-            className="group relative h-5 w-9 shrink-0 rounded-full bg-white/15 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-checked:bg-(--landing-accent)"
-            onClick={() => setUseHook((current) => !current)}
-          >
-            <span className="absolute top-0.5 left-0.5 size-4 rounded-full bg-white transition-transform group-aria-checked:translate-x-4" />
-          </button>
-          <span aria-hidden="true">createChatHook</span>
-        </div>
-        <div
-          className="min-h-96 overflow-x-auto p-4 font-ds-mono text-ds-mono-xs leading-relaxed text-white/70"
-          aria-hidden="true"
-        >
-          {code.map((line, index) => (
-            <p
-              key={index}
-              className={
-                isActive(line)
-                  ? 'whitespace-pre text-(--landing-accent-bright)'
-                  : 'whitespace-pre text-white/40'
-              }
+      <div className="grid min-w-0 lg:grid-cols-2">
+        <div className="min-w-0 border-t border-border-subtle p-5 lg:border-r">
+          <div className="mb-4 flex items-center gap-3 font-ds-mono text-ds-mono-2xs text-text-primary/50">
+            <button
+              type="button"
+              role="switch"
+              aria-checked={useHook}
+              aria-label="createChatHook"
+              className="group relative h-5 w-9 shrink-0 rounded-full bg-text-primary/15 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-checked:bg-(--landing-accent)"
+              onClick={() => setUseHook((current) => !current)}
             >
-              {line.text}
-            </p>
-          ))}
+              <span className="absolute top-0.5 left-0.5 size-4 rounded-full bg-white transition-transform group-aria-checked:translate-x-4" />
+            </button>
+            <span aria-hidden="true">createChatHook</span>
+          </div>
+          <div className={codeSurfaceClass} aria-hidden="true">
+            {code.map((line, index) => (
+              <p
+                key={index}
+                className={
+                  isActive(line)
+                    ? 'whitespace-pre text-(--landing-accent-bright)'
+                    : 'whitespace-pre text-text-primary/40'
+                }
+              >
+                {line.text}
+              </p>
+            ))}
+          </div>
+        </div>
+        <div className="min-w-0 border-t border-border-subtle p-3 lg:border-l-0">
+          <MessagePartsChat
+            onApprove={() =>
+              pin(
+                partStepIndex['tool-call'] +
+                  toolCallStates.indexOf('approval-responded'),
+              )
+            }
+            pin={pin}
+            step={step}
+            stepIndex={stepIndex}
+            toolState={toolState}
+          />
         </div>
       </div>
     </LandingWindow>
@@ -765,9 +1015,9 @@ function ToolBoundary() {
             </button>
           ))}
         </div>
-        <div className="mt-5 min-h-52 overflow-x-auto rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-ds-mono-xs text-white/65">
+        <div className={`mt-5 rounded-lg ${codeSurfaceClass}`}>
           <p>
-            <span className="text-pink-300">const</span> lookupInvoice =
+            <span className="th-keyword">const</span> lookupInvoice =
             toolDefinition({'{'}
           </p>
           <p>&nbsp;&nbsp;name: 'lookup_invoice',</p>
@@ -1291,370 +1541,6 @@ function StartingPoints() {
     </ul>
   )
 }
-const heroTools = `import { toolDefinition } from '@tanstack/ai'
-import { z } from 'zod'
-
-export const lookupInvoice = toolDefinition({
-  name: 'lookup_invoice',
-  description: 'Find an invoice by id',
-  inputSchema: z.object({ id: z.string() }),
-  outputSchema: z.object({
-    total: z.number(),
-    status: z.enum(['draft', 'sent', 'paid']),
-  }),
-})`
-
-const heroProviders = [
-  {
-    name: 'OpenAI',
-    pkg: '@tanstack/ai-openai',
-    call: "openaiText('gpt-5.5')",
-  },
-  {
-    name: 'Anthropic',
-    pkg: '@tanstack/ai-anthropic',
-    call: "anthropicText('claude-sonnet-4-5')",
-  },
-  {
-    name: 'Gemini',
-    pkg: '@tanstack/ai-gemini',
-    call: "geminiText('gemini-3-flash-preview')",
-  },
-  {
-    name: 'Ollama',
-    pkg: '@tanstack/ai-ollama',
-    call: "ollamaText('llama3')",
-  },
-]
-
-type HeroProvider = (typeof heroProviders)[number]
-
-const heroServers = [
-  {
-    name: 'TanStack Start',
-    file: 'routes/api.chat.ts',
-    code: (
-      provider: HeroProvider,
-    ) => `import { chat, toServerSentEventsResponse } from '@tanstack/ai'
-import { ${provider.call.split('(')[0]} } from '${provider.pkg}'
-import { createFileRoute } from '@tanstack/react-router'
-import { lookupInvoice } from './tools'
-
-export const Route = createFileRoute('/api/chat')({
-  server: {
-    handlers: {
-      POST: async ({ request }) => {
-        const { messages } = await request.json()
-        const stream = chat({
-          adapter: ${provider.call},
-          messages,
-          tools: [lookupInvoice.server(findInvoice)],
-        })
-        return toServerSentEventsResponse(stream)
-      },
-    },
-  },
-})`,
-  },
-  {
-    name: 'Next.js',
-    file: 'app/api/chat/route.ts',
-    code: (
-      provider: HeroProvider,
-    ) => `import { chat, toServerSentEventsResponse } from '@tanstack/ai'
-import { ${provider.call.split('(')[0]} } from '${provider.pkg}'
-import { lookupInvoice } from './tools'
-
-export async function POST(request: Request) {
-  const { messages } = await request.json()
-  const stream = chat({
-    adapter: ${provider.call},
-    messages,
-    tools: [lookupInvoice.server(findInvoice)],
-  })
-  return toServerSentEventsResponse(stream)
-}`,
-  },
-  {
-    name: 'Hono',
-    file: 'server.ts',
-    code: (provider: HeroProvider) => `import { Hono } from 'hono'
-import { chat, toServerSentEventsResponse } from '@tanstack/ai'
-import { ${provider.call.split('(')[0]} } from '${provider.pkg}'
-import { lookupInvoice } from './tools'
-
-const app = new Hono()
-
-app.post('/api/chat', async (c) => {
-  const { messages } = await c.req.json()
-  const stream = chat({
-    adapter: ${provider.call},
-    messages,
-    tools: [lookupInvoice.server(findInvoice)],
-  })
-  return toServerSentEventsResponse(stream)
-})`,
-  },
-]
-
-const heroClients = [
-  {
-    name: 'React',
-    file: 'chat.tsx',
-    lang: 'tsx',
-    code: `import { useChat, fetchServerSentEvents } from '@tanstack/ai-react'
-import { lookupInvoice } from './tools'
-
-export function Chat() {
-  const { messages, sendMessage } = useChat({
-    connection: fetchServerSentEvents('/api/chat'),
-    tools: [lookupInvoice.client(openInvoice)],
-  })
-
-  return messages.map((message) => (
-    <Bubble key={message.id} {...message} />
-  ))
-}`,
-  },
-  {
-    name: 'Vue',
-    file: 'Chat.vue',
-    lang: 'html',
-    code: `<script setup lang="ts">
-import { useChat, fetchServerSentEvents } from '@tanstack/ai-vue'
-import { lookupInvoice } from './tools'
-
-const { messages, sendMessage } = useChat({
-  connection: fetchServerSentEvents('/api/chat'),
-  tools: [lookupInvoice.client(openInvoice)],
-})
-</script>
-
-<template>
-  <Bubble v-for="message in messages" :key="message.id" v-bind="message" />
-</template>`,
-  },
-  {
-    name: 'Solid',
-    file: 'chat.tsx',
-    lang: 'tsx',
-    code: `import { useChat, fetchServerSentEvents } from '@tanstack/ai-solid'
-import { lookupInvoice } from './tools'
-
-export function Chat() {
-  const chat = useChat({
-    connection: fetchServerSentEvents('/api/chat'),
-    tools: [lookupInvoice.client(openInvoice)],
-  })
-
-  return <For each={chat.messages}>{(message) => <Bubble {...message} />}</For>
-}`,
-  },
-  {
-    name: 'Svelte',
-    file: 'Chat.svelte',
-    lang: 'html',
-    code: `<script lang="ts">
-  import { createChat, fetchServerSentEvents } from '@tanstack/ai-svelte'
-  import { lookupInvoice } from './tools'
-
-  const chat = createChat({
-    connection: fetchServerSentEvents('/api/chat'),
-    tools: [lookupInvoice.client(openInvoice)],
-  })
-</script>
-
-{#each chat.messages as message (message.id)}
-  <Bubble {...message} />
-{/each}`,
-  },
-]
-
-// One selector changes per tick so the eye can follow what moved.
-const heroMoves: Array<
-  | { kind: 'client'; index: number }
-  | { kind: 'provider'; index: number }
-  | { kind: 'server'; index: number }
-> = [
-  { kind: 'server', index: 1 },
-  { kind: 'provider', index: 1 },
-  { kind: 'client', index: 1 },
-  { kind: 'server', index: 2 },
-  { kind: 'provider', index: 2 },
-  { kind: 'client', index: 2 },
-  { kind: 'server', index: 0 },
-  { kind: 'provider', index: 3 },
-  { kind: 'client', index: 3 },
-  { kind: 'provider', index: 0 },
-  { kind: 'client', index: 0 },
-]
-
-const heroChipClass =
-  'rounded-md px-2 py-1 font-ds-mono text-ds-mono-2xs text-text-primary/40 transition-colors hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-pressed:bg-[rgb(var(--landing-glow)/0.16)] aria-pressed:text-(--landing-accent-bright)'
-
-function WriteOnceHero() {
-  const reducedMotion = usePrefersReducedMotion()
-  const [side, setSide] = React.useState<'client' | 'server'>('server')
-  const [serverIndex, setServerIndex] = React.useState(0)
-  const [clientIndex, setClientIndex] = React.useState(0)
-  const [providerIndex, setProviderIndex] = React.useState(0)
-  const [pinned, setPinned] = React.useState(false)
-
-  React.useEffect(() => {
-    if (pinned || reducedMotion !== false) {
-      return
-    }
-
-    let step = 0
-    const intervalId = window.setInterval(() => {
-      const move = heroMoves[step % heroMoves.length]
-      step += 1
-      if (!move) {
-        return
-      }
-      if (move.kind === 'provider') {
-        setSide('server')
-        setProviderIndex(move.index)
-      } else if (move.kind === 'server') {
-        setSide('server')
-        setServerIndex(move.index)
-      } else {
-        setSide('client')
-        setClientIndex(move.index)
-      }
-    }, 6000)
-
-    return () => window.clearInterval(intervalId)
-  }, [pinned, reducedMotion])
-
-  const pin = (update: () => void) => {
-    setPinned(true)
-    update()
-  }
-
-  const server = heroServers[serverIndex] ?? heroServers[0]
-  const client = heroClients[clientIndex] ?? heroClients[0]
-  const provider = heroProviders[providerIndex] ?? heroProviders[0]
-  const sample =
-    side === 'server'
-      ? {
-          name: server.name,
-          file: server.file,
-          lang: 'ts',
-          code: server.code(provider),
-        }
-      : {
-          name: client.name,
-          file: client.file,
-          lang: client.lang,
-          code: client.code,
-        }
-
-  return (
-    <div className="grid w-full min-w-0 max-w-full items-start gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-      <LandingWindow
-        className="ring-2 ring-[rgb(var(--landing-glow)/0.35)]"
-        label="tools.ts · written once"
-      >
-        <CodeBlock className={codeWindowClass} showTypeCopyButton={false}>
-          <code className="language-ts">{heroTools}</code>
-        </CodeBlock>
-        <p className="border-t border-border-subtle px-4 py-3 text-ds-body-xs text-text-primary/40">
-          This file never changes. Everything on the right is a destination for
-          it.
-        </p>
-      </LandingWindow>
-
-      <LandingWindow label="runs anywhere">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-border-subtle p-3">
-          <div className="flex gap-1" role="group" aria-label="Side">
-            {(['server', 'client'] as const).map((option) => (
-              <button
-                key={option}
-                type="button"
-                aria-pressed={side === option}
-                className={heroChipClass}
-                onClick={() => pin(() => setSide(option))}
-              >
-                {option}
-              </button>
-            ))}
-          </div>
-          <span className="hidden h-4 w-px bg-border-subtle sm:block" />
-          {side === 'server' ? (
-            <div
-              className="flex gap-1"
-              role="group"
-              aria-label="Server framework"
-            >
-              {heroServers.map((item, index) => (
-                <button
-                  key={item.name}
-                  type="button"
-                  aria-pressed={index === serverIndex}
-                  className={heroChipClass}
-                  onClick={() => pin(() => setServerIndex(index))}
-                >
-                  {item.name}
-                </button>
-              ))}
-            </div>
-          ) : (
-            <div className="flex gap-1" role="group" aria-label="UI framework">
-              {heroClients.map((item, index) => (
-                <button
-                  key={item.name}
-                  type="button"
-                  aria-pressed={index === clientIndex}
-                  className={heroChipClass}
-                  onClick={() => pin(() => setClientIndex(index))}
-                >
-                  {item.name}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-        <div
-          className={
-            side === 'server'
-              ? 'flex flex-wrap items-center gap-1 border-b border-border-subtle px-3 py-2'
-              : 'flex flex-wrap items-center gap-1 border-b border-border-subtle px-3 py-2 opacity-40'
-          }
-        >
-          <span className="mr-2 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
-            provider
-          </span>
-          {heroProviders.map((item, index) => (
-            <button
-              key={item.name}
-              type="button"
-              aria-pressed={index === providerIndex}
-              className={heroChipClass}
-              onClick={() =>
-                pin(() => {
-                  setSide('server')
-                  setProviderIndex(index)
-                })
-              }
-            >
-              {item.name}
-            </button>
-          ))}
-        </div>
-        <CodeBlock
-          key={`${sample.name}-${provider.name}`}
-          dataCodeTitle={sample.file}
-          className={`${codeWindowClass} [&_pre]:h-76`}
-          showTypeCopyButton={false}
-        >
-          <code className={`language-${sample.lang}`}>{sample.code}</code>
-        </CodeBlock>
-      </LandingWindow>
-    </div>
-  )
-}
-
 // Each model shows one field the types narrow per model. `picked` is what the
 // snippet passes; "break me" swaps in `broken`, which the types reject.
 const compilerModels = [
@@ -1778,17 +1664,16 @@ const compilerModels = [
   },
 ]
 
-// ponytail: the code surface is always dark, so these use fixed token colors.
 function Kw({ children }: { children: React.ReactNode }) {
-  return <span className="text-pink-300">{children}</span>
+  return <span className="th-keyword">{children}</span>
 }
 
 function Fn({ children }: { children: React.ReactNode }) {
-  return <span className="text-orange-300">{children}</span>
+  return <span className="th-function">{children}</span>
 }
 
 function Str({ children }: { children: React.ReactNode }) {
-  return <span className="text-emerald-300">{children}</span>
+  return <span className="th-string">{children}</span>
 }
 
 function ProviderWorkbench() {
@@ -1823,7 +1708,7 @@ function ProviderWorkbench() {
           ))}
         </div>
         <div aria-live="polite" className="min-w-0">
-          <div className="overflow-x-auto bg-ds-neutral-500 p-4 font-ds-mono text-ds-mono-xs leading-relaxed text-white/70">
+          <div className="overflow-x-auto bg-gray-100 p-4 font-ds-mono text-ds-mono-xs leading-relaxed text-(--th-token) dark:bg-ds-neutral-500 [&_p]:whitespace-pre">
             <p>
               <Kw>import</Kw> {'{ '}
               {adapterName}

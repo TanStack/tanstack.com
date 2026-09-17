@@ -87,6 +87,7 @@ export type LibraryLandingShellProps = {
   libraryId: LibraryLandingId
   prompt?: string
   promptLabel?: string
+  stackHero?: boolean
 }
 
 type LibraryLandingTheme = {
@@ -216,6 +217,7 @@ export function LibraryLandingShell({
   libraryId,
   prompt,
   promptLabel,
+  stackHero = false,
 }: LibraryLandingShellProps) {
   const library = getLibrary(libraryId)
   const { version } = useParams({ strict: false })
@@ -249,8 +251,14 @@ export function LibraryLandingShell({
         />
 
         <div className="relative mx-auto w-full max-w-384 px-5 py-14 md:px-10 lg:px-12 lg:py-16 2xl:px-20">
-          <div className="grid items-start gap-12 xl:min-h-116 xl:grid-cols-[minmax(25rem,0.82fr)_minmax(34rem,1.18fr)] xl:gap-10">
-            <div className="max-w-140">
+          <div
+            className={
+              stackHero
+                ? 'grid items-start gap-12'
+                : 'grid items-start gap-12 xl:min-h-116 xl:grid-cols-[minmax(25rem,0.82fr)_minmax(34rem,1.18fr)] xl:gap-10'
+            }
+          >
+            <div className={stackHero ? 'w-full min-w-0' : 'max-w-140'}>
               <div className="flex flex-wrap items-start gap-3">
                 <div>
                   <img
@@ -278,10 +286,22 @@ export function LibraryLandingShell({
                 ) : null}
               </div>
 
-              <p className="mt-10 max-w-120 text-ds-heading-4 text-text-primary">
+              <p
+                className={
+                  stackHero
+                    ? 'mt-10 text-ds-heading-4 text-text-primary'
+                    : 'mt-10 max-w-120 text-ds-heading-4 text-text-primary'
+                }
+              >
                 {headline}
               </p>
-              <p className="mt-5 max-w-136 text-ds-body-sm text-text-secondary sm:text-ds-body-md">
+              <p
+                className={
+                  stackHero
+                    ? 'mt-5 text-ds-body-sm text-text-secondary sm:text-ds-body-md'
+                    : 'mt-5 max-w-136 text-ds-body-sm text-text-secondary sm:text-ds-body-md'
+                }
+              >
                 {description}
               </p>
 
@@ -315,7 +335,7 @@ export function LibraryLandingShell({
               </div>
             </div>
 
-            {hero}
+            {stackHero ? <div className="w-full min-w-0">{hero}</div> : hero}
           </div>
 
           {library.statsAvailable === false ? null : (

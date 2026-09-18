@@ -1,3 +1,4 @@
+import { readLocalDocsTree } from './src/utils/local-docs-tree.server'
 import { sentryTanstackStart } from '@sentry/tanstackstart-react/vite'
 import { defineConfig } from 'vite'
 import type { PluginOption } from 'vite'
@@ -62,11 +63,13 @@ function localDocsDevFiles(): PluginOption {
 
         const repo = url.searchParams.get('repo')
         const filepath = url.searchParams.get('path')
+        const isTree = url.searchParams.get('kind') === 'tree'
 
         if (
           !repo ||
           !/^[a-zA-Z0-9._-]+$/.test(repo) ||
-          !filepath ||
+          filepath === null ||
+          (!isTree && !filepath) ||
           !isContainedRepoPath(filepath)
         ) {
           response.statusCode = 400
@@ -87,29 +90,39 @@ function localDocsDevFiles(): PluginOption {
           ]),
         )
 
-        const localFilePath = repoDirs
+        const localEntry = repoDirs
           .map((repoDir) => ({
             filepath: path.resolve(repoDir, filepath),
             repoDir,
           }))
           .find(
             (candidate) =>
-              isPathInside(candidate.repoDir, candidate.filepath) &&
+              (isPathInside(candidate.repoDir, candidate.filepath) ||
+                (isTree && candidate.repoDir === candidate.filepath)) &&
               fs.existsSync(candidate.filepath) &&
-              fs.statSync(candidate.filepath).isFile(),
-          )?.filepath
+              (isTree
+                ? fs.statSync(candidate.filepath).isDirectory()
+                : fs.statSync(candidate.filepath).isFile()),
+          )
 
-        if (!localFilePath) {
+        if (!localEntry) {
           response.statusCode = 404
           response.end()
           return
         }
 
         try {
-          const content = await fs.promises.readFile(localFilePath)
+          const content = isTree
+            ? JSON.stringify(
+                await readLocalDocsTree(localEntry.repoDir, filepath),
+              )
+            : await fs.promises.readFile(localEntry.filepath)
           response.statusCode = 200
           response.setHeader('Cache-Control', 'no-store')
-          response.setHeader('Content-Type', 'text/plain; charset=utf-8')
+          response.setHeader(
+            'Content-Type',
+            isTree ? 'application/json' : 'text/plain; charset=utf-8',
+          )
           response.end(content)
         } catch (error) {
           next(error)

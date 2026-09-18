@@ -39,8 +39,7 @@ const {
 } = RENDER_PAGE_MODEL
 const RENDER_UTM_SEARCH =
   'utm_source=tanstack&utm_medium=referral&utm_campaign=gold-launch&utm_content=partner_page'
-const RENDER_HREF = `https://dashboard.render.com/register?${RENDER_UTM_SEARCH}`
-const RENDER_BLUEPRINT_HREF = `https://dashboard.render.com/select-repo?type=blueprint&${RENDER_UTM_SEARCH}`
+const RENDER_HREF = `https://render.com/tanstack?${RENDER_UTM_SEARCH}`
 const TANSTACK_START_RENDER_DOCS_PATH = RENDER_DOCS_RESOURCE.href
 const RENDER_CANONICAL_HREF =
   RENDER_PARTNER.canonicalHref ?? RENDER_PARTNER.href
@@ -509,7 +508,7 @@ function RenderPartnerPage() {
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <Button
               as="a"
-              href={RENDER_BLUEPRINT_HREF}
+              href={RENDER_HREF}
               target="_blank"
               rel="noreferrer"
               onClick={trackRenderClick}

@@ -655,12 +655,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         <div className={DESKTOP_NAV_CLASS}>
           <AiDockButton />
         </div>
-        <div
-          className={twMerge(DESKTOP_NAV_CLASS, 'items-center gap-2')}
-          onFocusCapture={requestAuthControls}
-          onPointerEnter={requestAuthControls}
-          onTouchStart={requestAuthControls}
-        >
+        <div className={twMerge(DESKTOP_NAV_CLASS, 'items-center gap-2')}>
           {renderAuthControls()}
         </div>
         <button

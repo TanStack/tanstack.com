@@ -32,34 +32,28 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
   const hasLines = !!cart && cart.lines.nodes.length > 0
 
   return (
-    <Dialog.Root open={open} onOpenChange={onOpenChange}>
-      <Dialog.Portal>
-        <Dialog.Overlay className="cart-overlay fixed inset-0 z-[100] bg-black/40" />
-        <Dialog.Content
-          className={twMerge(
-            'shop-scope cart-panel',
-            'fixed right-4 top-[calc(var(--navbar-height,56px)+0.5rem)] z-[100]',
-            'w-[calc(100vw-2rem)] sm:w-[24rem]',
-            'max-h-[calc(100dvh-var(--navbar-height,56px)-1rem)]',
-            'flex flex-col rounded-xl',
-            'bg-shop-bg-2 border border-shop-line text-shop-text',
-            'shadow-2xl',
-          )}
-          aria-describedby={undefined}
-        >
-          <header className="flex items-center justify-between px-5 py-3 border-b border-shop-line">
-            <Dialog.Title asChild>
-              <ShopLabel as="h2">
-                Cart{totalQuantity > 0 ? ` (${totalQuantity})` : ''}
-              </ShopLabel>
-            </Dialog.Title>
-            <Dialog.Close
-              aria-label="Close cart"
-              className="p-1 rounded-md text-shop-text-2 hover:text-shop-text"
-            >
-              <XIcon className="w-3.5 h-3.5" />
-            </Dialog.Close>
-          </header>
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      {/* The DS panel supplies posture and behaviour; the shop keeps its own
+          surface colours by overriding the semantic defaults. `anchor="navbar"`
+          is what used to be this component's hand-written top offset. */}
+      <DrawerContent
+        side="right"
+        size="sm"
+        anchor="navbar"
+        fit
+        className={twMerge(
+          'shop-scope cart-panel',
+          'bg-shop-bg-2 border-shop-line text-shop-text',
+        )}
+      >
+        <DrawerHeader
+          className="border-shop-line px-5 py-3"
+          title={
+            <ShopLabel as="span">
+              Cart{totalQuantity > 0 ? ` (${totalQuantity})` : ''}
+            </ShopLabel>
+          }
+        />
 
         {hasLines ? (
           <>

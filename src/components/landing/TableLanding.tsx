@@ -1,24 +1,33 @@
 import * as React from 'react'
 import {
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
+  cellSelectionFeature,
+  columnFilteringFeature,
+  columnVisibilityFeature,
+  createFilteredRowModel,
+  createPaginatedRowModel,
+  createSortedRowModel,
+  globalFilteringFeature,
+  rowPaginationFeature,
+  rowSelectionFeature,
+  rowSortingFeature,
+  sortFn_alphanumeric,
+  sortFn_basic,
+  tableFeatures,
+  useTable,
+  type Cell,
   type ColumnFiltersState,
   type ColumnDef,
+  type ColumnVisibilityState,
   type PaginationState,
   type RowSelectionState,
   type SortingState,
-  type VisibilityState,
 } from '@tanstack/react-table'
+import { useHotkeys } from '@tanstack/react-hotkeys'
 import {
-  ArrowsHorizontalIcon,
+  ArrowRightIcon,
+  BracketsCurlyIcon,
   CaretDownIcon,
   CaretUpIcon,
-  FunnelIcon,
-  GridNineIcon,
   MagnifyingGlassIcon,
   RowsIcon,
   SlidersHorizontalIcon,
@@ -34,7 +43,7 @@ import {
 } from './LibraryLanding'
 
 const tablePrompt =
-  'Build a TanStack Table data grid for a TypeScript app. Keep it headless: define column definitions, row models, sorting, filtering, pagination, selection, visibility, and controlled state without prescribing markup. Render semantic table elements and synchronize table state to the URL or server only where the product needs it.'
+  'Build a TanStack Table V9 data grid for a TypeScript app. Keep it headless. Define a stable tableFeatures object with only the feature plugins, create*RowModel slots, and function registries the product needs. Use TanStack Store-backed table state, selectors, or table.Subscribe for reactive reads, and external atoms only for slices the app must own. Render semantic table elements and synchronize state to the URL or server only where the product needs it.'
 
 type TableIssue = {
   id: string
@@ -45,8 +54,20 @@ type TableIssue = {
 }
 
 type StatusFilter = 'all' | TableIssue['status']
-type Surface = 'table' | 'cards' | 'dense'
-type StateOwner = 'component' | 'url' | 'server'
+type StateMode = 'selected' | 'subscribed' | 'external'
+
+const tableWorkbenchFeatures = tableFeatures({
+  cellSelectionFeature,
+  columnFilteringFeature,
+  globalFilteringFeature,
+  rowSortingFeature,
+  rowPaginationFeature,
+  rowSelectionFeature,
+  columnVisibilityFeature,
+  filteredRowModel: createFilteredRowModel(),
+  sortedRowModel: createSortedRowModel(),
+  paginatedRowModel: createPaginatedRowModel(),
+})
 
 const tableRows: Array<TableIssue> = [
   {
@@ -114,54 +135,139 @@ const statusFilters: Array<{ label: string; value: StatusFilter }> = [
   { label: 'Shipped', value: 'shipped' },
 ]
 
-const rowModels = [
-  { label: 'Core', code: 'getCoreRowModel()', rows: '8 rows', icon: RowsIcon },
+const tableResponsibilities = ['State', 'Row processing', 'Typed APIs'] as const
+
+const developerControls = [
+  'Markup & semantics',
+  'Styles & components',
+  'Events & interactions',
+] as const
+
+const componentLibraryExamples = [
   {
-    label: 'Filter',
-    code: 'getFilteredRowModel()',
-    rows: '5 rows',
-    icon: FunnelIcon,
+    name: 'shadcn/ui + Base UI',
+    detail: 'Base UI',
+    logo: '/images/table/component-libraries/shadcn-ui.svg',
+    href: '/table/latest/docs/framework/react/examples/kitchen-sink-shadcn-base',
   },
   {
-    label: 'Sort',
-    code: 'getSortedRowModel()',
-    rows: '5 rows',
-    icon: ArrowsHorizontalIcon,
+    name: 'shadcn/ui + Radix UI',
+    detail: 'Radix UI',
+    logo: '/images/table/component-libraries/shadcn-ui.svg',
+    href: '/table/latest/docs/framework/react/examples/kitchen-sink-shadcn-radix',
   },
   {
-    label: 'Page',
-    code: 'getPaginationRowModel()',
-    rows: '4 rows',
-    icon: StackIcon,
+    name: 'HeroUI',
+    detail: 'HeroUI',
+    logo: '/images/table/component-libraries/hero-ui.svg',
+    href: '/table/latest/docs/framework/react/examples/kitchen-sink-hero-ui',
+  },
+  {
+    name: 'React Aria',
+    detail: 'Adobe',
+    logo: '/images/table/component-libraries/react-aria.svg',
+    href: '/table/latest/docs/framework/react/examples/kitchen-sink-react-aria',
+  },
+  {
+    name: 'Material UI',
+    detail: 'MUI',
+    logo: '/images/table/component-libraries/material-ui.svg',
+    href: '/table/latest/docs/framework/react/examples/kitchen-sink-material-ui',
+  },
+  {
+    name: 'Mantine',
+    detail: 'Mantine',
+    logo: '/images/table/component-libraries/mantine.svg',
+    href: '/table/latest/docs/framework/react/examples/kitchen-sink-mantine',
+  },
+  {
+    name: 'Chakra UI',
+    detail: 'Chakra UI',
+    logo: '/images/table/component-libraries/chakra-ui.svg',
+    href: '/table/latest/docs/framework/react/examples/kitchen-sink-chakra-ui',
   },
 ] as const
 
-const stateOwners: Record<
-  StateOwner,
+const stateModes: Record<
+  StateMode,
   { code: string; note: string; path: string }
 > = {
-  component: {
-    code: 'onSortingChange: setSorting',
-    note: 'Fast local interaction with no external coordination.',
-    path: 'header → table state → row model',
+  selected: {
+    code: 'const sorting = table.state.sorting',
+    note: 'Select the state a component needs when creating its table instance.',
+    path: 'table store → selected state → component',
   },
-  url: {
-    code: 'navigate({ search: { sort } })',
-    note: 'Shareable, restorable state for product navigation.',
-    path: 'header → URL search → table state',
+  subscribed: {
+    code: '<table.Subscribe selector={(state) => state.sorting}>',
+    note: 'Move a reactive read to the smallest part of the tree that renders it.',
+    path: 'sorting atom → subscription island → UI',
   },
-  server: {
-    code: 'manualSorting: true',
-    note: 'Table reports the next sort state; your data layer fetches the ordered rows.',
-    path: 'header → controlled sorting → API query',
+  external: {
+    code: 'atoms: { sorting: sortingAtom }',
+    note: 'Give an external TanStack Store atom ownership when other systems share the slice.',
+    path: 'external atom → table feature → app',
   },
 }
+
+const rowModelStages = [
+  {
+    code: 'automatic',
+    label: 'Core',
+    note: 'data to rows',
+  },
+  {
+    code: 'createFilteredRowModel()',
+    label: 'Filter',
+    note: 'column + global',
+  },
+  {
+    code: 'createGroupedRowModel()',
+    label: 'Group',
+    note: 'grouped rows',
+  },
+  {
+    code: 'createSortedRowModel()',
+    label: 'Sort',
+    note: 'ordered rows',
+  },
+  {
+    code: 'createExpandedRowModel()',
+    label: 'Expand',
+    note: 'visible sub-rows',
+  },
+  {
+    code: 'createPaginatedRowModel()',
+    label: 'Paginate',
+    note: 'current page',
+  },
+] as const
+
+const tableToolbox = [
+  {
+    label: 'Custom features',
+    code: 'tableFeatures({ densityFeature })',
+    detail:
+      'Add state, options, and APIs through the same extension system used by built-in features.',
+  },
+  {
+    label: 'Reusable tables',
+    code: 'createTableHook({ features, ... })',
+    detail:
+      'Share typed features, options, column helpers, and registered components across a product.',
+  },
+  {
+    label: 'Devtools',
+    code: 'useTanStackTableDevtools(table)',
+    detail:
+      'Inspect table state and derived data in supported framework integrations instead of logging internals.',
+  },
+] as const
 
 export default function TableLanding() {
   return (
     <LibraryLandingShell
-      description="Table is a headless engine for rows, columns, sorting, filtering, grouping, selection, pagination, and controlled state—without a data-grid component attached."
-      headline="The data-grid logic, without the data-grid component."
+      description="TanStack Table is a headless engine for sorting, pagination, filtering, faceting, grouping, aggregation, row expansion, row and cell selection, cell spanning, row and column pinning, column ordering, visibility, resizing, and more."
+      headline="A powerful engine for building Data Grids."
       hero={<TableWorkbench />}
       libraryId="table"
       prompt={tablePrompt}
@@ -170,51 +276,106 @@ export default function TableLanding() {
       <LandingSection tone="ink">
         <div className="grid gap-12 lg:grid-cols-[0.76fr_1.24fr] lg:items-center">
           <LandingSectionIntro
-            body="Start with core rows, then opt into only the transformations the product needs. Each row model has one job, a visible input, and a visible output."
-            eyebrow="Row-model pipeline"
-            icon={<ArrowsHorizontalIcon aria-hidden="true" size={17} />}
-            title="Compose behavior instead of buying a grid monolith."
+            body="Having 100% control of your code matters more than ever. TanStack Table supplies state and typed APIs without prescribing a single element or style. Use its built-in client-side processing or bring rows processed by your server, then render with any component library or design system, including your own."
+            eyebrow="Headless by design"
+            icon={<BracketsCurlyIcon aria-hidden="true" size={17} />}
+            title="Build exactly the table you want with 100% control."
           />
-          <RowPipeline />
+          <OwnershipModel />
         </div>
-      </LandingSection>
-
-      <LandingSection tone="raised">
-        <LandingSectionIntro
-          body="Column definitions and row models describe behavior, not elements. Feed the same model into semantic rows, responsive cards, or a dense operational view."
-          eyebrow="Headless rendering"
-          icon={<GridNineIcon aria-hidden="true" size={17} />}
-          title="One engine. Whatever surface the job calls for."
-        />
-        <div className="mt-10 space-y-4">
-          <SurfaceLab />
-          <TableVirtualBoundary />
-        </div>
+        <ComponentLibraryExamples />
       </LandingSection>
 
       <LandingSection tone="accent">
         <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
           <LandingSectionIntro
-            body="Let Table manage state until another part of the product needs it. Then lift only sorting, filters, selection, visibility, or pagination into the component, URL, or server."
-            eyebrow="State ownership"
+            body="Every registered state slice is backed by TanStack Store, whose fine-grained reactivity is built on alien-signals. Read selected state from table.state, create local subscription islands with table.Subscribe, or hand ownership to an external writable atom when the rest of the app needs it."
+            eyebrow="Fine-grained state"
             icon={<SlidersHorizontalIcon aria-hidden="true" size={17} />}
-            title="Control exactly the state that has somewhere else to be."
+            title="Efficient, fine-grained or slicable state updates."
           />
           <StateSwitchboard />
         </div>
+      </LandingSection>
+
+      <LandingSection tone="raised">
+        <LandingSectionIntro
+          body="Features are fully tree-shakable for minimal bundle size. Table logic shares memory-efficient prototypes and uses memoization for fast, low-overhead updates. Need more scale? Offload processing to the server and supply your own rows."
+          eyebrow="Performance architecture"
+          icon={<RowsIcon aria-hidden="true" size={17} />}
+          title="Built for performance and scalability in every aspect."
+        />
+        <RowModelPipeline />
+      </LandingSection>
+
+      <LandingSection tone="accent">
+        <LandingSectionIntro
+          body="TanStack Table exposes its own architecture as a public toolkit. Extend it with typed features, package shared conventions into reusable table hooks and options, and inspect live instances with dedicated Devtools."
+          eyebrow="Composition and tooling"
+          icon={<StackIcon aria-hidden="true" size={17} />}
+          title="Build one table or build your product's table system."
+        />
+        <TableToolbox />
       </LandingSection>
     </LibraryLandingShell>
   )
 }
 
+function ComponentLibraryExamples() {
+  return (
+    <div className="mt-16 border-t border-border-subtle pt-10 lg:mt-20 lg:pt-12">
+      <div className="max-w-[42rem]">
+        <h3 className="text-ds-heading-3 text-text-primary md:text-ds-heading-2">
+          Already using one of these popular component libraries?
+        </h3>
+        <p className="mt-3 text-ds-body-sm text-text-primary/55 sm:text-ds-body-md">
+          Check out our official component library examples.
+        </p>
+      </div>
+
+      <div className="mt-8 grid gap-3 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols-7">
+        {componentLibraryExamples.map((example) => (
+          <a
+            key={example.href}
+            className="group relative flex min-h-28 flex-col items-start rounded-xl border border-border-subtle bg-background-surface p-3 shadow-sm transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-[color:rgb(var(--landing-glow)/0.55)] hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
+            href={example.href}
+          >
+            <span className="flex size-12 shrink-0 items-center justify-center rounded-lg border border-black/5 bg-white p-2.5 shadow-sm">
+              <img
+                alt=""
+                aria-hidden="true"
+                className="size-full object-contain"
+                src={example.logo}
+              />
+            </span>
+            <span className="mt-3 min-w-0">
+              <span className="block text-ds-label-sm text-text-primary">
+                {example.name}
+              </span>
+              <span className="mt-1 block font-ds-mono text-ds-mono-2xs uppercase text-text-primary/40">
+                {example.detail} example
+              </span>
+            </span>
+            <ArrowRightIcon
+              aria-hidden="true"
+              className="absolute right-3 top-3 size-3.5 text-text-primary/35 transition-transform group-hover:translate-x-0.5 group-hover:text-text-primary"
+            />
+          </a>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function TableWorkbench() {
+  const gridRef = React.useRef<HTMLDivElement>(null)
   const [globalFilter, setGlobalFilter] = React.useState('')
   const [statusFilter, setStatusFilter] = React.useState<StatusFilter>('all')
   const [sorting, setSorting] = React.useState<SortingState>([
     { id: 'score', desc: true },
   ])
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({ owner: false })
+    React.useState<ColumnVisibilityState>({ owner: false })
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({})
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
@@ -226,10 +387,13 @@ function TableWorkbench() {
     [statusFilter],
   )
 
-  const columns = React.useMemo<Array<ColumnDef<TableIssue>>>(
+  const columns = React.useMemo<
+    Array<ColumnDef<typeof tableWorkbenchFeatures, TableIssue>>
+  >(
     () => [
       {
         id: 'select',
+        enableCellSelection: false,
         header: ({ table }) => (
           <input
             aria-label="Select every row on this page"
@@ -243,7 +407,9 @@ function TableWorkbench() {
             onChange={table.getToggleAllPageRowsSelectedHandler()}
             ref={(input) => {
               if (input) {
-                input.indeterminate = table.getIsSomePageRowsSelected()
+                input.indeterminate =
+                  table.getIsSomePageRowsSelected() &&
+                  !table.getIsAllPageRowsSelected()
               }
             }}
             type="checkbox"
@@ -260,29 +426,38 @@ function TableWorkbench() {
           />
         ),
       },
-      { accessorKey: 'project', header: 'Project' },
-      { accessorKey: 'owner', header: 'Owner' },
+      {
+        accessorKey: 'project',
+        header: 'Project',
+        sortFn: sortFn_alphanumeric,
+      },
+      {
+        accessorKey: 'owner',
+        header: 'Owner',
+        sortFn: sortFn_alphanumeric,
+      },
       {
         accessorKey: 'status',
         header: 'Status',
         cell: ({ getValue }) => (
           <StatusBadge status={getValue<TableIssue['status']>()} />
         ),
+        filterFn: (row, columnId, value) =>
+          row.getValue<TableIssue['status']>(columnId) === value,
+        sortFn: sortFn_alphanumeric,
       },
-      { accessorKey: 'score', header: 'Score' },
+      { accessorKey: 'score', header: 'Score', sortFn: sortFn_basic },
     ],
     [],
   )
 
-  const table = useReactTable({
+  const table = useTable({
+    features: tableWorkbenchFeatures,
     columns,
     data: tableRows,
+    enableCellSelection: true,
     enableRowSelection: true,
-    getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getRowId: (row) => row.id,
-    getSortedRowModel: getSortedRowModel(),
     globalFilterFn: (row, _columnId, filterValue) => {
       const search = String(filterValue).trim().toLowerCase()
       if (!search) return true
@@ -306,8 +481,40 @@ function TableWorkbench() {
     },
   })
 
+  useHotkeys(
+    [
+      { hotkey: 'ArrowUp', callback: () => table.moveCellSelection('up') },
+      { hotkey: 'ArrowDown', callback: () => table.moveCellSelection('down') },
+      { hotkey: 'ArrowLeft', callback: () => table.moveCellSelection('left') },
+      {
+        hotkey: 'ArrowRight',
+        callback: () => table.moveCellSelection('right'),
+      },
+      {
+        hotkey: 'Shift+ArrowUp',
+        callback: () => table.extendCellSelection('up'),
+      },
+      {
+        hotkey: 'Shift+ArrowDown',
+        callback: () => table.extendCellSelection('down'),
+      },
+      {
+        hotkey: 'Shift+ArrowLeft',
+        callback: () => table.extendCellSelection('left'),
+      },
+      {
+        hotkey: 'Shift+ArrowRight',
+        callback: () => table.extendCellSelection('right'),
+      },
+      { hotkey: 'Mod+A', callback: () => table.selectAllCells() },
+      { hotkey: 'Escape', callback: () => table.resetCellSelection(true) },
+    ],
+    { preventDefault: true, target: gridRef },
+  )
+
   const filteredRows = table.getFilteredRowModel().rows.length
   const selectedRows = table.getSelectedRowModel().rows.length
+  const selectedCells = table.getSelectedCellCount()
 
   return (
     <LandingWindow label="issue workbench">
@@ -381,7 +588,23 @@ function TableWorkbench() {
           </span>
         </div>
 
-        <div className="mt-4 overflow-x-auto rounded-lg border border-border-subtle">
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+          <button
+            className="rounded-md border border-border-subtle px-2.5 py-1.5 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] disabled:opacity-25"
+            disabled={selectedCells === 0}
+            onClick={() => table.resetCellSelection(true)}
+            type="button"
+          >
+            Clear cells
+          </button>
+        </div>
+
+        <div
+          ref={gridRef}
+          aria-label="Issue table with selectable cells"
+          className="mt-3 overflow-x-auto rounded-lg border border-border-subtle"
+          role="region"
+        >
           <table className="w-full min-w-[36rem] table-fixed border-collapse text-left">
             <thead className="border-b border-border-subtle bg-text-primary/[0.035]">
               {table.getHeaderGroups().map((headerGroup) => (
@@ -407,10 +630,7 @@ function TableWorkbench() {
                             onClick={header.column.getToggleSortingHandler()}
                             type="button"
                           >
-                            {flexRender(
-                              header.column.columnDef.header,
-                              header.getContext(),
-                            )}
+                            <table.FlexRender header={header} />
                             {sort === 'asc' ? (
                               <CaretUpIcon aria-hidden="true" size={11} />
                             ) : sort === 'desc' ? (
@@ -418,10 +638,7 @@ function TableWorkbench() {
                             ) : null}
                           </button>
                         ) : (
-                          flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )
+                          <table.FlexRender header={header} />
                         )}
                       </th>
                     )
@@ -440,13 +657,24 @@ function TableWorkbench() {
                     {row.getVisibleCells().map((cell) => (
                       <td
                         key={cell.id}
-                        className={getCellClassName(cell.column.id)}
+                        className={`${getCellClassName(cell.column.id)} ${getCellSelectionClassName(cell)}`}
+                        onMouseDown={
+                          cell.getCanSelect()
+                            ? cell.getSelectionStartHandler()
+                            : undefined
+                        }
+                        onMouseEnter={
+                          cell.getCanSelect()
+                            ? cell.getSelectionExtendHandler()
+                            : undefined
+                        }
+                        style={getCellSelectionStyle(cell)}
+                        tabIndex={
+                          cell.getCanSelect() ? cell.getTabIndex() : undefined
+                        }
                       >
                         <span className="block truncate font-ds-mono text-ds-mono-2xs text-text-primary/65">
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext(),
-                          )}
+                          <table.FlexRender cell={cell} />
                         </span>
                       </td>
                     ))}
@@ -486,7 +714,7 @@ function TableWorkbench() {
             </button>
           </div>
           <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
-            page {table.getState().pagination.pageIndex + 1} /{' '}
+            page {table.state.pagination.pageIndex + 1} /{' '}
             {Math.max(table.getPageCount(), 1)}
           </span>
         </div>
@@ -495,178 +723,88 @@ function TableWorkbench() {
   )
 }
 
-function RowPipeline() {
+function OwnershipModel() {
   return (
-    <div className="grid gap-2 sm:grid-cols-4">
-      {rowModels.map((model, index) => {
-        const Icon = model.icon
-        return (
-          <div
-            key={model.label}
-            className="relative rounded-xl border border-border-subtle bg-background-surface p-4"
-          >
-            <Icon
-              aria-hidden="true"
-              className="text-[var(--landing-accent-bright)]"
-              size={19}
-            />
-            <p className="mt-6 text-ds-label-md text-text-primary">
-              {model.label}
-            </p>
-            <code className="mt-2 block break-all font-ds-mono text-ds-mono-xs text-text-primary/30">
-              {model.code}
-            </code>
-            <p className="mt-5 font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
-              {model.rows}
-            </p>
-            {index < rowModels.length - 1 ? (
-              <span
-                aria-hidden="true"
-                className="absolute -right-2 top-8 z-10 hidden size-4 rotate-45 border-r border-t border-[var(--landing-accent)] bg-background-surface sm:block"
-              />
-            ) : null}
+    <LandingWindow label="headless ownership">
+      <div className="grid gap-px bg-border-subtle sm:grid-cols-2">
+        <div className="bg-background-surface p-5 sm:p-6">
+          <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
+            TanStack Table handles
+          </p>
+          <p className="mt-3 text-ds-title-sm text-text-primary">
+            Headless table logic
+          </p>
+          <div className="mt-6 space-y-2">
+            {tableResponsibilities.map((responsibility) => (
+              <div
+                key={responsibility}
+                className="rounded-lg border border-border-subtle bg-background-default px-3 py-2.5 font-ds-mono text-ds-mono-xs text-text-primary/50"
+              >
+                {responsibility}
+              </div>
+            ))}
           </div>
-        )
-      })}
-    </div>
-  )
-}
+        </div>
 
-function SurfaceLab() {
-  const [surface, setSurface] = React.useState<Surface>('table')
-  const rows = tableRows.slice(0, 4)
-
-  return (
-    <LandingWindow label="render surface">
-      <div className="border-b border-border-subtle p-4">
-        <div
-          aria-label="Choose a render surface"
-          className="flex flex-wrap gap-2"
-          role="group"
-        >
-          {(['table', 'cards', 'dense'] as const).map((item) => (
-            <button
-              key={item}
-              aria-pressed={surface === item}
-              className="rounded-md border border-border-subtle px-3 py-1.5 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
-              onClick={() => setSurface(item)}
-              type="button"
-            >
-              {item}
-            </button>
-          ))}
+        <div className="bg-background-surface p-5 sm:p-6">
+          <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
+            You control
+          </p>
+          <p className="mt-3 text-ds-title-sm text-text-primary">
+            100% of the rendered result
+          </p>
+          <div className="mt-6 space-y-2">
+            {developerControls.map((control) => (
+              <div
+                key={control}
+                className="rounded-lg border border-[var(--landing-accent)] bg-[var(--landing-accent)]/5 px-3 py-2.5 font-ds-mono text-ds-mono-xs text-text-primary/70"
+              >
+                {control}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-      <div className="min-h-[16rem] p-5">
-        {surface === 'table' ? (
-          <div className="overflow-hidden rounded-lg border border-border-subtle">
-            {rows.map((row) => (
-              <div
-                key={row.id}
-                className="grid grid-cols-[5rem_minmax(0,1fr)_5rem] gap-4 border-t border-border-subtle px-4 py-3 first:border-t-0"
-              >
-                <span className="font-ds-mono text-ds-mono-2xs text-text-primary/30">
-                  {row.id}
-                </span>
-                <span className="truncate text-ds-body-xs text-text-primary/70">
-                  {row.project}
-                </span>
-                <span className="text-right font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
-                  {row.score}
-                </span>
-              </div>
-            ))}
-          </div>
-        ) : surface === 'cards' ? (
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {rows.map((row) => (
-              <div
-                key={row.id}
-                className="rounded-lg border border-border-subtle bg-text-primary/[0.025] p-4"
-              >
-                <StatusBadge status={row.status} />
-                <p className="mt-5 text-ds-label-md text-text-primary">
-                  {row.project}
-                </p>
-                <p className="mt-2 text-ds-body-xs text-text-primary/30">
-                  {row.owner} · score {row.score}
-                </p>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="rounded-lg bg-background-subtle p-2">
-            {rows.map((row) => (
-              <div
-                key={row.id}
-                className="flex items-center gap-4 border-b border-border-subtle px-3 py-2 last:border-b-0"
-              >
-                <span className="size-1.5 shrink-0 rounded-full bg-[var(--landing-accent)]" />
-                <span className="w-16 font-ds-mono text-ds-mono-2xs text-text-primary/25">
-                  {row.id}
-                </span>
-                <span className="min-w-0 flex-1 truncate font-ds-mono text-ds-mono-2xs text-text-primary/60">
-                  {row.project}
-                </span>
-                <span className="font-ds-mono text-ds-mono-2xs text-text-primary/25">
-                  {row.status}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
+
+      <div className="border-t border-border-subtle bg-background-default p-5 sm:flex sm:items-center sm:justify-between sm:gap-8 sm:px-6">
+        <div>
+          <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/30">
+            Works with your stack
+          </p>
+          <p className="mt-2 text-ds-body-xs text-text-primary/60">
+            Use any component library or design system, including your own.
+          </p>
+        </div>
+        <code className="mt-4 block shrink-0 font-ds-mono text-ds-mono-xs text-[var(--landing-accent-bright)] sm:mt-0">
+          headless logic → your UI
+        </code>
       </div>
     </LandingWindow>
   )
 }
 
-function TableVirtualBoundary() {
-  return (
-    <div className="grid gap-px overflow-hidden rounded-lg border border-border-subtle bg-text-primary/7 sm:grid-cols-2">
-      <div className="bg-background-surface p-4">
-        <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
-          Table
-        </p>
-        <p className="mt-2 text-ds-body-xs text-text-primary/40">
-          Owns columns, row models, feature state, and the data handed to your
-          renderer.
-        </p>
-      </div>
-      <div className="bg-background-surface p-4">
-        <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
-          Virtual
-        </p>
-        <p className="mt-2 text-ds-body-xs text-text-primary/40">
-          Measures the scroll surface and limits which rows or columns are
-          mounted. Pair it with Table when rendering volume demands it.
-        </p>
-      </div>
-    </div>
-  )
-}
-
 function StateSwitchboard() {
-  const [owner, setOwner] = React.useState<StateOwner>('url')
-  const selected = stateOwners[owner]
+  const [mode, setMode] = React.useState<StateMode>('subscribed')
+  const selected = stateModes[mode]
 
   return (
-    <LandingWindow label="sorting ownership">
+    <LandingWindow label="sorting reactivity">
       <div className="p-5 sm:p-6">
         <div
-          aria-label="Choose who owns sorting state"
+          aria-label="Choose how sorting state is consumed"
           className="grid gap-2 sm:grid-cols-3"
           role="group"
         >
-          {(['component', 'url', 'server'] as const).map((item) => (
+          {(['selected', 'subscribed', 'external'] as const).map((item) => (
             <button
               key={item}
-              aria-pressed={owner === item}
+              aria-pressed={mode === item}
               className="rounded-lg border border-border-subtle p-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.1)]"
-              onClick={() => setOwner(item)}
+              onClick={() => setMode(item)}
               type="button"
             >
               <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/30">
-                owned by
+                state mode
               </span>
               <span className="mt-1 block text-ds-label-md capitalize text-text-primary">
                 {item}
@@ -701,6 +839,67 @@ function StateSwitchboard() {
   )
 }
 
+function RowModelPipeline() {
+  return (
+    <div className="mt-10">
+      <LandingWindow label="client-side row-model pipeline">
+        <div className="grid gap-2 p-5 sm:grid-cols-2 lg:grid-cols-6 lg:p-6">
+          {rowModelStages.map((stage, index) => (
+            <div
+              key={stage.label}
+              className="relative rounded-xl border border-border-subtle bg-background-surface p-4"
+            >
+              <p className="font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
+                {String(index + 1).padStart(2, '0')}
+              </p>
+              <p className="mt-5 text-ds-label-md text-text-primary">
+                {stage.label}
+              </p>
+              <code className="mt-2 block break-all font-ds-mono text-ds-mono-2xs leading-relaxed text-text-primary/35">
+                {stage.code}
+              </code>
+              <p className="mt-5 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+                {stage.note}
+              </p>
+              {index < rowModelStages.length - 1 ? (
+                <span
+                  aria-hidden="true"
+                  className="absolute -right-2 top-8 z-10 hidden size-4 rotate-45 border-r border-t border-[var(--landing-accent)] bg-background-surface lg:block"
+                />
+              ) : null}
+            </div>
+          ))}
+        </div>
+        <div className="border-t border-border-subtle bg-background-default px-5 py-4 text-ds-body-xs text-text-primary/45 lg:px-6">
+          Each registered stage memoizes its derived work. Unregistered or
+          manual stages pass the previous row model through.
+        </div>
+      </LandingWindow>
+    </div>
+  )
+}
+
+function TableToolbox() {
+  return (
+    <div className="mt-10 grid gap-3 lg:grid-cols-3">
+      {tableToolbox.map((tool) => (
+        <article
+          key={tool.label}
+          className="rounded-xl border border-border-subtle bg-background-surface p-5"
+        >
+          <p className="text-ds-label-md text-text-primary">{tool.label}</p>
+          <code className="mt-4 block break-words font-ds-mono text-ds-mono-xs text-[var(--landing-accent-bright)]">
+            {tool.code}
+          </code>
+          <p className="mt-4 text-ds-body-xs text-text-primary/40">
+            {tool.detail}
+          </p>
+        </article>
+      ))}
+    </div>
+  )
+}
+
 function StatusBadge({ status }: { status: TableIssue['status'] }) {
   return (
     <Badge
@@ -724,4 +923,35 @@ function getCellClassName(columnId: string) {
   if (columnId === 'status') return 'w-24 px-3 py-3'
   if (columnId === 'owner') return 'w-24 px-3 py-3'
   return 'min-w-0 px-3 py-3'
+}
+
+function getCellSelectionClassName(
+  cell: Cell<typeof tableWorkbenchFeatures, TableIssue>,
+) {
+  return [
+    'focus-visible:outline-none',
+    cell.getCanSelect() && 'cursor-cell select-none',
+    cell.getIsSelected() &&
+      'bg-[color:rgb(var(--landing-glow)/0.16)] text-text-primary',
+    cell.getIsFocused() &&
+      'outline outline-1 -outline-offset-2 outline-[var(--landing-accent-bright)]',
+  ]
+    .filter(Boolean)
+    .join(' ')
+}
+
+function getCellSelectionStyle(
+  cell: Cell<typeof tableWorkbenchFeatures, TableIssue>,
+): React.CSSProperties | undefined {
+  if (!cell.getIsSelected()) return undefined
+
+  const edges = cell.getSelectionEdges()
+  const shadows = [
+    edges.top && 'inset 0 2px 0 var(--landing-accent)',
+    edges.right && 'inset -2px 0 0 var(--landing-accent)',
+    edges.bottom && 'inset 0 -2px 0 var(--landing-accent)',
+    edges.left && 'inset 2px 0 0 var(--landing-accent)',
+  ].filter(Boolean)
+
+  return { boxShadow: shadows.join(', ') }
 }

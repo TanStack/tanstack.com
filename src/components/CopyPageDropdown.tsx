@@ -140,8 +140,11 @@ export function CopyPageDropdown({
     return queryString ? `${base}?${queryString}` : base
   })()
 
+  const hasPageMarkdownEndpoint =
+    typeof window !== 'undefined' && window.location.pathname.includes('/docs/')
+
   const sourceMarkdownUrl =
-    repo === 'tanstack/tanstack.com'
+    repo === 'tanstack/tanstack.com' && hasPageMarkdownEndpoint
       ? pageMarkdownUrl
       : repo && branch && filePath
         ? `https://raw.githubusercontent.com/${repo}/${branch}/${filePath}`
@@ -155,6 +158,7 @@ export function CopyPageDropdown({
         <div>
           <div className="font-medium">Copied to clipboard</div>
         </div>,
+        { id: 'page-copied' },
       )
       return
     }
@@ -172,6 +176,7 @@ export function CopyPageDropdown({
             {source}
           </div>
         </div>,
+        { id: 'page-copied' },
       )
     }
 
@@ -187,7 +192,7 @@ export function CopyPageDropdown({
       markdownCache.set(urlToFetch, content)
       await copyContent(
         content,
-        repo === 'tanstack/tanstack.com'
+        repo === 'tanstack/tanstack.com' && hasPageMarkdownEndpoint
           ? 'Markdown content copied from markdown endpoint'
           : 'Markdown content copied from GitHub',
       )
@@ -208,6 +213,7 @@ export function CopyPageDropdown({
               Page URL copied
             </div>
           </div>,
+          { id: 'page-copied' },
         )
       }
     }

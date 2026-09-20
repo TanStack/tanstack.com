@@ -1,9 +1,7 @@
 import * as React from 'react'
-import {
-  CommandIcon,
-  MagnifyingGlassIcon,
-  SparkleIcon,
-} from '@phosphor-icons/react'
+import { CommandIcon } from '@phosphor-icons/react/Command'
+import { MagnifyingGlassIcon } from '@phosphor-icons/react/MagnifyingGlass'
+import { SparkleIcon } from '@phosphor-icons/react/Sparkle'
 import { twMerge } from 'tailwind-merge'
 import { Button, Tooltip } from '~/ui'
 import { useSearchContext } from '~/contexts/SearchContext'

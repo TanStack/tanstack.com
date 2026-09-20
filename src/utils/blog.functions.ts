@@ -4,6 +4,7 @@ import { setResponseHeaders } from '@tanstack/react-start/server'
 import { allPosts } from 'content-collections'
 import * as v from 'valibot'
 import { findLibrary, type LibraryId } from '~/libraries'
+import { allMaintainers } from '~/libraries/maintainers'
 import {
   getPostsForLibrary,
   getVisiblePosts,
@@ -14,8 +15,10 @@ import {
   type BlogCardPost,
   formatAuthors,
   formatPublishedDate,
+  getBlogAuthorIdentities,
   getBlogLibraries,
-  isPublishedDateReleased,
+  isBlogPostUnpublished,
+  normalizeBlogAuthors,
 } from '~/utils/blog-format'
 import { getExternalBlogPosts } from '~/utils/external-blog-posts.server'
 import { buildRedirectManifest } from './redirects'
@@ -84,13 +87,14 @@ function setExistingBlogListResponseHeaders() {
   )
 }
 
-async function getBlogCardPosts() {
-  const externalPosts = await getExternalBlogPosts()
+function getInternalBlogCardPosts() {
+  return sortBlogCardPosts(getVisiblePosts().map(postToBlogCardPost))
+}
 
-  return sortBlogCardPosts([
-    ...getVisiblePosts().map(postToBlogCardPost),
-    ...externalPosts,
-  ])
+async function getBlogCardPosts(options?: { libraryId?: LibraryId }) {
+  const externalPosts = await getExternalBlogPosts(options)
+
+  return sortBlogCardPosts([...getInternalBlogCardPosts(), ...externalPosts])
 }
 
 export const fetchBlogPost = createServerFn({ method: 'GET' })
@@ -116,16 +120,18 @@ export const fetchBlogPost = createServerFn({ method: 'GET' })
       }),
     )
 
-    const blogContent = `<small><em>by ${formatAuthors(post.authors)} on ${formatPublishedDate(
+    const authors = normalizeBlogAuthors(post.authors)
+    const blogContent = `<small><em>by ${formatAuthors(authors)} on ${formatPublishedDate(
       post.published || '1970-01-01',
     )}.</em></small>
 
 ${post.content}`
 
-    const isUnpublished = post.draft || !isPublishedDateReleased(post.published)
+    const isUnpublished = isBlogPostUnpublished(post)
 
     return {
-      authors: post.authors,
+      authorIdentities: getBlogAuthorIdentities(authors, allMaintainers),
+      authors,
       content: blogContent,
       description: post.excerpt,
       filePath: `src/blog/${data}.md`,
@@ -133,7 +139,9 @@ ${post.content}`
       isUnpublished,
       library: post.library,
       published: post.published,
+      slug: post.slug,
       title: post.title,
+      updated: post.updated,
     }
   })
 
@@ -153,7 +161,7 @@ export const fetchBlogPostsForLibrary = createServerFn({ method: 'GET' })
       return []
     }
 
-    return (await getBlogCardPosts()).filter((post) =>
+    return (await getBlogCardPosts({ libraryId: library.id })).filter((post) =>
       getBlogLibraries(post.library).some(
         (postLibrary) => postLibrary.id === library.id,
       ),
@@ -164,16 +172,18 @@ export const fetchRecentPosts = createServerFn({ method: 'GET' }).handler(
   async (): Promise<Array<RecentPost>> => {
     setExistingBlogListResponseHeaders()
 
-    return (await getBlogCardPosts()).slice(0, 3).map((post) => ({
-      slug: post.slug,
-      title: post.title,
-      published: post.published,
-      excerpt: post.excerpt,
-      headerImage: post.headerImage,
-      authors: post.authors,
-      externalUrl: post.externalUrl,
-      source: post.source,
-    }))
+    return getInternalBlogCardPosts()
+      .slice(0, 3)
+      .map((post) => ({
+        slug: post.slug,
+        title: post.title,
+        published: post.published,
+        excerpt: post.excerpt,
+        headerImage: post.headerImage,
+        authors: post.authors,
+        externalUrl: post.externalUrl,
+        source: post.source,
+      }))
   },
 )
 

@@ -14,6 +14,27 @@ test('transparent embed pages are not indexed', () => {
   }
 })
 
+test('library landing pages canonicalize to latest', () => {
+  for (const [path, expected] of [
+    ['/query/latest', '/query/latest'],
+    ['/query/v4', '/query/latest'],
+    ['/router/v1', '/router/latest'],
+    ['/ai/v0', '/ai/latest'],
+    ['/table/v9', '/table/latest'],
+    ['/form/alpha', '/form/latest'],
+  ]) {
+    assert.equal(getCanonicalPath(path), expected)
+  }
+})
+
+test('non-landing library routes retain their own canonical paths', () => {
+  assert.equal(getCanonicalPath('/charts/catalog'), '/charts/catalog')
+  assert.equal(
+    getCanonicalPath('/query/v4/docs/framework/react/overview'),
+    '/query/v4/docs/framework/react/overview',
+  )
+})
+
 test('social metadata identifies TanStack and describes its image', () => {
   const title = 'TanStack Query'
   const tags = seo({
@@ -35,5 +56,8 @@ test('social metadata identifies TanStack and describes its image', () => {
     tags.some(
       (tag) => tag.property === 'og:image:alt' && tag.content === title,
     ),
+  )
+  assert.ok(
+    tags.some((tag) => tag.property === 'og:type' && tag.content === 'website'),
   )
 })

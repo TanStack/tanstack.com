@@ -1,4 +1,4 @@
-import { HandHeartIcon as HeartHandshake } from '@phosphor-icons/react'
+import { HandHeartIcon } from '@phosphor-icons/react'
 import { Card } from './Card'
 import {
   PARTNER_INQUIRY_HREF,
@@ -13,7 +13,7 @@ export function PartnershipCallout() {
                     w-[500px] max-w-full mx-auto"
     >
       <span className="flex items-center gap-2 p-8 text-3xl text-rose-500 font-black uppercase">
-        TanStack <HeartHandshake /> You?
+        TanStack <HandHeartIcon /> You?
       </span>
       <div className="flex flex-col p-4 gap-3 text-sm">
         <div>

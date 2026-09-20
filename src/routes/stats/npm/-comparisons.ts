@@ -894,6 +894,10 @@ export function getPopularComparisons(): v.InferInput<
           color: '#06b6d4',
         },
         {
+          packages: [{ name: 'joi' }],
+          color: '#8b5cf6',
+        },
+        {
           packages: [{ name: '@sinclair/typebox' }],
           color: '#d946ef',
         },

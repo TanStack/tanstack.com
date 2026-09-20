@@ -56,6 +56,12 @@ assert.equal(
 )
 
 assert.equal(
+  getExampleStartingPath('react', 'ai'),
+  'src/routes/index.tsx',
+  'AI examples default to the index route file',
+)
+
+assert.equal(
   getExampleStartingPath('react', 'router'),
   'src/main.tsx',
   'Router examples default to main.tsx when directory contents are unavailable',

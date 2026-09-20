@@ -4,8 +4,17 @@ import { fetchCached } from '~/utils/cache.server'
 
 const DEFAULT_STANDARD_SITE_TIMEOUT_MS = 5000 // 5 seconds
 const DEFAULT_STANDARD_SITE_CACHE_TTL_MS = 60 * 60 * 1000 // 1 hour
+const DEFAULT_EXTERNAL_BLOG_FAILURE_CACHE_TTL_MS = 60 * 1000 // 1 minute
 const STANDARD_SITE_DOCUMENT_COLLECTION = 'site.standard.document'
 const STANDARD_SITE_PAGE_LIMIT = 100
+
+declare global {
+  var externalBlogFailureCache: Map<string, number> | undefined
+}
+
+const externalBlogFailureCache =
+  globalThis.externalBlogFailureCache ??
+  (globalThis.externalBlogFailureCache = new Map())
 
 type ExternalLibraryId = Extract<LibraryId, 'query' | 'router'>
 
@@ -55,8 +64,10 @@ type StandardSiteExternalBlogSource = {
   collection?: string
   slugPrefix: string
   authors: Array<string>
+  libraries: ReadonlyArray<LibraryId>
   externalUrlSearchParams?: Record<string, string>
   cacheTtlMs?: number
+  failureCacheTtlMs?: number
   timeoutMs?: number
   maxPages?: number
   inferLibraries?: (item: ExternalBlogItem) => Array<LibraryId>
@@ -64,7 +75,7 @@ type StandardSiteExternalBlogSource = {
 
 type ExternalBlogSource = StandardSiteExternalBlogSource
 
-const externalBlogSources = [
+const externalBlogSources: ReadonlyArray<ExternalBlogSource> = [
   {
     type: 'standard-site',
     id: 'tkdodo',
@@ -74,6 +85,7 @@ const externalBlogSources = [
     repo: 'did:plc:3nqrhu5mthmias3zc4a2ovzj',
     slugPrefix: 'tkdodo',
     authors: ['Dominik Dorfmeister'],
+    libraries: ['query', 'router'],
     externalUrlSearchParams: {
       utm_source: 'tanstack.com',
       utm_medium: 'referral',
@@ -81,7 +93,7 @@ const externalBlogSources = [
     },
     inferLibraries: inferTanStackQueryAndRouterLibraries,
   },
-] satisfies Array<ExternalBlogSource>
+]
 
 function normalizeSearchValue(value: string) {
   return value
@@ -351,24 +363,50 @@ async function fetchStandardSiteBlogPosts(
 }
 
 async function fetchExternalBlogPostsForSource(source: ExternalBlogSource) {
-  return fetchCached({
-    key: `external-blog-posts:${source.id}`,
-    ttl: source.cacheTtlMs ?? DEFAULT_STANDARD_SITE_CACHE_TTL_MS,
-    fn: async () => fetchStandardSiteBlogPosts(source),
-  }).catch((error) => {
+  const cacheKey = `external-blog-posts:${source.id}`
+  const failureExpiresAt = externalBlogFailureCache.get(cacheKey)
+
+  if (failureExpiresAt && failureExpiresAt > Date.now()) {
+    return []
+  }
+
+  externalBlogFailureCache.delete(cacheKey)
+
+  try {
+    const posts = await fetchCached({
+      key: cacheKey,
+      ttl: source.cacheTtlMs ?? DEFAULT_STANDARD_SITE_CACHE_TTL_MS,
+      fn: async () => fetchStandardSiteBlogPosts(source),
+    })
+
+    externalBlogFailureCache.delete(cacheKey)
+    return posts
+  } catch (error) {
+    externalBlogFailureCache.set(
+      cacheKey,
+      Date.now() +
+        (source.failureCacheTtlMs ??
+          DEFAULT_EXTERNAL_BLOG_FAILURE_CACHE_TTL_MS),
+    )
     console.warn(
       `Unable to load external blog posts from ${source.name}`,
       error,
     )
     return []
-  })
+  }
 }
 
-export async function getExternalBlogPosts() {
+export async function getExternalBlogPosts(options?: {
+  libraryId?: LibraryId
+}) {
+  const libraryId = options?.libraryId
+  const sources = libraryId
+    ? externalBlogSources.filter((source) =>
+        source.libraries.includes(libraryId),
+      )
+    : externalBlogSources
   const postsBySource = await Promise.all(
-    externalBlogSources.map((source) =>
-      fetchExternalBlogPostsForSource(source),
-    ),
+    sources.map((source) => fetchExternalBlogPostsForSource(source)),
   )
 
   return postsBySource.flat()

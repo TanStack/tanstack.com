@@ -1,6 +1,15 @@
 import assert from 'node:assert/strict'
 import { orderFrameworksForBrowse } from '../src/libraries/browse-utils'
+import { publicLibraries } from '../src/libraries/libraries'
 import type { Framework } from '../src/libraries/types'
+
+for (const library of publicLibraries) {
+  assert.equal(
+    library.to,
+    `/${library.id}/latest`,
+    `${library.name} links directly to its canonical landing page`,
+  )
+}
 
 const frameworks: Array<{ value: Framework }> = [
   { value: 'react' },

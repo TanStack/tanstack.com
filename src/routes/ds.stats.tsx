@@ -118,7 +118,12 @@ function StatsPage() {
           code={`<StatsSection page="${page}" layout="${layout}" stats={stats} />`}
           codePlacement="side"
         >
-          <StatsSection page={page} layout={layout} stats={stats} />
+          <StatsSection
+            page={page}
+            layout={layout}
+            stats={stats}
+            onImage={page === 'hero'}
+          />
         </ComponentPreview>
       </DsSection>
     </DsPage>

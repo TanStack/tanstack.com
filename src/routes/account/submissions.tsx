@@ -1,3 +1,4 @@
+import { PLACEMENT_LABELS } from '~/utils/showcase.shared'
 import * as React from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -147,6 +148,9 @@ function AccountSubmissionsPage() {
                   />
                   <div className="absolute top-2 right-2 sm:hidden">
                     {getStatusBadge(showcase.status)}
+                    <span className="text-sm text-gray-500">
+                      {PLACEMENT_LABELS[showcase.placement]}
+                    </span>
                   </div>
                 </div>
 
@@ -163,6 +167,9 @@ function AccountSubmissionsPage() {
                     </div>
                     <div className="hidden sm:block">
                       {getStatusBadge(showcase.status)}
+                      <span className="text-sm text-gray-500">
+                        {PLACEMENT_LABELS[showcase.placement]}
+                      </span>
                     </div>
                   </div>
 
@@ -182,11 +189,6 @@ function AccountSubmissionsPage() {
                   </div>
 
                   {/* Moderation note */}
-                  {showcase.status === 'denied' && showcase.moderationNote && (
-                    <div className="mt-3 p-2 bg-red-50 dark:bg-red-900/20 rounded text-sm text-red-700 dark:text-red-300">
-                      <strong>Reason:</strong> {showcase.moderationNote}
-                    </div>
-                  )}
 
                   {/* Actions */}
                   <div className="flex items-center gap-2 mt-4">

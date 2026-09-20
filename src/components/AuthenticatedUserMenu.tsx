@@ -7,6 +7,7 @@ import {
   SignOutIcon,
   SparkleIcon,
   KeyIcon,
+  HammerIcon,
 } from '@phosphor-icons/react'
 import { Avatar } from '~/components/Avatar'
 import {
@@ -59,6 +60,12 @@ export function AuthenticatedUserMenu({
           <Link to="/account" className="flex items-center gap-2">
             <GearIcon className="w-4 h-4" />
             <span>Account</span>
+          </Link>
+        </DropdownItem>
+        <DropdownItem asChild>
+          <Link to="/builder" className="flex items-center gap-2">
+            <HammerIcon className="w-4 h-4" />
+            <span>My Projects</span>
           </Link>
         </DropdownItem>
         <DropdownItem asChild>

@@ -8,6 +8,34 @@ export type TabDefinition = {
   headers?: Array<string>
 }
 
+// Roving-tabindex keyboard nav for a horizontal tablist, mirroring the DS
+// `Tabs` component: Arrow keys move (and wrap) focus between triggers, Home/End
+// jump to the ends, and automatic activation clicks the newly focused trigger
+// so selection follows focus.
+function handleTabListKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+  const keys = ['ArrowRight', 'ArrowLeft', 'Home', 'End']
+  if (!keys.includes(event.key)) return
+  const tabs = Array.from(
+    event.currentTarget.querySelectorAll<HTMLButtonElement>(
+      '[role="tab"]:not(:disabled)',
+    ),
+  )
+  if (tabs.length === 0) return
+  const current = tabs.indexOf(document.activeElement as HTMLButtonElement)
+  let next = current
+  if (event.key === 'ArrowRight')
+    next = current < 0 ? 0 : (current + 1) % tabs.length
+  else if (event.key === 'ArrowLeft')
+    next =
+      current < 0 ? tabs.length - 1 : (current - 1 + tabs.length) % tabs.length
+  else if (event.key === 'Home') next = 0
+  else if (event.key === 'End') next = tabs.length - 1
+  event.preventDefault()
+  const target = tabs[next]
+  target.focus()
+  target.click()
+}
+
 export type TabsProps = {
   tabs?: Array<TabDefinition>
   children?: Array<React.ReactNode> | React.ReactNode
@@ -54,7 +82,11 @@ export function Tabs({
 
   return (
     <div className="my-4">
-      <div className="not-prose fade-x fade-size-x-sm flex items-center justify-start gap-2 overflow-x-auto overflow-y-hidden rounded-t-md border-1 border-b-none border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950">
+      <div
+        role="tablist"
+        onKeyDown={handleTabListKeyDown}
+        className="not-prose fade-x fade-size-x-sm flex items-center justify-start gap-1 overflow-x-auto overflow-y-hidden border-b border-border-default"
+      >
         {tabsProp.map((tab) => {
           return (
             <Tab
@@ -67,7 +99,7 @@ export function Tabs({
           )
         })}
       </div>
-      <div className="border border-gray-500/20 rounded-b-md bg-gray-100 dark:bg-gray-900 overflow-hidden">
+      <div className="overflow-hidden rounded-b-md border border-t-0 border-border-default bg-background-subtle">
         {childrenArray.map((child, index) => {
           const tab = tabsProp[index]
           if (!tab) return null
@@ -79,6 +111,9 @@ export function Tabs({
           return (
             <div
               key={`${id}-${tab.slug}`}
+              role="tabpanel"
+              id={`${id}-panel-${tab.slug}`}
+              aria-labelledby={`${id}-tab-${tab.slug}`}
               data-tab={tab.slug}
               data-content={content}
               className={`max-w-none flex-col gap-2 text-base ${
@@ -95,6 +130,7 @@ export function Tabs({
 }
 
 const Tab = React.memo(function Tab({
+  id,
   tab,
   activeSlug,
   setActiveSlug,
@@ -114,16 +150,23 @@ const Tab = React.memo(function Tab({
     [tab.slug, tab.name],
   )
 
+  const isActive = activeSlug === tab.slug
+
   return (
     <button
+      role="tab"
+      id={id ? `${id}-tab-${tab.slug}` : undefined}
+      aria-selected={isActive}
+      aria-controls={id ? `${id}-panel-${tab.slug}` : undefined}
       aria-label={tab.name}
       title={tab.name}
       type="button"
+      tabIndex={isActive ? 0 : -1}
       onClick={() => setActiveSlug(tab.slug)}
-      className={`inline-flex items-center justify-center gap-2 px-3 py-1.5 -mb-[1px] border-b-2 text-sm font-bold transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 rounded-t-md overflow-y-none ${
-        activeSlug === tab.slug
-          ? 'border-current text-current bg-gray-100 dark:bg-gray-900'
-          : 'border-transparent text-gray-600 hover:text-gray-900 dark:text-gray-400 hover:dark:text-gray-200'
+      className={`relative -mb-px inline-flex shrink-0 items-center justify-center gap-2 border-b-2 px-3 py-2 text-sm font-semibold transition-colors ${
+        isActive
+          ? 'border-text-primary text-text-primary'
+          : 'border-transparent text-text-secondary hover:text-text-primary'
       }`}
     >
       {option && <img src={option.logo} alt="" className="w-4 h-4 -ml-1" />}

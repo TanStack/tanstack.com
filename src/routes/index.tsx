@@ -20,11 +20,15 @@ import { HomeSocialProofSection } from '~/components/home/HomeSocialProofSection
 import { HomeStatsSection } from '~/components/home/HomeStatsSection'
 import { useQuery } from '@tanstack/react-query'
 import { Button, Eyebrow } from '~/components/ds/ui'
+import { Squircle } from '~/components/Squircle'
+import { useInView } from '~/hooks/useInView'
 import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
 import { homepageNpmStatsSummaryQuery, ossStatsQuery } from '~/queries/stats'
 import { useLibrariesOverlay } from '~/contexts/LibrariesOverlayContext'
 import { fetchRecentPosts } from '~/utils/blog.functions'
+import { usePrefersReducedMotion } from '~/utils/usePrefersReducedMotion'
 import { seo } from '~/utils/seo'
+import { getTanStackHomepageJsonLd } from '~/utils/organization-structured-data'
 
 export const Route = createFileRoute('/')({
   loader: async ({ context: { queryClient } }) => {
@@ -42,6 +46,12 @@ export const Route = createFileRoute('/')({
       description:
         'Headless, type-safe, composable tools for building modern web applications that work naturally for developers and reliably for agents.',
     }),
+    scripts: [
+      {
+        type: 'application/ld+json',
+        children: JSON.stringify(getTanStackHomepageJsonLd()),
+      },
+    ],
   }),
   component: Index,
 })
@@ -93,7 +103,10 @@ function Index() {
                   applications that work naturally for developers and reliably
                   for agents
                 </p>
-                <div className="flex flex-wrap items-center gap-2">
+                {/* The photo is always light, so scope the CTAs to the DS
+                    light mode — the Buttons then render as their standard DS
+                    light-mode selves (no per-button color overrides). */}
+                <div className="ds-mode-light flex flex-wrap items-center gap-2">
                   <Button
                     type="button"
                     onClick={() => openLibraries()}
@@ -175,7 +188,7 @@ function HeroPalmMedia() {
 
   return (
     <>
-      <div
+      <Squircle
         aria-hidden
         className="absolute inset-0 -z-10 overflow-hidden rounded-xl [corner-shape:squircle]"
       >
@@ -208,7 +221,7 @@ function HeroPalmMedia() {
         >
           <source src="/images/hero-palm-motion.mp4" type="video/mp4" />
         </video>
-      </div>
+      </Squircle>
       <button
         type="button"
         onClick={togglePlayback}
@@ -475,7 +488,7 @@ function WhyTanStackSection() {
       <div className="mx-auto max-w-[960px] py-16 lg:py-20">
         {/* section-header — 478:1737 */}
         <div className="flex flex-col items-center gap-12 text-center">
-          <Eyebrow className="text-text-warning">Principles</Eyebrow>
+          <Eyebrow tone="warning">Principles</Eyebrow>
           <div className="flex flex-col items-center gap-4">
             <h3 className="text-4xl font-[500] leading-[1.05] tracking-[-0.8px] sm:text-5xl lg:text-[64px]">
               Why TanStack?
@@ -488,7 +501,7 @@ function WhyTanStackSection() {
         </div>
 
         {/* features-stack — 478:1742 */}
-        <ol className="mt-12 rounded-[20px]">
+        <ol className="mt-2 rounded-[20px]">
           {whyTanStackPrinciples.map((principle, index) => (
             <li
               key={principle.title}
@@ -566,8 +579,13 @@ function FrameworkAdapterGraph({
 }) {
   const [activeAdapterIndex, setActiveAdapterIndex] = React.useState(0)
   const [flowProgress, setFlowProgress] = React.useState(0)
+  const rootRef = React.useRef<HTMLDivElement>(null)
+  const isVisible = useInView(rootRef)
+  const prefersReducedMotion = usePrefersReducedMotion()
 
   React.useEffect(() => {
+    if (!isVisible || prefersReducedMotion !== false) return
+
     const intervalId = window.setInterval(() => {
       setActiveAdapterIndex(
         (currentIndex) => (currentIndex + 1) % frameworkAdapterNodes.length,
@@ -575,12 +593,10 @@ function FrameworkAdapterGraph({
     }, 1150)
 
     return () => window.clearInterval(intervalId)
-  }, [])
+  }, [isVisible, prefersReducedMotion])
 
   React.useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      return
-    }
+    if (!isVisible || prefersReducedMotion !== false) return
 
     let frameId = 0
     let lastUpdate = 0
@@ -598,107 +614,116 @@ function FrameworkAdapterGraph({
     frameId = window.requestAnimationFrame(update)
 
     return () => window.cancelAnimationFrame(frameId)
-  }, [])
+  }, [isVisible, prefersReducedMotion])
 
   return (
     // The node positions below are hard-coded against a 320×128 grid
-    // (adapterGraphWidth/Height), so the whole graph is scaled as a unit to
-    // fill the 460×233 slot rather than re-deriving every coordinate.
-    <div
-      aria-hidden="true"
-      className="relative h-32 w-[320px] shrink-0 scale-[1.35] font-mono text-[10px] font-bold"
-    >
-      <div className="home-adapter-graph absolute inset-x-0 top-1 h-[7.5rem] overflow-visible">
-        {frameworkAdapterNodes.map((adapter, adapterIndex) => {
-          const isActive = activeAdapterIndex === adapterIndex
+    // (adapterGraphWidth/Height), so the whole graph is scaled as a unit rather
+    // than re-deriving every coordinate. The scale tracks the wrapper's own
+    // width, so the graph fills whatever slot it lands in without restating the
+    // ancestors' padding. The 1.35 cap is the ratio the fixed 460px `lg` slot
+    // was designed around.
+    <div className="@container flex w-full justify-center">
+      <div
+        ref={rootRef}
+        aria-hidden="true"
+        style={{
+          transform: 'scale(clamp(0.75, calc(100cqw / 320px), 1.35))',
+        }}
+        className="relative h-32 w-[320px] shrink-0 origin-center font-mono text-[10px] font-bold"
+      >
+        <div className="home-adapter-graph absolute inset-x-0 top-1 h-[7.5rem] overflow-visible">
+          {frameworkAdapterNodes.map((adapter, adapterIndex) => {
+            const isActive = activeAdapterIndex === adapterIndex
 
-          return (
-            <span
-              key={adapter.label}
-              data-adapter-label={adapter.label}
-              style={adapterGraphStyle(adapter)}
-              className={twMerge(
-                'absolute z-20 flex items-center justify-center rounded-md border px-2 text-center text-gray-600 shadow-sm backdrop-blur transition-colors duration-500 dark:text-gray-400',
-                isActive
-                  ? 'border-cyan-300 bg-cyan-50 text-cyan-800 shadow-cyan-500/15 dark:border-cyan-700 dark:bg-cyan-950/40 dark:text-cyan-200'
-                  : 'border-gray-200 bg-white/85 dark:border-gray-800 dark:bg-black/55',
-              )}
-            >
-              {adapter.label}
-            </span>
-          )
-        })}
-
-        <span
-          data-adapter-label={frameworkAdapterCore.label}
-          style={adapterGraphStyle(frameworkAdapterCore)}
-          className={twMerge(
-            'absolute z-30 flex items-center justify-center rounded-lg bg-gradient-to-r text-center text-[11px] text-white shadow-lg shadow-cyan-500/15',
-            accentClassName,
-          )}
-        >
-          core
-        </span>
-
-        {frameworkAdapterConnections.map((connection, connectionIndex) => {
-          const progress = (flowProgress - connectionIndex * 0.13 + 1) % 1
-          const point = cubicPoint(
-            connection.start,
-            connection.control1,
-            connection.control2,
-            connection.end,
-            progress,
-          )
-          const angle = cubicAngle(
-            connection.start,
-            connection.control1,
-            connection.control2,
-            connection.end,
-            progress,
-          )
-
-          return (
-            <span
-              key={`flow-${connection.label}`}
-              data-connection-flow={connection.label}
-              style={{
-                ...adapterGraphPointStyle(point),
-                transform: `translate(-50%, -50%) rotate(${angle}deg)`,
-              }}
-              className={twMerge(
-                'home-adapter-graph-flow absolute z-50',
-                progress < 0.08 || progress > 0.92
-                  ? 'opacity-0'
-                  : 'opacity-100',
-              )}
-            />
-          )
-        })}
-
-        {frameworkAdapterConnections.map((connection, connectionIndex) => {
-          const isActive = activeAdapterIndex === connectionIndex
-
-          return (
-            <React.Fragment key={`ports-${connection.label}`}>
+            return (
               <span
-                data-connection-port={`${connection.label}-core`}
-                style={adapterGraphPointStyle(connection.start)}
+                key={adapter.label}
+                data-adapter-label={adapter.label}
+                style={adapterGraphStyle(adapter)}
                 className={twMerge(
-                  'absolute z-40 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-200 bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.55)] transition-opacity duration-500 dark:border-cyan-900',
-                  isActive ? 'opacity-100' : 'opacity-55',
+                  'absolute z-20 flex items-center justify-center rounded-md border px-2 text-center text-gray-600 shadow-sm backdrop-blur transition-colors duration-500 dark:text-gray-400',
+                  isActive
+                    ? 'border-cyan-300 bg-cyan-50 text-cyan-800 shadow-cyan-500/15 dark:border-cyan-700 dark:bg-cyan-950/40 dark:text-cyan-200'
+                    : 'border-gray-200 bg-white/85 dark:border-gray-800 dark:bg-black/55',
+                )}
+              >
+                {adapter.label}
+              </span>
+            )
+          })}
+
+          <span
+            data-adapter-label={frameworkAdapterCore.label}
+            style={adapterGraphStyle(frameworkAdapterCore)}
+            className={twMerge(
+              'absolute z-30 flex items-center justify-center rounded-lg bg-gradient-to-r text-center text-[11px] text-white shadow-lg shadow-cyan-500/15',
+              accentClassName,
+            )}
+          >
+            core
+          </span>
+
+          {frameworkAdapterConnections.map((connection, connectionIndex) => {
+            const progress = (flowProgress - connectionIndex * 0.13 + 1) % 1
+            const point = cubicPoint(
+              connection.start,
+              connection.control1,
+              connection.control2,
+              connection.end,
+              progress,
+            )
+            const angle = cubicAngle(
+              connection.start,
+              connection.control1,
+              connection.control2,
+              connection.end,
+              progress,
+            )
+
+            return (
+              <span
+                key={`flow-${connection.label}`}
+                data-connection-flow={connection.label}
+                style={{
+                  ...adapterGraphPointStyle(point),
+                  transform: `translate(-50%, -50%) rotate(${angle}deg)`,
+                }}
+                className={twMerge(
+                  'home-adapter-graph-flow absolute z-50',
+                  progress < 0.08 || progress > 0.92
+                    ? 'opacity-0'
+                    : 'opacity-100',
                 )}
               />
-              <span
-                data-connection-port={`${connection.label}-adapter`}
-                style={adapterGraphPointStyle(connection.end)}
-                className={twMerge(
-                  'absolute z-40 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-200 bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.55)] transition-opacity duration-500 dark:border-cyan-900',
-                  isActive ? 'opacity-100' : 'opacity-55',
-                )}
-              />
-            </React.Fragment>
-          )
-        })}
+            )
+          })}
+
+          {frameworkAdapterConnections.map((connection, connectionIndex) => {
+            const isActive = activeAdapterIndex === connectionIndex
+
+            return (
+              <React.Fragment key={`ports-${connection.label}`}>
+                <span
+                  data-connection-port={`${connection.label}-core`}
+                  style={adapterGraphPointStyle(connection.start)}
+                  className={twMerge(
+                    'absolute z-40 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-200 bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.55)] transition-opacity duration-500 dark:border-cyan-900',
+                    isActive ? 'opacity-100' : 'opacity-55',
+                  )}
+                />
+                <span
+                  data-connection-port={`${connection.label}-adapter`}
+                  style={adapterGraphPointStyle(connection.end)}
+                  className={twMerge(
+                    'absolute z-40 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-200 bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.55)] transition-opacity duration-500 dark:border-cyan-900',
+                    isActive ? 'opacity-100' : 'opacity-55',
+                  )}
+                />
+              </React.Fragment>
+            )
+          })}
+        </div>
       </div>
     </div>
   )
@@ -784,7 +809,7 @@ function AdoptionProof({ accentClassName }: { accentClassName: string }) {
           // once there is a real number for it to count from.
           ref={totalDownloads > 0 ? counterRef : undefined}
           className={twMerge(
-            'bg-linear-to-r bg-clip-text font-mono text-4xl font-black tabular-nums text-transparent',
+            'bg-linear-to-r bg-clip-text font-mono text-3xl font-black tabular-nums text-transparent sm:text-4xl',
             accentClassName,
           )}
         >

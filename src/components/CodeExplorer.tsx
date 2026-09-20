@@ -50,15 +50,6 @@ export function CodeExplorer({
     return () => window.removeEventListener('keydown', handleEsc)
   }, [isFullScreen])
 
-  // Add sidebar close handler
-  React.useEffect(() => {
-    const handleCloseSidebar = () => {
-      setIsSidebarOpen(false)
-    }
-    window.addEventListener('closeSidebar', handleCloseSidebar)
-    return () => window.removeEventListener('closeSidebar', handleCloseSidebar)
-  }, [])
-
   return (
     <div
       className={`flex flex-col min-h-[60dvh] sm:min-h-[80dvh] border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden ${
@@ -84,9 +75,10 @@ export function CodeExplorer({
         >
           <FileExplorer
             currentPath={currentPath}
-            githubContents={githubContents}
+            files={githubContents}
             isSidebarOpen={isSidebarOpen}
             libraryColor={library.bgStyle}
+            onSidebarClose={() => setIsSidebarOpen(false)}
             prefetchFileContent={prefetchFileContent}
             setCurrentPath={setCurrentPath}
           />

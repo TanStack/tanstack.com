@@ -17,11 +17,11 @@ import {
 } from '@tanstack/charts'
 import { renderChartSvgWithResources } from '@tanstack/charts/svg/resources'
 import { tooltip } from '@tanstack/charts/tooltip'
-import { Chart } from '@tanstack/react-charts'
+import { Chart } from '@tanstack/charts/react'
 import { GIFEncoder, applyPalette, quantize } from 'gifenc'
 import {
   CheckIcon,
-  CodeIcon as Code2,
+  CodeIcon,
   CopyIcon,
   DownloadIcon,
   ListIcon,
@@ -797,31 +797,33 @@ function createLatestBarExportChart({
                 radius: 2,
               }),
         ],
-    x: isHorizontalBar
-      ? {
-          scale: numericScale,
-          axis: {
-            label: { text: 'Downloads', offset: 35 },
-            ticks: { format: formatCompactAxisNumber },
+    scales: {
+      x: isHorizontalBar
+        ? {
+            scale: numericScale,
+            axis: {
+              label: { text: 'Downloads', offset: 35 },
+              ticks: { format: formatCompactAxisNumber },
+            },
+            grid: true,
+          }
+        : {
+            scale: categoricalScale,
+            axis: {
+              tickLabels: { rotate: verticalXAxisLayout.tickRotate },
+            },
           },
-          grid: true,
-        }
-      : {
-          scale: categoricalScale,
-          axis: {
-            tickLabels: { rotate: verticalXAxisLayout.tickRotate },
+      y: isHorizontalBar
+        ? { scale: categoricalScale }
+        : {
+            scale: numericScale,
+            axis: {
+              label: 'Downloads',
+              ticks: { format: formatCompactAxisNumber },
+            },
+            grid: true,
           },
-        },
-    y: isHorizontalBar
-      ? { scale: categoricalScale }
-      : {
-          scale: numericScale,
-          axis: {
-            label: 'Downloads',
-            ticks: { format: formatCompactAxisNumber },
-          },
-          grid: true,
-        },
+    },
     gradients: getTanStackGradients(fillGradients),
     margin: {
       top: 20,
@@ -1719,7 +1721,7 @@ function EmbedChartAction({
             className={chartActionButtonStyles}
             type="button"
           >
-            <Code2 className="size-3" />
+            <CodeIcon className="size-3" />
           </button>
         </DropdownMenuTrigger>
       </Tooltip>
@@ -2227,6 +2229,7 @@ function getNpmChartTooltipContent(
     return {
       title,
       rows: points.map((point) => ({
+        active: point === context.primaryPoint,
         color: point.datum.color,
         label: point.groupLabel,
         value: formatValue(point),
@@ -2259,7 +2262,7 @@ function createNpmStatsChart(input: NpmStatsChartInput) {
   const definition = defineChart(() => createNpmStatsChartSpec(input))
 
   return defineChart(definition, {
-    animate: {
+    svgAnimation: {
       duration: chartUpdateTransitionDurationMs,
       easing: 'ease-out',
     },
@@ -2273,7 +2276,6 @@ function createNpmStatsChart(input: NpmStatsChartInput) {
       content: (points, context) =>
         getNpmChartTooltipContent(points, context, input),
       placement: ['top', 'right', 'left', 'bottom'],
-      sort: 'color-domain',
     },
   })
 }
@@ -2322,15 +2324,17 @@ function createNpmStatsChartSpec(input: NpmStatsChartInput) {
             radius: input.chartType === 'stacked-bar' ? undefined : 2,
           }),
         ],
-        x: {
-          scale: numericScale,
-          axis: {
-            label: input.xLabel,
-            ticks: { format: formatCompactAxisNumber },
+        scales: {
+          x: {
+            scale: numericScale,
+            axis: {
+              label: input.xLabel,
+              ticks: { format: formatCompactAxisNumber },
+            },
+            grid: true,
           },
-          grid: true,
+          y: { scale: categoricalScale },
         },
-        y: { scale: categoricalScale },
       }
     }
 
@@ -2354,14 +2358,16 @@ function createNpmStatsChartSpec(input: NpmStatsChartInput) {
           radius: input.chartType === 'stacked-bar' ? undefined : 2,
         }),
       ],
-      x: { scale: categoricalScale },
-      y: {
-        scale: numericScale,
-        axis: {
-          label: input.yLabel,
-          ticks: { format: input.yFormat },
+      scales: {
+        x: { scale: categoricalScale },
+        y: {
+          scale: numericScale,
+          axis: {
+            label: input.yLabel,
+            ticks: { format: input.yFormat },
+          },
+          grid: true,
         },
-        grid: true,
       },
     }
   }
@@ -2422,17 +2428,19 @@ function createNpmStatsChartSpec(input: NpmStatsChartInput) {
           curve,
         }),
       ],
-      x,
-      y: {
-        scale: d3
-          .scaleLinear()
-          .domain([valueExtent[0] ?? 0, valueExtent[1] ?? 1])
-          .nice(5),
-        axis: {
-          label: input.yLabel,
-          ticks: { format: input.yFormat },
+      scales: {
+        x,
+        y: {
+          scale: d3
+            .scaleLinear()
+            .domain([valueExtent[0] ?? 0, valueExtent[1] ?? 1])
+            .nice(5),
+          axis: {
+            label: input.yLabel,
+            ticks: { format: input.yFormat },
+          },
+          grid: true,
         },
-        grid: true,
       },
       clip: !!input.timelineDomain,
     }
@@ -2474,17 +2482,19 @@ function createNpmStatsChartSpec(input: NpmStatsChartInput) {
         curve,
       }),
     ],
-    x,
-    y: {
-      scale: d3
-        .scaleLinear()
-        .domain([stackedExtent[0] ?? 0, stackedExtent[1] ?? 1])
-        .nice(5),
-      axis: {
-        label: input.yLabel,
-        ticks: { format: input.yFormat },
+    scales: {
+      x,
+      y: {
+        scale: d3
+          .scaleLinear()
+          .domain([stackedExtent[0] ?? 0, stackedExtent[1] ?? 1])
+          .nice(5),
+        axis: {
+          label: input.yLabel,
+          ticks: { format: input.yFormat },
+        },
+        grid: true,
       },
-      grid: true,
     },
     clip: !!input.timelineDomain,
   }

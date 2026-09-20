@@ -1,7 +1,10 @@
 import * as React from 'react'
-import { PauseIcon, PlayIcon, ShuffleIcon } from '@phosphor-icons/react'
+import { PauseIcon } from '@phosphor-icons/react/Pause'
+import { PlayIcon } from '@phosphor-icons/react/Play'
+import { ShuffleIcon } from '@phosphor-icons/react/Shuffle'
 
 import { useIsDark } from '~/hooks/useIsDark'
+import { useInView } from '~/hooks/useInView'
 
 import kineticBarChartSource from '../../../scripts/charts-landing/kinetic-bar-chart.ts?raw'
 import kineticDonutChartSource from '../../../scripts/charts-landing/kinetic-donut-chart.ts?raw'
@@ -26,6 +29,10 @@ import {
   chartsActivationCompactSvg,
   chartsActivationSvg,
 } from './chartsActivationSvg'
+import {
+  chartsBundleSizeCompactSvg,
+  chartsBundleSizeSvg,
+} from './chartsBundleSizeSvg'
 import {
   chartsKineticBarSvg,
   chartsKineticDonutSvg,
@@ -326,48 +333,8 @@ const themePreviews = [
   },
 ] as const
 
-const bundleRows = [
-  {
-    color: 'bg-[#39af46]',
-    label: 'TanStack Charts',
-    maximum: 32.08,
-    minimum: 26.58,
-  },
-  {
-    color: 'bg-[#3aa3c4]',
-    label: 'Chart.js',
-    maximum: 58.21,
-    minimum: 44.7,
-  },
-  {
-    color: 'bg-[#8b5cf6]',
-    label: 'Observable Plot',
-    maximum: 91.94,
-    minimum: 83.34,
-  },
-  {
-    color: 'bg-[#ff8a65]',
-    label: 'Bklit',
-    maximum: 152.12,
-    minimum: 152.12,
-  },
-  {
-    color: 'bg-[#f59e0b]',
-    label: 'Recharts',
-    maximum: 168.27,
-    minimum: 153.08,
-  },
-  {
-    color: 'bg-[#ef6c4d]',
-    label: 'Apache ECharts',
-    maximum: 173.18,
-    minimum: 153.1,
-  },
-] as const
-
 const kineticChartIntervalMs = 4_000
 const kineticChartTransitionMs = 1_200
-const bundleChartMaximumKiB = 180
 
 export function KineticChartsHero() {
   const rootRef = React.useRef<HTMLElement>(null)
@@ -377,7 +344,7 @@ export function KineticChartsHero() {
   const [outgoingIndex, setOutgoingIndex] = React.useState<number | null>(null)
   const [focusWithin, setFocusWithin] = React.useState(false)
   const [hovered, setHovered] = React.useState(false)
-  const [inView, setInView] = React.useState(true)
+  const inView = useInView(rootRef, { threshold: 0.18 })
   const [autoAdvanceOverride, setAutoAdvanceOverride] = React.useState(false)
   const [pageVisible, setPageVisible] = React.useState(true)
   const [paused, setPaused] = React.useState(false)
@@ -437,20 +404,6 @@ export function KineticChartsHero() {
     )
     return () => window.clearInterval(interval)
   }, [autoPlay, interacting, showNewVariation])
-
-  React.useEffect(() => {
-    const root = rootRef.current
-    if (!root || !('IntersectionObserver' in window)) {
-      return
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => setInView(Boolean(entry?.isIntersecting)),
-      { threshold: 0.18 },
-    )
-    observer.observe(root)
-    return () => observer.disconnect()
-  }, [])
 
   React.useEffect(() => {
     const updateVisibility = () =>
@@ -623,7 +576,7 @@ export function AccountChart() {
               Account health
             </p>
             <p className="mt-1 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/40">
-              Example account dataset · Q2 2026
+              Illustrative account dataset
             </p>
           </div>
           <p className="max-w-xs text-ds-body-xs text-text-secondary">
@@ -645,6 +598,27 @@ export function AccountChart() {
         compactSvg={chartsAccountsCompactSvg}
         svg={chartsAccountsSvg}
         tooltip={accountTooltip}
+      />
+    </figure>
+  )
+}
+
+export function BundleSizeChart() {
+  return (
+    <figure className="library-landing-graphic min-w-0 overflow-hidden rounded-xl border border-[#294651] bg-[#07111e] shadow-[0_28px_80px_-38px_rgb(var(--landing-glow)/0.7)]">
+      <figcaption className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 px-4 py-3 font-ds-mono text-ds-mono-caps-xs uppercase sm:px-6 sm:py-4">
+        <span className="text-white/75">Bundle size snapshot</span>
+        <span className="text-[#61e8ff]">
+          August 2026 · rendered with TanStack Charts
+        </span>
+      </figcaption>
+      <StaticGraphic
+        className="aspect-[520/820] w-full sm:hidden"
+        svg={chartsBundleSizeCompactSvg}
+      />
+      <StaticGraphic
+        className="hidden aspect-[1200/820] w-full sm:block"
+        svg={chartsBundleSizeSvg}
       />
     </figure>
   )
@@ -675,75 +649,6 @@ export function ThemeGallery() {
   )
 }
 
-export function BundleSizeFigure() {
-  return (
-    <div
-      aria-label="Chart library cold-page bundle size comparison"
-      aria-roledescription="chart"
-      className="overflow-hidden rounded-xl border border-border-subtle bg-background-surface p-4 sm:p-6"
-      role="group"
-    >
-      <div className="flex flex-wrap items-end justify-between gap-4 border-b border-border-subtle pb-5">
-        <div>
-          <p className="font-ds-display text-ds-heading-5 text-text-primary">
-            Cold-page bundle comparison
-          </p>
-          <p className="mt-1 text-ds-body-xs text-text-primary/45">
-            Published 12-chart ranges; Bklit is an interactive line · minified +
-            gzip
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-6 space-y-5">
-        {bundleRows.map((row) => (
-          <div
-            key={row.label}
-            aria-label={
-              row.minimum === row.maximum
-                ? `${row.label}: ${row.minimum.toFixed(1)} kibibytes gzip`
-                : `${row.label}: ${row.minimum.toFixed(1)} to ${row.maximum.toFixed(1)} kibibytes gzip`
-            }
-            className="grid w-full grid-cols-[1fr_auto] items-center gap-x-3 gap-y-2 text-left sm:grid-cols-[9rem_1fr_8rem]"
-          >
-            <span className="order-1 text-ds-label-sm text-text-secondary">
-              {row.label}
-            </span>
-            <span className="relative order-3 col-span-2 h-4 overflow-hidden rounded-full bg-background-subtle sm:order-2 sm:col-span-1">
-              <span
-                className={`absolute inset-y-0 left-0 rounded-full opacity-25 ${row.color}`}
-                style={{
-                  width: `${(row.maximum / bundleChartMaximumKiB) * 100}%`,
-                }}
-              />
-              <span
-                className={`absolute inset-y-0 rounded-full ${row.color}`}
-                style={{
-                  left: `${(row.minimum / bundleChartMaximumKiB) * 100}%`,
-                  transform:
-                    row.minimum === row.maximum
-                      ? 'translateX(-50%)'
-                      : undefined,
-                  width:
-                    row.minimum === row.maximum
-                      ? '0.75rem'
-                      : `${((row.maximum - row.minimum) / bundleChartMaximumKiB) * 100}%`,
-                }}
-              />
-            </span>
-            <span className="order-2 text-right font-ds-mono text-ds-mono-xs text-text-primary sm:order-3">
-              {row.minimum === row.maximum
-                ? row.minimum.toFixed(1)
-                : `${row.minimum.toFixed(1)}–${row.maximum.toFixed(1)}`}{' '}
-              KiB
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
 export function ActivationChart() {
   const isDark = useIsDark()
   const tooltip = React.useMemo(
@@ -760,7 +665,7 @@ export function ActivationChart() {
               Weekly activation rate
             </p>
             <p className="mt-1 font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--activation-muted)]">
-              Jan–May 2026 · illustrative product telemetry
+              Illustrative product telemetry
             </p>
           </div>
           <div className="text-left sm:text-right">

@@ -6,6 +6,7 @@ import {
   ArrowsInIcon,
   TextAlignLeftIcon,
 } from '@phosphor-icons/react'
+import { Tooltip } from '~/ui'
 
 interface CodeExplorerTopBarProps {
   activeTab: 'code' | 'sandbox'
@@ -29,21 +30,29 @@ export function CodeExplorerTopBar({
       <div className="flex items-center gap-2 px-1">
         {activeTab === 'code' ? (
           isSidebarOpen ? (
-            <button
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 text-sm rounded transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400"
-              title={'Hide sidebar'}
-            >
-              <ArrowLineLeftIcon className="w-4 h-4" />
-            </button>
+            <Tooltip content="Hide files" side="bottom">
+              <button
+                type="button"
+                onClick={() => setIsSidebarOpen(false)}
+                className="p-2 text-sm rounded transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400"
+                aria-label="Hide files"
+                aria-pressed={true}
+              >
+                <ArrowLineLeftIcon className="w-4 h-4" aria-hidden="true" />
+              </button>
+            </Tooltip>
           ) : (
-            <button
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 text-sm rounded transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400"
-              title={'Show sidebar'}
-            >
-              <ArrowLineRightIcon className="w-4 h-4" />
-            </button>
+            <Tooltip content="Show files" side="bottom">
+              <button
+                type="button"
+                onClick={() => setIsSidebarOpen(true)}
+                className="p-2 text-sm rounded transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400"
+                aria-label="Show files"
+                aria-pressed={false}
+              >
+                <ArrowLineRightIcon className="w-4 h-4" aria-hidden="true" />
+              </button>
+            </Tooltip>
           )
         ) : (
           <div className="p-2 text-sm rounded" aria-hidden>

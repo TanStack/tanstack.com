@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { Badge } from '~/components/ds/ui'
+import { LibraryStatusBadge } from '~/components/LibraryStatusBadge'
 import { ComponentPreview, DsPage, DsSection } from '~/components/ds/DsKit'
 
 export const Route = createFileRoute('/ds/badges')({
@@ -73,21 +74,38 @@ function BadgesPage() {
 
       <DsSection
         title="In context"
-        description="Badges sit inline alongside text and headings."
+        description="Badges sit inline alongside text and headings — the colored tones flag general states."
       >
         <ComponentPreview
-          code={`<span>TanStack Query <Badge variant="success">Stable</Badge></span>
-<span>TanStack DB <Badge variant="warning">Beta</Badge></span>`}
+          code={`<span>Payment <Badge variant="success">Paid</Badge></span>
+<span>Build <Badge variant="warning">Pending</Badge></span>
+<span>Deploy <Badge variant="error">Failed</Badge></span>`}
         >
           <span className="flex items-center gap-2 text-gray-900 dark:text-white">
-            TanStack Query <Badge variant="success">Stable</Badge>
+            Payment <Badge variant="success">Paid</Badge>
           </span>
           <span className="flex items-center gap-2 text-gray-900 dark:text-white">
-            TanStack DB <Badge variant="warning">Beta</Badge>
+            Build <Badge variant="warning">Pending</Badge>
           </span>
           <span className="flex items-center gap-2 text-gray-900 dark:text-white">
-            Deprecated API <Badge variant="error">Removed</Badge>
+            Deploy <Badge variant="error">Failed</Badge>
           </span>
+        </ComponentPreview>
+      </DsSection>
+
+      <DsSection
+        title="Library status"
+        description="Library maturity badges (alpha, beta, RC, new…) are intentionally neutral — the word carries the meaning, not the color — so the chip never competes with a library's brand color and reads consistently across every surface (hero, nav, docs). Source: src/components/LibraryStatusBadge.tsx."
+      >
+        <ComponentPreview
+          code={`<LibraryStatusBadge badge="alpha" />
+<LibraryStatusBadge badge="beta" />
+<LibraryStatusBadge badge="RC" />
+<LibraryStatusBadge badge="new" />`}
+        >
+          {(['alpha', 'beta', 'RC', 'new'] as const).map((badge) => (
+            <LibraryStatusBadge key={badge} badge={badge} />
+          ))}
         </ComponentPreview>
       </DsSection>
     </DsPage>

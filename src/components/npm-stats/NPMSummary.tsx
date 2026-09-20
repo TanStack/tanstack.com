@@ -1,11 +1,9 @@
 import * as React from 'react'
 import { Suspense } from 'react'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { queryOptions } from '@tanstack/react-query'
 import { BlankErrorBoundary } from '~/components/BlankErrorBoundary'
-import { ossStatsQuery } from '~/queries/stats'
+import { ossStatsQuery, recentDownloadsQuery } from '~/queries/stats'
 import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
-import { fetchRecentDownloadStats } from '~/utils/stats-queries.functions'
 import type { Library } from '~/libraries'
 
 /**
@@ -22,26 +20,6 @@ function formatNumber(num: number): string {
     return `${(num / 1_000).toFixed(1)}K`
   }
   return num.toLocaleString()
-}
-
-/**
- * Query options for recent download stats
- */
-function recentDownloadsQuery(library: Library) {
-  return queryOptions({
-    queryKey: ['npm-recent-downloads', library.id],
-    queryFn: () =>
-      fetchRecentDownloadStats({
-        data: {
-          library: {
-            id: library.id,
-            repo: library.repo,
-            frameworks: library.frameworks,
-          },
-        },
-      }),
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  })
 }
 
 /**
@@ -110,7 +88,9 @@ function NPMSummaryContent({ library }: { library: Library }) {
   const { data: ossStats } = useSuspenseQuery(ossStatsQuery({ library }))
 
   // Fetch recent download stats (daily, weekly, monthly)
-  const { data: recentStats } = useSuspenseQuery(recentDownloadsQuery(library))
+  const { data: recentStats } = useSuspenseQuery(
+    recentDownloadsQuery({ library }),
+  )
 
   return (
     <div className="my-6">

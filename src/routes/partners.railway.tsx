@@ -2,26 +2,22 @@ import * as React from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import {
   ArrowUpRightIcon,
+  ArrowUUpLeftIcon,
+  ChartLineIcon,
   CheckIcon,
-  CurrencyDollarIcon as DollarSign,
+  CurrencyDollarIcon,
   GitPullRequestIcon,
   GlobeIcon,
   InfinityIcon,
-  ChartLineIcon as LineChart,
   NetworkIcon,
   PlusIcon,
   RocketIcon,
   ShieldCheckIcon,
-  ArrowUUpLeftIcon as Undo2,
 } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { Card } from '~/components/Card'
 import { Button } from '~/ui'
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '~/components/Collapsible'
+import { Panel, PanelContent, PanelTrigger } from '~/components/Panel'
 import { CodeBlock } from '~/components/markdown/CodeBlock'
 import { seo } from '~/utils/seo'
 import {
@@ -85,7 +81,7 @@ const features: Array<{ Icon: FeatureIcon; title: string; desc: string }> = [
     desc: 'Enable PR Environments on a GitHub-connected project to spin up isolated previews for eligible pull requests.',
   },
   {
-    Icon: LineChart,
+    Icon: ChartLineIcon,
     title: 'Logs, metrics, and alerts',
     desc: 'Logs and metrics are built in. Pro workspaces can configure Monitors that notify Slack, Discord, or email.',
   },
@@ -95,7 +91,7 @@ const features: Array<{ Icon: FeatureIcon; title: string; desc: string }> = [
     desc: 'Services in a project talk over private IPs at up to 100 Gbps. HTTP, TCP, gRPC, and WebSockets handled for you.',
   },
   {
-    Icon: Undo2,
+    Icon: ArrowUUpLeftIcon,
     title: 'Retained deployment versions',
     desc: 'Redeploy an earlier version while its image is retained. Retention ranges from 24 hours to 360 hours by plan.',
   },
@@ -283,7 +279,7 @@ export const Route = createFileRoute('/partners/railway')({
 function CheckBadge() {
   return (
     <span className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white">
-      <CheckIcon className="h-2.5 w-2.5" strokeWidth={3} />
+      <CheckIcon className="h-2.5 w-2.5" weight="bold" />
     </span>
   )
 }
@@ -521,6 +517,9 @@ function RailwayPartnerPage() {
             >
               Read the deployment guide
             </Button>
+            <Button as={Link} to="/blog/railway-partnership" variant="ghost">
+              TanStack + Railway partnership
+            </Button>
           </div>
         </section>
 
@@ -673,7 +672,7 @@ function RailwayPartnerPage() {
               <ArrowUpRightIcon className="h-4 w-4" />
             </Button>
             <span className="inline-flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
-              <DollarSign className="h-3.5 w-3.5" />
+              <CurrencyDollarIcon className="h-3.5 w-3.5" />
               Per-second billing, no credit card required
             </span>
           </div>
@@ -692,13 +691,13 @@ function RailwayPartnerPage() {
             {faqs.map(({ q, a }, i) => {
               const isOpen = openFaq === i
               return (
-                <Collapsible
+                <Panel
                   key={q}
                   open={isOpen}
                   onOpenChange={(next) => setOpenFaq(next ? i : null)}
                   className="border-b border-gray-200 dark:border-gray-800"
                 >
-                  <CollapsibleTrigger className="flex w-full items-center justify-between gap-4 py-4 text-left">
+                  <PanelTrigger className="flex w-full items-center justify-between gap-4 py-4 text-left">
                     <span className="text-sm font-medium md:text-[15px]">
                       {q}
                     </span>
@@ -708,13 +707,13 @@ function RailwayPartnerPage() {
                         isOpen && 'rotate-45',
                       )}
                     />
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
+                  </PanelTrigger>
+                  <PanelContent>
                     <p className="max-w-2xl pb-4 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
                       {a}
                     </p>
-                  </CollapsibleContent>
-                </Collapsible>
+                  </PanelContent>
+                </Panel>
               )
             })}
           </div>

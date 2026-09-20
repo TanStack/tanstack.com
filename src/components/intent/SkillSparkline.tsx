@@ -2,7 +2,7 @@ import * as React from 'react'
 import * as d3 from 'd3'
 import { defineChart, rect, type ChartPoint } from '@tanstack/charts'
 import { tooltip } from '@tanstack/charts/tooltip'
-import { Chart } from '@tanstack/react-charts'
+import { Chart } from '@tanstack/charts/react'
 import type { SkillHistoryEntry } from '~/utils/intent.functions'
 
 const changeColors = {
@@ -102,13 +102,15 @@ function createSkillSparkline(
           inset: 0,
         }),
       ],
-      x: {
-        scale: d3.scaleLinear().domain([-0.5, slots - 0.5]),
-      },
-      y: {
-        scale: d3
-          .scaleLinear()
-          .domain([0, d3.max(history, (entry) => entry.total) ?? 1]),
+      scales: {
+        x: {
+          scale: d3.scaleLinear().domain([-0.5, slots - 0.5]),
+        },
+        y: {
+          scale: d3
+            .scaleLinear()
+            .domain([0, d3.max(history, (entry) => entry.total) ?? 1]),
+        },
       },
       color: {
         scale: d3

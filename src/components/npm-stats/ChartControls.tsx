@@ -1,18 +1,17 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import {
-  SortDescendingIcon as ArrowDownWideNarrow,
-  ChartLineUpIcon as ChartArea,
+  SortDescendingIcon,
+  ChartLineUpIcon,
   ChartBarIcon,
-  ChartBarIcon as ChartBarStacked,
   ChartLineIcon,
-  ClockIcon as Clock3,
-  ColumnsIcon as Columns3,
-  ClockCounterClockwiseIcon as History,
-  StackIcon as Layers,
-  RowsIcon as Rows3,
+  ClockIcon,
+  ColumnsIcon,
+  ClockCounterClockwiseIcon,
+  StackIcon,
+  RowsIcon,
   WavesIcon,
-  type Icon as LucideIcon,
+  type Icon,
 } from '@phosphor-icons/react'
 import {
   DropdownMenu,
@@ -56,12 +55,12 @@ const iconSegmentedButtonStyles =
 
 const chartTypeIcons = {
   line: ChartLineIcon,
-  stacked: Layers,
-  'stacked-area': ChartArea,
+  stacked: StackIcon,
+  'stacked-area': ChartLineUpIcon,
   'stacked-stream': WavesIcon,
   bar: ChartBarIcon,
-  'stacked-bar': ChartBarStacked,
-} as const satisfies Partial<Record<ChartType, LucideIcon>>
+  'stacked-bar': ChartBarIcon,
+} as const satisfies Partial<Record<ChartType, Icon>>
 
 const transformOptions = [
   { value: 'none', label: 'Actual Values' },
@@ -136,7 +135,7 @@ export function ChartControls({
                 : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100',
             )}
           >
-            <History className="size-3" />
+            <ClockCounterClockwiseIcon className="size-3" />
             Timeline
           </button>
         </Tooltip>
@@ -150,7 +149,7 @@ export function ChartControls({
                 : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100',
             )}
           >
-            <Clock3 className="size-3" />
+            <ClockIcon className="size-3" />
             Snapshot
           </button>
         </Tooltip>
@@ -265,7 +264,7 @@ export function ChartControls({
                   : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100',
               )}
             >
-              <Columns3 className="size-3" />
+              <ColumnsIcon className="size-3" />
               Vertical
             </button>
           </Tooltip>
@@ -279,7 +278,7 @@ export function ChartControls({
                   : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100',
               )}
             >
-              <Rows3 className="size-3" />
+              <RowsIcon className="size-3" />
               Horizontal
             </button>
           </Tooltip>
@@ -303,7 +302,7 @@ export function ChartControls({
               onBarSortChange(barSort === 'value' ? 'name' : 'value')
             }
           >
-            <ArrowDownWideNarrow className="size-3" />
+            <SortDescendingIcon className="size-3" />
             {barSort === 'value' ? 'Value Sort' : 'Name Sort'}
           </button>
         </Tooltip>

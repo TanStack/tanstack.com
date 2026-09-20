@@ -4,7 +4,7 @@
  * Common types, constants, and validation for deploy dialogs.
  */
 
-export type DeployProvider = 'cloudflare' | 'netlify' | 'railway'
+export type DeployProvider = 'cloudflare' | 'netlify' | 'railway' | 'render'
 
 export type DeployState =
   | { step: 'auth-check' }
@@ -63,13 +63,27 @@ export const PROVIDER_INFO: Record<DeployProvider, ProviderInfo> = {
       return url.toString()
     },
   },
+  render: {
+    name: 'Render',
+    color: '#46E3B7',
+    deployUrl: (owner, repo) => {
+      const url = new URL('https://render.com/deploy')
+
+      url.searchParams.set('repo', `https://github.com/${owner}/${repo}`)
+      url.searchParams.set('utm_source', 'tanstack')
+      url.searchParams.set('utm_medium', 'referral')
+      url.searchParams.set('utm_campaign', 'gold-launch')
+
+      return url.toString()
+    },
+  },
 }
 
 export async function checkRepoNameAvailability(
   name: string,
 ): Promise<{ available: boolean }> {
   const response = await fetch(
-    `/api/builder/deploy/check-name?name=${encodeURIComponent(name)}`,
+    `/api/application-starter/deploy/check-name?name=${encodeURIComponent(name)}`,
   )
   return response.json()
 }

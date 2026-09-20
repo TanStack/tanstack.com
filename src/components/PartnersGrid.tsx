@@ -1,5 +1,6 @@
 import * as React from 'react'
 import {
+  getPartnerHref,
   partners as allPartners,
   PartnerImage,
   partnerTierBandColor,
@@ -111,11 +112,12 @@ function PartnerGridItem({
   })
 
   const layout = tierLayout[partner.tier ?? 'bronze']
+  const href = getPartnerHref(partner, analyticsPlacement)
 
   return (
     <a
       ref={ref}
-      href={partner.href}
+      href={href}
       target="_blank"
       rel="noreferrer"
       className={`flex items-center justify-center
@@ -125,7 +127,7 @@ function PartnerGridItem({
       onClick={() => {
         let destinationHost: string | undefined
         try {
-          destinationHost = new URL(partner.href).host
+          destinationHost = new URL(href).host
         } catch {
           // Bad/relative href — track without host rather than dropping.
         }
@@ -177,7 +179,7 @@ export function PartnersGrid({
   // followed by its logo grid; the negative right/bottom margins let the cell
   // dividers meet the container edge so overflow-hidden trims the outer line.
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800">
+    <div className="overflow-hidden rounded-2xl corner-squircle border border-gray-200 dark:border-gray-800">
       {tiersWithPartners.map((row) => (
         <React.Fragment key={row.tier}>
           <TierBand

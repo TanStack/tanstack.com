@@ -39,7 +39,12 @@ const searchSchema = v.object({
 
 export const Route = createFileRoute('/intent/registry/')({
   validateSearch: searchSchema,
-  loaderDeps: ({ search }) => search,
+  loaderDeps: ({ search }) => ({
+    q: search.q,
+    framework: search.framework,
+    sort: search.sort,
+    page: search.page,
+  }),
   loader: ({ deps, context: { queryClient } }) =>
     Promise.all([
       queryClient.ensureQueryData(intentStatsQueryOptions()),

@@ -3,6 +3,8 @@ import fsp from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { parse as parseYaml } from 'yaml'
+import { parseFragment } from 'parse5'
+import type { BlockNode, InlineNode } from '@tanstack/markdown'
 import {
   getCurrentHostRuntimeEnv,
   getHostRuntimeEnv,
@@ -24,6 +26,7 @@ import { isValidRepoPath } from './repo-path'
 import { multiSortBy, removeLeadingSlash } from './utils'
 import { env } from './env'
 import { fetchWithTimeout } from './outbound-fetch.server'
+import { parseSiteMarkdown } from './markdown/processor'
 
 type FrontMatterValue =
   | string
@@ -261,7 +264,7 @@ function getLocalRepoBaseDirs(repo: string) {
 async function fetchFs(repo: string, filepath: string) {
   if (!isValidFilepath(filepath)) {
     console.warn(`[fetchFs] Invalid filepath rejected: ${filepath}\n`)
-    return ''
+    return null
   }
 
   if (isIsolateRuntime()) {
@@ -279,7 +282,7 @@ async function fetchFs(repo: string, filepath: string) {
       console.warn(
         `[fetchFs] Path traversal attempt blocked: ${filepath} resolved to ${localFilePath}\n`,
       )
-      return ''
+      return null
     }
 
     const exists = fs.existsSync(localFilePath)
@@ -294,7 +297,7 @@ async function fetchFs(repo: string, filepath: string) {
   console.warn(
     `[fetchFs] Tried to read file that does not exist: ${attemptedPaths.join(', ')}\n`,
   )
-  return ''
+  return null
 }
 
 async function fetchFsFromDevServer(repo: string, filepath: string) {
@@ -307,7 +310,7 @@ async function fetchFsFromDevServer(repo: string, filepath: string) {
     console.warn(
       `[fetchFs] Local docs requested without an active server request: ${repo}/${filepath}\n`,
     )
-    return ''
+    return null
   }
 
   const url = new URL(localDocsDevPath, request.url)
@@ -322,7 +325,7 @@ async function fetchFsFromDevServer(repo: string, filepath: string) {
 
   if (response.status === 404) {
     console.warn(`[fetchFs] Local file does not exist: ${repo}/${filepath}\n`)
-    return ''
+    return null
   }
 
   if (!response.ok) {
@@ -353,14 +356,14 @@ function replaceContent(text: string, frontmatter: FrontMatterFile) {
  * Perform tokenized sections replace in text.
  * - Discover sections based on token marker via RegExp in origin file.
  * - Discover sections based on token marker via RegExp in target file.
- * - replace sections in target file staring from the end, with sections defined in origin file
+ * - replace sections in target file starting from the end, with sections defined in origin file
  * @param text File content
  * @param frontmatter Referencing file front-matter
  * @returns File content with replaced sections
  */
 function replaceSections(text: string, frontmatter: FrontMatterFile) {
   let result = text
-  // RegExp defining token pair to dicover sections in the document
+  // RegExp defining token pair to discover sections in the document
   // [//]: # (<Section Token>)
   const sectionMarkerRegex = /\[\/\/\]: # '([a-zA-Z\d]*)'/g
   const sectionRegex =
@@ -371,7 +374,7 @@ function replaceSections(text: string, frontmatter: FrontMatterFile) {
   for (const match of frontmatter.content.matchAll(sectionRegex)) {
     if (match[1] !== match[2]) {
       console.error(
-        `Origin section '${match[1]}' does not have matching closing token (found '${match[2]}'). Please make sure that each section has corresponsing closing token and that sections are not nested.`,
+        `Origin section '${match[1]}' does not have matching closing token (found '${match[2]}'). Please make sure that each section has corresponding closing token and that sections are not nested.`,
       )
     }
 
@@ -383,7 +386,7 @@ function replaceSections(text: string, frontmatter: FrontMatterFile) {
   for (const match of result.matchAll(sectionRegex)) {
     if (match[1] !== match[2]) {
       console.error(
-        `Target section '${match[1]}' does not have matching closing token (found '${match[2]}'). Please make sure that each section has corresponsing closing token and that sections are not nested.`,
+        `Target section '${match[1]}' does not have matching closing token (found '${match[2]}'). Please make sure that each section has corresponding closing token and that sections are not nested.`,
       )
     }
 
@@ -842,9 +845,10 @@ export function extractFrontMatter(content: string) {
   const title =
     typeof parsed.data.title === 'string' ? parsed.data.title : undefined
   const ref = typeof parsed.data.ref === 'string' ? parsed.data.ref : undefined
+  const excerpt = createExcerpt(parsed.content)
   const data: FrontMatterData = {
     ...parsed.data,
-    description: userDescription ?? createExcerpt(parsed.content),
+    description: userDescription ?? excerpt,
     title,
     ref,
     redirect_from: redirectFrom,
@@ -854,7 +858,7 @@ export function extractFrontMatter(content: string) {
   return {
     content: parsed.content,
     data,
-    excerpt: createRichExcerpt(parsed.content),
+    excerpt: createRichExcerpt(parsed.content, excerpt),
     userDescription,
   }
 }
@@ -877,7 +881,14 @@ function parseFrontMatter(content: string) {
 
   const frontMatterSource = lines.slice(1, closingLineIndex).join('\n')
   const body = lines.slice(closingLineIndex + 1).join('\n')
-  const parsed = parseYaml(frontMatterSource)
+
+  let parsed: unknown
+  try {
+    parsed = parseYaml(frontMatterSource)
+  } catch (e) {
+    console.warn('Failed to parse frontmatter YAML:', e)
+    return { content: body, data: {} }
+  }
 
   return {
     content: body,
@@ -935,28 +946,65 @@ function toFrontMatterValue(value: unknown): FrontMatterValue | undefined {
 }
 
 function createExcerpt(text: string, maxLength = 200) {
-  // Remove Markdown formatting using a basic regex
-
-  let cleanText = text
-    .replace(/!\[.*?\]\(.*?\)/g, '') // Remove images
-    .replace(/\[.*?\]\(.*?\)/g, '') // Remove links
-    .replace(/[`*_~>]/g, '') // Remove Markdown special characters
-    .replace(/#+\s/g, '') // Remove headers
-    .replace(/-\s/g, '') // Remove list markers
-    .replace(/\r?\n|\r/g, ' ') // Convert line breaks to spaces
-    .replace(/\s+/g, ' ') // Collapse multiple spaces
+  const cleanText = excerptBlocks(parseSiteMarkdown(text).children)
+    .replace(/\s+/g, ' ')
     .trim()
 
-  // Truncate the text to the desired length, preserving whole words
   if (cleanText.length > maxLength) {
-    cleanText = cleanText.slice(0, maxLength).trim() + '...'
+    const end = cleanText.lastIndexOf(' ', maxLength)
+    return cleanText.slice(0, end > 0 ? end : maxLength) + '...'
   }
 
   return cleanText
 }
 
-function createRichExcerpt(text: string, maxLength = 200) {
-  let cleanText = createExcerpt(text, maxLength)
+function excerptBlocks(blocks: Array<BlockNode>): string {
+  return blocks
+    .map((block): string => {
+      switch (block.type) {
+        case 'paragraph':
+          return excerptInline(block.children)
+        case 'blockquote':
+        case 'callout':
+        case 'component':
+          return excerptBlocks(block.children)
+        case 'list':
+          return block.items
+            .map((item) => excerptBlocks(item.children))
+            .join(' ')
+        default:
+          return ''
+      }
+    })
+    .join(' ')
+}
+
+function excerptInline(nodes: Array<InlineNode>): string {
+  return nodes
+    .map((node): string => {
+      switch (node.type) {
+        case 'text':
+          return parseFragment(node.value.replaceAll('<', '&lt;'))
+            .childNodes.map((child) => ('value' in child ? child.value : ''))
+            .join('')
+        case 'inlineCode':
+          return node.value
+        case 'link':
+        case 'strong':
+        case 'emphasis':
+        case 'strike':
+          return excerptInline(node.children)
+        case 'break':
+          return ' '
+        default:
+          return ''
+      }
+    })
+    .join('')
+}
+
+function createRichExcerpt(text: string, excerpt: string) {
+  let cleanText = excerpt
 
   const imageText = extractFirstImage(text)
 

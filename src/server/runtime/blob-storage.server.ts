@@ -1,8 +1,14 @@
 import { getHostRuntimeEnv, isIsolateRuntime } from './host.server'
 
-export type BlobStorageName = 'githubContentCache' | 'npmDownloadCache'
+export type BlobStorageName =
+  | 'githubContentCache'
+  | 'builderProjects'
+  | 'npmDownloadCache'
 
 export type BlobStorageObject = {
+  arrayBuffer: () => Promise<ArrayBuffer>
+  body: ReadableStream<Uint8Array> | null
+  etag: string
   key: string
   metadata?: Record<string, string>
   text: () => Promise<string>
@@ -10,6 +16,7 @@ export type BlobStorageObject = {
 }
 
 export type BlobStorageListedObject = {
+  etag: string
   key: string
   metadata?: Record<string, string>
   uploaded?: Date
@@ -27,18 +34,24 @@ export type BlobStorageListResult = {
   truncated: boolean
 }
 
+type BlobStoragePutOptions = {
+  contentEncoding?: string
+  contentType?: string
+  metadata?: Record<string, string>
+} & (
+  | { etagMatches: string; onlyIfAbsent?: never }
+  | { etagMatches?: never; onlyIfAbsent?: boolean }
+)
+
 export type BlobStorage = {
   delete: (keys: string | Array<string>) => Promise<void>
   get: (key: string) => Promise<BlobStorageObject | null>
   list: (options?: BlobStorageListOptions) => Promise<BlobStorageListResult>
   put: (
     key: string,
-    value: string,
-    options?: {
-      contentType?: string
-      metadata?: Record<string, string>
-    },
-  ) => Promise<void>
+    value: string | ArrayBuffer | ArrayBufferView | ReadableStream<Uint8Array>,
+    options?: BlobStoragePutOptions,
+  ) => Promise<boolean>
 }
 
 export type BlobStorageCacheEntry = {
@@ -54,11 +67,14 @@ export type BlobStorageCache = {
 
 type RuntimeBlobObject = {
   customMetadata?: Record<string, string>
+  etag: string
   key: string
   uploaded?: Date
 }
 
 type RuntimeBlobObjectBody = RuntimeBlobObject & {
+  arrayBuffer: () => Promise<ArrayBuffer>
+  body: ReadableStream<Uint8Array> | null
   text: () => Promise<string>
 }
 
@@ -81,14 +97,16 @@ type RuntimeBlobBucket = {
   list: (options?: RuntimeBlobListOptions) => Promise<RuntimeBlobListResult>
   put: (
     key: string,
-    value: string,
+    value: string | ArrayBuffer | ArrayBufferView | ReadableStream<Uint8Array>,
     options?: {
       customMetadata?: Record<string, string>
       httpMetadata?: {
+        contentEncoding?: string
         contentType?: string
       }
+      onlyIf?: { etagDoesNotMatch?: string; etagMatches?: string }
     },
-  ) => Promise<unknown>
+  ) => Promise<RuntimeBlobObject | null>
 }
 
 const CACHE_METADATA_HEADER = 'x-blob-storage-metadata'
@@ -158,6 +176,8 @@ function getRuntimeBindingName(name: BlobStorageName) {
   switch (name) {
     case 'githubContentCache':
       return 'GITHUB_CONTENT_CACHE'
+    case 'builderProjects':
+      return 'BUILDER_PROJECTS'
     case 'npmDownloadCache':
       return 'NPM_DOWNLOAD_CACHE'
   }
@@ -195,6 +215,9 @@ function createBlobStorage(bucket: RuntimeBlobBucket): BlobStorage {
       }
 
       return {
+        arrayBuffer: () => object.arrayBuffer(),
+        body: object.body,
+        etag: object.etag,
         key: object.key,
         metadata: object.customMetadata,
         text: () => object.text(),
@@ -212,6 +235,7 @@ function createBlobStorage(bucket: RuntimeBlobBucket): BlobStorage {
       return {
         cursor: result.cursor,
         objects: result.objects.map((object) => ({
+          etag: object.etag,
           key: object.key,
           metadata: object.customMetadata,
           uploaded: object.uploaded,
@@ -220,12 +244,20 @@ function createBlobStorage(bucket: RuntimeBlobBucket): BlobStorage {
       }
     },
     async put(key, value, options) {
-      await bucket.put(key, value, {
+      const onlyIf = options?.onlyIfAbsent
+        ? { etagDoesNotMatch: '*' }
+        : options?.etagMatches !== undefined
+          ? { etagMatches: options.etagMatches }
+          : undefined
+      const result = await bucket.put(key, value, {
         customMetadata: options?.metadata,
         httpMetadata: {
+          contentEncoding: options?.contentEncoding,
           contentType: options?.contentType,
         },
+        ...(onlyIf ? { onlyIf } : {}),
       })
+      return result !== null
     },
   }
 }

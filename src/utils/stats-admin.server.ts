@@ -33,7 +33,11 @@ export async function listGitHubStatsCache() {
 /**
  * Refresh GitHub stats for a specific repo or org
  */
-export async function refreshGitHubStats({ data }: { data: any }) {
+export async function refreshGitHubStats({
+  data,
+}: {
+  data: { cacheKey: string }
+}) {
   await requireCapability({ data: { capability: 'admin' } })
 
   const isOrg = data.cacheKey.startsWith('org:')
@@ -158,7 +162,7 @@ export async function refreshAllGitHubStats() {
   }
 }
 
-export async function refreshAllNpmStats({ data }: { data: any }) {
+export async function refreshAllNpmStats({ data }: { data: { org: string } }) {
   console.log(`[Admin] refreshAllNpmStats handler called with org: ${data.org}`)
 
   await requireCapability({ data: { capability: 'admin' } })

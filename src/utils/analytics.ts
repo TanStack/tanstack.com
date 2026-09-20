@@ -10,16 +10,16 @@ export type {
   AnalyticsEvent,
   AnalyticsEventName,
   AnalyticsEventProps,
-  BuilderAction,
-  BuilderFailureStage,
-  BuilderMode,
-  BuilderSessionContext,
-  BuilderSurface,
+  ApplicationStarterAction,
+  ApplicationStarterFailureStage,
+  ApplicationStarterMode,
+  ApplicationStarterSessionContext,
+  ApplicationStarterSurface,
   PartnerClickDestination,
   PartnerFilterChange,
   PartnerPlacement,
 } from './analytics/events'
-export { defaultBuilderSessionContext } from './analytics/events'
+export { defaultApplicationStarterSessionContext } from './analytics/events'
 
 interface ImpressionOptions<TName extends AnalyticsEventName> {
   enabled?: boolean

@@ -888,7 +888,11 @@ export async function fetchNpmDownloadsBulk({ data }: { data: unknown }) {
  * Chunk format: YYYY (e.g., "2023" means Jan 1 - Dec 31, 2023)
  * Special chunk "current" means current year to date
  */
-export async function fetchNpmDownloadChunk({ data }: { data: any }) {
+export async function fetchNpmDownloadChunk({
+  data,
+}: {
+  data: { packageName: string; year: string }
+}) {
   const { packageName, year } = data
 
   // NPM download statistics only go back to January 10, 2015

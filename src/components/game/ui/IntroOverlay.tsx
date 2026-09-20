@@ -38,7 +38,7 @@ export function IntroOverlay() {
 
   return (
     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none">
-      <div className="bg-black/40 backdrop-blur-sm rounded-xl p-4 text-white text-center animate-in fade-in duration-500">
+      <div className="bg-black/40 backdrop-blur-sm rounded-xl p-4 text-white text-center ds-enter-fade">
         <div className="flex flex-col sm:flex-row gap-4 items-center justify-center text-sm">
           <div className="flex items-center gap-2">
             <kbd className="px-2 py-1 bg-white/20 rounded font-mono">↑ ↓</kbd>

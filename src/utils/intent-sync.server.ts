@@ -4,9 +4,10 @@ import {
   extractSkillsFromTarball,
   fetchPackument,
   isIntentCompatible,
-  searchIntentPackages,
+  searchIntentPackagesPage,
   selectVersionsToSync,
 } from '~/utils/intent.server'
+import { fetchWithTimeout } from '~/utils/outbound-fetch.server'
 import {
   enqueuePackageVersion,
   getKnownVersions,
@@ -30,6 +31,11 @@ const githubSearchResponseSchema = z.object({
 
 const githubContentResponseSchema = z.object({
   content: z.string().optional(),
+})
+
+const intentGitHubCandidateSchema = z.object({
+  repo: z.string(),
+  path: z.string(),
 })
 
 const packageJsonSchema = z.object({
@@ -66,6 +72,7 @@ export const intentProcessResultSchema = z.object({
 })
 
 export type IntentDiscoveryResult = z.infer<typeof intentDiscoveryResultSchema>
+export type IntentGitHubCandidate = z.infer<typeof intentGitHubCandidateSchema>
 export type IntentVersionProcessResult = z.infer<
   typeof intentVersionProcessResultSchema
 >
@@ -78,7 +85,15 @@ export interface IntentVersionToProcess {
 }
 
 export interface IntentSyncOperations {
-  discoverIntentPackages: () => Promise<IntentDiscoveryResult>
+  searchIntentNpmPackagesPage: (options: {
+    from: number
+    size: number
+  }) => Promise<{ packageNames: Array<string>; total: number }>
+  discoverIntentNpmPackage: (packageName: string) => Promise<number | null>
+  searchIntentGitHubCandidates: () => Promise<Array<IntentGitHubCandidate>>
+  discoverIntentGitHubPackage: (
+    candidate: IntentGitHubCandidate,
+  ) => Promise<number | null>
   selectPendingIntentVersions: (options: {
     limit: number
     excludeIds?: Array<number>
@@ -89,61 +104,22 @@ export interface IntentSyncOperations {
 }
 
 export const defaultIntentSyncOperations: IntentSyncOperations = {
-  discoverIntentPackages,
+  searchIntentNpmPackagesPage,
+  discoverIntentNpmPackage,
+  searchIntentGitHubCandidates,
+  discoverIntentGitHubPackage,
   selectPendingIntentVersions,
   processIntentVersion,
 }
 
-export async function discoverIntentPackages(): Promise<IntentDiscoveryResult> {
-  const errors: Array<string> = []
-  let packagesDiscovered = 0
-  let githubCandidates = 0
-  let packagesVerified = 0
-  let versionsEnqueued = 0
-
-  try {
-    const searchResults = await searchIntentPackages()
-    const packageNames = dedupe(
-      searchResults.objects.map((item) => item.package.name),
-    )
-    packagesDiscovered = packageNames.length
-
-    for (const packageName of packageNames) {
-      try {
-        const enqueued = await discoverNpmPackage(packageName)
-        if (enqueued !== null) {
-          packagesVerified++
-          versionsEnqueued += enqueued
-        }
-      } catch (error) {
-        errors.push(`npm/${packageName}: ${getErrorMessage(error)}`)
-      }
-    }
-  } catch (error) {
-    errors.push(`npm-search: ${getErrorMessage(error)}`)
-  }
-
-  const githubToken =
-    getCurrentHostRuntimeEnv()?.GITHUB_AUTH_TOKEN ??
-    process.env.GITHUB_AUTH_TOKEN
-  if (githubToken) {
-    try {
-      const githubResult = await discoverGitHubPackages(githubToken)
-      githubCandidates = githubResult.githubCandidates
-      packagesVerified += githubResult.packagesVerified
-      versionsEnqueued += githubResult.versionsEnqueued
-      errors.push(...githubResult.errors)
-    } catch (error) {
-      errors.push(`github-search: ${getErrorMessage(error)}`)
-    }
-  }
-
+export async function searchIntentNpmPackagesPage(options: {
+  from: number
+  size: number
+}) {
+  const page = await searchIntentPackagesPage(options)
   return {
-    packagesDiscovered,
-    githubCandidates,
-    packagesVerified,
-    versionsEnqueued,
-    errors,
+    packageNames: page.objects.map((item) => item.package.name),
+    total: page.total,
   }
 }
 
@@ -174,7 +150,9 @@ export function summarizeIntentProcessResults(
   }
 }
 
-async function discoverNpmPackage(packageName: string): Promise<number | null> {
+export async function discoverIntentNpmPackage(
+  packageName: string,
+): Promise<number | null> {
   await upsertIntentPackage({ name: packageName, verified: false })
 
   const packument = await fetchPackument(packageName)
@@ -188,19 +166,17 @@ async function discoverNpmPackage(packageName: string): Promise<number | null> {
   return enqueueVersionsFromPackument(packageName, packument)
 }
 
-async function discoverGitHubPackages(githubToken: string): Promise<{
-  githubCandidates: number
-  packagesVerified: number
-  versionsEnqueued: number
-  errors: Array<string>
-}> {
+export async function searchIntentGitHubCandidates() {
+  const githubToken = getGitHubToken()
+  if (!githubToken) return []
+
   const ghHeaders = {
     Authorization: `Bearer ${githubToken}`,
     Accept: 'application/vnd.github.v3+json',
   }
-  const searchRes = await fetch(
+  const searchRes = await fetchWithTimeout(
     'https://api.github.com/search/code?q=%22%40tanstack%2Fintent%22+filename%3Apackage.json&per_page=100',
-    { headers: ghHeaders },
+    { headers: ghHeaders, timeoutMs: 10_000 },
   )
   if (!searchRes.ok) throw new Error(`GitHub search ${searchRes.status}`)
 
@@ -212,39 +188,22 @@ async function discoverGitHubPackages(githubToken: string): Promise<{
     })),
     (item) => `${item.repo}|${item.path}`,
   )
-  let packagesVerified = 0
-  let versionsEnqueued = 0
-  const errors: Array<string> = []
-
-  for (const candidate of candidates) {
-    try {
-      const enqueued = await discoverGitHubPackage(candidate, ghHeaders)
-      if (enqueued !== null) {
-        packagesVerified++
-        versionsEnqueued += enqueued
-      }
-    } catch (error) {
-      errors.push(
-        `github/${candidate.repo}/${candidate.path}: ${getErrorMessage(error)}`,
-      )
-    }
-  }
-
-  return {
-    githubCandidates: candidates.length,
-    packagesVerified,
-    versionsEnqueued,
-    errors,
-  }
+  return candidates
 }
 
-async function discoverGitHubPackage(
-  candidate: { repo: string; path: string },
-  headers: HeadersInit,
+export async function discoverIntentGitHubPackage(
+  candidate: IntentGitHubCandidate,
 ): Promise<number | null> {
-  const contentRes = await fetch(
+  const githubToken = getGitHubToken()
+  if (!githubToken) return null
+
+  const headers = {
+    Authorization: `Bearer ${githubToken}`,
+    Accept: 'application/vnd.github.v3+json',
+  }
+  const contentRes = await fetchWithTimeout(
     `https://api.github.com/repos/${candidate.repo}/contents/${candidate.path}`,
-    { headers },
+    { headers, timeoutMs: 10_000 },
   )
   if (!contentRes.ok) return null
 
@@ -256,8 +215,9 @@ async function discoverGitHubPackage(
   )
   if (!packageJson.name || packageJson.private) return null
 
-  const npmRes = await fetch(
+  const npmRes = await fetchWithTimeout(
     `https://registry.npmjs.org/${encodeURIComponent(packageJson.name)}/latest`,
+    { timeoutMs: 10_000 },
   )
   if (!npmRes.ok) return null
 
@@ -343,8 +303,11 @@ export async function processIntentVersion(
   }
 }
 
-function dedupe(values: Array<string>): Array<string> {
-  return dedupeBy(values, (value) => value)
+function getGitHubToken() {
+  return (
+    getCurrentHostRuntimeEnv()?.GITHUB_AUTH_TOKEN ??
+    process.env.GITHUB_AUTH_TOKEN
+  )
 }
 
 function dedupeBy<T>(values: Array<T>, getKey: (value: T) => string): Array<T> {

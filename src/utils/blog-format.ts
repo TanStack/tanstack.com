@@ -1,5 +1,6 @@
 import { matchSorter } from 'match-sorter'
 import { findLibrary, type LibrarySlim } from '~/libraries'
+import { SITE_URL } from '~/utils/site'
 
 const listJoiner = new Intl.ListFormat('en-US', {
   style: 'long',
@@ -22,6 +23,17 @@ export type BlogCardPost = {
   source?: string
 }
 
+export type BlogAuthorIdentity = {
+  type: 'Organization' | 'Person'
+  name: string
+  url?: string
+}
+
+type BlogAuthorProfile = {
+  name: string
+  github: string
+}
+
 export function normalizeBlogAuthor(author: string) {
   return authorAliases.get(author) ?? author
 }
@@ -40,6 +52,33 @@ export function normalizeBlogAuthors(authors: Array<string>) {
   }
 
   return normalizedAuthors
+}
+
+export function getBlogAuthorIdentities(
+  authors: Array<string>,
+  profiles: ReadonlyArray<BlogAuthorProfile>,
+): Array<BlogAuthorIdentity> {
+  const normalizedAuthors = normalizeBlogAuthors(authors)
+
+  if (!normalizedAuthors.length) {
+    return [
+      {
+        type: 'Organization',
+        name: 'TanStack',
+        url: `${SITE_URL}/`,
+      },
+    ]
+  }
+
+  return normalizedAuthors.map((name) => {
+    const profile = profiles.find((candidate) => candidate.name === name)
+
+    return {
+      type: 'Person',
+      name,
+      ...(profile ? { url: `https://github.com/${profile.github}` } : {}),
+    }
+  })
 }
 
 export function formatAuthors(authors: Array<string>) {
@@ -73,6 +112,13 @@ export function formatPublishedDate(published: string) {
 
 export function isPublishedDateReleased(published: string, now = new Date()) {
   return published <= getUtcDateString(now)
+}
+
+export function isBlogPostUnpublished(
+  post: { draft?: boolean; published: string },
+  now = new Date(),
+) {
+  return Boolean(post.draft) || !isPublishedDateReleased(post.published, now)
 }
 
 export function publishedDateToUTCString(published: string) {

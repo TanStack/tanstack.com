@@ -12,12 +12,12 @@ import {
   TableRow,
   TableCell,
 } from '~/components/TableComponents'
+import { flexRender } from '@tanstack/react-table'
 import {
-  useReactTable,
   getCoreRowModel,
-  flexRender,
-  type ColumnDef,
-} from '@tanstack/react-table'
+  useLegacyTable as useReactTable,
+} from '@tanstack/react-table/legacy'
+import type { LegacyColumnDef as ColumnDef } from '@tanstack/react-table/legacy'
 import * as v from 'valibot'
 import { listAuditLogs } from '~/utils/audit.functions'
 import { ShieldIcon, CaretDownIcon, CaretUpIcon } from '@phosphor-icons/react'

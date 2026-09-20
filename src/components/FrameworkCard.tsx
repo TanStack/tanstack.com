@@ -37,6 +37,7 @@ export function FrameworkCard({
           {packageName} copied to clipboard
         </div>
       </div>,
+      { id: 'package-name-copied' },
     )
   })
 

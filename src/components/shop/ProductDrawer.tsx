@@ -2,9 +2,10 @@ import * as React from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { twMerge } from 'tailwind-merge'
 import { getProduct } from '~/utils/shop.functions'
-import type {
-  ProductDetail,
-  ProductDetailVariant,
+import {
+  hasAvailableVariant,
+  type ProductDetail,
+  type ProductDetailVariant,
 } from '~/utils/shopify-queries'
 import { formatMoney } from '~/utils/shopify-format'
 import { resolveShopProductColor, shopColorContrast } from '~/utils/shop-color'
@@ -19,6 +20,13 @@ import {
   ShopSize,
 } from './ui'
 import { useAddToCart } from '~/hooks/useCart'
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerTitle,
+} from '~/components/ds/ui'
 import { useCartDrawerStore } from './cartDrawerStore'
 
 const MAX_INLINE_OPTION_VALUES = 8
@@ -167,7 +175,6 @@ export function ProductDrawer({
   React.useEffect(() => {
     if (!isOpen) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
       if (e.key === 'ArrowRight') navigateStep(1)
       if (e.key === 'ArrowLeft') navigateStep(-1)
     }
@@ -176,13 +183,15 @@ export function ProductDrawer({
   }, [isOpen, onClose, navigateStep])
 
   return (
-    <>
-      {/* Scrim */}
-      <button
-        type="button"
-        aria-label="Close product drawer"
-        tabIndex={isAnimatedOpen ? 0 : -1}
-        onClick={onClose}
+    <Drawer
+      open={isAnimatedOpen}
+      onOpenChange={(open) => {
+        if (!open) onClose()
+      }}
+    >
+      <DrawerContent
+        side="bottom"
+        fit
         className={twMerge(
           'shop-product-scrim fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm transition-opacity motion-reduce:transition-none',
           isAnimatedOpen
@@ -209,8 +218,7 @@ export function ProductDrawer({
           type="button"
           aria-label="Close product detail"
           title="Close (Esc)"
-          onClick={onClose}
-          className="absolute top-3 left-3 z-[3] p-1 text-shop-muted hover:text-shop-text transition-colors"
+          className="absolute top-3 left-3 z-[3] p-1 text-shop-muted transition-colors hover:text-shop-text"
         >
           <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden>
             <path
@@ -219,7 +227,7 @@ export function ProductDrawer({
               strokeWidth="1.6"
             />
           </svg>
-        </button>
+        </DrawerClose>
 
         {/* Keep the sheet mounted; only replace its product content. */}
         {visibleProduct ? (
@@ -300,9 +308,15 @@ function DrawerContent({
   animateIn: boolean
 }) {
   const variants = product.variants.nodes
+  const selectableOptions = product.options.filter((o) => o.values.length > 1)
 
   const [selected, setSelected] = React.useState<Record<string, string>>(() =>
-    Object.fromEntries(product.options.map((o) => [o.name, ''])),
+    Object.fromEntries(
+      product.options.map((o) => [
+        o.name,
+        o.values.length === 1 ? (o.values[0] ?? '') : '',
+      ]),
+    ),
   )
   const [quantity, setQuantity] = React.useState(1)
   const [activeImageIndex, setActiveImageIndex] = React.useState(0)
@@ -338,6 +352,16 @@ function DrawerContent({
     heroOverride ?? product.images.nodes[activeImageIndex] ?? null
 
   const displayPrice = selectedVariant?.price ?? variants[0]?.price ?? null
+
+  const selectOption = (optionIndex: number, name: string, value: string) => {
+    setSelected((current) => ({
+      ...current,
+      ...Object.fromEntries(
+        selectableOptions.slice(optionIndex + 1).map((o) => [o.name, '']),
+      ),
+      [name]: value,
+    }))
+  }
 
   const addToCart = useAddToCart()
   const openCartDrawer = useCartDrawerStore((s) => s.openDrawer)
@@ -548,7 +572,51 @@ function DrawerContent({
                     </div>
                   </div>
                 )
-              })}
+              }
+
+              // Color / other options
+              return (
+                <div
+                  key={option.id}
+                  className="shop-product-reveal shop-product-option flex flex-col gap-3"
+                >
+                  <ShopLabel as="span" className="italic">
+                    {option.name}
+                  </ShopLabel>
+                  <div className="flex flex-wrap gap-1.5">
+                    {option.values.map((value) => {
+                      const isSelected = selected[option.name] === value
+                      const isUnavailable = !hasAvailableVariant(
+                        variants,
+                        getCandidate(value),
+                      )
+                      const hex = resolveShopProductColor(value)
+                      return (
+                        <ShopChip
+                          key={value}
+                          isSelected={isSelected}
+                          isUnavailable={isUnavailable}
+                          disabled={!isEnabled}
+                          selectedBg={hex}
+                          selectedTextColor={
+                            hex ? shopColorContrast(hex) : undefined
+                          }
+                          onClick={() =>
+                            selectOption(optionIndex, option.name, value)
+                          }
+                          className={twMerge(
+                            'shop-product-option-control rounded-full px-4 py-2 font-shop-mono leading-none whitespace-nowrap',
+                            !isEnabled && 'opacity-40 cursor-not-allowed',
+                          )}
+                        >
+                          {value}
+                        </ShopChip>
+                      )
+                    })}
+                  </div>
+                </div>
+              )
+            })}
 
             {/* Quantity pill */}
             <div className="shop-product-reveal shop-product-quantity flex flex-col gap-3 shrink-0">

@@ -8,7 +8,6 @@ const textStyles = 'text-category-framework'
 
 export const startProject = {
   ...start,
-  description: `Full-document SSR, Streaming, Server Functions, bundling and more, powered by TanStack Router and Vite - Ready to deploy to your favorite hosting provider.`,
   latestBranch: 'main',
   docsRoot: 'docs/start',
   embedEditor: 'codesandbox' as const,

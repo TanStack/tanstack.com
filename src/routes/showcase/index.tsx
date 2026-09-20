@@ -3,15 +3,20 @@ import * as v from 'valibot'
 import { seo } from '~/utils/seo'
 import { ShowcaseGallery } from '~/components/ShowcaseGallery'
 import { getApprovedShowcasesQueryOptions } from '~/queries/showcases'
-import { libraryIdSchema, showcaseUseCaseSchema } from '~/utils/schemas'
+import {
+  libraryIdSchema,
+  showcaseUseCaseSchema,
+  pageNumberSchema,
+  pageSizeSchema,
+} from '~/utils/schemas'
 
 const searchSchema = v.object({
-  page: v.optional(v.number(), 1),
-  pageSize: v.optional(v.number(), 24),
-  libraryIds: v.optional(v.array(libraryIdSchema)),
-  useCases: v.optional(v.array(showcaseUseCaseSchema)),
+  page: v.optional(pageNumberSchema, 1),
+  pageSize: v.optional(pageSizeSchema, 24),
+  libraryIds: v.optional(v.pipe(v.array(libraryIdSchema), v.maxLength(16))),
+  useCases: v.optional(v.pipe(v.array(showcaseUseCaseSchema), v.maxLength(12))),
   hasSourceCode: v.optional(v.boolean()),
-  q: v.optional(v.string()),
+  q: v.optional(v.pipe(v.string(), v.maxLength(120))),
 })
 
 export const PAGE_SIZE_OPTIONS = [24, 48, 96, 192] as const
@@ -45,6 +50,7 @@ export const Route = createFileRoute('/showcase/')({
           pageSize: deps.pageSize,
         },
         filters: {
+          placement: 'showcase',
           libraryIds: deps.libraryIds,
           useCases: deps.useCases,
           hasSourceCode: deps.hasSourceCode,
@@ -62,7 +68,7 @@ export const Route = createFileRoute('/showcase/')({
     meta: seo({
       title: 'Showcase | TanStack',
       description:
-        'Discover projects built with TanStack libraries. See how developers are using TanStack Query, Router, Table, Form, and more in production.',
+        'Projects selected by the TanStack team for their adoption, craft, and technical depth.',
       noindex: loaderData?.hasNonCanonicalSearch,
     }),
   }),

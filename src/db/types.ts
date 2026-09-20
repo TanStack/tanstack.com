@@ -20,6 +20,13 @@ export const DOC_FEEDBACK_STATUSES = ['pending', 'approved', 'denied'] as const
 
 export const SHOWCASE_STATUSES = ['pending', 'approved', 'denied'] as const
 
+export const SHOWCASE_PLACEMENTS: ['showcase', 'community', 'private'] = [
+  'showcase',
+  'community',
+  'private',
+]
+export type ShowcasePlacement = (typeof SHOWCASE_PLACEMENTS)[number]
+
 // Note: 'open-source' is kept in enum for DB compatibility but hidden from UI
 // Open source status is now derived from sourceUrl field
 export const SHOWCASE_USE_CASES = [
@@ -61,6 +68,37 @@ export const RELEASE_LEVELS = ['major', 'minor', 'patch'] as const
 
 export const SIGNUP_SOURCES = ['newsletter'] as const
 
+export const BUILDER_MESSAGE_ROLES = ['user', 'assistant'] as const
+
+export const BUILDER_RUN_STATUSES = [
+  'pending',
+  'running',
+  'interrupted',
+  'completed',
+  'failed',
+  'cancelled',
+] as const
+
+export const BUILDER_PROJECT_EVENT_TYPES = [
+  'project.created',
+  'project.updated',
+  'project.deleted',
+  'thread.created',
+  'thread.updated',
+  'thread.archived',
+  'revision.created',
+  'message.created',
+  'message.updated',
+  'message.deleted',
+  'run.created',
+  'run.started',
+  'run.activity',
+  'run.interrupted',
+  'run.completed',
+  'run.failed',
+  'run.cancelled',
+] as const
+
 // Derived types from constants
 export type Capability = (typeof CAPABILITIES)[number]
 export type OAuthProvider = (typeof OAUTH_PROVIDERS)[number]
@@ -71,6 +109,20 @@ export type ShowcaseUseCase = (typeof SHOWCASE_USE_CASES)[number]
 export type AuditAction = (typeof AUDIT_ACTIONS)[number]
 export type ReleaseLevel = (typeof RELEASE_LEVELS)[number]
 export type SignupSource = (typeof SIGNUP_SOURCES)[number]
+export type BuilderMessageRole = (typeof BUILDER_MESSAGE_ROLES)[number]
+export type BuilderRunStatus = (typeof BUILDER_RUN_STATUSES)[number]
+export type BuilderProjectEventType =
+  (typeof BUILDER_PROJECT_EVENT_TYPES)[number]
+
+export type BuilderJsonValue =
+  | null
+  | boolean
+  | number
+  | string
+  | Array<BuilderJsonValue>
+  | { [key: string]: BuilderJsonValue }
+
+export type BuilderJsonObject = { [key: string]: BuilderJsonValue }
 
 // Legacy aliases for backwards compatibility
 /** @deprecated Use CAPABILITIES instead */
@@ -139,6 +191,8 @@ export interface Showcase {
   useCases: ShowcaseUseCase[]
   isFeatured: boolean
   status: ShowcaseStatus
+  placement: ShowcasePlacement
+  reviewReason: string | null
   moderatedBy: string | null
   moderatedAt: Date | null
   moderationNote: string | null
@@ -148,6 +202,11 @@ export interface Showcase {
   createdAt: Date
   updatedAt: Date
 }
+
+export type PublicShowcase = Omit<
+  Showcase,
+  'moderatedBy' | 'moderatedAt' | 'moderationNote' | 'reviewReason'
+>
 
 export interface ShowcaseVote {
   id: string

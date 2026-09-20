@@ -9,6 +9,7 @@ import {
   MagnifyingGlassIcon,
   GearIcon,
   TrashIcon,
+  PlayIcon,
 } from '@phosphor-icons/react'
 import { seo } from '~/utils/seo'
 import {
@@ -281,7 +282,7 @@ function ButtonsPage() {
 
       <DsSection
         title="Button group"
-        description="Segmented buttons via ButtonGroup. Source: src/components/ButtonGroup.tsx."
+        description="The low-level toolbar primitive: bring your own buttons and ButtonGroup joins them with shared edges and one outer border. Reach for it when the group is heterogeneous — mixed toggles plus a primary action or a dropdown trigger. For a single-select control, prefer the SegmentedControl (see the Segmented control page). Source: src/components/ButtonGroup.tsx."
       >
         <ButtonPreview
           code={`<ButtonGroup>

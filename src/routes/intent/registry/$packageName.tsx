@@ -9,7 +9,7 @@ import {
 import { useSuspenseQuery, useQuery } from '@tanstack/react-query'
 import * as v from 'valibot'
 import { CopyIcon, CheckIcon } from '@phosphor-icons/react'
-import { Collapsible, CollapsibleContent } from '~/components/Collapsible'
+import { Panel, PanelContent } from '~/components/Panel'
 import { seo } from '~/utils/seo'
 import {
   intentPackageDetailQueryOptions,
@@ -339,6 +339,7 @@ This will detect all Agent Skills in ${name} and configure them for your coding 
             Paste into your coding agent
           </div>
         </div>,
+        { id: 'install-prompt-copied' },
       )
     } catch (error) {
       console.error('Failed to copy install prompt', error)
@@ -349,6 +350,7 @@ This will detect all Agent Skills in ${name} and configure them for your coding 
             Try again or copy the prompt manually
           </div>
         </div>,
+        { id: 'install-prompt-copy-failed' },
       )
     }
   }
@@ -506,8 +508,8 @@ function MobileSkillsDrawer({
           />
         </svg>
       </button>
-      <Collapsible open={open}>
-        <CollapsibleContent>
+      <Panel open={open}>
+        <PanelContent>
           <div className="fade-y fade-size-y-sm max-h-64 overflow-y-auto px-4 pb-4">
             <SkillsNav
               skills={skills}
@@ -516,8 +518,8 @@ function MobileSkillsDrawer({
               onNavigate={() => setOpen(false)}
             />
           </div>
-        </CollapsibleContent>
-      </Collapsible>
+        </PanelContent>
+      </Panel>
     </div>
   )
 }

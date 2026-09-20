@@ -6,6 +6,7 @@ import type {
   MarkdownDocument,
   MarkdownHeading,
 } from '@tanstack/markdown'
+import { liveExamplesExtension } from './live-example'
 
 export type { MarkdownDocument, MarkdownHeading } from '@tanstack/markdown'
 
@@ -20,7 +21,7 @@ export function parseSiteMarkdown(content: string): SiteMarkdownDocument {
   const headingSlugger = createHeadingSlugger()
   const document = parseMarkdown(protectEscapedAngleBrackets(content), {
     allowHtml: true,
-    extensions: docsMarkdownExtensions(),
+    extensions: [...docsMarkdownExtensions(), liveExamplesExtension()],
     headingIds: (text) =>
       headingSlugger(restoreEscapedAngleBracketText(text).replace(/[<>]/g, '')),
   })

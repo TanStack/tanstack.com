@@ -34,6 +34,7 @@ type ShopBrowseSearch = v.InferOutput<typeof shopBrowseSearchSchema>
 type ValidSortId = NonNullable<ShopBrowseSearch['sort']>
 
 const PAGE_SIZE = 24
+const TWO_WEEKS_MS = 14 * 24 * 60 * 60 * 1000
 
 export async function loadShopBrowsePage(sort: ShopBrowseSearch['sort']) {
   const sortOption = resolveSortOption(sort)

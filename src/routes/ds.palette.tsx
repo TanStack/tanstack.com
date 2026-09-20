@@ -15,6 +15,15 @@ export const Route = createFileRoute('/ds/palette')({
 const RAMPS = ['green', 'terracotta', 'blue', 'purple', 'amber', 'neutral']
 const STEPS = [100, 200, 300, 400, 500]
 
+/**
+ * Neutral carries two half-steps the chromatic ramps do not need. Each is the
+ * exact midpoint of its neighbours, added so the text scale has a legible
+ * `secondary` in dark and a legible `muted` in light.
+ */
+const RAMP_STEPS: Record<string, Array<number>> = {
+  neutral: [100, 150, 200, 300, 350, 400, 500],
+}
+
 const CATEGORY_COLORS = ['framework', 'data', 'ui', 'performance', 'tooling']
 
 const LIBRARY_COLORS = [
@@ -42,9 +51,17 @@ function PalettePage() {
       description="The primitive color ramps sourced from Figma. These feed the semantic tokens — change a primitive here (in app.css) and every semantic token referencing it updates across the system. Click a swatch to copy its var() reference."
     >
       {RAMPS.map((ramp) => (
-        <DsSection key={ramp} title={ramp[0].toUpperCase() + ramp.slice(1)}>
+        <DsSection
+          key={ramp}
+          title={ramp[0].toUpperCase() + ramp.slice(1)}
+          description={
+            ramp === 'neutral'
+              ? '150 and 350 are half-steps — the midpoints of 100/200 and 300/400 — carried only by this ramp so the text scale has a legible secondary in dark and a legible muted in light. Not yet in Figma.'
+              : undefined
+          }
+        >
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-5">
-            {STEPS.map((step) => (
+            {(RAMP_STEPS[ramp] ?? STEPS).map((step) => (
               <Swatch key={step} token={`ds-${ramp}-${step}`} />
             ))}
           </div>

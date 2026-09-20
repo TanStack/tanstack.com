@@ -87,6 +87,17 @@ html.theme-switching *::after {
   --color-gray-800: #332d24;
   --color-gray-900: #201b15;
   --color-gray-950: #111111;
+
+  --animate-shimmer: shimmer 2.4s ease-in-out infinite;
+  @keyframes shimmer {
+    0%,
+    40% {
+      transform: translateX(-150%);
+    }
+    100% {
+      transform: translateX(250%);
+    }
+  }
 }
 
 /* Keep neutral grays stable before client CSS injection reorders Tailwind layers. */
@@ -199,8 +210,15 @@ html.theme-switching *::after {
 
   --color-ds-neutral-0: #ffffff;
   --color-ds-neutral-100: #eeebd4;
+  /* Half-steps. Both are the exact midpoint of their neighbours, so they sit
+     on the ramp's hue rather than beside it. They exist because the text scale
+     needed a legible `secondary` in dark (200 was only 7.8:1 against #111111,
+     against 12.0:1 for its light counterpart) and a legible `muted` in light
+     (300 was 5.2:1). NOTE: not yet in Figma — add them there when syncing. */
+  --color-ds-neutral-150: #cec8b2;
   --color-ds-neutral-200: #aea691;
   --color-ds-neutral-300: #756c5b;
+  --color-ds-neutral-350: #5a5042;
   --color-ds-neutral-400: #3e3529;
   --color-ds-neutral-500: #111111;
 
@@ -299,7 +317,7 @@ html.theme-switching *::after {
      using neutral-500 for the light context. Confirm intended value. */
   --color-text-primary: var(--color-ds-neutral-500);
   --color-text-secondary: var(--color-ds-neutral-400);
-  --color-text-muted: var(--color-ds-neutral-300);
+  --color-text-muted: var(--color-ds-neutral-350);
   /* Mega-menu item title rest color; brightens to text-primary on hover.
      Light menu → muted dark; dark menu → neutral tint (see html.dark). */
   --color-text-menu-title: var(--color-ds-neutral-400);
@@ -316,6 +334,11 @@ html.theme-switching *::after {
   --color-background-elevated: #ffffff;
   --color-background-subtle: #fafafa;
   --color-background-inverse: var(--color-ds-neutral-500);
+
+  /* Scrim behind modal surfaces. Deliberately heavier in dark mode: an
+     identical alpha reads as weaker separation once the page beneath it is
+     already dark. Replaces seven hand-picked black/NN values. */
+  --color-scrim: rgb(0 0 0 / 0.5);
 
   --color-border-default: var(--color-ds-neutral-200);
   --color-border-strong: var(--color-ds-neutral-400);
@@ -538,15 +561,18 @@ html.light body {
    Primitives don't change between modes — only these semantic mappings do. */
 html.dark {
   --color-text-primary: #ffffff;
-  --color-text-secondary: #aea691;
-  --color-text-muted: #756c5b;
+  /* = ds-neutral-150 and ds-neutral-200. Kept as literals to match the rest of
+     this block; secondary and muted each moved one step lighter so both clear
+     AA against #111111 (11.3:1 and 7.8:1, from 7.8:1 and a failing 3.6:1). */
+  --color-text-secondary: #cec8b2;
+  --color-text-muted: #aea691;
   --color-text-menu-title: var(--color-ds-neutral-tint-200);
   --color-text-accent: #61adbf;
   --color-text-disabled: #3e3529;
   --color-text-inverse: #111111;
   --color-text-success: #69bc75;
   --color-text-warning: #f4d648;
-  --color-text-error: #e06e49;
+  --color-text-error: var(--color-ds-terracotta-200);
   --color-text-info: #9cd5e2;
 
   --color-background-default: #111111;
@@ -554,6 +580,8 @@ html.dark {
   --color-background-elevated: #2b2b2b;
   --color-background-subtle: #1b1b1b;
   --color-background-inverse: #ffffff;
+
+  --color-scrim: rgb(0 0 0 / 0.65);
 
   --color-border-default: #2d2d2d;
   --color-border-strong: #aea691;
@@ -568,7 +596,7 @@ html.dark {
   --color-icon-inverse: #111111;
   --color-icon-success: #69bc75;
   --color-icon-warning: #f4d648;
-  --color-icon-error: #e06e49;
+  --color-icon-error: var(--color-ds-terracotta-200);
 
   --color-action-primary: #3aa3c4;
   --color-action-primary-hover: #61adbf;
@@ -582,8 +610,8 @@ html.dark {
   --color-status-success-bg: #1d4226;
   --color-status-warning: #f4d648;
   --color-status-warning-bg: #624a00;
-  --color-status-error: #e06e49;
-  --color-status-error-bg: #5f1a06;
+  --color-status-error: var(--color-ds-terracotta-200);
+  --color-status-error-bg: #2b1711;
   --color-status-info: #61adbf;
   --color-status-info-bg: #003e53;
 
@@ -619,18 +647,25 @@ html.dark {
   color-scheme: light;
   --color-text-primary: var(--color-ds-neutral-500);
   --color-text-secondary: var(--color-ds-neutral-400);
-  --color-text-muted: var(--color-ds-neutral-300);
+  --color-text-muted: var(--color-ds-neutral-350);
   --color-text-inverse: #ffffff;
+  --color-text-error: var(--color-ds-terracotta-500);
   --color-background-default: #ffffff;
   --color-background-surface: #ffffff;
+  --color-background-elevated: #ffffff;
   --color-background-subtle: #fafafa;
   --color-background-inverse: var(--color-ds-neutral-500);
+  --color-scrim: rgb(0 0 0 / 0.5);
   --color-border-default: var(--color-ds-neutral-200);
   --color-border-subtle: var(--color-ds-neutral-100);
   --color-border-strong: var(--color-ds-neutral-400);
   --color-border-focus: var(--color-ds-blue-400);
+  --color-border-error: var(--color-ds-terracotta-400);
+  --color-icon-error: var(--color-ds-terracotta-400);
   --color-action-secondary: var(--color-ds-neutral-100);
   --color-action-secondary-hover: var(--color-ds-neutral-200);
+  --color-status-error: var(--color-ds-terracotta-400);
+  --color-status-error-bg: var(--color-ds-terracotta-100);
   --color-category-framework: var(--color-ds-green-400);
   --color-category-data: var(--color-ds-terracotta-400);
   --color-category-ui: var(--color-ds-blue-400);
@@ -638,24 +673,46 @@ html.dark {
   --color-category-tooling: var(--color-ds-neutral-400);
   --color-surface-state-hover: #1111110f;
   --color-surface-state-pressed: #1111111f;
+
+  /* Light surfaces carry the stronger mono weights (mirrors html.light) so a
+     forced-light subtree renders mono as medium / regular — not regular /
+     light — matching the real site's light mode. */
+  --text-ds-mono-display--font-weight: 500;
+  --text-ds-mono-lg--font-weight: 500;
+  --text-ds-mono-md--font-weight: 400;
+  --text-ds-mono-sm--font-weight: 400;
+  --text-ds-mono-xs--font-weight: 400;
+  --text-ds-mono-2xs--font-weight: 400;
+  --text-ds-mono-caps--font-weight: 500;
+  --text-ds-mono-caps-xs--font-weight: 500;
 }
 
 .ds-mode-dark {
   color-scheme: dark;
   --color-text-primary: #ffffff;
-  --color-text-secondary: #aea691;
-  --color-text-muted: #756c5b;
+  /* = ds-neutral-150 and ds-neutral-200. Kept as literals to match the rest of
+     this block; secondary and muted each moved one step lighter so both clear
+     AA against #111111 (11.3:1 and 7.8:1, from 7.8:1 and a failing 3.6:1). */
+  --color-text-secondary: #cec8b2;
+  --color-text-muted: #aea691;
   --color-text-inverse: #111111;
+  --color-text-error: var(--color-ds-terracotta-200);
   --color-background-default: #111111;
   --color-background-surface: #1f1f1f;
+  --color-background-elevated: #2b2b2b;
   --color-background-subtle: #1b1b1b;
   --color-background-inverse: #ffffff;
+  --color-scrim: rgb(0 0 0 / 0.65);
   --color-border-default: #2d2d2d;
   --color-border-subtle: #232323;
   --color-border-strong: #aea691;
   --color-border-focus: #61adbf;
+  --color-border-error: #e06e49;
+  --color-icon-error: var(--color-ds-terracotta-200);
   --color-action-secondary: #2b2b2b;
   --color-action-secondary-hover: #3a3a3a;
+  --color-status-error: var(--color-ds-terracotta-200);
+  --color-status-error-bg: #2b1711;
   --color-category-framework: var(--color-ds-green-300);
   --color-category-data: var(--color-ds-terracotta-300);
   --color-category-ui: var(--color-ds-blue-300);
@@ -873,6 +930,101 @@ button {
 
 .mobile-mega-menu-enter .mobile-mega-menu-enter-item:nth-child(n + 6) {
   animation-delay: 140ms;
+}
+
+/* ------------------------------------------------------------------ *
+ * Blog filter motion — native <details> reveals animated via the
+ * ::details-content pseudo, driven off the [open] attribute. This path is
+ * reliable even when React controls `open` (animating on the display:none→
+ * block toggle is not). `interpolate-size` lets height animate to/from auto.
+ * ------------------------------------------------------------------ */
+
+/* Facet accordion sections (Topics / Author / Archive) expand their height
+   over 250ms so it's clear which one is open — on open and on close. */
+.ts-accordion {
+  interpolate-size: allow-keywords;
+}
+
+.ts-accordion::details-content {
+  block-size: 0;
+  overflow: clip;
+  opacity: 0;
+  transition:
+    block-size 250ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 200ms ease,
+    content-visibility 250ms allow-discrete;
+}
+
+.ts-accordion[open]::details-content {
+  block-size: auto;
+  opacity: 1;
+}
+
+/* Newly revealed "Load more" cards fade up, staggered by batch position.
+   Only the appended batch carries this class (see blog.index.tsx), so it
+   never fires on first paint or filter changes. */
+@keyframes blog-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.blog-card-enter {
+  animation: blog-card-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.blog-card-enter.enter-1 {
+  animation-delay: 40ms;
+}
+.blog-card-enter.enter-2 {
+  animation-delay: 80ms;
+}
+.blog-card-enter.enter-3 {
+  animation-delay: 120ms;
+}
+.blog-card-enter.enter-4 {
+  animation-delay: 160ms;
+}
+.blog-card-enter.enter-5 {
+  animation-delay: 200ms;
+}
+
+/* Skip the movement for reduced-motion users; the panels just appear. */
+@media (prefers-reduced-motion: reduce) {
+  .ts-accordion::details-content {
+    transition-property: content-visibility;
+  }
+
+  .blog-card-enter {
+    animation: none;
+  }
+}
+
+/* Blog index year grid: 1 → 2 → 3 columns with faint full-height column
+   dividers in the gutters, drawn as a left border on non-first-column cards
+   (grid cells stretch to the row height, so the line is full-height). Lives
+   in CSS because the per-breakpoint column math is awkward as Tailwind
+   nth-child variants. */
+.blog-year-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .blog-year-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 2rem;
+  }
+  .blog-year-grid > *:nth-child(2n) {
+    border-left: 1px solid var(--color-border-subtle);
+    padding-left: 2rem;
+  }
 }
 
 .ts-mega-dropdown-panel {
@@ -1236,6 +1388,36 @@ button {
     background: color-mix(in srgb, var(--color-text-primary) 40%, transparent);
   }
 
+  /* Subtle, track-less scrollbar for scrollable menus (DropdownContent
+     maxHeight). A thin, low-opacity thumb meant to read only as a "more
+     content" indicator, not a grab target. Prefixed with `html` to out-specify
+     the global scrollbar rules above (equal specificity, later source order
+     wins). */
+  html .ds-scroll-subtle {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(
+        in srgb,
+        var(--color-text-primary) 18%,
+        transparent
+      )
+      transparent;
+  }
+  html .ds-scroll-subtle::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  html .ds-scroll-subtle::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  html .ds-scroll-subtle::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--color-text-primary) 18%, transparent);
+    border: 0;
+    border-radius: 9999px;
+  }
+  html .ds-scroll-subtle::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--color-text-primary) 30%, transparent);
+  }
+
   [disabled] {
     @apply opacity-50 pointer-events-none;
   }
@@ -1416,6 +1598,60 @@ button {
   @apply bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300;
 }
 
+.library-status-badge-rc {
+  position: relative;
+  isolation: isolate;
+  background: linear-gradient(
+    135deg,
+    color-mix(
+      in srgb,
+      var(--landing-accent, var(--color-ds-terracotta-400)) 84%,
+      black
+    ),
+    color-mix(
+      in srgb,
+      var(--landing-accent, var(--color-ds-terracotta-400)) 52%,
+      black
+    )
+  );
+  color: #fff;
+}
+.library-status-badge-rc::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  border: 1px solid rgb(var(--landing-glow, 195 80 43) / 0.55);
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .library-status-badge-rc {
+    animation: library-badge-rc-glow 2.4s ease-in-out infinite;
+  }
+  .library-status-badge-rc::after {
+    animation: library-badge-rc-ring 2.4s cubic-bezier(0.2, 0, 0, 1) infinite;
+  }
+}
+@keyframes library-badge-rc-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(var(--landing-glow, 195 80 43) / 0.45);
+  }
+  50% {
+    box-shadow: 0 0 14px 2px rgb(var(--landing-glow, 195 80 43) / 0.4);
+  }
+}
+@keyframes library-badge-rc-ring {
+  0% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.28);
+  }
+}
+
 /* Text utilities */
 .text-secondary {
   @apply text-gray-600 dark:text-gray-400;
@@ -1432,7 +1668,7 @@ button {
 /* ============================================================================ */
 
 pre {
-  @apply text-black overflow-x-auto relative leading-tight;
+  @apply overflow-x-auto relative leading-tight;
 }
 
 .th-line--deleted,
@@ -1866,6 +2102,44 @@ mark {
 }
 .home-prompt-ph-in {
   animation: home-prompt-ph-in 520ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Home prompt focus glow: a slow horizontal wave (with a gentle width pulse) so
+   the terracotta bloom feels alive instead of static. The wrapper handles the
+   opacity/scale grow-in on focus (see ApplicationStarter); this drives only the
+   flowing drift, on a separate nested element so the two transforms compose. */
+@keyframes prompt-glow-flow {
+  0%,
+  100% {
+    transform: translate3d(-5%, 0, 0) scaleX(1);
+  }
+  50% {
+    transform: translate3d(5%, 0, 0) scaleX(1.12);
+  }
+}
+.prompt-glow-flow {
+  animation: prompt-glow-flow 5.5s ease-in-out infinite;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .prompt-glow-flow {
+    animation: none;
+  }
+}
+
+/* DS brand mark — the TanStack emblem as a monochrome glyph tinted with
+   currentColor, for pairing with a page title (see PageHeader). Sized relative
+   to the title (em units) so it scales with the fluid display type. */
+.ds-brand-mark {
+  display: inline-block;
+  width: 0.82em;
+  height: 0.82em;
+  flex: none;
+  background-color: currentColor;
+  -webkit-mask: url('/images/brand/tanstack-emblem-black.svg') center / contain
+    no-repeat;
+  mask: url('/images/brand/tanstack-emblem-black.svg') center / contain
+    no-repeat;
 }
 
 @keyframes home-stack-builder-reveal {
@@ -2386,20 +2660,18 @@ button[aria-label='Open TanStack Devtools'] {
   display: none !important;
 }
 
-.charts-catalog-chart {
-  --ts-chart-1: var(--color-ds-blue-400);
-  --ts-chart-2: var(--color-ds-terracotta-400);
-  --ts-chart-3: var(--color-ds-green-400);
-  --ts-chart-4: var(--color-ds-purple-400);
-  --ts-chart-5: var(--color-ds-amber-400);
-  --ts-chart-6: var(--color-ds-neutral-400);
+.sandbox-ui {
+  --color-border-default: #1111111a;
+  --color-text-secondary: #525252;
+  --color-text-muted: #737373;
 }
 
-.dark .charts-catalog-chart {
-  --ts-chart-1: var(--color-ds-blue-200);
-  --ts-chart-2: var(--color-ds-terracotta-200);
-  --ts-chart-3: var(--color-ds-green-200);
-  --ts-chart-4: var(--color-ds-purple-200);
-  --ts-chart-5: var(--color-ds-amber-200);
-  --ts-chart-6: var(--color-ds-neutral-200);
+html.dark .sandbox-ui {
+  --color-border-default: #ffffff1f;
+  --color-text-secondary: #b8b8b8;
+  --color-text-muted: #8a8a8a;
+}
+
+[data-builder-shell]:has([data-builder-ready]) > [data-builder-initial] {
+  display: none;
 }

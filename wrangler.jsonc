@@ -29,5 +29,9 @@
       "binding": "NPM_DOWNLOAD_CACHE",
       "bucket_name": "tanstack-npm-download-cache",
     },
+    {
+      "binding": "BUILDER_PROJECTS",
+      "bucket_name": "tanstack-notebook-projects",
+    },
   ],
 }

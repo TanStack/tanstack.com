@@ -1,10 +1,15 @@
-import { seo } from '~/utils/seo'
+import { canonicalUrl, seo } from '~/utils/seo'
 import { ogImageUrl } from '~/utils/og'
 import { Doc } from '~/components/Doc'
-import { buildDocsRedirectHref, loadDocsRoute } from '~/utils/docs'
+import {
+  appendPathToDocsHref,
+  buildDocsRedirectHref,
+  loadDocsRoute,
+} from '~/utils/docs'
 import { findLibrary, getBranch, getLibrary } from '~/libraries'
 import { DocContainer } from '~/components/DocContainer'
 import { getDocsCacheHeaders } from '~/utils/docs-cache-headers'
+import { getDocsEmbedRuntimeHeaders } from '~/utils/docs-embed-headers'
 import {
   notFound,
   redirect,
@@ -15,6 +20,11 @@ import {
 
 export const Route = createFileRoute('/_library/$libraryId/$version/docs/$')({
   staleTime: 1000 * 60 * 5,
+  // This route's head() emits the rel=canonical link (it may point at the
+  // /latest equivalent), so the root route must not emit its own.
+  staticData: {
+    ownsCanonicalLink: true,
+  },
   loader: async (ctx) => {
     const { _splat: docsPath, version, libraryId } = ctx.params
     const library = findLibrary(libraryId)
@@ -33,6 +43,7 @@ export const Route = createFileRoute('/_library/$libraryId/$version/docs/$')({
       docsPath: requestedDocsPath,
       defaultDocs: library.defaultDocs ?? 'overview',
       frameworks: library.frameworks,
+      latestBranch: getBranch(library, 'latest'),
       redirectFromPaths: requestedDocsPath ? [requestedDocsPath] : [],
     })
 
@@ -52,7 +63,18 @@ export const Route = createFileRoute('/_library/$libraryId/$version/docs/$')({
       throw notFound()
     }
 
-    return result.doc
+    return {
+      ...result.doc,
+      // Old-version pages that still exist on latest canonicalize to /latest
+      // (read by getCanonicalHeadTags in __root.tsx).
+      canonicalPathOverride: result.latestDocsPath
+        ? appendPathToDocsHref({
+            docsPath: result.latestDocsPath,
+            libraryId,
+            version: 'latest',
+          })
+        : undefined,
+    }
   },
   head: ({ loaderData, params }) => {
     const { libraryId, version, _splat: docsPath } = params
@@ -70,25 +92,45 @@ export const Route = createFileRoute('/_library/$libraryId/$version/docs/$')({
       }),
     )
 
+    const canonicalHref = canonicalUrl(
+      loaderData?.canonicalPathOverride ??
+        appendPathToDocsHref({ docsPath: docsPath ?? '', libraryId, version }),
+    )
+
     return {
-      meta: seo({
-        title: `${loaderData?.title} | ${library.name} Docs`,
-        description: loaderData?.description,
-        keywords: loaderData?.keywords,
-        image: ogImageUrl(library.id, {
-          title: loaderData?.title,
+      meta: [
+        ...seo({
+          title: loaderData?.title
+            ? `${loaderData.title} | ${library.name} Docs`
+            : `${library.name} Docs`,
           description: loaderData?.description,
+          keywords: loaderData?.keywords,
+          image: ogImageUrl(library.id, {
+            title: loaderData?.title,
+            description: loaderData?.description,
+          }),
+          noindex: library.visible === false,
         }),
-        noindex: library.visible === false,
-      }),
-      links: frameworkVariantLinks,
+        { property: 'og:url', content: canonicalHref },
+        { name: 'twitter:url', content: canonicalHref },
+      ],
+      links: [
+        { rel: 'canonical', href: canonicalHref },
+        ...frameworkVariantLinks,
+      ],
     }
   },
   component: Docs,
-  headers: ({ params }) => {
+  headers: ({ loaderData, params }) => {
     const { version, libraryId } = params
 
-    return getDocsCacheHeaders({ libraryId, version })
+    return {
+      ...getDocsCacheHeaders({ libraryId, version }),
+      ...getDocsEmbedRuntimeHeaders({
+        content: loaderData?.content ?? '',
+        version,
+      }),
+    }
   },
 })
 

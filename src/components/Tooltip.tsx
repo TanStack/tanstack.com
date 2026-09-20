@@ -72,7 +72,7 @@ export function Tooltip({
           <div
             ref={refs.setFloating /* eslint-disable-line react-hooks/refs */}
             style={floatingStyles}
-            className={`z-50 rounded-md bg-gray-900 px-3 py-1.5 text-sm text-white shadow-lg dark:bg-gray-800 ${className}`}
+            className={`z-1300 rounded-md bg-gray-900 px-3 py-1.5 text-sm text-white shadow-lg dark:bg-gray-800 ${className}`}
           >
             {content}
           </div>

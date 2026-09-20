@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import {
   buildDocsMarkdownRedirectHref,
   buildDocsRedirectHref,
+  docsManifestHasPath,
   resolveDocsPathRedirect,
   type DocsRedirectManifest,
 } from '../src/utils/docs-redirects'
@@ -51,6 +52,23 @@ function assertRedirectsTo(opts: {
       manifest: opts.manifest,
     }),
     { type: 'redirect', docsPath: opts.expectedTarget },
+  )
+}
+
+function assertRenders(opts: {
+  defaultDocs: string
+  docsPath: string
+  frameworks: Array<string>
+  manifest: DocsRedirectManifest
+}) {
+  assert.deepEqual(
+    resolveDocsPathRedirect({
+      defaultDocs: opts.defaultDocs,
+      docsPath: opts.docsPath,
+      frameworks: opts.frameworks,
+      manifest: opts.manifest,
+    }),
+    { type: 'render', docsPath: opts.docsPath },
   )
 }
 
@@ -159,6 +177,50 @@ assertNotFound({
   manifest: manifestWithPaths(['overview', 'framework/react/overview']),
 })
 
+const typedocManifest = manifestWithPaths([
+  'overview',
+  'reference',
+  'reference/index',
+  'reference/index/type-aliases/DebugOptions',
+  'framework/react/reference',
+  'framework/react/reference/index',
+])
+
+assertRenders({
+  defaultDocs: 'overview',
+  docsPath: 'reference/index',
+  frameworks: ['react'],
+  manifest: typedocManifest,
+})
+
+assertRenders({
+  defaultDocs: 'overview',
+  docsPath: 'reference/index/index',
+  frameworks: ['react'],
+  manifest: typedocManifest,
+})
+
+assertRenders({
+  defaultDocs: 'overview',
+  docsPath: 'reference/index/type-aliases/DebugOptions',
+  frameworks: ['react'],
+  manifest: typedocManifest,
+})
+
+assertRenders({
+  defaultDocs: 'overview',
+  docsPath: 'framework/react/reference/index',
+  frameworks: ['react'],
+  manifest: typedocManifest,
+})
+
+assertRenders({
+  defaultDocs: 'overview',
+  docsPath: 'framework/react/reference/index/index',
+  frameworks: ['react'],
+  manifest: typedocManifest,
+})
+
 assertRedirectsTo({
   defaultDocs: 'overview',
   docsPath: 'react/overview',
@@ -207,5 +269,39 @@ assert.equal(
   }),
   'https://tanstack.com/query/v5/docs/framework/react/overview.md?pm=pnpm#motivation',
 )
+
+assert.equal(
+  docsManifestHasPath(
+    manifestWithPaths(['guides/queries.md', 'framework/react/overview.md']),
+    'guides/queries',
+  ),
+  true,
+)
+
+assert.equal(
+  docsManifestHasPath(
+    manifestWithPaths(['guides/queries/index.md']),
+    'guides/queries',
+  ),
+  true,
+)
+
+assert.equal(
+  docsManifestHasPath(
+    manifestWithPaths(['reference/index']),
+    'reference/index/index',
+  ),
+  true,
+)
+
+assert.equal(
+  docsManifestHasPath(
+    manifestWithPaths(['guides/queries.md']),
+    'guides/removed-in-latest',
+  ),
+  false,
+)
+
+assert.equal(docsManifestHasPath(manifestWithPaths(['overview.md']), ''), false)
 
 console.log('docs redirect tests passed')

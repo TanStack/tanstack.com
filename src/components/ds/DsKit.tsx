@@ -48,22 +48,30 @@ export function DsDescription({
 export function DsPage({
   title,
   description,
+  header,
   children,
 }: {
-  title: string
+  title?: string
   description?: React.ReactNode
+  /** Replace the default title header entirely (e.g. the emblem PageHeader on
+   *  the overview). When set, `title`/`description` are ignored. */
+  header?: React.ReactNode
   children: React.ReactNode
 }) {
   return (
-    <div className="mx-auto max-w-7xl px-6 py-10 lg:px-10">
-      <header className="mb-10">
-        <h1 className="font-ds-display text-ds-display-sm text-text-primary">
-          {title}
-        </h1>
-        {description ? (
-          <DsDescription variant="page">{description}</DsDescription>
-        ) : null}
-      </header>
+    <div className="mx-auto max-w-7xl px-6 pt-10 pb-28 lg:px-10">
+      {header ? (
+        <div className="mb-10">{header}</div>
+      ) : (
+        <header className="mb-10">
+          <h1 className="font-ds-display text-ds-display-sm text-text-primary">
+            {title}
+          </h1>
+          {description ? (
+            <DsDescription variant="page">{description}</DsDescription>
+          ) : null}
+        </header>
+      )}
       <div className="space-y-12">{children}</div>
     </div>
   )
@@ -269,11 +277,24 @@ export function Swatch({ token }: { token: string }) {
   const swatchRef = React.useRef<HTMLDivElement>(null)
 
   React.useEffect(() => {
-    if (!swatchRef.current) return
+    const el = swatchRef.current
+    if (!el) return
+
     // Read the *computed* background so var()-referencing semantic tokens
     // resolve to a real color, not the literal "var(--…)" declaration.
-    const resolved = getComputedStyle(swatchRef.current).backgroundColor
-    setHex(rgbToHex(resolved))
+    const read = () => setHex(rgbToHex(getComputedStyle(el).backgroundColor))
+    read()
+
+    // Re-read on theme change. The swatch itself recolours on its own because
+    // it renders `var(--color-…)`, but the hex label is state and would other-
+    // wise keep the value it was mounted with — showing #FFFFFF next to a
+    // black chip after a toggle.
+    const observer = new MutationObserver(read)
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    })
+    return () => observer.disconnect()
   }, [token])
 
   const handleCopy = React.useCallback(async () => {

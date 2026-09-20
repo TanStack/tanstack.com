@@ -13,7 +13,7 @@ export const deploymentProviderIds: ReadonlyArray<DeploymentProviderId> = [
 
 type DeploymentProviderPlacementPartner = Pick<
   Partner,
-  'category' | 'id' | 'name' | 'score' | 'tier'
+  'category' | 'id' | 'name' | 'tier'
 > & {
   provider: DeploymentProviderId
 }
@@ -41,7 +41,6 @@ function getDeploymentProviderPlacementPartner(
     id: partner.id,
     name: partner.name,
     provider,
-    score: partner.score,
     tier: partner.tier,
   }
 }

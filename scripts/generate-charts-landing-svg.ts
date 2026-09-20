@@ -1,7 +1,8 @@
 import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
-import { curveMonotoneX, curveStepAfter, scaleLinear } from 'd3'
+import { scaleLinear } from '@tanstack/charts/scales/linear'
+import { curveMonotoneX, curveStepAfter } from 'd3-shape'
 
 import {
   areaY,
@@ -13,6 +14,10 @@ import {
   renderChartSvg,
 } from '@tanstack/charts'
 import { activationChart } from './charts-landing/activation-chart'
+import {
+  bundleSizeChart,
+  bundleSizeSnapshot,
+} from './charts-landing/bundle-size-chart'
 import { kineticBarChart } from './charts-landing/kinetic-bar-chart'
 import { kineticDonutChart } from './charts-landing/kinetic-donut-chart'
 import { kineticHeatmapChart } from './charts-landing/kinetic-heatmap-chart'
@@ -32,11 +37,18 @@ const kineticOutputFile = resolve(
   process.cwd(),
   'src/components/landing/chartsKineticSvg.ts',
 )
+const bundleSizeOutputFile = resolve(
+  process.cwd(),
+  'src/components/landing/chartsBundleSizeSvg.ts',
+)
 const checkOnly = process.argv.includes('--check')
 const activationAriaLabel =
   'Weekly activation rate with expected range, 70 percent goal, and two product release events'
 const activationAriaDescription =
   'Illustrative weekly activation data from January through May 2026. The actual rate rises from 48 to 78 percent, compared with an expected range and a 70 percent goal. Onboarding v2 and Invite flow are marked as release events.'
+const bundleSizeAriaDescription = `A static August 2026 snapshot of minified and gzip-compressed browser bundle sizes. ${bundleSizeSnapshot
+  .map((row) => `${row.library}: ${row.size} kilobytes`)
+  .join('; ')}.`
 
 const themeBaseline = 40
 const themeDomain: [number, number] = [40, 105]
@@ -68,13 +80,15 @@ const editorialTheme = defineChart({
       curve: d3Curve(curveMonotoneX),
     }),
   ],
-  x: {
-    scale: scaleLinear().domain([1, 10]),
-    axis: { ticks: { count: 4, format: (month) => `M${month}` } },
-  },
-  y: {
-    scale: scaleLinear().domain(themeDomain).nice(),
-    axis: { ticks: { count: 3 } },
+  scales: {
+    x: {
+      scale: scaleLinear().domain([1, 10]),
+      axis: { ticks: { count: 4, format: (month) => `M${month}` } },
+    },
+    y: {
+      scale: scaleLinear().domain(themeDomain).nice(),
+      axis: { ticks: { count: 3 } },
+    },
   },
   theme: {
     foreground: '#3e3529',
@@ -105,14 +119,16 @@ const productTheme = defineChart({
       r: 4,
     }),
   ],
-  x: {
-    scale: scaleLinear().domain([1, 10]),
-    axis: { ticks: { count: 4, format: (month) => `M${month}` } },
-  },
-  y: {
-    scale: scaleLinear().domain(themeDomain).nice(),
-    axis: { ticks: { count: 4 } },
-    grid: true,
+  scales: {
+    x: {
+      scale: scaleLinear().domain([1, 10]),
+      axis: { ticks: { count: 4, format: (month) => `M${month}` } },
+    },
+    y: {
+      scale: scaleLinear().domain(themeDomain).nice(),
+      axis: { ticks: { count: 4 } },
+      grid: true,
+    },
   },
   theme: {
     foreground: '#003e53',
@@ -144,14 +160,18 @@ const terminalTheme = defineChart({
       curve: d3Curve(curveStepAfter),
     }),
   ],
-  x: {
-    scale: scaleLinear().domain([1, 10]),
-    axis: { ticks: { count: 4, format: (month) => `0${month}` } },
-  },
-  y: {
-    scale: scaleLinear().domain(themeDomain).nice(),
-    axis: { ticks: { count: 4 } },
-    grid: true,
+  scales: {
+    x: {
+      scale: scaleLinear().domain([1, 10]),
+      axis: {
+        ticks: { count: 4, format: (month) => String(month).padStart(2, '0') },
+      },
+    },
+    y: {
+      scale: scaleLinear().domain(themeDomain).nice(),
+      axis: { ticks: { count: 4 } },
+      grid: true,
+    },
   },
   theme: {
     foreground: '#a2e1a9',
@@ -191,15 +211,16 @@ const monokaiTheme = defineChart({
       strokeWidth: 3,
     }),
   ],
-  x: {
-    scale: scaleLinear().domain([1, 10]),
-    ticks: 4,
-    format: (month: number) => `M${month}`,
-  },
-  y: {
-    scale: scaleLinear().domain(themeDomain).nice(),
-    ticks: 4,
-    grid: true,
+  scales: {
+    x: {
+      scale: scaleLinear().domain([1, 10]),
+      axis: { ticks: { count: 4, format: (month) => `M${month}` } },
+    },
+    y: {
+      scale: scaleLinear().domain(themeDomain).nice(),
+      axis: { ticks: { count: 4 } },
+      grid: true,
+    },
   },
   theme: {
     foreground: '#f8f8f2',
@@ -244,6 +265,25 @@ const activationCharts = {
     520,
     560,
     activationAriaDescription,
+    -1,
+  ),
+}
+
+const bundleSizeCharts = {
+  chartsBundleSizeSvg: render(
+    bundleSizeChart(),
+    'Bundle size comparison across 16 charting libraries',
+    1200,
+    820,
+    bundleSizeAriaDescription,
+    -1,
+  ),
+  chartsBundleSizeCompactSvg: render(
+    bundleSizeChart(true),
+    'Bundle size comparison across 16 charting libraries',
+    520,
+    820,
+    bundleSizeAriaDescription,
     -1,
   ),
 }
@@ -310,6 +350,13 @@ const generatedModules = [
     source: createGeneratedModule(
       kineticCharts,
       'scripts/charts-landing/kinetic-*-chart.ts',
+    ),
+  },
+  {
+    file: bundleSizeOutputFile,
+    source: createGeneratedModule(
+      bundleSizeCharts,
+      'scripts/charts-landing/bundle-size-chart.ts',
     ),
   },
 ]

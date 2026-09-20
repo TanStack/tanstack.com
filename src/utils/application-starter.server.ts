@@ -12,7 +12,7 @@ import {
 } from '~/utils/partners'
 
 export const applicationStarterRequestSchema = z.object({
-  context: z.enum(['builder', 'home', 'router', 'start']),
+  context: z.enum(['application-starter', 'home', 'router', 'start']),
   input: z.string().trim().min(1).max(4000),
 })
 

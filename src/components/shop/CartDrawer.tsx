@@ -1,17 +1,21 @@
-import * as Dialog from '@radix-ui/react-dialog'
 import { Link } from '@tanstack/react-router'
 import {
   MinusIcon,
   PlusIcon,
   ShoppingCartIcon,
   TrashIcon,
-  XIcon,
 } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { useCart, useRemoveCartLine, useUpdateCartLine } from '~/hooks/useCart'
 import { formatMoney, shopifyImageUrl } from '~/utils/shopify-format'
 import type { CartLineDetail } from '~/utils/shopify-queries'
 import { ShopLabel, ShopMono } from './ui'
+import {
+  Drawer,
+  DrawerBody,
+  DrawerContent,
+  DrawerHeader,
+} from '~/components/ds/ui'
 
 type CartDrawerProps = {
   open: boolean
@@ -57,9 +61,10 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
             </Dialog.Close>
           </header>
 
-          {hasLines ? (
-            <>
-              <ul className="fade-y fade-size-y-sm min-h-0 flex-1 overflow-y-auto px-5">
+        {hasLines ? (
+          <>
+            <DrawerBody className="fade-y fade-size-y-sm px-5 py-0">
+              <ul>
                 {cart.lines.nodes.map((line) => (
                   <DrawerCartLine
                     key={line.id}
@@ -68,18 +73,18 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
                   />
                 ))}
               </ul>
-              <DrawerFooter cart={cart} onClose={() => onOpenChange(false)} />
-            </>
-          ) : (
-            <DrawerEmpty onClose={() => onOpenChange(false)} />
-          )}
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+            </DrawerBody>
+            <CartFooter cart={cart} onClose={() => onOpenChange(false)} />
+          </>
+        ) : (
+          <CartEmpty onClose={() => onOpenChange(false)} />
+        )}
+      </DrawerContent>
+    </Drawer>
   )
 }
 
-function DrawerEmpty({ onClose }: { onClose: () => void }) {
+function CartEmpty({ onClose }: { onClose: () => void }) {
   return (
     <div className="flex-1 flex flex-col items-center justify-center gap-4 p-8 text-center text-shop-text-2">
       <ShoppingCartIcon className="w-10 h-10 text-shop-muted" />
@@ -102,7 +107,7 @@ function DrawerEmpty({ onClose }: { onClose: () => void }) {
   )
 }
 
-function DrawerFooter({
+function CartFooter({
   cart,
   onClose,
 }: {

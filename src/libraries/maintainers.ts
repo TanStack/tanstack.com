@@ -145,7 +145,7 @@ export const allMaintainers: Maintainer[] = [
     maintainerOf: ['table', 'store'],
     contributorOf: ['virtual'],
     consultantOf: ['query'],
-    frameworkExpertise: ['react', 'preact', 'solid'],
+    frameworkExpertise: ['react', 'preact', 'solid', 'octane'],
     specialties: ['Data Grids', 'Performance', 'Dashboards'],
     social: {
       twitter: 'https://x.com/kevinvancott',
@@ -262,6 +262,19 @@ export const allMaintainers: Maintainer[] = [
     specialties: ['Sync Engines', 'Incremental View Maintenance'],
   },
   {
+    name: 'Wonsuk Choi',
+    avatar: 'https://github.com/sukvvon.png',
+    github: 'sukvvon',
+    maintainerOf: ['query'],
+    frameworkExpertise: ['react', 'preact'],
+    specialties: ['TypeScript', 'Test', 'Documentation'],
+    social: {
+      linkedIn: 'https://www.linkedin.com/in/sukvvon',
+      twitter: 'https://x.com/sukvvon',
+      bluesky: 'https://bsky.app/profile/sukvvon.bsky.social',
+    },
+  },
+  {
     name: 'Vedanta Somnathe',
     avatar: 'https://github.com/theVedanta.png',
     github: 'theVedanta',
@@ -342,20 +355,8 @@ export const allMaintainers: Maintainer[] = [
     },
   },
   {
-    name: 'Wonsuk Choi',
-    avatar: 'https://github.com/sukvvon.png',
-    github: 'sukvvon',
-    maintainerOf: ['query'],
-    frameworkExpertise: ['react'],
-    specialties: ['TypeScript', 'Test'],
-    social: {
-      linkedIn: 'https://www.linkedin.com/in/sukvvon',
-      twitter: 'https://x.com/sukvvon',
-      bluesky: 'https://bsky.app/profile/sukvvon.bsky.social',
-    },
-  },
-  {
     name: 'Sarah Gerrard',
+    isCoreMaintainer: true,
     avatar: 'https://github.com/ladybluenotes.png',
     github: 'ladybluenotes',
     creatorOf: ['intent'],
@@ -376,7 +377,7 @@ export const allMaintainers: Maintainer[] = [
       'virtual',
     ],
     frameworkExpertise: ['react', 'solid'],
-    specialties: ['Documentation', 'Architecture'],
+    specialties: ['Documentation', 'Architecture', 'Performance'],
     social: {
       bluesky: 'https://bsky.app/profile/ladybluenotes.dev',
       twitter: 'https://x.com/ladybluenotes',

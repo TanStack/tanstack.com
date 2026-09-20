@@ -2,7 +2,7 @@ import { findLibrary, getBranch } from '~/libraries'
 import { docsContentNegotiationVaryHeader } from './http'
 
 const latestDocsCdnCacheControl =
-  'public, max-age=60, stale-while-revalidate=60'
+  'public, max-age=3600, stale-while-revalidate=86400'
 const versionedDocsCdnCacheControl =
   'public, max-age=300, stale-while-revalidate=300'
 

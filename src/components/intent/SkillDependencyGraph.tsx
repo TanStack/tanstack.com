@@ -12,7 +12,7 @@ import {
 } from 'd3'
 import { arrow, defineChart, dot, text } from '@tanstack/charts'
 import { tooltip } from '@tanstack/charts/tooltip'
-import { Chart } from '@tanstack/react-charts'
+import { Chart } from '@tanstack/charts/react'
 import { useNavigate } from '@tanstack/react-router'
 import { SKILL_TYPE_STYLES } from '~/routes/intent/registry/$packageName'
 
@@ -105,11 +105,13 @@ function createDependencyGraph(input: DependencyGraphInput) {
         dy: 18,
       }),
     ],
-    x: {
-      scale: scaleLinear().domain([0, input.width]),
-    },
-    y: {
-      scale: scaleLinear().domain([input.height, 0]),
+    scales: {
+      x: {
+        scale: scaleLinear().domain([0, input.width]),
+      },
+      y: {
+        scale: scaleLinear().domain([input.height, 0]),
+      },
     },
     color: {
       scale: scaleOrdinal<string, string>()

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 const LazyAiDock = React.lazy(() =>
-  import('./SearchModal').then((m) => ({ default: m.AiDock })),
+  import('./AiDock').then((m) => ({ default: m.AiDock })),
 )
 const LazyNavbarAuthControls = React.lazy(() =>
   import('./NavbarAuthControls').then((m) => ({
@@ -16,28 +16,28 @@ const LazyMobileNavbarAuthControls = React.lazy(() =>
 import { NavbarCartButton } from './NavbarCartButton'
 import { MegaMenuItem } from './MegaMenuItem'
 import { Link, useLocation } from '@tanstack/react-router'
-import {
-  ArrowRightIcon,
-  ArrowLeftIcon,
-  ArrowSquareOutIcon,
-  BriefcaseIcon,
-  CodeIcon,
-  GridFourIcon,
-  HammerIcon,
-  HeartIcon,
-  InfinityIcon,
-  LifebuoyIcon,
-  MailboxIcon,
-  ListIcon as Menu,
-  MagnifyingGlassIcon,
-  ShieldCheckIcon,
-  ShoppingBagIcon,
-  SignInIcon,
-  SparkleIcon as Sparkles,
-  TrendUpIcon as TrendingUp,
-  UsersIcon,
-  XIcon,
-} from '@phosphor-icons/react'
+import { ArrowLeftIcon } from '@phosphor-icons/react/ArrowLeft'
+import { ArrowRightIcon } from '@phosphor-icons/react/ArrowRight'
+import { ArrowSquareOutIcon } from '@phosphor-icons/react/ArrowSquareOut'
+import { BriefcaseIcon } from '@phosphor-icons/react/Briefcase'
+import { CodeIcon } from '@phosphor-icons/react/Code'
+import { GridFourIcon } from '@phosphor-icons/react/GridFour'
+import { HammerIcon } from '@phosphor-icons/react/Hammer'
+import { HeartIcon } from '@phosphor-icons/react/Heart'
+import { InfinityIcon } from '@phosphor-icons/react/Infinity'
+import { LifebuoyIcon } from '@phosphor-icons/react/Lifebuoy'
+import { ListIcon } from '@phosphor-icons/react/List'
+import { LinkedinLogoIcon } from '@phosphor-icons/react/LinkedinLogo'
+import { MagnifyingGlassIcon } from '@phosphor-icons/react/MagnifyingGlass'
+import { MailboxIcon } from '@phosphor-icons/react/Mailbox'
+import { ShieldCheckIcon } from '@phosphor-icons/react/ShieldCheck'
+import { ShoppingBagIcon } from '@phosphor-icons/react/ShoppingBag'
+import { SignInIcon } from '@phosphor-icons/react/SignIn'
+import { SparkleIcon } from '@phosphor-icons/react/Sparkle'
+import { TrendUpIcon } from '@phosphor-icons/react/TrendUp'
+import { UsersThreeIcon } from '@phosphor-icons/react/UsersThree'
+import { UsersIcon } from '@phosphor-icons/react/Users'
+import { XIcon } from '@phosphor-icons/react/X'
 import { ThemeToggle } from './ThemeToggle'
 import { AiDockButton, SearchButton } from './SearchButton'
 import { BrandContextMenu } from './BrandContextMenu'
@@ -66,7 +66,7 @@ import { BrandXIcon } from '~/components/icons/BrandXIcon'
 import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
 import { BlogPostCard } from '~/components/ds/ui/BlogPostCard'
 import { Button } from '~/components/ds/ui'
-import { Collapsible, CollapsibleContent } from '~/components/Collapsible'
+import { Panel, PanelContent } from '~/components/Panel'
 import { getProducts } from '~/utils/shop.functions'
 import { formatMoney, shopifyImageUrl } from '~/utils/shopify-format'
 import type { ProductListItem } from '~/utils/shopify-queries'
@@ -76,6 +76,7 @@ import {
   trackPartnerInquiry,
 } from '~/utils/partner-inquiry'
 import { fetchRecentPosts, type RecentPost } from '~/utils/blog.functions'
+import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 
 const LogoSection = () => {
   return (
@@ -176,7 +177,7 @@ const NAV_GROUPS = [
             label: 'Release Notes',
             to: '/blog',
             description: 'The latest releases and changelog.',
-            icon: Sparkles,
+            icon: SparkleIcon,
           },
         ],
       },
@@ -213,16 +214,15 @@ const NAV_GROUPS = [
             icon: CodeIcon,
           },
           {
-            label: 'Contributors',
-            to: '/maintainers',
-            description: 'Core, library, and community contributors.',
-            icon: UsersIcon,
-          },
-          {
             label: 'Showcase',
             to: '/showcase',
-            description: 'Teams building with TanStack.',
-            icon: Sparkles,
+            description: 'Projects selected by the TanStack team.',
+            icon: SparkleIcon,
+          },
+          {
+            label: 'Community projects',
+            to: '/community-projects',
+            icon: UsersThreeIcon,
           },
         ],
       },
@@ -236,9 +236,16 @@ const NAV_GROUPS = [
         label: 'Tools',
         items: [
           {
+            label: 'Application Starter',
+            to: '/application-starter',
+            description: 'Generate TanStack app starters.',
+            badge: 'Alpha',
+            icon: HammerIcon,
+          },
+          {
             label: 'Builder',
             to: '/builder',
-            description: 'Generate TanStack app starters.',
+            description: 'Build and share TanStack projects.',
             badge: 'Alpha',
             icon: HammerIcon,
           },
@@ -246,7 +253,7 @@ const NAV_GROUPS = [
             label: 'Stats',
             to: '/stats/npm',
             description: 'NPM and ecosystem usage data.',
-            icon: TrendingUp,
+            icon: TrendUpIcon,
           },
         ],
       },
@@ -483,7 +490,6 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   )
   const [dismissedDesktopMenuKey, setDismissedDesktopMenuKey] =
     React.useState<NavMenuKey | null>(null)
-  const [canLoadAuthControls, setCanLoadAuthControls] = React.useState(false)
   const [isScrolled, setIsScrolled] = React.useState(false)
 
   React.useEffect(() => {
@@ -533,10 +539,6 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     [blurActiveNavigationElement],
   )
 
-  const requestAuthControls = React.useCallback(() => {
-    setCanLoadAuthControls(true)
-  }, [])
-
   React.useEffect(() => {
     if (!mobileMenuOpen) {
       return
@@ -555,6 +557,8 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     }
   }, [mobileMenuOpen])
 
+  const userQuery = useCurrentUserQuery()
+
   const getLoginButtonFallback = (className?: string) => (
     <Link
       to="/login"
@@ -571,14 +575,23 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       <SignInIcon className="size-4" weight="bold" />
     </Link>
   )
-  const renderAuthControls = (className?: string) =>
-    canLoadAuthControls ? (
-      <React.Suspense fallback={getLoginButtonFallback(className)}>
-        <LazyNavbarAuthControls className={className} />
-      </React.Suspense>
+  const getAuthControlsFallback = (className?: string) =>
+    userQuery.data || userQuery.isLoading ? (
+      <div
+        aria-hidden="true"
+        className={twMerge(
+          'size-[26px] animate-pulse rounded-full bg-gray-200 dark:bg-gray-700',
+          className,
+        )}
+      />
     ) : (
       getLoginButtonFallback(className)
     )
+  const renderAuthControls = (className?: string) => (
+    <React.Suspense fallback={getAuthControlsFallback(className)}>
+      <LazyNavbarAuthControls className={className} />
+    </React.Suspense>
+  )
 
   const socialLinks = <SocialStack />
   const siteBackdropActive = mobileMenuOpen
@@ -666,7 +679,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           {mobileMenuOpen ? (
             <XIcon className="h-5 w-5" />
           ) : (
-            <Menu className="h-5 w-5" />
+            <ListIcon className="h-5 w-5" />
           )}
         </button>
       </div>
@@ -674,12 +687,12 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   )
 
   const mobileMenu = (
-    <Collapsible
+    <Panel
       open={mobileMenuOpen}
       onOpenChange={setMobileMenuOpen}
       className={MOBILE_NAV_CLASS}
     >
-      <CollapsibleContent
+      <PanelContent
         className={twMerge(
           'fixed left-0 right-0 top-[var(--navbar-height)] z-[90]',
           'motion-reduce:transition-none',
@@ -699,6 +712,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             <MobileNavigation
               key={mobileMenuOpen ? 'open' : 'closed'}
               activeKey={mobileMenuKey}
+              loadAuthControls={mobileMenuOpen}
               onBack={() => setMobileMenuKey(null)}
               onNavigate={() => setMobileMenuOpen(false)}
               onOpenLibraries={() => {
@@ -711,8 +725,8 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             />
           </div>
         </div>
-      </CollapsibleContent>
-    </Collapsible>
+      </PanelContent>
+    </Panel>
   )
 
   return (
@@ -769,6 +783,9 @@ function DesktopNavTrigger({
       className="ts-mega-trigger-wrap group/nav"
       data-menu-key={group.key}
       data-menu-dismissed={dismissed ? 'true' : undefined}
+      onAuxClick={(event) => {
+        if (event.button === 1) onDismiss()
+      }}
       onPointerLeave={onResetDismissed}
       onFocusCapture={onResetDismissed}
     >
@@ -842,12 +859,14 @@ function DesktopNavDropdown({
 
 function MobileNavigation({
   activeKey,
+  loadAuthControls,
   onBack,
   onNavigate,
   onOpenLibraries,
   onSelect,
 }: {
   activeKey: NavMenuKey | null
+  loadAuthControls: boolean
   onBack: () => void
   onNavigate: () => void
   onOpenLibraries: () => void
@@ -855,6 +874,7 @@ function MobileNavigation({
 }) {
   const activeGroup = NAV_GROUPS.find((group) => group.key === activeKey)
   const { openAiDock, openSearch } = useSearchContext()
+  const userQuery = useCurrentUserQuery()
 
   const openUtility = (utility: 'ai' | 'search') => {
     onNavigate()
@@ -864,6 +884,18 @@ function MobileNavigation({
       openAiDock()
     }
   }
+
+  const signIn = (
+    <Link
+      to="/login"
+      tabIndex={activeGroup ? -1 : 0}
+      onClick={onNavigate}
+      className="flex w-full items-center gap-3.5 rounded-xl px-3 py-4 text-left font-ds-display text-ds-heading-3 text-[#a3a3a3] transition-colors hover:bg-[#171717] hover:text-white focus-visible:bg-[#171717] focus-visible:text-white focus-visible:outline-none"
+    >
+      <SignInIcon className="size-8 shrink-0" />
+      Sign In
+    </Link>
+  )
 
   return (
     <nav aria-label="Mobile navigation" className="overflow-hidden">
@@ -915,7 +947,7 @@ function MobileNavigation({
               onClick={() => openUtility('ai')}
               className="flex w-full items-center gap-3.5 rounded-xl px-3 py-4 text-left font-ds-display text-ds-heading-3 text-[#a3a3a3] transition-colors hover:bg-[#171717] hover:text-white focus-visible:bg-[#171717] focus-visible:text-white focus-visible:outline-none"
             >
-              <Sparkles className="size-8 shrink-0" />
+              <SparkleIcon className="size-8 shrink-0" />
               Ask AI
             </button>
             <React.Suspense
@@ -1020,7 +1052,9 @@ function MegaMenuContent({
                 variant === 'mobile' && sectionIndex > 0 && 'pt-3',
               )}
             >
-              <div className="mb-2 px-2 font-ds-mono text-ds-mono-sm uppercase text-ds-neutral-100">
+              <div
+                className={`mb-2 px-2 font-ds-mono text-ds-mono-sm uppercase ${variant === 'mobile' ? 'text-ds-neutral-100' : 'text-ds-neutral-300 dark:text-ds-neutral-100'}`}
+              >
                 {section.label}
               </div>
               <div
@@ -1155,7 +1189,7 @@ function LibraryCategoryColumn({
       >
         {column.label}
       </div>
-      <div className="flex flex-col items-stretch gap-1">
+      <div className="flex flex-col items-start gap-1">
         {column.libraries.map((library) => (
           <LibraryMenuRow
             key={library.id}
@@ -1181,12 +1215,12 @@ function LibraryMenuRow({
   const Icon = library.icon
   const external = library.to.startsWith('http')
   const className = twMerge(
-    // Subtle hover/pressed overlay matching the other mega menus (hover white/4%,
-    // pressed white/12%, mode-adaptive via text-primary). Replaces the dead
-    // `surface-state-hover` token, which was never defined.
-    'group/lib flex items-center gap-2 rounded-[14px] py-2 pl-[9px] pr-3 text-text-secondary transition-colors hover:bg-text-primary/[0.04] hover:text-text-primary focus:bg-text-primary/[0.04] focus:text-text-primary focus:outline-none active:bg-text-primary/[0.12]',
+    // Light mode: an "elevated white" hover — a bright-white pill lifted off the
+    // glass with a soft shadow + hairline ring (contrast via depth, not value).
+    // Dark mode keeps the subtle white/4% (pressed 12%) overlay, no shadow/ring.
+    'group/lib flex items-center gap-2 rounded-[14px] py-2 pl-[9px] pr-4 text-text-secondary transition-[color,background-color,box-shadow] hover:bg-white hover:text-text-primary hover:shadow-sm hover:ring-1 hover:ring-black/5 focus:bg-white focus:text-text-primary focus:shadow-sm focus:ring-1 focus:ring-black/5 focus:outline-none active:bg-white dark:hover:bg-text-primary/[0.04] dark:hover:shadow-none dark:hover:ring-0 dark:focus:bg-text-primary/[0.04] dark:focus:shadow-none dark:focus:ring-0 dark:active:bg-text-primary/[0.12]',
     variant === 'desktop'
-      ? 'h-[38px] min-[1120px]:h-[46px] min-[1120px]:gap-2.5 min-[1120px]:rounded-[17px] min-[1120px]:pl-[11px] min-[1120px]:pr-[14px]'
+      ? 'h-[38px] min-[1120px]:h-[46px] min-[1120px]:gap-2.5 min-[1120px]:rounded-[17px] min-[1120px]:pl-[11px] min-[1120px]:pr-[18px]'
       : 'py-2.5',
   )
   const content = (
@@ -1304,7 +1338,9 @@ function BlogMenuContent({
       )}
     >
       <section>
-        <div className="mb-3 px-1 font-ds-mono text-ds-mono-xs uppercase tracking-wider text-ds-neutral-100">
+        <div
+          className={`mb-3 px-1 font-ds-mono text-ds-mono-xs uppercase tracking-wider ${variant === 'mobile' ? 'text-ds-neutral-100' : 'text-ds-neutral-300 dark:text-ds-neutral-100'}`}
+        >
           Blog &amp; Release Notes
         </div>
         <div
@@ -1342,7 +1378,9 @@ function BlogMenuContent({
 
       {aboutSection && aboutSection.items.length > 0 ? (
         <section className="border-t border-border-subtle pt-4">
-          <div className="mb-2 px-1 font-ds-mono text-ds-mono-xs uppercase tracking-wider text-ds-neutral-100">
+          <div
+            className={`mb-2 px-1 font-ds-mono text-ds-mono-xs uppercase tracking-wider ${variant === 'mobile' ? 'text-ds-neutral-100' : 'text-ds-neutral-300 dark:text-ds-neutral-100'}`}
+          >
             {aboutSection.label}
           </div>
           <div
@@ -1578,7 +1616,7 @@ function MenuRail({
         <div className="flex flex-col items-start gap-2.5">
           {/* "Work with" + the TanStack lockup read together as "Work with
               TanStack" (Figma: terracotta/200 label above the landscape mark). */}
-          <div className="font-ds-display text-base font-normal text-ds-terracotta-200">
+          <div className="font-ds-display text-base font-normal text-ds-terracotta-400 dark:text-ds-terracotta-200">
             {rail.title}
           </div>
           <img
@@ -1684,6 +1722,11 @@ const SOCIAL_LINKS = [
     label: 'Instagram',
     href: 'https://instagram.com/tan_stack',
     Icon: InstagramIcon,
+  },
+  {
+    label: 'LinkedIn',
+    href: 'https://www.linkedin.com/company/tanstack',
+    Icon: LinkedinLogoIcon,
   },
 ] as const
 

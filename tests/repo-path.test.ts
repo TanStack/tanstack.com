@@ -17,6 +17,12 @@ assert.equal(
 )
 
 assert.equal(
+  isValidRepoPath('examples/svelte/ssr/src/routes/[postId]/+page.ts'),
+  true,
+  'Svelte bracket-notation route params are valid repo path segments',
+)
+
+assert.equal(
   isValidRepoPath('../src/routes/__root.tsx'),
   false,
   'traversal is rejected',

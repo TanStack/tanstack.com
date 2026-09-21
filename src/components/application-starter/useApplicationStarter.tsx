@@ -608,7 +608,7 @@ export function useApplicationStarter({
   )
 
   React.useEffect(() => {
-    if (!hasRevealedOptions) {
+    if (!hasRevealedOptions || debouncedInput !== input) {
       return
     }
 
@@ -622,7 +622,13 @@ export function useApplicationStarter({
       applyApplicationStarter: hasUserEditedStarterRef.current,
       silentApplicationStarter: true,
     })
-  }, [buildDebouncedSubmittedInput, hasRevealedOptions, resolveSubmittedInput])
+  }, [
+    buildDebouncedSubmittedInput,
+    debouncedInput,
+    hasRevealedOptions,
+    input,
+    resolveSubmittedInput,
+  ])
 
   const selectSuggestion = React.useCallback(
     async ({

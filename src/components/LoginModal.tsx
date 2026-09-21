@@ -7,17 +7,20 @@ import {
   DialogContent,
   DialogHeader,
 } from '~/components/ds/ui'
+import type { RestoreFocusRef } from '~/components/ds/ui/Dialog'
 
 interface LoginModalProps {
   open: boolean
   description?: string
   onOpenChange: (open: boolean) => void
+  restoreFocusRef?: RestoreFocusRef
 }
 
 export function LoginModal({
   open,
   description,
   onOpenChange,
+  restoreFocusRef,
 }: LoginModalProps) {
   const openSocialPopup = (provider: 'github' | 'google') => {
     const popup = authClient.signIn.socialPopup({ provider })
@@ -29,7 +32,7 @@ export function LoginModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent size="xs">
+      <DialogContent size="xs" restoreFocusRef={restoreFocusRef}>
         <DialogHeader title="Sign in to continue" description={description} />
         <DialogBody className="pb-6">
           <div className="space-y-3">

@@ -41,10 +41,13 @@ export async function analyzeApplicationStarterServer({
       deterministicResult,
       request,
     }),
-    partnerIntent: await inferApplicationStarterPartnerIntent(
-      request.input,
-      partners.filter((partner) => partner.status === 'active'),
-    ),
+    partnerIntent:
+      request.context === 'home'
+        ? await inferApplicationStarterPartnerIntent(
+            request.input,
+            partners.filter((partner) => partner.status === 'active'),
+          )
+        : null,
   }
 }
 

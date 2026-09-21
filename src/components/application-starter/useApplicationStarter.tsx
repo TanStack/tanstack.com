@@ -134,7 +134,12 @@ export function useApplicationStarter({
     intent: ApplicationStarterPartnerIntent | null
   } | null>(null)
   React.useEffect(() => {
-    if (!debouncedInput.trim() || debouncedInput !== input) return
+    if (
+      context !== 'home' ||
+      !debouncedInput.trim() ||
+      debouncedInput !== input
+    )
+      return
     const controller = new AbortController()
     async function analyze() {
       let intent: ApplicationStarterPartnerIntent | null = null
@@ -171,11 +176,19 @@ export function useApplicationStarter({
     () =>
       selectIntentPartners({
         intent:
-          partnerAnalysis?.input === input ? partnerAnalysis.intent : null,
+          context === 'home' && partnerAnalysis?.input === input
+            ? partnerAnalysis.intent
+            : null,
         partners: partnerSuggestions,
         selections: explicitPartnerSelections,
       }),
-    [explicitPartnerSelections, input, partnerAnalysis, partnerSuggestions],
+    [
+      context,
+      explicitPartnerSelections,
+      input,
+      partnerAnalysis,
+      partnerSuggestions,
+    ],
   )
   const selectedPartners = React.useMemo(
     () =>
@@ -242,8 +255,8 @@ export function useApplicationStarter({
 
   const markInputDirty = React.useCallback(() => {
     markUserEditedStarter()
-    invalidateResult({ clearResult: false })
-  }, [invalidateResult, markUserEditedStarter])
+    invalidateResult({ clearResult: context === 'home' })
+  }, [context, invalidateResult, markUserEditedStarter])
 
   React.useEffect(() => {
     if (revealOptionsImmediately) {

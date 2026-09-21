@@ -533,3 +533,51 @@ test('Vercel and Render rotate with the gold Start hosting partners', () => {
     assert.ok(partnerPositions.size > 1)
   }
 })
+
+test('homepage intent selections reach the generated prompt, CLI, and download recipe', async () => {
+  const {
+    selectIntentPartners,
+  }: typeof import('../src/utils/application-starter-intent') = require('../src/utils/application-starter-intent')
+  const {
+    getApplicationStarterPartnerSuggestions,
+  }: typeof import('../src/utils/partners') = require('../src/utils/partners')
+  const suggestions = getApplicationStarterPartnerSuggestions()
+  const inferred = selectIntentPartners({
+    intent: {
+      eligiblePartnerIds: [
+        'clerk',
+        'workos',
+        'cloudflare',
+        'railway',
+        'prisma',
+      ],
+      preferredPartnerIds: ['railway', 'workos'],
+      excludedPartnerIds: ['cloudflare'],
+    },
+    partners: suggestions,
+    selections: { clerk: true },
+  })
+  const result = await resolveApplicationStarterDeterministically({
+    context: 'home',
+    input: composeApplicationStarterInput(
+      'Build an online store with customer accounts and inventory.',
+      ['clerk'],
+      inferred,
+    ),
+  })
+  assert.equal(result.recipe.deployment, 'railway')
+  assert.ok(result.recipe.features.includes('clerk'))
+  assert.ok(result.recipe.features.includes('prisma'))
+  assert.equal(result.recipe.features.includes('workos'), false)
+  assert.match(result.cliCommand, /railway/)
+  assert.match(result.cliCommand, /clerk/)
+  assert.match(
+    result.prompt,
+    /Build an online store with customer accounts and inventory/,
+  )
+  assert.match(result.prompt, /Railway/)
+  assert.ok(result.downloadUrl)
+  const download = new URL(result.downloadUrl, 'https://tanstack.com')
+  assert.match(download.searchParams.get('features') ?? '', /railway/)
+  assert.match(download.searchParams.get('features') ?? '', /clerk/)
+})

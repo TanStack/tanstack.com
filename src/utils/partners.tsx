@@ -1516,7 +1516,7 @@ const render = ((): Partner => {
     tier: 'gold',
     uniqueConstraints: ['hosting'],
     href,
-    canonicalHref: 'https://render.com/',
+    canonicalHref: 'https://render.com/tanstack',
     resources: [
       {
         kind: 'announcement',

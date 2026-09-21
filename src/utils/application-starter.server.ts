@@ -1,3 +1,4 @@
+import { inferApplicationStarterPartnerIntent } from './application-starter-intent.server'
 import { z } from 'zod'
 import {
   getInferredApplicationStarterLibraryIds,
@@ -7,6 +8,7 @@ import {
   type ApplicationStarterResult,
 } from '~/utils/application-starter'
 import {
+  partners,
   getApplicationStarterCompatiblePartnerIds,
   getInferredApplicationStarterPartnerIdsFromUserInput,
 } from '~/utils/partners'
@@ -34,10 +36,16 @@ export async function analyzeApplicationStarterServer({
   const deterministicResult =
     await resolveApplicationStarterDeterministically(request)
 
-  return buildDeterministicApplicationStarterAnalysis({
-    deterministicResult,
-    request,
-  })
+  return {
+    ...buildDeterministicApplicationStarterAnalysis({
+      deterministicResult,
+      request,
+    }),
+    partnerIntent: await inferApplicationStarterPartnerIntent(
+      request.input,
+      partners.filter((partner) => partner.status === 'active'),
+    ),
+  }
 }
 
 function buildDeterministicApplicationStarterAnalysis({

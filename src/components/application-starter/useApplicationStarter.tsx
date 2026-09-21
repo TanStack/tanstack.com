@@ -1,3 +1,8 @@
+import {
+  applicationStarterPartnerIntentSchema,
+  selectIntentPartners,
+  type ApplicationStarterPartnerIntent,
+} from '~/utils/application-starter-intent'
 import * as React from 'react'
 import { useDebouncedValue } from '@tanstack/react-pacer'
 import { useToast } from '~/components/ToastProvider'
@@ -112,6 +117,7 @@ export function useApplicationStarter({
     StarterToolchain | undefined
   >(undefined)
   const latestRequestIdRef = React.useRef(0)
+  const resolvedInputRef = React.useRef<string | null>(null)
   const hasUserEditedStarterRef = React.useRef(false)
   const migrationRepositoryInputRef = React.useRef<HTMLInputElement | null>(
     null,
@@ -123,13 +129,61 @@ export function useApplicationStarter({
       ),
     [explicitPartnerSelections, partnerSuggestions],
   )
+  const [partnerAnalysis, setPartnerAnalysis] = React.useState<{
+    input: string
+    intent: ApplicationStarterPartnerIntent | null
+  } | null>(null)
+  React.useEffect(() => {
+    if (!debouncedInput.trim() || debouncedInput !== input) return
+    const controller = new AbortController()
+    async function analyze() {
+      let intent: ApplicationStarterPartnerIntent | null = null
+      try {
+        const response = await fetch('/api/application-starter/resolve', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            mode: 'analyze',
+            context,
+            input: debouncedInput,
+          }),
+          signal: controller.signal,
+        })
+        if (response.ok) {
+          const body: unknown = await response.json()
+          if (body && typeof body === 'object' && 'partnerIntent' in body) {
+            const parsed = applicationStarterPartnerIntentSchema.safeParse(
+              body.partnerIntent,
+            )
+            if (parsed.success) intent = parsed.data
+          }
+        }
+      } catch {
+        // Keep the existing selections when recommendations are unavailable.
+      }
+      if (!controller.signal.aborted)
+        setPartnerAnalysis({ input: debouncedInput, intent })
+    }
+    void analyze()
+    return () => controller.abort()
+  }, [context, debouncedInput, input])
+  const inferredPartners = React.useMemo(
+    () =>
+      selectIntentPartners({
+        intent:
+          partnerAnalysis?.input === input ? partnerAnalysis.intent : null,
+        partners: partnerSuggestions,
+        selections: explicitPartnerSelections,
+      }),
+    [explicitPartnerSelections, input, partnerAnalysis, partnerSuggestions],
+  )
   const selectedPartners = React.useMemo(
     () =>
       getApplicationStarterCompatiblePartnerIds(
-        explicitlySelectedPartners,
+        [...explicitlySelectedPartners, ...inferredPartners],
         partnerSuggestions,
       ),
-    [explicitlySelectedPartners, partnerSuggestions],
+    [explicitlySelectedPartners, inferredPartners, partnerSuggestions],
   )
   const visiblePartnerSuggestions = React.useMemo(
     () =>
@@ -229,7 +283,7 @@ export function useApplicationStarter({
   const buildSubmittedInput = React.useCallback(
     (
       nextSelectedPartners: Array<string> = explicitlySelectedPartners,
-      nextInferredPartners: Array<string> = [],
+      nextInferredPartners: Array<string> = inferredPartners,
       nextSelectedLibraries: Array<LibraryId> = selectedLibraries,
     ) =>
       composeStarterInput({
@@ -244,6 +298,7 @@ export function useApplicationStarter({
       }),
     [
       explicitlySelectedPartners,
+      inferredPartners,
       forceRouterOnly,
       input,
       migrationRepositoryUrl,
@@ -256,7 +311,7 @@ export function useApplicationStarter({
   const buildDebouncedSubmittedInput = React.useCallback(
     (
       nextSelectedPartners: Array<string> = explicitlySelectedPartners,
-      nextInferredPartners: Array<string> = [],
+      nextInferredPartners: Array<string> = inferredPartners,
       nextSelectedLibraries: Array<LibraryId> = selectedLibraries,
     ) =>
       composeStarterInput({
@@ -273,6 +328,7 @@ export function useApplicationStarter({
       debouncedInput,
       debouncedMigrationRepositoryUrl,
       explicitlySelectedPartners,
+      inferredPartners,
       forceRouterOnly,
       selectedPackageManager,
       selectedLibraries,
@@ -459,6 +515,7 @@ export function useApplicationStarter({
           return null
         }
 
+        resolvedInputRef.current = trimmed
         applyResolvedResultState(nextResult)
 
         if (options?.applyApplicationStarter && applicationStarterIntegration) {
@@ -581,7 +638,11 @@ export function useApplicationStarter({
       return null
     }
 
-    if (result && !isDirtySinceLastResult) {
+    if (
+      result &&
+      !isDirtySinceLastResult &&
+      resolvedInputRef.current === submittedInput.trim()
+    ) {
       return result
     }
 
@@ -709,7 +770,9 @@ export function useApplicationStarter({
   const generatePrompt = React.useCallback(async () => {
     const submittedInput = buildSubmittedInput()
     const nextResult =
-      result && !isDirtySinceLastResult
+      result &&
+      !isDirtySinceLastResult &&
+      resolvedInputRef.current === submittedInput.trim()
         ? result
         : await resolveSubmittedInput(submittedInput)
 
@@ -800,6 +863,8 @@ export function useApplicationStarter({
     hasUserEditedStarterRef.current = false
     sessionContextRef.current = defaultApplicationStarterSessionContext
     setInput('')
+    setPartnerAnalysis(null)
+    resolvedInputRef.current = null
     setHasRevealedOptions(revealOptionsImmediately)
     setResult(null)
     setCopiedKind(null)

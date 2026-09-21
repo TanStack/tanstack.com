@@ -315,6 +315,8 @@ function RouteComponent() {
   const { _splat } = Route.useParams()
   const data = Route.useLoaderData()
 
+  if (!data) return null
+
   return data.kind === 'client' ? (
     <ClientExamplePage
       key={`client-page-${_splat}`}

@@ -1505,7 +1505,7 @@ const railway = ((): Partner => {
 
 const render = ((): Partner => {
   const href =
-    'https://render.com?utm_source=tanstack&utm_medium=referral&utm_campaign=gold-launch'
+    'https://render.com/tanstack?utm_source=tanstack&utm_medium=referral&utm_campaign=gold-launch'
 
   return {
     name: 'Render',
@@ -2220,5 +2220,5 @@ export function getPartnerHref(
     return partner.href
   }
 
-  return `https://render.com/?utm_source=tanstack&utm_medium=referral&utm_campaign=gold-launch&utm_content=${utmContent}`
+  return `https://render.com/tanstack?utm_source=tanstack&utm_medium=referral&utm_campaign=gold-launch&utm_content=${utmContent}`
 }

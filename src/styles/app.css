@@ -605,7 +605,7 @@ html.dark [data-ds-takeover-scrim='glass'] {
   --color-lib-form: var(--color-category-ui);
   --color-lib-virtual: var(--color-category-performance);
   --color-lib-pacer: var(--color-category-performance);
-  --color-lib-hotkeys: var(--color-category-ui);
+  --color-lib-hotkeys: var(--color-category-performance);
   --color-lib-store: var(--color-category-data);
   --color-lib-devtools: var(--color-category-tooling);
   --color-lib-cli: var(--color-category-tooling);

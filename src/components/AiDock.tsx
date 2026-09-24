@@ -1598,7 +1598,7 @@ function KapaChatPanel({
           </div>
         )}
       </div>
-      <div className="sticky bottom-0">
+      <div className="sticky bottom-0 z-10">
         <div className="absolute bottom-full left-0 right-0">
           <SearchResultsInChat surface={surface} />
         </div>
@@ -1750,7 +1750,7 @@ function KapaUnavailablePanel({
           compact={isDock}
         />
       </div>
-      <div className="sticky bottom-0">
+      <div className="sticky bottom-0 z-10">
         <div className="absolute bottom-full left-0 right-0">
           <SearchResultsInChat surface={surface} />
         </div>
@@ -1878,7 +1878,7 @@ function InputBar({
 
   return (
     <div className={twMerge('flex-none px-3', isDock ? 'pb-4' : 'pb-3')}>
-      <div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.06] shadow-sm overflow-visible">
+      <div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-950 shadow-sm overflow-visible">
         <div className="flex items-center gap-2 px-3 py-2.5">
           <MagnifyingGlassIcon className="w-4 h-4 opacity-30 flex-none" />
           <form className="flex-1 min-w-0" onSubmit={handleSubmit}>

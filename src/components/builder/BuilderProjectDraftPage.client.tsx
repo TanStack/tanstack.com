@@ -41,11 +41,10 @@ import {
   saveBuilderProjectDraft,
 } from '~/utils/builder-project-draft'
 import { createBuilderProject } from '~/utils/builder-project.client'
-import { isBuilderProjectId } from '~/utils/builder-project'
 import {
   getBuilderProjectDraftPromotionIds,
-  promoteBuilderProjectTranscript,
-} from '~/utils/builder-project-transcript-import.client'
+  isBuilderProjectId,
+} from '~/utils/builder-project'
 
 type LocalSaveState = 'error' | 'saved' | 'saving'
 
@@ -378,9 +377,12 @@ export function BuilderProjectDraftPage({ template }: { template?: string }) {
     setSaving(true)
     setSaveError('')
     persistDraft()
+    const projectToSave = currentProject()
 
     try {
-      const project = await createBuilderProject(currentProject(), {
+      const { promoteBuilderProjectTranscript } =
+        await import('~/utils/builder-project-transcript-import.client')
+      const project = await createBuilderProject(projectToSave, {
         clientMutationId: draftId,
         id: draftId,
         revisionId: promotionIds.revisionId,

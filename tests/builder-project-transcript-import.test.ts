@@ -1,3 +1,4 @@
+import { getBuilderProjectDraftPromotionIds } from '../src/utils/builder-project'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
@@ -10,7 +11,6 @@ import {
 import {
   createBuilderProjectForkTranscriptImportCommands,
   createBuilderProjectTranscriptImportCommands,
-  getBuilderProjectDraftPromotionIds,
   importBuilderProjectTranscriptCommands,
   prepareBuilderProjectForkTranscriptImport,
   promoteBuilderProjectTranscript,

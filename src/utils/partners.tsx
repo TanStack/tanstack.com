@@ -340,6 +340,7 @@ export type Partner =
     })
 
 export type ApplicationStarterPartnerSuggestion = {
+  category: PartnerCategory
   brandColor?: Partner['brandColor']
   description: string
   hint: string
@@ -2057,6 +2058,7 @@ function createApplicationStarterPartnerSuggestion(
   return {
     id: partner.id,
     label: partner.name,
+    category: partner.category,
     description: getApplicationStarterPartnerDescription(partner),
     hint: `${partner.name} (${partnerCategoryLabels[partner.category]})`,
     iconMode,

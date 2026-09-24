@@ -375,7 +375,7 @@ type LibraryMenuColumn = {
 
 /**
  * The Libraries mega-menu as five category columns (Framework, Data & State,
- * UI & UX, Performance, Tooling), built from the canonical `libraryCategories`
+ * UI, UX, Tooling), built from the canonical `libraryCategories`
  * taxonomy. Iterating `libraryCategories` preserves the intended per-category
  * order; only public, navigable libraries are shown.
  */

@@ -571,7 +571,7 @@ export const pacer: LibrarySlim = {
 
 export const hotkeys: LibrarySlim = {
   id: 'hotkeys',
-  ...categoryStyles.ui,
+  ...categoryStyles.performance,
   name: 'TanStack Hotkeys',
   to: '/hotkeys/latest',
   tagline:

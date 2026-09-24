@@ -11,10 +11,13 @@ const activePartners = [
 ]
 const payloadSchema = z.object({
   state: z.string(),
-  questions: z.record(z.string(), z.object({ type: z.literal('choice') })),
+  questions: z.record(
+    z.string(),
+    z.object({ type: z.enum(['choice', 'noul']) }),
+  ),
 })
 
-test('published decide adapter maps capabilities and provider preferences without ranking providers', async (t) => {
+test('published decide adapter selects likely needs at the probability threshold without ranking providers', async (t) => {
   t.mock.method(
     globalThis,
     'fetch',
@@ -23,13 +26,10 @@ test('published decide adapter maps capabilities and provider preferences withou
       const payload = payloadSchema.parse(JSON.parse(String(init.body)))
       assert.equal(
         payload.state,
-        'Build an online store using Clerk, avoid Railway',
+        'Website or web application the user wants to build:\nBuild an online store using Clerk, avoid Railway',
       )
       const choices: Record<string, string> = {
         app: 'clear',
-        capability_accounts: 'needed',
-        capability_storage: 'needed',
-        capability_hosting: 'needed',
         provider_clerk: 'requested',
         provider_railway: 'excluded',
       }
@@ -37,7 +37,16 @@ test('published decide adapter maps capabilities and provider preferences withou
         model: 'jev-latest',
         usage: { input_tokens: 1, output_tokens: 1 },
         answers: Object.fromEntries(
-          Object.keys(payload.questions).map((key) => {
+          Object.entries(payload.questions).map(([key, question]) => {
+            if (question.type === 'noul') {
+              const probabilities: Record<string, number> = {
+                capability_accounts: 0.9,
+                capability_storage: 0.6,
+                capability_hosting: 0.8,
+                capability_grid: 0.59,
+              }
+              return [key, { type: 'noul', noul: probabilities[key] ?? 0.1 }]
+            }
             const value =
               choices[key] ??
               (key.startsWith('provider_') ? 'unspecified' : 'absent')

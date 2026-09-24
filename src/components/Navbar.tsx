@@ -945,27 +945,24 @@ function MobileNavigation({
               <SparkleIcon className="size-8 shrink-0" />
               Ask AI
             </button>
-            {loadAuthControls ? (
-              <React.Suspense
-                fallback={
-                  userQuery.data || userQuery.isLoading ? (
-                    <div
-                      aria-hidden="true"
-                      className="h-16 w-full animate-pulse rounded-xl bg-[#171717]"
-                    />
-                  ) : (
-                    signIn
-                  )
-                }
-              >
-                <LazyMobileNavbarAuthControls
+            <React.Suspense
+              fallback={
+                <Link
+                  to="/login"
                   tabIndex={activeGroup ? -1 : 0}
-                  onNavigate={onNavigate}
-                />
-              </React.Suspense>
-            ) : (
-              signIn
-            )}
+                  onClick={onNavigate}
+                  className="flex w-full items-center gap-3.5 rounded-xl px-3 py-4 text-left font-ds-display text-ds-heading-3 text-[#a3a3a3] transition-colors hover:bg-[#171717] hover:text-white focus-visible:bg-[#171717] focus-visible:text-white focus-visible:outline-none"
+                >
+                  <SignInIcon className="size-8 shrink-0" />
+                  Sign In
+                </Link>
+              }
+            >
+              <LazyMobileNavbarAuthControls
+                tabIndex={activeGroup ? -1 : 0}
+                onNavigate={onNavigate}
+              />
+            </React.Suspense>
           </div>
         </div>
 

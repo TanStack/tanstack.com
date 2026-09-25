@@ -116,6 +116,7 @@ export const Route = createFileRoute(
   // /latest equivalent), so the root route must not emit its own.
   staticData: {
     ownsCanonicalLink: true,
+    docsTab: { id: 'examples', fullBleed: true },
   },
   validateSearch: v.object({
     path: v.optional(v.string()),

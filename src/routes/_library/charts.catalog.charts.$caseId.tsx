@@ -33,5 +33,6 @@ export const Route = createFileRoute('/_library/charts/catalog/charts/$caseId')(
 
 function ChartsCatalogCaseRoute() {
   const data = Route.useLoaderData()
+  if (!data) return <ChartsCatalogDetailPending />
   return <ChartsCatalogDetail catalogCase={data.case} />
 }

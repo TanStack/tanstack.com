@@ -101,7 +101,7 @@ export function RecentPostsWidget({
 
   const visiblePosts = posts ?? recentPostsQuery.data
 
-  if (!visiblePosts) {
+  if (!Array.isArray(visiblePosts)) {
     return <RecentPostsSkeleton />
   }
 

@@ -133,7 +133,7 @@ export const Route = createFileRoute(
       throw notFound()
     }
 
-    const examplePath = [framework, params._splat].join('/')
+    const examplePath = [framework, params._splat].filter(Boolean).join('/')
     const defaultStartingPath = getExampleStartingPath(
       framework,
       params.libraryId,

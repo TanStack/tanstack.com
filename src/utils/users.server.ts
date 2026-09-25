@@ -418,15 +418,17 @@ export async function addUserSignupSource({
     throw new Error('User not found')
   }
 
-  if (existingUser.signupSources.includes(data.source)) {
+  const existingSignupSources = existingUser.signupSources ?? []
+
+  if (existingSignupSources.includes(data.source)) {
     return {
       success: true,
       alreadyTagged: true,
-      signupSources: existingUser.signupSources,
+      signupSources: existingSignupSources,
     }
   }
 
-  const signupSources = [...existingUser.signupSources, data.source]
+  const signupSources = [...existingSignupSources, data.source]
 
   await db
     .update(users)

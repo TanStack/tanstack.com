@@ -6,7 +6,7 @@ import {
 const staleAppReloadKey = 'tanstack-stale-app-reload-at'
 const staleAppReloadWindowMs = 10_000
 
-const staleAppErrorPatterns = [
+export const staleAppErrorPatterns = [
   'ChunkLoadError',
   'Failed to fetch dynamically imported module',
   'Importing a module script failed',

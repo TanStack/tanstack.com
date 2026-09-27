@@ -114,7 +114,7 @@ services:
         value: 0.0.0.0
 \`\`\`
 
-Push the repository to GitHub, GitLab, or Bitbucket, then choose **New > Blueprint** in [Render](https://dashboard.render.com/select-repo?type=blueprint&utm_source=tanstack&utm_medium=referral&utm_campaign=gold-launch). Render supplies \`PORT\`, and Nitro reads it at runtime. Add secret environment values in the Render Dashboard instead of committing them to \`render.yaml\`.
+Push the repository to GitHub, GitLab, or Bitbucket, then choose **New > Blueprint** in [Render](https://render.com/tanstack?utm_source=tanstack&utm_medium=referral&utm_campaign=gold-launch). Render supplies \`PORT\`, and Nitro reads it at runtime. Add secret environment values in the Render Dashboard instead of committing them to \`render.yaml\`.
 
 See Render's [Blueprint documentation](https://render.com/docs/infrastructure-as-code) and [environment variable documentation](https://render.com/docs/configure-environment-variables) for more configuration options.`,
     isOfficialPartner: true,

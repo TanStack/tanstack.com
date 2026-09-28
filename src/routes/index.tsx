@@ -21,6 +21,7 @@ import { HomeStatsSection } from '~/components/home/HomeStatsSection'
 import { useQuery } from '@tanstack/react-query'
 import { Button, Eyebrow } from '~/components/ds/ui'
 import { Squircle } from '~/components/Squircle'
+import { Scarf } from '~/components/Scarf'
 import { useInView } from '~/hooks/useInView'
 import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
 import { homepageNpmStatsSummaryQuery, ossStatsQuery } from '~/queries/stats'
@@ -75,6 +76,7 @@ function Index() {
 
   return (
     <>
+      <Scarf id="b7a8c111-2305-4d95-a02a-d84c5bfb82ae" path="/" />
       <div className="max-w-full z-10 space-y-24">
         <div className="space-y-8">
           {/* Hero — Figma node 802:2027. Full-bleed palm/gradient photo card:

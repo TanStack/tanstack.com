@@ -80,11 +80,11 @@ function RouteComp() {
           <h2 className="text-2xl font-semibold">3. Cookies and Tracking</h2>
           <p>
             We use Scarf to measure page views and actions on the Site,
-            including external link clicks, downloads, and copy and paste. For
-            copy and paste events, we send the first 512 characters of plain
-            text along with the page path. This text may include information you
-            choose to copy or paste. We do not collect text from password fields
-            for these events.
+            including external link clicks, hover intent, downloads, and copy
+            and paste. For copy and paste events, we send the first 512
+            characters of plain text along with the page path. This text may
+            include information you choose to copy or paste. We do not collect
+            text from password fields for these events.
           </p>
           <p>
             We use namethathost.com, operated by TanStack, to understand which

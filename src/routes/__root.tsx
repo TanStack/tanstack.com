@@ -39,6 +39,7 @@ import { Spinner } from '~/components/Spinner'
 import { ThemeProvider, useHtmlClass } from '~/components/ThemeProvider'
 import { Navbar } from '~/components/Navbar'
 import { Footer } from '~/components/Footer'
+import { ProductScarf } from '~/components/ProductScarf'
 import {
   BuilderRouteFrame,
   BuilderRouteSkeleton,
@@ -49,6 +50,7 @@ import {
   trackScarfClipboardEvent,
   trackScarfDownloadClick,
   trackScarfExternalLinkClick,
+  trackScarfExternalLinkHoverIntent,
   trackScarfPageView,
 } from '~/utils/analytics/scarf'
 import { createPartnerPlacementSessionSeed } from '~/utils/partner-placement'
@@ -363,6 +365,7 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
                 <LoginModalProvider>
                   <ToastProvider>
                     <PageViewTracker />
+                    <ProductScarf />
                     <LibrariesOverlayProvider>
                       {hideNavbar ? (
                         routeContent
@@ -441,11 +444,13 @@ function PageViewTracker() {
   const lastTrackedPath = React.useRef<string | null>(null)
 
   React.useEffect(() => {
+    const stopTrackingHoverIntent = trackScarfExternalLinkHoverIntent()
     document.addEventListener('click', trackScarfExternalLinkClick, true)
     document.addEventListener('click', trackScarfDownloadClick, true)
     document.addEventListener('copy', trackScarfClipboardEvent, true)
     document.addEventListener('paste', trackScarfClipboardEvent, true)
     return () => {
+      stopTrackingHoverIntent()
       document.removeEventListener('click', trackScarfExternalLinkClick, true)
       document.removeEventListener('click', trackScarfDownloadClick, true)
       document.removeEventListener('copy', trackScarfClipboardEvent, true)

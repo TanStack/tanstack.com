@@ -36,7 +36,9 @@ export const scarfAnalyticsProvider: AnalyticsProvider = {
         action: String(properties.action),
         surface: String(properties.surface),
         automatic: String(properties.automatic),
-        ...(properties.provider ? { provider: String(properties.provider) } : {}),
+        ...(properties.provider
+          ? { provider: String(properties.provider) }
+          : {}),
       })
     } else if (event === 'partner_inquiry_started') {
       sendScarfEvent(event, {
@@ -121,6 +123,18 @@ export function trackScarfDownloadClick(event: MouseEvent) {
   sendScarfEvent('download_requested', { page: window.location.pathname })
 }
 
+function getExternalLinkDestination(link: HTMLAnchorElement) {
+  const destination = new URL(link.href, window.location.href)
+  if (
+    !['http:', 'https:'].includes(destination.protocol) ||
+    destination.origin === window.location.origin
+  ) {
+    return null
+  }
+
+  return `${destination.origin}${destination.pathname}`
+}
+
 export function trackScarfExternalLinkClick(event: MouseEvent) {
   const target = event.target
   if (!(target instanceof Element)) return
@@ -128,16 +142,86 @@ export function trackScarfExternalLinkClick(event: MouseEvent) {
   const link = target.closest('a[href]')
   if (!(link instanceof HTMLAnchorElement)) return
 
-  const destination = new URL(link.href, window.location.href)
-  if (
-    !['http:', 'https:'].includes(destination.protocol) ||
-    destination.origin === window.location.origin
-  ) {
-    return
-  }
+  const destination = getExternalLinkDestination(link)
+  if (!destination) return
 
   sendScarfEvent('external_link_click', {
     page: window.location.pathname,
-    destination: `${destination.origin}${destination.pathname}`,
+    destination,
   })
+}
+
+export function trackScarfExternalLinkHoverIntent() {
+  let hoveredLink: HTMLAnchorElement | null = null
+  let timer: ReturnType<typeof setTimeout> | undefined
+
+  const cancelHover = () => {
+    clearTimeout(timer)
+    hoveredLink = null
+  }
+
+  const onPointerOver = (event: PointerEvent) => {
+    if (event.pointerType === 'touch' || !(event.target instanceof Element)) {
+      return
+    }
+
+    const link = event.target.closest('a[href]')
+    if (!(link instanceof HTMLAnchorElement) || link === hoveredLink) return
+
+    const destination = getExternalLinkDestination(link)
+    if (!destination) return
+
+    clearTimeout(timer)
+    hoveredLink = link
+    const page = window.location.href
+    const navigationKey = window.history.state?.key
+    timer = setTimeout(() => {
+      if (
+        !link.isConnected ||
+        document.visibilityState !== 'visible' ||
+        window.location.href !== page ||
+        window.history.state?.key !== navigationKey ||
+        getExternalLinkDestination(link) !== destination
+      ) {
+        cancelHover()
+        return
+      }
+
+      sendScarfEvent('external_link_hover_intent', {
+        page: window.location.pathname,
+        destination,
+      })
+    }, 350)
+  }
+
+  const onPointerOut = (event: PointerEvent) => {
+    if (
+      hoveredLink &&
+      event.target instanceof Node &&
+      hoveredLink.contains(event.target) &&
+      !(
+        event.relatedTarget instanceof Node &&
+        hoveredLink.contains(event.relatedTarget)
+      )
+    ) {
+      cancelHover()
+    }
+  }
+
+  document.addEventListener('pointerover', onPointerOver, true)
+  document.addEventListener('pointerout', onPointerOut, true)
+  document.addEventListener('visibilitychange', cancelHover)
+  window.addEventListener('blur', cancelHover)
+  window.addEventListener('pagehide', cancelHover)
+  window.addEventListener('popstate', cancelHover)
+
+  return () => {
+    cancelHover()
+    document.removeEventListener('pointerover', onPointerOver, true)
+    document.removeEventListener('pointerout', onPointerOut, true)
+    document.removeEventListener('visibilitychange', cancelHover)
+    window.removeEventListener('blur', cancelHover)
+    window.removeEventListener('pagehide', cancelHover)
+    window.removeEventListener('popstate', cancelHover)
+  }
 }

@@ -335,6 +335,7 @@ export const table: LibrarySlim = {
 
 export const charts: LibrarySlim = {
   id: 'charts',
+  scarfId: 'aa0a3a1f-ffb1-4a50-b57f-c904dfc003d6',
   ...categoryStyles.ui,
   name: 'TanStack Charts',
   to: '/charts/latest',
@@ -547,7 +548,7 @@ export const pacer: LibrarySlim = {
   latestVersion: 'v0',
   latestBranch: 'main',
   availableVersions: ['v0'],
-  scarfId: '302d0fef-cb3f-43c6-b45c-f055b9745edb',
+  scarfId: '4f87da04-9555-4078-bea5-097562fda71a',
   defaultDocs: 'overview',
   sitemap: {
     includeLandingPage: true,
@@ -571,6 +572,7 @@ export const pacer: LibrarySlim = {
 
 export const hotkeys: LibrarySlim = {
   id: 'hotkeys',
+  scarfId: '1bd669b3-a148-4551-967f-1b9d2c971a2c',
   ...categoryStyles.performance,
   name: 'TanStack Hotkeys',
   to: '/hotkeys/latest',
@@ -604,6 +606,7 @@ export const hotkeys: LibrarySlim = {
 
 export const markdown: LibrarySlim = {
   id: 'markdown',
+  scarfId: 'bcf17c55-0fa4-4bcb-be21-823711b0b7fd',
   name: 'TanStack Markdown',
   cardStyles: 'text-fuchsia-500 dark:text-fuchsia-400 hover:border-current',
   to: '/markdown/latest',
@@ -634,6 +637,7 @@ export const markdown: LibrarySlim = {
 
 export const highlight: LibrarySlim = {
   id: 'highlight',
+  scarfId: '755a8d7a-458b-421d-aef3-dc85437ac0bd',
   name: 'TanStack Highlight',
   cardStyles: 'text-amber-500 dark:text-amber-400 hover:border-current',
   to: '/highlight/latest',
@@ -678,7 +682,7 @@ export const db: LibrarySlim = {
   latestVersion: 'v0',
   latestBranch: 'main',
   availableVersions: ['v0'],
-  scarfId: '302d0fef-cb3f-43c6-b45c-f055b9745edb',
+  scarfId: '893a4852-11b6-4138-8206-7f06a11591e4',
   defaultDocs: 'overview',
   sitemap: {
     includeLandingPage: true,
@@ -688,6 +692,7 @@ export const db: LibrarySlim = {
 
 export const ai: LibrarySlim = {
   id: 'ai',
+  scarfId: 'c627cc8f-28a1-4b5d-bd13-9142a7fb4172',
   ...categoryStyles.data,
   name: 'TanStack AI',
   to: '/ai/latest',
@@ -741,6 +746,7 @@ export const ai: LibrarySlim = {
 
 export const intent: LibrarySlim = {
   id: 'intent',
+  scarfId: '9a861dfa-93fb-4472-b462-2cdadbe3a717',
   ...categoryStyles.tooling,
   name: 'TanStack Intent',
   to: '/intent/latest',
@@ -764,6 +770,7 @@ export const intent: LibrarySlim = {
 
 export const config: LibrarySlim = {
   id: 'config',
+  scarfId: '6e4c7302-6e7d-45ec-b963-9ac66c70c6b2',
   ...categoryStyles.tooling,
   name: 'TanStack Config',
   to: '/config/latest',
@@ -787,6 +794,7 @@ export const config: LibrarySlim = {
 
 export const devtools: LibrarySlim = {
   id: 'devtools',
+  scarfId: '9383bf22-a41e-477f-8dc2-fca9d2a201b7',
   ...categoryStyles.tooling,
   name: 'TanStack Devtools',
   to: '/devtools/latest',
@@ -851,6 +859,7 @@ export const mcp: LibrarySlim = {
 
 export const cli: LibrarySlim = {
   id: 'cli',
+  scarfId: 'a1a4961c-5b37-43eb-a6fc-7e4825fbe83b',
   ...categoryStyles.tooling,
   name: 'TanStack CLI',
   to: '/cli/latest',

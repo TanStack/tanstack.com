@@ -1,9 +1,9 @@
 import * as React from 'react'
 import {
-  CaretDownIcon,
-  CheckIcon,
-  CopyIcon,
-  DownloadSimpleIcon,
+  CaretDownIcon as CaretDown,
+  CheckIcon as Check,
+  CopyIcon as Copy,
+  DownloadSimpleIcon as DownloadSimple,
 } from '@phosphor-icons/react'
 import { DsSection } from '~/components/ds/DsKit'
 import { useToast } from '~/components/ToastProvider'
@@ -100,13 +100,9 @@ function CopyAssetButton({
       }
 
       copied.trigger()
-      notify(<div className="font-medium">Copied {label}</div>, {
-        id: 'brand-asset-copied',
-      })
+      notify(<div className="font-medium">Copied {label}</div>)
     } catch {
-      notify(<div className="font-medium">Could not copy {label}</div>, {
-        id: 'brand-asset-copy-failed',
-      })
+      notify(<div className="font-medium">Could not copy {label}</div>)
     }
   }
 
@@ -121,9 +117,9 @@ function CopyAssetButton({
       onClick={copyAsset}
     >
       {copied.active ? (
-        <CheckIcon size={18} aria-hidden="true" />
+        <Check size={18} aria-hidden="true" />
       ) : (
-        <CopyIcon size={18} aria-hidden="true" />
+        <Copy size={18} aria-hidden="true" />
       )}
     </Button>
   )
@@ -237,7 +233,7 @@ function BrandLogoPicker() {
           <DropdownTrigger>
             <button type="button" className={socialControlClass}>
               <span>{logo.label}</span>
-              <CaretDownIcon size={13} className="text-text-muted" />
+              <CaretDown size={13} className="text-text-muted" />
             </button>
           </DropdownTrigger>
           <DropdownContent align="start" className="min-w-44">
@@ -248,7 +244,7 @@ function BrandLogoPicker() {
               >
                 <span className="flex-1">{option.label}</span>
                 {option.value === logo.value ? (
-                  <CheckIcon size={14} className="text-text-accent" />
+                  <Check size={14} className="text-text-accent" />
                 ) : null}
               </DropdownItem>
             ))}
@@ -264,7 +260,7 @@ function BrandLogoPicker() {
                 style={{ background: color.swatch }}
               />
               <span>{color.label}</span>
-              <CaretDownIcon size={13} className="text-text-muted" />
+              <CaretDown size={13} className="text-text-muted" />
             </button>
           </DropdownTrigger>
           <DropdownContent align="start" className="min-w-44">
@@ -280,7 +276,7 @@ function BrandLogoPicker() {
                 />
                 <span className="flex-1">{option.label}</span>
                 {option.value === color.value ? (
-                  <CheckIcon size={14} className="text-text-accent" />
+                  <Check size={14} className="text-text-accent" />
                 ) : null}
               </DropdownItem>
             ))}
@@ -291,7 +287,7 @@ function BrandLogoPicker() {
           <DropdownTrigger>
             <button type="button" className={socialControlClass}>
               <span>{format.label}</span>
-              <CaretDownIcon size={13} className="text-text-muted" />
+              <CaretDown size={13} className="text-text-muted" />
             </button>
           </DropdownTrigger>
           <DropdownContent align="start" className="min-w-36">
@@ -302,7 +298,7 @@ function BrandLogoPicker() {
               >
                 <span className="flex-1">{option.label}</span>
                 {option.value === format.value ? (
-                  <CheckIcon size={14} className="text-text-accent" />
+                  <Check size={14} className="text-text-accent" />
                 ) : null}
               </DropdownItem>
             ))}
@@ -326,7 +322,7 @@ function BrandLogoPicker() {
             aria-label={`Download ${logo.label} ${color.label} as ${format.label}`}
             title={`Download ${format.label}`}
           >
-            <DownloadSimpleIcon size={18} aria-hidden="true" />
+            <DownloadSimple size={18} aria-hidden="true" />
           </Button>
         </div>
       </div>
@@ -419,7 +415,7 @@ function SocialLogoPicker() {
           <DropdownTrigger>
             <button type="button" className={socialControlClass}>
               <span>{orientation.label}</span>
-              <CaretDownIcon size={13} className="text-text-muted" />
+              <CaretDown size={13} className="text-text-muted" />
             </button>
           </DropdownTrigger>
           <DropdownContent align="start" className="min-w-44">
@@ -430,7 +426,7 @@ function SocialLogoPicker() {
               >
                 <span className="flex-1">{option.label}</span>
                 {option.value === orientation.value ? (
-                  <CheckIcon size={14} className="text-text-accent" />
+                  <Check size={14} className="text-text-accent" />
                 ) : null}
               </DropdownItem>
             ))}
@@ -446,7 +442,7 @@ function SocialLogoPicker() {
                 style={{ background: color.swatch }}
               />
               <span>{color.label}</span>
-              <CaretDownIcon size={13} className="text-text-muted" />
+              <CaretDown size={13} className="text-text-muted" />
             </button>
           </DropdownTrigger>
           <DropdownContent align="start" className="min-w-44">
@@ -462,7 +458,7 @@ function SocialLogoPicker() {
                 />
                 <span className="flex-1">{option.label}</span>
                 {option.value === color.value ? (
-                  <CheckIcon size={14} className="text-text-accent" />
+                  <Check size={14} className="text-text-accent" />
                 ) : null}
               </DropdownItem>
             ))}
@@ -473,7 +469,7 @@ function SocialLogoPicker() {
           <DropdownTrigger>
             <button type="button" className={socialControlClass}>
               <span>{format.label}</span>
-              <CaretDownIcon size={13} className="text-text-muted" />
+              <CaretDown size={13} className="text-text-muted" />
             </button>
           </DropdownTrigger>
           <DropdownContent align="start" className="min-w-36">
@@ -484,7 +480,7 @@ function SocialLogoPicker() {
               >
                 <span className="flex-1">{option.label}</span>
                 {option.value === format.value ? (
-                  <CheckIcon size={14} className="text-text-accent" />
+                  <Check size={14} className="text-text-accent" />
                 ) : null}
               </DropdownItem>
             ))}
@@ -508,7 +504,7 @@ function SocialLogoPicker() {
             aria-label={`Download ${orientation.label} ${color.label} as ${format.label}`}
             title={`Download ${format.label}`}
           >
-            <DownloadSimpleIcon size={18} aria-hidden="true" />
+            <DownloadSimple size={18} aria-hidden="true" />
           </Button>
         </div>
       </div>
@@ -584,7 +580,7 @@ function AssetCard({ asset }: { asset: GalleryAsset }) {
                 title={`Download ${download.format}`}
                 className="text-white hover:bg-transparent hover:text-white/70 max-[899px]:bg-transparent"
               >
-                <DownloadSimpleIcon size={14} aria-hidden="true" />
+                <DownloadSimple size={14} aria-hidden="true" />
               </Button>
             </React.Fragment>
           ))}

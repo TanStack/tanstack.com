@@ -32,7 +32,7 @@ export function ButtonGroup({
         '[&>*]:border-0! [&>*+*]:border-l! [&>*+*]:border-border-default!',
         'bg-background-surface text-text-primary',
         'shadow-sm',
-        '[&>[aria-pressed=true]]:bg-text-primary [&>[aria-pressed=true]]:text-background-default [&>[aria-pressed=true]]:shadow-sm',
+        '[&>[aria-pressed=true]]:border-transparent [&>[aria-pressed=true]]:bg-text-primary [&>[aria-pressed=true]]:text-background-default [&>[aria-pressed=true]]:shadow-sm',
         className,
       )}
     >

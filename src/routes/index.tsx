@@ -82,9 +82,7 @@ function Index() {
               always light, so text uses a mode-stable dark token (neutral-500)
               rather than a theme-flipping semantic. */}
           <div className="mx-0 rounded-none bg-background-subtle p-0 sm:mx-2 sm:rounded-2xl sm:p-1">
-            {/* `svh`, not `dvh` — the dynamic viewport grows as iOS collapses
-                the URL bar mid-scroll, visibly stretching the hero. */}
-            <div className="group relative isolate flex h-[calc(100svh-var(--navbar-height))] max-h-[720px] min-h-[560px] flex-col justify-between gap-8 overflow-hidden rounded-none px-6 py-10 [text-shadow:0_2px_8px_rgb(255_255_255/0.2)] sm:rounded-xl sm:px-10 md:flex-row md:items-end md:justify-between md:gap-8 md:[text-shadow:none] xl:gap-12 xl:px-16 xl:py-16">
+            <div className="group relative isolate flex h-[calc(100dvh-var(--navbar-height))] max-h-[720px] min-h-[560px] flex-col justify-between gap-8 overflow-hidden rounded-none px-6 py-10 [text-shadow:0_2px_8px_rgb(255_255_255/0.2)] sm:rounded-xl sm:px-10 md:flex-row md:items-end md:justify-between md:gap-8 md:[text-shadow:none] xl:gap-12 xl:px-16 xl:py-16">
               {/* The parent supplies the 4px frame shared by the hero and stats.
                   This wrapper clips the image to the inner radius so the <img>
                   fills it exactly instead of overflowing. Plain <img> (not OptimizedImage):
@@ -100,7 +98,7 @@ function Index() {
                 <br className="hidden md:block" /> for the web
               </h1>
               <div className="flex flex-col items-start gap-6 md:w-[29%] md:max-w-[454px]">
-                <p className="hidden text-ds-body-md text-ds-neutral-500 md:block md:text-ds-body-lg xl:text-ds-body-xl">
+                <p className="text-ds-body-md text-ds-neutral-500 md:text-ds-body-lg xl:text-ds-body-xl">
                   Headless, type-safe, composable tools for building modern web
                   applications that work naturally for developers and reliably
                   for agents
@@ -117,12 +115,16 @@ function Index() {
                   >
                     Browse the Stack
                   </Button>
+                  {/* Link-style button; color pinned to black because the photo
+                      is always light. The responsive override supersedes the
+                      link variant's mobile emphasis color. */}
                   <Button
                     as="a"
                     href="#start-with-a-prompt"
                     onClick={startWithPrompt}
                     variant="link"
                     size="md"
+                    className="text-black hover:text-black max-[899px]:text-black"
                   >
                     Start with a prompt <ArrowRightIcon className="h-4 w-4" />
                   </Button>

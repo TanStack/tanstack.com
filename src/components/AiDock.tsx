@@ -1580,9 +1580,7 @@ function KapaChatPanel({
                 qa={qa}
                 isStreaming={isStreamingLatest}
                 error={answerError}
-                onCopyQuestion={() =>
-                  copyTextToClipboard(qa.question)
-                }
+                onCopyQuestion={() => copyTextToClipboard(qa.question)}
                 onFeedback={(reaction) => {
                   if (qa.id !== null) {
                     addFeedback(qa.id, reaction)

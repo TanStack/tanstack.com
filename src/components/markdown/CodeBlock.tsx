@@ -48,6 +48,7 @@ function HighlightedCodeBlock({
       htmlMarkup={rendered.htmlMarkup}
       isEmbedded={props.isEmbedded}
       lang={rendered.lang}
+      onCopySuccess={props.onCopySuccess}
       showTypeCopyButton={props.showTypeCopyButton}
       style={props.style}
       title={rendered.title}

@@ -45,6 +45,12 @@ import {
 } from '~/components/builder/BuilderLoading'
 import { THEME_COLORS } from '~/utils/utils'
 import { trackPageView } from '~/utils/analytics'
+import {
+  trackScarfClipboardEvent,
+  trackScarfDownloadClick,
+  trackScarfExternalLinkClick,
+  trackScarfPageView,
+} from '~/utils/analytics/scarf'
 import { createPartnerPlacementSessionSeed } from '~/utils/partner-placement'
 import { twMerge } from 'tailwind-merge'
 
@@ -435,6 +441,19 @@ function PageViewTracker() {
   const lastTrackedPath = React.useRef<string | null>(null)
 
   React.useEffect(() => {
+    document.addEventListener('click', trackScarfExternalLinkClick, true)
+    document.addEventListener('click', trackScarfDownloadClick, true)
+    document.addEventListener('copy', trackScarfClipboardEvent, true)
+    document.addEventListener('paste', trackScarfClipboardEvent, true)
+    return () => {
+      document.removeEventListener('click', trackScarfExternalLinkClick, true)
+      document.removeEventListener('click', trackScarfDownloadClick, true)
+      document.removeEventListener('copy', trackScarfClipboardEvent, true)
+      document.removeEventListener('paste', trackScarfClipboardEvent, true)
+    }
+  }, [])
+
+  React.useEffect(() => {
     // Skip until the router has resolved a location, and never send the same
     // path twice in a row (guards against the location resolving twice).
     if (pagePath === null || lastTrackedPath.current === pagePath) {
@@ -443,6 +462,7 @@ function PageViewTracker() {
 
     lastTrackedPath.current = pagePath
     trackPageView(pagePath)
+    trackScarfPageView(window.location.pathname)
   }, [pagePath])
 
   return null

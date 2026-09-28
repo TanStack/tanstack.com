@@ -17,7 +17,7 @@ function RouteComp() {
       <div className="flex-1 space-y-12 w-full max-w-3xl mx-auto">
         <header className="">
           <h1 className="text-4xl font-bold">Privacy Policy</h1>
-          <p className="">Effective Date: September 10, 2026</p>
+          <p className="">Effective Date: September 28, 2026</p>
         </header>
 
         <section className="">
@@ -78,6 +78,14 @@ function RouteComp() {
 
         <section>
           <h2 className="text-2xl font-semibold">3. Cookies and Tracking</h2>
+          <p>
+            We use Scarf to measure page views and actions on the Site,
+            including external link clicks, downloads, and copy and paste. For
+            copy and paste events, we send the first 512 characters of plain
+            text along with the page path. This text may include information you
+            choose to copy or paste. We do not collect text from password fields
+            for these events.
+          </p>
           <p>
             We use namethathost.com, operated by TanStack, to understand which
             companies visit our public pages and which libraries interest them.

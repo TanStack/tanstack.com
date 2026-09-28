@@ -42,6 +42,7 @@ import { publicLibraries } from '~/libraries'
 import { frameworkOptions } from '~/libraries/frameworks'
 import { capitalize } from '~/utils/utils'
 import { CodeBlock } from '~/components/markdown/CodeBlock'
+import { copyTextToClipboard } from '~/utils/browser-effects'
 import { InlineCode } from '~/ui/InlineCode'
 import { env } from '~/utils/env'
 import { isSafeHref } from '~/utils/url-boundary'
@@ -755,7 +756,7 @@ function CopyChatButton({
       return
     }
 
-    navigator.clipboard.writeText(text).then(() => {
+    copyTextToClipboard(text).then(() => {
       if (resetCopiedTimerRef.current) {
         window.clearTimeout(resetCopiedTimerRef.current)
       }
@@ -1227,7 +1228,7 @@ function KapaAnswer({
             <MessageActionButton
               icon="copy"
               title="Copy"
-              onClick={() => navigator.clipboard.writeText(qa.answer)}
+              onClick={() => copyTextToClipboard(qa.answer)}
             />
           </div>
         )}
@@ -1580,7 +1581,7 @@ function KapaChatPanel({
                 isStreaming={isStreamingLatest}
                 error={answerError}
                 onCopyQuestion={() =>
-                  navigator.clipboard.writeText(qa.question)
+                  copyTextToClipboard(qa.question)
                 }
                 onFeedback={(reaction) => {
                   if (qa.id !== null) {

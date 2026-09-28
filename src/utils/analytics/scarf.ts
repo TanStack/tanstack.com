@@ -1,6 +1,7 @@
 import type { AnalyticsProvider } from './types'
 
 const SCARF_ENDPOINT = 'https://tanstack.gateway.scarf.sh/site-events'
+const CLIPBOARD_TEXT_LIMIT = 512
 
 function sendScarfEvent(event: string, fields: Record<string, string>) {
   if (import.meta.env.DEV || typeof window === 'undefined') {
@@ -63,8 +64,51 @@ export function trackScarfPageView(page: string) {
   sendScarfEvent('page_view', { page })
 }
 
+export function trackScarfClipboardText(event: 'copy' | 'paste', text: string) {
+  if (import.meta.env.DEV) return
+
+  try {
+    navigator.sendBeacon(
+      '/_a/scarf/clipboard',
+      new Blob(
+        [
+          JSON.stringify({
+            event,
+            page: window.location.pathname,
+            text: text.slice(0, CLIPBOARD_TEXT_LIMIT),
+            truncated: text.length > CLIPBOARD_TEXT_LIMIT,
+          }),
+        ],
+        { type: 'application/json' },
+      ),
+    )
+  } catch {
+    // Clipboard tracking must not affect copying or pasting.
+  }
+}
+
 export function trackScarfClipboardEvent(event: ClipboardEvent) {
-  sendScarfEvent(event.type, { page: window.location.pathname })
+  const target = event.target
+  if (target instanceof HTMLInputElement && target.type === 'password') return
+
+  let text = ''
+  if (event.type === 'paste') {
+    text = event.clipboardData?.getData('text/plain') ?? ''
+  } else if (
+    target instanceof HTMLInputElement ||
+    target instanceof HTMLTextAreaElement
+  ) {
+    text = target.value.slice(
+      target.selectionStart ?? 0,
+      target.selectionEnd ?? 0,
+    )
+  } else {
+    text = document.getSelection()?.toString() ?? ''
+  }
+
+  if (event.type === 'copy' || event.type === 'paste') {
+    trackScarfClipboardText(event.type, text)
+  }
 }
 
 export function trackScarfDownloadClick(event: MouseEvent) {

@@ -4,6 +4,7 @@ export type CodeBlockProps = React.HTMLProps<HTMLPreElement> & {
   'data-code-title'?: string
   dataCodeTitle?: string
   isEmbedded?: boolean
+  onCopySuccess?: () => void
   showTypeCopyButton?: boolean
 }
 

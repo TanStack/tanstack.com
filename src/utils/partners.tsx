@@ -45,6 +45,7 @@ import renderBlackSvg from '~/images/render-black.svg'
 import renderWhiteSvg from '~/images/render-white.svg'
 import openrouterBlackSvg from '~/images/openrouter-black.svg'
 import openrouterWhiteSvg from '~/images/openrouter-white.svg'
+import scarfSvg from '~/images/scarf.svg'
 import {
   getPartnerPlacementContext,
   getPartnersForPlacement,
@@ -282,6 +283,7 @@ export const partnerCategories = [
   'auth',
   'database',
   'monitoring',
+  'analytics',
   'cms',
   'api',
   'ai',
@@ -297,6 +299,7 @@ export const partnerCategoryLabels: Record<PartnerCategory, string> = {
   auth: 'Authentication',
   database: 'Databases',
   monitoring: 'Error Monitoring',
+  analytics: 'Analytics',
   cms: 'CMS',
   api: 'API Infrastructure',
   ai: 'AI/LLM',
@@ -1141,8 +1144,10 @@ const electric = ((): Partner => {
     name: 'Electric',
     id: 'electric',
     relatedProducts: ['db'] as const,
-    status: 'active' as const,
-    lastReviewedAt: currentPartnerReviewDate,
+    status: 'inactive',
+    startDate: null,
+    endDate: 'Aug 30, 2026',
+    lastReviewedAt: '2026-09-30',
     tier: 'bronze' as const,
     href,
     canonicalHref: 'https://electric.ax/',
@@ -1628,6 +1633,46 @@ const openRouter = ((): Partner => {
   }
 })()
 
+const scarf = ((): Partner => {
+  return {
+    name: 'Scarf',
+    id: 'scarf',
+    href: 'https://about.scarf.sh/?utm_source=tanstack',
+    canonicalHref: 'https://about.scarf.sh/',
+    resources: [
+      {
+        kind: 'documentation',
+        label: 'Scarf documentation',
+        href: 'https://docs.scarf.sh/',
+      },
+    ],
+    status: 'active',
+    lastReviewedAt: '2026-09-30',
+    relatedProducts: [],
+    tier: 'bronze',
+    brandColor: '#0572F1',
+    tagline: 'Open Source Analytics',
+    image: { src: scarfSvg },
+    llmDescription:
+      'Open source usage analytics that connect package downloads, documentation visits, and product telemetry with company adoption.',
+    category: 'analytics',
+    applicationStarterPromptInstructions: [
+      'Use Scarf for open source adoption analytics only when it fits the requested project.',
+      'Follow the official Scarf documentation for the chosen collection method. Keep account setup and project-specific package or pixel IDs explicit, and never reuse TanStack website tracking IDs.',
+    ],
+    content: (
+      <>
+        <div className="text-xs">
+          Scarf helps open source teams understand{' '}
+          <strong>company adoption</strong> through package downloads,
+          documentation visits, and product telemetry.
+        </div>
+        <LearnMoreButton />
+      </>
+    ),
+  }
+})()
+
 export const partners = [
   codeRabbit,
   cloudflare,
@@ -1652,6 +1697,7 @@ export const partners = [
   fireship,
   nozzle,
   speakeasy,
+  scarf,
 ] satisfies Array<Partner>
 
 const applicationStarterBrandColorOverrides = new Map<string, string>([

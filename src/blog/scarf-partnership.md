@@ -1,17 +1,17 @@
 ---
 title: TanStack + Scarf Partnership
 published: 2026-09-30
-excerpt: Scarf joins TanStack to support the open-source tools developers use to build web apps.
+excerpt: Scarf joins TanStack as a Bronze partner, supporting the people and work behind our open-source tools.
 authors:
   - Tanner Linsley
 ---
 
 ![TanStack + Scarf](/blog-assets/scarf-partnership/header.png)
 
-It's surprisingly hard to tell where an open-source project is being used. Package downloads, docs visits, and GitHub activity each show part of the picture, but none tells the whole story on its own.
+We're welcoming [Scarf](https://about.scarf.sh/) as a Bronze TanStack partner. Their support helps fund the ongoing work behind the open-source tools so many developers rely on.
 
-That's why I'm glad to welcome [Scarf](https://about.scarf.sh/) as a Bronze TanStack partner. Scarf helps open-source teams see signals from package distribution and documentation, including activity it can associate with organizations. Their support also helps fund the ongoing work behind TanStack.
+Scarf helps open-source teams understand adoption with privacy-conscious analytics, giving maintainers useful context for deciding where to focus their work.
 
-For maintainers, that context can help answer practical questions. Which docs are people finding? How are downloads changing over time? Where should we spend our limited time helping developers? A download or page view doesn't tell you whether someone runs an app in production, but it's a better starting point than a download count alone.
+Open source needs more companies willing to support the maintainers doing the work. Thanks to the Scarf team for backing TanStack and helping make that work sustainable.
 
-Thanks to the Scarf team for supporting TanStack and the people building with it. You can [learn more about Scarf and our partnership](/partners/scarf).
+You can [learn more about Scarf and our partnership](/partners/scarf).

@@ -115,8 +115,8 @@ importers:
         specifier: 0.16.1
         version: 0.16.1(lit@3.3.2)(octane@0.1.13(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(vite@8.0.16(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0)))(preact@10.29.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(solid-js@1.9.12)
       '@tanstack/create':
-        specifier: ^0.70.0
-        version: 0.70.0
+        specifier: ^0.70.1
+        version: 0.70.1
       '@tanstack/highlight':
         specifier: ^0.0.9
         version: 0.0.9
@@ -3454,8 +3454,8 @@ packages:
       vue:
         optional: true
 
-  '@tanstack/create@0.70.0':
-    resolution: {integrity: sha512-mkWcVbimcXJuo4eyqJiIcLO4LSLvcYS4EStTe259KDPLz0pqHVWVbnEbLFJy6MrxG0kBthWB956z7l0oZTshhw==}
+  '@tanstack/create@0.70.1':
+    resolution: {integrity: sha512-S1W4EWt3spjBbo1UEuhusNRWU92xXxOZn7mLUxG+wwTyNTyuKshSGj5oiAkHj0UucFjkyrM73bua2cQOYBhP/g==}
     engines: {node: '>=20'}
 
   '@tanstack/db-ivm@0.1.19':
@@ -9753,7 +9753,7 @@ snapshots:
       react-dom: 19.2.3(react@19.2.3)
       solid-js: 1.9.12
 
-  '@tanstack/create@0.70.0':
+  '@tanstack/create@0.70.1':
     dependencies:
       ejs: 3.1.10
       execa: 9.6.1

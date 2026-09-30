@@ -31,7 +31,7 @@ export const builderImports = {
   '@tanstack/react-query':
     'https://esm.sh/@tanstack/react-query@5.100.11?external=react',
   '@tanstack/react-router':
-    'https://esm.sh/@tanstack/react-router@1.170.16?external=react,react-dom',
+    'https://esm.sh/@tanstack/react-router@1.170.41?external=react,react-dom',
   '@tanstack/react-table':
     'https://esm.sh/@tanstack/react-table@9.0.0?external=react,react-dom',
   'd3-array': 'https://esm.sh/d3-array@3.2.4',

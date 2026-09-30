@@ -52,7 +52,7 @@ You don't have to turn every short example into a complete application. Partial 
 
 These checks require TypeScript 5.0 or newer. If TypeScript is unavailable or Intent cannot find the owning library's entry point, it reports that type checking was skipped.
 
-Passing validation doesn't prove runtime behavior or that an example teaches the best approach. It gives maintainers a way to catch API mistakes before those examples become instructions for someone else's agent.
+Passing validation doesn't guarantee correct runtime behaviour or that an example teaches the best approach. It gives maintainers a way to catch API mistakes before those examples become instructions for someone else's agent.
 
 ## See what changed. Record what you decided.
 

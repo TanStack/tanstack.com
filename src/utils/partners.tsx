@@ -1641,6 +1641,11 @@ const scarf = ((): Partner => {
     canonicalHref: 'https://about.scarf.sh/',
     resources: [
       {
+        kind: 'announcement',
+        label: 'TanStack + Scarf partnership',
+        href: '/blog/scarf-partnership',
+      },
+      {
         kind: 'documentation',
         label: 'Scarf documentation',
         href: 'https://docs.scarf.sh/',

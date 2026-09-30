@@ -32,7 +32,7 @@ With that being said, it all starts with setting up the maintainer workflow in y
 npx @tanstack/intent@0.5.0 maintainer setup
 ```
 
-When you run the setup command, it prepares your repository for maintaining skills by registering existing skills, adding the maintainer skills, and setting up the CI workflow. If you happen to have existing skills, they will be registered without modifying their contents and from there, your coding agent can help author skills, while Intent tracks their relationship to the package and its source.
+When you run the setup command, it prepares your repository for maintaining skills by registering existing skills, adding the maintainer skills, and setting up the CI workflow. If you happen to have existing skills, they will be registered without modifying their contents. From there, your coding agent can help author skills, while Intent tracks their relationship to the package and its source.
 
 For me, this is where tooling becomes useful: when it takes some of the work out of remembering what needs attention.
 

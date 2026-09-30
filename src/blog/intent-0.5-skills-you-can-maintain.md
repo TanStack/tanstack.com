@@ -20,7 +20,7 @@ Intent v0.5 adds checks for skill examples and a review workflow for source chan
 
 If you're new to Intent, the idea is straightforward: library maintainers can ship agent skills inside their npm packages. When the package is installed, the skills come along with it, keeping the guidance packaged with the version of the library it describes. Those skills explain how to use the library, which patterns to follow, and what to avoid. It keeps the guidance close to the code it documents, ensuring it remains relevant and up-to-date, and reducing the chances of your agents following outdated or incorrect instructions.
 
-Rather than being scattered, forgotten, or needing to scrape together a set of instructions on your own from various sources, these skills are packaged and maintained alongside the code with the sign-off from the maintainers, themselves.
+Rather than being scattered, forgotten, or needing to scrape together a set of instructions on your own from various sources, these skills are packaged and maintained alongside the code with the sign-off from the maintainers themselves.
 
 This helps to solve the delivery problem. It doesn't, by itself, solve the maintenance problem.
 

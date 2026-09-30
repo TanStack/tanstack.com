@@ -76,7 +76,7 @@ The aim is to spend less time on mechanical corrections without hiding the decis
 
 ## Less waiting, too
 
-This release also cuts CLI startup and discovery work. Runtime libraries are now bundled, so Intent installs as one package with no separate runtime dependencies.
+This release also reduces CLI startup and discovery work. Runtime libraries are now bundled, so Intent installs as one package with no separate runtime dependencies.
 
 Agent hooks use the locally installed CLI when one is available instead of resolving a package through the registry at every session start. If you already use hooks, reinstall them with `intent hooks install` to get the updated runner.
 

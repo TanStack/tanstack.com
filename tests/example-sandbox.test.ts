@@ -29,6 +29,87 @@ test('keeps fragment links inside the sandbox document', () => {
   assert.match(document, /const channel = "test-browser"/)
 })
 
+test('devtools can read and write storage inside an opaque sandbox', () => {
+  const document = createExampleSandboxDocument({
+    compiled: { css: '', imports: {}, javascript: '' },
+    document: undefined,
+    entry: '/index.ts',
+    files: { '/index.ts': '' },
+    runToken: 'storage-test',
+    theme: 'light',
+  })
+  const bridge = document.match(/<script>([\s\S]*?)<\/script>/)?.[1]
+  assert.ok(bridge)
+
+  const context = vm.createContext({
+    document: {
+      documentElement: { classList: { toggle() {} }, style: {} },
+    },
+    parent: { postMessage() {} },
+  })
+  vm.runInContext(
+    `
+    globalThis.window = globalThis
+    globalThis.addEventListener = () => {}
+    for (const name of ['localStorage', 'sessionStorage']) {
+      Object.defineProperty(window, name, {
+        configurable: true,
+        get() { throw new Error('The document is sandboxed and lacks allow-same-origin') },
+      })
+    }
+  `,
+    context,
+  )
+  vm.runInContext(bridge, context)
+  assert.equal(
+    vm.runInContext(
+      'localStorage.getItem("tanstack_devtools_settings")',
+      context,
+    ),
+    null,
+  )
+  vm.runInContext(
+    'localStorage.setItem("tanstack_devtools_settings", JSON.stringify({ theme: "dark" }))',
+    context,
+  )
+  assert.equal(
+    vm.runInContext(
+      'JSON.parse(localStorage.getItem("tanstack_devtools_settings")).theme',
+      context,
+    ),
+    'dark',
+  )
+  assert.equal(
+    vm.runInContext(
+      'sessionStorage.getItem("tanstack_devtools_settings")',
+      context,
+    ),
+    null,
+  )
+  assert.equal(vm.runInContext('localStorage.length', context), 1)
+  assert.equal(
+    vm.runInContext('localStorage.key(0)', context),
+    'tanstack_devtools_settings',
+  )
+  assert.equal(vm.runInContext('localStorage.key(1)', context), null)
+  vm.runInContext(
+    'localStorage.removeItem("tanstack_devtools_settings")',
+    context,
+  )
+  assert.equal(vm.runInContext('localStorage.length', context), 0)
+  vm.runInContext('sessionStorage.setItem(123, 456)', context)
+  assert.equal(vm.runInContext('sessionStorage.getItem("123")', context), '456')
+  vm.runInContext('sessionStorage.clear()', context)
+  assert.equal(vm.runInContext('sessionStorage.length', context), 0)
+  // A second bridge initialization must preserve storage that is already usable.
+  vm.runInContext('localStorage.setItem("existing", "value")', context)
+  vm.runInContext(`(() => { ${bridge} })()`, context)
+  assert.equal(
+    vm.runInContext('localStorage.getItem("existing")', context),
+    'value',
+  )
+})
+
 test('instruments browser navigation in every preview environment', () => {
   const client = createExampleSandboxBrowserScript({
     channel: 'client-browser',

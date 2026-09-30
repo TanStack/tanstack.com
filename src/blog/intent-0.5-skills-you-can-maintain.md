@@ -10,7 +10,7 @@ authors:
 
 You rename an export, update the types, fix the tests, and ship a release. Somewhere in your package, a skill still tells an agent to use the old name.
 
-Maybe the skill ships with the right version but the instructions are wrong. This is where maintainers need to step in and correct the guidance, but how do you keep track of those corrections over time? It might just end up being forgotten or overlooked, adding to the technical debt rather than reducing it.
+Maybe the skill ships with the right version, but the instructions are wrong. This is where maintainers need to step in and correct the guidance, but how do you keep track of those corrections over time? It might just end up being forgotten or overlooked, adding to the technical debt rather than reducing it.
 
 As a library maintainer, the last thing you want is to add more to maintain on top of everything your library already has. Writing guidance takes work, attention, and time, but keeping it useful means returning to it as the library changes which, in most cases, happens quite frequently. Which examples broke? Which explanations need a second look? Did any instructions become outdated or any new anti-patterns emerge? Did a new feature ship without any guidance at all?
 

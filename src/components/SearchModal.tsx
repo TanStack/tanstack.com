@@ -187,7 +187,14 @@ function CommandSearchResults() {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting && !isLastPage) {
+          // Add null-safety checks to prevent accessing properties on null refs
+          // during component unmounting/navigation transitions
+          if (
+            entry.isIntersecting &&
+            !isLastPage &&
+            sentinelRef.current &&
+            containerRef.current
+          ) {
             showMore()
           }
         })

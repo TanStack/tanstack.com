@@ -7,18 +7,21 @@ import {
   TextAlignLeftIcon,
 } from '@phosphor-icons/react'
 import { Tooltip } from '~/ui'
+import type { ExamplePanel, ExamplePanelOption } from '~/utils/example-panel'
 
 interface CodeExplorerTopBarProps {
-  activeTab: 'code' | 'sandbox'
+  activeTab: ExamplePanel
+  panels: ReadonlyArray<ExamplePanelOption>
   isFullScreen: boolean
   isSidebarOpen: boolean
-  setActiveTab: (tab: 'code' | 'sandbox') => void
+  setActiveTab: (tab: ExamplePanel) => void
   setIsFullScreen: React.Dispatch<React.SetStateAction<boolean>>
   setIsSidebarOpen: (isOpen: boolean) => void
 }
 
 export function CodeExplorerTopBar({
   activeTab,
+  panels,
   isFullScreen,
   isSidebarOpen,
   setActiveTab,
@@ -27,7 +30,7 @@ export function CodeExplorerTopBar({
 }: CodeExplorerTopBarProps) {
   return (
     <div className="flex items-center justify-between gap-2 border-b border-gray-200 dark:border-gray-700">
-      <div className="flex items-center gap-2 px-1">
+      <div className="flex min-w-0 items-center gap-1 overflow-x-auto px-1">
         {activeTab === 'code' ? (
           isSidebarOpen ? (
             <Tooltip content="Hide files" side="bottom">
@@ -62,38 +65,21 @@ export function CodeExplorerTopBar({
             />
           </div>
         )}
-        <button
-          onClick={() => setActiveTab('code')}
-          className={`px-4 py-2 text-sm font-medium transition-colors relative ${
-            activeTab === 'code'
-              ? 'text-gray-900 dark:text-white'
-              : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
-          }`}
-        >
-          <span className="hidden sm:inline">Code Explorer</span>
-          <span className="sm:hidden">Code</span>
-          {activeTab === 'code' ? (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500" />
-          ) : (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-transparent" />
-          )}
-        </button>
-        <button
-          onClick={() => setActiveTab('sandbox')}
-          className={`px-4 py-2 text-sm font-medium transition-colors relative ${
-            activeTab === 'sandbox'
-              ? 'text-gray-900 dark:text-white'
-              : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
-          }`}
-        >
-          <span className="hidden sm:inline">Interactive Sandbox</span>
-          <span className="sm:hidden">Sandbox</span>
-          {activeTab === 'sandbox' ? (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500" />
-          ) : (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-transparent" />
-          )}
-        </button>
+        {panels.map((panel) => (
+          <button
+            key={panel.id}
+            type="button"
+            onClick={() => setActiveTab(panel.id)}
+            aria-pressed={activeTab === panel.id}
+            className={`shrink-0 px-3 py-2 text-sm font-medium transition-colors border-b-2 ${
+              activeTab === panel.id
+                ? 'border-blue-500 text-gray-900 dark:text-white'
+                : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+            }`}
+          >
+            {panel.label}
+          </button>
+        ))}
       </div>
       <div className="flex items-center gap-2">
         <button

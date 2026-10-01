@@ -27,7 +27,7 @@ const highlightLibrary = getLibrary('highlight')
 
 const markdownPrompt = [
   'Build a technical content renderer with TanStack Markdown.',
-  'Treat its serializable AST as the durable document model, render from that tree with HTML, React, or Octane, and enable only the syntax extensions the product needs.',
+  'Parse Markdown into a serializable document tree, render it with HTML, React, or Octane, and enable only the syntax extensions the product needs.',
   'For accumulated AI responses, use the optional streaming profile without carrying incremental parser state between updates.',
   'Preserve the safe defaults and deterministic output, and keep syntax highlighting as an explicit external integration.',
 ].join(' ')
@@ -117,7 +117,7 @@ const streamingSource = `# Streaming response
 
 The model can send **ordinary Markdown** as it thinks.
 
-- completed blocks stay stable
+- accumulated text is reparsed on each update
 - unfinished markers stay out of the way
 - React and HTML stay in sync
 
@@ -133,20 +133,20 @@ const streamingExtensions = [streamingMarkdownExtension()]
 const bundleComparisons = [
   {
     name: 'TanStack HTML',
-    size: '6.7 KB',
-    width: 'w-[13%]',
+    size: '7.13 KB',
+    width: 'w-[14%]',
     emphasis: true,
   },
-  { name: 'marked', size: '12.5 KB', width: 'w-[24%]', emphasis: false },
+  { name: 'marked', size: '12.47 KB', width: 'w-[24%]', emphasis: false },
   {
     name: 'unified stack',
-    size: '36.8 KB',
+    size: '36.62 KB',
     width: 'w-[70%]',
     emphasis: false,
   },
   {
     name: 'markdown-it',
-    size: '52.7 KB',
+    size: '52.06 KB',
     width: 'w-full',
     emphasis: false,
   },
@@ -156,7 +156,7 @@ export default function MarkdownLanding() {
   return (
     <LibraryLandingShell
       libraryId="markdown"
-      headline="Markdown with an exit strategy."
+      headline="Markdown you can parse, cache, and render."
       description="Parse documents or accumulated AI output into a plain, serializable tree. Inspect it, cache it, index it, or render it as HTML, React, or Octane."
       hero={<ManuscriptPanel />}
       prompt={markdownPrompt}
@@ -165,8 +165,8 @@ export default function MarkdownLanding() {
       <LandingSection tone="accent">
         <LandingSectionIntro
           centered
-          title="The AST is the product."
-          body="Parsing does not trap content inside a renderer. Edit the source and inspect the serializable tree, deterministic HTML, or React output."
+          title="Parse once. Render wherever you need it."
+          body="parseMarkdown returns a plain MarkdownDocument. Cache the tree, inspect its headings and code blocks, or pass it to the HTML, React, or Octane renderer."
         />
         <MarkdownWorkbench />
       </LandingSection>
@@ -184,8 +184,8 @@ export default function MarkdownLanding() {
       <LandingSection tone="raised">
         <div className="grid items-center gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
           <LandingSectionIntro
-            title="It does less Markdown on purpose."
-            body="Technical docs need a known vocabulary, not an open-ended compiler platform. New syntax has to justify its bytes, ambiguity, and maintenance cost."
+            title="Built around documentation syntax."
+            body="Render headings, tables, footnotes, and code fences without evaluating MDX or JSX. Check the supported syntax profile before migrating an existing content library."
           />
           <div className="grid overflow-hidden rounded-xl border border-border-subtle bg-background-surface md:grid-cols-2">
             <SyntaxList
@@ -230,15 +230,13 @@ export default function MarkdownLanding() {
             params={{ version: 'latest' }}
             className="group rounded-xl border border-border-subtle bg-background-surface p-6 transition-colors hover:border-border-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
           >
-            <p className="font-ds-mono text-ds-mono-caps uppercase text-[var(--landing-accent-bright)]">
-              Companion, not dependency
-            </p>
-            <div className="mt-4 text-ds-heading-4">
+            <div className="text-ds-heading-4">
               <LibraryWordmark library={highlightLibrary} />
             </div>
             <p className="mt-3 text-ds-body-sm text-text-primary/55">
-              Synchronous highlighting for the code fences the document model
-              already understands.
+              Add syntax highlighting through Markdown’s highlighter callback.
+              TanStack Highlight provides createTanStackMarkdownHighlighter for
+              this integration.
             </p>
             <span className="mt-6 inline-flex items-center gap-2 text-ds-label-md">
               Explore Highlight
@@ -696,10 +694,10 @@ function BundleLedger() {
       ))}
       <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-border-subtle p-px font-ds-mono text-ds-mono-xs sm:grid-cols-4">
         {[
-          ['4.9 KB', 'Parser'],
-          ['6.6 KB', 'React adapter'],
-          ['6.6 KB', 'Octane adapter'],
-          ['2.3 KB', 'docs preset'],
+          ['5.29 KB', 'Parser'],
+          ['7.09 KB', 'React adapter'],
+          ['7.06 KB', 'Octane adapter'],
+          ['2.37 KB', 'docs preset'],
         ].map(([value, label]) => (
           <div key={label} className="bg-background-surface px-3 py-4">
             <div className="font-black">{value}</div>
@@ -710,10 +708,12 @@ function BundleLedger() {
         ))}
       </div>
       <p className="text-ds-body-sm text-text-primary/55">
-        Gzip sizes for minified browser bundles. Renderers include the parser;
-        framework runtimes and highlighters are excluded. Feature sets differ.{' '}
+        Markdown 1.0.0 · measured October 1, 2026 with Node 26.3.1. Gzip sizes
+        for minified browser builds of public entry exports. Renderers include
+        the parser; framework runtimes and highlighters are excluded. Feature
+        sets differ, and sizes vary with imports and build tools.{' '}
         <a
-          href="https://github.com/TanStack/markdown/blob/v0.0.14/reports/sizes.md"
+          href="https://github.com/TanStack/markdown/blob/v1.0.0/scripts/measure-size.ts"
           className="underline underline-offset-4"
         >
           Measurement details

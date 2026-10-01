@@ -24,24 +24,24 @@ const bundleProfiles = [
     name: 'core',
     detail: 'no languages',
     size: '1.82 KB',
-    width: 'w-[22%]',
+    width: 'w-[17%]',
   },
   {
     name: 'tsx',
     detail: 'core + TSX',
-    size: '4.03 KB',
-    width: 'w-[49%]',
+    size: '4.29 KB',
+    width: 'w-[40%]',
   },
   {
     name: 'docs',
     detail: '9 languages',
-    size: '5.97 KB',
-    width: 'w-[72%]',
+    size: '6.22 KB',
+    width: 'w-[58%]',
   },
   {
     name: 'all',
-    detail: '26 languages',
-    size: '8.29 KB',
+    detail: '30 languages',
+    size: '10.79 KB',
     width: 'w-full',
   },
 ]
@@ -60,7 +60,7 @@ export default function HighlightLanding() {
     <LibraryLandingShell
       libraryId="highlight"
       headline="Highlighting built for the web."
-      description="Register the languages your docs use, highlight synchronously, and ship one compact semantic HTML tree that every theme can share."
+      description="Import the languages your docs use, highlight code on the server or in the browser, and switch themes with CSS."
       hero={
         <CodeLab
           isLightTheme={isLightTheme}
@@ -73,8 +73,8 @@ export default function HighlightLanding() {
       <LandingSection tone="accent">
         <div className="grid items-center gap-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
           <LandingSectionIntro
-            title="The registry is the bundle plan."
-            body="The core knows no languages. Direct imports make the site’s language set explicit and let the bundler discard everything else."
+            title="Choose the languages your site ships."
+            body="Start with @tanstack/highlight/core and import the language definitions you need. Register them with createHighlighter. The package-root highlight helper includes every built-in language."
           />
           <BundleDial />
         </div>
@@ -90,7 +90,7 @@ export default function HighlightLanding() {
         </div>
         <div className="mt-12 grid items-center gap-12 border-t border-border-subtle pt-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
           <LandingSectionIntro
-            title="Web languages rarely stay in their lane."
+            title="Highlight the code inside your code."
             body="HTML, Vue, Svelte, EJS, and Markdown delegate embedded regions only when the nested language is registered. JavaScript and TypeScript handle their own template interpolation."
           />
           <div>
@@ -115,14 +115,14 @@ export default function HighlightLanding() {
         <div className="grid items-center gap-12 lg:grid-cols-[1.2fr_0.8fr] lg:gap-16">
           <AnnotationPanel />
           <LandingSectionIntro
-            title="Annotate the lesson, not the token stream."
-            body="Highlight lines, exact character ranges, insertions, deletions, focus, errors, and warnings without changing the source or tokenizer."
+            title="Make the important lines stand out."
+            body="Use decorations to mark changed lines, focus an example, or underline a selected identifier. You supply the annotations and style them with CSS; Highlight renders them alongside the syntax colors."
           />
         </div>
         <div className="mt-12 grid items-center gap-12 border-t border-border-subtle pt-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
           <LandingSectionIntro
             title="Tuned against the docs it will render."
-            body="Release checks cover source preservation, deterministic HTML, bundle sizes, and throughput across more than 10,000 code blocks, including numbered and decorated blocks."
+            body="Tests check source preservation and deterministic output. Size and runtime checks cover selective imports, code-block rendering, line numbers, and decorations."
           />
           <BenchmarkTape />
         </div>
@@ -145,14 +145,14 @@ export default function HighlightLanding() {
             />
             <ChoiceRow
               name="Sugar High"
-              useWhen="The smallest straightforward JavaScript and TypeScript path is enough."
+              useWhen="You need a small highlighter for JavaScript, TypeScript, JSX, and TSX."
             />
           </div>
         </div>
         <div className="mt-12 grid items-center gap-12 border-t border-border-subtle pt-12 lg:grid-cols-[1.08fr_0.92fr] lg:gap-16">
           <LandingSectionIntro
             title="Drop it into Markdown without hiding the language set."
-            body="TanStack Markdown, Remark, Rehype, and Octane MDX adapters all take an explicit highlighter, so you control which languages ship."
+            body="Pass your configured highlighter to the TanStack Markdown, Remark, Rehype, or Octane MDX adapter. The adapters add no built-in languages of their own."
           />
           <Link
             to="/markdown/$version"
@@ -163,8 +163,8 @@ export default function HighlightLanding() {
               <LibraryWordmark library={markdownLibrary} />
             </div>
             <p className="mt-3 text-ds-body-sm text-text-primary/55">
-              A serializable document model that keeps highlighting at an
-              explicit boundary.
+              Parse and render Markdown, then add syntax highlighting with a
+              callback.
             </p>
             <span className="mt-6 inline-flex items-center gap-2 text-ds-label-md">
               Explore Markdown
@@ -359,7 +359,7 @@ function BundleDial() {
   return (
     <div className="rounded-xl border border-border-subtle bg-background-surface p-5 sm:p-6">
       <div className="flex items-center justify-between gap-4 border-b border-border-subtle pb-3 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/45">
-        <span>0.0.11 · gzip · KB = 1,000 bytes</span>
+        <span>1.0.0 · gzip · KB = 1,000 bytes</span>
       </div>
       <div className="mt-5 space-y-5">
         {bundleProfiles.map((profile) => (
@@ -379,6 +379,16 @@ function BundleDial() {
           </div>
         ))}
       </div>
+      <p className="mt-5 border-t border-border-subtle pt-3 text-ds-body-xs text-text-primary/45">
+        Minified browser source-entry builds, measured October 1, 2026 with Node
+        26.3.1. Sizes vary with imports and build tools.{' '}
+        <a
+          href="https://github.com/TanStack/highlight/blob/v1.0.0/scripts/measure-size.mjs"
+          className="underline"
+        >
+          Measurement details
+        </a>
+      </p>
     </div>
   )
 }
@@ -561,32 +571,29 @@ function BenchmarkTape() {
       </div>
       <BenchmarkRow
         name="TanStack Highlight"
-        time="4.6 ms"
-        output="365 KiB"
+        time="4.44 ms"
+        output="376 KiB"
         emphasis
       />
       <BenchmarkRow
         name="Shiki 4.3.1"
-        time="182 ms"
+        time="146.02 ms"
         output="1,257 KiB"
         emphasis={false}
       />
       <p className="border-t border-border-subtle px-4 py-3 text-ds-body-xs text-text-primary/45">
-        Local measurements from the{' '}
-        <Link
-          to="/$libraryId/$version/docs/$"
-          params={{
-            libraryId: 'highlight',
-            version: 'latest',
-            _splat: 'comparison',
-          }}
+        Highlight 1.0.0 and Shiki 4.3.1, measured October 1, 2026 with Node
+        26.3.1 using the{' '}
+        <a
+          href="https://github.com/TanStack/highlight/blob/v1.0.0/scripts/compare-shiki.mjs"
           className="underline"
         >
-          project benchmark report
-        </Link>
-        . Shiki initialization and language loading are measured separately;
-        EJS, ENV, and TSRX use its plaintext fallback. Timings vary by machine,
-        and the tools don’t provide equivalent grammar accuracy.
+          project benchmark script
+        </a>
+        . Times are the median of three runs after two warmups. Shiki
+        initialization and language loading are measured separately; EJS, ENV,
+        and TSRX use its plaintext fallback. Timings vary by machine, and the
+        tools don’t provide equivalent grammar accuracy.
       </p>
     </div>
   )

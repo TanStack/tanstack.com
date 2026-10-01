@@ -212,7 +212,7 @@ export default function MarkdownLanding() {
                 </span>
               </span>
             }
-            body="Raw HTML is escaped and executable link and image URLs are removed by default. Custom document trees, highlighters, and HTML hooks are trusted inputs, so those stay in your hands."
+            body="Render user content with fewer worries. We escape raw HTML and block executable URLs by default, and you stay in control of custom rendering."
           />
           <SafetyProof />
         </div>

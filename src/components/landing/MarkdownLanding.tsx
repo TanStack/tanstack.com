@@ -203,7 +203,7 @@ export default function MarkdownLanding() {
         <div className="mt-12 grid items-center gap-12 border-t border-border-subtle pt-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
           <LandingSectionIntro
             title={
-              <span className="text-ds-heading-3 sm:text-ds-heading-2">
+              <span className="text-ds-heading-4 sm:text-ds-heading-2">
                 <span className="block whitespace-nowrap">
                   User-generated Markdown? 😍
                 </span>

@@ -37,7 +37,7 @@ test(
     assert.ok(baseUrl)
     for (const library of [markdown, highlight]) {
       for (const version of ['v0', 'v1']) {
-        const response = await fetch(
+        const response: Response = await fetch(
           new URL(
             `/${library.id}/${version}/docs/overview?test=version`,
             baseUrl,
@@ -51,7 +51,7 @@ test(
         assert.equal(target.pathname, `/${library.id}/latest/docs/overview`)
         assert.equal(target.search, '?test=version')
       }
-      const response = await fetch(
+      const response: Response = await fetch(
         new URL(`/${library.id}/latest/docs/overview`, baseUrl),
         { signal: AbortSignal.timeout(30_000) },
       )

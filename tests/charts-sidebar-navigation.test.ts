@@ -83,6 +83,7 @@ const groups = [
 
 assert.deepEqual(
   getMenuGroupInitialOpenState(
+    'charts',
     groups,
     undefined,
     '/charts/catalog/charts/01-line-gaps/',
@@ -92,7 +93,7 @@ assert.deepEqual(
 )
 
 assert.deepEqual(
-  getMenuGroupInitialOpenState(groups, undefined, '/charts/catalog'),
+  getMenuGroupInitialOpenState('charts', groups, undefined, '/charts/catalog'),
   { '0:Individual Charts': false },
   'an inactive catalog group keeps its configured collapsed state',
 )

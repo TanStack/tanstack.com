@@ -142,6 +142,7 @@ export const Route = createFileRoute(
   component: RouteComponent,
   staticData: {
     includeSearchInCanonical: true,
+    docsTab: { id: 'home', fullBleed: true },
   },
 })
 

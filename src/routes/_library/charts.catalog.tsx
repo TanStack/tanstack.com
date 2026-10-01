@@ -10,6 +10,9 @@ export const Route = createFileRoute('/_library/charts/catalog')({
     version: 'latest',
   }),
   component: ChartsCatalogLayout,
+  staticData: {
+    docsTab: { id: 'catalog', fullBleed: true },
+  },
 })
 
 function ChartsCatalogLayout() {

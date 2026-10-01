@@ -115,8 +115,8 @@ export default function HighlightLanding() {
         <div className="grid items-center gap-12 lg:grid-cols-[1.2fr_0.8fr] lg:gap-16">
           <AnnotationPanel />
           <LandingSectionIntro
-            title="Make the important lines stand out."
-            body="Make changed lines pop, dim the distractions, or underline the bit you want to explain. Your annotations and CSS give each example its own emphasis."
+            title="Dim the lights and get your point across… or underlined, too."
+            body="Make changed lines pop, fade everything around them, or underline the bit you’re explaining with annotations you control and CSS that makes it yours."
           />
         </div>
         <div className="mt-12 grid items-center gap-12 border-t border-border-subtle pt-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">

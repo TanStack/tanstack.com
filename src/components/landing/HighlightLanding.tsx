@@ -83,8 +83,8 @@ export default function HighlightLanding() {
       <LandingSection tone="ink">
         <div className="grid items-center gap-12 lg:grid-cols-[0.76fr_1.24fr] lg:gap-16">
           <LandingSectionIntro
-            title="Change the palette. Keep the markup."
-            body="Tokens carry stable semantic classes instead of theme colors. CSS variables recolor the same tree without a second highlighting pass."
+            title="A fresh coat of paint."
+            body="Go dark, go light, or offer a whole menu of themes with CSS variables, all using the same markup without shipping extra copies or highlighting everything again."
           />
           <ThemeContract />
         </div>

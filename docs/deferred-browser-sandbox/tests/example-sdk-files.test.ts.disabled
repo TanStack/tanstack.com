@@ -1,0 +1,27 @@
+import assert from 'node:assert/strict'
+import test from 'node:test'
+import { decodeSDKProjectFiles } from '../src/utils/example-sdk.client'
+
+test('decodes SDK binary project files without changing their bytes', () => {
+  const files = decodeSDKProjectFiles(
+    { '/project/src/main.ts': 'export {}' },
+    { '/project/public/favicon.ico': 'AAECA/8=' },
+  )
+
+  assert.equal(files['/project/src/main.ts'], 'export {}')
+  assert.deepEqual(
+    files['/project/public/favicon.ico'],
+    new Uint8Array([0, 1, 2, 3, 255]),
+  )
+})
+
+test('rejects duplicate and malformed SDK binary project files', () => {
+  assert.throws(
+    () => decodeSDKProjectFiles({ '/project/file': '' }, { '/project/file': 'AA==' }),
+    /Duplicate project file/,
+  )
+  assert.throws(
+    () => decodeSDKProjectFiles({}, { '/project/file': 'not base64' }),
+    /Invalid character|Invalid binary project file/,
+  )
+})

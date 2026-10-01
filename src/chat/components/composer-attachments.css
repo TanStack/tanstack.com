@@ -1,0 +1,107 @@
+@scope (:root:has(.tanchat-shell)) {
+  .composer-attachments {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    min-width: 0;
+    gap: 6px;
+  }
+  .composer-attachments > .icon-button {
+    flex-shrink: 0;
+  }
+  .composer-attachment-list {
+    display: flex;
+    flex: 1;
+    flex-wrap: wrap;
+    min-width: 0;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: 6px;
+  }
+  .composer-attachment-list > li {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+    max-width: 100%;
+    padding: 3px 3px 3px 8px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: var(--soft);
+  }
+  .composer-attachment-list > li > svg,
+  .composer-attachment-list > li > .icon-button {
+    flex-shrink: 0;
+  }
+  .composer-attachment-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 2px;
+  }
+  .composer-attachment-name {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+  }
+  .composer-attachment-status {
+    color: var(--muted);
+    font-size: 11px;
+  }
+  .composer-attachment-error {
+    color: var(--danger);
+    font-size: 12px;
+    overflow-wrap: anywhere;
+  }
+  .composer-attachment-error-global {
+    flex-basis: 100%;
+    margin: 0;
+  }
+  .composer-attachment-list > li[data-status='error'] {
+    border-color: var(--danger);
+  }
+  @media (max-width: 500px) {
+    .composer-attachment-list > li {
+      flex: 1 1 100%;
+    }
+    .composer-attachment-info {
+      flex: 1;
+    }
+    .composer-attachment-name {
+      max-width: 100%;
+    }
+  }
+
+  .message-attachments {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    list-style: none;
+    padding: 0;
+    margin: 4px 0 10px;
+  }
+  .message-attachments > li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    padding: 5px 8px;
+    font-size: 12px;
+  }
+  .message-attachments svg {
+    flex-shrink: 0;
+  }
+  .message-attachments a,
+  .message-attachments span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+    color: inherit;
+  }
+}

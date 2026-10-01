@@ -1,3 +1,4 @@
+import { oauthPopupChannelSchema } from '~/auth/oauth-popup'
 import { createFileRoute } from '@tanstack/react-router'
 import { env } from '~/utils/env'
 import {
@@ -49,7 +50,17 @@ export const Route = createFileRoute('/auth/$provider/start')({
         const url = new URL(request.url)
         const isPopup = url.searchParams.get('popup') === 'true'
         const popupCookie = isPopup
-          ? createOAuthPopupCookie(isProduction)
+          ? createOAuthPopupCookie(
+              isProduction,
+              (() => {
+                const channel = oauthPopupChannelSchema.safeParse(
+                  url.searchParams.get('popupChannel'),
+                )
+                return channel.success
+                  ? { state, channel: channel.data }
+                  : undefined
+              })(),
+            )
           : null
 
         // Check for returnTo URL (for redirect after auth)

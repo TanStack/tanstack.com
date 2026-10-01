@@ -1,3 +1,4 @@
+import type { SkillDocument, SkillVersion } from '~/chat/core/skills'
 import {
   pgTable,
   uuid,
@@ -21,6 +22,11 @@ import {
 import { relations, sql } from 'drizzle-orm'
 import type { InferSelectModel, InferInsertModel } from 'drizzle-orm'
 import type { BuilderJsonObject, SignupSource } from './types'
+import type { ChatPolicy } from '~/chat/policy'
+import type { ThreadSource } from '~/chat/thread-context'
+import type { RunModelSelection } from '~/chat/core/run-model'
+import type { ReferenceInput } from '~/chat/core/message-references'
+import type { AccountPreferences } from '~/chat/core/account-preferences'
 
 // Re-export client-safe types and constants
 export type {
@@ -2057,3 +2063,1389 @@ export const oauthMcpAuthorizationCodesRelations =
 export const oauthMcpAccessTokensRelations = oauthAccessTokensRelations
 /** @deprecated Use oauthRefreshTokensRelations instead */
 export const oauthMcpRefreshTokensRelations = oauthRefreshTokensRelations
+
+// TanChat uses TanStack identity and account storage. Conversation execution
+// and resumable streams remain in Cloudflare Durable Objects.
+export const chatWorkspaces = pgTable(
+  'chat_workspaces',
+  {
+    id: text('id').primaryKey(),
+    ownerId: uuid('owner_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    policy: jsonb('policy').$type<ChatPolicy>().notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [index('chat_workspaces_owner_idx').on(table.ownerId)],
+)
+
+export const chatMemberships = pgTable(
+  'chat_memberships',
+  {
+    workspaceId: text('workspace_id')
+      .notNull()
+      .references(() => chatWorkspaces.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    role: text('role', { enum: ['owner', 'admin', 'member'] }).notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.workspaceId, table.userId] }),
+    check(
+      'chat_memberships_role_check',
+      sql`${table.role} IN ('owner', 'admin', 'member')`,
+    ),
+    index('chat_memberships_user_idx').on(table.userId),
+  ],
+)
+
+export const chatBots = pgTable(
+  'chat_bots',
+  {
+    id: text('id').primaryKey(),
+    workspaceId: text('workspace_id')
+      .notNull()
+      .references(() => chatWorkspaces.id, { onDelete: 'cascade' }),
+    parentId: text('parent_id'),
+    name: text('name').notNull(),
+    purpose: text('purpose').notNull().default(''),
+    version: bigint('version', { mode: 'number' }).notNull().default(0),
+    avatar: text('avatar'),
+    deletionBatch: text('deletion_batch'),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    archivedAt: timestamp('archived_at', { withTimezone: true }),
+    deletedAt: timestamp('deleted_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    unique('chat_bots_workspace_id_unique').on(table.workspaceId, table.id),
+    foreignKey({
+      columns: [table.workspaceId, table.parentId],
+      foreignColumns: [table.workspaceId, table.id],
+    }),
+    index('chat_bots_workspace_idx').on(table.workspaceId),
+    check(
+      'chat_personal_assistant_active_check',
+      sql`${table.id} NOT LIKE 'assistant:%' OR (${table.archivedAt} IS NULL AND ${table.deletedAt} IS NULL)`,
+    ),
+  ],
+)
+
+export const chatConversations = pgTable(
+  'chat_conversations',
+  {
+    id: text('id').primaryKey(),
+    botId: text('bot_id')
+      .notNull()
+      .references(() => chatBots.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    unique('chat_conversation_identity').on(
+      table.id,
+      table.botId,
+      table.userId,
+    ),
+  ],
+)
+
+export const chatConversationMains = pgTable(
+  'chat_conversation_mains',
+  {
+    botId: text('bot_id').notNull(),
+    userId: uuid('user_id').notNull(),
+    conversationId: text('conversation_id').notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.botId, table.userId] }),
+    foreignKey({
+      columns: [table.conversationId, table.botId, table.userId],
+      foreignColumns: [
+        chatConversations.id,
+        chatConversations.botId,
+        chatConversations.userId,
+      ],
+    }).onDelete('cascade'),
+  ],
+)
+
+export const chatConversationThreads = pgTable(
+  'chat_conversation_threads',
+  {
+    conversationId: text('conversation_id').primaryKey(),
+    parentConversationId: text('parent_conversation_id').notNull(),
+    botId: text('bot_id').notNull(),
+    userId: uuid('user_id').notNull(),
+    sourceMessageId: text('source_message_id').notNull(),
+    source: jsonb('source').$type<ThreadSource>().notNull(),
+    title: text('title').notNull(),
+    version: integer('version').notNull().default(0),
+    archivedAt: timestamp('archived_at', { withTimezone: true }),
+  },
+  (table) => [
+    foreignKey({
+      name: 'chat_thread_child_identity_fk',
+      columns: [table.conversationId, table.botId, table.userId],
+      foreignColumns: [
+        chatConversations.id,
+        chatConversations.botId,
+        chatConversations.userId,
+      ],
+    }).onDelete('cascade'),
+    foreignKey({
+      name: 'chat_thread_parent_identity_fk',
+      columns: [table.parentConversationId, table.botId, table.userId],
+      foreignColumns: [
+        chatConversations.id,
+        chatConversations.botId,
+        chatConversations.userId,
+      ],
+    }).onDelete('cascade'),
+    check(
+      'chat_thread_not_self',
+      sql`${table.conversationId} <> ${table.parentConversationId}`,
+    ),
+    check('chat_thread_version_nonnegative', sql`${table.version} >= 0`),
+    index('chat_thread_parent_idx').on(table.parentConversationId),
+  ],
+)
+
+export const chatThreadRequests = pgTable(
+  'chat_thread_requests',
+  {
+    workspaceId: text('workspace_id')
+      .notNull()
+      .references(() => chatWorkspaces.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    idempotencyKey: uuid('idempotency_key').notNull(),
+    requestDigest: text('request_digest'),
+    parentConversationId: text('parent_conversation_id').notNull(),
+    sourceMessageId: text('source_message_id').notNull(),
+    conversationId: text('conversation_id')
+      .notNull()
+      .references(() => chatConversations.id, { onDelete: 'cascade' }),
+  },
+  (table) => [
+    primaryKey({
+      columns: [table.workspaceId, table.userId, table.idempotencyKey],
+    }),
+  ],
+)
+
+export const chatCredentials = pgTable('chat_credentials', {
+  userId: uuid('user_id')
+    .primaryKey()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  ciphertext: text('ciphertext').notNull(),
+})
+
+export const chatAccountPreferences = pgTable(
+  'chat_account_preferences',
+  {
+    userId: uuid('user_id')
+      .primaryKey()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    timezone: text('timezone'),
+    revision: bigint('revision', { mode: 'number' }).notNull().default(0),
+    timezoneConfirmedAt: bigint('timezone_confirmed_at', { mode: 'number' }),
+    response: jsonb('response').$type<AccountPreferences['response']>(),
+    appearance: jsonb('appearance').$type<AccountPreferences['appearance']>(),
+  },
+  (table) => [
+    check(
+      'chat_preferences_revision_safe',
+      sql`${table.revision} >= 0 AND ${table.revision} <= 9007199254740991`,
+    ),
+  ],
+)
+
+export const chatMemories = pgTable(
+  'chat_memories',
+  {
+    id: uuid('id').primaryKey(),
+    conversationId: text('conversation_id')
+      .notNull()
+      .references(() => chatConversations.id, { onDelete: 'cascade' }),
+    workspaceId: text('workspace_id')
+      .notNull()
+      .references(() => chatWorkspaces.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    revision: bigint('revision', { mode: 'number' }).notNull(),
+    title: text('title').notNull(),
+    body: text('body').notNull(),
+    sourceMessageId: text('source_message_id'),
+    sourceRunId: text('source_run_id'),
+    createdAt: bigint('created_at', { mode: 'number' }).notNull(),
+    updatedAt: bigint('updated_at', { mode: 'number' }).notNull(),
+    expiresAt: bigint('expires_at', { mode: 'number' }),
+  },
+  (table) => [
+    index('chat_memory_scope_idx').on(table.conversationId, table.id),
+  ],
+)
+export const chatMemoryCommands = pgTable(
+  'chat_memory_commands',
+  {
+    conversationId: text('conversation_id')
+      .notNull()
+      .references(() => chatConversations.id, { onDelete: 'cascade' }),
+    commandId: uuid('command_id').notNull(),
+    requestHash: text('request_hash').notNull(),
+    memoryId: uuid('memory_id').notNull(),
+    revision: bigint('revision', { mode: 'number' }).notNull(),
+    operation: text('operation', {
+      enum: ['create', 'update', 'delete'],
+    }).notNull(),
+    completedAt: bigint('completed_at', { mode: 'number' }).notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.conversationId, table.commandId] }),
+    index('chat_memory_command_identity_idx').on(
+      table.conversationId,
+      table.memoryId,
+    ),
+  ],
+)
+export const chatMemoryPreferences = pgTable('chat_memory_preferences', {
+  conversationId: text('conversation_id')
+    .primaryKey()
+    .references(() => chatConversations.id, { onDelete: 'cascade' }),
+  enabled: boolean('enabled').notNull(),
+  revision: bigint('revision', { mode: 'number' }).notNull(),
+  updatedAt: bigint('updated_at', { mode: 'number' }).notNull(),
+})
+
+export const chatComposerDrafts = pgTable(
+  'chat_composer_drafts',
+  {
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    scope: text('scope').notNull(),
+    value: text('value').notNull(),
+    revision: bigint('revision', { mode: 'number' }).notNull(),
+    updatedAt: bigint('updated_at', { mode: 'number' }).notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.userId, table.scope] }),
+    check(
+      'chat_draft_revision_safe',
+      sql`${table.revision}>0 AND ${table.revision}<=9007199254740991`,
+    ),
+  ],
+)
+
+export const chatFileDrafts = pgTable(
+  'chat_file_drafts',
+  {
+    workspaceId: text('workspace_id')
+      .notNull()
+      .references(() => chatWorkspaces.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    id: uuid('id').notNull(),
+    createdAt: bigint('created_at', { mode: 'number' }).notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.workspaceId, table.userId, table.id] }),
+  ],
+)
+
+export const chatBotDrafts = pgTable(
+  'chat_bot_drafts',
+  {
+    workspaceId: text('workspace_id').notNull(),
+    userId: uuid('user_id').notNull(),
+    id: uuid('id').notNull(),
+    botId: text('bot_id').notNull(),
+    conversationId: text('conversation_id').notNull(),
+    parentId: text('parent_id'),
+    text: text('text').notNull().default(''),
+    startedAt: bigint('started_at', { mode: 'number' }),
+    runModel: jsonb('run_model').$type<RunModelSelection>(),
+    referenceInputs: jsonb('reference_inputs')
+      .$type<ReferenceInput[]>()
+      .notNull()
+      .default([]),
+    fileIds: jsonb('file_ids').$type<string[]>().notNull().default([]),
+    createdAt: bigint('created_at', { mode: 'number' }).notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.workspaceId, table.userId, table.id] }),
+    uniqueIndex('chat_bot_draft_bot_idx').on(table.botId),
+    foreignKey({
+      name: 'chat_bot_draft_scope_fk',
+      columns: [table.workspaceId, table.userId, table.id],
+      foreignColumns: [
+        chatFileDrafts.workspaceId,
+        chatFileDrafts.userId,
+        chatFileDrafts.id,
+      ],
+    }),
+    foreignKey({
+      name: 'chat_bot_draft_conversation_fk',
+      columns: [table.conversationId, table.botId, table.userId],
+      foreignColumns: [
+        chatConversations.id,
+        chatConversations.botId,
+        chatConversations.userId,
+      ],
+    }),
+    foreignKey({
+      name: 'chat_bot_draft_workspace_fk',
+      columns: [table.workspaceId, table.botId],
+      foreignColumns: [chatBots.workspaceId, chatBots.id],
+    }),
+    check(
+      'chat_bot_draft_attachments',
+      sql`jsonb_typeof(${table.fileIds})='array' AND jsonb_array_length(${table.fileIds})<=5`,
+    ),
+  ],
+)
+
+export const chatSavedFiles = pgTable(
+  'chat_saved_files',
+  {
+    id: uuid('id').primaryKey(),
+    workspaceId: text('workspace_id')
+      .notNull()
+      .references(() => chatWorkspaces.id),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id),
+    botId: text('bot_id'),
+    conversationId: text('conversation_id'),
+    draftId: uuid('draft_id'),
+    name: text('name').notNull(),
+    mediaType: text('media_type').notNull(),
+    size: integer('size').notNull(),
+    sha256: text('sha256').notNull(),
+    source: text('source', { enum: ['upload', 'assistant'] }).notNull(),
+    state: text('state', { enum: ['pending', 'ready'] }).notNull(),
+    createdAt: bigint('created_at', { mode: 'number' }).notNull(),
+  },
+  (table) => [
+    foreignKey({
+      name: 'chat_file_draft_fk',
+      columns: [table.workspaceId, table.userId, table.draftId],
+      foreignColumns: [
+        chatFileDrafts.workspaceId,
+        chatFileDrafts.userId,
+        chatFileDrafts.id,
+      ],
+    }),
+    foreignKey({
+      name: 'chat_file_conversation_fk',
+      columns: [table.conversationId, table.botId, table.userId],
+      foreignColumns: [
+        chatConversations.id,
+        chatConversations.botId,
+        chatConversations.userId,
+      ],
+    }),
+    foreignKey({
+      name: 'chat_file_workspace_fk',
+      columns: [table.workspaceId, table.botId],
+      foreignColumns: [chatBots.workspaceId, chatBots.id],
+    }),
+    check(
+      'chat_file_scope',
+      sql`(${table.draftId} IS NOT NULL AND ${table.botId} IS NULL AND ${table.conversationId} IS NULL) OR (${table.draftId} IS NULL AND ${table.botId} IS NOT NULL AND ${table.conversationId} IS NOT NULL)`,
+    ),
+    check('chat_file_size', sql`${table.size}>=0 AND ${table.size}<=2097152`),
+    check('chat_file_name', sql`length(${table.name}) BETWEEN 1 AND 180`),
+    check('chat_file_digest', sql`${table.sha256} ~ '^[0-9a-f]{64}$'`),
+    check('chat_file_source', sql`${table.source} IN ('upload','assistant')`),
+    check('chat_file_state', sql`${table.state} IN ('pending','ready')`),
+    index('chat_file_conversation_idx').on(
+      table.workspaceId,
+      table.userId,
+      table.conversationId,
+      table.createdAt,
+      table.id,
+    ),
+    index('chat_file_draft_idx').on(
+      table.workspaceId,
+      table.userId,
+      table.draftId,
+      table.createdAt,
+      table.id,
+    ),
+  ],
+)
+
+export const chatSavedFileImports = pgTable(
+  'chat_saved_file_imports',
+  {
+    targetFileId: uuid('target_file_id').primaryKey(),
+    workspaceId: text('workspace_id')
+      .notNull()
+      .references(() => chatWorkspaces.id),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id),
+    targetConversationId: text('target_conversation_id')
+      .notNull()
+      .references(() => chatConversations.id),
+    sourceConversationId: text('source_conversation_id').notNull(),
+    sourceFileId: uuid('source_file_id').notNull(),
+    sha256: text('sha256').notNull(),
+    name: text('name').notNull(),
+    mediaType: text('media_type').notNull(),
+    size: integer('size').notNull(),
+    source: text('source', { enum: ['upload', 'assistant'] }).notNull(),
+    createdAt: bigint('created_at', { mode: 'number' }).notNull(),
+  },
+  (table) => [
+    check(
+      'chat_file_import_size',
+      sql`${table.size}>=0 AND ${table.size}<=2097152`,
+    ),
+    check('chat_file_import_digest', sql`${table.sha256} ~ '^[0-9a-f]{64}$'`),
+    check(
+      'chat_file_import_source',
+      sql`${table.source} IN ('upload','assistant')`,
+    ),
+    index('chat_file_import_target_idx').on(
+      table.workspaceId,
+      table.userId,
+      table.targetConversationId,
+    ),
+  ],
+)
+export const chatSkills = pgTable(
+  'chat_skills',
+  {
+    id: uuid('id').primaryKey(),
+    workspaceId: text('workspace_id')
+      .notNull()
+      .references(() => chatWorkspaces.id),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id),
+    version: bigint('version', { mode: 'number' }).notNull(),
+    revision: bigint('revision', { mode: 'number' }).notNull(),
+    enabled: boolean('enabled').notNull(),
+    archived: boolean('archived').notNull(),
+    createdAt: bigint('created_at', { mode: 'number' }).notNull(),
+    updatedAt: bigint('updated_at', { mode: 'number' }).notNull(),
+  },
+  (table) => [
+    check(
+      'chat_skill_version',
+      sql`${table.version}>0 AND ${table.version}<=9007199254740991`,
+    ),
+    check(
+      'chat_skill_revision',
+      sql`${table.revision}>0 AND ${table.revision}<=9007199254740991`,
+    ),
+    index('chat_skill_owner_list').on(
+      table.workspaceId,
+      table.userId,
+      table.archived,
+      table.updatedAt,
+      table.id,
+    ),
+  ],
+)
+export const chatSkillVersions = pgTable(
+  'chat_skill_versions',
+  {
+    skillId: uuid('skill_id')
+      .notNull()
+      .references(() => chatSkills.id),
+    version: bigint('version', { mode: 'number' }).notNull(),
+    document: jsonb('document').$type<SkillDocument>().notNull(),
+    contentHash: text('content_hash').notNull(),
+    createdAt: bigint('created_at', { mode: 'number' }).notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.skillId, table.version] }),
+    check(
+      'chat_skill_saved_version',
+      sql`${table.version}>0 AND ${table.version}<=9007199254740991`,
+    ),
+  ],
+)
+export const chatSkillCommands = pgTable(
+  'chat_skill_commands',
+  {
+    workspaceId: text('workspace_id')
+      .notNull()
+      .references(() => chatWorkspaces.id),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id),
+    commandId: uuid('command_id').notNull(),
+    requestHash: text('request_hash').notNull(),
+    receipt: jsonb('receipt').$type<SkillVersion>().notNull(),
+    createdAt: bigint('created_at', { mode: 'number' }).notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.workspaceId, table.userId, table.commandId] }),
+  ],
+)
+
+export const chatKodyRefreshClaims = pgTable(
+  'chat_kody_refresh_claims',
+  {
+    userId: uuid('user_id')
+      .primaryKey()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    tokenFingerprint: text('token_fingerprint').notNull(),
+    claimId: uuid('claim_id').notNull(),
+    status: text('status', {
+      enum: ['refreshing', 'completed', 'needs_auth'],
+    }).notNull(),
+    leaseUntil: bigint('lease_until', { mode: 'number' }).notNull(),
+  },
+  (table) => [
+    check(
+      'chat_kody_refresh_status',
+      sql`${table.status} IN ('refreshing','completed','needs_auth')`,
+    ),
+  ],
+)
+
+export const chatKodyLinks = pgTable('chat_kody_links', {
+  userId: uuid('user_id')
+    .primaryKey()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  subject: text('subject').notNull().unique(),
+  username: text('username').notNull(),
+})
+
+export const chatKodySkillSync = pgTable('chat_kody_skill_sync', {
+  userId: uuid('user_id')
+    .primaryKey()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  accountFingerprint: text('account_fingerprint').notNull(),
+  fetchedAt: bigint('fetched_at', { mode: 'number' }).notNull(),
+  revision: bigint('revision', { mode: 'number' }).notNull().default(0),
+  leaseUntil: bigint('lease_until', { mode: 'number' }).notNull().default(0),
+})
+export const chatKodySkillVersions = pgTable(
+  'chat_kody_skill_versions',
+  {
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    id: text('id').notNull(),
+    version: bigint('version', { mode: 'number' }).notNull(),
+    packageId: uuid('package_id').notNull(),
+    sourceSkillId: text('source_skill_id').notNull(),
+    name: text('name').notNull(),
+    description: text('description').notNull(),
+    document: jsonb('document').$type<SkillDocument>().notNull(),
+    files: jsonb('files')
+      .$type<Array<{ path: string; content: string }>>()
+      .notNull(),
+    updatedAt: bigint('updated_at', { mode: 'number' }).notNull(),
+    current: boolean('current').notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.userId, table.id, table.version] }),
+    index('chat_kody_skill_current_idx').on(
+      table.userId,
+      table.current,
+      table.name,
+    ),
+  ],
+)
+export const chatKodySkillSyncStage = pgTable(
+  'chat_kody_skill_sync_stage',
+  {
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    revision: bigint('revision', { mode: 'number' }).notNull(),
+    id: text('id').notNull(),
+    payload: jsonb('payload').notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.userId, table.revision, table.id] }),
+  ],
+)
+
+export const chatPluginInstallations = pgTable(
+  'chat_plugin_installations',
+  {
+    id: uuid('id').primaryKey(),
+    workspaceId: text('workspace_id')
+      .notNull()
+      .references(() => chatWorkspaces.id),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id),
+    currentVersion: bigint('current_version', { mode: 'number' }).notNull(),
+    revision: bigint('revision', { mode: 'number' }).notNull(),
+    enabled: boolean('enabled').notNull(),
+    removed: boolean('removed').notNull(),
+    createdAt: bigint('created_at', { mode: 'number' }).notNull(),
+    updatedAt: bigint('updated_at', { mode: 'number' }).notNull(),
+  },
+  (t) => [
+    check('chat_plugin_version_positive', sql`${t.currentVersion}>0`),
+    check('chat_plugin_revision_positive', sql`${t.revision}>0`),
+    index('chat_plugin_owner_list').on(
+      t.workspaceId,
+      t.userId,
+      t.removed,
+      t.updatedAt,
+      t.id,
+    ),
+  ],
+)
+export const chatPluginVersions = pgTable(
+  'chat_plugin_versions',
+  {
+    installationId: uuid('installation_id')
+      .notNull()
+      .references(() => chatPluginInstallations.id),
+    version: bigint('version', { mode: 'number' }).notNull(),
+    digest: text('digest').notNull(),
+    preview: jsonb('preview').notNull(),
+    createdAt: bigint('created_at', { mode: 'number' }).notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.installationId, t.version] }),
+    check('chat_plugin_saved_version_positive', sql`${t.version}>0`),
+  ],
+)
+export const chatPluginFiles = pgTable(
+  'chat_plugin_files',
+  {
+    installationId: uuid('installation_id').notNull(),
+    version: bigint('version', { mode: 'number' }).notNull(),
+    path: text('path').notNull(),
+    content: text('content').notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.installationId, t.version, t.path] }),
+    foreignKey({
+      columns: [t.installationId, t.version],
+      foreignColumns: [
+        chatPluginVersions.installationId,
+        chatPluginVersions.version,
+      ],
+    }),
+  ],
+)
+export const chatPluginSkillIdentities = pgTable(
+  'chat_plugin_skill_identities',
+  {
+    id: uuid('id').primaryKey(),
+    installationId: uuid('installation_id')
+      .notNull()
+      .references(() => chatPluginInstallations.id),
+    path: text('path').notNull(),
+  },
+  (t) => [unique('chat_plugin_skill_path').on(t.installationId, t.path)],
+)
+export const chatPluginSkillVersions = pgTable(
+  'chat_plugin_skill_versions',
+  {
+    skillId: uuid('skill_id')
+      .notNull()
+      .references(() => chatPluginSkillIdentities.id),
+    version: bigint('version', { mode: 'number' }).notNull(),
+    document: jsonb('document').$type<SkillDocument>().notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.skillId, t.version] })],
+)
+export const chatPluginBindings = pgTable(
+  'chat_plugin_bindings',
+  {
+    installationId: uuid('installation_id').notNull(),
+    version: bigint('version', { mode: 'number' }).notNull(),
+    requirementKey: text('requirement_key').notNull(),
+    serverId: text('server_id').notNull(),
+    endpoint: text('endpoint').notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.installationId, t.version, t.requirementKey] }),
+    foreignKey({
+      columns: [t.installationId, t.version],
+      foreignColumns: [
+        chatPluginVersions.installationId,
+        chatPluginVersions.version,
+      ],
+    }),
+  ],
+)
+export const chatPluginCommands = pgTable(
+  'chat_plugin_commands',
+  {
+    workspaceId: text('workspace_id')
+      .notNull()
+      .references(() => chatWorkspaces.id),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id),
+    commandId: uuid('command_id').notNull(),
+    requestHash: text('request_hash').notNull(),
+    receipt: jsonb('receipt').notNull(),
+    createdAt: bigint('created_at', { mode: 'number' }).notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.workspaceId, t.userId, t.commandId] })],
+)
+
+export const chatMcpAccounts = pgTable(
+  'chat_mcp_accounts',
+  {
+    id: uuid('id').primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id),
+    label: text('label').notNull(),
+    url: text('url').notNull(),
+    authMode: text('auth_mode', { enum: ['none', 'token', 'oauth'] }).notNull(),
+    enabled: boolean('enabled').notNull(),
+    removed: boolean('removed').notNull(),
+    revision: bigint('revision', { mode: 'number' }).notNull(),
+    grantId: uuid('grant_id').notNull(),
+    tokenRevision: bigint('token_revision', { mode: 'number' }).notNull(),
+    ciphertext: text('ciphertext'),
+    status: text('status', {
+      enum: ['configured', 'checked', 'needs_auth', 'error'],
+    }).notNull(),
+    checkedAt: bigint('checked_at', { mode: 'number' }),
+    error: text('error'),
+    refreshClaim: uuid('refresh_claim'),
+    refreshUntil: bigint('refresh_until', { mode: 'number' }),
+    createdAt: bigint('created_at', { mode: 'number' }).notNull(),
+    updatedAt: bigint('updated_at', { mode: 'number' }).notNull(),
+  },
+  (t) => [
+    check('chat_mcp_auth_mode', sql`${t.authMode} IN ('none','token','oauth')`),
+    check(
+      'chat_mcp_status',
+      sql`${t.status} IN ('configured','checked','needs_auth','error')`,
+    ),
+    check('chat_mcp_revision', sql`${t.revision}>0`),
+    check('chat_mcp_token_revision', sql`${t.tokenRevision}>=0`),
+    index('chat_mcp_owner').on(t.userId, t.removed, t.id),
+  ],
+)
+export const chatMcpAccountCommands = pgTable(
+  'chat_mcp_account_commands',
+  {
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id),
+    commandId: uuid('command_id').notNull(),
+    requestHash: text('request_hash').notNull(),
+    receipt: jsonb('receipt').notNull(),
+    createdAt: bigint('created_at', { mode: 'number' }).notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.commandId] })],
+)
+
+export const chatMcpSetupAttempts = pgTable(
+  'chat_mcp_setup_attempts',
+  {
+    id: uuid('id').primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id),
+    workspaceId: text('workspace_id')
+      .notNull()
+      .references(() => chatWorkspaces.id),
+    requestHash: text('request_hash').notNull(),
+    status: text('status', {
+      enum: ['review', 'starting', 'authorize', 'complete', 'failed'],
+    }).notNull(),
+    summary: jsonb('summary').notNull(),
+    ciphertext: text('ciphertext').notNull(),
+    stateHash: text('state_hash').unique(),
+    browserHash: text('browser_hash'),
+    expiresAt: bigint('expires_at', { mode: 'number' }).notNull(),
+    createdAt: bigint('created_at', { mode: 'number' }).notNull(),
+  },
+  (t) => [
+    check(
+      'chat_mcp_setup_status',
+      sql`${t.status} IN ('review','starting','authorize','complete','failed')`,
+    ),
+    index('chat_mcp_setup_owner').on(t.userId, t.workspaceId, t.createdAt),
+  ],
+)
+
+export const chatWorkflowRevisions = pgTable(
+  'chat_workflow_revisions',
+  {
+    conversationId: text('conversation_id')
+      .notNull()
+      .references(() => chatConversations.id, { onDelete: 'cascade' }),
+    workflowId: uuid('workflow_id').notNull(),
+    revision: bigint('revision', { mode: 'number' }).notNull(),
+    workspaceId: text('workspace_id')
+      .notNull()
+      .references(() => chatWorkspaces.id),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id),
+    commandId: uuid('command_id').notNull(),
+    requestHash: text('request_hash').notNull(),
+    definitionJson: jsonb('definition_json').notNull(),
+    archived: boolean('archived').notNull(),
+    createdAt: bigint('created_at', { mode: 'number' }).notNull(),
+  },
+  (table) => [
+    primaryKey({
+      columns: [table.conversationId, table.workflowId, table.revision],
+    }),
+    unique().on(table.conversationId, table.commandId),
+    check('chat_workflow_revision_positive', sql`${table.revision}>0`),
+  ],
+)
+
+export const chatWorkflowChildren = pgTable(
+  'chat_workflow_children',
+  {
+    conversationId: text('conversation_id')
+      .primaryKey()
+      .references(() => chatConversations.id, { onDelete: 'cascade' }),
+    ownerConversationId: text('owner_conversation_id')
+      .notNull()
+      .references(() => chatConversations.id, { onDelete: 'cascade' }),
+    workflowRunId: uuid('workflow_run_id').notNull(),
+    stepId: text('step_id').notNull(),
+    admissionJson: text('admission_json').notNull(),
+  },
+  (table) => [
+    unique().on(table.ownerConversationId, table.workflowRunId, table.stepId),
+    check(
+      'chat_workflow_child_admission_json',
+      sql`jsonb_typeof(${table.admissionJson}::jsonb)='object'`,
+    ),
+  ],
+)
+
+export const chatConversationActivity = pgTable(
+  'chat_conversation_activity',
+  {
+    conversationId: text('conversation_id')
+      .primaryKey()
+      .references(() => chatConversations.id, { onDelete: 'cascade' }),
+    botId: text('bot_id')
+      .notNull()
+      .references(() => chatBots.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    status: text('status').notNull(),
+    activityAt: bigint('activity_at', { mode: 'number' }).notNull(),
+    eventVersion: bigint('event_version', { mode: 'number' }).notNull(),
+    readVersion: bigint('read_version', { mode: 'number' })
+      .notNull()
+      .default(0),
+    preview: text('preview').notNull().default(''),
+    messageCount: bigint('message_count', { mode: 'number' })
+      .notNull()
+      .default(0),
+    queuedCount: bigint('queued_count', { mode: 'number' })
+      .notNull()
+      .default(0),
+    queuePaused: boolean('queue_paused').notNull().default(false),
+  },
+  (table) => [
+    index('chat_activity_user_time').on(table.userId, table.activityAt),
+    check(
+      'chat_activity_status',
+      sql`${table.status} IN ('idle','running','approval','setup','error','completed')`,
+    ),
+  ],
+)
+
+export const chatBotScheduleSuspensions = pgTable(
+  'chat_bot_schedule_suspensions',
+  {
+    botId: text('bot_id')
+      .primaryKey()
+      .references(() => chatBots.id, { onDelete: 'cascade' }),
+    generation: bigint('generation', { mode: 'number' }).notNull().default(0),
+  },
+  (table) => [
+    check(
+      'chat_bot_generation_safe',
+      sql`${table.generation} BETWEEN 0 AND 9007199254740991`,
+    ),
+  ],
+)
+export const chatThreadScheduleSuspensions = pgTable(
+  'chat_thread_schedule_suspensions',
+  {
+    conversationId: text('conversation_id')
+      .primaryKey()
+      .references(() => chatConversationThreads.conversationId, {
+        onDelete: 'cascade',
+      }),
+    generation: bigint('generation', { mode: 'number' }).notNull().default(0),
+  },
+  (table) => [
+    check(
+      'chat_thread_generation_safe',
+      sql`${table.generation} BETWEEN 0 AND 9007199254740991`,
+    ),
+  ],
+)
+export const chatExecutionMembershipGenerations = pgTable(
+  'chat_execution_membership_generations',
+  {
+    workspaceId: text('workspace_id')
+      .notNull()
+      .references(() => chatWorkspaces.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    generation: bigint('generation', { mode: 'number' }).notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.workspaceId, table.userId] }),
+    check(
+      'chat_membership_generation_safe',
+      sql`${table.generation} BETWEEN 0 AND 9007199254740991`,
+    ),
+  ],
+)
+
+export const chatConversationCopies = pgTable(
+  'chat_conversation_copies',
+  {
+    id: uuid('id').primaryKey(),
+    retryId: uuid('retry_id')
+      .unique()
+      .references(() => chatConversationRetries.id),
+    workspaceId: text('workspace_id')
+      .notNull()
+      .references(() => chatWorkspaces.id),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id),
+    sourceBotId: text('source_bot_id').notNull(),
+    sourceConversationId: text('source_conversation_id').notNull(),
+    targetBotId: text('target_bot_id').notNull().unique(),
+    targetConversationId: text('target_conversation_id').notNull().unique(),
+    idempotencyKey: text('idempotency_key').notNull(),
+    requestDigest: text('request_digest').notNull(),
+    kind: text('kind').notNull(),
+    boundaryJson: jsonb('boundary_json').notNull(),
+    name: text('name').notNull(),
+    purpose: text('purpose').notNull(),
+    parentId: text('parent_id'),
+    status: text('status').notNull().default('copying'),
+    phase: text('phase').notNull().default('export'),
+    manifestJson: jsonb('manifest_json'),
+    nextPage: bigint('next_page', { mode: 'number' }).notNull().default(0),
+    workVersion: bigint('work_version', { mode: 'number' })
+      .notNull()
+      .default(0),
+    errorCode: text('error_code'),
+    errorMessage: text('error_message'),
+    attempts: bigint('attempts', { mode: 'number' }).notNull().default(0),
+    retryAt: bigint('retry_at', { mode: 'number' }).notNull().default(0),
+    createdAt: bigint('created_at', { mode: 'number' }).notNull(),
+    updatedAt: bigint('updated_at', { mode: 'number' }).notNull(),
+    completedAt: bigint('completed_at', { mode: 'number' }),
+  },
+  (table) => [
+    unique().on(table.workspaceId, table.userId, table.idempotencyKey),
+    index('chat_copies_pending').on(
+      table.sourceConversationId,
+      table.phase,
+      table.retryAt,
+    ),
+    index('chat_copies_viewer').on(
+      table.workspaceId,
+      table.userId,
+      table.createdAt,
+    ),
+    check('chat_copy_kind', sql`${table.kind} IN ('duplicate','fork')`),
+    check(
+      'chat_copy_status',
+      sql`${table.status} IN ('copying','ready','failed')`,
+    ),
+    check(
+      'chat_copy_phase',
+      sql`${table.phase} IN ('export','transfer','import','publish','cleanup','done')`,
+    ),
+  ],
+)
+
+export const chatConnectedDevices = pgTable(
+  'chat_connected_devices',
+  {
+    id: uuid('id').primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id),
+    name: text('name').notNull(),
+    tokenHash: text('token_hash').notNull().unique(),
+    grants: text('grants').notNull().default('[]'),
+    lastSeen: bigint('last_seen', { mode: 'number' }).notNull().default(0),
+    revokedAt: bigint('revoked_at', { mode: 'number' }),
+    createdAt: bigint('created_at', { mode: 'number' }).notNull(),
+  },
+  (t) => [index('chat_devices_owner').on(t.userId)],
+)
+export const chatDeviceOperations = pgTable(
+  'chat_device_operations',
+  {
+    id: uuid('id').primaryKey(),
+    deviceId: uuid('device_id')
+      .notNull()
+      .references(() => chatConnectedDevices.id),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id),
+    conversationId: text('conversation_id')
+      .notNull()
+      .references(() => chatConversations.id),
+    request: text('request').notNull(),
+    status: text('status').notNull().default('pending'),
+    result: text('result'),
+    createdAt: bigint('created_at', { mode: 'number' }).notNull(),
+    expiresAt: bigint('expires_at', { mode: 'number' }).notNull(),
+  },
+  (t) => [
+    index('chat_device_operations_pending').on(
+      t.deviceId,
+      t.status,
+      t.expiresAt,
+    ),
+  ],
+)
+
+export const chatDailyUsage = pgTable(
+  'chat_daily_usage',
+  {
+    userId: text('user_id').notNull(),
+    day: text('day').notNull(),
+    turns: bigint('turns', { mode: 'number' }).notNull().default(0),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.day] })],
+)
+export const chatScheduledDailyUsage = pgTable(
+  'chat_scheduled_daily_usage',
+  {
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id),
+    day: text('day').notNull(),
+    turns: bigint('turns', { mode: 'number' }).notNull().default(0),
+  },
+  (t) => [
+    primaryKey({ columns: [t.userId, t.day] }),
+    check('chat_scheduled_turns_nonnegative', sql`${t.turns}>=0`),
+  ],
+)
+export const chatRunUsageReceipts = pgTable(
+  'chat_run_usage_receipts',
+  {
+    conversationId: text('conversation_id')
+      .notNull()
+      .references(() => chatConversations.id),
+    runId: text('run_id').notNull(),
+    workspaceId: text('workspace_id')
+      .notNull()
+      .references(() => chatWorkspaces.id),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id),
+    botId: text('bot_id')
+      .notNull()
+      .references(() => chatBots.id),
+    scheduled: boolean('scheduled').notNull(),
+    day: text('day').notNull(),
+    createdAt: bigint('created_at', { mode: 'number' }).notNull(),
+    attemptId: uuid('attempt_id').notNull().unique(),
+  },
+  (t) => [primaryKey({ columns: [t.conversationId, t.runId] })],
+)
+export const chatFundedSpend = pgTable(
+  'chat_funded_spend',
+  {
+    conversationId: text('conversation_id')
+      .notNull()
+      .references(() => chatConversations.id),
+    runId: text('run_id').notNull(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id),
+    day: text('day').notNull(),
+    reservedMicros: bigint('reserved_micros', { mode: 'number' }).notNull(),
+    billedMicros: bigint('billed_micros', { mode: 'number' }).notNull(),
+    observedMicros: bigint('observed_micros', { mode: 'number' })
+      .notNull()
+      .default(0),
+    unknown: boolean('unknown').notNull().default(false),
+  },
+  (t) => [
+    primaryKey({ columns: [t.conversationId, t.runId] }),
+    index('chat_funded_spend_day_user').on(t.day, t.userId),
+  ],
+)
+
+export const chatConversationRetries = pgTable(
+  'chat_conversation_retries',
+  {
+    id: uuid('id').primaryKey(),
+    workspaceId: text('workspace_id')
+      .notNull()
+      .references(() => chatWorkspaces.id),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id),
+    sourceBotId: text('source_bot_id').notNull(),
+    sourceConversationId: text('source_conversation_id').notNull(),
+    messageId: text('message_id').notNull(),
+    idempotencyKey: text('idempotency_key').notNull(),
+    sourceJson: jsonb('source_json').notNull(),
+    filePlanJson: jsonb('file_plan_json').notNull(),
+    status: text('status').notNull().default('preparing'),
+    errorCode: text('error_code'),
+    errorMessage: text('error_message'),
+    createdAt: bigint('created_at', { mode: 'number' }).notNull(),
+    updatedAt: bigint('updated_at', { mode: 'number' }).notNull(),
+  },
+  (t) => [
+    unique().on(t.workspaceId, t.userId, t.idempotencyKey),
+    index('chat_retries_viewer').on(t.workspaceId, t.userId, t.createdAt),
+    check(
+      'chat_retry_status',
+      sql`${t.status} IN ('preparing','ready','failed')`,
+    ),
+  ],
+)
+
+export const chatKodyAccountReferenceCatalog = pgTable(
+  'chat_kody_account_reference_catalog',
+  {
+    userId: uuid('user_id')
+      .primaryKey()
+      .references(() => users.id),
+    accountFingerprint: text('account_fingerprint').notNull(),
+    metadata: text('metadata').notNull(),
+    fetchedAt: bigint('fetched_at', { mode: 'number' }).notNull(),
+    revision: bigint('revision', { mode: 'number' }).notNull(),
+  },
+)
+
+export const chatMcpReferenceCatalog = pgTable(
+  'chat_mcp_reference_catalog',
+  {
+    workspaceId: text('workspace_id')
+      .notNull()
+      .references(() => chatWorkspaces.id),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id),
+    serverId: text('server_id').notNull(),
+    fingerprint: text('fingerprint').notNull(),
+    metadata: text('metadata').notNull(),
+    fetchedAt: bigint('fetched_at', { mode: 'number' }).notNull(),
+    refreshStartedAt: bigint('refresh_started_at', {
+      mode: 'number',
+    }).notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.workspaceId, t.userId, t.serverId] })],
+)
+
+export const chatKodyReferenceCatalog = pgTable('chat_kody_reference_catalog', {
+  userId: uuid('user_id')
+    .primaryKey()
+    .references(() => users.id),
+  accountFingerprint: text('account_fingerprint').notNull(),
+  metadata: text('metadata').notNull(),
+  fetchedAt: bigint('fetched_at', { mode: 'number' }).notNull(),
+  complete: boolean('complete').notNull().default(false),
+  dataRevision: bigint('data_revision', { mode: 'number' })
+    .notNull()
+    .default(0),
+  refreshStartedAt: bigint('refresh_started_at', { mode: 'number' }).notNull(),
+  revision: bigint('revision', { mode: 'number' }).notNull(),
+})
+export const chatKodyReferenceItems = pgTable(
+  'chat_kody_reference_items',
+  {
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id),
+    revision: bigint('revision', { mode: 'number' }).notNull(),
+    ordinal: bigint('ordinal', { mode: 'number' }).notNull(),
+    payload: jsonb('payload').notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.revision, t.ordinal] })],
+)
+
+export const chatKodyAccountProbe = pgTable('chat_kody_account_probe', {
+  userId: uuid('user_id')
+    .primaryKey()
+    .references(() => users.id),
+  accountFingerprint: text('account_fingerprint').notNull(),
+  sourceFingerprint: text('source_fingerprint').notNull().default(''),
+  checkedAt: bigint('checked_at', { mode: 'number' }).notNull(),
+  revision: bigint('revision', { mode: 'number' }).notNull(),
+})
+
+export const chatBotSections = pgTable(
+  'chat_bot_sections',
+  {
+    id: text('id').primaryKey(),
+    workspaceId: text('workspace_id')
+      .notNull()
+      .references(() => chatWorkspaces.id),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id),
+    name: text('name').notNull(),
+    position: real('position').notNull().default(0),
+    version: bigint('version', { mode: 'number' }).notNull().default(0),
+    sortOverride: text('sort_override'),
+  },
+  (t) => [index('chat_bot_sections_viewer').on(t.workspaceId, t.userId)],
+)
+export const chatBotViewerState = pgTable(
+  'chat_bot_viewer_state',
+  {
+    botId: text('bot_id')
+      .notNull()
+      .references(() => chatBots.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id),
+    pinned: boolean('pinned').notNull().default(false),
+    sectionId: text('section_id').references(() => chatBotSections.id, {
+      onDelete: 'set null',
+    }),
+    position: real('position').notNull().default(0),
+    tags: jsonb('tags').$type<string[]>().notNull().default([]),
+  },
+  (t) => [primaryKey({ columns: [t.botId, t.userId] })],
+)
+export const chatWorkspaceSyncClock = pgTable('chat_workspace_sync_clock', {
+  workspaceId: text('workspace_id')
+    .primaryKey()
+    .references(() => chatWorkspaces.id, { onDelete: 'cascade' }),
+  revision: bigint('revision', { mode: 'number' }).notNull().default(1),
+  publishedRevision: bigint('published_revision', { mode: 'number' })
+    .notNull()
+    .default(0),
+})
+export const chatWorkspaceSyncMembers = pgTable(
+  'chat_workspace_sync_members',
+  {
+    workspaceId: text('workspace_id').notNull(),
+    userId: uuid('user_id').notNull(),
+    generation: uuid('generation').notNull().defaultRandom(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.workspaceId, t.userId] }),
+    foreignKey({
+      columns: [t.workspaceId, t.userId],
+      foreignColumns: [chatMemberships.workspaceId, chatMemberships.userId],
+    }).onDelete('cascade'),
+  ],
+)
+
+export const chatRecipes = pgTable('chat_recipes', {
+  id: text('id').primaryKey(),
+  workspaceId: text('workspace_id')
+    .notNull()
+    .references(() => chatWorkspaces.id),
+  title: text('title').notNull(),
+  description: text('description').notNull(),
+  code: text('code').notNull(),
+  createdAt: bigint('created_at', { mode: 'number' }).notNull(),
+})
+
+export const chatAccountOnboarding = pgTable('chat_account_onboarding', {
+  userId: uuid('user_id')
+    .primaryKey()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  revision: bigint('revision', { mode: 'number' }).notNull().default(0),
+  status: text('status').notNull().default('pending'),
+  useCase: text('use_case'),
+  completedAt: bigint('completed_at', { mode: 'number' }),
+})
+export const chatAccountOnboardingCommands = pgTable(
+  'chat_account_onboarding_commands',
+  {
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => chatAccountOnboarding.userId, { onDelete: 'cascade' }),
+    commandId: uuid('command_id').notNull(),
+    requestDigest: text('request_digest').notNull(),
+    mutationId: uuid('mutation_id').notNull(),
+    resultJson: text('result_json').notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.commandId] })],
+)
+
+export const chatKodyOauthClients = pgTable('chat_kody_oauth_clients', {
+  origin: text('origin').primaryKey(),
+  clientId: text('client_id').notNull(),
+})
+export const chatKodyOauthPending = pgTable(
+  'chat_kody_oauth_pending',
+  {
+    stateHash: text('state_hash').primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    payload: text('payload').notNull(),
+    expiresAt: bigint('expires_at', { mode: 'number' }).notNull(),
+  },
+  (table) => [index('chat_kody_oauth_pending_expiry').on(table.expiresAt)],
+)
+
+export const chatAccess = pgTable('chat_access', {
+  userId: uuid('user_id')
+    .primaryKey()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  invitedBy: uuid('invited_by').references(() => users.id, {
+    onDelete: 'set null',
+  }),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+})
+export const chatInvites = pgTable(
+  'chat_invites',
+  {
+    tokenHash: text('token_hash').primaryKey(),
+    createdBy: uuid('created_by')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    redeemedBy: uuid('redeemed_by').references(() => users.id, {
+      onDelete: 'set null',
+    }),
+    redeemedAt: timestamp('redeemed_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    creatorIdx: index('chat_invites_creator_idx').on(table.createdBy),
+  }),
+)

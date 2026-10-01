@@ -1,0 +1,27 @@
+@scope (:root:has(.tanchat-shell)) {
+  .ui-input.ui-input {
+    width: 100%;
+    min-height: 38px;
+    padding: 8px 11px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: var(--surface);
+    color: inherit;
+    font: inherit;
+    font-size: 13px;
+    line-height: 1.5;
+    transition:
+      border-color var(--motion-fast),
+      box-shadow var(--motion-fast);
+  }
+  .ui-input.ui-input:focus {
+    outline: 2px solid var(--muted);
+    outline-offset: 2px;
+  }
+  .ui-input.ui-input:disabled {
+    opacity: 0.5;
+  }
+  .ui-input.ui-input[aria-invalid='true'] {
+    border-color: var(--danger);
+  }
+}

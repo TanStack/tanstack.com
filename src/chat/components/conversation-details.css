@@ -1,0 +1,217 @@
+@scope (:root:has(.tanchat-shell)) {
+  .conversation-details {
+    width: 100%;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 18px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-size: 13px;
+  }
+  .conversation-details section + section {
+    margin-top: 24px;
+  }
+  .conversation-details h3 {
+    font-size: 13px;
+    margin: 0 0 10px;
+  }
+  .conversation-details dl {
+    display: grid;
+    grid-template-columns: minmax(80px, 0.8fr) minmax(0, 1.2fr);
+    gap: 9px 12px;
+    margin: 0 0 20px;
+  }
+  .conversation-details dt,
+  .details-note {
+    color: var(--muted);
+  }
+  .conversation-details dd {
+    margin: 0;
+  }
+  .conversation-details ul {
+    padding-left: 18px;
+  }
+  .conversation-details li + li {
+    margin-top: 8px;
+  }
+  .details-request {
+    display: block;
+    text-align: left;
+    white-space: pre-wrap;
+    width: 100%;
+    font: inherit;
+    color: inherit;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    max-height: 160px;
+    overflow: auto;
+  }
+  .details-calls {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .details-runs {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .details-runs li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 12px;
+    padding: 8px 0;
+  }
+  .details-runs li + li {
+    margin-top: 0;
+  }
+  .details-runs li > div {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+  }
+  .details-runs time,
+  .details-runs li > span {
+    color: var(--muted);
+    font-size: 11px;
+  }
+  .details-calls button {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+    padding: 10px 0;
+    text-align: left;
+    background: transparent;
+    border: 0;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+  }
+  .details-calls button span {
+    color: var(--muted);
+  }
+  .details-trace {
+    display: grid;
+    gap: 5px;
+    margin-top: 14px;
+  }
+  .details-trace pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    font-size: 11px;
+  }
+  .conversation-details summary {
+    cursor: pointer;
+  }
+
+  .details-summary > section + section {
+    margin-top: 12px;
+    padding-top: 12px;
+  }
+  .details-summary h3 {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 20px;
+    margin: 0 0 6px;
+  }
+  .details-summary > section:first-child > h3 {
+    padding-right: 28px;
+  }
+  .details-summary dl {
+    display: block;
+    margin: 0;
+  }
+  .details-summary-row,
+  .details-summary-item,
+  .details-summary-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 30px;
+    font-size: 14px;
+    line-height: 20px;
+  }
+  .details-summary-row dt {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: inherit;
+    flex-shrink: 0;
+  }
+  .details-summary-row dd {
+    min-width: 0;
+    margin-left: auto;
+    color: var(--muted);
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .details-summary svg {
+    flex-shrink: 0;
+    stroke-width: 1.75;
+  }
+  .details-summary ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .details-summary li + li {
+    margin-top: 0;
+  }
+  .details-summary-item > span,
+  .details-summary-link > span {
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .details-summary-item > small {
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .details-summary-link {
+    width: calc(100% + 16px);
+    margin-inline: -8px;
+    padding: 0 8px;
+    background: transparent;
+    border: 0;
+    border-radius: 7px;
+    color: inherit;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .details-summary > .delegated-tasks {
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+  .details-summary-link > svg:last-child {
+    color: var(--muted);
+  }
+  .details-summary-link:hover {
+    background: var(--soft);
+  }
+  .details-summary-link:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .details-summary .details-note {
+    font-size: 12px;
+    line-height: 1.5;
+    margin: 8px 0 0;
+  }
+  @media (pointer: coarse) {
+    .details-summary-link {
+      min-height: 44px;
+    }
+  }
+}

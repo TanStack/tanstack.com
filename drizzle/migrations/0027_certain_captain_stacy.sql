@@ -1,0 +1,1 @@
+ALTER TABLE "chat_thread_requests" ADD COLUMN "request_digest" text;

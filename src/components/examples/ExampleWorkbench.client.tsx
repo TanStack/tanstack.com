@@ -24,7 +24,7 @@ import {
   DropdownItem,
   DropdownTrigger,
 } from '~/components/ds/ui'
-import { BuilderWorkspaceControlsContext } from '~/components/builder/builder-workspace-controls.client'
+import { BuilderWorkspaceControlsContext } from '~/chat/components/projects/project-workspace-controls.client'
 import { Tooltip } from '~/ui'
 import { copyTextToClipboard } from '~/utils/browser-effects'
 import {

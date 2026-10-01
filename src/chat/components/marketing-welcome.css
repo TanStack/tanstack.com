@@ -1,0 +1,113 @@
+@scope (:root:has(.tanchat-shell)) {
+  .marketing-welcome {
+    min-height: 100dvh;
+    background: var(--bg, #f7f8fa);
+    color: var(--text, #202426);
+    padding: 32px 48px 64px;
+  }
+  .marketing-navigation {
+    max-width: 1120px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .marketing-name {
+    font-size: 25px;
+    font-weight: 650;
+  }
+  .marketing-welcome a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .marketing-signin {
+    padding: 10px 16px;
+    border: 1px solid var(--line, #d6d9dd);
+    border-radius: 10px;
+  }
+  .marketing-intro {
+    max-width: 1120px;
+    margin: 112px auto 96px;
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 72px;
+    align-items: end;
+  }
+  .marketing-intro h1 {
+    margin: 0;
+    max-width: 620px;
+    font-size: 60px;
+    line-height: 1.08;
+    font-weight: 550;
+  }
+  .marketing-details p {
+    font-size: 19px;
+    line-height: 1.65;
+    margin: 0 0 28px;
+    max-width: 420px;
+  }
+  .marketing-start {
+    display: inline-flex;
+    align-items: center;
+    gap: 36px;
+    background: var(--text, #202426);
+    color: var(--bg, #f7f8fa) !important;
+    border-radius: 12px;
+    padding: 16px 22px;
+    font-weight: 600;
+  }
+  .marketing-details .marketing-access {
+    font-size: 13px;
+    margin: 14px 0 0;
+    color: var(--muted, #61676e);
+  }
+  .marketing-connections {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 36px;
+    background: var(--soft, #eceff2);
+    border-radius: 16px;
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 48px;
+  }
+  .marketing-connections h2 {
+    font-size: 27px;
+    line-height: 1.2;
+    font-weight: 550;
+    margin: 0;
+  }
+  .marketing-connections p {
+    font-size: 16px;
+    line-height: 1.7;
+    max-width: 590px;
+    margin: 0;
+  }
+  .marketing-welcome a:focus-visible {
+    outline: 2px solid var(--accent, #477963);
+    outline-offset: 5px;
+  }
+  @media (max-width: 760px) {
+    .marketing-welcome {
+      padding: 24px 24px 40px;
+    }
+    .marketing-intro {
+      margin: 72px auto 56px;
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+    .marketing-intro h1 {
+      font-size: 43px;
+      max-width: 520px;
+    }
+    .marketing-details p {
+      font-size: 17px;
+    }
+    .marketing-connections {
+      padding: 24px;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+  }
+}

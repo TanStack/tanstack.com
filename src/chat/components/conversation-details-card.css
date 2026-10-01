@@ -1,0 +1,44 @@
+@scope (:root:has(.tanchat-shell)) {
+  .conversation-details-host {
+    position: relative;
+    container: conversation-details / inline-size;
+  }
+  .conversation-details-host > .messages-scroll {
+    --details-content-inset: 0px;
+    padding-right: var(--details-content-inset);
+  }
+  .conversation-details-host > .composer-area {
+    --details-content-inset: 0px;
+    width: calc(100% - var(--details-content-inset));
+    margin-left: max(
+      0px,
+      calc((100% - 800px - var(--details-content-inset)) / 2)
+    );
+    margin-right: auto;
+  }
+  .conversation-details-host:where([data-panel-motion]) > .messages-scroll {
+    transition: padding-right var(--motion-panel) var(--motion-ease);
+  }
+  .conversation-details-host:where([data-panel-motion]) > .composer-area {
+    transition:
+      width var(--motion-panel) var(--motion-ease),
+      margin-left var(--motion-panel) var(--motion-ease);
+  }
+  @container conversation-details (min-width: 1120px) {
+    .conversation-details-host[data-details-open]
+      > :is(.messages-scroll, .composer-area) {
+      /* The 360px card, its 12px edge inset, and a 12px gap to the column. */
+      --details-content-inset: 384px;
+    }
+  }
+  .details-card {
+    --conversation-card-padding: 16px;
+  }
+  .details-card-close {
+    top: 8px;
+    right: 8px;
+  }
+  .details-card-content .conversation-details {
+    padding: var(--conversation-card-padding);
+  }
+}

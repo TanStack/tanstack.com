@@ -3,6 +3,7 @@ import {
   isNotFound,
   notFound,
   createFileRoute,
+  redirect,
 } from '@tanstack/react-router'
 import {
   queryOptions,
@@ -20,6 +21,7 @@ import {
 import {
   getExampleStartingFileName,
   getExampleStartingPath,
+  getExampleSandboxUrls,
 } from '~/utils/sandbox'
 import { canonicalUrl, seo } from '~/utils/seo'
 import { ogImageUrl } from '~/utils/og'
@@ -33,7 +35,10 @@ import {
   type DeployProvider,
 } from '~/components/ExampleDeployDialog'
 import { getDocsCacheHeaders } from '~/utils/docs-cache-headers'
-import { getExampleRuntimeHeaders } from '~/utils/stackblitz-embed'
+import {
+  getExampleRuntimeHeaders,
+  shouldReloadExampleDocument,
+} from '~/utils/stackblitz-embed'
 import {
   type DeploymentProviderId,
   useDeploymentProviderPlacement,
@@ -48,20 +53,19 @@ import type { ExampleDefinition } from '~/utils/example-workspace'
 import { CodeBlock } from '~/components/markdown'
 import { getCodeBlockLanguageFromFilePath } from '~/components/markdown/codeBlock.shared'
 import { getClientExampleConfig } from '~/utils/client-example-config'
+import {
+  getExamplePanel,
+  getExamplePanels,
+  type ExamplePanel,
+} from '~/utils/example-panel'
+import { createExampleFileTree } from '~/utils/example-file-tree'
+import { useIsDark } from '~/hooks/useIsDark'
 
 const LazyExampleWorkbench = React.lazy(() =>
   import('~/components/examples/ExampleWorkbench.client').then((module) => ({
     default: module.ExampleWorkbench,
   })),
 )
-
-type ExamplePanel = 'code' | 'sandbox'
-
-const examplePanelValues: ReadonlyArray<ExamplePanel> = ['code', 'sandbox']
-
-function getExamplePanel(value: string | undefined) {
-  return examplePanelValues.find((candidate) => candidate === value)
-}
 
 const fileQueryOptions = (repo: string, branch: string, filePath: string) => {
   return queryOptions({
@@ -121,6 +125,14 @@ export const Route = createFileRoute(
     path: v.optional(v.string()),
     panel: v.optional(v.string()),
   }),
+  beforeLoad: ({ location, preload }) => {
+    if (preload || typeof window === 'undefined') return
+    // Client navigation cannot apply COOP/COEP response headers. Reload before
+    // mounting an editor so opening a provider later cannot discard edits.
+    if (shouldReloadExampleDocument(window, location.pathname)) {
+      throw redirect({ href: location.href, reloadDocument: true })
+    }
+  },
   loaderDeps: ({ search }) => ({ path: search.path }),
   loader: async ({ params, context: { queryClient }, deps: { path } }) => {
     const library = getLibrary(params.libraryId)
@@ -294,18 +306,10 @@ export const Route = createFileRoute(
   },
   headers: ({ params }) => {
     const { libraryId, version } = params
-    const config = getClientExampleConfig({
-      framework: params.framework,
-      libraryId,
-      slug: params._splat ?? '',
-      version,
-    })
-
     return {
       ...getDocsCacheHeaders({ libraryId, version }),
-      ...getExampleRuntimeHeaders(
-        config ? (config.runtime?.type ?? 'esbuild') : 'external',
-      ),
+      // Every example offers an external editor, including esbuild examples.
+      ...getExampleRuntimeHeaders('external'),
     }
   },
   staleTime: 1000 * 60 * 5, // 5 minutes
@@ -357,7 +361,7 @@ function ExternalExamplePage({
     repoDirApiContentsQueryOptions(library.repo, branch, repoStartingDirPath),
   )
 
-  const [isDark, setIsDark] = React.useState(true)
+  const isDark = useIsDark()
   const [deployDialogOpen, setDeployDialogOpen] = React.useState(false)
   const [deployProvider, setDeployProvider] =
     React.useState<DeployProvider | null>(null)
@@ -397,27 +401,30 @@ function ExternalExamplePage({
     surface: `example_deploy_buttons:${library.id}:${framework}`,
   })
 
+  const panels = getExamplePanels(library)
   const activeTab = Route.useSearch({
     select: (s) => {
-      const panel = getExamplePanel(s.panel)
+      const panel = getExamplePanel(s.panel, panels, library.embedEditor)
       if (typeof window === 'undefined') return panel || 'code'
       const localValue = getExamplePanel(
         getLocalStorageItem('exampleViewPreference') ?? undefined,
+        panels,
+        library.embedEditor,
       )
       return panel || localValue || 'code'
     },
   })
   const setActiveTab = (tab: ExamplePanel) => {
     navigate({
-      search: { path: undefined, panel: tab },
+      search: (previous) => ({ ...previous, panel: tab }),
       replace: true,
-      resetScroll: true,
+      resetScroll: false,
     })
   }
 
   const setCurrentPath = (path: string) => {
     navigate({
-      search: { path, panel: undefined },
+      search: { path, panel: 'code' },
       replace: true,
       resetScroll: false,
     })
@@ -457,25 +464,15 @@ function ExternalExamplePage({
     setLocalStorageItem('exampleViewPreference', activeTab)
   }, [activeTab])
 
-  React.useEffect(() => {
-    setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
-  }, [])
-
   const githubUrl = `https://github.com/${library.repo}/tree/${branch}/examples/${examplePath}`
 
-  // preset=node can be removed once Stackblitz runs Angular as webcontainer by default
-  // See https://github.com/stackblitz/core/issues/2957
-  const stackBlitzUrl = `https://stackblitz.com/github/${
-    library.repo
-  }/tree/${branch}/examples/${examplePath}?embed=1&theme=${
-    isDark ? 'dark' : 'light'
-  }&preset=node&file=${mainExampleFile}`
-
-  const codeSandboxUrl = `https://codesandbox.io/p/devbox/github/${
-    library.repo
-  }/tree/${branch}/examples/${examplePath}?embed=1&theme=${
-    isDark ? 'dark' : 'light'
-  }&file=${mainExampleFile}`
+  const { stackBlitzUrl, codeSandboxUrl } = getExampleSandboxUrls({
+    repo: library.repo,
+    branch,
+    examplePath,
+    file: mainExampleFile,
+    isDark,
+  })
 
   const renderExampleDeployButton = (provider: DeploymentProviderId) => {
     switch (provider) {
@@ -615,18 +612,47 @@ function ClientExamplePage({
   const initialFile = (
     definition.initialFile ?? definition.workspace.entry
   ).replace(/^\//, '')
-  const fallbackAction =
-    definition.runtime?.type !== 'webcontainer'
-      ? undefined
-      : library.hideCodesandboxUrl
-        ? {
-            label: 'Open in StackBlitz',
-            url: `https://stackblitz.com/github/${library.repo}/tree/${branch}/examples/${examplePath}?preset=node&file=${encodeURIComponent(initialFile)}`,
-          }
-        : {
-            label: 'Open in CodeSandbox',
-            url: `https://codesandbox.io/p/devbox/github/${library.repo}/tree/${branch}/examples/${examplePath}?file=${encodeURIComponent(initialFile)}`,
-          }
+  const isDark = useIsDark()
+  const navigate = Route.useNavigate()
+  const [workspace, setWorkspace] = React.useState(definition.workspace)
+  const [currentPath, setCurrentPath] = React.useState(
+    definition.initialFile ?? definition.workspace.entry,
+  )
+  const fileTree = React.useMemo(
+    () => createExampleFileTree(Object.keys(workspace.files).sort()),
+    [workspace.files],
+  )
+  const panels = getExamplePanels({ ...library, hasPlayground: true })
+  const activeTab = Route.useSearch({
+    select: (search) =>
+      getExamplePanel(search.panel, panels, library.embedEditor) ??
+      'playground',
+  })
+  const setActiveTab = (tab: ExamplePanel) => {
+    navigate({
+      search: (previous) => ({ ...previous, panel: tab }),
+      replace: true,
+      resetScroll: false,
+    })
+  }
+  const { stackBlitzUrl, codeSandboxUrl } = getExampleSandboxUrls({
+    repo: library.repo,
+    branch,
+    examplePath,
+    file: initialFile,
+    isDark,
+  })
+  const fallbackAction = !library.hideCodesandboxUrl
+    ? {
+        label: 'Open in CodeSandbox',
+        url: codeSandboxUrl.replace('embed=1&', ''),
+      }
+    : !library.hideStackblitzUrl
+      ? {
+          label: 'Open in StackBlitz',
+          url: stackBlitzUrl.replace('embed=1&', ''),
+        }
+      : undefined
   const fallback = <ClientExampleFallback definition={definition} />
 
   return (
@@ -647,18 +673,36 @@ function ClientExamplePage({
         </DocTitle>
       </div>
       <div className="flex min-h-0 flex-1 flex-col lg:px-6">
-        <ClientOnly fallback={fallback}>
-          <React.Suspense fallback={fallback}>
-            <LazyExampleWorkbench
-              autoRun={autoStart}
-              definition={definition}
-              fallbackAction={fallbackAction}
-              filesInitiallyOpen
-              libraryColor={library.bgStyle}
-              packageResolution="dynamic"
-            />
-          </React.Suspense>
-        </ClientOnly>
+        <CodeExplorer
+          activeTab={activeTab}
+          codeSandboxUrl={codeSandboxUrl}
+          currentCode={workspace.files[currentPath] ?? ''}
+          currentPath={currentPath}
+          examplePath={examplePath}
+          githubContents={fileTree}
+          library={library}
+          prefetchFileContent={() => {}}
+          setActiveTab={setActiveTab}
+          setCurrentPath={setCurrentPath}
+          stackBlitzUrl={stackBlitzUrl}
+          playground={
+            <ClientOnly fallback={fallback}>
+              <React.Suspense fallback={fallback}>
+                <LazyExampleWorkbench
+                  autoRun={autoStart}
+                  className="border-0"
+                  definition={definition}
+                  fallbackAction={fallbackAction}
+                  filesInitiallyOpen
+                  fullscreen
+                  libraryColor={library.bgStyle}
+                  onWorkspaceChange={setWorkspace}
+                  packageResolution="dynamic"
+                />
+              </React.Suspense>
+            </ClientOnly>
+          }
+        />
       </div>
     </div>
   )
@@ -674,7 +718,7 @@ function ClientExampleFallback({
   const language = getCodeBlockLanguageFromFilePath(path)
 
   return (
-    <section className="not-prose flex h-[clamp(520px,75dvh,720px)] min-w-0 flex-col overflow-hidden rounded-lg border border-border-default bg-background-default">
+    <section className="not-prose flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background-default">
       <header className="flex min-h-10 shrink-0 items-center border-b border-border-default px-3 font-ds-mono text-xs text-text-muted">
         {path}
       </header>

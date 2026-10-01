@@ -14,7 +14,8 @@ import {
   XIcon,
 } from '@phosphor-icons/react'
 import { ButtonGroup } from '~/components/ButtonGroup'
-import { FileExplorer, type FileExplorerNode } from '~/components/FileExplorer'
+import { FileExplorer } from '~/components/FileExplorer'
+import { createExampleFileTree } from '~/utils/example-file-tree'
 import { useTheme } from '~/components/ThemeProvider'
 import {
   Button,
@@ -2783,7 +2784,10 @@ export function ExampleWorkbench({
         .sort(),
     [definition.hiddenFiles, workspace.files],
   )
-  const fileTree = React.useMemo(() => createFileTree(filePaths), [filePaths])
+  const fileTree = React.useMemo(
+    () => createExampleFileTree(filePaths),
+    [filePaths],
+  )
   const activeBuilderPane = getActiveBuilderWorkbenchPane(builderTabs)
   const activeBuilderTab = getActiveBuilderWorkbenchTab(builderTabs)
   const visibleBuilderPanes =
@@ -4609,36 +4613,6 @@ function getConsoleColor(level: ExampleConsoleLevel) {
     case 'log':
       return ''
   }
-}
-
-function createFileTree(paths: Array<string>) {
-  const root: Array<FileExplorerNode> = []
-
-  for (const path of paths) {
-    const segments = path.split('/').filter(Boolean)
-    let children = root
-
-    for (const [index, name] of segments.entries()) {
-      const nodePath = `/${segments.slice(0, index + 1).join('/')}`
-      const last = index === segments.length - 1
-      let node = children.find((candidate) => candidate.path === nodePath)
-
-      if (!node) {
-        node = {
-          children: last ? undefined : [],
-          depth: index,
-          name,
-          path: nodePath,
-          type: last ? 'file' : 'dir',
-        }
-        children.push(node)
-      }
-
-      if (node.children) children = node.children
-    }
-  }
-
-  return root
 }
 
 function clamp(value: number, min: number, max: number) {

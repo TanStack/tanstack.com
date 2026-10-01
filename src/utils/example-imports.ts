@@ -355,7 +355,10 @@ async function resolvePackageGroup(
     }),
   ])
   const metadata = [requestedMetadata, ...additionalMetadata]
-  const peerPackages = new Set(packageManifest.peerPackages)
+  // Declaration packages have no browser module or esm.sh runtime metadata.
+  const peerPackages = new Set(
+    packageManifest.peerPackages.filter((name) => !name.startsWith('@types/')),
+  )
   const peerSpecifiers = new Set<string>()
 
   for (const value of metadata) {
@@ -370,6 +373,7 @@ async function resolvePackageGroup(
       if (!peer) {
         throw new Error(`Invalid peer import in esm.sh metadata: ${peerImport}`)
       }
+      if (peer.packageName.startsWith('@types/')) continue
       peerPackages.add(peer.packageName)
       peerSpecifiers.add(peer.specifier)
     }
@@ -522,7 +526,16 @@ function createEsmModuleUrl(
   query: string,
   externalPackages: ReadonlyArray<string>,
 ) {
-  const url = `${esmOrigin}/${packageName}@${version}${subpath ? `/${subpath}` : ''}${query}`
+  let url = `${esmOrigin}/${packageName}@${version}${subpath ? `/${subpath}` : ''}${query}`
+  // Production devtools exports can be no-ops, and esm.sh's default splitting
+  // duplicates contexts across lazy chunks. Keep development devtools together
+  // while sharing their framework peers with the example.
+  if (
+    packageName.startsWith('@tanstack/') &&
+    (packageName === '@tanstack/devtools' || packageName.endsWith('-devtools'))
+  ) {
+    url = appendQuery(url, '?dev&standalone')
+  }
   return externalPackages.length
     ? appendQuery(url, `?external=${externalPackages.join(',')}`)
     : url

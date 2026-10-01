@@ -60,7 +60,7 @@ export default function HighlightLanding() {
     <LibraryLandingShell
       libraryId="highlight"
       headline="Highlighting built for the web."
-      description="A microscopic, lightning-fast syntax highlighter with synchronous APIs and a simple token model built for real-world code examples."
+      description="Fast syntax highlighting that keeps your bundles small and your code looking good."
       hero={
         <CodeLab
           isLightTheme={isLightTheme}

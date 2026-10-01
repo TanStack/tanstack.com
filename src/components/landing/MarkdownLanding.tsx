@@ -231,8 +231,22 @@ export default function MarkdownLanding() {
       <LandingSection tone="ink">
         <div className="grid items-center gap-12 lg:grid-cols-[1.08fr_0.92fr] lg:gap-16">
           <LandingSectionIntro
-            title="Give your code fences some color."
-            body="Code fences keep their language and metadata ready for your favorite highlighter. Add a callback and Markdown takes care of the surrounding code containers."
+            title="Your code. Your colors."
+            body={
+              <>
+                Got a favorite syntax highlighter? Bring it along, or use our
+                own{' '}
+                <Link
+                  to="/highlight/$version"
+                  params={{ version: 'latest' }}
+                  className="underline underline-offset-4"
+                >
+                  TanStack Highlight
+                </Link>
+                . We handle the Markdown and code-block markup, you handle the
+                colors.
+              </>
+            }
           />
           <Link
             to="/highlight/$version"

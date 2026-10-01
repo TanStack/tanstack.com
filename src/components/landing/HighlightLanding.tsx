@@ -119,13 +119,6 @@ export default function HighlightLanding() {
             body="Make changed lines pop, fade everything around them, or underline the bit you’re explaining with annotations you control and CSS that makes it yours."
           />
         </div>
-        <div className="mt-12 grid items-center gap-12 border-t border-border-subtle pt-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
-          <LandingSectionIntro
-            title="Tuned against the docs it will render."
-            body="Real TanStack code examples keep the size and speed checks honest, from a short snippet to a long block with line numbers and annotations."
-          />
-          <BenchmarkTape />
-        </div>
       </LandingSection>
 
       <LandingSection tone="accent">
@@ -557,74 +550,6 @@ function AnnotatedLine({
     >
       <span className="select-none text-zinc-600">{number}</span>
       <span>{children}</span>
-    </div>
-  )
-}
-
-function BenchmarkTape() {
-  return (
-    <div className="overflow-hidden rounded-xl border border-border-subtle bg-background-surface">
-      <div className="grid grid-cols-[1fr_auto_auto] gap-4 border-b border-border-subtle px-4 py-3 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/45">
-        <span>334 docs fixtures</span>
-        <span>warmed time</span>
-        <span>HTML</span>
-      </div>
-      <BenchmarkRow
-        name="TanStack Highlight"
-        time="4.44 ms"
-        output="376 KiB"
-        emphasis
-      />
-      <BenchmarkRow
-        name="Shiki 4.3.1"
-        time="146.02 ms"
-        output="1,257 KiB"
-        emphasis={false}
-      />
-      <p className="border-t border-border-subtle px-4 py-3 text-ds-body-xs text-text-primary/45">
-        Highlight 1.0.0 and Shiki 4.3.1, measured October 1, 2026 with Node
-        26.3.1 using the{' '}
-        <a
-          href="https://github.com/TanStack/highlight/blob/v1.0.0/scripts/compare-shiki.mjs"
-          className="underline"
-        >
-          project benchmark script
-        </a>
-        . Times are the median of three runs after two warmups. Shiki
-        initialization and language loading are measured separately; EJS, ENV,
-        and TSRX use its plaintext fallback. Timings vary by machine, and the
-        tools don’t provide equivalent grammar accuracy.
-      </p>
-    </div>
-  )
-}
-
-function BenchmarkRow({
-  emphasis,
-  name,
-  output,
-  time,
-}: {
-  emphasis: boolean
-  name: string
-  output: string
-  time: string
-}) {
-  return (
-    <div
-      className={`grid grid-cols-[1fr_auto_auto] gap-4 border-b border-border-subtle px-4 py-4 font-ds-mono text-ds-mono-xs last:border-b-0 ${emphasis ? 'bg-[color:rgb(var(--landing-glow)/0.1)]' : ''}`}
-    >
-      <span
-        className={
-          emphasis
-            ? 'font-black text-[var(--landing-accent-bright)]'
-            : 'text-text-primary/55'
-        }
-      >
-        {name}
-      </span>
-      <span className="font-black">{time}</span>
-      <span className="w-20 text-right font-black">{output}</span>
     </div>
   )
 }

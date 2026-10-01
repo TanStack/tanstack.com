@@ -60,7 +60,7 @@ export default function HighlightLanding() {
     <LibraryLandingShell
       libraryId="highlight"
       headline="Highlighting built for the web."
-      description="Import the languages your docs use, highlight code on the server or in the browser, and switch themes with CSS."
+      description="A microscopic, lightning-fast syntax highlighter with synchronous APIs and a simple token model built for real-world code examples."
       hero={
         <CodeLab
           isLightTheme={isLightTheme}
@@ -73,8 +73,8 @@ export default function HighlightLanding() {
       <LandingSection tone="accent">
         <div className="grid items-center gap-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
           <LandingSectionIntro
-            title="Choose the languages your site ships."
-            body="Start with @tanstack/highlight/core and import the language definitions you need. Register them with createHighlighter. The package-root highlight helper includes every built-in language."
+            title="Only pay for the languages you need."
+            body="A tiny core keeps your starting point small. Add just the languages you need, then switch themes with CSS without shipping a second copy of the markup."
           />
           <BundleDial />
         </div>
@@ -91,7 +91,7 @@ export default function HighlightLanding() {
         <div className="mt-12 grid items-center gap-12 border-t border-border-subtle pt-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
           <LandingSectionIntro
             title="Highlight the code inside your code."
-            body="HTML, Vue, Svelte, EJS, and Markdown delegate embedded regions only when the nested language is registered. JavaScript and TypeScript handle their own template interpolation."
+            body="Your Vue example has HTML, JavaScript, and CSS all in one place. Register the languages it uses and Highlight handles the mix, including scripts, styles, and template expressions."
           />
           <div>
             <EmbeddedLanguageMap />
@@ -116,13 +116,13 @@ export default function HighlightLanding() {
           <AnnotationPanel />
           <LandingSectionIntro
             title="Make the important lines stand out."
-            body="Use decorations to mark changed lines, focus an example, or underline a selected identifier. You supply the annotations and style them with CSS; Highlight renders them alongside the syntax colors."
+            body="Make changed lines pop, dim the distractions, or underline the bit you want to explain. Your annotations and CSS give each example its own emphasis."
           />
         </div>
         <div className="mt-12 grid items-center gap-12 border-t border-border-subtle pt-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
           <LandingSectionIntro
             title="Tuned against the docs it will render."
-            body="Tests check source preservation and deterministic output. Size and runtime checks cover selective imports, code-block rendering, line numbers, and decorations."
+            body="Real TanStack code examples keep the size and speed checks honest, from a short snippet to a long block with line numbers and annotations."
           />
           <BenchmarkTape />
         </div>
@@ -131,8 +131,8 @@ export default function HighlightLanding() {
       <LandingSection tone="accent">
         <div className="grid items-start gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
           <LandingSectionIntro
-            title="A docs highlighter is not an editor highlighter."
-            body="Highlight is optimized for known web languages and compact page output, not TextMate completeness, automatic detection, or incremental editor state."
+            title="Built for the code examples you actually ship."
+            body="Keep your docs light with selective languages, compact HTML, and CSS themes. Reach for an editor-focused highlighter when TextMate grammars, automatic detection, or incremental editor state are part of the job."
           />
           <div className="overflow-hidden rounded-xl border border-border-subtle bg-background-surface">
             <ChoiceRow
@@ -151,8 +151,8 @@ export default function HighlightLanding() {
         </div>
         <div className="mt-12 grid items-center gap-12 border-t border-border-subtle pt-12 lg:grid-cols-[1.08fr_0.92fr] lg:gap-16">
           <LandingSectionIntro
-            title="Drop it into Markdown without hiding the language set."
-            body="Pass your configured highlighter to the TanStack Markdown, Remark, Rehype, or Octane MDX adapter. The adapters add no built-in languages of their own."
+            title="Give your Markdown some color."
+            body="Bring the same small highlighter to TanStack Markdown, Remark, Rehype, or Octane MDX. The adapters use the languages you already picked."
           />
           <Link
             to="/markdown/$version"

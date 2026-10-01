@@ -44,3 +44,22 @@ Inspired by https://github.com/DietrichGebert/ponytail
 - [UI Style Guide](./ui-style.md): Visual design principles for 2026
 - [Workflow](./workflow.md): Build commands, debugging, Playwright
 - [Analytics](./analytics.md): GA4 event taxonomy, funnel definition, custom dimensions
+
+## Writing and documentation
+
+Use `tanner-writing-style` for public front-page headings and marketing copy,
+and `editorial-restraint` for clarity and grounded claims, when those skills
+are available. Front-page copy should be personable, punchy, and informal.
+Lead with the benefit and preserve supplied sales emphasis while polishing
+awkward phrasing. Concrete grounding does not require API names in every
+headline or subhead; examples and linked documentation can carry that detail.
+
+Keep API references and technical guides precise and approachable. Preserve
+identifiers and explain actual behavior and relevant limitations without
+imposing the marketing voice on reference documentation.
+
+Read relevant implementation, contracts, and examples before changing product
+claims. Keep capabilities, measurements, guarantees, and comparisons accurate.
+If a consequential claim is unsupported, offer a stronger accurate alternative
+briefly and continue within the requested scope. Subjective praise and useful
+promotional hooks do not need to become dry technical prose.

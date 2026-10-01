@@ -156,8 +156,8 @@ export default function MarkdownLanding() {
   return (
     <LibraryLandingShell
       libraryId="markdown"
-      headline="Markdown you can parse, cache, and render."
-      description="Parse documents or accumulated AI output into a plain, serializable tree. Inspect it, cache it, index it, or render it as HTML, React, or Octane."
+      headline="Tiny, fast Markdown for docs and AI streams."
+      description="Turn your content into a simple, portable document tree. Parse once, cache it, and render it as HTML, React, or Octane."
       hero={<ManuscriptPanel />}
       prompt={markdownPrompt}
       promptLabel="Copy Markdown prompt"
@@ -166,7 +166,7 @@ export default function MarkdownLanding() {
         <LandingSectionIntro
           centered
           title="Parse once. Render wherever you need it."
-          body="parseMarkdown returns a plain MarkdownDocument. Cache the tree, inspect its headings and code blocks, or pass it to the HTML, React, or Octane renderer."
+          body="Keep a portable document tree you can cache, inspect, and reuse. Render the same content as HTML, React, or Octane without parsing it all over again."
         />
         <MarkdownWorkbench />
       </LandingSection>
@@ -174,8 +174,8 @@ export default function MarkdownLanding() {
       <LandingSection tone="ink">
         <div className="grid items-center gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
           <LandingSectionIntro
-            title="Stream the text. Keep the parser stateless."
-            body="Append each chunk and pass the complete string through Markdown. The optional streaming profile reparses synchronously, with no incremental state to coordinate or recover."
+            title="Keep the stream flowing."
+            body="Give Markdown the response so far and let it handle the next frame. The optional streaming profile keeps empty, unfinished block markers out of the way, with no parser state to juggle."
           />
           <StreamingReplay />
         </div>
@@ -184,8 +184,8 @@ export default function MarkdownLanding() {
       <LandingSection tone="raised">
         <div className="grid items-center gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
           <LandingSectionIntro
-            title="Built around documentation syntax."
-            body="Render headings, tables, footnotes, and code fences without evaluating MDX or JSX. Check the supported syntax profile before migrating an existing content library."
+            title="All the usual docs suspects."
+            body="Headings, tables, footnotes, and code fences are right at home. The focused syntax profile keeps things small, so check it before moving over an existing content library."
           />
           <div className="grid overflow-hidden rounded-xl border border-border-subtle bg-background-surface md:grid-cols-2">
             <SyntaxList
@@ -202,8 +202,8 @@ export default function MarkdownLanding() {
         </div>
         <div className="mt-12 grid items-center gap-12 border-t border-border-subtle pt-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
           <LandingSectionIntro
-            title="Safe defaults for Markdown input."
-            body="Markdown source renders with raw HTML escaped and unsafe link and image URLs removed by default. Custom ASTs, highlighters, and HTML hooks are trusted application inputs."
+            title="Let the Markdown in. Keep executable URLs out."
+            body="Raw HTML is escaped and executable link and image URLs are removed by default. Custom document trees, highlighters, and HTML hooks are trusted inputs, so those stay in your hands."
           />
           <SafetyProof />
         </div>
@@ -213,7 +213,7 @@ export default function MarkdownLanding() {
         <div className="grid items-center gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
           <LandingSectionIntro
             title="A parser should not outweigh the page."
-            body="Split entry points keep the parser, renderers, framework adapters, and docs extensions independent. Import only the layer the page needs."
+            body="Need just the parser? Take just the parser. Renderers and docs extensions have their own entry points, so you can keep each page’s imports small."
           />
           <BundleLedger />
         </div>
@@ -222,8 +222,8 @@ export default function MarkdownLanding() {
       <LandingSection tone="ink">
         <div className="grid items-center gap-12 lg:grid-cols-[1.08fr_0.92fr] lg:gap-16">
           <LandingSectionIntro
-            title="Syntax highlighting stays outside the parser."
-            body="Code fences store language and metadata in the AST. Supply a highlighter callback to render escaped token markup inside Markdown's code containers."
+            title="Give your code fences some color."
+            body="Code fences keep their language and metadata ready for your favorite highlighter. Add a callback and Markdown takes care of the surrounding code containers."
           />
           <Link
             to="/highlight/$version"
@@ -234,9 +234,8 @@ export default function MarkdownLanding() {
               <LibraryWordmark library={highlightLibrary} />
             </div>
             <p className="mt-3 text-ds-body-sm text-text-primary/55">
-              Add syntax highlighting through Markdown’s highlighter callback.
-              TanStack Highlight provides createTanStackMarkdownHighlighter for
-              this integration.
+              A tiny, synchronous highlighter that plugs right into Markdown’s
+              code fences.
             </p>
             <span className="mt-6 inline-flex items-center gap-2 text-ds-label-md">
               Explore Highlight

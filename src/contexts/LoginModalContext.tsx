@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useQueryClient } from '@tanstack/react-query'
+import { QueryClientContext } from '@tanstack/react-query'
 import { currentUserQueryOptions } from '~/hooks/useCurrentUser'
 
 const LazyLoginModal = React.lazy(() =>
@@ -39,7 +39,10 @@ interface LoginModalProviderProps {
 }
 
 export function LoginModalProvider({ children }: LoginModalProviderProps) {
-  const queryClient = useQueryClient()
+  // Read the context directly instead of useQueryClient() so a missing or
+  // duplicated QueryClientContext (e.g. during dev SSR after a Vite reload)
+  // doesn't crash the whole render. The client is only used client-side.
+  const queryClient = React.useContext(QueryClientContext)
   const [isOpen, setIsOpen] = React.useState(false)
   const [hasLoadedModal, setHasLoadedModal] = React.useState(false)
   const [description, setDescription] = React.useState<string>()
@@ -72,7 +75,9 @@ export function LoginModalProvider({ children }: LoginModalProviderProps) {
     const handleMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return
       if (event.data?.type === 'TANSTACK_AUTH_SUCCESS') {
-        queryClient.invalidateQueries(currentUserQueryOptions)
+        if (queryClient) {
+          queryClient.invalidateQueries(currentUserQueryOptions)
+        }
         const onSuccess = pendingOnSuccessRef.current
         setIsOpen(false)
         setDescription(undefined)

@@ -74,7 +74,7 @@ export default function HighlightLanding() {
         <div className="grid items-center gap-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
           <LandingSectionIntro
             title="Only pay for the languages you need."
-            body="A tiny core keeps your starting point small. Add just the languages you need, then switch themes with CSS without shipping a second copy of the markup."
+            body="Start with a tiny core, bring the languages you actually use, and leave the rest out of your bundle. Change your mind about the colors? CSS has you covered."
           />
           <BundleDial />
         </div>

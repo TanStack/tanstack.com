@@ -125,7 +125,7 @@ export default function HighlightLanding() {
         <div className="grid items-center gap-12 lg:grid-cols-[1.08fr_0.92fr] lg:gap-16">
           <LandingSectionIntro
             title="BYO Markdown."
-            body="Add syntax highlighting to your Markdown with ready-made integrations for TanStack Markdown, Remark, Rehype, and Octane MDX."
+            body="Add syntax highlighting to TanStack Markdown, Remark, Rehype, Octane MDX, or whatever you’re building with, using a ready-made integration or wiring it up your way."
           />
           <Link
             to="/markdown/$version"

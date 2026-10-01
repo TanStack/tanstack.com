@@ -90,8 +90,8 @@ export default function HighlightLanding() {
         </div>
         <div className="mt-12 grid items-center gap-12 border-t border-border-subtle pt-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
           <LandingSectionIntro
-            title="Highlight the code inside your code."
-            body="Your Vue example has HTML, JavaScript, and CSS all in one place. Register the languages it uses and Highlight handles the mix, including scripts, styles, and template expressions."
+            title="Go ahead, mix your languages."
+            body="Put JavaScript in your HTML, CSS in your Vue components, or mix them together like you normally do, and we’ll highlight the languages right where they are."
           />
           <div>
             <EmbeddedLanguageMap />

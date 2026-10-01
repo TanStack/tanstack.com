@@ -166,7 +166,7 @@ export default function MarkdownLanding() {
         <LandingSectionIntro
           centered
           title="Parse once. Render wherever you need it."
-          body="Keep a portable document tree you can cache, inspect, and reuse. Render the same content as HTML, React, or Octane without parsing it all over again."
+          body="Keep a portable AST you can cache, inspect, reuse, and render in any framework without parsing it all over again."
         />
         <MarkdownWorkbench />
       </LandingSection>

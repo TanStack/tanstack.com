@@ -184,7 +184,7 @@ export default function MarkdownLanding() {
       <LandingSection tone="raised">
         <div className="grid items-center gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
           <LandingSectionIntro
-            title="All the usual docs suspects."
+            title="Yep, we support that."
             body="Headings, tables, footnotes, and code fences are right at home. The focused syntax profile keeps things small, so check it before moving over an existing content library."
           />
           <div className="grid overflow-hidden rounded-xl border border-border-subtle bg-background-surface md:grid-cols-2">

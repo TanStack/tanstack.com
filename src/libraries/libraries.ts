@@ -625,9 +625,9 @@ export const markdown: LibrarySlim = {
   frameworks: ['react', 'vanilla'],
   corePackageName: '@tanstack/markdown',
   npmPackageNames: ['@tanstack/markdown'],
-  latestVersion: 'v0',
+  latestVersion: 'v1',
   latestBranch: 'main',
-  availableVersions: ['v0'],
+  availableVersions: ['v1'],
   defaultDocs: 'overview',
   sitemap: {
     includeLandingPage: true,
@@ -656,9 +656,9 @@ export const highlight: LibrarySlim = {
   frameworks: ['react', 'vanilla'],
   corePackageName: '@tanstack/highlight',
   npmPackageNames: ['@tanstack/highlight'],
-  latestVersion: 'v0',
+  latestVersion: 'v1',
   latestBranch: 'main',
-  availableVersions: ['v0'],
+  availableVersions: ['v1'],
   defaultDocs: 'overview',
   sitemap: {
     includeLandingPage: true,

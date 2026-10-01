@@ -393,7 +393,7 @@ export function LandingSectionIntro({
   centered?: boolean
   eyebrow?: string
   icon?: React.ReactNode
-  title: string
+  title: React.ReactNode
 }) {
   return (
     <div className={centered ? 'mx-auto max-w-208 text-center' : 'max-w-168'}>

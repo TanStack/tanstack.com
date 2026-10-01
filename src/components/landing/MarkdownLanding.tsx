@@ -202,7 +202,16 @@ export default function MarkdownLanding() {
         </div>
         <div className="mt-12 grid items-center gap-12 border-t border-border-subtle pt-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
           <LandingSectionIntro
-            title="Let the Markdown in. Keep executable URLs out."
+            title={
+              <span className="text-ds-heading-3 sm:text-ds-heading-2">
+                <span className="block whitespace-nowrap">
+                  User-generated Markdown? 😍
+                </span>
+                <span className="block whitespace-nowrap">
+                  Malicious XSS? ❌
+                </span>
+              </span>
+            }
             body="Raw HTML is escaped and executable link and image URLs are removed by default. Custom document trees, highlighters, and HTML hooks are trusted inputs, so those stay in your hands."
           />
           <SafetyProof />

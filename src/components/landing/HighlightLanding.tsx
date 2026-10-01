@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Link } from '@tanstack/react-router'
-import { ArrowRightIcon, CheckIcon } from '@phosphor-icons/react'
+import { ArrowRightIcon } from '@phosphor-icons/react'
 
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import { getLibrary } from '~/libraries'
@@ -122,27 +122,7 @@ export default function HighlightLanding() {
       </LandingSection>
 
       <LandingSection tone="accent">
-        <div className="grid items-start gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
-          <LandingSectionIntro
-            title="Built for the code examples you actually ship."
-            body="Keep your docs light with selective languages, compact HTML, and CSS themes. Reach for an editor-focused highlighter when TextMate grammars, automatic detection, or incremental editor state are part of the job."
-          />
-          <div className="overflow-hidden rounded-xl border border-border-subtle bg-background-surface">
-            <ChoiceRow
-              name="TanStack Highlight"
-              useWhen="Known docs languages, compact HTML, CSS themes, and annotations matter most."
-            />
-            <ChoiceRow
-              name="Shiki"
-              useWhen="TextMate and VS Code fidelity, broad language coverage, and editor-grade themes are the job."
-            />
-            <ChoiceRow
-              name="Sugar High"
-              useWhen="You need a small highlighter for JavaScript, TypeScript, JSX, and TSX."
-            />
-          </div>
-        </div>
-        <div className="mt-12 grid items-center gap-12 border-t border-border-subtle pt-12 lg:grid-cols-[1.08fr_0.92fr] lg:gap-16">
+        <div className="grid items-center gap-12 lg:grid-cols-[1.08fr_0.92fr] lg:gap-16">
           <LandingSectionIntro
             title="Give your Markdown some color."
             body="Bring the same small highlighter to TanStack Markdown, Remark, Rehype, or Octane MDX. The adapters use the languages you already picked."
@@ -550,22 +530,6 @@ function AnnotatedLine({
     >
       <span className="select-none text-zinc-600">{number}</span>
       <span>{children}</span>
-    </div>
-  )
-}
-
-function ChoiceRow({ name, useWhen }: { name: string; useWhen: string }) {
-  return (
-    <div className="grid gap-2 border-b border-border-subtle px-5 py-5 last:border-b-0 sm:grid-cols-[12rem_1fr] sm:gap-5">
-      <div className="inline-flex items-center gap-2 font-black">
-        <CheckIcon
-          size={15}
-          aria-hidden="true"
-          className="text-[var(--landing-accent-bright)]"
-        />{' '}
-        {name}
-      </div>
-      <p className="text-ds-body-sm text-text-primary/55">{useWhen}</p>
     </div>
   )
 }

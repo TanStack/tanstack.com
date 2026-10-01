@@ -221,8 +221,8 @@ export default function MarkdownLanding() {
       <LandingSection tone="accent">
         <div className="grid items-center gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
           <LandingSectionIntro
-            title="A parser should not outweigh the page."
-            body="Need just the parser? Take just the parser. Renderers and docs extensions have their own entry points, so you can keep each page’s imports small."
+            title="Who needs server components?"
+            body="Markdown parsing so light your server can find another excuse to feel important. Parse and render in the browser, with separate imports for the pieces you need to keep your bundle small."
           />
           <BundleLedger />
         </div>

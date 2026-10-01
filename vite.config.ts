@@ -191,6 +191,12 @@ export default defineConfig({
     __TANSTACK_SITE_URL__: JSON.stringify(SITE_URL),
   },
   resolve: {
+    dedupe: [
+      'react',
+      'react-dom',
+      '@tanstack/react-query',
+      '@tanstack/query-core',
+    ],
     alias: [
       {
         find: '~',
@@ -238,6 +244,9 @@ export default defineConfig({
     ssr: {
       optimizeDeps: {
         exclude: ['@tanstack/create'],
+        // Pre-bundle React Query up front so Vite doesn't re-optimize it
+        // mid-session, which can leave two QueryClientContext instances.
+        include: ['@tanstack/react-query', '@tanstack/query-core'],
       },
       resolve: {
         noExternal: [...serverBundledClientPackages, ...routerSsrPackages],

@@ -1,5 +1,5 @@
 import { Link, redirect, createFileRoute } from '@tanstack/react-router'
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useRef } from 'react'
 import { useRemoveUsersFromRole } from '~/utils/mutations'
 import { useQuery } from '@tanstack/react-query'
 import { getRole, getUsersWithRole } from '~/utils/roles.functions'
@@ -46,6 +46,9 @@ function RoleDetailPage() {
     userId: string
     name: string
   } | null>(null)
+
+  const openerRef = useRef<HTMLElement | null>(null)
+  const tableFocusRef = useRef<HTMLDivElement>(null)
 
   const userQuery = useCurrentUserQuery()
   const user = userQuery.data
@@ -200,12 +203,16 @@ function RoleDetailPage() {
         header: 'Actions',
         cell: ({ row }) => {
           const user = row.original
+          const name = user.name || user.email
           return (
             <button
-              onClick={() => {
+              type="button"
+              aria-label={`Remove ${name} from role`}
+              onClick={(e) => {
+                openerRef.current = e.currentTarget
                 setConfirmRemove({
                   userId: user._id,
-                  name: user.name || user.email,
+                  name,
                 })
               }}
               className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
@@ -334,7 +341,7 @@ function RoleDetailPage() {
             if (!open) setConfirmRemove(null)
           }}
         >
-          <DialogContent size="sm">
+          <DialogContent size="sm" restoreFocusRef={openerRef}>
             <DialogHeader
               title="Confirm Removal"
               description={
@@ -358,6 +365,7 @@ function RoleDetailPage() {
                       roleId: roleId,
                       userIds: [confirmRemove.userId],
                     })
+                    openerRef.current = tableFocusRef.current
                     setConfirmRemove(null)
                   } catch (error) {
                     console.error(
@@ -379,7 +387,11 @@ function RoleDetailPage() {
           </DialogContent>
         </Dialog>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+        <div
+          ref={tableFocusRef}
+          tabIndex={-1}
+          className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden outline-none"
+        >
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50 dark:bg-gray-700">

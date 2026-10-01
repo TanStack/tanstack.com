@@ -23,6 +23,31 @@ import { twMerge } from 'tailwind-merge'
  *       <DialogFooter>…</DialogFooter>
  *     </DialogContent>
  *   </Dialog>
+ *
+ * FOCUS RESTORATION CONTRACT
+ *
+ * On close, focus must return to the control that opened the dialog.
+ *
+ *   1. One colocated opener  -> wrap it in <DialogTrigger asChild>.
+ *      Radix registers it and restores focus itself.
+ *
+ *   2. External or dynamic opener (a parent component, a table row, …)
+ *      -> pass `restoreFocusRef` to <DialogContent>. Without a
+ *      DialogTrigger, Radix's internal trigger ref is null and focus would
+ *      fall to <body>.
+ *
+ *   // Parent-owned opener
+ *   const openerRef = React.useRef<HTMLButtonElement>(null)
+ *   <Button ref={openerRef} onClick={() => setOpen(true)}>Open</Button>
+ *   <Dialog open={open} onOpenChange={setOpen}>
+ *     <DialogContent restoreFocusRef={openerRef}>…</DialogContent>
+ *   </Dialog>
+ *
+ *   // One opener per table row: record whichever row was clicked
+ *   const openerRef = React.useRef<HTMLElement | null>(null)
+ *   <Button onClick={(e) => { openerRef.current = e.currentTarget; setRow(r) }}>
+ *     Remove
+ *   </Button>
  */
 
 export const Dialog = DialogPrimitive.Root
@@ -39,19 +64,74 @@ const sizeStyles: Record<DialogSize, string> = {
   xl: 'max-w-xl',
 }
 
+/* ------------------------------------------------------- focus restoration -- */
+
+// Type-only export: erased at build time, so it is safe for Fast Refresh.
+export type RestoreFocusRef = React.RefObject<HTMLElement | null>
+
+/**
+ * Builds an `onCloseAutoFocus` handler for Radix modal content.
+ *
+ * Radix's own close handler calls `preventDefault()` and then focuses
+ * `context.triggerRef.current`, which is null when no <DialogTrigger> was
+ * rendered. Radix composes the caller's handler first and skips its own when
+ * the event is default-prevented, so we take over only when we hold a live
+ * element to restore to. Otherwise Radix's trigger logic still runs.
+ *
+ * NOT exported on purpose: exporting a plain function from a component file
+ * breaks React Fast Refresh.
+ */
+function createCloseAutoFocus(
+  restoreFocusRef: RestoreFocusRef | undefined,
+  userHandler?: (event: Event) => void,
+) {
+  return (event: Event) => {
+    userHandler?.(event)
+    if (event.defaultPrevented) return
+
+    const el = restoreFocusRef?.current
+    // `isConnected` guards against a stale node (e.g. a table row removed by
+    // the action the dialog just confirmed).
+    if (el && el.isConnected) {
+      event.preventDefault() // skip Radix's null-trigger focus
+      el.focus()
+    }
+  }
+}
+
+/* ------------------------------------------------------------ DialogContent -- */
+
 type DialogContentProps = {
   children: React.ReactNode
   size?: DialogSize
   className?: string
   /** Escape hatch for content that manages its own dismissal (e.g. a wizard mid-submit). */
   onInteractOutside?: DialogPrimitive.DialogContentProps['onInteractOutside']
+  /**
+   * Element to focus when the dialog closes. Required for controlled dialogs
+   * that have no <DialogTrigger> (external or dynamic openers). Not needed
+   * when a colocated <DialogTrigger asChild> opens the dialog.
+   */
+  restoreFocusRef?: RestoreFocusRef
+  /**
+   * Runs before focus restoration. Call `event.preventDefault()` to take full
+   * control of where focus goes; restoreFocusRef is then ignored.
+   */
+  onCloseAutoFocus?: DialogPrimitive.DialogContentProps['onCloseAutoFocus']
 }
 
 export const DialogContent = React.forwardRef<
   HTMLDivElement,
   DialogContentProps
 >(function DialogContent(
-  { children, size = 'sm', className, onInteractOutside },
+  {
+    children,
+    size = 'sm',
+    className,
+    onInteractOutside,
+    restoreFocusRef,
+    onCloseAutoFocus,
+  },
   ref,
 ) {
   return (
@@ -64,6 +144,10 @@ export const DialogContent = React.forwardRef<
         ref={ref}
         data-ds-dialog-panel=""
         onInteractOutside={onInteractOutside}
+        onCloseAutoFocus={createCloseAutoFocus(
+          restoreFocusRef,
+          onCloseAutoFocus,
+        )}
         className={twMerge(
           // Centring uses the independent `translate` property (that is what
           // Tailwind v4 compiles these to), which leaves `transform` free for
@@ -88,6 +172,8 @@ export const DialogContent = React.forwardRef<
     </DialogPrimitive.Portal>
   )
 })
+
+/* ------------------------------------------------------------ DialogHeader -- */
 
 type DialogHeaderProps = {
   title: React.ReactNode

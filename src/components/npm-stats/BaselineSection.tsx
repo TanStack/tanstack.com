@@ -21,6 +21,7 @@ import {
   DialogBody,
   DialogContent,
   DialogHeader,
+  DialogTrigger,
 } from '~/components/ds/ui'
 import { PackageSearch } from './PackageSearch'
 import { getBaselineDisplayName, type PackageGroup } from './shared'
@@ -142,14 +143,16 @@ export function BaselineSection({
 
   const addButton = (
     <Tooltip content="Search for a package to add as baseline">
-      <button
-        onClick={() => setShowSearch(true)}
-        className="flex items-center gap-1 px-1.5 py-0.5 text-xs rounded
+      <DialogTrigger asChild>
+        <button
+          type="button"
+          className="flex items-center gap-1 px-1.5 py-0.5 text-xs rounded
           text-blue-700 dark:text-blue-300 hover:bg-blue-500/10 font-medium"
-      >
-        <PlusIcon className="w-3 h-3" />
-        Add
-      </button>
+        >
+          <PlusIcon className="w-3 h-3" />
+          Add
+        </button>
+      </DialogTrigger>
     </Tooltip>
   )
 
@@ -240,7 +243,7 @@ export function BaselineSection({
   )
 
   return (
-    <>
+    <Dialog open={showSearch} onOpenChange={setShowSearch}>
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
         {labelButton}
 
@@ -256,29 +259,27 @@ export function BaselineSection({
         </div>
       </div>
 
-      <Dialog open={showSearch} onOpenChange={setShowSearch}>
-        <DialogContent size="md">
-          <DialogHeader
-            title={
-              <span className="flex items-center gap-2">
-                <PushPinIcon className="w-4 h-4 text-icon-accent" />
-                Add baseline package
-              </span>
-            }
+      <DialogContent size="md">
+        <DialogHeader
+          title={
+            <span className="flex items-center gap-2">
+              <PushPinIcon className="w-4 h-4 text-icon-accent" />
+              Add baseline package
+            </span>
+          }
+        />
+        <DialogBody className="pb-6">
+          <PackageSearch
+            onSelect={(pkg) => {
+              onAddBaseline(pkg)
+              setShowSearch(false)
+            }}
+            placeholder="Search for baseline package..."
+            // eslint-disable-next-line jsx-a11y/no-autofocus
+            autoFocus={true}
           />
-          <DialogBody className="pb-6">
-            <PackageSearch
-              onSelect={(pkg) => {
-                onAddBaseline(pkg)
-                setShowSearch(false)
-              }}
-              placeholder="Search for baseline package..."
-              // eslint-disable-next-line jsx-a11y/no-autofocus
-              autoFocus={true}
-            />
-          </DialogBody>
-        </DialogContent>
-      </Dialog>
-    </>
+        </DialogBody>
+      </DialogContent>
+    </Dialog>
   )
 }

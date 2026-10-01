@@ -174,8 +174,8 @@ export default function MarkdownLanding() {
       <LandingSection tone="ink">
         <div className="grid items-center gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
           <LandingSectionIntro
-            title="Keep the stream flowing."
-            body="Give Markdown the response so far and let it handle the next frame. The optional streaming profile keeps empty, unfinished block markers out of the way, with no parser state to juggle."
+            title="Made for streaming."
+            body="Broken formatting, partial responses, unfinished code blocks. We can handle it."
           />
           <StreamingReplay />
         </div>

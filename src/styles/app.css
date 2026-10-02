@@ -1195,8 +1195,12 @@ button {
   pointer-events: none;
 }
 
-.ts-mega-trigger-wrap:not([data-menu-dismissed='true']):hover::after,
-.ts-mega-trigger-wrap:not([data-menu-dismissed='true']):focus-within::after {
+.ts-mega-trigger-wrap:has(> .ts-mega-dropdown):not(
+    [data-menu-dismissed='true']
+  ):hover::after,
+.ts-mega-trigger-wrap:has(> .ts-mega-dropdown):not(
+    [data-menu-dismissed='true']
+  ):focus-within::after {
   pointer-events: auto;
 }
 

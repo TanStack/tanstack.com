@@ -6,6 +6,8 @@ import {
   readChatAccess,
   createChatInvite,
   redeemChatInvite,
+  readChatWaitlist,
+  joinChatWaitlist,
 } from './access.server'
 export const getChatAccess = createServerFn({ method: 'GET' }).handler(
   async () => {
@@ -29,3 +31,13 @@ export const acceptChatInvite = createServerFn({ method: 'POST' })
       data.token,
     ),
   )
+
+export const getChatWaitlist = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    const user = await getAuthGuards().getCurrentUser(getRequest())
+    return user ? readChatWaitlist(user) : false
+  },
+)
+export const requestChatAccess = createServerFn({ method: 'POST' }).handler(
+  async () => joinChatWaitlist(await getAuthGuards().requireAuth(getRequest())),
+)

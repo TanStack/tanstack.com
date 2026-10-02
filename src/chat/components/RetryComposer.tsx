@@ -545,19 +545,23 @@ export function RetryComposer({
         <div className="retry-draft-recovery">
           <span role="status">
             {pending.busy
-              ? 'Checking send…'
+              ? pending.checking
+                ? 'Checking send…'
+                : 'Sending…'
               : pending.pending
                 ? 'Send not confirmed.'
                 : 'Send recovery unavailable.'}
           </span>
-          <button
-            type="button"
-            className="quiet-button"
-            disabled={pending.busy}
-            onClick={() => void pending.check()}
-          >
-            Check again
-          </button>
+          {(!pending.busy || pending.checking) && (
+            <button
+              type="button"
+              className="quiet-button"
+              disabled={pending.busy}
+              onClick={() => void pending.check()}
+            >
+              Check again
+            </button>
+          )}
         </div>
       )}
       {draft.draft && (

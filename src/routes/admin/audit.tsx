@@ -355,9 +355,14 @@ function AuditPage() {
     [],
   )
 
+  const tableData = useMemo(
+    () => auditQuery.data?.page ?? [],
+    [auditQuery.data?.page],
+  )
+
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
-    data: (auditQuery?.data?.page || []) as AuditLogEntry[],
+    data: tableData,
     columns,
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,

@@ -1,0 +1,217 @@
+{
+  "note": "File presence is not execution evidence. Test adaptations and validation results are recorded in tanchat-consolidation.md.",
+  "tests": [
+    {
+      "source": "/Users/tannerlinsley/GitHub/gum/tests/assistant-conversation-tools.test.ts",
+      "sourceSha256": "cc7e1074f684219a0097b80356219b010318eb3b95690ca2f002c4a46210f115",
+      "destination": [
+        "harness-tests/pending-runtime/assistant-conversation-tools.test.ts"
+      ],
+      "status": "present"
+    },
+    {
+      "source": "/Users/tannerlinsley/GitHub/gum/tests/assistant-discovery-runtime.test.ts",
+      "sourceSha256": "fe2a99b23a91eff5e7ea842b6a97e61a279ea9cde5a75e5bf6af695ea53cdcf8",
+      "destination": [
+        "harness-tests/pending-runtime/assistant-discovery-runtime.test.ts"
+      ],
+      "status": "present"
+    },
+    {
+      "source": "/Users/tannerlinsley/GitHub/gum/tests/context-reference-paging-runtime.test.ts",
+      "sourceSha256": "e1f0b569e217845204160c3afd591b014b820dbbfaf4d763a4bd95b456cf32ca",
+      "destination": [
+        "harness-tests/pending-runtime/context-reference-paging-runtime.test.ts"
+      ],
+      "status": "present"
+    },
+    {
+      "source": "/Users/tannerlinsley/GitHub/gum/tests/conversation-discovery-runtime.test.ts",
+      "sourceSha256": "30644f98452416cfc7f4efd4f0462bcf751d27df68b8b574c0757a39df1a764d",
+      "destination": [
+        "harness-tests/pending-runtime/conversation-discovery-runtime.test.ts"
+      ],
+      "status": "present"
+    },
+    {
+      "source": "/Users/tannerlinsley/GitHub/gum/tests/conversation-execution.test.ts",
+      "sourceSha256": "63601d6de6345440035880e76e2fb8425c7c89d98da6349c935bea0b4b07baf0",
+      "destination": [
+        "harness-tests/pending-runtime/conversation-execution.test.ts"
+      ],
+      "status": "present"
+    },
+    {
+      "source": "/Users/tannerlinsley/GitHub/gum/tests/conversation-file-copy.test.ts",
+      "sourceSha256": "111cbac7e5cd5f6202ae0b5f737533b72050c5a68e2371476ffbc58ff6c33b9e",
+      "destination": [
+        "harness-tests/pending-runtime/conversation-file-copy.test.ts"
+      ],
+      "status": "present"
+    },
+    {
+      "source": "/Users/tannerlinsley/GitHub/gum/tests/conversation-kody-memory-review.test.ts",
+      "sourceSha256": "862c947ffc6a02be57d82fe31a6a5d8abb216198e17231b58544947c3cfc50d7",
+      "destination": [
+        "harness-tests/pending-runtime/conversation-kody-memory-review.test.ts"
+      ],
+      "status": "present"
+    },
+    {
+      "source": "/Users/tannerlinsley/GitHub/gum/tests/conversation-progress.test.ts",
+      "sourceSha256": "40d28322db4b3f50a7e9c6ca5717237e1fe43f29272ae491e885d28e1946d1bc",
+      "destination": [
+        "harness-tests/pending-runtime/conversation-progress.test.ts"
+      ],
+      "status": "present"
+    },
+    {
+      "source": "/Users/tannerlinsley/GitHub/gum/tests/conversation-provider-attempts.test.ts",
+      "sourceSha256": "d621de4d6d58ee50b424bcaba4ddd24df89267194fd84b0e9d15cd71cc099818",
+      "destination": [
+        "harness-tests/pending-runtime/conversation-provider-attempts.test.ts"
+      ],
+      "status": "present"
+    },
+    {
+      "source": "/Users/tannerlinsley/GitHub/gum/tests/conversation-response-preferences.test.ts",
+      "sourceSha256": "22e4c41bd8a0a1a42f9c280c45a79565d0f3f7d76860a8c1024454e3a279404f",
+      "destination": [
+        "harness-tests/pending-runtime/conversation-response-preferences.test.ts"
+      ],
+      "status": "present"
+    },
+    {
+      "source": "/Users/tannerlinsley/GitHub/gum/tests/conversation-run-continuation.test.ts",
+      "sourceSha256": "96c18babfa27d60e9c0e658df744d6ea0f22f378185e5a19da2596f8b3832652",
+      "destination": [
+        "harness-tests/pending-runtime/conversation-run-continuation.test.ts"
+      ],
+      "status": "present"
+    },
+    {
+      "source": "/Users/tannerlinsley/GitHub/gum/tests/conversation-runs-runtime.test.ts",
+      "sourceSha256": "61fd39a0f2f8e26515ac054ece8cfd5b2bdb2dab516f90400f5ee75a2074c93a",
+      "destination": [
+        "harness-tests/pending-runtime/conversation-runs-runtime.test.ts"
+      ],
+      "status": "present"
+    },
+    {
+      "source": "/Users/tannerlinsley/GitHub/gum/tests/conversation-runs-system-one.test.ts",
+      "sourceSha256": "8dd4a9b55d89aed74aab68033ac10bcb47933bd0898ad93321f4ad377e2ff9a1",
+      "destination": [
+        "harness-tests/pending-runtime/conversation-runs-system-one.test.ts"
+      ],
+      "status": "present"
+    },
+    {
+      "source": "/Users/tannerlinsley/GitHub/gum/tests/conversation-schedule-continuation.test.ts",
+      "sourceSha256": "f7175b30b0569de2537124d8719eb60f66a622c09c8a4fb838a400a2742de90e",
+      "destination": [
+        "harness-tests/pending-runtime/conversation-schedule-continuation.test.ts"
+      ],
+      "status": "present"
+    },
+    {
+      "source": "/Users/tannerlinsley/GitHub/gum/tests/conversation-schedule-lifecycle.test.ts",
+      "sourceSha256": "9bfde11ec8962b4776edcfcf7a6e6e562d5852fcdc9e0c6881473f15d6477111",
+      "destination": [
+        "harness-tests/pending-runtime/conversation-schedule-lifecycle.test.ts"
+      ],
+      "status": "present"
+    },
+    {
+      "source": "/Users/tannerlinsley/GitHub/gum/tests/conversation-schedule-review.test.ts",
+      "sourceSha256": "51b5f935cbd863540e43afe3633f16a2ebd6d2cdad75201b086c35220be6f78b",
+      "destination": [
+        "harness-tests/pending-runtime/conversation-schedule-review.test.ts"
+      ],
+      "status": "present"
+    },
+    {
+      "source": "/Users/tannerlinsley/GitHub/gum/tests/conversation-schedules-runtime.test.ts",
+      "sourceSha256": "ef3dd903748fb67a4b52bb8d8811df1b15e2d2521c18b610f2678c94cb397bc3",
+      "destination": [
+        "harness-tests/pending-runtime/conversation-schedules-runtime.test.ts"
+      ],
+      "status": "present"
+    },
+    {
+      "source": "/Users/tannerlinsley/GitHub/gum/tests/conversation-tool-failures.test.ts",
+      "sourceSha256": "2337000e57a6ed64d5b302cfbb27da201727e747dfc91f1835ad0e18c0f4f9aa",
+      "destination": [
+        "harness-tests/pending-runtime/conversation-tool-failures.test.ts"
+      ],
+      "status": "present"
+    },
+    {
+      "source": "/Users/tannerlinsley/GitHub/gum/tests/conversation-workspace-review.test.ts",
+      "sourceSha256": "a601c8c8850be3615cec2e618ba7601f61afc49408ff00bd64b4e90e06032da2",
+      "destination": [
+        "harness-tests/pending-runtime/conversation-workspace-review.test.ts"
+      ],
+      "status": "present"
+    },
+    {
+      "source": "/Users/tannerlinsley/GitHub/gum/tests/execution-project-snapshots.test.ts",
+      "sourceSha256": "da98edf83536e9d0ac488e41dd9577406ad7a5e5c96e29c3c32fc65c1215012f",
+      "destination": [
+        "harness-tests/pending-runtime/execution-project-snapshots.test.ts"
+      ],
+      "status": "present"
+    },
+    {
+      "source": "/Users/tannerlinsley/GitHub/gum/tests/memory-runtime.test.ts",
+      "sourceSha256": "c410d4c5654f5a3dc9c0147ee66c5d0085677a922354bbd6bcf25025ce7388ac",
+      "destination": ["harness-tests/pending-runtime/memory-runtime.test.ts"],
+      "status": "present"
+    },
+    {
+      "source": "/Users/tannerlinsley/GitHub/gum/tests/plugin-reference-runtime.test.ts",
+      "sourceSha256": "4d78c22597bfbc086e6ac87bc5028757b80075c94281d160ab2f8142bad8b8d0",
+      "destination": [
+        "harness-tests/pending-runtime/plugin-reference-runtime.test.ts"
+      ],
+      "status": "present"
+    },
+    {
+      "source": "/Users/tannerlinsley/GitHub/gum/tests/reference-cursor-contract.test.ts",
+      "sourceSha256": "d517ff62fecfeec1f1c950bdd268f2e4bdbeb1eaa83ae146e641d7f256258ff3",
+      "destination": [
+        "harness-tests/pending-runtime/reference-cursor-contract.test.ts"
+      ],
+      "status": "present"
+    },
+    {
+      "source": "/Users/tannerlinsley/GitHub/gum/tests/retry-attempt-runtime.test.ts",
+      "sourceSha256": "7dea3f562f81a221df39b66525b954cde2ca8fcc861de29e086e00058368dff9",
+      "destination": [
+        "harness-tests/pending-runtime/retry-attempt-runtime.test.ts"
+      ],
+      "status": "present"
+    },
+    {
+      "source": "/Users/tannerlinsley/GitHub/gum/tests/retry-source-runtime.test.ts",
+      "sourceSha256": "0e7684fa7ac02b0317d74f09fee91cc6a17adb8df627dbfe82f8a28e7f2eb26d",
+      "destination": [
+        "harness-tests/pending-runtime/retry-source-runtime.test.ts"
+      ],
+      "status": "present"
+    },
+    {
+      "source": "/Users/tannerlinsley/GitHub/gum/tests/transcript-navigation-runtime.test.ts",
+      "sourceSha256": "6ceb6590e5b3dabc59dc2ff5f296f06128f7633293e3e36026c2dd83f3b9fa85",
+      "destination": [
+        "harness-tests/pending-runtime/transcript-navigation-runtime.test.ts"
+      ],
+      "status": "present"
+    },
+    {
+      "source": "/Users/tannerlinsley/GitHub/gum/tests/workflow-runtime.test.ts",
+      "sourceSha256": "d15b7e1f61badd9b67a0672af64282779ac70cebb662c454b0733a93bdee08a8",
+      "destination": ["harness-tests/pending-runtime/workflow-runtime.test.ts"],
+      "status": "present"
+    }
+  ]
+}

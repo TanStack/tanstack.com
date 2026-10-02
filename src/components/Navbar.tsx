@@ -103,6 +103,7 @@ const LogoSection = () => {
 type IconComponent = React.ComponentType<{ className?: string }>
 
 type NavMenuKey =
+  | 'chat'
   | 'libraries'
   | 'learn'
   | 'community'
@@ -228,6 +229,7 @@ const NAV_GROUPS = [
       },
     ],
   },
+  { key: 'chat', label: 'TanChat', to: '/chat', sections: [] },
   {
     key: 'tools',
     label: 'Tools',
@@ -239,13 +241,6 @@ const NAV_GROUPS = [
             label: 'Application Starter',
             to: '/application-starter',
             description: 'Generate TanStack app starters.',
-            badge: 'Alpha',
-            icon: HammerIcon,
-          },
-          {
-            label: 'Builder',
-            to: '/builder',
-            description: 'Build and share TanStack projects.',
             badge: 'Alpha',
             icon: HammerIcon,
           },
@@ -805,6 +800,11 @@ function DesktopNavTrigger({
           preload="intent"
         >
           <span>{group.label}</span>
+          {group.key === 'chat' && (
+            <span className="rounded bg-blue-100 px-1 py-0.5 text-[8px] font-semibold leading-none text-blue-600 dark:bg-blue-400/15 dark:text-blue-300">
+              NEW
+            </span>
+          )}
         </Link>
       ) : (
         <button
@@ -816,6 +816,11 @@ function DesktopNavTrigger({
           }}
         >
           <span>{group.label}</span>
+          {group.key === 'chat' && (
+            <span className="rounded bg-blue-100 px-1 py-0.5 text-[8px] font-semibold leading-none text-blue-600 dark:bg-blue-400/15 dark:text-blue-300">
+              NEW
+            </span>
+          )}
         </button>
       )}
       <DesktopNavDropdown group={group} onNavigate={onDismiss} />
@@ -922,6 +927,11 @@ function MobileNavigation({
                 }`}
               >
                 <span className="min-w-0 flex-1">{group.label}</span>
+                {group.key === 'chat' && (
+                  <span className="rounded bg-blue-100 px-1 py-0.5 text-[8px] font-semibold leading-none text-blue-600 dark:bg-blue-400/15 dark:text-blue-300">
+                    NEW
+                  </span>
+                )}
               </button>
             ))}
           </div>

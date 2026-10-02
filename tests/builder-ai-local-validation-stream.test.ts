@@ -76,7 +76,7 @@ test('local Codex validates and repairs inside one open turn', async () => {
   let validationCount = 0
   try {
     const result = await runBuilderAiStream({
-      endpoint: '/api/builder/chatgpt/assist',
+      endpoint: '/api/chat/chatgpt/assist',
       forwardedProps: {
         model: 'gpt-5.6-luna',
         execution: baseline,

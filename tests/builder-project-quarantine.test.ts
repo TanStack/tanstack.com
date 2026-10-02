@@ -3,7 +3,7 @@ import test from 'node:test'
 import {
   BuilderProjectQuarantineCleanupError,
   quarantineBuilderProjectSnapshotForAdmin,
-} from '../src/routes/api/builder/project-snapshots.$hash.quarantine'
+} from '../src/routes/api/chat/project-snapshots.$hash.quarantine'
 
 const hash = 'a'.repeat(64)
 const actorId = '00000000-0000-4000-8000-000000000001'

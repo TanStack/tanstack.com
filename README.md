@@ -84,3 +84,11 @@ To edit docs for a project, make changes in its `docs/` folder (e.g., `../form/d
 … and more at <a href="https://tanstack.com"><b>TanStack.com »</b></a>
 
 <!-- Use the force, Luke -->
+
+### TanChat alpha access
+
+TanChat is invite-only, independent of Builder access. Signing in to TanStack does not unlock it. Admins and TanStack maintainers with a linked GitHub account have automatic access and unlimited invites. Maintainer identity comes from the verified GitHub account ID and the site's maintainer catalog, not an editable profile name.
+
+Other users unlock TanChat by redeeming a single-use invite and receive three invites to share. Issuing a link consumes one invite, even if the link expires unused. Links expire after seven days. Account settings links to `/chat-access`, where users can create and copy invites. The main site menu links to TanChat, and accounts without access see the invite page.
+
+Migration `0039_tanchat_invites` adds grants and hashed invite tokens. Server functions and chat HTTP endpoints enforce access independently of the UI. Quota checks lock the issuer account, and redemption locks the invite while granting access and consuming it in one transaction. The local app uses the shared configured database, so invite grants also persist for future production releases.

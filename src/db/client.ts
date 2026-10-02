@@ -77,7 +77,7 @@ function getDb() {
 export async function runWithDatabaseContext<T>(
   fn: () => Promise<T>,
 ): Promise<T> {
-  if (!isIsolateRuntime()) {
+  if (databaseStorage.getStore() || !isIsolateRuntime()) {
     return fn()
   }
 

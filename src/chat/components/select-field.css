@@ -1,0 +1,90 @@
+@scope (:root:has(.tanchat-shell)) {
+  .select-field-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
+    min-height: 32px;
+    padding: 7px 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    color: inherit;
+    text-align: left;
+    font: inherit;
+    font-size: 13px;
+  }
+  .select-field-value {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .select-field-icon {
+    display: flex;
+    flex-shrink: 0;
+    color: var(--muted);
+  }
+  .select-field-trigger:not(:disabled):hover,
+  .select-field-trigger[data-popup-open] {
+    background: var(--soft);
+  }
+  .select-field-positioner {
+    z-index: 150;
+    max-width: var(--available-width);
+  }
+  .select-field-popup {
+    display: flex;
+    flex-direction: column;
+    min-width: var(--anchor-width);
+    max-width: var(--available-width);
+    max-height: min(320px, var(--available-height));
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 6px 24px var(--shadow-medium);
+    outline: none;
+  }
+  .select-field-list {
+    min-height: 0;
+    max-height: inherit;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 4px;
+  }
+  .select-field-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 32px;
+    padding: 7px 10px 7px 28px;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+    cursor: pointer;
+    user-select: none;
+    outline: none;
+  }
+  .select-field-item[data-highlighted] {
+    background: var(--soft);
+  }
+  .select-field-item[data-disabled] {
+    opacity: 0.45;
+    cursor: default;
+  }
+  .select-field-check {
+    position: absolute;
+    left: 8px;
+    display: flex;
+  }
+  @media (pointer: coarse) {
+    .select-field-trigger,
+    .select-field-item {
+      min-height: 44px;
+    }
+  }
+}

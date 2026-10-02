@@ -1,0 +1,266 @@
+@scope (:root:has(.tanchat-shell)) {
+  .command-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 120;
+    background: var(--overlay);
+    backdrop-filter: blur(3px);
+  }
+  .command-palette {
+    position: fixed;
+    z-index: 121;
+    left: 50%;
+    top: min(16vh, 130px);
+    transform: translateX(-50%);
+    width: min(620px, calc(100vw - 32px));
+    max-height: calc(100dvh - min(16vh, 130px) - 24px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--background);
+    color: var(--text);
+    box-shadow:
+      0 24px 90px var(--shadow-medium),
+      0 4px 18px var(--shadow-soft);
+  }
+  .command-input-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    flex-shrink: 0;
+  }
+  .command-input-row > svg {
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+  .command-palette .command-input-row input {
+    flex: 1;
+    min-width: 0;
+    padding: 5px 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font-size: 16px;
+    outline: none;
+  }
+  .command-input-row .icon-button {
+    background: transparent;
+    border: 0;
+    padding: 6px;
+    border-radius: 6px;
+    color: var(--muted);
+  }
+  .command-input-row .icon-button:hover {
+    background: var(--soft);
+    color: inherit;
+  }
+  .command-input-row .icon-button:focus-visible {
+    outline-offset: -2px;
+  }
+  .command-filters {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 14px 4px;
+    min-height: 37px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .command-palette .command-filters .select-field-trigger {
+    width: auto;
+    max-width: 50%;
+    padding: 3px 4px;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: inherit;
+  }
+  .command-filters span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-left: auto;
+  }
+  .command-context {
+    padding: 8px 18px 2px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .command-results {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 6px;
+    max-height: min(440px, 55dvh);
+    flex: 1;
+    min-height: 0;
+    scroll-padding: 6px;
+  }
+  .command-item {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 9px 11px;
+    min-height: 44px;
+    border-radius: 7px;
+    cursor: pointer;
+    outline: none;
+  }
+  .command-item > svg {
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+  .command-item:hover,
+  .command-item[data-highlighted] {
+    background: var(--soft);
+  }
+  .command-item[data-highlighted] {
+    box-shadow: inset 0 0 0 1px var(--line);
+  }
+  .command-item[data-disabled] {
+    opacity: 0.5;
+    cursor: default;
+  }
+  .command-item-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+  }
+  .command-item-text > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 14px;
+  }
+  .command-item-text small {
+    color: var(--muted);
+    font-size: 11px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .command-item-kind {
+    font-size: 11px;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+  .command-item-kind kbd {
+    font: inherit;
+  }
+  .command-empty,
+  .command-notice,
+  .command-error {
+    margin: 0;
+    padding: 16px 18px;
+    font-size: 13px;
+  }
+  .command-empty,
+  .command-notice {
+    color: var(--muted);
+  }
+  .command-error {
+    color: var(--danger);
+  }
+  .command-footer {
+    padding: 6px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: space-between;
+    color: var(--muted);
+    font-size: 11px;
+    min-height: 37px;
+    flex-shrink: 0;
+  }
+  .command-footer span,
+  .command-footer button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .command-footer button {
+    border: 0;
+    padding: 5px 7px;
+    border-radius: 5px;
+    color: inherit;
+    background: transparent;
+  }
+  .command-footer button:hover {
+    background: var(--soft);
+  }
+  .command-form .command-input-row h2 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .command-form > label {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 18px;
+    font-size: 13px;
+  }
+  .command-form > label input {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 7px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: inherit;
+  }
+  .command-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0 18px 16px;
+  }
+  .command-form-actions button {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .settings-focus-section:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 5px;
+    border-radius: 6px;
+  }
+  @media (max-width: 600px) {
+    .command-palette {
+      top: 12px;
+      width: calc(100vw - 16px);
+      max-height: calc(100dvh - 24px);
+    }
+    .command-results {
+      max-height: 55dvh;
+    }
+    .command-item {
+      padding: 11px 9px;
+    }
+    .command-item-kind {
+      display: none;
+    }
+    .command-footer button {
+      min-height: 36px;
+    }
+  }
+  @media (pointer: coarse) {
+    .command-input-row .icon-button,
+    .command-footer button {
+      min-width: 44px;
+      min-height: 44px;
+    }
+  }
+
+  .command-footer kbd {
+    font: inherit;
+    opacity: 0.8;
+  }
+}

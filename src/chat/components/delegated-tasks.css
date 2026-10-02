@@ -1,0 +1,139 @@
+@scope (:root:has(.tanchat-shell)) {
+  .delegated-tasks {
+    margin: 10px 0;
+    padding: 8px 0;
+  }
+  .delegated-tasks h3 {
+    margin: 0 0 4px;
+    font-size: 12px;
+    font-weight: 550;
+    color: var(--muted);
+  }
+  .delegated-tasks ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .delegated-tasks li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    min-height: 32px;
+  }
+  .delegated-task-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    flex: 1;
+    padding: 4px 0;
+    text-align: left;
+    background: none;
+    border: 0;
+    color: inherit;
+  }
+  .delegated-task-link svg {
+    flex: 0 0 auto;
+    color: var(--muted);
+  }
+  .delegated-task-link span,
+  .delegated-task-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+  }
+  .delegated-task-title {
+    flex: 1;
+  }
+  .delegated-tasks small {
+    flex: 0 0 auto;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .delegated-task-stop {
+    padding: 6px;
+    border: 0;
+    border-radius: 5px;
+    background: none;
+    color: var(--muted);
+  }
+  .delegated-task-stop:hover,
+  .delegated-task-link:hover {
+    color: var(--accent);
+  }
+  @media (pointer: coarse) {
+    .delegated-task-link {
+      min-height: 44px;
+    }
+  }
+  .delegated-task-history {
+    margin: 12px 0;
+    font-size: 12px;
+  }
+  .delegated-task-history summary {
+    cursor: pointer;
+    padding: 8px 0;
+    overflow-wrap: anywhere;
+  }
+  .delegated-task-history ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .delegated-task-history li {
+  }
+  .delegated-task-history li summary small {
+    margin-left: 8px;
+    color: var(--muted);
+  }
+  .delegated-task-history time,
+  .delegated-history-heading {
+    color: var(--muted);
+  }
+  .delegated-history-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .delegated-history-answer {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  @media (pointer: coarse) {
+    .delegated-task-history summary,
+    .delegated-task-history button {
+      min-height: 44px;
+    }
+  }
+  .delegated-task-history button {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 5px 8px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+  }
+  .delegated-task-history button:hover {
+    color: var(--accent);
+  }
+  .delegated-task-history button:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+  .delegated-task-history summary:focus-visible,
+  .delegated-task-history button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .delegated-task-failure {
+    flex-basis: 100%;
+    margin: 0;
+    color: var(--muted);
+    font-size: 12px;
+    overflow-wrap: anywhere;
+  }
+}

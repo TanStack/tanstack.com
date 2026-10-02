@@ -1,0 +1,45 @@
+{
+  "note": "File presence is not proof of feature or behavioral completeness. Adapted and split server files require runtime verification.",
+  "areas": {
+    "core": {
+      "sourceFiles": 107,
+      "samePathPresent": 107,
+      "missingSamePath": []
+    },
+    "client": {
+      "sourceFiles": 9,
+      "samePathPresent": 9,
+      "missingSamePath": []
+    },
+    "components": {
+      "sourceFiles": 220,
+      "samePathPresent": 219,
+      "missingSamePath": ["components/SignIn.tsx"]
+    },
+    "server": {
+      "sourceFiles": 185,
+      "samePathPresent": 180,
+      "missingSamePath": [
+        "server/api.ts",
+        "server/auth.ts",
+        "server/conversation-identity.ts",
+        "server/development-backend.ts",
+        "server/email-auth.ts"
+      ]
+    }
+  },
+  "sharedInfrastructureReplacements": {
+    "components/SignIn.tsx": [
+      "src/components/LoginModal.tsx",
+      "src/routes/login.tsx"
+    ],
+    "server/auth.ts": ["src/auth/index.server.ts"],
+    "server/email-auth.ts": ["src/auth/index.server.ts"],
+    "server/conversation-identity.ts": [
+      "src/chat/workspace.server.ts",
+      "src/chat/server/conversation-http.server.ts"
+    ],
+    "server/api.ts": ["src/routes/api/chat"],
+    "server/development-backend.ts": ["src/server/runtime/host.server.ts"]
+  }
+}

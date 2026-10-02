@@ -16,12 +16,15 @@ const initialAppearance = createServerFn({ method: 'GET' }).handler(
 
 export const Route = createFileRoute('/chat')({
   staticData: { showNavbar: false },
-  beforeLoad: async () => {
+  beforeLoad: async ({ cause }) => {
+    if (cause === 'stay') return
     const access = await getChatAccess()
     if (!access?.unlocked)
       throw redirect({ to: '/chat-access', search: { invite: undefined } })
   },
-  loader: () => initialAppearance(),
+  loader: () => (typeof window === 'undefined' ? initialAppearance() : null),
+  staleTime: Infinity,
+  shouldReload: false,
   headers: () => ({
     ...webContainerHeaders,
     'Cache-Control': 'private, no-store',

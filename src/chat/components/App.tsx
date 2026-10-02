@@ -1,3 +1,4 @@
+import { useWorkspaceSearch } from './useWorkspaceSearch'
 import { WorkspaceSkeleton } from './WorkspaceSkeleton'
 import { RailNavigation } from './RailNavigation'
 import { HomeDashboard } from './HomeDashboard'
@@ -50,7 +51,7 @@ import {
   Bookmark,
   Copy,
 } from 'lucide-react'
-import { useNavigate, useParams, useSearch } from '@tanstack/react-router'
+import { useNavigate, useParams, useRouteContext } from '@tanstack/react-router'
 import { WorkspaceApiProvider, useWorkspaceApi, ApiError } from './WorkspaceApi'
 
 import {
@@ -232,12 +233,14 @@ const names: Record<string, string> = {
 }
 export function App() {
   const params = useParams({ strict: false })
+  const { chatIdentity } = useRouteContext({ strict: false })
+  const workspaceId = chatIdentity?.workspaceId ?? params.workspaceId
   return (
-    <WorkspaceApiProvider workspaceId={params.workspaceId}>
+    <WorkspaceApiProvider workspaceId={workspaceId}>
       <WorkspaceApp
-        key={params.workspaceId ?? 'home'}
-        workspaceId={params.workspaceId}
-        botId={params.botId}
+        key={workspaceId ?? 'home'}
+        workspaceId={workspaceId}
+        botId={chatIdentity?.botId ?? params.botId}
       />
     </WorkspaceApiProvider>
   )
@@ -253,7 +256,7 @@ function WorkspaceApp({
   const params = useParams({ strict: false })
   const executionOwners = useExecutionOwners()
   const navigate = useNavigate()
-  const search = validateWorkspaceSearch(useSearch({ strict: false }))
+  const search = useWorkspaceSearch()
   const latestDraft = useRef(search.draft)
   latestDraft.current = search.draft
   const mounted = useRef(false)
@@ -508,8 +511,8 @@ function WorkspaceApp({
   const selectBot = (id: string) => {
     if (!data) return
     void navigate({
-      to: '/chat/w/$workspaceId/b/$botId',
-      params: { workspaceId: data.workspace.id, botId: id },
+      to: '/chat/b/$botId',
+      params: { botId: id },
       search: {
         ...(id === botId && !search.draft && !search.conversation
           ? search
@@ -564,11 +567,8 @@ function WorkspaceApp({
     if (!data || botId || search.draft || params.homeSection) return
     if (workspaceId && data.personalAssistant) {
       void navigate({
-        to: '/chat/w/$workspaceId/b/$botId',
-        params: {
-          workspaceId: data.workspace.id,
-          botId: data.personalAssistant.id,
-        },
+        to: '/chat/b/$botId',
+        params: { botId: data.personalAssistant.id },
         search: { ...search, conversation: undefined },
         replace: true,
       })
@@ -657,11 +657,8 @@ function WorkspaceApp({
         if (id === 'chat') {
           if (data.personalAssistant) {
             void navigate({
-              to: '/chat/w/$workspaceId/b/$botId',
-              params: {
-                workspaceId: data.workspace.id,
-                botId: data.personalAssistant.id,
-              },
+              to: '/chat/b/$botId',
+              params: { botId: data.personalAssistant.id },
               search: {
                 ...search,
                 view: 'bots',
@@ -961,11 +958,8 @@ function WorkspaceApp({
                       selectBot(data.personalAssistant!.id)
                     else
                       void navigate({
-                        to: '/chat/w/$workspaceId/b/$botId',
-                        params: {
-                          workspaceId: `personal:${data.user.id}`,
-                          botId: data.personalAssistant!.id,
-                        },
+                        to: '/chat/b/$botId',
+                        params: { botId: data.personalAssistant!.id },
                         search: defaultWorkspaceSearch,
                       })
                   }}
@@ -1130,8 +1124,8 @@ function WorkspaceApp({
                     }
                     if (handoff) setComposerFocus({ botId: id, handoff })
                     await navigate({
-                      to: '/chat/w/$workspaceId/b/$botId',
-                      params: { workspaceId: data.workspace.id, botId: id },
+                      to: '/chat/b/$botId',
+                      params: { botId: id },
                       search: {
                         ...clearConversationFilePanels(search),
                         conversation: undefined,
@@ -1252,8 +1246,8 @@ function WorkspaceApp({
               await refresh()
               setCopyTarget(undefined)
               await navigate({
-                to: '/chat/w/$workspaceId/b/$botId',
-                params: { workspaceId: data.workspace.id, botId: id },
+                to: '/chat/b/$botId',
+                params: { botId: id },
                 search: {
                   ...clearConversationFilePanels(search),
                   navigation: undefined,

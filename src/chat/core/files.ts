@@ -98,10 +98,10 @@ export function isPreviewImage(mediaType: string) {
 }
 
 export function fileViewPath(
-  workspaceId: string,
+  _workspaceId: string,
   botId: string,
   id: string,
   conversationId?: string,
 ) {
-  return `/chat/w/${encodeURIComponent(workspaceId)}/b/${encodeURIComponent(botId)}?panel=${encodeURIComponent(`file:${id}`)}${conversationId ? `&conversation=${encodeURIComponent(conversationId)}` : ''}`
+  return `${conversationId ? `/chat/c/${encodeURIComponent(conversationId)}` : `/chat/b/${encodeURIComponent(botId)}`}?panel=${encodeURIComponent(`file:${id}`)}`
 }

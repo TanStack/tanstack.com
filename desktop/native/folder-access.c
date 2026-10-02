@@ -22,12 +22,17 @@ int main(int argc,char **argv){
  if(!strcmp(argv[5],"list")){
  fd=descend(fd,argv[4]);DIR *dir=fdopendir(fd);if(!dir)fail();struct dirent *entry;int count=0;
  while((entry=readdir(dir))&&count<201){if(!strcmp(entry->d_name,".")||!strcmp(entry->d_name,".."))continue;
- char type=entry->d_type==DT_DIR?'d':entry->d_type==DT_REG?'f':'x';write(1,&type,1);write(1,entry->d_name,strlen(entry->d_name)+1);count++;}closedir(dir);return 0;
+ char type=entry->d_type==DT_DIR?'d':entry->d_type==DT_REG?'f':'x';if(write(1,&type,1)!=1)fail();
+ size_t length=strlen(entry->d_name)+1;
+ if(write(1,entry->d_name,length)!=(ssize_t)length)fail();count++;}closedir(dir);return 0;
  }
  if(strcmp(argv[5],"read"))fail();
  char *name=strrchr(argv[4],'/');if(name){*name=0;fd=descend(fd,argv[4]);name++;}else name=argv[4];
  if(!*name||!strcmp(name,".")||!strcmp(name,".."))fail();
  int file=openat(fd,name,O_RDONLY|O_NOFOLLOW|O_NONBLOCK|O_CLOEXEC);close(fd);if(file<0||fstat(file,&st)||!S_ISREG(st.st_mode)||st.st_size>65536)fail();
  char buffer[65537];ssize_t total=0,n;while(total<65537&&(n=read(file,buffer+total,65537-total))>0)total+=n;
- if(n<0||total>65536)fail();close(file);if(write(1,buffer,total)!=total)fail();return 0;
+ if(n<0||total>65536)fail();
+ close(file);
+ if(write(1,buffer,total)!=total)fail();
+ return 0;
 }

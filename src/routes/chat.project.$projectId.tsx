@@ -16,10 +16,9 @@ export const Route = createFileRoute('/chat/project/$projectId')({
       })
     const workspace = await loadChatWorkspace()
     throw redirect({
-      to: '/chat/w/$workspaceId/b/$botId',
+      to: '/chat/c/$conversationId',
       params: {
-        workspaceId: workspace.workspace.id,
-        botId: workspace.assistantId,
+        conversationId: workspace.conversationId,
       },
       search: {
         ...defaultWorkspaceSearch,

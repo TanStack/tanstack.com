@@ -1,3 +1,4 @@
+import { useWorkspaceSearch } from './useWorkspaceSearch'
 import { useMobileBack } from './mobile-back'
 import { ArrowLeft } from 'lucide-react'
 import { LoadingState } from './ui/LoadingState'
@@ -10,7 +11,7 @@ import {
   type ReactNode,
   type RefObject,
 } from 'react'
-import { useNavigate, useRouter, useSearch } from '@tanstack/react-router'
+import { useNavigate, useRouter } from '@tanstack/react-router'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import type { Bootstrap, History } from './App'
 import type { WorkspaceBot } from '../core/bot-workspace'
@@ -64,7 +65,7 @@ type ViewProps = {
 
 /** Authorize the exact destination before mounting its one session owner. */
 export function ConversationView(props: ViewProps) {
-  const routeSearch = validateWorkspaceSearch(useSearch({ strict: false }))
+  const routeSearch = useWorkspaceSearch()
   const messageFocus = useUrlMessageFocus(
     props.embeddedThread ? routeSearch.threadMessage : routeSearch.message,
     props.visible,
@@ -145,7 +146,7 @@ function RoutedConversation({
   const { request } = useWorkspaceApi()
   const navigate = useNavigate()
   const router = useRouter()
-  const search = validateWorkspaceSearch(useSearch({ strict: false }))
+  const search = useWorkspaceSearch()
   const embedded = !!props.embeddedThread
   const paneFocus = useRef<HTMLButtonElement | null>(null)
   const [threadFocus, setThreadFocus] = useState<{

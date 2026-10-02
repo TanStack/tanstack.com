@@ -626,7 +626,7 @@ export class McpSetups {
     delete secret.state
     await this.save(row, secret, next, 'starting')
     const target = secret.input.returnBotId
-      ? `/chat/w/${encodeURIComponent(this.scope.workspaceId)}/b/${encodeURIComponent(secret.input.returnBotId)}`
+      ? `/chat/b/${encodeURIComponent(secret.input.returnBotId)}`
       : `/chat/w/${encodeURIComponent(this.scope.workspaceId)}`
     return {
       summary: next,

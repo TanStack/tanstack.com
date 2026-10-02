@@ -1,8 +1,9 @@
+import { useWorkspaceSearch } from './useWorkspaceSearch'
 import { PackageIdentity, packageName } from './PackageIdentity'
 import { LoadingState } from './ui/LoadingState'
 import { IconButton } from './IconButton'
 import { useEffect, useRef, type ReactNode } from 'react'
-import { Link, useNavigate, useParams, useSearch } from '@tanstack/react-router'
+import { Link, useNavigate, useParams } from '@tanstack/react-router'
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { ArrowRight, ArrowUpRight, ChevronRight, Search, X } from 'lucide-react'
 import { z } from 'zod'
@@ -117,7 +118,7 @@ export function HomeDashboard({
 }) {
   const { request, workspaceId } = useWorkspaceApi()
   const params = useParams({ strict: false })
-  const search = useSearch({ from: '/chat/w/$workspaceId' })
+  const search = useWorkspaceSearch()
   const navigate = useNavigate()
   const section = isHomeSection(params.homeSection)
     ? params.homeSection

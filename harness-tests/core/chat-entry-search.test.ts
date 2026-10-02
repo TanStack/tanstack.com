@@ -23,6 +23,7 @@ vi.mock('../../src/chat/workspace.functions', () => ({
   loadChatWorkspace: async () => ({
     workspace: { id: 'personal:shared-user' },
     assistantId: 'assistant:shared-user',
+    conversationId: 'conversation',
   }),
 }))
 
@@ -35,12 +36,11 @@ it('preserves validated navigation while opening the authenticated personal assi
     code: 'private',
   })
   await expect(entry.beforeLoads[0]({ search })).rejects.toEqual({
-    to: '/chat/w/$workspaceId/b/$botId',
+    to: '/chat/c/$conversationId',
     params: {
-      workspaceId: 'personal:shared-user',
-      botId: 'assistant:shared-user',
+      conversationId: 'conversation',
     },
-    search,
+    search: { ...search, conversation: undefined },
   })
   expect(search).not.toHaveProperty('code')
   expect(search.settings).toBe('appearance')

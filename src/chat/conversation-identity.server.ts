@@ -11,7 +11,7 @@ import {
 const identityInput = z
   .object({
     userId: z.string().uuid(),
-    workspaceId: z.string().min(1).max(1000),
+    workspaceId: z.string().min(1).max(1000).optional(),
     botId: z.string().min(1).max(1000).optional(),
     conversationId: z.string().min(1).max(1000).optional(),
   })
@@ -32,10 +32,11 @@ export async function resolveConversationIdentity(
   if (!parsed.success) throw new ConversationIdentityError()
   const value = parsed.data
   const conditions = [
-    eq(chatBots.workspaceId, value.workspaceId),
     eq(chatMemberships.userId, value.userId),
     eq(chatConversations.userId, value.userId),
   ]
+  if (value.workspaceId)
+    conditions.push(eq(chatBots.workspaceId, value.workspaceId))
   if (value.botId) conditions.push(eq(chatConversations.botId, value.botId))
   if (value.conversationId)
     conditions.push(eq(chatConversations.id, value.conversationId))

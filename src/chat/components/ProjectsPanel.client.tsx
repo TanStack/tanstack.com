@@ -1,4 +1,6 @@
-import { useNavigate, useSearch } from '@tanstack/react-router'
+import { useWorkspaceSearch } from './useWorkspaceSearch'
+import { validateWorkspaceSearch } from '../core/navigation'
+import { useNavigate } from '@tanstack/react-router'
 import { lazy, Suspense, useRef, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
@@ -18,14 +20,13 @@ const ProjectEditor = lazy(() =>
 
 export function ProjectsPanel({ userId }: { userId: string }) {
   const client = useQueryClient()
-  const { project: selected, projectTemplate } = useSearch({
-    from: '/chat/w/$workspaceId',
-  })
-  const navigate = useNavigate({ from: '/chat/w/$workspaceId' })
+  const { project: selected, projectTemplate } = useWorkspaceSearch()
+  const navigate = useNavigate()
   const setSelected = (project: string) =>
     navigate({
-      search: (previous) => ({
-        ...previous,
+      to: '.',
+      search: (previous: Record<string, unknown>) => ({
+        ...validateWorkspaceSearch(previous),
         project,
         projectTemplate: undefined,
       }),
@@ -37,7 +38,11 @@ export function ProjectsPanel({ userId }: { userId: string }) {
   const template = projectTemplate ?? 'blank'
   const setTemplate = (value: string) => {
     void navigate({
-      search: (previous) => ({ ...previous, projectTemplate: value }),
+      to: '.',
+      search: (previous: Record<string, unknown>) => ({
+        ...validateWorkspaceSearch(previous),
+        projectTemplate: value,
+      }),
       replace: true,
     })
   }

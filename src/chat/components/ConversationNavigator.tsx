@@ -1,3 +1,5 @@
+import { useWorkspaceSearch } from './useWorkspaceSearch'
+import { conversationLocation } from '../core/conversation-destination'
 import {
   createContext,
   useCallback,
@@ -12,7 +14,7 @@ import {
 } from 'react'
 import { Collapsible } from '@base-ui/react/collapsible'
 import { Popover } from '@base-ui/react/popover'
-import { useNavigate, useSearch } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
 import { Search, Spool, X } from 'lucide-react'
 import type { ThreadListItem } from '../core/conversation-threads'
 import { filterConversationNames } from '../core/conversation-family'
@@ -71,7 +73,7 @@ export function ConversationNavigator({
   children: ReactNode
 }) {
   const navigate = useNavigate()
-  const search = validateWorkspaceSearch(useSearch({ strict: false }))
+  const search = useWorkspaceSearch()
   const scope = useConversationNavigatorScope()
   const {
     family,
@@ -170,15 +172,15 @@ export function ConversationNavigator({
   const openConversation = (botId: string, conversationId?: string) => {
     setOverlayOpen(false)
     void navigate({
-      to: '/chat/w/$workspaceId/b/$botId',
-      params: { workspaceId: selected.workspace_id, botId },
-      search: (previous) => ({
-        ...clearConversationFilePanels(validateWorkspaceSearch(previous)),
-        conversation: conversationId,
-        message: undefined,
-        draft: undefined,
-        parent: undefined,
-      }),
+      ...conversationLocation(
+        { workspaceId: selected.workspace_id, botId, conversationId },
+        {
+          ...clearConversationFilePanels(search),
+          message: undefined,
+          draft: undefined,
+          parent: undefined,
+        },
+      ),
       resetScroll: false,
     })
   }
@@ -207,9 +209,8 @@ export function ConversationNavigator({
       : ''
   const changeNavigatorQuery = (query: string) => {
     void navigate({
-      to: '/chat/w/$workspaceId/b/$botId',
-      params: { workspaceId: selected.workspace_id, botId: selected.id },
-      search: (previous) => ({
+      to: '.',
+      search: (previous: Record<string, unknown>) => ({
         ...validateWorkspaceSearch(previous),
         navigatorSearch: query
           ? { rootBotId: family.root.id, query }

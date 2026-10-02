@@ -115,18 +115,32 @@ export function conversationDestination(
   }
 }
 
-/** Legacy routes remain stable while the transport uses a canonical identity. */
+/** Conversation links do not depend on their workspace or current bot. */
 export function conversationLocation(
   destination: ConversationResource & { workspaceId: string },
   search: WorkspaceSearch,
 ) {
+  const { conversation: _conversation, message, ...rest } = search
+  if (destination.conversationId) {
+    return message
+      ? {
+          to: '/chat/c/$conversationId/m/$messageId' as const,
+          params: {
+            conversationId: destination.conversationId,
+            messageId: message,
+          },
+          search: rest,
+        }
+      : {
+          to: '/chat/c/$conversationId' as const,
+          params: { conversationId: destination.conversationId },
+          search: rest,
+        }
+  }
   return {
-    to: '/chat/w/$workspaceId/b/$botId' as const,
-    params: {
-      workspaceId: destination.workspaceId,
-      botId: destination.botId,
-    },
-    search: { ...search, conversation: destination.conversationId },
+    to: '/chat/b/$botId' as const,
+    params: { botId: destination.botId },
+    search: { ...rest, message },
   }
 }
 

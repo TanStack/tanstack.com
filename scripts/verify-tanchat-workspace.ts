@@ -980,17 +980,15 @@ try {
     1,
   )
   await appDb.transaction(async (tx) => {
-    await tx
-      .insert(chatBotDrafts)
-      .values({
-        workspaceId: stagedScope.workspaceId,
-        userId: first,
-        id: stagedScope.draftId,
-        botId: own[1].bot.id,
-        conversationId: own[1].conversationId,
-        fileIds: [selected.id],
-        createdAt: 1000,
-      })
+    await tx.insert(chatBotDrafts).values({
+      workspaceId: stagedScope.workspaceId,
+      userId: first,
+      id: stagedScope.draftId,
+      botId: own[1].bot.id,
+      conversationId: own[1].conversationId,
+      fileIds: [selected.id],
+      createdAt: 1000,
+    })
     await promoteDraftFiles(
       tx,
       stagedScope,
@@ -1324,17 +1322,15 @@ try {
   }))
   await appDb.transaction(async (tx) => {
     await tx.insert(chatSkills).values(filledSkills)
-    await tx
-      .insert(chatSkillVersions)
-      .values(
-        filledSkills.map((item) => ({
-          skillId: item.id,
-          version: 1,
-          document: skillDocument,
-          contentHash: 'test-seed',
-          createdAt: 1000,
-        })),
-      )
+    await tx.insert(chatSkillVersions).values(
+      filledSkills.map((item) => ({
+        skillId: item.id,
+        version: 1,
+        document: skillDocument,
+        contentHash: 'test-seed',
+        createdAt: 1000,
+      })),
+    )
   })
   await assert.rejects(
     skills.command({

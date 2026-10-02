@@ -190,7 +190,7 @@ export const maxWorkspaceReturnPathCharacters = 48_000
 export function signInDestination(value: unknown): string {
   if (
     typeof value !== 'string' ||
-    !/^\/chat\/w\//.test(value) ||
+    !/^\/chat\/(?:w|c|b)\//.test(value) ||
     value.length > maxWorkspaceReturnPathCharacters
   )
     return '/'
@@ -199,7 +199,7 @@ export function signInDestination(value: unknown): string {
     if (
       url.origin !== 'https://gum.invalid' ||
       url.hash ||
-      !url.pathname.startsWith('/chat/w/') ||
+      !/^\/chat\/(?:w|c|b)\//.test(url.pathname) ||
       url.pathname.startsWith('//')
     )
       return '/'

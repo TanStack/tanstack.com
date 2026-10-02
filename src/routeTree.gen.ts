@@ -183,6 +183,8 @@ import { Route as AuthMcpCallbackRouteImport } from './routes/auth/mcp/callback'
 import { Route as AuthMcpClientMetadataRouteImport } from './routes/auth/mcp/client-metadata'
 import { Route as BuilderPHashRouteImport } from './routes/builder_.p.$hash'
 import { Route as ChartsCatalogCatalogDotjsonRouteImport } from './routes/charts.catalog_.catalog[.]json'
+import { Route as ChatBBotIdRouteImport } from './routes/chat.b.$botId'
+import { Route as ChatCConversationIdRouteImport } from './routes/chat.c.$conversationId'
 import { Route as ChatPHashRouteImport } from './routes/chat.p.$hash'
 import { Route as ChatProjectProjectIdRouteImport } from './routes/chat.project.$projectId'
 import { Route as ChatWWorkspaceIdRouteImport } from './routes/chat.w.$workspaceId'
@@ -289,6 +291,7 @@ import { Route as ApiChatReferencesKodyRefreshRouteImport } from './routes/api/c
 import { Route as ApiChatReferencesToolsRefreshRouteImport } from './routes/api/chat/references/tools/refresh'
 import { Route as ApiChatRetriesIdPrepareRouteImport } from './routes/api/chat/retries/$id.prepare'
 import { Route as ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRouteImport } from './routes/charts.catalog_.previews.$revision.{$caseId}[.]svg'
+import { Route as ChatCConversationIdMMessageIdRouteImport } from './routes/chat.c.$conversationId.m.$messageId'
 import { Route as ChatWWorkspaceIdBBotIdRouteImport } from './routes/chat.w.$workspaceId.b.$botId'
 import { Route as ChatWWorkspaceIdHomeHomeSectionRouteImport } from './routes/chat.w.$workspaceId.home.$homeSection'
 import { Route as LibraryLibraryIdVersionDocsFrameworkIndexRouteImport } from './routes/_library/$libraryId/$version.docs.framework.index'
@@ -1207,6 +1210,16 @@ const ChartsCatalogCatalogDotjsonRoute =
     path: '/charts/catalog/catalog.json',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ChatBBotIdRoute = ChatBBotIdRouteImport.update({
+  id: '/b/$botId',
+  path: '/b/$botId',
+  getParentRoute: () => ChatRoute,
+} as any)
+const ChatCConversationIdRoute = ChatCConversationIdRouteImport.update({
+  id: '/c/$conversationId',
+  path: '/c/$conversationId',
+  getParentRoute: () => ChatRoute,
+} as any)
 const ChatPHashRoute = ChatPHashRouteImport.update({
   id: '/p/$hash',
   path: '/p/$hash',
@@ -1792,6 +1805,12 @@ const ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute =
     path: '/charts/catalog/previews/$revision/{$caseId}.svg',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ChatCConversationIdMMessageIdRoute =
+  ChatCConversationIdMMessageIdRouteImport.update({
+    id: '/m/$messageId',
+    path: '/m/$messageId',
+    getParentRoute: () => ChatCConversationIdRoute,
+  } as any)
 const ChatWWorkspaceIdBBotIdRoute = ChatWWorkspaceIdBBotIdRouteImport.update({
   id: '/b/$botId',
   path: '/b/$botId',
@@ -2148,6 +2167,8 @@ export interface FileRoutesByFullPath {
   '/auth/mcp/client-metadata': typeof AuthMcpClientMetadataRoute
   '/builder/p/$hash': typeof BuilderPHashRoute
   '/charts/catalog/catalog.json': typeof ChartsCatalogCatalogDotjsonRoute
+  '/chat/b/$botId': typeof ChatBBotIdRoute
+  '/chat/c/$conversationId': typeof ChatCConversationIdRouteWithChildren
   '/chat/p/$hash': typeof ChatPHashRoute
   '/chat/project/$projectId': typeof ChatProjectProjectIdRoute
   '/chat/w/$workspaceId': typeof ChatWWorkspaceIdRouteWithChildren
@@ -2259,6 +2280,7 @@ export interface FileRoutesByFullPath {
   '/api/chat/references/tools/refresh': typeof ApiChatReferencesToolsRefreshRoute
   '/api/chat/retries/$id/prepare': typeof ApiChatRetriesIdPrepareRoute
   '/charts/catalog/previews/$revision/{$caseId}.svg': typeof ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute
+  '/chat/c/$conversationId/m/$messageId': typeof ChatCConversationIdMMessageIdRoute
   '/chat/w/$workspaceId/b/$botId': typeof ChatWWorkspaceIdBBotIdRoute
   '/chat/w/$workspaceId/home/$homeSection': typeof ChatWWorkspaceIdHomeHomeSectionRoute
   '/$libraryId/$version/docs/': typeof LibraryLibraryIdVersionDocsIndexRoute
@@ -2449,6 +2471,8 @@ export interface FileRoutesByTo {
   '/auth/mcp/client-metadata': typeof AuthMcpClientMetadataRoute
   '/builder/p/$hash': typeof BuilderPHashRoute
   '/charts/catalog/catalog.json': typeof ChartsCatalogCatalogDotjsonRoute
+  '/chat/b/$botId': typeof ChatBBotIdRoute
+  '/chat/c/$conversationId': typeof ChatCConversationIdRouteWithChildren
   '/chat/p/$hash': typeof ChatPHashRoute
   '/chat/project/$projectId': typeof ChatProjectProjectIdRoute
   '/chat/w/$workspaceId': typeof ChatWWorkspaceIdRouteWithChildren
@@ -2558,6 +2582,7 @@ export interface FileRoutesByTo {
   '/api/chat/references/tools/refresh': typeof ApiChatReferencesToolsRefreshRoute
   '/api/chat/retries/$id/prepare': typeof ApiChatRetriesIdPrepareRoute
   '/charts/catalog/previews/$revision/{$caseId}.svg': typeof ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute
+  '/chat/c/$conversationId/m/$messageId': typeof ChatCConversationIdMMessageIdRoute
   '/chat/w/$workspaceId/b/$botId': typeof ChatWWorkspaceIdBBotIdRoute
   '/chat/w/$workspaceId/home/$homeSection': typeof ChatWWorkspaceIdHomeHomeSectionRoute
   '/$libraryId/$version/docs': typeof LibraryLibraryIdVersionDocsIndexRoute
@@ -2761,6 +2786,8 @@ export interface FileRoutesById {
   '/auth/mcp/client-metadata': typeof AuthMcpClientMetadataRoute
   '/builder_/p/$hash': typeof BuilderPHashRoute
   '/charts/catalog_/catalog.json': typeof ChartsCatalogCatalogDotjsonRoute
+  '/chat/b/$botId': typeof ChatBBotIdRoute
+  '/chat/c/$conversationId': typeof ChatCConversationIdRouteWithChildren
   '/chat/p/$hash': typeof ChatPHashRoute
   '/chat/project/$projectId': typeof ChatProjectProjectIdRoute
   '/chat/w/$workspaceId': typeof ChatWWorkspaceIdRouteWithChildren
@@ -2872,6 +2899,7 @@ export interface FileRoutesById {
   '/api/chat/references/tools/refresh': typeof ApiChatReferencesToolsRefreshRoute
   '/api/chat/retries/$id/prepare': typeof ApiChatRetriesIdPrepareRoute
   '/charts/catalog_/previews/$revision/{$caseId}.svg': typeof ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute
+  '/chat/c/$conversationId/m/$messageId': typeof ChatCConversationIdMMessageIdRoute
   '/chat/w/$workspaceId/b/$botId': typeof ChatWWorkspaceIdBBotIdRoute
   '/chat/w/$workspaceId/home/$homeSection': typeof ChatWWorkspaceIdHomeHomeSectionRoute
   '/_library/$libraryId/$version/docs/': typeof LibraryLibraryIdVersionDocsIndexRoute
@@ -3075,6 +3103,8 @@ export interface FileRouteTypes {
     | '/auth/mcp/client-metadata'
     | '/builder/p/$hash'
     | '/charts/catalog/catalog.json'
+    | '/chat/b/$botId'
+    | '/chat/c/$conversationId'
     | '/chat/p/$hash'
     | '/chat/project/$projectId'
     | '/chat/w/$workspaceId'
@@ -3186,6 +3216,7 @@ export interface FileRouteTypes {
     | '/api/chat/references/tools/refresh'
     | '/api/chat/retries/$id/prepare'
     | '/charts/catalog/previews/$revision/{$caseId}.svg'
+    | '/chat/c/$conversationId/m/$messageId'
     | '/chat/w/$workspaceId/b/$botId'
     | '/chat/w/$workspaceId/home/$homeSection'
     | '/$libraryId/$version/docs/'
@@ -3376,6 +3407,8 @@ export interface FileRouteTypes {
     | '/auth/mcp/client-metadata'
     | '/builder/p/$hash'
     | '/charts/catalog/catalog.json'
+    | '/chat/b/$botId'
+    | '/chat/c/$conversationId'
     | '/chat/p/$hash'
     | '/chat/project/$projectId'
     | '/chat/w/$workspaceId'
@@ -3485,6 +3518,7 @@ export interface FileRouteTypes {
     | '/api/chat/references/tools/refresh'
     | '/api/chat/retries/$id/prepare'
     | '/charts/catalog/previews/$revision/{$caseId}.svg'
+    | '/chat/c/$conversationId/m/$messageId'
     | '/chat/w/$workspaceId/b/$botId'
     | '/chat/w/$workspaceId/home/$homeSection'
     | '/$libraryId/$version/docs'
@@ -3687,6 +3721,8 @@ export interface FileRouteTypes {
     | '/auth/mcp/client-metadata'
     | '/builder_/p/$hash'
     | '/charts/catalog_/catalog.json'
+    | '/chat/b/$botId'
+    | '/chat/c/$conversationId'
     | '/chat/p/$hash'
     | '/chat/project/$projectId'
     | '/chat/w/$workspaceId'
@@ -3798,6 +3834,7 @@ export interface FileRouteTypes {
     | '/api/chat/references/tools/refresh'
     | '/api/chat/retries/$id/prepare'
     | '/charts/catalog_/previews/$revision/{$caseId}.svg'
+    | '/chat/c/$conversationId/m/$messageId'
     | '/chat/w/$workspaceId/b/$botId'
     | '/chat/w/$workspaceId/home/$homeSection'
     | '/_library/$libraryId/$version/docs/'
@@ -5203,6 +5240,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChartsCatalogCatalogDotjsonRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/chat/b/$botId': {
+      id: '/chat/b/$botId'
+      path: '/b/$botId'
+      fullPath: '/chat/b/$botId'
+      preLoaderRoute: typeof ChatBBotIdRouteImport
+      parentRoute: typeof ChatRoute
+    }
+    '/chat/c/$conversationId': {
+      id: '/chat/c/$conversationId'
+      path: '/c/$conversationId'
+      fullPath: '/chat/c/$conversationId'
+      preLoaderRoute: typeof ChatCConversationIdRouteImport
+      parentRoute: typeof ChatRoute
+    }
     '/chat/p/$hash': {
       id: '/chat/p/$hash'
       path: '/p/$hash'
@@ -5945,6 +5996,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/chat/c/$conversationId/m/$messageId': {
+      id: '/chat/c/$conversationId/m/$messageId'
+      path: '/m/$messageId'
+      fullPath: '/chat/c/$conversationId/m/$messageId'
+      preLoaderRoute: typeof ChatCConversationIdMMessageIdRouteImport
+      parentRoute: typeof ChatCConversationIdRoute
+    }
     '/chat/w/$workspaceId/b/$botId': {
       id: '/chat/w/$workspaceId/b/$botId'
       path: '/b/$botId'
@@ -6417,6 +6475,17 @@ const BlogRouteChildren: BlogRouteChildren = {
 
 const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
 
+interface ChatCConversationIdRouteChildren {
+  ChatCConversationIdMMessageIdRoute: typeof ChatCConversationIdMMessageIdRoute
+}
+
+const ChatCConversationIdRouteChildren: ChatCConversationIdRouteChildren = {
+  ChatCConversationIdMMessageIdRoute: ChatCConversationIdMMessageIdRoute,
+}
+
+const ChatCConversationIdRouteWithChildren =
+  ChatCConversationIdRoute._addFileChildren(ChatCConversationIdRouteChildren)
+
 interface ChatWWorkspaceIdRouteChildren {
   ChatWWorkspaceIdBBotIdRoute: typeof ChatWWorkspaceIdBBotIdRoute
   ChatWWorkspaceIdHomeHomeSectionRoute: typeof ChatWWorkspaceIdHomeHomeSectionRoute
@@ -6435,6 +6504,8 @@ interface ChatRouteChildren {
   ChatNewProjectRoute: typeof ChatNewProjectRoute
   ChatSharedRoute: typeof ChatSharedRoute
   ChatIndexRoute: typeof ChatIndexRoute
+  ChatBBotIdRoute: typeof ChatBBotIdRoute
+  ChatCConversationIdRoute: typeof ChatCConversationIdRouteWithChildren
   ChatPHashRoute: typeof ChatPHashRoute
   ChatProjectProjectIdRoute: typeof ChatProjectProjectIdRoute
   ChatWWorkspaceIdRoute: typeof ChatWWorkspaceIdRouteWithChildren
@@ -6445,6 +6516,8 @@ const ChatRouteChildren: ChatRouteChildren = {
   ChatNewProjectRoute: ChatNewProjectRoute,
   ChatSharedRoute: ChatSharedRoute,
   ChatIndexRoute: ChatIndexRoute,
+  ChatBBotIdRoute: ChatBBotIdRoute,
+  ChatCConversationIdRoute: ChatCConversationIdRouteWithChildren,
   ChatPHashRoute: ChatPHashRoute,
   ChatProjectProjectIdRoute: ChatProjectProjectIdRoute,
   ChatWWorkspaceIdRoute: ChatWWorkspaceIdRouteWithChildren,

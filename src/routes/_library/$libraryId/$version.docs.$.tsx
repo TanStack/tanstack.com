@@ -136,12 +136,20 @@ export const Route = createFileRoute('/_library/$libraryId/$version/docs/$')({
 
 function Docs() {
   const { version, libraryId, _splat } = Route.useParams()
-  const { content, filePath, title } = Route.useLoaderData()
+  const loaderData = Route.useLoaderData()
   const versionMatch = useMatch({ from: '/_library/$libraryId/$version' })
+  const location = useLocation()
+
+  // Loader data can be transiently undefined during client-side navigation
+  // (e.g. while the loader is pending or resolving a redirect).
+  if (!loaderData) {
+    return null
+  }
+
+  const { content, filePath, title } = loaderData
   const config = versionMatch.loaderData?.config
   const library = getLibrary(libraryId)
   const branch = getBranch(library, version)
-  const location = useLocation()
 
   return (
     <DocContainer>

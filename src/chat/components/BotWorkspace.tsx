@@ -342,7 +342,10 @@ export function BotWorkspace({
   }
   const allGroups = useMemo(() => {
     const selected = selectBotGroups({
-      bots: bots.filter((bot) => bot.id !== `kody:${viewerId}`),
+      bots: bots.filter(
+        (bot) =>
+          bot.id !== `kody:${viewerId}` && bot.id !== `assistant:${viewerId}`,
+      ),
       sections,
       activity,
       view,
@@ -377,7 +380,7 @@ export function BotWorkspace({
       },
     )
     return result
-  }, [bots, sections, activity, view])
+  }, [bots, sections, activity, view, viewerId])
   const searching = !!view.q?.trim()
   const pendingGroupId =
     view.group === 'none'

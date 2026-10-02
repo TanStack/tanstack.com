@@ -15,6 +15,68 @@ export async function openPersonalChatWorkspace(userId: string) {
   const workspaceId = `personal:${userId}`
   const assistantId = `assistant:${userId}`
   const conversationId = `chat:${assistantId}:${userId}`
+  const [existing] = await db
+    .select({ workspace: chatWorkspaces })
+    .from(chatWorkspaces)
+    .innerJoin(
+      chatMemberships,
+      and(
+        eq(chatMemberships.workspaceId, chatWorkspaces.id),
+        eq(chatMemberships.userId, userId),
+        eq(chatMemberships.role, 'owner'),
+      ),
+    )
+    .innerJoin(chatAccountOnboarding, eq(chatAccountOnboarding.userId, userId))
+    .innerJoin(
+      chatBots,
+      and(
+        eq(chatBots.id, assistantId),
+        eq(chatBots.workspaceId, chatWorkspaces.id),
+      ),
+    )
+    .innerJoin(
+      chatConversations,
+      and(
+        eq(chatConversations.id, conversationId),
+        eq(chatConversations.botId, chatBots.id),
+        eq(chatConversations.userId, userId),
+      ),
+    )
+    .innerJoin(
+      chatConversationMains,
+      and(
+        eq(chatConversationMains.conversationId, chatConversations.id),
+        eq(chatConversationMains.botId, chatBots.id),
+        eq(chatConversationMains.userId, userId),
+      ),
+    )
+    .where(
+      and(
+        eq(chatWorkspaces.id, workspaceId),
+        eq(chatWorkspaces.ownerId, userId),
+      ),
+    )
+  if (existing) {
+    const bots = await db
+      .select()
+      .from(chatBots)
+      .where(
+        and(
+          eq(chatBots.workspaceId, workspaceId),
+          isNull(chatBots.archivedAt),
+          isNull(chatBots.deletedAt),
+        ),
+      )
+    return {
+      workspace: {
+        ...existing.workspace,
+        policy: chatPolicySchema.parse(existing.workspace.policy),
+      },
+      bots,
+      assistantId,
+      conversationId,
+    }
+  }
   return db.transaction(async (tx) => {
     await tx
       .insert(chatWorkspaces)

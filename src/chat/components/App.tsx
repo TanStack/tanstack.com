@@ -11,6 +11,7 @@ import { useDebugDetails } from './useDebugDetails'
 import { TabPanels } from './ui/TabPanels'
 import { Button } from './ui/Button'
 import { Menu } from '@base-ui/react/menu'
+import { conversationLocation } from '../core/conversation-destination'
 import type { TurnOutcome } from '../core/message-navigation'
 import { SelectField } from './SelectField'
 import { deferredPanel } from './deferredPanel'
@@ -23,6 +24,8 @@ import { DraftBot } from './DraftBot'
 import { Dialog } from './Dialog'
 import { ConversationView } from './ConversationView'
 import { conversationRouteQuery } from './conversationRouteQuery'
+import { chatIdentityQuery, rememberChatIdentity } from './chatIdentityQuery'
+import { LoadingState } from './ui/LoadingState'
 import { ConversationDetailsToggle } from './ConversationDetailsCard'
 import {
   ConversationNavigator,
@@ -51,7 +54,7 @@ import {
   Bookmark,
   Copy,
 } from 'lucide-react'
-import { useNavigate, useParams, useRouteContext } from '@tanstack/react-router'
+import { useNavigate, useParams } from '@tanstack/react-router'
 import { WorkspaceApiProvider, useWorkspaceApi, ApiError } from './WorkspaceApi'
 
 import {
@@ -233,14 +236,26 @@ const names: Record<string, string> = {
 }
 export function App() {
   const params = useParams({ strict: false })
-  const { chatIdentity } = useRouteContext({ strict: false })
-  const workspaceId = chatIdentity?.workspaceId ?? params.workspaceId
+  const identity = useQuery({
+    ...chatIdentityQuery(params.conversationId ?? ''),
+    enabled: !!params.conversationId,
+  })
+  if (params.conversationId && !identity.data) {
+    if (identity.error)
+      return (
+        <main className="loading" role="alert">
+          {identity.error.message}
+        </main>
+      )
+    return <LoadingState>Opening conversation…</LoadingState>
+  }
+  const workspaceId = identity.data?.workspaceId ?? params.workspaceId
   return (
     <WorkspaceApiProvider workspaceId={workspaceId}>
       <WorkspaceApp
         key={workspaceId ?? 'home'}
         workspaceId={workspaceId}
-        botId={chatIdentity?.botId ?? params.botId}
+        botId={identity.data?.botId ?? params.botId}
       />
     </WorkspaceApiProvider>
   )
@@ -510,9 +525,21 @@ function WorkspaceApp({
   const activityQuery = workspaceState.activityQuery
   const selectBot = (id: string) => {
     if (!data) return
+    const bot =
+      data.bots.find((candidate) => candidate.id === id) ??
+      (data.personalAssistant?.id === id ? data.personalAssistant : undefined)
+    const identity = bot
+      ? rememberChatIdentity(queryClient, bot, data.user.id)
+      : undefined
     void navigate({
-      to: '/chat/b/$botId',
-      params: { botId: id },
+      ...conversationLocation(
+        {
+          workspaceId: identity?.workspaceId ?? data.workspace.id,
+          botId: id,
+          conversationId: identity?.conversationId,
+        },
+        search,
+      ),
       search: {
         ...(id === botId && !search.draft && !search.conversation
           ? search
@@ -566,9 +593,20 @@ function WorkspaceApp({
   useEffect(() => {
     if (!data || botId || search.draft || params.homeSection) return
     if (workspaceId && data.personalAssistant) {
+      const identity = rememberChatIdentity(
+        queryClient,
+        data.personalAssistant,
+        data.user.id,
+      )
       void navigate({
-        to: '/chat/b/$botId',
-        params: { botId: data.personalAssistant.id },
+        ...conversationLocation(
+          {
+            workspaceId: data.personalAssistant.workspace_id,
+            botId: data.personalAssistant.id,
+            conversationId: identity?.conversationId,
+          },
+          search,
+        ),
         search: { ...search, conversation: undefined },
         replace: true,
       })
@@ -585,7 +623,15 @@ function WorkspaceApp({
         replace: true,
       })
     }
-  }, [data, botId, workspaceId, navigate, search.draft, params.homeSection])
+  }, [
+    data,
+    botId,
+    workspaceId,
+    navigate,
+    search,
+    params.homeSection,
+    queryClient,
+  ])
   if (bootstrap.isPending && !data) return <WorkspaceSkeleton />
   if (
     (workspaceError instanceof ApiError && workspaceError.status === 401) ||
@@ -656,16 +702,7 @@ function WorkspaceApp({
         setMobile(false)
         if (id === 'chat') {
           if (data.personalAssistant) {
-            void navigate({
-              to: '/chat/b/$botId',
-              params: { botId: data.personalAssistant.id },
-              search: {
-                ...search,
-                view: 'bots',
-                sort: 'position',
-                group: 'section',
-              },
-            })
+            selectBot(data.personalAssistant.id)
           } else createDraft(null)
         } else {
           void navigate({
@@ -954,14 +991,7 @@ function WorkspaceApp({
                   onChanged={refresh}
                   onOpen={() => {
                     setMobile(false)
-                    if (data.workspace.id === `personal:${data.user.id}`)
-                      selectBot(data.personalAssistant!.id)
-                    else
-                      void navigate({
-                        to: '/chat/b/$botId',
-                        params: { botId: data.personalAssistant!.id },
-                        search: defaultWorkspaceSearch,
-                      })
+                    selectBot(data.personalAssistant!.id)
                   }}
                 />
               )}
@@ -997,6 +1027,7 @@ function WorkspaceApp({
               }}
               onPrefetch={(bot) => {
                 if (bot.deleted_at !== null) return
+                rememberChatIdentity(queryClient, bot, data.user.id)
                 void queryClient.prefetchQuery(
                   conversationRouteQuery({
                     queries: queryClient,

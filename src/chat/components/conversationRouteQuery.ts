@@ -1,3 +1,4 @@
+import { chatIdentityQuery } from './chatIdentityQuery'
 import type { QueryClient } from '@tanstack/react-query'
 import type { History } from './App'
 import type { WorkspaceBot } from '../core/bot-workspace'
@@ -25,18 +26,19 @@ export function conversationRouteQuery({
   conversationId?: string
   userId: string
 }) {
+  const requestedConversationId = conversationId ?? bot.mainConversationId
   return {
     queryKey: [
       'conversation-route',
       workspaceId,
       bot.id,
-      conversationId,
+      requestedConversationId,
       userId,
     ] as const,
     queryFn: async () => {
       const snapshot = await request<History>(
-        conversationId
-          ? `conversations/${encodeURIComponent(conversationId)}/history`
+        requestedConversationId
+          ? `conversations/${encodeURIComponent(requestedConversationId)}/history`
           : `bots/${encodeURIComponent(bot.id)}/history`,
       )
       const destination = conversationDestination(
@@ -47,7 +49,16 @@ export function conversationRouteQuery({
           mainConversationId: bot.mainConversationId,
         },
         snapshot.identity,
-        conversationId,
+        requestedConversationId,
+      )
+      queries.setQueryData(
+        chatIdentityQuery(destination.conversationId).queryKey,
+        {
+          conversationId: destination.conversationId,
+          botId: destination.botId,
+          workspaceId: destination.workspaceId,
+          userId: destination.userId,
+        },
       )
       queries.setQueryData(
         conversationQueryKey(destination, 'history'),
@@ -56,7 +67,7 @@ export function conversationRouteQuery({
       return { snapshot, destination }
     },
     staleTime: conversationRouteFreshMs,
-    refetchOnMount: 'always' as const,
+    refetchOnMount: true,
     refetchOnWindowFocus: false,
     retry: false,
   }

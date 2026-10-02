@@ -1,6 +1,11 @@
 import { getTableConfig } from 'drizzle-orm/pg-core'
-import { users, roles, roleAssignments } from '../../../src/db/schema'
-import { CAPABILITIES } from '../../../src/db/types'
+import {
+  users,
+  roles,
+  roleAssignments,
+  oauthAccounts,
+} from '../../../src/db/schema'
+import { CAPABILITIES, OAUTH_PROVIDERS } from '../../../src/db/types'
 import { AuthService } from '../../../src/auth/auth.server'
 import { SessionService } from '../../../src/auth/session.server'
 import {
@@ -36,7 +41,11 @@ export async function prepareSharedSessionRuntime(h: Harness) {
   await h.db.unsafe(
     `DO $$ BEGIN CREATE TYPE capability AS ENUM (${values}); EXCEPTION WHEN duplicate_object THEN NULL; END $$`,
   )
-  for (const table of [users, roles, roleAssignments]) {
+  const providers = OAUTH_PROVIDERS.map((value) => `'${value}'`).join(',')
+  await h.db.unsafe(
+    `DO $$ BEGIN CREATE TYPE oauth_provider AS ENUM (${providers}); EXCEPTION WHEN duplicate_object THEN NULL; END $$`,
+  )
+  for (const table of [users, roles, roleAssignments, oauthAccounts]) {
     const config = getTableConfig(table)
     await h.db.unsafe(
       `CREATE TABLE IF NOT EXISTS "${config.name}" (id uuid PRIMARY KEY)`,
@@ -48,6 +57,7 @@ export async function prepareSharedSessionRuntime(h: Harness) {
       )
     }
   }
+  await h.db`INSERT INTO chat_access(user_id) SELECT id FROM users ON CONFLICT DO NOTHING`
   await h.db`UPDATE users SET email='runtime@example.invalid', capabilities=ARRAY['builder']::capability[], session_version=0, signup_sources='[]'::jsonb,created_at=now(),updated_at=now()`
 }
 export async function createSharedSession(userId: string) {

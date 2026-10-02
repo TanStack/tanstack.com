@@ -289,7 +289,7 @@ function WorkspaceApp({
     (open: boolean) => {
       void navigate({
         to: '.',
-        search: (previous) => ({
+        search: (previous: Record<string, unknown>) => ({
           ...validateWorkspaceSearch(previous),
           navigation: open ? true : undefined,
         }),
@@ -339,7 +339,7 @@ function WorkspaceApp({
       tab === 'general' && focus && focus !== 'profile' ? 'preferences' : tab
     void navigate({
       to: '.',
-      search: (previous) => ({
+      search: (previous: Record<string, unknown>) => ({
         ...validateWorkspaceSearch(previous),
         navigation: undefined,
         settings: destination,
@@ -484,7 +484,7 @@ function WorkspaceApp({
     if (changed)
       void navigate({
         to: '.',
-        search: (previous) => {
+        search: (previous: Record<string, unknown>) => {
           const { executionHistory: _history, ...rest } =
             validateWorkspaceSearch(previous)
           return rest
@@ -547,7 +547,7 @@ function WorkspaceApp({
   const changeView = (view: BotView) => {
     void navigate({
       to: '.',
-      search: (previous) => ({
+      search: (previous: Record<string, unknown>) => ({
         ...validateWorkspaceSearch(previous),
         ...view,
         q: view.q ?? '',
@@ -741,7 +741,7 @@ function WorkspaceApp({
             onClick={() =>
               void navigate({
                 to: '.',
-                search: (previous) => {
+                search: (previous: Record<string, unknown>) => {
                   const current = validateWorkspaceSearch(previous)
                   const pane = readPanelState(current)
                   if (!pane.active) return openWorkspacePanel(current, 'usage')
@@ -1217,7 +1217,7 @@ function WorkspaceApp({
             onSetup={(id) =>
               void navigate({
                 to: '.',
-                search: (previous) => ({
+                search: (previous: Record<string, unknown>) => ({
                   ...validateWorkspaceSearch(previous),
                   settings: 'mcp',
                   connectionSetup: id,
@@ -1229,7 +1229,7 @@ function WorkspaceApp({
             onPlugin={(id) =>
               void navigate({
                 to: '.',
-                search: (previous) => ({
+                search: (previous: Record<string, unknown>) => ({
                   ...validateWorkspaceSearch(previous),
                   settings: 'plugins',
                   plugin: id,

@@ -467,6 +467,7 @@ describe('authenticated project snapshot API and R2 publication', () => {
     ).toBe(404)
     await h.db`INSERT INTO users(id,email,name,capabilities,session_version,signup_sources,created_at,updated_at) VALUES('00000000-0000-4000-8000-000000000002','other@example.invalid','Other',ARRAY['builder']::capability[],0,'[]',now(),now())`
     await h.db`INSERT INTO chat_memberships(workspace_id,user_id,role) VALUES('w','00000000-0000-4000-8000-000000000002','member')`
+    await h.db`INSERT INTO chat_access(user_id) VALUES('00000000-0000-4000-8000-000000000002')`
     const otherCookie = (
       await createSharedSession('00000000-0000-4000-8000-000000000002')
     ).split(';')[0]

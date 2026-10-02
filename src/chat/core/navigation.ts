@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import * as v from 'valibot'
 import {
   isPanelId,
   maxWorkspacePanels,
@@ -9,78 +9,98 @@ import {
 export const settingFocuses = ['profile', 'response', 'timezone'] as const
 export type SettingFocus = (typeof settingFocuses)[number]
 
-const panelSchema = z.custom<PanelId>(isPanelId)
-const executionHistorySchema = z.strictObject({
-  conversationId: z.string().min(1).max(1000),
-  sessionId: z.uuid(),
+const panelSchema = v.custom<PanelId>(isPanelId)
+const optionalText = (max: number, min = 1) =>
+  v.fallback(
+    v.optional(v.pipe(v.string(), v.minLength(min), v.maxLength(max))),
+    undefined,
+  )
+const optionalId = v.fallback(
+  v.optional(v.pipe(v.string(), v.uuid())),
+  undefined,
+)
+const optionalBoolean = v.fallback(v.optional(v.boolean()), undefined)
+const executionHistorySchema = v.strictObject({
+  conversationId: v.pipe(v.string(), v.minLength(1), v.maxLength(1000)),
+  sessionId: v.pipe(v.string(), v.uuid()),
 })
-export type ExecutionHistorySelection = z.infer<typeof executionHistorySchema>
-
-const navigationSchema = z.object({
-  project: z.uuid().optional().catch(undefined),
-  projectTemplate: z.string().min(1).max(200).optional().catch(undefined),
-  asset: z.string().min(1).max(1000).optional().catch(undefined),
-  homeQuery: z.string().max(200).optional().catch(undefined),
-  navigation: z.literal(true).optional().catch(undefined),
-  view: z
-    .enum(['bots', 'recent', 'attention', 'archived', 'trash'])
-    .catch('bots'),
-  q: z.string().max(200).catch(''),
-  sort: z
-    .enum(['position', 'name', 'created', 'activity', 'unread'])
-    .catch('position'),
-  group: z.enum(['section', 'status', 'none']).catch('section'),
-  sectionSort: z
-    .enum(['position', 'name', 'activity'])
-    .optional()
-    .catch(undefined),
-  message: z.string().min(1).max(128).optional().catch(undefined),
-  conversation: z.string().min(1).max(1000).optional().catch(undefined),
-  executionHistory: executionHistorySchema.optional().catch(undefined),
-  navigatorSearch: z
-    .strictObject({
-      rootBotId: z.string().min(1).max(200),
-      query: z.string().max(200),
-    })
-    .optional()
-    .catch(undefined),
-  thread: z.string().min(1).max(1000).optional().catch(undefined),
-  threadMessage: z.string().min(1).max(128).optional().catch(undefined),
-  draft: z.string().uuid().optional().catch(undefined),
-  parent: z.string().min(1).max(200).optional().catch(undefined),
-  connectionSetup: z.string().uuid().optional().catch(undefined),
-  plugin: z.string().uuid().optional().catch(undefined),
-  setting: z.enum(settingFocuses).optional().catch(undefined),
-  settings: z
-    .enum([
-      'general',
-      'preferences',
-      'appearance',
-      'developer',
-      'usage',
-      'connection',
-      'actions',
-      'policy',
-      'mcp',
-      'contracts',
-      'skills',
-      'plugins',
-    ])
-    .optional()
-    .catch(undefined),
-  panelHidden: z.boolean().optional().catch(undefined),
-  panel: panelSchema.optional().catch(undefined),
-  panels: z
-    .array(z.unknown())
-    .max(maxWorkspacePanels)
-    .transform((values) => values.filter(isPanelId))
-    .optional()
-    .catch(undefined),
-  fullscreen: z.boolean().optional().catch(undefined),
-  details: z.boolean().optional().catch(undefined),
+export type ExecutionHistorySelection = v.InferOutput<
+  typeof executionHistorySchema
+>
+const navigationSchema = v.object({
+  project: optionalId,
+  projectTemplate: optionalText(200),
+  asset: optionalText(1000),
+  homeQuery: optionalText(200, 0),
+  navigation: v.fallback(v.optional(v.literal(true)), undefined),
+  view: v.fallback(
+    v.picklist(['bots', 'recent', 'attention', 'archived', 'trash']),
+    'bots',
+  ),
+  q: v.fallback(v.pipe(v.string(), v.maxLength(200)), ''),
+  sort: v.fallback(
+    v.picklist(['position', 'name', 'created', 'activity', 'unread']),
+    'position',
+  ),
+  group: v.fallback(v.picklist(['section', 'status', 'none']), 'section'),
+  sectionSort: v.fallback(
+    v.optional(v.picklist(['position', 'name', 'activity'])),
+    undefined,
+  ),
+  message: optionalText(128),
+  conversation: optionalText(1000),
+  executionHistory: v.fallback(v.optional(executionHistorySchema), undefined),
+  navigatorSearch: v.fallback(
+    v.optional(
+      v.strictObject({
+        rootBotId: v.pipe(v.string(), v.minLength(1), v.maxLength(200)),
+        query: v.pipe(v.string(), v.maxLength(200)),
+      }),
+    ),
+    undefined,
+  ),
+  thread: optionalText(1000),
+  threadMessage: optionalText(128),
+  draft: optionalId,
+  parent: optionalText(200),
+  connectionSetup: optionalId,
+  plugin: optionalId,
+  setting: v.fallback(v.optional(v.picklist(settingFocuses)), undefined),
+  settings: v.fallback(
+    v.optional(
+      v.picklist([
+        'general',
+        'preferences',
+        'appearance',
+        'developer',
+        'usage',
+        'connection',
+        'actions',
+        'policy',
+        'mcp',
+        'contracts',
+        'skills',
+        'plugins',
+      ]),
+    ),
+    undefined,
+  ),
+  panelHidden: optionalBoolean,
+  panel: v.fallback(v.optional(panelSchema), undefined),
+  panels: v.fallback(
+    v.optional(
+      v.pipe(
+        v.array(v.unknown()),
+        v.maxLength(maxWorkspacePanels),
+        v.transform((values) => values.filter(isPanelId)),
+      ),
+    ),
+    undefined,
+  ),
+  fullscreen: optionalBoolean,
+  details: optionalBoolean,
 })
-
-export type WorkspaceSearch = z.infer<typeof navigationSchema>
+export type WorkspaceSearch = v.InferOutput<typeof navigationSchema>
 export const defaultWorkspaceSearch: WorkspaceSearch = {
   view: 'bots',
   q: '',
@@ -90,8 +110,10 @@ export const defaultWorkspaceSearch: WorkspaceSearch = {
 export function validateWorkspaceSearch(
   search: Record<string, unknown>,
 ): WorkspaceSearch {
-  const { panel, panels, fullscreen, details, ...rest } =
-    navigationSchema.parse(search)
+  const { panel, panels, fullscreen, details, ...rest } = v.parse(
+    navigationSchema,
+    search,
+  )
   if (
     rest.settings === 'general' &&
     (rest.setting === 'response' || rest.setting === 'timezone')
@@ -152,7 +174,7 @@ export function selectExecutionHistory(
     ? rest
     : {
         ...rest,
-        executionHistory: executionHistorySchema.parse({
+        executionHistory: v.parse(executionHistorySchema, {
           conversationId,
           sessionId,
         }),

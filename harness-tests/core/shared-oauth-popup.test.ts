@@ -73,6 +73,7 @@ const message = (channel: string) => ({
   channel,
 })
 const flush = async () => {
+  await vi.dynamicImportSettled()
   await Promise.resolve()
   await Promise.resolve()
 }
@@ -141,6 +142,8 @@ it('cancels in-flight verification and ignores the old channel after a retry', a
   TestChannel.instances[0].dispatchEvent(
     new MessageEvent('message', { data: message(first.channelId) }),
   )
+  await flush()
+  expect(verifySession).toHaveBeenCalledOnce()
   first.dispose()
   const second = createOAuthPopupAttempt({
     verifySession: async () => true,

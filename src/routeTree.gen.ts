@@ -78,6 +78,7 @@ import { Route as BuilderNewRouteImport } from './routes/builder_.new'
 import { Route as ChatIndexRouteImport } from './routes/chat.index'
 import { Route as ChatChartsRouteImport } from './routes/chat.charts'
 import { Route as ChatNewProjectRouteImport } from './routes/chat.new-project'
+import { Route as ChatSharedRouteImport } from './routes/chat.shared'
 import { Route as DsIndexRouteImport } from './routes/ds.index'
 import { Route as DsAvatarRouteImport } from './routes/ds.avatar'
 import { Route as DsBadgesRouteImport } from './routes/ds.badges'
@@ -663,6 +664,11 @@ const ChatChartsRoute = ChatChartsRouteImport.update({
 const ChatNewProjectRoute = ChatNewProjectRouteImport.update({
   id: '/new-project',
   path: '/new-project',
+  getParentRoute: () => ChatRoute,
+} as any)
+const ChatSharedRoute = ChatSharedRouteImport.update({
+  id: '/shared',
+  path: '/shared',
   getParentRoute: () => ChatRoute,
 } as any)
 const DsIndexRoute = DsIndexRouteImport.update({
@@ -2038,6 +2044,7 @@ export interface FileRoutesByFullPath {
   '/builder/new': typeof BuilderNewRoute
   '/chat/charts': typeof ChatChartsRoute
   '/chat/new-project': typeof ChatNewProjectRoute
+  '/chat/shared': typeof ChatSharedRoute
   '/ds/avatar': typeof DsAvatarRoute
   '/ds/badges': typeof DsBadgesRoute
   '/ds/breadcrumbs': typeof DsBreadcrumbsRoute
@@ -2340,6 +2347,7 @@ export interface FileRoutesByTo {
   '/builder/new': typeof BuilderNewRoute
   '/chat/charts': typeof ChatChartsRoute
   '/chat/new-project': typeof ChatNewProjectRoute
+  '/chat/shared': typeof ChatSharedRoute
   '/ds/avatar': typeof DsAvatarRoute
   '/ds/badges': typeof DsBadgesRoute
   '/ds/breadcrumbs': typeof DsBreadcrumbsRoute
@@ -2649,6 +2657,7 @@ export interface FileRoutesById {
   '/builder_/new': typeof BuilderNewRoute
   '/chat/charts': typeof ChatChartsRoute
   '/chat/new-project': typeof ChatNewProjectRoute
+  '/chat/shared': typeof ChatSharedRoute
   '/ds/avatar': typeof DsAvatarRoute
   '/ds/badges': typeof DsBadgesRoute
   '/ds/breadcrumbs': typeof DsBreadcrumbsRoute
@@ -2962,6 +2971,7 @@ export interface FileRouteTypes {
     | '/builder/new'
     | '/chat/charts'
     | '/chat/new-project'
+    | '/chat/shared'
     | '/ds/avatar'
     | '/ds/badges'
     | '/ds/breadcrumbs'
@@ -3264,6 +3274,7 @@ export interface FileRouteTypes {
     | '/builder/new'
     | '/chat/charts'
     | '/chat/new-project'
+    | '/chat/shared'
     | '/ds/avatar'
     | '/ds/badges'
     | '/ds/breadcrumbs'
@@ -3572,6 +3583,7 @@ export interface FileRouteTypes {
     | '/builder_/new'
     | '/chat/charts'
     | '/chat/new-project'
+    | '/chat/shared'
     | '/ds/avatar'
     | '/ds/badges'
     | '/ds/breadcrumbs'
@@ -4454,6 +4466,13 @@ declare module '@tanstack/react-router' {
       path: '/new-project'
       fullPath: '/chat/new-project'
       preLoaderRoute: typeof ChatNewProjectRouteImport
+      parentRoute: typeof ChatRoute
+    }
+    '/chat/shared': {
+      id: '/chat/shared'
+      path: '/shared'
+      fullPath: '/chat/shared'
+      preLoaderRoute: typeof ChatSharedRouteImport
       parentRoute: typeof ChatRoute
     }
     '/ds/': {
@@ -6414,6 +6433,7 @@ const ChatWWorkspaceIdRouteWithChildren =
 interface ChatRouteChildren {
   ChatChartsRoute: typeof ChatChartsRoute
   ChatNewProjectRoute: typeof ChatNewProjectRoute
+  ChatSharedRoute: typeof ChatSharedRoute
   ChatIndexRoute: typeof ChatIndexRoute
   ChatPHashRoute: typeof ChatPHashRoute
   ChatProjectProjectIdRoute: typeof ChatProjectProjectIdRoute
@@ -6423,6 +6443,7 @@ interface ChatRouteChildren {
 const ChatRouteChildren: ChatRouteChildren = {
   ChatChartsRoute: ChatChartsRoute,
   ChatNewProjectRoute: ChatNewProjectRoute,
+  ChatSharedRoute: ChatSharedRoute,
   ChatIndexRoute: ChatIndexRoute,
   ChatPHashRoute: ChatPHashRoute,
   ChatProjectProjectIdRoute: ChatProjectProjectIdRoute,
@@ -7129,3 +7150,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

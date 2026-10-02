@@ -1,5 +1,4 @@
 import { createClientOnlyFn } from '@tanstack/react-start'
-import { oauthPopupChannelName, oauthPopupMessageSchema } from './oauth-popup'
 
 /** Completion is a hint to recheck the server session, never authentication. */
 export const createOAuthPopupAttempt = createClientOnlyFn(function ({
@@ -15,8 +14,9 @@ export const createOAuthPopupAttempt = createClientOnlyFn(function ({
   const channel =
     typeof BroadcastChannel === 'undefined'
       ? null
-      : new BroadcastChannel(oauthPopupChannelName(channelId))
+      : new BroadcastChannel(`tanstack.oauth.${channelId}`)
   const complete = async (data: unknown) => {
+    const { oauthPopupMessageSchema } = await import('./oauth-popup')
     const message = oauthPopupMessageSchema.safeParse(data)
     if (
       !active ||

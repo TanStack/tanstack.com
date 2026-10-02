@@ -1,11 +1,13 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
-import { z } from 'zod'
+import * as v from 'valibot'
 import { getCurrentUser } from '~/utils/auth.functions'
 import { loadChatWorkspace } from '~/chat/workspace.functions'
 import { defaultWorkspaceSearch } from '~/chat/core/navigation'
 
 export const Route = createFileRoute('/chat/new-project')({
-  validateSearch: z.object({ template: z.string().min(1).max(200).optional() }),
+  validateSearch: v.object({
+    template: v.optional(v.pipe(v.string(), v.minLength(1), v.maxLength(200))),
+  }),
   beforeLoad: async ({ search }) => {
     const user = await getCurrentUser()
     if (!user) {

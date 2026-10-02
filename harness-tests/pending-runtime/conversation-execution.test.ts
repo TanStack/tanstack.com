@@ -340,6 +340,7 @@ it('reads exact session history through authenticated GETs, rejects ambiguous qu
       await h.c.executionHistory({ ...identity, [key]: 'other' }),
     ).toMatchObject({ ok: false, status: 404 })
   await h.db`INSERT INTO users(id,email,name,capabilities,session_version,signup_sources,created_at,updated_at) VALUES('00000000-0000-4000-8000-000000000002','other@example.invalid','Other',ARRAY['builder']::capability[],0,'[]',now(),now())`
+  await h.db`INSERT INTO chat_access(user_id) VALUES('00000000-0000-4000-8000-000000000002')`
   await h.db`INSERT INTO chat_memberships(workspace_id,user_id,role) VALUES('w','00000000-0000-4000-8000-000000000002','member')`
   const other = (
     await createSharedSession('00000000-0000-4000-8000-000000000002')
@@ -406,6 +407,7 @@ it('routes only authenticated exact conversations and does not expose lease proo
   expect(await read.text()).not.toContain(fence.leaseProof)
 
   await h.db`INSERT INTO users(id,email,name,capabilities,session_version,signup_sources,created_at,updated_at) VALUES('00000000-0000-4000-8000-000000000002','other@example.invalid','Other',ARRAY['builder']::capability[],0,'[]',now(),now())`
+  await h.db`INSERT INTO chat_access(user_id) VALUES('00000000-0000-4000-8000-000000000002')`
   await h.db`INSERT INTO chat_memberships(workspace_id,user_id,role) VALUES('w','00000000-0000-4000-8000-000000000002','member')`
   const other = (
     await createSharedSession('00000000-0000-4000-8000-000000000002')
@@ -614,7 +616,7 @@ it('commits the lease alarm with ownership and preserves an earlier unrelated al
   expect(await other.ctx.storage.getAlarm()).toBe(null)
 })
 
-it.each(['tampered', 'expired', 'revoked', 'capability'] as const)(
+it.each(['tampered', 'expired', 'revoked', 'chat-access'] as const)(
   'rejects an execution request with %s shared session authority before host routing',
   async (kind) => {
     const h = await setup()
@@ -623,11 +625,11 @@ it.each(['tampered', 'expired', 'revoked', 'capability'] as const)(
     if (kind === 'expired') h.advance(30 * 24 * 60 * 60 * 1000 + 1)
     if (kind === 'revoked')
       await h.db`UPDATE users SET session_version=1 WHERE id=${identity.userId}`
-    if (kind === 'capability')
-      await h.db`UPDATE users SET capabilities=ARRAY[]::capability[] WHERE id=${identity.userId}`
+    if (kind === 'chat-access')
+      await h.db`DELETE FROM chat_access WHERE user_id=${identity.userId}`
     h.getByName.mockClear()
     const response = await api(h.request(undefined, { cookie }), h.env)
-    expect(response.status).toBe(kind === 'capability' ? 403 : 401)
+    expect(response.status).toBe(kind === 'chat-access' ? 403 : 401)
     expect(h.getByName).not.toHaveBeenCalled()
   },
 )

@@ -208,7 +208,8 @@ function RoutedConversation({
   ) =>
     void navigate({
       to: '.',
-      search: (previous) => update(validateWorkspaceSearch(previous)),
+      search: (previous: Record<string, unknown>) =>
+        update(validateWorkspaceSearch(previous)),
       resetScroll: false,
       replace: options?.replace,
     })
@@ -220,7 +221,7 @@ function RoutedConversation({
     )
       void navigate({
         to: '.',
-        search: (previous) => {
+        search: (previous: Record<string, unknown>) => {
           const current = validateWorkspaceSearch(previous)
           // Do not remove a newer selection made after this render.
           return current.executionHistory?.conversationId ===

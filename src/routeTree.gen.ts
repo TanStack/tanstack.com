@@ -56,6 +56,7 @@ import { Route as AccountNotesRouteImport } from './routes/account/notes'
 import { Route as AccountSubmissionsRouteImport } from './routes/account/submissions'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminAuditRouteImport } from './routes/admin/audit'
+import { Route as AdminChatAccessRouteImport } from './routes/admin/chat-access'
 import { Route as AdminDocsRouteImport } from './routes/admin/docs'
 import { Route as AdminGithubStatsRouteImport } from './routes/admin/github-stats'
 import { Route as AdminIntentRouteImport } from './routes/admin/intent'
@@ -557,6 +558,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
 const AdminAuditRoute = AdminAuditRouteImport.update({
   id: '/audit',
   path: '/audit',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminChatAccessRoute = AdminChatAccessRouteImport.update({
+  id: '/chat-access',
+  path: '/chat-access',
   getParentRoute: () => AdminRouteRoute,
 } as any)
 const AdminDocsRoute = AdminDocsRouteImport.update({
@@ -2044,6 +2050,7 @@ export interface FileRoutesByFullPath {
   '/account/notes': typeof AccountNotesRoute
   '/account/submissions': typeof AccountSubmissionsRoute
   '/admin/audit': typeof AdminAuditRoute
+  '/admin/chat-access': typeof AdminChatAccessRoute
   '/admin/docs': typeof AdminDocsRoute
   '/admin/github-stats': typeof AdminGithubStatsRoute
   '/admin/intent': typeof AdminIntentRoute
@@ -2350,6 +2357,7 @@ export interface FileRoutesByTo {
   '/account/notes': typeof AccountNotesRoute
   '/account/submissions': typeof AccountSubmissionsRoute
   '/admin/audit': typeof AdminAuditRoute
+  '/admin/chat-access': typeof AdminChatAccessRoute
   '/admin/docs': typeof AdminDocsRoute
   '/admin/github-stats': typeof AdminGithubStatsRoute
   '/admin/intent': typeof AdminIntentRoute
@@ -2663,6 +2671,7 @@ export interface FileRoutesById {
   '/account/notes': typeof AccountNotesRoute
   '/account/submissions': typeof AccountSubmissionsRoute
   '/admin/audit': typeof AdminAuditRoute
+  '/admin/chat-access': typeof AdminChatAccessRoute
   '/admin/docs': typeof AdminDocsRoute
   '/admin/github-stats': typeof AdminGithubStatsRoute
   '/admin/intent': typeof AdminIntentRoute
@@ -2980,6 +2989,7 @@ export interface FileRouteTypes {
     | '/account/notes'
     | '/account/submissions'
     | '/admin/audit'
+    | '/admin/chat-access'
     | '/admin/docs'
     | '/admin/github-stats'
     | '/admin/intent'
@@ -3286,6 +3296,7 @@ export interface FileRouteTypes {
     | '/account/notes'
     | '/account/submissions'
     | '/admin/audit'
+    | '/admin/chat-access'
     | '/admin/docs'
     | '/admin/github-stats'
     | '/admin/intent'
@@ -3598,6 +3609,7 @@ export interface FileRouteTypes {
     | '/account/notes'
     | '/account/submissions'
     | '/admin/audit'
+    | '/admin/chat-access'
     | '/admin/docs'
     | '/admin/github-stats'
     | '/admin/intent'
@@ -4349,6 +4361,13 @@ declare module '@tanstack/react-router' {
       path: '/audit'
       fullPath: '/admin/audit'
       preLoaderRoute: typeof AdminAuditRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/chat-access': {
+      id: '/admin/chat-access'
+      path: '/chat-access'
+      fullPath: '/admin/chat-access'
+      preLoaderRoute: typeof AdminChatAccessRouteImport
       parentRoute: typeof AdminRouteRoute
     }
     '/admin/docs': {
@@ -6237,6 +6256,7 @@ const AdminUsersRouteWithChildren = AdminUsersRoute._addFileChildren(
 
 interface AdminRouteRouteChildren {
   AdminAuditRoute: typeof AdminAuditRoute
+  AdminChatAccessRoute: typeof AdminChatAccessRoute
   AdminDocsRoute: typeof AdminDocsRoute
   AdminGithubStatsRoute: typeof AdminGithubStatsRoute
   AdminIntentRoute: typeof AdminIntentRoute
@@ -6255,6 +6275,7 @@ interface AdminRouteRouteChildren {
 
 const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminAuditRoute: AdminAuditRoute,
+  AdminChatAccessRoute: AdminChatAccessRoute,
   AdminDocsRoute: AdminDocsRoute,
   AdminGithubStatsRoute: AdminGithubStatsRoute,
   AdminIntentRoute: AdminIntentRoute,

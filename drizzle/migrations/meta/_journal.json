@@ -281,6 +281,13 @@
       "when": 1790889000000,
       "tag": "0039_tanchat_invites",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1790963800008,
+      "tag": "0040_tanchat_waitlist",
+      "breakpoints": true
     }
   ]
 }

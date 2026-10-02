@@ -15,7 +15,7 @@ const LazyMobileNavbarAuthControls = React.lazy(() =>
 )
 import { NavbarCartButton } from './NavbarCartButton'
 import { MegaMenuItem } from './MegaMenuItem'
-import { Link, useLocation } from '@tanstack/react-router'
+import { Link, useLocation, useNavigate } from '@tanstack/react-router'
 import { ArrowLeftIcon } from '@phosphor-icons/react/ArrowLeft'
 import { ArrowRightIcon } from '@phosphor-icons/react/ArrowRight'
 import { ArrowSquareOutIcon } from '@phosphor-icons/react/ArrowSquareOut'
@@ -823,7 +823,9 @@ function DesktopNavTrigger({
           )}
         </button>
       )}
-      <DesktopNavDropdown group={group} onNavigate={onDismiss} />
+      {(group.sections.length > 0 || group.key === 'libraries') && (
+        <DesktopNavDropdown group={group} onNavigate={onDismiss} />
+      )}
     </div>
   )
 }
@@ -874,6 +876,7 @@ function MobileNavigation({
 }) {
   const activeGroup = NAV_GROUPS.find((group) => group.key === activeKey)
   const { openAiDock, openSearch } = useSearchContext()
+  const navigate = useNavigate()
   const userQuery = useCurrentUserQuery()
 
   const openUtility = (utility: 'ai' | 'search') => {
@@ -918,6 +921,9 @@ function MobileNavigation({
                 onClick={() => {
                   if (group.key === 'libraries') {
                     onOpenLibraries()
+                  } else if ('to' in group && group.sections.length === 0) {
+                    onNavigate()
+                    void navigate({ to: group.to })
                   } else {
                     onSelect(group.key)
                   }

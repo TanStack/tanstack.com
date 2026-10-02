@@ -1,6 +1,11 @@
 import { and, eq, sql } from 'drizzle-orm'
 import { db } from '~/db/client'
-import { oauthAccounts, chatAccess, chatInvites } from '~/db/schema'
+import {
+  oauthAccounts,
+  chatAccess,
+  chatInvites,
+  chatWaitlist,
+} from '~/db/schema'
 import { allMaintainers } from '~/libraries/maintainers'
 import { getAuthGuards } from '~/auth/index.server'
 import type { AuthUser } from '~/auth/types'
@@ -161,4 +166,18 @@ export async function redeemChatInvite(user: AuthUser, token: string) {
       .where(eq(chatInvites.tokenHash, tokenHash))
   })
   return { unlocked: true }
+}
+
+export async function readChatWaitlist(user: AuthUser) {
+  const [entry] = await db
+    .select({ userId: chatWaitlist.userId })
+    .from(chatWaitlist)
+    .where(eq(chatWaitlist.userId, user.userId))
+  return !!entry
+}
+export async function joinChatWaitlist(user: AuthUser) {
+  await db
+    .insert(chatWaitlist)
+    .values({ userId: user.userId })
+    .onConflictDoNothing()
 }

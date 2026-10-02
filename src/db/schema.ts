@@ -3449,3 +3449,12 @@ export const chatInvites = pgTable(
     creatorIdx: index('chat_invites_creator_idx').on(table.createdBy),
   }),
 )
+
+export const chatWaitlist = pgTable('chat_waitlist', {
+  userId: uuid('user_id')
+    .primaryKey()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+})

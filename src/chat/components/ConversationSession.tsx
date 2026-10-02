@@ -1514,18 +1514,22 @@ export function ConversationSession({
               <div className="queue-controls">
                 <span role="status">
                   {pendingSend.busy
-                    ? 'Checking send…'
+                    ? pendingSend.checking
+                      ? 'Checking send…'
+                      : 'Sending…'
                     : pendingSend.pending
                       ? 'Send not confirmed.'
                       : 'Send recovery unavailable.'}
                 </span>
-                <button
-                  type="button"
-                  disabled={pendingSend.busy}
-                  onClick={() => void pendingSend.check()}
-                >
-                  Check again
-                </button>
+                {(!pendingSend.busy || pendingSend.checking) && (
+                  <button
+                    type="button"
+                    disabled={pendingSend.busy}
+                    onClick={() => void pendingSend.check()}
+                  >
+                    Check again
+                  </button>
+                )}
               </div>
             )}
           {readOnly ? (

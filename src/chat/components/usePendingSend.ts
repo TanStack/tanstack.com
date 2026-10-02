@@ -31,6 +31,7 @@ export function usePendingSend(
     pending: null as SendEnvelope | null,
     ready: false,
     busy: true,
+    checking: true,
     error: '',
   })
   const [submitted, setSubmitted] = useState<SendEnvelope | null>(null)
@@ -86,6 +87,7 @@ export function usePendingSend(
     return (service.current = { key, store, coordinator })
   }
   async function perform(
+    action: 'send' | 'retry' | 'check',
     operation: (coordinator: PendingSendCoordinator) => Promise<SendResolution>,
   ) {
     if (!enabled) return
@@ -93,7 +95,12 @@ export function usePendingSend(
     working.current = true
     const acknowledge = accepted.current
     if (mounted.current)
-      setState((previous) => ({ ...previous, busy: true, error: '' }))
+      setState((previous) => ({
+        ...previous,
+        busy: true,
+        checking: action === 'check',
+        error: '',
+      }))
     try {
       const { coordinator, store } = getService()
       const pending = store.read()
@@ -111,6 +118,7 @@ export function usePendingSend(
           pending: nextPending,
           ready: true,
           busy: false,
+          checking: false,
           error: 'error' in result ? (result.error ?? '') : '',
         })
     } catch (error) {
@@ -125,6 +133,7 @@ export function usePendingSend(
           pending,
           ready: false,
           busy: false,
+          checking: false,
           error:
             error instanceof Error
               ? error.message
@@ -137,10 +146,10 @@ export function usePendingSend(
   useEffect(() => {
     if (!enabled) return
     mounted.current = true
-    void perform((coordinator) => coordinator.check())
+    void perform('check', (coordinator) => coordinator.check())
     const changed = (event: StorageEvent) => {
       if (event.key === key || event.key === null)
-        void perform((coordinator) => coordinator.check())
+        void perform('check', (coordinator) => coordinator.check())
     }
     window.addEventListener('storage', changed)
     return () => {
@@ -153,8 +162,8 @@ export function usePendingSend(
     submitted,
     forgetSubmitted: () => setSubmitted(null),
     submit: (input: NewSend) =>
-      perform((coordinator) => coordinator.submit(input)),
-    retry: () => perform((coordinator) => coordinator.retry()),
-    check: () => perform((coordinator) => coordinator.check()),
+      perform('send', (coordinator) => coordinator.submit(input)),
+    retry: () => perform('retry', (coordinator) => coordinator.retry()),
+    check: () => perform('check', (coordinator) => coordinator.check()),
   }
 }

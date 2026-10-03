@@ -20,7 +20,7 @@ import {
 // Environment Configuration
 // ============================================================================
 
-const developmentSessionSecret = crypto.randomUUID()
+let developmentSessionSecret: string | undefined
 
 function getSessionSecret(): string {
   const secret = process.env.SESSION_SECRET
@@ -31,7 +31,7 @@ function getSessionSecret(): string {
       )
     }
     // Sessions are local to this worker unless a persistent secret is supplied.
-    return developmentSessionSecret
+    return (developmentSessionSecret ??= crypto.randomUUID())
   }
   return secret
 }

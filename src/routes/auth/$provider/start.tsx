@@ -1,3 +1,4 @@
+import { getSignInProviders } from '~/utils/auth.functions'
 import { oauthPopupChannelSchema } from '~/auth/oauth-popup'
 import { createFileRoute } from '@tanstack/react-router'
 import { env } from '~/utils/env'
@@ -38,6 +39,12 @@ export const Route = createFileRoute('/auth/$provider/start')({
         if (provider !== 'github' && provider !== 'google') {
           return Response.redirect(new URL('/login', request.url), 302)
         }
+
+        const providers = await getSignInProviders()
+        if (!providers[provider])
+          return new Response('Sign-in is not configured for this server.', {
+            status: 503,
+          })
 
         // Generate random state token for CSRF protection
         const state = generateOAuthState()

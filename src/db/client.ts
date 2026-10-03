@@ -48,6 +48,10 @@ function getDatabaseUrl() {
   return connectionString
 }
 
+export async function isDatabaseConfigured() {
+  return Boolean(await getDatabaseConnectionString())
+}
+
 function getRequestDb(context: DatabaseContext) {
   if (!context.db) {
     const database = createDatabase(context.connectionString)

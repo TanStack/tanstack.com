@@ -5,6 +5,8 @@
  * and user retrieval. Uses inversion of control for all dependencies.
  */
 
+import { isDatabaseConfigured } from '~/db/client'
+
 import type {
   AuthUser,
   Capability,
@@ -33,6 +35,11 @@ export class AuthService implements IAuthService {
    * Returns null if not authenticated
    */
   async getCurrentUser(request: Request): Promise<AuthUser | null> {
+    if (
+      process.env.NODE_ENV === 'development' &&
+      !(await isDatabaseConfigured())
+    )
+      return null
     const signedCookie = this.sessionService.getSessionCookie(request)
 
     if (!signedCookie) {

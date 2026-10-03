@@ -3,7 +3,11 @@ import { redactByokRequestHeaders } from './utils/sentry-redaction'
 
 if (!Sentry.getClient())
   Sentry.init({
-    dsn: 'https://ac4bfc43ff4a892f8dc7053c4a50d92f@o4507236158537728.ingest.us.sentry.io/4507236163649536',
+    dsn:
+      process.env.SENTRY_DSN ??
+      'https://ac4bfc43ff4a892f8dc7053c4a50d92f@o4507236158537728.ingest.us.sentry.io/4507236163649536',
+    enabled:
+      process.env.NODE_ENV === 'production' || Boolean(process.env.SENTRY_DSN),
     integrations: [],
     sendDefaultPii: true,
     // Performance Monitoring

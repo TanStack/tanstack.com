@@ -1,3 +1,5 @@
+import { useQuery } from '@tanstack/react-query'
+import { getSignInProviders } from '~/utils/auth.functions'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { GoogleIcon } from '~/components/icons/GoogleIcon'
 import type { OAuthProvider } from '~/auth/types'
@@ -21,28 +23,42 @@ export function LoginModal({
   onOpenChange,
   onSocialSignIn,
 }: LoginModalProps) {
+  const providers = useQuery({
+    queryKey: ['sign-in-providers'],
+    queryFn: () => getSignInProviders(),
+    staleTime: Infinity,
+  })
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent size="xs">
         <DialogHeader title="Sign in to continue" description={description} />
         <DialogBody className="pb-6">
           <div className="space-y-3">
-            <button
-              type="button"
-              onClick={() => onSocialSignIn('github')}
-              className="w-full flex items-center justify-center gap-2 bg-background-inverse text-text-inverse font-medium py-2.5 px-4 rounded-lg transition-colors hover:bg-background-inverse/90"
-            >
-              <GithubIcon className="w-5 h-5" />
-              Continue with GitHub
-            </button>
-            <button
-              type="button"
-              onClick={() => onSocialSignIn('google')}
-              className="w-full flex items-center justify-center gap-2 bg-[#DB4437] hover:bg-[#c53929] text-white font-medium py-2.5 px-4 rounded-lg transition-colors"
-            >
-              <GoogleIcon className="w-5 h-5" />
-              Continue with Google
-            </button>
+            {providers.data &&
+              !providers.data.github &&
+              !providers.data.google && (
+                <p>Sign-in isn't configured for this server.</p>
+              )}
+            {providers.data?.github && (
+              <button
+                type="button"
+                onClick={() => onSocialSignIn('github')}
+                className="w-full flex items-center justify-center gap-2 bg-background-inverse text-text-inverse font-medium py-2.5 px-4 rounded-lg transition-colors hover:bg-background-inverse/90"
+              >
+                <GithubIcon className="w-5 h-5" />
+                Continue with GitHub
+              </button>
+            )}
+            {providers.data?.google && (
+              <button
+                type="button"
+                onClick={() => onSocialSignIn('google')}
+                className="w-full flex items-center justify-center gap-2 bg-[#DB4437] hover:bg-[#c53929] text-white font-medium py-2.5 px-4 rounded-lg transition-colors"
+              >
+                <GoogleIcon className="w-5 h-5" />
+                Continue with Google
+              </button>
+            )}
           </div>
         </DialogBody>
       </DialogContent>

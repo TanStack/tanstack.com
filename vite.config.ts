@@ -1,5 +1,5 @@
 import { sentryTanstackStart } from '@sentry/tanstackstart-react/vite'
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import type { PluginOption, UserConfig } from 'vite'
 import { redact } from '@tanstack/redact/vite'
 import contentCollections from '@content-collections/vite'
@@ -32,14 +32,6 @@ const shouldBuildSourcemaps =
   shouldUseSentryPlugin || process.env.BUILD_SOURCEMAPS === 'true'
 const SITE_URL = 'https://tanstack.com'
 const localDocsDevToken = isDev ? randomUUID() : ''
-
-const localEnvPath = path.resolve(__dirname, '.env.local')
-const defaultCheckoutEnvDir = path.join(os.homedir(), 'GitHub/tanstack.com')
-const envDir =
-  !fs.existsSync(localEnvPath) &&
-  fs.existsSync(path.join(defaultCheckoutEnvDir, '.env.local'))
-    ? defaultCheckoutEnvDir
-    : __dirname
 
 function localDocsDevFiles(): PluginOption {
   return {
@@ -208,10 +200,12 @@ function chatBuildId() {
   return digest.digest('hex')
 }
 
-export default defineConfig(async ({ command }) => {
+export default defineConfig(async ({ command, mode }) => {
+  const localEnv = { ...loadEnv(mode, __dirname, ''), ...process.env }
+  const useRemoteAi = Boolean(localEnv.CLOUDFLARE_API_TOKEN)
   const egress = command === 'serve' ? await startLocalMcpEgress() : undefined
   const config: UserConfig = {
-    envDir,
+    envDir: __dirname,
     define: {
       __GUM_LOCAL_DEVELOPMENT__: JSON.stringify(command === 'serve'),
       __GUM_BUILD_ID__: JSON.stringify(isDev ? 'development' : chatBuildId()),
@@ -358,8 +352,18 @@ export default defineConfig(async ({ command }) => {
         : []),
       cloudflare({
         viteEnvironment: { name: 'ssr' },
-        config: (config) =>
-          egress ? { vars: { ...config.vars, ...egress.vars } } : {},
+        remoteBindings: useRemoteAi,
+        config: (config) => {
+          if (command !== 'serve') return
+          if (!useRemoteAi) delete config.ai
+          if (localEnv.CLOUDFLARE_ACCOUNT_ID)
+            config.account_id = localEnv.CLOUDFLARE_ACCOUNT_ID
+          config.vars = {
+            ...config.vars,
+            ...egress?.vars,
+            APP_MODE: 'development',
+          }
+        },
       }),
       ...(shouldUseRedact
         ? [

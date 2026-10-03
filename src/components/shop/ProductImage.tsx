@@ -52,6 +52,7 @@ export function ProductImage({
 
   return (
     <img
+      key={image.url}
       src={shopifyImageUrl(image.url, { width, format: 'webp' })}
       srcSet={srcset}
       sizes={sizes}

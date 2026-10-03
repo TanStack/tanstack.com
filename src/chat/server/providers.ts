@@ -43,6 +43,10 @@ export function adapterFor(
   const observedFetch = (protocol: ProviderProtocol) =>
     observer ? { fetch: observeProviderFetch(protocol, observer) } : undefined
   if (c.provider === 'included') {
+    if (!env.AI)
+      throw new Error(
+        'The included model is unavailable on this server. Add a provider API key in settings.',
+      )
     const binding = env.AI_GATEWAY_ID ? metadataOnlyBinding(env.AI) : env.AI
     return createCloudflareText(c.model || env.INCLUDED_MODEL, {
       binding: observer ? observeProviderBinding(binding, observer) : binding,

@@ -274,7 +274,9 @@ export const Route = createRootRouteWithContext<{
         },
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
       ],
-      scripts: [{ children: GOOGLE_ANALYTICS_BOOTSTRAP }],
+      scripts: import.meta.env.PROD
+        ? [{ children: GOOGLE_ANALYTICS_BOOTSTRAP }]
+        : [],
     }
   },
   headers: () => DOCUMENT_CACHE_HEADERS,

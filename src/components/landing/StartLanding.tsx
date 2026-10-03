@@ -143,6 +143,15 @@ export default function StartLanding() {
             icon={<GitBranchIcon aria-hidden="true" size={15} />}
             title="The framework does not replace the application model."
             body="Routes, params, search schemas, loaders, links, pending states, and boundaries stay TanStack Router. Start adds the server and build layers around that same tree."
+            action={
+              <a
+                href="/start/latest/docs/framework/react/tutorial/learn-start"
+                className="inline-flex items-center gap-2 text-ds-label-lg underline underline-offset-4"
+              >
+                Build an app with Learn Start
+                <ArrowRightIcon aria-hidden="true" size={18} />
+              </a>
+            }
           />
           <RouterFoundation />
         </div>

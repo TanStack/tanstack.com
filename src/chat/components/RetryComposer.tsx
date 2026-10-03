@@ -2,7 +2,15 @@ import { LoadingState } from './ui/LoadingState'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Popover } from '@base-ui/react/popover'
 import { useQuery } from '@tanstack/react-query'
-import { ArrowUp, Check, Copy, Download, RotateCcw, X } from 'lucide-react'
+import {
+  ArrowUp,
+  Check,
+  Copy,
+  Download,
+  LoaderCircle,
+  RotateCcw,
+  X,
+} from 'lucide-react'
 import type { ConversationDestination } from '../core/conversation-destination'
 import type { RetryAttemptView } from '../core/conversation-retry'
 import {
@@ -541,27 +549,20 @@ export function RetryComposer({
           Try loading again
         </button>
       )}
-      {(pending.pending || (!pending.ready && !pending.busy)) && (
+      {!pending.busy && (pending.pending || !pending.ready) && (
         <div className="retry-draft-recovery">
           <span role="status">
-            {pending.busy
-              ? pending.checking
-                ? 'Checking send…'
-                : 'Sending…'
-              : pending.pending
-                ? 'Send not confirmed.'
-                : 'Send recovery unavailable.'}
+            {pending.pending
+              ? 'Send not confirmed.'
+              : 'Send recovery unavailable.'}
           </span>
-          {(!pending.busy || pending.checking) && (
-            <button
-              type="button"
-              className="quiet-button"
-              disabled={pending.busy}
-              onClick={() => void pending.check()}
-            >
-              Check again
-            </button>
-          )}
+          <button
+            type="button"
+            className="quiet-button"
+            onClick={() => void pending.check()}
+          >
+            Check again
+          </button>
         </div>
       )}
       {draft.draft && (
@@ -742,7 +743,13 @@ export function RetryComposer({
                       : !canSend
                   }
                 >
-                  {pending.pending ? (
+                  {pending.busy ? (
+                    <LoaderCircle
+                      size={20}
+                      className="animate-spin"
+                      aria-hidden
+                    />
+                  ) : pending.pending ? (
                     <RotateCcw size={20} aria-hidden />
                   ) : (
                     <ArrowUp size={20} aria-hidden />

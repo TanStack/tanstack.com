@@ -8,7 +8,7 @@ import { useEffect } from 'react'
 import { loadChatWorkspace } from '~/chat/workspace.functions'
 import { validateWorkspaceSearch } from '~/chat/core/navigation'
 import { chatIdentityQuery } from '~/chat/components/chatIdentityQuery'
-import { LoadingState } from '~/chat/components/ui/LoadingState'
+import { WorkspaceSkeleton } from '~/chat/components/WorkspaceSkeleton'
 
 export const Route = createFileRoute('/chat/')({
   validateSearch: (search: Record<string, unknown> & SearchSchemaInput) =>
@@ -47,5 +47,5 @@ function ChatEntry() {
         {workspace.error.message}
       </main>
     )
-  return <LoadingState>Opening TanChat…</LoadingState>
+  return <WorkspaceSkeleton />
 }

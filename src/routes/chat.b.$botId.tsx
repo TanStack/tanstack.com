@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { resolveChatRoute } from '~/chat/workspace.functions'
 import { validateWorkspaceSearch } from '~/chat/core/navigation'
 import { chatIdentityQuery } from '~/chat/components/chatIdentityQuery'
-import { LoadingState } from '~/chat/components/ui/LoadingState'
+import { WorkspaceSkeleton } from '~/chat/components/WorkspaceSkeleton'
 
 export const Route = createFileRoute('/chat/b/$botId')({
   validateSearch: validateWorkspaceSearch,
@@ -40,5 +40,5 @@ function BotChatEntry() {
         {identity.error.message}
       </main>
     )
-  return <LoadingState>Opening conversation…</LoadingState>
+  return <WorkspaceSkeleton />
 }

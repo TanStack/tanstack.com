@@ -7,7 +7,7 @@ export { TanChatWorkflow } from './chat/server/workflow-driver'
 
 import { wrapFetchWithSentry } from '@sentry/tanstackstart-react'
 import handler, { createServerEntry } from '@tanstack/react-start/server-entry'
-import { runWithDatabaseContext } from '~/db/client'
+import { runWithDatabaseContext, runWithDatabaseRequest } from '~/db/client'
 import { runScheduledTasks } from '~/server/scheduled.server'
 import {
   runWithHostRuntimeContext,
@@ -217,7 +217,7 @@ const server = createServerEntry(
   wrapFetchWithSentry({
     async fetch(request) {
       return runWithRequestDiagnostics(request, async (context) => {
-        return runWithDatabaseContext(async () => {
+        return runWithDatabaseRequest(async () => {
           const url = new URL(request.url)
           logRequestStart(context)
 

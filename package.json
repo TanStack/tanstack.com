@@ -186,7 +186,7 @@
     "motion": "^13.4.6"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "^1.42.0",
+    "@cloudflare/vite-plugin": "^1.62.5",
     "@content-collections/core": "^0.14.3",
     "@content-collections/vite": "^0.2.9",
     "@tanstack/devtools-vite": "^0.7.0",
@@ -220,7 +220,7 @@
     "tsx": "^4.21.0",
     "typescript": "^6.0.2",
     "vite": "^8.0.16",
-    "wrangler": "^4.102.0",
+    "wrangler": "^4.147.0",
     "@cloudflare/workers-types": "^5.20260930.2",
     "@types/linkify-it": "^5.0.0",
     "miniflare": "5.20260921.0-alpha",

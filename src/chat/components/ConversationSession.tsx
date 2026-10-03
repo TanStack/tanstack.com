@@ -33,6 +33,7 @@ import { Popover } from '@base-ui/react/popover'
 import { durableStreamConnection } from '@durable-streams/tanstack-ai-transport'
 import {
   ArrowUp,
+  LoaderCircle,
   CircleAlert,
   Play,
   RotateCcw,
@@ -1509,27 +1510,17 @@ export function ConversationSession({
             </div>
           )}
           {!retryEditing &&
-            (pendingSend.pending ||
-              (!pendingSend.ready && !pendingSend.busy)) && (
+            !pendingSend.busy &&
+            (pendingSend.pending || !pendingSend.ready) && (
               <div className="queue-controls">
                 <span role="status">
-                  {pendingSend.busy
-                    ? pendingSend.checking
-                      ? 'Checking send…'
-                      : 'Sending…'
-                    : pendingSend.pending
-                      ? 'Send not confirmed.'
-                      : 'Send recovery unavailable.'}
+                  {pendingSend.pending
+                    ? 'Send not confirmed.'
+                    : 'Send recovery unavailable.'}
                 </span>
-                {(!pendingSend.busy || pendingSend.checking) && (
-                  <button
-                    type="button"
-                    disabled={pendingSend.busy}
-                    onClick={() => void pendingSend.check()}
-                  >
-                    Check again
-                  </button>
-                )}
+                <button type="button" onClick={() => void pendingSend.check()}>
+                  Check again
+                </button>
               </div>
             )}
           {readOnly ? (
@@ -1821,7 +1812,13 @@ export function ConversationSession({
                               : 'Send message'
                       }
                     >
-                      {pendingSend.pending ? (
+                      {sending ? (
+                        <LoaderCircle
+                          size={20}
+                          className="animate-spin"
+                          aria-hidden
+                        />
+                      ) : pendingSend.pending ? (
                         <RotateCcw size={20} />
                       ) : (
                         <ArrowUp size={20} />

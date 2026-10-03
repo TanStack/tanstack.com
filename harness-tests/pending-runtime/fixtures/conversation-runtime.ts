@@ -42,6 +42,8 @@ export async function conversationHarness(saved?: Record<string, unknown>) {
   const local = new DatabaseSync(':memory:')
   const db = postgres(url.href, { max: 1 })
   closes.push(async () => {
+    // Match waitUntil's lifetime, including publication after an RPC returns.
+    await settle()
     local.close()
     await db.end()
   })

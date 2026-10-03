@@ -25,7 +25,6 @@ import { Dialog } from './Dialog'
 import { ConversationView } from './ConversationView'
 import { conversationRouteQuery } from './conversationRouteQuery'
 import { chatIdentityQuery, rememberChatIdentity } from './chatIdentityQuery'
-import { LoadingState } from './ui/LoadingState'
 import { ConversationDetailsToggle } from './ConversationDetailsCard'
 import {
   ConversationNavigator,
@@ -247,7 +246,7 @@ export function App() {
           {identity.error.message}
         </main>
       )
-    return <LoadingState>Opening conversation…</LoadingState>
+    return <WorkspaceSkeleton />
   }
   const workspaceId = identity.data?.workspaceId ?? params.workspaceId
   return (

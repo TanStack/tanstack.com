@@ -1,6 +1,6 @@
 import { EventType } from '@ag-ui/core'
 import { ReasoningTextFilter } from '../core/reasoning-text'
-import { runWithDatabaseContext } from '~/db/client'
+import { retainDatabaseContext, runWithDatabaseContext } from '~/db/client'
 import {
   runWithHostRuntimeEnv,
   runWithHostRuntimeContext,
@@ -551,6 +551,8 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
     }
   >
   private activityOutbox!: BotActivityOutbox
+  private publishing = false
+  private publicationPending = false
   private ledger: UsageLedger
   private usageContext!: UsageContext
   private transcriptFingerprint = ''
@@ -924,7 +926,21 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
     ].filter((value): value is number => value !== undefined)
     const due = wakes.length ? Math.min(...wakes) : undefined
     if (due !== undefined) await this.scheduleWake(due)
-    await Promise.all([this.flushStream(), this.flushActivity()])
+    // The state and publication outboxes have committed. Publishing must not
+    // hold up admission or model execution when a subscriber is slow.
+    this.publicationPending = true
+    if (!this.publishing) this.waitUntil(this.publishUpdates())
+  }
+  private async publishUpdates() {
+    this.publishing = true
+    try {
+      while (this.publicationPending) {
+        this.publicationPending = false
+        await Promise.all([this.flushStream(), this.flushActivity()])
+      }
+    } finally {
+      this.publishing = false
+    }
   }
   private restoreCommittedState() {
     const saved = this.ctx.storage.sql
@@ -6882,12 +6898,15 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
   }
   private trackExecution(work: Promise<unknown>) {
     this.executions++
-    this.ctx.waitUntil(
+    this.waitUntil(
       work.finally(() => {
         this.executions--
         this.kickQueue()
       }),
     )
+  }
+  private waitUntil(work: Promise<unknown>) {
+    this.ctx.waitUntil(retainDatabaseContext(work))
   }
   private kickQueue() {
     if (
@@ -6895,7 +6914,7 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
       this.state.queue?.items.length &&
       !this.state.queue.paused
     )
-      this.ctx.waitUntil(this.drainQueue())
+      this.waitUntil(this.drainQueue())
   }
   private async drainQueue() {
     if (
@@ -7558,7 +7577,7 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
             if (mayChangeKody)
               try {
                 await invalidateKodyCatalogs(this.env, input.userId)
-                this.ctx.waitUntil(
+                this.waitUntil(
                   syncKodyAccount(
                     this.env,
                     {

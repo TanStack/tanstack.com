@@ -329,7 +329,7 @@ function SearchStateLab() {
             </div>
           ))}
         </dl>
-        <div className="mt-5 rounded-lg border-l-2 border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.1)] p-4 text-ds-body-xs text-text-primary/45">
+        <div className="mt-5 rounded-r-lg border-l-2 border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.1)] p-4 text-ds-body-xs text-text-primary/45">
           Typed state is now bookmarkable, shareable, and safe to consume in
           loaders and components.
         </div>

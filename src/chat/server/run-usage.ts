@@ -1,4 +1,6 @@
 import { db } from '~/db/client'
+import { isAdmin } from '~/db/types'
+import { DrizzleCapabilitiesRepository } from '~/auth/repositories.server'
 import { sql } from 'drizzle-orm'
 import { z } from 'zod'
 import { conversationRunIdentitySchema } from '../core/conversation-runs'
@@ -159,14 +161,26 @@ export async function reserveRunUsage(
       throw new RunUsageAllowanceError('global')
     if (!unlimited && scheduled && usage.scheduled_turns >= scheduledLimit)
       throw new RunUsageAllowanceError('scheduled')
+    // Use the same effective capabilities as authentication, including roles.
+    const includedAdmin =
+      spend && !unlimited
+        ? isAdmin(
+            await new DrizzleCapabilitiesRepository().getEffectiveCapabilities(
+              identity.userId,
+              tx,
+            ),
+          )
+        : false
     if (
       !unlimited &&
+      !includedAdmin &&
       spend &&
       usage.user_spend + spend.reservationMicros > spend.userCapMicros
     )
       throw new RunUsageAllowanceError('user-spend')
     if (
       !unlimited &&
+      !includedAdmin &&
       spend &&
       usage.global_spend + spend.reservationMicros > spend.globalCapMicros
     )

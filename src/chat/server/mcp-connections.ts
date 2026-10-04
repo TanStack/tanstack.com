@@ -34,15 +34,22 @@ export async function connectedMcpServers(
       allowKody: policy.allowKody && current.allowKody,
     }
   }
-  const credentials = await readCredentials(env, userId)
   const accountScope = {
     workspaceId: scope?.workspaceId ?? `personal:${userId}`,
     userId,
   }
-  let accounts =
+  const [credentialRead, accountRead] = await Promise.allSettled([
+    policy.allowKody && (!serverId || serverId === 'kody')
+      ? readCredentials(env, userId)
+      : null,
     policy.allowMcp && serverId !== 'kody'
-      ? await new McpAccounts(env, accountScope).configuredServers()
-      : []
+      ? new McpAccounts(env, accountScope).configuredServers()
+      : [],
+  ])
+  if (credentialRead.status === 'rejected') throw credentialRead.reason
+  if (accountRead.status === 'rejected') throw accountRead.reason
+  const credentials = credentialRead.value
+  let accounts = accountRead.value
   let accountId = serverId?.startsWith('mcp:') ? serverId.slice(4) : undefined
   if (serverId?.startsWith('plugin:') && scope) {
     const alias = (

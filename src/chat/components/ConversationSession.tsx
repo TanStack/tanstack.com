@@ -622,19 +622,35 @@ export function ConversationSession({
   const waiting =
     !!h.pendingTask ||
     h.approvals.some((a) => a.status === 'pending' || a.status === 'running')
-  const localSend = pendingSend.submitted ?? pendingSend.pending
-  const pendingMessage =
-    localSend &&
-    !localSend.payload.retry &&
-    !h.messages.some((message) => message.id === localSend.payload.messageId) &&
-    !h.queue?.items.some(
-      (item) => item.messageId === localSend.payload.messageId,
+  const pendingMessages = useMemo(() => {
+    const local = new Map(
+      pendingSend.submitted.map((envelope) => [
+        envelope.payload.messageId,
+        envelope,
+      ]),
     )
-      ? localSend
-      : null
+    if (pendingSend.pending)
+      local.set(pendingSend.pending.payload.messageId, pendingSend.pending)
+    return [...local.values()].filter(
+      (envelope) =>
+        !envelope.payload.retry &&
+        !h.messages.some(
+          (message) => message.id === envelope.payload.messageId,
+        ) &&
+        !h.queue?.items.some(
+          (item) => item.messageId === envelope.payload.messageId,
+        ),
+    )
+  }, [pendingSend.submitted, pendingSend.pending, h.messages, h.queue])
   useEffect(() => {
-    if (pendingSend.submitted && !pendingMessage) pendingSend.forgetSubmitted()
-  }, [pendingSend.submitted, pendingMessage])
+    for (const envelope of pendingSend.submitted)
+      if (
+        !pendingMessages.some(
+          (item) => item.payload.messageId === envelope.payload.messageId,
+        )
+      )
+        pendingSend.forgetSubmitted(envelope.payload.messageId)
+  }, [pendingSend.submitted, pendingMessages])
   const turns = useMemo(() => groupConversation(h.messages), [h.messages])
   const navigationItems = useMemo(
     () =>
@@ -826,7 +842,7 @@ export function ConversationSession({
           />
         )
       : undefined
-  const empty = !h?.messages.length && !pendingMessage
+  const empty = !h?.messages.length && !pendingMessages.length
   const executionAvailable = Boolean(
     import.meta.env.DEV &&
     developer &&
@@ -1174,7 +1190,7 @@ export function ConversationSession({
               jumpToBottomContainer={jumpToBottomContainer}
               onSelectMessage={selectMessage}
               contentVersion={messageRevision}
-              followRequest={localSend?.payload.messageId}
+              followRequest={pendingMessages.at(-1)?.payload.messageId}
               onJumpToBottom={() => navigation.onSelectMessage(undefined)}
             >
               {turns.map((turn, index, turns) => (
@@ -1394,14 +1410,35 @@ export function ConversationSession({
                     )}
                   </ActionCard>
                 ))}
-              {pendingMessage && (
+              {pendingMessages.map((pendingMessage, index) => (
                 <PendingMessage
                   key={pendingMessage.payload.messageId}
                   text={pendingMessage.payload.text}
                   fileCount={pendingMessage.payload.fileIds.length}
-                  uncertain={!!pendingSend.error}
+                  uncertain={
+                    pendingSend.pending?.payload.messageId ===
+                      pendingMessage.payload.messageId &&
+                    (!!pendingSend.error ||
+                      (!pendingSend.busy &&
+                        !pendingSend.submitted.some(
+                          (item) =>
+                            item.payload.messageId ===
+                            pendingMessage.payload.messageId,
+                        )))
+                  }
+                  thinking={
+                    index === pendingMessages.length - 1 &&
+                    pendingSend.submitted.some(
+                      (item) =>
+                        item.payload.messageId ===
+                        pendingMessage.payload.messageId,
+                    ) &&
+                    !busy &&
+                    !waiting &&
+                    !h.queue?.items.length
+                  }
                 />
-              )}
+              ))}
             </VirtualMessages>
           )}
         </motion.div>

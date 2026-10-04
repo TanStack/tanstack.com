@@ -1,5 +1,6 @@
 import { afterEach, expect, it, vi } from 'vitest'
 import { conversationHarness } from './fixtures/conversation-runtime'
+import * as references from '../../src/chat/server/message-references'
 import * as connections from '../../src/chat/server/mcp-connections'
 import * as attachments from '../../src/chat/server/attachment-request'
 import { SkillCatalog } from '../../src/chat/server/skill-catalog'
@@ -159,6 +160,43 @@ it('rejects access revoked during preparation before admitting the message', asy
   await expect(
     h.c.begin({ ...h.input('revoked-during-preparation'), fixture: false }),
   ).rejects.toThrow('Conversation not found.')
+  expect(h.env.AI.run).not.toHaveBeenCalled()
+  expect(h.local.prepare('SELECT turn_id FROM transcript_turns').all()).toEqual(
+    [],
+  )
+})
+
+it('does not resolve empty references after conversation authority is already checked', async () => {
+  const h = await conversationHarness()
+  const resolve = vi.spyOn(references, 'resolveMessageReferences')
+  h.env.AI.run.mockRejectedValue(new Error('Synthetic provider stop'))
+  await h.c.begin({
+    ...h.input('empty-references'),
+    fixture: false,
+    references: [],
+  })
+  await h.settle()
+  expect(h.env.AI.run).toHaveBeenCalled()
+  expect(resolve).not.toHaveBeenCalled()
+})
+
+it('still resolves and rejects an unavailable nonempty conversation reference before admission', async () => {
+  const h = await conversationHarness()
+  const resolve = vi.spyOn(references, 'resolveMessageReferences')
+  await expect(
+    h.c.begin({
+      ...h.input('unavailable-reference'),
+      fixture: false,
+      references: [
+        {
+          kind: 'conversation',
+          botId: 'b',
+          conversationId: 'unavailable-source',
+        },
+      ],
+    }),
+  ).rejects.toThrow()
+  expect(resolve).toHaveBeenCalledOnce()
   expect(h.env.AI.run).not.toHaveBeenCalled()
   expect(h.local.prepare('SELECT turn_id FROM transcript_turns').all()).toEqual(
     [],

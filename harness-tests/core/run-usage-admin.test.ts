@@ -100,7 +100,7 @@ it('admits a stored admin above both spending caps while retaining billing and t
     queries.filter((query) =>
       query.sql.includes('INSERT INTO chat_daily_usage'),
     ),
-  ).toHaveLength(2)
+  ).toHaveLength(1)
   await settleFundedSpend('room', 'run', 0.01, false)
   expect(
     queries.some(

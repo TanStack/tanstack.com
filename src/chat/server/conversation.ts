@@ -6648,17 +6648,19 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
           },
           fileIds,
         )
-        const resolvedReferences = await resolveMessageReferences(
-          this.env,
-          {
-            workspaceId: input.bot.workspace_id,
-            userId: input.userId,
-            botId: input.bot.id,
-            conversationId: this.state.identity?.conversationId,
-          },
-          references,
-          { policy: input.policy, fixture: input.fixture },
-        )
+        const resolvedReferences = references.length
+          ? await resolveMessageReferences(
+              this.env,
+              {
+                workspaceId: input.bot.workspace_id,
+                userId: input.userId,
+                botId: input.bot.id,
+                conversationId: this.state.identity?.conversationId,
+              },
+              references,
+              { policy: input.policy, fixture: input.fixture },
+            )
+          : { references: [], attachments: [], skills: [], plugins: [] }
         attachments = messageAttachmentsSchema.parse([
           ...new Map(
             [...attachments, ...resolvedReferences.attachments].map((file) => [
@@ -9087,17 +9089,19 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
         selectedReferences,
         userThread ? (threadSource?.source.files ?? []) : [],
       )
-      const resolvedReferences = await resolveMessageReferences(
-        this.env,
-        {
-          workspaceId: input.bot.workspace_id,
-          userId: input.userId,
-          botId: input.bot.id,
-          conversationId: this.state.identity?.conversationId,
-        },
-        inherited.references,
-        { policy: input.policy, fixture: input.fixture },
-      )
+      const resolvedReferences = inherited.references.length
+        ? await resolveMessageReferences(
+            this.env,
+            {
+              workspaceId: input.bot.workspace_id,
+              userId: input.userId,
+              botId: input.bot.id,
+              conversationId: this.state.identity?.conversationId,
+            },
+            inherited.references,
+            { policy: input.policy, fixture: input.fixture },
+          )
+        : { references: [], attachments: [], skills: [], plugins: [] }
       const loadedSkills = await resolveTaskSkills(
         this.env,
         { workspaceId: input.bot.workspace_id, userId: input.userId },
@@ -10499,6 +10503,7 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
         abortController: this.abort,
       })
       let lastSave = 0
+      const visibleResponses = new Set<string>()
       const reasoningFilters = new Map<string, ReasoningTextFilter>()
       for await (let chunk of stream) {
         if (signal.aborted) break
@@ -10531,8 +10536,16 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
             'The AI provider could not complete this response. Check your connection or try again.',
           )
         }
-        if (Date.now() - lastSave > 250) {
+        const firstTextMessageId =
+          chunk.type === 'TEXT_MESSAGE_CONTENT' &&
+          !!chunk.delta.trim() &&
+          !visibleResponses.has(chunk.messageId)
+            ? chunk.messageId
+            : undefined
+        if (firstTextMessageId !== undefined || Date.now() - lastSave > 250) {
           await this.save()
+          if (firstTextMessageId !== undefined)
+            visibleResponses.add(firstTextMessageId)
           lastSave = Date.now()
         }
       }

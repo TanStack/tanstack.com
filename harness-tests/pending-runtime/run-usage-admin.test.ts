@@ -91,3 +91,36 @@ it('uses authentication parsing for text-backed capability columns', async () =>
       )
   }
 })
+
+it('increments both daily counters once for concurrent reservations and duplicate receipts', async () => {
+  const h = await conversationHarness()
+  const runs = Array.from({ length: 4 }, (_, index) => ({
+    ...input,
+    fundedSpend: undefined,
+    runId: `concurrent-counter-${index}`,
+  }))
+  await Promise.all(
+    runs.flatMap((run) => [reserveRunUsage(run), reserveRunUsage(run)]),
+  )
+  const counters =
+    await h.db`SELECT user_id,turns FROM chat_daily_usage WHERE day='2026-10-04' ORDER BY user_id`
+  expect(
+    counters.map((row) => ({ userId: row.user_id, turns: Number(row.turns) })),
+  ).toEqual([
+    { userId: input.identity.userId, turns: 4 },
+    { userId: '__global', turns: 4 },
+  ])
+  await expect(
+    reserveRunUsage({
+      ...runs[0],
+      runId: 'rejected-counter',
+      policy: { dailyTurns: 4 },
+    }),
+  ).rejects.toMatchObject({ code: 'user' })
+  expect(
+    await h.db`SELECT run_id FROM chat_run_usage_receipts WHERE run_id='rejected-counter'`,
+  ).toHaveLength(0)
+  expect(
+    await h.db`SELECT turns FROM chat_daily_usage WHERE day='2026-10-04' AND turns=4`,
+  ).toHaveLength(2)
+})

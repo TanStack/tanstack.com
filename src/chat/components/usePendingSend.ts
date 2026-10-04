@@ -1,3 +1,4 @@
+import { useMutation } from '@tanstack/react-query'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   assertSendDestination,
@@ -34,7 +35,7 @@ export function usePendingSend(
     checking: true,
     error: '',
   })
-  const [submitted, setSubmitted] = useState<SendEnvelope | null>(null)
+  const [submitted, setSubmitted] = useState<SendEnvelope[]>([])
   const mounted = useRef(false)
   const working = useRef(false)
   const accepted = useRef(onAccepted)
@@ -66,7 +67,13 @@ export function usePendingSend(
         // Publish the durable local envelope before waiting for the network.
         const envelope = store.read()
         if (mounted.current) {
-          setSubmitted(envelope)
+          if (envelope)
+            setSubmitted((previous) => [
+              ...previous.filter(
+                (item) => item.payload.messageId !== envelope.payload.messageId,
+              ),
+              envelope,
+            ])
           setState((previous) => ({ ...previous, pending: envelope }))
         }
         return api.request(
@@ -106,7 +113,13 @@ export function usePendingSend(
       const pending = store.read()
       if (mounted.current) setState((previous) => ({ ...previous, pending }))
       const result = await operation(coordinator)
-      if (result.kind === 'rejected') setSubmitted(null)
+      if (result.kind === 'rejected')
+        setSubmitted((previous) =>
+          previous.filter(
+            (item) =>
+              item.payload.messageId !== result.envelope.payload.messageId,
+          ),
+        )
       let nextPending = result.kind === 'pending' ? result.envelope : null
       if (result.kind === 'accepted') {
         if (!(await acknowledge(result.envelope.payload, result.envelope)))
@@ -157,13 +170,27 @@ export function usePendingSend(
       window.removeEventListener('storage', changed)
     }
   }, [key, enabled])
+  const submission = useMutation({
+    mutationKey: ['chat-send', key],
+    mutationFn: (input: NewSend) =>
+      perform('send', (coordinator) => coordinator.submit(input)),
+    retry: false,
+  })
+  const retry = useMutation({
+    mutationKey: ['chat-send-retry', key],
+    mutationFn: () => perform('retry', (coordinator) => coordinator.retry()),
+    retry: false,
+  })
   return {
     ...state,
+    busy: state.busy || submission.isPending || retry.isPending,
     submitted,
-    forgetSubmitted: () => setSubmitted(null),
-    submit: (input: NewSend) =>
-      perform('send', (coordinator) => coordinator.submit(input)),
-    retry: () => perform('retry', (coordinator) => coordinator.retry()),
+    forgetSubmitted: (messageId: string) =>
+      setSubmitted((previous) =>
+        previous.filter((item) => item.payload.messageId !== messageId),
+      ),
+    submit: submission.mutateAsync,
+    retry: retry.mutateAsync,
     check: () => perform('check', (coordinator) => coordinator.check()),
   }
 }

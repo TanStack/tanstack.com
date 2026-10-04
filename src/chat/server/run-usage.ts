@@ -192,10 +192,9 @@ export async function reserveRunUsage(
       await tx.execute(
         sql`INSERT INTO chat_funded_spend(conversation_id,run_id,user_id,day,reserved_micros,billed_micros) VALUES(${identity.conversationId},${runId},${identity.userId}::uuid,${day},${spend.reservationMicros},${spend.reservationMicros})`,
       )
-    for (const userId of [identity.userId, '__global'])
-      await tx.execute(
-        sql`INSERT INTO chat_daily_usage(user_id,day,turns) VALUES(${userId},${day},1) ON CONFLICT(user_id,day) DO UPDATE SET turns=chat_daily_usage.turns+1`,
-      )
+    await tx.execute(
+      sql`INSERT INTO chat_daily_usage(user_id,day,turns) VALUES(${identity.userId},${day},1),('__global',${day},1) ON CONFLICT(user_id,day) DO UPDATE SET turns=chat_daily_usage.turns+1`,
+    )
     if (scheduled)
       await tx.execute(
         sql`INSERT INTO chat_scheduled_daily_usage(user_id,day,turns) VALUES(${identity.userId}::uuid,${day},1) ON CONFLICT(user_id,day) DO UPDATE SET turns=chat_scheduled_daily_usage.turns+1`,

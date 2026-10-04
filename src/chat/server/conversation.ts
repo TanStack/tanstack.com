@@ -8811,12 +8811,16 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
       const kodyAvailable = input.policy.allowKody && !!credentials?.kody
       const selected =
         input.runModel || input.policy.allowChatModels
-          ? await resolveRunModel(this.env, {
-              userId: input.userId,
-              policy: input.policy,
-              fixture: input.fixture,
-              selection: input.runModel,
-            })
+          ? await resolveRunModel(
+              this.env,
+              {
+                userId: input.userId,
+                policy: input.policy,
+                fixture: input.fixture,
+                selection: input.runModel,
+              },
+              credentials,
+            )
           : undefined
       const connection: Connection = selected?.connection ??
         credentials?.connection ?? {
@@ -9486,13 +9490,25 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
           )
         : baseResultStore
       const storedResults = new StoredResults(resultStore, 12000, 'reject')
-      const connections = await connectedMcpServers(
-        this.env,
-        input.userId,
-        input.policy,
-        undefined,
-        { workspaceId: input.bot.workspace_id, versions: task.loadedPlugins },
-      )
+      // References and plugin versions are authorized above. Inventory and
+      // skill metadata are independent reads; settle both before leaving their
+      // shared database context, including when inventory fails.
+      const [inventory, directory] = await Promise.allSettled([
+        connectedMcpServers(this.env, input.userId, input.policy, undefined, {
+          workspaceId: input.bot.workspace_id,
+          versions: task.loadedPlugins,
+        }),
+        readSkillDirectory((cursor) =>
+          new SkillCatalog(this.env, pluginScope).list(
+            { cursor },
+            task.loadedPlugins,
+          ),
+        ),
+      ])
+      if (inventory.status === 'rejected') throw inventory.reason
+      if (directory.status === 'rejected') throw directory.reason
+      const connections = inventory.value
+      const skillDirectory = directory.value
       const currentConnection = async (serverId: string) => {
         const current = (
           await connectedMcpServers(
@@ -10174,12 +10190,6 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
           }
         },
       })
-      const skillDirectory = await readSkillDirectory((cursor) =>
-        new SkillCatalog(this.env, pluginScope).list(
-          { cursor },
-          task.loadedPlugins,
-        ),
-      )
       const [
         kodyMemories,
         kodySuggestions,

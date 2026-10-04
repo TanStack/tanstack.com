@@ -15,6 +15,7 @@ import {
   connectionSchema,
   providers,
   type Connection,
+  type Credentials,
   type Policy,
   type Provider,
 } from '../core/types'
@@ -219,7 +220,11 @@ function modelOptions(selection: RunModelSelection): Record<string, unknown> {
   return defaults
 }
 
-async function configuration(env: ModelEnvironment, scope: ModelScope) {
+async function configuration(
+  env: ModelEnvironment,
+  scope: ModelScope,
+  currentCredentials?: Credentials | null,
+) {
   const included = connectionSchema.safeParse({
     provider: 'included',
     model: env.INCLUDED_MODEL,
@@ -229,7 +234,9 @@ async function configuration(env: ModelEnvironment, scope: ModelScope) {
   // Fixture runs must never read or resolve a viewer's personal provider keys.
   const credentials = scope.fixture
     ? null
-    : await readCredentials(env, scope.userId)
+    : currentCredentials === undefined
+      ? await readCredentials(env, scope.userId)
+      : currentCredentials
   const connections = new Map<Provider, Connection>([
     ['included', included.data],
   ])
@@ -351,12 +358,17 @@ export async function getRunModelCatalog(
 export async function resolveRunModel(
   env: ModelEnvironment,
   scope: ModelScope & { selection?: RunModelSelection },
+  currentCredentials?: Credentials | null,
 ): Promise<{
   selection: RunModelSelection
   connection: Connection
   modelOptions: Record<string, unknown>
 }> {
-  const { connections, defaultSelection } = await configuration(env, scope)
+  const { connections, defaultSelection } = await configuration(
+    env,
+    scope,
+    currentCredentials,
+  )
   const parsed = runModelSchema.safeParse(
     scope.selection === undefined ? defaultSelection : scope.selection,
   )

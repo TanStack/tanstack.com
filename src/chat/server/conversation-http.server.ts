@@ -428,7 +428,9 @@ export async function handleConversationSend(
     if (!isConversationNamespace(env?.CONVERSATIONS))
       return jsonError('Conversation storage is unavailable.', 503)
     const stub = env.CONVERSATIONS.getByName(identity.conversationId)
-    await stub.bindIdentity(identity)
+    // begin authorizes the supplied server identity before admission and
+    // rechecks it after preparation. Read/control RPCs still need binding.
+    if (operation !== 'send') await stub.bindIdentity(identity)
     if (operation === 'delegations') {
       const command = z
         .strictObject({

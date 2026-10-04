@@ -157,6 +157,38 @@ it('rejects ambiguous workspace selectors without accessing storage', async () =
   expect(mocks.resolveIdentity).not.toHaveBeenCalled()
 })
 
+it.each(['signed-out', 'locked'] as const)(
+  'rejects %s sends before looking up the conversation object',
+  async (access) => {
+    mocks.currentUser.mockResolvedValue(
+      access === 'signed-out' ? null : { userId: 'user', capabilities: [] },
+    )
+    const req = new Request(request().url, {
+      method: 'POST',
+      headers: { Origin: 'https://tanstack.com' },
+      body: JSON.stringify({ text: 'hello', messageId: 'message' }),
+    })
+    expect((await handleConversationSend(req, 'c', 'send')).status).toBe(
+      access === 'signed-out' ? 401 : 403,
+    )
+    expect(mocks.resolveIdentity).not.toHaveBeenCalled()
+    expect(mocks.getByName).not.toHaveBeenCalled()
+    expect(mocks.begin).not.toHaveBeenCalled()
+  },
+)
+it('rejects sends whose ownership check fails before accessing the object', async () => {
+  mocks.resolveIdentity.mockRejectedValue(new Error('authorization failed'))
+  const req = new Request(request().url, {
+    method: 'POST',
+    headers: { Origin: 'https://tanstack.com' },
+    body: JSON.stringify({ text: 'hello', messageId: 'message' }),
+  })
+  await expect(handleConversationSend(req, 'c', 'send')).rejects.toThrow(
+    'authorization failed',
+  )
+  expect(mocks.getByName).not.toHaveBeenCalled()
+  expect(mocks.begin).not.toHaveBeenCalled()
+})
 it('denies cross-origin submission before looking up the account', async () => {
   const req = new Request(request().url, {
     method: 'POST',
@@ -201,6 +233,7 @@ it('uses server identity and context rather than request-supplied values', async
     }),
   })
   expect((await handleConversationSend(req, 'c', 'send')).status).toBe(200)
+  expect(mocks.bind).not.toHaveBeenCalled()
   expect(mocks.begin.mock.calls[0][0]).toMatchObject({
     userId: 'user',
     fixture: false,

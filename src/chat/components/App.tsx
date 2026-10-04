@@ -11,7 +11,10 @@ import { useDebugDetails } from './useDebugDetails'
 import { TabPanels } from './ui/TabPanels'
 import { Button } from './ui/Button'
 import { Menu } from '@base-ui/react/menu'
-import { conversationLocation } from '../core/conversation-destination'
+import {
+  conversationLocation,
+  selectedConversationLocation,
+} from '../core/conversation-destination'
 import type { TurnOutcome } from '../core/message-navigation'
 import { SelectField } from './SelectField'
 import { deferredPanel } from './deferredPanel'
@@ -531,7 +534,7 @@ function WorkspaceApp({
       ? rememberChatIdentity(queryClient, bot, data.user.id)
       : undefined
     void navigate({
-      ...conversationLocation(
+      ...selectedConversationLocation(
         {
           workspaceId: identity?.workspaceId ?? data.workspace.id,
           botId: id,

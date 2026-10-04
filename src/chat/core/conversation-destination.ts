@@ -155,3 +155,11 @@ export const conversationQueryKey = (
     destination.conversationId ? 'conversation' : 'legacy-bot',
     destination.conversationId ?? destination.botId,
   ] as const
+
+/** Selecting a conversation leaves the currently selected message behind. */
+export function selectedConversationLocation(
+  destination: ConversationResource & { workspaceId: string },
+  search: WorkspaceSearch,
+) {
+  return conversationLocation(destination, { ...search, message: undefined })
+}

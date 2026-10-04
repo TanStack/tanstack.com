@@ -1,4 +1,6 @@
 import { db } from '~/db/client'
+import { isAdmin } from '~/db/types'
+import { DrizzleCapabilitiesRepository } from '~/auth/repositories.server'
 import { sql } from 'drizzle-orm'
 import { z } from 'zod'
 import { conversationRunIdentitySchema } from '../core/conversation-runs'
@@ -159,14 +161,26 @@ export async function reserveRunUsage(
       throw new RunUsageAllowanceError('global')
     if (!unlimited && scheduled && usage.scheduled_turns >= scheduledLimit)
       throw new RunUsageAllowanceError('scheduled')
+    // Use the same effective capabilities as authentication, including roles.
+    const includedAdmin =
+      spend && !unlimited
+        ? isAdmin(
+            await new DrizzleCapabilitiesRepository().getEffectiveCapabilities(
+              identity.userId,
+              tx,
+            ),
+          )
+        : false
     if (
       !unlimited &&
+      !includedAdmin &&
       spend &&
       usage.user_spend + spend.reservationMicros > spend.userCapMicros
     )
       throw new RunUsageAllowanceError('user-spend')
     if (
       !unlimited &&
+      !includedAdmin &&
       spend &&
       usage.global_spend + spend.reservationMicros > spend.globalCapMicros
     )
@@ -178,10 +192,9 @@ export async function reserveRunUsage(
       await tx.execute(
         sql`INSERT INTO chat_funded_spend(conversation_id,run_id,user_id,day,reserved_micros,billed_micros) VALUES(${identity.conversationId},${runId},${identity.userId}::uuid,${day},${spend.reservationMicros},${spend.reservationMicros})`,
       )
-    for (const userId of [identity.userId, '__global'])
-      await tx.execute(
-        sql`INSERT INTO chat_daily_usage(user_id,day,turns) VALUES(${userId},${day},1) ON CONFLICT(user_id,day) DO UPDATE SET turns=chat_daily_usage.turns+1`,
-      )
+    await tx.execute(
+      sql`INSERT INTO chat_daily_usage(user_id,day,turns) VALUES(${identity.userId},${day},1),('__global',${day},1) ON CONFLICT(user_id,day) DO UPDATE SET turns=chat_daily_usage.turns+1`,
+    )
     if (scheduled)
       await tx.execute(
         sql`INSERT INTO chat_scheduled_daily_usage(user_id,day,turns) VALUES(${identity.userId}::uuid,${day},1) ON CONFLICT(user_id,day) DO UPDATE SET turns=chat_scheduled_daily_usage.turns+1`,

@@ -73,6 +73,33 @@ beforeEach(() => {
 })
 
 describe('run model configuration', () => {
+  it('reuses credentials already read for this run without a second database query', async () => {
+    configured('openai', 'gpt-5-mini', { apiKey: 'fresh-server-key' })
+    const result = await resolveRunModel(env, scope, state.credentials)
+    expect(result.connection.apiKey).toBe('fresh-server-key')
+    expect(result.selection.provider).toBe('openai')
+    expect(state.read).not.toHaveBeenCalled()
+  })
+
+  it('treats an already-read missing credential row as included without rereading', async () => {
+    configured('openai', 'gpt-5-mini')
+    const result = await resolveRunModel(env, scope, null)
+    expect(result.selection.provider).toBe('included')
+    expect(state.read).not.toHaveBeenCalled()
+  })
+
+  it('keeps fixture isolation when a caller supplies personal credentials', async () => {
+    configured('openai', 'gpt-5-mini')
+    const result = await resolveRunModel(
+      env,
+      { ...scope, fixture: true },
+      state.credentials,
+    )
+    expect(result.selection.provider).toBe('included')
+    expect(result.connection.apiKey).toBeUndefined()
+    expect(state.read).not.toHaveBeenCalled()
+  })
+
   it('uses the configured included model and preserves its existing default behavior', async () => {
     const result = await resolveRunModel(env, scope)
     expect(result.selection).toEqual(select('included', env.INCLUDED_MODEL))

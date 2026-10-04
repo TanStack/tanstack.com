@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { conversationLocation } from '../../src/chat/core/conversation-destination'
+import {
+  conversationLocation,
+  selectedConversationLocation,
+} from '../../src/chat/core/conversation-destination'
 import { fileViewPath } from '../../src/chat/core/files'
 import {
   signInDestination,
@@ -65,4 +68,19 @@ describe('canonical conversation links', () => {
     expect(signInDestination('//evil.example/chat/c/room')).toBe('/')
     expect(signInDestination('https://evil.example/chat/c/room')).toBe('/')
   })
+})
+
+it('selects another conversation without carrying the previous message path', () => {
+  const result = selectedConversationLocation(
+    { workspaceId: 'one', botId: 'other', conversationId: 'other-room' },
+    validateWorkspaceSearch({
+      message: 'previous-message',
+      panel: 'usage',
+      details: true,
+    }),
+  )
+  expect(result.to).toBe('/chat/c/$conversationId')
+  expect(result.params).toEqual({ conversationId: 'other-room' })
+  expect(result.search).not.toHaveProperty('message')
+  expect(result.search.panel).toBe('usage')
 })

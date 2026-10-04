@@ -6648,17 +6648,19 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
           },
           fileIds,
         )
-        const resolvedReferences = await resolveMessageReferences(
-          this.env,
-          {
-            workspaceId: input.bot.workspace_id,
-            userId: input.userId,
-            botId: input.bot.id,
-            conversationId: this.state.identity?.conversationId,
-          },
-          references,
-          { policy: input.policy, fixture: input.fixture },
-        )
+        const resolvedReferences = references.length
+          ? await resolveMessageReferences(
+              this.env,
+              {
+                workspaceId: input.bot.workspace_id,
+                userId: input.userId,
+                botId: input.bot.id,
+                conversationId: this.state.identity?.conversationId,
+              },
+              references,
+              { policy: input.policy, fixture: input.fixture },
+            )
+          : { references: [], attachments: [], skills: [], plugins: [] }
         attachments = messageAttachmentsSchema.parse([
           ...new Map(
             [...attachments, ...resolvedReferences.attachments].map((file) => [
@@ -8811,12 +8813,16 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
       const kodyAvailable = input.policy.allowKody && !!credentials?.kody
       const selected =
         input.runModel || input.policy.allowChatModels
-          ? await resolveRunModel(this.env, {
-              userId: input.userId,
-              policy: input.policy,
-              fixture: input.fixture,
-              selection: input.runModel,
-            })
+          ? await resolveRunModel(
+              this.env,
+              {
+                userId: input.userId,
+                policy: input.policy,
+                fixture: input.fixture,
+                selection: input.runModel,
+              },
+              credentials,
+            )
           : undefined
       const connection: Connection = selected?.connection ??
         credentials?.connection ?? {
@@ -9083,17 +9089,19 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
         selectedReferences,
         userThread ? (threadSource?.source.files ?? []) : [],
       )
-      const resolvedReferences = await resolveMessageReferences(
-        this.env,
-        {
-          workspaceId: input.bot.workspace_id,
-          userId: input.userId,
-          botId: input.bot.id,
-          conversationId: this.state.identity?.conversationId,
-        },
-        inherited.references,
-        { policy: input.policy, fixture: input.fixture },
-      )
+      const resolvedReferences = inherited.references.length
+        ? await resolveMessageReferences(
+            this.env,
+            {
+              workspaceId: input.bot.workspace_id,
+              userId: input.userId,
+              botId: input.bot.id,
+              conversationId: this.state.identity?.conversationId,
+            },
+            inherited.references,
+            { policy: input.policy, fixture: input.fixture },
+          )
+        : { references: [], attachments: [], skills: [], plugins: [] }
       const loadedSkills = await resolveTaskSkills(
         this.env,
         { workspaceId: input.bot.workspace_id, userId: input.userId },
@@ -9486,13 +9494,25 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
           )
         : baseResultStore
       const storedResults = new StoredResults(resultStore, 12000, 'reject')
-      const connections = await connectedMcpServers(
-        this.env,
-        input.userId,
-        input.policy,
-        undefined,
-        { workspaceId: input.bot.workspace_id, versions: task.loadedPlugins },
-      )
+      // References and plugin versions are authorized above. Inventory and
+      // skill metadata are independent reads; settle both before leaving their
+      // shared database context, including when inventory fails.
+      const [inventory, directory] = await Promise.allSettled([
+        connectedMcpServers(this.env, input.userId, input.policy, undefined, {
+          workspaceId: input.bot.workspace_id,
+          versions: task.loadedPlugins,
+        }),
+        readSkillDirectory((cursor) =>
+          new SkillCatalog(this.env, pluginScope).list(
+            { cursor },
+            task.loadedPlugins,
+          ),
+        ),
+      ])
+      if (inventory.status === 'rejected') throw inventory.reason
+      if (directory.status === 'rejected') throw directory.reason
+      const connections = inventory.value
+      const skillDirectory = directory.value
       const currentConnection = async (serverId: string) => {
         const current = (
           await connectedMcpServers(
@@ -10174,12 +10194,6 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
           }
         },
       })
-      const skillDirectory = await readSkillDirectory((cursor) =>
-        new SkillCatalog(this.env, pluginScope).list(
-          { cursor },
-          task.loadedPlugins,
-        ),
-      )
       const [
         kodyMemories,
         kodySuggestions,
@@ -10489,6 +10503,7 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
         abortController: this.abort,
       })
       let lastSave = 0
+      const visibleResponses = new Set<string>()
       const reasoningFilters = new Map<string, ReasoningTextFilter>()
       for await (let chunk of stream) {
         if (signal.aborted) break
@@ -10521,8 +10536,16 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
             'The AI provider could not complete this response. Check your connection or try again.',
           )
         }
-        if (Date.now() - lastSave > 250) {
+        const firstTextMessageId =
+          chunk.type === 'TEXT_MESSAGE_CONTENT' &&
+          !!chunk.delta.trim() &&
+          !visibleResponses.has(chunk.messageId)
+            ? chunk.messageId
+            : undefined
+        if (firstTextMessageId !== undefined || Date.now() - lastSave > 250) {
           await this.save()
+          if (firstTextMessageId !== undefined)
+            visibleResponses.add(firstTextMessageId)
           lastSave = Date.now()
         }
       }

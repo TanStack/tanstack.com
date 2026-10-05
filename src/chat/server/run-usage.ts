@@ -1,6 +1,4 @@
 import { db } from '~/db/client'
-import { isAdmin } from '~/db/types'
-import { DrizzleCapabilitiesRepository } from '~/auth/repositories.server'
 import { sql } from 'drizzle-orm'
 import { z } from 'zod'
 import { conversationRunIdentitySchema } from '../core/conversation-runs'
@@ -117,105 +115,32 @@ export async function reserveRunUsage(
   if (identity.userId === '__global') throw new RunUsageConflictError()
   const day = new Date(now).toISOString().split('T')[0],
     attemptId = crypto.randomUUID()
-  return db.transaction(async (tx) => {
-    await tx.execute(
-      sql`SELECT pg_advisory_xact_lock(hashtextextended(${JSON.stringify(['chat-run-receipt', identity.conversationId, runId])},0))`,
-    )
-    await tx.execute(
-      sql`SELECT pg_advisory_xact_lock(hashtextextended(${'chat-run-usage:' + day},0))`,
-    )
-    const [usage] = await tx.execute<{
-      receipt: {
-        workspace_id: string
-        user_id: string
-        bot_id: string
-        scheduled: boolean
-        day: string
-      } | null
-      user_turns: number
-      global_turns: number
-      scheduled_turns: number
-      user_spend: number
-      global_spend: number
-    }>(sql`SELECT
-      (SELECT jsonb_build_object('workspace_id',workspace_id,'user_id',user_id,
-        'bot_id',bot_id,'scheduled',scheduled,'day',day)
-        FROM chat_run_usage_receipts WHERE conversation_id=${identity.conversationId} AND run_id=${runId}) AS receipt,
-      COALESCE((SELECT turns FROM chat_daily_usage WHERE user_id=${identity.userId} AND day=${day}),0)::double precision AS user_turns,
-      COALESCE((SELECT turns FROM chat_daily_usage WHERE user_id='__global' AND day=${day}),0)::double precision AS global_turns,
-      COALESCE((SELECT turns FROM chat_scheduled_daily_usage WHERE user_id=${identity.userId}::uuid AND day=${day}),0)::double precision AS scheduled_turns,
-      COALESCE((SELECT SUM(billed_micros) FROM chat_funded_spend WHERE user_id=${identity.userId}::uuid AND day=${day}),0)::double precision AS user_spend,
-      COALESCE((SELECT SUM(billed_micros) FROM chat_funded_spend WHERE day=${day}),0)::double precision AS global_spend`)
-    const receipt = usage.receipt
-    if (receipt) {
-      if (
-        receipt.workspace_id !== identity.workspaceId ||
-        receipt.user_id !== identity.userId ||
-        receipt.bot_id !== identity.botId ||
-        receipt.scheduled !== scheduled
-      )
-        throw new RunUsageConflictError()
-      return { status: 'duplicate' as const, day: receipt.day }
-    }
-    if (!lift && usage.user_turns >= dailyLimit)
-      throw new RunUsageAllowanceError('user')
-    if (!lift && usage.global_turns >= 300)
-      throw new RunUsageAllowanceError('global')
-    if (!unlimited && scheduled && usage.scheduled_turns >= scheduledLimit)
-      throw new RunUsageAllowanceError('scheduled')
-    // Use the same effective capabilities as authentication, including roles.
-    const includedAdmin =
-      spend && !unlimited
-        ? isAdmin(
-            await new DrizzleCapabilitiesRepository().getEffectiveCapabilities(
-              identity.userId,
-              tx,
-            ),
-          )
-        : false
-    if (
-      !unlimited &&
-      !includedAdmin &&
-      spend &&
-      usage.user_spend + spend.reservationMicros > spend.userCapMicros
-    )
-      throw new RunUsageAllowanceError('user-spend')
-    if (
-      !unlimited &&
-      !includedAdmin &&
-      spend &&
-      usage.global_spend + spend.reservationMicros > spend.globalCapMicros
-    )
-      throw new RunUsageAllowanceError('global-spend')
-    // Publish the receipt, funded reservation, and counters atomically in one
-    // statement while holding the existing receipt and day locks.
-    await tx.execute(sql`WITH receipt AS (
-      INSERT INTO chat_run_usage_receipts(conversation_id,run_id,workspace_id,user_id,bot_id,scheduled,day,created_at,attempt_id)
-      VALUES(${identity.conversationId},${runId},${identity.workspaceId},${identity.userId}::uuid,${identity.botId},${scheduled},${day},${now},${attemptId}::uuid)
-      RETURNING conversation_id
-    ), turns AS (
-      INSERT INTO chat_daily_usage(user_id,day,turns)
-      SELECT counters.user_id,${day},1 FROM receipt CROSS JOIN (VALUES (${identity.userId}),('__global')) counters(user_id)
-      ON CONFLICT(user_id,day) DO UPDATE SET turns=chat_daily_usage.turns+1
-    )${
-      spend
-        ? sql`, funded AS (
-      INSERT INTO chat_funded_spend(conversation_id,run_id,user_id,day,reserved_micros,billed_micros)
-      SELECT conversation_id,${runId},${identity.userId}::uuid,${day},${spend.reservationMicros},${spend.reservationMicros} FROM receipt
-    )`
-        : sql``
-    }${
-      scheduled
-        ? sql`, scheduled AS (
-      INSERT INTO chat_scheduled_daily_usage(user_id,day,turns)
-      SELECT ${identity.userId}::uuid,${day},1 FROM receipt
-      ON CONFLICT(user_id,day) DO UPDATE SET turns=chat_scheduled_daily_usage.turns+1
-    )`
-        : sql``
-    }
-    SELECT conversation_id FROM receipt`)
-    return { status: 'reserved' as const, day }
+  const request = JSON.stringify({
+    ...identity,
+    runId,
+    scheduled,
+    day,
+    now,
+    attemptId,
+    dailyLimit,
+    scheduledLimit,
+    lift,
+    unlimited,
+    spend,
   })
+  const [result] = await db.execute<{
+    outcome:
+      | 'reserved'
+      | 'duplicate'
+      | 'conflict'
+      | ConstructorParameters<typeof RunUsageAllowanceError>[0]
+    receipt_day: string
+  }>(sql`SELECT * FROM public.reserve_chat_run_usage(${request}::jsonb,
+    ${JSON.stringify(['chat-run-receipt', identity.conversationId, runId])})`)
+  if (result.outcome === 'conflict') throw new RunUsageConflictError()
+  if (result.outcome !== 'reserved' && result.outcome !== 'duplicate')
+    throw new RunUsageAllowanceError(result.outcome)
+  return { status: result.outcome, day: result.receipt_day }
 }
 
 export async function fundedSpendReport(

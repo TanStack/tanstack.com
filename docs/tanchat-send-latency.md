@@ -51,3 +51,13 @@ Live Worker tracing on the next short reply measured 1,398 ms of wall time and 5
 The HTTP send path now overlaps workflow ownership, lifecycle metadata, and run context reads after resolving the authenticated conversation identity. All three reads settle before the request database context is released. Authorization, lifecycle rejection, workflow ownership rejection, and post-preparation checks remain in place.
 
 Structured chat_send_timing, chat_admission_timing, and chat_run_timing logs record cumulative milliseconds within each operation. They separate HTTP authentication and metadata, admission guards and preparation, model credentials and selection, usage reservation, enrichment, context preparation, first visible text, its durable save, and response completion. They do not log message text, credentials, or account identity. Admission and run logs use the message receipt ID for correlation. The first-text save is not a measurement of browser paint or stream delivery.
+
+## Measured database round trips, October 5
+
+The first instrumented live run measured 301 ms of HTTP authentication and metadata, 694 ms inside admission, and 1,319 ms from run start to model context. The two admission guards accounted for 555 ms. Usage reservation took 916 ms after credentials, and enrichment took another 171 ms. First text arrived 2,895 ms after model context, consistent with the recorded 3.01-second model call. The browser observed the reply after 5.935 seconds, including browser control and observation overhead.
+
+Reservation now executes the existing protocol inside one PostgreSQL function call. It keeps the same receipt and day advisory lock keys, fresh receipt and role checks, allowance ordering, and atomic receipts, counters, and funded reservations. The function is SECURITY INVOKER and VOLATILE, so queries inside it obtain fresh snapshots after waiting for locks. A real database regression revokes admin access while reservation waits on the day lock and verifies rejection without a receipt.
+
+Ordinary admission guards now read membership, ownership, bot lifecycle, and thread lifecycle together. Both checks before and after preparation remain fresh. Retry readiness still receives a separate lifecycle check after its asynchronous readiness wait.
+
+[PostgreSQL function volatility](https://www.postgresql.org/docs/current/xfunc-volatility.html) explains the fresh snapshot behavior. These changes reduce application overhead without changing the model or its response quality. They do not promise near-zero provider latency.

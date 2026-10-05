@@ -28,9 +28,9 @@ These numbers measure the beginning of durable admission to provider dispatch. T
 
 ## Remaining production work
 
-The checked-in production configuration has no Hyperdrive binding. The host already supports HYPERDRIVE.connectionString and otherwise uses DATABASE_URL. A new pool must target this site's database, not the existing unrelated dashboard demo pool.
+The production configuration now binds HYPERDRIVE to the cache-disabled tanstack-com pool, 6ec1513b87bb47e9897e5502727b0388, created after user approval on October 4. The host already supports HYPERDRIVE.connectionString and otherwise uses DATABASE_URL. A new pool must target this site's database, not the existing unrelated dashboard demo pool.
 
-The proposed production pool is named tanstack-com, with binding HYPERDRIVE and query caching disabled. Local development must omit that production binding and continue using its optional DATABASE_URL. Creating the pool, binding it, and deploying are separate production changes awaiting authorization.
+Cloudflare confirmed query caching is disabled and the origin connection limit is twenty. Local development omits the production binding and continues using its optional DATABASE_URL. The binding takes effect on the live site when this configuration is deployed. Local startup was verified with CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID explicitly empty, and the temporary test server was stopped. No deployment was performed during pool provisioning.
 
 Hyperdrive pools connections to reduce TCP, TLS, and authentication setup. It does not remove every SQL round trip or relocate existing Durable Objects. Region placement needs a measurement against the actual database and conversation objects before changing hints.
 

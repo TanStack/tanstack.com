@@ -549,6 +549,8 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
   >
   private activityOutbox!: BotActivityOutbox
   private publishing = false
+  private activityPublicationPending = false
+  private activityPublishing = false
   private publicationPending = false
   private ledger: UsageLedger
   private usageContext!: UsageContext
@@ -925,18 +927,33 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
     if (due !== undefined) await this.scheduleWake(due)
     // The state and publication outboxes have committed. Publishing must not
     // hold up admission or model execution when a subscriber is slow.
+    // Transcript updates must not wait for the sidebar's PostgreSQL projection.
+    // Each outbox serializes its own durable publication and retains its retries.
     this.publicationPending = true
     if (!this.publishing) this.waitUntil(this.publishUpdates())
+    this.activityPublicationPending = true
+    if (!this.activityPublishing) this.waitUntil(this.publishActivityUpdates())
   }
   private async publishUpdates() {
     this.publishing = true
     try {
       while (this.publicationPending) {
         this.publicationPending = false
-        await Promise.all([this.flushStream(), this.flushActivity()])
+        await this.flushStream()
       }
     } finally {
       this.publishing = false
+    }
+  }
+  private async publishActivityUpdates() {
+    this.activityPublishing = true
+    try {
+      while (this.activityPublicationPending) {
+        this.activityPublicationPending = false
+        await this.flushActivity()
+      }
+    } finally {
+      this.activityPublishing = false
     }
   }
   private restoreCommittedState() {
@@ -6582,8 +6599,14 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
   }
   async begin(input: RunInput) {
     return this.runWithRuntime(async () => {
+      const startedAt = Date.now()
+      const timings: Record<string, number> = {}
+      const mark = (phase: string) => {
+        timings[phase] = Date.now() - startedAt
+      }
       const admissionEpoch = this.state.transcriptEpoch
-      return this.withActiveBot(input, async () => {
+      const result = await this.withActiveBot(input, async () => {
+        mark('activeGuard')
         input = {
           ...input,
           retry: retrySendBindingSchema.optional().parse(input.retry),
@@ -6672,6 +6695,7 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
                 .parse(this.state.identity!.conversationId),
             }).preferences(),
           ])
+        mark('preparation')
         if (filesRead.status === 'rejected') throw filesRead.reason
         if (referencesRead.status === 'rejected') throw referencesRead.reason
         if (modelRead.status === 'rejected') throw modelRead.reason
@@ -6697,6 +6721,7 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
           selected?.connection,
         )
         await this.guardActive(input)
+        mark('activeRecheck')
         if (this.state.transcriptEpoch !== admissionEpoch)
           throw new ReferenceError(
             'This conversation was reset while preparing the request. Review it before sending again.',
@@ -6781,6 +6806,15 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
           resolvedReferences.references,
         )
       })
+      mark('accepted')
+      console.info(
+        JSON.stringify({
+          event: 'chat_admission_timing',
+          messageId: input.messageId,
+          timings,
+        }),
+      )
+      return result
     })
   }
   async sendReceipt(messageId: string) {
@@ -8292,6 +8326,11 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
     })
   }
   private async run(input: RunInput) {
+    const startedAt = Date.now()
+    const timings: Record<string, number> = {}
+    const mark = (phase: string) => {
+      timings[phase] = Date.now() - startedAt
+    }
     const executionAbort = this.abort!
     const signal = executionAbort.signal
     const contextScope = {
@@ -8806,6 +8845,7 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
       const credentials = input.fixture
         ? null
         : await readCredentials(this.env, input.userId)
+      mark('credentials')
       const kodyAvailable = input.policy.allowKody && !!credentials?.kody
       const selected =
         input.runModel || input.policy.allowChatModels
@@ -8820,6 +8860,7 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
               credentials,
             )
           : undefined
+      mark('modelSelection')
       const connection: Connection = selected?.connection ??
         credentials?.connection ?? {
           provider: 'included',
@@ -8876,6 +8917,7 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
           input.policy,
           connection.provider === 'included' || input.policy.allowJev,
         )
+      mark('usageReservation')
       if (!input.fixture && noChatModels && route.type !== 'recipe') {
         modelAllowed = true
         try {
@@ -9101,6 +9143,7 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
             : [],
         ]),
       ])
+      mark('enrichment')
       if (task.responsePreferences === null) {
         const preferences =
           preferencesRead.status === 'fulfilled'
@@ -10342,6 +10385,7 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
           await this.save()
         },
       })
+      mark('toolsAndInstructions')
       const stream = chat({
         threadId: this.state.identity!.conversationId,
         runId: this.state.activeRun!,
@@ -10535,6 +10579,7 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
         modelOptions: selected?.modelOptions,
         abortController: this.abort,
       })
+      mark('modelContext')
       let lastSave = 0
       const visibleResponses = new Set<string>()
       const reasoningFilters = new Map<string, ReasoningTextFilter>()
@@ -10576,7 +10621,17 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
             ? chunk.messageId
             : undefined
         if (firstTextMessageId !== undefined || Date.now() - lastSave > 250) {
+          if (
+            firstTextMessageId !== undefined &&
+            timings.firstText === undefined
+          )
+            mark('firstText')
           await this.save()
+          if (
+            firstTextMessageId !== undefined &&
+            timings.firstTextSaved === undefined
+          )
+            mark('firstTextSaved')
           if (firstTextMessageId !== undefined)
             visibleResponses.add(firstTextMessageId)
           lastSave = Date.now()
@@ -10637,6 +10692,14 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
       this.trace('error', this.state.error)
       this.state.status = 'error'
     } finally {
+      mark('responseComplete')
+      console.info(
+        JSON.stringify({
+          event: 'chat_run_timing',
+          messageId: input.messageId,
+          timings,
+        }),
+      )
       this.state.resumingTask = undefined
       clearTimeout(timeout)
       if (!input.fixture && this.state.identity?.conversationId) {

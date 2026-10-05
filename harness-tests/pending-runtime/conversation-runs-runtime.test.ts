@@ -1,6 +1,8 @@
 import type { SqlStorage } from '@cloudflare/workers-types'
-import { expect, it } from 'vitest'
+import { expect, it, vi } from 'vitest'
 import { conversationHarness } from './fixtures/conversation-runtime'
+import { BotActivityOutbox } from '../../src/chat/server/bot-activity'
+import { ConversationStream } from '../../src/chat/server/conversation-stream'
 const identity = {
   workspaceId: 'w',
   userId: '00000000-0000-4000-8000-000000000001',
@@ -322,3 +324,27 @@ it.each(['assistant', 'system-one', 'tools'] as const)(
     expect((await restored.snapshot()).queue?.paused).toBe(true)
   },
 )
+
+it('publishes new transcript updates while sidebar activity publication is blocked', async () => {
+  const h = await conversationHarness()
+  let releaseActivity = () => {}
+  const activityBlocked = new Promise<void>((resolve) => {
+    releaseActivity = resolve
+  })
+  const activity = vi
+    .spyOn(BotActivityOutbox.prototype, 'flush')
+    .mockImplementationOnce(() => activityBlocked)
+  const stream = vi.spyOn(ConversationStream.prototype, 'flush')
+  try {
+    await h.c.updateQueue({ type: 'pause', version: 0 })
+    const firstPublication = stream.mock.calls.length
+    expect(firstPublication).toBeGreaterThan(0)
+    await h.c.updateQueue({ type: 'resume', version: 1 })
+    expect(stream.mock.calls.length).toBeGreaterThan(firstPublication)
+  } finally {
+    releaseActivity()
+    await h.settle()
+    activity.mockRestore()
+    stream.mockRestore()
+  }
+})

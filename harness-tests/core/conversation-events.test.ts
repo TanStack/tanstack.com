@@ -1,3 +1,4 @@
+import { retainArchivedMessages } from '../../src/chat/core/conversation-snapshot'
 import { describe, expect, it } from 'vitest'
 import { StreamProcessor } from '@tanstack/ai'
 import { readMessageAttachments } from '../../src/chat/core/message-attachments'
@@ -105,6 +106,7 @@ describe('conversation AG-UI projection', () => {
           role: 'user',
           parts: [{ type: 'text', content: 'A copied message' }],
           metadata: { gumInherited: true, obsolete: true },
+          createdAt: new Date('2026-10-01T12:00:00Z'),
         },
       ],
     }
@@ -113,8 +115,14 @@ describe('conversation AG-UI projection', () => {
     const processor = new StreamProcessor()
     for (const event of conversationEvents(undefined, before, 'chat'))
       processor.processChunk(event)
-    for (const event of conversationEvents(before, after, 'chat'))
+    for (const event of conversationEvents(before, after, 'chat')) {
       processor.processChunk(event)
+      expect(processor.getMessages()).toHaveLength(1)
+      expect(processor.getMessages()[0].parts).toEqual(before.messages[0].parts)
+      expect(processor.getMessages()[0].createdAt).toEqual(
+        before.messages[0].createdAt,
+      )
+    }
     expect(processor.getMessages()).toHaveLength(1)
     expect(processor.getMessages()[0]).toMatchObject({
       metadata: { gumInherited: true },
@@ -238,6 +246,89 @@ describe('conversation AG-UI projection', () => {
       })
     }
   })
+  it('keeps displayed history when completed turns leave the live server window', () => {
+    const before: ProjectableConversation = {
+      ...initial(),
+      messages: [
+        {
+          id: 'old',
+          role: 'user',
+          parts: [{ type: 'text', content: 'Earlier' }],
+        },
+        {
+          id: 'current',
+          role: 'user',
+          parts: [{ type: 'text', content: 'Current' }],
+        },
+      ],
+    }
+    const after: ProjectableConversation = {
+      ...before,
+      archivedTurns: 1,
+      messages: [
+        before.messages[1],
+        { id: 'new', role: 'user', parts: [{ type: 'text', content: 'New' }] },
+      ],
+    }
+    const processor = new StreamProcessor()
+    for (const event of conversationEvents(undefined, before, 'chat'))
+      processor.processChunk(event)
+    for (const event of conversationEvents(before, after, 'chat')) {
+      processor.processChunk(event)
+      expect(processor.getMessages()[0]).toMatchObject(before.messages[0])
+    }
+    expect(processor.getMessages().map((message) => message.id)).toEqual([
+      'old',
+      'current',
+      'new',
+    ])
+  })
+  it('keeps archived rows across an authoritative metadata snapshot and clears on reset', () => {
+    const archived: ProjectableConversation = {
+      ...initial(),
+      archivedTurns: 1,
+      messages: [
+        {
+          id: 'current',
+          role: 'user',
+          parts: [{ type: 'text', content: 'Current' }],
+          metadata: { obsolete: true },
+        },
+      ],
+    }
+    const displayed = [
+      {
+        id: 'earlier',
+        role: 'user',
+        parts: [{ type: 'text', content: 'Earlier' }],
+      },
+      ...archived.messages,
+    ] satisfies ProjectableConversation['messages']
+    const next = structuredClone(archived)
+    next.messages[0].metadata = undefined
+    const processor = new StreamProcessor()
+    for (const event of conversationEvents(
+      undefined,
+      { ...archived, messages: displayed },
+      'chat',
+    ))
+      processor.processChunk(event)
+    for (const event of conversationEvents(archived, next, 'chat')) {
+      processor.processChunk(
+        retainArchivedMessages(event, processor.getMessages()),
+      )
+      expect(processor.getMessages().map((message) => message.id)).toEqual([
+        'earlier',
+        'current',
+      ])
+    }
+    expect(processor.getMessages()[1].metadata).not.toHaveProperty('obsolete')
+    for (const event of conversationEvents(next, initial(), 'chat'))
+      processor.processChunk(
+        retainArchivedMessages(event, processor.getMessages()),
+      )
+    expect(processor.getMessages()).toEqual([])
+  })
   it('publishes only appended text between saves and clears transcript on reset', () => {
     const old = {
       ...initial(),
@@ -256,7 +347,7 @@ describe('conversation AG-UI projection', () => {
       messageId: 'a',
       delta: ' world',
     })
-    expect(conversationEvents(next, initial(), 'chat')[0]).toEqual({
+    expect(conversationEvents(next, initial(), 'chat')[0]).toMatchObject({
       type: 'MESSAGES_SNAPSHOT',
       messages: [],
     })

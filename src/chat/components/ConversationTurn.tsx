@@ -1,4 +1,3 @@
-import { motion } from 'motion/react'
 import type { UIMessage, ToolResultPart, ToolCallPart } from '@tanstack/ai'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import {
@@ -296,18 +295,7 @@ export function ConversationTurn({
         </time>
       )}
       {turn.prompt && (
-        <motion.article
-          layout="position"
-          layoutDependency={turn.prompt.id}
-          layoutId={
-            currentConversation
-              ? JSON.stringify([
-                  'message',
-                  currentConversation.conversationId,
-                  turn.prompt.id,
-                ])
-              : undefined
-          }
+        <article
           className="message user"
           id={messageAnchorId(turn.prompt.id, messageScope)}
           tabIndex={-1}
@@ -355,7 +343,7 @@ export function ConversationTurn({
               })}
             </div>
           )}
-        </motion.article>
+        </article>
       )}
       <div className="assistant-message-block">
         {interim.map((m) => (
@@ -497,18 +485,7 @@ export function ConversationTurn({
           finalParts.some(
             (part) => part.type === 'text' && part.content.trim(),
           ) && (
-            <motion.article
-              layout="position"
-              layoutDependency={final.id}
-              layoutId={
-                currentConversation
-                  ? JSON.stringify([
-                      'message',
-                      currentConversation.conversationId,
-                      final.id,
-                    ])
-                  : undefined
-              }
+            <article
               className="message assistant"
               id={messageAnchorId(final.id, messageScope)}
               tabIndex={-1}
@@ -528,7 +505,7 @@ export function ConversationTurn({
               </div>
               {final.id !== responseEnd?.id &&
                 renderMessageThreads?.(final.id, { canCreate: false })}
-            </motion.article>
+            </article>
           )}
         {showResponseActions && (
           <div

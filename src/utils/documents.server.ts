@@ -21,7 +21,6 @@ import {
   localDocsDevPath,
   localDocsDevTokenHeader,
 } from './local-repo-path.server'
-import { readLocalRepoTree } from './local-repo-tree.server'
 import { normalizeRedirectFrom } from './redirects'
 import { isValidRepoPath } from './repo-path'
 import { multiSortBy, removeLeadingSlash } from './utils'
@@ -301,11 +300,7 @@ async function fetchFs(repo: string, filepath: string) {
   return null
 }
 
-async function fetchFsFromDevServer(
-  repo: string,
-  filepath: string,
-  kind: 'file' | 'tree' = 'file',
-) {
+async function fetchFsFromDevServer(repo: string, filepath: string) {
   let request: Request
 
   try {
@@ -321,7 +316,6 @@ async function fetchFsFromDevServer(
   const url = new URL(localDocsDevPath, request.url)
   url.searchParams.set('repo', repo)
   url.searchParams.set('path', filepath)
-  url.searchParams.set('kind', kind)
 
   const response = await fetch(url, {
     headers: {
@@ -1449,16 +1443,6 @@ async function fetchApiContentsFs(
 ): Promise<Array<GitHubFileNode> | null> {
   const [_, repo] = repoPair.split('/')
 
-  if (isIsolateRuntime()) {
-    const text = await fetchFsFromDevServer(repo, startingPath, 'tree')
-    if (text === null) return null
-    const tree: unknown = JSON.parse(text)
-    if (!isGitHubFileNodeArray(tree)) {
-      throw new Error('Invalid local docs directory tree')
-    }
-    return tree
-  }
-
   const base = getLocalRepoBaseDirs(repo).find((candidate) =>
     fs.existsSync(path.join(candidate, removeLeadingSlash(startingPath))),
   )
@@ -1467,7 +1451,96 @@ async function fetchApiContentsFs(
     return null
   }
 
-  return readLocalRepoTree(base, startingPath)
+  const resolvedBase = base
+  const fsStartPath = path.join(resolvedBase, removeLeadingSlash(startingPath))
+
+  const dirsAndFilesToIgnore = [
+    'node_modules',
+    '.git',
+    'dist',
+    'test-results',
+    '.output',
+    '.netlify',
+    '.vercel',
+    '.DS_Store',
+    '.nitro',
+    '.tanstack-start/build',
+  ]
+
+  async function getContentsForPath(
+    filePath: string,
+  ): Promise<Array<GitHubFile>> {
+    try {
+      const list = await fsp.readdir(filePath, { withFileTypes: true })
+      return list
+        .filter((item) => !dirsAndFilesToIgnore.includes(item.name))
+        .map((item) => {
+          return {
+            name: item.name,
+            path: path.join(filePath, item.name),
+            type: item.isDirectory() ? 'dir' : 'file',
+            _links: {
+              self: path.join(filePath, item.name),
+            },
+          }
+        })
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        'code' in error &&
+        error.code === 'ENOENT'
+      ) {
+        return []
+      }
+      throw error
+    }
+  }
+
+  const data = await getContentsForPath(fsStartPath)
+
+  if (data.length === 0) {
+    return null
+  }
+
+  async function buildFileTree(
+    nodes: Array<GitHubFile> | undefined,
+    depth: number,
+    parentPath: string,
+  ) {
+    const result: Array<GitHubFileNode> = []
+
+    const sortedNodes = sortApiContents(nodes ?? [])
+
+    for (const node of sortedNodes) {
+      const file: GitHubFileNode = {
+        ...node,
+        depth,
+        parentPath,
+      }
+
+      if (file.type === 'dir' && depth <= API_CONTENTS_MAX_DEPTH) {
+        const directoryFiles = await getContentsForPath(file._links.self)
+        file.children = await buildFileTree(
+          directoryFiles,
+          depth + 1,
+          `${parentPath}${file.path}/`,
+        )
+      }
+
+      // This replacement is only being done to more accurately mock the GitHub API response
+      file.path = removeLeadingSlash(file.path.replace(resolvedBase, ''))
+      file._links.self = removeLeadingSlash(
+        file._links.self.replace(resolvedBase, ''),
+      )
+
+      result.push(file)
+    }
+
+    return result
+  }
+
+  const fileTree = await buildFileTree(data, 0, '')
+  return fileTree
 }
 
 async function fetchApiContentsRemote(

@@ -5,6 +5,7 @@ import {
   chatBots,
   chatConversations,
   chatConversationMains,
+  chatConversationThreads,
   chatMemberships,
 } from '~/db/schema'
 
@@ -25,7 +26,7 @@ export class ConversationIdentityError extends Error {
 }
 
 /** Membership and ownership authorize access, never a caller-supplied ID alone. */
-export async function resolveConversationIdentity(
+export async function resolveConversationAccess(
   input: z.infer<typeof identityInput>,
 ) {
   const parsed = identityInput.safeParse(input)
@@ -50,6 +51,10 @@ export async function resolveConversationIdentity(
       botId: chatConversations.botId,
       userId: chatConversations.userId,
       workspaceId: chatBots.workspaceId,
+      botArchivedAt: chatBots.archivedAt,
+      botDeletedAt: chatBots.deletedAt,
+      threadId: chatConversationThreads.conversationId,
+      threadArchivedAt: chatConversationThreads.archivedAt,
     })
     .from(chatConversations)
     .innerJoin(chatBots, eq(chatBots.id, chatConversations.botId))
@@ -64,10 +69,37 @@ export async function resolveConversationIdentity(
         eq(chatConversationMains.userId, chatConversations.userId),
       ),
     )
+    .leftJoin(
+      chatConversationThreads,
+      eq(chatConversationThreads.conversationId, chatConversations.id),
+    )
     .where(and(...conditions))
     .limit(2)
   if (rows.length !== 1) throw new ConversationIdentityError()
-  return rows[0]
+  const row = rows[0]
+  return {
+    identity: {
+      conversationId: row.conversationId,
+      botId: row.botId,
+      userId: row.userId,
+      workspaceId: row.workspaceId,
+    },
+    lifecycle: {
+      bot: {
+        archived_at: row.botArchivedAt?.getTime() ?? null,
+        deleted_at: row.botDeletedAt?.getTime() ?? null,
+      },
+      thread: row.threadId
+        ? { archived_at: row.threadArchivedAt?.getTime() ?? null }
+        : null,
+    },
+  }
+}
+
+export async function resolveConversationIdentity(
+  input: z.infer<typeof identityInput>,
+) {
+  return (await resolveConversationAccess(input)).identity
 }
 
 export type ConversationIdentity = Awaited<

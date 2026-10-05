@@ -11,20 +11,26 @@ export async function readConversationLifecycle(
   botId: string,
   conversationId: string,
 ) {
-  const [bot] = await db.execute<
-    { archived_at: number | null; deleted_at: number | null } & Record<
-      string,
-      unknown
-    >
-  >(
-    sql`SELECT trunc(extract(epoch FROM archived_at)*1000)::float8 AS archived_at,trunc(extract(epoch FROM deleted_at)*1000)::float8 AS deleted_at FROM chat_bots WHERE id=${botId}`,
-  )
-  const [thread] = await db.execute<
-    { archived_at: number | null } & Record<string, unknown>
-  >(
-    sql`SELECT trunc(extract(epoch FROM archived_at)*1000)::float8 AS archived_at FROM chat_conversation_threads WHERE conversation_id=${conversationId}`,
-  )
-  return { bot: bot ?? null, thread: thread ?? null }
+  const [row] = await db.execute<{
+    bot_id: string | null
+    bot_archived_at: number | null
+    bot_deleted_at: number | null
+    thread_id: string | null
+    thread_archived_at: number | null
+  }>(sql`SELECT b.id AS bot_id,
+    trunc(extract(epoch FROM b.archived_at)*1000)::float8 AS bot_archived_at,
+    trunc(extract(epoch FROM b.deleted_at)*1000)::float8 AS bot_deleted_at,
+    t.conversation_id AS thread_id,
+    trunc(extract(epoch FROM t.archived_at)*1000)::float8 AS thread_archived_at
+    FROM (SELECT 1) anchor
+    LEFT JOIN chat_bots b ON b.id=${botId}
+    LEFT JOIN chat_conversation_threads t ON t.conversation_id=${conversationId}`)
+  return {
+    bot: row?.bot_id
+      ? { archived_at: row.bot_archived_at, deleted_at: row.bot_deleted_at }
+      : null,
+    thread: row?.thread_id ? { archived_at: row.thread_archived_at } : null,
+  }
 }
 export async function conversationRetryReady(input: {
   retryId: string
@@ -53,30 +59,30 @@ export async function readConversationRunContext(
   },
   loadSavedActions = true,
 ) {
-  return db.transaction(
-    async (tx) => {
-      const [workspace] = await tx.execute<
-        { policy: unknown } & Record<string, unknown>
-      >(
-        sql`SELECT w.policy FROM chat_workspaces w JOIN chat_memberships m ON m.workspace_id=w.id WHERE w.id=${identity.workspaceId} AND m.user_id=${identity.userId}`,
-      )
-      const [bot] = await tx.execute<Bot & Record<string, unknown>>(
-        sql`SELECT id,workspace_id,parent_id,name,purpose,trunc(extract(epoch FROM created_at)*1000)::float8 AS created_at FROM chat_bots WHERE id=${identity.botId} AND workspace_id=${identity.workspaceId}`,
-      )
-      if (!workspace || !bot)
-        throw new Error('Workspace access is unavailable.')
-      const policy = policySchema.parse(workspace.policy)
-      const recipes = loadSavedActions
-        ? Array.from(
-            await tx.execute<Recipe & Record<string, unknown>>(
-              sql`SELECT id,workspace_id,title,description,code,created_at::float8 AS created_at FROM chat_recipes WHERE workspace_id=${identity.workspaceId} ORDER BY created_at LIMIT 30`,
-            ),
-          )
-        : []
-      return { bot, policy, recipes, userId: identity.userId }
-    },
-    { isolationLevel: 'repeatable read', accessMode: 'read only' },
-  )
+  // One statement supplies a coherent snapshot without a transaction handshake.
+  const [row] = await db.execute<{
+    policy: unknown
+    bot: Bot
+    recipes: Recipe[]
+  }>(sql`SELECT w.policy,
+    jsonb_build_object('id',b.id,'workspace_id',b.workspace_id,'parent_id',b.parent_id,
+      'name',b.name,'purpose',b.purpose,
+      'created_at',trunc(extract(epoch FROM b.created_at)*1000)::float8) AS bot,
+    CASE WHEN ${loadSavedActions} THEN COALESCE((SELECT jsonb_agg(r ORDER BY r.created_at)
+      FROM (SELECT id,workspace_id,title,description,code,created_at::float8 AS created_at
+        FROM chat_recipes WHERE workspace_id=w.id ORDER BY created_at LIMIT 30) r),
+      '[]'::jsonb) ELSE '[]'::jsonb END AS recipes
+    FROM chat_workspaces w
+    JOIN chat_memberships m ON m.workspace_id=w.id AND m.user_id=${identity.userId}
+    JOIN chat_bots b ON b.workspace_id=w.id AND b.id=${identity.botId}
+    WHERE w.id=${identity.workspaceId}`)
+  if (!row) throw new Error('Workspace access is unavailable.')
+  return {
+    bot: row.bot,
+    policy: policySchema.parse(row.policy),
+    recipes: row.recipes,
+    userId: identity.userId,
+  }
 }
 
 /** Source activateCopyImport publication checks, after the copy and identity have been authorized. */

@@ -288,6 +288,13 @@
       "when": 1790963800008,
       "tag": "0040_tanchat_waitlist",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1791183973089,
+      "tag": "0041_tanchat_usage_reservation",
+      "breakpoints": true
     }
   ]
 }

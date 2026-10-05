@@ -364,10 +364,17 @@ export async function handleConversationSend(
     return jsonError('Not found.', 404)
   const originError = validateSameOriginRequest(request)
   if (originError) return jsonError(originError.message, originError.status)
+  const startedAt = Date.now()
+  const timings: Record<string, number> = {}
+  const mark = (phase: string) => {
+    timings[phase] = Date.now() - startedAt
+  }
   const user = await getAuthService().getCurrentUser(request)
+  mark('authentication')
   if (!user) return jsonError('Sign in to continue.', 401)
   if (!(await hasChatAccess(user)))
     return jsonError('Chat access is unavailable.', 403)
+  mark('access')
   const url = new URL(request.url)
   const workspace = z
     .string()
@@ -382,6 +389,7 @@ export async function handleConversationSend(
       workspaceId: workspace.data,
       ...(target === 'bot' ? { botId: conversationId } : { conversationId }),
     })
+    mark('identity')
     if (operation === 'read') {
       const { version } = z
         .object({
@@ -404,15 +412,22 @@ export async function handleConversationSend(
         ),
       })
     }
-    if (await readConversationWorkflowOwner(identity.conversationId))
+    // These reads share the freshly authorized identity but do not depend on
+    // each other. Settle them before releasing the request's database context.
+    const [ownerRead, lifecycleRead, contextRead] = await Promise.allSettled([
+      readConversationWorkflowOwner(identity.conversationId),
+      readConversationLifecycle(identity.botId, identity.conversationId),
+      operation === 'send' ? readConversationRunContext(identity) : undefined,
+    ])
+    mark('metadata')
+    if (ownerRead.status === 'rejected') throw ownerRead.reason
+    if (ownerRead.value)
       return jsonError(
         'Manage this workflow step from its owning conversation.',
         409,
       )
-    const lifecycle = await readConversationLifecycle(
-      identity.botId,
-      identity.conversationId,
-    )
+    if (lifecycleRead.status === 'rejected') throw lifecycleRead.reason
+    const lifecycle = lifecycleRead.value
     if (!lifecycle.bot) throw new ConversationIdentityError()
     if (
       operation === 'send' &&
@@ -465,12 +480,15 @@ export async function handleConversationSend(
         ? json(result.snapshot)
         : json({ error: result.error }, result.status)
     }
-    const loadContext = async () => ({
-      ...(await readConversationRunContext(identity)),
-      conversationId: identity.conversationId,
-      fixture: false,
-      appOrigin: url.origin,
-    })
+    const loadContext = async () => {
+      if (contextRead.status === 'rejected') throw contextRead.reason
+      return {
+        ...(contextRead.value ?? (await readConversationRunContext(identity))),
+        conversationId: identity.conversationId,
+        fixture: false,
+        appOrigin: url.origin,
+      }
+    }
     if (operation !== 'send')
       return (
         (await conversationControlApi(
@@ -486,7 +504,11 @@ export async function handleConversationSend(
         )) ?? jsonError('Not found.', 404)
       )
 
-    return await conversationSendApi(request, stub, await loadContext())
+    const context = await loadContext()
+    mark('context')
+    const response = await conversationSendApi(request, stub, context)
+    mark('admission')
+    return response
   } catch (error) {
     if (
       error instanceof ConversationIdentityError ||
@@ -496,5 +518,14 @@ export async function handleConversationSend(
     if (error instanceof z.ZodError)
       return jsonError('Check the form fields and try again.', 400)
     throw error
+  } finally {
+    if (operation === 'send')
+      console.info(
+        JSON.stringify({
+          event: 'chat_send_timing',
+          timings,
+          totalMs: Date.now() - startedAt,
+        }),
+      )
   }
 }

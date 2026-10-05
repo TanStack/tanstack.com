@@ -23,10 +23,7 @@ import type { CopyFailure } from './conversation-copy-contract'
 import type { ConversationEnvironment } from './conversation-environment'
 import type { DurableObjectState } from '@cloudflare/workers-types'
 import { assistantDeviceTools } from './connected-devices'
-import {
-  assistantToolDiscovery,
-  readSkillDirectory,
-} from './assistant-discovery'
+import { assistantToolDiscovery } from './assistant-discovery'
 import { wakeWorkspaceSync } from './workspace-sync'
 import { workflowUsage } from '../core/workflow-usage'
 import type { TaskUsage } from '../core/task-usage'
@@ -221,6 +218,7 @@ import { markConversationRead } from './bot-activity'
 import {
   ConversationIdentityError,
   resolveConversationIdentity,
+  resolveConversationAccess,
   type ConversationIdentity,
 } from '../conversation-identity.server'
 import { browserExecutionEnabled } from './browser-execution'
@@ -552,6 +550,8 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
   >
   private activityOutbox!: BotActivityOutbox
   private publishing = false
+  private activityPublicationPending = false
+  private activityPublishing = false
   private publicationPending = false
   private ledger: UsageLedger
   private usageContext!: UsageContext
@@ -928,18 +928,33 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
     if (due !== undefined) await this.scheduleWake(due)
     // The state and publication outboxes have committed. Publishing must not
     // hold up admission or model execution when a subscriber is slow.
+    // Transcript updates must not wait for the sidebar's PostgreSQL projection.
+    // Each outbox serializes its own durable publication and retains its retries.
     this.publicationPending = true
     if (!this.publishing) this.waitUntil(this.publishUpdates())
+    this.activityPublicationPending = true
+    if (!this.activityPublishing) this.waitUntil(this.publishActivityUpdates())
   }
   private async publishUpdates() {
     this.publishing = true
     try {
       while (this.publicationPending) {
         this.publicationPending = false
-        await Promise.all([this.flushStream(), this.flushActivity()])
+        await this.flushStream()
       }
     } finally {
       this.publishing = false
+    }
+  }
+  private async publishActivityUpdates() {
+    this.activityPublishing = true
+    try {
+      while (this.activityPublicationPending) {
+        this.activityPublicationPending = false
+        await this.flushActivity()
+      }
+    } finally {
+      this.activityPublishing = false
     }
   }
   private restoreCommittedState() {
@@ -1926,6 +1941,7 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
       }
       await this.save()
       const version = this.state.copyReadVersion
+      await this.activityOutbox.flush()
       await confirmCopyActivityPublication({
         workspaceId: imported.identity.workspaceId,
         userId: imported.identity.userId,
@@ -2059,6 +2075,9 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
     })
   }
   private async authorizeIdentity(identity: ActivityIdentity) {
+    return (await this.authorizeAccess(identity)).identity
+  }
+  private async authorizeAccess(identity: ActivityIdentity) {
     const old = this.state.identity
     if (
       old &&
@@ -2070,10 +2089,11 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
           old.conversationId !== identity.conversationId))
     )
       throw new Error('Conversation identity cannot change.')
-    const resolved = await resolveConversationIdentity({
+    const access = await resolveConversationAccess({
       ...identity,
       conversationId: identity.conversationId ?? old?.conversationId,
     })
+    const resolved = access.identity
     if (
       !this.ctx.id.equals(
         this.env.CONVERSATIONS.idFromName(resolved.conversationId),
@@ -2082,7 +2102,7 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
       throw new Error('This identity belongs to another conversation.')
     // Check again after storage authorization, before changing durable state.
     this.setIdentity(resolved)
-    return resolved
+    return access
   }
   private setIdentity(identity: ActivityIdentity) {
     const old = this.state.identity
@@ -2276,15 +2296,17 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
     ) {
       throw new Error('This conversation copy is not ready yet.')
     }
-    if (input)
-      await this.authorizeIdentity({
-        conversationId: input.conversationId,
-        botId: input.bot.id,
-        workspaceId: input.bot.workspace_id,
-        userId: input.userId,
-      })
-    else if (this.state.identity)
-      await this.authorizeIdentity(this.state.identity)
+    const suppliedIdentity = input
+      ? {
+          conversationId: input.conversationId,
+          botId: input.bot.id,
+          workspaceId: input.bot.workspace_id,
+          userId: input.userId,
+        }
+      : this.state.identity
+    const access = suppliedIdentity
+      ? await this.authorizeAccess(suppliedIdentity)
+      : undefined
     const identity = this.state.identity
     if (this.state.copyOrigin?.retryAttemptId && !allowInactive) {
       const ready = await conversationRetryReady({
@@ -2299,11 +2321,14 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
           'This retry is still preparing its request and files. Resume preparation before sending.',
         )
     }
-    if (identity && !allowInactive) {
-      const { bot: metadata, thread } = await readConversationLifecycle(
-        identity.botId,
-        identity.conversationId ?? '',
-      )
+    if (identity && access && !allowInactive) {
+      // Retry readiness can yield after authorization, so read lifecycle again.
+      const { bot: metadata, thread } = this.state.copyOrigin?.retryAttemptId
+        ? await readConversationLifecycle(
+            identity.botId,
+            identity.conversationId ?? '',
+          )
+        : access.lifecycle
       if (metadata?.archived_at != null || metadata?.deleted_at != null)
         throw new ConversationInactiveError(
           'Restore this conversation before continuing.',
@@ -6584,8 +6609,14 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
   }
   async begin(input: RunInput) {
     return this.runWithRuntime(async () => {
+      const startedAt = Date.now()
+      const timings: Record<string, number> = {}
+      const mark = (phase: string) => {
+        timings[phase] = Date.now() - startedAt
+      }
       const admissionEpoch = this.state.transcriptEpoch
-      return this.withActiveBot(input, async () => {
+      const result = await this.withActiveBot(input, async () => {
+        mark('activeGuard')
         input = {
           ...input,
           retry: retrySendBindingSchema.optional().parse(input.retry),
@@ -6638,61 +6669,60 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
         )
           throw new Error('Write a message or attach a file.')
         if (this.hasMessage(input.messageId)) return { duplicate: true }
-        let attachments = await resolveMessageAttachments(
-          this.env,
-          {
-            workspaceId: input.bot.workspace_id,
-            userId: input.userId,
-            botId: input.bot.id,
-            conversationId: this.state.identity?.conversationId,
-          },
-          fileIds,
-        )
-        const resolvedReferences = references.length
-          ? await resolveMessageReferences(
-              this.env,
-              {
-                workspaceId: input.bot.workspace_id,
-                userId: input.userId,
-                botId: input.bot.id,
-                conversationId: this.state.identity?.conversationId,
-              },
-              references,
-              { policy: input.policy, fixture: input.fixture },
-            )
-          : { references: [], attachments: [], skills: [], plugins: [] }
-        attachments = messageAttachmentsSchema.parse([
-          ...new Map(
-            [...attachments, ...resolvedReferences.attachments].map((file) => [
-              file.id,
-              file,
-            ]),
-          ).values(),
-        ])
-        const selected =
-          !input.systemOne &&
-          !input.proposeToolsOnly &&
-          input.policy.allowChatModels
-            ? await resolveRunModel(this.env, {
-                userId: input.userId,
-                policy: input.policy,
-                fixture: input.fixture,
-                selection: input.runModel,
-              })
-            : undefined
-        input = {
-          ...input,
-          runModel: selected?.selection,
-          memoryRecall: (
-            await new Memories({
+        const scope = {
+          workspaceId: input.bot.workspace_id,
+          userId: input.userId,
+          botId: input.bot.id,
+          conversationId: this.state.identity?.conversationId,
+        }
+        // Independent reads share the same authorized request scope. Settle all
+        // work before returning so a failure cannot outlive its database context.
+        const [filesRead, referencesRead, modelRead, memoryRead] =
+          await Promise.allSettled([
+            resolveMessageAttachments(this.env, scope, fileIds),
+            references.length
+              ? resolveMessageReferences(this.env, scope, references, {
+                  policy: input.policy,
+                  fixture: input.fixture,
+                })
+              : { references: [], attachments: [], skills: [], plugins: [] },
+            !input.systemOne &&
+            !input.proposeToolsOnly &&
+            input.policy.allowChatModels
+              ? resolveRunModel(this.env, {
+                  userId: input.userId,
+                  policy: input.policy,
+                  fixture: input.fixture,
+                  selection: input.runModel,
+                })
+              : undefined,
+            new Memories({
               workspaceId: input.bot.workspace_id,
               userId: input.userId,
               conversationId: z
                 .string()
                 .min(1)
                 .parse(this.state.identity!.conversationId),
-            }).preferences()
-          ).enabled,
+            }).preferences(),
+          ])
+        mark('preparation')
+        if (filesRead.status === 'rejected') throw filesRead.reason
+        if (referencesRead.status === 'rejected') throw referencesRead.reason
+        if (modelRead.status === 'rejected') throw modelRead.reason
+        if (memoryRead.status === 'rejected') throw memoryRead.reason
+        const resolvedReferences = referencesRead.value
+        const attachments = messageAttachmentsSchema.parse([
+          ...new Map(
+            [...filesRead.value, ...resolvedReferences.attachments].map(
+              (file) => [file.id, file],
+            ),
+          ).values(),
+        ])
+        const selected = modelRead.value
+        input = {
+          ...input,
+          runModel: selected?.selection,
+          memoryRecall: memoryRead.value.enabled,
         }
         await validateAttachmentRequest(
           this.env,
@@ -6701,6 +6731,7 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
           selected?.connection,
         )
         await this.guardActive(input)
+        mark('activeRecheck')
         if (this.state.transcriptEpoch !== admissionEpoch)
           throw new ReferenceError(
             'This conversation was reset while preparing the request. Review it before sending again.',
@@ -6785,6 +6816,15 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
           resolvedReferences.references,
         )
       })
+      mark('accepted')
+      console.info(
+        JSON.stringify({
+          event: 'chat_admission_timing',
+          messageId: input.messageId,
+          timings,
+        }),
+      )
+      return result
     })
   }
   async sendReceipt(messageId: string) {
@@ -8296,6 +8336,11 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
     })
   }
   private async run(input: RunInput) {
+    const startedAt = Date.now()
+    const timings: Record<string, number> = {}
+    const mark = (phase: string) => {
+      timings[phase] = Date.now() - startedAt
+    }
     const executionAbort = this.abort!
     const signal = executionAbort.signal
     const contextScope = {
@@ -8810,6 +8855,7 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
       const credentials = input.fixture
         ? null
         : await readCredentials(this.env, input.userId)
+      mark('credentials')
       const kodyAvailable = input.policy.allowKody && !!credentials?.kody
       const selected =
         input.runModel || input.policy.allowChatModels
@@ -8824,6 +8870,7 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
               credentials,
             )
           : undefined
+      mark('modelSelection')
       const connection: Connection = selected?.connection ??
         credentials?.connection ?? {
           provider: 'included',
@@ -8880,6 +8927,7 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
           input.policy,
           connection.provider === 'included' || input.policy.allowJev,
         )
+      mark('usageReservation')
       if (!input.fixture && noChatModels && route.type !== 'recipe') {
         modelAllowed = true
         try {
@@ -9056,13 +9104,68 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
         input.text,
         input.messageId,
       ))
+      const identity = this.state.identity
+      if (!identity?.conversationId)
+        throw new Error('Conversation identity is unavailable.')
+      const threadIdentity = {
+        ...identity,
+        conversationId: identity.conversationId,
+      }
+      // Account style, source context, and optional Kody enrichment are
+      // independent. Keep their authorization protocols, without serial waits.
+      const [preferencesRead, threadRead, kodyRead] = await Promise.allSettled([
+        task.responsePreferences === null
+          ? readAccountPreferences(input.userId)
+          : undefined,
+        conversationThreadContext(threadIdentity),
+        Promise.all([
+          kodyAvailable && input.bot.workspace_id === `personal:${input.userId}`
+            ? searchKodyMemory(
+                this.env,
+                input.userId,
+                input.bot.workspace_id,
+                input.text,
+                signal,
+              ).catch(() => [])
+            : [],
+          kodyAvailable
+            ? suggestKodyReferences(
+                this.env,
+                { workspaceId: input.bot.workspace_id, userId: input.userId },
+                { policy: input.policy, fixture: input.fixture },
+                input.text,
+              ).catch(() => [])
+            : [],
+          kodyAvailable && input.bot.workspace_id === `personal:${input.userId}`
+            ? readKodyGuidance(
+                this.env,
+                { workspaceId: input.bot.workspace_id, userId: input.userId },
+                { policy: input.policy, fixture: input.fixture },
+                AbortSignal.any([signal, AbortSignal.timeout(10000)]),
+              ).catch(() => undefined)
+            : undefined,
+          kodyAvailable
+            ? suggestKodySkills(
+                this.env,
+                { workspaceId: input.bot.workspace_id, userId: input.userId },
+                input.text,
+              ).catch(() => [])
+            : [],
+        ]),
+      ])
+      mark('enrichment')
       if (task.responsePreferences === null) {
-        // Only new tasks opt in. Never apply today's settings to a legacy
-        // continuation, and never accept private preferences from request data.
+        const preferences =
+          preferencesRead.status === 'fulfilled'
+            ? preferencesRead.value
+            : undefined
+        if (!preferences)
+          throw new Error(
+            'Response preferences could not be loaded for this task. Try again.',
+          )
+        if (signal.aborted || this.state.assistantTask?.id !== task.id)
+          throw new Error('Stopped')
         try {
-          const preferences = await readAccountPreferences(input.userId)
-          if (signal.aborted || this.state.assistantTask?.id !== task.id)
-            throw new Error('Stopped')
           task.responsePreferences = responsePreferencesSnapshotSchema.parse({
             revision: preferences.revision,
             response: preferences.response,
@@ -9075,9 +9178,16 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
           )
         }
       }
+      if (threadRead.status === 'rejected') throw threadRead.reason
+      if (kodyRead.status === 'rejected') throw kodyRead.reason
       if (signal.aborted) throw new Error('Stopped')
-      const threadIdentity = await this.authorizeIdentity(this.state.identity!)
-      const threadSource = await conversationThreadContext(threadIdentity)
+      const threadSource = threadRead.value
+      const [
+        kodyMemories,
+        kodySuggestions,
+        kodyGuidance,
+        kodySkillSuggestions,
+      ] = kodyRead.value
       const selectedReferences = referenceInputsSchema.parse(
         task.references ?? input.references ?? [],
       )
@@ -9494,25 +9604,31 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
           )
         : baseResultStore
       const storedResults = new StoredResults(resultStore, 12000, 'reject')
-      // References and plugin versions are authorized above. Inventory and
-      // skill metadata are independent reads; settle both before leaving their
-      // shared database context, including when inventory fails.
-      const [inventory, directory] = await Promise.allSettled([
-        connectedMcpServers(this.env, input.userId, input.policy, undefined, {
-          workspaceId: input.bot.workspace_id,
-          versions: task.loadedPlugins,
-        }),
-        readSkillDirectory((cursor) =>
-          new SkillCatalog(this.env, pluginScope).list(
-            { cursor },
-            task.loadedPlugins,
-          ),
-        ),
-      ])
-      if (inventory.status === 'rejected') throw inventory.reason
-      if (directory.status === 'rejected') throw directory.reason
-      const connections = inventory.value
-      const skillDirectory = directory.value
+      // Plain responses do not need external catalogs. Resolve inventory only
+      // for an explicit tool reference or when the model asks to discover tools.
+      const connections: McpConnection[] = []
+      let inventoryRead: Promise<void> | undefined
+      const loadConnections = () =>
+        (inventoryRead ??= (async () => {
+          const current = await connectedMcpServers(
+            this.env,
+            input.userId,
+            input.policy,
+            undefined,
+            {
+              workspaceId: input.bot.workspace_id,
+              versions: task.loadedPlugins,
+            },
+          )
+          assertCurrentTask()
+          connections.splice(0, connections.length, ...current)
+        })())
+      if (
+        resolvedReferences.references.some(
+          (reference) => reference.kind === 'tool',
+        )
+      )
+        await loadConnections()
       const currentConnection = async (serverId: string) => {
         const current = (
           await connectedMcpServers(
@@ -9577,6 +9693,7 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
         )
       const connectedTools = assistantMcpTools({
         connections,
+        loadConnections,
         selectedTools,
         discoveredEntries: (task.discoveredMcpEntries ??= []),
         observe: (entry, result) => setupEvidence.register(entry.id, result),
@@ -10194,45 +10311,6 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
           }
         },
       })
-      const [
-        kodyMemories,
-        kodySuggestions,
-        kodyGuidance,
-        kodySkillSuggestions,
-      ] = await Promise.all([
-        kodyAvailable && input.bot.workspace_id === `personal:${input.userId}`
-          ? searchKodyMemory(
-              this.env,
-              input.userId,
-              input.bot.workspace_id,
-              input.text,
-              signal,
-            ).catch(() => [])
-          : [],
-        kodyAvailable
-          ? suggestKodyReferences(
-              this.env,
-              { workspaceId: input.bot.workspace_id, userId: input.userId },
-              { policy: input.policy, fixture: input.fixture },
-              input.text,
-            ).catch(() => [])
-          : [],
-        kodyAvailable && input.bot.workspace_id === `personal:${input.userId}`
-          ? readKodyGuidance(
-              this.env,
-              { workspaceId: input.bot.workspace_id, userId: input.userId },
-              { policy: input.policy, fixture: input.fixture },
-              AbortSignal.any([signal, AbortSignal.timeout(10000)]),
-            ).catch(() => undefined)
-          : undefined,
-        kodyAvailable
-          ? suggestKodySkills(
-              this.env,
-              { workspaceId: input.bot.workspace_id, userId: input.userId },
-              input.text,
-            ).catch(() => [])
-          : [],
-      ])
       let instructionKey = ''
       let cachedInstructions:
         | ReturnType<typeof buildAssistantInstructions>
@@ -10254,7 +10332,6 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
             enabledTools: discovery.tools().map((tool) => tool.name),
             availableTools: discovery.directory,
             availableToolNames: assistantTools.map((tool) => tool.name),
-            skillDirectory,
             workflowInputs: workflowAdmission
               ? workflowInputReferences(workflowAdmission)
               : undefined,
@@ -10318,6 +10395,7 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
           await this.save()
         },
       })
+      mark('toolsAndInstructions')
       const stream = chat({
         threadId: this.state.identity!.conversationId,
         runId: this.state.activeRun!,
@@ -10388,17 +10466,26 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
                     version: skill.version,
                   })
                 await resolveTaskSkills(this.env, pluginScope, task)
-                const latest = await connectedMcpServers(
-                  this.env,
-                  input.userId,
-                  input.policy,
-                  undefined,
-                  {
-                    workspaceId: input.bot.workspace_id,
-                    versions: task.loadedPlugins,
-                  },
-                )
-                connections.splice(0, connections.length, ...latest)
+                if (
+                  [
+                    'list_connected_tools',
+                    'inspect_connected_tool',
+                    'call_connected_tool',
+                  ].includes(tool.toolName)
+                ) {
+                  const latest = await connectedMcpServers(
+                    this.env,
+                    input.userId,
+                    input.policy,
+                    undefined,
+                    {
+                      workspaceId: input.bot.workspace_id,
+                      versions: task.loadedPlugins,
+                    },
+                  )
+                  connections.splice(0, connections.length, ...latest)
+                  inventoryRead = Promise.resolve()
+                }
               } catch (error) {
                 return stopModel(
                   error instanceof Error
@@ -10502,6 +10589,7 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
         modelOptions: selected?.modelOptions,
         abortController: this.abort,
       })
+      mark('modelContext')
       let lastSave = 0
       const visibleResponses = new Set<string>()
       const reasoningFilters = new Map<string, ReasoningTextFilter>()
@@ -10543,7 +10631,17 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
             ? chunk.messageId
             : undefined
         if (firstTextMessageId !== undefined || Date.now() - lastSave > 250) {
+          if (
+            firstTextMessageId !== undefined &&
+            timings.firstText === undefined
+          )
+            mark('firstText')
           await this.save()
+          if (
+            firstTextMessageId !== undefined &&
+            timings.firstTextSaved === undefined
+          )
+            mark('firstTextSaved')
           if (firstTextMessageId !== undefined)
             visibleResponses.add(firstTextMessageId)
           lastSave = Date.now()
@@ -10604,6 +10702,14 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
       this.trace('error', this.state.error)
       this.state.status = 'error'
     } finally {
+      mark('responseComplete')
+      console.info(
+        JSON.stringify({
+          event: 'chat_run_timing',
+          messageId: input.messageId,
+          timings,
+        }),
+      )
       this.state.resumingTask = undefined
       clearTimeout(timeout)
       if (!input.fixture && this.state.identity?.conversationId) {

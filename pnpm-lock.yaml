@@ -423,8 +423,8 @@ importers:
         specifier: ^5.102.8
         version: 5.102.8(@tanstack/react-query@5.102.8(react@19.2.3))(react@19.2.3)
       '@tanstack/redact':
-        specifier: ^0.1.2
-        version: 0.1.2(vite@8.0.16(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
+        specifier: 0.1.4
+        version: 0.1.4(vite@8.0.16(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
       '@types/d3-interpolate':
         specifier: 3.0.4
         version: 3.0.4
@@ -4274,8 +4274,8 @@ packages:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  '@tanstack/redact@0.1.2':
-    resolution: {integrity: sha512-rveOZUyTIp4i/D2Koms8NiGljJEOclSOqZ5hW59pRtlDnhklEpe2VZ2EYhGWGemDA5xd9ed3qB8jAQ5zQT12iQ==}
+  '@tanstack/redact@0.1.4':
+    resolution: {integrity: sha512-TquVYMLO1gNJ3i/Q8El8uP08/oZLTyd0v5WWbvt3uMplFwOLYEqwmoisPKZLxPMAucMMIBZbx/ZLly2OlrmsZQ==}
     peerDependencies:
       vite: '>=5'
     peerDependenciesMeta:
@@ -12012,7 +12012,7 @@ snapshots:
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
 
-  '@tanstack/redact@0.1.2(vite@8.0.16(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))':
+  '@tanstack/redact@0.1.4(vite@8.0.16(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))':
     optionalDependencies:
       vite: 8.0.16(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0)
 

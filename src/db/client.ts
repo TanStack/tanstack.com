@@ -24,7 +24,7 @@ const databaseStorage = new AsyncLocalStorage<DatabaseContext>()
 
 function createPostgresClient(connectionString: string) {
   return postgres(connectionString, {
-    max: isIsolateRuntime() ? 5 : 1,
+    max: 5,
     idle_timeout: 20,
     connect_timeout: 10,
     fetch_types: !isIsolateRuntime(),

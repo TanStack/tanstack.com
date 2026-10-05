@@ -81,15 +81,34 @@ export class Memories {
     }
   }
   async preferences() {
-    await this.authorize()
     const [row] = await db
-      .select()
-      .from(chatMemoryPreferences)
-      .where(
-        eq(chatMemoryPreferences.conversationId, this.scope.conversationId),
+      .select({
+        enabled: chatMemoryPreferences.enabled,
+        revision: chatMemoryPreferences.revision,
+      })
+      .from(chatConversations)
+      .innerJoin(chatBots, eq(chatBots.id, chatConversations.botId))
+      .innerJoin(
+        chatMemberships,
+        and(
+          eq(chatMemberships.workspaceId, chatBots.workspaceId),
+          eq(chatMemberships.userId, this.scope.userId),
+        ),
       )
-    await this.authorize()
-    return { enabled: row?.enabled === true, revision: row?.revision ?? 0 }
+      .leftJoin(
+        chatMemoryPreferences,
+        eq(chatMemoryPreferences.conversationId, chatConversations.id),
+      )
+      .where(
+        and(
+          eq(chatConversations.id, this.scope.conversationId),
+          eq(chatConversations.userId, this.scope.userId),
+          eq(chatBots.workspaceId, this.scope.workspaceId),
+          isNull(chatBots.deletedAt),
+        ),
+      )
+    if (!row) throw new MemoryError('Conversation access is unavailable.', 403)
+    return { enabled: row.enabled === true, revision: row.revision ?? 0 }
   }
   async setPreferences(input: unknown) {
     const value = z

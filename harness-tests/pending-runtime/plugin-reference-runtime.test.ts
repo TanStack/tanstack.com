@@ -259,7 +259,7 @@ it('pins a selected old package before dispatch and discovers its exact old skil
     state.assistantTask?.loadedPlugins,
   )
   expect(h.network).not.toHaveBeenCalled()
-  expect(discovery).toHaveBeenCalled()
+  expect(discovery).not.toHaveBeenCalled()
   discovery.mockRestore()
 })
 

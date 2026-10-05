@@ -23,10 +23,7 @@ import type { CopyFailure } from './conversation-copy-contract'
 import type { ConversationEnvironment } from './conversation-environment'
 import type { DurableObjectState } from '@cloudflare/workers-types'
 import { assistantDeviceTools } from './connected-devices'
-import {
-  assistantToolDiscovery,
-  readSkillDirectory,
-} from './assistant-discovery'
+import { assistantToolDiscovery } from './assistant-discovery'
 import { wakeWorkspaceSync } from './workspace-sync'
 import { workflowUsage } from '../core/workflow-usage'
 import type { TaskUsage } from '../core/task-usage'
@@ -1926,6 +1923,7 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
       }
       await this.save()
       const version = this.state.copyReadVersion
+      await this.activityOutbox.flush()
       await confirmCopyActivityPublication({
         workspaceId: imported.identity.workspaceId,
         userId: imported.identity.userId,
@@ -6638,61 +6636,59 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
         )
           throw new Error('Write a message or attach a file.')
         if (this.hasMessage(input.messageId)) return { duplicate: true }
-        let attachments = await resolveMessageAttachments(
-          this.env,
-          {
-            workspaceId: input.bot.workspace_id,
-            userId: input.userId,
-            botId: input.bot.id,
-            conversationId: this.state.identity?.conversationId,
-          },
-          fileIds,
-        )
-        const resolvedReferences = references.length
-          ? await resolveMessageReferences(
-              this.env,
-              {
-                workspaceId: input.bot.workspace_id,
-                userId: input.userId,
-                botId: input.bot.id,
-                conversationId: this.state.identity?.conversationId,
-              },
-              references,
-              { policy: input.policy, fixture: input.fixture },
-            )
-          : { references: [], attachments: [], skills: [], plugins: [] }
-        attachments = messageAttachmentsSchema.parse([
-          ...new Map(
-            [...attachments, ...resolvedReferences.attachments].map((file) => [
-              file.id,
-              file,
-            ]),
-          ).values(),
-        ])
-        const selected =
-          !input.systemOne &&
-          !input.proposeToolsOnly &&
-          input.policy.allowChatModels
-            ? await resolveRunModel(this.env, {
-                userId: input.userId,
-                policy: input.policy,
-                fixture: input.fixture,
-                selection: input.runModel,
-              })
-            : undefined
-        input = {
-          ...input,
-          runModel: selected?.selection,
-          memoryRecall: (
-            await new Memories({
+        const scope = {
+          workspaceId: input.bot.workspace_id,
+          userId: input.userId,
+          botId: input.bot.id,
+          conversationId: this.state.identity?.conversationId,
+        }
+        // Independent reads share the same authorized request scope. Settle all
+        // work before returning so a failure cannot outlive its database context.
+        const [filesRead, referencesRead, modelRead, memoryRead] =
+          await Promise.allSettled([
+            resolveMessageAttachments(this.env, scope, fileIds),
+            references.length
+              ? resolveMessageReferences(this.env, scope, references, {
+                  policy: input.policy,
+                  fixture: input.fixture,
+                })
+              : { references: [], attachments: [], skills: [], plugins: [] },
+            !input.systemOne &&
+            !input.proposeToolsOnly &&
+            input.policy.allowChatModels
+              ? resolveRunModel(this.env, {
+                  userId: input.userId,
+                  policy: input.policy,
+                  fixture: input.fixture,
+                  selection: input.runModel,
+                })
+              : undefined,
+            new Memories({
               workspaceId: input.bot.workspace_id,
               userId: input.userId,
               conversationId: z
                 .string()
                 .min(1)
                 .parse(this.state.identity!.conversationId),
-            }).preferences()
-          ).enabled,
+            }).preferences(),
+          ])
+        if (filesRead.status === 'rejected') throw filesRead.reason
+        if (referencesRead.status === 'rejected') throw referencesRead.reason
+        if (modelRead.status === 'rejected') throw modelRead.reason
+        if (memoryRead.status === 'rejected') throw memoryRead.reason
+        const resolvedReferences = referencesRead.value
+        const attachments = messageAttachmentsSchema.parse([
+          ...new Map(
+            [...filesRead.value, ...resolvedReferences.attachments].map(
+              (file) => [file.id, file],
+            ),
+          ).values(),
+        ])
+        const selected = modelRead.value
+        input = {
+          ...input,
+          runModel: selected?.selection,
+          memoryRecall: memoryRead.value.enabled,
         }
         await validateAttachmentRequest(
           this.env,
@@ -9056,13 +9052,67 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
         input.text,
         input.messageId,
       ))
+      const identity = this.state.identity
+      if (!identity?.conversationId)
+        throw new Error('Conversation identity is unavailable.')
+      const threadIdentity = {
+        ...identity,
+        conversationId: identity.conversationId,
+      }
+      // Account style, source context, and optional Kody enrichment are
+      // independent. Keep their authorization protocols, without serial waits.
+      const [preferencesRead, threadRead, kodyRead] = await Promise.allSettled([
+        task.responsePreferences === null
+          ? readAccountPreferences(input.userId)
+          : undefined,
+        conversationThreadContext(threadIdentity),
+        Promise.all([
+          kodyAvailable && input.bot.workspace_id === `personal:${input.userId}`
+            ? searchKodyMemory(
+                this.env,
+                input.userId,
+                input.bot.workspace_id,
+                input.text,
+                signal,
+              ).catch(() => [])
+            : [],
+          kodyAvailable
+            ? suggestKodyReferences(
+                this.env,
+                { workspaceId: input.bot.workspace_id, userId: input.userId },
+                { policy: input.policy, fixture: input.fixture },
+                input.text,
+              ).catch(() => [])
+            : [],
+          kodyAvailable && input.bot.workspace_id === `personal:${input.userId}`
+            ? readKodyGuidance(
+                this.env,
+                { workspaceId: input.bot.workspace_id, userId: input.userId },
+                { policy: input.policy, fixture: input.fixture },
+                AbortSignal.any([signal, AbortSignal.timeout(10000)]),
+              ).catch(() => undefined)
+            : undefined,
+          kodyAvailable
+            ? suggestKodySkills(
+                this.env,
+                { workspaceId: input.bot.workspace_id, userId: input.userId },
+                input.text,
+              ).catch(() => [])
+            : [],
+        ]),
+      ])
       if (task.responsePreferences === null) {
-        // Only new tasks opt in. Never apply today's settings to a legacy
-        // continuation, and never accept private preferences from request data.
+        const preferences =
+          preferencesRead.status === 'fulfilled'
+            ? preferencesRead.value
+            : undefined
+        if (!preferences)
+          throw new Error(
+            'Response preferences could not be loaded for this task. Try again.',
+          )
+        if (signal.aborted || this.state.assistantTask?.id !== task.id)
+          throw new Error('Stopped')
         try {
-          const preferences = await readAccountPreferences(input.userId)
-          if (signal.aborted || this.state.assistantTask?.id !== task.id)
-            throw new Error('Stopped')
           task.responsePreferences = responsePreferencesSnapshotSchema.parse({
             revision: preferences.revision,
             response: preferences.response,
@@ -9075,9 +9125,16 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
           )
         }
       }
+      if (threadRead.status === 'rejected') throw threadRead.reason
+      if (kodyRead.status === 'rejected') throw kodyRead.reason
       if (signal.aborted) throw new Error('Stopped')
-      const threadIdentity = await this.authorizeIdentity(this.state.identity!)
-      const threadSource = await conversationThreadContext(threadIdentity)
+      const threadSource = threadRead.value
+      const [
+        kodyMemories,
+        kodySuggestions,
+        kodyGuidance,
+        kodySkillSuggestions,
+      ] = kodyRead.value
       const selectedReferences = referenceInputsSchema.parse(
         task.references ?? input.references ?? [],
       )
@@ -9494,25 +9551,31 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
           )
         : baseResultStore
       const storedResults = new StoredResults(resultStore, 12000, 'reject')
-      // References and plugin versions are authorized above. Inventory and
-      // skill metadata are independent reads; settle both before leaving their
-      // shared database context, including when inventory fails.
-      const [inventory, directory] = await Promise.allSettled([
-        connectedMcpServers(this.env, input.userId, input.policy, undefined, {
-          workspaceId: input.bot.workspace_id,
-          versions: task.loadedPlugins,
-        }),
-        readSkillDirectory((cursor) =>
-          new SkillCatalog(this.env, pluginScope).list(
-            { cursor },
-            task.loadedPlugins,
-          ),
-        ),
-      ])
-      if (inventory.status === 'rejected') throw inventory.reason
-      if (directory.status === 'rejected') throw directory.reason
-      const connections = inventory.value
-      const skillDirectory = directory.value
+      // Plain responses do not need external catalogs. Resolve inventory only
+      // for an explicit tool reference or when the model asks to discover tools.
+      const connections: McpConnection[] = []
+      let inventoryRead: Promise<void> | undefined
+      const loadConnections = () =>
+        (inventoryRead ??= (async () => {
+          const current = await connectedMcpServers(
+            this.env,
+            input.userId,
+            input.policy,
+            undefined,
+            {
+              workspaceId: input.bot.workspace_id,
+              versions: task.loadedPlugins,
+            },
+          )
+          assertCurrentTask()
+          connections.splice(0, connections.length, ...current)
+        })())
+      if (
+        resolvedReferences.references.some(
+          (reference) => reference.kind === 'tool',
+        )
+      )
+        await loadConnections()
       const currentConnection = async (serverId: string) => {
         const current = (
           await connectedMcpServers(
@@ -9577,6 +9640,7 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
         )
       const connectedTools = assistantMcpTools({
         connections,
+        loadConnections,
         selectedTools,
         discoveredEntries: (task.discoveredMcpEntries ??= []),
         observe: (entry, result) => setupEvidence.register(entry.id, result),
@@ -10194,45 +10258,6 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
           }
         },
       })
-      const [
-        kodyMemories,
-        kodySuggestions,
-        kodyGuidance,
-        kodySkillSuggestions,
-      ] = await Promise.all([
-        kodyAvailable && input.bot.workspace_id === `personal:${input.userId}`
-          ? searchKodyMemory(
-              this.env,
-              input.userId,
-              input.bot.workspace_id,
-              input.text,
-              signal,
-            ).catch(() => [])
-          : [],
-        kodyAvailable
-          ? suggestKodyReferences(
-              this.env,
-              { workspaceId: input.bot.workspace_id, userId: input.userId },
-              { policy: input.policy, fixture: input.fixture },
-              input.text,
-            ).catch(() => [])
-          : [],
-        kodyAvailable && input.bot.workspace_id === `personal:${input.userId}`
-          ? readKodyGuidance(
-              this.env,
-              { workspaceId: input.bot.workspace_id, userId: input.userId },
-              { policy: input.policy, fixture: input.fixture },
-              AbortSignal.any([signal, AbortSignal.timeout(10000)]),
-            ).catch(() => undefined)
-          : undefined,
-        kodyAvailable
-          ? suggestKodySkills(
-              this.env,
-              { workspaceId: input.bot.workspace_id, userId: input.userId },
-              input.text,
-            ).catch(() => [])
-          : [],
-      ])
       let instructionKey = ''
       let cachedInstructions:
         | ReturnType<typeof buildAssistantInstructions>
@@ -10254,7 +10279,6 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
             enabledTools: discovery.tools().map((tool) => tool.name),
             availableTools: discovery.directory,
             availableToolNames: assistantTools.map((tool) => tool.name),
-            skillDirectory,
             workflowInputs: workflowAdmission
               ? workflowInputReferences(workflowAdmission)
               : undefined,
@@ -10388,17 +10412,26 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
                     version: skill.version,
                   })
                 await resolveTaskSkills(this.env, pluginScope, task)
-                const latest = await connectedMcpServers(
-                  this.env,
-                  input.userId,
-                  input.policy,
-                  undefined,
-                  {
-                    workspaceId: input.bot.workspace_id,
-                    versions: task.loadedPlugins,
-                  },
-                )
-                connections.splice(0, connections.length, ...latest)
+                if (
+                  [
+                    'list_connected_tools',
+                    'inspect_connected_tool',
+                    'call_connected_tool',
+                  ].includes(tool.toolName)
+                ) {
+                  const latest = await connectedMcpServers(
+                    this.env,
+                    input.userId,
+                    input.policy,
+                    undefined,
+                    {
+                      workspaceId: input.bot.workspace_id,
+                      versions: task.loadedPlugins,
+                    },
+                  )
+                  connections.splice(0, connections.length, ...latest)
+                  inventoryRead = Promise.resolve()
+                }
               } catch (error) {
                 return stopModel(
                   error instanceof Error

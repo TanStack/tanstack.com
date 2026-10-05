@@ -3,8 +3,8 @@ import { scaleLinear } from '@tanstack/charts/scales/linear'
 import { barX, defineChart, text } from '@tanstack/charts'
 
 export const bundleSizeSnapshot = [
-  { library: 'TanStack Charts', size: 29 },
   { library: 'uPlot', size: 22 },
+  { library: 'TanStack Charts', size: 29 },
   { library: 'Chart.js', size: 46 },
   { library: 'visx', size: 49 },
   { library: 'Lightweight Charts', size: 60 },

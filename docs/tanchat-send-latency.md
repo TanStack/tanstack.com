@@ -41,3 +41,13 @@ Sources: [Hyperdrive connection pooling](https://developers.cloudflare.com/hyper
 The runtime suite exercises real PostgreSQL, including access revocation, reset races, retries, copy activation, quota concurrency, funded usage, response preference persistence, and skill discovery through the actual SDK loop. The lazy MCP test also uses the SDK loop with a synthetic transport.
 
 The local Assistant page rendered from the QA checkout on localhost:3000. No real provider messages were sent during this pass. Full pnpm test passed: all five TypeScript configurations, lint with zero errors and 105 existing warnings, 537 site tests, 2,274 chat tests, and 20 desktop tests. Five optional tests were skipped. The complete PostgreSQL runtime suite passed 268 tests in 35 files. The final metadata scope suite passed 10 tests, including four additional thread-scope rejection cases.
+
+## Follow-up phase diagnosis, October 5
+
+A warm live Assistant reply was observed 5.284 seconds after sending, with a 1.35-second recorded model call. Browser automation and observation are included in that 5.284-second result. The difference is not a database measurement.
+
+Live Worker tracing on the next short reply measured 1,398 ms of wall time and 59 ms of CPU time for the Conversation.begin RPC. The existing publisher also coupled transcript delivery to sidebar activity publication: after both initial flushes started, another transcript flush could not begin until the sidebar flush completed. The two outboxes now have independent, coalesced publishers. Their durable ordering, retry alarms, producer receipts, and copy activation checks remain unchanged. A runtime regression holds sidebar publication open and verifies that later transcript updates still publish.
+
+The HTTP send path now overlaps workflow ownership, lifecycle metadata, and run context reads after resolving the authenticated conversation identity. All three reads settle before the request database context is released. Authorization, lifecycle rejection, workflow ownership rejection, and post-preparation checks remain in place.
+
+Structured chat_send_timing, chat_admission_timing, and chat_run_timing logs record cumulative milliseconds within each operation. They separate HTTP authentication and metadata, admission guards and preparation, model credentials and selection, usage reservation, enrichment, context preparation, first visible text, its durable save, and response completion. They do not log message text, credentials, or account identity. Admission and run logs use the message receipt ID for correlation. The first-text save is not a measurement of browser paint or stream delivery.

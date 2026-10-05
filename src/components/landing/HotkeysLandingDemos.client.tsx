@@ -119,7 +119,10 @@ export function ShortcutLab() {
     { name: 'Next / previous', keys: ['J', 'K'] },
     { name: 'Jump to top', keys: ['G', 'G'] },
     { name: 'Mark done', keys: ['X'] },
-    { name: 'Save', keys: formatForDisplay('Mod+S', { platform, parts: true }) },
+    {
+      name: 'Save',
+      keys: formatForDisplay('Mod+S', { platform, parts: true }),
+    },
     {
       name: 'Add note',
       keys: formatForDisplay('Mod+Enter', { platform, parts: true }),
@@ -386,7 +389,8 @@ export function RebindLab() {
   const recorder = useHotkeyRecorder({
     platform,
     detectConflicts: {
-      exclude: (registration) => registration.options.meta?.name === 'Quick open',
+      exclude: (registration) =>
+        registration.options.meta?.name === 'Quick open',
     },
     onRecord: (hotkey) => {
       setQuickOpen(hotkey)
@@ -442,7 +446,9 @@ export function RebindLab() {
                 : 'bg-background-subtle'
             }`}
           >
-            <span className="text-ds-label-lg text-text-primary">Quick open</span>
+            <span className="text-ds-label-lg text-text-primary">
+              Quick open
+            </span>
             <button
               className="rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright)"
               onClick={() => {

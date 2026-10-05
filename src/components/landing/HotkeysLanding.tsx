@@ -28,7 +28,7 @@ const RebindLab = React.lazy(() =>
 )
 
 const hotkeysPrompt =
-  "Add keyboard shortcuts with TanStack Hotkeys. Register commands with useHotkey using Mod bindings so they work on macOS, Windows, and Linux, and use physical [Code] bindings only where key position matters. Add a G G sequence with useHotkeySequence. Show platform-correct labels with formatForDisplay and reveal hints with useHotkeyHint while modifiers are held. Let users rebind commands with useHotkeyRecorder using detectConflicts and onReject, and store the recorded bindings as plain strings in app state."
+  'Add keyboard shortcuts with TanStack Hotkeys. Register commands with useHotkey using Mod bindings so they work on macOS, Windows, and Linux, and use physical [Code] bindings only where key position matters. Add a G G sequence with useHotkeySequence. Show platform-correct labels with formatForDisplay and reveal hints with useHotkeyHint while modifiers are held. Let users rebind commands with useHotkeyRecorder using detectConflicts and onReject, and store the recorded bindings as plain strings in app state.'
 
 const edgeCases = [
   {
@@ -100,7 +100,7 @@ export default function HotkeysLanding() {
       <LandingSection tone="raised">
         <SectionHeader
           body="A hand-written listener checks one key and one modifier. A real app also has to skip text fields, block the browser's own shortcuts, map Mod to the right key on each platform, and cope with layouts that report different characters."
-            title="What a keydown listener misses"
+          title="What a keydown listener misses"
         />
         <ul className="mt-12 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {edgeCases.map((item) => (
@@ -254,12 +254,11 @@ function TypeSafetyEditor() {
         </p>
         <p className="ml-6 mt-2 max-w-xl rounded-lg border border-border-default bg-background-subtle px-4 py-3 font-sans text-ds-body-sm leading-6 text-text-primary/75">
           <span className="font-bold text-ds-terracotta-300">Type error: </span>
-          Type '"Mod+Control+S"' is not assignable to type
-          'RegisterableHotkey'. Did you mean '"Control+S"'?
+          Type '"Mod+Control+S"' is not assignable to type 'RegisterableHotkey'.
+          Did you mean '"Control+S"'?
         </p>
         <p className="mt-3 text-text-primary/70">])</p>
       </div>
     </LandingWindow>
   )
 }
-

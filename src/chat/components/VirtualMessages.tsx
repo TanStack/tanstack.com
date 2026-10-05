@@ -41,7 +41,6 @@ export function VirtualMessages({
   onJumpToBottom,
   jumpToBottomContainer,
   contentVersion,
-  followRequest,
   messageScope,
 }: {
   children: ReactNode
@@ -52,7 +51,6 @@ export function VirtualMessages({
   onSelectMessage?: (messageId: string) => void
   onJumpToBottom?: () => void
   jumpToBottomContainer?: HTMLDivElement | null
-  followRequest?: string
   contentVersion?: string | number
   messageScope?: string
 }) {
@@ -113,23 +111,6 @@ export function VirtualMessages({
       virtualizer.scrollToEnd()
     }
   }, [rows.length, scrollElement, scrollMargin, virtualizer])
-
-  const followedRequest = useRef<string | undefined>(undefined)
-  useLayoutEffect(() => {
-    if (
-      !followRequest ||
-      followedRequest.current === followRequest ||
-      !scrollElement ||
-      scrollMargin === null ||
-      !rows.length
-    )
-      return
-    followedRequest.current = followRequest
-    pendingTarget.current = undefined
-    pendingFocus.current?.cancel()
-    pendingFocus.current = null
-    virtualizer.scrollToEnd()
-  }, [followRequest, scrollElement, scrollMargin, rows.length, virtualizer])
 
   const alignTarget = () => {
     if (!pendingTarget.current || !scrollElement) return

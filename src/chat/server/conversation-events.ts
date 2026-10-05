@@ -6,6 +6,7 @@ export interface ProjectableConversation {
   messages: UIMessage[]
   status: string
   activeRun: string | null
+  archivedTurns?: number
   error?: string
 }
 
@@ -31,19 +32,34 @@ export function conversationEvents(
     !previous ||
     previous.messages.some((m) => {
       const message = nextById.get(m.id)
-      // AG-UI metadata deltas merge keys. Replay is required when authoritative
-      // metadata changes so removed fields cannot remain on an existing message.
+      // Replace authoritative metadata atomically so removed fields cannot remain
+      // on an existing message, without clearing and replaying the transcript.
       return (
-        !message ||
-        JSON.stringify(m.metadata) !== JSON.stringify(message.metadata)
+        (!message &&
+          (next.archivedTurns ?? 0) <= (previous.archivedTurns ?? 0)) ||
+        (message &&
+          JSON.stringify(m.metadata) !== JSON.stringify(message.metadata))
       )
     })
   if (reset) {
-    // Rebuild history using the same events as live delivery, including tools.
-    events.push({ type: EventType.MESSAGES_SNAPSHOT, messages: [] })
+    // The native processor preserves UI parts and timestamps in snapshots.
+    events.push({
+      type: EventType.MESSAGES_SNAPSHOT,
+      rawEvent: {
+        retainedHistoryBefore:
+          (next.archivedTurns ?? 0) > 0 ? next.messages[0]?.id : undefined,
+      },
+      messages: next.messages.map((message) => ({
+        ...message,
+        metadata: message.metadata ?? {},
+        content: message.parts
+          .flatMap((part) => (part.type === 'text' ? [part.content] : []))
+          .join(''),
+      })),
+    })
   }
   const before = new Map((reset ? [] : previous.messages).map((m) => [m.id, m]))
-  for (const message of next.messages) {
+  for (const message of reset ? [] : next.messages) {
     const old = before.get(message.id)
     let textChanged = false
     if (!old)
@@ -163,6 +179,19 @@ export function conversationEvents(
     },
   })
   if (previous?.status === 'running' && next.status !== 'running') {
+    // Error events need an existing assistant anchor after a snapshot clears
+    // transient processor state. No text is replayed into that message.
+    if (next.status === 'error') {
+      const assistant = [...next.messages]
+        .reverse()
+        .find((message) => message.role === 'assistant')
+      if (assistant)
+        events.push({
+          type: EventType.TEXT_MESSAGE_START,
+          messageId: assistant.id,
+          role: assistant.role,
+        })
+    }
     events.push(
       next.status === 'error'
         ? {

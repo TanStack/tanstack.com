@@ -1,3 +1,4 @@
+import { retainArchivedMessages } from '../core/conversation-snapshot'
 import { workspacePreviewsEnabled } from '../core/workspace-panels'
 import { useQueryClient } from '@tanstack/react-query'
 import { projectSavedEvent } from '../core/project-events'
@@ -5,7 +6,6 @@ import { ProjectsPanel } from './ProjectsPanel'
 import { isPersonalAssistant } from '../core/bot-workspace'
 import './assistant-chat.css'
 import { DraftSyncNotice } from './DraftSyncNotice'
-import { motion } from 'motion/react'
 import { useDebugDetails } from './useDebugDetails'
 import { Button } from './ui/Button'
 import { conversationActionRequest } from '../core/conversation-actions'
@@ -461,6 +461,7 @@ export function ConversationSession({
   const forkMessage = onFork
     ? (messageId: string) => onFork(messageId, destination.conversationId)
     : undefined
+  const displayedMessages = useRef(initialHistory.messages)
   const connection = useMemo<SubscribeConnectionAdapter>(() => {
     const durable = durableStreamConnection({
       sendUrl: apiUrl(`${path}/send`),
@@ -468,8 +469,13 @@ export function ConversationSession({
       initialOffset: initialHistory.streamOffset,
       emitSnapshotOnSubscribe: false,
     })
+    const subscribe =
+      durable.subscribe as SubscribeConnectionAdapter['subscribe']
     return {
-      subscribe: durable.subscribe as SubscribeConnectionAdapter['subscribe'],
+      subscribe: async function* (signal) {
+        for await (const chunk of subscribe(signal))
+          yield retainArchivedMessages(chunk, displayedMessages.current)
+      },
       send: async (messages, data) => {
         const message = messages.at(-1)
         if (!message || !('parts' in message))
@@ -525,6 +531,7 @@ export function ConversationSession({
       }
     },
   })
+  displayedMessages.current = chat.messages
   const h = { ...metadata, messages: chat.messages }
   const emptyThreadState = useRef(false)
   emptyThreadState.current =
@@ -1121,8 +1128,7 @@ export function ConversationSession({
             origin={h.copyOrigin}
           />
         )}
-        <motion.div
-          layoutScroll
+        <div
           className="messages-scroll"
           ref={setScrollElement}
           tabIndex={-1}
@@ -1130,14 +1136,7 @@ export function ConversationSession({
           aria-label="Conversation messages"
         >
           {thread && (
-            <motion.article
-              layout="position"
-              layoutDependency={thread.sourceMessageId}
-              layoutId={JSON.stringify([
-                'message',
-                thread.parentConversationId,
-                thread.sourceMessageId,
-              ])}
+            <article
               className={`thread-source message ${thread.source.role}`}
               aria-label="Original message"
             >
@@ -1145,7 +1144,7 @@ export function ConversationSession({
                 <MessageMarkdown>{thread.source.text}</MessageMarkdown>
               </div>
               {thread.source.truncated && <p>Source excerpt</p>}
-            </motion.article>
+            </article>
           )}
           {(!!h.archivedTurns || (!!search.message && !liveTarget)) && (
             <EarlierMessages
@@ -1190,7 +1189,6 @@ export function ConversationSession({
               jumpToBottomContainer={jumpToBottomContainer}
               onSelectMessage={selectMessage}
               contentVersion={messageRevision}
-              followRequest={pendingMessages.at(-1)?.payload.messageId}
               onJumpToBottom={() => navigation.onSelectMessage(undefined)}
             >
               {turns.map((turn, index, turns) => (
@@ -1441,7 +1439,7 @@ export function ConversationSession({
               ))}
             </VirtualMessages>
           )}
-        </motion.div>
+        </div>
         <div className="composer-area" ref={composerArea}>
           <div className="message-jump-anchor" ref={setJumpToBottomContainer} />
           <RetryPreparation preparation={retryPreparation} />

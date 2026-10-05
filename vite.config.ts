@@ -19,6 +19,7 @@ import {
   localDocsDevPath,
   localDocsDevTokenHeader,
 } from './src/utils/local-repo-path.server'
+import { readLocalRepoTree } from './src/utils/local-repo-tree.server'
 import { startLocalMcpEgress } from './scripts/local-mcp-egress'
 import { localBuilderAi } from './scripts/local-builder-ai-vite'
 
@@ -55,9 +56,11 @@ function localDocsDevFiles(): PluginOption {
 
         const repo = url.searchParams.get('repo')
         const filepath = url.searchParams.get('path')
+        const kind = url.searchParams.get('kind') ?? 'file'
 
         if (
           !repo ||
+          !['file', 'tree'].includes(kind) ||
           !/^[a-zA-Z0-9._-]+$/.test(repo) ||
           !filepath ||
           !isContainedRepoPath(filepath)
@@ -80,7 +83,7 @@ function localDocsDevFiles(): PluginOption {
           ]),
         )
 
-        const localFilePath = repoDirs
+        const localTarget = repoDirs
           .map((repoDir) => ({
             filepath: path.resolve(repoDir, filepath),
             repoDir,
@@ -89,20 +92,33 @@ function localDocsDevFiles(): PluginOption {
             (candidate) =>
               isPathInside(candidate.repoDir, candidate.filepath) &&
               fs.existsSync(candidate.filepath) &&
-              fs.statSync(candidate.filepath).isFile(),
-          )?.filepath
+              (kind === 'tree'
+                ? fs.statSync(candidate.filepath).isDirectory()
+                : fs.statSync(candidate.filepath).isFile()),
+          )
 
-        if (!localFilePath) {
+        if (!localTarget) {
           response.statusCode = 404
           response.end()
           return
         }
 
         try {
-          const content = await fs.promises.readFile(localFilePath)
+          const content =
+            kind === 'tree'
+              ? JSON.stringify(
+                  (await readLocalRepoTree(localTarget.repoDir, filepath)) ??
+                    [],
+                )
+              : await fs.promises.readFile(localTarget.filepath)
           response.statusCode = 200
           response.setHeader('Cache-Control', 'no-store')
-          response.setHeader('Content-Type', 'text/plain; charset=utf-8')
+          response.setHeader(
+            'Content-Type',
+            kind === 'tree'
+              ? 'application/json; charset=utf-8'
+              : 'text/plain; charset=utf-8',
+          )
           response.end(content)
         } catch (error) {
           next(error)

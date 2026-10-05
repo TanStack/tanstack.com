@@ -342,7 +342,6 @@ export const charts: LibrarySlim = {
   tagline: "A chart grammar you don't have to outgrow.",
   description:
     'A typed, tree-shakable chart grammar for SVG and Canvas. Compose marks, views, scales, transforms, interactions, and motion with compact primitives or D3-compatible inputs.',
-  badge: 'alpha',
   repo: 'tanstack/charts',
   frameworks: [
     'react',
@@ -382,9 +381,9 @@ export const charts: LibrarySlim = {
     octane: 'framework/octane/adapter',
     vanilla: 'quick-start',
   },
-  latestVersion: 'v0',
+  latestVersion: 'v1',
   latestBranch: 'main',
-  availableVersions: ['v0'],
+  availableVersions: ['v1'],
   statsAvailable: false,
   sitemap: {
     includeLandingPage: true,

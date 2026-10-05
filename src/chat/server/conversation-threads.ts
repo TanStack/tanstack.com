@@ -12,7 +12,10 @@ import {
   type ThreadListItem,
   type ThreadSource,
 } from '../core/conversation-threads'
-import { resolveConversationIdentity } from '../conversation-identity.server'
+import {
+  resolveConversationIdentity,
+  ConversationIdentityError,
+} from '../conversation-identity.server'
 import { canonicalCopyJson } from '../core/conversation-copy'
 import { hash } from './crypto'
 
@@ -136,15 +139,22 @@ const listItem = (
 export async function conversationThreadContext(
   identity: ConversationIdentity,
 ) {
-  await resolveConversationIdentity(identity)
   const [row] = await db.execute<{
-    parent_conversation_id: string
-    source_message_id: string
-    source_context: string
-  }>(
-    sql`SELECT t.parent_conversation_id,t.source_message_id,t.source::text AS source_context ${from} WHERE c.id=${identity.conversationId} AND c.user_id=${identity.userId}::uuid AND b.workspace_id=${identity.workspaceId} AND b.deleted_at IS NULL`,
-  )
-  return row
+    parent_conversation_id: string | null
+    source_message_id: string | null
+    source_context: string | null
+  }>(sql`SELECT t.parent_conversation_id,t.source_message_id,t.source::text AS source_context
+    FROM chat_conversations c
+    JOIN chat_bots b ON b.id=c.bot_id
+    JOIN chat_memberships m ON m.workspace_id=b.workspace_id AND m.user_id=c.user_id
+    LEFT JOIN chat_conversation_threads t ON t.conversation_id=c.id
+    WHERE c.id=${identity.conversationId} AND c.bot_id=${identity.botId}
+      AND c.user_id=${identity.userId}::uuid AND b.workspace_id=${identity.workspaceId}
+      AND b.deleted_at IS NULL`)
+  if (!row) throw new ConversationIdentityError()
+  return row.parent_conversation_id &&
+    row.source_message_id &&
+    row.source_context
     ? {
         parentConversationId: row.parent_conversation_id,
         sourceMessageId: row.source_message_id,

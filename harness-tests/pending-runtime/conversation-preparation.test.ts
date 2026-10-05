@@ -7,28 +7,18 @@ import { SkillCatalog } from '../../src/chat/server/skill-catalog'
 
 afterEach(() => vi.restoreAllMocks())
 
-it('reads skill metadata while MCP inventory is pending and waits for both before calling the model', async () => {
+it('dispatches a plain response without reading MCP inventory or the skill directory', async () => {
   const h = await conversationHarness()
-  let releaseInventory = () => {}
-  const inventoryGate = new Promise<void>((resolve) => {
-    releaseInventory = resolve
-  })
-  let releaseDirectory = () => {}
-  const directoryGate = new Promise<void>((resolve) => {
-    releaseDirectory = resolve
-  })
   const inventory = vi
     .spyOn(connections, 'connectedMcpServers')
-    .mockImplementation(async () => {
-      await inventoryGate
-      return []
-    })
+    .mockRejectedValue(
+      new Error('Unused inventory must not block a plain response'),
+    )
   const directory = vi
     .spyOn(SkillCatalog.prototype, 'list')
-    .mockImplementation(async () => {
-      await directoryGate
-      return { items: [] }
-    })
+    .mockRejectedValue(
+      new Error('Unused directory must not block a plain response'),
+    )
   h.env.AI.run.mockImplementation(
     async () =>
       new Response(
@@ -51,52 +41,18 @@ it('reads skill metadata while MCP inventory is pending and waits for both befor
         { headers: { 'Content-Type': 'text/event-stream' } },
       ),
   )
-  try {
-    await h.c.begin({ ...h.input('parallel-preparation'), fixture: false })
-    await vi.waitFor(() => expect(inventory).toHaveBeenCalledOnce())
-    await vi.waitFor(() => expect(directory).toHaveBeenCalledOnce())
-    expect(h.env.AI.run).not.toHaveBeenCalled()
-    releaseInventory()
-    await Promise.resolve()
-    expect(h.env.AI.run).not.toHaveBeenCalled()
-    releaseDirectory()
-    await h.settle()
-    expect(h.env.AI.run).toHaveBeenCalledOnce()
-  } finally {
-    releaseInventory()
-    releaseDirectory()
-    await h.settle()
-  }
-})
-
-it('settles the directory read before reporting an inventory failure and never calls the model', async () => {
-  const h = await conversationHarness()
-  let releaseDirectory = () => {}
-  const directoryGate = new Promise<void>((resolve) => {
-    releaseDirectory = resolve
-  })
-  vi.spyOn(connections, 'connectedMcpServers').mockRejectedValue(
-    new Error('Synthetic inventory failure'),
-  )
-  const directory = vi
-    .spyOn(SkillCatalog.prototype, 'list')
-    .mockImplementation(async () => {
-      await directoryGate
-      return { items: [] }
-    })
-  try {
-    await h.c.begin({ ...h.input('failed-preparation'), fixture: false })
-    await vi.waitFor(() => expect(directory).toHaveBeenCalledOnce())
-    expect((await h.c.snapshot()).status).toBe('running')
-    expect(h.env.AI.run).not.toHaveBeenCalled()
-    releaseDirectory()
-    await h.settle()
-    expect((await h.c.snapshot()).error).toBe('Synthetic inventory failure')
-    expect(h.env.AI.run).not.toHaveBeenCalled()
-  } finally {
-    releaseDirectory()
-    await h.settle()
-  }
+  await h.c.begin({ ...h.input('deferred-preparation'), fixture: false })
+  await h.settle()
+  expect(h.env.AI.run).toHaveBeenCalledOnce()
+  expect(inventory).not.toHaveBeenCalled()
+  expect(directory).not.toHaveBeenCalled()
+  expect(
+    (await h.c.snapshot()).messages.some((message) =>
+      message.parts.some(
+        (part) => part.type === 'text' && part.content === 'Ready.',
+      ),
+    ),
+  ).toBe(true)
 })
 
 it('reauthorizes membership inside send admission without requiring a prior identity RPC', async () => {

@@ -43,7 +43,7 @@ const system = (request: any) =>
     .map((message: any) => message.content)
     .join('\n')
 
-it('exposes authorized skill metadata on the first request and loads the full skill only after reading', async () => {
+it('discovers skill metadata on demand and loads full instructions only after reading', async () => {
   const h = await conversationHarness()
   const skillId = crypto.randomUUID()
   await new Skills(identity).command({
@@ -60,9 +60,11 @@ it('exposes authorized skill metadata on the first request and loads the full sk
   const requests: any[] = []
   const run = vi.fn(async (_model, request) => {
     requests.push(structuredClone(request))
-    return requests.length === 1
-      ? reply('read_skill', { skillId, version: 1 })
-      : reply()
+    if (requests.length === 1)
+      return reply('list_skills', { query: 'test-review' })
+    if (requests.length === 2)
+      return reply('read_skill', { skillId, version: 1 })
+    return reply()
   })
   Object.assign(h.env, { AI: { run } })
   await h.c.begin({
@@ -72,13 +74,20 @@ it('exposes authorized skill metadata on the first request and loads the full sk
   })
   await h.settle()
   expect((await h.c.snapshot()).error).toBeUndefined()
-  expect(requests).toHaveLength(2)
-  expect(system(requests[0])).toContain(skillId)
-  expect(system(requests[0])).toContain('Review tests for useful coverage.')
+  expect(requests).toHaveLength(3)
+  expect(system(requests[0])).not.toContain(skillId)
+  expect(names(requests[0])).toContain('list_skills')
+  expect(JSON.stringify(requests[1].messages)).toContain(skillId)
+  expect(JSON.stringify(requests[1].messages)).toContain(
+    'Review tests for useful coverage.',
+  )
   expect(system(requests[0])).not.toContain(
     'INSTRUCTIONS_LOADED_ONLY_AFTER_READ',
   )
-  expect(system(requests[1])).toContain('INSTRUCTIONS_LOADED_ONLY_AFTER_READ')
+  expect(system(requests[1])).not.toContain(
+    'INSTRUCTIONS_LOADED_ONLY_AFTER_READ',
+  )
+  expect(system(requests[2])).toContain('INSTRUCTIONS_LOADED_ONLY_AFTER_READ')
   expect((await h.c.snapshot()).assistantTask?.loadedSkills).toEqual([
     { skillId, version: 1 },
   ])

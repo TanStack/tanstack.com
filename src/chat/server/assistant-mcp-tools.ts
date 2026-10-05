@@ -70,6 +70,7 @@ export interface AssistantMcpCall {
 /** A server-neutral model interface. Listing metadata never executes a server tool. */
 export function assistantMcpTools(host: {
   connections: McpConnection[]
+  loadConnections?(): Promise<void>
   catalog(connection: McpConnection, refresh: boolean): Promise<ServerCatalog>
   propose(entry: CatalogEntry, args: Record<string, unknown>): Promise<unknown>
   read(
@@ -95,6 +96,7 @@ export function assistantMcpTools(host: {
     const identity = host.discoveredEntries?.find((entry) => entry.id === id)
     if (!identity)
       throw new Error('List this server first to obtain a current entry ID.')
+    await host.loadConnections?.()
     const connection = host.connections.find(
       (entry) => entry.id === identity.serverId,
     )
@@ -150,6 +152,7 @@ export function assistantMcpTools(host: {
         refresh: z.boolean().default(false),
       }),
     }).server(async ({ serverId, offset = 0, refresh = false }) => {
+      await host.loadConnections?.()
       if (!serverId)
         return {
           servers: host.connections

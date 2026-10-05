@@ -66,4 +66,10 @@
       "bucket_name": "tanstack-notebook-projects",
     },
   ],
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "6ec1513b87bb47e9897e5502727b0388",
+    },
+  ],
 }

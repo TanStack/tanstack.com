@@ -355,6 +355,7 @@ export default defineConfig(async ({ command, mode }) => {
         remoteBindings: useRemoteAi,
         config: (config) => {
           if (command !== 'serve') return
+          config.hyperdrive = []
           if (!useRemoteAi) delete config.ai
           if (localEnv.CLOUDFLARE_ACCOUNT_ID)
             config.account_id = localEnv.CLOUDFLARE_ACCOUNT_ID

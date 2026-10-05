@@ -299,6 +299,12 @@ export function buildAssistantInstructions(
         16000,
       ),
     )
+  if (!options.skillDirectory && enabled.has('list_skills'))
+    sections.push({
+      id: 'core.skill-discovery',
+      version: '1',
+      text: 'Skill metadata loads on demand. When a skill may help the request, search with list_skills, then read its exact id and version with read_skill before following it. An unloaded catalog does not mean no skills exist. Explicitly selected skills and their versions remain part of this request.',
+    })
   if (options.workflowInputs?.length && enabled.has('read_stored_result'))
     sections.push(
       dynamicSection(

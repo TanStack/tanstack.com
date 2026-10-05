@@ -218,6 +218,7 @@ import { markConversationRead } from './bot-activity'
 import {
   ConversationIdentityError,
   resolveConversationIdentity,
+  resolveConversationAccess,
   type ConversationIdentity,
 } from '../conversation-identity.server'
 import { browserExecutionEnabled } from './browser-execution'
@@ -2074,6 +2075,9 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
     })
   }
   private async authorizeIdentity(identity: ActivityIdentity) {
+    return (await this.authorizeAccess(identity)).identity
+  }
+  private async authorizeAccess(identity: ActivityIdentity) {
     const old = this.state.identity
     if (
       old &&
@@ -2085,10 +2089,11 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
           old.conversationId !== identity.conversationId))
     )
       throw new Error('Conversation identity cannot change.')
-    const resolved = await resolveConversationIdentity({
+    const access = await resolveConversationAccess({
       ...identity,
       conversationId: identity.conversationId ?? old?.conversationId,
     })
+    const resolved = access.identity
     if (
       !this.ctx.id.equals(
         this.env.CONVERSATIONS.idFromName(resolved.conversationId),
@@ -2097,7 +2102,7 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
       throw new Error('This identity belongs to another conversation.')
     // Check again after storage authorization, before changing durable state.
     this.setIdentity(resolved)
-    return resolved
+    return access
   }
   private setIdentity(identity: ActivityIdentity) {
     const old = this.state.identity
@@ -2291,15 +2296,17 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
     ) {
       throw new Error('This conversation copy is not ready yet.')
     }
-    if (input)
-      await this.authorizeIdentity({
-        conversationId: input.conversationId,
-        botId: input.bot.id,
-        workspaceId: input.bot.workspace_id,
-        userId: input.userId,
-      })
-    else if (this.state.identity)
-      await this.authorizeIdentity(this.state.identity)
+    const suppliedIdentity = input
+      ? {
+          conversationId: input.conversationId,
+          botId: input.bot.id,
+          workspaceId: input.bot.workspace_id,
+          userId: input.userId,
+        }
+      : this.state.identity
+    const access = suppliedIdentity
+      ? await this.authorizeAccess(suppliedIdentity)
+      : undefined
     const identity = this.state.identity
     if (this.state.copyOrigin?.retryAttemptId && !allowInactive) {
       const ready = await conversationRetryReady({
@@ -2314,11 +2321,14 @@ export class Conversation extends DurableObject<ConversationEnvironment> {
           'This retry is still preparing its request and files. Resume preparation before sending.',
         )
     }
-    if (identity && !allowInactive) {
-      const { bot: metadata, thread } = await readConversationLifecycle(
-        identity.botId,
-        identity.conversationId ?? '',
-      )
+    if (identity && access && !allowInactive) {
+      // Retry readiness can yield after authorization, so read lifecycle again.
+      const { bot: metadata, thread } = this.state.copyOrigin?.retryAttemptId
+        ? await readConversationLifecycle(
+            identity.botId,
+            identity.conversationId ?? '',
+          )
+        : access.lifecycle
       if (metadata?.archived_at != null || metadata?.deleted_at != null)
         throw new ConversationInactiveError(
           'Restore this conversation before continuing.',

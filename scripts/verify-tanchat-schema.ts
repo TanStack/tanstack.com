@@ -38,6 +38,11 @@ try {
         missing.push(`${table.name}.${column.name} must be NOT NULL`)
     }
   }
+  const [reservation] = await sql<{ ready: boolean }[]>`
+    SELECT to_regprocedure('public.reserve_chat_run_usage(jsonb,text)') IS NOT NULL AS ready
+  `
+  if (!reservation.ready)
+    missing.push('reserve_chat_run_usage function missing')
   if (missing.length)
     throw new Error(`Chat schema is not ready:\n${missing.join('\n')}`)
   console.log(

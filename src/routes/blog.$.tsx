@@ -40,8 +40,15 @@ export const Route = createFileRoute('/blog/$')({
 })
 
 function BlogPost() {
-  const { content, filePath, title, headerImage, library } =
-    Route.useLoaderData()
+  const {
+    content,
+    filePath,
+    title,
+    headerImage,
+    headerVideo,
+    headerVideoCaptions,
+    library,
+  } = Route.useLoaderData()
   const { _splat: slug } = Route.useParams()
   const markdown = React.useMemo(() => parseSiteMarkdown(content), [content])
   const headings = markdown.headings
@@ -139,6 +146,24 @@ function BlogPost() {
                     ].join(' ')}
                   >
                     <div className="flex overflow-auto flex-col w-full p-2 lg:p-4 xl:p-6 pt-0">
+                      {headerVideo ? (
+                        <video
+                          aria-label={title}
+                          controls
+                          playsInline
+                          preload="none"
+                          poster={headerImage}
+                          src={headerVideo}
+                          className="aspect-video w-full rounded-2xl mb-6"
+                        >
+                          <track
+                            kind="captions"
+                            src={headerVideoCaptions}
+                            srcLang="en"
+                            label="English"
+                          />
+                        </video>
+                      ) : null}
                       {!headerImage && slug ? (
                         <CoverFallback
                           slug={slug}
@@ -147,7 +172,11 @@ function BlogPost() {
                         />
                       ) : null}
                       <MarkdownContent
-                        title={title}
+                        title={
+                          headings.some((heading) => heading.level === 1)
+                            ? ''
+                            : title
+                        }
                         markdown={markdown}
                         preserveTabPanels
                         repo={repo}

@@ -627,7 +627,6 @@ export const markdown: LibrarySlim = {
   tagline: 'A serializable document model for docs and AI streams',
   description:
     'A deliberately bounded Markdown parser with a public serializable AST, safe defaults, deterministic React, HTML, and Octane output, and a stateless profile for accumulated AI streams.',
-  badge: 'alpha',
   bgStyle: 'bg-fuchsia-500',
   borderStyle: 'border-fuchsia-500/50',
   textStyle: 'text-fuchsia-500 dark:text-fuchsia-400',
@@ -658,7 +657,6 @@ export const highlight: LibrarySlim = {
   tagline: 'Web-first syntax highlighting with compact, themeable HTML',
   description:
     'A synchronous syntax highlighter with selective language imports, context-aware web scanners, semantic CSS themes, precise annotations, and compact deterministic output.',
-  badge: 'alpha',
   bgStyle: 'bg-amber-500',
   borderStyle: 'border-amber-500/50',
   textStyle: 'text-amber-500 dark:text-amber-400',

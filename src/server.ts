@@ -1,8 +1,13 @@
 import './instrument.server.mjs'
 
+export { StreamObject } from '@durable-streams/server-cloudflare'
+export { WorkspaceSync } from './chat/server/workspace-sync-object'
+export { Conversation } from './chat/server/conversation'
+export { TanChatWorkflow } from './chat/server/workflow-driver'
+
 import { wrapFetchWithSentry } from '@sentry/tanstackstart-react'
 import handler, { createServerEntry } from '@tanstack/react-start/server-entry'
-import { runWithDatabaseContext } from '~/db/client'
+import { runWithDatabaseContext, runWithDatabaseRequest } from '~/db/client'
 import { runScheduledTasks } from '~/server/scheduled.server'
 import {
   runWithHostRuntimeContext,
@@ -18,6 +23,7 @@ import {
 } from '~/utils/prod-diagnostics.server'
 import { docsContentNegotiationVaryHeader } from '~/utils/http'
 import { isFrameEmbeddingAllowed } from '~/utils/frame-embedding'
+import { redirectChatOrigin } from './chat/server/origin-redirect'
 
 const SECURITY_HEADERS = {
   'X-Frame-Options': 'DENY',
@@ -211,7 +217,7 @@ const server = createServerEntry(
   wrapFetchWithSentry({
     async fetch(request) {
       return runWithRequestDiagnostics(request, async (context) => {
-        return runWithDatabaseContext(async () => {
+        return runWithDatabaseRequest(async () => {
           const url = new URL(request.url)
           logRequestStart(context)
 
@@ -271,6 +277,8 @@ const server = createServerEntry(
 
 export default {
   fetch(request: Request, env: unknown, context: unknown) {
+    const canonicalChat = redirectChatOrigin(request)
+    if (canonicalChat) return canonicalChat
     return runWithHostRuntimeEnv(env, () =>
       runWithHostRuntimeContext(context, () => server.fetch(request)),
     )

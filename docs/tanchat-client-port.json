@@ -1,0 +1,1784 @@
+[
+  {
+    "source": "src/client/composer-draft-sync.ts",
+    "destination": "src/chat/client/composer-draft-sync.ts",
+    "sourceSha256": "7e51f9b9b8565bf729f932bcb30896ff0c82d69d429e04df2024573db84c9118",
+    "destinationSha256": "7e51f9b9b8565bf729f932bcb30896ff0c82d69d429e04df2024573db84c9118",
+    "unchanged": true
+  },
+  {
+    "source": "src/client/desktop-compatibility.ts",
+    "destination": "src/chat/client/desktop-compatibility.ts",
+    "sourceSha256": "6b1c81b416938722eba907390fda4bb29dafea615349c882c24b5ba6acf4280f",
+    "destinationSha256": "6b1c81b416938722eba907390fda4bb29dafea615349c882c24b5ba6acf4280f",
+    "unchanged": true
+  },
+  {
+    "source": "src/client/desktop-host.ts",
+    "destination": "src/chat/client/desktop-host.ts",
+    "sourceSha256": "ad5522799dc9c9b249bbd8f715371483aa6b53b132e147ad2890ee1f75244aa8",
+    "destinationSha256": "ad5522799dc9c9b249bbd8f715371483aa6b53b132e147ad2890ee1f75244aa8",
+    "unchanged": true
+  },
+  {
+    "source": "src/client/execution-browser-bridge.ts",
+    "destination": "src/chat/client/execution-browser-bridge.ts",
+    "sourceSha256": "ed5b5c4a8ebe352b3dfa6f65ee71ad0b7a4b16c1ab5e293ce64cf6a3b25993cd",
+    "destinationSha256": "ed5b5c4a8ebe352b3dfa6f65ee71ad0b7a4b16c1ab5e293ce64cf6a3b25993cd",
+    "unchanged": true
+  },
+  {
+    "source": "src/client/execution-command-registry.ts",
+    "destination": "src/chat/client/execution-command-registry.ts",
+    "sourceSha256": "eea07e3ef69ddca58a488889db0d4c2393aa0b1f7556013bd6143ee7b1cc3196",
+    "destinationSha256": "eea07e3ef69ddca58a488889db0d4c2393aa0b1f7556013bd6143ee7b1cc3196",
+    "unchanged": true
+  },
+  {
+    "source": "src/client/execution-history.ts",
+    "destination": "src/chat/client/execution-history.ts",
+    "sourceSha256": "364166557525f1fab0e7dedf89889663b87c1e5c86890d76830b4fd0bbe10c98",
+    "destinationSha256": "364166557525f1fab0e7dedf89889663b87c1e5c86890d76830b4fd0bbe10c98",
+    "unchanged": true
+  },
+  {
+    "source": "src/client/execution-http.ts",
+    "destination": "src/chat/client/execution-http.ts",
+    "sourceSha256": "9d1b01c9fe66c796a175e788be5943433a20961b032ca27bab407be762d9ef42",
+    "destinationSha256": "0ca3def9c1711961e311c381069dee3546f9d279bee91bf300068decf9fcbc27",
+    "unchanged": false,
+    "adaptation": "Transport endpoint uses /api/chat, adds immutable workspace query to all original session and snapshot requests."
+  },
+  {
+    "source": "src/client/execution-owner.ts",
+    "destination": "src/chat/client/execution-owner.ts",
+    "sourceSha256": "6ffe90aaf9e5377779a56e3ffda5e50cdcd7037c835f85b401ce2c7b3957cdcb",
+    "destinationSha256": "6ffe90aaf9e5377779a56e3ffda5e50cdcd7037c835f85b401ce2c7b3957cdcb",
+    "unchanged": true
+  },
+  {
+    "source": "src/client/workspace-collections.ts",
+    "destination": "src/chat/client/workspace-collections.ts",
+    "sourceSha256": "efac841db348323b57f400ddd8d5204787cdeff6c6a8e47434748824fed9f441",
+    "destinationSha256": "efac841db348323b57f400ddd8d5204787cdeff6c6a8e47434748824fed9f441",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/AccountTimezone.tsx",
+    "destination": "src/chat/components/AccountTimezone.tsx",
+    "sourceSha256": "1922baee99c936617c98e962a146740a0517826242ccc6f4383bd05571434797",
+    "destinationSha256": "1922baee99c936617c98e962a146740a0517826242ccc6f4383bd05571434797",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/App.tsx",
+    "destination": "src/chat/components/App.tsx",
+    "sourceSha256": "821cd330da55406be2299d27a58e33c0ce5881f350476744a0ab39e5d9b259c5",
+    "destinationSha256": "b28f24a2ae66f0fdee06b158c8d10c68cebb3956717c5ae08c4f9ae51af2c753",
+    "unchanged": false,
+    "adaptation": "Original App with /chat navigation and shared TanStack sign-in/sign-out integration."
+  },
+  {
+    "source": "src/components/AppUpdates.tsx",
+    "destination": "src/chat/components/AppUpdates.tsx",
+    "sourceSha256": "42ae069fb99650b05703dc7f5eb9fe4def309a3cb5968bf99885fb8b1fd9b8af",
+    "destinationSha256": "df461581aa2710e4f4cfc25d469e8b0da705b1a5a7750c5d5b038665cef5f998",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/Appearance.tsx",
+    "destination": "src/chat/components/Appearance.tsx",
+    "sourceSha256": "bb51abe3014917c68db76cffe6b6b257830d4847d647cf66477714ce5cdff5e9",
+    "destinationSha256": "3467800a96ca8da4a12785ac51fa5349d635903abbce8a4424fc7a175e026fdd",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/AppearanceSettings.tsx",
+    "destination": "src/chat/components/AppearanceSettings.tsx",
+    "sourceSha256": "425c1011ce8ce306f79e315de999a0b8723b97455c389caf29b47a22f1343dd6",
+    "destinationSha256": "425c1011ce8ce306f79e315de999a0b8723b97455c389caf29b47a22f1343dd6",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/AuthPopupForm.tsx",
+    "destination": "src/chat/components/AuthPopupForm.tsx",
+    "sourceSha256": "188249eb1c8f04ddaafdfd38641842b1cc67f8672e679dcade5ec9bd6e28b0cb",
+    "destinationSha256": "188249eb1c8f04ddaafdfd38641842b1cc67f8672e679dcade5ec9bd6e28b0cb",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/AvatarEditor.tsx",
+    "destination": "src/chat/components/AvatarEditor.tsx",
+    "sourceSha256": "dfeaca9ef5bd92cf0f446eb451abc0a6a026b73265f3a158a45c0630ed1c9cd3",
+    "destinationSha256": "dfeaca9ef5bd92cf0f446eb451abc0a6a026b73265f3a158a45c0630ed1c9cd3",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/BotAvatar.tsx",
+    "destination": "src/chat/components/BotAvatar.tsx",
+    "sourceSha256": "de7447cb8fe4d8faa730b87dfa2f969d9cbfe0644ec52f1bfd8ae6a1deccdb24",
+    "destinationSha256": "de7447cb8fe4d8faa730b87dfa2f969d9cbfe0644ec52f1bfd8ae6a1deccdb24",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/BotDrag.tsx",
+    "destination": "src/chat/components/BotDrag.tsx",
+    "sourceSha256": "8ecc7d9a8220a837ae8bddf3b6ebb582c887d7a8f576767afb19894e1bfd88df",
+    "destinationSha256": "8ecc7d9a8220a837ae8bddf3b6ebb582c887d7a8f576767afb19894e1bfd88df",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/BotWorkspace.tsx",
+    "destination": "src/chat/components/BotWorkspace.tsx",
+    "sourceSha256": "9815d66e3dffbfca2bc2651056748e54100d142c0d2d8c69d408cdbc0537903d",
+    "destinationSha256": "9815d66e3dffbfca2bc2651056748e54100d142c0d2d8c69d408cdbc0537903d",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/CommandPalette.tsx",
+    "destination": "src/chat/components/CommandPalette.tsx",
+    "sourceSha256": "1a9845c518e8886bc9e495f824ba9cf9095299df1c00f5afdfef57fdf4f31eb1",
+    "destinationSha256": "1a9845c518e8886bc9e495f824ba9cf9095299df1c00f5afdfef57fdf4f31eb1",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ComposerAttachments.tsx",
+    "destination": "src/chat/components/ComposerAttachments.tsx",
+    "sourceSha256": "ee9e79fb79a7d47351869a24188c6d4180f223c1c1b9b30e1546d9a7be901fe4",
+    "destinationSha256": "ee9e79fb79a7d47351869a24188c6d4180f223c1c1b9b30e1546d9a7be901fe4",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ComposerReferences.tsx",
+    "destination": "src/chat/components/ComposerReferences.tsx",
+    "sourceSha256": "36d9cfee9fdcd521bbdaacb8691a52fb7eee65f88863bea48421f5df4c721e86",
+    "destinationSha256": "36d9cfee9fdcd521bbdaacb8691a52fb7eee65f88863bea48421f5df4c721e86",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ConnectionSettings.tsx",
+    "destination": "src/chat/components/ConnectionSettings.tsx",
+    "sourceSha256": "4fad561bf6d3b79989ad29bfa7db0a565b4a0a9ed079ef1c251c41b96452ac67",
+    "destinationSha256": "4fad561bf6d3b79989ad29bfa7db0a565b4a0a9ed079ef1c251c41b96452ac67",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ContextIndicator.tsx",
+    "destination": "src/chat/components/ContextIndicator.tsx",
+    "sourceSha256": "fc44b67cd37b3fe68a05439c9b8f97166d87afe259ca036137f0ae016e76b4e9",
+    "destinationSha256": "fc44b67cd37b3fe68a05439c9b8f97166d87afe259ca036137f0ae016e76b4e9",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ConversationActionEvidence.tsx",
+    "destination": "src/chat/components/ConversationActionEvidence.tsx",
+    "sourceSha256": "b16a828e286e479ceb8ce8cf12534698e040cf7712eecea87139b90dd47666cd",
+    "destinationSha256": "b16a828e286e479ceb8ce8cf12534698e040cf7712eecea87139b90dd47666cd",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ConversationDetails.tsx",
+    "destination": "src/chat/components/ConversationDetails.tsx",
+    "sourceSha256": "87524aa30cf6fd4f0e22cbb45ed53527b1c747c6793710fcb19876c1324939b4",
+    "destinationSha256": "87524aa30cf6fd4f0e22cbb45ed53527b1c747c6793710fcb19876c1324939b4",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ConversationDetailsCard.tsx",
+    "destination": "src/chat/components/ConversationDetailsCard.tsx",
+    "sourceSha256": "9901bb519193249289d8c017166bc17ac45aa39fcea785378deb52eee7c3e572",
+    "destinationSha256": "9901bb519193249289d8c017166bc17ac45aa39fcea785378deb52eee7c3e572",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ConversationMinimap.tsx",
+    "destination": "src/chat/components/ConversationMinimap.tsx",
+    "sourceSha256": "1f6d1251b260d972bc377fb8794845f160dc87648feb36b3a5946015af6522a3",
+    "destinationSha256": "1f6d1251b260d972bc377fb8794845f160dc87648feb36b3a5946015af6522a3",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ConversationNavigator.tsx",
+    "destination": "src/chat/components/ConversationNavigator.tsx",
+    "sourceSha256": "8589903228dc30addfd599ee9459ea483f9f35a625ef8adabd53d38be1e3e453",
+    "destinationSha256": "5f874909d178de56402bc5af5a06f991af0380c0a4fa3992513a9dfb45a1c9f0",
+    "unchanged": false,
+    "adaptation": "Workspace URL namespace moved from /w to /chat/w"
+  },
+  {
+    "source": "src/components/ConversationNavigatorScope.tsx",
+    "destination": "src/chat/components/ConversationNavigatorScope.tsx",
+    "sourceSha256": "e23553aac482af6bf1927b0414d4f2c7a672ad36169dcabe152d634088a5e782",
+    "destinationSha256": "e23553aac482af6bf1927b0414d4f2c7a672ad36169dcabe152d634088a5e782",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ConversationOrigin.tsx",
+    "destination": "src/chat/components/ConversationOrigin.tsx",
+    "sourceSha256": "162dae38c7cd06317245a2cc9e08d67a291adbf21ed224741d2b027777ffe781",
+    "destinationSha256": "162dae38c7cd06317245a2cc9e08d67a291adbf21ed224741d2b027777ffe781",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ConversationSession.tsx",
+    "destination": "src/chat/components/ConversationSession.tsx",
+    "sourceSha256": "b16fc1e3828b0b0f1b1c72ba8d749bec62ad2bc0b54aa8fa932048c2dbb35c43",
+    "destinationSha256": "b16fc1e3828b0b0f1b1c72ba8d749bec62ad2bc0b54aa8fa932048c2dbb35c43",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ConversationThreads.tsx",
+    "destination": "src/chat/components/ConversationThreads.tsx",
+    "sourceSha256": "670f332210d1793233dc04384189421f9200e2015fd39d3679097bc1a5984589",
+    "destinationSha256": "670f332210d1793233dc04384189421f9200e2015fd39d3679097bc1a5984589",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ConversationTurn.tsx",
+    "destination": "src/chat/components/ConversationTurn.tsx",
+    "sourceSha256": "b39243f42dfc7b48133c03455e434b8a02a8da5d76be7a473f5a9ce6335a8e76",
+    "destinationSha256": "b39243f42dfc7b48133c03455e434b8a02a8da5d76be7a473f5a9ce6335a8e76",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ConversationView.tsx",
+    "destination": "src/chat/components/ConversationView.tsx",
+    "sourceSha256": "520bde587d6ea88ab891380e284881ce630b270aac7c07263637053eaffe95c7",
+    "destinationSha256": "520bde587d6ea88ab891380e284881ce630b270aac7c07263637053eaffe95c7",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ConversationWorkspace.tsx",
+    "destination": "src/chat/components/ConversationWorkspace.tsx",
+    "sourceSha256": "b3c88d6e72e5f6f3a91e252be4b89947a0639b937d7ff35a99061921f47d53f4",
+    "destinationSha256": "b3c88d6e72e5f6f3a91e252be4b89947a0639b937d7ff35a99061921f47d53f4",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/CopyBotDialog.tsx",
+    "destination": "src/chat/components/CopyBotDialog.tsx",
+    "sourceSha256": "77a3799b8515248bc6f99ef7ee1469619ec442462762d96582af9dc52db32a35",
+    "destinationSha256": "77a3799b8515248bc6f99ef7ee1469619ec442462762d96582af9dc52db32a35",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/CopyButton.tsx",
+    "destination": "src/chat/components/CopyButton.tsx",
+    "sourceSha256": "12bea22c16ca435096a48db6832d879fcf38265a55b38849600fe5883d67e129",
+    "destinationSha256": "12bea22c16ca435096a48db6832d879fcf38265a55b38849600fe5883d67e129",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/DelegatedTaskHistory.tsx",
+    "destination": "src/chat/components/DelegatedTaskHistory.tsx",
+    "sourceSha256": "9c1a1e3df773826c9df09487b1a6f186b3b26035a25bba9367e8134a9d3e86bb",
+    "destinationSha256": "9c1a1e3df773826c9df09487b1a6f186b3b26035a25bba9367e8134a9d3e86bb",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/DelegatedTasks.tsx",
+    "destination": "src/chat/components/DelegatedTasks.tsx",
+    "sourceSha256": "1b9efe6b8ef599f1e3ddf048d5782217c19dca34a28260ef11be7e1d6c299c27",
+    "destinationSha256": "1b9efe6b8ef599f1e3ddf048d5782217c19dca34a28260ef11be7e1d6c299c27",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/DesktopBrowserPanel.tsx",
+    "destination": "src/chat/components/DesktopBrowserPanel.tsx",
+    "sourceSha256": "7d0f7e8e172b70a8e1563b82f8493479e65f8a950c8f1d4ff292b741734e6206",
+    "destinationSha256": "7d0f7e8e172b70a8e1563b82f8493479e65f8a950c8f1d4ff292b741734e6206",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/DesktopUpdateControls.tsx",
+    "destination": "src/chat/components/DesktopUpdateControls.tsx",
+    "sourceSha256": "662c43f00cfb5f4ea18c848f7969f0fcb0f4635f6200018ab563502e2de39cb4",
+    "destinationSha256": "662c43f00cfb5f4ea18c848f7969f0fcb0f4635f6200018ab563502e2de39cb4",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/DeviceSettings.tsx",
+    "destination": "src/chat/components/DeviceSettings.tsx",
+    "sourceSha256": "6b0ccd5a0b3bf6e63995eaef5975cf06f2108bfa40b7df8ec791450ef815ef6b",
+    "destinationSha256": "6b0ccd5a0b3bf6e63995eaef5975cf06f2108bfa40b7df8ec791450ef815ef6b",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/Dialog.tsx",
+    "destination": "src/chat/components/Dialog.tsx",
+    "sourceSha256": "81b12fedb739daefb59a3e84de88a6ffcb3e0e935dd96977fc6f9b506e1ffe8b",
+    "destinationSha256": "81b12fedb739daefb59a3e84de88a6ffcb3e0e935dd96977fc6f9b506e1ffe8b",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/DraftBot.tsx",
+    "destination": "src/chat/components/DraftBot.tsx",
+    "sourceSha256": "359c6afc64833d98ed51a7eef2bd3ebd9bc4218c3380cca2302c591ff37c3945",
+    "destinationSha256": "359c6afc64833d98ed51a7eef2bd3ebd9bc4218c3380cca2302c591ff37c3945",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/DraftSyncNotice.tsx",
+    "destination": "src/chat/components/DraftSyncNotice.tsx",
+    "sourceSha256": "4ba6f6e3c57c6025ad2a3f48995fc25c5bcc8d6f9b7fee83289065064b0d289a",
+    "destinationSha256": "4ba6f6e3c57c6025ad2a3f48995fc25c5bcc8d6f9b7fee83289065064b0d289a",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/EarlierMessages.tsx",
+    "destination": "src/chat/components/EarlierMessages.tsx",
+    "sourceSha256": "aca9c44ce6da184936ff433c56b56e566165348965538b23716ba8c7cdfa9099",
+    "destinationSha256": "aca9c44ce6da184936ff433c56b56e566165348965538b23716ba8c7cdfa9099",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ExecutionOwners.tsx",
+    "destination": "src/chat/components/ExecutionOwners.tsx",
+    "sourceSha256": "a7b78f718751066440ab00efad3d4a28c9aac50f4c13803f2ff3c893ad5e5ca2",
+    "destinationSha256": "a7b78f718751066440ab00efad3d4a28c9aac50f4c13803f2ff3c893ad5e5ca2",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ExecutionPreviewViewport.tsx",
+    "destination": "src/chat/components/ExecutionPreviewViewport.tsx",
+    "sourceSha256": "aa71332e3cb172f90e7991f87a0f52eef474c0be2d5e4858b45e1c699af9c3a9",
+    "destinationSha256": "aa71332e3cb172f90e7991f87a0f52eef474c0be2d5e4858b45e1c699af9c3a9",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ExecutionSessionEvidence.tsx",
+    "destination": "src/chat/components/ExecutionSessionEvidence.tsx",
+    "sourceSha256": "431369ebdebbf10c422a190ce713273e7a7a8cf55081e13f6454fab7df4aa651",
+    "destinationSha256": "431369ebdebbf10c422a190ce713273e7a7a8cf55081e13f6454fab7df4aa651",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ExecutionSessionHistory.tsx",
+    "destination": "src/chat/components/ExecutionSessionHistory.tsx",
+    "sourceSha256": "8dd87c1ca6c016915c5a965c476eaefb9e28fdb19921eeead8521973d2fcb7dd",
+    "destinationSha256": "8dd87c1ca6c016915c5a965c476eaefb9e28fdb19921eeead8521973d2fcb7dd",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ExecutionSessionPanel.tsx",
+    "destination": "src/chat/components/ExecutionSessionPanel.tsx",
+    "sourceSha256": "d1708c889bf72c49261245be26af1d6d905b364e6128f1e28c2108bb3778d14d",
+    "destinationSha256": "d1708c889bf72c49261245be26af1d6d905b364e6128f1e28c2108bb3778d14d",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/FavoriteShortcuts.tsx",
+    "destination": "src/chat/components/FavoriteShortcuts.tsx",
+    "sourceSha256": "44b0f1bacce1321f17e92027fdfde92be5b53d66d9c77a4f91b34b3c4bfc917f",
+    "destinationSha256": "44b0f1bacce1321f17e92027fdfde92be5b53d66d9c77a4f91b34b3c4bfc917f",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/HistoricalReceipts.tsx",
+    "destination": "src/chat/components/HistoricalReceipts.tsx",
+    "sourceSha256": "91dbe7ce61cdef87f97bf7714c080f9a5f24f290eb03389915d809f597f6979b",
+    "destinationSha256": "91dbe7ce61cdef87f97bf7714c080f9a5f24f290eb03389915d809f597f6979b",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/HomeAssetDetail.tsx",
+    "destination": "src/chat/components/HomeAssetDetail.tsx",
+    "sourceSha256": "cd2848f113bfd6bd74262ecd3ff3d5ecd349f726d47ec42a4d35f74d63c5301e",
+    "destinationSha256": "cd2848f113bfd6bd74262ecd3ff3d5ecd349f726d47ec42a4d35f74d63c5301e",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/HomeDashboard.tsx",
+    "destination": "src/chat/components/HomeDashboard.tsx",
+    "sourceSha256": "013b415a94edb1119209a621ad29837ae3327adc3a59ba7cf2119425a16e48f9",
+    "destinationSha256": "f1c81c3ea830e243898e76e1cc805c62c813b611fc0597abcf3b5d1c78e819ff",
+    "unchanged": false,
+    "adaptation": "Workspace URL namespace moved to /chat/w, search reads use exact parent workspace route"
+  },
+  {
+    "source": "src/components/IconButton.tsx",
+    "destination": "src/chat/components/IconButton.tsx",
+    "sourceSha256": "5adc2de5c47a5d1a60fd2b1d934949402b761a95150edb1727e60ac8ffc67d38",
+    "destinationSha256": "5adc2de5c47a5d1a60fd2b1d934949402b761a95150edb1727e60ac8ffc67d38",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/InstallApp.tsx",
+    "destination": "src/chat/components/InstallApp.tsx",
+    "sourceSha256": "ad94b1ff964998ea133f2097f1accd24da977724177d6a81bec20dc942237bc6",
+    "destinationSha256": "ad94b1ff964998ea133f2097f1accd24da977724177d6a81bec20dc942237bc6",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/KodyAccountSettings.tsx",
+    "destination": "src/chat/components/KodyAccountSettings.tsx",
+    "sourceSha256": "e1fa79f190db3a8fbbe92c49d1e25951be7ec5afaf4e5c2d08c99182201e1e8a",
+    "destinationSha256": "e1fa79f190db3a8fbbe92c49d1e25951be7ec5afaf4e5c2d08c99182201e1e8a",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/KodyAddServer.tsx",
+    "destination": "src/chat/components/KodyAddServer.tsx",
+    "sourceSha256": "6c7f11f9d1891efe38152285b43a85092ab345901a33262d8b0e58917d82f4e8",
+    "destinationSha256": "6c7f11f9d1891efe38152285b43a85092ab345901a33262d8b0e58917d82f4e8",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/KodyCommunity.tsx",
+    "destination": "src/chat/components/KodyCommunity.tsx",
+    "sourceSha256": "affee442a96abe85e696ec0d10fb06284666dab744e92846812cf294864fa764",
+    "destinationSha256": "affee442a96abe85e696ec0d10fb06284666dab744e92846812cf294864fa764",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/KodyJobControl.tsx",
+    "destination": "src/chat/components/KodyJobControl.tsx",
+    "sourceSha256": "eec83bab56a527ed0171e2c450092d7e023379df7c8c5259c739379236e67e53",
+    "destinationSha256": "eec83bab56a527ed0171e2c450092d7e023379df7c8c5259c739379236e67e53",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/KodyMail.tsx",
+    "destination": "src/chat/components/KodyMail.tsx",
+    "sourceSha256": "c0e54015b1a1b083f6582e64570b7843385ee8b3156c13dbc0406ca7dc8343f0",
+    "destinationSha256": "c0e54015b1a1b083f6582e64570b7843385ee8b3156c13dbc0406ca7dc8343f0",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/KodyMemoryCreateReview.tsx",
+    "destination": "src/chat/components/KodyMemoryCreateReview.tsx",
+    "sourceSha256": "ddcac2c092cd8f194f110282d4a8192e48a0936afce180d2d43a055a8c7ec207",
+    "destinationSha256": "ddcac2c092cd8f194f110282d4a8192e48a0936afce180d2d43a055a8c7ec207",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/KodyMemorySearch.tsx",
+    "destination": "src/chat/components/KodyMemorySearch.tsx",
+    "sourceSha256": "0b49a918f365b5dad3195e580023a99ecc2f09d018dcd9554ce6011d936e1fc7",
+    "destinationSha256": "0b49a918f365b5dad3195e580023a99ecc2f09d018dcd9554ce6011d936e1fc7",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/KodyResources.tsx",
+    "destination": "src/chat/components/KodyResources.tsx",
+    "sourceSha256": "ce0791a9c0d81ed8115b8b5ce601a263dd456203dee5995c6dc8cdb1823ff736",
+    "destinationSha256": "ab1dd942c071992e770a3e1a4a772f5eb50ba1de31a3e393891b8f5995d2c565",
+    "unchanged": false,
+    "adaptation": "Workspace URL namespace moved from /w to /chat/w"
+  },
+  {
+    "source": "src/components/KodyRunDetails.tsx",
+    "destination": "src/chat/components/KodyRunDetails.tsx",
+    "sourceSha256": "1d3203d103e77c7ac404b0255441872b86328a1408da1864d41e94552ff9ea25",
+    "destinationSha256": "1d3203d103e77c7ac404b0255441872b86328a1408da1864d41e94552ff9ea25",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/KodyRunHistory.tsx",
+    "destination": "src/chat/components/KodyRunHistory.tsx",
+    "sourceSha256": "52a50522bd193a77a70473adf84ccfff77fc301a9a1f6575c04cddb952a8c4f2",
+    "destinationSha256": "52a50522bd193a77a70473adf84ccfff77fc301a9a1f6575c04cddb952a8c4f2",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/KodySavedPackages.tsx",
+    "destination": "src/chat/components/KodySavedPackages.tsx",
+    "sourceSha256": "443c4d6c6bfbb2fb503dde284f891f1b01c5ddac21a246e3e7282eedc11ea97b",
+    "destinationSha256": "443c4d6c6bfbb2fb503dde284f891f1b01c5ddac21a246e3e7282eedc11ea97b",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/KodyUsage.tsx",
+    "destination": "src/chat/components/KodyUsage.tsx",
+    "sourceSha256": "7b184aefe8cc593c7d23d10eb7f03df5fe007799e30995e8e47e425c4b179c3a",
+    "destinationSha256": "7b184aefe8cc593c7d23d10eb7f03df5fe007799e30995e8e47e425c4b179c3a",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/McpContractInspector.tsx",
+    "destination": "src/chat/components/McpContractInspector.tsx",
+    "sourceSha256": "edfa0a78a0514ebfd44e2f5c8e2b35c2022fe57b421aa1f9806b90cede0c267a",
+    "destinationSha256": "edfa0a78a0514ebfd44e2f5c8e2b35c2022fe57b421aa1f9806b90cede0c267a",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/MemoryPanel.tsx",
+    "destination": "src/chat/components/MemoryPanel.tsx",
+    "sourceSha256": "b8ad5429eec8e3afddfeba4cc9ba27d6a779cb5506c2818705c0c20158e156d9",
+    "destinationSha256": "b8ad5429eec8e3afddfeba4cc9ba27d6a779cb5506c2818705c0c20158e156d9",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/MessageAttachments.tsx",
+    "destination": "src/chat/components/MessageAttachments.tsx",
+    "sourceSha256": "7e764630ddbd482a3822a36175e9e8677b8ec0d0a15b12883f32bd7755323e6a",
+    "destinationSha256": "7e764630ddbd482a3822a36175e9e8677b8ec0d0a15b12883f32bd7755323e6a",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/MessageMarkdown.tsx",
+    "destination": "src/chat/components/MessageMarkdown.tsx",
+    "sourceSha256": "2907adb5186d54a0e80478d04fe8f5a7838dbe8392177c2d2e100891ba7bba01",
+    "destinationSha256": "2907adb5186d54a0e80478d04fe8f5a7838dbe8392177c2d2e100891ba7bba01",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/MessageReferences.tsx",
+    "destination": "src/chat/components/MessageReferences.tsx",
+    "sourceSha256": "ac3535dd2aa79522c354a448cf3332eb061b29d56b8af3e656548486ff56a34a",
+    "destinationSha256": "ac3535dd2aa79522c354a448cf3332eb061b29d56b8af3e656548486ff56a34a",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/MobileRuntime.tsx",
+    "destination": "src/chat/components/MobileRuntime.tsx",
+    "sourceSha256": "952741b36c5a7d69c0b8965faefc446c07ff5c932b9714f045d27908b24e5384",
+    "destinationSha256": "0bea0c0af5fe722d56de3dfe802f7a8bdb4da536c7907752767407da21b0b44d",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/Onboarding.tsx",
+    "destination": "src/chat/components/Onboarding.tsx",
+    "sourceSha256": "d3e3025cc2c2c9fb0157ec4ec61ded28b5061214d2727e413706a67fbc560339",
+    "destinationSha256": "d3e3025cc2c2c9fb0157ec4ec61ded28b5061214d2727e413706a67fbc560339",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/PackageIdentity.tsx",
+    "destination": "src/chat/components/PackageIdentity.tsx",
+    "sourceSha256": "51ec648f0278516043420579e2c13d3c2dfcf3352653c9bfd03136db25c381e4",
+    "destinationSha256": "51ec648f0278516043420579e2c13d3c2dfcf3352653c9bfd03136db25c381e4",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/PendingMessage.tsx",
+    "destination": "src/chat/components/PendingMessage.tsx",
+    "sourceSha256": "5ab820dc2bcd247bbfb41ba95b4f0a8b8605812a2711d297a2aa74e79bb13a76",
+    "destinationSha256": "5ab820dc2bcd247bbfb41ba95b4f0a8b8605812a2711d297a2aa74e79bb13a76",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/PendingTaskCard.tsx",
+    "destination": "src/chat/components/PendingTaskCard.tsx",
+    "sourceSha256": "bed86befaab0d4afee5af6ac39fa739dd6bc3ffc7048ae5129d0f4b07f83c1c4",
+    "destinationSha256": "bed86befaab0d4afee5af6ac39fa739dd6bc3ffc7048ae5129d0f4b07f83c1c4",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/PersonalAssistant.tsx",
+    "destination": "src/chat/components/PersonalAssistant.tsx",
+    "sourceSha256": "cdc17e13fcebcf83a07250021a92bfe3cca176f69372400884f54057981119d2",
+    "destinationSha256": "cdc17e13fcebcf83a07250021a92bfe3cca176f69372400884f54057981119d2",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/PluginSettings.tsx",
+    "destination": "src/chat/components/PluginSettings.tsx",
+    "sourceSha256": "ced4deb7b3c8f0eabe4d9ea624d33732bfe01245f88e4bd03972f49e58518faa",
+    "destinationSha256": "ced4deb7b3c8f0eabe4d9ea624d33732bfe01245f88e4bd03972f49e58518faa",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/PortalContainer.tsx",
+    "destination": "src/chat/components/PortalContainer.tsx",
+    "sourceSha256": "fe2fc58df8a298bb0adc1324457ede9c6595eeb3539643786f956698d668eaa7",
+    "destinationSha256": "fe2fc58df8a298bb0adc1324457ede9c6595eeb3539643786f956698d668eaa7",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/QueuedMessages.tsx",
+    "destination": "src/chat/components/QueuedMessages.tsx",
+    "sourceSha256": "68c9b695abe26ec2f9b743ac94eca2fdeb1ae8e1313aac02e3659f843d995829",
+    "destinationSha256": "68c9b695abe26ec2f9b743ac94eca2fdeb1ae8e1313aac02e3659f843d995829",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ResizableSidebar.tsx",
+    "destination": "src/chat/components/ResizableSidebar.tsx",
+    "sourceSha256": "96c53aa73fd7863e775b485bdf4c3ceb34e21e4e6f07b4ee05c4f12b2365040a",
+    "destinationSha256": "96c53aa73fd7863e775b485bdf4c3ceb34e21e4e6f07b4ee05c4f12b2365040a",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ResponsePreferences.tsx",
+    "destination": "src/chat/components/ResponsePreferences.tsx",
+    "sourceSha256": "13d9d7c0ec157852fd5a7290c0101e91bd278bd8de12f0ebc1f95ce2826ea4de",
+    "destinationSha256": "13d9d7c0ec157852fd5a7290c0101e91bd278bd8de12f0ebc1f95ce2826ea4de",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/RetryBranch.tsx",
+    "destination": "src/chat/components/RetryBranch.tsx",
+    "sourceSha256": "6cc8f2d8852970bd176bd1f237889016b51db256a0a040e1489aec6663c842f4",
+    "destinationSha256": "6cc8f2d8852970bd176bd1f237889016b51db256a0a040e1489aec6663c842f4",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/RetryComposer.tsx",
+    "destination": "src/chat/components/RetryComposer.tsx",
+    "sourceSha256": "27285bcf38e4ec35292e21b5c8b4706e7b9b88c31e5d0d56b087625ee1d3d067",
+    "destinationSha256": "27285bcf38e4ec35292e21b5c8b4706e7b9b88c31e5d0d56b087625ee1d3d067",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/RetryDraftRecovery.tsx",
+    "destination": "src/chat/components/RetryDraftRecovery.tsx",
+    "sourceSha256": "909f1739684ea26deadd257efeb5e4c78f371915878adf05b690c202d8e3b9ec",
+    "destinationSha256": "909f1739684ea26deadd257efeb5e4c78f371915878adf05b690c202d8e3b9ec",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/RetryPreparation.tsx",
+    "destination": "src/chat/components/RetryPreparation.tsx",
+    "sourceSha256": "f86d5f545b1b69de744549be740cd05873765c405b0e14da773ef74857469e06",
+    "destinationSha256": "f86d5f545b1b69de744549be740cd05873765c405b0e14da773ef74857469e06",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/RetryReturn.tsx",
+    "destination": "src/chat/components/RetryReturn.tsx",
+    "sourceSha256": "bd928c23e3c3039ddbedc3bc44707439caffd593f13670f993865512b276f0f6",
+    "destinationSha256": "bd928c23e3c3039ddbedc3bc44707439caffd593f13670f993865512b276f0f6",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/RunModelPicker.tsx",
+    "destination": "src/chat/components/RunModelPicker.tsx",
+    "sourceSha256": "712534c0c62a5a01dffa852ea3eeaa001d07915d192c107c201f45ab1a5681dd",
+    "destinationSha256": "712534c0c62a5a01dffa852ea3eeaa001d07915d192c107c201f45ab1a5681dd",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/SavedFileDeliveries.tsx",
+    "destination": "src/chat/components/SavedFileDeliveries.tsx",
+    "sourceSha256": "f3831ca281c2ec66c80dd48d28eab6bbbadc3f78bf3e9fe476a7ce10cddf3e35",
+    "destinationSha256": "f3831ca281c2ec66c80dd48d28eab6bbbadc3f78bf3e9fe476a7ce10cddf3e35",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/SavedFileText.tsx",
+    "destination": "src/chat/components/SavedFileText.tsx",
+    "sourceSha256": "147d0d5af4470b4de043299baff9861c195ca4fee5e59f363be1bc59b95990ce",
+    "destinationSha256": "147d0d5af4470b4de043299baff9861c195ca4fee5e59f363be1bc59b95990ce",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/SavedFiles.tsx",
+    "destination": "src/chat/components/SavedFiles.tsx",
+    "sourceSha256": "1c65e42d1219d53115ee32a8adb0e571f44cffd540c2ab5a8a98526c8c353be9",
+    "destinationSha256": "1c65e42d1219d53115ee32a8adb0e571f44cffd540c2ab5a8a98526c8c353be9",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ScheduleReview.tsx",
+    "destination": "src/chat/components/ScheduleReview.tsx",
+    "sourceSha256": "bfa06a09d85acfa2de8dfb3de2344f29a90584be1688fa916f989cf40495ab8c",
+    "destinationSha256": "bfa06a09d85acfa2de8dfb3de2344f29a90584be1688fa916f989cf40495ab8c",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/Schedules.tsx",
+    "destination": "src/chat/components/Schedules.tsx",
+    "sourceSha256": "ee3e668c42a333c34681cefd77e0bc0e055e6a5d3dfa9450999aff84881e96d2",
+    "destinationSha256": "ee3e668c42a333c34681cefd77e0bc0e055e6a5d3dfa9450999aff84881e96d2",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/SelectField.tsx",
+    "destination": "src/chat/components/SelectField.tsx",
+    "sourceSha256": "d224a21e0f8efc2963371c31ff4a4686b2c9a9bf7d2e641e6063a97c97cca4eb",
+    "destinationSha256": "d224a21e0f8efc2963371c31ff4a4686b2c9a9bf7d2e641e6063a97c97cca4eb",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/SettingsFocusSection.tsx",
+    "destination": "src/chat/components/SettingsFocusSection.tsx",
+    "sourceSha256": "09cf397fa0720705424d6ebd5d2f5f654e1792897c087f8af40ca6e97686e1e5",
+    "destinationSha256": "09cf397fa0720705424d6ebd5d2f5f654e1792897c087f8af40ca6e97686e1e5",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/SketchPad.tsx",
+    "destination": "src/chat/components/SketchPad.tsx",
+    "sourceSha256": "b76385e821f10e766c8e0edc72e174e5cd90a0e794d390da0890ac0f8fa1c52f",
+    "destinationSha256": "b76385e821f10e766c8e0edc72e174e5cd90a0e794d390da0890ac0f8fa1c52f",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/SkillPreview.tsx",
+    "destination": "src/chat/components/SkillPreview.tsx",
+    "sourceSha256": "9379de4d5d0c1286adc226e84caae7d7e03aa148a4d93ef1821eea247a5c9d26",
+    "destinationSha256": "9379de4d5d0c1286adc226e84caae7d7e03aa148a4d93ef1821eea247a5c9d26",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/SkillSettings.tsx",
+    "destination": "src/chat/components/SkillSettings.tsx",
+    "sourceSha256": "12e62129c01836e94613b730337bc382a3e40449fd9be84f86516681a3e00fc5",
+    "destinationSha256": "12e62129c01836e94613b730337bc382a3e40449fd9be84f86516681a3e00fc5",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/TaskSources.tsx",
+    "destination": "src/chat/components/TaskSources.tsx",
+    "sourceSha256": "96c1dea3bd2f6415bc075e4900967ec6da69fc6a07f9252f3925f4e09c6a7609",
+    "destinationSha256": "96c1dea3bd2f6415bc075e4900967ec6da69fc6a07f9252f3925f4e09c6a7609",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/TaskUsageDetails.tsx",
+    "destination": "src/chat/components/TaskUsageDetails.tsx",
+    "sourceSha256": "1bef7f8eebc55fcc8aa3b5926298037fd1c5eaf361a88db1cc8b623920527fa0",
+    "destinationSha256": "1bef7f8eebc55fcc8aa3b5926298037fd1c5eaf361a88db1cc8b623920527fa0",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ThreadLifecycle.tsx",
+    "destination": "src/chat/components/ThreadLifecycle.tsx",
+    "sourceSha256": "0250e77f7d8fd38b8815b09a032bb166c3977f045bd2f02542fd3c5e0157cde3",
+    "destinationSha256": "0250e77f7d8fd38b8815b09a032bb166c3977f045bd2f02542fd3c5e0157cde3",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ThreadTitle.tsx",
+    "destination": "src/chat/components/ThreadTitle.tsx",
+    "sourceSha256": "cfe2ea6cd0ac6184acec6b4f85c22eaa5a957271afbf4550a6b93cb7981b700e",
+    "destinationSha256": "cfe2ea6cd0ac6184acec6b4f85c22eaa5a957271afbf4550a6b93cb7981b700e",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ToolCallDetails.tsx",
+    "destination": "src/chat/components/ToolCallDetails.tsx",
+    "sourceSha256": "c8b10c26046978f4ba3fc8218d19628521461526f8a02046a666cd434d869b19",
+    "destinationSha256": "c8b10c26046978f4ba3fc8218d19628521461526f8a02046a666cd434d869b19",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/UsageDetails.tsx",
+    "destination": "src/chat/components/UsageDetails.tsx",
+    "sourceSha256": "5485f7391eda40712d6adc7bac42c9e35954f56f23503b0fbfc8600e57b32a91",
+    "destinationSha256": "5485f7391eda40712d6adc7bac42c9e35954f56f23503b0fbfc8600e57b32a91",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/VirtualMessages.tsx",
+    "destination": "src/chat/components/VirtualMessages.tsx",
+    "sourceSha256": "7230dfecc7eeb22756d52c5d5fca4326f2c3bba03b1696b6c5276f01c607ed00",
+    "destinationSha256": "7230dfecc7eeb22756d52c5d5fca4326f2c3bba03b1696b6c5276f01c607ed00",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/WorkflowHistory.tsx",
+    "destination": "src/chat/components/WorkflowHistory.tsx",
+    "sourceSha256": "b4c27754099e52197aeefeb42d53d6e3344d693565889d55e845c0285961a0f0",
+    "destinationSha256": "b4c27754099e52197aeefeb42d53d6e3344d693565889d55e845c0285961a0f0",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/WorkflowStart.tsx",
+    "destination": "src/chat/components/WorkflowStart.tsx",
+    "sourceSha256": "8c855859058650ff943561dd0c6a9d8bca2cddeea08ef5ad36a92002840a0197",
+    "destinationSha256": "8c855859058650ff943561dd0c6a9d8bca2cddeea08ef5ad36a92002840a0197",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/WorkspaceApi.tsx",
+    "destination": "src/chat/components/WorkspaceApi.tsx",
+    "sourceSha256": "1b10cb0c19cf31ba60faeac02e50fb1f24c5e489cb7bd219856b0f4f3d2030bd",
+    "destinationSha256": "c7c363e19a196cafbfefbfd168dcbb5a203b78e3d3fd240294d4cb17af9b5f9b",
+    "unchanged": false,
+    "adaptation": "Canonical /api/chat endpoints with workspaceId query scope, same URL construction for fetch and streams"
+  },
+  {
+    "source": "src/components/WorkspaceCommands.tsx",
+    "destination": "src/chat/components/WorkspaceCommands.tsx",
+    "sourceSha256": "0d83daf68c258911d1e02aef11fecd4d15204c3219e95fe7678cb440e11cd9f8",
+    "destinationSha256": "0d83daf68c258911d1e02aef11fecd4d15204c3219e95fe7678cb440e11cd9f8",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/WorkspaceReview.tsx",
+    "destination": "src/chat/components/WorkspaceReview.tsx",
+    "sourceSha256": "dd4ad32cecf20ad63414b18d3f8432b3bb0df80c247de363469e7ddb4ef252d0",
+    "destinationSha256": "dd4ad32cecf20ad63414b18d3f8432b3bb0df80c247de363469e7ddb4ef252d0",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/account-preferences-client.ts",
+    "destination": "src/chat/components/account-preferences-client.ts",
+    "sourceSha256": "d54b4570e78b4ed49554c4010e92011d7b23edafca6fd976a11c404f5488335c",
+    "destinationSha256": "d54b4570e78b4ed49554c4010e92011d7b23edafca6fd976a11c404f5488335c",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/account-timezone.css",
+    "destination": "src/chat/components/account-timezone.css",
+    "sourceSha256": "0dec6b12d777103e691a845eaf461482dd820e17fd6a80843f9d1289973241ff",
+    "destinationSha256": "fef97d168d414fcac00d7e2275ec499b6855c9c9b500a5fb06d54467f2b9c049",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/app-updates.css",
+    "destination": "src/chat/components/app-updates.css",
+    "sourceSha256": "7ddc118dfd48e3a14b2181c0009d5228f17bca7742945775eed9e03d77058aba",
+    "destinationSha256": "e111e77d521a77584a62953d96d03d591684b9eb07ffd7bfa15ede04203cac36",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/appearance-account.ts",
+    "destination": "src/chat/components/appearance-account.ts",
+    "sourceSha256": "bf15e857caab7716244df7d8b72d722b2bc1c75585a104213a789d314b6ea139",
+    "destinationSha256": "bf15e857caab7716244df7d8b72d722b2bc1c75585a104213a789d314b6ea139",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/appearance-settings.css",
+    "destination": "src/chat/components/appearance-settings.css",
+    "sourceSha256": "22663127c6593b08d0dfda6eb35dc83d593dc45a2e3aad321d1973fa58e2b76e",
+    "destinationSha256": "0f1fb01248b0aee65813349f340bee156e1987470e53e9460caef6ac81c119f2",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/assistant-chat.css",
+    "destination": "src/chat/components/assistant-chat.css",
+    "sourceSha256": "38430bf2b77e0d3acc0bda18e84e06ed2eef41041b1faef6167e48d6a7f4afa4",
+    "destinationSha256": "4524581d18006dc9147208e4399b313ab98906fc07b4f35cb1e280098596bff0",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/bootstrap-onboarding.ts",
+    "destination": "src/chat/components/bootstrap-onboarding.ts",
+    "sourceSha256": "d424c5d3c6e7500c04badb10997c5934b9e8026dc1824739b1358883b273a0fb",
+    "destinationSha256": "d424c5d3c6e7500c04badb10997c5934b9e8026dc1824739b1358883b273a0fb",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/bot-sidebar.ts",
+    "destination": "src/chat/components/bot-sidebar.ts",
+    "sourceSha256": "9fe6b00a3b0e157a2181527a1937209913d06ea8c77a0f9468ee82726f72d41f",
+    "destinationSha256": "9fe6b00a3b0e157a2181527a1937209913d06ea8c77a0f9468ee82726f72d41f",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/bot-workspace.css",
+    "destination": "src/chat/components/bot-workspace.css",
+    "sourceSha256": "e565a72efd3c36ffe1a6d9be8229fdcee6db45e5d208a152e1386a4bdafc658b",
+    "destinationSha256": "0ffc12bcfe5ee87bde19f9fbb7b4939e6dda3f324f99b2b940c537c5c3498f09",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/command-palette.css",
+    "destination": "src/chat/components/command-palette.css",
+    "sourceSha256": "256ad08e8013314b2f3bb9a3fa5030420ba4375a34e207f4f7e5e3d2ce2de54c",
+    "destinationSha256": "8d3e96500af7e815b07093909facc09b6fa4c1e153d54381554c222336e0c819",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/composer-attachments.css",
+    "destination": "src/chat/components/composer-attachments.css",
+    "sourceSha256": "81db01b0470d8080653aa01aae6dd131af8867e1244ec252d68dffae009eb3cb",
+    "destinationSha256": "4551eeeb1162c3cccccff3b2c74c8c1b85b6f4f9390c2a3307a98b55d54c6629",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/composer-focus.ts",
+    "destination": "src/chat/components/composer-focus.ts",
+    "sourceSha256": "1655ba4dbcf598ed0a1f159032109720de6c2c5f8a4d2631d2a187271f19c234",
+    "destinationSha256": "1655ba4dbcf598ed0a1f159032109720de6c2c5f8a4d2631d2a187271f19c234",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/connection-errors.ts",
+    "destination": "src/chat/components/connection-errors.ts",
+    "sourceSha256": "8e7790786553ef39836b7e7185aa9ea53ff585567e86bdd050a005d4bb30e929",
+    "destinationSha256": "8e7790786553ef39836b7e7185aa9ea53ff585567e86bdd050a005d4bb30e929",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/connection-settings.css",
+    "destination": "src/chat/components/connection-settings.css",
+    "sourceSha256": "8b646b3ec89efb41119591e6aa6f91f02becc7b797abd79689107ba1d01512d4",
+    "destinationSha256": "5c30f10cf67472b26f6eabcf918ea78f7810e82617464882bf42cbe440b7e2d1",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/context-indicator.css",
+    "destination": "src/chat/components/context-indicator.css",
+    "sourceSha256": "7c26b5d25b12732ec20e4d35c91d70641c34d4a4b1eae1aba98924d24b7e4a00",
+    "destinationSha256": "0fd73cad1d74bdc852a15bbc8086d6dae19a256ec0e3d5cde52b392fa28a11a8",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/context-summary.ts",
+    "destination": "src/chat/components/context-summary.ts",
+    "sourceSha256": "0b7a0b08afa935d5a8651937b169ef666a712e194c3ff66e8b731e372eb7bd94",
+    "destinationSha256": "0b7a0b08afa935d5a8651937b169ef666a712e194c3ff66e8b731e372eb7bd94",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/conversation-card.css",
+    "destination": "src/chat/components/conversation-card.css",
+    "sourceSha256": "15ef97c2b201cb57567e4c7cca966c5a35643afe649e0ea682bcd05c6b7aa82e",
+    "destinationSha256": "415e94dbd88e69fc1f96f897a4a2e32e3e85d5fa891c62faa3f9e1197748a256",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/conversation-details-card.css",
+    "destination": "src/chat/components/conversation-details-card.css",
+    "sourceSha256": "0c0f60d19520960a156936fa0db087f0c03d45a720776b9489a46b1159919247",
+    "destinationSha256": "435e60a441f5e6ec3b3a86605f3eaa7994299bc57e9237aac51e6d37363b58fd",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/conversation-details.css",
+    "destination": "src/chat/components/conversation-details.css",
+    "sourceSha256": "2fcbbce24d3c70eb4d14888803bb90e91fe6eedb9d61fbaec802212a09603529",
+    "destinationSha256": "79eec76989c25e7c42fcf4b9c30c2f26e6957298f274d8f8abcd0eb8771fa974",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/conversation-navigator.css",
+    "destination": "src/chat/components/conversation-navigator.css",
+    "sourceSha256": "78e41e2e264ebdbe1995c510c0481fd26ed60e59a44afba6b731ee760c5cb633",
+    "destinationSha256": "4cb86507210a12964b348e60c919fb0d1a35feab3930c8a3537344cb45a59cc4",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/conversation-origin.css",
+    "destination": "src/chat/components/conversation-origin.css",
+    "sourceSha256": "2b1c7015057e0260476c2dd8a7458e567ccda209550aac9788b1ad3bd21e1dd5",
+    "destinationSha256": "a6b7709b0c5e6e5e0d6098822e309f3a02e84aca7db0f6df8884b21099da4e66",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/conversation-threads.css",
+    "destination": "src/chat/components/conversation-threads.css",
+    "sourceSha256": "7d21d1fc1add337e14a1ab984281b6042f64fc92b294b5db8f0431581ea8a35c",
+    "destinationSha256": "74c24648ab38a6ce0b3cef98ff359610257441536dac45e45a9baa5562f10df6",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/conversation-workspace.css",
+    "destination": "src/chat/components/conversation-workspace.css",
+    "sourceSha256": "f5aa252ca9fce40f544326de9a7b02113a77ec8a5a9509157e5a92da3459beb1",
+    "destinationSha256": "80f3a1325bbf80b8fbf1c34fe37a81395ca88c11e974d59a3782990f14af410e",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/conversationRouteQuery.ts",
+    "destination": "src/chat/components/conversationRouteQuery.ts",
+    "sourceSha256": "8f81dd890a349efb8e9e11e9839d761e8d196e7bf9e19d8c04be34198f5087a4",
+    "destinationSha256": "8f81dd890a349efb8e9e11e9839d761e8d196e7bf9e19d8c04be34198f5087a4",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/copy-bot-dialog.css",
+    "destination": "src/chat/components/copy-bot-dialog.css",
+    "sourceSha256": "ad714867b03c5cffdf973c258cff1f9420c91e08031f9b78016e5793901f9bc1",
+    "destinationSha256": "8ff2b6978aed7ebe39c52d4eb2ba7eaf22173d6a30e853f63ef851c64bd025ff",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/copy-source.ts",
+    "destination": "src/chat/components/copy-source.ts",
+    "sourceSha256": "3da7bba380c679458251c8612c468d4a7e01ec637fb055d9d4af8307a9cabac0",
+    "destinationSha256": "3da7bba380c679458251c8612c468d4a7e01ec637fb055d9d4af8307a9cabac0",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/deferredPanel.tsx",
+    "destination": "src/chat/components/deferredPanel.tsx",
+    "sourceSha256": "65bc8816c8c6b56158e6f4f887c172356ea1bf0f2ebfe76ba33b81b10dbaad9d",
+    "destinationSha256": "65bc8816c8c6b56158e6f4f887c172356ea1bf0f2ebfe76ba33b81b10dbaad9d",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/delegated-tasks.css",
+    "destination": "src/chat/components/delegated-tasks.css",
+    "sourceSha256": "f917bae5efd83249b6ac6365d56902ab11a5f79c94cfbe37c3541cc9a2b33884",
+    "destinationSha256": "326cbe731b905541f0ca1eeaf576d228e814d3c3f3d074a3b0d9130396560a38",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/desktop-browser-panel.css",
+    "destination": "src/chat/components/desktop-browser-panel.css",
+    "sourceSha256": "1a5a16cc1b50f7834b2c263cc90b229556b8dd146643c991966bc3b5e09117cf",
+    "destinationSha256": "ee084ea1feb558487329805eff9980703c7e4fde6f9fb587c7aa1278ecf84c2f",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/draft-bot.css",
+    "destination": "src/chat/components/draft-bot.css",
+    "sourceSha256": "8df56f7c9b84144b64c9494db4b0aa9be2cb2def9d87f9c98da590000f7c8a82",
+    "destinationSha256": "332af09e9fde77041e9ae09949b9248953d9825a5d1a35ad57bbbc4483c84e1a",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/execution-context.ts",
+    "destination": "src/chat/components/execution-context.ts",
+    "sourceSha256": "a9fa93c3d2eb5ba9ce51d6f8e684832e3950eb6982439f3b5026ea5f292018b9",
+    "destinationSha256": "a9fa93c3d2eb5ba9ce51d6f8e684832e3950eb6982439f3b5026ea5f292018b9",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/execution-preview-viewport.css",
+    "destination": "src/chat/components/execution-preview-viewport.css",
+    "sourceSha256": "496bb296428876e109fd971579c021d25b3095186167081d9f9b45770b56b74c",
+    "destinationSha256": "25950e69c1ed780f5e767d59596d0573e44266dd5166ab2a37e5b582a20c9955",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/execution-session-panel.css",
+    "destination": "src/chat/components/execution-session-panel.css",
+    "sourceSha256": "8e26eeaffa34821ba664581461e2334f30ff3c8520b561194bf4449f4fab47fe",
+    "destinationSha256": "2ff46801ad54356ec0e54db2beedd7bdfaabd4bd9949487443613fdb196927f6",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/generated-file-cache.ts",
+    "destination": "src/chat/components/generated-file-cache.ts",
+    "sourceSha256": "95de5647e842feb0090f5f5cccc7e5bba4569dace23ae84fde50f410b7a3faf4",
+    "destinationSha256": "95de5647e842feb0090f5f5cccc7e5bba4569dace23ae84fde50f410b7a3faf4",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/home-dashboard.css",
+    "destination": "src/chat/components/home-dashboard.css",
+    "sourceSha256": "0ae81f0d612c2e01145106e174bc4d6a1c88629c125f4d14c35dd663c6a985fa",
+    "destinationSha256": "3d47aa90749d8290dd1a1211bf26b17899947bd11516095155bbc1edc2f5e23e",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/home-resources.ts",
+    "destination": "src/chat/components/home-resources.ts",
+    "sourceSha256": "1e6eafff8d75e46ffaaf4e4a28c8d28d0f83554df04f5e05c415bfa861e451bf",
+    "destinationSha256": "1e6eafff8d75e46ffaaf4e4a28c8d28d0f83554df04f5e05c415bfa861e451bf",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/icon-button.css",
+    "destination": "src/chat/components/icon-button.css",
+    "sourceSha256": "837d7394a7b8767490b9cbe3d895d494885a7e52b0e02c265bd0e2b2a067a237",
+    "destinationSha256": "160129d2cdbf224475556a77c025bd118a06f5a34743d9dfefaa9ed13896b52c",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/kody-mail.css",
+    "destination": "src/chat/components/kody-mail.css",
+    "sourceSha256": "24830cbf273c56ffa72b055fa1d9c733fa9b40d7b44954a3e3b826af576037e2",
+    "destinationSha256": "9696ae7c8202610212683388e84ae7d8efbad1b094b0efe854cfe05c18b032f8",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/kody-memory-create-review.css",
+    "destination": "src/chat/components/kody-memory-create-review.css",
+    "sourceSha256": "f033805e7e993580689213267df261e10af14164083d2885cd36e641d66dae7e",
+    "destinationSha256": "2caa638c0aed3603518eb76d33b889f462c7f83fd370db2276707e226426bb38",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/marketing-welcome.css",
+    "destination": "src/chat/components/marketing-welcome.css",
+    "sourceSha256": "71214c3ed7bdfd34da7df2cb917a20e8ad3778e0ef53c4c1054388a3978d1e3e",
+    "destinationSha256": "0812362f17588a18ba642fbbb1d9ff503d5aa637fdbb9fecd1941b5e666e91e6",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/memory-command-store.ts",
+    "destination": "src/chat/components/memory-command-store.ts",
+    "sourceSha256": "ad67e3fb864b4c45dd69748c9ded0f9e22ef72e74e00dcc399dbb83f5f5f1231",
+    "destinationSha256": "ad67e3fb864b4c45dd69748c9ded0f9e22ef72e74e00dcc399dbb83f5f5f1231",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/memory.css",
+    "destination": "src/chat/components/memory.css",
+    "sourceSha256": "decf9e38d1b58bd6c7948de252906229c07ba7f707eb2711b8791af3d708bf90",
+    "destinationSha256": "f8cf0452586a47a28d571b2b614761356c77abffc1845b438794f73642cb5294",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/message-focus.ts",
+    "destination": "src/chat/components/message-focus.ts",
+    "sourceSha256": "3af27ab78510b22a32070f0da72f61c04c14bd78b6ae6b8a9d03f8635d5eabf9",
+    "destinationSha256": "3af27ab78510b22a32070f0da72f61c04c14bd78b6ae6b8a9d03f8635d5eabf9",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/message-interactions.css",
+    "destination": "src/chat/components/message-interactions.css",
+    "sourceSha256": "08de98177610581bdd25f01451e3bdcc17e8f86d4c3b51bef6f2b6b8d0ec43a8",
+    "destinationSha256": "17c933b0027aae153bdd573c94deb67a3dcda2f6ee6f102323316e18d92a12ac",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/message-references.css",
+    "destination": "src/chat/components/message-references.css",
+    "sourceSha256": "da2f9b8d35dcad9dff113f67e115334f9c3ac9b4e14ff73e2fd9c7f935a7da1a",
+    "destinationSha256": "d975ed73bc72adce0aea95b22791eefad7de6f45e762af7815e112c9cf93cc6b",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/mobile-back.ts",
+    "destination": "src/chat/components/mobile-back.ts",
+    "sourceSha256": "08fdb2d628cbe1b1fd466491c296d27b75f50d2a3aa5ffc97746e38dfabffa77",
+    "destinationSha256": "08fdb2d628cbe1b1fd466491c296d27b75f50d2a3aa5ffc97746e38dfabffa77",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/mobile-viewport.ts",
+    "destination": "src/chat/components/mobile-viewport.ts",
+    "sourceSha256": "f772dba936832c8c280eeb9c40084d8ee6a7655e47dea530a7e444776d477a64",
+    "destinationSha256": "f772dba936832c8c280eeb9c40084d8ee6a7655e47dea530a7e444776d477a64",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/model-palette.ts",
+    "destination": "src/chat/components/model-palette.ts",
+    "sourceSha256": "90bfdb91d85c6210c4b7c55febde2769e6ece4528a7e35b04802249c34309d99",
+    "destinationSha256": "90bfdb91d85c6210c4b7c55febde2769e6ece4528a7e35b04802249c34309d99",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/onboarding.css",
+    "destination": "src/chat/components/onboarding.css",
+    "sourceSha256": "83e51284ca4f8b858c9e43715e9ba56c2bc12fdeee13f8ee1e470ea3956a3630",
+    "destinationSha256": "59e8ef190e39d4a93e07e8c4b7992280574814e88f57d78a91e84d0849738861",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/package-browser.css",
+    "destination": "src/chat/components/package-browser.css",
+    "sourceSha256": "25c85bdf500e518faa28318ba1e08da3f57ff0e00d75caf4da771d8cc8bc67e8",
+    "destinationSha256": "de7994d6db28e2567d2ecc4664b89eb299df68628b80948e116ea513975e3699",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/palette-context.ts",
+    "destination": "src/chat/components/palette-context.ts",
+    "sourceSha256": "ee439b828b3ef07c82fe8b79ef4abe8e10c3eba2854776197847b82ed7d64504",
+    "destinationSha256": "ee439b828b3ef07c82fe8b79ef4abe8e10c3eba2854776197847b82ed7d64504",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/palette-types.ts",
+    "destination": "src/chat/components/palette-types.ts",
+    "sourceSha256": "05caeee392e573b61714c7cba6d6622cef8f091952041de41d5a7c4d998309e7",
+    "destinationSha256": "05caeee392e573b61714c7cba6d6622cef8f091952041de41d5a7c4d998309e7",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/personal-assistant.css",
+    "destination": "src/chat/components/personal-assistant.css",
+    "sourceSha256": "c6b759db8c39a41730a1cc61543a200c65fd8094c36a8c294f8ebb4cdd6f4c13",
+    "destinationSha256": "daa651301260ad17e5343dabf73e8e3a021f3fb277a4b96d597d9a2ee1e4bf9b",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/plugin-settings.css",
+    "destination": "src/chat/components/plugin-settings.css",
+    "sourceSha256": "1a17fdf4e260044f682ed95ca3db50c2404f2c19264a2c5860300fac02cd84f4",
+    "destinationSha256": "3b08478ba5e0737516d0ba1ce7cf16697a086a86d3082154785eb644771c1c35",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/queued-messages.css",
+    "destination": "src/chat/components/queued-messages.css",
+    "sourceSha256": "3f5fc19b36e0e9ab7325e98ecae68939ed29602ba027e2f610cc0bd8434c0770",
+    "destinationSha256": "1b5bfdc5a9a56af7cc5a5632e8174f392edef5f2867698006b61709b5eca8d35",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/response-preferences.css",
+    "destination": "src/chat/components/response-preferences.css",
+    "sourceSha256": "da4e0f66f1746bfab6d908f346f1f04a514b32285aff45636f025f864f7d3469",
+    "destinationSha256": "a1107a2cc5235151393e3570a038b6354f5fdedeeb1822c17a4eb6655443aea4",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/retry-composer.css",
+    "destination": "src/chat/components/retry-composer.css",
+    "sourceSha256": "8aa4446d645ef5f6b5d75b4eb6af99de44c7cd1c0e21fffeba500403408051c1",
+    "destinationSha256": "17a487bd306a28a592ffc74e75b4bf39f507a3042c2dc270d6cf399f648735c3",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/retry.css",
+    "destination": "src/chat/components/retry.css",
+    "sourceSha256": "8b15008f6caa7bf7da4cc031b8c48563182222a045c8124c0d78bdef16abd391",
+    "destinationSha256": "71ed548c1fca6f217dd637ecd7cda1b804095d9c87a675a1a80710028eba972e",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/run-model-picker.css",
+    "destination": "src/chat/components/run-model-picker.css",
+    "sourceSha256": "07908f13d7a1a3f3b2e69cd717f8e29d92cc952a333fc28a872e462bb7b7b36d",
+    "destinationSha256": "62b831fd5233b6d47413b4c8929054152d39bc9cba906213bba13a743787f1ed",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/saved-file-deliveries.css",
+    "destination": "src/chat/components/saved-file-deliveries.css",
+    "sourceSha256": "9dbf37420371fa1fc482dccae19686492c1c74c4a4980e2346c0cd568944a4ab",
+    "destinationSha256": "2b1f1da170f4f6b965367f3e0a3756f76f4ae8e27480bb08d3f94c751dfb41f4",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/saved-files.css",
+    "destination": "src/chat/components/saved-files.css",
+    "sourceSha256": "485fe00c803e049e6c93a57b5e5b8d5372ab8fbdce4970d28dec042011da324c",
+    "destinationSha256": "487dcf7c8c27a8bcc3d8121b8471616cb2fd4265a45f246fc529f85a0a3bddb2",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/schedule-review.css",
+    "destination": "src/chat/components/schedule-review.css",
+    "sourceSha256": "1954635213e655a44d348d302a4ea83f310403283d0c56c260a1cbea286dcfa6",
+    "destinationSha256": "41a1226677591c39ede79982465ba47d5cc180267e7c21aa789c74b40ea53d3a",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/scheduled-origin.css",
+    "destination": "src/chat/components/scheduled-origin.css",
+    "sourceSha256": "be68b8f08382063a708efcf392a920937e1f56dcdc00efe3b35b11ca527c0dae",
+    "destinationSha256": "e21a32916a2ef61f4daf5a3fc2a5fd363fc9381cade4e1a5ae9607e95f3bc74d",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/schedules.css",
+    "destination": "src/chat/components/schedules.css",
+    "sourceSha256": "1f05cac2b592d12963884a21c461a2e6ca080ed7e9a8498d6f1b52b2504675c3",
+    "destinationSha256": "9139bcf9fd68e38ef690167a1caf8236472c12de9254a2e739d115e1623bf9f5",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/section-display.ts",
+    "destination": "src/chat/components/section-display.ts",
+    "sourceSha256": "f3d4eeebdd5a1c624a1c2bc878e946aa8510993489bb9c550cfd08ebc0babb79",
+    "destinationSha256": "f3d4eeebdd5a1c624a1c2bc878e946aa8510993489bb9c550cfd08ebc0babb79",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/select-field.css",
+    "destination": "src/chat/components/select-field.css",
+    "sourceSha256": "241e3d0df5b605cab0c67f8b124b1e78d810b19ad9e21eb749b3d12f07efe54f",
+    "destinationSha256": "da6b1669e0761af222aba9fa5e1ca3afed178aceaa62a7d035e8d74ea078fb41",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/sidebar-density.ts",
+    "destination": "src/chat/components/sidebar-density.ts",
+    "sourceSha256": "2c39c07beee34178c2d3d0819136236d8f28e9e897952cbdd7cf64a29bdb4e77",
+    "destinationSha256": "2c39c07beee34178c2d3d0819136236d8f28e9e897952cbdd7cf64a29bdb4e77",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/sidebar-text-size.ts",
+    "destination": "src/chat/components/sidebar-text-size.ts",
+    "sourceSha256": "494a9d329aec4ab933ec791cc5a5405773c4d7ae930bf8661ac231df5a1d58e7",
+    "destinationSha256": "494a9d329aec4ab933ec791cc5a5405773c4d7ae930bf8661ac231df5a1d58e7",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/sketch-pad.css",
+    "destination": "src/chat/components/sketch-pad.css",
+    "sourceSha256": "99ae070eeb45c67ea25fb4035e6902306397048379362c93413cc138257ea25e",
+    "destinationSha256": "f7a84ea006a7f8f6e50d872ddb83a11b2b61e698b8f7671cc79edd34709af0ca",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/skills.css",
+    "destination": "src/chat/components/skills.css",
+    "sourceSha256": "b9601fbb4f7b889f251357edd4bae6856c6bb3be8c61fe468b45ef728aac32d6",
+    "destinationSha256": "ee63cd164eaccc7e48d14363ef54ca54448523d87beb3a71f575d5658efd98e3",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/task-usage.css",
+    "destination": "src/chat/components/task-usage.css",
+    "sourceSha256": "22df63f4a8b7f110b0008fbbd0f31a6d5bd55a62adc7689baae0746369ce790e",
+    "destinationSha256": "d9b37bb775ab8ccdc295e59995053182580f6818b30d95eacf034eeb871af81d",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/thread-lifecycle-store.ts",
+    "destination": "src/chat/components/thread-lifecycle-store.ts",
+    "sourceSha256": "ed54881d4950f385d1138f0854ef48de69cde87532bb76d5388d9427f71ca997",
+    "destinationSha256": "ed54881d4950f385d1138f0854ef48de69cde87532bb76d5388d9427f71ca997",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ui/ActionCard.tsx",
+    "destination": "src/chat/components/ui/ActionCard.tsx",
+    "sourceSha256": "c2c9ae375a51136fbcd0d932d96a770a8c2841aa79dcd489571ab6e8929cabef",
+    "destinationSha256": "c2c9ae375a51136fbcd0d932d96a770a8c2841aa79dcd489571ab6e8929cabef",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ui/Button.tsx",
+    "destination": "src/chat/components/ui/Button.tsx",
+    "sourceSha256": "7df01ff1bc6b19f6381b91cee39b1a1bd8090346dfc945f6c6cef26c235002b2",
+    "destinationSha256": "7df01ff1bc6b19f6381b91cee39b1a1bd8090346dfc945f6c6cef26c235002b2",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ui/Checkbox.tsx",
+    "destination": "src/chat/components/ui/Checkbox.tsx",
+    "sourceSha256": "85e34c149ef48de805763b32ebd38cfb573b417062a4abfedf97bc3bbcfce6dc",
+    "destinationSha256": "85e34c149ef48de805763b32ebd38cfb573b417062a4abfedf97bc3bbcfce6dc",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ui/LoadingState.tsx",
+    "destination": "src/chat/components/ui/LoadingState.tsx",
+    "sourceSha256": "0551c734561fc303915b0a6005e5f9e0524032e3f75963342fd6983814008cee",
+    "destinationSha256": "0551c734561fc303915b0a6005e5f9e0524032e3f75963342fd6983814008cee",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ui/Modal.tsx",
+    "destination": "src/chat/components/ui/Modal.tsx",
+    "sourceSha256": "ac1692c935422ddfc1dc034d5d4da8da819902558fbb1d7abe1a569adafe1f80",
+    "destinationSha256": "ac1692c935422ddfc1dc034d5d4da8da819902558fbb1d7abe1a569adafe1f80",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ui/SegmentedControl.tsx",
+    "destination": "src/chat/components/ui/SegmentedControl.tsx",
+    "sourceSha256": "b5686a890680a3f7128fd70720a11173daac98c5f04e9b7581090df8937321a7",
+    "destinationSha256": "b5686a890680a3f7128fd70720a11173daac98c5f04e9b7581090df8937321a7",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ui/Switch.tsx",
+    "destination": "src/chat/components/ui/Switch.tsx",
+    "sourceSha256": "6617a23df922e97627708713cc15036b7206792c18851f396d189f23dbc38c3a",
+    "destinationSha256": "6617a23df922e97627708713cc15036b7206792c18851f396d189f23dbc38c3a",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ui/TabPanels.tsx",
+    "destination": "src/chat/components/ui/TabPanels.tsx",
+    "sourceSha256": "fa7da6a7ec2c54f533b078b56f00c69e65ce87576bf55d16a7786bc5e0f40481",
+    "destinationSha256": "fa7da6a7ec2c54f533b078b56f00c69e65ce87576bf55d16a7786bc5e0f40481",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ui/TextInput.tsx",
+    "destination": "src/chat/components/ui/TextInput.tsx",
+    "sourceSha256": "dabfb3e1a5f5a909c0f4c7d1a1dc1325a7596a484f763d0acd72172bf054366b",
+    "destinationSha256": "dabfb3e1a5f5a909c0f4c7d1a1dc1325a7596a484f763d0acd72172bf054366b",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ui/action-card.css",
+    "destination": "src/chat/components/ui/action-card.css",
+    "sourceSha256": "d15b48e96c0034f20c206ebdd2816166354e4feafff982740b140311291f6833",
+    "destinationSha256": "6c5f867b240a8796ac8f1e868c245d793488202d3798c34e222f15b1310591b6",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/ui/button.css",
+    "destination": "src/chat/components/ui/button.css",
+    "sourceSha256": "79c8b3baa089b75cdd3c0ec842dd77cd1f0d070e1e5df77e5b3f5e54687b53af",
+    "destinationSha256": "155eba450f9cead8458e5035a5623a88cbb2f1bfd310f36a836b08da4d2cea12",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/ui/checkbox.css",
+    "destination": "src/chat/components/ui/checkbox.css",
+    "sourceSha256": "03dce761efe1dd2bf3b177740e67c3b44b1685fd0aece54b734e2a337d5a4973",
+    "destinationSha256": "05d7e0e86c7341db22040f25d0e21dd6aaa32b7a31518d690391b9beb52a1283",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/ui/loading-state.css",
+    "destination": "src/chat/components/ui/loading-state.css",
+    "sourceSha256": "e67319feebc32ecaa45021cff87571fc5e5849e05222188df37d5c5361d1ab41",
+    "destinationSha256": "568ee5f7a19177f5953c2bd86f3ebc3638629bd5a4a1e9d18d80aba5fb842e7e",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/ui/modal.css",
+    "destination": "src/chat/components/ui/modal.css",
+    "sourceSha256": "66d20cb66351e08198fd09db2ce01049d30a568baed8d18d13ef3d62d03cb714",
+    "destinationSha256": "1d99903995d84d97ae5836fa660d99e9d288f781a1ec89d7f0118257721323fe",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/ui/motion.ts",
+    "destination": "src/chat/components/ui/motion.ts",
+    "sourceSha256": "404f0fed9a9f8518362a57f2d24ec8dc46feed8481ba444f69057b1d0d77a4b1",
+    "destinationSha256": "404f0fed9a9f8518362a57f2d24ec8dc46feed8481ba444f69057b1d0d77a4b1",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/ui/segmented-control.css",
+    "destination": "src/chat/components/ui/segmented-control.css",
+    "sourceSha256": "54010923fdfd12237421fc2c834f8ee66dd175b5f24eba973532325ecec83616",
+    "destinationSha256": "409dba8e407f98987c4c7da5b58f07d752ced054fadf3ac6a5cbc004d90ea982",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/ui/switch.css",
+    "destination": "src/chat/components/ui/switch.css",
+    "sourceSha256": "0797de512b9ceeda37a0b100ff3a4db9524d2981cb1a131e4f6d11198524013d",
+    "destinationSha256": "270c16d31341e3ebf5bba4690c4ebdbf41238a63caf39f503589abe013272a12",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/ui/tab-panels.css",
+    "destination": "src/chat/components/ui/tab-panels.css",
+    "sourceSha256": "c10c7e799ce9e2fb1c34d4937fa7e48a33323f90ff56e92ccd9f9961db9950cb",
+    "destinationSha256": "86e32a63686f0e6586f6d7567c44cfc20011a7ad6f8d9590ccaa523285319dab",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/ui/text-input.css",
+    "destination": "src/chat/components/ui/text-input.css",
+    "sourceSha256": "e750ec63b595095eafb8def4815c9b51971c00a1adf57c582cccf8273a4e92cb",
+    "destinationSha256": "3c9b5d3efc0bb0ce7d9aa682d1e40625c574dc8da750033764535ec1dcbe2514",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/useCloudDraft.ts",
+    "destination": "src/chat/components/useCloudDraft.ts",
+    "sourceSha256": "70e5828290b68384207bbc4b38d37464e748eb01d1b0b4e2351129bc756c6e5c",
+    "destinationSha256": "7d3d0895ea37ee34c826a9ce3af3af372031171a777dd9cb5f8984775d5de238",
+    "unchanged": false,
+    "adaptation": "Only the account composer draft URL changes to the TanStack /api/chat namespace. Original synchronization and revision handling retained."
+  },
+  {
+    "source": "src/components/useComposerAttachments.ts",
+    "destination": "src/chat/components/useComposerAttachments.ts",
+    "sourceSha256": "9d5c572598a9883a1eb1ccedd259fa4eaa870299e4742c43e799834385a74873",
+    "destinationSha256": "9d5c572598a9883a1eb1ccedd259fa4eaa870299e4742c43e799834385a74873",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/useComposerDraft.ts",
+    "destination": "src/chat/components/useComposerDraft.ts",
+    "sourceSha256": "838344d907347f9e9793a4d1176ee7205e6db8dc3906de72b227a9c409bf3a58",
+    "destinationSha256": "838344d907347f9e9793a4d1176ee7205e6db8dc3906de72b227a9c409bf3a58",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/useComposerReferences.ts",
+    "destination": "src/chat/components/useComposerReferences.ts",
+    "sourceSha256": "6dea3470ef81237ca2f0d184f75d4760ec2c3f4d4d1ca124147ffc3225a39908",
+    "destinationSha256": "6dea3470ef81237ca2f0d184f75d4760ec2c3f4d4d1ca124147ffc3225a39908",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/useConversationPalette.ts",
+    "destination": "src/chat/components/useConversationPalette.ts",
+    "sourceSha256": "e2e7ed40792976d2ae9c3583d7927be7febc55666020d0185075655ef878407a",
+    "destinationSha256": "e2e7ed40792976d2ae9c3583d7927be7febc55666020d0185075655ef878407a",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/useConversationRead.ts",
+    "destination": "src/chat/components/useConversationRead.ts",
+    "sourceSha256": "6a471d8aa553eab3b07747639bab1309279730a11125a93ef756c18d3f3d0f23",
+    "destinationSha256": "6a471d8aa553eab3b07747639bab1309279730a11125a93ef756c18d3f3d0f23",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/useDebugDetails.ts",
+    "destination": "src/chat/components/useDebugDetails.ts",
+    "sourceSha256": "f30ddbe780d2d8592f662f668dbc42dd8ec03535db556f32f8cb5dacdd8083b1",
+    "destinationSha256": "f30ddbe780d2d8592f662f668dbc42dd8ec03535db556f32f8cb5dacdd8083b1",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/useHomeFavorites.ts",
+    "destination": "src/chat/components/useHomeFavorites.ts",
+    "sourceSha256": "029012602596f45a1d44bab32007d6351959bb6f3c446aaf6692a19f8f99c5f4",
+    "destinationSha256": "029012602596f45a1d44bab32007d6351959bb6f3c446aaf6692a19f8f99c5f4",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/useLongPress.ts",
+    "destination": "src/chat/components/useLongPress.ts",
+    "sourceSha256": "3a2898d11d8b29f811078b88a805684c24ebe2bc85c9e4e0d9d2ec0ba8556eed",
+    "destinationSha256": "3a2898d11d8b29f811078b88a805684c24ebe2bc85c9e4e0d9d2ec0ba8556eed",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/useMobileDrawer.ts",
+    "destination": "src/chat/components/useMobileDrawer.ts",
+    "sourceSha256": "e32a1ceeb5f608aff41c2c58b69542475b4dbbe364d59dd2e3760108de09e681",
+    "destinationSha256": "e32a1ceeb5f608aff41c2c58b69542475b4dbbe364d59dd2e3760108de09e681",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/useNavigatorResize.ts",
+    "destination": "src/chat/components/useNavigatorResize.ts",
+    "sourceSha256": "f815e1d8abe154901095170de4877bdcd936a971933c1ebb541451ec4089db61",
+    "destinationSha256": "f815e1d8abe154901095170de4877bdcd936a971933c1ebb541451ec4089db61",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/usePanelMotion.ts",
+    "destination": "src/chat/components/usePanelMotion.ts",
+    "sourceSha256": "3b5846e632996a4bc3504c7fdcba98bba8429ed37892f90b2d6fb9eac843fd7a",
+    "destinationSha256": "3b5846e632996a4bc3504c7fdcba98bba8429ed37892f90b2d6fb9eac843fd7a",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/usePendingSend.ts",
+    "destination": "src/chat/components/usePendingSend.ts",
+    "sourceSha256": "cff633e534d0ba870f704d9470b3e665e04d3e17fa336cdf9381ab6b194fb776",
+    "destinationSha256": "cff633e534d0ba870f704d9470b3e665e04d3e17fa336cdf9381ab6b194fb776",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/useRetryAttachments.ts",
+    "destination": "src/chat/components/useRetryAttachments.ts",
+    "sourceSha256": "4c5de2e3962cbab6ef5b61673fa21d50a5e60e3ebaa2616028386e2265c39501",
+    "destinationSha256": "4c5de2e3962cbab6ef5b61673fa21d50a5e60e3ebaa2616028386e2265c39501",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/useRetryDraft.ts",
+    "destination": "src/chat/components/useRetryDraft.ts",
+    "sourceSha256": "9a11dd7ea66f0b85051975897ae0de7bfc6ac879ee6c3b1ae7f60e2d4a64a8f7",
+    "destinationSha256": "9a11dd7ea66f0b85051975897ae0de7bfc6ac879ee6c3b1ae7f60e2d4a64a8f7",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/useRetryPreparation.ts",
+    "destination": "src/chat/components/useRetryPreparation.ts",
+    "sourceSha256": "110ff61c53981e01c25746951208a6c38b3aa1af8a3eb9044dff48356112000a",
+    "destinationSha256": "110ff61c53981e01c25746951208a6c38b3aa1af8a3eb9044dff48356112000a",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/useRunModel.ts",
+    "destination": "src/chat/components/useRunModel.ts",
+    "sourceSha256": "52245670ba369fc47cc97d8d4e6b819a8b0d8ea99a9d75a4d6cde2f46047cc4e",
+    "destinationSha256": "52245670ba369fc47cc97d8d4e6b819a8b0d8ea99a9d75a4d6cde2f46047cc4e",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/useSavedFiles.ts",
+    "destination": "src/chat/components/useSavedFiles.ts",
+    "sourceSha256": "5ecb575750768fe247db6ba0010668eb663b3600a17f7a69ea0bcfe2bf95c309",
+    "destinationSha256": "5ecb575750768fe247db6ba0010668eb663b3600a17f7a69ea0bcfe2bf95c309",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/useUrlMessageFocus.ts",
+    "destination": "src/chat/components/useUrlMessageFocus.ts",
+    "sourceSha256": "7487f1aa8b7789189b96406b854bd6cf71fd185e3f076b002c31abb630a75af8",
+    "destinationSha256": "7487f1aa8b7789189b96406b854bd6cf71fd185e3f076b002c31abb630a75af8",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/useWorkspaceCollections.ts",
+    "destination": "src/chat/components/useWorkspaceCollections.ts",
+    "sourceSha256": "f3c1e6ff541ec9e922908ff0bf6597f9038f8396f804b4dd4d7b4d2b5a713c16",
+    "destinationSha256": "f3c1e6ff541ec9e922908ff0bf6597f9038f8396f804b4dd4d7b4d2b5a713c16",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/workflow-history.css",
+    "destination": "src/chat/components/workflow-history.css",
+    "sourceSha256": "1c6a97b86af41d489eb2ba2f0166cf37f74326d19736a4b311a3605bc01e901f",
+    "destinationSha256": "8590e448e25ab6f43bf13e917fb523451533f7c6b82f44b448cfc9fd66f13d2f",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/components/workflow-start-store.ts",
+    "destination": "src/chat/components/workflow-start-store.ts",
+    "sourceSha256": "d5eb285843848fd7c7943b30e504ef25f933531183a12f2ea08774e4e2a45108",
+    "destinationSha256": "d5eb285843848fd7c7943b30e504ef25f933531183a12f2ea08774e4e2a45108",
+    "unchanged": true
+  },
+  {
+    "source": "src/components/workspace-review.css",
+    "destination": "src/chat/components/workspace-review.css",
+    "sourceSha256": "a459a2902902ea53f91bc95c54bbf4b80be1db80f4a5d066857e00fbbcb4647e",
+    "destinationSha256": "aa587bf8565bc08b23ed97c642580435ab898dbf7786e3b4b520d0728e09c8a7",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/routes/__root.tsx",
+    "destination": "src/chat/components/ChatShell.tsx",
+    "sourceSha256": "e160b2f67091e8c25801e4a18c47381ffff64abce3e6c3efe3eae4e8ddc8d12d",
+    "destinationSha256": "5ced5ebfe479259c0fae032c4903cba9d32fc6896a59ff01f34d4c3c10c9816f",
+    "unchanged": false,
+    "sourceSection": "Tooltip.Provider and ExecutionOwnersProvider composition around route outlet; shared TanStack Query provider reused"
+  },
+  {
+    "source": "src/routes/w.$workspaceId.b.$botId.tsx",
+    "destination": "src/routes/chat.w.$workspaceId.b.$botId.tsx",
+    "sourceSha256": "7a99118d717d6d712065fd03bc9c7f1ab671658a0514636160b138b3a60d1538",
+    "destinationSha256": "2b8eb53d842a0401feeb6d91a9d8391cac9ee655815e52f227fd21ad63a4fc06",
+    "unchanged": false,
+    "sourceSection": "complete original route, prefixed /chat with destination imports"
+  },
+  {
+    "source": "src/routes/w.$workspaceId.home.$homeSection.tsx",
+    "destination": "src/routes/chat.w.$workspaceId.home.$homeSection.tsx",
+    "sourceSha256": "a5bfe5897c33fe41fbe45ce82618c64324f5cb593f9b1b9f59161b62f121326e",
+    "destinationSha256": "56d46c09ad5577cec1635a0544e8db75ed1e4764ed8abe7790fb3fdfbd57f492",
+    "unchanged": false,
+    "sourceSection": "complete original route, prefixed /chat with destination imports"
+  },
+  {
+    "source": "src/routes/w.$workspaceId.tsx",
+    "destination": "src/routes/chat.w.$workspaceId.tsx",
+    "sourceSha256": "bf2641d50b370471213dccbd05a9a368b969656ce5ea3d76eedf65d8d6b5090c",
+    "destinationSha256": "64b3eba1bfcf70328cacfeb7eb034ea06c17bdffd33433f4bb090fd2792a1904",
+    "unchanged": false,
+    "sourceSection": "complete original route, prefixed /chat with destination imports"
+  },
+  {
+    "source": "tests/composer-draft-sync.test.ts",
+    "destination": "harness-tests/core/browser-composer-draft-sync.test.ts",
+    "sourceSha256": "2b65f8d6ed62dcf7646a6c5e49fe74efb7cb265e7fec8588d81a7cfccbd056f6",
+    "destinationSha256": "8dc964308266a8f8b957c37d324f9e13750fcddbcdc02b6465d35588099f27a0",
+    "unchanged": false,
+    "sourceSection": "complete original test file with source imports relocated to src/chat"
+  },
+  {
+    "source": "tests/desktop-compatibility.test.ts",
+    "destination": "harness-tests/core/browser-desktop-compatibility.test.ts",
+    "sourceSha256": "21a8d9662b63dc6b1f13f5f04e807882eefdb97fe026ed0581a9f06712cf799f",
+    "destinationSha256": "92fdd984ac8f452c5df20b5c2ddee9ceddfd3992341ea835254b3871c66060ac",
+    "unchanged": false,
+    "sourceSection": "complete original test file with source imports relocated to src/chat"
+  },
+  {
+    "source": "tests/execution-browser-bridge.test.ts",
+    "destination": "harness-tests/core/browser-execution-browser-bridge.test.ts",
+    "sourceSha256": "f6b284bb1c95cb5311073ff8a9cfe578356d2318d777a4f36e76226094757bd6",
+    "destinationSha256": "7a539e7e5784c976d9b42a98a9276a6ae00aa6dbde1bcf9968383f8ac257cbd4",
+    "unchanged": false,
+    "sourceSection": "complete original test file with source imports relocated to src/chat"
+  },
+  {
+    "source": "tests/execution-command-registry.test.ts",
+    "destination": "harness-tests/core/browser-execution-command-registry.test.ts",
+    "sourceSha256": "41a7326e733a694ea3d41a0c254ac67c7ef20bb54f0e816288a8bd2630336db3",
+    "destinationSha256": "f6162d36c014ab1dd1d2bc0a2969a2504857aee9995204cd97842690c32f781c",
+    "unchanged": false,
+    "sourceSection": "complete original test file with source imports relocated to src/chat"
+  },
+  {
+    "source": "tests/execution-history.test.ts",
+    "destination": "harness-tests/core/browser-execution-history.test.ts",
+    "sourceSha256": "11a8ba51007387e387f20f32c60bf0e15f43d60e62e62ae1ba5ac0b6424e1601",
+    "destinationSha256": "271afce9d36c41d818a97265fad9b3fac07382c1415ff3fe8aeafbeaf3aa571d",
+    "unchanged": false,
+    "sourceSection": "complete original test file with source imports relocated to src/chat"
+  },
+  {
+    "source": "tests/execution-http.test.ts",
+    "destination": "harness-tests/core/browser-execution-http.test.ts",
+    "sourceSha256": "224c12079ea1e533acd6706a266ecebded16d888d168418b6b80ad5ece0ea22d",
+    "destinationSha256": "a8921029eafe3a4d0c1187f6fca12aeaacc2580f8899b6c23d0083bced8604d0",
+    "unchanged": false,
+    "sourceSection": "complete original test file with source imports relocated to src/chat"
+  },
+  {
+    "source": "tests/execution-owner.test.ts",
+    "destination": "harness-tests/core/browser-execution-owner.test.ts",
+    "sourceSha256": "6994517c5e7c74a850ec43bf0f0feeb846f35150d0c2ddfa1f2643996973d657",
+    "destinationSha256": "4f747781c806fa20415f1dffdc6467855b2480b3109adb560bda5831706d6aae",
+    "unchanged": false,
+    "sourceSection": "complete original test file with source imports relocated to src/chat"
+  },
+  {
+    "source": "tests/workspace-collections.test.ts",
+    "destination": "harness-tests/core/browser-workspace-collections.test.ts",
+    "sourceSha256": "adfc778f1c27dc0171679dda5279d273fc0018560358dcbe14298bde3777c7bb",
+    "destinationSha256": "98107ed0db12cd1779cf8c710375d3f4c847c49e4e023e6891c214a2f45f030a",
+    "unchanged": false,
+    "sourceSection": "complete original test file with source imports relocated to src/chat"
+  },
+  {
+    "source": "src/motion.css",
+    "destination": "src/chat/styles.css",
+    "sourceSha256": "9b7c75273931e81a6ca9551ef6412f7ea8e4abe476eba6ecb2748f16f5193c5a",
+    "destinationSha256": "f7905c4990e90f4420286883a993241952a29b9642366c3182e4714be9bffa98",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/mobile.css",
+    "destination": "src/chat/styles.css",
+    "sourceSha256": "62b7194389f293ebd2384899f600e1b497ebe4f822287827d3a5d610e8d7e24a",
+    "destinationSha256": "f7905c4990e90f4420286883a993241952a29b9642366c3182e4714be9bffa98",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  },
+  {
+    "source": "src/styles.css",
+    "destination": "src/chat/styles.css",
+    "sourceSha256": "43ef29e383fa3e3f33b95bb889b302e745e13d6a6bf189aa4dfcfbbd49fe519d",
+    "destinationSha256": "f7905c4990e90f4420286883a993241952a29b9642366c3182e4714be9bffa98",
+    "unchanged": false,
+    "adaptation": "Original stylesheet rules inside native CSS scope for documents containing .tanchat-shell, retaining body portal support."
+  }
+]

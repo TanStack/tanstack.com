@@ -72,8 +72,8 @@ export function getBrowserBuilderAiByokConnection(
     scope,
     storage: defaultByokStorage({
       dbName: `${builderAiByokDatabasePrefix}${encodeURIComponent(scope)}`,
-      rpName: 'TanStack Builder',
-      userName: 'TanStack Builder',
+      rpName: 'TanChat',
+      userName: 'TanChat',
     }),
     legacyStorage: getBrowserBuilderAiApiKeyStorage(),
   })

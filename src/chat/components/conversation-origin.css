@@ -1,0 +1,13 @@
+@scope (:root:has(.tanchat-shell)) {
+  .conversation-origin {
+    flex-shrink: 0;
+    padding: 8px 20px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .conversation-origin a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}

@@ -1,0 +1,116 @@
+@scope (:root:has(.tanchat-shell)) {
+  .kody-mail {
+    display: grid;
+    align-content: start;
+    gap: 14px;
+    padding: 16px;
+    min-width: 0;
+    overflow: auto;
+  }
+
+  .kody-mail-toolbar,
+  .kody-mail-search,
+  .kody-mail-row-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .kody-mail-toolbar {
+    justify-content: space-between;
+  }
+
+  .kody-mail-list-toolbar > button:first-child:last-child {
+    margin-left: auto;
+  }
+
+  .kody-mail-toolbar select,
+  .kody-mail-search input {
+    min-width: 0;
+    flex: 1;
+    padding: 8px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    color: inherit;
+  }
+
+  .kody-mail-addresses {
+    margin: 0;
+    overflow-wrap: anywhere;
+    color: var(--muted);
+  }
+
+  .kody-mail-list {
+    display: grid;
+    gap: 4px;
+  }
+
+  .kody-mail-row {
+    display: grid;
+    gap: 5px;
+    width: 100%;
+    text-align: left;
+    border: 0;
+    border-radius: 8px;
+    padding: 10px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .kody-mail-row:hover,
+  .kody-mail-row:focus-visible {
+    background: var(--soft);
+  }
+
+  .kody-mail-row-top {
+    justify-content: space-between;
+    min-width: 0;
+  }
+
+  .kody-mail-row-top strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .kody-mail-row-top time,
+  .kody-mail-row small {
+    font-size: 0.78rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .kody-mail-detail h2 {
+    margin: 0 0 16px;
+    font-size: 1.1rem;
+    overflow-wrap: anywhere;
+  }
+
+  .kody-mail-detail dl {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 5px 12px;
+    margin: 0;
+  }
+
+  .kody-mail-detail dt {
+    color: var(--muted);
+  }
+
+  .kody-mail-detail dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .kody-mail-body {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    padding-top: 16px;
+  }
+
+  .kody-mail-attachments ul {
+    padding-left: 20px;
+  }
+}

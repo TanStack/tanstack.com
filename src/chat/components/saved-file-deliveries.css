@@ -1,0 +1,55 @@
+@scope (:root:has(.tanchat-shell)) {
+  .saved-file-deliveries {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    list-style: none;
+    margin: 10px 0;
+    padding: 0;
+    min-width: 0;
+  }
+  .saved-file-deliveries > li {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .saved-file-deliveries a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 36px;
+    min-width: 0;
+    padding: 7px 10px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: var(--soft);
+    color: inherit;
+    font-size: 13px;
+    text-decoration: none;
+  }
+  .saved-file-deliveries a:hover {
+    border-color: var(--accent);
+  }
+  .saved-file-deliveries a:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+  .saved-file-deliveries svg,
+  .saved-file-delivery-size {
+    flex-shrink: 0;
+  }
+  .saved-file-delivery-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .saved-file-delivery-size {
+    color: var(--muted);
+    font-size: 11px;
+  }
+  @media (pointer: coarse) {
+    .saved-file-deliveries a {
+      min-height: 44px;
+    }
+  }
+}

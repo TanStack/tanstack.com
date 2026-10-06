@@ -37,3 +37,6 @@ test-results
 src/routeTree.gen.ts
 .og-preview/
 .readme-preview/
+
+# Generated native desktop helper
+/desktop/native/folder-access

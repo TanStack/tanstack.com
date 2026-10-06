@@ -17,6 +17,7 @@ import { PartnersSponsorsSection } from '~/components/PartnersSponsorsSection'
 import { LibraryStatusBadge } from '~/components/LibraryStatusBadge'
 import { ossStatsQuery, recentDownloadsQuery } from '~/queries/stats'
 import { LandingCopyPromptButton } from './LandingCopyPromptButton'
+import { ChartsTextBackdrop } from './ChartsTextBackdrop'
 
 export type LibraryLandingId = Exclude<
   LibraryId,
@@ -82,7 +83,8 @@ export type LibraryLandingShellProps = {
   children: React.ReactNode
   description: React.ReactNode
   headline: string
-  hero: React.ReactNode
+  hero?: React.ReactNode
+  heroBackground?: React.ReactNode
   beforeActions?: React.ReactNode
   libraryId: LibraryLandingId
   prompt?: string
@@ -213,12 +215,15 @@ export function LibraryLandingShell({
   description,
   headline,
   hero,
+  heroBackground,
   beforeActions,
   libraryId,
   prompt,
   promptLabel,
   stackHero = false,
 }: LibraryLandingShellProps) {
+  const CopyBackdrop = heroBackground ? ChartsTextBackdrop : React.Fragment
+  const haloId = React.useId()
   const library = getLibrary(libraryId)
   const { version } = useParams({ strict: false })
   const resolvedVersion = version ?? library.latestVersion
@@ -250,7 +255,11 @@ export function LibraryLandingShell({
           }}
         />
 
-        <div className="relative mx-auto w-full max-w-384 px-5 py-14 md:px-10 lg:px-12 lg:py-16 2xl:px-20">
+        {heroBackground}
+
+        <div
+          className={`relative mx-auto w-full max-w-384 px-5 py-14 md:px-10 lg:px-12 lg:py-16 2xl:px-20 ${heroBackground ? 'pointer-events-none min-h-[36rem] xl:min-h-[44rem]' : ''}`}
+        >
           <div
             className={
               stackHero
@@ -258,57 +267,101 @@ export function LibraryLandingShell({
                 : 'grid items-start gap-12 xl:min-h-116 xl:grid-cols-[minmax(25rem,0.82fr)_minmax(34rem,1.18fr)] xl:gap-10'
             }
           >
-            <div className={stackHero ? 'w-full min-w-0' : 'max-w-140'}>
-              <div className="flex flex-wrap items-start gap-3">
-                <div>
-                  <img
-                    src="/images/brand/tanstack-landscape-black.svg"
-                    alt="TanStack"
-                    className="h-[18px] w-auto dark:hidden"
+            <div
+              className={`${stackHero ? 'w-full min-w-0' : 'max-w-140'} ${heroBackground ? 'pointer-events-auto' : ''}`}
+            >
+              {heroBackground ? (
+                <svg
+                  aria-hidden="true"
+                  width="0"
+                  height="0"
+                  className="absolute pointer-events-none text-white [--hero-halo-color:white] dark:text-black dark:[--hero-halo-color:black]"
+                >
+                  <defs
+                    dangerouslySetInnerHTML={{
+                      __html: `
+                    <filter id="${haloId}" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB">
+                      <feMorphology in="SourceAlpha" operator="dilate" radius="56" result="expanded" />
+                      <feFlood style="flood-color:var(--hero-halo-color, white)" result="paint" />
+                      <feComposite in="paint" in2="expanded" operator="in" result="colored" />
+                      <feGaussianBlur in="colored" stdDeviation="56" result="halo" />
+                      <feMerge result="denseHalo">
+                        <feMergeNode in="halo" />
+                        <feMergeNode in="halo" />
+                        <feMergeNode in="halo" />
+                        <feMergeNode in="halo" />
+                      </feMerge>
+                      <feComponentTransfer in="denseHalo" result="fadedHalo">
+                        <feFuncA type="linear" slope="0.2" />
+                      </feComponentTransfer>
+                      <feMerge>
+                        <feMergeNode in="fadedHalo" />
+                        <feMergeNode in="SourceGraphic" />
+                      </feMerge>
+                    </filter>
+                  `,
+                    }}
                   />
-                  <img
-                    src="/images/brand/tanstack-landscape-white.svg"
-                    alt=""
-                    aria-hidden="true"
-                    className="hidden h-[18px] w-auto dark:block"
-                  />
-                  <h1 className="mt-1">
-                    <span className="block bg-[linear-gradient(110deg,var(--landing-headline-start),var(--landing-headline-end))] bg-clip-text pr-1 font-ds-display text-ds-display-lg uppercase text-transparent dark:[filter:drop-shadow(0_4px_4px_rgb(0_0_0/0.25))] sm:text-ds-display-xl 2xl:text-ds-display-2xl">
-                      {library.name.replace(/^TanStack\s+/i, '')}
-                    </span>
-                  </h1>
-                </div>
-                {library.badge ? (
-                  <LibraryStatusBadge
-                    badge={library.badge}
-                    className="mt-[22px]"
-                  />
-                ) : null}
-              </div>
+                </svg>
+              ) : null}
+              <CopyBackdrop>
+                <div
+                  style={
+                    heroBackground ? { filter: `url(#${haloId})` } : undefined
+                  }
+                >
+                  <div className="flex flex-wrap items-start gap-3">
+                    <div>
+                      <img
+                        src="/images/brand/tanstack-landscape-black.svg"
+                        alt="TanStack"
+                        className="h-[18px] w-auto dark:hidden"
+                      />
+                      <img
+                        src="/images/brand/tanstack-landscape-white.svg"
+                        alt=""
+                        aria-hidden="true"
+                        className="hidden h-[18px] w-auto dark:block"
+                      />
+                      <h1 className="mt-1">
+                        <span className="block bg-[linear-gradient(110deg,var(--landing-headline-start),var(--landing-headline-end))] bg-clip-text pr-1 font-ds-display text-ds-display-lg uppercase text-transparent dark:[filter:drop-shadow(0_4px_4px_rgb(0_0_0/0.25))] sm:text-ds-display-xl 2xl:text-ds-display-2xl">
+                          {library.name.replace(/^TanStack\s+/i, '')}
+                        </span>
+                      </h1>
+                    </div>
+                    {library.badge ? (
+                      <LibraryStatusBadge
+                        badge={library.badge}
+                        className="mt-[22px]"
+                      />
+                    ) : null}
+                  </div>
 
-              <p
-                className={
-                  stackHero
-                    ? 'mt-10 text-ds-heading-4 text-text-primary'
-                    : 'mt-10 max-w-120 text-ds-heading-4 text-text-primary'
-                }
-              >
-                {headline}
-              </p>
-              <p
-                className={
-                  stackHero
-                    ? 'mt-5 text-ds-body-sm text-text-secondary sm:text-ds-body-md'
-                    : 'mt-5 max-w-136 text-ds-body-sm text-text-secondary sm:text-ds-body-md'
-                }
-              >
-                {description}
-              </p>
+                  <p
+                    className={`${
+                      stackHero
+                        ? 'mt-10 text-ds-heading-4 text-text-primary'
+                        : 'mt-10 max-w-120 text-ds-heading-4 text-text-primary'
+                    }`}
+                  >
+                    {headline}
+                  </p>
+                  <p
+                    className={`${
+                      stackHero
+                        ? 'mt-5 text-ds-body-sm text-text-secondary sm:text-ds-body-md'
+                        : 'mt-5 max-w-136 text-ds-body-sm text-text-secondary sm:text-ds-body-md'
+                    }`}
+                  >
+                    {description}
+                  </p>
+                </div>
+              </CopyBackdrop>
 
               {beforeActions}
 
               <div
-                className={`${beforeActions ? 'mt-6' : 'mt-9'} flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-7`}
+                className={`${heroBackground ? 'relative z-10' : ''} ${beforeActions ? 'mt-6' : 'mt-9'} flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-7`}
               >
                 <Link
                   to="/$libraryId/$version/docs"
@@ -327,7 +380,7 @@ export function LibraryLandingShell({
                 </Link>
                 {prompt ? (
                   <LandingCopyPromptButton
-                    className="rounded-xl border-(--landing-accent) bg-transparent px-5 py-3 font-ds-mono text-ds-mono-caps uppercase text-(--landing-accent-bright) hover:border-(--landing-accent-bright) hover:bg-[rgb(var(--landing-glow)/0.1)] sm:w-auto"
+                    className={`rounded-xl border-(--landing-accent) px-5 py-3 font-ds-mono text-ds-mono-caps uppercase text-(--landing-accent-bright) hover:border-(--landing-accent-bright) sm:w-auto ${heroBackground ? 'bg-white/35 backdrop-blur-xl shadow-[inset_0_1px_0_rgb(255_255_255/0.5),0_4px_16px_rgb(0_0_0/0.06)] hover:bg-white/50 dark:bg-black/30 dark:hover:bg-black/45' : 'bg-transparent hover:bg-[rgb(var(--landing-glow)/0.1)]'}`}
                     label={promptLabel ?? 'Copy prompt'}
                     prompt={prompt}
                   />
@@ -393,7 +446,7 @@ export function LandingSectionIntro({
   centered?: boolean
   eyebrow?: string
   icon?: React.ReactNode
-  title: string
+  title: React.ReactNode
 }) {
   return (
     <div className={centered ? 'mx-auto max-w-208 text-center' : 'max-w-168'}>

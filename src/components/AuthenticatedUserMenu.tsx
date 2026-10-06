@@ -7,7 +7,7 @@ import {
   SignOutIcon,
   SparkleIcon,
   KeyIcon,
-  HammerIcon,
+  ChatCircleIcon,
 } from '@phosphor-icons/react'
 import { Avatar } from '~/components/Avatar'
 import {
@@ -63,9 +63,9 @@ export function AuthenticatedUserMenu({
           </Link>
         </DropdownItem>
         <DropdownItem asChild>
-          <Link to="/builder" className="flex items-center gap-2">
-            <HammerIcon className="w-4 h-4" />
-            <span>My Projects</span>
+          <Link to="/chat" reloadDocument className="flex items-center gap-2">
+            <ChatCircleIcon className="w-4 h-4" />
+            <span>TanChat</span>
           </Link>
         </DropdownItem>
         <DropdownItem asChild>

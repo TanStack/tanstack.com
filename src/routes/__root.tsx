@@ -43,7 +43,7 @@ import { ProductScarf } from '~/components/ProductScarf'
 import {
   BuilderRouteFrame,
   BuilderRouteSkeleton,
-} from '~/components/builder/BuilderLoading'
+} from '~/chat/components/projects/Loading'
 import { THEME_COLORS } from '~/utils/utils'
 import { trackPageView } from '~/utils/analytics'
 import {
@@ -263,10 +263,20 @@ export const Route = createRootRouteWithContext<{
           sizes: '16x16',
           href: '/favicon-16x16.png',
         },
-        { rel: 'manifest', href: '/site.webmanifest' },
+        {
+          rel: 'manifest',
+          href: matches.some(
+            (match) =>
+              match.pathname === '/chat' || match.pathname.startsWith('/chat/'),
+          )
+            ? '/chat/manifest.webmanifest'
+            : '/site.webmanifest',
+        },
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
       ],
-      scripts: [{ children: GOOGLE_ANALYTICS_BOOTSTRAP }],
+      scripts: import.meta.env.PROD
+        ? [{ children: GOOGLE_ANALYTICS_BOOTSTRAP }]
+        : [],
     }
   },
   headers: () => DOCUMENT_CACHE_HEADERS,
@@ -324,7 +334,11 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
   const hideNavbar = useMatches({
     select: (s) => s.some((d) => d.staticData?.showNavbar === false),
   })
-  const hideFooter = pathname === '/builder' || pathname.startsWith('/builder/')
+  const hideFooter =
+    pathname === '/builder' ||
+    pathname.startsWith('/builder/') ||
+    pathname === '/chat' ||
+    pathname.startsWith('/chat/')
 
   const htmlClass = useHtmlClass()
   const routeContent = (
@@ -361,7 +375,9 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
         <RouterContextProvider router={router}>
           <QueryClientProvider client={queryClient}>
             <ThemeProvider>
-              <SearchProvider>
+              <SearchProvider
+                enabled={pathname !== '/chat' && !pathname.startsWith('/chat/')}
+              >
                 <LoginModalProvider>
                   <ToastProvider>
                     <PageViewTracker />

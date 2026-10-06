@@ -27,7 +27,7 @@ const highlightLibrary = getLibrary('highlight')
 
 const markdownPrompt = [
   'Build a technical content renderer with TanStack Markdown.',
-  'Treat its serializable AST as the durable document model, render from that tree with HTML, React, or Octane, and enable only the syntax extensions the product needs.',
+  'Parse Markdown into a serializable document tree, render it with HTML, React, or Octane, and enable only the syntax extensions the product needs.',
   'For accumulated AI responses, use the optional streaming profile without carrying incremental parser state between updates.',
   'Preserve the safe defaults and deterministic output, and keep syntax highlighting as an explicit external integration.',
 ].join(' ')
@@ -117,7 +117,7 @@ const streamingSource = `# Streaming response
 
 The model can send **ordinary Markdown** as it thinks.
 
-- completed blocks stay stable
+- accumulated text is reparsed on each update
 - unfinished markers stay out of the way
 - React and HTML stay in sync
 
@@ -133,20 +133,20 @@ const streamingExtensions = [streamingMarkdownExtension()]
 const bundleComparisons = [
   {
     name: 'TanStack HTML',
-    size: '6.7 KB',
-    width: 'w-[13%]',
+    size: '7.13 KB',
+    width: 'w-[14%]',
     emphasis: true,
   },
-  { name: 'marked', size: '12.5 KB', width: 'w-[24%]', emphasis: false },
+  { name: 'marked', size: '12.47 KB', width: 'w-[24%]', emphasis: false },
   {
     name: 'unified stack',
-    size: '36.8 KB',
+    size: '36.62 KB',
     width: 'w-[70%]',
     emphasis: false,
   },
   {
     name: 'markdown-it',
-    size: '52.7 KB',
+    size: '52.06 KB',
     width: 'w-full',
     emphasis: false,
   },
@@ -156,8 +156,8 @@ export default function MarkdownLanding() {
   return (
     <LibraryLandingShell
       libraryId="markdown"
-      headline="Markdown with an exit strategy."
-      description="Parse documents or accumulated AI output into a plain, serializable tree. Inspect it, cache it, index it, or render it as HTML, React, or Octane."
+      headline="Tiny, fast Markdown for docs and AI streams."
+      description="Turn your content into a simple, portable document tree. Parse once, cache it, and render it as HTML, React, or Octane."
       hero={<ManuscriptPanel />}
       prompt={markdownPrompt}
       promptLabel="Copy Markdown prompt"
@@ -165,8 +165,8 @@ export default function MarkdownLanding() {
       <LandingSection tone="accent">
         <LandingSectionIntro
           centered
-          title="The AST is the product."
-          body="Parsing does not trap content inside a renderer. Edit the source and inspect the serializable tree, deterministic HTML, or React output."
+          title="Parse once. Render wherever you need it."
+          body="Keep a portable AST you can cache, inspect, reuse, and render in any framework without parsing it all over again."
         />
         <MarkdownWorkbench />
       </LandingSection>
@@ -174,8 +174,8 @@ export default function MarkdownLanding() {
       <LandingSection tone="ink">
         <div className="grid items-center gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
           <LandingSectionIntro
-            title="Stream the text. Keep the parser stateless."
-            body="Append each chunk and pass the complete string through Markdown. The optional streaming profile reparses synchronously, with no incremental state to coordinate or recover."
+            title="Made for streaming."
+            body="Broken formatting, partial responses, unfinished code blocks. We can handle it."
           />
           <StreamingReplay />
         </div>
@@ -184,8 +184,8 @@ export default function MarkdownLanding() {
       <LandingSection tone="raised">
         <div className="grid items-center gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
           <LandingSectionIntro
-            title="It does less Markdown on purpose."
-            body="Technical docs need a known vocabulary, not an open-ended compiler platform. New syntax has to justify its bytes, ambiguity, and maintenance cost."
+            title="Yep, we support that."
+            body="Headings, tables, footnotes, code fences, and plenty more, with a few less-common cases left out to keep things small and fast."
           />
           <div className="grid overflow-hidden rounded-xl border border-border-subtle bg-background-surface md:grid-cols-2">
             <SyntaxList
@@ -202,8 +202,17 @@ export default function MarkdownLanding() {
         </div>
         <div className="mt-12 grid items-center gap-12 border-t border-border-subtle pt-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
           <LandingSectionIntro
-            title="Safe defaults for Markdown input."
-            body="Markdown source renders with raw HTML escaped and unsafe link and image URLs removed by default. Custom ASTs, highlighters, and HTML hooks are trusted application inputs."
+            title={
+              <span className="text-ds-heading-4 sm:text-ds-heading-2">
+                <span className="block whitespace-nowrap">
+                  User-generated Markdown? 😍
+                </span>
+                <span className="block whitespace-nowrap">
+                  Malicious XSS? ❌
+                </span>
+              </span>
+            }
+            body="Render user content with fewer worries. We escape raw HTML and block executable URLs by default, and you stay in control of custom rendering."
           />
           <SafetyProof />
         </div>
@@ -212,8 +221,8 @@ export default function MarkdownLanding() {
       <LandingSection tone="accent">
         <div className="grid items-center gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
           <LandingSectionIntro
-            title="A parser should not outweigh the page."
-            body="Split entry points keep the parser, renderers, framework adapters, and docs extensions independent. Import only the layer the page needs."
+            title="Who needs server components?"
+            body="Markdown parsing so light your server can find another excuse to feel important. Parse and render in the browser, with separate imports for the pieces you need to keep your bundle small."
           />
           <BundleLedger />
         </div>
@@ -222,23 +231,34 @@ export default function MarkdownLanding() {
       <LandingSection tone="ink">
         <div className="grid items-center gap-12 lg:grid-cols-[1.08fr_0.92fr] lg:gap-16">
           <LandingSectionIntro
-            title="Syntax highlighting stays outside the parser."
-            body="Code fences store language and metadata in the AST. Supply a highlighter callback to render escaped token markup inside Markdown's code containers."
+            title="Your code. Your colors."
+            body={
+              <>
+                Got a favorite syntax highlighter? Bring it along, or use our
+                own{' '}
+                <Link
+                  to="/highlight/$version"
+                  params={{ version: 'latest' }}
+                  className="underline underline-offset-4"
+                >
+                  TanStack Highlight
+                </Link>
+                . We handle the Markdown and code-block markup, you handle the
+                colors.
+              </>
+            }
           />
           <Link
             to="/highlight/$version"
             params={{ version: 'latest' }}
             className="group rounded-xl border border-border-subtle bg-background-surface p-6 transition-colors hover:border-border-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
           >
-            <p className="font-ds-mono text-ds-mono-caps uppercase text-[var(--landing-accent-bright)]">
-              Companion, not dependency
-            </p>
-            <div className="mt-4 text-ds-heading-4">
+            <div className="text-ds-heading-4">
               <LibraryWordmark library={highlightLibrary} />
             </div>
             <p className="mt-3 text-ds-body-sm text-text-primary/55">
-              Synchronous highlighting for the code fences the document model
-              already understands.
+              A tiny, synchronous highlighter that plugs right into Markdown’s
+              code fences.
             </p>
             <span className="mt-6 inline-flex items-center gap-2 text-ds-label-md">
               Explore Highlight
@@ -696,10 +716,10 @@ function BundleLedger() {
       ))}
       <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-border-subtle p-px font-ds-mono text-ds-mono-xs sm:grid-cols-4">
         {[
-          ['4.9 KB', 'Parser'],
-          ['6.6 KB', 'React adapter'],
-          ['6.6 KB', 'Octane adapter'],
-          ['2.3 KB', 'docs preset'],
+          ['5.29 KB', 'Parser'],
+          ['7.09 KB', 'React adapter'],
+          ['7.06 KB', 'Octane adapter'],
+          ['2.37 KB', 'docs preset'],
         ].map(([value, label]) => (
           <div key={label} className="bg-background-surface px-3 py-4">
             <div className="font-black">{value}</div>
@@ -710,10 +730,12 @@ function BundleLedger() {
         ))}
       </div>
       <p className="text-ds-body-sm text-text-primary/55">
-        Gzip sizes for minified browser bundles. Renderers include the parser;
-        framework runtimes and highlighters are excluded. Feature sets differ.{' '}
+        Markdown 1.0.0 · measured October 1, 2026 with Node 26.3.1. Gzip sizes
+        for minified browser builds of public entry exports. Renderers include
+        the parser; framework runtimes and highlighters are excluded. Feature
+        sets differ, and sizes vary with imports and build tools.{' '}
         <a
-          href="https://github.com/TanStack/markdown/blob/v0.0.14/reports/sizes.md"
+          href="https://github.com/TanStack/markdown/blob/v1.0.0/scripts/measure-size.ts"
           className="underline underline-offset-4"
         >
           Measurement details

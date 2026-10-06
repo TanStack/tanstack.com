@@ -12,7 +12,8 @@ import {
   BundleSizeChart,
   ThemeGallery,
 } from './ChartsLandingGraphics'
-import { CatalogChartsHero, ChartsCatalogGallery } from './ChartsCatalogGallery'
+import { ChartsCatalogGallery } from './ChartsCatalogGallery'
+import { ChartsHeroBackground } from './ChartsHeroBackground'
 
 const chartPrompt = `Using TanStack Charts and the accounts array in this project, plot monthlyRevenue on x and retention on y. Size each point by seats with an explicit square-root radius scale, color it by segment, and preserve the original Account rows for typed tooltip and focus callbacks. Use the compact linear scale from @tanstack/charts/scales/linear so TanStack Charts can infer the domains, add the tooltip behavior from @tanstack/charts/tooltip, and render it through the React adapter with a useful ariaLabel.`
 
@@ -27,7 +28,7 @@ export default function ChartsLanding({
     <LibraryLandingShell
       description={charts.description}
       headline="A chart grammar you don't have to outgrow."
-      hero={<CatalogChartsHero catalog={catalog} />}
+      heroBackground={<ChartsHeroBackground />}
       libraryId="charts"
       prompt={chartPrompt}
       promptLabel="Copy Charts prompt"

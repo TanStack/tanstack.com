@@ -2197,10 +2197,10 @@ function SearchResultsInChat({ surface }: { surface: SearchSurface }) {
       }}
     >
       <div className={isDock ? 'px-3' : 'px-6'}>
-        <div className="rounded-t-2xl rounded-b-none border border-b-0 border-gray-200 dark:border-white/10 overflow-hidden bg-white dark:bg-white/[0.06]">
+        <div className="rounded-t-2xl rounded-b-none border border-b-0 border-gray-200 dark:border-white/10 overflow-hidden bg-white dark:bg-black">
           <div
             className={twMerge(
-              'px-3 py-1.5 border-b border-gray-100 dark:border-white/[0.06] flex gap-2',
+              'px-3 py-1.5 border-b border-gray-100 dark:border-white/6 flex gap-2',
               isDock ? 'flex-col items-stretch' : 'items-center',
             )}
           >

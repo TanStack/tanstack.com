@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { ExampleWorkbench } from './ExampleWorkbench.client'
-import { BuilderEmbeddedSkeleton } from '~/components/builder/BuilderLoading'
+import { BuilderEmbeddedSkeleton } from '~/chat/components/projects/Loading'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { shouldAutoRunBuilder } from '~/utils/builder-auto-run.client'
 import { decodeSharedExampleProject } from '~/utils/example-share.client'
@@ -76,7 +76,7 @@ export function SharedExamplePage({ hash }: { hash?: string }) {
 }
 
 async function fetchStoredProject(hash: string) {
-  const response = await fetch(`/api/builder/projects/${hash}`)
+  const response = await fetch(`/api/chat/projects/${hash}`)
   if (!response.ok) throw new Error('This builder was not found.')
   return parseSharedExampleProject(await response.json())
 }

@@ -34,6 +34,7 @@ import {
 } from '@radix-ui/react-dropdown-menu'
 import { twMerge } from 'tailwind-merge'
 import { Tooltip } from '~/components/Tooltip'
+import { copyTextToClipboard } from '~/utils/browser-effects'
 import {
   binningOptionsByType,
   getHistoryStartDate,
@@ -1701,7 +1702,7 @@ function EmbedChartAction({
 
   const copyText = React.useCallback(
     async (target: 'iframe' | 'url', text: string) => {
-      await navigator.clipboard.writeText(text)
+      await copyTextToClipboard(text)
       setCopiedTarget(target)
       window.setTimeout(() => {
         setCopiedTarget((currentTarget) =>

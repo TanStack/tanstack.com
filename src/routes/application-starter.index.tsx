@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { ClientOnly, createFileRoute } from '@tanstack/react-router'
-import { z } from 'zod'
+import * as v from 'valibot'
 import { seo } from '~/utils/seo'
 
 const LazyApplicationStarterPage = React.lazy(() =>
@@ -12,21 +12,26 @@ const LazyApplicationStarterPage = React.lazy(() =>
 )
 
 // Search params schema for shareable URLs
-const applicationStarterSearchSchema = z
-  .object({
-    name: z.string().optional(),
-    framework: z.string().optional(),
-    features: z.string().optional(), // comma-separated feature IDs
-    pm: z.enum(['pnpm', 'npm', 'yarn', 'bun']).optional(),
-    tailwind: z.enum(['false']).optional(),
-    tab: z.enum(['summary', 'code', 'preview']).optional(),
-    file: z.string().optional(), // selected file in files tab
-    addon: z.string().optional(), // selected addon in addons tab
-    addonFile: z.string().optional(), // selected file in addon view
-    template: z.string().optional(),
+const applicationStarterSearchSchema = v.pipe(
+  v.unknown(),
+  v.check(
+    (input) => !Array.isArray(input),
+    'Expected a search parameters object',
+  ),
+  v.looseObject({
+    name: v.optional(v.string()),
+    framework: v.optional(v.string()),
+    features: v.optional(v.string()), // comma-separated feature IDs
+    pm: v.optional(v.picklist(['pnpm', 'npm', 'yarn', 'bun'])),
+    tailwind: v.optional(v.literal('false')),
+    tab: v.optional(v.picklist(['summary', 'code', 'preview'])),
+    file: v.optional(v.string()), // selected file in files tab
+    addon: v.optional(v.string()), // selected addon in addons tab
+    addonFile: v.optional(v.string()), // selected file in addon view
+    template: v.optional(v.string()),
     // Feature options as key.value params handled dynamically
-  })
-  .passthrough()
+  }),
+)
 
 export const Route = createFileRoute('/application-starter/')({
   ssr: false,

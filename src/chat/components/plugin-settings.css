@@ -1,0 +1,262 @@
+@scope (:root:has(.tanchat-shell)) {
+  .plugin-settings {
+    min-width: 0;
+  }
+  .plugin-note {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.5;
+    margin: 10px 0;
+  }
+  .plugin-toolbar,
+  .plugin-heading,
+  .plugin-actions,
+  .plugin-detail-state {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+  }
+  .plugin-heading strong {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .plugin-heading > span {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .plugin-toolbar input {
+    flex: 1;
+    min-width: 120px;
+  }
+  .plugin-toolbar .select-field-trigger {
+    max-width: 125px;
+    width: 125px;
+  }
+  .plugin-toolbar > button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .plugin-settings input:not([type='file']),
+  .plugin-settings .select-field-trigger {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: transparent;
+    color: inherit;
+    padding: 8px;
+  }
+  .plugin-settings .select-field-trigger {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .plugin-settings input[type='checkbox'] {
+    accent-color: var(--accent);
+  }
+  .plugin-settings input:focus-visible,
+  .plugin-settings .select-field-trigger:focus-visible,
+  .plugin-list-main button:focus-visible,
+  .plugin-settings summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .plugin-list {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+  .plugin-list > li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 0;
+  }
+  .plugin-list-main {
+    flex: 1;
+    min-width: 0;
+  }
+  .plugin-list-main > button {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+  .plugin-list-main p {
+    margin: 4px 0;
+    font-size: 12px;
+    overflow-wrap: anywhere;
+  }
+  .plugin-list-main small {
+    color: var(--muted);
+    font-size: 11px;
+  }
+  .plugin-switch {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    min-height: 32px;
+    margin: 0 !important;
+  }
+  .plugin-enable-install {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+  }
+  .plugin-contents,
+  .plugin-bindings,
+  .plugin-changes {
+    font-size: 13px;
+    overflow-wrap: anywhere;
+  }
+  .plugin-settings h3 {
+    font-size: 13px;
+    margin: 18px 0 8px;
+  }
+  .plugin-requirement {
+    display: grid;
+    gap: 4px;
+    margin: 10px 0;
+    padding: 8px 0;
+  }
+  .plugin-requirement > span,
+  .plugin-requirement > small {
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .plugin-file,
+  .plugin-source {
+    margin: 10px 0;
+  }
+  .plugin-settings summary {
+    cursor: pointer;
+    min-height: 32px;
+    padding: 6px 0;
+  }
+  .plugin-settings pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    max-height: 320px;
+    overflow: auto;
+    background: var(--surface-soft, rgba(0, 0, 0, 0.025));
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .plugin-file-comparison {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .plugin-file-comparison > div {
+    min-width: 0;
+  }
+  .plugin-source dl {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 8px 14px;
+    font-size: 12px;
+  }
+  .plugin-source dt {
+    color: var(--muted);
+  }
+  .plugin-source dd {
+    margin: 0;
+  }
+  .plugin-digest {
+    display: flex;
+    align-items: start;
+    gap: 6px;
+  }
+  .plugin-digest code {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .plugin-issues {
+    margin: 12px 0;
+    padding-left: 20px;
+    font-size: 12px;
+  }
+  .plugin-issues li {
+    margin: 8px 0;
+  }
+  .plugin-issues small {
+    display: block;
+    color: var(--muted);
+  }
+  .plugin-binding {
+    margin: 12px 0;
+  }
+  .plugin-binding label {
+    display: grid;
+    gap: 6px;
+    margin: 0;
+  }
+  .plugin-binding > small {
+    display: block;
+    margin-top: 4px;
+    color: var(--muted);
+    overflow-wrap: anywhere;
+  }
+  .plugin-remove-review {
+    border: 1px solid var(--line);
+    padding: 12px;
+    border-radius: 8px;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+  .plugin-remove-button {
+    color: var(--danger);
+  }
+  .plugin-menu-positioner {
+    z-index: 100;
+  }
+  .plugin-menu {
+    min-width: 160px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 4px;
+    box-shadow: 0 8px 26px var(--shadow-soft);
+  }
+  .plugin-menu-option {
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+    outline: none;
+  }
+  .plugin-menu-option[data-highlighted] {
+    background: var(--soft);
+  }
+  @media (max-width: 600px) {
+    .plugin-toolbar input {
+      flex-basis: 100%;
+    }
+    .plugin-file-comparison {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (pointer: coarse) {
+    .plugin-switch {
+      min-width: 44px;
+      min-height: 44px;
+    }
+    .plugin-settings summary,
+    .plugin-menu-option {
+      min-height: 44px;
+    }
+    .plugin-settings .primary,
+    .plugin-settings .secondary {
+      min-height: 44px;
+    }
+  }
+}

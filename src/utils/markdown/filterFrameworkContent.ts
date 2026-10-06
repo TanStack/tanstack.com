@@ -18,6 +18,8 @@
  *   <!-- ::end:tabs -->
  */
 
+import { parseMarkdown } from '@tanstack/markdown/parser'
+import { transformPackageManagerTabs } from '@tanstack/markdown/extensions/tabs'
 import {
   getInstallCommand,
   type PackageManager,
@@ -80,7 +82,7 @@ export function extractFrameworksFromMarkdown(markdown: string): Array<string> {
 
 /**
  * Filters framework-specific content and package-manager tabs from raw markdown.
- * If no framework is specified, returns markdown unchanged.
+ * Shared package-manager commands do not require a framework selection.
  */
 export function filterFrameworkContent(
   markdown: string,
@@ -88,14 +90,12 @@ export function filterFrameworkContent(
 ): string {
   const { framework, packageManager, keepMarkers = false } = options
 
-  if (!framework) {
-    return markdown
-  }
-
-  const normalizedFramework = framework.toLowerCase()
+  const normalizedFramework = framework?.toLowerCase()
 
   // First pass: filter framework blocks
-  let result = filterFrameworkBlocks(markdown, normalizedFramework, keepMarkers)
+  let result = normalizedFramework
+    ? filterFrameworkBlocks(markdown, normalizedFramework, keepMarkers)
+    : markdown
 
   // Second pass: filter package-manager tabs
   result = filterPackageManagerTabs(
@@ -145,12 +145,12 @@ function filterFrameworkBlocks(
 
 /**
  * Filters <!-- ::start:tabs variant="package-manager" --> blocks.
- * If framework matches and packageManager is provided, outputs the command.
+ * If shared or matching framework commands exist and packageManager is provided, outputs the commands.
  * Otherwise returns block as-is.
  */
 function filterPackageManagerTabs(
   markdown: string,
-  framework: string,
+  framework: string | undefined,
   packageManager: PackageManager | undefined,
   keepMarkers: boolean,
 ): string {
@@ -175,7 +175,8 @@ function filterPackageManagerTabs(
 
       // Parse framework lines
       const frameworkPackages = parseFrameworkLines(blockContent)
-      const packages = frameworkPackages[framework]
+      const packages =
+        frameworkPackages[framework ?? ''] ?? frameworkPackages['']
 
       // If no match for framework, return as-is
       if (!packages || packages.length === 0) {
@@ -212,34 +213,18 @@ function parseAttribute(attrs: string, name: string): string | undefined {
 }
 
 /**
- * Parse framework lines like "react: @tanstack/react-query" from block content.
- * Returns { framework: [[packages]] } structure.
+ * Use the same package groups as the HTML renderer, including shared commands
+ * under the empty framework key and literal arguments inside code blocks.
  */
 function parseFrameworkLines(content: string): Record<string, string[][]> {
-  const result: Record<string, string[][]> = {}
-  const lines = content.split('\n')
-
-  for (const line of lines) {
-    const trimmed = line.trim()
-    if (!trimmed) continue
-
-    const colonIndex = trimmed.indexOf(':')
-    if (colonIndex === -1) continue
-
-    const framework = trimmed.slice(0, colonIndex).trim().toLowerCase()
-    const packagesStr = trimmed.slice(colonIndex + 1).trim()
-    const packages = packagesStr.split(/\s+/).filter(Boolean)
-
-    if (!framework || packages.length === 0) continue
-
-    if (result[framework]) {
-      result[framework].push(packages)
-    } else {
-      result[framework] = [packages]
-    }
-  }
-
-  return result
+  const component = transformPackageManagerTabs({
+    type: 'component',
+    name: 'tabs',
+    attributes: {},
+    children: parseMarkdown(content, { allowHtml: true }).children,
+  })
+  const metadata = component.properties?.['data-package-manager-meta']
+  return metadata ? JSON.parse(metadata).packagesByFramework : {}
 }
 
 type FrameworkSection = {

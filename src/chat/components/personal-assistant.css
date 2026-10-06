@@ -1,0 +1,89 @@
+@scope (:root:has(.tanchat-shell)) {
+  .personal-assistant {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+    margin: 3px 0 7px;
+    padding: 0;
+    border-radius: 10px;
+    background: transparent;
+  }
+
+  .personal-assistant-open {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+    padding: 8px var(--sidebar-content-inset, 9px);
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .personal-assistant:hover,
+  .personal-assistant:focus-within,
+  .personal-assistant:has(.personal-assistant-open[aria-current='page']) {
+    background: var(--soft);
+  }
+
+  .personal-assistant > .icon-button,
+  .personal-assistant > .icon-button:hover {
+    background: transparent;
+    margin-right: 4px;
+  }
+
+  .personal-assistant-open:focus-visible,
+  .personal-assistant .icon-button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .personal-assistant .bw-avatar {
+    width: 38px;
+    height: 38px;
+  }
+
+  .personal-assistant-copy {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 1px;
+  }
+
+  .personal-assistant-copy strong,
+  .personal-assistant-copy small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .personal-assistant-copy strong {
+    font-size: 13px;
+  }
+
+  .personal-assistant-copy small {
+    color: var(--muted);
+    font-size: 11px;
+  }
+
+  .personal-assistant > .icon-button {
+    opacity: 0;
+  }
+
+  .personal-assistant:hover > .icon-button,
+  .personal-assistant:focus-within > .icon-button {
+    opacity: 1;
+  }
+
+  @media (hover: none) {
+    .personal-assistant > .icon-button {
+      opacity: 1;
+    }
+  }
+}

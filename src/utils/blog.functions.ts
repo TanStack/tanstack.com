@@ -137,6 +137,8 @@ ${post.content}`
       filePath: `src/blog/${data}.md`,
       headerImage: post.headerImage,
       isUnpublished,
+      headerVideo: post.headerVideo,
+      headerVideoCaptions: post.headerVideoCaptions,
       library: post.library,
       published: post.published,
       slug: post.slug,

@@ -26,8 +26,8 @@ const CATEGORY_SECTIONS: ReadonlyArray<{
 }> = [
   { key: 'framework', label: 'Framework' },
   { key: 'data', label: 'Data & State' },
-  { key: 'ui', label: 'UI & UX' },
-  { key: 'performance', label: 'Performance' },
+  { key: 'ui', label: 'UI' },
+  { key: 'performance', label: 'UX' },
   { key: 'tooling', label: 'Tooling' },
 ]
 
@@ -87,7 +87,7 @@ export function LibrariesBrowser({
     ? `TanStack ${activeFrameworkOption.label} libraries`
     : 'All Libraries'
   const description = activeFrameworkOption
-    ? `Type-safe, headless TanStack primitives with ${activeFrameworkOption.label} support for routing, data, UI, performance, and tooling.`
+    ? `Type-safe, headless TanStack primitives with ${activeFrameworkOption.label} support for routing, data, UI, UX, and tooling.`
     : 'Browse the full set of public TanStack libraries.'
 
   return (

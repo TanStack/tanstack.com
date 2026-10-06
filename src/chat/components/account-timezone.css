@@ -1,0 +1,33 @@
+@scope (:root:has(.tanchat-shell)) {
+  .settings-content .account-timezone {
+    margin: 0;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+  }
+  .account-timezone-label {
+    flex: 1 1 150px;
+  }
+  .account-timezone-label label {
+    margin: 0;
+    font-size: 13px;
+  }
+  .account-timezone-controls {
+    display: flex;
+    align-items: center;
+    flex: 1 1 260px;
+    gap: 8px;
+    min-width: 0;
+  }
+  .account-timezone-controls input {
+    min-width: 0;
+  }
+  .account-timezone-controls button {
+    flex-shrink: 0;
+  }
+  .account-timezone-feedback {
+    flex-basis: 100%;
+  }
+  .account-timezone-feedback[role='alert'] {
+    color: var(--danger);
+  }
+}

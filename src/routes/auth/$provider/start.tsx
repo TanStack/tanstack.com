@@ -1,3 +1,5 @@
+import { getSignInProviders } from '~/utils/auth.functions'
+import { oauthPopupChannelSchema } from '~/auth/oauth-popup'
 import { createFileRoute } from '@tanstack/react-router'
 import { env } from '~/utils/env'
 import {
@@ -38,6 +40,12 @@ export const Route = createFileRoute('/auth/$provider/start')({
           return Response.redirect(new URL('/login', request.url), 302)
         }
 
+        const providers = await getSignInProviders()
+        if (!providers[provider])
+          return new Response('Sign-in is not configured for this server.', {
+            status: 503,
+          })
+
         // Generate random state token for CSRF protection
         const state = generateOAuthState()
 
@@ -49,7 +57,17 @@ export const Route = createFileRoute('/auth/$provider/start')({
         const url = new URL(request.url)
         const isPopup = url.searchParams.get('popup') === 'true'
         const popupCookie = isPopup
-          ? createOAuthPopupCookie(isProduction)
+          ? createOAuthPopupCookie(
+              isProduction,
+              (() => {
+                const channel = oauthPopupChannelSchema.safeParse(
+                  url.searchParams.get('popupChannel'),
+                )
+                return channel.success
+                  ? { state, channel: channel.data }
+                  : undefined
+              })(),
+            )
           : null
 
         // Check for returnTo URL (for redirect after auth)

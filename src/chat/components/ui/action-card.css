@@ -1,0 +1,78 @@
+@scope (:root:has(.tanchat-shell)) {
+  .ui-action-card {
+    margin: 12px 0;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface);
+    font-size: 13px;
+    min-width: 0;
+  }
+  .ui-action-card-heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ui-action-card-heading h3 {
+    margin: 0;
+    flex: 1;
+    font-size: 13px;
+    font-weight: 650;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+  .ui-action-card-heading > svg {
+    width: 16px;
+    height: 16px;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+  .ui-action-card-heading > .icon-button {
+    margin: -4px -5px -4px 0;
+  }
+  .ui-action-card > p {
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+  .ui-action-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .ui-action-card details {
+    margin-top: 10px;
+    font-size: 12px;
+  }
+  .ui-action-card summary {
+    cursor: pointer;
+  }
+  .ui-action-card pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    max-height: 240px;
+    overflow: auto;
+  }
+  .ui-action-card .pending-task-guide {
+    padding-top: 10px;
+  }
+  .pending-task-guide-content {
+    max-height: 320px;
+    overflow: auto;
+    margin-top: 8px;
+    padding-right: 8px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+  .pending-task-guide-content :is(h1, h2, h3, h4, h5, h6) {
+    font-size: 13px;
+    margin: 1em 0 0.4em;
+  }
+  .pending-task-guide-content :is(ul, ol) {
+    padding-left: 1.4em;
+  }
+}

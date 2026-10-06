@@ -1,3 +1,4 @@
+import { env } from '~/utils/env'
 import { createServerFn } from '@tanstack/react-start'
 import {
   deleteCookie,
@@ -146,6 +147,11 @@ export const getProducts = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data }): Promise<ProductListPage> => {
     setBrowseCacheHeaders()
+    if (
+      process.env.NODE_ENV === 'development' &&
+      !env.SHOPIFY_PRIVATE_STOREFRONT_TOKEN
+    )
+      return { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } }
     const result = await shopifyServerFetch<
       ProductsQueryResult,
       ProductsQueryVariables
@@ -163,6 +169,11 @@ export const getProducts = createServerFn({ method: 'POST' })
 
 export const getCollections = createServerFn({ method: 'GET' }).handler(
   async (): Promise<Array<CollectionListItem>> => {
+    if (
+      process.env.NODE_ENV === 'development' &&
+      !env.SHOPIFY_PRIVATE_STOREFRONT_TOKEN
+    )
+      return []
     setBrowseCacheHeaders()
     const result = await shopifyServerFetch<
       CollectionsQueryResult,
@@ -178,6 +189,11 @@ export const getCollections = createServerFn({ method: 'GET' }).handler(
 export const getProduct = createServerFn({ method: 'POST' })
   .validator(v.object({ handle: shopifyHandleSchema }))
   .handler(async ({ data }): Promise<ProductDetail | null> => {
+    if (
+      process.env.NODE_ENV === 'development' &&
+      !env.SHOPIFY_PRIVATE_STOREFRONT_TOKEN
+    )
+      return null
     setBrowseCacheHeaders()
     const result = await shopifyServerFetch<
       ProductQueryResult,
@@ -211,6 +227,11 @@ export const getCollection = createServerFn({ method: 'POST' })
     }),
   )
   .handler(async ({ data }): Promise<CollectionDetail | null> => {
+    if (
+      process.env.NODE_ENV === 'development' &&
+      !env.SHOPIFY_PRIVATE_STOREFRONT_TOKEN
+    )
+      return null
     setBrowseCacheHeaders()
     const result = await shopifyServerFetch<
       CollectionQueryResult,
@@ -237,6 +258,11 @@ export const getCollection = createServerFn({ method: 'POST' })
 export const getPage = createServerFn({ method: 'POST' })
   .validator(v.object({ handle: shopifyHandleSchema }))
   .handler(async ({ data }): Promise<PageDetail | null> => {
+    if (
+      process.env.NODE_ENV === 'development' &&
+      !env.SHOPIFY_PRIVATE_STOREFRONT_TOKEN
+    )
+      return null
     setBrowseCacheHeaders()
     const result = await shopifyServerFetch<
       PageQueryResult,
@@ -250,6 +276,11 @@ export const getPage = createServerFn({ method: 'POST' })
 
 export const getShopPolicies = createServerFn({ method: 'GET' }).handler(
   async (): Promise<Array<PolicySummary>> => {
+    if (
+      process.env.NODE_ENV === 'development' &&
+      !env.SHOPIFY_PRIVATE_STOREFRONT_TOKEN
+    )
+      return []
     setBrowseCacheHeaders()
     const result = await shopifyServerFetch<ShopPoliciesQueryResult>({
       query: SHOP_POLICIES_QUERY,
@@ -264,6 +295,11 @@ export const getShopPolicy = createServerFn({ method: 'POST' })
     async ({
       data,
     }): Promise<{ title: string; body: string; handle: string } | null> => {
+      if (
+        process.env.NODE_ENV === 'development' &&
+        !env.SHOPIFY_PRIVATE_STOREFRONT_TOKEN
+      )
+        return null
       setBrowseCacheHeaders()
       const result = await shopifyServerFetch<ShopPoliciesQueryResult>({
         query: SHOP_POLICIES_QUERY,
@@ -295,6 +331,15 @@ export const searchProducts = createServerFn({ method: 'POST' })
       products: ProductListPage['nodes']
     }> => {
       setBrowseCacheHeaders()
+      if (
+        process.env.NODE_ENV === 'development' &&
+        !env.SHOPIFY_PRIVATE_STOREFRONT_TOKEN
+      )
+        return {
+          totalCount: 0,
+          products: [],
+          pageInfo: { hasNextPage: false, endCursor: null },
+        }
       const result = await shopifyServerFetch<
         SearchQueryResult,
         { query: string; first: number; after: string | null }
@@ -341,6 +386,11 @@ async function fetchCartById(cartId: string): Promise<CartDetail | null> {
 export const getCart = createServerFn({ method: 'GET' }).handler(
   async (): Promise<CartDetail | null> => {
     setCartResponseHeaders()
+    if (
+      process.env.NODE_ENV === 'development' &&
+      !env.SHOPIFY_PRIVATE_STOREFRONT_TOKEN
+    )
+      return null
     const cartId = getCookie(CART_COOKIE_NAME)
     if (!cartId) return null
 
@@ -500,4 +550,8 @@ export const removeDiscountCode = createServerFn({ method: 'POST' }).handler(
     if (!cart) throw new Error('Shopify returned no cart after discount clear.')
     return cart
   },
+)
+
+export const isShopConfigured = createServerFn({ method: 'GET' }).handler(() =>
+  Boolean(env.SHOPIFY_PRIVATE_STOREFRONT_TOKEN),
 )

@@ -20,6 +20,8 @@ import {
 // Environment Configuration
 // ============================================================================
 
+let developmentSessionSecret: string | undefined
+
 function getSessionSecret(): string {
   const secret = process.env.SESSION_SECRET
   if (!secret) {
@@ -28,17 +30,8 @@ function getSessionSecret(): string {
         'SESSION_SECRET environment variable is required in production',
       )
     }
-    // In development, require explicit opt-in to use insecure default
-    if (process.env.ALLOW_INSECURE_SESSION_SECRET !== 'true') {
-      throw new Error(
-        'SESSION_SECRET environment variable is required. ' +
-          'Set ALLOW_INSECURE_SESSION_SECRET=true to use insecure default in development.',
-      )
-    }
-    console.warn(
-      '[Auth] WARNING: Using insecure session secret for development. Do NOT use in production.',
-    )
-    return 'dev-secret-key-change-in-production'
+    // Sessions are local to this worker unless a persistent secret is supplied.
+    return (developmentSessionSecret ??= crypto.randomUUID())
   }
   return secret
 }

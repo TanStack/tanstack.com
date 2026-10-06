@@ -1,5 +1,6 @@
 packages:
   - .
+  - desktop
 
 minimumReleaseAgeExclude:
   - '@tanstack/charts@0.16.0'
@@ -40,6 +41,10 @@ allowBuilds:
   workerd: true
   # Optional remote model-type freshness check, not needed to build the SDK.
   '@openrouter/sdk': false
+  '@google/genai': false
+  protobufjs: false
+  electron-winstaller: true
 
 patchedDependencies:
   '@tanstack/openai-base@0.10.11': patches/@tanstack__openai-base@0.10.11.patch
+  postgres@3.4.8: patches/postgres@3.4.8.patch

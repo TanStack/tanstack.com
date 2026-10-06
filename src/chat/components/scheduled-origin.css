@@ -1,0 +1,11 @@
+@scope (:root:has(.tanchat-shell)) {
+  .scheduled-origin {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 5px;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.4;
+  }
+}

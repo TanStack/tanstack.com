@@ -18,6 +18,8 @@ import { Route as ApplicationStarterRouteImport } from './routes/application-sta
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as BrandGuideRouteImport } from './routes/brand-guide'
 import { Route as BuilderRouteImport } from './routes/builder'
+import { Route as ChatRouteImport } from './routes/chat'
+import { Route as ChatAccessRouteImport } from './routes/chat-access'
 import { Route as CommunityProjectsRouteImport } from './routes/community-projects'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as DsRouteImport } from './routes/ds'
@@ -54,6 +56,7 @@ import { Route as AccountNotesRouteImport } from './routes/account/notes'
 import { Route as AccountSubmissionsRouteImport } from './routes/account/submissions'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminAuditRouteImport } from './routes/admin/audit'
+import { Route as AdminChatAccessRouteImport } from './routes/admin/chat-access'
 import { Route as AdminDocsRouteImport } from './routes/admin/docs'
 import { Route as AdminGithubStatsRouteImport } from './routes/admin/github-stats'
 import { Route as AdminIntentRouteImport } from './routes/admin/intent'
@@ -73,6 +76,10 @@ import { Route as BuilderAiRouteImport } from './routes/builder_.ai'
 import { Route as BuilderEsbuildRouteImport } from './routes/builder_.esbuild'
 import { Route as BuilderLlmsDottxtRouteImport } from './routes/builder_.llms[.]txt'
 import { Route as BuilderNewRouteImport } from './routes/builder_.new'
+import { Route as ChatIndexRouteImport } from './routes/chat.index'
+import { Route as ChatChartsRouteImport } from './routes/chat.charts'
+import { Route as ChatNewProjectRouteImport } from './routes/chat.new-project'
+import { Route as ChatSharedRouteImport } from './routes/chat.shared'
 import { Route as DsIndexRouteImport } from './routes/ds.index'
 import { Route as DsAvatarRouteImport } from './routes/ds.avatar'
 import { Route as DsBadgesRouteImport } from './routes/ds.badges'
@@ -142,9 +149,27 @@ import { Route as ApiApplicationStarterLoadTemplateRouteImport } from './routes/
 import { Route as ApiApplicationStarterResolveRouteImport } from './routes/api/application-starter/resolve'
 import { Route as ApiApplicationStarterSuggestRouteImport } from './routes/api/application-starter/suggest'
 import { Route as ApiApplicationStarterValidateRouteImport } from './routes/api/application-starter/validate'
-import { Route as ApiBuilderAssistRouteImport } from './routes/api/builder/assist'
-import { Route as ApiBuilderProjectSnapshotsRouteImport } from './routes/api/builder/project-snapshots'
-import { Route as ApiBuilderProjectsRouteImport } from './routes/api/builder/projects'
+import { Route as ApiChatActivityRouteImport } from './routes/api/chat/activity'
+import { Route as ApiChatAppVersionRouteImport } from './routes/api/chat/app-version'
+import { Route as ApiChatBootstrapRouteImport } from './routes/api/chat/bootstrap'
+import { Route as ApiChatBotsRouteImport } from './routes/api/chat/bots'
+import { Route as ApiChatConnectionRouteImport } from './routes/api/chat/connection'
+import { Route as ApiChatDeviceTransportRouteImport } from './routes/api/chat/device-transport'
+import { Route as ApiChatDraftRouteImport } from './routes/api/chat/draft'
+import { Route as ApiChatFilesRouteImport } from './routes/api/chat/files'
+import { Route as ApiChatModelOptionsRouteImport } from './routes/api/chat/model-options'
+import { Route as ApiChatModelsRouteImport } from './routes/api/chat/models'
+import { Route as ApiChatPluginsRouteImport } from './routes/api/chat/plugins'
+import { Route as ApiChatPolicyRouteImport } from './routes/api/chat/policy'
+import { Route as ApiChatProjectSnapshotsRouteImport } from './routes/api/chat/project-snapshots'
+import { Route as ApiChatProjectsRouteImport } from './routes/api/chat/projects'
+import { Route as ApiChatRecipesRouteImport } from './routes/api/chat/recipes'
+import { Route as ApiChatReferencesRouteImport } from './routes/api/chat/references'
+import { Route as ApiChatSectionsRouteImport } from './routes/api/chat/sections'
+import { Route as ApiChatSkillsRouteImport } from './routes/api/chat/skills'
+import { Route as ApiChatWorkspaceRouteImport } from './routes/api/chat/workspace'
+import { Route as ApiChatWorkspaceHistoryRouteImport } from './routes/api/chat/workspace-history'
+import { Route as ApiChatWorkspaceIndexRouteImport } from './routes/api/chat/workspace-index'
 import { Route as ApiDataLibrariesRouteImport } from './routes/api/data/libraries'
 import { Route as ApiDataPartnersRouteImport } from './routes/api/data/partners'
 import { Route as ApiDiscordInteractionsRouteImport } from './routes/api/discord/interactions'
@@ -155,8 +180,15 @@ import { Route as ApiMcpSplatRouteImport } from './routes/api/mcp/$'
 import { Route as ApiOgChar123Char125DotpngRouteImport } from './routes/api/og/{$}[.]png'
 import { Route as ApiReadmeChar123Char125DotpngRouteImport } from './routes/api/readme/{$}[.]png'
 import { Route as AuthProviderStartRouteImport } from './routes/auth/$provider/start'
+import { Route as AuthMcpCallbackRouteImport } from './routes/auth/mcp/callback'
+import { Route as AuthMcpClientMetadataRouteImport } from './routes/auth/mcp/client-metadata'
 import { Route as BuilderPHashRouteImport } from './routes/builder_.p.$hash'
 import { Route as ChartsCatalogCatalogDotjsonRouteImport } from './routes/charts.catalog_.catalog[.]json'
+import { Route as ChatBBotIdRouteImport } from './routes/chat.b.$botId'
+import { Route as ChatCConversationIdRouteImport } from './routes/chat.c.$conversationId'
+import { Route as ChatPHashRouteImport } from './routes/chat.p.$hash'
+import { Route as ChatProjectProjectIdRouteImport } from './routes/chat.project.$projectId'
+import { Route as ChatWWorkspaceIdRouteImport } from './routes/chat.w.$workspaceId'
 import { Route as IntentRegistryIndexRouteImport } from './routes/intent/registry/index'
 import { Route as IntentRegistryPackageNameRouteImport } from './routes/intent/registry/$packageName'
 import { Route as ShopCollectionsHandleRouteImport } from './routes/shop.collections.$handle'
@@ -196,9 +228,36 @@ import { Route as ApiApplicationStarterDeployCheckNameRouteImport } from './rout
 import { Route as ApiApplicationStarterDeployGithubRouteImport } from './routes/api/application-starter/deploy/github'
 import { Route as ApiAuthCallbackProviderRouteImport } from './routes/api/auth/callback/$provider'
 import { Route as ApiAuthCliCreateTicketRouteImport } from './routes/api/auth/cli/create-ticket'
-import { Route as ApiBuilderOpenrouterCallbackRouteImport } from './routes/api/builder/openrouter/callback'
-import { Route as ApiBuilderProjectSnapshotsHashRouteImport } from './routes/api/builder/project-snapshots.$hash'
-import { Route as ApiBuilderProjectsIdRouteImport } from './routes/api/builder/projects.$id'
+import { Route as ApiChatAccountDevicesRouteImport } from './routes/api/chat/account/devices'
+import { Route as ApiChatAccountOnboardingRouteImport } from './routes/api/chat/account/onboarding'
+import { Route as ApiChatAccountPreferencesRouteImport } from './routes/api/chat/account/preferences'
+import { Route as ApiChatBotDraftsIdRouteImport } from './routes/api/chat/bot-drafts/$id'
+import { Route as ApiChatBotsIdRouteImport } from './routes/api/chat/bots/$id'
+import { Route as ApiChatBotsBulkRouteImport } from './routes/api/chat/bots/bulk'
+import { Route as ApiChatBotsMoveRouteImport } from './routes/api/chat/bots/move'
+import { Route as ApiChatCopiesIdRouteImport } from './routes/api/chat/copies/$id'
+import { Route as ApiChatKodyAccountRouteImport } from './routes/api/chat/kody/account'
+import { Route as ApiChatKodyCallbackRouteImport } from './routes/api/chat/kody/callback'
+import { Route as ApiChatKodyCommunityRouteImport } from './routes/api/chat/kody/community'
+import { Route as ApiChatKodyConnectRouteImport } from './routes/api/chat/kody/connect'
+import { Route as ApiChatKodyMemoriesRouteImport } from './routes/api/chat/kody/memories'
+import { Route as ApiChatKodyRunsRouteImport } from './routes/api/chat/kody/runs'
+import { Route as ApiChatKodyServersRouteImport } from './routes/api/chat/kody/servers'
+import { Route as ApiChatKodySyncRouteImport } from './routes/api/chat/kody/sync'
+import { Route as ApiChatKodyUnlinkRouteImport } from './routes/api/chat/kody/unlink'
+import { Route as ApiChatKodyUsageRouteImport } from './routes/api/chat/kody/usage'
+import { Route as ApiChatMcpSplatRouteImport } from './routes/api/chat/mcp/$'
+import { Route as ApiChatMcpContractRouteImport } from './routes/api/chat/mcp/contract'
+import { Route as ApiChatOpenrouterCallbackRouteImport } from './routes/api/chat/openrouter/callback'
+import { Route as ApiChatPluginsIdRouteImport } from './routes/api/chat/plugins/$id'
+import { Route as ApiChatProjectSnapshotsHashRouteImport } from './routes/api/chat/project-snapshots.$hash'
+import { Route as ApiChatProjectsIdRouteImport } from './routes/api/chat/projects.$id'
+import { Route as ApiChatRecipesIdRouteImport } from './routes/api/chat/recipes/$id'
+import { Route as ApiChatRetriesIdRouteImport } from './routes/api/chat/retries/$id'
+import { Route as ApiChatSectionsIdRouteImport } from './routes/api/chat/sections/$id'
+import { Route as ApiChatSkillsIdRouteImport } from './routes/api/chat/skills/$id'
+import { Route as ApiChatWorkspaceIndexActivityRouteImport } from './routes/api/chat/workspace-index.activity'
+import { Route as ApiChatWorkspaceSyncOperationRouteImport } from './routes/api/chat/workspace-sync/$operation'
 import { Route as IntentRegistryPackageNameIndexRouteImport } from './routes/intent/registry/$packageName.index'
 import { Route as IntentRegistryPackageNameSkillNameRouteImport } from './routes/intent/registry/$packageName.$skillName'
 import { Route as IntentRegistryPackageNameChar123Char125DotmdRouteImport } from './routes/intent/registry/$packageName.{$}[.]md'
@@ -213,13 +272,57 @@ import { Route as LibraryLibraryIdVersionDocsChar123Char125DotmdRouteImport } fr
 import { Route as LibraryChartsCatalogChartsCaseIdRouteImport } from './routes/_library/charts.catalog.charts.$caseId'
 import { Route as LibraryChartsCatalogCollectionsCollectionIdRouteImport } from './routes/_library/charts.catalog.collections.$collectionId'
 import { Route as ApiAuthCliStatusTicketIdRouteImport } from './routes/api/auth/cli/status.$ticketId'
-import { Route as ApiBuilderProjectSnapshotsHashQuarantineRouteImport } from './routes/api/builder/project-snapshots.$hash.quarantine'
-import { Route as ApiBuilderProjectsIdSyncRouteImport } from './routes/api/builder/projects.$id.sync'
+import { Route as ApiChatBotDraftsIdFilesRouteImport } from './routes/api/chat/bot-drafts/$id.files'
+import { Route as ApiChatBotsIdOperationRouteImport } from './routes/api/chat/bots/$id.$operation'
+import { Route as ApiChatBotsIdFilesRouteImport } from './routes/api/chat/bots/$id.files'
+import { Route as ApiChatConversationsIdOperationRouteImport } from './routes/api/chat/conversations/$id.$operation'
+import { Route as ApiChatConversationsIdFilesRouteImport } from './routes/api/chat/conversations/$id.files'
+import { Route as ApiChatConversationsIdMemoriesRouteImport } from './routes/api/chat/conversations/$id/memories'
+import { Route as ApiChatConversationsIdReferencesRouteImport } from './routes/api/chat/conversations/$id/references'
+import { Route as ApiChatKodyCommunityListingIdRouteImport } from './routes/api/chat/kody/community/$listingId'
+import { Route as ApiChatKodyMailInboxesRouteImport } from './routes/api/chat/kody/mail/inboxes'
+import { Route as ApiChatKodyMailMessagesRouteImport } from './routes/api/chat/kody/mail/messages'
+import { Route as ApiChatKodyMemoriesMemoryIdRouteImport } from './routes/api/chat/kody/memories/$memoryId'
+import { Route as ApiChatKodyResourcesKindRouteImport } from './routes/api/chat/kody/resources/$kind'
+import { Route as ApiChatKodyRunsRunIdRouteImport } from './routes/api/chat/kody/runs/$runId'
+import { Route as ApiChatProjectSnapshotsHashQuarantineRouteImport } from './routes/api/chat/project-snapshots.$hash.quarantine'
+import { Route as ApiChatProjectsIdSyncRouteImport } from './routes/api/chat/projects.$id.sync'
+import { Route as ApiChatReferencesKodyInspectRouteImport } from './routes/api/chat/references/kody/inspect'
+import { Route as ApiChatReferencesKodyRefreshRouteImport } from './routes/api/chat/references/kody/refresh'
+import { Route as ApiChatReferencesToolsRefreshRouteImport } from './routes/api/chat/references/tools/refresh'
+import { Route as ApiChatRetriesIdPrepareRouteImport } from './routes/api/chat/retries/$id.prepare'
 import { Route as ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRouteImport } from './routes/charts.catalog_.previews.$revision.{$caseId}[.]svg'
+import { Route as ChatCConversationIdMMessageIdRouteImport } from './routes/chat.c.$conversationId.m.$messageId'
+import { Route as ChatWWorkspaceIdBBotIdRouteImport } from './routes/chat.w.$workspaceId.b.$botId'
+import { Route as ChatWWorkspaceIdHomeHomeSectionRouteImport } from './routes/chat.w.$workspaceId.home.$homeSection'
 import { Route as LibraryLibraryIdVersionDocsFrameworkIndexRouteImport } from './routes/_library/$libraryId/$version.docs.framework.index'
+import { Route as ApiChatAccountComposerDraftsAccountIdScopeRouteImport } from './routes/api/chat/account/composer-drafts/$accountId.$scope'
+import { Route as ApiChatBotDraftsIdFilesFileIdRouteImport } from './routes/api/chat/bot-drafts/$id.files.$fileId'
+import { Route as ApiChatBotsIdFilesFileIdRouteImport } from './routes/api/chat/bots/$id.files.$fileId'
+import { Route as ApiChatConversationsIdFilesFileIdRouteImport } from './routes/api/chat/conversations/$id.files.$fileId'
+import { Route as ApiChatConversationsIdFilesImportRouteImport } from './routes/api/chat/conversations/$id/files/import'
+import { Route as ApiChatConversationsIdMemoriesMemoryIdRouteImport } from './routes/api/chat/conversations/$id/memories/$memoryId'
+import { Route as ApiChatConversationsIdWorkflowRunsRunIdRouteImport } from './routes/api/chat/conversations/$id.workflow-runs.$runId'
+import { Route as ApiChatConversationsIdWorkflowsWorkflowIdRouteImport } from './routes/api/chat/conversations/$id.workflows.$workflowId'
+import { Route as ApiChatKodyJobsJobIdEnabledRouteImport } from './routes/api/chat/kody/jobs/$jobId/enabled'
+import { Route as ApiChatKodyMailMessagesMessageIdRouteImport } from './routes/api/chat/kody/mail/messages/$messageId'
+import { Route as ApiChatKodyMemoriesMemoryIdApplyRouteImport } from './routes/api/chat/kody/memories/$memoryId/apply'
+import { Route as ApiChatKodyMemoriesMemoryIdReviewRouteImport } from './routes/api/chat/kody/memories/$memoryId/review'
+import { Route as ApiChatKodyMemoriesCreateApplyRouteImport } from './routes/api/chat/kody/memories/create/apply'
+import { Route as ApiChatKodyMemoriesCreateReviewRouteImport } from './routes/api/chat/kody/memories/create/review'
+import { Route as ApiChatKodyPackagesPackageIdDocumentRouteImport } from './routes/api/chat/kody/packages/$packageId/document'
+import { Route as ApiChatKodyRunsRunIdTriageRouteImport } from './routes/api/chat/kody/runs/$runId/triage'
+import { Route as ApiChatKodyServersServerIdCheckRouteImport } from './routes/api/chat/kody/servers/$serverId/check'
+import { Route as ApiChatKodyServersServerIdEnabledRouteImport } from './routes/api/chat/kody/servers/$serverId/enabled'
+import { Route as ApiChatKodyServersServerIdReconnectRouteImport } from './routes/api/chat/kody/servers/$serverId/reconnect'
 import { Route as LibraryLibraryIdVersionDocsFrameworkFrameworkIndexRouteImport } from './routes/_library/$libraryId/$version.docs.framework.$framework.index'
 import { Route as LibraryLibraryIdVersionDocsFrameworkFrameworkSplatRouteImport } from './routes/_library/$libraryId/$version.docs.framework.$framework.$'
 import { Route as LibraryLibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRouteImport } from './routes/_library/$libraryId/$version.docs.framework.$framework.{$}[.]md'
+import { Route as ApiChatBotDraftsIdFilesFileIdContentRouteImport } from './routes/api/chat/bot-drafts/$id.files.$fileId.content'
+import { Route as ApiChatBotsIdFilesFileIdContentRouteImport } from './routes/api/chat/bots/$id.files.$fileId.content'
+import { Route as ApiChatConversationsIdExecutionSnapshotsSnapshotIdRouteImport } from './routes/api/chat/conversations/$id.execution.snapshots.$snapshotId'
+import { Route as ApiChatConversationsIdFilesFileIdContentRouteImport } from './routes/api/chat/conversations/$id.files.$fileId.content'
+import { Route as ApiChatConversationsIdWorkflowRunsRunIdCancelRouteImport } from './routes/api/chat/conversations/$id.workflow-runs.$runId.cancel'
 import { Route as LibraryLibraryIdVersionDocsFrameworkFrameworkExamplesSplatRouteImport } from './routes/_library/$libraryId/$version.docs.framework.$framework.examples.$'
 
 const IndexRoute = IndexRouteImport.update({
@@ -264,6 +367,16 @@ const BrandGuideRoute = BrandGuideRouteImport.update({
 const BuilderRoute = BuilderRouteImport.update({
   id: '/builder',
   path: '/builder',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatRoute = ChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatAccessRoute = ChatAccessRouteImport.update({
+  id: '/chat-access',
+  path: '/chat-access',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CommunityProjectsRoute = CommunityProjectsRouteImport.update({
@@ -447,6 +560,11 @@ const AdminAuditRoute = AdminAuditRouteImport.update({
   path: '/audit',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const AdminChatAccessRoute = AdminChatAccessRouteImport.update({
+  id: '/chat-access',
+  path: '/chat-access',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const AdminDocsRoute = AdminDocsRouteImport.update({
   id: '/docs',
   path: '/docs',
@@ -541,6 +659,26 @@ const BuilderNewRoute = BuilderNewRouteImport.update({
   id: '/builder_/new',
   path: '/builder/new',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ChatIndexRoute = ChatIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ChatRoute,
+} as any)
+const ChatChartsRoute = ChatChartsRouteImport.update({
+  id: '/charts',
+  path: '/charts',
+  getParentRoute: () => ChatRoute,
+} as any)
+const ChatNewProjectRoute = ChatNewProjectRouteImport.update({
+  id: '/new-project',
+  path: '/new-project',
+  getParentRoute: () => ChatRoute,
+} as any)
+const ChatSharedRoute = ChatSharedRouteImport.update({
+  id: '/shared',
+  path: '/shared',
+  getParentRoute: () => ChatRoute,
 } as any)
 const DsIndexRoute = DsIndexRouteImport.update({
   id: '/',
@@ -900,20 +1038,109 @@ const ApiApplicationStarterValidateRoute =
     path: '/api/application-starter/validate',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiBuilderAssistRoute = ApiBuilderAssistRouteImport.update({
-  id: '/api/builder/assist',
-  path: '/api/builder/assist',
+const ApiChatActivityRoute = ApiChatActivityRouteImport.update({
+  id: '/api/chat/activity',
+  path: '/api/chat/activity',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiBuilderProjectSnapshotsRoute =
-  ApiBuilderProjectSnapshotsRouteImport.update({
-    id: '/api/builder/project-snapshots',
-    path: '/api/builder/project-snapshots',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiBuilderProjectsRoute = ApiBuilderProjectsRouteImport.update({
-  id: '/api/builder/projects',
-  path: '/api/builder/projects',
+const ApiChatAppVersionRoute = ApiChatAppVersionRouteImport.update({
+  id: '/api/chat/app-version',
+  path: '/api/chat/app-version',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatBootstrapRoute = ApiChatBootstrapRouteImport.update({
+  id: '/api/chat/bootstrap',
+  path: '/api/chat/bootstrap',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatBotsRoute = ApiChatBotsRouteImport.update({
+  id: '/api/chat/bots',
+  path: '/api/chat/bots',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatConnectionRoute = ApiChatConnectionRouteImport.update({
+  id: '/api/chat/connection',
+  path: '/api/chat/connection',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatDeviceTransportRoute = ApiChatDeviceTransportRouteImport.update({
+  id: '/api/chat/device-transport',
+  path: '/api/chat/device-transport',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatDraftRoute = ApiChatDraftRouteImport.update({
+  id: '/api/chat/draft',
+  path: '/api/chat/draft',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatFilesRoute = ApiChatFilesRouteImport.update({
+  id: '/api/chat/files',
+  path: '/api/chat/files',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatModelOptionsRoute = ApiChatModelOptionsRouteImport.update({
+  id: '/api/chat/model-options',
+  path: '/api/chat/model-options',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatModelsRoute = ApiChatModelsRouteImport.update({
+  id: '/api/chat/models',
+  path: '/api/chat/models',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatPluginsRoute = ApiChatPluginsRouteImport.update({
+  id: '/api/chat/plugins',
+  path: '/api/chat/plugins',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatPolicyRoute = ApiChatPolicyRouteImport.update({
+  id: '/api/chat/policy',
+  path: '/api/chat/policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatProjectSnapshotsRoute = ApiChatProjectSnapshotsRouteImport.update({
+  id: '/api/chat/project-snapshots',
+  path: '/api/chat/project-snapshots',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatProjectsRoute = ApiChatProjectsRouteImport.update({
+  id: '/api/chat/projects',
+  path: '/api/chat/projects',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatRecipesRoute = ApiChatRecipesRouteImport.update({
+  id: '/api/chat/recipes',
+  path: '/api/chat/recipes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatReferencesRoute = ApiChatReferencesRouteImport.update({
+  id: '/api/chat/references',
+  path: '/api/chat/references',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatSectionsRoute = ApiChatSectionsRouteImport.update({
+  id: '/api/chat/sections',
+  path: '/api/chat/sections',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatSkillsRoute = ApiChatSkillsRouteImport.update({
+  id: '/api/chat/skills',
+  path: '/api/chat/skills',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatWorkspaceRoute = ApiChatWorkspaceRouteImport.update({
+  id: '/api/chat/workspace',
+  path: '/api/chat/workspace',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatWorkspaceHistoryRoute = ApiChatWorkspaceHistoryRouteImport.update({
+  id: '/api/chat/workspace-history',
+  path: '/api/chat/workspace-history',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatWorkspaceIndexRoute = ApiChatWorkspaceIndexRouteImport.update({
+  id: '/api/chat/workspace-index',
+  path: '/api/chat/workspace-index',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiDataLibrariesRoute = ApiDataLibrariesRouteImport.update({
@@ -968,6 +1195,16 @@ const AuthProviderStartRoute = AuthProviderStartRouteImport.update({
   path: '/auth/$provider/start',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthMcpCallbackRoute = AuthMcpCallbackRouteImport.update({
+  id: '/auth/mcp/callback',
+  path: '/auth/mcp/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthMcpClientMetadataRoute = AuthMcpClientMetadataRouteImport.update({
+  id: '/auth/mcp/client-metadata',
+  path: '/auth/mcp/client-metadata',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BuilderPHashRoute = BuilderPHashRouteImport.update({
   id: '/builder_/p/$hash',
   path: '/builder/p/$hash',
@@ -979,6 +1216,31 @@ const ChartsCatalogCatalogDotjsonRoute =
     path: '/charts/catalog/catalog.json',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ChatBBotIdRoute = ChatBBotIdRouteImport.update({
+  id: '/b/$botId',
+  path: '/b/$botId',
+  getParentRoute: () => ChatRoute,
+} as any)
+const ChatCConversationIdRoute = ChatCConversationIdRouteImport.update({
+  id: '/c/$conversationId',
+  path: '/c/$conversationId',
+  getParentRoute: () => ChatRoute,
+} as any)
+const ChatPHashRoute = ChatPHashRouteImport.update({
+  id: '/p/$hash',
+  path: '/p/$hash',
+  getParentRoute: () => ChatRoute,
+} as any)
+const ChatProjectProjectIdRoute = ChatProjectProjectIdRouteImport.update({
+  id: '/project/$projectId',
+  path: '/project/$projectId',
+  getParentRoute: () => ChatRoute,
+} as any)
+const ChatWWorkspaceIdRoute = ChatWWorkspaceIdRouteImport.update({
+  id: '/w/$workspaceId',
+  path: '/w/$workspaceId',
+  getParentRoute: () => ChatRoute,
+} as any)
 const IntentRegistryIndexRoute = IntentRegistryIndexRouteImport.update({
   id: '/intent/registry/',
   path: '/intent/registry/',
@@ -1197,23 +1459,162 @@ const ApiAuthCliCreateTicketRoute = ApiAuthCliCreateTicketRouteImport.update({
   path: '/api/auth/cli/create-ticket',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiBuilderOpenrouterCallbackRoute =
-  ApiBuilderOpenrouterCallbackRouteImport.update({
-    id: '/api/builder/openrouter/callback',
-    path: '/api/builder/openrouter/callback',
+const ApiChatAccountDevicesRoute = ApiChatAccountDevicesRouteImport.update({
+  id: '/api/chat/account/devices',
+  path: '/api/chat/account/devices',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatAccountOnboardingRoute =
+  ApiChatAccountOnboardingRouteImport.update({
+    id: '/api/chat/account/onboarding',
+    path: '/api/chat/account/onboarding',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiBuilderProjectSnapshotsHashRoute =
-  ApiBuilderProjectSnapshotsHashRouteImport.update({
-    id: '/$hash',
-    path: '/$hash',
-    getParentRoute: () => ApiBuilderProjectSnapshotsRoute,
+const ApiChatAccountPreferencesRoute =
+  ApiChatAccountPreferencesRouteImport.update({
+    id: '/api/chat/account/preferences',
+    path: '/api/chat/account/preferences',
+    getParentRoute: () => rootRouteImport,
   } as any)
-const ApiBuilderProjectsIdRoute = ApiBuilderProjectsIdRouteImport.update({
+const ApiChatBotDraftsIdRoute = ApiChatBotDraftsIdRouteImport.update({
+  id: '/api/chat/bot-drafts/$id',
+  path: '/api/chat/bot-drafts/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatBotsIdRoute = ApiChatBotsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
-  getParentRoute: () => ApiBuilderProjectsRoute,
+  getParentRoute: () => ApiChatBotsRoute,
 } as any)
+const ApiChatBotsBulkRoute = ApiChatBotsBulkRouteImport.update({
+  id: '/bulk',
+  path: '/bulk',
+  getParentRoute: () => ApiChatBotsRoute,
+} as any)
+const ApiChatBotsMoveRoute = ApiChatBotsMoveRouteImport.update({
+  id: '/move',
+  path: '/move',
+  getParentRoute: () => ApiChatBotsRoute,
+} as any)
+const ApiChatCopiesIdRoute = ApiChatCopiesIdRouteImport.update({
+  id: '/api/chat/copies/$id',
+  path: '/api/chat/copies/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatKodyAccountRoute = ApiChatKodyAccountRouteImport.update({
+  id: '/api/chat/kody/account',
+  path: '/api/chat/kody/account',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatKodyCallbackRoute = ApiChatKodyCallbackRouteImport.update({
+  id: '/api/chat/kody/callback',
+  path: '/api/chat/kody/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatKodyCommunityRoute = ApiChatKodyCommunityRouteImport.update({
+  id: '/api/chat/kody/community',
+  path: '/api/chat/kody/community',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatKodyConnectRoute = ApiChatKodyConnectRouteImport.update({
+  id: '/api/chat/kody/connect',
+  path: '/api/chat/kody/connect',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatKodyMemoriesRoute = ApiChatKodyMemoriesRouteImport.update({
+  id: '/api/chat/kody/memories',
+  path: '/api/chat/kody/memories',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatKodyRunsRoute = ApiChatKodyRunsRouteImport.update({
+  id: '/api/chat/kody/runs',
+  path: '/api/chat/kody/runs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatKodyServersRoute = ApiChatKodyServersRouteImport.update({
+  id: '/api/chat/kody/servers',
+  path: '/api/chat/kody/servers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatKodySyncRoute = ApiChatKodySyncRouteImport.update({
+  id: '/api/chat/kody/sync',
+  path: '/api/chat/kody/sync',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatKodyUnlinkRoute = ApiChatKodyUnlinkRouteImport.update({
+  id: '/api/chat/kody/unlink',
+  path: '/api/chat/kody/unlink',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatKodyUsageRoute = ApiChatKodyUsageRouteImport.update({
+  id: '/api/chat/kody/usage',
+  path: '/api/chat/kody/usage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatMcpSplatRoute = ApiChatMcpSplatRouteImport.update({
+  id: '/api/chat/mcp/$',
+  path: '/api/chat/mcp/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatMcpContractRoute = ApiChatMcpContractRouteImport.update({
+  id: '/api/chat/mcp/contract',
+  path: '/api/chat/mcp/contract',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatOpenrouterCallbackRoute =
+  ApiChatOpenrouterCallbackRouteImport.update({
+    id: '/api/chat/openrouter/callback',
+    path: '/api/chat/openrouter/callback',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiChatPluginsIdRoute = ApiChatPluginsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiChatPluginsRoute,
+} as any)
+const ApiChatProjectSnapshotsHashRoute =
+  ApiChatProjectSnapshotsHashRouteImport.update({
+    id: '/$hash',
+    path: '/$hash',
+    getParentRoute: () => ApiChatProjectSnapshotsRoute,
+  } as any)
+const ApiChatProjectsIdRoute = ApiChatProjectsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiChatProjectsRoute,
+} as any)
+const ApiChatRecipesIdRoute = ApiChatRecipesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiChatRecipesRoute,
+} as any)
+const ApiChatRetriesIdRoute = ApiChatRetriesIdRouteImport.update({
+  id: '/api/chat/retries/$id',
+  path: '/api/chat/retries/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatSectionsIdRoute = ApiChatSectionsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiChatSectionsRoute,
+} as any)
+const ApiChatSkillsIdRoute = ApiChatSkillsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiChatSkillsRoute,
+} as any)
+const ApiChatWorkspaceIndexActivityRoute =
+  ApiChatWorkspaceIndexActivityRouteImport.update({
+    id: '/activity',
+    path: '/activity',
+    getParentRoute: () => ApiChatWorkspaceIndexRoute,
+  } as any)
+const ApiChatWorkspaceSyncOperationRoute =
+  ApiChatWorkspaceSyncOperationRouteImport.update({
+    id: '/api/chat/workspace-sync/$operation',
+    path: '/api/chat/workspace-sync/$operation',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const IntentRegistryPackageNameIndexRoute =
   IntentRegistryPackageNameIndexRouteImport.update({
     id: '/',
@@ -1298,29 +1699,254 @@ const ApiAuthCliStatusTicketIdRoute =
     path: '/api/auth/cli/status/$ticketId',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiBuilderProjectSnapshotsHashQuarantineRoute =
-  ApiBuilderProjectSnapshotsHashQuarantineRouteImport.update({
+const ApiChatBotDraftsIdFilesRoute = ApiChatBotDraftsIdFilesRouteImport.update({
+  id: '/files',
+  path: '/files',
+  getParentRoute: () => ApiChatBotDraftsIdRoute,
+} as any)
+const ApiChatBotsIdOperationRoute = ApiChatBotsIdOperationRouteImport.update({
+  id: '/$operation',
+  path: '/$operation',
+  getParentRoute: () => ApiChatBotsIdRoute,
+} as any)
+const ApiChatBotsIdFilesRoute = ApiChatBotsIdFilesRouteImport.update({
+  id: '/files',
+  path: '/files',
+  getParentRoute: () => ApiChatBotsIdRoute,
+} as any)
+const ApiChatConversationsIdOperationRoute =
+  ApiChatConversationsIdOperationRouteImport.update({
+    id: '/api/chat/conversations/$id/$operation',
+    path: '/api/chat/conversations/$id/$operation',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiChatConversationsIdFilesRoute =
+  ApiChatConversationsIdFilesRouteImport.update({
+    id: '/api/chat/conversations/$id/files',
+    path: '/api/chat/conversations/$id/files',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiChatConversationsIdMemoriesRoute =
+  ApiChatConversationsIdMemoriesRouteImport.update({
+    id: '/api/chat/conversations/$id/memories',
+    path: '/api/chat/conversations/$id/memories',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiChatConversationsIdReferencesRoute =
+  ApiChatConversationsIdReferencesRouteImport.update({
+    id: '/api/chat/conversations/$id/references',
+    path: '/api/chat/conversations/$id/references',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiChatKodyCommunityListingIdRoute =
+  ApiChatKodyCommunityListingIdRouteImport.update({
+    id: '/$listingId',
+    path: '/$listingId',
+    getParentRoute: () => ApiChatKodyCommunityRoute,
+  } as any)
+const ApiChatKodyMailInboxesRoute = ApiChatKodyMailInboxesRouteImport.update({
+  id: '/api/chat/kody/mail/inboxes',
+  path: '/api/chat/kody/mail/inboxes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatKodyMailMessagesRoute = ApiChatKodyMailMessagesRouteImport.update({
+  id: '/api/chat/kody/mail/messages',
+  path: '/api/chat/kody/mail/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatKodyMemoriesMemoryIdRoute =
+  ApiChatKodyMemoriesMemoryIdRouteImport.update({
+    id: '/$memoryId',
+    path: '/$memoryId',
+    getParentRoute: () => ApiChatKodyMemoriesRoute,
+  } as any)
+const ApiChatKodyResourcesKindRoute =
+  ApiChatKodyResourcesKindRouteImport.update({
+    id: '/api/chat/kody/resources/$kind',
+    path: '/api/chat/kody/resources/$kind',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiChatKodyRunsRunIdRoute = ApiChatKodyRunsRunIdRouteImport.update({
+  id: '/$runId',
+  path: '/$runId',
+  getParentRoute: () => ApiChatKodyRunsRoute,
+} as any)
+const ApiChatProjectSnapshotsHashQuarantineRoute =
+  ApiChatProjectSnapshotsHashQuarantineRouteImport.update({
     id: '/quarantine',
     path: '/quarantine',
-    getParentRoute: () => ApiBuilderProjectSnapshotsHashRoute,
+    getParentRoute: () => ApiChatProjectSnapshotsHashRoute,
   } as any)
-const ApiBuilderProjectsIdSyncRoute =
-  ApiBuilderProjectsIdSyncRouteImport.update({
-    id: '/sync',
-    path: '/sync',
-    getParentRoute: () => ApiBuilderProjectsIdRoute,
+const ApiChatProjectsIdSyncRoute = ApiChatProjectsIdSyncRouteImport.update({
+  id: '/sync',
+  path: '/sync',
+  getParentRoute: () => ApiChatProjectsIdRoute,
+} as any)
+const ApiChatReferencesKodyInspectRoute =
+  ApiChatReferencesKodyInspectRouteImport.update({
+    id: '/kody/inspect',
+    path: '/kody/inspect',
+    getParentRoute: () => ApiChatReferencesRoute,
   } as any)
+const ApiChatReferencesKodyRefreshRoute =
+  ApiChatReferencesKodyRefreshRouteImport.update({
+    id: '/kody/refresh',
+    path: '/kody/refresh',
+    getParentRoute: () => ApiChatReferencesRoute,
+  } as any)
+const ApiChatReferencesToolsRefreshRoute =
+  ApiChatReferencesToolsRefreshRouteImport.update({
+    id: '/tools/refresh',
+    path: '/tools/refresh',
+    getParentRoute: () => ApiChatReferencesRoute,
+  } as any)
+const ApiChatRetriesIdPrepareRoute = ApiChatRetriesIdPrepareRouteImport.update({
+  id: '/prepare',
+  path: '/prepare',
+  getParentRoute: () => ApiChatRetriesIdRoute,
+} as any)
 const ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute =
   ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRouteImport.update({
     id: '/charts/catalog_/previews/$revision/{$caseId}.svg',
     path: '/charts/catalog/previews/$revision/{$caseId}.svg',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ChatCConversationIdMMessageIdRoute =
+  ChatCConversationIdMMessageIdRouteImport.update({
+    id: '/m/$messageId',
+    path: '/m/$messageId',
+    getParentRoute: () => ChatCConversationIdRoute,
+  } as any)
+const ChatWWorkspaceIdBBotIdRoute = ChatWWorkspaceIdBBotIdRouteImport.update({
+  id: '/b/$botId',
+  path: '/b/$botId',
+  getParentRoute: () => ChatWWorkspaceIdRoute,
+} as any)
+const ChatWWorkspaceIdHomeHomeSectionRoute =
+  ChatWWorkspaceIdHomeHomeSectionRouteImport.update({
+    id: '/home/$homeSection',
+    path: '/home/$homeSection',
+    getParentRoute: () => ChatWWorkspaceIdRoute,
+  } as any)
 const LibraryLibraryIdVersionDocsFrameworkIndexRoute =
   LibraryLibraryIdVersionDocsFrameworkIndexRouteImport.update({
     id: '/framework/',
     path: '/framework/',
     getParentRoute: () => LibraryLibraryIdVersionDocsRoute,
+  } as any)
+const ApiChatAccountComposerDraftsAccountIdScopeRoute =
+  ApiChatAccountComposerDraftsAccountIdScopeRouteImport.update({
+    id: '/api/chat/account/composer-drafts/$accountId/$scope',
+    path: '/api/chat/account/composer-drafts/$accountId/$scope',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiChatBotDraftsIdFilesFileIdRoute =
+  ApiChatBotDraftsIdFilesFileIdRouteImport.update({
+    id: '/$fileId',
+    path: '/$fileId',
+    getParentRoute: () => ApiChatBotDraftsIdFilesRoute,
+  } as any)
+const ApiChatBotsIdFilesFileIdRoute =
+  ApiChatBotsIdFilesFileIdRouteImport.update({
+    id: '/$fileId',
+    path: '/$fileId',
+    getParentRoute: () => ApiChatBotsIdFilesRoute,
+  } as any)
+const ApiChatConversationsIdFilesFileIdRoute =
+  ApiChatConversationsIdFilesFileIdRouteImport.update({
+    id: '/$fileId',
+    path: '/$fileId',
+    getParentRoute: () => ApiChatConversationsIdFilesRoute,
+  } as any)
+const ApiChatConversationsIdFilesImportRoute =
+  ApiChatConversationsIdFilesImportRouteImport.update({
+    id: '/import',
+    path: '/import',
+    getParentRoute: () => ApiChatConversationsIdFilesRoute,
+  } as any)
+const ApiChatConversationsIdMemoriesMemoryIdRoute =
+  ApiChatConversationsIdMemoriesMemoryIdRouteImport.update({
+    id: '/$memoryId',
+    path: '/$memoryId',
+    getParentRoute: () => ApiChatConversationsIdMemoriesRoute,
+  } as any)
+const ApiChatConversationsIdWorkflowRunsRunIdRoute =
+  ApiChatConversationsIdWorkflowRunsRunIdRouteImport.update({
+    id: '/api/chat/conversations/$id/workflow-runs/$runId',
+    path: '/api/chat/conversations/$id/workflow-runs/$runId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiChatConversationsIdWorkflowsWorkflowIdRoute =
+  ApiChatConversationsIdWorkflowsWorkflowIdRouteImport.update({
+    id: '/api/chat/conversations/$id/workflows/$workflowId',
+    path: '/api/chat/conversations/$id/workflows/$workflowId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiChatKodyJobsJobIdEnabledRoute =
+  ApiChatKodyJobsJobIdEnabledRouteImport.update({
+    id: '/api/chat/kody/jobs/$jobId/enabled',
+    path: '/api/chat/kody/jobs/$jobId/enabled',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiChatKodyMailMessagesMessageIdRoute =
+  ApiChatKodyMailMessagesMessageIdRouteImport.update({
+    id: '/$messageId',
+    path: '/$messageId',
+    getParentRoute: () => ApiChatKodyMailMessagesRoute,
+  } as any)
+const ApiChatKodyMemoriesMemoryIdApplyRoute =
+  ApiChatKodyMemoriesMemoryIdApplyRouteImport.update({
+    id: '/apply',
+    path: '/apply',
+    getParentRoute: () => ApiChatKodyMemoriesMemoryIdRoute,
+  } as any)
+const ApiChatKodyMemoriesMemoryIdReviewRoute =
+  ApiChatKodyMemoriesMemoryIdReviewRouteImport.update({
+    id: '/review',
+    path: '/review',
+    getParentRoute: () => ApiChatKodyMemoriesMemoryIdRoute,
+  } as any)
+const ApiChatKodyMemoriesCreateApplyRoute =
+  ApiChatKodyMemoriesCreateApplyRouteImport.update({
+    id: '/create/apply',
+    path: '/create/apply',
+    getParentRoute: () => ApiChatKodyMemoriesRoute,
+  } as any)
+const ApiChatKodyMemoriesCreateReviewRoute =
+  ApiChatKodyMemoriesCreateReviewRouteImport.update({
+    id: '/create/review',
+    path: '/create/review',
+    getParentRoute: () => ApiChatKodyMemoriesRoute,
+  } as any)
+const ApiChatKodyPackagesPackageIdDocumentRoute =
+  ApiChatKodyPackagesPackageIdDocumentRouteImport.update({
+    id: '/api/chat/kody/packages/$packageId/document',
+    path: '/api/chat/kody/packages/$packageId/document',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiChatKodyRunsRunIdTriageRoute =
+  ApiChatKodyRunsRunIdTriageRouteImport.update({
+    id: '/triage',
+    path: '/triage',
+    getParentRoute: () => ApiChatKodyRunsRunIdRoute,
+  } as any)
+const ApiChatKodyServersServerIdCheckRoute =
+  ApiChatKodyServersServerIdCheckRouteImport.update({
+    id: '/$serverId/check',
+    path: '/$serverId/check',
+    getParentRoute: () => ApiChatKodyServersRoute,
+  } as any)
+const ApiChatKodyServersServerIdEnabledRoute =
+  ApiChatKodyServersServerIdEnabledRouteImport.update({
+    id: '/$serverId/enabled',
+    path: '/$serverId/enabled',
+    getParentRoute: () => ApiChatKodyServersRoute,
+  } as any)
+const ApiChatKodyServersServerIdReconnectRoute =
+  ApiChatKodyServersServerIdReconnectRouteImport.update({
+    id: '/$serverId/reconnect',
+    path: '/$serverId/reconnect',
+    getParentRoute: () => ApiChatKodyServersRoute,
   } as any)
 const LibraryLibraryIdVersionDocsFrameworkFrameworkIndexRoute =
   LibraryLibraryIdVersionDocsFrameworkFrameworkIndexRouteImport.update({
@@ -1342,6 +1968,36 @@ const LibraryLibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRoute =
       getParentRoute: () => LibraryLibraryIdVersionDocsRoute,
     } as any,
   )
+const ApiChatBotDraftsIdFilesFileIdContentRoute =
+  ApiChatBotDraftsIdFilesFileIdContentRouteImport.update({
+    id: '/content',
+    path: '/content',
+    getParentRoute: () => ApiChatBotDraftsIdFilesFileIdRoute,
+  } as any)
+const ApiChatBotsIdFilesFileIdContentRoute =
+  ApiChatBotsIdFilesFileIdContentRouteImport.update({
+    id: '/content',
+    path: '/content',
+    getParentRoute: () => ApiChatBotsIdFilesFileIdRoute,
+  } as any)
+const ApiChatConversationsIdExecutionSnapshotsSnapshotIdRoute =
+  ApiChatConversationsIdExecutionSnapshotsSnapshotIdRouteImport.update({
+    id: '/api/chat/conversations/$id/execution/snapshots/$snapshotId',
+    path: '/api/chat/conversations/$id/execution/snapshots/$snapshotId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiChatConversationsIdFilesFileIdContentRoute =
+  ApiChatConversationsIdFilesFileIdContentRouteImport.update({
+    id: '/content',
+    path: '/content',
+    getParentRoute: () => ApiChatConversationsIdFilesFileIdRoute,
+  } as any)
+const ApiChatConversationsIdWorkflowRunsRunIdCancelRoute =
+  ApiChatConversationsIdWorkflowRunsRunIdCancelRouteImport.update({
+    id: '/cancel',
+    path: '/cancel',
+    getParentRoute: () => ApiChatConversationsIdWorkflowRunsRunIdRoute,
+  } as any)
 const LibraryLibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute =
   LibraryLibraryIdVersionDocsFrameworkFrameworkExamplesSplatRouteImport.update({
     id: '/framework/$framework/examples/$',
@@ -1358,6 +2014,8 @@ export interface FileRoutesByFullPath {
   '/blog': typeof BlogRouteWithChildren
   '/brand-guide': typeof BrandGuideRoute
   '/builder': typeof BuilderRoute
+  '/chat': typeof ChatRouteWithChildren
+  '/chat-access': typeof ChatAccessRoute
   '/community-projects': typeof CommunityProjectsRoute
   '/dashboard': typeof DashboardRoute
   '/ds': typeof DsRouteWithChildren
@@ -1392,6 +2050,7 @@ export interface FileRoutesByFullPath {
   '/account/notes': typeof AccountNotesRoute
   '/account/submissions': typeof AccountSubmissionsRoute
   '/admin/audit': typeof AdminAuditRoute
+  '/admin/chat-access': typeof AdminChatAccessRoute
   '/admin/docs': typeof AdminDocsRoute
   '/admin/github-stats': typeof AdminGithubStatsRoute
   '/admin/intent': typeof AdminIntentRoute
@@ -1409,6 +2068,9 @@ export interface FileRoutesByFullPath {
   '/builder/esbuild': typeof BuilderEsbuildRoute
   '/builder/llms.txt': typeof BuilderLlmsDottxtRoute
   '/builder/new': typeof BuilderNewRoute
+  '/chat/charts': typeof ChatChartsRoute
+  '/chat/new-project': typeof ChatNewProjectRoute
+  '/chat/shared': typeof ChatSharedRoute
   '/ds/avatar': typeof DsAvatarRoute
   '/ds/badges': typeof DsBadgesRoute
   '/ds/breadcrumbs': typeof DsBreadcrumbsRoute
@@ -1455,6 +2117,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/application-starter/': typeof ApplicationStarterIndexRoute
   '/blog/': typeof BlogIndexRoute
+  '/chat/': typeof ChatIndexRoute
   '/ds/': typeof DsIndexRoute
   '/partners/': typeof PartnersIndexRoute
   '/shop/': typeof ShopIndexRoute
@@ -1477,9 +2140,27 @@ export interface FileRoutesByFullPath {
   '/api/application-starter/resolve': typeof ApiApplicationStarterResolveRoute
   '/api/application-starter/suggest': typeof ApiApplicationStarterSuggestRoute
   '/api/application-starter/validate': typeof ApiApplicationStarterValidateRoute
-  '/api/builder/assist': typeof ApiBuilderAssistRoute
-  '/api/builder/project-snapshots': typeof ApiBuilderProjectSnapshotsRouteWithChildren
-  '/api/builder/projects': typeof ApiBuilderProjectsRouteWithChildren
+  '/api/chat/activity': typeof ApiChatActivityRoute
+  '/api/chat/app-version': typeof ApiChatAppVersionRoute
+  '/api/chat/bootstrap': typeof ApiChatBootstrapRoute
+  '/api/chat/bots': typeof ApiChatBotsRouteWithChildren
+  '/api/chat/connection': typeof ApiChatConnectionRoute
+  '/api/chat/device-transport': typeof ApiChatDeviceTransportRoute
+  '/api/chat/draft': typeof ApiChatDraftRoute
+  '/api/chat/files': typeof ApiChatFilesRoute
+  '/api/chat/model-options': typeof ApiChatModelOptionsRoute
+  '/api/chat/models': typeof ApiChatModelsRoute
+  '/api/chat/plugins': typeof ApiChatPluginsRouteWithChildren
+  '/api/chat/policy': typeof ApiChatPolicyRoute
+  '/api/chat/project-snapshots': typeof ApiChatProjectSnapshotsRouteWithChildren
+  '/api/chat/projects': typeof ApiChatProjectsRouteWithChildren
+  '/api/chat/recipes': typeof ApiChatRecipesRouteWithChildren
+  '/api/chat/references': typeof ApiChatReferencesRouteWithChildren
+  '/api/chat/sections': typeof ApiChatSectionsRouteWithChildren
+  '/api/chat/skills': typeof ApiChatSkillsRouteWithChildren
+  '/api/chat/workspace': typeof ApiChatWorkspaceRoute
+  '/api/chat/workspace-history': typeof ApiChatWorkspaceHistoryRoute
+  '/api/chat/workspace-index': typeof ApiChatWorkspaceIndexRouteWithChildren
   '/api/data/libraries': typeof ApiDataLibrariesRoute
   '/api/data/partners': typeof ApiDataPartnersRoute
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
@@ -1489,8 +2170,15 @@ export interface FileRoutesByFullPath {
   '/api/og/{$}.png': typeof ApiOgChar123Char125DotpngRoute
   '/api/readme/{$}.png': typeof ApiReadmeChar123Char125DotpngRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
+  '/auth/mcp/callback': typeof AuthMcpCallbackRoute
+  '/auth/mcp/client-metadata': typeof AuthMcpClientMetadataRoute
   '/builder/p/$hash': typeof BuilderPHashRoute
   '/charts/catalog/catalog.json': typeof ChartsCatalogCatalogDotjsonRoute
+  '/chat/b/$botId': typeof ChatBBotIdRoute
+  '/chat/c/$conversationId': typeof ChatCConversationIdRouteWithChildren
+  '/chat/p/$hash': typeof ChatPHashRoute
+  '/chat/project/$projectId': typeof ChatProjectProjectIdRoute
+  '/chat/w/$workspaceId': typeof ChatWWorkspaceIdRouteWithChildren
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameRouteWithChildren
   '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
   '/shop/pages/$handle': typeof ShopPagesHandleRoute
@@ -1514,9 +2202,36 @@ export interface FileRoutesByFullPath {
   '/api/application-starter/deploy/github': typeof ApiApplicationStarterDeployGithubRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
   '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
-  '/api/builder/openrouter/callback': typeof ApiBuilderOpenrouterCallbackRoute
-  '/api/builder/project-snapshots/$hash': typeof ApiBuilderProjectSnapshotsHashRouteWithChildren
-  '/api/builder/projects/$id': typeof ApiBuilderProjectsIdRouteWithChildren
+  '/api/chat/account/devices': typeof ApiChatAccountDevicesRoute
+  '/api/chat/account/onboarding': typeof ApiChatAccountOnboardingRoute
+  '/api/chat/account/preferences': typeof ApiChatAccountPreferencesRoute
+  '/api/chat/bot-drafts/$id': typeof ApiChatBotDraftsIdRouteWithChildren
+  '/api/chat/bots/$id': typeof ApiChatBotsIdRouteWithChildren
+  '/api/chat/bots/bulk': typeof ApiChatBotsBulkRoute
+  '/api/chat/bots/move': typeof ApiChatBotsMoveRoute
+  '/api/chat/copies/$id': typeof ApiChatCopiesIdRoute
+  '/api/chat/kody/account': typeof ApiChatKodyAccountRoute
+  '/api/chat/kody/callback': typeof ApiChatKodyCallbackRoute
+  '/api/chat/kody/community': typeof ApiChatKodyCommunityRouteWithChildren
+  '/api/chat/kody/connect': typeof ApiChatKodyConnectRoute
+  '/api/chat/kody/memories': typeof ApiChatKodyMemoriesRouteWithChildren
+  '/api/chat/kody/runs': typeof ApiChatKodyRunsRouteWithChildren
+  '/api/chat/kody/servers': typeof ApiChatKodyServersRouteWithChildren
+  '/api/chat/kody/sync': typeof ApiChatKodySyncRoute
+  '/api/chat/kody/unlink': typeof ApiChatKodyUnlinkRoute
+  '/api/chat/kody/usage': typeof ApiChatKodyUsageRoute
+  '/api/chat/mcp/$': typeof ApiChatMcpSplatRoute
+  '/api/chat/mcp/contract': typeof ApiChatMcpContractRoute
+  '/api/chat/openrouter/callback': typeof ApiChatOpenrouterCallbackRoute
+  '/api/chat/plugins/$id': typeof ApiChatPluginsIdRoute
+  '/api/chat/project-snapshots/$hash': typeof ApiChatProjectSnapshotsHashRouteWithChildren
+  '/api/chat/projects/$id': typeof ApiChatProjectsIdRouteWithChildren
+  '/api/chat/recipes/$id': typeof ApiChatRecipesIdRoute
+  '/api/chat/retries/$id': typeof ApiChatRetriesIdRouteWithChildren
+  '/api/chat/sections/$id': typeof ApiChatSectionsIdRoute
+  '/api/chat/skills/$id': typeof ApiChatSkillsIdRoute
+  '/api/chat/workspace-index/activity': typeof ApiChatWorkspaceIndexActivityRoute
+  '/api/chat/workspace-sync/$operation': typeof ApiChatWorkspaceSyncOperationRoute
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/$libraryId/$version/': typeof LibraryLibraryIdVersionIndexRoute
@@ -1552,13 +2267,57 @@ export interface FileRoutesByFullPath {
   '/charts/catalog/charts/$caseId': typeof LibraryChartsCatalogChartsCaseIdRoute
   '/charts/catalog/collections/$collectionId': typeof LibraryChartsCatalogCollectionsCollectionIdRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
-  '/api/builder/project-snapshots/$hash/quarantine': typeof ApiBuilderProjectSnapshotsHashQuarantineRoute
-  '/api/builder/projects/$id/sync': typeof ApiBuilderProjectsIdSyncRoute
+  '/api/chat/bot-drafts/$id/files': typeof ApiChatBotDraftsIdFilesRouteWithChildren
+  '/api/chat/bots/$id/$operation': typeof ApiChatBotsIdOperationRoute
+  '/api/chat/bots/$id/files': typeof ApiChatBotsIdFilesRouteWithChildren
+  '/api/chat/conversations/$id/$operation': typeof ApiChatConversationsIdOperationRoute
+  '/api/chat/conversations/$id/files': typeof ApiChatConversationsIdFilesRouteWithChildren
+  '/api/chat/conversations/$id/memories': typeof ApiChatConversationsIdMemoriesRouteWithChildren
+  '/api/chat/conversations/$id/references': typeof ApiChatConversationsIdReferencesRoute
+  '/api/chat/kody/community/$listingId': typeof ApiChatKodyCommunityListingIdRoute
+  '/api/chat/kody/mail/inboxes': typeof ApiChatKodyMailInboxesRoute
+  '/api/chat/kody/mail/messages': typeof ApiChatKodyMailMessagesRouteWithChildren
+  '/api/chat/kody/memories/$memoryId': typeof ApiChatKodyMemoriesMemoryIdRouteWithChildren
+  '/api/chat/kody/resources/$kind': typeof ApiChatKodyResourcesKindRoute
+  '/api/chat/kody/runs/$runId': typeof ApiChatKodyRunsRunIdRouteWithChildren
+  '/api/chat/project-snapshots/$hash/quarantine': typeof ApiChatProjectSnapshotsHashQuarantineRoute
+  '/api/chat/projects/$id/sync': typeof ApiChatProjectsIdSyncRoute
+  '/api/chat/references/kody/inspect': typeof ApiChatReferencesKodyInspectRoute
+  '/api/chat/references/kody/refresh': typeof ApiChatReferencesKodyRefreshRoute
+  '/api/chat/references/tools/refresh': typeof ApiChatReferencesToolsRefreshRoute
+  '/api/chat/retries/$id/prepare': typeof ApiChatRetriesIdPrepareRoute
   '/charts/catalog/previews/$revision/{$caseId}.svg': typeof ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute
+  '/chat/c/$conversationId/m/$messageId': typeof ChatCConversationIdMMessageIdRoute
+  '/chat/w/$workspaceId/b/$botId': typeof ChatWWorkspaceIdBBotIdRoute
+  '/chat/w/$workspaceId/home/$homeSection': typeof ChatWWorkspaceIdHomeHomeSectionRoute
   '/$libraryId/$version/docs/': typeof LibraryLibraryIdVersionDocsIndexRoute
+  '/api/chat/account/composer-drafts/$accountId/$scope': typeof ApiChatAccountComposerDraftsAccountIdScopeRoute
+  '/api/chat/bot-drafts/$id/files/$fileId': typeof ApiChatBotDraftsIdFilesFileIdRouteWithChildren
+  '/api/chat/bots/$id/files/$fileId': typeof ApiChatBotsIdFilesFileIdRouteWithChildren
+  '/api/chat/conversations/$id/files/$fileId': typeof ApiChatConversationsIdFilesFileIdRouteWithChildren
+  '/api/chat/conversations/$id/files/import': typeof ApiChatConversationsIdFilesImportRoute
+  '/api/chat/conversations/$id/memories/$memoryId': typeof ApiChatConversationsIdMemoriesMemoryIdRoute
+  '/api/chat/conversations/$id/workflow-runs/$runId': typeof ApiChatConversationsIdWorkflowRunsRunIdRouteWithChildren
+  '/api/chat/conversations/$id/workflows/$workflowId': typeof ApiChatConversationsIdWorkflowsWorkflowIdRoute
+  '/api/chat/kody/jobs/$jobId/enabled': typeof ApiChatKodyJobsJobIdEnabledRoute
+  '/api/chat/kody/mail/messages/$messageId': typeof ApiChatKodyMailMessagesMessageIdRoute
+  '/api/chat/kody/memories/$memoryId/apply': typeof ApiChatKodyMemoriesMemoryIdApplyRoute
+  '/api/chat/kody/memories/$memoryId/review': typeof ApiChatKodyMemoriesMemoryIdReviewRoute
+  '/api/chat/kody/memories/create/apply': typeof ApiChatKodyMemoriesCreateApplyRoute
+  '/api/chat/kody/memories/create/review': typeof ApiChatKodyMemoriesCreateReviewRoute
+  '/api/chat/kody/packages/$packageId/document': typeof ApiChatKodyPackagesPackageIdDocumentRoute
+  '/api/chat/kody/runs/$runId/triage': typeof ApiChatKodyRunsRunIdTriageRoute
+  '/api/chat/kody/servers/$serverId/check': typeof ApiChatKodyServersServerIdCheckRoute
+  '/api/chat/kody/servers/$serverId/enabled': typeof ApiChatKodyServersServerIdEnabledRoute
+  '/api/chat/kody/servers/$serverId/reconnect': typeof ApiChatKodyServersServerIdReconnectRoute
   '/$libraryId/$version/docs/framework/': typeof LibraryLibraryIdVersionDocsFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/$': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkSplatRoute
   '/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRoute
+  '/api/chat/bot-drafts/$id/files/$fileId/content': typeof ApiChatBotDraftsIdFilesFileIdContentRoute
+  '/api/chat/bots/$id/files/$fileId/content': typeof ApiChatBotsIdFilesFileIdContentRoute
+  '/api/chat/conversations/$id/execution/snapshots/$snapshotId': typeof ApiChatConversationsIdExecutionSnapshotsSnapshotIdRoute
+  '/api/chat/conversations/$id/files/$fileId/content': typeof ApiChatConversationsIdFilesFileIdContentRoute
+  '/api/chat/conversations/$id/workflow-runs/$runId/cancel': typeof ApiChatConversationsIdWorkflowRunsRunIdCancelRoute
   '/$libraryId/$version/docs/framework/$framework/': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/examples/$': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute
 }
@@ -1567,6 +2326,7 @@ export interface FileRoutesByTo {
   '/ads': typeof AdsRoute
   '/brand-guide': typeof BrandGuideRoute
   '/builder': typeof BuilderRoute
+  '/chat-access': typeof ChatAccessRoute
   '/community-projects': typeof CommunityProjectsRoute
   '/dashboard': typeof DashboardRoute
   '/ethos': typeof EthosRoute
@@ -1597,6 +2357,7 @@ export interface FileRoutesByTo {
   '/account/notes': typeof AccountNotesRoute
   '/account/submissions': typeof AccountSubmissionsRoute
   '/admin/audit': typeof AdminAuditRoute
+  '/admin/chat-access': typeof AdminChatAccessRoute
   '/admin/docs': typeof AdminDocsRoute
   '/admin/github-stats': typeof AdminGithubStatsRoute
   '/admin/intent': typeof AdminIntentRoute
@@ -1614,6 +2375,9 @@ export interface FileRoutesByTo {
   '/builder/esbuild': typeof BuilderEsbuildRoute
   '/builder/llms.txt': typeof BuilderLlmsDottxtRoute
   '/builder/new': typeof BuilderNewRoute
+  '/chat/charts': typeof ChatChartsRoute
+  '/chat/new-project': typeof ChatNewProjectRoute
+  '/chat/shared': typeof ChatSharedRoute
   '/ds/avatar': typeof DsAvatarRoute
   '/ds/badges': typeof DsBadgesRoute
   '/ds/breadcrumbs': typeof DsBreadcrumbsRoute
@@ -1660,6 +2424,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/application-starter': typeof ApplicationStarterIndexRoute
   '/blog': typeof BlogIndexRoute
+  '/chat': typeof ChatIndexRoute
   '/ds': typeof DsIndexRoute
   '/partners': typeof PartnersIndexRoute
   '/shop': typeof ShopIndexRoute
@@ -1680,9 +2445,27 @@ export interface FileRoutesByTo {
   '/api/application-starter/resolve': typeof ApiApplicationStarterResolveRoute
   '/api/application-starter/suggest': typeof ApiApplicationStarterSuggestRoute
   '/api/application-starter/validate': typeof ApiApplicationStarterValidateRoute
-  '/api/builder/assist': typeof ApiBuilderAssistRoute
-  '/api/builder/project-snapshots': typeof ApiBuilderProjectSnapshotsRouteWithChildren
-  '/api/builder/projects': typeof ApiBuilderProjectsRouteWithChildren
+  '/api/chat/activity': typeof ApiChatActivityRoute
+  '/api/chat/app-version': typeof ApiChatAppVersionRoute
+  '/api/chat/bootstrap': typeof ApiChatBootstrapRoute
+  '/api/chat/bots': typeof ApiChatBotsRouteWithChildren
+  '/api/chat/connection': typeof ApiChatConnectionRoute
+  '/api/chat/device-transport': typeof ApiChatDeviceTransportRoute
+  '/api/chat/draft': typeof ApiChatDraftRoute
+  '/api/chat/files': typeof ApiChatFilesRoute
+  '/api/chat/model-options': typeof ApiChatModelOptionsRoute
+  '/api/chat/models': typeof ApiChatModelsRoute
+  '/api/chat/plugins': typeof ApiChatPluginsRouteWithChildren
+  '/api/chat/policy': typeof ApiChatPolicyRoute
+  '/api/chat/project-snapshots': typeof ApiChatProjectSnapshotsRouteWithChildren
+  '/api/chat/projects': typeof ApiChatProjectsRouteWithChildren
+  '/api/chat/recipes': typeof ApiChatRecipesRouteWithChildren
+  '/api/chat/references': typeof ApiChatReferencesRouteWithChildren
+  '/api/chat/sections': typeof ApiChatSectionsRouteWithChildren
+  '/api/chat/skills': typeof ApiChatSkillsRouteWithChildren
+  '/api/chat/workspace': typeof ApiChatWorkspaceRoute
+  '/api/chat/workspace-history': typeof ApiChatWorkspaceHistoryRoute
+  '/api/chat/workspace-index': typeof ApiChatWorkspaceIndexRouteWithChildren
   '/api/data/libraries': typeof ApiDataLibrariesRoute
   '/api/data/partners': typeof ApiDataPartnersRoute
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
@@ -1692,8 +2475,15 @@ export interface FileRoutesByTo {
   '/api/og/{$}.png': typeof ApiOgChar123Char125DotpngRoute
   '/api/readme/{$}.png': typeof ApiReadmeChar123Char125DotpngRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
+  '/auth/mcp/callback': typeof AuthMcpCallbackRoute
+  '/auth/mcp/client-metadata': typeof AuthMcpClientMetadataRoute
   '/builder/p/$hash': typeof BuilderPHashRoute
   '/charts/catalog/catalog.json': typeof ChartsCatalogCatalogDotjsonRoute
+  '/chat/b/$botId': typeof ChatBBotIdRoute
+  '/chat/c/$conversationId': typeof ChatCConversationIdRouteWithChildren
+  '/chat/p/$hash': typeof ChatPHashRoute
+  '/chat/project/$projectId': typeof ChatProjectProjectIdRoute
+  '/chat/w/$workspaceId': typeof ChatWWorkspaceIdRouteWithChildren
   '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
   '/shop/pages/$handle': typeof ShopPagesHandleRoute
   '/shop/policies/$handle': typeof ShopPoliciesHandleRoute
@@ -1715,9 +2505,36 @@ export interface FileRoutesByTo {
   '/api/application-starter/deploy/github': typeof ApiApplicationStarterDeployGithubRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
   '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
-  '/api/builder/openrouter/callback': typeof ApiBuilderOpenrouterCallbackRoute
-  '/api/builder/project-snapshots/$hash': typeof ApiBuilderProjectSnapshotsHashRouteWithChildren
-  '/api/builder/projects/$id': typeof ApiBuilderProjectsIdRouteWithChildren
+  '/api/chat/account/devices': typeof ApiChatAccountDevicesRoute
+  '/api/chat/account/onboarding': typeof ApiChatAccountOnboardingRoute
+  '/api/chat/account/preferences': typeof ApiChatAccountPreferencesRoute
+  '/api/chat/bot-drafts/$id': typeof ApiChatBotDraftsIdRouteWithChildren
+  '/api/chat/bots/$id': typeof ApiChatBotsIdRouteWithChildren
+  '/api/chat/bots/bulk': typeof ApiChatBotsBulkRoute
+  '/api/chat/bots/move': typeof ApiChatBotsMoveRoute
+  '/api/chat/copies/$id': typeof ApiChatCopiesIdRoute
+  '/api/chat/kody/account': typeof ApiChatKodyAccountRoute
+  '/api/chat/kody/callback': typeof ApiChatKodyCallbackRoute
+  '/api/chat/kody/community': typeof ApiChatKodyCommunityRouteWithChildren
+  '/api/chat/kody/connect': typeof ApiChatKodyConnectRoute
+  '/api/chat/kody/memories': typeof ApiChatKodyMemoriesRouteWithChildren
+  '/api/chat/kody/runs': typeof ApiChatKodyRunsRouteWithChildren
+  '/api/chat/kody/servers': typeof ApiChatKodyServersRouteWithChildren
+  '/api/chat/kody/sync': typeof ApiChatKodySyncRoute
+  '/api/chat/kody/unlink': typeof ApiChatKodyUnlinkRoute
+  '/api/chat/kody/usage': typeof ApiChatKodyUsageRoute
+  '/api/chat/mcp/$': typeof ApiChatMcpSplatRoute
+  '/api/chat/mcp/contract': typeof ApiChatMcpContractRoute
+  '/api/chat/openrouter/callback': typeof ApiChatOpenrouterCallbackRoute
+  '/api/chat/plugins/$id': typeof ApiChatPluginsIdRoute
+  '/api/chat/project-snapshots/$hash': typeof ApiChatProjectSnapshotsHashRouteWithChildren
+  '/api/chat/projects/$id': typeof ApiChatProjectsIdRouteWithChildren
+  '/api/chat/recipes/$id': typeof ApiChatRecipesIdRoute
+  '/api/chat/retries/$id': typeof ApiChatRetriesIdRouteWithChildren
+  '/api/chat/sections/$id': typeof ApiChatSectionsIdRoute
+  '/api/chat/skills/$id': typeof ApiChatSkillsIdRoute
+  '/api/chat/workspace-index/activity': typeof ApiChatWorkspaceIndexActivityRoute
+  '/api/chat/workspace-sync/$operation': typeof ApiChatWorkspaceSyncOperationRoute
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/$libraryId/$version': typeof LibraryLibraryIdVersionIndexRoute
@@ -1753,13 +2570,57 @@ export interface FileRoutesByTo {
   '/charts/catalog/charts/$caseId': typeof LibraryChartsCatalogChartsCaseIdRoute
   '/charts/catalog/collections/$collectionId': typeof LibraryChartsCatalogCollectionsCollectionIdRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
-  '/api/builder/project-snapshots/$hash/quarantine': typeof ApiBuilderProjectSnapshotsHashQuarantineRoute
-  '/api/builder/projects/$id/sync': typeof ApiBuilderProjectsIdSyncRoute
+  '/api/chat/bot-drafts/$id/files': typeof ApiChatBotDraftsIdFilesRouteWithChildren
+  '/api/chat/bots/$id/$operation': typeof ApiChatBotsIdOperationRoute
+  '/api/chat/bots/$id/files': typeof ApiChatBotsIdFilesRouteWithChildren
+  '/api/chat/conversations/$id/$operation': typeof ApiChatConversationsIdOperationRoute
+  '/api/chat/conversations/$id/files': typeof ApiChatConversationsIdFilesRouteWithChildren
+  '/api/chat/conversations/$id/memories': typeof ApiChatConversationsIdMemoriesRouteWithChildren
+  '/api/chat/conversations/$id/references': typeof ApiChatConversationsIdReferencesRoute
+  '/api/chat/kody/community/$listingId': typeof ApiChatKodyCommunityListingIdRoute
+  '/api/chat/kody/mail/inboxes': typeof ApiChatKodyMailInboxesRoute
+  '/api/chat/kody/mail/messages': typeof ApiChatKodyMailMessagesRouteWithChildren
+  '/api/chat/kody/memories/$memoryId': typeof ApiChatKodyMemoriesMemoryIdRouteWithChildren
+  '/api/chat/kody/resources/$kind': typeof ApiChatKodyResourcesKindRoute
+  '/api/chat/kody/runs/$runId': typeof ApiChatKodyRunsRunIdRouteWithChildren
+  '/api/chat/project-snapshots/$hash/quarantine': typeof ApiChatProjectSnapshotsHashQuarantineRoute
+  '/api/chat/projects/$id/sync': typeof ApiChatProjectsIdSyncRoute
+  '/api/chat/references/kody/inspect': typeof ApiChatReferencesKodyInspectRoute
+  '/api/chat/references/kody/refresh': typeof ApiChatReferencesKodyRefreshRoute
+  '/api/chat/references/tools/refresh': typeof ApiChatReferencesToolsRefreshRoute
+  '/api/chat/retries/$id/prepare': typeof ApiChatRetriesIdPrepareRoute
   '/charts/catalog/previews/$revision/{$caseId}.svg': typeof ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute
+  '/chat/c/$conversationId/m/$messageId': typeof ChatCConversationIdMMessageIdRoute
+  '/chat/w/$workspaceId/b/$botId': typeof ChatWWorkspaceIdBBotIdRoute
+  '/chat/w/$workspaceId/home/$homeSection': typeof ChatWWorkspaceIdHomeHomeSectionRoute
   '/$libraryId/$version/docs': typeof LibraryLibraryIdVersionDocsIndexRoute
+  '/api/chat/account/composer-drafts/$accountId/$scope': typeof ApiChatAccountComposerDraftsAccountIdScopeRoute
+  '/api/chat/bot-drafts/$id/files/$fileId': typeof ApiChatBotDraftsIdFilesFileIdRouteWithChildren
+  '/api/chat/bots/$id/files/$fileId': typeof ApiChatBotsIdFilesFileIdRouteWithChildren
+  '/api/chat/conversations/$id/files/$fileId': typeof ApiChatConversationsIdFilesFileIdRouteWithChildren
+  '/api/chat/conversations/$id/files/import': typeof ApiChatConversationsIdFilesImportRoute
+  '/api/chat/conversations/$id/memories/$memoryId': typeof ApiChatConversationsIdMemoriesMemoryIdRoute
+  '/api/chat/conversations/$id/workflow-runs/$runId': typeof ApiChatConversationsIdWorkflowRunsRunIdRouteWithChildren
+  '/api/chat/conversations/$id/workflows/$workflowId': typeof ApiChatConversationsIdWorkflowsWorkflowIdRoute
+  '/api/chat/kody/jobs/$jobId/enabled': typeof ApiChatKodyJobsJobIdEnabledRoute
+  '/api/chat/kody/mail/messages/$messageId': typeof ApiChatKodyMailMessagesMessageIdRoute
+  '/api/chat/kody/memories/$memoryId/apply': typeof ApiChatKodyMemoriesMemoryIdApplyRoute
+  '/api/chat/kody/memories/$memoryId/review': typeof ApiChatKodyMemoriesMemoryIdReviewRoute
+  '/api/chat/kody/memories/create/apply': typeof ApiChatKodyMemoriesCreateApplyRoute
+  '/api/chat/kody/memories/create/review': typeof ApiChatKodyMemoriesCreateReviewRoute
+  '/api/chat/kody/packages/$packageId/document': typeof ApiChatKodyPackagesPackageIdDocumentRoute
+  '/api/chat/kody/runs/$runId/triage': typeof ApiChatKodyRunsRunIdTriageRoute
+  '/api/chat/kody/servers/$serverId/check': typeof ApiChatKodyServersServerIdCheckRoute
+  '/api/chat/kody/servers/$serverId/enabled': typeof ApiChatKodyServersServerIdEnabledRoute
+  '/api/chat/kody/servers/$serverId/reconnect': typeof ApiChatKodyServersServerIdReconnectRoute
   '/$libraryId/$version/docs/framework': typeof LibraryLibraryIdVersionDocsFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/$': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkSplatRoute
   '/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRoute
+  '/api/chat/bot-drafts/$id/files/$fileId/content': typeof ApiChatBotDraftsIdFilesFileIdContentRoute
+  '/api/chat/bots/$id/files/$fileId/content': typeof ApiChatBotsIdFilesFileIdContentRoute
+  '/api/chat/conversations/$id/execution/snapshots/$snapshotId': typeof ApiChatConversationsIdExecutionSnapshotsSnapshotIdRoute
+  '/api/chat/conversations/$id/files/$fileId/content': typeof ApiChatConversationsIdFilesFileIdContentRoute
+  '/api/chat/conversations/$id/workflow-runs/$runId/cancel': typeof ApiChatConversationsIdWorkflowRunsRunIdCancelRoute
   '/$libraryId/$version/docs/framework/$framework': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/examples/$': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute
 }
@@ -1774,6 +2635,8 @@ export interface FileRoutesById {
   '/blog': typeof BlogRouteWithChildren
   '/brand-guide': typeof BrandGuideRoute
   '/builder': typeof BuilderRoute
+  '/chat': typeof ChatRouteWithChildren
+  '/chat-access': typeof ChatAccessRoute
   '/community-projects': typeof CommunityProjectsRoute
   '/dashboard': typeof DashboardRoute
   '/ds': typeof DsRouteWithChildren
@@ -1808,6 +2671,7 @@ export interface FileRoutesById {
   '/account/notes': typeof AccountNotesRoute
   '/account/submissions': typeof AccountSubmissionsRoute
   '/admin/audit': typeof AdminAuditRoute
+  '/admin/chat-access': typeof AdminChatAccessRoute
   '/admin/docs': typeof AdminDocsRoute
   '/admin/github-stats': typeof AdminGithubStatsRoute
   '/admin/intent': typeof AdminIntentRoute
@@ -1825,6 +2689,9 @@ export interface FileRoutesById {
   '/builder_/esbuild': typeof BuilderEsbuildRoute
   '/builder_/llms.txt': typeof BuilderLlmsDottxtRoute
   '/builder_/new': typeof BuilderNewRoute
+  '/chat/charts': typeof ChatChartsRoute
+  '/chat/new-project': typeof ChatNewProjectRoute
+  '/chat/shared': typeof ChatSharedRoute
   '/ds/avatar': typeof DsAvatarRoute
   '/ds/badges': typeof DsBadgesRoute
   '/ds/breadcrumbs': typeof DsBreadcrumbsRoute
@@ -1871,6 +2738,7 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/application-starter/': typeof ApplicationStarterIndexRoute
   '/blog/': typeof BlogIndexRoute
+  '/chat/': typeof ChatIndexRoute
   '/ds/': typeof DsIndexRoute
   '/partners/': typeof PartnersIndexRoute
   '/shop/': typeof ShopIndexRoute
@@ -1893,9 +2761,27 @@ export interface FileRoutesById {
   '/api/application-starter/resolve': typeof ApiApplicationStarterResolveRoute
   '/api/application-starter/suggest': typeof ApiApplicationStarterSuggestRoute
   '/api/application-starter/validate': typeof ApiApplicationStarterValidateRoute
-  '/api/builder/assist': typeof ApiBuilderAssistRoute
-  '/api/builder/project-snapshots': typeof ApiBuilderProjectSnapshotsRouteWithChildren
-  '/api/builder/projects': typeof ApiBuilderProjectsRouteWithChildren
+  '/api/chat/activity': typeof ApiChatActivityRoute
+  '/api/chat/app-version': typeof ApiChatAppVersionRoute
+  '/api/chat/bootstrap': typeof ApiChatBootstrapRoute
+  '/api/chat/bots': typeof ApiChatBotsRouteWithChildren
+  '/api/chat/connection': typeof ApiChatConnectionRoute
+  '/api/chat/device-transport': typeof ApiChatDeviceTransportRoute
+  '/api/chat/draft': typeof ApiChatDraftRoute
+  '/api/chat/files': typeof ApiChatFilesRoute
+  '/api/chat/model-options': typeof ApiChatModelOptionsRoute
+  '/api/chat/models': typeof ApiChatModelsRoute
+  '/api/chat/plugins': typeof ApiChatPluginsRouteWithChildren
+  '/api/chat/policy': typeof ApiChatPolicyRoute
+  '/api/chat/project-snapshots': typeof ApiChatProjectSnapshotsRouteWithChildren
+  '/api/chat/projects': typeof ApiChatProjectsRouteWithChildren
+  '/api/chat/recipes': typeof ApiChatRecipesRouteWithChildren
+  '/api/chat/references': typeof ApiChatReferencesRouteWithChildren
+  '/api/chat/sections': typeof ApiChatSectionsRouteWithChildren
+  '/api/chat/skills': typeof ApiChatSkillsRouteWithChildren
+  '/api/chat/workspace': typeof ApiChatWorkspaceRoute
+  '/api/chat/workspace-history': typeof ApiChatWorkspaceHistoryRoute
+  '/api/chat/workspace-index': typeof ApiChatWorkspaceIndexRouteWithChildren
   '/api/data/libraries': typeof ApiDataLibrariesRoute
   '/api/data/partners': typeof ApiDataPartnersRoute
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
@@ -1905,8 +2791,15 @@ export interface FileRoutesById {
   '/api/og/{$}.png': typeof ApiOgChar123Char125DotpngRoute
   '/api/readme/{$}.png': typeof ApiReadmeChar123Char125DotpngRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
+  '/auth/mcp/callback': typeof AuthMcpCallbackRoute
+  '/auth/mcp/client-metadata': typeof AuthMcpClientMetadataRoute
   '/builder_/p/$hash': typeof BuilderPHashRoute
   '/charts/catalog_/catalog.json': typeof ChartsCatalogCatalogDotjsonRoute
+  '/chat/b/$botId': typeof ChatBBotIdRoute
+  '/chat/c/$conversationId': typeof ChatCConversationIdRouteWithChildren
+  '/chat/p/$hash': typeof ChatPHashRoute
+  '/chat/project/$projectId': typeof ChatProjectProjectIdRoute
+  '/chat/w/$workspaceId': typeof ChatWWorkspaceIdRouteWithChildren
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameRouteWithChildren
   '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
   '/shop/pages/$handle': typeof ShopPagesHandleRoute
@@ -1930,9 +2823,36 @@ export interface FileRoutesById {
   '/api/application-starter/deploy/github': typeof ApiApplicationStarterDeployGithubRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
   '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
-  '/api/builder/openrouter/callback': typeof ApiBuilderOpenrouterCallbackRoute
-  '/api/builder/project-snapshots/$hash': typeof ApiBuilderProjectSnapshotsHashRouteWithChildren
-  '/api/builder/projects/$id': typeof ApiBuilderProjectsIdRouteWithChildren
+  '/api/chat/account/devices': typeof ApiChatAccountDevicesRoute
+  '/api/chat/account/onboarding': typeof ApiChatAccountOnboardingRoute
+  '/api/chat/account/preferences': typeof ApiChatAccountPreferencesRoute
+  '/api/chat/bot-drafts/$id': typeof ApiChatBotDraftsIdRouteWithChildren
+  '/api/chat/bots/$id': typeof ApiChatBotsIdRouteWithChildren
+  '/api/chat/bots/bulk': typeof ApiChatBotsBulkRoute
+  '/api/chat/bots/move': typeof ApiChatBotsMoveRoute
+  '/api/chat/copies/$id': typeof ApiChatCopiesIdRoute
+  '/api/chat/kody/account': typeof ApiChatKodyAccountRoute
+  '/api/chat/kody/callback': typeof ApiChatKodyCallbackRoute
+  '/api/chat/kody/community': typeof ApiChatKodyCommunityRouteWithChildren
+  '/api/chat/kody/connect': typeof ApiChatKodyConnectRoute
+  '/api/chat/kody/memories': typeof ApiChatKodyMemoriesRouteWithChildren
+  '/api/chat/kody/runs': typeof ApiChatKodyRunsRouteWithChildren
+  '/api/chat/kody/servers': typeof ApiChatKodyServersRouteWithChildren
+  '/api/chat/kody/sync': typeof ApiChatKodySyncRoute
+  '/api/chat/kody/unlink': typeof ApiChatKodyUnlinkRoute
+  '/api/chat/kody/usage': typeof ApiChatKodyUsageRoute
+  '/api/chat/mcp/$': typeof ApiChatMcpSplatRoute
+  '/api/chat/mcp/contract': typeof ApiChatMcpContractRoute
+  '/api/chat/openrouter/callback': typeof ApiChatOpenrouterCallbackRoute
+  '/api/chat/plugins/$id': typeof ApiChatPluginsIdRoute
+  '/api/chat/project-snapshots/$hash': typeof ApiChatProjectSnapshotsHashRouteWithChildren
+  '/api/chat/projects/$id': typeof ApiChatProjectsIdRouteWithChildren
+  '/api/chat/recipes/$id': typeof ApiChatRecipesIdRoute
+  '/api/chat/retries/$id': typeof ApiChatRetriesIdRouteWithChildren
+  '/api/chat/sections/$id': typeof ApiChatSectionsIdRoute
+  '/api/chat/skills/$id': typeof ApiChatSkillsIdRoute
+  '/api/chat/workspace-index/activity': typeof ApiChatWorkspaceIndexActivityRoute
+  '/api/chat/workspace-sync/$operation': typeof ApiChatWorkspaceSyncOperationRoute
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/_library/$libraryId/$version/': typeof LibraryLibraryIdVersionIndexRoute
@@ -1968,13 +2888,57 @@ export interface FileRoutesById {
   '/_library/charts/catalog/charts/$caseId': typeof LibraryChartsCatalogChartsCaseIdRoute
   '/_library/charts/catalog/collections/$collectionId': typeof LibraryChartsCatalogCollectionsCollectionIdRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
-  '/api/builder/project-snapshots/$hash/quarantine': typeof ApiBuilderProjectSnapshotsHashQuarantineRoute
-  '/api/builder/projects/$id/sync': typeof ApiBuilderProjectsIdSyncRoute
+  '/api/chat/bot-drafts/$id/files': typeof ApiChatBotDraftsIdFilesRouteWithChildren
+  '/api/chat/bots/$id/$operation': typeof ApiChatBotsIdOperationRoute
+  '/api/chat/bots/$id/files': typeof ApiChatBotsIdFilesRouteWithChildren
+  '/api/chat/conversations/$id/$operation': typeof ApiChatConversationsIdOperationRoute
+  '/api/chat/conversations/$id/files': typeof ApiChatConversationsIdFilesRouteWithChildren
+  '/api/chat/conversations/$id/memories': typeof ApiChatConversationsIdMemoriesRouteWithChildren
+  '/api/chat/conversations/$id/references': typeof ApiChatConversationsIdReferencesRoute
+  '/api/chat/kody/community/$listingId': typeof ApiChatKodyCommunityListingIdRoute
+  '/api/chat/kody/mail/inboxes': typeof ApiChatKodyMailInboxesRoute
+  '/api/chat/kody/mail/messages': typeof ApiChatKodyMailMessagesRouteWithChildren
+  '/api/chat/kody/memories/$memoryId': typeof ApiChatKodyMemoriesMemoryIdRouteWithChildren
+  '/api/chat/kody/resources/$kind': typeof ApiChatKodyResourcesKindRoute
+  '/api/chat/kody/runs/$runId': typeof ApiChatKodyRunsRunIdRouteWithChildren
+  '/api/chat/project-snapshots/$hash/quarantine': typeof ApiChatProjectSnapshotsHashQuarantineRoute
+  '/api/chat/projects/$id/sync': typeof ApiChatProjectsIdSyncRoute
+  '/api/chat/references/kody/inspect': typeof ApiChatReferencesKodyInspectRoute
+  '/api/chat/references/kody/refresh': typeof ApiChatReferencesKodyRefreshRoute
+  '/api/chat/references/tools/refresh': typeof ApiChatReferencesToolsRefreshRoute
+  '/api/chat/retries/$id/prepare': typeof ApiChatRetriesIdPrepareRoute
   '/charts/catalog_/previews/$revision/{$caseId}.svg': typeof ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute
+  '/chat/c/$conversationId/m/$messageId': typeof ChatCConversationIdMMessageIdRoute
+  '/chat/w/$workspaceId/b/$botId': typeof ChatWWorkspaceIdBBotIdRoute
+  '/chat/w/$workspaceId/home/$homeSection': typeof ChatWWorkspaceIdHomeHomeSectionRoute
   '/_library/$libraryId/$version/docs/': typeof LibraryLibraryIdVersionDocsIndexRoute
+  '/api/chat/account/composer-drafts/$accountId/$scope': typeof ApiChatAccountComposerDraftsAccountIdScopeRoute
+  '/api/chat/bot-drafts/$id/files/$fileId': typeof ApiChatBotDraftsIdFilesFileIdRouteWithChildren
+  '/api/chat/bots/$id/files/$fileId': typeof ApiChatBotsIdFilesFileIdRouteWithChildren
+  '/api/chat/conversations/$id/files/$fileId': typeof ApiChatConversationsIdFilesFileIdRouteWithChildren
+  '/api/chat/conversations/$id/files/import': typeof ApiChatConversationsIdFilesImportRoute
+  '/api/chat/conversations/$id/memories/$memoryId': typeof ApiChatConversationsIdMemoriesMemoryIdRoute
+  '/api/chat/conversations/$id/workflow-runs/$runId': typeof ApiChatConversationsIdWorkflowRunsRunIdRouteWithChildren
+  '/api/chat/conversations/$id/workflows/$workflowId': typeof ApiChatConversationsIdWorkflowsWorkflowIdRoute
+  '/api/chat/kody/jobs/$jobId/enabled': typeof ApiChatKodyJobsJobIdEnabledRoute
+  '/api/chat/kody/mail/messages/$messageId': typeof ApiChatKodyMailMessagesMessageIdRoute
+  '/api/chat/kody/memories/$memoryId/apply': typeof ApiChatKodyMemoriesMemoryIdApplyRoute
+  '/api/chat/kody/memories/$memoryId/review': typeof ApiChatKodyMemoriesMemoryIdReviewRoute
+  '/api/chat/kody/memories/create/apply': typeof ApiChatKodyMemoriesCreateApplyRoute
+  '/api/chat/kody/memories/create/review': typeof ApiChatKodyMemoriesCreateReviewRoute
+  '/api/chat/kody/packages/$packageId/document': typeof ApiChatKodyPackagesPackageIdDocumentRoute
+  '/api/chat/kody/runs/$runId/triage': typeof ApiChatKodyRunsRunIdTriageRoute
+  '/api/chat/kody/servers/$serverId/check': typeof ApiChatKodyServersServerIdCheckRoute
+  '/api/chat/kody/servers/$serverId/enabled': typeof ApiChatKodyServersServerIdEnabledRoute
+  '/api/chat/kody/servers/$serverId/reconnect': typeof ApiChatKodyServersServerIdReconnectRoute
   '/_library/$libraryId/$version/docs/framework/': typeof LibraryLibraryIdVersionDocsFrameworkIndexRoute
   '/_library/$libraryId/$version/docs/framework/$framework/$': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkSplatRoute
   '/_library/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRoute
+  '/api/chat/bot-drafts/$id/files/$fileId/content': typeof ApiChatBotDraftsIdFilesFileIdContentRoute
+  '/api/chat/bots/$id/files/$fileId/content': typeof ApiChatBotsIdFilesFileIdContentRoute
+  '/api/chat/conversations/$id/execution/snapshots/$snapshotId': typeof ApiChatConversationsIdExecutionSnapshotsSnapshotIdRoute
+  '/api/chat/conversations/$id/files/$fileId/content': typeof ApiChatConversationsIdFilesFileIdContentRoute
+  '/api/chat/conversations/$id/workflow-runs/$runId/cancel': typeof ApiChatConversationsIdWorkflowRunsRunIdCancelRoute
   '/_library/$libraryId/$version/docs/framework/$framework/': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkIndexRoute
   '/_library/$libraryId/$version/docs/framework/$framework/examples/$': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute
 }
@@ -1989,6 +2953,8 @@ export interface FileRouteTypes {
     | '/blog'
     | '/brand-guide'
     | '/builder'
+    | '/chat'
+    | '/chat-access'
     | '/community-projects'
     | '/dashboard'
     | '/ds'
@@ -2023,6 +2989,7 @@ export interface FileRouteTypes {
     | '/account/notes'
     | '/account/submissions'
     | '/admin/audit'
+    | '/admin/chat-access'
     | '/admin/docs'
     | '/admin/github-stats'
     | '/admin/intent'
@@ -2040,6 +3007,9 @@ export interface FileRouteTypes {
     | '/builder/esbuild'
     | '/builder/llms.txt'
     | '/builder/new'
+    | '/chat/charts'
+    | '/chat/new-project'
+    | '/chat/shared'
     | '/ds/avatar'
     | '/ds/badges'
     | '/ds/breadcrumbs'
@@ -2086,6 +3056,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/application-starter/'
     | '/blog/'
+    | '/chat/'
     | '/ds/'
     | '/partners/'
     | '/shop/'
@@ -2108,9 +3079,27 @@ export interface FileRouteTypes {
     | '/api/application-starter/resolve'
     | '/api/application-starter/suggest'
     | '/api/application-starter/validate'
-    | '/api/builder/assist'
-    | '/api/builder/project-snapshots'
-    | '/api/builder/projects'
+    | '/api/chat/activity'
+    | '/api/chat/app-version'
+    | '/api/chat/bootstrap'
+    | '/api/chat/bots'
+    | '/api/chat/connection'
+    | '/api/chat/device-transport'
+    | '/api/chat/draft'
+    | '/api/chat/files'
+    | '/api/chat/model-options'
+    | '/api/chat/models'
+    | '/api/chat/plugins'
+    | '/api/chat/policy'
+    | '/api/chat/project-snapshots'
+    | '/api/chat/projects'
+    | '/api/chat/recipes'
+    | '/api/chat/references'
+    | '/api/chat/sections'
+    | '/api/chat/skills'
+    | '/api/chat/workspace'
+    | '/api/chat/workspace-history'
+    | '/api/chat/workspace-index'
     | '/api/data/libraries'
     | '/api/data/partners'
     | '/api/discord/interactions'
@@ -2120,8 +3109,15 @@ export interface FileRouteTypes {
     | '/api/og/{$}.png'
     | '/api/readme/{$}.png'
     | '/auth/$provider/start'
+    | '/auth/mcp/callback'
+    | '/auth/mcp/client-metadata'
     | '/builder/p/$hash'
     | '/charts/catalog/catalog.json'
+    | '/chat/b/$botId'
+    | '/chat/c/$conversationId'
+    | '/chat/p/$hash'
+    | '/chat/project/$projectId'
+    | '/chat/w/$workspaceId'
     | '/intent/registry/$packageName'
     | '/shop/collections/$handle'
     | '/shop/pages/$handle'
@@ -2145,9 +3141,36 @@ export interface FileRouteTypes {
     | '/api/application-starter/deploy/github'
     | '/api/auth/callback/$provider'
     | '/api/auth/cli/create-ticket'
-    | '/api/builder/openrouter/callback'
-    | '/api/builder/project-snapshots/$hash'
-    | '/api/builder/projects/$id'
+    | '/api/chat/account/devices'
+    | '/api/chat/account/onboarding'
+    | '/api/chat/account/preferences'
+    | '/api/chat/bot-drafts/$id'
+    | '/api/chat/bots/$id'
+    | '/api/chat/bots/bulk'
+    | '/api/chat/bots/move'
+    | '/api/chat/copies/$id'
+    | '/api/chat/kody/account'
+    | '/api/chat/kody/callback'
+    | '/api/chat/kody/community'
+    | '/api/chat/kody/connect'
+    | '/api/chat/kody/memories'
+    | '/api/chat/kody/runs'
+    | '/api/chat/kody/servers'
+    | '/api/chat/kody/sync'
+    | '/api/chat/kody/unlink'
+    | '/api/chat/kody/usage'
+    | '/api/chat/mcp/$'
+    | '/api/chat/mcp/contract'
+    | '/api/chat/openrouter/callback'
+    | '/api/chat/plugins/$id'
+    | '/api/chat/project-snapshots/$hash'
+    | '/api/chat/projects/$id'
+    | '/api/chat/recipes/$id'
+    | '/api/chat/retries/$id'
+    | '/api/chat/sections/$id'
+    | '/api/chat/skills/$id'
+    | '/api/chat/workspace-index/activity'
+    | '/api/chat/workspace-sync/$operation'
     | '/intent/registry/$packageName/$skillName'
     | '/intent/registry/$packageName/{$}.md'
     | '/$libraryId/$version/'
@@ -2183,13 +3206,57 @@ export interface FileRouteTypes {
     | '/charts/catalog/charts/$caseId'
     | '/charts/catalog/collections/$collectionId'
     | '/api/auth/cli/status/$ticketId'
-    | '/api/builder/project-snapshots/$hash/quarantine'
-    | '/api/builder/projects/$id/sync'
+    | '/api/chat/bot-drafts/$id/files'
+    | '/api/chat/bots/$id/$operation'
+    | '/api/chat/bots/$id/files'
+    | '/api/chat/conversations/$id/$operation'
+    | '/api/chat/conversations/$id/files'
+    | '/api/chat/conversations/$id/memories'
+    | '/api/chat/conversations/$id/references'
+    | '/api/chat/kody/community/$listingId'
+    | '/api/chat/kody/mail/inboxes'
+    | '/api/chat/kody/mail/messages'
+    | '/api/chat/kody/memories/$memoryId'
+    | '/api/chat/kody/resources/$kind'
+    | '/api/chat/kody/runs/$runId'
+    | '/api/chat/project-snapshots/$hash/quarantine'
+    | '/api/chat/projects/$id/sync'
+    | '/api/chat/references/kody/inspect'
+    | '/api/chat/references/kody/refresh'
+    | '/api/chat/references/tools/refresh'
+    | '/api/chat/retries/$id/prepare'
     | '/charts/catalog/previews/$revision/{$caseId}.svg'
+    | '/chat/c/$conversationId/m/$messageId'
+    | '/chat/w/$workspaceId/b/$botId'
+    | '/chat/w/$workspaceId/home/$homeSection'
     | '/$libraryId/$version/docs/'
+    | '/api/chat/account/composer-drafts/$accountId/$scope'
+    | '/api/chat/bot-drafts/$id/files/$fileId'
+    | '/api/chat/bots/$id/files/$fileId'
+    | '/api/chat/conversations/$id/files/$fileId'
+    | '/api/chat/conversations/$id/files/import'
+    | '/api/chat/conversations/$id/memories/$memoryId'
+    | '/api/chat/conversations/$id/workflow-runs/$runId'
+    | '/api/chat/conversations/$id/workflows/$workflowId'
+    | '/api/chat/kody/jobs/$jobId/enabled'
+    | '/api/chat/kody/mail/messages/$messageId'
+    | '/api/chat/kody/memories/$memoryId/apply'
+    | '/api/chat/kody/memories/$memoryId/review'
+    | '/api/chat/kody/memories/create/apply'
+    | '/api/chat/kody/memories/create/review'
+    | '/api/chat/kody/packages/$packageId/document'
+    | '/api/chat/kody/runs/$runId/triage'
+    | '/api/chat/kody/servers/$serverId/check'
+    | '/api/chat/kody/servers/$serverId/enabled'
+    | '/api/chat/kody/servers/$serverId/reconnect'
     | '/$libraryId/$version/docs/framework/'
     | '/$libraryId/$version/docs/framework/$framework/$'
     | '/$libraryId/$version/docs/framework/$framework/{$}.md'
+    | '/api/chat/bot-drafts/$id/files/$fileId/content'
+    | '/api/chat/bots/$id/files/$fileId/content'
+    | '/api/chat/conversations/$id/execution/snapshots/$snapshotId'
+    | '/api/chat/conversations/$id/files/$fileId/content'
+    | '/api/chat/conversations/$id/workflow-runs/$runId/cancel'
     | '/$libraryId/$version/docs/framework/$framework/'
     | '/$libraryId/$version/docs/framework/$framework/examples/$'
   fileRoutesByTo: FileRoutesByTo
@@ -2198,6 +3265,7 @@ export interface FileRouteTypes {
     | '/ads'
     | '/brand-guide'
     | '/builder'
+    | '/chat-access'
     | '/community-projects'
     | '/dashboard'
     | '/ethos'
@@ -2228,6 +3296,7 @@ export interface FileRouteTypes {
     | '/account/notes'
     | '/account/submissions'
     | '/admin/audit'
+    | '/admin/chat-access'
     | '/admin/docs'
     | '/admin/github-stats'
     | '/admin/intent'
@@ -2245,6 +3314,9 @@ export interface FileRouteTypes {
     | '/builder/esbuild'
     | '/builder/llms.txt'
     | '/builder/new'
+    | '/chat/charts'
+    | '/chat/new-project'
+    | '/chat/shared'
     | '/ds/avatar'
     | '/ds/badges'
     | '/ds/breadcrumbs'
@@ -2291,6 +3363,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/application-starter'
     | '/blog'
+    | '/chat'
     | '/ds'
     | '/partners'
     | '/shop'
@@ -2311,9 +3384,27 @@ export interface FileRouteTypes {
     | '/api/application-starter/resolve'
     | '/api/application-starter/suggest'
     | '/api/application-starter/validate'
-    | '/api/builder/assist'
-    | '/api/builder/project-snapshots'
-    | '/api/builder/projects'
+    | '/api/chat/activity'
+    | '/api/chat/app-version'
+    | '/api/chat/bootstrap'
+    | '/api/chat/bots'
+    | '/api/chat/connection'
+    | '/api/chat/device-transport'
+    | '/api/chat/draft'
+    | '/api/chat/files'
+    | '/api/chat/model-options'
+    | '/api/chat/models'
+    | '/api/chat/plugins'
+    | '/api/chat/policy'
+    | '/api/chat/project-snapshots'
+    | '/api/chat/projects'
+    | '/api/chat/recipes'
+    | '/api/chat/references'
+    | '/api/chat/sections'
+    | '/api/chat/skills'
+    | '/api/chat/workspace'
+    | '/api/chat/workspace-history'
+    | '/api/chat/workspace-index'
     | '/api/data/libraries'
     | '/api/data/partners'
     | '/api/discord/interactions'
@@ -2323,8 +3414,15 @@ export interface FileRouteTypes {
     | '/api/og/{$}.png'
     | '/api/readme/{$}.png'
     | '/auth/$provider/start'
+    | '/auth/mcp/callback'
+    | '/auth/mcp/client-metadata'
     | '/builder/p/$hash'
     | '/charts/catalog/catalog.json'
+    | '/chat/b/$botId'
+    | '/chat/c/$conversationId'
+    | '/chat/p/$hash'
+    | '/chat/project/$projectId'
+    | '/chat/w/$workspaceId'
     | '/shop/collections/$handle'
     | '/shop/pages/$handle'
     | '/shop/policies/$handle'
@@ -2346,9 +3444,36 @@ export interface FileRouteTypes {
     | '/api/application-starter/deploy/github'
     | '/api/auth/callback/$provider'
     | '/api/auth/cli/create-ticket'
-    | '/api/builder/openrouter/callback'
-    | '/api/builder/project-snapshots/$hash'
-    | '/api/builder/projects/$id'
+    | '/api/chat/account/devices'
+    | '/api/chat/account/onboarding'
+    | '/api/chat/account/preferences'
+    | '/api/chat/bot-drafts/$id'
+    | '/api/chat/bots/$id'
+    | '/api/chat/bots/bulk'
+    | '/api/chat/bots/move'
+    | '/api/chat/copies/$id'
+    | '/api/chat/kody/account'
+    | '/api/chat/kody/callback'
+    | '/api/chat/kody/community'
+    | '/api/chat/kody/connect'
+    | '/api/chat/kody/memories'
+    | '/api/chat/kody/runs'
+    | '/api/chat/kody/servers'
+    | '/api/chat/kody/sync'
+    | '/api/chat/kody/unlink'
+    | '/api/chat/kody/usage'
+    | '/api/chat/mcp/$'
+    | '/api/chat/mcp/contract'
+    | '/api/chat/openrouter/callback'
+    | '/api/chat/plugins/$id'
+    | '/api/chat/project-snapshots/$hash'
+    | '/api/chat/projects/$id'
+    | '/api/chat/recipes/$id'
+    | '/api/chat/retries/$id'
+    | '/api/chat/sections/$id'
+    | '/api/chat/skills/$id'
+    | '/api/chat/workspace-index/activity'
+    | '/api/chat/workspace-sync/$operation'
     | '/intent/registry/$packageName/$skillName'
     | '/intent/registry/$packageName/{$}.md'
     | '/$libraryId/$version'
@@ -2384,13 +3509,57 @@ export interface FileRouteTypes {
     | '/charts/catalog/charts/$caseId'
     | '/charts/catalog/collections/$collectionId'
     | '/api/auth/cli/status/$ticketId'
-    | '/api/builder/project-snapshots/$hash/quarantine'
-    | '/api/builder/projects/$id/sync'
+    | '/api/chat/bot-drafts/$id/files'
+    | '/api/chat/bots/$id/$operation'
+    | '/api/chat/bots/$id/files'
+    | '/api/chat/conversations/$id/$operation'
+    | '/api/chat/conversations/$id/files'
+    | '/api/chat/conversations/$id/memories'
+    | '/api/chat/conversations/$id/references'
+    | '/api/chat/kody/community/$listingId'
+    | '/api/chat/kody/mail/inboxes'
+    | '/api/chat/kody/mail/messages'
+    | '/api/chat/kody/memories/$memoryId'
+    | '/api/chat/kody/resources/$kind'
+    | '/api/chat/kody/runs/$runId'
+    | '/api/chat/project-snapshots/$hash/quarantine'
+    | '/api/chat/projects/$id/sync'
+    | '/api/chat/references/kody/inspect'
+    | '/api/chat/references/kody/refresh'
+    | '/api/chat/references/tools/refresh'
+    | '/api/chat/retries/$id/prepare'
     | '/charts/catalog/previews/$revision/{$caseId}.svg'
+    | '/chat/c/$conversationId/m/$messageId'
+    | '/chat/w/$workspaceId/b/$botId'
+    | '/chat/w/$workspaceId/home/$homeSection'
     | '/$libraryId/$version/docs'
+    | '/api/chat/account/composer-drafts/$accountId/$scope'
+    | '/api/chat/bot-drafts/$id/files/$fileId'
+    | '/api/chat/bots/$id/files/$fileId'
+    | '/api/chat/conversations/$id/files/$fileId'
+    | '/api/chat/conversations/$id/files/import'
+    | '/api/chat/conversations/$id/memories/$memoryId'
+    | '/api/chat/conversations/$id/workflow-runs/$runId'
+    | '/api/chat/conversations/$id/workflows/$workflowId'
+    | '/api/chat/kody/jobs/$jobId/enabled'
+    | '/api/chat/kody/mail/messages/$messageId'
+    | '/api/chat/kody/memories/$memoryId/apply'
+    | '/api/chat/kody/memories/$memoryId/review'
+    | '/api/chat/kody/memories/create/apply'
+    | '/api/chat/kody/memories/create/review'
+    | '/api/chat/kody/packages/$packageId/document'
+    | '/api/chat/kody/runs/$runId/triage'
+    | '/api/chat/kody/servers/$serverId/check'
+    | '/api/chat/kody/servers/$serverId/enabled'
+    | '/api/chat/kody/servers/$serverId/reconnect'
     | '/$libraryId/$version/docs/framework'
     | '/$libraryId/$version/docs/framework/$framework/$'
     | '/$libraryId/$version/docs/framework/$framework/{$}.md'
+    | '/api/chat/bot-drafts/$id/files/$fileId/content'
+    | '/api/chat/bots/$id/files/$fileId/content'
+    | '/api/chat/conversations/$id/execution/snapshots/$snapshotId'
+    | '/api/chat/conversations/$id/files/$fileId/content'
+    | '/api/chat/conversations/$id/workflow-runs/$runId/cancel'
     | '/$libraryId/$version/docs/framework/$framework'
     | '/$libraryId/$version/docs/framework/$framework/examples/$'
   id:
@@ -2404,6 +3573,8 @@ export interface FileRouteTypes {
     | '/blog'
     | '/brand-guide'
     | '/builder'
+    | '/chat'
+    | '/chat-access'
     | '/community-projects'
     | '/dashboard'
     | '/ds'
@@ -2438,6 +3609,7 @@ export interface FileRouteTypes {
     | '/account/notes'
     | '/account/submissions'
     | '/admin/audit'
+    | '/admin/chat-access'
     | '/admin/docs'
     | '/admin/github-stats'
     | '/admin/intent'
@@ -2455,6 +3627,9 @@ export interface FileRouteTypes {
     | '/builder_/esbuild'
     | '/builder_/llms.txt'
     | '/builder_/new'
+    | '/chat/charts'
+    | '/chat/new-project'
+    | '/chat/shared'
     | '/ds/avatar'
     | '/ds/badges'
     | '/ds/breadcrumbs'
@@ -2501,6 +3676,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/application-starter/'
     | '/blog/'
+    | '/chat/'
     | '/ds/'
     | '/partners/'
     | '/shop/'
@@ -2523,9 +3699,27 @@ export interface FileRouteTypes {
     | '/api/application-starter/resolve'
     | '/api/application-starter/suggest'
     | '/api/application-starter/validate'
-    | '/api/builder/assist'
-    | '/api/builder/project-snapshots'
-    | '/api/builder/projects'
+    | '/api/chat/activity'
+    | '/api/chat/app-version'
+    | '/api/chat/bootstrap'
+    | '/api/chat/bots'
+    | '/api/chat/connection'
+    | '/api/chat/device-transport'
+    | '/api/chat/draft'
+    | '/api/chat/files'
+    | '/api/chat/model-options'
+    | '/api/chat/models'
+    | '/api/chat/plugins'
+    | '/api/chat/policy'
+    | '/api/chat/project-snapshots'
+    | '/api/chat/projects'
+    | '/api/chat/recipes'
+    | '/api/chat/references'
+    | '/api/chat/sections'
+    | '/api/chat/skills'
+    | '/api/chat/workspace'
+    | '/api/chat/workspace-history'
+    | '/api/chat/workspace-index'
     | '/api/data/libraries'
     | '/api/data/partners'
     | '/api/discord/interactions'
@@ -2535,8 +3729,15 @@ export interface FileRouteTypes {
     | '/api/og/{$}.png'
     | '/api/readme/{$}.png'
     | '/auth/$provider/start'
+    | '/auth/mcp/callback'
+    | '/auth/mcp/client-metadata'
     | '/builder_/p/$hash'
     | '/charts/catalog_/catalog.json'
+    | '/chat/b/$botId'
+    | '/chat/c/$conversationId'
+    | '/chat/p/$hash'
+    | '/chat/project/$projectId'
+    | '/chat/w/$workspaceId'
     | '/intent/registry/$packageName'
     | '/shop/collections/$handle'
     | '/shop/pages/$handle'
@@ -2560,9 +3761,36 @@ export interface FileRouteTypes {
     | '/api/application-starter/deploy/github'
     | '/api/auth/callback/$provider'
     | '/api/auth/cli/create-ticket'
-    | '/api/builder/openrouter/callback'
-    | '/api/builder/project-snapshots/$hash'
-    | '/api/builder/projects/$id'
+    | '/api/chat/account/devices'
+    | '/api/chat/account/onboarding'
+    | '/api/chat/account/preferences'
+    | '/api/chat/bot-drafts/$id'
+    | '/api/chat/bots/$id'
+    | '/api/chat/bots/bulk'
+    | '/api/chat/bots/move'
+    | '/api/chat/copies/$id'
+    | '/api/chat/kody/account'
+    | '/api/chat/kody/callback'
+    | '/api/chat/kody/community'
+    | '/api/chat/kody/connect'
+    | '/api/chat/kody/memories'
+    | '/api/chat/kody/runs'
+    | '/api/chat/kody/servers'
+    | '/api/chat/kody/sync'
+    | '/api/chat/kody/unlink'
+    | '/api/chat/kody/usage'
+    | '/api/chat/mcp/$'
+    | '/api/chat/mcp/contract'
+    | '/api/chat/openrouter/callback'
+    | '/api/chat/plugins/$id'
+    | '/api/chat/project-snapshots/$hash'
+    | '/api/chat/projects/$id'
+    | '/api/chat/recipes/$id'
+    | '/api/chat/retries/$id'
+    | '/api/chat/sections/$id'
+    | '/api/chat/skills/$id'
+    | '/api/chat/workspace-index/activity'
+    | '/api/chat/workspace-sync/$operation'
     | '/intent/registry/$packageName/$skillName'
     | '/intent/registry/$packageName/{$}.md'
     | '/_library/$libraryId/$version/'
@@ -2598,13 +3826,57 @@ export interface FileRouteTypes {
     | '/_library/charts/catalog/charts/$caseId'
     | '/_library/charts/catalog/collections/$collectionId'
     | '/api/auth/cli/status/$ticketId'
-    | '/api/builder/project-snapshots/$hash/quarantine'
-    | '/api/builder/projects/$id/sync'
+    | '/api/chat/bot-drafts/$id/files'
+    | '/api/chat/bots/$id/$operation'
+    | '/api/chat/bots/$id/files'
+    | '/api/chat/conversations/$id/$operation'
+    | '/api/chat/conversations/$id/files'
+    | '/api/chat/conversations/$id/memories'
+    | '/api/chat/conversations/$id/references'
+    | '/api/chat/kody/community/$listingId'
+    | '/api/chat/kody/mail/inboxes'
+    | '/api/chat/kody/mail/messages'
+    | '/api/chat/kody/memories/$memoryId'
+    | '/api/chat/kody/resources/$kind'
+    | '/api/chat/kody/runs/$runId'
+    | '/api/chat/project-snapshots/$hash/quarantine'
+    | '/api/chat/projects/$id/sync'
+    | '/api/chat/references/kody/inspect'
+    | '/api/chat/references/kody/refresh'
+    | '/api/chat/references/tools/refresh'
+    | '/api/chat/retries/$id/prepare'
     | '/charts/catalog_/previews/$revision/{$caseId}.svg'
+    | '/chat/c/$conversationId/m/$messageId'
+    | '/chat/w/$workspaceId/b/$botId'
+    | '/chat/w/$workspaceId/home/$homeSection'
     | '/_library/$libraryId/$version/docs/'
+    | '/api/chat/account/composer-drafts/$accountId/$scope'
+    | '/api/chat/bot-drafts/$id/files/$fileId'
+    | '/api/chat/bots/$id/files/$fileId'
+    | '/api/chat/conversations/$id/files/$fileId'
+    | '/api/chat/conversations/$id/files/import'
+    | '/api/chat/conversations/$id/memories/$memoryId'
+    | '/api/chat/conversations/$id/workflow-runs/$runId'
+    | '/api/chat/conversations/$id/workflows/$workflowId'
+    | '/api/chat/kody/jobs/$jobId/enabled'
+    | '/api/chat/kody/mail/messages/$messageId'
+    | '/api/chat/kody/memories/$memoryId/apply'
+    | '/api/chat/kody/memories/$memoryId/review'
+    | '/api/chat/kody/memories/create/apply'
+    | '/api/chat/kody/memories/create/review'
+    | '/api/chat/kody/packages/$packageId/document'
+    | '/api/chat/kody/runs/$runId/triage'
+    | '/api/chat/kody/servers/$serverId/check'
+    | '/api/chat/kody/servers/$serverId/enabled'
+    | '/api/chat/kody/servers/$serverId/reconnect'
     | '/_library/$libraryId/$version/docs/framework/'
     | '/_library/$libraryId/$version/docs/framework/$framework/$'
     | '/_library/$libraryId/$version/docs/framework/$framework/{$}.md'
+    | '/api/chat/bot-drafts/$id/files/$fileId/content'
+    | '/api/chat/bots/$id/files/$fileId/content'
+    | '/api/chat/conversations/$id/execution/snapshots/$snapshotId'
+    | '/api/chat/conversations/$id/files/$fileId/content'
+    | '/api/chat/conversations/$id/workflow-runs/$runId/cancel'
     | '/_library/$libraryId/$version/docs/framework/$framework/'
     | '/_library/$libraryId/$version/docs/framework/$framework/examples/$'
   fileRoutesById: FileRoutesById
@@ -2619,6 +3891,8 @@ export interface RootRouteChildren {
   BlogRoute: typeof BlogRouteWithChildren
   BrandGuideRoute: typeof BrandGuideRoute
   BuilderRoute: typeof BuilderRoute
+  ChatRoute: typeof ChatRouteWithChildren
+  ChatAccessRoute: typeof ChatAccessRoute
   CommunityProjectsRoute: typeof CommunityProjectsRoute
   DashboardRoute: typeof DashboardRoute
   DsRoute: typeof DsRouteWithChildren
@@ -2676,9 +3950,27 @@ export interface RootRouteChildren {
   ApiApplicationStarterResolveRoute: typeof ApiApplicationStarterResolveRoute
   ApiApplicationStarterSuggestRoute: typeof ApiApplicationStarterSuggestRoute
   ApiApplicationStarterValidateRoute: typeof ApiApplicationStarterValidateRoute
-  ApiBuilderAssistRoute: typeof ApiBuilderAssistRoute
-  ApiBuilderProjectSnapshotsRoute: typeof ApiBuilderProjectSnapshotsRouteWithChildren
-  ApiBuilderProjectsRoute: typeof ApiBuilderProjectsRouteWithChildren
+  ApiChatActivityRoute: typeof ApiChatActivityRoute
+  ApiChatAppVersionRoute: typeof ApiChatAppVersionRoute
+  ApiChatBootstrapRoute: typeof ApiChatBootstrapRoute
+  ApiChatBotsRoute: typeof ApiChatBotsRouteWithChildren
+  ApiChatConnectionRoute: typeof ApiChatConnectionRoute
+  ApiChatDeviceTransportRoute: typeof ApiChatDeviceTransportRoute
+  ApiChatDraftRoute: typeof ApiChatDraftRoute
+  ApiChatFilesRoute: typeof ApiChatFilesRoute
+  ApiChatModelOptionsRoute: typeof ApiChatModelOptionsRoute
+  ApiChatModelsRoute: typeof ApiChatModelsRoute
+  ApiChatPluginsRoute: typeof ApiChatPluginsRouteWithChildren
+  ApiChatPolicyRoute: typeof ApiChatPolicyRoute
+  ApiChatProjectSnapshotsRoute: typeof ApiChatProjectSnapshotsRouteWithChildren
+  ApiChatProjectsRoute: typeof ApiChatProjectsRouteWithChildren
+  ApiChatRecipesRoute: typeof ApiChatRecipesRouteWithChildren
+  ApiChatReferencesRoute: typeof ApiChatReferencesRouteWithChildren
+  ApiChatSectionsRoute: typeof ApiChatSectionsRouteWithChildren
+  ApiChatSkillsRoute: typeof ApiChatSkillsRouteWithChildren
+  ApiChatWorkspaceRoute: typeof ApiChatWorkspaceRoute
+  ApiChatWorkspaceHistoryRoute: typeof ApiChatWorkspaceHistoryRoute
+  ApiChatWorkspaceIndexRoute: typeof ApiChatWorkspaceIndexRouteWithChildren
   ApiDataLibrariesRoute: typeof ApiDataLibrariesRoute
   ApiDataPartnersRoute: typeof ApiDataPartnersRoute
   ApiDiscordInteractionsRoute: typeof ApiDiscordInteractionsRoute
@@ -2688,6 +3980,8 @@ export interface RootRouteChildren {
   ApiOgChar123Char125DotpngRoute: typeof ApiOgChar123Char125DotpngRoute
   ApiReadmeChar123Char125DotpngRoute: typeof ApiReadmeChar123Char125DotpngRoute
   AuthProviderStartRoute: typeof AuthProviderStartRoute
+  AuthMcpCallbackRoute: typeof AuthMcpCallbackRoute
+  AuthMcpClientMetadataRoute: typeof AuthMcpClientMetadataRoute
   BuilderPHashRoute: typeof BuilderPHashRoute
   ChartsCatalogCatalogDotjsonRoute: typeof ChartsCatalogCatalogDotjsonRoute
   IntentRegistryPackageNameRoute: typeof IntentRegistryPackageNameRouteWithChildren
@@ -2701,9 +3995,41 @@ export interface RootRouteChildren {
   ApiApplicationStarterDeployGithubRoute: typeof ApiApplicationStarterDeployGithubRoute
   ApiAuthCallbackProviderRoute: typeof ApiAuthCallbackProviderRoute
   ApiAuthCliCreateTicketRoute: typeof ApiAuthCliCreateTicketRoute
-  ApiBuilderOpenrouterCallbackRoute: typeof ApiBuilderOpenrouterCallbackRoute
+  ApiChatAccountDevicesRoute: typeof ApiChatAccountDevicesRoute
+  ApiChatAccountOnboardingRoute: typeof ApiChatAccountOnboardingRoute
+  ApiChatAccountPreferencesRoute: typeof ApiChatAccountPreferencesRoute
+  ApiChatBotDraftsIdRoute: typeof ApiChatBotDraftsIdRouteWithChildren
+  ApiChatCopiesIdRoute: typeof ApiChatCopiesIdRoute
+  ApiChatKodyAccountRoute: typeof ApiChatKodyAccountRoute
+  ApiChatKodyCallbackRoute: typeof ApiChatKodyCallbackRoute
+  ApiChatKodyCommunityRoute: typeof ApiChatKodyCommunityRouteWithChildren
+  ApiChatKodyConnectRoute: typeof ApiChatKodyConnectRoute
+  ApiChatKodyMemoriesRoute: typeof ApiChatKodyMemoriesRouteWithChildren
+  ApiChatKodyRunsRoute: typeof ApiChatKodyRunsRouteWithChildren
+  ApiChatKodyServersRoute: typeof ApiChatKodyServersRouteWithChildren
+  ApiChatKodySyncRoute: typeof ApiChatKodySyncRoute
+  ApiChatKodyUnlinkRoute: typeof ApiChatKodyUnlinkRoute
+  ApiChatKodyUsageRoute: typeof ApiChatKodyUsageRoute
+  ApiChatMcpSplatRoute: typeof ApiChatMcpSplatRoute
+  ApiChatMcpContractRoute: typeof ApiChatMcpContractRoute
+  ApiChatOpenrouterCallbackRoute: typeof ApiChatOpenrouterCallbackRoute
+  ApiChatRetriesIdRoute: typeof ApiChatRetriesIdRouteWithChildren
+  ApiChatWorkspaceSyncOperationRoute: typeof ApiChatWorkspaceSyncOperationRoute
   ApiAuthCliStatusTicketIdRoute: typeof ApiAuthCliStatusTicketIdRoute
+  ApiChatConversationsIdOperationRoute: typeof ApiChatConversationsIdOperationRoute
+  ApiChatConversationsIdFilesRoute: typeof ApiChatConversationsIdFilesRouteWithChildren
+  ApiChatConversationsIdMemoriesRoute: typeof ApiChatConversationsIdMemoriesRouteWithChildren
+  ApiChatConversationsIdReferencesRoute: typeof ApiChatConversationsIdReferencesRoute
+  ApiChatKodyMailInboxesRoute: typeof ApiChatKodyMailInboxesRoute
+  ApiChatKodyMailMessagesRoute: typeof ApiChatKodyMailMessagesRouteWithChildren
+  ApiChatKodyResourcesKindRoute: typeof ApiChatKodyResourcesKindRoute
   ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute: typeof ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute
+  ApiChatAccountComposerDraftsAccountIdScopeRoute: typeof ApiChatAccountComposerDraftsAccountIdScopeRoute
+  ApiChatConversationsIdWorkflowRunsRunIdRoute: typeof ApiChatConversationsIdWorkflowRunsRunIdRouteWithChildren
+  ApiChatConversationsIdWorkflowsWorkflowIdRoute: typeof ApiChatConversationsIdWorkflowsWorkflowIdRoute
+  ApiChatKodyJobsJobIdEnabledRoute: typeof ApiChatKodyJobsJobIdEnabledRoute
+  ApiChatKodyPackagesPackageIdDocumentRoute: typeof ApiChatKodyPackagesPackageIdDocumentRoute
+  ApiChatConversationsIdExecutionSnapshotsSnapshotIdRoute: typeof ApiChatConversationsIdExecutionSnapshotsSnapshotIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -2769,6 +4095,20 @@ declare module '@tanstack/react-router' {
       path: '/builder'
       fullPath: '/builder'
       preLoaderRoute: typeof BuilderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat': {
+      id: '/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat-access': {
+      id: '/chat-access'
+      path: '/chat-access'
+      fullPath: '/chat-access'
+      preLoaderRoute: typeof ChatAccessRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/community-projects': {
@@ -3023,6 +4363,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAuditRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/admin/chat-access': {
+      id: '/admin/chat-access'
+      path: '/chat-access'
+      fullPath: '/admin/chat-access'
+      preLoaderRoute: typeof AdminChatAccessRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/admin/docs': {
       id: '/admin/docs'
       path: '/docs'
@@ -3155,6 +4502,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/builder/new'
       preLoaderRoute: typeof BuilderNewRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/chat/': {
+      id: '/chat/'
+      path: '/'
+      fullPath: '/chat/'
+      preLoaderRoute: typeof ChatIndexRouteImport
+      parentRoute: typeof ChatRoute
+    }
+    '/chat/charts': {
+      id: '/chat/charts'
+      path: '/charts'
+      fullPath: '/chat/charts'
+      preLoaderRoute: typeof ChatChartsRouteImport
+      parentRoute: typeof ChatRoute
+    }
+    '/chat/new-project': {
+      id: '/chat/new-project'
+      path: '/new-project'
+      fullPath: '/chat/new-project'
+      preLoaderRoute: typeof ChatNewProjectRouteImport
+      parentRoute: typeof ChatRoute
+    }
+    '/chat/shared': {
+      id: '/chat/shared'
+      path: '/shared'
+      fullPath: '/chat/shared'
+      preLoaderRoute: typeof ChatSharedRouteImport
+      parentRoute: typeof ChatRoute
     }
     '/ds/': {
       id: '/ds/'
@@ -3639,25 +5014,151 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiApplicationStarterValidateRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/builder/assist': {
-      id: '/api/builder/assist'
-      path: '/api/builder/assist'
-      fullPath: '/api/builder/assist'
-      preLoaderRoute: typeof ApiBuilderAssistRouteImport
+    '/api/chat/activity': {
+      id: '/api/chat/activity'
+      path: '/api/chat/activity'
+      fullPath: '/api/chat/activity'
+      preLoaderRoute: typeof ApiChatActivityRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/builder/project-snapshots': {
-      id: '/api/builder/project-snapshots'
-      path: '/api/builder/project-snapshots'
-      fullPath: '/api/builder/project-snapshots'
-      preLoaderRoute: typeof ApiBuilderProjectSnapshotsRouteImport
+    '/api/chat/app-version': {
+      id: '/api/chat/app-version'
+      path: '/api/chat/app-version'
+      fullPath: '/api/chat/app-version'
+      preLoaderRoute: typeof ApiChatAppVersionRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/builder/projects': {
-      id: '/api/builder/projects'
-      path: '/api/builder/projects'
-      fullPath: '/api/builder/projects'
-      preLoaderRoute: typeof ApiBuilderProjectsRouteImport
+    '/api/chat/bootstrap': {
+      id: '/api/chat/bootstrap'
+      path: '/api/chat/bootstrap'
+      fullPath: '/api/chat/bootstrap'
+      preLoaderRoute: typeof ApiChatBootstrapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/bots': {
+      id: '/api/chat/bots'
+      path: '/api/chat/bots'
+      fullPath: '/api/chat/bots'
+      preLoaderRoute: typeof ApiChatBotsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/connection': {
+      id: '/api/chat/connection'
+      path: '/api/chat/connection'
+      fullPath: '/api/chat/connection'
+      preLoaderRoute: typeof ApiChatConnectionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/device-transport': {
+      id: '/api/chat/device-transport'
+      path: '/api/chat/device-transport'
+      fullPath: '/api/chat/device-transport'
+      preLoaderRoute: typeof ApiChatDeviceTransportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/draft': {
+      id: '/api/chat/draft'
+      path: '/api/chat/draft'
+      fullPath: '/api/chat/draft'
+      preLoaderRoute: typeof ApiChatDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/files': {
+      id: '/api/chat/files'
+      path: '/api/chat/files'
+      fullPath: '/api/chat/files'
+      preLoaderRoute: typeof ApiChatFilesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/model-options': {
+      id: '/api/chat/model-options'
+      path: '/api/chat/model-options'
+      fullPath: '/api/chat/model-options'
+      preLoaderRoute: typeof ApiChatModelOptionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/models': {
+      id: '/api/chat/models'
+      path: '/api/chat/models'
+      fullPath: '/api/chat/models'
+      preLoaderRoute: typeof ApiChatModelsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/plugins': {
+      id: '/api/chat/plugins'
+      path: '/api/chat/plugins'
+      fullPath: '/api/chat/plugins'
+      preLoaderRoute: typeof ApiChatPluginsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/policy': {
+      id: '/api/chat/policy'
+      path: '/api/chat/policy'
+      fullPath: '/api/chat/policy'
+      preLoaderRoute: typeof ApiChatPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/project-snapshots': {
+      id: '/api/chat/project-snapshots'
+      path: '/api/chat/project-snapshots'
+      fullPath: '/api/chat/project-snapshots'
+      preLoaderRoute: typeof ApiChatProjectSnapshotsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/projects': {
+      id: '/api/chat/projects'
+      path: '/api/chat/projects'
+      fullPath: '/api/chat/projects'
+      preLoaderRoute: typeof ApiChatProjectsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/recipes': {
+      id: '/api/chat/recipes'
+      path: '/api/chat/recipes'
+      fullPath: '/api/chat/recipes'
+      preLoaderRoute: typeof ApiChatRecipesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/references': {
+      id: '/api/chat/references'
+      path: '/api/chat/references'
+      fullPath: '/api/chat/references'
+      preLoaderRoute: typeof ApiChatReferencesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/sections': {
+      id: '/api/chat/sections'
+      path: '/api/chat/sections'
+      fullPath: '/api/chat/sections'
+      preLoaderRoute: typeof ApiChatSectionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/skills': {
+      id: '/api/chat/skills'
+      path: '/api/chat/skills'
+      fullPath: '/api/chat/skills'
+      preLoaderRoute: typeof ApiChatSkillsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/workspace': {
+      id: '/api/chat/workspace'
+      path: '/api/chat/workspace'
+      fullPath: '/api/chat/workspace'
+      preLoaderRoute: typeof ApiChatWorkspaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/workspace-history': {
+      id: '/api/chat/workspace-history'
+      path: '/api/chat/workspace-history'
+      fullPath: '/api/chat/workspace-history'
+      preLoaderRoute: typeof ApiChatWorkspaceHistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/workspace-index': {
+      id: '/api/chat/workspace-index'
+      path: '/api/chat/workspace-index'
+      fullPath: '/api/chat/workspace-index'
+      preLoaderRoute: typeof ApiChatWorkspaceIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/data/libraries': {
@@ -3730,6 +5231,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthProviderStartRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/mcp/callback': {
+      id: '/auth/mcp/callback'
+      path: '/auth/mcp/callback'
+      fullPath: '/auth/mcp/callback'
+      preLoaderRoute: typeof AuthMcpCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/mcp/client-metadata': {
+      id: '/auth/mcp/client-metadata'
+      path: '/auth/mcp/client-metadata'
+      fullPath: '/auth/mcp/client-metadata'
+      preLoaderRoute: typeof AuthMcpClientMetadataRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/builder_/p/$hash': {
       id: '/builder_/p/$hash'
       path: '/builder/p/$hash'
@@ -3743,6 +5258,41 @@ declare module '@tanstack/react-router' {
       fullPath: '/charts/catalog/catalog.json'
       preLoaderRoute: typeof ChartsCatalogCatalogDotjsonRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/chat/b/$botId': {
+      id: '/chat/b/$botId'
+      path: '/b/$botId'
+      fullPath: '/chat/b/$botId'
+      preLoaderRoute: typeof ChatBBotIdRouteImport
+      parentRoute: typeof ChatRoute
+    }
+    '/chat/c/$conversationId': {
+      id: '/chat/c/$conversationId'
+      path: '/c/$conversationId'
+      fullPath: '/chat/c/$conversationId'
+      preLoaderRoute: typeof ChatCConversationIdRouteImport
+      parentRoute: typeof ChatRoute
+    }
+    '/chat/p/$hash': {
+      id: '/chat/p/$hash'
+      path: '/p/$hash'
+      fullPath: '/chat/p/$hash'
+      preLoaderRoute: typeof ChatPHashRouteImport
+      parentRoute: typeof ChatRoute
+    }
+    '/chat/project/$projectId': {
+      id: '/chat/project/$projectId'
+      path: '/project/$projectId'
+      fullPath: '/chat/project/$projectId'
+      preLoaderRoute: typeof ChatProjectProjectIdRouteImport
+      parentRoute: typeof ChatRoute
+    }
+    '/chat/w/$workspaceId': {
+      id: '/chat/w/$workspaceId'
+      path: '/w/$workspaceId'
+      fullPath: '/chat/w/$workspaceId'
+      preLoaderRoute: typeof ChatWWorkspaceIdRouteImport
+      parentRoute: typeof ChatRoute
     }
     '/intent/registry/': {
       id: '/intent/registry/'
@@ -4017,26 +5567,215 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthCliCreateTicketRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/builder/openrouter/callback': {
-      id: '/api/builder/openrouter/callback'
-      path: '/api/builder/openrouter/callback'
-      fullPath: '/api/builder/openrouter/callback'
-      preLoaderRoute: typeof ApiBuilderOpenrouterCallbackRouteImport
+    '/api/chat/account/devices': {
+      id: '/api/chat/account/devices'
+      path: '/api/chat/account/devices'
+      fullPath: '/api/chat/account/devices'
+      preLoaderRoute: typeof ApiChatAccountDevicesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/builder/project-snapshots/$hash': {
-      id: '/api/builder/project-snapshots/$hash'
-      path: '/$hash'
-      fullPath: '/api/builder/project-snapshots/$hash'
-      preLoaderRoute: typeof ApiBuilderProjectSnapshotsHashRouteImport
-      parentRoute: typeof ApiBuilderProjectSnapshotsRoute
+    '/api/chat/account/onboarding': {
+      id: '/api/chat/account/onboarding'
+      path: '/api/chat/account/onboarding'
+      fullPath: '/api/chat/account/onboarding'
+      preLoaderRoute: typeof ApiChatAccountOnboardingRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/api/builder/projects/$id': {
-      id: '/api/builder/projects/$id'
+    '/api/chat/account/preferences': {
+      id: '/api/chat/account/preferences'
+      path: '/api/chat/account/preferences'
+      fullPath: '/api/chat/account/preferences'
+      preLoaderRoute: typeof ApiChatAccountPreferencesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/bot-drafts/$id': {
+      id: '/api/chat/bot-drafts/$id'
+      path: '/api/chat/bot-drafts/$id'
+      fullPath: '/api/chat/bot-drafts/$id'
+      preLoaderRoute: typeof ApiChatBotDraftsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/bots/$id': {
+      id: '/api/chat/bots/$id'
       path: '/$id'
-      fullPath: '/api/builder/projects/$id'
-      preLoaderRoute: typeof ApiBuilderProjectsIdRouteImport
-      parentRoute: typeof ApiBuilderProjectsRoute
+      fullPath: '/api/chat/bots/$id'
+      preLoaderRoute: typeof ApiChatBotsIdRouteImport
+      parentRoute: typeof ApiChatBotsRoute
+    }
+    '/api/chat/bots/bulk': {
+      id: '/api/chat/bots/bulk'
+      path: '/bulk'
+      fullPath: '/api/chat/bots/bulk'
+      preLoaderRoute: typeof ApiChatBotsBulkRouteImport
+      parentRoute: typeof ApiChatBotsRoute
+    }
+    '/api/chat/bots/move': {
+      id: '/api/chat/bots/move'
+      path: '/move'
+      fullPath: '/api/chat/bots/move'
+      preLoaderRoute: typeof ApiChatBotsMoveRouteImport
+      parentRoute: typeof ApiChatBotsRoute
+    }
+    '/api/chat/copies/$id': {
+      id: '/api/chat/copies/$id'
+      path: '/api/chat/copies/$id'
+      fullPath: '/api/chat/copies/$id'
+      preLoaderRoute: typeof ApiChatCopiesIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/kody/account': {
+      id: '/api/chat/kody/account'
+      path: '/api/chat/kody/account'
+      fullPath: '/api/chat/kody/account'
+      preLoaderRoute: typeof ApiChatKodyAccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/kody/callback': {
+      id: '/api/chat/kody/callback'
+      path: '/api/chat/kody/callback'
+      fullPath: '/api/chat/kody/callback'
+      preLoaderRoute: typeof ApiChatKodyCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/kody/community': {
+      id: '/api/chat/kody/community'
+      path: '/api/chat/kody/community'
+      fullPath: '/api/chat/kody/community'
+      preLoaderRoute: typeof ApiChatKodyCommunityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/kody/connect': {
+      id: '/api/chat/kody/connect'
+      path: '/api/chat/kody/connect'
+      fullPath: '/api/chat/kody/connect'
+      preLoaderRoute: typeof ApiChatKodyConnectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/kody/memories': {
+      id: '/api/chat/kody/memories'
+      path: '/api/chat/kody/memories'
+      fullPath: '/api/chat/kody/memories'
+      preLoaderRoute: typeof ApiChatKodyMemoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/kody/runs': {
+      id: '/api/chat/kody/runs'
+      path: '/api/chat/kody/runs'
+      fullPath: '/api/chat/kody/runs'
+      preLoaderRoute: typeof ApiChatKodyRunsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/kody/servers': {
+      id: '/api/chat/kody/servers'
+      path: '/api/chat/kody/servers'
+      fullPath: '/api/chat/kody/servers'
+      preLoaderRoute: typeof ApiChatKodyServersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/kody/sync': {
+      id: '/api/chat/kody/sync'
+      path: '/api/chat/kody/sync'
+      fullPath: '/api/chat/kody/sync'
+      preLoaderRoute: typeof ApiChatKodySyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/kody/unlink': {
+      id: '/api/chat/kody/unlink'
+      path: '/api/chat/kody/unlink'
+      fullPath: '/api/chat/kody/unlink'
+      preLoaderRoute: typeof ApiChatKodyUnlinkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/kody/usage': {
+      id: '/api/chat/kody/usage'
+      path: '/api/chat/kody/usage'
+      fullPath: '/api/chat/kody/usage'
+      preLoaderRoute: typeof ApiChatKodyUsageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/mcp/$': {
+      id: '/api/chat/mcp/$'
+      path: '/api/chat/mcp/$'
+      fullPath: '/api/chat/mcp/$'
+      preLoaderRoute: typeof ApiChatMcpSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/mcp/contract': {
+      id: '/api/chat/mcp/contract'
+      path: '/api/chat/mcp/contract'
+      fullPath: '/api/chat/mcp/contract'
+      preLoaderRoute: typeof ApiChatMcpContractRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/openrouter/callback': {
+      id: '/api/chat/openrouter/callback'
+      path: '/api/chat/openrouter/callback'
+      fullPath: '/api/chat/openrouter/callback'
+      preLoaderRoute: typeof ApiChatOpenrouterCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/plugins/$id': {
+      id: '/api/chat/plugins/$id'
+      path: '/$id'
+      fullPath: '/api/chat/plugins/$id'
+      preLoaderRoute: typeof ApiChatPluginsIdRouteImport
+      parentRoute: typeof ApiChatPluginsRoute
+    }
+    '/api/chat/project-snapshots/$hash': {
+      id: '/api/chat/project-snapshots/$hash'
+      path: '/$hash'
+      fullPath: '/api/chat/project-snapshots/$hash'
+      preLoaderRoute: typeof ApiChatProjectSnapshotsHashRouteImport
+      parentRoute: typeof ApiChatProjectSnapshotsRoute
+    }
+    '/api/chat/projects/$id': {
+      id: '/api/chat/projects/$id'
+      path: '/$id'
+      fullPath: '/api/chat/projects/$id'
+      preLoaderRoute: typeof ApiChatProjectsIdRouteImport
+      parentRoute: typeof ApiChatProjectsRoute
+    }
+    '/api/chat/recipes/$id': {
+      id: '/api/chat/recipes/$id'
+      path: '/$id'
+      fullPath: '/api/chat/recipes/$id'
+      preLoaderRoute: typeof ApiChatRecipesIdRouteImport
+      parentRoute: typeof ApiChatRecipesRoute
+    }
+    '/api/chat/retries/$id': {
+      id: '/api/chat/retries/$id'
+      path: '/api/chat/retries/$id'
+      fullPath: '/api/chat/retries/$id'
+      preLoaderRoute: typeof ApiChatRetriesIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/sections/$id': {
+      id: '/api/chat/sections/$id'
+      path: '/$id'
+      fullPath: '/api/chat/sections/$id'
+      preLoaderRoute: typeof ApiChatSectionsIdRouteImport
+      parentRoute: typeof ApiChatSectionsRoute
+    }
+    '/api/chat/skills/$id': {
+      id: '/api/chat/skills/$id'
+      path: '/$id'
+      fullPath: '/api/chat/skills/$id'
+      preLoaderRoute: typeof ApiChatSkillsIdRouteImport
+      parentRoute: typeof ApiChatSkillsRoute
+    }
+    '/api/chat/workspace-index/activity': {
+      id: '/api/chat/workspace-index/activity'
+      path: '/activity'
+      fullPath: '/api/chat/workspace-index/activity'
+      preLoaderRoute: typeof ApiChatWorkspaceIndexActivityRouteImport
+      parentRoute: typeof ApiChatWorkspaceIndexRoute
+    }
+    '/api/chat/workspace-sync/$operation': {
+      id: '/api/chat/workspace-sync/$operation'
+      path: '/api/chat/workspace-sync/$operation'
+      fullPath: '/api/chat/workspace-sync/$operation'
+      preLoaderRoute: typeof ApiChatWorkspaceSyncOperationRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/intent/registry/$packageName/': {
       id: '/intent/registry/$packageName/'
@@ -4136,19 +5875,138 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthCliStatusTicketIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/builder/project-snapshots/$hash/quarantine': {
-      id: '/api/builder/project-snapshots/$hash/quarantine'
-      path: '/quarantine'
-      fullPath: '/api/builder/project-snapshots/$hash/quarantine'
-      preLoaderRoute: typeof ApiBuilderProjectSnapshotsHashQuarantineRouteImport
-      parentRoute: typeof ApiBuilderProjectSnapshotsHashRoute
+    '/api/chat/bot-drafts/$id/files': {
+      id: '/api/chat/bot-drafts/$id/files'
+      path: '/files'
+      fullPath: '/api/chat/bot-drafts/$id/files'
+      preLoaderRoute: typeof ApiChatBotDraftsIdFilesRouteImport
+      parentRoute: typeof ApiChatBotDraftsIdRoute
     }
-    '/api/builder/projects/$id/sync': {
-      id: '/api/builder/projects/$id/sync'
+    '/api/chat/bots/$id/$operation': {
+      id: '/api/chat/bots/$id/$operation'
+      path: '/$operation'
+      fullPath: '/api/chat/bots/$id/$operation'
+      preLoaderRoute: typeof ApiChatBotsIdOperationRouteImport
+      parentRoute: typeof ApiChatBotsIdRoute
+    }
+    '/api/chat/bots/$id/files': {
+      id: '/api/chat/bots/$id/files'
+      path: '/files'
+      fullPath: '/api/chat/bots/$id/files'
+      preLoaderRoute: typeof ApiChatBotsIdFilesRouteImport
+      parentRoute: typeof ApiChatBotsIdRoute
+    }
+    '/api/chat/conversations/$id/$operation': {
+      id: '/api/chat/conversations/$id/$operation'
+      path: '/api/chat/conversations/$id/$operation'
+      fullPath: '/api/chat/conversations/$id/$operation'
+      preLoaderRoute: typeof ApiChatConversationsIdOperationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/conversations/$id/files': {
+      id: '/api/chat/conversations/$id/files'
+      path: '/api/chat/conversations/$id/files'
+      fullPath: '/api/chat/conversations/$id/files'
+      preLoaderRoute: typeof ApiChatConversationsIdFilesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/conversations/$id/memories': {
+      id: '/api/chat/conversations/$id/memories'
+      path: '/api/chat/conversations/$id/memories'
+      fullPath: '/api/chat/conversations/$id/memories'
+      preLoaderRoute: typeof ApiChatConversationsIdMemoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/conversations/$id/references': {
+      id: '/api/chat/conversations/$id/references'
+      path: '/api/chat/conversations/$id/references'
+      fullPath: '/api/chat/conversations/$id/references'
+      preLoaderRoute: typeof ApiChatConversationsIdReferencesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/kody/community/$listingId': {
+      id: '/api/chat/kody/community/$listingId'
+      path: '/$listingId'
+      fullPath: '/api/chat/kody/community/$listingId'
+      preLoaderRoute: typeof ApiChatKodyCommunityListingIdRouteImport
+      parentRoute: typeof ApiChatKodyCommunityRoute
+    }
+    '/api/chat/kody/mail/inboxes': {
+      id: '/api/chat/kody/mail/inboxes'
+      path: '/api/chat/kody/mail/inboxes'
+      fullPath: '/api/chat/kody/mail/inboxes'
+      preLoaderRoute: typeof ApiChatKodyMailInboxesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/kody/mail/messages': {
+      id: '/api/chat/kody/mail/messages'
+      path: '/api/chat/kody/mail/messages'
+      fullPath: '/api/chat/kody/mail/messages'
+      preLoaderRoute: typeof ApiChatKodyMailMessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/kody/memories/$memoryId': {
+      id: '/api/chat/kody/memories/$memoryId'
+      path: '/$memoryId'
+      fullPath: '/api/chat/kody/memories/$memoryId'
+      preLoaderRoute: typeof ApiChatKodyMemoriesMemoryIdRouteImport
+      parentRoute: typeof ApiChatKodyMemoriesRoute
+    }
+    '/api/chat/kody/resources/$kind': {
+      id: '/api/chat/kody/resources/$kind'
+      path: '/api/chat/kody/resources/$kind'
+      fullPath: '/api/chat/kody/resources/$kind'
+      preLoaderRoute: typeof ApiChatKodyResourcesKindRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/kody/runs/$runId': {
+      id: '/api/chat/kody/runs/$runId'
+      path: '/$runId'
+      fullPath: '/api/chat/kody/runs/$runId'
+      preLoaderRoute: typeof ApiChatKodyRunsRunIdRouteImport
+      parentRoute: typeof ApiChatKodyRunsRoute
+    }
+    '/api/chat/project-snapshots/$hash/quarantine': {
+      id: '/api/chat/project-snapshots/$hash/quarantine'
+      path: '/quarantine'
+      fullPath: '/api/chat/project-snapshots/$hash/quarantine'
+      preLoaderRoute: typeof ApiChatProjectSnapshotsHashQuarantineRouteImport
+      parentRoute: typeof ApiChatProjectSnapshotsHashRoute
+    }
+    '/api/chat/projects/$id/sync': {
+      id: '/api/chat/projects/$id/sync'
       path: '/sync'
-      fullPath: '/api/builder/projects/$id/sync'
-      preLoaderRoute: typeof ApiBuilderProjectsIdSyncRouteImport
-      parentRoute: typeof ApiBuilderProjectsIdRoute
+      fullPath: '/api/chat/projects/$id/sync'
+      preLoaderRoute: typeof ApiChatProjectsIdSyncRouteImport
+      parentRoute: typeof ApiChatProjectsIdRoute
+    }
+    '/api/chat/references/kody/inspect': {
+      id: '/api/chat/references/kody/inspect'
+      path: '/kody/inspect'
+      fullPath: '/api/chat/references/kody/inspect'
+      preLoaderRoute: typeof ApiChatReferencesKodyInspectRouteImport
+      parentRoute: typeof ApiChatReferencesRoute
+    }
+    '/api/chat/references/kody/refresh': {
+      id: '/api/chat/references/kody/refresh'
+      path: '/kody/refresh'
+      fullPath: '/api/chat/references/kody/refresh'
+      preLoaderRoute: typeof ApiChatReferencesKodyRefreshRouteImport
+      parentRoute: typeof ApiChatReferencesRoute
+    }
+    '/api/chat/references/tools/refresh': {
+      id: '/api/chat/references/tools/refresh'
+      path: '/tools/refresh'
+      fullPath: '/api/chat/references/tools/refresh'
+      preLoaderRoute: typeof ApiChatReferencesToolsRefreshRouteImport
+      parentRoute: typeof ApiChatReferencesRoute
+    }
+    '/api/chat/retries/$id/prepare': {
+      id: '/api/chat/retries/$id/prepare'
+      path: '/prepare'
+      fullPath: '/api/chat/retries/$id/prepare'
+      preLoaderRoute: typeof ApiChatRetriesIdPrepareRouteImport
+      parentRoute: typeof ApiChatRetriesIdRoute
     }
     '/charts/catalog_/previews/$revision/{$caseId}.svg': {
       id: '/charts/catalog_/previews/$revision/{$caseId}.svg'
@@ -4157,12 +6015,166 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/chat/c/$conversationId/m/$messageId': {
+      id: '/chat/c/$conversationId/m/$messageId'
+      path: '/m/$messageId'
+      fullPath: '/chat/c/$conversationId/m/$messageId'
+      preLoaderRoute: typeof ChatCConversationIdMMessageIdRouteImport
+      parentRoute: typeof ChatCConversationIdRoute
+    }
+    '/chat/w/$workspaceId/b/$botId': {
+      id: '/chat/w/$workspaceId/b/$botId'
+      path: '/b/$botId'
+      fullPath: '/chat/w/$workspaceId/b/$botId'
+      preLoaderRoute: typeof ChatWWorkspaceIdBBotIdRouteImport
+      parentRoute: typeof ChatWWorkspaceIdRoute
+    }
+    '/chat/w/$workspaceId/home/$homeSection': {
+      id: '/chat/w/$workspaceId/home/$homeSection'
+      path: '/home/$homeSection'
+      fullPath: '/chat/w/$workspaceId/home/$homeSection'
+      preLoaderRoute: typeof ChatWWorkspaceIdHomeHomeSectionRouteImport
+      parentRoute: typeof ChatWWorkspaceIdRoute
+    }
     '/_library/$libraryId/$version/docs/framework/': {
       id: '/_library/$libraryId/$version/docs/framework/'
       path: '/framework'
       fullPath: '/$libraryId/$version/docs/framework/'
       preLoaderRoute: typeof LibraryLibraryIdVersionDocsFrameworkIndexRouteImport
       parentRoute: typeof LibraryLibraryIdVersionDocsRoute
+    }
+    '/api/chat/account/composer-drafts/$accountId/$scope': {
+      id: '/api/chat/account/composer-drafts/$accountId/$scope'
+      path: '/api/chat/account/composer-drafts/$accountId/$scope'
+      fullPath: '/api/chat/account/composer-drafts/$accountId/$scope'
+      preLoaderRoute: typeof ApiChatAccountComposerDraftsAccountIdScopeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/bot-drafts/$id/files/$fileId': {
+      id: '/api/chat/bot-drafts/$id/files/$fileId'
+      path: '/$fileId'
+      fullPath: '/api/chat/bot-drafts/$id/files/$fileId'
+      preLoaderRoute: typeof ApiChatBotDraftsIdFilesFileIdRouteImport
+      parentRoute: typeof ApiChatBotDraftsIdFilesRoute
+    }
+    '/api/chat/bots/$id/files/$fileId': {
+      id: '/api/chat/bots/$id/files/$fileId'
+      path: '/$fileId'
+      fullPath: '/api/chat/bots/$id/files/$fileId'
+      preLoaderRoute: typeof ApiChatBotsIdFilesFileIdRouteImport
+      parentRoute: typeof ApiChatBotsIdFilesRoute
+    }
+    '/api/chat/conversations/$id/files/$fileId': {
+      id: '/api/chat/conversations/$id/files/$fileId'
+      path: '/$fileId'
+      fullPath: '/api/chat/conversations/$id/files/$fileId'
+      preLoaderRoute: typeof ApiChatConversationsIdFilesFileIdRouteImport
+      parentRoute: typeof ApiChatConversationsIdFilesRoute
+    }
+    '/api/chat/conversations/$id/files/import': {
+      id: '/api/chat/conversations/$id/files/import'
+      path: '/import'
+      fullPath: '/api/chat/conversations/$id/files/import'
+      preLoaderRoute: typeof ApiChatConversationsIdFilesImportRouteImport
+      parentRoute: typeof ApiChatConversationsIdFilesRoute
+    }
+    '/api/chat/conversations/$id/memories/$memoryId': {
+      id: '/api/chat/conversations/$id/memories/$memoryId'
+      path: '/$memoryId'
+      fullPath: '/api/chat/conversations/$id/memories/$memoryId'
+      preLoaderRoute: typeof ApiChatConversationsIdMemoriesMemoryIdRouteImport
+      parentRoute: typeof ApiChatConversationsIdMemoriesRoute
+    }
+    '/api/chat/conversations/$id/workflow-runs/$runId': {
+      id: '/api/chat/conversations/$id/workflow-runs/$runId'
+      path: '/api/chat/conversations/$id/workflow-runs/$runId'
+      fullPath: '/api/chat/conversations/$id/workflow-runs/$runId'
+      preLoaderRoute: typeof ApiChatConversationsIdWorkflowRunsRunIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/conversations/$id/workflows/$workflowId': {
+      id: '/api/chat/conversations/$id/workflows/$workflowId'
+      path: '/api/chat/conversations/$id/workflows/$workflowId'
+      fullPath: '/api/chat/conversations/$id/workflows/$workflowId'
+      preLoaderRoute: typeof ApiChatConversationsIdWorkflowsWorkflowIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/kody/jobs/$jobId/enabled': {
+      id: '/api/chat/kody/jobs/$jobId/enabled'
+      path: '/api/chat/kody/jobs/$jobId/enabled'
+      fullPath: '/api/chat/kody/jobs/$jobId/enabled'
+      preLoaderRoute: typeof ApiChatKodyJobsJobIdEnabledRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/kody/mail/messages/$messageId': {
+      id: '/api/chat/kody/mail/messages/$messageId'
+      path: '/$messageId'
+      fullPath: '/api/chat/kody/mail/messages/$messageId'
+      preLoaderRoute: typeof ApiChatKodyMailMessagesMessageIdRouteImport
+      parentRoute: typeof ApiChatKodyMailMessagesRoute
+    }
+    '/api/chat/kody/memories/$memoryId/apply': {
+      id: '/api/chat/kody/memories/$memoryId/apply'
+      path: '/apply'
+      fullPath: '/api/chat/kody/memories/$memoryId/apply'
+      preLoaderRoute: typeof ApiChatKodyMemoriesMemoryIdApplyRouteImport
+      parentRoute: typeof ApiChatKodyMemoriesMemoryIdRoute
+    }
+    '/api/chat/kody/memories/$memoryId/review': {
+      id: '/api/chat/kody/memories/$memoryId/review'
+      path: '/review'
+      fullPath: '/api/chat/kody/memories/$memoryId/review'
+      preLoaderRoute: typeof ApiChatKodyMemoriesMemoryIdReviewRouteImport
+      parentRoute: typeof ApiChatKodyMemoriesMemoryIdRoute
+    }
+    '/api/chat/kody/memories/create/apply': {
+      id: '/api/chat/kody/memories/create/apply'
+      path: '/create/apply'
+      fullPath: '/api/chat/kody/memories/create/apply'
+      preLoaderRoute: typeof ApiChatKodyMemoriesCreateApplyRouteImport
+      parentRoute: typeof ApiChatKodyMemoriesRoute
+    }
+    '/api/chat/kody/memories/create/review': {
+      id: '/api/chat/kody/memories/create/review'
+      path: '/create/review'
+      fullPath: '/api/chat/kody/memories/create/review'
+      preLoaderRoute: typeof ApiChatKodyMemoriesCreateReviewRouteImport
+      parentRoute: typeof ApiChatKodyMemoriesRoute
+    }
+    '/api/chat/kody/packages/$packageId/document': {
+      id: '/api/chat/kody/packages/$packageId/document'
+      path: '/api/chat/kody/packages/$packageId/document'
+      fullPath: '/api/chat/kody/packages/$packageId/document'
+      preLoaderRoute: typeof ApiChatKodyPackagesPackageIdDocumentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/kody/runs/$runId/triage': {
+      id: '/api/chat/kody/runs/$runId/triage'
+      path: '/triage'
+      fullPath: '/api/chat/kody/runs/$runId/triage'
+      preLoaderRoute: typeof ApiChatKodyRunsRunIdTriageRouteImport
+      parentRoute: typeof ApiChatKodyRunsRunIdRoute
+    }
+    '/api/chat/kody/servers/$serverId/check': {
+      id: '/api/chat/kody/servers/$serverId/check'
+      path: '/$serverId/check'
+      fullPath: '/api/chat/kody/servers/$serverId/check'
+      preLoaderRoute: typeof ApiChatKodyServersServerIdCheckRouteImport
+      parentRoute: typeof ApiChatKodyServersRoute
+    }
+    '/api/chat/kody/servers/$serverId/enabled': {
+      id: '/api/chat/kody/servers/$serverId/enabled'
+      path: '/$serverId/enabled'
+      fullPath: '/api/chat/kody/servers/$serverId/enabled'
+      preLoaderRoute: typeof ApiChatKodyServersServerIdEnabledRouteImport
+      parentRoute: typeof ApiChatKodyServersRoute
+    }
+    '/api/chat/kody/servers/$serverId/reconnect': {
+      id: '/api/chat/kody/servers/$serverId/reconnect'
+      path: '/$serverId/reconnect'
+      fullPath: '/api/chat/kody/servers/$serverId/reconnect'
+      preLoaderRoute: typeof ApiChatKodyServersServerIdReconnectRouteImport
+      parentRoute: typeof ApiChatKodyServersRoute
     }
     '/_library/$libraryId/$version/docs/framework/$framework/': {
       id: '/_library/$libraryId/$version/docs/framework/$framework/'
@@ -4184,6 +6196,41 @@ declare module '@tanstack/react-router' {
       fullPath: '/$libraryId/$version/docs/framework/$framework/{$}.md'
       preLoaderRoute: typeof LibraryLibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRouteImport
       parentRoute: typeof LibraryLibraryIdVersionDocsRoute
+    }
+    '/api/chat/bot-drafts/$id/files/$fileId/content': {
+      id: '/api/chat/bot-drafts/$id/files/$fileId/content'
+      path: '/content'
+      fullPath: '/api/chat/bot-drafts/$id/files/$fileId/content'
+      preLoaderRoute: typeof ApiChatBotDraftsIdFilesFileIdContentRouteImport
+      parentRoute: typeof ApiChatBotDraftsIdFilesFileIdRoute
+    }
+    '/api/chat/bots/$id/files/$fileId/content': {
+      id: '/api/chat/bots/$id/files/$fileId/content'
+      path: '/content'
+      fullPath: '/api/chat/bots/$id/files/$fileId/content'
+      preLoaderRoute: typeof ApiChatBotsIdFilesFileIdContentRouteImport
+      parentRoute: typeof ApiChatBotsIdFilesFileIdRoute
+    }
+    '/api/chat/conversations/$id/execution/snapshots/$snapshotId': {
+      id: '/api/chat/conversations/$id/execution/snapshots/$snapshotId'
+      path: '/api/chat/conversations/$id/execution/snapshots/$snapshotId'
+      fullPath: '/api/chat/conversations/$id/execution/snapshots/$snapshotId'
+      preLoaderRoute: typeof ApiChatConversationsIdExecutionSnapshotsSnapshotIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/conversations/$id/files/$fileId/content': {
+      id: '/api/chat/conversations/$id/files/$fileId/content'
+      path: '/content'
+      fullPath: '/api/chat/conversations/$id/files/$fileId/content'
+      preLoaderRoute: typeof ApiChatConversationsIdFilesFileIdContentRouteImport
+      parentRoute: typeof ApiChatConversationsIdFilesFileIdRoute
+    }
+    '/api/chat/conversations/$id/workflow-runs/$runId/cancel': {
+      id: '/api/chat/conversations/$id/workflow-runs/$runId/cancel'
+      path: '/cancel'
+      fullPath: '/api/chat/conversations/$id/workflow-runs/$runId/cancel'
+      preLoaderRoute: typeof ApiChatConversationsIdWorkflowRunsRunIdCancelRouteImport
+      parentRoute: typeof ApiChatConversationsIdWorkflowRunsRunIdRoute
     }
     '/_library/$libraryId/$version/docs/framework/$framework/examples/$': {
       id: '/_library/$libraryId/$version/docs/framework/$framework/examples/$'
@@ -4209,6 +6256,7 @@ const AdminUsersRouteWithChildren = AdminUsersRoute._addFileChildren(
 
 interface AdminRouteRouteChildren {
   AdminAuditRoute: typeof AdminAuditRoute
+  AdminChatAccessRoute: typeof AdminChatAccessRoute
   AdminDocsRoute: typeof AdminDocsRoute
   AdminGithubStatsRoute: typeof AdminGithubStatsRoute
   AdminIntentRoute: typeof AdminIntentRoute
@@ -4227,6 +6275,7 @@ interface AdminRouteRouteChildren {
 
 const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminAuditRoute: AdminAuditRoute,
+  AdminChatAccessRoute: AdminChatAccessRoute,
   AdminDocsRoute: AdminDocsRoute,
   AdminGithubStatsRoute: AdminGithubStatsRoute,
   AdminIntentRoute: AdminIntentRoute,
@@ -4447,6 +6496,56 @@ const BlogRouteChildren: BlogRouteChildren = {
 
 const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
 
+interface ChatCConversationIdRouteChildren {
+  ChatCConversationIdMMessageIdRoute: typeof ChatCConversationIdMMessageIdRoute
+}
+
+const ChatCConversationIdRouteChildren: ChatCConversationIdRouteChildren = {
+  ChatCConversationIdMMessageIdRoute: ChatCConversationIdMMessageIdRoute,
+}
+
+const ChatCConversationIdRouteWithChildren =
+  ChatCConversationIdRoute._addFileChildren(ChatCConversationIdRouteChildren)
+
+interface ChatWWorkspaceIdRouteChildren {
+  ChatWWorkspaceIdBBotIdRoute: typeof ChatWWorkspaceIdBBotIdRoute
+  ChatWWorkspaceIdHomeHomeSectionRoute: typeof ChatWWorkspaceIdHomeHomeSectionRoute
+}
+
+const ChatWWorkspaceIdRouteChildren: ChatWWorkspaceIdRouteChildren = {
+  ChatWWorkspaceIdBBotIdRoute: ChatWWorkspaceIdBBotIdRoute,
+  ChatWWorkspaceIdHomeHomeSectionRoute: ChatWWorkspaceIdHomeHomeSectionRoute,
+}
+
+const ChatWWorkspaceIdRouteWithChildren =
+  ChatWWorkspaceIdRoute._addFileChildren(ChatWWorkspaceIdRouteChildren)
+
+interface ChatRouteChildren {
+  ChatChartsRoute: typeof ChatChartsRoute
+  ChatNewProjectRoute: typeof ChatNewProjectRoute
+  ChatSharedRoute: typeof ChatSharedRoute
+  ChatIndexRoute: typeof ChatIndexRoute
+  ChatBBotIdRoute: typeof ChatBBotIdRoute
+  ChatCConversationIdRoute: typeof ChatCConversationIdRouteWithChildren
+  ChatPHashRoute: typeof ChatPHashRoute
+  ChatProjectProjectIdRoute: typeof ChatProjectProjectIdRoute
+  ChatWWorkspaceIdRoute: typeof ChatWWorkspaceIdRouteWithChildren
+}
+
+const ChatRouteChildren: ChatRouteChildren = {
+  ChatChartsRoute: ChatChartsRoute,
+  ChatNewProjectRoute: ChatNewProjectRoute,
+  ChatSharedRoute: ChatSharedRoute,
+  ChatIndexRoute: ChatIndexRoute,
+  ChatBBotIdRoute: ChatBBotIdRoute,
+  ChatCConversationIdRoute: ChatCConversationIdRouteWithChildren,
+  ChatPHashRoute: ChatPHashRoute,
+  ChatProjectProjectIdRoute: ChatProjectProjectIdRoute,
+  ChatWWorkspaceIdRoute: ChatWWorkspaceIdRouteWithChildren,
+}
+
+const ChatRouteWithChildren = ChatRoute._addFileChildren(ChatRouteChildren)
+
 interface DsRouteChildren {
   DsAvatarRoute: typeof DsAvatarRoute
   DsBadgesRoute: typeof DsBadgesRoute
@@ -4557,57 +6656,189 @@ const ShopRouteChildren: ShopRouteChildren = {
 
 const ShopRouteWithChildren = ShopRoute._addFileChildren(ShopRouteChildren)
 
-interface ApiBuilderProjectSnapshotsHashRouteChildren {
-  ApiBuilderProjectSnapshotsHashQuarantineRoute: typeof ApiBuilderProjectSnapshotsHashQuarantineRoute
+interface ApiChatBotsIdFilesFileIdRouteChildren {
+  ApiChatBotsIdFilesFileIdContentRoute: typeof ApiChatBotsIdFilesFileIdContentRoute
 }
 
-const ApiBuilderProjectSnapshotsHashRouteChildren: ApiBuilderProjectSnapshotsHashRouteChildren =
+const ApiChatBotsIdFilesFileIdRouteChildren: ApiChatBotsIdFilesFileIdRouteChildren =
   {
-    ApiBuilderProjectSnapshotsHashQuarantineRoute:
-      ApiBuilderProjectSnapshotsHashQuarantineRoute,
+    ApiChatBotsIdFilesFileIdContentRoute: ApiChatBotsIdFilesFileIdContentRoute,
   }
 
-const ApiBuilderProjectSnapshotsHashRouteWithChildren =
-  ApiBuilderProjectSnapshotsHashRoute._addFileChildren(
-    ApiBuilderProjectSnapshotsHashRouteChildren,
+const ApiChatBotsIdFilesFileIdRouteWithChildren =
+  ApiChatBotsIdFilesFileIdRoute._addFileChildren(
+    ApiChatBotsIdFilesFileIdRouteChildren,
   )
 
-interface ApiBuilderProjectSnapshotsRouteChildren {
-  ApiBuilderProjectSnapshotsHashRoute: typeof ApiBuilderProjectSnapshotsHashRouteWithChildren
+interface ApiChatBotsIdFilesRouteChildren {
+  ApiChatBotsIdFilesFileIdRoute: typeof ApiChatBotsIdFilesFileIdRouteWithChildren
 }
 
-const ApiBuilderProjectSnapshotsRouteChildren: ApiBuilderProjectSnapshotsRouteChildren =
+const ApiChatBotsIdFilesRouteChildren: ApiChatBotsIdFilesRouteChildren = {
+  ApiChatBotsIdFilesFileIdRoute: ApiChatBotsIdFilesFileIdRouteWithChildren,
+}
+
+const ApiChatBotsIdFilesRouteWithChildren =
+  ApiChatBotsIdFilesRoute._addFileChildren(ApiChatBotsIdFilesRouteChildren)
+
+interface ApiChatBotsIdRouteChildren {
+  ApiChatBotsIdOperationRoute: typeof ApiChatBotsIdOperationRoute
+  ApiChatBotsIdFilesRoute: typeof ApiChatBotsIdFilesRouteWithChildren
+}
+
+const ApiChatBotsIdRouteChildren: ApiChatBotsIdRouteChildren = {
+  ApiChatBotsIdOperationRoute: ApiChatBotsIdOperationRoute,
+  ApiChatBotsIdFilesRoute: ApiChatBotsIdFilesRouteWithChildren,
+}
+
+const ApiChatBotsIdRouteWithChildren = ApiChatBotsIdRoute._addFileChildren(
+  ApiChatBotsIdRouteChildren,
+)
+
+interface ApiChatBotsRouteChildren {
+  ApiChatBotsIdRoute: typeof ApiChatBotsIdRouteWithChildren
+  ApiChatBotsBulkRoute: typeof ApiChatBotsBulkRoute
+  ApiChatBotsMoveRoute: typeof ApiChatBotsMoveRoute
+}
+
+const ApiChatBotsRouteChildren: ApiChatBotsRouteChildren = {
+  ApiChatBotsIdRoute: ApiChatBotsIdRouteWithChildren,
+  ApiChatBotsBulkRoute: ApiChatBotsBulkRoute,
+  ApiChatBotsMoveRoute: ApiChatBotsMoveRoute,
+}
+
+const ApiChatBotsRouteWithChildren = ApiChatBotsRoute._addFileChildren(
+  ApiChatBotsRouteChildren,
+)
+
+interface ApiChatPluginsRouteChildren {
+  ApiChatPluginsIdRoute: typeof ApiChatPluginsIdRoute
+}
+
+const ApiChatPluginsRouteChildren: ApiChatPluginsRouteChildren = {
+  ApiChatPluginsIdRoute: ApiChatPluginsIdRoute,
+}
+
+const ApiChatPluginsRouteWithChildren = ApiChatPluginsRoute._addFileChildren(
+  ApiChatPluginsRouteChildren,
+)
+
+interface ApiChatProjectSnapshotsHashRouteChildren {
+  ApiChatProjectSnapshotsHashQuarantineRoute: typeof ApiChatProjectSnapshotsHashQuarantineRoute
+}
+
+const ApiChatProjectSnapshotsHashRouteChildren: ApiChatProjectSnapshotsHashRouteChildren =
   {
-    ApiBuilderProjectSnapshotsHashRoute:
-      ApiBuilderProjectSnapshotsHashRouteWithChildren,
+    ApiChatProjectSnapshotsHashQuarantineRoute:
+      ApiChatProjectSnapshotsHashQuarantineRoute,
   }
 
-const ApiBuilderProjectSnapshotsRouteWithChildren =
-  ApiBuilderProjectSnapshotsRoute._addFileChildren(
-    ApiBuilderProjectSnapshotsRouteChildren,
+const ApiChatProjectSnapshotsHashRouteWithChildren =
+  ApiChatProjectSnapshotsHashRoute._addFileChildren(
+    ApiChatProjectSnapshotsHashRouteChildren,
   )
 
-interface ApiBuilderProjectsIdRouteChildren {
-  ApiBuilderProjectsIdSyncRoute: typeof ApiBuilderProjectsIdSyncRoute
+interface ApiChatProjectSnapshotsRouteChildren {
+  ApiChatProjectSnapshotsHashRoute: typeof ApiChatProjectSnapshotsHashRouteWithChildren
 }
 
-const ApiBuilderProjectsIdRouteChildren: ApiBuilderProjectsIdRouteChildren = {
-  ApiBuilderProjectsIdSyncRoute: ApiBuilderProjectsIdSyncRoute,
+const ApiChatProjectSnapshotsRouteChildren: ApiChatProjectSnapshotsRouteChildren =
+  {
+    ApiChatProjectSnapshotsHashRoute:
+      ApiChatProjectSnapshotsHashRouteWithChildren,
+  }
+
+const ApiChatProjectSnapshotsRouteWithChildren =
+  ApiChatProjectSnapshotsRoute._addFileChildren(
+    ApiChatProjectSnapshotsRouteChildren,
+  )
+
+interface ApiChatProjectsIdRouteChildren {
+  ApiChatProjectsIdSyncRoute: typeof ApiChatProjectsIdSyncRoute
 }
 
-const ApiBuilderProjectsIdRouteWithChildren =
-  ApiBuilderProjectsIdRoute._addFileChildren(ApiBuilderProjectsIdRouteChildren)
-
-interface ApiBuilderProjectsRouteChildren {
-  ApiBuilderProjectsIdRoute: typeof ApiBuilderProjectsIdRouteWithChildren
+const ApiChatProjectsIdRouteChildren: ApiChatProjectsIdRouteChildren = {
+  ApiChatProjectsIdSyncRoute: ApiChatProjectsIdSyncRoute,
 }
 
-const ApiBuilderProjectsRouteChildren: ApiBuilderProjectsRouteChildren = {
-  ApiBuilderProjectsIdRoute: ApiBuilderProjectsIdRouteWithChildren,
+const ApiChatProjectsIdRouteWithChildren =
+  ApiChatProjectsIdRoute._addFileChildren(ApiChatProjectsIdRouteChildren)
+
+interface ApiChatProjectsRouteChildren {
+  ApiChatProjectsIdRoute: typeof ApiChatProjectsIdRouteWithChildren
 }
 
-const ApiBuilderProjectsRouteWithChildren =
-  ApiBuilderProjectsRoute._addFileChildren(ApiBuilderProjectsRouteChildren)
+const ApiChatProjectsRouteChildren: ApiChatProjectsRouteChildren = {
+  ApiChatProjectsIdRoute: ApiChatProjectsIdRouteWithChildren,
+}
+
+const ApiChatProjectsRouteWithChildren = ApiChatProjectsRoute._addFileChildren(
+  ApiChatProjectsRouteChildren,
+)
+
+interface ApiChatRecipesRouteChildren {
+  ApiChatRecipesIdRoute: typeof ApiChatRecipesIdRoute
+}
+
+const ApiChatRecipesRouteChildren: ApiChatRecipesRouteChildren = {
+  ApiChatRecipesIdRoute: ApiChatRecipesIdRoute,
+}
+
+const ApiChatRecipesRouteWithChildren = ApiChatRecipesRoute._addFileChildren(
+  ApiChatRecipesRouteChildren,
+)
+
+interface ApiChatReferencesRouteChildren {
+  ApiChatReferencesKodyInspectRoute: typeof ApiChatReferencesKodyInspectRoute
+  ApiChatReferencesKodyRefreshRoute: typeof ApiChatReferencesKodyRefreshRoute
+  ApiChatReferencesToolsRefreshRoute: typeof ApiChatReferencesToolsRefreshRoute
+}
+
+const ApiChatReferencesRouteChildren: ApiChatReferencesRouteChildren = {
+  ApiChatReferencesKodyInspectRoute: ApiChatReferencesKodyInspectRoute,
+  ApiChatReferencesKodyRefreshRoute: ApiChatReferencesKodyRefreshRoute,
+  ApiChatReferencesToolsRefreshRoute: ApiChatReferencesToolsRefreshRoute,
+}
+
+const ApiChatReferencesRouteWithChildren =
+  ApiChatReferencesRoute._addFileChildren(ApiChatReferencesRouteChildren)
+
+interface ApiChatSectionsRouteChildren {
+  ApiChatSectionsIdRoute: typeof ApiChatSectionsIdRoute
+}
+
+const ApiChatSectionsRouteChildren: ApiChatSectionsRouteChildren = {
+  ApiChatSectionsIdRoute: ApiChatSectionsIdRoute,
+}
+
+const ApiChatSectionsRouteWithChildren = ApiChatSectionsRoute._addFileChildren(
+  ApiChatSectionsRouteChildren,
+)
+
+interface ApiChatSkillsRouteChildren {
+  ApiChatSkillsIdRoute: typeof ApiChatSkillsIdRoute
+}
+
+const ApiChatSkillsRouteChildren: ApiChatSkillsRouteChildren = {
+  ApiChatSkillsIdRoute: ApiChatSkillsIdRoute,
+}
+
+const ApiChatSkillsRouteWithChildren = ApiChatSkillsRoute._addFileChildren(
+  ApiChatSkillsRouteChildren,
+)
+
+interface ApiChatWorkspaceIndexRouteChildren {
+  ApiChatWorkspaceIndexActivityRoute: typeof ApiChatWorkspaceIndexActivityRoute
+}
+
+const ApiChatWorkspaceIndexRouteChildren: ApiChatWorkspaceIndexRouteChildren = {
+  ApiChatWorkspaceIndexActivityRoute: ApiChatWorkspaceIndexActivityRoute,
+}
+
+const ApiChatWorkspaceIndexRouteWithChildren =
+  ApiChatWorkspaceIndexRoute._addFileChildren(
+    ApiChatWorkspaceIndexRouteChildren,
+  )
 
 interface IntentRegistryPackageNameRouteChildren {
   IntentRegistryPackageNameSkillNameRoute: typeof IntentRegistryPackageNameSkillNameRoute
@@ -4629,6 +6860,221 @@ const IntentRegistryPackageNameRouteWithChildren =
     IntentRegistryPackageNameRouteChildren,
   )
 
+interface ApiChatBotDraftsIdFilesFileIdRouteChildren {
+  ApiChatBotDraftsIdFilesFileIdContentRoute: typeof ApiChatBotDraftsIdFilesFileIdContentRoute
+}
+
+const ApiChatBotDraftsIdFilesFileIdRouteChildren: ApiChatBotDraftsIdFilesFileIdRouteChildren =
+  {
+    ApiChatBotDraftsIdFilesFileIdContentRoute:
+      ApiChatBotDraftsIdFilesFileIdContentRoute,
+  }
+
+const ApiChatBotDraftsIdFilesFileIdRouteWithChildren =
+  ApiChatBotDraftsIdFilesFileIdRoute._addFileChildren(
+    ApiChatBotDraftsIdFilesFileIdRouteChildren,
+  )
+
+interface ApiChatBotDraftsIdFilesRouteChildren {
+  ApiChatBotDraftsIdFilesFileIdRoute: typeof ApiChatBotDraftsIdFilesFileIdRouteWithChildren
+}
+
+const ApiChatBotDraftsIdFilesRouteChildren: ApiChatBotDraftsIdFilesRouteChildren =
+  {
+    ApiChatBotDraftsIdFilesFileIdRoute:
+      ApiChatBotDraftsIdFilesFileIdRouteWithChildren,
+  }
+
+const ApiChatBotDraftsIdFilesRouteWithChildren =
+  ApiChatBotDraftsIdFilesRoute._addFileChildren(
+    ApiChatBotDraftsIdFilesRouteChildren,
+  )
+
+interface ApiChatBotDraftsIdRouteChildren {
+  ApiChatBotDraftsIdFilesRoute: typeof ApiChatBotDraftsIdFilesRouteWithChildren
+}
+
+const ApiChatBotDraftsIdRouteChildren: ApiChatBotDraftsIdRouteChildren = {
+  ApiChatBotDraftsIdFilesRoute: ApiChatBotDraftsIdFilesRouteWithChildren,
+}
+
+const ApiChatBotDraftsIdRouteWithChildren =
+  ApiChatBotDraftsIdRoute._addFileChildren(ApiChatBotDraftsIdRouteChildren)
+
+interface ApiChatKodyCommunityRouteChildren {
+  ApiChatKodyCommunityListingIdRoute: typeof ApiChatKodyCommunityListingIdRoute
+}
+
+const ApiChatKodyCommunityRouteChildren: ApiChatKodyCommunityRouteChildren = {
+  ApiChatKodyCommunityListingIdRoute: ApiChatKodyCommunityListingIdRoute,
+}
+
+const ApiChatKodyCommunityRouteWithChildren =
+  ApiChatKodyCommunityRoute._addFileChildren(ApiChatKodyCommunityRouteChildren)
+
+interface ApiChatKodyMemoriesMemoryIdRouteChildren {
+  ApiChatKodyMemoriesMemoryIdApplyRoute: typeof ApiChatKodyMemoriesMemoryIdApplyRoute
+  ApiChatKodyMemoriesMemoryIdReviewRoute: typeof ApiChatKodyMemoriesMemoryIdReviewRoute
+}
+
+const ApiChatKodyMemoriesMemoryIdRouteChildren: ApiChatKodyMemoriesMemoryIdRouteChildren =
+  {
+    ApiChatKodyMemoriesMemoryIdApplyRoute:
+      ApiChatKodyMemoriesMemoryIdApplyRoute,
+    ApiChatKodyMemoriesMemoryIdReviewRoute:
+      ApiChatKodyMemoriesMemoryIdReviewRoute,
+  }
+
+const ApiChatKodyMemoriesMemoryIdRouteWithChildren =
+  ApiChatKodyMemoriesMemoryIdRoute._addFileChildren(
+    ApiChatKodyMemoriesMemoryIdRouteChildren,
+  )
+
+interface ApiChatKodyMemoriesRouteChildren {
+  ApiChatKodyMemoriesMemoryIdRoute: typeof ApiChatKodyMemoriesMemoryIdRouteWithChildren
+  ApiChatKodyMemoriesCreateApplyRoute: typeof ApiChatKodyMemoriesCreateApplyRoute
+  ApiChatKodyMemoriesCreateReviewRoute: typeof ApiChatKodyMemoriesCreateReviewRoute
+}
+
+const ApiChatKodyMemoriesRouteChildren: ApiChatKodyMemoriesRouteChildren = {
+  ApiChatKodyMemoriesMemoryIdRoute:
+    ApiChatKodyMemoriesMemoryIdRouteWithChildren,
+  ApiChatKodyMemoriesCreateApplyRoute: ApiChatKodyMemoriesCreateApplyRoute,
+  ApiChatKodyMemoriesCreateReviewRoute: ApiChatKodyMemoriesCreateReviewRoute,
+}
+
+const ApiChatKodyMemoriesRouteWithChildren =
+  ApiChatKodyMemoriesRoute._addFileChildren(ApiChatKodyMemoriesRouteChildren)
+
+interface ApiChatKodyRunsRunIdRouteChildren {
+  ApiChatKodyRunsRunIdTriageRoute: typeof ApiChatKodyRunsRunIdTriageRoute
+}
+
+const ApiChatKodyRunsRunIdRouteChildren: ApiChatKodyRunsRunIdRouteChildren = {
+  ApiChatKodyRunsRunIdTriageRoute: ApiChatKodyRunsRunIdTriageRoute,
+}
+
+const ApiChatKodyRunsRunIdRouteWithChildren =
+  ApiChatKodyRunsRunIdRoute._addFileChildren(ApiChatKodyRunsRunIdRouteChildren)
+
+interface ApiChatKodyRunsRouteChildren {
+  ApiChatKodyRunsRunIdRoute: typeof ApiChatKodyRunsRunIdRouteWithChildren
+}
+
+const ApiChatKodyRunsRouteChildren: ApiChatKodyRunsRouteChildren = {
+  ApiChatKodyRunsRunIdRoute: ApiChatKodyRunsRunIdRouteWithChildren,
+}
+
+const ApiChatKodyRunsRouteWithChildren = ApiChatKodyRunsRoute._addFileChildren(
+  ApiChatKodyRunsRouteChildren,
+)
+
+interface ApiChatKodyServersRouteChildren {
+  ApiChatKodyServersServerIdCheckRoute: typeof ApiChatKodyServersServerIdCheckRoute
+  ApiChatKodyServersServerIdEnabledRoute: typeof ApiChatKodyServersServerIdEnabledRoute
+  ApiChatKodyServersServerIdReconnectRoute: typeof ApiChatKodyServersServerIdReconnectRoute
+}
+
+const ApiChatKodyServersRouteChildren: ApiChatKodyServersRouteChildren = {
+  ApiChatKodyServersServerIdCheckRoute: ApiChatKodyServersServerIdCheckRoute,
+  ApiChatKodyServersServerIdEnabledRoute:
+    ApiChatKodyServersServerIdEnabledRoute,
+  ApiChatKodyServersServerIdReconnectRoute:
+    ApiChatKodyServersServerIdReconnectRoute,
+}
+
+const ApiChatKodyServersRouteWithChildren =
+  ApiChatKodyServersRoute._addFileChildren(ApiChatKodyServersRouteChildren)
+
+interface ApiChatRetriesIdRouteChildren {
+  ApiChatRetriesIdPrepareRoute: typeof ApiChatRetriesIdPrepareRoute
+}
+
+const ApiChatRetriesIdRouteChildren: ApiChatRetriesIdRouteChildren = {
+  ApiChatRetriesIdPrepareRoute: ApiChatRetriesIdPrepareRoute,
+}
+
+const ApiChatRetriesIdRouteWithChildren =
+  ApiChatRetriesIdRoute._addFileChildren(ApiChatRetriesIdRouteChildren)
+
+interface ApiChatConversationsIdFilesFileIdRouteChildren {
+  ApiChatConversationsIdFilesFileIdContentRoute: typeof ApiChatConversationsIdFilesFileIdContentRoute
+}
+
+const ApiChatConversationsIdFilesFileIdRouteChildren: ApiChatConversationsIdFilesFileIdRouteChildren =
+  {
+    ApiChatConversationsIdFilesFileIdContentRoute:
+      ApiChatConversationsIdFilesFileIdContentRoute,
+  }
+
+const ApiChatConversationsIdFilesFileIdRouteWithChildren =
+  ApiChatConversationsIdFilesFileIdRoute._addFileChildren(
+    ApiChatConversationsIdFilesFileIdRouteChildren,
+  )
+
+interface ApiChatConversationsIdFilesRouteChildren {
+  ApiChatConversationsIdFilesFileIdRoute: typeof ApiChatConversationsIdFilesFileIdRouteWithChildren
+  ApiChatConversationsIdFilesImportRoute: typeof ApiChatConversationsIdFilesImportRoute
+}
+
+const ApiChatConversationsIdFilesRouteChildren: ApiChatConversationsIdFilesRouteChildren =
+  {
+    ApiChatConversationsIdFilesFileIdRoute:
+      ApiChatConversationsIdFilesFileIdRouteWithChildren,
+    ApiChatConversationsIdFilesImportRoute:
+      ApiChatConversationsIdFilesImportRoute,
+  }
+
+const ApiChatConversationsIdFilesRouteWithChildren =
+  ApiChatConversationsIdFilesRoute._addFileChildren(
+    ApiChatConversationsIdFilesRouteChildren,
+  )
+
+interface ApiChatConversationsIdMemoriesRouteChildren {
+  ApiChatConversationsIdMemoriesMemoryIdRoute: typeof ApiChatConversationsIdMemoriesMemoryIdRoute
+}
+
+const ApiChatConversationsIdMemoriesRouteChildren: ApiChatConversationsIdMemoriesRouteChildren =
+  {
+    ApiChatConversationsIdMemoriesMemoryIdRoute:
+      ApiChatConversationsIdMemoriesMemoryIdRoute,
+  }
+
+const ApiChatConversationsIdMemoriesRouteWithChildren =
+  ApiChatConversationsIdMemoriesRoute._addFileChildren(
+    ApiChatConversationsIdMemoriesRouteChildren,
+  )
+
+interface ApiChatKodyMailMessagesRouteChildren {
+  ApiChatKodyMailMessagesMessageIdRoute: typeof ApiChatKodyMailMessagesMessageIdRoute
+}
+
+const ApiChatKodyMailMessagesRouteChildren: ApiChatKodyMailMessagesRouteChildren =
+  {
+    ApiChatKodyMailMessagesMessageIdRoute:
+      ApiChatKodyMailMessagesMessageIdRoute,
+  }
+
+const ApiChatKodyMailMessagesRouteWithChildren =
+  ApiChatKodyMailMessagesRoute._addFileChildren(
+    ApiChatKodyMailMessagesRouteChildren,
+  )
+
+interface ApiChatConversationsIdWorkflowRunsRunIdRouteChildren {
+  ApiChatConversationsIdWorkflowRunsRunIdCancelRoute: typeof ApiChatConversationsIdWorkflowRunsRunIdCancelRoute
+}
+
+const ApiChatConversationsIdWorkflowRunsRunIdRouteChildren: ApiChatConversationsIdWorkflowRunsRunIdRouteChildren =
+  {
+    ApiChatConversationsIdWorkflowRunsRunIdCancelRoute:
+      ApiChatConversationsIdWorkflowRunsRunIdCancelRoute,
+  }
+
+const ApiChatConversationsIdWorkflowRunsRunIdRouteWithChildren =
+  ApiChatConversationsIdWorkflowRunsRunIdRoute._addFileChildren(
+    ApiChatConversationsIdWorkflowRunsRunIdRouteChildren,
+  )
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRouteRoute: AdminRouteRouteWithChildren,
@@ -4639,6 +7085,8 @@ const rootRouteChildren: RootRouteChildren = {
   BlogRoute: BlogRouteWithChildren,
   BrandGuideRoute: BrandGuideRoute,
   BuilderRoute: BuilderRoute,
+  ChatRoute: ChatRouteWithChildren,
+  ChatAccessRoute: ChatAccessRoute,
   CommunityProjectsRoute: CommunityProjectsRoute,
   DashboardRoute: DashboardRoute,
   DsRoute: DsRouteWithChildren,
@@ -4702,9 +7150,27 @@ const rootRouteChildren: RootRouteChildren = {
   ApiApplicationStarterResolveRoute: ApiApplicationStarterResolveRoute,
   ApiApplicationStarterSuggestRoute: ApiApplicationStarterSuggestRoute,
   ApiApplicationStarterValidateRoute: ApiApplicationStarterValidateRoute,
-  ApiBuilderAssistRoute: ApiBuilderAssistRoute,
-  ApiBuilderProjectSnapshotsRoute: ApiBuilderProjectSnapshotsRouteWithChildren,
-  ApiBuilderProjectsRoute: ApiBuilderProjectsRouteWithChildren,
+  ApiChatActivityRoute: ApiChatActivityRoute,
+  ApiChatAppVersionRoute: ApiChatAppVersionRoute,
+  ApiChatBootstrapRoute: ApiChatBootstrapRoute,
+  ApiChatBotsRoute: ApiChatBotsRouteWithChildren,
+  ApiChatConnectionRoute: ApiChatConnectionRoute,
+  ApiChatDeviceTransportRoute: ApiChatDeviceTransportRoute,
+  ApiChatDraftRoute: ApiChatDraftRoute,
+  ApiChatFilesRoute: ApiChatFilesRoute,
+  ApiChatModelOptionsRoute: ApiChatModelOptionsRoute,
+  ApiChatModelsRoute: ApiChatModelsRoute,
+  ApiChatPluginsRoute: ApiChatPluginsRouteWithChildren,
+  ApiChatPolicyRoute: ApiChatPolicyRoute,
+  ApiChatProjectSnapshotsRoute: ApiChatProjectSnapshotsRouteWithChildren,
+  ApiChatProjectsRoute: ApiChatProjectsRouteWithChildren,
+  ApiChatRecipesRoute: ApiChatRecipesRouteWithChildren,
+  ApiChatReferencesRoute: ApiChatReferencesRouteWithChildren,
+  ApiChatSectionsRoute: ApiChatSectionsRouteWithChildren,
+  ApiChatSkillsRoute: ApiChatSkillsRouteWithChildren,
+  ApiChatWorkspaceRoute: ApiChatWorkspaceRoute,
+  ApiChatWorkspaceHistoryRoute: ApiChatWorkspaceHistoryRoute,
+  ApiChatWorkspaceIndexRoute: ApiChatWorkspaceIndexRouteWithChildren,
   ApiDataLibrariesRoute: ApiDataLibrariesRoute,
   ApiDataPartnersRoute: ApiDataPartnersRoute,
   ApiDiscordInteractionsRoute: ApiDiscordInteractionsRoute,
@@ -4714,6 +7180,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiOgChar123Char125DotpngRoute: ApiOgChar123Char125DotpngRoute,
   ApiReadmeChar123Char125DotpngRoute: ApiReadmeChar123Char125DotpngRoute,
   AuthProviderStartRoute: AuthProviderStartRoute,
+  AuthMcpCallbackRoute: AuthMcpCallbackRoute,
+  AuthMcpClientMetadataRoute: AuthMcpClientMetadataRoute,
   BuilderPHashRoute: BuilderPHashRoute,
   ChartsCatalogCatalogDotjsonRoute: ChartsCatalogCatalogDotjsonRoute,
   IntentRegistryPackageNameRoute: IntentRegistryPackageNameRouteWithChildren,
@@ -4729,10 +7197,49 @@ const rootRouteChildren: RootRouteChildren = {
     ApiApplicationStarterDeployGithubRoute,
   ApiAuthCallbackProviderRoute: ApiAuthCallbackProviderRoute,
   ApiAuthCliCreateTicketRoute: ApiAuthCliCreateTicketRoute,
-  ApiBuilderOpenrouterCallbackRoute: ApiBuilderOpenrouterCallbackRoute,
+  ApiChatAccountDevicesRoute: ApiChatAccountDevicesRoute,
+  ApiChatAccountOnboardingRoute: ApiChatAccountOnboardingRoute,
+  ApiChatAccountPreferencesRoute: ApiChatAccountPreferencesRoute,
+  ApiChatBotDraftsIdRoute: ApiChatBotDraftsIdRouteWithChildren,
+  ApiChatCopiesIdRoute: ApiChatCopiesIdRoute,
+  ApiChatKodyAccountRoute: ApiChatKodyAccountRoute,
+  ApiChatKodyCallbackRoute: ApiChatKodyCallbackRoute,
+  ApiChatKodyCommunityRoute: ApiChatKodyCommunityRouteWithChildren,
+  ApiChatKodyConnectRoute: ApiChatKodyConnectRoute,
+  ApiChatKodyMemoriesRoute: ApiChatKodyMemoriesRouteWithChildren,
+  ApiChatKodyRunsRoute: ApiChatKodyRunsRouteWithChildren,
+  ApiChatKodyServersRoute: ApiChatKodyServersRouteWithChildren,
+  ApiChatKodySyncRoute: ApiChatKodySyncRoute,
+  ApiChatKodyUnlinkRoute: ApiChatKodyUnlinkRoute,
+  ApiChatKodyUsageRoute: ApiChatKodyUsageRoute,
+  ApiChatMcpSplatRoute: ApiChatMcpSplatRoute,
+  ApiChatMcpContractRoute: ApiChatMcpContractRoute,
+  ApiChatOpenrouterCallbackRoute: ApiChatOpenrouterCallbackRoute,
+  ApiChatRetriesIdRoute: ApiChatRetriesIdRouteWithChildren,
+  ApiChatWorkspaceSyncOperationRoute: ApiChatWorkspaceSyncOperationRoute,
   ApiAuthCliStatusTicketIdRoute: ApiAuthCliStatusTicketIdRoute,
+  ApiChatConversationsIdOperationRoute: ApiChatConversationsIdOperationRoute,
+  ApiChatConversationsIdFilesRoute:
+    ApiChatConversationsIdFilesRouteWithChildren,
+  ApiChatConversationsIdMemoriesRoute:
+    ApiChatConversationsIdMemoriesRouteWithChildren,
+  ApiChatConversationsIdReferencesRoute: ApiChatConversationsIdReferencesRoute,
+  ApiChatKodyMailInboxesRoute: ApiChatKodyMailInboxesRoute,
+  ApiChatKodyMailMessagesRoute: ApiChatKodyMailMessagesRouteWithChildren,
+  ApiChatKodyResourcesKindRoute: ApiChatKodyResourcesKindRoute,
   ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute:
     ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute,
+  ApiChatAccountComposerDraftsAccountIdScopeRoute:
+    ApiChatAccountComposerDraftsAccountIdScopeRoute,
+  ApiChatConversationsIdWorkflowRunsRunIdRoute:
+    ApiChatConversationsIdWorkflowRunsRunIdRouteWithChildren,
+  ApiChatConversationsIdWorkflowsWorkflowIdRoute:
+    ApiChatConversationsIdWorkflowsWorkflowIdRoute,
+  ApiChatKodyJobsJobIdEnabledRoute: ApiChatKodyJobsJobIdEnabledRoute,
+  ApiChatKodyPackagesPackageIdDocumentRoute:
+    ApiChatKodyPackagesPackageIdDocumentRoute,
+  ApiChatConversationsIdExecutionSnapshotsSnapshotIdRoute:
+    ApiChatConversationsIdExecutionSnapshotsSnapshotIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

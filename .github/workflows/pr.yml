@@ -22,3 +22,38 @@ jobs:
         run: pnpm build
       - name: Run Tests
         run: pnpm test
+
+  chat-runtime:
+    name: Chat PostgreSQL runtime
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: tanchat_test
+          POSTGRES_PASSWORD: tanchat_test
+          POSTGRES_DB: tanchat_test_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U tanchat_test -d tanchat_test_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://tanchat_test:tanchat_test@127.0.0.1:5432/tanchat_test_ci
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Setup Tools
+        uses: tanstack/config/.github/setup@e4b48f16568324f76f467aa4c2aac2f05db632c3 # main
+      - name: Create existing-site test boundary
+        run: psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f harness-tests/postgres/site-baseline.sql
+      - name: Migrate disposable database
+        run: pnpm db:migrate
+      - name: Check cascade lifecycle
+        run: psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f harness-tests/postgres/cascade-lifecycle.sql
+      - name: Run conversation runtime tests
+        run: pnpm test:chat-runtime

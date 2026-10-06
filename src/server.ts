@@ -1,8 +1,13 @@
 import './instrument.server.mjs'
 
+export { StreamObject } from '@durable-streams/server-cloudflare'
+export { WorkspaceSync } from './chat/server/workspace-sync-object'
+export { Conversation } from './chat/server/conversation'
+export { TanChatWorkflow } from './chat/server/workflow-driver'
+
 import { wrapFetchWithSentry } from '@sentry/tanstackstart-react'
 import handler, { createServerEntry } from '@tanstack/react-start/server-entry'
-import { runWithDatabaseContext } from '~/db/client'
+import { runWithDatabaseContext, runWithDatabaseRequest } from '~/db/client'
 import { runScheduledTasks } from '~/server/scheduled.server'
 import {
   runWithHostRuntimeContext,
@@ -18,6 +23,7 @@ import {
 } from '~/utils/prod-diagnostics.server'
 import { docsContentNegotiationVaryHeader } from '~/utils/http'
 import { isFrameEmbeddingAllowed } from '~/utils/frame-embedding'
+import { redirectChatOrigin } from './chat/server/origin-redirect'
 
 const SECURITY_HEADERS = {
   'X-Frame-Options': 'DENY',
@@ -32,6 +38,8 @@ const GOOGLE_ANALYTICS_SCRIPT_URL =
   'https://www.googletagmanager.com/gtag/js?id=G-JMT1Z50SPS'
 const GOOGLE_ANALYTICS_COLLECT_URL =
   'https://www.google-analytics.com/g/collect'
+const SCARF_EVENTS_URL = 'https://tanstack.gateway.scarf.sh/site-events'
+const MAX_CLIPBOARD_EVENT_BYTES = 4096
 
 const STATIC_RESPONSE_LINK_HEADERS = {
   filter: ({ phase }: { phase: 'static' | 'dynamic' }) => phase === 'static',
@@ -138,15 +146,90 @@ async function proxyAnalyticsRequest(request: Request, url: URL) {
   return applyHostingHeaders(response, url)
 }
 
+async function proxyScarfClipboardEvent(request: Request, url: URL) {
+  if (url.pathname !== '/_a/scarf/clipboard') return null
+
+  if (
+    request.method !== 'POST' ||
+    request.headers.get('content-type') !== 'application/json' ||
+    Number(request.headers.get('content-length')) > MAX_CLIPBOARD_EVENT_BYTES
+  ) {
+    return applyHostingHeaders(new Response(null, { status: 400 }), url)
+  }
+
+  const rawBody = await request.text()
+  if (new TextEncoder().encode(rawBody).length > MAX_CLIPBOARD_EVENT_BYTES) {
+    return applyHostingHeaders(new Response(null, { status: 400 }), url)
+  }
+
+  let body: unknown
+  try {
+    body = JSON.parse(rawBody)
+  } catch {
+    return applyHostingHeaders(new Response(null, { status: 400 }), url)
+  }
+
+  if (
+    typeof body !== 'object' ||
+    body === null ||
+    !('event' in body) ||
+    (body.event !== 'copy' && body.event !== 'paste') ||
+    !('page' in body) ||
+    typeof body.page !== 'string' ||
+    !body.page.startsWith('/') ||
+    body.page.length > 512 ||
+    !('text' in body) ||
+    typeof body.text !== 'string' ||
+    body.text.length > 512 ||
+    !('truncated' in body) ||
+    typeof body.truncated !== 'boolean'
+  ) {
+    return applyHostingHeaders(new Response(null, { status: 400 }), url)
+  }
+
+  const headers = new Headers({ 'Content-Type': 'application/json' })
+  for (const headerName of ['user-agent', 'dnt', 'sec-gpc']) {
+    const value = request.headers.get(headerName)
+    if (value) headers.set(headerName, value)
+  }
+  const clientIp = request.headers.get('cf-connecting-ip')
+  if (clientIp) headers.set('X-Scarf-IP', clientIp)
+
+  try {
+    await fetch(SCARF_EVENTS_URL, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        event: body.event,
+        page: body.page,
+        text: body.text,
+        truncated: body.truncated,
+      }),
+    })
+  } catch {
+    // Telemetry failures must not affect the page.
+  }
+
+  return applyHostingHeaders(new Response(null, { status: 204 }), url)
+}
+
 const server = createServerEntry(
   wrapFetchWithSentry({
     async fetch(request) {
       return runWithRequestDiagnostics(request, async (context) => {
-        return runWithDatabaseContext(async () => {
+        return runWithDatabaseRequest(async () => {
           const url = new URL(request.url)
           logRequestStart(context)
 
           try {
+            const scarfResponse = await proxyScarfClipboardEvent(request, url)
+            if (scarfResponse) {
+              logRequestEnd(context, scarfResponse.status, {
+                analyticsProxy: true,
+              })
+              return scarfResponse
+            }
+
             const analyticsResponse = await proxyAnalyticsRequest(request, url)
             if (analyticsResponse) {
               logRequestEnd(context, analyticsResponse.status, {
@@ -194,6 +277,8 @@ const server = createServerEntry(
 
 export default {
   fetch(request: Request, env: unknown, context: unknown) {
+    const canonicalChat = redirectChatOrigin(request)
+    if (canonicalChat) return canonicalChat
     return runWithHostRuntimeEnv(env, () =>
       runWithHostRuntimeContext(context, () => server.fetch(request)),
     )

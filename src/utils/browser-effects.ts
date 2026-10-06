@@ -1,9 +1,11 @@
 import * as React from 'react'
+import { trackScarfClipboardText } from '~/utils/analytics/scarf'
 
 export async function copyTextToClipboard(value: string) {
   if (typeof navigator !== 'undefined' && navigator.clipboard) {
     try {
       await navigator.clipboard.writeText(value)
+      trackScarfClipboardText('copy', value)
       return
     } catch {
       // Fall back for restricted contexts where the Clipboard API exists but rejects.

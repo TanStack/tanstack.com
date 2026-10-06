@@ -536,7 +536,9 @@ async function fetchRepoFileFromOrigin(
     let text: string | null
 
     if (shouldUseLocalDocsFiles()) {
-      text = await fetchFs(repo, filepath)
+      text =
+        (await fetchFs(repo, filepath)) ??
+        (await fetchRemote(owner, repo, ref, filepath))
     } else {
       text = await fetchRemote(owner, repo, ref, filepath)
     }
@@ -576,7 +578,9 @@ async function fetchRepoRawFileFromOrigin(
 ) {
   const [owner, repo] = repoPair.split('/')
   return shouldUseLocalDocsFiles()
-    ? fetchFs(repo, filepath)
+    ? fetchFs(repo, filepath).then(
+        (text) => text ?? fetchRemote(owner, repo, ref, filepath),
+      )
     : fetchRemote(owner, repo, ref, filepath)
 }
 
@@ -1405,7 +1409,9 @@ export function fetchApiContents(
     return fetchCached({
       key: `${repoPair}:${branch}:${startingPath}`,
       ttl: 1,
-      fn: () => fetchApiContentsFs(repoPair, startingPath),
+      fn: async () =>
+        (await fetchApiContentsFs(repoPair, startingPath)) ??
+        fetchApiContentsRemote(repoPair, branch, startingPath),
     })
   }
 

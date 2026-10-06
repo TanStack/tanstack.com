@@ -132,7 +132,7 @@ function BuilderHero() {
   ]
 
   return (
-    <LandingWindow label="TanStack Builder">
+    <LandingWindow label="TanChat">
       <div className="grid min-h-[24rem] md:grid-cols-[0.86fr_1.14fr]">
         <div className="border-border-subtle p-4 md:border-r">
           <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/30">

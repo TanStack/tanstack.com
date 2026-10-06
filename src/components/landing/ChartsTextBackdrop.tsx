@@ -7,10 +7,16 @@ export function ChartsTextBackdrop({
 }) {
   const contentRef = React.useRef<HTMLDivElement>(null)
   const [mask, setMask] = React.useState('')
+  const [radialBackdrop, setRadialBackdrop] = React.useState(false)
 
   React.useEffect(() => {
     const content = contentRef.current
     if (!content) return
+    const probe = document.createElement('canvas').getContext('2d')
+    if (!probe || typeof probe.filter !== 'string') {
+      setRadialBackdrop(true)
+      return
+    }
     let active = true
     let frame = 0
     let revision = 0
@@ -108,10 +114,14 @@ export function ChartsTextBackdrop({
     <div className="relative">
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -inset-48 backdrop-blur-3xl"
+        className={`pointer-events-none absolute -inset-48 ${radialBackdrop ? 'bg-white/85 dark:bg-black/85' : 'backdrop-blur-3xl'}`}
         style={{
-          maskImage: mask ? `url(${mask})` : undefined,
-          visibility: mask ? 'visible' : 'hidden',
+          maskImage: radialBackdrop
+            ? 'radial-gradient(ellipse closest-side, black 45%, transparent 100%)'
+            : mask
+              ? `url(${mask})`
+              : undefined,
+          visibility: radialBackdrop || mask ? 'visible' : 'hidden',
           maskSize: '100% 100%',
           maskRepeat: 'no-repeat',
         }}

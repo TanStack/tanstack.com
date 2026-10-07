@@ -14,7 +14,7 @@ export function LibraryTestimonials({
 
   return (
     <div className="w-full overflow-hidden py-8">
-      <div className="mb-8 px-4">
+      <div className="mb-8 px-4 w-full lg:max-w-(--breakpoint-lg) mx-auto">
         <h3 className="text-3xl font-bold">Loved by Developers</h3>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
           See what teams are saying

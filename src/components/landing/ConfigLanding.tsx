@@ -242,7 +242,7 @@ function PackageXRay() {
             </div>
           ))}
         </div>
-        <div className="mt-4 flex items-center gap-3 rounded-lg border-l-2 border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.08)] p-4">
+        <div className="mt-4 flex items-center gap-3 rounded-r-lg border-l-2 border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.08)] p-4">
           <ClipboardTextIcon
             aria-hidden="true"
             className="shrink-0 text-[var(--landing-accent-bright)]"

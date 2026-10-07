@@ -104,6 +104,10 @@ const docsRedirectInput = v.object({
 // Matches RAW_FETCH_CONCURRENCY in github-example.server.ts.
 const DOCS_MANIFEST_FETCH_CONCURRENCY = 6
 
+// In-flight deduplication for concurrent cold-start manifest builds.
+// Keyed by `${repo}@${branch}:${docsRoot}` for each manifest type.
+const pendingManifestBuilds = new Map<string, Promise<DocsManifest>>()
+
 export async function mapWithConcurrency<T, TResult>(
   values: Array<T>,
   concurrency: number,
@@ -261,7 +265,7 @@ export async function collectRedirectEntriesForFile(
   return entries
 }
 
-async function buildDocsManifest({
+export async function buildDocsManifest({
   repo,
   branch,
   docsRoot,
@@ -270,40 +274,58 @@ async function buildDocsManifest({
   branch: string
   docsRoot: string
 }): Promise<DocsManifest> {
-  const { fetchApiContents, fetchRepoFile } = await loadDocumentsServerModule()
-  const nodes = await fetchApiContents(repo, branch, docsRoot)
+  const key = `manifest:${repo}@${branch}:${docsRoot}`
 
-  if (!nodes) {
-    return { paths: [], redirects: {} }
+  const inFlight = pendingManifestBuilds.get(key)
+  if (inFlight) {
+    return inFlight
   }
 
-  const markdownFiles = flattenDocsNodes(nodes).filter((node) =>
-    node.path.endsWith('.md'),
-  )
-  const paths = new Set<string>()
+  const build = async (): Promise<DocsManifest> => {
+    try {
+      const { fetchApiContents, fetchRepoFile } =
+        await loadDocumentsServerModule()
+      const nodes = await fetchApiContents(repo, branch, docsRoot)
 
-  // A recoverable error on one file must not fail the whole manifest build
-  // (see collectRedirectEntriesForFile).
-  const redirectsByFile = await mapWithConcurrency(
-    markdownFiles,
-    DOCS_MANIFEST_FETCH_CONCURRENCY,
-    (node) =>
-      collectRedirectEntriesForFile(node, {
-        docsRoot,
-        fetchFile: (filePath) => fetchRepoFile(repo, branch, filePath),
-        onCanonicalPath: (canonicalPath) => paths.add(canonicalPath),
-      }),
-  )
+      if (!nodes) {
+        return { paths: [], redirects: {} }
+      }
 
-  return {
-    paths: Array.from(paths),
-    redirects: buildRedirectManifest(redirectsByFile.flat(), {
-      label: `docs redirects for ${repo}@${branch}:${docsRoot}`,
-    }),
+      const markdownFiles = flattenDocsNodes(nodes).filter((node) =>
+        node.path.endsWith('.md'),
+      )
+      const paths = new Set<string>()
+
+      // A recoverable error on one file must not fail the whole manifest build
+      // (see collectRedirectEntriesForFile).
+      const redirectsByFile = await mapWithConcurrency(
+        markdownFiles,
+        DOCS_MANIFEST_FETCH_CONCURRENCY,
+        (node) =>
+          collectRedirectEntriesForFile(node, {
+            docsRoot,
+            fetchFile: (filePath) => fetchRepoFile(repo, branch, filePath),
+            onCanonicalPath: (canonicalPath) => paths.add(canonicalPath),
+          }),
+      )
+
+      return {
+        paths: Array.from(paths),
+        redirects: buildRedirectManifest(redirectsByFile.flat(), {
+          label: `docs redirects for ${repo}@${branch}:${docsRoot}`,
+        }),
+      }
+    } finally {
+      pendingManifestBuilds.delete(key)
+    }
   }
+
+  const promise = build()
+  pendingManifestBuilds.set(key, promise)
+  return promise
 }
 
-async function buildDocsPathManifest({
+export async function buildDocsPathManifest({
   repo,
   branch,
   docsRoot,

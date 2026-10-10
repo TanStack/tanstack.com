@@ -271,6 +271,39 @@ export function hasAvailableVariant(
   )
 }
 
+/**
+ * First variant that matches every chosen option. Unchosen options (missing
+ * or empty string) are wildcards, so a color pick can resolve an image
+ * before size is chosen.
+ */
+export function findMatchingVariant<
+  TVariant extends Pick<ProductDetailVariant, 'selectedOptions'>,
+>(
+  variants: Array<TVariant>,
+  selected: Record<string, string>,
+): TVariant | undefined {
+  return variants.find((variant) =>
+    variant.selectedOptions.every(
+      (option) =>
+        !selected[option.name] || selected[option.name] === option.value,
+    ),
+  )
+}
+
+/** Variant whose options all equal the current selection. No wildcards. */
+export function findExactVariant<
+  TVariant extends Pick<ProductDetailVariant, 'selectedOptions'>,
+>(
+  variants: Array<TVariant>,
+  selected: Record<string, string>,
+): TVariant | undefined {
+  return variants.find((variant) =>
+    variant.selectedOptions.every(
+      (option) => selected[option.name] === option.value,
+    ),
+  )
+}
+
 export type ProductDetail = Pick<
   Product,
   'id' | 'handle' | 'title' | 'descriptionHtml'

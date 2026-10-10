@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { hasAvailableVariant } from '../src/utils/shopify-queries'
+import {
+  findExactVariant,
+  findMatchingVariant,
+  hasAvailableVariant,
+} from '../src/utils/shopify-queries'
 
 const variants = [
   {
@@ -43,4 +47,18 @@ test('complete selections only match the selected variant', () => {
 
 test('partial selections are unavailable when all matches are sold out', () => {
   assert.equal(hasAvailableVariant(variants, { Color: 'Blue' }), false)
+})
+
+test('wildcard matching resolves a variant from color alone', () => {
+  const match = findMatchingVariant(variants, { Color: 'Black' })
+  assert.equal(match?.selectedOptions[0]?.value, 'Black')
+})
+
+test('exact matching requires every option to be chosen', () => {
+  assert.equal(findExactVariant(variants, { Color: 'Black' }), undefined)
+  assert.equal(
+    findExactVariant(variants, { Color: 'Black', Size: 'Large' })
+      ?.selectedOptions[1]?.value,
+    'Large',
+  )
 })

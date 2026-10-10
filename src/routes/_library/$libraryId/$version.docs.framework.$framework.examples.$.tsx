@@ -145,6 +145,10 @@ export const Route = createFileRoute(
       throw notFound()
     }
 
+    if (!params._splat) {
+      throw notFound()
+    }
+
     const examplePath = [framework, params._splat].join('/')
     const defaultStartingPath = getExampleStartingPath(
       framework,
@@ -353,7 +357,7 @@ function ExternalExamplePage({
     throw notFound()
   }
 
-  const examplePath = [frameworkId, _splat].join('/')
+  const examplePath = _splat ? [frameworkId, _splat].join('/') : frameworkId
 
   const mainExampleFile = getExampleStartingPath(frameworkId, libraryId)
 
@@ -607,7 +611,7 @@ function ClientExamplePage({
   const { version, framework, _splat, libraryId } = Route.useParams()
   const library = getLibrary(libraryId)
   const branch = getBranch(library, version)
-  const examplePath = [framework, _splat].join('/')
+  const examplePath = _splat ? [framework, _splat].join('/') : framework
   const githubUrl = `https://github.com/${library.repo}/tree/${branch}/examples/${examplePath}`
   const initialFile = (
     definition.initialFile ?? definition.workspace.entry

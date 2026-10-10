@@ -182,8 +182,8 @@ importers:
         specifier: 0.4.1
         version: 0.4.1(react@19.2.3)(typescript@6.0.2)
       '@tanstack/react-hotkeys':
-        specifier: ^0.10.0
-        version: 0.10.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        specifier: ^0.13.0
+        version: 0.13.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@tanstack/react-pacer':
         specifier: ^0.22.1
         version: 0.22.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -4066,9 +4066,9 @@ packages:
     resolution: {integrity: sha512-utTS5L2OkeYUzXGohL1Z8sefu1GLNOJcxe8Hd6iIdc/Xo1K1nDB2JEp4iSFhvYh33xKC9V91TxrS8qfrpoKobQ==}
     engines: {node: '>=20.19'}
 
-  '@tanstack/hotkeys@0.8.0':
-    resolution: {integrity: sha512-vqH7X9nb0MTJ/O08++dB5bP9jgj4+BIPOUu/U+6myG86lDsirZSVSobpq5UQpE7nBuk62i8eIYeOhd+OMl/UrA==}
-    engines: {node: '>=18'}
+  '@tanstack/hotkeys@0.11.0':
+    resolution: {integrity: sha512-uFKTuknj3sNp5ERoxsI0ISMMOVw3KmSkgy2iIcp19QR/zheYm7bkwzNndMv5NDAqhXpavOn6h4A6HPVJFCBXPg==}
+    engines: {node: '>=20'}
 
   '@tanstack/markdown@0.0.13':
     resolution: {integrity: sha512-ZSQP2ulBvlPzdpZeRheBJnaELo7e4ET/D/XrfgweHyqhhLMN5vUJJAUl7ufSRd7GlfO/vwdzjKPh0E0JwqJkDA==}
@@ -4130,9 +4130,9 @@ packages:
       react: '>=16.8'
       react-dom: '>=16.8'
 
-  '@tanstack/react-hotkeys@0.10.0':
-    resolution: {integrity: sha512-GwOSndI5j3qBVYTmgP1mYyRTnlxb2MS17cwGlsavSxMQPSnmDf+m3LzMIpRMs+3zzQMjg3cYhHsFYizYlFI2tw==}
-    engines: {node: '>=18'}
+  '@tanstack/react-hotkeys@0.13.0':
+    resolution: {integrity: sha512-+iF7bQe1YegbMa/mL7Zl490OXjSuGLlu2IPYd2YcvdeI8OcTHfdENPrRNk7PklWQ2WAIJjCVxMXiQ/Uiq8fzIQ==}
+    engines: {node: '>=20'}
     peerDependencies:
       react: '>=16.8'
       react-dom: '>=16.8'
@@ -11738,9 +11738,9 @@ snapshots:
 
   '@tanstack/history@1.162.4': {}
 
-  '@tanstack/hotkeys@0.8.0':
+  '@tanstack/hotkeys@0.11.0':
     dependencies:
-      '@tanstack/store': 0.11.0
+      '@tanstack/store': 0.11.2
 
   '@tanstack/markdown@0.0.13(octane@0.1.13(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(vite@8.0.16(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0)))(react@19.2.3)':
     optionalDependencies:
@@ -11808,10 +11808,10 @@ snapshots:
       - solid-js
       - utf-8-validate
 
-  '@tanstack/react-hotkeys@0.10.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
+  '@tanstack/react-hotkeys@0.13.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
-      '@tanstack/hotkeys': 0.8.0
-      '@tanstack/react-store': 0.11.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@tanstack/hotkeys': 0.11.0
+      '@tanstack/react-store': 0.11.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
 

@@ -109,7 +109,7 @@ export function DropdownItem({
       asChild={asChild}
       onSelect={onSelect}
       className={twMerge(
-        'flex cursor-pointer select-none items-center gap-2 rounded-md px-2 py-1.5 outline-none',
+        'relative flex cursor-pointer select-none items-center gap-2 rounded-md px-2 py-1.5 outline-none',
         'text-sm text-gray-700 dark:text-gray-300',
         'hover:bg-gray-100 dark:hover:bg-gray-700/50',
         'focus:bg-gray-100 dark:focus:bg-gray-700/50',

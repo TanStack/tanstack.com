@@ -1,5 +1,6 @@
 import { useRouterState } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
+import { createPartnerPlacementSessionSeed } from '~/utils/partner-placement'
 
 export function Scarf({ id, path }: { id: string; path: string }) {
   const visit = useRouterState({
@@ -28,7 +29,7 @@ export function Scarf({ id, path }: { id: string; path: string }) {
     lastVisit.current = visit
     setPixel({
       visit,
-      src: `https://static.scarf.sh/a.png?x-pxid=${encodeURIComponent(id)}&key=${crypto.randomUUID()}`,
+      src: `https://static.scarf.sh/a.png?x-pxid=${encodeURIComponent(id)}&key=${createPartnerPlacementSessionSeed()}`,
     })
   }, [id, visit])
 

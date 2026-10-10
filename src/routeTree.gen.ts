@@ -15,6 +15,7 @@ import { Route as AccountRouteImport } from './routes/account'
 import { Route as AdminRouteRouteImport } from './routes/admin/route'
 import { Route as AdsRouteImport } from './routes/ads'
 import { Route as ApplicationStarterRouteImport } from './routes/application-starter'
+import { Route as BeachChessRouteImport } from './routes/beach-chess'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as BrandGuideRouteImport } from './routes/brand-guide'
 import { Route as BuilderRouteImport } from './routes/builder'
@@ -352,6 +353,11 @@ const AdsRoute = AdsRouteImport.update({
 const ApplicationStarterRoute = ApplicationStarterRouteImport.update({
   id: '/application-starter',
   path: '/application-starter',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BeachChessRoute = BeachChessRouteImport.update({
+  id: '/beach-chess',
+  path: '/beach-chess',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BlogRoute = BlogRouteImport.update({
@@ -2011,6 +2017,7 @@ export interface FileRoutesByFullPath {
   '/account': typeof AccountRouteWithChildren
   '/ads': typeof AdsRoute
   '/application-starter': typeof ApplicationStarterRouteWithChildren
+  '/beach-chess': typeof BeachChessRoute
   '/blog': typeof BlogRouteWithChildren
   '/brand-guide': typeof BrandGuideRoute
   '/builder': typeof BuilderRoute
@@ -2324,6 +2331,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ads': typeof AdsRoute
+  '/beach-chess': typeof BeachChessRoute
   '/brand-guide': typeof BrandGuideRoute
   '/builder': typeof BuilderRoute
   '/chat-access': typeof ChatAccessRoute
@@ -2632,6 +2640,7 @@ export interface FileRoutesById {
   '/account': typeof AccountRouteWithChildren
   '/ads': typeof AdsRoute
   '/application-starter': typeof ApplicationStarterRouteWithChildren
+  '/beach-chess': typeof BeachChessRoute
   '/blog': typeof BlogRouteWithChildren
   '/brand-guide': typeof BrandGuideRoute
   '/builder': typeof BuilderRoute
@@ -2950,6 +2959,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/ads'
     | '/application-starter'
+    | '/beach-chess'
     | '/blog'
     | '/brand-guide'
     | '/builder'
@@ -3263,6 +3273,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/ads'
+    | '/beach-chess'
     | '/brand-guide'
     | '/builder'
     | '/chat-access'
@@ -3570,6 +3581,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/ads'
     | '/application-starter'
+    | '/beach-chess'
     | '/blog'
     | '/brand-guide'
     | '/builder'
@@ -3888,6 +3900,7 @@ export interface RootRouteChildren {
   AccountRoute: typeof AccountRouteWithChildren
   AdsRoute: typeof AdsRoute
   ApplicationStarterRoute: typeof ApplicationStarterRouteWithChildren
+  BeachChessRoute: typeof BeachChessRoute
   BlogRoute: typeof BlogRouteWithChildren
   BrandGuideRoute: typeof BrandGuideRoute
   BuilderRoute: typeof BuilderRoute
@@ -4074,6 +4087,13 @@ declare module '@tanstack/react-router' {
       path: '/application-starter'
       fullPath: '/application-starter'
       preLoaderRoute: typeof ApplicationStarterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/beach-chess': {
+      id: '/beach-chess'
+      path: '/beach-chess'
+      fullPath: '/beach-chess'
+      preLoaderRoute: typeof BeachChessRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/blog': {
@@ -7082,6 +7102,7 @@ const rootRouteChildren: RootRouteChildren = {
   AccountRoute: AccountRouteWithChildren,
   AdsRoute: AdsRoute,
   ApplicationStarterRoute: ApplicationStarterRouteWithChildren,
+  BeachChessRoute: BeachChessRoute,
   BlogRoute: BlogRouteWithChildren,
   BrandGuideRoute: BrandGuideRoute,
   BuilderRoute: BuilderRoute,

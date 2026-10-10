@@ -442,4 +442,4 @@ import {
 } from '@tanstack/ai/middlewares'
 ```
 
-The full middleware documentation is available in the [TanStack AI Middleware Guide](https://tanstack.com/ai/latest/docs/guides/middleware).
+The full middleware documentation is available in the [TanStack AI Middleware docs](https://tanstack.com/ai/latest/docs/advanced/middleware).

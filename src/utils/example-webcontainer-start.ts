@@ -129,7 +129,7 @@ export function getWebContainerStartCommand(runtime: ExampleRuntime) {
   }
 
   const args = [...runtime.start.args]
-  // pnpm forwards a literal `--` to the script, and Vite ignores everything after it.
+  // npm needs `--` to forward args. pnpm would pass the `--` itself on to Vite, which ignores what follows.
   if (runtime.start.command === 'npm' && !args.includes('--')) args.push('--')
   args.push('--config', tanStackStartViteConfigPath.slice(1))
 

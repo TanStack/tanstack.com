@@ -5,7 +5,10 @@ import { DefaultCatchBoundary } from './components/DefaultCatchBoundary'
 import { NotFound } from './components/NotFound'
 import { QueryClient } from '@tanstack/react-query'
 import * as Sentry from '@sentry/tanstackstart-react'
-import { installStaleAppReloadHandlers } from './utils/stale-app-reload'
+import {
+  installStaleAppReloadHandlers,
+  isStaleAppError,
+} from './utils/stale-app-reload'
 import { redactByokRequestHeaders } from './utils/sentry-redaction'
 
 if (typeof document !== 'undefined') {
@@ -21,6 +24,16 @@ if (typeof document !== 'undefined') {
     tracePropagationTargets: ['localhost', /^https:\/\/tanstack\.com\//],
     beforeSend(event) {
       redactByokRequestHeaders(event)
+      // Stale/failed app chunk loads (e.g. after a deploy or a dropped
+      // connection) are handled by installStaleAppReloadHandlers, which
+      // reloads the page. Don't report them as errors.
+      const exceptionTexts =
+        event.exception?.values?.map((v) =>
+          [v.type, v.value].filter(Boolean).join(': '),
+        ) ?? []
+      if (exceptionTexts.length > 0 && isStaleAppError(exceptionTexts)) {
+        return null
+      }
       // Filter out errors from third-party ad tech scripts (e.g. Publift's
       // Fuse Platform ftUtils.js) that are not actionable by us.
       const frames = event.exception?.values?.flatMap(

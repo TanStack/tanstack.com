@@ -365,5 +365,11 @@
     "name": "Humanize AI Text",
     "imageUrl": "https://humanizeaitext.io/favicon/favicon-32x32.png",
     "linkUrl": "https://humanizeaitext.io/"
+  },
+  {
+    "login": "endformdev",
+    "name": "Endform",
+    "imageUrl": "https://endform.dev/web-app-manifest-512x512.png",
+    "linkUrl": "https://endform.dev/?utm_source=tanstack"
   }
 ]

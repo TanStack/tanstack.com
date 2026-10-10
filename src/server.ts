@@ -21,7 +21,10 @@ import {
   logRequestStart,
   runWithRequestDiagnostics,
 } from '~/utils/prod-diagnostics.server'
-import { docsContentNegotiationVaryHeader } from '~/utils/http'
+import {
+  docsContentNegotiationVaryHeader,
+  redirectInsecureSiteRequest,
+} from '~/utils/http'
 import { isFrameEmbeddingAllowed } from '~/utils/frame-embedding'
 import { redirectChatOrigin } from './chat/server/origin-redirect'
 
@@ -277,6 +280,8 @@ const server = createServerEntry(
 
 export default {
   fetch(request: Request, env: unknown, context: unknown) {
+    const secureSite = redirectInsecureSiteRequest(request)
+    if (secureSite) return secureSite
     const canonicalChat = redirectChatOrigin(request)
     if (canonicalChat) return canonicalChat
     return runWithHostRuntimeEnv(env, () =>

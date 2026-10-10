@@ -28,7 +28,7 @@ export function Scarf({ id, path }: { id: string; path: string }) {
     lastVisit.current = visit
     setPixel({
       visit,
-      src: `https://static.scarf.sh/a.png?x-pxid=${encodeURIComponent(id)}&key=${crypto.randomUUID()}`,
+      src: `https://static.scarf.sh/a.png?x-pxid=${encodeURIComponent(id)}&key=${crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2)}`,
     })
   }, [id, visit])
 

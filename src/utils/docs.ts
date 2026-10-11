@@ -95,15 +95,27 @@ export async function resolveDocsRoutePath(opts: {
     return defaultDocsResolution
   }
 
-  const manifest = await fetchDocsPathManifest({
-    data: {
-      repo: opts.repo,
-      branch: opts.branch,
-      docsRoot: opts.docsRoot,
-    },
-  })
+  // Fail open: if the manifest can't be fetched (e.g. the server function
+  // returned an error response and resolved to undefined), fall back to
+  // rendering the requested path and let loadDocs decide whether it exists.
+  let manifest: Awaited<ReturnType<typeof fetchDocsPathManifest>> | undefined
+  try {
+    manifest = await fetchDocsPathManifest({
+      data: {
+        repo: opts.repo,
+        branch: opts.branch,
+        docsRoot: opts.docsRoot,
+      },
+    })
+  } catch {
+    return { type: 'render', docsPath: opts.docsPath }
+  }
 
-  if (manifest.paths.length === 0) {
+  if (
+    !manifest ||
+    !Array.isArray(manifest.paths) ||
+    manifest.paths.length === 0
+  ) {
     return { type: 'render', docsPath: opts.docsPath }
   }
 

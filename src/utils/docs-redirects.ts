@@ -81,9 +81,13 @@ export function resolveDocsPathRedirect({
 }
 
 export function docsManifestHasPath(
-  manifest: DocsRedirectManifest,
+  manifest: DocsRedirectManifest | null | undefined,
   docsPath: string,
 ) {
+  if (!manifest || !Array.isArray(manifest.paths)) {
+    return false
+  }
+
   const normalizedPath = normalizeDocsPath(docsPath)
 
   if (normalizedPath === null) {

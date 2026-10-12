@@ -4,9 +4,9 @@ import { usePartnerPlacementContext } from '~/utils/usePartnerPlacementContext'
 
 const contributions: Record<string, { href: string; description: string }> = {
   clerk: {
-    href: 'https://clerk.com/docs/reference/tanstack-react-start/overview',
+    href: 'https://clerk.com/docs/tanstack-react-start/getting-started/quickstart',
     description:
-      'built a dedicated TanStack Start SDK, with authentication components and helpers for both the client and server.',
+      'built a dedicated Start SDK and refreshed its quickstart, authentication docs, and agent skills for the 1.0 release.',
   },
   workos: {
     href: 'https://workos.com/docs/sdks/authkit-tanstack-start',
@@ -38,6 +38,11 @@ const contributions: Record<string, { href: string; description: string }> = {
     description:
       'created Start scaffolding and a database guide that connects Prisma to server functions and route loaders.',
   },
+  scarf: {
+    href: 'https://tanstack.com/blog/scarf-partnership',
+    description:
+      'helps fund ongoing TanStack development through its sponsorship, supporting the maintainers behind the libraries.',
+  },
   electric: {
     href: 'https://electric.ax/blog/2025/07/29/super-fast-apps-on-sync-with-tanstack-db',
     description:
@@ -54,9 +59,9 @@ const contributions: Record<string, { href: string; description: string }> = {
       'built a path to running Start on Workers, with a project generator and Vite integration.',
   },
   coderabbit: {
-    href: 'https://github.com/TanStack/router/pull/6996',
+    href: 'https://www.coderabbit.ai/blog/one-million-open-source-reviews-september-2026',
     description:
-      'helps review changes in the Router and Start repo, including catching cookie-handling issues in the preview server.',
+      'supports TanStack through sponsorship and code reviews, helping us catch issues in Router and Start before changes reach your apps.',
   },
   lovable: {
     href: 'https://lovable.dev/blog/building-apps-using-tanstack-start',
@@ -69,19 +74,19 @@ const contributions: Record<string, { href: string; description: string }> = {
       'backed Start development and made it the default for its app builder, where you describe what you want and an agent builds it.',
   },
   railway: {
-    href: 'https://railway.com/deploy/tanstack-start',
+    href: 'https://railway.com/deploy/tanstack-start-ai-railway-sandboxes',
     description:
-      'published a Start deployment template so developers can get a full-stack application running on Railway.',
+      'built Start deployment templates, including an application that uses TanStack AI to run coding agents in Railway sandboxes.',
   },
   render: {
     href: 'https://render.com/templates/tanstack-start',
     description:
-      'built a Start deployment template with server rendering, server functions, and health checks already wired up.',
+      'offers a Start deployment template with server rendering, server functions, and health checks already wired up.',
   },
   vercel: {
-    href: 'https://vercel.com/docs/frameworks/full-stack/tanstack-start',
+    href: 'https://github.com/vercel-labs/eve-tanstack-start-template',
     description:
-      'added Start deployment support through Nitro, with a starter template and automatic scaling on Fluid compute.',
+      'added Start deployment support and built an eve integration and template that combines Start, Table, and Hotkeys for agent-powered applications.',
   },
 }
 

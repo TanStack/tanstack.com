@@ -10,7 +10,7 @@ library: start
 
 # TanStack Start 1.0
 
-_With contributions from [Manuel Schiller](https://github.com/schiller-manuel) and [Florian Pellet](https://github.com/sheraff)._
+_With contributions from [Manuel Schiller](https://github.com/schiller-manuel), [Florian Pellet](https://github.com/sheraff), and [Christopher Horobin](https://github.com/chorobin)._
 
 TanStack Start 1.0 is finally stable. And we're really excited to officially call it ready for production.
 
@@ -70,7 +70,9 @@ The [environment functions guide](https://tanstack.com/start/latest/docs/framewo
 
 ## Other people made it much better
 
-[Manuel](https://github.com/schiller-manuel) and [Flo](https://github.com/sheraff) took this so much further than I could've taken it on my own. I knew what I wanted Start to feel like to use, but that doesn't necessarily mean I knew how to build every single part of it. There are things in the framework today that are better than what I even knew to ask for. So when I look back at how long this took, I also look at what actually got committed, the compiler work, streaming, server boundaries, hydration, all the combinations people found by putting it into real apps, and how much of that came from people other than me.
+[Manuel](https://github.com/schiller-manuel), [Flo](https://github.com/sheraff), and [Chris](https://github.com/chorobin) took this so much further than I could've taken it on my own. I knew what I wanted Start to feel like to use, but that doesn't necessarily mean I knew how to build every single part of it. There are things in the framework today that are better than what I even knew to ask for. So when I look back at how long this took, I also look at what actually got committed, the compiler work, streaming, server boundaries, hydration, all the combinations people found by putting it into real apps, and how much of that came from people other than me.
+
+[Chris](https://github.com/chorobin) was the brains behind so much of the [type safety performance work](https://tanstack.com/blog/tanstack-router-typescript-performance). I had all these crazy ideas about how type-safe a router could be, and he took those ideas and made them work fast enough to actually be a viable solution. It's one thing to get TypeScript to understand all those connections, but you still need your editor to keep up while you're building an app, and so much of making that possible came from Chris. He's also helped shape the API design and so many other parts of Router and Start, I really can't separate what these tools have become from his work.
 
 The [SSR performance work](https://tanstack.com/blog/tanstack-start-5x-ssr-throughput) [Manuel](https://github.com/schiller-manuel) and [Flo](https://github.com/sheraff) did is one of my favorite examples. They profiled what the server was doing and kept finding work it didn't need to do, eventually getting roughly five and a half times the throughput in their benchmark.
 
@@ -130,7 +132,7 @@ I'm really grateful to the people who took a chance on us early, including the p
 
 If you've been waiting for 1.0, we really want you to give Start a try. The [documentation](https://tanstack.com/start/latest/docs/framework/react/overview) is a great place to start, and if you're moving an existing application, we have [migration guidance](https://tanstack.com/start/latest/docs/framework/react/migrate-from-next-js). But honestly, I'd put an agent to work on it with you. In my experience they've become amazingly good at working through both new projects and migrations, especially when they have current guidance, TypeScript, and tests to check the changes. Try telling your agent to “use TanStack Start,” you'd be surprised how far that can get you.
 
-I want to officially and publicly thank [Manuel Schiller](https://github.com/schiller-manuel), [Florian Pellet](https://github.com/sheraff), [Brenley Dueck](https://github.com/brenelz), [Birk Skyum](https://github.com/birkskyum), [Sean Cassiere](https://github.com/seancassiere), the [wider maintainer team](https://tanstack.com/maintainers), and [everybody whose work shows up in the foundation of Start](https://github.com/TanStack/router/graphs/contributors). I also want to thank [Jack Herrington](https://github.com/jherr), [Sarah Gerrard](https://github.com/ladybluenotes), [Kyle Mathews](https://github.com/KyleAMathews), and [Ryan Carniato](https://github.com/ryansolid) for the ideas, tooling, explanations, and constant advice that helped us get here.
+I want to officially and publicly thank [Manuel Schiller](https://github.com/schiller-manuel), [Florian Pellet](https://github.com/sheraff), [Christopher Horobin](https://github.com/chorobin), [Brenley Dueck](https://github.com/brenelz), [Birk Skyum](https://github.com/birkskyum), [Sean Cassiere](https://github.com/seancassiere), the [wider maintainer team](https://tanstack.com/maintainers), and [everybody whose work shows up in the foundation of Start](https://github.com/TanStack/router/graphs/contributors). I also want to thank [Jack Herrington](https://github.com/jherr), [Sarah Gerrard](https://github.com/ladybluenotes), [Kyle Mathews](https://github.com/KyleAMathews), and [Ryan Carniato](https://github.com/ryansolid) for the ideas, tooling, explanations, and constant advice that helped us get here.
 
 And to everybody who wrote a reproduction, answered somebody's question, made a tutorial, improved the docs, or patiently helped us understand what broke in their application, thank you so much. There's tons of that work in this release, and most of it doesn't come with a name attached to a big feature. We owe so much of the polish and quality to that consistent stream of little things and the people who keep giving their support.
 

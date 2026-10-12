@@ -10,7 +10,7 @@ export function mapMarkdownPartnerLists(
       if (block.type !== 'html') return block
 
       const match = block.value.match(
-        /^\s*<(partner-list|previous-partner-list)>\s*<\/\1>\s*$/,
+        /^\s*<(partner-list|previous-partner-list|start-partner-contributions)>\s*<\/\1>\s*$/,
       )
       if (!match) return block
 

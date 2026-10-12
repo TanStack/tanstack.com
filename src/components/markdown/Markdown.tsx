@@ -16,6 +16,7 @@ import { isSafeHttpUrl } from '~/utils/url-boundary'
 import { mapStartHostingPartnerElements } from '~/utils/start-hosting-guide'
 import { mapMarkdownPartnerLists } from '~/utils/markdown-partner-lists'
 import { PartnerList, PreviousPartnerList } from './PartnerList'
+import { StartPartnerContributions } from './StartPartnerContributions'
 import { CodeBlock } from './CodeBlock'
 import { LiveExample } from './LiveExample'
 import { MarkdownLink } from './MarkdownLink'
@@ -261,6 +262,7 @@ function createMarkdownComponents(
     'md-live-example': LiveExample,
     'md-tab-panel': MdTabPanel,
     pre: CodeBlock,
+    'start-partner-contributions': StartPartnerContributions,
     'partner-list': PartnerList,
     'previous-partner-list': PreviousPartnerList,
     'start-hosting-lovable-logo': StartHostingLovableLogo,

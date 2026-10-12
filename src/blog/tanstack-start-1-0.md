@@ -12,7 +12,7 @@ library: start
 
 TanStack Start 1.0 is finally stable. And we're really excited to officially call it ready for production.
 
-I can't begin to say how proud I am of what we've built here and of the people who have built it. And I'm also really, really looking forward to not needing to remind everybody who's already using it in production that it's still a release candidate (that conversation has happened a lot more than you'd think).
+I can't begin to say how proud I am of what we've built here and of the people who have built it. For a long time, I'd hear from people already running Start in production and have to remind them we were still in RC (that conversation happened a lot more than you'd think). I'm really glad we can finally drop that caveat.
 
 We've had tons of people put Start into production through pretty much every stage of its development, from small projects and startups to entire enterprise teams and Fortune 500 companies. To our surprise, so many of these companies insisted on using it even when it was in beta. We'd explain where things were, and they'd basically tell us we're going to use it anyway.
 

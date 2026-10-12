@@ -14,6 +14,8 @@ import {
 } from '~/utils/markdown'
 import { isSafeHttpUrl } from '~/utils/url-boundary'
 import { mapStartHostingPartnerElements } from '~/utils/start-hosting-guide'
+import { mapMarkdownPartnerLists } from '~/utils/markdown-partner-lists'
+import { PartnerList, PreviousPartnerList } from './PartnerList'
 import { CodeBlock } from './CodeBlock'
 import { LiveExample } from './LiveExample'
 import { MarkdownLink } from './MarkdownLink'
@@ -54,7 +56,9 @@ export function Markdown({
     [content, document],
   )
   const renderDocument = React.useMemo(() => {
-    const withHostingPartners = mapStartHostingPartnerElements(parsed)
+    const withHostingPartners = mapStartHostingPartnerElements(
+      mapMarkdownPartnerLists(parsed),
+    )
 
     return chartEmbedSource
       ? mapChartsCatalogEmbeds(withHostingPartners, chartEmbedSource)
@@ -257,6 +261,8 @@ function createMarkdownComponents(
     'md-live-example': LiveExample,
     'md-tab-panel': MdTabPanel,
     pre: CodeBlock,
+    'partner-list': PartnerList,
+    'previous-partner-list': PreviousPartnerList,
     'start-hosting-lovable-logo': StartHostingLovableLogo,
     'start-hosting-partners': StartHostingPartners,
     'start-hosting-render-logo': StartHostingRenderLogo,

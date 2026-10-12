@@ -1,5 +1,6 @@
 import type * as React from 'react'
 import { Link } from '@tanstack/react-router'
+import { ConsentDialogLink } from '@c15t/tanstack-start/components/consent-dialog-link'
 import { LinkedinLogoIcon } from '@phosphor-icons/react/LinkedinLogo'
 import { BSkyIcon } from '~/components/icons/BSkyIcon'
 import { BrandXIcon } from '~/components/icons/BrandXIcon'
@@ -103,22 +104,23 @@ const LEGAL_LINKS: Array<FooterLink> = [
   { label: 'Terms', to: '/terms' },
 ]
 
+const footerLinkClassName =
+  'text-ds-body-sm text-text-secondary hover:text-text-primary focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus'
+
 function FooterNavLink({ link }: { link: FooterLink }) {
   const external = link.to.startsWith('http') || link.to.startsWith('mailto:')
-  const className =
-    'text-ds-body-sm text-text-secondary hover:text-text-primary focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus'
 
   return external ? (
     <a
       href={link.to}
       target={link.to.startsWith('mailto:') ? undefined : '_blank'}
       rel={link.to.startsWith('mailto:') ? undefined : 'noreferrer'}
-      className={className}
+      className={footerLinkClassName}
     >
       {link.label}
     </a>
   ) : (
-    <Link to={link.to} className={className}>
+    <Link to={link.to} className={footerLinkClassName}>
       {link.label}
     </Link>
   )
@@ -178,6 +180,13 @@ export function Footer() {
                     <FooterNavLink link={link} />
                   </li>
                 ))}
+                <li>
+                  <ConsentDialogLink
+                    className={`${footerLinkClassName} cursor-pointer`}
+                  >
+                    Privacy settings
+                  </ConsentDialogLink>
+                </li>
               </ul>
             </nav>
           </div>

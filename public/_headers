@@ -8,3 +8,9 @@
 # the filename changes on a later build.
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
+
+# Self-hosted fonts aren't fingerprinted. Without a long cache every page load
+# revalidates them before text can switch from the fallback font. Give a font
+# a new filename if its contents change.
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable

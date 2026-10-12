@@ -4,7 +4,7 @@ Reference for the TanStack.com event taxonomy in Google Analytics 4.
 
 **GA4 property:** `G-JMT1Z50SPS`
 **First-party proxy:** all hits route through `/_a/g/collect` on tanstack.com (see `netlify.toml`)
-**Implementation:** [src/utils/analytics.ts](../src/utils/analytics.ts), [src/utils/analytics/events.ts](../src/utils/analytics/events.ts)
+**Implementation:** [src/utils/analytics.ts](../src/utils/analytics.ts), [src/utils/analytics/registry.ts](../src/utils/analytics/registry.ts)
 
 ## Design principles
 
@@ -317,7 +317,7 @@ Anything additive should not require schema migration of the existing taxonomy.
 
 **Add a new partner placement:**
 
-1. Add the value to `PartnerPlacement` in [src/utils/analytics/events.ts](../src/utils/analytics/events.ts)
+1. Add the value to `PartnerPlacement` in [src/utils/analytics/registry.ts](../src/utils/analytics/registry.ts)
 2. Use it at the call site
 3. (Optional) update the placement table in this doc
 
@@ -342,7 +342,7 @@ Anything additive should not require schema migration of the existing taxonomy.
 | File                                                                                  | Purpose                                                              |
 | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
 | [src/utils/analytics.ts](../src/utils/analytics.ts)                                   | `trackEvent`, `useTrackedImpression`, `trackPageView`, `getPageType` |
-| [src/utils/analytics/events.ts](../src/utils/analytics/events.ts)                     | Typed event registry — discriminated union of all events             |
+| [src/utils/analytics/registry.ts](../src/utils/analytics/registry.ts)                 | Typed event registry — discriminated union of all events             |
 | [src/utils/analytics/providers/google.ts](../src/utils/analytics/providers/google.ts) | gtag wrapper                                                         |
 | [src/utils/analytics/types.ts](../src/utils/analytics/types.ts)                       | Provider interface                                                   |
 | [src/routes/\_\_root.tsx](../src/routes/__root.tsx)                                   | gtag bootstrap, `PageViewTracker`                                    |

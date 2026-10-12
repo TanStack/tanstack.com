@@ -995,6 +995,117 @@ html.dark {
   --color-divider-on-inverse: #1e1e1e;
 }
 
+/* c15t consent banner and dialog, mapped onto the DS semantic tokens so they
+   follow the site theme. c15t sets its tokens on :root and :root.dark; the
+   extra :root outranks both, whatever order dev serves the sheets in. */
+:root:root:root {
+  --c15t-primary: var(--color-background-inverse);
+  --c15t-primary-hover: color-mix(
+    in srgb,
+    var(--color-background-inverse) 90%,
+    transparent
+  );
+  --c15t-text-on-primary: var(--color-text-inverse);
+  --c15t-surface: var(--color-background-surface);
+  --c15t-surface-hover: var(--color-background-subtle);
+  --c15t-border: var(--color-border-subtle);
+  --c15t-border-hover: var(--color-border-default);
+  --c15t-text: var(--color-text-primary);
+  --c15t-text-muted: var(--color-text-secondary);
+  --c15t-overlay: var(--color-scrim);
+  --c15t-switch-track: var(--color-text-muted);
+  --c15t-switch-track-active: var(--color-background-inverse);
+  --c15t-switch-thumb: var(--color-background-default);
+  --c15t-font-family: var(--font-sans);
+  --c15t-radius-lg: 1rem;
+  /* The "Secured by c15t" tag takes the card's surface and edge, so it reads
+     as a tab on the card. c15t's default inverse fill made it the loudest
+     thing in the banner. */
+  --consent-branding-tag-background-color: var(--c15t-surface);
+  --consent-branding-tag-border-color: var(--c15t-border);
+  --consent-branding-tag-text-color: var(--c15t-text-muted);
+  --consent-branding-tag-mark-color: var(--c15t-text);
+  --consent-branding-tag-shadow: none;
+}
+
+/* In dark mode c15t's shadows vanish and the card surface is within a shade
+   of the page, so the banner sat flat on the homepage stats strip. A faint
+   white edge separates the cards; the tag shares it to stay attached. */
+:root:root:root.dark {
+  --consent-banner-border-color-dark: rgb(255 255 255 / 0.09);
+  --consent-dialog-border-color-dark: rgb(255 255 255 / 0.09);
+  --consent-branding-tag-border-color: rgb(255 255 255 / 0.09);
+}
+
+/* The homepage bar takes the place of the stats strip under the hero when the
+   window is big enough to show it: wide enough for the bar to fit on one row
+   (72px, the strip's height) and tall enough that the strip is on screen. It
+   scrolls with the page and takes the hero frame's background, so it reads as
+   part of the frame. The bar's bottom edge, with its 8px margin, sits on the
+   frame's: the navbar, the frame's 4px padding, the hero at its 720px max
+   height, the 72px strip, the frame's bottom padding, then the margin. On a
+   window a few pixels shorter than that the bar sits on the window's bottom
+   edge instead. Once it scrolls up to the navbar it sticks below it and joins
+   it: full width, square, the navbar's glass, an edge along the bottom only,
+   and the branding tag flipped to hang from that edge. The homepage sets
+   data-consent-bar-stuck. Smaller windows keep the fixed card. */
+@media (min-width: 90rem) and (min-height: 850px) {
+  :root:root:root [data-testid='consent-banner-root'][data-variant='bar'] {
+    position: absolute;
+    top: min(calc(var(--navbar-height) + 808px), 100svh);
+    bottom: auto;
+    translate: 0 -100%;
+    /* Under the navbar, so the tag slides beneath it on the way up. */
+    --consent-banner-z-index: 99;
+  }
+
+  :root:root:root[data-consent-bar-stuck]
+    [data-testid='consent-banner-root'][data-variant='bar'] {
+    position: fixed;
+    top: var(--navbar-height);
+    translate: none;
+  }
+
+  :root:root:root:not([data-consent-bar-stuck])
+    [data-testid='consent-banner-root'][data-variant='bar']
+    [data-testid='consent-banner-card'] {
+    background-color: var(--color-background-subtle);
+    border-color: transparent;
+    box-shadow: none;
+  }
+
+  :root:root:root[data-consent-bar-stuck]
+    [data-testid='consent-banner-root'][data-variant='bar']
+    > :has(> [data-testid='consent-banner-card']) {
+    margin: 0;
+  }
+
+  :root:root:root[data-consent-bar-stuck]
+    [data-testid='consent-banner-root'][data-variant='bar']
+    [data-testid='consent-banner-card'] {
+    border-width: 0 0 1px;
+    border-radius: 0;
+    background-color: rgb(255 255 255 / 0.9);
+    box-shadow: 0 8px 16px -12px rgb(0 0 0 / 0.25);
+    backdrop-filter: blur(16px);
+  }
+
+  :root:root:root.dark[data-consent-bar-stuck]
+    [data-testid='consent-banner-root'][data-variant='bar']
+    [data-testid='consent-banner-card'] {
+    background-color: rgb(0 0 0 / 0.9);
+  }
+
+  :root:root:root[data-consent-bar-stuck]
+    [data-testid='consent-banner-root'][data-variant='bar']
+    [data-testid='consent-banner-branding'] {
+    order: 1;
+    margin-block: -1px 0;
+    border-width: 0 1px 1px;
+    border-radius: 0 0 0.75rem 0.75rem;
+  }
+}
+
 /* Fixed theme scopes for side-by-side design-system specimens. These mirror
    the semantic values above so previews can show both modes independently of
    the active site theme. */
@@ -2414,6 +2525,319 @@ mark {
   font-style: normal;
   font-weight: 100 900;
   src: url('/fonts/Inter-latin.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+
+/* Display and mono faces, self-hosted from Google Fonts (OFL licences in
+   public/fonts). */
+@font-face {
+  font-display: swap;
+  font-family: 'Bricolage Grotesque';
+  font-style: normal;
+  font-weight: 300 800;
+  src: url('/fonts/BricolageGrotesque-var-vietnamese.woff2') format('woff2');
+  unicode-range:
+    U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1,
+    U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329,
+    U+1EA0-1EF9, U+20AB;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'Bricolage Grotesque';
+  font-style: normal;
+  font-weight: 300 800;
+  src: url('/fonts/BricolageGrotesque-var-latin-ext.woff2') format('woff2');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304,
+    U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB,
+    U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'Bricolage Grotesque';
+  font-style: normal;
+  font-weight: 300 800;
+  src: url('/fonts/BricolageGrotesque-var-latin.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 300;
+  src: url('/fonts/IBMPlexMono-300-cyrillic-ext.woff2') format('woff2');
+  unicode-range:
+    U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 300;
+  src: url('/fonts/IBMPlexMono-300-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 300;
+  src: url('/fonts/IBMPlexMono-300-vietnamese.woff2') format('woff2');
+  unicode-range:
+    U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1,
+    U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329,
+    U+1EA0-1EF9, U+20AB;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 300;
+  src: url('/fonts/IBMPlexMono-300-latin-ext.woff2') format('woff2');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304,
+    U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB,
+    U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 300;
+  src: url('/fonts/IBMPlexMono-300-latin.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/fonts/IBMPlexMono-400-cyrillic-ext.woff2') format('woff2');
+  unicode-range:
+    U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/fonts/IBMPlexMono-400-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/fonts/IBMPlexMono-400-vietnamese.woff2') format('woff2');
+  unicode-range:
+    U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1,
+    U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329,
+    U+1EA0-1EF9, U+20AB;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/fonts/IBMPlexMono-400-latin-ext.woff2') format('woff2');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304,
+    U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB,
+    U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/fonts/IBMPlexMono-400-latin.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  src: url('/fonts/IBMPlexMono-500-cyrillic-ext.woff2') format('woff2');
+  unicode-range:
+    U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  src: url('/fonts/IBMPlexMono-500-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  src: url('/fonts/IBMPlexMono-500-vietnamese.woff2') format('woff2');
+  unicode-range:
+    U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1,
+    U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329,
+    U+1EA0-1EF9, U+20AB;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  src: url('/fonts/IBMPlexMono-500-latin-ext.woff2') format('woff2');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304,
+    U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB,
+    U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  src: url('/fonts/IBMPlexMono-500-latin.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  src: url('/fonts/IBMPlexMono-600-cyrillic-ext.woff2') format('woff2');
+  unicode-range:
+    U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  src: url('/fonts/IBMPlexMono-600-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  src: url('/fonts/IBMPlexMono-600-vietnamese.woff2') format('woff2');
+  unicode-range:
+    U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1,
+    U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329,
+    U+1EA0-1EF9, U+20AB;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  src: url('/fonts/IBMPlexMono-600-latin-ext.woff2') format('woff2');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304,
+    U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB,
+    U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  src: url('/fonts/IBMPlexMono-600-latin.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 700;
+  src: url('/fonts/IBMPlexMono-700-cyrillic-ext.woff2') format('woff2');
+  unicode-range:
+    U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 700;
+  src: url('/fonts/IBMPlexMono-700-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 700;
+  src: url('/fonts/IBMPlexMono-700-vietnamese.woff2') format('woff2');
+  unicode-range:
+    U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1,
+    U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329,
+    U+1EA0-1EF9, U+20AB;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 700;
+  src: url('/fonts/IBMPlexMono-700-latin-ext.woff2') format('woff2');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304,
+    U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB,
+    U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 700;
+  src: url('/fonts/IBMPlexMono-700-latin.woff2') format('woff2');
   unicode-range:
     U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
     U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,

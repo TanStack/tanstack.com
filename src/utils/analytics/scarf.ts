@@ -1,7 +1,51 @@
+import type { ConsentRootProps } from '@c15t/tanstack-start'
 import type { AnalyticsProvider } from './types'
 
 const SCARF_ENDPOINT = 'https://tanstack.gateway.scarf.sh/site-events'
 const CLIPBOARD_TEXT_LIMIT = 512
+
+type ConsentScript = NonNullable<ConsentRootProps['scripts']>[number]
+type ConsentScriptInfo = Parameters<
+  NonNullable<ConsentScript['onConsentChange']>
+>[0]
+
+// Undecided until c15t's script loader starts after hydration. Beacons from
+// the first render wait for the decision instead of being sent or dropped.
+let scarfAllowed: boolean | undefined
+const pendingBeacons: Array<() => void> = []
+
+function setScarfAllowed({ hasConsent }: ConsentScriptInfo) {
+  scarfAllowed = hasConsent
+  const pending = pendingBeacons.splice(0)
+  if (scarfAllowed) {
+    for (const send of pending) send()
+  }
+}
+
+function sendWhenAllowed(send: () => void) {
+  if (scarfAllowed === undefined) {
+    pendingBeacons.push(send)
+  } else if (scarfAllowed) {
+    send()
+  }
+}
+
+/**
+ * Scarf as a c15t integration, registered in src/utils/consent.ts. Scarf has
+ * no SDK to load: this module sends its beacons and <Scarf /> its pixel, so
+ * c15t adds no script element and only reports the visitor's decision.
+ */
+export function scarf(): ConsentScript {
+  return {
+    id: 'scarf',
+    category: 'measurement',
+    callbackOnly: true,
+    // Run the callbacks while Analytics is denied too, so held beacons are dropped.
+    alwaysLoad: true,
+    onBeforeLoad: setScarfAllowed,
+    onConsentChange: setScarfAllowed,
+  }
+}
 
 function sendScarfEvent(event: string, fields: Record<string, string>) {
   if (import.meta.env.DEV || typeof window === 'undefined') {
@@ -16,7 +60,7 @@ function sendScarfEvent(event: string, fields: Record<string, string>) {
   }
 
   // A beacon can finish even when an outbound click unloads the page.
-  navigator.sendBeacon(url)
+  sendWhenAllowed(() => navigator.sendBeacon(url))
 }
 
 export const scarfAnalyticsProvider: AnalyticsProvider = {
@@ -69,24 +113,25 @@ export function trackScarfPageView(page: string) {
 export function trackScarfClipboardText(event: 'copy' | 'paste', text: string) {
   if (import.meta.env.DEV) return
 
-  try {
-    navigator.sendBeacon(
-      '/_a/scarf/clipboard',
-      new Blob(
-        [
-          JSON.stringify({
-            event,
-            page: window.location.pathname,
-            text: text.slice(0, CLIPBOARD_TEXT_LIMIT),
-            truncated: text.length > CLIPBOARD_TEXT_LIMIT,
-          }),
-        ],
-        { type: 'application/json' },
-      ),
-    )
-  } catch {
-    // Clipboard tracking must not affect copying or pasting.
-  }
+  const body = new Blob(
+    [
+      JSON.stringify({
+        event,
+        page: window.location.pathname,
+        text: text.slice(0, CLIPBOARD_TEXT_LIMIT),
+        truncated: text.length > CLIPBOARD_TEXT_LIMIT,
+      }),
+    ],
+    { type: 'application/json' },
+  )
+
+  sendWhenAllowed(() => {
+    try {
+      navigator.sendBeacon('/_a/scarf/clipboard', body)
+    } catch {
+      // Clipboard tracking must not affect copying or pasting.
+    }
+  })
 }
 
 export function trackScarfClipboardEvent(event: ClipboardEvent) {

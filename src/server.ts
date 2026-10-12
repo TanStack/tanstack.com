@@ -26,6 +26,7 @@ import {
   redirectInsecureSiteRequest,
 } from '~/utils/http'
 import { isFrameEmbeddingAllowed } from '~/utils/frame-embedding'
+import { applyHtmlCacheHeaders } from '~/utils/html-cache-headers'
 import { redirectChatOrigin } from './chat/server/origin-redirect'
 
 const SECURITY_HEADERS = {
@@ -93,6 +94,8 @@ function applyHostingHeaders(response: Response, url: URL) {
     headers.set('Cross-Origin-Opener-Policy', 'same-origin')
     headers.set('Cross-Origin-Embedder-Policy', 'require-corp')
   }
+
+  applyHtmlCacheHeaders(headers)
 
   return new Response(response.body, {
     status: response.status,

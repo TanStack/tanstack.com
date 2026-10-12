@@ -7,13 +7,14 @@ import { devtools as tanstackDevtools } from '@tanstack/devtools-vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import tailwindcss from '@tailwindcss/vite'
 import { cloudflare } from '@cloudflare/vite-plugin'
+import { consentManifest } from '@c15t/tanstack-start/build'
 import { analyzer } from 'vite-bundle-analyzer'
 import viteReact from '@vitejs/plugin-react'
 import { createHash, randomUUID } from 'node:crypto'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { pathToFileURL } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import {
   getImportFallbackRepoDirs,
   localDocsDevPath,
@@ -128,6 +129,24 @@ function isPathInside(parent: string, child: string) {
     !relativePath.startsWith('..') &&
     !path.isAbsolute(relativePath)
   )
+}
+
+// @c15t/tanstack-start/server maps the `browser` export condition to a stub
+// that throws, and Cloudflare's Worker environment resolves `browser`. Give
+// the Worker the real server entry; the client keeps the stub.
+function c15tWorkerServerEntry(): PluginOption {
+  const serverEntry = fileURLToPath(
+    import.meta.resolve('@c15t/tanstack-start/server'),
+  )
+
+  return {
+    name: 'tanstack-c15t-worker-server-entry',
+    enforce: 'pre',
+    applyToEnvironment: (environment) => environment.name === 'ssr',
+    resolveId(id) {
+      return id === '@c15t/tanstack-start/server' ? serverEntry : undefined
+    },
+  }
 }
 
 // Runtime-specific `react-dom/server` variants aren't in @tanstack/redact/vite's
@@ -277,6 +296,10 @@ export default defineConfig(async ({ command, mode }) => {
         'discord-interactions',
         // Don't pre-bundle CLI so we always get fresh changes during dev
         ...(isDev ? ['@tanstack/cli'] : []),
+        // Start serves @c15t/tanstack-start unbundled, along with the
+        // @c15t/react it uses. Pre-bundling @c15t/react/devtools on its own
+        // would give it a second copy of the consent context.
+        '@c15t/react',
       ],
     },
     build: {
@@ -399,6 +422,13 @@ export default defineConfig(async ({ command, mode }) => {
             }),
           ]
         : []),
+      c15tWorkerServerEntry(),
+      // Bundles the consent policy into the server build so the server never
+      // fetches it per request. Rebuild after changing policies in Inth. The
+      // consent state carries this backend URL to the browser.
+      consentManifest({
+        backendURL: 'https://tanstack-tanstack.inth.app',
+      }),
       tanstackStart({
         server: {
           build: {

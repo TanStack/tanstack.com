@@ -1,7 +1,9 @@
+import { useConsent } from '@c15t/tanstack-start'
 import { useRouterState } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
 
 export function Scarf({ id, path }: { id: string; path: string }) {
+  const scarfAllowed = useConsent('measurement')
   const visit = useRouterState({
     select: (state) => {
       const location = state.resolvedLocation
@@ -24,13 +26,13 @@ export function Scarf({ id, path }: { id: string; path: string }) {
   )
 
   useEffect(() => {
-    if (!visit || lastVisit.current === visit) return
+    if (!scarfAllowed || !visit || lastVisit.current === visit) return
     lastVisit.current = visit
     setPixel({
       visit,
       src: `https://static.scarf.sh/a.png?x-pxid=${encodeURIComponent(id)}&key=${crypto.randomUUID()}`,
     })
-  }, [id, visit])
+  }, [scarfAllowed, id, visit])
 
   return pixel && pixel.visit === visit ? (
     <img

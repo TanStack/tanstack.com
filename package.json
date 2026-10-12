@@ -59,6 +59,9 @@
     "benchmark:chat-protocol": "tsx scripts/chat/benchmark-conversation-protocol.ts"
   },
   "dependencies": {
+    "@c15t/integrations": "3.0.0-alpha.11",
+    "@c15t/react": "3.0.0-alpha.12",
+    "@c15t/tanstack-start": "3.0.0-alpha.12",
     "@codemirror/lang-css": "^6.3.1",
     "@codemirror/lang-html": "^6.4.12",
     "@codemirror/lang-javascript": "^6.2.5",
@@ -76,9 +79,9 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
-    "@sentry/browser": "^10.47.0",
-    "@sentry/node": "^10.47.0",
-    "@sentry/tanstackstart-react": "^10.47.0",
+    "@sentry/browser": "^10.76.1",
+    "@sentry/node": "^10.76.1",
+    "@sentry/tanstackstart-react": "^10.76.1",
     "@shopify/hydrogen-react": "^2026.4.0",
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.2.2",

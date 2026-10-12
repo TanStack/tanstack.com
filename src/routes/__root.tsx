@@ -10,6 +10,13 @@ import {
   defaultStringifySearch,
 } from '@tanstack/react-router'
 import { QueryClientProvider, type QueryClient } from '@tanstack/react-query'
+import {
+  ConsentBanner,
+  ConsentDialog,
+  ConsentRoot,
+  type ConsentRootProps,
+} from '@c15t/tanstack-start'
+import { consentLoaderOptions } from '@c15t/tanstack-start/server'
 import { createThemeCss, type HighlightTheme } from '@tanstack/highlight/theme'
 import { auroraXTheme } from '@tanstack/highlight/themes/aurora-x'
 import { githubLightTheme } from '@tanstack/highlight/themes/github-light'
@@ -54,18 +61,77 @@ import {
   trackScarfPageView,
 } from '~/utils/analytics/scarf'
 import { createPartnerPlacementSessionSeed } from '~/utils/partner-placement'
+import { consentScripts } from '~/utils/consent'
+import { getConsentState } from '~/utils/consent.functions'
 import { twMerge } from 'tailwind-merge'
 
-const GOOGLE_ANALYTICS_ID = 'G-JMT1Z50SPS'
-const GOOGLE_ANALYTICS_PROXY_PREFIX = '/_a'
-const GOOGLE_ANALYTICS_SCRIPT_SRC = `${GOOGLE_ANALYTICS_PROXY_PREFIX}/gtag.js`
 const THEME_BOOTSTRAP = `(function(){try{var t=localStorage.getItem('theme')||'auto';var v=['light','dark','auto'].includes(t)?t:'auto';var r=v==='auto'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):v;if(document.documentElement){document.documentElement.classList.add(r);if(v==='auto')document.documentElement.classList.add('auto');document.documentElement.style.colorScheme=r}}catch(e){if(document.documentElement){var r=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.classList.add(r,'auto');document.documentElement.style.colorScheme=r}}})()`
-// Page views are sent only by <PageViewTracker /> (initial load and SPA
-// navigations), so the gtag config sets send_page_view: false. The guard makes
-// the bootstrap idempotent: without it the head script can execute twice on a
-// single load, sending a second config (and a second page_view) and injecting
-// a second gtag.js loader.
-const GOOGLE_ANALYTICS_BOOTSTRAP = `(function(){if(window.__tanstackGaBootstrapped)return;window.__tanstackGaBootstrapped=true;var id='${GOOGLE_ANALYTICS_ID}';var src='${GOOGLE_ANALYTICS_SCRIPT_SRC}';window.dataLayer=window.dataLayer||[];window.gtag=window.gtag||function(){window.dataLayer.push(arguments)};window.gtag('js',new Date());window.gtag('config',id,{send_page_view:false,transport_url:window.location.origin+'${GOOGLE_ANALYTICS_PROXY_PREFIX}'});var loaded=false;var load=function(){if(loaded)return;var parent=document.head||document.documentElement;if(!parent){window.setTimeout(load,100);return}loaded=true;var script=document.createElement('script');script.async=true;script.src=src;script.setAttribute('data-ga-loader','true');parent.appendChild(script)};if(typeof window.requestIdleCallback==='function'){window.requestIdleCallback(load,{timeout:3000});return}if(document.readyState==='complete'){window.setTimeout(load,1500);return}window.addEventListener('load',function(){window.setTimeout(load,1500)},{once:true})})();`
+
+// The homepage renders the banner as a bar (variant="bar"); other pages get
+// c15t's floating card. The bar classes key off the root's data-variant, so
+// the card keeps c15t's layout. On the homepage the bar takes the hero frame's
+// inset and corners. On large windows it replaces the stats strip under the
+// hero and sticks below the navbar once scrolled there (see the consent block
+// in app.css); elsewhere it keeps c15t's card surface, border and shadow so it
+// has an edge wherever it lands. The copy and buttons sit side by side from
+// lg, where c15t's bar stops stretching its button row to full width;
+// switching earlier squeezes the copy into a narrow column.
+const CONSENT_UI_OPTIONS = {
+  // Scripts declare measurement, but only in production builds. Marketing
+  // has no script; it covers the YouTube and Vimeo embeds.
+  consentCategories: ['measurement', 'marketing'],
+  components: {
+    banner: {
+      root: { className: 'group/banner' },
+      cardShell: {
+        className:
+          'sm:group-data-[variant=bar]/banner:mx-2 sm:group-data-[variant=bar]/banner:mb-2 sm:group-data-[variant=bar]/banner:w-auto',
+      },
+      card: {
+        className:
+          'group-data-[variant=bar]/banner:flex group-data-[variant=bar]/banner:flex-col group-data-[variant=bar]/banner:gap-3 group-data-[variant=bar]/banner:rounded-none group-data-[variant=bar]/banner:px-6 group-data-[variant=bar]/banner:pt-4 group-data-[variant=bar]/banner:pb-[max(1rem,env(safe-area-inset-bottom))] sm:group-data-[variant=bar]/banner:rounded-2xl sm:group-data-[variant=bar]/banner:px-10 sm:group-data-[variant=bar]/banner:py-4 lg:group-data-[variant=bar]/banner:flex-row lg:group-data-[variant=bar]/banner:items-center lg:group-data-[variant=bar]/banner:justify-between lg:group-data-[variant=bar]/banner:gap-8 xl:group-data-[variant=bar]/banner:px-16',
+      },
+      header: {
+        className:
+          'group-data-[variant=bar]/banner:flex-row group-data-[variant=bar]/banner:flex-wrap group-data-[variant=bar]/banner:items-baseline group-data-[variant=bar]/banner:gap-x-3 group-data-[variant=bar]/banner:gap-y-1 group-data-[variant=bar]/banner:p-0',
+      },
+      title: {
+        className:
+          'font-ds-display font-semibold group-data-[variant=bar]/banner:text-ds-heading-6',
+      },
+      footer: {
+        className:
+          'group-data-[variant=bar]/banner:shrink-0 group-data-[variant=bar]/banner:border-0 group-data-[variant=bar]/banner:bg-transparent group-data-[variant=bar]/banner:p-0',
+      },
+    },
+    description: {
+      banner: { className: 'group-data-[variant=bar]/banner:text-ds-body-sm' },
+      dialog: { className: 'text-ds-body-sm' },
+    },
+    dialog: {
+      title: { className: 'font-ds-display font-semibold text-ds-heading-4' },
+    },
+    // Drop the margin c15t adds on top of the footer's own padding, which
+    // left a gap under the categories that looked like a missing row.
+    manager: {
+      actions: { className: 'mt-0' },
+    },
+    // The site's Button (src/components/ds/ui): primary is the inverse pill,
+    // secondary the ghost one. Secondary covers Customize in the banner and
+    // Reject/Accept in the dialog, where Save is the main action.
+    button: {
+      primary: {
+        className:
+          'rounded-full corner-squircle border border-background-inverse bg-background-inverse px-4 py-2 text-sm font-medium text-text-inverse shadow-[0_1px_2px_0_rgba(0,0,0,0.12),inset_0_1px_0_0_rgba(255,255,255,0.18)] transition-[transform,box-shadow,background-color] duration-150 ease-out hover:-translate-y-px hover:bg-background-inverse/90 hover:shadow-[0_6px_16px_-4px_rgba(0,0,0,0.28),inset_0_1px_0_0_rgba(255,255,255,0.25)] active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-1 focus-visible:ring-offset-background-default',
+      },
+      secondary: {
+        className:
+          'rounded-full corner-squircle border border-border-default bg-transparent px-4 py-2 text-sm font-medium text-text-primary shadow-none transition-[box-shadow,background-color,border-color] duration-150 ease-out hover:border-border-strong hover:bg-background-subtle hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-1 focus-visible:ring-offset-background-default',
+      },
+    },
+  },
+} satisfies ConsentRootProps['options']
+
 const DOCUMENT_CACHE_HEADERS = {
   'Cache-Control': 'public, max-age=0, must-revalidate',
   'Cloudflare-CDN-Cache-Control': 'no-store',
@@ -176,9 +242,11 @@ class OptionalDevtoolsBoundary extends React.Component<
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
 }>()({
-  loader: () => {
+  ...consentLoaderOptions,
+  loader: async () => {
     return {
       partnerPlacementSessionSeed: createPartnerPlacementSessionSeed(),
+      consent: await getConsentState(),
     }
   },
   head: ({ matches }) => {
@@ -222,18 +290,10 @@ export const Route = createRootRouteWithContext<{
           type: 'font/woff2',
           crossOrigin: 'anonymous',
         },
-        // Rebrand type system: Bricolage Grotesque (display/headings) + IBM Plex
-        // Mono (code). Loaded globally so the new styles apply across the site.
-        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-        {
-          rel: 'preconnect',
-          href: 'https://fonts.gstatic.com',
-          crossOrigin: 'anonymous',
-        },
-        {
-          rel: 'stylesheet',
-          href: 'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap',
-        },
+        // Bricolage Grotesque (display) and IBM Plex Mono (code) are
+        // self-hosted in src/styles/app.css without a preload. Measured on
+        // throttled mobile, preloading Bricolage delayed first paint by about
+        // 250 ms and still arrived after it.
         {
           rel: 'apple-touch-icon',
           sizes: '180x180',
@@ -274,9 +334,6 @@ export const Route = createRootRouteWithContext<{
         },
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
       ],
-      scripts: import.meta.env.PROD
-        ? [{ children: GOOGLE_ANALYTICS_BOOTSTRAP }]
-        : [],
     }
   },
   headers: () => DOCUMENT_CACHE_HEADERS,
@@ -289,6 +346,7 @@ export const Route = createRootRouteWithContext<{
 function ShellComponent({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const { queryClient } = Route.useRouteContext()
+  const { consent } = Route.useLoaderData()
   const hasBaseParent = useMatches({
     select: (matches) => matches.find((d) => d.staticData?.baseParent),
   })
@@ -357,14 +415,6 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
           suppressHydrationWarning
         />
         <HeadContent />
-        {import.meta.env.PROD ? (
-          <script
-            defer
-            src="https://namethathost.com/tracker.js"
-            data-site="b7d91d66-ccee-480a-9d33-f7a9f109edc4"
-            referrerPolicy="no-referrer"
-          />
-        ) : null}
         <style
           id="tanstack-highlight-theme"
           dangerouslySetInnerHTML={{ __html: HIGHLIGHT_THEME_CSS }}
@@ -373,64 +423,81 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
       </head>
       <body className="overflow-x-hidden">
         <RouterContextProvider router={router}>
-          <QueryClientProvider client={queryClient}>
-            <ThemeProvider>
-              <SearchProvider
-                enabled={pathname !== '/chat' && !pathname.startsWith('/chat/')}
-              >
-                <LoginModalProvider>
-                  <ToastProvider>
-                    <PageViewTracker />
-                    <ProductScarf />
-                    <LibrariesOverlayProvider>
-                      {hideNavbar ? (
-                        routeContent
-                      ) : (
-                        <Navbar>
-                          {routeContent}
-                          {hideFooter ? null : <Footer />}
-                        </Navbar>
-                      )}
-                    </LibrariesOverlayProvider>
-                    {showDevtools && LazyAppDevtools ? (
-                      <OptionalDevtoolsBoundary>
-                        <React.Suspense fallback={null}>
-                          <LazyAppDevtools />
-                        </React.Suspense>
-                      </OptionalDevtoolsBoundary>
-                    ) : null}
-                    <div
-                      aria-hidden="true"
-                      className={twMerge(
-                        'pointer-events-none fixed top-0 left-0 z-99999999 h-[320px] w-full select-none',
-                      )}
-                    >
-                      <div
-                        className={twMerge(
-                          'absolute top-0 w-full h-80 rounded-[100%] bg-amber-500/30 blur-3xl transition-all duration-500 dark:bg-sky-400/25',
-                          showNavigationSpinner
-                            ? '-translate-y-1/2 opacity-100'
-                            : '-translate-y-full opacity-0',
+          <ConsentRoot
+            state={consent}
+            scripts={consentScripts}
+            options={CONSENT_UI_OPTIONS}
+          >
+            <QueryClientProvider client={queryClient}>
+              <ThemeProvider>
+                <SearchProvider
+                  enabled={
+                    pathname !== '/chat' && !pathname.startsWith('/chat/')
+                  }
+                >
+                  <LoginModalProvider>
+                    <ToastProvider>
+                      <PageViewTracker />
+                      <ProductScarf />
+                      <LibrariesOverlayProvider>
+                        {hideNavbar ? (
+                          routeContent
+                        ) : (
+                          <Navbar>
+                            {routeContent}
+                            {hideFooter ? null : <Footer />}
+                          </Navbar>
                         )}
-                      />
+                      </LibrariesOverlayProvider>
+                      {showDevtools && LazyAppDevtools ? (
+                        <OptionalDevtoolsBoundary>
+                          <React.Suspense fallback={null}>
+                            <LazyAppDevtools />
+                          </React.Suspense>
+                        </OptionalDevtoolsBoundary>
+                      ) : null}
                       <div
+                        aria-hidden="true"
                         className={twMerge(
-                          'absolute top-6 left-1/2 -translate-x-1/2 rounded-full bg-white/75 p-2 shadow-lg backdrop-blur-lg transition-all duration-300 dark:bg-slate-900/40',
-                          showNavigationSpinner
-                            ? 'translate-y-0 opacity-100'
-                            : '-translate-y-6 opacity-0',
+                          'pointer-events-none fixed top-0 left-0 z-99999999 h-[320px] w-full select-none',
                         )}
                       >
-                        {isNavigating && showNavigationSpinner ? (
-                          <Spinner className="text-4xl" />
-                        ) : null}
+                        <div
+                          className={twMerge(
+                            'absolute top-0 w-full h-80 rounded-[100%] bg-amber-500/30 blur-3xl transition-all duration-500 dark:bg-sky-400/25',
+                            showNavigationSpinner
+                              ? '-translate-y-1/2 opacity-100'
+                              : '-translate-y-full opacity-0',
+                          )}
+                        />
+                        <div
+                          className={twMerge(
+                            'absolute top-6 left-1/2 -translate-x-1/2 rounded-full bg-white/75 p-2 shadow-lg backdrop-blur-lg transition-all duration-300 dark:bg-slate-900/40',
+                            showNavigationSpinner
+                              ? 'translate-y-0 opacity-100'
+                              : '-translate-y-6 opacity-0',
+                          )}
+                        >
+                          {isNavigating && showNavigationSpinner ? (
+                            <Spinner className="text-4xl" />
+                          ) : null}
+                        </div>
                       </div>
-                    </div>
-                  </ToastProvider>
-                </LoginModalProvider>
-              </SearchProvider>
-            </ThemeProvider>
-          </QueryClientProvider>
+                    </ToastProvider>
+                  </LoginModalProvider>
+                </SearchProvider>
+              </ThemeProvider>
+            </QueryClientProvider>
+            {/* Embeds render inside other sites' iframes; keep them clear. */}
+            {hasBaseParent ? null : (
+              <ConsentBanner
+                variant={pathname === '/' ? 'bar' : 'floating'}
+                // Accept and Reject carry equal weight under the policy.
+                primaryButton={['accept', 'reject']}
+              />
+            )}
+            <ConsentDialog />
+          </ConsentRoot>
           <Scripts />
         </RouterContextProvider>
       </body>

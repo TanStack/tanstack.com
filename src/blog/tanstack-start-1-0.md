@@ -2,7 +2,7 @@
 title: TanStack Start 1.0
 published: 2026-10-10
 draft: true
-excerpt: TanStack Start 1.0 is finally here, and this is the story of how we got here.
+excerpt: TanStack Start 1.0 is stable and ready for production.
 authors:
   - Tanner Linsley
 library: start
@@ -12,7 +12,9 @@ library: start
 
 TanStack Start 1.0 is finally stable. And we're really excited to officially call it ready for production.
 
-I can't begin to say how proud I am of what we've built here and of the people who have built it. And I'm also really, really looking forward to not needing to remind everybody who's already using it in production that it's still a release candidate (that conversation has happened a lot more than you'd think). We've had tons of people put Start into production through pretty much every stage of its development, from small projects and startups to entire enterprise teams and Fortune 500 companies. To our surprise, so many of these companies insisted on using it even when it was in beta. We'd explain where things were, and they'd basically tell us we're going to use it anyway.
+I can't begin to say how proud I am of what we've built here and of the people who have built it. And I'm also really, really looking forward to not needing to remind everybody who's already using it in production that it's still a release candidate (that conversation has happened a lot more than you'd think).
+
+We've had tons of people put Start into production through pretty much every stage of its development, from small projects and startups to entire enterprise teams and Fortune 500 companies. To our surprise, so many of these companies insisted on using it even when it was in beta. We'd explain where things were, and they'd basically tell us we're going to use it anyway.
 
 When enterprise teams are insisting on putting your beta software into production before it's even a release candidate, it's difficult to not feel the massive level of trust everybody is putting in you. So even though people have been successfully using Start in production for a long time, this is us making our formal commitment to the APIs we've built and the people building on them. You can now choose Start, learn it, ship something with it, and continue to build without wondering whether we're going to change the entire way your application works.
 
@@ -22,9 +24,13 @@ Sure, getting here took longer than I thought it would. If you read our RC annou
 
 ## Start started with a router
 
-Oddly enough, Start is not where this journey actually started (no pun intended). I was trying to build the router I wanted to use, and I wanted my routes to know which paths existed, which parameters they needed, which search parameters were valid and what they looked like, what loader data returned, and even what context was available all through the route tree. I wanted to know that when I changed something, my editor could tell me exactly what else needed to change and catch the type errors that came with it. That sounds pretty reasonable now, but you've got to remember that there was a ton of skepticism around that entire idea. Back when I was writing Router, or even just researching it, a lot of people didn't think that level of type safety was possible. Some didn't even think it mattered, and there were a few who thought it was just way too much work for a router. To be honest, a few years earlier I would've agreed with them.
+Oddly enough, Start is not where this journey actually started (no pun intended). I was trying to build the router I wanted to use, and I wanted my routes to know which paths existed, which parameters they needed, which search parameters were valid and what they looked like, what loader data returned, and even what context was available all through the route tree. I wanted to know that when I changed something, my editor could tell me exactly what else needed to change and catch the type errors that came with it.
 
-Believe it or not, I used to think TypeScript was unnecessary, mostly extra work. I already knew what my code did, so why did I need to explain it to something else? Working on React Query over the years and learning from people who helped move it to TypeScript changed that for me entirely. Eventually I started seeing types as something that I could and should design with, something that could make an API easier to use in the first place. And once all that clicked, it was really difficult to stop noticing all these places where we were asking developers to remember things that tools should just already know. Building a router around TypeScript was a massive investment, I was betting on something people were telling me wasn't important or wasn't possible, and I didn't even know yet that I was also building the foundation for a full-stack framework, on principles that would help us in the age of AI too.
+That sounds pretty reasonable now, but you've got to remember that there was a ton of skepticism around that entire idea. Back when I was writing Router, or even just researching it, a lot of people didn't think that level of type safety was possible. Some didn't even think it mattered, and there were a few who thought it was just way too much work for a router. To be honest, a few years earlier I would've agreed with them.
+
+Believe it or not, I used to think TypeScript was unnecessary, mostly extra work. I already knew what my code did, so why did I need to explain it to something else? Working on React Query over the years and learning from people who helped move it to TypeScript changed that for me entirely. Eventually I started seeing types as something that I could and should design with, something that could make an API easier to use in the first place. And once all that clicked, it was really difficult to stop noticing all these places where we were asking developers to remember things that tools should just already know.
+
+Building a router around TypeScript was a massive investment, I was betting on something people were telling me wasn't important or wasn't possible, and I didn't even know yet that I was also building the foundation for a full-stack framework, on principles that would help us in the age of AI too.
 
 By around December 2023, there was already work in the repo on server utilities that would become the very first beginnings of Start. Then by May 2024, I made a commit where I renamed the `react-router-server` package to `start`, complete with a goofy emoji, which is the very official framework naming process.
 
@@ -40,11 +46,33 @@ With Start, a route can render on the server, load its data there without render
 
 Start definitely wasn't the first framework to have a lot of these ideas. Many are borrowed from other frameworks we've used, and I've tried a lot of them. React Router has great primitive design, SolidJS has been a massive inspiration on full-stack APIs and performance, and Next.js really knows how to explain and market an idea to the masses. I've disagreed with the direction of many projects over the years, sometimes pretty loudly, but just as they used the work that came before them for inspiration, so did we.
 
+## Choosing where the code runs
+
+One small example of what I mean by explicit APIs is `createIsomorphicFn`. Say you need the current origin to build an absolute URL. On the server that comes from the incoming request, in the browser it comes from `window.location`, and you can put those two implementations right next to each other.
+
+```tsx
+import { createIsomorphicFn } from '@tanstack/react-start'
+import { getRequest } from '@tanstack/react-start/server'
+
+const getOrigin = createIsomorphicFn()
+  .server(() => new URL(getRequest().url).origin)
+  .client(() => window.location.origin)
+
+// Call during a server request or in the browser.
+const absoluteUrl = new URL('/about', getOrigin()).href
+```
+
+That's a simplified version of something we use on this website for social image URLs. The call stays the same, the implementation depends on where it's running, and Start removes the other environment's implementation from that bundle. Calling it in the browser doesn't make a request back to the server. When you do want a server call, that's what `createServerFn` is for.
+
+The [environment functions guide](https://tanstack.com/start/latest/docs/framework/react/guide/environment-functions) goes into the details. This is the kind of control I want when building an app, I can see where each piece runs without changing the rest of my code around it.
+
 ## Other people made it much better
 
 Manuel and Flo took this so much further than I could've taken it on my own. I knew what I wanted Start to feel like to use, but that doesn't necessarily mean I knew how to build every single part of it. There are things in the framework today that are better than what I even knew to ask for. So when I look back at how long this took, I also look at what actually got committed, the compiler work, streaming, server boundaries, hydration, all the combinations people found by putting it into real apps, and how much of that came from people other than me.
 
-The [SSR performance work](https://tanstack.com/blog/tanstack-start-5x-ssr-throughput) Manuel and Flo did is one of my favorite examples. They profiled what the server was doing and kept finding work it didn't need to do, eventually getting roughly five and a half times the throughput in their benchmark. And there's so much work that you can't fit into this announcement around regression tests, benchmarks, allocations we don't need anymore, or compiler bugs caught before they reach somebody's app. That's stuff I'm not sure I would've had the attention or the time to invest in. People say the last ten percent takes the longest and is the hardest, and that's definitely true here, I wouldn't have gotten through that last ten percent without Manuel and Flo. So much of the trust people can put in this framework comes down to the work those guys did.
+The [SSR performance work](https://tanstack.com/blog/tanstack-start-5x-ssr-throughput) Manuel and Flo did is one of my favorite examples. They profiled what the server was doing and kept finding work it didn't need to do, eventually getting roughly five and a half times the throughput in their benchmark.
+
+And there's so much work that you can't fit into this announcement around regression tests, benchmarks, allocations we don't need anymore, or compiler bugs caught before they reach somebody's app. That's stuff I'm not sure I would've had the attention or the time to invest in. People say the last ten percent takes the longest and is the hardest, and that's definitely true here, I wouldn't have gotten through that last ten percent without Manuel and Flo. So much of the trust people can put in this framework comes down to the work those guys did.
 
 ## Freedom takes work
 
@@ -74,9 +102,13 @@ I'm pretty sure it was around November of 2025 when AI started noticeably changi
 
 Security changed really early on. People are using AI to actively look for vulnerabilities, and we're using it ourselves and with our partners to find and fix problems proactively. It's surprising how quickly that became a normal part of open source maintenance, but it has to be at this point, and I'm really grateful to our partners for helping us with it. Security is never done. I'm sure we'll have our share of security adventures in the future, but knowing the team and our partners keep working on it, with and without AI, gives me a lot of confidence in how we'll handle them.
 
-Beyond security, we've all been using agents to build and watching other people use them to build with Start, and so much of it brings me back to Router. All the work we did to make it type-safe and strict, and to make the APIs explicit, was about giving you as much freedom as possible while still being able to tell you when something isn't right or doesn't fit. We originally did that for people. I wanted you to be able to move things around in your editor and try things and have your editor help you, without remembering every connection in your application. An agent needs a lot of that same help, you can ask for almost anything, and it'll go change a route parameter or the input to a server function, and then it needs help finding the places that no longer agree with that change.
+Beyond security, we've all been using agents to build and watching other people use them to build with Start, and so much of it brings me back to Router. All the work we did to make it type-safe and strict, and to make the APIs explicit, was about giving you as much freedom as possible while still being able to tell you when something isn't right or doesn't fit. We originally did that for people. I wanted you to be able to move things around in your editor and try things and have your editor help you, without remembering every connection in your application.
 
-Models are great and they're getting better. Maybe someday TypeScript won't be necessary for that feedback, but for now, with the size of applications people are building on Start, the more complicated they get, the more agents benefit from it. The types can't tell you whether you've built the right thing, you still have to do that part, but they can help keep the changes sane. We didn't have to redesign Router or Start around agents to get there, the design for type safety and explicitness was absolutely deliberate. The timing with agentic development was a happy coincidence, but I'm not going to say we just got extremely lucky, these were problems worth worrying about before AI. Humans and agents run into a lot of the same problems, just on a different scale.
+An agent needs a lot of that same help, you can ask for almost anything, and it'll go change a route parameter or the input to a server function, and then it needs help finding the places that no longer agree with that change.
+
+Models are great and they're getting better. Maybe someday TypeScript won't be necessary for that feedback, but for now, with the size of applications people are building on Start, the more complicated they get, the more agents benefit from it. The types can't tell you whether you've built the right thing, you still have to do that part, but they can help keep the changes sane.
+
+We didn't have to redesign Router or Start around agents to get there, the design for type safety and explicitness was absolutely deliberate. The timing with agentic development was a happy coincidence, but I'm not going to say we just got extremely lucky, these were problems worth worrying about before AI. Humans and agents run into a lot of the same problems, just on a different scale.
 
 Type safety can't solve everything, though. We did have to teach agents how to use Start and Router. Sarah Gerrard and Kyle Mathews helped bring [TanStack Intent](https://tanstack.com/blog/from-docs-to-agents) into the picture, and we made a massive push across TanStack to get guidance in the form of skills right into our npm packages, with a lot of it anchored around Start and Router. Knowing an API exists and knowing the best practices around it are very different things, and that's something I don't want to rely on training data for. Now we also have [tools for maintaining those skills](https://tanstack.com/blog/intent-0.5-skills-you-can-maintain), checking the examples and keeping that guidance connected to changes in the code. I think there's a lot more we can do to give agents assurances about what they're building, but we'll leave that for another day.
 
@@ -96,13 +128,15 @@ And there's so much work around the framework that makes it possible for people 
 
 If you've been waiting for 1.0, we really want you to give Start a try. The [documentation](https://tanstack.com/start/latest/docs/framework/react/overview) is a great place to start, and if you're moving an existing application, we have [migration guidance](https://tanstack.com/start/latest/docs/framework/react/migrate-from-next-js). But honestly, I'd put an agent to work on it with you. In my experience they've become amazingly good at working through both new projects and migrations, especially when they have current guidance, TypeScript, and tests to check the changes. Try telling your agent to “use TanStack Start,” you'd be surprised how far that can get you.
 
-I want to officially and publicly thank Manuel Schiller, Florian Pellet, Brenley Dueck, Birk Skyum, Sean Cassiere, the wider maintainer team, and everybody whose work shows up in the foundation of Start. I also want to thank Jack Herrington, Sarah Gerrard, Kyle Mathews, and Ryan Carniato for the ideas, tooling, explanations, and constant advice that helped us get here. And to everybody who wrote a reproduction, answered somebody's question, made a tutorial, improved the docs, or patiently helped us understand what broke in their application, thank you so much. There's tons of that work in this release, and most of it doesn't come with a name attached to a big feature. We owe so much of the polish and quality to that consistent stream of little things and the people who keep giving their support.
+I want to officially and publicly thank Manuel Schiller, Florian Pellet, Brenley Dueck, Birk Skyum, Sean Cassiere, the wider maintainer team, and everybody whose work shows up in the foundation of Start. I also want to thank Jack Herrington, Sarah Gerrard, Kyle Mathews, and Ryan Carniato for the ideas, tooling, explanations, and constant advice that helped us get here.
+
+And to everybody who wrote a reproduction, answered somebody's question, made a tutorial, improved the docs, or patiently helped us understand what broke in their application, thank you so much. There's tons of that work in this release, and most of it doesn't come with a name attached to a big feature. We owe so much of the polish and quality to that consistent stream of little things and the people who keep giving their support.
 
 A big thank you to all of our current partners for helping make this work possible.
 
 <partner-list></partner-list>
 
-And to our previous partners and sponsors, you've been part of the history of Start too, support doesn't stop mattering when a sponsorship ends.
+And thank you to our previous partners and sponsors for helping us get Start to this point.
 
 <previous-partner-list></previous-partner-list>
 

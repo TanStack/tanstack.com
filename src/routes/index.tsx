@@ -55,9 +55,62 @@ export const Route = createFileRoute('/')({
   component: Index,
 })
 
+// On large windows the consent bar scrolls with the page (see the consent
+// block in app.css). Once its card reaches the navbar, this flags the page so
+// the bar sticks below the navbar, and clears the flag when scrolling back up
+// would move it down again. The bar is absolute only while that rule applies,
+// so smaller windows are left alone.
+function useStickyConsentBar() {
+  React.useEffect(() => {
+    const html = document.documentElement
+    // The scroll position where the card met the navbar, while it's stuck.
+    let stuckAt: number | undefined
+
+    function unstick() {
+      stuckAt = undefined
+      delete html.dataset.consentBarStuck
+    }
+
+    function update() {
+      const bar = document.querySelector(
+        '[data-testid="consent-banner-root"][data-variant="bar"]',
+      )
+      if (stuckAt !== undefined) {
+        if (bar && window.scrollY >= stuckAt) return
+        unstick()
+      }
+      if (!bar || getComputedStyle(bar).position !== 'absolute') return
+      const navbarHeight = parseFloat(
+        getComputedStyle(html).getPropertyValue('--navbar-height'),
+      )
+      const card = bar.querySelector('[data-testid="consent-banner-card"]')
+      if (!card) return
+      const top = card.getBoundingClientRect().top
+      if (top > navbarHeight) return
+      stuckAt = window.scrollY + top - navbarHeight
+      html.dataset.consentBarStuck = ''
+    }
+
+    function onResize() {
+      unstick()
+      update()
+    }
+
+    update()
+    window.addEventListener('scroll', update, { passive: true })
+    window.addEventListener('resize', onResize)
+    return () => {
+      window.removeEventListener('scroll', update)
+      window.removeEventListener('resize', onResize)
+      unstick()
+    }
+  }, [])
+}
+
 function Index() {
   const { recentPosts } = Route.useLoaderData()
   const { openLibraries } = useLibrariesOverlay()
+  useStickyConsentBar()
 
   const startWithPrompt = (e: React.MouseEvent) => {
     e.preventDefault()

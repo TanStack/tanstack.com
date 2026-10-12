@@ -4,7 +4,7 @@ import { scarfAnalyticsProvider } from './analytics/scarf'
 import type {
   AnalyticsEventName,
   AnalyticsEventProps,
-} from './analytics/events'
+} from './analytics/registry'
 import type { AnalyticsPropertyValue, EventPayload } from './analytics/types'
 
 export type {
@@ -19,8 +19,8 @@ export type {
   PartnerClickDestination,
   PartnerFilterChange,
   PartnerPlacement,
-} from './analytics/events'
-export { defaultApplicationStarterSessionContext } from './analytics/events'
+} from './analytics/registry'
+export { defaultApplicationStarterSessionContext } from './analytics/registry'
 
 interface ImpressionOptions<TName extends AnalyticsEventName> {
   enabled?: boolean

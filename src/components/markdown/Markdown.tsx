@@ -1,6 +1,11 @@
 import { renderMarkdownReact } from '@tanstack/markdown/react'
 import * as React from 'react'
 import { InlineCode, MarkdownImg } from '~/ui'
+import {
+  ConsentVideoEmbed,
+  getVideoEmbed,
+  mapVideoEmbeds,
+} from './ConsentVideoEmbed'
 import { ChartsCatalogEmbed } from '~/components/charts/ChartsCatalogEmbed'
 import {
   mapChartsCatalogEmbeds,
@@ -54,7 +59,9 @@ export function Markdown({
     [content, document],
   )
   const renderDocument = React.useMemo(() => {
-    const withHostingPartners = mapStartHostingPartnerElements(parsed)
+    const withHostingPartners = mapVideoEmbeds(
+      mapStartHostingPartnerElements(parsed),
+    )
 
     return chartEmbedSource
       ? mapChartsCatalogEmbeds(withHostingPartners, chartEmbedSource)
@@ -154,6 +161,17 @@ function MarkdownIframe(props: React.IframeHTMLAttributes<HTMLIFrameElement>) {
 
   if (!isTrustedIframeSrc(props.src)) return null
 
+  const video = getVideoEmbed(props.src)
+  if (video) {
+    return (
+      <ConsentVideoEmbed
+        {...video}
+        title={title?.trim() || `${video.provider} video`}
+        iframeProps={iframeProps}
+      />
+    )
+  }
+
   if (props.src && parseChartsCatalogEmbed(props.src)) {
     return (
       <ChartsCatalogEmbed
@@ -170,6 +188,27 @@ function MarkdownIframe(props: React.IframeHTMLAttributes<HTMLIFrameElement>) {
       title={iframeTitle}
       {...iframeProps}
       className={`w-full ${className ?? ''}`.trim()}
+    />
+  )
+}
+
+function MarkdownVideoEmbed({
+  src,
+  title,
+  allow,
+}: {
+  src?: string
+  title?: string
+  allow?: string
+}) {
+  const video = getVideoEmbed(src)
+  if (!video) return null
+
+  return (
+    <ConsentVideoEmbed
+      {...video}
+      title={title?.trim() || `${video.provider} video`}
+      iframeProps={{ src, allow, allowFullScreen: true, loading: 'lazy' }}
     />
   )
 }
@@ -241,6 +280,7 @@ function createMarkdownComponents(
   return {
     a: LinkElement,
     'chart-catalog-embed': ChartsCatalogEmbed,
+    'consent-video-embed': MarkdownVideoEmbed,
     code: CodeElement,
     figcaption: CodeFigcaption,
     figure: CodeFigure,

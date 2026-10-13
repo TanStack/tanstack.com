@@ -541,7 +541,9 @@ async function fetchRepoFileFromOrigin(
     let text: string | null
 
     if (shouldUseLocalDocsFiles()) {
-      text = await fetchFs(repo, filepath)
+      text =
+        (await fetchFs(repo, filepath)) ??
+        (await fetchRemote(owner, repo, ref, filepath))
     } else {
       text = await fetchRemote(owner, repo, ref, filepath)
     }
@@ -581,7 +583,9 @@ async function fetchRepoRawFileFromOrigin(
 ) {
   const [owner, repo] = repoPair.split('/')
   return shouldUseLocalDocsFiles()
-    ? fetchFs(repo, filepath)
+    ? fetchFs(repo, filepath).then(
+        (text) => text ?? fetchRemote(owner, repo, ref, filepath),
+      )
     : fetchRemote(owner, repo, ref, filepath)
 }
 
@@ -886,7 +890,14 @@ function parseFrontMatter(content: string) {
 
   const frontMatterSource = lines.slice(1, closingLineIndex).join('\n')
   const body = lines.slice(closingLineIndex + 1).join('\n')
-  const parsed = parseYaml(frontMatterSource)
+
+  let parsed: unknown
+  try {
+    parsed = parseYaml(frontMatterSource)
+  } catch (e) {
+    console.warn('Failed to parse frontmatter YAML:', e)
+    return { content: body, data: {} }
+  }
 
   return {
     content: body,
@@ -1403,7 +1414,9 @@ export function fetchApiContents(
     return fetchCached({
       key: `${repoPair}:${branch}:${startingPath}`,
       ttl: 1,
-      fn: () => fetchApiContentsFs(repoPair, startingPath),
+      fn: async () =>
+        (await fetchApiContentsFs(repoPair, startingPath)) ??
+        fetchApiContentsRemote(repoPair, branch, startingPath),
     })
   }
 

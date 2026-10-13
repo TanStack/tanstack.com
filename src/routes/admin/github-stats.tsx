@@ -309,9 +309,11 @@ function GitHubStatsAdmin() {
     [refreshingKey, refreshAllMutation, refreshMutation],
   )
 
+  const tableData = useMemo(() => cacheEntries ?? [], [cacheEntries])
+
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
-    data: cacheEntries ?? [],
+    data: tableData,
     columns,
     getCoreRowModel: getCoreRowModel(),
   })

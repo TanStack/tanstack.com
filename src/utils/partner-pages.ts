@@ -43,6 +43,12 @@ const partnerGuidance: Record<
   string,
   { whyGreat: string; whyTanStack: string }
 > = {
+  scarf: {
+    whyGreat:
+      'Scarf connects software downloads, documentation visits, and product telemetry with the companies adopting an open source project.',
+    whyTanStack:
+      'Open source teams building with TanStack can use Scarf to understand project adoption and how companies engage with their documentation.',
+  },
   neon: {
     whyGreat:
       'Neon gives teams real Postgres with lightweight branching and autoscaling compute, which is unusually useful for preview environments, testing, and fast iteration.',

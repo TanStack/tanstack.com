@@ -1,14 +1,16 @@
 ---
-title: TanStack Start 1.0
+title: TanStack Start 1.0 is Stable
 published: 2026-10-13
 draft: true
 excerpt: TanStack Start 1.0 is stable and ready for production.
 authors:
   - Tanner Linsley
 library: start
+headerImage: https://media.tanstack.com/blog/tanstack-start-1-0/v11-poster.jpg
+headerVideo: https://media.tanstack.com/blog/tanstack-start-1-0/v11.mp4
 ---
 
-# TanStack Start 1.0
+# TanStack Start 1.0 is Stable
 
 _With contributions from [Manuel Schiller](https://github.com/schiller-manuel), [Florian Pellet](https://github.com/sheraff), and [Christopher Horobin](https://github.com/chorobin)._
 

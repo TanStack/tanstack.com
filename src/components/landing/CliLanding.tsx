@@ -50,7 +50,7 @@ const catalogQueries = [
   {
     id: 'libraries',
     command: 'libraries --json',
-    output: ['Router · stable', 'Start · release candidate', 'Query · stable'],
+    output: ['Router · stable', 'Start · stable', 'Query · stable'],
   },
   {
     id: 'ecosystem',

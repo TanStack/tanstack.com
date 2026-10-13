@@ -71,12 +71,12 @@ const contributions: Record<string, { href: string; description: string }> = {
   netlify: {
     href: 'https://app.netlify.com/start',
     description:
-      'backed Start development and made it the default for its app builder, where you describe what you want and an agent builds it.',
+      'backed TanStack Start development and made it the default framework for its AI app builder, which more than one million people have used to build and deploy applications.',
   },
   railway: {
-    href: 'https://railway.com/deploy/tanstack-start-ai-railway-sandboxes',
+    href: 'https://railway.com/deploy/tanstack-start-ai-railway-sandboxes?utm_medium=sponsor&utm_source=oss&utm_campaign=tanstack',
     description:
-      'built Start deployment templates, including an application that uses TanStack AI to run coding agents in Railway sandboxes.',
+      'made Start deploy with zero config, added Railway Sandboxes as a TanStack AI provider, and built templates for Start apps and sandboxed coding agents.',
   },
   render: {
     href: 'https://render.com/templates/tanstack-start',
@@ -84,9 +84,9 @@ const contributions: Record<string, { href: string; description: string }> = {
       'offers a Start deployment template with server rendering, server functions, and health checks already wired up.',
   },
   vercel: {
-    href: 'https://github.com/vercel-labs/eve-tanstack-start-template',
+    href: 'https://vercel.com/templates/eve/eve-tanstack-agent',
     description:
-      'added Start deployment support and built an eve integration and template that combines Start, Table, and Hotkeys for agent-powered applications.',
+      'supports Start deployments and offers TanStack integrations across eve, AI Gateway, Vercel Sandbox, Vercel Connect, and Chat SDK, including an eve template for agent-powered applications.',
   },
 }
 

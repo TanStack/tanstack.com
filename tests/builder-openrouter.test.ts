@@ -9,7 +9,7 @@ import {
   startBuilderOpenRouterLogin,
   isOpenRouterCallback,
 } from '../src/utils/builder-openrouter-login.client'
-import { openRouterCallbackResponse } from '../src/routes/api/builder/openrouter/callback'
+import { openRouterCallbackResponse } from '../src/routes/api/chat/openrouter/callback'
 import { createBuilderAiByokConnection } from '../src/utils/builder-ai-api-key-storage.client'
 import { streamBuilderAiResponse } from '../src/utils/builder-ai'
 import { createExampleWorkspace } from '../src/utils/example-workspace'
@@ -208,7 +208,7 @@ test('OpenRouter runs server tools through the Builder stream without a partial 
     const stream = chat({
       adapter: createOpenRouterText('openai/gpt-5.6-luna', 'test-key', {
         httpReferer: 'https://tanstack.com/builder',
-        appTitle: 'TanStack Builder',
+        appTitle: 'TanChat',
       }),
       messages: [{ role: 'user', content: 'Read the file' }],
       tools: [read],
@@ -242,7 +242,7 @@ test('OpenRouter runs server tools through the Builder stream without a partial 
       headers[0]?.get('http-referer'),
       'https://tanstack.com/builder',
     )
-    assert.equal(headers[0]?.get('x-openrouter-title'), 'TanStack Builder')
+    assert.equal(headers[0]?.get('x-openrouter-title'), 'TanChat')
     assert.equal(
       chunks.some((chunk) => chunk.type === 'RUN_ERROR'),
       false,

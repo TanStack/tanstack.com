@@ -1,0 +1,152 @@
+@scope (:root:has(.tanchat-shell)) {
+  .queued-messages {
+    margin: 0 0 10px;
+    background: var(--soft);
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+  .queue-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .queue-heading strong {
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .queue-heading strong span {
+    font-weight: 400;
+    color: var(--muted);
+  }
+  .queue-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .queue-controls button {
+    border: 0;
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 5px 6px;
+    border-radius: 5px;
+    color: var(--muted);
+  }
+  .queue-controls button:not(.icon-button) {
+    min-height: 28px;
+  }
+  .queue-controls button:hover:not(:disabled):not([aria-disabled='true']) {
+    background: var(--soft);
+    color: inherit;
+  }
+  .queue-controls button:disabled,
+  .queue-controls button[aria-disabled='true'] {
+    background: transparent;
+    color: var(--muted);
+    opacity: 0.4;
+  }
+  .queued-messages ol {
+    list-style: none;
+    padding: 0;
+    margin: 6px 0 0;
+    max-height: min(28vh, 280px);
+    overflow: auto;
+  }
+  .queued-messages li {
+    padding: 8px 0;
+  }
+  .queued-messages li:last-child {
+    padding-bottom: 0;
+  }
+  .queued-text {
+    margin: 0 0 3px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    max-height: 4.5em;
+    overflow: auto;
+  }
+  .queued-messages textarea {
+    width: 100%;
+    min-height: 75px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 8px;
+    color: inherit;
+    background: var(--background);
+    resize: vertical;
+    font: inherit;
+  }
+  .queue-note {
+    margin: 6px 0 0;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+  .queue-model {
+    margin: 0 0 5px;
+    font-size: 11px;
+    color: var(--muted);
+    overflow-wrap: anywhere;
+  }
+  .composer-toolbar .send {
+    flex-shrink: 0;
+  }
+  @media (max-width: 760px) {
+    .queue-controls button:not(.icon-button) {
+      min-height: 36px;
+      min-width: 36px;
+    }
+  }
+}
+
+@scope (:root:has(.tanchat-shell)) {
+  .queue-summary {
+    min-width: 0;
+  }
+  .queue-summary > span {
+    color: var(--muted);
+    font-size: 11px;
+  }
+  .queue-summary > p {
+    margin: 3px 0 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 13px;
+  }
+  .queue-heading > button {
+    flex-shrink: 0;
+  }
+  .queue-details > summary {
+    color: var(--muted);
+    cursor: pointer;
+    margin-top: 6px;
+    font-size: 11px;
+  }
+  .queue-details[open] > summary {
+    margin-bottom: 8px;
+  }
+}
+
+@scope (:root:has(.tanchat-shell)) {
+  .queue-pending-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .queue-pending-content {
+    flex: 1;
+    min-width: 0;
+  }
+  .queue-pending-row > button {
+    flex-shrink: 0;
+  }
+  .queue-heading .queue-note {
+    margin: 0;
+  }
+}

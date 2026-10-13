@@ -6,7 +6,7 @@ import {
 import { twMerge } from 'tailwind-merge'
 import { hotkeys } from './libraries'
 
-const textStyles = 'text-category-ui'
+const textStyles = 'text-category-performance'
 
 export const hotkeysProject = {
   ...hotkeys,

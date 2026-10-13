@@ -9,10 +9,9 @@ import {
   StackIcon,
   ShieldIcon,
   LightningIcon,
-  PauseIcon,
-  PlayIcon,
   type Icon,
 } from '@phosphor-icons/react'
+import { HeroPalmMedia } from '~/components/home/HeroPalmMedia'
 import { HomeApplicationStarter } from '~/components/home/HomeApplicationStarter'
 import { HomeCommunitySection } from '~/components/home/HomeCommunitySection'
 import { HomeNewsletterSection } from '~/components/home/HomeNewsletterSection'
@@ -20,7 +19,7 @@ import { HomeSocialProofSection } from '~/components/home/HomeSocialProofSection
 import { HomeStatsSection } from '~/components/home/HomeStatsSection'
 import { useQuery } from '@tanstack/react-query'
 import { Button, Eyebrow } from '~/components/ds/ui'
-import { Squircle } from '~/components/Squircle'
+import { Scarf } from '~/components/Scarf'
 import { useInView } from '~/hooks/useInView'
 import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
 import { homepageNpmStatsSummaryQuery, ossStatsQuery } from '~/queries/stats'
@@ -75,6 +74,7 @@ function Index() {
 
   return (
     <>
+      <Scarf id="b7a8c111-2305-4d95-a02a-d84c5bfb82ae" path="/" />
       <div className="max-w-full z-10 space-y-24">
         <div className="space-y-8">
           {/* Hero — Figma node 802:2027. Full-bleed palm/gradient photo card:
@@ -150,88 +150,6 @@ function Index() {
         <div className="h-4" />
         <HomeNewsletterSection />
       </div>
-    </>
-  )
-}
-
-function HeroPalmMedia() {
-  const videoRef = React.useRef<HTMLVideoElement>(null)
-  const [isPlaying, setIsPlaying] = React.useState(true)
-
-  React.useEffect(() => {
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
-
-    const syncMotionPreference = () => {
-      if (reducedMotion.matches) {
-        videoRef.current?.pause()
-      }
-    }
-
-    syncMotionPreference()
-    reducedMotion.addEventListener('change', syncMotionPreference)
-    return () =>
-      reducedMotion.removeEventListener('change', syncMotionPreference)
-  }, [])
-
-  const togglePlayback = () => {
-    const video = videoRef.current
-    if (!video) return
-
-    if (video.paused) {
-      void video.play()
-    } else {
-      video.pause()
-    }
-  }
-
-  return (
-    <>
-      <Squircle
-        aria-hidden
-        className="absolute inset-0 -z-10 overflow-hidden rounded-xl [corner-shape:squircle]"
-      >
-        <picture className="contents">
-          <source
-            type="image/webp"
-            srcSet="/images/hero-palm-gradient-960.webp 960w, /images/hero-palm-gradient-1600.webp 1600w, /images/hero-palm-gradient-2400.webp 2400w"
-            sizes="100vw"
-          />
-          <img
-            src="/images/hero-palm-gradient.jpg"
-            alt=""
-            width={2400}
-            height={1600}
-            loading="eager"
-            fetchPriority="high"
-            className="h-full w-full object-cover object-center"
-          />
-        </picture>
-        <video
-          ref={videoRef}
-          autoPlay
-          loop
-          muted
-          playsInline
-          poster="/images/hero-palm-gradient.jpg"
-          onPause={() => setIsPlaying(false)}
-          onPlay={() => setIsPlaying(true)}
-          className="absolute inset-0 h-full w-full object-cover object-center motion-reduce:hidden"
-        >
-          <source src="/images/hero-palm-motion.mp4" type="video/mp4" />
-        </video>
-      </Squircle>
-      <button
-        type="button"
-        onClick={togglePlayback}
-        aria-label={isPlaying ? 'Pause hero animation' : 'Play hero animation'}
-        className="absolute right-4 top-4 z-20 grid size-8 place-items-center rounded-full bg-ds-neutral-500/65 text-white opacity-0 backdrop-blur-sm transition-opacity hover:bg-ds-neutral-500/80 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white group-hover:opacity-100 motion-reduce:hidden"
-      >
-        {isPlaying ? (
-          <PauseIcon className="size-4" weight="fill" />
-        ) : (
-          <PlayIcon className="size-4" weight="fill" />
-        )}
-      </button>
     </>
   )
 }

@@ -1,9 +1,14 @@
 import * as React from 'react'
-import * as DialogPrimitive from '@radix-ui/react-dialog'
 import Cropper from 'react-easy-crop'
 import type { Area, Point } from 'react-easy-crop'
-import { XIcon } from '@phosphor-icons/react'
 import { Button } from '~/ui'
+import {
+  Dialog,
+  DialogBody,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+} from '~/components/ds/ui'
 
 interface AvatarCropModalProps {
   open: boolean
@@ -107,20 +112,12 @@ export function AvatarCropModal({
   }, [open])
 
   return (
-    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
-      <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm" />
-        <DialogPrimitive.Content className="fixed left-1/2 top-1/2 z-[1000] w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white dark:bg-gray-900 p-6 shadow-xl">
-          <div className="flex items-center justify-between mb-4">
-            <DialogPrimitive.Title className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-              Crop Profile Picture
-            </DialogPrimitive.Title>
-            <DialogPrimitive.Close className="rounded-full p-1 hover:bg-gray-100 dark:hover:bg-gray-800">
-              <XIcon className="w-5 h-5 text-gray-500" />
-            </DialogPrimitive.Close>
-          </div>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent size="md">
+        <DialogHeader title="Crop Profile Picture" />
 
-          <div className="relative w-full aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
+        <DialogBody>
+          <div className="relative w-full aspect-square bg-background-subtle rounded-lg overflow-hidden">
             <Cropper
               image={imageSrc}
               crop={crop}
@@ -137,7 +134,7 @@ export function AvatarCropModal({
           <div className="mt-4">
             <label
               htmlFor="zoom"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              className="block text-sm font-medium text-text-secondary mb-2"
             >
               Zoom
             </label>
@@ -149,28 +146,28 @@ export function AvatarCropModal({
               step={0.1}
               value={zoom}
               onChange={(e) => setZoom(Number(e.target.value))}
-              className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+              className="w-full h-2 bg-background-subtle rounded-lg appearance-none cursor-pointer accent-ds-blue-400"
             />
           </div>
+        </DialogBody>
 
-          <div className="mt-6 flex gap-3 justify-end">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              size="sm"
-              onClick={handleSave}
-              disabled={isProcessing || !croppedAreaPixels}
-            >
-              {isProcessing ? 'Processing...' : 'Save'}
-            </Button>
-          </div>
-        </DialogPrimitive.Content>
-      </DialogPrimitive.Portal>
-    </DialogPrimitive.Root>
+        <DialogFooter>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => onOpenChange(false)}
+          >
+            Cancel
+          </Button>
+          <Button
+            size="sm"
+            onClick={handleSave}
+            disabled={isProcessing || !croppedAreaPixels}
+          >
+            {isProcessing ? 'Processing...' : 'Save'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }

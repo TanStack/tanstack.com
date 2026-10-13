@@ -61,14 +61,11 @@ export const Route = createFileRoute(
 
         const doc = result.doc
 
-        // Filter framework-specific content only if framework is explicitly specified
-        const filteredContent = framework
-          ? filterFrameworkContent(doc.content, {
-              framework,
-              packageManager: pm,
-              keepMarkers,
-            })
-          : doc.content
+        const filteredContent = filterFrameworkContent(doc.content, {
+          framework: framework ?? undefined,
+          packageManager: pm,
+          keepMarkers,
+        })
 
         const markdownContent = `# ${doc.title}\n${filteredContent}`
         const filename = `${result.docsPath || 'file'}.md`

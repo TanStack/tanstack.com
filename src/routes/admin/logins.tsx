@@ -253,9 +253,14 @@ function LoginsPage() {
     [],
   )
 
+  const tableData = useMemo(
+    () => loginsQuery.data?.page ?? [],
+    [loginsQuery.data?.page],
+  )
+
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
-    data: (loginsQuery?.data?.page || []) as LoginHistoryEntry[],
+    data: tableData,
     columns,
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,

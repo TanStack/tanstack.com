@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 import {
+  getPartnerHref,
   partnerTierFlares,
   partnerTierLabels,
   type PartnerTier,
@@ -176,10 +177,12 @@ function PartnerRailLogo({
     },
   })
 
+  const href = getPartnerHref(partner, analyticsPlacement)
+
   return (
     <a
       ref={ref}
-      href={partner.href}
+      href={href}
       target="_blank"
       rel="noreferrer"
       className={twMerge(
@@ -189,7 +192,7 @@ function PartnerRailLogo({
       onClick={() => {
         let destinationHost: string | undefined
         try {
-          destinationHost = new URL(partner.href).host
+          destinationHost = new URL(href).host
         } catch {
           // Bad/relative href — track without host rather than dropping.
         }

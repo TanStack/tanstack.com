@@ -512,6 +512,9 @@ const reactAddOnLoaders = defineAddOnLoaders({
   railway: loadAddOn(() =>
     import('@tanstack/create/worker-manifest/frameworks/react/add-ons/railway'),
   ),
+  render: loadAddOn(() =>
+    import('@tanstack/create/worker-manifest/frameworks/react/add-ons/render'),
+  ),
   resume: loadAddOn(() =>
     import('@tanstack/create/worker-manifest/frameworks/react/add-ons/resume'),
   ),
@@ -554,6 +557,9 @@ const reactAddOnLoaders = defineAddOnLoaders({
   tRPC: loadAddOn(() =>
     import('@tanstack/create/worker-manifest/frameworks/react/add-ons/trpc'),
   ),
+  vercel: loadAddOn(() =>
+    import('@tanstack/create/worker-manifest/frameworks/react/add-ons/vercel'),
+  ),
   workos: loadAddOn(() =>
     import('@tanstack/create/worker-manifest/frameworks/react/add-ons/workos'),
   ),
@@ -591,6 +597,9 @@ const solidAddOnLoaders = defineAddOnLoaders({
   railway: loadAddOn(() =>
     import('@tanstack/create/worker-manifest/frameworks/solid/add-ons/railway'),
   ),
+  render: loadAddOn(() =>
+    import('@tanstack/create/worker-manifest/frameworks/solid/add-ons/render'),
+  ),
   sentry: loadAddOn(() =>
     import('@tanstack/create/worker-manifest/frameworks/solid/add-ons/sentry'),
   ),
@@ -615,6 +624,9 @@ const solidAddOnLoaders = defineAddOnLoaders({
     import(
       '@tanstack/create/worker-manifest/frameworks/solid/add-ons/tanstack-query'
     ),
+  ),
+  vercel: loadAddOn(() =>
+    import('@tanstack/create/worker-manifest/frameworks/solid/add-ons/vercel'),
   ),
 })
 

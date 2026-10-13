@@ -14,7 +14,8 @@ import {
   XIcon,
 } from '@phosphor-icons/react'
 import { ButtonGroup } from '~/components/ButtonGroup'
-import { FileExplorer, type FileExplorerNode } from '~/components/FileExplorer'
+import { FileExplorer } from '~/components/FileExplorer'
+import { createExampleFileTree } from '~/utils/example-file-tree'
 import { useTheme } from '~/components/ThemeProvider'
 import {
   Button,
@@ -23,7 +24,7 @@ import {
   DropdownItem,
   DropdownTrigger,
 } from '~/components/ds/ui'
-import { BuilderWorkspaceControlsContext } from '~/components/builder/builder-workspace-controls.client'
+import { BuilderWorkspaceControlsContext } from '~/chat/components/projects/project-workspace-controls.client'
 import { Tooltip } from '~/ui'
 import { copyTextToClipboard } from '~/utils/browser-effects'
 import {
@@ -2783,7 +2784,10 @@ export function ExampleWorkbench({
         .sort(),
     [definition.hiddenFiles, workspace.files],
   )
-  const fileTree = React.useMemo(() => createFileTree(filePaths), [filePaths])
+  const fileTree = React.useMemo(
+    () => createExampleFileTree(filePaths),
+    [filePaths],
+  )
   const activeBuilderPane = getActiveBuilderWorkbenchPane(builderTabs)
   const activeBuilderTab = getActiveBuilderWorkbenchTab(builderTabs)
   const visibleBuilderPanes =
@@ -3545,7 +3549,8 @@ export function ExampleWorkbench({
               align="start"
               sideOffset={4}
               collisionPadding={8}
-              className="sandbox-ui w-64 max-w-[calc(100vw-1rem)] origin-[var(--radix-dropdown-menu-content-transform-origin)] rounded-xl border-black/10 p-1 shadow-xl duration-100 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 dark:border-white/10 motion-reduce:animate-none"
+              data-ds-pop=""
+              className="sandbox-ui w-64 max-w-[calc(100vw-1rem)] origin-[var(--radix-dropdown-menu-content-transform-origin)] rounded-xl border-black/10 p-1 shadow-xl dark:border-white/10"
             >
               <DropdownItem
                 className="min-h-10 gap-2 rounded-lg px-2 py-1 text-[13px] text-text-primary transition-colors duration-100 hover:bg-surface-state-hover focus:bg-surface-state-hover motion-reduce:transition-none min-[900px]:min-h-9"
@@ -4608,36 +4613,6 @@ function getConsoleColor(level: ExampleConsoleLevel) {
     case 'log':
       return ''
   }
-}
-
-function createFileTree(paths: Array<string>) {
-  const root: Array<FileExplorerNode> = []
-
-  for (const path of paths) {
-    const segments = path.split('/').filter(Boolean)
-    let children = root
-
-    for (const [index, name] of segments.entries()) {
-      const nodePath = `/${segments.slice(0, index + 1).join('/')}`
-      const last = index === segments.length - 1
-      let node = children.find((candidate) => candidate.path === nodePath)
-
-      if (!node) {
-        node = {
-          children: last ? undefined : [],
-          depth: index,
-          name,
-          path: nodePath,
-          type: last ? 'file' : 'dir',
-        }
-        children.push(node)
-      }
-
-      if (node.children) children = node.children
-    }
-  }
-
-  return root
 }
 
 function clamp(value: number, min: number, max: number) {

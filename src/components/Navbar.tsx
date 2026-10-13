@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 const LazyAiDock = React.lazy(() =>
-  import('./SearchModal').then((m) => ({ default: m.AiDock })),
+  import('./AiDock').then((m) => ({ default: m.AiDock })),
 )
 const LazyNavbarAuthControls = React.lazy(() =>
   import('./NavbarAuthControls').then((m) => ({
@@ -15,7 +15,7 @@ const LazyMobileNavbarAuthControls = React.lazy(() =>
 )
 import { NavbarCartButton } from './NavbarCartButton'
 import { MegaMenuItem } from './MegaMenuItem'
-import { Link, useLocation } from '@tanstack/react-router'
+import { Link, useLocation, useNavigate } from '@tanstack/react-router'
 import { ArrowLeftIcon } from '@phosphor-icons/react/ArrowLeft'
 import { ArrowRightIcon } from '@phosphor-icons/react/ArrowRight'
 import { ArrowSquareOutIcon } from '@phosphor-icons/react/ArrowSquareOut'
@@ -35,6 +35,7 @@ import { ShoppingBagIcon } from '@phosphor-icons/react/ShoppingBag'
 import { SignInIcon } from '@phosphor-icons/react/SignIn'
 import { SparkleIcon } from '@phosphor-icons/react/Sparkle'
 import { TrendUpIcon } from '@phosphor-icons/react/TrendUp'
+import { UsersThreeIcon } from '@phosphor-icons/react/UsersThree'
 import { UsersIcon } from '@phosphor-icons/react/Users'
 import { XIcon } from '@phosphor-icons/react/X'
 import { ThemeToggle } from './ThemeToggle'
@@ -102,6 +103,7 @@ const LogoSection = () => {
 type IconComponent = React.ComponentType<{ className?: string }>
 
 type NavMenuKey =
+  | 'chat'
   | 'libraries'
   | 'learn'
   | 'community'
@@ -215,13 +217,19 @@ const NAV_GROUPS = [
           {
             label: 'Showcase',
             to: '/showcase',
-            description: 'Teams building with TanStack.',
+            description: 'Projects selected by the TanStack team.',
             icon: SparkleIcon,
+          },
+          {
+            label: 'Community projects',
+            to: '/community-projects',
+            icon: UsersThreeIcon,
           },
         ],
       },
     ],
   },
+  { key: 'chat', label: 'TanChat', to: '/chat', sections: [] },
   {
     key: 'tools',
     label: 'Tools',
@@ -233,13 +241,6 @@ const NAV_GROUPS = [
             label: 'Application Starter',
             to: '/application-starter',
             description: 'Generate TanStack app starters.',
-            badge: 'Alpha',
-            icon: HammerIcon,
-          },
-          {
-            label: 'Builder',
-            to: '/builder',
-            description: 'Build and share TanStack projects.',
             badge: 'Alpha',
             icon: HammerIcon,
           },
@@ -369,7 +370,7 @@ type LibraryMenuColumn = {
 
 /**
  * The Libraries mega-menu as five category columns (Framework, Data & State,
- * UI & UX, Performance, Tooling), built from the canonical `libraryCategories`
+ * UI, UX, Tooling), built from the canonical `libraryCategories`
  * taxonomy. Iterating `libraryCategories` preserves the intended per-category
  * order; only public, navigable libraries are shown.
  */
@@ -799,6 +800,11 @@ function DesktopNavTrigger({
           preload="intent"
         >
           <span>{group.label}</span>
+          {group.key === 'chat' && (
+            <span className="rounded bg-blue-100 px-1 py-0.5 text-[8px] font-semibold leading-none text-blue-600 dark:bg-blue-400/15 dark:text-blue-300">
+              NEW
+            </span>
+          )}
         </Link>
       ) : (
         <button
@@ -810,9 +816,16 @@ function DesktopNavTrigger({
           }}
         >
           <span>{group.label}</span>
+          {group.key === 'chat' && (
+            <span className="rounded bg-blue-100 px-1 py-0.5 text-[8px] font-semibold leading-none text-blue-600 dark:bg-blue-400/15 dark:text-blue-300">
+              NEW
+            </span>
+          )}
         </button>
       )}
-      <DesktopNavDropdown group={group} onNavigate={onDismiss} />
+      {(group.sections.length > 0 || group.key === 'libraries') && (
+        <DesktopNavDropdown group={group} onNavigate={onDismiss} />
+      )}
     </div>
   )
 }
@@ -863,6 +876,7 @@ function MobileNavigation({
 }) {
   const activeGroup = NAV_GROUPS.find((group) => group.key === activeKey)
   const { openAiDock, openSearch } = useSearchContext()
+  const navigate = useNavigate()
   const userQuery = useCurrentUserQuery()
 
   const openUtility = (utility: 'ai' | 'search') => {
@@ -907,6 +921,9 @@ function MobileNavigation({
                 onClick={() => {
                   if (group.key === 'libraries') {
                     onOpenLibraries()
+                  } else if ('to' in group && group.sections.length === 0) {
+                    onNavigate()
+                    void navigate({ to: group.to })
                   } else {
                     onSelect(group.key)
                   }
@@ -916,6 +933,11 @@ function MobileNavigation({
                 }`}
               >
                 <span className="min-w-0 flex-1">{group.label}</span>
+                {group.key === 'chat' && (
+                  <span className="rounded bg-blue-100 px-1 py-0.5 text-[8px] font-semibold leading-none text-blue-600 dark:bg-blue-400/15 dark:text-blue-300">
+                    NEW
+                  </span>
+                )}
               </button>
             ))}
           </div>

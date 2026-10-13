@@ -1,8 +1,8 @@
 import * as React from 'react'
-import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { CaretDownIcon } from '@phosphor-icons/react/CaretDown'
 import { CheckIcon } from '@phosphor-icons/react/Check'
 import { type Framework } from '~/libraries'
+import { TakeoverDescription, TakeoverTitle } from '~/components/ds/ui'
 import { frameworkOptions } from '~/libraries/frameworks'
 import LibraryGridCard from '~/components/LibraryGridCard'
 import { libraryCategories, type LibraryCategory } from '~/libraries/categories'
@@ -26,8 +26,8 @@ const CATEGORY_SECTIONS: ReadonlyArray<{
 }> = [
   { key: 'framework', label: 'Framework' },
   { key: 'data', label: 'Data & State' },
-  { key: 'ui', label: 'UI & UX' },
-  { key: 'performance', label: 'Performance' },
+  { key: 'ui', label: 'UI' },
+  { key: 'performance', label: 'UX' },
   { key: 'tooling', label: 'Tooling' },
 ]
 
@@ -87,7 +87,7 @@ export function LibrariesBrowser({
     ? `TanStack ${activeFrameworkOption.label} libraries`
     : 'All Libraries'
   const description = activeFrameworkOption
-    ? `Type-safe, headless TanStack primitives with ${activeFrameworkOption.label} support for routing, data, UI, performance, and tooling.`
+    ? `Type-safe, headless TanStack primitives with ${activeFrameworkOption.label} support for routing, data, UI, UX, and tooling.`
     : 'Browse the full set of public TanStack libraries.'
 
   return (
@@ -109,9 +109,9 @@ export function LibrariesBrowser({
               />
             ) : null}
             {variant === 'dialog' ? (
-              <DialogPrimitive.Title className="font-ds-display text-3xl font-medium text-text-primary">
+              <TakeoverTitle className="font-ds-display text-3xl font-medium text-text-primary">
                 {title}
-              </DialogPrimitive.Title>
+              </TakeoverTitle>
             ) : (
               <h1 className="font-ds-display text-3xl font-medium text-text-primary">
                 {title}
@@ -119,7 +119,7 @@ export function LibrariesBrowser({
             )}
           </div>
           {variant === 'dialog' ? (
-            <DialogPrimitive.Description
+            <TakeoverDescription
               className={
                 activeFrameworkOption
                   ? 'mt-2 max-w-2xl font-ds-mono text-xs leading-relaxed text-text-secondary'
@@ -127,7 +127,7 @@ export function LibrariesBrowser({
               }
             >
               {description}
-            </DialogPrimitive.Description>
+            </TakeoverDescription>
           ) : (
             <p
               className={

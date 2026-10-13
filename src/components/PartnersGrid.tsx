@@ -1,5 +1,6 @@
 import * as React from 'react'
 import {
+  getPartnerHref,
   partners as allPartners,
   PartnerImage,
   partnerTierBandColor,
@@ -23,6 +24,7 @@ type PartnerItem = (typeof allPartners)[number]
 type PartnersGridProps = {
   analyticsPlacement?: PartnerPlacement
   partnersList?: PartnerItem[]
+  status?: PartnerItem['status']
   /**
    * Optional final band rendered inside the same bordered container as the tier
    * bands — used to fold the OSS Sponsors band into the stack.
@@ -111,11 +113,12 @@ function PartnerGridItem({
   })
 
   const layout = tierLayout[partner.tier ?? 'bronze']
+  const href = getPartnerHref(partner, analyticsPlacement)
 
   return (
     <a
       ref={ref}
-      href={partner.href}
+      href={href}
       target="_blank"
       rel="noreferrer"
       className={`flex items-center justify-center
@@ -125,7 +128,7 @@ function PartnerGridItem({
       onClick={() => {
         let destinationHost: string | undefined
         try {
-          destinationHost = new URL(partner.href).host
+          destinationHost = new URL(href).host
         } catch {
           // Bad/relative href — track without host rather than dropping.
         }
@@ -155,10 +158,11 @@ function PartnerGridItem({
 export function PartnersGrid({
   analyticsPlacement = 'grid',
   partnersList,
+  status = 'active',
   trailingBand,
 }: PartnersGridProps) {
   const items = (partnersList ?? allPartners).filter(
-    (partner) => partner.status === 'active',
+    (partner) => partner.status === status,
   )
 
   const placementContext = usePartnerPlacementContext({

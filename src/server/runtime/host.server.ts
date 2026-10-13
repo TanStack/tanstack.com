@@ -1,4 +1,5 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
+import { retainDatabaseContext } from '~/db/client'
 
 type StaticAssetService = {
   fetch: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>
@@ -95,7 +96,7 @@ export function scheduleHostRuntimeTask(createTask: () => Promise<unknown>) {
     return false
   }
 
-  context.waitUntil(createTask())
+  context.waitUntil(retainDatabaseContext(createTask()))
   return true
 }
 

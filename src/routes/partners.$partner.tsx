@@ -205,9 +205,6 @@ function PartnerDetailPage() {
                 <h2 className="text-2xl font-black text-gray-950 dark:text-white">
                   Resources
                 </h2>
-                <p className="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-400">
-                  Resources for using {partner.name} with TanStack.
-                </p>
                 <div className="mt-5 grid gap-3 sm:grid-cols-2">
                   {resources.map((resource) => {
                     const isExternal = resource.href.startsWith('http')

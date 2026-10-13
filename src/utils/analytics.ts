@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { googleAnalyticsProvider } from './analytics/providers/google'
+import { scarfAnalyticsProvider } from './analytics/scarf'
 import type {
   AnalyticsEventName,
   AnalyticsEventProps,
@@ -120,7 +121,7 @@ function buildEventPayload(props: object): EventPayload {
   return payload
 }
 
-const analyticsProviders = [googleAnalyticsProvider]
+const analyticsProviders = [googleAnalyticsProvider, scarfAnalyticsProvider]
 
 /**
  * Track an analytics event. Type-safe — the event name determines which

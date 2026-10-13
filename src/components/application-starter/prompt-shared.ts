@@ -9,8 +9,11 @@ import {
 } from '~/utils/application-starter'
 
 export type StarterTone = 'cyan' | 'emerald' | 'violet'
-export type StarterDeployProvider = 'cloudflare' | 'netlify' | 'railway'
-export type StarterPromptDeployProvider = 'lovable' | 'netlify'
+export type StarterDeployProvider =
+  | 'cloudflare'
+  | 'netlify'
+  | 'railway'
+  | 'render'
 export type StarterPackageManager = 'bun' | 'npm' | 'pnpm' | 'yarn'
 export type StarterToolchain = 'biome' | 'eslint'
 
@@ -143,31 +146,6 @@ export const starterLoadingPhrases = [
   'Hoisting a fresh draft...',
   'Finding calmer waters...',
 ]
-
-export function buildStarterPromptDeployUrl(
-  provider: StarterPromptDeployProvider,
-  prompt: string,
-) {
-  switch (provider) {
-    case 'lovable': {
-      const url = new URL('https://lovable.dev/')
-
-      url.searchParams.set('autosubmit', 'true')
-      url.searchParams.set('utm_source', 'tanstack')
-      url.hash = `prompt=${encodeURIComponent(prompt)}`
-
-      return url.toString()
-    }
-    case 'netlify': {
-      const url = new URL('https://app.netlify.com/start')
-
-      url.searchParams.set('prompt', prompt)
-      url.searchParams.set('utm_source', 'tanstack')
-
-      return url.toString()
-    }
-  }
-}
 
 export function isPinnedStarterLibrary(libraryId: LibraryId) {
   return starterPinnedLibraryIds.some(

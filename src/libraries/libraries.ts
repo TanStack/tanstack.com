@@ -343,6 +343,7 @@ export const charts: LibrarySlim = {
   description:
     'A typed, tree-shakable chart grammar for SVG and Canvas. Compose marks, views, scales, transforms, interactions, and motion with compact primitives or D3-compatible inputs.',
   repo: 'tanstack/charts',
+  hasDiscussions: false,
   frameworks: [
     'react',
     'preact',
@@ -635,6 +636,7 @@ export const markdown: LibrarySlim = {
   colorTo: 'to-fuchsia-500',
   bgRadial: 'from-fuchsia-500 via-fuchsia-500/50 to-transparent',
   repo: 'tanstack/markdown',
+  hasDiscussions: false,
   frameworks: ['react', 'vanilla'],
   corePackageName: '@tanstack/markdown',
   npmPackageNames: ['@tanstack/markdown'],

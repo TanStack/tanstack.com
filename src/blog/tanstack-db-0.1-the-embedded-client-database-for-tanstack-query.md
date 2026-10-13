@@ -294,12 +294,6 @@ You can do this:
 
 ```typescript
 // Load normalized collections upfront (3 broader calls)
-import { createCollection } from '@tanstack/react-db'
-import { queryCollectionOptions } from '@tanstack/query-db-collection'
-import { QueryClient } from '@tanstack/query-core'
-
-const queryClient = new QueryClient()
-
 const todoCollection = createCollection(
   queryCollectionOptions({
     queryClient,

@@ -1,7 +1,8 @@
 ---
 title: TanStack DB 0.6 Now Includes Persistence, Offline Support, and Hierarchical Data
-excerpt: TanStack DB 0.6 adds SQLite-backed persistence across runtimes, hierarchical includes for projecting normalized data into UI-shaped trees, reactive effects, virtual props for sync state, and more.
+excerpt: TanStack DB 0.6 adds SQLite-backed persistence across runtimes, hierarchical includes for projecting normalized data into UI-shaped trees, reactive effects, virtual props for pending local writes, and more.
 published: 2026-03-25
+updated: 2026-10-13
 draft: false
 library: db
 authors:
@@ -13,14 +14,14 @@ authors:
 
 With v0.6 of TanStack DB, we're bringing some highly anticipated features and improving the ergonomics for app development.
 
-You can now project normalized data into the same hierarchical shape as your UI, persist local state across runtimes with a SQLite-backed layer, and trigger reactive side effects directly from live queries. Row metadata unlocks outbox views and delivery indicators (think WhatsApp-style), and APIs that previously relied on implicit behavior are now explicit and consistent.
+You can now project normalized data into the same hierarchical shape as your UI, persist local state across runtimes with a SQLite-backed layer, and trigger reactive side effects directly from live queries. Row metadata makes pending local writes and collection attribution queryable, and APIs that previously relied on implicit behavior are now explicit and consistent.
 
 Here’s what shipped:
 
 - [Persistent local state](#persistent-local-state) via SQLite-backed adapters across browser, React Native, Expo, Node, Electron, Capacitor, Tauri, and Cloudflare Durable Objects
 - [Includes](#includes-project-your-data-into-the-same-shape-as-your-ui) for projecting normalized data into the hierarchical structure of your UI. Similar to GraphQL, but without the need for new infrastructure.
 - [`createEffect`](#createeffect-reactive-side-effects-for-workflows-tools-and-agents) for reactive workflows, side effects, and agent-style automation
-- [Virtual props](#virtual-props-outboxes-delivery-state-and-row-provenance) (`$synced`, `$origin`) for outbox views, sync indicators, and provenance-aware queries
+- [Virtual props](#virtual-props-pending-writes-and-row-attribution) (`$hasPendingWrites`, `$origin`) for pending-write views and row attribution
 - [`queryOnce`](#queryonce) for one-shot queries using the same language as live queries
 - Indexes are now opt-in, and mutation handlers no longer rely on implicit return behavior (see [migration notes](#migration-notes))
 
@@ -89,6 +90,7 @@ In practice, the React Native setup looks like this:
 import { open } from '@op-engineering/op-sqlite'
 import { createCollection } from '@tanstack/db'
 import { queryCollectionOptions } from '@tanstack/query-db-collection'
+import { QueryClient } from '@tanstack/query-core'
 import {
   createReactNativeSQLitePersistence,
   persistedCollectionOptions,
@@ -109,11 +111,14 @@ const persistence = createReactNativeSQLitePersistence({
   database,
 })
 
+const queryClient = new QueryClient()
+
 export const shoppingItemsCollection = createCollection(
   persistedCollectionOptions<ShoppingItem, string>({
     persistence,
     schemaVersion: 1,
     ...queryCollectionOptions({
+      queryClient,
       queryKey: ['shopping-items'],
       queryFn: async () => api.shoppingItems.getAll(),
       getKey: (item) => item.id,
@@ -339,46 +344,47 @@ await effect.dispose()
 
 Combined with [persistent local state](#persistent-local-state) in environments like Cloudflare Durable Objects, TanStack DB starts to resemble a durable state engine for agent workflows, not just a UI data layer.
 
-This is one example, but it highlights how the 0.6 features work together: [includes](#includes-project-your-data-into-the-same-shape-as-your-ui), [virtual props](#virtual-props-outboxes-delivery-state-and-row-provenance), and reactive effects compose into something more capable than any single feature in isolation.
+This is one example, but it highlights how the 0.6 features work together: [includes](#includes-project-your-data-into-the-same-shape-as-your-ui), [virtual props](#virtual-props-pending-writes-and-row-attribution), and reactive effects compose into something more capable than any single feature in isolation.
 
-## Virtual props: outboxes, delivery state, and row provenance
+## Virtual props: pending writes and row attribution
 
 Virtual props make row state visible directly in the query layer.
 
 They are:
 
-- `$synced`: whether the row is confirmed by sync or still only local/optimistic
-- `$origin`: whether the last confirmed change came from this client or from upstream sync
+- `$hasPendingWrites`: whether a pending local optimistic mutation currently affects the row. It does not indicate backend acknowledgement.
+- `$synced`: a deprecated inverse of `$hasPendingWrites`; use `$hasPendingWrites` for new code.
+- `$origin`: `local` or `remote` collection attribution for the current row. Source writes are attributed by key and timing, not by a source client ID.
 - `$key`: the row key for the result
 - `$collectionId`: the source collection ID
 
 They can be used for workflow automation with `createEffect`, but are also immediately useful in the UI:
 
-- outbox views of unpersisted data
-- delivery or sync state indicators
-- double-tick style UI patterns (e.g. WhatsApp)
+- views of rows with pending local optimistic writes
+- pending-write indicators
+- workflows that react to optimistic state changes
 
-Virtual props are one of those deceptively small features that end up being useful everywhere.
+These props do not, by themselves, prove upload, server acknowledgement, or delivery to another user. For those states, keep the mutation pending until the relevant backend observation or expose adapter-specific status. See the [virtual properties guide](/db/latest/docs/guides/live-queries#virtual-properties) for current semantics.
 
 ```typescript
 import { createLiveQueryCollection, eq } from '@tanstack/db'
 
-const outbox = createLiveQueryCollection({
-  id: `outbox`,
+const pendingMessages = createLiveQueryCollection({
+  id: `pending-messages`,
   query: (q) =>
     q
       .from({ item: messagesCollection })
-      .where(({ item }) => eq(item.$synced, false))
+      .where(({ item }) => eq(item.$hasPendingWrites, true))
       .select(({ item }) => ({
         id: item.id,
         body: item.body,
-        synced: item.$synced,
+        hasPendingWrites: item.$hasPendingWrites,
         origin: item.$origin,
       })),
 })
 ```
 
-That query can drive a full outbox view, or smaller UI elements like delivery indicators in a chat interface. Because these props are queryable, they also pair naturally with [createEffect](#createeffect-reactive-side-effects-for-workflows-tools-and-agents) when you want workflows driven by optimistic or confirmed state transitions.
+That query can drive a view of locally pending messages or a pending-write indicator. Because these props are queryable, they also pair with [createEffect](#createeffect-reactive-side-effects-for-workflows-tools-and-agents) when you want workflows driven by optimistic state transitions.
 
 ## queryOnce
 

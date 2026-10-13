@@ -384,7 +384,7 @@ const pendingMessages = createLiveQueryCollection({
 })
 ```
 
-That query can drive a view of locally pending messages or a pending-write indicator. Because these props are queryable, they also pair with [createEffect](#createeffect-reactive-side-effects-for-workflows-tools-and-agents) when you want workflows driven by optimistic state transitions.
+That query drives a view of locally pending messages or a pending-write indicator. Because these props are queryable, they also pair with [createEffect](#createeffect-reactive-side-effects-for-workflows-tools-and-agents) for workflows driven by optimistic state transitions.
 
 ## queryOnce
 

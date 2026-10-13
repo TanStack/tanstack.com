@@ -12,7 +12,7 @@ authors:
 
 ![Query-Driven Sync](/blog-assets/tanstack-db-0.5-query-driven-sync/header.png)
 
-You don't need a new API for every component. With 0.5, the component's query can drive what your collection requests from the API.
+You don't need a new API for every component. With an on-demand collection, the component's query determines the requested subset.
 
 ```tsx
 // Your component's query...
@@ -26,7 +26,7 @@ const { data: projectTodos } = useLiveQuery((q) =>
     .where(({ projects }) => eq(projects.id, 123)),
 )
 
-// With Query Collections that map these predicates, this can become:
+// For Query Collections mapped to this API:
 // GET /api/projects/123
 // GET /api/todos?projectId=123&status=active
 ```
@@ -144,7 +144,7 @@ const { data: electronics } = useLiveQuery((q) =>
 )
 ```
 
-For an API that supports these filters, your `queryFn` can turn the requested subset into:
+For an API that supports these filters, your `queryFn` maps the requested subset to:
 
 ```
 GET /api/products?category=electronics&price_lt=100&sort=price:asc&limit=10
@@ -160,11 +160,11 @@ If you're familiar with Relay or Apollo, this should feel familiar: components d
 
 "Wait," you're thinking, "doesn't this create N+1 query problems?"
 
-Query Collection can share requests, while the number of network calls still depends on your collection adapter and API.
+Query Collection shares identical concurrent requests. Join batching and other transport behavior depend on the collection adapter and API.
 
 ### **Automatic request collapsing**
 
-Components requesting the same subset through one Query Collection can share a single in-flight fetch:
+Components requesting the same subset concurrently through one Query Collection share a single in-flight fetch:
 
 ```tsx
 // Component A
@@ -177,15 +177,15 @@ const { data: active } = useLiveQuery((q) =>
   q.from({ todos }).where(({ todos }) => eq(todos.status, 'active')),
 )
 
-// With one Query Collection, both components can share this in-flight request:
+// Both components share this in-flight request:
 // GET /api/todos?status=active
 ```
 
-Query Collection uses the requested subset in its TanStack Query cache key, so identical requests can share work. Custom collection adapters control their own transport deduplication; they can use `DeduplicatedLoadSubset` when they need it.
+Query Collection uses the requested subset in its TanStack Query cache key, so identical concurrent requests share a Query fetch. Custom collection adapters must implement transport deduplication if they need it; `DeduplicatedLoadSubset` is available for that purpose.
 
 ### **Subset matching and delta loading**
 
-For an on-demand Query Collection backed by an offset-based API, an ordered infinite query can load more rows:
+For an on-demand Query Collection backed by an offset-based API, use an ordered infinite query to load more rows:
 
 ```tsx
 const { data, fetchNextPage } = useLiveInfiniteQuery(
@@ -200,11 +200,11 @@ const { data, fetchNextPage } = useLiveInfiniteQuery(
 fetchNextPage()
 ```
 
-The hook widens the ordered query window and may request an extra row to determine whether another page exists. The `queryFn` must fulfill the requested filter, order, limit, and offset; a request is not necessarily one UI page. A different filter, order, or limit has a distinct request identity and may fetch rows that are already present locally. See the [server pagination guide](/db/latest/docs/collections/query-collection#server-pagination-with-live-queries) for the full contract.
+The hook widens the ordered query window and requests an extra row to determine whether another page exists. The `queryFn` must fulfill the requested filter, order, limit, and offset; a request is not necessarily one UI page. A different filter, order, or limit has a distinct request identity. These requests can overlap rows already present locally. See the [server pagination guide](/db/latest/docs/collections/query-collection#server-pagination-with-live-queries) for the full contract.
 
 ### **Join optimization**
 
-When an adapter maps pushed-down predicates to batched API filters, a join can request related rows together:
+When an adapter maps pushed-down predicates to batched API filters, the join requests related rows together:
 
 ```tsx
 // Join todos with their projects
@@ -268,7 +268,7 @@ useLiveQuery((q) =>
 
 You get TanStack Query's caching for each requested subset.
 
-**The result:** Shared requests and subset caching can reduce network work without adding a view-specific endpoint for every component.
+**The result:** Identical requests share work, and one filterable API serves multiple component queries.
 
 ## Progressive sync: Fast initial paint + instant client queries
 
@@ -291,17 +291,17 @@ const { data: urgentTodos } = useLiveQuery((q) =>
     .from({ todos: todoCollection })
     .where(({ todos }) => eq(todos.priority, 'urgent')),
 )
-// The first query can load the urgent subset before full sync completes.
+// The first query requests the urgent subset while full sync runs.
 
 // Meanwhile, collection syncs full dataset in background
-// After sync completes: subsequent queries can run against local data.
+// After sync completes: subsequent queries run against local data.
 ```
 
-The first query can use a targeted network request while the full dataset syncs in the background. Once that sync completes, subsequent queries can use the local data. Actual latency depends on the API, network, and query.
+The first query requests the urgent subset while the full dataset syncs in the background. Once that sync completes, subsequent queries use local data. Actual latency depends on the API, network, and query.
 
-**Progressive mode works with Query Collection and any collection adapter that supports subset loading plus full background sync.** The Electric example above is one way to use it. Sync engines like Electric, Trailbase, and PowerSync can stream changed rows after the initial load, which can make a full local dataset economical to maintain.
+**Progressive mode works with Query Collection and any collection adapter that supports subset loading plus full background sync.** The Electric example above is one way to use it. Sync engines like Electric, Trailbase, and PowerSync stream changed rows after the initial load, avoiding repeated full downloads.
 
-With a REST API, the choice depends on the cost of fetching and refreshing the full dataset. You can use the same progressive loading pattern when that cost fits your application.
+The same progressive loading pattern works with a REST-backed Query Collection. Choose it when fetching and refreshing the full dataset fits your application's needs.
 
 ## Works today with REST. Gets better with sync engines.
 

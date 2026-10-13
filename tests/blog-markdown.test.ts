@@ -32,7 +32,10 @@ test('removes a leading title and its TOC entry, including after a comment', () 
 
 test('preserves a later heading with the same text and its existing anchor', () => {
   const markdown = parseBlogMarkdown('# Title\n\n# Title\n\nText')
-  assert.deepEqual(markdown.headings.map((heading) => heading.id), ['title-2'])
+  assert.deepEqual(
+    markdown.headings.map((heading) => heading.id),
+    ['title-2'],
+  )
 })
 
 test('does not skip visible HTML when looking for the article title', () => {

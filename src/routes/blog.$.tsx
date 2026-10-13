@@ -16,7 +16,7 @@ import { Breadcrumbs } from '~/components/Breadcrumbs'
 import { findMaintainerByAuthorName } from '~/utils/authors'
 import { CoverFallback } from '~/components/CoverFallback'
 import { fetchBlogPost } from '~/utils/blog.functions'
-import { parseSiteMarkdown } from '~/utils/markdown'
+import { parseBlogMarkdown } from '~/utils/blogMarkdown'
 import { getBlogPostHead, getBlogSocialImageUrl } from '~/utils/blog-post-seo'
 
 export const Route = createFileRoute('/blog/$')({
@@ -58,10 +58,7 @@ function BlogPost() {
   const videoRef = React.useRef<HTMLVideoElement>(null)
   const [startedVideo, setStartedVideo] = React.useState<string>()
   const hasStartedVideo = startedVideo === headerVideo
-  const markdown = React.useMemo(
-    () => parseSiteMarkdown(content.replace(/^# [^\n]+\n*/m, '')),
-    [content],
-  )
+  const markdown = React.useMemo(() => parseBlogMarkdown(content), [content])
   const headings = markdown.headings
 
   const isTocVisible = headings.length > 1

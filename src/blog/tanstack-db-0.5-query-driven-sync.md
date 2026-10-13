@@ -187,11 +187,19 @@ TanStack DB compares predicates across all live queries and deduplicates request
 When you navigate from viewing 10 products to viewing 20, DB doesn't reload everything:
 
 ```tsx
+import { createLiveQueryCollection } from '@tanstack/react-db'
+
 // Initial query: loads 10 products
-const { data } = useLiveQuery((q) => q.from({ products }).limit(10))
+const productsQuery = createLiveQueryCollection((q) =>
+  q
+    .from({ products: productsCollection })
+    .orderBy(({ products }) => products.id)
+    .limit(10),
+)
+const { data } = useLiveQuery(productsQuery)
 
 // User clicks "load more": loads ONLY the next 10
-fetchNextPage()
+await productsQuery.utils.setWindow({ limit: 20 })
 ```
 
 ```

@@ -369,7 +369,7 @@ export function LibraryLandingShell({
                     libraryId,
                     version: resolvedVersion,
                   }}
-                  className="inline-flex items-center gap-3 rounded-xl px-5 py-3 text-ds-label-lg text-(--landing-accent-ink) shadow-[inset_-5px_-5px_7px_-5px_var(--landing-accent-muted),0_12px_24px_-14px_rgb(var(--landing-glow)/0.55)] transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) motion-reduce:transition-none dark:shadow-[inset_-5px_-5px_7px_-5px_var(--landing-accent-muted),0_12px_35px_rgb(var(--landing-glow)/0.2)]"
+                  className="inline-flex h-12 items-center gap-3 rounded-xl px-5 py-3 text-ds-label-lg text-(--landing-accent-ink) shadow-[inset_-5px_-5px_7px_-5px_var(--landing-accent-muted),0_12px_24px_-14px_rgb(var(--landing-glow)/0.55)] transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) motion-reduce:transition-none dark:shadow-[inset_-5px_-5px_7px_-5px_var(--landing-accent-muted),0_12px_35px_rgb(var(--landing-glow)/0.2)]"
                   style={{
                     backgroundImage:
                       'linear-gradient(105deg, var(--landing-cta-start), var(--landing-cta-end))',
@@ -380,7 +380,7 @@ export function LibraryLandingShell({
                 </Link>
                 {prompt ? (
                   <LandingCopyPromptButton
-                    className={`rounded-xl border-(--landing-accent) px-5 py-3 font-ds-mono text-ds-mono-caps uppercase text-(--landing-accent-bright) hover:border-(--landing-accent-bright) sm:w-auto ${heroBackground ? 'bg-white/35 backdrop-blur-xl shadow-[inset_0_1px_0_rgb(255_255_255/0.5),0_4px_16px_rgb(0_0_0/0.06)] hover:bg-white/50 dark:bg-black/30 dark:hover:bg-black/45' : 'bg-transparent hover:bg-[rgb(var(--landing-glow)/0.1)]'}`}
+                    className={`h-12 rounded-xl border-(--landing-accent) px-5 py-3 text-ds-label-lg uppercase text-(--landing-accent-bright) hover:border-(--landing-accent-bright) sm:w-auto ${heroBackground ? 'bg-white/35 backdrop-blur-xl shadow-[inset_0_1px_0_rgb(255_255_255/0.5),0_4px_16px_rgb(0_0_0/0.06)] hover:bg-white/50 dark:bg-black/30 dark:hover:bg-black/45' : 'bg-transparent hover:bg-[rgb(var(--landing-glow)/0.1)]'}`}
                     label={promptLabel ?? 'Copy prompt'}
                     prompt={prompt}
                   />

@@ -1,33 +1,21 @@
 import * as React from 'react'
 import {
   ArrowRightIcon,
-  BracketsCurlyIcon,
-  CloudIcon,
   CodeIcon,
-  GitBranchIcon,
   HardDrivesIcon,
-  NetworkIcon,
-  RocketIcon,
-  ShieldCheckIcon,
-  StackIcon,
+  PlayIcon,
+  CheckIcon,
+  ArrowDownIcon,
 } from '@phosphor-icons/react'
 import { getStartHostingPartners } from '~/utils/start-hosting-partners'
 import { getPartnersForPlacement } from '~/utils/partner-placement'
 import { usePartnerPlacementContext } from '~/utils/usePartnerPlacementContext'
+import { LandingWindow, LibraryLandingShell } from './LibraryLanding'
+import { LandingCopyPromptButton } from './LandingCopyPromptButton'
+import './start-landing.css'
 
-import {
-  LandingEyebrow,
-  LandingSection,
-  LandingSectionIntro,
-  LandingWindow,
-  LibraryLandingShell,
-} from './LibraryLanding'
-
-const startPrompt = [
-  'Build a TanStack Start application with file-based TanStack Router routes, validated search params, route loaders, typed server functions, full-document SSR, and streaming.',
-  'Keep server-only work behind explicit boundaries, choose the appropriate SSR mode per route, and target the deployment runtime without changing the application model.',
-].join(' ')
-
+const startPrompt =
+  'Build it with TanStack Start. Use TanStack Router for type-safe routes, search params, and loaders, and typed server functions for server-only work. Read the current TanStack documentation and installed package skills before implementing.'
 const renderModes = [
   {
     id: 'full',
@@ -55,122 +43,320 @@ const renderModes = [
   },
 ] as const
 
-const boundaryExamples = [
-  {
-    id: 'serverFn',
-    label: 'Server function',
-    title: 'Typed work called from the app',
-    code: "const getProject = createServerFn({ method: 'GET' })\n  .validator(projectSchema)\n  .handler(({ data }) => db.projects.find(data.id))",
-    flow: [
-      'component or loader',
-      'validated request',
-      'server-only handler',
-      'typed result',
-    ],
-  },
-  {
-    id: 'serverRoute',
-    label: 'Server route',
-    title: 'An endpoint for outside callers',
-    code: "export const Route = createFileRoute('/api/webhook')({\n  server: {\n    handlers: {\n      POST: async ({ request }) => handleWebhook(request),\n    },\n  },\n})",
-    flow: ['external request', 'server route', 'response'],
-  },
-  {
-    id: 'middleware',
-    label: 'Middleware',
-    title: 'Request policy that composes',
-    code: 'const auth = createMiddleware()\n  .middleware([logging])\n  .server(async ({ next }) => next({ context: { user } }))',
-    flow: ['request', 'logging', 'authentication', 'handler'],
-  },
-] as const
-
-const deploymentDetails: Record<string, { output: string; command?: string }> =
-  {
-    cloudflare: {
-      output: 'Worker runtime',
-      command: 'wrangler deploy',
-    },
-    netlify: { output: 'Netlify functions', command: 'netlify deploy' },
-    railway: { output: 'Node service', command: 'railway up' },
-    lovable: { output: 'Lovable Cloud' },
-    vercel: { output: 'Vercel functions', command: 'npx vercel' },
-    render: { output: 'Node web service' },
-  }
-
-const hostingPartners = getStartHostingPartners()
-
-const nodeDeploymentTarget = {
-  id: 'node',
-  label: 'Node.js',
-  output: 'Node server',
-  command: 'node .output/server/index.mjs',
-  href: undefined,
-}
-
 export default function StartLanding() {
   return (
-    <LibraryLandingShell
-      libraryId="start"
-      headline="A full-stack framework for React and Solid."
-      description="Build with type-safe routing, server-side rendering, streaming, and server functions, powered by TanStack Router."
-      beforeActions={
-        <nav
-          aria-label="Start guides"
-          className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-ds-body-sm"
-        >
-          <a
-            className="text-text-primary underline underline-offset-4 hover:text-(--landing-accent-bright)"
-            href="/start/latest/docs/framework/react/comparison"
-          >
-            Compare with Next.js
-          </a>
-          <a
-            className="text-text-primary underline underline-offset-4 hover:text-(--landing-accent-bright)"
-            href="/start/latest/docs/framework/react/migrate-from-next-js"
-          >
-            Migrate from Next.js
-          </a>
-        </nav>
-      }
-      hero={<ExecutionMapHero />}
-      prompt={startPrompt}
-      promptLabel="Copy Start prompt"
-    >
-      <LandingSection tone="raised">
-        <div className="grid items-center gap-14 lg:grid-cols-[0.82fr_1.18fr] lg:gap-20">
-          <LandingSectionIntro
-            eyebrow="Router at the core"
-            icon={<GitBranchIcon aria-hidden="true" size={15} />}
-            title="The framework does not replace the application model."
-            body="Routes, params, search schemas, loaders, links, pending states, and boundaries stay TanStack Router. Start adds the server and build layers around that same tree."
-          />
-          <RouterFoundation />
-        </div>
-      </LandingSection>
+    <div className="start-launch">
+      <LibraryLandingShell
+        libraryId="start"
+        headline="A full-stack framework for React and Solid."
+        description="Feels like building a SPA, with the whole server behind you. Type-safe routing, server rendering, streaming, and server functions, all in the same app."
+        beforeActions={
+          <div className="mt-5 flex flex-wrap gap-5 text-ds-body-sm">
+            <a className="start-release" href="/blog/tanstack-start-1-0">
+              1.0 is stable <ArrowRightIcon size={16} />
+            </a>
+            <a className="start-release" href="#start-film">
+              Watch the launch <PlayIcon size={14} weight="fill" />
+            </a>
+          </div>
+        }
+        hero={<AppAndServer />}
+        prompt={startPrompt}
+        promptLabel="Copy prompt"
+      >
+        <section className="start-type-section start-section">
+          <div className="start-section-copy">
+            <h2>
+              Change your mind.
+              <br />
+              <em>Your types keep up.</em>
+            </h2>
+            <p>
+              Rename a route parameter. Change what your server returns. Your
+              editor knows what else needs to change, all the way to the
+              component using it.
+            </p>
+            <a href="/router/latest/docs/framework/react/guide/type-safety">
+              Built on TanStack Router <ArrowRightIcon size={18} />
+            </a>
+          </div>
+          <TypeConnection />
+        </section>
 
-      <LandingSection tone="accent">
-        <div className="grid items-start gap-12 lg:grid-cols-[0.75fr_1.25fr] lg:gap-16">
-          <LandingSectionIntro
-            eyebrow="Explicit boundaries"
-            icon={<ShieldCheckIcon aria-hidden="true" size={15} />}
-            title="Server work is visible in the code that calls it."
-            body="Use server functions for type-safe app calls, server routes for outside callers, and composable middleware for authentication, context, logging, and policy."
-          />
-          <ServerBoundaryLab />
-        </div>
-      </LandingSection>
+        <section className="start-render-section start-section">
+          <div className="start-section-copy">
+            <h2>
+              You decide what
+              <br />
+              runs where.
+            </h2>
+            <p>
+              Server rendering, streaming, server functions, and middleware,
+              without having to rethink your entire app. You can even choose how
+              each route renders.
+            </p>
+            <a href="/start/latest/docs/framework/react/guide/selective-ssr">
+              Explore rendering options <ArrowRightIcon size={18} />
+            </a>
+          </div>
+          <ExecutionMapHero />
+        </section>
 
-      <LandingSection tone="ink">
-        <LandingSectionIntro
-          centered
-          eyebrow="Portable application model"
-          icon={<RocketIcon aria-hidden="true" size={15} />}
-          title="Keep the routes. Change the output."
-          body="Start supports Vite and Rsbuild and is designed for different hosting providers and runtimes. Deployment configuration changes; route authoring and server boundaries do not."
+        <section className="start-ai-section start-section">
+          <h2>
+            Tell your AI:
+            <br />
+            <em>
+              “Build it with
+              <br />
+              TanStack Start.”
+            </em>
+          </h2>
+          <div className="start-ai-copy">
+            <p>
+              The same explicit APIs and strict types that help you build help
+              your agent, too. And with TanStack Intent, guidance ships with the
+              packages it’s using.
+            </p>
+            <LandingCopyPromptButton
+              prompt={startPrompt}
+              label="Copy the prompt"
+              className="start-button"
+            />
+            <a href="/intent/latest">
+              Meet TanStack Intent <ArrowRightIcon size={18} />
+            </a>
+          </div>
+        </section>
+        <HostingLinks />
+        <section id="start-film" className="start-film start-section">
+          <LaunchFilm />
+        </section>
+      </LibraryLandingShell>
+    </div>
+  )
+}
+
+function AppAndServer() {
+  const [view, setView] = React.useState('Projects')
+  const [server, setServer] = React.useState(false)
+  return (
+    <div className="start-demo" data-server={server}>
+      <div className="start-app">
+        <div className="start-app-toolbar">
+          <span className="start-app-brand">◒ Daybreak</span>
+          <span>daybreak.local/{view.toLowerCase()}</span>
+          <span className="start-avatar">JD</span>
+        </div>
+        <div className="start-app-body">
+          <nav aria-label="Example application">
+            <span>Workspace</span>
+            {['Projects', 'Activity', 'Team'].map((item) => (
+              <button
+                key={item}
+                onClick={() => setView(item)}
+                aria-pressed={view === item}
+              >
+                {item}
+              </button>
+            ))}
+          </nav>
+          <div className="start-projects" aria-live="polite">
+            <div className="start-project-heading">
+              <h3>{view}</h3>
+              <span>Acme Studio</span>
+            </div>
+            {view === 'Projects' ? (
+              <>
+                {[
+                  ['Website refresh', 'Design', '72%'],
+                  ['Customer portal', 'Development', '46%'],
+                  ['Mobile experience', 'Planning', '24%'],
+                ].map(([name, state, progress]) => (
+                  <div className="start-project-row" key={name}>
+                    <span className="start-project-icon">{name.charAt(0)}</span>
+                    <div>
+                      <strong>{name}</strong>
+                      <small>{state}</small>
+                    </div>
+                    <span className="start-progress">
+                      <i
+                        style={{
+                          transform: `scaleX(${parseInt(progress) / 100})`,
+                        }}
+                      />
+                    </span>
+                    <span>{progress}</span>
+                  </div>
+                ))}
+              </>
+            ) : view === 'Activity' ? (
+              <>
+                <p className="start-activity">
+                  <CheckIcon /> Website refresh moved to design review.
+                </p>
+                <p className="start-activity">
+                  <CheckIcon /> Customer portal preview deployed.
+                </p>
+                <p className="start-activity">
+                  <CheckIcon /> Mobile experience brief approved.
+                </p>
+              </>
+            ) : (
+              <>
+                {['Jamie, Design', 'Alex, Engineering', 'Morgan, Product'].map(
+                  (name) => (
+                    <div className="start-project-row" key={name}>
+                      <span className="start-avatar">{name[0]}</span>
+                      <strong>{name}</strong>
+                    </div>
+                  ),
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+      <button
+        className="start-server-toggle"
+        aria-expanded={server}
+        onClick={() => setServer(!server)}
+      >
+        {server ? 'Back to the app' : 'See what’s behind it'}{' '}
+        <ArrowDownIcon size={18} />
+      </button>
+      <div className="start-server-layer" aria-hidden={!server}>
+        <div className="start-server-line" />
+        <div className="start-server-rack">
+          <HardDrivesIcon size={26} />
+          <strong>Your server</strong>
+          <span>SSR</span>
+          <span>Streaming</span>
+          <span>Server functions</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function TypeConnection() {
+  const [field, setField] = React.useState<'name' | 'title'>('name')
+  return (
+    <div className="start-types">
+      <div className="start-code-title">
+        <span>server/project.ts</span>
+        <button onClick={() => setField(field === 'name' ? 'title' : 'name')}>
+          Rename {field} to {field === 'name' ? 'title' : 'name'}{' '}
+          <ArrowRightIcon size={14} />
+        </button>
+      </div>
+      <pre>
+        <code>
+          <span className="start-code-muted">export const</span> getProject =
+          createServerFn(){'\n  '}.handler(async () =&gt; ({'{'}
+          {'\n    '}id: 42,{'\n    '}
+          <mark>{field}</mark>: 'Website refresh',{'\n  '}&#125;))
+        </code>
+      </pre>
+      <div className="start-type-connector">
+        <ArrowDownIcon size={18} />
+        <span>Inferred through your route loader</span>
+      </div>
+      <div className="start-code-title">
+        <span>routes/projects.tsx</span>
+      </div>
+      <pre>
+        <code>
+          {
+            "export const Route = createFileRoute('/projects')({\n  loader: () => getProject(),\n})\n\n"
+          }
+          const project = Route.useLoaderData(){'\n\n'}&lt;h1&gt;{'{'}project.
+          <mark>{field}</mark>
+          {'}'}&lt;/h1&gt;
+        </code>
+      </pre>
+      <div className="start-inferred" aria-live="polite">
+        <CheckIcon size={16} />
+        <code>
+          project: {'{'} id: number; {field}: string {'}'}
+        </code>
+      </div>
+      <p className="start-code-note">
+        Illustration of the inferred type. Your editor flags old references when
+        you rename a field.
+      </p>
+    </div>
+  )
+}
+
+function HostingLinks() {
+  const context = usePartnerPlacementContext({
+    category: 'deployment',
+    orderStrategy: 'tier-rotated',
+    surface: 'start_deployment',
+  })
+  const partners = getPartnersForPlacement(getStartHostingPartners(), context)
+  return (
+    <section className="start-hosting start-section">
+      <div>
+        <h2>
+          Your app.
+          <br />
+          Your infrastructure.
+        </h2>
+        <p>Deploy to the platform you like. Keep the app you built.</p>
+        <a href="/start/latest/docs/framework/react/guide/hosting">
+          Deployment guides <ArrowRightIcon size={18} />
+        </a>
+      </div>
+      <div className="start-hosts">
+        {partners.map((partner) => (
+          <a key={partner.id} href={partner.href}>
+            {partner.name}
+            <ArrowRightIcon size={18} />
+          </a>
+        ))}
+        <a href="/start/latest/docs/framework/react/guide/hosting">
+          Node.js <ArrowRightIcon size={18} />
+        </a>
+      </div>
+    </section>
+  )
+}
+
+function LaunchFilm() {
+  const [playing, setPlaying] = React.useState(false)
+  const video = React.useRef<HTMLVideoElement>(null)
+  return (
+    <div className="start-film-frame">
+      <video
+        ref={video}
+        controls={playing}
+        preload="none"
+        playsInline
+        poster="https://media.tanstack.com/blog/tanstack-start-1-0/v11-title-poster.jpg"
+        src="https://media.tanstack.com/blog/tanstack-start-1-0/v11.mp4"
+        onPlay={() => setPlaying(true)}
+        aria-label="TanStack Start 1.0 launch video"
+      >
+        <track
+          kind="captions"
+          src="/blog-assets/tanstack-start-1-0/captions.vtt"
+          srcLang="en"
+          label="English"
         />
-        <DeploymentSelector />
-      </LandingSection>
-    </LibraryLandingShell>
+      </video>
+      {!playing && (
+        <button
+          aria-label="Play the TanStack Start launch video"
+          onClick={() => {
+            void video.current?.play().catch(() => setPlaying(false))
+          }}
+        >
+          <PlayIcon size={32} weight="fill" />
+        </button>
+      )}
+    </div>
   )
 }
 
@@ -234,7 +420,7 @@ function ExecutionMapHero() {
           <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
             {mode.label}
           </p>
-          <p className="mt-2 text-ds-body-xs text-text-primary/45">
+          <p className="mt-2 text-ds-body-xs text-text-primary/75">
             {mode.note}
           </p>
         </div>
@@ -267,237 +453,12 @@ function RuntimeColumn({
             <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-[var(--landing-accent)] font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-ink)]">
               {index + 1}
             </span>
-            <span className="font-ds-mono text-ds-mono-2xs text-text-primary/65">
+            <span className="font-ds-mono text-ds-mono-2xs text-text-primary/80">
               {step}
             </span>
           </li>
         ))}
       </ol>
-    </div>
-  )
-}
-
-function RouterFoundation() {
-  const layers = [
-    {
-      label: 'Start server layer',
-      detail: 'SSR · streaming · server functions · routes · middleware',
-      icon: HardDrivesIcon,
-      accent: true,
-    },
-    {
-      label: 'TanStack Router',
-      detail: 'route tree · URL state · loaders · links · boundaries',
-      icon: NetworkIcon,
-      accent: false,
-    },
-    {
-      label: 'Your application',
-      detail: 'components · data clients · product behavior',
-      icon: StackIcon,
-      accent: false,
-    },
-  ] as const
-
-  return (
-    <div className="space-y-3">
-      {layers.map((layer, index) => {
-        const Icon = layer.icon
-        return (
-          <div
-            key={layer.label}
-            className={
-              layer.accent
-                ? 'relative rounded-xl border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.16)] p-5 shadow-[0_18px_50px_rgb(var(--landing-glow)/0.12)]'
-                : 'relative rounded-xl border border-border-default bg-background-surface p-5'
-            }
-            style={{
-              marginInline:
-                index === 1 ? '1.5rem' : index === 2 ? '3rem' : undefined,
-            }}
-          >
-            <div className="flex items-start gap-4">
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[var(--landing-accent)] text-[var(--landing-accent-ink)]">
-                <Icon aria-hidden="true" size={19} />
-              </span>
-              <div>
-                <h3 className="text-ds-heading-4">{layer.label}</h3>
-                <p className="mt-2 font-ds-mono text-ds-mono-2xs text-text-primary/35">
-                  {layer.detail}
-                </p>
-              </div>
-            </div>
-          </div>
-        )
-      })}
-    </div>
-  )
-}
-
-function ServerBoundaryLab() {
-  const [activeId, setActiveId] = React.useState<
-    'serverFn' | 'serverRoute' | 'middleware'
-  >('serverFn')
-  const active =
-    boundaryExamples.find((item) => item.id === activeId) ?? boundaryExamples[0]
-
-  return (
-    <LandingWindow label="server boundary">
-      <div className="border-b border-border-subtle px-4 pt-4">
-        <div
-          className="flex gap-5 overflow-x-auto"
-          role="group"
-          aria-label="Server boundary type"
-        >
-          {boundaryExamples.map((example) => (
-            <button
-              key={example.id}
-              type="button"
-              aria-pressed={activeId === example.id}
-              className="shrink-0 border-b-2 border-transparent pb-3 text-ds-label-sm text-text-primary/35 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-text-primary"
-              onClick={() => setActiveId(example.id)}
-            >
-              {example.label}
-            </button>
-          ))}
-        </div>
-      </div>
-      <div aria-live="polite" className="p-5">
-        <h3 className="text-ds-heading-4">{active.title}</h3>
-        <pre className="mt-5 overflow-x-auto rounded-lg bg-ds-neutral-500 p-4">
-          <code className="font-ds-mono text-ds-mono-xs text-white/65">
-            {active.code}
-          </code>
-        </pre>
-        <ol className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-0">
-          {active.flow.map((step, index) => (
-            <React.Fragment key={step}>
-              <li className="min-w-0 flex-1 rounded-full border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.1)] px-3 py-2 text-center font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
-                {step}
-              </li>
-              {index < active.flow.length - 1 ? (
-                <span
-                  aria-hidden="true"
-                  className="mx-auto h-3 w-px bg-[var(--landing-accent)] sm:h-px sm:w-4"
-                />
-              ) : null}
-            </React.Fragment>
-          ))}
-        </ol>
-      </div>
-    </LandingWindow>
-  )
-}
-
-function DeploymentSelector() {
-  const placementContext = usePartnerPlacementContext({
-    category: 'deployment',
-    orderStrategy: 'tier-rotated',
-    surface: 'start_deployment',
-  })
-  const deploymentTargets = [
-    ...getPartnersForPlacement(hostingPartners, placementContext).map(
-      (partner) => ({
-        id: partner.id,
-        label: partner.name,
-        output:
-          deploymentDetails[partner.id]?.output ??
-          partner.tagline ??
-          partner.name,
-        command: deploymentDetails[partner.id]?.command,
-        href: partner.href,
-      }),
-    ),
-    nodeDeploymentTarget,
-  ]
-  const [activeId, setActiveId] = React.useState<string | null>(null)
-  const active =
-    deploymentTargets.find((target) => target.id === activeId) ??
-    deploymentTargets[0]
-
-  return (
-    <div className="mx-auto mt-14 grid max-w-[72rem] gap-5 lg:grid-cols-[0.72fr_1.28fr]">
-      <div className="space-y-2" role="group" aria-label="Deployment target">
-        {deploymentTargets.map((target) => (
-          <button
-            key={target.id}
-            type="button"
-            aria-pressed={target.id === active.id}
-            className="flex w-full items-center justify-between gap-4 rounded-xl border border-border-subtle bg-background-subtle px-5 py-4 text-left text-text-primary/45 hover:border-border-default hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.12)] aria-pressed:text-text-primary"
-            onClick={() => setActiveId(target.id)}
-          >
-            <span className="text-ds-label-md">{target.label}</span>
-            <CloudIcon aria-hidden="true" className="shrink-0" size={19} />
-          </button>
-        ))}
-      </div>
-
-      <LandingWindow label="deployment output">
-        <div className="p-6" aria-live="polite">
-          <div className="flex items-start justify-between gap-5">
-            <div>
-              <LandingEyebrow>selected target</LandingEyebrow>
-              <h3 className="mt-4 text-ds-heading-2">{active.label}</h3>
-            </div>
-            <RocketIcon
-              aria-hidden="true"
-              className="text-[var(--landing-accent-bright)]"
-              size={30}
-              weight="light"
-            />
-          </div>
-          <dl className="mt-7 grid gap-px overflow-hidden rounded-lg bg-text-primary/5 sm:grid-cols-2">
-            <div className="bg-background-subtle p-4">
-              <dt className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
-                output
-              </dt>
-              <dd className="mt-2 text-ds-label-md text-text-primary/80">
-                {active.output}
-              </dd>
-            </div>
-            <div className="bg-background-subtle p-4">
-              <dt className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
-                deploy
-              </dt>
-              <dd className="mt-2 break-words font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
-                {active.command ?? (
-                  <a
-                    href={active.href}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="underline underline-offset-4"
-                  >
-                    Open {active.label}
-                  </a>
-                )}
-              </dd>
-            </div>
-          </dl>
-          <div className="mt-6 grid gap-2 sm:grid-cols-2">
-            {[
-              'createFileRoute()',
-              'createServerFn()',
-              'middleware()',
-              'route loaders',
-            ].map((item) => (
-              <div
-                key={item}
-                className="flex items-center gap-2 rounded-lg border border-border-subtle bg-background-default px-3 py-2.5 font-ds-mono text-ds-mono-2xs text-text-primary/55"
-              >
-                <BracketsCurlyIcon
-                  aria-hidden="true"
-                  className="text-[var(--landing-accent-bright)]"
-                  size={14}
-                />
-                {item}
-              </div>
-            ))}
-          </div>
-          <p className="mt-5 text-ds-body-xs text-text-primary/35">
-            The authoring surface stays the same.
-          </p>
-        </div>
-      </LandingWindow>
     </div>
   )
 }

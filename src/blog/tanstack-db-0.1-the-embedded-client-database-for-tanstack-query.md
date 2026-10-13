@@ -1,7 +1,6 @@
 ---
 title: Stop Re-Rendering. TanStack DB, the Embedded Client Database for TanStack Query
 published: 2025-07-30
-updated: 2026-10-13
 excerpt: Your React dashboard shouldn't grind to a halt because one TODO gets checked. TanStack DB is a client-side database powered by differential dataflow that plugs into your existing useQuery calls.
 library: db
 authors:
@@ -363,7 +362,7 @@ While TanStack DB works great with REST and GraphQL, it really shines when paire
 
 **Load far more data efficiently**: It's far cheaper to update data in the client when using sync engines. Instead of re-loading entire collections after each change, sync engines send only the actual changed items. This makes it practical to load far more data upfront, enabling the "load everything once" pattern that makes apps like Linear feel so fast.
 
-TanStack DB was designed from the ground up to support sync engines. [When you define a collection, you're provided with an API for writing synced transactions](https://tanstack.com/db/latest/docs/guides/collection-options-creator) from the backend into your local collections. Try the current collection implementations for [Electric](https://tanstack.com/db/latest/docs/installation#electric-collection), [TrailBase](https://tanstack.com/db/latest/docs/installation#trailbase-collection), and [PowerSync](https://tanstack.com/db/latest/docs/installation#powersync-collection).
+TanStack DB was designed from the ground up to support sync engines. [When you define a collection, you're provided with an API for writing synced transactions](https://tanstack.com/db/latest/docs/guides/collection-options-creator) from the backend into your local collections. Try out collection implementations for [Electric](https://tanstack.com/db/latest/docs/installation#electric-collection), [Trailblaze](https://tanstack.com/db/latest/docs/installation#trailbase-collection), and [(soon) Firebase](https://github.com/TanStack/db/pull/323)!
 
 DB gives you a common interface for your components to query data, which means you can easily switch between data loading strategies as needed without changing client code. Start with REST, switch to a sync engine later as needed, your components don't need to know the difference.
 

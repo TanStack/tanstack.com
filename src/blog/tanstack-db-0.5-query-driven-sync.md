@@ -1,8 +1,7 @@
 ---
-title: TanStack DB 0.5: Query-Driven Sync
+title: TanStack DB 0.5 .  Query-Driven Sync
 published: 2025-11-12
-updated: 2026-10-13
-excerpt: Your component's query drives loading through your existing API. TanStack DB 0.5 introduces query-driven sync that reduces the glue code between your UI and your data.
+excerpt: Your component's query is now the API call. No custom endpoint, no GraphQL resolver, no backend change. TanStack DB 0.5 introduces query-driven sync that eliminates the glue code between your UI and your data.
 library: db
 authors:
   - Sam Willis
@@ -12,7 +11,7 @@ authors:
 
 ![Query-Driven Sync](/blog-assets/tanstack-db-0.5-query-driven-sync/header.png)
 
-You don't need a new API for every component. With an on-demand collection, the component's query determines the requested subset.
+You don't need a new API for every component. With 0.5, the component's query _is_ the API call.
 
 ```tsx
 // Your component's query...
@@ -26,12 +25,12 @@ const { data: projectTodos } = useLiveQuery((q) =>
     .where(({ projects }) => eq(projects.id, 123)),
 )
 
-// For Query Collections mapped to this API:
+// ...becomes these precise API calls automatically:
 // GET /api/projects/123
 // GET /api/todos?projectId=123&status=active
 ```
 
-If your existing API accepts these filters, you don't need a new endpoint or GraphQL resolver. Configure each collection's `queryFn` to map the requested predicates to that API.
+No custom endpoint. No GraphQL resolver. No backend change. Just write your query and TanStack DB figures out exactly what to fetch.
 
 We're releasing TanStack DB 0.5 today with Query-Driven Sync. A feature that fundamentally changes how you think about loading data.
 
@@ -144,7 +143,7 @@ const { data: electronics } = useLiveQuery((q) =>
 )
 ```
 
-For an API that supports these filters, your `queryFn` maps the requested subset to:
+TanStack DB automatically calls your `queryFn` with:
 
 ```
 GET /api/products?category=electronics&price_lt=100&sort=price:asc&limit=10
@@ -152,7 +151,7 @@ GET /api/products?category=electronics&price_lt=100&sort=price:asc&limit=10
 
 **No custom API endpoint.** **No GraphQL schema changes.** Just a general-purpose products API that accepts filter parameters.
 
-Your component's query guides the API request.
+Your component's query becomes the API call.
 
 If you're familiar with Relay or Apollo, this should feel familiar: components declare their data needs, and the framework optimizes fetching and updates. The difference? You get Relay-style normalized caching and automatic updates without GraphQL. Your REST, GraphQL, or tRPC API stays simple, your queries stay powerful, and differential dataflow keeps everything fast client-side.
 
@@ -160,11 +159,11 @@ If you're familiar with Relay or Apollo, this should feel familiar: components d
 
 "Wait," you're thinking, "doesn't this create N+1 query problems?"
 
-Query Collection shares identical concurrent requests. Join batching and other transport behavior depend on the collection adapter and API.
+No. And here's why the performance story is actually _better_ than custom APIs.
 
 ### **Automatic request collapsing**
 
-Components requesting the same subset concurrently through one Query Collection share a single in-flight fetch:
+Multiple components requesting the same data trigger exactly one network call:
 
 ```tsx
 // Component A
@@ -177,34 +176,38 @@ const { data: active } = useLiveQuery((q) =>
   q.from({ todos }).where(({ todos }) => eq(todos.status, 'active')),
 )
 
-// Both components share this in-flight request:
+// Result: ONE network request
 // GET /api/todos?status=active
 ```
 
-Query Collection uses the requested subset in its TanStack Query cache key, so identical concurrent requests share a Query fetch. Custom collection adapters must implement transport deduplication if they need it; `DeduplicatedLoadSubset` is available for that purpose.
+TanStack DB compares predicates across all live queries and deduplicates requests automatically.
 
 ### **Subset matching and delta loading**
 
-For an on-demand Query Collection backed by an offset-based API, use an ordered infinite query to load more rows:
+When you navigate from viewing 10 products to viewing 20, DB doesn't reload everything:
 
 ```tsx
-const { data, fetchNextPage } = useLiveInfiniteQuery(
-  (q) =>
-    q
-      .from({ product: productsCollection })
-      .orderBy(({ product }) => product.id, 'asc'),
-  { pageSize: 10 },
-)
+// Initial query: loads 10 products
+const { data } = useLiveQuery((q) => q.from({ products }).limit(10))
 
-// In the "load more" button handler:
+// User clicks "load more": loads ONLY the next 10
 fetchNextPage()
 ```
 
-The hook widens the ordered query window and requests an extra row to determine whether another page exists. The `queryFn` must fulfill the requested filter, order, limit, and offset; a request is not necessarily one UI page. A different filter, order, or limit has a distinct request identity. These requests can overlap rows already present locally. See the [server pagination guide](/db/latest/docs/collections/query-collection#server-pagination-with-live-queries) for the full contract.
+```
+# Page 1
+GET /api/products?limit=10&offset=0
+
+# Page 2
+GET /api/products?limit=10&offset=10
+# NOT: GET /api/products?limit=20
+```
+
+Already-loaded rows are reused; only the new window crosses the wire. The collection tracks which predicates it has already satisfied and only fetches the delta.
 
 ### **Join optimization**
 
-When an adapter maps pushed-down predicates to batched API filters, the join requests related rows together:
+Complex joins don't cause request explosions. They trigger a minimal set of filtered requests:
 
 ```tsx
 // Join todos with their projects
@@ -224,51 +227,35 @@ const { data } = useLiveQuery((q) =>
 // NOT 10 separate project requests!
 ```
 
-DB derives the related keys. The collection's `queryFn` determines how those keys become transport requests, including whether the API can fetch them in one batch.
+DB analyzes the join to determine exactly which related records are needed, then fetches them in a single batched request.
 
 ### **Respects your cache policies**
 
 Query Collection integrates with TanStack Query's `staleTime` and `gcTime`:
 
 ```tsx
-const productsCollection = createCollection(
-  queryCollectionOptions({
-    queryClient,
-    queryKey: ['products'],
-    queryFn: fetchProducts,
-    getKey: (product) => product.id,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    syncMode: 'on-demand',
-  }),
-)
+const productsCollection = createCollection(queryCollectionOptions({
+  queryClient,
+  queryKey: ['products'],
+  queryFn: fetchProducts,
+  getKey: (product) => product.id,
+  staleTime: 5 * 60 * 1000, // 5 minutes
+  syncMode: 'on-demand'
+}))
 
 // First query: network request
-useLiveQuery((q) =>
-  q
-    .from({ product: productsCollection })
-    .where(({ product }) => eq(product.category, 'hardware')),
-)
+useLiveQuery(q => q.from({ products }).where(...))
 
-// Identical request within 5 minutes: reuse the cached result
-useLiveQuery((q) =>
-  q
-    .from({ product: productsCollection })
-    .where(({ product }) => eq(product.category, 'hardware')),
-)
+// Same query within 5 minutes: instant, no network
+useLiveQuery(q => q.from({ products }).where(...))
 
-// Different order/limit: a distinct request that may fetch overlapping rows
-useLiveQuery((q) =>
-  q
-    .from({ product: productsCollection })
-    .where(({ product }) => eq(product.category, 'hardware'))
-    .orderBy(({ product }) => product.id, 'asc')
-    .limit(20),
-)
+// Different query within 5 minutes: only fetches the diff
+useLiveQuery(q => q.from({ products }).where(...).limit(20))
 ```
 
-You get TanStack Query's caching for each requested subset.
+You get TanStack Query's sophisticated caching plus DB's intelligent subset tracking.
 
-**The result:** Identical requests share work, and one filterable API serves multiple component queries.
+**The result:** Fewer total network requests than custom view-specific APIs, with better cache utilization and zero endpoint sprawl.
 
 ## Progressive sync: Fast initial paint + instant client queries
 
@@ -291,17 +278,17 @@ const { data: urgentTodos } = useLiveQuery((q) =>
     .from({ todos: todoCollection })
     .where(({ todos }) => eq(todos.priority, 'urgent')),
 )
-// The first query requests the urgent subset while full sync runs.
+// ~100ms: Network request for urgent todos only
 
 // Meanwhile, collection syncs full dataset in background
-// After sync completes: subsequent queries run against local data.
+// After sync completes: all queries run in <1ms client-side
 ```
 
-The first query requests the urgent subset while the full dataset syncs in the background. Once that sync completes, subsequent queries use local data. Actual latency depends on the API, network, and query.
+Now your first query loads in ~100ms with a targeted network request. While the user interacts with that data, the full dataset syncs in the background. Once complete, all subsequent queries (even complex joins and filters) run in sub-millisecond time purely client-side.
 
-**Progressive mode works with Query Collection and any collection adapter that supports subset loading plus full background sync.** The Electric example above is one way to use it. Sync engines like Electric, Trailbase, and PowerSync stream changed rows after the initial load, avoiding repeated full downloads.
+**Progressive mode shines with sync engines** like Electric, Trailbase, and PowerSync. With traditional fetch approaches, loading more data means re-fetching everything, which gets expensive fast. But sync engines only send deltas (the actual changed rows), making it cheap to maintain large client-side datasets. You get instant queries over 10,000s of rows without the network cost of repeatedly fetching all that data.
 
-The same progressive loading pattern works with a REST-backed Query Collection. Choose it when fetching and refreshing the full dataset fits your application's needs.
+With REST APIs, progressive mode is less common since updates generally require full re-fetches. But for sync engines, it's often the sweet spot: fast first paint + instant everything else.
 
 ## Works today with REST. Gets better with sync engines.
 
@@ -310,10 +297,10 @@ Query-Driven Sync is designed to work with your existing REST, GraphQL, or tRPC 
 For teams using sync engines like [Electric](https://electric-sql.com), [Trailbase](https://trailbase.io/), or [PowerSync](https://www.powersync.com/), you get additional benefits:
 
 - **Real-time updates** via streaming (no polling required)
-- **Adapter-specific predicate translation** for supported queries
+- **Automatic predicate translation** (no manual mapping needed)
 - **Delta-only syncing** (only changed rows cross the wire)
 
-For example, the Electric collection adapter translates supported subset predicates into shape requests and streams updates. Configure your Electric proxy to authenticate and authorize those requests before serving data.
+For example, Electric translates your client query directly into Postgres queries, applies authorization rules, and streams updates. Your component's query becomes a secure, real-time, authorized Postgres query, no API endpoint needed.
 
 Collections abstract the data source. Start with REST. Upgrade to sync when you need real-time.
 
@@ -326,7 +313,7 @@ We provide helper functions to make this straightforward:
 ```tsx
 queryFn: async (ctx) => {
   // Parse expression trees into a simple format
-  const { filters, sorts, limit, offset } = parseLoadSubsetOptions(
+  const { filters, sorts, limit } = parseLoadSubsetOptions(
     ctx.meta?.loadSubsetOptions,
   )
 
@@ -338,16 +325,7 @@ queryFn: async (ctx) => {
       params.set(`${field.join('.')}_lt`, String(value))
     // Map other operators as needed
   })
-  if (sorts.length > 0) {
-    params.set(
-      'sort',
-      sorts
-        .map(({ field, direction }) => `${field.join('.')}:${direction}`)
-        .join(','),
-    )
-  }
-  if (limit !== undefined) params.set('limit', String(limit))
-  if (offset !== undefined) params.set('offset', String(offset))
+  if (limit) params.set('limit', String(limit))
 
   return fetch(`/api/products?${params}`).then((r) => r.json())
 }
@@ -357,7 +335,7 @@ For APIs with custom formats (like GraphQL), use `parseWhereExpression` with cus
 
 ```tsx
 queryFn: async (ctx) => {
-  const { where, orderBy, limit } = ctx.meta?.loadSubsetOptions ?? {}
+  const { where, orderBy, limit } = ctx.meta?.loadSubsetOptions
 
   // Map to GraphQL's where clause format
   const whereClause = parseWhereExpression(where, {
@@ -381,8 +359,6 @@ You write this mapping once per collection. After that, every query automaticall
 ## Shipping toward 1.0
 
 Query-Driven Sync (0.5) completes the core vision: intelligent loading that adapts to your queries, instant client-side updates via differential dataflow, and seamless persistence back to your backend. We're targeting 1.0 for December 2025, focusing on API stability and comprehensive docs.
-
-> **Timeline update (October 2026):** December 2025 was our target when this post was published. TanStack DB is still in beta; see the [current DB documentation](/db/latest/docs/overview) for its present status.
 
 **This is new. We need early adopters.** Query-Driven Sync works and ships today, but it's fresh. If you try it, we'd love your feedback on rough edges or API improvements. Join us in [Discord](https://discord.gg/tanstack) or open [GitHub issues](https://github.com/TanStack/db/issues).
 

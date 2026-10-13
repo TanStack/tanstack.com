@@ -99,8 +99,18 @@ describe('TanStack Start WebContainer compatibility', () => {
   test('starts Vite with the hidden config only for the Start profile', () => {
     assert.deepEqual(getWebContainerStartCommand(startRuntime), {
       command: 'pnpm',
-      args: ['run', 'dev', '--', '--config', '.tanstack/vite.config.mjs'],
+      args: ['run', 'dev', '--config', '.tanstack/vite.config.mjs'],
     })
+    assert.deepEqual(
+      getWebContainerStartCommand({
+        ...startRuntime,
+        start: { command: 'npm', args: ['run', 'dev'] },
+      }),
+      {
+        command: 'npm',
+        args: ['run', 'dev', '--', '--config', '.tanstack/vite.config.mjs'],
+      },
+    )
 
     assert.deepEqual(
       getWebContainerStartCommand({

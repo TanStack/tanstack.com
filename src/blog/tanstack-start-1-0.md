@@ -5,20 +5,22 @@ draft: true
 excerpt: TanStack Start 1.0 is stable and ready for production.
 authors:
   - Tanner Linsley
+contributors:
+  - Manuel Schiller
+  - Florian Pellet
+  - Christopher Horobin
 library: start
-headerImage: https://media.tanstack.com/blog/tanstack-start-1-0/v11-poster.jpg
+headerImage: https://media.tanstack.com/blog/tanstack-start-1-0/v11-title-poster.jpg
 headerVideo: https://media.tanstack.com/blog/tanstack-start-1-0/v11.mp4
 ---
 
 # TanStack Start 1.0 is Stable
 
-_With contributions from [Manuel Schiller](https://github.com/schiller-manuel), [Florian Pellet](https://github.com/sheraff), and [Christopher Horobin](https://github.com/chorobin)._
-
 TanStack Start 1.0 is finally stable. And we're really excited to officially call it ready for production.
 
 I can't begin to say how proud I am of what we've built here and of the people who have built it. For a long time, I'd hear from people already running Start in production and have to remind them we were still in RC (that conversation happened a lot more than you'd think). I'm really glad we can finally drop that caveat.
 
-We've had tons of people put Start into production through pretty much every stage of its development, from small projects and startups to entire enterprise teams and Fortune 500 companies. To our surprise, so many of these companies insisted on using it even when it was in beta. We'd explain where things were, and they'd basically tell us we're going to use it anyway.
+We've had tons of people put Start into production through pretty much every stage of its development, from small projects and startups to entire enterprise teams and Fortune 500 companies. To our surprise, so many of these companies insisted on using it even when it was in beta. We'd explain where things were, and they'd basically tell us, "we're going to use it anyway."
 
 When enterprise teams are insisting on putting your beta software into production before it's even a release candidate, it's difficult to not feel the massive level of trust everybody is putting in you. So even though people have been successfully using Start in production for a long time, this is us making our formal commitment to the APIs we've built and the people building on them. You can now choose Start, learn it, ship something with it, and continue to build without wondering whether we're going to change the entire way your application works.
 

@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { PostNotFound } from './blog'
 import * as React from 'react'
+import { PlayIcon } from '@phosphor-icons/react'
 import { MarkdownContent } from '~/components/markdown'
 import { Card } from '~/components/Card'
 import { LibrariesWidget } from '~/components/LibrariesWidget'
@@ -12,6 +13,7 @@ import { useMediaQuery } from '~/utils/useMediaQuery'
 
 import { Toc } from '~/components/Toc'
 import { Breadcrumbs } from '~/components/Breadcrumbs'
+import { findMaintainerByAuthorName } from '~/utils/authors'
 import { CoverFallback } from '~/components/CoverFallback'
 import { fetchBlogPost } from '~/utils/blog.functions'
 import { parseSiteMarkdown } from '~/utils/markdown'
@@ -42,6 +44,9 @@ export const Route = createFileRoute('/blog/$')({
 function BlogPost() {
   const {
     content,
+    authors,
+    contributors,
+    published,
     filePath,
     title,
     headerImage,
@@ -50,7 +55,13 @@ function BlogPost() {
     library,
   } = Route.useLoaderData()
   const { _splat: slug } = Route.useParams()
-  const markdown = React.useMemo(() => parseSiteMarkdown(content), [content])
+  const videoRef = React.useRef<HTMLVideoElement>(null)
+  const [startedVideo, setStartedVideo] = React.useState<string>()
+  const hasStartedVideo = startedVideo === headerVideo
+  const markdown = React.useMemo(
+    () => parseSiteMarkdown(content.replace(/^# [^\n]+\n*/m, '')),
+    [content],
+  )
   const headings = markdown.headings
 
   const isTocVisible = headings.length > 1
@@ -146,23 +157,157 @@ function BlogPost() {
                     ].join(' ')}
                   >
                     <div className="flex overflow-auto flex-col w-full p-2 lg:p-4 xl:p-6 pt-0">
-                      {headerVideo ? (
-                        <video
-                          aria-label={title}
-                          controls
-                          playsInline
-                          preload="none"
-                          poster={headerImage}
-                          src={headerVideo}
-                          className="aspect-video w-full rounded-2xl mb-6"
+                      <header className="mb-8">
+                        <time
+                          dateTime={published}
+                          className="text-sm text-text-secondary"
                         >
-                          <track
-                            kind="captions"
-                            src={headerVideoCaptions}
-                            srcLang="en"
-                            label="English"
-                          />
-                        </video>
+                          {new Intl.DateTimeFormat('en-US', {
+                            weekday: 'long',
+                            month: 'long',
+                            day: 'numeric',
+                            year: 'numeric',
+                            timeZone: 'UTC',
+                          }).format(new Date(`${published}T00:00:00Z`))}
+                        </time>
+                        <h1 className="mt-5 mb-8 text-4xl md:text-5xl font-extrabold tracking-tight leading-tight">
+                          {title}
+                        </h1>
+                        <div className="flex flex-wrap items-start gap-x-10 gap-y-6 border-b border-gray-500/20 pb-7">
+                          <div>
+                            <div className="mb-3 text-sm text-text-secondary">
+                              Posted by
+                            </div>
+                            <div className="flex flex-wrap gap-6">
+                              {authors.map((name) => {
+                                const author = findMaintainerByAuthorName(name)
+                                return author ? (
+                                  <a
+                                    key={name}
+                                    href={`https://github.com/${author.github}`}
+                                    className="flex items-center gap-3 hover:underline"
+                                  >
+                                    <img
+                                      src={author.avatar}
+                                      alt=""
+                                      width={44}
+                                      height={44}
+                                      className="size-11 rounded-full"
+                                    />
+                                    <div>
+                                      <div className="font-semibold">
+                                        {name}
+                                      </div>
+                                      <div className="text-sm text-text-secondary">
+                                        @{author.github}
+                                      </div>
+                                    </div>
+                                  </a>
+                                ) : (
+                                  <span key={name} className="font-semibold">
+                                    {name}
+                                  </span>
+                                )
+                              })}
+                            </div>
+                          </div>
+                          {contributors.length ? (
+                            <div>
+                              <div className="mb-3 text-sm text-text-secondary">
+                                With contributions from
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <div className="flex -space-x-3">
+                                  {contributors.map((name) => {
+                                    const person =
+                                      findMaintainerByAuthorName(name)
+                                    return person ? (
+                                      <a
+                                        key={name}
+                                        href={`https://github.com/${person.github}`}
+                                        aria-label={name}
+                                        title={name}
+                                        className="relative hover:z-10"
+                                      >
+                                        <img
+                                          src={person.avatar}
+                                          alt=""
+                                          width={44}
+                                          height={44}
+                                          className="size-11 rounded-full ring-2 ring-background"
+                                        />
+                                      </a>
+                                    ) : null
+                                  })}
+                                </div>
+                                <div className="text-sm">
+                                  {contributors.map((name, index) => {
+                                    const person =
+                                      findMaintainerByAuthorName(name)
+                                    return (
+                                      <React.Fragment key={name}>
+                                        {index ? ', ' : ''}
+                                        {person ? (
+                                          <a
+                                            href={`https://github.com/${person.github}`}
+                                            className="hover:underline"
+                                          >
+                                            {name}
+                                          </a>
+                                        ) : (
+                                          name
+                                        )}
+                                      </React.Fragment>
+                                    )
+                                  })}
+                                </div>
+                              </div>
+                            </div>
+                          ) : null}
+                        </div>
+                      </header>
+                      {headerVideo ? (
+                        <div className="relative mb-6 overflow-hidden rounded-2xl">
+                          <video
+                            ref={videoRef}
+                            aria-label={title}
+                            controls={hasStartedVideo}
+                            onPlay={() => setStartedVideo(headerVideo)}
+                            playsInline
+                            preload="none"
+                            poster={headerImage}
+                            src={headerVideo}
+                            className="aspect-video w-full"
+                          >
+                            <track
+                              kind="captions"
+                              src={headerVideoCaptions}
+                              srcLang="en"
+                              label="English"
+                            />
+                          </video>
+                          {!hasStartedVideo ? (
+                            <button
+                              type="button"
+                              aria-label={`Play ${title} video`}
+                              onClick={() => {
+                                setStartedVideo(headerVideo)
+                                void videoRef.current
+                                  ?.play()
+                                  .catch(() => setStartedVideo(undefined))
+                              }}
+                              className="group absolute inset-0 flex items-end justify-end p-4 md:p-6 bg-black/10 transition-colors hover:bg-black/20 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-blue-500"
+                            >
+                              <span className="flex size-16 md:size-20 items-center justify-center rounded-full border border-white/30 bg-black/70 text-white shadow-xl backdrop-blur-sm transition-transform group-hover:scale-110 group-focus-visible:scale-110">
+                                <PlayIcon
+                                  weight="fill"
+                                  className="ml-1 size-7 md:size-9"
+                                  aria-hidden="true"
+                                />
+                              </span>
+                            </button>
+                          ) : null}
+                        </div>
                       ) : null}
                       {!headerImage && slug ? (
                         <CoverFallback
@@ -172,11 +317,7 @@ function BlogPost() {
                         />
                       ) : null}
                       <MarkdownContent
-                        title={
-                          headings.some((heading) => heading.level === 1)
-                            ? ''
-                            : title
-                        }
+                        title=""
                         markdown={markdown}
                         preserveTabPanels
                         repo={repo}

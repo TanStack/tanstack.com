@@ -57,7 +57,7 @@ export function ShortcutLab() {
   useHotkey(
     'J',
     () => {
-      setSelected((index) => Math.min(index + 1, items.length - 1))
+      setSelected((index) => Math.min(index + 1, Math.min(items.length, 6) - 1))
       fire('Next / previous')
     },
     { meta: { name: 'Next item' } },

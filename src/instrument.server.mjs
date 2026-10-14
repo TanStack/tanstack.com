@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/tanstackstart-react'
-import { redactByokRequestHeaders } from './utils/sentry-redaction'
+import { filterSentryEvent } from './utils/sentry-redaction'
 
 if (!Sentry.getClient())
   Sentry.init({
@@ -14,5 +14,5 @@ if (!Sentry.getClient())
     tracesSampleRate: 1.0, //  Capture 100% of the transactions
     // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
     tracePropagationTargets: ['localhost', /^https:\/\/tanstack\.com\//],
-    beforeSend: redactByokRequestHeaders,
+    beforeSend: filterSentryEvent,
   })

@@ -1,4 +1,5 @@
 import type { StreamChunk } from '@tanstack/ai'
+import { getBuilderAiRunOutcome } from './builder-ai-run-outcome'
 import {
   ChatClient,
   clientTools,
@@ -249,9 +250,9 @@ export async function runBuilderAiStream({
           chunk.outcome?.type === 'interrupt' &&
           !receivedValidationState
         ) {
-          rejectValidationState?.(
-            new Error('Builder AI returned no validation state'),
-          )
+          const error = new Error('Builder AI returned no validation state')
+          rejectValidationState?.(error)
+          throw error
         }
         if (chunk.type === 'RUN_ERROR') {
           rejectValidationState?.(new Error(chunk.message))
@@ -261,7 +262,10 @@ export async function runBuilderAiStream({
     const updateClientForwardedProps = (
       nextForwardedProps: Record<string, unknown>,
     ) => client.updateOptions({ forwardedProps: nextForwardedProps })
-    const abort = () => client.stop()
+    const abort = () => {
+      rejectValidationState?.(new DOMException('Aborted', 'AbortError'))
+      client.stop()
+    }
     signal.addEventListener('abort', abort, { once: true })
 
     try {
@@ -299,10 +303,16 @@ export async function runBuilderAiStream({
     }
 
     function createValidationStatePromise() {
-      return new Promise<BuilderAiValidationState>((resolve, reject) => {
-        resolveValidationState = resolve
-        rejectValidationState = reject
-      })
+      const promise = new Promise<BuilderAiValidationState>(
+        (resolve, reject) => {
+          resolveValidationState = resolve
+          rejectValidationState = reject
+        },
+      )
+      // A run can fail before its validation tool starts awaiting this state.
+      // Mark it handled without changing the rejection seen by that tool.
+      void promise.catch(() => undefined)
+      return promise
     }
   }
 
@@ -358,15 +368,20 @@ export async function runBuilderAiStream({
     }
     if (chunk.type === 'RUN_ERROR') throw new Error(chunk.message)
     if (chunk.type !== 'RUN_FINISHED') return
-    if (chunk.finishReason === 'tool_calls') {
+    const outcome = getBuilderAiRunOutcome(chunk)
+    if (outcome.status === 'failed') throw new Error(outcome.message)
+    if (outcome.status === 'interrupt') {
+      if (pendingResult) {
+        throw new Error('Builder AI returned a partial execution result')
+      }
+      if (allowInterrupt) return
+      throw new Error('Builder AI was interrupted')
+    }
+    if (outcome.status === 'continue') {
       if (pendingResult) {
         throw new Error('Builder AI returned a partial execution result')
       }
       return
-    }
-    if (chunk.outcome?.type === 'interrupt') {
-      if (allowInterrupt) return
-      throw new Error('Builder AI was interrupted')
     }
     if (!pendingResult) {
       throw new Error('Builder AI returned no execution result')

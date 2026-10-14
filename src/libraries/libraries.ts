@@ -263,13 +263,13 @@ export const start: LibrarySlim = {
   tagline:
     'Full-stack Framework powered by TanStack Router for React and Solid',
   description:
-    'Full-document SSR, Streaming, Server Functions, bundling and more, powered by TanStack Router and Vite - Ready to deploy to your favorite hosting provider.',
-  badge: 'RC',
+    'TanStack Start is a full-stack framework for React and Solid, with type-safe routing, server-side rendering, streaming, and server functions.',
+  badge: undefined,
   repo: 'tanstack/router',
   frameworks: ['react', 'solid'],
-  latestVersion: 'v0',
+  latestVersion: 'v1',
   latestBranch: 'main',
-  availableVersions: ['v0'],
+  availableVersions: ['v1'],
   corePackageName: '@tanstack/start-client-core',
   npmPackageNames: ['@tanstack/start-client-core'],
   scarfId: 'b6e2134f-e805-401d-95c3-2a7765d49a3d',
@@ -335,14 +335,15 @@ export const table: LibrarySlim = {
 
 export const charts: LibrarySlim = {
   id: 'charts',
+  scarfId: 'aa0a3a1f-ffb1-4a50-b57f-c904dfc003d6',
   ...categoryStyles.ui,
   name: 'TanStack Charts',
   to: '/charts/latest',
   tagline: "A chart grammar you don't have to outgrow.",
   description:
     'A typed, tree-shakable chart grammar for SVG and Canvas. Compose marks, views, scales, transforms, interactions, and motion with compact primitives or D3-compatible inputs.',
-  badge: 'alpha',
   repo: 'tanstack/charts',
+  hasDiscussions: false,
   frameworks: [
     'react',
     'preact',
@@ -381,9 +382,9 @@ export const charts: LibrarySlim = {
     octane: 'framework/octane/adapter',
     vanilla: 'quick-start',
   },
-  latestVersion: 'v0',
+  latestVersion: 'v1',
   latestBranch: 'main',
-  availableVersions: ['v0'],
+  availableVersions: ['v1'],
   statsAvailable: false,
   sitemap: {
     includeLandingPage: true,
@@ -540,14 +541,26 @@ export const pacer: LibrarySlim = {
     "Optimize your application's performance with TanStack Pacer's core primitives: Debouncing, Throttling, Rate Limiting, Queuing, and Batching.",
   badge: 'beta',
   repo: 'tanstack/pacer',
-  frameworks: ['react', 'preact', 'solid', 'angular', 'vanilla'],
+  frameworks: [
+    'react',
+    'preact',
+    'solid',
+    'angular',
+    'vue',
+    'svelte',
+    'lit',
+    'alpine',
+    'ember',
+    'octane',
+    'vanilla',
+  ],
   corePackageName: '@tanstack/pacer',
   npmPackageNames: ['@tanstack/pacer', '@tanstack/pacer-lite'],
   legacyPackages: ['@tanstack/pacer-lite'],
   latestVersion: 'v0',
   latestBranch: 'main',
   availableVersions: ['v0'],
-  scarfId: '302d0fef-cb3f-43c6-b45c-f055b9745edb',
+  scarfId: '4f87da04-9555-4078-bea5-097562fda71a',
   defaultDocs: 'overview',
   sitemap: {
     includeLandingPage: true,
@@ -571,7 +584,8 @@ export const pacer: LibrarySlim = {
 
 export const hotkeys: LibrarySlim = {
   id: 'hotkeys',
-  ...categoryStyles.ui,
+  scarfId: '1bd669b3-a148-4551-967f-1b9d2c971a2c',
+  ...categoryStyles.performance,
   name: 'TanStack Hotkeys',
   to: '/hotkeys/latest',
   tagline:
@@ -589,6 +603,9 @@ export const hotkeys: LibrarySlim = {
     'vue',
     'angular',
     'lit',
+    'alpine',
+    'ember',
+    'octane',
   ],
   corePackageName: '@tanstack/hotkeys',
   npmPackageNames: ['@tanstack/hotkeys'],
@@ -604,13 +621,13 @@ export const hotkeys: LibrarySlim = {
 
 export const markdown: LibrarySlim = {
   id: 'markdown',
+  scarfId: 'bcf17c55-0fa4-4bcb-be21-823711b0b7fd',
   name: 'TanStack Markdown',
   cardStyles: 'text-fuchsia-500 dark:text-fuchsia-400 hover:border-current',
   to: '/markdown/latest',
   tagline: 'A serializable document model for docs and AI streams',
   description:
     'A deliberately bounded Markdown parser with a public serializable AST, safe defaults, deterministic React, HTML, and Octane output, and a stateless profile for accumulated AI streams.',
-  badge: 'alpha',
   bgStyle: 'bg-fuchsia-500',
   borderStyle: 'border-fuchsia-500/50',
   textStyle: 'text-fuchsia-500 dark:text-fuchsia-400',
@@ -619,12 +636,13 @@ export const markdown: LibrarySlim = {
   colorTo: 'to-fuchsia-500',
   bgRadial: 'from-fuchsia-500 via-fuchsia-500/50 to-transparent',
   repo: 'tanstack/markdown',
+  hasDiscussions: false,
   frameworks: ['react', 'vanilla'],
   corePackageName: '@tanstack/markdown',
   npmPackageNames: ['@tanstack/markdown'],
-  latestVersion: 'v0',
+  latestVersion: 'v1',
   latestBranch: 'main',
-  availableVersions: ['v0'],
+  availableVersions: ['v1'],
   defaultDocs: 'overview',
   sitemap: {
     includeLandingPage: true,
@@ -634,13 +652,13 @@ export const markdown: LibrarySlim = {
 
 export const highlight: LibrarySlim = {
   id: 'highlight',
+  scarfId: '755a8d7a-458b-421d-aef3-dc85437ac0bd',
   name: 'TanStack Highlight',
   cardStyles: 'text-amber-500 dark:text-amber-400 hover:border-current',
   to: '/highlight/latest',
   tagline: 'Web-first syntax highlighting with compact, themeable HTML',
   description:
     'A synchronous syntax highlighter with selective language imports, context-aware web scanners, semantic CSS themes, precise annotations, and compact deterministic output.',
-  badge: 'alpha',
   bgStyle: 'bg-amber-500',
   borderStyle: 'border-amber-500/50',
   textStyle: 'text-amber-500 dark:text-amber-400',
@@ -652,9 +670,9 @@ export const highlight: LibrarySlim = {
   frameworks: ['react', 'vanilla'],
   corePackageName: '@tanstack/highlight',
   npmPackageNames: ['@tanstack/highlight'],
-  latestVersion: 'v0',
+  latestVersion: 'v1',
   latestBranch: 'main',
-  availableVersions: ['v0'],
+  availableVersions: ['v1'],
   defaultDocs: 'overview',
   sitemap: {
     includeLandingPage: true,
@@ -672,13 +690,13 @@ export const db: LibrarySlim = {
     'TanStack DB gives you a reactive, client-first store for your API data with collections, live queries and optimistic mutations that keep your UI reactive, consistent and blazing fast 🔥',
   badge: 'beta',
   repo: 'tanstack/db',
-  frameworks: ['react', 'vue', 'solid', 'svelte', 'vanilla'],
+  frameworks: ['react', 'vue', 'angular', 'solid', 'svelte', 'vanilla'],
   corePackageName: '@tanstack/db',
   npmPackageNames: ['@tanstack/db', '@tanstack/react-db'],
   latestVersion: 'v0',
   latestBranch: 'main',
   availableVersions: ['v0'],
-  scarfId: '302d0fef-cb3f-43c6-b45c-f055b9745edb',
+  scarfId: '893a4852-11b6-4138-8206-7f06a11591e4',
   defaultDocs: 'overview',
   sitemap: {
     includeLandingPage: true,
@@ -688,12 +706,14 @@ export const db: LibrarySlim = {
 
 export const ai: LibrarySlim = {
   id: 'ai',
+  scarfId: 'c627cc8f-28a1-4b5d-bd13-9142a7fb4172',
   ...categoryStyles.data,
   name: 'TanStack AI',
   to: '/ai/latest',
-  tagline: 'The headless agent framework for TypeScript. Bring your own stack',
+  tagline:
+    'AI building blocks for TypeScript. We build the hard parts, you keep the stack.',
   description:
-    'TanStack AI is a pluggable AI ecosystem that makes it easy for you to build AI features into your apps. Provide tools to LLMs, interrupt chat for user approval, run agents in sandboxes, build headless chat UI, stream from your server to your client, and connect to any AG-UI compatible server or client. Bring your own infrastructure. We offer the pluggable APIs to build on top of.',
+    'TanStack AI is a TypeScript library for building AI features and agents. It ships the agent loop, provider adapters, durability, interrupts, sandboxes, and tools, and plugs into the server, database, and UI you already have.',
   badge: 'RC',
   repo: 'tanstack/ai',
   frameworks: [
@@ -703,10 +723,11 @@ export const ai: LibrarySlim = {
     'svelte',
     'preact',
     'angular',
+    'octane',
     'vanilla',
   ],
   corePackageName: '@tanstack/ai-client',
-  npmPackageNames: ['@tanstack/ai-client'],
+  npmPackageNames: ['@tanstack/ai'],
   latestVersion: 'v0',
   latestBranch: 'main',
   availableVersions: ['v0'],
@@ -718,16 +739,18 @@ export const ai: LibrarySlim = {
     svelte: '@tanstack/ai-svelte',
     preact: '@tanstack/ai-preact',
     angular: '@tanstack/ai-angular',
+    octane: '@tanstack/ai-octane',
     vanilla: '@tanstack/ai-client',
   },
   frameworkDocs: {
     react: 'getting-started/quick-start',
-    vue: 'getting-started/quick-start-vue',
-    solid: 'api/ai-solid',
-    svelte: 'getting-started/quick-start-svelte',
-    preact: 'api/ai-preact',
-    angular: 'getting-started/quick-start-angular',
-    vanilla: 'api/ai-client',
+    vue: 'getting-started/quick-start',
+    solid: 'getting-started/quick-start',
+    svelte: 'getting-started/quick-start',
+    preact: 'getting-started/quick-start',
+    angular: 'getting-started/quick-start',
+    octane: 'getting-started/quick-start',
+    vanilla: 'getting-started/quick-start',
   },
   sitemap: {
     includeLandingPage: true,
@@ -737,6 +760,7 @@ export const ai: LibrarySlim = {
 
 export const intent: LibrarySlim = {
   id: 'intent',
+  scarfId: '9a861dfa-93fb-4472-b462-2cdadbe3a717',
   ...categoryStyles.tooling,
   name: 'TanStack Intent',
   to: '/intent/latest',
@@ -760,6 +784,7 @@ export const intent: LibrarySlim = {
 
 export const config: LibrarySlim = {
   id: 'config',
+  scarfId: '6e4c7302-6e7d-45ec-b963-9ac66c70c6b2',
   ...categoryStyles.tooling,
   name: 'TanStack Config',
   to: '/config/latest',
@@ -783,6 +808,7 @@ export const config: LibrarySlim = {
 
 export const devtools: LibrarySlim = {
   id: 'devtools',
+  scarfId: '9383bf22-a41e-477f-8dc2-fca9d2a201b7',
   ...categoryStyles.tooling,
   name: 'TanStack Devtools',
   to: '/devtools/latest',
@@ -847,6 +873,7 @@ export const mcp: LibrarySlim = {
 
 export const cli: LibrarySlim = {
   id: 'cli',
+  scarfId: 'a1a4961c-5b37-43eb-a6fc-7e4825fbe83b',
   ...categoryStyles.tooling,
   name: 'TanStack CLI',
   to: '/cli/latest',

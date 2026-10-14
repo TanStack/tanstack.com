@@ -96,6 +96,21 @@ export function normalizeExamplePath(path: string) {
   return `/${segments.join('/')}`
 }
 
+export function resolveExampleWorkspaceImport(
+  specifier: string,
+  imports: Record<string, string> = {},
+) {
+  const key = Object.hasOwn(imports, specifier)
+    ? specifier
+    : Object.keys(imports)
+        .filter((key) => key.endsWith('/') && specifier.startsWith(key))
+        .sort((left, right) => right.length - left.length)[0]
+  if (key === undefined) return undefined
+  const target = imports[key]
+  if (!target?.startsWith('/') || target.startsWith('//')) return undefined
+  return normalizeExamplePath(target + specifier.slice(key.length))
+}
+
 export function serializeExampleWorkspace(workspace: ExampleWorkspace) {
   const files = Object.fromEntries(
     Object.entries(workspace.files).sort(([left], [right]) =>

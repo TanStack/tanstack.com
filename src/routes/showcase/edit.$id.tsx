@@ -29,6 +29,7 @@ export const Route = createFileRoute('/showcase/edit/$id')({
   component: EditShowcasePage,
   head: () => ({
     meta: seo({
+      noindex: true,
       title: 'Edit Your Project | Showcase | TanStack',
       description: 'Edit your showcase submission.',
     }),

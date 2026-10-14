@@ -27,7 +27,7 @@ export function NewsletterSignup({
   const queryClient = useQueryClient()
   const { notify } = useToast()
   const { openLoginModal } = useLoginModal()
-  const isSubscribed = user?.signupSources.includes('newsletter') ?? false
+  const isSubscribed = user?.signupSources?.includes('newsletter') ?? false
 
   const { mutate, isPending } = useMutation({
     mutationFn: () => addUserSignupSource({ data: { source: 'newsletter' } }),

@@ -1,3 +1,4 @@
+import { showcaseLinkRel, isPublicShowcase } from '~/utils/showcase.shared'
 import * as React from 'react'
 import { Link } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -224,11 +225,17 @@ export function ShowcaseDetail({ showcaseId }: ShowcaseDetailProps) {
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Back link */}
         <Link
-          to="/showcase"
+          to={
+            showcase.placement === 'community'
+              ? '/community-projects'
+              : '/showcase'
+          }
           className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-6"
         >
           <ArrowLeftIcon className="w-4 h-4" />
-          Back to Showcase Gallery
+          {showcase.placement === 'community'
+            ? 'Back to Community projects'
+            : 'Back to Showcase'}
         </Link>
 
         {/* Hero Screenshot */}
@@ -265,7 +272,7 @@ export function ShowcaseDetail({ showcaseId }: ShowcaseDetailProps) {
                 as="a"
                 href={showcase.sourceUrl}
                 target="_blank"
-                rel="noopener noreferrer"
+                rel={showcaseLinkRel(showcase)}
                 className="px-4 py-2 text-sm"
               >
                 View Source
@@ -276,7 +283,7 @@ export function ShowcaseDetail({ showcaseId }: ShowcaseDetailProps) {
               as="a"
               href={showcase.url}
               target="_blank"
-              rel="noopener noreferrer"
+              rel={showcaseLinkRel(showcase)}
               className="px-4 py-2 text-sm bg-gray-900 dark:bg-white text-white dark:text-gray-900 border-gray-900 dark:border-white hover:bg-gray-700 dark:hover:bg-gray-200"
             >
               Visit Site
@@ -336,61 +343,63 @@ export function ShowcaseDetail({ showcaseId }: ShowcaseDetailProps) {
         )}
 
         {/* Voting */}
-        <div className="flex items-center gap-4 py-6 border-t border-gray-200 dark:border-gray-800">
-          <span className="text-sm text-gray-500 dark:text-gray-400">
-            Rate this project
-          </span>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => handleVote(showcaseId, 1)}
-              disabled={voteMutation.isPending}
-              className={twMerge(
-                'p-2 rounded-lg transition-colors',
-                currentUserVote === 1
-                  ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30'
-                  : 'text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-gray-100 dark:hover:bg-gray-800',
-                voteMutation.isPending && 'opacity-50 cursor-not-allowed',
-              )}
-              title="Upvote"
-            >
-              <ThumbsUpIcon
-                className="w-5 h-5"
-                weight={currentUserVote === 1 ? 'fill' : 'regular'}
-              />
-            </button>
-
-            <span
-              className={twMerge(
-                'min-w-[2.5rem] text-center text-lg font-semibold',
-                displayScore > 0
-                  ? 'text-emerald-600 dark:text-emerald-400'
-                  : 'text-gray-500 dark:text-gray-400',
-              )}
-            >
-              {displayScore}
+        {isPublicShowcase(showcase) && (
+          <div className="flex items-center gap-4 py-6 border-t border-gray-200 dark:border-gray-800">
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              Rate this project
             </span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => handleVote(showcaseId, 1)}
+                disabled={voteMutation.isPending}
+                className={twMerge(
+                  'p-2 rounded-lg transition-colors',
+                  currentUserVote === 1
+                    ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30'
+                    : 'text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-gray-100 dark:hover:bg-gray-800',
+                  voteMutation.isPending && 'opacity-50 cursor-not-allowed',
+                )}
+                title="Upvote"
+              >
+                <ThumbsUpIcon
+                  className="w-5 h-5"
+                  weight={currentUserVote === 1 ? 'fill' : 'regular'}
+                />
+              </button>
 
-            <button
-              type="button"
-              onClick={() => handleVote(showcaseId, -1)}
-              disabled={voteMutation.isPending}
-              className={twMerge(
-                'p-2 rounded-lg transition-colors',
-                currentUserVote === -1
-                  ? 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30'
-                  : 'text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-800',
-                voteMutation.isPending && 'opacity-50 cursor-not-allowed',
-              )}
-              title="Downvote"
-            >
-              <ThumbsDownIcon
-                className="w-5 h-5"
-                weight={currentUserVote === -1 ? 'fill' : 'regular'}
-              />
-            </button>
+              <span
+                className={twMerge(
+                  'min-w-[2.5rem] text-center text-lg font-semibold',
+                  displayScore > 0
+                    ? 'text-emerald-600 dark:text-emerald-400'
+                    : 'text-gray-500 dark:text-gray-400',
+                )}
+              >
+                {displayScore}
+              </span>
+
+              <button
+                type="button"
+                onClick={() => handleVote(showcaseId, -1)}
+                disabled={voteMutation.isPending}
+                className={twMerge(
+                  'p-2 rounded-lg transition-colors',
+                  currentUserVote === -1
+                    ? 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30'
+                    : 'text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-800',
+                  voteMutation.isPending && 'opacity-50 cursor-not-allowed',
+                )}
+                title="Downvote"
+              >
+                <ThumbsDownIcon
+                  className="w-5 h-5"
+                  weight={currentUserVote === -1 ? 'fill' : 'regular'}
+                />
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Related Projects */}
         {relatedData?.showcases && relatedData.showcases.length > 0 && (

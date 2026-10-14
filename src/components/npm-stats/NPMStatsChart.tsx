@@ -34,6 +34,7 @@ import {
 } from '@radix-ui/react-dropdown-menu'
 import { twMerge } from 'tailwind-merge'
 import { Tooltip } from '~/components/Tooltip'
+import { copyTextToClipboard } from '~/utils/browser-effects'
 import {
   binningOptionsByType,
   getHistoryStartDate,
@@ -1701,7 +1702,7 @@ function EmbedChartAction({
 
   const copyText = React.useCallback(
     async (target: 'iframe' | 'url', text: string) => {
-      await navigator.clipboard.writeText(text)
+      await copyTextToClipboard(text)
       setCopiedTarget(target)
       window.setTimeout(() => {
         setCopiedTarget((currentTarget) =>
@@ -2229,6 +2230,7 @@ function getNpmChartTooltipContent(
     return {
       title,
       rows: points.map((point) => ({
+        active: point === context.primaryPoint,
         color: point.datum.color,
         label: point.groupLabel,
         value: formatValue(point),
@@ -2275,7 +2277,6 @@ function createNpmStatsChart(input: NpmStatsChartInput) {
       content: (points, context) =>
         getNpmChartTooltipContent(points, context, input),
       placement: ['top', 'right', 'left', 'bottom'],
-      sort: 'color-domain',
     },
   })
 }

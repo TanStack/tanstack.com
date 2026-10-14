@@ -208,6 +208,123 @@ test('catalog example rejects an unresolved relative source import', async () =>
   }
 })
 
+for (const prefix of ['@tanstack/charts-data/', '@charts-poc/demo-data/']) {
+  test(`catalog example includes ${prefix} data and its source dependencies`, async () => {
+    const originalFetch = globalThis.fetch
+    const dataRoot = 'packages/charts-demo-data/src/'
+    const entrySource = `import { rows } from '${prefix}shadcn'
+export default function Example() { return <pre>{JSON.stringify(rows)}</pre> }`
+    const dataSources = {
+      [`${dataRoot}shadcn.ts`]: "export { rows } from './nested/rows'",
+      [`${dataRoot}nested/rows.ts`]: [
+        "import { value } from '@tanstack/charts-data/values'",
+        "import { parse } from '../parse.js'",
+        'export const rows = [parse(value)]',
+      ].join('\n'),
+      [`${dataRoot}values.js`]: 'export const value = "42"',
+      [`${dataRoot}parse.js`]: 'export const parse = Number',
+    }
+    const requests: Array<string> = []
+    const fetchSource = createSourceFetch({
+      ...sources,
+      ...dataSources,
+      [entryPath]: entrySource,
+    })
+    resetGitHubContentCacheForTest()
+    globalThis.fetch = (input) => {
+      requests.push(String(input))
+      return fetchSource(input)
+    }
+
+    try {
+      const { authoredSource, example } = await getChartsCatalogExample(
+        publication,
+        '01-line',
+      )
+
+      assert.equal(
+        example.workspace.files['/cases/01-line/example.tsx'],
+        entrySource,
+      )
+      for (const [path, source] of Object.entries(dataSources)) {
+        assert.equal(example.workspace.files[`/${path}`], source)
+        assert.equal(
+          authoredSource.files.find((file) => file.path === path)?.source,
+          source,
+        )
+        assert.equal(
+          requests.filter((url) => url.endsWith(`/${revision}/${path}`)).length,
+          1,
+        )
+      }
+      assert.equal(
+        requests.some((url) => url.startsWith('https://esm.sh/')),
+        false,
+      )
+    } finally {
+      globalThis.fetch = originalFetch
+      resetGitHubContentCacheForTest()
+    }
+  })
+}
+
+for (const scenario of [
+  {
+    name: 'example relative import',
+    entrySource: "import '../../shared/data'",
+    dataSource: '',
+    outsidePath: 'benchmarks/conformance/shared/data.ts',
+  },
+  {
+    name: 'data relative import',
+    entrySource: "import '@tanstack/charts-data/shadcn'",
+    dataSource: "import '../private'",
+    outsidePath: 'packages/charts-demo-data/private.ts',
+  },
+  {
+    name: 'data alias traversal',
+    entrySource: "import '@tanstack/charts-data/../private'",
+    dataSource: '',
+    outsidePath: 'packages/charts-demo-data/private.ts',
+  },
+  {
+    name: 'legacy data alias traversal',
+    entrySource: "import '@charts-poc/demo-data/../private'",
+    dataSource: '',
+    outsidePath: 'packages/charts-demo-data/private.ts',
+  },
+]) {
+  test(`catalog example rejects an escaping ${scenario.name} before fetching it`, async () => {
+    const originalFetch = globalThis.fetch
+    const requests: Array<string> = []
+    const fetchSource = createSourceFetch({
+      ...sources,
+      [entryPath]: scenario.entrySource,
+      'packages/charts-demo-data/src/shadcn.ts': scenario.dataSource,
+      [scenario.outsidePath]: 'export const secret = true',
+    })
+    resetGitHubContentCacheForTest()
+    globalThis.fetch = (input) => {
+      requests.push(String(input))
+      return fetchSource(input)
+    }
+
+    try {
+      await assert.rejects(
+        getChartsCatalogExample(publication, '01-line'),
+        /import leaves its allowed directory/,
+      )
+      assert.equal(
+        requests.some((url) => url.endsWith(`/${scenario.outsidePath}`)),
+        false,
+      )
+    } finally {
+      globalThis.fetch = originalFetch
+      resetGitHubContentCacheForTest()
+    }
+  })
+}
+
 function createSourceFetch(files: Record<string, string>) {
   return async (input: string | URL | Request) => {
     const url = String(input)

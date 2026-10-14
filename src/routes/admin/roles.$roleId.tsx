@@ -226,9 +226,11 @@ function RoleDetailPage() {
     [selectedUserIds, usersWithRole, toggleAllSelection, toggleUserSelection],
   )
 
+  const tableData = useMemo(() => usersWithRole ?? [], [usersWithRole])
+
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
-    data: usersWithRole || [],
+    data: tableData,
     columns,
     getCoreRowModel: getCoreRowModel(),
   })
@@ -390,7 +392,7 @@ function RoleDetailPage() {
         <div
           ref={tableFocusRef}
           tabIndex={-1}
-          className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden outline-none"
+          className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden"
         >
           <div className="overflow-x-auto">
             <table className="w-full">

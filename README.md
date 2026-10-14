@@ -21,11 +21,37 @@ pnpm install
 pnpm dev
 ```
 
-This starts your app in development mode, rebuilding assets on file changes.
+Requires Node.js 22.12 or newer and pnpm 11. This starts the site at http://localhost:3000 and rebuilds on file changes. No environment file, Cloudflare account, database, or sibling repository is required. Internet access is needed to download dependencies and read remote documentation.
+
+### Optional services
+
+Add only the credentials you need to `.env.local`, then restart `pnpm dev`. Environment files are read from this checkout, never from another checkout. Missing credentials disable the relevant local service, they do not prevent the site from starting.
+
+| Service                        | Optional configuration                                                         | Without it                                                                                                                                     |
+| ------------------------------ | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Public docs                    | Sibling repositories or `TANSTACK_LOCAL_REPOS_DIR`                             | Reads public docs from GitHub. Local files take precedence. `TANSTACK_DOCS_USE_REMOTE=true` skips local files.                                 |
+| GitHub data                    | `GITHUB_AUTH_TOKEN`                                                            | Public REST and raw-file requests remain anonymous, with GitHub's rate limits. Private sponsor data is omitted.                                |
+| Database features              | `DATABASE_URL`, with the repository migrations applied                         | Showcase and Intent registry lists, plus the feedback leaderboard, are empty. Accounts and writes are unavailable.                             |
+| GitHub sign-in                 | Database plus `GITHUB_OAUTH_CLIENT_ID` and `GITHUB_OAUTH_CLIENT_SECRET`        | GitHub sign-in is hidden.                                                                                                                      |
+| Google sign-in                 | Database plus `GOOGLE_OAUTH_CLIENT_ID` and `GOOGLE_OAUTH_CLIENT_SECRET`        | Google sign-in is hidden.                                                                                                                      |
+| Persistent sessions            | `SESSION_SECRET`                                                               | Development generates a random worker-local secret. Restarting or reloading the worker signs you out. Production requires a configured secret. |
+| Shopify                        | `SHOPIFY_PRIVATE_STOREFRONT_TOKEN`                                             | The shop shows an unconfigured state with a link to the live shop.                                                                             |
+| Workers AI                     | `CLOUDFLARE_API_TOKEN`, plus `CLOUDFLARE_ACCOUNT_ID` to use your own account   | Remote bindings are disabled. The included chat model is unavailable. Local R2, Durable Objects, and Workflows still use the local emulator.   |
+| TanChat and connected accounts | Database, sign-in, chat access, and `ENCRYPTION_KEY` of at least 32 characters | Private chat and encrypted connected-account storage are unavailable. Provider API keys can be added in chat settings once chat is configured. |
+| AI Gateway                     | `AI_GATEWAY_ACCOUNT_ID`, `AI_GATEWAY_ID`, `AI_GATEWAY_TOKEN`                   | Configured providers connect directly.                                                                                                         |
+| Kody                           | `KODY_ORIGIN` and `ENCRYPTION_KEY`, then connect an account                    | Kody actions require a connected account.                                                                                                      |
+| Notifications                  | `DISCORD_WEBHOOK_URL` and/or `RESEND_API_KEY`                                  | The corresponding notification transport is disabled.                                                                                          |
+| Server error reporting         | `SENTRY_DSN`                                                                   | Local error reporting is disabled. Browser reporting and analytics only run in production.                                                     |
+| Kapa docs assistant            | `VITE_KAPA_INTEGRATION_ID` and optional `VITE_KAPA_SOURCE_GROUP_IDS`           | The hosted docs assistant is unavailable.                                                                                                      |
+| WebContainer runtime           | `VITE_WEBCONTAINER_API_KEY` where required by the runtime                      | Other Builder runtimes remain available.                                                                                                       |
+
+For a database you own, set `DATABASE_URL` and run `pnpm db:migrate`. OAuth apps must permit the local callback URL, `http://localhost:3000/api/auth/callback/github` or `/google`. Use a persistent session secret when testing saved sessions or encrypted site API keys.
+
+Cloudflare's included model makes real remote requests and can incur usage charges once a Cloudflare API token is supplied. Local storage stays in `.wrangler/state`. Production bindings and deployment configuration remain in `wrangler.jsonc`.
 
 ### Local Setup
 
-The documentation for all TanStack projects (except `React Charts`) is hosted on [tanstack.com](https://tanstack.com). In production, doc pages are fetched from GitHub. In development, they're read from your local file system.
+The documentation for all TanStack projects (except `React Charts`) is hosted on [tanstack.com](https://tanstack.com). Doc pages are fetched from GitHub. In development, a local copy takes precedence when available. You only need the additional repositories if you're editing their docs.
 
 Create a `tanstack` parent directory and clone this repo alongside the projects:
 
@@ -84,3 +110,11 @@ To edit docs for a project, make changes in its `docs/` folder (e.g., `../form/d
 … and more at <a href="https://tanstack.com"><b>TanStack.com »</b></a>
 
 <!-- Use the force, Luke -->
+
+### TanChat alpha access
+
+TanChat is invite-only, independent of Builder access. Signing in to TanStack does not unlock it. Admins and TanStack maintainers with a linked GitHub account have automatic access and unlimited invites. Maintainer identity comes from the verified GitHub account ID and the site's maintainer catalog, not an editable profile name.
+
+Other users unlock TanChat by redeeming a single-use invite and receive three invites to share. Issuing a link consumes one invite, even if the link expires unused. Links expire after seven days. Account settings links to `/chat-access`, where users can create and copy invites. The main site menu links to TanChat, and accounts without access see the invite page.
+
+Migration `0039_tanchat_invites` adds grants and hashed invite tokens. Server functions and chat HTTP endpoints enforce access independently of the UI. Quota checks lock the issuer account, and redemption locks the invite while granting access and consuming it in one transaction. Invite grants are stored in whichever database you configure. Local development without a database has no invite or account state.

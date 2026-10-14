@@ -1,6 +1,10 @@
 import * as React from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { currentUserQueryOptions } from '~/hooks/useCurrentUser'
+import { getCurrentUser } from '~/utils/auth.functions'
+import { authClient } from '~/auth/client'
+import { createOAuthPopupAttempt } from '~/auth/oauth-popup-attempt'
+import type { OAuthProvider } from '~/auth/types'
 
 const LazyLoginModal = React.lazy(() =>
   import('~/components/LoginModal').then((m) => ({ default: m.LoginModal })),
@@ -43,6 +47,9 @@ export function LoginModalProvider({ children }: LoginModalProviderProps) {
   const [isOpen, setIsOpen] = React.useState(false)
   const [hasLoadedModal, setHasLoadedModal] = React.useState(false)
   const [description, setDescription] = React.useState<string>()
+  const popupAttempt = React.useRef<ReturnType<
+    typeof createOAuthPopupAttempt
+  > | null>(null)
   const pendingOnSuccessRef = React.useRef<(() => void) | undefined>(undefined)
 
   const openerRef = React.useRef<HTMLElement | null>(null)
@@ -66,6 +73,8 @@ export function LoginModalProvider({ children }: LoginModalProviderProps) {
   const handleOpenChange = React.useCallback((open: boolean) => {
     setIsOpen(open)
     if (!open) {
+      popupAttempt.current?.dispose()
+      popupAttempt.current = null
       pendingOnSuccessRef.current = undefined
       setDescription(undefined)
     }
@@ -76,23 +85,43 @@ export function LoginModalProvider({ children }: LoginModalProviderProps) {
     [handleOpenChange],
   )
 
-  React.useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      if (event.origin !== window.location.origin) return
-      if (event.data?.type === 'TANSTACK_AUTH_SUCCESS') {
-        queryClient.invalidateQueries(currentUserQueryOptions)
-        const onSuccess = pendingOnSuccessRef.current
-        setIsOpen(false)
-        setDescription(undefined)
-        pendingOnSuccessRef.current = undefined
-        if (onSuccess) {
-          setTimeout(onSuccess, 0)
-        }
+  React.useEffect(
+    () => () => {
+      popupAttempt.current?.dispose()
+    },
+    [],
+  )
+
+  const openSocialPopup = React.useCallback(
+    (provider: OAuthProvider) => {
+      popupAttempt.current?.dispose()
+      const attempt = createOAuthPopupAttempt({
+        verifySession: async () => {
+          const user = await getCurrentUser()
+          if (!user || popupAttempt.current !== attempt) return false
+          queryClient.setQueryData(currentUserQueryOptions.queryKey, user)
+          return true
+        },
+        onSuccess: () => {
+          const onSuccess = pendingOnSuccessRef.current
+          popupAttempt.current = null
+          handleOpenChange(false)
+          if (onSuccess) setTimeout(onSuccess, 0)
+        },
+      })
+      popupAttempt.current = attempt
+      const popup = authClient.signIn.socialPopup({
+        provider,
+        popupChannel: attempt.channelId,
+      })
+      if (!popup) {
+        attempt.dispose()
+        popupAttempt.current = null
+        authClient.signIn.social({ provider })
       }
-    }
-    window.addEventListener('message', handleMessage)
-    return () => window.removeEventListener('message', handleMessage)
-  }, [queryClient])
+    },
+    [queryClient, handleOpenChange],
+  )
 
   const value = React.useMemo(
     () => ({ openLoginModal, closeLoginModal }),
@@ -109,6 +138,7 @@ export function LoginModalProvider({ children }: LoginModalProviderProps) {
             description={description}
             onOpenChange={handleOpenChange}
             restoreFocusRef={openerRef}
+            onSocialSignIn={openSocialPopup}
           />
         </React.Suspense>
       ) : null}

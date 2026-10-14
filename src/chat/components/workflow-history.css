@@ -1,0 +1,120 @@
+@scope (:root:has(.tanchat-shell)) {
+  .workflow-history header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .workflow-history header h3 {
+    margin: 0;
+  }
+  .workflow-history-item {
+    padding: 8px 0;
+  }
+  .workflow-history-item > summary {
+    cursor: pointer;
+    display: flex;
+    gap: 12px;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .workflow-history-item > summary::before {
+    content: '›';
+    flex: none;
+  }
+  .workflow-history-item[open] > summary::before {
+    content: '⌄';
+  }
+  .workflow-history-item > summary > span:first-of-type {
+    flex: 1;
+    min-width: 0;
+  }
+  .workflow-history-item > summary strong,
+  .workflow-history-item time {
+    display: block;
+    overflow-wrap: anywhere;
+  }
+  .workflow-history-item time {
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 3px;
+  }
+  .workflow-history-item > summary > span:last-child {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .workflow-evidence {
+    padding: 8px 0 0 18px;
+  }
+  .workflow-evidence ol {
+    margin: 0;
+    padding-left: 18px;
+  }
+  .workflow-evidence li > div {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+  }
+  .workflow-evidence li > div > span:first-child {
+    overflow-wrap: anywhere;
+  }
+  .workflow-evidence li > div > span:last-child {
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .workflow-evidence p {
+    margin: 6px 0;
+  }
+  .workflow-history-item > summary:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+    border-radius: 3px;
+  }
+
+  .workflow-stop {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 0 0 18px;
+    font-size: 12px;
+  }
+
+  .workflow-start {
+    margin: 8px 0;
+    font-size: 12px;
+  }
+  .workflow-start summary {
+    cursor: pointer;
+  }
+  .workflow-start label {
+    display: grid;
+    gap: 4px;
+    margin: 8px 0;
+  }
+  .workflow-start select {
+    width: 100%;
+    min-width: 0;
+  }
+  .workflow-start p,
+  .workflow-start li {
+    overflow-wrap: anywhere;
+  }
+
+  .workflow-start button:not(.select-field-trigger) {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: transparent;
+    color: inherit;
+    padding: 5px 8px;
+    cursor: pointer;
+  }
+  .workflow-start button:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+  .workflow-start summary:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+    border-radius: 3px;
+  }
+}

@@ -1,5 +1,6 @@
 import { createFileRoute, notFound } from '@tanstack/react-router'
 import { ChartsCatalog } from '~/components/charts/ChartsCatalogPages'
+import { isChartsCatalogCaseId } from '~/utils/charts-catalog'
 import { getChartsCatalogCollection } from '~/utils/charts-catalog.functions'
 import { seo } from '~/utils/seo'
 
@@ -7,6 +8,7 @@ export const Route = createFileRoute(
   '/_library/charts/catalog/collections/$collectionId',
 )({
   loader: async ({ params }) => {
+    if (!isChartsCatalogCaseId(params.collectionId)) throw notFound()
     const data = await getChartsCatalogCollection({
       data: { collectionId: params.collectionId },
     })

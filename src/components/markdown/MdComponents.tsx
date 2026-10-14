@@ -10,6 +10,7 @@ import { FrameworkContent } from './FrameworkContent'
 import { PackageManagerTabs } from './PackageManagerTabs'
 import { BundlerTabs } from './BundlerTabs'
 import { CodeBlock } from './CodeBlock'
+import { trackScarfInstallCommandCopy } from '~/utils/analytics/scarf'
 import { Tabs } from './Tabs'
 import {
   getInstallCommand,
@@ -211,7 +212,20 @@ export function MdCommentComponent({
               data-framework={framework}
               data-package-manager={packageManager}
             >
-              <CodeBlock>
+              <CodeBlock
+                onCopySuccess={
+                  resolvedPackageManagerMeta.mode === 'install' ||
+                  resolvedPackageManagerMeta.mode === 'dev-install' ||
+                  resolvedPackageManagerMeta.mode === 'local-install'
+                    ? () =>
+                        trackScarfInstallCommandCopy(
+                          packageManager,
+                          framework,
+                          packageGroups.flat().join(','),
+                        )
+                    : undefined
+                }
+              >
                 <code className="language-bash">{commandText}</code>
               </CodeBlock>
             </div>

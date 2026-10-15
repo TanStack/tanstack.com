@@ -592,7 +592,7 @@ export const hotkeys: LibrarySlim = {
     'Type-safe keyboard shortcuts, sequences, and key state tracking for your apps',
   description:
     'A type-safe, cross-platform hotkey library with sequence detection, key state tracking, hotkey recording, and framework adapters for React and more.',
-  badge: 'alpha',
+  badge: 'beta',
   repo: 'tanstack/hotkeys',
   frameworks: [
     'vanilla',

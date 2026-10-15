@@ -28,48 +28,48 @@ const RebindLab = React.lazy(() =>
 )
 
 const hotkeysPrompt =
-  'Add keyboard shortcuts with TanStack Hotkeys. Register commands with useHotkey using Mod bindings so they work on macOS, Windows, and Linux, and use physical [Code] bindings only where key position matters. Add a G G sequence with useHotkeySequence. Show platform-correct labels with formatForDisplay and reveal hints with useHotkeyHint while modifiers are held. Let users rebind commands with useHotkeyRecorder using detectConflicts and onReject, and store the recorded bindings as plain strings in app state.'
+  'Add keyboard shortcuts with TanStack Hotkeys. Register commands with useHotkey using Mod bindings so they work on macOS, Windows, and Linux, and use physical [Code] bindings only where key position matters. Pass an array of keys such as G G to useHotkey for a sequence. Show platform-correct labels with formatForDisplay and reveal hints with useHotkeyHint while modifiers are held. Declare app hotkeys with defineAppHotkeys and pass them to HotkeysProvider as appHotkeys, with customHotkeys and onCustomHotkeysChange to persist user rebinding. Use useHotkeyRecorder with detectConflicts and onReject to record new bindings.'
 
 const edgeCases = [
   {
     title: 'Text fields',
     tag: 'j in a textarea',
-    body: "Single-key shortcuts don't fire while focus is in a text field. Mod shortcuts and Escape still do.",
+    body: "Pressing J in a comment box types a J. It doesn't jump to the next item.",
   },
   {
     title: 'Browser defaults',
     tag: '⌘S',
-    body: "Matched shortcuts call preventDefault, so ⌘S runs your save instead of the browser's.",
+    body: '⌘S saves your doc, not the web page.',
   },
   {
     title: 'macOS, Windows, and Linux',
     tag: 'Mod+S',
-    body: 'Mod is ⌘ on macOS and Ctrl on Windows and Linux, for both matching and display.',
+    body: 'Write Mod once. Mac users get ⌘, everyone else gets Ctrl.',
   },
   {
     title: 'Sequences',
     tag: 'G then I',
-    body: "Multi-key sequences like G then I for the inbox, or the Konami code. Each has a timeout, and modifier presses or key repeats don't advance them.",
+    body: "G then I for the inbox. The Konami code, if you're feeling it.",
   },
   {
     title: 'Conflicts',
     tag: '⌘K twice',
-    body: 'Choose what happens when two registrations share a key. Warn, throw, replace, or allow.',
+    body: 'Two features grab the same key? You decide who wins.',
   },
   {
     title: 'Cleanup',
     tag: 'unmount',
-    body: 'Framework adapters register on mount, update when your state changes, and unregister on unmount.',
+    body: 'Shortcuts go away with the component that added them.',
   },
   {
     title: 'Keyboard layouts',
     tag: '⌥S → "ß"',
-    body: 'Option, dead keys, AltGr, and non-Latin layouts change what the browser reports. Letter shortcuts still match.',
+    body: 'German, French, Russian, Dvorak. Your shortcuts still work.',
   },
   {
     title: 'Input methods',
     tag: 'IME',
-    body: "Shortcuts like / don't fire while an IME is composing Japanese or Chinese text.",
+    body: "People typing Japanese or Chinese won't trigger shortcuts by accident.",
   },
 ] as const
 
@@ -86,7 +86,7 @@ const completions = [
 export default function HotkeysLanding() {
   return (
     <LibraryLandingShell
-      description="Type-safe keyboard shortcuts and sequences for any framework. Hotkeys skips them while people type, shows the right keys on each platform, and records new bindings when users want to change them."
+      description="Type-safe keyboard shortcuts for any framework. They stay out of the way while people type, show the right keys on every platform, and let users pick their own."
       headline="Great defaults for everyone. Superpowers for your power users."
       hero={
         <LiveDemo fallbackHeight="min-h-[27rem]" label="launch board">
@@ -99,7 +99,7 @@ export default function HotkeysLanding() {
     >
       <LandingSection tone="raised">
         <SectionHeader
-          body="A hand-written listener checks one key and one modifier. A real app also has to skip text fields, block the browser's own shortcuts, map Mod to the right key on each platform, and cope with layouts that report different characters."
+          body="A keydown listener takes five minutes. Then someone types in a text box, or opens your app on Windows, or uses a German keyboard."
           title="What a keydown listener misses"
         />
         <ul className="mt-12 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -125,7 +125,7 @@ export default function HotkeysLanding() {
       <LandingSection>
         <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
           <SectionHeader
-            body="Every hotkey string autocompletes in your editor. Misspelled keys fail type checking, and so do impossible combinations like Mod+Control, which would be Ctrl+Ctrl on Windows."
+            body="Your editor autocompletes every shortcut. Typos and impossible combos fail before you ship them."
             title="Typed shortcut strings"
           />
           <TypeSafetyEditor />
@@ -135,7 +135,7 @@ export default function HotkeysLanding() {
       <LandingSection tone="accent">
         <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
           <SectionHeader
-            body="formatForDisplay shows Mod+Alt+Shift+S as ⌥⇧⌘S on macOS and Ctrl+Alt+Shift+S on Windows. Meta becomes Win on Windows and Super on Linux. Bindings to a physical key can use the label from the user's keyboard layout."
+            body="Mac users see ⌥⇧⌘S. Windows users see Ctrl+Alt+Shift+S. Same shortcut, and nobody has to translate."
             title="Labels for each platform"
           />
           <LiveDemo fallbackHeight="min-h-[22rem]" label="formatForDisplay">
@@ -147,7 +147,7 @@ export default function HotkeysLanding() {
       <LandingSection>
         <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
           <SectionHeader
-            body="useHotkeyHint tells each button whether the held modifiers match its shortcut. Hold ⌥ or ⌘ to see it. The note field at the top shows the other default, single-key shortcuts skipping text fields."
+            body="Hold ⌘ or ⌥ and the buttons show their shortcuts. People learn them without opening a help page."
             title="Hints while a modifier is held"
           />
           <LiveDemo fallbackHeight="min-h-[18rem]" label="discoverable">
@@ -160,7 +160,7 @@ export default function HotkeysLanding() {
         <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
           <div>
             <SectionHeader
-              body="useHotkeyRecorder captures a new binding as a plain string you can store anywhere. With conflict detection on, it rejects keys already used by another shortcut or sequence on the page."
+              body="List your shortcuts once and get a cheat sheet and a settings page out of it. Users press the keys they want, and Hotkeys tells them when something else already has them."
               title="Shortcuts users can change"
             />
           </div>
@@ -172,7 +172,7 @@ export default function HotkeysLanding() {
 
       <LandingSection>
         <SectionHeader
-          body="Keyboard bugs are hard to chase with console.log. The Hotkeys panel in TanStack Devtools shows what's registered and what fired as you press keys, so you can see the problem instead of guessing at it."
+          body="See every registered shortcut and watch what fires as you press keys. Much better than console.log."
           title="Awesome Devtools"
         />
       </LandingSection>

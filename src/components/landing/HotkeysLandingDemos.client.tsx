@@ -6,9 +6,8 @@ import {
   useHotkey,
   useHotkeyHint,
   useHotkeyRecorder,
-  useHotkeySequence,
 } from '@tanstack/react-hotkeys'
-import type { Hotkey, RecorderRejection } from '@tanstack/react-hotkeys'
+import type { HotkeyChord, RecorderRejection } from '@tanstack/react-hotkeys'
 
 import { KeyCombo, Keycap } from './HotkeysKeycap'
 import { LandingWindow } from './LibraryLanding'
@@ -70,7 +69,7 @@ export function ShortcutLab() {
     },
     { meta: { name: 'Previous item' } },
   )
-  useHotkeySequence(
+  useHotkey(
     ['G', 'G'],
     () => {
       setSelected(0)
@@ -223,7 +222,7 @@ const formatRows = [
   'Control+Meta+K',
   'Alt+[KeyQ]',
   '[NumpadEnter]',
-] as const satisfies ReadonlyArray<Hotkey>
+] as const satisfies ReadonlyArray<HotkeyChord>
 
 // The layout labels a French AZERTY keyboard prints on these physical keys.
 const azertyLayout = new Map([
@@ -319,7 +318,7 @@ const toolbar = [
   { name: 'Save', hotkey: 'Mod+S' },
   { name: 'Save as', hotkey: 'Alt+S' },
   { name: 'Duplicate', hotkey: 'Alt+D' },
-] as const satisfies ReadonlyArray<{ name: string; hotkey: Hotkey }>
+] as const satisfies ReadonlyArray<{ name: string; hotkey: HotkeyChord }>
 
 export function DefaultsLab() {
   const [platform] = React.useState(detectPlatform)
@@ -346,7 +345,7 @@ function HintButton({
   name,
   platform,
 }: {
-  hotkey: Hotkey
+  hotkey: HotkeyChord
   name: string
   platform: Platform
 }) {
@@ -366,7 +365,7 @@ function HintButton({
 export function RebindLab() {
   const [platform] = React.useState(detectPlatform)
   const cardRef = React.useRef<HTMLDivElement>(null)
-  const [quickOpen, setQuickOpen] = React.useState<Hotkey>('Mod+P')
+  const [quickOpen, setQuickOpen] = React.useState<HotkeyChord>('Mod+P')
   const [message, setMessage] = React.useState<{
     tone: 'bad' | 'good'
     text: string
@@ -377,7 +376,7 @@ export function RebindLab() {
     target: cardRef,
     meta: { name: 'Save as' },
   })
-  useHotkeySequence(['D', 'D'], () => setFired('Delete line'), {
+  useHotkey(['D', 'D'], () => setFired('Delete line'), {
     target: cardRef,
     meta: { name: 'Delete line' },
   })
@@ -493,7 +492,7 @@ function describeRejection(rejection: RecorderRejection, platform: Platform) {
   const pressed = rejection.hotkey
     ? formatForDisplay(rejection.hotkey, { platform })
     : 'That shortcut'
-  return conflict.type === 'sequence'
+  return conflict.registration.kind === 'sequence'
     ? `${pressed} starts the "${name}" sequence.`
     : `${pressed} is already used by "${name}".`
 }

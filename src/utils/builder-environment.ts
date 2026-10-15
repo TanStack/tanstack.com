@@ -19,12 +19,12 @@ export const builderImports = {
     'https://esm.sh/@tanstack/charts@0.16.1/octane/core?external=octane',
   '@tanstack/charts-data/':
     'https://esm.sh/gh/TanStack/charts@b8690671d677244848cff0eebd3d5dd0d5825b18/packages/charts-demo-data/src/',
-  '@tanstack/highlight': 'https://esm.sh/@tanstack/highlight@0.0.10',
-  '@tanstack/highlight/': 'https://esm.sh/@tanstack/highlight@0.0.10/',
-  '@tanstack/markdown': 'https://esm.sh/@tanstack/markdown@0.0.13',
+  '@tanstack/highlight': 'https://esm.sh/@tanstack/highlight@1.0.0',
+  '@tanstack/highlight/': 'https://esm.sh/@tanstack/highlight@1.0.0/',
+  '@tanstack/markdown': 'https://esm.sh/@tanstack/markdown@1.0.0',
   '@tanstack/markdown/react':
-    'https://esm.sh/@tanstack/markdown@0.0.13/react?external=react',
-  '@tanstack/markdown/': 'https://esm.sh/@tanstack/markdown@0.0.13/',
+    'https://esm.sh/@tanstack/markdown@1.0.0/react?external=react',
+  '@tanstack/markdown/': 'https://esm.sh/@tanstack/markdown@1.0.0/',
   '@tanstack/pacer': 'https://esm.sh/@tanstack/pacer@0.21.1',
   '@tanstack/react-pacer':
     'https://esm.sh/@tanstack/react-pacer@0.22.1?external=react',

@@ -264,12 +264,12 @@ export const start: LibrarySlim = {
     'Full-stack Framework powered by TanStack Router for React and Solid',
   description:
     'TanStack Start is a full-stack framework for React and Solid, with type-safe routing, server-side rendering, streaming, and server functions.',
-  badge: 'RC',
+  badge: undefined,
   repo: 'tanstack/router',
   frameworks: ['react', 'solid'],
-  latestVersion: 'v0',
+  latestVersion: 'v1',
   latestBranch: 'main',
-  availableVersions: ['v0'],
+  availableVersions: ['v1'],
   corePackageName: '@tanstack/start-client-core',
   npmPackageNames: ['@tanstack/start-client-core'],
   scarfId: 'b6e2134f-e805-401d-95c3-2a7765d49a3d',
@@ -343,6 +343,7 @@ export const charts: LibrarySlim = {
   description:
     'A typed, tree-shakable chart grammar for SVG and Canvas. Compose marks, views, scales, transforms, interactions, and motion with compact primitives or D3-compatible inputs.',
   repo: 'tanstack/charts',
+  hasDiscussions: false,
   frameworks: [
     'react',
     'preact',
@@ -627,7 +628,6 @@ export const markdown: LibrarySlim = {
   tagline: 'A serializable document model for docs and AI streams',
   description:
     'A deliberately bounded Markdown parser with a public serializable AST, safe defaults, deterministic React, HTML, and Octane output, and a stateless profile for accumulated AI streams.',
-  badge: 'alpha',
   bgStyle: 'bg-fuchsia-500',
   borderStyle: 'border-fuchsia-500/50',
   textStyle: 'text-fuchsia-500 dark:text-fuchsia-400',
@@ -636,6 +636,7 @@ export const markdown: LibrarySlim = {
   colorTo: 'to-fuchsia-500',
   bgRadial: 'from-fuchsia-500 via-fuchsia-500/50 to-transparent',
   repo: 'tanstack/markdown',
+  hasDiscussions: false,
   frameworks: ['react', 'vanilla'],
   corePackageName: '@tanstack/markdown',
   npmPackageNames: ['@tanstack/markdown'],
@@ -658,7 +659,6 @@ export const highlight: LibrarySlim = {
   tagline: 'Web-first syntax highlighting with compact, themeable HTML',
   description:
     'A synchronous syntax highlighter with selective language imports, context-aware web scanners, semantic CSS themes, precise annotations, and compact deterministic output.',
-  badge: 'alpha',
   bgStyle: 'bg-amber-500',
   borderStyle: 'border-amber-500/50',
   textStyle: 'text-amber-500 dark:text-amber-400',

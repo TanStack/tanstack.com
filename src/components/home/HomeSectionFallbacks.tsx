@@ -1,4 +1,4 @@
-import { Card } from '~/components/Card'
+import { Card } from '~/components/ds/ui'
 
 function SectionTitle({ id, title }: { id: string; title: string }) {
   return (
@@ -16,10 +16,12 @@ function SectionTitle({ id, title }: { id: string; title: string }) {
 function SectionBlock({ className }: { className?: string }) {
   return (
     <Card
-      aria-hidden="true"
       className={`animate-pulse overflow-hidden ${className ?? 'min-h-[220px]'}`}
     >
-      <div className="h-full w-full bg-linear-to-br from-gray-100 via-gray-50 to-gray-100 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900" />
+      <div
+        aria-hidden="true"
+        className="h-full w-full bg-linear-to-br from-gray-100 via-gray-50 to-gray-100 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900"
+      />
     </Card>
   )
 }

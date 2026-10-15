@@ -41,6 +41,14 @@ export async function readResponseTextWithLimit(
   response: Response,
   maxBytes: number,
 ) {
+  const body = await readResponseBytesWithLimit(response, maxBytes)
+  return new TextDecoder().decode(body)
+}
+
+export async function readResponseBytesWithLimit(
+  response: Response,
+  maxBytes: number,
+) {
   const contentLength = response.headers.get('content-length')
   if (contentLength) {
     const parsedLength = Number(contentLength)
@@ -53,11 +61,11 @@ export async function readResponseTextWithLimit(
   }
 
   if (!response.body) {
-    const text = await response.text()
-    if (new TextEncoder().encode(text).byteLength > maxBytes) {
+    const body = new Uint8Array(await response.arrayBuffer())
+    if (body.byteLength > maxBytes) {
       throw new ResponseTooLargeError(maxBytes)
     }
-    return text
+    return body
   }
 
   const reader = response.body.getReader()
@@ -87,7 +95,7 @@ export async function readResponseTextWithLimit(
     offset += chunk.byteLength
   }
 
-  return new TextDecoder().decode(body)
+  return body
 }
 
 export async function readResponseJsonWithLimit(

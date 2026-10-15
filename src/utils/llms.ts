@@ -1,9 +1,5 @@
 import { setResponseHeader } from '@tanstack/react-start/server'
-import {
-  libraries,
-  librariesByGroup,
-  librariesGroupNamesMap,
-} from '~/libraries/libraries'
+import { librariesByGroup, librariesGroupNamesMap } from '~/libraries/libraries'
 import type { Framework, LibrarySlim } from '~/libraries/types'
 import type { ConfigSchema } from '~/utils/config'
 import { partners, partnerCategoryLabels, type Partner } from '~/utils/partners'
@@ -41,7 +37,10 @@ const librarySections = [
 const frameworkLabels: Record<Framework, string> = {
   angular: 'Angular',
   alpine: 'Alpine',
+  ember: 'Ember',
   lit: 'Lit',
+  marko: 'Marko',
+  octane: 'Octane',
   preact: 'Preact',
   qwik: 'Qwik',
   react: 'React',
@@ -103,6 +102,9 @@ export function generateLlmsTxt(): string {
   lines.push(
     '- [NPM Stats](https://tanstack.com/stats/npm): Compare npm package download statistics across TanStack packages and related ecosystem packages.',
   )
+  lines.push(
+    '- [Builder authoring guide](https://tanstack.com/builder/llms.txt): Create shareable client-side TypeScript and JSX modules with the supported runtime, import aliases, and URL protocol.',
+  )
   lines.push('')
 
   lines.push('## Optional')
@@ -163,26 +165,17 @@ function formatPackages(library: LibrarySlim) {
 }
 
 function formatPartnerLink(partner: Partner) {
-  return `- [${partner.name}](${partner.href}): ${partnerCategoryLabels[partner.category]}. Works with ${formatPartnerLibraries(partner)}. ${partner.llmDescription}`
-}
+  const resources = (partner.resources ?? [])
+    .map((resource) => {
+      const href = resource.href.startsWith('/')
+        ? `${siteOrigin}${resource.href}`
+        : resource.href
+      return `[${resource.label}](${href})`
+    })
+    .join(', ')
+  const resourceSummary = resources ? ` Resources: ${resources}.` : ''
 
-function formatPartnerLibraries(partner: Partner) {
-  const libraryIds = partner.libraries ?? []
-
-  if (libraryIds.length === 0) {
-    return 'the general TanStack ecosystem'
-  }
-
-  const libraryNames = libraryIds
-    .map((libraryId) => libraries.find((library) => library.id === libraryId))
-    .map((library) => library?.name)
-    .filter(isPresent)
-
-  if (libraryNames.length === 0) {
-    return 'the general TanStack ecosystem'
-  }
-
-  return libraryNames.join(', ')
+  return `- [${partner.name}](${siteOrigin}/partners/${partner.id}): ${partnerCategoryLabels[partner.category]}. ${partner.llmDescription}${resourceSummary}`
 }
 
 function isPresent<T>(value: T | undefined): value is T {

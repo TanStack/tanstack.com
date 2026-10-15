@@ -1,0 +1,37 @@
+import { MagnifyingGlassIcon } from '@phosphor-icons/react'
+import { twMerge } from 'tailwind-merge'
+
+type BlogSearchFilterProps = {
+  id: string
+  value: string
+  onChange: (value: string) => void
+  className?: string
+}
+
+export function BlogSearchFilter({
+  id,
+  value,
+  onChange,
+  className,
+}: BlogSearchFilterProps) {
+  return (
+    <div className={twMerge('relative w-full', className)}>
+      <MagnifyingGlassIcon
+        className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted"
+        aria-hidden="true"
+      />
+      <input
+        id={id}
+        type="search"
+        value={value}
+        onChange={(event) => onChange(event.currentTarget.value)}
+        placeholder="Search posts..."
+        className={twMerge(
+          'w-full rounded-md border border-border-subtle bg-transparent py-1.5 pl-8 pr-2 text-sm transition-colors',
+          'placeholder:text-text-muted',
+          'focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500',
+        )}
+      />
+    </div>
+  )
+}

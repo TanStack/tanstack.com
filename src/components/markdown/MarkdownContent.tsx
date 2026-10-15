@@ -1,5 +1,9 @@
 import * as React from 'react'
-import { ChevronDown, Copy, SquarePen } from 'lucide-react'
+import {
+  CaretDownIcon,
+  CopyIcon,
+  PencilSimpleLineIcon,
+} from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { ButtonGroup } from '~/components/ButtonGroup'
 import { DocTitle } from '~/components/DocTitle'
@@ -33,6 +37,8 @@ type MarkdownContentProps = {
   pagePath?: string
   /** Current framework for filtering markdown content */
   currentFramework?: string
+  /** Render the first image in the document as high-priority/eager (e.g. blog post hero images) */
+  eagerFirstImage?: boolean
 }
 
 function CopyPageDropdownFallback() {
@@ -45,7 +51,7 @@ function CopyPageDropdownFallback() {
         className="border-0"
         disabled
       >
-        <Copy className="w-3 h-3" />
+        <CopyIcon className="w-3 h-3" />
         Copy page
       </Button>
       <Button
@@ -56,7 +62,7 @@ function CopyPageDropdownFallback() {
         disabled
         aria-label="More copy actions"
       >
-        <ChevronDown className="w-3 h-3" />
+        <CaretDownIcon className="w-3 h-3" />
       </Button>
     </ButtonGroup>
   )
@@ -76,6 +82,7 @@ export function MarkdownContent({
   libraryVersion,
   pagePath,
   currentFramework,
+  eagerFirstImage,
 }: MarkdownContentProps) {
   const [canLoadCopyControls, setCanLoadCopyControls] = React.useState(false)
 
@@ -84,7 +91,12 @@ export function MarkdownContent({
   }, [])
 
   const renderedMarkdown = (
-    <Markdown document={markdown} preserveTabPanels={preserveTabPanels} />
+    <Markdown
+      document={markdown}
+      chartEmbedSource={libraryId === 'charts' ? 'collapsed' : undefined}
+      preserveTabPanels={preserveTabPanels}
+      eagerFirstImage={eagerFirstImage}
+    />
   )
 
   const contentNode =
@@ -156,7 +168,7 @@ export function MarkdownContent({
           as="a"
           href={`https://github.com/${repo}/edit/${branch}/${filePath}`}
         >
-          <SquarePen className="w-3.5 h-3.5" />
+          <PencilSimpleLineIcon className="w-3.5 h-3.5" />
           Edit on GitHub
         </Button>
       </div>

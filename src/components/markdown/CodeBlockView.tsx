@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Copy } from 'lucide-react'
+import { CopyIcon } from '@phosphor-icons/react/Copy'
 import { twMerge } from 'tailwind-merge'
 import { useToast } from '~/components/ToastProvider'
 import { Button } from '~/ui'
@@ -11,6 +11,7 @@ export function CodeBlockView({
   htmlMarkup,
   isEmbedded,
   lang,
+  onCopySuccess,
   showTypeCopyButton = true,
   style,
   title,
@@ -20,6 +21,7 @@ export function CodeBlockView({
   htmlMarkup: string
   isEmbedded?: boolean
   lang?: string
+  onCopySuccess?: () => void
   showTypeCopyButton?: boolean
   style?: React.CSSProperties
   title?: string
@@ -47,6 +49,7 @@ export function CodeBlockView({
             className={twMerge('border-0 rounded-md transition-opacity')}
             onClick={async () => {
               await copyTextToClipboard(copyText)
+              onCopySuccess?.()
               copied.trigger()
               notify(
                 <div className="flex flex-col">
@@ -55,6 +58,7 @@ export function CodeBlockView({
                     Code block copied to clipboard
                   </span>
                 </div>,
+                { id: 'code-copied' },
               )
             }}
             aria-label="Copy code to clipboard"
@@ -62,7 +66,7 @@ export function CodeBlockView({
             {copied.active ? (
               <span className="text-xs">Copied!</span>
             ) : (
-              <Copy className="w-4 h-4" />
+              <CopyIcon className="w-4 h-4" />
             )}
           </Button>
         </div>

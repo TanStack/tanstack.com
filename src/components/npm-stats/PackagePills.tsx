@@ -1,6 +1,12 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
-import { X, Plus, Eye, EyeOff, EllipsisVertical } from 'lucide-react'
+import {
+  XIcon,
+  PlusIcon,
+  EyeIcon,
+  EyeSlashIcon,
+  DotsThreeVerticalIcon,
+} from '@phosphor-icons/react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -107,7 +113,9 @@ export function PackagePill({
               )}
             >
               <span className="truncate">{label}</span>
-              {isGroupHidden ? <EyeOff className="size-3.5 shrink-0" /> : null}
+              {isGroupHidden ? (
+                <EyeSlashIcon className="size-3.5 shrink-0" />
+              ) : null}
             </button>
           </Tooltip>
           {showPackageCount ? (
@@ -128,7 +136,7 @@ export function PackagePill({
                 <Tooltip content="More options">
                   <DropdownMenuTrigger asChild>
                     <button className="px-0.5 hover:text-blue-500">
-                      <EllipsisVertical className="size-3.5" />
+                      <DotsThreeVerticalIcon className="size-3.5" />
                     </button>
                   </DropdownMenuTrigger>
                 </Tooltip>
@@ -180,9 +188,9 @@ export function PackagePill({
                       className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer"
                     >
                       {isGroupHidden ? (
-                        <EyeOff className="text-sm" />
+                        <EyeSlashIcon className="text-sm" />
                       ) : (
-                        <Eye className="text-sm" />
+                        <EyeIcon className="text-sm" />
                       )}
                       {isGroupHidden ? 'Show Package' : 'Hide Package'}
                     </DropdownMenuItem>
@@ -220,9 +228,9 @@ export function PackagePill({
                             <div className="flex-1 flex items-center justify-between">
                               <div className="flex items-center gap-2">
                                 {subPackage.hidden ? (
-                                  <EyeOff className="text-sm" />
+                                  <EyeSlashIcon className="text-sm" />
                                 ) : (
-                                  <Eye className="text-sm" />
+                                  <EyeIcon className="text-sm" />
                                 )}
                                 <span
                                   className={
@@ -242,7 +250,7 @@ export function PackagePill({
                                 }}
                                 className="p-1 text-gray-400 hover:text-red-500"
                               >
-                                <X className="w-3 h-3" />
+                                <XIcon className="w-3 h-3" />
                               </button>
                             </div>
                           </DropdownMenuItem>
@@ -257,7 +265,7 @@ export function PackagePill({
                         }}
                         className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer"
                       >
-                        <Plus className="text-sm" />
+                        <PlusIcon className="text-sm" />
                         Add Packages
                       </DropdownMenuItem>
                     )}
@@ -271,7 +279,7 @@ export function PackagePill({
             onClick={() => onRemove(index)}
             className="ml-auto pl-0.5 text-gray-500 hover:text-red-500"
           >
-            <X className="size-3.5" />
+            <XIcon className="size-3.5" />
           </button>
         </div>
       </div>

@@ -1,1020 +1,1791 @@
 import * as React from 'react'
 import { Link, useParams } from '@tanstack/react-router'
 import {
-  ArrowRight,
-  Bot,
-  BookOpen,
-  GitBranch,
-  Mic,
-  MonitorCog,
-  Plug,
-  Radio,
-  ScanSearch,
-  Sparkles,
-  Split,
-  WandSparkles,
-} from 'lucide-react'
+  ArrowDownIcon,
+  ArrowRightIcon,
+  ArrowsDownUpIcon,
+  ArrowsLeftRightIcon,
+  BracketsCurlyIcon,
+  BugIcon,
+  CodeIcon,
+  CubeIcon,
+  DatabaseIcon,
+  HardDrivesIcon,
+  LayoutIcon,
+  MicrophoneIcon,
+  PlugIcon,
+  RadioIcon,
+  RobotIcon,
+  TerminalIcon,
+  WaveformIcon,
+  type Icon,
+} from '@phosphor-icons/react'
 
-import { BottomCTA } from '~/components/BottomCTA'
-import { Footer } from '~/components/Footer'
-import { GithubIcon } from '~/components/icons/GithubIcon'
-import { LandingCommunitySection } from '~/components/LandingCommunitySection'
-import { SponsorSection } from '~/components/SponsorSection'
-import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
-import { LibraryWordmark } from '~/components/LibraryWordmark'
-import LandingPageGad from '~/components/LandingPageGad'
 import { getLibrary } from '~/libraries'
+import { CodeBlock } from '~/components/markdown/CodeBlock'
+import { AiCampaignHero } from './AiCampaignHero'
+import { LandingPromptBox } from './LandingPromptBox'
+import {
+  LandingSection,
+  LandingSectionIntro,
+  LandingWindow,
+  LibraryLandingShell,
+} from './LibraryLanding'
 
-import { LandingEcosystemProof } from '~/components/landing/LandingEcosystemProof'
-import { LandingCopyPromptButton } from '~/components/landing/LandingCopyPromptButton'
-const library = getLibrary('ai')
-const aiAgentPrompt = [
-  'Build a TanStack AI feature for a TypeScript app.',
-  'Use the headless client or framework adapter, AG-UI-compatible request/event streams, provider adapters, typed client/server tools, structured output, and observable runtime state without routing traffic through a hosted gateway.',
-  'Show provider portability, tool approval, streaming UI, and media/realtime capabilities where useful.',
-].join(' ')
-
-const heroProof = [
-  {
-    label: 'AG-UI native',
-    value: 'portable client and event protocol',
-  },
-  {
-    label: 'Provider adapters',
-    value: 'OpenRouter, OpenAI, Anthropic, Gemini',
-  },
-  {
-    label: 'Typed tools',
-    value: 'client, server, approvals, media',
-  },
-]
-
-const aiHeroClients = ['Vanilla', 'React', 'Vue', 'Solid', 'Svelte', 'Preact']
-const aiHeroServers = [
-  { label: 'TanStack AI', detail: 'TypeScript', kind: 'tanstack' as const },
-  { label: 'Python', dotted: true },
-  { label: 'Go', dotted: true },
-  { label: 'PHP', dotted: true },
-]
-const aiHeroProviders = ['OpenRouter', 'OpenAI', 'Anthropic', 'Gemini']
-const graphClientNodes = aiHeroClients.map((label, index) => ({
-  label,
-  x: [34, 154, 274][index % 3] ?? 154,
-  y: index < 3 ? 44 : 90,
-  width: 86,
-  height: 34,
-}))
-const graphAgUiNode = {
-  label: 'TanStack AI Client',
-  detail: 'AG-UI',
-  kind: 'tanstack' as const,
-  x: 142,
-  y: 138,
-  width: 136,
-  height: 58,
-}
-const graphServerNodes = aiHeroServers.map((server, index) => ({
-  ...server,
-  x: [38, 178, 254, 326][index] ?? 178,
-  y: index === 0 ? 254 : 260,
-  width: index === 0 ? 124 : 56,
-  height: index === 0 ? 54 : 42,
-}))
-const graphProviderNodes = aiHeroProviders.map((label, index) => ({
-  label,
-  x: 18 + index * 98,
-  y: 352,
-  width: 78,
-  height: 34,
-}))
-const aiHeroMessages = [
-  {
-    user: 'Build the invoice assistant on our stack.',
-    assistant:
-      'Using TanStack AI for TypeScript, AG-UI events, a server tool for invoices, and OpenRouter for model routing.',
-  },
-  {
-    user: 'Ask before it charges a card.',
-    assistant:
-      'Tool approval added. The UI will pause on chargeCard until your app confirms it.',
-  },
-  {
-    user: 'Can we switch providers later?',
-    assistant:
-      'Yes. The provider stays behind an adapter; the app keeps the same event stream and typed tools.',
-  },
-]
-
-type AiHeroChatMessage = {
-  assistant: string
-  id: string
-  isStreaming: boolean
-  user: string
-}
-
-const featureCards = [
-  {
-    title: 'Protocol first, gateway never required.',
-    body: 'Clients and servers speak AG-UI-compatible requests and event streams, so teams can own their transport, runtime, and deployment shape.',
-    icon: <Radio size={18} />,
-  },
-  {
-    title: 'Providers are adapters, not the architecture.',
-    body: 'Use OpenRouter, OpenAI, Anthropic, Gemini, Ollama, Groq, Grok/xAI, ElevenLabs, and fal.ai without making the app proprietary to one vendor.',
-    icon: <Plug size={18} />,
-  },
-  {
-    title: 'Tools stay typed where they run.',
-    body: 'Define client, server, isomorphic, and provider-native tools with input/output types, approvals, and runtime boundaries that remain visible.',
-    icon: <Bot size={18} />,
-  },
-  {
-    title: 'Media is part of the same SDK story.',
-    body: 'Text, structured output, reasoning streams, image, speech, transcription, realtime voice, and video can share provider-aware primitives.',
-    icon: <Mic size={18} />,
-  },
-]
-
-const pipelineSteps = [
-  {
-    label: 'Client',
-    body: 'Headless client or framework hook starts the interaction from your UI.',
-  },
-  {
-    label: 'Protocol',
-    body: 'AG-UI request and event streams keep client/server interop explicit.',
-  },
-  {
-    label: 'Provider',
-    body: 'Adapters translate into model-specific capabilities and options.',
-  },
-  {
-    label: 'Observe',
-    body: 'Devtools, middleware, logs, and hooks make the runtime explainable.',
-  },
-]
-
-const runtimeSignals = [
-  {
-    label: 'tool approval',
-    value: 'pending: chargeCard',
-  },
-  {
-    label: 'stream event',
-    value: 'reasoning.delta',
-  },
-  {
-    label: 'structured output',
-    value: 'schema matched',
-  },
-  {
-    label: 'media job',
-    value: 'image generation complete',
-  },
-]
-
-const frameworkAdapters = [
-  'React',
-  'Vue',
-  'Solid',
-  'Svelte',
-  'Preact',
-  'Vanilla',
-]
+// ponytail: the shared --landing-accent-ink is pure black, which reads badly on the
+// orange accent fill. Darken the fill instead and use white text on it.
+const accentFillClass =
+  'bg-[linear-gradient(135deg,color-mix(in_srgb,var(--landing-accent)_84%,black),color-mix(in_srgb,var(--landing-accent)_52%,black))] text-white'
 
 export default function AiLanding() {
-  const { version } = useParams({ strict: false })
-  const resolvedVersion = version ?? library.latestVersion
-
   return (
-    <div className="w-full min-w-0 overflow-x-hidden bg-[#fff1f7] text-zinc-950 dark:bg-zinc-950 dark:text-white">
-      <section className="max-w-full overflow-hidden border-b border-pink-950/10 bg-[#ffe4f0] dark:border-pink-300/10 dark:bg-[#190612]">
-        <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-10 lg:max-w-[80rem] lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:py-12 xl:max-w-[92rem]">
-          <div className="min-w-0 max-w-full sm:max-w-3xl">
-            <SectionKicker icon={<WandSparkles size={14} />}>
-              Open AI application SDK
-            </SectionKicker>
+    <LibraryLandingShell
+      libraryId="ai"
+      headline="AI building blocks for TypeScript. We build the hard parts, you keep your stack."
+      description="TanStack AI is a TypeScript library for building AI features and agents. It ships the agent loop, provider adapters, durability, interrupts, sandboxes, and tools, and plugs into the server, database, and UI you already have."
+      hero={<AiCampaignHero />}
+      beforeActions={<LandingPromptBox />}
+      stackHero
+    >
+      <LandingSection tone="accent">
+        <LandingSectionIntro
+          centered
+          eyebrow="Open protocol"
+          icon={<RadioIcon aria-hidden="true" size={15} />}
+          title="AG-UI compliant, in both directions."
+          body="The client sends AG-UI requests and consumes AG-UI events, so the agent on the other end is replaceable: point the same client at a Python, Go, or PHP runtime and it keeps working. Bring your own transport."
+          action={
+            <DocsLink to="migration/ag-ui-compliance">
+              AG-UI compliance
+            </DocsLink>
+          }
+        />
+        <ProtocolMap />
+      </LandingSection>
 
-            <div className="mt-4 flex flex-wrap items-start gap-x-3 gap-y-2">
-              <h1 className="text-5xl font-black leading-[0.95] sm:text-6xl lg:text-7xl">
-                <LibraryWordmark library={library} />
-              </h1>
-              {library.badge ? (
-                <span className="rounded-md bg-zinc-950 px-2 py-1 text-xs font-black uppercase text-white dark:bg-white dark:text-zinc-950">
-                  {library.badge}
-                </span>
-              ) : null}
-            </div>
-
-            <p className="mt-5 max-w-2xl text-lg font-bold leading-8 text-zinc-900 dark:text-zinc-100 sm:text-xl">
-              Own the AI stack between your UI and your models.
-            </p>
-
-            <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-700 dark:text-zinc-300 sm:text-lg">
-              AI is an open-source SDK for building provider-portable AI
-              features with AG-UI-compatible clients, server helpers, typed
-              tools, media generation, and observable runtime primitives without
-              a hosted gateway in the middle.
-            </p>
-
-            <LibraryDownloadsMicro
-              animateIncreaseTrend
-              library={library}
-              className="mt-5"
-              label="weekly downloads"
-              period="weekly"
-              showTotals
-            />
-
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <AiLink
-                to="/$libraryId/$version/docs"
-                params={{ libraryId: library.id, version: resolvedVersion }}
-                label="Read the docs"
-                icon={<BookOpen size={16} aria-hidden="true" />}
-              />
-              <LandingCopyPromptButton
-                prompt={aiAgentPrompt}
-                label="Copy AI Prompt"
-              />
-            </div>
-
-            <div className="mt-8 grid gap-3 sm:grid-cols-3">
-              {heroProof.map((proof) => (
-                <ProofPill key={proof.label} {...proof} />
-              ))}
-            </div>
-            <LandingEcosystemProof />
-          </div>
-
-          <AiGraphChatPanel />
-        </div>
-      </section>
-
-      <section className="border-b border-pink-950/10 bg-[#fff7fb] dark:border-pink-300/10 dark:bg-[#1f0916]">
-        <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.74fr_1.26fr] xl:max-w-[92rem]">
-          <div>
-            <SectionKicker icon={<Sparkles size={14} />}>Why AI</SectionKicker>
-            <h2 className="mt-3 max-w-xl text-3xl font-black leading-tight sm:text-4xl">
-              AI apps need protocols and boundaries, not another black box.
-            </h2>
-            <p className="mt-4 max-w-xl text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              A useful AI layer has to cross clients, servers, providers, tools,
-              streaming events, approvals, and observability. AI keeps those
-              boundaries explicit so teams can swap pieces without rewriting the
-              product.
-            </p>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            {featureCards.map((feature) => (
-              <FeatureCard key={feature.title} {...feature} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-        <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[1.05fr_0.95fr] lg:items-center xl:max-w-[92rem]">
-          <LifecyclePanel />
-          <div>
-            <SectionKicker icon={<GitBranch size={14} />}>
-              Runtime pipeline
-            </SectionKicker>
-            <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
-              From UI intent to model output, every hop stays visible.
-            </h2>
-            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              AI features are distributed systems wearing a chat box. The SDK
-              gives each hop a typed place to live so the app can stream, tool
-              call, approve, retry, observe, and render intentionally.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-b border-zinc-200 bg-[#fbfaf6] dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.82fr_1.18fr] lg:items-start xl:max-w-[92rem]">
-          <div>
-            <SectionKicker icon={<ScanSearch size={14} />}>
-              Observable runtime
-            </SectionKicker>
-            <h2 className="mt-3 max-w-xl text-3xl font-black leading-tight sm:text-4xl">
-              Debug the interaction, not just the final answer.
-            </h2>
-            <p className="mt-4 max-w-xl text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              Tool calls, approvals, model options, provider events, structured
-              output, middleware, and media jobs all need to be inspectable if
-              the feature is going to be operated with confidence.
-            </p>
-          </div>
-
-          <RuntimePanel />
-        </div>
-      </section>
-
-      <section className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-        <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.72fr_1.28fr] lg:items-start xl:max-w-[92rem]">
-          <div className="max-w-xl">
-            <SectionKicker icon={<Split size={14} />}>
-              Framework adapters
-            </SectionKicker>
-            <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
-              Headless core, renderer-specific ergonomics.
-            </h2>
-            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              Start from the headless client or use the adapter for your UI
-              runtime. The provider, protocol, tools, and event model stay the
-              same.
-            </p>
-            <div className="mt-5 flex flex-wrap gap-2">
-              {frameworkAdapters.map((framework) => (
-                <span
-                  key={framework}
-                  className="rounded-md border border-pink-200 bg-pink-50 px-3 py-1.5 text-sm font-bold text-pink-800 dark:border-pink-900 dark:bg-pink-950/40 dark:text-pink-200"
-                >
-                  {framework}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-b border-zinc-200 bg-[#fff1f7] py-12 dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="mx-auto w-full max-w-[80rem] px-4 xl:max-w-[92rem]">
-          <div className="max-w-3xl">
-            <SectionKicker icon={<MonitorCog size={14} />}>
-              Product control
-            </SectionKicker>
-            <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
-              Bring your providers, servers, and product constraints.
-            </h2>
-            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              AI should help teams standardize the app layer without flattening
-              provider capabilities or forcing a hosted platform into the
-              critical path.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-white py-12 dark:bg-zinc-950">
-        <div className="mx-auto w-full max-w-[80rem] px-4 xl:max-w-[92rem]">
-          <div className="max-w-3xl">
-            <SectionKicker icon={<GithubIcon className="h-4 w-4" />}>
-              Open source ecosystem
-            </SectionKicker>
-            <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
-              AI stays useful by staying close to real product work.
-            </h2>
-            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              Maintainers, adapters, examples, partners, and GitHub sponsors
-              keep the SDK honest as models, providers, and app expectations
-              keep changing.
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-10 flex flex-col gap-14">
-          <LandingCommunitySection libraryId="ai" />
-          <SponsorSection
-            title="GitHub Sponsors"
-            aspectRatio="1/1"
-            packMaxWidth="900px"
-            showCTA
+      <LandingSection tone="ink">
+        <div className="grid items-center gap-12 xl:grid-cols-[1.1fr_0.9fr] xl:gap-16">
+          <LandingSectionIntro
+            eyebrow="Typesafe models"
+            icon={<PlugIcon aria-hidden="true" size={15} />}
+            title="Typed options for every model."
+            body="Pick a model and TypeScript narrows the fields to what it supports. Input parts for chat. Pixel sizes on one image model and aspect ratio plus resolution on the next. Durations and tiers for video. Resolution for world models. The wrong value fails in the editor, not in production."
+            action={
+              <DocsLink to="chat/connection-adapters">
+                Connection adapters
+              </DocsLink>
+            }
           />
+          <div className="min-w-0 xl:order-first">
+            <ProviderWorkbench />
+          </div>
         </div>
-      </section>
+      </LandingSection>
 
-      <LandingPageGad />
-      <BottomCTA
-        linkProps={{
-          to: '/$libraryId/$version/docs',
-          params: { libraryId: library.id, version: resolvedVersion },
-        }}
-        label="Get Started!"
-        className="border-pink-500 bg-pink-500 text-white hover:bg-pink-600"
-      />
-      <Footer />
-    </div>
+      <LandingSection tone="raised">
+        <div className="grid items-center gap-12 xl:grid-cols-[0.92fr_1.08fr] xl:gap-16">
+          <LandingSectionIntro
+            eyebrow="We handle tools"
+            icon={<BracketsCurlyIcon aria-hidden="true" size={15} />}
+            title="Define a tool once. Run it on either side."
+            body="One schema gives you the input and output types on the server and the client. The loop calls the tool, waits for approval when asked, applies the user's edits, and feeds the result back to the model."
+            action={<DocsLink to="tools/tools">Tools</DocsLink>}
+          />
+          <ToolBoundary />
+        </div>
+      </LandingSection>
+
+      <LandingSection tone="ink">
+        <LandingSectionIntro
+          eyebrow="You own the UI"
+          icon={<LayoutIcon aria-hidden="true" size={15} />}
+          title="Messages are parts. Render however you like."
+          body="Text, thinking, tool calls and results all arrive as typed parts with their own state. Loop over the parts and render each one, or hand a component per part type to createChatHook and it picks the right one for you."
+          action={<DocsLink to="ui/react">UI integrations</DocsLink>}
+        />
+        <div className="mt-12 min-w-0">
+          <MessageParts />
+        </div>
+      </LandingSection>
+
+      <LandingSection tone="raised">
+        <LandingSectionIntro
+          centered
+          eyebrow="You own persistence"
+          icon={<DatabaseIcon aria-hidden="true" size={15} />}
+          title="Your database. Your schema."
+          body="Persistence is two functions: loading and saving a thread. With the ai-persistence skill shipped with the package, your coding agent can wire them to your tables and ORM in one pass."
+          action={<DocsLink to="persistence/overview">Persistence</DocsLink>}
+        />
+        <PersistenceContract />
+      </LandingSection>
+
+      <LandingSection tone="ink">
+        <div className="grid items-center gap-12 xl:grid-cols-[0.82fr_1.18fr] xl:gap-16">
+          <LandingSectionIntro
+            eyebrow="Durability you can move"
+            icon={<HardDrivesIcon aria-hidden="true" size={15} />}
+            title="Refresh mid-answer and nothing is lost."
+            body="Every chunk is written to a log before it is delivered. Drop the socket or refresh the page and the client replays from the last offset instead of losing the model's answer."
+            action={
+              <DocsLink to="resumable-streams/overview">
+                Resumable streams
+              </DocsLink>
+            }
+          />
+          <DurabilityTiers />
+        </div>
+      </LandingSection>
+
+      <LandingSection tone="raised">
+        <div className="grid gap-12 xl:grid-cols-[0.78fr_1.22fr] xl:items-start xl:gap-16">
+          <LandingSectionIntro
+            eyebrow="We handle the hard parts"
+            icon={<CubeIcon aria-hidden="true" size={15} />}
+            title="Sandboxes, Code Mode, MCP, memory, compaction."
+            body="With each feature as its own package, load what the task needs and leave out the rest."
+          />
+          <FeatureRail items={agentStack} />
+        </div>
+      </LandingSection>
+
+      <LandingSection tone="ink">
+        <div className="grid gap-12 xl:grid-cols-[0.78fr_1.22fr] xl:items-start xl:gap-16">
+          <LandingSectionIntro
+            eyebrow="Beyond chat"
+            icon={<MicrophoneIcon aria-hidden="true" size={15} />}
+            title="Images, video, speech, voice, and live worlds."
+            body="The same adapters and the same persistence cover every modality, with progress updates and cost tracking built in."
+            action={<DocsLink to="media/generations">Generations</DocsLink>}
+          />
+          <FeatureRail items={modalities} />
+        </div>
+      </LandingSection>
+
+      <LandingSection tone="raised">
+        <div className="grid gap-12 xl:grid-cols-[0.82fr_1.18fr] xl:items-center xl:gap-16">
+          <LandingSectionIntro
+            eyebrow="Devtools"
+            icon={<BugIcon aria-hidden="true" size={15} />}
+            title="See every action on both sides."
+            body="Every tool call, interrupt, memory recall, and finish reason, on the server and in the client, in one timeline."
+            action={<DocsLink to="getting-started/devtools">Devtools</DocsLink>}
+          />
+          <DevtoolsPanel />
+        </div>
+      </LandingSection>
+
+      <LandingSection tone="ink">
+        <LandingSectionIntro
+          centered
+          eyebrow="Start here"
+          icon={<ArrowRightIcon aria-hidden="true" size={15} />}
+          title="Choose what you want to do next."
+          body="Each one is a short guide with copyable code, not a tour."
+        />
+        <StartingPoints />
+      </LandingSection>
+    </LibraryLandingShell>
   )
 }
 
-function AiGraphChatPanel() {
-  const [activeClient, setActiveClient] = React.useState(0)
-  const [activeProvider, setActiveProvider] = React.useState(0)
-  const [chatMessages, setChatMessages] = React.useState<
-    Array<AiHeroChatMessage>
-  >([])
-  const [typingUserMessage, setTypingUserMessage] = React.useState('')
-  const primaryServerNode = graphServerNodes[0]
-  const chatScrollRef = React.useRef<HTMLDivElement>(null)
-  const chatLockedToBottomRef = React.useRef(true)
+// Paper well in light, #111 in dark. Same --th-* tokens as CodeBlock.
+const codeWellClass =
+  'm-0 min-w-0 overflow-hidden rounded-lg border-0 bg-gray-100 [--th-background:var(--color-gray-100)] dark:bg-ds-neutral-500 dark:[--th-background:var(--color-ds-neutral-500)] [&_pre]:overflow-x-auto [&_pre]:rounded-none [&_pre]:p-4 [&_pre]:text-xs [&_pre]:leading-6'
 
-  React.useEffect(() => {
-    const clientIntervalId = window.setInterval(() => {
-      setActiveClient((current) => (current + 1) % aiHeroClients.length)
-    }, 2300)
-    const providerIntervalId = window.setInterval(() => {
-      setActiveProvider((current) => (current + 1) % aiHeroProviders.length)
-    }, 4100)
+const codeSurfaceClass =
+  'overflow-x-auto rounded-lg bg-gray-100 p-4 font-ds-mono text-ds-mono-xs leading-6 text-(--th-token) dark:bg-ds-neutral-500 [&_p]:whitespace-pre'
 
-    return () => {
-      window.clearInterval(clientIntervalId)
-      window.clearInterval(providerIntervalId)
-    }
-  }, [])
-
-  React.useEffect(() => {
-    let cancelled = false
-    const timeouts: Array<number> = []
-
-    const addTimeout = (callback: () => void, delay: number) => {
-      const timeoutId = window.setTimeout(callback, delay)
-      timeouts.push(timeoutId)
-    }
-
-    const streamAssistantResponse = (
-      id: string,
-      response: string,
-      onComplete: () => void,
-    ) => {
-      let currentIndex = 0
-
-      const streamChunk = () => {
-        if (cancelled) {
-          return
-        }
-
-        if (currentIndex < response.length) {
-          const chunkSize = 2 + Math.floor(Math.random() * 7)
-          const nextIndex = Math.min(currentIndex + chunkSize, response.length)
-          const nextText = response.slice(0, nextIndex)
-
-          setChatMessages((currentMessages) =>
-            currentMessages.map((message) =>
-              message.id === id
-                ? { ...message, assistant: nextText, isStreaming: true }
-                : message,
-            ),
-          )
-
-          currentIndex = nextIndex
-          addTimeout(streamChunk, 22 + Math.floor(Math.random() * 58))
-          return
-        }
-
-        setChatMessages((currentMessages) =>
-          currentMessages.map((message) =>
-            message.id === id ? { ...message, isStreaming: false } : message,
-          ),
-        )
-        addTimeout(onComplete, 1600)
-      }
-
-      addTimeout(streamChunk, 450)
-    }
-
-    const typeUserMessage = (
-      messageIndex: number,
-      onComplete: (id: string) => void,
-    ) => {
-      const message = aiHeroMessages[messageIndex]
-      let currentIndex = 0
-
-      setTypingUserMessage('')
-
-      const typeChar = () => {
-        if (cancelled) {
-          return
-        }
-
-        if (currentIndex < message.user.length) {
-          currentIndex += 1
-          setTypingUserMessage(message.user.slice(0, currentIndex))
-          addTimeout(typeChar, 30 + Math.floor(Math.random() * 40))
-          return
-        }
-
-        addTimeout(() => {
-          const id = `${messageIndex}-${Date.now()}`
-
-          setTypingUserMessage('')
-          setChatMessages((currentMessages) => [
-            ...currentMessages.slice(-1),
-            {
-              assistant: '',
-              id,
-              isStreaming: true,
-              user: message.user,
-            },
-          ])
-          onComplete(id)
-        }, 320)
-      }
-
-      typeChar()
-    }
-
-    const playMessage = (messageIndex: number) => {
-      if (cancelled) {
-        return
-      }
-
-      const nextMessageIndex = messageIndex % aiHeroMessages.length
-      const message = aiHeroMessages[nextMessageIndex]
-
-      typeUserMessage(nextMessageIndex, (id) => {
-        streamAssistantResponse(id, message.assistant, () => {
-          playMessage(nextMessageIndex + 1)
-        })
-      })
-    }
-
-    addTimeout(() => playMessage(0), 700)
-
-    return () => {
-      cancelled = true
-      timeouts.forEach((timeoutId) => window.clearTimeout(timeoutId))
-    }
-  }, [])
-
-  React.useEffect(() => {
-    const element = chatScrollRef.current
-    if (!element) {
-      return
-    }
-
-    const handleScroll = () => {
-      const distanceFromBottom =
-        element.scrollHeight - element.scrollTop - element.clientHeight
-
-      chatLockedToBottomRef.current = distanceFromBottom < 72
-    }
-
-    element.addEventListener('scroll', handleScroll, { passive: true })
-    return () => {
-      element.removeEventListener('scroll', handleScroll)
-    }
-  }, [])
-
-  React.useEffect(() => {
-    const frameId = window.requestAnimationFrame(() => {
-      const element = chatScrollRef.current
-
-      if (element && chatLockedToBottomRef.current) {
-        element.scrollTop = element.scrollHeight
-      }
-    })
-
-    return () => window.cancelAnimationFrame(frameId)
-  }, [chatMessages])
-
-  return (
-    <div className="grid w-full min-w-0 max-w-full items-start gap-5 lg:grid-cols-[1.05fr_0.95fr]">
-      <AiDemoWindow title="client graph">
-        <div className="relative h-[26rem] overflow-hidden bg-[#fff7fb] dark:bg-[#120914]">
-          <div className="absolute inset-0 opacity-45 [background-image:linear-gradient(rgba(236,72,153,.14)_1px,transparent_1px),linear-gradient(90deg,rgba(236,72,153,.14)_1px,transparent_1px)] [background-size:28px_28px]" />
-          <svg
-            className="pointer-events-none absolute inset-0 h-full w-full"
-            viewBox="0 0 420 420"
-            aria-hidden="true"
-          >
-            {graphClientNodes.map((node, index) => (
-              <GraphLine
-                key={`client-${node.label}`}
-                active={activeClient === index}
-                d={curveBetween(
-                  bottomAnchor(node),
-                  topAnchor(graphAgUiNode),
-                  0.45,
-                )}
-              />
-            ))}
-            {graphServerNodes.map((node, index) => (
-              <GraphLine
-                key={`server-${node.label}`}
-                active={index === 0}
-                d={curveBetween(
-                  bottomAnchor(graphAgUiNode),
-                  topAnchor(node),
-                  0.5,
-                )}
-              />
-            ))}
-            {graphProviderNodes.map((node, index) => (
-              <GraphLine
-                key={`provider-${node.label}`}
-                active={activeProvider === index}
-                d={curveBetween(
-                  bottomAnchor(primaryServerNode),
-                  topAnchor(node),
-                  0.55,
-                )}
-              />
-            ))}
-          </svg>
-
-          <GraphLabel x={18} y={24}>
-            client
-          </GraphLabel>
-          <GraphLabel x={50} y={236}>
-            server / runtime
-          </GraphLabel>
-          <GraphLabel x={18} y={328}>
-            provider
-          </GraphLabel>
-
-          {graphClientNodes.map((node, index) => (
-            <GraphNode
-              key={node.label}
-              active={index === activeClient}
-              label={node.label}
-              node={node}
-            />
-          ))}
-          <GraphNode
-            active
-            detail={graphAgUiNode.detail}
-            kind={graphAgUiNode.kind}
-            label={graphAgUiNode.label}
-            node={graphAgUiNode}
-          />
-          {graphServerNodes.map((node, index) => (
-            <GraphNode
-              key={node.label}
-              active={index === 0}
-              detail={node.detail}
-              dotted={node.dotted}
-              kind={node.kind}
-              label={node.label}
-              node={node}
-            />
-          ))}
-          {graphProviderNodes.map((node, index) => (
-            <GraphNode
-              key={node.label}
-              active={index === activeProvider}
-              label={node.label}
-              node={node}
-            />
-          ))}
-        </div>
-      </AiDemoWindow>
-
-      <AiDemoWindow title="chat runtime">
-        <div className="flex h-[26rem] min-w-0 flex-col bg-zinc-50 dark:bg-zinc-900">
-          <div
-            ref={chatScrollRef}
-            className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          >
-            <div className="flex min-h-full flex-col justify-end gap-2.5 p-4">
-              {chatMessages.map((message) => (
-                <React.Fragment key={message.id}>
-                  <div className="ml-auto max-w-[86%] rounded-xl bg-pink-500 px-3 py-2 text-xs font-bold leading-5 text-white shadow-sm">
-                    {message.user}
-                  </div>
-                  {message.assistant || message.isStreaming ? (
-                    <div className="max-w-[90%] rounded-xl border border-zinc-200 bg-white px-3 py-2 text-xs leading-5 text-zinc-800 shadow-sm dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-200">
-                      {message.assistant}
-                      {message.isStreaming ? (
-                        <span className="ml-1 inline-block h-3.5 w-1 rounded-sm bg-pink-500 align-[-0.2rem] motion-safe:animate-pulse" />
-                      ) : null}
-                    </div>
-                  ) : null}
-                </React.Fragment>
-              ))}
-              <div className="grid gap-2 pt-2 text-xs font-bold sm:grid-cols-2">
-                {[
-                  ['event', 'assistant.delta'],
-                  ['tool', 'approval required'],
-                  ['provider', aiHeroProviders[activeProvider]],
-                  ['server', 'TanStack AI'],
-                ].map(([label, value]) => (
-                  <div
-                    key={label}
-                    className="rounded-lg bg-white px-3 py-2 dark:bg-zinc-950"
-                  >
-                    <p className="text-[0.58rem] uppercase text-zinc-500 dark:text-zinc-500">
-                      {label}
-                    </p>
-                    <p className="mt-1 truncate text-pink-700 dark:text-pink-300">
-                      {value}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="shrink-0 border-t border-zinc-200 p-4 dark:border-zinc-800">
-            <div
-              className={
-                typingUserMessage
-                  ? 'rounded-lg border border-pink-300 bg-white px-3 py-2 text-sm font-bold text-zinc-950 ring-1 ring-pink-500/30 dark:border-pink-900 dark:bg-zinc-950 dark:text-zinc-100'
-                  : 'rounded-lg border border-pink-200 bg-white px-3 py-2 text-sm font-bold text-zinc-500 dark:border-pink-950 dark:bg-zinc-950 dark:text-zinc-500'
-              }
-            >
-              {typingUserMessage || 'Type a message...'}
-              {typingUserMessage ? (
-                <span className="ml-1 inline-block h-4 w-1 rounded-sm bg-pink-500 align-[-0.2rem] motion-safe:animate-pulse" />
-              ) : null}
-            </div>
-          </div>
-        </div>
-      </AiDemoWindow>
-    </div>
-  )
-}
-
-function AiDemoWindow({
+function CodeWell({
   children,
-  title,
+  className = 'p-5',
+  codeKey,
+  lang = 'ts',
 }: {
-  children: React.ReactNode
-  title: string
+  children: string
+  className?: string
+  codeKey?: string
+  lang?: string
 }) {
   return (
-    <div className="w-full min-w-0 overflow-hidden rounded-lg border border-pink-200 bg-white shadow-sm shadow-pink-950/5 dark:border-pink-900 dark:bg-zinc-950">
-      <div className="flex items-center justify-between gap-3 border-b border-pink-100 px-4 py-3 dark:border-pink-950/70">
-        <div className="flex items-center gap-2">
-          <span className="h-2.5 w-2.5 rounded-md bg-red-400" />
-          <span className="h-2.5 w-2.5 rounded-md bg-yellow-400" />
-          <span className="h-2.5 w-2.5 rounded-md bg-emerald-400" />
+    <div className={className}>
+      <CodeBlock
+        key={codeKey}
+        className={codeWellClass}
+        showTypeCopyButton={false}
+      >
+        <code className={`language-${lang}`}>{children}</code>
+      </CodeBlock>
+    </div>
+  )
+}
+
+function CodeTabs({
+  label,
+  samples,
+}: {
+  label: string
+  samples: Array<{ code: string; file: string; name: string }>
+}) {
+  const [activeIndex, setActiveIndex] = React.useState(0)
+  const sample = samples[activeIndex] ?? samples[0]
+
+  return (
+    <LandingWindow label={label}>
+      <div className="border-b border-border-subtle px-4 pt-4">
+        <div
+          className="flex gap-5 overflow-x-auto"
+          role="group"
+          aria-label={label}
+        >
+          {samples.map((item, index) => (
+            <button
+              key={item.name}
+              type="button"
+              aria-pressed={index === activeIndex}
+              className="shrink-0 border-b-2 border-transparent pb-3 text-ds-label-sm text-text-primary/35 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-pressed:border-(--landing-accent) aria-pressed:text-text-primary"
+              onClick={() => setActiveIndex(index)}
+            >
+              {item.name}
+            </button>
+          ))}
         </div>
-        <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400">
-          {title}
+      </div>
+      <CodeWell codeKey={sample.name}>{sample.code}</CodeWell>
+    </LandingWindow>
+  )
+}
+
+// Every server backend fills the same two methods. Only those lines change.
+// localStorage and IndexedDB are client adapters with no server package, so
+// they swap the whole window for the useChat call.
+const persistenceStores: Array<
+  | { name: string; load: string; save: string }
+  | { name: string; client: string }
+> = [
+  {
+    name: 'Postgres',
+    load: 'sql`select messages from threads where id = ${threadId}`.then((rows) => rows[0]?.messages ?? [])',
+    save: 'sql`insert into threads (id, messages) values (${threadId}, ${sql.json(messages)})\n          on conflict (id) do update set messages = excluded.messages`',
+  },
+  {
+    name: 'MySQL',
+    load: "pool.query('select messages from threads where id = ?', [threadId]).then(([rows]) => rows[0]?.messages ?? [])",
+    save: "pool.query('replace into threads (id, messages) values (?, ?)', [threadId, JSON.stringify(messages)])",
+  },
+  {
+    name: 'SQLite',
+    load: "JSON.parse(db.prepare('select messages from threads where id = ?').get(threadId)?.messages ?? '[]')",
+    save: "db.prepare('insert or replace into threads values (?, ?)').run(threadId, JSON.stringify(messages))",
+  },
+  {
+    name: 'MongoDB',
+    load: 'threads.findOne({ _id: threadId }).then((doc) => doc?.messages ?? [])',
+    save: 'threads.updateOne({ _id: threadId }, { $set: { messages } }, { upsert: true })',
+  },
+  {
+    name: 'Cloudflare D1',
+    load: "env.DB.prepare('select messages from threads where id = ?').bind(threadId).first('messages').then((json) => JSON.parse(json ?? '[]'))",
+    save: "env.DB.prepare('insert or replace into threads values (?, ?)').bind(threadId, JSON.stringify(messages)).run()",
+  },
+  {
+    name: 'Redis',
+    load: "redis.get(`thread:${threadId}`).then((json) => JSON.parse(json ?? '[]'))",
+    save: 'redis.set(`thread:${threadId}`, JSON.stringify(messages))',
+  },
+  {
+    name: 'Drizzle',
+    load: 'db.select().from(threads).where(eq(threads.id, threadId)).then((rows) => rows[0]?.messages ?? [])',
+    save: 'db.insert(threads).values({ id: threadId, messages }).onConflictDoUpdate({ target: threads.id, set: { messages } })',
+  },
+  {
+    name: 'Prisma',
+    load: 'prisma.thread.findUnique({ where: { id: threadId } }).then((row) => row?.messages ?? [])',
+    save: 'prisma.thread.upsert({ where: { id: threadId }, create: { id: threadId, messages }, update: { messages } })',
+  },
+  { name: 'localStorage', client: 'localStoragePersistence' },
+  { name: 'IndexedDB', client: 'indexedDBPersistence' },
+]
+
+function persistenceSnippet(store: (typeof persistenceStores)[number]) {
+  if ('client' in store) {
+    return {
+      file: 'chat.tsx',
+      code: `import { useChat, fetchServerSentEvents, ${store.client} } from '@tanstack/ai-react'
+
+// No server package. The transcript lives in the browser and survives a reload.
+const { messages, sendMessage } = useChat({
+  threadId: 'support-chat',
+  connection: fetchServerSentEvents('/api/chat'),
+  persistence: ${store.client}(),
+})`,
+    }
+  }
+  return {
+    file: 'persistence.ts',
+    code: `import { defineAIPersistence, defineMessageStore } from '@tanstack/ai-persistence'
+
+// The whole contract. Your tables, your columns, your types.
+export const persistence = defineAIPersistence({
+  stores: {
+    messages: defineMessageStore({
+      loadThread: (threadId) =>
+        ${store.load},
+      saveThread: async (threadId, messages) => {
+        await ${store.save}
+      },
+    }),
+  },
+})
+
+// chat({ ..., middleware: [withPersistence(persistence)] })`,
+  }
+}
+
+function PersistenceContract() {
+  const [activeIndex, setActiveIndex] = React.useState(0)
+  const store = persistenceStores[activeIndex] ?? persistenceStores[0]
+  const snippet = persistenceSnippet(store)
+
+  return (
+    <div className="mt-14 flex flex-col items-center gap-6">
+      <div
+        className="flex flex-wrap justify-center gap-2"
+        role="group"
+        aria-label="Backend"
+      >
+        {persistenceStores.map((item, index) => (
+          <button
+            key={item.name}
+            type="button"
+            aria-pressed={index === activeIndex}
+            className="rounded-full border border-border-subtle px-3 py-1.5 font-ds-mono text-ds-mono-2xs text-text-primary/45 transition-colors hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-pressed:border-(--landing-accent) aria-pressed:bg-[rgb(var(--landing-glow)/0.14)] aria-pressed:text-(--landing-accent-bright)"
+            onClick={() => setActiveIndex(index)}
+          >
+            {item.name}
+          </button>
+        ))}
+      </div>
+      <LandingWindow className="w-full max-w-184" label={snippet.file}>
+        <CodeWell codeKey={store.name}>{snippet.code}</CodeWell>
+      </LandingWindow>
+    </div>
+  )
+}
+
+const durabilityTiers = [
+  {
+    name: 'In memory',
+    file: 'routes/api.chat.ts',
+    code: `import { chat, memoryStream, toServerSentEventsResponse } from '@tanstack/ai'
+
+// Development and single-process apps. Zero setup.
+export async function POST(request: Request) {
+  const stream = chat({ /* ... */ })
+
+  return toServerSentEventsResponse(stream, {
+    durability: { adapter: memoryStream(request) },
+  })
+}`,
+  },
+  {
+    name: 'Hosted log',
+    file: 'routes/api.chat.ts',
+    code: `import { chat, toServerSentEventsResponse } from '@tanstack/ai'
+import { durableStream } from '@tanstack/ai-durable-stream'
+
+// Many processes, many regions. The route does not change.
+export async function POST(request: Request) {
+  const stream = chat({ /* ... */ })
+
+  return toServerSentEventsResponse(stream, {
+    durability: {
+      adapter: durableStream(request, { server: process.env.DURABLE_STREAMS_URL }),
+    },
+  })
+}`,
+  },
+  {
+    name: 'Your store',
+    file: 'redis-stream.ts',
+    code: `import type { StreamDurability } from '@tanstack/ai'
+
+// Five methods against anything: Redis, Postgres, a queue.
+// Offsets are opaque strings. Core never reads your store.
+export function redisStream(request: Request): StreamDurability {
+  const key = runKey(request)
+
+  return {
+    resumeFrom: () => resumeOffset(request),
+    append: (chunks) => appendAll(key, chunks),
+    read: (offset, signal) => readAfter(key, offset, signal),
+    snapshot: () => readAll(key),
+    close: () => markDone(key),
+  }
+}`,
+  },
+]
+
+function DurabilityTiers() {
+  return <CodeTabs label="stream durability" samples={durabilityTiers} />
+}
+
+const toolCallStates = [
+  'awaiting-input',
+  'input-streaming',
+  'input-complete',
+  'approval-requested',
+  'approval-responded',
+  'complete',
+] as const
+
+type ToolCallState = (typeof toolCallStates)[number]
+
+// Both snippets stay put while the cycle runs; only the highlighted line
+// moves. A line tagged with a part lights up when that part is active, and a
+// line tagged with a tool state only when the tool call is in that state.
+type HighlightPart =
+  | 'message'
+  | 'thinking'
+  | 'tool-call'
+  | 'tool-result'
+  | 'text'
+
+type CodeLine = {
+  text: string
+  part?: HighlightPart
+  toolState?: ToolCallState
+}
+
+const toolBranches: Array<CodeLine> = [
+  {
+    text: "if (part.state === 'awaiting-input') return <Spinner />",
+    part: 'tool-call',
+    toolState: 'awaiting-input',
+  },
+  {
+    text: "if (part.state === 'input-streaming') return <Spinner />",
+    part: 'tool-call',
+    toolState: 'input-streaming',
+  },
+  {
+    text: "if (part.state === 'input-complete') return <p>Looking up {part.input?.id}</p>",
+    part: 'tool-call',
+    toolState: 'input-complete',
+  },
+  {
+    text: "if (interrupt?.status === 'pending') return <button onClick={() => interrupt.resolveInterrupt(true)}>Approve</button>",
+    part: 'tool-call',
+    toolState: 'approval-requested',
+  },
+  {
+    text: "if (part.state === 'approval-responded') return <p>Approved</p>",
+    part: 'tool-call',
+    toolState: 'approval-responded',
+  },
+  {
+    text: "if (part.state === 'error') return <p>Lookup failed</p>",
+    part: 'tool-call',
+  },
+  {
+    text: 'return <InvoiceCard invoice={part.output} />',
+    part: 'tool-call',
+    toolState: 'complete',
+  },
+]
+
+const loopCode: Array<CodeLine> = [
+  { text: 'const { messages } = useChat({' },
+  { text: "  connection: fetchServerSentEvents('/api/chat')," },
+  { text: '})' },
+  { text: '' },
+  { text: 'return messages.map((message) => (' },
+  { text: '  <article key={message.id}>', part: 'message' },
+  { text: '    {message.parts.map((part, index) => {' },
+  { text: '      switch (part.type) {' },
+  { text: "        case 'thinking':", part: 'thinking' },
+  {
+    text: '          return <details key={index}><summary>Thinking</summary>{part.content}</details>',
+    part: 'thinking',
+  },
+  { text: "        case 'tool-call':", part: 'tool-call' },
+  {
+    text: '          return <ToolCall key={index} part={part} />',
+    part: 'tool-call',
+  },
+  { text: "        case 'tool-result':", part: 'tool-result' },
+  {
+    text: '          return <pre key={index}>{String(part.content)}</pre>',
+    part: 'tool-result',
+  },
+  { text: "        case 'text':", part: 'text' },
+  {
+    text: '          return <Markdown key={index}>{part.content}</Markdown>',
+    part: 'text',
+  },
+  { text: '        default:' },
+  { text: '          return null' },
+  { text: '      }' },
+  { text: '    })}' },
+  { text: '  </article>' },
+  { text: '))' },
+]
+
+const hookCode: Array<CodeLine> = [
+  { text: 'const { useAppChat } = createChatHook({' },
+  { text: '  options: chatOptions,' },
+  { text: '  components: {' },
+  { text: '    layout: ({ Messages }) => <main><Messages /></main>,' },
+  {
+    text: '    message: ({ Parts }) => <article><Parts /></article>,',
+    part: 'message',
+  },
+  { text: '  },' },
+  { text: '  partsComponents: {' },
+  {
+    text: '    thinking: ({ part }) => <details><summary>Thinking</summary>{part.content}</details>,',
+    part: 'thinking',
+  },
+  {
+    text: '    toolResult: ({ part }) => <pre>{String(part.content)}</pre>,',
+    part: 'tool-result',
+  },
+  {
+    text: '    text: ({ part }) => <Markdown>{part.content}</Markdown>,',
+    part: 'text',
+  },
+  { text: '    fallback: () => null,' },
+  { text: '  },' },
+  { text: '  toolsComponents: {' },
+  { text: '    lookupInvoice: ({ part, interrupt }) => {' },
+  ...toolBranches.map((line) => ({ ...line, text: `      ${line.text}` })),
+  { text: '    },' },
+  { text: '  },' },
+  { text: '})' },
+  { text: '' },
+  { text: 'const chat = useAppChat()' },
+  { text: 'return <chat.AppChat />' },
+]
+
+// The cycle walks createChatHook: message, thinking, every tool-call state,
+// then the result and the streamed reply.
+const partSteps: Array<
+  | { part: 'message' | 'thinking' | 'tool-result' | 'text' }
+  | { part: 'tool-call'; toolState: ToolCallState }
+> = [
+  { part: 'message' },
+  { part: 'thinking' },
+  ...toolCallStates.map((toolState) => ({
+    part: 'tool-call' as const,
+    toolState,
+  })),
+  { part: 'tool-result' },
+  { part: 'text' },
+]
+
+const partStepIndex = {
+  message: 0,
+  thinking: 1,
+  'tool-call': 2,
+  'tool-result': 2 + toolCallStates.length,
+  text: 3 + toolCallStates.length,
+} as const
+
+function chatHighlightClass(active: boolean) {
+  return active
+    ? 'outline outline-2 outline-offset-2 outline-(--landing-accent-bright) bg-[rgb(var(--landing-glow)/0.12)]'
+    : ''
+}
+
+function InvoiceCard({ highlighted = false }: { highlighted?: boolean }) {
+  return (
+    <div
+      className={`overflow-hidden rounded-xl border ${
+        highlighted
+          ? 'border-(--landing-accent-bright) bg-[rgb(var(--landing-glow)/0.14)]'
+          : 'border-border-default bg-background-surface'
+      }`}
+    >
+      <div className="flex items-center justify-between border-b border-border-subtle px-3.5 py-2.5">
+        <p className="text-ds-label-sm text-text-primary">Invoice</p>
+        <span className="rounded-full bg-[rgb(var(--landing-glow)/0.16)] px-2 py-0.5 text-ds-label-sm text-(--landing-accent-bright)">
+          Paid
         </span>
       </div>
-      {children}
+      <div className="px-3.5 py-3">
+        <p className="font-ds-mono text-ds-mono-2xs text-text-primary/40">
+          INV-2231
+        </p>
+        <p className="mt-1 text-ds-heading-3 tabular-nums">$1,240.00</p>
+        <p className="mt-1 text-ds-body-xs text-text-primary/50">
+          Acme Labs · Paid 12 Mar 2026
+        </p>
+      </div>
     </div>
   )
 }
 
-type GraphNodePosition = {
-  height: number
-  label: string
-  width: number
-  x: number
-  y: number
-}
-
-type GraphPoint = {
-  x: number
-  y: number
-}
-
-function topAnchor(node: GraphNodePosition): GraphPoint {
-  return {
-    x: node.x + node.width / 2,
-    y: node.y,
-  }
-}
-
-function bottomAnchor(node: GraphNodePosition): GraphPoint {
-  return {
-    x: node.x + node.width / 2,
-    y: node.y + node.height,
-  }
-}
-
-function curveBetween(start: GraphPoint, end: GraphPoint, bend = 0.5): string {
-  if (Math.abs(end.y - start.y) > Math.abs(end.x - start.x)) {
-    const controlY = start.y + (end.y - start.y) * bend
-
-    return `M ${start.x} ${start.y} C ${start.x} ${controlY}, ${end.x} ${controlY}, ${end.x} ${end.y}`
-  }
-
-  const controlX = start.x + (end.x - start.x) * bend
-  return `M ${start.x} ${start.y} C ${controlX} ${start.y}, ${controlX} ${end.y}, ${end.x} ${end.y}`
-}
-
-function graphStyle(node: GraphNodePosition): React.CSSProperties {
-  return {
-    height: `${(node.height / 420) * 100}%`,
-    left: `${(node.x / 420) * 100}%`,
-    top: `${(node.y / 420) * 100}%`,
-    width: `${(node.width / 420) * 100}%`,
-  }
-}
-
-function GraphLine({ active, d }: { active?: boolean; d: string }) {
-  return (
-    <path
-      d={d}
-      fill="none"
-      stroke={active ? 'currentColor' : 'rgb(113 113 122 / 0.28)'}
-      strokeLinecap="round"
-      strokeWidth={active ? 3 : 1.5}
-      className={
-        active
-          ? 'text-zinc-950 transition-all duration-500 dark:text-white'
-          : 'transition-all duration-500'
-      }
-    />
-  )
-}
-
-function GraphLabel({
-  children,
-  x,
-  y,
+function ToolCallPreview({
+  highlighted,
+  onApprove,
+  onSelect,
+  toolState,
 }: {
-  children: React.ReactNode
-  x: number
-  y: number
+  highlighted: boolean
+  onApprove: () => void
+  onSelect: () => void
+  toolState: ToolCallState | 'pending'
 }) {
-  return (
-    <div
-      className="absolute z-10 text-[0.62rem] font-black uppercase text-zinc-500 dark:text-zinc-500"
-      style={{
-        left: `${(x / 420) * 100}%`,
-        top: `${(y / 420) * 100}%`,
-      }}
-    >
-      {children}
-    </div>
-  )
-}
+  const status =
+    toolState === 'awaiting-input' ||
+    toolState === 'input-streaming' ||
+    toolState === 'pending'
+      ? 'Running'
+      : toolState === 'input-complete'
+        ? 'Found match'
+        : toolState === 'approval-requested'
+          ? 'Needs approval'
+          : toolState === 'approval-responded'
+            ? 'Approved'
+            : 'Done'
 
-function GraphNode({
-  active,
-  detail,
-  dotted,
-  kind,
-  label,
-  node,
-}: {
-  active?: boolean
-  detail?: string
-  dotted?: boolean
-  kind?: 'tanstack'
-  label: string
-  node: GraphNodePosition
-}) {
-  const isTanStack = kind === 'tanstack'
+  const showApproval =
+    toolState === 'approval-requested' ||
+    toolState === 'approval-responded' ||
+    toolState === 'complete'
+  const highlightInvoice = highlighted && toolState === 'complete'
+  const highlightTool =
+    highlighted &&
+    toolState !== 'complete' &&
+    toolState !== 'approval-requested' &&
+    toolState !== 'approval-responded'
+  const highlightApproval =
+    highlighted &&
+    (toolState === 'approval-requested' || toolState === 'approval-responded')
 
   return (
-    <div
-      style={graphStyle(node)}
-      className={
-        isTanStack
-          ? active
-            ? 'absolute z-20 flex flex-col items-center justify-center rounded-lg border-2 border-pink-300 bg-linear-to-br from-pink-400 to-pink-700 px-2 text-center text-xs font-black leading-tight text-white shadow-xl shadow-pink-950/30 ring-2 ring-pink-200/70 transition-all duration-500 dark:from-pink-300 dark:to-pink-600 dark:ring-pink-400/25'
-            : 'absolute z-20 flex flex-col items-center justify-center rounded-lg border-2 border-pink-300 bg-linear-to-br from-white to-pink-100 px-2 text-center text-xs font-black leading-tight text-pink-700 shadow-md shadow-pink-950/10 transition-all duration-500 dark:border-pink-500/70 dark:from-pink-950/70 dark:to-pink-900/25 dark:text-pink-100'
-          : active
-            ? 'absolute z-20 flex flex-col items-center justify-center rounded-lg border border-zinc-950 bg-zinc-950 px-2 text-center text-xs font-black leading-tight text-white shadow-lg shadow-zinc-950/20 transition-all duration-500 dark:border-white dark:bg-white dark:text-zinc-950 dark:shadow-white/10'
-            : dotted
-              ? 'absolute z-20 flex flex-col items-center justify-center rounded-lg border border-dashed border-zinc-400 bg-white/70 px-2 text-center text-xs font-bold leading-tight text-zinc-500 transition-all duration-500 dark:border-zinc-600 dark:bg-zinc-950/65 dark:text-zinc-500'
-              : 'absolute z-20 flex flex-col items-center justify-center rounded-lg border border-zinc-300 bg-white/85 px-2 text-center text-xs font-bold leading-tight text-zinc-600 transition-all duration-500 dark:border-zinc-700 dark:bg-zinc-950/80 dark:text-zinc-400'
-      }
-    >
-      <span>{label}</span>
-      {detail ? (
-        <span
-          className={
-            active
-              ? 'mt-0.5 block text-[0.58rem] uppercase opacity-75'
-              : 'mt-0.5 block text-[0.58rem] uppercase text-zinc-400 dark:text-zinc-500'
-          }
+    <div className="space-y-2 p-1">
+      <div
+        className={`overflow-hidden rounded-xl border border-border-default bg-background-surface ${chatHighlightClass(highlightTool)}`}
+      >
+        <button
+          type="button"
+          className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--landing-accent-bright)"
+          onClick={onSelect}
         >
-          {detail}
-        </span>
+          {(toolState === 'awaiting-input' ||
+            toolState === 'input-streaming' ||
+            toolState === 'pending') && (
+            <span
+              aria-hidden="true"
+              className="size-3.5 shrink-0 animate-spin rounded-full border-2 border-(--landing-accent-bright) border-t-transparent motion-reduce:animate-none"
+            />
+          )}
+          <div className="min-w-0 flex-1">
+            <p className="text-ds-label-sm text-text-primary">
+              Look up invoice
+            </p>
+            <p className="font-ds-mono text-ds-mono-2xs text-text-primary/40">
+              INV-2231
+            </p>
+          </div>
+          <span className="shrink-0 text-ds-label-sm text-text-primary/45">
+            {status}
+          </span>
+        </button>
+      </div>
+
+      {showApproval ? (
+        <div
+          className={`overflow-hidden rounded-xl border border-border-default bg-background-surface ${chatHighlightClass(highlightApproval)}`}
+        >
+          {toolState === 'approval-requested' ? (
+            <div className="flex items-center justify-between gap-3 px-3.5 py-2.5">
+              <p className="text-ds-body-sm text-text-primary">
+                This lookup needs your approval
+              </p>
+              <button
+                type="button"
+                className={`${accentFillClass} shrink-0 rounded-lg px-3 py-1.5 text-ds-label-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) active:scale-[0.96]`}
+                onClick={onApprove}
+              >
+                Approve lookup
+              </button>
+            </div>
+          ) : (
+            <p className="px-3.5 py-2.5 text-ds-body-sm text-text-primary/70">
+              You approved this lookup
+            </p>
+          )}
+        </div>
+      ) : null}
+
+      {toolState === 'complete' ? (
+        <button
+          type="button"
+          className={`block w-full rounded-xl text-left focus-visible:outline-none ${chatHighlightClass(highlightInvoice)}`}
+          onClick={onSelect}
+        >
+          <InvoiceCard highlighted={highlightInvoice} />
+        </button>
       ) : null}
     </div>
   )
 }
 
-function LifecyclePanel() {
+function MessagePartsChat({
+  onApprove,
+  pin,
+  step,
+  stepIndex,
+  toolState,
+}: {
+  onApprove: () => void
+  pin: (index: number) => void
+  step: (typeof partSteps)[number]
+  stepIndex: number
+  toolState: ToolCallState | 'pending'
+}) {
+  const reached = (part: HighlightPart) => stepIndex >= partStepIndex[part]
+  const showThinking = reached('thinking')
+  const showTool = reached('tool-call')
+  const showResult = reached('tool-result')
+  const showText = reached('text')
+  const previewState = toolState === 'pending' ? 'awaiting-input' : toolState
+
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      {pipelineSteps.map((step, index) => (
-        <div
-          key={step.label}
-          className="rounded-lg border border-zinc-200 bg-[#fff1f7] p-4 dark:border-zinc-800 dark:bg-zinc-900"
-        >
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-pink-100 text-sm font-black text-pink-800 dark:bg-pink-950 dark:text-pink-200">
-            {index + 1}
+    <div className="flex h-full min-h-128 flex-col overflow-hidden rounded-lg">
+      <div className="flex items-center gap-3 border-b border-border-subtle px-4 py-3">
+        <span className="flex size-8 items-center justify-center rounded-full bg-[rgb(var(--landing-glow)/0.16)] text-(--landing-accent-bright)">
+          <RobotIcon aria-hidden="true" size={16} weight="fill" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-ds-label-md text-text-primary">
+            Invoices
           </span>
-          <h3 className="mt-4 text-lg font-black leading-tight">
-            {step.label}
-          </h3>
-          <p className="mt-2 text-sm leading-6 text-zinc-700 dark:text-zinc-300">
-            {step.body}
-          </p>
+          <span className="block text-ds-body-xs text-text-primary/45">
+            Billing support
+          </span>
+        </span>
+        <span className="flex items-center gap-1.5 text-ds-label-sm text-text-primary/45">
+          <span
+            aria-hidden="true"
+            className="size-1.5 rounded-full bg-(--landing-accent-bright)"
+          />
+          Online
+        </span>
+      </div>
+
+      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-auto px-4 py-4">
+        <div className="max-w-[85%] self-end rounded-2xl rounded-br-md bg-[rgb(var(--landing-glow)/0.12)] px-3.5 py-2.5 text-ds-body-sm leading-6 text-text-primary">
+          Was invoice 2231 paid?
         </div>
-      ))}
+
+        {reached('message') ? (
+          <div
+            className={`flex gap-3 rounded-xl p-2 ${chatHighlightClass(step.part === 'message')}`}
+          >
+            <button
+              type="button"
+              aria-label="Message component"
+              aria-pressed={step.part === 'message'}
+              className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-text-primary/8 text-text-primary/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright)"
+              onClick={() => pin(partStepIndex.message)}
+            >
+              <RobotIcon aria-hidden="true" size={14} weight="fill" />
+            </button>
+            <div className="min-w-0 flex-1 space-y-3">
+              {showThinking ? (
+                <button
+                  type="button"
+                  aria-pressed={step.part === 'thinking'}
+                  className={`block w-full rounded-lg px-1 py-0.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) ${chatHighlightClass(step.part === 'thinking')}`}
+                  onClick={() => pin(partStepIndex.thinking)}
+                >
+                  <span className="text-ds-label-sm text-text-primary/45">
+                    {step.part === 'thinking'
+                      ? 'Thinking'
+                      : 'Thought for 2 seconds'}
+                  </span>
+                  <span className="mt-1 block text-ds-body-xs leading-5 text-text-primary/55">
+                    The user asked about invoice 2231. I will look it up before
+                    I answer.
+                  </span>
+                </button>
+              ) : null}
+
+              {showTool ? (
+                <ToolCallPreview
+                  highlighted={step.part === 'tool-call'}
+                  onApprove={onApprove}
+                  onSelect={() => pin(partStepIndex['tool-call'])}
+                  toolState={previewState}
+                />
+              ) : null}
+
+              {showResult ? (
+                <button
+                  type="button"
+                  aria-pressed={step.part === 'tool-result'}
+                  className={`block w-full rounded-lg px-1 py-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) ${chatHighlightClass(step.part === 'tool-result')}`}
+                  onClick={() => pin(partStepIndex['tool-result'])}
+                >
+                  <span className="text-ds-body-xs text-text-primary/50">
+                    Loaded invoice INV-2231
+                  </span>
+                </button>
+              ) : null}
+
+              {showText ? (
+                <button
+                  type="button"
+                  aria-pressed={step.part === 'text'}
+                  className={`block w-full rounded-lg px-1 py-0.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) ${chatHighlightClass(step.part === 'text')}`}
+                  onClick={() => pin(partStepIndex.text)}
+                >
+                  <span className="block text-ds-body-sm leading-6 text-text-primary">
+                    Yes. Invoice 2231 was paid in full on 12 March 2026, for
+                    $1,240.00.
+                    {step.part === 'text' ? (
+                      <span className="ml-0.5 inline-block h-3.5 w-1.5 animate-pulse bg-(--landing-accent-bright) align-middle motion-reduce:animate-none" />
+                    ) : null}
+                  </span>
+                </button>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
+      </div>
+
+      <div className="border-t border-border-subtle p-3">
+        <div className="flex items-center gap-2 rounded-xl border border-border-default bg-background-default px-3 py-2">
+          <span className="min-w-0 flex-1 text-ds-body-sm text-text-primary/35">
+            Ask a follow-up
+          </span>
+          <span
+            aria-hidden="true"
+            className="flex size-8 items-center justify-center rounded-lg bg-text-primary/8 text-text-primary/35"
+          >
+            <ArrowRightIcon size={14} weight="bold" />
+          </span>
+        </div>
+      </div>
     </div>
   )
 }
 
-function RuntimePanel() {
+function MessageParts() {
+  const [stepIndex, setStepIndex] = React.useState(partSteps.length - 1)
+  const [pinned, setPinned] = React.useState(false)
+  const [useHook, setUseHook] = React.useState(true)
+
+  React.useEffect(() => {
+    if (
+      pinned ||
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
+      return
+    }
+
+    const intervalId = window.setInterval(() => {
+      setStepIndex((current) => (current + 1) % partSteps.length)
+    }, 2200)
+
+    return () => window.clearInterval(intervalId)
+  }, [pinned])
+
+  const pin = (index: number) => {
+    setPinned(true)
+    setStepIndex(index)
+  }
+
+  const step = partSteps[stepIndex] ?? { part: 'text' }
+  const toolState: ToolCallState | 'pending' =
+    step.part === 'tool-call'
+      ? step.toolState
+      : step.part === 'tool-result' || step.part === 'text'
+        ? 'complete'
+        : 'pending'
+  const code = useHook ? hookCode : loopCode
+  const isActive = (line: CodeLine) =>
+    line.part === step.part &&
+    (line.toolState === undefined ||
+      (step.part === 'tool-call' && line.toolState === step.toolState))
+
   return (
-    <div className="min-w-0 rounded-lg border border-pink-200 bg-white p-4 dark:border-pink-900 dark:bg-zinc-950">
-      <div className="rounded-lg bg-zinc-950 p-4 text-sm text-pink-100 dark:bg-black">
-        <p className="font-mono leading-6">
-          const {'{'} messages, addToolApprovalResponse {'}'} = useChat({'{'}
-          <br />
-          &nbsp;&nbsp;connection: fetchServerSentEvents(&quot;/api/chat&quot;),
-          <br />
-          &nbsp;&nbsp;tools,
-          <br />
-          &nbsp;&nbsp;devtools: {'{'} name: &quot;Support Chat&quot; {'}'}
-          <br />
-          {'}'})
+    <LandingWindow label="message.parts">
+      <p className="sr-only">
+        Each message is a list of parts. A thinking part, then a tool call that
+        moves from awaiting input through approval to complete, then the tool
+        result and the streamed text reply. The chat on the right renders the
+        message and each part.
+      </p>
+      <div className="p-4">
+        <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+          tool-call lifecycle
+        </p>
+        <div
+          className="mt-3 flex flex-wrap gap-1.5"
+          role="group"
+          aria-label="Tool call state"
+        >
+          {toolCallStates.map((state, index) => (
+            <button
+              key={state}
+              type="button"
+              aria-pressed={toolState === state}
+              className="rounded-md px-2 py-1 font-ds-mono text-ds-mono-2xs text-text-primary/35 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-pressed:bg-[rgb(var(--landing-glow)/0.18)] aria-pressed:text-(--landing-accent-bright)"
+              onClick={() => pin(partStepIndex['tool-call'] + index)}
+            >
+              {state}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="grid min-w-0 lg:grid-cols-2">
+        <div className="min-w-0 border-t border-border-subtle p-5 lg:border-r">
+          <div className="mb-4 flex items-center gap-3 font-ds-mono text-ds-mono-2xs text-text-primary/50">
+            <button
+              type="button"
+              role="switch"
+              aria-checked={useHook}
+              aria-label="createChatHook"
+              className="group relative h-5 w-9 shrink-0 rounded-full bg-text-primary/15 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-checked:bg-(--landing-accent)"
+              onClick={() => setUseHook((current) => !current)}
+            >
+              <span className="absolute top-0.5 left-0.5 size-4 rounded-full bg-white transition-transform group-aria-checked:translate-x-4" />
+            </button>
+            <span aria-hidden="true">createChatHook</span>
+          </div>
+          <div className={codeSurfaceClass} aria-hidden="true">
+            {code.map((line, index) => (
+              <p
+                key={index}
+                className={
+                  isActive(line)
+                    ? 'whitespace-pre text-(--landing-accent-bright)'
+                    : 'whitespace-pre text-text-primary/40'
+                }
+              >
+                {line.text}
+              </p>
+            ))}
+          </div>
+        </div>
+        <div className="min-w-0 border-t border-border-subtle p-3 lg:border-l-0">
+          <MessagePartsChat
+            onApprove={() =>
+              pin(
+                partStepIndex['tool-call'] +
+                  toolCallStates.indexOf('approval-responded'),
+              )
+            }
+            pin={pin}
+            step={step}
+            stepIndex={stepIndex}
+            toolState={toolState}
+          />
+        </div>
+      </div>
+    </LandingWindow>
+  )
+}
+
+function ToolBoundary() {
+  const [boundary, setBoundary] = React.useState<'client' | 'server'>('server')
+  const boundaries: Array<'client' | 'server'> = ['client', 'server']
+
+  return (
+    <LandingWindow label="tool contract">
+      <div className="p-5 sm:p-6">
+        <div
+          className="flex gap-2"
+          role="group"
+          aria-label="Tool execution boundary"
+        >
+          {boundaries.map((option) => (
+            <button
+              key={option}
+              type="button"
+              aria-pressed={boundary === option}
+              className="flex-1 rounded-lg border border-border-default px-3 py-2 text-ds-label-sm capitalize text-text-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-pressed:border-(--landing-accent) aria-pressed:bg-[rgb(var(--landing-glow)/0.14)] aria-pressed:text-(--landing-accent-bright)"
+              onClick={() => setBoundary(option)}
+            >
+              {option}
+            </button>
+          ))}
+        </div>
+        <div className={`mt-5 rounded-lg ${codeSurfaceClass}`}>
+          <p>
+            <span className="th-keyword">const</span> lookupInvoice =
+            toolDefinition({'{'}
+          </p>
+          <p>&nbsp;&nbsp;name: 'lookup_invoice',</p>
+          <p>
+            &nbsp;&nbsp;inputSchema: z.object({'{'} id: z.string() {'}'}),
+          </p>
+          <p>&nbsp;&nbsp;outputSchema: invoiceSchema,</p>
+          <p>&nbsp;&nbsp;needsApproval: true,</p>
+          <p>{'}'})</p>
+          {boundary === 'client' ? (
+            <>
+              <p className="text-(--landing-accent-bright)">
+                lookupInvoice.client(async ({'{'} id {'}'}) =&gt; {'{'}
+              </p>
+              <p className="text-(--landing-accent-bright)">
+                &nbsp;&nbsp;
+                {`const url = new URL(\`/invoices/\${id}\`, window.location.origin)`}
+              </p>
+              <p className="text-(--landing-accent-bright)">
+                &nbsp;&nbsp;window.history.pushState({'{'} id {'}'}, '', url)
+              </p>
+              <p className="text-(--landing-accent-bright)">
+                &nbsp;&nbsp;return {'{'} id, href: url.pathname {'}'}
+              </p>
+              <p className="text-(--landing-accent-bright)">{'})'}</p>
+            </>
+          ) : (
+            <>
+              <p className="text-(--landing-accent-bright)">
+                lookupInvoice.server(async ({'{'} id {'}'}) =&gt; {'{'}
+              </p>
+              <p className="text-(--landing-accent-bright)">
+                &nbsp;&nbsp;return db.invoices.update({'{'}
+              </p>
+              <p className="text-(--landing-accent-bright)">
+                &nbsp;&nbsp;&nbsp;&nbsp;where: {'{'} id {'}'},
+              </p>
+              <p className="text-(--landing-accent-bright)">
+                &nbsp;&nbsp;&nbsp;&nbsp;data: {'{'} lastViewedAt: new Date(){' '}
+                {'}'},
+              </p>
+              <p className="text-(--landing-accent-bright)">
+                &nbsp;&nbsp;{'}'})
+              </p>
+              <p className="text-(--landing-accent-bright)">{'})'}</p>
+            </>
+          )}
+        </div>
+        <p
+          className="mt-4 min-h-10 text-ds-body-xs text-text-primary/35"
+          aria-live="polite"
+        >
+          {boundary === 'client'
+            ? 'The client implementation uses the typed id to call a browser API. The loop waits for it and feeds the result back to the model.'
+            : 'The server implementation uses the same typed id to update a row in your database. The model never sees your credentials.'}
         </p>
       </div>
+    </LandingWindow>
+  )
+}
 
-      <div className="mt-4 grid gap-3 md:grid-cols-2">
-        {runtimeSignals.map((signal) => (
-          <div
-            key={signal.label}
-            className="rounded-lg border border-zinc-200 bg-[#fff7fb] p-4 dark:border-zinc-800 dark:bg-zinc-900"
-          >
-            <p className="text-[0.65rem] font-black uppercase text-zinc-500 dark:text-zinc-400">
-              {signal.label}
-            </p>
-            <p className="mt-2 text-sm font-bold leading-6 text-zinc-950 dark:text-white">
-              {signal.value}
-            </p>
-          </div>
+function ProtocolMap() {
+  const nodes = [
+    { label: 'CLIENT', detail: 'your web app', highlight: false },
+    { label: 'AG-UI', detail: 'communication protocol', highlight: true },
+    { label: 'Server', detail: 'your ai endpoint', highlight: false },
+    { label: 'Provider', detail: 'openai, anthropic', highlight: false },
+  ]
+
+  return (
+    <>
+      <p className="sr-only">
+        AG-UI sits between your web app and your AI endpoint, with traffic in
+        both directions. The server then talks to a provider such as OpenAI or
+        Anthropic.
+      </p>
+      <div className="mx-auto mt-14 flex max-w-272 flex-col items-stretch gap-2 md:flex-row md:items-center md:gap-0">
+        {nodes.map((node, index) => (
+          <React.Fragment key={node.label}>
+            <ProtocolCard highlight={node.highlight} node={node} />
+            {index < nodes.length - 1 ? (
+              <ProtocolConnector bidirectional={index < 2} />
+            ) : null}
+          </React.Fragment>
         ))}
       </div>
+    </>
+  )
+}
+
+function ProtocolCard({
+  highlight,
+  node,
+}: {
+  highlight: boolean
+  node: { detail: string; label: string }
+}) {
+  if (highlight) {
+    return (
+      <div className="relative min-w-0 flex-1 md:flex-[1.2]">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -inset-2 rounded-2xl bg-(--landing-accent) opacity-40 blur-md motion-safe:animate-pulse motion-reduce:hidden"
+        />
+        <div
+          className={`relative rounded-xl border-2 border-(--landing-accent) p-6 text-center shadow-[0_12px_28px_rgb(var(--landing-glow)/0.28)] ring-2 ring-[rgb(var(--landing-glow)/0.24)] ${accentFillClass}`}
+        >
+          <p className="text-ds-heading-4">{node.label}</p>
+          <p className="mt-2 font-ds-mono text-ds-mono-2xs opacity-80">
+            {node.detail}
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-w-0 flex-1 rounded-xl border border-[rgb(var(--landing-glow)/0.45)] bg-background-subtle p-5 text-center">
+      <p className="text-ds-heading-4 text-text-primary">{node.label}</p>
+      <p className="mt-2 font-ds-mono text-ds-mono-2xs text-(--landing-accent-bright)">
+        {node.detail}
+      </p>
     </div>
   )
 }
 
-function FeatureCard({
-  body,
-  icon,
-  title,
-}: {
+function ProtocolConnector({ bidirectional }: { bidirectional: boolean }) {
+  return (
+    <div
+      aria-hidden="true"
+      className="flex h-8 items-center justify-center text-(--landing-accent) md:h-auto md:w-12"
+    >
+      {bidirectional ? (
+        <>
+          <ArrowsDownUpIcon className="md:hidden" size={22} weight="bold" />
+          <ArrowsLeftRightIcon
+            className="hidden md:block"
+            size={22}
+            weight="bold"
+          />
+        </>
+      ) : (
+        <>
+          <ArrowDownIcon className="md:hidden" size={20} weight="bold" />
+          <ArrowRightIcon className="hidden md:block" size={20} weight="bold" />
+        </>
+      )}
+    </div>
+  )
+}
+
+type RailItem = {
   body: string
-  icon: React.ReactNode
-  title: string
-}) {
+  detail: string
+  icon: Icon
+  label: string
+  to: string
+}
+
+const agentStack: Array<RailItem> = [
+  {
+    label: 'Code Mode',
+    detail: '@tanstack/ai-code-mode',
+    to: 'code-mode/code-mode',
+    body: 'The model chains your tools into one script and runs it in an isolate, instead of one round-trip per call.',
+    icon: CodeIcon,
+  },
+  {
+    label: 'Coding-agent harnesses',
+    detail: '@tanstack/ai-sandbox',
+    to: 'sandbox/overview',
+    body: 'Run Claude Code, Codex, or any ACP agent as a chat backend in a local process or a sandbox. Its activity streams back as events your UI already renders.',
+    icon: TerminalIcon,
+  },
+  {
+    label: 'MCP + MCP Apps',
+    detail: '@tanstack/ai-mcp',
+    to: 'tools/mcp',
+    body: 'A typed MCP client with a CLI that generates the types, plus interactive widgets rendered from tool results.',
+    icon: CubeIcon,
+  },
+  {
+    label: 'Memory + compaction',
+    detail: '@tanstack/ai-memory · @tanstack/ai-compaction',
+    to: 'memory/overview',
+    body: 'Recall across sessions through Redis, mem0, Honcho, or Hindsight. Compaction keeps long threads inside the model window.',
+    icon: DatabaseIcon,
+  },
+]
+
+const modalities: Array<RailItem> = [
+  {
+    label: 'Text, objects, reasoning',
+    detail: 'chat · outputSchema · summarize',
+    to: 'chat/structured-outputs',
+    body: 'Structured output that matches your schema exactly.',
+    icon: RobotIcon,
+  },
+  {
+    label: 'Speech, transcription, music',
+    detail: 'generateSpeech · generateTranscription · generateAudio',
+    to: 'media/text-to-speech',
+    body: 'Transcription with word timestamps and diarization, plus music and sound effects.',
+    icon: MicrophoneIcon,
+  },
+  {
+    label: 'Realtime voice',
+    detail: 'openaiRealtimeToken · RealtimeClient',
+    to: 'media/realtime-chat',
+    body: 'OpenAI, Grok, and ElevenLabs with VAD modes and tool calling inside a live session.',
+    icon: WaveformIcon,
+  },
+  {
+    label: 'Images + video',
+    detail: 'generateImage · generateVideo',
+    to: 'media/video-generation',
+    body: 'Generate, edit, and stream progress to the user.',
+    icon: RadioIcon,
+  },
+  {
+    label: 'World models + live video',
+    detail: 'generateWorld · generateLiveVideo',
+    to: 'media/world-generation',
+    body: 'Mint a session on the server and stream an explorable world or live video into the browser over WebRTC.',
+    icon: CubeIcon,
+  },
+]
+
+type DevtoolsEvent = {
+  detail: string
+  label: string
+  tone: 'accent' | 'muted' | 'warn'
+}
+
+// ponytail: useObject is not a hook. Structured output is useChat + outputSchema.
+const devtoolsHooks: Array<{
+  detail: string
+  name: string
+  run: string
+  timeline: Array<DevtoolsEvent>
+}> = [
+  {
+    name: 'Support Chat',
+    detail: 'useChat · 12 msgs',
+    run: 'thread_7f2 · run_3',
+    timeline: [
+      {
+        label: 'user turn',
+        detail: '"refund the duplicate charge"',
+        tone: 'muted',
+      },
+      {
+        label: 'memory recall',
+        detail: '3 facts injected · 214 tokens',
+        tone: 'accent',
+      },
+      {
+        label: 'tool call',
+        detail: 'lookupInvoice { id: "inv_8841" }',
+        tone: 'accent',
+      },
+      {
+        label: 'tool result',
+        detail: '{ total: 4200, status: "paid" }',
+        tone: 'accent',
+      },
+      {
+        label: 'interrupt',
+        detail: 'chargeCard · awaiting approval',
+        tone: 'warn',
+      },
+      {
+        label: 'finish reason',
+        detail: 'interrupt · run resumable',
+        tone: 'muted',
+      },
+    ],
+  },
+  {
+    name: 'Image Studio',
+    detail: 'useGenerateImage',
+    run: 'gen_c41 · run_1',
+    timeline: [
+      {
+        label: 'prompt',
+        detail: '"a neon city at night, 16:9"',
+        tone: 'muted',
+      },
+      {
+        label: 'adapter',
+        detail: "openaiImage('gpt-image-2') · 1536x1024",
+        tone: 'accent',
+      },
+      { label: 'progress', detail: 'partial image · 3 of 4', tone: 'accent' },
+      {
+        label: 'artifact',
+        detail: 'image/png · 1.2 MB · stored',
+        tone: 'accent',
+      },
+      { label: 'usage', detail: '1 image · $0.04', tone: 'muted' },
+      { label: 'finish reason', detail: 'complete', tone: 'muted' },
+    ],
+  },
+  {
+    name: 'Invoice Extract',
+    detail: 'useChat · outputSchema',
+    run: 'thread_a19 · run_1',
+    timeline: [
+      { label: 'user turn', detail: '[image] receipt.jpg', tone: 'muted' },
+      {
+        label: 'output schema',
+        detail: 'invoiceSchema · 7 fields',
+        tone: 'accent',
+      },
+      {
+        label: 'partial',
+        detail: '{ vendor, total } · 2 of 7',
+        tone: 'accent',
+      },
+      {
+        label: 'partial',
+        detail: '{ ..., lineItems[3] } · 6 of 7',
+        tone: 'accent',
+      },
+      { label: 'final', detail: 'validated · 7 of 7', tone: 'accent' },
+      { label: 'finish reason', detail: 'complete', tone: 'muted' },
+    ],
+  },
+  {
+    name: 'Call Notes',
+    detail: 'useTranscription',
+    run: 'gen_e08 · run_2',
+    timeline: [
+      { label: 'audio in', detail: 'call-0912.m4a · 14:32', tone: 'muted' },
+      {
+        label: 'adapter',
+        detail: "elevenlabsTranscription('scribe-v2')",
+        tone: 'accent',
+      },
+      { label: 'segments', detail: '212 · 2 speakers', tone: 'accent' },
+      {
+        label: 'transcript',
+        detail: '2,140 words · timestamps',
+        tone: 'accent',
+      },
+      { label: 'retry', detail: 'segment 87 · rate limited', tone: 'warn' },
+      { label: 'finish reason', detail: 'complete', tone: 'muted' },
+    ],
+  },
+]
+
+function DevtoolsPanel() {
+  const [activeIndex, setActiveIndex] = React.useState(0)
+  const hook = devtoolsHooks[activeIndex] ?? devtoolsHooks[0]
+
   return (
-    <div className="rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
-      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-pink-100 text-pink-800 dark:bg-pink-950 dark:text-pink-200">
-        {icon}
-      </span>
-      <h3 className="mt-4 text-xl font-black leading-tight">{title}</h3>
-      <p className="mt-3 text-sm leading-6 text-zinc-700 dark:text-zinc-300">
-        {body}
-      </p>
+    <LandingWindow label="tanstack devtools · ai">
+      <div className="grid bg-background-default sm:grid-cols-[11rem_1fr]">
+        <div
+          className="border-border-subtle p-3 sm:border-r"
+          role="group"
+          aria-label="Hooks"
+        >
+          <p className="px-2 pb-2 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+            hooks
+          </p>
+          {devtoolsHooks.map((item, index) => (
+            <button
+              key={item.name}
+              type="button"
+              aria-pressed={index === activeIndex}
+              className="group mb-1 block w-full rounded-lg px-3 py-2 text-left hover:bg-text-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-pressed:bg-[rgb(var(--landing-glow)/0.14)]"
+              onClick={() => setActiveIndex(index)}
+            >
+              <p className="text-ds-label-sm text-text-primary/40 group-hover:text-text-primary group-aria-pressed:text-(--landing-accent-bright)">
+                {item.name}
+              </p>
+              <p className="mt-0.5 font-ds-mono text-ds-mono-2xs text-text-primary/25">
+                {item.detail}
+              </p>
+            </button>
+          ))}
+        </div>
+
+        <div className="p-4" aria-live="polite">
+          <div className="flex items-center justify-between">
+            <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+              run timeline
+            </p>
+            <p className="font-ds-mono text-ds-mono-2xs text-text-primary/25">
+              {hook.run}
+            </p>
+          </div>
+          <div className="mt-3 space-y-1.5">
+            {hook.timeline.map((event, index) => (
+              <div
+                key={`${event.label}-${index}`}
+                className="grid gap-1 rounded-lg bg-background-subtle px-3 py-2 sm:grid-cols-[8.5rem_1fr] sm:items-baseline"
+              >
+                <span
+                  className={
+                    event.tone === 'accent'
+                      ? 'font-ds-mono text-ds-mono-caps-xs uppercase text-(--landing-accent-bright)'
+                      : event.tone === 'warn'
+                        ? 'font-ds-mono text-ds-mono-caps-xs uppercase text-amber-500'
+                        : 'font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/30'
+                  }
+                >
+                  {event.label}
+                </span>
+                <span className="truncate font-ds-mono text-ds-mono-2xs text-text-primary/50">
+                  {event.detail}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </LandingWindow>
+  )
+}
+
+function FeatureRail({ items }: { items: Array<RailItem> }) {
+  return (
+    <div className="overflow-hidden rounded-xl border border-border-default bg-background-surface">
+      {items.map((item) => {
+        const Icon = item.icon
+
+        return (
+          <div
+            key={item.label}
+            className="grid gap-3 border-b border-border-subtle p-5 last:border-b-0 sm:grid-cols-[3rem_1fr] sm:items-start"
+          >
+            <span className="flex size-10 items-center justify-center rounded-full bg-[rgb(var(--landing-glow)/0.18)] text-(--landing-accent-bright)">
+              <Icon aria-hidden="true" size={19} />
+            </span>
+            <div>
+              <p className="text-ds-label-md text-text-primary">
+                <DocsLink to={item.to} plain>
+                  {item.label}
+                </DocsLink>
+              </p>
+              <p className="mt-1 font-ds-mono text-ds-mono-2xs text-text-primary/30">
+                {item.detail}
+              </p>
+              <p className="mt-2 text-ds-body-xs text-text-primary/45">
+                {item.body}
+              </p>
+            </div>
+          </div>
+        )
+      })}
     </div>
   )
 }
 
-function SectionKicker({
+const startingPoints = [
+  { label: 'Build streaming chat', to: 'getting-started/quick-start' },
+  {
+    label: 'Start from a server route',
+    to: 'getting-started/quick-start-server',
+  },
+  { label: 'Add persistence', to: 'persistence/overview' },
+  { label: 'Compare with Vercel AI SDK', to: 'comparison/vercel-ai-sdk' },
+]
+
+function DocsLink({
   children,
-  icon,
-}: {
-  children: React.ReactNode
-  icon: React.ReactNode
-}) {
-  return (
-    <p className="inline-flex items-center gap-2 text-sm font-black uppercase text-pink-700 dark:text-pink-300">
-      {icon}
-      {children}
-    </p>
-  )
-}
-
-function ProofPill({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="border-l-2 border-pink-500 pl-3">
-      <p className="text-sm font-black text-zinc-950 dark:text-white">
-        {label}
-      </p>
-      <p className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">
-        {value}
-      </p>
-    </div>
-  )
-}
-
-function AiLink({
-  icon,
-  label,
-  params,
+  plain = false,
   to,
 }: {
-  icon: React.ReactNode
-  label: string
-  params: Record<string, string>
+  children: React.ReactNode
+  plain?: boolean
   to: string
 }) {
+  const { version } = useParams({ strict: false })
+  const library = getLibrary('ai')
+
   return (
     <Link
-      to={to}
-      params={params}
-      className="inline-flex w-full max-w-full items-center justify-center gap-2 rounded-lg border border-zinc-950 bg-zinc-950 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-zinc-800 dark:border-white dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200 sm:w-auto"
+      to="/$libraryId/$version/docs/$"
+      params={{
+        libraryId: library.id,
+        version: version ?? library.latestVersion,
+        _splat: to,
+      }}
+      className={
+        plain
+          ? 'hover:text-(--landing-accent-bright) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright)'
+          : 'inline-flex items-center gap-1.5 text-ds-label-sm text-(--landing-accent-bright) hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright)'
+      }
     >
-      {icon}
-      {label}
-      <ArrowRight size={15} aria-hidden="true" />
+      {children}
+      {plain ? null : <ArrowRightIcon aria-hidden="true" size={14} />}
     </Link>
+  )
+}
+
+function StartingPoints() {
+  const { version } = useParams({ strict: false })
+  const library = getLibrary('ai')
+
+  return (
+    <ul className="mx-auto mt-10 grid max-w-208 gap-3 sm:grid-cols-2">
+      {startingPoints.map((point) => (
+        <li key={point.to}>
+          <Link
+            to="/$libraryId/$version/docs/$"
+            params={{
+              libraryId: library.id,
+              version: version ?? library.latestVersion,
+              _splat: point.to,
+            }}
+            className="flex items-center justify-between gap-3 rounded-xl border border-border-default bg-background-surface px-5 py-4 text-ds-label-md text-text-primary transition-colors hover:border-(--landing-accent) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright)"
+          >
+            {point.label}
+            <ArrowRightIcon aria-hidden="true" size={16} />
+          </Link>
+        </li>
+      ))}
+    </ul>
+  )
+}
+// Each model shows one field the types narrow per model. `picked` is what the
+// snippet passes; "break me" swaps in `broken`, which the types reject.
+const compilerModels = [
+  {
+    name: 'gpt-6-astra',
+    pkg: '@tanstack/ai-openai',
+    fn: 'chat',
+    adapter: "openaiText('gpt-6-astra')",
+    setup: [],
+    line: (value: string) =>
+      `messages: [{ role: 'user', content: [{ type: '${value}', source: receiptUrl }] }]`,
+    field: 'input',
+    allowed: ['text', 'image'],
+    picked: 'image',
+    broken: 'audio',
+    note: 'Input parts are typed per model.',
+  },
+  {
+    name: 'claude-fable-5-1',
+    pkg: '@tanstack/ai-anthropic',
+    fn: 'chat',
+    adapter: "anthropicText('claude-fable-5-1')",
+    setup: [],
+    line: (value: string) =>
+      `messages: [{ role: 'user', content: [{ type: '${value}', source: invoicePdf }] }]`,
+    field: 'input',
+    allowed: ['text', 'image', 'document'],
+    picked: 'document',
+    broken: 'video',
+    note: 'PDFs go in as document parts on models that read them.',
+  },
+  {
+    name: 'llama-3.3-70b-versatile',
+    pkg: '@tanstack/ai-groq',
+    fn: 'chat',
+    adapter: "groqText('llama-3.3-70b-versatile')",
+    setup: [],
+    line: (value: string) =>
+      `messages: [{ role: 'user', content: [{ type: '${value}', source: receiptUrl }] }]`,
+    field: 'input',
+    allowed: ['text'],
+    picked: 'text',
+    broken: 'image',
+    note: 'Text-only model. An image part fails to type.',
+  },
+  {
+    name: 'gpt-image-2',
+    pkg: '@tanstack/ai-openai',
+    fn: 'generateImage',
+    adapter: "openaiImage('gpt-image-2')",
+    setup: ["prompt: 'A neon city at night'"],
+    line: (value: string) => `size: '${value}'`,
+    field: 'size',
+    allowed: ['1024x1024', '1536x1024', '1024x1536', 'auto'],
+    picked: '1536x1024',
+    broken: '1920x1080',
+    note: 'OpenAI sizes are pixels, width by height.',
+  },
+  {
+    name: 'grok-imagine-image-2.0',
+    pkg: '@tanstack/ai-grok',
+    fn: 'generateImage',
+    adapter: "grokImage('grok-imagine-image-2.0')",
+    setup: ["prompt: 'A neon city at night'"],
+    line: (value: string) => `size: '${value}'`,
+    field: 'size',
+    allowed: ['1:1', '16:9', '9:16', '3:2', 'auto', '16:9_1k', '16:9_2k'],
+    picked: '16:9_2k',
+    broken: '16:9_4k',
+    note: 'Grok sizes are an aspect ratio, or ratio_resolution. Fourteen ratios at 1k or 2k, all typed.',
+  },
+  {
+    name: 'gemini-omni-1.1-flash',
+    pkg: '@tanstack/ai-gemini',
+    fn: 'generateVideo',
+    adapter: "geminiVideo('gemini-omni-1.1-flash')",
+    setup: [
+      'prompt: [',
+      "  { type: 'image', source: { type: 'url', value: firstFrame } }",
+      "  { type: 'text', content: 'Slow push in, rain on neon' }",
+      ']',
+    ],
+    line: (value: string) => `size: '${value}'`,
+    field: 'size',
+    allowed: ['16:9', '9:16', '16:9_720p', '16:9_1080p', '16:9_4k'],
+    picked: '16:9_4k',
+    broken: '16:9_8k',
+    note: 'A start frame image plus text, and video parts too. Same ratio_resolution template, with tiers up to 4k, and any duration from 3 to 10 seconds.',
+  },
+  {
+    name: 'dreamina-seedance-2-5-260628',
+    pkg: '@tanstack/ai-byteplus',
+    fn: 'generateVideo',
+    adapter: "byteplusVideo('dreamina-seedance-2-5-260628')",
+    setup: [
+      'prompt: [',
+      "  { type: 'image', role: 'reference', source: { type: 'url', value: heroShot } }",
+      "  { type: 'audio', source: { type: 'url', value: beatUrl } }",
+      "  { type: 'text', content: 'Cut on the beat, keep the outfit' }",
+      ']',
+    ],
+    line: (value: string) => `size: '${value}'`,
+    field: 'size',
+    allowed: ['16:9', '9:16', '1:1', '21:9', '16:9_720p', '16:9_1080p'],
+    picked: '16:9_1080p',
+    broken: '16:9_4k',
+    note: 'Reference image and audio parts in the prompt, and video parts too. Seedance 2.5 stops at 1080p. The 4k tier only exists on Seedance 2.0, and the types know that.',
+  },
+  {
+    name: 'visko-orbis-stable',
+    pkg: '@tanstack/ai-reactor',
+    fn: 'generateWorld',
+    adapter: "reactorWorld('visko-orbis-stable')",
+    setup: ["prompt: 'A neon city at night'"],
+    line: (value: string) => `modelOptions: { resolution: '${value}' }`,
+    field: 'resolution',
+    allowed: ['1080p', '2k', '4k'],
+    picked: '4k',
+    broken: '8k',
+    note: 'World models stream over WebRTC. Resolution is a delivery tier.',
+  },
+]
+
+function Kw({ children }: { children: React.ReactNode }) {
+  return <span className="th-keyword">{children}</span>
+}
+
+function Fn({ children }: { children: React.ReactNode }) {
+  return <span className="th-function">{children}</span>
+}
+
+function Str({ children }: { children: React.ReactNode }) {
+  return <span className="th-string">{children}</span>
+}
+
+function ProviderWorkbench() {
+  const [activeIndex, setActiveIndex] = React.useState(0)
+  const [isBroken, setIsBroken] = React.useState(false)
+  const model = compilerModels[activeIndex] ?? compilerModels[0]
+  const picked = isBroken ? model.broken : model.picked
+  const valid = !isBroken
+  const adapterName = model.adapter.split('(')[0]
+
+  return (
+    <LandingWindow label="the types know the model">
+      <div className="grid sm:grid-cols-[13rem_1fr]">
+        <div
+          className="border-border-subtle p-3 sm:border-r"
+          role="group"
+          aria-label="Model"
+        >
+          {compilerModels.map((item, index) => (
+            <button
+              key={item.name}
+              type="button"
+              aria-pressed={index === activeIndex}
+              className="mb-1 block w-full rounded-lg px-3 py-2 text-left font-ds-mono text-ds-mono-2xs text-text-primary/35 hover:bg-text-primary/5 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-pressed:bg-[rgb(var(--landing-glow)/0.14)] aria-pressed:text-(--landing-accent-bright)"
+              onClick={() => setActiveIndex(index)}
+            >
+              {item.name}
+              <span className="mt-0.5 block text-text-primary/25">
+                {item.fn}
+              </span>
+            </button>
+          ))}
+        </div>
+        <div aria-live="polite" className="min-w-0">
+          <div className="overflow-x-auto bg-gray-100 p-4 font-ds-mono text-ds-mono-xs leading-relaxed text-(--th-token) dark:bg-ds-neutral-500 [&_p]:whitespace-pre">
+            <p>
+              <Kw>import</Kw> {'{ '}
+              {adapterName}
+              {' }'} <Kw>from</Kw> <Str>'{model.pkg}'</Str>
+            </p>
+            <p>&nbsp;</p>
+            <p>
+              <Kw>const</Kw> result = <Kw>await</Kw> <Fn>{model.fn}</Fn>({'{'}
+            </p>
+            <p>
+              &nbsp;&nbsp;adapter: <Fn>{adapterName}</Fn>(
+              <Str>'{model.name}'</Str>),
+            </p>
+            {model.setup.map((line) => (
+              <p key={line} className="whitespace-pre">
+                {'  '}
+                {line}
+                {line.endsWith('[') ? '' : ','}
+              </p>
+            ))}
+            <p
+              className={
+                valid
+                  ? ''
+                  : 'underline decoration-red-400 decoration-wavy underline-offset-4'
+              }
+            >
+              &nbsp;&nbsp;{model.line(picked)},
+            </p>
+            <p>{'})'}</p>
+          </div>
+          <div className="border-t border-border-subtle p-4">
+            <div className="flex items-center justify-between gap-3">
+              <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+                {model.field} for {model.name}
+              </p>
+              <button
+                type="button"
+                aria-pressed={isBroken}
+                className="relative shrink-0 overflow-hidden rounded-full border border-(--landing-accent) px-3 py-1 font-ds-mono text-ds-mono-2xs text-(--landing-accent-bright) transition-colors before:absolute before:inset-y-0 before:w-1/2 before:bg-linear-to-r before:from-transparent before:via-white/25 before:to-transparent motion-safe:before:animate-shimmer hover:bg-[rgb(var(--landing-glow)/0.14)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright) aria-pressed:border-emerald-400/60 aria-pressed:text-emerald-400/90 aria-pressed:before:hidden"
+                onClick={() => setIsBroken((current) => !current)}
+              >
+                {isBroken ? 'fix me' : 'break me'}
+              </button>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {model.allowed.map((value) => (
+                <span
+                  key={value}
+                  className="rounded-full border border-(--landing-accent) bg-[rgb(var(--landing-glow)/0.14)] px-3 py-1 font-ds-mono text-ds-mono-2xs text-(--landing-accent-bright)"
+                >
+                  {value}
+                </span>
+              ))}
+              {valid ? null : (
+                <span className="rounded-full border border-red-400/60 px-3 py-1 font-ds-mono text-ds-mono-2xs text-red-400/90 line-through">
+                  {picked}
+                </span>
+              )}
+            </div>
+            <p className="mt-3 text-ds-body-xs text-text-primary/40">
+              {model.note}
+            </p>
+            {valid ? (
+              <p className="mt-4 min-h-10 font-ds-mono text-ds-mono-2xs text-emerald-400/80">
+                ✓ no errors. '{picked}' is a valid {model.field} for{' '}
+                {model.name}.
+              </p>
+            ) : (
+              <p className="mt-4 min-h-10 font-ds-mono text-ds-mono-2xs text-red-400/90">
+                error TS2322: Type '{picked}' is not assignable to type '
+                {model.allowed.join(' | ')}'.
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    </LandingWindow>
   )
 }

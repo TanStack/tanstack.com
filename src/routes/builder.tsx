@@ -1,12 +1,7 @@
-import { createFileRoute, Outlet } from '@tanstack/react-router'
-import { seo } from '~/utils/seo'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/builder')({
-  head: () => ({
-    meta: seo({
-      title: 'TanStack Builder',
-      description: 'Build amazing applications with TanStack',
-    }),
-  }),
-  component: () => <Outlet />,
+  beforeLoad: () => {
+    throw redirect({ to: '/chat', replace: true, reloadDocument: true })
+  },
 })

@@ -1,10 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { setResponseHeader } from '@tanstack/react-start/server'
-import {
-  getPublishedPosts,
-  formatAuthors,
-  publishedDateToUTCString,
-} from '~/utils/blog'
+import { getPublishedPosts } from '~/utils/blog'
+import { formatAuthors, publishedDateToUTCString } from '~/utils/blog-format'
 
 function escapeXml(unsafe: string): string {
   return unsafe
@@ -15,8 +12,23 @@ function escapeXml(unsafe: string): string {
     .replace(/'/g, '&apos;')
 }
 
-function generateRSSFeed() {
-  const posts = getPublishedPosts().slice(0, 50) // Most recent 50 posts
+export function getRssImageMediaType(src: string) {
+  const path = src.split(/[?#]/, 1)[0]
+  const extension = path.match(/\.([^./]+)$/)?.[1]?.toLowerCase()
+
+  if (extension === 'jpg' || extension === 'jpeg') return 'image/jpeg'
+  if (extension === 'webp') return 'image/webp'
+  if (extension === 'svg') return 'image/svg+xml'
+  if (extension === 'gif') return 'image/gif'
+  if (extension === 'png') return 'image/png'
+
+  return 'application/octet-stream'
+}
+
+export function generateRSSFeed() {
+  const posts = getPublishedPosts()
+    .filter((post) => post.rss !== false)
+    .slice(0, 50)
   const siteUrl = 'https://tanstack.com'
   const buildDate = new Date().toUTCString()
 
@@ -45,7 +57,7 @@ function generateRSSFeed() {
       <pubDate>${pubDate}</pubDate>
       <author>${escapeXml(author)}</author>
       <description>${escapeXml(description)}</description>
-      ${post.headerImage ? `<enclosure url="${escapeXml(siteUrl + post.headerImage)}" type="image/png" />` : ''}
+      ${post.headerImage ? `<enclosure url="${escapeXml(siteUrl + post.headerImage)}" type="${getRssImageMediaType(post.headerImage)}" />` : ''}
     </item>`
     })
     .join('')

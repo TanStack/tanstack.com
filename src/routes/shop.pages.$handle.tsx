@@ -30,14 +30,14 @@ function ShopPage() {
         crumbs={[{ label: 'Shop', href: '/shop' }, { label: page.title }]}
       />
       <header>
-        <h1 className="font-shop-display font-bold text-[42px] leading-[1.05] tracking-[-0.02em] text-shop-text">
+        <h1 className="font-shop-display text-ds-display-sm text-shop-text">
           {page.title}
         </h1>
       </header>
       {page.body ? (
         <div
           className="
-            text-shop-text-2 text-[14px] leading-[1.6]
+            text-shop-text-2 text-ds-body-sm
             [&_a]:text-shop-accent [&_a]:underline
             [&_strong]:text-shop-text [&_strong]:font-semibold
             [&_h1]:text-shop-text [&_h1]:font-shop-display [&_h1]:mt-6 [&_h1]:mb-2

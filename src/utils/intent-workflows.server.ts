@@ -16,25 +16,19 @@ const intentDiscoverInputSchema = z.object({
   source: z.enum(['schedule', 'admin']).default('schedule'),
 })
 
-const PROCESS_WORKFLOW_DEFAULT_MAX_DURATION_MS = 4 * 60 * 1000
-const PROCESS_WORKFLOW_MAX_DURATION_MS = 4 * 60 * 1000
-const PROCESS_WORKFLOW_MIN_REMAINING_MS = 30_000
 const PROCESS_WORKFLOW_SELECT_LIMIT = 50
 
 const intentProcessInputSchema = z.object({
-  maxDurationMs: z
-    .number()
-    .int()
-    .positive()
-    .max(PROCESS_WORKFLOW_MAX_DURATION_MS)
-    .default(PROCESS_WORKFLOW_DEFAULT_MAX_DURATION_MS),
   source: z.enum(['schedule', 'admin']).default('schedule'),
 })
 
 const discoverStepOptions = {
   retry: { maxAttempts: 2, backoff: 'exponential', baseMs: 1_000 },
-  timeout: 10 * 60 * 1000,
+  timeout: 20_000,
 } satisfies StepOptions
+
+const NPM_SEARCH_PAGE_SIZE = 250
+const MAX_NPM_SEARCH_RESULTS = 1_000
 
 const selectPendingVersionsStepOptions = {
   timeout: 30_000,
@@ -49,19 +43,98 @@ export const INTENT_PROCESS_WORKFLOW_ID = 'intent-process-workflow'
 export const INTENT_DISCOVER_SCHEDULE_ID = 'intent-discover-every-6h'
 export const INTENT_PROCESS_SCHEDULE_ID = 'intent-process-every-15m'
 
-function createIntentDiscoverWorkflow(
+export function createIntentDiscoverWorkflow(
   operations: IntentSyncOperations = defaultIntentSyncOperations,
 ) {
   return createWorkflow({
     id: INTENT_DISCOVER_WORKFLOW_ID,
     input: intentDiscoverInputSchema,
-  }).handler((ctx) =>
-    ctx.step(
-      'discover-intent-packages',
-      () => operations.discoverIntentPackages(),
-      discoverStepOptions,
-    ),
-  )
+  }).handler(async (ctx) => {
+    const errors: Array<string> = []
+    const discoveredPackageNames: Array<string> = []
+    let packagesVerified = 0
+    let versionsEnqueued = 0
+    let searchOffset = 0
+
+    while (discoveredPackageNames.length < MAX_NPM_SEARCH_RESULTS) {
+      try {
+        const page = await ctx.step(
+          `search-npm-packages:${searchOffset}`,
+          () =>
+            operations.searchIntentNpmPackagesPage({
+              from: searchOffset,
+              size: NPM_SEARCH_PAGE_SIZE,
+            }),
+          discoverStepOptions,
+        )
+        discoveredPackageNames.push(...page.packageNames)
+        searchOffset += NPM_SEARCH_PAGE_SIZE
+
+        if (searchOffset >= page.total || page.packageNames.length === 0) break
+      } catch (error) {
+        errors.push(`npm-search: ${getErrorMessage(error)}`)
+        break
+      }
+    }
+
+    const packageNames = [...new Set(discoveredPackageNames)].slice(
+      0,
+      MAX_NPM_SEARCH_RESULTS,
+    )
+    for (const packageName of packageNames) {
+      try {
+        const enqueued = await ctx.step(
+          `discover-npm-package:${packageName}`,
+          () => operations.discoverIntentNpmPackage(packageName),
+          discoverStepOptions,
+        )
+        if (enqueued !== null) {
+          packagesVerified++
+          versionsEnqueued += enqueued
+        }
+      } catch (error) {
+        errors.push(`npm/${packageName}: ${getErrorMessage(error)}`)
+      }
+    }
+
+    let githubCandidates = 0
+    try {
+      const candidates = await ctx.step(
+        'search-github-packages',
+        () => operations.searchIntentGitHubCandidates(),
+        discoverStepOptions,
+      )
+      githubCandidates = candidates.length
+
+      for (const candidate of candidates) {
+        try {
+          const enqueued = await ctx.step(
+            `discover-github-package:${candidate.repo}:${candidate.path}`,
+            () => operations.discoverIntentGitHubPackage(candidate),
+            discoverStepOptions,
+          )
+          if (enqueued !== null) {
+            packagesVerified++
+            versionsEnqueued += enqueued
+          }
+        } catch (error) {
+          errors.push(
+            `github/${candidate.repo}/${candidate.path}: ${getErrorMessage(error)}`,
+          )
+        }
+      }
+    } catch (error) {
+      errors.push(`github-search: ${getErrorMessage(error)}`)
+    }
+
+    return {
+      packagesDiscovered: packageNames.length,
+      githubCandidates,
+      packagesVerified,
+      versionsEnqueued,
+      errors,
+    }
+  })
 }
 
 export function createIntentProcessWorkflow(
@@ -71,14 +144,11 @@ export function createIntentProcessWorkflow(
     id: INTENT_PROCESS_WORKFLOW_ID,
     input: intentProcessInputSchema,
   }).handler(async (ctx) => {
-    const deadline = Date.now() + ctx.input.maxDurationMs
     const attemptedIds = new Set<number>()
     const results: Array<IntentVersionProcessResult> = []
-    let deferred = 0
     let selectIteration = 0
-    let shouldContinue = true
 
-    while (shouldContinue && hasProcessBudget(deadline)) {
+    while (true) {
       const versions = await ctx.step(
         `select-pending-versions:${selectIteration}`,
         () =>
@@ -97,14 +167,7 @@ export function createIntentProcessWorkflow(
       )
       if (unattemptedVersions.length === 0) break
 
-      for (let index = 0; index < unattemptedVersions.length; index++) {
-        if (!hasProcessBudget(deadline)) {
-          deferred += unattemptedVersions.length - index
-          shouldContinue = false
-          break
-        }
-
-        const version = unattemptedVersions[index]!
+      for (const version of unattemptedVersions) {
         attemptedIds.add(version.id)
 
         try {
@@ -128,7 +191,7 @@ export function createIntentProcessWorkflow(
       if (versions.length < PROCESS_WORKFLOW_SELECT_LIMIT) break
     }
 
-    return summarizeIntentProcessResults(results, { deferred })
+    return summarizeIntentProcessResults(results)
   })
 }
 
@@ -155,7 +218,6 @@ export const intentWorkflowRegistrations = {
         schedule: every.minutes(15),
         overlapPolicy: 'skip',
         input: {
-          maxDurationMs: PROCESS_WORKFLOW_DEFAULT_MAX_DURATION_MS,
           source: 'schedule',
         },
       },
@@ -165,8 +227,4 @@ export const intentWorkflowRegistrations = {
 
 function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
-}
-
-function hasProcessBudget(deadline: number): boolean {
-  return Date.now() + PROCESS_WORKFLOW_MIN_REMAINING_MS < deadline
 }

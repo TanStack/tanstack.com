@@ -1,8 +1,8 @@
 import * as React from 'react'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, notFound } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { useThrottledCallback, useThrottler } from '@tanstack/react-pacer'
-import { Plus } from 'lucide-react'
+import { PlusIcon } from '@phosphor-icons/react'
 import { useQuery } from '@tanstack/react-query'
 import { twMerge } from 'tailwind-merge'
 
@@ -93,6 +93,13 @@ const timelineZoomTimeSchema = v.pipe(v.number(), v.integer(), v.minValue(0))
 export const Route = createFileRoute(
   '/_library/$libraryId/$version/docs/npm-stats',
 )({
+  beforeLoad: ({ params }) => {
+    const library = getLibrary(params.libraryId)
+
+    if (library.statsAvailable === false) {
+      throw notFound()
+    }
+  },
   validateSearch: v.object({
     packageGroups: v.fallback(v.optional(packageGroupsSchema), undefined),
     range: v.fallback(
@@ -820,7 +827,7 @@ function RouteComponent() {
                     onClick={() => handleAddPackage(packageName, color)}
                     className="flex items-center gap-1.5 px-2 py-1 text-xs rounded-md bg-gray-500/10 hover:bg-gray-500/20 transition-colors"
                   >
-                    <Plus className="w-3 h-3" />
+                    <PlusIcon className="w-3 h-3" />
                     <span className="font-medium" style={{ color }}>
                       🌴 {frameworkMeta[framework]?.name ?? framework}-
                       {library.id.charAt(0).toUpperCase() + library.id.slice(1)}
@@ -847,7 +854,7 @@ function RouteComponent() {
                       onClick={() => handleAddPackage(mainPackage, color)}
                       className="flex items-center gap-1.5 px-2 py-1 text-xs rounded-md bg-gray-500/10 hover:bg-gray-500/20 transition-colors"
                     >
-                      <Plus className="w-3 h-3" />
+                      <PlusIcon className="w-3 h-3" />
                       <span className="font-medium" style={{ color }}>
                         {mainPackage}
                       </span>

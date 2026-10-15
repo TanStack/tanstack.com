@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Download, RefreshCw } from 'lucide-react'
+import { DownloadIcon, ArrowsClockwiseIcon } from '@phosphor-icons/react'
 import { Card } from '~/components/Card'
 import { NpmIcon } from '~/components/icons/NpmIcon'
 import { homepageNpmStatsSummaryQuery } from '~/queries/stats'
@@ -50,7 +50,7 @@ function NpmStatsAdmin() {
             onClick={() => refreshSummaryMutation.mutate()}
             title="Refresh the NPM summary cache from NPM stats chunks"
           >
-            <RefreshCw
+            <ArrowsClockwiseIcon
               className={refreshSummaryMutation.isPending ? 'animate-spin' : ''}
             />
             {refreshSummaryMutation.isPending
@@ -65,7 +65,7 @@ function NpmStatsAdmin() {
           </div>
         ) : homepageSummary ? (
           <>
-            <Card className="mb-8 rounded-xl border-cyan-200 bg-gradient-to-br from-cyan-50 to-emerald-50 p-6 dark:border-cyan-800 dark:from-cyan-900/20 dark:to-emerald-900/20">
+            <Card className="mb-8 rounded-xl border-cyan-200 bg-linear-to-br from-cyan-50 to-emerald-50 p-6 dark:border-cyan-800 dark:from-cyan-900/20 dark:to-emerald-900/20">
               <div className="mb-6 flex items-center justify-between gap-4">
                 <div>
                   <h2 className="mb-1 text-2xl font-bold text-gray-900 dark:text-white">
@@ -143,7 +143,7 @@ function NpmStatsAdmin() {
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
-                          <Download className="size-5 text-emerald-500" />
+                          <DownloadIcon className="size-5 text-emerald-500" />
                           <div className="text-2xl font-bold text-gray-900 dark:text-white">
                             {summary.totalDownloads.toLocaleString()}
                           </div>
@@ -189,7 +189,7 @@ function SummaryMetric({
         {label}
       </div>
       <div className="flex items-center gap-3">
-        {iconClassName ? <Download className={iconClassName} /> : null}
+        {iconClassName ? <DownloadIcon className={iconClassName} /> : null}
         <div
           className={`text-2xl font-bold text-gray-900 dark:text-white ${valueClassName ?? ''}`}
         >

@@ -1,12 +1,13 @@
 import * as React from 'react'
 import { Await } from '@tanstack/react-router'
 import { Spinner } from '~/components/Spinner'
-import SponsorPack from '~/components/SponsorPack'
+import OssSponsors from '~/components/OssSponsors'
+import type { OssSponsor } from '~/utils/sponsors.functions'
 import { Button } from '~/ui'
 import { twMerge } from 'tailwind-merge'
 
 type SponsorsSectionProps = {
-  sponsorsPromise: Promise<any>
+  sponsorsPromise: Promise<Array<OssSponsor>>
   title?: string
   aspectRatio?: string
   showCTA?: boolean
@@ -33,7 +34,7 @@ export function SponsorsSection({
           promise={sponsorsPromise}
           fallback={<Spinner className="text-3xl" />}
         >
-          {(sponsors: any) => <SponsorPack sponsors={sponsors} />}
+          {(sponsors) => <OssSponsors sponsors={sponsors} />}
         </Await>
       </div>
       {showCTA ? (

@@ -43,6 +43,7 @@ export const Route = createFileRoute('/stats/npm/$packages')({
     playbackLoop: v.fallback(v.optional(v.boolean(), false), false),
     playbackPlaying: v.fallback(v.optional(v.boolean(), false), false),
     showDataMode: v.fallback(v.optional(showDataModeSchema, 'all'), 'all'),
+    showLegend: v.fallback(v.optional(v.boolean(), false), false),
     height: v.fallback(v.optional(chartHeightSchema, 400), 400),
     width: v.fallback(v.optional(chartWidthSchema), undefined),
     timelineStart: v.fallback(v.optional(timelineZoomTimeSchema), undefined),

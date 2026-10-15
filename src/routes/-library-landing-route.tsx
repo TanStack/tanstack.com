@@ -1,4 +1,4 @@
-import { Link, redirect } from '@tanstack/react-router'
+import { redirect } from '@tanstack/react-router'
 import type { QueryClient } from '@tanstack/react-query'
 import { getLibrary } from '~/libraries'
 import type { LibraryId } from '~/libraries'
@@ -28,7 +28,7 @@ export function beforeLoadLibraryLanding(
   href: string,
 ) {
   const library = validateLibraryVersion(libraryId, version, () => {
-    throw redirect({ href: `/${libraryId}/latest` })
+    throw redirect({ href: `/${libraryId}/latest`, statusCode: 308 })
   })
 
   library.handleRedirects?.(href)
@@ -42,11 +42,17 @@ export async function loadLibraryLandingRouteData(
   config: ConfigSchema
 }> {
   const library = getLibrary(libraryId)
-  const [config] = await Promise.all([
-    queryClient.ensureQueryData(docsConfigQueryOptions(libraryId, version)),
-    queryClient.ensureQueryData(ossStatsQuery({ library })),
-    queryClient.ensureQueryData(recentDownloadsQuery({ library })),
-  ])
+  const configPromise = queryClient.ensureQueryData(
+    docsConfigQueryOptions(libraryId, version),
+  )
+  const statsPromise =
+    library.statsAvailable === false
+      ? Promise.resolve()
+      : Promise.all([
+          queryClient.ensureQueryData(ossStatsQuery({ library })),
+          queryClient.ensureQueryData(recentDownloadsQuery({ library })),
+        ]).then(() => undefined)
+  const [config] = await Promise.all([configPromise, statsPromise])
 
   return {
     config,
@@ -58,7 +64,10 @@ export function getLibraryLandingHead(libraryId: LandingLibraryId) {
 
   return {
     meta: seo({
-      title: library.name,
+      title:
+        libraryId === 'start'
+          ? 'TanStack Start | Full-stack React and Solid Framework'
+          : library.name,
       description: library.description,
       image: ogImageUrl(library.id),
       noindex: library.visible === false,
@@ -70,24 +79,4 @@ export function getLibraryLandingHeaders(libraryId: LandingLibraryId) {
   return stackBlitzLandingLibraryIds.has(libraryId)
     ? stackBlitzEmbedHeaders
     : {}
-}
-
-export function LibraryNavbarTitle({
-  libraryId,
-}: {
-  libraryId: LandingLibraryId
-}) {
-  const library = getLibrary(libraryId)
-  const libraryName = library.name.replace('TanStack ', '')
-  const gradientText = `inline-block text-transparent bg-clip-text bg-linear-to-r ${library.colorFrom} ${library.colorTo}`
-
-  return (
-    <Link
-      to="/$libraryId"
-      params={{ libraryId: library.id }}
-      className="whitespace-nowrap"
-    >
-      <span className={gradientText}>{libraryName}</span>
-    </Link>
-  )
 }

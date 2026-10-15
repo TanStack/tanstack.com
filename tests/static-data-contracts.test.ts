@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { allMaintainers } from '../src/libraries/maintainers'
 import {
+  findLibrary,
   isPublicLibrary,
   libraries,
   publicLibraries,
@@ -15,7 +16,19 @@ assert.deepEqual(
   'publicLibraries stays in sync with the public-library selector',
 )
 
+assert.equal(
+  publicLibraries.some((library) => library.id === 'ranger'),
+  false,
+  'Ranger stays delisted from public library discovery',
+)
+assert.equal(
+  findLibrary('ranger')?.to,
+  '/ranger',
+  'Ranger keeps its permalink while delisted',
+)
+
 for (const library of publicLibraries) {
+  assert.ok(library.scarfId, `${library.id} must have a Scarf pixel`)
   assert.equal(
     library.to.startsWith('/'),
     true,
@@ -27,6 +40,15 @@ for (const library of publicLibraries) {
     `${library.id} hidden library should not be public`,
   )
 }
+
+const scarfIds = libraries.flatMap((library) =>
+  library.scarfId ? [library.scarfId] : [],
+)
+assert.equal(
+  new Set(scarfIds).size,
+  scarfIds.length,
+  'Each library must use its own Scarf pixel',
+)
 
 for (const library of libraries) {
   if (!library.scarfId) {

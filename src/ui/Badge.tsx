@@ -13,17 +13,16 @@ type BadgeVariant =
 type BadgeProps = {
   children: React.ReactNode
   variant?: BadgeVariant
+  rounded?: 'md' | 'full'
   className?: string
 }
 
 const variantStyles: Record<BadgeVariant, string> = {
-  default: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
-  success:
-    'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
-  warning:
-    'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
-  error: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
-  info: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+  default: 'bg-background-subtle text-text-secondary',
+  success: 'bg-status-success-bg text-text-success',
+  warning: 'bg-status-warning-bg text-text-warning',
+  error: 'bg-status-error-bg text-text-error',
+  info: 'bg-status-info-bg text-text-info',
   purple:
     'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
   teal: 'bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-300',
@@ -34,12 +33,14 @@ const variantStyles: Record<BadgeVariant, string> = {
 export function Badge({
   children,
   variant = 'default',
+  rounded = 'full',
   className,
 }: BadgeProps) {
   return (
     <span
       className={twMerge(
-        'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium',
+        'inline-flex items-center px-2 py-1 text-xs font-medium',
+        rounded === 'full' ? 'rounded-full' : 'rounded-md',
         variantStyles[variant],
         className,
       )}

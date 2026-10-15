@@ -1,11 +1,16 @@
 import * as React from 'react'
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { useThrottledCallback, useThrottler } from '@tanstack/react-pacer'
-import * as DialogPrimitive from '@radix-ui/react-dialog'
-import { HelpCircle, X } from 'lucide-react'
+import { QuestionIcon } from '@phosphor-icons/react'
 import { useQuery } from '@tanstack/react-query'
-import { Card } from '~/components/Card'
+import {
+  Card,
+  Dialog,
+  DialogBody,
+  DialogContent,
+  DialogHeader,
+} from '~/components/ds/ui'
 import { Tooltip } from '~/components/Tooltip'
 import { seo } from '~/utils/seo'
 import { chartHeightSchema, chartWidthSchema } from '~/utils/schemas'
@@ -21,6 +26,7 @@ import { BaselineSection } from '~/components/npm-stats/BaselineSection'
 import { ChartControls } from '~/components/npm-stats/ChartControls'
 import { ColorPickerPopover } from '~/components/npm-stats/ColorPickerPopover'
 import { DisabledChartActions } from '~/components/npm-stats/DisabledChartActions'
+import type { NpmStatsChartEmbedOptions } from '~/components/npm-stats/NPMStatsChart'
 import { PackagePills } from '~/components/npm-stats/PackagePills'
 import { PackageSearch } from '~/components/npm-stats/PackageSearch'
 import { PopularComparisons } from '~/components/npm-stats/PopularComparisons'
@@ -122,6 +128,7 @@ export const Route = createFileRoute('/stats/npm/')({
     showDataMode: v.fallback(v.optional(showDataModeSchema, 'all'), 'all'),
     normalizeBaseline: v.fallback(v.optional(v.boolean(), true), true),
     showBaseline: v.fallback(v.optional(v.boolean(), false), false),
+    showLegend: v.fallback(v.optional(v.boolean(), false), false),
     height: v.fallback(v.optional(chartHeightSchema, 400), 400),
     width: v.fallback(v.optional(chartWidthSchema), undefined),
     timelineStart: v.fallback(v.optional(timelineZoomTimeSchema), undefined),
@@ -237,16 +244,6 @@ export const Route = createFileRoute('/stats/npm/')({
   component: RouteComponent,
   staticData: {
     includeSearchInCanonical: true,
-    Title: () => {
-      return (
-        <Link
-          to="."
-          className="hover:text-blue-500 flex items-center gap-2 text-gray-500"
-        >
-          NPM Stats
-        </Link>
-      )
-    },
   },
 })
 
@@ -272,6 +269,7 @@ type _NpmStatsSearch = {
   playbackLoop?: boolean
   playbackPlaying?: boolean
   showDataMode?: 'all' | 'complete'
+  showLegend?: boolean
   height?: number
   width?: number
   timelineStart?: number
@@ -280,7 +278,8 @@ type _NpmStatsSearch = {
 
 function RouteComponent() {
   const search = Route.useSearch()
-  const packageGroups: PackageGroup[] = search.packageGroups ?? []
+  const packageGroups: PackageGroup[] =
+    search.packageGroups ?? defaultPackageGroups
   const range: TimeRange = search.range ?? '1825-days'
   const transform: TransformMode = search.transform ?? 'none'
   const binTypeParam: BinType | undefined = search.binType
@@ -293,6 +292,7 @@ function RouteComponent() {
   const showDataModeParam: ShowDataMode = search.showDataMode ?? 'all'
   const normalizeBaseline: boolean = search.normalizeBaseline ?? true
   const showBaseline: boolean = search.showBaseline ?? false
+  const showLegend: boolean = search.showLegend ?? false
   const bucketOffsetParam: number = search.bucketOffset ?? 0
   const playbackIntervalMs: number =
     search.playbackIntervalMs ?? defaultPlaybackIntervalMs
@@ -556,6 +556,18 @@ function RouteComponent() {
         ...prev,
         normalizeBaseline: !(prev.normalizeBaseline ?? true),
       }),
+      resetScroll: false,
+    })
+  }
+
+  const handleShowLegendChange = (nextShowLegend: boolean) => {
+    navigate({
+      to: '.',
+      search: (prev) => ({
+        ...prev,
+        showLegend: nextShowLegend,
+      }),
+      replace: true,
       resetScroll: false,
     })
   }
@@ -824,6 +836,69 @@ function RouteComponent() {
     [navigate],
   )
 
+  const buildEmbedUrl = React.useCallback(
+    (options: NpmStatsChartEmbedOptions) => {
+      const params = new URLSearchParams()
+
+      params.set('packageGroups', JSON.stringify(packageGroups))
+      params.set('range', range)
+      params.set('transform', transform)
+      params.set('binType', binType)
+      params.set('viewMode', viewMode)
+      params.set('chartType', chartType)
+      params.set('barOrientation', barOrientation)
+      params.set('barSort', barSort)
+      params.set('bucketOffset', `${bucketOffset}`)
+      params.set('playbackIntervalMs', `${playbackIntervalMs}`)
+      params.set('showDataMode', showDataModeParam)
+      params.set('normalizeBaseline', `${normalizeBaseline}`)
+      params.set('showBaseline', `${viewMode === 'history'}`)
+      params.set('showLegend', `${options.showLegend}`)
+
+      if (
+        options.includeTimelineRange &&
+        timelineStart !== undefined &&
+        timelineEnd !== undefined
+      ) {
+        params.set('timelineStart', `${timelineStart}`)
+        params.set('timelineEnd', `${timelineEnd}`)
+      }
+
+      if (options.lockWidth && width !== undefined) {
+        params.set('width', `${width}`)
+      }
+
+      return `/stats/npm/embed?${params}`
+    },
+    [
+      barOrientation,
+      barSort,
+      binType,
+      bucketOffset,
+      chartType,
+      normalizeBaseline,
+      packageGroups,
+      playbackIntervalMs,
+      range,
+      showDataModeParam,
+      timelineEnd,
+      timelineStart,
+      transform,
+      viewMode,
+      width,
+    ],
+  )
+
+  const embedConfig = React.useMemo(
+    () => ({
+      buildUrl: buildEmbedUrl,
+      hasTimelineRange:
+        timelineStart !== undefined && timelineEnd !== undefined,
+      hasWidth: width !== undefined,
+    }),
+    [buildEmbedUrl, timelineEnd, timelineStart, width],
+  )
+
   const handleMenuOpenChange = (packageName: string, open: boolean) => {
     if (!open) {
       setOpenMenuPackage(null)
@@ -942,7 +1017,7 @@ function RouteComponent() {
                 className="flex size-6 items-center justify-center rounded bg-gray-500/10 text-gray-500 hover:bg-gray-500/20 hover:text-blue-500"
                 type="button"
               >
-                <HelpCircle className="size-3" />
+                <QuestionIcon className="size-3" />
               </button>
             </Tooltip>
           </div>
@@ -1004,27 +1079,17 @@ function RouteComponent() {
           </div>
 
           {/* Combine Package Dialog */}
-          <DialogPrimitive.Root
+          <Dialog
             open={combiningPackage !== null}
             onOpenChange={(open) => {
               if (!open) setCombiningPackage(null)
             }}
           >
-            <DialogPrimitive.Portal>
-              <DialogPrimitive.Overlay className="fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm" />
-              <DialogPrimitive.Content className="fixed left-1/2 top-1/2 z-[1000] w-[calc(100%-1rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white dark:bg-gray-900 p-4 shadow-xl outline-none">
-                <div className="flex justify-between items-center mb-4">
-                  <DialogPrimitive.Title className="text-base sm:text-lg font-medium text-gray-900 dark:text-gray-100">
-                    Add packages to {combiningPackage}
-                  </DialogPrimitive.Title>
-                  <DialogPrimitive.Close className="rounded-full p-1 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500">
-                    <X className="w-4 h-4 sm:w-5 sm:h-5" />
-                  </DialogPrimitive.Close>
-                </div>
-                <DialogPrimitive.Description className="sr-only">
-                  Search for additional npm packages to combine with{' '}
-                  {combiningPackage}.
-                </DialogPrimitive.Description>
+            <DialogContent size="md">
+              <DialogHeader
+                title={`Add packages to ${combiningPackage ?? ''}`}
+              />
+              <DialogBody className="pb-6">
                 {combiningPackage && (
                   <PackageSearch
                     onSelect={handleAddToGroup}
@@ -1033,9 +1098,9 @@ function RouteComponent() {
                     autoFocus={true}
                   />
                 )}
-              </DialogPrimitive.Content>
-            </DialogPrimitive.Portal>
-          </DialogPrimitive.Root>
+              </DialogBody>
+            </DialogContent>
+          </Dialog>
 
           {/* Color Picker Popover */}
           {colorPickerPackage && colorPickerPosition && (
@@ -1089,6 +1154,7 @@ function RouteComponent() {
                       >
                         <LazyNPMStatsChart
                           actionsContainer={chartActionsContainer}
+                          embedConfig={embedConfig}
                           onActionsMountedChange={setChartActionsMounted}
                           range={range}
                           queryData={displayQueryData}
@@ -1105,11 +1171,13 @@ function RouteComponent() {
                             viewMode === 'history' && normalizeBaseline
                           }
                           showBaseline={viewMode === 'history' && showBaseline}
+                          showLegend={showLegend}
                           timelineStart={timelineStart}
                           timelineEnd={timelineEnd}
                           animationQueryData={npmQuery.data}
                           animationBucketOffsetBounds={latestBucketBounds}
                           animationFrameIntervalMs={playbackIntervalMs}
+                          onShowLegendChange={handleShowLegendChange}
                           onTimelineRangeChange={handleTimelineRangeChange}
                         />
                       </React.Suspense>

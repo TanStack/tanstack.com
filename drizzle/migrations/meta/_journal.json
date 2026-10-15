@@ -1,0 +1,300 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1787266378167,
+      "tag": "0000_builder_durability",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1789144581608,
+      "tag": "0001_showcase_placements",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790803716870,
+      "tag": "0002_tanchat_account_workspace",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790804343014,
+      "tag": "0003_tanchat_conversation_identity",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790804442943,
+      "tag": "0004_tanchat_thread_context",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790804526518,
+      "tag": "0005_tanchat_thread_requests",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790805357384,
+      "tag": "0006_tanchat_credentials",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1790805453948,
+      "tag": "0007_tanchat_account_preferences",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1790805586259,
+      "tag": "0008_tanchat_conversation_memory",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1790805696593,
+      "tag": "0009_tanchat_composer_drafts",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1790806185072,
+      "tag": "0010_tanchat_saved_files",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1790807013143,
+      "tag": "0011_tanchat_first_send_receipts",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1790807108503,
+      "tag": "0012_tanchat_first_send_identity",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1790807475664,
+      "tag": "0013_tanchat_skills",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1790807895465,
+      "tag": "0014_pale_risque",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1790808078912,
+      "tag": "0015_married_machine_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1790808144088,
+      "tag": "0016_crazy_cable",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1790808408369,
+      "tag": "0017_messy_sabretooth",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1790808779507,
+      "tag": "0018_large_rawhide_kid",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1790809391944,
+      "tag": "0019_slow_power_pack",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1790810344651,
+      "tag": "0020_tranquil_harpoon",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1790810546448,
+      "tag": "0021_even_roulette",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1790810639274,
+      "tag": "0022_tricky_texas_twister",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1790810734403,
+      "tag": "0023_productive_the_spike",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1790810869326,
+      "tag": "0024_worried_dazzler",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1790811081040,
+      "tag": "0025_crazy_emma_frost",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1790811199611,
+      "tag": "0026_youthful_maria_hill",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1790811313929,
+      "tag": "0027_certain_captain_stacy",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1790811629910,
+      "tag": "0028_nebulous_songbird",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1790811834170,
+      "tag": "0029_faithful_loa",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1790811945834,
+      "tag": "0030_last_expediter",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1790812110806,
+      "tag": "0031_sloppy_mesmero",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1790812622926,
+      "tag": "0032_low_jack_murdock",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1790812766275,
+      "tag": "0033_breezy_mister_sinister",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1790813750231,
+      "tag": "0034_tanchat_parent_guards",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1790814638416,
+      "tag": "0035_tanchat_saved_actions",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1790816512083,
+      "tag": "0036_tanchat_onboarding",
+      "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1790822074465,
+      "tag": "0037_tanchat_kody_oauth",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1790832197649,
+      "tag": "0038_tanchat_cascade_lifecycle",
+      "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1790889000000,
+      "tag": "0039_tanchat_invites",
+      "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1790963800008,
+      "tag": "0040_tanchat_waitlist",
+      "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1791183973089,
+      "tag": "0041_tanchat_usage_reservation",
+      "breakpoints": true
+    }
+  ]
+}

@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import CliLanding from '~/components/landing/CliLanding'
 import {
-  LibraryNavbarTitle,
   beforeLoadLibraryLanding,
   getLibraryLandingHead,
   getLibraryLandingHeaders,
@@ -18,15 +17,8 @@ export const Route = createFileRoute('/_library/cli/$version/')({
     loadLibraryLandingRouteData('cli', params.version, queryClient),
   head: () => getLibraryLandingHead('cli'),
   headers: () => getLibraryLandingHeaders('cli'),
-  staticData: {
-    Title: CliNavbarTitle,
-  },
   component: CliLandingRoute,
 })
-
-function CliNavbarTitle() {
-  return <LibraryNavbarTitle libraryId="cli" />
-}
 
 function CliLandingRoute() {
   return <CliLanding />

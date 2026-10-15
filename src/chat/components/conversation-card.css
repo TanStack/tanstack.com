@@ -1,0 +1,67 @@
+@scope (:root:has(.tanchat-shell)) {
+  .conversation-card-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 30;
+    pointer-events: none;
+    overflow: clip;
+  }
+  .conversation-card-positioner {
+    pointer-events: auto;
+    max-width: calc(100vw - 24px);
+  }
+  .conversation-card {
+    --conversation-card-padding: 22px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: min(360px, calc(100vw - 24px));
+    max-width: var(--available-width);
+    max-height: min(680px, var(--available-height));
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    background: var(--surface);
+    color: inherit;
+    box-shadow:
+      0 4px 12px var(--shadow-faint),
+      0 12px 36px var(--shadow-soft);
+    outline: none;
+    translate: 0 0;
+    opacity: 1;
+  }
+  .conversation-card:where([data-panel-motion]) {
+    transition:
+      translate var(--motion-panel) var(--motion-ease),
+      opacity var(--motion-panel) var(--motion-ease);
+  }
+  .conversation-card:where([data-panel-motion])[data-starting-style],
+  .conversation-card:where([data-panel-motion])[data-ending-style] {
+    translate: calc(100% + 48px) 0;
+    opacity: 0;
+  }
+  .conversation-card:where(
+      [data-panel-motion]
+    )[data-edge='left'][data-starting-style],
+  .conversation-card:where(
+      [data-panel-motion]
+    )[data-edge='left'][data-ending-style] {
+    translate: calc(-100% - 48px) 0;
+  }
+  .conversation-card-close {
+    position: absolute;
+    z-index: 1;
+    top: 14px;
+    right: 14px;
+  }
+  .conversation-card-content {
+    min-height: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .conversation-card {
+      transition: none;
+    }
+  }
+}

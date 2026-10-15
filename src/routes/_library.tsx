@@ -5,6 +5,7 @@ import {
   useMatches,
 } from '@tanstack/react-router'
 import { LibraryLayout } from '~/components/LibraryLayout'
+import { Scarf } from '~/components/Scarf'
 import { findLibrary } from '~/libraries'
 import type { LibraryId } from '~/libraries'
 import type { ConfigSchema } from '~/utils/config'
@@ -21,9 +22,13 @@ function LibraryRoute() {
       const config = matches
         .map((match) => getConfigFromLoaderData(match.loaderData))
         .find(isDefined)
-      const version = matches
-        .map((match) => getVersionFromParams(match.params))
-        .find(isDefined)
+      const version =
+        matches
+          .map((match) => getVersionFromParams(match.params))
+          .find(isDefined) ??
+        matches
+          .map((match) => getVersionFromLoaderData(match.loaderData))
+          .find(isDefined)
       const libraryId =
         matches
           .map((match) => getLibraryIdFromParams(match.params))
@@ -70,6 +75,9 @@ function LibraryRoute() {
       isLandingPage={layoutData.isLandingPage}
     >
       <Outlet />
+      {library.scarfId ? (
+        <Scarf id={library.scarfId} path={`/${library.id}`} />
+      ) : null}
     </LibraryLayout>
   )
 }
@@ -118,6 +126,15 @@ function getVersionFromParams(params: unknown): string | undefined {
     'version' in params &&
     typeof params.version === 'string'
     ? params.version
+    : undefined
+}
+
+function getVersionFromLoaderData(loaderData: unknown): string | undefined {
+  return typeof loaderData === 'object' &&
+    loaderData !== null &&
+    'version' in loaderData &&
+    typeof loaderData.version === 'string'
+    ? loaderData.version
     : undefined
 }
 

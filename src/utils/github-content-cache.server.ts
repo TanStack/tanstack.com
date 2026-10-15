@@ -5,6 +5,7 @@ import {
   type BlobStorageCache,
   type BlobStorageListedObject,
 } from '~/server/runtime/blob-storage.server'
+import { scheduleHostRuntimeTask } from '~/server/runtime/host.server'
 import { isValidRepoPath, MAX_REPO_PATH_LENGTH } from './repo-path'
 
 const POSITIVE_STALE_MS = 5 * 60 * 1000
@@ -144,7 +145,6 @@ export class InvalidCacheKeyError extends Error {
 const pendingRefreshes = new Map<string, Promise<void>>()
 const memoryGitHubContent = new Map<string, GithubContentRecord>()
 const memoryDocsArtifacts = new Map<string, DocsArtifactRecord>()
-let blobBackend: CacheBackend | undefined
 
 function assertValidRepo(repo: string) {
   if (
@@ -256,10 +256,10 @@ function isFresh(staleAt: Date) {
 
 // markGitHubContentStale / markDocsArtifactsStale set staleAt to the epoch
 // (new Date(0)) as a sentinel for "forcibly invalidated": an admin clicked
-// the purge button or a push webhook fired. Natural TTL expiry and forced
-// invalidation both refresh synchronously now. The object stays around so the
-// bottom of getCachedGitHubContent / getCachedDocsArtifact can still fall back
-// to it if GitHub is unreachable.
+// the purge button or a push webhook fired. The object stays around so refresh
+// paths can still fall back to it if GitHub is unreachable, and docs artifacts
+// can serve it while scheduling a background rebuild when the runtime supports
+// waitUntil.
 function isForciblyStale(staleAt: Date) {
   return staleAt.getTime() <= 0
 }
@@ -1206,14 +1206,10 @@ async function getCacheBackend() {
   const storage = await getBlobStorage(GITHUB_CONTENT_BLOB_STORAGE)
 
   if (storage) {
-    if (!blobBackend) {
-      blobBackend = createBlobBackend(
-        storage,
-        getBlobStorageCache(GITHUB_CONTENT_BLOB_STORAGE),
-      )
-    }
-
-    return blobBackend
+    return createBlobBackend(
+      storage,
+      getBlobStorageCache(GITHUB_CONTENT_BLOB_STORAGE),
+    )
   }
 
   return memoryBackend
@@ -1408,43 +1404,65 @@ export async function getCachedDocsArtifact<T>(opts: {
     cachedRow && opts.isValue(cachedRow.payload) ? cachedRow.payload : undefined
   const forciblyStale = !!cachedRow && isForciblyStale(cachedRow.staleAt)
 
-  if (storedValue !== undefined && !forciblyStale) {
-    if (cachedRow && isFresh(cachedRow.staleAt)) {
+  const refreshArtifact = () =>
+    withPendingRefresh(cacheKey, async () => {
+      const latestRow = await readRow()
+      const latestValue =
+        latestRow && opts.isValue(latestRow.payload)
+          ? latestRow.payload
+          : undefined
+      const latestForciblyStale =
+        !!latestRow && isForciblyStale(latestRow.staleAt)
+
+      if (
+        latestValue !== undefined &&
+        latestRow &&
+        !latestForciblyStale &&
+        isFresh(latestRow.staleAt)
+      ) {
+        return latestValue
+      }
+
+      try {
+        const payload = await opts.build()
+        await upsertDocsArtifact({ ...opts, payload })
+        return payload
+      } catch (error) {
+        if (latestValue !== undefined) {
+          console.warn(`[GitHub Cache] Serving stale artifact ${cacheKey}`)
+          return latestValue
+        }
+
+        throw error
+      }
+    })
+
+  if (storedValue !== undefined) {
+    if (!forciblyStale && cachedRow && isFresh(cachedRow.staleAt)) {
+      return storedValue
+    }
+
+    if (
+      scheduleHostRuntimeTask(() =>
+        refreshArtifact().then(
+          () => undefined,
+          (error) => {
+            console.warn(
+              `[GitHub Cache] Background artifact refresh failed ${cacheKey}`,
+              error,
+            )
+          },
+        ),
+      )
+    ) {
+      console.warn(
+        `[GitHub Cache] Serving stale artifact ${cacheKey}; refreshing in background`,
+      )
       return storedValue
     }
   }
 
-  return withPendingRefresh(cacheKey, async () => {
-    const latestRow = await readRow()
-    const latestValue =
-      latestRow && opts.isValue(latestRow.payload)
-        ? latestRow.payload
-        : undefined
-    const latestForciblyStale =
-      !!latestRow && isForciblyStale(latestRow.staleAt)
-
-    if (
-      latestValue !== undefined &&
-      latestRow &&
-      !latestForciblyStale &&
-      isFresh(latestRow.staleAt)
-    ) {
-      return latestValue
-    }
-
-    try {
-      const payload = await opts.build()
-      await upsertDocsArtifact({ ...opts, payload })
-      return payload
-    } catch (error) {
-      if (latestValue !== undefined) {
-        console.warn(`[GitHub Cache] Serving stale artifact ${cacheKey}`)
-        return latestValue
-      }
-
-      throw error
-    }
-  })
+  return refreshArtifact()
 }
 
 export async function listDocsCacheRepoStats() {
@@ -1502,5 +1520,4 @@ export function resetGitHubContentCacheForTest() {
   pendingRefreshes.clear()
   memoryGitHubContent.clear()
   memoryDocsArtifacts.clear()
-  blobBackend = undefined
 }

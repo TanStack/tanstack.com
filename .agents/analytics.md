@@ -43,7 +43,7 @@ Every event automatically receives `page_location`, `page_path`, `page_title`, `
 
 ### `page_view`
 
-Fires on initial load (auto from gtag config) and on every SPA navigation.
+Fires once on initial load and once per SPA navigation, sent only by `<PageViewTracker />` in `src/routes/__root.tsx`. The gtag config uses `send_page_view: false`, and the GA4 web stream must keep enhanced measurement's "page changes based on browser history events" disabled; otherwise every navigation is counted twice.
 
 | Prop            | Type   | Notes                                                                                                                          |
 | --------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------ |
@@ -101,9 +101,9 @@ User changed the filter state on the partners directory.
 
 User clicked a "get in touch", "let's chat", or "become a partner" CTA.
 
-| Prop        | Type | Notes                                                      |
-| ----------- | ---- | ---------------------------------------------------------- |
-| `placement` | enum | `partners_index_cta`, `library_callout`, `docs_right_rail` |
+| Prop        | Type | Notes                        |
+| ----------- | ---- | ---------------------------- |
+| `placement` | enum | See `PartnerPlacement` below |
 
 ---
 
@@ -166,7 +166,7 @@ User took an action on the generated result. Single event with `action` prop cov
 | `idea_used` | string  | Session context                                                                                                              |
 | `action`    | enum    | See `BuilderAction` below                                                                                                    |
 | `surface`   | enum    | `result_panel` (main builder UI) or `deploy_dialog`                                                                          |
-| `provider`  | string? | Deploy provider when applicable: `vercel`, `netlify`, `cloudflare`                                                           |
+| `provider`  | string? | Build or deploy provider when applicable: `cloudflare`, `lovable`, `netlify`, `railway`, `render`, `vercel`                  |
 | `automatic` | boolean | `true` for system-driven actions (e.g., deploy_dialog auto-redirect countdown). Filter to `false` for true user click rates. |
 
 **Important:** automatic prompt-copies that fire as a side-effect of generation do NOT emit `builder_activated`. Only user-driven actions count as activation.
@@ -191,6 +191,7 @@ User took an action on the generated result. Single event with `action` prop cov
 | `ecosystem_game`     | 3D ecosystem game islands                                                                                                         |
 | `partners_index_cta` | "Get in touch" mailto on `/partners`                                                                                              |
 | `library_callout`    | "Let's chat" callout per library                                                                                                  |
+| `navbar`             | "Partnership Inquiry" mailto in the Support menu                                                                                  |
 
 ### `BuilderAction`
 
@@ -202,6 +203,7 @@ User took an action on the generated result. Single event with `action` prop cov
 | `open_codex`               | Opened the result in Codex                                             |
 | `open_claude`              | Opened the result in Claude                                            |
 | `open_cursor`              | Opened the result in Cursor                                            |
+| `open_prompt_builder`      | Opened the result in a partner's prompt-based builder                  |
 | `download`                 | Downloaded the project as a zip                                        |
 | `open_advanced`            | Opened the advanced builder editor                                     |
 | `netlify_start`            | Started a Netlify deploy from the result                               |

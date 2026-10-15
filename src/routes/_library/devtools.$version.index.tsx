@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import DevtoolsLanding from '~/components/landing/DevtoolsLanding'
 import {
-  LibraryNavbarTitle,
   beforeLoadLibraryLanding,
   getLibraryLandingHead,
   getLibraryLandingHeaders,
@@ -18,15 +17,8 @@ export const Route = createFileRoute('/_library/devtools/$version/')({
     loadLibraryLandingRouteData('devtools', params.version, queryClient),
   head: () => getLibraryLandingHead('devtools'),
   headers: () => getLibraryLandingHeaders('devtools'),
-  staticData: {
-    Title: DevtoolsNavbarTitle,
-  },
   component: DevtoolsLandingRoute,
 })
-
-function DevtoolsNavbarTitle() {
-  return <LibraryNavbarTitle libraryId="devtools" />
-}
 
 function DevtoolsLandingRoute() {
   return <DevtoolsLanding />

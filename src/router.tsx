@@ -6,18 +6,21 @@ import { NotFound } from './components/NotFound'
 import { QueryClient } from '@tanstack/react-query'
 import * as Sentry from '@sentry/tanstackstart-react'
 import { installStaleAppReloadHandlers } from './utils/stale-app-reload'
+import { redactByokRequestHeaders } from './utils/sentry-redaction'
 
 if (typeof document !== 'undefined') {
   installStaleAppReloadHandlers()
 
   Sentry.init({
     dsn: 'https://ac4bfc43ff4a892f8dc7053c4a50d92f@o4507236158537728.ingest.us.sentry.io/4507236163649536',
+    enabled: import.meta.env.PROD,
     sendDefaultPii: true,
     // Performance Monitoring
     tracesSampleRate: 1.0, //  Capture 100% of the transactions
     // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
     tracePropagationTargets: ['localhost', /^https:\/\/tanstack\.com\//],
     beforeSend(event) {
+      redactByokRequestHeaders(event)
       // Filter out errors from third-party ad tech scripts (e.g. Publift's
       // Fuse Platform ftUtils.js) that are not actionable by us.
       const frames = event.exception?.values?.flatMap(
@@ -71,7 +74,11 @@ export function getRouter() {
     )
   }
 
-  setupRouterSsrQueryIntegration({ router, queryClient })
+  setupRouterSsrQueryIntegration({
+    router,
+    queryClient,
+    wrapQueryClient: false,
+  })
 
   return router
 }
@@ -79,9 +86,9 @@ export function getRouter() {
 declare module '@tanstack/react-router' {
   interface StaticDataRouteOption {
     baseParent?: boolean
-    Title?: () => any
     showNavbar?: boolean
     includeSearchInCanonical?: boolean
+    ownsCanonicalLink?: boolean
   }
 }
 

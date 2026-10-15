@@ -1,14 +1,13 @@
+import {
+  timeRequestWork,
+  withDocsRequestTimings,
+} from './utils/request-timing.server'
+import { finalizeDocsHtmlHeaders } from './utils/docs-html-headers.server'
 import './instrument.server.mjs'
-
-export { StreamObject } from '@durable-streams/server-cloudflare'
-export { WorkspaceSync } from './chat/server/workspace-sync-object'
-export { Conversation } from './chat/server/conversation'
-export { TanChatWorkflow } from './chat/server/workflow-driver'
 
 import { wrapFetchWithSentry } from '@sentry/tanstackstart-react'
 import handler, { createServerEntry } from '@tanstack/react-start/server-entry'
 import { runWithDatabaseContext, runWithDatabaseRequest } from '~/db/client'
-import { runScheduledTasks } from '~/server/scheduled.server'
 import {
   runWithHostRuntimeContext,
   runWithHostRuntimeEnv,
@@ -26,7 +25,6 @@ import {
   redirectInsecureSiteRequest,
 } from '~/utils/http'
 import { isFrameEmbeddingAllowed } from '~/utils/frame-embedding'
-import { redirectChatOrigin } from './chat/server/origin-redirect'
 
 const SECURITY_HEADERS = {
   'X-Frame-Options': 'DENY',
@@ -261,9 +259,11 @@ const server = createServerEntry(
               return applyHostingHeaders(markdownResponse, url)
             }
 
-            const response = await handler.fetch(request, {
-              responseLinkHeader: STATIC_RESPONSE_LINK_HEADERS,
-            })
+            const response = await timeRequestWork('start_handler', () =>
+              handler.fetch(request, {
+                responseLinkHeader: STATIC_RESPONSE_LINK_HEADERS,
+              }),
+            )
             const hostedResponse = applyHostingHeaders(response, url)
 
             logRequestEnd(context, response.status)
@@ -279,13 +279,21 @@ const server = createServerEntry(
 )
 
 export default {
-  fetch(request: Request, env: unknown, context: unknown) {
+  async fetch(request: Request, env: unknown, context: unknown) {
     const secureSite = redirectInsecureSiteRequest(request)
     if (secureSite) return secureSite
-    const canonicalChat = redirectChatOrigin(request)
-    if (canonicalChat) return canonicalChat
+    if (new URL(request.url).hostname === 'chat.tanstack.com') {
+      const { redirectChatOrigin } =
+        await import('./chat/server/origin-redirect')
+      const canonicalChat = redirectChatOrigin(request)
+      if (canonicalChat) return canonicalChat
+    }
     return runWithHostRuntimeEnv(env, () =>
-      runWithHostRuntimeContext(context, () => server.fetch(request)),
+      runWithHostRuntimeContext(context, () =>
+        withDocsRequestTimings(request, async () =>
+          finalizeDocsHtmlHeaders(request, await server.fetch(request)),
+        ),
+      ),
     )
   },
   scheduled(
@@ -296,9 +304,11 @@ export default {
     context.waitUntil(
       runWithHostRuntimeEnv(env, () =>
         runWithHostRuntimeContext(context, () =>
-          runWithDatabaseContext(() =>
-            runScheduledTasks(controller.cron, controller.scheduledTime),
-          ),
+          runWithDatabaseContext(async () => {
+            const { runScheduledTasks } =
+              await import('~/server/scheduled.server')
+            return runScheduledTasks(controller.cron, controller.scheduledTime)
+          }),
         ),
       ),
     )

@@ -34,3 +34,11 @@ test('all known source dates contribute but tested versions belong to the visibl
     undefined,
   )
 })
+
+test('reference freshness cannot rewrite malformed source metadata into valid YAML', () => {
+  assert.throws(() =>
+    applyReferencedDocsFreshness('---\ntitle: [invalid YAML\n---\nBody', [
+      { updated: '2026-09-02' },
+    ]),
+  )
+})

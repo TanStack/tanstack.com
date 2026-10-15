@@ -1,0 +1,259 @@
+@scope (:root:has(.tanchat-shell)) {
+  .composer-references {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+    max-width: 100%;
+    min-width: 0;
+  }
+  .composer-frozen-references {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .reference-positioner {
+    z-index: 120;
+  }
+  .reference-popup {
+    width: min(440px, calc(100vw - 24px));
+    max-height: min(520px, var(--available-height));
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    color: var(--text);
+    background: var(--background);
+    box-shadow: 0 2px 12px var(--shadow-soft);
+  }
+  .reference-option {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 6px;
+    padding: 8px;
+    text-align: left;
+    min-height: 36px;
+  }
+  .reference-option:hover:not(:disabled) {
+    background: var(--soft);
+  }
+  .reference-search {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 8px;
+    color: inherit;
+    background: transparent;
+    flex-shrink: 0;
+  }
+  .reference-options {
+    overflow-y: auto;
+    min-height: 160px;
+    overscroll-behavior: contain;
+  }
+  .reference-option {
+    width: 100%;
+  }
+  .reference-result {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
+  .reference-result .reference-option {
+    flex: 1;
+    min-width: 0;
+  }
+  .reference-inspect {
+    flex: none;
+    color: var(--muted);
+  }
+  .reference-detail {
+    font-size: 12px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+  }
+  .reference-detail > strong {
+    font-size: 14px;
+  }
+  .reference-detail p {
+    margin: 6px 0;
+  }
+  .reference-detail dl {
+    margin: 8px 0 0;
+  }
+  .reference-detail dl > div {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .reference-detail dt {
+    min-width: 72px;
+    color: var(--muted);
+  }
+  .reference-detail dd {
+    margin: 0;
+  }
+  .reference-detail h3 {
+    margin: 12px 0 4px;
+    font-size: 12px;
+  }
+  .reference-detail ul {
+    margin: 4px 0;
+    padding-left: 20px;
+  }
+  .reference-detail li + li {
+    margin-top: 5px;
+  }
+  .reference-detail pre {
+    overflow-x: auto;
+    padding: 8px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-size: 11px;
+  }
+  .reference-detail-status {
+    color: var(--muted);
+  }
+  .reference-detail-intent {
+    padding: 6px 0;
+  }
+  .reference-option[aria-selected='true'] {
+    background: var(--soft);
+  }
+  .reference-option > span {
+    min-width: 0;
+    flex: 1;
+  }
+  .reference-option strong {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    overflow-wrap: anywhere;
+  }
+  .reference-option small {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-top: 2px;
+  }
+  .reference-kind {
+    flex: none;
+    align-self: flex-start;
+    color: var(--muted);
+    font-size: 11px;
+    font-style: normal;
+  }
+  .reference-popup button:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+  .reference-popup button:focus-visible,
+  .reference-popup input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+  .reference-notice {
+    margin: 4px 7px;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+  .reference-error {
+    flex-basis: 100%;
+    margin: 4px 0;
+    font-size: 12px;
+    color: var(--danger);
+    overflow-wrap: anywhere;
+  }
+  .reference-error button {
+    margin-left: 6px;
+  }
+  .composer-reference-list,
+  .message-references {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: 0;
+    margin: 0;
+    max-width: 100%;
+    min-width: 0;
+  }
+  .composer-reference-list li,
+  .message-references li {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+    max-width: 100%;
+    padding: 2px 5px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    font-size: 12px;
+  }
+  .composer-reference-list li > span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 230px;
+  }
+  .reference-chip-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .reference-chip-label,
+  .reference-chip-text small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .reference-chip-text small {
+    color: var(--muted);
+    font-size: 11px;
+  }
+  .reference-tool-sources {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    margin-top: 6px;
+    padding-top: 6px;
+  }
+  .composer-reference-list svg,
+  .message-references svg {
+    flex-shrink: 0;
+  }
+  .message-references {
+    margin: 5px 0;
+  }
+  .message-references a,
+  .message-references span {
+    color: inherit;
+    overflow-wrap: anywhere;
+    min-width: 0;
+  }
+  .reference-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  @media (pointer: coarse) {
+    .reference-option {
+      min-height: 44px;
+    }
+  }
+}

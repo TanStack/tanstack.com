@@ -300,7 +300,11 @@ async function fetchFs(repo: string, filepath: string) {
   return null
 }
 
-async function fetchFsFromDevServer(repo: string, filepath: string) {
+async function fetchFsFromDevServer(
+  repo: string,
+  filepath: string,
+  tree = false,
+) {
   let request: Request
 
   try {
@@ -316,6 +320,7 @@ async function fetchFsFromDevServer(repo: string, filepath: string) {
   const url = new URL(localDocsDevPath, request.url)
   url.searchParams.set('repo', repo)
   url.searchParams.set('path', filepath)
+  if (tree) url.searchParams.set('kind', 'tree')
 
   const response = await fetch(url, {
     headers: {
@@ -536,7 +541,9 @@ async function fetchRepoFileFromOrigin(
     let text: string | null
 
     if (shouldUseLocalDocsFiles()) {
-      text = await fetchFs(repo, filepath)
+      text =
+        (await fetchFs(repo, filepath)) ??
+        (await fetchRemote(owner, repo, ref, filepath))
     } else {
       text = await fetchRemote(owner, repo, ref, filepath)
     }
@@ -576,7 +583,9 @@ async function fetchRepoRawFileFromOrigin(
 ) {
   const [owner, repo] = repoPair.split('/')
   return shouldUseLocalDocsFiles()
-    ? fetchFs(repo, filepath)
+    ? fetchFs(repo, filepath).then(
+        (text) => text ?? fetchRemote(owner, repo, ref, filepath),
+      )
     : fetchRemote(owner, repo, ref, filepath)
 }
 
@@ -881,7 +890,14 @@ function parseFrontMatter(content: string) {
 
   const frontMatterSource = lines.slice(1, closingLineIndex).join('\n')
   const body = lines.slice(closingLineIndex + 1).join('\n')
-  const parsed = parseYaml(frontMatterSource)
+
+  let parsed: unknown
+  try {
+    parsed = parseYaml(frontMatterSource)
+  } catch (e) {
+    console.warn('Failed to parse frontmatter YAML:', e)
+    return { content: body, data: {} }
+  }
 
   return {
     content: body,
@@ -1398,7 +1414,9 @@ export function fetchApiContents(
     return fetchCached({
       key: `${repoPair}:${branch}:${startingPath}`,
       ttl: 1,
-      fn: () => fetchApiContentsFs(repoPair, startingPath),
+      fn: async () =>
+        (await fetchApiContentsFs(repoPair, startingPath)) ??
+        fetchApiContentsRemote(repoPair, branch, startingPath),
     })
   }
 
@@ -1429,6 +1447,14 @@ async function fetchApiContentsFs(
   startingPath: string,
 ): Promise<Array<GitHubFileNode> | null> {
   const [_, repo] = repoPair.split('/')
+  if (isIsolateRuntime()) {
+    const text = await fetchFsFromDevServer(repo, startingPath, true)
+    if (text === null) return null
+    const tree: unknown = JSON.parse(text)
+    if (!isGitHubFileNodeArray(tree))
+      throw new Error('Invalid local docs directory response')
+    return tree
+  }
 
   const base = getLocalRepoBaseDirs(repo).find((candidate) =>
     fs.existsSync(path.join(candidate, removeLeadingSlash(startingPath))),

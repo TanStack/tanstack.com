@@ -1442,7 +1442,18 @@ export function LibraryLayout({
   )
 
   return (
-    <WidthToggleContext.Provider value={{ isFullWidth, setIsFullWidth }}>
+    <WidthToggleContext.Provider
+      value={{
+        isFullWidth,
+        setIsFullWidth: (fullWidth) => {
+          document.documentElement.style.setProperty(
+            '--docs-content-width',
+            fullWidth ? '100%' : '900px',
+          )
+          setIsFullWidth(fullWidth)
+        },
+      }}
+    >
       <DocNavigationContext.Provider
         value={{
           libraryId,
@@ -1480,8 +1491,7 @@ export function LibraryLayout({
                   !isLandingPage &&
                     !isExample &&
                     !isNpmStats &&
-                    !isFullWidth &&
-                    'mx-auto w-[900px]',
+                    'mx-auto w-[var(--docs-content-width,900px)]',
                 )}
               >
                 {children}

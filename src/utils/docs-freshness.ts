@@ -9,7 +9,7 @@ export function readDocsFreshness(frontmatter: Record<string, unknown>) {
       ? Object.entries(testedWith).flatMap(([name, version]) =>
           /^(?:@[a-z0-9._-]+\/)?[a-z0-9._-]+$/.test(name) &&
           typeof version === 'string' &&
-          /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/.test(
+          /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/.test(
             version,
           )
             ? [{ name, version }]

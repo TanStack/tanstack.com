@@ -40,6 +40,7 @@ export type LibrarySlim = {
   bgRadial?: string
   badge?: 'new' | 'soon' | 'alpha' | 'beta' | 'fresh' | 'RC'
   repo: string
+  hasDiscussions?: boolean
   frameworks: Framework[]
   latestVersion: string
   latestBranch?: string

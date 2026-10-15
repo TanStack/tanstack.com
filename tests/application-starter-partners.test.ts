@@ -490,10 +490,10 @@ test('other partners use their default href regardless of placement', () => {
   }
 })
 
-test('Vercel and Render rotate with the gold Start hosting partners', () => {
+test('Cloudflare, Vercel, and Render rotate with the gold Start hosting partners', () => {
   const hostingPartners = getStartHostingPartners()
 
-  for (const partnerId of ['vercel', 'render']) {
+  for (const partnerId of ['cloudflare', 'vercel', 'render']) {
     const partner = hostingPartners.find(
       (candidate) => candidate.id === partnerId,
     )
@@ -503,6 +503,7 @@ test('Vercel and Render rotate with the gold Start hosting partners', () => {
   }
 
   const positions = new Map([
+    ['cloudflare', new Set<number>()],
     ['vercel', new Set<number>()],
     ['render', new Set<number>()],
   ])

@@ -55,6 +55,7 @@ import {
 } from '~/utils/analytics/scarf'
 import { createPartnerPlacementSessionSeed } from '~/utils/partner-placement'
 import { twMerge } from 'tailwind-merge'
+import { DOCS_WIDTH_BOOTSTRAP } from '~/utils/docs-width'
 
 const GOOGLE_ANALYTICS_ID = 'G-JMT1Z50SPS'
 const GOOGLE_ANALYTICS_PROXY_PREFIX = '/_a'
@@ -356,6 +357,7 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
           dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP }}
           suppressHydrationWarning
         />
+        <script dangerouslySetInnerHTML={{ __html: DOCS_WIDTH_BOOTSTRAP }} />
         <HeadContent />
         {import.meta.env.PROD ? (
           <script

@@ -8,6 +8,13 @@
 @custom-variant auto (&:is(.auto, .auto *));
 @custom-variant aria-current (&[aria-current="location"]);
 
+@supports not (animation-timeline: scroll()) {
+  .fade-y {
+    --tw-fade-t: 0 !important;
+    --tw-fade-b: 0 !important;
+  }
+}
+
 html.theme-switching,
 html.theme-switching *,
 html.theme-switching *::before,

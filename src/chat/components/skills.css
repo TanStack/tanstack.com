@@ -1,0 +1,218 @@
+@scope (:root:has(.tanchat-shell)) {
+  .skill-settings,
+  .skill-editor,
+  .skill-preview {
+    min-width: 0;
+  }
+  .skill-settings-toolbar,
+  .skill-editor-heading,
+  .skill-editor-actions,
+  .skill-reference-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .skill-settings-toolbar {
+    margin: 12px 0;
+  }
+  .skill-settings-toolbar input {
+    flex: 1;
+    min-width: 130px;
+  }
+  .skill-settings-toolbar .select-field-trigger {
+    max-width: 130px;
+  }
+  .skill-scope {
+    color: var(--muted);
+    font-size: 12px;
+    margin: 10px 0;
+  }
+  .skill-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .skill-list > li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 0;
+  }
+  .skill-list-main {
+    flex: 1;
+    min-width: 0;
+  }
+  .skill-list-main > button {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: inherit;
+    font-weight: 600;
+    text-align: left;
+    overflow-wrap: anywhere;
+  }
+  .skill-list-main p {
+    margin: 3px 0;
+    font-size: 12px;
+    color: var(--muted);
+    overflow-wrap: anywhere;
+  }
+  .skill-list-main small,
+  .skill-preview-heading span {
+    color: var(--muted);
+    font-size: 11px;
+  }
+  .skill-list-actions {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex-shrink: 0;
+  }
+  .skill-enabled-control {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    min-height: 32px;
+    cursor: pointer;
+  }
+  .skill-settings input:not([type='file']),
+  .skill-settings .select-field-trigger,
+  .skill-settings textarea {
+    border: 1px solid var(--line);
+    background: transparent;
+    color: inherit;
+    border-radius: 6px;
+    padding: 8px;
+  }
+  .skill-settings input[type='checkbox'] {
+    accent-color: var(--accent);
+  }
+  .skill-settings input:focus-visible,
+  .skill-settings textarea:focus-visible,
+  .skill-settings .select-field-trigger:focus-visible,
+  .skill-list-main button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .skill-editor-heading {
+    margin-top: 12px;
+    justify-content: space-between;
+  }
+  .skill-editor-heading strong {
+    font-size: 14px;
+    overflow-wrap: anywhere;
+  }
+  .skill-editor-fields {
+    display: grid;
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .skill-editor-fields label {
+    display: grid;
+    gap: 5px;
+    font-size: 12px;
+  }
+  .skill-editor-fields input,
+  .skill-editor-fields textarea {
+    width: 100%;
+    min-width: 0;
+  }
+  .skill-editor-fields textarea {
+    resize: vertical;
+    line-height: 1.5;
+  }
+  .skill-editor-help {
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .skill-editor-actions {
+    margin-top: 14px;
+  }
+  .skill-editor-actions button,
+  .skill-load-more,
+  .skill-reference-actions button {
+    min-height: 36px;
+    padding: 7px 12px;
+    border-radius: 6px;
+  }
+  .skill-error {
+    color: var(--danger);
+    font-size: 12px;
+    overflow-wrap: anywhere;
+  }
+  .skill-error button {
+    margin-left: 6px;
+  }
+  .skill-preview-heading {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .skill-preview-heading strong {
+    overflow-wrap: anywhere;
+  }
+  .skill-preview > p {
+    font-size: 12px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+  .skill-instructions {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    margin: 12px 0;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font: inherit;
+    font-size: 12px;
+    line-height: 1.6;
+    background: var(--soft);
+  }
+  .skill-metadata {
+    font-size: 11px;
+    overflow-wrap: anywhere;
+  }
+  .skill-metadata dt {
+    color: var(--muted);
+    margin-top: 5px;
+  }
+  .skill-metadata dd {
+    margin-left: 0;
+  }
+  .skill-reference-preview {
+    overflow-y: auto;
+    min-height: 0;
+    padding: 4px;
+  }
+  .skill-reference-actions {
+    flex-shrink: 0;
+    justify-content: space-between;
+  }
+  @media (pointer: coarse) {
+    .skill-enabled-control {
+      min-width: 44px;
+      min-height: 44px;
+    }
+    .skill-editor-actions button,
+    .skill-load-more,
+    .skill-reference-actions button,
+    .skill-list-main > button {
+      min-height: 44px;
+    }
+  }
+  @media (max-width: 480px) {
+    .skill-settings-toolbar input {
+      width: 100%;
+      flex-basis: 100%;
+    }
+    .skill-list {
+      padding: 0;
+    }
+    .skill-list-actions {
+      gap: 0;
+    }
+  }
+}

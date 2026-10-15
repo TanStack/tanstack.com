@@ -182,3 +182,17 @@ test('manifest cache accepts older records and rejects invalid date maps', () =>
     assert.equal(isDocsManifest({ ...base, lastModifiedByPath }), false)
   }
 })
+
+test('manifest rejects malformed frontmatter instead of caching incomplete metadata', async () => {
+  await assert.rejects(
+    collectRedirectEntriesForFile(
+      { path: 'docs/invalid.md' },
+      {
+        docsRoot: 'docs',
+        fetchFile: async () => '---\ntitle: [invalid YAML\n---\nBody',
+        onCanonicalPath: () => {},
+      },
+    ),
+    /Invalid docs frontmatter: docs\/invalid.md/,
+  )
+})

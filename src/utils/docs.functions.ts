@@ -11,6 +11,7 @@ import type { DocsRedirectManifest } from './docs-redirects'
 import type { GitHubFileNode } from './documents.server'
 import { getBranch, getLibrary } from '~/libraries'
 import { getClientExampleConfig } from './client-example-config'
+import { rewriteWorkspaceProtocolDependencies } from './repository-example'
 
 export type DocsTreeNode = {
   path: string
@@ -253,6 +254,9 @@ export async function collectRedirectEntriesForFile(
   }
 
   const frontMatter = extractFrontMatter(file)
+  if (!frontMatter.isValid) {
+    throw new Error(`Invalid docs frontmatter: ${node.path}`)
+  }
   const updated = readDocsFreshness(frontMatter.data).updated
   if (updated) opts.onLastModified?.(canonicalPath, updated)
   const entries: Array<RedirectManifestEntry> = []
@@ -573,14 +577,24 @@ export const fetchClientExampleFiles = createServerFn({ method: 'GET' })
     } = await loadGitHubExampleServerModule()
     const { getCachedDocsArtifact } = await loadGitHubContentCacheServerModule()
     const result = await getCachedDocsArtifact({
-      artifactKey: 'workspace-v1',
+      artifactKey: 'workspace-v2',
       artifactType: 'client-example',
-      build: async () =>
-        ensureCacheableFetchExampleFilesResponse(
+      build: async () => {
+        const fetched = ensureCacheableFetchExampleFilesResponse(
           await fetchExampleFiles(library.repo, gitRef, examplePath, {
             preserveBinary: true,
           }),
-        ),
+        )
+
+        if (!fetched.success) {
+          return fetched
+        }
+
+        return {
+          ...fetched,
+          files: rewriteWorkspaceProtocolDependencies(fetched.files),
+        }
+      },
       docsRoot: examplePath,
       gitRef,
       isValue: isFetchExampleFilesResponse,

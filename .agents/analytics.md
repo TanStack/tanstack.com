@@ -43,7 +43,7 @@ Every event automatically receives `page_location`, `page_path`, `page_title`, `
 
 ### `page_view`
 
-Fires on initial load (auto from gtag config) and on every SPA navigation.
+Fires once on initial load and once per SPA navigation, sent only by `<PageViewTracker />` in `src/routes/__root.tsx`. The gtag config uses `send_page_view: false`, and the GA4 web stream must keep enhanced measurement's "page changes based on browser history events" disabled; otherwise every navigation is counted twice.
 
 | Prop            | Type   | Notes                                                                                                                          |
 | --------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------ |

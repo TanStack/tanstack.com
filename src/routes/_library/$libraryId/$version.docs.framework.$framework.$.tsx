@@ -17,6 +17,7 @@ import { findLibrary, getBranch, getLibrary } from '~/libraries'
 import { capitalize } from '~/utils/utils'
 import { DocContainer } from '~/components/DocContainer'
 import { getDocsCacheHeaders } from '~/utils/docs-cache-headers'
+import { getDocsEmbedRuntimeHeaders } from '~/utils/docs-embed-headers'
 
 export const Route = createFileRoute(
   '/_library/$libraryId/$version/docs/framework/$framework/$',
@@ -77,10 +78,16 @@ export const Route = createFileRoute(
     }
   },
   component: Docs,
-  headers: ({ params }) => {
+  headers: ({ loaderData, params }) => {
     const { libraryId, version } = params
 
-    return getDocsCacheHeaders({ libraryId, version })
+    return {
+      ...getDocsCacheHeaders({ libraryId, version }),
+      ...getDocsEmbedRuntimeHeaders({
+        content: loaderData?.content ?? '',
+        version,
+      }),
+    }
   },
   head: (ctx) => {
     const { libraryId, version, framework, _splat: docsPath } = ctx.params

@@ -542,7 +542,9 @@ async function fetchRepoFileFromOrigin(
     let text: string | null
 
     if (shouldUseLocalDocsFiles()) {
-      text = await fetchFs(repo, filepath)
+      text =
+        (await fetchFs(repo, filepath)) ??
+        (await fetchRemote(owner, repo, ref, filepath))
     } else {
       text = await fetchRemote(owner, repo, ref, filepath)
     }
@@ -584,6 +586,7 @@ export function applyReferencedDocsFreshness(
   references: Array<Record<string, unknown>>,
 ) {
   const parsed = parseFrontMatter(text)
+  if ('error' in parsed) throw parsed.error
   if (references.length === 0) return text
   const facts = [parsed.data, ...references].map(readDocsFreshness)
   const dates = facts.flatMap(({ updated }) => (updated ? [updated] : []))
@@ -616,7 +619,9 @@ async function fetchRepoRawFileFromOrigin(
 ) {
   const [owner, repo] = repoPair.split('/')
   return shouldUseLocalDocsFiles()
-    ? fetchFs(repo, filepath)
+    ? fetchFs(repo, filepath).then(
+        (text) => text ?? fetchRemote(owner, repo, ref, filepath),
+      )
     : fetchRemote(owner, repo, ref, filepath)
 }
 
@@ -888,10 +893,15 @@ export function extractFrontMatter(content: string) {
     data,
     excerpt: createRichExcerpt(parsed.content, excerpt),
     userDescription,
+    isValid: !('error' in parsed),
   }
 }
 
-function parseFrontMatter(content: string) {
+function parseFrontMatter(content: string): {
+  content: string
+  data: Record<string, FrontMatterValue | undefined>
+  error?: unknown
+} {
   const normalizedContent = content.replace(/^\uFEFF/, '')
 
   if (!normalizedContent.startsWith('---')) {
@@ -909,7 +919,14 @@ function parseFrontMatter(content: string) {
 
   const frontMatterSource = lines.slice(1, closingLineIndex).join('\n')
   const body = lines.slice(closingLineIndex + 1).join('\n')
-  const parsed = parseYaml(frontMatterSource)
+
+  let parsed: unknown
+  try {
+    parsed = parseYaml(frontMatterSource)
+  } catch (e) {
+    console.warn('Failed to parse frontmatter YAML:', e)
+    return { content: body, data: {}, error: e }
+  }
 
   return {
     content: body,
@@ -1409,7 +1426,10 @@ export function fetchApiContents(
   startingPath: string,
 ) {
   if (shouldUseLocalDocsFiles()) {
-    return fetchApiContentsFs(repoPair, startingPath)
+    return fetchApiContentsFs(repoPair, startingPath).then(
+      (contents) =>
+        contents ?? fetchApiContentsRemote(repoPair, branch, startingPath),
+    )
   }
 
   return getCachedGitHubJsonContent({
@@ -1489,7 +1509,7 @@ async function fetchApiContentsFs(
   const data = await getContentsForPath(fsStartPath)
 
   if (data.length === 0) {
-    return null
+    return []
   }
 
   async function buildFileTree(

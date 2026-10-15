@@ -145,7 +145,6 @@ export class InvalidCacheKeyError extends Error {
 const pendingRefreshes = new Map<string, Promise<void>>()
 const memoryGitHubContent = new Map<string, GithubContentRecord>()
 const memoryDocsArtifacts = new Map<string, DocsArtifactRecord>()
-let blobBackend: CacheBackend | undefined
 
 function assertValidRepo(repo: string) {
   if (
@@ -1207,14 +1206,10 @@ async function getCacheBackend() {
   const storage = await getBlobStorage(GITHUB_CONTENT_BLOB_STORAGE)
 
   if (storage) {
-    if (!blobBackend) {
-      blobBackend = createBlobBackend(
-        storage,
-        getBlobStorageCache(GITHUB_CONTENT_BLOB_STORAGE),
-      )
-    }
-
-    return blobBackend
+    return createBlobBackend(
+      storage,
+      getBlobStorageCache(GITHUB_CONTENT_BLOB_STORAGE),
+    )
   }
 
   return memoryBackend
@@ -1525,5 +1520,4 @@ export function resetGitHubContentCacheForTest() {
   pendingRefreshes.clear()
   memoryGitHubContent.clear()
   memoryDocsArtifacts.clear()
-  blobBackend = undefined
 }

@@ -48,3 +48,34 @@ test('tested packages require exact versions, not moving ranges or tags', () => 
   )
   assert.deepEqual(readDocsFreshness({ testedWith: ['react'] }).packages, [])
 })
+
+test('tested package versions enforce semantic version identifiers', () => {
+  for (const version of [
+    '1.2.3-.',
+    '1.2.3+.',
+    '1.2.3-alpha..1',
+    '01.2.3',
+    '1.2.3-01',
+    '1.2.3+build..1',
+  ]) {
+    assert.deepEqual(
+      readDocsFreshness({ testedWith: { react: version } }).packages,
+      [],
+      version,
+    )
+  }
+  for (const version of [
+    '0.0.0',
+    '1.2.3-alpha.1',
+    '1.2.3-0',
+    '1.2.3-01a',
+    '1.2.3+001',
+    '1.2.3-rc.1+build.123',
+  ]) {
+    assert.deepEqual(
+      readDocsFreshness({ testedWith: { react: version } }).packages,
+      [{ name: 'react', version }],
+      version,
+    )
+  }
+})

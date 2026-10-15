@@ -1,99 +1,25 @@
 import * as React from 'react'
 import { Link } from '@tanstack/react-router'
 import { ProductImage } from './ProductImage'
-import { ShopMono } from './ui'
+import { ShopBadge, ShopMono } from './ui'
 import { formatMoney, shopifyImageUrl } from '~/utils/shopify-format'
 import type { ProductListItem } from '~/utils/shopify-queries'
-
-const TWO_WEEKS_MS = 365 * 24 * 60 * 60 * 1000
-
-// Kept in sync with ProductDrawer COLOR_HEX — last token wins ("Vintage Black" → black)
-const COLOR_MAP: Record<string, string> = {
-  black: '#0a0a0a',
-  white: '#f5f5f0',
-  cream: '#e4dcc4',
-  bone: '#e4dcc4',
-  natural: '#ddd3b8',
-  vintage: '#e8e0d0',
-  fog: '#c9c6ba',
-  sand: '#c8b97a',
-  ink: '#16130d',
-  navy: '#1a2e50',
-  slate: '#2e3339',
-  olive: '#5a5a3a',
-  rust: '#b84a27',
-  red: '#c41d1d',
-  blue: '#1d4ed8',
-  sea: '#3a5d66',
-  green: '#15803d',
-  gray: '#6b7280',
-  grey: '#6b7280',
-  charcoal: '#3a3a3c',
-  heather: '#8a8a9a',
-  denim: '#1a4569',
-  brown: '#6b3a2a',
-  pink: '#e8749a',
-  purple: '#7c3aed',
-  yellow: '#ca8a04',
-  orange: '#c2410c',
-  royal: '#4169e1',
-  kelly: '#4daa59',
-  aqua: '#00c4d4',
-  rose: '#c8818a',
-  dusty: '#c8818a',
-  coral: '#e8756a',
-  forest: '#228b22',
-  teal: '#0d9488',
-  lavender: '#967bb6',
-  lilac: '#967bb6',
-  tan: '#d2b48c',
-  ivory: '#fffff0',
-  gold: '#c9a227',
-  silver: '#a8a9ad',
-  ash: '#b2bec3',
-  stone: '#78716c',
-  moss: '#6b7c55',
-  sage: '#87a878',
-  sky: '#0ea5e9',
-  midnight: '#1e1b4b',
-  espresso: '#3c1f0f',
-  // card-specific
-  mixed: '#ef4c7a',
-  holo: '#d6e7ff',
-  polished: '#c5b07a',
-  blend: '#e8e0d0',
-}
-
-// Last token wins: "Vintage Black" → ["vintage","black"] reversed → "black" wins
-function colorHex(name: string): string | undefined {
-  const tokens = name
-    .toLowerCase()
-    .split(/[\s_-]+/)
-    .reverse()
-  for (const token of tokens) {
-    if (COLOR_MAP[token]) return COLOR_MAP[token]
-  }
-  return undefined
-}
-
-const NEW_BADGE_GRADIENT =
-  'linear-gradient(180deg, rgba(116,220,255,0.99) 8.23%, rgba(255,242,124,0.99) 29.88%, rgba(255,160,92,0.99) 61.46%, rgba(255,95,95,0.99) 89.43%)'
+import { resolveShopProductColor } from '~/utils/shop-color'
 
 function NewBadge() {
   return (
-    <div
-      className="absolute bottom-3 left-3 z-[2] h-5 px-2.5 rounded-full flex items-center"
-      style={{ background: NEW_BADGE_GRADIENT }}
+    <ShopBadge
+      variant="new"
+      className="absolute bottom-3 left-3 z-[2] h-5 rounded-full px-2.5 leading-none"
     >
-      <span className="font-shop-mono font-medium text-shop-xs text-black leading-none tracking-wide">
-        NEW
-      </span>
-    </div>
+      New
+    </ShopBadge>
   )
 }
 
 type ProductCardProps = {
   product: ProductListItem
+  isNew?: boolean
   sizes?: string
   loading?: 'eager' | 'lazy'
   onQuickView?: (handle: string) => void
@@ -101,6 +27,7 @@ type ProductCardProps = {
 
 export function ProductCard({
   product,
+  isNew = false,
   sizes,
   loading = 'lazy',
   onQuickView,
@@ -109,15 +36,11 @@ export function ProductCard({
   const compareAt = product.compareAtPriceRange?.minVariantPrice
   const isRange = minVariantPrice.amount !== maxVariantPrice.amount
 
-  const isNew = product.publishedAt
-    ? Date.now() - new Date(product.publishedAt).getTime() < TWO_WEEKS_MS
-    : false
-
   const colorOption = product.options?.find((o) => /colou?r/i.test(o.name))
   const swatches = colorOption
     ? colorOption.values.slice(0, 6).map((v) => ({
         name: v,
-        hex: colorHex(v),
+        hex: resolveShopProductColor(v),
       }))
     : []
 
@@ -148,10 +71,10 @@ export function ProductCard({
   const cardBody = (
     <div
       className="
-        group flex flex-col min-w-[340px] max-w-[400px] w-full rounded-xl
+        shop-product-card group flex flex-col min-w-[340px] max-w-[400px] w-full rounded-xl
         border border-transparent bg-transparent
-        hover:bg-[#EFEFE3] dark:hover:bg-shop-bg-2 hover:border-shop-line-2
-        transition-[border-color,background-color] duration-200
+        hover:border-shop-line-2
+        transition-[border-color,background-color] duration-200 motion-reduce:transition-none
         px-[22px] pt-7 pb-5
       "
     >
@@ -208,8 +131,7 @@ export function ProductCard({
                   s.hex
                     ? { background: s.hex }
                     : {
-                        background:
-                          'conic-gradient(from 30deg,#ef4c7a,#f4c74a,#22c993,#36d3f3,#4b9bff,#ef4c7a)',
+                        background: 'var(--gradient-commerce-spectrum)',
                       }
                 }
               />

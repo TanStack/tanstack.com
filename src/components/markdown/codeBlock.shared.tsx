@@ -4,6 +4,7 @@ export type CodeBlockProps = React.HTMLProps<HTMLPreElement> & {
   'data-code-title'?: string
   dataCodeTitle?: string
   isEmbedded?: boolean
+  onCopySuccess?: () => void
   showTypeCopyButton?: boolean
 }
 
@@ -82,9 +83,16 @@ export function getCodeBlockLanguageFromFilePath(filePath: string) {
   }
 
   if (['cts', 'mts'].includes(ext)) return 'ts'
+  if (ext === 'tsrx') return 'tsx'
   if (['cjs', 'mjs'].includes(ext)) return 'js'
+  if (ext === 'gts') return 'ts'
+  if (ext === 'gjs') return 'js'
   if (['prettierrc', 'babelrc', 'webmanifest'].includes(ext)) return 'json'
   if (['env', 'example'].includes(ext)) return 'sh'
+
+  // Marko is HTML-based; @tanstack/highlight has no Marko grammar, so fall
+  // back to html for reasonable tag/attribute/string coloring.
+  if (ext === 'marko') return 'html'
 
   if (
     [

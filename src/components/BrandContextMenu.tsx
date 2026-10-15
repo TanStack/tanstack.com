@@ -41,6 +41,7 @@ export function BrandContextMenu({ children, ...rest }: BrandContextMenuProps) {
             SVG markup is now in your clipboard
           </div>
         </div>,
+        { id: 'svg-copied' },
       )
     } catch (err) {
       console.error('Clipboard error', err)
@@ -51,6 +52,7 @@ export function BrandContextMenu({ children, ...rest }: BrandContextMenuProps) {
             Try again or download directly from the brand guide
           </div>
         </div>,
+        { id: 'svg-copy-failed' },
       )
     }
   }
@@ -78,21 +80,30 @@ export function BrandContextMenu({ children, ...rest }: BrandContextMenuProps) {
         >
           {[
             {
-              label: 'Logo as SVG (Black)',
-              url: '/images/logos/logo-black.svg',
+              label: 'Logo — Landscape (Black)',
+              url: '/images/brand/tanstack-landscape-black.svg',
             },
             {
-              label: 'Logo as SVG (White)',
-              url: '/images/logos/logo-white.svg',
+              label: 'Logo — Landscape (White)',
+              url: '/images/brand/tanstack-landscape-white.svg',
               darkBg: true,
             },
             {
-              label: 'Wordmark as SVG (Black)',
-              url: '/images/logos/logo-word-black.svg',
+              label: 'Logo — Stacked (Black)',
+              url: '/images/brand/tanstack-stacked-black.svg',
             },
             {
-              label: 'Wordmark as SVG (White)',
-              url: '/images/logos/logo-word-white.svg',
+              label: 'Logo — Stacked (White)',
+              url: '/images/brand/tanstack-stacked-white.svg',
+              darkBg: true,
+            },
+            {
+              label: 'Emblem (Black)',
+              url: '/images/brand/tanstack-emblem-black.svg',
+            },
+            {
+              label: 'Emblem (White)',
+              url: '/images/brand/tanstack-emblem-white.svg',
               darkBg: true,
             },
           ].map(({ label, url, darkBg }) => (
@@ -123,8 +134,8 @@ export function BrandContextMenu({ children, ...rest }: BrandContextMenuProps) {
             </DropdownItem>
           ))}
           <DropdownSeparator />
-          <DropdownItem onSelect={() => navigate({ to: '/brand-guide' })}>
-            Brand Guide & All Assets
+          <DropdownItem onSelect={() => navigate({ to: '/ds/logos' })}>
+            All Logo Assets
           </DropdownItem>
         </DropdownContent>
       </Dropdown>

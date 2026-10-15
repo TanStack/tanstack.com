@@ -1,14 +1,14 @@
 import * as React from 'react'
 import { useState, useRef, useEffect } from 'react'
 import {
-  Table,
-  List,
-  ChevronDown,
-  Plus,
-  X,
-  RotateCcw,
-  SlidersHorizontal,
-} from 'lucide-react'
+  TableIcon,
+  ListIcon,
+  CaretDownIcon,
+  PlusIcon,
+  XIcon,
+  ArrowCounterClockwiseIcon,
+  SlidersHorizontalIcon,
+} from '@phosphor-icons/react'
 import { useDebouncer } from '@tanstack/react-pacer'
 import { twMerge } from 'tailwind-merge'
 type FeedViewMode = 'table' | 'timeline'
@@ -84,14 +84,14 @@ export function TopBarFilter({
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700',
             )}
           >
-            <SlidersHorizontal className="w-3.5 h-3.5" />
+            <SlidersHorizontalIcon className="w-3.5 h-3.5" />
             <span>Filters</span>
             {hasActiveFilters && (
               <span className="ml-0.5 px-1 py-0.5 text-[10px] bg-blue-200 dark:bg-blue-800 rounded-full">
                 !
               </span>
             )}
-            <ChevronDown
+            <CaretDownIcon
               className={twMerge(
                 'w-3.5 h-3.5 transition-transform',
                 mobileExpanded && 'rotate-180',
@@ -110,7 +110,7 @@ export function TopBarFilter({
                 onClick={onClearAll}
                 className="mt-2 flex items-center gap-1 px-2 py-1 text-[11px] font-medium bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-md transition-colors"
               >
-                <RotateCcw className="w-3 h-3" />
+                <ArrowCounterClockwiseIcon className="w-3 h-3" />
                 <span>Reset all filters</span>
               </button>
             )}
@@ -137,7 +137,7 @@ export function TopBarFilter({
               onClick={onClearAll}
               className="flex items-center gap-1 px-2 py-1 text-[11px] font-medium bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-md transition-colors"
             >
-              <RotateCcw className="w-3 h-3" />
+              <ArrowCounterClockwiseIcon className="w-3 h-3" />
               <span>Reset</span>
             </button>
           )}
@@ -185,7 +185,7 @@ export function FilterChip({
         className="p-0.5 hover:bg-blue-200 dark:hover:bg-blue-800 rounded transition-colors"
         aria-label={`Remove ${label} filter`}
       >
-        <X className="w-2.5 h-2.5" />
+        <XIcon className="w-2.5 h-2.5" />
       </button>
     </span>
   )
@@ -231,9 +231,9 @@ export function AddFilterButton({
             : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700',
         )}
       >
-        <Plus className="w-3.5 h-3.5" />
+        <PlusIcon className="w-3.5 h-3.5" />
         <span>{label}</span>
-        <ChevronDown
+        <CaretDownIcon
           className={twMerge(
             'w-3.5 h-3.5 transition-transform',
             isOpen && 'rotate-180',
@@ -309,7 +309,7 @@ export function FacetFilterButton({
                 {selectionCount}
               </span>
             )}
-          <ChevronDown
+          <CaretDownIcon
             className={twMerge(
               'w-3 h-3 transition-transform',
               isOpen && 'rotate-180',
@@ -322,7 +322,7 @@ export function FacetFilterButton({
             className="p-0.5 hover:bg-blue-200 dark:hover:bg-blue-800 rounded transition-colors"
             aria-label={`Clear ${label} filter`}
           >
-            <X className="w-2.5 h-2.5" />
+            <XIcon className="w-2.5 h-2.5" />
           </button>
         )}
       </div>
@@ -394,7 +394,7 @@ export function FilterDropdownSection({
           className="flex items-center gap-1 flex-1 text-xs font-medium text-gray-900 dark:text-gray-100 hover:text-gray-700 dark:hover:text-gray-300"
         >
           <span>{title}</span>
-          <ChevronDown
+          <CaretDownIcon
             className={twMerge(
               'w-3.5 h-3.5 transition-transform ml-auto',
               !isExpanded && '-rotate-90',
@@ -485,7 +485,7 @@ export function FilterSection({
           className="flex items-center gap-1.5 text-sm font-medium text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex-1 py-0"
         >
           <span>{title}</span>
-          <ChevronDown
+          <CaretDownIcon
             className={twMerge(
               'w-3.5 h-3.5 transition-transform',
               !isExpanded && 'rotate-90',
@@ -622,13 +622,13 @@ export function ViewModeToggle({
     'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-white/50 dark:hover:bg-gray-700/50'
 
   const compactViewModes = [
-    { mode: 'table' as const, icon: Table, title: 'Table view' },
-    { mode: 'timeline' as const, icon: List, title: 'Timeline view' },
+    { mode: 'table' as const, icon: TableIcon, title: 'Table view' },
+    { mode: 'timeline' as const, icon: ListIcon, title: 'Timeline view' },
   ]
 
   if (compact) {
     return (
-      <div className="flex items-center gap-0.5 bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5 flex-shrink-0">
+      <div className="flex items-center gap-0.5 bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5 shrink-0">
         {compactViewModes.map(({ mode, icon: Icon, title }) => (
           <button
             key={mode}
@@ -652,13 +652,13 @@ export function ViewModeToggle({
   const viewModes = [
     {
       mode: 'table' as const,
-      icon: Table,
+      icon: TableIcon,
       label: 'Table',
       title: 'Table view',
     },
     {
       mode: 'timeline' as const,
-      icon: List,
+      icon: ListIcon,
       label: 'Timeline',
       title: 'Timeline view',
     },

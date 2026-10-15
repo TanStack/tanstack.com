@@ -3,7 +3,14 @@ import { useQuery } from '@tanstack/react-query'
 import { getUser } from '~/utils/users.functions'
 import { getUserRoles } from '~/utils/roles.functions'
 import { getUserEffectiveCapabilities } from '~/utils/roles.functions'
-import { ArrowLeft, User, Shield, Calendar, Mail, AtSign } from 'lucide-react'
+import {
+  ArrowLeftIcon,
+  UserIcon,
+  ShieldIcon,
+  CalendarIcon,
+  EnvelopeIcon,
+  AtIcon,
+} from '@phosphor-icons/react'
 import { requireCapability } from '~/utils/auth.functions'
 import { Card } from '~/components/Card'
 import { format } from '~/utils/dates'
@@ -58,7 +65,7 @@ function UserDetailPage() {
       <div className="w-full p-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center py-12">
-            <User className="mx-auto h-12 w-12 text-gray-400" />
+            <UserIcon className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
               User not found
             </h3>
@@ -69,7 +76,7 @@ function UserDetailPage() {
               to="/admin/users"
               className="mt-4 inline-flex items-center gap-2 text-blue-600 hover:text-blue-700"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeftIcon className="w-4 h-4" />
               Back to Users
             </Link>
           </div>
@@ -91,12 +98,12 @@ function UserDetailPage() {
             to="/admin/users"
             className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-4"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeftIcon className="w-4 h-4" />
             Back to Users
           </Link>
 
           <div className="flex items-center gap-4">
-            <div className="flex-shrink-0 h-16 w-16">
+            <div className="shrink-0 h-16 w-16">
               {user.image || user.oauthImage ? (
                 <img
                   className="h-16 w-16 rounded-full"
@@ -105,7 +112,7 @@ function UserDetailPage() {
                 />
               ) : (
                 <div className="h-16 w-16 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
-                  <User className="w-8 h-8 text-gray-500 dark:text-gray-400" />
+                  <UserIcon className="w-8 h-8 text-gray-500 dark:text-gray-400" />
                 </div>
               )}
             </div>
@@ -129,7 +136,7 @@ function UserDetailPage() {
             <dl className="space-y-4">
               <div>
                 <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                  <Mail className="w-4 h-4" />
+                  <EnvelopeIcon className="w-4 h-4" />
                   Email
                 </dt>
                 <dd className="mt-1 text-sm text-gray-900 dark:text-white">
@@ -139,7 +146,7 @@ function UserDetailPage() {
               {user.name && (
                 <div>
                   <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                    <User className="w-4 h-4" />
+                    <UserIcon className="w-4 h-4" />
                     Name
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 dark:text-white">
@@ -150,7 +157,7 @@ function UserDetailPage() {
               {user.displayUsername && (
                 <div>
                   <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                    <AtSign className="w-4 h-4" />
+                    <AtIcon className="w-4 h-4" />
                     Display Username
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 dark:text-white">
@@ -160,7 +167,7 @@ function UserDetailPage() {
               )}
               <div>
                 <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                  <Calendar className="w-4 h-4" />
+                  <CalendarIcon className="w-4 h-4" />
                   Created
                 </dt>
                 <dd className="mt-1 text-sm text-gray-900 dark:text-white">
@@ -169,7 +176,7 @@ function UserDetailPage() {
               </div>
               <div>
                 <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                  <Calendar className="w-4 h-4" />
+                  <CalendarIcon className="w-4 h-4" />
                   Last Updated
                 </dt>
                 <dd className="mt-1 text-sm text-gray-900 dark:text-white">
@@ -182,7 +189,7 @@ function UserDetailPage() {
           {/* Capabilities & Roles */}
           <Card className="p-6">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-              <Shield className="w-5 h-5" />
+              <ShieldIcon className="w-5 h-5" />
               Permissions
             </h2>
 

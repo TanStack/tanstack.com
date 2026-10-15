@@ -1,32 +1,30 @@
+import * as v from 'valibot'
+import { showcaseStatusSchema, showcasePlacementSchema } from '~/utils/schemas'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import {
   adminGetShowcase,
-  moderateShowcase,
   adminUpdateShowcase,
   adminDeleteShowcase,
   voteShowcase,
 } from '~/utils/showcase.functions'
 import { libraries } from '~/libraries'
-import { USE_CASE_LABELS } from '~/utils/showcase.shared'
+import { USE_CASE_LABELS, PLACEMENT_LABELS } from '~/utils/showcase.shared'
 import {
-  ArrowLeft,
-  Sparkles,
-  User,
-  Calendar,
-  Link as LinkIcon,
-  Check,
-  X,
-  ExternalLink,
-  Clock,
-  ThumbsUp,
-  ThumbsDown,
-  Pencil,
-  Trash2,
-  Save,
-  RotateCcw,
-} from 'lucide-react'
+  ArrowLeftIcon,
+  SparkleIcon,
+  UserIcon,
+  CalendarIcon,
+  LinkIcon,
+  ArrowSquareOutIcon,
+  ThumbsUpIcon,
+  ThumbsDownIcon,
+  PencilIcon,
+  TrashIcon,
+  FloppyDiskIcon,
+  ArrowCounterClockwiseIcon,
+} from '@phosphor-icons/react'
 import { Card } from '~/components/Card'
 import { Badge, Button, FormInput } from '~/ui'
 import { ImageUpload } from '~/components/ImageUpload'
@@ -36,6 +34,8 @@ import {
   SHOWCASE_USE_CASES_UI,
   type ShowcaseUseCase,
   type ShowcaseStatus,
+  type ShowcasePlacement,
+  SHOWCASE_PLACEMENTS,
 } from '~/db/types'
 
 export const Route = createFileRoute('/admin/showcases_/$id')({
@@ -57,6 +57,9 @@ function ShowcaseDetailPage() {
     sourceUrl: string | null
     libraries: string[]
     useCases: ShowcaseUseCase[]
+    expectedUpdatedAt: Date
+    placement: ShowcasePlacement
+    reviewReason: string
     status: ShowcaseStatus
     isFeatured: boolean
     moderationNote: string
@@ -69,30 +72,12 @@ function ShowcaseDetailPage() {
     queryFn: () => adminGetShowcase({ data: { showcaseId: id } }),
   })
 
-  const moderateMutation = useMutation({
-    mutationFn: (params: {
-      action: 'approve' | 'deny'
-      moderationNote?: string
-    }) =>
-      moderateShowcase({
-        data: {
-          showcaseId: id,
-          action: params.action,
-          moderationNote: params.moderationNote,
-        },
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'showcase', id] })
-      queryClient.invalidateQueries({ queryKey: ['admin', 'showcases'] })
-    },
-  })
-
   const updateMutation = useMutation({
     mutationFn: (data: Parameters<typeof adminUpdateShowcase>[0]['data']) =>
       adminUpdateShowcase({ data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'showcase', id] })
-      queryClient.invalidateQueries({ queryKey: ['admin', 'showcases'] })
+      queryClient.invalidateQueries({ queryKey: ['showcases'] })
       setIsEditing(false)
       setFormData(null)
     },
@@ -101,7 +86,7 @@ function ShowcaseDetailPage() {
   const deleteMutation = useMutation({
     mutationFn: () => adminDeleteShowcase({ data: { showcaseId: id } }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'showcases'] })
+      queryClient.invalidateQueries({ queryKey: ['showcases'] })
       navigate({ to: '/admin/showcases' })
     },
   })
@@ -111,7 +96,7 @@ function ShowcaseDetailPage() {
       voteShowcase({ data: { showcaseId: id, value: params.value } }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'showcase', id] })
-      queryClient.invalidateQueries({ queryKey: ['admin', 'showcases'] })
+      queryClient.invalidateQueries({ queryKey: ['showcases'] })
     },
   })
 
@@ -129,6 +114,9 @@ function ShowcaseDetailPage() {
       libraries: showcase.libraries,
       useCases: showcase.useCases,
       status: showcase.status,
+      expectedUpdatedAt: showcase.updatedAt,
+      placement: showcase.placement,
+      reviewReason: showcase.reviewReason || '',
       isFeatured: showcase.isFeatured,
       moderationNote: showcase.moderationNote || '',
       trancoRank: showcase.trancoRank,
@@ -156,6 +144,9 @@ function ShowcaseDetailPage() {
       libraries: formData.libraries,
       useCases: formData.useCases,
       status: formData.status,
+      expectedUpdatedAt: formData.expectedUpdatedAt,
+      placement: formData.placement,
+      reviewReason: formData.reviewReason,
       isFeatured: formData.isFeatured,
       moderationNote: formData.moderationNote || null,
       trancoRank: formData.trancoRank,
@@ -190,7 +181,7 @@ function ShowcaseDetailPage() {
       <div className="w-full p-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center py-12">
-            <Sparkles className="mx-auto h-12 w-12 text-gray-400" />
+            <SparkleIcon className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
               Showcase not found
             </h3>
@@ -201,7 +192,7 @@ function ShowcaseDetailPage() {
               to="/admin/showcases"
               className="mt-4 inline-flex items-center gap-2 text-blue-600 hover:text-blue-700"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeftIcon className="w-4 h-4" />
               Back to Showcases
             </Link>
           </div>
@@ -221,6 +212,8 @@ function ShowcaseDetailPage() {
     libraries: showcase.libraries,
     useCases: showcase.useCases,
     status: showcase.status,
+    placement: showcase.placement,
+    reviewReason: showcase.reviewReason || '',
     isFeatured: showcase.isFeatured,
     moderationNote: showcase.moderationNote || '',
     trancoRank: showcase.trancoRank,
@@ -249,7 +242,7 @@ function ShowcaseDetailPage() {
               to="/admin/showcases"
               className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeftIcon className="w-4 h-4" />
               Back to Showcases
             </Link>
             <div className="flex items-center gap-2">
@@ -259,7 +252,7 @@ function ShowcaseDetailPage() {
                     onClick={cancelEditing}
                     disabled={updateMutation.isPending}
                   >
-                    <RotateCcw className="w-4 h-4" />
+                    <ArrowCounterClockwiseIcon className="w-4 h-4" />
                     Cancel
                   </Button>
                   <Button
@@ -267,7 +260,7 @@ function ShowcaseDetailPage() {
                     className="bg-green-600 hover:bg-green-700 text-white border-green-600"
                     disabled={updateMutation.isPending}
                   >
-                    <Save className="w-4 h-4" />
+                    <FloppyDiskIcon className="w-4 h-4" />
                     {updateMutation.isPending ? 'Saving...' : 'Save Changes'}
                   </Button>
                 </>
@@ -277,7 +270,7 @@ function ShowcaseDetailPage() {
                     onClick={startEditing}
                     className="hover:text-blue-600 hover:border-blue-300 dark:hover:border-blue-700"
                   >
-                    <Pencil className="w-4 h-4" />
+                    <PencilIcon className="w-4 h-4" />
                     Edit
                   </Button>
                   <Button
@@ -285,7 +278,7 @@ function ShowcaseDetailPage() {
                     className="hover:text-red-600 hover:border-red-300 dark:hover:border-red-700"
                     disabled={deleteMutation.isPending}
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <TrashIcon className="w-4 h-4" />
                     Delete
                   </Button>
                 </>
@@ -309,7 +302,7 @@ function ShowcaseDetailPage() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <Sparkles className="w-8 h-8 text-gray-400" />
+                  <SparkleIcon className="w-8 h-8 text-gray-400" />
                 )}
               </div>
             ) : showcase.logoUrl ? (
@@ -320,7 +313,7 @@ function ShowcaseDetailPage() {
               />
             ) : (
               <div className="w-16 h-16 rounded-lg bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                <Sparkles className="w-8 h-8 text-gray-400" />
+                <SparkleIcon className="w-8 h-8 text-gray-400" />
               </div>
             )}
             <div className="flex-1">
@@ -363,6 +356,7 @@ function ShowcaseDetailPage() {
                     >
                       {showcase.status}
                     </Badge>
+                    <Badge>{PLACEMENT_LABELS[showcase.placement]}</Badge>
                     {showcase.isFeatured && (
                       <Badge variant="purple">Featured</Badge>
                     )}
@@ -375,6 +369,170 @@ function ShowcaseDetailPage() {
             </div>
           </div>
         </div>
+
+        {!isEditing && (
+          <Card className="p-6 mt-6">
+            <h2 className="text-lg font-semibold mb-3">Review</h2>
+            <p>{showcase.reviewReason || 'No review reason recorded.'}</p>
+            {showcase.moderatedAt && (
+              <p className="mt-2 text-sm text-gray-500">
+                Reviewed {new Date(showcase.moderatedAt).toLocaleString()}
+              </p>
+            )}
+            {showcase.moderationNote && (
+              <p className="mt-3 whitespace-pre-wrap">
+                Internal notes: {showcase.moderationNote}
+              </p>
+            )}
+            <Button onClick={startEditing} className="mt-3">
+              Edit review and placement
+            </Button>
+          </Card>
+        )}
+        {/* Status & Featured (edit mode only) */}
+        {isEditing && (
+          <Card className="p-6 mt-6">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              Status & Visibility
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="status" className={labelClass}>
+                  Status
+                </label>
+                <select
+                  id="status"
+                  value={formData?.status || 'pending'}
+                  onChange={(e) =>
+                    setFormData((prev) =>
+                      prev
+                        ? {
+                            ...prev,
+                            status: v.parse(
+                              showcaseStatusSchema,
+                              e.target.value,
+                            ),
+                          }
+                        : null,
+                    )
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  {SHOWCASE_STATUSES.map((status) => (
+                    <option key={status} value={status}>
+                      {status.charAt(0).toUpperCase() + status.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="placement" className={labelClass}>
+                  Placement
+                </label>
+                <select
+                  id="placement"
+                  value={formData?.placement || 'private'}
+                  onChange={(e) =>
+                    setFormData((prev) =>
+                      prev
+                        ? {
+                            ...prev,
+                            placement: v.parse(
+                              showcasePlacementSchema,
+                              e.target.value,
+                            ),
+                            isFeatured: false,
+                          }
+                        : null,
+                    )
+                  }
+                  className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-800"
+                >
+                  {SHOWCASE_PLACEMENTS.map((placement) => (
+                    <option key={placement} value={placement}>
+                      {PLACEMENT_LABELS[placement]}
+                    </option>
+                  ))}
+                </select>
+                <p className="mt-2 text-sm text-gray-500">
+                  Only approved projects with Showcase or Community placement
+                  are public.
+                </p>
+              </div>
+              <div>
+                <label htmlFor="review-reason" className={labelClass}>
+                  Reason for this decision
+                </label>
+                <textarea
+                  id="review-reason"
+                  required
+                  maxLength={4000}
+                  value={formData?.reviewReason || ''}
+                  onChange={(e) =>
+                    setFormData((prev) =>
+                      prev ? { ...prev, reviewReason: e.target.value } : null,
+                    )
+                  }
+                  rows={3}
+                  className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-800"
+                />
+                <p className="mt-2 text-sm text-gray-500">
+                  Saved privately. Saving does not notify the submitter.
+                </p>
+              </div>
+              <div>
+                <label htmlFor="featured" className={labelClass}>
+                  Featured
+                </label>
+                <div className="flex items-center gap-3 mt-2">
+                  <button
+                    id="featured"
+                    type="button"
+                    disabled={
+                      formData?.status !== 'approved' ||
+                      formData?.placement !== 'showcase'
+                    }
+                    onClick={() =>
+                      setFormData((prev) =>
+                        prev ? { ...prev, isFeatured: !prev.isFeatured } : null,
+                      )
+                    }
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      formData?.isFeatured
+                        ? 'bg-purple-600'
+                        : 'bg-gray-300 dark:bg-gray-600'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        formData?.isFeatured ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                    {formData?.isFeatured ? 'Featured' : 'Not featured'}
+                  </span>
+                </div>
+              </div>
+              <div className="md:col-span-2">
+                <label htmlFor="note" className={labelClass}>
+                  Internal notes (optional)
+                </label>
+                <textarea
+                  id="note"
+                  value={formData?.moderationNote || ''}
+                  onChange={(e) =>
+                    setFormData((prev) =>
+                      prev ? { ...prev, moderationNote: e.target.value } : null,
+                    )
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[80px]"
+                  placeholder="Add a note about this moderation decision..."
+                />
+              </div>
+            </div>
+          </Card>
+        )}
 
         {/* Screenshot */}
         <Card className="p-4 mb-6">
@@ -537,7 +695,7 @@ function ShowcaseDetailPage() {
                       className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 flex items-center gap-1"
                     >
                       {showcase.url}
-                      <ExternalLink className="w-3 h-3" />
+                      <ArrowSquareOutIcon className="w-3 h-3" />
                     </a>
                   </dd>
                 </div>
@@ -553,7 +711,7 @@ function ShowcaseDetailPage() {
                 )}
                 <div>
                   <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
+                    <CalendarIcon className="w-4 h-4" />
                     Submitted
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 dark:text-white">
@@ -573,9 +731,9 @@ function ShowcaseDetailPage() {
                 <div>
                   <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
                     {showcase.voteScore >= 0 ? (
-                      <ThumbsUp className="w-4 h-4" />
+                      <ThumbsUpIcon className="w-4 h-4" />
                     ) : (
-                      <ThumbsDown className="w-4 h-4" />
+                      <ThumbsDownIcon className="w-4 h-4" />
                     )}
                     Community Votes
                   </dt>
@@ -588,7 +746,7 @@ function ShowcaseDetailPage() {
                         className="p-1.5 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/30 text-gray-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
                         title="Upvote"
                       >
-                        <ThumbsUp className="w-4 h-4" />
+                        <ThumbsUpIcon className="w-4 h-4" />
                       </button>
                       <span
                         className={`inline-flex items-center px-2.5 py-1 rounded-full text-sm font-medium ${
@@ -609,7 +767,7 @@ function ShowcaseDetailPage() {
                         className="p-1.5 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                         title="Downvote"
                       >
-                        <ThumbsDown className="w-4 h-4" />
+                        <ThumbsDownIcon className="w-4 h-4" />
                       </button>
                     </div>
                     {showcase.voteScore < 0 && (
@@ -642,7 +800,7 @@ function ShowcaseDetailPage() {
                   />
                 ) : (
                   <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                    <User className="w-5 h-5 text-gray-400" />
+                    <UserIcon className="w-5 h-5 text-gray-400" />
                   </div>
                 )}
                 <div>
@@ -759,150 +917,6 @@ function ShowcaseDetailPage() {
             )}
           </Card>
         </div>
-
-        {/* Status & Featured (edit mode only) */}
-        {isEditing && (
-          <Card className="p-6 mt-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Status & Visibility
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="status" className={labelClass}>
-                  Status
-                </label>
-                <select
-                  id="status"
-                  value={formData?.status || 'pending'}
-                  onChange={(e) =>
-                    setFormData((prev) =>
-                      prev
-                        ? { ...prev, status: e.target.value as ShowcaseStatus }
-                        : null,
-                    )
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  {SHOWCASE_STATUSES.map((status) => (
-                    <option key={status} value={status}>
-                      {status.charAt(0).toUpperCase() + status.slice(1)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label htmlFor="featured" className={labelClass}>
-                  Featured
-                </label>
-                <div className="flex items-center gap-3 mt-2">
-                  <button
-                    id="featured"
-                    type="button"
-                    onClick={() =>
-                      setFormData((prev) =>
-                        prev ? { ...prev, isFeatured: !prev.isFeatured } : null,
-                      )
-                    }
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      formData?.isFeatured
-                        ? 'bg-purple-600'
-                        : 'bg-gray-300 dark:bg-gray-600'
-                    }`}
-                  >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        formData?.isFeatured ? 'translate-x-6' : 'translate-x-1'
-                      }`}
-                    />
-                  </button>
-                  <span className="text-sm text-gray-700 dark:text-gray-300">
-                    {formData?.isFeatured ? 'Featured' : 'Not featured'}
-                  </span>
-                </div>
-              </div>
-              <div className="md:col-span-2">
-                <label htmlFor="note" className={labelClass}>
-                  Moderation Note (optional)
-                </label>
-                <textarea
-                  id="note"
-                  value={formData?.moderationNote || ''}
-                  onChange={(e) =>
-                    setFormData((prev) =>
-                      prev ? { ...prev, moderationNote: e.target.value } : null,
-                    )
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[80px]"
-                  placeholder="Add a note about this moderation decision..."
-                />
-              </div>
-            </div>
-          </Card>
-        )}
-
-        {/* Moderation Actions */}
-        {!isEditing && showcase.status === 'pending' && (
-          <Card className="p-6 mt-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-              <Clock className="w-5 h-5" />
-              Pending Review
-            </h2>
-            <div className="flex gap-4">
-              <Button
-                onClick={() => moderateMutation.mutate({ action: 'approve' })}
-                disabled={moderateMutation.isPending}
-                className="bg-green-600 hover:bg-green-700 text-white border-green-600"
-              >
-                <Check className="w-4 h-4" />
-                Approve
-              </Button>
-              <Button
-                onClick={() =>
-                  moderateMutation.mutate({
-                    action: 'deny',
-                    moderationNote: 'Does not meet guidelines',
-                  })
-                }
-                disabled={moderateMutation.isPending}
-                className="hover:text-red-600 hover:border-red-300 dark:hover:border-red-700"
-              >
-                <X className="w-4 h-4" />
-                Deny
-              </Button>
-            </div>
-          </Card>
-        )}
-
-        {/* Moderation Info */}
-        {!isEditing &&
-          showcase.status !== 'pending' &&
-          showcase.moderatedAt && (
-            <Card className="p-6 mt-6">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                Moderation Info
-              </h2>
-              <dl className="space-y-2">
-                <div>
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                    Moderated At
-                  </dt>
-                  <dd className="text-sm text-gray-900 dark:text-white">
-                    {format(new Date(showcase.moderatedAt), 'PPpp')}
-                  </dd>
-                </div>
-                {showcase.moderationNote && (
-                  <div>
-                    <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                      Note
-                    </dt>
-                    <dd className="text-sm text-gray-900 dark:text-white">
-                      {showcase.moderationNote}
-                    </dd>
-                  </div>
-                )}
-              </dl>
-            </Card>
-          )}
 
         {/* Related */}
         <Card className="p-6 mt-6">

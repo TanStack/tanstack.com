@@ -389,6 +389,7 @@ export async function refreshHomepageNpmStatsSummary({
 } = {}) {
   const orgPackageNames = await getNpmOrgPackageNames(org)
   const libraryPackageEntries = libraries
+    .filter((library) => library.statsAvailable !== false)
     .map((library) => ({
       libraryId: library.id,
       packageNames: getLibraryNpmPackageNames(library),

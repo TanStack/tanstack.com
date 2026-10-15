@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import FormLanding from '~/components/landing/FormLanding'
 import {
-  LibraryNavbarTitle,
   beforeLoadLibraryLanding,
   getLibraryLandingHead,
   getLibraryLandingHeaders,
@@ -18,15 +17,8 @@ export const Route = createFileRoute('/_library/form/$version/')({
     loadLibraryLandingRouteData('form', params.version, queryClient),
   head: () => getLibraryLandingHead('form'),
   headers: () => getLibraryLandingHeaders('form'),
-  staticData: {
-    Title: FormNavbarTitle,
-  },
   component: FormLandingRoute,
 })
-
-function FormNavbarTitle() {
-  return <LibraryNavbarTitle libraryId="form" />
-}
 
 function FormLandingRoute() {
   return <FormLanding />

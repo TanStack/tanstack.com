@@ -1,3 +1,5 @@
+import { useQuery } from '@tanstack/react-query'
+import { getSignInProviders } from '~/utils/auth.functions'
 import * as React from 'react'
 import { authClient } from '~/auth/client'
 // Using public asset URLs for splash images
@@ -7,12 +9,7 @@ import * as v from 'valibot'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { GoogleIcon } from '~/components/icons/GoogleIcon'
 import { Card } from '~/components/Card'
-
-const LazyBrandContextMenu = React.lazy(() =>
-  import('~/components/BrandContextMenu').then((m) => ({
-    default: m.BrandContextMenu,
-  })),
-)
+import { BrandContextMenu } from '~/components/BrandContextMenu'
 
 const searchSchema = v.object({
   error: v.optional(v.string()),
@@ -24,13 +21,14 @@ function SplashImages() {
   return (
     <>
       <img
-        src="/images/logos/splash-light.png"
+        src="/images/brand/tanstack-emblem-black.svg"
         alt="TanStack"
         className="w-48 h-48 dark:hidden"
       />
       <img
-        src="/images/logos/splash-dark.png"
+        src="/images/brand/tanstack-emblem-white.svg"
         alt="TanStack"
+        aria-hidden="true"
         className="w-48 h-48 hidden dark:block"
       />
     </>
@@ -59,47 +57,59 @@ function SplashImage() {
   return (
     <div className="flex items-center justify-center mb-4">
       <ClientOnly fallback={fallback}>
-        <React.Suspense fallback={fallback}>
-          <LazyBrandContextMenu className="cursor-pointer">
-            <SplashImages />
-          </LazyBrandContextMenu>
-        </React.Suspense>
+        <BrandContextMenu className="cursor-pointer">
+          <SplashImages />
+        </BrandContextMenu>
       </ClientOnly>
     </div>
   )
 }
 
 export function SignInForm({ returnTo }: { returnTo?: string } = {}) {
+  const providers = useQuery({
+    queryKey: ['sign-in-providers'],
+    queryFn: () => getSignInProviders(),
+    staleTime: Infinity,
+  })
   return (
     <Card className="p-8 w-[100vw] max-w-sm mx-auto">
       <SplashImage />
       <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 text-center">
         Sign into TanStack
       </h2>
-      <button
-        type="button"
-        onClick={() =>
-          authClient.signIn.social({
-            provider: 'github',
-            returnTo,
-          })
-        }
-        className="w-full bg-black/80 hover:bg-black text-white dark:text-black dark:bg-white/95 dark:hover:bg-white font-semibold py-2 px-4 rounded-md transition-colors"
-      >
-        <GithubIcon className="inline-block mr-2 -mt-0.5" /> Sign in with GitHub
-      </button>
-      <button
-        type="button"
-        onClick={() =>
-          authClient.signIn.social({
-            provider: 'google',
-            returnTo,
-          })
-        }
-        className="w-full bg-[#DB4437]/95 hover:bg-[#DB4437] text-white font-semibold py-2 px-4 rounded-md transition-colors mt-4"
-      >
-        <GoogleIcon className="inline-block mr-2 -mt-0.5" /> Sign in with Google
-      </button>
+      {providers.data && !providers.data.github && !providers.data.google && (
+        <p>Sign-in isn't configured for this server.</p>
+      )}
+      {providers.data?.github && (
+        <button
+          type="button"
+          onClick={() =>
+            authClient.signIn.social({
+              provider: 'github',
+              returnTo,
+            })
+          }
+          className="w-full bg-black/80 hover:bg-black text-white dark:text-black dark:bg-white/95 dark:hover:bg-white font-semibold py-2 px-4 rounded-md transition-colors"
+        >
+          <GithubIcon className="inline-block mr-2 -mt-0.5" /> Sign in with
+          GitHub
+        </button>
+      )}
+      {providers.data?.google && (
+        <button
+          type="button"
+          onClick={() =>
+            authClient.signIn.social({
+              provider: 'google',
+              returnTo,
+            })
+          }
+          className="w-full bg-[#DB4437]/95 hover:bg-[#DB4437] text-white font-semibold py-2 px-4 rounded-md transition-colors mt-4"
+        >
+          <GoogleIcon className="inline-block mr-2 -mt-0.5" /> Sign in with
+          Google
+        </button>
+      )}
     </Card>
   )
 }

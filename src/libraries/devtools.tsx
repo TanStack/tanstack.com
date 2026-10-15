@@ -1,9 +1,8 @@
-import { WandSparkles, Zap } from 'lucide-react'
+import { MagicWandIcon, LightningIcon, GearIcon } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
-import { CogsIcon } from '~/components/icons/CogsIcon'
 import { devtools } from './libraries'
 
-const textStyles = 'text-black dark:text-gray-100'
+const textStyles = 'text-category-tooling'
 
 export const devtoolsProject = {
   ...devtools,
@@ -12,7 +11,7 @@ export const devtoolsProject = {
   featureHighlights: [
     {
       title: 'Unified Devtools Panel',
-      icon: <WandSparkles className="text-black dark:text-gray-100" />,
+      icon: <MagicWandIcon className="text-category-tooling" />,
       description: (
         <div>
           TanStack Devtools provides a centralized panel that houses all
@@ -27,7 +26,7 @@ export const devtoolsProject = {
     },
     {
       title: 'Framework Agnostic',
-      icon: <Zap className="text-black dark:text-gray-100" />,
+      icon: <LightningIcon className="text-category-tooling" />,
       description: (
         <div>
           Built with Solid.js for lightweight performance, but designed to work
@@ -42,7 +41,7 @@ export const devtoolsProject = {
     },
     {
       title: 'Custom Devtools Support',
-      icon: <CogsIcon className="text-black dark:text-gray-100" />,
+      icon: <GearIcon className="text-category-tooling" />,
       description: (
         <div>
           Extend the devtools panel with your own custom devtools. The platform

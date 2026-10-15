@@ -1,3 +1,4 @@
+import { PLACEMENT_LABELS } from '~/utils/showcase.shared'
 import * as React from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -7,14 +8,14 @@ import { libraries } from '~/libraries'
 import { useToast } from '~/components/ToastProvider'
 import { seo } from '~/utils/seo'
 import {
-  Plus,
-  Trash2,
-  ExternalLink,
-  Clock,
-  Check,
-  X,
-  Pencil,
-} from 'lucide-react'
+  PlusIcon,
+  TrashIcon,
+  ArrowSquareOutIcon,
+  ClockIcon,
+  CheckIcon,
+  XIcon,
+  PencilIcon,
+} from '@phosphor-icons/react'
 import type { Showcase } from '~/db/types'
 import { Badge, Button } from '~/ui'
 
@@ -80,21 +81,21 @@ function AccountSubmissionsPage() {
       case 'pending':
         return (
           <Badge variant="warning" className="gap-1">
-            <Clock className="w-3 h-3" />
+            <ClockIcon className="w-3 h-3" />
             Pending Review
           </Badge>
         )
       case 'approved':
         return (
           <Badge variant="success" className="gap-1">
-            <Check className="w-3 h-3" />
+            <CheckIcon className="w-3 h-3" />
             Approved
           </Badge>
         )
       case 'denied':
         return (
           <Badge variant="error" className="gap-1">
-            <X className="w-3 h-3" />
+            <XIcon className="w-3 h-3" />
             Denied
           </Badge>
         )
@@ -113,7 +114,7 @@ function AccountSubmissionsPage() {
           to="/showcase/submit"
           className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg border-none"
         >
-          <Plus className="w-4 h-4" />
+          <PlusIcon className="w-4 h-4" />
           New Submission
         </Button>
       </div>
@@ -147,6 +148,9 @@ function AccountSubmissionsPage() {
                   />
                   <div className="absolute top-2 right-2 sm:hidden">
                     {getStatusBadge(showcase.status)}
+                    <span className="text-sm text-gray-500">
+                      {PLACEMENT_LABELS[showcase.placement]}
+                    </span>
                   </div>
                 </div>
 
@@ -163,6 +167,9 @@ function AccountSubmissionsPage() {
                     </div>
                     <div className="hidden sm:block">
                       {getStatusBadge(showcase.status)}
+                      <span className="text-sm text-gray-500">
+                        {PLACEMENT_LABELS[showcase.placement]}
+                      </span>
                     </div>
                   </div>
 
@@ -182,11 +189,6 @@ function AccountSubmissionsPage() {
                   </div>
 
                   {/* Moderation note */}
-                  {showcase.status === 'denied' && showcase.moderationNote && (
-                    <div className="mt-3 p-2 bg-red-50 dark:bg-red-900/20 rounded text-sm text-red-700 dark:text-red-300">
-                      <strong>Reason:</strong> {showcase.moderationNote}
-                    </div>
-                  )}
 
                   {/* Actions */}
                   <div className="flex items-center gap-2 mt-4">
@@ -196,17 +198,17 @@ function AccountSubmissionsPage() {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <ExternalLink className="w-3 h-3" />
+                      <ArrowSquareOutIcon className="w-3 h-3" />
                       Visit
                     </Button>
                     <Link to="/showcase/edit/$id" params={{ id: showcase.id }}>
                       <Button variant="ghost" size="xs">
-                        <Pencil className="w-3 h-3" />
+                        <PencilIcon className="w-3 h-3" />
                         Edit
                       </Button>
                     </Link>
                     <Button onClick={() => handleDelete(showcase.id)}>
-                      <Trash2 className="w-3 h-3" />
+                      <TrashIcon className="w-3 h-3" />
                       Delete
                     </Button>
                   </div>
@@ -225,7 +227,7 @@ function AccountSubmissionsPage() {
             to="/showcase/submit"
             className="mt-4 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg border-none"
           >
-            <Plus className="w-5 h-5" />
+            <PlusIcon className="w-5 h-5" />
             Submit Your First Project
           </Button>
         </div>

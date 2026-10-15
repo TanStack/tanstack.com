@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
+import { shopColorContrast, shopColorWithAlpha } from '~/utils/shop-color'
 
 type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   isSelected?: boolean
@@ -30,15 +31,17 @@ export const ShopChip = React.forwardRef<HTMLButtonElement, Props>(
   ) {
     const chipStyle: React.CSSProperties = colorBg
       ? {
-          backgroundColor: isSelected ? colorBg : hexToRgba(colorBg, 0.8),
-          borderColor: isSelected ? colorBg : hexToRgba(colorBg, 0.5),
-          color: contrastColor(colorBg),
+          backgroundColor: isSelected
+            ? colorBg
+            : shopColorWithAlpha(colorBg, 0.8),
+          borderColor: isSelected ? colorBg : shopColorWithAlpha(colorBg, 0.5),
+          color: shopColorContrast(colorBg),
         }
       : isSelected && selectedBg
         ? {
             backgroundColor: selectedBg,
             borderColor: selectedBg,
-            color: selectedTextColor ?? contrastColor(selectedBg),
+            color: selectedTextColor ?? shopColorContrast(selectedBg),
           }
         : {}
 
@@ -71,21 +74,3 @@ export const ShopChip = React.forwardRef<HTMLButtonElement, Props>(
     )
   },
 )
-
-function hexToRgba(hex: string, alpha: number): string {
-  const h = hex.replace('#', '')
-  const r = parseInt(h.slice(0, 2), 16)
-  const g = parseInt(h.slice(2, 4), 16)
-  const b = parseInt(h.slice(4, 6), 16)
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`
-}
-
-/** Returns '#000' or '#fff' based on the perceived luminance of a hex color. */
-function contrastColor(hex: string): string {
-  const h = hex.replace('#', '')
-  const r = parseInt(h.slice(0, 2), 16)
-  const g = parseInt(h.slice(2, 4), 16)
-  const b = parseInt(h.slice(4, 6), 16)
-  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
-  return luminance > 0.55 ? '#000000' : '#ffffff'
-}

@@ -6,7 +6,7 @@ import { PaginationControls } from '~/components/PaginationControls'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { DocFeedbackNote } from '~/components/DocFeedbackNote'
 import { Spinner } from '~/components/Spinner'
-import { Award, ExternalLink } from 'lucide-react'
+import { MedalIcon, ArrowSquareOutIcon } from '@phosphor-icons/react'
 
 export const Route = createFileRoute('/account/feedback')({
   component: AccountFeedbackPage,
@@ -50,11 +50,11 @@ function AccountFeedbackPage() {
   return (
     <div className="space-y-6">
       {/* Points Summary Box */}
-      <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg p-6 border border-blue-200 dark:border-blue-800">
+      <div className="bg-linear-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg p-6 border border-blue-200 dark:border-blue-800">
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <Award className="text-2xl text-blue-600 dark:text-blue-400" />
+              <MedalIcon className="text-2xl text-blue-600 dark:text-blue-400" />
               <h3 className="text-lg font-bold text-gray-900 dark:text-white">
                 Feedback Points
               </h3>
@@ -98,7 +98,7 @@ function AccountFeedbackPage() {
             className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1"
           >
             View Leaderboard
-            <ExternalLink className="text-xs" />
+            <ArrowSquareOutIcon className="text-xs" />
           </Link>
         </div>
       </div>
@@ -134,7 +134,7 @@ function AccountFeedbackPage() {
                   >
                     {item.libraryId}
                     {item.pagePath}
-                    <ExternalLink className="text-[10px]" />
+                    <ArrowSquareOutIcon className="text-[10px]" />
                   </Link>
 
                   {/* Feedback card */}

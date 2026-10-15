@@ -1,3 +1,4 @@
+export { findFirstImageSrc } from './findFirstImageSrc'
 export {
   parseSiteMarkdown,
   type MarkdownDocument,

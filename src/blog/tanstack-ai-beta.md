@@ -28,10 +28,10 @@ Beta means the bet paid off. The core APIs are stable. The protocol is documente
 The biggest change since alpha is breadth. TanStack AI is no longer a text-generation library with extras bolted on. Every major modality is a first-class, typed activity, and every provider ships small, capability-split adapters (`openaiText`, `geminiAudio`) instead of one monolith:
 
 - **Text and [streaming structured data](/blog/streaming-structured-output)**: stream typed objects as they're generated, not just tokens, so your UI can render structured results progressively — and [keep them across turns](/blog/multi-turn-structured-output).
-- **[Tool calls](/ai/docs/tools/tools)**: defined once, with isolated [server](/ai/docs/tools/server-tools) and [client](/ai/docs/tools/client-tools) implementations and type safety that holds across the whole app.
-- **[Summarization](/ai/docs/reference/functions/summarize)** out of the box.
-- **[Image generation](/ai/docs/media/image-generation)** across providers.
-- **[Video generation](/ai/docs/media/video-generation)** through the same typed activity model: swap the provider, keep your code.
+- **[Tool calls](/ai/latest/docs/tools/tools)**: defined once, with isolated [server](/ai/latest/docs/tools/server-tools) and [client](/ai/latest/docs/tools/client-tools) implementations and type safety that holds across the whole app.
+- **[Summarization](/ai/latest/docs/reference/functions/summarize)** out of the box.
+- **[Image generation](/ai/latest/docs/media/image-generation)** across providers.
+- **[Video generation](/ai/latest/docs/media/video-generation)** through the same typed activity model: swap the provider, keep your code.
 - **[Audio generation](/blog/tanstack-ai-audio-generation)**: music, sound effects, text-to-speech, and transcription via a streaming `generateAudio` activity, with fal and Gemini Lyria adapters.
 - **[Realtime voice chat](/blog/tanstack-ai-realtime-voice-chat)**: real voice, real time, with OpenAI Realtime over WebRTC and ElevenLabs over WebSocket, all behind one provider-agnostic architecture.
 
@@ -148,7 +148,7 @@ Confidence at Beta isn't a vibe. It's 265 deterministic end-to-end tests running
 
 None of this changes the original deal. There's no service to buy. No platform to migrate to. No vendor lock-in waiting around the corner, and there never will be. TanStack AI is open source, built by the same small, volunteer teams that have shipped framework-agnostic developer tools for years.
 
-And if you're weighing it against the Vercel AI SDK, we keep an honest, feature-by-feature [comparison in the docs](/ai/docs/comparison/vercel-ai-sdk) — including the places they're ahead.
+And if you're weighing it against the Vercel AI SDK, we keep an honest, feature-by-feature [comparison in the docs](/ai/latest/docs/comparison/vercel-ai-sdk) — including the places they're ahead.
 
 We're still taking a lot on, and we still want your help. Build adapters. File the bug you just hit. Tell us what's missing. Beta is the most stable TanStack AI has ever been, but it's not the finish line. It's the version we're confident enough to ask you to build on.
 

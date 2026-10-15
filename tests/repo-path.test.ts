@@ -17,6 +17,20 @@ assert.equal(
 )
 
 assert.equal(
+  isValidRepoPath('examples/svelte/ssr/src/routes/[postId]/+page.ts'),
+  true,
+  'Svelte bracket-notation route params are valid repo path segments',
+)
+
+assert.equal(
+  isValidRepoPath(
+    'examples/vue/basic-file-based-jsx/src/routes/(group)/inside.tsx',
+  ),
+  true,
+  'route groups are valid repo path segments',
+)
+
+assert.equal(
   isValidRepoPath('../src/routes/__root.tsx'),
   false,
   'traversal is rejected',
@@ -56,9 +70,21 @@ assert.equal(
 )
 
 assert.equal(
+  getExampleStartingPath('react', 'ai'),
+  'src/routes/index.tsx',
+  'AI examples default to the index route file',
+)
+
+assert.equal(
   getExampleStartingPath('react', 'router'),
   'src/main.tsx',
   'Router examples default to main.tsx when directory contents are unavailable',
+)
+
+assert.equal(
+  getExampleStartingPath('octane', 'table'),
+  'src/main.tsrx',
+  'Octane examples default to main.tsrx',
 )
 
 console.log('repo-path tests passed')

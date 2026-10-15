@@ -1,17 +1,14 @@
-import { WandSparkles, Zap } from 'lucide-react'
+import { MagicWandIcon, LightningIcon, GearIcon } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
-import { CogsIcon } from '~/components/icons/CogsIcon'
 import { query } from './libraries'
 
-const textStyles = 'text-red-500 dark:text-red-400'
+const textStyles = 'text-category-data'
 
 export const queryProject = {
   ...query,
   description:
     'Powerful asynchronous state management, server-state utilities and data fetching. Fetch, cache, update, and wrangle all forms of async data in your TS/JS, React, Vue, Solid, Svelte, Angular & Lit applications all without touching any "global state"',
   latestBranch: 'main',
-  bgRadial: 'from-red-500 via-red-500/60 to-transparent',
-  textColor: 'text-amber-500',
   defaultDocs: 'framework/react/overview',
   installPath: 'framework/$framework/installation',
   legacyPackages: ['react-query'],
@@ -62,7 +59,7 @@ export const queryProject = {
     {
       title: 'Declarative & Automatic',
       icon: (
-        <WandSparkles
+        <MagicWandIcon
           className={twMerge('motion-safe:animate-pulse', textStyles)}
           style={{
             animationDuration: '5s',
@@ -86,7 +83,7 @@ export const queryProject = {
     {
       title: 'Simple & Familiar',
       icon: (
-        <Zap
+        <LightningIcon
           className={twMerge('motion-safe:animate-bounce', textStyles)}
           style={{
             animationDuration: '2s',
@@ -110,7 +107,7 @@ export const queryProject = {
     {
       title: 'Extensible',
       icon: (
-        <CogsIcon
+        <GearIcon
           className={twMerge('motion-safe:animate-spin', textStyles)}
           style={{
             animationDuration: '10s',

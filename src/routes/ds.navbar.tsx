@@ -1,0 +1,389 @@
+import * as React from 'react'
+import { createFileRoute } from '@tanstack/react-router'
+import {
+  MoonIcon,
+  ShoppingCartIcon,
+  MagnifyingGlassIcon,
+  ListIcon,
+  SparkleIcon,
+  LifebuoyIcon,
+  UsersIcon,
+  PathIcon,
+  YoutubeLogoIcon,
+} from '@phosphor-icons/react'
+import { seo } from '~/utils/seo'
+import { DsPage, DsSection } from '~/components/ds/DsKit'
+import { GithubIcon } from '~/components/icons/GithubIcon'
+import { DiscordIcon } from '~/components/icons/DiscordIcon'
+import { MegaMenuItem } from '~/components/MegaMenuItem'
+
+export const Route = createFileRoute('/ds/navbar')({
+  component: NavbarPage,
+  head: () => ({
+    meta: seo({
+      title: 'Navbar | TanStack Design System',
+      description:
+        'The global site navigation bar — anatomy, spacing tokens, and responsive behavior. Source: src/components/Navbar.tsx.',
+    }),
+  }),
+})
+
+const PRIMARY_NAV = [
+  'Libraries',
+  'Blog',
+  'Community',
+  'Tools',
+  'Merch',
+  'Support',
+]
+
+/**
+ * A static, non-fixed replica of the real site navbar for documentation.
+ *
+ * The live `Navbar` (src/components/Navbar.tsx) is a `fixed` layout organism
+ * that wraps the whole page and depends on router/auth/cart context, so it
+ * can't be rendered inline. This mirror uses the same production classes and
+ * the shared `--navbar-height` token so the anatomy stays true to the source.
+ *
+ * Responsiveness is driven by CONTAINER queries (`@min-[…]`) rather than the
+ * viewport, so it reflects the width of its `@container` wrapper — letting the
+ * preview show mobile / tablet / desktop states at any screen size. The
+ * breakpoints mirror the real navbar: primary nav appears at 900px, social
+ * links at 1120px.
+ */
+function NavbarAnatomy() {
+  return (
+    <div className="flex h-[var(--navbar-height)] w-full items-center gap-4 rounded-lg border border-gray-500/20 bg-white/90 px-3 py-2 shadow-sm backdrop-blur-lg @min-[900px]:px-5 dark:bg-black/90">
+      {/* Brand — flex-1 so the primary nav sits centered, like the live navbar */}
+      <div className="flex min-w-0 flex-1 shrink-0 items-center">
+        <img
+          src="/images/brand/tanstack-landscape-black.svg"
+          alt="TanStack"
+          className="h-7 w-auto dark:hidden"
+        />
+        <img
+          src="/images/brand/tanstack-landscape-white.svg"
+          alt="TanStack"
+          aria-hidden="true"
+          className="hidden h-7 w-auto dark:block"
+        />
+      </div>
+
+      {/* Primary navigation — desktop only (≥ 900px) */}
+      <nav className="hidden items-center gap-1 @min-[900px]:flex">
+        {PRIMARY_NAV.map((label) => (
+          <span
+            key={label}
+            className="rounded-md px-2 py-2 text-[13px] font-medium text-gray-700 @min-[1120px]:px-3 dark:text-gray-300"
+          >
+            {label}
+          </span>
+        ))}
+      </nav>
+
+      {/* Search — its own icon button sitting right after the primary nav
+          (≥ 900px), matching the live navbar's separate search slot. */}
+      <div className="hidden text-gray-500 @min-[900px]:block dark:text-gray-400">
+        <MagnifyingGlassIcon className="h-[18px] w-[18px]" />
+      </div>
+
+      {/* Utility cluster — flex-1 pushes it hard to the right edge */}
+      <div className="flex flex-1 items-center justify-end gap-2 text-gray-500 @min-[400px]:gap-2.5 dark:text-gray-400">
+        {/* Social — a stacked cluster of h-8 circles that opens a dropdown, wide
+            only (≥ 1120px). Mirrors SocialStack (GitHub / Discord / YouTube). */}
+        <span className="hidden items-center @min-[1120px]:flex">
+          {[GithubIcon, DiscordIcon, YoutubeLogoIcon].map((Icon, i) => (
+            <span
+              key={i}
+              style={{ zIndex: 3 - i }}
+              className={`relative inline-flex h-8 w-8 items-center justify-center rounded-full border border-gray-500/20 bg-white shadow-sm dark:bg-black ${i > 0 ? '-ml-3' : ''}`}
+            >
+              <Icon className="h-4 w-4" />
+            </span>
+          ))}
+        </span>
+        {/* Theme toggle — desktop only (≥ 900px) */}
+        <MoonIcon className="hidden h-[18px] w-[18px] @min-[900px]:block" />
+        {/* Cart — always */}
+        <ShoppingCartIcon className="h-[18px] w-[18px]" />
+        {/* Ask AI — icon-only, desktop only (≥ 900px) */}
+        <SparkleIcon
+          className="hidden h-[18px] w-[18px] @min-[900px]:block"
+          weight="bold"
+        />
+        {/* Log In — desktop only (≥ 900px) */}
+        <span className="hidden items-center rounded-md bg-gray-900 px-2.5 py-1.5 text-xs font-semibold text-white @min-[900px]:inline-flex dark:bg-white dark:text-black">
+          Log In
+        </span>
+        {/* Hamburger — mobile only (< 900px) */}
+        <ListIcon className="h-5 w-5 @min-[900px]:hidden" />
+      </div>
+    </div>
+  )
+}
+
+const PREVIEW_SIZES = [
+  { key: 'auto', label: 'Auto', width: null },
+  { key: 'mobile', label: 'Mobile', width: 390 },
+  { key: 'ipad', label: 'iPad', width: 1024 },
+  { key: 'desktop', label: 'Desktop', width: 1440 },
+] as const
+
+type PreviewSizeKey = (typeof PREVIEW_SIZES)[number]['key']
+
+/**
+ * The Anatomy preview surface with a device-size toggle. "Auto" fills the
+ * available width, so the replica responds to the real screen as it resizes;
+ * Mobile / iPad / Desktop pin the container to a fixed width (scrolling if it
+ * overflows the frame). All sizing flows through the `@container` wrapper.
+ */
+function NavbarAnatomyPreview() {
+  const [size, setSize] = React.useState<PreviewSizeKey>('auto')
+  const [available, setAvailable] = React.useState(0)
+  const trackRef = React.useRef<HTMLDivElement>(null)
+  const active = PREVIEW_SIZES.find((option) => option.key === size)!
+  const deviceWidth = active.width
+
+  // Measure the frame's inner width so wider device sizes can scale to fit.
+  React.useEffect(() => {
+    const el = trackRef.current
+    if (!el) return
+    const update = () => setAvailable(el.clientWidth)
+    update()
+    const observer = new ResizeObserver(update)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  const scale =
+    deviceWidth && available > 0 && deviceWidth > available
+      ? available / deviceWidth
+      : 1
+
+  return (
+    <div className="overflow-hidden rounded-xl border border-border-default bg-background-surface">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border-default px-4 py-2.5">
+        <div className="flex gap-1 rounded-lg border border-border-subtle bg-background-surface p-1">
+          {PREVIEW_SIZES.map((option) => {
+            const isActive = size === option.key
+            return (
+              <button
+                key={option.key}
+                type="button"
+                onClick={() => setSize(option.key)}
+                className={
+                  'rounded-md px-2.5 py-1 text-ds-label-md transition-colors ' +
+                  (isActive
+                    ? 'bg-background-inverse text-text-inverse'
+                    : 'text-text-secondary hover:bg-background-subtle')
+                }
+              >
+                {option.label}
+              </button>
+            )
+          })}
+        </div>
+        <span className="font-ds-mono text-[11px] text-text-muted">
+          {deviceWidth
+            ? `${deviceWidth}px${scale < 1 ? ` · ${Math.round(scale * 100)}%` : ''}`
+            : 'Responsive · tracks screen'}
+        </span>
+      </div>
+
+      <div className="overflow-hidden bg-background-subtle p-6 sm:p-8">
+        <div ref={trackRef} className="w-full">
+          {deviceWidth ? (
+            <div
+              className="mx-auto overflow-hidden"
+              style={{
+                width: deviceWidth * scale,
+                height: `calc(var(--navbar-height) * ${scale})`,
+              }}
+            >
+              <div
+                className="@container"
+                style={{
+                  width: deviceWidth,
+                  transform: `scale(${scale})`,
+                  transformOrigin: 'top left',
+                }}
+              >
+                <NavbarAnatomy />
+              </div>
+            </div>
+          ) : (
+            <div className="@container w-full">
+              <NavbarAnatomy />
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function RegionCard({
+  index,
+  title,
+  children,
+}: {
+  index: number
+  title: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className="rounded-xl border border-border-default bg-background-surface p-4">
+      <div className="flex items-center gap-2">
+        <span className="grid h-6 w-6 place-items-center rounded-md bg-background-inverse font-ds-mono text-[11px] font-bold text-text-inverse">
+          {index}
+        </span>
+        <span className="font-ds-display text-ds-heading-5 text-text-primary">
+          {title}
+        </span>
+      </div>
+      <p className="mt-2 text-ds-body-sm text-text-secondary">{children}</p>
+    </div>
+  )
+}
+
+function SpecRow({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="flex items-baseline justify-between gap-4 border-b border-border-subtle py-2.5 last:border-0">
+      <span className="text-ds-body-sm text-text-secondary">{label}</span>
+      <code className="text-right font-ds-mono text-[12px] text-text-primary">
+        {value}
+      </code>
+    </div>
+  )
+}
+
+function NavbarPage() {
+  return (
+    <DsPage
+      title="Navbar"
+      description="The global navigation bar that sits fixed at the top of every TanStack surface. It's a layout organism — brand, primary mega-menu navigation, and a utility cluster — and adapts from a full desktop bar to a compact mobile menu. Source: src/components/Navbar.tsx."
+    >
+      <DsSection
+        title="Anatomy"
+        description="A static replica built from the production classes and the shared --navbar-height token — toggle a device size, or leave it on Auto to watch it reflow (container queries mirror the real 900px / 1120px breakpoints). The numbered regions below label the parts of the bar, left to right."
+      >
+        <NavbarAnatomyPreview />
+        <div className="grid gap-3 sm:grid-cols-3">
+          <RegionCard index={1} title="Brand">
+            Logo mark and wordmark, linking home; right-clicking opens the brand
+            context menu (logo assets). Sits in the left flex-1 slot, so the
+            primary nav lands centered.
+          </RegionCard>
+          <RegionCard index={2} title="Primary nav + search">
+            Libraries, Blog, Community, Tools, Merch, and Support — each a
+            hover/focus mega-menu — with the search button in its own slot right
+            after them. Collapses to the mobile menu below 900px.
+          </RegionCard>
+          <RegionCard index={3} title="Utility cluster">
+            Social stack, theme toggle, cart, the AI dock, and auth controls,
+            pushed to the right edge by a flex-1 — plus the hamburger trigger on
+            mobile.
+          </RegionCard>
+        </div>
+      </DsSection>
+
+      <DsSection
+        title="Mega menu item"
+        description="The row used inside the primary-nav mega menus — a floating icon, a Bricolage-bold title (heading-5), and a muted body-xs description. Rest / hover / press apply a mode-adaptive overlay. Source: src/components/MegaMenuItem.tsx."
+      >
+        <div className="flex justify-center rounded-xl border border-border-default bg-background-subtle p-6 sm:p-8">
+          <div className="flex w-max flex-col gap-2 rounded-xl border border-border-default bg-background-surface p-2 shadow-sm">
+            <MegaMenuItem
+              icon={LifebuoyIcon}
+              title="Support Overview"
+              description="Find the right support path."
+              to="/ds/navbar"
+            />
+            <MegaMenuItem
+              icon={UsersIcon}
+              title="Enterprise Support"
+              description="Private consulting and expert support."
+              to="/ds/navbar"
+            />
+            <MegaMenuItem
+              icon={PathIcon}
+              title="Migration guides"
+              description="Move from other libraries with confidence."
+              to="/ds/navbar"
+              badge="New"
+            />
+          </div>
+        </div>
+      </DsSection>
+
+      <DsSection
+        title="Layout & spacing"
+        description="The tokens and utilities that give the bar its rhythm. Height is driven by a CSS variable so sticky offsets across the site stay in sync."
+      >
+        <div className="rounded-xl border border-border-default bg-background-surface px-4 py-1">
+          <SpecRow label="Height" value="--navbar-height: 58px" />
+          <SpecRow
+            label="Container padding"
+            value="px-3 py-2 · min-[900px]:px-5"
+          />
+          <SpecRow label="Region gap" value="gap-2 · min-[1120px]:gap-4" />
+          <SpecRow label="Primary nav item gap" value="gap-1" />
+          <SpecRow label="Utility cluster gap" value="gap-2 · sm:gap-2.5" />
+          <SpecRow
+            label="Nav trigger padding"
+            value="px-2 py-2 · min-[1120px]:px-3"
+          />
+          <SpecRow
+            label="Nav trigger text"
+            value="text-xs · min-[1120px]:text-[13px]"
+          />
+          <SpecRow label="Surface" value="bg-white/90 dark:bg-black/90" />
+          <SpecRow
+            label="Border"
+            value="scroll-reactive hairline — bg-border-subtle, fades in on scroll"
+          />
+        </div>
+      </DsSection>
+
+      <DsSection
+        title="Responsive behavior"
+        description="Two breakpoints reshape the bar as space tightens."
+      >
+        <div className="grid gap-3 sm:grid-cols-3">
+          <RegionCard index={900} title="≥ 900px — Desktop">
+            Full primary navigation with mega-menu dropdowns; the hamburger is
+            hidden.
+          </RegionCard>
+          <RegionCard index={1120} title="≥ 1120px — Wide">
+            Social links join the utility cluster and region gaps widen for
+            extra breathing room.
+          </RegionCard>
+          <RegionCard index={0} title="< 900px — Mobile">
+            Primary nav collapses to a hamburger that opens a full-height
+            sliding panel with Search, Ask AI, and Sign In.
+          </RegionCard>
+        </div>
+      </DsSection>
+
+      <DsSection
+        title="Source"
+        description="This organism lives in the app, not the copy-paste registry — it's wired to routing, auth, and cart state."
+      >
+        <div className="rounded-xl border border-border-default bg-background-surface p-4">
+          <code className="font-ds-mono text-[13px] text-text-primary">
+            src/components/Navbar.tsx
+          </code>
+          <p className="mt-2 text-ds-body-sm text-text-muted">
+            Mounted once in <code className="font-ds-mono">__root.tsx</code> as{' '}
+            <code className="font-ds-mono">
+              {'<Navbar>{children}</Navbar>'}
+            </code>
+            . Menu contents are defined in the{' '}
+            <code className="font-ds-mono">NAV_GROUPS</code> config at the top
+            of the file.
+          </p>
+        </div>
+      </DsSection>
+    </DsPage>
+  )
+}

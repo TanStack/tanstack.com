@@ -1,16 +1,26 @@
+import { recoverChatWorkspaceSync } from '~/chat/server/scheduled.server'
 import { materializeWorkflowSchedules } from '@tanstack/workflow-runtime'
 import { pruneStaleCacheRows } from '~/utils/github-content-cache.server'
 import { refreshHomepageNpmStatsSummary } from '~/utils/homepage-npm-stats.server'
 import { refreshGitHubOrgStats } from '~/utils/stats.functions'
 import {
+  interruptExpiredBuilderProjectRunLeases,
+  pruneDeletedBuilderProjects,
+} from '~/utils/builder-project-events.server'
+import {
+  pruneBuilderProjectSnapshotStorage,
+  reconcileBuilderProjectSnapshotReservations,
+} from '~/utils/builder-project-snapshot-registry.server'
+import {
   reconcileWorkflowRuntimeStore,
+  WORKFLOW_RUNTIME_MAX_DURATION_MS,
+  WORKFLOW_RUNTIME_MIN_REMAINING_MS,
   workflowRuntime,
 } from '~/utils/workflow-runtime.server'
 
 const CONTENT_CACHE_PRUNE_CRON = '0 9 * * *'
 const STATS_REFRESH_CRON = '0 */6 * * *'
 const WORKFLOW_SWEEP_CRON = '* * * * *'
-const WORKFLOW_SWEEP_MAX_DURATION_MS = 25_000
 
 export async function runScheduledTasks(cron: string, scheduledTime: number) {
   switch (cron) {
@@ -24,7 +34,10 @@ export async function runScheduledTasks(cron: string, scheduledTime: number) {
       ])
       return
     case WORKFLOW_SWEEP_CRON:
-      await runWorkflowSweep(cron, scheduledTime)
+      await Promise.all([
+        recoverChatWorkspaceSync(),
+        runWorkflowSweep(cron, scheduledTime),
+      ])
       return
     default:
       console.warn(`[scheduled] No task registered for cron: ${cron}`)
@@ -36,6 +49,50 @@ async function runWorkflowSweep(cron: string, scheduledTime: number) {
   console.log('[workflow-sweep] Starting workflow sweep...')
 
   try {
+    const interruptedBuilderRuns =
+      await interruptExpiredBuilderProjectRunLeases({
+        occurredAt: new Date(scheduledTime),
+      })
+    let snapshotReservations = { quarantined: 0, released: 0, stored: 0 }
+    let snapshotStorage = {
+      reservationsReleased: 0,
+      snapshotsDeleted: 0,
+      snapshotsFailed: 0,
+    }
+    let deletedBuilderProjects = 0
+    try {
+      snapshotReservations = await reconcileBuilderProjectSnapshotReservations({
+        occurredAt: new Date(scheduledTime),
+        limit: 10,
+      })
+    } catch (error) {
+      console.error(
+        '[workflow-sweep] Builder snapshot reconciliation failed:',
+        getErrorMessage(error),
+      )
+    }
+    try {
+      deletedBuilderProjects = await pruneDeletedBuilderProjects({
+        occurredAt: new Date(scheduledTime),
+        limit: 10,
+      })
+    } catch (error) {
+      console.error(
+        '[workflow-sweep] Deleted Builder project prune failed:',
+        getErrorMessage(error),
+      )
+    }
+    try {
+      snapshotStorage = await pruneBuilderProjectSnapshotStorage({
+        occurredAt: new Date(scheduledTime),
+        limit: 10,
+      })
+    } catch (error) {
+      console.error(
+        '[workflow-sweep] Builder snapshot storage prune failed:',
+        getErrorMessage(error),
+      )
+    }
     const reconciliation = await reconcileWorkflowRuntimeStore()
     const materialized = await materializeWorkflowSchedules(workflowRuntime, {
       now: scheduledTime,
@@ -43,7 +100,8 @@ async function runWorkflowSweep(cron: string, scheduledTime: number) {
     const sweep = await workflowRuntime.sweep({
       now: scheduledTime,
       leaseOwner: `cloudflare:${cron}:${scheduledTime}`,
-      maxDurationMs: WORKFLOW_SWEEP_MAX_DURATION_MS,
+      maxDurationMs: WORKFLOW_RUNTIME_MAX_DURATION_MS,
+      minYieldRemainingMs: WORKFLOW_RUNTIME_MIN_REMAINING_MS,
       maxScheduledRuns: 10,
       maxTimers: 10,
       includeEvents: false,
@@ -51,7 +109,7 @@ async function runWorkflowSweep(cron: string, scheduledTime: number) {
     const duration = Date.now() - startTime
 
     console.log(
-      `[workflow-sweep] Completed in ${duration}ms - staleRuns: ${reconciliation.staleRunsMarkedErrored}, prunedSchedules: ${reconciliation.unregisteredSchedulesDeleted}, materialized: ${materialized.length}, scheduled: ${JSON.stringify(sweep.summary.scheduled)}, timers: ${JSON.stringify(sweep.summary.timers)}, remaining: ${sweep.remainingMayExist}`,
+      `[workflow-sweep] Completed in ${duration}ms - interruptedBuilderRuns: ${interruptedBuilderRuns}, deletedBuilderProjects: ${deletedBuilderProjects}, snapshotReservations: ${JSON.stringify(snapshotReservations)}, snapshotStorage: ${JSON.stringify(snapshotStorage)}, staleRuns: ${reconciliation.staleRunsMarkedErrored}, prunedSchedules: ${reconciliation.unregisteredSchedulesDeleted}, materialized: ${materialized.length}, scheduled: ${JSON.stringify(sweep.summary.scheduled)}, timers: ${JSON.stringify(sweep.summary.timers)}, remaining: ${sweep.remainingMayExist}`,
     )
     console.log(
       '[workflow-sweep] Scheduled time:',

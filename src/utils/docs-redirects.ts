@@ -38,16 +38,19 @@ export function resolveDocsPathRedirect({
     return { type: 'not-found' }
   }
 
+  // Manifest paths already have one trailing /index removed. Preserve the
+  // requested path for loading so nested index/index files stay distinct.
+  const canonicalRequestedPath = canonicalizeDocsPath(requestedPath)
   const knownPaths = new Set(manifest.paths.map(normalizeManifestPath))
 
-  if (knownPaths.has(requestedPath)) {
+  if (knownPaths.has(canonicalRequestedPath)) {
     return { type: 'render', docsPath: requestedPath }
   }
 
   const redirectFromTarget = getRedirectTarget({
     knownPaths,
     manifest,
-    requestedPath,
+    requestedPath: canonicalRequestedPath,
   })
 
   if (redirectFromTarget !== null) {
@@ -58,14 +61,40 @@ export function resolveDocsPathRedirect({
     defaultDocs,
     frameworks,
     knownPaths,
-    requestedPath,
+    requestedPath: canonicalRequestedPath,
   })
 
   if (frameworkRedirectTarget !== null) {
     return { type: 'redirect', docsPath: frameworkRedirectTarget }
   }
 
+  const sectionIndexRedirectTarget = getSectionIndexRedirectTarget({
+    knownPaths,
+    requestedPath: canonicalRequestedPath,
+  })
+
+  if (sectionIndexRedirectTarget !== null) {
+    return { type: 'redirect', docsPath: sectionIndexRedirectTarget }
+  }
+
   return { type: 'not-found' }
+}
+
+export function docsManifestHasPath(
+  manifest: DocsRedirectManifest,
+  docsPath: string,
+) {
+  const normalizedPath = normalizeDocsPath(docsPath)
+
+  if (normalizedPath === null) {
+    return false
+  }
+
+  const canonicalPath = canonicalizeDocsPath(normalizedPath)
+
+  return manifest.paths.some(
+    (path) => normalizeManifestPath(path) === canonicalPath,
+  )
 }
 
 export function appendPathToDocsHref(opts: {
@@ -176,11 +205,37 @@ function getExistingCandidate(
   return null
 }
 
+function getSectionIndexRedirectTarget(opts: {
+  knownPaths: Set<string>
+  requestedPath: string
+}) {
+  const [firstSegment] = opts.requestedPath.split('/')
+  const indexableSections = new Set(['api', 'reference'])
+
+  if (
+    !firstSegment ||
+    !indexableSections.has(firstSegment) ||
+    firstSegment === opts.requestedPath ||
+    !opts.knownPaths.has(firstSegment)
+  ) {
+    return null
+  }
+
+  return firstSegment
+}
+
 function normalizeManifestPath(path: string) {
-  return removeLeadingSlash(path.trim())
-    .replace(/\.md$/, '')
-    .replace(/\/index$/, '')
-    .replace(/\/+$/g, '')
+  const normalizedPath = removeLeadingSlash(path.trim()).replace(/\/+$/g, '')
+
+  if (normalizedPath.endsWith('.md')) {
+    return normalizedPath.replace(/\.md$/, '').replace(/\/index$/, '')
+  }
+
+  return normalizedPath
+}
+
+function canonicalizeDocsPath(path: string) {
+  return path.replace(/\/index$/, '')
 }
 
 function normalizeDocsPath(path: string | null | undefined) {

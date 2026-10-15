@@ -1,7 +1,12 @@
 /* eslint-disable react-hooks/set-state-in-effect -- game animation state sync */
 import { useEffect, useState } from 'react'
 import { useGameStore } from '../hooks/useGameStore'
-import { Map, Coins, ShoppingBag, Zap } from 'lucide-react'
+import {
+  MapTrifoldIcon,
+  CoinsIcon,
+  ShoppingBagIcon,
+  LightningIcon,
+} from '@phosphor-icons/react'
 
 export function GameHUD() {
   const {
@@ -131,7 +136,7 @@ export function GameHUD() {
     <div className="absolute inset-0 z-10 pointer-events-none">
       {/* Coin hint */}
       {showCoinHint && (
-        <div className="absolute top-16 left-1/2 -translate-x-1/2 animate-in fade-in slide-in-from-top-2 duration-300">
+        <div className="absolute top-16 left-1/2 -translate-x-1/2 ds-enter-rise">
           <div className="bg-black/60 backdrop-blur-sm rounded-xl px-4 py-2 text-center text-white text-sm max-w-xs relative">
             <button
               onClick={() => {
@@ -156,14 +161,14 @@ export function GameHUD() {
           onClick={openShop}
           className="pointer-events-auto bg-black/30 backdrop-blur-sm rounded-xl px-4 py-2 flex items-center gap-2 text-white hover:bg-black/40 transition-colors"
         >
-          <Coins className="w-5 h-5 text-yellow-400" />
+          <CoinsIcon className="w-5 h-5 text-yellow-400" />
           <span className="font-bold text-yellow-400">{coinsCollected}</span>
-          <ShoppingBag className="w-4 h-4 ml-1 text-white/60" />
+          <ShoppingBagIcon className="w-4 h-4 ml-1 text-white/60" />
         </button>
 
         {/* Island counter */}
         <div className="pointer-events-auto bg-black/30 backdrop-blur-sm rounded-xl px-4 py-2 flex items-center gap-2 text-white ml-2">
-          <Map className="w-5 h-5" />
+          <MapTrifoldIcon className="w-5 h-5" />
           <span className="font-bold">
             {discoveredIslands.size} / {totalIslands}
           </span>
@@ -184,7 +189,7 @@ export function GameHUD() {
             className="md:hidden pointer-events-auto bg-red-500/80 backdrop-blur-sm rounded-full p-4 flex items-center justify-center text-white hover:bg-red-600/80 active:scale-95 transition-all shadow-lg"
             aria-label="Fire cannons"
           >
-            <Zap className="w-6 h-6" />
+            <LightningIcon className="w-6 h-6" />
           </button>
           {/* Health bar */}
           <div
@@ -197,7 +202,7 @@ export function GameHUD() {
             </span>
             <div className="w-32 h-3 bg-black/50 rounded-full overflow-hidden max-md:w-20 max-md:h-2">
               <div
-                className="h-full bg-gradient-to-r from-red-600 to-red-400"
+                className="h-full bg-linear-to-r from-red-600 to-red-400"
                 style={{
                   width: `${(boatHealth / totalMaxHealth) * 100}%`,
                 }}
@@ -217,8 +222,8 @@ export function GameHUD() {
               <div
                 className={`h-full transition-all duration-75 ${
                   cooldownProgress >= 1
-                    ? 'bg-gradient-to-r from-cyan-500 to-cyan-300'
-                    : 'bg-gradient-to-r from-cyan-800 to-cyan-600'
+                    ? 'bg-linear-to-r from-cyan-500 to-cyan-300'
+                    : 'bg-linear-to-r from-cyan-800 to-cyan-600'
                 }`}
                 style={{ width: `${cooldownProgress * 100}%` }}
               />
@@ -232,8 +237,8 @@ export function GameHUD() {
 
       {/* Upgrade notification */}
       {showUpgradeNotification && upgradeInfo && (
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-in fade-in zoom-in duration-300">
-          <div className="bg-gradient-to-br from-yellow-500/90 to-amber-600/90 backdrop-blur-md rounded-2xl px-8 py-5 text-center shadow-2xl border border-yellow-300/30">
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 ds-enter-pop">
+          <div className="bg-linear-to-br from-yellow-500/90 to-amber-600/90 backdrop-blur-md rounded-2xl px-8 py-5 text-center shadow-2xl border border-yellow-300/30">
             <div className="text-4xl mb-2">{upgradeInfo.icon}</div>
             <div className="text-white font-bold text-xl mb-1">
               {upgradeInfo.name}
@@ -247,8 +252,8 @@ export function GameHUD() {
 
       {/* Showcase unlock notification */}
       {showShowcaseUnlock && (
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-in fade-in zoom-in duration-300">
-          <div className="bg-gradient-to-br from-purple-500/90 to-violet-600/90 backdrop-blur-md rounded-2xl px-8 py-6 text-center shadow-2xl border border-purple-300/30 max-w-sm">
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 ds-enter-pop">
+          <div className="bg-linear-to-br from-purple-500/90 to-violet-600/90 backdrop-blur-md rounded-2xl px-8 py-6 text-center shadow-2xl border border-purple-300/30 max-w-sm">
             <div className="text-5xl mb-3">🏝️</div>
             <div className="text-white font-bold text-xl mb-2">
               Showcase Islands Unlocked!
@@ -269,8 +274,8 @@ export function GameHUD() {
 
       {/* Corners unlock notification */}
       {showCornersUnlock && (
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-in fade-in zoom-in duration-300">
-          <div className="bg-gradient-to-br from-gray-900/95 to-red-950/95 backdrop-blur-md rounded-2xl px-8 py-6 text-center shadow-2xl border border-red-500/30 max-w-sm">
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 ds-enter-pop">
+          <div className="bg-linear-to-br from-gray-900/95 to-red-950/95 backdrop-blur-md rounded-2xl px-8 py-6 text-center shadow-2xl border border-red-500/30 max-w-sm">
             <div className="text-5xl mb-3">💀</div>
             <div className="text-red-400 font-bold text-xl mb-2">
               The Four Corners Await

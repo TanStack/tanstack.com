@@ -11,5 +11,6 @@ import '../.tanstack-start/server-routes/routeTree.gen'
 declare global {
   const __TANSTACK_ENABLE_IMAGE_TRANSFORMATIONS__: boolean
   const __TANSTACK_ENABLE_SERVER_BUILDER_GENERATION__: boolean
+  const __TANSTACK_LOCAL_DOCS_TOKEN__: string
   const __TANSTACK_SITE_URL__: string
 }

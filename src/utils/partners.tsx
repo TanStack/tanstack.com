@@ -1,5 +1,6 @@
 import agGridDarkSvg from '~/images/ag-grid-dark.svg'
 import agGridLightSvg from '~/images/ag-grid-light.svg'
+import agGridImage from '~/images/ag-grid.png'
 import nozzleImage from '~/images/nozzle.png'
 import bytesFireshipImage from '~/images/bytes-fireship.png'
 import vercelLightSvg from '~/images/vercel-light.svg'
@@ -30,7 +31,8 @@ import strapiLightSvg from '~/images/strapi-light.svg'
 import strapiDarkSvg from '~/images/strapi-dark.svg'
 import serpapiWhiteSvg from '~/images/serpapi-white.svg'
 import serpapiBlackSvg from '~/images/serpapi-black.svg'
-import { libraries, type Library } from '~/libraries'
+import type { CSSProperties } from 'react'
+import type { Library } from '~/libraries'
 import cloudflareWhiteSvg from '~/images/cloudflare-white.svg'
 import cloudflareBlackSvg from '~/images/cloudflare-black.svg'
 import workosBlackSvg from '~/images/workos-black.svg'
@@ -39,13 +41,17 @@ import powersyncBlackSvg from '~/images/powersync-black.svg'
 import powersyncWhiteSvg from '~/images/powersync-white.svg'
 import railwayBlackSvg from '~/images/railway-black.svg'
 import railwayWhiteSvg from '~/images/railway-white.svg'
+import renderBlackSvg from '~/images/render-black.svg'
+import renderWhiteSvg from '~/images/render-white.svg'
 import openrouterBlackSvg from '~/images/openrouter-black.svg'
 import openrouterWhiteSvg from '~/images/openrouter-white.svg'
+import scarfSvg from '~/images/scarf.svg'
 import {
   getPartnerPlacementContext,
   getPartnersForPlacement,
   type PartnerPlacementContext,
 } from '~/utils/partner-placement'
+import type { PartnerPlacement } from '~/utils/analytics'
 
 function LearnMoreButton() {
   return (
@@ -55,7 +61,7 @@ function LearnMoreButton() {
   )
 }
 
-type PartnerImageConfig =
+export type PartnerImageConfig =
   | { light: string; dark: string; scale?: number }
   | { src: string; scale?: number }
 
@@ -64,7 +70,23 @@ type PartnerApplicationStarterIcon = {
   src: string
 }
 
+export const partnerResourceKinds = [
+  'documentation',
+  'example',
+  'announcement',
+] as const
+
+export type PartnerResourceKind = (typeof partnerResourceKinds)[number]
+
+export type PartnerResource = {
+  href: string
+  kind: PartnerResourceKind
+  label: string
+}
+
 type ApplicationStarterPartnerTier = 1 | 2 | 3
+
+const currentPartnerReviewDate = '2026-07-21'
 
 export const partnerUniqueConstraints = ['auth-provider', 'hosting'] as const
 export type PartnerUniqueConstraint = (typeof partnerUniqueConstraints)[number]
@@ -106,7 +128,7 @@ export const partnerTierFlares: Record<
     gradientStops:
       'from-yellow-400 via-amber-500 to-orange-600 dark:from-yellow-300 dark:via-amber-400 dark:to-orange-400',
     iconColor: 'text-amber-500 dark:text-amber-300',
-    labelColor: 'text-amber-600 dark:text-amber-300',
+    labelColor: 'text-amber-700 dark:text-amber-300',
     // 5-point star
     icon: (
       <svg viewBox="0 0 12 12" className="h-3 w-3 fill-current" aria-hidden>
@@ -140,18 +162,57 @@ export const partnerTierFlares: Record<
   },
 }
 
+// Full-bleed tier band backgrounds (Figma 640:3878). Snapped to the nearest DS
+// palette tokens rather than the raw Figma literals so the bands stay in step
+// with the rest of the rebrand: gold→amber, silver→neutral, bronze→terracotta.
+// Labels sit in near-black (neutral-500) on every band, matching the design.
+export const partnerTierBandColor: Record<PartnerTier, string> = {
+  gold: 'bg-ds-amber-300',
+  silver: 'bg-ds-neutral-200',
+  bronze: 'bg-ds-terracotta-400',
+}
+
 export function PartnerImage({
   className,
   config,
   alt,
+  style,
+  mode,
 }: {
   className?: string
   config: PartnerImageConfig
   alt: string
+  /** Merged onto the <img> — e.g. a runtime-derived `maxHeight` from the
+   *  tier-sizing rubric that can't be expressed as a static Tailwind class. */
+  style?: CSSProperties
+  /** Force the light or dark logo variant instead of following the global
+   *  `dark:` theme. Used by previews that render both themes on one page (where
+   *  the CSS `dark:` variant can't be scoped per panel). */
+  mode?: 'light' | 'dark'
 }) {
   const scaleStyle = config.scale ? { transform: `scale(${config.scale})` } : {}
 
   if ('light' in config && 'dark' in config) {
+    // Forced variant: render only the requested asset, no `dark:` toggling.
+    if (mode) {
+      return (
+        <div
+          className="w-full flex items-center justify-center"
+          style={scaleStyle}
+        >
+          <img
+            src={mode === 'dark' ? config.dark : config.light}
+            alt={alt}
+            loading="lazy"
+            className={className ?? 'w-full'}
+            style={style}
+            width={200}
+            height={100}
+            sizes="(max-width: 640px) 80px, (max-width: 1024px) 150px, 200px"
+          />
+        </div>
+      )
+    }
     return (
       <div
         className="w-full flex items-center justify-center"
@@ -164,6 +225,7 @@ export function PartnerImage({
           className={
             className ? `${className} dark:hidden` : 'w-full dark:hidden'
           }
+          style={style}
           width={200}
           height={100}
           sizes="(max-width: 640px) 80px, (max-width: 1024px) 150px, 200px"
@@ -177,6 +239,7 @@ export function PartnerImage({
               ? `${className} hidden dark:block`
               : 'w-full hidden dark:block'
           }
+          style={style}
           width={200}
           height={100}
           sizes="(max-width: 640px) 80px, (max-width: 1024px) 150px, 200px"
@@ -191,6 +254,7 @@ export function PartnerImage({
         src={config.src}
         alt={alt}
         className={className ?? 'w-full'}
+        style={style}
         width={200}
         height={100}
         loading="lazy"
@@ -200,6 +264,18 @@ export function PartnerImage({
   )
 }
 
+// Shared shape for the partner rails — a slim projection of a Partner plus the
+// image config the rail renders. Lives here so the DS PartnerRail and the
+// legacy RightRail can share one type.
+export type RailPartner = {
+  category: Partner['category']
+  id: string
+  name: string
+  href: string
+  tier?: PartnerTier
+  image: PartnerImageConfig
+}
+
 export const partnerCategories = [
   'code-review',
   'deployment',
@@ -207,6 +283,7 @@ export const partnerCategories = [
   'auth',
   'database',
   'monitoring',
+  'analytics',
   'cms',
   'api',
   'ai',
@@ -222,32 +299,48 @@ export const partnerCategoryLabels: Record<PartnerCategory, string> = {
   auth: 'Authentication',
   database: 'Databases',
   monitoring: 'Error Monitoring',
+  analytics: 'Analytics',
   cms: 'CMS',
-  api: 'API Management',
+  api: 'API Infrastructure',
   ai: 'AI/LLM',
   learning: 'Learning Resources',
 }
 
-export type Partner = {
+type PartnerBase = {
   applicationStarterPromptInstructions?: Array<string>
   name: string
   id: string
-  libraries?: Library['id'][]
+  relatedProducts?: ReadonlyArray<Library['id']>
   href: string
   applicationStarterIcon?: PartnerApplicationStarterIcon
   image: PartnerImageConfig
   content: JSX.Element
   llmDescription: string
   category: PartnerCategory
-  status?: 'active' | 'inactive'
-  startDate?: string
-  endDate?: string
-  score: number
-  uniqueConstraints?: Array<PartnerUniqueConstraint>
-  tier?: PartnerTier
+  lastReviewedAt?: string
+  uniqueConstraints?: ReadonlyArray<PartnerUniqueConstraint>
   brandColor?: string // Primary brand color for game elements
   tagline?: string // Short tagline for game info cards
 }
+
+export type Partner =
+  | (PartnerBase & {
+      canonicalHref: string
+      endDate?: never
+      lastReviewedAt: string
+      resources: readonly [PartnerResource, ...Array<PartnerResource>]
+      startDate?: string
+      status: 'active'
+      tier: PartnerTier
+    })
+  | (PartnerBase & {
+      canonicalHref?: string
+      endDate: string | null
+      resources?: ReadonlyArray<PartnerResource>
+      startDate: string | null
+      status: 'inactive'
+      tier?: PartnerTier
+    })
 
 export type ApplicationStarterPartnerSuggestion = {
   brandColor?: Partner['brandColor']
@@ -333,16 +426,16 @@ export function getApplicationStarterInferredPartnerIds(input: string) {
   })
 }
 
-const neon = (() => {
+const neon = ((): Partner => {
   const href = 'https://neon.tech?utm_source=tanstack'
 
   return {
     name: 'Neon',
     id: 'neon',
-    libraries: ['start', 'router'],
+    relatedProducts: ['start', 'router'],
     status: 'inactive' as const,
+    startDate: null,
     endDate: 'Apr 2026',
-    score: 0.297,
     href,
     brandColor: '#00E599',
     tagline: 'Serverless Postgres',
@@ -367,17 +460,16 @@ const neon = (() => {
   }
 })()
 
-const convex = (() => {
+const convex = ((): Partner => {
   const href = 'https://convex.dev?utm_source=tanstack'
 
   return {
     name: 'Convex',
     id: 'convex',
-    libraries: ['start', 'router'],
+    relatedProducts: ['start', 'router'],
     status: 'inactive' as const,
     startDate: 'May 2024',
     endDate: 'Mar 2026',
-    score: 0.286,
     href,
     brandColor: '#F3A712',
     tagline: 'Real-time Database',
@@ -402,22 +494,44 @@ const convex = (() => {
   }
 })()
 
-const clerk = (() => {
+const clerk = ((): Partner => {
   const href = 'https://go.clerk.com/wOwHtuJ'
 
   return {
     name: 'Clerk',
     id: 'clerk',
     href,
-    libraries: ['start', 'router'],
+    canonicalHref: 'https://clerk.com/',
+    resources: [
+      {
+        kind: 'announcement',
+        label: 'TanStack + Clerk partnership',
+        href: '/blog/clerk-partnership',
+      },
+      {
+        kind: 'documentation',
+        label: 'Clerk TanStack Start quickstart',
+        href: 'https://clerk.com/docs/tanstack-react-start/getting-started/quickstart',
+      },
+      {
+        kind: 'example',
+        label: 'TanStack Start Clerk example',
+        href: '/start/latest/docs/framework/react/examples/start-clerk-basic',
+      },
+    ],
+    relatedProducts: ['start', 'router'],
     status: 'active' as const,
-    score: 0.286,
+    lastReviewedAt: currentPartnerReviewDate,
     tier: 'silver' as const,
     uniqueConstraints: [
       'auth-provider',
     ] satisfies Array<PartnerUniqueConstraint>,
     brandColor: '#6C47FF',
     tagline: 'Authentication',
+    applicationStarterIcon: {
+      mode: 'contain',
+      src: clerkLightSvg,
+    },
     image: {
       light: clerkLightSvg,
       dark: clerkDarkSvg,
@@ -441,16 +555,34 @@ const clerk = (() => {
   }
 })()
 
-const workos = (() => {
+const workos = ((): Partner => {
   const href = 'https://workos.com?utm_source=tanstack'
 
   return {
     name: 'WorkOS',
     id: 'workos',
     href,
-    libraries: ['start', 'router'] as const,
+    canonicalHref: 'https://workos.com/',
+    resources: [
+      {
+        kind: 'announcement',
+        label: 'TanStack + WorkOS partnership',
+        href: '/blog/workos-partnership',
+      },
+      {
+        kind: 'documentation',
+        label: 'WorkOS AuthKit TanStack Start SDK',
+        href: 'https://workos.com/docs/sdks/authkit-tanstack-start',
+      },
+      {
+        kind: 'example',
+        label: 'TanStack Start WorkOS example',
+        href: '/start/latest/docs/framework/react/examples/start-workos',
+      },
+    ],
+    relatedProducts: ['start', 'router'] as const,
     status: 'active' as const,
-    score: 0.314,
+    lastReviewedAt: currentPartnerReviewDate,
     tier: 'silver' as const,
     uniqueConstraints: [
       'auth-provider',
@@ -482,23 +614,36 @@ const workos = (() => {
   }
 })()
 
-const agGrid = (() => {
+const agGrid = ((): Partner => {
   const href =
     'https://ag-grid.com/react-data-grid/?utm_source=reacttable&utm_campaign=githubreacttable'
 
   return {
     name: 'AG Grid',
     id: 'ag-grid',
-    libraries: ['table'] as const,
+    relatedProducts: ['table'] as const,
     status: 'active' as const,
-    score: 0.497,
+    lastReviewedAt: currentPartnerReviewDate,
     tier: 'silver' as const,
     href,
+    canonicalHref: 'https://www.ag-grid.com/',
+    resources: [
+      {
+        kind: 'documentation',
+        label: 'AG Grid with TanStack Table',
+        href: '/table/latest/docs/enterprise/ag-grid',
+      },
+      {
+        kind: 'announcement',
+        label: 'TanStack + AG Grid partnership',
+        href: '/blog/ag-grid-partnership',
+      },
+    ],
     brandColor: '#FF8C00',
     tagline: 'Enterprise Data Grid',
     applicationStarterIcon: {
       mode: 'contain',
-      src: 'https://www.ag-grid.com/_astro/favicon-32.WDuB-104.png',
+      src: agGridImage,
     },
     applicationStarterPromptInstructions: [
       'Install ag-grid-react and ag-grid-community and use AG Grid Community by default for a real working demo.',
@@ -536,23 +681,36 @@ const agGrid = (() => {
   }
 })()
 
-const netlify = (() => {
+const netlify = ((): Partner => {
   const href = 'https://netlify.com?utm_source=tanstack'
 
   return {
     name: 'Netlify',
     id: 'netlify',
-    libraries: ['start', 'router'],
+    relatedProducts: ['start', 'router'],
     status: 'active' as const,
-    score: 0.343,
-    tier: 'silver' as const,
+    lastReviewedAt: currentPartnerReviewDate,
+    tier: 'gold' as const,
     uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,
     href,
+    canonicalHref: 'https://www.netlify.com/',
+    resources: [
+      {
+        kind: 'documentation',
+        label: 'TanStack Start hosting guide',
+        href: '/start/latest/docs/framework/react/guide/hosting',
+      },
+      {
+        kind: 'announcement',
+        label: 'TanStack + Netlify partnership',
+        href: '/blog/netlify-partnership',
+      },
+    ],
     brandColor: '#00C7B7',
-    tagline: 'Web Deployment',
+    tagline: 'The Complete Web Platform',
     applicationStarterIcon: {
       mode: 'contain',
-      src: 'https://www.netlify.com/favicon/icon.svg',
+      src: netlifyLightSvg,
     },
     image: {
       light: netlifyLightSvg,
@@ -560,7 +718,7 @@ const netlify = (() => {
       scale: 1.25,
     },
     llmDescription:
-      'Deployment platform for web applications with Deploy Previews, Functions, Edge Functions, and an official TanStack Start integration guide.',
+      "Where AI apps go from idea to production — build, deploy, and scale it all in one place: Git-to-edge deployment, serverless and edge functions, Deploy Previews, and native support for AI-generated apps (including TanStack Start), so you're not stitching together separate tools for building and shipping.",
     category: 'deployment',
     content: (
       <>
@@ -576,17 +734,34 @@ const netlify = (() => {
   }
 })()
 
-const cloudflare = (() => {
+const cloudflare = ((): Partner => {
   const href = 'https://www.cloudflare.com?utm_source=tanstack'
 
   return {
     name: 'Cloudflare',
     id: 'cloudflare',
     href,
-    // Show on every repo
-    libraries: libraries.map((l) => l.id),
+    canonicalHref: 'https://www.cloudflare.com/',
+    resources: [
+      {
+        kind: 'announcement',
+        label: 'TanStack + Cloudflare partnership',
+        href: '/blog/cloudflare-partnership',
+      },
+      {
+        kind: 'documentation',
+        label: 'Cloudflare TanStack Start guide',
+        href: 'https://developers.cloudflare.com/workers/framework-guides/web-apps/tanstack-start/',
+      },
+      {
+        kind: 'documentation',
+        label: 'TanStack Start hosting guide',
+        href: '/start/latest/docs/framework/react/guide/hosting',
+      },
+    ],
+    relatedProducts: ['start'],
     status: 'active' as const,
-    score: 0.857,
+    lastReviewedAt: currentPartnerReviewDate,
     tier: 'gold' as const,
     uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,
     startDate: 'Sep 2025',
@@ -612,24 +787,42 @@ const cloudflare = (() => {
   }
 })()
 
-const lovable = (() => {
+const lovable = ((): Partner => {
   const href = 'https://lovable.dev?utm_source=tanstack'
 
   return {
     name: 'Lovable',
     id: 'lovable',
     href,
-    libraries: ['start', 'router'] as const,
-    status: 'inactive' as const,
-    score: 0.714,
+    canonicalHref: 'https://lovable.dev/',
+    resources: [
+      {
+        kind: 'announcement',
+        label: 'TanStack + Lovable partnership',
+        href: '/blog/lovable-partnership',
+      },
+      {
+        kind: 'documentation',
+        label: 'Build with a URL in Lovable',
+        href: 'https://docs.lovable.dev/integrations/build-with-url',
+      },
+      {
+        kind: 'announcement',
+        label: 'Building TanStack Start apps with Lovable',
+        href: 'https://lovable.dev/blog/building-apps-using-tanstack-start',
+      },
+    ],
+    relatedProducts: ['start', 'router'] as const,
+    status: 'active' as const,
+    lastReviewedAt: currentPartnerReviewDate,
     tier: 'gold' as const,
     uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,
     brandColor: '#FF7EB0',
-    tagline: 'AI App Builder',
+    tagline: 'AI App Builder + Hosting',
     applicationStarterPromptInstructions: [
       'Treat Lovable as the AI app-building and hosting path, not as a TanStack CLI deployment flag or npm package.',
       'Keep the generated app portable: start with the TanStack CLI output, preserve GitHub/project ownership notes, and call out any Lovable Cloud setup that cannot be automated from code.',
-      'When Lovable is selected, do not add a separate Cloudflare, Netlify, or Railway deployment target unless the user explicitly asks for a handoff path.',
+      'When Lovable is selected, do not add a separate Cloudflare, Netlify, Railway, Render, or Vercel deployment target unless the user explicitly asks for a handoff path.',
     ],
     image: {
       light: lovableBlackSvg,
@@ -654,17 +847,30 @@ const lovable = (() => {
   }
 })()
 
-const sentry = (() => {
+const sentry = ((): Partner => {
   const href = 'https://sentry.io?utm_source=tanstack'
 
   return {
     name: 'Sentry',
     id: 'sentry',
-    libraries: ['start', 'router'],
+    relatedProducts: ['start', 'router'],
     status: 'active' as const,
-    score: 0.229,
+    lastReviewedAt: currentPartnerReviewDate,
     tier: 'bronze' as const,
     href,
+    canonicalHref: 'https://sentry.io/',
+    resources: [
+      {
+        kind: 'announcement',
+        label: 'TanStack + Sentry partnership',
+        href: '/blog/sentry-partnership',
+      },
+      {
+        kind: 'documentation',
+        label: 'Sentry for TanStack Start',
+        href: 'https://docs.sentry.io/platforms/javascript/guides/tanstackstart-react/',
+      },
+    ],
     brandColor: '#362D59',
     tagline: 'Error Monitoring',
     image: {
@@ -672,7 +878,7 @@ const sentry = (() => {
       dark: sentryWordMarkLightSvg,
     },
     llmDescription:
-      'Application monitoring platform for error tracking, tracing, replay, profiling, and logs. It also offers TanStack Router integration and an alpha TanStack Start React SDK.',
+      'Application monitoring platform for error tracking, tracing, replay, profiling, and logs, with TanStack Router support and an alpha TanStack Start React SDK.',
     category: 'monitoring',
     content: (
       <>
@@ -688,15 +894,16 @@ const sentry = (() => {
   }
 })()
 
-const fireship = (() => {
+const fireship = ((): Partner => {
   const href = 'https://bytes.dev?utm_source-tanstack&utm_campaign=tanstack'
 
   return {
     name: 'Fireship',
     id: 'fireship',
-    libraries: [],
+    relatedProducts: [],
     status: 'inactive' as const,
-    score: 0.014,
+    startDate: null,
+    endDate: null,
     href,
     tagline: 'Dev Education',
     image: {
@@ -744,7 +951,7 @@ const fireship = (() => {
   }
 })()
 
-const nozzle = (() => {
+const nozzle = ((): Partner => {
   const href = 'https://nozzle.io/?utm_source=tanstack&utm_campaign=tanstack'
 
   return {
@@ -752,7 +959,8 @@ const nozzle = (() => {
     id: 'nozzle',
     href,
     status: 'inactive' as const,
-    score: 0.014,
+    startDate: null,
+    endDate: null,
     tagline: 'Enterprise SEO',
     image: {
       src: nozzleImage,
@@ -774,7 +982,7 @@ const nozzle = (() => {
   }
 })()
 
-const speakeasy = (() => {
+const speakeasy = ((): Partner => {
   const href =
     'https://www.speakeasy.com/product/react-query?utm_source=tanstack&utm_campaign=tanstack'
 
@@ -782,7 +990,7 @@ const speakeasy = (() => {
     name: 'Speakeasy',
     id: 'speakeasy',
     href,
-    libraries: ['query'] as const,
+    relatedProducts: ['query'] as const,
     status: 'inactive' as const,
     startDate: 'Feb 2025',
     endDate: 'Jul 2025',
@@ -809,17 +1017,35 @@ const speakeasy = (() => {
   }
 })()
 
-const unkey = (() => {
+const unkey = ((): Partner => {
   const href = 'https://www.unkey.com/?utm_source=tanstack'
 
   return {
     name: 'Unkey',
     id: 'unkey',
-    libraries: ['pacer'] as const,
+    relatedProducts: ['start'] as const,
     status: 'active' as const,
-    score: 0.051,
+    lastReviewedAt: currentPartnerReviewDate,
     tier: 'bronze' as const,
     href,
+    canonicalHref: 'https://www.unkey.com/',
+    resources: [
+      {
+        kind: 'announcement',
+        label: 'TanStack + Unkey partnership',
+        href: '/blog/unkey-partnership',
+      },
+      {
+        kind: 'documentation',
+        label: 'Unkey server-side rate limiting',
+        href: 'https://www.unkey.com/docs/platform/ratelimiting/introduction',
+      },
+      {
+        kind: 'documentation',
+        label: 'Unkey API key quickstart',
+        href: 'https://www.unkey.com/docs/quickstart/quickstart',
+      },
+    ],
     brandColor: '#222222',
     tagline: 'API Key Management',
     applicationStarterPromptInstructions: [
@@ -849,19 +1075,41 @@ const unkey = (() => {
   }
 })()
 
-const serpApi = (() => {
+const serpApi = ((): Partner => {
   const href = 'https://serpapi.com?utm_source=tanstack'
 
   return {
-    name: 'SerpAPI',
+    name: 'SerpApi',
     id: 'serpapi',
-    libraries: libraries.map((l) => l.id),
+    relatedProducts: ['start', 'ai', 'mcp'],
     status: 'active' as const,
-    score: 0.41,
+    lastReviewedAt: currentPartnerReviewDate,
     tier: 'silver' as const,
     href,
+    canonicalHref: 'https://serpapi.com/',
+    resources: [
+      {
+        kind: 'announcement',
+        label: 'TanStack + SerpApi partnership',
+        href: '/blog/serpapi-partnership',
+      },
+      {
+        kind: 'documentation',
+        label: 'SerpApi JavaScript integration',
+        href: 'https://serpapi.com/integrations/javascript',
+      },
+      {
+        kind: 'documentation',
+        label: 'SerpApi MCP integration',
+        href: 'https://serpapi.com/integrations/mcp',
+      },
+    ],
     brandColor: '#6361EC',
     tagline: 'Real-time SERP API',
+    applicationStarterIcon: {
+      mode: 'contain',
+      src: serpapiBlackSvg,
+    },
     applicationStarterPromptInstructions: [
       'Install the official serpapi package and keep all SerpApi usage server-side behind an app-owned endpoint or server function.',
       'Read SERPAPI_API_KEY from environment variables and choose one explicit search engine instead of pretending to support every engine at once.',
@@ -889,17 +1137,32 @@ const serpApi = (() => {
   }
 })()
 
-const electric = (() => {
-  const href = 'https://electric-sql.com'
+const electric = ((): Partner => {
+  const href = 'https://electric.ax/?utm_source=tanstack'
 
   return {
     name: 'Electric',
     id: 'electric',
-    libraries: ['db'] as const,
-    status: 'active' as const,
-    score: 0.283,
+    relatedProducts: ['db'] as const,
+    status: 'inactive',
+    startDate: null,
+    endDate: 'Aug 30, 2026',
+    lastReviewedAt: '2026-09-30',
     tier: 'bronze' as const,
     href,
+    canonicalHref: 'https://electric.ax/',
+    resources: [
+      {
+        kind: 'announcement',
+        label: 'TanStack + Electric partnership',
+        href: '/blog/electric-partnership',
+      },
+      {
+        kind: 'documentation',
+        label: 'TanStack DB Electric collection',
+        href: '/db/latest/docs/collections/electric-collection',
+      },
+    ],
     brandColor: '#7e78db',
     tagline: 'Sync Engine',
     applicationStarterPromptInstructions: [
@@ -929,32 +1192,73 @@ const electric = (() => {
   }
 })()
 
-const vercel = (() => {
-  const href = 'https://vercel.com?utm_source=tanstack'
+const vercel = ((): Partner => {
+  const href =
+    'https://vercel.com?utm_source=tanstack&utm_medium=referral&utm_campaign=gold-launch'
 
   return {
     name: 'Vercel',
     id: 'vercel',
     href,
-    libraries: ['start', 'router'] as const,
-    status: 'inactive' as const,
-    startDate: 'May 2024',
-    endDate: 'Oct 2024',
-    uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,
+    canonicalHref: 'https://vercel.com/',
+    resources: [
+      {
+        kind: 'documentation',
+        label: 'TanStack Start hosting guide',
+        href: '/start/latest/docs/framework/react/guide/hosting',
+      },
+      {
+        kind: 'documentation',
+        label: 'TanStack Start on Vercel',
+        href: 'https://vercel.com/kb/guide/deploy-a-tanstack-start-app-to-vercel',
+      },
+      {
+        kind: 'documentation',
+        label: 'Vercel AI Gateway adapter',
+        href: '/ai/latest/docs/adapters/vercel-gateway',
+      },
+      {
+        kind: 'documentation',
+        label: 'TanStack AI with Vercel Sandbox',
+        href: 'https://vercel.com/kb/guide/tanstack-ai-vercel-sandbox',
+      },
+      {
+        kind: 'documentation',
+        label: 'TanStack AI with Vercel AI Gateway',
+        href: 'https://vercel.com/kb/guide/tanstack-ai-vercel-ai-gateway',
+      },
+      {
+        kind: 'announcement',
+        label: 'TanStack + Vercel partnership',
+        href: '/blog/vercel-partnership',
+      },
+    ],
+    relatedProducts: ['start', 'router', 'ai'],
+    status: 'active',
+    lastReviewedAt: currentPartnerReviewDate,
+    tier: 'gold',
+    uniqueConstraints: ['hosting'],
+    brandColor: '#000000',
+    tagline: 'Agentic Infrastructure',
+    applicationStarterIcon: {
+      mode: 'contain',
+      src: vercelLightSvg,
+    },
     image: {
       light: vercelLightSvg,
       dark: vercelDarkSvg,
     },
     llmDescription:
-      'Cloud platform for deploying and scaling web applications with Git-based workflows, preview environments, global delivery, and Vercel Functions.',
+      'Agentic infrastructure for building, deploying, and running apps and agents, with Git-based workflows, preview deployments, global delivery, serverless compute, and AI tooling.',
     category: 'deployment',
     content: (
       <>
         <div className="text-xs">
-          Vercel provides <strong>Git-based deployments</strong>, preview
-          environments, global delivery, and server-side compute through Vercel
-          Functions. That makes it a familiar deployment option for TanStack
-          Start and Router teams building full-stack apps.
+          Vercel provides <strong>agentic infrastructure</strong> for building,
+          deploying, and running apps and agents, with Git-based workflows,
+          preview deployments, global delivery, serverless compute, and AI
+          tooling. It is a familiar deployment option for TanStack Start and
+          Router teams shipping full-stack applications.
         </div>
         <LearnMoreButton />
       </>
@@ -962,17 +1266,30 @@ const vercel = (() => {
   }
 })()
 
-const prisma = (() => {
+const prisma = ((): Partner => {
   const href = 'https://www.prisma.io/?utm_source=tanstack&via=tanstack'
 
   return {
     name: 'Prisma',
     id: 'prisma',
     href,
+    canonicalHref: 'https://www.prisma.io/',
+    resources: [
+      {
+        kind: 'announcement',
+        label: 'TanStack + Prisma partnership',
+        href: '/blog/prisma-partnership',
+      },
+      {
+        kind: 'documentation',
+        label: 'Prisma with TanStack Start',
+        href: 'https://docs.prisma.io/docs/guides/frameworks/tanstack-start',
+      },
+    ],
     status: 'active' as const,
-    libraries: ['db', 'start'] as const,
+    lastReviewedAt: currentPartnerReviewDate,
+    relatedProducts: ['db', 'start'] as const,
     startDate: 'Aug 2025',
-    score: 0.143,
     tier: 'bronze' as const,
     brandColor: '#2D3748',
     tagline: 'Database ORM',
@@ -997,7 +1314,7 @@ const prisma = (() => {
   }
 })()
 
-const codeRabbit = (() => {
+const codeRabbit = ((): Partner => {
   const href =
     'https://coderabbit.link/tanstack?utm_source=tanstack&via=tanstack'
 
@@ -1005,12 +1322,25 @@ const codeRabbit = (() => {
     name: 'CodeRabbit',
     id: 'coderabbit',
     href,
+    canonicalHref: 'https://www.coderabbit.ai/',
+    resources: [
+      {
+        kind: 'announcement',
+        label: 'TanStack + CodeRabbit partnership',
+        href: '/blog/coderabbit-partnership',
+      },
+      {
+        kind: 'documentation',
+        label: 'CodeRabbit quickstart',
+        href: 'https://docs.coderabbit.ai/getting-started/quickstart',
+      },
+    ],
     status: 'active' as const,
-    libraries: libraries.map((l) => l.id),
+    lastReviewedAt: currentPartnerReviewDate,
+    relatedProducts: [],
     startDate: 'Aug 2025',
-    score: 1,
     tier: 'gold' as const,
-    brandColor: '#FF6B2B',
+    brandColor: '#FF570A',
     tagline: 'AI Code Review',
     applicationStarterPromptInstructions: [
       'Do not add runtime app code for CodeRabbit.',
@@ -1038,15 +1368,16 @@ const codeRabbit = (() => {
   }
 })()
 
-const strapi = (() => {
+const strapi = ((): Partner => {
   const href = 'https://strapi.link/tanstack-start'
 
   return {
     name: 'Strapi',
     id: 'strapi',
-    libraries: ['start', 'router'] as const,
+    relatedProducts: ['start', 'router'] as const,
     status: 'inactive' as const,
-    score: 0.069,
+    startDate: null,
+    endDate: null,
     tier: 'bronze' as const,
     href,
     brandColor: '#4945FF',
@@ -1073,19 +1404,32 @@ const strapi = (() => {
   }
 })()
 
-const powerSync = (() => {
+const powerSync = ((): Partner => {
   const href =
     'https://powersync.com?utm_source=tanstack&utm_campaign=tanstack_partner'
 
   return {
     name: 'PowerSync',
     id: 'powersync',
-    libraries: ['db', 'query'] as const,
+    relatedProducts: ['db', 'query'] as const,
     status: 'inactive' as const,
     startDate: 'Jan 2026',
-    score: 0.143,
+    endDate: 'Jun 2026',
     tier: 'bronze' as const,
     href,
+    canonicalHref: 'https://www.powersync.com/',
+    resources: [
+      {
+        kind: 'documentation',
+        label: 'PowerSync TanStack SDK guide',
+        href: 'https://docs.powersync.com/client-sdks/frameworks/tanstack',
+      },
+      {
+        kind: 'documentation',
+        label: 'TanStack DB PowerSync collection',
+        href: '/db/latest/docs/collections/powersync-collection',
+      },
+    ],
     tagline: 'Offline-first Sync',
     applicationStarterPromptInstructions: [
       'Install the official PowerSync web client packages such as @powersync/web and @journeyapps/wa-sqlite when PowerSync is explicitly requested.',
@@ -1114,21 +1458,34 @@ const powerSync = (() => {
   }
 })()
 
-const railway = (() => {
+const railway = ((): Partner => {
   const href =
     'https://railway.com/?utm_medium=sponsor&utm_source=oss&utm_campaign=tanstack'
 
   return {
     name: 'Railway',
     id: 'railway',
-    libraries: libraries.map((l) => l.id),
+    relatedProducts: ['start'],
     status: 'active' as const,
-    score: 0.145,
+    lastReviewedAt: currentPartnerReviewDate,
     tier: 'gold' as const,
     uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,
     href,
+    canonicalHref: 'https://railway.com/',
+    resources: [
+      {
+        kind: 'announcement',
+        label: 'TanStack + Railway partnership',
+        href: '/blog/railway-partnership',
+      },
+      {
+        kind: 'documentation',
+        label: 'TanStack Start hosting guide',
+        href: '/start/latest/docs/framework/react/guide/hosting',
+      },
+    ],
     brandColor: '#0B0D0E',
-    tagline: 'Instant Deployment',
+    tagline: 'Full-stack Hosting',
     image: {
       light: railwayBlackSvg,
       dark: railwayWhiteSvg,
@@ -1151,22 +1508,98 @@ const railway = (() => {
   }
 })()
 
-const openRouter = (() => {
+const render = ((): Partner => {
+  const href =
+    'https://render.com/tanstack?utm_source=tanstack&utm_medium=referral&utm_campaign=gold-launch'
+
+  return {
+    name: 'Render',
+    id: 'render',
+    relatedProducts: ['start'],
+    status: 'active',
+    lastReviewedAt: currentPartnerReviewDate,
+    tier: 'gold',
+    uniqueConstraints: ['hosting'],
+    href,
+    canonicalHref: 'https://render.com/tanstack',
+    resources: [
+      {
+        kind: 'announcement',
+        label: 'TanStack + Render partnership',
+        href: '/blog/render-partnership',
+      },
+      {
+        kind: 'documentation',
+        label: 'TanStack Start hosting guide',
+        href: '/start/latest/docs/framework/react/guide/hosting',
+      },
+      {
+        kind: 'documentation',
+        label: 'Render Blueprints',
+        href: 'https://render.com/docs/infrastructure-as-code',
+      },
+    ],
+    brandColor: '#000000',
+    tagline: 'Intuitive Cloud Infrastructure',
+    applicationStarterIcon: {
+      mode: 'contain',
+      src: renderBlackSvg,
+    },
+    image: {
+      light: renderBlackSvg,
+      dark: renderWhiteSvg,
+    },
+    llmDescription:
+      'Cloud platform for deploying and scaling apps and agents with intuitive infrastructure, managed databases, autoscaling, pull request previews, and zero-ops deployment from GitHub.',
+    category: 'deployment',
+    content: (
+      <>
+        <div className="text-xs">
+          Render provides <strong>intuitive cloud infrastructure</strong> for
+          deploying apps, APIs, databases, and background services. With
+          autoscaling, PR previews, and managed infrastructure, it is a
+          practical fit for TanStack teams that want to ship without ops
+          overhead.
+        </div>
+        <LearnMoreButton />
+      </>
+    ),
+  }
+})()
+
+const openRouter = ((): Partner => {
   const href = 'https://openrouter.ai?utm_source=tanstack'
 
   return {
     name: 'OpenRouter',
     id: 'openrouter',
     href,
-    libraries: libraries.map((l) => l.id),
+    canonicalHref: 'https://openrouter.ai/',
+    resources: [
+      {
+        kind: 'documentation',
+        label: 'TanStack AI OpenRouter adapter',
+        href: '/ai/latest/docs/adapters/openrouter',
+      },
+      {
+        kind: 'announcement',
+        label: 'TanStack + OpenRouter partnership',
+        href: '/blog/openrouter-partnership',
+      },
+    ],
+    relatedProducts: ['ai'],
     status: 'active' as const,
+    lastReviewedAt: currentPartnerReviewDate,
     startDate: 'Mar 2026',
-    score: 0.344,
     tier: 'silver' as const,
     brandColor: '#7C3AED',
     tagline: 'Unified LLM API',
+    applicationStarterIcon: {
+      mode: 'contain',
+      src: openrouterBlackSvg,
+    },
     applicationStarterPromptInstructions: [
-      'Use the official @openrouter/sdk on the server and read OPENROUTER_API_KEY from environment variables.',
+      'When the app uses TanStack AI, integrate OpenRouter through the official @tanstack/ai-openrouter adapter. Otherwise, use the official @openrouter/sdk on the server. Read OPENROUTER_API_KEY from environment variables.',
       'Keep model selection explicit and easy to swap, and do not expose provider keys in client code.',
       'If AI functionality is demoed, route requests through app-owned server functions instead of calling OpenRouter directly from the browser.',
     ],
@@ -1200,10 +1633,57 @@ const openRouter = (() => {
   }
 })()
 
-export const partners: Partner[] = [
+const scarf = ((): Partner => {
+  return {
+    name: 'Scarf',
+    id: 'scarf',
+    href: 'https://about.scarf.sh/?utm_source=tanstack',
+    canonicalHref: 'https://about.scarf.sh/',
+    resources: [
+      {
+        kind: 'announcement',
+        label: 'TanStack + Scarf partnership',
+        href: '/blog/scarf-partnership',
+      },
+      {
+        kind: 'documentation',
+        label: 'Scarf documentation',
+        href: 'https://docs.scarf.sh/',
+      },
+    ],
+    status: 'active',
+    lastReviewedAt: '2026-09-30',
+    relatedProducts: [],
+    tier: 'bronze',
+    brandColor: '#0572F1',
+    tagline: 'Open Source Analytics',
+    image: { src: scarfSvg },
+    llmDescription:
+      'Open source usage analytics that connect package downloads, documentation visits, and product telemetry with company adoption.',
+    category: 'analytics',
+    applicationStarterPromptInstructions: [
+      'Use Scarf for open source adoption analytics only when it fits the requested project.',
+      'Follow the official Scarf documentation for the chosen collection method. Keep account setup and project-specific package or pixel IDs explicit, and never reuse TanStack website tracking IDs.',
+    ],
+    content: (
+      <>
+        <div className="text-xs">
+          Scarf helps open source teams understand{' '}
+          <strong>company adoption</strong> through package downloads,
+          documentation visits, and product telemetry.
+        </div>
+        <LearnMoreButton />
+      </>
+    ),
+  }
+})()
+
+export const partners = [
   codeRabbit,
   cloudflare,
   lovable,
+  vercel,
+  render,
   agGrid,
   serpApi,
   netlify,
@@ -1221,9 +1701,9 @@ export const partners: Partner[] = [
   unkey,
   fireship,
   nozzle,
-  vercel,
   speakeasy,
-] as Partner[]
+  scarf,
+] satisfies Array<Partner>
 
 const applicationStarterBrandColorOverrides = new Map<string, string>([
   ['powersync', '#00D5FF'],
@@ -1241,7 +1721,7 @@ const applicationStarterPlacementContext = getPartnerPlacementContext({
 function getPartnerUniqueConstraints(
   partner: Pick<Partner, 'uniqueConstraints'>,
 ) {
-  return partner.uniqueConstraints ?? []
+  return [...(partner.uniqueConstraints ?? [])]
 }
 
 function hasSharedUniqueConstraint(
@@ -1396,21 +1876,29 @@ export function hasApplicationStarterPartnerUniqueConstraint(
   return partner?.uniqueConstraints.includes(uniqueConstraint) ?? false
 }
 
+const renderDeploymentPatterns = [
+  /\brender\.com\b/i,
+  /\brender\s+blueprints?\b/i,
+  /\b(?:deploy|deploying|deployment|host|hosting)\b[^.!?\n]{0,40}\b(?:to|on|with|via)\s+render\b(?=\s*(?:$|[,.!?;:]|\b(?:hosting|cloud|platform)\b))/i,
+  /\brender\s+(?:hosting|deployment)\b/i,
+  /\buse\s+render\s+(?:for\s+)?(?:hosting|deployment)\b/i,
+]
+
+export function isRenderDeploymentRequest(input: string) {
+  return renderDeploymentPatterns.some((pattern) => pattern.test(input))
+}
+
 const applicationStarterInferenceRules: Array<{
   partnerId: string
   patterns: Array<RegExp>
 }> = [
   {
     partnerId: 'workos',
-    patterns: [
-      /\b(sso|saml|scim|directory sync|enterprise auth|enterprise identity|b2b auth)\b/i,
-    ],
+    patterns: [/\b(workos|authkit)\b/i],
   },
   {
     partnerId: 'clerk',
-    patterns: [
-      /\b(authentication|sign[ -]?in|sign[ -]?up|login|oauth|mfa|user management|sessions?)\b/i,
-    ],
+    patterns: [/\bclerk\b/i],
   },
   {
     partnerId: 'cloudflare',
@@ -1433,10 +1921,16 @@ const applicationStarterInferenceRules: Array<{
     patterns: [/\brailway\b/i],
   },
   {
+    partnerId: 'render',
+    patterns: renderDeploymentPatterns,
+  },
+  {
+    partnerId: 'vercel',
+    patterns: [/\b(vercel|v0)\b/i],
+  },
+  {
     partnerId: 'sentry',
-    patterns: [
-      /\b(error tracking|exception monitoring|observability|tracing|trace(s|ing)?|session replay|profiling|application monitoring)\b/i,
-    ],
+    patterns: [/\bsentry\b/i],
   },
   {
     partnerId: 'strapi',
@@ -1496,10 +1990,6 @@ function getApplicationStarterPartnerTier(
   partner: Pick<Partner, 'tier'>,
 ): ApplicationStarterPartnerTier {
   return partner.tier ? partnerTierToBuilderTier[partner.tier] : 3
-}
-
-function getApplicationStarterPartnerFaviconUrl(href: string) {
-  return `${new URL(href).origin}/favicon.ico`
 }
 
 function getApplicationStarterPartnerDescription(
@@ -1621,11 +2111,7 @@ function createApplicationStarterPartnerSuggestion(
     description: getApplicationStarterPartnerDescription(partner),
     hint: `${partner.name} (${partnerCategoryLabels[partner.category]})`,
     iconMode,
-    iconSrc:
-      tier === 2
-        ? (partner.applicationStarterIcon?.src ??
-          getApplicationStarterPartnerFaviconUrl(partner.href))
-        : undefined,
+    iconSrc: tier === 2 ? partner.applicationStarterIcon?.src : undefined,
     image: partner.image,
     tags: getApplicationStarterPartnerTags(partner),
     brandColor:
@@ -1763,4 +2249,27 @@ export function composeApplicationStarterInput(
 
 export function getPartnerById(partnerId: string) {
   return partners.find((partner) => partner.id === partnerId)
+}
+
+const renderPlacementUtmContent: Partial<Record<PartnerPlacement, string>> = {
+  home_grid: 'home_grid',
+  library_grid: 'library_grid',
+  docs_rail: 'docs_rail',
+  docs_strip: 'docs_strip',
+}
+
+export function getPartnerHref(
+  partner: Pick<Partner, 'id' | 'href'>,
+  placement?: PartnerPlacement,
+): string {
+  if (partner.id !== 'render' || !placement) {
+    return partner.href
+  }
+
+  const utmContent = renderPlacementUtmContent[placement]
+  if (!utmContent) {
+    return partner.href
+  }
+
+  return `https://render.com/tanstack?utm_source=tanstack&utm_medium=referral&utm_campaign=gold-launch&utm_content=${utmContent}`
 }

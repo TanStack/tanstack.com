@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict'
-import { runWithHostRuntimeEnv } from '../src/server/runtime/host.server'
+import {
+  runWithHostRuntimeContext,
+  runWithHostRuntimeEnv,
+} from '../src/server/runtime/host.server'
 import {
   getCachedDocsArtifact,
   getCachedGitHubJsonContent,
@@ -20,6 +23,15 @@ function isStringArray(value: unknown): value is Array<string> {
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
+}
+
+async function withTimeout(promise: Promise<void>, message: string) {
+  await Promise.race([
+    promise,
+    new Promise<void>((_, reject) => {
+      setTimeout(() => reject(new Error(message)), 1000)
+    }),
+  ])
 }
 
 function isDocsManifest(value: unknown): value is { paths: Array<string> } {
@@ -134,6 +146,46 @@ async function testBlobStorageInfersGithubContentMetadataFromKey() {
 
   assert.deepEqual(result, ['docs/index.md'])
   assert.equal(originCalls, 0)
+}
+
+async function testBlobStorageUsesCurrentRequestBinding() {
+  resetGitHubContentCacheForTest()
+
+  const mockR2 = createMockR2Bucket()
+  const reads: Array<number> = []
+  const requestBucket = (requestId: number) => ({
+    ...mockR2.bucket,
+    async get(key: string) {
+      reads.push(requestId)
+      return mockR2.bucket.get(key)
+    },
+  })
+  let originCalls = 0
+  const opts = {
+    repo,
+    gitRef,
+    path: 'docs/request-binding.md',
+    origin: async () => {
+      originCalls += 1
+      return 'shared cached content'
+    },
+  }
+
+  for (const requestId of [1, 2]) {
+    const readOffset = reads.length
+    const result = await runWithHostRuntimeEnv(
+      { GITHUB_CONTENT_CACHE: requestBucket(requestId) },
+      () => getCachedGitHubTextFile(opts),
+    )
+    assert.equal(result, 'shared cached content')
+    assert.ok(reads.length > readOffset)
+    assert.ok(
+      reads.slice(readOffset).every((id) => id === requestId),
+      'blob reads must use the current request binding',
+    )
+  }
+
+  assert.equal(originCalls, 1)
 }
 
 async function testForcedStaleRefreshes() {
@@ -294,9 +346,89 @@ async function testArtifactInvalidationAndPruneDelete() {
   assert.equal(originCalls, 1)
 }
 
+async function testStaleArtifactRefreshesInWaitUntil() {
+  resetGitHubContentCacheForTest()
+
+  await getCachedDocsArtifact({
+    repo,
+    gitRef,
+    docsRoot: 'docs',
+    artifactType: 'docs-manifest',
+    artifactKey: 'default',
+    isValue: isDocsManifest,
+    build: async () => ({ paths: ['old'] }),
+  })
+
+  assert.equal(await markDocsArtifactsStale({ repo, gitRef }), 1)
+
+  const waitUntilPromises: Array<Promise<unknown>> = []
+  let buildCalls = 0
+  let resolveRefresh: ((value: { paths: Array<string> }) => void) | undefined
+  let markRefreshStarted: (() => void) | undefined
+  const refreshStarted = new Promise<void>((resolve) => {
+    markRefreshStarted = resolve
+  })
+  const refreshResult = new Promise<{ paths: Array<string> }>((resolve) => {
+    resolveRefresh = resolve
+  })
+
+  const staleResult = await runWithHostRuntimeContext(
+    {
+      waitUntil(promise: Promise<unknown>) {
+        waitUntilPromises.push(promise)
+      },
+    },
+    () =>
+      getCachedDocsArtifact({
+        repo,
+        gitRef,
+        docsRoot: 'docs',
+        artifactType: 'docs-manifest',
+        artifactKey: 'default',
+        isValue: isDocsManifest,
+        build: () => {
+          buildCalls += 1
+          markRefreshStarted?.()
+          return refreshResult
+        },
+      }),
+  )
+
+  assert.deepEqual(staleResult, { paths: ['old'] })
+  assert.equal(waitUntilPromises.length, 1)
+
+  await withTimeout(
+    refreshStarted,
+    'stale artifact refresh did not start in waitUntil',
+  )
+  assert.equal(buildCalls, 1)
+
+  if (!resolveRefresh) {
+    throw new Error('stale artifact refresh resolver was not created')
+  }
+
+  resolveRefresh({ paths: ['new'] })
+  await Promise.all(waitUntilPromises)
+
+  const freshResult = await getCachedDocsArtifact({
+    repo,
+    gitRef,
+    docsRoot: 'docs',
+    artifactType: 'docs-manifest',
+    artifactKey: 'default',
+    isValue: isDocsManifest,
+    build: async () => {
+      throw new Error('fresh artifact should not rebuild')
+    },
+  })
+
+  assert.deepEqual(freshResult, { paths: ['new'] })
+}
+
 await testMissStoresContent()
 await testFreshHitSkipsOrigin()
 await testWorkerEnvUsesBlobStorage()
+await testBlobStorageUsesCurrentRequestBinding()
 await testBlobStorageInfersGithubContentMetadataFromKey()
 await testForcedStaleRefreshes()
 await testNegativeHitSkipsOrigin()
@@ -304,5 +436,6 @@ await testJsonNegativeEntryRefreshes()
 await testRefreshFailureFallsBackToStaleContent()
 await testJsonContentUsesTypeGuard()
 await testArtifactInvalidationAndPruneDelete()
+await testStaleArtifactRefreshesInWaitUntil()
 
 console.log('github-content-cache tests passed')

@@ -79,7 +79,7 @@ function SupportComp() {
               className={`${cardClass} ${option.isNew ? 'overflow-visible' : 'overflow-hidden'}`}
             >
               {option.isNew && (
-                <div className="absolute -top-2 -right-2 z-40 px-2 py-1 rounded-md bg-gradient-to-r from-blue-500 to-purple-500 uppercase text-white font-black italic text-xs">
+                <div className="absolute -top-2 -right-2 z-40 px-2 py-1 rounded-md bg-linear-to-r from-blue-500 to-purple-500 uppercase text-white font-black italic text-xs">
                   NEW
                 </div>
               )}

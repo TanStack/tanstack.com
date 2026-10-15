@@ -12,7 +12,12 @@ import { hasCapability } from '~/db/types'
 import { useToast } from '~/components/ToastProvider'
 import { updateAdPreference } from '~/utils/users.functions'
 import { getMyStreak } from '~/utils/activity.functions'
-import { LogOut, Flame, Trophy, Calendar } from 'lucide-react'
+import {
+  SignOutIcon,
+  FlameIcon,
+  TrophyIcon,
+  CalendarIcon,
+} from '@phosphor-icons/react'
 import { Card } from '~/components/Card'
 import { Button } from '~/ui'
 
@@ -150,7 +155,7 @@ function AccountSettingsPage() {
         ) : streakQuery.data ? (
           <div className="grid grid-cols-3 gap-3 text-sm">
             <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-              <Flame className="w-5 h-5 text-orange-500 mb-1" />
+              <FlameIcon className="w-5 h-5 text-orange-500 mb-1" />
               <span className="text-2xl font-bold text-gray-900 dark:text-white">
                 {streakQuery.data.currentStreak}
               </span>
@@ -159,7 +164,7 @@ function AccountSettingsPage() {
               </span>
             </div>
             <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-              <Trophy className="w-5 h-5 text-yellow-500 mb-1" />
+              <TrophyIcon className="w-5 h-5 text-yellow-500 mb-1" />
               <span className="text-2xl font-bold text-gray-900 dark:text-white">
                 {streakQuery.data.longestStreak}
               </span>
@@ -168,7 +173,7 @@ function AccountSettingsPage() {
               </span>
             </div>
             <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-              <Calendar className="w-5 h-5 text-blue-500 mb-1" />
+              <CalendarIcon className="w-5 h-5 text-blue-500 mb-1" />
               <span className="text-2xl font-bold text-gray-900 dark:text-white">
                 {streakQuery.data.totalActiveDays}
               </span>
@@ -181,7 +186,7 @@ function AccountSettingsPage() {
       </div>
       <div>
         <Button variant="ghost" size="xs" onClick={signOut}>
-          <LogOut className="w-3.5 h-3.5" />
+          <SignOutIcon className="w-3.5 h-3.5" />
           Logout
         </Button>
       </div>

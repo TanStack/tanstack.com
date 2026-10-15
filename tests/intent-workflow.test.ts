@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { test } from 'node:test'
+import { mock, test } from 'node:test'
 import {
   defineWorkflowRuntime,
   every,
@@ -7,7 +7,10 @@ import {
   materializeWorkflowSchedules,
 } from '@tanstack/workflow-runtime'
 import type { WorkflowExecutionStore } from '@tanstack/workflow-runtime'
-import { createIntentProcessWorkflow } from '../src/utils/intent-workflows.server'
+import {
+  createIntentDiscoverWorkflow,
+  createIntentProcessWorkflow,
+} from '../src/utils/intent-workflows.server'
 import type {
   IntentProcessResult,
   IntentSyncOperations,
@@ -114,68 +117,214 @@ test('failed package version step does not prevent other versions from processin
   assert.deepEqual(result.run.output, expected)
 })
 
-test('process workflow continues from queue state across scheduled invocations', async () => {
-  const queue = [
-    { id: 1, packageName: '@example/one', version: '1.0.0' },
-    { id: 2, packageName: '@example/two', version: '1.0.0' },
-  ]
-  const processed: Array<string> = []
-  const store = inMemoryWorkflowExecutionStore()
-  const operations: IntentSyncOperations = {
-    ...noopOperations,
-    selectPendingIntentVersions: async () => {
-      const next = queue.shift()
-      return next ? [next] : []
-    },
-    processIntentVersion: async (versionId: number) => {
-      const packageName = versionId === 1 ? '@example/one' : '@example/two'
-      const version = '1.0.0'
-      processed.push(`${packageName}@${version}`)
-      return {
-        packageName,
-        version,
-        status: 'synced',
-        skillCount: 1,
-      }
-    },
+test('process workflow yields near its runtime deadline and resumes the same run', async () => {
+  let wallNow = 1_000
+  mock.method(Date, 'now', () => wallNow)
+
+  try {
+    const queue = [
+      { id: 1, packageName: '@example/one', version: '1.0.0' },
+      { id: 2, packageName: '@example/two', version: '1.0.0' },
+    ]
+    const processed: Array<string> = []
+    const store = inMemoryWorkflowExecutionStore()
+    const { processWorkflow, runtime } = createTestIntentRuntime({
+      store,
+      operations: {
+        ...noopOperations,
+        selectPendingIntentVersions: async ({ limit }) =>
+          queue.splice(0, limit),
+        processIntentVersion: async (versionId: number) => {
+          const packageName = versionId === 1 ? '@example/one' : '@example/two'
+          const version = '1.0.0'
+          processed.push(`${packageName}@${version}`)
+          wallNow += 600
+          return {
+            packageName,
+            version,
+            status: 'synced',
+            skillCount: 1,
+          }
+        },
+      },
+    })
+    const runId = 'intent-process:deadline-resume'
+
+    const first = await runtime.startRun({
+      workflowId: processWorkflow.id,
+      runId,
+      input: { source: 'schedule' },
+      now: 100,
+      deadline: 2_000,
+      minYieldRemainingMs: 500,
+      includeEvents: false,
+    })
+    const paused = await store.loadRun(runId)
+    const resumed = await runtime.sweep({
+      now: 101,
+      deadline: 10_000,
+      minYieldRemainingMs: 500,
+      includeEvents: false,
+    })
+
+    assert.equal(first.kind, 'paused')
+    assert.equal(paused?.status, 'paused')
+    assert.equal(paused?.lease, undefined)
+    assert.equal(resumed.timers[0]?.kind, 'completed')
+    assert.equal(resumed.timers[0]?.runId, runId)
+    assert.deepEqual(processed, ['@example/one@1.0.0', '@example/two@1.0.0'])
+    assert.deepEqual(resumed.timers[0]?.run?.output, {
+      processed: 2,
+      failed: 0,
+      deferred: 0,
+      results: [
+        {
+          packageName: '@example/one',
+          version: '1.0.0',
+          status: 'synced',
+          skillCount: 1,
+        },
+        {
+          packageName: '@example/two',
+          version: '1.0.0',
+          status: 'synced',
+          skillCount: 1,
+        },
+      ],
+    })
+  } finally {
+    mock.restoreAll()
   }
-  const first = createTestIntentRuntime({
-    store,
-    operations,
-  })
-  const second = createTestIntentRuntime({
-    store,
-    operations,
-  })
-  const firstBucket = Date.UTC(2026, 4, 26, 12, 0, 0)
-  const secondBucket = Date.UTC(2026, 4, 26, 12, 15, 0)
+})
 
-  await materializeWorkflowSchedules(first.runtime, { now: firstBucket })
-  await first.runtime.sweep({ now: firstBucket, includeEvents: false })
-  await materializeWorkflowSchedules(second.runtime, { now: secondBucket })
-  await second.runtime.sweep({ now: secondBucket, includeEvents: false })
+test('discovery yields near its runtime deadline and resumes completed package steps', async () => {
+  let wallNow = 1_000
+  mock.method(Date, 'now', () => wallNow)
 
-  const runs = await store.listRuns({
-    workflowId: first.processWorkflow.id,
-    limit: 10,
+  try {
+    const discovered: Array<string> = []
+    const store = inMemoryWorkflowExecutionStore()
+    const { discoverWorkflow, runtime } = createTestDiscoverRuntime({
+      store,
+      operations: {
+        ...noopOperations,
+        searchIntentNpmPackagesPage: async () => ({
+          packageNames: ['@example/one', '@example/two'],
+          total: 2,
+        }),
+        discoverIntentNpmPackage: async (packageName) => {
+          discovered.push(packageName)
+          wallNow += 600
+          return 1
+        },
+      },
+    })
+    const runId = 'intent-discover:deadline-resume'
+
+    const first = await runtime.startRun({
+      workflowId: discoverWorkflow.id,
+      runId,
+      input: { source: 'schedule' },
+      now: 100,
+      deadline: 2_000,
+      minYieldRemainingMs: 500,
+      includeEvents: false,
+    })
+    const paused = await store.loadRun(runId)
+    const resumed = await runtime.sweep({
+      now: 101,
+      deadline: 10_000,
+      minYieldRemainingMs: 500,
+      includeEvents: false,
+    })
+
+    assert.equal(first.kind, 'paused')
+    assert.equal(paused?.status, 'paused')
+    assert.equal(resumed.timers[0]?.kind, 'completed')
+    assert.deepEqual(discovered, ['@example/one', '@example/two'])
+    assert.deepEqual(resumed.timers[0]?.run?.output, {
+      packagesDiscovered: 2,
+      githubCandidates: 0,
+      packagesVerified: 2,
+      versionsEnqueued: 2,
+      errors: [],
+    })
+  } finally {
+    mock.restoreAll()
+  }
+})
+
+test('failed discovery package does not prevent later packages from running', async () => {
+  let failedCalls = 0
+  let goodCalls = 0
+  const { discoverWorkflow, runtime } = createTestDiscoverRuntime({
+    operations: {
+      ...noopOperations,
+      searchIntentNpmPackagesPage: async () => ({
+        packageNames: ['@example/bad', '@example/good'],
+        total: 2,
+      }),
+      discoverIntentNpmPackage: async (packageName) => {
+        if (packageName === '@example/bad') {
+          failedCalls++
+          throw new Error('bad package')
+        }
+        goodCalls++
+        return 2
+      },
+    },
   })
 
-  assert.deepEqual(processed, ['@example/one@1.0.0', '@example/two@1.0.0'])
-  assert.equal(runs.length, 2)
+  const result = await runtime.startRun({
+    workflowId: discoverWorkflow.id,
+    runId: 'intent-discover:partial-failure',
+    input: { source: 'admin' },
+    includeEvents: false,
+  })
+
+  assert.equal(result.kind, 'completed')
+  assert.equal(failedCalls, 2)
+  assert.equal(goodCalls, 1)
+  assert.deepEqual(result.run?.output, {
+    packagesDiscovered: 2,
+    githubCandidates: 0,
+    packagesVerified: 1,
+    versionsEnqueued: 2,
+    errors: ['npm/@example/bad: bad package'],
+  })
 })
 
 const noopOperations: IntentSyncOperations = {
-  discoverIntentPackages: async () => ({
-    packagesDiscovered: 0,
-    githubCandidates: 0,
-    packagesVerified: 0,
-    versionsEnqueued: 0,
-    errors: [],
+  searchIntentNpmPackagesPage: async () => ({
+    packageNames: [],
+    total: 0,
   }),
+  discoverIntentNpmPackage: async () => null,
+  searchIntentGitHubCandidates: async () => [],
+  discoverIntentGitHubPackage: async () => null,
   selectPendingIntentVersions: async () => [],
   processIntentVersion: async () => {
     throw new Error('No test version configured')
   },
+}
+
+function createTestDiscoverRuntime(options: {
+  operations: IntentSyncOperations
+  store?: WorkflowExecutionStore
+}) {
+  const discoverWorkflow = createIntentDiscoverWorkflow(options.operations)
+
+  return {
+    discoverWorkflow,
+    runtime: defineWorkflowRuntime({
+      store: options.store ?? inMemoryWorkflowExecutionStore(),
+      workflows: {
+        [discoverWorkflow.id]: {
+          load: async () => discoverWorkflow,
+        },
+      },
+    }),
+  }
 }
 
 function createTestIntentRuntime(options: {

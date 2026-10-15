@@ -1,3 +1,4 @@
+import { isDatabaseConfigured } from '~/db/client'
 import { createServerFn } from '@tanstack/react-start'
 import * as v from 'valibot'
 import {
@@ -24,6 +25,7 @@ import {
   selectVersionsToSync,
   extractSkillsFromTarball,
   fetchBulkDownloads,
+  npmPackageMatchesSearch,
   searchIntentPackagesByText,
 } from './intent.server'
 import { fetchCached } from './cache.server'
@@ -203,8 +205,13 @@ export const getIntentDirectory = createServerFn({ method: 'GET' })
     })
 
     // Build the set of packages to show: union of NPM results + DB name matches
+    const matchingNpmObjects = search
+      ? npmData.objects.filter((obj) =>
+          npmPackageMatchesSearch(obj.package, search),
+        )
+      : npmData.objects
     const npmByName = new Map(
-      npmData.objects.map((obj) => [obj.package.name, obj]),
+      matchingNpmObjects.map((obj) => [obj.package.name, obj]),
     )
     const dbMatchNames = new Set(dbSearchMatches.map((p) => p.name))
     const summaryByPackageName = new Map(
@@ -458,6 +465,11 @@ export const getIntentPackageDetail = createServerFn({ method: 'GET' })
   .validator(v.object({ name: npmPackageNameSchema }))
   .handler(async ({ data }) => {
     const { name } = data
+    if (
+      process.env.NODE_ENV === 'development' &&
+      !(await isDatabaseConfigured())
+    )
+      return null
 
     // Quick rejection cache check (packages confirmed to have no skills)
     if (isRejected(name)) return null

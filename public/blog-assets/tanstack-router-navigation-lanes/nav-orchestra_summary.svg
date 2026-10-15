@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="55.937" height="21.401" viewBox="0 0 14.8 5.662">
+  <style>
+    :root {
+      background-color: #fdfdfd;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        background-color: #0a0a0a;
+      }
+
+      [fill="#4c4c4c"] {
+        fill: #b3b3b3;
+      }
+
+      text:not([fill]) {
+        fill: #fff;
+      }
+    }
+  </style>
+<defs><marker id="a" markerHeight="1" markerWidth="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid" refX="3" refY="0" viewBox="0 0 1 1"><path fill="context-stroke" fill-rule="evenodd" d="M-.148-2.874 4.348-.626a.7.7 0 0 1 0 1.252L-.148 2.874A.865.865 0 0 1-1.4 2.1v-4.2a.865.865 0 0 1 1.252-.774"/></marker><marker id="b" markerHeight="1" markerWidth="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid" refX="3" refY="0" viewBox="0 0 1 1"><path fill="context-stroke" fill-rule="evenodd" d="M-.148-2.874 4.348-.626a.7.7 0 0 1 0 1.252L-.148 2.874A.865.865 0 0 1-1.4 2.1v-4.2a.865.865 0 0 1 1.252-.774"/></marker></defs><g stroke-linecap="round"><path fill="none" stroke="#db81dd" stroke-width=".285" d="M1.484 2.838h3.244"/><path fill="none" stroke="#e2b027" stroke-width=".285" d="M8.253 2.838h3.018"/><path fill="none" stroke="#8049d2" stroke-width=".285" d="M11.271 2.838h2.443"/><path fill="none" stroke="#a7a7a7" stroke-dashoffset=".646" stroke-width=".07" marker-end="url(#a)" d="M99.727 36s-.245.364-.245.918.242.908.242.908" transform="translate(-98.957 -35.323)"/><path fill="none" stroke="#a7a7a7" stroke-dashoffset=".646" stroke-width=".07" marker-end="url(#b)" d="M113.038 38.343s.245.363.245.917-.241.908-.241.908" transform="translate(-98.957 -35.323)"/><text xml:space="preserve" x="99.867" y="36.01" fill="#4c4c4c" stroke-dashoffset=".646" stroke-width=".085" font-family="Monaspace Neon NF" font-size=".635" font-weight="400" style="line-height:.9;-inkscape-font-specification:&quot;Monaspace Neon NF, Normal&quot;;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start" transform="translate(-98.957 -35.323)"><tspan x="99.867" y="36.01" style="line-height:.9;-inkscape-font-specification:&quot;Monaspace Neon NF, Normal&quot;;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal">navigate</tspan></text><text xml:space="preserve" x="112.856" y="40.668" fill="#4c4c4c" stroke-dashoffset=".646" stroke-width=".085" font-family="Monaspace Neon NF" font-size=".635" font-weight="400" style="line-height:.9;-inkscape-font-specification:&quot;Monaspace Neon NF, Normal&quot;;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:end" text-anchor="end" transform="translate(-98.957 -35.323)"><tspan x="112.856" y="40.668" style="line-height:.9;-inkscape-font-specification:&quot;Monaspace Neon NF, Normal&quot;;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal">render</tspan></text><path fill="none" stroke="#60d9d8" stroke-width=".285" d="M4.613 2.838h3.326"/></g><g stroke-width=".159" transform="translate(-98.957 -35.323)"><circle cx="100.313" cy="38.161" r=".307" stroke="#db81dd"/><circle cx="103.608" cy="38.161" r=".307" stroke="#60d9d8"/><circle cx="106.903" cy="38.161" r=".307" stroke="#e2b027"/><circle cx="110.198" cy="38.161" r=".307" stroke="#8049d2"/></g></svg>

@@ -2,18 +2,18 @@ import * as React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-  RefreshCw,
-  Play,
-  RotateCcw,
-  Trash2,
-  BookOpen,
-  ChevronDown,
-  ChevronRight,
-  AlertTriangle,
-  CheckCircle2,
-  Clock,
-  Wrench,
-} from 'lucide-react'
+  ArrowsClockwiseIcon,
+  PlayIcon,
+  ArrowCounterClockwiseIcon,
+  TrashIcon,
+  BookOpenIcon,
+  CaretDownIcon,
+  CaretRightIcon,
+  WarningIcon,
+  CheckCircleIcon,
+  ClockIcon,
+  WrenchIcon,
+} from '@phosphor-icons/react'
 import { Button } from '~/ui'
 import { Card } from '~/components/Card'
 import { formatDistanceToNow } from '~/utils/dates'
@@ -128,7 +128,7 @@ function IntentAdminPage() {
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <BookOpen className="w-5 h-5 text-sky-500" />
+            <BookOpenIcon className="w-5 h-5 text-sky-500" />
             <h1 className="text-xl font-bold text-gray-900 dark:text-white">
               Intent Skills Registry
             </h1>
@@ -148,7 +148,7 @@ function IntentAdminPage() {
             disabled={discoverMutation.isPending}
             title="Search NPM for tanstack-intent keyword, verify packages, and enqueue"
           >
-            <RefreshCw
+            <ArrowsClockwiseIcon
               className={
                 discoverMutation.isPending ? 'animate-spin w-4 h-4' : 'w-4 h-4'
               }
@@ -161,7 +161,7 @@ function IntentAdminPage() {
             disabled={githubDiscoverMutation.isPending}
             title="Search GitHub for repos with @tanstack/intent dependency and skills"
           >
-            <RefreshCw
+            <ArrowsClockwiseIcon
               className={
                 githubDiscoverMutation.isPending
                   ? 'animate-spin w-4 h-4'
@@ -180,9 +180,9 @@ function IntentAdminPage() {
               processMutation.isPending ||
               (stats?.pendingVersions ?? 0) + (stats?.failedVersions ?? 0) === 0
             }
-            title="Download tarballs and extract skills until the workflow nears its time budget"
+            title="Download tarballs and extract skills for pending versions"
           >
-            <Play
+            <PlayIcon
               className={
                 processMutation.isPending ? 'animate-pulse w-4 h-4' : 'w-4 h-4'
               }
@@ -198,7 +198,7 @@ function IntentAdminPage() {
               disabled={resetFailedMutation.isPending}
               title="Reset all failed versions back to pending so they'll be retried"
             >
-              <RotateCcw className="w-4 h-4" />
+              <ArrowCounterClockwiseIcon className="w-4 h-4" />
               Reset {stats?.failedVersions} Failed
             </Button>
           )}
@@ -234,36 +234,56 @@ function IntentAdminPage() {
       {/* Mutation result banners */}
       {discoverMutation.data && (
         <ResultBanner
-          title="Discovery complete"
-          items={[
-            `${discoverMutation.data.packagesDiscovered} found on NPM`,
-            `${discoverMutation.data.packagesVerified} verified`,
-            `${discoverMutation.data.versionsEnqueued} versions enqueued`,
-            ...(discoverMutation.data.errors.length > 0
-              ? [`${discoverMutation.data.errors.length} errors`]
-              : []),
-          ]}
-          errors={discoverMutation.data.errors}
+          title={
+            discoverMutation.data.kind === 'completed'
+              ? 'Discovery complete'
+              : 'Discovery started'
+          }
+          items={
+            discoverMutation.data.kind === 'completed'
+              ? [
+                  `${discoverMutation.data.summary.packagesDiscovered} found on NPM`,
+                  `${discoverMutation.data.summary.packagesVerified} verified`,
+                  `${discoverMutation.data.summary.versionsEnqueued} versions enqueued`,
+                  ...(discoverMutation.data.summary.errors.length > 0
+                    ? [`${discoverMutation.data.summary.errors.length} errors`]
+                    : []),
+                ]
+              : ['Discovery will continue during scheduled processing.']
+          }
+          errors={
+            discoverMutation.data.kind === 'completed'
+              ? discoverMutation.data.summary.errors
+              : []
+          }
           onDismiss={() => discoverMutation.reset()}
         />
       )}
       {processMutation.data && (
         <ResultBanner
-          title={`Processed ${processMutation.data.processed} version(s)`}
-          items={[
-            ...(processMutation.data.deferred > 0
-              ? [
-                  `${processMutation.data.deferred} version(s) deferred by the time budget`,
-                ]
-              : []),
-            ...processMutation.data.results.map(
-              (r) =>
-                `${r.packageName}@${r.version}: ${r.status === 'synced' ? `${r.skillCount} skills` : `FAILED — ${r.error}`}`,
-            ),
-          ]}
-          errors={processMutation.data.results
-            .filter((r) => r.status === 'failed')
-            .map((r) => `${r.packageName}@${r.version}: ${r.error}`)}
+          title={
+            processMutation.data.kind === 'completed'
+              ? `Processed ${processMutation.data.summary.processed} version(s)`
+              : 'Queue processing started'
+          }
+          items={
+            processMutation.data.kind === 'completed'
+              ? processMutation.data.summary.results.map(
+                  (result) =>
+                    `${result.packageName}@${result.version}: ${result.status === 'synced' ? `${result.skillCount} skills` : `FAILED — ${result.error}`}`,
+                )
+              : ['Remaining work will continue during scheduled processing.']
+          }
+          errors={
+            processMutation.data.kind === 'completed'
+              ? processMutation.data.summary.results
+                  .filter((result) => result.status === 'failed')
+                  .map(
+                    (result) =>
+                      `${result.packageName}@${result.version}: ${result.error}`,
+                  )
+              : []
+          }
           onDismiss={() => processMutation.reset()}
         />
       )}
@@ -485,7 +505,7 @@ function WorkflowHealthSection({
     <div className="mb-6">
       <div className="mb-2 flex items-center justify-between gap-3">
         <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
-          <CheckCircle2 className="w-4 h-4" />
+          <CheckCircleIcon className="w-4 h-4" />
           Workflow Health
         </h2>
         <Button
@@ -495,7 +515,7 @@ function WorkflowHealthSection({
           disabled={repairing || loading || !needsRepair}
           title="Mark stale runs as errored and delete schedules for workflows that are no longer registered"
         >
-          <Wrench
+          <WrenchIcon
             className={repairing ? 'w-3.5 h-3.5 animate-pulse' : 'w-3.5 h-3.5'}
           />
           {repairing ? 'Repairing...' : 'Repair Store'}
@@ -600,7 +620,7 @@ function WorkflowRunsSection({
   return (
     <div className="mb-6">
       <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1.5 mb-2">
-        <Clock className="w-4 h-4" />
+        <ClockIcon className="w-4 h-4" />
         Workflow Runs
       </h2>
       {loading ? (
@@ -702,9 +722,9 @@ function ResultBanner({
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2 font-medium text-gray-900 dark:text-white">
           {hasErrors ? (
-            <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
+            <WarningIcon className="w-4 h-4 text-amber-500 shrink-0" />
           ) : (
-            <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+            <CheckCircleIcon className="w-4 h-4 text-emerald-500 shrink-0" />
           )}
           {title}
         </div>
@@ -766,7 +786,7 @@ function FailedVersionsSection({
   return (
     <div className="mb-6">
       <h2 className="text-sm font-semibold text-red-600 dark:text-red-400 flex items-center gap-1.5 mb-2">
-        <AlertTriangle className="w-4 h-4" />
+        <WarningIcon className="w-4 h-4" />
         Failed Versions
         <span className="ml-1 px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-900/40 text-xs tabular-nums">
           {versions.length}
@@ -813,7 +833,7 @@ function FailedVersionsSection({
                     onClick={() => retryMutation.mutate(v.id)}
                     disabled={retryMutation.isPending}
                   >
-                    <RotateCcw className="w-3 h-3" />
+                    <ArrowCounterClockwiseIcon className="w-3 h-3" />
                     Retry
                   </Button>
                 </td>
@@ -945,9 +965,9 @@ function PackageRow({
       <td className="px-3 py-2.5">
         <div className="flex items-center gap-1.5">
           {isExpanded ? (
-            <ChevronDown className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+            <CaretDownIcon className="w-3.5 h-3.5 text-gray-400 shrink-0" />
           ) : (
-            <ChevronRight className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+            <CaretRightIcon className="w-3.5 h-3.5 text-gray-400 shrink-0" />
           )}
           <span className="font-mono text-xs text-gray-900 dark:text-gray-100">
             {pkg.name}
@@ -957,11 +977,11 @@ function PackageRow({
       <td className="px-3 py-2.5 hidden sm:table-cell">
         {pkg.verified ? (
           <span className="inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
-            <CheckCircle2 className="w-3.5 h-3.5" /> Verified
+            <CheckCircleIcon className="w-3.5 h-3.5" /> Verified
           </span>
         ) : (
           <span className="inline-flex items-center gap-1 text-xs text-gray-400">
-            <Clock className="w-3.5 h-3.5" /> Unverified
+            <ClockIcon className="w-3.5 h-3.5" /> Unverified
           </span>
         )}
       </td>
@@ -1004,7 +1024,7 @@ function PackageRow({
           disabled={deleteMutation.isPending}
           title="Remove this package and all versions from the registry"
         >
-          <Trash2 className="w-3 h-3" />
+          <TrashIcon className="w-3 h-3" />
         </Button>
       </td>
     </tr>

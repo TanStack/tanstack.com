@@ -4,7 +4,12 @@ import { getUserDocFeedbackQueryOptions } from '~/queries/docFeedback'
 import { PaginationControls } from './PaginationControls'
 import { Spinner } from './Spinner'
 import { calculatePoints } from '~/utils/docFeedback.shared'
-import { Award, ExternalLink, Lightbulb, MessageSquare } from 'lucide-react'
+import {
+  MedalIcon,
+  ArrowSquareOutIcon,
+  LightbulbIcon,
+  ChatCenteredIcon,
+} from '@phosphor-icons/react'
 import { Badge } from '~/ui'
 import { useState } from 'react'
 
@@ -34,11 +39,11 @@ export function UserFeedbackSection(_props: UserFeedbackSectionProps) {
   return (
     <div className="space-y-6">
       {/* Points Summary Box */}
-      <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg p-6 border border-blue-200 dark:border-blue-800">
+      <div className="bg-linear-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg p-6 border border-blue-200 dark:border-blue-800">
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <Award className="text-2xl text-blue-600 dark:text-blue-400" />
+              <MedalIcon className="text-2xl text-blue-600 dark:text-blue-400" />
               <h3 className="text-lg font-bold text-gray-900 dark:text-white">
                 Feedback Points
               </h3>
@@ -82,7 +87,7 @@ export function UserFeedbackSection(_props: UserFeedbackSectionProps) {
             className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1"
           >
             View Leaderboard
-            <ExternalLink className="text-xs" />
+            <ArrowSquareOutIcon className="text-xs" />
           </Link>
         </div>
       </div>
@@ -120,9 +125,9 @@ export function UserFeedbackSection(_props: UserFeedbackSectionProps) {
                       {/* Icon */}
                       <div className="mt-1">
                         {item.type === 'note' ? (
-                          <MessageSquare className="text-blue-500" />
+                          <ChatCenteredIcon className="text-blue-500" />
                         ) : (
-                          <Lightbulb className="text-yellow-500" />
+                          <LightbulbIcon className="text-yellow-500" />
                         )}
                       </div>
 

@@ -1,4 +1,5 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
+import { retainDatabaseContext } from '~/db/client'
 
 type StaticAssetService = {
   fetch: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>
@@ -13,13 +14,19 @@ type HostRuntimeEnv = Record<string, unknown> & {
     connectionString: string
   }
   NPM_DOWNLOAD_CACHE?: unknown
+  BUILDER_PROJECTS?: unknown
 }
 
 type HostRuntimeModule = {
   env: HostRuntimeEnv
 }
 
+type HostRuntimeContext = {
+  waitUntil(promise: Promise<unknown>): void
+}
+
 const hostRuntimeEnvStorage = new AsyncLocalStorage<HostRuntimeEnv>()
+const hostRuntimeContextStorage = new AsyncLocalStorage<HostRuntimeContext>()
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
@@ -27,6 +34,14 @@ function isObject(value: unknown): value is Record<string, unknown> {
 
 function isHostRuntimeEnv(value: unknown): value is HostRuntimeEnv {
   return isObject(value)
+}
+
+function isHostRuntimeContext(value: unknown): value is HostRuntimeContext {
+  return (
+    isObject(value) &&
+    'waitUntil' in value &&
+    typeof value.waitUntil === 'function'
+  )
 }
 
 function isStaticAssetService(value: unknown): value is StaticAssetService {
@@ -62,8 +77,27 @@ export function runWithHostRuntimeEnv<T>(env: unknown, fn: () => T): T {
   return hostRuntimeEnvStorage.run(env, fn)
 }
 
+export function runWithHostRuntimeContext<T>(context: unknown, fn: () => T): T {
+  if (!isHostRuntimeContext(context)) {
+    return fn()
+  }
+
+  return hostRuntimeContextStorage.run(context, fn)
+}
+
 export function getCurrentHostRuntimeEnv() {
   return hostRuntimeEnvStorage.getStore()
+}
+
+export function scheduleHostRuntimeTask(createTask: () => Promise<unknown>) {
+  const context = hostRuntimeContextStorage.getStore()
+
+  if (!context) {
+    return false
+  }
+
+  context.waitUntil(retainDatabaseContext(createTask()))
+  return true
 }
 
 async function getStaticAssetService() {

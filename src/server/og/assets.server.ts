@@ -4,9 +4,23 @@ import { resolve } from 'node:path'
 import { fetchStaticAsset } from '~/server/runtime/host.server'
 
 const interRegularUrl = '/fonts/Inter-Regular.ttf'
-const interExtraBoldUrl = '/fonts/Inter-ExtraBold.ttf'
-const interBlackUrl = '/fonts/Inter-Black.ttf'
-const islandPngUrl = '/images/logos/splash-dark.png'
+const bricolageBoldUrl = '/fonts/BricolageGrotesque-Bold.ttf'
+const imageAssets = {
+  logo: {
+    path: 'public/images/brand/tanstack-landscape-black-640.png',
+    url: '/images/brand/tanstack-landscape-black-640.png',
+  },
+  emblem: {
+    path: 'public/images/brand/tanstack-emblem-charcoal-256.png',
+    url: '/images/brand/tanstack-emblem-charcoal-256.png',
+  },
+  'emblem-cream': {
+    path: 'public/images/brand/tanstack-emblem-cream-256.png',
+    url: '/images/brand/tanstack-emblem-cream-256.png',
+  },
+}
+
+type ImageAsset = keyof typeof imageAssets
 
 function tryReadBinary(relPath: string): Buffer | null {
   // Resolve from the project root for local dev and tests. Workers normally
@@ -28,40 +42,57 @@ async function readAssetUrl(assetUrl: string, requestUrl: string) {
   return Buffer.from(await response.arrayBuffer())
 }
 
-let cached: {
+type FontAssets = {
   interRegular: Buffer
-  interExtraBold: Buffer
-  interBlack: Buffer
-  islandPng: Buffer
-} | null = null
+  bricolageBold: Buffer
+}
 
-export async function loadOgAssets(requestUrl?: string) {
-  if (cached) return cached
+let cachedFonts: FontAssets | null = null
+const cachedImages = new Map<ImageAsset, Buffer>()
 
-  const interRegular = tryReadBinary('public/fonts/Inter-Regular.ttf')
-  const interExtraBold = tryReadBinary('public/fonts/Inter-ExtraBold.ttf')
-  const interBlack = tryReadBinary('public/fonts/Inter-Black.ttf')
-  const islandPng = tryReadBinary('public/images/logos/splash-dark.png')
-
-  if (interRegular && interExtraBold && interBlack && islandPng) {
-    cached = {
-      interRegular,
-      interExtraBold,
-      interBlack,
-      islandPng,
-    }
-    return cached
-  }
+async function loadAsset(
+  relPath: string,
+  assetUrl: string,
+  requestUrl: string | undefined,
+) {
+  const localAsset = tryReadBinary(relPath)
+  if (localAsset) return localAsset
 
   if (!requestUrl) {
     throw new Error('OG asset URL fallback requires a request URL')
   }
 
-  cached = {
-    interRegular: await readAssetUrl(interRegularUrl, requestUrl),
-    interExtraBold: await readAssetUrl(interExtraBoldUrl, requestUrl),
-    interBlack: await readAssetUrl(interBlackUrl, requestUrl),
-    islandPng: await readAssetUrl(islandPngUrl, requestUrl),
-  }
-  return cached
+  return readAssetUrl(assetUrl, requestUrl)
+}
+
+async function loadFonts(requestUrl?: string) {
+  if (cachedFonts) return cachedFonts
+
+  const [interRegular, bricolageBold] = await Promise.all([
+    loadAsset('public/fonts/Inter-Regular.ttf', interRegularUrl, requestUrl),
+    loadAsset(
+      'public/fonts/BricolageGrotesque-Bold.ttf',
+      bricolageBoldUrl,
+      requestUrl,
+    ),
+  ])
+
+  cachedFonts = { interRegular, bricolageBold }
+  return cachedFonts
+}
+
+export async function loadOgAssets(
+  imageAsset: ImageAsset,
+  requestUrl?: string,
+) {
+  const image = imageAssets[imageAsset]
+  const [fonts, imageData] = await Promise.all([
+    loadFonts(requestUrl),
+    cachedImages.get(imageAsset) ??
+      loadAsset(image.path, image.url, requestUrl),
+  ])
+
+  cachedImages.set(imageAsset, imageData)
+
+  return { ...fonts, imageData }
 }

@@ -117,6 +117,6 @@ pnpm add @tanstack/ai @tanstack/ai-fal
 pnpm add @tanstack/ai @tanstack/ai-gemini
 ```
 
-Then open the [audio generation guide](/ai/docs/media/audio-generation) for the full adapter matrix, or pull the `ts-react-chat` example to see working TTS and transcription tabs plus a `/generations/audio` route covering Lyria and fal side by side.
+Then open the [audio generation guide](/ai/latest/docs/media/audio-generation) for the full adapter matrix, or pull the `ts-react-chat` example to see working TTS and transcription tabs plus a `/generations/audio` route covering Lyria and fal side by side.
 
 **Star [TanStack AI on GitHub](https://github.com/TanStack/ai)** if you want to see where this goes next.

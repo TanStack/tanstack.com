@@ -1,9 +1,16 @@
 import * as React from 'react'
+import { ChartsCatalogDocExample } from '~/components/charts/ChartsCatalogDocExample'
+import {
+  ClientExampleDocEmbed,
+  parseClientExampleAttributes,
+} from '~/components/examples/ClientExampleDocEmbed'
+import { parseChartsCatalogExampleAttributes } from '~/utils/charts-catalog-embed'
 import { FileTabs } from './FileTabs'
 import { FrameworkContent } from './FrameworkContent'
 import { PackageManagerTabs } from './PackageManagerTabs'
 import { BundlerTabs } from './BundlerTabs'
 import { CodeBlock } from './CodeBlock'
+import { trackScarfInstallCommandCopy } from '~/utils/analytics/scarf'
 import { Tabs } from './Tabs'
 import {
   getInstallCommand,
@@ -157,6 +164,31 @@ export function MdCommentComponent({
 
   const normalizedComponentName = componentName?.toLowerCase()
 
+  if (normalizedComponentName === 'chart-example') {
+    const example = parseChartsCatalogExampleAttributes(parsedAttributes)
+    if (!example) return null
+
+    return (
+      <ChartsCatalogDocExample
+        caseId={example.caseId}
+        height={example.height}
+      />
+    )
+  }
+
+  if (normalizedComponentName === 'client-example') {
+    const example = parseClientExampleAttributes(parsedAttributes)
+    if (!example) return null
+
+    return (
+      <ClientExampleDocEmbed
+        framework={example.framework}
+        library={example.library}
+        slug={example.slug}
+      />
+    )
+  }
+
   if (normalizedComponentName === 'tabs') {
     const parsedPackageManagerMeta = parseJson(packageManagerMeta)
     const resolvedPackageManagerMeta = getPackageManagerMeta(
@@ -180,7 +212,20 @@ export function MdCommentComponent({
               data-framework={framework}
               data-package-manager={packageManager}
             >
-              <CodeBlock>
+              <CodeBlock
+                onCopySuccess={
+                  resolvedPackageManagerMeta.mode === 'install' ||
+                  resolvedPackageManagerMeta.mode === 'dev-install' ||
+                  resolvedPackageManagerMeta.mode === 'local-install'
+                    ? () =>
+                        trackScarfInstallCommandCopy(
+                          packageManager,
+                          framework,
+                          packageGroups.flat().join(','),
+                        )
+                    : undefined
+                }
+              >
                 <code className="language-bash">{commandText}</code>
               </CodeBlock>
             </div>

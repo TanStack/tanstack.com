@@ -1,3 +1,4 @@
+import { env } from '~/utils/env'
 import { createServerFn } from '@tanstack/react-start'
 import { setResponseHeaders } from '@tanstack/react-start/server'
 import { extent, scaleLinear } from 'd3'
@@ -24,7 +25,7 @@ export type Sponsor = {
   createdAt: string
 }
 
-type DisplaySponsor = {
+export type OssSponsor = {
   linkUrl: string
   login: string
   imageUrl: string
@@ -34,9 +35,9 @@ type DisplaySponsor = {
 
 const sponsorMaintainerLogin = 'tannerlinsley'
 
-export const getSponsorsForSponsorPack = createServerFn({
+export const getOssSponsors = createServerFn({
   method: 'GET',
-}).handler(async (): Promise<Array<DisplaySponsor>> => {
+}).handler(async (): Promise<Array<OssSponsor>> => {
   const sponsors = await fetchCached({
     key: 'sponsors',
     ttl: 60 * 1000,
@@ -51,8 +52,13 @@ export const getSponsorsForSponsorPack = createServerFn({
     }),
   )
 
-  const amountExtent = extent(sponsors, (d) => d.amount) as [number, number]
-  const scale = scaleLinear().domain(amountExtent).range([0, 1])
+  const [minimumAmount = 0, maximumAmount = 0] = extent(
+    sponsors,
+    (sponsor) => sponsor.amount,
+  )
+  const scale = scaleLinear()
+    .domain([minimumAmount, maximumAmount])
+    .range([0, 1])
 
   return sponsors
     .filter((d) => !d.private)
@@ -103,6 +109,11 @@ async function getSponsors() {
 }
 
 async function getGithubSponsors() {
+  if (
+    !env.GITHUB_AUTH_TOKEN ||
+    env.GITHUB_AUTH_TOKEN === 'USE_A_REAL_KEY_IN_PRODUCTION'
+  )
+    return []
   let sponsors: Array<Sponsor> = []
 
   try {
@@ -216,28 +227,8 @@ async function getGithubSponsors() {
     const error = err as { status?: number }
 
     if (error.status === 401) {
-      console.error(
-        'Invalid or missing GitHub credentials, returning mock data.',
-      )
-      return [
-        'tannerlinsley',
-        'tkdodo',
-        'crutchcorn',
-        'kevinvandy',
-        'jherr',
-        'seancassiere',
-        'schiller-manuel',
-      ].flatMap((d) =>
-        new Array(20).fill(d).map((_, i2) => ({
-          login: d,
-          name: d,
-          amount: (20 - i2) / 20 + Math.random(),
-          createdAt: new Date().toISOString(),
-          private: false,
-          linkUrl: `https://github.com/${d}`,
-          imageUrl: `https://github.com/${d}.png`,
-        })),
-      )
+      console.error('GitHub sponsor credentials were rejected.')
+      return []
     }
 
     if (error.status === 403) {

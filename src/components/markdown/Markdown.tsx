@@ -1,10 +1,31 @@
 import { renderMarkdownReact } from '@tanstack/markdown/react'
 import * as React from 'react'
 import { InlineCode, MarkdownImg } from '~/ui'
-import { parseSiteMarkdown, type MarkdownDocument } from '~/utils/markdown'
+import { ChartsCatalogEmbed } from '~/components/charts/ChartsCatalogEmbed'
+import {
+  mapChartsCatalogEmbeds,
+  parseChartsCatalogEmbed,
+  type ChartsCatalogEmbedSource,
+} from '~/utils/charts-catalog-embed'
+import {
+  findFirstImageSrc,
+  parseSiteMarkdown,
+  type MarkdownDocument,
+} from '~/utils/markdown'
 import { isSafeHttpUrl } from '~/utils/url-boundary'
+import { mapStartHostingPartnerElements } from '~/utils/start-hosting-guide'
+import { mapMarkdownPartnerLists } from '~/utils/markdown-partner-lists'
+import { PartnerList, PreviousPartnerList } from './PartnerList'
+import { StartPartnerContributions } from './StartPartnerContributions'
 import { CodeBlock } from './CodeBlock'
+import { LiveExample } from './LiveExample'
 import { MarkdownLink } from './MarkdownLink'
+import {
+  StartHostingLovableLogo,
+  StartHostingPartners,
+  StartHostingRenderLogo,
+  StartHostingVercelLogo,
+} from '~/components/StartHostingPartners'
 import {
   MdCommentComponent,
   MdFrameworkPanel,
@@ -18,28 +39,47 @@ type MarkdownRenderOptions = {
 export type MarkdownProps = {
   content?: string
   document?: MarkdownDocument
+  chartEmbedSource?: ChartsCatalogEmbedSource
   preserveTabPanels?: boolean
+  /** Render the first image in the document as high-priority/eager (e.g. blog post hero images) */
+  eagerFirstImage?: boolean
 }
 
 export function Markdown({
   content,
   document,
+  chartEmbedSource,
   preserveTabPanels,
+  eagerFirstImage,
 }: MarkdownProps) {
   const parsed = React.useMemo(
     () => document ?? parseSiteMarkdown(content ?? ''),
     [content, document],
   )
+  const renderDocument = React.useMemo(() => {
+    const withHostingPartners = mapStartHostingPartnerElements(
+      mapMarkdownPartnerLists(parsed),
+    )
+
+    return chartEmbedSource
+      ? mapChartsCatalogEmbeds(withHostingPartners, chartEmbedSource)
+      : withHostingPartners
+  }, [chartEmbedSource, parsed])
 
   return React.useMemo(() => {
-    return renderMarkdownReact(parsed, {
+    const firstImageSrc = eagerFirstImage
+      ? findFirstImageSrc(renderDocument)
+      : undefined
+
+    return renderMarkdownReact(renderDocument, {
       allowHtml: true,
       components: createMarkdownComponents({
         preserveTabPanels,
+        firstImageSrc,
       }),
       headingAnchors,
     })
-  }, [parsed, preserveTabPanels])
+  }, [renderDocument, preserveTabPanels, eagerFirstImage])
 }
 
 const headingAnchors = {
@@ -99,6 +139,10 @@ function isTrustedIframeSrc(src: string | undefined) {
     return false
   }
 
+  if (parseChartsCatalogEmbed(src)) {
+    return true
+  }
+
   try {
     const url = new URL(src)
     return trustedIframeHosts.some(
@@ -110,11 +154,29 @@ function isTrustedIframeSrc(src: string | undefined) {
 }
 
 function MarkdownIframe(props: React.IframeHTMLAttributes<HTMLIFrameElement>) {
-  if (!isTrustedIframeSrc(props.src)) {
-    return null
+  const { className, title, ...iframeProps } = props
+  const iframeTitle = title?.trim() || 'Embedded content'
+
+  if (!isTrustedIframeSrc(props.src)) return null
+
+  if (props.src && parseChartsCatalogEmbed(props.src)) {
+    return (
+      <ChartsCatalogEmbed
+        title={iframeTitle}
+        {...iframeProps}
+        src={props.src}
+        className={className}
+      />
+    )
   }
 
-  return <iframe {...props} className="w-full" title="Embedded Content" />
+  return (
+    <iframe
+      title={iframeTitle}
+      {...iframeProps}
+      className={`w-full ${className ?? ''}`.trim()}
+    />
+  )
 }
 
 function CodeElement({
@@ -160,7 +222,9 @@ function TableElement({
   )
 }
 
-function createMarkdownComponents(options: MarkdownRenderOptions = {}) {
+function createMarkdownComponents(
+  options: MarkdownRenderOptions & { firstImageSrc?: string } = {},
+) {
   function MdCommentComponentWithOptions(
     props: React.ComponentProps<typeof MdCommentComponent>,
   ) {
@@ -172,8 +236,16 @@ function createMarkdownComponents(options: MarkdownRenderOptions = {}) {
     )
   }
 
+  function ImgElement(props: React.ComponentProps<typeof MarkdownImg>) {
+    const isFirstImage =
+      options.firstImageSrc !== undefined && props.src === options.firstImageSrc
+
+    return <MarkdownImg {...props} priority={isFirstImage} />
+  }
+
   return {
     a: LinkElement,
+    'chart-catalog-embed': ChartsCatalogEmbed,
     code: CodeElement,
     figcaption: CodeFigcaption,
     figure: CodeFigure,
@@ -184,11 +256,19 @@ function createMarkdownComponents(options: MarkdownRenderOptions = {}) {
     h5: createHeadingComponent('h5'),
     h6: createHeadingComponent('h6'),
     iframe: MarkdownIframe,
-    img: MarkdownImg,
+    img: ImgElement,
     'md-comment-component': MdCommentComponentWithOptions,
     'md-framework-panel': MdFrameworkPanel,
+    'md-live-example': LiveExample,
     'md-tab-panel': MdTabPanel,
     pre: CodeBlock,
+    'start-partner-contributions': StartPartnerContributions,
+    'partner-list': PartnerList,
+    'previous-partner-list': PreviousPartnerList,
+    'start-hosting-lovable-logo': StartHostingLovableLogo,
+    'start-hosting-partners': StartHostingPartners,
+    'start-hosting-render-logo': StartHostingRenderLogo,
+    'start-hosting-vercel-logo': StartHostingVercelLogo,
     table: TableElement,
   }
 }

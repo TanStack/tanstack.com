@@ -1,7 +1,3 @@
-import {
-  markRequestDatabaseUse,
-  timeRequestWork,
-} from '../utils/request-timing.server'
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
 import { AsyncLocalStorage } from 'node:async_hooks'
@@ -67,7 +63,6 @@ function getRequestDb(context: DatabaseContext) {
 }
 
 function getDb() {
-  markRequestDatabaseUse()
   const context = databaseStorage.getStore()
   if (context) {
     return getRequestDb(context)
@@ -92,10 +87,7 @@ export async function runWithDatabaseContext<T>(
     return fn()
   }
 
-  const connectionString = await timeRequestWork(
-    'db_config',
-    getDatabaseConnectionString,
-  )
+  const connectionString = await getDatabaseConnectionString()
   if (!connectionString) {
     return fn()
   }

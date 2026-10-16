@@ -1,5 +1,5 @@
 import { createFileRoute, stripSearchParams } from '@tanstack/react-router'
-import { AppRoute } from '~/chat/components/AppRoute'
+import { App } from '~/chat/components/App'
 import {
   validateWorkspaceSearch,
   defaultWorkspaceSearch,
@@ -8,5 +8,5 @@ import {
 export const Route = createFileRoute('/chat/w/$workspaceId')({
   validateSearch: validateWorkspaceSearch,
   search: { middlewares: [stripSearchParams(defaultWorkspaceSearch)] },
-  component: AppRoute,
+  component: App,
 })

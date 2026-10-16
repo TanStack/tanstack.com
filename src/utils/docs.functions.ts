@@ -449,7 +449,6 @@ export const fetchDocs = createServerFn({ method: 'GET' })
 
     return {
       content: frontMatter.content,
-      isFallback: result.isFallback,
       title: frontMatter.data?.title ?? 'Content temporarily unavailable',
       description,
       keywords,

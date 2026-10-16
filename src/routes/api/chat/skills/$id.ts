@@ -1,11 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { forwardWorkerRequest } from '~/server/runtime/worker-service.server'
+import { handleSkills } from '../skills'
 
 export const Route = createFileRoute('/api/chat/skills/$id')({
   server: {
     handlers: {
-      GET: ({ request }) => forwardWorkerRequest('CHAT', request),
-      POST: ({ request }) => forwardWorkerRequest('CHAT', request),
+      GET: ({ request, params }) => handleSkills(request, params.id),
+      POST: ({ request, params }) => handleSkills(request, params.id),
     },
   },
 })

@@ -1,13 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { forwardWorkerRequest } from '~/server/runtime/worker-service.server'
-
-export const Route = createFileRoute(
-  '/api/chat/account/composer-drafts/$accountId/$scope',
-)({
-  server: {
-    handlers: {
-      GET: ({ request }) => forwardWorkerRequest('CHAT', request),
-      POST: ({ request }) => forwardWorkerRequest('CHAT', request),
-    },
-  },
+import { handleComposerDraft } from '~/chat/server/composer-draft-http.server'
+export const Route = createFileRoute('/api/chat/account/composer-drafts/$accountId/$scope')({
+  server: { handlers: {
+    GET: ({ request, params }) => handleComposerDraft(request, params.accountId, params.scope),
+    POST: ({ request, params }) => handleComposerDraft(request, params.accountId, params.scope),
+  } },
 })

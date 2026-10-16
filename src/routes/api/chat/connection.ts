@@ -1,10 +1,3 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { forwardWorkerRequest } from '~/server/runtime/worker-service.server'
-
-export const Route = createFileRoute('/api/chat/connection')({
-  server: {
-    handlers: {
-      POST: ({ request }) => forwardWorkerRequest('CHAT', request),
-    },
-  },
-})
+import {createFileRoute} from '@tanstack/react-router'
+import {handleProviderConnection} from '~/chat/server/provider-connection-http.server'
+export const Route=createFileRoute('/api/chat/connection')({server:{handlers:{POST:({request})=>handleProviderConnection(request)}}})

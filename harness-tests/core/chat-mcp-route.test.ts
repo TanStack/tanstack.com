@@ -23,7 +23,7 @@ vi.mock('~/chat/server/mcp-environment.server', async (original) => ({
   getMcpEnvironment: dep.env,
 }))
 vi.mock('~/chat/server/mcp-account-api', () => ({ mcpAccountApi: dep.api }))
-import { handleMcp } from '../../src/chat/server/routes/mcp/$'
+import { handleMcp } from '../../src/routes/api/chat/mcp/$'
 import { WorkspacePolicyError } from '../../src/chat/workspace-policy.server'
 beforeEach(() => {
   vi.clearAllMocks()

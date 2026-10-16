@@ -1,11 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { forwardWorkerRequest } from '~/server/runtime/worker-service.server'
-
+import { handleAccountPreferences } from '~/chat/server/account-preferences-http.server'
 export const Route = createFileRoute('/api/chat/account/preferences')({
-  server: {
-    handlers: {
-      GET: ({ request }) => forwardWorkerRequest('CHAT', request),
-      POST: ({ request }) => forwardWorkerRequest('CHAT', request),
-    },
-  },
+  server: { handlers: { GET: ({ request }) => handleAccountPreferences(request), POST: ({ request }) => handleAccountPreferences(request) } },
 })

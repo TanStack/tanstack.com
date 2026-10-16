@@ -23,7 +23,7 @@ vi.mock('~/chat/server/kody-environment.server', async (original) => ({
   getKodyEnvironment: dep.env,
 }))
 vi.mock('~/chat/server/plugin-api', () => ({ pluginApi: dep.api }))
-import { handlePlugins } from '../../src/chat/server/routes/plugins'
+import { handlePlugins } from '../../src/routes/api/chat/plugins'
 import { WorkspacePolicyError } from '../../src/chat/workspace-policy.server'
 beforeEach(() => {
   vi.clearAllMocks()

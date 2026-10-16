@@ -21,14 +21,7 @@ export function getDocsCacheHeaders({
       version === library.latestVersion ||
       version === library.latestBranch)
   const cacheTags = library
-    ? [
-        'docs:all',
-        `docs:${library.id}`,
-        `docs:${library.id}:branch:${branch}`,
-        'docs-config:all',
-        `docs-config:${library.repo}`,
-        `docs-config:${library.repo}:${branch}`,
-      ]
+    ? ['docs:all', `docs:${library.id}`, `docs:${library.id}:branch:${branch}`]
     : ['docs:all']
 
   return {

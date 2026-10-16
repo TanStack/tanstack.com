@@ -1,4 +1,3 @@
-import { timeRequestWork } from './request-timing.server'
 import {
   getBlobStorage,
   getBlobStorageCache,
@@ -562,9 +561,7 @@ async function readBlob(
   cache: BlobStorageCache | undefined,
   key: string,
 ) {
-  const cached = await timeRequestWork('content_edge_read', async () =>
-    cache?.get(key),
-  )
+  const cached = await cache?.get(key)
   const cachedBlob = cached
     ? getStoredBlob({ key, metadata: cached.metadata, text: cached.text })
     : undefined
@@ -573,15 +570,13 @@ async function readBlob(
     return cachedBlob
   }
 
-  const object = await timeRequestWork('content_r2_read', () =>
-    storage.get(key),
-  )
+  const object = await storage.get(key)
 
   if (!object) {
     return undefined
   }
 
-  const text = await timeRequestWork('content_r2_body', () => object.text())
+  const text = await object.text()
   const stored = getStoredBlob({
     key,
     metadata: object.metadata,
@@ -593,12 +588,10 @@ async function readBlob(
     return undefined
   }
 
-  await timeRequestWork('content_edge_write', () =>
-    writeBlobCache(cache, key, {
-      metadata: stored.metadata,
-      text: stored.text,
-    }),
-  )
+  await writeBlobCache(cache, key, {
+    metadata: stored.metadata,
+    text: stored.text,
+  })
 
   return stored
 }
@@ -1294,52 +1287,34 @@ async function getCachedGitHubContent<T>(opts: {
     }
   }
 
-  const refresh = () =>
-    withPendingRefresh(opts.cacheKey, async () => {
-      const latestRow = await readRow()
-      const latestValue = opts.readStoredValue(latestRow)
-      const latestForciblyStale =
-        !!latestRow && isForciblyStale(latestRow.staleAt)
+  return withPendingRefresh(opts.cacheKey, async () => {
+    const latestRow = await readRow()
+    const latestValue = opts.readStoredValue(latestRow)
+    const latestForciblyStale =
+      !!latestRow && isForciblyStale(latestRow.staleAt)
 
-      if (
-        canUseStoredGithubContentValue(opts.contentKind, latestValue) &&
-        latestRow &&
-        !latestForciblyStale &&
-        isFresh(latestRow.staleAt)
-      ) {
+    if (
+      canUseStoredGithubContentValue(opts.contentKind, latestValue) &&
+      latestRow &&
+      !latestForciblyStale &&
+      isFresh(latestRow.staleAt)
+    ) {
+      return latestValue
+    }
+
+    try {
+      const value = await opts.origin()
+      await persist(value)
+      return value
+    } catch (error) {
+      if (latestValue !== undefined && latestValue !== null) {
+        console.warn(`[GitHub Cache] Serving stale value ${opts.cacheKey}`)
         return latestValue
       }
 
-      try {
-        const value = await timeRequestWork('content_origin', opts.origin)
-        await timeRequestWork('content_persist', () => persist(value))
-        return value
-      } catch (error) {
-        if (latestValue !== undefined && latestValue !== null) {
-          console.warn(`[GitHub Cache] Serving stale value ${opts.cacheKey}`)
-          return latestValue
-        }
-
-        throw error
-      }
-    })
-  // Explicit invalidations and negative entries still refresh before returning.
-  if (storedValue !== undefined && storedValue !== null && !forciblyStale) {
-    if (
-      scheduleHostRuntimeTask(() =>
-        refresh().catch((error) => {
-          console.warn(
-            `[GitHub Cache] Background content refresh failed ${opts.cacheKey}`,
-            error,
-          )
-        }),
-      )
-    ) {
-      return storedValue
+      throw error
     }
-  }
-
-  return refresh()
+  })
 }
 
 async function upsertDocsArtifact(opts: {
@@ -1449,7 +1424,7 @@ export async function getCachedDocsArtifact<T>(opts: {
       }
 
       try {
-        const payload = await timeRequestWork('artifact_build', opts.build)
+        const payload = await opts.build()
         await upsertDocsArtifact({ ...opts, payload })
         return payload
       } catch (error) {

@@ -14,7 +14,6 @@ export const routerProject = {
   latestBranch: 'main',
   docsRoot: 'docs/router',
   defaultDocs: 'framework/react/overview',
-  installPath: 'framework/$framework/quick-start',
   legacyPackages: ['react-location'],
   hideCodesandboxUrl: true as const,
   showVercelUrl: false,

@@ -1989,7 +1989,7 @@ function InputBar({
                 refine(nextQuery)
               }}
               onKeyDown={(event) => {
-                if (event.key === 'Enter') {
+                if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
                   event.preventDefault()
                   submitQuestion()
                 }

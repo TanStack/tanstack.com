@@ -23,6 +23,7 @@ import {
 
 import { getLibrary } from '~/libraries'
 import { CodeBlock } from '~/components/markdown/CodeBlock'
+import { usePrefersReducedMotion } from '~/utils/usePrefersReducedMotion'
 import { AiCampaignHero } from './AiCampaignHero'
 import { LandingPromptBox } from './LandingPromptBox'
 import {
@@ -41,7 +42,7 @@ export default function AiLanding() {
   return (
     <LibraryLandingShell
       libraryId="ai"
-      headline="AI building blocks for TypeScript. We build the hard parts, you keep your stack."
+      headline={<PrimitivesHeadline />}
       description="TanStack AI is a TypeScript library for building AI features and agents. It ships the agent loop, provider adapters, durability, interrupts, sandboxes, and tools, and plugs into the server, database, and UI you already have."
       hero={<AiCampaignHero />}
       beforeActions={<LandingPromptBox />}
@@ -186,6 +187,76 @@ export default function AiLanding() {
         <StartingPoints />
       </LandingSection>
     </LibraryLandingShell>
+  )
+}
+
+const buildTargets = [
+  'chat endpoints',
+  'custom harnesses',
+  'CI agents',
+  'agent frameworks',
+  'support bots',
+  'coding agents',
+  'voice assistants',
+  'background agents',
+  'MCP servers',
+  'image and video tools',
+]
+const baseTargets = ['database', 'stack', 'API']
+
+function RotatingWord({
+  delay = 0,
+  words,
+}: {
+  delay?: number
+  words: Array<string>
+}) {
+  const [index, setIndex] = React.useState(0)
+  const reducedMotion = usePrefersReducedMotion()
+
+  React.useEffect(() => {
+    if (reducedMotion !== false) {
+      return
+    }
+    let intervalId = 0
+    // Offset start so the two words never swap at the same moment.
+    const timeoutId = window.setTimeout(() => {
+      setIndex((current) => (current + 1) % words.length)
+      intervalId = window.setInterval(
+        () => setIndex((current) => (current + 1) % words.length),
+        3200,
+      )
+    }, 3200 + delay)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+      window.clearInterval(intervalId)
+    }
+  }, [delay, reducedMotion, words.length])
+
+  return (
+    <span
+      key={index}
+      className="ds-enter-rise inline-block text-(--landing-accent-bright)"
+    >
+      {words[index]}
+    </span>
+  )
+}
+
+function PrimitivesHeadline() {
+  return (
+    <>
+      <span className="sr-only">
+        We give you the primitives to build {buildTargets.join(', ')} on top of
+        your {baseTargets.join(', ')}.
+      </span>
+      <span aria-hidden="true">
+        We give you the primitives to build{' '}
+        <RotatingWord words={buildTargets} /> on top of your{' '}
+        <RotatingWord delay={1600} words={baseTargets} />.
+      </span>
+    </>
   )
 }
 

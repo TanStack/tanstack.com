@@ -216,8 +216,6 @@ function chatBuildId() {
 }
 
 export default defineConfig(async ({ command, mode }) => {
-  if (command === 'build' && mode !== 'staging')
-    throw new Error('This experimental branch only builds with --mode staging')
   const localEnv = { ...loadEnv(mode, __dirname, ''), ...process.env }
   const useRemoteAi = Boolean(localEnv.CLOUDFLARE_API_TOKEN)
   const egress = command === 'serve' ? await startLocalMcpEgress() : undefined
@@ -377,6 +375,14 @@ export default defineConfig(async ({ command, mode }) => {
         viteEnvironment: { name: 'ssr' },
         remoteBindings: useRemoteAi,
         auxiliaryWorkers: [
+          ...(mode === 'staging'
+            ? []
+            : [
+                {
+                  configPath: 'workers/chat-recovery/wrangler.jsonc',
+                  viteEnvironment: { name: 'recovery' },
+                },
+              ]),
           {
             configPath:
               mode === 'staging'

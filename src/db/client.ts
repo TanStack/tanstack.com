@@ -99,6 +99,12 @@ export async function runWithDatabaseContext<T>(
   if (!connectionString) {
     return fn()
   }
+  if (
+    import.meta.env.MODE === 'staging' &&
+    new URL(connectionString).hostname !==
+      'ep-blue-rice-b4fz0smd-pooler.c-6.us-east-2.aws.neon.tech'
+  )
+    throw new Error('Staging can only connect to its isolated database')
 
   const context: DatabaseContext = { connectionString, active: 1 }
   return databaseStorage.run(context, async () => {

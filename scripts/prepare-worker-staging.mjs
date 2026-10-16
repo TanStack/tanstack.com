@@ -27,7 +27,12 @@ for (const [kind, source] of Object.entries({
   config.triggers = { crons: [] }
   config.hyperdrive = []
   delete config.ai
-  config.secrets = { required: ['SESSION_SECRET', 'ENCRYPTION_KEY'] }
+  config.secrets = {
+    required:
+      kind === 'og'
+        ? ['SESSION_SECRET', 'ENCRYPTION_KEY']
+        : ['SESSION_SECRET', 'ENCRYPTION_KEY', 'DATABASE_URL'],
+  }
   config.vars = { APP_MODE: 'production', SENTRY_DSN: '' }
   config.r2_buckets = (config.r2_buckets ?? []).map((binding) => ({
     binding: binding.binding,

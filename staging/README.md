@@ -5,7 +5,8 @@ This branch is a staging experiment. Production deployment commands are disabled
 The split site is `https://tanstack-perf-stage-site.thetanstack.workers.dev`.
 The unified comparison is `https://tanstack-perf-stage-baseline.thetanstack.workers.dev`.
 
-Both use only `tanstack-perf-stage-*` resources. No production secrets, database,
+Both use only `tanstack-perf-stage-*` Workers and buckets. The signed-in checks
+use a separate Neon project. No production secrets, production database,
 Hyperdrive, AI binding, custom domain, cron, or namespace transfer is configured.
 Session and encryption keys were generated for staging. Signed-in chat and
 project persistence are outside this public docs comparison.
@@ -17,9 +18,10 @@ uploading anything. It removes `WRANGLER_CI_OVERRIDE_NAME` and
 explicitly. The installed Wrangler overrides even `--name` when that CI name
 variable is present.
 
-The remote deployment is exercised with those CI variables set to staging
-values. The production-name override case is tested offline. This reproduces
-the relevant environment behavior, it is not a connected Cloudflare Builds job.
+The initial remote deployment was exercised with those CI variables set to staging
+values. The production-name override case is tested offline. That initial test reproduced
+the relevant environment behavior. The connected Cloudflare Builds validation is
+recorded below.
 
 `python3 scripts/measure-worker-staging.py` sends 80 alternating requests using
 fresh curl connections. Both sites share a staging-only GitHub content cache.
@@ -67,3 +69,35 @@ lint. Four unit and one desktop test were skipped.
 The unified comparison can be rebuilt from the pinned main commit with
 `node scripts/build-worker-staging-baseline.mjs`. Its staging-only changes are
 recorded in `baseline.patch`.
+
+## Cloudflare Builds and signed-in checks
+
+The staging Worker is connected to the separate private repository
+`TanStack/tanstack-com-worker-staging`. Its main branch runs `pnpm build:staging`
+and `pnpm deploy:staging`. Preview builds are disabled. The first actual
+Cloudflare Builds run, `89710348-86be-41a7-b1b4-76fc8174489e`, completed build and
+deployment successfully. The production repository and its build settings were
+not changed.
+
+The isolated Neon project is `tanstack-perf-stage` (`spring-dew-83008577`), and
+its database is `worker_staging_auth`. No production data was copied. The
+recorded `0000_snapshot.json` supplies the historical baseline, followed by all
+remaining migrations. This creates 103 tables and 35 SQL triggers. Both existing
+builder and chat schema verification commands pass. A schema-only push was
+insufficient because it omitted the SQL triggers, so it is not the final setup.
+
+Staging credentials and synthetic sessions live only in the ignored `.staging`
+directory. Runtime keys are installed only on staging Workers. The staging
+server also rejects a database connection with any other hostname.
+
+Live checks pass for authenticated preferences reads and writes, two-user data
+isolation, cross-origin rejection, expired cookies, mismatched session versions,
+nonexistent users, forged signatures, separate personal workspaces, a real
+WorkspaceSync Durable Object snapshot, and rejection of another user's snapshot.
+The signed-in browser opens My Account and logs out, after which protected API
+requests return 401. No browser request reached the production site or Kody.
+
+These tests use synthetic users and valid sessions signed by the existing
+SessionService with staging-only keys. They do not test GitHub/Google OAuth
+consent and callbacks, model inference, or Kody integrations. No production
+OAuth or model credentials were copied.

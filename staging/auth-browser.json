@@ -1,0 +1,8 @@
+{
+  "accountStatus": 200,
+  "signedInUser": "Staging Alice",
+  "signedOutStatus": 401,
+  "url": "https://tanstack-perf-stage-site.thetanstack.workers.dev/login",
+  "errors": [],
+  "forbiddenRequests": []
+}

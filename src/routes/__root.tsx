@@ -40,10 +40,11 @@ import { ThemeProvider, useHtmlClass } from '~/components/ThemeProvider'
 import { Navbar } from '~/components/Navbar'
 import { Footer } from '~/components/Footer'
 import { ProductScarf } from '~/components/ProductScarf'
-import {
-  BuilderRouteFrame,
-  BuilderRouteSkeleton,
-} from '~/chat/components/projects/Loading'
+const BuilderRouteContent = React.lazy(() =>
+  import('~/chat/components/projects/Loading').then((module) => ({
+    default: module.BuilderRouteContent,
+  })),
+)
 import { THEME_COLORS } from '~/utils/utils'
 import { trackPageView } from '~/utils/analytics'
 import {
@@ -343,11 +344,15 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
 
   const htmlClass = useHtmlClass()
   const routeContent = (
-    <BuilderRouteFrame pathname={pathname}>
-      <React.Suspense fallback={<BuilderRouteSkeleton pathname={pathname} />}>
-        {children}
-      </React.Suspense>
-    </BuilderRouteFrame>
+    <React.Suspense fallback={null}>
+      {pathname === '/builder' || pathname.startsWith('/builder/') ? (
+        <BuilderRouteContent pathname={pathname}>
+          {children}
+        </BuilderRouteContent>
+      ) : (
+        children
+      )}
+    </React.Suspense>
   )
 
   return (

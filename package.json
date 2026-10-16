@@ -18,8 +18,8 @@
     "preview": "vite preview",
     "preview:cloudflare": "pnpm run preview",
     "eval:builder-ai": "tsx scripts/builder-ai-eval/run.ts",
-    "deploy:cloudflare": "pnpm run db:migrate && pnpm run db:verify-builder && pnpm run db:verify-chat && pnpm run build:cloudflare && wrangler deploy --name tanstack-com && pnpm run purge:cloudflare",
-    "deploy:cloudflare:ci": "pnpm run db:prepare-builder && wrangler deploy --name tanstack-com",
+    "deploy:cloudflare": "node -e \"throw new Error('Production deployment is disabled on this staging experiment branch')\"",
+    "deploy:cloudflare:ci": "node -e \"throw new Error('Production deployment is disabled on this staging experiment branch')\"",
     "purge:cloudflare": "pnpm run with-env -- node scripts/purge-cloudflare-cache.mjs",
     "cf:typegen": "wrangler types",
     "content:build": "node scripts/build-content-collections.mjs",
@@ -56,7 +56,10 @@
     "finalize:desktop-release": "node scripts/desktop-release.mjs",
     "publish:desktop-release": "pnpm verify:desktop-release && node scripts/desktop-publish.mjs",
     "benchmark:chat-copy": "tsx scripts/chat/benchmark-conversation-copy.ts",
-    "benchmark:chat-protocol": "tsx scripts/chat/benchmark-conversation-protocol.ts"
+    "benchmark:chat-protocol": "tsx scripts/chat/benchmark-conversation-protocol.ts",
+    "deploy:cloudflare:workers": "node -e \"throw new Error('Production deployment is disabled on this staging experiment branch')\"",
+    "build:staging": "node scripts/prepare-worker-staging.mjs && vite build --mode staging",
+    "deploy:staging": "node scripts/deploy-worker-staging.mjs"
   },
   "dependencies": {
     "@codemirror/lang-css": "^6.3.1",

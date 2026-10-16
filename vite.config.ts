@@ -22,6 +22,8 @@ import {
 } from './src/utils/local-repo-path.server'
 import { startLocalMcpEgress } from './scripts/local-mcp-egress'
 import { localBuilderAi } from './scripts/local-builder-ai-vite'
+import { chatIsolation } from './scripts/chat-isolation-vite'
+import { workerIsolation } from './scripts/worker-isolation-vite'
 
 const isDev = process.env.NODE_ENV !== 'production'
 const shouldUseRedact = process.env.DISABLE_REDACT !== 'true'
@@ -31,7 +33,7 @@ const shouldUseSentryPlugin =
   Boolean(process.env.SENTRY_AUTH_TOKEN)
 const shouldBuildSourcemaps =
   shouldUseSentryPlugin || process.env.BUILD_SOURCEMAPS === 'true'
-const SITE_URL = 'https://tanstack.com'
+const SITE_URL = process.env.STAGING_SITE_URL || 'https://tanstack.com'
 const localDocsDevToken = isDev ? randomUUID() : ''
 
 function localDocsDevFiles(): PluginOption {
@@ -214,6 +216,8 @@ function chatBuildId() {
 }
 
 export default defineConfig(async ({ command, mode }) => {
+  if (command === 'build' && mode !== 'staging')
+    throw new Error('This experimental branch only builds with --mode staging')
   const localEnv = { ...loadEnv(mode, __dirname, ''), ...process.env }
   const useRemoteAi = Boolean(localEnv.CLOUDFLARE_API_TOKEN)
   const egress = command === 'serve' ? await startLocalMcpEgress() : undefined
@@ -225,7 +229,11 @@ export default defineConfig(async ({ command, mode }) => {
       __TANSTACK_ENABLE_SERVER_BUILDER_GENERATION__: JSON.stringify(true),
       __TANSTACK_ENABLE_IMAGE_TRANSFORMATIONS__: JSON.stringify(!isDev),
       __TANSTACK_LOCAL_DOCS_TOKEN__: JSON.stringify(localDocsDevToken),
-      __TANSTACK_SITE_URL__: JSON.stringify(SITE_URL),
+      __TANSTACK_SITE_URL__: JSON.stringify(
+        mode === 'staging'
+          ? 'https://tanstack-perf-stage-site.thetanstack.workers.dev'
+          : SITE_URL,
+      ),
     },
     resolve: {
       alias: {
@@ -364,8 +372,56 @@ export default defineConfig(async ({ command, mode }) => {
           ]
         : []),
       cloudflare({
+        configPath:
+          mode === 'staging' ? '.staging/server.json' : 'wrangler.jsonc',
         viteEnvironment: { name: 'ssr' },
         remoteBindings: useRemoteAi,
+        auxiliaryWorkers: [
+          {
+            configPath:
+              mode === 'staging'
+                ? '.staging/og.json'
+                : 'workers/og/wrangler.jsonc',
+            viteEnvironment: { name: 'og' },
+          },
+          {
+            configPath:
+              mode === 'staging'
+                ? '.staging/starter.json'
+                : 'workers/starter/wrangler.jsonc',
+            viteEnvironment: { name: 'starter' },
+            config: (config) => {
+              if (command !== 'serve') return
+              config.hyperdrive = []
+              config.vars = { ...config.vars, APP_MODE: 'development' }
+            },
+          },
+          {
+            configPath:
+              mode === 'staging'
+                ? '.staging/chat.json'
+                : 'workers/chat/wrangler.jsonc',
+            viteEnvironment: { name: 'chat' },
+            config: (config) => {
+              if (command !== 'serve') return
+              config.hyperdrive = []
+              if (!useRemoteAi) delete config.ai
+              config.vars = {
+                ...config.vars,
+                ...egress?.vars,
+                APP_MODE: 'development',
+              }
+              for (const name of [
+                'GUM_DEV_EXECUTION',
+                'UNLIMITED_USAGE_EMAILS',
+                'USAGE_RATES_JSON',
+              ]) {
+                const value = localEnv[name]
+                if (typeof value === 'string') config.vars[name] = value
+              }
+            },
+          },
+        ],
         config: (config) => {
           if (command !== 'serve') return
           config.hyperdrive = []
@@ -445,6 +501,8 @@ export default defineConfig(async ({ command, mode }) => {
         },
       }),
       viteReact(),
+      chatIsolation(),
+      workerIsolation(),
 
       ...(shouldUseSentryPlugin
         ? [

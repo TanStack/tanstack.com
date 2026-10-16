@@ -40,10 +40,11 @@ import { ThemeProvider, useHtmlClass } from '~/components/ThemeProvider'
 import { Navbar } from '~/components/Navbar'
 import { Footer } from '~/components/Footer'
 import { ProductScarf } from '~/components/ProductScarf'
-import {
-  BuilderRouteFrame,
-  BuilderRouteSkeleton,
-} from '~/chat/components/projects/Loading'
+const BuilderRouteContent = React.lazy(() =>
+  import('~/chat/components/projects/Loading').then((module) => ({
+    default: module.BuilderRouteContent,
+  })),
+)
 import { THEME_COLORS } from '~/utils/utils'
 import { trackPageView } from '~/utils/analytics'
 import {
@@ -275,9 +276,10 @@ export const Route = createRootRouteWithContext<{
         },
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
       ],
-      scripts: import.meta.env.PROD
-        ? [{ children: GOOGLE_ANALYTICS_BOOTSTRAP }]
-        : [],
+      scripts:
+        import.meta.env.PROD && import.meta.env.MODE !== 'staging'
+          ? [{ children: GOOGLE_ANALYTICS_BOOTSTRAP }]
+          : [],
     }
   },
   headers: () => DOCUMENT_CACHE_HEADERS,
@@ -343,11 +345,15 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
 
   const htmlClass = useHtmlClass()
   const routeContent = (
-    <BuilderRouteFrame pathname={pathname}>
-      <React.Suspense fallback={<BuilderRouteSkeleton pathname={pathname} />}>
-        {children}
-      </React.Suspense>
-    </BuilderRouteFrame>
+    <React.Suspense fallback={null}>
+      {pathname === '/builder' || pathname.startsWith('/builder/') ? (
+        <BuilderRouteContent pathname={pathname}>
+          {children}
+        </BuilderRouteContent>
+      ) : (
+        children
+      )}
+    </React.Suspense>
   )
 
   return (
@@ -462,6 +468,7 @@ function PageViewTracker() {
   const lastTrackedPath = React.useRef<string | null>(null)
 
   React.useEffect(() => {
+    if (import.meta.env.MODE === 'staging') return
     const stopTrackingHoverIntent = trackScarfExternalLinkHoverIntent()
     document.addEventListener('click', trackScarfExternalLinkClick, true)
     document.addEventListener('click', trackScarfDownloadClick, true)
@@ -485,7 +492,8 @@ function PageViewTracker() {
 
     lastTrackedPath.current = pagePath
     trackPageView(pagePath)
-    trackScarfPageView(window.location.pathname)
+    if (import.meta.env.MODE !== 'staging')
+      trackScarfPageView(window.location.pathname)
   }, [pagePath])
 
   return null

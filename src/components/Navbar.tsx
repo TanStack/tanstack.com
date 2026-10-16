@@ -773,6 +773,12 @@ export function Navbar({ children }: { children: React.ReactNode }) {
 
   return (
     <>
+      <a
+        href="#site-main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-black"
+      >
+        Skip to content
+      </a>
       {navbar}
       {mobileMenu}
       <div
@@ -793,7 +799,11 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           siteBackdropActive ? 'blur-[4px]' : 'filter-none',
         )}
       >
-        <div className="flex-1 min-w-0 flex flex-col w-full min-h-0">
+        <div
+          id="site-main-content"
+          tabIndex={-1}
+          className="flex-1 min-w-0 flex flex-col w-full min-h-0 focus:outline-none"
+        >
           {children}
         </div>
       </div>

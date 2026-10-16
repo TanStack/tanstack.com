@@ -37,11 +37,11 @@ alongside timing results.
 
 All 80 requests returned 200 from DFW. Median TTFB in milliseconds:
 
-| Requests | Unified | Split |
-| --- | ---: | ---: |
+| Requests                      |            Unified |            Split |
+| ----------------------------- | -----------------: | ---------------: |
 | First observed in an instance | 1,531 (12 samples) | 791 (11 samples) |
-| Reused instance | 213 (28 samples) | 202 (29 samples) |
-| All requests | 227 | 236 |
+| Reused instance               |   213 (28 samples) | 202 (29 samples) |
+| All requests                  |                227 |              236 |
 
 First observed requests were 48% faster in this sample. Overall p95 fell from
 1,978 ms to 1,186 ms. The overall median did not improve. This supports a cold

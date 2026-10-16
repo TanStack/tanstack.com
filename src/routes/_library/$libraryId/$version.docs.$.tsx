@@ -136,7 +136,7 @@ export const Route = createFileRoute('/_library/$libraryId/$version/docs/$')({
 
 function Docs() {
   const { version, libraryId, _splat } = Route.useParams()
-  const { content, filePath, title } = Route.useLoaderData()
+  const { content, filePath, title } = Route.useLoaderData() ?? {}
   const versionMatch = useMatch({ from: '/_library/$libraryId/$version' })
   const config = versionMatch.loaderData?.config
   const library = getLibrary(libraryId)

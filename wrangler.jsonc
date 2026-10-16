@@ -22,15 +22,27 @@
   },
   "durable_objects": {
     "bindings": [
-      { "name": "STREAMS", "class_name": "StreamObject", "script_name": "tanstack-chat" },
-      { "name": "WORKSPACE_SYNC", "class_name": "WorkspaceSync", "script_name": "tanstack-chat" },
-      { "name": "CONVERSATIONS", "class_name": "Conversation", "script_name": "tanstack-chat" },
+      {
+        "name": "STREAMS",
+        "class_name": "StreamObject",
+        "script_name": "tanstack-chat",
+      },
+      {
+        "name": "WORKSPACE_SYNC",
+        "class_name": "WorkspaceSync",
+        "script_name": "tanstack-chat",
+      },
+      {
+        "name": "CONVERSATIONS",
+        "class_name": "Conversation",
+        "script_name": "tanstack-chat",
+      },
     ],
   },
   "exports": {
     "StreamObject": { "type": "durable-object", "storage": "sqlite" },
     "WorkspaceSync": { "type": "durable-object", "storage": "sqlite" },
-    "Conversation": { "type": "durable-object", "storage": "sqlite" }
+    "Conversation": { "type": "durable-object", "storage": "sqlite" },
   },
   "workflows": [
     {

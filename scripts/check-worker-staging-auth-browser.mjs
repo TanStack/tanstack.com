@@ -1,6 +1,6 @@
-const fs = require('node:fs')
-const { chromium } = require('playwright-core')
-const assert = require('node:assert/strict')
+import fs from 'node:fs'
+import { chromium } from 'playwright-core'
+import assert from 'node:assert/strict'
 const origin = 'https://tanstack-perf-stage-site.thetanstack.workers.dev'
 const sessions = JSON.parse(fs.readFileSync('.staging/sessions.json', 'utf8'))
 ;(async () => {

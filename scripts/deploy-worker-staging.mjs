@@ -41,6 +41,15 @@ for (const { config, expectedName } of configurations) {
       throw new Error('Namespace transfers are disabled in staging deploys')
 }
 
+console.log(
+  JSON.stringify({
+    target: 'staging-only',
+    ciWorker: process.env.WRANGLER_CI_OVERRIDE_NAME ?? null,
+    ciTagPresent: Boolean(process.env.WRANGLER_CI_MATCH_TAG),
+    destinations: [...names],
+  }),
+)
+
 // These variables are scoped to one connected Cloudflare Builds Worker.
 // Passing them to a different Worker overrides even an explicit --name.
 const env = { ...process.env }

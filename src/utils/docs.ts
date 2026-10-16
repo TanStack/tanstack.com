@@ -1,6 +1,4 @@
 import { isNotFound, notFound } from '@tanstack/react-router'
-import type { QueryClient } from '@tanstack/react-query'
-import { docsPathManifestQueryOptions } from '~/queries/docsManifest'
 import {
   fetchDocs,
   fetchDocsManifest,
@@ -84,7 +82,6 @@ export async function getDocsManifest(opts: {
 }
 
 export async function resolveDocsRoutePath(opts: {
-  queryClient?: QueryClient
   branch: string
   defaultDocs: string
   docsPath: string
@@ -98,14 +95,13 @@ export async function resolveDocsRoutePath(opts: {
     return defaultDocsResolution
   }
 
-  const request = {
-    repo: opts.repo,
-    branch: opts.branch,
-    docsRoot: opts.docsRoot,
-  }
-  const manifest = opts.queryClient
-    ? await opts.queryClient.fetchQuery(docsPathManifestQueryOptions(request))
-    : await fetchDocsPathManifest({ data: request })
+  const manifest = await fetchDocsPathManifest({
+    data: {
+      repo: opts.repo,
+      branch: opts.branch,
+      docsRoot: opts.docsRoot,
+    },
+  })
 
   if (manifest.paths.length === 0) {
     return { type: 'render', docsPath: opts.docsPath }
@@ -179,7 +175,6 @@ export type LoadDocsRouteResult =
     }
 
 export async function loadDocsRoute(opts: {
-  queryClient?: QueryClient
   branch: string
   defaultDocs: string
   docsPath: string
@@ -237,7 +232,6 @@ export async function loadDocsRoute(opts: {
  */
 async function findLatestDocsPath(
   opts: {
-    queryClient?: QueryClient
     branch: string
     docsRoot: string
     latestBranch?: string
@@ -250,14 +244,13 @@ async function findLatestDocsPath(
   }
 
   try {
-    const request = {
-      repo: opts.repo,
-      branch: opts.latestBranch,
-      docsRoot: opts.docsRoot,
-    }
-    const manifest = opts.queryClient
-      ? await opts.queryClient.fetchQuery(docsPathManifestQueryOptions(request))
-      : await fetchDocsPathManifest({ data: request })
+    const manifest = await fetchDocsPathManifest({
+      data: {
+        repo: opts.repo,
+        branch: opts.latestBranch,
+        docsRoot: opts.docsRoot,
+      },
+    })
 
     return docsManifestHasPath(manifest, docsPath) ? docsPath : null
   } catch {
@@ -266,7 +259,6 @@ async function findLatestDocsPath(
 }
 
 async function resolveDocsRoutePathWithRedirects(opts: {
-  queryClient?: QueryClient
   branch: string
   defaultDocs: string
   docsPath: string

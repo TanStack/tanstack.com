@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { createClientOnlyFn } from '@tanstack/react-start'
 import { ClientOnly, createFileRoute } from '@tanstack/react-router'
 import {
   BuilderEmbeddedSkeleton,
@@ -8,12 +7,10 @@ import {
 import { seo } from '~/utils/seo'
 import { webContainerHeaders } from '~/utils/stackblitz-embed'
 
-const LazySharedExamplePage = React.lazy(
-  createClientOnlyFn(() =>
-    import('~/components/examples/SharedExamplePage.client').then((module) => ({
-      default: module.SharedExamplePage,
-    })),
-  ),
+const LazySharedExamplePage = React.lazy(() =>
+  import('~/components/examples/SharedExamplePage.client').then((module) => ({
+    default: module.SharedExamplePage,
+  })),
 )
 
 export const Route = createFileRoute('/chat/shared')({

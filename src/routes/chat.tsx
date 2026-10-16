@@ -1,6 +1,9 @@
+import { getChatAccess } from '~/chat/access.functions'
 import { createServerFn } from '@tanstack/react-start'
+import { appearanceScript } from '~/chat/core/appearance-bootstrap'
 import { createFileRoute, redirect } from '@tanstack/react-router'
-import { ChatShellRoute } from '~/chat/components/ChatShellRoute'
+import { ChatShell } from '~/chat/components/ChatShell'
+import chatStyles from '~/chat/styles.css?url'
 import { webContainerHeaders } from '~/utils/stackblitz-embed'
 
 const initialAppearance = createServerFn({ method: 'GET' }).handler(
@@ -15,20 +18,11 @@ export const Route = createFileRoute('/chat')({
   staticData: { showNavbar: false },
   beforeLoad: async ({ cause }) => {
     if (cause === 'stay') return
-    const { getChatAccess } = await import('~/chat/access.functions')
     const access = await getChatAccess()
     if (!access?.unlocked)
       throw redirect({ to: '/chat-access', search: { invite: undefined } })
   },
-  loader: async () => {
-    const [{ appearanceScript }, { default: chatStyles }, appearance] =
-      await Promise.all([
-        import('~/chat/core/appearance-bootstrap'),
-        import('~/chat/styles.css?url'),
-        typeof window === 'undefined' ? initialAppearance() : null,
-      ])
-    return { appearanceScript, chatStyles, appearance }
-  },
+  loader: () => (typeof window === 'undefined' ? initialAppearance() : null),
   staleTime: Infinity,
   shouldReload: false,
   headers: () => ({
@@ -37,12 +31,12 @@ export const Route = createFileRoute('/chat')({
     'Cloudflare-CDN-Cache-Control': 'no-store',
   }),
   head: ({ loaderData }) => ({
-    links: [{ rel: 'stylesheet', href: loaderData?.chatStyles }],
+    links: [{ rel: 'stylesheet', href: chatStyles }],
     scripts: [
       {
-        children: `${loaderData?.appearance ? `document.documentElement.setAttribute('data-gum-ssr-appearance',${JSON.stringify(loaderData.appearance).replace(/</g, '\\u003c')});` : ''}${loaderData?.appearanceScript ?? ''}`,
+        children: `${loaderData ? `document.documentElement.setAttribute('data-gum-ssr-appearance',${JSON.stringify(loaderData).replace(/</g, '\\u003c')});` : ''}${appearanceScript}`,
       },
     ],
   }),
-  component: ChatShellRoute,
+  component: ChatShell,
 })

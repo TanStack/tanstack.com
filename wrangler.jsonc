@@ -20,15 +20,33 @@
   "limits": {
     "cpu_ms": 300000,
   },
+  "durable_objects": {
+    "bindings": [
+      { "name": "STREAMS", "class_name": "StreamObject", "script_name": "tanstack-chat" },
+      { "name": "WORKSPACE_SYNC", "class_name": "WorkspaceSync", "script_name": "tanstack-chat" },
+      { "name": "CONVERSATIONS", "class_name": "Conversation", "script_name": "tanstack-chat" },
+    ],
+  },
+  "exports": {
+    "StreamObject": { "type": "durable-object", "storage": "sqlite" },
+    "WorkspaceSync": { "type": "durable-object", "storage": "sqlite" },
+    "Conversation": { "type": "durable-object", "storage": "sqlite" }
+  },
+  "workflows": [
+    {
+      "name": "tanstack-chat-workflows",
+      "binding": "WORKFLOW_RUNS",
+      "class_name": "TanChatWorkflow",
+      "script_name": "tanstack-chat",
+    },
+  ],
   "triggers": {
     "crons": ["* * * * *", "0 9 * * *", "0 */6 * * *"],
   },
   "assets": {
     "binding": "ASSETS",
   },
-  "ai": {
-    "binding": "AI",
-  },
+  "ai": { "binding": "AI" },
   "r2_buckets": [
     {
       "binding": "GITHUB_CONTENT_CACHE",
@@ -51,20 +69,6 @@
     {
       "binding": "HYPERDRIVE",
       "id": "6ec1513b87bb47e9897e5502727b0388",
-    },
-  ],
-  "services": [
-    {
-      "binding": "OG",
-      "service": "tanstack-og",
-    },
-    {
-      "binding": "CHAT",
-      "service": "tanstack-chat",
-    },
-    {
-      "binding": "STARTER",
-      "service": "tanstack-starter",
     },
   ],
 }

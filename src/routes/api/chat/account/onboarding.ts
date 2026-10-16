@@ -1,11 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { forwardWorkerRequest } from '~/server/runtime/worker-service.server'
-
+import { handleOnboarding } from '~/chat/server/onboarding-http.server'
 export const Route = createFileRoute('/api/chat/account/onboarding')({
-  server: {
-    handlers: {
-      GET: ({ request }) => forwardWorkerRequest('CHAT', request),
-      POST: ({ request }) => forwardWorkerRequest('CHAT', request),
-    },
-  },
+  server: { handlers: { GET: ({ request }) => handleOnboarding(request), POST: ({ request }) => handleOnboarding(request) } },
 })

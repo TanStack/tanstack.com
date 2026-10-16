@@ -1,10 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { forwardWorkerRequest } from '~/server/runtime/worker-service.server'
-
+import { handleWorkspaceIndex } from '~/chat/server/workspace-index-http.server'
 export const Route = createFileRoute('/api/chat/workspace-index')({
-  server: {
-    handlers: {
-      GET: ({ request }) => forwardWorkerRequest('CHAT', request),
-    },
-  },
+  server: { handlers: { GET: ({request}) => handleWorkspaceIndex(request) } },
 })

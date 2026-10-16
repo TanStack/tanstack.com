@@ -22,8 +22,6 @@ import {
 } from './src/utils/local-repo-path.server'
 import { startLocalMcpEgress } from './scripts/local-mcp-egress'
 import { localBuilderAi } from './scripts/local-builder-ai-vite'
-import { chatIsolation } from './scripts/chat-isolation-vite'
-import { workerIsolation } from './scripts/worker-isolation-vite'
 
 const isDev = process.env.NODE_ENV !== 'production'
 const shouldUseRedact = process.env.DISABLE_REDACT !== 'true'
@@ -368,43 +366,6 @@ export default defineConfig(async ({ command, mode }) => {
       cloudflare({
         viteEnvironment: { name: 'ssr' },
         remoteBindings: useRemoteAi,
-        auxiliaryWorkers: [
-          {
-            configPath: 'workers/og/wrangler.jsonc',
-            viteEnvironment: { name: 'og' },
-          },
-          {
-            configPath: 'workers/starter/wrangler.jsonc',
-            viteEnvironment: { name: 'starter' },
-            config: (config) => {
-              if (command !== 'serve') return
-              config.hyperdrive = []
-              config.vars = { ...config.vars, APP_MODE: 'development' }
-            },
-          },
-          {
-            configPath: 'workers/chat/wrangler.jsonc',
-            viteEnvironment: { name: 'chat' },
-            config: (config) => {
-              if (command !== 'serve') return
-              config.hyperdrive = []
-              if (!useRemoteAi) delete config.ai
-              config.vars = {
-                ...config.vars,
-                ...egress?.vars,
-                APP_MODE: 'development',
-              }
-              for (const name of [
-                'GUM_DEV_EXECUTION',
-                'UNLIMITED_USAGE_EMAILS',
-                'USAGE_RATES_JSON',
-              ]) {
-                const value = localEnv[name]
-                if (typeof value === 'string') config.vars[name] = value
-              }
-            },
-          },
-        ],
         config: (config) => {
           if (command !== 'serve') return
           config.hyperdrive = []
@@ -484,8 +445,6 @@ export default defineConfig(async ({ command, mode }) => {
         },
       }),
       viteReact(),
-      chatIsolation(),
-      workerIsolation(),
 
       ...(shouldUseSentryPlugin
         ? [

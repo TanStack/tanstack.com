@@ -9,7 +9,7 @@ import {
   startBuilderOpenRouterLogin,
   isOpenRouterCallback,
 } from '../src/utils/builder-openrouter-login.client'
-import { openRouterCallbackResponse } from '../src/chat/server/routes/openrouter/callback'
+import { openRouterCallbackResponse } from '../src/routes/api/chat/openrouter/callback'
 import { createBuilderAiByokConnection } from '../src/utils/builder-ai-api-key-storage.client'
 import { streamBuilderAiResponse } from '../src/utils/builder-ai'
 import { createExampleWorkspace } from '../src/utils/example-workspace'

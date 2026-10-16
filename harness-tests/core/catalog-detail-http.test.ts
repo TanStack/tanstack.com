@@ -29,8 +29,8 @@ vi.mock('~/chat/server/kody-environment.server', () => ({
 }))
 vi.mock('~/chat/server/plugin-api', () => ({ pluginApi: m.plugins }))
 vi.mock('~/chat/server/skill-api', () => ({ skillApi: m.skills }))
-import { handlePlugins } from '../../src/chat/server/routes/plugins'
-import { handleSkills } from '../../src/chat/server/routes/skills'
+import { handlePlugins } from '../../src/routes/api/chat/plugins'
+import { handleSkills } from '../../src/routes/api/chat/skills'
 beforeEach(() => {
   vi.resetAllMocks()
   m.user.mockResolvedValue({ userId: 'owner', capabilities: ['builder'] })

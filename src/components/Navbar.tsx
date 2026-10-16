@@ -849,7 +849,7 @@ function DesktopNavTrigger({
           data-menu-key={group.key}
           className={triggerClassName}
           onClick={onDismiss}
-          preload={group.key === 'chat' ? false : 'intent'}
+          preload="intent"
         >
           <span>{group.label}</span>
           {group.key === 'chat' && (

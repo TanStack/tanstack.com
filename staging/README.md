@@ -14,7 +14,7 @@ project persistence are outside this public docs comparison.
 Build with `pnpm build:staging`, deploy with `pnpm deploy:staging`.
 The deployment preflight checks every destination and resource binding before
 uploading anything. It removes `WRANGLER_CI_OVERRIDE_NAME` and
-`WRANGLER_CI_MATCH_TAG` from child Wrangler processes and supplies each name
+`WRANGLER_CI_MATCH_TAG` from sibling Worker processes and supplies each name
 explicitly. The installed Wrangler overrides even `--name` when that CI name
 variable is present.
 
@@ -101,3 +101,7 @@ These tests use synthetic users and valid sessions signed by the existing
 SessionService with staging-only keys. They do not test GitHub/Google OAuth
 consent and callbacks, model inference, or Kody integrations. No production
 OAuth or model credentials were copied.
+
+The matching staging site retains its CI name and tag so Cloudflare can associate
+its version with the build and verify its identity. Sibling Workers receive
+neither variable. An unrelated CI name is removed from every deployment.

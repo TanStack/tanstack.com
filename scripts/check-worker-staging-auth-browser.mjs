@@ -56,6 +56,16 @@ const sessions = JSON.parse(fs.readFileSync('.staging/sessions.json', 'utf8'))
       origin + '/api/chat/account/preferences',
     )
     assert.equal(signedOut.status(), 401)
+    const revoked = await context.request.get(
+      origin + '/api/chat/account/preferences',
+      {
+        headers: {
+          Cookie:
+            'session_token=' + encodeURIComponent(sessions.users[0].token),
+        },
+      },
+    )
+    assert.equal(revoked.status(), 401)
     assert.deepEqual(errors, [])
     assert.deepEqual(forbiddenRequests, [])
     const result = {

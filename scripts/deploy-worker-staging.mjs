@@ -56,6 +56,12 @@ const env = { ...process.env }
 delete env.WRANGLER_CI_OVERRIDE_NAME
 delete env.WRANGLER_CI_MATCH_TAG
 for (const { file, config } of configurations) {
+  const workerEnv = { ...env }
+  if (process.env.WRANGLER_CI_OVERRIDE_NAME === config.name) {
+    workerEnv.WRANGLER_CI_OVERRIDE_NAME = config.name
+    if (process.env.WRANGLER_CI_MATCH_TAG)
+      workerEnv.WRANGLER_CI_MATCH_TAG = process.env.WRANGLER_CI_MATCH_TAG
+  }
   console.log(`Deploying staging Worker ${config.name}`)
   const result = spawnSync(
     'pnpm',
@@ -69,7 +75,7 @@ for (const { file, config } of configurations) {
       config.name,
       '--keep-vars',
     ],
-    { env, stdio: 'inherit' },
+    { env: workerEnv, stdio: 'inherit' },
   )
   if (result.error) throw result.error
   if (result.status !== 0) throw new Error(`Deployment failed: ${config.name}`)

@@ -12,7 +12,7 @@ import path from 'node:path'
 import { spawnSync } from 'node:child_process'
 import test from 'node:test'
 
-function fixture(productionBinding = false) {
+function fixture(productionBinding = false, ciWorker = 'tanstack-com') {
   const directory = mkdtempSync(path.join(tmpdir(), 'staging-deployment-'))
   const bin = path.join(directory, 'bin')
   mkdirSync(bin)
@@ -46,7 +46,7 @@ fs.appendFileSync('calls.jsonl', JSON.stringify({args:process.argv.slice(2),over
       env: {
         ...process.env,
         PATH: bin + path.delimiter + process.env.PATH,
-        WRANGLER_CI_OVERRIDE_NAME: 'tanstack-com',
+        WRANGLER_CI_OVERRIDE_NAME: ciWorker,
         WRANGLER_CI_MATCH_TAG: 'production-tag',
       },
       encoding: 'utf8',
@@ -87,4 +87,15 @@ test('a production binding aborts the entire fleet before the first upload', () 
   assert.notEqual(result.status, 0)
   assert.match(result.stderr, /Non-staging service binding/)
   assert.deepEqual(calls, [])
+})
+
+test('only the matching staging Worker retains its CI attribution and tag verification', () => {
+  const { result, calls } = fixture(false, 'tanstack-perf-stage-site')
+  assert.equal(result.status, 0, result.stderr)
+  for (const call of calls.slice(0, 3)) {
+    assert.equal(call.override, undefined)
+    assert.equal(call.tag, undefined)
+  }
+  assert.equal(calls[3].override, 'tanstack-perf-stage-site')
+  assert.equal(calls[3].tag, 'production-tag')
 })

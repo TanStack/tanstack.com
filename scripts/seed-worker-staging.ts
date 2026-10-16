@@ -15,16 +15,17 @@ try {
   for (const name of ['Alice', 'Bob']) {
     const candidateId = randomUUID()
     const [user] =
-      await sql`insert into users (id,email,name) values (${candidateId},${'staging-' + name.toLowerCase() + '@example.invalid'},${'Staging ' + name}) ON CONFLICT (email) DO UPDATE SET name=EXCLUDED.name RETURNING id`
+      await sql`insert into users (id,email,name) values (${candidateId},${'staging-' + name.toLowerCase() + '@example.invalid'},${'Staging ' + name}) ON CONFLICT (email) DO UPDATE SET name=EXCLUDED.name RETURNING id,session_version`
     const id = user.id
     await sql`insert into chat_access (user_id) values (${id}) ON CONFLICT (user_id) DO NOTHING`
     users.push({
       id,
       name,
+      version: user.session_version,
       token: await service.signCookie({
         userId: id,
         expiresAt: Date.now() + 86400000,
-        version: 0,
+        version: user.session_version,
       }),
     })
   }
@@ -36,7 +37,7 @@ try {
   const revoked = await service.signCookie({
     userId: users[0].id,
     expiresAt: Date.now() + 86400000,
-    version: 1,
+    version: users[0].version + 1,
   })
   const missing = await service.signCookie({
     userId: randomUUID(),

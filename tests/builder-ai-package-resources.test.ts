@@ -452,3 +452,30 @@ function createFetcher(responses: Record<string, string>): typeof fetch {
     })
   }
 }
+
+test('keeps cached resources readable after the download budget is exhausted', async () => {
+  const state = createBuilderAiPackageFetchState()
+  const budget = 16 * 1024 * 1024
+  let loads = 0
+  const load = async (recordBytes: (size: number) => void) => {
+    loads++
+    recordBytes(budget)
+    return 'cached evidence'
+  }
+  assert.equal(await state.load('exact', load), 'cached evidence')
+  assert.equal(await state.load('exact', load), 'cached evidence')
+  await assert.rejects(state.load('extra', load), /download budget reached/)
+  assert.equal(loads, 1)
+})
+
+test('rejects a resource that crosses the cumulative download budget', async () => {
+  const state = createBuilderAiPackageFetchState()
+  await state.load('first', async (recordBytes) => {
+    recordBytes(16 * 1024 * 1024 - 1)
+    return 'first'
+  })
+  await assert.rejects(state.load('second', async (recordBytes) => {
+    recordBytes(new TextEncoder().encode('é').byteLength)
+    return 'é'
+  }), /download budget reached/)
+})

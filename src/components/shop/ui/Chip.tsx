@@ -46,9 +46,8 @@ export const ShopChip = React.forwardRef<HTMLButtonElement, Props>(
         className={twMerge(
           'inline-flex items-center gap-[7px] px-3 py-1.5 rounded-md border text-shop-sm',
           'font-shop-display transition-[border-color,background-color,color]',
-          !selectedBg && 'bg-shop-surface text-shop-text border-shop-line',
-          !selectedBg &&
-            'hover:enabled:bg-shop-surface-hover hover:enabled:border-shop-line-2',
+          'bg-shop-surface text-shop-text border-shop-line',
+          'hover:enabled:bg-shop-surface-hover hover:enabled:border-shop-line-2',
           isSelected &&
             !selectedBg &&
             'bg-shop-panel-2 border-shop-accent text-shop-text hover:enabled:border-shop-accent',

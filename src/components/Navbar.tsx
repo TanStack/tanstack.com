@@ -654,6 +654,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       />
       <div className="flex min-w-0 flex-1 items-center gap-2 min-[1120px]:gap-3">
         <BrandContextMenu
+          showTrigger
           className={twMerge(`flex items-center group shrink-0`)}
         >
           <LogoSection />

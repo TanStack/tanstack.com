@@ -7,7 +7,7 @@ import { QueryClient } from '@tanstack/react-query'
 import * as Sentry from '@sentry/tanstackstart-react'
 import {
   installStaleAppReloadHandlers,
-  isStaleAppError,
+  consumeStaleAppRecovery,
 } from './utils/stale-app-reload'
 import { redactByokRequestHeaders } from './utils/sentry-redaction'
 
@@ -22,16 +22,11 @@ if (typeof document !== 'undefined') {
     tracesSampleRate: 1.0, //  Capture 100% of the transactions
     // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
     tracePropagationTargets: ['localhost', /^https:\/\/tanstack\.com\//],
-    beforeSend(event) {
+    beforeSend(event, hint) {
       redactByokRequestHeaders(event)
-      // Stale/failed app chunk loads (e.g. after a deploy or a dropped
-      // connection) are handled by installStaleAppReloadHandlers, which
-      // reloads the page. Don't report them as errors.
-      const exceptionTexts =
-        event.exception?.values?.map((v) =>
-          [v.type, v.value].filter(Boolean).join(': '),
-        ) ?? []
-      if (exceptionTexts.length > 0 && isStaleAppError(exceptionTexts)) {
+      // Only suppress the exact error that triggered a reload. Errors during
+      // the reload cooldown still need reporting.
+      if (consumeStaleAppRecovery(hint.originalException)) {
         return null
       }
       // Filter out errors from third-party ad tech scripts (e.g. Publift's

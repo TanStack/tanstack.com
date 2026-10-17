@@ -1,14 +1,15 @@
 # Worker deployment boundaries
 
 The browser still uses one TanStack Start app and its existing route tree. One
-Vite build produces four independent Cloudflare Worker uploads:
+Vite build produces five independent Cloudflare Worker uploads:
 
-| Output         | Worker             | Owns                                                                                  |
-| -------------- | ------------------ | ------------------------------------------------------------------------------------- |
-| `dist/server`  | `tanstack-com`     | Pages, docs, assets, auth, Start server functions, site cron tasks                    |
-| `dist/og`      | `tanstack-og`      | OG and README image generation, including Takumi WASM                                 |
-| `dist/chat`    | `tanstack-chat`    | Chat HTTP handlers, model execution, Durable Objects, chat workflow and sync recovery |
-| `dist/starter` | `tanstack-starter` | Project generation, embedded templates, starter API and GitHub deployment             |
+| Output          | Worker                   | Owns                                                                                   |
+| --------------- | ------------------------ | -------------------------------------------------------------------------------------- |
+| `dist/server`   | `tanstack-com`           | Pages, docs, assets, auth, Start server functions, site cron tasks                     |
+| `dist/og`       | `tanstack-og`            | OG and README image generation, including Takumi WASM                                  |
+| `dist/chat`     | `tanstack-chat`          | Chat HTTP handlers, model execution, Durable Objects, chat workflow and sync recovery  |
+| `dist/starter`  | `tanstack-starter`       | Project generation, embedded templates, starter API and GitHub deployment              |
+| `dist/recovery` | `tanstack-chat-recovery` | Preserved namespaces created by the failed deployment, with their real implementations |
 
 Public URLs stay the same. The Start API routes forward the original Request
 through service bindings, preserving cookies, origin, query parameters, bodies
@@ -53,31 +54,45 @@ pnpm build:cloudflare
 pnpm deploy:cloudflare:workers
 ```
 
-The deployment command publishes OG, starter, chat, then the site. It preserves
-existing remote variables and secrets. It does not run database migrations or
-purge the CDN. The existing broader deployment commands still perform their
-existing database preparation and cache purge steps.
+The deployment command publishes OG, starter, recovery, chat, then the site. It
+validates every destination, account and resource binding before uploading,
+checks required secrets, and preserves remote variables and secrets. The broader
+local and CI commands still run the existing database preparation. CDN purging
+is a separate explicit command.
 
-Provision the child Workers' declared secrets before routing production
-requests to them. Never put secret values in Wrangler configs or Git.
+Cloudflare Builds supplies `WRANGLER_CI_OVERRIDE_NAME` and
+`WRANGLER_CI_MATCH_TAG` for its connected Worker. Wrangler overrides even an
+explicit `--name` with that CI name. The script removes both variables from
+sibling commands and retains them only for `tanstack-com`. A tagged deployment
+also requires the matching `CLOUDFLARE_ACCOUNT_ID`, checked before any upload.
 
-The first rollout prepares the chat Worker's three SQLite namespaces with
-`expecting-transfer` declarations and bindings to the existing source namespaces.
-The site then commits the transfers with `transferred` declarations. The chat
-Worker activates its own bindings and takes ownership of the existing workflow.
-Finally, the site removes the completed transfer declarations. The deployment
-script detects this first rollout through the existing workflow's owner and
-performs the stages in order. It checks required child secrets before starting.
+After uploading the site, the script checks the homepage and Query, Router and
+Start documentation. A failed upload or page check restores the previous site
+version and fails the build. Supporting Worker upload failures stop before the
+site changes.
 
-Subsequent deployments publish the chat Worker before the site. The chat config
-uses explicit SQLite exports, so local development also gets SQLite storage.
-Never use `new_sqlite_classes` or create fresh production namespaces for the
-existing conversations.
+Provision declared secrets before deployment. Never put secret values in
+Wrangler configs or Git. Routine deployments reject migrations and namespace
+transfer declarations. Database schema preparation remains a separate step
+before those uploads.
+
+The active three chat namespaces and workflow belong to `tanstack-chat`. The
+October 16 recovery transferred the three extra site namespaces left by the
+failed deployment to `tanstack-chat-recovery`, preserving all namespace IDs.
+The recovery Worker has no public endpoint or cron. It keeps real Durable Object
+implementations and the existing cross-script chat bindings, including the
+workflow binding. Do not delete it or replace its exports with empty classes.
+
+The receiving Worker was prepared with `expecting-transfer`, the site committed
+`transferred` declarations, then both sides removed their completed transfer
+records. This was a supervised one-time operation, not a build side effect.
+Subsequent deployments use live SQLite exports. Do not add `new_sqlite_classes`
+for these existing namespaces.
 
 The chat Worker owns workspace-sync recovery; the site keeps its other cron
 work. The site no longer exports chat classes or owns Cloudflare workflow
-bindings. A disposable Cloudflare test verifies namespace and workflow
-continuity through this same rollout, including requests between stages.
+bindings. Disposable Cloudflare tests verified namespace data and workflow continuity
+through transfers, including requests between stages.
 
 A rollback after transferring namespaces must retain the new namespace owner
 and cross-script bindings, or explicitly transfer those namespaces back. Simply

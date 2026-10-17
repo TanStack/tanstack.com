@@ -8,6 +8,7 @@ import { devtools as tanstackDevtools } from '@tanstack/devtools-vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import tailwindcss from '@tailwindcss/vite'
 import { cloudflare } from '@cloudflare/vite-plugin'
+import type { WorkerConfig } from '@cloudflare/vite-plugin'
 import { analyzer } from 'vite-bundle-analyzer'
 import viteReact from '@vitejs/plugin-react'
 import { createHash, randomUUID } from 'node:crypto'
@@ -381,6 +382,12 @@ export default defineConfig(async ({ command, mode }) => {
                 {
                   configPath: 'workers/chat-recovery/wrangler.jsonc',
                   viteEnvironment: { name: 'recovery' },
+                  config: (config: WorkerConfig) => {
+                    if (command !== 'serve') return
+                    config.hyperdrive = []
+                    if (!useRemoteAi) delete config.ai
+                    config.vars = { ...config.vars, APP_MODE: 'development' }
+                  },
                 },
               ]),
           {

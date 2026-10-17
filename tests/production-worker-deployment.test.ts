@@ -18,6 +18,7 @@ function fixture(
     wrongAccount?: boolean
     missingSecret?: boolean
     unhealthy?: boolean
+    missingAccount?: boolean
   } = {},
 ) {
   const directory = mkdtempSync(path.join(tmpdir(), 'production-deployment-'))
@@ -70,6 +71,9 @@ if(args.includes('deployments'))console.log(JSON.stringify([
         PATH: bin + path.delimiter + process.env.PATH,
         WRANGLER_CI_OVERRIDE_NAME: 'tanstack-com',
         WRANGLER_CI_MATCH_TAG: 'site-tag',
+        CLOUDFLARE_ACCOUNT_ID: options.missingAccount
+          ? undefined
+          : '8da95258a9c70b54c3e2b374a0079106',
       },
       encoding: 'utf8',
     },
@@ -122,6 +126,12 @@ test('missing credentials stop the rollout before any upload', () => {
     calls.some((call) => call.args[2] === 'deploy'),
     false,
   )
+})
+
+test('incomplete CI account context is rejected before any Cloudflare command', () => {
+  const { result, calls } = fixture({ missingAccount: true })
+  assert.notEqual(result.status, 0)
+  assert.deepEqual(calls, [])
 })
 
 test('failed live checks restore the newest previous site version and fail the build', () => {

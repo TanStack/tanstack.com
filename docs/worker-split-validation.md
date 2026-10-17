@@ -103,3 +103,46 @@ measurements above were made against the actual production site.
 The branch was subsequently rebased onto `b416acbc` to retain six newer main
 commits, including the header branding and Hotkeys page updates. The response
 samples above describe the initial split deployment.
+
+## Production retry, October 16
+
+Final site version: `664695d7-25ec-4005-8499-997d98e99c81`. The upload is
+10,938.30 KiB raw and 3,161.44 KiB gzip. Cloudflare reported 30 ms startup,
+compared with 250 ms for the prepared unified fallback. These startup figures
+are deployment measurements, not documentation request TTFB.
+
+The active chat namespace IDs and workflow ID are unchanged. The extra three
+namespaces created under the site during the failed rollout moved to
+`tanstack-chat-recovery`, keeping their IDs and real implementations. No
+namespace was deleted or replaced. The site owns no chat namespaces.
+
+The final deployment exercised the normal production script with Cloudflare's
+Worker name, match tag and account variables supplied. Sibling commands did not
+inherit the site identity. An earlier replay omitted the account variable;
+Wrangler rejected that upload, the previous site version was restored, and the
+prepared unified fallback returned 200. The final preflight now rejects that
+incomplete context before contacting Cloudflare.
+
+The homepage and Query, Router and Start documentation returned 200 after the
+final deployment. Browser navigation from Query overview to Installation used
+one document request, with no browser errors or chat API/bundle requests. OG and
+README PNGs, MCP metadata, starter discovery and in-memory generation passed.
+Protected endpoints returned the expected unauthenticated 401 responses. All
+50 sampled homepage/docs responses during the first rollout returned 200.
+
+Twenty-four subsequent Query overview requests from SLC returned 200 with
+`private, no-store`. Median TTFB was 96.25 ms and p95 was 685.3 ms. There is no
+matched production baseline from SLC, so this sample does not establish a
+production speedup. Raw checks and state snapshots are in
+`worker-split-production-validation.json`.
+
+Actual Cloudflare Builds and signed-in account, isolation, CSRF, logout and
+WorkspaceSync checks passed earlier on the isolated staging fleet and Neon
+database. The saved production session was already expired, so successful
+signed-in production flows were not retested. No production schema migration or
+CDN purge was performed for this retry.
+
+The final full `pnpm test` run passed all TypeScript checks, lint with zero errors,
+576 unit tests, 2,270 chat tests and 20 desktop tests. Five existing tests remain
+skipped. The deployment tests include missing CI account context and automatic
+rollback, in addition to sibling identity scoping and preflight rejection.

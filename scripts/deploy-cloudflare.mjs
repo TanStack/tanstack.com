@@ -60,6 +60,14 @@ if (
   process.env.WRANGLER_CI_OVERRIDE_NAME !== 'tanstack-com'
 )
   throw new Error('Production builds must be connected to tanstack-com')
+if (
+  (process.env.CLOUDFLARE_ACCOUNT_ID &&
+    process.env.CLOUDFLARE_ACCOUNT_ID !== account) ||
+  (process.env.WRANGLER_CI_MATCH_TAG &&
+    (process.env.CLOUDFLARE_ACCOUNT_ID !== account ||
+      process.env.WRANGLER_CI_OVERRIDE_NAME !== 'tanstack-com'))
+)
+  throw new Error('The production CI account and Worker identity must match')
 
 const env = { ...process.env }
 delete env.WRANGLER_CI_OVERRIDE_NAME

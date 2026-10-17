@@ -95,7 +95,8 @@ try {
   const [appliedMigration] = await sql<{ hash: string; version: string }[]>`
     select hash, created_at::text as version
     from drizzle.__drizzle_migrations
-    order by created_at desc, id desc
+    where created_at = ${expectedMigrationVersion}
+    order by id desc
     limit 1
   `
 

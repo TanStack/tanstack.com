@@ -148,6 +148,46 @@ async function testBlobStorageInfersGithubContentMetadataFromKey() {
   assert.equal(originCalls, 0)
 }
 
+async function testBlobStorageUsesCurrentRequestBinding() {
+  resetGitHubContentCacheForTest()
+
+  const mockR2 = createMockR2Bucket()
+  const reads: Array<number> = []
+  const requestBucket = (requestId: number) => ({
+    ...mockR2.bucket,
+    async get(key: string) {
+      reads.push(requestId)
+      return mockR2.bucket.get(key)
+    },
+  })
+  let originCalls = 0
+  const opts = {
+    repo,
+    gitRef,
+    path: 'docs/request-binding.md',
+    origin: async () => {
+      originCalls += 1
+      return 'shared cached content'
+    },
+  }
+
+  for (const requestId of [1, 2]) {
+    const readOffset = reads.length
+    const result = await runWithHostRuntimeEnv(
+      { GITHUB_CONTENT_CACHE: requestBucket(requestId) },
+      () => getCachedGitHubTextFile(opts),
+    )
+    assert.equal(result, 'shared cached content')
+    assert.ok(reads.length > readOffset)
+    assert.ok(
+      reads.slice(readOffset).every((id) => id === requestId),
+      'blob reads must use the current request binding',
+    )
+  }
+
+  assert.equal(originCalls, 1)
+}
+
 async function testForcedStaleRefreshes() {
   resetGitHubContentCacheForTest()
 
@@ -385,9 +425,67 @@ async function testStaleArtifactRefreshesInWaitUntil() {
   assert.deepEqual(freshResult, { paths: ['new'] })
 }
 
+async function testExpiredContentRefreshesWithoutBlocking() {
+  resetGitHubContentCacheForTest()
+  const mockR2 = createMockR2Bucket()
+  const pending: Array<Promise<unknown>> = []
+  let finish: ((value: string) => void) | undefined
+  const refresh = new Promise<string>((resolve) => {
+    finish = resolve
+  })
+  await runWithHostRuntimeEnv(
+    { GITHUB_CONTENT_CACHE: mockR2.bucket },
+    async () => {
+      const opts = { repo, gitRef, path: 'docs/expired.md' }
+      await getCachedGitHubTextFile({ ...opts, origin: async () => 'old' })
+      for (const object of mockR2.objects.values()) {
+        if (object.customMetadata)
+          object.customMetadata.staleAt = new Date(
+            Date.now() - 1000,
+          ).toISOString()
+      }
+      const value = await runWithHostRuntimeContext(
+        {
+          waitUntil: (task: Promise<unknown>) => {
+            pending.push(task)
+          },
+        },
+        () => getCachedGitHubTextFile({ ...opts, origin: () => refresh }),
+      )
+      assert.equal(value, 'old')
+      assert.equal(pending.length, 1)
+      finish?.('new')
+      await Promise.all(pending)
+      assert.equal(
+        await getCachedGitHubTextFile({
+          ...opts,
+          origin: async () => {
+            throw new Error('should be fresh')
+          },
+        }),
+        'new',
+      )
+      await markGitHubContentStale({ repo, gitRef })
+      const forced = await runWithHostRuntimeContext(
+        {
+          waitUntil: () => {
+            assert.fail('forced invalidation must block')
+          },
+        },
+        () =>
+          getCachedGitHubTextFile({ ...opts, origin: async () => 'forced' }),
+      )
+      assert.equal(forced, 'forced')
+    },
+  )
+}
+
+await testExpiredContentRefreshesWithoutBlocking()
+
 await testMissStoresContent()
 await testFreshHitSkipsOrigin()
 await testWorkerEnvUsesBlobStorage()
+await testBlobStorageUsesCurrentRequestBinding()
 await testBlobStorageInfersGithubContentMetadataFromKey()
 await testForcedStaleRefreshes()
 await testNegativeHitSkipsOrigin()

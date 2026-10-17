@@ -75,7 +75,7 @@ function Index() {
   return (
     <>
       <Scarf id="b7a8c111-2305-4d95-a02a-d84c5bfb82ae" path="/" />
-      <div className="max-w-full z-10 space-y-24">
+      <main className="max-w-full z-10 space-y-24">
         <div className="space-y-8">
           {/* Hero — Figma node 802:2027. Full-bleed palm/gradient photo card:
               headline bottom-left, description + CTA bottom-right. The photo is
@@ -149,7 +149,7 @@ function Index() {
 
         <div className="h-4" />
         <HomeNewsletterSection />
-      </div>
+      </main>
     </>
   )
 }

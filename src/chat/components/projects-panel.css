@@ -1,0 +1,23 @@
+@scope (:root:has(.tanchat-shell)) {
+  .projects-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+  }
+  .projects-panel-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+  }
+  .projects-panel-controls .select-field-trigger {
+    min-width: 0;
+    flex: 1;
+  }
+  .projects-panel-editor {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+}

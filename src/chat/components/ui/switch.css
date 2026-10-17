@@ -1,0 +1,41 @@
+@scope (:root:has(.tanchat-shell)) {
+  .ui-switch {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    width: 32px;
+    height: 20px;
+    padding: 2px;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    background: var(--surface);
+    cursor: pointer;
+  }
+  .ui-switch[data-checked] {
+    background: var(--accent);
+  }
+  .ui-switch-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--muted);
+    transition: transform 140ms ease;
+  }
+  .ui-switch[data-checked] .ui-switch-thumb {
+    transform: translateX(12px);
+    background: var(--on-accent);
+  }
+  .ui-switch:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  .ui-switch[data-disabled] {
+    opacity: 0.5;
+    cursor: default;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ui-switch-thumb {
+      transition: none;
+    }
+  }
+}

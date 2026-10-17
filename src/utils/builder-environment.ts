@@ -19,12 +19,12 @@ export const builderImports = {
     'https://esm.sh/@tanstack/charts@0.16.1/octane/core?external=octane',
   '@tanstack/charts-data/':
     'https://esm.sh/gh/TanStack/charts@b8690671d677244848cff0eebd3d5dd0d5825b18/packages/charts-demo-data/src/',
-  '@tanstack/highlight': 'https://esm.sh/@tanstack/highlight@0.0.10',
-  '@tanstack/highlight/': 'https://esm.sh/@tanstack/highlight@0.0.10/',
-  '@tanstack/markdown': 'https://esm.sh/@tanstack/markdown@0.0.13',
+  '@tanstack/highlight': 'https://esm.sh/@tanstack/highlight@1.0.0',
+  '@tanstack/highlight/': 'https://esm.sh/@tanstack/highlight@1.0.0/',
+  '@tanstack/markdown': 'https://esm.sh/@tanstack/markdown@1.0.0',
   '@tanstack/markdown/react':
-    'https://esm.sh/@tanstack/markdown@0.0.13/react?external=react',
-  '@tanstack/markdown/': 'https://esm.sh/@tanstack/markdown@0.0.13/',
+    'https://esm.sh/@tanstack/markdown@1.0.0/react?external=react',
+  '@tanstack/markdown/': 'https://esm.sh/@tanstack/markdown@1.0.0/',
   '@tanstack/pacer': 'https://esm.sh/@tanstack/pacer@0.21.1',
   '@tanstack/react-pacer':
     'https://esm.sh/@tanstack/react-pacer@0.22.1?external=react',
@@ -418,7 +418,7 @@ export default function render(output: HTMLElement) {
 
 export function generateBuilderLlmsTxt() {
   const lines = [
-    '# TanStack Builder',
+    '# TanChat',
     '',
     '> Author, run, edit, and share browser-only JavaScript, TypeScript, JSX, and TSX projects at https://tanstack.com/builder.',
     '',
@@ -488,13 +488,13 @@ export function generateBuilderLlmsTxt() {
     '',
     '## Sharing protocol',
     '',
-    'Anyone can author and run a project in TanStack Builder at `https://tanstack.com/builder/new`. Unsaved work is a browser-local draft with no public URL. A TanStack login is required to save it.',
+    'Anyone can author and run a project in TanChat at `https://tanstack.com/builder/new`. Unsaved work is a browser-local draft with no public URL. A TanStack login is required to save it.',
     '',
     'Saved projects use stable `https://tanstack.com/builder/<uuid>` URLs. Reads are public and unlisted. Saving, updating, deleting, and forking requires a TanStack login.',
     '',
-    'Create one with `POST https://tanstack.com/api/builder/projects` and `{ "project": <project>, "forkedFromId"?: <uuid> }`. Owners list theirs with `GET /api/builder/projects`; public metadata is available from `GET /api/builder/projects/<uuid>`. Owners update with `PATCH` and `{ "project": <project>, "expectedUpdatedAt": <project.updatedAt> }`; stale updates return `409`. Owners delete with `DELETE`.',
+    'Create one with `POST https://tanstack.com/api/chat/projects` and `{ "project": <project>, "forkedFromId"?: <uuid> }`. Owners list theirs with `GET /api/chat/projects`; public metadata is available from `GET /api/chat/projects/<uuid>`. Owners update with `PATCH` and `{ "project": <project>, "expectedUpdatedAt": <project.updatedAt> }`; stale updates return `409`. Owners delete with `DELETE`.',
     '',
-    'Every save stores the project as an immutable SHA-256 snapshot. Read that canonical project JSON at `GET https://tanstack.com/api/builder/project-snapshots/<sha256>` using the `snapshotHash` returned with the Builder project.',
+    'Every save stores the project as an immutable SHA-256 snapshot. Read that canonical project JSON at `GET https://tanstack.com/api/chat/project-snapshots/<sha256>` using the `snapshotHash` returned with the Builder project.',
     '',
     'The original one-file project URL remains supported for legacy links:',
     '',
@@ -506,7 +506,7 @@ export function generateBuilderLlmsTxt() {
     '',
     'URL fragments are not sent to the HTTP server. Agents given a `#code` or `#project` URL must decode the fragment locally.',
     '',
-    'Legacy large projects use `https://tanstack.com/builder/p/<sha256>`. Read their canonical JSON without executing it at `GET https://tanstack.com/api/builder/project-snapshots/<sha256>`. Reads are public and unlisted. Writes are immutable, authenticated, same-origin, and rate-limited through `POST https://tanstack.com/api/builder/project-snapshots`.',
+    'Legacy large projects use `https://tanstack.com/builder/p/<sha256>`. Read their canonical JSON without executing it at `GET https://tanstack.com/api/chat/project-snapshots/<sha256>`. Reads are public and unlisted. Writes are immutable, authenticated, same-origin, and rate-limited through `POST https://tanstack.com/api/chat/project-snapshots`.',
     '',
     'Git remains canonical for documentation and catalog examples. Saved builder revisions and legacy project URLs are immutable snapshots.',
     '',

@@ -23,6 +23,14 @@ assert.equal(
 )
 
 assert.equal(
+  isValidRepoPath(
+    'examples/vue/basic-file-based-jsx/src/routes/(group)/inside.tsx',
+  ),
+  true,
+  'route groups are valid repo path segments',
+)
+
+assert.equal(
   isValidRepoPath('../src/routes/__root.tsx'),
   false,
   'traversal is rejected',

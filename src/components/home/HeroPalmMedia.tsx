@@ -13,6 +13,7 @@ export function HeroPalmMedia() {
       .play()
       .then(() => setIsVideoReady(true))
       .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === 'AbortError') return
         console.error('Unable to play the homepage hero animation', error)
         setIsPlaying(false)
         setIsVideoReady(false)

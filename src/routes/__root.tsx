@@ -40,10 +40,11 @@ import { ThemeProvider, useHtmlClass } from '~/components/ThemeProvider'
 import { Navbar } from '~/components/Navbar'
 import { Footer } from '~/components/Footer'
 import { ProductScarf } from '~/components/ProductScarf'
-import {
-  BuilderRouteFrame,
-  BuilderRouteSkeleton,
-} from '~/components/builder/BuilderLoading'
+const BuilderRouteContent = React.lazy(() =>
+  import('~/chat/components/projects/Loading').then((module) => ({
+    default: module.BuilderRouteContent,
+  })),
+)
 import { THEME_COLORS } from '~/utils/utils'
 import { trackPageView } from '~/utils/analytics'
 import {
@@ -55,6 +56,7 @@ import {
 } from '~/utils/analytics/scarf'
 import { createPartnerPlacementSessionSeed } from '~/utils/partner-placement'
 import { twMerge } from 'tailwind-merge'
+import { DOCS_WIDTH_BOOTSTRAP } from '~/utils/docs-width'
 
 const GOOGLE_ANALYTICS_ID = 'G-JMT1Z50SPS'
 const GOOGLE_ANALYTICS_PROXY_PREFIX = '/_a'
@@ -263,10 +265,21 @@ export const Route = createRootRouteWithContext<{
           sizes: '16x16',
           href: '/favicon-16x16.png',
         },
-        { rel: 'manifest', href: '/site.webmanifest' },
+        {
+          rel: 'manifest',
+          href: matches.some(
+            (match) =>
+              match.pathname === '/chat' || match.pathname.startsWith('/chat/'),
+          )
+            ? '/chat/manifest.webmanifest'
+            : '/site.webmanifest',
+        },
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
       ],
-      scripts: [{ children: GOOGLE_ANALYTICS_BOOTSTRAP }],
+      scripts:
+        import.meta.env.PROD && import.meta.env.MODE !== 'staging'
+          ? [{ children: GOOGLE_ANALYTICS_BOOTSTRAP }]
+          : [],
     }
   },
   headers: () => DOCUMENT_CACHE_HEADERS,
@@ -324,15 +337,23 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
   const hideNavbar = useMatches({
     select: (s) => s.some((d) => d.staticData?.showNavbar === false),
   })
-  const hideFooter = pathname === '/builder' || pathname.startsWith('/builder/')
+  const hideFooter =
+    pathname === '/builder' ||
+    pathname.startsWith('/builder/') ||
+    pathname === '/chat' ||
+    pathname.startsWith('/chat/')
 
   const htmlClass = useHtmlClass()
   const routeContent = (
-    <BuilderRouteFrame pathname={pathname}>
-      <React.Suspense fallback={<BuilderRouteSkeleton pathname={pathname} />}>
-        {children}
-      </React.Suspense>
-    </BuilderRouteFrame>
+    <React.Suspense fallback={null}>
+      {pathname === '/builder' || pathname.startsWith('/builder/') ? (
+        <BuilderRouteContent pathname={pathname}>
+          {children}
+        </BuilderRouteContent>
+      ) : (
+        children
+      )}
+    </React.Suspense>
   )
 
   return (
@@ -342,6 +363,7 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
           dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP }}
           suppressHydrationWarning
         />
+        <script dangerouslySetInnerHTML={{ __html: DOCS_WIDTH_BOOTSTRAP }} />
         <HeadContent />
         {import.meta.env.PROD ? (
           <script
@@ -361,7 +383,9 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
         <RouterContextProvider router={router}>
           <QueryClientProvider client={queryClient}>
             <ThemeProvider>
-              <SearchProvider>
+              <SearchProvider
+                enabled={pathname !== '/chat' && !pathname.startsWith('/chat/')}
+              >
                 <LoginModalProvider>
                   <ToastProvider>
                     <PageViewTracker />
@@ -444,6 +468,7 @@ function PageViewTracker() {
   const lastTrackedPath = React.useRef<string | null>(null)
 
   React.useEffect(() => {
+    if (import.meta.env.MODE === 'staging') return
     const stopTrackingHoverIntent = trackScarfExternalLinkHoverIntent()
     document.addEventListener('click', trackScarfExternalLinkClick, true)
     document.addEventListener('click', trackScarfDownloadClick, true)
@@ -467,7 +492,8 @@ function PageViewTracker() {
 
     lastTrackedPath.current = pagePath
     trackPageView(pagePath)
-    trackScarfPageView(window.location.pathname)
+    if (import.meta.env.MODE !== 'staging')
+      trackScarfPageView(window.location.pathname)
   }, [pagePath])
 
   return null

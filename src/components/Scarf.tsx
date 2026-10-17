@@ -24,11 +24,16 @@ export function Scarf({ id, path }: { id: string; path: string }) {
   )
 
   useEffect(() => {
-    if (!visit || lastVisit.current === visit) return
+    if (
+      import.meta.env.MODE === 'staging' ||
+      !visit ||
+      lastVisit.current === visit
+    )
+      return
     lastVisit.current = visit
     setPixel({
       visit,
-      src: `https://static.scarf.sh/a.png?x-pxid=${encodeURIComponent(id)}&key=${crypto.randomUUID()}`,
+      src: `https://static.scarf.sh/a.png?x-pxid=${encodeURIComponent(id)}&key=${crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2)}`,
     })
   }, [id, visit])
 

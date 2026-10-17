@@ -516,7 +516,7 @@ export function DeployDialog({
                 </a>
                 {providerInfo && countdown !== null && countdown > 0 && (
                   <p className="mt-4 text-sm text-text-muted">
-                    Redirecting to {providerInfo.name} in {countdown}state...
+                    Redirecting to {providerInfo.name} in {countdown}s...
                   </p>
                 )}
               </DialogStatus>

@@ -31,9 +31,14 @@ const posts = defineCollection({
       published: z.iso.date(),
       updated: z.iso.date().optional(),
       draft: z.boolean().optional(),
+      rss: z.boolean().optional(),
       excerpt: z.string(),
       authors: z.string().array(),
+      contributors: z.string().array().optional(),
       library: libraryListSchema.optional(),
+      headerImage: z.string().optional(),
+      headerVideo: z.string().optional(),
+      headerVideoCaptions: z.string().optional(),
       content: z.string(),
       redirect_from: z.string().array().optional(),
     })
@@ -44,7 +49,8 @@ const posts = defineCollection({
   transform: ({ content, ...post }) => {
     // Extract header image (first image after frontmatter)
     const headerImageMatch = content.match(/!\[([^\]]*)\]\(([^)]+)\)/)
-    const headerImage = headerImageMatch ? headerImageMatch[2] : undefined
+    const headerImage =
+      post.headerImage ?? (headerImageMatch ? headerImageMatch[2] : undefined)
     const redirectFrom = normalizeRedirectFrom(post.redirect_from)
 
     return {

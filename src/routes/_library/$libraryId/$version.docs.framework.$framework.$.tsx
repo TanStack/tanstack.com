@@ -1,4 +1,5 @@
 import {
+  notFound,
   redirect,
   useLocation,
   useMatch,
@@ -12,10 +13,11 @@ import {
   buildDocsRedirectHref,
   loadDocsRoute,
 } from '~/utils/docs'
-import { getBranch, getLibrary } from '~/libraries'
+import { findLibrary, getBranch, getLibrary } from '~/libraries'
 import { capitalize } from '~/utils/utils'
 import { DocContainer } from '~/components/DocContainer'
 import { getDocsCacheHeaders } from '~/utils/docs-cache-headers'
+import { getDocsEmbedRuntimeHeaders } from '~/utils/docs-embed-headers'
 
 export const Route = createFileRoute(
   '/_library/$libraryId/$version/docs/framework/$framework/$',
@@ -59,10 +61,7 @@ export const Route = createFileRoute(
     }
 
     if (result.type === 'not-found') {
-      throw redirect({
-        to: '/$libraryId/$version/docs/framework/$framework',
-        params: { libraryId, version, framework },
-      })
+      throw notFound()
     }
 
     return {
@@ -79,14 +78,25 @@ export const Route = createFileRoute(
     }
   },
   component: Docs,
-  headers: ({ params }) => {
+  headers: ({ loaderData, params }) => {
     const { libraryId, version } = params
 
-    return getDocsCacheHeaders({ libraryId, version })
+    return {
+      ...getDocsCacheHeaders({ libraryId, version }),
+      ...getDocsEmbedRuntimeHeaders({
+        content: loaderData?.content ?? '',
+        version,
+      }),
+    }
   },
   head: (ctx) => {
     const { libraryId, version, framework, _splat: docsPath } = ctx.params
-    const library = getLibrary(libraryId)
+    const library = findLibrary(libraryId)
+
+    if (!library) {
+      throw notFound()
+    }
+
     const tail = `${library.name} ${capitalize(framework)} Docs`
 
     const canonicalHref = canonicalUrl(

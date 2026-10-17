@@ -28,7 +28,13 @@ const SearchContext = React.createContext<SearchContextType | undefined>(
   undefined,
 )
 
-export function SearchProvider({ children }: { children: React.ReactNode }) {
+export function SearchProvider({
+  children,
+  enabled = true,
+}: {
+  children: React.ReactNode
+  enabled?: boolean
+}) {
   const [isOpen, setIsOpen] = React.useState(false)
   const [isAiDockOpen, setIsAiDockOpen] = React.useState(false)
   const [isAiDockDirty, setIsAiDockDirty] = React.useState(false)
@@ -56,7 +62,6 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
 
   const openAiDock = React.useCallback(() => {
     cancelAiDockHoverClose()
-    setHasLoadedSearch(true)
     setIsOpen(false)
     setIsAiDockOpen(true)
   }, [cancelAiDockHoverClose])
@@ -69,7 +74,6 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
       }
 
       cancelAiDockHoverClose()
-      setHasLoadedSearch(true)
       setIsOpen(false)
       setIsAiDockDirty(true)
       setIsAiDockOpen(true)
@@ -147,6 +151,7 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
   )
 
   React.useEffect(() => {
+    if (!enabled) return
     const handleDocumentClick = (event: MouseEvent) => {
       if (!(event.target instanceof Element)) return
 
@@ -162,9 +167,10 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
     return () => {
       document.removeEventListener('click', handleDocumentClick)
     }
-  }, [openSearch])
+  }, [enabled, openSearch])
 
   React.useEffect(() => {
+    if (!enabled) return
     const handleGlobalKeyDown = (event: KeyboardEvent) => {
       if (!(event.metaKey || event.ctrlKey)) return
       if (event.altKey || event.shiftKey) return
@@ -189,12 +195,12 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
         capture: true,
       })
     }
-  }, [isOpen, openSearch, requestNewChat])
+  }, [enabled, isOpen, openSearch, requestNewChat])
 
   return (
     <SearchContext.Provider value={value}>
       {children}
-      {hasLoadedSearch ? (
+      {enabled && hasLoadedSearch ? (
         <React.Suspense fallback={null}>
           <LazySearchModal />
         </React.Suspense>

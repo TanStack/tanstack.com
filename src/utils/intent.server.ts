@@ -197,20 +197,27 @@ function isSafeSkillPath(skillPath: string) {
   )
 }
 
+export async function searchIntentPackagesPage(options: {
+  from: number
+  size: number
+}): Promise<NpmSearchResult> {
+  return fetchNpmSearch(
+    `${NPM_REGISTRY}/-/v1/search?text=keywords:tanstack-intent&size=${options.size}&from=${options.from}`,
+  )
+}
+
 export async function searchIntentPackages(): Promise<NpmSearchResult> {
   const results: NpmSearchResult = { objects: [], total: 0, time: '' }
   let from = 0
   const size = 250
 
   while (true) {
-    const url = `${NPM_REGISTRY}/-/v1/search?text=keywords:tanstack-intent&size=${size}&from=${from}`
-    const page = await fetchNpmSearch(url)
-
+    const page = await searchIntentPackagesPage({ from, size })
     results.objects.push(...page.objects)
     results.total = page.total
     results.time = page.time
-
     from += size
+
     if (
       from >= page.total ||
       page.objects.length === 0 ||
@@ -218,11 +225,9 @@ export async function searchIntentPackages(): Promise<NpmSearchResult> {
     ) {
       results.objects = results.objects.slice(0, MAX_INTENT_SEARCH_RESULTS)
       results.total = Math.min(results.total, MAX_INTENT_SEARCH_RESULTS)
-      break
+      return results
     }
   }
-
-  return results
 }
 
 export async function searchIntentPackagesByText(

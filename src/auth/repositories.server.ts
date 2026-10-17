@@ -224,9 +224,12 @@ export class DrizzleOAuthAccountRepository implements IOAuthAccountRepository {
 // ============================================================================
 
 export class DrizzleCapabilitiesRepository implements ICapabilitiesRepository {
-  async getEffectiveCapabilities(userId: string): Promise<Capability[]> {
+  async getEffectiveCapabilities(
+    userId: string,
+    connection: Pick<typeof db, 'select'> = db,
+  ): Promise<Capability[]> {
     // Single query to get both user capabilities and role capabilities
-    const result = await db
+    const result = await connection
       .select({
         userCapabilities: users.capabilities,
         roleCapabilities: roles.capabilities,

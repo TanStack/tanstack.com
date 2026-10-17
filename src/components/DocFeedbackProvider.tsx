@@ -401,11 +401,11 @@ function BlockButton({
   if (!portalContainer) {
     portalContainer = document.createElement('div')
     portalContainer.setAttribute('data-button-portal', blockId)
-    // Nudge down when following a <code> block so the button doesn't overlap with the code's top bar
-    const precedesCodeBlock = block.lastElementChild?.tagName === 'CODE'
+    // Keep the trigger inside the scrollable code block, below its header.
+    const isCodeBlock = block.tagName === 'PRE'
     portalContainer.className = twMerge(
-      'absolute right-0 -translate-y-full z-[100]',
-      precedesCodeBlock ? 'top-6' : 'top-0',
+      'absolute right-0 -translate-y-full z-20',
+      isCodeBlock ? 'top-6' : 'top-0',
     )
     portalContainer.style.position = 'absolute'
 

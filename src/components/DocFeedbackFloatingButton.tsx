@@ -1,6 +1,12 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import {
+  Dropdown,
+  DropdownTrigger,
+  DropdownContent,
+  DropdownItem,
+} from './Dropdown'
+import {
   LightbulbIcon,
   ChatCenteredIcon,
   PlusIcon,
@@ -39,99 +45,55 @@ export function DocFeedbackFloatingButton({
       setInternalIsMenuOpen(value)
     }
   }
-  const buttonRef = React.useRef<HTMLDivElement>(null)
-
-  // Close menu when clicking outside or pressing Escape
-  React.useEffect(() => {
-    if (!isMenuOpen) return
-
-    const handleClickOutside = (e: MouseEvent) => {
-      if (buttonRef.current && !buttonRef.current.contains(e.target as Node)) {
-        setIsMenuOpen(false)
-      }
-    }
-
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setIsMenuOpen(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    document.addEventListener('keydown', handleEscape)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-      document.removeEventListener('keydown', handleEscape)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMenuOpen])
-
-  const handleButtonClick = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    if (hasNote && onShowNote) {
-      // If there's a note, expand it and show menu
-      onShowNote()
-    }
-    setIsMenuOpen(!isMenuOpen)
-  }
-
-  const handleNoteClick = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsMenuOpen(false)
-    onAddNote()
-  }
-
-  const handleFeedbackClick = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsMenuOpen(false)
-    onAddFeedback()
-  }
-
   return (
-    // eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions
-    <div
-      ref={buttonRef}
-      className="doc-feedback-floating-btn absolute top-0 right-0 -translate-y-full z-30"
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-      onClick={(e) => e.stopPropagation()}
-      onMouseDown={(e) => e.stopPropagation()}
+    <Dropdown
+      open={isMenuOpen}
+      onOpenChange={(open) => {
+        if (open && hasNote) onShowNote?.()
+        setIsMenuOpen(open)
+      }}
     >
-      {/* Button - neutral with shadow */}
-      <button
-        onClick={handleButtonClick}
-        className={twMerge(
-          'flex items-center justify-center',
-          'w-6 h-6 rounded',
-          'bg-white dark:bg-gray-800',
-          'text-gray-600 dark:text-gray-400',
-          'border border-gray-200 dark:border-gray-700',
-          'shadow-md hover:shadow-lg',
-          'hover:bg-gray-50 dark:hover:bg-gray-700',
-          'transition-all duration-200',
-          'focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500',
-          isMenuOpen && 'shadow-lg bg-gray-50 dark:bg-gray-700',
-        )}
-        title="Add feedback"
+      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
+      <div
+        className="doc-feedback-floating-btn absolute top-0 right-0 -translate-y-full z-30"
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+        onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
       >
-        <PlusIcon
-          className={twMerge(
-            'text-[10px] transition-transform duration-200',
-            isMenuOpen && 'rotate-45',
-          )}
-        />
-      </button>
+        {/* Button - neutral with shadow */}
+        <DropdownTrigger>
+          <button
+            type="button"
+            className={twMerge(
+              'flex items-center justify-center',
+              'w-6 h-6 rounded',
+              'bg-white dark:bg-gray-800',
+              'text-gray-600 dark:text-gray-400',
+              'border border-gray-200 dark:border-gray-700',
+              'shadow-md hover:shadow-lg',
+              'hover:bg-gray-50 dark:hover:bg-gray-700',
+              'transition-all duration-200',
+              'focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500',
+              isMenuOpen && 'shadow-lg bg-gray-50 dark:bg-gray-700',
+            )}
+            title="Add feedback"
+          >
+            <PlusIcon
+              className={twMerge(
+                'text-[10px] transition-transform duration-200',
+                isMenuOpen && 'rotate-45',
+              )}
+            />
+          </button>
+        </DropdownTrigger>
 
-      {/* Context Menu */}
-      {isMenuOpen && (
-        <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        {/* Context Menu */}
+        <DropdownContent sideOffset={8} className="w-48 p-0 overflow-hidden">
           {!hasNote && (
             <>
-              <button
-                onClick={handleNoteClick}
+              <DropdownItem
+                onSelect={onAddNote}
                 className="w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left"
               >
                 <ChatCenteredIcon className="text-blue-500" />
@@ -143,15 +105,15 @@ export function DocFeedbackFloatingButton({
                     Personal annotation
                   </div>
                 </div>
-              </button>
+              </DropdownItem>
               {!hasImprovement && (
                 <div className="h-px bg-gray-200 dark:bg-gray-700" />
               )}
             </>
           )}
           {!hasImprovement && (
-            <button
-              onClick={handleFeedbackClick}
+            <DropdownItem
+              onSelect={onAddFeedback}
               className="w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left"
             >
               <LightbulbIcon className="text-yellow-500" />
@@ -163,10 +125,10 @@ export function DocFeedbackFloatingButton({
                   Help improve docs
                 </div>
               </div>
-            </button>
+            </DropdownItem>
           )}
-        </div>
-      )}
-    </div>
+        </DropdownContent>
+      </div>
+    </Dropdown>
   )
 }

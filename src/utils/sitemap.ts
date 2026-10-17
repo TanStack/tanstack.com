@@ -1,3 +1,4 @@
+import { readDocsFreshness } from './docs-freshness'
 import { getBranch, libraries } from '~/libraries'
 import type { LibrarySlim } from '~/libraries/types'
 import { getPublishedPosts } from '~/utils/blog'
@@ -88,13 +89,16 @@ async function getLibraryDocsEntries(
     repo: library.repo,
     branch,
     docsRoot,
-  }).catch(() => ({ paths: [], redirects: {} }))
+  }).catch(() => ({ paths: [], redirects: {}, lastModifiedByPath: undefined }))
 
   return manifest.paths
     .filter(Boolean)
     .filter(isHighValueDocsSlug)
     .map((slug) => ({
       path: `/${library.id}/latest/docs/${slug}`,
+      lastModified: readDocsFreshness({
+        updated: manifest.lastModifiedByPath?.[slug],
+      }).updated,
     }))
 }
 

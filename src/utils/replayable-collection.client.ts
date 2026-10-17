@@ -239,6 +239,19 @@ export interface ReplayableDirectWriteUtils<
   writeBatch: (callback: () => void) => void
 }
 
+interface EventSourceLike {
+  readonly readyState: number
+  addEventListener: (
+    type: string,
+    listener: (event: MessageEvent<string>) => void,
+  ) => void
+  removeEventListener: (
+    type: string,
+    listener: (event: MessageEvent<string>) => void,
+  ) => void
+  close: () => void
+}
+
 export interface ReplayableEventSourceOptions<TEvent> {
   url: string
   after: number
@@ -247,6 +260,7 @@ export interface ReplayableEventSourceOptions<TEvent> {
   parse: (value: unknown) => TEvent
   onEvent: (event: TEvent) => void
   onError: (error: unknown) => void
+  createEventSource?: (url: string) => EventSourceLike
 }
 
 export function openReplayableEventSource<TEvent>(
@@ -254,7 +268,9 @@ export function openReplayableEventSource<TEvent>(
 ) {
   const separator = options.url.includes('?') ? '&' : '?'
   const url = `${options.url}${separator}stream=1&after=${options.after}`
-  const source = new EventSource(url)
+  const source = options.createEventSource
+    ? options.createEventSource(url)
+    : new EventSource(url)
   let closed = false
   const close = () => {
     if (closed) return

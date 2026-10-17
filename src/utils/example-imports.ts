@@ -21,6 +21,7 @@ export type ExampleImportMetadataFetch = (
 ) => Promise<Response>
 
 export type ResolveExampleWorkspaceImportsOptions = {
+  fetch?: ExampleImportMetadataFetch
   signal?: AbortSignal
 }
 
@@ -115,7 +116,7 @@ export async function resolveExampleWorkspaceImports(
 
   const resolvedGroups = await Promise.all(
     [...groups.values()].map((group) =>
-      resolvePackageGroup(group, options.signal),
+      resolvePackageGroup(group, options.fetch, options.signal),
     ),
   )
   const resolvedPackageNames = new Set(
@@ -158,7 +159,9 @@ export async function resolveExampleWorkspaceImports(
       }
     })
     const resolvedPeers = await Promise.all(
-      peerGroups.map((group) => resolvePackageGroup(group, options.signal)),
+      peerGroups.map((group) =>
+        resolvePackageGroup(group, options.fetch, options.signal),
+      ),
     )
     for (const group of resolvedPeers) {
       resolvedGroups.push(group)
@@ -321,6 +324,7 @@ export function getExampleWorkspaceImports(
 
 async function resolvePackageGroup(
   group: PackageGroup,
+  metadataFetch: ExampleImportMetadataFetch | undefined,
   signal: AbortSignal | undefined,
 ): Promise<ResolvedPackageGroup> {
   const representative = group.specifiers[0]
@@ -332,21 +336,28 @@ async function resolvePackageGroup(
     group.requestedVersion,
     representative.subpath,
   )
-  const requestedMetadata = await getEsmMetadata(requestedUrl, signal)
+  const requestedMetadata = await getEsmMetadata(
+    requestedUrl,
+    metadataFetch,
+    signal,
+  )
   const exactVersion = requestedMetadata.version
   const [packageManifest, ...additionalMetadata] = await Promise.all([
-    getPackageManifest(group.packageName, exactVersion, signal),
+    getPackageManifest(group.packageName, exactVersion, metadataFetch, signal),
     ...group.specifiers.slice(1).map((specifier) => {
       const exactUrl = createEsmMetadataUrl(
         group.packageName,
         exactVersion,
         specifier.subpath,
       )
-      return getEsmMetadata(exactUrl, signal)
+      return getEsmMetadata(exactUrl, metadataFetch, signal)
     }),
   ])
   const metadata = [requestedMetadata, ...additionalMetadata]
-  const peerPackages = new Set(packageManifest.peerPackages)
+  // Declaration packages have no browser module or esm.sh runtime metadata.
+  const peerPackages = new Set(
+    packageManifest.peerPackages.filter((name) => !name.startsWith('@types/')),
+  )
   const peerSpecifiers = new Set<string>()
 
   for (const value of metadata) {
@@ -361,6 +372,7 @@ async function resolvePackageGroup(
       if (!peer) {
         throw new Error(`Invalid peer import in esm.sh metadata: ${peerImport}`)
       }
+      if (peer.packageName.startsWith('@types/')) continue
       peerPackages.add(peer.packageName)
       peerSpecifiers.add(peer.specifier)
     }
@@ -513,15 +525,28 @@ function createEsmModuleUrl(
   query: string,
   externalPackages: ReadonlyArray<string>,
 ) {
-  const url = `${esmOrigin}/${packageName}@${version}${subpath ? `/${subpath}` : ''}${query}`
+  let url = `${esmOrigin}/${packageName}@${version}${subpath ? `/${subpath}` : ''}${query}`
+  // Production devtools exports can be no-ops, and esm.sh's default splitting
+  // duplicates contexts across lazy chunks. Keep development devtools together
+  // while sharing their framework peers with the example.
+  if (
+    packageName.startsWith('@tanstack/') &&
+    (packageName === '@tanstack/devtools' || packageName.endsWith('-devtools'))
+  ) {
+    url = appendQuery(url, '?dev&standalone')
+  }
   return externalPackages.length
     ? appendQuery(url, `?external=${externalPackages.join(',')}`)
     : url
 }
 
-async function getEsmMetadata(url: string, signal: AbortSignal | undefined) {
-  if (signal) {
-    return requestEsmMetadata(url, globalThis.fetch, signal)
+async function getEsmMetadata(
+  url: string,
+  metadataFetch: ExampleImportMetadataFetch | undefined,
+  signal: AbortSignal | undefined,
+) {
+  if (metadataFetch || signal) {
+    return requestEsmMetadata(url, metadataFetch ?? globalThis.fetch, signal)
   }
 
   const cached = metadataCache.get(url)
@@ -577,14 +602,15 @@ async function requestEsmMetadata(
 async function getPackageManifest(
   packageName: string,
   exactVersion: string,
+  metadataFetch: ExampleImportMetadataFetch | undefined,
   signal: AbortSignal | undefined,
 ) {
   const cacheKey = `${packageName}@${exactVersion}`
-  if (signal) {
+  if (metadataFetch || signal) {
     return requestPackageManifest(
       packageName,
       exactVersion,
-      globalThis.fetch,
+      metadataFetch ?? globalThis.fetch,
       signal,
     )
   }

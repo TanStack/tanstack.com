@@ -11,7 +11,12 @@ import { runWithDatabaseContext, runWithDatabaseRequest } from '~/db/client'
 import {
   runWithHostRuntimeContext,
   runWithHostRuntimeEnv,
+  scheduleHostRuntimeTask,
 } from '~/server/runtime/host.server'
+import {
+  createScarfServerRequest,
+  sendScarfServerRequest,
+} from '~/utils/analytics/scarf-server'
 import {
   installProductionFetchProbe,
   installProductionProcessProbe,
@@ -297,9 +302,21 @@ export default {
     }
     return runWithHostRuntimeEnv(env, () =>
       runWithHostRuntimeContext(context, () =>
-        withDocsRequestTimings(request, async () =>
-          finalizeDocsHtmlHeaders(request, await server.fetch(request)),
-        ),
+        withDocsRequestTimings(request, async () => {
+          const response = finalizeDocsHtmlHeaders(
+            request,
+            await server.fetch(request),
+          )
+          if (import.meta.env.PROD && import.meta.env.MODE !== 'staging') {
+            const scarfRequest = createScarfServerRequest(request, response)
+            if (scarfRequest) {
+              scheduleHostRuntimeTask(() =>
+                sendScarfServerRequest(scarfRequest),
+              )
+            }
+          }
+          return response
+        }),
       ),
     )
   },

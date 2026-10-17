@@ -5,7 +5,10 @@ import { DefaultCatchBoundary } from './components/DefaultCatchBoundary'
 import { NotFound } from './components/NotFound'
 import { QueryClient } from '@tanstack/react-query'
 import * as Sentry from '@sentry/tanstackstart-react'
-import { installStaleAppReloadHandlers } from './utils/stale-app-reload'
+import {
+  installStaleAppReloadHandlers,
+  consumeStaleAppRecovery,
+} from './utils/stale-app-reload'
 import { redactByokRequestHeaders } from './utils/sentry-redaction'
 
 if (typeof document !== 'undefined') {
@@ -19,8 +22,13 @@ if (typeof document !== 'undefined') {
     tracesSampleRate: 1.0, //  Capture 100% of the transactions
     // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
     tracePropagationTargets: ['localhost', /^https:\/\/tanstack\.com\//],
-    beforeSend(event) {
+    beforeSend(event, hint) {
       redactByokRequestHeaders(event)
+      // Only suppress the exact error that triggered a reload. Errors during
+      // the reload cooldown still need reporting.
+      if (consumeStaleAppRecovery(hint.originalException)) {
+        return null
+      }
       // Filter out errors from third-party ad tech scripts (e.g. Publift's
       // Fuse Platform ftUtils.js) that are not actionable by us.
       const frames = event.exception?.values?.flatMap(

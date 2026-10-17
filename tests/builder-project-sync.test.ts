@@ -93,7 +93,7 @@ test('rejects unsendable project revisions before they enter the outbox', () => 
     initialFile: '/index.tsx',
     workspace: createExampleWorkspace({
       entry: '/index.tsx',
-      files: { '/index.tsx': 'a'.repeat(512 * 1024 + 1) },
+      files: { '/index.tsx': 'a'.repeat(1024 * 1024 + 1) },
     }),
   })
 
@@ -742,16 +742,14 @@ test('round-trips opaque snapshot continuations and bounds every page', () => {
 test('parses replay cursors and recognizes stream requests', () => {
   assert.equal(
     parseBuilderProjectSyncCursor(
-      new Request(
-        `https://tanstack.com/api/builder/projects/${projectId}/sync`,
-      ),
+      new Request(`https://tanstack.com/api/chat/projects/${projectId}/sync`),
     ),
     0,
   )
   assert.equal(
     parseBuilderProjectSyncCursor(
       new Request(
-        `https://tanstack.com/api/builder/projects/${projectId}/sync?after=2`,
+        `https://tanstack.com/api/chat/projects/${projectId}/sync?after=2`,
         { headers: { 'Last-Event-ID': '7' } },
       ),
     ),
@@ -760,16 +758,15 @@ test('parses replay cursors and recognizes stream requests', () => {
   assert.throws(() =>
     parseBuilderProjectSyncCursor(
       new Request(
-        `https://tanstack.com/api/builder/projects/${projectId}/sync?after=-1`,
+        `https://tanstack.com/api/chat/projects/${projectId}/sync?after=-1`,
       ),
     ),
   )
   assert.equal(
     isBuilderProjectSyncStreamRequest(
-      new Request(
-        `https://tanstack.com/api/builder/projects/${projectId}/sync`,
-        { headers: { Accept: 'text/event-stream' } },
-      ),
+      new Request(`https://tanstack.com/api/chat/projects/${projectId}/sync`, {
+        headers: { Accept: 'text/event-stream' },
+      }),
     ),
     true,
   )
@@ -783,21 +780,19 @@ test('serializes replayable events with the sequence as the SSE id', () => {
   )
 })
 
-test('streams gap-free events, heartbeats, and then reconnects', async (t) => {
+test('streams gap-free events, heartbeats, and then reconnects', async () => {
   let time = 0
-  t.mock.method(Date, 'now', () => time)
-  t.mock.method(globalThis, 'setTimeout', ((
-    handler: TimerHandler,
-    milliseconds?: number,
-  ) => {
-    time += Number(milliseconds) || 0
-    if (typeof handler === 'function') handler()
-    return 0
-  }) as typeof setTimeout)
   let expiredRunChecks = 0
   const response = createBuilderProjectEventStreamResponse({
     cursor: 0,
     signal: new AbortController().signal,
+    durationMs: 5,
+    pollIntervalMs: 1,
+    heartbeatIntervalMs: 2,
+    now: () => time,
+    wait: async (milliseconds) => {
+      time += milliseconds
+    },
     interruptExpiredRuns: async () => {
       expiredRunChecks += 1
     },
@@ -811,10 +806,10 @@ test('streams gap-free events, heartbeats, and then reconnects', async (t) => {
     true,
   )
   assert.match(body, /retry: 500/)
-  assert.match(body, /id: 1/)
-  assert.match(body, /id: 2/)
+  assert.match(body, /^id: 1\r?$/m)
+  assert.match(body, /^id: 2\r?$/m)
   assert.match(body, /: heartbeat/)
-  assert.equal(expiredRunChecks, 2)
+  assert.equal(expiredRunChecks, 3)
 })
 
 test('stops a replay before emitting an event across a sequence gap', async () => {
@@ -824,28 +819,28 @@ test('stops a replay before emitting an event across a sequence gap', async () =
     const response = createBuilderProjectEventStreamResponse({
       cursor: 0,
       signal: new AbortController().signal,
+      durationMs: 1,
       listEvents: async () => [createEvent(2)],
     })
     const body = await response.text()
-    assert.doesNotMatch(body, /id: 2/)
+    assert.doesNotMatch(body, /^id: 2\r?$/m)
   } finally {
     console.error = originalConsoleError
   }
 })
 
 test('bounds events buffered by one stream response', async () => {
-  const events = Array.from({ length: 26 }, (_, index) =>
-    createEvent(index + 1),
-  )
   const response = createBuilderProjectEventStreamResponse({
     cursor: 0,
     signal: new AbortController().signal,
-    listEvents: async (afterSequence) => (afterSequence === 0 ? events : []),
+    durationMs: 1_000,
+    maxEvents: 2,
+    listEvents: async () => [createEvent(1), createEvent(2), createEvent(3)],
   })
   const body = await response.text()
   assert.match(body, /^id: 1\r?$/m)
-  assert.match(body, /id: 25/)
-  assert.doesNotMatch(body, /id: 26/)
+  assert.match(body, /^id: 2\r?$/m)
+  assert.doesNotMatch(body, /^id: 3\r?$/m)
 })
 
 function createEvent(sequence: number): BuilderProjectSyncEvent {

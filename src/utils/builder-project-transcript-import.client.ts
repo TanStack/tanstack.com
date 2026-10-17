@@ -27,6 +27,7 @@ import {
   enqueueBuilderProjectSyncCommands,
   listBuilderProjectSyncOutbox,
   replayBuilderProjectSyncOutbox,
+  type BuilderProjectSyncOutboxSender,
 } from './builder-project-sync-outbox.client'
 
 type TranscriptImportCommand = Extract<
@@ -379,10 +380,12 @@ export async function promoteBuilderProjectTranscript({
   projectId,
   scope,
   clientMutationId,
+  send = (command) => postBuilderProjectSyncCommand(projectId, command),
 }: {
   projectId: string
   scope: string
   clientMutationId: string
+  send?: BuilderProjectSyncOutboxSender
 }) {
   const snapshot = await readBuilderAiTranscriptScopeSnapshot(scope)
   if (snapshot.threads.length === 0) return
@@ -410,6 +413,7 @@ export async function promoteBuilderProjectTranscript({
   const acknowledgement = await importBuilderProjectTranscriptCommands({
     projectId,
     commands,
+    send,
   })
 
   await removeBuilderAiTranscriptScopeSnapshot(snapshot)
@@ -419,16 +423,16 @@ export async function promoteBuilderProjectTranscript({
 export async function importBuilderProjectTranscriptCommands({
   projectId,
   commands,
+  send = (command) => postBuilderProjectSyncCommand(projectId, command),
 }: {
   projectId: string
   commands: ReadonlyArray<TranscriptImportCommand>
+  send?: BuilderProjectSyncOutboxSender
 }) {
   if (commands.length === 0) return
 
   await enqueueBuilderProjectSyncCommands(projectId, commands)
-  const replay = await replayBuilderProjectSyncOutbox(projectId, (command) =>
-    postBuilderProjectSyncCommand(projectId, command),
-  )
+  const replay = await replayBuilderProjectSyncOutbox(projectId, send)
   const mutationIds = new Set(
     commands.map((command) => command.clientMutationId),
   )

@@ -1,0 +1,44 @@
+[
+  {
+    "id": "4651e38f155643828ca053285f505d5d",
+    "name": "tanstack-perf-stage-chat_StreamObject",
+    "script": "tanstack-perf-stage-chat",
+    "class": "StreamObject",
+    "use_sqlite": true
+  },
+  {
+    "id": "4bc05d1c72ab4aa3ad405020b0fe65be",
+    "name": "tanstack-perf-stage-chat_Conversation",
+    "script": "tanstack-perf-stage-chat",
+    "class": "Conversation",
+    "use_sqlite": true
+  },
+  {
+    "id": "f03cfa387d274727b998314a531346b4",
+    "name": "tanstack-perf-stage-chat_WorkspaceSync",
+    "script": "tanstack-perf-stage-chat",
+    "class": "WorkspaceSync",
+    "use_sqlite": true
+  },
+  {
+    "id": "bc6bf2ef2daa48cca297edff98348661",
+    "name": "tanstack-perf-stage-baseline_StreamObject",
+    "script": "tanstack-perf-stage-baseline",
+    "class": "StreamObject",
+    "use_sqlite": true
+  },
+  {
+    "id": "3e7aa9a74e2349029e8612ae77fd3d82",
+    "name": "tanstack-perf-stage-baseline_WorkspaceSync",
+    "script": "tanstack-perf-stage-baseline",
+    "class": "WorkspaceSync",
+    "use_sqlite": true
+  },
+  {
+    "id": "83ac8130974a4d3e91e11485a073bb5c",
+    "name": "tanstack-perf-stage-baseline_Conversation",
+    "script": "tanstack-perf-stage-baseline",
+    "class": "Conversation",
+    "use_sqlite": true
+  }
+]

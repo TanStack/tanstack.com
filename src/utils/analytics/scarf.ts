@@ -4,7 +4,11 @@ const SCARF_ENDPOINT = 'https://tanstack.gateway.scarf.sh/site-events'
 const CLIPBOARD_TEXT_LIMIT = 512
 
 function sendScarfEvent(event: string, fields: Record<string, string>) {
-  if (import.meta.env.DEV || typeof window === 'undefined') {
+  if (
+    import.meta.env.DEV ||
+    import.meta.env.MODE === 'staging' ||
+    typeof window === 'undefined'
+  ) {
     return
   }
 
@@ -67,7 +71,7 @@ export function trackScarfPageView(page: string) {
 }
 
 export function trackScarfClipboardText(event: 'copy' | 'paste', text: string) {
-  if (import.meta.env.DEV) return
+  if (import.meta.env.DEV || import.meta.env.MODE === 'staging') return
 
   try {
     navigator.sendBeacon(

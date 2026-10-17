@@ -17,7 +17,7 @@ vi.mock('~/chat/server/file-api', () => ({ fileApi: dependencies.files }))
 vi.mock('~/chat/server/file-environment.server', () => ({
   getFileEnvironment: dependencies.environment,
 }))
-import { handleFileRequest } from '../../src/routes/api/chat/files'
+import { handleFileRequest } from '../../src/chat/server/routes/files'
 import { SavedFileError } from '../../src/chat/server/saved-file-contract'
 const request = (
   query = 'workspaceId=personal&botId=assistant',

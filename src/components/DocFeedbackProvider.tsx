@@ -390,13 +390,13 @@ function BlockButton({
   // Don't show button if block has both note and improvement (nothing left to add)
   if (hasNote && hasImprovement && !isMenuOpen) return null
 
-  // Only show button if hovered or menu is open
-  if (!isHovered && !isMenuOpen) return null
-
   // Create portal container for button positioned at top-right of block
   let portalContainer = block.querySelector<HTMLElement>(
     `[data-button-portal="${blockId}"]`,
   )
+
+  // Keep an existing trigger mounted so closing the menu can restore focus.
+  if (!portalContainer && !isHovered && !isMenuOpen) return null
 
   if (!portalContainer) {
     portalContainer = document.createElement('div')
@@ -426,6 +426,7 @@ function BlockButton({
       hasImprovement={hasImprovement}
       onShowNote={onShowNote}
       isMenuOpen={isMenuOpen}
+      isVisible={isHovered || isMenuOpen}
       onMenuOpenChange={onMenuOpenChange}
     />,
     portalContainer,

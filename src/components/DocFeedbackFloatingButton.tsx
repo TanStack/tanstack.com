@@ -20,6 +20,7 @@ interface DocFeedbackFloatingButtonProps {
   hasNote?: boolean
   hasImprovement?: boolean
   onShowNote?: () => void
+  isVisible?: boolean
   isMenuOpen?: boolean
   onMenuOpenChange?: (isOpen: boolean) => void
 }
@@ -32,6 +33,7 @@ export function DocFeedbackFloatingButton({
   hasNote = false,
   hasImprovement = false,
   onShowNote,
+  isVisible = true,
   isMenuOpen: controlledIsMenuOpen,
   onMenuOpenChange,
 }: DocFeedbackFloatingButtonProps) {
@@ -55,7 +57,11 @@ export function DocFeedbackFloatingButton({
     >
       {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
       <div
-        className="doc-feedback-floating-btn absolute top-0 right-0 -translate-y-full z-30"
+        className={twMerge(
+          'doc-feedback-floating-btn absolute top-0 right-0 -translate-y-full z-30',
+          !isVisible &&
+            'opacity-0 pointer-events-none focus-within:opacity-100 focus-within:pointer-events-auto',
+        )}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
         onClick={(e) => e.stopPropagation()}

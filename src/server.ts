@@ -1,3 +1,4 @@
+import { receiveTrafficQuality } from './utils/analytics/traffic-quality.server'
 import {
   timeRequestWork,
   withDocsRequestTimings,
@@ -230,6 +231,12 @@ const server = createServerEntry(
           logRequestStart(context)
 
           try {
+            if (url.pathname === '/_a/traffic-quality') {
+              return applyHostingHeaders(
+                await receiveTrafficQuality(request),
+                url,
+              )
+            }
             const scarfResponse = await proxyScarfClipboardEvent(request, url)
             if (scarfResponse) {
               logRequestEnd(context, scarfResponse.status, {

@@ -637,7 +637,6 @@ function ShortcutSettings() {
     })),
   )
   useHotkey('Escape', () => setSheetOpen(false), {
-    target: cardRef,
     enabled: sheetOpen,
     meta: { name: 'Close the cheat sheet' },
   })
@@ -801,9 +800,14 @@ function ShortcutSettings() {
                 <span className="text-ds-label-lg text-text-primary">
                   Cheat sheet
                 </span>
-                <span className="text-ds-label-sm text-text-primary/45">
-                  Esc to close
-                </span>
+                <button
+                  aria-label="Close cheat sheet"
+                  className="rounded-lg px-3 py-2 text-ds-label-sm text-text-primary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright)"
+                  onClick={() => setSheetOpen(false)}
+                  type="button"
+                >
+                  Close
+                </button>
               </div>
               <ul className="mt-4 space-y-2">
                 {appHotkeys.map(({ appHotkey, isCustom }) => (

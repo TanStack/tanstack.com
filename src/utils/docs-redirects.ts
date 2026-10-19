@@ -2,6 +2,7 @@ import { isValidRepoPath } from './repo-path'
 import { removeLeadingSlash } from './utils'
 
 export type DocsRedirectManifest = {
+  lastModifiedByPath?: Record<string, string>
   paths: Array<string>
   redirects: Record<string, string>
 }

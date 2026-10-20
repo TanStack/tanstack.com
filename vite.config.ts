@@ -1,3 +1,4 @@
+import { readLocalDocsTree } from './src/utils/local-docs-tree.server'
 import { sentryTanstackStart } from '@sentry/tanstackstart-react/vite'
 import { defineConfig, loadEnv } from 'vite'
 import type { PluginOption, UserConfig } from 'vite'
@@ -7,6 +8,7 @@ import { devtools as tanstackDevtools } from '@tanstack/devtools-vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import tailwindcss from '@tailwindcss/vite'
 import { cloudflare } from '@cloudflare/vite-plugin'
+import type { WorkerConfig } from '@cloudflare/vite-plugin'
 import { analyzer } from 'vite-bundle-analyzer'
 import viteReact from '@vitejs/plugin-react'
 import { createHash, randomUUID } from 'node:crypto'
@@ -21,6 +23,8 @@ import {
 } from './src/utils/local-repo-path.server'
 import { startLocalMcpEgress } from './scripts/local-mcp-egress'
 import { localBuilderAi } from './scripts/local-builder-ai-vite'
+import { chatIsolation } from './scripts/chat-isolation-vite'
+import { workerIsolation } from './scripts/worker-isolation-vite'
 
 const isDev = process.env.NODE_ENV !== 'production'
 const shouldUseRedact = process.env.DISABLE_REDACT !== 'true'
@@ -30,7 +34,7 @@ const shouldUseSentryPlugin =
   Boolean(process.env.SENTRY_AUTH_TOKEN)
 const shouldBuildSourcemaps =
   shouldUseSentryPlugin || process.env.BUILD_SOURCEMAPS === 'true'
-const SITE_URL = 'https://tanstack.com'
+const SITE_URL = process.env.STAGING_SITE_URL || 'https://tanstack.com'
 const localDocsDevToken = isDev ? randomUUID() : ''
 
 function localDocsDevFiles(): PluginOption {
@@ -55,11 +59,13 @@ function localDocsDevFiles(): PluginOption {
 
         const repo = url.searchParams.get('repo')
         const filepath = url.searchParams.get('path')
+        const isTree = url.searchParams.get('kind') === 'tree'
 
         if (
           !repo ||
           !/^[a-zA-Z0-9._-]+$/.test(repo) ||
-          !filepath ||
+          filepath === null ||
+          (!isTree && !filepath) ||
           !isContainedRepoPath(filepath)
         ) {
           response.statusCode = 400
@@ -80,29 +86,39 @@ function localDocsDevFiles(): PluginOption {
           ]),
         )
 
-        const localFilePath = repoDirs
+        const localEntry = repoDirs
           .map((repoDir) => ({
             filepath: path.resolve(repoDir, filepath),
             repoDir,
           }))
           .find(
             (candidate) =>
-              isPathInside(candidate.repoDir, candidate.filepath) &&
+              (isPathInside(candidate.repoDir, candidate.filepath) ||
+                (isTree && candidate.repoDir === candidate.filepath)) &&
               fs.existsSync(candidate.filepath) &&
-              fs.statSync(candidate.filepath).isFile(),
-          )?.filepath
+              (isTree
+                ? fs.statSync(candidate.filepath).isDirectory()
+                : fs.statSync(candidate.filepath).isFile()),
+          )
 
-        if (!localFilePath) {
+        if (!localEntry) {
           response.statusCode = 404
           response.end()
           return
         }
 
         try {
-          const content = await fs.promises.readFile(localFilePath)
+          const content = isTree
+            ? JSON.stringify(
+                await readLocalDocsTree(localEntry.repoDir, filepath),
+              )
+            : await fs.promises.readFile(localEntry.filepath)
           response.statusCode = 200
           response.setHeader('Cache-Control', 'no-store')
-          response.setHeader('Content-Type', 'text/plain; charset=utf-8')
+          response.setHeader(
+            'Content-Type',
+            isTree ? 'application/json' : 'text/plain; charset=utf-8',
+          )
           response.end(content)
         } catch (error) {
           next(error)
@@ -212,7 +228,11 @@ export default defineConfig(async ({ command, mode }) => {
       __TANSTACK_ENABLE_SERVER_BUILDER_GENERATION__: JSON.stringify(true),
       __TANSTACK_ENABLE_IMAGE_TRANSFORMATIONS__: JSON.stringify(!isDev),
       __TANSTACK_LOCAL_DOCS_TOKEN__: JSON.stringify(localDocsDevToken),
-      __TANSTACK_SITE_URL__: JSON.stringify(SITE_URL),
+      __TANSTACK_SITE_URL__: JSON.stringify(
+        mode === 'staging'
+          ? 'https://tanstack-perf-stage-site.thetanstack.workers.dev'
+          : SITE_URL,
+      ),
     },
     resolve: {
       alias: {
@@ -351,8 +371,70 @@ export default defineConfig(async ({ command, mode }) => {
           ]
         : []),
       cloudflare({
+        configPath:
+          mode === 'staging' ? '.staging/server.json' : 'wrangler.jsonc',
         viteEnvironment: { name: 'ssr' },
         remoteBindings: useRemoteAi,
+        auxiliaryWorkers: [
+          ...(mode === 'staging'
+            ? []
+            : [
+                {
+                  configPath: 'workers/chat-recovery/wrangler.jsonc',
+                  viteEnvironment: { name: 'recovery' },
+                  config: (config: WorkerConfig) => {
+                    if (command !== 'serve') return
+                    config.hyperdrive = []
+                    if (!useRemoteAi) delete config.ai
+                    config.vars = { ...config.vars, APP_MODE: 'development' }
+                  },
+                },
+              ]),
+          {
+            configPath:
+              mode === 'staging'
+                ? '.staging/og.json'
+                : 'workers/og/wrangler.jsonc',
+            viteEnvironment: { name: 'og' },
+          },
+          {
+            configPath:
+              mode === 'staging'
+                ? '.staging/starter.json'
+                : 'workers/starter/wrangler.jsonc',
+            viteEnvironment: { name: 'starter' },
+            config: (config) => {
+              if (command !== 'serve') return
+              config.hyperdrive = []
+              config.vars = { ...config.vars, APP_MODE: 'development' }
+            },
+          },
+          {
+            configPath:
+              mode === 'staging'
+                ? '.staging/chat.json'
+                : 'workers/chat/wrangler.jsonc',
+            viteEnvironment: { name: 'chat' },
+            config: (config) => {
+              if (command !== 'serve') return
+              config.hyperdrive = []
+              if (!useRemoteAi) delete config.ai
+              config.vars = {
+                ...config.vars,
+                ...egress?.vars,
+                APP_MODE: 'development',
+              }
+              for (const name of [
+                'GUM_DEV_EXECUTION',
+                'UNLIMITED_USAGE_EMAILS',
+                'USAGE_RATES_JSON',
+              ]) {
+                const value = localEnv[name]
+                if (typeof value === 'string') config.vars[name] = value
+              }
+            },
+          },
+        ],
         config: (config) => {
           if (command !== 'serve') return
           config.hyperdrive = []
@@ -432,6 +514,8 @@ export default defineConfig(async ({ command, mode }) => {
         },
       }),
       viteReact(),
+      chatIsolation(),
+      workerIsolation(),
 
       ...(shouldUseSentryPlugin
         ? [

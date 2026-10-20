@@ -40,3 +40,5 @@ src/routeTree.gen.ts
 
 # Generated native desktop helper
 /desktop/native/folder-access
+
+.staging/

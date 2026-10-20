@@ -1278,6 +1278,7 @@ function buildPrompt({
 
   if (resultType === 'migration') {
     const source = detectMigrationSource(userBrief) ?? 'the existing app'
+    const migrationGuideUrl = getStarterMigrationGuideUrl(userBrief)
     const migrationRepositoryInstructions =
       getMigrationRepositoryInstructionLines(input)
 
@@ -1296,6 +1297,12 @@ function buildPrompt({
       ...getStarterConstraintInstructionLines(input),
       ...migrationRepositoryInstructions,
       '',
+      ...(migrationGuideUrl
+        ? [
+            `Fetch ${migrationGuideUrl} for the applicable routing and framework migration concepts. Keep the fresh TanStack project and the migration strategy below authoritative; do not apply in-place setup steps from the guide.`,
+            '',
+          ]
+        : []),
       'Migration strategy:',
       '1. Inventory routes, layouts, auth, data loading, forms, and environment variables in the existing app.',
       '2. Recreate the destination structure in the fresh TanStack project first.',
@@ -1474,4 +1481,34 @@ export function buildDownloadUrl(recipe: ApplicationStarterRecipe) {
   appendFeatureOptionParams(params, recipe.featureOptions)
 
   return `/api/application-starter/download?${params.toString()}`
+}
+
+const nextJsMigrationPattern =
+  /migrat(?:e|ing|ion)[\s\S]*\bnext(?:\.?js|\s+(?:app|application|project))\b|\bnext(?:\.?js|\s+(?:app|application|project))\b[\s\S]*migrat(?:e|ing|ion)/i
+const remixMigrationPattern =
+  /migrat(?:e|ing|ion)[\s\S]*\b(remix|react[\s-]?router)\b|\b(remix|react[\s-]?router)\b[\s\S]*migrat(?:e|ing|ion)/i
+
+export const STARTER_NEXTJS_MIGRATION_GUIDE_URL =
+  'https://tanstack.com/start/latest/docs/framework/react/migrate-from-next-js'
+export const STARTER_REMIX_MIGRATION_GUIDE_URL =
+  'https://tanstack.com/router/latest/docs/how-to/migrate-from-react-router'
+
+export function isNextJsMigrationInput(input: string) {
+  return nextJsMigrationPattern.test(input)
+}
+
+export function isRemixMigrationInput(input: string) {
+  return remixMigrationPattern.test(input)
+}
+
+export function getStarterMigrationGuideUrl(input: string) {
+  if (isNextJsMigrationInput(input)) {
+    return STARTER_NEXTJS_MIGRATION_GUIDE_URL
+  }
+
+  if (isRemixMigrationInput(input)) {
+    return STARTER_REMIX_MIGRATION_GUIDE_URL
+  }
+
+  return null
 }

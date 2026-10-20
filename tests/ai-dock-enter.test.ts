@@ -21,7 +21,7 @@ function press(key: string, isComposing: boolean, keyCode: number) {
 }
 
 test('Enter during composition neither submits nor prevents default', () => {
-  assert.deepEqual(press('Enter', true, 229), { prevented: 0, submitted: 0 })
+  assert.deepEqual(press('Enter', true, 13), { prevented: 0, submitted: 0 })
 })
 
 test('Enter with isComposing=false and keyCode=229 neither submits nor prevents default', () => {

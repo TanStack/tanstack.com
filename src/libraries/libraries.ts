@@ -264,12 +264,12 @@ export const start: LibrarySlim = {
     'Full-stack Framework powered by TanStack Router for React and Solid',
   description:
     'TanStack Start is a full-stack framework for React and Solid, with type-safe routing, server-side rendering, streaming, and server functions.',
-  badge: 'RC',
+  badge: undefined,
   repo: 'tanstack/router',
   frameworks: ['react', 'solid'],
-  latestVersion: 'v0',
+  latestVersion: 'v1',
   latestBranch: 'main',
-  availableVersions: ['v0'],
+  availableVersions: ['v1'],
   corePackageName: '@tanstack/start-client-core',
   npmPackageNames: ['@tanstack/start-client-core'],
   scarfId: 'b6e2134f-e805-401d-95c3-2a7765d49a3d',
@@ -343,6 +343,7 @@ export const charts: LibrarySlim = {
   description:
     'A typed, tree-shakable chart grammar for SVG and Canvas. Compose marks, views, scales, transforms, interactions, and motion with compact primitives or D3-compatible inputs.',
   repo: 'tanstack/charts',
+  hasDiscussions: false,
   frameworks: [
     'react',
     'preact',
@@ -588,10 +589,10 @@ export const hotkeys: LibrarySlim = {
   name: 'TanStack Hotkeys',
   to: '/hotkeys/latest',
   tagline:
-    'Type-safe keyboard shortcuts, sequences, and key state tracking for your apps',
+    'Type-safe keyboard shortcuts with scopes, sequences, and user rebinding',
   description:
-    'A type-safe, cross-platform hotkey library with sequence detection, key state tracking, hotkey recording, and framework adapters for React and more.',
-  badge: 'alpha',
+    'A type-safe, cross-platform hotkey library with scopes, sequences, user rebinding, platform-correct labels, and devtools, with adapters for React, Vue, Solid, Svelte, Angular, and more.',
+  badge: 'beta',
   repo: 'tanstack/hotkeys',
   frameworks: [
     'vanilla',
@@ -635,6 +636,7 @@ export const markdown: LibrarySlim = {
   colorTo: 'to-fuchsia-500',
   bgRadial: 'from-fuchsia-500 via-fuchsia-500/50 to-transparent',
   repo: 'tanstack/markdown',
+  hasDiscussions: false,
   frameworks: ['react', 'vanilla'],
   corePackageName: '@tanstack/markdown',
   npmPackageNames: ['@tanstack/markdown'],

@@ -48,7 +48,10 @@ test(
         'utf8',
       ),
     )
-    const migration = journal.entries.at(-1)
+    const migration = journal.entries.find(
+      (entry: { tag: string }) => entry.tag === '0000_builder_durability',
+    )
+    assert.ok(migration, 'Builder migration must exist in the journal')
     const hash = createHash('sha256')
       .update(
         await readFile(

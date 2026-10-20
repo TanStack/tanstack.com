@@ -9,7 +9,11 @@ declare global {
 
 export const googleAnalyticsProvider: AnalyticsProvider = {
   trackEvent(event, properties) {
-    if (typeof window === 'undefined' || !window.gtag) {
+    if (
+      import.meta.env.MODE === 'staging' ||
+      typeof window === 'undefined' ||
+      !window.gtag
+    ) {
       return
     }
 

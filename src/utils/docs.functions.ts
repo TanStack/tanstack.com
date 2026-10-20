@@ -1,7 +1,6 @@
 import { notFound } from '@tanstack/react-router'
 import { createServerFn, createServerOnlyFn } from '@tanstack/react-start'
 import { setResponseHeader } from '@tanstack/react-start/server'
-import removeMarkdown from 'remove-markdown'
 import * as v from 'valibot'
 import { extractFrameworksFromMarkdown } from './markdown/filterFrameworkContent'
 import { buildRedirectManifest, type RedirectManifestEntry } from './redirects'
@@ -11,6 +10,7 @@ import type { DocsRedirectManifest } from './docs-redirects'
 import type { GitHubFileNode } from './documents.server'
 import { getBranch, getLibrary } from '~/libraries'
 import { getClientExampleConfig } from './client-example-config'
+import { rewriteWorkspaceProtocolDependencies } from './repository-example'
 
 export type DocsTreeNode = {
   path: string
@@ -437,8 +437,7 @@ export const fetchDocs = createServerFn({ method: 'GET' })
 
     const { extractFrontMatter } = await loadDocumentsServerModule()
     const frontMatter = extractFrontMatter(result.file)
-    const description =
-      frontMatter.userDescription ?? removeMarkdown(frontMatter.excerpt ?? '')
+    const description = frontMatter.data.description
     const keywords = extractFrontMatterKeywords(frontMatter.data.keywords)
 
     setDocsCacheHeaders(
@@ -450,6 +449,7 @@ export const fetchDocs = createServerFn({ method: 'GET' })
 
     return {
       content: frontMatter.content,
+      isFallback: result.isFallback,
       title: frontMatter.data?.title ?? 'Content temporarily unavailable',
       description,
       keywords,
@@ -550,14 +550,24 @@ export const fetchClientExampleFiles = createServerFn({ method: 'GET' })
     } = await loadGitHubExampleServerModule()
     const { getCachedDocsArtifact } = await loadGitHubContentCacheServerModule()
     const result = await getCachedDocsArtifact({
-      artifactKey: 'workspace-v1',
+      artifactKey: 'workspace-v2',
       artifactType: 'client-example',
-      build: async () =>
-        ensureCacheableFetchExampleFilesResponse(
+      build: async () => {
+        const fetched = ensureCacheableFetchExampleFilesResponse(
           await fetchExampleFiles(library.repo, gitRef, examplePath, {
             preserveBinary: true,
           }),
-        ),
+        )
+
+        if (!fetched.success) {
+          return fetched
+        }
+
+        return {
+          ...fetched,
+          files: rewriteWorkspaceProtocolDependencies(fetched.files),
+        }
+      },
       docsRoot: examplePath,
       gitRef,
       isValue: isFetchExampleFilesResponse,

@@ -28,6 +28,7 @@ assert.equal(
 )
 
 for (const library of publicLibraries) {
+  assert.ok(library.scarfId, `${library.id} must have a Scarf pixel`)
   assert.equal(
     library.to.startsWith('/'),
     true,
@@ -39,6 +40,15 @@ for (const library of publicLibraries) {
     `${library.id} hidden library should not be public`,
   )
 }
+
+const scarfIds = libraries.flatMap((library) =>
+  library.scarfId ? [library.scarfId] : [],
+)
+assert.equal(
+  new Set(scarfIds).size,
+  scarfIds.length,
+  'Each library must use its own Scarf pixel',
+)
 
 for (const library of libraries) {
   if (!library.scarfId) {

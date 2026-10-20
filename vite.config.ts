@@ -1,15 +1,17 @@
+import { readLocalDocsTree } from './src/utils/local-docs-tree.server'
 import { sentryTanstackStart } from '@sentry/tanstackstart-react/vite'
-import { defineConfig } from 'vite'
-import type { PluginOption } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
+import type { PluginOption, UserConfig } from 'vite'
 import { redact } from '@tanstack/redact/vite'
 import contentCollections from '@content-collections/vite'
 import { devtools as tanstackDevtools } from '@tanstack/devtools-vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import tailwindcss from '@tailwindcss/vite'
 import { cloudflare } from '@cloudflare/vite-plugin'
+import type { WorkerConfig } from '@cloudflare/vite-plugin'
 import { analyzer } from 'vite-bundle-analyzer'
 import viteReact from '@vitejs/plugin-react'
-import { randomUUID } from 'node:crypto'
+import { createHash, randomUUID } from 'node:crypto'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
@@ -19,7 +21,10 @@ import {
   localDocsDevPath,
   localDocsDevTokenHeader,
 } from './src/utils/local-repo-path.server'
+import { startLocalMcpEgress } from './scripts/local-mcp-egress'
 import { localBuilderAi } from './scripts/local-builder-ai-vite'
+import { chatIsolation } from './scripts/chat-isolation-vite'
+import { workerIsolation } from './scripts/worker-isolation-vite'
 
 const isDev = process.env.NODE_ENV !== 'production'
 const shouldUseRedact = process.env.DISABLE_REDACT !== 'true'
@@ -29,16 +34,8 @@ const shouldUseSentryPlugin =
   Boolean(process.env.SENTRY_AUTH_TOKEN)
 const shouldBuildSourcemaps =
   shouldUseSentryPlugin || process.env.BUILD_SOURCEMAPS === 'true'
-const SITE_URL = 'https://tanstack.com'
+const SITE_URL = process.env.STAGING_SITE_URL || 'https://tanstack.com'
 const localDocsDevToken = isDev ? randomUUID() : ''
-
-const localEnvPath = path.resolve(__dirname, '.env.local')
-const defaultCheckoutEnvDir = path.join(os.homedir(), 'GitHub/tanstack.com')
-const envDir =
-  !fs.existsSync(localEnvPath) &&
-  fs.existsSync(path.join(defaultCheckoutEnvDir, '.env.local'))
-    ? defaultCheckoutEnvDir
-    : __dirname
 
 function localDocsDevFiles(): PluginOption {
   return {
@@ -62,11 +59,13 @@ function localDocsDevFiles(): PluginOption {
 
         const repo = url.searchParams.get('repo')
         const filepath = url.searchParams.get('path')
+        const isTree = url.searchParams.get('kind') === 'tree'
 
         if (
           !repo ||
           !/^[a-zA-Z0-9._-]+$/.test(repo) ||
-          !filepath ||
+          filepath === null ||
+          (!isTree && !filepath) ||
           !isContainedRepoPath(filepath)
         ) {
           response.statusCode = 400
@@ -87,29 +86,39 @@ function localDocsDevFiles(): PluginOption {
           ]),
         )
 
-        const localFilePath = repoDirs
+        const localEntry = repoDirs
           .map((repoDir) => ({
             filepath: path.resolve(repoDir, filepath),
             repoDir,
           }))
           .find(
             (candidate) =>
-              isPathInside(candidate.repoDir, candidate.filepath) &&
+              (isPathInside(candidate.repoDir, candidate.filepath) ||
+                (isTree && candidate.repoDir === candidate.filepath)) &&
               fs.existsSync(candidate.filepath) &&
-              fs.statSync(candidate.filepath).isFile(),
-          )?.filepath
+              (isTree
+                ? fs.statSync(candidate.filepath).isDirectory()
+                : fs.statSync(candidate.filepath).isFile()),
+          )
 
-        if (!localFilePath) {
+        if (!localEntry) {
           response.statusCode = 404
           response.end()
           return
         }
 
         try {
-          const content = await fs.promises.readFile(localFilePath)
+          const content = isTree
+            ? JSON.stringify(
+                await readLocalDocsTree(localEntry.repoDir, filepath),
+              )
+            : await fs.promises.readFile(localEntry.filepath)
           response.statusCode = 200
           response.setHeader('Cache-Control', 'no-store')
-          response.setHeader('Content-Type', 'text/plain; charset=utf-8')
+          response.setHeader(
+            'Content-Type',
+            isTree ? 'application/json' : 'text/plain; charset=utf-8',
+          )
           response.end(content)
         } catch (error) {
           next(error)
@@ -151,17 +160,12 @@ const serverVariantAliases: Record<string, string> = {
   'react-dom/static': '@tanstack/redact/server',
 }
 
-const useSyncExternalStoreShimIndexAlias = {
-  find: /^use-sync-external-store\/shim\/index\.js$/,
-  replacement: '@tanstack/redact',
-}
-
 // These browser-facing packages are imported by SSR assets. Bundle them into
 // Worker server output so the runtime never loads their raw package entries.
 const serverBundledClientPackages = [
   ...(shouldUseRedact ? ['@tanstack/redact'] : []),
   /^@radix-ui\//,
-  '@kapaai/react-sdk',
+  /^@tanstack\/ai(?:-|$)/,
   '@tanstack/highlight',
   '@tanstack/markdown',
   '@tanstack/react-hotkeys',
@@ -182,235 +186,358 @@ const routerSsrPackages = [
   '@tanstack/router-core',
 ]
 
-export default defineConfig({
-  envDir,
-  define: {
-    __TANSTACK_ENABLE_SERVER_BUILDER_GENERATION__: JSON.stringify(true),
-    __TANSTACK_ENABLE_IMAGE_TRANSFORMATIONS__: JSON.stringify(true),
-    __TANSTACK_LOCAL_DOCS_TOKEN__: JSON.stringify(localDocsDevToken),
-    __TANSTACK_SITE_URL__: JSON.stringify(SITE_URL),
-  },
-  resolve: {
-    alias: [
-      {
-        find: '~',
-        replacement: path.resolve(__dirname, './src'),
-      },
-      {
-        find: 'ejs',
-        replacement: path.resolve(
+function chatBuildId() {
+  const root = __dirname
+  const digest = createHash('sha256')
+  const add = (filePath: string) =>
+    digest
+      .update(path.relative(root, filePath))
+      .update('\0')
+      .update(fs.readFileSync(filePath))
+      .update('\0')
+  const walk = (filePath: string) => {
+    for (const entry of fs
+      .readdirSync(filePath, { withFileTypes: true })
+      .sort((a, b) => a.name.localeCompare(b.name))) {
+      const child = path.resolve(filePath, entry.name)
+      if (entry.isDirectory()) walk(child)
+      else if (entry.isFile()) add(child)
+    }
+  }
+  for (const directory of ['src', 'public', 'scripts'])
+    walk(path.resolve(root, directory))
+  for (const file of [
+    'package.json',
+    'pnpm-lock.yaml',
+    'vite.config.ts',
+    'wrangler.jsonc',
+  ])
+    add(path.resolve(root, file))
+  return digest.digest('hex')
+}
+
+export default defineConfig(async ({ command, mode }) => {
+  const localEnv = { ...loadEnv(mode, __dirname, ''), ...process.env }
+  const useRemoteAi = Boolean(localEnv.CLOUDFLARE_API_TOKEN)
+  const egress = command === 'serve' ? await startLocalMcpEgress() : undefined
+  const config: UserConfig = {
+    envDir: __dirname,
+    define: {
+      __GUM_LOCAL_DEVELOPMENT__: JSON.stringify(command === 'serve'),
+      __GUM_BUILD_ID__: JSON.stringify(isDev ? 'development' : chatBuildId()),
+      __TANSTACK_ENABLE_SERVER_BUILDER_GENERATION__: JSON.stringify(true),
+      __TANSTACK_ENABLE_IMAGE_TRANSFORMATIONS__: JSON.stringify(!isDev),
+      __TANSTACK_LOCAL_DOCS_TOKEN__: JSON.stringify(localDocsDevToken),
+      __TANSTACK_SITE_URL__: JSON.stringify(
+        mode === 'staging'
+          ? 'https://tanstack-perf-stage-site.thetanstack.workers.dev'
+          : SITE_URL,
+      ),
+    },
+    resolve: {
+      alias: {
+        '~': path.resolve(__dirname, './src'),
+        ejs: path.resolve(
           __dirname,
           './src/server/runtime/ejs-compat.server.ts',
         ),
+        'unicorn-magic': 'unicorn-magic/node',
+        ...(shouldUseRedact
+          ? {
+              'use-sync-external-store/shim/index.js': '@tanstack/redact',
+              ...serverVariantAliases,
+            }
+          : {}),
       },
-      {
-        find: 'unicorn-magic',
-        replacement: 'unicorn-magic/node',
+    },
+    server: {
+      port: Number(process.env.PORT) || 3000,
+      // WebContainer headers for /builder route (SharedArrayBuffer support)
+      headers: {
+        'Cross-Origin-Opener-Policy': 'same-origin',
+        'Cross-Origin-Embedder-Policy': 'require-corp',
       },
+      // Watch linked @tanstack/cli for hot reload during development
+      watch: isDev
+        ? {
+            ignored: ['!**/node_modules/@tanstack/cli/**'],
+          }
+        : undefined,
+    },
+    environments: {
+      ssr: {
+        optimizeDeps: {
+          // Resolve SSR dependencies through Redact instead of a separate prebundle.
+          exclude: ['@tanstack/create'],
+          noDiscovery: shouldUseRedact,
+          include: [],
+        },
+        resolve: {
+          noExternal: [...serverBundledClientPackages, ...routerSsrPackages],
+        },
+      },
+    },
+    ssr: {
+      external: [],
+      noExternal: [
+        '@uploadthing/react',
+        'file-selector',
+        'normalize-wheel',
+        '@tanstack/react-hotkeys',
+        '@webcontainer/api',
+        ...serverBundledClientPackages,
+        ...routerSsrPackages,
+      ],
+    },
+    optimizeDeps: {
+      exclude: [
+        'postgres',
+        // CTA packages use execa which has a broken unicorn-magic dependency
+        '@tanstack/create',
+        'discord-interactions',
+        // Don't pre-bundle CLI so we always get fresh changes during dev
+        ...(isDev ? ['@tanstack/cli'] : []),
+      ],
+    },
+    build: {
+      // The lazy iconography route intentionally ships the complete Phosphor
+      // registry so every icon can be browsed without follow-up requests.
+      chunkSizeWarningLimit: 4_000,
+      minify: 'esbuild',
+      sourcemap: shouldBuildSourcemaps,
+      reportCompressedSize: false,
+      rollupOptions: {
+        output: {
+          manualChunks: (id) => {
+            if (
+              id.includes('/node_modules/@tanstack/react-start') ||
+              id.includes('/node_modules/@tanstack/start-')
+            ) {
+              return 'tanstack-start'
+            }
+
+            if (
+              id.includes('/src/db/types.ts') ||
+              id.includes('/src/libraries/ids.ts')
+            ) {
+              return 'shared-constants'
+            }
+
+            if (
+              id.includes('/node_modules/@tanstack/react-router') ||
+              id.includes('/node_modules/@tanstack/router-core') ||
+              id.includes('/node_modules/@tanstack/history')
+            ) {
+              return 'tanstack-router'
+            }
+
+            if (
+              id.includes('/node_modules/@tanstack/react-query') ||
+              id.includes('/node_modules/@tanstack/query-core')
+            ) {
+              return 'tanstack-query'
+            }
+
+            // Vendor chunk splitting for better caching
+            if (id.includes('node_modules')) {
+              if (
+                id.includes('node_modules/react-dom/') ||
+                id.includes('node_modules/react/') ||
+                id.includes('node_modules/scheduler/')
+              ) {
+                return 'react'
+              }
+            }
+          },
+        },
+      },
+    },
+    plugins: [
+      localBuilderAi(),
+      localDocsDevFiles(),
+      ...(egress
+        ? [
+            {
+              name: 'tanchat-local-mcp-egress',
+              configureServer(server) {
+                server.httpServer?.once('close', () => {
+                  void egress.dispose()
+                })
+              },
+              async closeBundle() {
+                await egress.dispose()
+              },
+            } satisfies PluginOption,
+          ]
+        : []),
+      cloudflare({
+        configPath:
+          mode === 'staging' ? '.staging/server.json' : 'wrangler.jsonc',
+        viteEnvironment: { name: 'ssr' },
+        remoteBindings: useRemoteAi,
+        auxiliaryWorkers: [
+          ...(mode === 'staging'
+            ? []
+            : [
+                {
+                  configPath: 'workers/chat-recovery/wrangler.jsonc',
+                  viteEnvironment: { name: 'recovery' },
+                  config: (config: WorkerConfig) => {
+                    if (command !== 'serve') return
+                    config.hyperdrive = []
+                    if (!useRemoteAi) delete config.ai
+                    config.vars = { ...config.vars, APP_MODE: 'development' }
+                  },
+                },
+              ]),
+          {
+            configPath:
+              mode === 'staging'
+                ? '.staging/og.json'
+                : 'workers/og/wrangler.jsonc',
+            viteEnvironment: { name: 'og' },
+          },
+          {
+            configPath:
+              mode === 'staging'
+                ? '.staging/starter.json'
+                : 'workers/starter/wrangler.jsonc',
+            viteEnvironment: { name: 'starter' },
+            config: (config) => {
+              if (command !== 'serve') return
+              config.hyperdrive = []
+              config.vars = { ...config.vars, APP_MODE: 'development' }
+            },
+          },
+          {
+            configPath:
+              mode === 'staging'
+                ? '.staging/chat.json'
+                : 'workers/chat/wrangler.jsonc',
+            viteEnvironment: { name: 'chat' },
+            config: (config) => {
+              if (command !== 'serve') return
+              config.hyperdrive = []
+              if (!useRemoteAi) delete config.ai
+              config.vars = {
+                ...config.vars,
+                ...egress?.vars,
+                APP_MODE: 'development',
+              }
+              for (const name of [
+                'GUM_DEV_EXECUTION',
+                'UNLIMITED_USAGE_EMAILS',
+                'USAGE_RATES_JSON',
+              ]) {
+                const value = localEnv[name]
+                if (typeof value === 'string') config.vars[name] = value
+              }
+            },
+          },
+        ],
+        config: (config) => {
+          if (command !== 'serve') return
+          config.hyperdrive = []
+          if (!useRemoteAi) delete config.ai
+          if (localEnv.CLOUDFLARE_ACCOUNT_ID)
+            config.account_id = localEnv.CLOUDFLARE_ACCOUNT_ID
+          config.vars = {
+            ...config.vars,
+            ...egress?.vars,
+            APP_MODE: 'development',
+          }
+        },
+      }),
       ...(shouldUseRedact
         ? [
-            useSyncExternalStoreShimIndexAlias,
-            ...Object.entries(serverVariantAliases).map(
-              ([find, replacement]) => ({
-                find,
-                replacement,
-              }),
+            redact(
+              localRedactPackageRoot
+                ? {
+                    packageRoots: {
+                      '@tanstack/redact': localRedactPackageRoot,
+                    },
+                  }
+                : undefined,
             ),
           ]
         : []),
-    ],
-  },
-  server: {
-    port: Number(process.env.PORT) || 3000,
-    // WebContainer headers for /builder route (SharedArrayBuffer support)
-    headers: {
-      'Cross-Origin-Opener-Policy': 'same-origin',
-      'Cross-Origin-Embedder-Policy': 'require-corp',
-    },
-    // Watch linked @tanstack/cli for hot reload during development
-    watch: isDev
-      ? {
-          ignored: ['!**/node_modules/@tanstack/cli/**'],
-        }
-      : undefined,
-  },
-  environments: {
-    ssr: {
-      optimizeDeps: {
-        exclude: ['@tanstack/create'],
-      },
-      resolve: {
-        noExternal: [...serverBundledClientPackages, ...routerSsrPackages],
-      },
-    },
-  },
-  ssr: {
-    external: [],
-    noExternal: [
-      '@uploadthing/react',
-      'file-selector',
-      'normalize-wheel',
-      '@tanstack/react-hotkeys',
-      '@webcontainer/api',
-      ...serverBundledClientPackages,
-      ...routerSsrPackages,
-    ],
-  },
-  optimizeDeps: {
-    exclude: [
-      'postgres',
-      // CTA packages use execa which has a broken unicorn-magic dependency
-      '@tanstack/create',
-      'discord-interactions',
-      // Don't pre-bundle CLI so we always get fresh changes during dev
-      ...(isDev ? ['@tanstack/cli'] : []),
-    ],
-  },
-  build: {
-    // The lazy iconography route intentionally ships the complete Phosphor
-    // registry so every icon can be browsed without follow-up requests.
-    chunkSizeWarningLimit: 4_000,
-    minify: 'esbuild',
-    sourcemap: shouldBuildSourcemaps,
-    reportCompressedSize: false,
-    rollupOptions: {
-      output: {
-        manualChunks: (id) => {
-          if (
-            id.includes('/node_modules/@tanstack/react-start') ||
-            id.includes('/node_modules/@tanstack/start-')
-          ) {
-            return 'tanstack-start'
-          }
-
-          if (
-            id.includes('/src/db/types.ts') ||
-            id.includes('/src/libraries/ids.ts')
-          ) {
-            return 'shared-constants'
-          }
-
-          if (
-            id.includes('/node_modules/@tanstack/react-router') ||
-            id.includes('/node_modules/@tanstack/router-core') ||
-            id.includes('/node_modules/@tanstack/history')
-          ) {
-            return 'tanstack-router'
-          }
-
-          if (
-            id.includes('/node_modules/@tanstack/react-query') ||
-            id.includes('/node_modules/@tanstack/query-core')
-          ) {
-            return 'tanstack-query'
-          }
-
-          // Vendor chunk splitting for better caching
-          if (id.includes('node_modules')) {
-            if (
-              id.includes('node_modules/react-dom/') ||
-              id.includes('node_modules/react/') ||
-              id.includes('node_modules/scheduler/')
-            ) {
-              return 'react'
-            }
-          }
+      ...(isDev
+        ? [
+            tanstackDevtools({
+              // Console piping mirrors server logs into the browser and browser
+              // logs back into Vite. A streamed server error can recursively echo
+              // through that bridge and flood the dev server log.
+              consolePiping: {
+                enabled: false,
+              },
+              // react-instantsearch's <Configure> forwards all JSX props as
+              // Algolia search parameters. Injecting `data-tsd-source` as a
+              // JSX attr leaks it into the request and Algolia 400s with
+              // "Unknown parameter: data-tsd-source" — breaks site search in dev.
+              injectSource: {
+                enabled: true,
+                ignore: { components: ['Configure'] },
+              },
+            }),
+          ]
+        : []),
+      tanstackStart({
+        server: {
+          build: {
+            inlineCss: false,
+          },
         },
-      },
-    },
-  },
-  plugins: [
-    localBuilderAi(),
-    localDocsDevFiles(),
-    cloudflare({
-      viteEnvironment: { name: 'ssr' },
-    }),
-    ...(shouldUseRedact
-      ? [
-          redact(
-            localRedactPackageRoot
-              ? {
-                  packageRoots: {
-                    '@tanstack/redact': localRedactPackageRoot,
-                  },
-                }
-              : undefined,
-          ),
-        ]
-      : []),
-    ...(isDev
-      ? [
-          tanstackDevtools({
-            // Console piping mirrors server logs into the browser and browser
-            // logs back into Vite. A streamed server error can recursively echo
-            // through that bridge and flood the dev server log.
-            consolePiping: {
-              enabled: false,
-            },
-            // react-instantsearch's <Configure> forwards all JSX props as
-            // Algolia search parameters. Injecting `data-tsd-source` as a
-            // JSX attr leaks it into the request and Algolia 400s with
-            // "Unknown parameter: data-tsd-source" — breaks site search in dev.
-            injectSource: {
-              enabled: true,
-              ignore: { components: ['Configure'] },
-            },
-          }),
-        ]
-      : []),
-    tanstackStart({
-      server: {
-        build: {
-          inlineCss: false,
-        },
-      },
-      importProtection: {
-        behavior: 'error',
-        client: {
-          files: ['**/*.server.*', '**/server/**'],
-          specifiers: [
-            '@tanstack/react-start/server',
-            'uploadthing/server',
-            /^@modelcontextprotocol\/sdk\/server\//,
-            'discord-interactions',
-          ],
-        },
-      },
-      router: {
-        codeSplittingOptions: {
-          defaultBehavior: [
-            [
-              'component',
-              'pendingComponent',
-              'errorComponent',
-              'notFoundComponent',
-              'loader',
+        importProtection: {
+          behavior: 'error',
+          client: {
+            files: ['**/*.server.*', '**/server/**'],
+            specifiers: [
+              '@tanstack/react-start/server',
+              'uploadthing/server',
+              /^@modelcontextprotocol\/sdk\/server\//,
+              'discord-interactions',
             ],
-          ],
+          },
         },
-      },
-    }),
-    viteReact(),
+        router: {
+          codeSplittingOptions: {
+            defaultBehavior: [
+              [
+                'component',
+                'pendingComponent',
+                'errorComponent',
+                'notFoundComponent',
+                'loader',
+              ],
+            ],
+          },
+        },
+      }),
+      viteReact(),
+      chatIsolation(),
+      workerIsolation(),
 
-    ...(shouldUseSentryPlugin
-      ? [
-          sentryTanstackStart({
-            authToken: process.env.SENTRY_AUTH_TOKEN,
-            org: 'tanstack',
-            project: 'tanstack-com',
-          }),
-        ]
-      : []),
-    contentCollections(),
-    tailwindcss(),
-    ...(process.env.ANALYZE
-      ? [
-          analyzer({
-            analyzerMode: 'json',
-            fileName: 'bundle-analysis',
-            defaultSizes: 'stat',
-          }),
-        ]
-      : []),
-  ],
+      ...(shouldUseSentryPlugin
+        ? [
+            sentryTanstackStart({
+              authToken: process.env.SENTRY_AUTH_TOKEN,
+              org: 'tanstack',
+              project: 'tanstack-com',
+            }),
+          ]
+        : []),
+      contentCollections(),
+      tailwindcss(),
+      ...(process.env.ANALYZE
+        ? [
+            analyzer({
+              analyzerMode: 'json',
+              fileName: 'bundle-analysis',
+              defaultSizes: 'stat',
+            }),
+          ]
+        : []),
+    ],
+  }
+  return config
 })

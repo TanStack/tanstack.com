@@ -268,6 +268,37 @@ const clientExampleConfigs: ReadonlyArray<ClientExampleConfig> = [
   },
 ]
 
+const aiReactStartExampleRuntime = {
+  type: 'webcontainer',
+  compatibility: 'tanstack-start-async-context',
+  install: { command: 'pnpm', args: ['install'] },
+  start: { command: 'pnpm', args: ['run', 'dev'] },
+} as const satisfies ExampleRuntime
+
+const aiExampleSlugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
+
+function isAiReactExampleSlug(slug: string) {
+  return aiExampleSlugPattern.test(slug)
+}
+
+function aiReactStartExampleConfig(slug: string): ClientExampleConfig {
+  return {
+    autoStart: true,
+    entry: '/src/routes/index.tsx',
+    framework: 'react',
+    libraryId: 'ai',
+    runtime: aiReactStartExampleRuntime,
+    slug,
+  }
+}
+
+/**
+ * Resolve the in-browser example player for a docs example.
+ *
+ * `libraryId` `ai` and `framework` `react` do not need an allowlist row.
+ * Any kebab-case `slug` uses the TanStack Start WebContainer runtime and
+ * fetches `examples/react/<slug>` from the AI repo.
+ */
 export function getClientExampleConfig({
   framework,
   libraryId,
@@ -281,10 +312,21 @@ export function getClientExampleConfig({
 }) {
   if (version !== 'latest') return undefined
 
-  return clientExampleConfigs.find(
+  const listed = clientExampleConfigs.find(
     (config) =>
       config.libraryId === libraryId &&
       config.framework === framework &&
       config.slug === slug,
   )
+  if (listed) return listed
+
+  if (
+    libraryId === 'ai' &&
+    framework === 'react' &&
+    isAiReactExampleSlug(slug)
+  ) {
+    return aiReactStartExampleConfig(slug)
+  }
+
+  return undefined
 }

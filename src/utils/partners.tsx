@@ -45,6 +45,7 @@ import renderBlackSvg from '~/images/render-black.svg'
 import renderWhiteSvg from '~/images/render-white.svg'
 import openrouterBlackSvg from '~/images/openrouter-black.svg'
 import openrouterWhiteSvg from '~/images/openrouter-white.svg'
+import scarfSvg from '~/images/scarf.svg'
 import {
   getPartnerPlacementContext,
   getPartnersForPlacement,
@@ -282,6 +283,7 @@ export const partnerCategories = [
   'auth',
   'database',
   'monitoring',
+  'analytics',
   'cms',
   'api',
   'ai',
@@ -297,6 +299,7 @@ export const partnerCategoryLabels: Record<PartnerCategory, string> = {
   auth: 'Authentication',
   database: 'Databases',
   monitoring: 'Error Monitoring',
+  analytics: 'Analytics',
   cms: 'CMS',
   api: 'API Infrastructure',
   ai: 'AI/LLM',
@@ -501,6 +504,11 @@ const clerk = ((): Partner => {
     canonicalHref: 'https://clerk.com/',
     resources: [
       {
+        kind: 'announcement',
+        label: 'TanStack + Clerk partnership',
+        href: '/blog/clerk-partnership',
+      },
+      {
         kind: 'documentation',
         label: 'Clerk TanStack Start quickstart',
         href: 'https://clerk.com/docs/tanstack-react-start/getting-started/quickstart',
@@ -556,6 +564,11 @@ const workos = ((): Partner => {
     href,
     canonicalHref: 'https://workos.com/',
     resources: [
+      {
+        kind: 'announcement',
+        label: 'TanStack + WorkOS partnership',
+        href: '/blog/workos-partnership',
+      },
       {
         kind: 'documentation',
         label: 'WorkOS AuthKit TanStack Start SDK',
@@ -731,6 +744,11 @@ const cloudflare = ((): Partner => {
     canonicalHref: 'https://www.cloudflare.com/',
     resources: [
       {
+        kind: 'announcement',
+        label: 'TanStack + Cloudflare partnership',
+        href: '/blog/cloudflare-partnership',
+      },
+      {
         kind: 'documentation',
         label: 'Cloudflare TanStack Start guide',
         href: 'https://developers.cloudflare.com/workers/framework-guides/web-apps/tanstack-start/',
@@ -778,6 +796,11 @@ const lovable = ((): Partner => {
     href,
     canonicalHref: 'https://lovable.dev/',
     resources: [
+      {
+        kind: 'announcement',
+        label: 'TanStack + Lovable partnership',
+        href: '/blog/lovable-partnership',
+      },
       {
         kind: 'documentation',
         label: 'Build with a URL in Lovable',
@@ -837,6 +860,11 @@ const sentry = ((): Partner => {
     href,
     canonicalHref: 'https://sentry.io/',
     resources: [
+      {
+        kind: 'announcement',
+        label: 'TanStack + Sentry partnership',
+        href: '/blog/sentry-partnership',
+      },
       {
         kind: 'documentation',
         label: 'Sentry for TanStack Start',
@@ -1003,6 +1031,11 @@ const unkey = ((): Partner => {
     canonicalHref: 'https://www.unkey.com/',
     resources: [
       {
+        kind: 'announcement',
+        label: 'TanStack + Unkey partnership',
+        href: '/blog/unkey-partnership',
+      },
+      {
         kind: 'documentation',
         label: 'Unkey server-side rate limiting',
         href: 'https://www.unkey.com/docs/platform/ratelimiting/introduction',
@@ -1056,6 +1089,11 @@ const serpApi = ((): Partner => {
     canonicalHref: 'https://serpapi.com/',
     resources: [
       {
+        kind: 'announcement',
+        label: 'TanStack + SerpApi partnership',
+        href: '/blog/serpapi-partnership',
+      },
+      {
         kind: 'documentation',
         label: 'SerpApi JavaScript integration',
         href: 'https://serpapi.com/integrations/javascript',
@@ -1106,12 +1144,19 @@ const electric = ((): Partner => {
     name: 'Electric',
     id: 'electric',
     relatedProducts: ['db'] as const,
-    status: 'active' as const,
-    lastReviewedAt: currentPartnerReviewDate,
+    status: 'inactive',
+    startDate: null,
+    endDate: 'Aug 30, 2026',
+    lastReviewedAt: '2026-09-30',
     tier: 'bronze' as const,
     href,
     canonicalHref: 'https://electric.ax/',
     resources: [
+      {
+        kind: 'announcement',
+        label: 'TanStack + Electric partnership',
+        href: '/blog/electric-partnership',
+      },
       {
         kind: 'documentation',
         label: 'TanStack DB Electric collection',
@@ -1167,8 +1212,28 @@ const vercel = ((): Partner => {
         label: 'TanStack Start on Vercel',
         href: 'https://vercel.com/kb/guide/deploy-a-tanstack-start-app-to-vercel',
       },
+      {
+        kind: 'documentation',
+        label: 'Vercel AI Gateway adapter',
+        href: '/ai/latest/docs/adapters/vercel-gateway',
+      },
+      {
+        kind: 'documentation',
+        label: 'TanStack AI with Vercel Sandbox',
+        href: 'https://vercel.com/kb/guide/tanstack-ai-vercel-sandbox',
+      },
+      {
+        kind: 'documentation',
+        label: 'TanStack AI with Vercel AI Gateway',
+        href: 'https://vercel.com/kb/guide/tanstack-ai-vercel-ai-gateway',
+      },
+      {
+        kind: 'announcement',
+        label: 'TanStack + Vercel partnership',
+        href: '/blog/vercel-partnership',
+      },
     ],
-    relatedProducts: ['start', 'router'],
+    relatedProducts: ['start', 'router', 'ai'],
     status: 'active',
     lastReviewedAt: currentPartnerReviewDate,
     tier: 'gold',
@@ -1210,6 +1275,11 @@ const prisma = ((): Partner => {
     href,
     canonicalHref: 'https://www.prisma.io/',
     resources: [
+      {
+        kind: 'announcement',
+        label: 'TanStack + Prisma partnership',
+        href: '/blog/prisma-partnership',
+      },
       {
         kind: 'documentation',
         label: 'Prisma with TanStack Start',
@@ -1255,6 +1325,11 @@ const codeRabbit = ((): Partner => {
     canonicalHref: 'https://www.coderabbit.ai/',
     resources: [
       {
+        kind: 'announcement',
+        label: 'TanStack + CodeRabbit partnership',
+        href: '/blog/coderabbit-partnership',
+      },
+      {
         kind: 'documentation',
         label: 'CodeRabbit quickstart',
         href: 'https://docs.coderabbit.ai/getting-started/quickstart',
@@ -1265,7 +1340,7 @@ const codeRabbit = ((): Partner => {
     relatedProducts: [],
     startDate: 'Aug 2025',
     tier: 'gold' as const,
-    brandColor: '#FF6B2B',
+    brandColor: '#FF570A',
     tagline: 'AI Code Review',
     applicationStarterPromptInstructions: [
       'Do not add runtime app code for CodeRabbit.',
@@ -1399,6 +1474,11 @@ const railway = ((): Partner => {
     canonicalHref: 'https://railway.com/',
     resources: [
       {
+        kind: 'announcement',
+        label: 'TanStack + Railway partnership',
+        href: '/blog/railway-partnership',
+      },
+      {
         kind: 'documentation',
         label: 'TanStack Start hosting guide',
         href: '/start/latest/docs/framework/react/guide/hosting',
@@ -1430,7 +1510,7 @@ const railway = ((): Partner => {
 
 const render = ((): Partner => {
   const href =
-    'https://render.com?utm_source=tanstack&utm_medium=referral&utm_campaign=gold-launch'
+    'https://render.com/tanstack?utm_source=tanstack&utm_medium=referral&utm_campaign=gold-launch'
 
   return {
     name: 'Render',
@@ -1441,8 +1521,13 @@ const render = ((): Partner => {
     tier: 'gold',
     uniqueConstraints: ['hosting'],
     href,
-    canonicalHref: 'https://render.com/',
+    canonicalHref: 'https://render.com/tanstack',
     resources: [
+      {
+        kind: 'announcement',
+        label: 'TanStack + Render partnership',
+        href: '/blog/render-partnership',
+      },
       {
         kind: 'documentation',
         label: 'TanStack Start hosting guide',
@@ -1548,6 +1633,51 @@ const openRouter = ((): Partner => {
   }
 })()
 
+const scarf = ((): Partner => {
+  return {
+    name: 'Scarf',
+    id: 'scarf',
+    href: 'https://about.scarf.sh/?utm_source=tanstack',
+    canonicalHref: 'https://about.scarf.sh/',
+    resources: [
+      {
+        kind: 'announcement',
+        label: 'TanStack + Scarf partnership',
+        href: '/blog/scarf-partnership',
+      },
+      {
+        kind: 'documentation',
+        label: 'Scarf documentation',
+        href: 'https://docs.scarf.sh/',
+      },
+    ],
+    status: 'active',
+    lastReviewedAt: '2026-09-30',
+    relatedProducts: [],
+    tier: 'bronze',
+    brandColor: '#0572F1',
+    tagline: 'Open Source Analytics',
+    image: { src: scarfSvg },
+    llmDescription:
+      'Open source usage analytics that connect package downloads, documentation visits, and product telemetry with company adoption.',
+    category: 'analytics',
+    applicationStarterPromptInstructions: [
+      'Use Scarf for open source adoption analytics only when it fits the requested project.',
+      'Follow the official Scarf documentation for the chosen collection method. Keep account setup and project-specific package or pixel IDs explicit, and never reuse TanStack website tracking IDs.',
+    ],
+    content: (
+      <>
+        <div className="text-xs">
+          Scarf helps open source teams understand{' '}
+          <strong>company adoption</strong> through package downloads,
+          documentation visits, and product telemetry.
+        </div>
+        <LearnMoreButton />
+      </>
+    ),
+  }
+})()
+
 export const partners = [
   codeRabbit,
   cloudflare,
@@ -1572,6 +1702,7 @@ export const partners = [
   fireship,
   nozzle,
   speakeasy,
+  scarf,
 ] satisfies Array<Partner>
 
 const applicationStarterBrandColorOverrides = new Map<string, string>([
@@ -2140,5 +2271,5 @@ export function getPartnerHref(
     return partner.href
   }
 
-  return `https://render.com/?utm_source=tanstack&utm_medium=referral&utm_campaign=gold-launch&utm_content=${utmContent}`
+  return `https://render.com/tanstack?utm_source=tanstack&utm_medium=referral&utm_campaign=gold-launch&utm_content=${utmContent}`
 }

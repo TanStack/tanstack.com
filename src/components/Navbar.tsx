@@ -20,7 +20,7 @@ const LazyMobileNavbarAuthControls = React.lazy(() =>
 )
 import { NavbarCartButton } from './NavbarCartButton'
 import { MegaMenuItem } from './MegaMenuItem'
-import { Link, useLocation } from '@tanstack/react-router'
+import { Link, useLocation, useNavigate } from '@tanstack/react-router'
 import { ArrowLeftIcon } from '@phosphor-icons/react/ArrowLeft'
 import { ArrowRightIcon } from '@phosphor-icons/react/ArrowRight'
 import { ArrowSquareOutIcon } from '@phosphor-icons/react/ArrowSquareOut'
@@ -40,6 +40,7 @@ import { ShoppingBagIcon } from '@phosphor-icons/react/ShoppingBag'
 import { SignInIcon } from '@phosphor-icons/react/SignIn'
 import { SparkleIcon } from '@phosphor-icons/react/Sparkle'
 import { TrendUpIcon } from '@phosphor-icons/react/TrendUp'
+import { UsersThreeIcon } from '@phosphor-icons/react/UsersThree'
 import { UsersIcon } from '@phosphor-icons/react/Users'
 import { XIcon } from '@phosphor-icons/react/X'
 import { ThemeToggle } from './ThemeToggle'
@@ -47,6 +48,8 @@ import { AiDockButton, SearchButton } from './SearchButton'
 import { BrandContextMenu } from './BrandContextMenu'
 import { useSearchContext } from '~/contexts/SearchContext'
 import { useLibrariesOverlay } from '~/contexts/LibrariesOverlayContext'
+import { findLibrary } from '~/libraries'
+import { categoryOf, categoryTextColor } from '~/libraries/categories'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import {
   Dropdown,
@@ -74,6 +77,46 @@ import { fetchRecentPosts, type RecentPost } from '~/utils/blog.functions'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 
 const LogoSection = () => {
+  const pathname = useLocation({ select: (location) => location.pathname })
+  const library = findLibrary(pathname.split('/')[1])
+
+  if (library) {
+    return (
+      <div className="flex items-center gap-1.5 sm:gap-2">
+        <Link
+          to="/"
+          aria-label="TanStack home"
+          className={twMerge(
+            'flex shrink-0 items-center gap-1.5 sm:gap-2',
+            categoryTextColor[categoryOf(library.id)],
+          )}
+        >
+          <span
+            aria-hidden="true"
+            className="block h-6 w-[19px] shrink-0 bg-current sm:h-8 sm:w-6"
+            style={{
+              mask: 'url(/images/brand/tanstack-emblem-black.svg) center / contain no-repeat',
+            }}
+          />
+          <img
+            src="/images/brand/tanstack-wordmark-black.svg"
+            alt="TanStack"
+            className="h-5 w-auto dark:invert sm:h-7"
+          />
+        </Link>
+        <Link
+          to={library.to ?? `/${library.id}/latest`}
+          className={twMerge(
+            'relative -top-[0.06em] whitespace-nowrap font-library-name text-[16px] font-normal uppercase leading-none sm:text-[22px]',
+            categoryTextColor[categoryOf(library.id)],
+          )}
+        >
+          {library.name.replace(/^TanStack /, '')}
+        </Link>
+      </div>
+    )
+  }
+
   return (
     <Link
       to="/"
@@ -98,6 +141,7 @@ const LogoSection = () => {
 type IconComponent = React.ComponentType<{ className?: string }>
 
 type NavMenuKey =
+  | 'chat'
   | 'libraries'
   | 'learn'
   | 'community'
@@ -137,8 +181,6 @@ type NavMenuGroup = {
 
 const MERCH_MENU_PRODUCT_COUNT = 3
 
-const DESKTOP_NAV_CLASS = 'hidden min-[900px]:flex'
-const MOBILE_NAV_CLASS = 'min-[900px]:hidden'
 const DESKTOP_SOCIAL_CLASS = 'hidden min-[1120px]:flex'
 
 const NAV_GROUPS = [
@@ -211,13 +253,19 @@ const NAV_GROUPS = [
           {
             label: 'Showcase',
             to: '/showcase',
-            description: 'Teams building with TanStack.',
+            description: 'Projects selected by the TanStack team.',
             icon: SparkleIcon,
+          },
+          {
+            label: 'Community projects',
+            to: '/community-projects',
+            icon: UsersThreeIcon,
           },
         ],
       },
     ],
   },
+  { key: 'chat', label: 'TanChat', to: '/chat', sections: [] },
   {
     key: 'tools',
     label: 'Tools',
@@ -229,13 +277,6 @@ const NAV_GROUPS = [
             label: 'Application Starter',
             to: '/application-starter',
             description: 'Generate TanStack app starters.',
-            badge: 'Alpha',
-            icon: HammerIcon,
-          },
-          {
-            label: 'Builder',
-            to: '/builder',
-            description: 'Build and share TanStack projects.',
             badge: 'Alpha',
             icon: HammerIcon,
           },
@@ -356,6 +397,13 @@ function AiDockMount() {
 
 export function Navbar({ children }: { children: React.ReactNode }) {
   const location = useLocation()
+  const isLibrary = Boolean(findLibrary(location.pathname.split('/')[1]))
+  const desktopNavClass = isLibrary
+    ? 'hidden min-[1280px]:flex'
+    : 'hidden min-[900px]:flex'
+  const mobileNavClass = isLibrary
+    ? 'min-[1280px]:hidden'
+    : 'min-[900px]:hidden'
 
   const containerRef = React.useRef<HTMLDivElement>(null)
   const desktopNavRef = React.useRef<HTMLElement>(null)
@@ -550,7 +598,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         ref={desktopNavRef}
         aria-label="Primary navigation"
         className={twMerge(
-          DESKTOP_NAV_CLASS,
+          desktopNavClass,
           'relative self-stretch shrink-0 items-center justify-center gap-1',
         )}
       >
@@ -569,20 +617,26 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         ))}
       </nav>
 
-      <div className={DESKTOP_NAV_CLASS}>
+      <div className={desktopNavClass}>
         <SearchButton iconOnly className="h-8 w-8" />
       </div>
 
       <div className="flex flex-1 items-center justify-end gap-2 sm:gap-2.5">
-        <div className={DESKTOP_SOCIAL_CLASS}>{socialLinks}</div>
-        <div className={DESKTOP_NAV_CLASS}>
+        <div
+          className={
+            isLibrary ? 'hidden min-[1440px]:flex' : DESKTOP_SOCIAL_CLASS
+          }
+        >
+          {socialLinks}
+        </div>
+        <div className={desktopNavClass}>
           <ThemeToggle />
         </div>
         <NavbarCartButton />
-        <div className={DESKTOP_NAV_CLASS}>
+        <div className={desktopNavClass}>
           <AiDockButton />
         </div>
-        <div className={twMerge(DESKTOP_NAV_CLASS, 'items-center gap-2')}>
+        <div className={twMerge(desktopNavClass, 'items-center gap-2')}>
           {renderAuthControls()}
         </div>
         <button
@@ -594,7 +648,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             'inline-flex h-9 w-9 items-center justify-center rounded-md',
             'text-gray-700 transition-colors hover:bg-gray-500/10',
             'dark:text-gray-200',
-            MOBILE_NAV_CLASS,
+            mobileNavClass,
           )}
           onClick={() => setMobileMenuOpen((prev) => !prev)}
         >
@@ -612,7 +666,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     <Panel
       open={mobileMenuOpen}
       onOpenChange={setMobileMenuOpen}
-      className={MOBILE_NAV_CLASS}
+      className={mobileNavClass}
     >
       <PanelContent
         className={twMerge(
@@ -653,6 +707,12 @@ export function Navbar({ children }: { children: React.ReactNode }) {
 
   return (
     <>
+      <a
+        href="#site-main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-black"
+      >
+        Skip to content
+      </a>
       {navbar}
       {mobileMenu}
       <div
@@ -673,7 +733,11 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           siteBackdropActive ? 'blur-[4px]' : 'filter-none',
         )}
       >
-        <div className="flex-1 min-w-0 flex flex-col w-full min-h-0">
+        <div
+          id="site-main-content"
+          tabIndex={-1}
+          className="flex-1 min-w-0 flex flex-col w-full min-h-0 focus:outline-none"
+        >
           {children}
         </div>
       </div>
@@ -736,9 +800,14 @@ function DesktopNavTrigger({
           data-menu-key={group.key}
           className={triggerClassName}
           onClick={onDismiss}
-          preload="intent"
+          preload={group.key === 'chat' ? false : 'intent'}
         >
           <span>{group.label}</span>
+          {group.key === 'chat' && (
+            <span className="rounded bg-blue-100 px-1 py-0.5 text-[8px] font-semibold leading-none text-blue-600 dark:bg-blue-400/15 dark:text-blue-300">
+              NEW
+            </span>
+          )}
         </Link>
       ) : (
         <button
@@ -750,13 +819,20 @@ function DesktopNavTrigger({
           }}
         >
           <span>{group.label}</span>
+          {group.key === 'chat' && (
+            <span className="rounded bg-blue-100 px-1 py-0.5 text-[8px] font-semibold leading-none text-blue-600 dark:bg-blue-400/15 dark:text-blue-300">
+              NEW
+            </span>
+          )}
         </button>
       )}
-      <DesktopNavDropdown
-        group={group}
-        onNavigate={onDismiss}
-        loadLibraries={hasLoadedLibraries}
-      />
+      {(group.sections.length > 0 || group.key === 'libraries') && (
+        <DesktopNavDropdown
+          group={group}
+          onNavigate={onDismiss}
+          loadLibraries={hasLoadedLibraries}
+        />
+      )}
     </div>
   )
 }
@@ -813,6 +889,7 @@ function MobileNavigation({
 }) {
   const activeGroup = NAV_GROUPS.find((group) => group.key === activeKey)
   const { openAiDock, openSearch } = useSearchContext()
+  const navigate = useNavigate()
   const userQuery = useCurrentUserQuery()
 
   const openUtility = (utility: 'ai' | 'search') => {
@@ -857,6 +934,9 @@ function MobileNavigation({
                 onClick={() => {
                   if (group.key === 'libraries') {
                     onOpenLibraries()
+                  } else if ('to' in group && group.sections.length === 0) {
+                    onNavigate()
+                    void navigate({ to: group.to })
                   } else {
                     onSelect(group.key)
                   }
@@ -866,6 +946,11 @@ function MobileNavigation({
                 }`}
               >
                 <span className="min-w-0 flex-1">{group.label}</span>
+                {group.key === 'chat' && (
+                  <span className="rounded bg-blue-100 px-1 py-0.5 text-[8px] font-semibold leading-none text-blue-600 dark:bg-blue-400/15 dark:text-blue-300">
+                    NEW
+                  </span>
+                )}
               </button>
             ))}
           </div>

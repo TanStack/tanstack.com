@@ -837,6 +837,7 @@ export function ApplicationStarter({
                     Prompt
                   </div>
                   <textarea
+                    aria-label="Prompt: describe the app you want to build"
                     value={input}
                     onChange={(event) => {
                       updateInput(event.target.value)
@@ -1068,6 +1069,7 @@ export function ApplicationStarter({
                       </div>
                     )}
                     <textarea
+                      aria-label="Prompt: describe the app you want to build"
                       value={input}
                       onChange={(event) => {
                         updateInput(event.target.value)

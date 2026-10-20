@@ -1299,7 +1299,7 @@ function buildPrompt({
       '',
       ...(migrationGuideUrl
         ? [
-            `Fetch ${migrationGuideUrl} and use it as the primary migration reference, following its steps in order.`,
+            `Fetch ${migrationGuideUrl} for the applicable routing and framework migration concepts. Keep the fresh TanStack project and the migration strategy below authoritative; do not apply in-place setup steps from the guide.`,
             '',
           ]
         : []),
@@ -1484,9 +1484,9 @@ export function buildDownloadUrl(recipe: ApplicationStarterRecipe) {
 }
 
 const nextJsMigrationPattern =
-  /migrat(?:e|ing|ion).*(next(?:\.js)?)|(next(?:\.js)?).*(migrat(?:e|ing|ion))/i
+  /migrat(?:e|ing|ion)[\s\S]*\bnext(?:\.?js|\s+(?:app|application|project))\b|\bnext(?:\.?js|\s+(?:app|application|project))\b[\s\S]*migrat(?:e|ing|ion)/i
 const remixMigrationPattern =
-  /migrat(?:e|ing|ion).*(remix|react[\s-]?router)|(remix|react[\s-]?router).*(migrat(?:e|ing|ion))/i
+  /migrat(?:e|ing|ion)[\s\S]*\b(remix|react[\s-]?router)\b|\b(remix|react[\s-]?router)\b[\s\S]*migrat(?:e|ing|ion)/i
 
 export const STARTER_NEXTJS_MIGRATION_GUIDE_URL =
   'https://tanstack.com/start/latest/docs/framework/react/migrate-from-next-js'

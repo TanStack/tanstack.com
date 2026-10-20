@@ -45,6 +45,7 @@ import { CodeBlock } from '~/components/markdown/CodeBlock'
 import { copyTextToClipboard } from '~/utils/browser-effects'
 import { InlineCode } from '~/ui/InlineCode'
 import { isSafeHref } from '~/utils/url-boundary'
+import { submitOnEnter } from '~/utils/ai-dock-enter'
 import {
   type AlgoliaHit,
   dedupeSearchHitsByPage,
@@ -1988,12 +1989,7 @@ function InputBar({
                 setSearchQuery(nextQuery)
                 refine(nextQuery)
               }}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
-                  event.preventDefault()
-                  submitQuestion()
-                }
-              }}
+              onKeyDown={(event) => submitOnEnter(event, submitQuestion)}
               className={twMerge(
                 'w-full outline-none [&::-webkit-search-cancel-button]:hidden bg-transparent text-gray-800 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500',
                 isDock ? 'text-[13px]' : 'text-sm',

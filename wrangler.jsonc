@@ -11,6 +11,12 @@
   "cache": {
     "enabled": false,
   },
+  "vars": {
+    "APP_MODE": "production",
+    "MCP_EGRESS_MODE": "cloudflare-public",
+    "KODY_ORIGIN": "https://kody.codes",
+    "INCLUDED_MODEL": "@cf/moonshotai/kimi-k2.6",
+  },
   "limits": {
     "cpu_ms": 300000,
   },
@@ -20,6 +26,9 @@
   "assets": {
     "binding": "ASSETS",
   },
+  "ai": {
+    "binding": "AI",
+  },
   "r2_buckets": [
     {
       "binding": "GITHUB_CONTENT_CACHE",
@@ -28,6 +37,34 @@
     {
       "binding": "NPM_DOWNLOAD_CACHE",
       "bucket_name": "tanstack-npm-download-cache",
+    },
+    {
+      "binding": "BUILDER_PROJECTS",
+      "bucket_name": "tanstack-notebook-projects",
+    },
+    {
+      "binding": "FILES",
+      "bucket_name": "tanstack-notebook-projects",
+    },
+  ],
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "6ec1513b87bb47e9897e5502727b0388",
+    },
+  ],
+  "services": [
+    {
+      "binding": "OG",
+      "service": "tanstack-og",
+    },
+    {
+      "binding": "CHAT",
+      "service": "tanstack-chat",
+    },
+    {
+      "binding": "STARTER",
+      "service": "tanstack-starter",
     },
   ],
 }

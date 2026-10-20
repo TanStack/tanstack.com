@@ -34,6 +34,7 @@ type ShopBrowseSearch = v.InferOutput<typeof shopBrowseSearchSchema>
 type ValidSortId = NonNullable<ShopBrowseSearch['sort']>
 
 const PAGE_SIZE = 24
+const TWO_WEEKS_MS = 14 * 24 * 60 * 60 * 1000
 
 export async function loadShopBrowsePage(sort: ShopBrowseSearch['sort']) {
   const sortOption = resolveSortOption(sort)
@@ -116,19 +117,7 @@ export function ShopBrowsePage({
     [page.nodes, accumulated],
   )
 
-  const newestProduct = allProducts.reduce<ProductListItem | null>(
-    (newest, product) => {
-      if (!product.publishedAt) return newest
-      if (
-        !newest?.publishedAt ||
-        new Date(product.publishedAt) > new Date(newest.publishedAt)
-      ) {
-        return product
-      }
-      return newest
-    },
-    null,
-  )
+  const newProductCutoff = Date.now() - TWO_WEEKS_MS
 
   const typeOptions = React.useMemo(() => {
     const counts = new Map<string, { display: string; count: number }>()
@@ -221,7 +210,10 @@ export function ShopBrowsePage({
                 <ProductCard
                   key={product.id}
                   product={product}
-                  isNew={product.id === newestProduct?.id}
+                  isNew={
+                    product.publishedAt !== null &&
+                    new Date(product.publishedAt).getTime() >= newProductCutoff
+                  }
                   loading={i < 8 ? 'eager' : 'lazy'}
                   onQuickView={onProductSelect}
                 />

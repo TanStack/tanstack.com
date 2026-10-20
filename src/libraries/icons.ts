@@ -1,26 +1,24 @@
-import {
-  BrainIcon,
-  ChartLineUpIcon,
-  ClipboardTextIcon,
-  CrosshairIcon,
-  DatabaseIcon,
-  DresserIcon,
-  GearSixIcon,
-  GogglesIcon,
-  HighlighterIcon,
-  MarkdownLogoIcon,
-  PencilRulerIcon,
-  SealQuestionIcon,
-  SlidersIcon,
-  SmileyMeltingIcon,
-  SunHorizonIcon,
-  TableIcon,
-  TargetIcon,
-  TerminalWindowIcon,
-  TimerIcon,
-  TrafficSignIcon,
-  type Icon,
-} from '@phosphor-icons/react'
+import { BrainIcon } from '@phosphor-icons/react/Brain'
+import { ChartLineUpIcon } from '@phosphor-icons/react/ChartLineUp'
+import { ClipboardTextIcon } from '@phosphor-icons/react/ClipboardText'
+import { CrosshairIcon } from '@phosphor-icons/react/Crosshair'
+import { DatabaseIcon } from '@phosphor-icons/react/Database'
+import { DresserIcon } from '@phosphor-icons/react/Dresser'
+import { GearSixIcon } from '@phosphor-icons/react/GearSix'
+import { GogglesIcon } from '@phosphor-icons/react/Goggles'
+import { HighlighterIcon } from '@phosphor-icons/react/Highlighter'
+import { MarkdownLogoIcon } from '@phosphor-icons/react/MarkdownLogo'
+import { PencilRulerIcon } from '@phosphor-icons/react/PencilRuler'
+import { SealQuestionIcon } from '@phosphor-icons/react/SealQuestion'
+import { SlidersIcon } from '@phosphor-icons/react/Sliders'
+import { SmileyMeltingIcon } from '@phosphor-icons/react/SmileyMelting'
+import { SunHorizonIcon } from '@phosphor-icons/react/SunHorizon'
+import { TableIcon } from '@phosphor-icons/react/Table'
+import { TargetIcon } from '@phosphor-icons/react/Target'
+import { TerminalWindowIcon } from '@phosphor-icons/react/TerminalWindow'
+import { TimerIcon } from '@phosphor-icons/react/Timer'
+import { TrafficSignIcon } from '@phosphor-icons/react/TrafficSign'
+import type { Icon } from '@phosphor-icons/react'
 
 /**
  * Canonical per-library icon map — the single source of truth shared by the

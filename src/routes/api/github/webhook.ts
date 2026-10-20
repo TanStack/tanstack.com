@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { isWatchedDocsWebhookSource } from "~/utils/docs-webhook-sources";
-import { chartsCatalogPublicationCacheTag } from "~/utils/charts-catalog";
 import {
   isRecord,
   jsonError,
@@ -80,11 +79,13 @@ export const Route = createFileRoute("/api/github/webhook")({
           { env },
           { libraries },
           { purgeHostingCacheTags },
+          { scheduleHostRuntimeTask },
         ] = await Promise.all([
           import("~/utils/github-content-cache.server"),
           import("~/utils/env"),
           import("~/libraries"),
           import("~/utils/hosting-cache.server"),
+          import("~/server/runtime/host.server"),
         ]);
         const bodyResult = await readTextBody(request, MAX_GITHUB_WEBHOOK_BYTES);
         if (!bodyResult.success) {
@@ -155,16 +156,8 @@ export const Route = createFileRoute("/api/github/webhook")({
           ),
         );
 
-        const [staleContentCount, staleArtifactCount] = await Promise.all([
-          markGitHubContentStale({ repo, gitRef }),
-          markDocsArtifactsStale({ repo, gitRef }),
-        ]);
-
         const tags = [
           `docs-config:${repo}:${gitRef}`,
-          ...(repo === "tanstack/charts" && gitRef === "catalog-dist"
-            ? [chartsCatalogPublicationCacheTag]
-            : []),
           ...libraries
             .filter(
               (library) =>
@@ -173,7 +166,39 @@ export const Route = createFileRoute("/api/github/webhook")({
             .map((library) => `docs:${library.id}:branch:${gitRef}`),
         ];
 
-        const purge = await purgeHostingCacheTags(tags);
+        const invalidate = async () => {
+          const [staleContentCount, staleArtifactCount] = await Promise.all([
+            markGitHubContentStale({ repo, gitRef }),
+            markDocsArtifactsStale({ repo, gitRef }),
+          ]);
+          const purge = await purgeHostingCacheTags(tags);
+
+          return { purge, staleArtifactCount, staleContentCount };
+        };
+
+        if (
+          scheduleHostRuntimeTask(async () => {
+            try {
+              await invalidate();
+            } catch (error) {
+              console.error("[GitHub webhook] cache invalidation failed", {
+                error,
+                gitRef,
+                repo,
+              });
+            }
+          })
+        ) {
+          return jsonResponse({
+            ok: true,
+            gitRef,
+            changedPathCount: changedPaths.length,
+            scheduled: true,
+          });
+        }
+
+        const { purge, staleArtifactCount, staleContentCount } =
+          await invalidate();
 
         return jsonResponse({
           ok: true,

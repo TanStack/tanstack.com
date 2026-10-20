@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { googleAnalyticsProvider } from './analytics/providers/google'
+import { scarfAnalyticsProvider } from './analytics/scarf'
 import type {
   AnalyticsEventName,
   AnalyticsEventProps,
@@ -10,16 +11,16 @@ export type {
   AnalyticsEvent,
   AnalyticsEventName,
   AnalyticsEventProps,
-  BuilderAction,
-  BuilderFailureStage,
-  BuilderMode,
-  BuilderSessionContext,
-  BuilderSurface,
+  ApplicationStarterAction,
+  ApplicationStarterFailureStage,
+  ApplicationStarterMode,
+  ApplicationStarterSessionContext,
+  ApplicationStarterSurface,
   PartnerClickDestination,
   PartnerFilterChange,
   PartnerPlacement,
 } from './analytics/events'
-export { defaultBuilderSessionContext } from './analytics/events'
+export { defaultApplicationStarterSessionContext } from './analytics/events'
 
 interface ImpressionOptions<TName extends AnalyticsEventName> {
   enabled?: boolean
@@ -120,7 +121,7 @@ function buildEventPayload(props: object): EventPayload {
   return payload
 }
 
-const analyticsProviders = [googleAnalyticsProvider]
+const analyticsProviders = [googleAnalyticsProvider, scarfAnalyticsProvider]
 
 /**
  * Track an analytics event. Type-safe — the event name determines which

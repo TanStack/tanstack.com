@@ -1,26 +1,24 @@
 import { createFileRoute, notFound } from '@tanstack/react-router'
-import { ChartsCatalogDetail } from '~/components/charts/ChartsCatalogPages'
 import {
-  parseChartsCatalogRouteSearch,
-  validateChartsCatalogRouteSearch,
-} from '~/utils/charts-catalog'
+  ChartsCatalogDetail,
+  ChartsCatalogDetailPending,
+} from '~/components/charts/ChartsCatalogPages'
 import { getChartsCatalogCase } from '~/utils/charts-catalog.functions'
 import { seo } from '~/utils/seo'
 
 export const Route = createFileRoute('/_library/charts/catalog/charts/$caseId')(
   {
-    validateSearch: validateChartsCatalogRouteSearch,
-    loaderDeps: ({ search }) => parseChartsCatalogRouteSearch(search),
-    loader: async ({ deps, params }) => {
+    loader: async ({ params }) => {
       const data = await getChartsCatalogCase({
         data: {
           caseId: params.caseId,
-          ...deps,
         },
       })
       if (!data) throw notFound()
       return data
     },
+    pendingComponent: ChartsCatalogDetailPending,
+    pendingMs: 250,
     component: ChartsCatalogCaseRoute,
     head: ({ loaderData }) => ({
       meta: seo({
@@ -35,10 +33,5 @@ export const Route = createFileRoute('/_library/charts/catalog/charts/$caseId')(
 
 function ChartsCatalogCaseRoute() {
   const data = Route.useLoaderData()
-  return (
-    <ChartsCatalogDetail
-      artifactRevision={data.artifactRevision}
-      catalogCase={data.case}
-    />
-  )
+  return <ChartsCatalogDetail catalogCase={data.case} />
 }

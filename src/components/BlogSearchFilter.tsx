@@ -17,7 +17,7 @@ export function BlogSearchFilter({
   return (
     <div className={twMerge('relative w-full', className)}>
       <MagnifyingGlassIcon
-        className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500 dark:text-gray-400"
+        className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted"
         aria-hidden="true"
       />
       <input
@@ -27,8 +27,8 @@ export function BlogSearchFilter({
         onChange={(event) => onChange(event.currentTarget.value)}
         placeholder="Search posts..."
         className={twMerge(
-          'w-full rounded-md border border-gray-500/20 bg-transparent py-1.5 pl-8 pr-2 text-sm transition-colors',
-          'placeholder:text-gray-500 dark:placeholder:text-gray-400',
+          'w-full rounded-md border border-border-subtle bg-transparent py-1.5 pl-8 pr-2 text-sm transition-colors',
+          'placeholder:text-text-muted',
           'focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500',
         )}
       />

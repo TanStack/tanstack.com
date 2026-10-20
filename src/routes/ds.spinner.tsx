@@ -7,18 +7,16 @@ export const Route = createFileRoute('/ds/spinner')({
   component: SpinnerPage,
   head: () => ({
     meta: seo({
-      title: 'Spinner | TanStack Design System',
-      description: 'The Spinner loading indicator.',
+      title: 'Spinners | TanStack Design System',
+      description:
+        'Spinner and Headbanger loading indicators, sizing, colors, and source code.',
     }),
   }),
 })
 
 function SpinnerPage() {
   return (
-    <DsPage
-      title="Spinners"
-      description="A collection of TanStack spinners produced by us for the community."
-    >
+    <DsPage title="Spinners">
       <DsSection
         title="Spinner"
         description={
@@ -56,7 +54,7 @@ function SpinnerPage() {
         title="Headbanger"
         description={
           <>
-            A branded pixel-art loader — a 12-frame sprite animation on a
+            A branded pixel-art loader with a 12-frame sprite animation on a
             canvas. Multi-color by design (it does not inherit currentColor);
             size it with w-/h- utilities. Holds on the first frame when
             prefers-reduced-motion is set.

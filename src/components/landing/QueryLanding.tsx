@@ -1,11 +1,103 @@
+import * as React from 'react'
 import {
+  useIsFetching,
+  useMutation,
+  useQueries,
+  useQueryClient,
+} from '@tanstack/react-query'
+import {
+  ArrowsClockwiseIcon,
   EyeClosedIcon,
   KeyIcon,
   LightningIcon,
+  PlusIcon,
   SkullIcon,
 } from '@phosphor-icons/react'
 
+import { useToast } from '~/components/ToastProvider'
+import { useInView } from '~/hooks/useInView'
+import { usePrefersReducedMotion } from '~/utils/usePrefersReducedMotion'
 import { LibraryLanding, type LibraryLandingConfig } from './LibraryLanding'
+
+type QueryHeroIssue = {
+  priority: number
+  revision: number
+  title: string
+}
+
+type QueryHeroMutationContext = {
+  optimistic?: QueryHeroIssue
+  previous?: QueryHeroIssue
+}
+
+type QueryHeroRow = {
+  id: string
+  refetchInterval: number
+  seed: QueryHeroIssue
+  staleTime: number
+}
+
+// Each row is its own cache entry with its own `staleTime`, so the three gauges
+// drain at different rates and go stale independently. The values are evenly
+// spaced, and each `refetchInterval` sits past its own `staleTime` so every row
+// spends a visible stretch stale before it refetches.
+const queryHeroRows = [
+  {
+    id: 'router-cache',
+    staleTime: 4000,
+    refetchInterval: 6000,
+    seed: { priority: 0, revision: 0, title: 'Router dashboard' },
+  },
+  {
+    id: 'project-detail',
+    staleTime: 8000,
+    refetchInterval: 10000,
+    seed: { priority: 0, revision: 0, title: 'Project detail' },
+  },
+  {
+    id: 'offline-queue',
+    staleTime: 12000,
+    refetchInterval: 14000,
+    seed: { priority: 0, revision: 0, title: 'Offline mutation queue' },
+  },
+] satisfies readonly [QueryHeroRow, ...QueryHeroRow[]]
+
+const queryHeroKey = (id: string) => ['issues', id] as const
+
+// How long a written row takes to sweep back up to its freshness value.
+const queryHeroRefillMs = 500
+
+// Shared so the optimistic write and the server-side one cannot drift apart.
+// Wraps instead of clamping so repeated bumps always visibly move.
+function bumpQueryHeroIssue(issue: QueryHeroIssue): QueryHeroIssue {
+  return {
+    ...issue,
+    priority: issue.priority >= 99 ? 0 : issue.priority + 1,
+    revision: issue.revision + 1,
+  }
+}
+
+type QueryHeroState = 'fetching' | 'fresh' | 'stale'
+
+const queryHeroStateClass: Record<QueryHeroState, string> = {
+  fetching: 'bg-amber-400 text-amber-950',
+  fresh: 'bg-emerald-500 text-emerald-950',
+  stale: 'bg-[var(--landing-accent)] text-[var(--landing-accent-ink)]',
+}
+
+function queryHeroState(query: {
+  isFetching: boolean
+  isStale: boolean
+}): QueryHeroState {
+  if (query.isFetching) return 'fetching'
+  return query.isStale ? 'stale' : 'fresh'
+}
+
+function waitForQueryHero(ms: number) {
+  return new Promise<void>((resolve) => {
+    setTimeout(resolve, ms)
+  })
+}
 
 const queryLanding = {
   libraryId: 'query',
@@ -115,5 +207,331 @@ const queryLanding = {
 } satisfies LibraryLandingConfig
 
 export default function QueryLanding() {
-  return <LibraryLanding config={queryLanding} />
+  return (
+    <LibraryLanding
+      config={{ ...queryLanding, heroRender: <QueryCachePanel /> }}
+    />
+  )
+}
+
+function QueryCachePanel() {
+  const prefersReducedMotion = usePrefersReducedMotion()
+  const queryClient = useQueryClient()
+  const { notify } = useToast()
+  const rootRef = React.useRef<HTMLDivElement>(null)
+  const inView = useInView(rootRef)
+  const serverRowsRef = React.useRef<Record<string, QueryHeroIssue>>(
+    Object.fromEntries(queryHeroRows.map((row) => [row.id, { ...row.seed }])),
+  )
+  const bumpAttemptRef = React.useRef(0)
+  const gaugeRef = React.useRef<
+    Record<string, { from: number; shown: number; writtenAt: number }>
+  >({})
+  // Starts paused so the server render matches the first client render; the
+  // effect below turns it on unless the visitor asked for reduced motion.
+  const [isLive, setIsLive] = React.useState(false)
+  // `0` keeps `Date.now()` out of the first render so SSR and hydration agree.
+  const [now, setNow] = React.useState(0)
+  const [selectedId, setSelectedId] = React.useState<string>(
+    queryHeroRows[0].id,
+  )
+
+  const rowQueries = useQueries({
+    queries: queryHeroRows.map((row) => ({
+      queryKey: queryHeroKey(row.id),
+      queryFn: async (): Promise<QueryHeroIssue> => {
+        await waitForQueryHero(620)
+        return serverRowsRef.current[row.id]!
+      },
+      initialData: row.seed,
+      initialDataUpdatedAt: 0,
+      refetchInterval: isLive ? row.refetchInterval : false,
+      staleTime: row.staleTime,
+    })),
+  })
+
+  const fetchingCount = useIsFetching({ queryKey: ['issues'] })
+
+  const bumpMutation = useMutation<
+    QueryHeroIssue,
+    Error,
+    string,
+    QueryHeroMutationContext
+  >({
+    mutationFn: async (id) => {
+      await waitForQueryHero(720)
+      // Every third write fails on purpose, so the optimistic update visibly
+      // rolls back instead of the rollback path being unreachable code.
+      bumpAttemptRef.current += 1
+      if (bumpAttemptRef.current % 3 === 0) {
+        throw new Error('Write rejected by the server')
+      }
+
+      const next = bumpQueryHeroIssue(serverRowsRef.current[id]!)
+      serverRowsRef.current[id] = next
+
+      return next
+    },
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: queryHeroKey(id) })
+      const previous = queryClient.getQueryData<QueryHeroIssue>(
+        queryHeroKey(id),
+      )
+
+      const optimistic = previous ? bumpQueryHeroIssue(previous) : undefined
+
+      if (optimistic) {
+        queryClient.setQueryData<QueryHeroIssue>(queryHeroKey(id), optimistic)
+      }
+
+      return { optimistic, previous }
+    },
+    onError: (_error, id, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData<QueryHeroIssue>(
+          queryHeroKey(id),
+          context.previous,
+        )
+      }
+      // A fixed id keeps repeated failures from stacking up toasts.
+      notify(
+        context?.previous && context.optimistic
+          ? `Demo: every third write fails. Rolled ['issues', '${id}'] back from P${context.optimistic.priority} to P${context.previous.priority}.`
+          : `Demo: every third write fails. Rolled ['issues', '${id}'] back.`,
+        { id: 'query-landing-rollback' },
+      )
+    },
+    onSettled: (_data, _error, id) =>
+      queryClient.invalidateQueries({ queryKey: queryHeroKey(id) }),
+  })
+
+  const rows = queryHeroRows.map((row, index) => {
+    const query = rowQueries[index]
+    const elapsed = Math.max(0, now - query.dataUpdatedAt)
+    const drained = Math.max(
+      0,
+      Math.min(100, (1 - elapsed / row.staleTime) * 100),
+    )
+    // A cache write sweeps the bar from wherever it stood up to the freshness
+    // the entry actually has. Anchoring the sweep to the last painted value
+    // keeps a mid-drain write from collapsing the bar before it climbs again.
+    const gauge = (gaugeRef.current[row.id] ??= {
+      from: 0,
+      shown: 0,
+      writtenAt: query.dataUpdatedAt,
+    })
+    if (gauge.writtenAt !== query.dataUpdatedAt) {
+      gauge.from = gauge.shown
+      gauge.writtenAt = query.dataUpdatedAt
+    }
+    const sweep = Math.min(1, elapsed / queryHeroRefillMs)
+    const freshness = gauge.from + (drained - gauge.from) * sweep
+    gauge.shown = freshness
+    return {
+      ...row,
+      query,
+      issue: query.data,
+      state: queryHeroState(query),
+      observers:
+        queryClient
+          .getQueryCache()
+          .find({ queryKey: queryHeroKey(row.id) })
+          ?.getObserversCount() ?? 0,
+      // Kept fractional so per-frame movement is not rounded away.
+      freshness:
+        query.dataUpdatedAt > 0 ? Math.round(freshness * 10) / 10 : 100,
+    }
+  })
+  const selected = rows.find((row) => row.id === selectedId) ?? rows[0]
+  const freshCount = rows.filter((row) => row.state === 'fresh').length
+  const cacheState =
+    fetchingCount > 0 ? 'fetching' : freshCount > 0 ? 'fresh' : 'stale'
+  // Under reduced motion `now` only ticks once a second, so it can trail a
+  // just-refetched `dataUpdatedAt`; clamping keeps the readout non-negative.
+  const fetchedLabel =
+    selected.query.dataUpdatedAt > 0
+      ? `${Math.max(0, Math.round((now - selected.query.dataUpdatedAt) / 1000))}s ago`
+      : 'primed'
+
+  React.useEffect(() => {
+    if (prefersReducedMotion === null) return
+
+    setIsLive(prefersReducedMotion === false)
+  }, [prefersReducedMotion])
+
+  // Per-frame rather than per-second: the gauges interpolate here instead of
+  // through a CSS transition, so their drain rate tracks elapsed time exactly.
+  React.useEffect(() => {
+    if (!inView) return
+
+    if (prefersReducedMotion === true) {
+      setNow(Date.now())
+      const id = setInterval(() => setNow(Date.now()), 1000)
+      return () => clearInterval(id)
+    }
+
+    let frame = 0
+    const tick = () => {
+      setNow(Date.now())
+      frame = requestAnimationFrame(tick)
+    }
+
+    tick()
+    return () => cancelAnimationFrame(frame)
+  }, [inView, prefersReducedMotion])
+
+  return (
+    <div
+      ref={rootRef}
+      className="library-landing-graphic min-w-0 overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.45)] bg-background-surface shadow-[0_24px_70px_-28px_rgb(var(--landing-glow)/0.45)] dark:shadow-[inset_-3px_-4px_18px_-7px_var(--landing-accent),0_24px_70px_rgb(0_0_0/0.18)]"
+    >
+      <div className="flex items-center justify-between border-b border-border-subtle px-4 py-3">
+        <div aria-hidden="true" className="flex gap-1.5">
+          <span className="size-2.5 rounded-full bg-[#ff5f57]" />
+          <span className="size-2.5 rounded-full bg-[#febc2e]" />
+          <span className="size-2.5 rounded-full bg-[#28c840]" />
+        </div>
+        <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/65">
+          {queryLanding.hero.label}
+        </span>
+      </div>
+
+      <div className="grid lg:grid-cols-[1.08fr_0.82fr]">
+        <div className="flex min-w-0 flex-col gap-3 border-border-subtle p-5 lg:border-r">
+          <div className="flex flex-wrap items-center gap-2 font-ds-mono text-ds-mono-caps-xs uppercase">
+            <span
+              className={`rounded-sm px-2 py-1 ${queryHeroStateClass[cacheState]}`}
+            >
+              {cacheState}
+            </span>
+            <span className="rounded-sm bg-text-primary/5 px-2 py-1 text-text-primary/35">
+              {freshCount}/{rows.length} fresh
+            </span>
+          </div>
+
+          {rows.map((row) => (
+            <button
+              key={row.id}
+              type="button"
+              aria-pressed={row.id === selected.id}
+              className="flex flex-1 flex-col rounded-lg border border-transparent bg-background-subtle p-4 text-left transition-colors hover:border-text-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[color:rgb(var(--landing-glow)/0.42)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.1)]"
+              onClick={() => setSelectedId(row.id)}
+            >
+              <span className="flex items-start justify-between gap-4">
+                <span className="min-w-0">
+                  <span className="block truncate font-ds-mono text-ds-mono-xs text-text-primary">
+                    ['issues', '{row.id}']
+                  </span>
+                  <span className="mt-1 block text-ds-body-xs text-text-primary/45">
+                    {row.issue.title}
+                  </span>
+                </span>
+                <span className="flex shrink-0 items-center gap-1.5">
+                  <span
+                    className={`rounded px-2 py-1 font-ds-mono text-ds-mono-2xs uppercase ${queryHeroStateClass[row.state]}`}
+                  >
+                    {row.state}
+                  </span>
+                  <span className="rounded bg-[var(--landing-accent)] px-2 py-1 font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-ink)]">
+                    P{row.issue.priority}
+                  </span>
+                </span>
+              </span>
+              <span className="mt-4 flex items-center gap-3">
+                <span className="h-1 flex-1 overflow-hidden rounded-full bg-text-primary/5">
+                  <span
+                    className="block h-full rounded-full bg-[var(--landing-accent)]"
+                    style={{ width: `${row.freshness}%` }}
+                  />
+                </span>
+                <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/35">
+                  {row.staleTime / 1000}s stale
+                </span>
+              </span>
+            </button>
+          ))}
+        </div>
+
+        <div className="flex min-w-0 flex-col p-5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <button
+              type="button"
+              aria-pressed={isLive}
+              className="rounded-md bg-[#ff5f5f] px-3 py-2 text-ds-label-sm text-white transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              onClick={() => setIsLive((current) => !current)}
+            >
+              Live {isLive ? 'on' : 'off'}
+            </button>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                aria-label="Refetch"
+                title="Refetch"
+                className="inline-flex items-center rounded-md border border-border-subtle px-3 py-2 text-text-primary/70 transition-colors hover:border-border-default hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
+                onClick={() => selected.query.refetch()}
+              >
+                <ArrowsClockwiseIcon
+                  aria-hidden="true"
+                  size={14}
+                  weight="bold"
+                  className={
+                    selected.query.isFetching
+                      ? 'animate-spin motion-reduce:animate-none'
+                      : ''
+                  }
+                />
+              </button>
+              <button
+                type="button"
+                disabled={bumpMutation.isPending}
+                className="inline-flex items-center gap-1.5 rounded-md bg-[#ff5f5f] px-3 py-2 text-ds-label-sm text-white transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white disabled:cursor-wait disabled:opacity-70"
+                onClick={() => bumpMutation.mutate(selected.id)}
+              >
+                <PlusIcon aria-hidden="true" size={13} weight="bold" />
+                Bump priority
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-7" aria-live="polite">
+            <p className="text-ds-heading-4">{queryLanding.hero.detailTitle}</p>
+            <p className="mt-2 truncate font-ds-mono text-ds-mono-xs text-[var(--landing-accent-bright)]">
+              ['issues', '{selected.id}']
+            </p>
+            <p className="mt-4 text-ds-body-sm text-text-primary/55">
+              {queryLanding.hero.detailBody}
+            </p>
+          </div>
+
+          <dl className="mt-7 space-y-2 rounded-lg bg-background-subtle p-4 text-ds-body-xs">
+            {[
+              { label: 'status', value: selected.query.status },
+              { label: 'fetchStatus', value: selected.query.fetchStatus },
+              {
+                label: 'isStale',
+                value: String(selected.query.isStale),
+              },
+              {
+                label: 'observers',
+                value: String(selected.observers),
+              },
+              {
+                label: 'staleTime',
+                value: selected.staleTime.toLocaleString('en-US'),
+              },
+              { label: 'updated', value: fetchedLabel },
+              { label: 'mutation', value: bumpMutation.status },
+            ].map((fact) => (
+              <div key={fact.label} className="flex justify-between gap-3">
+                <dt className="text-text-primary/45">{fact.label}</dt>
+                <dd className="text-right font-ds-mono text-ds-mono-xs text-text-primary/85">
+                  {fact.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </div>
+    </div>
+  )
 }

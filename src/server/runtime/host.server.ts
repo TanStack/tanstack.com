@@ -1,4 +1,5 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
+import { retainDatabaseContext } from '~/db/client'
 
 type StaticAssetService = {
   fetch: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>
@@ -13,6 +14,7 @@ type HostRuntimeEnv = Record<string, unknown> & {
     connectionString: string
   }
   NPM_DOWNLOAD_CACHE?: unknown
+  BUILDER_PROJECTS?: unknown
 }
 
 type HostRuntimeModule = {
@@ -94,7 +96,7 @@ export function scheduleHostRuntimeTask(createTask: () => Promise<unknown>) {
     return false
   }
 
-  context.waitUntil(createTask())
+  context.waitUntil(retainDatabaseContext(createTask()))
   return true
 }
 

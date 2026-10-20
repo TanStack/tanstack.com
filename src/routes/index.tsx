@@ -9,10 +9,9 @@ import {
   StackIcon,
   ShieldIcon,
   LightningIcon,
-  PauseIcon,
-  PlayIcon,
   type Icon,
 } from '@phosphor-icons/react'
+import { HeroPalmMedia } from '~/components/home/HeroPalmMedia'
 import { HomeApplicationStarter } from '~/components/home/HomeApplicationStarter'
 import { HomeCommunitySection } from '~/components/home/HomeCommunitySection'
 import { HomeNewsletterSection } from '~/components/home/HomeNewsletterSection'
@@ -20,11 +19,15 @@ import { HomeSocialProofSection } from '~/components/home/HomeSocialProofSection
 import { HomeStatsSection } from '~/components/home/HomeStatsSection'
 import { useQuery } from '@tanstack/react-query'
 import { Button, Eyebrow } from '~/components/ds/ui'
+import { Scarf } from '~/components/Scarf'
+import { useInView } from '~/hooks/useInView'
 import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
 import { homepageNpmStatsSummaryQuery, ossStatsQuery } from '~/queries/stats'
 import { useLibrariesOverlay } from '~/contexts/LibrariesOverlayContext'
 import { fetchRecentPosts } from '~/utils/blog.functions'
+import { usePrefersReducedMotion } from '~/utils/usePrefersReducedMotion'
 import { seo } from '~/utils/seo'
+import { getTanStackHomepageJsonLd } from '~/utils/organization-structured-data'
 
 export const Route = createFileRoute('/')({
   loader: async ({ context: { queryClient } }) => {
@@ -42,6 +45,12 @@ export const Route = createFileRoute('/')({
       description:
         'Headless, type-safe, composable tools for building modern web applications that work naturally for developers and reliably for agents.',
     }),
+    scripts: [
+      {
+        type: 'application/ld+json',
+        children: JSON.stringify(getTanStackHomepageJsonLd()),
+      },
+    ],
   }),
   component: Index,
 })
@@ -65,14 +74,17 @@ function Index() {
 
   return (
     <>
-      <div className="max-w-full z-10 space-y-24">
+      <Scarf id="b7a8c111-2305-4d95-a02a-d84c5bfb82ae" path="/" />
+      <main className="max-w-full z-10 space-y-24">
         <div className="space-y-8">
           {/* Hero — Figma node 802:2027. Full-bleed palm/gradient photo card:
               headline bottom-left, description + CTA bottom-right. The photo is
               always light, so text uses a mode-stable dark token (neutral-500)
               rather than a theme-flipping semantic. */}
           <div className="mx-0 rounded-none bg-background-subtle p-0 sm:mx-2 sm:rounded-2xl sm:p-1">
-            <div className="group relative isolate flex h-[calc(100dvh-var(--navbar-height))] max-h-[720px] min-h-[560px] flex-col justify-between gap-8 overflow-hidden rounded-none px-6 py-10 [text-shadow:0_2px_8px_rgb(255_255_255/0.2)] sm:rounded-xl sm:px-10 md:flex-row md:items-end md:justify-between md:gap-8 md:[text-shadow:none] xl:gap-12 xl:px-16 xl:py-16">
+            {/* `svh`, not `dvh` — the dynamic viewport grows as iOS collapses
+                the URL bar mid-scroll, visibly stretching the hero. */}
+            <div className="group relative isolate flex h-[calc(100svh-var(--navbar-height))] max-h-[720px] min-h-[560px] flex-col justify-between gap-8 overflow-hidden rounded-none px-6 py-10 [text-shadow:0_2px_8px_rgb(255_255_255/0.2)] sm:rounded-xl sm:px-10 md:flex-row md:items-end md:justify-between md:gap-8 md:[text-shadow:none] xl:gap-12 xl:px-16 xl:py-16">
               {/* The parent supplies the 4px frame shared by the hero and stats.
                   This wrapper clips the image to the inner radius so the <img>
                   fills it exactly instead of overflowing. Plain <img> (not OptimizedImage):
@@ -88,12 +100,15 @@ function Index() {
                 <br className="hidden md:block" /> for the web
               </h1>
               <div className="flex flex-col items-start gap-6 md:w-[29%] md:max-w-[454px]">
-                <p className="text-ds-body-md text-ds-neutral-500 md:text-ds-body-lg xl:text-ds-body-xl">
+                <p className="hidden text-ds-body-md text-ds-neutral-500 md:block md:text-ds-body-lg xl:text-ds-body-xl">
                   Headless, type-safe, composable tools for building modern web
                   applications that work naturally for developers and reliably
                   for agents
                 </p>
-                <div className="flex flex-wrap items-center gap-2">
+                {/* The photo is always light, so scope the CTAs to the DS
+                    light mode — the Buttons then render as their standard DS
+                    light-mode selves (no per-button color overrides). */}
+                <div className="ds-mode-light flex flex-wrap items-center gap-2">
                   <Button
                     type="button"
                     onClick={() => openLibraries()}
@@ -102,16 +117,12 @@ function Index() {
                   >
                     Browse the Stack
                   </Button>
-                  {/* Link-style button; color pinned to black because the photo
-                      is always light. The responsive override supersedes the
-                      link variant's mobile emphasis color. */}
                   <Button
                     as="a"
                     href="#start-with-a-prompt"
                     onClick={startWithPrompt}
                     variant="link"
                     size="md"
-                    className="text-black hover:text-black max-[899px]:text-black"
                   >
                     Start with a prompt <ArrowRightIcon className="h-4 w-4" />
                   </Button>
@@ -138,89 +149,7 @@ function Index() {
 
         <div className="h-4" />
         <HomeNewsletterSection />
-      </div>
-    </>
-  )
-}
-
-function HeroPalmMedia() {
-  const videoRef = React.useRef<HTMLVideoElement>(null)
-  const [isPlaying, setIsPlaying] = React.useState(true)
-
-  React.useEffect(() => {
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
-
-    const syncMotionPreference = () => {
-      if (reducedMotion.matches) {
-        videoRef.current?.pause()
-      }
-    }
-
-    syncMotionPreference()
-    reducedMotion.addEventListener('change', syncMotionPreference)
-    return () =>
-      reducedMotion.removeEventListener('change', syncMotionPreference)
-  }, [])
-
-  const togglePlayback = () => {
-    const video = videoRef.current
-    if (!video) return
-
-    if (video.paused) {
-      void video.play()
-    } else {
-      video.pause()
-    }
-  }
-
-  return (
-    <>
-      <div
-        aria-hidden
-        className="absolute inset-0 -z-10 overflow-hidden rounded-xl [corner-shape:squircle]"
-      >
-        <picture className="contents">
-          <source
-            type="image/webp"
-            srcSet="/images/hero-palm-gradient-960.webp 960w, /images/hero-palm-gradient-1600.webp 1600w, /images/hero-palm-gradient-2400.webp 2400w"
-            sizes="100vw"
-          />
-          <img
-            src="/images/hero-palm-gradient.jpg"
-            alt=""
-            width={2400}
-            height={1600}
-            loading="eager"
-            fetchPriority="high"
-            className="h-full w-full object-cover object-center"
-          />
-        </picture>
-        <video
-          ref={videoRef}
-          autoPlay
-          loop
-          muted
-          playsInline
-          poster="/images/hero-palm-gradient.jpg"
-          onPause={() => setIsPlaying(false)}
-          onPlay={() => setIsPlaying(true)}
-          className="absolute inset-0 h-full w-full object-cover object-center motion-reduce:hidden"
-        >
-          <source src="/images/hero-palm-motion.mp4" type="video/mp4" />
-        </video>
-      </div>
-      <button
-        type="button"
-        onClick={togglePlayback}
-        aria-label={isPlaying ? 'Pause hero animation' : 'Play hero animation'}
-        className="absolute right-4 top-4 z-20 grid size-8 place-items-center rounded-full bg-ds-neutral-500/65 text-white opacity-0 backdrop-blur-sm transition-opacity hover:bg-ds-neutral-500/80 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white group-hover:opacity-100 motion-reduce:hidden"
-      >
-        {isPlaying ? (
-          <PauseIcon className="size-4" weight="fill" />
-        ) : (
-          <PlayIcon className="size-4" weight="fill" />
-        )}
-      </button>
+      </main>
     </>
   )
 }
@@ -475,7 +404,7 @@ function WhyTanStackSection() {
       <div className="mx-auto max-w-[960px] py-16 lg:py-20">
         {/* section-header — 478:1737 */}
         <div className="flex flex-col items-center gap-12 text-center">
-          <Eyebrow className="text-text-warning">Principles</Eyebrow>
+          <Eyebrow tone="warning">Principles</Eyebrow>
           <div className="flex flex-col items-center gap-4">
             <h3 className="text-4xl font-[500] leading-[1.05] tracking-[-0.8px] sm:text-5xl lg:text-[64px]">
               Why TanStack?
@@ -488,7 +417,7 @@ function WhyTanStackSection() {
         </div>
 
         {/* features-stack — 478:1742 */}
-        <ol className="mt-12 rounded-[20px]">
+        <ol className="mt-2 rounded-[20px]">
           {whyTanStackPrinciples.map((principle, index) => (
             <li
               key={principle.title}
@@ -566,8 +495,13 @@ function FrameworkAdapterGraph({
 }) {
   const [activeAdapterIndex, setActiveAdapterIndex] = React.useState(0)
   const [flowProgress, setFlowProgress] = React.useState(0)
+  const rootRef = React.useRef<HTMLDivElement>(null)
+  const isVisible = useInView(rootRef)
+  const prefersReducedMotion = usePrefersReducedMotion()
 
   React.useEffect(() => {
+    if (!isVisible || prefersReducedMotion !== false) return
+
     const intervalId = window.setInterval(() => {
       setActiveAdapterIndex(
         (currentIndex) => (currentIndex + 1) % frameworkAdapterNodes.length,
@@ -575,12 +509,10 @@ function FrameworkAdapterGraph({
     }, 1150)
 
     return () => window.clearInterval(intervalId)
-  }, [])
+  }, [isVisible, prefersReducedMotion])
 
   React.useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      return
-    }
+    if (!isVisible || prefersReducedMotion !== false) return
 
     let frameId = 0
     let lastUpdate = 0
@@ -598,107 +530,116 @@ function FrameworkAdapterGraph({
     frameId = window.requestAnimationFrame(update)
 
     return () => window.cancelAnimationFrame(frameId)
-  }, [])
+  }, [isVisible, prefersReducedMotion])
 
   return (
     // The node positions below are hard-coded against a 320×128 grid
-    // (adapterGraphWidth/Height), so the whole graph is scaled as a unit to
-    // fill the 460×233 slot rather than re-deriving every coordinate.
-    <div
-      aria-hidden="true"
-      className="relative h-32 w-[320px] shrink-0 scale-[1.35] font-mono text-[10px] font-bold"
-    >
-      <div className="home-adapter-graph absolute inset-x-0 top-1 h-[7.5rem] overflow-visible">
-        {frameworkAdapterNodes.map((adapter, adapterIndex) => {
-          const isActive = activeAdapterIndex === adapterIndex
+    // (adapterGraphWidth/Height), so the whole graph is scaled as a unit rather
+    // than re-deriving every coordinate. The scale tracks the wrapper's own
+    // width, so the graph fills whatever slot it lands in without restating the
+    // ancestors' padding. The 1.35 cap is the ratio the fixed 460px `lg` slot
+    // was designed around.
+    <div className="@container flex w-full justify-center">
+      <div
+        ref={rootRef}
+        aria-hidden="true"
+        style={{
+          transform: 'scale(clamp(0.75, calc(100cqw / 320px), 1.35))',
+        }}
+        className="relative h-32 w-[320px] shrink-0 origin-center font-mono text-[10px] font-bold"
+      >
+        <div className="home-adapter-graph absolute inset-x-0 top-1 h-[7.5rem] overflow-visible">
+          {frameworkAdapterNodes.map((adapter, adapterIndex) => {
+            const isActive = activeAdapterIndex === adapterIndex
 
-          return (
-            <span
-              key={adapter.label}
-              data-adapter-label={adapter.label}
-              style={adapterGraphStyle(adapter)}
-              className={twMerge(
-                'absolute z-20 flex items-center justify-center rounded-md border px-2 text-center text-gray-600 shadow-sm backdrop-blur transition-colors duration-500 dark:text-gray-400',
-                isActive
-                  ? 'border-cyan-300 bg-cyan-50 text-cyan-800 shadow-cyan-500/15 dark:border-cyan-700 dark:bg-cyan-950/40 dark:text-cyan-200'
-                  : 'border-gray-200 bg-white/85 dark:border-gray-800 dark:bg-black/55',
-              )}
-            >
-              {adapter.label}
-            </span>
-          )
-        })}
-
-        <span
-          data-adapter-label={frameworkAdapterCore.label}
-          style={adapterGraphStyle(frameworkAdapterCore)}
-          className={twMerge(
-            'absolute z-30 flex items-center justify-center rounded-lg bg-gradient-to-r text-center text-[11px] text-white shadow-lg shadow-cyan-500/15',
-            accentClassName,
-          )}
-        >
-          core
-        </span>
-
-        {frameworkAdapterConnections.map((connection, connectionIndex) => {
-          const progress = (flowProgress - connectionIndex * 0.13 + 1) % 1
-          const point = cubicPoint(
-            connection.start,
-            connection.control1,
-            connection.control2,
-            connection.end,
-            progress,
-          )
-          const angle = cubicAngle(
-            connection.start,
-            connection.control1,
-            connection.control2,
-            connection.end,
-            progress,
-          )
-
-          return (
-            <span
-              key={`flow-${connection.label}`}
-              data-connection-flow={connection.label}
-              style={{
-                ...adapterGraphPointStyle(point),
-                transform: `translate(-50%, -50%) rotate(${angle}deg)`,
-              }}
-              className={twMerge(
-                'home-adapter-graph-flow absolute z-50',
-                progress < 0.08 || progress > 0.92
-                  ? 'opacity-0'
-                  : 'opacity-100',
-              )}
-            />
-          )
-        })}
-
-        {frameworkAdapterConnections.map((connection, connectionIndex) => {
-          const isActive = activeAdapterIndex === connectionIndex
-
-          return (
-            <React.Fragment key={`ports-${connection.label}`}>
+            return (
               <span
-                data-connection-port={`${connection.label}-core`}
-                style={adapterGraphPointStyle(connection.start)}
+                key={adapter.label}
+                data-adapter-label={adapter.label}
+                style={adapterGraphStyle(adapter)}
                 className={twMerge(
-                  'absolute z-40 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-200 bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.55)] transition-opacity duration-500 dark:border-cyan-900',
-                  isActive ? 'opacity-100' : 'opacity-55',
+                  'absolute z-20 flex items-center justify-center rounded-md border px-2 text-center text-gray-600 shadow-sm backdrop-blur transition-colors duration-500 dark:text-gray-400',
+                  isActive
+                    ? 'border-cyan-300 bg-cyan-50 text-cyan-800 shadow-cyan-500/15 dark:border-cyan-700 dark:bg-cyan-950/40 dark:text-cyan-200'
+                    : 'border-gray-200 bg-white/85 dark:border-gray-800 dark:bg-black/55',
+                )}
+              >
+                {adapter.label}
+              </span>
+            )
+          })}
+
+          <span
+            data-adapter-label={frameworkAdapterCore.label}
+            style={adapterGraphStyle(frameworkAdapterCore)}
+            className={twMerge(
+              'absolute z-30 flex items-center justify-center rounded-lg bg-gradient-to-r text-center text-[11px] text-white shadow-lg shadow-cyan-500/15',
+              accentClassName,
+            )}
+          >
+            core
+          </span>
+
+          {frameworkAdapterConnections.map((connection, connectionIndex) => {
+            const progress = (flowProgress - connectionIndex * 0.13 + 1) % 1
+            const point = cubicPoint(
+              connection.start,
+              connection.control1,
+              connection.control2,
+              connection.end,
+              progress,
+            )
+            const angle = cubicAngle(
+              connection.start,
+              connection.control1,
+              connection.control2,
+              connection.end,
+              progress,
+            )
+
+            return (
+              <span
+                key={`flow-${connection.label}`}
+                data-connection-flow={connection.label}
+                style={{
+                  ...adapterGraphPointStyle(point),
+                  transform: `translate(-50%, -50%) rotate(${angle}deg)`,
+                }}
+                className={twMerge(
+                  'home-adapter-graph-flow absolute z-50',
+                  progress < 0.08 || progress > 0.92
+                    ? 'opacity-0'
+                    : 'opacity-100',
                 )}
               />
-              <span
-                data-connection-port={`${connection.label}-adapter`}
-                style={adapterGraphPointStyle(connection.end)}
-                className={twMerge(
-                  'absolute z-40 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-200 bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.55)] transition-opacity duration-500 dark:border-cyan-900',
-                  isActive ? 'opacity-100' : 'opacity-55',
-                )}
-              />
-            </React.Fragment>
-          )
-        })}
+            )
+          })}
+
+          {frameworkAdapterConnections.map((connection, connectionIndex) => {
+            const isActive = activeAdapterIndex === connectionIndex
+
+            return (
+              <React.Fragment key={`ports-${connection.label}`}>
+                <span
+                  data-connection-port={`${connection.label}-core`}
+                  style={adapterGraphPointStyle(connection.start)}
+                  className={twMerge(
+                    'absolute z-40 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-200 bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.55)] transition-opacity duration-500 dark:border-cyan-900',
+                    isActive ? 'opacity-100' : 'opacity-55',
+                  )}
+                />
+                <span
+                  data-connection-port={`${connection.label}-adapter`}
+                  style={adapterGraphPointStyle(connection.end)}
+                  className={twMerge(
+                    'absolute z-40 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-200 bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.55)] transition-opacity duration-500 dark:border-cyan-900',
+                    isActive ? 'opacity-100' : 'opacity-55',
+                  )}
+                />
+              </React.Fragment>
+            )
+          })}
+        </div>
       </div>
     </div>
   )

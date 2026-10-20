@@ -21,7 +21,7 @@ export const Card: CardComponent = ({ as, children, className, ...props }) => {
     Component,
     {
       className: twMerge(
-        'bg-white dark:bg-gray-900 rounded-lg shadow-md border border-gray-200 dark:border-gray-800',
+        'bg-white dark:bg-gray-900 rounded-lg corner-squircle shadow-md border border-gray-200 dark:border-gray-800',
         className,
       ),
       ...props,

@@ -1,4 +1,5 @@
-import { scaleLinear, scalePoint } from 'd3'
+import { scaleLinear } from '@tanstack/charts/scales/linear'
+import { scalePoint } from '@tanstack/charts/scales/point'
 import { curveLinearClosed } from 'd3-shape'
 import { defineChart } from '@tanstack/charts'
 import {
@@ -21,11 +22,13 @@ export const kineticRadarChart = defineChart({
     polar({
       id: 'hero-radar',
       radiusRatio: 0.83,
-      angle: {
-        scale: scalePoint<string>().domain(radarDimensionNames),
-        wrap: true,
+      scales: {
+        angle: {
+          scale: scalePoint<string>().domain(radarDimensionNames),
+          wrap: true,
+        },
+        radius: { scale: scaleLinear().domain([0, 100]) },
       },
-      radius: { scale: scaleLinear().domain([0, 100]) },
       guides: [
         radialGrid({
           ticks: 4,
@@ -72,5 +75,6 @@ export const kineticRadarChart = defineChart({
       ],
     }),
   ],
+  scales: { x: null, y: null },
   theme: kineticDarkTheme,
 })

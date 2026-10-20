@@ -137,10 +137,10 @@ async function getPublishedChartsCatalogEntries(): Promise<
   Array<SitemapEntry>
 > {
   try {
-    const { getChartsCatalogPublication } =
-      await import('./charts-catalog.server')
-    const publication = await getChartsCatalogPublication()
-    return getChartsCatalogSitemapEntries(publication.manifest)
+    const { getChartsCatalogIndexPublication } =
+      await import('./charts-catalog-index.server')
+    const publication = await getChartsCatalogIndexPublication()
+    return getChartsCatalogSitemapEntries(publication.index)
   } catch (error) {
     console.error('[sitemap] Charts catalog unavailable', error)
     return [{ path: '/charts/catalog/' }]

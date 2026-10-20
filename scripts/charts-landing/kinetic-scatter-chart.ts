@@ -1,4 +1,4 @@
-import { scaleLinear } from 'd3'
+import { scaleLinear } from '@tanstack/charts/scales/linear'
 import { defineChart, dot } from '@tanstack/charts'
 
 import { kineticDarkTheme, productSignals } from './kinetic-data'
@@ -18,14 +18,16 @@ export const kineticScatterChart = defineChart({
       r: 'size',
     }),
   ],
-  x: {
-    scale: scaleLinear().domain([8, 34]),
-    axis: { ticks: { count: 4 } },
-  },
-  y: {
-    scale: scaleLinear().domain([65, 96]),
-    axis: { ticks: { count: 4, format: (value) => `${value}%` } },
-    grid: true,
+  scales: {
+    x: {
+      scale: scaleLinear().domain([8, 34]),
+      axis: { ticks: { count: 4 } },
+    },
+    y: {
+      scale: scaleLinear().domain([65, 96]),
+      axis: { ticks: { count: 4, format: (value) => `${value}%` } },
+      grid: true,
+    },
   },
   theme: kineticDarkTheme,
 })

@@ -29,7 +29,7 @@ function SocialProofSkeleton() {
     <div className="space-y-24">
       <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
         <div className="h-10 w-40 rounded bg-gray-200/70 dark:bg-gray-800/70 animate-pulse mb-6" />
-        <div className="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800">
+        <div className="overflow-hidden rounded-2xl corner-squircle border border-gray-200 dark:border-gray-800">
           {[2, 3].map((cols, band) => (
             <div key={`partner-band-${band}`}>
               <div className="h-12 bg-gray-200/70 dark:bg-gray-800/70 animate-pulse" />

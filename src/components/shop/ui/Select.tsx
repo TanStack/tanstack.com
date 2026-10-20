@@ -6,6 +6,7 @@ type OptionData = { value: string; label: string; disabled: boolean }
 type Props = {
   value?: string
   onChange?: (e: { target: { value: string } }) => void
+  disabled?: boolean
   className?: string
   triggerClassName?: string
   children?: React.ReactNode
@@ -42,6 +43,7 @@ function extractOptions(children: React.ReactNode): Array<OptionData> {
 export function ShopSelect({
   value,
   onChange,
+  disabled,
   className,
   triggerClassName,
   children,
@@ -53,6 +55,10 @@ export function ShopSelect({
 
   const options = extractOptions(children)
   const selected = options.find((o) => o.value === value)
+
+  React.useEffect(() => {
+    if (disabled) setOpen(false)
+  }, [disabled])
 
   // Close on outside click
   React.useEffect(() => {
@@ -107,6 +113,7 @@ export function ShopSelect({
       <button
         ref={triggerRef}
         type="button"
+        disabled={disabled}
         aria-haspopup="listbox"
         aria-expanded={open}
         onKeyDown={onKeyDown}
@@ -120,6 +127,7 @@ export function ShopSelect({
           'cursor-pointer transition-colors select-none whitespace-nowrap',
           'hover:border-shop-muted hover:text-shop-text',
           open && 'border-shop-muted text-shop-text',
+          disabled && 'cursor-not-allowed opacity-40',
           triggerClassName,
         )}
       >

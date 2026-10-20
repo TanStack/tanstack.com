@@ -4,15 +4,6 @@ import type { LibrarySlim } from '~/libraries'
 
 type LibraryBadge = NonNullable<LibrarySlim['badge']>
 
-const libraryBadgeVariants = {
-  new: 'success',
-  fresh: 'success',
-  soon: 'default',
-  alpha: 'info',
-  beta: 'warning',
-  RC: 'warning',
-} as const
-
 export function LibraryStatusBadge({
   badge,
   className,
@@ -20,12 +11,18 @@ export function LibraryStatusBadge({
   badge: LibraryBadge
   className?: string
 }) {
+  const isRc = badge.toUpperCase() === 'RC'
+
+  // ALPHA / BETA stay quiet. RC is the current ship state, so it uses the
+  // library accent and a slow glow. Reduced-motion users still get the fill.
   return (
     <Badge
-      variant={libraryBadgeVariants[badge]}
+      variant="default"
       rounded="md"
       className={twMerge(
-        'font-ds-mono text-ds-mono-caps-xs uppercase',
+        'border border-border-subtle font-ds-mono text-ds-mono-caps-xs uppercase',
+        isRc &&
+          'library-status-badge-rc border-transparent px-2.5 py-1 font-ds-mono text-ds-mono-caps text-white',
         className,
       )}
     >

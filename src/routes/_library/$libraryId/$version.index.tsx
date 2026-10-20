@@ -13,7 +13,7 @@ export const Route = createFileRoute('/_library/$libraryId/$version/')({
     library.handleRedirects?.(location.href)
 
     validateLibraryVersion(library.id, params.version, () => {
-      throw redirect({ href: `/${library.id}/latest` })
+      throw redirect({ href: `/${library.id}/latest`, statusCode: 308 })
     })
 
     redirectToStaticLanding(library.id, params.version)

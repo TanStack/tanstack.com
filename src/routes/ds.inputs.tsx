@@ -8,7 +8,8 @@ export const Route = createFileRoute('/ds/inputs')({
   head: () => ({
     meta: seo({
       title: 'Inputs | TanStack Design System',
-      description: 'The FormInput component — text fields and focus rings.',
+      description:
+        'The FormInput component — text fields with a neutral focus.',
     }),
   }),
 })
@@ -17,7 +18,7 @@ function InputsPage() {
   return (
     <DsPage
       title="Inputs"
-      description="Text inputs with consistent borders, dark-mode surfaces, and a configurable focus ring. Source: src/ui/FormInput.tsx."
+      description="Text inputs with consistent borders and dark-mode surfaces. Focus is a single neutral border-color change — no ring. Source: src/ui/FormInput.tsx."
     >
       <DsSection
         title="Default"
@@ -32,18 +33,14 @@ function InputsPage() {
       </DsSection>
 
       <DsSection
-        title="Focus rings"
-        description="Focus a field to see its ring. Choose blue (default), orange, or purple."
+        title="Focus"
+        description="Focus is a single neutral border-color change — the border lifts to the strong neutral token, with no ring or accent."
       >
         <ComponentPreview
-          className="block max-w-sm space-y-3"
-          code={`<FormInput focusRing="blue" placeholder="Blue ring (default)" />
-<FormInput focusRing="orange" placeholder="Orange ring" />
-<FormInput focusRing="purple" placeholder="Purple ring" />`}
+          className="block max-w-sm"
+          code={`<FormInput placeholder="Focus me" />`}
         >
-          <FormInput focusRing="blue" placeholder="Blue ring (default)" />
-          <FormInput focusRing="orange" placeholder="Orange ring" />
-          <FormInput focusRing="purple" placeholder="Purple ring" />
+          <FormInput placeholder="Focus me" />
         </ComponentPreview>
       </DsSection>
 

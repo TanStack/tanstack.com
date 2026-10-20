@@ -9,6 +9,7 @@ import {
   MagnifyingGlassIcon,
   GearIcon,
   TrashIcon,
+  PlayIcon,
 } from '@phosphor-icons/react'
 import { seo } from '~/utils/seo'
 import {
@@ -84,24 +85,33 @@ function ButtonMode({
   )
 }
 
-const PERIODS = ['Day', 'Week', 'Month'] as const
-
-function SegmentedButtonGroup() {
-  const [period, setPeriod] = React.useState<(typeof PERIODS)[number]>('Week')
+function Toolbar() {
+  const [showFiles, setShowFiles] = React.useState(true)
+  const [showConsole, setShowConsole] = React.useState(false)
 
   return (
-    <ButtonGroup>
-      {PERIODS.map((option) => (
-        <Button
-          key={option}
-          variant="ghost"
-          rounded="none"
-          aria-pressed={period === option}
-          onClick={() => setPeriod(option)}
-        >
-          {option}
-        </Button>
-      ))}
+    <ButtonGroup aria-label="Editor actions">
+      <Button
+        variant="ghost"
+        size="xs"
+        rounded="none"
+        aria-pressed={showFiles}
+        onClick={() => setShowFiles((v) => !v)}
+      >
+        Files
+      </Button>
+      <Button
+        variant="ghost"
+        size="xs"
+        rounded="none"
+        aria-pressed={showConsole}
+        onClick={() => setShowConsole((v) => !v)}
+      >
+        Console
+      </Button>
+      <Button variant="primary" size="xs" rounded="none">
+        <PlayIcon className="h-3.5 w-3.5" weight="fill" /> Run
+      </Button>
     </ButtonGroup>
   )
 }
@@ -281,16 +291,16 @@ function ButtonsPage() {
 
       <DsSection
         title="Button group"
-        description="Segmented buttons via ButtonGroup. Source: src/components/ButtonGroup.tsx."
+        description="The low-level toolbar primitive: bring your own buttons and ButtonGroup joins them with shared edges and one outer border. Reach for it when the group is heterogeneous — mixed toggles plus a primary action or a dropdown trigger. For a single-select control, prefer the SegmentedControl (see the Segmented control page). Source: src/components/ButtonGroup.tsx."
       >
         <ButtonPreview
-          code={`<ButtonGroup>
-  <Button variant="ghost" rounded="none" aria-pressed={period === 'day'}>Day</Button>
-  <Button variant="ghost" rounded="none" aria-pressed={period === 'week'}>Week</Button>
-  <Button variant="ghost" rounded="none" aria-pressed={period === 'month'}>Month</Button>
+          code={`<ButtonGroup aria-label="Editor actions">
+  <Button variant="ghost" rounded="none" aria-pressed={showFiles}>Files</Button>
+  <Button variant="ghost" rounded="none" aria-pressed={showConsole}>Console</Button>
+  <Button variant="primary" rounded="none"><PlayIcon /> Run</Button>
 </ButtonGroup>`}
         >
-          <SegmentedButtonGroup />
+          <Toolbar />
         </ButtonPreview>
       </DsSection>
 

@@ -1,4 +1,5 @@
-import { curveMonotoneX, scaleLinear } from 'd3'
+import { scaleLinear } from '@tanstack/charts/scales/linear'
+import { curveMonotoneX } from 'd3-shape'
 import {
   areaY,
   d3Curve,
@@ -64,14 +65,16 @@ export const kineticLayeredChart = defineChart({
       dy: -22,
     }),
   ],
-  x: {
-    scale: scaleLinear().domain([1, 8]),
-    axis: { ticks: { count: 4, format: (month) => `M${month}` } },
-  },
-  y: {
-    scale: scaleLinear().domain([30, 100]),
-    axis: { ticks: { count: 4 } },
-    grid: true,
+  scales: {
+    x: {
+      scale: scaleLinear().domain([1, 8]),
+      axis: { ticks: { count: 4, format: (month) => `M${month}` } },
+    },
+    y: {
+      scale: scaleLinear().domain([30, 100]),
+      axis: { ticks: { count: 4 } },
+      grid: true,
+    },
   },
   theme: kineticDarkTheme,
 })

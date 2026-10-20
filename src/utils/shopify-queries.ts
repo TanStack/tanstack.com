@@ -217,7 +217,7 @@ export const PRODUCT_QUERY = /* GraphQL */ `
           height
         }
       }
-      variants(first: 100) {
+      variants(first: 250) {
         nodes {
           id
           title
@@ -253,6 +253,22 @@ export type ProductDetailVariant = Pick<
   selectedOptions: Array<{ name: string; value: string }>
   price: Pick<MoneyV2, 'amount' | 'currencyCode'>
   image: Pick<StorefrontImage, 'url' | 'altText' | 'width' | 'height'> | null
+}
+
+export function hasAvailableVariant(
+  variants: Array<
+    Pick<ProductDetailVariant, 'availableForSale' | 'selectedOptions'>
+  >,
+  selected: Record<string, string>,
+): boolean {
+  return variants.some(
+    (variant) =>
+      variant.availableForSale &&
+      variant.selectedOptions.every(
+        (option) =>
+          !selected[option.name] || selected[option.name] === option.value,
+      ),
+  )
 }
 
 export type ProductDetail = Pick<

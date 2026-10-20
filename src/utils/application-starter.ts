@@ -1485,7 +1485,7 @@ export function buildDownloadUrl(recipe: ApplicationStarterRecipe) {
 }
 
 const nextJsMigrationPattern =
-  /migrat(?:e|ing|ion)[\s\S]*\bnext(?:\.?js|\s+(?:app|application|project))\b|\bnext(?:\.?js|\s+(?:app|application|project))\b[\s\S]*migrat(?:e|ing|ion)/i
+  /migrat(?:e|ing|ion)[\s\S]*\bnext(?:\.?js|\s+(?:app|application|project|site))\b|\bnext(?:\.?js|\s+(?:app|application|project|site))\b[\s\S]*migrat(?:e|ing|ion)/i
 const remixMigrationPattern =
   /migrat(?:e|ing|ion)[\s\S]*\b(remix|react[\s-]?router)\b|\b(remix|react[\s-]?router)\b[\s\S]*migrat(?:e|ing|ion)/i
 

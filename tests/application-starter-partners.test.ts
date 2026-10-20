@@ -599,3 +599,16 @@ test('migration source ignores next week when the source is Remix', async () => 
     ),
   )
 })
+
+test('migration source recognizes a Next site', async () => {
+  const result = await resolveApplicationStarterDeterministically({
+    context: 'home',
+    input: 'Migrate my Next site to TanStack Start.',
+  })
+  assert.ok(result.prompt.startsWith('Migrate next into a fresh'))
+  assert.ok(
+    result.prompt.includes(
+      'https://tanstack.com/start/latest/docs/framework/react/migrate-from-next-js',
+    ),
+  )
+})

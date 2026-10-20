@@ -75,22 +75,11 @@ function openDrawerIfCartHasLines(cart: CartDetail | null | undefined) {
  * Read the current cart. Data is loader-seeded on shop routes, so there is
  * no hydration gap — components that call this render with real data on the
  * first frame. On non-shop routes the hook falls back to fetching on mount.
- *
- * After cartCreate the httpOnly cookie may not have landed on the immediate
- * refetch. If Shopify says there is no cart but we already have lines in
- * cache (optimistic or the mutation result), keep those lines.
  */
 export function useCart() {
-  const qc = useQueryClient()
   const query = useQuery({
     queryKey: CART_QUERY_KEY,
-    queryFn: async () => {
-      const cart = await getCart()
-      if (cart) return cart
-      const cached = qc.getQueryData<CartDetail | null>(CART_QUERY_KEY)
-      if (cartHasLines(cached)) return cached ?? null
-      return null
-    },
+    queryFn: () => getCart(),
     staleTime: 30_000,
   })
 
@@ -137,8 +126,7 @@ export function useAddToCart() {
     },
 
     onError: (_err, _input, ctx) => {
-      if (ctx?.previous !== undefined)
-        qc.setQueryData(CART_QUERY_KEY, ctx.previous)
+      if (ctx) qc.setQueryData(CART_QUERY_KEY, ctx.previous ?? null)
     },
 
     // Reconcile: replace the optimistic line (temporary ID, approximate

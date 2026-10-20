@@ -190,7 +190,8 @@ function DrawerCartLine({
     .map((o) => `${o.name}: ${o.value}`)
     .join(' · ')
 
-  const isBusy = update.isPending || remove.isPending
+  const adding = useIsMutating({ mutationKey: CART_ADD_MUTATION_KEY })
+  const isBusy = adding > 0 || update.isPending || remove.isPending
 
   return (
     <li className="flex gap-3 py-4 border-b border-shop-line">

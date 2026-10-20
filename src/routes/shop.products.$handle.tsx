@@ -100,12 +100,15 @@ export function ProductPage({
     matchingImageIndex >= 0 ? matchingImageIndex : 0,
   )
 
+  const [thumbnailSelected, setThumbnailSelected] = React.useState(false)
+
   React.useEffect(() => {
+    setThumbnailSelected(false)
     if (matchingImageIndex >= 0) setActiveImageIndex(matchingImageIndex)
   }, [matchingImageIndex, variantForImage?.id])
 
   const heroImage =
-    (matchingImageIndex < 0 ? variantImage : null) ??
+    (!thumbnailSelected && matchingImageIndex < 0 ? variantImage : null) ??
     product.images.nodes[activeImageIndex] ??
     variantImage ??
     product.images.nodes[0] ??
@@ -130,7 +133,10 @@ export function ProductPage({
         <ProductGallery
           images={product.images.nodes}
           activeIndex={activeImageIndex}
-          onChange={setActiveImageIndex}
+          onChange={(index) => {
+            setThumbnailSelected(true)
+            setActiveImageIndex(index)
+          }}
           title={product.title}
           hero={heroImage}
         />

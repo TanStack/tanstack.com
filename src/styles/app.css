@@ -22,6 +22,7 @@ html.theme-switching *::after {
   --breakpoint-xs: 480px;
 
   /* Fonts */
+  --font-library-name: 'Chopen-SemiBold', ui-sans-serif, system-ui, sans-serif;
   --font-sans:
     'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
     'Segoe UI Emoji', Segoe UI Symbol, 'Noto Color Emoji';
@@ -1195,8 +1196,12 @@ button {
   pointer-events: none;
 }
 
-.ts-mega-trigger-wrap:not([data-menu-dismissed='true']):hover::after,
-.ts-mega-trigger-wrap:not([data-menu-dismissed='true']):focus-within::after {
+.ts-mega-trigger-wrap:has(> .ts-mega-dropdown):not(
+    [data-menu-dismissed='true']
+  ):hover::after,
+.ts-mega-trigger-wrap:has(> .ts-mega-dropdown):not(
+    [data-menu-dismissed='true']
+  ):focus-within::after {
   pointer-events: auto;
 }
 
@@ -3005,12 +3010,6 @@ html:not(.dark) .library-landing-graphic [style*='drop-shadow'] {
   @apply my-4;
 }
 
-/* Kapa injects invisible reCAPTCHA; keep it from occupying the UI corner. */
-.grecaptcha-badge {
-  display: none !important;
-  pointer-events: none !important;
-}
-
 button[aria-label='Open TanStack Devtools'] {
   display: none !important;
 }
@@ -3029,4 +3028,30 @@ html.dark .sandbox-ui {
 
 [data-builder-shell]:has([data-builder-ready]) > [data-builder-initial] {
   display: none;
+}
+
+/*
+Font: 		Chopen Semi Bold
+Style:
+URL: 		https://youworkforthem.com/font/T28170/chopen
+Foundry: 	Typeface Design Studio
+Foundry: 	https://youworkforthem.com/designer/1740/typeface-design-studio
+Copyright:
+Version: 	18
+Created:	April 02, 2026
+License: 	https://www.youworkforthem.com/font-license
+License: 	The WebFont(s) listed in this document must follow the YouWorkForThem
+			WebFont license rules. All other parties are strictly restricted
+			from using the WebFonts(s) listed without a purchased license.
+			All details above must always remain unaltered and visible in your CSS.
+*/
+
+@font-face {
+  font-family: 'Chopen-SemiBold';
+  src:
+    url('/fonts/chopen/chopen-semi-bold.woff2') format('woff2'),
+    url('/fonts/chopen/chopen-semi-bold.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }

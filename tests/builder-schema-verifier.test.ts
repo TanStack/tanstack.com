@@ -5,6 +5,7 @@ import { readFile } from 'node:fs/promises'
 import test from 'node:test'
 import { promisify } from 'node:util'
 import postgres from 'postgres'
+import { assertBuilderTestDatabaseUrl } from './helpers/builder-test-database'
 import {
   BUILDER_MESSAGE_ROLES,
   BUILDER_PROJECT_EVENT_TYPES,
@@ -39,9 +40,7 @@ test(
   async (t) => {
     assert.ok(databaseUrl)
     // This suite resets schemas; never accept a production database name.
-    const testDatabase = new URL(databaseUrl)
-    assert.ok(['localhost', '127.0.0.1'].includes(testDatabase.hostname))
-    assert.equal(testDatabase.pathname, '/builder_schema_verifier_tests')
+    assertBuilderTestDatabaseUrl(databaseUrl)
     const sql = postgres(databaseUrl, { max: 1, onnotice: () => {} })
     const journal = JSON.parse(
       await readFile(
@@ -97,6 +96,10 @@ test(
     }
 
     try {
+      const [target] = await sql<
+        { database: string }[]
+      >`select current_database() as database`
+      assert.equal(target?.database, 'builder_schema_verifier_tests')
       await t.test(
         'accepts the required migration as the latest entry',
         async () => {

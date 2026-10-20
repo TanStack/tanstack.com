@@ -1,13 +1,23 @@
+import { receiveTrafficQuality } from './utils/analytics/traffic-quality.server'
+import {
+  timeRequestWork,
+  withDocsRequestTimings,
+} from './utils/request-timing.server'
+import { finalizeDocsHtmlHeaders } from './utils/docs-html-headers.server'
 import './instrument.server.mjs'
 
 import { wrapFetchWithSentry } from '@sentry/tanstackstart-react'
 import handler, { createServerEntry } from '@tanstack/react-start/server-entry'
-import { runWithDatabaseContext } from '~/db/client'
-import { runScheduledTasks } from '~/server/scheduled.server'
+import { runWithDatabaseContext, runWithDatabaseRequest } from '~/db/client'
 import {
   runWithHostRuntimeContext,
   runWithHostRuntimeEnv,
+  scheduleHostRuntimeTask,
 } from '~/server/runtime/host.server'
+import {
+  createScarfServerRequest,
+  sendScarfServerRequest,
+} from '~/utils/analytics/scarf-server'
 import {
   installProductionFetchProbe,
   installProductionProcessProbe,
@@ -16,7 +26,10 @@ import {
   logRequestStart,
   runWithRequestDiagnostics,
 } from '~/utils/prod-diagnostics.server'
-import { docsContentNegotiationVaryHeader } from '~/utils/http'
+import {
+  docsContentNegotiationVaryHeader,
+  redirectInsecureSiteRequest,
+} from '~/utils/http'
 import { isFrameEmbeddingAllowed } from '~/utils/frame-embedding'
 
 const SECURITY_HEADERS = {
@@ -71,6 +84,8 @@ function shouldRewriteDocsRequestToMarkdown(request: Request, url: URL) {
 
 function applyHostingHeaders(response: Response, url: URL) {
   const headers = new Headers(response.headers)
+  if (import.meta.env.MODE === 'staging')
+    headers.set('X-Robots-Tag', 'noindex, nofollow')
 
   for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
     headers.set(key, value)
@@ -211,11 +226,17 @@ const server = createServerEntry(
   wrapFetchWithSentry({
     async fetch(request) {
       return runWithRequestDiagnostics(request, async (context) => {
-        return runWithDatabaseContext(async () => {
+        return runWithDatabaseRequest(async () => {
           const url = new URL(request.url)
           logRequestStart(context)
 
           try {
+            if (url.pathname === '/_a/traffic-quality') {
+              return applyHostingHeaders(
+                await receiveTrafficQuality(request),
+                url,
+              )
+            }
             const scarfResponse = await proxyScarfClipboardEvent(request, url)
             if (scarfResponse) {
               logRequestEnd(context, scarfResponse.status, {
@@ -252,9 +273,11 @@ const server = createServerEntry(
               return applyHostingHeaders(markdownResponse, url)
             }
 
-            const response = await handler.fetch(request, {
-              responseLinkHeader: STATIC_RESPONSE_LINK_HEADERS,
-            })
+            const response = await timeRequestWork('start_handler', () =>
+              handler.fetch(request, {
+                responseLinkHeader: STATIC_RESPONSE_LINK_HEADERS,
+              }),
+            )
             const hostedResponse = applyHostingHeaders(response, url)
 
             logRequestEnd(context, response.status)
@@ -270,9 +293,38 @@ const server = createServerEntry(
 )
 
 export default {
-  fetch(request: Request, env: unknown, context: unknown) {
+  async fetch(request: Request, env: unknown, context: unknown) {
+    if (
+      import.meta.env.MODE === 'staging' &&
+      new URL(request.url).pathname.startsWith('/_a/')
+    )
+      return new Response(null, { status: 204 })
+    const secureSite = redirectInsecureSiteRequest(request)
+    if (secureSite) return secureSite
+    if (new URL(request.url).hostname === 'chat.tanstack.com') {
+      const { redirectChatOrigin } =
+        await import('./chat/server/origin-redirect')
+      const canonicalChat = redirectChatOrigin(request)
+      if (canonicalChat) return canonicalChat
+    }
     return runWithHostRuntimeEnv(env, () =>
-      runWithHostRuntimeContext(context, () => server.fetch(request)),
+      runWithHostRuntimeContext(context, () =>
+        withDocsRequestTimings(request, async () => {
+          const response = finalizeDocsHtmlHeaders(
+            request,
+            await server.fetch(request),
+          )
+          if (import.meta.env.PROD && import.meta.env.MODE !== 'staging') {
+            const scarfRequest = createScarfServerRequest(request, response)
+            if (scarfRequest) {
+              scheduleHostRuntimeTask(() =>
+                sendScarfServerRequest(scarfRequest),
+              )
+            }
+          }
+          return response
+        }),
+      ),
     )
   },
   scheduled(
@@ -283,9 +335,11 @@ export default {
     context.waitUntil(
       runWithHostRuntimeEnv(env, () =>
         runWithHostRuntimeContext(context, () =>
-          runWithDatabaseContext(() =>
-            runScheduledTasks(controller.cron, controller.scheduledTime),
-          ),
+          runWithDatabaseContext(async () => {
+            const { runScheduledTasks } =
+              await import('~/server/scheduled.server')
+            return runScheduledTasks(controller.cron, controller.scheduledTime)
+          }),
         ),
       ),
     )

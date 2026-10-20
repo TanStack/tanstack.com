@@ -1340,7 +1340,7 @@ const codeRabbit = ((): Partner => {
     relatedProducts: [],
     startDate: 'Aug 2025',
     tier: 'gold' as const,
-    brandColor: '#FF6B2B',
+    brandColor: '#FF570A',
     tagline: 'AI Code Review',
     applicationStarterPromptInstructions: [
       'Do not add runtime app code for CodeRabbit.',

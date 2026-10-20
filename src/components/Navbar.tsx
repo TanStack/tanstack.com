@@ -20,7 +20,12 @@ const LazyMobileNavbarAuthControls = React.lazy(() =>
 )
 import { NavbarCartButton } from './NavbarCartButton'
 import { MegaMenuItem } from './MegaMenuItem'
-import { Link, useLocation, useNavigate } from '@tanstack/react-router'
+import {
+  CatchBoundary,
+  Link,
+  useLocation,
+  useNavigate,
+} from '@tanstack/react-router'
 import { ArrowLeftIcon } from '@phosphor-icons/react/ArrowLeft'
 import { ArrowRightIcon } from '@phosphor-icons/react/ArrowRight'
 import { ArrowSquareOutIcon } from '@phosphor-icons/react/ArrowSquareOut'
@@ -1034,6 +1039,14 @@ function LibrariesMenuFallback() {
   )
 }
 
+function LibrariesMenuLoadError() {
+  return (
+    <div role="alert" className="p-4 text-text-secondary">
+      Libraries menu could not load. Reload the page to try again.
+    </div>
+  )
+}
+
 function MegaMenuContent({
   group,
   onNavigate,
@@ -1045,9 +1058,14 @@ function MegaMenuContent({
 }) {
   if (group.key === 'libraries') {
     return (
-      <React.Suspense fallback={<LibrariesMenuFallback />}>
-        <LazyLibrariesMenuContent onNavigate={onNavigate} variant={variant} />
-      </React.Suspense>
+      <CatchBoundary
+        getResetKey={() => 'libraries'}
+        errorComponent={LibrariesMenuLoadError}
+      >
+        <React.Suspense fallback={<LibrariesMenuFallback />}>
+          <LazyLibrariesMenuContent onNavigate={onNavigate} variant={variant} />
+        </React.Suspense>
+      </CatchBoundary>
     )
   }
 

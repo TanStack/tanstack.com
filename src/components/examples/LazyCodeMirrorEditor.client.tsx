@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { CatchBoundary } from '@tanstack/react-router'
 import { useInView } from '~/hooks/useInView'
 
 const LazyEditor = React.lazy(() =>
@@ -6,6 +7,14 @@ const LazyEditor = React.lazy(() =>
     default: module.CodeMirrorEditor,
   })),
 )
+
+function EditorLoadError() {
+  return (
+    <div role="alert" className="p-3 text-sm text-text-muted">
+      Editor could not load. Reload the page to try again.
+    </div>
+  )
+}
 
 export function LazyCodeMirrorEditor(
   props: React.ComponentProps<typeof LazyEditor>,
@@ -28,7 +37,12 @@ export function LazyCodeMirrorEditor(
             </div>
           }
         >
-          <LazyEditor {...props} />
+          <CatchBoundary
+            getResetKey={() => 'editor'}
+            errorComponent={EditorLoadError}
+          >
+            <LazyEditor {...props} />
+          </CatchBoundary>
         </React.Suspense>
       ) : null}
     </div>

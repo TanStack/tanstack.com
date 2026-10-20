@@ -18,6 +18,7 @@ function SpinnerPage() {
   return (
     <DsPage title="Spinners">
       <DsSection
+        id="sizes-and-color"
         title="Spinner"
         description={
           <>

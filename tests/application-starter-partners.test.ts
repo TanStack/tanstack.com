@@ -586,3 +586,16 @@ test('migration guides distinguish framework names from timing and accept multil
     'https://tanstack.com/router/latest/docs/how-to/migrate-from-react-router',
   )
 })
+
+test('migration source ignores next week when the source is Remix', async () => {
+  const result = await resolveApplicationStarterDeterministically({
+    context: 'home',
+    input: 'Migrate my Remix app next week to TanStack Start.',
+  })
+  assert.ok(result.prompt.startsWith('Migrate remix into a fresh'))
+  assert.ok(
+    result.prompt.includes(
+      'https://tanstack.com/router/latest/docs/how-to/migrate-from-react-router',
+    ),
+  )
+})

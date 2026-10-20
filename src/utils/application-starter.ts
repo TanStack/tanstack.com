@@ -1340,6 +1340,7 @@ function buildPrompt({
 
 function detectMigrationSource(input: string) {
   for (const source of migrationSources) {
+    if (source === 'next' && !isNextJsMigrationInput(input)) continue
     if (input.toLowerCase().includes(source)) {
       return source
     }

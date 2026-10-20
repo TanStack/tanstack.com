@@ -1,91 +1,210 @@
 import * as React from 'react'
-import { partners as allPartners, PartnerImage } from '~/utils/partners'
-import { Card } from '~/components/Card'
-import { trackEvent, useTrackedImpression } from '~/utils/analytics'
+import {
+  getPartnerHref,
+  partners as allPartners,
+  PartnerImage,
+  partnerTierBandColor,
+  partnerTierLabels,
+  type PartnerTier,
+} from '~/utils/partners'
+import {
+  getPartnerPlacementAnalyticsMetadata,
+  getPartnerTierGroupsForPlacement,
+  type PartnerPlacementContext,
+} from '~/utils/partner-placement'
+import { usePartnerPlacementContext } from '~/utils/usePartnerPlacementContext'
+import {
+  trackEvent,
+  useTrackedImpression,
+  type PartnerPlacement,
+} from '~/utils/analytics'
 
 type PartnerItem = (typeof allPartners)[number]
 
 type PartnersGridProps = {
-  analyticsPlacement?: string
-  analyticsProperties?: Record<string, unknown>
+  analyticsPlacement?: PartnerPlacement
   partnersList?: PartnerItem[]
+  status?: PartnerItem['status']
+  /**
+   * Optional final band rendered inside the same bordered container as the tier
+   * bands — used to fold the OSS Sponsors band into the stack.
+   */
+  trailingBand?: React.ReactNode
+}
+
+/**
+ * A full-bleed tier header bar (Figma 640:3878). Exported so the shared
+ * partners/sponsors block can render its final band with the same treatment.
+ */
+export function TierBand({
+  label,
+  colorClassName,
+}: {
+  label: string
+  colorClassName: string
+}) {
+  return (
+    <div
+      className={`flex items-center justify-center px-4 py-3.5 ${colorClassName}`}
+    >
+      <span className="font-ds-display text-xl font-bold uppercase tracking-wide text-ds-neutral-500 sm:text-2xl">
+        {label}
+      </span>
+    </div>
+  )
+}
+
+const tierLayout: Record<
+  PartnerTier,
+  {
+    flexBasis: string
+    minHeight: string
+    logoMaxWidth: string
+    logoMaxHeight: string
+    padding: string
+  }
+> = {
+  gold: {
+    flexBasis: 'basis-full sm:basis-1/2',
+    minHeight: 'min-h-[240px]',
+    logoMaxWidth: 'max-w-[420px]',
+    logoMaxHeight: 'max-h-[130px]',
+    padding: 'p-12',
+  },
+  silver: {
+    flexBasis: 'basis-full sm:basis-1/2 lg:basis-1/3',
+    minHeight: 'min-h-[140px]',
+    logoMaxWidth: 'max-w-[200px]',
+    logoMaxHeight: 'max-h-[60px]',
+    padding: 'p-8',
+  },
+  bronze: {
+    flexBasis: 'basis-1/2 sm:basis-1/3 lg:basis-1/4',
+    minHeight: 'min-h-[120px]',
+    logoMaxWidth: 'max-w-[130px]',
+    logoMaxHeight: 'max-h-[44px]',
+    padding: 'p-6',
+  },
 }
 
 function PartnerGridItem({
   analyticsPlacement,
-  analyticsProperties,
   index,
+  placementContext,
   partner,
 }: {
-  analyticsPlacement: string
-  analyticsProperties?: Record<string, unknown>
+  analyticsPlacement: PartnerPlacement
   index: number
+  placementContext: PartnerPlacementContext
   partner: PartnerItem
 }) {
-  const ref = useTrackedImpression<HTMLAnchorElement>({
-    event: 'partner_impression',
-    properties: {
+  const analyticsMetadata = getPartnerPlacementAnalyticsMetadata(
+    partner,
+    placementContext,
+  )
+  const ref = useTrackedImpression<'partner_viewed', HTMLAnchorElement>({
+    event: 'partner_viewed',
+    props: {
       partner_id: partner.id,
-      partner_name: partner.name,
+      ...analyticsMetadata,
       placement: analyticsPlacement,
       slot_index: index,
-      ...analyticsProperties,
     },
   })
 
-  const width = Math.max(Math.round(120 + 280 * partner.score), 150)
+  const layout = tierLayout[partner.tier ?? 'bronze']
+  const href = getPartnerHref(partner, analyticsPlacement)
 
   return (
     <a
       ref={ref}
-      href={partner.href}
+      href={href}
       target="_blank"
       rel="noreferrer"
-      className="flex items-center justify-center p-6
+      className={`flex items-center justify-center
         border-r border-b border-gray-200 dark:border-gray-800
-        hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors duration-150 ease-out"
-      style={{ width, flexGrow: partner.score }}
+        hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors duration-150 ease-out
+        ${layout.flexBasis} ${layout.minHeight} ${layout.padding}`}
       onClick={() => {
-        trackEvent('partner_card_clicked', {
+        let destinationHost: string | undefined
+        try {
+          destinationHost = new URL(href).host
+        } catch {
+          // Bad/relative href — track without host rather than dropping.
+        }
+        trackEvent('partner_clicked', {
           partner_id: partner.id,
-          partner_name: partner.name,
-          destination_host: new URL(partner.href).host,
           placement: analyticsPlacement,
+          destination: 'external',
+          destination_host: destinationHost,
+          ...analyticsMetadata,
           slot_index: index,
-          ...analyticsProperties,
         })
       }}
     >
-      <PartnerImage config={partner.image} alt={partner.name} />
+      <div
+        className={`w-full flex items-center justify-center ${layout.logoMaxWidth}`}
+      >
+        <PartnerImage
+          className={`w-full object-contain ${layout.logoMaxHeight}`}
+          config={partner.image}
+          alt={partner.name}
+        />
+      </div>
     </a>
   )
 }
 
 export function PartnersGrid({
-  analyticsPlacement = 'partners_grid',
-  analyticsProperties,
+  analyticsPlacement = 'grid',
   partnersList,
+  status = 'active',
+  trailingBand,
 }: PartnersGridProps) {
   const items = (partnersList ?? allPartners).filter(
-    (partner) => partner.status === 'active',
+    (partner) => partner.status === status,
   )
 
-  // Sort by score descending so larger partners come first
-  const sortedItems = [...items].sort((a, b) => b.score - a.score)
+  const placementContext = usePartnerPlacementContext({
+    orderStrategy: 'tier-rotated',
+    surface: analyticsPlacement,
+  })
 
+  const tiersWithPartners = getPartnerTierGroupsForPlacement(
+    items,
+    placementContext,
+  )
+
+  let slotIndex = 0
+
+  // One continuous bordered stack. Each tier is a full-bleed colored band
+  // followed by its logo grid; the negative right/bottom margins let the cell
+  // dividers meet the container edge so overflow-hidden trims the outer line.
   return (
-    <Card className="overflow-hidden">
-      <div className="flex flex-wrap justify-center items-stretch -mr-px -mb-px">
-        {sortedItems.map((partner, index) => (
-          <PartnerGridItem
-            key={partner.id}
-            analyticsPlacement={analyticsPlacement}
-            analyticsProperties={analyticsProperties}
-            index={index}
-            partner={partner}
+    <div className="overflow-hidden rounded-2xl corner-squircle border border-gray-200 dark:border-gray-800">
+      {tiersWithPartners.map((row) => (
+        <React.Fragment key={row.tier}>
+          <TierBand
+            label={partnerTierLabels[row.tier]}
+            colorClassName={partnerTierBandColor[row.tier]}
           />
-        ))}
-      </div>
-    </Card>
+          <div className="flex flex-wrap items-stretch -mr-px -mb-px">
+            {row.partners.map((partner) => {
+              const index = slotIndex++
+              return (
+                <PartnerGridItem
+                  key={partner.id}
+                  analyticsPlacement={analyticsPlacement}
+                  index={index}
+                  placementContext={placementContext}
+                  partner={partner}
+                />
+              )
+            })}
+          </div>
+        </React.Fragment>
+      ))}
+      {trailingBand}
+    </div>
   )
 }

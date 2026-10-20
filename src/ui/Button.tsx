@@ -30,10 +30,7 @@ type ButtonOwnProps<TElement extends React.ElementType = 'button'> = {
 
 type ButtonProps<TElement extends React.ElementType = 'button'> =
   ButtonOwnProps<TElement> &
-    Omit<
-      React.ComponentPropsWithoutRef<TElement>,
-      keyof ButtonOwnProps<TElement>
-    >
+    Omit<React.ComponentPropsWithRef<TElement>, keyof ButtonOwnProps<TElement>>
 
 type ButtonComponent = <TElement extends React.ElementType = 'button'>(
   props: ButtonProps<TElement>,
@@ -57,7 +54,7 @@ const iconColorStyles: Record<ButtonColor, string> = {
   red: 'text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30',
   orange: 'text-orange-600 hover:bg-orange-100 dark:hover:bg-orange-900/30',
   purple: 'text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/30',
-  gray: 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700',
+  gray: 'text-text-muted hover:bg-background-subtle',
   emerald: 'text-emerald-600 hover:bg-emerald-100 dark:hover:bg-emerald-900/30',
   cyan: 'text-cyan-600 hover:bg-cyan-100 dark:hover:bg-cyan-900/30',
   yellow: 'text-yellow-600 hover:bg-yellow-100 dark:hover:bg-yellow-900/30',
@@ -66,9 +63,9 @@ const iconColorStyles: Record<ButtonColor, string> = {
 const variantStyles: Record<ButtonVariant, string> = {
   primary: 'border font-medium',
   secondary:
-    'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 border-transparent font-medium',
+    'bg-action-secondary text-text-secondary hover:bg-action-secondary-hover border-transparent font-medium',
   ghost:
-    'border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium',
+    'border border-border-default text-text-primary hover:bg-background-subtle font-medium',
   icon: 'border-transparent',
 }
 
@@ -89,7 +86,7 @@ const roundedStyles: Record<ButtonRounded, string> = {
 }
 
 const baseStyles =
-  'inline-flex items-center justify-center gap-2 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+  'inline-flex items-center justify-center gap-2 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-1 focus-visible:ring-offset-background-default'
 
 function getDefaultSize(variant: ButtonVariant): ButtonSize {
   if (variant === 'icon') return 'icon-md'
@@ -102,16 +99,22 @@ function getDefaultRounded(size: ButtonSize): ButtonRounded {
   return 'lg'
 }
 
-export const Button: ButtonComponent = ({
-  as,
-  children,
-  variant = 'primary',
-  color = 'blue',
-  size,
-  rounded,
-  className,
-  ...props
-}) => {
+type ButtonInnerProps = ButtonOwnProps & Record<string, unknown>
+
+export const Button: ButtonComponent = React.forwardRef<
+  HTMLElement,
+  ButtonInnerProps
+>(function Button(props, ref) {
+  const {
+    as,
+    children,
+    variant = 'primary',
+    color = 'blue',
+    size,
+    rounded,
+    className,
+    ...rest
+  } = props as ButtonOwnProps & Record<string, unknown>
   const Component = as || 'button'
   const resolvedSize = size ?? getDefaultSize(variant)
   const resolvedRounded = rounded ?? getDefaultRounded(resolvedSize)
@@ -126,6 +129,7 @@ export const Button: ButtonComponent = ({
   return React.createElement(
     Component,
     {
+      ref,
       className: twMerge(
         baseStyles,
         variantStyles[variant],
@@ -134,8 +138,8 @@ export const Button: ButtonComponent = ({
         colorStyles,
         className,
       ),
-      ...props,
+      ...rest,
     },
     children,
   )
-}
+}) as unknown as ButtonComponent

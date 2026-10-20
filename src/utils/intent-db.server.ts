@@ -3,14 +3,14 @@
  * Server-only. Import only inside server function handlers or scheduled functions.
  */
 
-import { db } from '~/db/client'
+import { db, isDatabaseConfigured } from '~/db/client'
 import {
   intentPackages,
   intentPackageVersions,
   intentSkills,
   intentSkillContent,
 } from '~/db/schema'
-import { eq, desc, sql, and, inArray, or, ilike } from 'drizzle-orm'
+import { eq, desc, sql, and, inArray, or, ilike, notInArray } from 'drizzle-orm'
 import type {
   IntentPackage,
   IntentPackageVersion,
@@ -29,11 +29,22 @@ export type {
   IntentSkillContent,
 }
 
+export interface IntentLatestVersionSkillSummary {
+  packageName: string
+  latestVersion: string
+  publishedAt: Date | null
+  skillNames: Array<string>
+  frameworks: Array<string>
+}
+
 // ---------------------------------------------------------------------------
 // Reads
 // ---------------------------------------------------------------------------
 
 export async function getAllVerifiedPackages(): Promise<Array<IntentPackage>> {
+  if (process.env.NODE_ENV === 'development' && !(await isDatabaseConfigured()))
+    return []
+
   return db.query.intentPackages.findMany({
     where: eq(intentPackages.verified, true),
     orderBy: [desc(intentPackages.lastSyncedAt)],
@@ -43,6 +54,9 @@ export async function getAllVerifiedPackages(): Promise<Array<IntentPackage>> {
 export async function getPackageByName(
   name: string,
 ): Promise<IntentPackage | undefined> {
+  if (process.env.NODE_ENV === 'development' && !(await isDatabaseConfigured()))
+    return undefined
+
   return db.query.intentPackages.findFirst({
     where: eq(intentPackages.name, name),
   })
@@ -52,6 +66,9 @@ export async function getPackageByName(
 export async function getPackageVersions(
   packageName: string,
 ): Promise<Array<IntentPackageVersion>> {
+  if (process.env.NODE_ENV === 'development' && !(await isDatabaseConfigured()))
+    return []
+
   return db.query.intentPackageVersions.findMany({
     where: and(
       eq(intentPackageVersions.packageName, packageName),
@@ -75,14 +92,24 @@ export async function getKnownVersions(
 
 // Pull up to `limit` pending versions ordered by createdAt (FIFO queue).
 // Also includes 'failed' rows so they get retried each cycle.
-export async function getPendingVersions(limit: number): Promise<
-  Array<{
-    id: number
-    packageName: string
-    version: string
-    tarballUrl: string | null
-  }>
-> {
+export interface PendingIntentVersion {
+  id: number
+  packageName: string
+  version: string
+  tarballUrl: string | null
+}
+
+export async function getPendingVersions(
+  limit: number,
+  options?: { excludeIds?: Array<number> },
+): Promise<Array<PendingIntentVersion>> {
+  const where = and(
+    inArray(intentPackageVersions.syncStatus, ['pending', 'failed']),
+    options?.excludeIds?.length
+      ? notInArray(intentPackageVersions.id, options.excludeIds)
+      : undefined,
+  )
+
   return db
     .select({
       id: intentPackageVersions.id,
@@ -91,14 +118,41 @@ export async function getPendingVersions(limit: number): Promise<
       tarballUrl: intentPackageVersions.tarballUrl,
     })
     .from(intentPackageVersions)
-    .where(inArray(intentPackageVersions.syncStatus, ['pending', 'failed']))
+    .where(where)
     .orderBy(intentPackageVersions.createdAt)
     .limit(limit)
+}
+
+export interface IntentVersionForProcessing extends PendingIntentVersion {
+  syncStatus: string
+  skillCount: number
+}
+
+export async function getVersionForProcessing(
+  id: number,
+): Promise<IntentVersionForProcessing | undefined> {
+  const rows = await db
+    .select({
+      id: intentPackageVersions.id,
+      packageName: intentPackageVersions.packageName,
+      version: intentPackageVersions.version,
+      tarballUrl: intentPackageVersions.tarballUrl,
+      syncStatus: intentPackageVersions.syncStatus,
+      skillCount: intentPackageVersions.skillCount,
+    })
+    .from(intentPackageVersions)
+    .where(eq(intentPackageVersions.id, id))
+    .limit(1)
+
+  return rows[0]
 }
 
 export async function getSkillsForVersion(
   packageVersionId: number,
 ): Promise<Array<IntentSkill & { content: string }>> {
+  if (process.env.NODE_ENV === 'development' && !(await isDatabaseConfigured()))
+    return []
+
   const rows = await db
     .select({
       id: intentSkills.id,
@@ -122,10 +176,76 @@ export async function getSkillsForVersion(
   return rows
 }
 
+export async function getLatestIntentVersionSkillSummaries(): Promise<
+  Array<IntentLatestVersionSkillSummary>
+> {
+  if (process.env.NODE_ENV === 'development' && !(await isDatabaseConfigured()))
+    return []
+
+  const latestVersions = db
+    .selectDistinctOn([intentPackageVersions.packageName], {
+      id: intentPackageVersions.id,
+      packageName: intentPackageVersions.packageName,
+      latestVersion: intentPackageVersions.version,
+      publishedAt: intentPackageVersions.publishedAt,
+    })
+    .from(intentPackageVersions)
+    .innerJoin(
+      intentPackages,
+      eq(intentPackageVersions.packageName, intentPackages.name),
+    )
+    .where(
+      and(
+        eq(intentPackages.verified, true),
+        eq(intentPackageVersions.syncStatus, 'synced'),
+      ),
+    )
+    .orderBy(
+      intentPackageVersions.packageName,
+      sql`${intentPackageVersions.publishedAt} desc nulls last`,
+      desc(intentPackageVersions.id),
+    )
+    .as('latest_versions')
+
+  return db
+    .select({
+      packageName: latestVersions.packageName,
+      latestVersion: latestVersions.latestVersion,
+      publishedAt: latestVersions.publishedAt,
+      skillNames: sql<Array<string>>`
+        coalesce(
+          jsonb_agg(${intentSkills.name} order by ${intentSkills.name})
+            filter (where ${intentSkills.name} is not null),
+          '[]'::jsonb
+        )
+      `,
+      frameworks: sql<Array<string>>`
+        coalesce(
+          jsonb_agg(distinct ${intentSkills.framework} order by ${intentSkills.framework})
+            filter (where ${intentSkills.framework} is not null),
+          '[]'::jsonb
+        )
+      `,
+    })
+    .from(latestVersions)
+    .leftJoin(
+      intentSkills,
+      eq(intentSkills.packageVersionId, latestVersions.id),
+    )
+    .groupBy(
+      latestVersions.packageName,
+      latestVersions.latestVersion,
+      latestVersions.publishedAt,
+    )
+}
+
 // Lightweight query for diffing: only name + contentHash, no content body join
 export async function getSkillFingerprintsForVersion(
   packageVersionId: number,
 ): Promise<Array<{ name: string; contentHash: string }>> {
+  if (process.env.NODE_ENV === 'development' && !(await isDatabaseConfigured()))
+    return []
+
   return db
     .select({
       name: intentSkills.name,
@@ -141,6 +261,9 @@ export async function getIntentRegistryStats(): Promise<{
   skillCount: number
   versionCount: number
 }> {
+  if (process.env.NODE_ENV === 'development' && !(await isDatabaseConfigured()))
+    return { packageCount: 0, skillCount: 0, versionCount: 0 }
+
   const [pkgCount, skillCount, versionCount] = await Promise.all([
     db
       .select({ count: sql<number>`count(*)::int` })
@@ -201,6 +324,9 @@ export async function getIntentRegistryStats(): Promise<{
 export async function searchPackagesByName(
   query: string,
 ): Promise<Array<IntentPackage>> {
+  if (process.env.NODE_ENV === 'development' && !(await isDatabaseConfigured()))
+    return []
+
   return db.query.intentPackages.findMany({
     where: and(
       eq(intentPackages.verified, true),
@@ -228,6 +354,9 @@ export async function searchSkills(
   query: string,
   limit = 50,
 ): Promise<Array<SkillSearchResult>> {
+  if (process.env.NODE_ENV === 'development' && !(await isDatabaseConfigured()))
+    return []
+
   const pattern = `%${query}%`
   const rows = await db
     .select({

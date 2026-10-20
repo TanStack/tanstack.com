@@ -29,7 +29,7 @@ export function RedirectVersionBanner(props: {
         <p className="block">
           You are currently reading <strong>{version}</strong> docs. Redirect to{' '}
           <Link
-            to={activeMatch.fullPath}
+            to={activeMatch.fullPath as never}
             params={{ version: 'latest' } as never}
             className="font-bold underline"
           >
@@ -40,7 +40,7 @@ export function RedirectVersionBanner(props: {
         <div className="flex gap-2 flex-col lg:flex-row items-center">
           <Button
             as={Link}
-            to={activeMatch.fullPath}
+            to={activeMatch.fullPath as never}
             params={{ version: 'latest' } as never}
             replace
             variant="secondary"

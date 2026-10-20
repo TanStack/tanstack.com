@@ -1,10 +1,16 @@
 import * as React from 'react'
-import { ChevronDown, Copy, SquarePen } from 'lucide-react'
+import {
+  CaretDownIcon,
+  CopyIcon,
+  PencilSimpleLineIcon,
+} from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { ButtonGroup } from '~/components/ButtonGroup'
 import { DocTitle } from '~/components/DocTitle'
 import { DocFeedbackProvider } from '~/components/DocFeedbackProvider'
 import { Button } from '~/ui'
+import type { SiteMarkdownDocument } from '~/utils/markdown'
+import { Markdown } from './Markdown'
 
 const LazyCopyPageDropdown = React.lazy(() =>
   import('~/components/CopyPageDropdown').then((m) => ({
@@ -17,7 +23,8 @@ type MarkdownContentProps = {
   repo: string
   branch: string
   filePath: string
-  contentRsc: React.ReactNode
+  markdown: SiteMarkdownDocument
+  preserveTabPanels?: boolean
   /** Additional elements to render in the title bar (e.g., width toggle button) */
   titleBarActions?: React.ReactNode
   /** Additional class names for the prose container */
@@ -30,6 +37,8 @@ type MarkdownContentProps = {
   pagePath?: string
   /** Current framework for filtering markdown content */
   currentFramework?: string
+  /** Render the first image in the document as high-priority/eager (e.g. blog post hero images) */
+  eagerFirstImage?: boolean
 }
 
 function CopyPageDropdownFallback() {
@@ -42,7 +51,7 @@ function CopyPageDropdownFallback() {
         className="border-0"
         disabled
       >
-        <Copy className="w-3 h-3" />
+        <CopyIcon className="w-3 h-3" />
         Copy page
       </Button>
       <Button
@@ -53,7 +62,7 @@ function CopyPageDropdownFallback() {
         disabled
         aria-label="More copy actions"
       >
-        <ChevronDown className="w-3 h-3" />
+        <CaretDownIcon className="w-3 h-3" />
       </Button>
     </ButtonGroup>
   )
@@ -64,7 +73,8 @@ export function MarkdownContent({
   repo,
   branch,
   filePath,
-  contentRsc,
+  markdown,
+  preserveTabPanels,
   titleBarActions,
   proseClassName,
   containerRef,
@@ -72,6 +82,7 @@ export function MarkdownContent({
   libraryVersion,
   pagePath,
   currentFramework,
+  eagerFirstImage,
 }: MarkdownContentProps) {
   const [canLoadCopyControls, setCanLoadCopyControls] = React.useState(false)
 
@@ -79,23 +90,27 @@ export function MarkdownContent({
     setCanLoadCopyControls(true)
   }, [])
 
-  const renderMarkdownContent = () => {
-    const markdownElement = contentRsc
+  const renderedMarkdown = (
+    <Markdown
+      document={markdown}
+      chartEmbedSource={libraryId === 'charts' ? 'collapsed' : undefined}
+      preserveTabPanels={preserveTabPanels}
+      eagerFirstImage={eagerFirstImage}
+    />
+  )
 
-    if (libraryId && libraryVersion && pagePath) {
-      return (
-        <DocFeedbackProvider
-          pagePath={pagePath}
-          libraryId={libraryId}
-          libraryVersion={libraryVersion}
-        >
-          {markdownElement}
-        </DocFeedbackProvider>
-      )
-    }
-
-    return markdownElement
-  }
+  const contentNode =
+    libraryId && libraryVersion && pagePath ? (
+      <DocFeedbackProvider
+        pagePath={pagePath}
+        libraryId={libraryId}
+        libraryVersion={libraryVersion}
+      >
+        {renderedMarkdown}
+      </DocFeedbackProvider>
+    ) : (
+      renderedMarkdown
+    )
 
   return (
     <>
@@ -142,7 +157,7 @@ export function MarkdownContent({
           proseClassName,
         )}
       >
-        {renderMarkdownContent()}
+        {contentNode}
       </div>
       <div className="h-12" />
       <div className="w-full h-px bg-gray-500 opacity-30" />
@@ -153,7 +168,7 @@ export function MarkdownContent({
           as="a"
           href={`https://github.com/${repo}/edit/${branch}/${filePath}`}
         >
-          <SquarePen className="w-3.5 h-3.5" />
+          <PencilSimpleLineIcon className="w-3.5 h-3.5" />
           Edit on GitHub
         </Button>
       </div>

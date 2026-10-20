@@ -1,914 +1,163 @@
 import * as React from 'react'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
+import { Command } from 'cmdk'
 import { twMerge } from 'tailwind-merge'
 import {
-  Dropdown,
-  DropdownTrigger,
-  DropdownContent,
-  DropdownItem,
-} from './Dropdown'
-import {
   InstantSearch,
-  SearchBox,
-  Snippet,
-  Configure,
-  useMenu,
   useInstantSearch,
   useInfiniteHits,
+  useSearchBox,
 } from 'react-instantsearch'
-import { liteClient } from 'algoliasearch/lite'
-import { X, Search, ChevronDown, CornerDownLeft } from 'lucide-react'
-import { Link, useRouterState } from '@tanstack/react-router'
-import { useSearchContext } from '~/contexts/SearchContext'
-import { libraries } from '~/libraries'
-import { frameworkOptions } from '~/libraries/frameworks'
-import { capitalize } from '~/utils/utils'
-import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import {
-  getStoredFrameworkPreference,
-  usePersistFrameworkPreference,
-} from './FrameworkSelect'
+  XIcon,
+  MagnifyingGlassIcon,
+  ArrowElbowDownLeftIcon,
+  ChatCenteredDotsIcon,
+  ArrowsOutSimpleIcon,
+  ArrowsInSimpleIcon,
+} from '@phosphor-icons/react'
+import { useSearchContext } from '~/contexts/SearchContext'
+import {
+  type AlgoliaHit,
+  dedupeSearchHitsByPage,
+  searchClient,
+  searchIndexName,
+  useSearchFilters,
+  SearchFiltersProvider,
+  DynamicFilters,
+  AlgoliaAttribution,
+  Hit,
+  LibraryRefinement,
+  FrameworkRefinement,
+  NoResults,
+} from './SearchShared'
 
-/**
- * Safely decode HTML entities without using innerHTML.
- * Only decodes common entities that appear in Algolia search results.
- */
-function decodeHtmlEntities(str: string): string {
-  const entities: Record<string, string> = {
-    '&amp;': '&',
-    '&lt;': '<',
-    '&gt;': '>',
-    '&quot;': '"',
-    '&#39;': "'",
-    '&apos;': "'",
-    '&#x27;': "'",
-    '&#x2F;': '/',
-    '&#47;': '/',
-    '&nbsp;': ' ',
-    '&#160;': ' ',
-    '&ndash;': '–',
-    '&mdash;': '—',
-    '&hellip;': '…',
-    '&copy;': '©',
-    '&reg;': '®',
-    '&trade;': '™',
-  }
-
-  return str.replace(
-    /&(?:#(?:x[0-9a-fA-F]+|[0-9]+)|[a-zA-Z]+);/g,
-    (match) => entities[match] ?? match,
-  )
-}
-
-// Algolia hit types - our docs-specific shape
-interface AlgoliaHierarchy {
-  lvl0?: string
-  lvl1?: string
-  lvl2?: string
-  lvl3?: string
-  lvl4?: string
-  lvl5?: string
-  lvl6?: string
-  [key: string]: string | undefined
-}
-
-interface AlgoliaHighlightResult {
-  value?: string
-  matchLevel?: string
-  matchedWords?: string[]
-}
-
-// Docs-specific hit shape from Algolia
-// Using Record for flexibility with the Algolia SDK types
-interface AlgoliaHit extends Record<string, unknown> {
-  objectID: string
-  url: string
-  library?: string
-  hierarchy: AlgoliaHierarchy
-  content?: string
-  type?: string
-  __position: number
-  __queryID?: string
-  _highlightResult?: Record<string, unknown>
-  _snippetResult?: Record<string, unknown>
-}
-
-// Custom Highlight component that decodes HTML entities
-function DecodedHighlight({
-  attribute,
-  hit,
+function CommandSearchPanel({
+  isFullHeight,
+  onToggleFullHeight,
 }: {
-  attribute: string
-  hit: AlgoliaHit
+  isFullHeight: boolean
+  onToggleFullHeight: () => void
 }) {
-  // Navigate nested paths for both raw value and highlight result
-  const getNestedValue = (
-    obj: Record<string, unknown> | undefined,
-    path: string,
-  ): unknown => {
-    let current: unknown = obj
-    for (const key of path.split('.')) {
-      if (current == null || typeof current !== 'object') return undefined
-      current = (current as Record<string, unknown>)[key]
-    }
-    return current
-  }
-
-  const highlighted = (
-    getNestedValue(
-      hit._highlightResult as Record<string, unknown>,
-      attribute,
-    ) as AlgoliaHighlightResult | undefined
-  )?.value
-  const raw = getNestedValue(
-    hit as unknown as Record<string, unknown>,
-    attribute,
-  ) as string | undefined
-
-  if (!highlighted) {
-    return <>{decodeHtmlEntities(raw || '')}</>
-  }
-
-  // Parse the highlighted string and decode entities while preserving <mark> tags
-  // First, preserve mark tags with placeholders
-  const withPlaceholders = highlighted
-    .replace(/<mark>/g, '###MARK###')
-    .replace(/<\/mark>/g, '###/MARK###')
-
-  // Decode HTML entities
-  const decoded = decodeHtmlEntities(withPlaceholders)
-
-  // Strip any other HTML tags for security (only allow mark tags)
-  const sanitized = decoded.replace(/<[^>]*>/g, '')
-
-  // Restore mark tags
-  const final = sanitized
-    .replace(/###MARK###/g, '<mark>')
-    .replace(/###\/MARK###/g, '</mark>')
-
-  return <span dangerouslySetInnerHTML={{ __html: final }} />
-}
-
-const searchClient = liteClient(
-  'FQ0DQ6MA3C',
-  '10c34d6a5c89f6048cf644d601e65172',
-)
-
-// Context to share filter state between components
-const SearchFiltersContext = React.createContext<{
-  selectedLibrary: string
-  selectedFramework: string
-  setSelectedLibrary: (value: string) => void
-  setSelectedFramework: (value: string) => void
-  refineLibrary: (value: string) => void
-  refineFramework: (value: string) => void
-  libraryItems: Array<{
-    value: string
-    label: string
-    count: number
-    isRefined: boolean
-  }>
-  frameworkItems: Array<{
-    value: string
-    label: string
-    count: number
-    isRefined: boolean
-  }>
-} | null>(null)
-
-function useSearchFilters() {
-  const context = React.useContext(SearchFiltersContext)
-  if (!context) {
-    throw new Error(
-      'useSearchFilters must be used within SearchFiltersProvider',
-    )
-  }
-  return context
-}
-
-function SearchFiltersProvider({ children }: { children: React.ReactNode }) {
-  const userQuery = useCurrentUserQuery()
-  const [selectedLibrary, setSelectedLibrary] = React.useState('')
-  const lastUsedFramework = userQuery.data?.lastUsedFramework
-
-  // Get initial framework from user preference (DB if logged in, localStorage otherwise)
-  const getInitialFramework = React.useCallback(() => {
-    if (lastUsedFramework) {
-      return lastUsedFramework
-    }
-    return getStoredFrameworkPreference() || ''
-  }, [lastUsedFramework])
-
-  const [selectedFramework, setSelectedFramework] =
-    React.useState(getInitialFramework)
-
-  // Use useMenu just to get the list of available options and counts
-  // We do NOT use refine() because facet filters don't support OR logic
-  // Instead, we build custom filter strings via Configure component
-  const { items: rawLibraryItems } = useMenu({
-    attribute: 'library',
-    limit: 50,
-  })
-
-  const { items: rawFrameworkItems } = useMenu({
-    attribute: 'framework',
-    limit: 50,
-  })
-
-  // Auto-select based on current page URL
-  const pathname = useRouterState({
-    select: (state) => state.location.pathname,
-  })
-
-  // Auto-select library from URL on mount
-  const hasAutoSelectedLibrary = React.useRef(false)
-  React.useEffect(() => {
-    if (hasAutoSelectedLibrary.current) return
-    const pathParts = pathname.split('/').filter(Boolean)
-    const urlLibrary = libraries.find((l) => l.id === pathParts[0])
-    if (urlLibrary) {
-      setSelectedLibrary(urlLibrary.id)
-      hasAutoSelectedLibrary.current = true
-    }
-  }, [pathname])
-
-  // Auto-select framework from URL or preference on mount
-  const hasAutoSelectedFramework = React.useRef(false)
-  React.useEffect(() => {
-    if (hasAutoSelectedFramework.current) return
-
-    // First check URL for framework
-    const frameworkMatch = pathname.match(/\/framework\/([^/]+)/)
-    if (frameworkMatch) {
-      setSelectedFramework(frameworkMatch[1])
-      hasAutoSelectedFramework.current = true
-      return
-    }
-
-    // Fall back to stored preference
-    const storedFramework = getInitialFramework()
-    if (storedFramework) {
-      setSelectedFramework(storedFramework)
-      hasAutoSelectedFramework.current = true
-    }
-  }, [pathname, getInitialFramework])
-
-  // Sort items by their defined order and filter out "all" from display
-  const libraryItems = [...rawLibraryItems]
-    .filter((item) => item.value !== 'all')
-    .sort((a, b) => {
-      const aIndex = libraries.findIndex((l) => l.id === a.value)
-      const bIndex = libraries.findIndex((l) => l.id === b.value)
-      return aIndex - bIndex
-    })
-
-  const frameworkItems = [...rawFrameworkItems]
-    .filter((item) => item.value !== 'all')
-    .sort((a, b) => {
-      const aIndex = frameworkOptions.findIndex((f) => f.value === a.value)
-      const bIndex = frameworkOptions.findIndex((f) => f.value === b.value)
-      return aIndex - bIndex
-    })
-
-  // Wrapper functions that just update state (no Algolia refine)
-  const selectLibrary = React.useCallback((value: string) => {
-    setSelectedLibrary(value)
-  }, [])
-
-  const selectFramework = React.useCallback((value: string) => {
-    setSelectedFramework(value)
-  }, [])
-
   return (
-    <SearchFiltersContext.Provider
-      value={{
-        selectedLibrary,
-        selectedFramework,
-        setSelectedLibrary,
-        setSelectedFramework,
-        refineLibrary: selectLibrary,
-        refineFramework: selectFramework,
-        libraryItems,
-        frameworkItems,
-      }}
-    >
-      {children}
-    </SearchFiltersContext.Provider>
-  )
-}
-
-// Component that builds dynamic filter strings including "all" library/framework pages
-function DynamicFilters() {
-  const { selectedLibrary, selectedFramework } = useSearchFilters()
-
-  // Build filter string
-  // - Always filter to latest version OR "all" (for core pages)
-  // - When library selected: include that library OR "all" (for core pages)
-  // - When framework selected: include that framework OR "all" (for integration pages)
-  const filterParts: string[] = []
-
-  // Version filter: include latest OR "all" (core pages)
-  filterParts.push('(version:latest OR version:all)')
-
-  if (selectedLibrary) {
-    // Include selected library OR "all" (core pages like /ethos)
-    filterParts.push(`(library:${selectedLibrary} OR library:all)`)
-  }
-
-  if (selectedFramework) {
-    // Include selected framework OR "all" (integration pages, core pages)
-    filterParts.push(`(framework:${selectedFramework} OR framework:all)`)
-  }
-
-  return (
-    <Configure
-      attributesToRetrieve={[
-        'hierarchy.lvl1',
-        'hierarchy.lvl2',
-        'hierarchy.lvl3',
-        'hierarchy.lvl4',
-        'hierarchy.lvl5',
-        'hierarchy.lvl6',
-        'url',
-        'content',
-        'library',
-      ]}
-      attributesToHighlight={[
-        'hierarchy.lvl1',
-        'hierarchy.lvl2',
-        'hierarchy.lvl3',
-        'hierarchy.lvl4',
-        'hierarchy.lvl5',
-        'hierarchy.lvl6',
-        'content',
-      ]}
-      attributesToSnippet={['content:50']}
-      filters={filterParts.join(' AND ')}
-    />
-  )
-}
-
-const SafeLink = React.forwardRef(
-  (
-    {
-      href,
-      children,
-      className,
-      onKeyDown,
-      role,
-      'aria-selected': ariaSelected,
-      tabIndex,
-      ...props
-    }: React.AnchorHTMLAttributes<HTMLAnchorElement>,
-    ref: React.Ref<HTMLAnchorElement>,
-  ) => {
-    const isInternal = href?.includes('//tanstack.com')
-
-    if (!isInternal) {
-      return (
-        <a
-          href={href}
-          className={className}
-          onKeyDown={onKeyDown}
-          role={role}
-          aria-selected={ariaSelected}
-          tabIndex={tabIndex}
-          ref={ref}
-          {...props}
-        >
-          {children}
-        </a>
-      )
-    }
-
-    return (
-      <Link
-        to={href?.split('//tanstack.com')[1]}
-        className={className}
-        onKeyDown={onKeyDown}
-        role={role}
-        aria-selected={ariaSelected}
-        tabIndex={tabIndex}
-        preloadDelay={500}
-        ref={ref}
-        {...props}
-      >
-        {children}
-      </Link>
-    )
-  },
-)
-
-const Hit = ({
-  hit,
-  isFocused,
-  refinedLibrary,
-  refinedFramework,
-}: {
-  hit: AlgoliaHit
-  isFocused?: boolean
-  refinedLibrary: string | null
-  refinedFramework: string | null
-}) => {
-  const { closeSearch } = useSearchContext()
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault()
-      const link = e.currentTarget as HTMLAnchorElement
-      link.click()
-      closeSearch()
-    }
-  }
-
-  const handleClick = () => {
-    closeSearch()
-  }
-
-  const ref = React.useRef<HTMLAnchorElement>(null!)
-
-  React.useEffect(() => {
-    if (isFocused) {
-      ref.current?.scrollIntoView({ behavior: 'instant', block: 'nearest' })
-    }
-  }, [isFocused])
-
-  // Get library and framework info for this hit
-  const hitLibrary = hit.library as string | undefined
-  const hitFramework = frameworkOptions.find((f) =>
-    hit.url.includes(`/framework/${f.value}`),
-  )
-  const hitLibraryInfo = hitLibrary
-    ? libraries.find((l) => l.id === hitLibrary)
-    : null
-
-  // Build hierarchy prefix based on what's filtered
-  const prefixParts: React.ReactNode[] = []
-
-  // Show library if not filtered to one
-  if (!refinedLibrary && hitLibraryInfo) {
-    prefixParts.push(
-      <span
-        key="library"
-        className={twMerge(
-          'inline-flex items-center px-2 py-0.5 rounded text-xs font-black text-white uppercase',
-          hitLibraryInfo.bgStyle,
-        )}
-      >
-        {hitLibraryInfo.id}
-      </span>,
-    )
-  }
-
-  // Show framework if not filtered to one and hit has a framework
-  if (!refinedFramework && hitFramework) {
-    prefixParts.push(
-      <span
-        key="framework"
-        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-bold bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
-      >
-        <img
-          src={hitFramework.logo}
-          alt={hitFramework.label}
-          className="w-3.5 h-3.5"
-        />
-        {capitalize(hitFramework.label)}
-      </span>,
-    )
-  }
-
-  const hierarchyLevels = [
-    'lvl1',
-    'lvl2',
-    'lvl3',
-    'lvl4',
-    'lvl5',
-    'lvl6',
-  ].filter((lvl) => hit.hierarchy[lvl])
-
-  return (
-    <SafeLink
-      href={hit.url}
+    <Command
+      label="Search TanStack"
+      shouldFilter={false}
+      loop
       className={twMerge(
-        'block px-4 py-2.5 focus:outline-none border-b border-gray-300 dark:border-gray-700',
-        isFocused ? 'bg-gray-500/20' : 'hover:bg-gray-500/10',
+        'flex flex-col overflow-hidden bg-white/95 text-left shadow-2xl backdrop-blur-xl dark:border dark:border-white/20 dark:bg-black/95 sm:rounded-[1.5rem]',
+        isFullHeight ? 'h-full' : 'h-dvh sm:h-[min(760px,calc(100dvh-2rem))]',
       )}
-      onKeyDown={handleKeyDown}
-      onFocus={() => ref.current?.focus()}
-      onClick={handleClick}
-      role="option"
-      aria-selected={isFocused}
-      tabIndex={-1}
-      ref={ref}
     >
-      <article className="flex items-start gap-4">
-        <div className="flex-1">
-          <h3 className="text-sm text-gray-900 dark:text-white flex items-center gap-1.5 flex-wrap pl-8 [&>*:first-child]:-ml-8">
-            {prefixParts.length > 0 && (
-              <>
-                {prefixParts.map((part, i) => (
-                  <React.Fragment key={i}>
-                    {part}
-                    <span className="text-gray-400 dark:text-gray-600 text-xs">
-                      ›
-                    </span>
-                  </React.Fragment>
-                ))}
-              </>
-            )}
-            {hierarchyLevels.map((lvl, i, arr) => (
-              <React.Fragment key={lvl}>
-                <span className="text-gray-600 dark:text-gray-400 [&_mark]:font-black [&_mark]:!bg-transparent [&_mark]:text-black [&_mark]:dark:text-white [&_mark]:inline [&_mark]:!p-0 [&_mark]:!m-0 [&_mark]:!rounded-none">
-                  <DecodedHighlight attribute={`hierarchy.${lvl}`} hit={hit} />
-                </span>
-                {i < arr.length - 1 && (
-                  <span className="text-gray-400 dark:text-gray-600 text-xs">
-                    ›
-                  </span>
-                )}
-              </React.Fragment>
-            ))}
-          </h3>
-          {hit.content ? (
-            <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5 ml-8 line-clamp-2 [&_mark]:font-black [&_mark]:!bg-transparent [&_mark]:text-black [&_mark]:dark:text-white [&_mark]:inline [&_mark]:!p-0 [&_mark]:!m-0 [&_mark]:!rounded-none">
-              <Snippet
-                attribute="content"
-                hit={hit as Parameters<typeof Snippet>[0]['hit']}
-              />
-            </p>
-          ) : null}
-        </div>
-        {refinedFramework && hitFramework ? (
-          <div className="flex-none">
-            <div className="flex items-center gap-1 text-xs font-black bg-white rounded-xl px-2 py-1 dark:bg-black">
-              <img
-                src={hitFramework.logo}
-                alt={hitFramework.label}
-                className="w-4"
-              />
-              {capitalize(hitFramework.label)}
-            </div>
-          </div>
-        ) : null}
-      </article>
-    </SafeLink>
+      <CommandSearchInput
+        isFullHeight={isFullHeight}
+        onToggleFullHeight={onToggleFullHeight}
+      />
+      <CommandSearchResults />
+    </Command>
   )
 }
 
-function LibraryRefinement() {
-  const {
-    selectedLibrary,
-    setSelectedLibrary,
-    libraryItems: items,
-  } = useSearchFilters()
-
-  const currentLibrary = libraries.find((l) => l.id === selectedLibrary)
-
-  return (
-    <Dropdown modal={false}>
-      <DropdownTrigger>
-        <button
-          type="button"
-          className="flex items-center gap-1 text-sm focus:outline-none cursor-pointer font-bold"
-        >
-          {currentLibrary ? (
-            <span className="uppercase font-black [letter-spacing:-.05em]">
-              <span className="opacity-50">TanStack</span>{' '}
-              <span className={currentLibrary.textStyle}>
-                {currentLibrary.id.toUpperCase()}
-              </span>
-            </span>
-          ) : (
-            <span>All Libraries</span>
-          )}
-          <ChevronDown className="w-3.5 h-3.5 opacity-50" />
-        </button>
-      </DropdownTrigger>
-      <DropdownContent
-        align="start"
-        className="max-h-[60vh] w-64 overflow-auto"
-      >
-        <DropdownItem
-          onSelect={() => setSelectedLibrary('')}
-          className="font-bold"
-        >
-          All Libraries
-        </DropdownItem>
-        {items.map((item) => {
-          const lib = libraries.find((l) => l.id === item.value)
-          return (
-            <DropdownItem
-              key={item.value}
-              onSelect={() => setSelectedLibrary(item.value)}
-              className="justify-between"
-            >
-              <span className="uppercase font-black [letter-spacing:-.05em]">
-                <span className="opacity-50">TanStack</span>{' '}
-                <span className={lib?.textStyle ?? ''}>
-                  {item.label.toUpperCase()}
-                </span>
-              </span>
-              <span className="text-gray-400 text-xs font-normal">
-                ({item.count})
-              </span>
-            </DropdownItem>
-          )
-        })}
-      </DropdownContent>
-    </Dropdown>
-  )
-}
-
-function FrameworkRefinement() {
-  const {
-    selectedFramework,
-    setSelectedFramework,
-    frameworkItems: items,
-  } = useSearchFilters()
-
-  const persistFramework = usePersistFrameworkPreference()
-
-  const handleSelect = (value: string) => {
-    setSelectedFramework(value)
-    if (value) {
-      persistFramework(value)
-    }
-  }
-
-  const currentFramework = frameworkOptions.find(
-    (f) => f.value === selectedFramework,
-  )
-
-  return (
-    <Dropdown modal={false}>
-      <DropdownTrigger>
-        <button
-          type="button"
-          className="flex items-center gap-1 text-sm font-bold focus:outline-none cursor-pointer"
-        >
-          {currentFramework && (
-            <img
-              src={currentFramework.logo}
-              alt={currentFramework.label}
-              className="w-4 h-4"
-            />
-          )}
-          <span>
-            {currentFramework
-              ? capitalize(currentFramework.label)
-              : 'All Frameworks'}
-          </span>
-          <ChevronDown className="w-3.5 h-3.5 opacity-50" />
-        </button>
-      </DropdownTrigger>
-      <DropdownContent
-        align="start"
-        className="max-h-[60vh] w-52 overflow-auto"
-      >
-        <DropdownItem onSelect={() => handleSelect('')} className="font-bold">
-          All Frameworks
-        </DropdownItem>
-        {items.map((item) => {
-          const fw = frameworkOptions.find((f) => f.value === item.value)
-          return (
-            <DropdownItem
-              key={item.value}
-              onSelect={() => handleSelect(item.value)}
-              className="justify-between"
-            >
-              <span className="flex items-center gap-2">
-                {fw && <img src={fw.logo} alt={fw.label} className="w-4 h-4" />}
-                <span className="font-bold">{capitalize(item.label)}</span>
-              </span>
-              <span className="text-gray-400 text-xs">({item.count})</span>
-            </DropdownItem>
-          )
-        })}
-      </DropdownContent>
-    </Dropdown>
-  )
-}
-
-function NoResults({
-  refinedFramework,
-  refinedLibrary,
-  clearFramework,
-  clearLibrary,
+function CommandSearchInput({
+  isFullHeight,
+  onToggleFullHeight,
 }: {
-  refinedFramework: string | null
-  refinedLibrary: string | null
-  clearFramework: () => void
-  clearLibrary: () => void
+  isFullHeight: boolean
+  onToggleFullHeight: () => void
 }) {
-  const { results } = useInstantSearch()
-
-  if (results.__isArtificial || results.nbHits > 0) {
-    return null
-  }
-
-  const currentFrameworkOption = refinedFramework
-    ? frameworkOptions.find((f) => f.value === refinedFramework)
-    : null
-  const currentLibrary = refinedLibrary
-    ? libraries.find((l) => l.id === refinedLibrary)
-    : null
-
-  return (
-    <div className="p-8 text-center text-gray-500 dark:text-gray-400">
-      <p className="text-lg font-medium">No results found</p>
-      <p className="mt-2 text-sm">
-        Try adjusting your search or filters to find what you're looking for.
-      </p>
-      {refinedFramework && (
-        <div className="mt-4 inline-flex items-center gap-2">
-          <button
-            onClick={clearFramework}
-            role="option"
-            aria-selected="true"
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors shadow-sm"
-          >
-            Search all frameworks
-            {currentFrameworkOption && (
-              <span className="text-xs font-normal opacity-70">
-                (currently {currentFrameworkOption.label})
-              </span>
-            )}
-          </button>
-          <CornerDownLeft className="w-4 h-4 animate-bounce" />
-        </div>
-      )}
-      {!refinedFramework && refinedLibrary && (
-        <div className="mt-4 inline-flex items-center gap-2">
-          <button
-            onClick={clearLibrary}
-            role="option"
-            aria-selected="true"
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors shadow-sm"
-          >
-            Search all libraries
-            {currentLibrary && (
-              <span className="text-xs font-normal opacity-70">
-                (currently {currentLibrary.name})
-              </span>
-            )}
-          </button>
-          <CornerDownLeft className="w-4 h-4 animate-bounce" />
-        </div>
-      )}
-    </div>
-  )
-}
-
-const _submitIconComponent = () => {
-  return <Search />
-}
-
-const resetIconComponent = () => {
-  return <X />
-}
-
-export function SearchModal() {
-  const { isOpen, closeSearch } = useSearchContext()
-  const [focusedIndex, setFocusedIndex] = React.useState(0)
-  const containerRef = React.useRef<HTMLDivElement>(null)
-
-  // Reset focused index when modal opens
-  React.useEffect(() => {
-    if (isOpen) {
-      setFocusedIndex(0)
-    }
-  }, [isOpen])
-
-  const focusedIndexRef = React.useRef(focusedIndex)
+  const { closeSearch } = useSearchContext()
+  const { refine } = useSearchBox()
+  const { searchQuery, setSearchQuery } = useSearchFilters()
+  const hasQuery = searchQuery.trim().length > 0
+  const inputRef = React.useRef<HTMLInputElement>(null)
 
   React.useEffect(() => {
-    focusedIndexRef.current = focusedIndex
-  }, [focusedIndex])
+    const frame = requestAnimationFrame(() => {
+      inputRef.current?.focus({ preventScroll: true })
+    })
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    e.persist()
+    return () => cancelAnimationFrame(frame)
+  }, [])
 
-    if (!containerRef.current) return
-
-    const items = containerRef.current.querySelectorAll('[role="option"]')
-    if (!items.length) return
-
-    switch (e.key) {
-      case 'ArrowDown':
-        e.preventDefault()
-        setFocusedIndex((prev) => Math.min(prev + 1, items.length - 1))
-        break
-      case 'ArrowUp':
-        e.preventDefault()
-        setFocusedIndex((prev) => Math.max(prev - 1, 0))
-        break
-      case 'Home':
-        e.preventDefault()
-        setFocusedIndex(0)
-        break
-      case 'End':
-        e.preventDefault()
-        setFocusedIndex(items.length - 1)
-        break
-      case 'Enter':
-        e.preventDefault()
-        const item = items[focusedIndexRef.current] as HTMLElement
-        if (item) {
-          item.click()
-        }
-        break
-      case 'Escape':
-        e.preventDefault()
-        closeSearch()
-        break
-    }
-  }
+  const clearSearch = React.useCallback(() => {
+    setSearchQuery('')
+    refine('')
+  }, [refine, setSearchQuery])
 
   return (
-    <DialogPrimitive.Root open={isOpen} onOpenChange={closeSearch}>
-      <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-[999] bg-black/60 xl:bg-black/30 backdrop-blur-sm" />
-        <DialogPrimitive.Content
-          className="fixed z-[1000] top-8 left-1/2 -translate-x-1/2 w-[98%] xl:w-full max-w-3xl text-left bg-white/80 dark:bg-black/80 shadow-lg rounded-lg xl:rounded-xl divide-y divide-gray-500/20 backdrop-blur-lg dark:border dark:border-white/20 outline-none"
-          ref={containerRef}
-          onKeyDown={handleKeyDown}
+    <header className="flex-none border-b border-gray-200/80 bg-white/95 px-3 py-3 dark:border-white/10 dark:bg-black/95 sm:px-4">
+      <div className="flex items-center gap-2">
+        <div className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-gray-200 bg-gray-500/[0.04] px-3 py-2.5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
+          <MagnifyingGlassIcon className="h-5 w-5 shrink-0 text-gray-400 dark:text-gray-500" />
+          <Command.Input
+            ref={inputRef}
+            aria-label="Search TanStack"
+            placeholder="Search TanStack..."
+            value={searchQuery}
+            onValueChange={(nextQuery) => {
+              setSearchQuery(nextQuery)
+              refine(nextQuery)
+            }}
+            className="w-full bg-transparent text-base text-gray-900 outline-none placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 [&::-webkit-search-cancel-button]:hidden"
+          />
+          <button
+            type="button"
+            onClick={clearSearch}
+            className={twMerge(
+              'flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-gray-400 transition-opacity hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-200',
+              hasQuery ? 'opacity-100' : 'pointer-events-none opacity-0',
+            )}
+            tabIndex={-1}
+            aria-label="Clear search"
+          >
+            <XIcon className="h-4 w-4" />
+          </button>
+        </div>
+        <button
+          type="button"
+          onClick={onToggleFullHeight}
+          className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-400 shadow-sm transition-colors hover:text-gray-700 dark:border-white/10 dark:bg-white/[0.06] dark:text-gray-500 dark:hover:text-gray-200 sm:flex"
+          aria-label={isFullHeight ? 'Collapse search' : 'Expand search'}
         >
-          <DialogPrimitive.Title className="sr-only">
-            Search TanStack docs
-          </DialogPrimitive.Title>
-          <InstantSearch searchClient={searchClient} indexName="tanstack-test">
-            <SearchFiltersProvider>
-              <DynamicFilters />
-              <div className="flex items-center gap-2 px-4 py-3 overflow-visible">
-                <Search className="w-5 h-5 opacity-50 flex-none" />
-                <LibraryRefinement />
-                <span className="text-gray-400 dark:text-gray-600">/</span>
-                <FrameworkRefinement />
-                <span className="text-gray-400 dark:text-gray-600">/</span>
-                <SearchBox
-                  placeholder="Search..."
-                  classNames={{
-                    root: 'flex-1',
-                    form: 'flex items-center',
-                    input:
-                      'w-full outline-none font-bold [&::-webkit-search-cancel-button]:hidden bg-transparent',
-                    submit: 'hidden',
-                    reset: 'p-1 opacity-50 hover:opacity-100',
-                  }}
-                  resetIconComponent={resetIconComponent}
-                  // eslint-disable-next-line jsx-a11y/no-autofocus
-                  autoFocus
-                />
-              </div>
-              <SearchResults focusedIndex={focusedIndex} />
-              <div className="flex items-center justify-end gap-1.5 px-4 py-2 text-xs text-gray-400 dark:text-gray-500 border-t border-gray-500/20">
-                <span>Search by</span>
-                <a
-                  href="https://www.algolia.com/developers/?utm_medium=referral&utm_content=powered_by&utm_source=tanstack.com&utm_campaign=docsearch"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 hover:opacity-70 transition-opacity"
-                >
-                  <img
-                    src="/Algolia-logo-blue.svg"
-                    alt="Algolia"
-                    className="h-4 w-auto dark:hidden"
-                  />
-                  <img
-                    src="/Algolia-logo-white.svg"
-                    alt="Algolia"
-                    className="h-4 w-auto hidden dark:block"
-                  />
-                </a>
-              </div>
-            </SearchFiltersProvider>
-          </InstantSearch>
-        </DialogPrimitive.Content>
-      </DialogPrimitive.Portal>
-    </DialogPrimitive.Root>
+          {isFullHeight ? (
+            <ArrowsInSimpleIcon className="h-4 w-4" />
+          ) : (
+            <ArrowsOutSimpleIcon className="h-4 w-4" />
+          )}
+        </button>
+        <button
+          type="button"
+          onClick={closeSearch}
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-400 shadow-sm transition-colors hover:text-gray-700 dark:border-white/10 dark:bg-white/[0.06] dark:text-gray-500 dark:hover:text-gray-200"
+          aria-label="Close search"
+        >
+          <XIcon className="h-4 w-4" />
+        </button>
+      </div>
+    </header>
   )
 }
 
-function SearchResults({ focusedIndex }: { focusedIndex: number }) {
+function CommandSearchResults() {
   const { results } = useInstantSearch()
-  const { hits, isLastPage, showMore } = useInfiniteHits()
-  const containerRef = React.useRef<HTMLDivElement>(null)
+  const { hits, isLastPage, showMore } = useInfiniteHits<AlgoliaHit>({
+    transformItems: dedupeSearchHitsByPage,
+  })
   const sentinelRef = React.useRef<HTMLDivElement>(null)
+  const resultsScrollRef = React.useRef<HTMLDivElement>(null)
 
   const {
     selectedLibrary,
     selectedFramework,
     setSelectedLibrary,
     setSelectedFramework,
-    libraryItems: _libraryItems,
-    frameworkItems,
+    searchQuery,
   } = useSearchFilters()
 
-  const persistFramework = usePersistFrameworkPreference()
-
-  // Use selected values directly (no longer relying on Algolia's isRefined)
   const refinedLibrary = selectedLibrary || null
   const refinedFramework = selectedFramework || null
+  const trimmedQuery = searchQuery.trim()
+  const hasQuery = trimmedQuery.length > 0
 
   const clearFramework = () => {
     setSelectedFramework('')
@@ -918,11 +167,22 @@ function SearchResults({ focusedIndex }: { focusedIndex: number }) {
     setSelectedLibrary('')
   }
 
-  // Infinite scroll with Intersection Observer
+  const resultSummary = results.__isArtificial ? (
+    <>Searching for &ldquo;{trimmedQuery}&rdquo;</>
+  ) : results.nbHits > 0 ? (
+    <>
+      Results for{' '}
+      <span className="font-medium text-gray-600 dark:text-gray-300">
+        &ldquo;{trimmedQuery}&rdquo;
+      </span>
+    </>
+  ) : (
+    <>No results for &ldquo;{trimmedQuery}&rdquo;</>
+  )
+
   React.useEffect(() => {
     const sentinel = sentinelRef.current
-    const container = containerRef.current
-    if (!sentinel || !container || !hits.length) return
+    if (!sentinel || !hasQuery || !hits.length) return
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -932,109 +192,247 @@ function SearchResults({ focusedIndex }: { focusedIndex: number }) {
           }
         })
       },
-      {
-        root: container,
-        rootMargin: '200px',
-      },
+      { root: resultsScrollRef.current, rootMargin: '260px' },
     )
 
     observer.observe(sentinel)
     return () => observer.disconnect()
-  }, [hits, isLastPage, showMore])
-
-  if (!results.query) {
-    return (
-      <div className="p-6 text-gray-500 dark:text-gray-400">
-        <p className="text-lg font-medium text-center">Search TanStack</p>
-        <p className="mt-2 text-sm text-center">
-          Start typing to search, or select a library or framework below.
-        </p>
-        <div className="mt-6 flex gap-8 justify-center">
-          {!selectedLibrary && (
-            <div className="flex flex-col gap-2">
-              <p className="text-xs font-medium uppercase tracking-wide opacity-60">
-                Libraries
-              </p>
-              <div className="flex flex-wrap gap-1.5 max-w-xs">
-                {libraries
-                  .filter((lib) => 'bgStyle' in lib)
-                  .map((lib) => (
-                    <button
-                      key={lib.id}
-                      onClick={() => {
-                        setSelectedLibrary(lib.id)
-                      }}
-                      className={twMerge(
-                        'px-2 py-1 text-xs font-black uppercase rounded text-white transition-opacity hover:opacity-80',
-                        lib.bgStyle,
-                      )}
-                    >
-                      {lib.id}
-                    </button>
-                  ))}
-              </div>
-            </div>
-          )}
-          {!selectedFramework && frameworkItems.length > 0 && (
-            <div className="flex flex-col gap-2">
-              <p className="text-xs font-medium uppercase tracking-wide opacity-60">
-                Frameworks
-              </p>
-              <div className="flex flex-wrap gap-1.5 max-w-xs">
-                {frameworkItems.map((item) => {
-                  const fw = frameworkOptions.find(
-                    (f) => f.value === item.value,
-                  )
-                  if (!fw) return null
-                  return (
-                    <button
-                      key={fw.value}
-                      onClick={() => {
-                        setSelectedFramework(fw.value)
-                        persistFramework(fw.value)
-                      }}
-                      className="flex items-center gap-1.5 px-2 py-1 text-xs font-bold rounded bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                    >
-                      <img
-                        src={fw.logo}
-                        alt={fw.label}
-                        className="w-3.5 h-3.5"
-                      />
-                      {fw.label}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    )
-  }
+  }, [hasQuery, hits, isLastPage, showMore])
 
   return (
-    <div
-      ref={containerRef}
-      className="max-h-[80dvh] overflow-y-auto"
-      role="listbox"
-      aria-label="Search results"
-    >
-      <NoResults
-        refinedFramework={refinedFramework}
-        refinedLibrary={refinedLibrary}
-        clearFramework={clearFramework}
-        clearLibrary={clearLibrary}
-      />
-      {hits.map((hit, index) => (
-        <Hit
-          key={hit.objectID}
-          hit={hit as AlgoliaHit}
-          isFocused={index === focusedIndex}
-          refinedLibrary={refinedLibrary}
-          refinedFramework={refinedFramework}
-        />
-      ))}
-      <div ref={sentinelRef} className="h-4" aria-hidden="true" />
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="flex-none border-b border-gray-200/80 px-3 py-2 dark:border-white/10 sm:px-4">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <div
+            className="flex min-w-0 flex-wrap items-center gap-1.5"
+            data-command-search-controls="true"
+          >
+            <FrameworkRefinement compact />
+            <LibraryRefinement compact />
+          </div>
+          {hasQuery ? (
+            <p className="min-w-[10rem] flex-1 truncate text-xs text-gray-500 dark:text-gray-400">
+              {resultSummary}
+            </p>
+          ) : null}
+          <div className="ml-auto flex shrink-0 items-center">
+            <AlgoliaAttribution />
+          </div>
+        </div>
+      </div>
+      <Command.List
+        ref={resultsScrollRef}
+        className="min-h-0 flex-1 overflow-y-auto scroll-py-2"
+        label="Search results"
+      >
+        {hasQuery ? (
+          <>
+            <AskAIResult query={trimmedQuery} />
+            <NoResults
+              refinedFramework={refinedFramework}
+              refinedLibrary={refinedLibrary}
+              clearFramework={clearFramework}
+              clearLibrary={clearLibrary}
+            />
+            {hits.map((hit, index) => (
+              <Hit
+                key={hit.objectID}
+                commandValue={`hit-${hit.objectID}-${index}`}
+                hit={hit}
+                refinedLibrary={refinedLibrary}
+                refinedFramework={refinedFramework}
+              />
+            ))}
+            <div ref={sentinelRef} className="h-4" aria-hidden="true" />
+          </>
+        ) : (
+          <div className="flex h-full items-center justify-center px-6 py-16 text-sm text-gray-400 dark:text-gray-500">
+            Search TanStack
+          </div>
+        )}
+      </Command.List>
     </div>
+  )
+}
+
+function AskAIResult({ query }: { query: string }) {
+  const { askAiDock } = useSearchContext()
+
+  return (
+    <Command.Item
+      value="ask-ai"
+      onSelect={() => askAiDock(query)}
+      className={twMerge(
+        'flex w-full cursor-pointer scroll-my-2 items-center gap-3 border-b border-gray-200 px-4 py-3 text-left outline-none transition-colors dark:border-white/10',
+        'hover:bg-gray-500/10 data-[selected=true]:bg-cyan-500/10 dark:data-[selected=true]:bg-cyan-400/10',
+      )}
+    >
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-cyan-500/10 text-cyan-700 dark:bg-cyan-400/15 dark:text-cyan-300">
+        <ChatCenteredDotsIcon className="h-4 w-4" />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-semibold text-gray-900 dark:text-white">
+          Ask AI
+        </span>
+        <span className="block truncate text-xs text-gray-500 dark:text-gray-400">
+          Open TanStack AI with this query
+        </span>
+      </span>
+      <ArrowElbowDownLeftIcon className="h-4 w-4 shrink-0 text-gray-300 dark:text-gray-600" />
+    </Command.Item>
+  )
+}
+
+const _submitIconComponent = () => {
+  return <MagnifyingGlassIcon />
+}
+
+function isSearchModalPortalTarget(target: EventTarget | null) {
+  return target instanceof Element && !!target.closest('.dropdown-content')
+}
+
+const searchModalTransitionMs = 140
+
+export function SearchModal() {
+  const { isOpen, closeSearch } = useSearchContext()
+  const contentRef = React.useRef<HTMLDivElement>(null)
+  const bodyPointerEventsRef = React.useRef('')
+  const [shouldRenderSearch, setShouldRenderSearch] = React.useState(isOpen)
+  const [isFullHeight, setIsFullHeight] = React.useState(() => {
+    if (typeof window === 'undefined') return false
+    return localStorage.getItem('search-full-height') === 'true'
+  })
+
+  const toggleFullHeight = React.useCallback(() => {
+    setIsFullHeight((current) => {
+      const next = !current
+      localStorage.setItem('search-full-height', String(next))
+      return next
+    })
+  }, [])
+
+  React.useEffect(() => {
+    if (isOpen) {
+      setShouldRenderSearch(true)
+      return
+    }
+
+    const timeout = window.setTimeout(() => {
+      setShouldRenderSearch(false)
+      requestAnimationFrame(() => {
+        document.body.style.pointerEvents = bodyPointerEventsRef.current
+      })
+    }, searchModalTransitionMs)
+
+    return () => window.clearTimeout(timeout)
+  }, [isOpen])
+
+  React.useEffect(() => {
+    if (!isOpen) {
+      return
+    }
+
+    const frame = requestAnimationFrame(() => {
+      contentRef.current
+        ?.querySelector<HTMLInputElement>('input[type="search"]')
+        ?.focus({ preventScroll: true })
+    })
+
+    return () => cancelAnimationFrame(frame)
+  }, [isOpen])
+
+  React.useEffect(() => {
+    if (typeof document === 'undefined') {
+      return
+    }
+
+    if (isOpen) {
+      document.body.style.pointerEvents = 'none'
+      return
+    }
+
+    const frame = requestAnimationFrame(() => {
+      document.body.style.pointerEvents = bodyPointerEventsRef.current
+    })
+
+    return () => cancelAnimationFrame(frame)
+  }, [isOpen])
+
+  React.useEffect(() => {
+    if (typeof document === 'undefined') {
+      return
+    }
+
+    bodyPointerEventsRef.current =
+      document.body.style.pointerEvents === 'none'
+        ? ''
+        : document.body.style.pointerEvents
+
+    return () => {
+      document.body.style.pointerEvents = bodyPointerEventsRef.current
+    }
+  }, [])
+
+  const shouldMountSearch = isOpen || shouldRenderSearch
+
+  return (
+    <DialogPrimitive.Root
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) {
+          closeSearch()
+        }
+      }}
+    >
+      <DialogPrimitive.Portal forceMount>
+        {shouldMountSearch ? (
+          <>
+            <DialogPrimitive.Overlay
+              forceMount
+              // xl keeps a deliberately lighter scrim: past that width the
+              // palette covers a small share of the screen, and the full
+              // --color-scrim reads as heavier than the interaction warrants.
+              // Scrim and panel sit one and two steps above --z-overlay so
+              // they cover the AI dock, which also sits at --z-overlay.
+              className="search-modal-overlay fixed inset-0 z-[calc(var(--z-overlay)+1)] bg-scrim backdrop-blur-sm xl:bg-black/30"
+            />
+            <DialogPrimitive.Content
+              forceMount
+              ref={contentRef}
+              className={twMerge(
+                'search-modal-content fixed z-[calc(var(--z-overlay)+2)] inset-0 sm:inset-auto sm:top-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-[96%] xl:w-full sm:max-w-4xl text-left outline-none',
+                isFullHeight && 'sm:bottom-4',
+              )}
+              onInteractOutside={(event) => {
+                if (isSearchModalPortalTarget(event.target)) {
+                  event.preventDefault()
+                }
+              }}
+            >
+              <DialogPrimitive.Title className="sr-only">
+                Search TanStack
+              </DialogPrimitive.Title>
+              <DialogPrimitive.Description className="sr-only">
+                Search TanStack and open TanStack AI from the current query.
+              </DialogPrimitive.Description>
+              <div className="search-modal-panel-transition h-full">
+                <InstantSearch
+                  searchClient={searchClient}
+                  indexName={searchIndexName}
+                >
+                  <SearchFiltersProvider resetFiltersOnOpen={isOpen}>
+                    <DynamicFilters />
+                    <CommandSearchPanel
+                      isFullHeight={isFullHeight}
+                      onToggleFullHeight={toggleFullHeight}
+                    />
+                  </SearchFiltersProvider>
+                </InstantSearch>
+              </div>
+            </DialogPrimitive.Content>
+          </>
+        ) : null}
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   )
 }

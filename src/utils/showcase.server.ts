@@ -1,4 +1,4 @@
-import { db } from '~/db/client'
+import { db, isDatabaseConfigured } from '~/db/client'
 import {
   showcases,
   users,
@@ -18,10 +18,35 @@ import {
 } from 'drizzle-orm'
 import { requireCapability } from './auth.server'
 import { getEffectiveCapabilities } from './capabilities.server'
-import { libraryIds } from '~/libraries'
+import { libraryIds } from '~/libraries/ids'
+import { isPublicShowcase } from './showcase.shared'
+import { notFound } from '@tanstack/react-router'
+import type { ShowcasePlacement } from '~/db/types'
 import { SHOWCASE_USE_CASES } from '~/db/types'
 import { getTrancoRank } from './tranco.server'
 import { notifyModerators, formatShowcaseSubmittedEmail } from './email.server'
+
+export const publicShowcaseColumns = {
+  id: showcases.id,
+  userId: showcases.userId,
+  name: showcases.name,
+  tagline: showcases.tagline,
+  description: showcases.description,
+  url: showcases.url,
+  logoUrl: showcases.logoUrl,
+  screenshotUrl: showcases.screenshotUrl,
+  sourceUrl: showcases.sourceUrl,
+  libraries: showcases.libraries,
+  useCases: showcases.useCases,
+  isFeatured: showcases.isFeatured,
+  status: showcases.status,
+  placement: showcases.placement,
+  trancoRank: showcases.trancoRank,
+  trancoRankUpdatedAt: showcases.trancoRankUpdatedAt,
+  voteScore: showcases.voteScore,
+  createdAt: showcases.createdAt,
+  updatedAt: showcases.updatedAt,
+}
 
 // Valid library IDs for validation
 export const validLibraryIds = [...libraryIds] as string[]
@@ -61,7 +86,7 @@ export async function validateShowcaseOwnership(
   })
 
   if (!showcase) {
-    throw new Error('Showcase not found')
+    throw notFound()
   }
 
   if (showcase.userId !== userId) {
@@ -368,9 +393,8 @@ export async function updateShowcaseCore(
       libraries: expandedLibraries,
       useCases: data.useCases as ShowcaseUseCase[],
       status: 'pending',
-      moderatedBy: null,
-      moderatedAt: null,
-      moderationNote: null,
+      placement: 'private',
+      isFeatured: false,
       updatedAt: new Date(),
       ...(urlChanged && {
         trancoRank,
@@ -475,7 +499,7 @@ export async function getMyShowcasesCore(options: GetMyShowcasesOptions) {
   // Get paginated results
   const offset = (page - 1) * pageSize
   const showcaseList = await db
-    .select()
+    .select(publicShowcaseColumns)
     .from(showcases)
     .where(whereClause)
     .orderBy(desc(showcases.createdAt))
@@ -494,6 +518,7 @@ export async function getMyShowcasesCore(options: GetMyShowcasesOptions) {
 }
 
 export interface SearchShowcasesFilters {
+  placement?: Exclude<ShowcasePlacement, 'private'>
   libraryIds?: string[]
   useCases?: string[]
   featured?: boolean
@@ -519,8 +544,21 @@ export async function searchShowcasesCore(
   const page = pagination.page ?? 1
   const pageSize = pagination.pageSize ?? 24
 
+  if (
+    process.env.NODE_ENV === 'development' &&
+    !(await isDatabaseConfigured())
+  ) {
+    return {
+      showcases: [],
+      pagination: { page, pageSize, total: 0, totalPages: 0 },
+    }
+  }
+
   // Build where conditions
-  const conditions = [eq(showcases.status, 'approved' as ShowcaseStatus)]
+  const conditions = [
+    eq(showcases.status, 'approved'),
+    eq(showcases.placement, filters.placement ?? 'showcase'),
+  ]
 
   if (filters.libraryIds && filters.libraryIds.length > 0) {
     conditions.push(
@@ -572,7 +610,7 @@ export async function searchShowcasesCore(
   const offset = (page - 1) * pageSize
   const showcaseList = await db
     .select({
-      showcase: showcases,
+      showcase: publicShowcaseColumns,
       user: {
         id: users.id,
         name: users.name,
@@ -615,10 +653,12 @@ export async function getShowcaseCore(
   options: GetShowcaseOptions = {},
 ) {
   const { userId } = options
+  if (process.env.NODE_ENV === 'development' && !(await isDatabaseConfigured()))
+    throw notFound()
 
   const [result] = await db
     .select({
-      showcase: showcases,
+      showcase: publicShowcaseColumns,
       user: {
         id: users.id,
         name: users.name,
@@ -631,15 +671,12 @@ export async function getShowcaseCore(
     .limit(1)
 
   if (!result) {
-    throw new Error('Showcase not found')
+    throw notFound()
   }
 
   // Check access: public if approved, or owner can see their own
-  if (
-    result.showcase.status !== 'approved' &&
-    result.showcase.userId !== userId
-  ) {
-    throw new Error('Showcase not found')
+  if (!isPublicShowcase(result.showcase) && result.showcase.userId !== userId) {
+    throw notFound()
   }
 
   return { showcase: result.showcase, user: result.user }

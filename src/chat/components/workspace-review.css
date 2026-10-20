@@ -1,0 +1,28 @@
+@scope (:root:has(.tanchat-shell)) {
+  .workspace-review {
+    min-width: 0;
+  }
+  .workspace-review dl {
+    display: grid;
+    gap: 6px;
+    margin: 12px 0;
+  }
+  .workspace-review dl > div {
+    display: grid;
+    grid-template-columns: 76px minmax(0, 1fr);
+    gap: 8px;
+  }
+  .workspace-review dt {
+    color: var(--muted);
+  }
+  .workspace-review dd {
+    margin: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .workspace-review .message-code-block > pre {
+    max-height: 320px;
+    overflow: auto;
+    white-space: pre;
+  }
+}

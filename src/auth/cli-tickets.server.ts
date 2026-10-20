@@ -9,6 +9,7 @@
  */
 
 const TICKET_TTL_MS = 5 * 60 * 1000
+const MAX_TICKETS = 1_000
 
 interface CliTicket {
   userId: string | null
@@ -17,22 +18,55 @@ interface CliTicket {
   authorized: boolean
 }
 
-const tickets = new Map<string, CliTicket>()
+// Server handlers and server-function handlers can load this module through
+// different bundled entry points. Pin the Map to globalThis so those callers
+// share one ticket store instead of fragmenting module-level state.
+const TICKETS_KEY = Symbol.for('tanstack.cli-auth.tickets')
+const TICKETS_INTERVAL_KEY = Symbol.for('tanstack.cli-auth.cleanup')
 
-// Periodic cleanup of expired tickets
-setInterval(
-  () => {
-    const now = Date.now()
-    for (const [id, ticket] of tickets) {
-      if (ticket.expiresAt < now) {
-        tickets.delete(id)
-      }
+type GlobalWithTickets = typeof globalThis & {
+  [TICKETS_KEY]?: Map<string, CliTicket>
+  [TICKETS_INTERVAL_KEY]?: ReturnType<typeof setInterval>
+}
+
+const globalScope = globalThis as GlobalWithTickets
+
+const tickets: Map<string, CliTicket> = (globalScope[TICKETS_KEY] ??= new Map<
+  string,
+  CliTicket
+>())
+
+if (!globalScope[TICKETS_INTERVAL_KEY]) {
+  globalScope[TICKETS_INTERVAL_KEY] = setInterval(
+    () => {
+      cleanupExpiredTickets()
+    },
+    60 * 1000, // every minute
+  )
+}
+
+function cleanupExpiredTickets() {
+  const now = Date.now()
+  for (const [id, ticket] of tickets) {
+    if (ticket.expiresAt < now) {
+      tickets.delete(id)
     }
-  },
-  60 * 1000, // every minute
-)
+  }
+}
+
+function trimTicketStore() {
+  cleanupExpiredTickets()
+
+  while (tickets.size >= MAX_TICKETS) {
+    const oldestId = tickets.keys().next().value
+    if (!oldestId) break
+    tickets.delete(oldestId)
+  }
+}
 
 export function createCliTicket(): string {
+  trimTicketStore()
+
   const id = crypto.randomUUID()
   tickets.set(id, {
     userId: null,

@@ -1,6 +1,14 @@
-import { env } from '~/utils/env'
-const DEFAULT_SITE_URL = 'https://tanstack.com'
-const NON_INDEXABLE_PATH_PREFIXES = ['/account', '/admin', '/login'] as const
+import { SITE_URL } from '~/utils/site'
+import { findLibrary } from '~/libraries/libraries'
+
+const NON_INDEXABLE_PATH_PREFIXES = [
+  '/account',
+  '/community-projects',
+  '/admin',
+  '/login',
+  '/partners-embed',
+  '/sponsors-embed',
+] as const
 
 function trimTrailingSlash(value: string) {
   return value.replace(/\/$/, '')
@@ -28,6 +36,18 @@ export function getCanonicalPath(path: string) {
     return null
   }
 
+  const [, libraryId, version, ...remainingSegments] = normalizedPath.split('/')
+  const library = libraryId ? findLibrary(libraryId) : undefined
+
+  // Numbered and historical landing pages render independently, but all of
+  // them consolidate their indexing and social URL signals onto /latest.
+  if (
+    library?.availableVersions.concat('latest').includes(version!) &&
+    remainingSegments.length === 0
+  ) {
+    return `/${library.id}/latest`
+  }
+
   return normalizedPath
 }
 
@@ -35,14 +55,12 @@ export function shouldIndexPath(path: string) {
   return getCanonicalPath(path) !== null
 }
 
-export function canonicalUrl(path: string) {
-  const origin = trimTrailingSlash(
-    env.URL ||
-      (import.meta.env.SSR ? env.SITE_URL : undefined) ||
-      DEFAULT_SITE_URL,
-  )
+export function canonicalUrl(path: string, search?: string) {
+  const origin = trimTrailingSlash(SITE_URL)
 
-  return `${origin}${normalizePath(path)}`
+  const normalizedSearch = search && search !== '?' ? search : ''
+
+  return `${origin}${normalizePath(path)}${normalizedSearch}`
 }
 
 type SeoOptions = {
@@ -51,6 +69,9 @@ type SeoOptions = {
   image?: string
   keywords?: string
   noindex?: boolean
+  ogType?: 'article' | 'website'
+  articlePublishedTime?: string
+  articleModifiedTime?: string
 }
 
 export const seo = ({
@@ -59,6 +80,9 @@ export const seo = ({
   keywords,
   image,
   noindex,
+  ogType = 'website',
+  articlePublishedTime,
+  articleModifiedTime,
 }: SeoOptions) => {
   const tags = [
     { title },
@@ -66,16 +90,35 @@ export const seo = ({
     { name: 'keywords', content: keywords },
     { name: 'twitter:title', content: title },
     { name: 'twitter:description', content: description },
-    { name: 'twitter:creator', content: '@tannerlinsley' },
-    { name: 'twitter:site', content: '@tannerlinsley' },
-    { property: 'og:type', content: 'website' },
+    { name: 'twitter:creator', content: '@tan_stack' },
+    { name: 'twitter:site', content: '@tan_stack' },
+    { property: 'og:type', content: ogType },
+    { property: 'og:site_name', content: 'TanStack' },
     { property: 'og:title', content: title },
     { property: 'og:description', content: description },
+    ...(ogType === 'article' && articlePublishedTime
+      ? [
+          {
+            property: 'article:published_time',
+            content: articlePublishedTime,
+          },
+        ]
+      : []),
+    ...(ogType === 'article' && articleModifiedTime
+      ? [
+          {
+            property: 'article:modified_time',
+            content: articleModifiedTime,
+          },
+        ]
+      : []),
     ...(image
       ? [
           { name: 'twitter:image', content: image },
+          { name: 'twitter:image:alt', content: title },
           { name: 'twitter:card', content: 'summary_large_image' },
           { property: 'og:image', content: image },
+          { property: 'og:image:alt', content: title },
         ]
       : []),
     ...(noindex ? [{ name: 'robots', content: 'noindex, nofollow' }] : []),

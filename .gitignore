@@ -1,18 +1,19 @@
 node_modules
+.pnpm-store/
 package-lock.json
 yarn.lock
-drizzle/migrations
-
 .tanstack
 .DS_Store
 .cache
 .env
+.env.*
 .vercel
 .output
 .vinxi
 .tanstack-start/build
 .nitro/*
 .netlify/*
+.wrangler/*
 
 /build/
 /api/
@@ -30,6 +31,14 @@ dist
 
 test-results
 .claude/CLAUDE.md
+.claude/worktrees
 .eslintcache
 .tsbuildinfo
 src/routeTree.gen.ts
+.og-preview/
+.readme-preview/
+
+# Generated native desktop helper
+/desktop/native/folder-access
+
+.staging/

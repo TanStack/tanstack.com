@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig.json",
+  "include": [
+    "./core/**/*.test.ts",
+    "../src/**/*.d.ts",
+    "../src/routeTree.gen.ts"
+  ],
+  "exclude": [],
+  "compilerOptions": {
+    "types": ["node", "vite/client"],
+    "noEmit": true,
+    "tsBuildInfoFile": "../node_modules/.cache/tanchat-harness-tests.tsbuildinfo"
+  }
+}

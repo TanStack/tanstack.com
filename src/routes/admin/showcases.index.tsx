@@ -4,13 +4,20 @@ import { seo } from '~/utils/seo'
 import { ShowcaseModerationPage } from '~/components/ShowcaseModerationPage'
 import { listShowcasesForModerationQueryOptions } from '~/queries/showcases'
 import { requireCapability } from '~/utils/auth.functions'
-import { libraryIdSchema, showcaseStatusSchema } from '~/utils/schemas'
+import {
+  libraryIdSchema,
+  pageNumberSchema,
+  pageSizeSchema,
+  showcaseStatusSchema,
+  showcasePlacementSchema,
+} from '~/utils/schemas'
 
 const searchSchema = v.object({
-  page: v.optional(v.number(), 1),
-  pageSize: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1)), 50),
-  status: v.optional(v.array(showcaseStatusSchema)),
-  libraryId: v.optional(v.array(libraryIdSchema)),
+  page: v.optional(pageNumberSchema, 1),
+  pageSize: v.optional(pageSizeSchema, 50),
+  placement: v.optional(showcasePlacementSchema),
+  status: v.optional(v.pipe(v.array(showcaseStatusSchema), v.maxLength(3))),
+  libraryId: v.optional(v.pipe(v.array(libraryIdSchema), v.maxLength(16))),
   isFeatured: v.optional(v.boolean()),
 })
 
@@ -31,6 +38,7 @@ export const Route = createFileRoute('/admin/showcases/')({
     page: search.page,
     pageSize: search.pageSize,
     status: search.status,
+    placement: search.placement,
     libraryId: search.libraryId,
     isFeatured: search.isFeatured,
   }),
@@ -43,6 +51,7 @@ export const Route = createFileRoute('/admin/showcases/')({
         },
         filters: {
           status: deps.status,
+          placement: deps.placement,
           libraryId: deps.libraryId,
           isFeatured: deps.isFeatured,
         },

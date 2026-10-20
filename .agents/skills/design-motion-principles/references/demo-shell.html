@@ -1,0 +1,422 @@
+<!--
+  Demo Shell — design-motion-principles
+  =====================================
+
+  Minimal, isolated reference for a single demo card. The agent reads this
+  during STEP 3 of the audit workflow (see ../SKILL.md) and uses it as the
+  per-finding template — one .demo block per Critical or Important finding
+  (Opportunities don't get demo cards).
+
+  The full worked example with five demo cards in context lives in
+  references/report-template.html. This file is intentionally minimal:
+  one card, every contract visible, no report scaffolding.
+
+  How the agent uses this file
+  ----------------------------
+  1. Copy the entire <style> block into the report's <head>. The shell's
+     tokens, .demo layout, stage colors, segmented control, and the
+     prefers-reduced-motion guard are SHARED across every demo card in the
+     report and must not be duplicated per finding.
+
+  2. For each finding {n} (1-indexed across the whole report):
+     a. Replace the MOTION-CODE-SLOT-{n} comment with the per-finding
+        @keyframes m{n} block AND the .demo-{n}__mt selector rule.
+        Suffix {n} so multiple findings cannot collide on keyframe
+        names or selectors.
+     b. Replace the DEMO-CARD-MOTION-SLOT-{n} comment in the .demo__stage
+        markup with the actual motion-target element. Its class must be
+        .demo-{n}__mt so it matches the rules above.
+     c. Set .demo__title to a short title for the recommended motion
+        (e.g., "Quick tab crossfade", "Sheet enter (mirror for exit)").
+     d. Set .demo__timing to the duration plus easing (e.g.,
+        "180ms · ease-out", "300ms · ease-out-quint"). The subhead
+        ALWAYS renders — populate it for every demo so card heights
+        stay consistent across the report.
+     e. Renumber the four radio ids from st1-* to st{n}-*, and the
+        labels' for= attributes to match.
+
+  3. Per-finding code MUST honor these contracts:
+     - Do NOT redefine the shell's tokens (--ink, --paper, --surface-2,
+       --line, --line-strong, --st-bg, --st-fg, --st-line, --st-dim,
+       --sans, --mono). Use them via var().
+     - Do NOT modify the prefers-reduced-motion block. The shell's
+       guard collapses all .demo-{n}__mt animations to none. The
+       per-finding @keyframes 100% state MUST match the motion-target
+       element's default static rendering so the reduce-motion fallback
+       shows the correct final visual.
+     - Per-finding @keyframes use the 0% / ~60% / 100% cadence:
+       0% = start state, ~60% = motion complete (~1.8s in),
+       100% = hold (~1.2s). The shell uses animation-duration: 3s.
+
+  4. Motion targets and ANY UI primitives inside the stage (.ui-btn,
+     .ui-card, .ui-row, .ui-check, .ui-num, .ui-label, badge, etc.)
+     use --st-bg / --st-fg / --st-line / --st-dim — NEVER --accent or
+     other page tokens. This guarantees the demo contrasts correctly
+     when its stage is locked to a different theme than the report.
+
+  5. Demo cards are non-interactive. The stage toggle radios are the
+     only interactive element. tabindex on the radios is fine; the
+     stage itself stays out of focus order.
+
+  Loop pacing
+  -----------
+  animation-duration: 3s. Keyframes 0% / ~60% / 100%. Motion 0–60% ≈ 1.8s,
+  hold 60–100% ≈ 1.2s, then restart. Every demo in a report uses this
+  cadence so all cards share the same rhythm.
+
+  Standalone preview
+  ------------------
+  Opening this file directly in a browser shows one .demo card with the
+  loop indicator, the segmented Auto/Light/Dark stage toggle, and a
+  placeholder motion target (a simple shape that fades in). No real
+  per-finding motion plays — the agent injects motion per finding when
+  this template is embedded in a report. The shell also honors the
+  viewer's prefers-color-scheme for standalone rendering.
+-->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Demo Shell — design-motion-principles</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        /* Cool slate-graphite neutrals (hue 255). In the full report these
+         are overridden by a global theme toggle; here the shell flips via
+         prefers-color-scheme for standalone preview. */
+        --ink: oklch(0.155 0.006 255);
+        --surface: oklch(0.195 0.007 255);
+        --surface-2: oklch(0.235 0.008 255);
+        --paper: oklch(0.945 0.004 255);
+        --paper-dim: oklch(0.8 0.006 255);
+        --muted: oklch(0.68 0.008 255);
+        --faint: oklch(0.505 0.008 255);
+        --line: oklch(0.95 0.01 255 / 0.09);
+        --line-strong: oklch(0.95 0.01 255 / 0.16);
+
+        --display: 'Familjen Grotesk', 'Hanken Grotesk', system-ui, sans-serif;
+        --sans:
+          'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+          system-ui, sans-serif;
+        --mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+      }
+
+      @media (prefers-color-scheme: light) {
+        :root {
+          --ink: oklch(0.985 0.003 255);
+          --surface: oklch(0.965 0.004 255);
+          --surface-2: oklch(0.94 0.005 255);
+          --paper: oklch(0.18 0.006 255);
+          --paper-dim: oklch(0.33 0.008 255);
+          --muted: oklch(0.475 0.01 255);
+          --faint: oklch(0.64 0.009 255);
+          --line: oklch(0.18 0.01 255 / 0.12);
+          --line-strong: oklch(0.18 0.01 255 / 0.22);
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        background: var(--ink);
+        color: var(--paper);
+        font-family: var(--sans);
+        margin: 0;
+        padding: 48px;
+        display: flex;
+        justify-content: center;
+      }
+
+      /* visually-hidden (stage-toggle radios) */
+      .vh {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      /* ───────────── Demo card ───────────── */
+      .demo {
+        position: relative;
+        width: 380px;
+      }
+      .demo__bar {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+      .demo__meta {
+        min-width: 0;
+      }
+      .demo__title {
+        display: block;
+        font-size: 13.5px;
+        font-weight: 600;
+        color: var(--paper);
+        line-height: 1.3;
+      }
+      .demo__timing {
+        display: block;
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 2px;
+        font-variant-numeric: tabular-nums;
+      }
+      .demo__controls {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-shrink: 0;
+      }
+      .demo__loop {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--faint);
+      }
+
+      /* segmented Auto / Light / Dark stage toggle (pure CSS).
+       Auto = follow ambient theme via --surface-2 + --paper.
+       Light / Dark = locked overrides (hardcoded values, ignore ambient). */
+      .seg {
+        display: inline-flex;
+        border: 1px solid var(--line-strong);
+        border-radius: 100px;
+        overflow: hidden;
+      }
+      .seg label {
+        font-family: var(--mono);
+        font-size: 9.5px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--muted);
+        padding: 4px 9px;
+        cursor: pointer;
+        user-select: none;
+        transition:
+          background 0.15s ease,
+          color 0.15s ease;
+      }
+      .demo input[id$='-a']:checked ~ .demo__bar .seg label[for$='-a'],
+      .demo input[id$='-l']:checked ~ .demo__bar .seg label[for$='-l'],
+      .demo input[id$='-d']:checked ~ .demo__bar .seg label[for$='-d'] {
+        background: color-mix(in oklch, var(--paper) 12%, transparent);
+        color: var(--paper);
+      }
+
+      .demo__stage {
+        /* AUTO default — stage uses the ambient elevated surface */
+        --st-bg: var(--surface-2);
+        --st-fg: var(--paper);
+        --st-line: var(--line-strong);
+        --st-dim: color-mix(in oklch, var(--paper) 55%, transparent);
+        background: var(--st-bg);
+        color: var(--st-fg);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 32px 24px;
+        min-height: 168px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+      /* Locked Light: hardcoded light, regardless of ambient theme */
+      .demo input[id$='-l']:checked ~ .demo__stage {
+        --st-bg: oklch(0.985 0.003 255);
+        --st-fg: oklch(0.18 0.006 255);
+        --st-line: oklch(0.18 0.01 255 / 0.18);
+        --st-dim: oklch(0.18 0.01 255 / 0.45);
+      }
+      /* Locked Dark: hardcoded dark, regardless of ambient theme */
+      .demo input[id$='-d']:checked ~ .demo__stage {
+        --st-bg: oklch(0.18 0.006 255);
+        --st-fg: oklch(0.985 0.003 255);
+        --st-line: oklch(0.985 0.01 255 / 0.18);
+        --st-dim: oklch(0.985 0.01 255 / 0.5);
+      }
+
+      /* Generic UI primitives for use inside motion targets. All theme via
+       stage tokens, NEVER page tokens — so they contrast correctly when a
+       stage is locked to a different theme than the report. */
+      .ui-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 9px 18px;
+        border-radius: 8px;
+        background: var(--st-fg);
+        color: var(--st-bg);
+        font-family: var(--sans);
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .ui-card {
+        background: var(--st-bg);
+        border: 1px solid var(--st-line);
+        border-radius: 10px;
+        padding: 14px 16px;
+        min-width: 180px;
+        box-shadow: 0 8px 24px oklch(0 0 0 / 0.12);
+      }
+      .ui-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 13px;
+        color: var(--st-fg);
+      }
+      .ui-check {
+        width: 22px;
+        height: 22px;
+        border-radius: 7px;
+        background: var(--st-fg);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .ui-check svg {
+        width: 13px;
+        height: 13px;
+        stroke: var(--st-bg);
+      }
+      .ui-num {
+        font-family: var(--display);
+        font-size: 34px;
+        font-weight: 700;
+        color: var(--st-fg);
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -0.02em;
+      }
+      .ui-label {
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--st-dim);
+      }
+
+      /* prefers-reduced-motion — disables every per-finding animation and
+       hides the loop indicator. The per-finding @keyframes 100% state
+       must match the motion-target's default rendering so the reduce
+       fallback shows the correct final visual. */
+      @media (prefers-reduced-motion: reduce) {
+        .demo__loop {
+          display: none;
+        }
+        [class*='__mt'],
+        [class*='__mt'] * {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+
+      /* MOTION-CODE-SLOT-{n}
+       Per-finding @keyframes and .demo-{n}__mt rules go here. {n} is the
+       finding's 1-indexed position across the report.
+
+       Example shape (replace per finding — wrap in
+       @media (prefers-reduced-motion: no-preference) { ... }):
+
+       @media (prefers-reduced-motion: no-preference) {
+         @keyframes m1 {
+           0%   { opacity: 0; transform: translateY(8px); filter: blur(4px); }
+           60%  { opacity: 1; transform: translateY(0);   filter: blur(0);  }
+           100% { opacity: 1; transform: translateY(0);   filter: blur(0);  }
+         }
+         .demo-1__mt {
+           animation: m1 3s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+         }
+       }
+    */
+
+      /* Placeholder motion for standalone preview only — agent strips this
+       when composing the report. Demonstrates the 0 / 60 / 100 cadence. */
+      @media (prefers-reduced-motion: no-preference) {
+        @keyframes m-placeholder {
+          0% {
+            opacity: 0;
+            transform: translateY(8px);
+            filter: blur(4px);
+          }
+          60% {
+            opacity: 1;
+            transform: translateY(0);
+            filter: blur(0);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0);
+            filter: blur(0);
+          }
+        }
+        .demo-1__mt {
+          animation: m-placeholder 3s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="demo">
+      <input class="vh" type="radio" name="st1" id="st1-a" checked />
+      <input class="vh" type="radio" name="st1" id="st1-l" />
+      <input class="vh" type="radio" name="st1" id="st1-d" />
+      <div class="demo__bar">
+        <div class="demo__meta">
+          <span class="demo__title">Recommended motion title</span>
+          <span class="demo__timing">300ms · ease-out</span>
+        </div>
+        <div class="demo__controls">
+          <div class="seg">
+            <label for="st1-a">Auto</label>
+            <label for="st1-l">Light</label>
+            <label for="st1-d">Dark</label>
+          </div>
+          <span class="demo__loop">↻</span>
+        </div>
+      </div>
+      <div class="demo__stage">
+        <!-- DEMO-CARD-MOTION-SLOT-{n}
+           Per-finding motion-target element goes here. Its class must
+           match the rules in MOTION-CODE-SLOT-{n} above:
+             <div class="demo-{n}__mt">...content...</div>
+           The element's contents are agent-determined (a button shape,
+           a card, an icon, a row of items for stagger demos, a number,
+           a badge, etc.). All inner UI primitives use the stage tokens
+           (--st-fg / --st-bg / --st-line / --st-dim) — NEVER page tokens. -->
+        <div class="demo-1__mt">
+          <div class="ui-card">
+            <div class="ui-label" style="margin-bottom: 6px">Placeholder</div>
+            <div class="ui-row">
+              <span class="ui-check"
+                ><svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3.5"
+                >
+                  <path d="M5 13l4 4L19 7" /></svg
+              ></span>
+              <span>(motion preview renders here per finding)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

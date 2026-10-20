@@ -29,6 +29,14 @@ if (!dryRun && !webhookSecret) {
   )
 }
 
+if (!dryRun && webhookSecret) {
+  if (webhookSecret.length < 16 || /\s/.test(webhookSecret)) {
+    throw new Error(
+      'GITHUB_WEBHOOK_SECRET must be a raw secret value, not a secret manager placeholder.',
+    )
+  }
+}
+
 function runGh(args: Array<string>) {
   return execFileSync('gh', args, {
     cwd: process.cwd(),

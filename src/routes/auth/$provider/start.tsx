@@ -1,3 +1,5 @@
+import { getSignInProviders } from '~/utils/auth.functions'
+import { oauthPopupChannelSchema } from '~/auth/oauth-popup'
 import { createFileRoute } from '@tanstack/react-router'
 import { env } from '~/utils/env'
 import {
@@ -8,6 +10,19 @@ import {
   buildGitHubAuthUrl,
   buildGoogleAuthUrl,
 } from '~/auth/index.server'
+import { normalizeSameOriginPath } from '~/utils/url-boundary'
+
+function readOAuthScopes(value: string | null) {
+  if (!value) {
+    return []
+  }
+
+  return value
+    .split(',')
+    .map((scope) => scope.trim())
+    .filter((scope) => /^[a-zA-Z0-9:_-]{1,64}$/.test(scope))
+    .slice(0, 8)
+}
 
 export const Route = createFileRoute('/auth/$provider/start')({
   server: {
@@ -19,11 +34,17 @@ export const Route = createFileRoute('/auth/$provider/start')({
         request: Request
         params: { provider: string }
       }) => {
-        const provider = params.provider as 'github' | 'google'
+        const provider = params.provider
 
         if (provider !== 'github' && provider !== 'google') {
           return Response.redirect(new URL('/login', request.url), 302)
         }
+
+        const providers = await getSignInProviders()
+        if (!providers[provider])
+          return new Response('Sign-in is not configured for this server.', {
+            status: 503,
+          })
 
         // Generate random state token for CSRF protection
         const state = generateOAuthState()
@@ -36,11 +57,24 @@ export const Route = createFileRoute('/auth/$provider/start')({
         const url = new URL(request.url)
         const isPopup = url.searchParams.get('popup') === 'true'
         const popupCookie = isPopup
-          ? createOAuthPopupCookie(isProduction)
+          ? createOAuthPopupCookie(
+              isProduction,
+              (() => {
+                const channel = oauthPopupChannelSchema.safeParse(
+                  url.searchParams.get('popupChannel'),
+                )
+                return channel.success
+                  ? { state, channel: channel.data }
+                  : undefined
+              })(),
+            )
           : null
 
         // Check for returnTo URL (for redirect after auth)
-        const returnTo = url.searchParams.get('returnTo')
+        const returnTo = normalizeSameOriginPath(
+          url.searchParams.get('returnTo') ?? url.searchParams.get('redirect'),
+          request.url,
+        )
         const returnToCookie = returnTo
           ? createOAuthReturnToCookie(returnTo, isProduction)
           : null
@@ -50,12 +84,11 @@ export const Route = createFileRoute('/auth/$provider/start')({
         }
 
         // Build OAuth URL based on provider
-        const origin = env.SITE_URL || new URL(request.url).origin
+        const origin = new URL(request.url).origin
         const redirectUri = `${origin}/api/auth/callback/${provider}`
 
         // Check for additional scopes (e.g., public_repo for deploy flow)
-        const additionalScopes =
-          url.searchParams.get('scope')?.split(',').filter(Boolean) ?? []
+        const additionalScopes = readOAuthScopes(url.searchParams.get('scope'))
 
         let authUrl: string
 
@@ -66,7 +99,7 @@ export const Route = createFileRoute('/auth/$provider/start')({
           }
           authUrl = buildGitHubAuthUrl(
             clientId,
-            redirectUri,
+            undefined,
             state,
             additionalScopes,
           )

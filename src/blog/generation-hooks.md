@@ -2,6 +2,7 @@
 title: 'Generation Hooks: Type-Safe AI Beyond Chat'
 published: 2026-03-11
 excerpt: Chat is just the beginning. Your AI app needs image generation, text-to-speech, transcription, and more. TanStack AI now ships generation hooks — a unified set of React hooks for every non-chat AI activity.
+library: ai
 authors:
   - Alem Tuzlak
 ---
@@ -92,7 +93,7 @@ const { generate, result, isLoading } = useGenerateImage({
 ```typescript
 // Server - just add stream: true and wrap with toServerSentEventsResponse
 export const generateImageStreamFn = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     z.object({
       prompt: z.string(),
       numberOfImages: z.number().optional(),
@@ -217,7 +218,7 @@ import { generateImage, toServerSentEventsResponse } from '@tanstack/ai'
 import { openaiImage } from '@tanstack/ai-openai'
 
 export const generateImageStreamFn = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ prompt: z.string() }))
+  .validator(z.object({ prompt: z.string() }))
   .handler(({ data }) => {
     return toServerSentEventsResponse(
       generateImage({

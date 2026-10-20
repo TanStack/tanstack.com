@@ -51,7 +51,6 @@ Fenced code blocks are supported with language identifiers for syntax highlighti
 export function App() {
   return <div>Hello</div>
 }
-;``
 ```
 ````
 
@@ -90,7 +89,23 @@ body {
 
 ### Package manager tabs
 
-Package-manager tabs are a special `tabs` variant. The parser reads framework lines like `react: ...` or `solid: ...`, groups packages, and later generates package-manager-specific commands.
+Package-manager tabs are a special `tabs` variant. Lines without a framework prefix apply to every framework. Use prefixes like `react: ...` or `solid: ...` only for framework-specific packages or commands.
+
+Each line produces a separate command for the selected package manager. For example, this block shows three commands:
+
+```md
+<!-- ::start:tabs variant="package-manager" mode="local-install" -->
+
+@tanstack/intent@latest list
+@tanstack/intent@latest validate
+@tanstack/intent@latest review
+
+<!-- ::end:tabs -->
+```
+
+Shared lines can be mixed with framework-specific lines. The selected framework receives its own lines plus every shared line, in source order. A framework without its own lines receives only the shared lines.
+
+Wrap the lines in a fenced text block inside the component when arguments contain literal Markdown characters such as `<package>#<skill>` or `*`.
 
 There are various supported package manager formats, including npm, yarn, pnpm, and bun.
 
@@ -204,6 +219,36 @@ becomes
 ```bash
 npm <command> <package>
 ```
+
+### Bundler tabs
+
+Bundler tabs render a compact tab row (like package-manager tabs) but accept rich markdown content per bundler (like the framework component). The user's bundler choice is persisted to `localStorage` and synced across every bundler tab block on the page.
+
+Inside `variant="bundler"`, each top-level heading whose text matches a known bundler starts a new section, and the following nodes (prose, code blocks, etc.) become that bundler's panel. The transformer uses the largest heading level present in the block, so `# Vite` / `# Rsbuild` and `## Vite` / `## Rsbuild` both work — just be consistent within a single block.
+
+````md
+<!-- ::start:tabs variant="bundler" -->
+
+# Vite
+
+```ts title="vite.config.ts"
+import { defineConfig } from 'vite'
+
+export default defineConfig({})
+```
+
+# Rsbuild
+
+```ts title="rsbuild.config.ts"
+import { defineConfig } from '@rsbuild/cli'
+
+export default defineConfig({})
+```
+
+<!-- ::end:tabs -->
+````
+
+Supported bundlers: `vite`, `rsbuild`. Heading text is matched case-insensitively. Both sections should be defined; if the user's selected bundler isn't present in a particular block, the first defined panel is shown as a fallback.
 
 ## Framework component
 

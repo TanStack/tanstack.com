@@ -7,7 +7,12 @@ import {
   MaintainerCard,
   MaintainerRowCard,
 } from '~/components/MaintainerCard'
-import { Grid2x2, Grid3X3, LayoutList, Mail } from 'lucide-react'
+import {
+  GridFourIcon,
+  GridNineIcon,
+  RowsIcon,
+  EnvelopeIcon,
+} from '@phosphor-icons/react'
 import { Button } from '~/ui'
 
 export const Route = createFileRoute('/paid-support')({
@@ -25,9 +30,7 @@ export const Route = createFileRoute('/paid-support')({
 })
 
 function PaidSupportComp() {
-  const [viewMode, setViewMode] = useState<'compact' | 'full' | 'row'>(
-    'compact',
-  )
+  const [viewMode, setViewMode] = useState<'compact' | 'full' | 'row'>('full')
 
   return (
     <>
@@ -63,19 +66,19 @@ function PaidSupportComp() {
                 [
                   {
                     mode: 'compact',
-                    Icon: Grid3X3,
+                    Icon: GridNineIcon,
                     title: 'Compact cards',
                     rounded: 'rounded-l-lg',
                   },
                   {
                     mode: 'full',
-                    Icon: Grid2x2,
+                    Icon: GridFourIcon,
                     title: 'Full cards',
                     rounded: '',
                   },
                   {
                     mode: 'row',
-                    Icon: LayoutList,
+                    Icon: RowsIcon,
                     title: 'Row cards',
                     rounded: 'rounded-r-lg',
                   },
@@ -97,14 +100,14 @@ function PaidSupportComp() {
             </div>
           </div>
 
-          <div className="space-y-8">
+          <div className="@container space-y-8">
             <div
               className={`transition-all duration-300 ${
                 viewMode === 'compact'
                   ? 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3'
                   : viewMode === 'row'
                     ? 'flex flex-col gap-4'
-                    : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'
+                    : 'grid grid-cols-2 gap-6 [&>*>*]:max-w-none @[28rem]:grid-cols-[repeat(auto-fit,minmax(180px,1fr))] @[43rem]:grid-cols-3'
               }`}
             >
               {coreMaintainers.map((maintainer, index) => (
@@ -156,7 +159,7 @@ function PaidSupportComp() {
               href="mailto:support@tanstack.com?subject=Enterprise%20Support%20Inquiry"
               className="inline-flex items-center gap-3 px-6 py-3 bg-linear-to-r from-green-600 to-cyan-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-200 hover:shadow-lg hover:scale-105"
             >
-              <Mail className="w-5 h-5" />
+              <EnvelopeIcon className="w-5 h-5" />
               Contact Support Team
             </a>
           </div>

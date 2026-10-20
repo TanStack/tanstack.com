@@ -9,7 +9,7 @@ export const getUserStats = createServerFn({ method: 'POST' }).handler(
 )
 
 export const getSignupsChartData = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     (data: { days: number | null; bin?: 'day' | 'week' | 'month' }) => data,
   )
   .handler(async ({ data }) => getSignupsChartDataServer({ data }))

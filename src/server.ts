@@ -1,7 +1,23 @@
+import { receiveTrafficQuality } from './utils/analytics/traffic-quality.server'
+import {
+  timeRequestWork,
+  withDocsRequestTimings,
+} from './utils/request-timing.server'
+import { finalizeDocsHtmlHeaders } from './utils/docs-html-headers.server'
 import './instrument.server.mjs'
 
 import { wrapFetchWithSentry } from '@sentry/tanstackstart-react'
 import handler, { createServerEntry } from '@tanstack/react-start/server-entry'
+import { runWithDatabaseContext, runWithDatabaseRequest } from '~/db/client'
+import {
+  runWithHostRuntimeContext,
+  runWithHostRuntimeEnv,
+  scheduleHostRuntimeTask,
+} from '~/server/runtime/host.server'
+import {
+  createScarfServerRequest,
+  sendScarfServerRequest,
+} from '~/utils/analytics/scarf-server'
 import {
   installProductionFetchProbe,
   installProductionProcessProbe,
@@ -10,7 +26,40 @@ import {
   logRequestStart,
   runWithRequestDiagnostics,
 } from '~/utils/prod-diagnostics.server'
-import { docsContentNegotiationVaryHeader } from '~/utils/http'
+import {
+  docsContentNegotiationVaryHeader,
+  redirectInsecureSiteRequest,
+} from '~/utils/http'
+import { isFrameEmbeddingAllowed } from '~/utils/frame-embedding'
+
+const SECURITY_HEADERS = {
+  'X-Frame-Options': 'DENY',
+  'X-Content-Type-Options': 'nosniff',
+  'X-XSS-Protection': '1; mode=block',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+} as const
+
+const GOOGLE_ANALYTICS_SCRIPT_URL =
+  'https://www.googletagmanager.com/gtag/js?id=G-JMT1Z50SPS'
+const GOOGLE_ANALYTICS_COLLECT_URL =
+  'https://www.google-analytics.com/g/collect'
+const SCARF_EVENTS_URL = 'https://tanstack.gateway.scarf.sh/site-events'
+const MAX_CLIPBOARD_EVENT_BYTES = 4096
+
+const STATIC_RESPONSE_LINK_HEADERS = {
+  filter: ({ phase }: { phase: 'static' | 'dynamic' }) => phase === 'static',
+}
+
+type ScheduledController = {
+  cron: string
+  scheduledTime: number
+}
+
+type WorkerExecutionContext = {
+  waitUntil(promise: Promise<unknown>): void
+}
 
 installProductionFetchProbe()
 installProductionProcessProbe()
@@ -33,61 +82,266 @@ function shouldRewriteDocsRequestToMarkdown(request: Request, url: URL) {
   )
 }
 
-export default createServerEntry(
+function applyHostingHeaders(response: Response, url: URL) {
+  const headers = new Headers(response.headers)
+  if (import.meta.env.MODE === 'staging')
+    headers.set('X-Robots-Tag', 'noindex, nofollow')
+
+  for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
+    headers.set(key, value)
+  }
+
+  if (isFrameEmbeddingAllowed(url.pathname)) {
+    headers.delete('X-Frame-Options')
+  }
+
+  if (url.pathname === '/builder' || url.pathname.startsWith('/builder/')) {
+    headers.set('Cross-Origin-Opener-Policy', 'same-origin')
+    headers.set('Cross-Origin-Embedder-Policy', 'require-corp')
+  }
+
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  })
+}
+
+function getAnalyticsProxyHeaders(request: Request) {
+  const headers = new Headers()
+
+  for (const headerName of ['accept', 'accept-language', 'user-agent']) {
+    const value = request.headers.get(headerName)
+    if (value) {
+      headers.set(headerName, value)
+    }
+  }
+
+  const contentType = request.headers.get('content-type')
+  if (contentType) {
+    headers.set('content-type', contentType)
+  }
+
+  return headers
+}
+
+async function proxyAnalyticsRequest(request: Request, url: URL) {
+  const upstreamUrl =
+    url.pathname === '/_a/gtag.js'
+      ? new URL(GOOGLE_ANALYTICS_SCRIPT_URL)
+      : url.pathname === '/_a/g/collect'
+        ? new URL(GOOGLE_ANALYTICS_COLLECT_URL)
+        : null
+
+  if (!upstreamUrl) {
+    return null
+  }
+
+  if (url.pathname === '/_a/g/collect') {
+    upstreamUrl.search = url.search
+  }
+
+  const init: RequestInit = {
+    method: request.method,
+    headers: getAnalyticsProxyHeaders(request),
+    redirect: 'follow',
+  }
+
+  if (request.method !== 'GET' && request.method !== 'HEAD') {
+    init.body = request.body
+  }
+
+  const response = await fetch(upstreamUrl, init)
+  return applyHostingHeaders(response, url)
+}
+
+async function proxyScarfClipboardEvent(request: Request, url: URL) {
+  if (url.pathname !== '/_a/scarf/clipboard') return null
+
+  if (
+    request.method !== 'POST' ||
+    request.headers.get('content-type') !== 'application/json' ||
+    Number(request.headers.get('content-length')) > MAX_CLIPBOARD_EVENT_BYTES
+  ) {
+    return applyHostingHeaders(new Response(null, { status: 400 }), url)
+  }
+
+  const rawBody = await request.text()
+  if (new TextEncoder().encode(rawBody).length > MAX_CLIPBOARD_EVENT_BYTES) {
+    return applyHostingHeaders(new Response(null, { status: 400 }), url)
+  }
+
+  let body: unknown
+  try {
+    body = JSON.parse(rawBody)
+  } catch {
+    return applyHostingHeaders(new Response(null, { status: 400 }), url)
+  }
+
+  if (
+    typeof body !== 'object' ||
+    body === null ||
+    !('event' in body) ||
+    (body.event !== 'copy' && body.event !== 'paste') ||
+    !('page' in body) ||
+    typeof body.page !== 'string' ||
+    !body.page.startsWith('/') ||
+    body.page.length > 512 ||
+    !('text' in body) ||
+    typeof body.text !== 'string' ||
+    body.text.length > 512 ||
+    !('truncated' in body) ||
+    typeof body.truncated !== 'boolean'
+  ) {
+    return applyHostingHeaders(new Response(null, { status: 400 }), url)
+  }
+
+  const headers = new Headers({ 'Content-Type': 'application/json' })
+  for (const headerName of ['user-agent', 'dnt', 'sec-gpc']) {
+    const value = request.headers.get(headerName)
+    if (value) headers.set(headerName, value)
+  }
+  const clientIp = request.headers.get('cf-connecting-ip')
+  if (clientIp) headers.set('X-Scarf-IP', clientIp)
+
+  try {
+    await fetch(SCARF_EVENTS_URL, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        event: body.event,
+        page: body.page,
+        text: body.text,
+        truncated: body.truncated,
+      }),
+    })
+  } catch {
+    // Telemetry failures must not affect the page.
+  }
+
+  return applyHostingHeaders(new Response(null, { status: 204 }), url)
+}
+
+const server = createServerEntry(
   wrapFetchWithSentry({
     async fetch(request) {
       return runWithRequestDiagnostics(request, async (context) => {
-        const url = new URL(request.url)
-        logRequestStart(context)
+        return runWithDatabaseRequest(async () => {
+          const url = new URL(request.url)
+          logRequestStart(context)
 
-        try {
-          if (shouldRewriteDocsRequestToMarkdown(request, url)) {
-            const mdUrl = new URL(request.url)
-            mdUrl.pathname = `${url.pathname}.md`
-            const mdRequest = new Request(mdUrl, request)
-            const mdResponse = await handler.fetch(mdRequest)
-            const markdownHeaders = new Headers(mdResponse.headers)
-            markdownHeaders.set('Vary', docsContentNegotiationVaryHeader)
+          try {
+            if (url.pathname === '/_a/traffic-quality') {
+              return applyHostingHeaders(
+                await receiveTrafficQuality(request),
+                url,
+              )
+            }
+            const scarfResponse = await proxyScarfClipboardEvent(request, url)
+            if (scarfResponse) {
+              logRequestEnd(context, scarfResponse.status, {
+                analyticsProxy: true,
+              })
+              return scarfResponse
+            }
 
-            const markdownResponse = new Response(mdResponse.body, {
-              status: mdResponse.status,
-              statusText: mdResponse.statusText,
-              headers: markdownHeaders,
-            })
+            const analyticsResponse = await proxyAnalyticsRequest(request, url)
+            if (analyticsResponse) {
+              logRequestEnd(context, analyticsResponse.status, {
+                analyticsProxy: true,
+              })
+              return analyticsResponse
+            }
 
-            logRequestEnd(context, mdResponse.status, {
-              rewrittenToMarkdown: true,
-            })
-            return markdownResponse
+            if (shouldRewriteDocsRequestToMarkdown(request, url)) {
+              const mdUrl = new URL(request.url)
+              mdUrl.pathname = `${url.pathname}.md`
+              const mdRequest = new Request(mdUrl, request)
+              const mdResponse = await handler.fetch(mdRequest)
+              const markdownHeaders = new Headers(mdResponse.headers)
+              markdownHeaders.set('Vary', docsContentNegotiationVaryHeader)
+
+              const markdownResponse = new Response(mdResponse.body, {
+                status: mdResponse.status,
+                statusText: mdResponse.statusText,
+                headers: markdownHeaders,
+              })
+
+              logRequestEnd(context, mdResponse.status, {
+                rewrittenToMarkdown: true,
+              })
+              return applyHostingHeaders(markdownResponse, url)
+            }
+
+            const response = await timeRequestWork('start_handler', () =>
+              handler.fetch(request, {
+                responseLinkHeader: STATIC_RESPONSE_LINK_HEADERS,
+              }),
+            )
+            const hostedResponse = applyHostingHeaders(response, url)
+
+            logRequestEnd(context, response.status)
+            return hostedResponse
+          } catch (error) {
+            logRequestError(context, error)
+            throw error
           }
-
-          const response = await handler.fetch(request)
-
-          if (
-            url.pathname === '/builder' ||
-            url.pathname.startsWith('/builder/')
-          ) {
-            const newHeaders = new Headers(response.headers)
-            newHeaders.set('Cross-Origin-Opener-Policy', 'same-origin')
-            newHeaders.set('Cross-Origin-Embedder-Policy', 'require-corp')
-
-            logRequestEnd(context, response.status, {
-              builderIsolatedHeaders: true,
-            })
-            return new Response(response.body, {
-              status: response.status,
-              statusText: response.statusText,
-              headers: newHeaders,
-            })
-          }
-
-          logRequestEnd(context, response.status)
-          return response
-        } catch (error) {
-          logRequestError(context, error)
-          throw error
-        }
+        })
       })
     },
   }),
 )
+
+export default {
+  async fetch(request: Request, env: unknown, context: unknown) {
+    if (
+      import.meta.env.MODE === 'staging' &&
+      new URL(request.url).pathname.startsWith('/_a/')
+    )
+      return new Response(null, { status: 204 })
+    const secureSite = redirectInsecureSiteRequest(request)
+    if (secureSite) return secureSite
+    if (new URL(request.url).hostname === 'chat.tanstack.com') {
+      const { redirectChatOrigin } =
+        await import('./chat/server/origin-redirect')
+      const canonicalChat = redirectChatOrigin(request)
+      if (canonicalChat) return canonicalChat
+    }
+    return runWithHostRuntimeEnv(env, () =>
+      runWithHostRuntimeContext(context, () =>
+        withDocsRequestTimings(request, async () => {
+          const response = finalizeDocsHtmlHeaders(
+            request,
+            await server.fetch(request),
+          )
+          if (import.meta.env.PROD && import.meta.env.MODE !== 'staging') {
+            const scarfRequest = createScarfServerRequest(request, response)
+            if (scarfRequest) {
+              scheduleHostRuntimeTask(() =>
+                sendScarfServerRequest(scarfRequest),
+              )
+            }
+          }
+          return response
+        }),
+      ),
+    )
+  },
+  scheduled(
+    controller: ScheduledController,
+    env: unknown,
+    context: WorkerExecutionContext,
+  ) {
+    context.waitUntil(
+      runWithHostRuntimeEnv(env, () =>
+        runWithHostRuntimeContext(context, () =>
+          runWithDatabaseContext(async () => {
+            const { runScheduledTasks } =
+              await import('~/server/scheduled.server')
+            return runScheduledTasks(controller.cron, controller.scheduledTime)
+          }),
+        ),
+      ),
+    )
+  },
+}

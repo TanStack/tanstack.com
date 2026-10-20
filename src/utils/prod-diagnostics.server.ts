@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { readdirSync } from 'node:fs'
 import { AsyncLocalStorage } from 'node:async_hooks'
+import { supportsProcessDiagnostics } from '~/server/runtime/host.server'
 import { getClientIp } from '~/utils/request.server'
 
 const isProduction = process.env.NODE_ENV === 'production'
@@ -37,9 +38,20 @@ function getFdCount(): number {
 
 function getResourceSummary(): Record<string, number> {
   const summary: Record<string, number> = {}
-  for (const resource of process.getActiveResourcesInfo()) {
-    summary[resource] = (summary[resource] ?? 0) + 1
+
+  const getActiveResourcesInfo = process.getActiveResourcesInfo
+  if (typeof getActiveResourcesInfo !== 'function') {
+    return summary
   }
+
+  try {
+    for (const resource of getActiveResourcesInfo()) {
+      summary[resource] = (summary[resource] ?? 0) + 1
+    }
+  } catch {
+    return summary
+  }
+
   return summary
 }
 
@@ -75,6 +87,10 @@ function logDiagnostic(payload: Record<string, unknown>): void {
 }
 
 function maybeLogFdHighWatermark(): void {
+  if (!supportsProcessDiagnostics()) {
+    return
+  }
+
   const fdCount = getFdCount()
   if (fdCount > fdHighWatermark) {
     fdHighWatermark = fdCount
@@ -123,13 +139,18 @@ export function installProductionFetchProbe(): void {
 }
 
 export function installProductionProcessProbe(): void {
-  if (!isProduction || processProbeInstalled) {
+  if (
+    !isProduction ||
+    processProbeInstalled ||
+    !supportsProcessDiagnostics() ||
+    typeof process.on !== 'function'
+  ) {
     return
   }
 
   processProbeInstalled = true
 
-  setInterval(() => {
+  const heartbeat = setInterval(() => {
     maybeLogFdHighWatermark()
     logDiagnostic({
       event: 'process_heartbeat',
@@ -137,7 +158,16 @@ export function installProductionProcessProbe(): void {
       fdCount: getFdCount(),
       resourceSummary: getResourceSummary(),
     })
-  }, 30_000).unref()
+  }, 30_000)
+
+  if (
+    typeof heartbeat === 'object' &&
+    heartbeat &&
+    'unref' in heartbeat &&
+    typeof heartbeat.unref === 'function'
+  ) {
+    heartbeat.unref()
+  }
 
   process.on('unhandledRejection', (reason) => {
     const message =

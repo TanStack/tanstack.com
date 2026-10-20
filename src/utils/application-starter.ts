@@ -1,21 +1,34 @@
-import type { FrameworkId } from '~/builder/frameworks'
+import type { FrameworkId } from '~/application-starter/frameworks'
 import type { LibraryId } from '~/libraries'
 import {
   getApplicationStarterForceRouterOnly,
+  getApplicationStarterCompatiblePartnerIds,
   getApplicationStarterGuidanceLines,
   getApplicationStarterInferredPartnerIds,
   getApplicationStarterSelectedPartnerIds,
   getApplicationStarterUserBrief,
+  hasApplicationStarterPartnerConflictWithAny,
+  isRenderDeploymentRequest,
 } from '~/utils/partners'
 
-export type ApplicationStarterContext = 'builder' | 'home' | 'router' | 'start'
+export type ApplicationStarterContext =
+  | 'application-starter'
+  | 'home'
+  | 'router'
+  | 'start'
 export type ApplicationStarterResultType =
   | 'fallback'
   | 'migration'
   | 'scaffoldable'
 
 export interface ApplicationStarterRecipe {
-  deployment?: 'cloudflare' | 'netlify' | 'nitro' | 'railway'
+  deployment?:
+    | 'cloudflare'
+    | 'netlify'
+    | 'nitro'
+    | 'railway'
+    | 'render'
+    | 'vercel'
   featureOptions: Record<string, Record<string, unknown>>
   features: Array<string>
   framework: FrameworkId
@@ -34,7 +47,7 @@ export interface ApplicationStarterRequest {
 }
 
 export interface ApplicationStarterResult {
-  advancedBuilderUrl?: string
+  advancedApplicationStarterUrl?: string
   cliCommand: string
   downloadUrl?: string
   headline: string
@@ -204,6 +217,7 @@ type IntentId =
   | 'api'
   | 'content'
   | 'dashboard'
+  | 'ecommerce'
   | 'fallback'
   | 'migration'
   | 'realtime'
@@ -216,7 +230,7 @@ type ContextSuggestion = {
 
 const DEFAULT_PROJECT_NAME = 'my-tanstack-app'
 
-const sharedHomeAndBuilderPrompts: Array<ContextSuggestion> = [
+const sharedHomeAndApplicationStarterPrompts: Array<ContextSuggestion> = [
   {
     label: 'Blank starter',
     input:
@@ -235,11 +249,18 @@ const sharedHomeAndBuilderPrompts: Array<ContextSuggestion> = [
   {
     label: 'SaaS dashboard',
     input:
-      'Build a SaaS dashboard app with auth, billing-ready structure, Postgres, nested routes, data tables, filters, forms, monitoring, and charts-ready data fetching.',
+      'Build a SaaS dashboard app with auth, billing-ready structure, Postgres, nested routes, data tables, filters, forms, and charts-ready data fetching.',
+  },
+  {
+    label: 'Build a shop',
+    input:
+      'Build a Shopify-backed storefront with product catalog, shopping cart, customer accounts, and checkout.',
   },
 ]
 
-export function getRecipeBuilderFeatures(recipe: ApplicationStarterRecipe) {
+export function getRecipeApplicationStarterFeatures(
+  recipe: ApplicationStarterRecipe,
+) {
   const seen = new Set<string>()
 
   return [...recipe.features, recipe.deployment, recipe.toolchain].filter(
@@ -258,7 +279,7 @@ const quickPrompts: Record<
   ApplicationStarterContext,
   Array<ContextSuggestion>
 > = {
-  home: sharedHomeAndBuilderPrompts,
+  home: sharedHomeAndApplicationStarterPrompts,
   start: [
     {
       label: 'Blank starter',
@@ -268,12 +289,12 @@ const quickPrompts: Record<
     {
       label: 'Full-stack app',
       input:
-        'Build a full-stack TanStack Start app with auth, database access, forms, and monitoring.',
+        'Build a full-stack TanStack Start app with auth, database access, and forms.',
     },
     {
       label: 'Auth + database',
       input:
-        'Build a product app with authentication, Postgres, forms, and Sentry. Use pnpm.',
+        'Build a product app with authentication, Postgres, and forms. Use pnpm.',
     },
     {
       label: 'Migrate from Next.js',
@@ -313,7 +334,7 @@ const quickPrompts: Record<
         'Build a content-focused app with strong routing, nested layouts, and a clean blog-style reading flow.',
     },
   ],
-  builder: sharedHomeAndBuilderPrompts,
+  'application-starter': sharedHomeAndApplicationStarterPrompts,
 }
 
 const starterLibraryInferenceRules: Array<{
@@ -466,7 +487,27 @@ const scorerGroups: Record<Exclude<IntentId, 'fallback'>, Array<RegExp>> = {
     /\bmultiplayer\b/i,
     /\bpresence\b/i,
   ],
+  ecommerce: [
+    /\bshopify\b/i,
+    /\bstorefront\b/i,
+    /\be[- ]?commerce\b/i,
+    /\bonline store\b/i,
+    /\bproduct catalog\b/i,
+    /\bsell(?:ing)? products?\b/i,
+    /\bcheckout\b/i,
+    /\bshopping cart\b/i,
+    /\bmerch(?:andise)?\b/i,
+  ],
 }
+
+const ecommerceCustomerAccountPatterns = [
+  /\bcustomer accounts?\b/i,
+  /\bcustomer login\b/i,
+  /\border history\b/i,
+  /\bsign[- ]?in\b/i,
+  /\blogin\b/i,
+  /\baddresses\b/i,
+]
 
 const migrationSources = [
   'astro',
@@ -530,7 +571,7 @@ export function composeApplicationStarterResult({
   resultType: ApplicationStarterResultType
 }): ApplicationStarterResult {
   return {
-    advancedBuilderUrl:
+    advancedApplicationStarterUrl:
       recipe.target === 'start' ? buildAdvancedBuilderUrl(recipe) : undefined,
     cliCommand: buildCliCommand(recipe),
     downloadUrl:
@@ -600,7 +641,7 @@ function buildRecipe(
       input,
     )
   const routerOnly =
-    context !== 'builder' &&
+    context !== 'application-starter' &&
     detectRouterOnly(input) &&
     !/\bssr\b/i.test(input) &&
     !/\bserver functions?\b/i.test(input)
@@ -622,7 +663,7 @@ function buildRecipe(
     case 'migration': {
       recipe.target = routerOnly ? 'router' : 'start'
       recipe.template = 'saas'
-      addStarterFeatures(recipe, 'better-auth', 'neon', 'drizzle', 'sentry')
+      addStarterFeatures(recipe, 'better-auth', 'prisma')
       break
     }
     case 'saas': {
@@ -630,10 +671,8 @@ function buildRecipe(
       addStarterFeatures(
         recipe,
         'better-auth',
-        'neon',
-        'drizzle',
+        'prisma',
         'form',
-        'sentry',
         'shadcn',
         'tanstack-query',
       )
@@ -646,7 +685,7 @@ function buildRecipe(
     }
     case 'content': {
       recipe.template = 'blog'
-      addStarterFeatures(recipe, 'strapi', 'tanstack-query')
+      addStarterFeatures(recipe, 'tanstack-query')
       break
     }
     case 'api': {
@@ -661,7 +700,16 @@ function buildRecipe(
     }
     case 'realtime': {
       recipe.template = 'realtime'
-      addStarterFeatures(recipe, 'convex', 'tanstack-query')
+      addStarterFeatures(recipe, 'db', 'tanstack-query')
+      break
+    }
+    case 'ecommerce': {
+      recipe.template = 'shopify-storefront'
+      if (
+        ecommerceCustomerAccountPatterns.some((pattern) => pattern.test(input))
+      ) {
+        recipe.featureOptions.shopify = { customerAccount: 'enabled' }
+      }
       break
     }
     case 'fallback': {
@@ -677,13 +725,23 @@ function buildRecipe(
     }
   }
 
-  applyPartnerOverrides(recipe, {
-    partnerIds: [
-      ...partnerConfig.selectedPartnerIds,
-      ...partnerConfig.inferredPartnerIds,
-    ],
-  })
-  applyInputOverrides(input, recipe)
+  const selectedPartnerIds = getApplicationStarterCompatiblePartnerIds(
+    partnerConfig.selectedPartnerIds,
+  )
+  const inferredPartnerIds = getApplicationStarterCompatiblePartnerIds(
+    partnerConfig.inferredPartnerIds.filter(
+      (partnerId) =>
+        !hasApplicationStarterPartnerConflictWithAny(
+          partnerId,
+          selectedPartnerIds,
+        ),
+    ),
+  )
+
+  const partnerIds = [...selectedPartnerIds, ...inferredPartnerIds]
+
+  applyPartnerOverrides(recipe, { partnerIds })
+  applyInputOverrides(input, recipe, { partnerIds })
   normalizeRecipe(recipe)
 
   return recipe
@@ -708,6 +766,10 @@ function applyPartnerOverrides(
     recipe.deployment = 'netlify'
   } else if (partnerIds.has('railway')) {
     recipe.deployment = 'railway'
+  } else if (partnerIds.has('render')) {
+    recipe.deployment = 'render'
+  } else if (partnerIds.has('vercel')) {
+    recipe.deployment = 'vercel'
   }
 
   if (partnerIds.has('workos')) {
@@ -733,14 +795,41 @@ function applyPartnerOverrides(
 
   if (partnerIds.has('prisma')) {
     replaceExclusive(recipe, ['convex', 'drizzle', 'prisma'], 'prisma')
-    addStarterFeatures(recipe, 'neon')
   }
 }
 
 function hasHostedDatabaseConstraint(input: string) {
-  return /\b(do not use|don't use|avoid|without)\s+(?:a\s+)?hosted database\b/i.test(
+  return /\b(do not use|don't use|avoid|without|no)\s+(?:a\s+|any\s+)?hosted database\b/i.test(
     input,
   )
+}
+
+function hasDatabaseConstraint(input: string) {
+  return /\b(do not use|don't use|avoid|without|no)\s+(?:a\s+|any\s+)?(?:database|db)\b/i.test(
+    input,
+  )
+}
+
+function hasTanStackDbConstraint(input: string) {
+  return /\b(do not use|don't use|avoid|without|no)\s+(?:the\s+)?tanstack db\b/i.test(
+    input,
+  )
+}
+
+function removeNegativeDatabaseMentions(input: string) {
+  return input
+    .replace(
+      /\b(?:do not use|don't use|avoid|without|no)\s+(?:a\s+|any\s+)?hosted database\b/gi,
+      '',
+    )
+    .replace(
+      /\b(?:do not use|don't use|avoid|without|no)\s+(?:the\s+)?tanstack db\b/gi,
+      '',
+    )
+    .replace(
+      /\b(?:do not use|don't use|avoid|without|no)\s+(?:a\s+|any\s+)?(?:database|db)\b/gi,
+      '',
+    )
 }
 
 function hasAuthOverlapConstraint(input: string) {
@@ -756,45 +845,126 @@ function hasNegativeFeatureConstraint(input: string, feature: string) {
   ).test(input)
 }
 
-function applyInputOverrides(input: string, recipe: ApplicationStarterRecipe) {
+function applyInputOverrides(
+  input: string,
+  recipe: ApplicationStarterRecipe,
+  options: { partnerIds: Array<string> },
+) {
+  const userBrief = getApplicationStarterUserBrief(input)
+  const databaseBrief = removeNegativeDatabaseMentions(userBrief)
+  const requestedPartnerIds = new Set(options.partnerIds)
+  const hasRequestedAuthPartner =
+    requestedPartnerIds.has('clerk') || requestedPartnerIds.has('workos')
+
   if (hasNegativeFeatureConstraint(input, 'clerk')) {
     recipe.features = recipe.features.filter((feature) => feature !== 'clerk')
-  } else if (/\bclerk\b/i.test(input)) {
-    replaceExclusive(recipe, ['better-auth', 'clerk', 'workos'], 'clerk')
-  } else if (
-    /\b(sso|saml|scim|directory sync|enterprise auth|enterprise identity|b2b auth)\b/i.test(
-      input,
-    )
-  ) {
-    replaceExclusive(recipe, ['better-auth', 'clerk', 'workos'], 'workos')
-  } else if (/\bworkos\b/i.test(input)) {
-    replaceExclusive(recipe, ['better-auth', 'clerk', 'workos'], 'workos')
-  } else if (
-    !hasAuthOverlapConstraint(input) &&
-    /\b(authentication|auth|login|sign ?in|sign ?up|oauth|sessions?)\b/i.test(
-      input,
-    )
-  ) {
-    replaceExclusive(recipe, ['better-auth', 'clerk', 'workos'], 'better-auth')
+  } else if (!hasRequestedAuthPartner) {
+    if (/\bclerk\b/i.test(input)) {
+      replaceExclusive(recipe, ['better-auth', 'clerk', 'workos'], 'clerk')
+    } else if (/\b(workos|authkit)\b/i.test(input)) {
+      replaceExclusive(recipe, ['better-auth', 'clerk', 'workos'], 'workos')
+    } else if (
+      !hasAuthOverlapConstraint(input) &&
+      /\b(authentication|auth|login|sign ?in|sign ?up|oauth|sessions?)\b/i.test(
+        input,
+      )
+    ) {
+      replaceExclusive(
+        recipe,
+        ['better-auth', 'clerk', 'workos'],
+        'better-auth',
+      )
+    }
   }
 
-  if (hasHostedDatabaseConstraint(input)) {
+  const excludesAllDatabases = hasDatabaseConstraint(input)
+  const excludesHostedDatabase = hasHostedDatabaseConstraint(input)
+  const excludesDrizzle = hasNegativeFeatureConstraint(input, 'drizzle')
+  const excludesPrisma = hasNegativeFeatureConstraint(input, 'prisma')
+  const excludesTanStackDb = hasTanStackDbConstraint(input)
+  const hadDefaultPrisma = recipe.features.includes('prisma')
+
+  if (excludesAllDatabases) {
     recipe.features = recipe.features.filter(
-      (feature) => feature !== 'convex' && feature !== 'neon',
+      (feature) =>
+        feature !== 'convex' &&
+        feature !== 'db' &&
+        feature !== 'drizzle' &&
+        feature !== 'neon' &&
+        feature !== 'prisma',
     )
-  } else if (/\bconvex\b/i.test(input)) {
-    replaceExclusive(recipe, ['convex', 'drizzle', 'neon', 'prisma'], 'convex')
-  } else if (/\bprisma\b/i.test(input)) {
-    replaceExclusive(recipe, ['convex', 'drizzle', 'prisma'], 'prisma')
-    addStarterFeatures(recipe, 'neon')
-  } else if (/\bdrizzle\b/i.test(input)) {
-    replaceExclusive(recipe, ['convex', 'drizzle', 'prisma'], 'drizzle')
-    addStarterFeatures(recipe, 'neon')
-  } else if (
-    /\bpostgres\b|\bpostgre?s\b|\bdatabase\b|\bdb\b|\bneon\b/i.test(input)
-  ) {
-    replaceExclusive(recipe, ['convex'], 'neon')
-    replaceExclusive(recipe, ['drizzle', 'prisma'], 'drizzle')
+    delete recipe.featureOptions.prisma
+    delete recipe.featureOptions.drizzle
+  } else {
+    if (/\bconvex\b/i.test(databaseBrief) && !excludesHostedDatabase) {
+      replaceExclusive(
+        recipe,
+        ['convex', 'drizzle', 'neon', 'prisma'],
+        'convex',
+      )
+    } else if (/\bneon\b/i.test(databaseBrief) && !excludesHostedDatabase) {
+      replaceExclusive(recipe, ['convex'], 'neon')
+      replaceExclusive(recipe, ['drizzle', 'prisma'], 'drizzle')
+    } else if (/\bprisma\b/i.test(databaseBrief) && !excludesPrisma) {
+      replaceExclusive(recipe, ['convex', 'drizzle', 'prisma'], 'prisma')
+    } else if (/\bdrizzle\b/i.test(databaseBrief) && !excludesDrizzle) {
+      replaceExclusive(recipe, ['convex', 'drizzle', 'prisma'], 'drizzle')
+    } else if (
+      /\bpostgres\b|\bpostgre?s\b|\bdatabase\b|\bdb\b/i.test(databaseBrief)
+    ) {
+      if (!excludesPrisma || !excludesDrizzle) {
+        replaceExclusive(
+          recipe,
+          ['convex', 'drizzle', 'prisma'],
+          excludesPrisma ? 'drizzle' : 'prisma',
+        )
+      }
+    }
+
+    if (excludesPrisma) {
+      recipe.features = recipe.features.filter(
+        (feature) => feature !== 'prisma',
+      )
+      delete recipe.featureOptions.prisma
+
+      if (
+        hadDefaultPrisma &&
+        !excludesDrizzle &&
+        !recipe.features.some((feature) =>
+          ['convex', 'drizzle', 'neon'].includes(feature),
+        )
+      ) {
+        addStarterFeatures(recipe, 'drizzle')
+      }
+    }
+
+    if (excludesDrizzle) {
+      recipe.features = recipe.features.filter(
+        (feature) => feature !== 'drizzle',
+      )
+      delete recipe.featureOptions.drizzle
+    }
+
+    if (excludesHostedDatabase) {
+      recipe.features = recipe.features.filter(
+        (feature) => feature !== 'convex' && feature !== 'neon',
+      )
+
+      if (recipe.features.includes('prisma')) {
+        recipe.featureOptions.prisma = { database: 'sqlite' }
+      }
+      if (recipe.features.includes('drizzle')) {
+        recipe.featureOptions.drizzle = { database: 'sqlite' }
+      }
+    }
+
+    if (excludesTanStackDb) {
+      recipe.features = recipe.features.filter((feature) => feature !== 'db')
+    }
+  }
+
+  if (/\bstrapi\b/i.test(userBrief)) {
+    addStarterFeatures(recipe, 'strapi')
   }
 
   if (/\bquery\b|\bloaders?\b|\bdata fetching\b/i.test(input)) {
@@ -813,7 +983,10 @@ function applyInputOverrides(input: string, recipe: ApplicationStarterRecipe) {
     addStarterFeatures(recipe, 'posthog')
   }
 
-  if (/\bsentry\b|\bmonitoring\b|\berrors?\b/i.test(input)) {
+  if (
+    !hasNegativeFeatureConstraint(input, 'sentry') &&
+    /\bsentry\b/i.test(input)
+  ) {
     addStarterFeatures(recipe, 'sentry')
   }
 
@@ -847,12 +1020,21 @@ function applyInputOverrides(input: string, recipe: ApplicationStarterRecipe) {
     addStarterFeatures(recipe, 'ai', 'store')
   }
 
-  if (/\brealtime\b|\bcollaborat(?:e|ive|ion)\b|\blive\b/i.test(input)) {
+  if (
+    /\brealtime\b|\bcollaborat(?:e|ive|ion)\b|\blive\b/i.test(input) &&
+    !excludesAllDatabases &&
+    !excludesTanStackDb &&
+    !/\b(convex|drizzle|neon|prisma)\b/i.test(userBrief) &&
+    !requestedPartnerIds.has('prisma')
+  ) {
     recipe.features = recipe.features.filter(
       (feature) =>
-        feature !== 'neon' && feature !== 'drizzle' && feature !== 'prisma',
+        feature !== 'convex' &&
+        feature !== 'neon' &&
+        feature !== 'drizzle' &&
+        feature !== 'prisma',
     )
-    addStarterFeatures(recipe, 'convex', 'tanstack-query')
+    addStarterFeatures(recipe, 'db', 'tanstack-query')
   }
 }
 
@@ -897,6 +1079,12 @@ function detectDeployment(input: string) {
   }
   if (/\brailway\b/i.test(input)) {
     return 'railway' as const
+  }
+  if (isRenderDeploymentRequest(input)) {
+    return 'render'
+  }
+  if (/\b(vercel|v0)\b/i.test(input)) {
+    return 'vercel'
   }
   if (/\bnitro\b/i.test(input)) {
     return 'nitro' as const
@@ -1090,6 +1278,7 @@ function buildPrompt({
 
   if (resultType === 'migration') {
     const source = detectMigrationSource(userBrief) ?? 'the existing app'
+    const migrationGuideUrl = getStarterMigrationGuideUrl(userBrief)
     const migrationRepositoryInstructions =
       getMigrationRepositoryInstructionLines(input)
 
@@ -1108,6 +1297,12 @@ function buildPrompt({
       ...getStarterConstraintInstructionLines(input),
       ...migrationRepositoryInstructions,
       '',
+      ...(migrationGuideUrl
+        ? [
+            `Fetch ${migrationGuideUrl} and use it as the primary migration reference, following its steps in order.`,
+            '',
+          ]
+        : []),
       'Migration strategy:',
       '1. Inventory routes, layouts, auth, data loading, forms, and environment variables in the existing app.',
       '2. Recreate the destination structure in the fresh TanStack project first.',
@@ -1160,7 +1355,7 @@ function isMinimalRequest(input: string) {
 
 export function buildAdvancedBuilderUrl(recipe: ApplicationStarterRecipe) {
   const params = new URLSearchParams()
-  const featureIds = getRecipeBuilderFeatures(recipe)
+  const featureIds = getRecipeApplicationStarterFeatures(recipe)
 
   params.set('name', recipe.projectName || DEFAULT_PROJECT_NAME)
 
@@ -1184,7 +1379,46 @@ export function buildAdvancedBuilderUrl(recipe: ApplicationStarterRecipe) {
     params.set('features', featureIds.join(','))
   }
 
-  return `/builder?${params.toString()}`
+  appendFeatureOptionParams(params, recipe.featureOptions)
+
+  return `/application-starter?${params.toString()}`
+}
+
+const CLI_TEMPLATE_IDS = new Set<string>(['shopify-storefront'])
+
+export function isCliTemplateId(value: string | undefined): boolean {
+  return value !== undefined && CLI_TEMPLATE_IDS.has(value)
+}
+
+function shellQuoteSingle(value: string): string {
+  return `'${value.replace(/'/g, `'\\''`)}'`
+}
+
+function buildAddOnConfigArg(
+  featureOptions: ApplicationStarterRecipe['featureOptions'],
+): string | null {
+  const entries = Object.entries(featureOptions).filter(
+    ([, options]) => options && Object.keys(options).length > 0,
+  )
+  if (entries.length === 0) return null
+  return shellQuoteSingle(JSON.stringify(Object.fromEntries(entries)))
+}
+
+function appendFeatureOptionParams(
+  params: URLSearchParams,
+  featureOptions: ApplicationStarterRecipe['featureOptions'],
+) {
+  for (const [featureId, options] of Object.entries(featureOptions)) {
+    for (const [optionKey, value] of Object.entries(options)) {
+      if (
+        typeof value === 'string' ||
+        typeof value === 'number' ||
+        typeof value === 'boolean'
+      ) {
+        params.set(`${featureId}.${optionKey}`, String(value))
+      }
+    }
+  }
 }
 
 export function buildCliCommand(recipe: ApplicationStarterRecipe) {
@@ -1200,9 +1434,9 @@ export function buildCliCommand(recipe: ApplicationStarterRecipe) {
     commandParts.push('--router-only')
   }
 
-  if (recipe.packageManager !== 'pnpm') {
-    commandParts.push('--package-manager', recipe.packageManager)
-  }
+  commandParts.push('--package-manager', recipe.packageManager)
+
+  commandParts.push(recipe.tailwind ? '--tailwind' : '--no-tailwind')
 
   if (recipe.deployment) {
     commandParts.push('--deployment', recipe.deployment)
@@ -1212,8 +1446,17 @@ export function buildCliCommand(recipe: ApplicationStarterRecipe) {
     commandParts.push('--toolchain', recipe.toolchain)
   }
 
+  if (isCliTemplateId(recipe.template)) {
+    commandParts.push('--template', recipe.template!)
+  }
+
   if (recipe.features.length > 0) {
     commandParts.push('--add-ons', recipe.features.join(','))
+  }
+
+  const addOnConfig = buildAddOnConfigArg(recipe.featureOptions)
+  if (addOnConfig) {
+    commandParts.push('--add-on-config', addOnConfig)
   }
 
   return commandParts.join(' ')
@@ -1221,7 +1464,7 @@ export function buildCliCommand(recipe: ApplicationStarterRecipe) {
 
 export function buildDownloadUrl(recipe: ApplicationStarterRecipe) {
   const params = new URLSearchParams()
-  const featureIds = getRecipeBuilderFeatures(recipe)
+  const featureIds = getRecipeApplicationStarterFeatures(recipe)
 
   params.set('name', recipe.projectName || DEFAULT_PROJECT_NAME)
   params.set('framework', recipe.framework)
@@ -1235,5 +1478,37 @@ export function buildDownloadUrl(recipe: ApplicationStarterRecipe) {
     params.set('features', featureIds.join(','))
   }
 
-  return `/api/builder/download?${params.toString()}`
+  appendFeatureOptionParams(params, recipe.featureOptions)
+
+  return `/api/application-starter/download?${params.toString()}`
+}
+
+const nextJsMigrationPattern =
+  /migrat(?:e|ing|ion).*(next(?:\.js)?)|(next(?:\.js)?).*(migrat(?:e|ing|ion))/i
+const remixMigrationPattern =
+  /migrat(?:e|ing|ion).*(remix|react[\s-]?router)|(remix|react[\s-]?router).*(migrat(?:e|ing|ion))/i
+
+export const STARTER_NEXTJS_MIGRATION_GUIDE_URL =
+  'https://tanstack.com/start/latest/docs/framework/react/migrate-from-next-js'
+export const STARTER_REMIX_MIGRATION_GUIDE_URL =
+  'https://tanstack.com/router/latest/docs/how-to/migrate-from-react-router'
+
+export function isNextJsMigrationInput(input: string) {
+  return nextJsMigrationPattern.test(input)
+}
+
+export function isRemixMigrationInput(input: string) {
+  return remixMigrationPattern.test(input)
+}
+
+export function getStarterMigrationGuideUrl(input: string) {
+  if (isNextJsMigrationInput(input)) {
+    return STARTER_NEXTJS_MIGRATION_GUIDE_URL
+  }
+
+  if (isRemixMigrationInput(input)) {
+    return STARTER_REMIX_MIGRATION_GUIDE_URL
+  }
+
+  return null
 }

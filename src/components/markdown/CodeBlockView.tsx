@@ -1,10 +1,9 @@
-'use client'
-
 import * as React from 'react'
-import { Copy } from 'lucide-react'
+import { CopyIcon } from '@phosphor-icons/react/Copy'
 import { twMerge } from 'tailwind-merge'
 import { useToast } from '~/components/ToastProvider'
 import { Button } from '~/ui'
+import { copyTextToClipboard, useTemporaryFlag } from '~/utils/browser-effects'
 
 export function CodeBlockView({
   className,
@@ -12,6 +11,7 @@ export function CodeBlockView({
   htmlMarkup,
   isEmbedded,
   lang,
+  onCopySuccess,
   showTypeCopyButton = true,
   style,
   title,
@@ -21,17 +21,18 @@ export function CodeBlockView({
   htmlMarkup: string
   isEmbedded?: boolean
   lang?: string
+  onCopySuccess?: () => void
   showTypeCopyButton?: boolean
   style?: React.CSSProperties
   title?: string
 }) {
-  const [copied, setCopied] = React.useState(false)
+  const copied = useTemporaryFlag()
   const { notify } = useToast()
 
   return (
     <div
       className={twMerge(
-        'codeblock w-full max-w-full relative not-prose border border-gray-500/20 rounded-md [&_pre]:rounded-md',
+        'codeblock w-full max-w-full relative not-prose border border-gray-500/20 rounded-md overflow-hidden [&_pre]:rounded-none',
         className,
       )}
       style={style}
@@ -46,10 +47,10 @@ export function CodeBlockView({
             variant="ghost"
             size="xs"
             className={twMerge('border-0 rounded-md transition-opacity')}
-            onClick={() => {
-              navigator.clipboard.writeText(copyText)
-              setCopied(true)
-              setTimeout(() => setCopied(false), 2000)
+            onClick={async () => {
+              await copyTextToClipboard(copyText)
+              onCopySuccess?.()
+              copied.trigger()
               notify(
                 <div className="flex flex-col">
                   <span className="font-medium">Copied code</span>
@@ -57,14 +58,15 @@ export function CodeBlockView({
                     Code block copied to clipboard
                   </span>
                 </div>,
+                { id: 'code-copied' },
               )
             }}
             aria-label="Copy code to clipboard"
           >
-            {copied ? (
+            {copied.active ? (
               <span className="text-xs">Copied!</span>
             ) : (
-              <Copy className="w-4 h-4" />
+              <CopyIcon className="w-4 h-4" />
             )}
           </Button>
         </div>

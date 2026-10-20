@@ -46,11 +46,17 @@ export function IslandInfo3D({ island, exiting = false }: IslandInfo3DProps) {
 
   const handleClick = () => {
     if (partner?.href) {
-      trackEvent('partner_click', {
-        destination_host: new URL(partner.href).host,
+      let destinationHost: string | undefined
+      try {
+        destinationHost = new URL(partner.href).host
+      } catch {
+        // Bad/relative href — track without host rather than dropping.
+      }
+      trackEvent('partner_clicked', {
         partner_id: partner.id,
-        partner_name: partner.name,
         placement: 'ecosystem_game',
+        destination: 'external',
+        destination_host: destinationHost,
       })
       window.open(partner.href, '_blank')
     } else if (library) {

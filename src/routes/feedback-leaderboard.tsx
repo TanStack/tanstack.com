@@ -31,8 +31,8 @@ export const Route = createFileRoute('/feedback-leaderboard')({
   },
   headers: () => ({
     'cache-control': 'public, max-age=0, must-revalidate',
-    'cdn-cache-control': 'max-age=300, stale-while-revalidate=300, durable',
-    'Netlify-Vary': 'query=payload',
+    'cloudflare-cdn-cache-control':
+      'public, max-age=300, stale-while-revalidate=300',
   }),
   component: FeedbackLeaderboard,
   head: () => ({

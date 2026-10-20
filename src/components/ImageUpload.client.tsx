@@ -1,8 +1,12 @@
 import * as React from 'react'
 import { useUploadThing } from '~/utils/uploadthing.client'
 import { useToast } from './ToastProvider'
-import { Upload, X, Loader2 } from 'lucide-react'
+import { UploadIcon, XIcon, CircleNotchIcon } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
+import {
+  SHOWCASE_IMAGE_MAX_BYTES,
+  validateImageUploadFile,
+} from '~/utils/upload-preflight'
 
 export interface ImageUploadProps {
   value?: string
@@ -51,12 +55,17 @@ export function ImageUploadClient({
   })
 
   const handleFileSelect = async (file: File) => {
-    if (!file.type.startsWith('image/')) {
+    const validationError = validateImageUploadFile(
+      file,
+      SHOWCASE_IMAGE_MAX_BYTES,
+    )
+
+    if (validationError) {
       notify(
         <div>
           <div className="font-medium">Invalid file type</div>
           <div className="text-gray-500 dark:text-gray-400 text-xs">
-            Please select an image file
+            {validationError}
           </div>
         </div>,
       )
@@ -134,7 +143,7 @@ export function ImageUploadClient({
             )}
             title="Remove image"
           >
-            <X className={isSmall ? 'w-3 h-3' : 'w-4 h-4'} />
+            <XIcon className={isSmall ? 'w-3 h-3' : 'w-4 h-4'} />
           </button>
         </div>
       ) : (
@@ -156,7 +165,7 @@ export function ImageUploadClient({
         >
           {isUploading ? (
             <div className="p-4 text-center">
-              <Loader2
+              <CircleNotchIcon
                 className={twMerge(
                   'text-blue-500 animate-spin mx-auto',
                   isSmall ? 'w-5 h-5' : 'w-8 h-8',
@@ -170,7 +179,7 @@ export function ImageUploadClient({
             </div>
           ) : (
             <div className="p-4 text-center">
-              <Upload
+              <UploadIcon
                 className={twMerge(
                   'text-gray-400 mx-auto',
                   isSmall ? 'w-5 h-5' : 'w-8 h-8',
@@ -194,7 +203,7 @@ export function ImageUploadClient({
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
+        accept="image/png,image/jpeg,image/webp,image/gif"
         onChange={handleInputChange}
         className="hidden"
       />

@@ -2,6 +2,7 @@
 title: 'Introducing TanStack Intent: Ship Agent Skills with your npm Packages'
 published: 2026-03-04
 excerpt: Your docs are good. Your types are solid. Your agent still gets it wrong. TanStack Intent lets you ship agent skills alongside your npm packages so AI tools actually know how to use your library.
+library: intent
 authors:
   - Sarah Gerrard
   - Kyle Mathews

@@ -6,23 +6,11 @@
  * triggering an on-request N+1 GitHub API call.
  */
 import { getCachedDocsArtifact } from './github-content-cache.server'
-import { buildDocsManifest, buildDocsPathManifest } from './docs.functions'
-
-type DocsManifest = {
-  paths: Array<string>
-  redirects: Record<string, string>
-}
-
-function isDocsManifest(value: unknown): value is DocsManifest {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'paths' in value &&
-    'redirects' in value &&
-    Array.isArray((value as DocsManifest).paths) &&
-    typeof (value as DocsManifest).redirects === 'object'
-  )
-}
+import {
+  buildDocsManifest,
+  buildDocsPathManifest,
+  isDocsManifest,
+} from './docs.functions'
 
 export async function warmDocsArtifacts({
   repo,

@@ -15,7 +15,6 @@ import { getActiveDocsNavTabId, getTabbedMenuConfig } from '~/utils/docsNavTabs'
 import { getLibrary, type Framework, type LibraryId } from '~/libraries'
 import { categoryOf, categoryTextColor } from '~/libraries/categories'
 import { frameworkOptions } from '~/libraries/frameworks'
-import { fallbackLibraryIcon, libraryIcons } from '~/libraries/icons'
 import { twMerge } from 'tailwind-merge'
 import {
   getPartnerHref,
@@ -823,7 +822,6 @@ export function LibraryLayout({
     routeVersion,
   })
   const menuConfig = useMenuConfig({ config, frameworks, repo, libraryId })
-  const LibraryIcon = libraryIcons[libraryId] ?? fallbackLibraryIcon
   const libraryGroupColor = categoryTextColor[categoryOf(libraryId)]
 
   const isExample = matches.some(
@@ -1321,17 +1319,6 @@ export function LibraryLayout({
       )}
     >
       <div className="flex h-full items-stretch">
-        <Link
-          to={libraryHomePath}
-          aria-label={`${name} home`}
-          className={twMerge(
-            'flex max-w-[50vw] shrink-0 items-center gap-2 border-r border-gray-500/20 px-3 font-ds-display text-[20px] font-semibold leading-none hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current md:max-w-none md:text-[24px] min-[900px]:px-5',
-            libraryGroupColor,
-          )}
-        >
-          <LibraryIcon className="size-5 shrink-0 md:size-6" weight="bold" />
-          <span className="truncate">{name}</span>
-        </Link>
         <button
           type="button"
           aria-label="Documentation menu"
@@ -1455,7 +1442,18 @@ export function LibraryLayout({
   )
 
   return (
-    <WidthToggleContext.Provider value={{ isFullWidth, setIsFullWidth }}>
+    <WidthToggleContext.Provider
+      value={{
+        isFullWidth,
+        setIsFullWidth: (fullWidth) => {
+          document.documentElement.style.setProperty(
+            '--docs-content-width',
+            fullWidth ? '100%' : '900px',
+          )
+          setIsFullWidth(fullWidth)
+        },
+      }}
+    >
       <DocNavigationContext.Provider
         value={{
           libraryId,
@@ -1493,8 +1491,7 @@ export function LibraryLayout({
                   !isLandingPage &&
                     !isExample &&
                     !isNpmStats &&
-                    !isFullWidth &&
-                    'mx-auto w-[900px]',
+                    'mx-auto w-[var(--docs-content-width,900px)]',
                 )}
               >
                 {children}

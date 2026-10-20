@@ -1,0 +1,4281 @@
+{
+  "source": "Gum D1 migrations",
+  "migrationCount": 55,
+  "tables": [
+    {
+      "table": "account_onboarding",
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "revision",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "notNull": true,
+          "default": "'pending'",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "use_case",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "completed_at",
+          "type": "INTEGER",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "users", "user_id", "id", "NO ACTION", "CASCADE", "NONE"]
+      ]
+    },
+    {
+      "table": "account_onboarding_commands",
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "command_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 2
+        },
+        {
+          "name": "request_digest",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "mutation_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "result_json",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [
+          0,
+          0,
+          "account_onboarding",
+          "user_id",
+          "user_id",
+          "NO ACTION",
+          "CASCADE",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "account_preferences",
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "timezone",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "revision",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "timezone_confirmed_at",
+          "type": "INTEGER",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "response_preferences",
+          "type": "TEXT",
+          "notNull": true,
+          "default": "'{\"language\":null,\"tone\":\"default\",\"detail\":\"default\"}'",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "appearance_preferences",
+          "type": "TEXT",
+          "notNull": true,
+          "default": "'{\"mode\":\"system\",\"lightPreset\":\"neutral\",\"darkPreset\":\"neutral\",\"lightCustom\":null,\"darkCustom\":null,\"lightIntensity\":65,\"darkIntensity\":65}'",
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "users", "user_id", "id", "NO ACTION", "CASCADE", "NONE"]
+      ]
+    },
+    {
+      "table": "auth_limits",
+      "columns": [
+        {
+          "name": "key",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "count",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "expires_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": []
+    },
+    {
+      "table": "bot_activity",
+      "columns": [
+        {
+          "name": "bot_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 2
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "activity_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "event_version",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "read_version",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "preview",
+          "type": "TEXT",
+          "notNull": true,
+          "default": "''",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "message_count",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "queued_count",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "queue_paused",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "users", "user_id", "id", "NO ACTION", "CASCADE", "NONE"],
+        [1, 0, "bots", "bot_id", "id", "NO ACTION", "CASCADE", "NONE"]
+      ]
+    },
+    {
+      "table": "bot_drafts",
+      "columns": [
+        {
+          "name": "workspace_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 2
+        },
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 3
+        },
+        {
+          "name": "bot_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "parent_id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "text",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "started_at",
+          "type": "INTEGER",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "file_ids",
+          "type": "TEXT",
+          "notNull": true,
+          "default": "'[]'",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "run_model",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "reference_inputs",
+          "type": "TEXT",
+          "notNull": true,
+          "default": "'[]'",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "conversation_id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [
+          0,
+          0,
+          "conversations",
+          "conversation_id",
+          "id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ],
+        [1, 0, "bots", "bot_id", "id", "NO ACTION", "NO ACTION", "NONE"],
+        [2, 0, "users", "user_id", "id", "NO ACTION", "NO ACTION", "NONE"],
+        [
+          3,
+          0,
+          "workspaces",
+          "workspace_id",
+          "id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "bot_metadata",
+      "columns": [
+        {
+          "name": "bot_id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "version",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "archived_at",
+          "type": "INTEGER",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "deleted_at",
+          "type": "INTEGER",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "updated_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "deletion_batch",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "avatar",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "bots", "bot_id", "id", "NO ACTION", "CASCADE", "NONE"]
+      ]
+    },
+    {
+      "table": "bot_schedule_suspensions",
+      "columns": [
+        {
+          "name": "bot_id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "generation",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "bots", "bot_id", "id", "NO ACTION", "CASCADE", "NONE"]
+      ]
+    },
+    {
+      "table": "bot_sections",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "workspace_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "position",
+          "type": "REAL",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "version",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "sort_override",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "users", "user_id", "id", "NO ACTION", "NO ACTION", "NONE"],
+        [
+          1,
+          0,
+          "workspaces",
+          "workspace_id",
+          "id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "bot_viewer_state",
+      "columns": [
+        {
+          "name": "bot_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 2
+        },
+        {
+          "name": "pinned",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "section_id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "position",
+          "type": "REAL",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "tags",
+          "type": "TEXT",
+          "notNull": true,
+          "default": "'[]'",
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [
+          0,
+          0,
+          "bot_sections",
+          "section_id",
+          "id",
+          "NO ACTION",
+          "SET NULL",
+          "NONE"
+        ],
+        [1, 0, "users", "user_id", "id", "NO ACTION", "NO ACTION", "NONE"],
+        [2, 0, "bots", "bot_id", "id", "NO ACTION", "CASCADE", "NONE"]
+      ]
+    },
+    {
+      "table": "bot_workspace_mutations",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "expires_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "9007199254740991",
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": []
+    },
+    {
+      "table": "bots",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "workspace_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "parent_id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "purpose",
+          "type": "TEXT",
+          "notNull": true,
+          "default": "''",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "bots", "parent_id", "id", "NO ACTION", "NO ACTION", "NONE"],
+        [
+          1,
+          0,
+          "workspaces",
+          "workspace_id",
+          "id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "composer_drafts",
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "scope",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 2
+        },
+        {
+          "name": "value",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "revision",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "updated_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "users", "user_id", "id", "NO ACTION", "CASCADE", "NONE"]
+      ]
+    },
+    {
+      "table": "config",
+      "columns": [
+        {
+          "name": "key",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "value",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": []
+    },
+    {
+      "table": "connected_devices",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "token_hash",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "grants",
+          "type": "TEXT",
+          "notNull": true,
+          "default": "'[]'",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "last_seen",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "revoked_at",
+          "type": "INTEGER",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": []
+    },
+    {
+      "table": "conversation_activity",
+      "columns": [
+        {
+          "name": "conversation_id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "bot_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "activity_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "event_version",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "read_version",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "preview",
+          "type": "TEXT",
+          "notNull": true,
+          "default": "''",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "message_count",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "queued_count",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "queue_paused",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "users", "user_id", "id", "NO ACTION", "CASCADE", "NONE"],
+        [1, 0, "bots", "bot_id", "id", "NO ACTION", "CASCADE", "NONE"],
+        [
+          2,
+          0,
+          "conversations",
+          "conversation_id",
+          "id",
+          "NO ACTION",
+          "CASCADE",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "conversation_copies",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "workspace_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "source_bot_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "source_conversation_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "target_bot_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "target_conversation_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "idempotency_key",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "request_digest",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "kind",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "boundary_json",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "purpose",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "parent_id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "notNull": true,
+          "default": "'copying'",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "phase",
+          "type": "TEXT",
+          "notNull": true,
+          "default": "'export'",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "manifest_json",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "next_page",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "work_version",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "error_code",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "error_message",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "attempts",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "retry_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "updated_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "completed_at",
+          "type": "INTEGER",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "retry_id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [
+          0,
+          0,
+          "conversation_retries",
+          "retry_id",
+          "id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ],
+        [1, 0, "users", "user_id", "id", "NO ACTION", "NO ACTION", "NONE"],
+        [
+          2,
+          0,
+          "workspaces",
+          "workspace_id",
+          "id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "conversation_mains",
+      "columns": [
+        {
+          "name": "bot_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 2
+        },
+        {
+          "name": "conversation_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [
+          0,
+          0,
+          "conversations",
+          "conversation_id",
+          "id",
+          "NO ACTION",
+          "CASCADE",
+          "NONE"
+        ],
+        [
+          0,
+          1,
+          "conversations",
+          "bot_id",
+          "bot_id",
+          "NO ACTION",
+          "CASCADE",
+          "NONE"
+        ],
+        [
+          0,
+          2,
+          "conversations",
+          "user_id",
+          "user_id",
+          "NO ACTION",
+          "CASCADE",
+          "NONE"
+        ],
+        [1, 0, "users", "user_id", "id", "NO ACTION", "CASCADE", "NONE"],
+        [2, 0, "bots", "bot_id", "id", "NO ACTION", "CASCADE", "NONE"]
+      ]
+    },
+    {
+      "table": "conversation_memories",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "conversation_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "workspace_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "revision",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "title",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "body",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "source_message_id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "source_run_id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "updated_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "expires_at",
+          "type": "INTEGER",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "users", "user_id", "id", "NO ACTION", "NO ACTION", "NONE"],
+        [
+          1,
+          0,
+          "workspaces",
+          "workspace_id",
+          "id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ],
+        [
+          2,
+          0,
+          "conversations",
+          "conversation_id",
+          "id",
+          "NO ACTION",
+          "CASCADE",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "conversation_memory_commands",
+      "columns": [
+        {
+          "name": "conversation_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "command_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 2
+        },
+        {
+          "name": "request_hash",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "nonce",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "memory_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "revision",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "operation",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [
+          0,
+          0,
+          "conversations",
+          "conversation_id",
+          "id",
+          "NO ACTION",
+          "CASCADE",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "conversation_memory_preferences",
+      "columns": [
+        {
+          "name": "conversation_id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "enabled",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "revision",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "updated_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [
+          0,
+          0,
+          "conversations",
+          "conversation_id",
+          "id",
+          "NO ACTION",
+          "CASCADE",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "conversation_retries",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "workspace_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "source_bot_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "source_conversation_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "message_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "idempotency_key",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "source_json",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "file_plan_json",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "notNull": true,
+          "default": "'preparing'",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "error_code",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "error_message",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "updated_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "users", "user_id", "id", "NO ACTION", "NO ACTION", "NONE"],
+        [
+          1,
+          0,
+          "workspaces",
+          "workspace_id",
+          "id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "conversation_thread_requests",
+      "columns": [
+        {
+          "name": "workspace_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 2
+        },
+        {
+          "name": "idempotency_key",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 3
+        },
+        {
+          "name": "request_digest",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "conversation_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [
+          0,
+          0,
+          "conversation_threads",
+          "conversation_id",
+          "conversation_id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ],
+        [1, 0, "users", "user_id", "id", "NO ACTION", "NO ACTION", "NONE"],
+        [
+          2,
+          0,
+          "workspaces",
+          "workspace_id",
+          "id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "conversation_threads",
+      "columns": [
+        {
+          "name": "conversation_id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "parent_conversation_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "source_message_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "source_epoch",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "source_digest",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "source_context",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "title",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "version",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "archived_at",
+          "type": "INTEGER",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [
+          0,
+          0,
+          "conversations",
+          "parent_conversation_id",
+          "id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ],
+        [
+          1,
+          0,
+          "conversations",
+          "conversation_id",
+          "id",
+          "NO ACTION",
+          "CASCADE",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "conversations",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "bot_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "users", "user_id", "id", "NO ACTION", "NO ACTION", "NONE"],
+        [1, 0, "bots", "bot_id", "id", "NO ACTION", "NO ACTION", "NONE"]
+      ]
+    },
+    {
+      "table": "credentials",
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "ciphertext",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "users", "user_id", "id", "NO ACTION", "NO ACTION", "NONE"]
+      ]
+    },
+    {
+      "table": "daily_usage",
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "day",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 2
+        },
+        {
+          "name": "turns",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": []
+    },
+    {
+      "table": "device_operations",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "device_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "conversation_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "request",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "notNull": true,
+          "default": "'pending'",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "result",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "expires_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [
+          0,
+          0,
+          "connected_devices",
+          "device_id",
+          "id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "email_challenges",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "email",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "code_hash",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "token_hash",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "expires_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "attempts",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "consumed_at",
+          "type": "INTEGER",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "ready",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": []
+    },
+    {
+      "table": "execution_membership_generations",
+      "columns": [
+        {
+          "name": "workspace_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 2
+        },
+        {
+          "name": "generation",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "users", "user_id", "id", "NO ACTION", "CASCADE", "NONE"],
+        [
+          1,
+          0,
+          "workspaces",
+          "workspace_id",
+          "id",
+          "NO ACTION",
+          "CASCADE",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "file_drafts",
+      "columns": [
+        {
+          "name": "workspace_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 2
+        },
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 3
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "users", "user_id", "id", "NO ACTION", "NO ACTION", "NONE"],
+        [
+          1,
+          0,
+          "workspaces",
+          "workspace_id",
+          "id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "funded_spend",
+      "columns": [
+        {
+          "name": "conversation_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "run_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 2
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "day",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "reserved_micros",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "billed_micros",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "observed_micros",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "unknown",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": []
+    },
+    {
+      "table": "kody_account_probe",
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "account_fingerprint",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "source_fingerprint",
+          "type": "TEXT",
+          "notNull": true,
+          "default": "''",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "checked_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "revision",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "users", "user_id", "id", "NO ACTION", "CASCADE", "NONE"]
+      ]
+    },
+    {
+      "table": "kody_account_reference_catalog",
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "account_fingerprint",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "metadata",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "fetched_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "revision",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "users", "user_id", "id", "NO ACTION", "CASCADE", "NONE"]
+      ]
+    },
+    {
+      "table": "kody_links",
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "subject",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "username",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "users", "user_id", "id", "NO ACTION", "NO ACTION", "NONE"]
+      ]
+    },
+    {
+      "table": "kody_reference_catalog",
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "account_fingerprint",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "metadata",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "fetched_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "refresh_started_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "revision",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "complete",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "1",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "data_revision",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "users", "user_id", "id", "NO ACTION", "CASCADE", "NONE"]
+      ]
+    },
+    {
+      "table": "kody_reference_items",
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "revision",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 2
+        },
+        {
+          "name": "ordinal",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 3
+        },
+        {
+          "name": "payload",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "users", "user_id", "id", "NO ACTION", "CASCADE", "NONE"]
+      ]
+    },
+    {
+      "table": "kody_refresh_claims",
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "token_fingerprint",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "claim_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "lease_until",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "users", "user_id", "id", "NO ACTION", "CASCADE", "NONE"]
+      ]
+    },
+    {
+      "table": "kody_skill_sync",
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "account_fingerprint",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "fetched_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "revision",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "lease_until",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "users", "user_id", "id", "NO ACTION", "CASCADE", "NONE"]
+      ]
+    },
+    {
+      "table": "kody_skill_sync_stage",
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "revision",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 2
+        },
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 3
+        },
+        {
+          "name": "payload",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "users", "user_id", "id", "NO ACTION", "CASCADE", "NONE"]
+      ]
+    },
+    {
+      "table": "kody_skill_versions",
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 2
+        },
+        {
+          "name": "version",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 3
+        },
+        {
+          "name": "package_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "source_skill_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "description",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "document",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "files",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "updated_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "current",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "users", "user_id", "id", "NO ACTION", "CASCADE", "NONE"]
+      ]
+    },
+    {
+      "table": "local_mail",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "payload",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "email_challenges", "id", "id", "NO ACTION", "CASCADE", "NONE"]
+      ]
+    },
+    {
+      "table": "mcp_account_commands",
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "command_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 2
+        },
+        {
+          "name": "request_hash",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "nonce",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "receipt",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "users", "user_id", "id", "NO ACTION", "NO ACTION", "NONE"]
+      ]
+    },
+    {
+      "table": "mcp_accounts",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "label",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "url",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "auth_mode",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "enabled",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "removed",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "revision",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "grant_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "token_revision",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "ciphertext",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "checked_at",
+          "type": "INTEGER",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "error",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "refresh_claim",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "refresh_until",
+          "type": "INTEGER",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "updated_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "users", "user_id", "id", "NO ACTION", "NO ACTION", "NONE"]
+      ]
+    },
+    {
+      "table": "mcp_reference_catalog",
+      "columns": [
+        {
+          "name": "workspace_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 2
+        },
+        {
+          "name": "server_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 3
+        },
+        {
+          "name": "fingerprint",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "metadata",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "fetched_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "refresh_started_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [
+          0,
+          0,
+          "memberships",
+          "workspace_id",
+          "workspace_id",
+          "NO ACTION",
+          "CASCADE",
+          "NONE"
+        ],
+        [
+          0,
+          1,
+          "memberships",
+          "user_id",
+          "user_id",
+          "NO ACTION",
+          "CASCADE",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "mcp_setup_attempts",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "workspace_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "request_hash",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "summary",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "ciphertext",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "state_hash",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "browser_hash",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "expires_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [
+          0,
+          0,
+          "workspaces",
+          "workspace_id",
+          "id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ],
+        [1, 0, "users", "user_id", "id", "NO ACTION", "NO ACTION", "NONE"]
+      ]
+    },
+    {
+      "table": "memberships",
+      "columns": [
+        {
+          "name": "workspace_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 2
+        },
+        {
+          "name": "role",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "users", "user_id", "id", "NO ACTION", "NO ACTION", "NONE"],
+        [
+          1,
+          0,
+          "workspaces",
+          "workspace_id",
+          "id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "oauth_pending",
+      "columns": [
+        {
+          "name": "state",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "payload",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "expires_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": []
+    },
+    {
+      "table": "plugin_bindings",
+      "columns": [
+        {
+          "name": "installation_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "version",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 2
+        },
+        {
+          "name": "requirement_key",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 3
+        },
+        {
+          "name": "server_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "endpoint",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [
+          0,
+          0,
+          "plugin_versions",
+          "installation_id",
+          "installation_id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ],
+        [
+          0,
+          1,
+          "plugin_versions",
+          "version",
+          "version",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ],
+        [
+          1,
+          0,
+          "plugin_installations",
+          "installation_id",
+          "id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "plugin_commands",
+      "columns": [
+        {
+          "name": "workspace_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 2
+        },
+        {
+          "name": "command_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 3
+        },
+        {
+          "name": "request_hash",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "nonce",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "receipt",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "users", "user_id", "id", "NO ACTION", "NO ACTION", "NONE"],
+        [
+          1,
+          0,
+          "workspaces",
+          "workspace_id",
+          "id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "plugin_files",
+      "columns": [
+        {
+          "name": "installation_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "version",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 2
+        },
+        {
+          "name": "path",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 3
+        },
+        {
+          "name": "content",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [
+          0,
+          0,
+          "plugin_versions",
+          "installation_id",
+          "installation_id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ],
+        [
+          0,
+          1,
+          "plugin_versions",
+          "version",
+          "version",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "plugin_installations",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "workspace_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "current_version",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "revision",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "enabled",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "removed",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "updated_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "users", "user_id", "id", "NO ACTION", "NO ACTION", "NONE"],
+        [
+          1,
+          0,
+          "workspaces",
+          "workspace_id",
+          "id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "plugin_skill_identities",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "installation_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "path",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [
+          0,
+          0,
+          "plugin_installations",
+          "installation_id",
+          "id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "plugin_skill_versions",
+      "columns": [
+        {
+          "name": "skill_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "version",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 2
+        },
+        {
+          "name": "document",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [
+          0,
+          0,
+          "plugin_skill_identities",
+          "skill_id",
+          "id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "plugin_versions",
+      "columns": [
+        {
+          "name": "installation_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "version",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 2
+        },
+        {
+          "name": "digest",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "preview",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [
+          0,
+          0,
+          "plugin_installations",
+          "installation_id",
+          "id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "recipes",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "workspace_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "title",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "description",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "code",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [
+          0,
+          0,
+          "workspaces",
+          "workspace_id",
+          "id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "run_usage_receipts",
+      "columns": [
+        {
+          "name": "conversation_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "run_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 2
+        },
+        {
+          "name": "workspace_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "bot_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "scheduled",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "day",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "attempt_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": []
+    },
+    {
+      "table": "saved_file_imports",
+      "columns": [
+        {
+          "name": "target_file_id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "workspace_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "target_conversation_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "source_conversation_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "source_file_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "sha256",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "media_type",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "size",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "source",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [
+          0,
+          0,
+          "conversations",
+          "target_conversation_id",
+          "id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ],
+        [1, 0, "users", "user_id", "id", "NO ACTION", "NO ACTION", "NONE"],
+        [
+          2,
+          0,
+          "workspaces",
+          "workspace_id",
+          "id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "saved_files",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "workspace_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "bot_id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "draft_id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "media_type",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "size",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "sha256",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "source",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "state",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "conversation_id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [
+          0,
+          0,
+          "file_drafts",
+          "workspace_id",
+          "workspace_id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ],
+        [
+          0,
+          1,
+          "file_drafts",
+          "user_id",
+          "user_id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ],
+        [
+          0,
+          2,
+          "file_drafts",
+          "draft_id",
+          "id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ],
+        [
+          1,
+          0,
+          "conversations",
+          "conversation_id",
+          "id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ],
+        [2, 0, "bots", "bot_id", "id", "NO ACTION", "NO ACTION", "NONE"],
+        [3, 0, "users", "user_id", "id", "NO ACTION", "NO ACTION", "NONE"],
+        [
+          4,
+          0,
+          "workspaces",
+          "workspace_id",
+          "id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "scheduled_daily_usage",
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "day",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 2
+        },
+        {
+          "name": "turns",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": []
+    },
+    {
+      "table": "sessions",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "expires_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "users", "user_id", "id", "NO ACTION", "NO ACTION", "NONE"]
+      ]
+    },
+    {
+      "table": "skill_commands",
+      "columns": [
+        {
+          "name": "workspace_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 2
+        },
+        {
+          "name": "command_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 3
+        },
+        {
+          "name": "request_hash",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "nonce",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "receipt",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "users", "user_id", "id", "NO ACTION", "NO ACTION", "NONE"],
+        [
+          1,
+          0,
+          "workspaces",
+          "workspace_id",
+          "id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "skill_versions",
+      "columns": [
+        {
+          "name": "skill_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "version",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 2
+        },
+        {
+          "name": "document",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "content_hash",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "skills", "skill_id", "id", "NO ACTION", "NO ACTION", "NONE"]
+      ]
+    },
+    {
+      "table": "skills",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "workspace_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "version",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "revision",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "enabled",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "archived",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "updated_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "users", "user_id", "id", "NO ACTION", "NO ACTION", "NONE"],
+        [
+          1,
+          0,
+          "workspaces",
+          "workspace_id",
+          "id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "thread_schedule_suspensions",
+      "columns": [
+        {
+          "name": "conversation_id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "generation",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [
+          0,
+          0,
+          "conversation_threads",
+          "conversation_id",
+          "conversation_id",
+          "NO ACTION",
+          "CASCADE",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "users",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "username",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "email",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": []
+    },
+    {
+      "table": "workflow_children",
+      "columns": [
+        {
+          "name": "conversation_id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "owner_conversation_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "workflow_run_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "step_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "admission_json",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [
+          0,
+          0,
+          "conversations",
+          "owner_conversation_id",
+          "id",
+          "NO ACTION",
+          "CASCADE",
+          "NONE"
+        ],
+        [
+          1,
+          0,
+          "conversations",
+          "conversation_id",
+          "id",
+          "NO ACTION",
+          "CASCADE",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "workflow_revisions",
+      "columns": [
+        {
+          "name": "conversation_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "workflow_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 2
+        },
+        {
+          "name": "revision",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 3
+        },
+        {
+          "name": "workspace_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "command_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "request_hash",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "definition_json",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "archived",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "users", "user_id", "id", "NO ACTION", "NO ACTION", "NONE"],
+        [
+          1,
+          0,
+          "workspaces",
+          "workspace_id",
+          "id",
+          "NO ACTION",
+          "NO ACTION",
+          "NONE"
+        ],
+        [
+          2,
+          0,
+          "conversations",
+          "conversation_id",
+          "id",
+          "NO ACTION",
+          "CASCADE",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "workspace_sync_clock",
+      "columns": [
+        {
+          "name": "workspace_id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "revision",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "1",
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "published_revision",
+          "type": "INTEGER",
+          "notNull": true,
+          "default": "0",
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [
+          0,
+          0,
+          "workspaces",
+          "workspace_id",
+          "id",
+          "NO ACTION",
+          "CASCADE",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "workspace_sync_members",
+      "columns": [
+        {
+          "name": "workspace_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 2
+        },
+        {
+          "name": "generation",
+          "type": "TEXT",
+          "notNull": true,
+          "default": "lower(hex(randomblob(16)))",
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [
+          0,
+          0,
+          "memberships",
+          "workspace_id",
+          "workspace_id",
+          "NO ACTION",
+          "CASCADE",
+          "NONE"
+        ],
+        [
+          0,
+          1,
+          "memberships",
+          "user_id",
+          "user_id",
+          "NO ACTION",
+          "CASCADE",
+          "NONE"
+        ]
+      ]
+    },
+    {
+      "table": "workspaces",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "default": null,
+          "primaryKeyPosition": 1
+        },
+        {
+          "name": "owner_id",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        },
+        {
+          "name": "policy",
+          "type": "TEXT",
+          "notNull": true,
+          "default": null,
+          "primaryKeyPosition": 0
+        }
+      ],
+      "foreignKeys": [
+        [0, 0, "users", "owner_id", "id", "NO ACTION", "NO ACTION", "NONE"]
+      ]
+    }
+  ]
+}

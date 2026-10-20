@@ -44,6 +44,7 @@ const FOOTER_COLUMNS: Array<FooterColumn> = [
       { label: 'GitHub', to: 'https://github.com/TanStack' },
       { label: 'Maintainers', to: '/maintainers' },
       { label: 'Showcase', to: '/showcase' },
+      { label: 'Community projects', to: '/community-projects' },
     ],
   },
   {

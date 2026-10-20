@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "./pending-runtime/**/*.ts",
+    "../src/**/*.d.ts",
+    "../src/routeTree.gen.ts"
+  ],
+  "exclude": [],
+  "compilerOptions": {
+    "tsBuildInfoFile": "../node_modules/.cache/tanchat-runtime-tests.tsbuildinfo",
+    "incremental": false,
+    "lib": ["DOM", "DOM.Iterable", "ES2024"]
+  }
+}

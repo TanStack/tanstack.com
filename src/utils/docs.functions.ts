@@ -1,7 +1,6 @@
 import { notFound } from '@tanstack/react-router'
 import { createServerFn, createServerOnlyFn } from '@tanstack/react-start'
 import { setResponseHeader } from '@tanstack/react-start/server'
-import removeMarkdown from 'remove-markdown'
 import * as v from 'valibot'
 import { extractFrameworksFromMarkdown } from './markdown/filterFrameworkContent'
 import { buildRedirectManifest, type RedirectManifestEntry } from './redirects'
@@ -11,6 +10,7 @@ import type { DocsRedirectManifest } from './docs-redirects'
 import type { GitHubFileNode } from './documents.server'
 import { getBranch, getLibrary } from '~/libraries'
 import { getClientExampleConfig } from './client-example-config'
+import { rewriteWorkspaceProtocolDependencies } from './repository-example'
 
 export type DocsTreeNode = {
   path: string
@@ -104,10 +104,6 @@ const docsRedirectInput = v.object({
 // Matches RAW_FETCH_CONCURRENCY in github-example.server.ts.
 const DOCS_MANIFEST_FETCH_CONCURRENCY = 6
 
-// In-flight deduplication for concurrent cold-start manifest builds.
-// Keyed by `${repo}@${branch}:${docsRoot}` for each manifest type.
-const pendingManifestBuilds = new Map<string, Promise<DocsManifest>>()
-
 export async function mapWithConcurrency<T, TResult>(
   values: Array<T>,
   concurrency: number,
@@ -186,24 +182,18 @@ function setDocsCacheHeaders(cdnCacheControl: string) {
   setResponseHeader('Cloudflare-CDN-Cache-Control', cdnCacheControl)
 }
 
-function isDocsManifest(value: unknown): value is DocsManifest {
-  if (typeof value !== 'object' || value === null) {
-    return false
-  }
-
-  const candidate = value as {
-    paths?: unknown
-    redirects?: unknown
-  }
-
+export function isDocsManifest(value: unknown): value is DocsManifest {
   return (
-    Array.isArray(candidate.paths) &&
-    candidate.paths.every((path) => typeof path === 'string') &&
-    typeof candidate.redirects === 'object' &&
-    candidate.redirects !== null &&
-    Object.entries(candidate.redirects).every(
-      ([key, target]) => typeof key === 'string' && typeof target === 'string',
-    )
+    typeof value === 'object' &&
+    value !== null &&
+    'paths' in value &&
+    Array.isArray(value.paths) &&
+    value.paths.every((path) => typeof path === 'string') &&
+    'redirects' in value &&
+    typeof value.redirects === 'object' &&
+    value.redirects !== null &&
+    !Array.isArray(value.redirects) &&
+    Object.values(value.redirects).every((target) => typeof target === 'string')
   )
 }
 
@@ -274,55 +264,37 @@ export async function buildDocsManifest({
   branch: string
   docsRoot: string
 }): Promise<DocsManifest> {
-  const key = `manifest:${repo}@${branch}:${docsRoot}`
+  const { fetchApiContents, fetchRepoFile } = await loadDocumentsServerModule()
+  const nodes = await fetchApiContents(repo, branch, docsRoot)
 
-  const inFlight = pendingManifestBuilds.get(key)
-  if (inFlight) {
-    return inFlight
+  if (!nodes) {
+    return { paths: [], redirects: {} }
   }
 
-  const build = async (): Promise<DocsManifest> => {
-    try {
-      const { fetchApiContents, fetchRepoFile } =
-        await loadDocumentsServerModule()
-      const nodes = await fetchApiContents(repo, branch, docsRoot)
+  const markdownFiles = flattenDocsNodes(nodes).filter((node) =>
+    node.path.endsWith('.md'),
+  )
+  const paths = new Set<string>()
 
-      if (!nodes) {
-        return { paths: [], redirects: {} }
-      }
+  // A recoverable error on one file must not fail the whole manifest build
+  // (see collectRedirectEntriesForFile).
+  const redirectsByFile = await mapWithConcurrency(
+    markdownFiles,
+    DOCS_MANIFEST_FETCH_CONCURRENCY,
+    (node) =>
+      collectRedirectEntriesForFile(node, {
+        docsRoot,
+        fetchFile: (filePath) => fetchRepoFile(repo, branch, filePath),
+        onCanonicalPath: (canonicalPath) => paths.add(canonicalPath),
+      }),
+  )
 
-      const markdownFiles = flattenDocsNodes(nodes).filter((node) =>
-        node.path.endsWith('.md'),
-      )
-      const paths = new Set<string>()
-
-      // A recoverable error on one file must not fail the whole manifest build
-      // (see collectRedirectEntriesForFile).
-      const redirectsByFile = await mapWithConcurrency(
-        markdownFiles,
-        DOCS_MANIFEST_FETCH_CONCURRENCY,
-        (node) =>
-          collectRedirectEntriesForFile(node, {
-            docsRoot,
-            fetchFile: (filePath) => fetchRepoFile(repo, branch, filePath),
-            onCanonicalPath: (canonicalPath) => paths.add(canonicalPath),
-          }),
-      )
-
-      return {
-        paths: Array.from(paths),
-        redirects: buildRedirectManifest(redirectsByFile.flat(), {
-          label: `docs redirects for ${repo}@${branch}:${docsRoot}`,
-        }),
-      }
-    } finally {
-      pendingManifestBuilds.delete(key)
-    }
+  return {
+    paths: Array.from(paths),
+    redirects: buildRedirectManifest(redirectsByFile.flat(), {
+      label: `docs redirects for ${repo}@${branch}:${docsRoot}`,
+    }),
   }
-
-  const promise = build()
-  pendingManifestBuilds.set(key, promise)
-  return promise
 }
 
 export async function buildDocsPathManifest({
@@ -459,8 +431,7 @@ export const fetchDocs = createServerFn({ method: 'GET' })
 
     const { extractFrontMatter } = await loadDocumentsServerModule()
     const frontMatter = extractFrontMatter(result.file)
-    const description =
-      frontMatter.userDescription ?? removeMarkdown(frontMatter.excerpt ?? '')
+    const description = frontMatter.data.description
     const keywords = extractFrontMatterKeywords(frontMatter.data.keywords)
 
     setDocsCacheHeaders(
@@ -472,6 +443,7 @@ export const fetchDocs = createServerFn({ method: 'GET' })
 
     return {
       content: frontMatter.content,
+      isFallback: result.isFallback,
       title: frontMatter.data?.title ?? 'Content temporarily unavailable',
       description,
       keywords,
@@ -572,14 +544,24 @@ export const fetchClientExampleFiles = createServerFn({ method: 'GET' })
     } = await loadGitHubExampleServerModule()
     const { getCachedDocsArtifact } = await loadGitHubContentCacheServerModule()
     const result = await getCachedDocsArtifact({
-      artifactKey: 'workspace-v1',
+      artifactKey: 'workspace-v2',
       artifactType: 'client-example',
-      build: async () =>
-        ensureCacheableFetchExampleFilesResponse(
+      build: async () => {
+        const fetched = ensureCacheableFetchExampleFilesResponse(
           await fetchExampleFiles(library.repo, gitRef, examplePath, {
             preserveBinary: true,
           }),
-        ),
+        )
+
+        if (!fetched.success) {
+          return fetched
+        }
+
+        return {
+          ...fetched,
+          files: rewriteWorkspaceProtocolDependencies(fetched.files),
+        }
+      },
       docsRoot: examplePath,
       gitRef,
       isValue: isFetchExampleFilesResponse,

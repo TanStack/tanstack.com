@@ -20,7 +20,7 @@ export class BuilderRequestError extends Error {
 }
 
 export async function listBuilderProjects() {
-  const response = await fetch('/api/builder/projects', {
+  const response = await fetch('/api/chat/projects', {
     credentials: 'same-origin',
   })
   return parseBuilderProjectListResponse(await readResponse(response))
@@ -35,7 +35,7 @@ export async function createBuilderProject(
     revisionId?: string
   } = {},
 ) {
-  const response = await fetch('/api/builder/projects', {
+  const response = await fetch('/api/chat/projects', {
     method: 'POST',
     credentials: 'same-origin',
     headers: { 'content-type': 'application/json' },
@@ -51,7 +51,7 @@ export async function createBuilderProject(
 }
 
 export async function getBuilderProject(id: string) {
-  const response = await fetch(`/api/builder/projects/${id}`, {
+  const response = await fetch(`/api/chat/projects/${id}`, {
     credentials: 'same-origin',
   })
   return parseBuilderProjectResponse(await readResponse(response))
@@ -62,7 +62,7 @@ export async function updateBuilderProject(
   project: SharedExampleProject,
   clientMutationId: string = crypto.randomUUID(),
 ) {
-  const response = await fetch(`/api/builder/projects/${builderProject.id}`, {
+  const response = await fetch(`/api/chat/projects/${builderProject.id}`, {
     method: 'PATCH',
     credentials: 'same-origin',
     headers: { 'content-type': 'application/json' },
@@ -77,7 +77,7 @@ export async function updateBuilderProject(
 }
 
 export async function deleteBuilderProject(project: BuilderProject) {
-  const response = await fetch(`/api/builder/projects/${project.id}`, {
+  const response = await fetch(`/api/chat/projects/${project.id}`, {
     method: 'DELETE',
     credentials: 'same-origin',
     headers: { 'content-type': 'application/json' },
@@ -89,7 +89,7 @@ export async function deleteBuilderProject(project: BuilderProject) {
 export async function storeBuilderProjectRevision(
   project: SharedExampleProject,
 ) {
-  const response = await fetch('/api/builder/project-snapshots', {
+  const response = await fetch('/api/chat/project-snapshots', {
     method: 'POST',
     credentials: 'same-origin',
     headers: { 'content-type': 'application/json' },
@@ -102,7 +102,7 @@ export async function getBuilderProjectSnapshot(
   project: Pick<BuilderProject, 'snapshotHash'>,
 ) {
   const response = await fetch(
-    `/api/builder/project-snapshots/${project.snapshotHash}`,
+    `/api/chat/project-snapshots/${project.snapshotHash}`,
   )
   return parseSharedExampleProject(await readResponse(response))
 }

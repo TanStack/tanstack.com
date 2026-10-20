@@ -534,3 +534,20 @@ test('Cloudflare, Vercel, and Render rotate with the gold Start hosting partners
     assert.ok(partnerPositions.size > 1)
   }
 })
+
+test('analysis inference respects explicitly selected auth partners', async () => {
+  const {
+    analyzeApplicationStarterServer,
+  }: typeof import('../src/utils/application-starter.server') = require('../src/utils/application-starter.server')
+  const input = composeApplicationStarterInput(
+    'Build an app with WorkOS authentication.',
+    ['clerk'],
+    [],
+  )
+  const analysis = await analyzeApplicationStarterServer({
+    data: { context: 'home', input },
+  })
+  assert.deepEqual(analysis.inferredPartnerIds, [])
+  assert.ok(analysis.recipe.features.includes('clerk'))
+  assert.equal(analysis.recipe.features.includes('workos'), false)
+})

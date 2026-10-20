@@ -400,7 +400,10 @@ export function SearchModal() {
               }}
               onCloseAutoFocus={(event) => {
                 event.preventDefault()
-                if (returnFocusRef.current?.isConnected) {
+                if (
+                  document.activeElement === document.body &&
+                  returnFocusRef.current?.isConnected
+                ) {
                   returnFocusRef.current.focus({ preventScroll: true })
                 }
               }}

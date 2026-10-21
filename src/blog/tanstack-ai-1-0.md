@@ -277,13 +277,17 @@ We wanted the harness in your hands before we lock it. Start with [Build your fi
 
 TanStack AI is still built by a small team of three maintainers. But 143 people have contributed code, from one-line fixes to whole adapters. Thank you to every one of you, and to everyone who filed an issue, wrote a reproduction, answered a question in Discord, or showed us what they built. From manga panels to software factories, that part never gets old.
 
-Thank you to our partners, too. [OpenRouter](/blog/openrouter-partnership) supported TanStack AI from the very beginning, and [Vercel](/blog/vercel-partnership) supports our work, with integrations for AI Gateway and Sandbox. A big thank you to all of our partners for making this work possible:
+Thank you to our partners, too. [OpenRouter](/blog/openrouter-partnership) supported TanStack AI from the very beginning. A big thank you to all of our partners for making this work possible:
 
 <partner-list></partner-list>
 
 ## What's Next
 
-Next, we take the harness to stable. We also keep adding providers and sandboxes, and we keep up with whatever the model labs ship next.
+First, polish. Now that the APIs are stable, we go over the rough edges, one by one.
+
+Then, support. We want to help teams ship **any** AI feature with TanStack AI: a chat box, image generation, a voice agent, or a fleet of coding agents. If your team builds with TanStack AI, tell us what slows you down.
+
+And of course, we take the harness to stable, add more providers and sandboxes, and keep up with whatever the model labs ship next.
 
 1.0 is the version we ask you to build on. It starts with one install:
 

@@ -10,11 +10,7 @@ authors:
   - Tom Beckenham
 ---
 
-<!-- TODO: Add the header image at /blog-assets/tanstack-ai-1-0/header.png -->
-<!-- Suggestion: the stone cairn from the RC header, now finished, with "1.0" on the base stone. -->
-<!-- LLM prompt: "Photorealistic tropical beach at sunrise, a finished cairn of five smooth grey stones with thin glowing cyan and violet seams between them, the top stone carved with a glowing three-node logo, the base stone engraved with a glowing '1.0', faint constellation lines in the sky, a palm tree framing the right edge, a small island on the horizon, warm cinematic light, 16:9" -->
-
-![TanStack AI 1.0](/blog-assets/tanstack-ai-1-0/header.png)
+![A stack of five stones on a beach at sunrise, with 1.0 carved into the bottom stone](/blog-assets/tanstack-ai-1-0/header.png)
 
 Less than a year ago, TanStack AI was a `chat()` function, four providers, and one promise: no lock-in, ever.
 
@@ -131,7 +127,18 @@ For most apps, the upgrade is one codemod and a type check:
 
 The changes that you are most likely to hit:
 
-- `body` is now `forwardedProps`, and `conversationId` is now `threadId`. The codemod renames both, but check the `threadId` value by hand.
+- `body` is now `forwardedProps`, and `conversationId` is now `threadId`. The codemod renames both.
+- `threadId` is now required. `chat()` no longer makes one for you, so pass the id that the client sends:
+
+  ```diff
+    const stream = chat({
+      adapter: openaiText('gpt-6.1-sol'),
+      messages: params.messages,
+  -   conversationId: params.forwardedProps.conversationId,
+  +   threadId: params.threadId,
+    })
+  ```
+
 - `addToolApprovalResponse()` is gone. Resolve the `tool-approval` interrupt instead:
 
   ```diff
@@ -142,7 +149,7 @@ The changes that you are most likely to hit:
   + if (approval?.kind === 'tool-approval') approval.resolveInterrupt(true)
   ```
 
-- If you used one of those three UI packages, build your UI with `createChatHook` from `@tanstack/ai-react/ui`, `@tanstack/ai-solid/ui`, or `@tanstack/ai-vue/ui`.
+- If you used `ai-react-ui`, `ai-solid-ui`, or `ai-vue-ui`, build your UI with `createChatHook` from `@tanstack/ai-react/ui`, `@tanstack/ai-solid/ui`, or `@tanstack/ai-vue/ui`.
 - If you run your own server that streams to a TanStack AI client, stop sending `data: [DONE]`. End the run with a `RUN_FINISHED` event.
 
 The guide ends with a done check, so you know when you are finished.

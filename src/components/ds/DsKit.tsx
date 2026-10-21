@@ -78,11 +78,13 @@ export function DsPage({
 }
 
 export function DsSection({
+  id,
   title,
   description,
   children,
   className,
 }: {
+  id?: string
   title: string
   description?: React.ReactNode
   children: React.ReactNode
@@ -90,7 +92,7 @@ export function DsSection({
 }) {
   return (
     <section
-      id={toDsSectionId(title)}
+      id={id ?? toDsSectionId(title)}
       className={twMerge('scroll-mt-24 space-y-5', className)}
     >
       <div className={description ? 'min-h-[70px]' : undefined}>

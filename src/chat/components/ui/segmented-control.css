@@ -1,0 +1,43 @@
+@scope (:root:has(.tanchat-shell)) {
+  .ui-segmented {
+    display: flex;
+    gap: 3px;
+    padding: 3px;
+    background: var(--soft);
+    border-radius: 8px;
+  }
+  .ui-segment {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 5px;
+    padding: 8px 6px;
+    border: 0;
+    border-radius: 5px;
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-size: 11px;
+    cursor: pointer;
+    transition:
+      background var(--motion-fast),
+      color var(--motion-fast),
+      box-shadow var(--motion-fast);
+  }
+  .ui-segment[data-checked] {
+    background: var(--surface);
+    color: inherit;
+    box-shadow: 0 1px 3px var(--shadow-faint);
+  }
+  .ui-segment:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+  @media (pointer: coarse) {
+    .ui-segment {
+      min-height: 44px;
+    }
+  }
+}

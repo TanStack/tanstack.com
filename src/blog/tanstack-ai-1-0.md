@@ -125,7 +125,7 @@ For most apps, the upgrade is one codemod and a type check:
      "src/**/*.{ts,tsx}"
    ```
 
-2. Update every `@tanstack/ai*` package to 1.0 at the same time.
+2. Update every `@tanstack/ai*` package to 1.0 at the same time. Remove `@tanstack/ai-react-ui`, `@tanstack/ai-solid-ui`, and `@tanstack/ai-vue-ui` if you use them. These three get no 1.0.
 3. Run your type checker, and fix each error with the [upgrade guide](/ai/latest/docs/migration/v1).
 4. If you keep data from 0.x (chats, runs, or files), do the saved-data steps in the guide before you deploy.
 
@@ -142,7 +142,7 @@ The changes that you are most likely to hit:
   + if (approval?.kind === 'tool-approval') approval.resolveInterrupt(true)
   ```
 
-- `@tanstack/ai-react-ui`, `@tanstack/ai-solid-ui`, and `@tanstack/ai-vue-ui` get no 1.0. Build your UI with `createChatHook` from `@tanstack/ai-react/ui`, `@tanstack/ai-solid/ui`, or `@tanstack/ai-vue/ui`.
+- If you used one of those three UI packages, build your UI with `createChatHook` from `@tanstack/ai-react/ui`, `@tanstack/ai-solid/ui`, or `@tanstack/ai-vue/ui`.
 - If you run your own server that streams to a TanStack AI client, stop sending `data: [DONE]`. End the run with a `RUN_FINISHED` event.
 
 The guide ends with a done check, so you know when you are finished.

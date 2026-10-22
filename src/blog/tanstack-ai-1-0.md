@@ -128,9 +128,14 @@ For most apps, the upgrade is one codemod and a type check:
 The changes that you are most likely to hit:
 
 - `body` is now `forwardedProps`, and `conversationId` is now `threadId`. The codemod renames both.
-- `threadId` is now required. `chat()` no longer makes one for you, so pass the id that the client sends:
+- `threadId` is now required, in the browser and on the server. Neither side makes one for you. In the browser, pass a stable id for each conversation, such as the id from your route or your database. On the server, pass the id that the client sends:
 
   ```diff
+    // In the browser
+  - useChat({ connection })
+  + useChat({ connection, threadId: chatId })
+
+    // On the server
     const stream = chat({
       adapter: openaiText('gpt-6.1-sol'),
       messages: params.messages,
@@ -139,12 +144,18 @@ The changes that you are most likely to hit:
     })
   ```
 
+  The same goes for `ChatClient`, the generation hooks such as `useGenerateImage`, and the generation functions such as `generateImage()`. The codemod cannot add `threadId`, because it does not know your ids.
+
 - `addToolApprovalResponse()` is gone. Resolve the `tool-approval` interrupt instead:
 
   ```diff
   - const { addToolApprovalResponse } = useChat({ connection, body: { userId } })
   - addToolApprovalResponse({ id, approved: true })
-  + const { interrupts } = useChat({ connection, forwardedProps: { userId } })
+  + const { interrupts } = useChat({
+  +   connection,
+  +   threadId: chatId,
+  +   forwardedProps: { userId },
+  + })
   + const approval = interrupts.find((item) => item.kind === 'tool-approval')
   + if (approval?.kind === 'tool-approval') approval.resolveInterrupt(true)
   ```

@@ -714,7 +714,7 @@ export const ai: LibrarySlim = {
     'AI building blocks for TypeScript. We build the hard parts, you keep the stack.',
   description:
     'TanStack AI is a TypeScript library for building AI features and agents. It ships the agent loop, provider adapters, durability, interrupts, sandboxes, and tools, and plugs into the server, database, and UI you already have.',
-  badge: 'RC',
+  badge: 'fresh',
   repo: 'tanstack/ai',
   frameworks: [
     'react',
@@ -728,9 +728,9 @@ export const ai: LibrarySlim = {
   ],
   corePackageName: '@tanstack/ai-client',
   npmPackageNames: ['@tanstack/ai'],
-  latestVersion: 'v0',
+  latestVersion: 'v1',
   latestBranch: 'main',
-  availableVersions: ['v0'],
+  availableVersions: ['v1'],
   defaultDocs: 'getting-started/overview',
   frameworkPackageNames: {
     react: '@tanstack/ai-react',

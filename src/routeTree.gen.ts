@@ -37,6 +37,7 @@ import { Route as PaidSupportRouteImport } from './routes/paid-support'
 import { Route as PartnersRouteImport } from './routes/partners'
 import { Route as PartnersEmbedRouteImport } from './routes/partners-embed'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as RedactRouteImport } from './routes/redact'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as RssDotxmlRouteImport } from './routes/rss[.]xml'
 import { Route as ShopRouteImport } from './routes/shop'
@@ -462,6 +463,11 @@ const PartnersEmbedRoute = PartnersEmbedRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RedactRoute = RedactRouteImport.update({
+  id: '/redact',
+  path: '/redact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
@@ -2033,6 +2039,7 @@ export interface FileRoutesByFullPath {
   '/partners': typeof PartnersRouteWithChildren
   '/partners-embed': typeof PartnersEmbedRoute
   '/privacy': typeof PrivacyRoute
+  '/redact': typeof RedactRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/rss.xml': typeof RssDotxmlRoute
   '/shop': typeof ShopRouteWithChildren
@@ -2342,6 +2349,7 @@ export interface FileRoutesByTo {
   '/paid-support': typeof PaidSupportRoute
   '/partners-embed': typeof PartnersEmbedRoute
   '/privacy': typeof PrivacyRoute
+  '/redact': typeof RedactRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/rss.xml': typeof RssDotxmlRoute
   '/showcases': typeof ShowcasesRoute
@@ -2654,6 +2662,7 @@ export interface FileRoutesById {
   '/partners': typeof PartnersRouteWithChildren
   '/partners-embed': typeof PartnersEmbedRoute
   '/privacy': typeof PrivacyRoute
+  '/redact': typeof RedactRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/rss.xml': typeof RssDotxmlRoute
   '/shop': typeof ShopRouteWithChildren
@@ -2972,6 +2981,7 @@ export interface FileRouteTypes {
     | '/partners'
     | '/partners-embed'
     | '/privacy'
+    | '/redact'
     | '/robots.txt'
     | '/rss.xml'
     | '/shop'
@@ -3281,6 +3291,7 @@ export interface FileRouteTypes {
     | '/paid-support'
     | '/partners-embed'
     | '/privacy'
+    | '/redact'
     | '/robots.txt'
     | '/rss.xml'
     | '/showcases'
@@ -3592,6 +3603,7 @@ export interface FileRouteTypes {
     | '/partners'
     | '/partners-embed'
     | '/privacy'
+    | '/redact'
     | '/robots.txt'
     | '/rss.xml'
     | '/shop'
@@ -3910,6 +3922,7 @@ export interface RootRouteChildren {
   PartnersRoute: typeof PartnersRouteWithChildren
   PartnersEmbedRoute: typeof PartnersEmbedRoute
   PrivacyRoute: typeof PrivacyRoute
+  RedactRoute: typeof RedactRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   RssDotxmlRoute: typeof RssDotxmlRoute
   ShopRoute: typeof ShopRouteWithChildren
@@ -4228,6 +4241,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/redact': {
+      id: '/redact'
+      path: '/redact'
+      fullPath: '/redact'
+      preLoaderRoute: typeof RedactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/robots.txt': {
@@ -7104,6 +7124,7 @@ const rootRouteChildren: RootRouteChildren = {
   PartnersRoute: PartnersRouteWithChildren,
   PartnersEmbedRoute: PartnersEmbedRoute,
   PrivacyRoute: PrivacyRoute,
+  RedactRoute: RedactRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   RssDotxmlRoute: RssDotxmlRoute,
   ShopRoute: ShopRouteWithChildren,

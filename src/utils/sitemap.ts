@@ -16,6 +16,7 @@ const HIGH_VALUE_NON_DOC_PAGES = [
   '/',
   '/blog',
   '/libraries',
+  '/redact',
   '/learn',
   '/showcase',
   '/support',

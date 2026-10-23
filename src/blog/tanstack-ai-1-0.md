@@ -8,13 +8,14 @@ authors:
   - Alem Tuzlak
   - Jack Herrington
   - Tom Beckenham
+  - Tanner Linsley
 ---
 
 ![A stack of five stones on a beach at sunrise, with 1.0 carved into the bottom stone](/blog-assets/tanstack-ai-1-0/header.png)
 
-TanStack AI 1.0 is here, and what matters most to me about this release is how much you can build with it.
+TanStack AI 1.0 is here, and what matters most to us about this release is how much you can build with it.
 
-We have the pieces for chat, voice, image generation, tools, and agents that keep working beyond a single request. You can use them to add a feature to an existing application, build an AI product of your own, or create the framework other people use to build theirs. I want TanStack AI to be a foundation you can choose without having to decide in advance what your entire application is going to become.
+We have the pieces for chat, voice, image generation, tools, and agents that keep working beyond a single request. You can use them to add a feature to an existing application, build an AI product of your own, or create the framework other people use to build theirs. We want TanStack AI to be a foundation you can choose without having to decide in advance what your entire application is going to become.
 
 That includes people who aren't programmers. You should be able to describe the experience you want, tell your coding agent to use TanStack AI, and work with it to build that application. For developers who want to design every part themselves, the same typed APIs are there to use directly. Those are different ways of working with the same library, and both matter.
 
@@ -26,11 +27,11 @@ A travel-planning application might begin with a conversation and a tool that lo
 
 The interface doesn't have to center on a conversation either. [Image and media generation](/blog/tanstack-ai-alpha-2) can live inside an editor, [realtime voice](/blog/tanstack-ai-realtime-voice-chat) can be the interface, and [structured output](/blog/streaming-structured-output) can feed the application you're already building. For a choice, a score, or a yes or no, [`decide()`](/ai/latest/docs/evaluate/evaluate) returns a typed result that your application can use directly.
 
-This is the kind of flexibility I care about, the ability to change what you're building as you learn more about what it needs. That should hold whether you're writing the code yourself or working through those decisions with a coding agent.
+This is the kind of flexibility we care about, the ability to change what you're building as you learn more about what it needs. That should hold whether you're writing the code yourself or working through those decisions with a coding agent.
 
 ## Agents can delegate work and use tools across applications
 
-Since [the RC](/blog/tanstack-ai-rc), the team has added [named subagents](/ai/latest/docs/chat/subagents) to `chat()` and `useChat`, with typed inputs and limits. An assistant can delegate research and writing to separate agents, each with its own instructions, rather than handling every task in the same conversation.
+Since [the RC](/blog/tanstack-ai-rc), we've added [named subagents](/ai/latest/docs/chat/subagents) to `chat()` and `useChat`, with typed inputs and limits. An assistant can delegate research and writing to separate agents, each with its own instructions, rather than handling every task in the same conversation.
 
 [Portable Agent Skills](/ai/latest/docs/skills/agent-skills) let a tool-calling model load a `SKILL.md` when it needs the instructions, and [compaction](/ai/latest/docs/advanced/compaction) helps keep longer conversations within the context limit (using native provider compaction where it's available). For work that needs to interact with a page, [computer use](/ai/latest/docs/computer-use/computer-use) gives you a shared screenshot-based API for OpenAI and Anthropic.
 
@@ -155,7 +156,7 @@ That session model can support a standalone product, an internal tool, or a fram
 
 If we're going to recommend telling a coding agent to use TanStack AI, it needs guidance for the APIs that are actually installed. The [Agent Skills for coding assistants](/ai/latest/docs/getting-started/agent-skills) provide that version-specific guidance, rather than relying entirely on examples in the model's training data.
 
-The team also rewrote the hand-written docs for 1.0 around practical setups and the problems each API addresses. Adapter pages follow the same structure so you can compare them, and code-sample type checking in CI helps catch examples that drift away from the API.
+We also rewrote the hand-written docs for 1.0 around practical setups and the problems each API addresses. Adapter pages follow the same structure so you can compare them, and code-sample type checking in CI helps catch examples that drift away from the API.
 
 For someone who hasn't programmed before, a coding agent can help write the application and work through the integration and setup. TanStack AI supplies the library APIs, while the application still needs the provider accounts, credentials, and hosting appropriate to what it's doing. The guidance helps the agent make those choices explicit as you build.
 
@@ -226,13 +227,13 @@ Passing the type check does not migrate stored conversations, runs, or files; th
 
 ## The work behind this release
 
-[The alpha](/blog/tanstack-ai-alpha-your-ai-your-way) started in December 2025 with four providers, isomorphic tools, and devtools. [Alpha 2](/blog/tanstack-ai-alpha-2) added the other modalities, and the team kept refining the design, including [removing the `ai()` function](/blog/tanstack-ai-the-ai-function-postmortem) and [splitting the adapters](/blog/tanstack-ai-why-we-split-the-adapters) into smaller pieces.
+[The alpha](/blog/tanstack-ai-alpha-your-ai-your-way) started in December 2025 with four providers, isomorphic tools, and devtools. [Alpha 2](/blog/tanstack-ai-alpha-2) added the other modalities, and we kept refining the design, including [removing the `ai()` function](/blog/tanstack-ai-the-ai-function-postmortem) and [splitting the adapters](/blog/tanstack-ai-why-we-split-the-adapters) into smaller pieces.
 
 Then came [middleware](/blog/tanstack-ai-middleware), [realtime voice](/blog/tanstack-ai-realtime-voice-chat), [Code Mode](/blog/tanstack-ai-code-mode), [streaming structured output](/blog/streaming-structured-output), and [AG-UI compliance](/blog/ag-ui-compliance). By [the beta](/blog/tanstack-ai-beta), we had [MCP](/blog/your-mcp-your-way) and [coding agents running in sandboxes](/blog/run-coding-agents-in-a-sandbox). TanStack AI was also named [AI Project of the Year](/blog/tanstack-open-source-awards-2026) at the Open Source Awards.
 
-Alem, Jack, and Tom have taken TanStack AI a long way in less than a year, and I want to recognize the work behind the APIs as much as the APIs themselves. Adapters, documentation, tests, streaming, and persistence all need sustained attention as people use them in different applications. The team and contributors have put a substantial amount of work into those details.
+We've taken TanStack AI a long way in less than a year, and we want to recognize the work behind the APIs as much as the APIs themselves. Adapters, documentation, tests, streaming, and persistence all need sustained attention as people use them in different applications. Together with our contributors, we've put a substantial amount of work into those details.
 
-Thank you to everyone who contributed code, filed an issue, put together a reproduction, answered a question in Discord, or showed the team something they'd built. That feedback helps the team understand where the APIs fit and where they still need work.
+Thank you to everyone who contributed code, filed an issue, put together a reproduction, answered a question in Discord, or showed us something they'd built. That feedback helps us understand where the APIs fit and where they still need work.
 
 And thank you to our partners for supporting that work. [OpenRouter](/blog/openrouter-partnership) has supported TanStack AI from the beginning, and the support of all our partners helps us keep building these tools in the open.
 
@@ -250,7 +251,7 @@ pnpm add @tanstack/ai @tanstack/ai-react @tanstack/ai-openai
 
 Choose the framework and provider packages appropriate to your application, then follow the [Quick Start](/ai/latest/docs/getting-started/quick-start). If you're already on 0.x, use the [upgrade guide](/ai/latest/docs/migration/v1).
 
-Take an AI experience you want to build, describe how it should work, and ask your coding agent to implement it with TanStack AI. Start with a real requirement, then extend it as you learn what the application needs. That's where I want these APIs to prove themselves, in the range of things people can build with them.
+Take an AI experience you want to build, describe how it should work, and ask your coding agent to implement it with TanStack AI. Start with a real requirement, then extend it as you learn what the application needs. That's where we want these APIs to prove themselves, in the range of things people can build with them.
 
 [Show us what you build](https://tlinz.com/discord).
 

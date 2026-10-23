@@ -4,14 +4,14 @@ published: 2026-10-23
 draft: false
 excerpt: 'TanStack AI 1.0 is here, with stable core APIs, rewritten docs, and an experimental agent harness. Your AI, your way.'
 library: ai
+headerImage: https://media.tanstack.com/blog/tanstack-ai-1-0/v9-title-poster.jpg
+headerVideo: https://media.tanstack.com/blog/tanstack-ai-1-0/v9.mp4
 authors:
   - Alem Tuzlak
   - Jack Herrington
   - Tom Beckenham
   - Tanner Linsley
 ---
-
-![A stack of five stones on a beach at sunrise, with 1.0 carved into the bottom stone](/blog-assets/tanstack-ai-1-0/header.png)
 
 Less than a year ago, TanStack AI was a `chat()` function, four providers, and one promise: no lock-in, ever.
 

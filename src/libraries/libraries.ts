@@ -680,6 +680,29 @@ export const highlight: LibrarySlim = {
   },
 }
 
+export const redact: LibrarySlim = {
+  id: 'redact',
+  scarfId: 'c8168526-db90-4e35-9eaf-bb22ac7c7d18',
+  ...categoryStyles.framework,
+  name: 'TanStack Redact',
+  to: '/redact/latest',
+  tagline: 'A smaller React-compatible runtime with synchronous rendering',
+  description:
+    'Keep your React components, hooks, and imports, with a smaller synchronous runtime, a Vite plugin, and optional features you can leave out of your bundle.',
+  repo: 'tanstack/redact',
+  frameworks: ['react'],
+  frameworkPackageNames: { react: '@tanstack/redact' },
+  frameworkDocs: { react: 'overview' },
+  corePackageName: '@tanstack/redact',
+  npmPackageNames: ['@tanstack/redact'],
+  latestVersion: 'v0',
+  latestBranch: 'main',
+  availableVersions: ['v0'],
+  defaultDocs: 'overview',
+  installPath: 'installation',
+  sitemap: { includeLandingPage: true, includeDocsPages: true },
+}
+
 export const db: LibrarySlim = {
   id: 'db',
   ...categoryStyles.data,
@@ -930,6 +953,7 @@ export const libraries: LibrarySlim[] = [
   hotkeys,
   markdown,
   highlight,
+  redact,
   store,
   ranger,
   config,
@@ -980,7 +1004,7 @@ export function isPublicLibrary(
 export const publicLibraries = libraries.filter(isPublicLibrary)
 
 export const librariesByGroup = {
-  framework: [start, router],
+  framework: [start, router, redact],
   state: [query, db, store, ai],
   headlessUI: [table, charts, form, hotkeys, markdown, highlight],
   performance: [virtual, pacer],

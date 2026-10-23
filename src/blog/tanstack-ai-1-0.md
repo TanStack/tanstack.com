@@ -18,7 +18,7 @@ We have the pieces for chat, voice, image generation, tools, and agents that kee
 
 That includes people who aren't programmers. You should be able to describe the experience you want, tell your coding agent to use TanStack AI, and work with it to build that application. For developers who want to design every part themselves, the same typed APIs are there to use directly. Those are different ways of working with the same library, and both matter.
 
-The core APIs are stable in 1.0, and this release also introduces an experimental agent harness for longer-lived sessions. The work underneath covers model integrations, streaming, tools, media, persistence, and UI connections, with room to choose your own providers, framework, and infrastructure.
+1.0 is our formal commitment to the APIs you build on. The core APIs are stable, and this release also introduces an experimental agent harness for longer-lived sessions. The work underneath covers model integrations, streaming, tools, media, persistence, and UI connections, with room to choose your own providers, framework, and infrastructure.
 
 ## Applications can grow without replacing the pieces
 
@@ -159,7 +159,9 @@ The team also rewrote the hand-written docs for 1.0 around practical setups and 
 
 For someone who hasn't programmed before, a coding agent can help write the application and work through the integration and setup. TanStack AI supplies the library APIs, while the application still needs the provider accounts, credentials, and hosting appropriate to what it's doing. The guidance helps the agent make those choices explicit as you build.
 
-For tests, [`fakeText()`](/ai/latest/docs/advanced/testing) lets you exercise `chat()`, tools, and middleware without a network connection or API key.
+Our end-to-end tests run on every pull request, exercising provider adapters and tool execution flows against deterministic model fixtures. That lets us check the same scenarios across providers without live API calls.
+
+For tests in your own application, [`fakeText()`](/ai/latest/docs/advanced/testing) lets you exercise `chat()`, tools, and middleware without a network connection or API key.
 
 The [Quick Start](/ai/latest/docs/getting-started/quick-start) includes the initial setup for you or your coding agent to work from.
 
@@ -236,6 +238,8 @@ And thank you to our partners for supporting that work. [OpenRouter](/blog/openr
 
 <partner-list></partner-list>
 
+Now that the core APIs are stable, the next work is polish and helping teams ship with them. Tell us where your application gets awkward, whether you're building a chat box, a voice agent, or a fleet of coding agents. We'll keep working on those rough edges, taking the harness to stable, and adding providers and sandboxes as the ecosystem grows.
+
 ## Build with TanStack AI 1.0
 
 For React and OpenAI, install the core package and the two integrations:
@@ -249,3 +253,5 @@ Choose the framework and provider packages appropriate to your application, then
 Take an AI experience you want to build, describe how it should work, and ask your coding agent to implement it with TanStack AI. Start with a real requirement, then extend it as you learn what the application needs. That's where I want these APIs to prove themselves, in the range of things people can build with them.
 
 [Show us what you build](https://tlinz.com/discord).
+
+Have fun building.

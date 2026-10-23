@@ -2,35 +2,38 @@
 title: 'TanStack AI 1.0: Still Your AI, Still Your Way'
 published: 2026-10-23
 draft: false
-excerpt: 'TanStack AI 1.0 is here: 76 packages go stable together, deprecated APIs are gone, the docs are rewritten, and an experimental agent harness lands.'
+excerpt: 'TanStack AI 1.0 is here, with stable core APIs, rewritten docs, and an experimental agent harness. Your AI, your way.'
 library: ai
 authors:
   - Alem Tuzlak
   - Jack Herrington
   - Tom Beckenham
+  - Tanner Linsley
 ---
 
 ![A stack of five stones on a beach at sunrise, with 1.0 carved into the bottom stone](/blog-assets/tanstack-ai-1-0/header.png)
 
 Less than a year ago, TanStack AI was a `chat()` function, four providers, and one promise: no lock-in, ever.
 
-Today it is 1.0. All 76 packages go stable together. Your provider, your framework, your sandbox, and the wire protocol between them are still yours to pick. The promise held.
+Today we're shipping 1.0, with stable core APIs and a new experimental agent harness. Your provider, your framework, your sandbox, and the wire protocol between them are still yours to pick. The promise held.
 
 A lot happened between [the alpha](/blog/tanstack-ai-alpha-your-ai-your-way) and today. That `chat()` function grew into a toolkit for chat, tools, media, MCP, persistence, sandboxes, and agents, with 23 provider adapters and eight UI frameworks. More than 140 people helped build it.
 
-This post covers what 1.0 means, what landed since [the RC](/blog/tanstack-ai-rc), how to upgrade, and one more thing that we could not wait to show you.
+We want you to be able to build the AI experience you actually want, whether that's a feature in an existing app, a product of your own, or a framework other people build on. That goes for developers writing every line themselves and people who'd rather tell a coding agent what they want to build.
+
+Chat is one place to start, but it doesn't have to be the whole app. Put image generation in an editor, use voice as the interface, or build an agent that keeps working while you do something else. The pieces should grow with what you're building.
 
 ## What 1.0 Means
 
 1.0 is our formal commitment to the APIs you build on.
 
-Everything in the 76 packages is stable and ready for production.
+The core APIs are stable and ready for production. The new harness APIs are experimental.
 
-And here is the good news if you already run TanStack AI: **1.0 has no new concepts.** We removed every API that 0.x marked as deprecated, and every replacement already shipped in 0.x. If you kept up with the deprecation warnings, you are most of the way there.
+And here's the good news if you already run TanStack AI: **1.0 has no new concepts.** We removed every API that 0.x marked as deprecated, and every replacement already shipped in 0.x. If you kept up with the deprecation warnings, you're most of the way there.
 
 Two things to know:
 
-- **Upgrade everything together.** A 1.0 client needs a 1.0 server, so move every `@tanstack/ai*` package at the same time.
+- **Upgrade everything together.** A 1.0 client needs a 1.0 server, so move your stable `@tanstack/ai*` packages at the same time. The experimental harness packages stay on 0.x.
 - **The new agent harness is the one exception.** Its APIs are experimental. More on that at the end.
 
 ## How We Got Here
@@ -44,7 +47,7 @@ _Cue "Carry On Wayward Son" by Kansas, one last time._
 - **August 2026:** [the RC](/blog/tanstack-ai-rc), with the architecture locked in.
 - **October 2026:** 1.0.
 
-Here is how far that got us:
+Here's how far that got us:
 
 |                   | Alpha                        | 1.0                                                                       |
 | ----------------- | ---------------------------- | ------------------------------------------------------------------------- |
@@ -53,11 +56,11 @@ Here is how far that got us:
 | Coding agents     | None                         | Claude Code, Codex, OpenCode, Grok Build, and any ACP agent               |
 | Sandbox providers | None                         | 11                                                                        |
 
-Testing grew with it. At Beta, we ran 265 deterministic end-to-end tests across 10 providers on every pull request. The 1.0 branch runs 943 of them across 17 provider adapters.
+Our end-to-end tests run on every pull request, checking provider adapters and tool execution flows against deterministic model fixtures, without live API calls.
 
 ## What Landed Since the RC
 
-The RC locked the architecture. It did not slow us down. Since then, we merged more than 100 feature pull requests. These are the highlights.
+The RC locked the architecture, but we haven't been sitting still. Here's what's landed since then.
 
 ### Agents
 
@@ -78,7 +81,7 @@ The RC locked the architecture. It did not slow us down. Since then, we merged m
 ### Keys and sign-in
 
 - [Bring your own key](/ai/latest/docs/advanced/byok), with `defineByok` and keyed adapters.
-- Sign in with ChatGPT, GitHub Copilot, or OpenRouter, or use a Claude OAuth token, so users of a local app do not have to paste an API key.
+- Sign in with ChatGPT, GitHub Copilot, or OpenRouter, or use a Claude OAuth token, so users of a local app don't have to paste an API key.
 
 ### MCP
 
@@ -104,8 +107,6 @@ We rewrote every hand-written docs page for 1.0.
 
 Each page now opens with the problem and a setup that you can copy and run in a few minutes. The deep details moved to an Advanced part at the end, or to an advanced page next to it. Every adapter page uses the same order, so you can compare providers side by side.
 
-CI type-checks more than 1,800 code samples in the docs. If a sample does not match the API, the build fails.
-
 New here? The [Quick Start](/ai/latest/docs/getting-started/quick-start) gives you a streaming chat in about five minutes.
 
 ## Upgrade From 0.x
@@ -121,7 +122,7 @@ For most apps, the upgrade is one codemod and a type check:
      "src/**/*.{ts,tsx}"
    ```
 
-2. Update every `@tanstack/ai*` package to 1.0 at the same time. Remove `@tanstack/ai-react-ui`, `@tanstack/ai-solid-ui`, and `@tanstack/ai-vue-ui` if you use them. These three get no 1.0.
+2. Update your stable `@tanstack/ai*` packages to 1.0 at the same time. The experimental harness packages stay on 0.x. Remove `@tanstack/ai-react-ui`, `@tanstack/ai-solid-ui`, and `@tanstack/ai-vue-ui` if you use them. These three don't have 1.0 releases.
 3. Run your type checker, and fix each error with the [upgrade guide](/ai/latest/docs/migration/v1).
 4. If you keep data from 0.x (chats, runs, or files), do the saved-data steps in the guide before you deploy.
 
@@ -163,11 +164,11 @@ The changes that you are most likely to hit:
 - If you used `ai-react-ui`, `ai-solid-ui`, or `ai-vue-ui`, build your UI with `createChatHook` from `@tanstack/ai-react/ui`, `@tanstack/ai-solid/ui`, or `@tanstack/ai-vue/ui`.
 - If you run your own server that streams to a TanStack AI client, stop sending `data: [DONE]`. End the run with a `RUN_FINISHED` event.
 
-The guide ends with a done check, so you know when you are finished.
+Passing the type check doesn't migrate stored conversations, runs, or files. Follow the saved-data steps in the guide before you deploy.
 
 ## One More Thing: The Agent Harness
 
-`chat()` answers one request. That is perfect for a chat box.
+`chat()` answers one request, which is great for a chat box.
 
 A coding agent, a support bot, or a media studio needs more. It needs one conversation that stays open, takes new messages while it works, runs other agents, and survives a deploy.
 
@@ -197,9 +198,11 @@ await session.send('Keep it under 500 euros.', { mode: 'steer' })
 await plan
 ```
 
-The events are standard AG-UI events. A steer joins the running turn before its next model call. A follow-up waits until the current work is done.
+The events are standard AG-UI events. A steer joins the running turn before its next model call, or starts the next turn if the current one's already finished. A follow-up waits until the current work is done.
 
-Here is what a session gives you:
+This example uses in-memory persistence. To recover after a restart, you'll need a durable store. There are still [recovery limits](https://github.com/TanStack/ai/blob/main/docs/harness/deploy.md#known-limits), including in-memory child-agent waits that don't resume across hosts.
+
+Here's what a session gives you:
 
 - **Durable sessions.** Every thread has a session log. Give the host a store that survives restarts, and a turn that a crash or a deploy cut continues on the next host. One host owns a thread at a time.
 - **Waits that survive restarts.** An approval, a question, or a sign-in stops the run and waits in the log. Any server can take the answer, even after a restart.
@@ -210,7 +213,7 @@ Here is what a session gives you:
 
 ### Build your own coding agent
 
-The first-party plugins cover what every coding agent needs. Put them in a harness, give it to `runCli`, and you have a coding agent in your terminal:
+The first-party plugins give you file tools, permissions, snapshots, and the other pieces to get started. Put them in a harness, give it to `runCli`, and you have a coding agent in your terminal:
 
 ```ts
 import { homedir } from 'node:os'
@@ -247,7 +250,7 @@ const coder = defineHarness({
 process.exitCode = await runCli(coder)
 ```
 
-That is file tools, a question before each risky call, `/undo` for the last turn, a todo list, `/compact` for long sessions, `/usage` for the cost, and your project instructions.
+That's file tools, approval controls for risky calls, `/undo` for the last turn, a todo list, `/compact` for long sessions, `/usage` for the cost, and your project instructions. The permissions plugin isn't a sandbox, these tools run on the host with its permissions.
 
 More plugins load the same way: [skills](/ai/latest/docs/harness/skills) as slash commands, [`goal()`](/ai/latest/docs/harness/goal) to keep working until a judge model says that the goal is met, [computer use](/ai/latest/docs/harness/computer-use), [Code Mode](/ai/latest/docs/harness/code-mode), and [MCP servers](/ai/latest/docs/harness/mcp). A harness can also [hand coding work to Claude Code, Codex, Grok Build, or any ACP agent](/ai/latest/docs/harness/coding-agents), each in its own sandbox.
 
@@ -280,9 +283,9 @@ flowchart LR
 
 The harness is the newest part of TanStack AI, so its APIs are **experimental**. `@tanstack/ai-harness` and `@tanstack/ai-harness-cli` ship as 0.x, and the harness entry points in other packages, such as `@tanstack/ai-skills/harness` and `@tanstack/ai-acp/agent`, are experimental too. They can change in a minor release.
 
-Everything else in this post is 1.0.
+The harness is separate from the stable 1.0 core.
 
-We wanted the harness in your hands before we lock it. Start with [Build your first harness](/ai/latest/docs/harness/overview), or go straight to [Build a coding agent](/ai/latest/docs/harness/coding-agent). Then tell us what breaks.
+We wanted the harness in your hands before we lock down its APIs. Start with [Build your first harness](/ai/latest/docs/harness/overview), or go straight to [Build a coding agent](/ai/latest/docs/harness/coding-agent). Then tell us what breaks.
 
 ## Thank You
 
@@ -294,11 +297,11 @@ Thank you to our partners, too. [OpenRouter](/blog/openrouter-partnership) suppo
 
 ## What's Next
 
-First, polish. Now that the APIs are stable, we go over the rough edges, one by one.
+First, polish. Now that the core APIs are stable, we're going over the rough edges, one by one.
 
 Then, support. We want to help teams ship **any** AI feature with TanStack AI: a chat box, image generation, a voice agent, or a fleet of coding agents. If your team builds with TanStack AI, tell us what slows you down.
 
-And of course, we take the harness to stable, add more providers and sandboxes, and keep up with whatever the model labs ship next.
+And of course, we'll take the harness to stable, add more providers and sandboxes, and keep up with whatever the model labs ship next.
 
 1.0 is the version we ask you to build on. It starts with one install:
 
@@ -306,8 +309,8 @@ And of course, we take the harness to stable, add more providers and sandboxes, 
 pnpm add @tanstack/ai @tanstack/ai-react @tanstack/ai-openai
 ```
 
-If OpenAI is not your provider, change the last package. Then follow the [Quick Start](/ai/latest/docs/getting-started/quick-start). On 0.x? Open the [upgrade guide](/ai/latest/docs/migration/v1).
+If OpenAI isn't your provider, change the last package. Using another UI framework? Swap out the React package too. Then follow the [Quick Start](/ai/latest/docs/getting-started/quick-start). On 0.x? Open the [upgrade guide](/ai/latest/docs/migration/v1).
 
-Show us what you build in [Discord](https://tlinz.com/discord). And above all:
+Build something you've been wanting to try, or ask your coding agent to build it with TanStack AI, and [show us what you make](https://tlinz.com/discord).
 
 Have fun building.

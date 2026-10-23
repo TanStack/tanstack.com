@@ -9,15 +9,17 @@ export function HeroPalmMedia() {
   const [isPlaying, setIsPlaying] = React.useState(false)
 
   const playVideo = React.useCallback((video: HTMLVideoElement) => {
-    void video
-      .play()
-      .then(() => setIsVideoReady(true))
-      .catch((error: unknown) => {
-        if (error instanceof DOMException && error.name === 'AbortError') return
-        console.error('Unable to play the homepage hero animation', error)
-        setIsPlaying(false)
-        setIsVideoReady(false)
-      })
+    const promise = video.play()
+    if (promise !== undefined) {
+      promise
+        .then(() => setIsVideoReady(true))
+        .catch((error: unknown) => {
+          if (error instanceof DOMException && error.name === 'AbortError') return
+          console.error('Unable to play the homepage hero animation', error)
+          setIsPlaying(false)
+          setIsVideoReady(false)
+        })
+    }
   }, [])
 
   React.useEffect(() => {

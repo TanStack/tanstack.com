@@ -3,8 +3,8 @@ name: Update TanStack Dependencies
 on:
   workflow_dispatch:
   schedule:
-    # Run weekly on Sundays at 10:00 AM UTC
-    - cron: '0 10 * * 0'
+    # Run daily at 10:00 AM UTC
+    - cron: '0 10 * * *'
 
 jobs:
   update-deps:
@@ -32,7 +32,9 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Update TanStack Dependencies
-        run: pnpm up "@tanstack/*" --latest
+        # Keep the AI packages together while openai-base needs its version-specific
+        # tool-continuation patch. Remove these exclusions once the fix is upstream.
+        run: pnpm up "@tanstack/*" "!@tanstack/ai" "!@tanstack/ai-*" --latest
 
       - name: Check for Changes
         id: git-check

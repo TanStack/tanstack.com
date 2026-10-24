@@ -272,6 +272,7 @@ import { Route as LibraryLibraryIdVersionDocsNpmStatsRouteImport } from './route
 import { Route as LibraryLibraryIdVersionDocsChar123Char125DotmdRouteImport } from './routes/_library/$libraryId/$version.docs.{$}[.]md'
 import { Route as LibraryChartsCatalogChartsCaseIdRouteImport } from './routes/_library/charts.catalog.charts.$caseId'
 import { Route as LibraryChartsCatalogCollectionsCollectionIdRouteImport } from './routes/_library/charts.catalog.collections.$collectionId'
+import { Route as LibraryMarkdownVersionReportsSizesRouteImport } from './routes/_library/markdown.$version.reports.sizes'
 import { Route as ApiAuthCliStatusTicketIdRouteImport } from './routes/api/auth/cli/status.$ticketId'
 import { Route as ApiChatBotDraftsIdFilesRouteImport } from './routes/api/chat/bot-drafts/$id.files'
 import { Route as ApiChatBotsIdOperationRouteImport } from './routes/api/chat/bots/$id.$operation'
@@ -1700,6 +1701,12 @@ const LibraryChartsCatalogCollectionsCollectionIdRoute =
     path: '/collections/$collectionId',
     getParentRoute: () => LibraryChartsCatalogRoute,
   } as any)
+const LibraryMarkdownVersionReportsSizesRoute =
+  LibraryMarkdownVersionReportsSizesRouteImport.update({
+    id: '/markdown/$version/reports/sizes',
+    path: '/markdown/$version/reports/sizes',
+    getParentRoute: () => LibraryRoute,
+  } as any)
 const ApiAuthCliStatusTicketIdRoute =
   ApiAuthCliStatusTicketIdRouteImport.update({
     id: '/api/auth/cli/status/$ticketId',
@@ -2274,6 +2281,7 @@ export interface FileRoutesByFullPath {
   '/$libraryId/$version/docs/{$}.md': typeof LibraryLibraryIdVersionDocsChar123Char125DotmdRoute
   '/charts/catalog/charts/$caseId': typeof LibraryChartsCatalogChartsCaseIdRoute
   '/charts/catalog/collections/$collectionId': typeof LibraryChartsCatalogCollectionsCollectionIdRoute
+  '/markdown/$version/reports/sizes': typeof LibraryMarkdownVersionReportsSizesRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
   '/api/chat/bot-drafts/$id/files': typeof ApiChatBotDraftsIdFilesRouteWithChildren
   '/api/chat/bots/$id/$operation': typeof ApiChatBotsIdOperationRoute
@@ -2578,6 +2586,7 @@ export interface FileRoutesByTo {
   '/$libraryId/$version/docs/{$}.md': typeof LibraryLibraryIdVersionDocsChar123Char125DotmdRoute
   '/charts/catalog/charts/$caseId': typeof LibraryChartsCatalogChartsCaseIdRoute
   '/charts/catalog/collections/$collectionId': typeof LibraryChartsCatalogCollectionsCollectionIdRoute
+  '/markdown/$version/reports/sizes': typeof LibraryMarkdownVersionReportsSizesRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
   '/api/chat/bot-drafts/$id/files': typeof ApiChatBotDraftsIdFilesRouteWithChildren
   '/api/chat/bots/$id/$operation': typeof ApiChatBotsIdOperationRoute
@@ -2897,6 +2906,7 @@ export interface FileRoutesById {
   '/_library/$libraryId/$version/docs/{$}.md': typeof LibraryLibraryIdVersionDocsChar123Char125DotmdRoute
   '/_library/charts/catalog/charts/$caseId': typeof LibraryChartsCatalogChartsCaseIdRoute
   '/_library/charts/catalog/collections/$collectionId': typeof LibraryChartsCatalogCollectionsCollectionIdRoute
+  '/_library/markdown/$version/reports/sizes': typeof LibraryMarkdownVersionReportsSizesRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
   '/api/chat/bot-drafts/$id/files': typeof ApiChatBotDraftsIdFilesRouteWithChildren
   '/api/chat/bots/$id/$operation': typeof ApiChatBotsIdOperationRoute
@@ -3216,6 +3226,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/{$}.md'
     | '/charts/catalog/charts/$caseId'
     | '/charts/catalog/collections/$collectionId'
+    | '/markdown/$version/reports/sizes'
     | '/api/auth/cli/status/$ticketId'
     | '/api/chat/bot-drafts/$id/files'
     | '/api/chat/bots/$id/$operation'
@@ -3520,6 +3531,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/{$}.md'
     | '/charts/catalog/charts/$caseId'
     | '/charts/catalog/collections/$collectionId'
+    | '/markdown/$version/reports/sizes'
     | '/api/auth/cli/status/$ticketId'
     | '/api/chat/bot-drafts/$id/files'
     | '/api/chat/bots/$id/$operation'
@@ -3838,6 +3850,7 @@ export interface FileRouteTypes {
     | '/_library/$libraryId/$version/docs/{$}.md'
     | '/_library/charts/catalog/charts/$caseId'
     | '/_library/charts/catalog/collections/$collectionId'
+    | '/_library/markdown/$version/reports/sizes'
     | '/api/auth/cli/status/$ticketId'
     | '/api/chat/bot-drafts/$id/files'
     | '/api/chat/bots/$id/$operation'
@@ -5888,6 +5901,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryChartsCatalogCollectionsCollectionIdRouteImport
       parentRoute: typeof LibraryChartsCatalogRoute
     }
+    '/_library/markdown/$version/reports/sizes': {
+      id: '/_library/markdown/$version/reports/sizes'
+      path: '/markdown/$version/reports/sizes'
+      fullPath: '/markdown/$version/reports/sizes'
+      preLoaderRoute: typeof LibraryMarkdownVersionReportsSizesRouteImport
+      parentRoute: typeof LibraryRoute
+    }
     '/api/auth/cli/status/$ticketId': {
       id: '/api/auth/cli/status/$ticketId'
       path: '/api/auth/cli/status/$ticketId'
@@ -6443,6 +6463,7 @@ interface LibraryRouteChildren {
   LibraryTableVersionIndexRoute: typeof LibraryTableVersionIndexRoute
   LibraryVirtualVersionIndexRoute: typeof LibraryVirtualVersionIndexRoute
   LibraryWorkflowVersionIndexRoute: typeof LibraryWorkflowVersionIndexRoute
+  LibraryMarkdownVersionReportsSizesRoute: typeof LibraryMarkdownVersionReportsSizesRoute
 }
 
 const LibraryRouteChildren: LibraryRouteChildren = {
@@ -6469,6 +6490,8 @@ const LibraryRouteChildren: LibraryRouteChildren = {
   LibraryTableVersionIndexRoute: LibraryTableVersionIndexRoute,
   LibraryVirtualVersionIndexRoute: LibraryVirtualVersionIndexRoute,
   LibraryWorkflowVersionIndexRoute: LibraryWorkflowVersionIndexRoute,
+  LibraryMarkdownVersionReportsSizesRoute:
+    LibraryMarkdownVersionReportsSizesRoute,
 }
 
 const LibraryRouteWithChildren =

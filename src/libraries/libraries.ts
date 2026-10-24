@@ -686,9 +686,9 @@ export const redact: LibrarySlim = {
   ...categoryStyles.framework,
   name: 'TanStack Redact',
   to: '/redact/latest',
-  tagline: 'A smaller React-compatible runtime with synchronous rendering',
+  tagline: 'An alternative runtime for the React you love',
   description:
-    'Keep your React components, hooks, and imports, with a smaller synchronous runtime, a Vite plugin, and optional features you can leave out of your bundle.',
+    'Built out of love for React, Redact offers a smaller, synchronous runtime for React apps. Keep your components, hooks, and imports, and try it with one Vite plugin.',
   repo: 'tanstack/redact',
   frameworks: ['react'],
   frameworkPackageNames: { react: '@tanstack/redact' },

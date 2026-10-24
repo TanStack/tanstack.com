@@ -12,8 +12,8 @@ export default function RedactLanding() {
   return (
     <LibraryLandingShell
       libraryId="redact"
-      headline="React, redacted."
-      description="You shouldn't have to rewrite your app to ship less JavaScript. Keep writing React, add one Vite plugin, and let Redact handle the runtime."
+      headline="Built for the React you love."
+      description="We love React, and we want to keep writing it. Redact is an alternative runtime for React apps, with a smaller footprint and synchronous rendering. Keep your components, hooks, and imports, and try it with one Vite plugin."
       hero={
         <div className="min-w-0 space-y-5">
           <div className="grid grid-cols-2 gap-4">
@@ -66,8 +66,8 @@ export default defineConfig({
         <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
           <div className="space-y-5">
             <LandingSectionIntro
-              title="You already know how to use it."
-              body="Write your components, call your hooks, import from React. The plugin takes care of swapping the runtime, including server rendering, and Fast Refresh keeps working while you make changes."
+              title="Still writing React."
+              body="React's component model is the reason we built this. Redact keeps that familiar way of building apps, including server rendering, Fast Refresh, and React DevTools, while exploring how small the runtime underneath it can be."
             />
             <p className="text-ds-body-sm leading-relaxed text-text-secondary">
               We trade concurrent scheduling for a smaller, synchronous runtime.

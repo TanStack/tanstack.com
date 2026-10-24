@@ -182,24 +182,18 @@ function setDocsCacheHeaders(cdnCacheControl: string) {
   setResponseHeader('Cloudflare-CDN-Cache-Control', cdnCacheControl)
 }
 
-function isDocsManifest(value: unknown): value is DocsManifest {
-  if (typeof value !== 'object' || value === null) {
-    return false
-  }
-
-  const candidate = value as {
-    paths?: unknown
-    redirects?: unknown
-  }
-
+export function isDocsManifest(value: unknown): value is DocsManifest {
   return (
-    Array.isArray(candidate.paths) &&
-    candidate.paths.every((path) => typeof path === 'string') &&
-    typeof candidate.redirects === 'object' &&
-    candidate.redirects !== null &&
-    Object.entries(candidate.redirects).every(
-      ([key, target]) => typeof key === 'string' && typeof target === 'string',
-    )
+    typeof value === 'object' &&
+    value !== null &&
+    'paths' in value &&
+    Array.isArray(value.paths) &&
+    value.paths.every((path) => typeof path === 'string') &&
+    'redirects' in value &&
+    typeof value.redirects === 'object' &&
+    value.redirects !== null &&
+    !Array.isArray(value.redirects) &&
+    Object.values(value.redirects).every((target) => typeof target === 'string')
   )
 }
 
@@ -261,7 +255,7 @@ export async function collectRedirectEntriesForFile(
   return entries
 }
 
-async function buildDocsManifest({
+export async function buildDocsManifest({
   repo,
   branch,
   docsRoot,
@@ -303,7 +297,7 @@ async function buildDocsManifest({
   }
 }
 
-async function buildDocsPathManifest({
+export async function buildDocsPathManifest({
   repo,
   branch,
   docsRoot,

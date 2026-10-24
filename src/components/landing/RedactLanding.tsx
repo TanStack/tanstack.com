@@ -12,7 +12,7 @@ export default function RedactLanding() {
   return (
     <LibraryLandingShell
       libraryId="redact"
-      headline="Built for the React you love."
+      headline="For the love of React, and smaller bundles."
       description="We love React, and we want to keep writing it. Redact is an alternative runtime for React apps, with a smaller footprint and synchronous rendering. Keep your components, hooks, and imports, and try it with one Vite plugin."
       hero={
         <div className="min-w-0 space-y-5">
@@ -27,10 +27,10 @@ export default function RedactLanding() {
               className="rounded-xl border border-border-subtle bg-background-surface p-5 transition-opacity hover:opacity-80 sm:p-6"
             >
               <span className="block font-ds-display text-4xl font-bold sm:text-5xl">
-                66.3%
+                ≈3× <span className="text-xl">smaller</span>
               </span>
               <span className="mt-2 block text-sm text-text-secondary">
-                smaller than React in our default-runtime benchmark
+                33.7% of React's runtime bundle size in our default benchmark
               </span>
             </Link>
             <Link

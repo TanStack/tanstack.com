@@ -19,7 +19,7 @@ interface ApplicationStarterSearchParams {
   pm?: string // package manager: pnpm, npm, yarn, bun
   tailwind?: 'false' | true
   // Feature options serialized as: featureId.optionKey=value
-  [key: string]: string | undefined
+  [key: string]: string | boolean | undefined
 }
 
 export function useApplicationStarterUrl() {

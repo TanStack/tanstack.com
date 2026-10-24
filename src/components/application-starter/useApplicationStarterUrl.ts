@@ -17,7 +17,7 @@ interface ApplicationStarterSearchParams {
   template?: string // template preset ID
   features?: string // comma-separated feature IDs
   pm?: string // package manager: pnpm, npm, yarn, bun
-  tailwind?: string
+  tailwind?: 'false' | true
   // Feature options serialized as: featureId.optionKey=value
   [key: string]: string | undefined
 }

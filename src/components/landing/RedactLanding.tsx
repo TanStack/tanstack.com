@@ -129,7 +129,7 @@ redact({ preset: 'nano', features: { context: true } })`}</code>
             <p>
               Streaming SSR, hydration, Suspense, and Fast Refresh are
               supported. Server Components stay on upstream React in the RSC
-              environment. React DevTools inspection is not implemented.
+              environment.
             </p>
             <Link
               to="/$libraryId/$version/docs/$"
@@ -142,6 +142,18 @@ redact({ preset: 'nano', features: { context: true } })`}</code>
             >
               Read the compatibility guide
             </Link>
+            <p>
+              Keep your React DevTools, too. Inspect components and hooks, edit
+              props and state, and profile commits in development. DevTools adds
+              zero bytes to production bundles. The public Profiler callback
+              remains a no-op.
+            </p>
+            <a
+              href={`${repo}/blob/main/docs/devtools-implementation-status.md`}
+              className="inline-block font-medium text-text-primary underline underline-offset-4"
+            >
+              DevTools checks and timings ↗
+            </a>
             <p>
               Performance depends on the workload. Published measurements
               include faster state updates and slower hydration and Suspense

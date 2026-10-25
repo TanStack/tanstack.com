@@ -12,6 +12,12 @@ const largestBundle = Math.max(
   ]),
 )
 const kb = (bytes: number) => (bytes / 1000).toFixed(1)
+const frameworkLogos = new Map([
+  ['Start', '/favicon-light.svg'],
+  ['Vite', '/images/frameworks/vite.svg'],
+  ['Vinext', '/images/frameworks/vinext.ico'],
+  ['Next.js', '/images/frameworks/next.ico'],
+])
 const setups = [
   {
     name: 'Next.js',
@@ -89,8 +95,15 @@ export default function RedactLanding() {
           <div className="grid gap-x-8 gap-y-9 sm:grid-cols-2">
             {bundleSizes.comparisons.map((item) => (
               <figure key={item.framework}>
-                <figcaption className="mb-4">
-                  <h2 className="text-lg font-semibold">
+                <figcaption className="mb-3">
+                  <h2 className="flex items-center gap-2 text-lg font-semibold">
+                    <img
+                      src={frameworkLogos.get(item.framework)}
+                      alt=""
+                      width={18}
+                      height={18}
+                      className="size-4.5 shrink-0 object-contain"
+                    />
                     {item.framework === 'Start'
                       ? 'TanStack Start'
                       : item.framework}
@@ -105,43 +118,49 @@ export default function RedactLanding() {
                     % smaller
                   </p>
                 </figcaption>
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   {[
                     { name: 'React', bytes: item.reactBytes, redact: false },
                     { name: 'Redact', bytes: item.redactBytes, redact: true },
                   ].map((row) => (
                     <div key={row.name}>
-                      <div className="mb-1.5 flex justify-between gap-3 text-sm">
-                        <span>{row.name}</span>
-                        <span className="font-mono tabular-nums">
-                          {kb(row.bytes)} KB
-                        </span>
+                      <div aria-hidden="true" className="mb-1 text-xs">
+                        {row.name}
                       </div>
-                      <div
-                        aria-hidden="true"
-                        className={`h-5 rounded-sm ${row.redact ? 'bg-[var(--landing-accent)]' : 'bg-text-secondary/30'}`}
-                        style={{
-                          width: `${(row.bytes / largestBundle) * 100}%`,
-                        }}
-                      />
+                      <div className="pr-12">
+                        <div
+                          role="img"
+                          aria-label={`${row.name}: ${row.bytes.toLocaleString('en-US')} bytes gzipped`}
+                          title={`${row.bytes.toLocaleString('en-US')} bytes, rounded up to whole KB`}
+                          className={`relative h-4 rounded-sm ${row.redact ? 'bg-[var(--landing-accent)]' : 'bg-text-secondary/30'}`}
+                          style={{
+                            width: `${(row.bytes / largestBundle) * 100}%`,
+                          }}
+                        >
+                          <span
+                            aria-hidden="true"
+                            className="absolute top-0 left-full ml-1.5 whitespace-nowrap font-mono text-[10px] leading-4 text-text-secondary tabular-nums"
+                          >
+                            {Math.ceil(row.bytes / 1000)} KB
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
               </figure>
             ))}
           </div>
-          <div className="mt-7 space-y-3 border-t border-border-subtle pt-5 text-sm leading-relaxed text-text-secondary">
-            <p>
-              Same counter app, production client JS + CSS, gzipped. Includes
-              every emitted chunk. Shared scale, 1 KB = 1,000 bytes.
-            </p>
+          <p className="mt-5 text-[10px] leading-relaxed text-text-secondary">
+            Same counter app. All client JS + CSS, gzip.{' '}
             <a
               href="https://github.com/TanStack/tanstack.com/tree/831ca39caeeed05e322a014dba7f222c40acbd34/launch/benchmarks/redact-frameworks"
-              className="inline-block font-medium text-text-primary underline underline-offset-4"
+              title="Versions, source, and measurements"
+              className="underline underline-offset-2"
             >
-              Versions, source, and measurements ↗
+              Source ↗
             </a>
-          </div>
+          </p>
         </section>
       }
     >

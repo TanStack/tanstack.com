@@ -1,5 +1,5 @@
 {
-  "recordedAt": "2026-10-25T17:15:08.787Z",
+  "recordedAt": "2026-10-25T19:55:07.317Z",
   "node": "v24.22.0",
   "zlib": "1.3.2.1-motley-285e94b",
   "packageVersions": {
@@ -19,7 +19,19 @@
   "redactTarballSha256": "6f8592d92061ab3845b11a5635a2853ec5ba61b600f7ca213cfa42b510ec1099",
   "counterSha256": "642b7bf7693281301e2d3b42826b679b40f03cd723be41b0aaea9fa190727ca1",
   "cssSha256": "bed31695998ef8641c353a5f356dbadc243b4669edf6fc631fe7b647c1674643",
-  "method": "Same single-route counter and controlled input in all four frameworks. Production client builds with default optimization settings. Start bundles its server dependencies through Vite in both variants so React imports inside dependencies are transformed too. Sum of gzipSync bytes for every emitted client .js and .css file, compressed separately. Includes lazy chunks and framework polyfills. Excludes server output, HTML, inline scripts, maps, and images. Each chart compares the same framework and dependencies, changing only its Redact integration. KB means 1,000 bytes. These are starter apps, not a promise for every app or a browser speed measurement.",
+  "leanOptions": {
+    "Start": {
+      "features": {
+        "activity": false,
+        "fragmentRefs": false,
+        "portal": false
+      }
+    },
+    "Vite": {
+      "preset": "nano"
+    }
+  },
+  "method": "Same single-route counter and controlled input in all four frameworks. Production client builds with default optimization settings. Start bundles its server dependencies through Vite in every variant so React imports inside dependencies are transformed too. Sum of gzipSync bytes for every emitted client .js and .css file, compressed separately. Includes lazy chunks and framework polyfills. Excludes server output, HTML, inline scripts, maps, and images. Each React/default pair changes only its Redact integration. The extra Start and Vite builds disable unused features with the recorded leanOptions. KB means 1,000 bytes. These are starter apps, not a promise for every app or a browser speed measurement.",
   "results": [
     {
       "framework": "Start",
@@ -72,6 +84,31 @@
       ]
     },
     {
+      "framework": "Start",
+      "renderer": "redact-lean",
+      "gzipBytes": 59778,
+      "files": [
+        {
+          "path": "assets/index-8PKgnleu.js",
+          "bytes": 167389,
+          "gzipBytes": 59218,
+          "sha256": "ee09d42966041a2063e128b854b3485e87389f01db7c510bd62bc547e98eeb01"
+        },
+        {
+          "path": "assets/index-BrYQuRTz.css",
+          "bytes": 241,
+          "gzipBytes": 189,
+          "sha256": "62ea65329a5844dfb94c95ad3d0bb666da2e998f50a88229d86a72d5b72390d4"
+        },
+        {
+          "path": "assets/routes-ieaXzjDW.js",
+          "bytes": 557,
+          "gzipBytes": 371,
+          "sha256": "a055170457c5832e0862d760e476f31e23643c8a644f3fe3c5e64019923f4778"
+        }
+      ]
+    },
+    {
       "framework": "Vite",
       "renderer": "react",
       "gzipBytes": 68255,
@@ -110,18 +147,37 @@
       ]
     },
     {
+      "framework": "Vite",
+      "renderer": "redact-lean",
+      "gzipBytes": 12590,
+      "files": [
+        {
+          "path": "assets/index-BrYQuRTz.css",
+          "bytes": 241,
+          "gzipBytes": 189,
+          "sha256": "62ea65329a5844dfb94c95ad3d0bb666da2e998f50a88229d86a72d5b72390d4"
+        },
+        {
+          "path": "assets/index-CmDjlZH7.js",
+          "bytes": 30414,
+          "gzipBytes": 12401,
+          "sha256": "c06a9aab10584753ef3dd73ec969b9cda75ceda320ad4aa7610e0bbec32ae3cd"
+        }
+      ]
+    },
+    {
       "framework": "Vinext",
       "renderer": "react",
       "gzipBytes": 138094,
       "files": [
         {
-          "path": "_next/static/95aa7be8-9659-4ff0-9197-de663bea07f7/_buildManifest.js",
+          "path": "_next/static/bb64c4d8-f7ce-4124-a895-fda8315b989e/_buildManifest.js",
           "bytes": 176,
           "gzipBytes": 139,
           "sha256": "4cce301fe69e28d6463904ecf618427e95091bf3584ea347d8ca55d1077e1fb6"
         },
         {
-          "path": "_next/static/95aa7be8-9659-4ff0-9197-de663bea07f7/_ssgManifest.js",
+          "path": "_next/static/bb64c4d8-f7ce-4124-a895-fda8315b989e/_ssgManifest.js",
           "bytes": 76,
           "gzipBytes": 60,
           "sha256": "653f3e53e89b4f8548ff86c19e92bb3c6b84b6be7485a320b1e00893ed877479"
@@ -182,6 +238,18 @@
       "gzipBytes": 98779,
       "files": [
         {
+          "path": "_next/static/11ede8c5-db42-4363-bbd5-eee230bdcf64/_buildManifest.js",
+          "bytes": 176,
+          "gzipBytes": 139,
+          "sha256": "4cce301fe69e28d6463904ecf618427e95091bf3584ea347d8ca55d1077e1fb6"
+        },
+        {
+          "path": "_next/static/11ede8c5-db42-4363-bbd5-eee230bdcf64/_ssgManifest.js",
+          "bytes": 76,
+          "gzipBytes": 60,
+          "sha256": "653f3e53e89b4f8548ff86c19e92bb3c6b84b6be7485a320b1e00893ed877479"
+        },
+        {
           "path": "_next/static/chunks/BWaJ3C7D.js",
           "bytes": 911,
           "gzipBytes": 512,
@@ -222,18 +290,6 @@
           "bytes": 241,
           "gzipBytes": 189,
           "sha256": "62ea65329a5844dfb94c95ad3d0bb666da2e998f50a88229d86a72d5b72390d4"
-        },
-        {
-          "path": "_next/static/d4219925-835c-4b0a-8dbd-ce21fce7e7e1/_buildManifest.js",
-          "bytes": 176,
-          "gzipBytes": 139,
-          "sha256": "4cce301fe69e28d6463904ecf618427e95091bf3584ea347d8ca55d1077e1fb6"
-        },
-        {
-          "path": "_next/static/d4219925-835c-4b0a-8dbd-ce21fce7e7e1/_ssgManifest.js",
-          "bytes": 76,
-          "gzipBytes": 60,
-          "sha256": "653f3e53e89b4f8548ff86c19e92bb3c6b84b6be7485a320b1e00893ed877479"
         }
       ]
     },
@@ -291,19 +347,19 @@
           "sha256": "8bbb58cbfd4633c1d828c6bc37bc32abc768a149c01b1dfc4f5131fd81274551"
         },
         {
-          "path": "NdnK0xH5LMQwOKWJEoBdU/_buildManifest.js",
+          "path": "EZN1vWdZRBGVR-raIzoF5/_buildManifest.js",
           "bytes": 219,
           "gzipBytes": 154,
           "sha256": "9476e0afd3f9da68a64e6ec58631191fd3eaca62c9f5a377e7517fe9a89e59ea"
         },
         {
-          "path": "NdnK0xH5LMQwOKWJEoBdU/_clientMiddlewareManifest.js",
+          "path": "EZN1vWdZRBGVR-raIzoF5/_clientMiddlewareManifest.js",
           "bytes": 96,
           "gzipBytes": 66,
           "sha256": "5483e3295dc35dfe29ea932efc85341c916f10ff78ff5b0e965e003710893a4a"
         },
         {
-          "path": "NdnK0xH5LMQwOKWJEoBdU/_ssgManifest.js",
+          "path": "EZN1vWdZRBGVR-raIzoF5/_ssgManifest.js",
           "bytes": 80,
           "gzipBytes": 64,
           "sha256": "678f6ce2cb80b1fe72fc67e7412be6e2ab6ada083111b64f7c40d35e3cba5e00"
@@ -364,19 +420,19 @@
           "sha256": "8bbb58cbfd4633c1d828c6bc37bc32abc768a149c01b1dfc4f5131fd81274551"
         },
         {
-          "path": "I5aaZFtg_xGKQHYGMZiI5/_buildManifest.js",
+          "path": "ihKICl1cD6PpEayME0Kbi/_buildManifest.js",
           "bytes": 219,
           "gzipBytes": 154,
           "sha256": "9476e0afd3f9da68a64e6ec58631191fd3eaca62c9f5a377e7517fe9a89e59ea"
         },
         {
-          "path": "I5aaZFtg_xGKQHYGMZiI5/_clientMiddlewareManifest.js",
+          "path": "ihKICl1cD6PpEayME0Kbi/_clientMiddlewareManifest.js",
           "bytes": 96,
           "gzipBytes": 66,
           "sha256": "5483e3295dc35dfe29ea932efc85341c916f10ff78ff5b0e965e003710893a4a"
         },
         {
-          "path": "I5aaZFtg_xGKQHYGMZiI5/_ssgManifest.js",
+          "path": "ihKICl1cD6PpEayME0Kbi/_ssgManifest.js",
           "bytes": 80,
           "gzipBytes": 64,
           "sha256": "678f6ce2cb80b1fe72fc67e7412be6e2ab6ada083111b64f7c40d35e3cba5e00"

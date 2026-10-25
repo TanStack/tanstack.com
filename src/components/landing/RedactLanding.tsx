@@ -20,32 +20,6 @@ const frameworkLogos = new Map([
 ])
 const setups = [
   {
-    name: 'Next.js',
-    file: 'next.config.mjs',
-    guide: 'next',
-    detail:
-      'App Router and Pages Router, with Turbopack or Webpack. Keep React installed, it still runs your server.',
-    code: `import { withRedact } from '@tanstack/redact/next'
-
-export default withRedact({
-  // Your existing Next.js options
-})`,
-  },
-  {
-    name: 'Vinext',
-    file: 'vite.config.ts',
-    guide: 'vinext',
-    detail:
-      'Add Redact after Vinext. Keep your Next.js imports, routes, and server React.',
-    code: `import { defineConfig } from 'vite'
-import vinext from 'vinext'
-import { redact } from '@tanstack/redact/vinext'
-
-export default defineConfig({
-  plugins: [vinext(), redact()],
-})`,
-  },
-  {
     name: 'Start',
     file: 'vite.config.ts',
     guide: 'vite-plugin',
@@ -73,6 +47,32 @@ import { redact } from '@tanstack/redact/vite'
 
 export default defineConfig({
   plugins: [react(), redact()],
+})`,
+  },
+  {
+    name: 'Vinext',
+    file: 'vite.config.ts',
+    guide: 'vinext',
+    detail:
+      'Add Redact after Vinext. Keep your Next.js imports, routes, and server React.',
+    code: `import { defineConfig } from 'vite'
+import vinext from 'vinext'
+import { redact } from '@tanstack/redact/vinext'
+
+export default defineConfig({
+  plugins: [vinext(), redact()],
+})`,
+  },
+  {
+    name: 'Next.js',
+    file: 'next.config.mjs',
+    guide: 'next',
+    detail:
+      'App Router and Pages Router, with Turbopack or Webpack. Keep React installed, it still runs your server.',
+    code: `import { withRedact } from '@tanstack/redact/next'
+
+export default withRedact({
+  // Your existing Next.js options
 })`,
   },
 ]
@@ -120,27 +120,48 @@ export default function RedactLanding() {
                 </figcaption>
                 <div className="space-y-2.5">
                   {[
-                    { name: 'React', bytes: item.reactBytes, redact: false },
-                    { name: 'Redact', bytes: item.redactBytes, redact: true },
+                    {
+                      name: 'React',
+                      bytes: item.reactBytes,
+                      leanBytes: null,
+                      redact: false,
+                    },
+                    {
+                      name: 'Redact',
+                      bytes: item.redactBytes,
+                      leanBytes: item.redactLeanBytes,
+                      redact: true,
+                    },
                   ].map((row) => (
                     <div key={row.name}>
                       <div aria-hidden="true" className="mb-1 text-xs">
                         {row.name}
                       </div>
-                      <div className="pr-12">
+                      <div className="pr-16">
                         <div
                           role="img"
-                          aria-label={`${row.name}: ${row.bytes.toLocaleString('en-US')} bytes gzipped`}
-                          title={`${row.bytes.toLocaleString('en-US')} bytes, rounded up to whole KB`}
-                          className={`relative h-4 rounded-sm ${row.redact ? 'bg-[var(--landing-accent)]' : 'bg-text-secondary/30'}`}
+                          aria-label={`${row.name}: ${row.leanBytes ? `${row.leanBytes.toLocaleString('en-US')} bytes with unused features disabled, ` : ''}${row.bytes.toLocaleString('en-US')} bytes by default, gzipped`}
+                          title={`${row.leanBytes ? `${row.leanBytes.toLocaleString('en-US')} bytes with unused features disabled; ` : ''}${row.bytes.toLocaleString('en-US')} bytes by default. Labels round up to whole KB.`}
+                          className={`relative h-4 rounded-sm ${row.redact ? (row.leanBytes ? 'bg-[color-mix(in_srgb,var(--landing-accent),white_55%)]' : 'bg-[var(--landing-accent)]') : 'bg-text-secondary/30'}`}
                           style={{
                             width: `${(row.bytes / largestBundle) * 100}%`,
                           }}
                         >
+                          {row.leanBytes && (
+                            <div
+                              aria-hidden="true"
+                              className="absolute inset-y-0 left-0 rounded-l-sm bg-[var(--landing-accent)]"
+                              style={{
+                                width: `${(row.leanBytes / row.bytes) * 100}%`,
+                              }}
+                            />
+                          )}
                           <span
                             aria-hidden="true"
                             className="absolute top-0 left-full ml-1.5 whitespace-nowrap font-mono text-[10px] leading-4 text-text-secondary tabular-nums"
                           >
+                            {row.leanBytes &&
+                              `${Math.ceil(row.leanBytes / 1000)}–`}
                             {Math.ceil(row.bytes / 1000)} KB
                           </span>
                         </div>
@@ -152,11 +173,11 @@ export default function RedactLanding() {
             ))}
           </div>
           <p className="mt-5 text-[10px] leading-relaxed text-text-secondary">
-            Same counter app. All client JS + CSS, gzip.{' '}
+            Client JS + CSS, gzip. Pale green: optional features.{' '}
             <a
-              href="https://github.com/TanStack/tanstack.com/tree/831ca39caeeed05e322a014dba7f222c40acbd34/launch/benchmarks/redact-frameworks"
+              href="https://github.com/TanStack/tanstack.com/tree/345faa6a31e3d09ae57700fbc85e61fb09617769/launch/benchmarks/redact-frameworks"
               title="Versions, source, and measurements"
-              className="underline underline-offset-2"
+              className="whitespace-nowrap underline underline-offset-2"
             >
               Source ↗
             </a>
@@ -202,9 +223,9 @@ export default function RedactLanding() {
             >
               {setup.name} setup and coverage ↗
             </Link>
-            {(setup.name === 'Next.js' || setup.name === 'Vinext') && (
+            {(setup.name === 'Vinext' || setup.name === 'Next.js') && (
               <p className="max-w-lg text-sm leading-relaxed text-text-secondary">
-                The Next.js and Vinext release isn't published yet.{' '}
+                The Vinext and Next.js release isn't published yet.{' '}
                 <a
                   href={`${repo}/pull/52`}
                   className="underline underline-offset-4"
@@ -229,7 +250,7 @@ export default function RedactLanding() {
               Server Components stay with React.
             </h2>
             <p className="text-ds-body-sm leading-relaxed text-text-secondary">
-              In Next.js and Vinext, the framework keeps server rendering,
+              In Vinext and Next.js, the framework keeps server rendering,
               Server Components, caching, and action transport. Redact picks up
               in the browser, hydrates the HTML, and runs your client
               components.
@@ -327,12 +348,12 @@ export default function RedactLanding() {
         <div className="grid items-start gap-10 lg:grid-cols-2 lg:gap-16">
           <div className="space-y-5">
             <h2 className="font-ds-display text-3xl font-bold tracking-tight sm:text-4xl">
-              Vite apps can go smaller still.
+              Start and Vite can go smaller still.
             </h2>
             <p className="text-ds-body-sm leading-relaxed text-text-secondary">
-              Leave out features your app doesn't use, or start with nano and
-              add them back. Next.js and Vinext use the full runtime so their
-              framework features stay available.
+              Leave out features your app and framework don't use, or start with
+              nano and add them back. Vinext and Next.js use the full runtime so
+              their framework features stay available.
             </p>
             <Link
               to="/$libraryId/$version/docs/$"
@@ -343,17 +364,21 @@ export default function RedactLanding() {
               }}
               className="inline-block font-medium underline underline-offset-4"
             >
-              Choose your Vite features ↗
+              Choose your features ↗
             </Link>
           </div>
           <CodeBlock dataCodeTitle="vite.config.ts">
-            <code className="language-ts">{`// A client-rendered app without class components
+            <code className="language-ts">{`// Start: keep hydration and router features
 redact({
-  features: { hydration: false, classComponents: false },
+  features: {
+    activity: false,
+    fragmentRefs: false,
+    portal: false,
+  },
 })
 
-// All optional features off, then context enabled
-redact({ preset: 'nano', features: { context: true } })`}</code>
+// Vite: a client-only app without optional features
+redact({ preset: 'nano' })`}</code>
           </CodeBlock>
         </div>
       </LandingSection>

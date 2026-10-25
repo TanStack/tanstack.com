@@ -15,6 +15,13 @@
       "checks": ["server-rendered greeting", "counter", "controlled input"]
     },
     {
+      "framework": "Start",
+      "renderer": "redact-lean",
+      "status": 200,
+      "passed": true,
+      "checks": ["server-rendered greeting", "counter", "controlled input"]
+    },
+    {
       "framework": "Vinext",
       "renderer": "react",
       "status": 200,

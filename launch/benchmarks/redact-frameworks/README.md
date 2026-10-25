@@ -2,12 +2,12 @@
 
 Measured October 25, 2026 with the same counter component, controlled input, and CSS in four single-route apps. Each pair changes only the renderer integration. The landing page uses these measurements, with one shared scale for all eight bars.
 
-| Framework      |    React |   Redact |          Saved |
-| -------------- | -------: | -------: | -------------: |
-| TanStack Start | 109.3 KB |  62.3 KB | 47.0 KB, 43.0% |
-| Vite           |  68.3 KB |  20.1 KB | 48.1 KB, 70.5% |
-| Vinext         | 138.1 KB |  98.8 KB | 39.3 KB, 28.5% |
-| Next.js        | 175.6 KB | 139.9 KB | 35.7 KB, 20.4% |
+| Framework      |    React | Redact default | Unused features disabled | Saved by default |
+| -------------- | -------: | -------------: | -----------------------: | ---------------: |
+| TanStack Start | 109.3 KB |        62.3 KB |                  59.8 KB |   47.0 KB, 43.0% |
+| Vite           |  68.3 KB |        20.1 KB |                  12.6 KB |   48.1 KB, 70.5% |
+| Vinext         | 138.1 KB |        98.8 KB |            Not available |   39.3 KB, 28.5% |
+| Next.js        | 175.6 KB |       139.9 KB |            Not available |   35.7 KB, 20.4% |
 
 These are starter app measurements. A larger app has its own routes, dependencies, and chunk layout, so its percentage will differ. The separate [Vinext benchmark](https://github.com/TanStack/redact/blob/main/benchmarks/VINEXT_BENCHMARKS.md) measures a larger workload over six rounds and saves 39.4 KB, or 25.4%.
 
@@ -15,9 +15,29 @@ These are starter app measurements. A larger app has its own routes, dependencie
 
 Each file is compressed separately with Node's default `gzipSync`, then the sizes are added. We count all emitted client JavaScript and CSS, including lazy chunks and framework polyfills. KB means 1,000 bytes. These totals are not the download for a single navigation. HTML, inline scripts and Flight payloads, images, source maps, and server output are excluded.
 
-Start and Vite use Redact's default Vite integration. Start sets `ssr.noExternal: true` in both builds. This lets Vite transform React imports inside server dependencies as well as application code. Without it, Node can load an external dependency with native React alongside application code using Redact. Next.js uses `withRedact` with Turbopack. Vinext uses the maintained integration in both modes, with `renderer: 'react'` or `renderer: 'redact'`, so both builds receive the same platform corrections. Next.js and Vinext keep native React on the server. No presets, feature flags, minifier settings, or application code are changed between the two builds of a framework.
+Start and Vite use Redact's Vite integration. Start sets `ssr.noExternal: true` in all three builds. This lets Vite transform React imports inside server dependencies as well as application code. Without it, Node can load an external dependency with native React alongside application code using Redact. Vinext uses the maintained integration in both modes, with `renderer: 'react'` or `renderer: 'redact'`, so both builds receive the same platform corrections. Next.js uses `withRedact` with Turbopack. Vinext and Next.js keep native React on the server and use the full Redact runtime, without feature presets. The React and default Redact pairs use default settings. Application code, dependencies, and minifier settings stay the same in every variant.
 
-This is one clean production build per variant, measuring bytes rather than speed. All eight builds were opened in the browser and checked for client startup, a counter update, a controlled input update, and the expected renderer. Start, Vinext, and Next.js were also checked for server-rendered content before JavaScript ran. See [browser checks](./browser-checks.json) and [server checks](./server-checks.json).
+This is one clean production build per variant, measuring bytes rather than speed. All ten builds were opened in the browser and checked for client startup, a counter update, a controlled input update, and the expected renderer. All seven Start, Vinext, and Next.js variants were also checked for server-rendered content before JavaScript ran. See [browser checks](./browser-checks.json) and [server checks](./server-checks.json).
+
+## Optional features
+
+The lighter green segment shows the bytes removed by disabling features this demo does not use. The lower endpoints are specific to this app. The headline savings compare the default Redact build with React.
+
+Start disables Activity, Fragment refs, and portals. Hydration, context, Suspense, memoization, forwarded refs, lazy components, and class components, including error boundaries, stay enabled:
+
+```ts
+redact({
+  features: { activity: false, fragmentRefs: false, portal: false },
+})
+```
+
+The client-rendered Vite counter needs none of the optional features, so its smaller build uses:
+
+```ts
+redact({ preset: 'nano' })
+```
+
+Keep the features your application and dependencies use. Both configurations are recorded in `results.json` and reproduced by `measure.mjs`. Bar labels round up to whole KB; bar lengths use exact bytes.
 
 ## Versions and source
 
@@ -40,4 +60,4 @@ node /path/to/measure.mjs "$PWD"
 node /path/to/serve.mjs "$PWD"
 ```
 
-`measure.mjs` generates every fixture from source, builds React then Redact for each framework, records `results.json`, and preserves all eight builds. `serve.mjs` opens local production previews on ports 4380 through 4387, in the order Start, Vite, Vinext, and Next.js, React first in each pair. The small Node HTTP bridge for Start and Vite is only a preview harness and is not part of the measured output.
+`measure.mjs` generates every fixture from source, builds React and default Redact for each framework, adds the smaller Start and Vite builds, records `results.json`, and preserves all ten builds. `serve.mjs` opens local production previews on ports 4380 through 4389, in the order Start, Vite, Vinext, and Next.js. Each framework serves React, default Redact, then its smaller build when available. The small Node HTTP bridge for Start and Vite is only a preview harness and is not part of the measured output.

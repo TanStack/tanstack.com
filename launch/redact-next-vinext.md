@@ -1,8 +1,8 @@
-# Redact Next.js and Vinext launch
+# Redact Vinext and Next.js launch
 
 Prepared October 25, 2026. The announcement, release summary, and posts below are ready for publication after the package is released and its published integrations are verified. No announcement has been sent or scheduled.
 
-The audience is developers who already use React with Next.js, Vinext, or Vite and want smaller client bundles without rewriting their components. Lead with framework support, then show the measured size difference and explain the scheduling tradeoff.
+The audience is developers who already use React with TanStack Start, Vite, Vinext, or Next.js and want smaller client bundles without rewriting their components. Lead with framework support, then show the measured size difference and explain the scheduling tradeoff.
 
 ## Release checks
 
@@ -11,8 +11,8 @@ The release candidate now carries maintained framework corrections in Redact. It
 | Check                                                        | Current evidence                                                                                           | Required next step                                               |
 | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
 | [Redact release](https://github.com/TanStack/redact/pull/52) | 1,859 runtime tests, types, packaging, and all 38 size gates pass                                          | Require the final PR and publication checks to pass              |
-| Next.js compatibility                                        | All 162 configurations and 2,694 scenarios pass across six versions                                        | Retain the required complete matrix gate                         |
 | Vinext and Cloudflare                                        | All 102 local configurations and 1,410 scenarios pass, plus all 18 hosted configurations and 282 scenarios | Retain the final package and lockfile evidence                   |
+| Next.js compatibility                                        | All 162 configurations and 2,694 scenarios pass across six versions                                        | Retain the required complete matrix gate                         |
 | Dependency security                                          | Undici 7.30.1 and fflate 0.7.5 pass their regressions, final consumer audit has zero vulnerabilities       | Retain both documented overrides and the final lockfile          |
 | Landing page and announcement                                | Final benchmark and compatibility evidence incorporated                                                    | Publish after the package is available and verify the live pages |
 
@@ -34,24 +34,24 @@ The final preview was reviewed at 390 px and 1280 px with the frozen candidate. 
 
 ## Announcement
 
-The website draft is [Redact for Next.js and Vinext](../src/blog/redact-nextjs-vinext.md). Its intended URL is `https://tanstack.com/blog/redact-nextjs-vinext`. The draft remains unlisted, but this site's draft URLs can be opened directly, so its visible release notice stays in place until launch.
+The website draft is [Redact for Vinext and Next.js](../src/blog/redact-nextjs-vinext.md). Its intended URL is `https://tanstack.com/blog/redact-nextjs-vinext`. The draft remains unlisted, but this site's draft URLs can be opened directly, so its visible release notice stays in place until launch.
 
 The existing landing page is the main launch destination: `https://tanstack.com/redact/latest`. Framework setup stays in the existing docs. GitHub release notes link to those same guides and evidence.
 
 ## Release summary
 
-Redact adds stable browser integrations for Next.js and Vinext, covering App Router and Pages Router. Keep your React imports and dependencies. Native React continues to handle server rendering and Server Components, while Redact hydrates and renders in the browser.
+Redact adds stable browser integrations for Vinext and Next.js, covering App Router and Pages Router. Keep your React imports and dependencies. Native React continues to handle server rendering and Server Components, while Redact hydrates and renders in the browser.
 
 In the measured Vinext app, Redact reduced all emitted client JavaScript and CSS from 154.9 KB to 115.5 KB gzip, including lazy routes. Production build times were effectively equal. Browser rendering and hydration speed were not measured. Redact renders synchronously, without React's time slicing or interruptible component renders.
 
-[Next.js setup](https://tanstack.com/redact/latest/docs/next) · [Vinext setup](https://tanstack.com/redact/latest/docs/vinext) · [Compatibility](https://tanstack.com/redact/latest/docs/compatibility) · [Benchmark](https://github.com/TanStack/redact/blob/main/benchmarks/VINEXT_BENCHMARKS.md)
+[Start and Vite setup](https://tanstack.com/redact/latest/docs/vite-plugin) · [Vinext setup](https://tanstack.com/redact/latest/docs/vinext) · [Next.js setup](https://tanstack.com/redact/latest/docs/next) · [Compatibility](https://tanstack.com/redact/latest/docs/compatibility) · [Benchmark](https://github.com/TanStack/redact/blob/main/benchmarks/VINEXT_BENCHMARKS.md)
 
 ## X thread
 
 Post 1:
 
 ```text
-Redact now supports Next.js and Vinext, including App Router and Pages Router.
+Redact now supports Vinext and Next.js, including App Router and Pages Router.
 
 Keep your components and React imports, use a smaller browser runtime. React stays on the server.
 
@@ -92,7 +92,7 @@ After release, an optional shared walkthrough with a Vinext contributor could us
 
 ## Measure adoption
 
-Use the site's existing page views and campaign parameters. Compare the seven days after launch with the preceding seven days for Redact landing visits and visits to the Next.js and Vinext guides. Track confirmed compatibility reports and their resolution separately. npm downloads provide background context, they do not identify which framework someone used or prove a successful migration.
+Use the site's existing page views and campaign parameters. Compare the seven days after launch with the preceding seven days for Redact landing visits and visits to the Vinext and Next.js guides. Track confirmed compatibility reports and their resolution separately. npm downloads provide background context, they do not identify which framework someone used or prove a successful migration.
 
 ## Claim checks
 
@@ -102,7 +102,7 @@ Use the site's existing page views and campaign parameters. Compare the seven da
 | 39.2 KB / 27.2% less entry output | Same report, browser entry plus eager JavaScript imports, not every possible route request                                                                                                                                                                                      |
 | Starter app bundle charts         | [Four-framework measurements](./benchmarks/redact-frameworks/README.md), same counter and input: Start saves 47.0 KB / 43.0%, Vite 48.1 KB / 70.5%, Vinext 39.3 KB / 28.5%, and Next.js 35.7 KB / 20.4%. All emitted client JS and CSS, gzip, one production build per variant. |
 | Performance                       | Build times were effectively equal. Local startup was 2.2% faster for App Router and 4.9% faster for the large Pages fixture. Browser and server rendering speed were not measured                                                                                              |
-| Framework coverage                | [Next.js report](https://github.com/TanStack/redact/blob/main/benchmarks/NEXT_COVERAGE.md) and [Vinext report](https://github.com/TanStack/redact/blob/main/benchmarks/VINEXT_COVERAGE.md), all required cases must pass before the stable announcement                         |
+| Framework coverage                | [Vinext report](https://github.com/TanStack/redact/blob/main/benchmarks/VINEXT_COVERAGE.md) and [Next.js report](https://github.com/TanStack/redact/blob/main/benchmarks/NEXT_COVERAGE.md), all required cases must pass before the stable announcement                         |
 | Rendering tradeoff                | [Compatibility guide](https://tanstack.com/redact/latest/docs/compatibility), synchronous rendering with no time slicing or interruptible component renders                                                                                                                     |
 
 Reply to requests for a universal Next.js percentage with the app-specific distinction above. Reply to scheduling questions with the actual rendering tradeoff. Avoid claims of universal React parity or faster hydration.

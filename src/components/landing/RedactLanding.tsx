@@ -136,7 +136,7 @@ export default function RedactLanding() {
               every emitted chunk. Shared scale, 1 KB = 1,000 bytes.
             </p>
             <a
-              href="https://github.com/TanStack/tanstack.com/tree/main/launch/benchmarks/redact-frameworks"
+              href="https://github.com/TanStack/tanstack.com/tree/831ca39caeeed05e322a014dba7f222c40acbd34/launch/benchmarks/redact-frameworks"
               className="inline-block font-medium text-text-primary underline underline-offset-4"
             >
               Versions, source, and measurements ↗

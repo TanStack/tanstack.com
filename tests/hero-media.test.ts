@@ -26,7 +26,7 @@ const chromePath = [
   chromium.executablePath(),
 ].find((candidate) => candidate && fs.existsSync(candidate))
 
-test('server render keeps the still image without requesting motion media', () => {
+test('server render exposes a motion source selected by reduced-motion preference', () => {
   const markup = renderToString(createElement(HeroPalmMedia))
   const videoMarkup = markup.match(/<video\b[^>]*>/)?.[0]
 
@@ -35,10 +35,13 @@ test('server render keeps the still image without requesting motion media', () =
   assert.match(markup, /srcSet="\/images\/hero-palm-gradient-/)
   assert.match(markup, /loading="eager"/)
   assert.match(markup, /fetchPriority="high"/)
+  assert.match(markup, /media="\(prefers-reduced-motion: no-preference\)"/)
+  assert.match(markup, /<source src="\/images\/hero-palm-motion\.mp4"/)
+  assert.match(markup, /height="1058"/)
 })
 
 test(
-  'hero media gates motion downloads, honors preference changes, and retains the still image',
+  'hero video starts before hydration, honors preference changes, and retains the still image',
   { skip: chromePath ? false : 'Chrome is not installed', timeout: 60_000 },
   async () => {
     const bundle = await build({
@@ -81,6 +84,7 @@ test(
       hydrateImmediately = true,
     ) => {
       const page = await browser.newPage()
+      let shouldFailVideo = videoResponse === 'fail'
       let videoRequests = 0
       let jpegRequests = 0
       const pageErrors: string[] = []
@@ -108,7 +112,7 @@ test(
         if (pathname.endsWith('.jpg')) jpegRequests += 1
       })
       await page.route('**/images/hero-palm-motion.mp4', async (route) => {
-        if (videoResponse === 'fail') {
+        if (shouldFailVideo) {
           await route.abort()
           return
         }
@@ -122,7 +126,14 @@ test(
         })
       })
       await page.setContent(
-        `<!doctype html><html><head><base href="http://hero-media.test/"></head><body><div id="root">${serverMarkup}</div></body></html>`,
+        `<!doctype html><html><head><base href="http://hero-media.test/"><style>
+          #root{position:relative;isolation:isolate;width:100%;height:560px}
+          #root>div[aria-hidden]{position:absolute;inset:0;overflow:hidden;z-index:-1}
+          picture{display:contents}img{position:relative;z-index:1;width:100%;height:100%;object-fit:cover}
+          video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+          .opacity-0{opacity:0}@media(prefers-reduced-motion:reduce){video{display:none}img{opacity:1}}
+        </style></head><body><div id="root">${serverMarkup}</div></body></html>`,
+        { waitUntil: 'domcontentloaded' },
       )
       const hydrate = () =>
         page.addScriptTag({ content: bundle.outputFiles[0].text })
@@ -147,6 +158,10 @@ test(
         hydrate,
         videoRequest,
         releaseVideoResponse,
+        allowVideoRetry: () => {
+          shouldFailVideo = false
+          releaseVideoResponse()
+        },
       }
     }
 
@@ -166,13 +181,15 @@ test(
           poster: await reducedVideo.getAttribute('poster'),
           source: await reducedVideo.getAttribute('src'),
           sourceElements: await reducedVideo.locator('source').count(),
+          media: await reducedVideo.locator('source').getAttribute('media'),
           requests: reduced.videoRequests,
           jpegRequests: reduced.jpegRequests,
         },
         {
           poster: null,
           source: null,
-          sourceElements: 0,
+          sourceElements: 1,
+          media: '(prefers-reduced-motion: no-preference)',
           requests: 0,
           jpegRequests: 0,
         },
@@ -188,10 +205,10 @@ test(
       await reduced.videoRequest
       assert.equal(reduced.videoRequests, 1)
       assert.equal(
-        await reducedVideo.evaluate(
-          (video) => getComputedStyle(video).visibility,
-        ),
-        'hidden',
+        await reduced.page
+          .locator('img')
+          .evaluate((image) => getComputedStyle(image).opacity),
+        '1',
       )
       assert.equal(
         await reduced.page.locator('img').evaluate((image) => {
@@ -203,13 +220,15 @@ test(
         true,
       )
       reduced.releaseVideoResponse()
-      await reducedVideo.waitFor({ state: 'visible' })
+      await reduced.page.waitForFunction(() =>
+        document.querySelector('img')?.classList.contains('opacity-0'),
+      )
       await reduced.page.waitForFunction(
         () => document.querySelector('video')?.paused === false,
       )
       await reduced.page.close()
 
-      const normal = await makePage('no-preference')
+      const normal = await makePage('no-preference', 'hold', false)
       const normalVideo = normal.page.locator('video')
       assert.equal(
         await normal.page.evaluate(
@@ -218,32 +237,52 @@ test(
         false,
       )
       assert.equal(
-        await normalVideo.getAttribute('src'),
+        await normalVideo.locator('source').getAttribute('src'),
         '/images/hero-palm-motion.mp4',
       )
       await normal.videoRequest
+      assert.equal(
+        await normal.page.evaluate(
+          () => document.documentElement.dataset.heroMediaHydrated,
+        ),
+        undefined,
+      )
       assert.equal(normal.videoRequests, 1)
       assert.equal(normal.jpegRequests, 0)
       assert.equal(
-        await normalVideo.evaluate(
-          (video) => getComputedStyle(video).visibility,
-        ),
-        'hidden',
+        await normal.page
+          .locator('img')
+          .evaluate((image) => getComputedStyle(image).opacity),
+        '1',
       )
       normal.releaseVideoResponse()
       await normal.page.waitForFunction(() => {
         const video = document.querySelector('video')
         return video !== null && video.readyState >= 3
       })
+      const aspectRatios = await normal.page.evaluate(() => {
+        const image = document.querySelector('img')
+        const video = document.querySelector('video')
+        if (!image || !video) throw new Error('Expected hero image and video')
+        return {
+          image: image.naturalWidth / image.naturalHeight,
+          video: video.videoWidth / video.videoHeight,
+        }
+      })
+      assert.ok(Math.abs(aspectRatios.image - aspectRatios.video) < 0.005)
+      await normal.hydrate()
       await normal.page.waitForFunction(
         () => document.querySelector('video')?.paused === false,
       )
+      await normal.page
+        .getByRole('button', { name: 'Pause hero animation' })
+        .waitFor()
       assert.equal(await normalVideo.getAttribute('poster'), null)
       assert.equal(
-        await normalVideo.evaluate(
-          (video) => getComputedStyle(video).visibility,
-        ),
-        'visible',
+        await normal.page
+          .locator('img')
+          .evaluate((image) => getComputedStyle(image).opacity),
+        '0',
       )
 
       await normal.page.emulateMedia({ reducedMotion: 'reduce' })
@@ -291,7 +330,7 @@ test(
         .getByRole('button', { name: 'Play hero animation' })
         .press('Enter')
       await normal.page.waitForFunction(
-        () => document.querySelector('video')?.style.visibility === 'hidden',
+        () => !document.querySelector('img')?.classList.contains('opacity-0'),
       )
       assert.deepEqual(normal.pageErrors, [])
       assert.ok(
@@ -304,14 +343,19 @@ test(
         .press('Enter')
       await normal.page.waitForFunction(() => {
         const video = document.querySelector('video')
-        return video?.paused === false && video.style.visibility === 'visible'
+        return (
+          video?.paused === false &&
+          document.querySelector('img')?.classList.contains('opacity-0')
+        )
       })
       await normal.page.close()
 
       const failed = await makePage('no-preference', 'fail')
       await failed.videoRequest
       await failed.page.waitForFunction(
-        () => document.querySelector('video')?.error !== null,
+        () =>
+          document.querySelector('video')?.networkState ===
+          HTMLMediaElement.NETWORK_NO_SOURCE,
       )
       await failed.page.evaluate(
         () =>
@@ -321,9 +365,9 @@ test(
       )
       assert.equal(
         await failed.page
-          .locator('video')
-          .evaluate((video) => getComputedStyle(video).visibility),
-        'hidden',
+          .locator('img')
+          .evaluate((image) => getComputedStyle(image).opacity),
+        '1',
       )
       assert.equal(
         await failed.page.locator('img').evaluate((image) => {
@@ -336,11 +380,18 @@ test(
       )
       assert.equal(failed.videoRequests, 1)
       assert.deepEqual(failed.pageErrors, [])
-      assert.ok(
-        failed.consoleErrors.some((message) =>
-          message.includes('Unable to play the homepage hero animation'),
-        ),
-      )
+      failed.allowVideoRetry()
+      await failed.page
+        .getByRole('button', { name: 'Play hero animation' })
+        .click()
+      await failed.page.waitForFunction(() => {
+        const video = document.querySelector('video')
+        return (
+          video?.paused === false &&
+          document.querySelector('img')?.classList.contains('opacity-0')
+        )
+      })
+      assert.equal(failed.videoRequests, 2)
       await failed.page.close()
     } finally {
       await browser.close()

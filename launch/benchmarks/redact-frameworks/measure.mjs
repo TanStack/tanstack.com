@@ -9,6 +9,12 @@ import { gzipSync } from 'node:zlib'
 // Run inside an isolated directory with the pinned dependencies installed.
 const root = resolve(process.argv[2])
 const hash = (bytes) => createHash('sha256').update(bytes).digest('hex')
+const leanOptions = {
+  Start: {
+    features: { activity: false, fragmentRefs: false, portal: false },
+  },
+  Vite: { preset: 'nano' },
+}
 const counter = `'use client'
 import { useEffect, useState } from 'react'
 
@@ -50,8 +56,9 @@ const report = {
   redactTarballSha256: hash(await readFile(join(root, 'redact.tgz'))),
   counterSha256: hash(counter),
   cssSha256: hash(css),
+  leanOptions,
   method:
-    'Same single-route counter and controlled input in all four frameworks. Production client builds with default optimization settings. Start bundles its server dependencies through Vite in both variants so React imports inside dependencies are transformed too. Sum of gzipSync bytes for every emitted client .js and .css file, compressed separately. Includes lazy chunks and framework polyfills. Excludes server output, HTML, inline scripts, maps, and images. Each chart compares the same framework and dependencies, changing only its Redact integration. KB means 1,000 bytes. These are starter apps, not a promise for every app or a browser speed measurement.',
+    'Same single-route counter and controlled input in all four frameworks. Production client builds with default optimization settings. Start bundles its server dependencies through Vite in every variant so React imports inside dependencies are transformed too. Sum of gzipSync bytes for every emitted client .js and .css file, compressed separately. Includes lazy chunks and framework polyfills. Excludes server output, HTML, inline scripts, maps, and images. Each React/default pair changes only its Redact integration. The extra Start and Vite builds disable unused features with the recorded leanOptions. KB means 1,000 bytes. These are starter apps, not a promise for every app or a browser speed measurement.',
   results: [],
 }
 
@@ -129,7 +136,7 @@ import react from '@vitejs/plugin-react'
 import { redact } from '@tanstack/redact/vite'
 export default defineConfig({
   ssr: { noExternal: true },
-  plugins: [tanstackStart(), react(), ...(process.env.RENDERER === 'redact' ? [redact()] : [])],
+  plugins: [tanstackStart(), react(), ...(process.env.RENDERER !== 'react' ? [redact(process.env.RENDERER === 'redact-lean' ? ${JSON.stringify(leanOptions.Start)} : {})] : [])],
 })
 `,
     )
@@ -167,7 +174,7 @@ export const Route = createFileRoute('/')({ component: Counter })
       `import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { redact } from '@tanstack/redact/vite'
-export default defineConfig({ plugins: [react(), ...(process.env.RENDERER === 'redact' ? [redact()] : [])] })
+export default defineConfig({ plugins: [react(), ...(process.env.RENDERER !== 'react' ? [redact(process.env.RENDERER === 'redact-lean' ? ${JSON.stringify(leanOptions.Vite)} : {})] : [])] })
 `,
     )
     await write(
@@ -222,7 +229,11 @@ export default process.env.RENDERER === 'redact' ? withRedact(config) : config
     }
   }
 
-  for (const renderer of ['react', 'redact']) {
+  for (const renderer of [
+    'react',
+    'redact',
+    ...(framework in leanOptions ? ['redact-lean'] : []),
+  ]) {
     console.log(`Building ${framework} + ${renderer}`)
     await run(
       app,
@@ -252,12 +263,20 @@ export default process.env.RENDERER === 'redact' ? withRedact(config) : config
     console.log(
       `${framework} + ${renderer}: ${result.gzipBytes} gzip bytes across ${emitted.length} files`,
     )
-    // Preserve both complete builds for browser verification after measurement.
+    // Preserve every complete build for browser verification after measurement.
     if (framework !== 'Next.js') {
       const { rename } = await import('node:fs/promises')
       await rename(join(app, 'dist'), join(app, `dist-${renderer}`))
     }
   }
+}
+for (const framework of Object.keys(leanOptions)) {
+  const variants = report.results.filter((item) => item.framework === framework)
+  assert(
+    variants.find((item) => item.renderer === 'redact-lean').gzipBytes <
+      variants.find((item) => item.renderer === 'redact').gzipBytes,
+    `${framework}: feature selection did not reduce output`,
+  )
 }
 await writeFile(
   join(root, 'results.json'),

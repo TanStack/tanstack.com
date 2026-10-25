@@ -14,7 +14,11 @@ if (!framework) {
   const children = []
   let nextPort = 4380
   for (const name of ['start', 'vite', 'vinext', 'next']) {
-    for (const runtime of ['react', 'redact']) {
+    for (const runtime of [
+      'react',
+      'redact',
+      ...(['start', 'vite'].includes(name) ? ['redact-lean'] : []),
+    ]) {
       const serverPort = nextPort++
       children.push(
         spawn(

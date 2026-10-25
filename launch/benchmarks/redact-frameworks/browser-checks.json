@@ -24,6 +24,17 @@
       ]
     },
     {
+      "framework": "Start",
+      "renderer": "redact-lean",
+      "passed": true,
+      "checks": [
+        "hydration",
+        "counter update",
+        "controlled input",
+        "renderer identity"
+      ]
+    },
+    {
       "framework": "Vite",
       "renderer": "react",
       "passed": true,
@@ -37,6 +48,17 @@
     {
       "framework": "Vite",
       "renderer": "redact",
+      "passed": true,
+      "checks": [
+        "client mount",
+        "counter update",
+        "controlled input",
+        "renderer identity"
+      ]
+    },
+    {
+      "framework": "Vite",
+      "renderer": "redact-lean",
       "passed": true,
       "checks": [
         "client mount",

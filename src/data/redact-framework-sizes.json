@@ -1,26 +1,30 @@
 {
-  "recordedAt": "2026-10-25T17:15:08.787Z",
+  "recordedAt": "2026-10-25T19:55:07.317Z",
   "unit": "gzip bytes",
   "comparisons": [
     {
       "framework": "Start",
       "reactBytes": 109332,
-      "redactBytes": 62306
+      "redactBytes": 62306,
+      "redactLeanBytes": 59778
     },
     {
       "framework": "Vite",
       "reactBytes": 68255,
-      "redactBytes": 20130
+      "redactBytes": 20130,
+      "redactLeanBytes": 12590
     },
     {
       "framework": "Vinext",
       "reactBytes": 138094,
-      "redactBytes": 98779
+      "redactBytes": 98779,
+      "redactLeanBytes": null
     },
     {
       "framework": "Next.js",
       "reactBytes": 175610,
-      "redactBytes": 139872
+      "redactBytes": 139872,
+      "redactLeanBytes": null
     }
   ]
 }

@@ -1,33 +1,36 @@
 # Redact Next.js and Vinext launch
 
-Prepared October 25, 2026. Publication is on hold. The announcement, release summary, and posts below are for use after the published package passes the existing release gates. No announcement has been sent or scheduled.
+Prepared October 25, 2026. The announcement, release summary, and posts below are ready for publication after the package is released and its published integrations are verified. No announcement has been sent or scheduled.
 
 The audience is developers who already use React with Next.js, Vinext, or Vite and want smaller client bundles without rewriting their components. Lead with framework support, then show the measured size difference and explain the scheduling tradeoff.
 
-## Release dependencies
+## Release checks
 
-| Dependency                                                                                                              | Status on October 25                 | Required next step                                                   |
-| ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------ | -------------------------------------------------------------------- |
-| [Redact release](https://github.com/TanStack/redact/pull/52)                                                            | Held by required framework checks    | Pass the complete matrices with published, unpatched dependencies    |
-| [Cloudflare security fix](https://github.com/cloudflare/workers-sdk/pull/16476)                                         | Merged                               | Verify patched stable packages are published and used by the fixture |
-| [Cloudflare development evaluator](https://github.com/cloudflare/workers-sdk/pull/16466)                                | Open                                 | Merge, publish, and verify the real Worker development journeys      |
-| [Vinext dependency optimizer](https://github.com/cloudflare/vinext/pull/4268)                                           | Open                                 | Merge, publish, and verify installed-package behavior                |
-| [Vinext Pages data redirects](https://github.com/cloudflare/vinext/pull/4299)                                           | Open                                 | Merge, publish, and verify Pages navigation state                    |
-| [Next.js 16.2 source backport](https://github.com/tannerlinsley/next.js/tree/taren/backport-next-162-development-cache) | Tested, awaiting upstream acceptance | Obtain a published 16.2 patch, then pass the original Firefox cases  |
+The release candidate now carries maintained framework corrections in Redact. It does not require another upstream release. The existing required checks still decide readiness.
 
-Cloudflare's development fix has 87 successful checks and three skipped checks on commit `6ae1ed8`. npm still serves Cloudflare Vite plugin 1.65.0, Wrangler 4.152.0, and Vinext 1.3.0 as of 09:16 UTC on October 25. The patched stable tooling has not shipped.
+| Check                                                        | Current evidence                                                                                           | Required next step                                               |
+| ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| [Redact release](https://github.com/TanStack/redact/pull/52) | 1,859 runtime tests, types, packaging, and all 38 size gates pass                                          | Require the final PR and publication checks to pass              |
+| Next.js compatibility                                        | All 162 configurations and 2,694 scenarios pass across six versions                                        | Retain the required complete matrix gate                         |
+| Vinext and Cloudflare                                        | All 102 local configurations and 1,410 scenarios pass, plus all 18 hosted configurations and 282 scenarios | Retain the final package and lockfile evidence                   |
+| Dependency security                                          | Undici 7.30.1 and fflate 0.7.5 pass their regressions, final consumer audit has zero vulnerabilities       | Retain both documented overrides and the final lockfile          |
+| Landing page and announcement                                | Final benchmark and compatibility evidence incorporated                                                    | Publish after the package is available and verify the live pages |
 
-The [upstream evidence](https://github.com/TanStack/redact/blob/taren/stable-framework-support/benchmarks/upstream/README.md) tracks the full diagnostic history. A merged fix or a passing source backport does not clear the published-package gate. Preserve the current supported versions, all tests, and both size limits.
+The final benchmark retains the 39.4 KB gzip client saving. Production build times are effectively equal; local development startup improved by 2.2% for App Router and 4.9% for the large Pages fixture. Browser rendering speed was not measured.
+
+The [adapter docs](https://github.com/TanStack/redact/blob/taren/stable-framework-support/docs/vinext.md) explain the owned Cloudflare integration and package-manager overrides. The [upstream evidence](https://github.com/TanStack/redact/blob/taren/stable-framework-support/benchmarks/upstream/README.md) preserves the original failures and contributions. Keep all supported versions, tests, and size limits.
 
 ## Publish in this order
 
-1. Update fixture pins to the upstream releases containing the fixes. Run the existing complete package, browser, framework, deployment, and hosted checks. Confirm the default Vite bundle stays at or below 23,335 gzip bytes and the full client stays at or below 28,183.
-2. Merge the compatibility PR after its required checks pass. Let Changesets create the version PR, validate and merge it through the normal workflow, and verify the resulting npm version and exports. Install it in fresh consumers and confirm both documented integrations work. The expected minor release is 0.2.0, confirm the actual version from automation.
-3. Reconcile the final published versions and evidence with the docs, landing page, and announcement. If the dependency or runtime changes affect the measured app, refresh the benchmark before reusing its numbers. Remove the pending-release paragraph from `RedactLanding.tsx`, remove the draft notice from the article, set its actual publication date, and set `draft: false`. Keep the statement about synchronous rendering.
+1. Confirm the final PR passes its existing required checks and retains the complete package, browser, framework, deployment, and hosted evidence, using its maintained adapters and documented dependency overrides. Confirm the default Vite bundle stays at or below 23,335 gzip bytes and the full client stays at or below 28,183.
+2. Merge the compatibility PR after its required checks pass. Let Changesets create the version PR, validate and merge it through the normal workflow, and verify the resulting npm version and exports. Install it in fresh consumers and confirm both documented integrations work. Changesets currently plans version 0.2.0, confirm the actual version from the release PR.
+3. Reconcile the final published versions and evidence with the docs, landing page, and announcement. If the dependency or runtime changes affect the measured app, refresh the benchmark before reusing its numbers. Remove the pending-release paragraph from `RedactLanding.tsx`, remove the unpublished-release notice from the article, set its actual publication date, and set `draft: false`. Keep the statement about synchronous rendering.
 4. Publish the [website PR](https://github.com/TanStack/tanstack.com/pull/1422). Verify the live landing page, both setup guides, the benchmark link, and the announcement before directing readers to them.
 5. Use the release summary and publish the X thread below. Each launch link points back to TanStack.
 6. During the first day, collect reproducible reports with framework version, router, bundler, development or production mode, and native React behavior. Link existing issues where possible. Fix root causes through the normal release process.
 7. Two or three days later, share the side-by-side Next.js journey. A week later, publish a real app's measured result if one is available, including route, compression, dependencies, and scheduling tradeoffs. Keep the measured Vinext fixture clearly identified until then.
+
+The final preview was reviewed at 390 px and 1280 px with the frozen candidate. Framework tabs, hot edits, content rebuilds, and fresh server renders passed. Website type and lint checks pass.
 
 ## Announcement
 
@@ -39,7 +42,7 @@ The existing landing page is the main launch destination: `https://tanstack.com/
 
 Redact adds stable browser integrations for Next.js and Vinext, covering App Router and Pages Router. Keep your React imports and dependencies. Native React continues to handle server rendering and Server Components, while Redact hydrates and renders in the browser.
 
-In the measured Vinext app, Redact reduced all emitted client JavaScript and CSS from 154.9 KB to 115.5 KB gzip, including lazy routes. Production builds took about 18 ms longer. Browser rendering and hydration speed were not measured. Redact renders synchronously, without React's time slicing or interruptible component renders.
+In the measured Vinext app, Redact reduced all emitted client JavaScript and CSS from 154.9 KB to 115.5 KB gzip, including lazy routes. Production build times were effectively equal. Browser rendering and hydration speed were not measured. Redact renders synchronously, without React's time slicing or interruptible component renders.
 
 [Next.js setup](https://tanstack.com/redact/latest/docs/next) · [Vinext setup](https://tanstack.com/redact/latest/docs/vinext) · [Compatibility](https://tanstack.com/redact/latest/docs/compatibility) · [Benchmark](https://github.com/TanStack/redact/blob/main/benchmarks/VINEXT_BENCHMARKS.md)
 
@@ -60,7 +63,7 @@ Post 2:
 ```text
 In Vinext's benchmark app, Redact cut emitted client JS + CSS from 154.9 KB to 115.5 KB gzip. That's 25.4% smaller across six builds.
 
-This includes lazy routes, not one page's download. Builds took 18 ms longer. We didn't measure browser rendering speed.
+This includes lazy routes, not one page's download. Build times were effectively equal. Browser rendering speed wasn't measured.
 ```
 
 Post 3:
@@ -98,7 +101,7 @@ Use the site's existing page views and campaign parameters. Compare the seven da
 | 39.4 KB / 25.4% less output       | [Vinext benchmark](https://github.com/TanStack/redact/blob/main/benchmarks/VINEXT_BENCHMARKS.md), same app and dependencies, all emitted client JS and CSS including lazy routes, six builds                                                            |
 | 39.2 KB / 27.2% less entry output | Same report, browser entry plus eager JavaScript imports, not every possible route request                                                                                                                                                              |
 | Next.js savings                   | App-specific. The benchmark's 74.5 KB comparison changes both framework and renderer, so it cannot establish Redact-only savings in Next.js                                                                                                             |
-| Performance                       | The measured build was 1.9% slower, startup differences were inconclusive, browser and server rendering speed were not measured                                                                                                                         |
+| Performance                       | Build times were effectively equal. Local startup was 2.2% faster for App Router and 4.9% faster for the large Pages fixture. Browser and server rendering speed were not measured                                                                      |
 | Framework coverage                | [Next.js report](https://github.com/TanStack/redact/blob/main/benchmarks/NEXT_COVERAGE.md) and [Vinext report](https://github.com/TanStack/redact/blob/main/benchmarks/VINEXT_COVERAGE.md), all required cases must pass before the stable announcement |
 | Rendering tradeoff                | [Compatibility guide](https://tanstack.com/redact/latest/docs/compatibility), synchronous rendering with no time slicing or interruptible component renders                                                                                             |
 

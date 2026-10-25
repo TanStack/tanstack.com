@@ -8,7 +8,7 @@ authors:
 library: redact
 ---
 
-> This announcement is a draft. The release is waiting on upstream fixes and the complete compatibility checks. [Follow the release](https://github.com/TanStack/redact/pull/52).
+> This release isn't published yet. [Follow the release](https://github.com/TanStack/redact/pull/52).
 
 Redact's Next.js and Vinext integrations let you keep your components, hooks, and React imports while swapping in a smaller browser runtime. That includes App Router and Pages Router, even if your app only uses Pages Router.
 
@@ -27,7 +27,7 @@ That's **25.4% less total client output**, with identical sizes across all six b
 
 These are Vinext measurements. They don't establish the savings for every Next.js app. The [full report](https://github.com/TanStack/redact/blob/main/benchmarks/VINEXT_BENCHMARKS.md) includes the workloads, versions, raw results, and a separate Next.js baseline.
 
-The build took about 18 ms longer with Redact, a 1.9% increase. Startup differences were inconclusive. This suite didn't time browser rendering, hydration, responsiveness, or production SSR throughput.
+Production build times were effectively equal. Development startup was 2.2% faster for App Router and 4.9% faster for the large Pages fixture in this local run. This suite didn't time browser rendering, hydration, responsiveness, or production SSR throughput.
 
 ## Add the integration
 

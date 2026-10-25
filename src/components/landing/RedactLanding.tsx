@@ -145,16 +145,18 @@ export default function RedactLanding() {
             >
               {setup.name} setup and coverage ↗
             </Link>
-            <p className="max-w-lg text-sm leading-relaxed text-text-secondary">
-              The Next.js and Vinext release is waiting on upstream fixes.{' '}
-              <a
-                href={`${repo}/pull/52`}
-                className="underline underline-offset-4"
-              >
-                Track the release
-              </a>
-              .
-            </p>
+            {setup.name !== 'Vite' && (
+              <p className="max-w-lg text-sm leading-relaxed text-text-secondary">
+                The Next.js and Vinext release isn't published yet.{' '}
+                <a
+                  href={`${repo}/pull/52`}
+                  className="underline underline-offset-4"
+                >
+                  Track the release
+                </a>
+                .
+              </p>
+            )}
           </div>
           <div id="redact-framework-setup" className="min-w-0">
             <CodeBlock dataCodeTitle={setup.file}>

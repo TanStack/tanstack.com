@@ -1,0 +1,387 @@
+{
+  "recordedAt": "2026-10-25T17:15:08.787Z",
+  "node": "v24.22.0",
+  "zlib": "1.3.2.1-motley-285e94b",
+  "packageVersions": {
+    "@tanstack/redact": "0.1.5",
+    "@tanstack/react-start": "1.168.60",
+    "@tanstack/react-router": "1.170.41",
+    "@vitejs/plugin-react": "6.1.2",
+    "@vitejs/plugin-rsc": "0.5.38",
+    "vite": "8.3.5",
+    "vinext": "1.3.0",
+    "next": "16.4.3",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "react-server-dom-webpack": "19.3.1"
+  },
+  "lockSha256": "d2e54fc68484ee9162bdf8e96b8a8a2a7c64798d26643da8c428fbbeb9ed37bd",
+  "redactTarballSha256": "6f8592d92061ab3845b11a5635a2853ec5ba61b600f7ca213cfa42b510ec1099",
+  "counterSha256": "642b7bf7693281301e2d3b42826b679b40f03cd723be41b0aaea9fa190727ca1",
+  "cssSha256": "bed31695998ef8641c353a5f356dbadc243b4669edf6fc631fe7b647c1674643",
+  "method": "Same single-route counter and controlled input in all four frameworks. Production client builds with default optimization settings. Start bundles its server dependencies through Vite in both variants so React imports inside dependencies are transformed too. Sum of gzipSync bytes for every emitted client .js and .css file, compressed separately. Includes lazy chunks and framework polyfills. Excludes server output, HTML, inline scripts, maps, and images. Each chart compares the same framework and dependencies, changing only its Redact integration. KB means 1,000 bytes. These are starter apps, not a promise for every app or a browser speed measurement.",
+  "results": [
+    {
+      "framework": "Start",
+      "renderer": "react",
+      "gzipBytes": 109332,
+      "files": [
+        {
+          "path": "assets/index-BrYQuRTz.css",
+          "bytes": 241,
+          "gzipBytes": 189,
+          "sha256": "62ea65329a5844dfb94c95ad3d0bb666da2e998f50a88229d86a72d5b72390d4"
+        },
+        {
+          "path": "assets/index-DRX4Zrgs.js",
+          "bytes": 340498,
+          "gzipBytes": 108737,
+          "sha256": "94ea91e2860d9d7d1c211ec2235820a5a075988d40cfb73c2b3d435e26c4bd03"
+        },
+        {
+          "path": "assets/routes-C2u07YtP.js",
+          "bytes": 654,
+          "gzipBytes": 406,
+          "sha256": "358e4f1a683163fafb895be75d73a7f24dd98096219ae0aa885af517feebbc18"
+        }
+      ]
+    },
+    {
+      "framework": "Start",
+      "renderer": "redact",
+      "gzipBytes": 62306,
+      "files": [
+        {
+          "path": "assets/index-BrYQuRTz.css",
+          "bytes": 241,
+          "gzipBytes": 189,
+          "sha256": "62ea65329a5844dfb94c95ad3d0bb666da2e998f50a88229d86a72d5b72390d4"
+        },
+        {
+          "path": "assets/index-YaFU_fDe.js",
+          "bytes": 175102,
+          "gzipBytes": 61747,
+          "sha256": "02ef8216f40fbccd7479b2ae44a8fd181d96c78cef890a17db99daac47e15b77"
+        },
+        {
+          "path": "assets/routes-BriNhCEG.js",
+          "bytes": 557,
+          "gzipBytes": 370,
+          "sha256": "b4792fb5a32a7ef7500bd04dfaec09a340dcf32a31df1fcd4cf8d385c591b239"
+        }
+      ]
+    },
+    {
+      "framework": "Vite",
+      "renderer": "react",
+      "gzipBytes": 68255,
+      "files": [
+        {
+          "path": "assets/index-5qRXaobH.js",
+          "bytes": 220014,
+          "gzipBytes": 68066,
+          "sha256": "2c8edc1ee66dcbc45d84342617af6a8f3573638b9e0fbf05b313d5537ad83987"
+        },
+        {
+          "path": "assets/index-BrYQuRTz.css",
+          "bytes": 241,
+          "gzipBytes": 189,
+          "sha256": "62ea65329a5844dfb94c95ad3d0bb666da2e998f50a88229d86a72d5b72390d4"
+        }
+      ]
+    },
+    {
+      "framework": "Vite",
+      "renderer": "redact",
+      "gzipBytes": 20130,
+      "files": [
+        {
+          "path": "assets/index-BrYQuRTz.css",
+          "bytes": 241,
+          "gzipBytes": 189,
+          "sha256": "62ea65329a5844dfb94c95ad3d0bb666da2e998f50a88229d86a72d5b72390d4"
+        },
+        {
+          "path": "assets/index-C0gPNSb1.js",
+          "bytes": 52375,
+          "gzipBytes": 19941,
+          "sha256": "86bd8f065184938aef60435697fcbf2f21da37a2251979d221e0089307db7be7"
+        }
+      ]
+    },
+    {
+      "framework": "Vinext",
+      "renderer": "react",
+      "gzipBytes": 138094,
+      "files": [
+        {
+          "path": "_next/static/95aa7be8-9659-4ff0-9197-de663bea07f7/_buildManifest.js",
+          "bytes": 176,
+          "gzipBytes": 139,
+          "sha256": "4cce301fe69e28d6463904ecf618427e95091bf3584ea347d8ca55d1077e1fb6"
+        },
+        {
+          "path": "_next/static/95aa7be8-9659-4ff0-9197-de663bea07f7/_ssgManifest.js",
+          "bytes": 76,
+          "gzipBytes": 60,
+          "sha256": "653f3e53e89b4f8548ff86c19e92bb3c6b84b6be7485a320b1e00893ed877479"
+        },
+        {
+          "path": "_next/static/chunks/B-sJivER.js",
+          "bytes": 665,
+          "gzipBytes": 407,
+          "sha256": "40ea3f3de7430f0cc44fba9834ac35543d1f1cd9d2235aaf6057473035773a99"
+        },
+        {
+          "path": "_next/static/chunks/Clt7SkQq.js",
+          "bytes": 111220,
+          "gzipBytes": 32922,
+          "sha256": "35f71b2385a3e82b074274b8097e3ed1d3a93a6ed772b4ab25f32ef5c58aeb18"
+        },
+        {
+          "path": "_next/static/chunks/CLvDmS2G.js",
+          "bytes": 219245,
+          "gzipBytes": 67635,
+          "sha256": "cf4fb3342b0de9ff6879cf17b5260a49c01c0e469cfc7538353cc74ecc5227ee"
+        },
+        {
+          "path": "_next/static/chunks/DAuS5Ms1.js",
+          "bytes": 462,
+          "gzipBytes": 319,
+          "sha256": "f1537b2a59727be3fcbac7ef88ba2a6d827a367908cb64bda80cfe9764cb76e6"
+        },
+        {
+          "path": "_next/static/chunks/P4Ex1D39.js",
+          "bytes": 120070,
+          "gzipBytes": 35698,
+          "sha256": "386c55beea34f25fe9fb1b2f77d33437fc7ccba3281f563a89070f206a6adcb2"
+        },
+        {
+          "path": "_next/static/chunks/SFcG4F4c.js",
+          "bytes": 493,
+          "gzipBytes": 296,
+          "sha256": "32ddf8acccac05adf5bc5887354e8fda90c3693d616f858da1aff5292c37f95d"
+        },
+        {
+          "path": "_next/static/chunks/XKyaHtl9.js",
+          "bytes": 726,
+          "gzipBytes": 429,
+          "sha256": "548d1dbf321e7d2ae804fcc158b588706a7c52f8ca175de1490c6ccb4dbe55b7"
+        },
+        {
+          "path": "_next/static/css/BrYQuRTz.css",
+          "bytes": 241,
+          "gzipBytes": 189,
+          "sha256": "62ea65329a5844dfb94c95ad3d0bb666da2e998f50a88229d86a72d5b72390d4"
+        }
+      ]
+    },
+    {
+      "framework": "Vinext",
+      "renderer": "redact",
+      "gzipBytes": 98779,
+      "files": [
+        {
+          "path": "_next/static/chunks/BWaJ3C7D.js",
+          "bytes": 911,
+          "gzipBytes": 512,
+          "sha256": "d0e9044430006c5bb48f477501a5af465f0a6377d2fcd7495aa215b8b75aaee3"
+        },
+        {
+          "path": "_next/static/chunks/CuqyvnFh.js",
+          "bytes": 194434,
+          "gzipBytes": 63996,
+          "sha256": "a7fae7b28c75542354609f33b2c4fc8ed5aab3bdf660f81dcc4302ad815b3a2d"
+        },
+        {
+          "path": "_next/static/chunks/k_GZEp2z.js",
+          "bytes": 110723,
+          "gzipBytes": 32946,
+          "sha256": "fc14e80d3da2ff0c4369db4ebfb046a92b9efdd027c2c1a6579d41dfa92673a8"
+        },
+        {
+          "path": "_next/static/chunks/NgGSeAlS.js",
+          "bytes": 389,
+          "gzipBytes": 275,
+          "sha256": "96197de2e87cd7008c617d34a81c5641cce29a32663e04cdc1ab0c58fab56b09"
+        },
+        {
+          "path": "_next/static/chunks/SFcG4F4c.js",
+          "bytes": 493,
+          "gzipBytes": 296,
+          "sha256": "32ddf8acccac05adf5bc5887354e8fda90c3693d616f858da1aff5292c37f95d"
+        },
+        {
+          "path": "_next/static/chunks/ufvIKhwg.js",
+          "bytes": 557,
+          "gzipBytes": 366,
+          "sha256": "e1eb7f56da7d9943f000fc252c3856f8637e57b4670290de631240d64b662e88"
+        },
+        {
+          "path": "_next/static/css/BrYQuRTz.css",
+          "bytes": 241,
+          "gzipBytes": 189,
+          "sha256": "62ea65329a5844dfb94c95ad3d0bb666da2e998f50a88229d86a72d5b72390d4"
+        },
+        {
+          "path": "_next/static/d4219925-835c-4b0a-8dbd-ce21fce7e7e1/_buildManifest.js",
+          "bytes": 176,
+          "gzipBytes": 139,
+          "sha256": "4cce301fe69e28d6463904ecf618427e95091bf3584ea347d8ca55d1077e1fb6"
+        },
+        {
+          "path": "_next/static/d4219925-835c-4b0a-8dbd-ce21fce7e7e1/_ssgManifest.js",
+          "bytes": 76,
+          "gzipBytes": 60,
+          "sha256": "653f3e53e89b4f8548ff86c19e92bb3c6b84b6be7485a320b1e00893ed877479"
+        }
+      ]
+    },
+    {
+      "framework": "Next.js",
+      "renderer": "react",
+      "gzipBytes": 175610,
+      "files": [
+        {
+          "path": "chunks/0cz1d0mv5g_q7.js",
+          "bytes": 112594,
+          "gzipBytes": 39627,
+          "sha256": "0973c1d64c88adc8e3c950410cb58b288f72118d5965b78049438deb8f2f9683"
+        },
+        {
+          "path": "chunks/0r-yur70-ku2o.js",
+          "bytes": 185420,
+          "gzipBytes": 49697,
+          "sha256": "db703d2a75d3d6852ec11fccc98e0ede3f7334b71a38648c117a78c8cdab6c71"
+        },
+        {
+          "path": "chunks/0umf92h1sb77c.js",
+          "bytes": 13822,
+          "gzipBytes": 3514,
+          "sha256": "c410d0f2543e080768fc14f73b2bd1fdf103e26956e9730390b5e41c4fb5ff8b"
+        },
+        {
+          "path": "chunks/1h67tk3d-mtce.css",
+          "bytes": 241,
+          "gzipBytes": 189,
+          "sha256": "62ea65329a5844dfb94c95ad3d0bb666da2e998f50a88229d86a72d5b72390d4"
+        },
+        {
+          "path": "chunks/3_cq_sktxv4mr.js",
+          "bytes": 734,
+          "gzipBytes": 448,
+          "sha256": "06447fd094c8341a5c8adf3d09625f29a48f45eec960b49487cff17ec8c7cc7f"
+        },
+        {
+          "path": "chunks/3cfn99dbrcvvp.js",
+          "bytes": 16898,
+          "gzipBytes": 5942,
+          "sha256": "ce93ca628abb25d17ebc40e5db225cc2b25ca3415910428f5dab7aa049ab506b"
+        },
+        {
+          "path": "chunks/3wbm-994r45kr.js",
+          "bytes": 229820,
+          "gzipBytes": 71969,
+          "sha256": "0112d166f239984294780810c159749ca06e78e3f1ce5db35ab98f31b95c9d5c"
+        },
+        {
+          "path": "chunks/turbopack-3-ry682tkyiqk.js",
+          "bytes": 10030,
+          "gzipBytes": 3940,
+          "sha256": "8bbb58cbfd4633c1d828c6bc37bc32abc768a149c01b1dfc4f5131fd81274551"
+        },
+        {
+          "path": "NdnK0xH5LMQwOKWJEoBdU/_buildManifest.js",
+          "bytes": 219,
+          "gzipBytes": 154,
+          "sha256": "9476e0afd3f9da68a64e6ec58631191fd3eaca62c9f5a377e7517fe9a89e59ea"
+        },
+        {
+          "path": "NdnK0xH5LMQwOKWJEoBdU/_clientMiddlewareManifest.js",
+          "bytes": 96,
+          "gzipBytes": 66,
+          "sha256": "5483e3295dc35dfe29ea932efc85341c916f10ff78ff5b0e965e003710893a4a"
+        },
+        {
+          "path": "NdnK0xH5LMQwOKWJEoBdU/_ssgManifest.js",
+          "bytes": 80,
+          "gzipBytes": 64,
+          "sha256": "678f6ce2cb80b1fe72fc67e7412be6e2ab6ada083111b64f7c40d35e3cba5e00"
+        }
+      ]
+    },
+    {
+      "framework": "Next.js",
+      "renderer": "redact",
+      "gzipBytes": 139872,
+      "files": [
+        {
+          "path": "chunks/0cz1d0mv5g_q7.js",
+          "bytes": 112594,
+          "gzipBytes": 39627,
+          "sha256": "0973c1d64c88adc8e3c950410cb58b288f72118d5965b78049438deb8f2f9683"
+        },
+        {
+          "path": "chunks/0umf92h1sb77c.js",
+          "bytes": 13822,
+          "gzipBytes": 3514,
+          "sha256": "c410d0f2543e080768fc14f73b2bd1fdf103e26956e9730390b5e41c4fb5ff8b"
+        },
+        {
+          "path": "chunks/1h67tk3d-mtce.css",
+          "bytes": 241,
+          "gzipBytes": 189,
+          "sha256": "62ea65329a5844dfb94c95ad3d0bb666da2e998f50a88229d86a72d5b72390d4"
+        },
+        {
+          "path": "chunks/2t30ztv8lkon0.js",
+          "bytes": 259589,
+          "gzipBytes": 78369,
+          "sha256": "bbe1bb90b3c86e999c92352cff6b2acb1785358052457c99c37fba4afd5b7ff1"
+        },
+        {
+          "path": "chunks/3b6hrt7qzi8f_.js",
+          "bytes": 698,
+          "gzipBytes": 434,
+          "sha256": "9111af282f07948fbe49f245e8e90f8c3abb0b4a31e13a5e9bb079eb532171f5"
+        },
+        {
+          "path": "chunks/3ghqzq9l61sxn.js",
+          "bytes": 20331,
+          "gzipBytes": 6299,
+          "sha256": "663397057434f8c1178b8c713b58edd90e4142a5092dc04072431db27b18f6ee"
+        },
+        {
+          "path": "chunks/3ldo0kwpv0iin.js",
+          "bytes": 23371,
+          "gzipBytes": 7216,
+          "sha256": "b47f6cbc5c85edceaacb5b45d63785160dcb3fce74e4e323a3a5a2a6a5a44f81"
+        },
+        {
+          "path": "chunks/turbopack-3-ry682tkyiqk.js",
+          "bytes": 10030,
+          "gzipBytes": 3940,
+          "sha256": "8bbb58cbfd4633c1d828c6bc37bc32abc768a149c01b1dfc4f5131fd81274551"
+        },
+        {
+          "path": "I5aaZFtg_xGKQHYGMZiI5/_buildManifest.js",
+          "bytes": 219,
+          "gzipBytes": 154,
+          "sha256": "9476e0afd3f9da68a64e6ec58631191fd3eaca62c9f5a377e7517fe9a89e59ea"
+        },
+        {
+          "path": "I5aaZFtg_xGKQHYGMZiI5/_clientMiddlewareManifest.js",
+          "bytes": 96,
+          "gzipBytes": 66,
+          "sha256": "5483e3295dc35dfe29ea932efc85341c916f10ff78ff5b0e965e003710893a4a"
+        },
+        {
+          "path": "I5aaZFtg_xGKQHYGMZiI5/_ssgManifest.js",
+          "bytes": 80,
+          "gzipBytes": 64,
+          "sha256": "678f6ce2cb80b1fe72fc67e7412be6e2ab6ada083111b64f7c40d35e3cba5e00"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "browser": "Codex in-app browser",
+  "results": [
+    {
+      "framework": "Start",
+      "renderer": "react",
+      "passed": true,
+      "checks": [
+        "hydration",
+        "counter update",
+        "controlled input",
+        "renderer identity"
+      ]
+    },
+    {
+      "framework": "Start",
+      "renderer": "redact",
+      "passed": true,
+      "checks": [
+        "hydration",
+        "counter update",
+        "controlled input",
+        "renderer identity"
+      ]
+    },
+    {
+      "framework": "Vite",
+      "renderer": "react",
+      "passed": true,
+      "checks": [
+        "client mount",
+        "counter update",
+        "controlled input",
+        "renderer identity"
+      ]
+    },
+    {
+      "framework": "Vite",
+      "renderer": "redact",
+      "passed": true,
+      "checks": [
+        "client mount",
+        "counter update",
+        "controlled input",
+        "renderer identity"
+      ]
+    },
+    {
+      "framework": "Vinext",
+      "renderer": "react",
+      "passed": true,
+      "checks": [
+        "hydration",
+        "counter update",
+        "controlled input",
+        "renderer identity"
+      ]
+    },
+    {
+      "framework": "Vinext",
+      "renderer": "redact",
+      "passed": true,
+      "checks": [
+        "hydration",
+        "counter update",
+        "controlled input",
+        "renderer identity"
+      ]
+    },
+    {
+      "framework": "Next.js",
+      "renderer": "react",
+      "passed": true,
+      "checks": [
+        "hydration",
+        "counter update",
+        "controlled input",
+        "renderer identity"
+      ]
+    },
+    {
+      "framework": "Next.js",
+      "renderer": "redact",
+      "passed": true,
+      "checks": [
+        "hydration",
+        "counter update",
+        "controlled input",
+        "renderer identity"
+      ]
+    }
+  ]
+}

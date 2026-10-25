@@ -1,9 +1,17 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { CodeBlock } from '~/components/markdown/CodeBlock'
+import bundleSizes from '~/data/redact-framework-sizes.json'
 import { LandingSection, LibraryLandingShell } from './LibraryLanding'
 
 const repo = 'https://github.com/TanStack/redact'
+const largestBundle = Math.max(
+  ...bundleSizes.comparisons.flatMap((item) => [
+    item.reactBytes,
+    item.redactBytes,
+  ]),
+)
+const kb = (bytes: number) => (bytes / 1000).toFixed(1)
 const setups = [
   {
     name: 'Next.js',
@@ -32,6 +40,22 @@ export default defineConfig({
 })`,
   },
   {
+    name: 'Start',
+    file: 'vite.config.ts',
+    guide: 'vite-plugin',
+    detail:
+      'Add Redact after Start and React. Bundle server dependencies so their React imports use the same runtime as your app.',
+    code: `import { defineConfig } from 'vite'
+import { tanstackStart } from '@tanstack/react-start/plugin/vite'
+import react from '@vitejs/plugin-react'
+import { redact } from '@tanstack/redact/vite'
+
+export default defineConfig({
+  ssr: { noExternal: true },
+  plugins: [tanstackStart(), react(), redact()],
+})`,
+  },
+  {
     name: 'Vite',
     file: 'vite.config.ts',
     guide: 'vite-plugin',
@@ -55,56 +79,70 @@ export default function RedactLanding() {
     <LibraryLandingShell
       libraryId="redact"
       headline="For the love of React, and smaller bundles."
-      description="Keep the components, hooks, and imports you love. Redact is a smaller, synchronous runtime for React apps, with integrations for Vite, Next.js, and Vinext."
+      description="Keep the components, hooks, and imports you love. Redact is a smaller, synchronous runtime for React apps, with integrations for TanStack Start, Vite, Vinext, and Next.js."
       hero={
-        <figure className="min-w-0 rounded-2xl border border-border-subtle bg-background-surface p-6 sm:p-9">
-          <div className="font-ds-display text-5xl font-bold tracking-tight sm:text-6xl">
-            39.4 <span className="text-3xl">KB less.</span>
-          </div>
-          <p className="mt-3 text-ds-body-sm text-text-secondary">
-            Client output in Vinext's benchmark, gzipped.
-          </p>
-          <div className="my-8 space-y-5">
-            {[
-              {
-                name: 'Vinext + React',
-                size: '154.9 KB',
-                width: '100%',
-                redact: false,
-              },
-              {
-                name: 'Vinext + Redact',
-                size: '115.5 KB',
-                width: '74.6%',
-                redact: true,
-              },
-            ].map((row) => (
-              <div key={row.name}>
-                <div className="mb-2 flex justify-between gap-3 text-sm">
-                  <span>{row.name}</span>
-                  <span className="font-mono tabular-nums">{row.size}</span>
+        <section
+          id="bundle-sizes"
+          aria-label="Client bundle size comparisons"
+          className="min-w-0 rounded-2xl border border-border-subtle bg-background-surface p-6 sm:p-8"
+        >
+          <div className="grid gap-x-8 gap-y-9 sm:grid-cols-2">
+            {bundleSizes.comparisons.map((item) => (
+              <figure key={item.framework}>
+                <figcaption className="mb-4">
+                  <h2 className="text-lg font-semibold">
+                    {item.framework === 'Start'
+                      ? 'TanStack Start'
+                      : item.framework}
+                  </h2>
+                  <p className="mt-1 font-ds-display text-2xl font-bold tabular-nums">
+                    {kb(item.reactBytes - item.redactBytes)} KB less
+                  </p>
+                  <p className="mt-1 text-sm text-text-secondary tabular-nums">
+                    {((1 - item.redactBytes / item.reactBytes) * 100).toFixed(
+                      1,
+                    )}
+                    % smaller
+                  </p>
+                </figcaption>
+                <div className="space-y-3">
+                  {[
+                    { name: 'React', bytes: item.reactBytes, redact: false },
+                    { name: 'Redact', bytes: item.redactBytes, redact: true },
+                  ].map((row) => (
+                    <div key={row.name}>
+                      <div className="mb-1.5 flex justify-between gap-3 text-sm">
+                        <span>{row.name}</span>
+                        <span className="font-mono tabular-nums">
+                          {kb(row.bytes)} KB
+                        </span>
+                      </div>
+                      <div
+                        aria-hidden="true"
+                        className={`h-5 rounded-sm ${row.redact ? 'bg-[var(--landing-accent)]' : 'bg-text-secondary/30'}`}
+                        style={{
+                          width: `${(row.bytes / largestBundle) * 100}%`,
+                        }}
+                      />
+                    </div>
+                  ))}
                 </div>
-                <div
-                  aria-hidden="true"
-                  className={`h-8 rounded-sm ${row.redact ? 'bg-[var(--landing-accent)]' : 'bg-text-secondary/25'}`}
-                  style={{ width: row.width }}
-                />
-              </div>
+              </figure>
             ))}
           </div>
-          <figcaption className="space-y-3 text-sm leading-relaxed text-text-secondary">
+          <div className="mt-7 space-y-3 border-t border-border-subtle pt-5 text-sm leading-relaxed text-text-secondary">
             <p>
-              25.4% smaller across six builds of the same app. Includes all
-              emitted client JS and CSS, including lazy routes.
+              Same counter app, production client JS + CSS, gzipped. Includes
+              every emitted chunk. Shared scale, 1 KB = 1,000 bytes.
             </p>
             <a
-              href={`${repo}/blob/main/benchmarks/VINEXT_BENCHMARKS.md`}
+              href="https://github.com/TanStack/tanstack.com/tree/main/launch/benchmarks/redact-frameworks"
               className="inline-block font-medium text-text-primary underline underline-offset-4"
             >
-              Measurements and timing tradeoffs ↗
+              Versions, source, and measurements ↗
             </a>
-          </figcaption>
-        </figure>
+          </div>
+        </section>
       }
     >
       <LandingSection tone="accent">
@@ -145,7 +183,7 @@ export default function RedactLanding() {
             >
               {setup.name} setup and coverage ↗
             </Link>
-            {setup.name !== 'Vite' && (
+            {(setup.name === 'Next.js' || setup.name === 'Vinext') && (
               <p className="max-w-lg text-sm leading-relaxed text-text-secondary">
                 The Next.js and Vinext release isn't published yet.{' '}
                 <a

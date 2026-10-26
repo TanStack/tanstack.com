@@ -31,7 +31,9 @@ export const Route = createFileRoute('/blog/$')({
     return fetchBlogPost({ data: blogPath })
   },
   head: ({ loaderData }) => {
-    const socialImage = getBlogSocialImageUrl(loaderData?.headerImage)
+    const socialImage = getBlogSocialImageUrl(
+      loaderData?.socialImage ?? loaderData?.headerImage,
+    )
 
     return getBlogPostHead(
       loaderData ? { ...loaderData, socialImage } : undefined,

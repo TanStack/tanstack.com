@@ -1,3 +1,8 @@
+import { readTextBody } from './utils/api-boundary.server'
+import {
+  getNetworkTrafficQuality,
+  labelAnalyticsCollection,
+} from './utils/analytics/collection.server'
 import { receiveTrafficQuality } from './utils/analytics/traffic-quality.server'
 import {
   timeRequestWork,
@@ -137,8 +142,18 @@ async function proxyAnalyticsRequest(request: Request, url: URL) {
     return null
   }
 
+  const quality =
+    url.pathname === '/_a/g/collect'
+      ? getNetworkTrafficQuality(request)
+      : undefined
+
   if (url.pathname === '/_a/g/collect') {
-    upstreamUrl.search = url.search
+    if (url.hostname !== 'tanstack.com')
+      return new Response(null, { status: 204 })
+    upstreamUrl.search = labelAnalyticsCollection(
+      new URLSearchParams(url.search),
+      quality,
+    ).toString()
   }
 
   const init: RequestInit = {
@@ -148,7 +163,26 @@ async function proxyAnalyticsRequest(request: Request, url: URL) {
   }
 
   if (request.method !== 'GET' && request.method !== 'HEAD') {
-    init.body = request.body
+    if (url.pathname === '/_a/g/collect') {
+      const result = await readTextBody(request, 64 * 1024)
+      if (!result.success)
+        return new Response(null, { status: result.error.status })
+      const body = result.text
+      init.body = body
+        ? body
+            .split('\n')
+            .map((line) =>
+              labelAnalyticsCollection(
+                new URLSearchParams(line),
+                quality,
+                upstreamUrl.searchParams.get('ep.traffic_quality'),
+              ).toString(),
+            )
+            .join('\n')
+        : body
+    } else {
+      init.body = request.body
+    }
   }
 
   const response = await fetch(upstreamUrl, init)

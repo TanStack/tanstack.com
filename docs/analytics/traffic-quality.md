@@ -1,12 +1,18 @@
 # Traffic quality rollout
 
-Flag-only, rule v1. No traffic is blocked, no GA data filter is enabled, and no partner totals are changed. `automated` and `suspect` are heuristic labels, not verified bot identities.
+Flag-only, rule v2. No traffic is blocked, no GA data filter is enabled, and no partner totals are changed. `automated` and `suspect` are heuristic labels, not verified bot identities.
 
 `src/utils/analytics/traffic-quality.ts` configures current Chrome major 155 and a minimum version gap of 7, matching the October 19 spec. Review monthly and validate again when changing the baseline. Reduced `.0.0.0` versions alone are normal Chrome behavior.
 
 The head bootstrap wraps explicit GA events before React starts. It uses Google's supported `gtag('get')` fields `session_number`, `session_id`, and `client_id`, never parses GA cookies. It labels the existing events without adding an event or page view. First-session Direct means an empty document referrer and no UTM, ad-click, or cross-domain linker parameters on the document's entry URL. Windows/Linux get `automated`; macOS gets `suspect`. Other known sessions get `unflagged`. Missing identity/session data or a lookup timeout gets `unknown`. Events are released after at most five seconds even if getters fail.
 
 The last classification is stored locally against GA's client/session identity to keep it across full-page navigations and tabs. This adds no independent visitor ID. If storage is unavailable, the page still classifies, but subsequent full navigations may be unflagged because of their referrer. A missing referrer cannot prove traffic provenance, and missing/reset GA storage cannot prove a person has never visited before.
+
+Rule v2 also counts distinct partner IDs clicked within the GA session. The tenth different partner and subsequent events are labeled `automated`, including after full-page navigation. Repeated clicks on one partner do not advance the count. Storage is bounded to ten IDs. Earlier events cannot be relabeled in GA4; reporting must exclude the whole session using its strongest label.
+
+The collection proxy labels explicit and automatic events using Cloudflare request metadata. Verified bots and bot score 1 get `automated`; scores 2 through 29 get `suspect`. Known hosting ASNs (Amazon 16509/14618, Google Cloud 396982, Microsoft 8075, DigitalOcean 14061, OVH 16276, Hetzner 24940) and Cloudflare corporate proxies get `datacenter`. This label identifies network origin, not proof of automation. Real people using VPNs or corporate proxies may be included. No country-based rule is used, and missing metadata does not imply a human visitor. Existing client `automated` labels take precedence. No IP or ASN is sent to GA.
+
+Cloudflare's [bot-score guidance](https://developers.cloudflare.com/bots/concepts/bot-score/) defines the score ranges. ASN coverage is deliberately limited and should be reviewed against the network diagnostic samples, not treated as a complete proxy database.
 
 Every explicit event rechecks GA's session. Automatic events may have `unknown` or no custom label, so a long-lived page cannot carry an earlier first-session flag into a returning session. In BigQuery, classify each session using its explicit event labels and join by user_pseudo_id plus ga_session_id. Do not filter individual events and assume you have filtered whole sessions. Sessions containing only automatic events remain unknown. GA UI custom dimensions `traffic_quality` and `traffic_quality_rule` should be registered with event scope; they are present in BigQuery without registration.
 

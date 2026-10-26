@@ -8,7 +8,7 @@ const networkSchema = z.object({
       verifiedBot: z.boolean().optional(),
       corporateProxy: z.boolean().optional(),
     })
-    .optional(),
+    .nullish(),
 })
 
 // Hosting networks, not a list of proven bots. VPN users can share these ASNs.

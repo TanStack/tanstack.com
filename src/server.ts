@@ -172,11 +172,13 @@ async function proxyAnalyticsRequest(request: Request, url: URL) {
         ? body
             .split('\n')
             .map((line) =>
-              labelAnalyticsCollection(
-                new URLSearchParams(line),
-                quality,
-                upstreamUrl.searchParams.get('ep.traffic_quality'),
-              ).toString(),
+              line
+                ? labelAnalyticsCollection(
+                    new URLSearchParams(line),
+                    quality,
+                    upstreamUrl.searchParams.get('ep.traffic_quality'),
+                  ).toString()
+                : line,
             )
             .join('\n')
         : body

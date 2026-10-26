@@ -17,6 +17,12 @@ test('edge flags hosting networks separately from bots and leaves unknown networ
     'datacenter',
   )
   assert.equal(
+    getNetworkTrafficQuality(
+      networkRequest({ asn: 16509, botManagement: null }),
+    ),
+    'datacenter',
+  )
+  assert.equal(
     getNetworkTrafficQuality(networkRequest({ asn: 7922 })),
     undefined,
   )

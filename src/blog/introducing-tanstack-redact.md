@@ -8,6 +8,8 @@ authors:
 library: redact
 ---
 
+![TanStack Redact. Your React app. Less JavaScript.](/blog-assets/introducing-tanstack-redact/header.jpg)
+
 When I wrote [Projecting React](https://tannerlinsley.com/posts/projecting-react), I was pretty explicit about how far I wanted to take Redact. I wanted to see if a smaller implementation of the React APIs we used could work on my personal site and tanstack.com, and I was willing to keep it very specific to those two sites.
 
 Well, the experiment stuck, and we've ended up using it a lot.

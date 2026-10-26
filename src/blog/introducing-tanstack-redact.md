@@ -1,5 +1,5 @@
 ---
-title: The Redact experiment stuck
+title: Introducing TanStack Redact
 published: 2026-10-25
 excerpt: Redact became something we depend on, and we're expanding the compatibility work to help more React apps ship less JavaScript.
 draft: true

@@ -188,46 +188,6 @@ export const Route = createFileRoute('/stats/npm/')({
       },
     }
 
-    // FAQ structured data for rich results
-    const faqJsonLd = {
-      '@context': 'https://schema.org',
-      '@type': 'FAQPage',
-      mainEntity: [
-        {
-          '@type': 'Question',
-          name: 'How are npm download statistics calculated?',
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: 'NPM download statistics are sourced from the official npm registry API. Downloads are counted each time a package is installed via npm, yarn, or pnpm. These numbers include downloads from CI/CD pipelines, development machines, and production deployments.',
-          },
-        },
-        {
-          '@type': 'Question',
-          name: "What's the difference between weekly and daily downloads?",
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: 'Daily downloads show the exact number of downloads per day, useful for spotting short-term trends. Weekly downloads aggregate 7 days of data, smoothing out variations and making it easier to identify long-term growth patterns.',
-          },
-        },
-        {
-          '@type': 'Question',
-          name: 'How does TanStack NPM Stats compare to npmtrends?',
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: 'TanStack NPM Stats offers faster load times with cached data, flexible time ranges up to all-time history, advanced features like baseline comparisons and relative growth charts, plus the ability to combine multiple packages into a single trend line.',
-          },
-        },
-        {
-          '@type': 'Question',
-          name: 'Can I compare any npm package?',
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: 'Yes! You can compare any public package on the npm registry. Search for packages by name and add them to your comparison. You can compare multiple packages simultaneously and group related packages together for accurate historical tracking.',
-          },
-        },
-      ],
-    }
-
     return {
       meta: seo({
         title,
@@ -238,10 +198,6 @@ export const Route = createFileRoute('/stats/npm/')({
         {
           type: 'application/ld+json',
           children: JSON.stringify(jsonLd),
-        },
-        {
-          type: 'application/ld+json',
-          children: JSON.stringify(faqJsonLd),
         },
       ],
     }

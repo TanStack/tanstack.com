@@ -112,7 +112,7 @@ const LogoSection = () => {
         <Link
           to={library.to ?? `/${library.id}/latest`}
           className={twMerge(
-            'relative -top-[0.06em] whitespace-nowrap font-library-name text-[16px] font-normal uppercase leading-none sm:text-[22px]',
+            'whitespace-nowrap font-library-name text-[16px] font-normal uppercase leading-none [text-box:trim-both_cap_alphabetic] sm:text-[22px]',
             categoryTextColor[categoryOf(library.id)],
           )}
         >

@@ -285,11 +285,28 @@ test(
         '0',
       )
 
+      // Chrome can pause hidden autoplay media before dispatching the preference
+      // change. Wait for that event so consecutive changes are not coalesced.
+      await normal.page.evaluate(() => {
+        window
+          .matchMedia('(prefers-reduced-motion: reduce)')
+          .addEventListener('change', (event) => {
+            document.documentElement.dataset.reducedMotion = String(
+              event.matches,
+            )
+          })
+      })
       await normal.page.emulateMedia({ reducedMotion: 'reduce' })
+      await normal.page.waitForFunction(
+        () => document.documentElement.dataset.reducedMotion === 'true',
+      )
       await normal.page.waitForFunction(
         () => document.querySelector('video')?.paused === true,
       )
       await normal.page.emulateMedia({ reducedMotion: 'no-preference' })
+      await normal.page.waitForFunction(
+        () => document.documentElement.dataset.reducedMotion === 'false',
+      )
       assert.equal(
         await normalVideo.evaluate((video) => {
           if (!(video instanceof HTMLVideoElement)) {

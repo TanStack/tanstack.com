@@ -6,9 +6,10 @@ draft: false
 authors:
   - Tanner Linsley
 library: redact
+socialImage: /blog-assets/introducing-tanstack-redact/header.jpg
 ---
 
-![TanStack Redact. Your React app. Less JavaScript.](/blog-assets/introducing-tanstack-redact/header.jpg)
+![TanStack Redact](/blog-assets/introducing-tanstack-redact/banner.jpg)
 
 When I wrote [Projecting React](https://tannerlinsley.com/posts/projecting-react), I was pretty explicit about how far I wanted to take Redact. I wanted to see if a smaller implementation of the React APIs we used could work on my personal site and tanstack.com, and I was willing to keep it very specific to those two sites.
 

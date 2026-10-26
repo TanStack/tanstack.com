@@ -1,8 +1,8 @@
 ---
 title: Introducing TanStack Redact
-published: 2026-10-25
+published: 2026-10-26
 excerpt: Redact became something we depend on, and we're expanding the compatibility work to help more React apps ship less JavaScript.
-draft: true
+draft: false
 authors:
   - Tanner Linsley
 library: redact

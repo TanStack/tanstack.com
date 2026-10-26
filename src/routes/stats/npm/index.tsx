@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, stripSearchParams } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { useThrottledCallback, useThrottler } from '@tanstack/react-pacer'
 import { QuestionIcon } from '@phosphor-icons/react'
@@ -90,50 +90,55 @@ const bucketOffsetSchema = v.pipe(
   v.maxValue(0),
 )
 const timelineZoomTimeSchema = v.pipe(v.number(), v.integer(), v.minValue(0))
-export const Route = createFileRoute('/stats/npm/')({
-  validateSearch: v.object({
-    packageGroups: v.fallback(
-      v.optional(packageGroupsSchema, defaultPackageGroups),
-      defaultPackageGroups,
-    ),
-    range: v.fallback(
-      v.optional(
-        v.picklist([
-          '7-days',
-          '30-days',
-          '90-days',
-          '180-days',
-          '365-days',
-          '730-days',
-          '1825-days',
-          'all-time',
-        ]),
+export const npmStatsSearchSchema = v.object({
+  packageGroups: v.fallback(
+    v.optional(packageGroupsSchema, defaultPackageGroups),
+    defaultPackageGroups,
+  ),
+  range: v.fallback(
+    v.optional(
+      v.picklist([
+        '7-days',
+        '30-days',
+        '90-days',
+        '180-days',
+        '365-days',
+        '730-days',
         '1825-days',
-      ),
+        'all-time',
+      ]),
       '1825-days',
     ),
-    transform: v.fallback(v.optional(transformModeSchema, 'none'), 'none'),
-    binType: v.fallback(v.optional(binTypeSchema, 'weekly'), 'weekly'),
-    viewMode: v.fallback(v.optional(viewModeSchema, 'history'), 'history'),
-    chartType: v.fallback(v.optional(chartTypeSchema, 'line'), 'line'),
-    barOrientation: v.fallback(v.optional(barOrientationSchema), undefined),
-    barSort: v.fallback(v.optional(latestBarSortSchema, 'value'), 'value'),
-    bucketOffset: v.fallback(v.optional(bucketOffsetSchema, 0), 0),
-    playbackIntervalMs: v.fallback(
-      v.optional(playbackIntervalMsSchema, defaultPlaybackIntervalMs),
-      defaultPlaybackIntervalMs,
-    ),
-    playbackLoop: v.fallback(v.optional(v.boolean(), false), false),
-    playbackPlaying: v.fallback(v.optional(v.boolean(), false), false),
-    showDataMode: v.fallback(v.optional(showDataModeSchema, 'all'), 'all'),
-    normalizeBaseline: v.fallback(v.optional(v.boolean(), true), true),
-    showBaseline: v.fallback(v.optional(v.boolean(), false), false),
-    showLegend: v.fallback(v.optional(v.boolean(), false), false),
-    height: v.fallback(v.optional(chartHeightSchema, 400), 400),
-    width: v.fallback(v.optional(chartWidthSchema), undefined),
-    timelineStart: v.fallback(v.optional(timelineZoomTimeSchema), undefined),
-    timelineEnd: v.fallback(v.optional(timelineZoomTimeSchema), undefined),
-  }),
+    '1825-days',
+  ),
+  transform: v.fallback(v.optional(transformModeSchema, 'none'), 'none'),
+  binType: v.fallback(v.optional(binTypeSchema, 'weekly'), 'weekly'),
+  viewMode: v.fallback(v.optional(viewModeSchema, 'history'), 'history'),
+  chartType: v.fallback(v.optional(chartTypeSchema, 'line'), 'line'),
+  barOrientation: v.fallback(v.optional(barOrientationSchema), undefined),
+  barSort: v.fallback(v.optional(latestBarSortSchema, 'value'), 'value'),
+  bucketOffset: v.fallback(v.optional(bucketOffsetSchema, 0), 0),
+  playbackIntervalMs: v.fallback(
+    v.optional(playbackIntervalMsSchema, defaultPlaybackIntervalMs),
+    defaultPlaybackIntervalMs,
+  ),
+  playbackLoop: v.fallback(v.optional(v.boolean(), false), false),
+  playbackPlaying: v.fallback(v.optional(v.boolean(), false), false),
+  showDataMode: v.fallback(v.optional(showDataModeSchema, 'all'), 'all'),
+  normalizeBaseline: v.fallback(v.optional(v.boolean(), true), true),
+  showBaseline: v.fallback(v.optional(v.boolean(), false), false),
+  showLegend: v.fallback(v.optional(v.boolean(), false), false),
+  height: v.fallback(v.optional(chartHeightSchema, 400), 400),
+  width: v.fallback(v.optional(chartWidthSchema), undefined),
+  timelineStart: v.fallback(v.optional(timelineZoomTimeSchema), undefined),
+  timelineEnd: v.fallback(v.optional(timelineZoomTimeSchema), undefined),
+})
+
+export const defaultNpmStatsSearch = v.parse(npmStatsSearchSchema, {})
+
+export const Route = createFileRoute('/stats/npm/')({
+  validateSearch: npmStatsSearchSchema,
+  search: { middlewares: [stripSearchParams(defaultNpmStatsSearch)] },
   loaderDeps: ({ search }) => ({
     packageList: search.packageGroups?.map(getPackageGroupLabel).join(' vs '),
     packageNames: search.packageGroups?.map(getPackageGroupLabel) ?? [],
@@ -242,9 +247,6 @@ export const Route = createFileRoute('/stats/npm/')({
     }
   },
   component: RouteComponent,
-  staticData: {
-    includeSearchInCanonical: true,
-  },
 })
 
 type _NpmStatsSearch = {

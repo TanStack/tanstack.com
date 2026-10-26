@@ -18,6 +18,8 @@ async function runBeforeLoad(packages: string) {
 test('comparison links redirect before rendering and preserve selected packages', async () => {
   for (const [path, names] of [
     ['react', ['react']],
+    ['a'.repeat(214), ['a'.repeat(214)]],
+    ['@scope~1' + 'a'.repeat(207), ['@scope/' + 'a'.repeat(207)]],
     ['react-vs-vue', ['react', 'vue']],
     ['@tanstack~1react-query', ['@tanstack/react-query']],
     ['@tanstack__react-query', ['@tanstack/react-query']],
@@ -39,6 +41,8 @@ test('invalid or oversized comparisons return not found', async () => {
     'react-vs-',
     '-vs-',
     'react-vs-INVALID',
+    'a'.repeat(215),
+    '@scope~1' + 'a'.repeat(208),
     Array(33).fill('react').join('-vs-'),
   ]) {
     await assert.rejects(runBeforeLoad(path), isNotFound)

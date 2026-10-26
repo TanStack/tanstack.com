@@ -18,7 +18,11 @@ import {
   timeRangeSchema,
   viewModeSchema,
 } from './-utils'
-import { chartHeightSchema, chartWidthSchema } from '~/utils/schemas'
+import {
+  chartHeightSchema,
+  chartWidthSchema,
+  isNpmPackageName,
+} from '~/utils/schemas'
 
 const timelineZoomTimeSchema = v.pipe(v.number(), v.integer(), v.minValue(0))
 
@@ -69,7 +73,8 @@ export function redirectNpmComparison({
   const packages = parsePackagesFromUrl(params.packages)
   if (
     !packages.length ||
-    packages.length !== params.packages.split('-vs-').length
+    packages.length !== params.packages.split('-vs-').length ||
+    !packages.every(isNpmPackageName)
   ) {
     throw notFound()
   }

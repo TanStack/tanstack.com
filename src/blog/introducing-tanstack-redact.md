@@ -1,7 +1,7 @@
 ---
 title: Introducing TanStack Redact
 published: 2026-10-26
-excerpt: Redact became something we depend on, and we're expanding the compatibility work to help more React apps ship less JavaScript.
+excerpt: A smaller replacement for React and React DOM in the browser. Keep your application code and ship less JavaScript.
 draft: false
 authors:
   - Tanner Linsley
@@ -10,6 +10,10 @@ socialImage: /blog-assets/introducing-tanstack-redact/header.jpg
 ---
 
 ![TanStack Redact](/blog-assets/introducing-tanstack-redact/banner.jpg)
+
+TanStack Redact is a smaller replacement for React and React DOM in the browser. It implements the React APIs your app uses to render and update its UI, so you can ship less JavaScript without changing a single line of application code. You add it to your build configuration, and your existing React imports, components, hooks, and dependencies use Redact in the browser.
+
+It works with TanStack Start, Vite, Vinext, and Next.js. With Vinext and Next.js, React stays on the server while Redact handles hydration and rendering in the browser. Redact renders synchronously, so it doesn't include React's time slicing or interruptible rendering.
 
 When I wrote [Projecting React](https://tannerlinsley.com/posts/projecting-react), I was pretty explicit about how far I wanted to take Redact. I wanted to see if a smaller implementation of the React APIs we used could work on my personal site and tanstack.com, and I was willing to keep it very specific to those two sites.
 

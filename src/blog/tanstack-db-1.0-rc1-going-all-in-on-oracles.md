@@ -8,11 +8,11 @@ authors:
   - Kyle Mathews
 ---
 
-I'm delighted to announce on behalf of the core DB maintainers, myself, Sam Willis, Kevin De Porre, and the entire DB community, that TanStack DB 1.0 RC1 is here!
+I'm delighted to announce on behalf of the core DB maintainers, myself, Sam Willis, Kevin De Porre, and the entire TanStack community, that TanStack DB 1.0 RC1 is here!
 
 After 1.5 years of development and betas and many discussions with users, the API is powerful, production-ready, and stable.
 
-Since our [0.6 release](https://tanstack.com/blog/tanstack-db-0.6-app-ready-with-persistence-and-includes), we have shipped [server rendering and deep integration with TanStack Start](https://tanstack.com/db/latest/docs/guides/ssr), worked through a long run of correctness problems closing every known bug, added new collection adapters for Neon Realtime and Convex, and [made DB much faster for applications with many simultaneous live queries](https://github.com/TanStack/db/pull/1987).
+Since our [0.6 release](https://tanstack.com/blog/tanstack-db-0.6-app-ready-with-persistence-and-includes), we’ve shipped [server rendering and deep integration with TanStack Start](https://tanstack.com/db/latest/docs/guides/ssr), added collection adapters for [Neon Realtime](https://neon.com/docs/realtime/overview) and [Convex](https://github.com/TanStack/db/pull/2230), and expanded framework support to include [Preact](https://github.com/TanStack/db/pull/2235), our sixth framework adapter. We’ve fixed an enormous number of bugs while hardening DB for 1.0—and made it much faster and smaller along the way.
 
 The post has eight sections covering my work to prepare DB for 1.0:
 
@@ -27,7 +27,7 @@ The post has eight sections covering my work to prepare DB for 1.0:
 
 If you haven't used it yet, TanStack DB is a reactive client data framework that makes backend data feel local. Records from your API or sync engine become typed collections. Components query them for joined, filtered live results. Optimistic edits appear immediately and reconcile with the server later.
 
-Perhaps the biggest difference between TanStack DB from earlier client-side databases is that you can adopt TanStack DB incrementally. Historically, getting reactive queries, optimistic mutations, and offline support often meant adopting a new database and sync architecture. With TanStack DB, you can start with your existing REST APIs and [TanStack Query](https://tanstack.com/query/latest) setup, immediately gain fast incremental relational queries, and progressively add [local persistence](https://tanstack.com/db/latest/docs/guides/sqlite-persistence), [durable offline mutations](https://tanstack.com/db/latest/docs/guides/offline-transactions), or real-time sync as your needs evolve. Because the application-facing query model stays the same, you can go from a conventional web application to a fully offline-capable, local-first app without rewriting everything along the way.
+Perhaps the biggest difference between TanStack DB from earlier client-side databases is that you can adopt TanStack DB features incrementally. Historically, getting reactive queries, optimistic mutations, and offline support often meant adopting a new database and sync architecture. With TanStack DB, you can start with your existing REST APIs and [TanStack Query](https://tanstack.com/query/latest) setup, immediately gain fast incremental relational queries, and progressively add [local persistence](https://tanstack.com/db/latest/docs/guides/sqlite-persistence), [durable offline mutations](https://tanstack.com/db/latest/docs/guides/offline-transactions), or real-time sync as needed. Because the application-facing query model stays the same, you can go from a conventional web application to a fully offline-capable, local-first app without rewriting everything along the way.
 
 We began building DB in early 2025 at [ElectricSQL](https://electric-sql.com/), which incubated the project for its first year and a half. Since [Neon acquired us in August](https://neon.com/blog/electrifying-neon-building-the-realtime-backend), it has continued to back DB and we recently released [Neon Realtime](https://neon.com/docs/realtime/overview) with [TanStack DB support](https://neon.com/docs/realtime/sdks/typescript#tanstack-db).
 
@@ -41,51 +41,63 @@ I've worked on open-source libraries for a long time and previously found it har
 
 ## From unit tests to oracles
 
-Every software test needs something to try and a way to tell whether the result is right. That second part—the answer key—is called an **oracle**.
+I’m using oracles to make DB’s design executable: to express what it should do in a form I can run, challenge, and verify the production code against. I’ll build up to that from an ordinary unit test.
 
-In a typical unit test, I write down a specific example and its expected result: start with three open tasks, mark one complete, and check that the list contains the other two. That expected list is the oracle for that test. I supply the answer by hand.
+A conventional unit test records the expected result for a particular example: give a sorting function `[3, 1, 2]` and verify that it returns `[1, 2, 3]`. I choose the input and supply the answer.
 
-The model-based oracles I'm using calculate expected answers for many different examples. Suppose a screen shows the ten highest-priority open tasks. DB's production code uses complex machinery to keep that list current efficiently as tasks change. The model trades efficiency for simplicity: take all the tasks, remove the completed ones, sort by priority, and take the first ten. It rebuilds the whole answer from scratch after every change—a few straightforward lines of code can describe what a much more complex implementation should produce.
+**Property-based testing** generalizes from examples to rules. A sorting function should return exactly the original elements in ascending order. A generator produces thousands of inputs—empty lists, repeated values, negative numbers, long lists—and the test verifies that rule for each one.
 
-Give the model and DB the same changes, then compare their results. The simple model becomes an independent answer key for the optimized production code.
+The generator supplies examples, but I still have to supply the rules. For a library like DB, that means spelling out which actions are allowed, how they change the data, and what its users should observe. Building a useful generated test becomes a way of working out and expressing the subsystem’s design.
+
+Consider this live query over a collection of tasks:
+
+```ts
+const topTasks = createLiveQueryCollection((q) =>
+  q
+    .from({ task: tasks })
+    .where(({ task }) => eq(task.completed, false))
+    .orderBy(({ task }) => task.priority, 'desc')
+    .orderBy(({ task }) => task.id, 'asc')
+    .limit(10),
+)
+```
+
+The query selects up to ten open tasks, highest priority first, breaking ties by ID. DB must maintain the result defined by those clauses as the source records change. Completing a selected task removes it and brings the next eligible task into the window. Raising another task’s priority can move it into the window and displace one already there. Once DB has processed a batch of changes, the published rows and their order must match that query.
+
+A small model can express this design directly. It keeps the task records in a plain JavaScript `Map`, applies the requested changes, then filters out completed tasks, sorts by priority and ID, and takes the first ten. It uses ordinary collection and array operations, independently of DB’s query machinery.
+
+DB uses complex machinery to maintain the result efficiently. The model recomputes everything from scratch. It trades efficiency for simplicity, making the expected behavior straightforward to understand and inspect. The model serves as an **oracle**: an independent reference for what DB should produce.
+
+The design now guides the generated test. The generator varies the starting records and sequences of supported inserts, updates, and deletes, applied individually or in batches. The test gives the same changes to the model and DB. After DB processes each batch, it compares the live query’s public result with the model’s answer.
 
 ```mermaid
 flowchart TD
-    A["Same sequence of changes"] --> M["Simple model"]
-    A --> D["Real DB"]
-    M --> E["Expected result"]
-    D --> R["Actual result"]
-    E --> C["Compare"]
-    R --> C
+    P["Explicit design"] --> G["Generate permitted changes"]
+    P --> M["Independent model"]
+    P --> C["Compare promised public behavior"]
+    G --> M
+    G --> D["Real DB"]
+    M -->|Expected result| C
+    D -->|Actual result| C
 ```
 
-The answer key can come from a small model I write or an existing tool that's already been thoroughly tested. A built-in JavaScript `Map` can track which keyed rows should exist after a sequence of inserts, updates, and deletes. SQLite can tell us what a query should return—I've used it to validate DB's query behavior. In each case, we have an independent way to calculate the expected answer and compare it with production.
+An oracle can also draw on an established system’s understanding. For server-to-client synchronization, Postgres can supply the reference: make changes in Postgres, let them synchronize, and require the client’s corresponding rows and values to match Postgres exactly. We can build on existing abstractions instead of writing every reference computation ourselves.
 
-I combine the model with **property-based testing and fuzzing**. Agents write tests that automatically generate and run thousands of varied sequences—adding tasks, changing priorities, completing and reopening them—while the model supplies the expected answer after each change. A reported bug becomes the starting point for exploring a whole category of failures: different starting data, different changes, different orders.
+A reported bug becomes the starting point for exploring a category of failures: different starting data, different changes, different orders. **The model turns the design into an answer key for cases we never wrote out by hand.**
 
-**The model gives us an answer key for cases we never wrote out by hand.**
-
-Oracle models optimize for understanding; production code optimizes for speed and code size. Developing the model is scientific work: making a theory of how this part of DB should behave precise enough to investigate and challenge. Production code is the engineering that puts that understanding to work.
+Oracle models optimize for understanding; production code optimizes for speed and code size. Developing the model is scientific work: making a theory of how this part of DB should behave precise enough to investigate and challenge. Production code is the engineering that puts that understanding to work. With an independent model of the behavior to preserve, agents can experiment with faster algorithms or much simpler implementations.
 
 ## Crafting a playable environment for agents
 
-An agent reading DB's implementation can see what it does today. To make good changes, it also needs to understand which behaviors are promises, which are accidents, and why we chose one rule over another.
+An agent reading DB's implementation can see what it does today. To make good changes, it needs to understand which behaviors are promises, which are accidents, and where we still need to decide what DB should do.
 
-I've been reshaping DB's repository into a "playable" environment where fresh agents can find those design decisions, experiment, and get clear feedback. Each oracle captures a small part of DB's intended behavior, with the reasoning behind its rules written beside the model.
+I've been reshaping DB's repository into a "playable" environment where fresh agents can find those design decisions, experiment, and get clear feedback. Each oracle controls a small part of DB's intended behavior, with the reasoning behind its rules written beside the model.
 
-I use one recurring loop to develop that understanding: start with a bug report or design question and work out the rules for the whole class of cases:
-
-- Which actions are allowed, and which should be rejected?
-- What should a user see after each action, and when?
-- What should happen if actions overlap, fail, or arrive in a different order?
-
-I encode that reasoning in the oracle's model, turning the design decisions into precise, executable rules the codebase must satisfy. Then agents search for counterexamples and verify their fixes against those rules across generated cases. The goal is to fix the entire class of bugs, with the model continuing to enforce the design as the codebase changes.
-
-I make the product decisions; agents do much of the searching.
+I use one recurring loop: start with a bug report or design question, investigate what DB should guarantee across the whole class of cases, and encode that understanding in an oracle. Agents search for counterexamples and verify proposed fixes. I make the product decisions; agents do much of the searching. What we learn stays in the repository, enforced by the oracle, so the next investigation starts from a stronger understanding.
 
 DB now has **176 oracle test files across 15 packages**, covering [the messages sent when data changes](https://github.com/TanStack/db/blob/main/packages/db/tests/change-event-history-oracle.test.ts), [how queries assemble related records](https://github.com/TanStack/db/blob/main/packages/db/tests/query/includes-cross-formulation-oracle.property.test.ts), and [which rows pagination returns](https://github.com/TanStack/db/blob/main/packages/query-db-collection/tests/cursor-pagination.oracle.test.ts), among other behaviors. The repository's [coverage map](https://github.com/TanStack/db/blob/main/docs/contributing/oracle-coverage.md) helps agents find the relevant oracle.
 
-An agent working on a change will often run afoul of an oracle and get told its design is wrong. It then reads the oracle carefully to understand the design it needs to respect and revises its approach. Hours of earlier design work guide a later agent at the moment it needs that understanding.
+An agent working on a change will often run afoul of an oracle and get told its design is wrong. It then reads the oracle carefully to understand the design it needs to respect and revises its approach. The failure directs it to the relevant model, a concrete counterexample, and the reasoning behind the rule. Hours of earlier design work become available when needed, without requiring every fresh agent to absorb the entire design up front.
 
 Design that can talk back.
 
@@ -93,17 +105,19 @@ Design that can talk back.
 
 A mature library has answers to questions its authors didn’t know to ask. Users combine features in unexpected ways; maintainers fix the bugs and resolve the ambiguities those combinations expose. Years of that work turn a promising API into something applications can depend on.
 
-DB makes that maturation particularly demanding by promising that backend data can feel local. A screen asks for the ten highest-priority open tasks; completing one can mean fetching the next task from the server. Now make that edit offline, preserve it across an app restart, and reconnect after the server’s data has changed. What should the screen show along the way? What must DB retain, fetch, and reconcile? The application still uses the same query, while the number of situations DB must handle has exploded.
+The task query above shows why DB’s maturation is particularly demanding. Completing one task can mean fetching the next task from the server. Now make that edit offline, preserve it across an app restart, and reconnect after the server’s data has changed. What should the screen show along the way? What must DB retain, fetch, and reconcile?
 
-Oracles let me explore that design space dramatically faster, without waiting for users to discover each failure. The history of these collection oracles shows how that exploration builds on itself.
+Oracles let me explore that design space dramatically faster, without waiting for users to discover each failure. Let's look at the history of a few of these oracles that cover collection data updates to see how that exploration builds on itself.
 
 ### How the oracles got stronger
 
-Collections notify other code—their subscribers—about changes with insert, update, and delete messages. A user [reported a bug](https://github.com/TanStack/db/issues/1901) where they deleted a row and reinserted a replacement with the same key in one turn. DB sent the subscriber an insert for the replacement followed by a delete for the same key, with no later message to put it back. A direct read returned the replacement, but replaying those messages added it to the subscriber's cache and then removed it.
+Collections notify other code—their subscribers—about changes with insert, update, and delete messages. A user [reported a bug](https://github.com/TanStack/db/issues/1901) where they deleted a row and reinserted a replacement with the same key in one turn. DB sent the subscriber a delete for the row but no later insert message to put it back. A direct read returned the replacement, but replaying the collection messages left the subscriber's cache without the reinserted row.
 
 [PR #1902](https://github.com/TanStack/db/pull/1902) fixed the immediate failure and added an oracle for the broader promise: **a subscriber applying every change message should end up with the same rows as a direct read.**
 
-The test constructs histories of writes, exploring that promise from several directions:
+The oracle has three parts: a small reference model, a real DB collection, and a subscriber listening to that collection. The model applies the requested writes to a plain JavaScript `Map`, calculating which rows should exist. DB receives the same writes. The subscriber maintains its own map, updated only through the insert, update, and delete messages DB sends it. This lets us verify both that DB stores the right rows and that its messages give subscribers enough information to reconstruct them.
+
+The oracle constructs histories of writes, exploring that promise from several directions:
 
 - Start empty, with one row already present, or with two rows present.
 - Insert, update, delete, and reinsert the same key; interleave writes to different keys. Give each inserted or updated row a distinct value so stale data is visible.
@@ -111,27 +125,29 @@ The test constructs histories of writes, exploring that promise from several dir
 - Enumerate every legal short sequence: up to four writes on one initially absent key, or three writes on two keys from every starting combination.
 - Generate longer histories—up to twenty writes across four keys—with both a fixed seed for repeatable coverage and fresh random seeds for further exploration.
 
-For each history, a plain JavaScript `Map` calculates which rows those requested writes should leave behind. Real DB receives the same writes, while a subscriber maintains a **separate map using only the change messages DB sends it**. After each completed write or group of writes, the oracle compares three things: the expected rows, DB’s direct reads, and the subscriber’s reconstructed rows. It also checks subscriber/read agreement whenever DB delivers a batch of messages. In the original failure, the model and DB contained the replacement row, while the subscriber’s map was empty.
+After each completed write or group of writes, the oracle compares the model’s expected rows, a direct read from DB, and the subscriber’s reconstructed rows. All three should agree. Whenever DB delivers a batch of messages, it also verifies that applying those messages leaves the subscriber with the same rows DB currently exposes. In the original failure, the model and DB held the replacement row, but DB’s messages left the subscriber’s map empty.
 
 Later, an agent challenged the oracle by deliberately changing how DB chose between insert and update messages. The oracle accepted both versions, even though they sent different messages for the same history. Investigating that disagreement revealed a bug in production—and a blind spot in the oracle. After a subscriber had removed a deleted row, a sync commit made the same key visible again. DB remembered the earlier optimistic operation and sent an **update**. But the subscriber no longer had that row. It needed an **insert**.
 
 The oracle hid the mistake. Its simulated subscriber used JavaScript’s `Map.set` for both inserts and updates, so the invalid update quietly recreated the missing row. The expected rows, direct reads, and subscriber’s reconstructed rows all agreed. I made the oracle enforce what each message means: **insert requires an absent key; update and delete require a present key.** Without adding any histories, 26 of the existing 378 cases failed. [PR #1995](https://github.com/TanStack/db/pull/1995) removed the branch that chose an update for a previously absent key. The code became smaller, and all 378 cases passed.
 
-Another gap surfaced during CodeRabbit’s review of [PR #2004](https://github.com/TanStack/db/pull/2004). While a local optimistic edit was active, a server refresh replaced the collection’s source rows. DB sent **delete → insert → insert** for the same key. Restoring the optimistic edit announced the row once; processing the server’s replacement announced it again. The code intended to remove that second announcement, but searched for it before it had been added.
+Another gap surfaced during a review of [PR #2004](https://github.com/TanStack/db/pull/2004). While a local optimistic edit was active, a server refresh replaced the collection’s source rows. DB sent **delete → insert → insert** for the same key. DB assembled the outgoing messages in two stages. First, it restored the row with its pending optimistic edit and added an insert message. Later, while processing the server’s replacement rows, it added another insert for the same row. The duplicate-removal step ran between those stages, before the second insert existed, so it removed nothing.
 
-A separate oracle already explored these interactions. Its model started with server rows and overlaid local edits according to whether they were still pending, had succeeded, or had failed. Histories interleaved those edits and outcomes with server updates, including complete replacements. But its subscriber used a mode that filtered out repeated inserts. The oracle never saw the second insert. Meanwhile, the strict subscriber from #1995 never exercised server replacements. One oracle reached the failure but hid it; the other could recognize it but never reached it.
+A separate oracle already explored server refreshes during optimistic edits. But its subscriber requested both the initial rows and later changes. In that mode, DB tracks which rows it has already delivered and filters repeated inserts. The duplicate disappeared before the oracle could inspect it. Meanwhile, the strict subscriber from #1995 could recognize the invalid message but never exercised server refreshes.
 
-For [PR #2005](https://github.com/TanStack/db/pull/2005), I added a second subscriber that received messages without that filtering. It started with the independent model’s expected rows, checked every message against the rows it already held, and compared its reconstructed rows with the model after each history step. The old implementation failed seven cases. The fix stopped announcing rows that the optimistic restoration had already published.
+In [PR #2005](https://github.com/TanStack/db/pull/2005), I extended the oracle to exercise DB’s other subscription mode: receive only future changes, without that filtering. I initialized this subscriber’s map from the independent model, then verified every incoming message and compared its reconstructed rows with the model after each history step. The old implementation failed seven cases. The production fix stopped generating the duplicate insert; the filtering remained unchanged.
 
 The stronger oracle then found another duplicate insert during a random run, without any server replacement. A delete succeeded, a new optimistic insert restored the same key, and a later sync commit finished clearing away the old delete. That cleanup forgot the subscriber had already seen the new row and announced it again. The same message rule caught a different route to the failure.
 
-The original report was fixed in #1902. Each subsequent investigation sharpened what the oracles could distinguish: matching final rows, valid individual messages, and valid messages through more complicated interactions. That made the next investigation more capable.
+The original report was fixed in #1902. Each subsequent investigation clarified what a subscriber should receive or exposed a weakness in how we verified it.
+
+The same iterative design process is happening across DB’s oracles: finding production bugs, closing gaps in coverage, discovering missing laws, and correcting mistaken assumptions in the models themselves. Each oracle develops a more precise account of its small part of DB. The design and the instruments for verifying it mature together, with each discovery preserved for every later change.
 
 ## A recipe for designing an oracle
 
 Here's how I build one with my agents:
 
-1. **Choose one precise promise.** State what someone using the software should observe, and when. This is the oracle's law. Resolve ambiguous cases e.g. our task-list model needs a rule for ordering tasks with equal priority.
+1. **Choose one precise promise.** State what someone using the software should observe, and when. This is the oracle's law. Resolve ambiguous cases explicitly: the task query above breaks ties between equal-priority tasks by ID. Record why you chose the rule and what assumptions it depends on, so later agents can recognize when the decision needs revisiting.
 
 2. **Calculate the answer independently.** Derive it from the promise. Reusing production's algorithms or helpers can reproduce the same mistake on both sides and leave the oracle happily agreeing with broken code.
 
@@ -147,9 +163,9 @@ I've written and heavily iterated on [oracle-authoring](https://github.com/TanSt
 
 ### How this relates to formal verification
 
-For difficult designs, I often start in [TLA+](https://lamport.org/tla/tla.html), explore the consequences of proposed rules, then translate the model into a TypeScript oracle that runs against DB.
+The oracle’s model is an **executable specification**. For difficult designs, I often develop that specification first in [TLA+](https://lamport.org/tla/tla.html), a language used in formal verification. Its model checker can explore every allowed ordering of operations within a bounded model. Can an obsolete request overwrite a newer result? Can releasing one subscription cancel work another still needs? Can a sequence of valid operations leave the system stuck? A counterexample gives me the exact sequence where a proposed rule fails, so I can investigate what the design needs to change.
 
-That model is an **executable specification**: a precise account of the intended behavior. This shares a foundation with [formal verification](https://www.anthropic.com/research/formal-verification). A formal proof, using a system such as [Lean](https://lean-lang.org/), establishes a specified property for all cases covered by its assumptions. Our generated tests exercise the actual implementation and compare its behavior with the specification.
+I then translate the model into a TypeScript oracle that runs against DB. TLA+ tests whether the modeled design preserves its stated rules; the oracle tests whether the actual implementation follows that design across generated histories.
 
 ## Look for cranes
 
@@ -159,23 +175,23 @@ Dennett contrasts this with **cranes**—construction cranes. Both skyhooks and 
 
 The skyhook story in agentic programming is that a sufficiently intelligent model, given a repository, will infer every unstated rule and deliver the right system in one leap. One-shot coding makes that easy to believe for familiar tasks. Those successes stand on compilers, libraries, conventions, and a vast history of solved problems in the model's training. Much of the design work has already been done.
 
-Every substantial software project runs into questions that history hasn't settled. Features interact in unexpected ways; new uses reveal missing guarantees. More intelligence cannot reconstruct a decision we haven't made or captured. The work is to search the design space, decide what should hold, and test candidate answers.
+Every substantial software project runs into questions that software history hasn't settled. Features interact in unexpected ways; new uses reveal missing guarantees. More intelligence cannot reconstruct a decision we haven't made or captured. The work is to search the design space, decide what should hold, and test candidate answers.
 
 For my agent swarms, the cranes I've added to the DB repo make that search productive and token efficient. Oracles make candidate implementations cheap to try and incorrect behavior easier to reject. Hostile reviews strengthen the instruments doing the rejecting. Benchmarks tell me whether an implementation that preserves the behavior also improves performance. Together, these mechanisms let agents explore more ambitious changes and get useful feedback about which ones to pursue.
 
-I also shape the _fitness landscape_—the constraints and feedback that favor some candidates over others—by editing [AGENTS.md](https://github.com/TanStack/db/blob/main/AGENTS.md). For example, I tell agents to treat every line of production code as a continuing cost and prefer fixes that remove code. This pushes them hard to avoid bloated and duplicative implementations.
+I also shape the _fitness landscape_—the constraints and feedback that favor some candidates over others—by editing [AGENTS.md](https://github.com/TanStack/db/blob/main/AGENTS.md). For example, I tell agents to prefer fixes that remove production code.
 
 The cranes help agents reach further, and the oracles give that progress a ratchet. Once a design decision is captured and enforced by an oracle, it stays locked in. The regressions I still find expose assumptions the oracles weren’t testing. Agents can radically rework the implementation without losing the design knowledge we’ve already established. Each investigation starts from a firmer platform, reaches another ambiguity, and locks in another piece of the design.
 
-The work has taken three months and many billions of tokens. Each investigation leaves later agents with sharper instruments. That change in their working environment has mattered far more than any model upgrade I've seen.
+The work has taken three months and many billions of tokens. Each investigation leaves later agents with sharper instruments. These changes in their working environment has mattered far more than any model upgrade I've seen.
 
 ## Superhistory
 
-Coding agents can compress what used to be weeks of work into an afternoon. Venkatesh Rao calls this agent-mediated compression of experience [“artificial time”](https://contraptions.venkateshrao.com/p/superhistory-not-superintelligence). I spend much of the day in what feels like a succession of intense design meetings, with fresh evidence arriving 100x faster than I could have gathered it myself.
+Coding agents equipped with those instruments can compress what used to be weeks of work into an afternoon. Venkatesh Rao calls this agent-mediated compression of experience [“artificial time”](https://contraptions.venkateshrao.com/p/superhistory-not-superintelligence). I spend much of the day in what feels like a succession of intense design meetings, with fresh evidence arriving 100x faster than I could have gathered it myself.
 
 I’m speedrunning DB through the software maturation process. Oracles let agents explore huge stretches of design space, uncovering failures and unresolved design questions that would normally emerge over years of use. Interactions between synchronization, optimistic edits, persistence, and queries get investigated long before a user happens upon that particular combination. Working through those discoveries is giving DB years of maturation in months.
 
-That acceleration changes how programming feels. Implementation work clears quickly, leaving me in a steady stream of design decisions. I spend much more of my day deciding what DB should guarantee and whether a fix simplifies the system or adds unnecessary machinery. Programming has become more intellectually demanding for me even as writing the code has become cheaper.
+Programming has become more intellectually demanding for me even as writing the code has become cheaper.
 
 When an idea would take weeks to investigate, I need a strong reason to try it. With agents and an oracle, I can afford to take a much less certain idea far enough to find out whether it works. That changes which designs I can explore.
 
@@ -183,17 +199,17 @@ Rigorous engineering is much cheaper now. Oracles have always worked incredibly 
 
 ## Accelerating design
 
-Programmers have always drawn on accumulated design knowledge—recognizing parallels, adapting ideas, and discovering where they stop fitting. LLMs give programmers and coding agents a super fast search interface into that history. I use them to search a vast repertoire of algorithms and design ideas for things that fit DB's particular problems, then work through the adaptations those ideas need.
+Programmers have always drawn on accumulated design knowledge—recognizing parallels, adapting ideas, and discovering where they stop fitting. LLMs give programmers and coding agents a super fast search interface into that history. I use them to search a vast repertoire of algorithms and design ideas for things that fit DB's particular problems, then work out how to implement.
 
 Design develops through many successive adaptations. Each decision has to fit what's already there, and its consequences reveal further questions to work through. An idea that solves one problem can expose a distinction we hadn't previously needed, or a conflict between two otherwise useful rules. Working through those decisions and distilling them into oracle models has become the bulk of programming for me.
 
-Design is immensely complicated. Establishing or improving a single oracle can take hours of investigation between me and my agents: figuring out which distinctions matter, what the system should promise, and whether our model actually expresses that promise. A small executable model can embody a great deal of intellectual work. Together, those models embody an increasingly detailed theory of how clients should load, update, reconcile, and present data.
+Design is immensely complicated. Establishing or improving a single oracle can take hours of investigation between me and my agents: figuring out which distinctions matter, what the system should promise, and whether our model actually expresses that promise. A small executable model can embody a great deal of intellectual work. Together, those models embody an increasingly detailed theory of how within the DB world clients should load, update, reconcile, and present data.
 
 ## The world DB creates for your agents
 
 Frameworks give application code a simpler world to operate in. DB lets you query backend data and edit it as though it were local, while handling the complicated coordination underneath. The design decisions I’ve described become problems your application doesn’t have to solve again.
 
-With coding agents, that accumulated understanding can do more. Frameworks, infrastructure, and developer tools can help guide how applications get written. [SKILLs](https://agentskills.io/home) are a first step: DB can explain its abstractions and guarantees to an agent as it works. I want to go further and give your agents executable models and instruments they can use to develop and verify their designs.
+With coding agents, that accumulated understanding can do more. Frameworks, infrastructure, and developer tools can help guide how applications get written. [SKILLs](https://agentskills.io/home) are a first step: DB can explain its abstractions and guarantees to an agent as it works. I think we can go a lot further and give your agents executable models and instruments they can use to develop and verify their designs.
 
 An agent building a custom collection could use a DB oracle to discover where its sync behavior breaks down. An agent making a screen faster could experiment with loading strategies, measuring query latency and data transferred while verifying that the results stay correct. The design knowledge accumulated while hardening DB would become something your agents can actively work with—helping translate your intent into optimal application code.
 
@@ -225,7 +241,7 @@ _Simplified sketch of an experimental API._
 
 In this design, DB also generates the data-loading and mutation wiring. When a mutation runs, the client tells the server which query collections are live. The server determines which need updating and returns fresh results with the mutation response.
 
-Making this work broadly means understanding enough of Postgres's vast language to preserve query meaning, determine which reads a write affects, and reconcile client state correctly. A few years ago, I wouldn't have considered attempting this hugely ambitious API. But the learnings of the last few months makes it feel tractable enough to pursue.
+Making this work broadly means understanding enough of Postgres's vast language to preserve query meaning, determine which reads a write affects, and reconcile client state correctly. A few years ago, I wouldn't have considered attempting this hugely ambitious API. But the learnings of the last few months make it feel tractable enough to pursue.
 
 ### Software that gets better at getting better
 

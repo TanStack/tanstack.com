@@ -110,8 +110,20 @@ function Index() {
                     light-mode selves (no per-button color overrides). */}
                 <div className="ds-mode-light flex flex-wrap items-center gap-2">
                   <Button
-                    type="button"
-                    onClick={() => openLibraries()}
+                    as="a"
+                    href="/libraries"
+                    onClick={(event) => {
+                      if (
+                        event.button !== 0 ||
+                        event.metaKey ||
+                        event.ctrlKey ||
+                        event.shiftKey ||
+                        event.altKey
+                      )
+                        return
+                      event.preventDefault()
+                      openLibraries()
+                    }}
                     variant="primary"
                     size="md"
                   >

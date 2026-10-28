@@ -13,6 +13,8 @@ I'm delighted to announce on behalf of the core DB maintainers, myself, Sam Will
 
 After 1.5 years of development and betas and many discussions with users, the API is powerful, production-ready, and stable.
 
+If you're upgrading an existing app, see the [1.0 RC migration guide](https://tanstack.com/db/latest/docs/guides/migrate-to-1-0-rc) for package updates and breaking API changes.
+
 Since our [0.6 release](https://tanstack.com/blog/tanstack-db-0.6-app-ready-with-persistence-and-includes), we’ve shipped [server rendering and deep integration with TanStack Start](https://tanstack.com/db/latest/docs/guides/ssr), added collection adapters for [Neon Realtime](https://neon.com/docs/realtime/overview) and [Convex](https://github.com/TanStack/db/pull/2230), and expanded framework support to include [Preact](https://github.com/TanStack/db/pull/2235), our sixth framework adapter. We’ve fixed an enormous number of bugs while hardening DB for 1.0—and made it much faster and smaller along the way.
 
 This post has seven sections covering my work to prepare DB for 1.0:

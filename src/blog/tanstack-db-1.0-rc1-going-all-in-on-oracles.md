@@ -17,7 +17,7 @@ If you're upgrading an existing app, see the [1.0 RC migration guide](https://ta
 
 Since our [0.6 release](https://tanstack.com/blog/tanstack-db-0.6-app-ready-with-persistence-and-includes), we’ve shipped [server rendering and deep integration with TanStack Start](https://tanstack.com/db/latest/docs/guides/ssr), added collection adapters for [Neon Realtime](https://neon.com/docs/realtime/overview) and [Convex](https://github.com/TanStack/db/pull/2230), and expanded framework support to include [Preact](https://github.com/TanStack/db/pull/2235), our sixth framework adapter. We’ve fixed an enormous number of bugs while hardening DB for 1.0—and made it much faster and smaller along the way.
 
-This post has seven sections covering my work to prepare DB for 1.0:
+DB is built for demanding applications, and making its ambitious API fully production-ready has been my main focus over the past few months. Here’s how we’ve done that, what we’ve learned, and why I’m excited about where it leads:
 
 1. [From unit tests to oracles](#from-unit-tests-to-oracles): what oracles are and why I'm so excited about them
 2. [Hardening DB for 1.0](#hardening-db-for-10): how we're finding bugs and making DB epically production-ready
@@ -43,7 +43,9 @@ I've worked on open-source libraries for a long time and previously found it har
 
 ## From unit tests to oracles
 
-I’m using oracles to make DB’s design executable: to express what it should do in a form I can run, challenge, and verify the production code against. I’ll show how to turn an ordinary unit test into an oracle, step by step, and what we gain along the way.
+A [test oracle](https://en.wikipedia.org/wiki/Test_oracle) is an established concept in software testing: something that tells you what the correct behavior should be. It might be a known answer, a simple reference model, or another trusted system.
+
+I’m using oracle models to make DB’s design executable: to express what it should do in a form I can run, challenge, and verify the production code against. I’ll show how to turn an ordinary unit test into an oracle, step by step, and what we gain along the way.
 
 A conventional unit test records the expected result for a particular example: give a sorting function `[3, 1, 2]` and verify that it returns `[1, 2, 3]`. I choose the input and supply the answer.
 
@@ -181,7 +183,7 @@ In Daniel Dennett's [_Darwin's Dangerous Idea_](https://www.simonandschuster.com
 
 Dennett contrasts this with **cranes**—construction cranes. Both skyhooks and cranes lift, but a crane works from existing designs. It helps you reach upwards to build a new layer. Once that layer is built, it can support new cranes that reach higher and build further layers. In evolution, cranes make more possibilities accessible to variation and selection. Sexual reproduction, for example, recombines inherited variants, letting selection work on combinations that mutation in a single lineage would reach much more slowly.
 
-![Four increasingly tall structures, each using a construction crane to add another layer above the completed floors.](/blog-assets/tanstack-db-1.0-rc1-going-all-in-on-oracles/cranes-building-new-layers.png)
+![Four increasingly tall structures, each using a construction crane to add another layer above the completed floors.](/blog-assets/tanstack-db-1.0-rc1-going-all-in-on-oracles/cranes-building-new-layers.jpeg)
 
 The skyhook story in agentic programming is that a sufficiently intelligent model, given a repository, will infer every unstated rule and deliver the right system in one leap. One-shot coding makes that easy to believe for familiar tasks. Those successes stand on compilers, libraries, conventions, and a vast history of solved problems in the model's training. Much of the design work has already been done.
 

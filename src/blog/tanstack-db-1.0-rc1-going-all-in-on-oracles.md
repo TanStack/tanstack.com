@@ -1,6 +1,6 @@
 ---
 title: 'TanStack DB 1.0 RC1: Going All In on Oracles'
-published: 2026-10-16
+published: 2026-10-29
 excerpt: 'TanStack DB 1.0 RC1 is here. How oracles helped me find whole classes of bugs and rethink programming with agents.'
 library: db
 authors:

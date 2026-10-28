@@ -218,6 +218,7 @@ import { Route as LibraryMarkdownVersionIndexRouteImport } from './routes/_libra
 import { Route as LibraryPacerVersionIndexRouteImport } from './routes/_library/pacer.$version.index'
 import { Route as LibraryQueryVersionIndexRouteImport } from './routes/_library/query.$version.index'
 import { Route as LibraryRangerVersionIndexRouteImport } from './routes/_library/ranger.$version.index'
+import { Route as LibraryRedactVersionIndexRouteImport } from './routes/_library/redact.$version.index'
 import { Route as LibraryRouterVersionIndexRouteImport } from './routes/_library/router.$version.index'
 import { Route as LibraryStartVersionIndexRouteImport } from './routes/_library/start.$version.index'
 import { Route as LibraryStoreVersionIndexRouteImport } from './routes/_library/store.$version.index'
@@ -1401,6 +1402,12 @@ const LibraryRangerVersionIndexRoute =
     path: '/ranger/$version/',
     getParentRoute: () => LibraryRoute,
   } as any)
+const LibraryRedactVersionIndexRoute =
+  LibraryRedactVersionIndexRouteImport.update({
+    id: '/redact/$version/',
+    path: '/redact/$version/',
+    getParentRoute: () => LibraryRoute,
+  } as any)
 const LibraryRouterVersionIndexRoute =
   LibraryRouterVersionIndexRouteImport.update({
     id: '/router/$version/',
@@ -2250,6 +2257,7 @@ export interface FileRoutesByFullPath {
   '/pacer/$version/': typeof LibraryPacerVersionIndexRoute
   '/query/$version/': typeof LibraryQueryVersionIndexRoute
   '/ranger/$version/': typeof LibraryRangerVersionIndexRoute
+  '/redact/$version/': typeof LibraryRedactVersionIndexRoute
   '/router/$version/': typeof LibraryRouterVersionIndexRoute
   '/start/$version/': typeof LibraryStartVersionIndexRoute
   '/store/$version/': typeof LibraryStoreVersionIndexRoute
@@ -2553,6 +2561,7 @@ export interface FileRoutesByTo {
   '/pacer/$version': typeof LibraryPacerVersionIndexRoute
   '/query/$version': typeof LibraryQueryVersionIndexRoute
   '/ranger/$version': typeof LibraryRangerVersionIndexRoute
+  '/redact/$version': typeof LibraryRedactVersionIndexRoute
   '/router/$version': typeof LibraryRouterVersionIndexRoute
   '/start/$version': typeof LibraryStartVersionIndexRoute
   '/store/$version': typeof LibraryStoreVersionIndexRoute
@@ -2871,6 +2880,7 @@ export interface FileRoutesById {
   '/_library/pacer/$version/': typeof LibraryPacerVersionIndexRoute
   '/_library/query/$version/': typeof LibraryQueryVersionIndexRoute
   '/_library/ranger/$version/': typeof LibraryRangerVersionIndexRoute
+  '/_library/redact/$version/': typeof LibraryRedactVersionIndexRoute
   '/_library/router/$version/': typeof LibraryRouterVersionIndexRoute
   '/_library/start/$version/': typeof LibraryStartVersionIndexRoute
   '/_library/store/$version/': typeof LibraryStoreVersionIndexRoute
@@ -3189,6 +3199,7 @@ export interface FileRouteTypes {
     | '/pacer/$version/'
     | '/query/$version/'
     | '/ranger/$version/'
+    | '/redact/$version/'
     | '/router/$version/'
     | '/start/$version/'
     | '/store/$version/'
@@ -3492,6 +3503,7 @@ export interface FileRouteTypes {
     | '/pacer/$version'
     | '/query/$version'
     | '/ranger/$version'
+    | '/redact/$version'
     | '/router/$version'
     | '/start/$version'
     | '/store/$version'
@@ -3809,6 +3821,7 @@ export interface FileRouteTypes {
     | '/_library/pacer/$version/'
     | '/_library/query/$version/'
     | '/_library/ranger/$version/'
+    | '/_library/redact/$version/'
     | '/_library/router/$version/'
     | '/_library/start/$version/'
     | '/_library/store/$version/'
@@ -5497,6 +5510,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryRangerVersionIndexRouteImport
       parentRoute: typeof LibraryRoute
     }
+    '/_library/redact/$version/': {
+      id: '/_library/redact/$version/'
+      path: '/redact/$version'
+      fullPath: '/redact/$version/'
+      preLoaderRoute: typeof LibraryRedactVersionIndexRouteImport
+      parentRoute: typeof LibraryRoute
+    }
     '/_library/router/$version/': {
       id: '/_library/router/$version/'
       path: '/router/$version'
@@ -6416,6 +6436,7 @@ interface LibraryRouteChildren {
   LibraryPacerVersionIndexRoute: typeof LibraryPacerVersionIndexRoute
   LibraryQueryVersionIndexRoute: typeof LibraryQueryVersionIndexRoute
   LibraryRangerVersionIndexRoute: typeof LibraryRangerVersionIndexRoute
+  LibraryRedactVersionIndexRoute: typeof LibraryRedactVersionIndexRoute
   LibraryRouterVersionIndexRoute: typeof LibraryRouterVersionIndexRoute
   LibraryStartVersionIndexRoute: typeof LibraryStartVersionIndexRoute
   LibraryStoreVersionIndexRoute: typeof LibraryStoreVersionIndexRoute
@@ -6441,6 +6462,7 @@ const LibraryRouteChildren: LibraryRouteChildren = {
   LibraryPacerVersionIndexRoute: LibraryPacerVersionIndexRoute,
   LibraryQueryVersionIndexRoute: LibraryQueryVersionIndexRoute,
   LibraryRangerVersionIndexRoute: LibraryRangerVersionIndexRoute,
+  LibraryRedactVersionIndexRoute: LibraryRedactVersionIndexRoute,
   LibraryRouterVersionIndexRoute: LibraryRouterVersionIndexRoute,
   LibraryStartVersionIndexRoute: LibraryStartVersionIndexRoute,
   LibraryStoreVersionIndexRoute: LibraryStoreVersionIndexRoute,

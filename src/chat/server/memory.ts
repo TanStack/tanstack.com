@@ -61,8 +61,9 @@ export class Memories {
           isNull(chatBots.deletedAt),
         ),
       )
+    // Retain authorization locks without blocking activity publication's FK checks.
     const [row] = await (tx
-      ? query.for('update', {
+      ? query.for('no key update', {
           of: [chatBots, chatConversations, chatMemberships],
         })
       : query)

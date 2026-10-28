@@ -589,9 +589,9 @@ export const hotkeys: LibrarySlim = {
   name: 'TanStack Hotkeys',
   to: '/hotkeys/latest',
   tagline:
-    'Type-safe keyboard shortcuts, sequences, and key state tracking for your apps',
+    'Type-safe keyboard shortcuts with scopes, sequences, and user rebinding',
   description:
-    'A type-safe, cross-platform hotkey library with sequence detection, key state tracking, hotkey recording, and framework adapters for React and more.',
+    'A type-safe, cross-platform hotkey library with scopes, sequences, user rebinding, platform-correct labels, and devtools, with adapters for React, Vue, Solid, Svelte, Angular, and more.',
   badge: 'beta',
   repo: 'tanstack/hotkeys',
   frameworks: [
@@ -680,6 +680,29 @@ export const highlight: LibrarySlim = {
   },
 }
 
+export const redact: LibrarySlim = {
+  id: 'redact',
+  scarfId: 'c8168526-db90-4e35-9eaf-bb22ac7c7d18',
+  ...categoryStyles.framework,
+  name: 'TanStack Redact',
+  to: '/redact/latest',
+  tagline: 'An alternative runtime for the React you love',
+  description:
+    'Keep your React components, hooks, and imports with a smaller, synchronous runtime. Redact supports TanStack Start, Vite, Vinext, and Next.js.',
+  repo: 'tanstack/redact',
+  frameworks: ['react'],
+  frameworkPackageNames: { react: '@tanstack/redact' },
+  frameworkDocs: { react: 'overview' },
+  corePackageName: '@tanstack/redact',
+  npmPackageNames: ['@tanstack/redact'],
+  latestVersion: 'v0',
+  latestBranch: 'main',
+  availableVersions: ['v0'],
+  defaultDocs: 'overview',
+  installPath: 'installation',
+  sitemap: { includeLandingPage: true, includeDocsPages: true },
+}
+
 export const db: LibrarySlim = {
   id: 'db',
   ...categoryStyles.data,
@@ -714,7 +737,7 @@ export const ai: LibrarySlim = {
     'AI building blocks for TypeScript. We build the hard parts, you keep the stack.',
   description:
     'TanStack AI is a TypeScript library for building AI features and agents. It ships the agent loop, provider adapters, durability, interrupts, sandboxes, and tools, and plugs into the server, database, and UI you already have.',
-  badge: 'RC',
+  badge: 'fresh',
   repo: 'tanstack/ai',
   frameworks: [
     'react',
@@ -728,9 +751,9 @@ export const ai: LibrarySlim = {
   ],
   corePackageName: '@tanstack/ai-client',
   npmPackageNames: ['@tanstack/ai'],
-  latestVersion: 'v0',
+  latestVersion: 'v1',
   latestBranch: 'main',
-  availableVersions: ['v0'],
+  availableVersions: ['v1'],
   defaultDocs: 'getting-started/overview',
   frameworkPackageNames: {
     react: '@tanstack/ai-react',
@@ -930,6 +953,7 @@ export const libraries: LibrarySlim[] = [
   hotkeys,
   markdown,
   highlight,
+  redact,
   store,
   ranger,
   config,
@@ -980,7 +1004,7 @@ export function isPublicLibrary(
 export const publicLibraries = libraries.filter(isPublicLibrary)
 
 export const librariesByGroup = {
-  framework: [start, router],
+  framework: [start, router, redact],
   state: [query, db, store, ai],
   headlessUI: [table, charts, form, hotkeys, markdown, highlight],
   performance: [virtual, pacer],

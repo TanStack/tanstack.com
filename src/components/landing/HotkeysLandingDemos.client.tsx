@@ -1,13 +1,22 @@
 import * as React from 'react'
 import {
+  HotkeysProvider,
+  defineAppHotkeys,
   detectPlatform,
   formatForDisplay,
+  useAppHotkeyList,
+  useCustomHotkeys,
   useHeldKeys,
   useHotkey,
   useHotkeyHint,
   useHotkeyRecorder,
+  useHotkeys,
 } from '@tanstack/react-hotkeys'
-import type { HotkeyChord, RecorderRejection } from '@tanstack/react-hotkeys'
+import type {
+  Hotkey,
+  HotkeyChord,
+  RecorderRejection,
+} from '@tanstack/react-hotkeys'
 
 import { KeyCombo, Keycap } from './HotkeysKeycap'
 import { LandingWindow } from './LibraryLanding'
@@ -216,69 +225,279 @@ export function ShortcutLab() {
   )
 }
 
-const formatRows = [
-  'Mod+S',
-  'Mod+Alt+Shift+S',
-  'Control+Meta+K',
-  'Alt+[KeyQ]',
-  '[NumpadEnter]',
-] as const satisfies ReadonlyArray<HotkeyChord>
+const scopeIssues = [
+  { id: 101, title: 'Ship Hotkeys 1.0' },
+  { id: 102, title: 'Record the launch video' },
+  { id: 103, title: 'Update the docs' },
+  { id: 104, title: 'Write the blog post' },
+]
 
-// The layout labels a French AZERTY keyboard prints on these physical keys.
-const azertyLayout = new Map([
-  ['KeyQ', 'a'],
-  ['KeyA', 'q'],
-  ['KeyW', 'z'],
-  ['KeyZ', 'w'],
-])
+type ScopeAction = 'next' | 'edit' | 'saveBoard' | 'saveIssue' | 'close'
 
-export function FormatLab() {
-  const [platform, setPlatform] = React.useState<Platform>(detectPlatform)
-  const [layout, setLayout] = React.useState<'qwerty' | 'azerty'>('qwerty')
+// A line lights up when its hotkey runs. Lines with a boardKey are the
+// board's hotkeys, which the dialog's exclusive scope suspends.
+const scopeCode: Array<{
+  text: string
+  action?: ScopeAction
+  boardKey?: string
+  provider?: boolean
+}> = [
+  { text: 'function Board() {' },
+  { text: "  useHotkey('J', nextIssue)", action: 'next', boardKey: 'J' },
+  { text: "  useHotkey('E', editIssue)", action: 'edit', boardKey: 'E' },
+  {
+    text: "  useHotkey('Mod+S', saveBoard)",
+    action: 'saveBoard',
+    boardKey: 'S',
+  },
+  { text: '  return editing && (' },
+  { text: '    <HotkeysProvider scope="dialog" exclusive>', provider: true },
+  { text: '      <EditDialog />', provider: true },
+  { text: '    </HotkeysProvider>', provider: true },
+  { text: '  )' },
+  { text: '}' },
+  { text: '' },
+  { text: 'function EditDialog() {' },
+  { text: "  useHotkey('Mod+S', saveIssue)", action: 'saveIssue' },
+  { text: "  useHotkey('Escape', close)", action: 'close' },
+  { text: '  return <Dialog />' },
+  { text: '}' },
+]
+
+export function ScopesLab() {
+  const [platform] = React.useState(detectPlatform)
+  const boardRef = React.useRef<HTMLDivElement>(null)
+  const [selected, setSelected] = React.useState(1)
+  const [editing, setEditing] = React.useState(false)
+  const [fired, setFired] = React.useState<{
+    action: ScopeAction
+    count: number
+  }>()
+  const heldKeys = useHeldKeys()
+
+  const fire = (action: ScopeAction) =>
+    setFired((previous) => ({ action, count: (previous?.count ?? 0) + 1 }))
+
+  React.useEffect(() => {
+    if (!fired) return
+    const timeout = window.setTimeout(() => setFired(undefined), 900)
+    return () => window.clearTimeout(timeout)
+  }, [fired])
+
+  // Bound to the board, so they don't also drive the launch board up top.
+  useHotkey(
+    'J',
+    () => {
+      setSelected((index) => (index + 1) % scopeIssues.length)
+      fire('next')
+    },
+    { target: boardRef, meta: { name: 'Next issue' } },
+  )
+  useHotkey(
+    'E',
+    () => {
+      setEditing(true)
+      fire('edit')
+    },
+    { target: boardRef, meta: { name: 'Edit issue' } },
+  )
+  useHotkey('Mod+S', () => fire('saveBoard'), {
+    target: boardRef,
+    meta: { name: 'Save board' },
+  })
+
+  const saveKeys = formatForDisplay('Mod+S', { platform, parts: true })
+  const legend: Array<{
+    action: ScopeAction
+    name: string
+    keys: ReadonlyArray<string>
+  }> = [
+    { action: 'next', name: 'Next issue', keys: ['J'] },
+    { action: 'edit', name: 'Edit issue', keys: ['E'] },
+    { action: 'saveBoard', name: 'Save board', keys: saveKeys },
+  ]
 
   return (
-    <LandingWindow label="formatForDisplay">
-      <div className="flex flex-wrap items-center gap-3 border-b border-border-subtle px-5 py-4">
-        <Segmented
-          label="Platform"
-          onChange={setPlatform}
-          options={[
-            ['mac', 'macOS'],
-            ['windows', 'Windows'],
-            ['linux', 'Linux'],
-          ]}
-          value={platform}
-        />
-        <Segmented
-          label="Keyboard layout"
-          onChange={setLayout}
-          options={[
-            ['qwerty', 'QWERTY'],
-            ['azerty', 'AZERTY'],
-          ]}
-          value={layout}
-        />
+    <LandingWindow label="hotkey scopes">
+      <div className="grid lg:grid-cols-2">
+        <pre className="min-w-0 overflow-x-auto border-b border-border-subtle bg-background-subtle py-4 font-ds-mono text-ds-mono-xs lg:border-b-0 lg:border-r">
+          <code>
+            {scopeCode.map((line, index) => {
+              const isLit =
+                (line.action !== undefined && line.action === fired?.action) ||
+                (line.provider && editing)
+              const isSuspended = editing && line.boardKey !== undefined
+              const isHeld = heldKeys.includes(line.boardKey ?? '')
+              return (
+                <span
+                  key={index}
+                  className={`flex h-7 items-center justify-between gap-4 px-5 transition-colors duration-150 ${
+                    isLit
+                      ? 'bg-[rgb(var(--landing-glow)/0.16)] text-(--landing-accent-bright) shadow-[inset_2px_0_0_var(--landing-accent)]'
+                      : isSuspended
+                        ? 'text-text-primary/35'
+                        : 'text-text-primary/70'
+                  }`}
+                >
+                  {line.text}
+                  {isSuspended ? (
+                    <span
+                      className={`rounded px-1.5 py-0.5 text-ds-mono-2xs uppercase transition-colors duration-100 ${
+                        isHeld
+                          ? 'bg-ds-terracotta-400 text-white'
+                          : 'bg-ds-terracotta-300/15 text-ds-terracotta-400 dark:text-ds-terracotta-300'
+                      }`}
+                    >
+                      Suspended
+                    </span>
+                  ) : null}
+                </span>
+              )
+            })}
+          </code>
+        </pre>
+
+        <div
+          ref={boardRef}
+          aria-label="Launch board. Press J for the next issue and E to edit it."
+          className="group relative flex min-w-0 flex-col p-4 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--landing-accent-bright) sm:p-5"
+          // An open dialog suspends every hotkey on the page, so close it when
+          // focus leaves the board.
+          onBlur={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget)) {
+              setEditing(false)
+            }
+          }}
+          role="application"
+          // The board takes focus so its hotkeys stay out of the demo up top.
+          // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+          tabIndex={0}
+        >
+          <div className="flex h-7 items-center justify-between gap-3">
+            <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/45">
+              Launch board
+            </span>
+            {fired?.action === 'saveBoard' ? (
+              <span className="rounded-full bg-(--landing-accent) px-2.5 py-0.5 text-ds-label-sm text-(--landing-accent-ink)">
+                Board saved
+              </span>
+            ) : (
+              <span className="text-ds-label-sm text-text-primary/45 group-focus:invisible">
+                Click here, then press J or E
+              </span>
+            )}
+          </div>
+          <ul className="mt-3 space-y-1">
+            {scopeIssues.map((issue, index) => (
+              <li
+                key={issue.id}
+                className={`flex gap-3 rounded-lg px-3 py-2 text-ds-label-md ${
+                  index === selected
+                    ? 'bg-[rgb(var(--landing-glow)/0.16)] text-text-primary'
+                    : 'text-text-primary/70'
+                }`}
+              >
+                <span className="text-text-primary/45">#{issue.id}</span>
+                {issue.title}
+              </li>
+            ))}
+          </ul>
+          <div className="mt-auto flex flex-wrap gap-x-5 gap-y-2 pt-6">
+            {legend.map((row) => (
+              <span key={row.action} className="flex items-center gap-2">
+                <KeyCombo
+                  keys={row.keys}
+                  pressed={fired?.action === row.action}
+                  size="sm"
+                />
+                <span className="text-ds-label-sm text-text-primary/70">
+                  {row.name}
+                </span>
+              </span>
+            ))}
+          </div>
+
+          {editing ? (
+            <HotkeysProvider scope="dialog" exclusive>
+              <ScopeDialog
+                boardRef={boardRef}
+                issue={scopeIssues[selected]}
+                onClose={() => setEditing(false)}
+                onFire={fire}
+                saved={fired?.action === 'saveIssue'}
+                saveKeys={saveKeys}
+              />
+            </HotkeysProvider>
+          ) : null}
+        </div>
       </div>
-      <ul className="divide-y divide-border-subtle">
-        {formatRows.map((hotkey) => (
-          <li
-            key={hotkey}
-            className="flex flex-wrap items-center justify-between gap-4 px-5 py-4"
-          >
-            <code className="font-ds-mono text-ds-mono-sm text-(--landing-accent-bright)">
-              '{hotkey}'
-            </code>
-            <KeyCombo
-              keys={formatForDisplay(hotkey, {
-                platform,
-                parts: true,
-                layoutMap: layout === 'azerty' ? azertyLayout : undefined,
-              })}
-            />
-          </li>
-        ))}
-      </ul>
     </LandingWindow>
+  )
+}
+
+function ScopeDialog({
+  boardRef,
+  issue,
+  onClose,
+  onFire,
+  saved,
+  saveKeys,
+}: {
+  boardRef: React.RefObject<HTMLDivElement | null>
+  issue: (typeof scopeIssues)[number]
+  onClose: () => void
+  onFire: (action: ScopeAction) => void
+  saved: boolean
+  saveKeys: ReadonlyArray<string>
+}) {
+  useHotkey('Mod+S', () => onFire('saveIssue'), {
+    target: boardRef,
+    meta: { name: 'Save issue' },
+  })
+  useHotkey(
+    'Escape',
+    () => {
+      onClose()
+      onFire('close')
+    },
+    { target: boardRef, meta: { name: 'Close the dialog' } },
+  )
+
+  return (
+    <div className="absolute inset-0 flex items-center justify-center bg-background-default/70 p-4 backdrop-blur-[2px]">
+      <div
+        aria-label={`Edit #${issue.id}`}
+        className="w-full max-w-sm rounded-xl border border-[rgb(var(--landing-glow)/0.45)] bg-background-surface p-5 shadow-2xl"
+        role="dialog"
+      >
+        <div className="flex h-7 items-center justify-between gap-3">
+          <span className="text-ds-label-lg text-text-primary">
+            Edit #{issue.id}
+          </span>
+          {saved ? (
+            <span className="rounded-full bg-(--landing-accent) px-2.5 py-0.5 text-ds-label-sm text-(--landing-accent-ink)">
+              Issue saved
+            </span>
+          ) : null}
+        </div>
+        <p className="mt-4 rounded-lg border border-border-default bg-background-subtle px-3 py-2 text-ds-body-sm text-text-primary">
+          <span className="mr-2 text-text-primary/45">Title</span>
+          {issue.title}
+        </p>
+        <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
+          <span className="flex items-center gap-2">
+            <KeyCombo keys={saveKeys} pressed={saved} size="sm" />
+            <span className="text-ds-label-sm text-text-primary/70">
+              Save issue
+            </span>
+          </span>
+          <span className="flex items-center gap-2">
+            <KeyCombo keys={['Esc']} size="sm" />
+            <span className="text-ds-label-sm text-text-primary/70">Close</span>
+          </span>
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -362,27 +581,64 @@ function HintButton({
   )
 }
 
+// The labels a French AZERTY keyboard prints on these physical keys.
+// Recorded shortcuts are physical too, so they relabel with the layout.
+const azertyLayout = new Map([
+  ['Backquote', '²'],
+  ['KeyQ', 'a'],
+  ['KeyA', 'q'],
+  ['KeyW', 'z'],
+  ['KeyZ', 'w'],
+])
+
+// Declared once. The settings rows and the cheat sheet both read this list.
+const settingsHotkeys = defineAppHotkeys({
+  saveAs: { hotkey: 'Alt+S', meta: { name: 'Save as' } },
+  terminal: {
+    hotkey: 'Control+[Backquote]',
+    meta: { name: 'Toggle terminal' },
+  },
+  deleteLine: { hotkey: ['D', 'D'], meta: { name: 'Delete line' } },
+  quickOpen: { hotkey: 'Mod+P', meta: { name: 'Quick open' } },
+  cheatSheet: { hotkey: '?', meta: { name: 'Cheat sheet' } },
+})
+
 export function RebindLab() {
+  return (
+    <HotkeysProvider appHotkeys={settingsHotkeys}>
+      <ShortcutSettings />
+    </HotkeysProvider>
+  )
+}
+
+function ShortcutSettings() {
+  // Recording uses the real platform. The toggles only change the labels.
   const [platform] = React.useState(detectPlatform)
+  const [shownPlatform, setShownPlatform] = React.useState<Platform>(platform)
+  const [layout, setLayout] = React.useState<'qwerty' | 'azerty'>('qwerty')
   const cardRef = React.useRef<HTMLDivElement>(null)
-  const [quickOpen, setQuickOpen] = React.useState<HotkeyChord>('Mod+P')
+  const [sheetOpen, setSheetOpen] = React.useState(false)
   const [message, setMessage] = React.useState<{
     tone: 'bad' | 'good'
     text: string
   } | null>(null)
   const [fired, setFired] = React.useState<string | null>(null)
+  const appHotkeys = useAppHotkeyList()
+  const { setCustomHotkey } = useCustomHotkeys()
 
-  useHotkey('Alt+S', () => setFired('Save as'), {
-    target: cardRef,
-    meta: { name: 'Save as' },
-  })
-  useHotkey(['D', 'D'], () => setFired('Delete line'), {
-    target: cardRef,
-    meta: { name: 'Delete line' },
-  })
-  useHotkey(quickOpen, () => setFired('Quick open'), {
-    target: cardRef,
-    meta: { name: 'Quick open' },
+  useHotkeys(
+    Object.values(settingsHotkeys).map((appHotkey) => ({
+      hotkey: appHotkey,
+      callback: () =>
+        appHotkey.id === 'cheatSheet'
+          ? setSheetOpen((open) => !open)
+          : setFired(appHotkey.id),
+      options: { target: cardRef },
+    })),
+  )
+  useHotkey('Escape', () => setSheetOpen(false), {
+    enabled: sheetOpen,
+    meta: { name: 'Close the cheat sheet' },
   })
 
   const recorder = useHotkeyRecorder({
@@ -392,11 +648,21 @@ export function RebindLab() {
         registration.options.meta?.name === 'Quick open',
     },
     onRecord: (hotkey) => {
-      setQuickOpen(hotkey)
-      setMessage({ tone: 'good', text: `Saved as '${hotkey}'` })
+      const conflict = setCustomHotkey('quickOpen', hotkey)[0]
+      setMessage(
+        conflict
+          ? {
+              tone: 'bad',
+              text: `That shortcut is already used by "${conflict.meta?.name}".`,
+            }
+          : { tone: 'good', text: `Saved as '${hotkey}'` },
+      )
     },
     onReject: (rejection) =>
-      setMessage({ tone: 'bad', text: describeRejection(rejection, platform) }),
+      setMessage({
+        tone: 'bad',
+        text: describeRejection(rejection, shownPlatform),
+      }),
     onCancel: () => setMessage(null),
   })
 
@@ -406,80 +672,164 @@ export function RebindLab() {
     return () => window.clearTimeout(timeout)
   }, [fired])
 
-  const rows = [
-    {
-      name: 'Save as',
-      keys: formatForDisplay('Alt+S', { platform, parts: true }),
-    },
-    { name: 'Delete line', keys: ['D', 'D'] },
-  ]
+  const display = (hotkey: Hotkey | null) => {
+    if (hotkey === null) return []
+    const options = {
+      platform: shownPlatform,
+      parts: true,
+      layoutMap: layout === 'azerty' ? azertyLayout : undefined,
+    } as const
+    return typeof hotkey === 'string'
+      ? formatForDisplay(hotkey, options)
+      : formatForDisplay(hotkey, options).flat()
+  }
 
   return (
     <LandingWindow label="shortcut settings">
+      <div className="flex flex-wrap items-center gap-3 border-b border-border-subtle px-5 py-4 sm:px-6">
+        <Segmented
+          label="Platform"
+          onChange={setShownPlatform}
+          options={[
+            ['mac', 'macOS'],
+            ['windows', 'Windows'],
+            ['linux', 'Linux'],
+          ]}
+          value={shownPlatform}
+        />
+        <Segmented
+          label="Keyboard layout"
+          onChange={setLayout}
+          options={[
+            ['qwerty', 'QWERTY'],
+            ['azerty', 'AZERTY'],
+          ]}
+          value={layout}
+        />
+      </div>
       <div
         ref={cardRef}
         aria-label="Shortcut settings"
-        className="p-5 sm:p-6"
+        className="relative p-5 sm:p-6"
         role="group"
       >
         <ul className="space-y-2">
-          {rows.map((row) => (
-            <li
-              key={row.name}
-              className={`flex items-center justify-between gap-4 rounded-lg px-4 py-3 ${
-                fired === row.name
-                  ? 'bg-[rgb(var(--landing-glow)/0.16)]'
-                  : 'bg-background-subtle'
-              }`}
-            >
-              <span className="text-ds-label-lg text-text-primary">
-                {row.name}
-              </span>
-              <KeyCombo keys={row.keys} pressed={fired === row.name} />
-            </li>
-          ))}
-          <li
-            className={`flex flex-wrap items-center justify-between gap-4 rounded-lg px-4 py-3 ${
-              recorder.isRecording || fired === 'Quick open'
-                ? 'bg-[rgb(var(--landing-glow)/0.16)]'
-                : 'bg-background-subtle'
+          {appHotkeys
+            .filter(({ appHotkey }) => appHotkey.id !== 'cheatSheet')
+            .map(({ appHotkey }) => {
+              const isQuickOpen = appHotkey.id === 'quickOpen'
+              const isLit =
+                fired === appHotkey.id || (isQuickOpen && recorder.isRecording)
+              return (
+                <li
+                  key={appHotkey.id}
+                  className={`flex flex-wrap items-center justify-between gap-4 rounded-lg px-4 py-3 ${
+                    isLit
+                      ? 'bg-[rgb(var(--landing-glow)/0.16)]'
+                      : 'bg-background-subtle'
+                  }`}
+                >
+                  <span className="text-ds-label-lg text-text-primary">
+                    {appHotkey.meta?.name}
+                  </span>
+                  {isQuickOpen ? (
+                    <button
+                      className="rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright)"
+                      onClick={() => {
+                        setMessage(null)
+                        recorder.startRecording()
+                      }}
+                      type="button"
+                    >
+                      {recorder.isRecording ? (
+                        <span className="inline-flex h-10 items-center rounded-lg border-2 border-(--landing-accent) px-4 text-ds-label-md text-text-primary/70">
+                          Press a shortcut…
+                        </span>
+                      ) : (
+                        <KeyCombo
+                          keys={display(appHotkey.hotkey)}
+                          pressed={fired === appHotkey.id}
+                        />
+                      )}
+                      <span className="sr-only">
+                        Change the Quick open shortcut
+                      </span>
+                    </button>
+                  ) : (
+                    <KeyCombo
+                      keys={display(appHotkey.hotkey)}
+                      pressed={fired === appHotkey.id}
+                    />
+                  )}
+                </li>
+              )
+            })}
+        </ul>
+        <div className="mt-5 flex min-h-10 flex-wrap items-center justify-between gap-3">
+          <p
+            aria-live="polite"
+            className={`text-ds-label-lg ${
+              message?.tone === 'bad'
+                ? 'text-ds-terracotta-300'
+                : 'text-(--landing-accent-bright)'
             }`}
           >
-            <span className="text-ds-label-lg text-text-primary">
-              Quick open
-            </span>
-            <button
-              className="rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright)"
-              onClick={() => {
-                setMessage(null)
-                recorder.startRecording()
-              }}
-              type="button"
+            {message?.text}
+          </p>
+          <button
+            aria-expanded={sheetOpen}
+            className="ml-auto flex items-center gap-2 rounded-lg text-ds-label-sm text-text-primary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright)"
+            onClick={() => setSheetOpen((open) => !open)}
+            type="button"
+          >
+            <Keycap pressed={fired === 'cheatSheet'} size="sm">
+              ?
+            </Keycap>
+            Cheat sheet
+          </button>
+        </div>
+
+        {sheetOpen ? (
+          <div className="absolute inset-0 flex items-center justify-center bg-background-default/70 p-4 backdrop-blur-[2px]">
+            <div
+              aria-label="Cheat sheet"
+              className="w-full max-w-sm rounded-xl border border-[rgb(var(--landing-glow)/0.45)] bg-background-surface p-5 shadow-2xl"
+              role="dialog"
             >
-              {recorder.isRecording ? (
-                <span className="inline-flex h-10 items-center rounded-lg border-2 border-(--landing-accent) px-4 text-ds-label-md text-text-primary/70">
-                  Press a shortcut…
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-ds-label-lg text-text-primary">
+                  Cheat sheet
                 </span>
-              ) : (
-                <KeyCombo
-                  keys={formatForDisplay(quickOpen, { platform, parts: true })}
-                  pressed={fired === 'Quick open'}
-                />
-              )}
-              <span className="sr-only">Change the Quick open shortcut</span>
-            </button>
-          </li>
-        </ul>
-        <p
-          aria-live="polite"
-          className={`mt-5 min-h-7 text-ds-label-lg ${
-            message?.tone === 'bad'
-              ? 'text-ds-terracotta-300'
-              : 'text-(--landing-accent-bright)'
-          }`}
-        >
-          {message?.text}
-        </p>
+                <button
+                  aria-label="Close cheat sheet"
+                  className="rounded-lg px-3 py-2 text-ds-label-sm text-text-primary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--landing-accent-bright)"
+                  onClick={() => setSheetOpen(false)}
+                  type="button"
+                >
+                  Close
+                </button>
+              </div>
+              <ul className="mt-4 space-y-2">
+                {appHotkeys.map(({ appHotkey, isCustom }) => (
+                  <li
+                    key={appHotkey.id}
+                    className="flex items-center justify-between gap-4"
+                  >
+                    <span className="text-ds-label-md text-text-primary/80">
+                      {appHotkey.meta?.name}
+                      {isCustom ? (
+                        <span className="ml-2 rounded-full bg-[rgb(var(--landing-glow)/0.16)] px-2 py-0.5 text-ds-label-sm text-(--landing-accent-bright)">
+                          custom
+                        </span>
+                      ) : null}
+                    </span>
+                    <KeyCombo keys={display(appHotkey.hotkey)} size="sm" />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        ) : null}
       </div>
     </LandingWindow>
   )

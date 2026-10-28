@@ -1430,7 +1430,17 @@ export function LibraryLayout({
               Sponsor-supported
             </Link>
           </div>
-        ) : null}
+        ) : (
+          <a
+            href={`https://github.com/${repo}`}
+            target="_blank"
+            rel="noreferrer"
+            className="hidden shrink-0 items-center gap-1.5 px-5 text-xs font-semibold text-text-primary/60 transition-colors hover:text-text-primary xl:inline-flex"
+          >
+            <GithubIcon className="size-4" />
+            GitHub
+          </a>
+        )}
         {shouldShowDocsPartnerSlot && activePartners.length ? (
           <DocsPartnerSlot
             orderPlacementContext={docsPartnerOrderContext}

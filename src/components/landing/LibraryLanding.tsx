@@ -264,7 +264,7 @@ export function LibraryLandingShell({
             className={
               stackHero
                 ? 'grid items-start gap-12'
-                : 'grid items-start gap-12 xl:min-h-116 xl:grid-cols-[minmax(25rem,0.82fr)_minmax(34rem,1.18fr)] xl:gap-10'
+                : 'grid items-start gap-12 xl:min-h-116 xl:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] xl:gap-10'
             }
           >
             <div

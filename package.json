@@ -18,8 +18,8 @@
     "preview": "vite preview",
     "preview:cloudflare": "pnpm run preview",
     "eval:builder-ai": "tsx scripts/builder-ai-eval/run.ts",
-    "deploy:cloudflare": "pnpm run db:migrate && pnpm run db:verify-builder && pnpm run db:verify-chat && pnpm run build:cloudflare && wrangler deploy --name tanstack-com && pnpm run purge:cloudflare",
-    "deploy:cloudflare:ci": "pnpm run db:prepare-builder && wrangler deploy --name tanstack-com",
+    "deploy:cloudflare": "pnpm run db:prepare-builder && pnpm run build:cloudflare && pnpm run deploy:cloudflare:workers",
+    "deploy:cloudflare:ci": "pnpm run db:prepare-builder && pnpm run deploy:cloudflare:workers",
     "purge:cloudflare": "pnpm run with-env -- node scripts/purge-cloudflare-cache.mjs",
     "cf:typegen": "wrangler types",
     "content:build": "node scripts/build-content-collections.mjs",
@@ -56,7 +56,10 @@
     "finalize:desktop-release": "node scripts/desktop-release.mjs",
     "publish:desktop-release": "pnpm verify:desktop-release && node scripts/desktop-publish.mjs",
     "benchmark:chat-copy": "tsx scripts/chat/benchmark-conversation-copy.ts",
-    "benchmark:chat-protocol": "tsx scripts/chat/benchmark-conversation-protocol.ts"
+    "benchmark:chat-protocol": "tsx scripts/chat/benchmark-conversation-protocol.ts",
+    "deploy:cloudflare:workers": "node scripts/deploy-cloudflare.mjs",
+    "build:staging": "node scripts/prepare-worker-staging.mjs && vite build --mode staging",
+    "deploy:staging": "node scripts/deploy-worker-staging.mjs"
   },
   "dependencies": {
     "@codemirror/lang-css": "^6.3.1",
@@ -93,7 +96,7 @@
     "@tanstack/markdown": "^1.0.0",
     "@tanstack/pacer": "^0.21.1",
     "@tanstack/react-db": "0.4.1",
-    "@tanstack/react-hotkeys": "^0.14.0",
+    "@tanstack/react-hotkeys": "^0.15.1",
     "@tanstack/react-pacer": "^0.22.1",
     "@tanstack/react-query": "^5.102.8",
     "@tanstack/react-router": "1.170.41",

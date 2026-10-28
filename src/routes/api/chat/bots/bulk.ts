@@ -1,3 +1,10 @@
-import {createFileRoute} from '@tanstack/react-router'
-import {handleBotMutation} from '~/chat/server/bot-mutation-http.server'
-export const Route=createFileRoute('/api/chat/bots/bulk')({server:{handlers:{POST:({request})=>handleBotMutation(request,undefined,undefined,'bulk')}}})
+import { createFileRoute } from '@tanstack/react-router'
+import { forwardWorkerRequest } from '~/server/runtime/worker-service.server'
+
+export const Route = createFileRoute('/api/chat/bots/bulk')({
+  server: {
+    handlers: {
+      POST: ({ request }) => forwardWorkerRequest('CHAT', request),
+    },
+  },
+})

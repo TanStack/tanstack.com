@@ -17,6 +17,25 @@ const staleAppErrorPatterns = [
   'Seroval Error',
 ]
 
+const recoveredErrors = new WeakSet<object>()
+
+export function consumeStaleAppRecovery(error: unknown) {
+  if (typeof error !== 'object' || error === null) return false
+  return recoveredErrors.delete(error)
+}
+
+function markReloadedErrors(error: unknown) {
+  if (Array.isArray(error)) {
+    error.forEach(markReloadedErrors)
+  } else if (
+    typeof error === 'object' &&
+    error !== null &&
+    isStaleAppError(error)
+  ) {
+    recoveredErrors.add(error)
+  }
+}
+
 let handlersInstalled = false
 let lastReloadAt = 0
 
@@ -57,6 +76,7 @@ export function reloadOnStaleAppError(error: unknown) {
   ) {
     writeLastReloadAt(now)
     window.location.reload()
+    markReloadedErrors(error)
     return true
   }
 

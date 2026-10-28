@@ -18,7 +18,7 @@ The post has eight sections covering my work to prepare DB for 1.0:
 
 1. [From unit tests to oracles](#from-unit-tests-to-oracles): what an oracle is and why I'm so excited about them.
 2. [Crafting a playable environment for agents](#crafting-a-playable-environment-for-agents): making DB's design knowledge available to coding agents.
-3. [Hardening DB for 1.0](#hardening-db-for-10): what I did and learned while making DB epically production ready.
+3. [Hardening DB for 1.0](#hardening-db-for-10): what I did and learned while making DB epically production-ready.
 4. [A recipe for designing an oracle](#a-recipe-for-designing-an-oracle): how to build one, and how it relates to formal verification.
 5. [Look for cranes](#look-for-cranes): why the tools around a coding agent matter so much.
 6. [Superhistory](#superhistory): how agents change the pace and economics of programming and software maturity.
@@ -27,7 +27,7 @@ The post has eight sections covering my work to prepare DB for 1.0:
 
 If you haven't used it yet, TanStack DB is a reactive client data framework that makes backend data feel local. Records from your API or sync engine become typed collections. Components query them for joined, filtered live results. Optimistic edits appear immediately and reconcile with the server later.
 
-Perhaps the biggest difference between TanStack DB from earlier client-side databases is that you can adopt TanStack DB features incrementally. Historically, getting reactive queries, optimistic mutations, and offline support often meant adopting a new database and sync architecture. With TanStack DB, you can start with your existing REST APIs and [TanStack Query](https://tanstack.com/query/latest) setup, immediately gain fast incremental relational queries, and progressively add [local persistence](https://tanstack.com/db/latest/docs/guides/sqlite-persistence), [durable offline mutations](https://tanstack.com/db/latest/docs/guides/offline-transactions), or real-time sync as needed. Because the application-facing query model stays the same, you can go from a conventional web application to a fully offline-capable, local-first app without rewriting everything along the way.
+Perhaps the biggest difference between TanStack DB and earlier client-side databases is that you can adopt TanStack DB features incrementally. Historically, getting reactive queries, optimistic mutations, and offline support often meant adopting a new database and sync architecture. With TanStack DB, you can start with your existing REST APIs and [TanStack Query](https://tanstack.com/query/latest) setup, immediately gain fast incremental relational queries, and progressively add [local persistence](https://tanstack.com/db/latest/docs/guides/sqlite-persistence), [durable offline mutations](https://tanstack.com/db/latest/docs/guides/offline-transactions), or real-time sync as needed. Because the application-facing query model stays the same, you can go from a conventional web application to a fully offline-capable, local-first app without rewriting everything along the way.
 
 We began building DB in early 2025 at [ElectricSQL](https://electric-sql.com/), which incubated the project for its first year and a half. Since [Neon acquired us in August](https://neon.com/blog/electrifying-neon-building-the-realtime-backend), it has continued to back DB and we recently released [Neon Realtime](https://neon.com/docs/realtime/overview) with [TanStack DB support](https://neon.com/docs/realtime/sdks/typescript#tanstack-db).
 
@@ -37,7 +37,7 @@ Across its packages, DB now has [almost 3 million weekly NPM downloads](https://
 
 After server rendering landed a few months ago, I thought the remaining work before 1.0 was fairly straightforward: fix every known bug. I'd fire up my agents and set them loose and be done in a few weeks. Before and during that work, though, I tried some new ideas for making the coding environment more productive for agent swarms. The new environment has proved astonishingly effective at finding new bugs and undefined behavior. My short bug-fixing expedition has now stretched to hundreds of PRs and months of intense work hardening DB's core abstractions for 1.0. Since the first PR in this push, the repository has gained roughly 330,000 lines of tests.
 
-I've worked on open-source libraries for a long time and previously found it hard to find bugs proactively before users provide reproductions. Now essentially every new agent session stumbles on multiple new classes of bugs. Many of which are now so obscure that I suspect no one has encountered them in the wild. Yet they keep coming. Increasingly, my job is to keep agents from fixing _too much_—chasing hypothetical edge cases or adding complexity to solve problems DB never promised to solve.
+I've worked on open-source libraries for a long time and previously found it hard to find bugs proactively before users provide reproductions. Now essentially every new agent session stumbles on multiple new classes of bugs. Many of these bugs are now so obscure that I suspect no one has encountered them in the wild. Yet they keep coming. Increasingly, my job is to keep agents from fixing _too much_—chasing hypothetical edge cases or adding complexity to solve problems DB never promised to solve.
 
 ## From unit tests to oracles
 
@@ -163,7 +163,7 @@ I've written and heavily iterated on [oracle-authoring](https://github.com/TanSt
 
 ### How this relates to formal verification
 
-The oracle’s model is an **executable specification**. For difficult designs, I often develop that specification first in [TLA+](https://lamport.org/tla/tla.html), a language used in formal verification. Its model checker can explore every allowed ordering of operations within a bounded model. Can an obsolete request overwrite a newer result? Can releasing one subscription cancel work another still needs? Can a sequence of valid operations leave the system stuck? A counterexample gives me the exact sequence where a proposed rule fails, so I can investigate what the design needs to change.
+The oracle’s model is an **executable specification**. For difficult designs, I often develop that specification first in [TLA+](https://lamport.org/tla/tla.html), a language used in formal verification. A TLA+ model checker can explore every allowed ordering of operations within a bounded model. Can an obsolete request overwrite a newer result? Can releasing one subscription cancel work another still needs? Can a sequence of valid operations leave the system stuck? A counterexample gives me the exact sequence where a proposed rule fails, so I can investigate what the design needs to change.
 
 I then translate the model into a TypeScript oracle that runs against DB. TLA+ tests whether the modeled design preserves its stated rules; the oracle tests whether the actual implementation follows that design across generated histories.
 
@@ -183,7 +183,7 @@ I also shape the _fitness landscape_—the constraints and feedback that favor s
 
 The cranes help agents reach further, and the oracles give that progress a ratchet. Once a design decision is captured and enforced by an oracle, it stays locked in. The regressions I still find expose assumptions the oracles weren’t testing. Agents can radically rework the implementation without losing the design knowledge we’ve already established. Each investigation starts from a firmer platform, reaches another ambiguity, and locks in another piece of the design.
 
-The work has taken three months and many billions of tokens. Each investigation leaves later agents with sharper instruments. These changes in their working environment has mattered far more than any model upgrade I've seen.
+The work has taken three months and many billions of tokens. Each investigation leaves later agents with sharper instruments. These changes in their working environment have mattered far more than any model upgrade I've seen.
 
 ## Superhistory
 
@@ -199,7 +199,7 @@ Rigorous engineering is much cheaper now. Oracles have always worked incredibly 
 
 ## Accelerating design
 
-Programmers have always drawn on accumulated design knowledge—recognizing parallels, adapting ideas, and discovering where they stop fitting. LLMs give programmers and coding agents a super fast search interface into that history. I use them to search a vast repertoire of algorithms and design ideas for things that fit DB's particular problems, then work out how to implement.
+Programmers have always drawn on accumulated design knowledge—recognizing parallels, adapting ideas, and discovering where they stop fitting. LLMs give programmers and coding agents a super-fast search interface into that history. I use them to search a vast repertoire of algorithms and design ideas for things that fit DB's particular problems, then work out how to implement.
 
 Design develops through many successive adaptations. Each decision has to fit what's already there, and its consequences reveal further questions to work through. An idea that solves one problem can expose a distinction we hadn't previously needed, or a conflict between two otherwise useful rules. Working through those decisions and distilling them into oracle models has become the bulk of programming for me.
 

@@ -7,6 +7,8 @@ authors:
   - Kyle Mathews
 ---
 
+![A map transitions from detailed mountain terrain to blue outlines and unexplored paths, with a red flag marking a summit.](/blog-assets/tanstack-db-1.0-rc1-going-all-in-on-oracles/hero.png)
+
 I'm delighted to announce on behalf of the core DB maintainers, myself, Sam Willis, Kevin De Porre, and the entire TanStack community—TanStack DB 1.0 RC1 is here!
 
 After 1.5 years of development and betas and many discussions with users, the API is powerful, production-ready, and stable.

@@ -19,6 +19,7 @@ export type PartnerPlacement =
   | 'docs_rail'
   | 'blog_rail'
   | 'grid'
+  | 'blog_grid'
   | 'home_grid'
   | 'library_grid'
   | 'embed_grid'
@@ -120,6 +121,10 @@ export type AnalyticsEvent =
       props: {
         placement: PartnerPlacement
       }
+    }
+  | {
+      name: 'application_starter_viewed'
+      props: ApplicationStarterSessionContext
     }
   | {
       name: 'application_starter_analyzed'

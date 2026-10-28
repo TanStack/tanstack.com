@@ -118,6 +118,15 @@ function buildEventPayload(props: object): EventPayload {
     payload[key] = normalized
   }
 
+  if (
+    typeof window !== 'undefined' &&
+    (window.location.pathname === '/stats/npm' ||
+      window.location.pathname.startsWith('/stats/npm/'))
+  ) {
+    payload.page_location = window.location.origin + window.location.pathname
+    payload.page_path = window.location.pathname
+  }
+
   return payload
 }
 

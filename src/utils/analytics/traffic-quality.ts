@@ -48,9 +48,11 @@ const INSTALL_TRAFFIC_QUALITY = `function installTrafficQuality(id, classify, co
     url: location.href,
   }
   let diagnosedSession = ''
+  let clickSession = ''
+  let clickedPartners = new Set()
   let pending = []
   let resolving = false
-  send('set', { traffic_quality: 'unknown', traffic_quality_rule: 'v1' })
+  send('set', { traffic_quality: 'unknown', traffic_quality_rule: 'v2' })
   window.gtag = (...args) => {
     if (args[0] !== 'event') {
       send(...args)
@@ -75,7 +77,10 @@ const INSTALL_TRAFFIC_QUALITY = `function installTrafficQuality(id, classify, co
           : ''
       let quality = classify({ ...entry, sessionNumber }, config)
       if (!key) quality = 'unknown'
-      // Use GA's session identity, never a separate "new visitor" cookie.
+      if (key !== clickSession) {
+        clickSession = key
+        clickedPartners = new Set()
+      }
       try {
         const saved = JSON.parse(
           localStorage.getItem('tanstack:traffic-quality') || 'null',
@@ -84,28 +89,34 @@ const INSTALL_TRAFFIC_QUALITY = `function installTrafficQuality(id, classify, co
           key &&
           saved?.key === key &&
           ['automated', 'suspect', 'unflagged'].includes(saved.quality)
-        )
+        ) {
           quality = saved.quality
-        else if (key && quality !== 'unknown')
-          localStorage.setItem(
-            'tanstack:traffic-quality',
-            JSON.stringify({ key, quality }),
-          )
+          for (const partner of saved.partners || []) clickedPartners.add(partner)
+        }
       } catch {
-        /* Storage may be disabled. Classification still works for this document. */
       }
       const events = pending
       pending = []
       resolving = false
       for (const event of events) {
-        send(event[0], event[1], { ...event[2], traffic_quality: quality, traffic_quality_rule: 'v1' })
+        if (event[1] === 'partner_clicked' && typeof event[2]?.partner_id === 'string' && clickedPartners.size < 10) {
+          clickedPartners.add(event[2].partner_id)
+        }
+        if (clickedPartners.size >= 10) quality = 'automated'
+        send(event[0], event[1], { ...event[2], traffic_quality: quality, traffic_quality_rule: 'v2' })
       }
+      try {
+        if (key && quality !== 'unknown') localStorage.setItem(
+          'tanstack:traffic-quality',
+          JSON.stringify({ key, quality, partners: [...clickedPartners] }),
+        )
+      } catch {}
       if (
+        clickedPartners.size < 10 &&
         key !== diagnosedSession &&
         (quality === 'automated' || quality === 'suspect')
       ) {
         diagnosedSession = key
-        // No client ID, session ID, URL, or IP is sent in this diagnostic body.
         if (
           navigator.doNotTrack !== '1' &&
           !(

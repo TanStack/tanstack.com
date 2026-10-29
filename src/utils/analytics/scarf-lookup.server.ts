@@ -7,6 +7,8 @@ export async function getLiveConfig() {
   const host = await getHostRuntimeEnv()
   const key = host?.SCARF_LOOKUP_KEY ?? process.env.SCARF_LOOKUP_KEY
   return {
+    requestLimiter: host?.LIVE_PRESENCE_RATE_LIMITER,
+    lookupLimiter: host?.LIVE_LOOKUP_RATE_LIMITER,
     enabled:
       (host?.LIVE_VISITORS_ENABLED ?? process.env.LIVE_VISITORS_ENABLED) ===
       'true',

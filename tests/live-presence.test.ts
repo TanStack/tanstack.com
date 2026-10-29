@@ -197,3 +197,17 @@ test('an expired session rotates its tab too, and restored pages rejoin', async 
   assert.notEqual(last?.tabId, first.tabId)
   visitor.stop()
 })
+
+test('showcase collection excludes drafts, submission, and editing paths', () => {
+  assert.equal(isLivePage('/showcase'), true)
+  assert.equal(isLivePage('/showcase/'), true)
+  assert.equal(isLivePage('/showcases'), true)
+  for (const page of [
+    '/showcase/submit',
+    '/showcase/submit/',
+    '/showcase/edit/123',
+    '/showcase/491fa786-94d5-4d42-8c54-df45c7a7c066',
+  ]) {
+    assert.equal(isLivePage(page), false, page)
+  }
+})

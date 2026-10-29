@@ -34,10 +34,22 @@ export async function runScheduledTasks(cron: string, scheduledTime: number) {
       ])
       return
     case WORKFLOW_SWEEP_CRON:
-      await runWorkflowSweep(cron, scheduledTime)
+      await Promise.all([
+        runWorkflowSweep(cron, scheduledTime),
+        runLivePresencePrune(scheduledTime),
+      ])
       return
     default:
       console.warn(`[scheduled] No task registered for cron: ${cron}`)
+  }
+}
+
+async function runLivePresencePrune(scheduledTime: number) {
+  const startTime = Date.now()
+  try {
+    await pruneLiveVisitors(scheduledTime)
+  } catch (error) {
+    logScheduledError('live-presence-prune', startTime, error)
   }
 }
 
@@ -46,7 +58,6 @@ async function runWorkflowSweep(cron: string, scheduledTime: number) {
   console.log('[workflow-sweep] Starting workflow sweep...')
 
   try {
-    await pruneLiveVisitors(scheduledTime)
     const interruptedBuilderRuns =
       await interruptExpiredBuilderProjectRunLeases({
         occurredAt: new Date(scheduledTime),

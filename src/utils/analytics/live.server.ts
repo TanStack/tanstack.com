@@ -3,9 +3,13 @@ import { isIP } from 'node:net'
 import { db } from '~/db/client'
 import { liveSessions, liveTabs } from '~/db/schema'
 import { requireAdmin } from '~/utils/roles.server'
-import { scheduleHostRuntimeTask } from '~/server/runtime/host.server'
+import {
+  scheduleHostRuntimeTask,
+  type HostRateLimiter,
+} from '~/server/runtime/host.server'
 import { getLiveConfig, lookupScarfCompany } from './scarf-lookup.server'
 import {
+  isLivePage,
   liveEventSchema,
   LIVE_RETENTION_MS,
   LIVE_TIMEOUT_MS,
@@ -33,6 +37,18 @@ export async function receiveLiveEvent(request: Request) {
   if (!ip || !isIP(ip)) return respond(204)
   const config = await getLiveConfig()
   if (!config.enabled) return respond(204)
+  // Edge counters bound abuse without writing visitor IPs to the database.
+  if (!config.requestLimiter || (config.key && !config.lookupLimiter))
+    return respond(503)
+  try {
+    if (!(await config.requestLimiter.limit({ key: ip })).success)
+      return new Response(null, {
+        status: 429,
+        headers: { ...responseHeaders, 'Retry-After': '60' },
+      })
+  } catch {
+    return respond(503)
+  }
   const reader = request.body?.getReader()
   if (!reader) return respond(400)
   const decoder = new TextDecoder()
@@ -58,7 +74,7 @@ export async function receiveLiveEvent(request: Request) {
   const parsed = liveEventSchema.safeParse(value)
   if (!parsed.success) return respond(400)
   try {
-    await recordLiveEvent(parsed.data, ip, config.key)
+    await recordLiveEvent(parsed.data, ip, config.key, config.lookupLimiter)
     return respond(204)
   } catch {
     // Never log a request, body, IP, or third-party exception here.
@@ -71,6 +87,7 @@ export async function recordLiveEvent(
   event: LiveEvent,
   ip: string,
   key: string | undefined,
+  lookupLimiter: HostRateLimiter | undefined,
 ) {
   const now = new Date()
   if (event.kind === 'leave') {
@@ -127,6 +144,16 @@ export async function recordLiveEvent(
   if (created && key) {
     const enrich = async () => {
       try {
+        if (
+          !lookupLimiter ||
+          !(await lookupLimiter.limit({ key: ip })).success
+        ) {
+          await db
+            .update(liveSessions)
+            .set({ lookupStatus: 'rate_limited' })
+            .where(eq(liveSessions.id, event.sessionId))
+          return
+        }
         const company = await lookupScarfCompany(ip, key)
         await db
           .update(liveSessions)
@@ -183,15 +210,20 @@ export async function listLiveVisitors() {
     lookupConfigured: Boolean(config.key),
     now: new Date(now).toISOString(),
     truncated: rows.length > 500,
-    tabs: rows.slice(0, 500).map((row) => ({
-      ...row,
-      active:
-        row.leftAt === null && now - row.lastSeen.getTime() < LIVE_TIMEOUT_MS,
-      lookupStatus:
-        row.lookupStatus === 'pending' && now - row.arrivedAt.getTime() > 15_000
-          ? 'failed'
-          : row.lookupStatus,
-    })),
+    tabs: rows
+      .slice(0, 500)
+      .filter((row) => isLivePage(row.page))
+      .map((row) => ({
+        ...row,
+        activity: row.activity.filter((event) => isLivePage(event.page)),
+        active:
+          row.leftAt === null && now - row.lastSeen.getTime() < LIVE_TIMEOUT_MS,
+        lookupStatus:
+          row.lookupStatus === 'pending' &&
+          now - row.arrivedAt.getTime() > 15_000
+            ? 'failed'
+            : row.lookupStatus,
+      })),
   }
 }
 

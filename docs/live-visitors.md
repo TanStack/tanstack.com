@@ -82,16 +82,34 @@ DNT and GPC prevent collection in both the browser and server. Browser collectio
 is disabled in development, staging, and outside `tanstack.com`.
 
 `isLivePage` allows public library content and selected public site routes.
+Showcase submission, editing, and individual detail pages are excluded because
+detail pages can include owner-only drafts. Existing records with excluded paths
+are filtered out of admin responses and expire through normal retention.
 Account, admin, auth, chat, private builder projects, shop, and internal endpoints
 are excluded. Unknown paths are excluded until added to the public allowlist.
 Queries, fragments, clipboard text, form values, event properties, account IDs,
 emails, and user agents are not stored. Only explicitly named actions from the
 existing analytics hooks are collected; there is no arbitrary click-text capture.
 
-Visitor IPs exist only during the server-side lookup and are not written to the
-presence tables or admin responses. Lookup tracing and Sentry breadcrumbs are
+Visitor IPs are used transiently for the server-side lookup and Cloudflare edge
+rate-limit counters, and are not written to the application database or admin
+responses. Lookup tracing and Sentry breadcrumbs are
 suppressed to keep IP query parameters out of telemetry. The lookup key stays
 server-side. There is no joining sessions by IP, fingerprint, or login.
+
+## Intake limits
+
+Cloudflare edge bindings limit intake to 600 requests per IP per minute and new
+company lookups to 30 per IP per minute, per Cloudflare location. These are
+approximate abuse limits, not a global billing quota. Intake returns 429 before
+reading a body or writing presence when limited, and 503 if the limiter is
+unavailable. A lookup limit leaves presence intact with a separate rate-limited
+status. Corporate networks share an IP, so these limits can affect shared
+networks during large bursts. Raw IPs are not added to the database-backed MCP
+rate-limit table. Presence cleanup runs independently of workflow processing, so
+a cleanup failure does not prevent scheduled workflow work.
+
+[Cloudflare rate-limit bindings](https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/)
 
 ## Validation
 

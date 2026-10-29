@@ -67,6 +67,7 @@ const lookupLabels: Record<string, string> = {
   pending: 'Looking up company',
   unknown: 'No cached company match',
   failed: 'Company lookup failed',
+  rate_limited: 'Company lookup rate limited',
   unconfigured: 'Company lookup not configured',
 }
 function age(time: Date | string | number, now: string) {

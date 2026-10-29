@@ -30,7 +30,7 @@ export const liveActionSchema = z.enum([
 export function isLivePage(page: string) {
   return (
     page.length <= 400 &&
-    /^\/(?:$|(?:query|router|start|table|db|form|store|virtual|pacer|hotkeys|ai|charts|intent|devtools|config|cli|highlight|markdown|ranger|redact|mcp|workflow)(?:\/|$)|(?:blog|partners|application-starter|libraries|stack|stats|showcase)(?:\/|$)|(?:brand-guide|community-projects|ethos|explore|feedback-leaderboard|learn|maintainers|paid-support|privacy|showcases|support|tenets|terms|workshops)\/?$)/.test(
+    /^\/(?:$|(?:query|router|start|table|db|form|store|virtual|pacer|hotkeys|ai|charts|intent|devtools|config|cli|highlight|markdown|ranger|redact|mcp|workflow)(?:\/|$)|(?:blog|partners|application-starter|libraries|stack|stats)(?:\/|$)|(?:brand-guide|community-projects|ethos|explore|feedback-leaderboard|learn|maintainers|paid-support|privacy|showcase|showcases|support|tenets|terms|workshops)\/?$)/.test(
       page,
     ) &&
     !/[?#\\\s%]/.test(page) &&

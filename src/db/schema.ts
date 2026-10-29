@@ -3470,7 +3470,14 @@ export const liveSessions = pgTable(
     company:
       jsonb('company').$type<import('../utils/analytics/live').LiveCompany>(),
     lookupStatus: text('lookup_status', {
-      enum: ['pending', 'matched', 'unknown', 'failed', 'unconfigured'],
+      enum: [
+        'pending',
+        'matched',
+        'unknown',
+        'failed',
+        'unconfigured',
+        'rate_limited',
+      ],
     }).notNull(),
   },
   (table) => [index('live_sessions_created_at_idx').on(table.createdAt)],

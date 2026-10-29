@@ -1,224 +1,930 @@
-import { Fragment, useEffect, useMemo, useState } from 'react'
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { z } from 'zod'
+import { csvFormat } from 'd3'
 import {
   createSortedRowModel,
+  createPaginatedRowModel,
   rowSortingFeature,
+  rowPaginationFeature,
+  rowSelectionFeature,
+  columnVisibilityFeature,
   sortFn_alphanumeric,
   sortFn_basic,
   tableFeatures,
   useTable,
   type ColumnDef,
   type SortingState,
+  type PaginationState,
+  type ColumnVisibilityState,
+  type RowSelectionState,
 } from '@tanstack/react-table'
 import {
+  ArrowsDownUpIcon,
   CaretDownIcon,
   CaretRightIcon,
-  ArrowsDownUpIcon,
   MagnifyingGlassIcon,
+  XIcon,
+  DownloadSimpleIcon,
+  ColumnsIcon,
 } from '@phosphor-icons/react'
-import { liveActions } from '~/utils/analytics/live'
+import { getScarfCompanyHistory } from '~/utils/analytics/live.functions'
+import { historyDaysSchema } from '~/utils/analytics/scarf-history'
 import {
-  companyBreakdown,
-  groupLiveCompanies,
-  type LiveCompanyRow,
-  type LiveData,
-  type LiveTab,
+  buildCompanyGridRows,
+  companyFacetCounts,
+  companyWidgetItems,
+  filterCompanyRows,
+  emptyCompanyFilters,
+  companyGrowth,
+  csvSafeText,
+  type CompanyGridRow,
+  type CompanyFacet,
+  type LiveOverview,
 } from '~/utils/analytics/live-dashboard'
-import {
-  CompanyBreakdownChart,
-  LiveCompanyTrend,
-  type CompanySample,
-} from './LiveCompanyCharts'
+import { CompanyBreakdownChart } from './LiveCompanyCharts'
+import { CompanyFacetFilter } from './CompanyFacetFilter'
+import { LiveCompanySessions } from './LiveCompanySessions'
 
 const features = tableFeatures({
   rowSortingFeature,
   sortedRowModel: createSortedRowModel(),
+  rowPaginationFeature,
+  paginatedRowModel: createPaginatedRowModel(),
+  rowSelectionFeature,
+  columnVisibilityFeature,
 })
-const initialSorting: SortingState = [{ id: 'name', desc: false }]
-const columns: ColumnDef<typeof features, LiveCompanyRow>[] = [
-  { accessorKey: 'name', header: 'Company', sortFn: sortFn_alphanumeric },
+const initialSorting: SortingState = [
+  { id: 'unmatched', desc: false },
+  { id: 'siteViews', desc: true },
+  { id: 'actions', desc: true },
+  { id: 'sessions', desc: true },
+]
+const initialPagination: PaginationState = { pageIndex: 0, pageSize: 50 }
+const initialVisibility: ColumnVisibilityState = {
+  unmatched: false,
+  tabs: false,
+  recentViews: false,
+  siteEvents: false,
+  origins: false,
+  endpoints: false,
+  lastScarfSeen: false,
+}
+const initialSelection: RowSelectionState = {}
+const visibilitySchema = z.record(z.string(), z.boolean())
+const facets: CompanyFacet[] = ['library', 'size', 'industry', 'stage']
+const widgetFacets: CompanyFacet[] = ['library', 'size', 'industry']
+const facetLabels: Record<CompanyFacet, string> = {
+  library: 'Library',
+  size: 'Company size',
+  industry: 'Industry',
+  stage: 'Funnel stage',
+}
+const number = new Intl.NumberFormat('en-US')
+function numeric(value: number | undefined) {
+  return value === undefined ? (
+    <span className="text-gray-400" title="Not reported by Scarf">
+      N/A
+    </span>
+  ) : (
+    number.format(value)
+  )
+}
+function age(value: Date, now: string) {
+  const seconds = Math.max(
+    0,
+    Math.floor((new Date(now).getTime() - new Date(value).getTime()) / 1000),
+  )
+  return seconds < 5
+    ? 'Now'
+    : seconds < 60
+      ? `${seconds}s`
+      : `${Math.floor(seconds / 60)}m`
+}
+function growthLabel(row: CompanyGridRow) {
+  const growth = companyGrowth(row)
+  if (row.history?.previousViews === 0 && (row.history.views ?? 0) > 0)
+    return 'New'
+  return growth === undefined
+    ? 'N/A'
+    : `${growth > 0 ? '+' : ''}${growth.toFixed(0)}%`
+}
+const columns: ColumnDef<typeof features, CompanyGridRow>[] = [
+  {
+    id: 'unmatched',
+    accessorFn: (row) => (row.id ? 0 : 1),
+    sortFn: sortFn_basic,
+    enableHiding: false,
+  },
+  { id: 'select', header: 'Select', enableSorting: false, enableHiding: false },
+  {
+    id: 'name',
+    accessorKey: 'name',
+    header: 'Company',
+    sortFn: sortFn_alphanumeric,
+    enableHiding: false,
+  },
   {
     id: 'industry',
-    accessorFn: (row) => row.company?.industry ?? '',
+    accessorKey: 'industry',
     header: 'Industry',
     sortFn: sortFn_alphanumeric,
+    cell: ({ row }) => (
+      <span className="block max-w-36 truncate" title={row.original.industry}>
+        {row.original.industry}
+      </span>
+    ),
   },
   {
     id: 'size',
-    accessorFn: (row) => row.company?.company_size ?? '',
-    header: 'Company size',
-    enableSorting: false,
+    accessorFn: (row) => row.employeeMin,
+    header: 'Employees',
+    sortFn: sortFn_basic,
+    sortUndefined: 'last',
+    cell: ({ row }) => row.original.company?.company_size || 'N/A',
   },
   {
     id: 'libraries',
     accessorFn: (row) => row.libraries.join(', '),
-    header: 'On site',
-    enableSorting: false,
+    header: 'Libraries',
+    sortFn: sortFn_alphanumeric,
+    cell: ({ row }) => (
+      <span
+        className="block max-w-36 truncate"
+        title={row.original.libraries.join(', ')}
+      >
+        {row.original.libraries.join(', ') || 'None active'}
+      </span>
+    ),
   },
   {
-    id: 'pages',
-    accessorFn: (row) => row.pages.length,
-    header: 'Pages now',
+    id: 'sessions',
+    accessorKey: 'activeSessions',
+    header: 'Sessions',
+    sortFn: sortFn_basic,
+    cell: ({ row }) => numeric(row.original.activeSessions),
+  },
+  {
+    id: 'tabs',
+    accessorKey: 'activeTabs',
+    header: 'Tabs',
+    sortFn: sortFn_basic,
+    cell: ({ row }) => numeric(row.original.activeTabs),
+  },
+  {
+    id: 'actions',
+    accessorKey: 'actions',
+    header: 'Actions · 5m',
+    sortFn: sortFn_basic,
+    cell: ({ row }) => numeric(row.original.actions),
+  },
+  {
+    id: 'recentViews',
+    accessorKey: 'recentViews',
+    header: 'Views · 5m',
+    sortFn: sortFn_basic,
+    cell: ({ row }) => numeric(row.original.recentViews),
+  },
+  {
+    id: 'siteViews',
+    accessorFn: (row) => row.history?.views,
+    header: 'Site views',
+    sortFn: sortFn_basic,
+    sortUndefined: 'last',
+    cell: ({ row }) => numeric(row.original.history?.views),
+  },
+  {
+    id: 'growth',
+    accessorFn: (row) => companyGrowth(row),
+    header: 'Change',
+    sortFn: sortFn_basic,
+    sortUndefined: 'last',
+    cell: ({ row }) => (
+      <span
+        className={
+          (companyGrowth(row.original) ?? 0) > 0
+            ? 'text-emerald-600 dark:text-emerald-400'
+            : (companyGrowth(row.original) ?? 0) < 0
+              ? 'text-amber-600 dark:text-amber-400'
+              : 'text-gray-500'
+        }
+      >
+        {growthLabel(row.original)}
+      </span>
+    ),
+  },
+  {
+    id: 'siteEvents',
+    accessorFn: (row) => row.history?.siteEvents,
+    header: 'Site events',
+    sortFn: sortFn_basic,
+    sortUndefined: 'last',
+    cell: ({ row }) => numeric(row.original.history?.siteEvents),
+  },
+  {
+    id: 'origins',
+    accessorFn: (row) => row.history?.origins,
+    header: 'Sources',
+    sortFn: sortFn_basic,
+    sortUndefined: 'last',
+    cell: ({ row }) => numeric(row.original.history?.origins),
+  },
+  {
+    id: 'endpoints',
+    accessorFn: (row) => row.history?.endpoints,
+    header: 'Endpoints',
+    sortFn: sortFn_basic,
+    sortUndefined: 'last',
+    cell: ({ row }) => numeric(row.original.history?.endpoints),
+  },
+  {
+    id: 'stage',
+    accessorFn: (row) => row.history?.stage,
+    header: 'Funnel stage',
+    sortFn: sortFn_alphanumeric,
+    sortUndefined: 'last',
+    cell: ({ row }) => (
+      <span className="capitalize">
+        {row.original.history?.stage?.replaceAll('-', ' ') || 'N/A'}
+      </span>
+    ),
+  },
+  {
+    id: 'lastScarfSeen',
+    accessorFn: (row) => row.history?.lastSeen,
+    header: 'Scarf last seen',
+    sortFn: sortFn_alphanumeric,
+    sortUndefined: 'last',
+    cell: ({ row }) =>
+      row.original.history?.lastSeen
+        ? new Date(row.original.history.lastSeen).toLocaleDateString()
+        : 'N/A',
+  },
+  {
+    id: 'lastSeen',
+    accessorFn: (row) => new Date(row.lastSeen).getTime(),
+    header: 'Seen',
     sortFn: sortFn_basic,
   },
-  { accessorKey: 'actions', header: 'Actions · 5m', sortFn: sortFn_basic },
-  { accessorKey: 'lastSeen', header: 'Last seen', sortFn: sortFn_basic },
 ]
-const lookupLabels: Record<string, string> = {
-  pending: 'Looking up company',
-  unknown: 'No cached company match',
-  failed: 'Company lookup failed',
-  rate_limited: 'Company lookup rate limited',
-  unconfigured: 'Company lookup not configured',
-}
-function age(time: Date | string | number, now: string) {
-  const seconds = Math.max(
-    0,
-    Math.floor((new Date(now).getTime() - new Date(time).getTime()) / 1000),
-  )
-  return seconds < 5
-    ? 'Just now'
-    : seconds < 60
-      ? `${seconds}s ago`
-      : `${Math.floor(seconds / 60)}m ago`
+const columnHelp: Record<string, string> = {
+  sessions: 'Anonymous sessions with a heartbeat in the last 65 seconds.',
+  actions:
+    'Recorded interactions from the last five minutes, limited to 40 retained events per tab.',
+  recentViews:
+    'Recorded browser page-view events in the last five minutes, from retained tab activity.',
+  siteViews:
+    'Scarf pixel views for the pixels embedded in tanstack.com, in the selected history window. Not unique people.',
+  growth:
+    'Pixel-view change against the previous equal-length window. N/A means a comparison was not reported.',
+  siteEvents:
+    'Events from the dedicated TanStack Site Telemetry package. Includes page views, actions, and server requests. These are not added to pixel views.',
+  origins:
+    'Scarf unique origins across the selected site pixels. These are sources, not identified people.',
+  endpoints:
+    'Scarf unique endpoints across the selected site pixels. These are not individual identities.',
 }
 
-export function LiveVisitors({ data }: { data: LiveData }) {
+export function LiveVisitors({
+  data,
+  paused = false,
+}: {
+  data: LiveOverview
+  paused?: boolean
+}) {
   const [expanded, setExpanded] = useState(new Set<string>())
-  const [showRecent, setShowRecent] = useState(false)
-  const [search, setSearch] = useState('')
+  const [filters, setFilters] = useState(emptyCompanyFilters)
   const [sorting, setSorting] = useState(initialSorting)
-  const initialSamples: CompanySample[] = []
-  const [samples, setSamples] = useState(initialSamples)
-  const activeCompanies = useMemo(() => groupLiveCompanies(data, false), [data])
-  const count = activeCompanies.filter((company) => company.id).length
+  const [pagination, setPagination] = useState(initialPagination)
+  const [visibility, setVisibility] = useState(initialVisibility)
+  const [selection, setSelection] = useState(initialSelection)
+  const [selectedOnly, setSelectedOnly] = useState(false)
+  const [comfortable, setComfortable] = useState(false)
+  const [showBreakdowns, setShowBreakdowns] = useState(true)
+  const [days, setDays] = useState(historyDaysSchema.parse(30))
+  const [preferencesLoaded, setPreferencesLoaded] = useState(false)
+  const searchInput: { current: HTMLInputElement | null } = useRef(null)
+  const history = useQuery({
+    queryKey: ['admin', 'scarf-company-history', days],
+    queryFn: () => getScarfCompanyHistory({ data: { days } }),
+    staleTime: 15 * 60_000,
+    refetchInterval: paused ? false : 15 * 60_000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: !paused,
+    retry: false,
+  })
   useEffect(() => {
-    const time = new Date(data.now).getTime()
-    setSamples((previous) =>
-      previous.at(-1)?.time === time
-        ? previous
-        : [
-            ...previous.filter((sample) => sample.time >= time - 5 * 60_000),
-            { time, companies: count },
-          ],
-    )
-  }, [data.now, count])
-  const companies = useMemo(
-    () =>
-      groupLiveCompanies(data, showRecent).filter((row) =>
-        `${row.name} ${row.id} ${row.company?.industry ?? ''} ${row.libraries.join(' ')} ${row.sessions
-          .flat()
-          .map((tab) => tab.page)
-          .join(' ')}`
-          .toLowerCase()
-          .includes(search.trim().toLowerCase()),
-      ),
-    [data, showRecent, search],
+    try {
+      const saved = localStorage.getItem('tanstack.live-companies.columns.v1')
+      if (saved) {
+        const parsed = visibilitySchema.safeParse(JSON.parse(saved))
+        if (parsed.success)
+          setVisibility({
+            ...initialVisibility,
+            ...parsed.data,
+            unmatched: false,
+          })
+      }
+    } catch {}
+    setPreferencesLoaded(true)
+  }, [])
+  useEffect(() => {
+    if (preferencesLoaded)
+      try {
+        localStorage.setItem(
+          'tanstack.live-companies.columns.v1',
+          JSON.stringify(visibility),
+        )
+      } catch {}
+  }, [visibility, preferencesLoaded])
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      const target = event.target
+      if (
+        event.key === '/' &&
+        !event.metaKey &&
+        !event.ctrlKey &&
+        !(
+          target instanceof HTMLElement &&
+          (target.matches('input,textarea,select') || target.isContentEditable)
+        )
+      ) {
+        event.preventDefault()
+        searchInput.current?.focus()
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+  const allRows = useMemo(
+    () => buildCompanyGridRows(data, history.data),
+    [data, history.data],
   )
+  const filtered = useMemo(
+    () => filterCompanyRows(allRows, filters),
+    [allRows, filters],
+  )
+  const gridRows = useMemo(
+    () =>
+      selectedOnly
+        ? filtered.filter((row) => selection[row.id || 'unmatched'])
+        : filtered,
+    [filtered, selectedOnly, selection],
+  )
+  const activeRows = allRows.filter((row) => row.active)
+  const activeCount = activeRows.filter((row) => row.id).length
+  const summaryRows = gridRows.filter((row) => row.active)
+  const selectedRows = allRows.filter((row) => selection[row.id || 'unmatched'])
   const table = useTable({
     features,
     columns,
-    data: companies,
+    data: gridRows,
     getRowId: (row) => row.id || 'unmatched',
-    state: { sorting },
-    onSortingChange: setSorting,
+    state: {
+      sorting,
+      pagination,
+      columnVisibility: visibility,
+      rowSelection: selection,
+    },
+    onSortingChange: (updater) =>
+      setSorting((previous) => [
+        { id: 'unmatched', desc: false },
+        ...(typeof updater === 'function' ? updater(previous) : updater).filter(
+          (sort) => sort.id !== 'unmatched',
+        ),
+      ]),
+    onPaginationChange: setPagination,
+    onColumnVisibilityChange: setVisibility,
+    onRowSelectionChange: setSelection,
+    autoResetPageIndex: false,
   })
-  const sorted = table.getRowModel().rows
-  const rows = [
-    ...sorted.filter((row) => row.original.id),
-    ...sorted.filter((row) => !row.original.id),
-  ]
-  const toggle = (id: string) =>
+  useEffect(() => {
+    const lastPage = Math.max(
+      0,
+      Math.ceil(gridRows.length / pagination.pageSize) - 1,
+    )
+    if (pagination.pageIndex > lastPage)
+      setPagination((previous) => ({ ...previous, pageIndex: lastPage }))
+  }, [gridRows.length, pagination.pageSize, pagination.pageIndex])
+  useEffect(() => {
+    setPagination((previous) =>
+      previous.pageIndex === 0 ? previous : { ...previous, pageIndex: 0 },
+    )
+  }, [filters])
+  const toggleFacet = (facet: CompanyFacet, values: string[]) => {
+    setFilters((previous) => ({
+      ...previous,
+      [facet]: values.every((value) => previous[facet].includes(value))
+        ? previous[facet].filter((value) => !values.includes(value))
+        : [...new Set([...previous[facet], ...values])],
+    }))
+    setPagination((previous) => ({ ...previous, pageIndex: 0 }))
+  }
+  const toggleCompany = (id: string) =>
     setExpanded((previous) => {
       const next = new Set(previous)
       if (next.has(id)) next.delete(id)
       else next.add(id)
       return next
     })
+  const filterCount =
+    facets.reduce((count, facet) => count + filters[facet].length, 0) +
+    Number(Boolean(filters.search)) +
+    Number(Boolean(filters.minViews)) +
+    Number(Boolean(filters.minActions)) +
+    Number(filters.identifiedOnly) +
+    Number(filters.showRecent)
+  const exportRows = () => {
+    const records = (
+      selectedRows.length
+        ? selectedRows
+        : table.getPrePaginatedRowModel().rows.map((row) => row.original)
+    ).map((row) => ({
+      Company: csvSafeText(row.name),
+      Domain: csvSafeText(row.id),
+      Industry: csvSafeText(row.industry),
+      Employees: csvSafeText(row.company?.company_size || ''),
+      Libraries: csvSafeText(row.libraries.join(', ')),
+      Sessions: row.activeSessions,
+      Actions5m: row.actions,
+      RecentViews5m: row.recentViews,
+      SitePixelViews: row.history?.views ?? '',
+      PreviousPixelViews: row.history?.previousViews ?? '',
+      Change: csvSafeText(growthLabel(row)),
+      SiteEvents: row.history?.siteEvents ?? '',
+      Sources: row.history?.origins ?? '',
+      Endpoints: row.history?.endpoints ?? '',
+      FunnelStage: csvSafeText(row.history?.stage || ''),
+      HistoryStart: history.data?.start ?? '',
+      HistoryEndExclusive: history.data?.end ?? '',
+      LastSeen: new Date(row.lastSeen).toISOString(),
+    }))
+    const url = URL.createObjectURL(
+      new Blob([csvFormat(records)], { type: 'text/csv;charset=utf-8' }),
+    )
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `live-companies-${new Date().toISOString().slice(0, 10)}.csv`
+    link.click()
+    URL.revokeObjectURL(url)
+  }
+  const rows = table.getRowModel().rows
   return (
-    <div className="space-y-6">
+    <div className="flex min-h-0 flex-col gap-2 text-xs xl:h-[calc(100dvh-138px)]">
       {!data.enabled && (
-        <p role="status" className="rounded-lg bg-amber-500/10 p-3 text-sm">
-          Visitor collection is off.
+        <p
+          role="status"
+          className="border border-amber-500/30 bg-amber-500/10 px-3 py-2"
+        >
+          Collection is off.
         </p>
       )}
       {!data.lookupConfigured && (
-        <p role="status" className="rounded-lg bg-amber-500/10 p-3 text-sm">
+        <p role="status" className="text-amber-600">
           Company matching needs the Scarf lookup key.
         </p>
       )}
-      {data.truncated && (
-        <p role="status" className="text-sm text-amber-700 dark:text-amber-300">
-          Overview and grid cover the 500 most recently seen tabs.
-        </p>
+      <div className="flex flex-wrap items-center justify-between gap-2 border-y border-gray-500/15 py-2 text-[11px]">
+        <div className="flex flex-wrap items-baseline gap-4">
+          <span>
+            <strong className="font-mono text-base">
+              {summaryRows.filter((row) => row.id).length}
+            </strong>{' '}
+            <span
+              className="text-gray-500"
+              title={`${activeCount} identified companies online before filters`}
+            >
+              companies online
+            </span>
+          </span>
+          <span>
+            <strong className="font-mono">
+              {number.format(
+                summaryRows.reduce(
+                  (total, row) => total + row.activeSessions,
+                  0,
+                ),
+              )}
+            </strong>{' '}
+            <span className="text-gray-500">sessions</span>
+          </span>
+          <span>
+            <strong className="font-mono">
+              {number.format(
+                summaryRows.reduce((total, row) => total + row.actions, 0),
+              )}
+            </strong>{' '}
+            <span className="text-gray-500">actions · 5m</span>
+          </span>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            aria-expanded={showBreakdowns}
+            aria-controls="company-breakdowns"
+            onClick={() => setShowBreakdowns((value) => !value)}
+            className="text-gray-500 hover:text-gray-900 dark:hover:text-gray-100"
+          >
+            {showBreakdowns ? 'Hide breakdowns' : 'Show breakdowns'}
+          </button>
+          <label className="flex items-center gap-2 text-gray-500">
+            Scarf history
+            <select
+              aria-label="Scarf history window"
+              value={days}
+              onChange={(event) =>
+                setDays(historyDaysSchema.parse(Number(event.target.value)))
+              }
+              className="h-6 rounded border border-gray-500/20 bg-transparent px-1 text-gray-900 dark:text-gray-100"
+            >
+              {[7, 30, 90, 365].map((day) => (
+                <option key={day} value={day}>
+                  {day} days
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+      </div>
+      {showBreakdowns && (
+        <div
+          id="company-breakdowns"
+          className="grid divide-y divide-gray-500/15 border border-gray-500/20 md:grid-cols-3 md:divide-x md:divide-y-0 rounded-md"
+        >
+          {widgetFacets.map((facet) => (
+            <CompanyBreakdownChart
+              key={facet}
+              title={
+                facet === 'library'
+                  ? 'Libraries'
+                  : facet === 'size'
+                    ? 'Company size'
+                    : 'Industries'
+              }
+              items={companyWidgetItems(
+                companyFacetCounts(
+                  filterCompanyRows(allRows, filters, facet),
+                  facet,
+                ),
+              )}
+              color={
+                facet === 'library'
+                  ? '#6366f1'
+                  : facet === 'size'
+                    ? '#10b981'
+                    : '#0ea5e9'
+              }
+              selected={filters[facet]}
+              onSelect={(values) => toggleFacet(facet, values)}
+              note={
+                facet === 'size'
+                  ? "Grouped by the lower bound of Scarf's reported employee range."
+                  : facet === 'library'
+                    ? 'A company can appear in multiple libraries. Other combines the remaining category counts.'
+                    : undefined
+              }
+            />
+          ))}
+        </div>
       )}
-      <div className="grid overflow-hidden rounded-2xl border border-gray-500/15 bg-white/60 divide-y divide-gray-500/15 lg:grid-cols-3 lg:divide-x lg:divide-y-0 dark:bg-gray-900/30">
-        <LiveCompanyTrend samples={samples} count={count} />
-        <CompanyBreakdownChart
-          title="Companies by library"
-          items={companyBreakdown(activeCompanies, 'library')}
-          color="#6366f1"
-          note="A company can appear in more than one library. Other combines the remaining library counts."
-        />
-        <CompanyBreakdownChart
-          title="Industries"
-          items={companyBreakdown(activeCompanies, 'industry')}
-          color="#0ea5e9"
-        />
+      <div className="flex min-h-6 flex-wrap items-center gap-2 text-[10px] text-gray-500">
+        {history.isFetching ? (
+          <span>Loading Scarf history...</span>
+        ) : history.isError ? (
+          <>
+            <span className="text-amber-600">
+              Scarf history could not load.
+            </span>
+            <button
+              type="button"
+              className="underline"
+              onClick={() => history.refetch()}
+            >
+              Retry
+            </button>
+          </>
+        ) : history.data?.status === 'unconfigured' ? (
+          <span className="text-amber-600">
+            Scarf reporting token is not configured.
+          </span>
+        ) : history.data?.status === 'unavailable' ? (
+          <>
+            <span
+              className="text-amber-600"
+              title={history.data.issues.join(' ')}
+            >
+              Scarf history unavailable. Live activity is still updating.
+            </span>
+            <button
+              type="button"
+              className="underline"
+              onClick={() => history.refetch()}
+            >
+              Retry
+            </button>
+          </>
+        ) : (
+          history.data && (
+            <>
+              <span
+                title={`${history.data.start} through ${history.data.end} exclusive, UTC. Refreshes every 15 minutes.`}
+              >
+                Scarf synced{' '}
+                {new Date(history.data.fetchedAt).toLocaleTimeString()}
+              </span>
+              {history.data.status === 'partial' && (
+                <span
+                  className="text-amber-600"
+                  title={history.data.issues.join(' ')}
+                >
+                  Some metrics unavailable
+                </span>
+              )}
+              <span>
+                Pixel views and site events are separate measurements.
+              </span>
+            </>
+          )
+        )}
       </div>
       <section
-        className="overflow-hidden rounded-2xl border border-gray-500/15 bg-white/60 dark:bg-gray-900/30"
-        aria-label="Companies on site"
+        className="flex min-h-0 flex-1 flex-col rounded-md border border-gray-500/20"
+        aria-label="Company prioritization grid"
       >
-        <div className="flex flex-wrap items-center justify-between gap-4 px-5 py-4">
-          <h2 className="text-base font-semibold">
-            Companies on site{' '}
-            <span className="ml-2 font-mono text-sm font-normal text-gray-500">
-              {companies.filter((row) => row.id).length}
-            </span>
-          </h2>
-          <div className="flex flex-wrap items-center gap-4">
-            <label className="flex items-center gap-2 text-xs text-gray-500">
-              <input
-                type="checkbox"
-                checked={showRecent}
-                onChange={(event) => setShowRecent(event.target.checked)}
-                className="accent-emerald-600"
-              />
-              Include recently left
-            </label>
-            <div className="relative">
-              <MagnifyingGlassIcon
-                aria-hidden="true"
-                className="pointer-events-none absolute left-3 top-2.5 text-gray-400"
-              />
-              <input
-                aria-label="Search companies or pages"
-                placeholder="Search companies or pages"
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                className="w-64 max-w-full rounded-lg border border-gray-500/20 bg-transparent py-2 pl-9 pr-3 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/15"
-              />
-            </div>
+        <div className="flex flex-wrap items-center gap-1.5 border-b border-gray-500/15 p-2">
+          <div className="relative mr-1">
+            <MagnifyingGlassIcon
+              aria-hidden="true"
+              className="pointer-events-none absolute left-2 top-2 text-gray-500"
+            />
+            <input
+              ref={searchInput}
+              aria-label="Search companies or pages"
+              placeholder="Search companies or pages /"
+              value={filters.search}
+              onChange={(event) => {
+                setFilters((previous) => ({
+                  ...previous,
+                  search: event.target.value,
+                }))
+                setPagination((previous) => ({ ...previous, pageIndex: 0 }))
+              }}
+              className="h-7 w-56 rounded border border-gray-500/20 bg-transparent pl-7 pr-2 text-[11px] outline-none focus:border-emerald-500"
+            />
+          </div>
+          {facets.map((facet) => (
+            <CompanyFacetFilter
+              key={facet}
+              label={facetLabels[facet]}
+              items={companyFacetCounts(
+                filterCompanyRows(allRows, filters, facet),
+                facet,
+                !filters.showRecent,
+              )}
+              selected={filters[facet]}
+              onToggle={(values) => toggleFacet(facet, values)}
+            />
+          ))}
+          <label className="flex h-7 items-center gap-1 rounded border border-gray-500/20 px-2 text-[10px] text-gray-500">
+            <span>Views ≥</span>
+            <input
+              aria-label="Minimum historical site views"
+              type="number"
+              min={0}
+              placeholder="0"
+              value={filters.minViews}
+              onChange={(event) =>
+                setFilters((previous) => ({
+                  ...previous,
+                  minViews: event.target.value,
+                }))
+              }
+              className="w-12 bg-transparent text-[11px] outline-none"
+            />
+          </label>
+          <label className="flex h-7 items-center gap-1 rounded border border-gray-500/20 px-2 text-[10px] text-gray-500">
+            <span>Actions ≥</span>
+            <input
+              aria-label="Minimum recent actions"
+              type="number"
+              min={0}
+              placeholder="0"
+              value={filters.minActions}
+              onChange={(event) =>
+                setFilters((previous) => ({
+                  ...previous,
+                  minActions: event.target.value,
+                }))
+              }
+              className="w-12 bg-transparent text-[11px] outline-none"
+            />
+          </label>
+          <div className="ml-auto flex items-center gap-1.5">
+            <select
+              aria-label="Sort preset"
+              value={
+                sorting[1]?.id === 'siteViews' && sorting[1]?.desc
+                  ? 'views'
+                  : sorting[1]?.id === 'actions' && sorting[1]?.desc
+                    ? 'activity'
+                    : sorting[1]?.id === 'size' && sorting[1]?.desc
+                      ? 'size'
+                      : 'custom'
+              }
+              onChange={(event) =>
+                setSorting([
+                  { id: 'unmatched', desc: false },
+                  ...(event.target.value === 'activity'
+                    ? [
+                        { id: 'actions', desc: true },
+                        { id: 'sessions', desc: true },
+                      ]
+                    : event.target.value === 'size'
+                      ? [
+                          { id: 'size', desc: true },
+                          { id: 'siteViews', desc: true },
+                        ]
+                      : [
+                          { id: 'siteViews', desc: true },
+                          { id: 'actions', desc: true },
+                        ]),
+                ])
+              }
+              className="h-7 rounded border border-gray-500/20 bg-transparent px-1 text-[11px]"
+            >
+              <option value="custom" disabled>
+                Custom sort
+              </option>
+              <option value="views">Most site views</option>
+              <option value="activity">Most active now</option>
+              <option value="size">Largest companies</option>
+            </select>
+            <details className="relative">
+              <summary className="flex h-7 cursor-pointer list-none items-center gap-1 rounded border border-gray-500/20 px-2 text-[11px] [&::-webkit-details-marker]:hidden">
+                <ColumnsIcon aria-hidden="true" />
+                Columns
+              </summary>
+              <fieldset className="absolute right-0 top-8 z-40 max-h-80 w-48 overflow-auto rounded border border-gray-500/25 bg-white p-1 shadow-lg dark:bg-gray-950">
+                <legend className="sr-only">Visible columns</legend>
+                {table
+                  .getAllLeafColumns()
+                  .filter((column) => column.getCanHide())
+                  .map((column) => (
+                    <label
+                      key={column.id}
+                      className="flex cursor-pointer items-center gap-2 px-2 py-1 text-[11px] hover:bg-gray-500/10"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={column.getIsVisible()}
+                        onChange={(event) =>
+                          column.toggleVisibility(event.target.checked)
+                        }
+                        className="accent-emerald-600"
+                      />
+                      {String(column.columnDef.header)}
+                    </label>
+                  ))}
+              </fieldset>
+            </details>
+            <select
+              aria-label="Row density"
+              value={comfortable ? 'comfortable' : 'compact'}
+              onChange={(event) =>
+                setComfortable(event.target.value === 'comfortable')
+              }
+              className="h-7 rounded border border-gray-500/20 bg-transparent px-1 text-[11px]"
+            >
+              <option value="compact">Compact</option>
+              <option value="comfortable">Comfortable</option>
+            </select>
+            <button
+              type="button"
+              onClick={exportRows}
+              className="flex h-7 items-center gap-1 rounded border border-gray-500/20 px-2 text-[11px]"
+              disabled={
+                (selectedOnly && !selectedRows.length) ||
+                (!filtered.length && !selectedRows.length)
+              }
+            >
+              <DownloadSimpleIcon aria-hidden="true" />
+              Export
+              {selectedRows.length ? ` ${selectedRows.length} selected` : ''}
+            </button>
           </div>
         </div>
-        <div className="overflow-x-auto">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-gray-500/15 px-2 py-1.5 text-[10px] text-gray-500">
+          <span className="font-mono">
+            {filtered.filter((row) => row.id).length} /{' '}
+            {
+              allRows.filter(
+                (row) => row.id && (filters.showRecent || row.active),
+              ).length
+            }{' '}
+            companies
+          </span>
+          <label className="flex items-center gap-1.5">
+            <input
+              type="checkbox"
+              checked={filters.identifiedOnly}
+              onChange={(event) =>
+                setFilters((previous) => ({
+                  ...previous,
+                  identifiedOnly: event.target.checked,
+                }))
+              }
+              className="accent-emerald-600"
+            />
+            Identified only
+          </label>
+          <label className="flex items-center gap-1.5">
+            <input
+              type="checkbox"
+              checked={filters.showRecent}
+              onChange={(event) =>
+                setFilters((previous) => ({
+                  ...previous,
+                  showRecent: event.target.checked,
+                }))
+              }
+              className="accent-emerald-600"
+            />
+            Include recently left
+          </label>
+          {(selectedRows.length > 0 || selectedOnly) && (
+            <>
+              <label className="flex items-center gap-1.5">
+                <input
+                  type="checkbox"
+                  checked={selectedOnly}
+                  onChange={(event) => setSelectedOnly(event.target.checked)}
+                />
+                Selected only ({selectedRows.length})
+              </label>
+              <button
+                type="button"
+                className="underline"
+                onClick={() => {
+                  setSelection({})
+                  setSelectedOnly(false)
+                }}
+              >
+                Clear selection
+              </button>
+            </>
+          )}
+          {filterCount > 0 && (
+            <button
+              type="button"
+              className="ml-auto underline"
+              onClick={() => {
+                setFilters(emptyCompanyFilters)
+                setSelectedOnly(false)
+                setPagination(initialPagination)
+              }}
+            >
+              Clear filters ({filterCount})
+            </button>
+          )}
+        </div>
+        {facets.some((facet) => filters[facet].length > 0) && (
+          <div className="flex flex-wrap gap-1 border-b border-gray-500/15 px-2 py-1.5">
+            {facets.flatMap((facet) =>
+              filters[facet].map((value) => (
+                <button
+                  key={`${facet}-${value}`}
+                  type="button"
+                  onClick={() => toggleFacet(facet, [value])}
+                  className="flex items-center gap-1 rounded border border-emerald-500/20 bg-emerald-500/10 px-1.5 py-0.5 text-[10px] text-emerald-700 dark:text-emerald-400"
+                  aria-label={`Remove ${facetLabels[facet]} filter ${value}`}
+                >
+                  {facetLabels[facet]}: {value}
+                  <XIcon aria-hidden="true" />
+                </button>
+              )),
+            )}
+          </div>
+        )}
+        <div className="min-h-48 flex-1 overflow-auto">
           <table
-            className="w-full border-collapse text-left text-sm"
+            className="w-full border-collapse whitespace-nowrap text-left text-[11px]"
             aria-label="Live companies"
           >
-            <thead className="border-y border-gray-500/15 bg-gray-500/[0.035] text-[11px] text-gray-500">
+            <thead className="sticky top-0 z-20 bg-gray-50 text-[10px] text-gray-500 dark:bg-gray-950">
               {table.getHeaderGroups().map((group) => (
                 <tr key={group.id}>
                   {group.headers.map((header) => {
                     const sort = header.column.getIsSorted()
+                    const index = sorting.findIndex(
+                      (item) => item.id === header.column.id,
+                    )
                     return (
                       <th
                         key={header.id}
                         scope="col"
                         title={
-                          header.id === 'actions'
-                            ? 'Recorded interactions in the last five minutes, limited to 40 recent events per tab.'
-                            : undefined
+                          columnHelp[header.column.id] ||
+                          'Click to sort. Shift-click to add another sort.'
                         }
                         aria-sort={
                           sort === 'asc'
@@ -227,23 +933,44 @@ export function LiveVisitors({ data }: { data: LiveData }) {
                               ? 'descending'
                               : undefined
                         }
-                        className="whitespace-nowrap px-4 py-3 font-medium first:pl-5"
+                        className={`border-b border-gray-500/20 px-2 py-2 font-medium ${header.column.id === 'name' ? 'sticky left-8 z-30 min-w-64 bg-gray-50 dark:bg-gray-950' : header.column.id === 'select' ? 'sticky left-0 z-30 w-8 bg-gray-50 dark:bg-gray-950' : ''}`}
                       >
-                        {header.column.getCanSort() ? (
+                        {header.column.id === 'select' ? (
+                          <input
+                            type="checkbox"
+                            aria-label="Select companies on this page"
+                            checked={table.getIsAllPageRowsSelected()}
+                            ref={(element) => {
+                              if (element)
+                                element.indeterminate =
+                                  table.getIsSomePageRowsSelected()
+                            }}
+                            onChange={(event) =>
+                              table.toggleAllPageRowsSelected(
+                                event.target.checked,
+                              )
+                            }
+                            className="accent-emerald-600"
+                          />
+                        ) : header.column.getCanSort() ? (
                           <button
                             type="button"
-                            className="flex items-center gap-2 rounded-sm hover:text-gray-900 focus-visible:outline focus-visible:outline-emerald-500 dark:hover:text-gray-100"
+                            className="flex items-center gap-1.5 focus-visible:outline focus-visible:outline-emerald-500"
                             onClick={header.column.getToggleSortingHandler()}
                           >
                             <table.FlexRender header={header} />
                             {sort ? (
-                              <span aria-hidden="true">
+                              <span
+                                className="font-mono text-gray-400"
+                                aria-hidden="true"
+                              >
                                 {sort === 'asc' ? '↑' : '↓'}
+                                {sorting.length > 2 ? index : ''}
                               </span>
                             ) : (
                               <ArrowsDownUpIcon
                                 aria-hidden="true"
-                                className="opacity-40"
+                                className="opacity-30"
                               />
                             )}
                           </button>
@@ -263,116 +990,127 @@ export function LiveVisitors({ data }: { data: LiveData }) {
                 return (
                   <Fragment key={row.id}>
                     <tr
-                      className={`hover:bg-gray-500/[0.035] ${open ? 'bg-emerald-500/[0.035]' : ''}`}
+                      className={`${row.getIsSelected() ? 'bg-emerald-500/10' : 'bg-white dark:bg-gray-950'} hover:bg-gray-50 dark:hover:bg-gray-900`}
                     >
-                      <td className="min-w-60 py-4 pl-5 pr-4">
-                        <button
-                          type="button"
-                          aria-expanded={open}
-                          aria-controls={`company-${row.id}`}
-                          onClick={() => toggle(row.id)}
-                          className="flex w-full items-center gap-3 text-left rounded-sm focus-visible:outline focus-visible:outline-emerald-500"
+                      {row.getVisibleCells().map((cell) => (
+                        <td
+                          key={cell.id}
+                          className={`${comfortable ? 'py-2.5' : 'py-1.5'} px-2 ${cell.column.id === 'name' ? 'sticky left-8 z-10 max-w-80 bg-inherit' : cell.column.id === 'select' ? 'sticky left-0 z-10 bg-inherit' : cell.column.id === 'industry' || cell.column.id === 'libraries' || cell.column.id === 'stage' ? 'text-gray-500' : 'font-mono tabular-nums'}`}
                         >
-                          {open ? (
-                            <CaretDownIcon
-                              aria-hidden="true"
-                              className="shrink-0 text-gray-400"
+                          {cell.column.id === 'select' ? (
+                            <input
+                              type="checkbox"
+                              aria-label={`Select ${company.name}`}
+                              checked={row.getIsSelected()}
+                              onChange={(event) =>
+                                row.toggleSelected(event.target.checked)
+                              }
+                              className="accent-emerald-600"
                             />
-                          ) : (
-                            <CaretRightIcon
-                              aria-hidden="true"
-                              className="shrink-0 text-gray-400"
-                            />
-                          )}
-                          <span
-                            className={`flex size-9 shrink-0 items-center justify-center rounded-lg text-sm font-semibold ${company.id ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' : 'bg-gray-500/10 text-gray-500'}`}
-                            aria-hidden="true"
-                          >
-                            {company.id
-                              ? company.name.slice(0, 1).toUpperCase()
-                              : '?'}
-                          </span>
-                          <span className="min-w-0">
-                            <span className="block font-semibold">
-                              {company.name}
-                            </span>
-                            {company.id &&
-                              company.name.toLowerCase() !== company.id && (
-                                <span className="mt-0.5 block text-xs text-gray-500">
-                                  {company.id}
-                                </span>
+                          ) : cell.column.id === 'name' ? (
+                            <button
+                              type="button"
+                              aria-expanded={open}
+                              aria-controls={`company-${row.id}`}
+                              onClick={() => toggleCompany(row.id)}
+                              className="flex w-full items-center gap-2 text-left focus-visible:outline focus-visible:outline-emerald-500"
+                            >
+                              {open ? (
+                                <CaretDownIcon
+                                  aria-hidden="true"
+                                  className="shrink-0 text-gray-500"
+                                />
+                              ) : (
+                                <CaretRightIcon
+                                  aria-hidden="true"
+                                  className="shrink-0 text-gray-500"
+                                />
                               )}
-                            {!company.active && (
-                              <span className="mt-0.5 block text-xs text-gray-500">
-                                Recently left
+                              <span
+                                className={`size-1.5 shrink-0 rounded-full ${company.active ? 'bg-emerald-500' : 'bg-gray-400'}`}
+                                aria-hidden="true"
+                              />
+                              <span
+                                className="min-w-0 truncate font-sans font-medium"
+                                title={`${company.name}${company.id ? ` · ${company.id}` : ''}`}
+                              >
+                                {company.name}
                               </span>
-                            )}
-                          </span>
-                        </button>
-                      </td>
-                      <td className="max-w-44 px-4 py-4 text-xs text-gray-500">
-                        <span className="line-clamp-2">
-                          {company.company?.industry || 'Unknown'}
-                        </span>
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-4 text-xs text-gray-500">
-                        {company.company?.company_size || 'Unknown'}
-                      </td>
-                      <td className="min-w-32 px-4 py-4">
-                        <div className="flex flex-wrap gap-1">
-                          {company.libraries.slice(0, 2).map((library) => (
+                            </button>
+                          ) : cell.column.id === 'lastSeen' ? (
                             <span
-                              key={library}
-                              className="rounded bg-gray-500/[0.07] px-2 py-1 text-[11px]"
+                              title={new Date(
+                                company.lastSeen,
+                              ).toLocaleString()}
+                              className="text-gray-500"
                             >
-                              {library}
+                              {age(company.lastSeen, data.now)}
                             </span>
-                          ))}
-                          {company.libraries.length > 2 && (
-                            <span
-                              title={company.libraries.slice(2).join(', ')}
-                              className="px-1 py-1 text-[11px] text-gray-500"
-                            >
-                              +{company.libraries.length - 2}
-                            </span>
+                          ) : (
+                            <table.FlexRender cell={cell} />
                           )}
-                        </div>
-                      </td>
-                      <td className="px-4 py-4 font-mono text-xs tabular-nums">
-                        {company.pages.length}
-                      </td>
-                      <td className="px-4 py-4 font-mono text-xs tabular-nums">
-                        {company.actions}
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-4 text-xs text-gray-500">
-                        <span
-                          className={`mr-2 inline-block size-1.5 rounded-full ${company.active ? 'bg-emerald-500' : 'bg-gray-400'}`}
-                          aria-hidden="true"
-                        />
-                        {age(company.lastSeen, data.now)}
-                      </td>
+                        </td>
+                      ))}
                     </tr>
                     {open && (
                       <tr>
                         <td
-                          colSpan={columns.length}
-                          className="bg-gray-500/[0.025] p-3 sm:p-5"
+                          colSpan={table.getVisibleLeafColumns().length}
+                          className="whitespace-normal border-y border-emerald-500/20 bg-gray-500/[0.035] p-2"
                         >
-                          <CompanySessions company={company} now={data.now} />
+                          <div
+                            id={`company-${row.id}`}
+                            className="rounded border border-gray-500/15"
+                          >
+                            <div className="flex flex-wrap items-center gap-3 border-b border-gray-500/15 px-3 py-2 text-[11px]">
+                              <strong>{company.name}</strong>
+                              {company.id && (
+                                <a
+                                  href={`https://${company.id}`}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="text-gray-500 underline"
+                                >
+                                  {company.id}
+                                </a>
+                              )}
+                              <span className="text-gray-500">
+                                {company.activeSessions} active sessions ·{' '}
+                                {company.activeTabs} tabs
+                              </span>
+                              {company.company?.linkedin_url &&
+                                /^https:\/\/(www\.)?linkedin\.com\//.test(
+                                  company.company.linkedin_url,
+                                ) && (
+                                  <a
+                                    href={company.company.linkedin_url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="ml-auto underline"
+                                  >
+                                    LinkedIn
+                                  </a>
+                                )}
+                            </div>
+                            <LiveCompanySessions
+                              domain={company.id}
+                              paused={paused}
+                            />
+                          </div>
                         </td>
                       </tr>
                     )}
                   </Fragment>
                 )
               })}
-              {rows.length === 0 && (
+              {!rows.length && (
                 <tr>
                   <td
-                    colSpan={columns.length}
-                    className="px-5 py-16 text-center text-sm text-gray-500"
+                    colSpan={table.getVisibleLeafColumns().length}
+                    className="py-12 text-center text-xs text-gray-500"
                   >
-                    {search
-                      ? 'No companies or pages match your search.'
+                    {filterCount || selectedOnly
+                      ? 'No companies match these filters.'
                       : 'No companies on public pages right now.'}
                   </td>
                 </tr>
@@ -380,137 +1118,54 @@ export function LiveVisitors({ data }: { data: LiveData }) {
             </tbody>
           </table>
         </div>
-        <div className="flex flex-wrap justify-between gap-2 border-t border-gray-500/10 px-5 py-3 text-[11px] text-gray-500">
-          <span>
-            Company matches describe the network, not a verified employer.
-          </span>
-          <span>Missing heartbeats expire after 65 seconds.</span>
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-gray-500/15 px-2 py-1.5 text-[10px] text-gray-500">
+          <span>Network matches, not verified employers.</span>
+          <div className="flex items-center gap-2">
+            <label className="flex items-center gap-1">
+              Rows
+              <select
+                aria-label="Rows per page"
+                value={pagination.pageSize}
+                onChange={(event) =>
+                  table.setPageSize(Number(event.target.value))
+                }
+                className="rounded border border-gray-500/20 bg-transparent px-1"
+              >
+                {[25, 50, 100, 250].map((size) => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <button
+              type="button"
+              aria-label="Previous page"
+              disabled={!table.getCanPreviousPage()}
+              onClick={() => table.previousPage()}
+              className="px-1 disabled:opacity-30"
+            >
+              Previous
+            </button>
+            <span className="font-mono">
+              {Math.min(
+                pagination.pageIndex + 1,
+                Math.max(1, table.getPageCount()),
+              )}{' '}
+              / {Math.max(1, table.getPageCount())}
+            </span>
+            <button
+              type="button"
+              aria-label="Next page"
+              disabled={!table.getCanNextPage()}
+              onClick={() => table.nextPage()}
+              className="px-1 disabled:opacity-30"
+            >
+              Next
+            </button>
+          </div>
         </div>
       </section>
     </div>
-  )
-}
-
-function CompanySessions({
-  company,
-  now,
-}: {
-  company: LiveCompanyRow
-  now: string
-}) {
-  return (
-    <div
-      id={`company-${company.id || 'unmatched'}`}
-      className="overflow-hidden rounded-xl border border-gray-500/15 bg-white/70 dark:bg-gray-950/40"
-    >
-      <div className="flex items-baseline justify-between gap-3 border-b border-gray-500/10 px-4 py-3">
-        <h3 className="text-xs font-semibold">Sessions at {company.name}</h3>
-        <span className="text-xs text-gray-500">
-          {
-            company.sessions.filter((tabs) => tabs.some((tab) => tab.active))
-              .length
-          }{' '}
-          active · {company.sessions.length} in view
-        </span>
-      </div>
-      <div className="max-h-[32rem] divide-y divide-gray-500/10 overflow-y-auto">
-        {company.sessions.map((tabs) => (
-          <SessionDetails key={tabs[0].sessionId} tabs={tabs} now={now} />
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function SessionDetails({ tabs, now }: { tabs: LiveTab[]; now: string }) {
-  const first = tabs[0]
-  const current =
-    tabs.find((tab) => tab.active && tab.visible) ??
-    tabs.find((tab) => tab.active) ??
-    first
-  const active = tabs.some((tab) => tab.active)
-  const activity = tabs
-    .flatMap((tab) => tab.activity)
-    .sort((a, b) => b.at.localeCompare(a.at))
-    .slice(0, 40)
-  return (
-    <details className="group/session">
-      <summary className="flex cursor-pointer list-none flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 text-xs hover:bg-gray-500/[0.035] [&::-webkit-details-marker]:hidden">
-        <CaretRightIcon
-          aria-hidden="true"
-          className="text-gray-400 group-open/session:hidden"
-        />
-        <CaretDownIcon
-          aria-hidden="true"
-          className="hidden text-gray-400 group-open/session:block"
-        />
-        <span className="font-mono">Visitor {first.sessionId.slice(0, 8)}</span>
-        <span
-          className={`rounded px-1.5 py-0.5 text-[10px] ${active ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' : 'bg-gray-500/10 text-gray-500'}`}
-        >
-          {active ? (current.visible ? 'Visible' : 'Background') : 'Left'}
-        </span>
-        <span className="min-w-0 flex-1 truncate text-gray-500">
-          {current.page}
-        </span>
-        {!first.company && (
-          <span className="text-[10px] text-gray-500">
-            {lookupLabels[first.lookupStatus]}
-          </span>
-        )}
-        <span className="ml-auto text-gray-500">
-          {age(current.lastSeen, now)}
-        </span>
-      </summary>
-      <div className="grid gap-6 border-t border-gray-500/10 px-5 py-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] sm:pl-12">
-        <section>
-          <h4 className="mb-3 text-xs font-medium">
-            Tabs <span className="ml-1 text-gray-500">{tabs.length}</span>
-          </h4>
-          <ul className="space-y-3">
-            {tabs.map((tab) => (
-              <li key={tab.tabId} className="text-xs">
-                <span className="mb-1 block text-[10px] text-gray-500">
-                  {tab.active
-                    ? tab.visible
-                      ? 'Visible'
-                      : 'Background'
-                    : 'Left'}
-                </span>
-                <span className="break-all">{tab.page}</span>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-4 text-[10px] text-gray-500">
-            Arrived {age(first.arrivedAt, now)}
-          </p>
-        </section>
-        <section>
-          <h4 className="mb-3 text-xs font-medium">Recent activity</h4>
-          {activity.length ? (
-            <ol className="space-y-3">
-              {activity.map((event, index) => (
-                <li key={`${event.at}-${index}`} className="flex gap-4 text-xs">
-                  <time
-                    dateTime={event.at}
-                    className="w-16 shrink-0 text-[10px] text-gray-500"
-                  >
-                    {age(event.at, now)}
-                  </time>
-                  <div className="min-w-0">
-                    <p>{liveActions[event.action]}</p>
-                    <p className="mt-1 break-all text-[11px] text-gray-500">
-                      {event.page}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          ) : (
-            <p className="text-xs text-gray-500">No actions recorded yet.</p>
-          )}
-        </section>
-      </div>
-    </details>
   )
 }

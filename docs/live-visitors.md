@@ -7,14 +7,41 @@ function. Admin queries refresh every three seconds while the page is visible.
 The dashboard opens with a company grid. Individual sessions are hidden until
 a company is expanded, and each session has its own expandable tabs and activity.
 Unmatched traffic stays in one collapsed row at the bottom. Columns support
-sorting, and search matches companies, industries, libraries, and page paths.
+multi-column sorting with Shift-click, column visibility, row selection,
+pagination, compact density, and CSV export. Search matches companies, industries,
+libraries, and page paths. Library, industry, size, and funnel-stage filters can
+be combined with minimum website views and recent actions. Values within a
+filter match with OR, while different filters match with AND.
 
 The overview counts identified companies once per domain. Library breakdowns
 count a company once per library, so one company can appear in several bars.
-Industry breakdowns exclude unmatched traffic. The company trend records real
-polling snapshots in the open dashboard tab, up to five minutes, and resets on
-reload. Grid action totals count named interactions in the last five minutes,
-excluding page views.
+Industry and size breakdowns exclude unmatched traffic. Clicking a breakdown
+applies its filter. Size buckets use the lower bound of Scarf's employee range.
+Grid action totals count named interactions in the last five minutes, excluding
+page views. Pause freezes polling, including expanded sessions and history.
+
+## Scarf company history
+
+The server uses the existing `ANALYTICS_SCARF_API_TOKEN` bearer token for Scarf's
+`/v3/insights/TanStack/aggregations/export` endpoint. Reporting is separate from
+the lookup key and requires Scarf reporting access. Exports cover the selected
+7, 30, 90, or 365 UTC calendar days, including today. Growth compares website
+pixel views with the preceding equal-length window, so today's totals are
+incomplete. These are window totals, not lifetime totals.
+
+Website views include only the site's registered Scarf pixels. Site events
+come from the TanStack Site Telemetry package, including browser interactions
+and server requests. Events are not added to views. Sources and endpoints are
+Scarf's distinct network counts, not people. Company reports join live company
+domains exactly, without guessing parent-company relationships. Missing rows or
+failed reports show N/A rather than zero. No company data is automatically
+unlocked and no Scarf credits are spent on enrichment.
+
+Successful aggregate exports are cached at the edge for 15 minutes and partial
+or unavailable responses for one minute. Live presence still refreshes every
+three seconds. Sorting and filtering do not request new exports. Only admins
+can request reporting data, and source identifiers and credentials are never
+returned to the browser.
 
 ## Enable the experiment
 
@@ -46,9 +73,11 @@ contact, not proof that a person is looking at the page. `pageshow` handles
 restoration from the browser's back/forward cache. Sequence numbers prevent a
 late heartbeat or departure from overwriting newer tab state.
 
-Each tab retains up to 40 named actions. The admin includes departures from the
-last five minutes when requested and returns at most 500 recently seen tabs,
-with a visible truncation notice. Sessions disappear from reads at 24 hours and
+Each tab retains up to 40 named actions. The company overview aggregates all
+eligible tabs without a 500-tab cap. Individual company sessions are fetched
+only when expanded, with at most 500 eligible recently seen tabs per company
+and a visible truncation notice. The admin includes departures from the last
+five minutes when requested. Sessions disappear from reads at 24 hours and
 are deleted, with their tabs, on the next minute cleanup.
 
 ## Company lookup

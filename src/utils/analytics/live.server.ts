@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { and, desc, eq, gt, lt, sql } from 'drizzle-orm'
 import { isIP } from 'node:net'
 import { db } from '~/db/client'
@@ -10,6 +11,7 @@ import {
 import { getLiveConfig, lookupScarfCompany } from './scarf-lookup.server'
 import {
   isLivePage,
+  liveCompanySchema,
   livePublicPagePattern,
   liveForbiddenPagePattern,
   liveEventSchema,
@@ -172,7 +174,7 @@ export async function recordLiveEvent(
   }
 }
 
-export async function listLiveVisitors() {
+export async function listLiveVisitors(domain?: string) {
   await requireAdmin()
   const config = await getLiveConfig()
   const now = Date.now()
@@ -203,6 +205,9 @@ export async function listLiveVisitors() {
       and(
         gt(liveTabs.lastSeen, new Date(now - 5 * 60_000)),
         gt(liveSessions.createdAt, new Date(now - LIVE_RETENTION_MS)),
+        domain === undefined
+          ? undefined
+          : sql`coalesce(lower(${liveSessions.company}->>'domain'), '') = ${domain}`,
         sql`length(${liveTabs.page}) <= 400`,
         sql`${liveTabs.page} ~ ${livePublicPagePattern.source}`,
         sql`${liveTabs.page} !~ ${liveForbiddenPagePattern.source}`,
@@ -233,4 +238,70 @@ export async function pruneLiveVisitors(now = Date.now()) {
   await db
     .delete(liveSessions)
     .where(lt(liveSessions.createdAt, new Date(now - LIVE_RETENTION_MS)))
+}
+
+export const liveCompanyOverviewRowSchema = z.object({
+  id: z.string(),
+  company: liveCompanySchema.nullable(),
+  activeSessions: z.coerce.number().int().nonnegative(),
+  activeTabs: z.coerce.number().int().nonnegative(),
+  visibleTabs: z.coerce.number().int().nonnegative(),
+  recentSessions: z.coerce.number().int().nonnegative(),
+  pages: z.array(z.string()),
+  actions: z.coerce.number().int().nonnegative(),
+  recentViews: z.coerce.number().int().nonnegative(),
+  lastSeen: z.coerce.date(),
+})
+
+export function liveCompanyOverviewSql(now: number) {
+  const activeSince = new Date(now - LIVE_TIMEOUT_MS).toISOString()
+  const recentSince = new Date(now - 5 * 60_000).toISOString()
+  const retainedSince = new Date(now - LIVE_RETENTION_MS).toISOString()
+  return sql`
+    WITH eligible AS (
+      SELECT s.id AS session_id, s.company, t.page, t.visible, t.last_seen, t.activity,
+        (t.left_at IS NULL AND t.last_seen > ${activeSince}::timestamptz) AS active
+      FROM live_tabs t JOIN live_sessions s ON s.id = t.session_id
+      WHERE t.last_seen > ${recentSince}::timestamptz AND s.created_at > ${retainedSince}::timestamptz
+        AND length(t.page) <= 400 AND t.page ~ ${livePublicPagePattern.source}
+        AND t.page !~ ${liveForbiddenPagePattern.source}
+    )
+    SELECT coalesce(lower(e.company->>'domain'), '') AS id,
+      max(e.company::text)::jsonb AS company,
+      count(DISTINCT e.session_id) FILTER (WHERE e.active) AS "activeSessions",
+      count(*) FILTER (WHERE e.active) AS "activeTabs",
+      count(*) FILTER (WHERE e.active AND e.visible) AS "visibleTabs",
+      count(DISTINCT e.session_id) AS "recentSessions",
+      coalesce(jsonb_agg(DISTINCT e.page ORDER BY e.page) FILTER (WHERE e.active), '[]'::jsonb) AS pages,
+      coalesce(sum(a.actions), 0) AS actions, coalesce(sum(a.views), 0) AS "recentViews",
+      max(e.last_seen) AS "lastSeen"
+    FROM eligible e
+    CROSS JOIN LATERAL (
+      SELECT count(*) FILTER (WHERE event->>'action' <> 'page_view') AS actions,
+        count(*) FILTER (WHERE event->>'action' = 'page_view') AS views
+      FROM jsonb_array_elements(e.activity) event
+      WHERE event->>'at' >= ${recentSince}
+        AND length(event->>'page') <= 400 AND event->>'page' ~ ${livePublicPagePattern.source}
+        AND event->>'page' !~ ${liveForbiddenPagePattern.source}
+    ) a
+    GROUP BY coalesce(lower(e.company->>'domain'), '')
+    ORDER BY id
+  `
+}
+
+export async function listLiveCompanyOverview() {
+  await requireAdmin()
+  const config = await getLiveConfig()
+  const now = Date.now()
+  const companies = config.enabled
+    ? z
+        .array(liveCompanyOverviewRowSchema)
+        .parse(await db.execute(liveCompanyOverviewSql(now)))
+    : []
+  return {
+    enabled: config.enabled,
+    lookupConfigured: Boolean(config.key),
+    now: new Date(now).toISOString(),
+    companies,
+  }
 }

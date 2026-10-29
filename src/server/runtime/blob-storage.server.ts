@@ -189,7 +189,7 @@ function getCacheRequest(name: BlobStorageName, key: string) {
   return new Request(url)
 }
 
-function getDefaultRuntimeCache() {
+export function getDefaultRuntimeCache() {
   if (!isIsolateRuntime() || typeof caches === 'undefined') {
     return undefined
   }

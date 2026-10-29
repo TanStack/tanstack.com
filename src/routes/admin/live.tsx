@@ -11,6 +11,7 @@ import {
 import { useAdminGuard } from '~/hooks/useAdminGuard'
 import { AdminAccessDenied, AdminLoading } from '~/components/admin'
 import { LiveVisitors } from '~/components/admin/LiveVisitors'
+import { createVisitorChatTest } from '~/utils/visitor-chat/admin.functions'
 import { getLiveCompanyOverview } from '~/utils/analytics/live.functions'
 
 export const Route = createFileRoute('/admin/live')({
@@ -28,6 +29,8 @@ function LiveVisitorsPage() {
   const guard = useAdminGuard()
   const [paused, setPaused] = useState(false)
   const [chatRequest, setChatRequest] = useState(0)
+  const [testing, setTesting] = useState(false)
+  const [testError, setTestError] = useState('')
   const [chatTarget, setChatTarget] = useState(
     (): z.infer<typeof chatTargetSchema> | null => null,
   )
@@ -52,6 +55,27 @@ function LiveVisitorsPage() {
     window.addEventListener('tanstack:start-visitor-chat', open)
     return () => window.removeEventListener('tanstack:start-visitor-chat', open)
   }, [query.data?.chatEnabled])
+  const testChat = async () => {
+    const preview = window.open('about:blank', '_blank')
+    if (!preview) {
+      setTestError('Allow pop-ups for tanstack.com, then try Test chat again.')
+      return
+    }
+    preview.opener = null
+    setTesting(true)
+    setTestError('')
+    try {
+      const target = await createVisitorChatTest()
+      setChatTarget(target)
+      setChatRequest((value) => value + 1)
+      preview.location.replace('/#visitor-chat-test')
+    } catch {
+      preview.close()
+      setTestError('Could not start the test chat. Try again.')
+    } finally {
+      setTesting(false)
+    }
+  }
   if (guard.status === 'loading') return <AdminLoading />
   if (guard.status === 'denied') return <AdminAccessDenied />
   return (
@@ -80,6 +104,17 @@ function LiveVisitorsPage() {
                   {query.data.chatsNeedingReply}
                 </span>
               )}
+            </button>
+          )}
+          {query.data?.chatEnabled && (
+            <button
+              type="button"
+              disabled={testing}
+              onClick={() => void testChat()}
+              className="h-7 rounded border border-gray-500/20 px-2 disabled:opacity-40"
+              title="Open the visitor experience in another tab and chat with yourself"
+            >
+              {testing ? 'Opening...' : 'Test chat'}
             </button>
           )}
           <span className="text-gray-500">
@@ -115,6 +150,11 @@ function LiveVisitorsPage() {
           </button>
         </div>
       </header>
+      {testError && (
+        <p role="alert" className="text-xs text-amber-600">
+          {testError}
+        </p>
+      )}
       {query.isPending && <AdminLoading />}
       {query.isError && (
         <div

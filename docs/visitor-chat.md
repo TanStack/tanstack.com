@@ -96,3 +96,17 @@ The chat interface does not send message content to Scarf or GA.
 Local integration tests require a disposable, migrated `tanchat_test` PostgreSQL
 database, and refuse a production database URL. The preview used synthetic users
 and conversations and did not contact real site visitors.
+
+## Test your own chat
+
+Click **Test chat** in the live dashboard. It opens the public site in a new tab
+with a test message from your admin profile, and opens the matching admin tab
+labeled **Test chat · You**. Reply in either tab to test both sides. The visitor
+tab uses the same window, history, reload recovery, and opt-out as a real chat.
+Allow pop-ups for tanstack.com if the browser blocks the new tab.
+
+This action requires admin access. It creates a separate conversation labeled
+Test chat, without waiting for Scarf or adding a synthetic presence session.
+The signed visitor cookie connects only your own browser to that conversation.
+Each test creates a new conversation and makes it this browser's visitor chat.
+Delete the test from the admin tab when finished. Other visitors are unaffected.

@@ -15,6 +15,7 @@ import {
 import {
   acknowledgeVisitorChat,
   chatsNeedingReply,
+  createAdminTestChat,
   appendMessage,
   openChatForSession,
   readChat,
@@ -99,6 +100,7 @@ it('keeps a private, shared, durable conversation through concurrent admins, ret
     await expect(
       startAdminChat(event.sessionId, message('unauthenticated')),
     ).rejects.toThrow()
+    await expect(createAdminTestChat()).rejects.toThrow()
     await recordLiveEvent(event, '192.0.2.1', undefined, undefined)
     const baseline = new Request('https://tanstack.com/_a/live', {
       method: 'POST',

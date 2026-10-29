@@ -137,6 +137,9 @@ function ChatPanel({
     retry: false,
   })
   useEffect(() => {
+    if (target?.chatId) setSelected(target.chatId)
+  }, [target?.chatId])
+  useEffect(() => {
     setChat(undefined)
     setDraft('')
     setError('')

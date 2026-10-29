@@ -3458,3 +3458,42 @@ export const chatWaitlist = pgTable('chat_waitlist', {
     .notNull()
     .defaultNow(),
 })
+
+// Short-lived, anonymous browser presence. Never associate these with users or IPs.
+export const liveSessions = pgTable(
+  'live_sessions',
+  {
+    id: uuid('id').primaryKey(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    company:
+      jsonb('company').$type<import('../utils/analytics/live').LiveCompany>(),
+    lookupStatus: text('lookup_status', {
+      enum: ['pending', 'matched', 'unknown', 'failed', 'unconfigured'],
+    }).notNull(),
+  },
+  (table) => [index('live_sessions_created_at_idx').on(table.createdAt)],
+)
+
+export const liveTabs = pgTable(
+  'live_tabs',
+  {
+    id: uuid('id').primaryKey(),
+    sessionId: uuid('session_id')
+      .notNull()
+      .references(() => liveSessions.id, { onDelete: 'cascade' }),
+    page: text('page').notNull(),
+    visible: boolean('visible').notNull(),
+    sequence: bigint('sequence', { mode: 'number' }).notNull(),
+    lastSeen: timestamp('last_seen', { withTimezone: true }).notNull(),
+    leftAt: timestamp('left_at', { withTimezone: true }),
+    activity: jsonb('activity')
+      .$type<import('../utils/analytics/live').LiveActivity[]>()
+      .notNull(),
+  },
+  (table) => [
+    index('live_tabs_last_seen_idx').on(table.lastSeen),
+    index('live_tabs_session_idx').on(table.sessionId),
+  ],
+)

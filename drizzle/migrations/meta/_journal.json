@@ -295,6 +295,13 @@
       "when": 1791183973089,
       "tag": "0041_tanchat_usage_reservation",
       "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1793217188347,
+      "tag": "0042_live_visitors",
+      "breakpoints": true
     }
   ]
 }

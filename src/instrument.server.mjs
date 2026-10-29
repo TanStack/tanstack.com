@@ -14,5 +14,16 @@ if (!Sentry.getClient())
     tracesSampleRate: 1.0, //  Capture 100% of the transactions
     // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
     tracePropagationTargets: ['localhost', /^https:\/\/tanstack\.com\//],
+    // The lookup URL contains a visitor IP, so do not retain its breadcrumb.
+    beforeBreadcrumb(breadcrumb) {
+      if (
+        typeof breadcrumb.data?.url === 'string' &&
+        breadcrumb.data.url.startsWith(
+          'https://api.scarf.sh/v3/organizations/TanStack/ip-company',
+        )
+      )
+        return null
+      return breadcrumb
+    },
     beforeSend: redactByokRequestHeaders,
   })

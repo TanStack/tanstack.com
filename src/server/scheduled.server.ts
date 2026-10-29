@@ -1,3 +1,4 @@
+import { pruneLiveVisitors } from '~/utils/analytics/live.server'
 import { materializeWorkflowSchedules } from '@tanstack/workflow-runtime'
 import { pruneStaleCacheRows } from '~/utils/github-content-cache.server'
 import { refreshHomepageNpmStatsSummary } from '~/utils/homepage-npm-stats.server'
@@ -45,6 +46,7 @@ async function runWorkflowSweep(cron: string, scheduledTime: number) {
   console.log('[workflow-sweep] Starting workflow sweep...')
 
   try {
+    await pruneLiveVisitors(scheduledTime)
     const interruptedBuilderRuns =
       await interruptExpiredBuilderProjectRunLeases({
         occurredAt: new Date(scheduledTime),

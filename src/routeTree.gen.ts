@@ -60,6 +60,7 @@ import { Route as AdminChatAccessRouteImport } from './routes/admin/chat-access'
 import { Route as AdminDocsRouteImport } from './routes/admin/docs'
 import { Route as AdminGithubStatsRouteImport } from './routes/admin/github-stats'
 import { Route as AdminIntentRouteImport } from './routes/admin/intent'
+import { Route as AdminLiveRouteImport } from './routes/admin/live'
 import { Route as AdminLoginsRouteImport } from './routes/admin/logins'
 import { Route as AdminNpmStatsRouteImport } from './routes/admin/npm-stats'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
@@ -579,6 +580,11 @@ const AdminGithubStatsRoute = AdminGithubStatsRouteImport.update({
 const AdminIntentRoute = AdminIntentRouteImport.update({
   id: '/intent',
   path: '/intent',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminLiveRoute = AdminLiveRouteImport.update({
+  id: '/live',
+  path: '/live',
   getParentRoute: () => AdminRouteRoute,
 } as any)
 const AdminLoginsRoute = AdminLoginsRouteImport.update({
@@ -2061,6 +2067,7 @@ export interface FileRoutesByFullPath {
   '/admin/docs': typeof AdminDocsRoute
   '/admin/github-stats': typeof AdminGithubStatsRoute
   '/admin/intent': typeof AdminIntentRoute
+  '/admin/live': typeof AdminLiveRoute
   '/admin/logins': typeof AdminLoginsRoute
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
@@ -2369,6 +2376,7 @@ export interface FileRoutesByTo {
   '/admin/docs': typeof AdminDocsRoute
   '/admin/github-stats': typeof AdminGithubStatsRoute
   '/admin/intent': typeof AdminIntentRoute
+  '/admin/live': typeof AdminLiveRoute
   '/admin/logins': typeof AdminLoginsRoute
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
@@ -2684,6 +2692,7 @@ export interface FileRoutesById {
   '/admin/docs': typeof AdminDocsRoute
   '/admin/github-stats': typeof AdminGithubStatsRoute
   '/admin/intent': typeof AdminIntentRoute
+  '/admin/live': typeof AdminLiveRoute
   '/admin/logins': typeof AdminLoginsRoute
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
@@ -3003,6 +3012,7 @@ export interface FileRouteTypes {
     | '/admin/docs'
     | '/admin/github-stats'
     | '/admin/intent'
+    | '/admin/live'
     | '/admin/logins'
     | '/admin/npm-stats'
     | '/admin/users'
@@ -3311,6 +3321,7 @@ export interface FileRouteTypes {
     | '/admin/docs'
     | '/admin/github-stats'
     | '/admin/intent'
+    | '/admin/live'
     | '/admin/logins'
     | '/admin/npm-stats'
     | '/admin/users'
@@ -3625,6 +3636,7 @@ export interface FileRouteTypes {
     | '/admin/docs'
     | '/admin/github-stats'
     | '/admin/intent'
+    | '/admin/live'
     | '/admin/logins'
     | '/admin/npm-stats'
     | '/admin/users'
@@ -4402,6 +4414,13 @@ declare module '@tanstack/react-router' {
       path: '/intent'
       fullPath: '/admin/intent'
       preLoaderRoute: typeof AdminIntentRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/live': {
+      id: '/admin/live'
+      path: '/live'
+      fullPath: '/admin/live'
+      preLoaderRoute: typeof AdminLiveRouteImport
       parentRoute: typeof AdminRouteRoute
     }
     '/admin/logins': {
@@ -6280,6 +6299,7 @@ interface AdminRouteRouteChildren {
   AdminDocsRoute: typeof AdminDocsRoute
   AdminGithubStatsRoute: typeof AdminGithubStatsRoute
   AdminIntentRoute: typeof AdminIntentRoute
+  AdminLiveRoute: typeof AdminLiveRoute
   AdminLoginsRoute: typeof AdminLoginsRoute
   AdminNpmStatsRoute: typeof AdminNpmStatsRoute
   AdminUsersRoute: typeof AdminUsersRouteWithChildren
@@ -6299,6 +6319,7 @@ const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminDocsRoute: AdminDocsRoute,
   AdminGithubStatsRoute: AdminGithubStatsRoute,
   AdminIntentRoute: AdminIntentRoute,
+  AdminLiveRoute: AdminLiveRoute,
   AdminLoginsRoute: AdminLoginsRoute,
   AdminNpmStatsRoute: AdminNpmStatsRoute,
   AdminUsersRoute: AdminUsersRouteWithChildren,

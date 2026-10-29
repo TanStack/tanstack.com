@@ -594,6 +594,7 @@ export function LiveVisitors({
                 companyFacetCounts(
                   filterCompanyRows(allRows, filters, facet),
                   facet,
+                  !filters.showRecent,
                 ),
               )}
               color={

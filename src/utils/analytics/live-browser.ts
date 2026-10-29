@@ -9,14 +9,25 @@ import { hasVisitorChatHint } from '../visitor-chat/bootstrap'
 let report: ((action?: string) => void) | undefined
 let chatLoading = false
 export async function resumeVisitorChat() {
-  if (hasVisitorChatHint(document.cookie)) await loadVisitorChat()
+  const hashId = location.hash.startsWith('#visitor-chat-test=')
+    ? location.hash.slice('#visitor-chat-test='.length)
+    : undefined
+  let testId = hashId
+  try {
+    if (hashId && liveUuid(hashId))
+      sessionStorage.setItem('tanstack.visitor-chat.test', hashId)
+    else
+      testId = sessionStorage.getItem('tanstack.visitor-chat.test') || undefined
+  } catch {}
+  if (testId && liveUuid(testId)) await loadVisitorChat(testId)
+  else if (hasVisitorChatHint(document.cookie)) await loadVisitorChat()
 }
-export async function loadVisitorChat() {
+export async function loadVisitorChat(testId?: string) {
   if (chatLoading || document.getElementById('tanstack-visitor-chat')) return
   chatLoading = true
   try {
     const chat = await import('../../components/visitor-chat/VisitorChat')
-    chat.mountVisitorChat()
+    chat.mountVisitorChat(testId)
   } finally {
     chatLoading = false
   }

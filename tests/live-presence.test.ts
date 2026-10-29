@@ -21,7 +21,7 @@ const browserBundle = build({
         )
         build.onLoad({ filter: /.*/, namespace: 'chat-ui-test' }, () => ({
           contents:
-            'export function mountVisitorChat() { globalThis.mountChatForTest() }',
+            'export function mountVisitorChat(testId) { globalThis.mountChatForTest(testId) }',
         }))
       },
     },
@@ -33,16 +33,25 @@ const browserBundle = build({
 })
 
 async function browser(
-  options: { dnt?: string; gpc?: boolean; cookie?: string } = {},
+  options: {
+    dnt?: string
+    gpc?: boolean
+    cookie?: string
+    hash?: string
+    storage?: Map<string, string>
+  } = {},
 ) {
   const events: Blob[] = []
   const handlers = new Map<string, () => void>()
   let heartbeat = () => {}
   let offerChat = false
   let mountedChats = 0
+  let mountedTestId: string | undefined
+  const storage = options.storage ?? new Map<string, string>()
   let cookie = options.cookie ?? ''
   const location = {
     hostname: 'tanstack.com',
+    hash: options.hash ?? '',
     pathname: '/query/latest/docs/framework/react/overview',
   }
   const document = {
@@ -68,7 +77,12 @@ async function browser(
     location,
     document,
     Blob,
-    mountChatForTest() {
+    sessionStorage: {
+      getItem: (key: string) => storage.get(key) ?? null,
+      setItem: (key: string, value: string) => storage.set(key, value),
+    },
+    mountChatForTest(testId?: string) {
+      mountedTestId = testId
       mountedChats++
     },
     async fetch(_url: string, input: { body: string }) {
@@ -109,6 +123,8 @@ async function browser(
       heartbeat()
     },
     mountedChats: () => mountedChats,
+    mountedTestId: () => mountedTestId,
+    storage,
     location,
     document,
     handlers,
@@ -272,4 +288,18 @@ test('an initiated chat resumes on private pages independently of presence track
   const idle = await browser({ dnt: '1' })
   await idle.api.resumeVisitorChat()
   assert.equal(idle.mountedChats(), 0)
+})
+
+test('test chat resumes only in its own tab and keeps its expected ID across reloads', async () => {
+  const id = randomUUID()
+  const preview = await browser({ dnt: '1', hash: `#visitor-chat-test=${id}` })
+  await preview.api.resumeVisitorChat()
+  assert.equal(preview.mountedTestId(), id)
+  assert.deepEqual(await preview.messages(), [])
+  const reloaded = await browser({ dnt: '1', storage: preview.storage })
+  await reloaded.api.resumeVisitorChat()
+  assert.equal(reloaded.mountedTestId(), id)
+  const otherTab = await browser({ dnt: '1' })
+  await otherTab.api.resumeVisitorChat()
+  assert.equal(otherTab.mountedChats(), 0)
 })

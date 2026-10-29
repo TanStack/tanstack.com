@@ -5,6 +5,7 @@ import { liveSessions, visitorChats } from '~/db/schema'
 import {
   chatMessageInput,
   visitorChatCookie,
+  visitorChatTestCookie,
   visitorChatCookieAge,
 } from './contract'
 import { visitorChatHintCookie } from './bootstrap'
@@ -102,13 +103,17 @@ async function handleVisitorChat(request: Request) {
     'Cache-Control': 'no-store',
     'Content-Type': 'application/json',
   }
+  const testId = new URL(request.url).searchParams.get('test')
+  const test = testId !== null
   const respond = (status: number) => new Response(null, { status, headers })
   const forget = (status: number) => {
     const values = new Headers(headers)
-    for (const name of [visitorChatCookie, visitorChatHintCookie])
+    for (const name of test
+      ? [visitorChatTestCookie]
+      : [visitorChatCookie, visitorChatHintCookie])
       values.append(
         'Set-Cookie',
-        `${name}=; Path=/; Secure; SameSite=Lax; Max-Age=0${name === visitorChatCookie ? '; HttpOnly' : ''}`,
+        `${name}=; Path=/; Secure; SameSite=Lax; Max-Age=0${name !== visitorChatHintCookie ? '; HttpOnly' : ''}`,
       )
     return new Response(null, { status, headers: values })
   }
@@ -123,7 +128,8 @@ async function handleVisitorChat(request: Request) {
   const ip = request.headers.get('cf-connecting-ip')
   if (!ip || !config.limiter) return respond(503)
   if (!(await config.limiter.limit({ key: ip })).success) return respond(429)
-  const chatId = await chatIdFromCookie(request)
+  const chatId = await chatIdFromCookie(request, test)
+  if (testId && chatId && testId !== chatId) return respond(409)
   if (!chatId) return forget(401)
   const state = await readChat(chatId).catch((error) => {
     if (error instanceof ChatNotFoundError) return null
@@ -167,6 +173,7 @@ async function handleVisitorChat(request: Request) {
       .update(visitorChats)
       .set({ mutedAt: new Date() })
       .where(eq(visitorChats.id, chatId))
+    if (test) return forget(204)
     const values = new Headers(headers)
     values.append(
       'Set-Cookie',

@@ -68,7 +68,7 @@ function LiveVisitorsPage() {
       const target = await createVisitorChatTest()
       setChatTarget(target)
       setChatRequest((value) => value + 1)
-      preview.location.replace('/#visitor-chat-test')
+      preview.location.replace(`/#visitor-chat-test=${target.chatId}`)
     } catch {
       preview.close()
       setTestError('Could not start the test chat. Try again.')

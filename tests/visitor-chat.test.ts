@@ -268,3 +268,59 @@ test('chat credentials are redacted even when an unrelated page fails', () => {
   assert.deepEqual(result.request.headers, { Accept: 'text/html' })
   assert.equal(JSON.stringify(result).includes('private-credential'), false)
 })
+
+test('test chat credentials stay separate and stale test tabs cannot send to a newer chat', async () => {
+  await runWithHostRuntimeEnv(
+    {
+      SESSION_SECRET: secret,
+      VISITOR_CHAT_ENABLED: 'true',
+      VISITOR_CHAT_RATE_LIMITER: { limit: async () => ({ success: true }) },
+    },
+    async () => {
+      const normalId = crypto.randomUUID()
+      const testId = crypto.randomUUID()
+      const normalCookie = (await chatCookieHeader(normalId)).split(';')[0]
+      const testCookie = (await chatCookieHeader(testId, true)).split(';')[0]
+      const cookie = `${normalCookie}; ${testCookie}`
+      const request = new Request('https://tanstack.com/_a/visitor-chat', {
+        headers: { cookie },
+      })
+      assert.equal(await chatIdFromCookie(request), normalId)
+      assert.equal(await chatIdFromCookie(request, true), testId)
+      const stale = await receiveVisitorChat(
+        new Request(
+          `https://tanstack.com/_a/visitor-chat?test=${crypto.randomUUID()}`,
+          {
+            method: 'POST',
+            headers: {
+              cookie,
+              origin: 'https://tanstack.com',
+              'cf-connecting-ip': '192.0.2.1',
+            },
+            body: JSON.stringify({
+              action: 'send',
+              message: {
+                id: crypto.randomUUID(),
+                body: 'Must not reach another chat',
+              },
+            }),
+          },
+        ),
+      )
+      assert.equal(stale.status, 409)
+      const missing = await receiveVisitorChat(
+        new Request(`https://tanstack.com/_a/visitor-chat?test=${testId}`, {
+          headers: { cookie: normalCookie, 'cf-connecting-ip': '192.0.2.1' },
+        }),
+      )
+      assert.equal(missing.status, 401)
+      assert.ok(
+        missing.headers
+          .getSetCookie()
+          .every((header) =>
+            header.startsWith('__Host-tanstack_visitor_chat_test='),
+          ),
+      )
+    },
+  )
+})

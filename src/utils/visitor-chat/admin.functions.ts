@@ -2,7 +2,6 @@ import { createMiddleware, createServerFn } from '@tanstack/react-start'
 import { setTag } from '@sentry/tanstackstart-react'
 import { setResponseHeader } from '@tanstack/react-start/server'
 import { chatCookieHeader } from './auth.server'
-import { visitorChatHintCookie } from './bootstrap'
 import { z } from 'zod'
 import { chatMessageInput, chatPageInput } from './contract'
 import {
@@ -70,9 +69,6 @@ export const createVisitorChatTest = createServerFn({ method: 'POST' })
   .middleware([chatPrivacy])
   .handler(async () => {
     const target = await createAdminTestChat()
-    setResponseHeader('Set-Cookie', [
-      await chatCookieHeader(target.chatId),
-      `${visitorChatHintCookie}=1; Path=/; Secure; SameSite=Lax; Max-Age=31536000`,
-    ])
+    setResponseHeader('Set-Cookie', await chatCookieHeader(target.chatId, true))
     return target
   })

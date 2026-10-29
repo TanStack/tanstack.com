@@ -30,6 +30,7 @@ export const chatPageInput = z.object({
   before: z.number().int().positive().optional(),
 })
 export const visitorChatCookie = '__Host-tanstack_visitor_chat'
+export const visitorChatTestCookie = '__Host-tanstack_visitor_chat_test'
 export const visitorChatCookieAge = 365 * 24 * 60 * 60
 export const chatPollMs = 2000
 

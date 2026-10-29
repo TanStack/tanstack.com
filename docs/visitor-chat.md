@@ -107,6 +107,8 @@ Allow pop-ups for tanstack.com if the browser blocks the new tab.
 
 This action requires admin access. It creates a separate conversation labeled
 Test chat, without waiting for Scarf or adding a synthetic presence session.
-The signed visitor cookie connects only your own browser to that conversation.
-Each test creates a new conversation and makes it this browser's visitor chat.
+A separate signed test cookie and per-tab test ID connect the visitor tab to
+that conversation. Existing visitor conversations and opt-out choices are
+unchanged. Each test creates a new conversation; older test tabs cannot send to
+the newer conversation.
 Delete the test from the admin tab when finished. Other visitors are unaffected.

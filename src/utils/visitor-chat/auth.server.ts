@@ -1,6 +1,10 @@
 import { SessionService } from '~/auth/session.server'
 import { getHostRuntimeEnv } from '~/server/runtime/host.server'
-import { visitorChatCookie, visitorChatCookieAge } from './contract'
+import {
+  visitorChatCookie,
+  visitorChatTestCookie,
+  visitorChatCookieAge,
+} from './contract'
 
 export async function visitorChatConfig() {
   const env = await getHostRuntimeEnv()
@@ -26,7 +30,7 @@ async function cookieService() {
   ).join('')
   return new SessionService(key, true)
 }
-export async function chatCookieHeader(chatId: string) {
+export async function chatCookieHeader(chatId: string, test = false) {
   const value = await (
     await cookieService()
   ).signCookie({
@@ -34,14 +38,15 @@ export async function chatCookieHeader(chatId: string) {
     expiresAt: Date.now() + visitorChatCookieAge * 1000,
     version: 0,
   })
-  return `${visitorChatCookie}=${value}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${visitorChatCookieAge}`
+  return `${test ? visitorChatTestCookie : visitorChatCookie}=${value}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${visitorChatCookieAge}`
 }
-export async function chatIdFromCookie(request: Request) {
+export async function chatIdFromCookie(request: Request, test = false) {
+  const name = test ? visitorChatTestCookie : visitorChatCookie
   const value = request.headers
     .get('cookie')
     ?.split('; ')
-    .find((part) => part.startsWith(`${visitorChatCookie}=`))
-    ?.slice(visitorChatCookie.length + 1)
+    .find((part) => part.startsWith(`${name}=`))
+    ?.slice(name.length + 1)
   if (!value) return null
   return (await (await cookieService()).verifyCookie(value))?.userId ?? null
 }

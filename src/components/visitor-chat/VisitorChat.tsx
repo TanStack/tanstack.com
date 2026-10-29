@@ -9,9 +9,12 @@ import {
 } from '~/utils/visitor-chat/contract'
 class ChatGoneError extends Error {}
 
-async function requestChat(body?: unknown, before?: number) {
+async function requestChat(body?: unknown, before?: number, testId?: string) {
+  const query = new URLSearchParams()
+  if (before) query.set('before', String(before))
+  if (testId) query.set('test', testId)
   const response = await fetch(
-    `/_a/visitor-chat${before ? `?before=${before}` : ''}`,
+    `/_a/visitor-chat${query.size ? `?${query}` : ''}`,
     {
       method: body ? 'POST' : 'GET',
       headers: body ? { 'Content-Type': 'application/json' } : undefined,
@@ -21,6 +24,10 @@ async function requestChat(body?: unknown, before?: number) {
   )
   if (response.status === 401 || response.status === 404)
     throw new ChatGoneError()
+  if (response.status === 409 && testId)
+    throw new Error(
+      'This test chat is no longer active. Use the newest test tab or start a new test.',
+    )
   if (!response.ok)
     throw new Error(
       response.status === 429
@@ -31,7 +38,15 @@ async function requestChat(body?: unknown, before?: number) {
     ? undefined
     : chatStateSchema.parse(await response.json())
 }
-function VisitorChat({ onExit }: { onExit: () => void }) {
+function VisitorChat({
+  onExit,
+  testId,
+}: {
+  onExit: () => void
+  testId?: string
+}) {
+  const request = (body?: unknown, before?: number) =>
+    requestChat(body, before, testId)
   const [chat, setChat] = useState(
     (): VisitorChatState | undefined => undefined,
   )
@@ -65,7 +80,7 @@ function VisitorChat({ onExit }: { onExit: () => void }) {
       if (pendingRequest) return
       pendingRequest = true
       try {
-        const next = await requestChat()
+        const next = await request()
         if (!cancelled && next?.muted) {
           setStopped(true)
           setChat(undefined)
@@ -103,7 +118,7 @@ function VisitorChat({ onExit }: { onExit: () => void }) {
   }, [stopped, closed])
   useEffect(() => {
     if (!hasChat || stopped) return
-    void requestChat({
+    void request({
       action: 'read',
       delivered: deliveredThrough,
       through: readThrough,
@@ -129,7 +144,7 @@ function VisitorChat({ onExit }: { onExit: () => void }) {
     setSending(true)
     setError('')
     try {
-      const next = await requestChat({ action: 'send', message })
+      const next = await request({ action: 'send', message })
       if (next) setChat((previous) => mergeChatState(previous, next))
       setDraft('')
       pending.current = undefined
@@ -143,7 +158,7 @@ function VisitorChat({ onExit }: { onExit: () => void }) {
   }
   const stop = async () => {
     try {
-      await requestChat({ action: 'stop' })
+      await request({ action: 'stop' })
       setStopped(true)
     } catch {
       setError('Could not stop chat. Please try again.')
@@ -211,7 +226,7 @@ function VisitorChat({ onExit }: { onExit: () => void }) {
                 className="text-xs underline"
                 onClick={async () => {
                   try {
-                    const older = await requestChat(
+                    const older = await request(
                       undefined,
                       chat.messages[0]?.sequence,
                     )
@@ -326,7 +341,7 @@ function VisitorChat({ onExit }: { onExit: () => void }) {
     </aside>
   )
 }
-export function mountVisitorChat() {
+export function mountVisitorChat(testId?: string) {
   if (document.getElementById('tanstack-visitor-chat')) return
   const element = document.createElement('div')
   element.id = 'tanstack-visitor-chat'
@@ -334,8 +349,14 @@ export function mountVisitorChat() {
   const root = createRoot(element)
   root.render(
     <VisitorChat
+      testId={testId}
       onExit={() =>
         queueMicrotask(() => {
+          if (testId) {
+            try {
+              sessionStorage.removeItem('tanstack.visitor-chat.test')
+            } catch {}
+          }
           root.unmount()
           element.remove()
         })

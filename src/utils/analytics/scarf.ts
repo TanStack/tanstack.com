@@ -1,3 +1,4 @@
+import { trackLiveAction } from './live-browser'
 import type { AnalyticsProvider } from './types'
 
 const SCARF_ENDPOINT = 'https://tanstack.gateway.scarf.sh/site-events'
@@ -11,6 +12,15 @@ function sendScarfEvent(event: string, fields: Record<string, string>) {
   ) {
     return
   }
+
+  if (
+    [
+      'install_command_copied',
+      'external_link_click',
+      'download_requested',
+    ].includes(event)
+  )
+    trackLiveAction(event)
 
   const url = new URL(SCARF_ENDPOINT)
   url.searchParams.set('event', event)

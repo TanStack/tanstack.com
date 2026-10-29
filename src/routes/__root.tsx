@@ -1,3 +1,5 @@
+import { getLiveVisitorsEnabled } from '~/utils/analytics/live.functions'
+import { startLivePresence } from '~/utils/analytics/live-browser'
 import * as React from 'react'
 import {
   createRootRouteWithContext,
@@ -179,8 +181,9 @@ class OptionalDevtoolsBoundary extends React.Component<
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
 }>()({
-  loader: () => {
+  loader: async () => {
     return {
+      liveVisitorsEnabled: await getLiveVisitorsEnabled(),
       partnerPlacementSessionSeed: createPartnerPlacementSessionSeed(),
     }
   },
@@ -454,6 +457,7 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
  * stay disabled on the web stream, or navigations are counted twice.
  */
 function PageViewTracker() {
+  const { liveVisitorsEnabled } = Route.useLoaderData()
   const pagePath = useRouterState({
     select: (s) => {
       if (!s.resolvedLocation) {
@@ -470,19 +474,23 @@ function PageViewTracker() {
 
   React.useEffect(() => {
     if (import.meta.env.MODE === 'staging') return
+    const stopLivePresence = liveVisitorsEnabled
+      ? startLivePresence()
+      : () => {}
     const stopTrackingHoverIntent = trackScarfExternalLinkHoverIntent()
     document.addEventListener('click', trackScarfExternalLinkClick, true)
     document.addEventListener('click', trackScarfDownloadClick, true)
     document.addEventListener('copy', trackScarfClipboardEvent, true)
     document.addEventListener('paste', trackScarfClipboardEvent, true)
     return () => {
+      stopLivePresence()
       stopTrackingHoverIntent()
       document.removeEventListener('click', trackScarfExternalLinkClick, true)
       document.removeEventListener('click', trackScarfDownloadClick, true)
       document.removeEventListener('copy', trackScarfClipboardEvent, true)
       document.removeEventListener('paste', trackScarfClipboardEvent, true)
     }
-  }, [])
+  }, [liveVisitorsEnabled])
 
   React.useEffect(() => {
     // Skip until the router has resolved a location, and never send the same

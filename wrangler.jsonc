@@ -13,6 +13,7 @@
   },
   "vars": {
     "APP_MODE": "production",
+    "LIVE_VISITORS_ENABLED": "true",
     "MCP_EGRESS_MODE": "cloudflare-public",
     "KODY_ORIGIN": "https://kody.codes",
     "INCLUDED_MODEL": "@cf/moonshotai/kimi-k2.6",

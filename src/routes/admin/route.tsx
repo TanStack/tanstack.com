@@ -74,6 +74,12 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       requiredCapability: 'admin',
     },
     {
+      label: 'Live visitors',
+      icon: <UsersIcon />,
+      to: '/admin/live',
+      requiredCapability: 'admin',
+    },
+    {
       label: 'Users',
       icon: <UsersIcon />,
       to: '/admin/users',

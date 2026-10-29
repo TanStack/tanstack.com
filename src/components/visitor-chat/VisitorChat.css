@@ -1,0 +1,4 @@
+@import 'tailwindcss/utilities.css' layer(utilities) source(none);
+@reference 'tailwindcss/theme.css';
+@custom-variant dark (&:is(.dark, .dark *));
+@source './VisitorChat.tsx';

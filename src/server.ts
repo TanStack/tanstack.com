@@ -1,4 +1,5 @@
 import { receiveLiveEvent } from './utils/analytics/live.server'
+import { receiveVisitorChat } from './utils/visitor-chat/visitor.server'
 import { receiveTrafficQuality } from './utils/analytics/traffic-quality.server'
 import {
   timeRequestWork,
@@ -234,6 +235,9 @@ const server = createServerEntry(
           try {
             if (url.pathname === '/_a/live') {
               return applyHostingHeaders(await receiveLiveEvent(request), url)
+            }
+            if (url.pathname === '/_a/visitor-chat') {
+              return applyHostingHeaders(await receiveVisitorChat(request), url)
             }
             if (url.pathname === '/_a/traffic-quality') {
               return applyHostingHeaders(

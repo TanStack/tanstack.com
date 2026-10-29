@@ -11,6 +11,21 @@ const browserBundle = build({
   write: false,
   format: 'iife',
   globalName: 'liveBrowser',
+  plugins: [
+    {
+      name: 'chat-ui-boundary',
+      setup(build) {
+        build.onResolve(
+          { filter: /components\/visitor-chat\/VisitorChat$/ },
+          () => ({ path: 'chat-ui', namespace: 'chat-ui-test' }),
+        )
+        build.onLoad({ filter: /.*/, namespace: 'chat-ui-test' }, () => ({
+          contents:
+            'export function mountVisitorChat() { globalThis.mountChatForTest() }',
+        }))
+      },
+    },
+  ],
   define: {
     'import.meta.env.DEV': 'false',
     'import.meta.env.MODE': '"production"',
@@ -23,6 +38,8 @@ async function browser(
   const events: Blob[] = []
   const handlers = new Map<string, () => void>()
   let heartbeat = () => {}
+  let offerChat = false
+  let mountedChats = 0
   let cookie = options.cookie ?? ''
   const location = {
     hostname: 'tanstack.com',
@@ -30,6 +47,9 @@ async function browser(
   }
   const document = {
     visibilityState: 'visible',
+    getElementById() {
+      return mountedChats ? {} : null
+    },
     get cookie() {
       return cookie
     },
@@ -48,6 +68,16 @@ async function browser(
     location,
     document,
     Blob,
+    mountChatForTest() {
+      mountedChats++
+    },
+    async fetch(_url: string, input: { body: string }) {
+      events.push(new Blob([input.body]))
+      return {
+        status: offerChat ? 200 : 204,
+        json: async () => ({ chat: true }),
+      }
+    },
     crypto: { randomUUID },
     navigator: {
       doNotTrack: options.dnt,
@@ -74,6 +104,11 @@ async function browser(
   const stop = api.startLivePresence()
   return {
     api,
+    invite() {
+      offerChat = true
+      heartbeat()
+    },
+    mountedChats: () => mountedChats,
     location,
     document,
     handlers,
@@ -196,4 +231,45 @@ test('an expired session rotates its tab too, and restored pages rejoin', async 
   assert.notEqual(last?.sessionId, first.sessionId)
   assert.notEqual(last?.tabId, first.tabId)
   visitor.stop()
+})
+
+test('showcase collection excludes drafts, submission, and editing paths', () => {
+  assert.equal(isLivePage('/showcase'), true)
+  assert.equal(isLivePage('/showcase/'), true)
+  assert.equal(isLivePage('/showcases'), true)
+  for (const page of [
+    '/showcase/submit',
+    '/showcase/submit/',
+    '/showcase/edit/123',
+    '/showcase/491fa786-94d5-4d42-8c54-df45c7a7c066',
+  ]) {
+    assert.equal(isLivePage(page), false, page)
+  }
+})
+
+test('chat UI stays unloaded until an invitation, then mounts only once', async () => {
+  const visitor = await browser()
+  await new Promise(setImmediate)
+  assert.equal(visitor.mountedChats(), 0)
+  visitor.invite()
+  await new Promise(setImmediate)
+  assert.equal(visitor.mountedChats(), 1)
+  visitor.heartbeat()
+  await new Promise(setImmediate)
+  assert.equal(visitor.mountedChats(), 1)
+  visitor.stop()
+})
+
+test('an initiated chat resumes on private pages independently of presence tracking', async () => {
+  const visitor = await browser({
+    dnt: '1',
+    cookie: '__Host-tanstack_chat_started=1',
+  })
+  visitor.location.pathname = '/account'
+  await visitor.api.resumeVisitorChat()
+  assert.equal(visitor.mountedChats(), 1)
+  assert.deepEqual(await visitor.messages(), [])
+  const idle = await browser({ dnt: '1' })
+  await idle.api.resumeVisitorChat()
+  assert.equal(idle.mountedChats(), 0)
 })

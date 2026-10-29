@@ -14,10 +14,28 @@
   "vars": {
     "APP_MODE": "production",
     "LIVE_VISITORS_ENABLED": "true",
+    "VISITOR_CHAT_ENABLED": "true",
     "MCP_EGRESS_MODE": "cloudflare-public",
     "KODY_ORIGIN": "https://kody.codes",
     "INCLUDED_MODEL": "@cf/moonshotai/kimi-k2.6",
   },
+  "ratelimits": [
+    {
+      "name": "VISITOR_CHAT_RATE_LIMITER",
+      "namespace_id": "144401",
+      "simple": { "limit": 600, "period": 60 },
+    },
+    {
+      "name": "LIVE_PRESENCE_RATE_LIMITER",
+      "namespace_id": "144201",
+      "simple": { "limit": 600, "period": 60 },
+    },
+    {
+      "name": "LIVE_LOOKUP_RATE_LIMITER",
+      "namespace_id": "144202",
+      "simple": { "limit": 30, "period": 60 },
+    },
+  ],
   "limits": {
     "cpu_ms": 300000,
   },

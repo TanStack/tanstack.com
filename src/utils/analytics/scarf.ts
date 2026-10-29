@@ -105,6 +105,16 @@ export function trackScarfClipboardText(event: 'copy' | 'paste', text: string) {
 
 export function trackScarfClipboardEvent(event: ClipboardEvent) {
   const target = event.target
+  if (target instanceof Element && target.closest('[data-analytics-private]'))
+    return
+  const selection = document.getSelection()
+  if (
+    selection &&
+    [...document.querySelectorAll('[data-analytics-private]')].some((element) =>
+      selection.containsNode(element, true),
+    )
+  )
+    return
   if (target instanceof HTMLInputElement && target.type === 'password') return
 
   let text = ''

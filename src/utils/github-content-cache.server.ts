@@ -1401,14 +1401,9 @@ async function getCachedGitHubContent<T>(opts: {
 
       try {
         const value = await timeRequestWork('content_origin', opts.origin)
-        // Origin work can outlast another location's refresh or an invalidation.
-        // Avoid paying for a conditional write we already know will lose.
-        const publishingRow = await readRow(true).catch(() => latestRow)
-        if (publishingRow?.etag === latestRow?.etag) {
-          await timeRequestWork('content_persist', () =>
-            persist(value, latestRow?.etag),
-          )
-        }
+        await timeRequestWork('content_persist', () =>
+          persist(value, latestRow?.etag),
+        )
         return value
       } catch (error) {
         if (latestValue !== undefined && latestValue !== null) {
@@ -1555,10 +1550,7 @@ export async function getCachedDocsArtifact<T>(opts: {
 
       try {
         const payload = await timeRequestWork('artifact_build', opts.build)
-        const publishingRow = await readRow(true).catch(() => latestRow)
-        if (publishingRow?.etag === latestRow?.etag) {
-          await upsertDocsArtifact({ ...opts, payload, etag: latestRow?.etag })
-        }
+        await upsertDocsArtifact({ ...opts, payload, etag: latestRow?.etag })
         return payload
       } catch (error) {
         if (latestValue !== undefined) {

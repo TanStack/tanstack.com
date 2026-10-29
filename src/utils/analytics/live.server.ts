@@ -10,6 +10,8 @@ import {
 import { getLiveConfig, lookupScarfCompany } from './scarf-lookup.server'
 import {
   isLivePage,
+  livePublicPagePattern,
+  liveForbiddenPagePattern,
   liveEventSchema,
   LIVE_RETENTION_MS,
   LIVE_TIMEOUT_MS,
@@ -201,6 +203,9 @@ export async function listLiveVisitors() {
       and(
         gt(liveTabs.lastSeen, new Date(now - 5 * 60_000)),
         gt(liveSessions.createdAt, new Date(now - LIVE_RETENTION_MS)),
+        sql`length(${liveTabs.page}) <= 400`,
+        sql`${liveTabs.page} ~ ${livePublicPagePattern.source}`,
+        sql`${liveTabs.page} !~ ${liveForbiddenPagePattern.source}`,
       ),
     )
     .orderBy(desc(liveTabs.lastSeen))
@@ -210,20 +215,16 @@ export async function listLiveVisitors() {
     lookupConfigured: Boolean(config.key),
     now: new Date(now).toISOString(),
     truncated: rows.length > 500,
-    tabs: rows
-      .slice(0, 500)
-      .filter((row) => isLivePage(row.page))
-      .map((row) => ({
-        ...row,
-        activity: row.activity.filter((event) => isLivePage(event.page)),
-        active:
-          row.leftAt === null && now - row.lastSeen.getTime() < LIVE_TIMEOUT_MS,
-        lookupStatus:
-          row.lookupStatus === 'pending' &&
-          now - row.arrivedAt.getTime() > 15_000
-            ? 'failed'
-            : row.lookupStatus,
-      })),
+    tabs: rows.slice(0, 500).map((row) => ({
+      ...row,
+      activity: row.activity.filter((event) => isLivePage(event.page)),
+      active:
+        row.leftAt === null && now - row.lastSeen.getTime() < LIVE_TIMEOUT_MS,
+      lookupStatus:
+        row.lookupStatus === 'pending' && now - row.arrivedAt.getTime() > 15_000
+          ? 'failed'
+          : row.lookupStatus,
+    })),
   }
 }
 

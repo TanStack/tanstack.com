@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
-import { UsersIcon } from '@phosphor-icons/react'
+import { BuildingsIcon } from '@phosphor-icons/react'
 import { useAdminGuard } from '~/hooks/useAdminGuard'
 import {
   AdminAccessDenied,
@@ -27,10 +27,10 @@ function LiveVisitorsPage() {
   if (guard.status === 'loading') return <AdminLoading />
   if (guard.status === 'denied') return <AdminAccessDenied />
   return (
-    <div className="w-full max-w-7xl space-y-6 p-4 md:p-6">
+    <div className="w-full max-w-[1600px] space-y-6 p-4 md:p-6">
       <AdminPageHeader
-        icon={<UsersIcon />}
-        title="Live visitors"
+        icon={<BuildingsIcon />}
+        title="Live companies"
         actions={
           <span role="status" className="text-xs text-gray-500">
             {query.isError

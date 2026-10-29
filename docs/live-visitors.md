@@ -4,6 +4,18 @@
 with the `admin` capability can read presence, including through its server
 function. Admin queries refresh every three seconds while the page is visible.
 
+The dashboard opens with a company grid. Individual sessions are hidden until
+a company is expanded, and each session has its own expandable tabs and activity.
+Unmatched traffic stays in one collapsed row at the bottom. Columns support
+sorting, and search matches companies, industries, libraries, and page paths.
+
+The overview counts identified companies once per domain. Library breakdowns
+count a company once per library, so one company can appear in several bars.
+Industry breakdowns exclude unmatched traffic. The company trend records real
+polling snapshots in the open dashboard tab, up to five minutes, and resets on
+reload. Grid action totals count named interactions in the last five minutes,
+excluding page views.
+
 ## Enable the experiment
 
 1. Apply migration `0042_live_visitors` through the normal database migration flow.

@@ -264,6 +264,27 @@ describe.skipIf(!fixture.url)('OAuth grants in PostgreSQL', () => {
     })
   })
 
+  it('revokes access tokens created by legacy-scope refresh', async () => {
+    const code = await createAuthorizationCode({
+      userId,
+      clientId,
+      redirectUri,
+      codeChallenge: challenge,
+    })
+    const issued = await exchangeAuthorizationCode({
+      code,
+      codeVerifier: verifier,
+      redirectUri,
+    })
+    if (!issued.success) throw new Error(issued.error)
+    const refreshed = await refreshAccessToken(issued.refreshToken)
+    if (!refreshed.success) throw new Error(refreshed.error)
+    await revokeOAuthGrant(issued.refreshToken, clientId)
+    expect((await validateOAuthToken(refreshed.accessToken)).success).toBe(
+      false,
+    )
+  })
+
   it('requires service authentication for introspection and isolates identity grants', async () => {
     const issued = await issue()
     const request = (authorization: string) =>

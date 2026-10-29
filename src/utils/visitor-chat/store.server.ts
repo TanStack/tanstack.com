@@ -18,7 +18,7 @@ import {
   chatMessageSchema,
   chatStateSchema,
 } from './contract'
-import { visitorChatConfig } from './auth.server'
+import { hashChatProof, visitorChatConfig } from './auth.server'
 export class ChatNotFoundError extends Error {}
 class ChatClosedError extends Error {}
 
@@ -103,6 +103,37 @@ export async function chatsNeedingReply() {
     )
   return row.count
 }
+export async function createAdminTestChat() {
+  const user = await requireVisitorChatAdmin()
+  const [chat] = await db
+    .insert(visitorChats)
+    .values({
+      originSessionId: crypto.randomUUID(),
+      visitorProofHash: await hashChatProof(crypto.randomUUID()),
+      company: {
+        name: 'Test chat',
+        domain: 'test.invalid',
+        industry: null,
+        company_size: null,
+        linkedin_url: null,
+      },
+    })
+    .returning()
+  await appendAdminMessage(
+    chat.id,
+    {
+      id: crypto.randomUUID(),
+      body: 'This is your test chat. Reply here to try the visitor experience.',
+    },
+    user,
+  )
+  return {
+    chatId: chat.id,
+    sessionId: chat.originSessionId,
+    label: 'Test chat · You',
+  }
+}
+
 export async function startAdminChat(sessionId: string, value: unknown) {
   const user = await requireVisitorChatAdmin()
   return openChatForSession(sessionId, value, user)

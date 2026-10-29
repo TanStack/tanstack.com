@@ -195,3 +195,62 @@ test('CSV text neutralizes spreadsheet formulas while preserving numeric values 
   assert.equal(csvSafeText('  +1'), "'  +1")
   assert.equal(csvSafeText('Acme'), 'Acme')
 })
+
+test('company status prefers any visible tab and filters background companies without counting them twice', () => {
+  const rows = buildCompanyGridRows(
+    {
+      ...data,
+      companies: data.companies.map((company, index) =>
+        index === 1
+          ? { ...company, visibleTabs: 0 }
+          : index === 2
+            ? { ...company, activeTabs: 0, activeSessions: 0, visibleTabs: 0 }
+            : company,
+      ),
+    },
+    history,
+  )
+  assert.deepEqual(
+    rows.map((row) => row.status),
+    ['Active', 'Background', 'Left'],
+  )
+  assert.deepEqual(
+    companyFacetCounts(rows, 'status').map(({ name, value }) => ({
+      name,
+      value,
+    })),
+    [
+      { name: 'Active', value: 1 },
+      { name: 'Background', value: 1 },
+    ],
+  )
+  assert.deepEqual(
+    filterCompanyRows(rows, {
+      ...emptyCompanyFilters,
+      status: ['Background'],
+      library: ['Query'],
+      industry: ['Retail'],
+    }).map((row) => row.id),
+    ['other.example'],
+  )
+  assert.deepEqual(
+    filterCompanyRows(rows, {
+      ...emptyCompanyFilters,
+      status: ['Active', 'Background'],
+    }).map((row) => row.id),
+    ['acme.example', 'other.example'],
+  )
+  assert.equal(
+    filterCompanyRows(rows, { ...emptyCompanyFilters, status: ['Left'] })
+      .length,
+    0,
+  )
+  assert.equal(
+    filterCompanyRows(rows, {
+      ...emptyCompanyFilters,
+      status: ['Left'],
+      showRecent: true,
+    }).length,
+    1,
+  )
+})

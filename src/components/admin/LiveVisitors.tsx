@@ -72,13 +72,20 @@ const initialVisibility: ColumnVisibilityState = {
 }
 const initialSelection: RowSelectionState = {}
 const visibilitySchema = z.record(z.string(), z.boolean())
-const facets: CompanyFacet[] = ['library', 'size', 'industry', 'stage']
-const widgetFacets: CompanyFacet[] = ['library', 'size', 'industry']
+const facets: CompanyFacet[] = [
+  'status',
+  'library',
+  'size',
+  'industry',
+  'stage',
+]
+const widgetFacets: CompanyFacet[] = ['status', 'library', 'size', 'industry']
 const facetLabels: Record<CompanyFacet, string> = {
   library: 'Library',
   size: 'Company size',
   industry: 'Industry',
   stage: 'Funnel stage',
+  status: 'Status',
 }
 const number = new Intl.NumberFormat('en-US')
 function numeric(value: number | undefined) {
@@ -123,6 +130,23 @@ const columns: ColumnDef<typeof features, CompanyGridRow>[] = [
     header: 'Company',
     sortFn: sortFn_alphanumeric,
     enableHiding: false,
+  },
+  {
+    id: 'status',
+    accessorKey: 'status',
+    header: 'Status',
+    sortFn: sortFn_alphanumeric,
+    cell: ({ row }) => (
+      <span
+        className={
+          row.original.status === 'Active'
+            ? 'text-emerald-600 dark:text-emerald-400'
+            : 'text-gray-500'
+        }
+      >
+        {row.original.status}
+      </span>
+    ),
   },
   {
     id: 'industry',
@@ -268,6 +292,8 @@ const columns: ColumnDef<typeof features, CompanyGridRow>[] = [
   },
 ]
 const columnHelp: Record<string, string> = {
+  status:
+    'Active: at least one online tab is visible. Background: every online tab is hidden. Left: no online tabs. Visibility does not prove attention or interaction.',
   sessions: 'Anonymous sessions with a heartbeat in the last 65 seconds.',
   actions:
     'Recorded interactions from the last five minutes, limited to 40 retained events per tab.',
@@ -446,6 +472,7 @@ export function LiveVisitors({
       Employees: csvSafeText(row.company?.company_size || ''),
       Libraries: csvSafeText(row.libraries.join(', ')),
       Sessions: row.activeSessions,
+      Status: row.status,
       Actions5m: row.actions,
       RecentViews5m: row.recentViews,
       SitePixelViews: row.history?.views ?? '',
@@ -549,17 +576,19 @@ export function LiveVisitors({
       {showBreakdowns && (
         <div
           id="company-breakdowns"
-          className="grid divide-y divide-gray-500/15 border border-gray-500/20 md:grid-cols-3 md:divide-x md:divide-y-0 rounded-md"
+          className="grid divide-y divide-gray-500/15 border border-gray-500/20 md:grid-cols-2 xl:grid-cols-4 md:divide-x md:divide-y-0 rounded-md"
         >
           {widgetFacets.map((facet) => (
             <CompanyBreakdownChart
               key={facet}
               title={
-                facet === 'library'
-                  ? 'Libraries'
-                  : facet === 'size'
-                    ? 'Company size'
-                    : 'Industries'
+                facet === 'status'
+                  ? 'Active vs background'
+                  : facet === 'library'
+                    ? 'Libraries'
+                    : facet === 'size'
+                      ? 'Company size'
+                      : 'Industries'
               }
               items={companyWidgetItems(
                 companyFacetCounts(
@@ -568,20 +597,24 @@ export function LiveVisitors({
                 ),
               )}
               color={
-                facet === 'library'
-                  ? '#6366f1'
-                  : facet === 'size'
-                    ? '#10b981'
-                    : '#0ea5e9'
+                facet === 'status'
+                  ? '#10b981'
+                  : facet === 'library'
+                    ? '#6366f1'
+                    : facet === 'size'
+                      ? '#10b981'
+                      : '#0ea5e9'
               }
               selected={filters[facet]}
               onSelect={(values) => toggleFacet(facet, values)}
               note={
-                facet === 'size'
-                  ? "Grouped by the lower bound of Scarf's reported employee range."
-                  : facet === 'library'
-                    ? 'A company can appear in multiple libraries. Other combines the remaining category counts.'
-                    : undefined
+                facet === 'status'
+                  ? 'Active means at least one visible tab. Background means all online tabs are hidden. Each company is counted once.'
+                  : facet === 'size'
+                    ? "Grouped by the lower bound of Scarf's reported employee range."
+                    : facet === 'library'
+                      ? 'A company can appear in multiple libraries. Other combines the remaining category counts.'
+                      : undefined
               }
             />
           ))}

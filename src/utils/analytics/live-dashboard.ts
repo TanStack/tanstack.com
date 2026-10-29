@@ -113,13 +113,14 @@ export function companyBreakdown(
 export type LiveOverview = Awaited<
   ReturnType<typeof import('./live.functions').getLiveCompanyOverview>
 >
-export type CompanyFacet = 'library' | 'industry' | 'size' | 'stage'
+export type CompanyFacet = 'library' | 'industry' | 'size' | 'stage' | 'status'
 export type CompanyFilters = {
   search: string
   library: string[]
   industry: string[]
   size: string[]
   stage: string[]
+  status: string[]
   minViews: string
   minActions: string
   showRecent: boolean
@@ -131,6 +132,7 @@ export const emptyCompanyFilters: CompanyFilters = {
   industry: [],
   size: [],
   stage: [],
+  status: [],
   minViews: '',
   minActions: '',
   showRecent: false,
@@ -179,6 +181,12 @@ export function buildCompanyGridRows(
         'Unmatched traffic',
       libraries: [...new Set(company.pages.map(pageLibrary))],
       active: company.activeSessions > 0,
+      status:
+        company.visibleTabs > 0
+          ? 'Active'
+          : company.activeTabs > 0
+            ? 'Background'
+            : 'Left',
       industry: company.company?.industry || 'Unspecified',
       sizeBucket: companySizeBucket(company.company?.company_size),
       employeeMin: employeeLowerBound(company.company?.company_size),
@@ -188,20 +196,28 @@ export function buildCompanyGridRows(
 }
 export type CompanyGridRow = ReturnType<typeof buildCompanyGridRows>[number]
 export function companyFacetValues(row: CompanyGridRow, facet: CompanyFacet) {
-  return facet === 'library'
-    ? row.libraries
-    : facet === 'industry'
-      ? [row.industry]
-      : facet === 'size'
-        ? [row.sizeBucket]
-        : [row.history?.stage || 'Unspecified']
+  return facet === 'status'
+    ? [row.status]
+    : facet === 'library'
+      ? row.libraries
+      : facet === 'industry'
+        ? [row.industry]
+        : facet === 'size'
+          ? [row.sizeBucket]
+          : [row.history?.stage || 'Unspecified']
 }
 export function filterCompanyRows(
   rows: CompanyGridRow[],
   filters: CompanyFilters,
   omit?: CompanyFacet,
 ) {
-  const facets: CompanyFacet[] = ['library', 'industry', 'size', 'stage']
+  const facets: CompanyFacet[] = [
+    'library',
+    'industry',
+    'size',
+    'stage',
+    'status',
+  ]
   const search = filters.search.trim().toLowerCase()
   return rows.filter(
     (row) =>

@@ -17,6 +17,11 @@ The overview counts identified companies once per domain. Library breakdowns
 count a company once per library, so one company can appear in several bars.
 Industry and size breakdowns exclude unmatched traffic. Clicking a breakdown
 applies its filter. Size buckets use the lower bound of Scarf's employee range.
+The status widget and sortable Status column classify a company as Active when
+at least one online tab is visible, Background when all online tabs are hidden,
+or Left when no tabs remain online. Each company occupies one status, even when
+it has both visible and hidden tabs. Active describes visibility, not confirmed
+attention or interaction. Status filters combine with the other company filters.
 Grid action totals count named interactions in the last five minutes, excluding
 page views. Pause freezes polling, including expanded sessions and history.
 

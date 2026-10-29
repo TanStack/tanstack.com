@@ -412,7 +412,7 @@ function IntegrationsPage() {
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="font-medium text-gray-900 dark:text-white text-sm truncate font-mono">
-                      {formatClientId(app.clientId)}
+                      {app.clientName || formatClientId(app.clientId)}
                     </span>
                   </div>
                   <div className="flex items-center gap-3 mt-0.5 text-xs text-gray-500 dark:text-gray-400">

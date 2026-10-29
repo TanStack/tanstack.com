@@ -928,7 +928,8 @@ export const oauthAuthorizationCodes = pgTable(
     userId: uuid('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
-    clientId: varchar('client_id', { length: 255 }).notNull(),
+    clientId: text('client_id').notNull(),
+    resource: text('resource'),
     redirectUri: text('redirect_uri').notNull(),
     codeChallenge: varchar('code_challenge', { length: 128 }).notNull(),
     codeChallengeMethod: varchar('code_challenge_method', { length: 8 })
@@ -973,7 +974,9 @@ export const oauthAccessTokens = pgTable(
     userId: uuid('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
-    clientId: varchar('client_id', { length: 255 }).notNull(),
+    clientId: text('client_id').notNull(),
+    resource: text('resource'),
+    grantId: uuid('grant_id'),
     scope: text('scope').notNull().default('api'),
     expiresAt: timestamp('expires_at', {
       withTimezone: true,
@@ -985,6 +988,7 @@ export const oauthAccessTokens = pgTable(
       .defaultNow(),
   },
   (table) => ({
+    grantIdx: index('oauth_access_grant_idx').on(table.grantId),
     tokenHashIdx: index('oauth_mcp_access_tokens_hash_idx').on(table.tokenHash),
     userIdIdx: index('oauth_mcp_access_tokens_user_idx').on(table.userId),
     expiresAtIdx: index('oauth_mcp_access_tokens_expires_idx').on(
@@ -1013,7 +1017,11 @@ export const oauthRefreshTokens = pgTable(
     userId: uuid('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
-    clientId: varchar('client_id', { length: 255 }).notNull(),
+    clientId: text('client_id').notNull(),
+    resource: text('resource'),
+    scope: text('scope').notNull().default('api'),
+    consumedAt: timestamp('consumed_at', { withTimezone: true, mode: 'date' }),
+    grantId: uuid('grant_id'),
     accessTokenId: uuid('access_token_id').references(
       () => oauthAccessTokens.id,
       { onDelete: 'set null' },
@@ -1027,6 +1035,7 @@ export const oauthRefreshTokens = pgTable(
       .defaultNow(),
   },
   (table) => ({
+    grantIdx: index('oauth_refresh_grant_idx').on(table.grantId),
     tokenHashIdx: index('oauth_mcp_refresh_tokens_hash_idx').on(
       table.tokenHash,
     ),

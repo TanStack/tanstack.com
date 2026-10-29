@@ -28,6 +28,7 @@ function LiveVisitorsPage() {
   const guard = useAdminGuard()
   const [paused, setPaused] = useState(false)
   const [chatsOpen, setChatsOpen] = useState(false)
+  const [chatRequest, setChatRequest] = useState(0)
   const [chatTarget, setChatTarget] = useState(
     (): z.infer<typeof chatTargetSchema> | null => null,
   )
@@ -48,6 +49,7 @@ function LiveVisitorsPage() {
       if (!target.success) return
       setChatTarget(target.data)
       setChatsOpen(true)
+      setChatRequest((value) => value + 1)
     }
     window.addEventListener('tanstack:start-visitor-chat', open)
     return () => window.removeEventListener('tanstack:start-visitor-chat', open)
@@ -69,6 +71,7 @@ function LiveVisitorsPage() {
               onClick={() => {
                 setChatTarget(null)
                 setChatsOpen(true)
+                setChatRequest((value) => value + 1)
               }}
             >
               Chats
@@ -135,16 +138,12 @@ function LiveVisitorsPage() {
       {chatsOpen && (
         <Suspense
           fallback={
-            <p className="fixed right-4 top-20 z-50 rounded bg-white p-3 text-xs dark:bg-gray-950">
+            <p className="fixed right-4 bottom-0 z-50 rounded bg-white p-3 text-xs dark:bg-gray-950">
               Loading chats...
             </p>
           }
         >
-          <VisitorChats
-            key={chatTarget?.sessionId || 'inbox'}
-            target={chatTarget}
-            onClose={() => setChatsOpen(false)}
-          />
+          <VisitorChats target={chatTarget} request={chatRequest} />
         </Suspense>
       )}
     </div>

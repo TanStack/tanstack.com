@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
+import { z } from 'zod'
 import { createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import {
@@ -15,9 +16,21 @@ import { getLiveCompanyOverview } from '~/utils/analytics/live.functions'
 export const Route = createFileRoute('/admin/live')({
   component: LiveVisitorsPage,
 })
+const VisitorChats = lazy(
+  () => import('~/components/visitor-chat/AdminVisitorChats'),
+)
+const chatTargetSchema = z.object({
+  sessionId: z.uuid(),
+  label: z.string(),
+  chatId: z.uuid().nullable().optional(),
+})
 function LiveVisitorsPage() {
   const guard = useAdminGuard()
   const [paused, setPaused] = useState(false)
+  const [chatsOpen, setChatsOpen] = useState(false)
+  const [chatTarget, setChatTarget] = useState(
+    (): z.infer<typeof chatTargetSchema> | null => null,
+  )
   const query = useQuery({
     queryKey: ['admin', 'live-company-overview'],
     queryFn: () => getLiveCompanyOverview(),
@@ -28,6 +41,17 @@ function LiveVisitorsPage() {
     refetchOnReconnect: !paused,
     retry: false,
   })
+  useEffect(() => {
+    const open = (event: Event) => {
+      if (!(event instanceof CustomEvent) || !query.data?.chatEnabled) return
+      const target = chatTargetSchema.safeParse(event.detail)
+      if (!target.success) return
+      setChatTarget(target.data)
+      setChatsOpen(true)
+    }
+    window.addEventListener('tanstack:start-visitor-chat', open)
+    return () => window.removeEventListener('tanstack:start-visitor-chat', open)
+  }, [query.data?.chatEnabled])
   if (guard.status === 'loading') return <AdminLoading />
   if (guard.status === 'denied') return <AdminAccessDenied />
   return (
@@ -38,6 +62,26 @@ function LiveVisitorsPage() {
           Live companies
         </h1>
         <div className="flex items-center gap-3 text-[11px]">
+          {query.data?.chatEnabled && (
+            <button
+              type="button"
+              className="h-7 rounded border border-gray-500/20 px-2"
+              onClick={() => {
+                setChatTarget(null)
+                setChatsOpen(true)
+              }}
+            >
+              Chats
+              {Boolean(query.data.chatsNeedingReply) && (
+                <span
+                  className="ml-1 rounded bg-emerald-500/15 px-1 font-mono text-emerald-600 dark:text-emerald-400"
+                  title="Chats whose latest message is from the visitor"
+                >
+                  {query.data.chatsNeedingReply}
+                </span>
+              )}
+            </button>
+          )}
           <span className="text-gray-500">
             {query.isError
               ? 'Updates interrupted'
@@ -88,6 +132,21 @@ function LiveVisitorsPage() {
         </div>
       )}
       {query.data && <LiveVisitors data={query.data} paused={paused} />}
+      {chatsOpen && (
+        <Suspense
+          fallback={
+            <p className="fixed right-4 top-20 z-50 rounded bg-white p-3 text-xs dark:bg-gray-950">
+              Loading chats...
+            </p>
+          }
+        >
+          <VisitorChats
+            key={chatTarget?.sessionId || 'inbox'}
+            target={chatTarget}
+            onClose={() => setChatsOpen(false)}
+          />
+        </Suspense>
+      )}
     </div>
   )
 }

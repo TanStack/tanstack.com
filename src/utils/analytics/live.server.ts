@@ -1,4 +1,12 @@
 import { z } from 'zod'
+import { offerVisitorChat } from '../visitor-chat/visitor.server'
+import { hashChatProof } from '../visitor-chat/auth.server'
+import { chatsNeedingReply } from '../visitor-chat/store.server'
+import {
+  hasVisitorChatHint,
+  visitorChatHintCookie,
+} from '../visitor-chat/bootstrap'
+import { visitorChatCookieAge } from '../visitor-chat/contract'
 import { and, desc, eq, gt, lt, sql } from 'drizzle-orm'
 import { isIP } from 'node:net'
 import { db } from '~/db/client'
@@ -78,7 +86,27 @@ export async function receiveLiveEvent(request: Request) {
   const parsed = liveEventSchema.safeParse(value)
   if (!parsed.success) return respond(400)
   try {
-    await recordLiveEvent(parsed.data, ip, config.key, config.lookupLimiter)
+    const created = await recordLiveEvent(
+      parsed.data,
+      ip,
+      config.key,
+      config.lookupLimiter,
+    )
+    const chat = await offerVisitorChat(
+      request,
+      parsed.data,
+      Boolean(created),
+    ).catch(() => null)
+    if (chat) {
+      const headers = new Headers(responseHeaders)
+      if (chat.cookie) headers.append('Set-Cookie', chat.cookie)
+      if (!hasVisitorChatHint(request.headers.get('cookie') ?? ''))
+        headers.append(
+          'Set-Cookie',
+          `${visitorChatHintCookie}=1; Path=/; Secure; SameSite=Lax; Max-Age=${visitorChatCookieAge}`,
+        )
+      return Response.json({ chat: true }, { headers })
+    }
     return respond(204)
   } catch {
     // Never log a request, body, IP, or third-party exception here.
@@ -111,6 +139,9 @@ export async function recordLiveEvent(
     .insert(liveSessions)
     .values({
       id: event.sessionId,
+      chatProofHash: event.chatProof
+        ? await hashChatProof(event.chatProof)
+        : undefined,
       lookupStatus: key ? 'pending' : 'unconfigured',
     })
     .onConflictDoNothing()
@@ -172,6 +203,7 @@ export async function recordLiveEvent(
     }
     if (!scheduleHostRuntimeTask(enrich)) await enrich()
   }
+  return Boolean(created)
 }
 
 export async function listLiveVisitors(domain?: string) {
@@ -181,6 +213,7 @@ export async function listLiveVisitors(domain?: string) {
   if (!config.enabled)
     return {
       enabled: false,
+      ...(config.chatEnabled ? { chatEnabled: true } : {}),
       lookupConfigured: Boolean(config.key),
       now: new Date(now).toISOString(),
       truncated: false,
@@ -192,6 +225,10 @@ export async function listLiveVisitors(domain?: string) {
       arrivedAt: liveSessions.createdAt,
       company: liveSessions.company,
       lookupStatus: liveSessions.lookupStatus,
+      supportsChat: sql`${liveSessions.chatProofHash} IS NOT NULL`.mapWith(
+        z.boolean().parse,
+      ),
+      visitorChatId: liveSessions.visitorChatId,
       tabId: liveTabs.id,
       page: liveTabs.page,
       visible: liveTabs.visible,
@@ -217,11 +254,15 @@ export async function listLiveVisitors(domain?: string) {
     .limit(501)
   return {
     enabled: config.enabled,
+    ...(config.chatEnabled ? { chatEnabled: true } : {}),
     lookupConfigured: Boolean(config.key),
     now: new Date(now).toISOString(),
     truncated: rows.length > 500,
-    tabs: rows.slice(0, 500).map((row) => ({
+    tabs: rows.slice(0, 500).map(({ supportsChat, visitorChatId, ...row }) => ({
       ...row,
+      ...(config.chatEnabled
+        ? { chatReady: supportsChat, chatId: visitorChatId }
+        : {}),
       activity: row.activity.filter((event) => isLivePage(event.page)),
       active:
         row.leftAt === null && now - row.lastSeen.getTime() < LIVE_TIMEOUT_MS,
@@ -300,6 +341,9 @@ export async function listLiveCompanyOverview() {
     : []
   return {
     enabled: config.enabled,
+    ...(config.chatEnabled
+      ? { chatEnabled: true, chatsNeedingReply: await chatsNeedingReply() }
+      : {}),
     lookupConfigured: Boolean(config.key),
     now: new Date(now).toISOString(),
     companies,

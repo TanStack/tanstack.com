@@ -39,7 +39,7 @@ const bundle = build({
       `
                 : args.path === '~/utils/roles.server'
                   ? 'export async function requireAdmin() {}'
-                  : 'export function scheduleHostRuntimeTask() { return false }',
+                  : 'export function scheduleHostRuntimeTask() { return false }; export async function getHostRuntimeEnv() { return undefined }',
         }))
       },
     },

@@ -70,6 +70,7 @@ export function LiveCompanySessions({
         sessions.map((tabs) => (
           <SessionDetails
             key={tabs[0].sessionId}
+            chatEnabled={query.data.chatEnabled === true}
             tabs={tabs}
             now={query.data.now}
           />
@@ -81,7 +82,15 @@ export function LiveCompanySessions({
   )
 }
 
-function SessionDetails({ tabs, now }: { tabs: LiveTab[]; now: string }) {
+function SessionDetails({
+  tabs,
+  now,
+  chatEnabled,
+}: {
+  tabs: LiveTab[]
+  now: string
+  chatEnabled: boolean
+}) {
   const first = tabs[0]
   const current =
     tabs.find((tab) => tab.active && tab.visible) ??
@@ -104,6 +113,33 @@ function SessionDetails({ tabs, now }: { tabs: LiveTab[]; now: string }) {
           className="hidden text-gray-400 group-open/session:block"
         />
         <span className="font-mono">Visitor {first.sessionId.slice(0, 8)}</span>
+        {chatEnabled && active && (
+          <button
+            type="button"
+            disabled={!first.chatReady}
+            title={
+              first.chatReady
+                ? 'Message this visitor'
+                : 'Chat is available after this visitor reloads their page'
+            }
+            onClick={(event) => {
+              event.preventDefault()
+              event.stopPropagation()
+              window.dispatchEvent(
+                new CustomEvent('tanstack:start-visitor-chat', {
+                  detail: {
+                    sessionId: first.sessionId,
+                    chatId: first.chatId,
+                    label: `${first.company?.name || first.company?.domain || 'Visitor'} · ${first.sessionId.slice(0, 8)}`,
+                  },
+                }),
+              )
+            }}
+            className="rounded border border-emerald-500/30 px-2 py-1 text-[10px] text-emerald-600 disabled:opacity-40 dark:text-emerald-400"
+          >
+            {first.chatId ? 'Open chat' : 'Chat'}
+          </button>
+        )}
         <span
           className={`rounded px-1.5 py-0.5 text-[10px] ${active ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' : 'bg-gray-500/10 text-gray-500'}`}
         >

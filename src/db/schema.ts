@@ -3464,6 +3464,10 @@ export const liveSessions = pgTable(
   'live_sessions',
   {
     id: uuid('id').primaryKey(),
+    chatProofHash: text('chat_proof_hash'),
+    visitorChatId: uuid('visitor_chat_id').references(() => visitorChats.id, {
+      onDelete: 'set null',
+    }),
     createdAt: timestamp('created_at', { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -3502,5 +3506,59 @@ export const liveTabs = pgTable(
   (table) => [
     index('live_tabs_last_seen_idx').on(table.lastSeen),
     index('live_tabs_session_idx').on(table.sessionId),
+  ],
+)
+
+// Human support conversations have independent, manual retention. Presence may expire.
+export const visitorChats = pgTable(
+  'visitor_chats',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    originSessionId: uuid('origin_session_id').notNull().unique(),
+    visitorProofHash: text('visitor_proof_hash').notNull(),
+    company:
+      jsonb('company').$type<import('../utils/analytics/live').LiveCompany>(),
+    nextSequence: integer('next_sequence').notNull().default(0),
+    deliveredThrough: integer('delivered_through').notNull().default(0),
+    readThrough: integer('read_through').notNull().default(0),
+    lastVisitorSeenAt: timestamp('last_visitor_seen_at', {
+      withTimezone: true,
+    }),
+    mutedAt: timestamp('muted_at', { withTimezone: true }),
+    closedAt: timestamp('closed_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [index('visitor_chats_updated_at_idx').on(table.updatedAt)],
+)
+
+export const visitorChatMessages = pgTable(
+  'visitor_chat_messages',
+  {
+    id: uuid('id').primaryKey(),
+    chatId: uuid('chat_id')
+      .notNull()
+      .references(() => visitorChats.id, { onDelete: 'cascade' }),
+    sequence: integer('sequence').notNull(),
+    senderId: uuid('sender_id').references(() => users.id, {
+      onDelete: 'set null',
+    }),
+    senderRole: text('sender_role', { enum: ['admin', 'visitor'] }).notNull(),
+    senderName: text('sender_name').notNull(),
+    senderImage: text('sender_image'),
+    body: text('body').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('visitor_chat_messages_sequence_idx').on(
+      table.chatId,
+      table.sequence,
+    ),
   ],
 )

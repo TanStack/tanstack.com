@@ -7,6 +7,9 @@ export async function getLiveConfig() {
   const host = await getHostRuntimeEnv()
   const key = host?.SCARF_LOOKUP_KEY ?? process.env.SCARF_LOOKUP_KEY
   return {
+    chatEnabled:
+      (host?.VISITOR_CHAT_ENABLED ?? process.env.VISITOR_CHAT_ENABLED) ===
+      'true',
     requestLimiter: host?.LIVE_PRESENCE_RATE_LIMITER,
     lookupLimiter: host?.LIVE_LOOKUP_RATE_LIMITER,
     enabled:

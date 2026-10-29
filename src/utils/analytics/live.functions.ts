@@ -10,8 +10,14 @@ export const getLiveVisitors = createServerFn({ method: 'GET' }).handler(
   async () => listLiveVisitors(),
 )
 
-export const getLiveVisitorsEnabled = createServerFn({ method: 'GET' }).handler(
-  async () => (await getLiveConfig()).enabled,
+export const getLiveRuntimeConfig = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    const config = await getLiveConfig()
+    return {
+      presenceEnabled: config.enabled,
+      chatEnabled: config.chatEnabled,
+    }
+  },
 )
 
 export const getLiveCompanyOverview = createServerFn({ method: 'GET' }).handler(

@@ -47,6 +47,7 @@ export const liveEventSchema = z.object({
   visible: z.boolean(),
   kind: z.enum(['update', 'leave']),
   action: liveActionSchema.optional(),
+  chatProof: z.uuid().optional(),
 })
 
 export const liveCompanySchema = z.object({

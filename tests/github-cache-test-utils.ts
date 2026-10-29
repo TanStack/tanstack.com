@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto'
+
 export function createMockR2Bucket() {
   const objects = new Map<
     string,
@@ -23,7 +25,8 @@ export function createMockR2Bucket() {
 
       return {
         key,
-        customMetadata: object.customMetadata,
+        etag: createHash('md5').update(object.value).digest('hex'),
+        customMetadata: { ...object.customMetadata },
         text: async () => object.value,
         uploaded: object.uploaded,
       }
@@ -57,8 +60,18 @@ export function createMockR2Bucket() {
         httpMetadata?: {
           contentType?: string
         }
+        onlyIf?: { etagMatches?: string; etagDoesNotMatch?: string }
       },
     ) {
+      const current = objects.get(key)
+      if (options?.onlyIf?.etagDoesNotMatch === '*' && current) return null
+      if (
+        options?.onlyIf?.etagMatches !== undefined &&
+        (!current ||
+          createHash('md5').update(current.value).digest('hex') !==
+            options.onlyIf.etagMatches)
+      )
+        return null
       objects.set(key, {
         customMetadata: options?.customMetadata,
         uploaded: new Date(),

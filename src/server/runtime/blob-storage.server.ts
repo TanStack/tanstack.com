@@ -1,3 +1,4 @@
+import { recordBlobStorageOperation } from './blob-storage-metrics.server'
 import { getHostRuntimeEnv, isIsolateRuntime } from './host.server'
 
 export type BlobStorageName =
@@ -202,12 +203,17 @@ function getDefaultRuntimeCache() {
   return isCacheLike(cache) ? cache : undefined
 }
 
-function createBlobStorage(bucket: RuntimeBlobBucket): BlobStorage {
+function createBlobStorage(
+  bucket: RuntimeBlobBucket,
+  name: BlobStorageName,
+): BlobStorage {
   return {
     async delete(keys) {
+      recordBlobStorageOperation(name, 'delete')
       await bucket.delete(keys)
     },
     async get(key) {
+      recordBlobStorageOperation(name, 'get')
       const object = await bucket.get(key)
 
       if (!object) {
@@ -225,6 +231,7 @@ function createBlobStorage(bucket: RuntimeBlobBucket): BlobStorage {
       }
     },
     async list(options) {
+      recordBlobStorageOperation(name, 'list')
       const result = await bucket.list({
         cursor: options?.cursor,
         include: ['customMetadata'],
@@ -244,6 +251,7 @@ function createBlobStorage(bucket: RuntimeBlobBucket): BlobStorage {
       }
     },
     async put(key, value, options) {
+      recordBlobStorageOperation(name, 'put')
       const onlyIf = options?.onlyIfAbsent
         ? { etagDoesNotMatch: '*' }
         : options?.etagMatches !== undefined
@@ -266,7 +274,9 @@ export async function getBlobStorage(name: BlobStorageName) {
   const hostEnv = await getHostRuntimeEnv()
   const binding = hostEnv?.[getRuntimeBindingName(name)]
 
-  return isRuntimeBlobBucket(binding) ? createBlobStorage(binding) : undefined
+  return isRuntimeBlobBucket(binding)
+    ? createBlobStorage(binding, name)
+    : undefined
 }
 
 export function getBlobStorageCache(

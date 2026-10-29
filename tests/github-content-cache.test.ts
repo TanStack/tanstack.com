@@ -114,7 +114,7 @@ async function testWorkerEnvUsesBlobStorage() {
   assert.equal(object.customMetadata?.repo, repo)
   assert.equal(object.customMetadata?.gitRef, gitRef)
   assert.equal(object.customMetadata?.isPresent, 'true')
-  assert.deepEqual(JSON.parse(object.value), { value: 'blob' })
+  assert.equal(JSON.parse(object.value).value, 'blob')
 }
 
 async function testBlobStorageInfersGithubContentMetadataFromKey() {

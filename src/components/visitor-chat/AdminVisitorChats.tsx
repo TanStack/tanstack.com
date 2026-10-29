@@ -52,7 +52,7 @@ export default function AdminVisitorChats({
 
   useEffect(() => {
     if (target) open(target)
-    else setInboxOpen(true)
+    else if (request > 0) setInboxOpen(true)
   }, [target, request])
   return createPortal(
     <div
@@ -197,7 +197,7 @@ function ChatPanel({
     <aside
       data-analytics-private
       aria-label={target ? label : 'Shared visitor inbox'}
-      className={`visitor-chat-panel ${minimized ? 'visitor-chat-minimized' : ''} flex flex-col rounded-t-lg border border-gray-500/25 bg-white text-gray-900 shadow-lg dark:bg-gray-950 dark:text-gray-100}`}
+      className={`visitor-chat-panel ${minimized ? 'visitor-chat-minimized' : ''} flex flex-col rounded-t-lg border border-gray-500/25 bg-white text-gray-900 shadow-lg dark:bg-gray-950 dark:text-gray-100`}
     >
       <header className="flex items-center justify-between border-b border-gray-500/20 px-4 py-3">
         <button

@@ -1,7 +1,7 @@
 # Visitor chat
 
-Visitor chat is disabled by default with `VISITOR_CHAT_ENABLED=false`. The status
-column and live-company dashboard remain independently deployed.
+Visitor chat is enabled in production with `VISITOR_CHAT_ENABLED=true`.
+Set it to `false` to stop chat requests and invitations.
 
 Admins open a company, choose a browser session, and send the first message.
 That message opens a small visitor chat using the sender's display name and

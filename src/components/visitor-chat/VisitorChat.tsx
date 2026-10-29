@@ -54,6 +54,7 @@ function VisitorChat({ onExit }: { onExit: () => void }) {
   const tail: { current: HTMLDivElement | null } = useRef(null)
   const deliveredThrough = chat?.messages.at(-1)?.sequence ?? 0
   const hasChat = Boolean(chat)
+  const closed = chat?.closed ?? false
   const readThrough =
     !minimized && document.visibilityState === 'visible' ? deliveredThrough : 0
   useEffect(() => {
@@ -88,13 +89,18 @@ function VisitorChat({ onExit }: { onExit: () => void }) {
         pendingRequest = false
       }
     }
-    void poll()
-    const interval = setInterval(poll, chatPollMs)
+    const tick = () => {
+      if (document.visibilityState === 'visible') void poll()
+    }
+    tick()
+    const interval = setInterval(tick, closed ? 30_000 : chatPollMs)
+    document.addEventListener('visibilitychange', tick)
     return () => {
       cancelled = true
       clearInterval(interval)
+      document.removeEventListener('visibilitychange', tick)
     }
-  }, [stopped])
+  }, [stopped, closed])
   useEffect(() => {
     if (!hasChat || stopped) return
     void requestChat({

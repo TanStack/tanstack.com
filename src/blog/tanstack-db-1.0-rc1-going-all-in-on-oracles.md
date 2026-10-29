@@ -29,7 +29,7 @@ Adoption is accelerating, with teams using TanStack DB to build everything from 
 
 The core `@tanstack/db` package now gets [over a million weekly npm downloads](https://www.npmjs.com/package/@tanstack/db). DB adoption has grown roughly 10× over the past year, using [weekly core-package downloads relative to React’s](https://tanstack.com/stats/npm?packageGroups=%5B%7B%22packages%22%3A%5B%7B%22name%22%3A%22%40tanstack%2Fdb%22%7D%5D%7D%2C%7B%22packages%22%3A%5B%7B%22name%22%3A%22react%22%2C%22hidden%22%3Atrue%7D%5D%2C%22color%22%3A%22%2361DAFB%22%2C%22baseline%22%3Atrue%2C%22baselineLabel%22%3A%22React%22%7D%5D&range=1825-days&transform=none&binType=weekly&viewMode=history&chartType=line&barSort=value&bucketOffset=0&playbackIntervalMs=350&playbackLoop=false&playbackPlaying=false&showDataMode=all&normalizeBaseline=true&showBaseline=false&showLegend=false&height=400) as a proxy. The core package now gets about 0.6% as many weekly downloads as React.
 
-After server rendering landed a few months ago, I thought the remaining work before 1.0 was fairly straightforward: fix every known bug. I'd fire up my agents and set them loose and be done in a few weeks. I also tried some new ideas for making the coding environment more productive for agent swarms. The new environment has proved astonishingly effective at finding new bugs and undefined behavior.
+After server rendering landed a few months ago, I thought the path to 1.0 was clear: fix the known bugs. Set my agents loose, work through the list, ship in a few weeks. But I was also experimenting with ways to make those agents more effective. The new environment proved astonishingly effective at finding bugs and undefined behavior I hadn’t known to look for.
 
 My short bug-fixing expedition has now stretched to hundreds of PRs and months of intense work hardening DB's core abstractions for 1.0.
 
@@ -49,11 +49,11 @@ Here’s how we’ve been hardening DB for 1.0, and what that work has taught me
 
 In software testing, a [test oracle](https://en.wikipedia.org/wiki/Test_oracle) tells you what the correct behavior should be. It might be a reference model or another trusted system.
 
-For DB, I use independent models as test oracles. They make DB’s design executable: the models calculate the answers we would otherwise have to supply by hand. I’ll show how to turn an ordinary unit test into a model-based oracle, step by step, and what we gain along the way.
+For DB, I use independent models as test oracles. They make DB’s design executable: the models calculate the answers we would otherwise have to supply by hand. Let’s walk through turning an ordinary unit test into a model-based oracle and see what we gain along the way.
 
 A conventional unit test records the expected result for a particular example: give a sorting function `[3, 1, 2]` and verify that it returns `[1, 2, 3]`. I choose the input and supply the answer.
 
-First, let’s generalize from individual examples to rules with **property-based testing (PBT)**. A sorting function should return exactly the original elements in ascending order. A generator produces thousands of inputs—empty lists, repeated values, negative numbers, long lists—and the test verifies that rule for each one.
+Let’s generalize from individual examples to rules with **property-based testing (PBT)**. A sorting function should return exactly the original elements in ascending order. A generator produces thousands of inputs—empty lists, repeated values, negative numbers, long lists—and the test verifies that rule for each one.
 
 The generator supplies examples, but I still have to supply the rules. For a library like DB, that means spelling out which actions are allowed, how they change the data, and what its users should observe. Building a useful generated test becomes a way of working out and expressing the subsystem’s design.
 
@@ -78,7 +78,7 @@ A small model makes that rule executable. It keeps the task records in a plain J
 
 DB uses complex machinery to maintain the results efficiently. The model recomputes everything from scratch. It trades efficiency for simplicity, making the expected behavior straightforward to understand and inspect.
 
-Now property-based testing can verify the full rule across generated histories: **DB’s result must match the model’s answer.** The generator varies the starting records and sequences of supported inserts, updates, and deletes, applied individually or in batches. The test gives the same changes to the model and DB, then compares the live query’s public rows and their order with the model’s answer after each batch.
+With the model supplying the expected answers, property-based testing can check the full rule across generated histories: **DB’s result must match the model’s answer.** The generator varies the starting records and sequences of supported inserts, updates, and deletes, applied individually or in batches. The test gives the same changes to the model and DB, then compares the live query’s public rows and their order with the model’s answer after each batch.
 
 ```mermaid
 flowchart TD
@@ -93,9 +93,11 @@ flowchart TD
 
 An existing system can also serve as an oracle. For server-to-client synchronization, Postgres can supply the reference: make changes in Postgres, let them synchronize, and require the client’s corresponding rows and values to match Postgres exactly. We can build on existing abstractions instead of writing every reference computation ourselves.
 
-We’re replacing standalone example-based tests in DB with oracles. We’ll soon enforce that with a lint rule. Fixing a reported bug is only the beginning. We encode the design rule it exposed, then explore the whole category of cases that rule governs. **An isolated test preserves an answer. An oracle preserves the understanding that produces the answers.** I no longer want agents stopping at a passing reproduction.
+With an independent reference for what DB should do, agents can experiment with how to do it efficiently. They can replace the query algorithm, introduce an index, or delete a pile of bookkeeping while the oracle verifies that the promised behavior survives.
 
-An independent model lets us investigate what DB should do separately from engineering how to do it efficiently. An agent can replace the query algorithm, introduce an index, or delete a pile of bookkeeping while the oracle verifies that the promised behavior survives.
+Each bug fix should strengthen that reference too. We encode the design rule the bug exposed, then explore the whole category of cases that rule governs. **An isolated test preserves an answer. An oracle preserves the understanding that produces the answers.** I no longer want agents stopping at a passing reproduction.
+
+Oracles have massively increased the rigor of our tests. We’re gradually replacing all remaining standalone example-based tests, and we’ll soon lint against adding new ones.
 
 ![An open book of numerical tables beside a slide rule, with arrows pointing to the same result.](/blog-assets/tanstack-db-1.0-rc1-going-all-in-on-oracles/reference-tables-and-slide-rule.png)
 
@@ -109,7 +111,7 @@ Oracles let me explore that design space dramatically faster, without waiting fo
 
 ### How the oracles got stronger
 
-Collections notify other code—their subscribers—about changes with insert, update, and delete messages. A user [reported a bug](https://github.com/TanStack/db/issues/1901) where they deleted a row and inserted a replacement under the same key in the same event-loop turn. DB sent the subscriber a delete for the row but no later insert message to put it back. A direct read returned the replacement, but replaying the collection messages left the subscriber's cache without the reinserted row.
+Collections notify subscribers—such as a UI component displaying the collection’s rows—about changes with insert, update, and delete messages. A user [reported a bug](https://github.com/TanStack/db/issues/1901) where they deleted a row and inserted a replacement under the same key in the same event-loop turn. DB sent the subscriber a delete for the row but no later insert message to put it back. A direct read returned the replacement, but replaying the collection messages left the subscriber's cache without the reinserted row.
 
 The [fix](https://github.com/TanStack/db/pull/1902) also added an oracle for the broader promise: **a subscriber applying every change message should end up with the same rows as a direct read.**
 

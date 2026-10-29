@@ -342,6 +342,8 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
     select: (s) => s.some((d) => d.staticData?.showNavbar === false),
   })
   const hideFooter =
+    pathname === '/admin' ||
+    pathname.startsWith('/admin/') ||
     pathname === '/builder' ||
     pathname.startsWith('/builder/') ||
     pathname === '/chat' ||

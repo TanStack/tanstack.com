@@ -97,10 +97,6 @@ export function ThemeEditorPage() {
       <div className="flex flex-col gap-6">
         <div>
           <h1 className="text-2xl font-bold">Highlight Theme Editor</h1>
-
-          <p className="mt-1 text-sm text-text-muted">
-            Pick a language, tune every token, then copy the result out.
-          </p>
         </div>
 
         <Field label="Start from">

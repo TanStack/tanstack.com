@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Link } from '@tanstack/react-router'
-import { ArrowRightIcon, CheckIcon } from '@phosphor-icons/react'
+import { ArrowRightIcon } from '@phosphor-icons/react'
 
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import { getLibrary } from '~/libraries'
@@ -24,24 +24,24 @@ const bundleProfiles = [
     name: 'core',
     detail: 'no languages',
     size: '1.82 KB',
-    width: 'w-[22%]',
+    width: 'w-[17%]',
   },
   {
     name: 'tsx',
     detail: 'core + TSX',
-    size: '4.03 KB',
-    width: 'w-[49%]',
+    size: '4.29 KB',
+    width: 'w-[40%]',
   },
   {
     name: 'docs',
     detail: '9 languages',
-    size: '5.97 KB',
-    width: 'w-[72%]',
+    size: '6.22 KB',
+    width: 'w-[58%]',
   },
   {
     name: 'all',
-    detail: '26 languages',
-    size: '8.29 KB',
+    detail: '30 languages',
+    size: '10.79 KB',
     width: 'w-full',
   },
 ]
@@ -60,7 +60,7 @@ export default function HighlightLanding() {
     <LibraryLandingShell
       libraryId="highlight"
       headline="Highlighting built for the web."
-      description="Register the languages your docs use, highlight synchronously, and ship one compact semantic HTML tree that every theme can share."
+      description="Fast syntax highlighting that keeps your bundles small and your code looking good."
       hero={
         <CodeLab
           isLightTheme={isLightTheme}
@@ -73,8 +73,8 @@ export default function HighlightLanding() {
       <LandingSection tone="accent">
         <div className="grid items-center gap-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
           <LandingSectionIntro
-            title="The registry is the bundle plan."
-            body="The core knows no languages. Direct imports make the site’s language set explicit and let the bundler discard everything else."
+            title="Only pay for the languages you need."
+            body="Start with a tiny core, bring the languages you actually use, and leave the rest out of your bundle. Change your mind about the colors? CSS has you covered."
           />
           <BundleDial />
         </div>
@@ -83,15 +83,15 @@ export default function HighlightLanding() {
       <LandingSection tone="ink">
         <div className="grid items-center gap-12 lg:grid-cols-[0.76fr_1.24fr] lg:gap-16">
           <LandingSectionIntro
-            title="Change the palette. Keep the markup."
-            body="Tokens carry stable semantic classes instead of theme colors. CSS variables recolor the same tree without a second highlighting pass."
+            title="A fresh coat of paint."
+            body="Go dark, go light, or offer a whole menu of themes with CSS variables, all using the same markup without shipping extra copies or highlighting everything again."
           />
           <ThemeContract />
         </div>
         <div className="mt-12 grid items-center gap-12 border-t border-border-subtle pt-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
           <LandingSectionIntro
-            title="Web languages rarely stay in their lane."
-            body="HTML, Vue, Svelte, EJS, and Markdown delegate embedded regions only when the nested language is registered. JavaScript and TypeScript handle their own template interpolation."
+            title="Go ahead, mix your languages."
+            body="Put JavaScript in your HTML, CSS in your Vue components, or mix them together like you normally do, and we’ll highlight the languages right where they are."
           />
           <div>
             <EmbeddedLanguageMap />
@@ -115,44 +115,17 @@ export default function HighlightLanding() {
         <div className="grid items-center gap-12 lg:grid-cols-[1.2fr_0.8fr] lg:gap-16">
           <AnnotationPanel />
           <LandingSectionIntro
-            title="Annotate the lesson, not the token stream."
-            body="Highlight lines, exact character ranges, insertions, deletions, focus, errors, and warnings without changing the source or tokenizer."
+            title="Dim the lights and get your point across… or underlined, too."
+            body="Make changed lines pop, fade everything around them, or underline the bit you’re explaining with annotations you control and CSS that makes it yours."
           />
-        </div>
-        <div className="mt-12 grid items-center gap-12 border-t border-border-subtle pt-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
-          <LandingSectionIntro
-            title="Tuned against the docs it will render."
-            body="Release checks cover source preservation, deterministic HTML, bundle sizes, and throughput across more than 10,000 code blocks, including numbered and decorated blocks."
-          />
-          <BenchmarkTape />
         </div>
       </LandingSection>
 
       <LandingSection tone="accent">
-        <div className="grid items-start gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
+        <div className="grid items-center gap-12 lg:grid-cols-[1.08fr_0.92fr] lg:gap-16">
           <LandingSectionIntro
-            title="A docs highlighter is not an editor highlighter."
-            body="Highlight is optimized for known web languages and compact page output, not TextMate completeness, automatic detection, or incremental editor state."
-          />
-          <div className="overflow-hidden rounded-xl border border-border-subtle bg-background-surface">
-            <ChoiceRow
-              name="TanStack Highlight"
-              useWhen="Known docs languages, compact HTML, CSS themes, and annotations matter most."
-            />
-            <ChoiceRow
-              name="Shiki"
-              useWhen="TextMate and VS Code fidelity, broad language coverage, and editor-grade themes are the job."
-            />
-            <ChoiceRow
-              name="Sugar High"
-              useWhen="The smallest straightforward JavaScript and TypeScript path is enough."
-            />
-          </div>
-        </div>
-        <div className="mt-12 grid items-center gap-12 border-t border-border-subtle pt-12 lg:grid-cols-[1.08fr_0.92fr] lg:gap-16">
-          <LandingSectionIntro
-            title="Drop it into Markdown without hiding the language set."
-            body="TanStack Markdown, Remark, Rehype, and Octane MDX adapters all take an explicit highlighter, so you control which languages ship."
+            title="BYO Markdown."
+            body="Add syntax highlighting to TanStack Markdown, Remark, Rehype, Octane MDX, or whatever you’re building with, using a ready-made integration or wiring it up your way."
           />
           <Link
             to="/markdown/$version"
@@ -163,8 +136,8 @@ export default function HighlightLanding() {
               <LibraryWordmark library={markdownLibrary} />
             </div>
             <p className="mt-3 text-ds-body-sm text-text-primary/55">
-              A serializable document model that keeps highlighting at an
-              explicit boundary.
+              Parse and render Markdown, then add syntax highlighting with a
+              callback.
             </p>
             <span className="mt-6 inline-flex items-center gap-2 text-ds-label-md">
               Explore Markdown
@@ -359,7 +332,7 @@ function BundleDial() {
   return (
     <div className="rounded-xl border border-border-subtle bg-background-surface p-5 sm:p-6">
       <div className="flex items-center justify-between gap-4 border-b border-border-subtle pb-3 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/45">
-        <span>0.0.11 · gzip · KB = 1,000 bytes</span>
+        <span>1.0.0 · gzip · KB = 1,000 bytes</span>
       </div>
       <div className="mt-5 space-y-5">
         {bundleProfiles.map((profile) => (
@@ -379,6 +352,16 @@ function BundleDial() {
           </div>
         ))}
       </div>
+      <p className="mt-5 border-t border-border-subtle pt-3 text-ds-body-xs text-text-primary/45">
+        Minified browser source-entry builds, measured October 1, 2026 with Node
+        26.3.1. Sizes vary with imports and build tools.{' '}
+        <a
+          href="https://github.com/TanStack/highlight/blob/v1.0.0/scripts/measure-size.mjs"
+          className="underline"
+        >
+          Measurement details
+        </a>
+      </p>
     </div>
   )
 }
@@ -547,93 +530,6 @@ function AnnotatedLine({
     >
       <span className="select-none text-zinc-600">{number}</span>
       <span>{children}</span>
-    </div>
-  )
-}
-
-function BenchmarkTape() {
-  return (
-    <div className="overflow-hidden rounded-xl border border-border-subtle bg-background-surface">
-      <div className="grid grid-cols-[1fr_auto_auto] gap-4 border-b border-border-subtle px-4 py-3 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/45">
-        <span>334 docs fixtures</span>
-        <span>warmed time</span>
-        <span>HTML</span>
-      </div>
-      <BenchmarkRow
-        name="TanStack Highlight"
-        time="4.6 ms"
-        output="365 KiB"
-        emphasis
-      />
-      <BenchmarkRow
-        name="Shiki 4.3.1"
-        time="182 ms"
-        output="1,257 KiB"
-        emphasis={false}
-      />
-      <p className="border-t border-border-subtle px-4 py-3 text-ds-body-xs text-text-primary/45">
-        Local measurements from the{' '}
-        <Link
-          to="/$libraryId/$version/docs/$"
-          params={{
-            libraryId: 'highlight',
-            version: 'latest',
-            _splat: 'comparison',
-          }}
-          className="underline"
-        >
-          project benchmark report
-        </Link>
-        . Shiki initialization and language loading are measured separately;
-        EJS, ENV, and TSRX use its plaintext fallback. Timings vary by machine,
-        and the tools don’t provide equivalent grammar accuracy.
-      </p>
-    </div>
-  )
-}
-
-function BenchmarkRow({
-  emphasis,
-  name,
-  output,
-  time,
-}: {
-  emphasis: boolean
-  name: string
-  output: string
-  time: string
-}) {
-  return (
-    <div
-      className={`grid grid-cols-[1fr_auto_auto] gap-4 border-b border-border-subtle px-4 py-4 font-ds-mono text-ds-mono-xs last:border-b-0 ${emphasis ? 'bg-[color:rgb(var(--landing-glow)/0.1)]' : ''}`}
-    >
-      <span
-        className={
-          emphasis
-            ? 'font-black text-[var(--landing-accent-bright)]'
-            : 'text-text-primary/55'
-        }
-      >
-        {name}
-      </span>
-      <span className="font-black">{time}</span>
-      <span className="w-20 text-right font-black">{output}</span>
-    </div>
-  )
-}
-
-function ChoiceRow({ name, useWhen }: { name: string; useWhen: string }) {
-  return (
-    <div className="grid gap-2 border-b border-border-subtle px-5 py-5 last:border-b-0 sm:grid-cols-[12rem_1fr] sm:gap-5">
-      <div className="inline-flex items-center gap-2 font-black">
-        <CheckIcon
-          size={15}
-          aria-hidden="true"
-          className="text-[var(--landing-accent-bright)]"
-        />{' '}
-        {name}
-      </div>
-      <p className="text-ds-body-sm text-text-primary/55">{useWhen}</p>
     </div>
   )
 }

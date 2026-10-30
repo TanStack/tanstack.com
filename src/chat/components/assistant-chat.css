@@ -1,0 +1,67 @@
+@scope (:root:has(.tanchat-shell)) {
+  .personal-assistant-chat .message-actions,
+  .personal-assistant-chat .message-timestamp,
+  .personal-assistant-chat .composer-footer,
+  .personal-assistant-chat .message-threads {
+    display: none;
+  }
+  .assistant-time-marker {
+    display: block;
+    text-align: center;
+    color: var(--muted);
+    font-size: 11px;
+    margin: 22px 0 14px;
+  }
+  .personal-assistant-chat .message.user .message-content {
+    border-radius: 22px;
+    padding: 10px 16px;
+  }
+  .personal-assistant-chat .message.assistant .message-content,
+  .personal-assistant-chat .activity-update {
+    background: var(--soft);
+    border-radius: 22px;
+    padding: 10px 16px;
+    width: fit-content;
+    max-width: 100%;
+  }
+  .personal-assistant-chat .assistant-message-block {
+    gap: 8px;
+  }
+  .personal-assistant-chat .composer {
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 10px;
+    padding: 10px 12px;
+    border-radius: 28px;
+    box-shadow: none;
+  }
+  .personal-assistant-chat .composer:focus-within {
+    box-shadow: none;
+  }
+  .personal-assistant-chat .composer > * {
+    grid-column: 1 / -1;
+  }
+  .personal-assistant-chat .composer textarea {
+    grid-column: 2;
+    grid-row: 1;
+    padding: 3px 0;
+    min-height: 28px;
+  }
+  .personal-assistant-chat .composer-toolbar,
+  .personal-assistant-chat .composer-toolbar-main {
+    display: contents;
+  }
+  .personal-assistant-chat .composer-toolbar-main > button {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .personal-assistant-chat .composer-toolbar-actions {
+    grid-column: 3;
+    grid-row: 1;
+    margin: 0;
+  }
+  .personal-assistant-chat .empty-state h1 {
+    display: none;
+  }
+}

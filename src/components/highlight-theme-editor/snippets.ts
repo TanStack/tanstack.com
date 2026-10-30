@@ -1,7 +1,7 @@
 import type { HighlightLanguage } from '@tanstack/highlight'
 
 export const languageOptions: Array<{
-  value: HighlightLanguage
+  value: keyof typeof themeEditorSnippets
   label: string
 }> = [
   { value: 'ts', label: 'TypeScript' },
@@ -32,7 +32,7 @@ export const languageOptions: Array<{
   { value: 'plaintext', label: 'Plain Text' },
 ]
 
-export const themeEditorSnippets: Record<HighlightLanguage, string> = {
+export const themeEditorSnippets = {
   ts: `import { createThemeCss } from '@tanstack/highlight/theme'
 import type { HighlightTheme } from '@tanstack/highlight/theme'
 
@@ -308,4 +308,4 @@ character renders with the default "token" color
 and background only — a good way to check contrast
 before tuning the rest of the palette.
 `,
-}
+} satisfies Partial<Record<HighlightLanguage, string>>

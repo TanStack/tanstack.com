@@ -1,0 +1,35 @@
+@layer utilities {
+  .visitor-chat-dock {
+    @tailwind utilities source(none);
+  }
+}
+@reference 'tailwindcss/theme.css';
+@custom-variant dark (&:is(.dark, .dark *));
+@source './AdminVisitorChats.tsx';
+
+.visitor-chat-dock {
+  position: fixed;
+  z-index: 60;
+  right: 12px;
+  bottom: 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  max-width: calc(100vw - 24px);
+  overflow-x: auto;
+  pointer-events: none;
+}
+
+.visitor-chat-panel {
+  flex: 0 0 320px;
+  width: 320px;
+  max-width: calc(100vw - 24px);
+  height: min(520px, calc(100dvh - 80px));
+  pointer-events: auto;
+}
+
+.visitor-chat-panel.visitor-chat-minimized {
+  flex-basis: 200px;
+  width: 200px;
+  height: auto;
+}

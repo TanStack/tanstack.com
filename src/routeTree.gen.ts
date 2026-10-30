@@ -217,6 +217,7 @@ import { Route as LibraryDbVersionIndexRouteImport } from './routes/_library/db.
 import { Route as LibraryDevtoolsVersionIndexRouteImport } from './routes/_library/devtools.$version.index'
 import { Route as LibraryFormVersionIndexRouteImport } from './routes/_library/form.$version.index'
 import { Route as LibraryHighlightVersionIndexRouteImport } from './routes/_library/highlight.$version.index'
+import { Route as LibraryHighlightVersionThemeEditorRouteImport } from './routes/_library/highlight.$version.theme-editor'
 import { Route as LibraryHotkeysVersionIndexRouteImport } from './routes/_library/hotkeys.$version.index'
 import { Route as LibraryIntentVersionIndexRouteImport } from './routes/_library/intent.$version.index'
 import { Route as LibraryMarkdownVersionIndexRouteImport } from './routes/_library/markdown.$version.index'
@@ -1396,6 +1397,12 @@ const LibraryHighlightVersionIndexRoute =
     path: '/highlight/$version/',
     getParentRoute: () => LibraryRoute,
   } as any)
+const LibraryHighlightVersionThemeEditorRoute =
+  LibraryHighlightVersionThemeEditorRouteImport.update({
+    id: '/highlight/$version/theme-editor',
+    path: '/highlight/$version/theme-editor',
+    getParentRoute: () => LibraryRoute,
+  } as any)
 const LibraryHotkeysVersionIndexRoute =
   LibraryHotkeysVersionIndexRouteImport.update({
     id: '/hotkeys/$version/',
@@ -2240,6 +2247,7 @@ export interface FileRoutesByFullPath {
   '/$libraryId/$version/docs': typeof LibraryLibraryIdVersionDocsRouteWithChildren
   '/$libraryId/$version/llms.txt': typeof LibraryLibraryIdVersionLlmsDottxtRoute
   '/charts/catalog/all': typeof LibraryChartsCatalogAllRoute
+  '/highlight/$version/theme-editor': typeof LibraryHighlightVersionThemeEditorRoute
   '/api/application-starter/deploy/check-name': typeof ApiApplicationStarterDeployCheckNameRoute
   '/api/application-starter/deploy/github': typeof ApiApplicationStarterDeployGithubRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
@@ -2549,6 +2557,7 @@ export interface FileRoutesByTo {
   '/stats/npm': typeof StatsNpmIndexRoute
   '/$libraryId/$version/llms.txt': typeof LibraryLibraryIdVersionLlmsDottxtRoute
   '/charts/catalog/all': typeof LibraryChartsCatalogAllRoute
+  '/highlight/$version/theme-editor': typeof LibraryHighlightVersionThemeEditorRoute
   '/api/application-starter/deploy/check-name': typeof ApiApplicationStarterDeployCheckNameRoute
   '/api/application-starter/deploy/github': typeof ApiApplicationStarterDeployGithubRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
@@ -2873,6 +2882,7 @@ export interface FileRoutesById {
   '/_library/$libraryId/$version/docs': typeof LibraryLibraryIdVersionDocsRouteWithChildren
   '/_library/$libraryId/$version/llms.txt': typeof LibraryLibraryIdVersionLlmsDottxtRoute
   '/_library/charts/catalog/all': typeof LibraryChartsCatalogAllRoute
+  '/_library/highlight/$version/theme-editor': typeof LibraryHighlightVersionThemeEditorRoute
   '/api/application-starter/deploy/check-name': typeof ApiApplicationStarterDeployCheckNameRoute
   '/api/application-starter/deploy/github': typeof ApiApplicationStarterDeployGithubRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
@@ -3197,6 +3207,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs'
     | '/$libraryId/$version/llms.txt'
     | '/charts/catalog/all'
+    | '/highlight/$version/theme-editor'
     | '/api/application-starter/deploy/check-name'
     | '/api/application-starter/deploy/github'
     | '/api/auth/callback/$provider'
@@ -3506,6 +3517,7 @@ export interface FileRouteTypes {
     | '/stats/npm'
     | '/$libraryId/$version/llms.txt'
     | '/charts/catalog/all'
+    | '/highlight/$version/theme-editor'
     | '/api/application-starter/deploy/check-name'
     | '/api/application-starter/deploy/github'
     | '/api/auth/callback/$provider'
@@ -3829,6 +3841,7 @@ export interface FileRouteTypes {
     | '/_library/$libraryId/$version/docs'
     | '/_library/$libraryId/$version/llms.txt'
     | '/_library/charts/catalog/all'
+    | '/_library/highlight/$version/theme-editor'
     | '/api/application-starter/deploy/check-name'
     | '/api/application-starter/deploy/github'
     | '/api/auth/callback/$provider'
@@ -5567,6 +5580,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryHighlightVersionIndexRouteImport
       parentRoute: typeof LibraryRoute
     }
+    '/_library/highlight/$version/theme-editor': {
+      id: '/_library/highlight/$version/theme-editor'
+      path: '/highlight/$version/theme-editor'
+      fullPath: '/highlight/$version/theme-editor'
+      preLoaderRoute: typeof LibraryHighlightVersionThemeEditorRouteImport
+      parentRoute: typeof LibraryRoute
+    }
     '/_library/hotkeys/$version/': {
       id: '/_library/hotkeys/$version/'
       path: '/hotkeys/$version'
@@ -6523,6 +6543,7 @@ const LibraryChartsCatalogRouteWithChildren =
 interface LibraryRouteChildren {
   LibraryLibraryIdRouteRoute: typeof LibraryLibraryIdRouteRouteWithChildren
   LibraryChartsCatalogRoute: typeof LibraryChartsCatalogRouteWithChildren
+  LibraryHighlightVersionThemeEditorRoute: typeof LibraryHighlightVersionThemeEditorRoute
   LibraryAiVersionIndexRoute: typeof LibraryAiVersionIndexRoute
   LibraryChartsVersionIndexRoute: typeof LibraryChartsVersionIndexRoute
   LibraryCliVersionIndexRoute: typeof LibraryCliVersionIndexRoute
@@ -6549,6 +6570,8 @@ interface LibraryRouteChildren {
 const LibraryRouteChildren: LibraryRouteChildren = {
   LibraryLibraryIdRouteRoute: LibraryLibraryIdRouteRouteWithChildren,
   LibraryChartsCatalogRoute: LibraryChartsCatalogRouteWithChildren,
+  LibraryHighlightVersionThemeEditorRoute:
+    LibraryHighlightVersionThemeEditorRoute,
   LibraryAiVersionIndexRoute: LibraryAiVersionIndexRoute,
   LibraryChartsVersionIndexRoute: LibraryChartsVersionIndexRoute,
   LibraryCliVersionIndexRoute: LibraryCliVersionIndexRoute,
@@ -7373,11 +7396,15 @@ export const routeTree = rootRouteImport
   ._addFileTypes<FileRouteTypes>()
 
 import type { getRouter } from './router.tsx'
+
 import type { startInstance } from './start.ts'
+
 declare module '@tanstack/react-start' {
   interface Register {
     ssr: true
+
     router: Awaited<ReturnType<typeof getRouter>>
+
     config: Awaited<ReturnType<typeof startInstance.getOptions>>
   }
 }

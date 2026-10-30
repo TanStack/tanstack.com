@@ -830,6 +830,10 @@ export function LibraryLayout({
       d.routeId.startsWith('/_library/charts/catalog'),
   )
 
+  const isThemeEditor = matches.some((d) =>
+    d.routeId.startsWith('/_library/highlight/$version/theme-editor'),
+  )
+
   const isNpmStats = matches.some((d) => d.pathname.includes('/docs/npm-stats'))
 
   // The library blog already lists posts, so the "Latest Posts" rail widget is
@@ -864,30 +868,58 @@ export function LibraryLayout({
   const tabbedMenuConfig = React.useMemo(() => {
     const tabs = getTabbedMenuConfig(menuConfig)
 
-    return libraryId === 'charts'
-      ? tabs.map((tab) =>
-          tab.id === 'examples'
-            ? {
-                ...tab,
-                firstItem: {
-                  label: 'Examples',
-                  to: '/charts/catalog',
-                  tab: 'examples',
-                },
-              }
-            : tab,
-        )
-      : tabs
+    if (libraryId === 'charts') {
+      return tabs.map((tab) =>
+        tab.id === 'examples'
+          ? {
+              ...tab,
+              firstItem: {
+                label: 'Examples',
+                to: '/charts/catalog',
+                tab: 'examples',
+              },
+            }
+          : tab,
+      )
+    }
+
+    if (libraryId === 'highlight') {
+      return [
+        ...tabs,
+        {
+          id: 'theme-editor' as const,
+          label: 'Theme Editor',
+          groups: [],
+          firstItem: {
+            label: 'Theme Editor',
+            to: '/highlight/$version/theme-editor',
+            tab: 'theme-editor' as const,
+          },
+        },
+      ]
+    }
+
+    return tabs
   }, [libraryId, menuConfig])
 
   const activeTabId = React.useMemo(() => {
+    if (isThemeEditor) {
+      return 'theme-editor' as const
+    }
+
     return getActiveDocsNavTabId({
       isExample,
       menuConfig,
       pathname: lastMatch.pathname,
       relativePathname,
     })
-  }, [isExample, lastMatch.pathname, menuConfig, relativePathname])
+  }, [
+    isExample,
+    isThemeEditor,
+    lastMatch.pathname,
+    menuConfig,
+    relativePathname,
+  ])
 
   const visibleMenuConfig = React.useMemo(() => {
     return (
@@ -1206,7 +1238,10 @@ export function LibraryLayout({
                       params={linkOptions.params as never}
                       onClick={closeMobileMenu}
                       preload={
-                        isChartsCatalogTarget(target.to) ? false : 'intent'
+                        isChartsCatalogTarget(target.to) ||
+                        target.to === '/highlight/$version/theme-editor'
+                          ? false
+                          : 'intent'
                       }
                       aria-current={isActive ? 'page' : undefined}
                       className={twMerge(
@@ -1379,7 +1414,12 @@ export function LibraryLayout({
                   from={linkOptions.from as never}
                   to={linkOptions.to as never}
                   params={linkOptions.params as never}
-                  preload={isChartsCatalogTarget(target.to) ? false : 'intent'}
+                  preload={
+                    isChartsCatalogTarget(target.to) ||
+                    target.to === '/highlight/$version/theme-editor'
+                      ? false
+                      : 'intent'
+                  }
                   activeOptions={{
                     exact: true,
                     includeHash: false,
@@ -1501,6 +1541,7 @@ export function LibraryLayout({
                   !isLandingPage &&
                     !isExample &&
                     !isNpmStats &&
+                    !isThemeEditor &&
                     'mx-auto w-[var(--docs-content-width,900px)]',
                 )}
               >

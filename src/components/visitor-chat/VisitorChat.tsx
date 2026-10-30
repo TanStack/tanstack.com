@@ -314,7 +314,7 @@ function VisitorChat({
                   }
                 }}
                 title="Enter to send, Shift+Enter for a new line"
-                disabled={sending}
+                readOnly={sending}
                 rows={2}
                 className="w-full resize-none rounded border border-gray-500/25 bg-transparent p-2 text-sm"
               />

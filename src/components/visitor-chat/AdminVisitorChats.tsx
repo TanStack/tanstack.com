@@ -504,7 +504,8 @@ function ChatPanel({
                       }
                     }}
                     title="Enter to send, Shift+Enter for a new line"
-                    disabled={sending || (Boolean(selected) && !chat)}
+                    readOnly={sending}
+                    disabled={Boolean(selected) && !chat}
                     placeholder="Write a message..."
                     className="w-full resize-none rounded border border-gray-500/25 bg-transparent p-2 text-sm"
                   />

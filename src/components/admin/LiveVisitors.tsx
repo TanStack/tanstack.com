@@ -477,7 +477,7 @@ export function LiveVisitors({
       RecentViews5m: row.recentViews,
       SitePixelViews: row.history?.views ?? '',
       PreviousPixelViews: row.history?.previousViews ?? '',
-      Change: csvSafeText(growthLabel(row)),
+      Change: growthLabel(row),
       SiteEvents: row.history?.siteEvents ?? '',
       Sources: row.history?.origins ?? '',
       Endpoints: row.history?.endpoints ?? '',

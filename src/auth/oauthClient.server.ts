@@ -512,6 +512,7 @@ export async function refreshAccessToken(
       userId: token.userId,
       clientId: token.clientId,
       scope: 'api',
+      grantId: token.grantId,
       expiresAt: accessExpiresAt,
     })
     .returning({ id: oauthAccessTokens.id })

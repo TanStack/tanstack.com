@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { defaultHighlighter, type HighlightLanguage } from '@tanstack/highlight'
+import { defaultHighlighter } from '@tanstack/highlight'
 import {
   createThemeBaseCss,
   createThemeRule,
@@ -14,6 +14,7 @@ import { Button, FormInput } from '~/ui'
 import { copyTextToClipboard } from '~/utils/browser-effects'
 import { useLocalStorage } from '~/utils/useLocalStorage'
 import { languageOptions, themeEditorSnippets } from './snippets'
+import { defaultDraft, restoreDraft, type Draft } from './draft'
 import {
   themePresets,
   tokenGroups,
@@ -24,25 +25,17 @@ import {
 const PREVIEW_SELECTOR = '[data-theme-editor-preview]'
 const HEX_PATTERN = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i
 
-type Draft = {
-  lang: HighlightLanguage
-  presetId: string
-  theme: HighlightTheme
-}
-
-const defaultPreset = themePresets[0]
-
-const defaultDraft: Draft = {
-  lang: 'ts',
-  presetId: defaultPreset.id,
-  theme: defaultPreset.theme,
-}
-
 export function ThemeEditorPage() {
-  const [draft, setDraft] = useLocalStorage<Draft>(
+  const [storedDraft, setStoredDraft] = useLocalStorage<unknown>(
     'highlight-theme-editor-draft',
     defaultDraft,
   )
+  const draft = React.useMemo(() => restoreDraft(storedDraft), [storedDraft])
+  const setDraft = (update: React.SetStateAction<Draft>) => {
+    setStoredDraft((previous: unknown) =>
+      typeof update === 'function' ? update(restoreDraft(previous)) : update,
+    )
+  }
   const { notify } = useToast()
 
   const { lang, presetId, theme } = draft

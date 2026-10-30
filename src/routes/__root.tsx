@@ -1,5 +1,8 @@
-import { getLiveVisitorsEnabled } from '~/utils/analytics/live.functions'
-import { startLivePresence } from '~/utils/analytics/live-browser'
+import { getLiveRuntimeConfig } from '~/utils/analytics/live.functions'
+import {
+  resumeVisitorChat,
+  startLivePresence,
+} from '~/utils/analytics/live-browser'
 import * as React from 'react'
 import {
   createRootRouteWithContext,
@@ -183,7 +186,7 @@ export const Route = createRootRouteWithContext<{
 }>()({
   loader: async () => {
     return {
-      liveVisitorsEnabled: await getLiveVisitorsEnabled(),
+      live: await getLiveRuntimeConfig(),
       partnerPlacementSessionSeed: createPartnerPlacementSessionSeed(),
     }
   },
@@ -459,7 +462,7 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
  * stay disabled on the web stream, or navigations are counted twice.
  */
 function PageViewTracker() {
-  const { liveVisitorsEnabled } = Route.useLoaderData()
+  const { live } = Route.useLoaderData()
   const pagePath = useRouterState({
     select: (s) => {
       if (!s.resolvedLocation) {
@@ -476,7 +479,8 @@ function PageViewTracker() {
 
   React.useEffect(() => {
     if (import.meta.env.MODE === 'staging') return
-    const stopLivePresence = liveVisitorsEnabled
+    if (live.chatEnabled) void resumeVisitorChat().catch(() => {})
+    const stopLivePresence = live.presenceEnabled
       ? startLivePresence()
       : () => {}
     const stopTrackingHoverIntent = trackScarfExternalLinkHoverIntent()
@@ -492,7 +496,7 @@ function PageViewTracker() {
       document.removeEventListener('copy', trackScarfClipboardEvent, true)
       document.removeEventListener('paste', trackScarfClipboardEvent, true)
     }
-  }, [liveVisitorsEnabled])
+  }, [live.presenceEnabled, live.chatEnabled])
 
   React.useEffect(() => {
     // Skip until the router has resolved a location, and never send the same

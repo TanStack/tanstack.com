@@ -928,7 +928,8 @@ export const oauthAuthorizationCodes = pgTable(
     userId: uuid('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
-    clientId: varchar('client_id', { length: 255 }).notNull(),
+    clientId: text('client_id').notNull(),
+    resource: text('resource'),
     redirectUri: text('redirect_uri').notNull(),
     codeChallenge: varchar('code_challenge', { length: 128 }).notNull(),
     codeChallengeMethod: varchar('code_challenge_method', { length: 8 })
@@ -973,7 +974,9 @@ export const oauthAccessTokens = pgTable(
     userId: uuid('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
-    clientId: varchar('client_id', { length: 255 }).notNull(),
+    clientId: text('client_id').notNull(),
+    resource: text('resource'),
+    grantId: uuid('grant_id'),
     scope: text('scope').notNull().default('api'),
     expiresAt: timestamp('expires_at', {
       withTimezone: true,
@@ -985,6 +988,7 @@ export const oauthAccessTokens = pgTable(
       .defaultNow(),
   },
   (table) => ({
+    grantIdx: index('oauth_access_grant_idx').on(table.grantId),
     tokenHashIdx: index('oauth_mcp_access_tokens_hash_idx').on(table.tokenHash),
     userIdIdx: index('oauth_mcp_access_tokens_user_idx').on(table.userId),
     expiresAtIdx: index('oauth_mcp_access_tokens_expires_idx').on(
@@ -1013,7 +1017,11 @@ export const oauthRefreshTokens = pgTable(
     userId: uuid('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
-    clientId: varchar('client_id', { length: 255 }).notNull(),
+    clientId: text('client_id').notNull(),
+    resource: text('resource'),
+    scope: text('scope').notNull().default('api'),
+    consumedAt: timestamp('consumed_at', { withTimezone: true, mode: 'date' }),
+    grantId: uuid('grant_id'),
     accessTokenId: uuid('access_token_id').references(
       () => oauthAccessTokens.id,
       { onDelete: 'set null' },
@@ -1027,6 +1035,7 @@ export const oauthRefreshTokens = pgTable(
       .defaultNow(),
   },
   (table) => ({
+    grantIdx: index('oauth_refresh_grant_idx').on(table.grantId),
     tokenHashIdx: index('oauth_mcp_refresh_tokens_hash_idx').on(
       table.tokenHash,
     ),
@@ -3464,13 +3473,24 @@ export const liveSessions = pgTable(
   'live_sessions',
   {
     id: uuid('id').primaryKey(),
+    chatProofHash: text('chat_proof_hash'),
+    visitorChatId: uuid('visitor_chat_id').references(() => visitorChats.id, {
+      onDelete: 'set null',
+    }),
     createdAt: timestamp('created_at', { withTimezone: true })
       .notNull()
       .defaultNow(),
     company:
       jsonb('company').$type<import('../utils/analytics/live').LiveCompany>(),
     lookupStatus: text('lookup_status', {
-      enum: ['pending', 'matched', 'unknown', 'failed', 'unconfigured'],
+      enum: [
+        'pending',
+        'matched',
+        'unknown',
+        'failed',
+        'unconfigured',
+        'rate_limited',
+      ],
     }).notNull(),
   },
   (table) => [index('live_sessions_created_at_idx').on(table.createdAt)],
@@ -3495,5 +3515,59 @@ export const liveTabs = pgTable(
   (table) => [
     index('live_tabs_last_seen_idx').on(table.lastSeen),
     index('live_tabs_session_idx').on(table.sessionId),
+  ],
+)
+
+// Human support conversations have independent, manual retention. Presence may expire.
+export const visitorChats = pgTable(
+  'visitor_chats',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    originSessionId: uuid('origin_session_id').notNull().unique(),
+    visitorProofHash: text('visitor_proof_hash').notNull(),
+    company:
+      jsonb('company').$type<import('../utils/analytics/live').LiveCompany>(),
+    nextSequence: integer('next_sequence').notNull().default(0),
+    deliveredThrough: integer('delivered_through').notNull().default(0),
+    readThrough: integer('read_through').notNull().default(0),
+    lastVisitorSeenAt: timestamp('last_visitor_seen_at', {
+      withTimezone: true,
+    }),
+    mutedAt: timestamp('muted_at', { withTimezone: true }),
+    closedAt: timestamp('closed_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [index('visitor_chats_updated_at_idx').on(table.updatedAt)],
+)
+
+export const visitorChatMessages = pgTable(
+  'visitor_chat_messages',
+  {
+    id: uuid('id').primaryKey(),
+    chatId: uuid('chat_id')
+      .notNull()
+      .references(() => visitorChats.id, { onDelete: 'cascade' }),
+    sequence: integer('sequence').notNull(),
+    senderId: uuid('sender_id').references(() => users.id, {
+      onDelete: 'set null',
+    }),
+    senderRole: text('sender_role', { enum: ['admin', 'visitor'] }).notNull(),
+    senderName: text('sender_name').notNull(),
+    senderImage: text('sender_image'),
+    body: text('body').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('visitor_chat_messages_sequence_idx').on(
+      table.chatId,
+      table.sequence,
+    ),
   ],
 )

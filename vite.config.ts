@@ -309,6 +309,11 @@ export default defineConfig(async ({ command, mode }) => {
       rollupOptions: {
         output: {
           manualChunks: (id) => {
+            // Keep Drizzle's namespace exports with its constructors. Splitting a
+            // single-use export into app code creates an ORM/schema startup cycle.
+            if (id.includes('/node_modules/drizzle-orm/')) {
+              return 'drizzle-orm'
+            }
             if (
               id.includes('/node_modules/@tanstack/react-start') ||
               id.includes('/node_modules/@tanstack/start-')

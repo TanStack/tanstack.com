@@ -112,8 +112,12 @@ import { Route as DsTakeoverRouteImport } from './routes/ds.takeover'
 import { Route as DsTypographyRouteImport } from './routes/ds.typography'
 import { Route as LibrariesFrameworkRouteImport } from './routes/libraries_.$framework'
 import { Route as OauthAuthorizeRouteImport } from './routes/oauth/authorize'
+import { Route as OauthIntrospectRouteImport } from './routes/oauth/introspect'
 import { Route as OauthRegisterRouteImport } from './routes/oauth/register'
+import { Route as OauthRevokeRouteImport } from './routes/oauth/revoke'
+import { Route as OauthSessionHintRouteImport } from './routes/oauth/session-hint'
 import { Route as OauthTokenRouteImport } from './routes/oauth/token'
+import { Route as OauthUserinfoRouteImport } from './routes/oauth/userinfo'
 import { Route as PartnersIndexRouteImport } from './routes/partners.index'
 import { Route as PartnersPartnerRouteImport } from './routes/partners.$partner'
 import { Route as PartnersNetlifyRouteImport } from './routes/partners.netlify'
@@ -844,14 +848,34 @@ const OauthAuthorizeRoute = OauthAuthorizeRouteImport.update({
   path: '/oauth/authorize',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OauthIntrospectRoute = OauthIntrospectRouteImport.update({
+  id: '/oauth/introspect',
+  path: '/oauth/introspect',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OauthRegisterRoute = OauthRegisterRouteImport.update({
   id: '/oauth/register',
   path: '/oauth/register',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OauthRevokeRoute = OauthRevokeRouteImport.update({
+  id: '/oauth/revoke',
+  path: '/oauth/revoke',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OauthSessionHintRoute = OauthSessionHintRouteImport.update({
+  id: '/oauth/session-hint',
+  path: '/oauth/session-hint',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OauthTokenRoute = OauthTokenRouteImport.update({
   id: '/oauth/token',
   path: '/oauth/token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OauthUserinfoRoute = OauthUserinfoRouteImport.update({
+  id: '/oauth/userinfo',
+  path: '/oauth/userinfo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PartnersIndexRoute = PartnersIndexRouteImport.update({
@@ -2115,8 +2139,12 @@ export interface FileRoutesByFullPath {
   '/ds/typography': typeof DsTypographyRoute
   '/libraries/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
+  '/oauth/introspect': typeof OauthIntrospectRoute
   '/oauth/register': typeof OauthRegisterRoute
+  '/oauth/revoke': typeof OauthRevokeRoute
+  '/oauth/session-hint': typeof OauthSessionHintRoute
   '/oauth/token': typeof OauthTokenRoute
+  '/oauth/userinfo': typeof OauthUserinfoRoute
   '/partners/$partner': typeof PartnersPartnerRoute
   '/partners/netlify': typeof PartnersNetlifyRoute
   '/partners/railway': typeof PartnersRailwayRoute
@@ -2424,8 +2452,12 @@ export interface FileRoutesByTo {
   '/ds/typography': typeof DsTypographyRoute
   '/libraries/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
+  '/oauth/introspect': typeof OauthIntrospectRoute
   '/oauth/register': typeof OauthRegisterRoute
+  '/oauth/revoke': typeof OauthRevokeRoute
+  '/oauth/session-hint': typeof OauthSessionHintRoute
   '/oauth/token': typeof OauthTokenRoute
+  '/oauth/userinfo': typeof OauthUserinfoRoute
   '/partners/$partner': typeof PartnersPartnerRoute
   '/partners/netlify': typeof PartnersNetlifyRoute
   '/partners/railway': typeof PartnersRailwayRoute
@@ -2740,8 +2772,12 @@ export interface FileRoutesById {
   '/ds/typography': typeof DsTypographyRoute
   '/libraries_/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
+  '/oauth/introspect': typeof OauthIntrospectRoute
   '/oauth/register': typeof OauthRegisterRoute
+  '/oauth/revoke': typeof OauthRevokeRoute
+  '/oauth/session-hint': typeof OauthSessionHintRoute
   '/oauth/token': typeof OauthTokenRoute
+  '/oauth/userinfo': typeof OauthUserinfoRoute
   '/partners/$partner': typeof PartnersPartnerRoute
   '/partners/netlify': typeof PartnersNetlifyRoute
   '/partners/railway': typeof PartnersRailwayRoute
@@ -3060,8 +3096,12 @@ export interface FileRouteTypes {
     | '/ds/typography'
     | '/libraries/$framework'
     | '/oauth/authorize'
+    | '/oauth/introspect'
     | '/oauth/register'
+    | '/oauth/revoke'
+    | '/oauth/session-hint'
     | '/oauth/token'
+    | '/oauth/userinfo'
     | '/partners/$partner'
     | '/partners/netlify'
     | '/partners/railway'
@@ -3369,8 +3409,12 @@ export interface FileRouteTypes {
     | '/ds/typography'
     | '/libraries/$framework'
     | '/oauth/authorize'
+    | '/oauth/introspect'
     | '/oauth/register'
+    | '/oauth/revoke'
+    | '/oauth/session-hint'
     | '/oauth/token'
+    | '/oauth/userinfo'
     | '/partners/$partner'
     | '/partners/netlify'
     | '/partners/railway'
@@ -3684,8 +3728,12 @@ export interface FileRouteTypes {
     | '/ds/typography'
     | '/libraries_/$framework'
     | '/oauth/authorize'
+    | '/oauth/introspect'
     | '/oauth/register'
+    | '/oauth/revoke'
+    | '/oauth/session-hint'
     | '/oauth/token'
+    | '/oauth/userinfo'
     | '/partners/$partner'
     | '/partners/netlify'
     | '/partners/railway'
@@ -3957,8 +4005,12 @@ export interface RootRouteChildren {
   BuilderNewRoute: typeof BuilderNewRoute
   LibrariesFrameworkRoute: typeof LibrariesFrameworkRoute
   OauthAuthorizeRoute: typeof OauthAuthorizeRoute
+  OauthIntrospectRoute: typeof OauthIntrospectRoute
   OauthRegisterRoute: typeof OauthRegisterRoute
+  OauthRevokeRoute: typeof OauthRevokeRoute
+  OauthSessionHintRoute: typeof OauthSessionHintRoute
   OauthTokenRoute: typeof OauthTokenRoute
+  OauthUserinfoRoute: typeof OauthUserinfoRoute
   ShowcaseIdRoute: typeof ShowcaseIdRoute
   ShowcaseSubmitRoute: typeof ShowcaseSubmitRoute
   StackCategoryRoute: typeof StackCategoryRoute
@@ -4780,6 +4832,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OauthAuthorizeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/oauth/introspect': {
+      id: '/oauth/introspect'
+      path: '/oauth/introspect'
+      fullPath: '/oauth/introspect'
+      preLoaderRoute: typeof OauthIntrospectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/oauth/register': {
       id: '/oauth/register'
       path: '/oauth/register'
@@ -4787,11 +4846,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OauthRegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/oauth/revoke': {
+      id: '/oauth/revoke'
+      path: '/oauth/revoke'
+      fullPath: '/oauth/revoke'
+      preLoaderRoute: typeof OauthRevokeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/oauth/session-hint': {
+      id: '/oauth/session-hint'
+      path: '/oauth/session-hint'
+      fullPath: '/oauth/session-hint'
+      preLoaderRoute: typeof OauthSessionHintRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/oauth/token': {
       id: '/oauth/token'
       path: '/oauth/token'
       fullPath: '/oauth/token'
       preLoaderRoute: typeof OauthTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/oauth/userinfo': {
+      id: '/oauth/userinfo'
+      path: '/oauth/userinfo'
+      fullPath: '/oauth/userinfo'
+      preLoaderRoute: typeof OauthUserinfoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/partners/': {
@@ -7170,8 +7250,12 @@ const rootRouteChildren: RootRouteChildren = {
   BuilderNewRoute: BuilderNewRoute,
   LibrariesFrameworkRoute: LibrariesFrameworkRoute,
   OauthAuthorizeRoute: OauthAuthorizeRoute,
+  OauthIntrospectRoute: OauthIntrospectRoute,
   OauthRegisterRoute: OauthRegisterRoute,
+  OauthRevokeRoute: OauthRevokeRoute,
+  OauthSessionHintRoute: OauthSessionHintRoute,
   OauthTokenRoute: OauthTokenRoute,
+  OauthUserinfoRoute: OauthUserinfoRoute,
   ShowcaseIdRoute: ShowcaseIdRoute,
   ShowcaseSubmitRoute: ShowcaseSubmitRoute,
   StackCategoryRoute: StackCategoryRoute,

@@ -302,6 +302,20 @@
       "when": 1793217188347,
       "tag": "0042_live_visitors",
       "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1793298817210,
+      "tag": "0043_visitor_chat",
+      "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1793316169908,
+      "tag": "0044_shared_oauth",
+      "breakpoints": true
     }
   ]
 }

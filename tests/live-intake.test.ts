@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { receiveLiveEvent } from '../src/utils/analytics/live.server.ts'
+import { runWithHostRuntimeEnv } from '../src/server/runtime/host.server.ts'
 
 function request(body = '{}', headers: Record<string, string> = {}) {
   return new Request('https://tanstack.com/_a/live', {
@@ -42,16 +43,81 @@ test('enabled intake bounds and validates data before using the database', async
     if (previous === undefined) delete process.env.LIVE_VISITORS_ENABLED
     else process.env.LIVE_VISITORS_ENABLED = previous
   })
-  assert.equal((await receiveLiveEvent(request('x'.repeat(1025)))).status, 413)
-  assert.equal((await receiveLiveEvent(request('invalid'))).status, 400)
+  assert.equal((await allowedIntake(request('x'.repeat(1025)))).status, 413)
+  assert.equal((await allowedIntake(request('invalid'))).status, 400)
   assert.equal(
-    (await receiveLiveEvent(request(JSON.stringify({ page: '/admin' }))))
-      .status,
+    (await allowedIntake(request(JSON.stringify({ page: '/admin' })))).status,
     400,
   )
   assert.equal(
-    (await receiveLiveEvent(request('{}', { 'cf-connecting-ip': 'not-an-ip' })))
+    (await allowedIntake(request('{}', { 'cf-connecting-ip': 'not-an-ip' })))
       .status,
     204,
   )
+})
+
+function allowedIntake(incoming: Request) {
+  return runWithHostRuntimeEnv(
+    {
+      LIVE_PRESENCE_RATE_LIMITER: { limit: async () => ({ success: true }) },
+      LIVE_LOOKUP_RATE_LIMITER: { limit: async () => ({ success: true }) },
+    },
+    () => receiveLiveEvent(incoming),
+  )
+}
+
+test('edge throttling rejects requests before reading bodies or using the database', async (t) => {
+  const previous = process.env.LIVE_VISITORS_ENABLED
+  process.env.LIVE_VISITORS_ENABLED = 'true'
+  t.after(() => {
+    if (previous === undefined) delete process.env.LIVE_VISITORS_ENABLED
+    else process.env.LIVE_VISITORS_ENABLED = previous
+  })
+  const incoming = request('not JSON')
+  const response = await runWithHostRuntimeEnv(
+    {
+      LIVE_PRESENCE_RATE_LIMITER: {
+        limit: async ({ key }: { key: string }) => {
+          assert.equal(key, '192.0.2.1')
+          return { success: false }
+        },
+      },
+      LIVE_LOOKUP_RATE_LIMITER: { limit: async () => ({ success: true }) },
+    },
+    () => receiveLiveEvent(incoming),
+  )
+  assert.equal(response.status, 429)
+  assert.equal(response.headers.get('Retry-After'), '60')
+  assert.equal(incoming.bodyUsed, false)
+})
+
+test('enabled intake fails closed when its edge limiter is unavailable', async (t) => {
+  const previous = process.env.LIVE_VISITORS_ENABLED
+  process.env.LIVE_VISITORS_ENABLED = 'true'
+  t.after(() => {
+    if (previous === undefined) delete process.env.LIVE_VISITORS_ENABLED
+    else process.env.LIVE_VISITORS_ENABLED = previous
+  })
+  assert.equal(
+    (await runWithHostRuntimeEnv({}, () => receiveLiveEvent(request()))).status,
+    503,
+  )
+  const incoming = request('not JSON')
+  assert.equal(
+    (
+      await runWithHostRuntimeEnv(
+        {
+          LIVE_PRESENCE_RATE_LIMITER: {
+            limit: async () => {
+              throw new Error('Unavailable')
+            },
+          },
+          LIVE_LOOKUP_RATE_LIMITER: { limit: async () => ({ success: true }) },
+        },
+        () => receiveLiveEvent(incoming),
+      )
+    ).status,
+    503,
+  )
+  assert.equal(incoming.bodyUsed, false)
 })

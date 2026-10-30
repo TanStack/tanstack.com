@@ -26,4 +26,5 @@ if (!Sentry.getClient())
       return breadcrumb
     },
     beforeSend: redactByokRequestHeaders,
+    beforeSendTransaction: redactByokRequestHeaders,
   })

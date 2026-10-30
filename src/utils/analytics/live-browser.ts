@@ -4,8 +4,34 @@ import {
   LIVE_HEARTBEAT_MS,
   LIVE_RETENTION_MS,
 } from './live'
+import { hasVisitorChatHint } from '../visitor-chat/bootstrap'
 
 let report: ((action?: string) => void) | undefined
+let chatLoading = false
+export async function resumeVisitorChat() {
+  const hashId = location.hash.startsWith('#visitor-chat-test=')
+    ? location.hash.slice('#visitor-chat-test='.length)
+    : undefined
+  let testId = hashId
+  try {
+    if (hashId && liveUuid(hashId))
+      sessionStorage.setItem('tanstack.visitor-chat.test', hashId)
+    else
+      testId = sessionStorage.getItem('tanstack.visitor-chat.test') || undefined
+  } catch {}
+  if (testId && liveUuid(testId)) await loadVisitorChat(testId)
+  else if (hasVisitorChatHint(document.cookie)) await loadVisitorChat()
+}
+export async function loadVisitorChat(testId?: string) {
+  if (chatLoading || document.getElementById('tanstack-visitor-chat')) return
+  chatLoading = true
+  try {
+    const chat = await import('../../components/visitor-chat/VisitorChat')
+    chat.mountVisitorChat(testId)
+  } finally {
+    chatLoading = false
+  }
+}
 
 function trackingAllowed() {
   return (
@@ -48,14 +74,16 @@ export function startLivePresence() {
       .split('; ')
       .find((value) => value.startsWith(`${cookieName}=`))
       ?.slice(cookieName.length + 1)
-    const [id, created] = saved?.split('.') ?? []
+    const [id, created, proof] = saved?.split('.') ?? []
     if (
       !id ||
       !liveUuid(id) ||
       !created ||
       Date.now() - Number(created) >= LIVE_RETENTION_MS
     )
-      saved = `${crypto.randomUUID()}.${Date.now()}`
+      saved = `${crypto.randomUUID()}.${Date.now()}.${crypto.randomUUID()}`
+    else if (!proof || !liveUuid(proof))
+      saved = `${crypto.randomUUID()}.${Date.now()}.${crypto.randomUUID()}`
     document.cookie = `${cookieName}=${saved}; Path=/; SameSite=Lax; Secure; Max-Age=1800`
     if (!document.cookie.split('; ').includes(`${cookieName}=${saved}`)) return
     const sessionId = saved?.split('.')[0]
@@ -67,6 +95,7 @@ export function startLivePresence() {
     const parsedAction = liveActionSchema.safeParse(action)
     const payload = {
       sessionId,
+      chatProof: saved?.split('.')[2],
       tabId,
       sequence: ++sequence,
       page,
@@ -76,10 +105,31 @@ export function startLivePresence() {
     }
     lastPayload = payload
     wasOnPublicPage = kind !== 'leave'
-    navigator.sendBeacon(
-      '/_a/live',
-      new Blob([JSON.stringify(payload)], { type: 'application/json' }),
-    )
+    void fetch('/_a/live', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      keepalive: true,
+      cache: 'no-store',
+    })
+      .then(async (response) => {
+        if (
+          response.status !== 200 ||
+          chatLoading ||
+          document.getElementById('tanstack-visitor-chat')
+        )
+          return
+        const value: unknown = await response.json()
+        if (
+          !value ||
+          typeof value !== 'object' ||
+          !('chat' in value) ||
+          value.chat !== true
+        )
+          return
+        await loadVisitorChat()
+      })
+      .catch(() => {})
   }
 
   let lastPayload:

@@ -318,5 +318,5 @@ function toThemeIdentifier(name: string) {
         : word[0].toUpperCase() + word.slice(1).toLowerCase(),
     )
     .join('')
-  return `${camel || 'custom'}Theme`
+  return `${/^[0-9]/.test(camel) ? 'theme' : ''}${camel || 'custom'}Theme`
 }

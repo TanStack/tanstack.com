@@ -12,8 +12,6 @@ import {
   ruleX,
   ruleY,
   type ChartLinearGradient,
-  type ChartPoint,
-  type ChartTooltipContentContext,
 } from '@tanstack/charts'
 import { renderChartSvgWithResources } from '@tanstack/charts/svg/resources'
 import { tooltip } from '@tanstack/charts/tooltip'
@@ -64,6 +62,13 @@ import {
   isPackageGroupHidden,
 } from './shared'
 import { BASELINE_LINE_COLOR } from './BaselineSection'
+
+import {
+  getNpmChartTooltipContent,
+  type NpmHistoryPoint,
+  type NpmStackedHistoryPoint,
+  type NpmBarPoint,
+} from './npmChartTooltip'
 
 const BASELINE_LINE_SERIES = '__baseline__'
 const percentFormatter = new Intl.NumberFormat('en-US', {
@@ -2158,34 +2163,6 @@ function TimelineRangeScrubber({
   )
 }
 
-type NpmHistoryPoint = {
-  color: string
-  date: Date
-  id: string
-  label: string
-  seriesName: string
-  value: number
-}
-
-type NpmStackedHistoryPoint = NpmHistoryPoint & {
-  fill: string
-  value1: number
-  value2: number
-}
-
-type NpmBarPoint = {
-  category: string
-  color: string
-  fill: string
-  id: string
-  label: string
-  seriesName: string
-  value1: number
-  value2: number
-}
-
-type NpmChartDatum = NpmHistoryPoint | NpmStackedHistoryPoint | NpmBarPoint
-
 type NpmStatsChartInput = {
   barOrientation: BarOrientation
   bars: Array<NpmBarPoint>
@@ -2202,61 +2179,6 @@ type NpmStatsChartInput = {
   xLabel?: string
   yFormat?: (value: number) => string
   yLabel?: string
-}
-
-function getNpmChartTooltipContent(
-  points: ReadonlyArray<ChartPoint<NpmChartDatum>>,
-  context: ChartTooltipContentContext,
-  input: NpmStatsChartInput,
-) {
-  const first = points[0]
-  if (!first) return { rows: [] }
-
-  const formatValue = (point: ChartPoint<NpmChartDatum>) => {
-    const datum = point.datum
-    const value = 'value1' in datum ? datum.value2 - datum.value1 : datum.value
-
-    return input.yFormat?.(value) ?? value.toLocaleString()
-  }
-
-  if (points.length > 1) {
-    const title =
-      input.viewMode === 'history'
-        ? `Date: ${context.formatX(first.xValue)}`
-        : input.barOrientation === 'horizontal'
-          ? context.formatY(first.yValue)
-          : context.formatX(first.xValue)
-
-    return {
-      title,
-      rows: points.map((point) => ({
-        active: point === context.primaryPoint,
-        color: point.datum.color,
-        label: point.groupLabel,
-        value: formatValue(point),
-      })),
-    }
-  }
-
-  return {
-    title: first.groupLabel,
-    color: first.datum.color,
-    rows:
-      input.viewMode === 'history'
-        ? [
-            { label: 'Date', value: context.formatX(first.xValue) },
-            {
-              label: input.yLabel ?? 'Downloads',
-              value: formatValue(first),
-            },
-          ]
-        : [
-            {
-              label: input.xLabel ?? input.yLabel ?? 'Downloads',
-              value: formatValue(first),
-            },
-          ],
-  }
 }
 
 function createNpmStatsChart(input: NpmStatsChartInput) {
@@ -3505,6 +3427,7 @@ export function NPMStatsChart({
         id: `${datum.seriesName}:${datum.date.getTime()}:complete`,
         label: `${datum.name}: ${formatHistoryTooltipValue(value)}`,
         seriesName: datum.seriesName,
+        seriesLabel: datum.name,
         value,
       }
     })
@@ -3523,6 +3446,7 @@ export function NPMStatsChart({
               id: `${datum.seriesName}:${datum.date.getTime()}:partial`,
               label: `${datum.name}: ${formatHistoryTooltipValue(value)}`,
               seriesName: datum.seriesName,
+              seriesLabel: datum.name,
               value,
             }
           })

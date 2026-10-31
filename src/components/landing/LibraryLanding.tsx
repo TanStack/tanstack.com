@@ -82,7 +82,7 @@ export type LibraryLandingConfig = {
 export type LibraryLandingShellProps = {
   children: React.ReactNode
   description: React.ReactNode
-  headline: string
+  headline: React.ReactNode
   hero?: React.ReactNode
   heroBackground?: React.ReactNode
   beforeActions?: React.ReactNode

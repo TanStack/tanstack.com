@@ -51,7 +51,10 @@ export async function applyIntentRateLimit(
         limited: true,
         response: Response.json(
           { error: authResult.error, code: 'UNAUTHORIZED' },
-          { status: authResult.status, headers: { 'Cache-Control': 'no-store' } },
+          {
+            status: authResult.status,
+            headers: { 'Cache-Control': 'no-store' },
+          },
         ),
       }
     }
@@ -114,7 +117,10 @@ export function buildSkillContentUrls(
   skillPath: string | null,
 ): SkillContentUrls | null {
   if (!skillPath) return null
-  const encodedSkillPath = skillPath.split('/').map(encodeURIComponent).join('/')
+  const encodedSkillPath = skillPath
+    .split('/')
+    .map(encodeURIComponent)
+    .join('/')
   const path = `${packageName}@${version}/skills/${encodedSkillPath}/SKILL.md`
   return {
     unpkg: `https://unpkg.com/${path}`,

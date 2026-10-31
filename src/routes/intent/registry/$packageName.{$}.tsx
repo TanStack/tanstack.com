@@ -47,9 +47,7 @@ function getSkillSourceUrl({
   )}/SKILL.md`
 }
 
-export const Route = createFileRoute(
-  '/intent/registry/$packageName/{$}',
-)({
+export const Route = createFileRoute('/intent/registry/$packageName/{$}')({
   loaderDeps: ({ search }) => ({ version: search.version }),
   loader: async ({ params, deps, context: { queryClient } }) => {
     const name = decodePkgName(params.packageName)

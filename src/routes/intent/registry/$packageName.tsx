@@ -149,10 +149,8 @@ function PackageLayoutInner({
   readonly activeVersion: string
   readonly setVersion: (v: string) => void
 }) {
-  const { packageName, skillName } = useParams({ strict: false }) as {
-    packageName: string
-    skillName?: string
-  }
+  const { packageName } = Route.useParams()
+  const { _splat: skillName } = useParams({ strict: false })
 
   const skillsQuery = useSuspenseQuery(
     intentVersionSkillsQueryOptions({
@@ -431,8 +429,8 @@ function SkillsNav({
           return (
             <Link
               key={s.name}
-              to="/intent/registry/$packageName/$skillName"
-              params={{ packageName, skillName: s.name }}
+              to="/intent/registry/$packageName/{$}"
+              params={{ packageName, _splat: s.name }}
               onClick={onNavigate}
               className={`flex flex-col items-start px-2 py-1.5 rounded-md text-sm font-mono transition-colors ${
                 isActive

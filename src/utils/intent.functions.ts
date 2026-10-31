@@ -155,16 +155,16 @@ export const getIntentStats = createServerFn({ method: 'GET' }).handler(
 // Directory listing
 // ---------------------------------------------------------------------------
 
+export const intentDirectorySchema = v.object({
+  search: v.optional(intentSearchSchema),
+  framework: v.optional(intentFrameworkSchema),
+  sort: v.optional(v.picklist(['downloads', 'name', 'skills', 'newest'])),
+  page: v.optional(intentPageSchema),
+  pageSize: v.optional(intentPageSizeSchema),
+})
+
 export const getIntentDirectory = createServerFn({ method: 'GET' })
-  .validator(
-    v.object({
-      search: v.optional(intentSearchSchema),
-      framework: v.optional(intentFrameworkSchema),
-      sort: v.optional(v.picklist(['downloads', 'name', 'skills', 'newest'])),
-      page: v.optional(intentPageSchema),
-      pageSize: v.optional(intentPageSizeSchema),
-    }),
-  )
+  .validator(intentDirectorySchema)
   .handler(async ({ data }) => {
     const {
       search,

@@ -1,14 +1,17 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { safeParse } from 'valibot'
 
 export const Route = createFileRoute('/api/v1/intent/packages')({
   server: {
     handlers: {
       GET: async ({ request }: { request: Request }) => {
-        const [{ applyIntentRateLimit, intentJsonResponse }, fns] =
-          await Promise.all([
-            import('~/utils/intent-api.server'),
-            import('~/utils/intent.functions'),
-          ])
+        const [
+          { applyIntentRateLimit, intentJsonResponse, intentErrorResponse },
+          fns,
+        ] = await Promise.all([
+          import('~/utils/intent-api.server'),
+          import('~/utils/intent.functions'),
+        ])
 
         const decision = await applyIntentRateLimit(request)
         if (decision.limited) return decision.response
@@ -30,9 +33,22 @@ export const Route = createFileRoute('/api/v1/intent/packages')({
           48,
         )
 
-        const result = await fns.getIntentDirectory({
-          data: { search, framework, sort, page, pageSize },
+        const parsed = safeParse(fns.intentDirectorySchema, {
+          search,
+          framework,
+          sort,
+          page,
+          pageSize,
         })
+        if (!parsed.success) {
+          return intentErrorResponse(
+            parsed.issues[0].message,
+            'INVALID_REQUEST',
+            400,
+            decision.rl,
+          )
+        }
+        const result = await fns.getIntentDirectory({ data: parsed.output })
 
         return intentJsonResponse(result, decision.rl)
       },

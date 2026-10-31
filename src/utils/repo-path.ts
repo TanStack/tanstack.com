@@ -11,16 +11,16 @@ export function isValidRepoPath(path: string) {
     return false
   }
 
-  if (
-    path.startsWith('/') ||
-    path.endsWith('/') ||
-    path.includes('//') ||
-    path.includes('..')
-  ) {
+  if (path.startsWith('/') || path.endsWith('/') || path.includes('//')) {
     return false
   }
 
   return path.split('/').every((segment) => {
+    // Reject only actual relative path segments, not names like `[...404].tsx`
+    if (segment === '.' || segment === '..') {
+      return false
+    }
+
     return REPO_PATH_SEGMENT_PATTERN.test(segment)
   })
 }

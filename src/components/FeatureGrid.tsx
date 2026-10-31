@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CheckCircleIcon } from '~/components/icons/CheckCircleIcon'
+import { CheckCircleIcon } from '@phosphor-icons/react'
 
 type FeatureGridProps = {
   title?: string

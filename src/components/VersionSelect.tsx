@@ -1,19 +1,24 @@
 import * as React from 'react'
 import { create } from 'zustand'
 import { useNavigate, useParams } from '@tanstack/react-router'
-import { Tag } from 'lucide-react'
+import { TagIcon } from '@phosphor-icons/react/Tag'
 import { Select, SelectOption } from './Select'
 import { getLibrary, LibraryId } from '~/libraries'
+import {
+  getLocalStorageItem,
+  setLocalStorageItem,
+} from '~/utils/browser-storage'
 
 export function VersionSelect({ libraryId }: { libraryId: LibraryId }) {
   const library = getLibrary(libraryId)
   const versionConfig = useVersionConfig({
     versions: library.availableVersions,
+    latestVersion: library.latestVersion,
   })
   return (
     <Select
       className="w-full"
-      icon={<Tag className="w-3.5 h-3.5 opacity-60" />}
+      icon={<TagIcon className="w-3.5 h-3.5 opacity-60" />}
       selected={versionConfig.selected}
       available={versionConfig.available}
       onSelect={versionConfig.onSelect}
@@ -28,12 +33,9 @@ const useLocalCurrentVersion = create<{
   currentVersion?: string
   setCurrentVersion: (version: string) => void
 }>((set) => ({
-  currentVersion:
-    typeof document !== 'undefined'
-      ? localStorage.getItem('version') || undefined
-      : undefined,
+  currentVersion: getLocalStorageItem('version') || undefined,
   setCurrentVersion: (version: string) => {
-    localStorage.setItem('version', version)
+    setLocalStorageItem('version', version)
     set({ currentVersion: version })
   },
 }))
@@ -84,37 +86,38 @@ function useCurrentVersion(versions: string[]) {
   }
 }
 
-function useVersionConfig({ versions }: { versions: string[] }) {
+function useVersionConfig({
+  versions,
+  latestVersion,
+}: {
+  versions: string[]
+  latestVersion: string
+}) {
   const currentVersion = useCurrentVersion(versions)
 
   const versionConfig = React.useMemo(() => {
-    const available = versions.reduce(
-      (acc: SelectOption[], version) => {
-        acc.push({
-          label: version,
-          value: version,
-        })
-        return acc
-      },
-      [
-        {
-          label: 'Latest',
-          value: 'latest',
-        },
-      ],
+    // The latest numbered version and 'latest' are the same docs, so they
+    // collapse into a single option that navigates to the /latest URL.
+    const available = versions.map(
+      (version): SelectOption =>
+        version === latestVersion
+          ? { label: version, value: 'latest', badge: 'Latest' }
+          : { label: version, value: version },
     )
+
+    const isLatest =
+      currentVersion.version === latestVersion ||
+      !versions.includes(currentVersion.version)
 
     return {
       label: 'Version',
-      selected: versions.includes(currentVersion.version)
-        ? currentVersion.version
-        : 'latest',
+      selected: isLatest ? 'latest' : currentVersion.version,
       available,
       onSelect: (option: { label: string; value: string }) => {
         currentVersion.setVersion(option.value)
       },
     }
-  }, [currentVersion, versions])
+  }, [currentVersion, versions, latestVersion])
 
   return versionConfig
 }

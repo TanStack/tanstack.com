@@ -3,6 +3,7 @@ title: TanStack DB 0.6 Now Includes Persistence, Offline Support, and Hierarchic
 excerpt: TanStack DB 0.6 adds SQLite-backed persistence across runtimes, hierarchical includes for projecting normalized data into UI-shaped trees, reactive effects, virtual props for sync state, and more.
 published: 2026-03-25
 draft: false
+library: db
 authors:
   - Sam Willis
   - Kevin De Porre
@@ -88,6 +89,7 @@ In practice, the React Native setup looks like this:
 import { open } from '@op-engineering/op-sqlite'
 import { createCollection } from '@tanstack/db'
 import { queryCollectionOptions } from '@tanstack/query-db-collection'
+import { QueryClient } from '@tanstack/query-core'
 import {
   createReactNativeSQLitePersistence,
   persistedCollectionOptions,
@@ -108,11 +110,14 @@ const persistence = createReactNativeSQLitePersistence({
   database,
 })
 
+const queryClient = new QueryClient()
+
 export const shoppingItemsCollection = createCollection(
   persistedCollectionOptions<ShoppingItem, string>({
     persistence,
     schemaVersion: 1,
     ...queryCollectionOptions({
+      queryClient,
       queryKey: ['shopping-items'],
       queryFn: async () => api.shoppingItems.getAll(),
       getKey: (item) => item.id,

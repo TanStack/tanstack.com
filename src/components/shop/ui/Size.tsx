@@ -20,15 +20,16 @@ export const ShopSize = React.forwardRef<HTMLButtonElement, Props>(
         disabled={disabled ?? isUnavailable}
         {...rest}
         className={twMerge(
-          'px-0 py-2.5 border rounded-md text-center',
-          'font-shop-mono font-medium text-[12px]',
-          'bg-shop-panel text-shop-text border-shop-line',
-          'hover:enabled:border-shop-line-2',
+          'px-0 py-2.5 rounded-md text-center border border-shop-line',
+          'font-shop-mono font-medium text-shop-sm',
+          'bg-shop-surface text-shop-text',
+          'transition-[border-color,background-color]',
+          'hover:enabled:bg-shop-surface-hover hover:enabled:border-shop-line-2',
           isSelected &&
             'bg-shop-accent text-shop-accent-ink border-shop-accent',
           isUnavailable &&
             !isSelected &&
-            'line-through text-shop-muted bg-transparent opacity-55 cursor-not-allowed',
+            'line-through text-shop-muted opacity-40 cursor-not-allowed',
           className,
         )}
       >

@@ -1,5 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { isWatchedDocsWebhookSource } from "~/utils/docs-webhook-sources";
+import {
+  isRecord,
+  jsonError,
+  jsonResponse,
+  readTextBody,
+} from "~/utils/api-boundary.server";
+
+const MAX_GITHUB_WEBHOOK_BYTES = 256 * 1024;
+const GITHUB_SIGNATURE_PATTERN = /^sha256=[a-f0-9]{64}$/i;
 
 type PushEventPayload = {
   ref: string;
@@ -13,21 +22,33 @@ type PushEventPayload = {
   }>;
 };
 
+function hasOptionalStringArray(record: Record<string, unknown>, key: string) {
+  const value = record[key]
+  return (
+    value === undefined ||
+    (Array.isArray(value) && value.every((item) => typeof item === "string"))
+  )
+}
+
 function isPushEventPayload(value: unknown): value is PushEventPayload {
-  if (typeof value !== "object" || value === null) {
+  if (!isRecord(value)) {
     return false;
   }
 
-  const candidate = value as {
-    commits?: unknown;
-    ref?: unknown;
-    repository?: { full_name?: unknown };
-  };
+  const repository = value.repository
 
   return (
-    typeof candidate.ref === "string" &&
-    typeof candidate.repository?.full_name === "string" &&
-    Array.isArray(candidate.commits)
+    typeof value.ref === "string" &&
+    isRecord(repository) &&
+    typeof repository.full_name === "string" &&
+    Array.isArray(value.commits) &&
+    value.commits.every(
+      (commit) =>
+        isRecord(commit) &&
+        hasOptionalStringArray(commit, "added") &&
+        hasOptionalStringArray(commit, "modified") &&
+        hasOptionalStringArray(commit, "removed"),
+    )
   );
 }
 
@@ -53,65 +74,76 @@ export const Route = createFileRoute("/api/github/webhook")({
   server: {
     handlers: {
       POST: async ({ request }: { request: Request }) => {
-        const [{ markDocsArtifactsStale, markGitHubContentStale }, { env }] =
-          await Promise.all([
-            import("~/utils/github-content-cache.server"),
-            import("~/utils/env"),
-          ]);
-        const rawBody = await request.text();
+        const [
+          { markDocsArtifactsStale, markGitHubContentStale },
+          { env },
+          { libraries },
+          { purgeHostingCacheTags },
+          { scheduleHostRuntimeTask },
+          { measureBlobStorageOperations },
+        ] = await Promise.all([
+          import("~/utils/github-content-cache.server"),
+          import("~/utils/env"),
+          import("~/libraries"),
+          import("~/utils/hosting-cache.server"),
+          import("~/server/runtime/host.server"),
+          import("~/server/runtime/blob-storage-metrics.server"),
+        ]);
+        const bodyResult = await readTextBody(request, MAX_GITHUB_WEBHOOK_BYTES);
+        if (!bodyResult.success) {
+          return jsonError(bodyResult.error.message, bodyResult.error.status);
+        }
+        const rawBody = bodyResult.text;
+
         const event = request.headers.get("x-github-event");
         const signature = request.headers.get("x-hub-signature-256");
 
-        if (env.GITHUB_WEBHOOK_SECRET) {
-          if (
-            !signature ||
-            !(await verifyGitHubSignature(
-              rawBody,
-              signature,
-              env.GITHUB_WEBHOOK_SECRET,
-            ))
-          ) {
-            return Response.json(
-              { error: "Invalid webhook signature" },
-              { status: 401 },
-            );
-          }
+        if (!env.GITHUB_WEBHOOK_SECRET) {
+          console.error("[GitHub webhook] GITHUB_WEBHOOK_SECRET is not configured");
+          return jsonError("Webhook secret is not configured", 500);
+        }
+
+        if (
+          !signature ||
+          !GITHUB_SIGNATURE_PATTERN.test(signature) ||
+          !(await verifyGitHubSignature(
+            rawBody,
+            signature,
+            env.GITHUB_WEBHOOK_SECRET,
+          ))
+        ) {
+          return jsonError("Invalid webhook signature", 401);
         }
 
         if (event === "ping") {
-          return Response.json({ ok: true });
+          return jsonResponse({ ok: true });
         }
 
         if (event !== "push") {
-          return Response.json({ ok: true, ignored: true, event });
+          return jsonResponse({ ok: true, ignored: true, event });
         }
 
         let payload: unknown;
 
         try {
-          payload = JSON.parse(rawBody) as unknown;
+          payload = JSON.parse(rawBody);
         } catch {
-          return Response.json(
-            { error: "Invalid JSON payload" },
-            { status: 400 },
-          );
+          return jsonError("Invalid JSON payload", 400);
         }
 
         if (!isPushEventPayload(payload)) {
-          return Response.json(
-            { error: "Invalid push payload" },
-            { status: 400 },
-          );
+          return jsonError("Invalid push payload", 400);
         }
 
         const gitRef = payload.ref.replace(/^refs\/heads\//, "");
+        const repo = payload.repository.full_name.toLowerCase();
 
-        if (!isWatchedDocsWebhookSource(payload.repository.full_name, gitRef)) {
-          return Response.json({
+        if (!isWatchedDocsWebhookSource(repo, gitRef)) {
+          return jsonResponse({
             ok: true,
             ignored: true,
             reason: "unwatched repo/ref",
-            repo: payload.repository.full_name,
+            repo,
             gitRef,
           });
         }
@@ -126,23 +158,60 @@ export const Route = createFileRoute("/api/github/webhook")({
           ),
         );
 
-        const [staleContentCount, staleArtifactCount] = await Promise.all([
-          markGitHubContentStale({
-            repo: payload.repository.full_name,
-            gitRef,
-          }),
-          markDocsArtifactsStale({
-            repo: payload.repository.full_name,
-            gitRef,
-          }),
-        ]);
+        const tags = [
+          `docs-config:${repo}:${gitRef}`,
+          ...libraries
+            .filter(
+              (library) =>
+                library.repo === repo && library.latestBranch === gitRef,
+            )
+            .map((library) => `docs:${library.id}:branch:${gitRef}`),
+        ];
 
-        return Response.json({
+        const invalidate = async () => {
+          const [staleContentCount, staleArtifactCount] =
+            await measureBlobStorageOperations("github-webhook-invalidation", () =>
+              Promise.all([
+                markGitHubContentStale({ repo, gitRef }),
+                markDocsArtifactsStale({ repo, gitRef }),
+              ]),
+            );
+          const purge = await purgeHostingCacheTags(tags);
+
+          return { purge, staleArtifactCount, staleContentCount };
+        };
+
+        if (
+          scheduleHostRuntimeTask(async () => {
+            try {
+              await invalidate();
+            } catch (error) {
+              console.error("[GitHub webhook] cache invalidation failed", {
+                error,
+                gitRef,
+                repo,
+              });
+            }
+          })
+        ) {
+          return jsonResponse({
+            ok: true,
+            gitRef,
+            changedPathCount: changedPaths.length,
+            scheduled: true,
+          });
+        }
+
+        const { purge, staleArtifactCount, staleContentCount } =
+          await invalidate();
+
+        return jsonResponse({
           ok: true,
           gitRef,
           changedPathCount: changedPaths.length,
           staleArtifactCount,
           staleContentCount,
+          purge,
         });
       },
     },

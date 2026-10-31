@@ -1,0 +1,89 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "tanstack-com",
+  "account_id": "8da95258a9c70b54c3e2b374a0079106",
+  "main": "src/server.ts",
+  "compatibility_date": "2026-06-19",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true,
+  },
+  "cache": {
+    "enabled": false,
+  },
+  "vars": {
+    "APP_MODE": "production",
+    "LIVE_VISITORS_ENABLED": "true",
+    "VISITOR_CHAT_ENABLED": "true",
+    "MCP_EGRESS_MODE": "cloudflare-public",
+    "KODY_ORIGIN": "https://kody.codes",
+    "INCLUDED_MODEL": "@cf/moonshotai/kimi-k2.6",
+  },
+  "ratelimits": [
+    {
+      "name": "VISITOR_CHAT_RATE_LIMITER",
+      "namespace_id": "144401",
+      "simple": { "limit": 600, "period": 60 },
+    },
+    {
+      "name": "LIVE_PRESENCE_RATE_LIMITER",
+      "namespace_id": "144201",
+      "simple": { "limit": 600, "period": 60 },
+    },
+    {
+      "name": "LIVE_LOOKUP_RATE_LIMITER",
+      "namespace_id": "144202",
+      "simple": { "limit": 30, "period": 60 },
+    },
+  ],
+  "limits": {
+    "cpu_ms": 300000,
+  },
+  "triggers": {
+    "crons": ["* * * * *", "0 9 * * *", "0 */6 * * *"],
+  },
+  "assets": {
+    "binding": "ASSETS",
+  },
+  "ai": {
+    "binding": "AI",
+  },
+  "r2_buckets": [
+    {
+      "binding": "GITHUB_CONTENT_CACHE",
+      "bucket_name": "tanstack-github-content-cache",
+    },
+    {
+      "binding": "NPM_DOWNLOAD_CACHE",
+      "bucket_name": "tanstack-npm-download-cache",
+    },
+    {
+      "binding": "BUILDER_PROJECTS",
+      "bucket_name": "tanstack-notebook-projects",
+    },
+    {
+      "binding": "FILES",
+      "bucket_name": "tanstack-notebook-projects",
+    },
+  ],
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "6ec1513b87bb47e9897e5502727b0388",
+    },
+  ],
+  "services": [
+    {
+      "binding": "OG",
+      "service": "tanstack-og",
+    },
+    {
+      "binding": "CHAT",
+      "service": "tanstack-chat",
+    },
+    {
+      "binding": "STARTER",
+      "service": "tanstack-starter",
+    },
+  ],
+}

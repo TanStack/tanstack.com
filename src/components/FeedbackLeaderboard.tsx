@@ -14,7 +14,7 @@ import {
 } from './TableComponents'
 import { PaginationControls } from './PaginationControls'
 import { twMerge } from 'tailwind-merge'
-import { Award, Medal, Trophy } from 'lucide-react'
+import { MedalIcon, TrophyIcon } from '@phosphor-icons/react'
 
 export function FeedbackLeaderboard() {
   const navigate = useNavigate({ from: '/feedback-leaderboard' })
@@ -67,9 +67,9 @@ export function FeedbackLeaderboard() {
   }
 
   const getRankIcon = (rank: number) => {
-    if (rank === 1) return <Trophy className="text-yellow-500" />
-    if (rank === 2) return <Medal className="text-gray-400" />
-    if (rank === 3) return <Medal className="text-amber-600" />
+    if (rank === 1) return <TrophyIcon className="text-yellow-500" />
+    if (rank === 2) return <MedalIcon className="text-gray-400" />
+    if (rank === 3) return <MedalIcon className="text-amber-600" />
     return null
   }
 
@@ -79,7 +79,7 @@ export function FeedbackLeaderboard() {
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center gap-3 mb-2">
-            <Award className="text-3xl text-blue-500" />
+            <MedalIcon className="text-3xl text-blue-500" />
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
               Documentation Feedback Leaderboard
             </h1>
@@ -136,7 +136,7 @@ export function FeedbackLeaderboard() {
                         key={entry.userId}
                         className={twMerge(
                           rank <= 3 && page === 1
-                            ? 'bg-gradient-to-r from-yellow-50 to-transparent dark:from-yellow-900/10'
+                            ? 'bg-linear-to-r from-yellow-50 to-transparent dark:from-yellow-900/10'
                             : '',
                         )}
                       >
@@ -179,7 +179,7 @@ export function FeedbackLeaderboard() {
                 </TableBody>
               </Table>
 
-              <div className="p-3 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 border-t border-gray-200 dark:border-gray-700">
+              <div className="p-3 bg-linear-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 border-t border-gray-200 dark:border-gray-700">
                 <PaginationControls
                   currentPage={page - 1}
                   totalPages={pagination.totalPages}

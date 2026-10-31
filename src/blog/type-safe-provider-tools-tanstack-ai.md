@@ -2,6 +2,7 @@
 title: 'Your AI Tool Calls Should Fail at Compile Time, Not in Production'
 published: 2026-04-22
 excerpt: Provider tools like web search and code execution are supported on some models and silently ignored on others. TanStack AI now gates them per model at the type level, so incompatible pairings fail at compile time instead of in production.
+library: ai
 authors:
   - Alem Tuzlak
 ---

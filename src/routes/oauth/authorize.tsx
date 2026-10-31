@@ -1,16 +1,38 @@
 import * as React from 'react'
-import { redirect, useNavigate, createFileRoute } from '@tanstack/react-router'
+import {
+  ClientOnly,
+  redirect,
+  useNavigate,
+  createFileRoute,
+} from '@tanstack/react-router'
 import * as v from 'valibot'
-import { createAuthorizationCode } from '~/utils/oauthClient.functions'
+import { SITE_URL } from '~/utils/site'
+import {
+  createAuthorizationCode,
+  validateAuthorizationRequest,
+} from '~/utils/oauthClient.functions'
 import { getCurrentUser } from '~/utils/auth.functions'
 import { Card } from '~/components/Card'
 import { Button } from '~/ui'
+import { BrandContextMenu } from '~/components/BrandContextMenu'
 
-const LazyBrandContextMenu = React.lazy(() =>
-  import('~/components/BrandContextMenu').then((m) => ({
-    default: m.BrandContextMenu,
-  })),
-)
+function SplashImages() {
+  return (
+    <>
+      <img
+        src="/images/brand/tanstack-emblem-black.svg"
+        alt="TanStack"
+        className="w-24 h-24 dark:hidden"
+      />
+      <img
+        src="/images/brand/tanstack-emblem-white.svg"
+        alt="TanStack"
+        aria-hidden="true"
+        className="w-24 h-24 hidden dark:block"
+      />
+    </>
+  )
+}
 
 /**
  * Validate redirect URI - must be localhost or HTTPS
@@ -19,12 +41,16 @@ const LazyBrandContextMenu = React.lazy(() =>
 function validateRedirectUri(uri: string): boolean {
   try {
     const url = new URL(uri)
+    if (url.username || url.password) {
+      return false
+    }
+
     if (
       url.hostname === 'localhost' ||
       url.hostname === '127.0.0.1' ||
       url.hostname === '[::1]'
     ) {
-      return true
+      return url.protocol === 'http:' || url.protocol === 'https:'
     }
     if (url.protocol === 'https:') {
       return true
@@ -36,13 +62,14 @@ function validateRedirectUri(uri: string): boolean {
 }
 
 const searchSchema = v.object({
-  client_id: v.string(),
-  redirect_uri: v.string(),
-  code_challenge: v.string(),
-  code_challenge_method: v.optional(v.string()),
-  state: v.optional(v.string()),
-  scope: v.optional(v.string()),
-  response_type: v.optional(v.string()),
+  client_id: v.optional(v.pipe(v.string(), v.maxLength(8192))),
+  redirect_uri: v.optional(v.pipe(v.string(), v.maxLength(2048))),
+  code_challenge: v.optional(v.pipe(v.string(), v.maxLength(256))),
+  code_challenge_method: v.optional(v.pipe(v.string(), v.maxLength(32))),
+  state: v.optional(v.pipe(v.string(), v.maxLength(2048))),
+  scope: v.optional(v.pipe(v.string(), v.maxLength(512))),
+  response_type: v.optional(v.pipe(v.string(), v.maxLength(64))),
+  resource: v.optional(v.pipe(v.string(), v.maxLength(2048))),
 })
 
 export const Route = createFileRoute('/oauth/authorize')({
@@ -57,6 +84,7 @@ export const Route = createFileRoute('/oauth/authorize')({
     state: search.state,
     scope: search.scope,
     response_type: search.response_type,
+    resource: search.resource,
   }),
   loader: async ({ deps }) => {
     // Validate required params
@@ -92,6 +120,27 @@ export const Route = createFileRoute('/oauth/authorize')({
       }
     }
 
+    const checked = await validateAuthorizationRequest({
+      data: {
+        clientId: deps.client_id,
+        redirectUri: deps.redirect_uri,
+        resource: deps.resource,
+        scope: deps.scope,
+      },
+    })
+    if (
+      !checked.valid ||
+      (deps.resource &&
+        (deps.code_challenge_method !== 'S256' ||
+          deps.response_type !== 'code')) ||
+      !/^[A-Za-z0-9_-]{43}$/.test(deps.code_challenge)
+    )
+      return {
+        error: 'invalid_request',
+        errorDescription:
+          'Check the registered client, resource, scope and S256 challenge.',
+      }
+
     // Check if user is logged in
     const user = await getCurrentUser()
 
@@ -101,6 +150,9 @@ export const Route = createFileRoute('/oauth/authorize')({
       currentUrl.searchParams.set('client_id', deps.client_id)
       currentUrl.searchParams.set('redirect_uri', deps.redirect_uri)
       currentUrl.searchParams.set('code_challenge', deps.code_challenge)
+      if (deps.resource) currentUrl.searchParams.set('resource', deps.resource)
+      if (deps.response_type)
+        currentUrl.searchParams.set('response_type', deps.response_type)
       if (deps.code_challenge_method) {
         currentUrl.searchParams.set(
           'code_challenge_method',
@@ -133,43 +185,27 @@ export const Route = createFileRoute('/oauth/authorize')({
       codeChallenge: deps.code_challenge,
       codeChallengeMethod: deps.code_challenge_method || 'S256',
       state: deps.state,
-      scope: deps.scope || 'api',
+      scope: checked.scope,
+      resource: deps.resource,
+      clientName: checked.clientName,
     }
   },
 })
 
 function SplashImage() {
+  const fallback = (
+    <div className="cursor-pointer">
+      <SplashImages />
+    </div>
+  )
+
   return (
     <div className="flex items-center justify-center mb-4">
-      <React.Suspense
-        fallback={
-          <div className="cursor-pointer">
-            <img
-              src="/images/logos/splash-light.png"
-              alt="TanStack"
-              className="w-24 h-24 dark:hidden"
-            />
-            <img
-              src="/images/logos/splash-dark.png"
-              alt="TanStack"
-              className="w-24 h-24 hidden dark:block"
-            />
-          </div>
-        }
-      >
-        <LazyBrandContextMenu className="cursor-pointer">
-          <img
-            src="/images/logos/splash-light.png"
-            alt="TanStack"
-            className="w-24 h-24 dark:hidden"
-          />
-          <img
-            src="/images/logos/splash-dark.png"
-            alt="TanStack"
-            className="w-24 h-24 hidden dark:block"
-          />
-        </LazyBrandContextMenu>
-      </React.Suspense>
+      <ClientOnly fallback={fallback}>
+        <BrandContextMenu className="cursor-pointer">
+          <SplashImages />
+        </BrandContextMenu>
+      </ClientOnly>
     </div>
   )
 }
@@ -208,12 +244,14 @@ function AuthorizePage() {
           codeChallenge: data.codeChallenge,
           codeChallengeMethod: data.codeChallengeMethod,
           scope: data.scope,
+          resource: data.resource,
         },
       })
 
       // Build redirect URL with code
       const redirectUrl = new URL(data.redirectUri)
       redirectUrl.searchParams.set('code', result.code)
+      redirectUrl.searchParams.set('iss', SITE_URL)
       if (data.state) {
         redirectUrl.searchParams.set('state', data.state)
       }
@@ -228,6 +266,7 @@ function AuthorizePage() {
     // Redirect back with error
     const redirectUrl = new URL(data.redirectUri)
     redirectUrl.searchParams.set('error', 'access_denied')
+    redirectUrl.searchParams.set('iss', SITE_URL)
     redirectUrl.searchParams.set(
       'error_description',
       'User denied the authorization request',
@@ -239,7 +278,7 @@ function AuthorizePage() {
   }
 
   // Format client ID for display (often looks like a technical identifier)
-  const displayClientId = data.clientId.replace(/-/g, ' ').replace(/_/g, ' ')
+  const displayClientId = data.clientName
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
@@ -251,28 +290,36 @@ function AuthorizePage() {
         </h1>
 
         <p className="text-gray-600 dark:text-gray-400 text-sm text-center mb-6">
-          This application wants to access the TanStack API on your behalf.
+          {data.scope === 'source'
+            ? 'This app can read and change TanStack Source repositories with your permissions.'
+            : data.scope === 'identity'
+              ? 'Share your TanStack account ID, name, email and linked GitHub identity to sign in.'
+              : 'This app will access the TanStack API on your behalf.'}
         </p>
 
-        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 mb-6">
-          <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            This will allow the app to:
+        {data.scope === 'source' ? (
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+            Revoke access in your TanStack connected apps.
           </p>
-          <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-            <li className="flex items-start gap-2">
-              <span className="text-green-500 mt-0.5">&#10003;</span>
-              Search and read TanStack documentation
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-green-500 mt-0.5">&#10003;</span>
-              List libraries and get NPM stats
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-green-500 mt-0.5">&#10003;</span>
-              Get ecosystem partner recommendations
-            </li>
-          </ul>
-        </div>
+        ) : null}
+
+        {data.scope === 'source' ? (
+          <p className="text-sm mb-6">
+            <a
+              href="https://source.tanstack.com/settings/accounts"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 dark:text-blue-400 underline"
+            >
+              Connect your TanStack account in Source
+            </a>{' '}
+            before authorizing this client.
+          </p>
+        ) : null}
+
+        <p className="text-xs text-gray-600 dark:text-gray-400 mb-6 break-all">
+          Returns to {data.redirectUri}
+        </p>
 
         <div className="flex gap-3">
           <Button
@@ -283,6 +330,7 @@ function AuthorizePage() {
             {isSubmitting ? 'Authorizing...' : 'Authorize'}
           </Button>
           <Button
+            variant="secondary"
             onClick={handleDeny}
             disabled={isSubmitting}
             className="flex-1"

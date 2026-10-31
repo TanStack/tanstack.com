@@ -3,9 +3,13 @@
  * Used by both server-side markdown filtering and client-side PackageManagerTabs.
  */
 
-export type PackageManager = 'npm' | 'pnpm' | 'yarn' | 'bun'
+export const PACKAGE_MANAGERS = ['npm', 'pnpm', 'yarn', 'bun'] as const
 
-export const PACKAGE_MANAGERS: PackageManager[] = ['npm', 'pnpm', 'yarn', 'bun']
+export type PackageManager = (typeof PACKAGE_MANAGERS)[number]
+
+export function isPackageManager(value: string): value is PackageManager {
+  return (PACKAGE_MANAGERS as ReadonlyArray<string>).includes(value)
+}
 
 export type InstallMode =
   | 'install'
@@ -20,7 +24,7 @@ export type InstallMode =
 export function getPackageManager(
   pm: string | null | undefined,
 ): PackageManager {
-  if (pm && PACKAGE_MANAGERS.includes(pm as PackageManager)) {
+  if (pm && (PACKAGE_MANAGERS as ReadonlyArray<string>).includes(pm)) {
     return pm as PackageManager
   }
   return 'npm' // default

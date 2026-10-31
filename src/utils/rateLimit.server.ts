@@ -59,20 +59,7 @@ function buildRateLimitResult(
   result: { allowed: boolean; remaining: number; resetAt: Date },
   limitPerMinute: number,
 ): RateLimitResult {
-  const headers = new Headers()
-  headers.set('X-RateLimit-Limit', limitPerMinute.toString())
-  headers.set('X-RateLimit-Remaining', result.remaining.toString())
-  headers.set(
-    'X-RateLimit-Reset',
-    Math.floor(result.resetAt.getTime() / 1000).toString(),
-  )
-
-  if (!result.allowed) {
-    headers.set(
-      'Retry-After',
-      Math.ceil((result.resetAt.getTime() - Date.now()) / 1000).toString(),
-    )
-  }
+  const headers = createRateLimitHeaders(limitPerMinute, result)
 
   return {
     allowed: result.allowed,
@@ -80,6 +67,23 @@ function buildRateLimitResult(
     resetAt: result.resetAt,
     headers,
   }
+}
+
+export async function checkUserRateLimit(
+  identifier: string,
+  options: RateLimitOptions,
+): Promise<RateLimitResult> {
+  const scopedIdentifier = options.keyPrefix
+    ? `${options.keyPrefix}:${identifier}`
+    : identifier
+  const result = await checkRateLimit(
+    scopedIdentifier,
+    'user',
+    options.limitPerMinute,
+  )
+  const headers = createRateLimitHeaders(options.limitPerMinute, result)
+
+  return { ...result, headers }
 }
 
 /**
@@ -93,7 +97,11 @@ export function rateLimitedResponse(result: RateLimitResult): Response {
     }),
     {
       status: 429,
-      headers: result.headers,
+      headers: {
+        'Cache-Control': 'no-store',
+        'Content-Type': 'application/json',
+        ...Object.fromEntries(result.headers.entries()),
+      },
     },
   )
 }
@@ -148,6 +156,24 @@ export async function checkIpWindowRateLimit(
 ): Promise<RateLimitResult> {
   const ip = getClientIp(request)
   const identifier = options.keyPrefix ? `${options.keyPrefix}:${ip}` : ip
+  return checkWindowRateLimit(identifier, 'ip', options)
+}
+
+export async function checkUserWindowRateLimit(
+  userId: string,
+  options: WindowRateLimitOptions,
+): Promise<RateLimitResult> {
+  const identifier = options.keyPrefix
+    ? `${options.keyPrefix}:${userId}`
+    : userId
+  return checkWindowRateLimit(identifier, 'user', options)
+}
+
+async function checkWindowRateLimit(
+  identifier: string,
+  identifierType: 'ip' | 'user',
+  options: WindowRateLimitOptions,
+): Promise<RateLimitResult> {
   const now = Date.now()
   const windowStart = new Date(
     Math.floor(now / options.windowMs) * options.windowMs,
@@ -158,7 +184,7 @@ export async function checkIpWindowRateLimit(
     .insert(mcpRateLimits)
     .values({
       identifier,
-      identifierType: 'ip',
+      identifierType,
       requestCount: 1,
       windowStart,
     })
@@ -207,14 +233,95 @@ export const RATE_LIMITS = {
     limit: 1_000_000,
     windowMs: 24 * 60 * 60 * 1000,
   },
-  // Builder remote loading: 30 requests/minute (generous for UX)
-  builderRemote: { limitPerMinute: 30, keyPrefix: 'builder-remote' },
-  // Builder compile: 60 requests/minute
-  builderCompile: { limitPerMinute: 60, keyPrefix: 'builder-compile' },
+  // Application Starter remote loading: 30 requests/minute
+  applicationStarterRemote: {
+    limitPerMinute: 30,
+    keyPrefix: 'application-starter-remote',
+  },
+  // Application Starter compile: 60 requests/minute
+  applicationStarterCompile: {
+    limitPerMinute: 60,
+    keyPrefix: 'application-starter-compile',
+  },
   // Deploy endpoint: 10 requests/minute (more sensitive)
   deploy: { limitPerMinute: 10, keyPrefix: 'deploy' },
   // Intent registry public API (anonymous, IP-keyed): 60 req/min
   intentApi: { limitPerMinute: 60, keyPrefix: 'intent-api' },
   // Intent registry public API (authenticated, token-keyed): 600 req/min
   intentApiAuthed: { limitPerMinute: 600, keyPrefix: 'intent-api-authed' },
+  // CLI auth ticket creation: public endpoint polled by local tools
+  cliAuthTicket: { limitPerMinute: 20, keyPrefix: 'cli-auth-ticket' },
+  builderProjectWrite: {
+    limitPerMinute: 10,
+    keyPrefix: 'builder-project-write',
+  },
+  builderProjectCreateDaily: {
+    keyPrefix: 'builder-project-create-day',
+    limit: 100,
+    windowMs: 24 * 60 * 60 * 1000,
+  },
+  builderProjectSave: {
+    limitPerMinute: 30,
+    keyPrefix: 'builder-project-save',
+  },
+  builderProjectList: {
+    limitPerMinute: 30,
+    keyPrefix: 'builder-project-list',
+  },
+  builderProjectSyncStream: {
+    limitPerMinute: 180,
+    keyPrefix: 'builder-project-sync-stream',
+  },
+  builderProjectSyncStreamIp: {
+    limitPerMinute: 1_000,
+    keyPrefix: 'builder-project-sync-stream-ip',
+  },
+  builderProjectSyncSnapshotPage: {
+    limitPerMinute: 6_000,
+    keyPrefix: 'builder-project-sync-snapshot-page',
+  },
+  builderProjectSyncSnapshotPageIp: {
+    limitPerMinute: 20_000,
+    keyPrefix: 'builder-project-sync-snapshot-page-ip',
+  },
+  builderProjectSyncCommand: {
+    limitPerMinute: 180,
+    keyPrefix: 'builder-project-sync-command',
+  },
+  builderProjectSyncCommandIp: {
+    limitPerMinute: 1_000,
+    keyPrefix: 'builder-project-sync-command-ip',
+  },
+  builderAi: {
+    limitPerMinute: 12,
+    keyPrefix: 'builder-ai',
+  },
+  builderAiAuth: {
+    limitPerMinute: 30,
+    keyPrefix: 'builder-ai-auth',
+  },
 } as const
+
+function createRateLimitHeaders(
+  limit: number,
+  result: {
+    allowed: boolean
+    remaining: number
+    resetAt: Date
+  },
+) {
+  const headers = new Headers()
+  headers.set('X-RateLimit-Limit', limit.toString())
+  headers.set('X-RateLimit-Remaining', result.remaining.toString())
+  headers.set(
+    'X-RateLimit-Reset',
+    Math.floor(result.resetAt.getTime() / 1000).toString(),
+  )
+  if (!result.allowed) {
+    headers.set(
+      'Retry-After',
+      Math.ceil((result.resetAt.getTime() - Date.now()) / 1000).toString(),
+    )
+  }
+  return headers
+}

@@ -55,11 +55,30 @@ const PRODUCT_CARD_FRAGMENT = /* GraphQL */ `
     title
     productType
     tags
+    publishedAt
+    options {
+      name
+      values
+    }
     featuredImage {
       url
       altText
       width
       height
+    }
+    variants(first: 10) {
+      nodes {
+        selectedOptions {
+          name
+          value
+        }
+        image {
+          url
+          altText
+          width
+          height
+        }
+      }
     }
     priceRange {
       minVariantPrice {
@@ -105,13 +124,23 @@ export const PRODUCTS_QUERY = /* GraphQL */ `
   }
 `
 
+type CardVariantImage = Pick<
+  StorefrontImage,
+  'url' | 'altText' | 'width' | 'height'
+> | null
+
 export type ProductListItem = Pick<
   Product,
-  'id' | 'handle' | 'title' | 'productType' | 'tags'
+  'id' | 'handle' | 'title' | 'productType' | 'tags' | 'publishedAt'
 > & {
-  featuredImage:
-    | (Pick<StorefrontImage, 'url' | 'altText' | 'width' | 'height'> | null)
-    | null
+  options: Array<Pick<ProductOption, 'name' | 'values'>>
+  featuredImage: CardVariantImage | null
+  variants: {
+    nodes: Array<{
+      selectedOptions: Array<{ name: string; value: string }>
+      image: CardVariantImage
+    }>
+  }
   priceRange: {
     minVariantPrice: Pick<MoneyV2, 'amount' | 'currencyCode'>
     maxVariantPrice: Pick<MoneyV2, 'amount' | 'currencyCode'>
@@ -188,7 +217,7 @@ export const PRODUCT_QUERY = /* GraphQL */ `
           height
         }
       }
-      variants(first: 100) {
+      variants(first: 250) {
         nodes {
           id
           title
@@ -224,6 +253,55 @@ export type ProductDetailVariant = Pick<
   selectedOptions: Array<{ name: string; value: string }>
   price: Pick<MoneyV2, 'amount' | 'currencyCode'>
   image: Pick<StorefrontImage, 'url' | 'altText' | 'width' | 'height'> | null
+}
+
+export function hasAvailableVariant(
+  variants: Array<
+    Pick<ProductDetailVariant, 'availableForSale' | 'selectedOptions'>
+  >,
+  selected: Record<string, string>,
+): boolean {
+  return variants.some(
+    (variant) =>
+      variant.availableForSale &&
+      variant.selectedOptions.every(
+        (option) =>
+          !selected[option.name] || selected[option.name] === option.value,
+      ),
+  )
+}
+
+/**
+ * First variant that matches every chosen option. Unchosen options (missing
+ * or empty string) are wildcards, so a color pick can resolve an image
+ * before size is chosen.
+ */
+export function findMatchingVariant<
+  TVariant extends Pick<ProductDetailVariant, 'selectedOptions'>,
+>(
+  variants: Array<TVariant>,
+  selected: Record<string, string>,
+): TVariant | undefined {
+  return variants.find((variant) =>
+    variant.selectedOptions.every(
+      (option) =>
+        !selected[option.name] || selected[option.name] === option.value,
+    ),
+  )
+}
+
+/** Variant whose options all equal the current selection. No wildcards. */
+export function findExactVariant<
+  TVariant extends Pick<ProductDetailVariant, 'selectedOptions'>,
+>(
+  variants: Array<TVariant>,
+  selected: Record<string, string>,
+): TVariant | undefined {
+  return variants.find((variant) =>
+    variant.selectedOptions.every(
+      (option) => selected[option.name] === option.value,
+    ),
+  )
 }
 
 export type ProductDetail = Pick<

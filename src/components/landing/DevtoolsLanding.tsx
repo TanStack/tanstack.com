@@ -1,88 +1,532 @@
-import { useParams } from '@tanstack/react-router'
-import { Footer } from '~/components/Footer'
-import { LazySponsorSection } from '~/components/LazySponsorSection'
-import { BottomCTA } from '~/components/BottomCTA'
-import { LibraryHero } from '~/components/LibraryHero'
-import { devtoolsProject } from '~/libraries/devtools'
-import { getLibrary } from '~/libraries'
-import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
-import LandingPageGad from '~/components/LandingPageGad'
-import { CheckCircleIcon } from '~/components/icons/CheckCircleIcon'
-import { LibraryPageContainer } from '~/components/LibraryPageContainer'
-import { LibraryStatsSection } from '~/components/LibraryStatsSection'
-import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
+import * as React from 'react'
+import {
+  AppWindowIcon,
+  ArrowRightIcon,
+  ArrowSquareOutIcon,
+  EyeIcon,
+  GaugeIcon,
+  MagnifyingGlassIcon,
+  PlugIcon,
+  PuzzlePieceIcon,
+  SidebarIcon,
+  StackIcon,
+  TerminalIcon,
+} from '@phosphor-icons/react'
 
-const library = getLibrary('devtools')
+import {
+  LandingEyebrow,
+  LandingSection,
+  LandingSectionIntro,
+  LandingWindow,
+  LibraryLandingShell,
+} from './LibraryLanding'
+
+const devtoolsPrompt = [
+  'Add TanStack Devtools to a Vite-powered TypeScript app.',
+  'Mount the framework adapter once, register library and product-specific panels through the plugin API, and use typed events for runtime inspection.',
+  'Enable source inspection, client/server console piping, and the default removal of Devtools imports and JSX from production builds.',
+].join(' ')
+
+const inspectorPanels = [
+  {
+    id: 'query',
+    label: 'Query',
+    stats: [
+      ['queries', '42'],
+      ['mutations', '3'],
+      ['stale', '8'],
+    ],
+    rows: ['project:42', 'activity-feed', 'current-user'],
+  },
+  {
+    id: 'router',
+    label: 'Router',
+    stats: [
+      ['matches', '6'],
+      ['loaders', '4'],
+      ['pending', '1'],
+    ],
+    rows: ['/_app/projects/$id', '/_app/search', '/settings'],
+  },
+  {
+    id: 'jobs',
+    label: 'Jobs',
+    stats: [
+      ['active', '12'],
+      ['queued', '5'],
+      ['failed', '1'],
+    ],
+    rows: ['sync-catalog', 'send-digest', 'rebuild-index'],
+  },
+] as const
+
+const shellParts = [
+  {
+    icon: AppWindowIcon,
+    label: 'Shell',
+    detail: 'Trigger, panel, tabs, and settings',
+  },
+  {
+    icon: PuzzlePieceIcon,
+    label: 'Plugins',
+    detail: 'Library and product inspectors',
+  },
+  {
+    icon: PlugIcon,
+    label: 'Events',
+    detail: 'Typed local, WebSocket, and SSE transport',
+  },
+  {
+    icon: EyeIcon,
+    label: 'Source',
+    detail: 'Element and log locations in the editor',
+  },
+  {
+    icon: SidebarIcon,
+    label: 'Windowing',
+    detail: 'Docking, persistence, hotkeys, and PiP',
+  },
+  {
+    icon: StackIcon,
+    label: 'Adapters',
+    detail: 'React, Vue, Solid, and Preact',
+  },
+] as const
 
 export default function DevtoolsLanding() {
-  const { version } = useParams({ strict: false })
+  return (
+    <LibraryLandingShell
+      libraryId="devtools"
+      headline="Build the inspector, not another debugging shell."
+      description="Devtools gives TanStack panels and your product-specific runtime state one extensible cockpit, with plugins, typed events, source inspection, and client/server logs already handled."
+      hero={<DevtoolsCockpit />}
+      prompt={devtoolsPrompt}
+      promptLabel="Copy Devtools prompt"
+    >
+      <LandingSection tone="raised">
+        <LandingSectionIntro
+          centered
+          eyebrow="The shell is infrastructure"
+          icon={<AppWindowIcon aria-hidden="true" size={15} />}
+          title="Stop rebuilding everything around the useful panel."
+          body="The trigger, tabs, window management, settings, persistence, hotkeys, source bridge, and transport are shared. Each library or product team can focus on the runtime truth it wants to expose."
+        />
+        <ShellAnatomy />
+      </LandingSection>
+
+      <LandingSection tone="ink">
+        <div className="grid items-start gap-12 lg:grid-cols-[0.76fr_1.24fr] lg:gap-16">
+          <LandingSectionIntro
+            eyebrow="Custom plugins"
+            icon={<PuzzlePieceIcon aria-hidden="true" size={15} />}
+            title="Your product gets devtools too."
+            body="Register a panel beside TanStack inspectors and communicate through a typed event client. Events can stay local or travel between browser and server over WebSocket or SSE."
+          />
+          <PluginEventLab />
+        </div>
+      </LandingSection>
+
+      <LandingSection tone="accent">
+        <div className="grid items-center gap-12 lg:grid-cols-[1.12fr_0.88fr] lg:gap-16">
+          <ConsoleBridge />
+          <LandingSectionIntro
+            eyebrow="One debugging conversation"
+            icon={<TerminalIcon aria-hidden="true" size={15} />}
+            title="See client and server logs without changing windows."
+            body="The Vite integration can pipe browser logs into the terminal and server logs into the browser console, with enhanced source locations attached."
+          />
+        </div>
+      </LandingSection>
+
+      <LandingSection tone="raised">
+        <LandingSectionIntro
+          centered
+          eyebrow="Development only"
+          icon={<MagnifyingGlassIcon aria-hidden="true" size={15} />}
+          title="Click straight to source. Ship none of the shell."
+          body="Source injection connects elements and logs to their exact file and line during development. By default, the Vite plugin removes Devtools imports and matching JSX usage from production builds."
+        />
+        <SourceToBuild />
+      </LandingSection>
+    </LibraryLandingShell>
+  )
+}
+
+function DevtoolsCockpit() {
+  const [activeId, setActiveId] = React.useState<'query' | 'router' | 'jobs'>(
+    'query',
+  )
+  const [isInspecting, setIsInspecting] = React.useState(false)
+  const [source, setSource] = React.useState('src/routes/__root.tsx:42')
+  const active =
+    inspectorPanels.find((panel) => panel.id === activeId) ?? inspectorPanels[0]
+
+  const selectSource = (nextSource: string) => {
+    if (isInspecting) {
+      setSource(nextSource)
+    }
+  }
 
   return (
-    <LibraryPageContainer>
-      <LibraryHero
-        project={devtoolsProject}
-        cta={{
-          linkProps: {
-            to: '/$libraryId/$version/docs',
-            params: { libraryId: library.id, version },
-          },
-          label: 'Get Started',
-          className:
-            'bg-slate-500 border-slate-500 hover:bg-slate-600 text-white',
-        }}
-      />
-
-      <LibraryStatsSection library={library} />
-
-      <LibraryFeatureHighlights
-        featureHighlights={devtoolsProject.featureHighlights}
-      />
-
-      <div className="px-4 sm:px-6 lg:px-8 mx-auto container">
-        <div className="pb-8">
-          <h3 className="text-3xl font-bold">Unified Development Experience</h3>
-          <p className="mt-4 text-xl max-w-3xl leading-7 opacity-60">
-            TanStack Devtools brings together all your development tools in one
-            place, making debugging and development more efficient than ever
-            before.
-          </p>
+    <LandingWindow label="unified devtools">
+      <div className="grid min-h-[23rem] lg:grid-cols-[0.72fr_1.28fr]">
+        <div className="border-border-subtle bg-background-surface p-4 lg:border-r">
+          <div className="flex items-center justify-between gap-3">
+            <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-secondary">
+              your app
+            </p>
+            <button
+              type="button"
+              aria-pressed={isInspecting}
+              className="inline-flex items-center gap-1.5 rounded-md border border-border-strong px-2 py-1.5 font-ds-mono text-ds-mono-caps-xs uppercase text-text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
+              onClick={() => setIsInspecting((current) => !current)}
+            >
+              <MagnifyingGlassIcon aria-hidden="true" size={12} /> Inspect
+            </button>
+          </div>
+          <div className="mt-4 overflow-hidden rounded-lg border border-border-default bg-background-subtle">
+            <button
+              type="button"
+              className={
+                isInspecting
+                  ? 'block w-full border-b border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.13)] px-3 py-3 text-left text-ds-label-sm text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--landing-accent-bright)]'
+                  : 'block w-full border-b border-border-default px-3 py-3 text-left text-ds-label-sm text-text-primary'
+              }
+              onClick={() => selectSource('src/components/AppHeader.tsx:18')}
+            >
+              Product workspace
+            </button>
+            <div className="grid gap-2 p-3">
+              {[
+                ['Activity feed', 'src/features/activity/Feed.tsx:27'],
+                ['Project summary', 'src/features/projects/Summary.tsx:14'],
+                ['Queue status', 'src/features/jobs/QueueStatus.tsx:51'],
+              ].map(([label, nextSource]) => (
+                <button
+                  key={label}
+                  type="button"
+                  className={
+                    isInspecting
+                      ? 'rounded-lg border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.08)] px-3 py-3 text-left text-ds-body-xs text-text-primary/70 hover:bg-[color:rgb(var(--landing-glow)/0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]'
+                      : 'rounded-lg border border-border-default bg-background-surface px-3 py-3 text-left text-ds-body-xs text-text-secondary'
+                  }
+                  onClick={() => selectSource(nextSource)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div
+            className="mt-3 min-w-0 rounded-lg bg-background-inverse px-3 py-2 font-ds-mono text-ds-mono-xs text-background-subtle"
+            aria-live="polite"
+          >
+            <span className="block truncate">{source}</span>
+          </div>
         </div>
-        <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-4 w-max mx-auto">
-          {[
-            'Centralized Panel',
-            'Framework Agnostic',
-            'Custom Devtools',
-            'Lightweight',
-            'Solid.js Powered',
-            'Extensible API',
-            'Type Safe',
-            'Plugin System',
-            'Real-time Updates',
-          ].map((d, i) => (
-            <span key={i} className="flex items-center gap-2">
-              <CheckCircleIcon className="text-green-500" /> {d}
-            </span>
-          ))}
+
+        <div className="min-w-0 bg-background-default p-4">
+          <div
+            className="flex gap-2 overflow-x-auto"
+            role="group"
+            aria-label="Devtools panel"
+          >
+            {inspectorPanels.map((panel) => (
+              <button
+                key={panel.id}
+                type="button"
+                aria-pressed={activeId === panel.id}
+                className="shrink-0 rounded-lg border border-border-default bg-background-subtle px-3 py-2 text-ds-label-sm text-text-secondary hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary aria-pressed:bg-text-primary aria-pressed:text-background-default"
+                onClick={() => setActiveId(panel.id)}
+              >
+                {panel.label}
+              </button>
+            ))}
+          </div>
+          <div aria-live="polite" className="mt-4">
+            <div className="grid grid-cols-3 gap-2">
+              {active.stats.map(([label, value]) => (
+                <div
+                  key={label}
+                  className="rounded-lg bg-background-subtle p-3"
+                >
+                  <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-secondary">
+                    {label}
+                  </p>
+                  <p className="mt-2 text-ds-heading-4 text-text-primary">
+                    {value}
+                  </p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-3 space-y-2">
+              {active.rows.map((row, index) => (
+                <div
+                  key={row}
+                  className="flex items-center justify-between gap-3 rounded-lg border border-border-default bg-background-surface px-3 py-2.5"
+                >
+                  <span className="truncate font-ds-mono text-ds-mono-2xs text-text-secondary">
+                    {row}
+                  </span>
+                  <span
+                    className={
+                      index === 0
+                        ? 'size-2 rounded-full bg-status-success'
+                        : 'size-2 rounded-full bg-icon-muted'
+                    }
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
+    </LandingWindow>
+  )
+}
 
-      <LazyLandingCommunitySection
-        libraryId="devtools"
-        libraryName="TanStack Devtools"
-        showShowcases={false}
-      />
-      <LazySponsorSection />
-      <LandingPageGad />
+function ShellAnatomy() {
+  return (
+    <div className="mx-auto mt-14 max-w-[72rem]">
+      <div className="relative grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {shellParts.map((part, index) => {
+          const Icon = part.icon
+          return (
+            <div
+              key={part.label}
+              className="relative rounded-xl border border-border-subtle bg-background-surface p-5"
+            >
+              <div className="flex items-center justify-between gap-4">
+                <span className="flex size-10 items-center justify-center rounded-lg bg-[var(--landing-accent)] text-[var(--landing-accent-ink)]">
+                  <Icon aria-hidden="true" size={19} />
+                </span>
+                <span className="font-ds-mono text-ds-mono-2xs text-text-primary/20">
+                  0{index + 1}
+                </span>
+              </div>
+              <h3 className="mt-5 text-ds-heading-4">{part.label}</h3>
+              <p className="mt-3 text-ds-body-xs text-text-primary/35">
+                {part.detail}
+              </p>
+            </div>
+          )
+        })}
+      </div>
+      <div className="mx-auto mt-4 flex max-w-[34rem] items-center justify-center rounded-full border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.16)] px-5 py-3 font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
+        one cohesive development surface
+      </div>
+    </div>
+  )
+}
 
-      <BottomCTA
-        linkProps={{
-          to: '/$libraryId/$version/docs',
-          params: { libraryId: library.id, version },
-        }}
-        label="Get Started!"
-        className="bg-slate-500 border-slate-500 hover:bg-slate-600 hover:border-slate-600 text-white"
-      />
-      <Footer />
-    </LibraryPageContainer>
+function PluginEventLab() {
+  const [eventCount, setEventCount] = React.useState(2)
+  const events = Array.from({ length: eventCount }, (_, index) => ({
+    id: eventCount - index,
+    label:
+      index === 0
+        ? 'jobs:progress'
+        : index === 1
+          ? 'jobs:started'
+          : 'jobs:queued',
+  })).slice(0, 4)
+
+  return (
+    <LandingWindow label="custom jobs plugin">
+      <div className="grid lg:grid-cols-[1.05fr_0.95fr]">
+        <div className="min-w-0 border-border-subtle p-5 lg:border-r">
+          <pre className="overflow-x-auto rounded-lg bg-background-inverse p-4">
+            <code className="font-ds-mono text-ds-mono-xs text-text-inverse/60">
+              {
+                "type JobEvents = {\n  progress: { jobId: string; percent: number }\n}\nclass JobsClient extends EventClient<JobEvents> {\n  constructor() { super({ pluginId: 'jobs' }) }\n}\nconst jobs = new JobsClient()"
+              }
+            </code>
+          </pre>
+          <div className="mt-4 rounded-lg border border-border-subtle bg-background-subtle p-4">
+            <p className="text-ds-label-md text-text-primary">
+              Background Jobs
+            </p>
+            <p className="mt-2 text-ds-body-xs text-text-primary/35">
+              A product-owned panel registered beside library inspectors.
+            </p>
+          </div>
+        </div>
+        <div className="min-w-0 p-5">
+          <div className="flex items-center justify-between gap-3">
+            <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+              typed event stream
+            </p>
+            <span className="inline-flex items-center gap-2 font-ds-mono text-ds-mono-2xs text-text-success">
+              <span className="size-1.5 rounded-full bg-status-success motion-safe:animate-pulse" />{' '}
+              connected
+            </span>
+          </div>
+          <div className="mt-4 space-y-2" aria-live="polite">
+            {events.map((event) => (
+              <div
+                key={event.id}
+                className="rounded-lg border border-border-subtle bg-background-subtle px-3 py-3"
+              >
+                <p className="font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
+                  {event.label}
+                </p>
+                <p className="mt-1 text-ds-body-xs text-text-primary/30">
+                  sync-catalog · {event.id * 12}%
+                </p>
+              </div>
+            ))}
+          </div>
+          <button
+            type="button"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[var(--landing-accent)] px-3 py-2 text-ds-label-sm text-[var(--landing-accent-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            onClick={() => setEventCount((current) => current + 1)}
+          >
+            <PlugIcon aria-hidden="true" size={15} /> Emit server event
+          </button>
+        </div>
+      </div>
+    </LandingWindow>
+  )
+}
+
+function ConsoleBridge() {
+  const [direction, setDirection] = React.useState<'browser' | 'server'>(
+    'browser',
+  )
+  const browserActive = direction === 'browser'
+
+  return (
+    <LandingWindow label="console piping">
+      <div className="grid gap-3 p-5 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
+        <ConsolePane
+          active={browserActive}
+          label="browser console"
+          lines={['[ui] route mounted', '[query] cache updated']}
+        />
+        <button
+          type="button"
+          className="mx-auto flex size-10 items-center justify-center rounded-full border border-[var(--landing-accent)] text-[var(--landing-accent-bright)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary"
+          aria-label="Reverse console piping direction"
+          onClick={() =>
+            setDirection((current) =>
+              current === 'browser' ? 'server' : 'browser',
+            )
+          }
+        >
+          <ArrowRightIcon
+            aria-hidden="true"
+            className={browserActive ? '' : 'rotate-180'}
+            size={18}
+          />
+        </button>
+        <ConsolePane
+          active={!browserActive}
+          label="server terminal"
+          lines={['[loader] project:42', '[api] 200 /projects/42']}
+        />
+      </div>
+      <div
+        className="border-t border-border-subtle px-5 py-4 text-center text-ds-body-xs text-text-primary/35"
+        aria-live="polite"
+      >
+        {browserActive
+          ? 'Browser output is visible in the terminal.'
+          : 'Server output is visible in the browser console.'}
+      </div>
+    </LandingWindow>
+  )
+}
+
+function ConsolePane({
+  active,
+  label,
+  lines,
+}: {
+  active: boolean
+  label: string
+  lines: readonly string[]
+}) {
+  return (
+    <div
+      className={
+        active
+          ? 'rounded-xl border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.12)] p-4'
+          : 'rounded-xl border border-border-subtle bg-background-subtle p-4'
+      }
+    >
+      <div className="flex items-center gap-2">
+        <TerminalIcon
+          aria-hidden="true"
+          className={
+            active
+              ? 'text-[var(--landing-accent-bright)]'
+              : 'text-text-primary/25'
+          }
+          size={16}
+        />
+        <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/35">
+          {label}
+        </p>
+      </div>
+      <div className="mt-4 space-y-2">
+        {lines.map((line) => (
+          <p
+            key={line}
+            className="font-ds-mono text-ds-mono-2xs text-text-primary/55"
+          >
+            {line}
+          </p>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function SourceToBuild() {
+  return (
+    <div className="mx-auto mt-14 grid max-w-[72rem] gap-5 lg:grid-cols-2">
+      <div className="rounded-xl border border-border-default bg-background-surface p-6 md:p-8">
+        <LandingEyebrow icon={<EyeIcon aria-hidden="true" size={14} />}>
+          development
+        </LandingEyebrow>
+        <div className="mt-7 rounded-lg border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.12)] p-5">
+          <p className="text-ds-heading-4">Project summary</p>
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded bg-background-inverse px-3 py-2 font-ds-mono text-ds-mono-xs text-text-inverse">
+            <span>Summary.tsx:14</span>
+            <ArrowSquareOutIcon aria-hidden="true" size={15} />
+          </div>
+        </div>
+        <p className="mt-5 text-ds-body-xs text-text-primary/35">
+          Hold the inspector hotkey, click an element, and open its exact source
+          location.
+        </p>
+      </div>
+
+      <div className="rounded-xl border border-border-default bg-background-surface p-6 md:p-8">
+        <LandingEyebrow icon={<GaugeIcon aria-hidden="true" size={14} />}>
+          production build
+        </LandingEyebrow>
+        <div className="mt-7 space-y-3 font-ds-mono text-ds-mono-2xs">
+          <BuildLine label="Devtools component imports" />
+          <BuildLine label="<TanStackDevtools /> JSX" />
+          <BuildLine label="plugin-only imports" />
+        </div>
+        <div className="mt-5 rounded-lg bg-status-success-bg px-4 py-3 text-center font-ds-mono text-ds-mono-caps-xs uppercase text-text-success">
+          imports + JSX removed
+        </div>
+        <p className="mt-5 text-ds-body-xs text-text-primary/35">
+          The Vite plugin enables removeDevtoolsOnBuild by default.
+        </p>
+      </div>
+    </div>
+  )
+}
+
+function BuildLine({ label }: { label: string }) {
+  return (
+    <div className="flex items-center justify-between gap-4 rounded-lg border border-border-subtle bg-background-subtle px-3 py-3">
+      <span className="truncate text-text-primary/45">{label}</span>
+      <span className="shrink-0 text-text-success">removed</span>
+    </div>
   )
 }

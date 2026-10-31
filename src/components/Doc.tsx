@@ -1,7 +1,10 @@
 import * as React from 'react'
-import { FoldHorizontal, UnfoldHorizontal } from 'lucide-react'
+import {
+  ArrowsInLineHorizontalIcon,
+  ArrowsOutLineHorizontalIcon,
+} from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
-import { DocNavigation, WidthToggleContext } from '~/components/DocsLayout'
+import { DocNavigation, WidthToggleContext } from '~/components/LibraryLayout'
 
 import { Toc } from './Toc'
 import { DocBreadcrumb } from './DocBreadcrumb'
@@ -9,12 +12,16 @@ import { MarkdownContent } from '~/components/markdown'
 import type { ConfigSchema } from '~/utils/config'
 import { useLocalCurrentFramework } from './FrameworkSelect'
 import { useParams } from '@tanstack/react-router'
-import type { MarkdownHeading } from '~/utils/markdown/processor.rsc'
+import { parseSiteMarkdown } from '~/utils/markdown'
+import { useStartHostingPartners } from './StartHostingPartners'
+import {
+  isStartHostingGuide,
+  renderDynamicStartHostingGuide,
+} from '~/utils/start-hosting-guide'
 
 type DocProps = {
   title: string
-  contentRsc: React.ReactNode
-  headings: Array<MarkdownHeading>
+  content: string
   repo: string
   branch: string
   filePath: string
@@ -36,8 +43,7 @@ type DocProps = {
 
 export function Doc({
   title,
-  contentRsc,
-  headings,
+  content,
   repo,
   branch,
   filePath,
@@ -52,6 +58,23 @@ export function Doc({
   footer,
   framework: frameworkProp,
 }: DocProps) {
+  const { groups: startHostingPartnerGroups } = useStartHostingPartners()
+  const renderedContent = React.useMemo(() => {
+    if (!isStartHostingGuide({ filePath, libraryId })) {
+      return content
+    }
+
+    return renderDynamicStartHostingGuide(
+      content,
+      startHostingPartnerGroups.flatMap((group) => group.partners),
+    )
+  }, [content, filePath, libraryId, startHostingPartnerGroups])
+  const markdown = React.useMemo(
+    () => parseSiteMarkdown(renderedContent),
+    [renderedContent],
+  )
+  const headings = markdown.headings
+
   // Get current framework from prop, URL params, or local storage
   const { framework: paramsFramework } = useParams({ strict: false })
   const localCurrentFramework = useLocalCurrentFramework()
@@ -148,7 +171,7 @@ export function Doc({
             repo={repo}
             branch={branch}
             filePath={filePath}
-            contentRsc={contentRsc}
+            markdown={markdown}
             containerRef={markdownContainerRef}
             libraryId={libraryId}
             libraryVersion={libraryVersion}
@@ -163,15 +186,16 @@ export function Doc({
                   title={isFullWidth ? 'Constrain width' : 'Expand width'}
                 >
                   {isFullWidth ? (
-                    <FoldHorizontal className="w-4 h-4" />
+                    <ArrowsInLineHorizontalIcon className="w-4 h-4" />
                   ) : (
-                    <UnfoldHorizontal className="w-4 h-4" />
+                    <ArrowsOutLineHorizontalIcon className="w-4 h-4" />
                   )}
                 </button>
               ) : null
             }
           />
           {footer ?? <DocNavigation />}
+          <div className="h-4" />
         </div>
 
         {isTocVisible && (

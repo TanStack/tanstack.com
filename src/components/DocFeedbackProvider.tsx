@@ -13,7 +13,7 @@ import {
   getBlockIdentifier,
 } from '~/utils/docFeedback'
 import type { DocFeedback } from '~/db/types'
-import { Lightbulb, MessageSquare } from 'lucide-react'
+import { LightbulbIcon, ChatCenteredIcon } from '@phosphor-icons/react'
 
 interface DocFeedbackProviderProps {
   children: React.ReactNode
@@ -401,8 +401,7 @@ function BlockButton({
   if (!portalContainer) {
     portalContainer = document.createElement('div')
     portalContainer.setAttribute('data-button-portal', blockId)
-    portalContainer.className =
-      'absolute top-0 right-0 -translate-y-full z-[100]'
+    portalContainer.className = 'absolute top-0 right-0 -translate-y-full z-20'
     portalContainer.style.position = 'absolute'
 
     // Make the block relatively positioned if not already
@@ -584,7 +583,7 @@ function CreatingFeedbackNote({
 
   // Theme based on type
   const isImprovement = type === 'improvement'
-  const Icon = isImprovement ? Lightbulb : MessageSquare
+  const Icon = isImprovement ? LightbulbIcon : ChatCenteredIcon
 
   const colors = isImprovement
     ? {
@@ -728,7 +727,7 @@ function CreatingFeedbackNote({
             <React.Suspense
               fallback={<div className={`${colors.icon} text-xs`}>...</div>}
             >
-              <Icon className={`${colors.icon} text-xs flex-shrink-0`} />
+              <Icon className={`${colors.icon} text-xs shrink-0`} />
             </React.Suspense>
             <span className={`text-xs font-medium ${colors.text}`}>
               {isImprovement ? 'New Improvement' : 'New Note'}

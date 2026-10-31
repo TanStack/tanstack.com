@@ -2,6 +2,7 @@
 title: Why TanStack Start is Ditching Adapters
 published: 2024-11-22
 excerpt: Every cloud environment has its own quirky incantations to get things working. We're dropping custom adapters in TanStack Start and building on Nitro instead — here's why.
+library: start
 authors:
   - Tanner Linsley
 ---

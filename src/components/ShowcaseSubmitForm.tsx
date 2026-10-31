@@ -4,7 +4,7 @@ import { submitShowcase, updateShowcase } from '~/utils/showcase.functions'
 import { libraries } from '~/libraries'
 import {
   SHOWCASE_USE_CASES_UI,
-  type Showcase,
+  type PublicShowcase,
   type ShowcaseUseCase,
 } from '~/db/types'
 import {
@@ -12,7 +12,7 @@ import {
   USE_CASE_LABELS,
 } from '~/utils/showcase.shared'
 import { useToast } from './ToastProvider'
-import { Check, AlertCircle } from 'lucide-react'
+import { CheckIcon, WarningCircleIcon } from '@phosphor-icons/react'
 import { Button, FormInput } from '~/ui'
 import { ImageUpload } from './ImageUpload'
 import { FormEvent, useMemo, useState } from 'react'
@@ -20,11 +20,14 @@ import { FormEvent, useMemo, useState } from 'react'
 // Filter to only show libraries with proper configuration
 const selectableLibraries = libraries.filter(
   (lib) =>
-    lib.name && lib.id !== 'react-charts' && lib.id !== 'create-tsrouter-app',
+    lib.name &&
+    lib.visible !== false &&
+    lib.id !== 'react-charts' &&
+    lib.id !== 'create-tsrouter-app',
 )
 
 interface ShowcaseSubmitFormProps {
-  showcase?: Showcase
+  showcase?: PublicShowcase
 }
 
 export function ShowcaseSubmitForm({ showcase }: ShowcaseSubmitFormProps) {
@@ -66,7 +69,7 @@ export function ShowcaseSubmitForm({ showcase }: ShowcaseSubmitFormProps) {
         <div className="text-gray-500 dark:text-gray-400 text-xs">
           {isEditMode
             ? 'Your changes are pending review. Votes have been preserved.'
-            : "Your project is pending review. We'll notify you when it's approved."}
+            : 'Your project is pending review. You can check its status in your account.'}
         </div>
       </div>,
     )
@@ -193,7 +196,7 @@ export function ShowcaseSubmitForm({ showcase }: ShowcaseSubmitFormProps) {
         <p className="mt-2 text-gray-600 dark:text-gray-400">
           {isEditMode
             ? 'Update your showcase submission. Changes will require re-approval but votes will be preserved.'
-            : "Share what you've built with TanStack libraries. Your submission will be reviewed before appearing in the showcase."}
+            : 'Submit your project for the Community directory. The TanStack team selects Showcase projects for their adoption, craft, or technical depth. Submitting does not guarantee a listing.'}
         </p>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
@@ -361,7 +364,7 @@ export function ShowcaseSubmitForm({ showcase }: ShowcaseSubmitFormProps) {
                     } ${isAutoIncluded ? 'opacity-60 cursor-not-allowed' : ''}`}
                   >
                     {(isSelected || isAutoIncluded) && (
-                      <Check className="w-4 h-4 text-blue-600" />
+                      <CheckIcon className="w-4 h-4 text-blue-600" />
                     )}
                     <span className="text-sm font-medium text-gray-900 dark:text-white">
                       {lib.name?.replace('TanStack ', '')}
@@ -377,7 +380,7 @@ export function ShowcaseSubmitForm({ showcase }: ShowcaseSubmitFormProps) {
             </div>
             {selectedLibraries.length === 0 && (
               <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
-                <AlertCircle className="w-4 h-4" />
+                <WarningCircleIcon className="w-4 h-4" />
                 Select at least one library
               </p>
             )}

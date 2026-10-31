@@ -6,6 +6,7 @@
  */
 
 import type { OAuthProvider } from './types'
+import { openCenteredPopupWindow } from '~/utils/browser-effects'
 
 // ============================================================================
 // Auth Client
@@ -35,16 +36,22 @@ export const authClient = {
     /**
      * Initiate OAuth sign-in in a popup window (for modal-based login)
      */
-    socialPopup: ({ provider }: { provider: OAuthProvider }) => {
-      const width = 500
-      const height = 600
-      const left = window.screenX + (window.outerWidth - width) / 2
-      const top = window.screenY + (window.outerHeight - height) / 2
-      window.open(
-        `/auth/${provider}/start?popup=true`,
-        'tanstack-oauth',
-        `width=${width},height=${height},left=${left},top=${top},popup=yes`,
-      )
+    socialPopup: ({
+      provider,
+      popupChannel,
+    }: {
+      provider: OAuthProvider
+      popupChannel?: string
+    }) => {
+      const query = new URLSearchParams({ popup: 'true' })
+      if (popupChannel) query.set('popupChannel', popupChannel)
+      return openCenteredPopupWindow({
+        url: `/auth/${provider}/start?${query}`,
+        target: 'tanstack-oauth',
+        width: 500,
+        height: 600,
+        features: ['popup=yes'],
+      })
     },
   },
 
@@ -74,7 +81,7 @@ export function navigateToSignIn(
     window.location.href = url
   } else {
     const url = returnTo
-      ? `/login?returnTo=${encodeURIComponent(returnTo)}`
+      ? `/login?redirect=${encodeURIComponent(returnTo)}`
       : '/login'
     window.location.href = url
   }

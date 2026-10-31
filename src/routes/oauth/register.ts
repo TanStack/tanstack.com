@@ -1,5 +1,53 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { setResponseHeader } from '@tanstack/react-start/server'
+import {
+  isRecord,
+  jsonResponse,
+  readJsonBody,
+  validateJsonRequest,
+} from '~/utils/api-boundary.server'
+import {
+  createRegisteredClientId,
+  validateRedirectUri,
+} from '~/auth/oauthClient.server'
+
+const MAX_OAUTH_REGISTRATION_BYTES = 16 * 1024
+const MAX_OAUTH_REDIRECT_URIS = 10
+const MAX_OAUTH_REDIRECT_URI_TOTAL_LENGTH = 4096
+
+function oauthRegistrationError(
+  error: string,
+  errorDescription: string,
+  status: number,
+) {
+  return jsonResponse(
+    {
+      error,
+      error_description: errorDescription,
+    },
+    { status },
+  )
+}
+
+function readClientName(body: Record<string, unknown>) {
+  const clientName = body.client_name
+  if (typeof clientName !== 'string') {
+    return 'OAuth Client'
+  }
+
+  return clientName.trim().slice(0, 100) || 'OAuth Client'
+}
+
+function readRedirectUris(body: Record<string, unknown>) {
+  const redirectUris = body.redirect_uris
+  if (!Array.isArray(redirectUris)) {
+    return []
+  }
+
+  return redirectUris
+    .filter((uri) => typeof uri === 'string' && uri.length <= 2_048)
+    .map((uri) => uri.trim())
+}
 
 /**
  * OAuth 2.0 Dynamic Client Registration (RFC 7591)
@@ -26,67 +74,78 @@ export const Route = createFileRoute('/oauth/register')({
         )
 
         try {
-          const body = await request.json()
+          const guardError = validateJsonRequest(request, {
+            maxContentLength: MAX_OAUTH_REGISTRATION_BYTES,
+            requireSameOrigin: false,
+          })
+          if (guardError) {
+            return oauthRegistrationError(
+              'invalid_client_metadata',
+              guardError.message,
+              guardError.status,
+            )
+          }
+
+          const bodyResult = await readJsonBody(request, {
+            maxContentLength: MAX_OAUTH_REGISTRATION_BYTES,
+          })
+          if (!bodyResult.success || !isRecord(bodyResult.body)) {
+            return oauthRegistrationError(
+              'invalid_client_metadata',
+              'Could not parse client metadata',
+              400,
+            )
+          }
 
           // Extract client metadata from request
-          const clientName = body.client_name || 'OAuth Client'
-          const redirectUris = body.redirect_uris || []
+          const clientName = readClientName(bodyResult.body)
+          const redirectUris = readRedirectUris(bodyResult.body)
+
+          if (
+            redirectUris.length === 0 ||
+            redirectUris.length > MAX_OAUTH_REDIRECT_URIS ||
+            redirectUris.join('').length > MAX_OAUTH_REDIRECT_URI_TOTAL_LENGTH
+          ) {
+            return oauthRegistrationError(
+              'invalid_redirect_uri',
+              `Provide 1-${MAX_OAUTH_REDIRECT_URIS} redirect URIs`,
+              400,
+            )
+          }
 
           // Validate redirect URIs
           for (const uri of redirectUris) {
-            try {
-              const url = new URL(uri)
-              const isLocalhost =
-                url.hostname === 'localhost' ||
-                url.hostname === '127.0.0.1' ||
-                url.hostname === '[::1]'
-              const isHttps = url.protocol === 'https:'
-
-              if (!isLocalhost && !isHttps) {
-                return new Response(
-                  JSON.stringify({
-                    error: 'invalid_redirect_uri',
-                    error_description:
-                      'Redirect URIs must be localhost or HTTPS',
-                  }),
-                  { status: 400 },
-                )
-              }
-            } catch {
-              return new Response(
-                JSON.stringify({
-                  error: 'invalid_redirect_uri',
-                  error_description: 'Invalid redirect URI format',
-                }),
-                { status: 400 },
+            if (!validateRedirectUri(uri)) {
+              return oauthRegistrationError(
+                'invalid_redirect_uri',
+                'Redirect URIs must be localhost HTTP(S) or HTTPS',
+                400,
               )
             }
           }
 
-          // Generate a client ID based on the client name
-          // For public clients with PKCE, we don't need to store these
-          // The client_id is deterministic based on client_name for consistency
-          const clientId = generateClientId(clientName)
+          const clientId = await createRegisteredClientId({
+            clientName,
+            redirectUris,
+          })
 
           // Return the client registration response per RFC 7591
-          return new Response(
-            JSON.stringify({
+          return jsonResponse(
+            {
               client_id: clientId,
               client_name: clientName,
               redirect_uris: redirectUris,
               token_endpoint_auth_method: 'none',
               grant_types: ['authorization_code', 'refresh_token'],
               response_types: ['code'],
-            }),
+            },
             { status: 201 },
           )
         } catch {
-          return new Response(
-            JSON.stringify({
-              error: 'invalid_client_metadata',
-              error_description: 'Could not parse client metadata',
-            }),
-            { status: 400 },
+          return oauthRegistrationError(
+            'invalid_client_metadata',
+            'Could not parse client metadata',
+            400,
           )
         }
       },
@@ -104,24 +163,3 @@ export const Route = createFileRoute('/oauth/register')({
     },
   },
 })
-
-/**
- * Generate a deterministic client ID from the client name.
- * Since we use PKCE for all clients, we don't need to store client registrations.
- * The client_id just needs to be consistent for the same client_name.
- */
-function generateClientId(clientName: string): string {
-  // Create a simple hash-based ID from the client name
-  // This ensures the same client always gets the same ID
-  let hash = 0
-  for (let i = 0; i < clientName.length; i++) {
-    const char = clientName.charCodeAt(i)
-    hash = (hash << 5) - hash + char
-    hash = hash & hash // Convert to 32bit integer
-  }
-  const hashStr = Math.abs(hash).toString(16).padStart(8, '0')
-  return `ts-${hashStr}-${clientName
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, '-')
-    .slice(0, 20)}`
-}

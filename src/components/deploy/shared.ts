@@ -4,7 +4,7 @@
  * Common types, constants, and validation for deploy dialogs.
  */
 
-export type DeployProvider = 'cloudflare' | 'netlify' | 'railway'
+export type DeployProvider = 'cloudflare' | 'netlify' | 'railway' | 'render'
 
 export type DeployState =
   | { step: 'auth-check' }
@@ -31,20 +31,51 @@ export const PROVIDER_INFO: Record<DeployProvider, ProviderInfo> = {
   cloudflare: {
     name: 'Cloudflare',
     color: '#F38020',
-    deployUrl: (owner, repo) =>
-      `https://deploy.workers.cloudflare.com/?url=https://github.com/${owner}/${repo}`,
+    deployUrl: (owner, repo) => {
+      const url = new URL('https://deploy.workers.cloudflare.com/')
+
+      url.searchParams.set('url', `https://github.com/${owner}/${repo}`)
+
+      return url.toString()
+    },
   },
   netlify: {
     name: 'Netlify',
     color: '#00C7B7',
-    deployUrl: (owner, repo) =>
-      `https://app.netlify.com/start/deploy?repository=https://github.com/${owner}/${repo}`,
+    deployUrl: (owner, repo) => {
+      const url = new URL('https://app.netlify.com/start/deploy')
+
+      url.searchParams.set('repository', `https://github.com/${owner}/${repo}`)
+
+      return url.toString()
+    },
   },
   railway: {
     name: 'Railway',
     color: '#9B4DCA',
-    deployUrl: () =>
-      `https://railway.com/new/github?utm_medium=sponsor&utm_source=oss&utm_campaign=tanstack`,
+    deployUrl: () => {
+      const url = new URL('https://railway.com/new/github')
+
+      url.searchParams.set('utm_medium', 'sponsor')
+      url.searchParams.set('utm_source', 'oss')
+      url.searchParams.set('utm_campaign', 'tanstack')
+
+      return url.toString()
+    },
+  },
+  render: {
+    name: 'Render',
+    color: '#46E3B7',
+    deployUrl: (owner, repo) => {
+      const url = new URL('https://render.com/tanstack')
+
+      url.searchParams.set('repo', `https://github.com/${owner}/${repo}`)
+      url.searchParams.set('utm_source', 'tanstack')
+      url.searchParams.set('utm_medium', 'referral')
+      url.searchParams.set('utm_campaign', 'gold-launch')
+
+      return url.toString()
+    },
   },
 }
 
@@ -52,7 +83,7 @@ export async function checkRepoNameAvailability(
   name: string,
 ): Promise<{ available: boolean }> {
   const response = await fetch(
-    `/api/builder/deploy/check-name?name=${encodeURIComponent(name)}`,
+    `/api/application-starter/deploy/check-name?name=${encodeURIComponent(name)}`,
   )
   return response.json()
 }

@@ -1,3 +1,4 @@
+import { env } from '~/utils/env'
 import { createServerFn } from '@tanstack/react-start'
 import { setResponseHeaders } from '@tanstack/react-start/server'
 import { extent, scaleLinear } from 'd3'
@@ -24,7 +25,7 @@ export type Sponsor = {
   createdAt: string
 }
 
-type DisplaySponsor = {
+export type OssSponsor = {
   linkUrl: string
   login: string
   imageUrl: string
@@ -32,9 +33,11 @@ type DisplaySponsor = {
   size: number
 }
 
-export const getSponsorsForSponsorPack = createServerFn({
+const sponsorMaintainerLogin = 'tannerlinsley'
+
+export const getOssSponsors = createServerFn({
   method: 'GET',
-}).handler(async (): Promise<Array<DisplaySponsor>> => {
+}).handler(async (): Promise<Array<OssSponsor>> => {
   const sponsors = await fetchCached({
     key: 'sponsors',
     ttl: 60 * 1000,
@@ -44,13 +47,18 @@ export const getSponsorsForSponsorPack = createServerFn({
   setResponseHeaders(
     new Headers({
       'Cache-Control': 'public, max-age=0, must-revalidate',
-      'Netlify-CDN-Cache-Control':
-        'public, max-age=300, durable, stale-while-revalidate=300',
+      'Cloudflare-CDN-Cache-Control':
+        'public, max-age=300, stale-while-revalidate=300',
     }),
   )
 
-  const amountExtent = extent(sponsors, (d) => d.amount) as [number, number]
-  const scale = scaleLinear().domain(amountExtent).range([0, 1])
+  const [minimumAmount = 0, maximumAmount = 0] = extent(
+    sponsors,
+    (sponsor) => sponsor.amount,
+  )
+  const scale = scaleLinear()
+    .domain([minimumAmount, maximumAmount])
+    .range([0, 1])
 
   return sponsors
     .filter((d) => !d.private)
@@ -101,14 +109,45 @@ async function getSponsors() {
 }
 
 async function getGithubSponsors() {
+  if (
+    !env.GITHUB_AUTH_TOKEN ||
+    env.GITHUB_AUTH_TOKEN === 'USE_A_REAL_KEY_IN_PRODUCTION'
+  )
+    return []
   let sponsors: Array<Sponsor> = []
 
   try {
     const fetchPage = async (cursor = '') => {
-      const res = await graphqlWithAuth(
+      type SponsorshipEdge = {
+        node: {
+          sponsorEntity: {
+            avatarUrl: string
+            login: string
+            name?: string | null
+            url: string
+          } | null
+          tier: {
+            monthlyPriceInDollars: number
+          } | null
+        }
+      }
+
+      type GraphQLResponse = {
+        user: {
+          sponsorshipsAsMaintainer: {
+            pageInfo: {
+              hasNextPage: boolean
+              endCursor: string
+            }
+            edges: Array<SponsorshipEdge>
+          }
+        } | null
+      }
+
+      const res = await graphqlWithAuth<GraphQLResponse>(
         `
-      query ($cursor: String) {
-        viewer {
+      query ($cursor: String, $login: String!) {
+        user(login: $login) {
           sponsorshipsAsMaintainer(first: 100, after: $cursor, includePrivate: false) {
             pageInfo {
               hasNextPage
@@ -117,15 +156,13 @@ async function getGithubSponsors() {
             edges {
               node {
                 sponsorEntity {
-                  ... on User {
+                  ... on Actor {
                     avatarUrl
-                    name
                     login
+                    url
                   }
-                  ... on Organization {
-                    avatarUrl
+                  ... on User {
                     name
-                    login
                   }
                 }
                 tier {
@@ -139,42 +176,20 @@ async function getGithubSponsors() {
       `,
         {
           cursor,
+          login: sponsorMaintainerLogin,
         },
       )
 
-      type SponsorshipEdge = {
-        node: {
-          sponsorEntity: {
-            avatarUrl: string
-            name: string
-            login: string
-          } | null
-          tier: {
-            monthlyPriceInDollars: number
-          } | null
-        }
-      }
+      const sponsorships = res.user?.sponsorshipsAsMaintainer
 
-      type GraphQLResponse = {
-        viewer: {
-          sponsorshipsAsMaintainer: {
-            pageInfo: {
-              hasNextPage: boolean
-              endCursor: string
-            }
-            edges: Array<SponsorshipEdge>
-          }
-        }
+      if (!sponsorships) {
+        return
       }
 
       const {
-        viewer: {
-          sponsorshipsAsMaintainer: {
-            pageInfo: { hasNextPage, endCursor },
-            edges,
-          },
-        },
-      } = res as GraphQLResponse
+        pageInfo: { hasNextPage, endCursor },
+        edges,
+      } = sponsorships
 
       const mapped = edges
         .map((edge) => {
@@ -189,13 +204,13 @@ async function getGithubSponsors() {
           const { avatarUrl, name, login } = sponsorEntity
 
           return {
-            name,
+            name: name || login,
             login,
             amount: tier?.monthlyPriceInDollars || 0,
             createdAt: '',
             private: false,
             imageUrl: avatarUrl,
-            linkUrl: '',
+            linkUrl: sponsorEntity.url,
           }
         })
         .filter((d): d is Sponsor => d !== null)
@@ -212,28 +227,8 @@ async function getGithubSponsors() {
     const error = err as { status?: number }
 
     if (error.status === 401) {
-      console.error(
-        'Invalid or missing GitHub credentials, returning mock data.',
-      )
-      return [
-        'tannerlinsley',
-        'tkdodo',
-        'crutchcorn',
-        'kevinvandy',
-        'jherr',
-        'seancassiere',
-        'schiller-manuel',
-      ].flatMap((d) =>
-        new Array(20).fill(d).map((_, i2) => ({
-          login: d,
-          name: d,
-          amount: (20 - i2) / 20 + Math.random(),
-          createdAt: new Date().toISOString(),
-          private: false,
-          linkUrl: `https://github.com/${d}`,
-          imageUrl: `https://github.com/${d}.png`,
-        })),
-      )
+      console.error('GitHub sponsor credentials were rejected.')
+      return []
     }
 
     if (error.status === 403) {

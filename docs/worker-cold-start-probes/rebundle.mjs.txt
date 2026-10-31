@@ -1,0 +1,11 @@
+import { createRequire } from 'node:module'
+import {mkdir,readFile,writeFile,copyFile} from 'node:fs/promises'
+import path from 'node:path'
+const require=createRequire(process.cwd()+'/package.json')
+const {build}=require('esbuild')
+const out='/tmp/docs-cold-monolith'
+await mkdir(out,{recursive:true})
+const result=await build({entryPoints:[path.resolve('dist/server/index.js')],outfile:out+'/app.js',bundle:true,format:'esm',platform:'node',ignoreAnnotations:true,treeShaking:false,logLevel:'silent',target:'es2022',minify:true,metafile:true,external:['cloudflare:workers','node:*'],plugins:[{name:'preserve-cloudflare-wasm',setup(build){build.onResolve({filter:/\.wasm$/},async args=>{const source=path.resolve(args.resolveDir,args.path);const basename=path.basename(source);await copyFile(source,out+'/'+basename);return {path:'./'+basename,external:true}})}}]})
+await writeFile(out+'/metafile.json',JSON.stringify(result.metafile))
+let probe=await readFile('dist/server/cold-probe-full.js','utf8');probe=probe.replace("import app from './index.js'","import app from './app.js'");await writeFile(out+'/index.js',probe)
+const cfg=JSON.parse(await readFile('dist/server/cold-probe-full.wrangler.json','utf8'));cfg.name='tanstack-cold-probe-monolith';cfg.main='index.js';cfg.find_additional_modules=true;cfg.assets.directory=path.resolve('dist/client');await writeFile(out+'/wrangler.json',JSON.stringify(cfg));console.log(JSON.stringify({outputs:Object.entries(result.metafile.outputs).map(([name,value])=>({name,bytes:value.bytes})),inputModules:Object.keys(result.metafile.inputs).length}))

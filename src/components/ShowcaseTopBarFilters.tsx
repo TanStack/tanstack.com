@@ -26,7 +26,7 @@ interface ShowcaseTopBarFiltersProps {
 }
 
 const LIBRARY_OPTIONS = libraries
-  .filter((lib) => lib.name)
+  .filter((lib) => lib.name && lib.visible !== false)
   .slice(0, 10)
   .map((lib) => ({
     id: lib.id,

@@ -7,10 +7,10 @@
  */
 
 // Re-export shared types from db/types.ts (single source of truth)
-export type { Capability, OAuthProvider } from '~/db/types'
+export type { Capability, OAuthProvider, SignupSource } from '~/db/types'
 export { CAPABILITIES as VALID_CAPABILITIES } from '~/db/types'
 
-import type { Capability, OAuthProvider } from '~/db/types'
+import type { Capability, OAuthProvider, SignupSource } from '~/db/types'
 
 export interface OAuthProfile {
   id: string
@@ -52,6 +52,7 @@ export interface AuthUser {
   adsDisabled: boolean | null
   interestedInHidingAds: boolean | null
   lastUsedFramework: string | null
+  signupSources: SignupSource[]
 }
 
 /**
@@ -68,6 +69,7 @@ export interface DbUser {
   adsDisabled: boolean | null
   interestedInHidingAds: boolean | null
   lastUsedFramework: string | null
+  signupSources: SignupSource[]
   sessionVersion: number
   createdAt: Date
   updatedAt: Date
@@ -91,6 +93,7 @@ export interface IUserRepository {
     oauthImage?: string
     displayUsername?: string
     capabilities?: Capability[]
+    signupSources?: SignupSource[]
   }): Promise<DbUser>
   update(
     userId: string,
@@ -104,6 +107,7 @@ export interface IUserRepository {
       adsDisabled: boolean
       interestedInHidingAds: boolean
       lastUsedFramework: string
+      signupSources: SignupSource[]
       sessionVersion: number
       updatedAt: Date
     }>,

@@ -7,7 +7,7 @@ import {
   intentPackageChangelogQueryOptions,
 } from '~/queries/intent'
 import type { ChangelogEntry } from '~/utils/intent.functions'
-import { Collapsible, CollapsibleContent } from '~/components/Collapsible'
+import { Panel, PanelContent } from '~/components/Panel'
 const LazySkillDiffViewer = React.lazy(() =>
   import('~/components/intent/SkillDiffViewer').then((m) => ({
     default: m.SkillDiffViewer,
@@ -501,8 +501,8 @@ function ChangelogView({
               </button>
 
               {entry.diff && hasChanges && (
-                <Collapsible open={isExpanded}>
-                  <CollapsibleContent>
+                <Panel open={isExpanded}>
+                  <PanelContent>
                     <div className="mt-2 ml-1 space-y-1">
                       {entry.diff.added.map((skill) => (
                         <ChangelogSkillRow
@@ -544,8 +544,8 @@ function ChangelogView({
                         />
                       ))}
                     </div>
-                  </CollapsibleContent>
-                </Collapsible>
+                  </PanelContent>
+                </Panel>
               )}
             </div>
           )
@@ -645,8 +645,8 @@ function ChangelogSkillRow({
         </span>
       </div>
       {diffVersions && (
-        <Collapsible open={showDiff}>
-          <CollapsibleContent>
+        <Panel open={showDiff}>
+          <PanelContent>
             <div className="px-3 pb-2">
               <React.Suspense
                 fallback={
@@ -661,8 +661,8 @@ function ChangelogSkillRow({
                 />
               </React.Suspense>
             </div>
-          </CollapsibleContent>
-        </Collapsible>
+          </PanelContent>
+        </Panel>
       )}
     </div>
   )

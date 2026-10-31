@@ -4,8 +4,11 @@ import {
   deleteIntentPackage as deleteIntentPackageServer,
   discoverViaGitHub as discoverViaGitHubServer,
   getIntentAdminStats as getIntentAdminStatsServer,
+  getIntentWorkflowHealth as getIntentWorkflowHealthServer,
   listFailedVersions as listFailedVersionsServer,
   listIntentPackages as listIntentPackagesServer,
+  listIntentWorkflowRuns as listIntentWorkflowRunsServer,
+  repairIntentWorkflowStore as repairIntentWorkflowStoreServer,
   resetFailedVersions as resetFailedVersionsServer,
   retryIntentVersion as retryIntentVersionServer,
   seedIntentPackage as seedIntentPackageServer,
@@ -25,20 +28,28 @@ export const listFailedVersions = createServerFn({ method: 'GET' }).handler(
   async () => listFailedVersionsServer(),
 )
 
+export const listIntentWorkflowRuns = createServerFn({ method: 'GET' }).handler(
+  async () => listIntentWorkflowRunsServer(),
+)
+
+export const getIntentWorkflowHealth = createServerFn({
+  method: 'GET',
+}).handler(async () => getIntentWorkflowHealthServer())
+
+export const repairIntentWorkflowStore = createServerFn({
+  method: 'POST',
+}).handler(async () => repairIntentWorkflowStoreServer())
+
 export const triggerIntentDiscover = createServerFn({ method: 'POST' }).handler(
   async () => triggerIntentDiscoverServer(),
 )
 
-export const triggerIntentProcess = createServerFn({ method: 'POST' })
-  .inputValidator(
-    v.object({
-      limit: v.optional(v.number(), 10),
-    }),
-  )
-  .handler(async ({ data }) => triggerIntentProcessServer({ data }))
+export const triggerIntentProcess = createServerFn({ method: 'POST' }).handler(
+  async () => triggerIntentProcessServer(),
+)
 
 export const retryIntentVersion = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       versionId: v.number(),
     }),
@@ -46,7 +57,7 @@ export const retryIntentVersion = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => retryIntentVersionServer({ data }))
 
 export const deleteIntentPackage = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       name: v.string(),
     }),
@@ -58,7 +69,7 @@ export const resetFailedVersions = createServerFn({ method: 'POST' }).handler(
 )
 
 export const seedIntentPackage = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       name: v.string(),
     }),

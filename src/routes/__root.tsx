@@ -1,14 +1,24 @@
+import { getLiveRuntimeConfig } from '~/utils/analytics/live.functions'
+import {
+  resumeVisitorChat,
+  startLivePresence,
+} from '~/utils/analytics/live-browser'
 import * as React from 'react'
 import {
   createRootRouteWithContext,
-  redirect,
+  RouterContextProvider,
   useMatches,
+  useRouter,
   useRouterState,
   HeadContent,
   Scripts,
+  defaultStringifySearch,
 } from '@tanstack/react-router'
-import { QueryClient } from '@tanstack/react-query'
-import appCss from '~/styles/app.css?url'
+import { QueryClientProvider, type QueryClient } from '@tanstack/react-query'
+import { createThemeCss, type HighlightTheme } from '@tanstack/highlight/theme'
+import { auroraXTheme } from '@tanstack/highlight/themes/aurora-x'
+import { githubLightTheme } from '@tanstack/highlight/themes/github-light'
+import '~/styles/app.css'
 import {
   canonicalUrl,
   getCanonicalPath,
@@ -25,131 +35,279 @@ const LazyAppDevtools = import.meta.env.DEV
   : null
 import { NotFound } from '~/components/NotFound'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
-import { SearchProvider, useSearchContext } from '~/contexts/SearchContext'
+import { SearchProvider } from '~/contexts/SearchContext'
 import { ToastProvider } from '~/components/ToastProvider'
 import { LoginModalProvider } from '~/contexts/LoginModalContext'
+import { LibrariesOverlayProvider } from '~/contexts/LibrariesOverlayContext'
 
-const LazySearchModal = React.lazy(() =>
-  import('~/components/SearchModal').then((m) => ({ default: m.SearchModal })),
-)
 import { Spinner } from '~/components/Spinner'
 import { ThemeProvider, useHtmlClass } from '~/components/ThemeProvider'
 import { Navbar } from '~/components/Navbar'
+import { Footer } from '~/components/Footer'
+import { ProductScarf } from '~/components/ProductScarf'
+const BuilderRouteContent = React.lazy(() =>
+  import('~/chat/components/projects/Loading').then((module) => ({
+    default: module.BuilderRouteContent,
+  })),
+)
 import { THEME_COLORS } from '~/utils/utils'
 import { trackPageView } from '~/utils/analytics'
+import {
+  trackScarfClipboardEvent,
+  trackScarfDownloadClick,
+  trackScarfExternalLinkClick,
+  trackScarfExternalLinkHoverIntent,
+  trackScarfPageView,
+} from '~/utils/analytics/scarf'
+import { createPartnerPlacementSessionSeed } from '~/utils/partner-placement'
 import { twMerge } from 'tailwind-merge'
+import { TRAFFIC_QUALITY_BOOTSTRAP } from '~/utils/analytics/traffic-quality'
+import { DOCS_WIDTH_BOOTSTRAP } from '~/utils/docs-width'
 
 const GOOGLE_ANALYTICS_ID = 'G-JMT1Z50SPS'
 const GOOGLE_ANALYTICS_PROXY_PREFIX = '/_a'
 const GOOGLE_ANALYTICS_SCRIPT_SRC = `${GOOGLE_ANALYTICS_PROXY_PREFIX}/gtag.js`
-const GOOGLE_ANALYTICS_BOOTSTRAP = `(function(){var id='${GOOGLE_ANALYTICS_ID}';var src='${GOOGLE_ANALYTICS_SCRIPT_SRC}';window.dataLayer=window.dataLayer||[];window.gtag=window.gtag||function(){window.dataLayer.push(arguments)};window.gtag('js',new Date());window.gtag('config',id,{transport_url:window.location.origin+'${GOOGLE_ANALYTICS_PROXY_PREFIX}'});var loaded=false;var load=function(){if(loaded)return;loaded=true;var script=document.createElement('script');script.async=true;script.src=src;script.setAttribute('data-ga-loader','true');document.head.appendChild(script)};if(typeof window.requestIdleCallback==='function'){window.requestIdleCallback(load,{timeout:3000});return}if(document.readyState==='complete'){window.setTimeout(load,1500);return}window.addEventListener('load',function(){window.setTimeout(load,1500)},{once:true})})();`
+const THEME_BOOTSTRAP = `(function(){try{var t=localStorage.getItem('theme')||'auto';var v=['light','dark','auto'].includes(t)?t:'auto';var r=v==='auto'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):v;if(document.documentElement){document.documentElement.classList.add(r);if(v==='auto')document.documentElement.classList.add('auto');document.documentElement.style.colorScheme=r}}catch(e){if(document.documentElement){var r=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.classList.add(r,'auto');document.documentElement.style.colorScheme=r}}})()`
+// Page views are sent only by <PageViewTracker /> (initial load and SPA
+// navigations), so the gtag config sets send_page_view: false. The guard makes
+// the bootstrap idempotent: without it the head script can execute twice on a
+// single load, sending a second config (and a second page_view) and injecting
+// a second gtag.js loader.
+const GOOGLE_ANALYTICS_BOOTSTRAP = `(function(){if(window.__tanstackGaBootstrapped)return;window.__tanstackGaBootstrapped=true;var id='${GOOGLE_ANALYTICS_ID}';var src='${GOOGLE_ANALYTICS_SCRIPT_SRC}';window.dataLayer=window.dataLayer||[];window.gtag=window.gtag||function(){window.dataLayer.push(arguments)};window.gtag('set',{traffic_quality:'unknown',traffic_quality_rule:'v1'});window.gtag('js',new Date());window.gtag('config',id,{send_page_view:false,transport_url:window.location.origin+'${GOOGLE_ANALYTICS_PROXY_PREFIX}'});${TRAFFIC_QUALITY_BOOTSTRAP}var loaded=false;var load=function(){if(loaded)return;var parent=document.head||document.documentElement;if(!parent){window.setTimeout(load,100);return}loaded=true;var script=document.createElement('script');script.async=true;script.src=src;script.setAttribute('data-ga-loader','true');parent.appendChild(script)};if(typeof window.requestIdleCallback==='function'){window.requestIdleCallback(load,{timeout:3000});return}if(document.readyState==='complete'){window.setTimeout(load,1500);return}window.addEventListener('load',function(){window.setTimeout(load,1500)},{once:true})})();`
+const DOCUMENT_CACHE_HEADERS = {
+  'Cache-Control': 'public, max-age=0, must-revalidate',
+  'Cloudflare-CDN-Cache-Control': 'no-store',
+}
+const tanstackNeutralDarkTheme = {
+  ...auroraXTheme,
+  background: '#111111',
+  foreground: '#d4d4d4',
+  name: 'tanstack-neutral-dark',
+  tokens: {
+    ...auroraXTheme.tokens,
+    comment: '#a3a3a3',
+    meta: '#737373',
+    token: '#d4d4d4',
+  },
+} satisfies HighlightTheme
+const HIGHLIGHT_THEME_CSS = createThemeCss({
+  light: githubLightTheme,
+  dark: tanstackNeutralDarkTheme,
+  darkSelector: '.dark',
+})
+
+type CanonicalHeadMatch = {
+  pathname: string
+  search: Record<string, unknown>
+  staticData?: {
+    includeSearchInCanonical?: boolean
+    ownsCanonicalLink?: boolean
+  }
+}
+
+function getCanonicalHeadTags(matches: ReadonlyArray<CanonicalHeadMatch>): {
+  links: Array<React.JSX.IntrinsicElements['link']>
+  meta: Array<React.JSX.IntrinsicElements['meta']>
+} {
+  const lastMatch = matches[matches.length - 1]
+  const canonicalPath = lastMatch?.pathname ?? '/'
+  const includeSearchInCanonical = matches.some(
+    (match) => match.staticData?.includeSearchInCanonical === true,
+  )
+  // Routes whose canonical depends on loader data (e.g. old-version docs
+  // canonicalizing to /latest) emit their own URL tags from their head().
+  // The root must not also emit them — the router does not dedupe links, and
+  // this head only sees pre-loader match snapshots, so it can't compute the
+  // override itself.
+  const ownsCanonicalLink = matches.some(
+    (match) => match.staticData?.ownsCanonicalLink === true,
+  )
+  const canonicalSearch =
+    includeSearchInCanonical && lastMatch
+      ? defaultStringifySearch(lastMatch.search)
+      : ''
+  const preferredCanonicalPath = getCanonicalPath(canonicalPath)
+  const pageUrl = canonicalUrl(
+    preferredCanonicalPath ?? canonicalPath,
+    canonicalSearch,
+  )
+
+  return {
+    links:
+      preferredCanonicalPath && !ownsCanonicalLink
+        ? [
+            {
+              rel: 'canonical',
+              href: canonicalUrl(preferredCanonicalPath, canonicalSearch),
+            },
+          ]
+        : [],
+    meta: [
+      ...(!ownsCanonicalLink
+        ? [
+            { property: 'og:url', content: pageUrl },
+            { name: 'twitter:url', content: pageUrl },
+          ]
+        : []),
+      ...(!shouldIndexPath(canonicalPath)
+        ? [{ name: 'robots', content: 'noindex, nofollow' }]
+        : []),
+    ],
+  }
+}
+
+class OptionalDevtoolsBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
+  state = { hasError: false }
+
+  static getDerivedStateFromError() {
+    return { hasError: true }
+  }
+
+  componentDidCatch(error: Error) {
+    if (import.meta.env.DEV) {
+      console.warn('TanStack Devtools failed to load', error)
+    }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return null
+    }
+
+    return this.props.children
+  }
+}
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
 }>()({
-  head: () => ({
-    meta: [
-      {
-        charSet: 'utf-8',
-      },
-      {
-        name: 'viewport',
-        content: 'width=device-width, initial-scale=1',
-      },
-      {
-        name: 'theme-color',
-        content: THEME_COLORS.light,
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        name: 'theme-color',
-        content: THEME_COLORS.dark,
-        media: '(prefers-color-scheme: dark)',
-      },
-      ...seo({
-        title:
-          'TanStack | High Quality Open-Source Software for Web Developers',
-        description: `Headless, type-safe, powerful utilities for complex workflows like Data Management, Data Visualization, Charts, Tables, and UI Components.`,
-        image: `https://tanstack.com${ogImage}`,
-        keywords:
-          'tanstack,react,reactjs,react query,react table,open source,open source software,oss,software',
-      }),
-    ],
-    links: [
-      { rel: 'stylesheet', href: appCss },
-      {
-        rel: 'preload',
-        href: '/fonts/Inter-latin.woff2',
-        as: 'font',
-        type: 'font/woff2',
-        crossOrigin: 'anonymous',
-      },
-      {
-        rel: 'apple-touch-icon',
-        sizes: '180x180',
-        href: '/apple-touch-icon.png',
-      },
-      {
-        rel: 'icon',
-        type: 'image/png',
-        sizes: '32x32',
-        href: '/favicon-32x32.png',
-      },
-      {
-        rel: 'icon',
-        type: 'image/png',
-        sizes: '16x16',
-        href: '/favicon-16x16.png',
-      },
-      { rel: 'manifest', href: '/site.webmanifest', color: '#fffff' },
-      { rel: 'icon', href: '/favicon.ico' },
-    ],
-    scripts: [
-      // Theme detection script - must run before body renders to prevent flash
-      {
-        children: `(function(){try{var t=localStorage.getItem('theme')||'auto';var v=['light','dark','auto'].includes(t)?t:'auto';if(v==='auto'){var a=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.classList.add(a,'auto')}else{document.documentElement.classList.add(v)}}catch(e){var a=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.classList.add(a,'auto')}})()`,
-      },
-      {
-        children: GOOGLE_ANALYTICS_BOOTSTRAP,
-      },
-    ],
-  }),
-  beforeLoad: async (ctx) => {
-    if (
-      ctx.location.href.match(/\/docs\/(react|vue|angular|svelte|solid)\//gm)
-    ) {
-      throw redirect({
-        href: ctx.location.href.replace(
-          /\/docs\/(react|vue|angular|svelte|solid)\//gm,
-          '/docs/framework/$1/',
-        ),
-      })
+  loader: async () => {
+    return {
+      live: await getLiveRuntimeConfig(),
+      partnerPlacementSessionSeed: createPartnerPlacementSessionSeed(),
     }
+  },
+  head: ({ matches }) => {
+    const canonicalHeadTags = getCanonicalHeadTags(matches)
 
-    // Initialize user as undefined - routes can opt-in to load auth if needed
-    // Use undefined instead of null to distinguish between "not loaded" and "no user"
+    return {
+      meta: [
+        {
+          charSet: 'utf-8',
+        },
+        {
+          name: 'viewport',
+          content: 'width=device-width, initial-scale=1',
+        },
+        {
+          name: 'theme-color',
+          content: THEME_COLORS.light,
+          media: '(prefers-color-scheme: light)',
+        },
+        {
+          name: 'theme-color',
+          content: THEME_COLORS.dark,
+          media: '(prefers-color-scheme: dark)',
+        },
+        ...seo({
+          title:
+            'TanStack | High Quality Open-Source Software for Web Developers',
+          description: `Headless, type-safe, powerful utilities for complex workflows like Data Management, Data Visualization, Charts, Tables, and UI Components.`,
+          image: `https://tanstack.com${ogImage}`,
+          keywords:
+            'tanstack,react,reactjs,react query,react table,open source,open source software,oss,software',
+        }),
+        ...canonicalHeadTags.meta,
+      ],
+      links: [
+        ...canonicalHeadTags.links,
+        {
+          rel: 'preload',
+          href: '/fonts/Inter-latin.woff2',
+          as: 'font',
+          type: 'font/woff2',
+          crossOrigin: 'anonymous',
+        },
+        // Rebrand type system: Bricolage Grotesque (display/headings) + IBM Plex
+        // Mono (code). Loaded globally so the new styles apply across the site.
+        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+        {
+          rel: 'preconnect',
+          href: 'https://fonts.gstatic.com',
+          crossOrigin: 'anonymous',
+        },
+        {
+          rel: 'stylesheet',
+          href: 'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap',
+        },
+        {
+          rel: 'apple-touch-icon',
+          sizes: '180x180',
+          href: '/apple-touch-icon.png',
+        },
+        {
+          rel: 'icon',
+          type: 'image/svg+xml',
+          href: '/favicon-light.svg',
+          media: '(prefers-color-scheme: light)',
+        },
+        {
+          rel: 'icon',
+          type: 'image/svg+xml',
+          href: '/favicon-dark.svg',
+          media: '(prefers-color-scheme: dark)',
+        },
+        {
+          rel: 'icon',
+          type: 'image/png',
+          sizes: '32x32',
+          href: '/favicon-32x32.png',
+        },
+        {
+          rel: 'icon',
+          type: 'image/png',
+          sizes: '16x16',
+          href: '/favicon-16x16.png',
+        },
+        {
+          rel: 'manifest',
+          href: matches.some(
+            (match) =>
+              match.pathname === '/chat' || match.pathname.startsWith('/chat/'),
+          )
+            ? '/chat/manifest.webmanifest'
+            : '/site.webmanifest',
+        },
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      ],
+      scripts:
+        import.meta.env.PROD && import.meta.env.MODE !== 'staging'
+          ? [{ children: GOOGLE_ANALYTICS_BOOTSTRAP }]
+          : [],
+    }
   },
+  headers: () => DOCUMENT_CACHE_HEADERS,
   staleTime: Infinity,
-  shellComponent: ({ children }) => {
-    return (
-      <ThemeProvider>
-        <SearchProvider>
-          <ShellComponent>{children}</ShellComponent>
-        </SearchProvider>
-      </ThemeProvider>
-    )
-  },
+  shellComponent: ShellComponent,
   errorComponent: DefaultCatchBoundary,
   notFoundComponent: () => <NotFound />,
 })
 
 function ShellComponent({ children }: { children: React.ReactNode }) {
+  const router = useRouter()
+  const { queryClient } = Route.useRouteContext()
   const hasBaseParent = useMatches({
     select: (matches) => matches.find((d) => d.staticData?.baseParent),
   })
 
   const isNavigating = useRouterState({
-    select: (s) => s.isLoading || s.isTransitioning,
+    select: (s) => s.status === 'pending',
+  })
+  const pathname = useRouterState({
+    select: (s) => s.location.pathname,
   })
 
   const [canShowDevtools, setCanShowDevtools] = React.useState(false)
@@ -181,154 +339,176 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
     }
   }, [isNavigating])
 
-  const canonicalPath = useRouterState({
-    select: (s) => s.location?.pathname || '/',
-  })
-
-  const canonicalSearchStr = useRouterState({
-    select: (s) => s.location?.searchStr || '',
-  })
-
-  const includeSearchInCanonical = useMatches({
-    select: (s) =>
-      s.some((d) => d.staticData?.includeSearchInCanonical === true),
-  })
-
-  const preferredCanonicalPath = getCanonicalPath(canonicalPath)
-  const canonicalSearch = includeSearchInCanonical ? canonicalSearchStr : ''
-  const pageUrl = canonicalUrl(
-    preferredCanonicalPath ?? canonicalPath,
-    canonicalSearch,
-  )
-
   const showDevtools = import.meta.env.DEV && canShowDevtools
 
   const hideNavbar = useMatches({
     select: (s) => s.some((d) => d.staticData?.showNavbar === false),
   })
+  const hideFooter =
+    pathname === '/admin' ||
+    pathname.startsWith('/admin/') ||
+    pathname === '/builder' ||
+    pathname.startsWith('/builder/') ||
+    pathname === '/chat' ||
+    pathname.startsWith('/chat/')
 
   const htmlClass = useHtmlClass()
+  const routeContent = (
+    <React.Suspense fallback={null}>
+      {pathname === '/builder' || pathname.startsWith('/builder/') ? (
+        <BuilderRouteContent pathname={pathname}>
+          {children}
+        </BuilderRouteContent>
+      ) : (
+        children
+      )}
+    </React.Suspense>
+  )
 
   return (
     <html lang="en" className={htmlClass} suppressHydrationWarning>
       <head>
-        {preferredCanonicalPath ? (
-          <link
-            rel="canonical"
-            href={canonicalUrl(preferredCanonicalPath, canonicalSearch)}
+        <script
+          dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP }}
+          suppressHydrationWarning
+        />
+        <script dangerouslySetInnerHTML={{ __html: DOCS_WIDTH_BOOTSTRAP }} />
+        <HeadContent />
+        {import.meta.env.PROD ? (
+          <script
+            defer
+            src="https://namethathost.com/tracker.js"
+            data-site="b7d91d66-ccee-480a-9d33-f7a9f109edc4"
+            referrerPolicy="no-referrer"
           />
         ) : null}
-        <meta property="og:url" content={pageUrl} />
-        <meta name="twitter:url" content={pageUrl} />
-        {!shouldIndexPath(canonicalPath) ? (
-          <meta name="robots" content="noindex, nofollow" />
-        ) : null}
-        <HeadContent />
+        <style
+          id="tanstack-highlight-theme"
+          dangerouslySetInnerHTML={{ __html: HIGHLIGHT_THEME_CSS }}
+        />
         {hasBaseParent ? <base target="_parent" /> : null}
       </head>
       <body className="overflow-x-hidden">
-        <LoginModalProvider>
-          <ToastProvider>
-            <PageViewTracker />
-            {hideNavbar ? children : <Navbar>{children}</Navbar>}
-            {showDevtools && LazyAppDevtools ? (
-              <React.Suspense fallback={null}>
-                <LazyAppDevtools />
-              </React.Suspense>
-            ) : null}
-            <div
-              aria-hidden="true"
-              className={twMerge(
-                'pointer-events-none fixed top-0 left-0 z-99999999 h-[320px] w-full select-none',
-              )}
-            >
-              <div
-                className={twMerge(
-                  'absolute top-0 w-full h-80 rounded-[100%] bg-amber-500/30 blur-3xl transition-all duration-500 dark:bg-sky-400/25',
-                  showNavigationSpinner
-                    ? '-translate-y-1/2 opacity-100'
-                    : '-translate-y-full opacity-0',
-                )}
-              />
-              <div
-                className={twMerge(
-                  'absolute top-6 left-1/2 -translate-x-1/2 rounded-full bg-white/75 p-2 shadow-lg backdrop-blur-lg transition-all duration-300 dark:bg-slate-900/40',
-                  showNavigationSpinner
-                    ? 'translate-y-0 opacity-100'
-                    : '-translate-y-6 opacity-0',
-                )}
+        <RouterContextProvider router={router}>
+          <QueryClientProvider client={queryClient}>
+            <ThemeProvider>
+              <SearchProvider
+                enabled={pathname !== '/chat' && !pathname.startsWith('/chat/')}
               >
-                <Spinner className="text-4xl" />
-              </div>
-            </div>
-            <SearchHotkeyController />
-          </ToastProvider>
-        </LoginModalProvider>
-        <Scripts />
+                <LoginModalProvider>
+                  <ToastProvider>
+                    <PageViewTracker />
+                    <ProductScarf />
+                    <LibrariesOverlayProvider>
+                      {hideNavbar ? (
+                        routeContent
+                      ) : (
+                        <Navbar>
+                          {routeContent}
+                          {hideFooter ? null : <Footer />}
+                        </Navbar>
+                      )}
+                    </LibrariesOverlayProvider>
+                    {showDevtools && LazyAppDevtools ? (
+                      <OptionalDevtoolsBoundary>
+                        <React.Suspense fallback={null}>
+                          <LazyAppDevtools />
+                        </React.Suspense>
+                      </OptionalDevtoolsBoundary>
+                    ) : null}
+                    <div
+                      aria-hidden="true"
+                      className={twMerge(
+                        'pointer-events-none fixed top-0 left-0 z-99999999 h-[320px] w-full select-none',
+                      )}
+                    >
+                      <div
+                        className={twMerge(
+                          'absolute top-0 w-full h-80 rounded-[100%] bg-amber-500/30 blur-3xl transition-all duration-500 dark:bg-sky-400/25',
+                          showNavigationSpinner
+                            ? '-translate-y-1/2 opacity-100'
+                            : '-translate-y-full opacity-0',
+                        )}
+                      />
+                      <div
+                        className={twMerge(
+                          'absolute top-6 left-1/2 -translate-x-1/2 rounded-full bg-white/75 p-2 shadow-lg backdrop-blur-lg transition-all duration-300 dark:bg-slate-900/40',
+                          showNavigationSpinner
+                            ? 'translate-y-0 opacity-100'
+                            : '-translate-y-6 opacity-0',
+                        )}
+                      >
+                        {isNavigating && showNavigationSpinner ? (
+                          <Spinner className="text-4xl" />
+                        ) : null}
+                      </div>
+                    </div>
+                  </ToastProvider>
+                </LoginModalProvider>
+              </SearchProvider>
+            </ThemeProvider>
+          </QueryClientProvider>
+          <Scripts />
+        </RouterContextProvider>
       </body>
     </html>
   )
 }
 
-function SearchHotkeyController() {
-  const { isOpen, openSearch } = useSearchContext()
-  const [hasOpenedSearch, setHasOpenedSearch] = React.useState(false)
-
-  React.useEffect(() => {
-    const handleGlobalKeyDown = (event: KeyboardEvent) => {
-      if (!(event.metaKey || event.ctrlKey)) return
-      if (event.altKey || event.shiftKey) return
-      // Match both `key` and `code` so the shortcut works on non-QWERTY layouts.
-      const isK = event.key.toLowerCase() === 'k' || event.code === 'KeyK'
-      if (!isK) return
-
-      event.preventDefault()
-      event.stopPropagation()
-      setHasOpenedSearch(true)
-      openSearch()
-    }
-
-    document.addEventListener('keydown', handleGlobalKeyDown, { capture: true })
-    return () => {
-      document.removeEventListener('keydown', handleGlobalKeyDown, {
-        capture: true,
-      })
-    }
-  }, [openSearch])
-
-  React.useEffect(() => {
-    if (isOpen) {
-      setHasOpenedSearch(true)
-    }
-  }, [isOpen])
-
-  if (!hasOpenedSearch) return null
-
-  return (
-    <React.Suspense fallback={null}>
-      <LazySearchModal />
-    </React.Suspense>
-  )
-}
-
+/**
+ * The single source of `page_view` events: one on initial load and one per
+ * SPA navigation. gtag config runs with `send_page_view: false`, and GA4's
+ * enhanced-measurement "page changes based on browser history events" must
+ * stay disabled on the web stream, or navigations are counted twice.
+ */
 function PageViewTracker() {
+  const { live } = Route.useLoaderData()
   const pagePath = useRouterState({
     select: (s) => {
-      const pathname = s.resolvedLocation?.pathname || '/'
-      const search = s.resolvedLocation?.searchStr || ''
+      if (!s.resolvedLocation) {
+        return null
+      }
+
+      const pathname = s.resolvedLocation.pathname || '/'
+      const search = s.resolvedLocation.searchStr || ''
 
       return `${pathname}${search}`
     },
   })
-  const hasTrackedInitialPage = React.useRef(false)
+  const lastTrackedPath = React.useRef<string | null>(null)
 
   React.useEffect(() => {
-    if (!hasTrackedInitialPage.current) {
-      hasTrackedInitialPage.current = true
+    if (import.meta.env.MODE === 'staging') return
+    if (live.chatEnabled) void resumeVisitorChat().catch(() => {})
+    const stopLivePresence = live.presenceEnabled
+      ? startLivePresence()
+      : () => {}
+    const stopTrackingHoverIntent = trackScarfExternalLinkHoverIntent()
+    document.addEventListener('click', trackScarfExternalLinkClick, true)
+    document.addEventListener('click', trackScarfDownloadClick, true)
+    document.addEventListener('copy', trackScarfClipboardEvent, true)
+    document.addEventListener('paste', trackScarfClipboardEvent, true)
+    return () => {
+      stopLivePresence()
+      stopTrackingHoverIntent()
+      document.removeEventListener('click', trackScarfExternalLinkClick, true)
+      document.removeEventListener('click', trackScarfDownloadClick, true)
+      document.removeEventListener('copy', trackScarfClipboardEvent, true)
+      document.removeEventListener('paste', trackScarfClipboardEvent, true)
+    }
+  }, [live.presenceEnabled, live.chatEnabled])
+
+  React.useEffect(() => {
+    // Skip until the router has resolved a location, and never send the same
+    // path twice in a row (guards against the location resolving twice).
+    if (pagePath === null || lastTrackedPath.current === pagePath) {
       return
     }
 
+    lastTrackedPath.current = pagePath
     trackPageView(pagePath)
+    if (import.meta.env.MODE !== 'staging')
+      trackScarfPageView(window.location.pathname)
   }, [pagePath])
 
   return null

@@ -1,30 +1,29 @@
-import { libraries } from '~/libraries'
+import { Link } from '@tanstack/react-router'
+import { publicLibraries } from '~/libraries'
 
-const featuredLibraries = libraries
-  .filter((library) => library.visible !== false)
-  .slice(0, 8)
-  .map((library) => ({
-    id: library.id,
-    name: library.name,
-  }))
+const featuredLibraries = publicLibraries.slice(0, 8).map((library) => ({
+  id: library.id,
+  name: library.name,
+  to: library.to,
+}))
 
 export function LibrariesWidget() {
   return (
     <div className="p-4">
       <div className="mb-3">
-        <a href="/#libraries" className="font-semibold text-sm">
+        <Link to="/" hash="libraries" className="font-semibold text-sm">
           Libraries
-        </a>
+        </Link>
       </div>
       <div className="grid grid-cols-2 gap-2">
         {featuredLibraries.map((library) => (
-          <a
+          <Link
             key={library.id}
-            href={`/${library.id}/latest`}
+            to={library.to as never}
             className="text-xs opacity-70 hover:opacity-100 hover:underline"
           >
             {library.name.replace('TanStack ', '')}
-          </a>
+          </Link>
         ))}
       </div>
     </div>

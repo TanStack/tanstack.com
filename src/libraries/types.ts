@@ -1,9 +1,15 @@
-import * as React from 'react'
+import type { ReactNode } from 'react'
+import type { LibraryId } from './ids'
+
+export type { LibraryId } from './ids'
 
 export type Framework =
   | 'angular'
   | 'alpine'
+  | 'ember'
   | 'lit'
+  | 'marko'
+  | 'octane'
   | 'preact'
   | 'qwik'
   | 'react'
@@ -11,27 +17,6 @@ export type Framework =
   | 'svelte'
   | 'vanilla'
   | 'vue'
-
-export type LibraryId =
-  | 'start'
-  | 'router'
-  | 'query'
-  | 'table'
-  | 'form'
-  | 'virtual'
-  | 'ranger'
-  | 'store'
-  | 'pacer'
-  | 'hotkeys'
-  | 'db'
-  | 'ai'
-  | 'intent'
-  | 'config'
-  | 'devtools'
-  | 'mcp'
-  | 'cli'
-  | 'react-charts'
-  | 'create-tsrouter-app'
 
 // Base library type - used for navigation, docs, and most UI
 export type LibrarySlim = {
@@ -55,6 +40,7 @@ export type LibrarySlim = {
   bgRadial?: string
   badge?: 'new' | 'soon' | 'alpha' | 'beta' | 'fresh' | 'RC'
   repo: string
+  hasDiscussions?: boolean
   frameworks: Framework[]
   latestVersion: string
   latestBranch?: string
@@ -62,7 +48,6 @@ export type LibrarySlim = {
   scarfId?: string
   defaultDocs?: string
   docsRoot?: string
-  ogImage?: string
   hideCodesandboxUrl?: true
   hideStackblitzUrl?: true
   showVercelUrl?: boolean
@@ -71,9 +56,16 @@ export type LibrarySlim = {
   showRailwayUrl?: boolean
   embedEditor?: 'codesandbox' | 'stackblitz'
   legacyPackages?: string[]
+  npmPackageNames?: string[]
   installPath?: string
   corePackageName?: string
+  frameworkPackageNames?: Partial<Record<Framework, string>>
+  frameworkDocs?: Partial<Record<Framework, string>>
   handleRedirects?: (href: string) => void
+  /**
+   * Defaults to available. Set false until trustworthy package metrics exist.
+   */
+  statsAvailable?: boolean
   /**
    * If false, the library is hidden from sidebar navigation and pages have noindex meta tag.
    * Use for alpha/private libraries not ready for public visibility.
@@ -91,8 +83,8 @@ export type LibrarySlim = {
 export type Library = LibrarySlim & {
   featureHighlights?: {
     title: string
-    icon: React.ReactNode
-    description: React.ReactNode
+    icon: ReactNode
+    description: ReactNode
   }[]
   testimonials?: Testimonial[]
 }

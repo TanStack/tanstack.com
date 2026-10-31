@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { useIsDark } from '~/hooks/useIsDark'
+import { stackBlitzIframeProps } from '~/utils/stackblitz-embed'
 
 type StackBlitzEmbedProps = {
   repo: string
@@ -32,6 +33,7 @@ export function StackBlitzEmbed({
       title={title || `${repo}: ${examplePath}`}
       key={`${examplePath}-${themeParam}`}
       src={src}
+      {...stackBlitzIframeProps}
       sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
       className="shadow-lg"
       loading="lazy"

@@ -1,3 +1,4 @@
+import { authorizationGrant } from '~/auth/oauth-resources'
 import { createServerFn } from '@tanstack/react-start'
 import * as v from 'valibot'
 import { requireAuth, getCurrentUser } from './auth.functions'
@@ -6,6 +7,7 @@ import {
   revokeTokensForClient,
   createAuthorizationCode as createAuthorizationCodeService,
   validateRedirectUri as validateRedirectUriService,
+  authorizationClientName,
 } from '~/auth/oauthClient.server'
 
 /**
@@ -19,6 +21,7 @@ export const listConnectedApps = createServerFn({ method: 'POST' }).handler(
 
     return apps.map((app) => ({
       clientId: app.clientId,
+      clientName: app.clientName,
       createdAt: app.createdAt,
       lastUsedAt: app.lastUsedAt,
     }))
@@ -29,7 +32,7 @@ export const listConnectedApps = createServerFn({ method: 'POST' }).handler(
  * Revoke access for a connected OAuth app
  */
 export const revokeConnectedApp = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       clientId: v.string(),
     }),
@@ -46,13 +49,14 @@ export const revokeConnectedApp = createServerFn({ method: 'POST' })
  * Create an OAuth authorization code
  */
 export const createAuthorizationCode = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       clientId: v.string(),
       redirectUri: v.string(),
       codeChallenge: v.string(),
       codeChallengeMethod: v.optional(v.string()),
       scope: v.optional(v.string()),
+      resource: v.optional(v.string()),
     }),
   )
   .handler(async ({ data }) => {
@@ -73,8 +77,31 @@ export const createAuthorizationCode = createServerFn({ method: 'POST' })
       redirectUri: data.redirectUri,
       codeChallenge: data.codeChallenge,
       codeChallengeMethod: data.codeChallengeMethod || 'S256',
-      scope: data.scope || 'api',
+      scope: data.scope,
+      resource: data.resource,
     })
 
     return { code }
+  })
+
+export const validateAuthorizationRequest = createServerFn({ method: 'GET' })
+  .validator(
+    v.object({
+      clientId: v.string(),
+      redirectUri: v.string(),
+      resource: v.optional(v.string()),
+      scope: v.optional(v.string()),
+    }),
+  )
+  .handler(async ({ data }) => {
+    try {
+      const grant = authorizationGrant(data.resource, data.scope)
+      const clientName = await authorizationClientName(
+        data.clientId,
+        data.redirectUri,
+      )
+      return { valid: true, clientName, scope: grant.scope }
+    } catch {
+      return { valid: false, clientName: '', scope: '' }
+    }
   })

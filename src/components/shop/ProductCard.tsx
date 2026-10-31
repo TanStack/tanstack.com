@@ -1,139 +1,179 @@
+import * as React from 'react'
 import { Link } from '@tanstack/react-router'
 import { ProductImage } from './ProductImage'
 import { ShopBadge, ShopMono } from './ui'
-import { formatMoney } from '~/utils/shopify-format'
+import { formatMoney, shopifyImageUrl } from '~/utils/shopify-format'
 import type { ProductListItem } from '~/utils/shopify-queries'
+import { resolveShopProductColor } from '~/utils/shop-color'
+
+function NewBadge() {
+  return (
+    <ShopBadge
+      variant="new"
+      className="absolute bottom-3 left-3 z-[2] h-5 rounded-full px-2.5 leading-none"
+    >
+      New
+    </ShopBadge>
+  )
+}
 
 type ProductCardProps = {
   product: ProductListItem
+  isNew?: boolean
   sizes?: string
   loading?: 'eager' | 'lazy'
+  onQuickView?: (handle: string) => void
 }
 
-/**
- * Grid tile for a product. Editorial styling via Tailwind utilities:
- * stripe-lined image well, hover quick-view chip, mono caption tag,
- * JetBrains Mono price. New/Sale/Low-stock badges derived from tags.
- */
 export function ProductCard({
   product,
+  isNew = false,
   sizes,
   loading = 'lazy',
+  onQuickView,
 }: ProductCardProps) {
   const { minVariantPrice, maxVariantPrice } = product.priceRange
   const compareAt = product.compareAtPriceRange?.minVariantPrice
   const isRange = minVariantPrice.amount !== maxVariantPrice.amount
-  const isDiscounted =
-    compareAt && Number(compareAt.amount) > Number(minVariantPrice.amount)
 
-  const isNew = product.tags?.some((t) => t.toLowerCase() === 'new')
-  const isLowStock = product.tags?.some(
-    (t) => t.toLowerCase() === 'low-stock' || t.toLowerCase() === 'low stock',
-  )
+  const colorOption = product.options?.find((o) => /colou?r/i.test(o.name))
+  const swatches = colorOption
+    ? colorOption.values.slice(0, 6).map((v) => ({
+        name: v,
+        hex: resolveShopProductColor(v),
+      }))
+    : []
 
-  const tag = product.productType || product.tags?.[0] || ''
+  const [hoveredColor, setHoveredColor] = React.useState<string | null>(null)
 
-  return (
-    <Link
-      to="/shop/products/$handle"
-      params={{ handle: product.handle }}
+  // Preload all color-variant images on mount so hover swaps are instant
+  React.useEffect(() => {
+    if (!colorOption) return
+    const seen = new Set<string>()
+    for (const v of product.variants.nodes) {
+      if (!v.image?.url || seen.has(v.image.url)) continue
+      seen.add(v.image.url)
+      const img = new Image()
+      img.src = shopifyImageUrl(v.image.url, { width: 600, format: 'webp' })
+    }
+  }, [colorOption, product.variants.nodes])
+
+  const activeImage = React.useMemo(() => {
+    if (!hoveredColor || !colorOption) return product.featuredImage
+    const variant = product.variants.nodes.find((v) =>
+      v.selectedOptions.some(
+        (o) => /colou?r/i.test(o.name) && o.value === hoveredColor,
+      ),
+    )
+    return variant?.image ?? product.featuredImage
+  }, [hoveredColor, colorOption, product])
+
+  const cardBody = (
+    <div
       className="
-        group flex flex-col gap-2.5 rounded-xl border border-shop-line bg-shop-panel p-2.5
-        transition-[border-color,transform] duration-200
-        hover:border-shop-line-2 hover:-translate-y-0.5
+        shop-product-card group flex flex-col min-w-[340px] max-w-[400px] w-full rounded-xl
+        border border-transparent bg-transparent
+        hover:border-shop-line-2
+        transition-[border-color,background-color] duration-200 motion-reduce:transition-none
+        px-[22px] pt-7 pb-5
       "
     >
-      <div className="relative aspect-square rounded-lg overflow-hidden bg-shop-panel-2">
-        {/* Diagonal stripe texture */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 [background:repeating-linear-gradient(45deg,transparent_0_12px,color-mix(in_srgb,var(--shop-text)_2%,transparent)_12px_13px)]"
-        />
-        {/* Soft accent glow */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 bg-[radial-gradient(60%_50%_at_50%_50%,color-mix(in_srgb,var(--shop-accent)_8%,transparent),transparent_70%)]"
-        />
-        {/* Image */}
+      {/* Image */}
+      <div className="relative aspect-square rounded-lg overflow-hidden">
         <ProductImage
-          image={product.featuredImage}
+          image={activeImage}
           alt={product.title}
           width={600}
           sizes={sizes}
           loading={loading}
-          className="relative z-[1]"
+          className="w-full h-full object-cover"
         />
-
-        {/* Badges */}
-        {isNew || isLowStock || isDiscounted ? (
-          <div className="absolute top-2.5 left-2.5 flex gap-1 z-[2]">
-            {isNew ? <ShopBadge variant="new">New</ShopBadge> : null}
-            {isDiscounted ? <ShopBadge variant="sale">Sale</ShopBadge> : null}
-            {isLowStock ? (
-              <ShopBadge variant="sale">Low stock</ShopBadge>
-            ) : null}
-          </div>
-        ) : null}
-
-        {/* Category tag (hidden on hover, replaced by quick-view chip) */}
-        {tag ? (
-          <span
-            className="
-              absolute bottom-2.5 right-2.5 z-[1]
-              font-shop-mono text-[9.5px] tracking-[0.1em] uppercase
-              text-shop-muted bg-shop-bg-2/80 backdrop-blur
-              border border-shop-line-2 rounded px-1.5 py-[3px]
-              max-w-[calc(100%-1.25rem)] overflow-hidden text-ellipsis whitespace-nowrap
-              transition-opacity group-hover:opacity-0
-            "
-          >
-            {tag}
-          </span>
-        ) : null}
-
-        {/* Quick view chip */}
-        <span
-          className="
-            absolute bottom-2.5 right-2.5 z-[2]
-            inline-flex items-center gap-1 px-2 py-[5px] rounded-md
-            bg-shop-accent text-shop-accent-ink text-[11px] font-semibold
-            opacity-0 translate-y-1 pointer-events-none
-            transition-all group-hover:opacity-100 group-hover:translate-y-0
-          "
-        >
-          Quick view
-          <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
-            <path
-              d="M2 5h6M6 2l3 3-3 3"
-              stroke="currentColor"
-              strokeWidth="1.6"
-              fill="none"
-            />
-          </svg>
-        </span>
+        {isNew ? <NewBadge /> : null}
       </div>
 
-      <div className="flex justify-between items-baseline gap-2.5 px-1 pb-1.5">
-        <div className="min-w-0 flex-1">
-          <div className="text-[13.5px] font-semibold tracking-[-0.005em] leading-tight text-shop-text truncate">
+      {/* Meta */}
+      <div className="flex flex-col gap-2.5 pt-4">
+        {/* Title + price */}
+        <div className="flex justify-between items-baseline gap-3">
+          <span className="text-shop-title font-semibold font-shop-display leading-tight text-shop-text truncate">
             {product.title}
-          </div>
-          {tag ? (
-            <ShopMono className="block text-[11.5px] text-shop-muted tracking-[0.02em] mt-0.5 truncate">
-              {tag}
-            </ShopMono>
-          ) : null}
+          </span>
+          <ShopMono className="text-shop-price text-shop-text whitespace-nowrap shrink-0 font-light">
+            {isRange ? 'From ' : ''}
+            {formatMoney(minVariantPrice.amount, minVariantPrice.currencyCode)}
+            {compareAt &&
+            Number(compareAt.amount) > Number(minVariantPrice.amount) ? (
+              <span className="ml-1.5 text-shop-ui text-shop-muted line-through">
+                {formatMoney(compareAt.amount, compareAt.currencyCode)}
+              </span>
+            ) : null}
+          </ShopMono>
         </div>
-        <ShopMono className="text-[12.5px] text-shop-text whitespace-nowrap">
-          {isRange ? 'From ' : ''}
-          {formatMoney(minVariantPrice.amount, minVariantPrice.currencyCode)}
-          {isDiscounted ? (
-            <span className="ml-1.5 text-[11px] text-shop-muted line-through">
-              {formatMoney(compareAt.amount, compareAt.currencyCode)}
-            </span>
-          ) : null}
-        </ShopMono>
+
+        {/* Swatches + Quick View row */}
+        <div className="flex items-center justify-between">
+          {/* Round color swatches — hover to preview color */}
+          <div
+            className="flex gap-[10px]"
+            onMouseLeave={() => setHoveredColor(null)}
+          >
+            {swatches.map((s) => (
+              <span
+                key={s.name}
+                title={s.name}
+                onMouseEnter={() => setHoveredColor(s.name)}
+                className={`w-4 h-4 rounded-full shrink-0 cursor-pointer border transition-[box-shadow,border-color,transform] duration-150 ${
+                  hoveredColor === s.name
+                    ? 'border-white/70 ring-2 ring-white/30 scale-125'
+                    : 'border-white/15 hover:scale-110'
+                }`}
+                style={
+                  s.hex
+                    ? { background: s.hex }
+                    : {
+                        background: 'var(--gradient-commerce-spectrum)',
+                      }
+                }
+              />
+            ))}
+          </div>
+
+          {/* Quick View — hover only */}
+          <span className="opacity-0 group-hover:opacity-100 transition-opacity text-shop-xs text-shop-text-2 inline-flex items-center gap-1">
+            Quick View
+            <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+              <path
+                d="M2 5h6M6 2l3 3-3 3"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                fill="none"
+              />
+            </svg>
+          </span>
+        </div>
       </div>
+    </div>
+  )
+
+  if (onQuickView) {
+    return (
+      <button
+        type="button"
+        onClick={() => onQuickView(product.handle)}
+        className="text-left block cursor-pointer bg-transparent border-0 p-0"
+      >
+        {cardBody}
+      </button>
+    )
+  }
+
+  return (
+    <Link
+      to="/shop/$handle"
+      params={{ handle: product.handle }}
+      className="block"
+    >
+      {cardBody}
     </Link>
   )
 }

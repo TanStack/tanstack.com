@@ -24,6 +24,12 @@
     "linkUrl": "https://superhumanizer.ai/"
   },
   {
+    "login": "humanizerfree",
+    "name": "humanizerfree",
+    "imageUrl": "https://humanizerfree.com/logo-512.png",
+    "linkUrl": "https://humanizerfree.com?utm_source=tanstack"
+  },
+  {
     "login": "shtefcs",
     "name": "Automatio AI",
     "imageUrl": "https://i.imgur.com/42qFfkw.png",
@@ -42,8 +48,8 @@
   {
     "login": "humanizerpro",
     "name": "AI humanizer",
-    "imageUrl": "https://humanizerpro.ai/favicon.ico",
-    "linkUrl": "https://humanizerpro.ai"
+    "imageUrl": "https://humanizetext.io/logo.svg",
+    "linkUrl": "https://humanizetext.io"
   },
   {
     "login": "GoHumanize-ai",
@@ -347,5 +353,17 @@
     "login": "aeriusventilation",
     "name": "Aerius Ventilation",
     "linkUrl": "https://aerius.se/?utm_source=tanstack"
+  },
+  {
+    "login": "forminit",
+    "name": "Forminit",
+    "imageUrl": "https://avatars.githubusercontent.com/u/41009912?v=4",
+    "linkUrl": "https://forminit.com/?utm_source=tanstack"
+  },
+  {
+    "login": "Humanize-AI-Text-io",
+    "name": "Humanize AI Text",
+    "imageUrl": "https://humanizeaitext.io/favicon/favicon-32x32.png",
+    "linkUrl": "https://humanizeaitext.io/"
   }
 ]

@@ -2,6 +2,7 @@
 title: Stop Re-Rendering. TanStack DB, the Embedded Client Database for TanStack Query
 published: 2025-07-30
 excerpt: Your React dashboard shouldn't grind to a halt because one TODO gets checked. TanStack DB is a client-side database powered by differential dataflow that plugs into your existing useQuery calls.
+library: db
 authors:
   - Kyle Mathews
   - Sam Willis
@@ -190,9 +191,13 @@ const Todos = () => {
 // ✅ Define a Query Collection
 import { createCollection } from '@tanstack/react-db'
 import { queryCollectionOptions } from '@tanstack/query-db-collection'
+import { QueryClient } from '@tanstack/query-core'
+
+const queryClient = new QueryClient()
 
 const todoCollection = createCollection(
   queryCollectionOptions({
+    queryClient,
     queryKey: ['todos'],
     queryFn: async () =>
       api.todos.getAll('/api/todos'),
@@ -288,18 +293,30 @@ You can do this:
 
 ```typescript
 // Load normalized collections upfront (3 broader calls)
-const todoCollection = createQueryCollection({
-  queryKey: ['todos'],
-  queryFn: fetchAllTodos,
-})
-const userCollection = createQueryCollection({
-  queryKey: ['users'],
-  queryFn: fetchAllUsers,
-})
-const projectCollection = createQueryCollection({
-  queryKey: ['projects'],
-  queryFn: fetchAllProjects,
-})
+const todoCollection = createCollection(
+  queryCollectionOptions({
+    queryClient,
+    queryKey: ['todos'],
+    queryFn: fetchAllTodos,
+    getKey: (todo) => todo.id,
+  }),
+)
+const userCollection = createCollection(
+  queryCollectionOptions({
+    queryClient,
+    queryKey: ['users'],
+    queryFn: fetchAllUsers,
+    getKey: (user) => user.id,
+  }),
+)
+const projectCollection = createCollection(
+  queryCollectionOptions({
+    queryClient,
+    queryKey: ['projects'],
+    queryFn: fetchAllProjects,
+    getKey: (project) => project.id,
+  }),
+)
 
 // Navigation is instant, no new API calls needed
 const { data: activeProjectTodos } = useLiveQuery(

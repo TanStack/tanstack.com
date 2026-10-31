@@ -1,10 +1,12 @@
 import * as React from 'react'
 import { useTheme } from './ThemeProvider'
-import { Moon, Sun, SunMoon } from 'lucide-react'
+import { MoonIcon } from '@phosphor-icons/react/Moon'
+import { SunIcon } from '@phosphor-icons/react/Sun'
+import { SunHorizonIcon } from '@phosphor-icons/react/SunHorizon'
 import { Button } from '~/ui'
 
 export function ThemeToggle() {
-  const { themeMode, toggleMode } = useTheme()
+  const { themeMode, resolvedTheme, toggleMode } = useTheme()
 
   const handleToggleMode = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
@@ -18,23 +20,33 @@ export function ThemeToggle() {
   const nextLabel =
     themeMode === 'auto' ? 'light' : themeMode === 'light' ? 'dark' : 'auto'
 
+  const activeIcon = themeMode === 'auto' ? 'auto' : resolvedTheme
+
+  const getIconClassName = (icon: typeof activeIcon) =>
+    [
+      'col-start-1 row-start-1 size-[18px] shrink-0 transition-opacity motion-reduce:transition-none',
+      activeIcon === icon ? 'opacity-100' : 'opacity-0',
+    ].join(' ')
+
   return (
     <Button
-      variant="ghost"
-      size="xs"
+      type="button"
+      variant="icon"
+      color="gray"
+      size="icon-sm"
       onClick={handleToggleMode}
       aria-label={`Theme: ${label}. Switch to ${nextLabel} mode.`}
       title={`Theme: ${label}. Switch to ${nextLabel} mode.`}
+      className="h-8 w-8 shrink-0 rounded-md border-0 p-0 leading-none text-icon-default shadow-none hover:bg-surface-state-hover hover:text-text-primary"
     >
-      {themeMode === 'auto' ? (
-        <SunMoon className="w-3.5 h-3.5" />
-      ) : (
-        <>
-          <Sun className="w-3.5 h-3.5 hidden light:block" />
-          <Moon className="w-3.5 h-3.5 hidden dark:block" />
-        </>
-      )}
-      <span className="hidden sm:inline">{label}</span>
+      <span
+        aria-hidden="true"
+        className="grid size-[18px] shrink-0 place-items-center"
+      >
+        <SunHorizonIcon className={getIconClassName('auto')} weight="bold" />
+        <SunIcon className={getIconClassName('light')} weight="bold" />
+        <MoonIcon className={getIconClassName('dark')} weight="bold" />
+      </span>
     </Button>
   )
 }

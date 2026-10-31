@@ -1,5 +1,3 @@
-'use client'
-
 import { createClientOnlyFn, createIsomorphicFn } from '@tanstack/react-start'
 import * as React from 'react'
 import { createContext, ReactNode, useEffect, useState } from 'react'
@@ -42,11 +40,13 @@ const getSystemTheme = createIsomorphicFn()
 
 const updateThemeClass = createClientOnlyFn((themeMode: ThemeMode) => {
   const root = document.documentElement
+  if (!root) return
   root.classList.add('theme-switching')
 
   root.classList.remove('light', 'dark', 'auto')
   const newTheme = themeMode === 'auto' ? getSystemTheme() : themeMode
   root.classList.add(newTheme)
+  root.style.colorScheme = newTheme
 
   if (themeMode === 'auto') {
     root.classList.add('auto')
@@ -147,7 +147,7 @@ export const useTheme = () => {
 // Reads from DOM on client (matches what head script set), empty on server
 const getHtmlClass = createIsomorphicFn()
   .server(() => '')
-  .client(() => document.documentElement.className)
+  .client(() => document.documentElement?.className ?? '')
 
 export function useHtmlClass(): string {
   return getHtmlClass()

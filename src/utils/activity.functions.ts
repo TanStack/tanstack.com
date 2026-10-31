@@ -52,7 +52,7 @@ export const getActivityStatsAdmin = createServerFn({ method: 'POST' }).handler(
  * Get daily active user data for charts with configurable time range
  */
 export const getDauChartData = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       days: v.optional(v.nullable(v.number())), // null = all time
     }),

@@ -1,6 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import { setResponseHeaders } from '@tanstack/react-start/server'
-import { getPublishedPosts } from '~/utils/blog'
+import { getVisiblePosts } from '~/utils/blog'
 
 export type RecentPost = {
   slug: string
@@ -16,12 +16,12 @@ export const fetchRecentPosts = createServerFn({ method: 'GET' }).handler(
     setResponseHeaders(
       new Headers({
         'Cache-Control': 'public, max-age=0, must-revalidate',
-        'Netlify-CDN-Cache-Control':
-          'public, max-age=300, durable, stale-while-revalidate=300',
+        'Cloudflare-CDN-Cache-Control':
+          'public, max-age=300, stale-while-revalidate=300',
       }),
     )
 
-    return getPublishedPosts()
+    return getVisiblePosts()
       .slice(0, 3)
       .map((post) => ({
         slug: post.slug,

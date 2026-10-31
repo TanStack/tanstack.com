@@ -1,6 +1,7 @@
+import { useIsMutating } from '@tanstack/react-query'
 import * as React from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { ShoppingCart, Trash2, X } from 'lucide-react'
+import { ShoppingCartIcon, TrashIcon, XIcon } from '@phosphor-icons/react'
 import {
   ShopButton,
   ShopCrumbs,
@@ -11,6 +12,7 @@ import {
   ShopQty,
 } from '~/components/shop/ui'
 import {
+  CART_ADD_MUTATION_KEY,
   useApplyDiscountCode,
   useCart,
   useRemoveCartLine,
@@ -38,7 +40,7 @@ function CartPage() {
         crumbs={[{ label: 'Shop', href: '/shop' }, { label: 'Cart' }]}
       />
       <header>
-        <h1 className="font-shop-display font-bold text-[36px] leading-[1.05] tracking-[-0.02em] text-shop-text">
+        <h1 className="font-shop-display text-ds-heading-1 text-shop-text">
           Cart
         </h1>
         <ShopLabel className="mt-2">
@@ -75,16 +77,17 @@ function CartPage() {
                 </ShopMono>
               </dd>
             </div>
-            <p className="font-shop-mono text-[11px] text-shop-muted tracking-[0.06em] mt-1">
+            <p className="font-shop-mono text-ds-mono-caps-xs text-shop-muted mt-1">
               Shipping and taxes calculated at checkout.
             </p>
           </dl>
 
           <a
-            href={checkoutUrl}
+            href={checkoutUrl || undefined}
+            aria-disabled={!checkoutUrl}
             className="
               w-full h-11 rounded-md bg-shop-accent text-shop-accent-ink
-              font-semibold text-[13px] flex items-center justify-center gap-2
+              font-semibold text-ds-label-md flex items-center justify-center gap-2
               transition-[filter] hover:brightness-110 group
             "
           >
@@ -141,7 +144,7 @@ function DiscountCodeSection({ cart }: { cart: CartDetail }) {
                 aria-label={`Remove discount ${d.code}`}
                 className="p-1 rounded-md text-shop-muted hover:text-shop-text disabled:opacity-50"
               >
-                <X className="w-3.5 h-3.5" />
+                <XIcon className="w-3.5 h-3.5" />
               </button>
             </li>
           ))}
@@ -185,19 +188,19 @@ function EmptyCart() {
   return (
     <div className="p-6 md:p-11 pb-24 max-w-[1100px] mx-auto flex flex-col gap-8">
       <header>
-        <h1 className="font-shop-display font-bold text-[36px] leading-[1.05] tracking-[-0.02em] text-shop-text">
+        <h1 className="font-shop-display text-ds-heading-1 text-shop-text">
           Cart
         </h1>
       </header>
       <div className="flex flex-col items-center gap-4 py-16 text-center text-shop-text-2">
-        <ShoppingCart className="w-10 h-10 text-shop-muted" />
+        <ShoppingCartIcon className="w-10 h-10 text-shop-muted" />
         <p>Your cart is empty.</p>
         <Link
           to="/shop"
           className="
             inline-flex items-center gap-2 px-4 py-2.5 rounded-md
             bg-shop-accent text-shop-accent-ink
-            font-semibold text-[13px]
+            font-semibold text-ds-label-md
             transition-[filter] hover:brightness-110 group
           "
         >
@@ -220,12 +223,13 @@ function CartLineRow({ line }: { line: CartLineDetail }) {
     .map((o) => `${o.name}: ${o.value}`)
     .join(' · ')
 
-  const isBusy = update.isPending || remove.isPending
+  const adding = useIsMutating({ mutationKey: CART_ADD_MUTATION_KEY })
+  const isBusy = adding > 0 || update.isPending || remove.isPending
 
   return (
     <li className="flex gap-4 py-5 border-b border-shop-line items-start">
       <Link
-        to="/shop/products/$handle"
+        to="/shop/$handle"
         params={{ handle: merchandise.product.handle }}
         className="shrink-0 w-24 h-24 rounded-lg border border-shop-line bg-shop-panel overflow-hidden"
       >
@@ -245,7 +249,7 @@ function CartLineRow({ line }: { line: CartLineDetail }) {
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
             <Link
-              to="/shop/products/$handle"
+              to="/shop/$handle"
               params={{ handle: merchandise.product.handle }}
               className="font-semibold text-shop-text hover:underline"
             >
@@ -281,7 +285,7 @@ function CartLineRow({ line }: { line: CartLineDetail }) {
             aria-label="Remove from cart"
             className="p-2 rounded-md text-shop-muted hover:text-shop-text disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Trash2 className="w-4 h-4" />
+            <TrashIcon className="w-4 h-4" />
           </button>
         </div>
       </div>

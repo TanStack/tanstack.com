@@ -51,7 +51,7 @@ export async function applyIntentRateLimit(
         limited: true,
         response: Response.json(
           { error: authResult.error, code: 'UNAUTHORIZED' },
-          { status: authResult.status },
+          { status: authResult.status, headers: { 'Cache-Control': 'no-store' } },
         ),
       }
     }
@@ -79,18 +79,16 @@ export async function applyIntentRateLimit(
 
 /**
  * Build a JSON response that merges rate-limit headers and standard
- * Cache-Control for the public read endpoints.
+ * Cache-Control for responses containing per-client quota headers.
  */
 export function intentJsonResponse(
   body: unknown,
   rl: RateLimitResult,
-  init?: { status?: number; cache?: boolean },
+  init?: { status?: number },
 ): Response {
   const headers = new Headers(rl.headers)
   headers.set('Content-Type', 'application/json')
-  if (init?.cache !== false) {
-    headers.set('Cache-Control', 'public, max-age=60, s-maxage=300')
-  }
+  headers.set('Cache-Control', 'no-store')
   return new Response(JSON.stringify(body), {
     status: init?.status ?? 200,
     headers,
@@ -116,7 +114,8 @@ export function buildSkillContentUrls(
   skillPath: string | null,
 ): SkillContentUrls | null {
   if (!skillPath) return null
-  const path = `${packageName}@${version}/skills/${skillPath}/SKILL.md`
+  const encodedSkillPath = skillPath.split('/').map(encodeURIComponent).join('/')
+  const path = `${packageName}@${version}/skills/${encodedSkillPath}/SKILL.md`
   return {
     unpkg: `https://unpkg.com/${path}`,
     jsdelivr: `https://cdn.jsdelivr.net/npm/${path}`,
@@ -130,6 +129,7 @@ export function intentErrorResponse(
   rl?: RateLimitResult,
 ): Response {
   const headers = new Headers(rl?.headers)
+  headers.set('Cache-Control', 'no-store')
   headers.set('Content-Type', 'application/json')
   return new Response(JSON.stringify({ error, code }), {
     status,

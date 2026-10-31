@@ -1,220 +1,376 @@
 import * as React from 'react'
-import { Link, useNavigate, useParams } from '@tanstack/react-router'
-import { useQuery } from '@tanstack/react-query'
-import { Footer } from '~/components/Footer'
-import { LazySponsorSection } from '~/components/LazySponsorSection'
-import { LibraryHero } from '~/components/LibraryHero'
-import { BottomCTA } from '~/components/BottomCTA'
-import { intentProject } from '~/libraries/intent'
-import { getLibrary } from '~/libraries'
-import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
-import LandingPageGad from '~/components/LandingPageGad'
-import { LibraryPageContainer } from '~/components/LibraryPageContainer'
-import { LibraryStatsSection } from '~/components/LibraryStatsSection'
-import { Button } from '~/ui'
-import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 import {
-  intentStatsQueryOptions,
-  intentDirectoryQueryOptions,
-  intentSkillHistoryQueryOptions,
-} from '~/queries/intent'
-import { SkillSparkline } from '~/components/intent/SkillSparkline'
-import type { SkillHistoryEntry } from '~/utils/intent.functions'
+  CheckCircleIcon,
+  ClockCounterClockwiseIcon,
+  FileMagnifyingGlassIcon,
+  LockKeyIcon,
+  PackageIcon,
+  RobotIcon,
+  ScanIcon,
+  ShieldCheckIcon,
+} from '@phosphor-icons/react'
+import { Badge } from '~/ui/Badge'
 
-const library = getLibrary('intent')
+import {
+  LandingSection,
+  LandingSectionIntro,
+  LandingWindow,
+  LibraryLandingShell,
+} from './LibraryLanding'
+
+const intentPrompt = [
+  'Ship versioned Agent Skills with a TypeScript npm package using TanStack Intent.',
+  'Keep skill files beside their source documentation, validate them in CI, publish them in the package tarball, and use conservative stale checks when referenced docs change.',
+  'For consumers, scan installed dependencies without executing package code, apply an explicit allowlist and exclusions, and load only the guidance needed for the current task. Treat editor hooks as convenience, not a security boundary.',
+].join(' ')
+
+const skillPackages = [
+  {
+    packageName: '@tanstack/react-router',
+    skill: 'tanstack-router',
+    task: 'Model typed search params and route loaders',
+    source: 'docs/framework/react/guide/search-params.md',
+  },
+  {
+    packageName: '@tanstack/react-query',
+    skill: 'tanstack-query',
+    task: 'Choose query keys and invalidation boundaries',
+    source: 'docs/framework/react/guides/query-keys.md',
+  },
+  {
+    packageName: '@tanstack/react-table',
+    skill: 'tanstack-table',
+    task: 'Compose row models for a data grid',
+    source: 'docs/guide/row-models.md',
+  },
+]
 
 export default function IntentLanding() {
-  const { version } = useParams({ strict: false })
-
   return (
-    <LibraryPageContainer>
-      <LibraryHero
-        project={intentProject}
-        actions={
-          <div className="flex justify-center gap-4 flex-wrap">
-            <Button
-              as={Link}
-              to="/intent/registry"
-              className="bg-transparent border-sky-500 dark:border-sky-600 text-sky-600 dark:text-sky-400 hover:bg-sky-500/10"
-            >
-              View Registry
-            </Button>
-            <Button
-              as={Link}
-              to="/$libraryId/$version/docs"
-              params={{ libraryId: library.id, version } as never}
-              className="bg-sky-500 border-sky-500 hover:bg-sky-600 dark:bg-sky-600 dark:border-sky-600 text-white"
-            >
-              Get Started
-            </Button>
-          </div>
-        }
-      />
+    <LibraryLandingShell
+      libraryId="intent"
+      headline="Your dependency can ship the knowledge required to use it."
+      description="TanStack Intent gives maintainers a versioned path from source docs to Agent Skills, then gives consumers a controlled way to discover that guidance from installed packages."
+      hero={<SkillDiscoveryHero />}
+      prompt={intentPrompt}
+      promptLabel="Copy Intent prompt"
+    >
+      <LandingSection tone="accent">
+        <LandingSectionIntro
+          centered
+          eyebrow="Consumer trust model"
+          icon={<ShieldCheckIcon aria-hidden="true" size={15} />}
+          title="Discovery can scan the workspace. Trust is still explicit."
+          body="Intent can inspect workspace dependencies for static skill files without executing package code. An allowlist and exclusions decide which packages may contribute guidance, and the agent loads a skill only when the task calls for it."
+        />
+        <TrustPath />
+      </LandingSection>
 
-      <LibraryStatsSection library={library} />
+      <LandingSection tone="raised">
+        <div className="grid items-center gap-12 lg:grid-cols-[1.08fr_0.92fr] lg:gap-16">
+          <FreshnessWorkbench />
+          <LandingSectionIntro
+            eyebrow="Conservative freshness"
+            icon={<ClockCounterClockwiseIcon aria-hidden="true" size={15} />}
+            title="A changed source is a review signal, not proof of bad guidance."
+            body="Skills declare the documentation they depend on. intent stale can flag a skill when those sources move, but it does not pretend to understand whether the semantic advice is wrong. Maintainers make that call."
+          />
+        </div>
+      </LandingSection>
 
-      <IntentRegistryPreview />
-
-      <LibraryFeatureHighlights
-        featureHighlights={intentProject.featureHighlights}
-      />
-
-      <LazyLandingCommunitySection
-        libraryId="intent"
-        libraryName="TanStack Intent"
-        showShowcases={false}
-      />
-      <LazySponsorSection />
-      <LandingPageGad />
-
-      <BottomCTA
-        linkProps={{
-          to: '/$libraryId/$version/docs',
-          params: { libraryId: library.id, version },
-        }}
-        label="Get Started!"
-        className="bg-sky-500 border-sky-500 hover:bg-sky-600 text-white"
-      />
-      <Footer />
-    </LibraryPageContainer>
+      <LandingSection tone="ink">
+        <div className="grid gap-12 lg:grid-cols-[0.84fr_1.16fr] lg:items-center lg:gap-16">
+          <LandingSectionIntro
+            eyebrow="Maintainer loop"
+            icon={<PackageIcon aria-hidden="true" size={15} />}
+            title="The skill releases with the code it explains."
+            body="Generate or author guidance near the package, validate its structure and source references in CI, then include it in the npm tarball. The package version becomes the skill version; the public registry makes that history browsable after indexing."
+          />
+          <PublicationTimeline />
+        </div>
+      </LandingSection>
+    </LibraryLandingShell>
   )
 }
 
-function IntentRegistryPreview() {
-  const statsQuery = useQuery(intentStatsQueryOptions())
-  const directoryQuery = useQuery(
-    intentDirectoryQueryOptions({ sort: 'downloads', pageSize: 9 }),
-  )
-
-  const stats = statsQuery.data
-  const packages = directoryQuery.data?.packages
-
-  const packageNames = React.useMemo(
-    () => (packages ?? []).map((p) => p.name),
-    [packages],
-  )
-  const skillHistoryQuery = useQuery(
-    intentSkillHistoryQueryOptions(packageNames),
-  )
-  const skillHistory = React.useMemo(
-    () => skillHistoryQuery.data ?? {},
-    [skillHistoryQuery.data],
-  )
-  const maxSlots = React.useMemo(
-    () => Math.max(...Object.values(skillHistory).map((h) => h.length), 2),
-    [skillHistory],
-  )
-
-  const navigate = useNavigate()
-
-  if (!statsQuery.isLoading && (stats?.packageCount ?? 0) === 0) return null
+function SkillDiscoveryHero() {
+  const [activeIndex, setActiveIndex] = React.useState(0)
+  const [allowed, setAllowed] = React.useState(false)
+  const [loaded, setLoaded] = React.useState(false)
+  const activePackage = skillPackages[activeIndex] ?? skillPackages[0]
 
   return (
-    <div className="py-12 lg:py-16 px-4">
-      <div className="max-w-[1200px] mx-auto">
-        <div className="flex items-end justify-between mb-6 gap-4">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Skills Registry
-            </h2>
-            <p className="mt-1 text-gray-500 dark:text-gray-400 text-sm">
-              {stats ? (
-                <>
-                  <span className="font-semibold text-sky-600 dark:text-sky-400">
-                    {stats.packageCount}
-                  </span>{' '}
-                  {stats.packageCount === 1 ? 'package' : 'packages'},{' '}
-                  <span className="font-semibold text-sky-600 dark:text-sky-400">
-                    {stats.skillCount}
-                  </span>{' '}
-                  {stats.skillCount === 1 ? 'skill' : 'skills'} indexed
-                </>
-              ) : (
-                'Loading...'
-              )}
+    <LandingWindow label="workspace skill discovery">
+      <div className="grid min-h-[24rem] md:grid-cols-[0.94fr_1.06fr]">
+        <div className="border-border-subtle p-4 md:border-r">
+          <div className="flex items-center justify-between gap-3">
+            <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/30">
+              installed dependencies
+            </p>
+            <span className="font-ds-mono text-ds-mono-2xs text-text-primary/25">
+              lockfile
+            </span>
+          </div>
+          <div className="mt-4 space-y-2">
+            {skillPackages.map((item, index) => (
+              <button
+                key={item.packageName}
+                type="button"
+                aria-pressed={index === activeIndex}
+                className="block w-full rounded-lg border border-border-subtle bg-background-subtle p-3 text-left hover:border-border-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.12)]"
+                onClick={() => {
+                  setActiveIndex(index)
+                  setAllowed(false)
+                  setLoaded(false)
+                }}
+              >
+                <span className="block truncate font-ds-mono text-ds-mono-2xs text-text-primary/65">
+                  {item.packageName}
+                </span>
+                <span className="mt-1 block font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
+                  skills/{item.skill}/SKILL.md
+                </span>
+              </button>
+            ))}
+          </div>
+          <div className="mt-4 rounded-lg border border-border-subtle bg-background-subtle p-3">
+            <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+              scan mode
+            </p>
+            <p className="mt-2 font-ds-mono text-ds-mono-2xs text-text-primary/55">
+              static files · no package code executed
             </p>
           </div>
-          <Link
-            to="/intent/registry"
-            className="shrink-0 text-sm text-sky-600 dark:text-sky-400 hover:underline font-medium"
-          >
-            Browse all
-          </Link>
         </div>
 
-        {packages && packages.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {packages.map((pkg) => (
-              <Link
-                key={pkg.name}
-                to="/intent/registry/$packageName"
-                params={{ packageName: pkg.name.replace('/', '__') }}
-                className="group flex flex-col gap-2 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/50 p-4 hover:border-sky-300 dark:hover:border-sky-700 transition-colors"
-              >
-                <div className="flex items-start justify-between gap-2 mb-1">
-                  <span className="font-mono text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors truncate">
-                    {pkg.name}
-                  </span>
-                  <div className="shrink-0 w-20">
-                    {skillHistory[pkg.name] &&
-                    skillHistory[pkg.name].length > 0 ? (
-                      <SkillSparkline
-                        history={skillHistory[pkg.name]}
-                        height={24}
-                        maxSlots={maxSlots}
-                        onVersionClick={(entry: SkillHistoryEntry) => {
-                          navigate({
-                            to: '/intent/registry/$packageName',
-                            params: {
-                              packageName: pkg.name.replace('/', '__'),
-                            },
-                            search: { version: entry.version },
-                          })
-                        }}
-                      />
-                    ) : null}
-                  </div>
-                </div>
-                {/* Stats row */}
-                <div className="flex items-center gap-3 text-[11px] text-gray-400 dark:text-gray-500">
-                  <span className="shrink-0 text-xs font-medium text-sky-600 dark:text-sky-400 tabular-nums">
-                    {pkg.skillNames.length}{' '}
-                    {pkg.skillNames.length === 1 ? 'skill' : 'skills'}
-                  </span>
-                  {pkg.monthlyDownloads > 0 && (
-                    <span className="tabular-nums">
-                      {pkg.monthlyDownloads >= 1_000_000
-                        ? `${(pkg.monthlyDownloads / 1_000_000).toFixed(1)}M`
-                        : pkg.monthlyDownloads >= 1_000
-                          ? `${Math.floor(pkg.monthlyDownloads / 1_000)}K`
-                          : pkg.monthlyDownloads}
-                      /mo
-                    </span>
-                  )}
-                  <span className="font-mono">v{pkg.latestVersion}</span>
-                  {pkg.frameworks.length > 0 && (
-                    <span>{pkg.frameworks.slice(0, 2).join(', ')}</span>
-                  )}
-                </div>
-                {pkg.description && (
-                  <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">
-                    {pkg.description}
-                  </p>
-                )}
-              </Link>
-            ))}
+        <div className="flex min-w-0 flex-col p-5" aria-live="polite">
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+                discovered skill
+              </p>
+              <p className="mt-2 truncate text-ds-heading-4 text-text-primary">
+                {activePackage.skill}
+              </p>
+            </div>
+            <span className="rounded bg-[color:rgb(var(--landing-glow)/0.18)] px-2 py-1 font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
+              package version
+            </span>
           </div>
-        ) : directoryQuery.isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div
-                key={i}
-                className="h-20 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/30 animate-pulse"
-              />
-            ))}
+
+          <div className="mt-5 rounded-lg border border-border-subtle bg-background-subtle p-4">
+            <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+              useful for
+            </p>
+            <p className="mt-2 text-ds-body-sm text-text-primary/55">
+              {activePackage.task}
+            </p>
+            <p className="mt-4 truncate font-ds-mono text-ds-mono-2xs text-text-primary/25">
+              source: {activePackage.source}
+            </p>
           </div>
-        ) : null}
+
+          <div className="mt-auto grid gap-2 pt-5 sm:grid-cols-2">
+            <button
+              type="button"
+              aria-pressed={allowed}
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-[var(--landing-accent)] px-3 py-2 text-ds-label-sm text-[var(--landing-accent-bright)] hover:bg-[color:rgb(var(--landing-glow)/0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
+              onClick={() => {
+                setAllowed((current) => !current)
+                setLoaded(false)
+              }}
+            >
+              <LockKeyIcon aria-hidden="true" size={16} />
+              {allowed ? 'Allowed' : 'Allow package'}
+            </button>
+            <button
+              type="button"
+              disabled={!allowed}
+              aria-pressed={loaded}
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--landing-accent)] px-3 py-2 text-ds-label-sm text-[var(--landing-accent-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] disabled:cursor-not-allowed disabled:opacity-25"
+              onClick={() => setLoaded((current) => !current)}
+            >
+              {loaded ? (
+                <CheckCircleIcon aria-hidden="true" size={16} />
+              ) : (
+                <RobotIcon aria-hidden="true" size={16} />
+              )}
+              {loaded ? 'Guidance loaded' : 'Load for task'}
+            </button>
+          </div>
+        </div>
       </div>
+    </LandingWindow>
+  )
+}
+
+function TrustPath() {
+  const steps = [
+    {
+      icon: ScanIcon,
+      label: 'Scan',
+      detail: 'Read package metadata and static skill files.',
+    },
+    {
+      icon: LockKeyIcon,
+      label: 'Allow',
+      detail: 'Match package names against your allowlist and exclusions.',
+    },
+    {
+      icon: FileMagnifyingGlassIcon,
+      label: 'Inspect',
+      detail: 'Keep source references and skill content visible.',
+    },
+    {
+      icon: RobotIcon,
+      label: 'Load',
+      detail: 'Give only relevant guidance to the active agent task.',
+    },
+  ]
+
+  return (
+    <div className="relative mx-auto mt-14 max-w-[74rem]">
+      <div
+        aria-hidden="true"
+        className="absolute top-10 right-[11%] left-[11%] hidden h-px bg-[color:rgb(var(--landing-glow)/0.5)] md:block"
+      />
+      <ol className="relative grid gap-4 md:grid-cols-4">
+        {steps.map((step, index) => {
+          const Icon = step.icon
+          return (
+            <li
+              key={step.label}
+              className="rounded-xl border border-border-default bg-background-surface p-5"
+            >
+              <span className="flex size-10 items-center justify-center rounded-full bg-[var(--landing-accent)] text-[var(--landing-accent-ink)]">
+                <Icon aria-hidden="true" size={19} />
+              </span>
+              <p className="mt-6 font-ds-mono text-ds-mono-2xs text-text-primary/20">
+                0{index + 1}
+              </p>
+              <h3 className="mt-2 text-ds-heading-4">{step.label}</h3>
+              <p className="mt-3 text-ds-body-xs text-text-primary/35">
+                {step.detail}
+              </p>
+            </li>
+          )
+        })}
+      </ol>
+      <p className="mt-5 text-center text-ds-body-xs text-text-primary/30">
+        Editor and install hooks may streamline discovery. They are not a
+        security boundary.
+      </p>
     </div>
+  )
+}
+
+function FreshnessWorkbench() {
+  const [changedSource, setChangedSource] = React.useState('search-params.md')
+  const matches =
+    changedSource === 'search-params.md'
+      ? ['tanstack-router', 'router-migrations']
+      : ['tanstack-query']
+
+  return (
+    <LandingWindow label="intent stale">
+      <div className="p-5 sm:p-6">
+        <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+          documentation changed
+        </p>
+        <div className="mt-3 flex gap-2">
+          {['search-params.md', 'query-keys.md'].map((source) => (
+            <button
+              key={source}
+              type="button"
+              aria-pressed={source === changedSource}
+              className="min-w-0 flex-1 truncate rounded-lg border border-border-default px-3 py-2 font-ds-mono text-ds-mono-2xs text-text-primary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
+              onClick={() => setChangedSource(source)}
+            >
+              {source}
+            </button>
+          ))}
+        </div>
+        <div className="mt-5 overflow-x-auto rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-ds-mono-xs text-white/55">
+          <span className="text-[var(--landing-accent-dark)]">$</span> intent
+          stale
+        </div>
+        <div className="mt-3 space-y-2" aria-live="polite">
+          {matches.map((skill) => (
+            <div
+              key={skill}
+              className="flex items-center justify-between gap-4 rounded-lg border border-border-subtle bg-background-subtle px-4 py-3"
+            >
+              <span className="truncate font-ds-mono text-ds-mono-2xs text-text-primary/60">
+                {skill}
+              </span>
+              <Badge
+                variant="warning"
+                className="shrink-0 rounded font-ds-mono text-ds-mono-caps-xs uppercase"
+              >
+                review
+              </Badge>
+            </div>
+          ))}
+        </div>
+        <p className="mt-4 text-ds-body-xs text-text-primary/30">
+          The source relationship changed. A maintainer decides whether the
+          skill needs an edit.
+        </p>
+      </div>
+    </LandingWindow>
+  )
+}
+
+function PublicationTimeline() {
+  const releases = [
+    ['Author', 'SKILL.md + source refs'],
+    ['Validate', 'structure checked in CI'],
+    ['Publish', 'included in npm files'],
+    ['Discover', 'indexed package history'],
+  ]
+
+  return (
+    <LandingWindow label="versioned skill history">
+      <div className="p-5 sm:p-6">
+        <ol className="space-y-3">
+          {releases.map(([label, detail], index) => (
+            <li
+              key={label}
+              className="grid grid-cols-[2.5rem_1fr_auto] items-center gap-3 rounded-lg border border-border-subtle bg-background-subtle p-3"
+            >
+              <span className="flex size-9 items-center justify-center rounded-full bg-[color:rgb(var(--landing-glow)/0.18)] font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
+                {index + 1}
+              </span>
+              <div className="min-w-0">
+                <p className="text-ds-label-sm text-text-primary">{label}</p>
+                <p className="mt-1 truncate font-ds-mono text-ds-mono-2xs text-text-primary/25">
+                  {detail}
+                </p>
+              </div>
+              <CheckCircleIcon
+                aria-hidden="true"
+                className="text-icon-success"
+                size={17}
+              />
+            </li>
+          ))}
+        </ol>
+        <div className="mt-4 rounded-lg border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.1)] p-4">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
+                @tanstack/react-router
+              </p>
+              <p className="mt-1 text-ds-body-xs text-text-primary/35">
+                code + docs + skills share one release
+              </p>
+            </div>
+            <span className="font-ds-mono text-ds-mono-2xs text-text-primary/25">
+              npm version
+            </span>
+          </div>
+        </div>
+      </div>
+    </LandingWindow>
   )
 }

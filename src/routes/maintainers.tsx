@@ -2,8 +2,13 @@ import { createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { useState } from 'react'
 import * as React from 'react'
-import { X, ListFilter, Grid2X2, Grid3X3, LayoutList } from 'lucide-react'
-import { Footer } from '~/components/Footer'
+import {
+  XIcon,
+  FunnelIcon,
+  GridFourIcon,
+  GridNineIcon,
+  RowsIcon,
+} from '@phosphor-icons/react'
 import {
   MaintainerCard,
   CompactMaintainerCard,
@@ -27,7 +32,7 @@ const sortBySchema = v.picklist(['none', 'name', 'role', 'contributions'])
 
 const searchSchema = v.object({
   libraries: v.fallback(v.optional(v.array(libraryIdSchema)), undefined),
-  viewMode: v.fallback(v.optional(viewModeSchema, 'compact'), 'compact'),
+  viewMode: v.fallback(v.optional(viewModeSchema, 'full'), 'full'),
   groupBy: v.fallback(v.optional(groupBySchema, 'none'), 'none'),
   sortBy: v.fallback(v.optional(sortBySchema, 'none'), 'none'),
 })
@@ -73,11 +78,13 @@ function MaintainersFilter({
 }: FilterProps) {
   const [isOpen, setIsOpen] = useState(false)
 
-  const availableLibraries = libraries.map((lib) => ({
-    id: lib.id,
-    name: lib.name,
-    bgStyle: lib.bgStyle,
-  }))
+  const availableLibraries = libraries
+    .filter((lib) => lib.visible !== false)
+    .map((lib) => ({
+      id: lib.id,
+      name: lib.name,
+      bgStyle: lib.bgStyle,
+    }))
 
   const toggleLibrary = (libraryId: Library['id']) => {
     if (!selectedLibraries) {
@@ -131,14 +138,19 @@ function MaintainersFilter({
             [
               {
                 mode: 'compact',
-                Icon: Grid3X3,
+                Icon: GridNineIcon,
                 title: 'Compact cards',
                 rounded: 'rounded-l-lg',
               },
-              { mode: 'full', Icon: Grid2X2, title: 'Full cards', rounded: '' },
+              {
+                mode: 'full',
+                Icon: GridFourIcon,
+                title: 'Full cards',
+                rounded: '',
+              },
               {
                 mode: 'row',
-                Icon: LayoutList,
+                Icon: RowsIcon,
                 title: 'Row cards',
                 rounded: 'rounded-r-lg',
               },
@@ -165,7 +177,7 @@ function MaintainersFilter({
             onClick={() => setIsOpen(!isOpen)}
             className="inline-flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
-            <ListFilter className="w-4 h-4" />
+            <FunnelIcon className="w-4 h-4" />
             Filter & Sort
             {hasFilters && (
               <span className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-0.5 rounded-full text-xs">
@@ -246,7 +258,7 @@ function MaintainersFilter({
                   >
                     Filter by Libraries
                   </label>
-                  <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
+                  <div className="fade-y fade-size-y-sm grid max-h-48 grid-cols-2 gap-2 overflow-y-auto">
                     {availableLibraries.map((library) => {
                       const isSelected =
                         selectedLibraries?.includes(library.id) || false
@@ -292,7 +304,7 @@ function MaintainersFilter({
                   onClick={() => toggleLibrary(libraryId)}
                   className="hover:bg-black/10 dark:hover:bg-white/10 rounded p-0.5 transition-colors"
                 >
-                  <X className="w-3 h-3" />
+                  <XIcon className="w-3 h-3" />
                 </button>
               </span>
             )
@@ -321,7 +333,7 @@ function MaintainerGrid({
   }>
 }) {
   return (
-    <div>
+    <div className="@container">
       {title && <h3 className="text-2xl font-semibold mb-4">{title}</h3>}
       <div
         className={`transition-all duration-300 ${
@@ -329,7 +341,7 @@ function MaintainerGrid({
             ? 'grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-6'
             : viewMode === 'row'
               ? 'flex flex-col gap-4'
-              : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'
+              : 'grid grid-cols-2 gap-6 [&>*>*]:max-w-none @[28rem]:grid-cols-[repeat(auto-fit,minmax(180px,1fr))] @[43rem]:grid-cols-3'
         }`}
       >
         {maintainers.map((maintainer, index) => (
@@ -646,11 +658,11 @@ function RouteComponent() {
         }
       `}</style>
 
-      <div className="flex flex-col max-w-full min-h-screen gap-12 p-4 md:p-8 pb-0">
-        <div className="flex-1 flex flex-col gap-16 w-full max-w-4xl mx-auto">
+      <div className="flex flex-col max-w-full min-h-screen gap-6 md:gap-12 p-4 md:p-8 pb-0">
+        <div className="flex-1 flex flex-col gap-6 md:gap-16 w-full max-w-4xl mx-auto">
           <header className="">
             <h1 className="text-3xl font-black">Maintainers & Contributors</h1>
-            <p className="text-lg mt-4 text-gray-600 dark:text-gray-400">
+            <p className="text-lg mt-3 md:mt-4 text-gray-600 dark:text-gray-400">
               Meet the amazing developers who make TanStack possible through
               their contributions, maintenance, and dedication to open source
             </p>
@@ -752,7 +764,6 @@ function RouteComponent() {
             </p>
           </div>
         </div>
-        <Footer />
       </div>
     </>
   )

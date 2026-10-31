@@ -21,40 +21,66 @@ import {
   deleteShowcaseCore,
   getMyShowcasesCore,
   searchShowcasesCore,
+  publicShowcaseColumns,
   getShowcaseCore,
 } from './showcase.server'
 import { getTrancoRank } from './tranco.server'
-import { showcaseUseCaseSchema, showcaseStatusSchema } from './schemas'
+import {
+  pageNumberSchema,
+  pageSizeSchema,
+  showcaseUseCaseSchema,
+  showcaseStatusSchema,
+  showcasePlacementSchema,
+} from './schemas'
+
+const showcaseLimitSchema = v.pipe(
+  v.number(),
+  v.integer(),
+  v.minValue(1),
+  v.maxValue(24),
+)
+const showcaseTextSchema = (maxLength: number) =>
+  v.pipe(v.string(), v.minLength(1), v.maxLength(maxLength))
+const optionalShowcaseTextSchema = (maxLength: number) =>
+  v.optional(v.pipe(v.string(), v.maxLength(maxLength)))
+const optionalNullableShowcaseTextSchema = (maxLength: number) =>
+  v.optional(v.nullable(v.pipe(v.string(), v.maxLength(maxLength))))
+const showcaseUrlSchema = v.pipe(v.string(), v.minLength(1), v.maxLength(2048))
+const optionalShowcaseUrlSchema = v.optional(
+  v.pipe(v.string(), v.maxLength(2048)),
+)
+const optionalNullableShowcaseUrlSchema = v.optional(
+  v.nullable(v.pipe(v.string(), v.maxLength(2048))),
+)
+const showcaseLibrariesSchema = v.pipe(
+  v.array(v.pipe(v.string(), v.maxLength(64))),
+  v.minLength(1, 'At least one library is required'),
+  v.maxLength(16),
+)
+const optionalShowcaseUseCasesSchema = v.optional(
+  v.pipe(v.array(showcaseUseCaseSchema), v.maxLength(12)),
+  [],
+)
+const showcaseUseCasesSchema = v.pipe(
+  v.array(showcaseUseCaseSchema),
+  v.maxLength(12),
+)
 
 /**
  * Submit a new showcase
  */
 export const submitShowcase = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
-      name: v.pipe(
-        v.string(),
-        v.minLength(1, 'Name is required'),
-        v.maxLength(255),
-      ),
-      tagline: v.pipe(
-        v.string(),
-        v.minLength(1, 'Tagline is required'),
-        v.maxLength(500),
-      ),
-      description: v.optional(v.string()),
-      url: v.pipe(v.string(), v.minLength(1, 'URL is required')),
-      logoUrl: v.optional(v.string()),
-      screenshotUrl: v.pipe(
-        v.string(),
-        v.minLength(1, 'Screenshot URL is required'),
-      ),
-      sourceUrl: v.optional(v.string()),
-      libraries: v.pipe(
-        v.array(v.string()),
-        v.minLength(1, 'At least one library is required'),
-      ),
-      useCases: v.optional(v.array(showcaseUseCaseSchema), []),
+      name: showcaseTextSchema(255),
+      tagline: showcaseTextSchema(500),
+      description: optionalShowcaseTextSchema(4000),
+      url: showcaseUrlSchema,
+      logoUrl: optionalShowcaseUrlSchema,
+      screenshotUrl: showcaseUrlSchema,
+      sourceUrl: optionalShowcaseUrlSchema,
+      libraries: showcaseLibrariesSchema,
+      useCases: optionalShowcaseUseCasesSchema,
     }),
   )
   .handler(async ({ data }) => {
@@ -89,32 +115,18 @@ export const submitShowcase = createServerFn({ method: 'POST' })
  * Update an existing showcase (resets to pending)
  */
 export const updateShowcase = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       showcaseId: v.pipe(v.string(), v.uuid()),
-      name: v.pipe(
-        v.string(),
-        v.minLength(1, 'Name is required'),
-        v.maxLength(255),
-      ),
-      tagline: v.pipe(
-        v.string(),
-        v.minLength(1, 'Tagline is required'),
-        v.maxLength(500),
-      ),
-      description: v.optional(v.string()),
-      url: v.pipe(v.string(), v.minLength(1, 'URL is required')),
-      logoUrl: v.optional(v.string()),
-      screenshotUrl: v.pipe(
-        v.string(),
-        v.minLength(1, 'Screenshot URL is required'),
-      ),
-      sourceUrl: v.optional(v.string()),
-      libraries: v.pipe(
-        v.array(v.string()),
-        v.minLength(1, 'At least one library is required'),
-      ),
-      useCases: v.optional(v.array(showcaseUseCaseSchema), []),
+      name: showcaseTextSchema(255),
+      tagline: showcaseTextSchema(500),
+      description: optionalShowcaseTextSchema(4000),
+      url: showcaseUrlSchema,
+      logoUrl: optionalShowcaseUrlSchema,
+      screenshotUrl: showcaseUrlSchema,
+      sourceUrl: optionalShowcaseUrlSchema,
+      libraries: showcaseLibrariesSchema,
+      useCases: optionalShowcaseUseCasesSchema,
     }),
   )
   .handler(async ({ data }) => {
@@ -145,7 +157,7 @@ export const updateShowcase = createServerFn({ method: 'POST' })
  * Delete a showcase
  */
 export const deleteShowcase = createServerFn({ method: 'POST' })
-  .inputValidator(v.object({ showcaseId: v.pipe(v.string(), v.uuid()) }))
+  .validator(v.object({ showcaseId: v.pipe(v.string(), v.uuid()) }))
   .handler(async ({ data }) => {
     const user = await getAuthenticatedUser()
 
@@ -163,11 +175,11 @@ export const deleteShowcase = createServerFn({ method: 'POST' })
  * Get user's own showcases
  */
 export const getMyShowcases = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       pagination: v.object({
-        page: v.optional(v.number(), 1),
-        pageSize: v.optional(v.number(), 20),
+        page: v.optional(pageNumberSchema, 1),
+        pageSize: v.optional(pageSizeSchema, 20),
       }),
     }),
   )
@@ -188,19 +200,27 @@ export const getMyShowcases = createServerFn({ method: 'POST' })
  * Get approved showcases (public)
  */
 export const getApprovedShowcases = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       pagination: v.object({
-        page: v.optional(v.number(), 1),
-        pageSize: v.optional(v.number(), 24),
+        page: v.optional(pageNumberSchema, 1),
+        pageSize: v.optional(pageSizeSchema, 24),
       }),
       filters: v.optional(
         v.object({
-          libraryIds: v.optional(v.array(v.string())),
-          useCases: v.optional(v.array(showcaseUseCaseSchema)),
+          placement: v.optional(v.picklist(['showcase', 'community'])),
+          libraryIds: v.optional(
+            v.pipe(
+              v.array(v.pipe(v.string(), v.maxLength(64))),
+              v.maxLength(16),
+            ),
+          ),
+          useCases: v.optional(
+            v.pipe(v.array(showcaseUseCaseSchema), v.maxLength(12)),
+          ),
           featured: v.optional(v.boolean()),
           hasSourceCode: v.optional(v.boolean()),
-          q: v.optional(v.string()),
+          q: v.optional(v.pipe(v.string(), v.maxLength(120))),
         }),
       ),
     }),
@@ -216,10 +236,10 @@ export const getApprovedShowcases = createServerFn({ method: 'POST' })
  * Get showcases by library (public)
  */
 export const getShowcasesByLibrary = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
-      libraryId: v.string(),
-      limit: v.optional(v.number(), 6),
+      libraryId: v.pipe(v.string(), v.maxLength(64)),
+      limit: v.optional(showcaseLimitSchema, 6),
     }),
   )
   .handler(async ({ data }) => {
@@ -235,9 +255,9 @@ export const getShowcasesByLibrary = createServerFn({ method: 'POST' })
  * Shows featured first, then by popularity (Tranco rank), then by date
  */
 export const getFeaturedShowcases = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
-      limit: v.optional(v.number(), 6),
+      limit: v.optional(showcaseLimitSchema, 6),
     }),
   )
   .handler(async ({ data }) => {
@@ -251,16 +271,24 @@ export const getFeaturedShowcases = createServerFn({ method: 'POST' })
  * List showcases for moderation (moderate-showcases capability required)
  */
 export const listShowcasesForModeration = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       pagination: v.object({
-        page: v.optional(v.number(), 1),
-        pageSize: v.optional(v.number(), 50),
+        page: v.optional(pageNumberSchema, 1),
+        pageSize: v.optional(pageSizeSchema, 50),
       }),
       filters: v.optional(
         v.object({
-          status: v.optional(v.array(showcaseStatusSchema)),
-          libraryId: v.optional(v.array(v.string())),
+          placement: v.optional(showcasePlacementSchema),
+          status: v.optional(
+            v.pipe(v.array(showcaseStatusSchema), v.maxLength(3)),
+          ),
+          libraryId: v.optional(
+            v.pipe(
+              v.array(v.pipe(v.string(), v.maxLength(64))),
+              v.maxLength(16),
+            ),
+          ),
           userId: v.optional(v.pipe(v.string(), v.uuid())),
           isFeatured: v.optional(v.boolean()),
         }),
@@ -292,6 +320,9 @@ export const listShowcasesForModeration = createServerFn({ method: 'POST' })
         )!,
       )
     }
+
+    if (filters.placement)
+      conditions.push(eq(showcases.placement, filters.placement))
 
     if (filters.userId) {
       conditions.push(eq(showcases.userId, filters.userId))
@@ -348,53 +379,73 @@ export const listShowcasesForModeration = createServerFn({ method: 'POST' })
  * Moderate a showcase (approve or deny)
  */
 export const moderateShowcase = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       showcaseId: v.pipe(v.string(), v.uuid()),
       action: v.picklist(['approve', 'deny']),
-      moderationNote: v.optional(v.string()),
+      placement: v.optional(v.picklist(['showcase', 'community']), 'community'),
+      moderationNote: v.pipe(
+        v.string(),
+        v.trim(),
+        v.minLength(1, 'A decision reason is required'),
+        v.maxLength(4000),
+      ),
     }),
   )
   .handler(async ({ data }) => {
     const moderator = await requireModerateShowcases()
 
-    // Get existing for audit log
-    const existing = await db
-      .select()
-      .from(showcases)
-      .where(eq(showcases.id, data.showcaseId))
-      .limit(1)
+    await db.transaction(async (tx) => {
+      // Lock the current state before updating it or recording the audit.
+      const existing = await tx
+        .select()
+        .from(showcases)
+        .where(eq(showcases.id, data.showcaseId))
+        .limit(1)
+        .for('update')
 
-    if (!existing[0]) {
-      throw new Error('Showcase not found')
-    }
+      if (!existing[0]) {
+        throw new Error('Showcase not found')
+      }
 
-    const status: ShowcaseStatus =
-      data.action === 'approve' ? 'approved' : 'denied'
+      const status: ShowcaseStatus =
+        data.action === 'approve' ? 'approved' : 'denied'
 
-    await db
-      .update(showcases)
-      .set({
-        status,
-        moderatedBy: moderator.userId,
-        moderatedAt: new Date(),
-        moderationNote: data.moderationNote,
-        updatedAt: new Date(),
+      await tx
+        .update(showcases)
+        .set({
+          status,
+          placement: data.action === 'approve' ? data.placement : 'private',
+          isFeatured: false,
+          reviewReason: data.moderationNote ?? null,
+          moderatedBy: moderator.userId,
+          moderatedAt: new Date(),
+          moderationNote: data.moderationNote,
+          updatedAt: new Date(),
+        })
+        .where(eq(showcases.id, data.showcaseId))
+
+      // Log the moderation
+      await tx.insert(auditLogs).values({
+        actorId: moderator.userId,
+        action: 'showcase.moderate',
+        targetType: 'showcase',
+        targetId: data.showcaseId,
+        details: {
+          action: data.action,
+          moderationNote: data.moderationNote,
+          before: {
+            status: existing[0].status,
+            placement: existing[0].placement,
+            reviewReason: existing[0].reviewReason,
+          },
+          after: {
+            status,
+            placement: data.action === 'approve' ? data.placement : 'private',
+            reviewReason: data.moderationNote,
+          },
+        },
       })
-      .where(eq(showcases.id, data.showcaseId))
-
-    // Log the moderation
-    await db.insert(auditLogs).values({
-      actorId: moderator.userId,
-      action: 'showcase.moderate',
-      targetType: 'showcase',
-      targetId: data.showcaseId,
-      details: {
-        action: data.action,
-        moderationNote: data.moderationNote,
-        before: { status: existing[0].status },
-        after: { status },
-      },
     })
 
     return { success: true }
@@ -404,7 +455,7 @@ export const moderateShowcase = createServerFn({ method: 'POST' })
  * Set featured status for a showcase
  */
 export const setShowcaseFeatured = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       showcaseId: v.pipe(v.string(), v.uuid()),
       isFeatured: v.boolean(),
@@ -413,36 +464,47 @@ export const setShowcaseFeatured = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     const moderator = await requireModerateShowcases()
 
-    // Get existing for audit log
-    const existing = await db
-      .select()
-      .from(showcases)
-      .where(eq(showcases.id, data.showcaseId))
-      .limit(1)
+    await db.transaction(async (tx) => {
+      // Lock the current state before updating it or recording the audit.
+      const existing = await tx
+        .select()
+        .from(showcases)
+        .where(eq(showcases.id, data.showcaseId))
+        .limit(1)
+        .for('update')
 
-    if (!existing[0]) {
-      throw new Error('Showcase not found')
-    }
+      if (!existing[0]) {
+        throw new Error('Showcase not found')
+      }
 
-    await db
-      .update(showcases)
-      .set({
-        isFeatured: data.isFeatured,
-        updatedAt: new Date(),
+      if (
+        data.isFeatured &&
+        (existing[0].status !== 'approved' ||
+          existing[0].placement !== 'showcase')
+      ) {
+        throw new Error('Only approved Showcase projects can be featured')
+      }
+
+      await tx
+        .update(showcases)
+        .set({
+          isFeatured: data.isFeatured,
+          updatedAt: new Date(),
+        })
+        .where(eq(showcases.id, data.showcaseId))
+
+      // Log the change
+      await tx.insert(auditLogs).values({
+        actorId: moderator.userId,
+        action: 'showcase.moderate',
+        targetType: 'showcase',
+        targetId: data.showcaseId,
+        details: {
+          action: 'set_featured',
+          before: { isFeatured: existing[0].isFeatured },
+          after: { isFeatured: data.isFeatured },
+        },
       })
-      .where(eq(showcases.id, data.showcaseId))
-
-    // Log the change
-    await db.insert(auditLogs).values({
-      actorId: moderator.userId,
-      action: 'showcase.moderate',
-      targetType: 'showcase',
-      targetId: data.showcaseId,
-      details: {
-        action: 'set_featured',
-        before: { isFeatured: existing[0].isFeatured },
-        after: { isFeatured: data.isFeatured },
-      },
     })
 
     return { success: true }
@@ -452,7 +514,7 @@ export const setShowcaseFeatured = createServerFn({ method: 'POST' })
  * Get a single showcase by ID (public for approved, owner for any status)
  */
 export const getShowcase = createServerFn({ method: 'POST' })
-  .inputValidator(v.object({ showcaseId: v.pipe(v.string(), v.uuid()) }))
+  .validator(v.object({ showcaseId: v.pipe(v.string(), v.uuid()) }))
   .handler(async ({ data }) => {
     let user
     try {
@@ -468,7 +530,7 @@ export const getShowcase = createServerFn({ method: 'POST' })
  * Get a single showcase by ID for admin (moderate-showcases capability required)
  */
 export const adminGetShowcase = createServerFn({ method: 'POST' })
-  .inputValidator(v.object({ showcaseId: v.pipe(v.string(), v.uuid()) }))
+  .validator(v.object({ showcaseId: v.pipe(v.string(), v.uuid()) }))
   .handler(async ({ data }) => {
     await requireModerateShowcases()
 
@@ -499,37 +561,31 @@ export const adminGetShowcase = createServerFn({ method: 'POST' })
  * Allows editing all fields without resetting status
  */
 export const adminUpdateShowcase = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       showcaseId: v.pipe(v.string(), v.uuid()),
-      name: v.pipe(
-        v.string(),
-        v.minLength(1, 'Name is required'),
-        v.maxLength(255),
-      ),
-      tagline: v.pipe(
-        v.string(),
-        v.minLength(1, 'Tagline is required'),
-        v.maxLength(500),
-      ),
-      description: v.optional(v.nullable(v.string())),
-      url: v.pipe(v.string(), v.minLength(1, 'URL is required')),
-      logoUrl: v.optional(v.nullable(v.string())),
-      screenshotUrl: v.pipe(
-        v.string(),
-        v.minLength(1, 'Screenshot URL is required'),
-      ),
-      sourceUrl: v.optional(v.nullable(v.string())),
-      libraries: v.pipe(
-        v.array(v.string()),
-        v.minLength(1, 'At least one library is required'),
-      ),
-      useCases: v.array(showcaseUseCaseSchema),
+      name: showcaseTextSchema(255),
+      tagline: showcaseTextSchema(500),
+      description: optionalNullableShowcaseTextSchema(4000),
+      url: showcaseUrlSchema,
+      logoUrl: optionalNullableShowcaseUrlSchema,
+      screenshotUrl: showcaseUrlSchema,
+      sourceUrl: optionalNullableShowcaseUrlSchema,
+      libraries: showcaseLibrariesSchema,
+      useCases: showcaseUseCasesSchema,
       status: showcaseStatusSchema,
+      placement: showcasePlacementSchema,
+      expectedUpdatedAt: v.date(),
+      reviewReason: v.pipe(
+        v.string(),
+        v.trim(),
+        v.minLength(1, 'A decision reason is required'),
+        v.maxLength(4000),
+      ),
       isFeatured: v.boolean(),
-      moderationNote: v.optional(v.nullable(v.string())),
-      trancoRank: v.optional(v.nullable(v.number())),
-      voteScore: v.number(),
+      moderationNote: optionalNullableShowcaseTextSchema(20000),
+      trancoRank: v.optional(v.nullable(v.pipe(v.number(), v.minValue(1)))),
+      voteScore: v.pipe(v.number(), v.integer()),
     }),
   )
   .handler(async ({ data }) => {
@@ -581,53 +637,83 @@ export const adminUpdateShowcase = createServerFn({ method: 'POST' })
       trancoRank = await getTrancoRank(data.url)
     }
 
-    // Update showcase
-    await db
-      .update(showcases)
-      .set({
-        name: data.name,
-        tagline: data.tagline,
-        description: data.description ?? null,
-        url: data.url,
-        logoUrl: data.logoUrl ?? null,
-        screenshotUrl: data.screenshotUrl,
-        sourceUrl: data.sourceUrl ?? null,
-        libraries: expandedLibraries,
-        useCases: data.useCases,
-        status: data.status,
-        isFeatured: data.isFeatured,
-        moderationNote: data.moderationNote ?? null,
-        moderatedBy: moderator.userId,
-        moderatedAt: new Date(),
-        voteScore: data.voteScore,
-        trancoRank: trancoRank ?? null,
-        trancoRankUpdatedAt:
-          urlChanged && trancoRank
-            ? new Date()
-            : existing[0].trancoRankUpdatedAt,
-        updatedAt: new Date(),
-      })
-      .where(eq(showcases.id, data.showcaseId))
+    if (data.status !== 'approved' && data.placement !== 'private') {
+      throw new Error(
+        'Pending and denied submissions must have Private placement',
+      )
+    }
 
-    // Log the update
-    await db.insert(auditLogs).values({
-      actorId: moderator.userId,
-      action: 'showcase.update',
-      targetType: 'showcase',
-      targetId: data.showcaseId,
-      details: {
-        updatedBy: 'admin',
-        before: existing[0],
-        after: {
+    const isFeatured =
+      data.status === 'approved' &&
+      data.placement === 'showcase' &&
+      data.isFeatured
+
+    // Update showcase
+    await db.transaction(async (tx) => {
+      const updated = await tx
+        .update(showcases)
+        .set({
           name: data.name,
           tagline: data.tagline,
+          description: data.description ?? null,
           url: data.url,
+          logoUrl: data.logoUrl ?? null,
+          screenshotUrl: data.screenshotUrl,
+          sourceUrl: data.sourceUrl ?? null,
           libraries: expandedLibraries,
+          useCases: data.useCases,
           status: data.status,
-          isFeatured: data.isFeatured,
+          placement: data.placement,
+          reviewReason: data.reviewReason,
+          isFeatured,
+          moderationNote: data.moderationNote ?? null,
+          moderatedBy: moderator.userId,
+          moderatedAt: new Date(),
           voteScore: data.voteScore,
+          trancoRank: trancoRank ?? null,
+          trancoRankUpdatedAt:
+            urlChanged && trancoRank
+              ? new Date()
+              : existing[0].trancoRankUpdatedAt,
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(showcases.id, data.showcaseId),
+            eq(
+              sql`date_trunc('milliseconds', ${showcases.updatedAt})`,
+              data.expectedUpdatedAt.toISOString(),
+            ),
+          ),
+        )
+        .returning({ id: showcases.id })
+      if (!updated.length)
+        throw new Error(
+          'This project changed since you opened it. Reload before saving.',
+        )
+
+      // Log the update
+      await tx.insert(auditLogs).values({
+        actorId: moderator.userId,
+        action: 'showcase.update',
+        targetType: 'showcase',
+        targetId: data.showcaseId,
+        details: {
+          updatedBy: 'admin',
+          before: existing[0],
+          after: {
+            name: data.name,
+            tagline: data.tagline,
+            url: data.url,
+            libraries: expandedLibraries,
+            status: data.status,
+            placement: data.placement,
+            reviewReason: data.reviewReason,
+            isFeatured,
+            voteScore: data.voteScore,
+          },
         },
-      },
+      })
     })
 
     return { success: true }
@@ -637,7 +723,7 @@ export const adminUpdateShowcase = createServerFn({ method: 'POST' })
  * Admin delete a showcase (moderate-showcases capability required)
  */
 export const adminDeleteShowcase = createServerFn({ method: 'POST' })
-  .inputValidator(v.object({ showcaseId: v.pipe(v.string(), v.uuid()) }))
+  .validator(v.object({ showcaseId: v.pipe(v.string(), v.uuid()) }))
   .handler(async ({ data }) => {
     const moderator = await requireModerateShowcases()
 
@@ -673,7 +759,7 @@ export const adminDeleteShowcase = createServerFn({ method: 'POST' })
  * If user voted with different value, updates to new value
  */
 export const voteShowcase = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       showcaseId: v.pipe(v.string(), v.uuid()),
       value: v.picklist([1, -1]),
@@ -688,7 +774,11 @@ export const voteShowcase = createServerFn({ method: 'POST' })
 
     // Check showcase exists and is approved
     const [showcase] = await db
-      .select({ id: showcases.id, status: showcases.status })
+      .select({
+        id: showcases.id,
+        status: showcases.status,
+        placement: showcases.placement,
+      })
       .from(showcases)
       .where(eq(showcases.id, data.showcaseId))
       .limit(1)
@@ -697,7 +787,7 @@ export const voteShowcase = createServerFn({ method: 'POST' })
       throw new Error('Showcase not found')
     }
 
-    if (showcase.status !== 'approved') {
+    if (showcase.status !== 'approved' || showcase.placement === 'private') {
       throw new Error('Can only vote on approved showcases')
     }
 
@@ -755,9 +845,12 @@ export const voteShowcase = createServerFn({ method: 'POST' })
  * Get current user's votes for a batch of showcases
  */
 export const getMyShowcaseVotes = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
-      showcaseIds: v.array(v.pipe(v.string(), v.uuid())),
+      showcaseIds: v.pipe(
+        v.array(v.pipe(v.string(), v.uuid())),
+        v.maxLength(100),
+      ),
     }),
   )
   .handler(async ({ data }) => {
@@ -791,11 +884,14 @@ export const getMyShowcaseVotes = createServerFn({ method: 'POST' })
  * Get related showcases (same libraries, excluding current showcase)
  */
 export const getRelatedShowcases = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       showcaseId: v.pipe(v.string(), v.uuid()),
-      libraries: v.array(v.string()),
-      limit: v.optional(v.number(), 4),
+      libraries: v.pipe(
+        v.array(v.pipe(v.string(), v.maxLength(64))),
+        v.maxLength(16),
+      ),
+      limit: v.optional(showcaseLimitSchema, 4),
     }),
   )
   .handler(async ({ data }) => {
@@ -805,7 +901,7 @@ export const getRelatedShowcases = createServerFn({ method: 'POST' })
 
     const showcaseList = await db
       .select({
-        showcase: showcases,
+        showcase: publicShowcaseColumns,
         user: {
           id: users.id,
           name: users.name,
@@ -816,7 +912,8 @@ export const getRelatedShowcases = createServerFn({ method: 'POST' })
       .leftJoin(users, eq(showcases.userId, users.id))
       .where(
         and(
-          eq(showcases.status, 'approved' as ShowcaseStatus),
+          eq(showcases.status, 'approved'),
+          eq(showcases.placement, 'showcase'),
           sql`${showcases.id} != ${data.showcaseId}`,
           or(
             ...data.libraries.map((libId) =>

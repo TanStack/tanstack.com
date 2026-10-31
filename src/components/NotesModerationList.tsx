@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 import {
   Table,
@@ -13,7 +14,7 @@ import { PaginationControls } from './PaginationControls'
 import { Spinner } from './Spinner'
 import type { DocFeedback } from '~/db/types'
 import { calculatePoints } from '~/utils/docFeedback.shared'
-import { ExternalLink, TriangleAlert } from 'lucide-react'
+import { ArrowSquareOutIcon, WarningIcon } from '@phosphor-icons/react'
 import { Badge } from '~/ui'
 
 interface NotesModerationListProps {
@@ -185,7 +186,7 @@ export function NotesModerationList({
                     </span>
                     {feedback.isDetached && (
                       <div className="flex items-center gap-1 text-xs text-yellow-600 dark:text-yellow-400 mt-1">
-                        <TriangleAlert />
+                        <WarningIcon />
                         Detached
                       </div>
                     )}
@@ -211,15 +212,15 @@ export function NotesModerationList({
                     </div>
                   </TableCell>
                   <TableCell onClick={(e) => e.stopPropagation()}>
-                    <a
-                      href={feedback.pagePath}
+                    <Link
+                      to={feedback.pagePath}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
                     >
-                      <ExternalLink className="text-[10px]" />
+                      <ArrowSquareOutIcon className="text-[10px]" />
                       View Doc
-                    </a>
+                    </Link>
                   </TableCell>
                 </TableRow>
                 {isExpanded && (

@@ -2,6 +2,7 @@
 title: 'One Flag, Every Chunk: Debug Logging Lands in TanStack AI'
 published: 2026-04-22
 excerpt: "Your AI pipeline is a black box: a missing chunk, a middleware that doesn't fire, a tool call with mystery args. TanStack AI now ships pluggable, category-toggleable debug logging across every activity and adapter. Flip one flag and the pipeline prints itself."
+library: ai
 authors:
   - Alem Tuzlak
 ---

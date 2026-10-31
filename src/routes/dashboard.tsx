@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/set-state-in-effect -- animation trigger on mount */
-import { createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
-import { ArrowRight, Hand } from 'lucide-react'
+import { ArrowRightIcon, HandIcon } from '@phosphor-icons/react'
 import { Card } from '~/components/Card'
 
 export const Route = createFileRoute('/dashboard')({
@@ -36,7 +36,7 @@ function Dashboard() {
                   animation: waved ? 'hand-wave 1s ease-in-out 1' : undefined,
                 }}
               >
-                <Hand className="w-24 h-24 text-yellow-500 rounded-full" />
+                <HandIcon className="w-24 h-24 text-yellow-500 rounded-full" />
               </div>
             </div>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-1 text-center">
@@ -46,13 +46,13 @@ function Dashboard() {
               There's not much to see here yet. <br /> We're working on it!
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center items-center mt-16">
-              <a
-                href="/account"
+              <Link
+                to="/account"
                 className="inline-block bg-black/80 hover:bg-black text-white dark:text-black dark:bg-white/90 dark:hover:bg-white font-semibold py-2 px-6 rounded-md transition-colors text-center"
               >
                 Account Settings
-                <ArrowRight className="inline-block ml-2" />
-              </a>
+                <ArrowRightIcon className="inline-block ml-2" />
+              </Link>
             </div>
           </Card>
         </div>

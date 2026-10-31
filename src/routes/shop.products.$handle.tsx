@@ -2,7 +2,6 @@ import * as React from 'react'
 import { Link, createFileRoute, notFound } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 import { ProductImage } from '~/components/shop/ProductImage'
-import { useCartDrawerStore } from '~/components/shop/cartDrawerStore'
 import { ShopNote } from '~/components/shop/ShopNote'
 import { ShopSpecs } from '~/components/shop/ShopSpecs'
 import {
@@ -13,16 +12,22 @@ import {
   ShopPanel,
   ShopPulse,
   ShopQty,
+  ShopSelect,
   ShopSize,
 } from '~/components/shop/ui'
 import { useAddToCart } from '~/hooks/useCart'
 import { getProduct } from '~/utils/shop.functions'
 import {
+  findExactVariant,
+  findMatchingVariant,
+  hasAvailableVariant,
   type ProductDetail,
   type ProductDetailVariant,
 } from '~/utils/shopify-queries'
 import { formatMoney, shopifyImageUrl } from '~/utils/shopify-format'
 import { seo } from '~/utils/seo'
+
+const MAX_INLINE_OPTION_VALUES = 8
 
 export const Route = createFileRoute('/shop/products/$handle')({
   loader: async ({ params }) => {
@@ -49,39 +54,74 @@ export const Route = createFileRoute('/shop/products/$handle')({
       }),
     }
   },
-  component: ProductPage,
+  component: ShopProductsHandleRoute,
 })
 
-function ProductPage() {
+function ShopProductsHandleRoute() {
   const { product } = Route.useLoaderData()
+  return (
+    <ProductPage
+      product={product}
+      canonicalPath={`/shop/products/${product.handle}`}
+    />
+  )
+}
+
+export function ProductPage({
+  product,
+  canonicalPath,
+}: {
+  product: ProductDetail
+  canonicalPath: string
+}) {
   const variants = product.variants.nodes
 
   const [selected, setSelected] = React.useState<Record<string, string>>(() =>
-    Object.fromEntries(product.options.map((o) => [o.name, o.values[0]!])),
+    Object.fromEntries(
+      product.options.map((o) => [
+        o.name,
+        o.values.length === 1 ? (o.values[0] ?? '') : '',
+      ]),
+    ),
   )
   const [quantity, setQuantity] = React.useState(1)
 
-  const selectedVariant = findMatchingVariant(variants, selected)
-  const variantImage = selectedVariant?.image ?? null
-  const initialImageIndex = React.useMemo(() => {
+  const selectedVariant = findExactVariant(variants, selected)
+  const variantForImage = findMatchingVariant(variants, selected)
+  const variantImage = variantForImage?.image ?? null
+  const matchingImageIndex = React.useMemo(() => {
     if (!variantImage) return 0
     const i = product.images.nodes.findIndex(
       (img) => img.url === variantImage.url,
     )
-    return i >= 0 ? i : 0
+    return i
   }, [variantImage, product.images.nodes])
-  const [activeImageIndex, setActiveImageIndex] =
-    React.useState(initialImageIndex)
+  const [activeImageIndex, setActiveImageIndex] = React.useState(() =>
+    matchingImageIndex >= 0 ? matchingImageIndex : 0,
+  )
+
+  const [thumbnailSelected, setThumbnailSelected] = React.useState(false)
 
   React.useEffect(() => {
-    setActiveImageIndex(initialImageIndex)
-  }, [initialImageIndex])
+    setThumbnailSelected(false)
+    if (matchingImageIndex >= 0) setActiveImageIndex(matchingImageIndex)
+  }, [matchingImageIndex, variantForImage?.id])
 
   const heroImage =
-    product.images.nodes[activeImageIndex] ?? variantImage ?? null
+    (!thumbnailSelected && matchingImageIndex < 0 ? variantImage : null) ??
+    product.images.nodes[activeImageIndex] ??
+    variantImage ??
+    product.images.nodes[0] ??
+    null
 
-  const displayPrice = selectedVariant?.price ?? null
-  const inStock = !!selectedVariant?.availableForSale
+  const displayPrice =
+    selectedVariant?.price ??
+    variantForImage?.price ??
+    variants[0]?.price ??
+    null
+  const inStock = selectedVariant
+    ? selectedVariant.availableForSale
+    : variants.some((variant) => variant.availableForSale)
 
   return (
     <div className="p-6 md:p-11 pb-24 max-w-[1200px] mx-auto">
@@ -93,26 +133,29 @@ function ProductPage() {
         <ProductGallery
           images={product.images.nodes}
           activeIndex={activeImageIndex}
-          onChange={setActiveImageIndex}
+          onChange={(index) => {
+            setThumbnailSelected(true)
+            setActiveImageIndex(index)
+          }}
           title={product.title}
           hero={heroImage}
         />
 
         <div className="flex flex-col">
           <ShopLabel>TanStack shop</ShopLabel>
-          <h1 className="font-shop-display font-bold text-[32px] leading-[1.05] tracking-[-0.02em] text-shop-text mt-1.5">
+          <h1 className="font-shop-display text-ds-heading-1 text-shop-text mt-1.5">
             {product.title}
           </h1>
 
           <ShopPanel className="mt-3 p-3 flex flex-wrap items-center gap-2.5">
             {displayPrice ? (
-              <ShopMono className="text-[20px] font-medium text-shop-text">
+              <ShopMono className="text-ds-body-xl text-shop-text">
                 {formatMoney(displayPrice.amount, displayPrice.currencyCode)}
               </ShopMono>
             ) : null}
             <ShopMono
               className={twMerge(
-                'ml-auto flex items-center gap-1.5 text-[12px]',
+                'ml-auto flex items-center gap-1.5 text-ds-label-sm',
                 inStock ? 'text-shop-green' : 'text-shop-orange',
               )}
             >
@@ -166,7 +209,7 @@ function ProductPage() {
             <ShopLabel>Keep browsing</ShopLabel>
             <Link
               to="/shop"
-              className="text-shop-accent text-[11.5px] hover:underline"
+              className="text-shop-accent text-ds-mono-xs hover:underline"
             >
               All products →
             </Link>
@@ -174,7 +217,11 @@ function ProductPage() {
         </div>
       </div>
 
-      <ProductJsonLd product={product} selectedVariant={selectedVariant} />
+      <ProductJsonLd
+        product={product}
+        selectedVariant={selectedVariant}
+        canonicalPath={canonicalPath}
+      />
     </div>
   )
 }
@@ -204,6 +251,7 @@ function ProductGallery({
     <div>
       <div className="aspect-square rounded-xl border border-shop-line bg-shop-panel overflow-hidden">
         <ProductImage
+          key={hero.url}
           image={hero}
           alt={title}
           width={1200}
@@ -223,7 +271,7 @@ function ProductGallery({
               className={twMerge(
                 'aspect-square rounded-md border bg-shop-panel overflow-hidden cursor-pointer transition-all',
                 i === activeIndex
-                  ? 'border-shop-accent shadow-[0_0_0_1px_var(--shop-accent)]'
+                  ? 'border-shop-accent ring-1 ring-shop-accent'
                   : 'border-shop-line hover:border-shop-line-2',
               )}
             >
@@ -252,59 +300,127 @@ function VariantSelector({
   selected: Record<string, string>
   onChange: (next: Record<string, string>) => void
 }) {
+  const selectableOptions = options.filter((option) => option.values.length > 1)
+
   return (
     <>
-      {options.map((option) => {
-        if (option.values.length <= 1) return null
+      {selectableOptions.map((option, optionIndex) => {
         const isSizeOption = /size/i.test(option.name)
+        const shouldUseSelect = option.values.length > MAX_INLINE_OPTION_VALUES
+        const isEnabled = selectableOptions
+          .slice(0, optionIndex)
+          .every((o) => !!selected[o.name])
+        const getCandidate = (value: string) => ({
+          ...Object.fromEntries(
+            selectableOptions
+              .slice(0, optionIndex)
+              .map((o) => [o.name, selected[o.name]]),
+          ),
+          [option.name]: value,
+        })
+        const handleChange = (value: string) =>
+          onChange({
+            ...selected,
+            ...Object.fromEntries(
+              selectableOptions.slice(optionIndex + 1).map((o) => [o.name, '']),
+            ),
+            [option.name]: value,
+          })
         return (
-          <fieldset key={option.id} className="mt-4.5">
+          <fieldset
+            key={option.id}
+            aria-disabled={!isEnabled}
+            className="mt-4.5"
+          >
             <legend className="flex items-center justify-between w-full mb-2.5">
               <ShopLabel as="span">
                 {option.name}
-                <span className="ml-2 font-sans normal-case tracking-normal text-[11.5px] text-shop-text">
-                  {selected[option.name]}
-                </span>
+                {selected[option.name] ? (
+                  <span className="ml-2 font-sans normal-case tracking-normal text-ds-mono-xs text-shop-text">
+                    {selected[option.name]}
+                  </span>
+                ) : !isEnabled && optionIndex > 0 ? (
+                  <span className="ml-2 font-sans normal-case tracking-normal text-ds-mono-xs text-shop-muted">
+                    Pick a{' '}
+                    {selectableOptions[optionIndex - 1]?.name.toLowerCase()}{' '}
+                    first
+                  </span>
+                ) : null}
               </ShopLabel>
             </legend>
-            <div
-              className={
-                isSizeOption
-                  ? 'grid grid-cols-[repeat(auto-fill,minmax(54px,1fr))] gap-1.5'
-                  : 'flex flex-wrap gap-2'
-              }
-            >
-              {option.values.map((value) => {
-                const isSelected = selected[option.name] === value
-                const candidate = { ...selected, [option.name]: value }
-                const match = findMatchingVariant(variants, candidate)
-                const isUnavailable = !match?.availableForSale
-                const handleClick = () =>
-                  onChange({ ...selected, [option.name]: value })
-                if (isSizeOption) {
+            {shouldUseSelect ? (
+              <ShopSelect
+                value={selected[option.name]}
+                disabled={!isEnabled}
+                className="w-full"
+                triggerClassName="w-full justify-between rounded-md px-3.5 py-2.5 text-shop-sm"
+                onChange={(e) => handleChange(e.target.value)}
+              >
+                <option value="" disabled>
+                  Select {option.name}
+                </option>
+                {option.values.map((value) => {
                   return (
-                    <ShopSize
+                    <option
+                      key={value}
+                      value={value}
+                      disabled={
+                        !hasAvailableVariant(variants, getCandidate(value))
+                      }
+                    >
+                      {value}
+                    </option>
+                  )
+                })}
+              </ShopSelect>
+            ) : (
+              <div
+                className={
+                  isSizeOption
+                    ? 'grid grid-cols-[repeat(auto-fill,minmax(54px,1fr))] gap-1.5'
+                    : 'flex flex-wrap gap-2'
+                }
+              >
+                {option.values.map((value) => {
+                  const isSelected = selected[option.name] === value
+                  const isUnavailable = !hasAvailableVariant(
+                    variants,
+                    getCandidate(value),
+                  )
+                  const handleClick = () => handleChange(value)
+                  if (isSizeOption) {
+                    return (
+                      <ShopSize
+                        key={value}
+                        onClick={handleClick}
+                        isSelected={isSelected}
+                        isUnavailable={isUnavailable}
+                        disabled={!isEnabled}
+                        className={twMerge(
+                          !isEnabled && 'opacity-40 cursor-not-allowed',
+                        )}
+                      >
+                        {value}
+                      </ShopSize>
+                    )
+                  }
+                  return (
+                    <ShopChip
                       key={value}
                       onClick={handleClick}
                       isSelected={isSelected}
                       isUnavailable={isUnavailable}
+                      disabled={!isEnabled}
+                      className={twMerge(
+                        !isEnabled && 'opacity-40 cursor-not-allowed',
+                      )}
                     >
                       {value}
-                    </ShopSize>
+                    </ShopChip>
                   )
-                }
-                return (
-                  <ShopChip
-                    key={value}
-                    onClick={handleClick}
-                    isSelected={isSelected}
-                    isUnavailable={isUnavailable}
-                  >
-                    {value}
-                  </ShopChip>
-                )
-              })}
-            </div>
+                })}
+              </div>
+            )}
           </fieldset>
         )
       })}
@@ -324,17 +440,15 @@ function QuantityAdd({
   product: ProductDetail
 }) {
   const addToCart = useAddToCart()
-  const openDrawer = useCartDrawerStore((s) => s.openDrawer)
   const [showAdded, setShowAdded] = React.useState(false)
 
-  const disabled =
-    !variant || !variant.availableForSale || (addToCart.isPending && !showAdded)
+  const disabled = !variant || !variant.availableForSale || addToCart.isPending
   const price = variant?.price
 
   const label = showAdded
     ? '✓ Added'
     : !variant
-      ? 'Unavailable'
+      ? 'Select options'
       : !variant.availableForSale
         ? 'Sold out'
         : price
@@ -363,7 +477,6 @@ function QuantityAdd({
         onClick={() => {
           if (!variant) return
           setShowAdded(true)
-          openDrawer()
           addToCart.mutate({
             variantId: variant.id,
             quantity,
@@ -380,7 +493,7 @@ function QuantityAdd({
         className="
           h-10 flex items-center justify-center gap-2 rounded-md
           bg-shop-accent text-shop-accent-ink
-          font-semibold text-[13px] tracking-[0.01em]
+          font-semibold text-ds-label-md
           transition-[filter] hover:enabled:brightness-110
           disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-shop-panel-2 disabled:text-shop-muted
           group
@@ -401,7 +514,7 @@ function ProductDescription({ html }: { html: string }) {
   return (
     <div
       className="
-        mt-4 text-shop-text-2 text-[13.5px] leading-[1.6]
+        mt-4 text-shop-text-2 text-ds-body-sm
         [&_p]:my-0 [&_p]:mb-[0.9em] [&_a]:text-shop-accent [&_a]:underline
         [&_strong]:text-shop-text [&_strong]:font-semibold
         [&_ul]:pl-5 [&_ul]:my-2 [&_ol]:pl-5 [&_ol]:my-2 [&_li]:my-1
@@ -415,21 +528,14 @@ function ProductDescription({ html }: { html: string }) {
   )
 }
 
-function findMatchingVariant(
-  variants: Array<ProductDetailVariant>,
-  selected: Record<string, string>,
-): ProductDetailVariant | undefined {
-  return variants.find((v) =>
-    v.selectedOptions.every((opt) => selected[opt.name] === opt.value),
-  )
-}
-
 function ProductJsonLd({
   product,
   selectedVariant,
+  canonicalPath,
 }: {
   product: ProductDetail
   selectedVariant: ProductDetailVariant | undefined
+  canonicalPath: string
 }) {
   const offers = product.variants.nodes.map((v) => ({
     '@type': 'Offer',
@@ -440,7 +546,7 @@ function ProductJsonLd({
       ? 'https://schema.org/InStock'
       : 'https://schema.org/OutOfStock',
     itemCondition: 'https://schema.org/NewCondition',
-    url: `https://tanstack.com/shop/products/${product.handle}`,
+    url: `https://tanstack.com${canonicalPath}`,
   }))
 
   const jsonLd = {

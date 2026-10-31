@@ -1,9 +1,11 @@
-'use client'
-
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import { CodeBlockView } from './CodeBlockView'
 import { buildPlainCodeBlockHtml } from './codeBlock.shared'
+
+// Mermaid shares configuration and a temporary DOM across renders.
+let mermaidRenderQueue = Promise.resolve()
+let mermaidRenderId = 0
 
 type MermaidRenderState =
   | {
@@ -58,11 +60,6 @@ export function MermaidBlock({
   title?: string
 }) {
   const isDark = useIsDarkMode()
-  const reactId = React.useId()
-  const mermaidId = React.useMemo(
-    () => `mermaid-${reactId.replace(/[^a-zA-Z0-9_-]/g, '')}`,
-    [reactId],
-  )
   const [renderState, setRenderState] = React.useState<MermaidRenderState>({
     status: 'loading',
   })
@@ -70,11 +67,19 @@ export function MermaidBlock({
   React.useEffect(() => {
     let cancelled = false
 
+    setRenderState({ status: 'loading' })
+
     async function renderMermaid() {
-      setRenderState({ status: 'loading' })
+      if (cancelled) return
+
+      const container = document.createElement('div')
+      container.style.visibility = 'hidden'
+      container.style.position = 'absolute'
+      document.body.append(container)
 
       try {
         const mermaid = (await import('mermaid')).default
+        if (cancelled) return
 
         mermaid.initialize({
           securityLevel: 'strict',
@@ -82,7 +87,11 @@ export function MermaidBlock({
           theme: isDark ? 'dark' : 'default',
         })
 
-        const { svg } = await mermaid.render(mermaidId, code)
+        const { svg } = await mermaid.render(
+          `mermaid-${++mermaidRenderId}`,
+          code,
+          container,
+        )
 
         if (!cancelled) {
           setRenderState({ status: 'rendered', svg })
@@ -91,15 +100,17 @@ export function MermaidBlock({
         if (!cancelled) {
           setRenderState({ status: 'error' })
         }
+      } finally {
+        container.remove()
       }
     }
 
-    void renderMermaid()
+    mermaidRenderQueue = mermaidRenderQueue.then(renderMermaid)
 
     return () => {
       cancelled = true
     }
-  }, [code, isDark, mermaidId])
+  }, [code, isDark])
 
   if (renderState.status !== 'rendered') {
     return (

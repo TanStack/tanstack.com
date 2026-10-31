@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Footer } from '~/components/Footer'
 import { seo } from '~/utils/seo'
 
 export const Route = createFileRoute('/privacy')({
@@ -18,7 +17,7 @@ function RouteComp() {
       <div className="flex-1 space-y-12 w-full max-w-3xl mx-auto">
         <header className="">
           <h1 className="text-4xl font-bold">Privacy Policy</h1>
-          <p className="">Effective Date: January 18, 2025</p>
+          <p className="">Effective Date: September 28, 2026</p>
         </header>
 
         <section className="">
@@ -79,6 +78,27 @@ function RouteComp() {
 
         <section>
           <h2 className="text-2xl font-semibold">3. Cookies and Tracking</h2>
+          <p>
+            We use Scarf to measure page views and actions on the Site,
+            including external link clicks, hover intent, downloads, and copy
+            and paste. For copy and paste events, we send the first 512
+            characters of plain text along with the page path. This text may
+            include information you choose to copy or paste. We do not collect
+            text from password fields for these events.
+          </p>
+          <p>
+            We use namethathost.com, operated by TanStack, to understand which
+            companies visit our public pages and which libraries interest them.
+            This tracker uses no cookies or persistent device IDs. It records
+            page paths without query strings and referring website origins. We
+            temporarily process IP addresses through ipapi.is to look up
+            associated company networks. A network match does not identify a
+            person or confirm that a company uses TanStack. Encrypted addresses
+            are held only for delivery and retries, and company lookups stop
+            after 24 hours. Our daily cleanup removes company cache entries
+            older than seven days and activity older than 30 days. This tracker
+            respects Do Not Track and Global Privacy Control.
+          </p>
           <p>
             The Site uses cookies and similar tracking technologies to analyze
             trends, track user behavior, and gather demographic information.
@@ -219,7 +239,6 @@ function RouteComp() {
           </address>
         </section>
       </div>
-      <Footer />
     </div>
   )
 }

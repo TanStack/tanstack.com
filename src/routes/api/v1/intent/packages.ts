@@ -24,10 +24,10 @@ export const Route = createFileRoute('/api/v1/intent/packages')({
           sortParam === 'newest'
             ? sortParam
             : undefined
-        const page = parseInt(url.searchParams.get('page') ?? '0', 10) || 0
+        const page = Math.max(0, parseInt(url.searchParams.get('page') ?? '0', 10) || 0)
         const pageSize = Math.min(
           Math.max(parseInt(url.searchParams.get('pageSize') ?? '24', 10) || 24, 1),
-          100,
+          48,
         )
 
         const result = await fns.getIntentDirectory({

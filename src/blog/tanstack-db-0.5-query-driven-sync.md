@@ -2,6 +2,7 @@
 title: TanStack DB 0.5 .  Query-Driven Sync
 published: 2025-11-12
 excerpt: Your component's query is now the API call. No custom endpoint, no GraphQL resolver, no backend change. TanStack DB 0.5 introduces query-driven sync that eliminates the glue code between your UI and your data.
+library: db
 authors:
   - Sam Willis
   - Kevin De Porre
@@ -17,7 +18,9 @@ You don't need a new API for every component. With 0.5, the component's query _i
 const { data: projectTodos } = useLiveQuery((q) =>
   q
     .from({ todos })
-    .join({ projects }, (t, p) => eq(t.projectId, p.id))
+    .join({ projects }, ({ todos, projects }) =>
+      eq(todos.projectId, projects.id),
+    )
     .where(({ todos }) => eq(todos.status, 'active'))
     .where(({ projects }) => eq(projects.id, 123)),
 )
@@ -105,9 +108,15 @@ Let's see how each works.
 With 0.5, you add one line to your collection:
 
 ```tsx
+import { QueryClient } from '@tanstack/query-core'
+
+const queryClient = new QueryClient()
+
 const productsCollection = createCollection(
   queryCollectionOptions({
+    queryClient,
     queryKey: ['products'],
+    getKey: (product) => product.id,
     queryFn: async (ctx) => {
       // Parse your query predicates into API parameters
       const params = parseLoadSubsetOptions(ctx.meta?.loadSubsetOptions)
@@ -178,11 +187,19 @@ TanStack DB compares predicates across all live queries and deduplicates request
 When you navigate from viewing 10 products to viewing 20, DB doesn't reload everything:
 
 ```tsx
+import { createLiveQueryCollection } from '@tanstack/react-db'
+
 // Initial query: loads 10 products
-const { data } = useLiveQuery((q) => q.from({ products }).limit(10))
+const productsQuery = createLiveQueryCollection((q) =>
+  q
+    .from({ products: productsCollection })
+    .orderBy(({ products }) => products.id)
+    .limit(10),
+)
+const { data } = useLiveQuery(productsQuery)
 
 // User clicks "load more": loads ONLY the next 10
-fetchNextPage()
+await productsQuery.utils.setWindow({ limit: 20 })
 ```
 
 ```
@@ -205,7 +222,9 @@ Complex joins don't cause request explosions. They trigger a minimal set of filt
 const { data } = useLiveQuery((q) =>
   q
     .from({ todos })
-    .join({ projects }, (t, p) => eq(t.projectId, p.id))
+    .join({ projects }, ({ todos, projects }) =>
+      eq(todos.projectId, projects.id),
+    )
     .where(({ todos }) => eq(todos.status, 'active')),
 )
 
@@ -224,8 +243,10 @@ Query Collection integrates with TanStack Query's `staleTime` and `gcTime`:
 
 ```tsx
 const productsCollection = createCollection(queryCollectionOptions({
+  queryClient,
   queryKey: ['products'],
   queryFn: fetchProducts,
+  getKey: (product) => product.id,
   staleTime: 5 * 60 * 1000, // 5 minutes
   syncMode: 'on-demand'
 }))
@@ -253,7 +274,8 @@ That's progressive mode: load what you need immediately, sync everything in the 
 ```tsx
 const todoCollection = createCollection(
   electricCollectionOptions({
-    table: 'todos',
+    shapeOptions: { url: '/api/todos' },
+    getKey: (todo) => todo.id,
     syncMode: 'progressive',
   }),
 )

@@ -22,7 +22,7 @@ import {
 } from '../utils/islandGenerator'
 import { generateRockColliders } from '../utils/collision'
 import { generateCoins } from '../utils/coinGenerator'
-import { libraries } from '~/libraries'
+import { publicLibraries } from '~/libraries'
 import { partners } from '~/utils/partners'
 
 // Filter to only active partners and convert to slim format for the game
@@ -162,7 +162,7 @@ function SceneContent() {
     }
 
     // Generate islands
-    const generatedIslands = generateIslands(libraries)
+    const generatedIslands = generateIslands(publicLibraries)
     state.setIslands(generatedIslands)
     const rockColliders = generateRockColliders(generatedIslands, 30, 140)
     state.setRockColliders(rockColliders)

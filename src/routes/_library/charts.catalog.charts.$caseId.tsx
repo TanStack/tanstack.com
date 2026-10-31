@@ -3,12 +3,14 @@ import {
   ChartsCatalogDetail,
   ChartsCatalogDetailPending,
 } from '~/components/charts/ChartsCatalogPages'
+import { isChartsCatalogCaseId } from '~/utils/charts-catalog'
 import { getChartsCatalogCase } from '~/utils/charts-catalog.functions'
 import { seo } from '~/utils/seo'
 
 export const Route = createFileRoute('/_library/charts/catalog/charts/$caseId')(
   {
     loader: async ({ params }) => {
+      if (!isChartsCatalogCaseId(params.caseId)) throw notFound()
       const data = await getChartsCatalogCase({
         data: {
           caseId: params.caseId,

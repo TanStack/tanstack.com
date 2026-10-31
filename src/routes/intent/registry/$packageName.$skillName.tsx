@@ -53,8 +53,8 @@ export const Route = createFileRoute(
   loaderDeps: ({ search }) => ({ version: search.version }),
   loader: async ({ params, deps, context: { queryClient } }) => {
     const name = decodePkgName(params.packageName)
-    const detail = queryClient.getQueryData(
-      intentPackageDetailQueryOptions(name).queryKey,
+    const detail = await queryClient.ensureQueryData(
+      intentPackageDetailQueryOptions(name),
     )
     const latestVersion = detail?.versions[0]?.version ?? ''
     const activeVersion = deps.version ?? latestVersion
@@ -139,6 +139,14 @@ function SkillDetailPage() {
     )
   }
 
+  const sourceUrl = skill.skillPath
+    ? getSkillSourceUrl({
+        packageName: pkgName,
+        skillPath: skill.skillPath,
+        version: activeVersion,
+      })
+    : undefined
+
   return (
     <>
       {/* Skill meta */}
@@ -162,11 +170,7 @@ function SkillDetailPage() {
             </span>
             {skill.skillPath && (
               <a
-                href={getSkillSourceUrl({
-                  packageName: pkgName,
-                  skillPath: skill.skillPath,
-                  version: activeVersion,
-                })}
+                href={sourceUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
@@ -246,7 +250,7 @@ function SkillDetailPage() {
           <div className="rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden p-6">
             <div className="prose prose-gray dark:prose-invert max-w-none [font-size:16px] styled-markdown-content">
               {skillPage?.content ? (
-                <Markdown content={skillPage.content} />
+                <Markdown content={skillPage.content} linkBaseUrl={sourceUrl} />
               ) : null}
             </div>
           </div>

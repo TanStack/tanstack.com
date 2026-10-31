@@ -46,11 +46,11 @@ Everything else in this post is a variation on that line: how you build the clie
 ```mermaid
 flowchart LR
   S1[MCP server] -->|callTool| C1[createMCPClient]
+  CLI[npx @tanstack/ai-mcp generate] -.->|compile-time types| C1
   S2[MCP server] --> P[createMCPClients pool]
   S3[MCP server] --> P
   C1 -->|ServerTool array| CHAT["chat({ tools }) or chat({ mcp })"]
   P -->|prefixed ServerTool array| CHAT
-  CLI[npx @tanstack/ai-mcp generate] -.->|compile-time types| C1
   CLI -.->|compile-time types| P
   CHAT --> ADP[any adapter: OpenAI / Anthropic / Gemini / Ollama]
 ```

@@ -90,3 +90,10 @@ test('a package source does not replace absolute links or allow unsafe schemes',
   )
   assert.doesNotMatch(unsafe, /href=/)
 })
+
+ test('malformed package-relative references render without a link', () => {
+  const html = renderToStaticMarkup(
+    createElement(MarkdownLink, { href: String.raw`\\[bad`, baseUrl: 'https://app.unpkg.com/pkg@1/files/skills/setup/SKILL.md' }, 'Reference'),
+  )
+  assert.equal(html, '<a>Reference</a>')
+})

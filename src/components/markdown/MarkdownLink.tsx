@@ -65,10 +65,15 @@ export function MarkdownLink({
   baseUrl,
   ...rest
 }: HTMLProps<HTMLAnchorElement> & { baseUrl?: string }) {
-  const href =
-    baseUrl && hrefProp && isRelativeLink(hrefProp)
-      ? new URL(hrefProp, baseUrl).href
-      : (hrefProp ?? '')
+  let href = hrefProp ?? ''
+  if (baseUrl && href && isRelativeLink(href)) {
+    try {
+      href = new URL(href, baseUrl).href
+    } catch {
+      // eslint-disable-next-line jsx-a11y/anchor-has-content
+      return <a {...rest} />
+    }
+  }
 
   if (!isSafeHref(href)) {
     // eslint-disable-next-line jsx-a11y/anchor-has-content

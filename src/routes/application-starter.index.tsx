@@ -23,7 +23,7 @@ const applicationStarterSearchSchema = v.pipe(
     framework: v.optional(v.string()),
     features: v.optional(v.string()), // comma-separated feature IDs
     pm: v.optional(v.picklist(['pnpm', 'npm', 'yarn', 'bun'])),
-    tailwind: v.optional(v.literal('false')),
+    tailwind: v.optional(v.union([v.literal('false'), v.literal(true)])),
     tab: v.optional(v.picklist(['summary', 'code', 'preview'])),
     file: v.optional(v.string()), // selected file in files tab
     addon: v.optional(v.string()), // selected addon in addons tab

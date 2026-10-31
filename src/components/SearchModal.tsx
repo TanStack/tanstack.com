@@ -296,8 +296,7 @@ function isSearchModalPortalTarget(target: EventTarget | null) {
 const searchModalTransitionMs = 140
 
 export function SearchModal() {
-  const { isOpen, closeSearch } = useSearchContext()
-  const returnFocusRef = React.useRef<HTMLElement | null>(null)
+  const { isOpen, closeSearch, restoreSearchFocus } = useSearchContext()
   const bodyPointerEventsRef = React.useRef('')
   const [shouldRenderSearch, setShouldRenderSearch] = React.useState(isOpen)
   const [isFullHeight, setIsFullHeight] = React.useState(() => {
@@ -391,20 +390,13 @@ export function SearchModal() {
                 isFullHeight && 'sm:bottom-4',
               )}
               onOpenAutoFocus={(event) => {
-                // The input owns focus; the dialog has no Radix Trigger to restore.
-                returnFocusRef.current =
-                  document.activeElement instanceof HTMLElement
-                    ? document.activeElement
-                    : null
+                // The input owns focus; the context restores the search trigger.
                 event.preventDefault()
               }}
               onCloseAutoFocus={(event) => {
                 event.preventDefault()
-                if (
-                  document.activeElement === document.body &&
-                  returnFocusRef.current?.isConnected
-                ) {
-                  returnFocusRef.current.focus({ preventScroll: true })
+                if (document.activeElement === document.body) {
+                  restoreSearchFocus()
                 }
               }}
               onInteractOutside={(event) => {

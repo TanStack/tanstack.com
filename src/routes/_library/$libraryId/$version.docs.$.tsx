@@ -122,6 +122,7 @@ export const Route = createFileRoute('/_library/$libraryId/$version/docs/$')({
     }
   },
   component: Docs,
+  pendingComponent: DocsPending,
   headers: ({ loaderData, params }) => {
     const { version, libraryId } = params
 
@@ -136,14 +137,26 @@ export const Route = createFileRoute('/_library/$libraryId/$version/docs/$')({
   },
 })
 
+function DocsPending() {
+  return <DocContainer>{null}</DocContainer>
+}
+
 function Docs() {
   const { version, libraryId, _splat } = Route.useParams()
-  const { content, filePath, title } = Route.useLoaderData()
+  const loaderData = Route.useLoaderData()
   const versionMatch = useMatch({ from: '/_library/$libraryId/$version' })
   const config = versionMatch.loaderData?.config
   const library = getLibrary(libraryId)
   const branch = getBranch(library, version)
   const location = useLocation()
+
+  // During client-side navigation the match can render before its loader has
+  // resolved, leaving loaderData undefined.
+  if (!loaderData) {
+    return <DocsPending />
+  }
+
+  const { content, filePath, title } = loaderData
 
   return (
     <DocContainer>

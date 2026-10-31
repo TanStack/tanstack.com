@@ -62,9 +62,13 @@ function normalizeRoutableInternalPathname(pathname: string) {
 
 export function MarkdownLink({
   href: hrefProp,
+  baseUrl,
   ...rest
-}: HTMLProps<HTMLAnchorElement>) {
-  const href = hrefProp ?? ''
+}: HTMLProps<HTMLAnchorElement> & { baseUrl?: string }) {
+  const href =
+    baseUrl && hrefProp && isRelativeLink(hrefProp)
+      ? new URL(hrefProp, baseUrl).href
+      : (hrefProp ?? '')
 
   if (!isSafeHref(href)) {
     // eslint-disable-next-line jsx-a11y/anchor-has-content
@@ -94,7 +98,7 @@ export function MarkdownLink({
     return (
       <a
         {...rest}
-        href={hrefProp}
+        href={href}
         target={openInNewTab ? '_blank' : undefined}
         rel={openInNewTab ? 'noopener' : undefined}
       >

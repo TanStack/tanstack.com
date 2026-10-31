@@ -512,6 +512,7 @@ export async function refreshAccessToken(
       userId: token.userId,
       clientId: token.clientId,
       scope: 'api',
+      grantId: token.grantId,
       expiresAt: accessExpiresAt,
     })
     .returning({ id: oauthAccessTokens.id })
@@ -821,7 +822,27 @@ export async function revokeOAuthGrant(token: string, clientId: string) {
     )
     .limit(1)
   const grantId = access?.grantId ?? refresh?.grantId
-  if (!grantId) return
+  if (!grantId) {
+    await db.transaction(async (tx) => {
+      if (access) {
+        await tx
+          .delete(oauthAccessTokens)
+          .where(eq(oauthAccessTokens.id, access.id))
+      }
+      if (refresh) {
+        const [deleted] = await tx
+          .delete(oauthRefreshTokens)
+          .where(eq(oauthRefreshTokens.id, refresh.id))
+          .returning({ accessTokenId: oauthRefreshTokens.accessTokenId })
+        if (deleted?.accessTokenId) {
+          await tx
+            .delete(oauthAccessTokens)
+            .where(eq(oauthAccessTokens.id, deleted.accessTokenId))
+        }
+      }
+    })
+    return
+  }
   await db.transaction(async (tx) => {
     await tx.execute(
       sql`select pg_advisory_xact_lock(hashtextextended(${grantId}, 0))`,

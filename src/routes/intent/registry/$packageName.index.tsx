@@ -244,8 +244,8 @@ function SkillsList({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <Link
-                    to="/intent/registry/$packageName/$skillName"
-                    params={{ packageName, skillName: skill.name }}
+                    to="/intent/registry/$packageName/{$}"
+                    params={{ packageName, _splat: skill.name }}
                     className="font-mono text-sm font-semibold text-gray-900 dark:text-gray-100 hover:text-sky-600 dark:hover:text-sky-400 transition-colors"
                   >
                     {skill.name}
@@ -607,8 +607,8 @@ function ChangelogSkillRow({
           {statusConfig.prefix}
         </span>
         <Link
-          to="/intent/registry/$packageName/$skillName"
-          params={{ packageName, skillName: name }}
+          to="/intent/registry/$packageName/{$}"
+          params={{ packageName, _splat: name }}
           className="font-mono text-sm text-gray-900 dark:text-gray-100 hover:text-sky-600 dark:hover:text-sky-400 transition-colors truncate"
         >
           {name}

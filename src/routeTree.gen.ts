@@ -265,8 +265,10 @@ import { Route as ApiChatSectionsIdRouteImport } from './routes/api/chat/section
 import { Route as ApiChatSkillsIdRouteImport } from './routes/api/chat/skills/$id'
 import { Route as ApiChatWorkspaceIndexActivityRouteImport } from './routes/api/chat/workspace-index.activity'
 import { Route as ApiChatWorkspaceSyncOperationRouteImport } from './routes/api/chat/workspace-sync/$operation'
+import { Route as ApiV1IntentPackagesRouteImport } from './routes/api/v1/intent/packages'
+import { Route as ApiV1IntentSearchRouteImport } from './routes/api/v1/intent/search'
 import { Route as IntentRegistryPackageNameIndexRouteImport } from './routes/intent/registry/$packageName.index'
-import { Route as IntentRegistryPackageNameSkillNameRouteImport } from './routes/intent/registry/$packageName.$skillName'
+import { Route as IntentRegistryPackageNameChar123Char125RouteImport } from './routes/intent/registry/$packageName.{$}'
 import { Route as IntentRegistryPackageNameChar123Char125DotmdRouteImport } from './routes/intent/registry/$packageName.{$}[.]md'
 import { Route as LibraryLibraryIdVersionDocsIndexRouteImport } from './routes/_library/$libraryId/$version.docs.index'
 import { Route as LibraryLibraryIdVersionDocsSplatRouteImport } from './routes/_library/$libraryId/$version.docs.$'
@@ -298,6 +300,7 @@ import { Route as ApiChatReferencesKodyInspectRouteImport } from './routes/api/c
 import { Route as ApiChatReferencesKodyRefreshRouteImport } from './routes/api/chat/references/kody/refresh'
 import { Route as ApiChatReferencesToolsRefreshRouteImport } from './routes/api/chat/references/tools/refresh'
 import { Route as ApiChatRetriesIdPrepareRouteImport } from './routes/api/chat/retries/$id.prepare'
+import { Route as ApiV1IntentPackagesNameRouteImport } from './routes/api/v1/intent/packages.$name'
 import { Route as ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRouteImport } from './routes/charts.catalog_.previews.$revision.{$caseId}[.]svg'
 import { Route as ChatCConversationIdMMessageIdRouteImport } from './routes/chat.c.$conversationId.m.$messageId'
 import { Route as ChatWWorkspaceIdBBotIdRouteImport } from './routes/chat.w.$workspaceId.b.$botId'
@@ -331,6 +334,8 @@ import { Route as ApiChatConversationsIdExecutionSnapshotsSnapshotIdRouteImport 
 import { Route as ApiChatConversationsIdFilesFileIdContentRouteImport } from './routes/api/chat/conversations/$id.files.$fileId.content'
 import { Route as ApiChatConversationsIdWorkflowRunsRunIdCancelRouteImport } from './routes/api/chat/conversations/$id.workflow-runs.$runId.cancel'
 import { Route as LibraryLibraryIdVersionDocsFrameworkFrameworkExamplesSplatRouteImport } from './routes/_library/$libraryId/$version.docs.framework.$framework.examples.$'
+import { Route as ApiV1IntentPackagesNameVersionsVersionSkillsRouteImport } from './routes/api/v1/intent/packages.$name.versions.$version.skills'
+import { Route as ApiV1IntentPackagesNameVersionsVersionSkillsSkillRouteImport } from './routes/api/v1/intent/packages.$name.versions.$version.skills.$skill'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -1659,16 +1664,26 @@ const ApiChatWorkspaceSyncOperationRoute =
     path: '/api/chat/workspace-sync/$operation',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiV1IntentPackagesRoute = ApiV1IntentPackagesRouteImport.update({
+  id: '/api/v1/intent/packages',
+  path: '/api/v1/intent/packages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV1IntentSearchRoute = ApiV1IntentSearchRouteImport.update({
+  id: '/api/v1/intent/search',
+  path: '/api/v1/intent/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IntentRegistryPackageNameIndexRoute =
   IntentRegistryPackageNameIndexRouteImport.update({
     id: '/',
     path: '/',
     getParentRoute: () => IntentRegistryPackageNameRoute,
   } as any)
-const IntentRegistryPackageNameSkillNameRoute =
-  IntentRegistryPackageNameSkillNameRouteImport.update({
-    id: '/$skillName',
-    path: '/$skillName',
+const IntentRegistryPackageNameChar123Char125Route =
+  IntentRegistryPackageNameChar123Char125RouteImport.update({
+    id: '/{$}',
+    path: '/{$}',
     getParentRoute: () => IntentRegistryPackageNameRoute,
   } as any)
 const IntentRegistryPackageNameChar123Char125DotmdRoute =
@@ -1848,6 +1863,11 @@ const ApiChatRetriesIdPrepareRoute = ApiChatRetriesIdPrepareRouteImport.update({
   id: '/prepare',
   path: '/prepare',
   getParentRoute: () => ApiChatRetriesIdRoute,
+} as any)
+const ApiV1IntentPackagesNameRoute = ApiV1IntentPackagesNameRouteImport.update({
+  id: '/$name',
+  path: '/$name',
+  getParentRoute: () => ApiV1IntentPackagesRoute,
 } as any)
 const ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute =
   ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRouteImport.update({
@@ -2047,6 +2067,18 @@ const LibraryLibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute =
     id: '/framework/$framework/examples/$',
     path: '/framework/$framework/examples/$',
     getParentRoute: () => LibraryLibraryIdVersionDocsRoute,
+  } as any)
+const ApiV1IntentPackagesNameVersionsVersionSkillsRoute =
+  ApiV1IntentPackagesNameVersionsVersionSkillsRouteImport.update({
+    id: '/versions/$version/skills',
+    path: '/versions/$version/skills',
+    getParentRoute: () => ApiV1IntentPackagesNameRoute,
+  } as any)
+const ApiV1IntentPackagesNameVersionsVersionSkillsSkillRoute =
+  ApiV1IntentPackagesNameVersionsVersionSkillsSkillRouteImport.update({
+    id: '/$skill',
+    path: '/$skill',
+    getParentRoute: () => ApiV1IntentPackagesNameVersionsVersionSkillsRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -2282,7 +2314,9 @@ export interface FileRoutesByFullPath {
   '/api/chat/skills/$id': typeof ApiChatSkillsIdRoute
   '/api/chat/workspace-index/activity': typeof ApiChatWorkspaceIndexActivityRoute
   '/api/chat/workspace-sync/$operation': typeof ApiChatWorkspaceSyncOperationRoute
-  '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
+  '/api/v1/intent/packages': typeof ApiV1IntentPackagesRouteWithChildren
+  '/api/v1/intent/search': typeof ApiV1IntentSearchRoute
+  '/intent/registry/$packageName/{$}': typeof IntentRegistryPackageNameChar123Char125Route
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/$libraryId/$version/': typeof LibraryLibraryIdVersionIndexRoute
   '/ai/$version/': typeof LibraryAiVersionIndexRoute
@@ -2337,6 +2371,7 @@ export interface FileRoutesByFullPath {
   '/api/chat/references/kody/refresh': typeof ApiChatReferencesKodyRefreshRoute
   '/api/chat/references/tools/refresh': typeof ApiChatReferencesToolsRefreshRoute
   '/api/chat/retries/$id/prepare': typeof ApiChatRetriesIdPrepareRoute
+  '/api/v1/intent/packages/$name': typeof ApiV1IntentPackagesNameRouteWithChildren
   '/charts/catalog/previews/$revision/{$caseId}.svg': typeof ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute
   '/chat/c/$conversationId/m/$messageId': typeof ChatCConversationIdMMessageIdRoute
   '/chat/w/$workspaceId/b/$botId': typeof ChatWWorkspaceIdBBotIdRoute
@@ -2371,6 +2406,8 @@ export interface FileRoutesByFullPath {
   '/api/chat/conversations/$id/workflow-runs/$runId/cancel': typeof ApiChatConversationsIdWorkflowRunsRunIdCancelRoute
   '/$libraryId/$version/docs/framework/$framework/': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/examples/$': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute
+  '/api/v1/intent/packages/$name/versions/$version/skills': typeof ApiV1IntentPackagesNameVersionsVersionSkillsRouteWithChildren
+  '/api/v1/intent/packages/$name/versions/$version/skills/$skill': typeof ApiV1IntentPackagesNameVersionsVersionSkillsSkillRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -2592,7 +2629,9 @@ export interface FileRoutesByTo {
   '/api/chat/skills/$id': typeof ApiChatSkillsIdRoute
   '/api/chat/workspace-index/activity': typeof ApiChatWorkspaceIndexActivityRoute
   '/api/chat/workspace-sync/$operation': typeof ApiChatWorkspaceSyncOperationRoute
-  '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
+  '/api/v1/intent/packages': typeof ApiV1IntentPackagesRouteWithChildren
+  '/api/v1/intent/search': typeof ApiV1IntentSearchRoute
+  '/intent/registry/$packageName/{$}': typeof IntentRegistryPackageNameChar123Char125Route
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/$libraryId/$version': typeof LibraryLibraryIdVersionIndexRoute
   '/ai/$version': typeof LibraryAiVersionIndexRoute
@@ -2647,6 +2686,7 @@ export interface FileRoutesByTo {
   '/api/chat/references/kody/refresh': typeof ApiChatReferencesKodyRefreshRoute
   '/api/chat/references/tools/refresh': typeof ApiChatReferencesToolsRefreshRoute
   '/api/chat/retries/$id/prepare': typeof ApiChatRetriesIdPrepareRoute
+  '/api/v1/intent/packages/$name': typeof ApiV1IntentPackagesNameRouteWithChildren
   '/charts/catalog/previews/$revision/{$caseId}.svg': typeof ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute
   '/chat/c/$conversationId/m/$messageId': typeof ChatCConversationIdMMessageIdRoute
   '/chat/w/$workspaceId/b/$botId': typeof ChatWWorkspaceIdBBotIdRoute
@@ -2681,6 +2721,8 @@ export interface FileRoutesByTo {
   '/api/chat/conversations/$id/workflow-runs/$runId/cancel': typeof ApiChatConversationsIdWorkflowRunsRunIdCancelRoute
   '/$libraryId/$version/docs/framework/$framework': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/examples/$': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute
+  '/api/v1/intent/packages/$name/versions/$version/skills': typeof ApiV1IntentPackagesNameVersionsVersionSkillsRouteWithChildren
+  '/api/v1/intent/packages/$name/versions/$version/skills/$skill': typeof ApiV1IntentPackagesNameVersionsVersionSkillsSkillRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -2917,7 +2959,9 @@ export interface FileRoutesById {
   '/api/chat/skills/$id': typeof ApiChatSkillsIdRoute
   '/api/chat/workspace-index/activity': typeof ApiChatWorkspaceIndexActivityRoute
   '/api/chat/workspace-sync/$operation': typeof ApiChatWorkspaceSyncOperationRoute
-  '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
+  '/api/v1/intent/packages': typeof ApiV1IntentPackagesRouteWithChildren
+  '/api/v1/intent/search': typeof ApiV1IntentSearchRoute
+  '/intent/registry/$packageName/{$}': typeof IntentRegistryPackageNameChar123Char125Route
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/_library/$libraryId/$version/': typeof LibraryLibraryIdVersionIndexRoute
   '/_library/ai/$version/': typeof LibraryAiVersionIndexRoute
@@ -2972,6 +3016,7 @@ export interface FileRoutesById {
   '/api/chat/references/kody/refresh': typeof ApiChatReferencesKodyRefreshRoute
   '/api/chat/references/tools/refresh': typeof ApiChatReferencesToolsRefreshRoute
   '/api/chat/retries/$id/prepare': typeof ApiChatRetriesIdPrepareRoute
+  '/api/v1/intent/packages/$name': typeof ApiV1IntentPackagesNameRouteWithChildren
   '/charts/catalog_/previews/$revision/{$caseId}.svg': typeof ChartsCatalogPreviewsRevisionChar123caseIdChar125DotsvgRoute
   '/chat/c/$conversationId/m/$messageId': typeof ChatCConversationIdMMessageIdRoute
   '/chat/w/$workspaceId/b/$botId': typeof ChatWWorkspaceIdBBotIdRoute
@@ -3006,6 +3051,8 @@ export interface FileRoutesById {
   '/api/chat/conversations/$id/workflow-runs/$runId/cancel': typeof ApiChatConversationsIdWorkflowRunsRunIdCancelRoute
   '/_library/$libraryId/$version/docs/framework/$framework/': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkIndexRoute
   '/_library/$libraryId/$version/docs/framework/$framework/examples/$': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute
+  '/api/v1/intent/packages/$name/versions/$version/skills': typeof ApiV1IntentPackagesNameVersionsVersionSkillsRouteWithChildren
+  '/api/v1/intent/packages/$name/versions/$version/skills/$skill': typeof ApiV1IntentPackagesNameVersionsVersionSkillsSkillRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -3242,7 +3289,9 @@ export interface FileRouteTypes {
     | '/api/chat/skills/$id'
     | '/api/chat/workspace-index/activity'
     | '/api/chat/workspace-sync/$operation'
-    | '/intent/registry/$packageName/$skillName'
+    | '/api/v1/intent/packages'
+    | '/api/v1/intent/search'
+    | '/intent/registry/$packageName/{$}'
     | '/intent/registry/$packageName/{$}.md'
     | '/$libraryId/$version/'
     | '/ai/$version/'
@@ -3297,6 +3346,7 @@ export interface FileRouteTypes {
     | '/api/chat/references/kody/refresh'
     | '/api/chat/references/tools/refresh'
     | '/api/chat/retries/$id/prepare'
+    | '/api/v1/intent/packages/$name'
     | '/charts/catalog/previews/$revision/{$caseId}.svg'
     | '/chat/c/$conversationId/m/$messageId'
     | '/chat/w/$workspaceId/b/$botId'
@@ -3331,6 +3381,8 @@ export interface FileRouteTypes {
     | '/api/chat/conversations/$id/workflow-runs/$runId/cancel'
     | '/$libraryId/$version/docs/framework/$framework/'
     | '/$libraryId/$version/docs/framework/$framework/examples/$'
+    | '/api/v1/intent/packages/$name/versions/$version/skills'
+    | '/api/v1/intent/packages/$name/versions/$version/skills/$skill'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -3552,7 +3604,9 @@ export interface FileRouteTypes {
     | '/api/chat/skills/$id'
     | '/api/chat/workspace-index/activity'
     | '/api/chat/workspace-sync/$operation'
-    | '/intent/registry/$packageName/$skillName'
+    | '/api/v1/intent/packages'
+    | '/api/v1/intent/search'
+    | '/intent/registry/$packageName/{$}'
     | '/intent/registry/$packageName/{$}.md'
     | '/$libraryId/$version'
     | '/ai/$version'
@@ -3607,6 +3661,7 @@ export interface FileRouteTypes {
     | '/api/chat/references/kody/refresh'
     | '/api/chat/references/tools/refresh'
     | '/api/chat/retries/$id/prepare'
+    | '/api/v1/intent/packages/$name'
     | '/charts/catalog/previews/$revision/{$caseId}.svg'
     | '/chat/c/$conversationId/m/$messageId'
     | '/chat/w/$workspaceId/b/$botId'
@@ -3641,6 +3696,8 @@ export interface FileRouteTypes {
     | '/api/chat/conversations/$id/workflow-runs/$runId/cancel'
     | '/$libraryId/$version/docs/framework/$framework'
     | '/$libraryId/$version/docs/framework/$framework/examples/$'
+    | '/api/v1/intent/packages/$name/versions/$version/skills'
+    | '/api/v1/intent/packages/$name/versions/$version/skills/$skill'
   id:
     | '__root__'
     | '/'
@@ -3876,7 +3933,9 @@ export interface FileRouteTypes {
     | '/api/chat/skills/$id'
     | '/api/chat/workspace-index/activity'
     | '/api/chat/workspace-sync/$operation'
-    | '/intent/registry/$packageName/$skillName'
+    | '/api/v1/intent/packages'
+    | '/api/v1/intent/search'
+    | '/intent/registry/$packageName/{$}'
     | '/intent/registry/$packageName/{$}.md'
     | '/_library/$libraryId/$version/'
     | '/_library/ai/$version/'
@@ -3931,6 +3990,7 @@ export interface FileRouteTypes {
     | '/api/chat/references/kody/refresh'
     | '/api/chat/references/tools/refresh'
     | '/api/chat/retries/$id/prepare'
+    | '/api/v1/intent/packages/$name'
     | '/charts/catalog_/previews/$revision/{$caseId}.svg'
     | '/chat/c/$conversationId/m/$messageId'
     | '/chat/w/$workspaceId/b/$botId'
@@ -3965,6 +4025,8 @@ export interface FileRouteTypes {
     | '/api/chat/conversations/$id/workflow-runs/$runId/cancel'
     | '/_library/$libraryId/$version/docs/framework/$framework/'
     | '/_library/$libraryId/$version/docs/framework/$framework/examples/$'
+    | '/api/v1/intent/packages/$name/versions/$version/skills'
+    | '/api/v1/intent/packages/$name/versions/$version/skills/$skill'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -4105,6 +4167,8 @@ export interface RootRouteChildren {
   ApiChatOpenrouterCallbackRoute: typeof ApiChatOpenrouterCallbackRoute
   ApiChatRetriesIdRoute: typeof ApiChatRetriesIdRouteWithChildren
   ApiChatWorkspaceSyncOperationRoute: typeof ApiChatWorkspaceSyncOperationRoute
+  ApiV1IntentPackagesRoute: typeof ApiV1IntentPackagesRouteWithChildren
+  ApiV1IntentSearchRoute: typeof ApiV1IntentSearchRoute
   ApiAuthCliStatusTicketIdRoute: typeof ApiAuthCliStatusTicketIdRoute
   ApiChatConversationsIdOperationRoute: typeof ApiChatConversationsIdOperationRoute
   ApiChatConversationsIdFilesRoute: typeof ApiChatConversationsIdFilesRouteWithChildren
@@ -5916,6 +5980,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatWorkspaceSyncOperationRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/v1/intent/packages': {
+      id: '/api/v1/intent/packages'
+      path: '/api/v1/intent/packages'
+      fullPath: '/api/v1/intent/packages'
+      preLoaderRoute: typeof ApiV1IntentPackagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/intent/search': {
+      id: '/api/v1/intent/search'
+      path: '/api/v1/intent/search'
+      fullPath: '/api/v1/intent/search'
+      preLoaderRoute: typeof ApiV1IntentSearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/intent/registry/$packageName/': {
       id: '/intent/registry/$packageName/'
       path: '/'
@@ -5923,11 +6001,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IntentRegistryPackageNameIndexRouteImport
       parentRoute: typeof IntentRegistryPackageNameRoute
     }
-    '/intent/registry/$packageName/$skillName': {
-      id: '/intent/registry/$packageName/$skillName'
-      path: '/$skillName'
-      fullPath: '/intent/registry/$packageName/$skillName'
-      preLoaderRoute: typeof IntentRegistryPackageNameSkillNameRouteImport
+    '/intent/registry/$packageName/{$}': {
+      id: '/intent/registry/$packageName/{$}'
+      path: '/{$}'
+      fullPath: '/intent/registry/$packageName/{$}'
+      preLoaderRoute: typeof IntentRegistryPackageNameChar123Char125RouteImport
       parentRoute: typeof IntentRegistryPackageNameRoute
     }
     '/intent/registry/$packageName/{$}.md': {
@@ -6146,6 +6224,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/chat/retries/$id/prepare'
       preLoaderRoute: typeof ApiChatRetriesIdPrepareRouteImport
       parentRoute: typeof ApiChatRetriesIdRoute
+    }
+    '/api/v1/intent/packages/$name': {
+      id: '/api/v1/intent/packages/$name'
+      path: '/$name'
+      fullPath: '/api/v1/intent/packages/$name'
+      preLoaderRoute: typeof ApiV1IntentPackagesNameRouteImport
+      parentRoute: typeof ApiV1IntentPackagesRoute
     }
     '/charts/catalog_/previews/$revision/{$caseId}.svg': {
       id: '/charts/catalog_/previews/$revision/{$caseId}.svg'
@@ -6377,6 +6462,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/$libraryId/$version/docs/framework/$framework/examples/$'
       preLoaderRoute: typeof LibraryLibraryIdVersionDocsFrameworkFrameworkExamplesSplatRouteImport
       parentRoute: typeof LibraryLibraryIdVersionDocsRoute
+    }
+    '/api/v1/intent/packages/$name/versions/$version/skills': {
+      id: '/api/v1/intent/packages/$name/versions/$version/skills'
+      path: '/versions/$version/skills'
+      fullPath: '/api/v1/intent/packages/$name/versions/$version/skills'
+      preLoaderRoute: typeof ApiV1IntentPackagesNameVersionsVersionSkillsRouteImport
+      parentRoute: typeof ApiV1IntentPackagesNameRoute
+    }
+    '/api/v1/intent/packages/$name/versions/$version/skills/$skill': {
+      id: '/api/v1/intent/packages/$name/versions/$version/skills/$skill'
+      path: '/$skill'
+      fullPath: '/api/v1/intent/packages/$name/versions/$version/skills/$skill'
+      preLoaderRoute: typeof ApiV1IntentPackagesNameVersionsVersionSkillsSkillRouteImport
+      parentRoute: typeof ApiV1IntentPackagesNameVersionsVersionSkillsRoute
     }
   }
 }
@@ -6987,15 +7086,15 @@ const ApiChatWorkspaceIndexRouteWithChildren =
   )
 
 interface IntentRegistryPackageNameRouteChildren {
-  IntentRegistryPackageNameSkillNameRoute: typeof IntentRegistryPackageNameSkillNameRoute
+  IntentRegistryPackageNameChar123Char125Route: typeof IntentRegistryPackageNameChar123Char125Route
   IntentRegistryPackageNameChar123Char125DotmdRoute: typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   IntentRegistryPackageNameIndexRoute: typeof IntentRegistryPackageNameIndexRoute
 }
 
 const IntentRegistryPackageNameRouteChildren: IntentRegistryPackageNameRouteChildren =
   {
-    IntentRegistryPackageNameSkillNameRoute:
-      IntentRegistryPackageNameSkillNameRoute,
+    IntentRegistryPackageNameChar123Char125Route:
+      IntentRegistryPackageNameChar123Char125Route,
     IntentRegistryPackageNameChar123Char125DotmdRoute:
       IntentRegistryPackageNameChar123Char125DotmdRoute,
     IntentRegistryPackageNameIndexRoute: IntentRegistryPackageNameIndexRoute,
@@ -7142,6 +7241,47 @@ const ApiChatRetriesIdRouteChildren: ApiChatRetriesIdRouteChildren = {
 
 const ApiChatRetriesIdRouteWithChildren =
   ApiChatRetriesIdRoute._addFileChildren(ApiChatRetriesIdRouteChildren)
+
+interface ApiV1IntentPackagesNameVersionsVersionSkillsRouteChildren {
+  ApiV1IntentPackagesNameVersionsVersionSkillsSkillRoute: typeof ApiV1IntentPackagesNameVersionsVersionSkillsSkillRoute
+}
+
+const ApiV1IntentPackagesNameVersionsVersionSkillsRouteChildren: ApiV1IntentPackagesNameVersionsVersionSkillsRouteChildren =
+  {
+    ApiV1IntentPackagesNameVersionsVersionSkillsSkillRoute:
+      ApiV1IntentPackagesNameVersionsVersionSkillsSkillRoute,
+  }
+
+const ApiV1IntentPackagesNameVersionsVersionSkillsRouteWithChildren =
+  ApiV1IntentPackagesNameVersionsVersionSkillsRoute._addFileChildren(
+    ApiV1IntentPackagesNameVersionsVersionSkillsRouteChildren,
+  )
+
+interface ApiV1IntentPackagesNameRouteChildren {
+  ApiV1IntentPackagesNameVersionsVersionSkillsRoute: typeof ApiV1IntentPackagesNameVersionsVersionSkillsRouteWithChildren
+}
+
+const ApiV1IntentPackagesNameRouteChildren: ApiV1IntentPackagesNameRouteChildren =
+  {
+    ApiV1IntentPackagesNameVersionsVersionSkillsRoute:
+      ApiV1IntentPackagesNameVersionsVersionSkillsRouteWithChildren,
+  }
+
+const ApiV1IntentPackagesNameRouteWithChildren =
+  ApiV1IntentPackagesNameRoute._addFileChildren(
+    ApiV1IntentPackagesNameRouteChildren,
+  )
+
+interface ApiV1IntentPackagesRouteChildren {
+  ApiV1IntentPackagesNameRoute: typeof ApiV1IntentPackagesNameRouteWithChildren
+}
+
+const ApiV1IntentPackagesRouteChildren: ApiV1IntentPackagesRouteChildren = {
+  ApiV1IntentPackagesNameRoute: ApiV1IntentPackagesNameRouteWithChildren,
+}
+
+const ApiV1IntentPackagesRouteWithChildren =
+  ApiV1IntentPackagesRoute._addFileChildren(ApiV1IntentPackagesRouteChildren)
 
 interface ApiChatConversationsIdFilesFileIdRouteChildren {
   ApiChatConversationsIdFilesFileIdContentRoute: typeof ApiChatConversationsIdFilesFileIdContentRoute
@@ -7367,6 +7507,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiChatOpenrouterCallbackRoute: ApiChatOpenrouterCallbackRoute,
   ApiChatRetriesIdRoute: ApiChatRetriesIdRouteWithChildren,
   ApiChatWorkspaceSyncOperationRoute: ApiChatWorkspaceSyncOperationRoute,
+  ApiV1IntentPackagesRoute: ApiV1IntentPackagesRouteWithChildren,
+  ApiV1IntentSearchRoute: ApiV1IntentSearchRoute,
   ApiAuthCliStatusTicketIdRoute: ApiAuthCliStatusTicketIdRoute,
   ApiChatConversationsIdOperationRoute: ApiChatConversationsIdOperationRoute,
   ApiChatConversationsIdFilesRoute:

@@ -1,3 +1,4 @@
+import { getDocsBreadcrumbItems } from '~/utils/docs-breadcrumbs'
 import {
   notFound,
   redirect,
@@ -6,6 +7,7 @@ import {
   createFileRoute,
 } from '@tanstack/react-router'
 import { canonicalUrl, seo } from '~/utils/seo'
+import { getDocsStructuredData } from '~/utils/docs-structured-data'
 import { ogImageUrl } from '~/utils/og'
 import { Doc } from '~/components/Doc'
 import {
@@ -36,6 +38,7 @@ export const Route = createFileRoute(
     const docsRoot = library.docsRoot || 'docs'
     const requestedDocsPath = `framework/${framework}/${docsPath ?? ''}`
     const result = await loadDocsRoute({
+      queryClient: ctx.context.queryClient,
       repo: library.repo,
       branch,
       docsRoot,
@@ -83,6 +86,7 @@ export const Route = createFileRoute(
 
     return {
       ...getDocsCacheHeaders({ libraryId, version }),
+      'X-Docs-Html': loaderData?.isFallback ? 'no-store' : '1',
       ...getDocsEmbedRuntimeHeaders({
         content: loaderData?.content ?? '',
         version,
@@ -108,7 +112,24 @@ export const Route = createFileRoute(
         }),
     )
 
+    const structuredData = getDocsStructuredData({
+      doc: ctx.loaderData,
+      library,
+      canonicalHref,
+    })
+
     return {
+      scripts: structuredData
+        ? [
+            {
+              type: 'application/ld+json',
+              children: JSON.stringify(structuredData).replaceAll(
+                '<',
+                '\\u003c',
+              ),
+            },
+          ]
+        : [],
       meta: [
         ...seo({
           title: ctx.loaderData?.title
@@ -131,7 +152,8 @@ export const Route = createFileRoute(
 })
 
 function Docs() {
-  const { content, filePath, title, freshness } = Route.useLoaderData()
+  const { content, filePath, title, freshness, canonicalPathOverride } =
+    Route.useLoaderData()
   const versionMatch = useMatch({ from: '/_library/$libraryId/$version' })
   const config = versionMatch.loaderData?.config
   const { version, libraryId, framework } = Route.useParams()
@@ -144,6 +166,13 @@ function Docs() {
       <Doc
         key={filePath}
         title={title}
+        breadcrumbItems={getDocsBreadcrumbItems({
+          doc: { title },
+          library,
+          canonicalHref: canonicalUrl(
+            canonicalPathOverride ?? location.pathname,
+          ),
+        })}
         freshness={freshness}
         content={content}
         repo={library.repo}

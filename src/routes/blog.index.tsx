@@ -219,6 +219,7 @@ function BlogIndex() {
                     <BlogPostCard
                       post={featuredPost}
                       featured
+                      imageSizes="(min-width: 1344px) 837px, (min-width: 768px) calc((100vw - 88px) * 2 / 3), calc(100vw - 32px)"
                       showCategory
                       showLibraryBadges={false}
                     />
@@ -245,6 +246,10 @@ function BlogIndex() {
                               key={post.slug}
                               post={post}
                               size="lg"
+                              imageLoading={
+                                post === visiblePosts[0] ? 'eager' : 'lazy'
+                              }
+                              imageSizes="(min-width: 1344px) 624px, (min-width: 768px) calc((100vw - 96px) / 2), calc(100vw - 32px)"
                               showCategory
                               showLibraryBadges={false}
                               className={enterClass}

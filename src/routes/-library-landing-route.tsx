@@ -1,3 +1,4 @@
+import { getLibraryBreadcrumbJsonLd } from '~/utils/library-breadcrumbs'
 import { redirect } from '@tanstack/react-router'
 import type { QueryClient } from '@tanstack/react-query'
 import { getLibrary } from '~/libraries'
@@ -59,10 +60,22 @@ export async function loadLibraryLandingRouteData(
   }
 }
 
-export function getLibraryLandingHead(libraryId: LandingLibraryId) {
+export function getLibraryLandingHead(
+  libraryId: LandingLibraryId,
+  isSuccess: boolean,
+) {
   const library = getLibrary(libraryId)
+  const breadcrumb = isSuccess ? getLibraryBreadcrumbJsonLd(library) : undefined
 
   return {
+    scripts: breadcrumb
+      ? [
+          {
+            type: 'application/ld+json',
+            children: JSON.stringify(breadcrumb).replaceAll('<', '\\u003c'),
+          },
+        ]
+      : [],
     meta: seo({
       title:
         libraryId === 'start'

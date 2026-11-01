@@ -1,6 +1,7 @@
 node_modules
 .pnpm-store/
 package-lock.json
+!launch/benchmarks/redact-frameworks/package-lock.json
 yarn.lock
 .tanstack
 .DS_Store
@@ -40,3 +41,5 @@ src/routeTree.gen.ts
 
 # Generated native desktop helper
 /desktop/native/folder-access
+
+.staging/

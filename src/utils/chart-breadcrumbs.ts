@@ -10,9 +10,7 @@ export function getChartBreadcrumbItems(
   const collection = chart.collection
     ? findChartsCatalogCollection(chart.collection)
     : undefined
-  const items: Array<BreadcrumbItem> = [
-    { label: 'Catalog', to: '/charts/catalog', search: true, preload: false },
-  ]
+  const items: Array<BreadcrumbItem> = [...chartCatalogBreadcrumbItems]
   if (collection) {
     items.push({
       label: collection.title,
@@ -43,7 +41,7 @@ export function getChartCollectionBreadcrumbItems(collection: {
   title: string
 }): Array<BreadcrumbItem> {
   return [
-    { label: 'Catalog', to: '/charts/catalog', search: true, preload: false },
+    ...chartCatalogBreadcrumbItems,
     {
       label: collection.title,
       to: `/charts/catalog/collections/${collection.id}`,
@@ -66,5 +64,23 @@ export function getChartCollectionBreadcrumbJsonLd(collection: {
         item: canonicalUrl(item.to),
       }),
     ),
+  }
+}
+
+export const chartCatalogBreadcrumbItems: Array<BreadcrumbItem> = [
+  { label: 'Charts', to: '/charts/latest', search: true, preload: false },
+  { label: 'Catalog', to: '/charts/catalog', search: true, preload: false },
+]
+
+export function getChartCatalogBreadcrumbJsonLd() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: chartCatalogBreadcrumbItems.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.label,
+      item: canonicalUrl(item.to),
+    })),
   }
 }

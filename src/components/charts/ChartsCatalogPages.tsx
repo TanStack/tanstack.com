@@ -1,6 +1,7 @@
 import { Breadcrumbs } from '~/components/Breadcrumbs'
 import {
   getChartBreadcrumbItems,
+  chartCatalogBreadcrumbItems,
   getChartCollectionBreadcrumbItems,
 } from '~/utils/chart-breadcrumbs'
 import {
@@ -66,6 +67,11 @@ export function ChartsCatalog({
 
   return (
     <CatalogSurface>
+      {!collection && (
+        <div className="mb-4">
+          <Breadcrumbs section="Charts" items={chartCatalogBreadcrumbItems} />
+        </div>
+      )}
       {collection ? (
         <header className="mb-6 max-w-2xl">
           <Breadcrumbs

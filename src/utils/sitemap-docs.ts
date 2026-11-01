@@ -1,4 +1,8 @@
-const LOW_VALUE_DOCS_SITEMAP_SEGMENTS = new Set(['examples', 'community'])
+const LOW_VALUE_DOCS_SITEMAP_SEGMENTS = new Set([
+  'examples',
+  'community',
+  'contributing',
+])
 
 const LOW_VALUE_DOCS_SITEMAP_SLUGS = new Set([
   'community-resources',

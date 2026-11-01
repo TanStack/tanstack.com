@@ -1,3 +1,4 @@
+import { homepageScarfPixel } from '~/utils/analytics/scarf-pixels'
 import * as React from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 
@@ -9,10 +10,9 @@ import {
   StackIcon,
   ShieldIcon,
   LightningIcon,
-  PauseIcon,
-  PlayIcon,
   type Icon,
 } from '@phosphor-icons/react'
+import { HeroPalmMedia } from '~/components/home/HeroPalmMedia'
 import { HomeApplicationStarter } from '~/components/home/HomeApplicationStarter'
 import { HomeCommunitySection } from '~/components/home/HomeCommunitySection'
 import { HomeNewsletterSection } from '~/components/home/HomeNewsletterSection'
@@ -20,7 +20,7 @@ import { HomeSocialProofSection } from '~/components/home/HomeSocialProofSection
 import { HomeStatsSection } from '~/components/home/HomeStatsSection'
 import { useQuery } from '@tanstack/react-query'
 import { Button, Eyebrow } from '~/components/ds/ui'
-import { Squircle } from '~/components/Squircle'
+import { Scarf } from '~/components/Scarf'
 import { useInView } from '~/hooks/useInView'
 import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
 import { homepageNpmStatsSummaryQuery, ossStatsQuery } from '~/queries/stats'
@@ -75,14 +75,17 @@ function Index() {
 
   return (
     <>
-      <div className="max-w-full z-10 space-y-24">
+      <Scarf id={homepageScarfPixel} path="/" />
+      <main className="max-w-full z-10 space-y-24">
         <div className="space-y-8">
           {/* Hero — Figma node 802:2027. Full-bleed palm/gradient photo card:
               headline bottom-left, description + CTA bottom-right. The photo is
               always light, so text uses a mode-stable dark token (neutral-500)
               rather than a theme-flipping semantic. */}
           <div className="mx-0 rounded-none bg-background-subtle p-0 sm:mx-2 sm:rounded-2xl sm:p-1">
-            <div className="group relative isolate flex h-[calc(100dvh-var(--navbar-height))] max-h-[720px] min-h-[560px] flex-col justify-between gap-8 overflow-hidden rounded-none px-6 py-10 [text-shadow:0_2px_8px_rgb(255_255_255/0.2)] sm:rounded-xl sm:px-10 md:flex-row md:items-end md:justify-between md:gap-8 md:[text-shadow:none] xl:gap-12 xl:px-16 xl:py-16">
+            {/* `svh`, not `dvh` — the dynamic viewport grows as iOS collapses
+                the URL bar mid-scroll, visibly stretching the hero. */}
+            <div className="group relative isolate flex h-[calc(100svh-var(--navbar-height))] max-h-[720px] min-h-[560px] flex-col justify-between gap-8 overflow-hidden rounded-none px-6 py-10 [text-shadow:0_2px_8px_rgb(255_255_255/0.2)] sm:rounded-xl sm:px-10 md:flex-row md:items-end md:justify-between md:gap-8 md:[text-shadow:none] xl:gap-12 xl:px-16 xl:py-16">
               {/* The parent supplies the 4px frame shared by the hero and stats.
                   This wrapper clips the image to the inner radius so the <img>
                   fills it exactly instead of overflowing. Plain <img> (not OptimizedImage):
@@ -98,7 +101,7 @@ function Index() {
                 <br className="hidden md:block" /> for the web
               </h1>
               <div className="flex flex-col items-start gap-6 md:w-[29%] md:max-w-[454px]">
-                <p className="text-ds-body-md text-ds-neutral-500 md:text-ds-body-lg xl:text-ds-body-xl">
+                <p className="hidden text-ds-body-md text-ds-neutral-500 md:block md:text-ds-body-lg xl:text-ds-body-xl">
                   Headless, type-safe, composable tools for building modern web
                   applications that work naturally for developers and reliably
                   for agents
@@ -108,23 +111,31 @@ function Index() {
                     light-mode selves (no per-button color overrides). */}
                 <div className="ds-mode-light flex flex-wrap items-center gap-2">
                   <Button
-                    type="button"
-                    onClick={() => openLibraries()}
+                    as="a"
+                    href="/libraries"
+                    onClick={(event) => {
+                      if (
+                        event.button !== 0 ||
+                        event.metaKey ||
+                        event.ctrlKey ||
+                        event.shiftKey ||
+                        event.altKey
+                      )
+                        return
+                      event.preventDefault()
+                      openLibraries()
+                    }}
                     variant="primary"
                     size="md"
                   >
                     Browse the Stack
                   </Button>
-                  {/* Link-style button; color pinned to black because the photo
-                      is always light. The responsive override supersedes the
-                      link variant's mobile emphasis color. */}
                   <Button
                     as="a"
                     href="#start-with-a-prompt"
                     onClick={startWithPrompt}
                     variant="link"
                     size="md"
-                    className="text-black hover:text-black max-[899px]:text-black"
                   >
                     Start with a prompt <ArrowRightIcon className="h-4 w-4" />
                   </Button>
@@ -151,89 +162,7 @@ function Index() {
 
         <div className="h-4" />
         <HomeNewsletterSection />
-      </div>
-    </>
-  )
-}
-
-function HeroPalmMedia() {
-  const videoRef = React.useRef<HTMLVideoElement>(null)
-  const [isPlaying, setIsPlaying] = React.useState(true)
-
-  React.useEffect(() => {
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
-
-    const syncMotionPreference = () => {
-      if (reducedMotion.matches) {
-        videoRef.current?.pause()
-      }
-    }
-
-    syncMotionPreference()
-    reducedMotion.addEventListener('change', syncMotionPreference)
-    return () =>
-      reducedMotion.removeEventListener('change', syncMotionPreference)
-  }, [])
-
-  const togglePlayback = () => {
-    const video = videoRef.current
-    if (!video) return
-
-    if (video.paused) {
-      void video.play()
-    } else {
-      video.pause()
-    }
-  }
-
-  return (
-    <>
-      <Squircle
-        aria-hidden
-        className="absolute inset-0 -z-10 overflow-hidden rounded-xl [corner-shape:squircle]"
-      >
-        <picture className="contents">
-          <source
-            type="image/webp"
-            srcSet="/images/hero-palm-gradient-960.webp 960w, /images/hero-palm-gradient-1600.webp 1600w, /images/hero-palm-gradient-2400.webp 2400w"
-            sizes="100vw"
-          />
-          <img
-            src="/images/hero-palm-gradient.jpg"
-            alt=""
-            width={2400}
-            height={1600}
-            loading="eager"
-            fetchPriority="high"
-            className="h-full w-full object-cover object-center"
-          />
-        </picture>
-        <video
-          ref={videoRef}
-          autoPlay
-          loop
-          muted
-          playsInline
-          poster="/images/hero-palm-gradient.jpg"
-          onPause={() => setIsPlaying(false)}
-          onPlay={() => setIsPlaying(true)}
-          className="absolute inset-0 h-full w-full object-cover object-center motion-reduce:hidden"
-        >
-          <source src="/images/hero-palm-motion.mp4" type="video/mp4" />
-        </video>
-      </Squircle>
-      <button
-        type="button"
-        onClick={togglePlayback}
-        aria-label={isPlaying ? 'Pause hero animation' : 'Play hero animation'}
-        className="absolute right-4 top-4 z-20 grid size-8 place-items-center rounded-full bg-ds-neutral-500/65 text-white opacity-0 backdrop-blur-sm transition-opacity hover:bg-ds-neutral-500/80 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white group-hover:opacity-100 motion-reduce:hidden"
-      >
-        {isPlaying ? (
-          <PauseIcon className="size-4" weight="fill" />
-        ) : (
-          <PlayIcon className="size-4" weight="fill" />
-        )}
-      </button>
+      </main>
     </>
   )
 }

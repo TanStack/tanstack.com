@@ -545,7 +545,7 @@ function InstructorsSection({ instructors }: { instructors: Maintainer[] }) {
           use
         </p>
       </div>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto text-left mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 [&>*]:max-w-none max-w-6xl mx-auto text-left mb-8">
         {instructors.map((instructor) => (
           <MaintainerCard
             key={instructor.github}

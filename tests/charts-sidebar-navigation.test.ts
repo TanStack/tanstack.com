@@ -98,3 +98,17 @@ assert.deepEqual(
 )
 
 console.log('charts sidebar navigation tests passed')
+
+assert.deepEqual(
+  getLibraryTabLinkOptions({
+    libraryId: 'highlight',
+    version: 'latest',
+    to: '/highlight/$version/theme-editor',
+  }),
+  {
+    from: undefined,
+    to: '/highlight/$version/theme-editor',
+    params: { version: 'latest' },
+  },
+  'the theme editor uses its own versioned route without a docs route prefix',
+)

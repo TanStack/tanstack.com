@@ -66,7 +66,7 @@ function shouldTransformImage(src: string) {
   const normalized = src.toLowerCase()
 
   return (
-    src.startsWith('/') &&
+    (src.startsWith('/') || src.startsWith('https://media.tanstack.com/')) &&
     !src.startsWith('/cdn-cgi/image/') &&
     !normalized.startsWith('data:') &&
     !normalized.endsWith('.svg')

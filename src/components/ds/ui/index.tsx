@@ -2,13 +2,11 @@ import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { Link } from '@tanstack/react-router'
-import {
-  CaretDownIcon,
-  CircleNotchIcon,
-  MagnifyingGlassIcon as MagnifyingGlass,
-  UserIcon,
-  XIcon as X,
-} from '@phosphor-icons/react'
+import { CaretDownIcon } from '@phosphor-icons/react/CaretDown'
+import { CircleNotchIcon } from '@phosphor-icons/react/CircleNotch'
+import { MagnifyingGlassIcon } from '@phosphor-icons/react/MagnifyingGlass'
+import { UserIcon } from '@phosphor-icons/react/User'
+import { XIcon } from '@phosphor-icons/react/X'
 import type { MarkdownHeading } from '~/utils/markdown'
 import type { LibraryId } from '~/libraries/ids'
 import type { LibraryCategory } from '~/libraries/categories'
@@ -442,11 +440,13 @@ type SearchInputProps = Omit<
 > & {
   size?: 'default' | 'large'
   progressive?: boolean
+  /** Node rendered inside the field, right of the input (e.g. an RSS link). */
+  trailing?: React.ReactNode
 }
 
 export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
   function SearchInput(
-    { className, size = 'default', progressive = false, ...props },
+    { className, size = 'default', progressive = false, trailing, ...props },
     forwardedRef,
   ) {
     const [open, setOpen] = React.useState(!progressive)
@@ -494,7 +494,7 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
 
     if (!progressive) {
       return (
-        <label
+        <div
           className={twMerge(
             'flex w-full items-center border border-border-default bg-background-surface text-text-muted transition-[border-color,box-shadow] duration-150 focus-within:border-border-focus focus-within:text-text-primary focus-within:ring-2 focus-within:ring-border-focus/40 motion-reduce:transition-none',
             size === 'large'
@@ -502,14 +502,28 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
               : 'h-10 gap-2.5 rounded-lg px-3',
           )}
         >
-          <MagnifyingGlass
-            size={size === 'large' ? 21 : 18}
-            weight="bold"
-            aria-hidden="true"
-            className="shrink-0"
-          />
-          {input}
-        </label>
+          {/* The label wraps only the icon + input so clicking the field
+              focuses it. Interactive `trailing` controls (links, buttons) sit
+              outside the label — a form control inside a <label> that also
+              contains other interactive controls is invalid HTML. */}
+          <label
+            className={twMerge(
+              'flex min-w-0 flex-1 items-center',
+              size === 'large' ? 'gap-3' : 'gap-2.5',
+            )}
+          >
+            <MagnifyingGlassIcon
+              size={size === 'large' ? 21 : 18}
+              weight="bold"
+              aria-hidden="true"
+              className="shrink-0"
+            />
+            {input}
+          </label>
+          {trailing ? (
+            <span className="flex shrink-0 items-center">{trailing}</span>
+          ) : null}
+        </div>
       )
     }
 
@@ -524,7 +538,7 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
             onClick={reveal}
             className="grid size-10 shrink-0 place-items-center transition-colors duration-150 hover:text-text-primary focus-visible:text-text-accent focus-visible:outline-none motion-reduce:transition-none"
           >
-            <MagnifyingGlass size={18} weight="bold" aria-hidden="true" />
+            <MagnifyingGlassIcon size={18} weight="bold" aria-hidden="true" />
           </button>
           {React.cloneElement(input, {
             tabIndex: open ? props.tabIndex : -1,
@@ -549,7 +563,7 @@ export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
               skipMotion && 'transition-none',
             )}
           >
-            <X size={16} weight="bold" aria-hidden="true" />
+            <XIcon size={16} weight="bold" aria-hidden="true" />
           </button>
           <span
             aria-hidden="true"

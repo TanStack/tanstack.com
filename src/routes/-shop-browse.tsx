@@ -117,6 +117,7 @@ export function ShopBrowsePage({
     [page.nodes, accumulated],
   )
 
+  const newProductCutoff = Date.now() - TWO_WEEKS_MS
   const newestProduct = allProducts.reduce<ProductListItem | null>(
     (newest, product) => {
       if (!product.publishedAt) return newest
@@ -222,7 +223,11 @@ export function ShopBrowsePage({
                 <ProductCard
                   key={product.id}
                   product={product}
-                  isNew={product.id === newestProduct?.id}
+                  isNew={
+                    product.id === newestProduct?.id &&
+                    product.publishedAt !== null &&
+                    new Date(product.publishedAt).getTime() >= newProductCutoff
+                  }
                   loading={i < 8 ? 'eager' : 'lazy'}
                   onQuickView={onProductSelect}
                 />

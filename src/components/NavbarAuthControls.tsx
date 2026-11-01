@@ -1,14 +1,12 @@
 import * as React from 'react'
-import {
-  GearIcon as Gear,
-  KeyIcon as Key,
-  LockIcon as Lock,
-  SignInIcon,
-  SignInIcon as SignIn,
-  SignOutIcon as SignOut,
-  SparkleIcon as Sparkle,
-} from '@phosphor-icons/react'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { GearIcon } from '@phosphor-icons/react/Gear'
+import { KeyIcon } from '@phosphor-icons/react/Key'
+import { LockIcon } from '@phosphor-icons/react/Lock'
+import { ChatCircleIcon } from '@phosphor-icons/react/ChatCircle'
+import { SignInIcon } from '@phosphor-icons/react/SignIn'
+import { SignOutIcon } from '@phosphor-icons/react/SignOut'
+import { SparkleIcon } from '@phosphor-icons/react/Sparkle'
+import { ClientOnly, Link, useNavigate } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 import {
   Authenticated,
@@ -83,7 +81,7 @@ export function NavbarAuthControls({ className }: NavbarAuthControlsProps) {
   )
 
   return (
-    <>
+    <ClientOnly fallback={loadingPlaceholder}>
       <AuthLoading>{loadingPlaceholder}</AuthLoading>
       <Unauthenticated>{loginButton}</Unauthenticated>
       <Authenticated>
@@ -96,7 +94,7 @@ export function NavbarAuthControls({ className }: NavbarAuthControlsProps) {
           />
         </React.Suspense>
       </Authenticated>
-    </>
+    </ClientOnly>
   )
 }
 
@@ -139,14 +137,21 @@ export function MobileNavbarAuthControls({
       onClick={onNavigate}
       className={itemClassName}
     >
-      <SignIn className="size-8 shrink-0" />
+      <SignInIcon className="size-8 shrink-0" />
       Sign In
     </Link>
   )
 
+  const loadingPlaceholder = (
+    <div
+      aria-hidden="true"
+      className="h-16 w-full animate-pulse rounded-xl bg-[#171717]"
+    />
+  )
+
   return (
-    <>
-      <AuthLoading>{signIn}</AuthLoading>
+    <ClientOnly fallback={loadingPlaceholder}>
+      <AuthLoading>{loadingPlaceholder}</AuthLoading>
       <Unauthenticated>{signIn}</Unauthenticated>
       <Authenticated>
         <Link
@@ -155,8 +160,18 @@ export function MobileNavbarAuthControls({
           onClick={onNavigate}
           className={itemClassName}
         >
-          <Gear className="size-8 shrink-0" />
+          <GearIcon className="size-8 shrink-0" />
           Account
+        </Link>
+        <Link
+          to="/chat"
+          reloadDocument
+          tabIndex={tabIndex}
+          onClick={onNavigate}
+          className={itemClassName}
+        >
+          <ChatCircleIcon className="size-8 shrink-0" />
+          TanChat
         </Link>
         <Link
           to="/account/submissions"
@@ -164,7 +179,7 @@ export function MobileNavbarAuthControls({
           onClick={onNavigate}
           className={itemClassName}
         >
-          <Sparkle className="size-8 shrink-0" />
+          <SparkleIcon className="size-8 shrink-0" />
           My Showcases
         </Link>
         {user && (
@@ -174,7 +189,7 @@ export function MobileNavbarAuthControls({
             onClick={onNavigate}
             className={itemClassName}
           >
-            <Key className="size-8 shrink-0" />
+            <KeyIcon className="size-8 shrink-0" />
             Integrations
           </Link>
         )}
@@ -185,7 +200,7 @@ export function MobileNavbarAuthControls({
             onClick={onNavigate}
             className={itemClassName}
           >
-            <Lock className="size-8 shrink-0" />
+            <LockIcon className="size-8 shrink-0" />
             Admin
           </Link>
         )}
@@ -195,10 +210,10 @@ export function MobileNavbarAuthControls({
           onClick={signOut}
           className={itemClassName}
         >
-          <SignOut className="size-8 shrink-0" />
+          <SignOutIcon className="size-8 shrink-0" />
           Sign Out
         </button>
       </Authenticated>
-    </>
+    </ClientOnly>
   )
 }

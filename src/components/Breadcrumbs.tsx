@@ -12,6 +12,7 @@ import {
 type BreadcrumbsProps = {
   /** Section label (e.g., "Getting Started", "Blog") */
   section: string
+  items?: Array<{ label: string; to: string }>
   /** Optional link for the section */
   sectionTo?: string
   headings?: MarkdownHeading[]
@@ -22,6 +23,7 @@ type BreadcrumbsProps = {
 export function Breadcrumbs({
   section,
   sectionTo,
+  items,
   headings,
   tocHiddenBreakpoint = 'lg',
 }: BreadcrumbsProps) {
@@ -36,7 +38,30 @@ export function Breadcrumbs({
   return (
     <div className="flex flex-col">
       <div className="flex items-center justify-between gap-4 text-sm text-gray-500 dark:text-gray-400">
-        {sectionTo ? (
+        {items ? (
+          <nav aria-label="Breadcrumb" className="min-w-0">
+            <ol className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+              {items.map((item, index) => (
+                <li key={item.to} className="min-w-0 flex gap-2">
+                  {index > 0 && <span aria-hidden="true">/</span>}
+                  {index === items.length - 1 ? (
+                    <span aria-current="page" className="break-words">
+                      {item.label}
+                    </span>
+                  ) : (
+                    <Link
+                      to={item.to}
+                      activeOptions={{ exact: true }}
+                      className="hover:underline"
+                    >
+                      {item.label}
+                    </Link>
+                  )}
+                </li>
+              ))}
+            </ol>
+          </nav>
+        ) : sectionTo ? (
           <Link
             to={sectionTo}
             className="whitespace-nowrap hover:text-gray-700 dark:hover:text-gray-200 transition-colors"

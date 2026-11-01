@@ -19,7 +19,7 @@ test('library landing pages canonicalize to latest', () => {
     ['/query/latest', '/query/latest'],
     ['/query/v4', '/query/latest'],
     ['/router/v1', '/router/latest'],
-    ['/ai/v0', '/ai/latest'],
+    ['/ai/v1', '/ai/latest'],
     ['/table/v9', '/table/latest'],
     ['/form/alpha', '/form/latest'],
   ]) {

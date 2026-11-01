@@ -13,8 +13,6 @@ import {
 } from '~/utils/blog'
 import {
   type BlogCardPost,
-  formatAuthors,
-  formatPublishedDate,
   getBlogAuthorIdentities,
   getBlogLibraries,
   isBlogPostUnpublished,
@@ -121,22 +119,20 @@ export const fetchBlogPost = createServerFn({ method: 'GET' })
     )
 
     const authors = normalizeBlogAuthors(post.authors)
-    const blogContent = `<small><em>by ${formatAuthors(authors)} on ${formatPublishedDate(
-      post.published || '1970-01-01',
-    )}.</em></small>
-
-${post.content}`
-
     const isUnpublished = isBlogPostUnpublished(post)
 
     return {
       authorIdentities: getBlogAuthorIdentities(authors, allMaintainers),
       authors,
-      content: blogContent,
+      content: post.content,
+      contributors: post.contributors ?? [],
       description: post.excerpt,
       filePath: `src/blog/${data}.md`,
       headerImage: post.headerImage,
+      socialImage: post.socialImage,
       isUnpublished,
+      headerVideo: post.headerVideo,
+      headerVideoCaptions: post.headerVideoCaptions,
       library: post.library,
       published: post.published,
       slug: post.slug,

@@ -1,3 +1,4 @@
+import { isDatabaseConfigured } from '~/db/client'
 import { createServerFn } from '@tanstack/react-start'
 import * as v from 'valibot'
 import {
@@ -464,6 +465,11 @@ export const getIntentPackageDetail = createServerFn({ method: 'GET' })
   .validator(v.object({ name: npmPackageNameSchema }))
   .handler(async ({ data }) => {
     const { name } = data
+    if (
+      process.env.NODE_ENV === 'development' &&
+      !(await isDatabaseConfigured())
+    )
+      return null
 
     // Quick rejection cache check (packages confirmed to have no skills)
     if (isRejected(name)) return null

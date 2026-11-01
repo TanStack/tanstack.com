@@ -263,8 +263,8 @@ export function LibraryLandingShell({
           <div
             className={
               stackHero
-                ? 'grid items-start gap-12'
-                : 'grid items-start gap-12 xl:min-h-116 xl:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] xl:gap-10'
+                ? 'grid grid-cols-1 items-start gap-12'
+                : 'grid grid-cols-1 items-start gap-12 xl:min-h-116 xl:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] xl:gap-10'
             }
           >
             <div
@@ -324,7 +324,7 @@ export function LibraryLandingShell({
                         className="hidden h-[18px] w-auto dark:block"
                       />
                       <h1 className="mt-1">
-                        <span className="block bg-[linear-gradient(110deg,var(--landing-headline-start),var(--landing-headline-end))] bg-clip-text pr-1 font-library-name text-ds-display-lg font-normal uppercase text-transparent dark:[filter:drop-shadow(0_4px_4px_rgb(0_0_0/0.25))] sm:text-ds-display-xl 2xl:text-ds-display-2xl">
+                        <span className="block bg-[linear-gradient(110deg,var(--landing-headline-start),var(--landing-headline-end))] bg-clip-text pr-1 font-library-name text-ds-display-sm font-normal uppercase text-transparent dark:[filter:drop-shadow(0_4px_4px_rgb(0_0_0/0.25))] min-[400px]:text-ds-display-lg sm:text-ds-display-xl 2xl:text-ds-display-2xl">
                           {library.name.replace(/^TanStack\s+/i, '')}
                         </span>
                       </h1>

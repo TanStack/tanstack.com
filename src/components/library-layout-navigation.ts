@@ -28,6 +28,10 @@ export function getLibraryTabLinkOptions({
   version: string
   to: string
 }) {
+  if (to === '/highlight/$version/theme-editor') {
+    return { from: undefined, to, params: { version } }
+  }
+
   const isHomeTarget = to === '..'
 
   return {

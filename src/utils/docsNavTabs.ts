@@ -9,6 +9,7 @@ export const docsNavTabIds = [
   'adapters',
   'api',
   'examples',
+  'theme-editor',
 ] as const
 
 export type DocsNavTabId = (typeof docsNavTabIds)[number]
@@ -113,8 +114,11 @@ function isDocsTabTarget(to: string) {
   return true
 }
 
-export function getTabbedMenuConfig(menuConfig: MenuItem[]) {
-  return docsNavTabs
+export function getTabbedMenuConfig(
+  menuConfig: MenuItem[],
+  tools: Array<{ id: DocsNavTabId; label: string; to: string }> = [],
+) {
+  const tabs = docsNavTabs
     .map((tab) => {
       const groups = menuConfig
         .map((group) => {
@@ -147,6 +151,17 @@ export function getTabbedMenuConfig(menuConfig: MenuItem[]) {
       }
     })
     .filter((tab) => tab.groups.length)
+
+  for (const tool of tools) {
+    const existing = tabs.find((tab) => tab.id === tool.id)
+    const firstItem = { label: tool.label, to: tool.to }
+    if (existing) {
+      existing.firstItem = firstItem
+    } else {
+      tabs.push({ id: tool.id, label: tool.label, groups: [], firstItem })
+    }
+  }
+  return tabs
 }
 
 // Matches a menu child's `to` against the current pathname, handling the

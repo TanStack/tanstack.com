@@ -335,6 +335,72 @@ test('resolves declared peers that source code does not import', async () => {
   })
 })
 
+test('does not resolve type-only devtools peers as browser modules', async () => {
+  const workspace = createExampleWorkspace({
+    entry: '/index.tsx',
+    files: {
+      '/index.tsx': 'export {}',
+      '/package.json': JSON.stringify({
+        dependencies: {
+          '@tanstack/react-devtools': '0.10.12',
+          react: '19.3.0',
+          'react-dom': '19.3.0',
+        },
+        devDependencies: {
+          '@types/react': '^19.3.0',
+          '@types/react-dom': '^19.3.0',
+        },
+      }),
+    },
+  })
+  const requests: Array<string> = []
+  const fetchMetadata = createMetadataFetch(
+    requests,
+    (url) => ({
+      version: url.includes('@tanstack/react-devtools') ? '0.10.12' : '19.3.0',
+    }),
+    (url): Record<string, string> =>
+      url.includes('@tanstack/react-devtools')
+        ? {
+            '@types/react': '>=16.8',
+            '@types/react-dom': '>=16.8',
+            react: '>=16.8',
+            'react-dom': '>=16.8',
+          }
+        : {},
+  )
+  const imports = await resolveExampleWorkspaceImports(
+    workspace,
+    workspace.files,
+    new Set(['@tanstack/react-devtools']),
+    {
+      fetch: async (input, init) => {
+        // esm.sh redirects @types metadata requests to declarations.
+        if (getRequestUrl(input).includes('/@types/')) {
+          requests.push(getRequestUrl(input))
+          return new Response('export as namespace ReactDOM;')
+        }
+        return fetchMetadata(input, init)
+      },
+    },
+  )
+
+  assert.equal(
+    imports['@tanstack/react-devtools'],
+    'https://esm.sh/@tanstack/react-devtools@0.10.12?dev&standalone&external=react,react-dom',
+  )
+  assert.equal(imports.react, 'https://esm.sh/react@19.3.0')
+  assert.equal(imports['react-dom'], 'https://esm.sh/react-dom@19.3.0')
+  assert.equal(
+    requests.some((url) => url.includes('/@types/')),
+    false,
+  )
+  assert.equal(
+    Object.keys(imports).some((key) => key.startsWith('@types/')),
+    false,
+  )
+})
+
 test('stops before resolving packages when already aborted', async () => {
   const workspace = createExampleWorkspace({
     entry: '/index.ts',

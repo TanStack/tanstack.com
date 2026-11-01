@@ -52,8 +52,16 @@ export function LoginModalProvider({ children }: LoginModalProviderProps) {
   > | null>(null)
   const pendingOnSuccessRef = React.useRef<(() => void) | undefined>(undefined)
 
+  const openerRef = React.useRef<HTMLElement | null>(null)
+
   const openLoginModal = React.useCallback(
     (options?: { description?: string; onSuccess?: () => void }) => {
+      const active = document.activeElement
+      openerRef.current =
+        active instanceof HTMLElement && active !== document.body
+          ? active
+          : null
+
       pendingOnSuccessRef.current = options?.onSuccess
       setDescription(options?.description)
       setHasLoadedModal(true)
@@ -129,6 +137,7 @@ export function LoginModalProvider({ children }: LoginModalProviderProps) {
             open={isOpen}
             description={description}
             onOpenChange={handleOpenChange}
+            restoreFocusRef={openerRef}
             onSocialSignIn={openSocialPopup}
           />
         </React.Suspense>

@@ -1,3 +1,8 @@
+import { getLiveRuntimeConfig } from '~/utils/analytics/live.functions'
+import {
+  resumeVisitorChat,
+  startLivePresence,
+} from '~/utils/analytics/live-browser'
 import * as React from 'react'
 import {
   createRootRouteWithContext,
@@ -39,14 +44,25 @@ import { Spinner } from '~/components/Spinner'
 import { ThemeProvider, useHtmlClass } from '~/components/ThemeProvider'
 import { Navbar } from '~/components/Navbar'
 import { Footer } from '~/components/Footer'
-import {
-  BuilderRouteFrame,
-  BuilderRouteSkeleton,
-} from '~/components/builder/BuilderLoading'
+import { ProductScarf } from '~/components/ProductScarf'
+const BuilderRouteContent = React.lazy(() =>
+  import('~/chat/components/projects/Loading').then((module) => ({
+    default: module.BuilderRouteContent,
+  })),
+)
 import { THEME_COLORS } from '~/utils/utils'
 import { trackPageView } from '~/utils/analytics'
+import {
+  trackScarfClipboardEvent,
+  trackScarfDownloadClick,
+  trackScarfExternalLinkClick,
+  trackScarfExternalLinkHoverIntent,
+  trackScarfPageView,
+} from '~/utils/analytics/scarf'
 import { createPartnerPlacementSessionSeed } from '~/utils/partner-placement'
 import { twMerge } from 'tailwind-merge'
+import { TRAFFIC_QUALITY_BOOTSTRAP } from '~/utils/analytics/traffic-quality'
+import { DOCS_WIDTH_BOOTSTRAP } from '~/utils/docs-width'
 
 const GOOGLE_ANALYTICS_ID = 'G-JMT1Z50SPS'
 const GOOGLE_ANALYTICS_PROXY_PREFIX = '/_a'
@@ -57,7 +73,7 @@ const THEME_BOOTSTRAP = `(function(){try{var t=localStorage.getItem('theme')||'a
 // the bootstrap idempotent: without it the head script can execute twice on a
 // single load, sending a second config (and a second page_view) and injecting
 // a second gtag.js loader.
-const GOOGLE_ANALYTICS_BOOTSTRAP = `(function(){if(window.__tanstackGaBootstrapped)return;window.__tanstackGaBootstrapped=true;var id='${GOOGLE_ANALYTICS_ID}';var src='${GOOGLE_ANALYTICS_SCRIPT_SRC}';window.dataLayer=window.dataLayer||[];window.gtag=window.gtag||function(){window.dataLayer.push(arguments)};window.gtag('js',new Date());window.gtag('config',id,{send_page_view:false,transport_url:window.location.origin+'${GOOGLE_ANALYTICS_PROXY_PREFIX}'});var loaded=false;var load=function(){if(loaded)return;var parent=document.head||document.documentElement;if(!parent){window.setTimeout(load,100);return}loaded=true;var script=document.createElement('script');script.async=true;script.src=src;script.setAttribute('data-ga-loader','true');parent.appendChild(script)};if(typeof window.requestIdleCallback==='function'){window.requestIdleCallback(load,{timeout:3000});return}if(document.readyState==='complete'){window.setTimeout(load,1500);return}window.addEventListener('load',function(){window.setTimeout(load,1500)},{once:true})})();`
+const GOOGLE_ANALYTICS_BOOTSTRAP = `(function(){if(window.__tanstackGaBootstrapped)return;window.__tanstackGaBootstrapped=true;var id='${GOOGLE_ANALYTICS_ID}';var src='${GOOGLE_ANALYTICS_SCRIPT_SRC}';window.dataLayer=window.dataLayer||[];window.gtag=window.gtag||function(){window.dataLayer.push(arguments)};window.gtag('set',{traffic_quality:'unknown',traffic_quality_rule:'v1'});window.gtag('js',new Date());window.gtag('config',id,{send_page_view:false,transport_url:window.location.origin+'${GOOGLE_ANALYTICS_PROXY_PREFIX}'});${TRAFFIC_QUALITY_BOOTSTRAP}var loaded=false;var load=function(){if(loaded)return;var parent=document.head||document.documentElement;if(!parent){window.setTimeout(load,100);return}loaded=true;var script=document.createElement('script');script.async=true;script.src=src;script.setAttribute('data-ga-loader','true');parent.appendChild(script)};if(typeof window.requestIdleCallback==='function'){window.requestIdleCallback(load,{timeout:3000});return}if(document.readyState==='complete'){window.setTimeout(load,1500);return}window.addEventListener('load',function(){window.setTimeout(load,1500)},{once:true})})();`
 const DOCUMENT_CACHE_HEADERS = {
   'Cache-Control': 'public, max-age=0, must-revalidate',
   'Cloudflare-CDN-Cache-Control': 'no-store',
@@ -168,8 +184,9 @@ class OptionalDevtoolsBoundary extends React.Component<
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
 }>()({
-  loader: () => {
+  loader: async () => {
     return {
+      live: await getLiveRuntimeConfig(),
       partnerPlacementSessionSeed: createPartnerPlacementSessionSeed(),
     }
   },
@@ -255,10 +272,21 @@ export const Route = createRootRouteWithContext<{
           sizes: '16x16',
           href: '/favicon-16x16.png',
         },
-        { rel: 'manifest', href: '/site.webmanifest' },
+        {
+          rel: 'manifest',
+          href: matches.some(
+            (match) =>
+              match.pathname === '/chat' || match.pathname.startsWith('/chat/'),
+          )
+            ? '/chat/manifest.webmanifest'
+            : '/site.webmanifest',
+        },
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
       ],
-      scripts: [{ children: GOOGLE_ANALYTICS_BOOTSTRAP }],
+      scripts:
+        import.meta.env.PROD && import.meta.env.MODE !== 'staging'
+          ? [{ children: GOOGLE_ANALYTICS_BOOTSTRAP }]
+          : [],
     }
   },
   headers: () => DOCUMENT_CACHE_HEADERS,
@@ -316,15 +344,25 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
   const hideNavbar = useMatches({
     select: (s) => s.some((d) => d.staticData?.showNavbar === false),
   })
-  const hideFooter = pathname === '/builder' || pathname.startsWith('/builder/')
+  const hideFooter =
+    pathname === '/admin' ||
+    pathname.startsWith('/admin/') ||
+    pathname === '/builder' ||
+    pathname.startsWith('/builder/') ||
+    pathname === '/chat' ||
+    pathname.startsWith('/chat/')
 
   const htmlClass = useHtmlClass()
   const routeContent = (
-    <BuilderRouteFrame pathname={pathname}>
-      <React.Suspense fallback={<BuilderRouteSkeleton pathname={pathname} />}>
-        {children}
-      </React.Suspense>
-    </BuilderRouteFrame>
+    <React.Suspense fallback={null}>
+      {pathname === '/builder' || pathname.startsWith('/builder/') ? (
+        <BuilderRouteContent pathname={pathname}>
+          {children}
+        </BuilderRouteContent>
+      ) : (
+        children
+      )}
+    </React.Suspense>
   )
 
   return (
@@ -334,6 +372,7 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
           dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP }}
           suppressHydrationWarning
         />
+        <script dangerouslySetInnerHTML={{ __html: DOCS_WIDTH_BOOTSTRAP }} />
         <HeadContent />
         {import.meta.env.PROD ? (
           <script
@@ -353,10 +392,13 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
         <RouterContextProvider router={router}>
           <QueryClientProvider client={queryClient}>
             <ThemeProvider>
-              <SearchProvider>
+              <SearchProvider
+                enabled={pathname !== '/chat' && !pathname.startsWith('/chat/')}
+              >
                 <LoginModalProvider>
                   <ToastProvider>
                     <PageViewTracker />
+                    <ProductScarf />
                     <LibrariesOverlayProvider>
                       {hideNavbar ? (
                         routeContent
@@ -420,6 +462,7 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
  * stay disabled on the web stream, or navigations are counted twice.
  */
 function PageViewTracker() {
+  const { live } = Route.useLoaderData()
   const pagePath = useRouterState({
     select: (s) => {
       if (!s.resolvedLocation) {
@@ -435,6 +478,27 @@ function PageViewTracker() {
   const lastTrackedPath = React.useRef<string | null>(null)
 
   React.useEffect(() => {
+    if (import.meta.env.MODE === 'staging') return
+    if (live.chatEnabled) void resumeVisitorChat().catch(() => {})
+    const stopLivePresence = live.presenceEnabled
+      ? startLivePresence()
+      : () => {}
+    const stopTrackingHoverIntent = trackScarfExternalLinkHoverIntent()
+    document.addEventListener('click', trackScarfExternalLinkClick, true)
+    document.addEventListener('click', trackScarfDownloadClick, true)
+    document.addEventListener('copy', trackScarfClipboardEvent, true)
+    document.addEventListener('paste', trackScarfClipboardEvent, true)
+    return () => {
+      stopLivePresence()
+      stopTrackingHoverIntent()
+      document.removeEventListener('click', trackScarfExternalLinkClick, true)
+      document.removeEventListener('click', trackScarfDownloadClick, true)
+      document.removeEventListener('copy', trackScarfClipboardEvent, true)
+      document.removeEventListener('paste', trackScarfClipboardEvent, true)
+    }
+  }, [live.presenceEnabled, live.chatEnabled])
+
+  React.useEffect(() => {
     // Skip until the router has resolved a location, and never send the same
     // path twice in a row (guards against the location resolving twice).
     if (pagePath === null || lastTrackedPath.current === pagePath) {
@@ -443,6 +507,8 @@ function PageViewTracker() {
 
     lastTrackedPath.current = pagePath
     trackPageView(pagePath)
+    if (import.meta.env.MODE !== 'staging')
+      trackScarfPageView(window.location.pathname)
   }, [pagePath])
 
   return null

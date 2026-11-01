@@ -67,6 +67,7 @@ export {
   createOAuthPopupCookie,
   clearOAuthPopupCookie,
   isOAuthPopupMode,
+  getOAuthPopupChannel,
   createOAuthReturnToCookie,
   clearOAuthReturnToCookie,
   getOAuthReturnTo,

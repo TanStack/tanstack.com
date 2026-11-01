@@ -1,3 +1,5 @@
+import { isHighValueDocsSlug } from './sitemap-docs'
+import { getStartExampleSitemapEntries } from './start-example-pages'
 import { getBranch, libraries } from '~/libraries'
 import type { LibrarySlim } from '~/libraries/types'
 import { getPublishedPosts } from '~/utils/blog'
@@ -21,14 +23,6 @@ const HIGH_VALUE_NON_DOC_PAGES = [
   '/workshops',
   '/paid-support',
 ] as const satisfies ReadonlyArray<string>
-
-const LOW_VALUE_DOCS_SITEMAP_SEGMENTS = new Set(['examples', 'community'])
-
-const LOW_VALUE_DOCS_SITEMAP_SLUGS = new Set([
-  'community-resources',
-  'contributors',
-  'npm-stats',
-])
 
 function trimTrailingSlash(url: string) {
   return url.replace(/\/$/, '')
@@ -61,16 +55,6 @@ function getLibraryEntries(): Array<SitemapEntry> {
   })
 }
 
-function isHighValueDocsSlug(slug: string) {
-  const segments = slug.split('/').filter(Boolean)
-
-  return (
-    segments.length > 0 &&
-    !segments.some((segment) => LOW_VALUE_DOCS_SITEMAP_SEGMENTS.has(segment)) &&
-    !LOW_VALUE_DOCS_SITEMAP_SLUGS.has(slug)
-  )
-}
-
 async function getLibraryDocsEntries(
   library: LibrarySlim,
 ): Promise<Array<SitemapEntry>> {
@@ -101,7 +85,7 @@ async function getLibraryDocsEntries(
 function getBlogEntries(): Array<SitemapEntry> {
   return getPublishedPosts().map((post) => ({
     path: `/blog/${post.slug}`,
-    lastModified: asLastModified(post.published),
+    lastModified: asLastModified(post.updated ?? post.published),
   }))
 }
 
@@ -118,6 +102,7 @@ export async function getSitemapEntries(): Promise<Array<SitemapEntry>> {
   const entries = [
     ...HIGH_VALUE_NON_DOC_PAGES.map((path) => ({ path })),
     ...getLibraryEntries(),
+    ...getStartExampleSitemapEntries(),
     ...docsEntries.flat(),
     ...getBlogEntries(),
     ...getPartnerSitemapEntries(),
@@ -143,7 +128,7 @@ async function getPublishedChartsCatalogEntries(): Promise<
     return getChartsCatalogSitemapEntries(publication.index)
   } catch (error) {
     console.error('[sitemap] Charts catalog unavailable', error)
-    return [{ path: '/charts/catalog/' }]
+    return [{ path: '/charts/catalog' }]
   }
 }
 

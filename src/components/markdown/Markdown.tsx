@@ -14,6 +14,9 @@ import {
 } from '~/utils/markdown'
 import { isSafeHttpUrl } from '~/utils/url-boundary'
 import { mapStartHostingPartnerElements } from '~/utils/start-hosting-guide'
+import { mapMarkdownPartnerLists } from '~/utils/markdown-partner-lists'
+import { PartnerList, PreviousPartnerList } from './PartnerList'
+import { StartPartnerContributions } from './StartPartnerContributions'
 import { CodeBlock } from './CodeBlock'
 import { LiveExample } from './LiveExample'
 import { MarkdownLink } from './MarkdownLink'
@@ -30,10 +33,13 @@ import {
 } from './MdComponents'
 
 type MarkdownRenderOptions = {
+  linkBaseUrl?: string
   preserveTabPanels?: boolean
 }
 
 export type MarkdownProps = {
+  /** Resolve package-relative links against their published source file. */
+  linkBaseUrl?: string
   content?: string
   document?: MarkdownDocument
   chartEmbedSource?: ChartsCatalogEmbedSource
@@ -43,6 +49,7 @@ export type MarkdownProps = {
 }
 
 export function Markdown({
+  linkBaseUrl,
   content,
   document,
   chartEmbedSource,
@@ -54,7 +61,9 @@ export function Markdown({
     [content, document],
   )
   const renderDocument = React.useMemo(() => {
-    const withHostingPartners = mapStartHostingPartnerElements(parsed)
+    const withHostingPartners = mapStartHostingPartnerElements(
+      mapMarkdownPartnerLists(parsed),
+    )
 
     return chartEmbedSource
       ? mapChartsCatalogEmbeds(withHostingPartners, chartEmbedSource)
@@ -71,10 +80,11 @@ export function Markdown({
       components: createMarkdownComponents({
         preserveTabPanels,
         firstImageSrc,
+        linkBaseUrl,
       }),
       headingAnchors,
     })
-  }, [renderDocument, preserveTabPanels, eagerFirstImage])
+  }, [renderDocument, preserveTabPanels, eagerFirstImage, linkBaseUrl])
 }
 
 const headingAnchors = {
@@ -194,15 +204,6 @@ function CodeElement({
   )
 }
 
-function LinkElement(props: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
-  if (props.className?.includes('anchor-heading')) {
-    // eslint-disable-next-line jsx-a11y/anchor-has-content
-    return <a {...props} />
-  }
-
-  return <MarkdownLink {...props} />
-}
-
 function TableElement({
   className,
   ...props
@@ -220,6 +221,15 @@ function TableElement({
 function createMarkdownComponents(
   options: MarkdownRenderOptions & { firstImageSrc?: string } = {},
 ) {
+  function LinkElement(props: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
+    if (props.className?.includes('anchor-heading')) {
+      // eslint-disable-next-line jsx-a11y/anchor-has-content
+      return <a {...props} />
+    }
+
+    return <MarkdownLink {...props} baseUrl={options.linkBaseUrl} />
+  }
+
   function MdCommentComponentWithOptions(
     props: React.ComponentProps<typeof MdCommentComponent>,
   ) {
@@ -257,6 +267,9 @@ function createMarkdownComponents(
     'md-live-example': LiveExample,
     'md-tab-panel': MdTabPanel,
     pre: CodeBlock,
+    'start-partner-contributions': StartPartnerContributions,
+    'partner-list': PartnerList,
+    'previous-partner-list': PreviousPartnerList,
     'start-hosting-lovable-logo': StartHostingLovableLogo,
     'start-hosting-partners': StartHostingPartners,
     'start-hosting-render-logo': StartHostingRenderLogo,

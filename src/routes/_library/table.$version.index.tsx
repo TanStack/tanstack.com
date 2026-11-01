@@ -15,7 +15,8 @@ export const Route = createFileRoute('/_library/table/$version/')({
   },
   loader: ({ params, context: { queryClient } }) =>
     loadLibraryLandingRouteData('table', params.version, queryClient),
-  head: () => getLibraryLandingHead('table'),
+  head: ({ match }) =>
+    getLibraryLandingHead('table', match.status === 'success'),
   headers: () => getLibraryLandingHeaders('table'),
   component: TableLandingRoute,
 })

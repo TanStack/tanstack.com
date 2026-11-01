@@ -68,6 +68,18 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       to: '/admin',
     },
     {
+      label: 'TanChat Access',
+      icon: <ChatsCircleIcon />,
+      to: '/admin/chat-access',
+      requiredCapability: 'admin',
+    },
+    {
+      label: 'Live companies',
+      icon: <UsersIcon />,
+      to: '/admin/live',
+      requiredCapability: 'admin',
+    },
+    {
       label: 'Users',
       icon: <UsersIcon />,
       to: '/admin/users',

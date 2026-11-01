@@ -20,6 +20,7 @@ export type LibraryCategory =
 export const libraryCategories: Record<string, LibraryCategory> = {
   start: 'framework',
   router: 'framework',
+  redact: 'framework',
   query: 'data',
   db: 'data',
   store: 'data',

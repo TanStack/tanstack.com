@@ -5,21 +5,32 @@ import { DefaultCatchBoundary } from './components/DefaultCatchBoundary'
 import { NotFound } from './components/NotFound'
 import { QueryClient } from '@tanstack/react-query'
 import * as Sentry from '@sentry/tanstackstart-react'
-import { installStaleAppReloadHandlers } from './utils/stale-app-reload'
+import {
+  installStaleAppReloadHandlers,
+  consumeStaleAppRecovery,
+} from './utils/stale-app-reload'
 import { redactByokRequestHeaders } from './utils/sentry-redaction'
+import type { DocsNavTabId } from './utils/docsNavTabs'
+import type { CustomToolTabId } from './libraries/custom-tool-tabs'
 
 if (typeof document !== 'undefined') {
   installStaleAppReloadHandlers()
 
   Sentry.init({
     dsn: 'https://ac4bfc43ff4a892f8dc7053c4a50d92f@o4507236158537728.ingest.us.sentry.io/4507236163649536',
+    enabled: import.meta.env.PROD && import.meta.env.MODE !== 'staging',
     sendDefaultPii: true,
     // Performance Monitoring
     tracesSampleRate: 1.0, //  Capture 100% of the transactions
     // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
     tracePropagationTargets: ['localhost', /^https:\/\/tanstack\.com\//],
-    beforeSend(event) {
+    beforeSend(event, hint) {
       redactByokRequestHeaders(event)
+      // Only suppress the exact error that triggered a reload. Errors during
+      // the reload cooldown still need reporting.
+      if (consumeStaleAppRecovery(hint.originalException)) {
+        return null
+      }
       // Filter out errors from third-party ad tech scripts (e.g. Publift's
       // Fuse Platform ftUtils.js) that are not actionable by us.
       const frames = event.exception?.values?.flatMap(
@@ -88,6 +99,13 @@ declare module '@tanstack/react-router' {
     showNavbar?: boolean
     includeSearchInCanonical?: boolean
     ownsCanonicalLink?: boolean
+
+    // allows for the setting of custom routes to show up in the page tab
+    docsTab?: {
+      id: DocsNavTabId | CustomToolTabId
+      // config to disable clamping of page
+      fullBleed?: boolean
+    }
   }
 }
 

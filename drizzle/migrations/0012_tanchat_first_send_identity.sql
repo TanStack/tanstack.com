@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "chat_bot_draft_bot_idx" ON "chat_bot_drafts" USING btree ("bot_id");

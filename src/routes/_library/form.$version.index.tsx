@@ -15,7 +15,8 @@ export const Route = createFileRoute('/_library/form/$version/')({
   },
   loader: ({ params, context: { queryClient } }) =>
     loadLibraryLandingRouteData('form', params.version, queryClient),
-  head: () => getLibraryLandingHead('form'),
+  head: ({ match }) =>
+    getLibraryLandingHead('form', match.status === 'success'),
   headers: () => getLibraryLandingHeaders('form'),
   component: FormLandingRoute,
 })

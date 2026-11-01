@@ -1,3 +1,4 @@
+import { isHighValueDocsSlug } from './sitemap-docs'
 import { getStartExampleSitemapEntries } from './start-example-pages'
 import { getBranch, libraries } from '~/libraries'
 import type { LibrarySlim } from '~/libraries/types'
@@ -22,14 +23,6 @@ const HIGH_VALUE_NON_DOC_PAGES = [
   '/workshops',
   '/paid-support',
 ] as const satisfies ReadonlyArray<string>
-
-const LOW_VALUE_DOCS_SITEMAP_SEGMENTS = new Set(['examples', 'community'])
-
-const LOW_VALUE_DOCS_SITEMAP_SLUGS = new Set([
-  'community-resources',
-  'contributors',
-  'npm-stats',
-])
 
 function trimTrailingSlash(url: string) {
   return url.replace(/\/$/, '')
@@ -60,16 +53,6 @@ function getLibraryEntries(): Array<SitemapEntry> {
     const basePath = `/${library.id}/latest`
     return [{ path: basePath }]
   })
-}
-
-function isHighValueDocsSlug(slug: string) {
-  const segments = slug.split('/').filter(Boolean)
-
-  return (
-    segments.length > 0 &&
-    !segments.some((segment) => LOW_VALUE_DOCS_SITEMAP_SEGMENTS.has(segment)) &&
-    !LOW_VALUE_DOCS_SITEMAP_SLUGS.has(slug)
-  )
 }
 
 async function getLibraryDocsEntries(

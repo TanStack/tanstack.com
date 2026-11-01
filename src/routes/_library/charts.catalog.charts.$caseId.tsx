@@ -28,7 +28,7 @@ export const Route = createFileRoute('/_library/charts/catalog/charts/$caseId')(
               type: 'application/ld+json',
               children: JSON.stringify(
                 getChartBreadcrumbJsonLd(loaderData.case),
-              ),
+              ).replaceAll('<', '\\u003c'),
             },
           ]
         : [],

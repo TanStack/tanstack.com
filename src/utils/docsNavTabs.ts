@@ -114,8 +114,11 @@ function isDocsTabTarget(to: string) {
   return true
 }
 
-export function getTabbedMenuConfig(menuConfig: MenuItem[]) {
-  return docsNavTabs
+export function getTabbedMenuConfig(
+  menuConfig: MenuItem[],
+  tools: Array<{ id: DocsNavTabId; label: string; to: string }> = [],
+) {
+  const tabs = docsNavTabs
     .map((tab) => {
       const groups = menuConfig
         .map((group) => {
@@ -148,6 +151,17 @@ export function getTabbedMenuConfig(menuConfig: MenuItem[]) {
       }
     })
     .filter((tab) => tab.groups.length)
+
+  for (const tool of tools) {
+    const existing = tabs.find((tab) => tab.id === tool.id)
+    const firstItem = { label: tool.label, to: tool.to }
+    if (existing) {
+      existing.firstItem = firstItem
+    } else {
+      tabs.push({ id: tool.id, label: tool.label, groups: [], firstItem })
+    }
+  }
+  return tabs
 }
 
 // Matches a menu child's `to` against the current pathname, handling the
@@ -184,19 +198,19 @@ function isChildPathMatch({
   return false
 }
 
-export function getActiveDocsNavTabId({
-  isExample,
+export function getActiveDocsNavTabId<TTabIdOverride>({
+  tabIdOverride,
   menuConfig,
   pathname,
   relativePathname,
 }: {
-  isExample: boolean
+  tabIdOverride?: TTabIdOverride
   menuConfig: MenuItem[]
   pathname: string
   relativePathname: string
 }) {
-  if (isExample) {
-    return 'examples'
+  if (tabIdOverride) {
+    return tabIdOverride
   }
 
   const activeGroup = menuConfig.find((group) =>

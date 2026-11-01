@@ -10,6 +10,8 @@ import {
   consumeStaleAppRecovery,
 } from './utils/stale-app-reload'
 import { redactByokRequestHeaders } from './utils/sentry-redaction'
+import type { DocsNavTabId } from './utils/docsNavTabs'
+import type { CustomToolTabId } from './libraries/custom-tool-tabs'
 
 if (typeof document !== 'undefined') {
   installStaleAppReloadHandlers()
@@ -97,6 +99,13 @@ declare module '@tanstack/react-router' {
     showNavbar?: boolean
     includeSearchInCanonical?: boolean
     ownsCanonicalLink?: boolean
+
+    // allows for the setting of custom routes to show up in the page tab
+    docsTab?: {
+      id: DocsNavTabId | CustomToolTabId
+      // config to disable clamping of page
+      fullBleed?: boolean
+    }
   }
 }
 

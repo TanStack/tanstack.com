@@ -49,7 +49,11 @@ export function Breadcrumbs({
                       {item.label}
                     </span>
                   ) : (
-                    <Link to={item.to} className="hover:underline">
+                    <Link
+                      to={item.to}
+                      activeOptions={{ exact: true }}
+                      className="hover:underline"
+                    >
                       {item.label}
                     </Link>
                   )}

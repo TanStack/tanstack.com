@@ -1,5 +1,8 @@
 import { Breadcrumbs } from '~/components/Breadcrumbs'
-import { getChartBreadcrumbItems } from '~/utils/chart-breadcrumbs'
+import {
+  getChartBreadcrumbItems,
+  getChartCollectionBreadcrumbItems,
+} from '~/utils/chart-breadcrumbs'
 import {
   ArrowsOutSimpleIcon,
   ArrowUpRightIcon,
@@ -65,14 +68,10 @@ export function ChartsCatalog({
     <CatalogSurface>
       {collection ? (
         <header className="mb-6 max-w-2xl">
-          <Link
-            className="text-sm text-text-muted hover:text-action-primary"
-            preload={false}
-            search={true}
-            to="/charts/catalog"
-          >
-            All examples
-          </Link>
+          <Breadcrumbs
+            section="Catalog"
+            items={getChartCollectionBreadcrumbItems(collection)}
+          />
           <h1 className="mt-2 font-ds-display text-3xl font-bold tracking-tight text-text-primary">
             {collection.title}
           </h1>

@@ -1,3 +1,4 @@
+import { getChartCollectionBreadcrumbJsonLd } from '~/utils/chart-breadcrumbs'
 import { createFileRoute, notFound } from '@tanstack/react-router'
 import { ChartsCatalog } from '~/components/charts/ChartsCatalogPages'
 import { isChartsCatalogCaseId } from '~/utils/charts-catalog'
@@ -17,6 +18,16 @@ export const Route = createFileRoute(
   },
   component: ChartsCatalogCollectionRoute,
   head: ({ loaderData }) => ({
+    scripts: loaderData
+      ? [
+          {
+            type: 'application/ld+json',
+            children: JSON.stringify(
+              getChartCollectionBreadcrumbJsonLd(loaderData.collection),
+            ).replaceAll('<', '\\u003c'),
+          },
+        ]
+      : [],
     meta: seo({
       title: loaderData
         ? `${loaderData.collection.title} | TanStack Charts`

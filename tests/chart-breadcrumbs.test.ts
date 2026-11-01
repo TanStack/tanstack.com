@@ -2,6 +2,8 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import {
   getChartBreadcrumbItems,
+  getChartCollectionBreadcrumbItems,
+  getChartCollectionBreadcrumbJsonLd,
   getChartBreadcrumbJsonLd,
 } from '../src/utils/chart-breadcrumbs'
 Object.assign(globalThis, { __TANSTACK_SITE_URL__: 'https://tanstack.com' })
@@ -31,4 +33,30 @@ test('chart hierarchy includes only known collections and keeps navigation optio
   for (const collection of [undefined, 'unknown']) {
     assert.equal(getChartBreadcrumbItems({ ...chart, collection }).length, 2)
   }
+})
+
+test('collection trail returns to the complete catalog while schema stays canonical', () => {
+  const collection = { id: 'shadcn', title: 'shadcn/ui Charts' }
+  const items = getChartCollectionBreadcrumbItems(collection)
+  assert.equal(items[0].to, '/charts/catalog')
+  assert.equal(items[0].search, true)
+  assert.equal(items[0].preload, false)
+  assert.equal(items[1].label, collection.title)
+  assert.deepEqual(
+    getChartCollectionBreadcrumbJsonLd(collection).itemListElement,
+    [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Catalog',
+        item: 'https://tanstack.com/charts/catalog',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'shadcn/ui Charts',
+        item: 'https://tanstack.com/charts/catalog/collections/shadcn',
+      },
+    ],
+  )
 })

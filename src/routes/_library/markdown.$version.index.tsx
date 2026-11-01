@@ -15,7 +15,8 @@ export const Route = createFileRoute('/_library/markdown/$version/')({
   },
   loader: ({ params, context: { queryClient } }) =>
     loadLibraryLandingRouteData('markdown', params.version, queryClient),
-  head: () => getLibraryLandingHead('markdown'),
+  head: ({ match }) =>
+    getLibraryLandingHead('markdown', match.status === 'success'),
   headers: () => getLibraryLandingHeaders('markdown'),
   component: MarkdownLandingRoute,
 })

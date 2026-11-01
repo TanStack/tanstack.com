@@ -426,3 +426,16 @@ function SkeletonBlock({ className }: { className: string }) {
     />
   )
 }
+
+export function BuilderRouteContent({
+  children,
+  pathname,
+}: BuilderRouteFrameProps) {
+  return (
+    <BuilderRouteFrame pathname={pathname}>
+      <React.Suspense fallback={<BuilderRouteSkeleton pathname={pathname} />}>
+        {children}
+      </React.Suspense>
+    </BuilderRouteFrame>
+  )
+}

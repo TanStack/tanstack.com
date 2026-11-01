@@ -114,7 +114,7 @@ async function testWorkerEnvUsesBlobStorage() {
   assert.equal(object.customMetadata?.repo, repo)
   assert.equal(object.customMetadata?.gitRef, gitRef)
   assert.equal(object.customMetadata?.isPresent, 'true')
-  assert.deepEqual(JSON.parse(object.value), { value: 'blob' })
+  assert.equal(JSON.parse(object.value).value, 'blob')
 }
 
 async function testBlobStorageInfersGithubContentMetadataFromKey() {
@@ -424,6 +424,63 @@ async function testStaleArtifactRefreshesInWaitUntil() {
 
   assert.deepEqual(freshResult, { paths: ['new'] })
 }
+
+async function testExpiredContentRefreshesWithoutBlocking() {
+  resetGitHubContentCacheForTest()
+  const mockR2 = createMockR2Bucket()
+  const pending: Array<Promise<unknown>> = []
+  let finish: ((value: string) => void) | undefined
+  const refresh = new Promise<string>((resolve) => {
+    finish = resolve
+  })
+  await runWithHostRuntimeEnv(
+    { GITHUB_CONTENT_CACHE: mockR2.bucket },
+    async () => {
+      const opts = { repo, gitRef, path: 'docs/expired.md' }
+      await getCachedGitHubTextFile({ ...opts, origin: async () => 'old' })
+      for (const object of mockR2.objects.values()) {
+        if (object.customMetadata)
+          object.customMetadata.staleAt = new Date(
+            Date.now() - 1000,
+          ).toISOString()
+      }
+      const value = await runWithHostRuntimeContext(
+        {
+          waitUntil: (task: Promise<unknown>) => {
+            pending.push(task)
+          },
+        },
+        () => getCachedGitHubTextFile({ ...opts, origin: () => refresh }),
+      )
+      assert.equal(value, 'old')
+      assert.equal(pending.length, 1)
+      finish?.('new')
+      await Promise.all(pending)
+      assert.equal(
+        await getCachedGitHubTextFile({
+          ...opts,
+          origin: async () => {
+            throw new Error('should be fresh')
+          },
+        }),
+        'new',
+      )
+      await markGitHubContentStale({ repo, gitRef })
+      const forced = await runWithHostRuntimeContext(
+        {
+          waitUntil: () => {
+            assert.fail('forced invalidation must block')
+          },
+        },
+        () =>
+          getCachedGitHubTextFile({ ...opts, origin: async () => 'forced' }),
+      )
+      assert.equal(forced, 'forced')
+    },
+  )
+}
+
+await testExpiredContentRefreshesWithoutBlocking()
 
 await testMissStoresContent()
 await testFreshHitSkipsOrigin()

@@ -9,6 +9,7 @@ export const docsNavTabIds = [
   'adapters',
   'api',
   'examples',
+  'theme-editor',
 ] as const
 
 export type DocsNavTabId = (typeof docsNavTabIds)[number]

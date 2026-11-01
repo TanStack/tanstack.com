@@ -8,6 +8,7 @@ import {
 } from '../src/utils/blog-format'
 import {
   type BlogPostHeadData,
+  getBlogBreadcrumbItems,
   getBlogPostHead,
   getBlogSocialImageUrl,
 } from '../src/utils/blog-post-seo'
@@ -234,4 +235,37 @@ test('known modification dates reach frontmatter, JSON-LD, and article metadata'
     ),
     true,
   )
+})
+
+test('blog breadcrumbs use the visible trail with canonical ordered URLs', () => {
+  const post = {
+    ...basePost,
+    slug: '2026/typed-routing',
+    title: 'Routing & <Types>',
+  }
+  const trail = getBlogBreadcrumbItems(post)
+  assert.deepEqual(trail, [
+    { label: 'Blog', to: '/blog' },
+    { label: post.title, to: '/blog/2026/typed-routing' },
+  ])
+  const graph = getJsonLd(getBlogPostHead(post))['@graph']
+  const breadcrumb = graph.find((node) => node['@type'] === 'BreadcrumbList')
+  assert.deepEqual(breadcrumb, {
+    '@type': 'BreadcrumbList',
+    '@id': 'https://tanstack.com/blog/2026/typed-routing#breadcrumb',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Blog',
+        item: 'https://tanstack.com/blog',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: post.title,
+        item: 'https://tanstack.com/blog/2026/typed-routing',
+      },
+    ],
+  })
 })

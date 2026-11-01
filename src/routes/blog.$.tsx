@@ -17,7 +17,11 @@ import { findMaintainerByAuthorName } from '~/utils/authors'
 import { CoverFallback } from '~/components/CoverFallback'
 import { fetchBlogPost } from '~/utils/blog.functions'
 import { parseBlogMarkdown } from '~/utils/blogMarkdown'
-import { getBlogPostHead, getBlogSocialImageUrl } from '~/utils/blog-post-seo'
+import {
+  getBlogBreadcrumbItems,
+  getBlogPostHead,
+  getBlogSocialImageUrl,
+} from '~/utils/blog-post-seo'
 
 export const Route = createFileRoute('/blog/$')({
   staleTime: Infinity,
@@ -31,7 +35,9 @@ export const Route = createFileRoute('/blog/$')({
     return fetchBlogPost({ data: blogPath })
   },
   head: ({ loaderData }) => {
-    const socialImage = getBlogSocialImageUrl(loaderData?.headerImage)
+    const socialImage = getBlogSocialImageUrl(
+      loaderData?.socialImage ?? loaderData?.headerImage,
+    )
 
     return getBlogPostHead(
       loaderData ? { ...loaderData, socialImage } : undefined,
@@ -49,6 +55,7 @@ function BlogPost() {
     published,
     filePath,
     title,
+    slug: postSlug,
     headerImage,
     headerVideo,
     headerVideoCaptions,
@@ -138,7 +145,10 @@ function BlogPost() {
                     >
                       <Breadcrumbs
                         section="Blog"
-                        sectionTo="/blog"
+                        items={getBlogBreadcrumbItems({
+                          title,
+                          slug: postSlug,
+                        })}
                         headings={isTocVisible ? headings : undefined}
                         tocHiddenBreakpoint="xl"
                       />

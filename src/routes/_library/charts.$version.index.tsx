@@ -28,7 +28,8 @@ export const Route = createFileRoute('/_library/charts/$version/')({
 
     return { ...landingData, catalogOrderSeed, catalog }
   },
-  head: () => getLibraryLandingHead('charts'),
+  head: ({ match }) =>
+    getLibraryLandingHead('charts', match.status === 'success'),
   headers: () => getLibraryLandingHeaders('charts'),
   component: ChartsLandingRoute,
 })

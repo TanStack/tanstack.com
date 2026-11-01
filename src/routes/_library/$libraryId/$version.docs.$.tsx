@@ -38,6 +38,7 @@ export const Route = createFileRoute('/_library/$libraryId/$version/docs/$')({
     const docsRoot = library.docsRoot || 'docs'
     const requestedDocsPath = docsPath ?? ''
     const result = await loadDocsRoute({
+      queryClient: ctx.context.queryClient,
       repo: library.repo,
       branch,
       docsRoot,
@@ -144,6 +145,7 @@ export const Route = createFileRoute('/_library/$libraryId/$version/docs/$')({
 
     return {
       ...getDocsCacheHeaders({ libraryId, version }),
+      'X-Docs-Html': loaderData?.isFallback ? 'no-store' : '1',
       ...getDocsEmbedRuntimeHeaders({
         content: loaderData?.content ?? '',
         version,

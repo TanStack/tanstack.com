@@ -60,6 +60,7 @@ import { Route as AdminChatAccessRouteImport } from './routes/admin/chat-access'
 import { Route as AdminDocsRouteImport } from './routes/admin/docs'
 import { Route as AdminGithubStatsRouteImport } from './routes/admin/github-stats'
 import { Route as AdminIntentRouteImport } from './routes/admin/intent'
+import { Route as AdminLiveRouteImport } from './routes/admin/live'
 import { Route as AdminLoginsRouteImport } from './routes/admin/logins'
 import { Route as AdminNpmStatsRouteImport } from './routes/admin/npm-stats'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
@@ -111,8 +112,12 @@ import { Route as DsTakeoverRouteImport } from './routes/ds.takeover'
 import { Route as DsTypographyRouteImport } from './routes/ds.typography'
 import { Route as LibrariesFrameworkRouteImport } from './routes/libraries_.$framework'
 import { Route as OauthAuthorizeRouteImport } from './routes/oauth/authorize'
+import { Route as OauthIntrospectRouteImport } from './routes/oauth/introspect'
 import { Route as OauthRegisterRouteImport } from './routes/oauth/register'
+import { Route as OauthRevokeRouteImport } from './routes/oauth/revoke'
+import { Route as OauthSessionHintRouteImport } from './routes/oauth/session-hint'
 import { Route as OauthTokenRouteImport } from './routes/oauth/token'
+import { Route as OauthUserinfoRouteImport } from './routes/oauth/userinfo'
 import { Route as PartnersIndexRouteImport } from './routes/partners.index'
 import { Route as PartnersPartnerRouteImport } from './routes/partners.$partner'
 import { Route as PartnersNetlifyRouteImport } from './routes/partners.netlify'
@@ -212,12 +217,14 @@ import { Route as LibraryDbVersionIndexRouteImport } from './routes/_library/db.
 import { Route as LibraryDevtoolsVersionIndexRouteImport } from './routes/_library/devtools.$version.index'
 import { Route as LibraryFormVersionIndexRouteImport } from './routes/_library/form.$version.index'
 import { Route as LibraryHighlightVersionIndexRouteImport } from './routes/_library/highlight.$version.index'
+import { Route as LibraryHighlightVersionThemeEditorRouteImport } from './routes/_library/highlight.$version.theme-editor'
 import { Route as LibraryHotkeysVersionIndexRouteImport } from './routes/_library/hotkeys.$version.index'
 import { Route as LibraryIntentVersionIndexRouteImport } from './routes/_library/intent.$version.index'
 import { Route as LibraryMarkdownVersionIndexRouteImport } from './routes/_library/markdown.$version.index'
 import { Route as LibraryPacerVersionIndexRouteImport } from './routes/_library/pacer.$version.index'
 import { Route as LibraryQueryVersionIndexRouteImport } from './routes/_library/query.$version.index'
 import { Route as LibraryRangerVersionIndexRouteImport } from './routes/_library/ranger.$version.index'
+import { Route as LibraryRedactVersionIndexRouteImport } from './routes/_library/redact.$version.index'
 import { Route as LibraryRouterVersionIndexRouteImport } from './routes/_library/router.$version.index'
 import { Route as LibraryStartVersionIndexRouteImport } from './routes/_library/start.$version.index'
 import { Route as LibraryStoreVersionIndexRouteImport } from './routes/_library/store.$version.index'
@@ -580,6 +587,11 @@ const AdminIntentRoute = AdminIntentRouteImport.update({
   path: '/intent',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const AdminLiveRoute = AdminLiveRouteImport.update({
+  id: '/live',
+  path: '/live',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const AdminLoginsRoute = AdminLoginsRouteImport.update({
   id: '/logins',
   path: '/logins',
@@ -837,14 +849,34 @@ const OauthAuthorizeRoute = OauthAuthorizeRouteImport.update({
   path: '/oauth/authorize',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OauthIntrospectRoute = OauthIntrospectRouteImport.update({
+  id: '/oauth/introspect',
+  path: '/oauth/introspect',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OauthRegisterRoute = OauthRegisterRouteImport.update({
   id: '/oauth/register',
   path: '/oauth/register',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OauthRevokeRoute = OauthRevokeRouteImport.update({
+  id: '/oauth/revoke',
+  path: '/oauth/revoke',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OauthSessionHintRoute = OauthSessionHintRouteImport.update({
+  id: '/oauth/session-hint',
+  path: '/oauth/session-hint',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OauthTokenRoute = OauthTokenRouteImport.update({
   id: '/oauth/token',
   path: '/oauth/token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OauthUserinfoRoute = OauthUserinfoRouteImport.update({
+  id: '/oauth/userinfo',
+  path: '/oauth/userinfo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PartnersIndexRoute = PartnersIndexRouteImport.update({
@@ -1365,6 +1397,12 @@ const LibraryHighlightVersionIndexRoute =
     path: '/highlight/$version/',
     getParentRoute: () => LibraryRoute,
   } as any)
+const LibraryHighlightVersionThemeEditorRoute =
+  LibraryHighlightVersionThemeEditorRouteImport.update({
+    id: '/highlight/$version/theme-editor',
+    path: '/highlight/$version/theme-editor',
+    getParentRoute: () => LibraryRoute,
+  } as any)
 const LibraryHotkeysVersionIndexRoute =
   LibraryHotkeysVersionIndexRouteImport.update({
     id: '/hotkeys/$version/',
@@ -1399,6 +1437,12 @@ const LibraryRangerVersionIndexRoute =
   LibraryRangerVersionIndexRouteImport.update({
     id: '/ranger/$version/',
     path: '/ranger/$version/',
+    getParentRoute: () => LibraryRoute,
+  } as any)
+const LibraryRedactVersionIndexRoute =
+  LibraryRedactVersionIndexRouteImport.update({
+    id: '/redact/$version/',
+    path: '/redact/$version/',
     getParentRoute: () => LibraryRoute,
   } as any)
 const LibraryRouterVersionIndexRoute =
@@ -2054,6 +2098,7 @@ export interface FileRoutesByFullPath {
   '/admin/docs': typeof AdminDocsRoute
   '/admin/github-stats': typeof AdminGithubStatsRoute
   '/admin/intent': typeof AdminIntentRoute
+  '/admin/live': typeof AdminLiveRoute
   '/admin/logins': typeof AdminLoginsRoute
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
@@ -2101,8 +2146,12 @@ export interface FileRoutesByFullPath {
   '/ds/typography': typeof DsTypographyRoute
   '/libraries/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
+  '/oauth/introspect': typeof OauthIntrospectRoute
   '/oauth/register': typeof OauthRegisterRoute
+  '/oauth/revoke': typeof OauthRevokeRoute
+  '/oauth/session-hint': typeof OauthSessionHintRoute
   '/oauth/token': typeof OauthTokenRoute
+  '/oauth/userinfo': typeof OauthUserinfoRoute
   '/partners/$partner': typeof PartnersPartnerRoute
   '/partners/netlify': typeof PartnersNetlifyRoute
   '/partners/railway': typeof PartnersRailwayRoute
@@ -2198,6 +2247,7 @@ export interface FileRoutesByFullPath {
   '/$libraryId/$version/docs': typeof LibraryLibraryIdVersionDocsRouteWithChildren
   '/$libraryId/$version/llms.txt': typeof LibraryLibraryIdVersionLlmsDottxtRoute
   '/charts/catalog/all': typeof LibraryChartsCatalogAllRoute
+  '/highlight/$version/theme-editor': typeof LibraryHighlightVersionThemeEditorRoute
   '/api/application-starter/deploy/check-name': typeof ApiApplicationStarterDeployCheckNameRoute
   '/api/application-starter/deploy/github': typeof ApiApplicationStarterDeployGithubRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
@@ -2250,6 +2300,7 @@ export interface FileRoutesByFullPath {
   '/pacer/$version/': typeof LibraryPacerVersionIndexRoute
   '/query/$version/': typeof LibraryQueryVersionIndexRoute
   '/ranger/$version/': typeof LibraryRangerVersionIndexRoute
+  '/redact/$version/': typeof LibraryRedactVersionIndexRoute
   '/router/$version/': typeof LibraryRouterVersionIndexRoute
   '/start/$version/': typeof LibraryStartVersionIndexRoute
   '/store/$version/': typeof LibraryStoreVersionIndexRoute
@@ -2361,6 +2412,7 @@ export interface FileRoutesByTo {
   '/admin/docs': typeof AdminDocsRoute
   '/admin/github-stats': typeof AdminGithubStatsRoute
   '/admin/intent': typeof AdminIntentRoute
+  '/admin/live': typeof AdminLiveRoute
   '/admin/logins': typeof AdminLoginsRoute
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
@@ -2408,8 +2460,12 @@ export interface FileRoutesByTo {
   '/ds/typography': typeof DsTypographyRoute
   '/libraries/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
+  '/oauth/introspect': typeof OauthIntrospectRoute
   '/oauth/register': typeof OauthRegisterRoute
+  '/oauth/revoke': typeof OauthRevokeRoute
+  '/oauth/session-hint': typeof OauthSessionHintRoute
   '/oauth/token': typeof OauthTokenRoute
+  '/oauth/userinfo': typeof OauthUserinfoRoute
   '/partners/$partner': typeof PartnersPartnerRoute
   '/partners/netlify': typeof PartnersNetlifyRoute
   '/partners/railway': typeof PartnersRailwayRoute
@@ -2501,6 +2557,7 @@ export interface FileRoutesByTo {
   '/stats/npm': typeof StatsNpmIndexRoute
   '/$libraryId/$version/llms.txt': typeof LibraryLibraryIdVersionLlmsDottxtRoute
   '/charts/catalog/all': typeof LibraryChartsCatalogAllRoute
+  '/highlight/$version/theme-editor': typeof LibraryHighlightVersionThemeEditorRoute
   '/api/application-starter/deploy/check-name': typeof ApiApplicationStarterDeployCheckNameRoute
   '/api/application-starter/deploy/github': typeof ApiApplicationStarterDeployGithubRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
@@ -2553,6 +2610,7 @@ export interface FileRoutesByTo {
   '/pacer/$version': typeof LibraryPacerVersionIndexRoute
   '/query/$version': typeof LibraryQueryVersionIndexRoute
   '/ranger/$version': typeof LibraryRangerVersionIndexRoute
+  '/redact/$version': typeof LibraryRedactVersionIndexRoute
   '/router/$version': typeof LibraryRouterVersionIndexRoute
   '/start/$version': typeof LibraryStartVersionIndexRoute
   '/store/$version': typeof LibraryStoreVersionIndexRoute
@@ -2675,6 +2733,7 @@ export interface FileRoutesById {
   '/admin/docs': typeof AdminDocsRoute
   '/admin/github-stats': typeof AdminGithubStatsRoute
   '/admin/intent': typeof AdminIntentRoute
+  '/admin/live': typeof AdminLiveRoute
   '/admin/logins': typeof AdminLoginsRoute
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
@@ -2722,8 +2781,12 @@ export interface FileRoutesById {
   '/ds/typography': typeof DsTypographyRoute
   '/libraries_/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
+  '/oauth/introspect': typeof OauthIntrospectRoute
   '/oauth/register': typeof OauthRegisterRoute
+  '/oauth/revoke': typeof OauthRevokeRoute
+  '/oauth/session-hint': typeof OauthSessionHintRoute
   '/oauth/token': typeof OauthTokenRoute
+  '/oauth/userinfo': typeof OauthUserinfoRoute
   '/partners/$partner': typeof PartnersPartnerRoute
   '/partners/netlify': typeof PartnersNetlifyRoute
   '/partners/railway': typeof PartnersRailwayRoute
@@ -2819,6 +2882,7 @@ export interface FileRoutesById {
   '/_library/$libraryId/$version/docs': typeof LibraryLibraryIdVersionDocsRouteWithChildren
   '/_library/$libraryId/$version/llms.txt': typeof LibraryLibraryIdVersionLlmsDottxtRoute
   '/_library/charts/catalog/all': typeof LibraryChartsCatalogAllRoute
+  '/_library/highlight/$version/theme-editor': typeof LibraryHighlightVersionThemeEditorRoute
   '/api/application-starter/deploy/check-name': typeof ApiApplicationStarterDeployCheckNameRoute
   '/api/application-starter/deploy/github': typeof ApiApplicationStarterDeployGithubRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
@@ -2871,6 +2935,7 @@ export interface FileRoutesById {
   '/_library/pacer/$version/': typeof LibraryPacerVersionIndexRoute
   '/_library/query/$version/': typeof LibraryQueryVersionIndexRoute
   '/_library/ranger/$version/': typeof LibraryRangerVersionIndexRoute
+  '/_library/redact/$version/': typeof LibraryRedactVersionIndexRoute
   '/_library/router/$version/': typeof LibraryRouterVersionIndexRoute
   '/_library/start/$version/': typeof LibraryStartVersionIndexRoute
   '/_library/store/$version/': typeof LibraryStoreVersionIndexRoute
@@ -2993,6 +3058,7 @@ export interface FileRouteTypes {
     | '/admin/docs'
     | '/admin/github-stats'
     | '/admin/intent'
+    | '/admin/live'
     | '/admin/logins'
     | '/admin/npm-stats'
     | '/admin/users'
@@ -3040,8 +3106,12 @@ export interface FileRouteTypes {
     | '/ds/typography'
     | '/libraries/$framework'
     | '/oauth/authorize'
+    | '/oauth/introspect'
     | '/oauth/register'
+    | '/oauth/revoke'
+    | '/oauth/session-hint'
     | '/oauth/token'
+    | '/oauth/userinfo'
     | '/partners/$partner'
     | '/partners/netlify'
     | '/partners/railway'
@@ -3137,6 +3207,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs'
     | '/$libraryId/$version/llms.txt'
     | '/charts/catalog/all'
+    | '/highlight/$version/theme-editor'
     | '/api/application-starter/deploy/check-name'
     | '/api/application-starter/deploy/github'
     | '/api/auth/callback/$provider'
@@ -3189,6 +3260,7 @@ export interface FileRouteTypes {
     | '/pacer/$version/'
     | '/query/$version/'
     | '/ranger/$version/'
+    | '/redact/$version/'
     | '/router/$version/'
     | '/start/$version/'
     | '/store/$version/'
@@ -3300,6 +3372,7 @@ export interface FileRouteTypes {
     | '/admin/docs'
     | '/admin/github-stats'
     | '/admin/intent'
+    | '/admin/live'
     | '/admin/logins'
     | '/admin/npm-stats'
     | '/admin/users'
@@ -3347,8 +3420,12 @@ export interface FileRouteTypes {
     | '/ds/typography'
     | '/libraries/$framework'
     | '/oauth/authorize'
+    | '/oauth/introspect'
     | '/oauth/register'
+    | '/oauth/revoke'
+    | '/oauth/session-hint'
     | '/oauth/token'
+    | '/oauth/userinfo'
     | '/partners/$partner'
     | '/partners/netlify'
     | '/partners/railway'
@@ -3440,6 +3517,7 @@ export interface FileRouteTypes {
     | '/stats/npm'
     | '/$libraryId/$version/llms.txt'
     | '/charts/catalog/all'
+    | '/highlight/$version/theme-editor'
     | '/api/application-starter/deploy/check-name'
     | '/api/application-starter/deploy/github'
     | '/api/auth/callback/$provider'
@@ -3492,6 +3570,7 @@ export interface FileRouteTypes {
     | '/pacer/$version'
     | '/query/$version'
     | '/ranger/$version'
+    | '/redact/$version'
     | '/router/$version'
     | '/start/$version'
     | '/store/$version'
@@ -3613,6 +3692,7 @@ export interface FileRouteTypes {
     | '/admin/docs'
     | '/admin/github-stats'
     | '/admin/intent'
+    | '/admin/live'
     | '/admin/logins'
     | '/admin/npm-stats'
     | '/admin/users'
@@ -3660,8 +3740,12 @@ export interface FileRouteTypes {
     | '/ds/typography'
     | '/libraries_/$framework'
     | '/oauth/authorize'
+    | '/oauth/introspect'
     | '/oauth/register'
+    | '/oauth/revoke'
+    | '/oauth/session-hint'
     | '/oauth/token'
+    | '/oauth/userinfo'
     | '/partners/$partner'
     | '/partners/netlify'
     | '/partners/railway'
@@ -3757,6 +3841,7 @@ export interface FileRouteTypes {
     | '/_library/$libraryId/$version/docs'
     | '/_library/$libraryId/$version/llms.txt'
     | '/_library/charts/catalog/all'
+    | '/_library/highlight/$version/theme-editor'
     | '/api/application-starter/deploy/check-name'
     | '/api/application-starter/deploy/github'
     | '/api/auth/callback/$provider'
@@ -3809,6 +3894,7 @@ export interface FileRouteTypes {
     | '/_library/pacer/$version/'
     | '/_library/query/$version/'
     | '/_library/ranger/$version/'
+    | '/_library/redact/$version/'
     | '/_library/router/$version/'
     | '/_library/start/$version/'
     | '/_library/store/$version/'
@@ -3932,8 +4018,12 @@ export interface RootRouteChildren {
   BuilderNewRoute: typeof BuilderNewRoute
   LibrariesFrameworkRoute: typeof LibrariesFrameworkRoute
   OauthAuthorizeRoute: typeof OauthAuthorizeRoute
+  OauthIntrospectRoute: typeof OauthIntrospectRoute
   OauthRegisterRoute: typeof OauthRegisterRoute
+  OauthRevokeRoute: typeof OauthRevokeRoute
+  OauthSessionHintRoute: typeof OauthSessionHintRoute
   OauthTokenRoute: typeof OauthTokenRoute
+  OauthUserinfoRoute: typeof OauthUserinfoRoute
   ShowcaseIdRoute: typeof ShowcaseIdRoute
   ShowcaseSubmitRoute: typeof ShowcaseSubmitRoute
   StackCategoryRoute: typeof StackCategoryRoute
@@ -4391,6 +4481,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIntentRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/admin/live': {
+      id: '/admin/live'
+      path: '/live'
+      fullPath: '/admin/live'
+      preLoaderRoute: typeof AdminLiveRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/admin/logins': {
       id: '/admin/logins'
       path: '/logins'
@@ -4748,6 +4845,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OauthAuthorizeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/oauth/introspect': {
+      id: '/oauth/introspect'
+      path: '/oauth/introspect'
+      fullPath: '/oauth/introspect'
+      preLoaderRoute: typeof OauthIntrospectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/oauth/register': {
       id: '/oauth/register'
       path: '/oauth/register'
@@ -4755,11 +4859,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OauthRegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/oauth/revoke': {
+      id: '/oauth/revoke'
+      path: '/oauth/revoke'
+      fullPath: '/oauth/revoke'
+      preLoaderRoute: typeof OauthRevokeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/oauth/session-hint': {
+      id: '/oauth/session-hint'
+      path: '/oauth/session-hint'
+      fullPath: '/oauth/session-hint'
+      preLoaderRoute: typeof OauthSessionHintRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/oauth/token': {
       id: '/oauth/token'
       path: '/oauth/token'
       fullPath: '/oauth/token'
       preLoaderRoute: typeof OauthTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/oauth/userinfo': {
+      id: '/oauth/userinfo'
+      path: '/oauth/userinfo'
+      fullPath: '/oauth/userinfo'
+      preLoaderRoute: typeof OauthUserinfoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/partners/': {
@@ -5455,6 +5580,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryHighlightVersionIndexRouteImport
       parentRoute: typeof LibraryRoute
     }
+    '/_library/highlight/$version/theme-editor': {
+      id: '/_library/highlight/$version/theme-editor'
+      path: '/highlight/$version/theme-editor'
+      fullPath: '/highlight/$version/theme-editor'
+      preLoaderRoute: typeof LibraryHighlightVersionThemeEditorRouteImport
+      parentRoute: typeof LibraryRoute
+    }
     '/_library/hotkeys/$version/': {
       id: '/_library/hotkeys/$version/'
       path: '/hotkeys/$version'
@@ -5495,6 +5627,13 @@ declare module '@tanstack/react-router' {
       path: '/ranger/$version'
       fullPath: '/ranger/$version/'
       preLoaderRoute: typeof LibraryRangerVersionIndexRouteImport
+      parentRoute: typeof LibraryRoute
+    }
+    '/_library/redact/$version/': {
+      id: '/_library/redact/$version/'
+      path: '/redact/$version'
+      fullPath: '/redact/$version/'
+      preLoaderRoute: typeof LibraryRedactVersionIndexRouteImport
       parentRoute: typeof LibraryRoute
     }
     '/_library/router/$version/': {
@@ -6260,6 +6399,7 @@ interface AdminRouteRouteChildren {
   AdminDocsRoute: typeof AdminDocsRoute
   AdminGithubStatsRoute: typeof AdminGithubStatsRoute
   AdminIntentRoute: typeof AdminIntentRoute
+  AdminLiveRoute: typeof AdminLiveRoute
   AdminLoginsRoute: typeof AdminLoginsRoute
   AdminNpmStatsRoute: typeof AdminNpmStatsRoute
   AdminUsersRoute: typeof AdminUsersRouteWithChildren
@@ -6279,6 +6419,7 @@ const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminDocsRoute: AdminDocsRoute,
   AdminGithubStatsRoute: AdminGithubStatsRoute,
   AdminIntentRoute: AdminIntentRoute,
+  AdminLiveRoute: AdminLiveRoute,
   AdminLoginsRoute: AdminLoginsRoute,
   AdminNpmStatsRoute: AdminNpmStatsRoute,
   AdminUsersRoute: AdminUsersRouteWithChildren,
@@ -6402,6 +6543,7 @@ const LibraryChartsCatalogRouteWithChildren =
 interface LibraryRouteChildren {
   LibraryLibraryIdRouteRoute: typeof LibraryLibraryIdRouteRouteWithChildren
   LibraryChartsCatalogRoute: typeof LibraryChartsCatalogRouteWithChildren
+  LibraryHighlightVersionThemeEditorRoute: typeof LibraryHighlightVersionThemeEditorRoute
   LibraryAiVersionIndexRoute: typeof LibraryAiVersionIndexRoute
   LibraryChartsVersionIndexRoute: typeof LibraryChartsVersionIndexRoute
   LibraryCliVersionIndexRoute: typeof LibraryCliVersionIndexRoute
@@ -6416,6 +6558,7 @@ interface LibraryRouteChildren {
   LibraryPacerVersionIndexRoute: typeof LibraryPacerVersionIndexRoute
   LibraryQueryVersionIndexRoute: typeof LibraryQueryVersionIndexRoute
   LibraryRangerVersionIndexRoute: typeof LibraryRangerVersionIndexRoute
+  LibraryRedactVersionIndexRoute: typeof LibraryRedactVersionIndexRoute
   LibraryRouterVersionIndexRoute: typeof LibraryRouterVersionIndexRoute
   LibraryStartVersionIndexRoute: typeof LibraryStartVersionIndexRoute
   LibraryStoreVersionIndexRoute: typeof LibraryStoreVersionIndexRoute
@@ -6427,6 +6570,8 @@ interface LibraryRouteChildren {
 const LibraryRouteChildren: LibraryRouteChildren = {
   LibraryLibraryIdRouteRoute: LibraryLibraryIdRouteRouteWithChildren,
   LibraryChartsCatalogRoute: LibraryChartsCatalogRouteWithChildren,
+  LibraryHighlightVersionThemeEditorRoute:
+    LibraryHighlightVersionThemeEditorRoute,
   LibraryAiVersionIndexRoute: LibraryAiVersionIndexRoute,
   LibraryChartsVersionIndexRoute: LibraryChartsVersionIndexRoute,
   LibraryCliVersionIndexRoute: LibraryCliVersionIndexRoute,
@@ -6441,6 +6586,7 @@ const LibraryRouteChildren: LibraryRouteChildren = {
   LibraryPacerVersionIndexRoute: LibraryPacerVersionIndexRoute,
   LibraryQueryVersionIndexRoute: LibraryQueryVersionIndexRoute,
   LibraryRangerVersionIndexRoute: LibraryRangerVersionIndexRoute,
+  LibraryRedactVersionIndexRoute: LibraryRedactVersionIndexRoute,
   LibraryRouterVersionIndexRoute: LibraryRouterVersionIndexRoute,
   LibraryStartVersionIndexRoute: LibraryStartVersionIndexRoute,
   LibraryStoreVersionIndexRoute: LibraryStoreVersionIndexRoute,
@@ -7127,8 +7273,12 @@ const rootRouteChildren: RootRouteChildren = {
   BuilderNewRoute: BuilderNewRoute,
   LibrariesFrameworkRoute: LibrariesFrameworkRoute,
   OauthAuthorizeRoute: OauthAuthorizeRoute,
+  OauthIntrospectRoute: OauthIntrospectRoute,
   OauthRegisterRoute: OauthRegisterRoute,
+  OauthRevokeRoute: OauthRevokeRoute,
+  OauthSessionHintRoute: OauthSessionHintRoute,
   OauthTokenRoute: OauthTokenRoute,
+  OauthUserinfoRoute: OauthUserinfoRoute,
   ShowcaseIdRoute: ShowcaseIdRoute,
   ShowcaseSubmitRoute: ShowcaseSubmitRoute,
   StackCategoryRoute: StackCategoryRoute,
@@ -7246,11 +7396,15 @@ export const routeTree = rootRouteImport
   ._addFileTypes<FileRouteTypes>()
 
 import type { getRouter } from './router.tsx'
+
 import type { startInstance } from './start.ts'
+
 declare module '@tanstack/react-start' {
   interface Register {
     ssr: true
+
     router: Awaited<ReturnType<typeof getRouter>>
+
     config: Awaited<ReturnType<typeof startInstance.getOptions>>
   }
 }

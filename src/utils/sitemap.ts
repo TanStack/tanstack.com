@@ -94,10 +94,14 @@ export function getSiteOrigin() {
 }
 
 export async function getSitemapEntries(): Promise<Array<SitemapEntry>> {
-  const [docsEntries, chartsCatalogEntries] = await Promise.all([
-    Promise.all(libraries.map((library) => getLibraryDocsEntries(library))),
-    getPublishedChartsCatalogEntries(),
-  ])
+  const [docsEntries, chartsCatalogEntries, showcaseEntries] =
+    await Promise.all([
+      Promise.all(libraries.map((library) => getLibraryDocsEntries(library))),
+      getPublishedChartsCatalogEntries(),
+      import('./showcase-sitemap.server').then(
+        ({ getShowcaseSitemapEntries }) => getShowcaseSitemapEntries(),
+      ),
+    ])
 
   const entries = [
     ...HIGH_VALUE_NON_DOC_PAGES.map((path) => ({ path })),
@@ -107,6 +111,7 @@ export async function getSitemapEntries(): Promise<Array<SitemapEntry>> {
     ...getBlogEntries(),
     ...getPartnerSitemapEntries(),
     ...chartsCatalogEntries,
+    ...showcaseEntries,
   ].filter(
     (entry) =>
       entry.path !== '/intent/registry' &&

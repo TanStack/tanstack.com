@@ -7,6 +7,8 @@ test('sitemap excludes repository artifacts while retaining public guides', () =
     'how-to/drafts/README',
     'how-to/drafts/search-params-in-forms.draft',
     'how-to/README',
+    'how-to/README.md',
+    'README.mdx',
     'contributing/designs/source-failure/README',
     'guide.draft',
     'guides/readme',

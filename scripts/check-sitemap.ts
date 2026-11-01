@@ -16,7 +16,9 @@ export function checkSitemapPage(
   const failures: Array<string> = []
   const expected = new URL(expectedUrl)
   if (
-    /\/(?:drafts|readme)(?:\/|$)|\.draft(?:\/|$)/i.test(expected.pathname) ||
+    /\/(?:drafts|readme(?:\.[^/]+)?)(?:\/|$)|\.draft(?:\/|$)/i.test(
+      expected.pathname,
+    ) ||
     /^\/(?:account|admin|login|partners-embed|sponsors-embed)(?:\/|$)/.test(
       expected.pathname,
     )
@@ -25,7 +27,7 @@ export function checkSitemapPage(
   }
   if (response.status !== 200) failures.push(`HTTP ${response.status}`)
   const $ = load(response.body)
-  const canonical = $('link[rel]')
+  const canonical = $('head link[rel]')
     .toArray()
     .filter((node) =>
       ($(node).attr('rel') ?? '')
@@ -106,11 +108,11 @@ async function main() {
   for (let offset = 0; offset < selected.length; offset += 4) {
     const results = await Promise.all(
       selected.slice(offset, offset + 4).map(async (url) => {
-        const canonical = new URL(url)
-        const target = base
-          ? new URL(canonical.pathname + canonical.search, base.origin)
-          : canonical
         try {
+          const canonical = new URL(url)
+          const target = base
+            ? new URL(canonical.pathname + canonical.search, base.origin)
+            : canonical
           const page = await fetch(target, {
             redirect: 'manual',
             signal: AbortSignal.timeout(20_000),

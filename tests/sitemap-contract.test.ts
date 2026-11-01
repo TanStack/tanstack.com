@@ -20,6 +20,11 @@ test('sitemap parser decodes XML entities and ignores unrelated links', () => {
 
 test('contract accepts a healthy self-canonical page and rejects status/canonical failures', () => {
   assert.deepEqual(check(), [])
+  assert.ok(
+    check(`<html><head></head><body>${canonical}</body></html>`).includes(
+      'expected one canonical link, found 0',
+    ),
+  )
   assert.ok(check(canonical, 307).includes('HTTP 307'))
   assert.ok(check(canonical, 404).includes('HTTP 404'))
   assert.ok(check('').includes('expected one canonical link, found 0'))
@@ -61,6 +66,7 @@ test('contract rejects robots directives, placeholders and forbidden paths', () 
   for (const path of [
     '/router/latest/docs/how-to/drafts/test',
     '/db/latest/docs/README',
+    '/db/latest/docs/README.md',
     '/router/latest/docs/test.draft',
     '/admin/users',
   ]) {

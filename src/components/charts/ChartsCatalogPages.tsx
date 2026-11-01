@@ -1,3 +1,5 @@
+import { Breadcrumbs } from '~/components/Breadcrumbs'
+import { getChartBreadcrumbItems } from '~/utils/chart-breadcrumbs'
 import {
   ArrowsOutSimpleIcon,
   ArrowUpRightIcon,
@@ -9,7 +11,6 @@ import type { ChartsCatalogIndexCase } from '~/utils/charts-catalog-index'
 import type { ExampleDefinition } from '~/utils/example-workspace'
 import {
   chartsCatalogCollections,
-  findChartsCatalogCollection,
   type ChartsCatalogAuthoredSource,
 } from '~/utils/charts-catalog'
 import { ChartsCatalogPreview } from './ChartsCatalogPreview'
@@ -161,34 +162,14 @@ export function ChartsCatalogDetail({
     }
   }
 }) {
-  const collection = catalogCase.collection
-    ? findChartsCatalogCollection(catalogCase.collection)
-    : undefined
-
   return (
     <CatalogSurface wide>
       <div className="mb-6 flex flex-wrap items-start justify-between gap-5">
         <div>
-          {collection ? (
-            <Link
-              className="text-sm text-gray-500 hover:text-blue-600 dark:hover:text-blue-400"
-              params={{ collectionId: collection.id }}
-              preload={false}
-              search={true}
-              to="/charts/catalog/collections/$collectionId"
-            >
-              {collection.title}
-            </Link>
-          ) : (
-            <Link
-              className="text-sm text-gray-500 hover:text-blue-600 dark:hover:text-blue-400"
-              preload={false}
-              search={true}
-              to="/charts/catalog"
-            >
-              Catalog
-            </Link>
-          )}
+          <Breadcrumbs
+            section="Catalog"
+            items={getChartBreadcrumbItems(catalogCase)}
+          />
           <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-950 dark:text-white sm:text-3xl">
             {catalogCase.title}
           </h1>

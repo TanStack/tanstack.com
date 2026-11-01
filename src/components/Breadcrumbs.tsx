@@ -9,10 +9,17 @@ import {
   DropdownItem,
 } from './Dropdown'
 
+export type BreadcrumbItem = {
+  label: string
+  to: string
+  search?: true
+  preload?: false
+}
+
 type BreadcrumbsProps = {
   /** Section label (e.g., "Getting Started", "Blog") */
   section: string
-  items?: Array<{ label: string; to: string }>
+  items?: Array<BreadcrumbItem>
   /** Optional link for the section */
   sectionTo?: string
   headings?: MarkdownHeading[]
@@ -51,6 +58,8 @@ export function Breadcrumbs({
                   ) : (
                     <Link
                       to={item.to}
+                      search={item.search}
+                      preload={item.preload}
                       activeOptions={{ exact: true }}
                       className="hover:underline"
                     >

@@ -118,19 +118,6 @@ export function ShopBrowsePage({
   )
 
   const newProductCutoff = Date.now() - TWO_WEEKS_MS
-  const newestProduct = allProducts.reduce<ProductListItem | null>(
-    (newest, product) => {
-      if (!product.publishedAt) return newest
-      if (
-        !newest?.publishedAt ||
-        new Date(product.publishedAt) > new Date(newest.publishedAt)
-      ) {
-        return product
-      }
-      return newest
-    },
-    null,
-  )
 
   const typeOptions = React.useMemo(() => {
     const counts = new Map<string, { display: string; count: number }>()
@@ -224,7 +211,6 @@ export function ShopBrowsePage({
                   key={product.id}
                   product={product}
                   isNew={
-                    product.id === newestProduct?.id &&
                     product.publishedAt !== null &&
                     new Date(product.publishedAt).getTime() >= newProductCutoff
                   }

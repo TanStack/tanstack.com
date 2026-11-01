@@ -14,6 +14,7 @@ require.extensions['.svg'] = loadAsset
 
 const {
   resolveApplicationStarterDeterministically,
+  getStarterMigrationGuideUrl,
 }: typeof import('../src/utils/application-starter') = require('../src/utils/application-starter')
 const {
   composeApplicationStarterInput,
@@ -533,4 +534,81 @@ test('Cloudflare, Vercel, and Render rotate with the gold Start hosting partners
   for (const partnerPositions of positions.values()) {
     assert.ok(partnerPositions.size > 1)
   }
+})
+
+test('migration prompts include the matching migration guide', async () => {
+  for (const [source, guide] of [
+    [
+      'Next.js',
+      'https://tanstack.com/start/latest/docs/framework/react/migrate-from-next-js',
+    ],
+    [
+      'Remix',
+      'https://tanstack.com/router/latest/docs/how-to/migrate-from-react-router',
+    ],
+    [
+      'React Router',
+      'https://tanstack.com/router/latest/docs/how-to/migrate-from-react-router',
+    ],
+  ]) {
+    const result = await resolveApplicationStarterDeterministically({
+      context: 'home',
+      input: `Migrate my ${source} app to TanStack Start.`,
+    })
+    assert.ok(result.prompt.includes(`Fetch ${guide}`))
+    assert.ok(result.prompt.includes('do not apply in-place setup steps'))
+  }
+  const result = await resolveApplicationStarterDeterministically({
+    context: 'home',
+    input: 'Build a dashboard.',
+  })
+  assert.equal(result.prompt.includes('Fetch https://tanstack.com/'), false)
+})
+
+test('migration guides distinguish framework names from timing and accept multiline briefs', () => {
+  assert.equal(
+    getStarterMigrationGuideUrl('Migrate my Remix app next week'),
+    'https://tanstack.com/router/latest/docs/how-to/migrate-from-react-router',
+  )
+  assert.equal(getStarterMigrationGuideUrl('Migrate my app next week'), null)
+  for (const input of [
+    'Migrate my app\nfrom Next.js to TanStack Start',
+    'Next.js app\nneeds migration',
+    'Migrate my Next app to TanStack Start',
+  ]) {
+    assert.equal(
+      getStarterMigrationGuideUrl(input),
+      'https://tanstack.com/start/latest/docs/framework/react/migrate-from-next-js',
+    )
+  }
+  assert.equal(
+    getStarterMigrationGuideUrl('Migrate my app\nfrom Remix to TanStack Start'),
+    'https://tanstack.com/router/latest/docs/how-to/migrate-from-react-router',
+  )
+})
+
+test('migration source ignores next week when the source is Remix', async () => {
+  const result = await resolveApplicationStarterDeterministically({
+    context: 'home',
+    input: 'Migrate my Remix app next week to TanStack Start.',
+  })
+  assert.ok(result.prompt.startsWith('Migrate remix into a fresh'))
+  assert.ok(
+    result.prompt.includes(
+      'https://tanstack.com/router/latest/docs/how-to/migrate-from-react-router',
+    ),
+  )
+})
+
+test('migration source recognizes a Next site', async () => {
+  const result = await resolveApplicationStarterDeterministically({
+    context: 'home',
+    input: 'Migrate my Next site to TanStack Start.',
+  })
+  assert.ok(result.prompt.startsWith('Migrate next into a fresh'))
+  assert.ok(
+    result.prompt.includes(
+      'https://tanstack.com/start/latest/docs/framework/react/migrate-from-next-js',
+    ),
+  )
 })

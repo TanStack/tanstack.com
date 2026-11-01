@@ -1,4 +1,5 @@
 import { readDocsFreshness } from './docs-freshness'
+import { getStartExampleSitemapEntries } from './start-example-pages'
 import { getBranch, libraries } from '~/libraries'
 import type { LibrarySlim } from '~/libraries/types'
 import { getPublishedPosts } from '~/utils/blog'
@@ -133,6 +134,7 @@ export async function getSitemapEntries(): Promise<Array<SitemapEntry>> {
   const entries = [
     ...HIGH_VALUE_NON_DOC_PAGES.map((path) => ({ path })),
     ...getLibraryEntries(),
+    ...getStartExampleSitemapEntries(),
     ...docsEntries.flat(),
     ...getBlogEntries(),
     ...getPartnerSitemapEntries(),

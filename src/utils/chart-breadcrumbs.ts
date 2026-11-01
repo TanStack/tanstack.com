@@ -37,3 +37,34 @@ export function getChartBreadcrumbJsonLd(chart: ChartBreadcrumbData) {
     })),
   }
 }
+
+export function getChartCollectionBreadcrumbItems(collection: {
+  id: string
+  title: string
+}): Array<BreadcrumbItem> {
+  return [
+    { label: 'Catalog', to: '/charts/catalog', search: true, preload: false },
+    {
+      label: collection.title,
+      to: `/charts/catalog/collections/${collection.id}`,
+    },
+  ]
+}
+
+export function getChartCollectionBreadcrumbJsonLd(collection: {
+  id: string
+  title: string
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: getChartCollectionBreadcrumbItems(collection).map(
+      (item, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: item.label,
+        item: canonicalUrl(item.to),
+      }),
+    ),
+  }
+}

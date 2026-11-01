@@ -145,7 +145,7 @@ async function getPublishedChartsCatalogEntries(): Promise<
     return getChartsCatalogSitemapEntries(publication.index)
   } catch (error) {
     console.error('[sitemap] Charts catalog unavailable', error)
-    return [{ path: '/charts/catalog/' }]
+    return [{ path: '/charts/catalog' }]
   }
 }
 

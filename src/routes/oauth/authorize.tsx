@@ -202,7 +202,7 @@ function SplashImage() {
   return (
     <div className="flex items-center justify-center mb-4">
       <ClientOnly fallback={fallback}>
-        <BrandContextMenu className="cursor-pointer">
+        <BrandContextMenu showTrigger className="cursor-pointer">
           <SplashImages />
         </BrandContextMenu>
       </ClientOnly>

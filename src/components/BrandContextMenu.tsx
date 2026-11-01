@@ -2,34 +2,31 @@ import * as React from 'react'
 import { useToast } from '~/components/ToastProvider'
 import { useNavigate } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
-import {
-  Dropdown,
-  DropdownTrigger,
-  DropdownContent,
-  DropdownItem,
-  DropdownSeparator,
-} from './Dropdown'
+import * as Menu from '@radix-ui/react-menu'
 import { copyTextToClipboard } from '~/utils/browser-effects'
 
 interface BrandContextMenuProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode
+  showTrigger?: boolean
 }
 
-export function BrandContextMenu({ children, ...rest }: BrandContextMenuProps) {
+export function BrandContextMenu({
+  children,
+  showTrigger = false,
+  ...rest
+}: BrandContextMenuProps) {
   const navigate = useNavigate()
   const { notify } = useToast()
   const [open, setOpen] = React.useState(false)
-  const [coords, setCoords] = React.useState<{ x: number; y: number }>({
-    x: 0,
-    y: 0,
-  })
-  const virtualTriggerRef = React.useRef<HTMLSpanElement>(null)
-
-  const onContextMenu = (e: React.MouseEvent) => {
-    e.preventDefault()
-    setCoords({ x: e.clientX, y: e.clientY })
-    setOpen(true)
-  }
+  const [point, setPoint] = React.useState({ x: 0, y: 0 })
+  const anchorRef = React.useMemo(
+    () => ({
+      current: {
+        getBoundingClientRect: () => new DOMRect(point.x, point.y, 0, 0),
+      },
+    }),
+    [point],
+  )
 
   const copyText = async (text: string) => {
     try {
@@ -58,25 +55,64 @@ export function BrandContextMenu({ children, ...rest }: BrandContextMenuProps) {
   }
 
   return (
-    <div onContextMenu={onContextMenu} {...rest}>
-      {children}
-      <Dropdown open={open} onOpenChange={setOpen} modal>
-        <DropdownTrigger asChild={false}>
-          <span
-            ref={virtualTriggerRef}
-            style={{
-              position: 'fixed',
-              left: coords.x,
-              top: coords.y,
-              width: 1,
-              height: 1,
+    <Menu.Root open={open} onOpenChange={setOpen}>
+      <Menu.Anchor virtualRef={anchorRef} />
+      <div
+        role="group"
+        aria-label="Logo assets"
+        {...rest}
+        onContextMenu={(event) => {
+          rest.onContextMenu?.(event)
+          if (event.defaultPrevented) return
+          event.preventDefault()
+          event.stopPropagation()
+          setPoint({ x: event.clientX, y: event.clientY })
+          setOpen(true)
+        }}
+        onKeyDown={(event) => {
+          rest.onKeyDown?.(event)
+          if (
+            event.defaultPrevented ||
+            !(
+              event.key === 'ContextMenu' ||
+              (event.shiftKey && event.key === 'F10')
+            )
+          )
+            return
+          event.preventDefault()
+          event.stopPropagation()
+          const target =
+            event.target instanceof HTMLElement
+              ? event.target
+              : event.currentTarget
+          const rect = target.getBoundingClientRect()
+          setPoint({ x: rect.left, y: rect.bottom })
+          setOpen(true)
+        }}
+      >
+        {children}
+        {showTrigger && (
+          <button
+            type="button"
+            aria-haspopup="menu"
+            aria-expanded={open}
+            className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:rounded-md focus:bg-white focus:px-3 focus:py-2 focus:text-sm focus:text-black focus:ring-2 focus:ring-blue-500 dark:focus:bg-gray-900 dark:focus:text-white"
+            onClick={(event) => {
+              const rect = event.currentTarget.getBoundingClientRect()
+              setPoint({ x: rect.left, y: rect.bottom })
+              setOpen(true)
             }}
-          />
-        </DropdownTrigger>
-        <DropdownContent
-          sideOffset={4}
+          >
+            Logo assets
+          </button>
+        )}
+      </div>
+      <Menu.Portal>
+        <Menu.Content
+          side="right"
+          sideOffset={2}
           align="start"
-          className="dark:bg-gray-900/50 backdrop-blur-md"
+          className="dropdown-content z-[1200] min-w-48 rounded-lg border border-gray-200 bg-white p-1.5 shadow-lg dark:border-gray-700 dark:bg-gray-900/50 backdrop-blur-md"
         >
           {[
             {
@@ -107,9 +143,9 @@ export function BrandContextMenu({ children, ...rest }: BrandContextMenuProps) {
               darkBg: true,
             },
           ].map(({ label, url, darkBg }) => (
-            <DropdownItem
+            <Menu.Item
               key={label}
-              className="py-1"
+              className="flex cursor-pointer select-none items-center gap-2 rounded-md px-2 py-1 text-sm text-gray-700 outline-none focus:bg-gray-100 dark:text-gray-300 dark:focus:bg-gray-700/50"
               onSelect={async () => {
                 try {
                   const res = await fetch(url)
@@ -131,14 +167,17 @@ export function BrandContextMenu({ children, ...rest }: BrandContextMenuProps) {
               >
                 <img src={url} alt={label} className="h-6" />
               </div>
-            </DropdownItem>
+            </Menu.Item>
           ))}
-          <DropdownSeparator />
-          <DropdownItem onSelect={() => navigate({ to: '/ds/logos' })}>
+          <Menu.Separator className="my-1 h-px bg-gray-200 dark:bg-gray-700" />
+          <Menu.Item
+            className="cursor-pointer rounded-md px-2 py-1.5 text-sm outline-none focus:bg-gray-100 dark:focus:bg-gray-700/50"
+            onSelect={() => navigate({ to: '/ds/logos' })}
+          >
             All Logo Assets
-          </DropdownItem>
-        </DropdownContent>
-      </Dropdown>
-    </div>
+          </Menu.Item>
+        </Menu.Content>
+      </Menu.Portal>
+    </Menu.Root>
   )
 }

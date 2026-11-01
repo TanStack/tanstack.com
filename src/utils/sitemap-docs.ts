@@ -12,7 +12,7 @@ export function isHighValueDocsSlug(slug: string) {
   return (
     segments.length > 0 &&
     !segments.some((segment) =>
-      /^(?:drafts|readme)$|\.draft$/i.test(segment),
+      /^(?:drafts|readme(?:\.[^/]+)?)$|\.draft$/i.test(segment),
     ) &&
     !segments.some((segment) => LOW_VALUE_DOCS_SITEMAP_SEGMENTS.has(segment)) &&
     !LOW_VALUE_DOCS_SITEMAP_SLUGS.has(slug)

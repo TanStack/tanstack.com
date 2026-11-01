@@ -254,6 +254,9 @@ export async function collectRedirectEntriesForFile(
   }
 
   const frontMatter = extractFrontMatter(file)
+  if (!frontMatter.isValid) {
+    throw new Error(`Invalid docs frontmatter: ${node.path}`)
+  }
   const updated = readDocsFreshness(frontMatter.data).updated
   if (updated) opts.onLastModified?.(canonicalPath, updated)
   const entries: Array<RedirectManifestEntry> = []
@@ -373,7 +376,8 @@ export const fetchDocsManifest = createServerFn({ method: 'GET' })
       gitRef: branch,
       docsRoot,
       artifactType: 'docs-manifest',
-      artifactKey: 'default',
+      // Older manifests may have been built from depth-limited directory trees.
+      artifactKey: 'complete-tree-v1',
       isValue: isDocsManifest,
       build: () => buildDocsManifest({ repo, branch, docsRoot }),
     })
@@ -398,7 +402,8 @@ export const fetchDocsPathManifest = createServerFn({ method: 'GET' })
       gitRef: branch,
       docsRoot,
       artifactType: 'docs-path-manifest',
-      artifactKey: 'default',
+      // Older manifests may have been built from depth-limited directory trees.
+      artifactKey: 'complete-tree-v1',
       isValue: isDocsManifest,
       build: () => buildDocsPathManifest({ repo, branch, docsRoot }),
     })
@@ -471,6 +476,7 @@ export const fetchDocs = createServerFn({ method: 'GET' })
 
     return {
       content: frontMatter.content,
+      isFallback: result.isFallback,
       title: frontMatter.data?.title ?? 'Content temporarily unavailable',
       description,
       keywords,

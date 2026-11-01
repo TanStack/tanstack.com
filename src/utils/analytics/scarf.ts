@@ -1,12 +1,26 @@
+import { trackLiveAction } from './live-browser'
 import type { AnalyticsProvider } from './types'
 
 const SCARF_ENDPOINT = 'https://tanstack.gateway.scarf.sh/site-events'
 const CLIPBOARD_TEXT_LIMIT = 512
 
 function sendScarfEvent(event: string, fields: Record<string, string>) {
-  if (import.meta.env.DEV || typeof window === 'undefined') {
+  if (
+    import.meta.env.DEV ||
+    import.meta.env.MODE === 'staging' ||
+    typeof window === 'undefined'
+  ) {
     return
   }
+
+  if (
+    [
+      'install_command_copied',
+      'external_link_click',
+      'download_requested',
+    ].includes(event)
+  )
+    trackLiveAction(event)
 
   const url = new URL(SCARF_ENDPOINT)
   url.searchParams.set('event', event)
@@ -67,7 +81,7 @@ export function trackScarfPageView(page: string) {
 }
 
 export function trackScarfClipboardText(event: 'copy' | 'paste', text: string) {
-  if (import.meta.env.DEV) return
+  if (import.meta.env.DEV || import.meta.env.MODE === 'staging') return
 
   try {
     navigator.sendBeacon(
@@ -91,6 +105,16 @@ export function trackScarfClipboardText(event: 'copy' | 'paste', text: string) {
 
 export function trackScarfClipboardEvent(event: ClipboardEvent) {
   const target = event.target
+  if (target instanceof Element && target.closest('[data-analytics-private]'))
+    return
+  const selection = document.getSelection()
+  if (
+    selection &&
+    [...document.querySelectorAll('[data-analytics-private]')].some((element) =>
+      selection.containsNode(element, true),
+    )
+  )
+    return
   if (target instanceof HTMLInputElement && target.type === 'password') return
 
   let text = ''

@@ -24,7 +24,12 @@ export function Scarf({ id, path }: { id: string; path: string }) {
   )
 
   useEffect(() => {
-    if (!visit || lastVisit.current === visit) return
+    if (
+      import.meta.env.MODE === 'staging' ||
+      !visit ||
+      lastVisit.current === visit
+    )
+      return
     lastVisit.current = visit
     setPixel({
       visit,

@@ -1,3 +1,5 @@
+import { measureBlobStorageOperations } from '~/server/runtime/blob-storage-metrics.server'
+import { timeRequestWork } from './request-timing.server'
 import {
   getBlobStorage,
   getBlobStorageCache,
@@ -46,6 +48,7 @@ type GithubContentKey = {
 }
 
 type GithubContentRecord = GithubContentKey & {
+  etag?: string
   isPresent: boolean
   jsonContent?: unknown
   staleAt: Date
@@ -62,12 +65,14 @@ type DocsArtifactKey = {
 }
 
 type DocsArtifactRecord = DocsArtifactKey & {
+  etag?: string
   payload: unknown
   staleAt: Date
   updatedAt: Date
 }
 
 type StoredBlob = {
+  etag?: string
   metadata: Record<string, string>
   text: string
   value: unknown
@@ -112,9 +117,11 @@ type MemoryCacheEntry = {
 type CacheBackend = {
   getDocsArtifact: (
     key: DocsArtifactKey,
+    revalidate?: boolean,
   ) => Promise<DocsArtifactRecord | undefined>
   getGitHubContent: (
     key: GithubContentKey,
+    revalidate?: boolean,
   ) => Promise<GithubContentRecord | undefined>
   listRepoStats: () => Promise<Array<DocsCacheRepoStats>>
   markDocsArtifactsStale: (opts: {
@@ -315,8 +322,10 @@ function createStoredText(value: unknown) {
     throw new Error('Cannot cache undefined GitHub content')
   }
 
+  // Include a revision so metadata-only invalidation also changes the R2 ETag.
   return JSON.stringify({
     value,
+    revision: crypto.randomUUID(),
   })
 }
 
@@ -502,6 +511,7 @@ function readGithubContentRecord(stored: StoredBlob) {
 
   return {
     contentKind,
+    etag: stored.etag,
     gitRef,
     isPresent,
     jsonContent: contentKind === 'dir' && isPresent ? stored.value : undefined,
@@ -548,6 +558,7 @@ function readDocsArtifactRecord(stored: StoredBlob) {
     artifactKey,
     artifactType,
     docsRoot,
+    etag: stored.etag,
     gitRef,
     payload: stored.value,
     repo,
@@ -560,23 +571,33 @@ async function readBlob(
   storage: BlobStorage,
   cache: BlobStorageCache | undefined,
   key: string,
-) {
-  const cached = await cache?.get(key)
+  revalidate = false,
+): Promise<StoredBlob | undefined> {
+  const cached = await timeRequestWork('content_edge_read', async () =>
+    cache?.get(key),
+  )
   const cachedBlob = cached
     ? getStoredBlob({ key, metadata: cached.metadata, text: cached.text })
     : undefined
 
-  if (cachedBlob && !isNegativeGithubDirectoryBlob(cachedBlob)) {
+  if (cachedBlob && !revalidate && !isNegativeGithubDirectoryBlob(cachedBlob)) {
     return cachedBlob
   }
 
-  const object = await storage.get(key)
+  const object = await timeRequestWork('content_r2_read', () =>
+    storage.get(key),
+  ).catch((error: unknown) => {
+    if (cachedBlob) return undefined
+    throw error
+  })
+
+  if (object === undefined) return cachedBlob
 
   if (!object) {
     return undefined
   }
 
-  const text = await object.text()
+  const text = await timeRequestWork('content_r2_body', () => object.text())
   const stored = getStoredBlob({
     key,
     metadata: object.metadata,
@@ -585,15 +606,23 @@ async function readBlob(
   })
 
   if (!stored) {
-    return undefined
+    // Keep the ETag so a corrupt object can be repaired with a conditional write.
+    return {
+      metadata: object.metadata ?? {},
+      text,
+      value: undefined,
+      etag: object.etag,
+    }
   }
 
-  await writeBlobCache(cache, key, {
-    metadata: stored.metadata,
-    text: stored.text,
-  })
+  await timeRequestWork('content_edge_write', () =>
+    writeBlobCache(cache, key, {
+      metadata: stored.metadata,
+      text: stored.text,
+    }),
+  )
 
-  return stored
+  return { ...stored, etag: object.etag }
 }
 
 async function writeBlobCache(
@@ -1017,142 +1046,198 @@ function createBlobBackend(
   cache: BlobStorageCache | undefined,
 ): CacheBackend {
   return {
-    async getDocsArtifact(key) {
-      const stored = await readBlob(storage, cache, getDocsArtifactBlobKey(key))
-      return stored ? readDocsArtifactRecord(stored) : undefined
+    async getDocsArtifact(key, revalidate) {
+      return measureBlobStorageOperations('getDocsArtifact', async () => {
+        const stored = await readBlob(
+          storage,
+          cache,
+          getDocsArtifactBlobKey(key),
+          revalidate,
+        )
+        return stored
+          ? (readDocsArtifactRecord(stored) ?? {
+              ...key,
+              etag: stored.etag,
+              payload: undefined,
+              staleAt: new Date(0),
+              updatedAt: new Date(0),
+            })
+          : undefined
+      })
     },
-    async getGitHubContent(key) {
-      const stored = await readBlob(
-        storage,
-        cache,
-        getGitHubContentBlobKey(key),
-      )
-      return stored ? readGithubContentRecord(stored) : undefined
+    async getGitHubContent(key, revalidate) {
+      return measureBlobStorageOperations('getGitHubContent', async () => {
+        const stored = await readBlob(
+          storage,
+          cache,
+          getGitHubContentBlobKey(key),
+          revalidate,
+        )
+        return stored
+          ? (readGithubContentRecord(stored) ?? {
+              ...key,
+              etag: stored.etag,
+              isPresent: true,
+              staleAt: new Date(0),
+              updatedAt: new Date(0),
+            })
+          : undefined
+      })
     },
     async listRepoStats() {
-      const statsByRepo = new Map<string, RepoStatsAccumulator>()
+      return measureBlobStorageOperations('listRepoStats', async () => {
+        const statsByRepo = new Map<string, RepoStatsAccumulator>()
 
-      for (const prefix of getGitHubContentPrefixes({})) {
-        const objects = await listBlobObjects(storage, prefix)
+        for (const prefix of getGitHubContentPrefixes({})) {
+          const objects = await listBlobObjects(storage, prefix)
 
-        for (const object of objects) {
+          for (const object of objects) {
+            const metadata = await getListedObjectMetadata(storage, object)
+            const stats = readGithubContentStatsFromMetadata(metadata)
+
+            if (stats) {
+              addGithubContentStats(statsByRepo, stats)
+            }
+          }
+        }
+
+        for (const object of await listBlobObjects(storage, 'docs-artifact/')) {
           const metadata = await getListedObjectMetadata(storage, object)
-          const stats = readGithubContentStatsFromMetadata(metadata)
+          const stats = readDocsArtifactStatsFromMetadata(metadata)
 
           if (stats) {
-            addGithubContentStats(statsByRepo, stats)
+            addDocsArtifactStats(statsByRepo, stats)
           }
         }
-      }
 
-      for (const object of await listBlobObjects(storage, 'docs-artifact/')) {
-        const metadata = await getListedObjectMetadata(storage, object)
-        const stats = readDocsArtifactStatsFromMetadata(metadata)
-
-        if (stats) {
-          addDocsArtifactStats(statsByRepo, stats)
-        }
-      }
-
-      return finalizeRepoStats(statsByRepo)
+        return finalizeRepoStats(statsByRepo)
+      })
     },
     async markDocsArtifactsStale(opts) {
-      return markBlobObjectsStale({
-        cache,
-        matches: (metadata) => metadataMatches(metadata, opts),
-        prefixes: getDocsArtifactPrefixes(opts),
-        storage,
-      })
+      return measureBlobStorageOperations(
+        'markDocsArtifactsStale',
+        async () => {
+          return markBlobObjectsStale({
+            cache,
+            matches: (metadata) => metadataMatches(metadata, opts),
+            prefixes: getDocsArtifactPrefixes(opts),
+            storage,
+          })
+        },
+      )
     },
     async markGitHubContentStale(opts) {
-      return markBlobObjectsStale({
-        cache,
-        matches: (metadata) => metadataMatches(metadata, opts),
-        prefixes: getGitHubContentPrefixes(opts),
-        storage,
-      })
+      return measureBlobStorageOperations(
+        'markGitHubContentStale',
+        async () => {
+          return markBlobObjectsStale({
+            cache,
+            matches: (metadata) => metadataMatches(metadata, opts),
+            prefixes: getGitHubContentPrefixes(opts),
+            storage,
+          })
+        },
+      )
     },
     async pruneStaleCacheRows(opts) {
-      const maxAgeMs = opts.maxAgeMs ?? DEFAULT_PRUNE_MAX_AGE_MS
-      const negativeMaxAgeMs =
-        opts.negativeMaxAgeMs ?? DEFAULT_NEGATIVE_PRUNE_MAX_AGE_MS
-      const cutoff = new Date(Date.now() - maxAgeMs)
-      const negativeCutoff = new Date(Date.now() - negativeMaxAgeMs)
-      const githubContentDeleteKeys = new Set<string>()
-      const githubContentNegativeDeleteKeys = new Set<string>()
-      const docsArtifactDeleteKeys = new Set<string>()
+      return measureBlobStorageOperations('pruneStaleCacheRows', async () => {
+        const maxAgeMs = opts.maxAgeMs ?? DEFAULT_PRUNE_MAX_AGE_MS
+        const negativeMaxAgeMs =
+          opts.negativeMaxAgeMs ?? DEFAULT_NEGATIVE_PRUNE_MAX_AGE_MS
+        const cutoff = new Date(Date.now() - maxAgeMs)
+        const negativeCutoff = new Date(Date.now() - negativeMaxAgeMs)
+        const githubContentDeleteKeys = new Set<string>()
+        const githubContentNegativeDeleteKeys = new Set<string>()
+        const docsArtifactDeleteKeys = new Set<string>()
 
-      for (const prefix of getGitHubContentPrefixes({})) {
-        const objects = await listBlobObjects(storage, prefix)
+        for (const prefix of getGitHubContentPrefixes({})) {
+          const objects = await listBlobObjects(storage, prefix)
 
-        for (const object of objects) {
+          for (const object of objects) {
+            const metadata = await getListedObjectMetadata(storage, object)
+            const stats = readGithubContentStatsFromMetadata(metadata)
+
+            if (!stats) {
+              continue
+            }
+
+            if (stats.updatedAt < cutoff) {
+              githubContentDeleteKeys.add(object.key)
+            }
+
+            if (!stats.isPresent && stats.updatedAt < negativeCutoff) {
+              githubContentDeleteKeys.add(object.key)
+              githubContentNegativeDeleteKeys.add(object.key)
+            }
+          }
+        }
+
+        for (const object of await listBlobObjects(storage, 'docs-artifact/')) {
           const metadata = await getListedObjectMetadata(storage, object)
-          const stats = readGithubContentStatsFromMetadata(metadata)
+          const stats = readDocsArtifactStatsFromMetadata(metadata)
 
-          if (!stats) {
-            continue
-          }
-
-          if (stats.updatedAt < cutoff) {
-            githubContentDeleteKeys.add(object.key)
-          }
-
-          if (!stats.isPresent && stats.updatedAt < negativeCutoff) {
-            githubContentDeleteKeys.add(object.key)
-            githubContentNegativeDeleteKeys.add(object.key)
+          if (stats && stats.updatedAt < cutoff) {
+            docsArtifactDeleteKeys.add(object.key)
           }
         }
-      }
 
-      for (const object of await listBlobObjects(storage, 'docs-artifact/')) {
-        const metadata = await getListedObjectMetadata(storage, object)
-        const stats = readDocsArtifactStatsFromMetadata(metadata)
+        await Promise.all([
+          deleteBlobKeys(storage, cache, Array.from(githubContentDeleteKeys)),
+          deleteBlobKeys(storage, cache, Array.from(docsArtifactDeleteKeys)),
+        ])
 
-        if (stats && stats.updatedAt < cutoff) {
-          docsArtifactDeleteKeys.add(object.key)
+        return {
+          cutoff,
+          docsArtifactDeleted: docsArtifactDeleteKeys.size,
+          githubContentDeleted: githubContentDeleteKeys.size,
+          githubContentNegativesDeleted: githubContentNegativeDeleteKeys.size,
+          negativeCutoff,
         }
-      }
-
-      await Promise.all([
-        deleteBlobKeys(storage, cache, Array.from(githubContentDeleteKeys)),
-        deleteBlobKeys(storage, cache, Array.from(docsArtifactDeleteKeys)),
-      ])
-
-      return {
-        cutoff,
-        docsArtifactDeleted: docsArtifactDeleteKeys.size,
-        githubContentDeleted: githubContentDeleteKeys.size,
-        githubContentNegativesDeleted: githubContentNegativeDeleteKeys.size,
-        negativeCutoff,
-      }
+      })
     },
     async putDocsArtifact(record) {
-      const key = getDocsArtifactBlobKey(record)
-      const metadata = getDocsArtifactMetadata(record)
-      const text = createStoredText(record.payload)
+      return measureBlobStorageOperations(
+        `putDocsArtifact:${record.repo}:${record.artifactType}`,
+        async () => {
+          const key = getDocsArtifactBlobKey(record)
+          const metadata = getDocsArtifactMetadata(record)
+          const text = createStoredText(record.payload)
 
-      await storage.put(key, text, {
-        contentType: STORED_CONTENT_TYPE,
-        metadata,
-      })
-      await writeBlobCache(cache, key, { metadata, text })
+          const published = await storage.put(key, text, {
+            contentType: STORED_CONTENT_TYPE,
+            metadata,
+            ...(record.etag
+              ? { etagMatches: record.etag }
+              : { onlyIfAbsent: true }),
+          })
+          if (published) await writeBlobCache(cache, key, { metadata, text })
+        },
+      )
     },
     async putGitHubContent(record) {
-      const key = getGitHubContentBlobKey(record)
-      const metadata = getGithubContentMetadata(record)
-      const text = createStoredText(
-        record.isPresent
-          ? record.contentKind === 'file'
-            ? record.textContent
-            : record.jsonContent
-          : null,
-      )
+      return measureBlobStorageOperations(
+        `putGitHubContent:${record.repo}:${record.contentKind}`,
+        async () => {
+          const key = getGitHubContentBlobKey(record)
+          const metadata = getGithubContentMetadata(record)
+          const text = createStoredText(
+            record.isPresent
+              ? record.contentKind === 'file'
+                ? record.textContent
+                : record.jsonContent
+              : null,
+          )
 
-      await storage.put(key, text, {
-        contentType: STORED_CONTENT_TYPE,
-        metadata,
-      })
-      await writeBlobCache(cache, key, { metadata, text })
+          const published = await storage.put(key, text, {
+            contentType: STORED_CONTENT_TYPE,
+            metadata,
+            ...(record.etag
+              ? { etagMatches: record.etag }
+              : { onlyIfAbsent: true }),
+          })
+          if (published) await writeBlobCache(cache, key, { metadata, text })
+        },
+      )
     },
   }
 }
@@ -1176,26 +1261,27 @@ async function markBlobObjectsStale(opts: {
 
       seenKeys.add(object.key)
 
-      const stored = await readBlob(opts.storage, undefined, object.key)
+      while (true) {
+        const stored = await readBlob(opts.storage, undefined, object.key)
+        if (
+          !stored ||
+          stored.value === undefined ||
+          !opts.matches(stored.metadata)
+        )
+          break
 
-      if (!stored || !opts.matches(stored.metadata)) {
-        continue
+        const metadata = { ...stored.metadata, staleAt: EPOCH_ISO }
+        const text = createStoredText(stored.value)
+        const invalidated = await opts.storage.put(object.key, text, {
+          contentType: STORED_CONTENT_TYPE,
+          metadata,
+          ...(stored.etag ? { etagMatches: stored.etag } : {}),
+        })
+        if (!invalidated) continue
+        await writeBlobCache(opts.cache, object.key, { metadata, text })
+        count += 1
+        break
       }
-
-      const metadata = {
-        ...stored.metadata,
-        staleAt: EPOCH_ISO,
-      }
-
-      await opts.storage.put(object.key, stored.text, {
-        contentType: STORED_CONTENT_TYPE,
-        metadata,
-      })
-      await writeBlobCache(opts.cache, object.key, {
-        metadata,
-        text: stored.text,
-      })
-      count += 1
     }
   }
 
@@ -1218,6 +1304,7 @@ async function getCacheBackend() {
 const memoryBackend = createMemoryBackend()
 
 async function upsertGithubContent(opts: {
+  etag?: string
   contentKind: ContentKind
   gitRef: string
   path: string
@@ -1230,6 +1317,7 @@ async function upsertGithubContent(opts: {
   const backend = await getCacheBackend()
 
   await backend.putGitHubContent({
+    etag: opts.etag,
     repo: opts.repo,
     gitRef: opts.gitRef,
     contentKind: opts.contentKind,
@@ -1258,15 +1346,19 @@ async function getCachedGitHubContent<T>(opts: {
   assertValidGithubContentKey(opts)
 
   const backend = await getCacheBackend()
-  const readRow = () =>
-    backend.getGitHubContent({
-      repo: opts.repo,
-      gitRef: opts.gitRef,
-      contentKind: opts.contentKind,
-      path: opts.path,
-    })
-  const persist = (value: T | null) =>
+  const readRow = (revalidate = false) =>
+    backend.getGitHubContent(
+      {
+        repo: opts.repo,
+        gitRef: opts.gitRef,
+        contentKind: opts.contentKind,
+        path: opts.path,
+      },
+      revalidate,
+    )
+  const persist = (value: T | null, etag: string | undefined) =>
     upsertGithubContent({
+      etag,
       repo: opts.repo,
       gitRef: opts.gitRef,
       contentKind: opts.contentKind,
@@ -1287,37 +1379,62 @@ async function getCachedGitHubContent<T>(opts: {
     }
   }
 
-  return withPendingRefresh(opts.cacheKey, async () => {
-    const latestRow = await readRow()
-    const latestValue = opts.readStoredValue(latestRow)
-    const latestForciblyStale =
-      !!latestRow && isForciblyStale(latestRow.staleAt)
+  const refresh = () =>
+    withPendingRefresh(opts.cacheKey, async () => {
+      // Another location may already have refreshed the shared R2 object.
+      const latestRow = await readRow(true).catch((error: unknown) => {
+        if (cachedRow) return cachedRow
+        throw error
+      })
+      const latestValue = opts.readStoredValue(latestRow)
+      const latestForciblyStale =
+        !!latestRow && isForciblyStale(latestRow.staleAt)
 
-    if (
-      canUseStoredGithubContentValue(opts.contentKind, latestValue) &&
-      latestRow &&
-      !latestForciblyStale &&
-      isFresh(latestRow.staleAt)
-    ) {
-      return latestValue
-    }
-
-    try {
-      const value = await opts.origin()
-      await persist(value)
-      return value
-    } catch (error) {
-      if (latestValue !== undefined && latestValue !== null) {
-        console.warn(`[GitHub Cache] Serving stale value ${opts.cacheKey}`)
+      if (
+        canUseStoredGithubContentValue(opts.contentKind, latestValue) &&
+        latestRow &&
+        !latestForciblyStale &&
+        isFresh(latestRow.staleAt)
+      ) {
         return latestValue
       }
 
-      throw error
+      try {
+        const value = await timeRequestWork('content_origin', opts.origin)
+        await timeRequestWork('content_persist', () =>
+          persist(value, latestRow?.etag),
+        )
+        return value
+      } catch (error) {
+        if (latestValue !== undefined && latestValue !== null) {
+          console.warn(`[GitHub Cache] Serving stale value ${opts.cacheKey}`)
+          return latestValue
+        }
+
+        throw error
+      }
+    })
+  // Explicit invalidations and negative entries still refresh before returning.
+  if (storedValue !== undefined && storedValue !== null && !forciblyStale) {
+    if (
+      scheduleHostRuntimeTask(() =>
+        refresh().catch((error) => {
+          console.warn(
+            `[GitHub Cache] Background content refresh failed ${opts.cacheKey}`,
+            error,
+          )
+        }),
+      )
+    ) {
+      return storedValue
     }
-  })
+  }
+
+  return refresh()
 }
 
 async function upsertDocsArtifact(opts: {
+  etag?: string
   artifactKey: string
   artifactType: string
   docsRoot: string
@@ -1330,6 +1447,7 @@ async function upsertDocsArtifact(opts: {
   const backend = await getCacheBackend()
 
   await backend.putDocsArtifact({
+    etag: opts.etag,
     repo: opts.repo,
     gitRef: opts.gitRef,
     docsRoot: opts.docsRoot,
@@ -1390,14 +1508,17 @@ export async function getCachedDocsArtifact<T>(opts: {
   const backend = await getCacheBackend()
   const cacheKey = getDocsArtifactBlobKey(opts)
 
-  const readRow = () =>
-    backend.getDocsArtifact({
-      repo: opts.repo,
-      gitRef: opts.gitRef,
-      docsRoot: opts.docsRoot,
-      artifactType: opts.artifactType,
-      artifactKey: opts.artifactKey,
-    })
+  const readRow = (revalidate = false) =>
+    backend.getDocsArtifact(
+      {
+        repo: opts.repo,
+        gitRef: opts.gitRef,
+        docsRoot: opts.docsRoot,
+        artifactType: opts.artifactType,
+        artifactKey: opts.artifactKey,
+      },
+      revalidate,
+    )
 
   const cachedRow = await readRow()
   const storedValue =
@@ -1406,7 +1527,11 @@ export async function getCachedDocsArtifact<T>(opts: {
 
   const refreshArtifact = () =>
     withPendingRefresh(cacheKey, async () => {
-      const latestRow = await readRow()
+      // Another location may already have refreshed the shared R2 object.
+      const latestRow = await readRow(true).catch((error: unknown) => {
+        if (cachedRow) return cachedRow
+        throw error
+      })
       const latestValue =
         latestRow && opts.isValue(latestRow.payload)
           ? latestRow.payload
@@ -1424,8 +1549,8 @@ export async function getCachedDocsArtifact<T>(opts: {
       }
 
       try {
-        const payload = await opts.build()
-        await upsertDocsArtifact({ ...opts, payload })
+        const payload = await timeRequestWork('artifact_build', opts.build)
+        await upsertDocsArtifact({ ...opts, payload, etag: latestRow?.etag })
         return payload
       } catch (error) {
         if (latestValue !== undefined) {
@@ -1476,8 +1601,10 @@ export async function pruneStaleCacheRows(
     negativeMaxAgeMs?: number
   } = {},
 ) {
-  const backend = await getCacheBackend()
-  return backend.pruneStaleCacheRows(opts)
+  return measureBlobStorageOperations('pruneStaleCacheRows', async () => {
+    const backend = await getCacheBackend()
+    return backend.pruneStaleCacheRows(opts)
+  })
 }
 
 export async function markGitHubContentStale(
@@ -1486,16 +1613,18 @@ export async function markGitHubContentStale(
     repo?: string
   } = {},
 ) {
-  if (opts.repo) {
-    assertValidRepo(opts.repo)
-  }
+  return measureBlobStorageOperations('markGitHubContentStale', async () => {
+    if (opts.repo) {
+      assertValidRepo(opts.repo)
+    }
 
-  if (opts.gitRef) {
-    assertValidGitRef(opts.gitRef)
-  }
+    if (opts.gitRef) {
+      assertValidGitRef(opts.gitRef)
+    }
 
-  const backend = await getCacheBackend()
-  return backend.markGitHubContentStale(opts)
+    const backend = await getCacheBackend()
+    return backend.markGitHubContentStale(opts)
+  })
 }
 
 export async function markDocsArtifactsStale(
@@ -1504,16 +1633,18 @@ export async function markDocsArtifactsStale(
     repo?: string
   } = {},
 ) {
-  if (opts.repo) {
-    assertValidRepo(opts.repo)
-  }
+  return measureBlobStorageOperations('markDocsArtifactsStale', async () => {
+    if (opts.repo) {
+      assertValidRepo(opts.repo)
+    }
 
-  if (opts.gitRef) {
-    assertValidGitRef(opts.gitRef)
-  }
+    if (opts.gitRef) {
+      assertValidGitRef(opts.gitRef)
+    }
 
-  const backend = await getCacheBackend()
-  return backend.markDocsArtifactsStale(opts)
+    const backend = await getCacheBackend()
+    return backend.markDocsArtifactsStale(opts)
+  })
 }
 
 export function resetGitHubContentCacheForTest() {

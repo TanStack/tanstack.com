@@ -9,7 +9,9 @@ export function initSentryServer(): void {
 
   Sentry.init({
     dsn: env.SENTRY_DSN ?? SENTRY_DSN,
-    enabled: process.env.NODE_ENV === 'production' || Boolean(env.SENTRY_DSN),
+    enabled:
+      import.meta.env.MODE !== 'staging' &&
+      (process.env.NODE_ENV === 'production' || Boolean(env.SENTRY_DSN)),
     tracesSampleRate: 1.0,
     environment: process.env.NODE_ENV ?? 'development',
   })

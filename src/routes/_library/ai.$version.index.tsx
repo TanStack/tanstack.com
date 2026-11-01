@@ -15,7 +15,7 @@ export const Route = createFileRoute('/_library/ai/$version/')({
   },
   loader: ({ params, context: { queryClient } }) =>
     loadLibraryLandingRouteData('ai', params.version, queryClient),
-  head: () => getLibraryLandingHead('ai'),
+  head: ({ match }) => getLibraryLandingHead('ai', match.status === 'success'),
   headers: () => getLibraryLandingHeaders('ai'),
   component: AiLandingRoute,
 })

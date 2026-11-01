@@ -15,7 +15,8 @@ export const Route = createFileRoute('/_library/pacer/$version/')({
   },
   loader: ({ params, context: { queryClient } }) =>
     loadLibraryLandingRouteData('pacer', params.version, queryClient),
-  head: () => getLibraryLandingHead('pacer'),
+  head: ({ match }) =>
+    getLibraryLandingHead('pacer', match.status === 'success'),
   headers: () => getLibraryLandingHeaders('pacer'),
   component: PacerLandingRoute,
 })

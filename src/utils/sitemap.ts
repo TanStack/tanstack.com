@@ -1,4 +1,5 @@
 import { readDocsFreshness } from './docs-freshness'
+import { getStartExampleSitemapEntries } from './start-example-pages'
 import { getBranch, libraries } from '~/libraries'
 import type { LibrarySlim } from '~/libraries/types'
 import { getPublishedPosts } from '~/utils/blog'
@@ -89,7 +90,18 @@ async function getLibraryDocsEntries(
     repo: library.repo,
     branch,
     docsRoot,
-  }).catch(() => ({ paths: [], redirects: {}, lastModifiedByPath: undefined }))
+  }).catch((cause: unknown) => {
+    throw new Error(
+      `Sitemap docs unavailable: ${library.id} (${library.repo}@${branch}:${docsRoot})`,
+      { cause },
+    )
+  })
+
+  if (manifest.paths.length === 0) {
+    throw new Error(
+      `Sitemap docs empty: ${library.id} (${library.repo}@${branch}:${docsRoot})`,
+    )
+  }
 
   return manifest.paths
     .filter(Boolean)
@@ -122,6 +134,7 @@ export async function getSitemapEntries(): Promise<Array<SitemapEntry>> {
   const entries = [
     ...HIGH_VALUE_NON_DOC_PAGES.map((path) => ({ path })),
     ...getLibraryEntries(),
+    ...getStartExampleSitemapEntries(),
     ...docsEntries.flat(),
     ...getBlogEntries(),
     ...getPartnerSitemapEntries(),
@@ -146,8 +159,7 @@ async function getPublishedChartsCatalogEntries(): Promise<
     const publication = await getChartsCatalogIndexPublication()
     return getChartsCatalogSitemapEntries(publication.index)
   } catch (error) {
-    console.error('[sitemap] Charts catalog unavailable', error)
-    return [{ path: '/charts/catalog/' }]
+    throw new Error('Sitemap charts catalog unavailable', { cause: error })
   }
 }
 

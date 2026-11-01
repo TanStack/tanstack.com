@@ -65,19 +65,21 @@ function CommandSearchInput({
   isFullHeight: boolean
   onToggleFullHeight: () => void
 }) {
-  const { closeSearch } = useSearchContext()
+  const { isOpen, closeSearch } = useSearchContext()
   const { refine } = useSearchBox()
   const { searchQuery, setSearchQuery } = useSearchFilters()
   const hasQuery = searchQuery.trim().length > 0
   const inputRef = React.useRef<HTMLInputElement>(null)
 
   React.useEffect(() => {
+    if (!isOpen) return
+
     const frame = requestAnimationFrame(() => {
       inputRef.current?.focus({ preventScroll: true })
     })
 
     return () => cancelAnimationFrame(frame)
-  }, [])
+  }, [isOpen])
 
   const clearSearch = React.useCallback(() => {
     setSearchQuery('')
@@ -295,7 +297,6 @@ const searchModalTransitionMs = 140
 
 export function SearchModal() {
   const { isOpen, closeSearch, restoreSearchFocus } = useSearchContext()
-  const contentRef = React.useRef<HTMLDivElement>(null)
   const bodyPointerEventsRef = React.useRef('')
   const [shouldRenderSearch, setShouldRenderSearch] = React.useState(isOpen)
   const [isFullHeight, setIsFullHeight] = React.useState(() => {
@@ -325,20 +326,6 @@ export function SearchModal() {
     }, searchModalTransitionMs)
 
     return () => window.clearTimeout(timeout)
-  }, [isOpen])
-
-  React.useEffect(() => {
-    if (!isOpen) {
-      return
-    }
-
-    const frame = requestAnimationFrame(() => {
-      contentRef.current
-        ?.querySelector<HTMLInputElement>('input[type="search"]')
-        ?.focus({ preventScroll: true })
-    })
-
-    return () => cancelAnimationFrame(frame)
   }, [isOpen])
 
   React.useEffect(() => {
@@ -398,15 +385,20 @@ export function SearchModal() {
             />
             <DialogPrimitive.Content
               forceMount
-              ref={contentRef}
-              onCloseAutoFocus={(event) => {
-                event.preventDefault()
-                restoreSearchFocus()
-              }}
               className={twMerge(
                 'search-modal-content fixed z-[calc(var(--z-overlay)+2)] inset-0 sm:inset-auto sm:top-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-[96%] xl:w-full sm:max-w-4xl text-left outline-none',
                 isFullHeight && 'sm:bottom-4',
               )}
+              onOpenAutoFocus={(event) => {
+                // The input owns focus; the context restores the search trigger.
+                event.preventDefault()
+              }}
+              onCloseAutoFocus={(event) => {
+                event.preventDefault()
+                if (document.activeElement === document.body) {
+                  restoreSearchFocus()
+                }
+              }}
               onInteractOutside={(event) => {
                 if (isSearchModalPortalTarget(event.target)) {
                   event.preventDefault()

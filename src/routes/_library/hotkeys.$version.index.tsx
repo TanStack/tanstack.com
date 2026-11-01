@@ -15,7 +15,8 @@ export const Route = createFileRoute('/_library/hotkeys/$version/')({
   },
   loader: ({ params, context: { queryClient } }) =>
     loadLibraryLandingRouteData('hotkeys', params.version, queryClient),
-  head: () => getLibraryLandingHead('hotkeys'),
+  head: ({ match }) =>
+    getLibraryLandingHead('hotkeys', match.status === 'success'),
   headers: () => getLibraryLandingHeaders('hotkeys'),
   component: HotkeysLandingRoute,
 })

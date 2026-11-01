@@ -7,6 +7,8 @@ test('sitemap excludes repository artifacts while retaining public guides', () =
     'how-to/drafts/README',
     'how-to/drafts/search-params-in-forms.draft',
     'how-to/README',
+    'superpowers/specs/2026-07-31-tanstack-devtools-branding-design',
+    'superpowers/plans/internal-implementation',
     'contributing',
     'contributing/oracle-reviews/issue-2034-design/candidate',
     'contributing/designs/source-failure-and-health/error-surface/RULES',

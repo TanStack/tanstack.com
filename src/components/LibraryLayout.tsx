@@ -1482,11 +1482,16 @@ export function LibraryLayout({
                 )}
               >
                 {landingBreadcrumbItems && (
-                  <div className="px-4 pt-4 md:px-8">
-                    <Breadcrumbs
-                      section="Libraries"
-                      items={landingBreadcrumbItems}
-                    />
+                  // Overlays the hero's top padding; matches the hero container so it aligns with the logo.
+                  <div className="pointer-events-none absolute inset-x-0 top-0 z-10">
+                    <div className="mx-auto w-full max-w-384 px-5 pt-4 md:px-10 lg:px-12 lg:pt-5 2xl:px-20">
+                      <div className="pointer-events-auto w-fit">
+                        <Breadcrumbs
+                          section="Libraries"
+                          items={landingBreadcrumbItems}
+                        />
+                      </div>
+                    </div>
                   </div>
                 )}
                 {children}

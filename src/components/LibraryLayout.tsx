@@ -1,3 +1,5 @@
+import { Breadcrumbs } from './Breadcrumbs'
+import { getLibraryBreadcrumbItems } from '~/utils/library-breadcrumbs'
 import * as React from 'react'
 import { CaretLeftIcon } from '@phosphor-icons/react/CaretLeft'
 import { CaretRightIcon } from '@phosphor-icons/react/CaretRight'
@@ -816,6 +818,10 @@ export function LibraryLayout({
   const { _splat, version: routeVersion } = useParams({ strict: false })
   const matches = useMatches()
   const lastMatch = last(matches)
+  const landingBreadcrumbItems =
+    lastMatch.status === 'success' && lastMatch.routeId.endsWith('/$version/')
+      ? getLibraryBreadcrumbItems(getLibrary(libraryId))
+      : undefined
   const version = getLibraryLayoutVersion({
     layoutVersion,
     pathname: lastMatch.pathname,
@@ -1545,6 +1551,14 @@ export function LibraryLayout({
                     'mx-auto w-[var(--docs-content-width,900px)]',
                 )}
               >
+                {landingBreadcrumbItems && (
+                  <div className="px-4 pt-4 md:px-8">
+                    <Breadcrumbs
+                      section="Libraries"
+                      items={landingBreadcrumbItems}
+                    />
+                  </div>
+                )}
                 {children}
               </div>
             </div>

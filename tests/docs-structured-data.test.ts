@@ -31,12 +31,18 @@ test('document entities and breadcrumbs use the resolved canonical URL', () => {
     {
       '@type': 'ListItem',
       position: 1,
+      name: 'Libraries',
+      item: 'https://tanstack.com/libraries',
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
       name: library.name,
       item: 'https://tanstack.com/start/latest',
     },
     {
       '@type': 'ListItem',
-      position: 2,
+      position: 3,
       name: 'Overview',
       item: canonicalHref,
     },

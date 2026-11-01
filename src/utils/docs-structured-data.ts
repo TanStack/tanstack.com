@@ -1,9 +1,9 @@
+import { getDocsBreadcrumbItems } from './docs-breadcrumbs'
 import type { readDocsFreshness } from './docs-freshness'
 import {
   getTanStackOrganizationJsonLd,
   TANSTACK_ORGANIZATION_ID,
 } from './organization-structured-data'
-import { canonicalUrl } from './seo'
 
 export function getDocsStructuredData({
   doc,
@@ -20,7 +20,8 @@ export function getDocsStructuredData({
   library: { id: string; name: string; visible?: boolean }
   canonicalHref: string
 }) {
-  if (!doc?.title || library.visible === false) return undefined
+  const items = getDocsBreadcrumbItems({ doc, library, canonicalHref })
+  if (!doc?.title || !items) return undefined
 
   return {
     '@context': 'https://schema.org',
@@ -49,20 +50,12 @@ export function getDocsStructuredData({
       {
         '@type': 'BreadcrumbList',
         '@id': `${canonicalHref}#breadcrumb`,
-        itemListElement: [
-          {
-            '@type': 'ListItem',
-            position: 1,
-            name: library.name,
-            item: canonicalUrl(`/${library.id}/latest`),
-          },
-          {
-            '@type': 'ListItem',
-            position: 2,
-            name: doc.title,
-            item: canonicalHref,
-          },
-        ],
+        itemListElement: items.map((item, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          name: item.label,
+          item: new URL(item.to, canonicalHref).href,
+        })),
       },
     ],
   }

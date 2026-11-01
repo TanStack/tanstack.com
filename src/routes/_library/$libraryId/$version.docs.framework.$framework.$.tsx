@@ -1,3 +1,4 @@
+import { getDocsBreadcrumbItems } from '~/utils/docs-breadcrumbs'
 import {
   notFound,
   redirect,
@@ -151,7 +152,8 @@ export const Route = createFileRoute(
 })
 
 function Docs() {
-  const { content, filePath, title, freshness } = Route.useLoaderData()
+  const { content, filePath, title, freshness, canonicalPathOverride } =
+    Route.useLoaderData()
   const versionMatch = useMatch({ from: '/_library/$libraryId/$version' })
   const config = versionMatch.loaderData?.config
   const { version, libraryId, framework } = Route.useParams()
@@ -164,6 +166,13 @@ function Docs() {
       <Doc
         key={filePath}
         title={title}
+        breadcrumbItems={getDocsBreadcrumbItems({
+          doc: { title },
+          library,
+          canonicalHref: canonicalUrl(
+            canonicalPathOverride ?? location.pathname,
+          ),
+        })}
         freshness={freshness}
         content={content}
         repo={library.repo}

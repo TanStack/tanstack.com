@@ -287,12 +287,14 @@ async function buildDocsManifest({
   )
 }
 
+export class MissingDocsTreeError extends Error {}
+
 export async function collectDocsManifest(
   nodes: Array<DocsTreeNode> | null,
   docsRoot: string,
   fetchFile: (filePath: string) => Promise<string | null>,
 ): Promise<DocsManifest> {
-  if (!nodes) throw new Error(`Missing docs tree: ${docsRoot}`)
+  if (!nodes) throw new MissingDocsTreeError(`Missing docs tree: ${docsRoot}`)
   const markdownFiles = flattenDocsNodes(nodes).filter((node) =>
     node.path.endsWith('.md'),
   )
@@ -427,7 +429,10 @@ export const fetchDocsRedirect = createServerFn({ method: 'GET' })
         },
       })
     } catch (error) {
-      if (isRecoverableGitHubContentError(error)) {
+      if (
+        error instanceof MissingDocsTreeError ||
+        isRecoverableGitHubContentError(error)
+      ) {
         return null
       }
 

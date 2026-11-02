@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
   collectDocsManifest,
+  MissingDocsTreeError,
   collectRedirectEntriesForFile,
   isDocsManifest,
   mapWithConcurrency,
@@ -225,5 +226,24 @@ test('manifest dates use the served sibling even when the index finishes last', 
     )
     assert.equal(manifest.lastModifiedByPath?.['guide/b'], '2026-09-03')
     assert.deepEqual(manifest.paths.sort(), ['guide/a', 'guide/b'])
+  }
+})
+
+test('only an absent docs tree is classified as missing during redirect lookup', async () => {
+  await assert.rejects(
+    () => collectDocsManifest(null, 'docs', async () => null),
+    MissingDocsTreeError,
+  )
+  for (const content of [null, '---\ntitle: [invalid\n---\n']) {
+    await assert.rejects(
+      () =>
+        collectDocsManifest(
+          [{ path: 'docs/a.md' }],
+          'docs',
+          async () => content,
+        ),
+      (error) =>
+        error instanceof Error && !(error instanceof MissingDocsTreeError),
+    )
   }
 })

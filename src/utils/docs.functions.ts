@@ -295,9 +295,20 @@ async function buildDocsManifest({
     return { paths: [], redirects: {} }
   }
 
+  return collectDocsManifest(nodes, docsRoot, (filePath) =>
+    fetchRepoFile(repo, branch, filePath),
+  )
+}
+
+export async function collectDocsManifest(
+  nodes: Array<DocsTreeNode>,
+  docsRoot: string,
+  fetchFile: (filePath: string) => Promise<string | null>,
+): Promise<DocsManifest> {
   const markdownFiles = flattenDocsNodes(nodes).filter((node) =>
     node.path.endsWith('.md'),
   )
+  const markdownPaths = new Set(markdownFiles.map((node) => node.path))
   const paths = new Set<string>()
   const lastModifiedByPath: Record<string, string> = {}
 
@@ -309,10 +320,16 @@ async function buildDocsManifest({
     (node) =>
       collectRedirectEntriesForFile(node, {
         docsRoot,
-        fetchFile: (filePath) => fetchRepoFile(repo, branch, filePath),
+        fetchFile,
         onCanonicalPath: (canonicalPath) => paths.add(canonicalPath),
         onLastModified: (path, date) => {
-          lastModifiedByPath[path] = date
+          // loadDocs tries the sibling .md file before /index.md.
+          if (
+            !node.path.endsWith('/index.md') ||
+            !markdownPaths.has(node.path.replace(/\/index\.md$/, '.md'))
+          ) {
+            lastModifiedByPath[path] = date
+          }
         },
       }),
   )
@@ -321,7 +338,7 @@ async function buildDocsManifest({
     paths: Array.from(paths),
     lastModifiedByPath,
     redirects: buildRedirectManifest(redirectsByFile.flat(), {
-      label: `docs redirects for ${repo}@${branch}:${docsRoot}`,
+      label: `docs redirects for ${docsRoot}`,
     }),
   }
 }

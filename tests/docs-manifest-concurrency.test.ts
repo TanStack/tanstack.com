@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
+  collectDocsManifest,
   collectRedirectEntriesForFile,
   isDocsManifest,
   mapWithConcurrency,
@@ -180,5 +181,30 @@ test('manifest cache accepts older records and rejects invalid date maps', () =>
     { 'guide/a': 42 },
   ]) {
     assert.equal(isDocsManifest({ ...base, lastModifiedByPath }), false)
+  }
+})
+
+test('manifest dates use the served sibling even when the index finishes last', async () => {
+  for (const sibling of ['---\nupdated: "2026-09-01"\n---\n# A', '# A']) {
+    const contents: Record<string, string> = {
+      'docs/guide/a.md': sibling,
+      'docs/guide/a/index.md': '---\nupdated: "2026-09-02"\n---\n# Index',
+      'docs/guide/b/index.md': '---\nupdated: "2026-09-03"\n---\n# B',
+    }
+    const manifest = await collectDocsManifest(
+      Object.keys(contents).map((path) => ({ path })),
+      'docs',
+      async (path) => {
+        if (path.endsWith('/index.md'))
+          await new Promise((resolve) => setTimeout(resolve, 10))
+        return contents[path]
+      },
+    )
+    assert.equal(
+      manifest.lastModifiedByPath?.['guide/a'],
+      sibling === '# A' ? undefined : '2026-09-01',
+    )
+    assert.equal(manifest.lastModifiedByPath?.['guide/b'], '2026-09-03')
+    assert.deepEqual(manifest.paths.sort(), ['guide/a', 'guide/b'])
   }
 })

@@ -229,35 +229,23 @@ export async function collectRedirectEntriesForFile(
     onLastModified?: (canonicalPath: string, date: string) => void
   },
 ): Promise<Array<RedirectManifestEntry>> {
-  const { extractFrontMatter, isRecoverableGitHubContentError } =
-    await loadDocumentsServerModule()
+  const { extractFrontMatter } = await loadDocumentsServerModule()
   const canonicalPath = getCanonicalDocsPath(node.path, opts.docsRoot)
 
   if (canonicalPath === null) {
     return []
   }
 
-  opts.onCanonicalPath(canonicalPath)
-
-  let file: string | null
-  try {
-    file = await opts.fetchFile(node.path)
-  } catch (error) {
-    if (!isRecoverableGitHubContentError(error)) {
-      throw error
-    }
-
-    return []
-  }
-
+  const file = await opts.fetchFile(node.path)
   if (!file) {
-    return []
+    throw new Error(`Missing docs file: ${node.path}`)
   }
 
   const frontMatter = extractFrontMatter(file)
   if (!frontMatter.isValid) {
     throw new Error(`Invalid docs frontmatter: ${node.path}`)
   }
+  opts.onCanonicalPath(canonicalPath)
   const updated = readDocsFreshness(frontMatter.data).updated
   if (updated) opts.onLastModified?.(canonicalPath, updated)
   const entries: Array<RedirectManifestEntry> = []
@@ -294,20 +282,17 @@ async function buildDocsManifest({
   const { fetchApiContents, fetchRepoFile } = await loadDocumentsServerModule()
   const nodes = await fetchApiContents(repo, branch, docsRoot)
 
-  if (!nodes) {
-    return { paths: [], redirects: {} }
-  }
-
   return collectDocsManifest(nodes, docsRoot, (filePath) =>
     fetchRepoFile(repo, branch, filePath),
   )
 }
 
 export async function collectDocsManifest(
-  nodes: Array<DocsTreeNode>,
+  nodes: Array<DocsTreeNode> | null,
   docsRoot: string,
   fetchFile: (filePath: string) => Promise<string | null>,
 ): Promise<DocsManifest> {
+  if (!nodes) throw new Error(`Missing docs tree: ${docsRoot}`)
   const markdownFiles = flattenDocsNodes(nodes).filter((node) =>
     node.path.endsWith('.md'),
   )
@@ -315,8 +300,7 @@ export async function collectDocsManifest(
   const paths = new Set<string>()
   const lastModifiedByPath: Record<string, string> = {}
 
-  // A recoverable error on one file must not fail the whole manifest build
-  // (see collectRedirectEntriesForFile).
+  // Only a complete build may be stored as a docs manifest.
   const redirectsByFile = await mapWithConcurrency(
     markdownFiles,
     DOCS_MANIFEST_FETCH_CONCURRENCY,
@@ -394,8 +378,8 @@ export const fetchDocsManifest = createServerFn({ method: 'GET' })
       gitRef: branch,
       docsRoot,
       artifactType: 'docs-manifest',
-      // Older manifests may have been built from depth-limited directory trees.
-      artifactKey: 'complete-tree-v1',
+      // Older manifests may contain partial tree or file metadata.
+      artifactKey: 'complete-tree-v2',
       isValue: isDocsManifest,
       build: () => buildDocsManifest({ repo, branch, docsRoot }),
     })

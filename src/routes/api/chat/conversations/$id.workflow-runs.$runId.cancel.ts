@@ -1,3 +1,12 @@
-import {createFileRoute} from '@tanstack/react-router'
-import {handleWorkflowRun} from '~/chat/server/workflow-run-http.server'
-export const Route=createFileRoute('/api/chat/conversations/$id/workflow-runs/$runId/cancel')({server:{handlers:{POST:({request,params})=>handleWorkflowRun(request,params.id,params.runId,true)}}})
+import { createFileRoute } from '@tanstack/react-router'
+import { forwardWorkerRequest } from '~/server/runtime/worker-service.server'
+
+export const Route = createFileRoute(
+  '/api/chat/conversations/$id/workflow-runs/$runId/cancel',
+)({
+  server: {
+    handlers: {
+      POST: ({ request }) => forwardWorkerRequest('CHAT', request),
+    },
+  },
+})

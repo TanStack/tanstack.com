@@ -333,7 +333,7 @@ function MaintainerGrid({
   }>
 }) {
   return (
-    <div>
+    <div className="@container">
       {title && <h3 className="text-2xl font-semibold mb-4">{title}</h3>}
       <div
         className={`transition-all duration-300 ${
@@ -341,7 +341,7 @@ function MaintainerGrid({
             ? 'grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-6'
             : viewMode === 'row'
               ? 'flex flex-col gap-4'
-              : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'
+              : 'grid grid-cols-2 gap-6 [&>*>*]:max-w-none @[28rem]:grid-cols-[repeat(auto-fit,minmax(180px,1fr))] @[43rem]:grid-cols-3'
         }`}
       >
         {maintainers.map((maintainer, index) => (
@@ -658,11 +658,11 @@ function RouteComponent() {
         }
       `}</style>
 
-      <div className="flex flex-col max-w-full min-h-screen gap-12 p-4 md:p-8 pb-0">
-        <div className="flex-1 flex flex-col gap-16 w-full max-w-4xl mx-auto">
+      <div className="flex flex-col max-w-full min-h-screen gap-6 md:gap-12 p-4 md:p-8 pb-0">
+        <div className="flex-1 flex flex-col gap-6 md:gap-16 w-full max-w-4xl mx-auto">
           <header className="">
             <h1 className="text-3xl font-black">Maintainers & Contributors</h1>
-            <p className="text-lg mt-4 text-gray-600 dark:text-gray-400">
+            <p className="text-lg mt-3 md:mt-4 text-gray-600 dark:text-gray-400">
               Meet the amazing developers who make TanStack possible through
               their contributions, maintenance, and dedication to open source
             </p>

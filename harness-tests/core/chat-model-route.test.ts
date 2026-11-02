@@ -25,7 +25,7 @@ vi.mock('~/chat/server/run-models', async (importOriginal) => ({
   ...(await importOriginal()),
   getRunModelCatalog: dependencies.catalog,
 }))
-import { handleModelCatalog } from '../../src/routes/api/chat/models'
+import { handleModelCatalog } from '../../src/chat/server/routes/models'
 import { WorkspacePolicyError } from '../../src/chat/workspace-policy.server'
 import { RunModelError } from '../../src/chat/server/run-models'
 import { defaultPolicy } from '../../src/chat/core/types'

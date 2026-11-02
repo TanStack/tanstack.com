@@ -1,4 +1,5 @@
 import { readDocsFreshness } from './docs-freshness'
+import { getDocsTitle } from './docs-title'
 import { notFound } from '@tanstack/react-router'
 import { createServerFn, createServerOnlyFn } from '@tanstack/react-start'
 import { setResponseHeader } from '@tanstack/react-start/server'
@@ -471,7 +472,8 @@ export const fetchDocs = createServerFn({ method: 'GET' })
 
     return {
       content: frontMatter.content,
-      title: frontMatter.data?.title ?? 'Content temporarily unavailable',
+      isFallback: result.isFallback,
+      title: getDocsTitle(frontMatter.data?.title, frontMatter.content),
       description,
       keywords,
       frameworks: extractFrameworksFromMarkdown(frontMatter.content),

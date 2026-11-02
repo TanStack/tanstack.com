@@ -265,7 +265,7 @@ export const allMaintainers: Maintainer[] = [
     name: 'Wonsuk Choi',
     avatar: 'https://github.com/sukvvon.png',
     github: 'sukvvon',
-    maintainerOf: ['query', 'pacer'],
+    maintainerOf: ['query', 'pacer', 'config'],
     frameworkExpertise: ['react', 'preact'],
     specialties: ['TypeScript', 'Test', 'Documentation'],
     social: {

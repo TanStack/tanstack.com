@@ -4,60 +4,48 @@ import { Squircle } from '~/components/Squircle'
 
 export function HeroPalmMedia() {
   const videoRef = React.useRef<HTMLVideoElement>(null)
-  const [hasVideoSource, setHasVideoSource] = React.useState(false)
   const [isVideoReady, setIsVideoReady] = React.useState(false)
   const [isPlaying, setIsPlaying] = React.useState(false)
 
   const playVideo = React.useCallback((video: HTMLVideoElement) => {
-    void video
-      .play()
-      .then(() => setIsVideoReady(true))
-      .catch((error: unknown) => {
-        console.error('Unable to play the homepage hero animation', error)
-        setIsPlaying(false)
-        setIsVideoReady(false)
-      })
+    if (video.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) video.load()
+    const promise = video.play()
+    if (promise !== undefined) {
+      promise
+        .then(() => setIsVideoReady(true))
+        .catch((error: unknown) => {
+          if (error instanceof DOMException && error.name === 'AbortError')
+            return
+          console.error('Unable to play the homepage hero animation', error)
+          setIsPlaying(false)
+          setIsVideoReady(false)
+        })
+    }
   }, [])
 
   React.useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
 
-    if (!reducedMotion.matches) {
-      setHasVideoSource(true)
-    }
-
     const pauseForReducedMotion = () => {
-      if (reducedMotion.matches) videoRef.current?.pause()
+      if (reducedMotion.matches) video.pause()
     }
 
     pauseForReducedMotion()
+    setIsPlaying(!video.paused)
+    setIsVideoReady(video.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA)
     reducedMotion.addEventListener('change', pauseForReducedMotion)
     return () =>
       reducedMotion.removeEventListener('change', pauseForReducedMotion)
   }, [])
-
-  React.useEffect(() => {
-    if (
-      !hasVideoSource ||
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    ) {
-      return
-    }
-
-    const video = videoRef.current
-    if (video) playVideo(video)
-  }, [hasVideoSource, playVideo])
 
   const togglePlayback = () => {
     const video = videoRef.current
     if (!video) return
 
     if (video.paused) {
-      if (hasVideoSource) {
-        playVideo(video)
-      } else {
-        setHasVideoSource(true)
-      }
+      playVideo(video)
     } else {
       video.pause()
     }
@@ -79,15 +67,14 @@ export function HeroPalmMedia() {
             src="/images/hero-palm-gradient.jpg"
             alt=""
             width={2400}
-            height={1600}
+            height={1058}
             loading="eager"
             fetchPriority="high"
-            className="h-full w-full object-cover object-center"
+            className={`relative z-10 h-full w-full object-cover object-center ${isVideoReady ? 'opacity-0 motion-reduce:opacity-100' : ''}`}
           />
         </picture>
         <video
           ref={videoRef}
-          src={hasVideoSource ? '/images/hero-palm-motion.mp4' : undefined}
           autoPlay
           loop
           muted
@@ -96,9 +83,14 @@ export function HeroPalmMedia() {
           onPlay={() => setIsPlaying(true)}
           onCanPlay={() => setIsVideoReady(true)}
           onError={() => setIsVideoReady(false)}
-          style={{ visibility: isVideoReady ? 'visible' : 'hidden' }}
           className="absolute inset-0 h-full w-full object-cover object-center motion-reduce:hidden"
-        />
+        >
+          <source
+            src="/images/hero-palm-motion.mp4"
+            type="video/mp4"
+            media="(prefers-reduced-motion: no-preference)"
+          />
+        </video>
       </Squircle>
       <button
         type="button"

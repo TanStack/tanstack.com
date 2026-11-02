@@ -1,3 +1,4 @@
+import { readDocsFreshness } from './docs-freshness'
 import { isHighValueDocsSlug } from './sitemap-docs'
 import { getStartExampleSitemapEntries } from './start-example-pages'
 import { getBranch, libraries } from '~/libraries'
@@ -72,13 +73,16 @@ async function getLibraryDocsEntries(
     repo: library.repo,
     branch,
     docsRoot,
-  }).catch(() => ({ paths: [], redirects: {} }))
+  }).catch(() => ({ paths: [], redirects: {}, lastModifiedByPath: undefined }))
 
   return manifest.paths
     .filter(Boolean)
     .filter(isHighValueDocsSlug)
     .map((slug) => ({
       path: `/${library.id}/latest/docs/${slug}`,
+      lastModified: readDocsFreshness({
+        updated: manifest.lastModifiedByPath?.[slug],
+      }).updated,
     }))
 }
 

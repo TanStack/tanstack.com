@@ -58,7 +58,13 @@ export function checkSitemapPage(
       )
       .map((node) => $(node).attr('content') ?? ''),
   ]
-  if (directives.some((value) => /\b(?:noindex|none)\b/i.test(value))) {
+  if (
+    directives.some((value) =>
+      /\b(?:noindex|none)\b/i.test(
+        value.replace(/\bmax-image-preview\s*:\s*none\b/gi, ''),
+      ),
+    )
+  ) {
     failures.push('page is noindex')
   }
   if (
@@ -87,7 +93,8 @@ async function main() {
       'Pass --sitemap <URL>; optionally --base-url <preview origin> and --limit <count>.',
     )
   const sitemap = new URL(values.sitemap)
-  const base = values['base-url'] ? new URL(values['base-url']) : undefined
+  const base =
+    values['base-url'] !== undefined ? new URL(values['base-url']) : undefined
   const limit = values.limit === undefined ? Infinity : Number(values.limit)
   if (
     values.limit !== undefined &&

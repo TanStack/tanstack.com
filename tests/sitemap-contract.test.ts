@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import { spawnSync } from 'node:child_process'
+import { fileURLToPath } from 'node:url'
 import { checkSitemapPage, getSitemapUrls } from '../scripts/check-sitemap'
 
 const url = 'https://tanstack.com/charts/catalog'
@@ -79,4 +81,53 @@ test('contract rejects robots directives, placeholders and forbidden paths', () 
       }).includes('disallowed sitemap path'),
     )
   }
+})
+
+test('image-preview restrictions do not prevent page indexing', () => {
+  for (const directive of [
+    'max-image-preview:none',
+    'index, MAX-IMAGE-PREVIEW: none',
+    'googlebot: max-image-preview: none',
+  ]) {
+    assert.deepEqual(
+      check(canonical + `<meta name="robots" content="${directive}">`),
+      [],
+    )
+    assert.deepEqual(
+      check(canonical, 200, new Headers({ 'X-Robots-Tag': directive })),
+      [],
+    )
+    assert.ok(
+      check(
+        canonical,
+        200,
+        new Headers({ 'X-Robots-Tag': `${directive}, noindex` }),
+      ).includes('page is noindex'),
+    )
+    assert.ok(
+      check(
+        canonical,
+        200,
+        new Headers({ 'X-Robots-Tag': `${directive}, none` }),
+      ).includes('page is noindex'),
+    )
+  }
+})
+
+test('CLI rejects an explicitly empty preview origin before fetching', () => {
+  const result = spawnSync(
+    process.execPath,
+    [
+      '--import',
+      'tsx',
+      fileURLToPath(new URL('../scripts/check-sitemap.ts', import.meta.url)),
+      '--sitemap',
+      'http://127.0.0.1:1/sitemap.xml',
+      '--base-url',
+      '',
+    ],
+    { encoding: 'utf8' },
+  )
+  assert.notEqual(result.status, 0)
+  assert.match(result.stderr, /ERR_INVALID_URL/)
 })

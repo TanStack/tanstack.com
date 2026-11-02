@@ -38,6 +38,7 @@
     "docs:webhooks:plan": "tsx scripts/sync-docs-webhooks.ts --dry-run",
     "docs:webhooks:sync": "tsx scripts/sync-docs-webhooks.ts",
     "docs:links:check": "tsx scripts/check-docs-menu-links.ts",
+    "sitemap:check": "tsx scripts/check-sitemap.ts",
     "husky": "pnpm run format && pnpm run test",
     "pretest": "pnpm run content:build",
     "test": "run-s test:tsc test:lint test:unit test:chat test:desktop",

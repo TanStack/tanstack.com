@@ -24,7 +24,7 @@ export async function timeRequestWork<T>(
   work: () => T | Promise<T>,
 ): Promise<T> {
   const timings = storage.getStore()
-  if (!timings) return work()
+  if (!timings) return Sentry.startSpan({ name, op: 'server.work' }, work)
   const startedAt = performance.now()
   try {
     return await Sentry.startSpan({ name, op: 'docs.server' }, work)

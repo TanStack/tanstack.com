@@ -123,7 +123,10 @@ async function releaseDatabaseContext(context: DatabaseContext) {
   // database schema and connection pool after all of its work has completed.
   context.client = undefined
   context.db = undefined
-  await client?.end({ timeout: 5 })
+  if (client)
+    await timeRequestWork('db_connection_close', () =>
+      client.end({ timeout: 5 }),
+    )
 }
 
 export function retainDatabaseContext<T>(work: Promise<T>): Promise<T> {

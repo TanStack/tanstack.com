@@ -25,5 +25,6 @@ export const Route = createFileRoute(
     }
   },
   component: ThemeEditorPage,
+  staticData: { docsTab: { id: 'theme-editor', fullBleed: true } },
   ssr: false,
 })

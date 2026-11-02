@@ -17,6 +17,7 @@ import { renderChartSvgWithResources } from '@tanstack/charts/svg/resources'
 import { tooltip } from '@tanstack/charts/tooltip'
 import { Chart } from '@tanstack/charts/react'
 import { GIFEncoder, applyPalette, quantize } from 'gifenc'
+import { getSvgDimensions } from './svgDimensions'
 import {
   CheckIcon,
   CodeIcon,
@@ -849,18 +850,6 @@ function createLatestBarExportChart({
   container.innerHTML = source
   const svg = container.querySelector<SVGSVGElement>('svg')
   return svg ?? undefined
-}
-
-function getSvgDimensions(svg: SVGSVGElement) {
-  const box = svg.getBoundingClientRect()
-  const viewBox = svg.viewBox.baseVal
-  const width = svg.width.baseVal.value || viewBox.width || box.width || 1
-  const height = svg.height.baseVal.value || viewBox.height || box.height || 1
-
-  return {
-    width: Math.max(1, Math.ceil(width)),
-    height: Math.max(1, Math.ceil(height)),
-  }
 }
 
 function isTransparentColor(color: string) {

@@ -85,7 +85,7 @@ async function getLibraryDocsEntries(
 function getBlogEntries(): Array<SitemapEntry> {
   return getPublishedPosts().map((post) => ({
     path: `/blog/${post.slug}`,
-    lastModified: asLastModified(post.published),
+    lastModified: asLastModified(post.updated ?? post.published),
   }))
 }
 

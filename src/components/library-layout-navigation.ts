@@ -1,3 +1,5 @@
+import { isCustomToolTarget } from '~/libraries/custom-tool-tabs'
+import type { LibraryId } from '~/libraries/ids'
 import type { MenuItem } from '~/utils/config'
 
 export function isChartsCatalogTarget(to: string) {
@@ -22,7 +24,7 @@ export function getLibraryTabLinkOptions({
   version,
   to,
 }: {
-  libraryId: string
+  libraryId: LibraryId
   version: string
   to: string
 }) {
@@ -34,7 +36,7 @@ export function getLibraryTabLinkOptions({
 
   return {
     from:
-      isHomeTarget || isChartsCatalogTarget(to)
+      isHomeTarget || isCustomToolTarget(libraryId, to)
         ? undefined
         : '/$libraryId/$version/docs',
     to: isHomeTarget ? `/${libraryId}/${version}` : to,
@@ -50,6 +52,7 @@ function normalizeMenuPath(path: string) {
 }
 
 export function isMenuTargetActive(
+  libraryId: LibraryId,
   to: string,
   relativePathname: string | undefined,
   pathname: string,
@@ -59,12 +62,13 @@ export function isMenuTargetActive(
   }
 
   return (
-    isChartsCatalogTarget(to) &&
+    isCustomToolTarget(libraryId, to) &&
     normalizeMenuPath(to) === normalizeMenuPath(pathname)
   )
 }
 
 export function getMenuGroupInitialOpenState(
+  libraryId: LibraryId,
   groups: MenuItem[],
   relativePathname: string | undefined,
   pathname: string,
@@ -73,7 +77,7 @@ export function getMenuGroupInitialOpenState(
 
   groups.forEach((group, index) => {
     const isChildActive = group.children.some((child) =>
-      isMenuTargetActive(child.to, relativePathname, pathname),
+      isMenuTargetActive(libraryId, child.to, relativePathname, pathname),
     )
     const key = `${index}:${String(group.label)}`
 

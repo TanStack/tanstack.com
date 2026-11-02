@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { timeRequestWork } from '../request-timing.server'
 import { offerVisitorChat } from '../visitor-chat/visitor.server'
 import { hashChatProof } from '../visitor-chat/auth.server'
 import { chatsNeedingReply } from '../visitor-chat/store.server'
@@ -86,16 +87,11 @@ export async function receiveLiveEvent(request: Request) {
   const parsed = liveEventSchema.safeParse(value)
   if (!parsed.success) return respond(400)
   try {
-    const created = await recordLiveEvent(
-      parsed.data,
-      ip,
-      config.key,
-      config.lookupLimiter,
+    const created = await timeRequestWork('presence_db_write', () =>
+      recordLiveEvent(parsed.data, ip, config.key, config.lookupLimiter),
     )
-    const chat = await offerVisitorChat(
-      request,
-      parsed.data,
-      Boolean(created),
+    const chat = await timeRequestWork('presence_chat_lookup', () =>
+      offerVisitorChat(request, parsed.data, Boolean(created)),
     ).catch(() => null)
     if (chat) {
       const headers = new Headers(responseHeaders)

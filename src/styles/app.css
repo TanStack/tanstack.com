@@ -3056,3 +3056,48 @@ License: 	The WebFont(s) listed in this document must follow the YouWorkForThem
   font-style: normal;
   font-display: swap;
 }
+
+/* Pele keeps the same SVG when the site's theme changes. */
+.mermaid-block {
+  --pele-bg: var(--color-white);
+  --pele-fg: var(--color-gray-900);
+  --pele-muted: var(--color-gray-600);
+  --pele-line: var(--color-gray-600);
+  --pele-surface: var(--color-gray-100);
+  --pele-surface-alt: var(--color-gray-200);
+  --pele-border: var(--color-gray-500);
+  --pele-accent: var(--color-blue-600);
+  --pele-critical: var(--color-red-700);
+  --pele-error: var(--color-red-700);
+  --pele-series-1: var(--color-blue-700);
+  --pele-series-2: var(--color-orange-700);
+  --pele-series-3: var(--color-green-700);
+  --pele-series-4: var(--color-red-700);
+  --pele-series-5: var(--color-cyan-700);
+  --pele-series-6: var(--color-yellow-700);
+  --pele-series-7: var(--color-purple-700);
+  --pele-series-8: var(--color-pink-700);
+  --pele-font: var(--font-sans);
+  --pele-font-mono: var(--font-mono);
+}
+
+.dark .mermaid-block {
+  --pele-bg: var(--color-gray-950);
+  --pele-fg: var(--color-gray-200);
+  --pele-muted: var(--color-gray-400);
+  --pele-line: var(--color-gray-400);
+  --pele-surface: var(--color-gray-800);
+  --pele-surface-alt: var(--color-gray-900);
+  --pele-border: var(--color-gray-500);
+  --pele-accent: var(--color-blue-400);
+  --pele-critical: var(--color-red-400);
+  --pele-error: var(--color-red-400);
+  --pele-series-1: var(--color-blue-400);
+  --pele-series-2: var(--color-orange-400);
+  --pele-series-3: var(--color-green-400);
+  --pele-series-4: var(--color-red-400);
+  --pele-series-5: var(--color-cyan-400);
+  --pele-series-6: var(--color-yellow-400);
+  --pele-series-7: var(--color-purple-400);
+  --pele-series-8: var(--color-pink-400);
+}

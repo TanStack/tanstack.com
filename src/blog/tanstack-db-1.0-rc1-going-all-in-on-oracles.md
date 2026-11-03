@@ -85,8 +85,8 @@ flowchart TD
     P["Explicit design"] --> G["Generate permitted changes"]
     P --> M["Independent model"]
     P --> C["Compare promised public behavior"]
-    G --> M
     G --> D["Real DB"]
+    G --> M
     M -->|Expected result| C
     D -->|Actual result| C
 ```

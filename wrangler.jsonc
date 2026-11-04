@@ -13,7 +13,7 @@
   },
   "vars": {
     "APP_MODE": "production",
-    "LIVE_VISITORS_ENABLED": "false",
+    "LIVE_VISITORS_ENABLED": "true",
     "VISITOR_CHAT_ENABLED": "true",
     "MCP_EGRESS_MODE": "cloudflare-public",
     "KODY_ORIGIN": "https://kody.codes",

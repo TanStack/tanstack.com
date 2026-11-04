@@ -1,0 +1,151 @@
+@scope (:root:has(.tanchat-shell)) {
+  .desktop-browser-panel {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+  }
+  .desktop-browser-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px;
+  }
+  .desktop-browser-toolbar input {
+    flex: 1;
+    min-width: 0;
+    height: 32px;
+    padding: 0 9px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: transparent;
+    color: inherit;
+  }
+  .desktop-browser-zoom-trigger {
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: inherit;
+    font-size: 0.75rem;
+    min-width: 40px;
+    height: 30px;
+    cursor: pointer;
+  }
+  .desktop-browser-zoom-trigger:hover {
+    background: var(--surface-hover, rgba(128, 128, 128, 0.12));
+  }
+  .desktop-browser-viewport {
+    flex: 1;
+    min-height: 0;
+  }
+  .desktop-browser-error {
+    margin: 8px;
+    color: var(--danger, #b54431);
+  }
+  .desktop-browser-menu {
+    display: grid;
+    gap: 2px;
+    padding: 7px;
+    max-height: min(380px, 50vh);
+    overflow-y: auto;
+  }
+  .desktop-browser-menu > button,
+  .desktop-browser-screen li button,
+  .desktop-browser-settings button {
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    padding: 7px 9px;
+    cursor: pointer;
+  }
+  .desktop-browser-menu > button:hover,
+  .desktop-browser-screen li button:hover,
+  .desktop-browser-settings button:hover {
+    background: var(--surface-hover, rgba(128, 128, 128, 0.12));
+  }
+  .desktop-browser-zoom,
+  .desktop-browser-find,
+  .desktop-browser-device,
+  .desktop-browser-screen-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+  }
+  .desktop-browser-zoom > span:first-child {
+    flex: 1;
+  }
+  .desktop-browser-zoom button {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: transparent;
+    color: inherit;
+    min-width: 30px;
+    height: 28px;
+    cursor: pointer;
+  }
+  .desktop-browser-find input {
+    flex: 1;
+    min-width: 0;
+    height: 28px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 0 7px;
+    background: transparent;
+    color: inherit;
+  }
+  .desktop-browser-find > span {
+    min-width: 42px;
+    text-align: right;
+  }
+  .desktop-browser-device {
+    font-size: 0.8rem;
+  }
+  .desktop-browser-screen {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+  }
+  .desktop-browser-screen-header strong {
+    flex: 1;
+  }
+  .desktop-browser-screen ul {
+    list-style: none;
+    padding: 8px;
+    margin: 0;
+  }
+  .desktop-browser-screen li button {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    width: 100%;
+  }
+  .desktop-browser-screen li small {
+    opacity: 0.65;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+  .desktop-browser-settings {
+    padding: 12px;
+  }
+  .desktop-browser-settings ul {
+    padding: 8px 0;
+  }
+  .desktop-browser-extension {
+    display: grid;
+    gap: 4px;
+    padding: 10px 0;
+  }
+  .desktop-browser-extension small {
+    opacity: 0.7;
+  }
+  .desktop-browser-screen .desktop-browser-extension button {
+    justify-self: start;
+    width: auto;
+  }
+}

@@ -1,0 +1,188 @@
+@scope (:root:has(.tanchat-shell)) {
+  .message-threads {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    min-width: 0;
+  }
+  .message-threads[data-has-threads] {
+    flex-basis: 100%;
+    margin-top: 4px;
+  }
+  .message-threads:empty {
+    display: none;
+  }
+  .thread-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--soft);
+    color: inherit;
+    padding: 7px 9px;
+    font: inherit;
+    font-size: 12px;
+    text-align: left;
+  }
+  .thread-link > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .thread-link small {
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .thread-link:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .thread-conversation {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+  }
+  .thread-heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+  .thread-heading strong {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 13px;
+  }
+  .thread-heading > button {
+    flex-shrink: 0;
+  }
+  .thread-source.message {
+    margin: 15px auto 28px;
+    width: min(100%, 780px);
+    padding: 0 clamp(20px, 3vw, 30px);
+    overflow-wrap: anywhere;
+  }
+  .workspace-thread-panel {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .workspace-thread-panel > .thread-conversation > .conversation {
+    flex: 1;
+    min-height: 0;
+  }
+  .thread-conversation .composer-area {
+    padding: 0 10px 10px;
+  }
+  .thread-conversation .message,
+  .thread-conversation .turn-activity,
+  .thread-conversation .activity-update {
+    max-width: 100%;
+  }
+  @media (pointer: coarse) {
+    .thread-link {
+      min-height: 44px;
+    }
+  }
+
+  .full-thread-conversation {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .full-thread-conversation > .conversation-layout {
+    flex: 1;
+    min-height: 0;
+  }
+  .thread-title-editor {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+  }
+  .thread-title-editor form {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+    min-width: 0;
+  }
+  .thread-title-editor input {
+    min-width: 0;
+    width: 100%;
+    padding: 6px;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    background: transparent;
+    color: inherit;
+  }
+  .thread-title-editor .error {
+    width: 100%;
+  }
+
+  .thread-lifecycle {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+  }
+  .thread-lifecycle > span {
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+  .thread-lifecycle > .error {
+    flex-basis: 100%;
+  }
+
+  .thread-link > .thread-link-label {
+    flex-shrink: 0;
+  }
+  .thread-link-preview {
+    min-width: 0;
+    color: var(--muted);
+  }
+  .thread-link-preview::before {
+    content: '· ';
+  }
+
+  .thread-hierarchy {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+  }
+  .thread-hierarchy-entry {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-width: 0;
+    text-align: left;
+    padding-block: 5px;
+  }
+  .thread-hierarchy-entry svg {
+    flex-shrink: 0;
+  }
+  .thread-hierarchy-entry span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .thread-hierarchy-current {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    padding-block: 5px;
+  }
+}

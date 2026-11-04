@@ -30,12 +30,6 @@ Use when a surface behaves like a product recommendation or builder suggestion. 
 
 Use for AI- or crawler-facing outputs such as `llms.txt` and JSON feeds. These should be deterministic and relevance-first. Do not rotate them merely for logo fairness unless the downstream behavior has been designed and disclosed as such.
 
-## Reserved Rules
-
-Reserved rules should be narrow. For example, Cloudflare is reserved as the first deployment/hosting partner in any list that contains Cloudflare and other deployment partners. That should not imply Cloudflare is globally first across every partner surface; non-deployment partners can still appear before Cloudflare when the surface is mixed-category.
-
-Deployment action buttons are a deployment-only surface. Cloudflare remains first when present. Tier order is still preserved, and providers within the same tier can rotate by session.
-
 ## Current Surfaces
 
 - Partner directory: `tier-rotated` for active partners, `static-curated` for previous partners.
@@ -63,7 +57,7 @@ This lets reporting distinguish partner performance from placement policy and ma
 
 Suggested external framing:
 
-> Partner tiers determine eligibility, visual treatment, reporting, and relative access to surfaces. Placement within the same tier may rotate or be curated depending on the surface. Some placements may include explicitly reserved rules for product, infrastructure, legal, or strategic reasons.
+> Partner tiers determine eligibility, visual treatment, reporting, and relative access to surfaces. Placement within the same tier may rotate or be curated depending on the surface.
 
 For AI-assisted selection:
 

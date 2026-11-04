@@ -4,7 +4,7 @@ import { submitShowcase, updateShowcase } from '~/utils/showcase.functions'
 import { libraries } from '~/libraries'
 import {
   SHOWCASE_USE_CASES_UI,
-  type Showcase,
+  type PublicShowcase,
   type ShowcaseUseCase,
 } from '~/db/types'
 import {
@@ -27,7 +27,7 @@ const selectableLibraries = libraries.filter(
 )
 
 interface ShowcaseSubmitFormProps {
-  showcase?: Showcase
+  showcase?: PublicShowcase
 }
 
 export function ShowcaseSubmitForm({ showcase }: ShowcaseSubmitFormProps) {
@@ -69,7 +69,7 @@ export function ShowcaseSubmitForm({ showcase }: ShowcaseSubmitFormProps) {
         <div className="text-gray-500 dark:text-gray-400 text-xs">
           {isEditMode
             ? 'Your changes are pending review. Votes have been preserved.'
-            : "Your project is pending review. We'll notify you when it's approved."}
+            : 'Your project is pending review. You can check its status in your account.'}
         </div>
       </div>,
     )
@@ -196,7 +196,7 @@ export function ShowcaseSubmitForm({ showcase }: ShowcaseSubmitFormProps) {
         <p className="mt-2 text-gray-600 dark:text-gray-400">
           {isEditMode
             ? 'Update your showcase submission. Changes will require re-approval but votes will be preserved.'
-            : "Share what you've built with TanStack libraries. Your submission will be reviewed before appearing in the showcase."}
+            : 'Submit your project for the Community directory. The TanStack team selects Showcase projects for their adoption, craft, or technical depth. Submitting does not guarantee a listing.'}
         </p>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">

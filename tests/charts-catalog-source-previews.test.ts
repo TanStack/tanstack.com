@@ -13,10 +13,8 @@ import {
 } from '@tanstack/react-router'
 
 import { ChartsCatalogPreview } from '../src/components/charts/ChartsCatalogPreview'
-import {
-  CatalogChartsHero,
-  ChartsCatalogGallery,
-} from '../src/components/landing/ChartsCatalogGallery'
+import { ChartsCatalogGallery } from '../src/components/landing/ChartsCatalogGallery'
+import { ChartsHeroBackground } from '../src/components/landing/ChartsHeroBackground'
 import { serveChartsCatalogPreview } from '../src/routes/charts.catalog_.previews.$revision.{$caseId}[.]svg'
 import {
   getChartsCatalogPreviewHeaders,
@@ -288,7 +286,7 @@ test('landing and catalog cards use the landing publication revision', () => {
     RouterContextProvider<typeof router>({
       router,
       children: createElement('div', null, [
-        createElement(CatalogChartsHero, { catalog, key: 'hero' }),
+        createElement(ChartsHeroBackground, { key: 'hero' }),
         createElement(ChartsCatalogGallery, {
           catalog,
           key: 'gallery',

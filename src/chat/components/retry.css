@@ -1,0 +1,54 @@
+@scope (:root:has(.tanchat-shell)) {
+  .retry-preparation {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 8px 0;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .retry-preparation > span {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .conversation-action-evidence {
+    max-height: min(360px, 40dvh);
+    min-width: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+  .retry-evidence {
+    margin-bottom: 10px;
+    font-size: 12px;
+  }
+  .retry-evidence > summary {
+    cursor: pointer;
+    color: var(--muted);
+    padding: 5px 0;
+  }
+  .retry-evidence-body {
+    padding: 0 10px;
+  }
+  .retry-evidence-body .message {
+    padding: 8px 0;
+  }
+  .retry-evidence-body > p {
+    color: var(--muted);
+  }
+  .action-evidence-label {
+    display: inline-block;
+    max-width: min(60ch, 65%);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: bottom;
+  }
+  .inherited-action-evidence-body {
+    padding-left: 10px;
+  }
+  .inherited-action-evidence-body > p {
+    color: var(--muted);
+  }
+}

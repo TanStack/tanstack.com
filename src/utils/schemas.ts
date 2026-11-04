@@ -9,6 +9,7 @@ import {
   DOC_FEEDBACK_TYPES,
   DOC_FEEDBACK_STATUSES,
   SHOWCASE_STATUSES,
+  SHOWCASE_PLACEMENTS,
   SHOWCASE_USE_CASES,
   AUDIT_ACTIONS,
   RELEASE_LEVELS,
@@ -20,6 +21,8 @@ export const capabilitySchema = v.picklist([...CAPABILITIES])
 export const oauthProviderSchema = v.picklist([...OAUTH_PROVIDERS])
 export const docFeedbackTypeSchema = v.picklist([...DOC_FEEDBACK_TYPES])
 export const docFeedbackStatusSchema = v.picklist([...DOC_FEEDBACK_STATUSES])
+export const showcasePlacementSchema = v.picklist(SHOWCASE_PLACEMENTS)
+
 export const showcaseStatusSchema = v.picklist([...SHOWCASE_STATUSES])
 export const showcaseUseCaseSchema = v.picklist([...SHOWCASE_USE_CASES])
 export const auditActionSchema = v.picklist([...AUDIT_ACTIONS])

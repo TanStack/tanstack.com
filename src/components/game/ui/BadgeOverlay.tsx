@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/set-state-in-effect -- game animation state sync */
 import { useEffect, useState } from 'react'
+import { copyTextToClipboard } from '~/utils/browser-effects'
 import {
   useProgression,
   BADGE_INFO,
@@ -234,7 +235,7 @@ export function BadgeOverlay() {
               </button>
               <button
                 onClick={() => {
-                  navigator.clipboard.writeText(
+                  copyTextToClipboard(
                     `I just earned the ${info.name} badge in TanStack Island Explorer! ${info.icon} https://tanstack.com/explore`,
                   )
                 }}

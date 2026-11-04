@@ -265,7 +265,7 @@ export const allMaintainers: Maintainer[] = [
     name: 'Wonsuk Choi',
     avatar: 'https://github.com/sukvvon.png',
     github: 'sukvvon',
-    maintainerOf: ['query'],
+    maintainerOf: ['query', 'pacer', 'config'],
     frameworkExpertise: ['react', 'preact'],
     specialties: ['TypeScript', 'Test', 'Documentation'],
     social: {
@@ -356,6 +356,7 @@ export const allMaintainers: Maintainer[] = [
   },
   {
     name: 'Sarah Gerrard',
+    isCoreMaintainer: true,
     avatar: 'https://github.com/ladybluenotes.png',
     github: 'ladybluenotes',
     creatorOf: ['intent'],
@@ -376,7 +377,7 @@ export const allMaintainers: Maintainer[] = [
       'virtual',
     ],
     frameworkExpertise: ['react', 'solid'],
-    specialties: ['Documentation', 'Architecture'],
+    specialties: ['Documentation', 'Architecture', 'Performance'],
     social: {
       bluesky: 'https://bsky.app/profile/ladybluenotes.dev',
       twitter: 'https://x.com/ladybluenotes',
@@ -571,6 +572,18 @@ export const allMaintainers: Maintainer[] = [
     specialties: [],
     social: {
       twitter: 'https://twitter.com/NLynzaad',
+    },
+    workshopsAvailable: false,
+  },
+  {
+    name: 'Ciarán Curley',
+    avatar:
+      'https://i8qrvymqoy.ufs.sh/f/5bi1XUVQkRmSSCXecObVfEJ4jbILkeMFwiotspxWBCUX32qG',
+    github: 'DogPawHat',
+    maintainerOf: ['query'],
+    social: {
+      bluesky: 'https://bsky.app/profile/dogpawhat.tech',
+      linkedIn: 'https://www.linkedin.com/in/dogpawhat/',
     },
     workshopsAvailable: false,
   },

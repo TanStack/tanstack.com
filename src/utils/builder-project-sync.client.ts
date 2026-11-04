@@ -165,7 +165,7 @@ export async function createBuilderProjectSyncClient(
   }
 
   const fetchRequest = options.fetch ?? globalThis.fetch
-  const syncUrl = `/api/builder/projects/${options.projectId}/sync`
+  const syncUrl = `/api/chat/projects/${options.projectId}/sync`
   const bootstrap = await fetchBuilderProjectSyncSnapshot(
     syncUrl,
     fetchRequest,
@@ -481,7 +481,7 @@ export async function postBuilderProjectSyncCommand(
   if (!isUuid(projectId)) throw new Error('Invalid Builder project ID')
   return requireBuilderProjectSyncCommandResult(
     await postBuilderProjectSyncCommandRequest({
-      url: `/api/builder/projects/${projectId}/sync`,
+      url: `/api/chat/projects/${projectId}/sync`,
       command,
       fetchRequest: globalThis.fetch,
       ...(signal ? { signal } : {}),
@@ -495,7 +495,7 @@ export type BuilderProjectSyncCollection = ReturnType<
 
 export function getBuilderProjectBrowserSessionId({
   storage = getSessionStorage(),
-  createId = crypto.randomUUID,
+  createId = () => crypto.randomUUID(),
 }: {
   storage?: Pick<Storage, 'getItem' | 'setItem'>
   createId?: () => string
@@ -512,7 +512,7 @@ export function getBuilderProjectBrowserSessionId({
 async function claimBuilderProjectBrowserSession({
   storage = getSessionStorage(),
   lockManager = getBrowserSessionLockManager(),
-  createId = crypto.randomUUID,
+  createId = () => crypto.randomUUID(),
 }: {
   storage?: Pick<Storage, 'getItem' | 'setItem'>
   lockManager?: BuilderProjectBrowserSessionLockManager

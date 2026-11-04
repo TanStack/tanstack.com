@@ -90,7 +90,7 @@ export function createChartsCatalogExampleDefinition({
     workspace: createExampleWorkspace({
       entry: generatedEntryPath,
       files: workspaceFiles,
-      imports: createCatalogImports(revision, versions),
+      imports: createCatalogImports(versions),
     }),
   }
 }
@@ -113,10 +113,7 @@ function normalizeCatalogSourcePath(path: string) {
   return workspacePath
 }
 
-function createCatalogImports(
-  revision: string,
-  versions: ChartsCatalogExampleVersions,
-) {
+function createCatalogImports(versions: ChartsCatalogExampleVersions) {
   const imports: Record<string, string> = {}
 
   for (const [specifier, version] of Object.entries(versions.dependencies).sort(
@@ -142,9 +139,8 @@ function createCatalogImports(
   imports['react-dom/client'] =
     `${packageUrl('react-dom', versions.reactDom)}/client`
 
-  const dataUrl = `https://esm.sh/gh/TanStack/charts@${revision}/packages/charts-demo-data/src/`
-  imports['@charts-poc/demo-data/'] = dataUrl
-  imports['@tanstack/charts-data/'] = dataUrl
+  imports['@charts-poc/demo-data/'] = '/packages/charts-demo-data/src/'
+  imports['@tanstack/charts-data/'] = '/packages/charts-demo-data/src/'
 
   return imports
 }

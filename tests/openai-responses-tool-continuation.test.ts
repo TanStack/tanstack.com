@@ -3,6 +3,8 @@ import test from 'node:test'
 import { chat, toolDefinition, type StreamChunk } from '@tanstack/ai'
 import { createOpenaiChat } from '@tanstack/ai-openai'
 import { z } from 'zod'
+import { streamBuilderAiResponse } from '../src/utils/builder-ai'
+import { createExampleWorkspace } from '../src/utils/example-workspace'
 
 type ResponseStreamEvent = Record<string, unknown>
 
@@ -181,17 +183,45 @@ test('Responses reasoning survives sequential server tool iterations through pre
   }))
 
   const chunks: Array<StreamChunk> = []
-  for await (const chunk of chat({
+  const providerStream = chat({
     adapter: createOpenaiChat('gpt-5.6-sol', 'test-key', {
       fetch: fakeFetch,
     }),
     messages: [{ role: 'user', content: 'Read the entry file.' }],
     tools: [readFile],
-  })) {
+  })
+  for await (const chunk of streamBuilderAiResponse(
+    providerStream,
+    'test-key',
+    (message) => ({
+      message,
+      execution: {
+        runtime: null,
+        workspace: createExampleWorkspace({
+          entry: '/index.tsx',
+          files: { '/index.tsx': 'export default 1' },
+        }),
+      },
+      changedFiles: [],
+      runtimeChanged: false,
+      trace: { evidenceFingerprints: [], mutationFingerprints: [] },
+    }),
+  )) {
     chunks.push(chunk)
   }
 
   assert.equal(requests.length, 3)
+  assert.equal(
+    chunks.filter(
+      (chunk) =>
+        chunk.type === 'CUSTOM' && chunk.name === 'builder.project.execution',
+    ).length,
+    1,
+  )
+  assert.equal(
+    chunks.some((chunk) => chunk.type === 'RUN_ERROR'),
+    false,
+  )
   assert.equal(requests[1]?.previous_response_id, 'resp_1')
   assert.deepEqual(requests[1]?.input, [
     {

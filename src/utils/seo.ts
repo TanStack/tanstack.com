@@ -3,6 +3,7 @@ import { findLibrary } from '~/libraries/libraries'
 
 const NON_INDEXABLE_PATH_PREFIXES = [
   '/account',
+  '/community-projects',
   '/admin',
   '/login',
   '/partners-embed',

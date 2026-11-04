@@ -1,35 +1,7 @@
-import * as React from 'react'
-import { ClientOnly, createFileRoute, notFound } from '@tanstack/react-router'
-import {
-  BuilderAiSkeleton,
-  BuilderRouteReady,
-} from '~/components/builder/BuilderLoading'
-import { webContainerHeaders } from '~/utils/stackblitz-embed'
-
-const LazyBuilderAiSpike = React.lazy(() =>
-  import('~/components/builder/BuilderAiSpike.client').then((module) => ({
-    default: module.BuilderAiSpike,
-  })),
-)
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/builder_/ai')({
-  ssr: false,
-  pendingComponent: BuilderAiSkeleton,
   beforeLoad: () => {
-    if (!import.meta.env.DEV) throw notFound()
+    throw redirect({ to: '/chat', replace: true, reloadDocument: true })
   },
-  component: BuilderAiSpikeRoute,
-  headers: () => webContainerHeaders,
 })
-
-function BuilderAiSpikeRoute() {
-  return (
-    <BuilderRouteReady>
-      <ClientOnly fallback={<BuilderAiSkeleton />}>
-        <React.Suspense fallback={<BuilderAiSkeleton />}>
-          <LazyBuilderAiSpike />
-        </React.Suspense>
-      </ClientOnly>
-    </BuilderRouteReady>
-  )
-}

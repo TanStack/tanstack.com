@@ -1,0 +1,164 @@
+{
+  "checks": [
+    {
+      "label": "anonymous rejected",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "label": "Alice signed-in read",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "label": "Alice preference write",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "label": "Bob account isolation",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "label": "cross-origin mutation rejected",
+      "status": 403,
+      "expected": 403
+    },
+    {
+      "label": "expired session rejected",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "label": "revoked session version rejected",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "label": "nonexistent user rejected",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "label": "forged cookie rejected",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "label": "Alice creates personal workspace",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "label": "Bob creates separate workspace",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "label": "Alice reads staging Durable Object snapshot",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "label": "Bob cannot read Alice workspace",
+      "status": 403,
+      "expected": 403
+    }
+  ],
+  "workspaceA": {
+    "workspace": {
+      "id": "personal:51ab9cbf-8b23-4fd1-88eb-efed6f6f087d",
+      "ownerId": "51ab9cbf-8b23-4fd1-88eb-efed6f6f087d",
+      "name": "Personal",
+      "policy": {
+        "allowedProviders": [
+          "included",
+          "openai",
+          "anthropic",
+          "gemini",
+          "groq",
+          "grok",
+          "openrouter",
+          "vercel",
+          "cloudflare",
+          "cf_gateway",
+          "compatible"
+        ],
+        "allowedModels": [],
+        "dailyTurns": 30,
+        "allowJev": true,
+        "allowChatModels": true,
+        "allowKody": true,
+        "allowMcp": true
+      },
+      "createdAt": "2026-10-16T19:23:18.895Z"
+    },
+    "bots": [
+      {
+        "id": "assistant:51ab9cbf-8b23-4fd1-88eb-efed6f6f087d",
+        "workspaceId": "personal:51ab9cbf-8b23-4fd1-88eb-efed6f6f087d",
+        "parentId": null,
+        "name": "TanChat",
+        "purpose": "Your everyday assistant.",
+        "version": 0,
+        "avatar": null,
+        "deletionBatch": null,
+        "updatedAt": "2026-10-16T19:23:18.895Z",
+        "archivedAt": null,
+        "deletedAt": null,
+        "createdAt": "2026-10-16T19:23:18.895Z"
+      }
+    ],
+    "assistantId": "assistant:51ab9cbf-8b23-4fd1-88eb-efed6f6f087d",
+    "conversationId": "chat:assistant:51ab9cbf-8b23-4fd1-88eb-efed6f6f087d:51ab9cbf-8b23-4fd1-88eb-efed6f6f087d"
+  },
+  "workspaceB": {
+    "workspace": {
+      "id": "personal:5795b054-0e52-4f71-9ce3-8b9df83eea34",
+      "ownerId": "5795b054-0e52-4f71-9ce3-8b9df83eea34",
+      "name": "Personal",
+      "policy": {
+        "allowedProviders": [
+          "included",
+          "openai",
+          "anthropic",
+          "gemini",
+          "groq",
+          "grok",
+          "openrouter",
+          "vercel",
+          "cloudflare",
+          "cf_gateway",
+          "compatible"
+        ],
+        "allowedModels": [],
+        "dailyTurns": 30,
+        "allowJev": true,
+        "allowChatModels": true,
+        "allowKody": true,
+        "allowMcp": true
+      },
+      "createdAt": "2026-10-16T19:23:20.399Z"
+    },
+    "bots": [
+      {
+        "id": "assistant:5795b054-0e52-4f71-9ce3-8b9df83eea34",
+        "workspaceId": "personal:5795b054-0e52-4f71-9ce3-8b9df83eea34",
+        "parentId": null,
+        "name": "TanChat",
+        "purpose": "Your everyday assistant.",
+        "version": 0,
+        "avatar": null,
+        "deletionBatch": null,
+        "updatedAt": "2026-10-16T19:23:20.399Z",
+        "archivedAt": null,
+        "deletedAt": null,
+        "createdAt": "2026-10-16T19:23:20.399Z"
+      }
+    ],
+    "assistantId": "assistant:5795b054-0e52-4f71-9ce3-8b9df83eea34",
+    "conversationId": "chat:assistant:5795b054-0e52-4f71-9ce3-8b9df83eea34:5795b054-0e52-4f71-9ce3-8b9df83eea34"
+  },
+  "syntheticUsersOnly": true
+}

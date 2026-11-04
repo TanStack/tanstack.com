@@ -21,6 +21,7 @@ export const Route = createFileRoute("/api/auth/callback/$provider")({
           getOAuthStateCookie,
           clearOAuthStateCookie,
           isOAuthPopupMode,
+          getOAuthPopupChannel,
           clearOAuthPopupCookie,
           getOAuthReturnTo,
           clearOAuthReturnToCookie,
@@ -199,10 +200,10 @@ export const Route = createFileRoute("/api/auth/callback/$provider")({
 
           let redirectUrl: string;
           if (isPopup) {
-            redirectUrl = new URL(
-              "/auth/popup-success",
-              request.url,
-            ).toString();
+            const completionUrl = new URL('/auth/popup-success', request.url);
+            const channel = getOAuthPopupChannel(request, state);
+            if (channel) completionUrl.searchParams.set('channel', channel);
+            redirectUrl = completionUrl.toString();
           } else if (returnTo) {
             redirectUrl = new URL(returnTo, request.url).toString();
           } else {

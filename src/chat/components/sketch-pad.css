@@ -1,0 +1,175 @@
+@scope (:root:has(.tanchat-shell)) {
+  .sketch-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    background: #10182866;
+  }
+  .sketch-dialog {
+    position: fixed;
+    z-index: 91;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(960px, calc(100vw - 24px));
+    max-height: calc(100dvh - 24px);
+    overflow-y: auto;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px;
+    background: var(--background);
+    color: inherit;
+    box-shadow: 0 18px 70px #0003;
+  }
+  .sketch-heading,
+  .sketch-tools,
+  .sketch-colors,
+  .sketch-history,
+  .sketch-footer {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .sketch-heading {
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .sketch-heading h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+  }
+  .sketch-dialog .icon-button {
+    border: 1px solid transparent;
+    border-radius: 7px;
+    padding: 4px;
+    background: transparent;
+    color: inherit;
+  }
+  .sketch-dialog .icon-button:hover:not([aria-disabled='true']),
+  .sketch-dialog .icon-button[aria-pressed='true'] {
+    background: var(--soft);
+    border-color: var(--line);
+  }
+  .sketch-dialog .icon-button:focus-visible,
+  .sketch-attach:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .sketch-tools {
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 10px;
+  }
+  .sketch-colors {
+    gap: 2px;
+    margin-left: 6px;
+    padding-left: 10px;
+  }
+  .sketch-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1px solid #ffffff80;
+  }
+  .sketch-history {
+    margin-left: auto;
+    gap: 2px;
+  }
+  .sketch-surface {
+    position: relative;
+    width: min(100%, calc((100dvh - 250px) * 1.6));
+    min-width: min(100%, 260px);
+    margin: 0 auto;
+    aspect-ratio: 8 / 5;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: #fff;
+    overflow: hidden;
+  }
+  .sketch-surface canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+    cursor: crosshair;
+  }
+  .sketch-surface:focus-within {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .sketch-surface canvas:focus {
+    outline: none;
+  }
+  .sketch-cursor {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .sketch-cursor circle {
+    fill: #ffffff30;
+    stroke: #222;
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+  .sketch-keyboard-help {
+    margin: 10px 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.4;
+  }
+  .sketch-footer {
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .sketch-notice {
+    margin: 0;
+    min-width: 0;
+    font-size: 13px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+  .sketch-attach {
+    flex-shrink: 0;
+    margin-left: auto;
+    min-height: 40px;
+    padding: 8px 14px;
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    background: var(--accent);
+    color: var(--on-accent);
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .sketch-attach:disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+  @media (max-width: 480px) {
+    .sketch-dialog {
+      padding: 12px;
+    }
+    .sketch-tools {
+      gap: 2px;
+    }
+    .sketch-colors {
+      margin-left: 0;
+      padding-left: 4px;
+    }
+    .sketch-footer {
+      flex-wrap: wrap;
+    }
+    .sketch-notice:not(:empty) {
+      flex-basis: 100%;
+    }
+  }
+  @media (pointer: coarse) {
+    .sketch-attach {
+      min-height: 44px;
+    }
+  }
+}

@@ -1,0 +1,24 @@
+@scope (:root:has(.tanchat-shell)) {
+  .kody-memory-create-review {
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .kody-memory-create-review p {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .kody-memory-create-review ul {
+    margin: 0.5rem 0 0;
+    padding-left: 1.25rem;
+  }
+
+  .kody-memory-create-review li + li {
+    margin-top: 0.5rem;
+  }
+
+  .kody-memory-create-review li span {
+    display: block;
+  }
+}

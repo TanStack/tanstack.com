@@ -6,7 +6,7 @@ authors:
   - Tanner Linsley
 ---
 
-![TanStack + OpenRouter](/blog-assets/openrouter-partnership/header.png)
+![TanStack + OpenRouter](/blog-assets/openrouter-partnership/header-logos.png)
 
 **OpenRouter is now an official TanStack sponsor.** The most concrete expression of that is already shipped: [`@tanstack/ai-openrouter`](https://tanstack.com/ai/latest/docs/adapters/openrouter), a first-class TanStack AI adapter that gives you access to hundreds of models through one API.
 

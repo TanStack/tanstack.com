@@ -6,11 +6,11 @@ import {
 import { twMerge } from 'tailwind-merge'
 import { hotkeys } from './libraries'
 
-const textStyles = 'text-category-ui'
+const textStyles = 'text-category-performance'
 
 export const hotkeysProject = {
   ...hotkeys,
-  description: `A type-safe, cross-platform hotkey library with sequence detection, key state tracking, hotkey recording, and framework adapters for React and more.`,
+  description: `A type-safe, cross-platform hotkey library with scopes, sequences, user rebinding, platform-correct labels, and devtools, with adapters for React, Vue, Solid, Svelte, Angular, and more.`,
   latestBranch: 'main',
   defaultDocs: 'overview',
   featureHighlights: [

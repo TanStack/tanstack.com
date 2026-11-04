@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/set-state-in-effect -- game animation state sync */
 import { useEffect, useState } from 'react'
+import { copyTextToClipboard } from '~/utils/browser-effects'
 import { useGameStore } from '../hooks/useGameStore'
 import { Badge } from './BadgeOverlay'
 import { BADGE_INFO } from '../machines/GameMachineProvider'
@@ -164,7 +165,7 @@ export function WinOverlay() {
               </button>
               <button
                 onClick={() => {
-                  navigator.clipboard.writeText(
+                  copyTextToClipboard(
                     `I just conquered TanStack Island Explorer! ${badgeInfo.icon} https://tanstack.com/explore`,
                   )
                 }}

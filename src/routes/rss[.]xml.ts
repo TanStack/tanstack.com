@@ -25,8 +25,10 @@ export function getRssImageMediaType(src: string) {
   return 'application/octet-stream'
 }
 
-function generateRSSFeed() {
-  const posts = getPublishedPosts().slice(0, 50) // Most recent 50 posts
+export function generateRSSFeed() {
+  const posts = getPublishedPosts()
+    .filter((post) => post.rss !== false)
+    .slice(0, 50)
   const siteUrl = 'https://tanstack.com'
   const buildDate = new Date().toUTCString()
 

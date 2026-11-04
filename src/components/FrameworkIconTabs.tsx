@@ -30,7 +30,7 @@ export function FrameworkIconTabs({
       role="group"
       aria-label="Choose framework"
       className={twMerge(
-        'fade-x fade-size-x-sm flex items-center justify-start gap-1 overflow-x-auto overflow-y-hidden border-b border-border-default scrollbar-hide',
+        'fade-end fade-size-x-sm flex items-center justify-start gap-1 overflow-x-auto overflow-y-hidden border-b border-border-default scrollbar-hide',
         className,
       )}
     >

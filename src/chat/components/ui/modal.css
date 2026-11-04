@@ -1,0 +1,61 @@
+@scope (:root:has(.tanchat-shell)) {
+  .ui-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    background: var(--overlay);
+    opacity: 1;
+  }
+  .ui-modal.ui-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    z-index: 81;
+    translate: -50% -50%;
+    margin: 0;
+    max-width: calc(100vw - 32px);
+    max-height: calc(100dvh - 40px);
+    overflow-y: auto;
+    border-radius: 12px;
+    box-shadow: 0 16px 48px var(--shadow-medium);
+    opacity: 1;
+  }
+  .ui-modal .dialog-heading {
+    padding: 16px 20px;
+  }
+  .ui-modal .dialog-heading h2 {
+    font-size: 16px;
+  }
+
+  @media (max-width: 600px) {
+    .ui-modal.ui-modal {
+      top: calc(var(--mobile-top, 0px) + var(--mobile-height, 100dvh));
+      bottom: auto;
+      left: 0;
+      translate: 0 -100%;
+      width: 100%;
+      max-width: 100%;
+      max-height: calc(
+        var(--mobile-height, 100dvh) - env(safe-area-inset-top, 0px) - 12px
+      );
+      border-radius: 20px 20px 0 0;
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      overscroll-behavior-y: contain;
+      scroll-padding-top: 64px;
+    }
+    .ui-modal .dialog-heading {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: var(--surface);
+      min-height: 56px;
+    }
+    .ui-modal :is(input, textarea, select) {
+      font-size: 16px;
+    }
+    .ui-modal .icon-button {
+      min-width: 44px;
+      min-height: 44px;
+    }
+  }
+}

@@ -1,6 +1,11 @@
 import * as React from 'react'
 import { useLocation } from '@tanstack/react-router'
-import { LibrariesOverlay } from '~/components/LibrariesOverlay'
+
+const LazyLibrariesOverlay = React.lazy(() =>
+  import('~/components/LibrariesOverlay').then((m) => ({
+    default: m.LibrariesOverlay,
+  })),
+)
 
 interface LibrariesOverlayContextValue {
   openLibraries: (options?: { onBack?: () => void }) => void
@@ -35,6 +40,7 @@ export function LibrariesOverlayProvider({
   children: React.ReactNode
 }) {
   const [isOpen, setIsOpen] = React.useState(false)
+  const [hasLoadedOverlay, setHasLoadedOverlay] = React.useState(false)
   const [returnTarget, setReturnTarget] = React.useState<{
     onBack: () => void
   } | null>(null)
@@ -42,6 +48,7 @@ export function LibrariesOverlayProvider({
   const openLibraries = React.useCallback(
     (options?: { onBack?: () => void }) => {
       setReturnTarget(options?.onBack ? { onBack: options.onBack } : null)
+      setHasLoadedOverlay(true)
       setIsOpen(true)
     },
     [],
@@ -74,11 +81,15 @@ export function LibrariesOverlayProvider({
   return (
     <LibrariesOverlayContext.Provider value={value}>
       {children}
-      <LibrariesOverlay
-        open={isOpen}
-        onBack={returnTarget ? returnToMenu : undefined}
-        onClose={closeLibraries}
-      />
+      {hasLoadedOverlay ? (
+        <React.Suspense fallback={null}>
+          <LazyLibrariesOverlay
+            open={isOpen}
+            onBack={returnTarget ? returnToMenu : undefined}
+            onClose={closeLibraries}
+          />
+        </React.Suspense>
+      ) : null}
     </LibrariesOverlayContext.Provider>
   )
 }

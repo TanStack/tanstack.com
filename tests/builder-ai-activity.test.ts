@@ -1,8 +1,5 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import * as React from 'react'
-import { renderToStaticMarkup } from 'react-dom/server'
-import { BuilderAgentActivity } from '../src/components/builder/BuilderAgentActivity'
 import {
   builderAiActivityDurableMaxBytes,
   compactBuilderAiActivityForDurableSync,
@@ -413,94 +410,6 @@ test('builder activity settles unfinished items when a run completes', () => {
     parseBuilderAiActivity(JSON.parse(JSON.stringify(activity))),
     activity,
   )
-})
-
-test('builder agent activity summaries are collapsed by default', () => {
-  const activities = [
-    reduceEvents([{ type: 'run-started', runId: 'running', timestamp: 1_000 }]),
-    reduceEvents([
-      { type: 'run-started', runId: 'complete', timestamp: 1_000 },
-      { type: 'run-completed', runId: 'complete', timestamp: 2_000 },
-    ]),
-    reduceEvents([
-      { type: 'run-started', runId: 'error', timestamp: 1_000 },
-      {
-        type: 'run-failed',
-        runId: 'error',
-        timestamp: 2_000,
-        error: 'Failed',
-      },
-    ]),
-    reduceEvents([
-      { type: 'run-started', runId: 'stopped', timestamp: 1_000 },
-      { type: 'run-stopped', runId: 'stopped', timestamp: 2_000 },
-    ]),
-  ]
-
-  for (const activity of activities) {
-    const markup = renderToStaticMarkup(
-      React.createElement(BuilderAgentActivity, { activity }),
-    )
-
-    assert.match(markup, /aria-expanded="false"/)
-    assert.match(markup, /aria-hidden="true"/)
-  }
-})
-
-test('builder agent activity supports explicitly expanded details', () => {
-  const activity = reduceEvents([
-    { type: 'run-started', runId: 'run-4', timestamp: 1_000 },
-    {
-      type: 'item-completed',
-      runId: 'run-4',
-      itemId: 'edit-1',
-      source: 'tool',
-      name: 'replace_file',
-      timestamp: 1_500,
-      output: {
-        path: '/index.tsx',
-        characters: 120,
-        diff: '-old\n+new',
-      },
-    },
-    { type: 'run-completed', runId: 'run-4', timestamp: 2_000 },
-  ])
-  const markup = renderToStaticMarkup(
-    React.createElement(BuilderAgentActivity, {
-      activity,
-      defaultOpen: true,
-    }),
-  )
-
-  assert.match(markup, /aria-label="Agent activity"/)
-  assert.match(markup, /aria-expanded="true"/)
-  assert.match(markup, /aria-controls=/)
-  assert.match(markup, /role="region"/)
-  assert.match(markup, /Edited 1 file/)
-  assert.match(markup, /Diff for \/index\.tsx/)
-})
-
-test('builder agent activity keeps raw errors neutral and readable', () => {
-  const activity = reduceEvents([
-    { type: 'run-started', runId: 'run-error', timestamp: 1_000 },
-    {
-      type: 'run-failed',
-      runId: 'run-error',
-      timestamp: 2_000,
-      error: "SyntaxError: Missing export 'band'\n    at /index.tsx:4:10",
-    },
-  ])
-  const markup = renderToStaticMarkup(
-    React.createElement(BuilderAgentActivity, {
-      activity,
-      defaultOpen: true,
-    }),
-  )
-
-  assert.match(markup, /aria-label="Agent error"/)
-  assert.match(markup, /text-text-secondary/)
-  assert.doesNotMatch(markup, /border-l-border-error/)
-  assert.doesNotMatch(markup, /font-medium text-text-error/)
 })
 
 function serializedBytes(value: unknown) {

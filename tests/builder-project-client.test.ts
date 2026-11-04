@@ -69,8 +69,8 @@ test('builder client helpers parse lists and send fork lineage', async (t) => {
     ),
     builderProject,
   )
-  assert.equal(requests[0]?.input, '/api/builder/projects')
-  assert.equal(requests[1]?.input, '/api/builder/projects')
+  assert.equal(requests[0]?.input, '/api/chat/projects')
+  assert.equal(requests[1]?.input, '/api/chat/projects')
   assert.deepEqual(JSON.parse(String(requests[1]?.init?.body)), {
     clientMutationId: '55555555-5555-4555-8555-555555555555',
     id: '66666666-6666-4666-8666-666666666666',
@@ -78,7 +78,7 @@ test('builder client helpers parse lists and send fork lineage', async (t) => {
     forkedFromId: builderProject.forkedFromId,
     revisionId: '77777777-7777-4777-8777-777777777777',
   })
-  assert.equal(requests[2]?.input, `/api/builder/projects/${builderProject.id}`)
+  assert.equal(requests[2]?.input, `/api/chat/projects/${builderProject.id}`)
   assert.equal(requests[2]?.init?.method, 'PATCH')
   assert.deepEqual(JSON.parse(String(requests[2]?.init?.body)), {
     clientMutationId: '88888888-8888-4888-8888-888888888888',

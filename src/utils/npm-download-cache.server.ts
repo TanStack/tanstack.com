@@ -1,3 +1,4 @@
+import { measureBlobStorageOperations } from '~/server/runtime/blob-storage-metrics.server'
 import {
   getBlobStorage,
   getBlobStorageCache,
@@ -471,166 +472,175 @@ export async function getCachedNpmDownloadChunk(
   dateTo: string,
   binSize: string = 'daily',
 ): Promise<NpmDownloadChunkData | null> {
-  const storage = await getNpmDownloadBlobStorage()
+  return measureBlobStorageOperations('getCachedNpmDownloadChunk', async () => {
+    const storage = await getNpmDownloadBlobStorage()
 
-  if (storage) {
-    const cache = getBlobStorageCache(NPM_DOWNLOAD_BLOB_STORAGE)
-    const chunk = await readBlobChunk({
-      cache,
-      key: getNpmDownloadChunkKey({ binSize, dateFrom, dateTo, packageName }),
-      storage,
-    })
+    if (storage) {
+      const cache = getBlobStorageCache(NPM_DOWNLOAD_BLOB_STORAGE)
+      const chunk = await readBlobChunk({
+        cache,
+        key: getNpmDownloadChunkKey({ binSize, dateFrom, dateTo, packageName }),
+        storage,
+      })
 
-    if (chunk) {
-      return chunk
+      if (chunk) {
+        return chunk
+      }
     }
-  }
 
-  const legacy = await getLegacyNpmDownloadCache()
-  const legacyChunk = await legacy.getCachedNpmDownloadChunk(
-    packageName,
-    dateFrom,
-    dateTo,
-    binSize,
-  )
+    const legacy = await getLegacyNpmDownloadCache()
+    const legacyChunk = await legacy.getCachedNpmDownloadChunk(
+      packageName,
+      dateFrom,
+      dateTo,
+      binSize,
+    )
 
-  if (legacyChunk) {
-    const mapped = mapLegacyChunk(legacyChunk)
-    await backfillBlobChunk(mapped)
-    return mapped
-  }
+    if (legacyChunk) {
+      const mapped = mapLegacyChunk(legacyChunk)
+      await backfillBlobChunk(mapped)
+      return mapped
+    }
 
-  return null
+    return null
+  })
 }
 
 export async function getBatchNpmDownloadChunks(
   requests: Array<NpmDownloadChunkRequest>,
 ): Promise<Map<string, NpmDownloadChunkWithMetadata>> {
-  const results = new Map<string, NpmDownloadChunkWithMetadata>()
+  return measureBlobStorageOperations('getBatchNpmDownloadChunks', async () => {
+    const results = new Map<string, NpmDownloadChunkWithMetadata>()
 
-  if (requests.length === 0) {
-    return results
-  }
+    if (requests.length === 0) {
+      return results
+    }
 
-  const storage = await getNpmDownloadBlobStorage()
+    const storage = await getNpmDownloadBlobStorage()
 
-  if (storage) {
-    const cache = getBlobStorageCache(NPM_DOWNLOAD_BLOB_STORAGE)
-    await Promise.all(
-      requests.map(async (req) => {
-        const chunk = await readBlobChunk({
-          cache,
-          key: getNpmDownloadChunkKey(req),
-          storage,
-        })
-
-        if (chunk) {
-          results.set(getChunkCacheKey(req), chunk)
-        }
-      }),
-    )
-  }
-
-  const missedRequests = requests.filter(
-    (req) => !results.has(getChunkCacheKey(req)),
-  )
-
-  if (missedRequests.length === 0) {
-    return results
-  }
-
-  const legacy = await getLegacyNpmDownloadCache()
-  const legacyChunks = await legacy.getBatchNpmDownloadChunks(missedRequests)
-
-  await Promise.all(
-    [...legacyChunks.entries()].map(async ([cacheKey, chunk]) => {
-      const mapped = mapLegacyChunk(chunk)
-      results.set(cacheKey, {
-        ...mapped,
-        createdAt: chunk.createdAt,
-        updatedAt: chunk.updatedAt,
-      })
-      await backfillBlobChunk(mapped)
-    }),
-  )
-
-  return results
-}
-
-export async function getLatestNpmDownloadChunksBeforeRangeEnd(
-  requests: Array<NpmDownloadChunkRequest>,
-): Promise<Map<string, NpmDownloadChunkWithMetadata>> {
-  const results = new Map<string, NpmDownloadChunkWithMetadata>()
-
-  if (requests.length === 0) {
-    return results
-  }
-
-  const storage = await getNpmDownloadBlobStorage()
-
-  if (storage) {
-    const cache = getBlobStorageCache(NPM_DOWNLOAD_BLOB_STORAGE)
-
-    await Promise.all(
-      requests.map(async (req) => {
-        const objects = await listBlobObjects(
-          storage,
-          getNpmDownloadRangeStartPrefix(req),
-        )
-        const candidates = objects
-          .filter((object) => {
-            const parsed = getListedObjectChunkKey(object)
-            return (
-              parsed?.packageName === req.packageName &&
-              parsed.binSize === req.binSize &&
-              parsed.dateFrom === req.dateFrom &&
-              parsed.dateTo <= req.dateTo
-            )
-          })
-          .sort(sortListedObjectsByNewestRangeEnd)
-
-        for (const candidate of candidates) {
+    if (storage) {
+      const cache = getBlobStorageCache(NPM_DOWNLOAD_BLOB_STORAGE)
+      await Promise.all(
+        requests.map(async (req) => {
           const chunk = await readBlobChunk({
-            allowStale: true,
             cache,
-            key: candidate.key,
+            key: getNpmDownloadChunkKey(req),
             storage,
           })
 
           if (chunk) {
             results.set(getChunkCacheKey(req), chunk)
-            break
           }
-        }
+        }),
+      )
+    }
+
+    const missedRequests = requests.filter(
+      (req) => !results.has(getChunkCacheKey(req)),
+    )
+
+    if (missedRequests.length === 0) {
+      return results
+    }
+
+    const legacy = await getLegacyNpmDownloadCache()
+    const legacyChunks = await legacy.getBatchNpmDownloadChunks(missedRequests)
+
+    await Promise.all(
+      [...legacyChunks.entries()].map(async ([cacheKey, chunk]) => {
+        const mapped = mapLegacyChunk(chunk)
+        results.set(cacheKey, {
+          ...mapped,
+          createdAt: chunk.createdAt,
+          updatedAt: chunk.updatedAt,
+        })
+        await backfillBlobChunk(mapped)
       }),
     )
-  }
 
-  const missedRequests = requests.filter(
-    (req) => !results.has(getChunkCacheKey(req)),
-  )
-
-  if (missedRequests.length === 0) {
     return results
-  }
+  })
+}
 
-  const legacy = await getLegacyNpmDownloadCache()
-  const legacyChunks =
-    await legacy.getLatestNpmDownloadChunksBeforeRangeEnd(missedRequests)
+export async function getLatestNpmDownloadChunksBeforeRangeEnd(
+  requests: Array<NpmDownloadChunkRequest>,
+): Promise<Map<string, NpmDownloadChunkWithMetadata>> {
+  return measureBlobStorageOperations(
+    'getLatestNpmDownloadChunksBeforeRangeEnd',
+    async () => {
+      const results = new Map<string, NpmDownloadChunkWithMetadata>()
 
-  await Promise.all(
-    [...legacyChunks.entries()].map(async ([cacheKey, chunk]) => {
-      const mapped = mapLegacyChunk(chunk)
-      results.set(cacheKey, {
-        ...mapped,
-        createdAt: chunk.createdAt,
-        updatedAt: chunk.updatedAt,
-      })
-      await backfillBlobChunk(mapped)
-    }),
+      if (requests.length === 0) {
+        return results
+      }
+
+      const storage = await getNpmDownloadBlobStorage()
+
+      if (storage) {
+        const cache = getBlobStorageCache(NPM_DOWNLOAD_BLOB_STORAGE)
+
+        await Promise.all(
+          requests.map(async (req) => {
+            const objects = await listBlobObjects(
+              storage,
+              getNpmDownloadRangeStartPrefix(req),
+            )
+            const candidates = objects
+              .filter((object) => {
+                const parsed = getListedObjectChunkKey(object)
+                return (
+                  parsed?.packageName === req.packageName &&
+                  parsed.binSize === req.binSize &&
+                  parsed.dateFrom === req.dateFrom &&
+                  parsed.dateTo <= req.dateTo
+                )
+              })
+              .sort(sortListedObjectsByNewestRangeEnd)
+
+            for (const candidate of candidates) {
+              const chunk = await readBlobChunk({
+                allowStale: true,
+                cache,
+                key: candidate.key,
+                storage,
+              })
+
+              if (chunk) {
+                results.set(getChunkCacheKey(req), chunk)
+                break
+              }
+            }
+          }),
+        )
+      }
+
+      const missedRequests = requests.filter(
+        (req) => !results.has(getChunkCacheKey(req)),
+      )
+
+      if (missedRequests.length === 0) {
+        return results
+      }
+
+      const legacy = await getLegacyNpmDownloadCache()
+      const legacyChunks =
+        await legacy.getLatestNpmDownloadChunksBeforeRangeEnd(missedRequests)
+
+      await Promise.all(
+        [...legacyChunks.entries()].map(async ([cacheKey, chunk]) => {
+          const mapped = mapLegacyChunk(chunk)
+          results.set(cacheKey, {
+            ...mapped,
+            createdAt: chunk.createdAt,
+            updatedAt: chunk.updatedAt,
+          })
+          await backfillBlobChunk(mapped)
+        }),
+      )
+
+      return results
+    },
   )
-
-  return results
 }
 
 export async function getLatestNpmDownloadChunksCoveringRange({
@@ -642,97 +652,106 @@ export async function getLatestNpmDownloadChunksCoveringRange({
   dateTo: string
   packageNames: Array<string>
 }): Promise<Map<string, NpmDownloadChunkData>> {
-  const results = new Map<string, NpmDownloadChunkData>()
+  return measureBlobStorageOperations(
+    'getLatestNpmDownloadChunksCoveringRange',
+    async () => {
+      const results = new Map<string, NpmDownloadChunkData>()
 
-  if (packageNames.length === 0) {
-    return results
-  }
+      if (packageNames.length === 0) {
+        return results
+      }
 
-  const storage = await getNpmDownloadBlobStorage()
+      const storage = await getNpmDownloadBlobStorage()
 
-  if (storage) {
-    const cache = getBlobStorageCache(NPM_DOWNLOAD_BLOB_STORAGE)
+      if (storage) {
+        const cache = getBlobStorageCache(NPM_DOWNLOAD_BLOB_STORAGE)
 
-    await Promise.all(
-      packageNames.map(async (packageName) => {
-        const objects = await listBlobObjects(
-          storage,
-          getNpmDownloadPackagePrefix({
-            binSize: 'daily',
-            packageName,
+        await Promise.all(
+          packageNames.map(async (packageName) => {
+            const objects = await listBlobObjects(
+              storage,
+              getNpmDownloadPackagePrefix({
+                binSize: 'daily',
+                packageName,
+              }),
+            )
+            const candidates = objects
+              .filter((object) => {
+                const parsed = getListedObjectChunkKey(object)
+                return (
+                  parsed?.packageName === packageName &&
+                  parsed.binSize === 'daily' &&
+                  parsed.dateFrom <= dateFrom &&
+                  parsed.dateTo >= dateTo
+                )
+              })
+              .sort(sortListedObjectsByNewestRangeEnd)
+
+            for (const candidate of candidates) {
+              const chunk = await readBlobChunk({
+                allowStale: true,
+                cache,
+                key: candidate.key,
+                storage,
+              })
+
+              if (chunk) {
+                results.set(packageName, chunk)
+                break
+              }
+            }
           }),
         )
-        const candidates = objects
-          .filter((object) => {
-            const parsed = getListedObjectChunkKey(object)
-            return (
-              parsed?.packageName === packageName &&
-              parsed.binSize === 'daily' &&
-              parsed.dateFrom <= dateFrom &&
-              parsed.dateTo >= dateTo
-            )
-          })
-          .sort(sortListedObjectsByNewestRangeEnd)
+      }
 
-        for (const candidate of candidates) {
-          const chunk = await readBlobChunk({
-            allowStale: true,
-            cache,
-            key: candidate.key,
-            storage,
-          })
+      const missedPackageNames = packageNames.filter(
+        (packageName) => !results.has(packageName),
+      )
 
-          if (chunk) {
-            results.set(packageName, chunk)
-            break
-          }
-        }
-      }),
-    )
-  }
+      if (missedPackageNames.length === 0) {
+        return results
+      }
 
-  const missedPackageNames = packageNames.filter(
-    (packageName) => !results.has(packageName),
+      const legacy = await getLegacyNpmDownloadCache()
+      const legacyChunks = await legacy.getLatestNpmDownloadChunksCoveringRange(
+        {
+          dateFrom,
+          dateTo,
+          packageNames: missedPackageNames,
+        },
+      )
+
+      await Promise.all(
+        [...legacyChunks.entries()].map(async ([packageName, chunk]) => {
+          const mapped = mapLegacyChunk(chunk)
+          results.set(packageName, mapped)
+          await backfillBlobChunk(mapped)
+        }),
+      )
+
+      return results
+    },
   )
-
-  if (missedPackageNames.length === 0) {
-    return results
-  }
-
-  const legacy = await getLegacyNpmDownloadCache()
-  const legacyChunks = await legacy.getLatestNpmDownloadChunksCoveringRange({
-    dateFrom,
-    dateTo,
-    packageNames: missedPackageNames,
-  })
-
-  await Promise.all(
-    [...legacyChunks.entries()].map(async ([packageName, chunk]) => {
-      const mapped = mapLegacyChunk(chunk)
-      results.set(packageName, mapped)
-      await backfillBlobChunk(mapped)
-    }),
-  )
-
-  return results
 }
 
 export async function setCachedNpmDownloadChunk(
   data: NpmDownloadChunkData,
 ): Promise<void> {
-  try {
-    const wroteBlob = await putBlobChunk(data)
+  return measureBlobStorageOperations('setCachedNpmDownloadChunk', async () => {
+    try {
+      const wroteBlob = await putBlobChunk(data)
 
-    if (wroteBlob) {
-      return
+      if (wroteBlob) {
+        return
+      }
+    } catch (error) {
+      console.error(
+        `[NPM Download R2] Error caching ${data.packageName} ${data.dateFrom}:${data.dateTo}:`,
+        error,
+      )
     }
-  } catch (error) {
-    console.error(
-      `[NPM Download R2] Error caching ${data.packageName} ${data.dateFrom}:${data.dateTo}:`,
-      error,
-    )
-  }
 
-  const legacy = await getLegacyNpmDownloadCache()
-  await legacy.setCachedNpmDownloadChunk(data)
+    const legacy = await getLegacyNpmDownloadCache()
+    await legacy.setCachedNpmDownloadChunk(data)
+  })
 }

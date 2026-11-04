@@ -17,6 +17,7 @@ export interface ShowcasePagination {
 }
 
 export interface ShowcaseFilters {
+  placement?: import('~/db/types').ShowcasePlacement
   status?: ShowcaseStatus[]
   libraryId?: string[]
   useCases?: ShowcaseUseCase[]
@@ -36,6 +37,7 @@ export const getMyShowcasesQueryOptions = (params: {
 export const getApprovedShowcasesQueryOptions = (params: {
   pagination: ShowcasePagination
   filters?: {
+    placement?: 'showcase' | 'community'
     libraryIds?: string[]
     useCases?: ShowcaseUseCase[]
     featured?: boolean

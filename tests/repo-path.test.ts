@@ -17,9 +17,55 @@ assert.equal(
 )
 
 assert.equal(
+  isValidRepoPath('examples/svelte/ssr/src/routes/[postId]/+page.ts'),
+  true,
+  'Svelte bracket-notation route params are valid repo path segments',
+)
+
+assert.equal(
+  isValidRepoPath(
+    'examples/vue/basic-file-based-jsx/src/routes/(group)/inside.tsx',
+  ),
+  true,
+  'route groups are valid repo path segments',
+)
+
+assert.equal(
   isValidRepoPath('../src/routes/__root.tsx'),
   false,
   'traversal is rejected',
+)
+
+assert.equal(
+  isValidRepoPath(
+    'examples/solid/solid-start-streaming/src/routes/[...404].tsx',
+  ),
+  true,
+  'catch-all route files with spread notation are valid repo path segments',
+)
+
+assert.equal(
+  isValidRepoPath('examples/svelte/basic/src/routes/[...slug]/+page.svelte'),
+  true,
+  'catch-all route directories with spread notation are valid repo path segments',
+)
+
+assert.equal(
+  isValidRepoPath('src/../routes/__root.tsx'),
+  false,
+  'nested traversal is rejected',
+)
+
+assert.equal(
+  isValidRepoPath('src/routes/..'),
+  false,
+  'trailing traversal is rejected',
+)
+
+assert.equal(
+  isValidRepoPath('src/./routes/__root.tsx'),
+  false,
+  'current-directory segments are rejected',
 )
 
 assert.equal(
@@ -53,6 +99,12 @@ assert.equal(
   getExampleStartingPath('react', 'start'),
   'src/routes/__root.tsx',
   'Start examples default to the root route file',
+)
+
+assert.equal(
+  getExampleStartingPath('react', 'ai'),
+  'src/routes/index.tsx',
+  'AI examples default to the index route file',
 )
 
 assert.equal(

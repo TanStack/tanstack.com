@@ -1,13 +1,8 @@
 import * as v from 'valibot'
 import { MAX_NPM_STATS_GROUPS } from '~/utils/npm-stats-limits'
 
-// Re-export shared types from chart utils
-export {
-  binTypeSchema,
-  type BinType,
-  binningOptions,
-  getBinFunction,
-} from '~/utils/chart'
+// Re-export shared types and schema without importing chart utilities.
+export { binTypeSchema, type BinType } from '~/components/npm-stats/shared'
 export {
   chartTypeSchema,
   type ChartType,

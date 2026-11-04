@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { listShowcasesForModerationQueryOptions } from '~/queries/showcases'
 import {
-  moderateShowcase,
   setShowcaseFeatured,
   adminDeleteShowcase,
   voteShowcase,
@@ -27,38 +26,12 @@ export function ShowcaseModerationPage() {
       },
       filters: {
         status: search.status,
+        placement: search.placement,
         libraryId: search.libraryId,
         isFeatured: search.isFeatured,
       },
     }),
   )
-
-  const moderateMutation = useMutation({
-    mutationFn: moderateShowcase,
-    onSuccess: (_, variables) => {
-      notify(
-        <div>
-          <div className="font-medium">Showcase moderated</div>
-          <div className="text-gray-500 dark:text-gray-400 text-xs">
-            Showcase{' '}
-            {variables.data.action === 'approve' ? 'approved' : 'denied'}{' '}
-            successfully.
-          </div>
-        </div>,
-      )
-      queryClient.invalidateQueries({ queryKey: ['showcases'] })
-    },
-    onError: (error: Error) => {
-      notify(
-        <div>
-          <div className="font-medium">Moderation failed</div>
-          <div className="text-gray-500 dark:text-gray-400 text-xs">
-            {error.message}
-          </div>
-        </div>,
-      )
-    },
-  })
 
   const featuredMutation = useMutation({
     mutationFn: setShowcaseFeatured,
@@ -141,20 +114,6 @@ export function ShowcaseModerationPage() {
     })
   }
 
-  const handleModerate = (
-    showcaseId: string,
-    action: 'approve' | 'deny',
-    moderationNote?: string,
-  ) => {
-    moderateMutation.mutate({
-      data: {
-        showcaseId,
-        action,
-        moderationNote,
-      },
-    })
-  }
-
   const handleToggleFeatured = (showcaseId: string, isFeatured: boolean) => {
     featuredMutation.mutate({
       data: {
@@ -191,6 +150,7 @@ export function ShowcaseModerationPage() {
         <ShowcaseModerationTopBar
           filters={{
             status: search.status,
+            placement: search.placement,
             libraryId: search.libraryId,
             isFeatured: search.isFeatured,
           }}
@@ -206,13 +166,13 @@ export function ShowcaseModerationPage() {
             pageSize={search.pageSize}
             onPageChange={handlePageChange}
             onPageSizeChange={handlePageSizeChange}
-            onModerate={handleModerate}
             onToggleFeatured={handleToggleFeatured}
             onDelete={handleDelete}
             onVote={handleVote}
             isModeratingId={
-              moderateMutation.variables?.data.showcaseId ||
-              deleteMutation.variables?.data.showcaseId
+              deleteMutation.isPending
+                ? deleteMutation.variables?.data.showcaseId
+                : undefined
             }
           />
         </div>

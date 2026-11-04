@@ -105,6 +105,15 @@ export const Route = createFileRoute('/oauth/token')({
           )
         }
 
+        if (
+          params.getAll('resource').length > 1 ||
+          params.getAll('client_id').length > 1
+        )
+          return oauthTokenError(
+            'invalid_request',
+            'Send one resource and client_id',
+            400,
+          )
         const grantType = params.get('grant_type')
 
         if (grantType === 'authorization_code') {
@@ -124,6 +133,8 @@ export const Route = createFileRoute('/oauth/token')({
             code,
             codeVerifier,
             redirectUri,
+            clientId: params.get('client_id'),
+            resource: params.get('resource'),
           })
 
           if (!result.success) {
@@ -139,8 +150,10 @@ export const Route = createFileRoute('/oauth/token')({
               access_token: result.accessToken,
               token_type: 'Bearer',
               expires_in: result.expiresIn,
-              refresh_token: result.refreshToken,
               scope: result.scope,
+              ...('refreshToken' in result && result.refreshToken
+                ? { refresh_token: result.refreshToken }
+                : {}),
             }),
             { status: 200 },
           )
@@ -157,7 +170,10 @@ export const Route = createFileRoute('/oauth/token')({
             )
           }
 
-          const result = await refreshAccessToken(refreshToken)
+          const result = await refreshAccessToken(refreshToken, {
+            clientId: params.get('client_id'),
+            resource: params.get('resource'),
+          })
 
           if (!result.success) {
             return oauthTokenError(
@@ -173,6 +189,9 @@ export const Route = createFileRoute('/oauth/token')({
               token_type: 'Bearer',
               expires_in: result.expiresIn,
               scope: result.scope,
+              ...('refreshToken' in result && result.refreshToken
+                ? { refresh_token: result.refreshToken }
+                : {}),
             }),
             { status: 200 },
           )

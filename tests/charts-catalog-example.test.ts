@@ -98,7 +98,7 @@ describe('Charts catalog example workspaces', () => {
     const imports = definition.workspace.imports
 
     assert.deepEqual(imports, {
-      '@charts-poc/demo-data/': `https://esm.sh/gh/TanStack/charts@${revision}/packages/charts-demo-data/src/`,
+      '@charts-poc/demo-data/': '/packages/charts-demo-data/src/',
       '@tanstack/charts': 'https://esm.sh/@tanstack/charts@0.10.0',
       '@tanstack/charts/': 'https://esm.sh/@tanstack/charts@0.10.0/',
       '@tanstack/charts/react':
@@ -107,7 +107,7 @@ describe('Charts catalog example workspaces', () => {
         'https://esm.sh/@tanstack/charts@0.10.0/react/core?external=react',
       '@tanstack/charts/react/tooltip':
         'https://esm.sh/@tanstack/charts@0.10.0/react/tooltip?external=react,react-dom',
-      '@tanstack/charts-data/': `https://esm.sh/gh/TanStack/charts@${revision}/packages/charts-demo-data/src/`,
+      '@tanstack/charts-data/': '/packages/charts-demo-data/src/',
       'd3-scale': 'https://esm.sh/d3-scale@4.0.2',
       'd3-scale/': 'https://esm.sh/d3-scale@4.0.2/',
       react: 'https://esm.sh/react@19.2.3',

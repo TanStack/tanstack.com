@@ -17,6 +17,8 @@ import {
 } from './charts-catalog-example'
 
 const catalogSourceRoot = 'benchmarks/conformance/'
+const catalogDataRoot = 'packages/charts-demo-data/src/'
+const catalogDataPrefixes = ['@tanstack/charts-data/', '@charts-poc/demo-data/']
 const catalogExamplePackagePaths = {
   charts: 'packages/charts-core/package.json',
   root: 'package.json',
@@ -215,18 +217,22 @@ async function getChartsCatalogExampleFiles(
     const source = await getChartsCatalogSource(revision, path, sourceKind)
     files.set(path, source)
 
+    const sourceRoot = path.startsWith(catalogDataRoot)
+      ? catalogDataRoot
+      : isSelfContainedExample
+        ? caseDirectory
+        : undefined
     const dependencies = await Promise.all(
-      extractStaticRelativeModuleSpecifiers(source).map((specifier) =>
-        resolveCatalogExampleModule(path, specifier, sourcePaths, revision),
+      extractStaticCatalogModuleSpecifiers(source).map((specifier) =>
+        resolveCatalogExampleModule(
+          path,
+          specifier,
+          sourcePaths,
+          revision,
+          sourceRoot,
+        ),
       ),
     )
-    for (const dependency of dependencies) {
-      if (isSelfContainedExample && !dependency.startsWith(caseDirectory)) {
-        throw new ChartsCatalogIntegrityError(
-          `Charts catalog example import leaves its case directory: ${dependency}`,
-        )
-      }
-    }
     await Promise.all(dependencies.map(load))
   }
 
@@ -254,11 +260,26 @@ async function resolveCatalogExampleModule(
   specifier: string,
   sourcePaths: Set<string> | undefined,
   revision: string,
+  sourceRoot: string | undefined,
 ) {
+  const dataPrefix = catalogDataPrefixes.find((prefix) =>
+    specifier.startsWith(prefix),
+  )
   const importerDirectory = importer.slice(0, importer.lastIndexOf('/'))
   const requestedPath = normalizeRepoModulePath(
-    `${importerDirectory}/${specifier}`,
+    dataPrefix
+      ? `${catalogDataRoot}${specifier.slice(dataPrefix.length)}`
+      : `${importerDirectory}/${specifier}`,
   )
+  const allowedRoot = dataPrefix ? catalogDataRoot : sourceRoot
+  if (
+    (allowedRoot && !requestedPath.startsWith(allowedRoot)) ||
+    (dataPrefix && specifier.slice(dataPrefix.length).split('/').includes('..'))
+  ) {
+    throw new ChartsCatalogIntegrityError(
+      `Charts catalog source import leaves its allowed directory: ${specifier} from ${importer}`,
+    )
+  }
   const hasKnownExtension = catalogExampleModuleExtensions.some((extension) =>
     requestedPath.endsWith(extension),
   )
@@ -314,7 +335,7 @@ function normalizeRepoModulePath(path: string) {
   return segments.join('/')
 }
 
-function extractStaticRelativeModuleSpecifiers(source: string) {
+function extractStaticCatalogModuleSpecifiers(source: string) {
   const tokens = tokenizeModuleSource(source)
   const specifiers = new Set<string>()
 
@@ -328,7 +349,7 @@ function extractStaticRelativeModuleSpecifiers(source: string) {
     if (token.value === 'import' && next?.value === '.') continue
 
     if (next?.kind === 'string') {
-      if (next.value.startsWith('.')) specifiers.add(next.value)
+      if (isCatalogModuleSpecifier(next.value)) specifiers.add(next.value)
       continue
     }
 
@@ -339,7 +360,7 @@ function extractStaticRelativeModuleSpecifiers(source: string) {
         continue
       }
       const value = tokens[cursor + 1]
-      if (value?.kind === 'string' && value.value.startsWith('.')) {
+      if (value?.kind === 'string' && isCatalogModuleSpecifier(value.value)) {
         specifiers.add(value.value)
       }
       break
@@ -347,6 +368,13 @@ function extractStaticRelativeModuleSpecifiers(source: string) {
   }
 
   return [...specifiers]
+}
+
+function isCatalogModuleSpecifier(specifier: string) {
+  return (
+    specifier.startsWith('.') ||
+    catalogDataPrefixes.some((prefix) => specifier.startsWith(prefix))
+  )
 }
 
 type ModuleSourceToken = {

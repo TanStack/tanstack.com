@@ -1,13 +1,25 @@
+import { receiveLiveEvent } from './utils/analytics/live.server'
+import { receiveVisitorChat } from './utils/visitor-chat/visitor.server'
+import { receiveTrafficQuality } from './utils/analytics/traffic-quality.server'
+import {
+  timeRequestWork,
+  withDocsRequestTimings,
+} from './utils/request-timing.server'
+import { finalizeDocsHtmlHeaders } from './utils/docs-html-headers.server'
 import './instrument.server.mjs'
 
 import { wrapFetchWithSentry } from '@sentry/tanstackstart-react'
 import handler, { createServerEntry } from '@tanstack/react-start/server-entry'
-import { runWithDatabaseContext } from '~/db/client'
-import { runScheduledTasks } from '~/server/scheduled.server'
+import { runWithDatabaseContext, runWithDatabaseRequest } from '~/db/client'
 import {
   runWithHostRuntimeContext,
   runWithHostRuntimeEnv,
+  scheduleHostRuntimeTask,
 } from '~/server/runtime/host.server'
+import {
+  createScarfServerRequest,
+  sendScarfServerRequest,
+} from '~/utils/analytics/scarf-server'
 import {
   installProductionFetchProbe,
   installProductionProcessProbe,
@@ -16,7 +28,10 @@ import {
   logRequestStart,
   runWithRequestDiagnostics,
 } from '~/utils/prod-diagnostics.server'
-import { docsContentNegotiationVaryHeader } from '~/utils/http'
+import {
+  docsContentNegotiationVaryHeader,
+  redirectInsecureSiteRequest,
+} from '~/utils/http'
 import { isFrameEmbeddingAllowed } from '~/utils/frame-embedding'
 
 const SECURITY_HEADERS = {
@@ -32,6 +47,8 @@ const GOOGLE_ANALYTICS_SCRIPT_URL =
   'https://www.googletagmanager.com/gtag/js?id=G-JMT1Z50SPS'
 const GOOGLE_ANALYTICS_COLLECT_URL =
   'https://www.google-analytics.com/g/collect'
+const SCARF_EVENTS_URL = 'https://tanstack.gateway.scarf.sh/site-events'
+const MAX_CLIPBOARD_EVENT_BYTES = 4096
 
 const STATIC_RESPONSE_LINK_HEADERS = {
   filter: ({ phase }: { phase: 'static' | 'dynamic' }) => phase === 'static',
@@ -69,6 +86,8 @@ function shouldRewriteDocsRequestToMarkdown(request: Request, url: URL) {
 
 function applyHostingHeaders(response: Response, url: URL) {
   const headers = new Headers(response.headers)
+  if (import.meta.env.MODE === 'staging')
+    headers.set('X-Robots-Tag', 'noindex, nofollow')
 
   for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
     headers.set(key, value)
@@ -138,15 +157,102 @@ async function proxyAnalyticsRequest(request: Request, url: URL) {
   return applyHostingHeaders(response, url)
 }
 
+async function proxyScarfClipboardEvent(request: Request, url: URL) {
+  if (url.pathname !== '/_a/scarf/clipboard') return null
+
+  if (
+    request.method !== 'POST' ||
+    request.headers.get('content-type') !== 'application/json' ||
+    Number(request.headers.get('content-length')) > MAX_CLIPBOARD_EVENT_BYTES
+  ) {
+    return applyHostingHeaders(new Response(null, { status: 400 }), url)
+  }
+
+  const rawBody = await request.text()
+  if (new TextEncoder().encode(rawBody).length > MAX_CLIPBOARD_EVENT_BYTES) {
+    return applyHostingHeaders(new Response(null, { status: 400 }), url)
+  }
+
+  let body: unknown
+  try {
+    body = JSON.parse(rawBody)
+  } catch {
+    return applyHostingHeaders(new Response(null, { status: 400 }), url)
+  }
+
+  if (
+    typeof body !== 'object' ||
+    body === null ||
+    !('event' in body) ||
+    (body.event !== 'copy' && body.event !== 'paste') ||
+    !('page' in body) ||
+    typeof body.page !== 'string' ||
+    !body.page.startsWith('/') ||
+    body.page.length > 512 ||
+    !('text' in body) ||
+    typeof body.text !== 'string' ||
+    body.text.length > 512 ||
+    !('truncated' in body) ||
+    typeof body.truncated !== 'boolean'
+  ) {
+    return applyHostingHeaders(new Response(null, { status: 400 }), url)
+  }
+
+  const headers = new Headers({ 'Content-Type': 'application/json' })
+  for (const headerName of ['user-agent', 'dnt', 'sec-gpc']) {
+    const value = request.headers.get(headerName)
+    if (value) headers.set(headerName, value)
+  }
+  const clientIp = request.headers.get('cf-connecting-ip')
+  if (clientIp) headers.set('X-Scarf-IP', clientIp)
+
+  try {
+    await fetch(SCARF_EVENTS_URL, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        event: body.event,
+        page: body.page,
+        text: body.text,
+        truncated: body.truncated,
+      }),
+    })
+  } catch {
+    // Telemetry failures must not affect the page.
+  }
+
+  return applyHostingHeaders(new Response(null, { status: 204 }), url)
+}
+
 const server = createServerEntry(
   wrapFetchWithSentry({
     async fetch(request) {
       return runWithRequestDiagnostics(request, async (context) => {
-        return runWithDatabaseContext(async () => {
+        return runWithDatabaseRequest(async () => {
           const url = new URL(request.url)
           logRequestStart(context)
 
           try {
+            if (url.pathname === '/_a/live') {
+              return applyHostingHeaders(await receiveLiveEvent(request), url)
+            }
+            if (url.pathname === '/_a/visitor-chat') {
+              return applyHostingHeaders(await receiveVisitorChat(request), url)
+            }
+            if (url.pathname === '/_a/traffic-quality') {
+              return applyHostingHeaders(
+                await receiveTrafficQuality(request),
+                url,
+              )
+            }
+            const scarfResponse = await proxyScarfClipboardEvent(request, url)
+            if (scarfResponse) {
+              logRequestEnd(context, scarfResponse.status, {
+                analyticsProxy: true,
+              })
+              return scarfResponse
+            }
+
             const analyticsResponse = await proxyAnalyticsRequest(request, url)
             if (analyticsResponse) {
               logRequestEnd(context, analyticsResponse.status, {
@@ -175,9 +281,11 @@ const server = createServerEntry(
               return applyHostingHeaders(markdownResponse, url)
             }
 
-            const response = await handler.fetch(request, {
-              responseLinkHeader: STATIC_RESPONSE_LINK_HEADERS,
-            })
+            const response = await timeRequestWork('start_handler', () =>
+              handler.fetch(request, {
+                responseLinkHeader: STATIC_RESPONSE_LINK_HEADERS,
+              }),
+            )
             const hostedResponse = applyHostingHeaders(response, url)
 
             logRequestEnd(context, response.status)
@@ -193,9 +301,38 @@ const server = createServerEntry(
 )
 
 export default {
-  fetch(request: Request, env: unknown, context: unknown) {
+  async fetch(request: Request, env: unknown, context: unknown) {
+    if (
+      import.meta.env.MODE === 'staging' &&
+      new URL(request.url).pathname.startsWith('/_a/')
+    )
+      return new Response(null, { status: 204 })
+    const secureSite = redirectInsecureSiteRequest(request)
+    if (secureSite) return secureSite
+    if (new URL(request.url).hostname === 'chat.tanstack.com') {
+      const { redirectChatOrigin } =
+        await import('./chat/server/origin-redirect')
+      const canonicalChat = redirectChatOrigin(request)
+      if (canonicalChat) return canonicalChat
+    }
     return runWithHostRuntimeEnv(env, () =>
-      runWithHostRuntimeContext(context, () => server.fetch(request)),
+      runWithHostRuntimeContext(context, () =>
+        withDocsRequestTimings(request, async () => {
+          const response = finalizeDocsHtmlHeaders(
+            request,
+            await server.fetch(request),
+          )
+          if (import.meta.env.PROD && import.meta.env.MODE !== 'staging') {
+            const scarfRequest = createScarfServerRequest(request, response)
+            if (scarfRequest) {
+              scheduleHostRuntimeTask(() =>
+                sendScarfServerRequest(scarfRequest),
+              )
+            }
+          }
+          return response
+        }),
+      ),
     )
   },
   scheduled(
@@ -206,9 +343,11 @@ export default {
     context.waitUntil(
       runWithHostRuntimeEnv(env, () =>
         runWithHostRuntimeContext(context, () =>
-          runWithDatabaseContext(() =>
-            runScheduledTasks(controller.cron, controller.scheduledTime),
-          ),
+          runWithDatabaseContext(async () => {
+            const { runScheduledTasks } =
+              await import('~/server/scheduled.server')
+            return runScheduledTasks(controller.cron, controller.scheduledTime)
+          }),
         ),
       ),
     )

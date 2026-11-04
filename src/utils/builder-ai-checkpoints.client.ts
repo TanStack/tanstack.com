@@ -4,8 +4,10 @@ import {
   type BuilderAiExecution,
 } from './builder-ai'
 
-const metadataStorageKey = 'tanstack-builder-ai:checkpoints:v1'
-const databaseName = 'tanstack-builder-ai-checkpoints'
+const metadataStorageKey = 'tanstack-builder-ai:checkpoints:v2'
+const databaseName = 'tanstack-builder-ai-checkpoints-v2'
+const legacyMetadataStorageKey = 'tanstack-builder-ai:checkpoints:v1'
+const legacyDatabaseName = 'tanstack-builder-ai-checkpoints'
 const objectStoreName = 'executions'
 const maxCheckpointCount = 50
 const maxStoredBytes = 50 * 1024 * 1024
@@ -15,6 +17,7 @@ let databasePromise: Promise<IDBDatabase> | undefined
 
 export type BuilderAiCheckpoint = {
   id: string
+  kind?: 'validated'
   createdAt: number
   lastAccessedAt: number
   sizeBytes: number
@@ -42,15 +45,22 @@ export async function createBuilderAiCheckpoint(
   scope: string,
   checkpointId: string,
   execution: BuilderAiExecution,
+  options?: { kind: 'validated'; expectedExecution: BuilderAiExecution },
 ) {
   if (!scope || !checkpointId) return undefined
 
   let serialized: string
   let executionId: string
+  let expectedExecutionId: string
 
   try {
     serialized = serializeCanonicalExecution(execution)
     executionId = await createExecutionId(serialized)
+    expectedExecutionId = options
+      ? await createExecutionId(
+          serializeCanonicalExecution(options.expectedExecution),
+        )
+      : executionId
     await writeExecution(executionId, serialized)
   } catch {
     return undefined
@@ -65,11 +75,12 @@ export async function createBuilderAiCheckpoint(
   const updated: StoredCheckpoint = {
     scope,
     id: checkpointId,
+    ...(options ? { kind: options.kind } : {}),
     createdAt: existing?.createdAt ?? now,
     lastAccessedAt: now,
     sizeBytes: getUtf8ByteLength(serialized),
     executionId,
-    expectedExecutionId: executionId,
+    expectedExecutionId,
   }
   const candidates = [
     updated,
@@ -120,6 +131,7 @@ export async function updateBuilderAiCheckpointExpectedExecution(
 
   let expectedExecutionId: string
   try {
+    await getCheckpointDatabase()
     expectedExecutionId = await createExecutionId(
       serializeCanonicalExecution(execution),
     )
@@ -171,6 +183,11 @@ export async function loadBuilderAiCheckpoint(
   scope: string,
   checkpointId: string,
 ) {
+  try {
+    await getCheckpointDatabase()
+  } catch {
+    return undefined
+  }
   const checkpoints = readCheckpointIndex()
   const checkpoint = checkpoints.find(
     (candidate) => candidate.scope === scope && candidate.id === checkpointId,
@@ -189,12 +206,30 @@ export async function loadBuilderAiCheckpoint(
 
 export async function loadLatestBuilderAiCheckpoint(
   scope: string,
+  currentExecution?: BuilderAiExecution,
 ): Promise<BuilderAiCheckpointSnapshot | undefined> {
+  try {
+    await getCheckpointDatabase()
+  } catch {
+    return undefined
+  }
   const checkpoints = listBuilderAiCheckpoints(scope)
 
   for (const checkpoint of checkpoints) {
     const execution = await loadBuilderAiCheckpoint(scope, checkpoint.id)
-    if (execution) return { checkpoint, execution }
+    if (!execution) continue
+    if (
+      currentExecution &&
+      (!(await builderAiCheckpointMatchesExecution(
+        checkpoint,
+        currentExecution,
+      )) ||
+        serializeBuilderAiExecution(execution) ===
+          serializeBuilderAiExecution(currentExecution))
+    ) {
+      continue
+    }
+    return { checkpoint, execution }
   }
 
   return undefined
@@ -204,6 +239,11 @@ export async function removeBuilderAiCheckpoint(
   scope: string,
   checkpointId: string,
 ) {
+  try {
+    await getCheckpointDatabase()
+  } catch {
+    return
+  }
   const checkpoints = readCheckpointIndex()
   const checkpoint = checkpoints.find(
     (candidate) => candidate.scope === scope && candidate.id === checkpointId,
@@ -284,22 +324,22 @@ async function removeUnreferencedExecutions(
   )
 }
 
-function readCheckpointIndex() {
+function readCheckpointIndex(storageKey = metadataStorageKey, version = 2) {
   const storage = getLocalStorage()
   if (!storage) return []
 
   try {
-    const serialized = storage.getItem(metadataStorageKey)
+    const serialized = storage.getItem(storageKey)
     if (!serialized) return []
 
     const value: unknown = JSON.parse(serialized)
     if (
       !isRecord(value) ||
-      value.version !== 1 ||
+      value.version !== version ||
       !Array.isArray(value.checkpoints) ||
       !value.checkpoints.every(isStoredCheckpoint)
     ) {
-      storage.removeItem(metadataStorageKey)
+      storage.removeItem(storageKey)
       return []
     }
 
@@ -314,7 +354,7 @@ function readCheckpointIndex() {
     return Array.from(deduplicated.values())
   } catch {
     try {
-      storage.removeItem(metadataStorageKey)
+      storage.removeItem(storageKey)
     } catch {
       // Browser storage is best-effort and must not interrupt builder editing.
     }
@@ -329,7 +369,7 @@ function writeCheckpointIndex(checkpoints: ReadonlyArray<StoredCheckpoint>) {
   try {
     storage.setItem(
       metadataStorageKey,
-      JSON.stringify({ version: 1, checkpoints }),
+      JSON.stringify({ version: 2, checkpoints }),
     )
     return true
   } catch {
@@ -368,6 +408,7 @@ function serializeCanonicalExecution(execution: BuilderAiExecution) {
 function toCheckpoint(checkpoint: StoredCheckpoint): BuilderAiCheckpoint {
   return {
     id: checkpoint.id,
+    ...(checkpoint.kind ? { kind: checkpoint.kind } : {}),
     createdAt: checkpoint.createdAt,
     lastAccessedAt: checkpoint.lastAccessedAt,
     sizeBytes: checkpoint.sizeBytes,
@@ -381,6 +422,7 @@ function isStoredCheckpoint(value: unknown): value is StoredCheckpoint {
     isRecord(value) &&
     typeof value.scope === 'string' &&
     typeof value.id === 'string' &&
+    (value.kind === undefined || value.kind === 'validated') &&
     typeof value.createdAt === 'number' &&
     Number.isFinite(value.createdAt) &&
     typeof value.lastAccessedAt === 'number' &&
@@ -395,6 +437,7 @@ function isStoredCheckpoint(value: unknown): value is StoredCheckpoint {
     hasOnlyKeys(value, [
       'scope',
       'id',
+      'kind',
       'createdAt',
       'lastAccessedAt',
       'sizeBytes',
@@ -435,6 +478,14 @@ async function runExecutionRequest<TResult>(
   createRequest: (store: IDBObjectStore) => IDBRequest<TResult>,
 ) {
   const database = await getCheckpointDatabase()
+  return runDatabaseRequest(database, mode, createRequest)
+}
+
+function runDatabaseRequest<TResult>(
+  database: IDBDatabase,
+  mode: IDBTransactionMode,
+  createRequest: (store: IDBObjectStore) => IDBRequest<TResult>,
+) {
   return new Promise<TResult>((resolve, reject) => {
     let result: TResult
 
@@ -465,7 +516,56 @@ async function runExecutionRequest<TResult>(
 function getCheckpointDatabase() {
   if (databasePromise) return databasePromise
 
-  databasePromise = new Promise<IDBDatabase>((resolve, reject) => {
+  databasePromise = openCheckpointDatabase(databaseName)
+    .then(async (database) => {
+      try {
+        await migrateLegacyCheckpoints(database)
+        return database
+      } catch (error) {
+        database.close()
+        throw error
+      }
+    })
+    .catch((error: unknown) => {
+      databasePromise = undefined
+      throw error
+    })
+  return databasePromise
+}
+
+async function migrateLegacyCheckpoints(database: IDBDatabase) {
+  const storage = getLocalStorage()
+  if (!storage || storage.getItem(metadataStorageKey) !== null) return
+  const checkpoints = readCheckpointIndex(legacyMetadataStorageKey, 1)
+  if (checkpoints.length) {
+    const legacyDatabase = await openCheckpointDatabase(legacyDatabaseName)
+    try {
+      for (const executionId of new Set(
+        checkpoints.map((item) => item.executionId),
+      )) {
+        const value = await runDatabaseRequest(
+          legacyDatabase,
+          'readonly',
+          (store) => store.get(executionId),
+        )
+        if (typeof value === 'string') {
+          await runDatabaseRequest(database, 'readwrite', (store) =>
+            store.put(value, executionId),
+          )
+        }
+      }
+    } finally {
+      legacyDatabase.close()
+    }
+  }
+  // Another tab may have finished migration and added checkpoints while we copied.
+  if (storage.getItem(metadataStorageKey) !== null) return
+  if (!writeCheckpointIndex(checkpoints))
+    throw new Error('Could not migrate builder checkpoints')
+}
+
+function openCheckpointDatabase(name: string) {
+  return new Promise<IDBDatabase>((resolve, reject) => {
     const factory = globalThis.indexedDB
     if (!factory) {
       reject(new Error('indexedDB is not available in this environment.'))
@@ -473,7 +573,7 @@ function getCheckpointDatabase() {
     }
 
     let openFailed = false
-    const request = factory.open(databaseName, 1)
+    const request = factory.open(name, 1)
     request.onupgradeneeded = () => {
       if (!request.result.objectStoreNames.contains(objectStoreName)) {
         request.result.createObjectStore(objectStoreName)
@@ -481,13 +581,11 @@ function getCheckpointDatabase() {
     }
     request.onerror = () => {
       openFailed = true
-      reject(request.error ?? new Error(`Failed to open ${databaseName}.`))
+      reject(request.error ?? new Error(`Failed to open ${name}.`))
     }
     request.onblocked = () => {
       openFailed = true
-      reject(
-        new Error(`Opening IndexedDB database "${databaseName}" was blocked.`),
-      )
+      reject(new Error(`Opening IndexedDB database "${name}" was blocked.`))
     }
     request.onsuccess = () => {
       const database = request.result
@@ -497,14 +595,9 @@ function getCheckpointDatabase() {
       }
       database.onversionchange = () => {
         database.close()
-        databasePromise = undefined
+        if (name === databaseName) databasePromise = undefined
       }
       resolve(database)
     }
-  }).catch((error: unknown) => {
-    databasePromise = undefined
-    throw error
   })
-
-  return databasePromise
 }

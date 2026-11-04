@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { createClientOnlyFn } from '@tanstack/react-start'
 import { ClientOnly, createFileRoute } from '@tanstack/react-router'
 import {
   BuilderEmbeddedSkeleton,
@@ -7,10 +8,12 @@ import {
 import { seo } from '~/utils/seo'
 import { webContainerHeaders } from '~/utils/stackblitz-embed'
 
-const LazyChartsBuilderPage = React.lazy(() =>
-  import('~/components/charts/ChartsBuilderPage.client').then((module) => ({
-    default: module.ChartsBuilderPage,
-  })),
+const LazyChartsBuilderPage = React.lazy(
+  createClientOnlyFn(() =>
+    import('~/components/charts/ChartsBuilderPage.client').then((module) => ({
+      default: module.ChartsBuilderPage,
+    })),
+  ),
 )
 
 export const Route = createFileRoute('/chat/charts')({

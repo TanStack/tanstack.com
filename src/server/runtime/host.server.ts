@@ -5,7 +5,14 @@ type StaticAssetService = {
   fetch: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>
 }
 
+export type HostRateLimiter = {
+  limit(options: { key: string }): Promise<{ success: boolean }>
+}
+
 type HostRuntimeEnv = Record<string, unknown> & {
+  LIVE_PRESENCE_RATE_LIMITER?: HostRateLimiter
+  LIVE_LOOKUP_RATE_LIMITER?: HostRateLimiter
+  VISITOR_CHAT_RATE_LIMITER?: HostRateLimiter
   CLOUDFLARE_CACHE_PURGE_TOKEN?: string
   CLOUDFLARE_ZONE_ID?: string
   GITHUB_AUTH_TOKEN?: string

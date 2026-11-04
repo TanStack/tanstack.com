@@ -33,10 +33,13 @@ import {
 } from './MdComponents'
 
 type MarkdownRenderOptions = {
+  linkBaseUrl?: string
   preserveTabPanels?: boolean
 }
 
 export type MarkdownProps = {
+  /** Resolve package-relative links against their published source file. */
+  linkBaseUrl?: string
   content?: string
   document?: MarkdownDocument
   chartEmbedSource?: ChartsCatalogEmbedSource
@@ -46,6 +49,7 @@ export type MarkdownProps = {
 }
 
 export function Markdown({
+  linkBaseUrl,
   content,
   document,
   chartEmbedSource,
@@ -76,10 +80,11 @@ export function Markdown({
       components: createMarkdownComponents({
         preserveTabPanels,
         firstImageSrc,
+        linkBaseUrl,
       }),
       headingAnchors,
     })
-  }, [renderDocument, preserveTabPanels, eagerFirstImage])
+  }, [renderDocument, preserveTabPanels, eagerFirstImage, linkBaseUrl])
 }
 
 const headingAnchors = {
@@ -199,15 +204,6 @@ function CodeElement({
   )
 }
 
-function LinkElement(props: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
-  if (props.className?.includes('anchor-heading')) {
-    // eslint-disable-next-line jsx-a11y/anchor-has-content
-    return <a {...props} />
-  }
-
-  return <MarkdownLink {...props} />
-}
-
 function TableElement({
   className,
   ...props
@@ -225,6 +221,15 @@ function TableElement({
 function createMarkdownComponents(
   options: MarkdownRenderOptions & { firstImageSrc?: string } = {},
 ) {
+  function LinkElement(props: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
+    if (props.className?.includes('anchor-heading')) {
+      // eslint-disable-next-line jsx-a11y/anchor-has-content
+      return <a {...props} />
+    }
+
+    return <MarkdownLink {...props} baseUrl={options.linkBaseUrl} />
+  }
+
   function MdCommentComponentWithOptions(
     props: React.ComponentProps<typeof MdCommentComponent>,
   ) {

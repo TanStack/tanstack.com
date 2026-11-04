@@ -1,8 +1,13 @@
-import {createFileRoute} from '@tanstack/react-router'
-import {handleFiles} from '~/chat/server/file-http.server'
-export const Route=createFileRoute('/api/chat/bot-drafts/$id/files')({server:{handlers:{
-GET: ({request,params}) => handleFiles(request, 'bot-drafts', params.id),
-POST: ({request,params}) => handleFiles(request, 'bot-drafts', params.id),
-PUT: ({request,params}) => handleFiles(request, 'bot-drafts', params.id),
-DELETE: ({request,params}) => handleFiles(request, 'bot-drafts', params.id)
-}}})
+import { createFileRoute } from '@tanstack/react-router'
+import { forwardWorkerRequest } from '~/server/runtime/worker-service.server'
+
+export const Route = createFileRoute('/api/chat/bot-drafts/$id/files')({
+  server: {
+    handlers: {
+      GET: ({ request }) => forwardWorkerRequest('CHAT', request),
+      POST: ({ request }) => forwardWorkerRequest('CHAT', request),
+      PUT: ({ request }) => forwardWorkerRequest('CHAT', request),
+      DELETE: ({ request }) => forwardWorkerRequest('CHAT', request),
+    },
+  },
+})

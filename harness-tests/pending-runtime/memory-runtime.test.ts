@@ -1,3 +1,4 @@
+import postgres from 'postgres'
 import './fixtures/loaded-assistant-tools'
 import { afterEach, expect, it, vi } from 'vitest'
 import { conversationHarness } from './fixtures/conversation-runtime'
@@ -570,4 +571,55 @@ it('rejects forget after access revocation and pre-dispatch cancellation', async
   expect(
     (await h.db`SELECT body FROM chat_memories WHERE id=${id}`)[0].body,
   ).toBe('Keep')
+})
+
+it('memory preferences do not block activity foreign-key checks', async () => {
+  const h = await conversationHarness()
+  const monitor = postgres(process.env.DATABASE_URL!, { max: 1 })
+  const memories = new Memories({
+    workspaceId: 'w',
+    userId: '00000000-0000-4000-8000-000000000001',
+    conversationId: 'main-conversation',
+  })
+  let change: ReturnType<typeof memories.setPreferences> | undefined
+  let finished = false
+  let blocked = false
+  try {
+    const completedWhileLocked = await h.db.begin(async (tx) => {
+      // Publication holds this FK lock before checking the bot FK.
+      await tx.unsafe(
+        "SELECT id FROM chat_conversations WHERE id='main-conversation' FOR KEY SHARE",
+      )
+      change = memories.setPreferences({ enabled: true, expectedRevision: 0 })
+      void change.then(
+        () => {
+          finished = true
+        },
+        () => {
+          finished = true
+        },
+      )
+      const deadline = Date.now() + 5_000
+      while (!finished && Date.now() < deadline) {
+        const rows = await monitor`
+          SELECT pid FROM pg_stat_activity
+          WHERE datname=current_database() AND wait_event_type='Lock'
+          AND query LIKE 'select "chat_bots"."id", "chat_bots"."archived_at"%'
+        `
+        if (rows.length) {
+          blocked = true
+          break
+        }
+      }
+      // Release the FK lock even when the old implementation blocks.
+      return finished
+    })
+    await change
+    expect(blocked).toBe(false)
+    expect(completedWhileLocked).toBe(true)
+    expect(finished).toBe(true)
+    expect(await memories.preferences()).toEqual({ enabled: true, revision: 1 })
+  } finally {
+    await monitor.end()
+  }
 })

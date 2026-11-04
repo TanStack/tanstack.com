@@ -1,3 +1,7 @@
+import {
+  markRequestDatabaseUse,
+  timeRequestWork,
+} from '../utils/request-timing.server'
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
 import { AsyncLocalStorage } from 'node:async_hooks'
@@ -63,6 +67,7 @@ function getRequestDb(context: DatabaseContext) {
 }
 
 function getDb() {
+  markRequestDatabaseUse()
   const context = databaseStorage.getStore()
   if (context) {
     return getRequestDb(context)
@@ -87,10 +92,19 @@ export async function runWithDatabaseContext<T>(
     return fn()
   }
 
-  const connectionString = await getDatabaseConnectionString()
+  const connectionString = await timeRequestWork(
+    'db_config',
+    getDatabaseConnectionString,
+  )
   if (!connectionString) {
     return fn()
   }
+  if (
+    import.meta.env.MODE === 'staging' &&
+    new URL(connectionString).hostname !==
+      'ep-blue-rice-b4fz0smd-pooler.c-6.us-east-2.aws.neon.tech'
+  )
+    throw new Error('Staging can only connect to its isolated database')
 
   const context: DatabaseContext = { connectionString, active: 1 }
   return databaseStorage.run(context, async () => {
@@ -109,7 +123,10 @@ async function releaseDatabaseContext(context: DatabaseContext) {
   // database schema and connection pool after all of its work has completed.
   context.client = undefined
   context.db = undefined
-  await client?.end({ timeout: 5 })
+  if (client)
+    await timeRequestWork('db_connection_close', () =>
+      client.end({ timeout: 5 }),
+    )
 }
 
 export function retainDatabaseContext<T>(work: Promise<T>): Promise<T> {

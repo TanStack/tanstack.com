@@ -6,6 +6,8 @@ const runtime = vi.hoisted(() => {
   const clients: Array<{
     execute: ReturnType<typeof vi.fn>
     end: ReturnType<typeof vi.fn>
+    ending: boolean
+    emitError: (error: Error) => void
   }> = []
   return {
     isolate: true,
@@ -26,10 +28,17 @@ vi.mock('~/server/runtime/host.server', () => ({
 vi.mock('pg', () => ({
   Pool: class {
     constructor() {
+      let errorListener = (_error: Error) => {}
       const client = {
+        ending: false,
         execute: vi.fn(async () => ({ rows: [] })),
-        on: vi.fn(),
-        end: vi.fn(async () => {}),
+        on: vi.fn((_event: string, listener: (error: Error) => void) => {
+          errorListener = listener
+        }),
+        emitError: (error: Error) => errorListener(error),
+        end: vi.fn(async () => {
+          client.ending = true
+        }),
       }
       runtime.clients.push(client)
       return client
@@ -134,4 +143,28 @@ describe('Cloudflare database context', () => {
     expect(runtime.clients[0].execute).toHaveBeenCalledTimes(2)
     expect(runtime.clients[0].end).toHaveBeenCalledOnce()
   })
+})
+
+it('only ignores the closed-socket event during explicit pool shutdown', async () => {
+  const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+  try {
+    await runWithDatabaseContext(async () => {
+      await db.execute(sql`select 1`)
+      runtime.clients[0].emitError(
+        new TypeError('This socket has been closed.'),
+      )
+      expect(warn).toHaveBeenCalledOnce()
+      warn.mockClear()
+    })
+    runtime.clients[0].emitError(new TypeError('This socket has been closed.'))
+    expect(warn).not.toHaveBeenCalled()
+    runtime.clients[0].emitError(
+      new Error('Connection terminated unexpectedly'),
+    )
+    expect(warn).toHaveBeenCalledWith('Idle database connection lost', {
+      kind: 'connection_lost',
+    })
+  } finally {
+    warn.mockRestore()
+  }
 })

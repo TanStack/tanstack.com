@@ -3,7 +3,7 @@
  * Server-only. Import only inside server function handlers or scheduled functions.
  */
 
-import { db } from '~/db/client'
+import { db, isDatabaseConfigured } from '~/db/client'
 import {
   intentPackages,
   intentPackageVersions,
@@ -42,6 +42,9 @@ export interface IntentLatestVersionSkillSummary {
 // ---------------------------------------------------------------------------
 
 export async function getAllVerifiedPackages(): Promise<Array<IntentPackage>> {
+  if (process.env.NODE_ENV === 'development' && !(await isDatabaseConfigured()))
+    return []
+
   return db.query.intentPackages.findMany({
     where: eq(intentPackages.verified, true),
     orderBy: [desc(intentPackages.lastSyncedAt)],
@@ -51,6 +54,9 @@ export async function getAllVerifiedPackages(): Promise<Array<IntentPackage>> {
 export async function getPackageByName(
   name: string,
 ): Promise<IntentPackage | undefined> {
+  if (process.env.NODE_ENV === 'development' && !(await isDatabaseConfigured()))
+    return undefined
+
   return db.query.intentPackages.findFirst({
     where: eq(intentPackages.name, name),
   })
@@ -60,6 +66,9 @@ export async function getPackageByName(
 export async function getPackageVersions(
   packageName: string,
 ): Promise<Array<IntentPackageVersion>> {
+  if (process.env.NODE_ENV === 'development' && !(await isDatabaseConfigured()))
+    return []
+
   return db.query.intentPackageVersions.findMany({
     where: and(
       eq(intentPackageVersions.packageName, packageName),
@@ -141,6 +150,9 @@ export async function getVersionForProcessing(
 export async function getSkillsForVersion(
   packageVersionId: number,
 ): Promise<Array<IntentSkill & { content: string }>> {
+  if (process.env.NODE_ENV === 'development' && !(await isDatabaseConfigured()))
+    return []
+
   const rows = await db
     .select({
       id: intentSkills.id,
@@ -167,6 +179,9 @@ export async function getSkillsForVersion(
 export async function getLatestIntentVersionSkillSummaries(): Promise<
   Array<IntentLatestVersionSkillSummary>
 > {
+  if (process.env.NODE_ENV === 'development' && !(await isDatabaseConfigured()))
+    return []
+
   const latestVersions = db
     .selectDistinctOn([intentPackageVersions.packageName], {
       id: intentPackageVersions.id,
@@ -228,6 +243,9 @@ export async function getLatestIntentVersionSkillSummaries(): Promise<
 export async function getSkillFingerprintsForVersion(
   packageVersionId: number,
 ): Promise<Array<{ name: string; contentHash: string }>> {
+  if (process.env.NODE_ENV === 'development' && !(await isDatabaseConfigured()))
+    return []
+
   return db
     .select({
       name: intentSkills.name,
@@ -243,6 +261,9 @@ export async function getIntentRegistryStats(): Promise<{
   skillCount: number
   versionCount: number
 }> {
+  if (process.env.NODE_ENV === 'development' && !(await isDatabaseConfigured()))
+    return { packageCount: 0, skillCount: 0, versionCount: 0 }
+
   const [pkgCount, skillCount, versionCount] = await Promise.all([
     db
       .select({ count: sql<number>`count(*)::int` })
@@ -303,6 +324,9 @@ export async function getIntentRegistryStats(): Promise<{
 export async function searchPackagesByName(
   query: string,
 ): Promise<Array<IntentPackage>> {
+  if (process.env.NODE_ENV === 'development' && !(await isDatabaseConfigured()))
+    return []
+
   return db.query.intentPackages.findMany({
     where: and(
       eq(intentPackages.verified, true),
@@ -330,6 +354,9 @@ export async function searchSkills(
   query: string,
   limit = 50,
 ): Promise<Array<SkillSearchResult>> {
+  if (process.env.NODE_ENV === 'development' && !(await isDatabaseConfigured()))
+    return []
+
   const pattern = `%${query}%`
   const rows = await db
     .select({

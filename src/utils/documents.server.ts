@@ -2,7 +2,8 @@ import fs from 'node:fs'
 import fsp from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
-import { parse as parseYaml } from 'yaml'
+import { parse as parseYaml, stringify as stringifyYaml } from 'yaml'
+import { readDocsFreshness } from './docs-freshness'
 import { parseFragment } from 'parse5'
 import type { BlockNode, InlineNode } from '@tanstack/markdown'
 import {
@@ -300,7 +301,11 @@ async function fetchFs(repo: string, filepath: string) {
   return null
 }
 
-async function fetchFsFromDevServer(repo: string, filepath: string) {
+async function fetchFsFromDevServer(
+  repo: string,
+  filepath: string,
+  tree = false,
+) {
   let request: Request
 
   try {
@@ -316,6 +321,7 @@ async function fetchFsFromDevServer(repo: string, filepath: string) {
   const url = new URL(localDocsDevPath, request.url)
   url.searchParams.set('repo', repo)
   url.searchParams.set('path', filepath)
+  if (tree) url.searchParams.set('kind', 'tree')
 
   const response = await fetch(url, {
     headers: {
@@ -531,12 +537,15 @@ async function fetchRepoFileFromOrigin(
   const maxDepth = 4
   let currentDepth = 1
   let originFrontmatter: FrontMatterFile | undefined
+  const referenceMetadata: Array<Record<string, unknown>> = []
 
   while (maxDepth > currentDepth) {
     let text: string | null
 
     if (shouldUseLocalDocsFiles()) {
-      text = await fetchFs(repo, filepath)
+      text =
+        (await fetchFs(repo, filepath)) ??
+        (await fetchRemote(owner, repo, ref, filepath))
     } else {
       text = await fetchRemote(owner, repo, ref, filepath)
     }
@@ -552,11 +561,13 @@ async function fetchRepoFileFromOrigin(
         if (originFrontmatter) {
           text = replaceContent(text, originFrontmatter)
           text = replaceSections(text, originFrontmatter)
+          text = applyReferencedDocsFreshness(text, referenceMetadata)
         }
 
         return replaceProjectImageBranch(text, repoPair, ref)
       }
 
+      referenceMetadata.push(frontmatter.data)
       filepath = frontmatter.data.ref
       originFrontmatter = frontmatter
     } catch {
@@ -569,6 +580,38 @@ async function fetchRepoFileFromOrigin(
   return null
 }
 
+// A rendered reference page depends on every source in the chain. Tests of
+// the source alone do not verify the referencing page's replacements.
+export function applyReferencedDocsFreshness(
+  text: string,
+  references: Array<Record<string, unknown>>,
+) {
+  const parsed = parseFrontMatter(text)
+  if (references.length === 0) return text
+  const facts = [parsed.data, ...references].map(readDocsFreshness)
+  const dates = facts.flatMap(({ updated }) => (updated ? [updated] : []))
+  const updated =
+    dates.length === facts.length ? dates.sort().at(-1) : undefined
+  const packages = readDocsFreshness(references[0]).packages
+  if (
+    !updated &&
+    packages.length === 0 &&
+    parsed.data.updated === undefined &&
+    parsed.data.testedWith === undefined
+  )
+    return text
+  const data = { ...parsed.data }
+  delete data.updated
+  delete data.testedWith
+  if (updated) data.updated = updated
+  if (packages.length > 0) {
+    data.testedWith = Object.fromEntries(
+      packages.map(({ name, version }) => [name, version]),
+    )
+  }
+  return `---\n${stringifyYaml(data)}---\n${parsed.content}`
+}
+
 async function fetchRepoRawFileFromOrigin(
   repoPair: string,
   ref: string,
@@ -576,7 +619,9 @@ async function fetchRepoRawFileFromOrigin(
 ) {
   const [owner, repo] = repoPair.split('/')
   return shouldUseLocalDocsFiles()
-    ? fetchFs(repo, filepath)
+    ? fetchFs(repo, filepath).then(
+        (text) => text ?? fetchRemote(owner, repo, ref, filepath),
+      )
     : fetchRemote(owner, repo, ref, filepath)
 }
 
@@ -1405,7 +1450,9 @@ export function fetchApiContents(
     return fetchCached({
       key: `${repoPair}:${branch}:${startingPath}`,
       ttl: 1,
-      fn: () => fetchApiContentsFs(repoPair, startingPath),
+      fn: async () =>
+        (await fetchApiContentsFs(repoPair, startingPath)) ??
+        fetchApiContentsRemote(repoPair, branch, startingPath),
     })
   }
 
@@ -1436,6 +1483,14 @@ async function fetchApiContentsFs(
   startingPath: string,
 ): Promise<Array<GitHubFileNode> | null> {
   const [_, repo] = repoPair.split('/')
+  if (isIsolateRuntime()) {
+    const text = await fetchFsFromDevServer(repo, startingPath, true)
+    if (text === null) return null
+    const tree: unknown = JSON.parse(text)
+    if (!isGitHubFileNodeArray(tree))
+      throw new Error('Invalid local docs directory response')
+    return tree
+  }
 
   const base = getLocalRepoBaseDirs(repo).find((candidate) =>
     fs.existsSync(path.join(candidate, removeLeadingSlash(startingPath))),

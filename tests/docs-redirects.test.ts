@@ -22,6 +22,7 @@ const expectedLegacyOverviewTargets: Record<string, string | null> = {
   markdown: 'overview',
   pacer: 'overview',
   query: 'framework/react/overview',
+  redact: 'overview',
   ranger: 'overview',
   router: 'overview',
   start: 'framework/react/overview',

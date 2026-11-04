@@ -50,7 +50,7 @@ export function FileTabs({ tabs, children }: FileTabsProps) {
       <div
         role="tablist"
         onKeyDown={handleTabListKeyDown}
-        className="fade-x fade-size-x-sm flex items-center justify-start gap-1 overflow-x-auto overflow-y-hidden border-b border-border-default"
+        className="fade-end fade-size-x-sm flex items-center justify-start gap-1 overflow-x-auto overflow-y-hidden border-b border-border-default"
       >
         {tabs.map((tab) => {
           const isActive = activeSlug === tab.slug

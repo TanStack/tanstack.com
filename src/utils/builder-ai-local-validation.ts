@@ -11,8 +11,7 @@ const requestIdPattern =
 
 export const builderAiLocalValidationEvent =
   'builder.project.validation.request'
-export const builderAiLocalValidationEndpoint =
-  '/api/builder/chatgpt/validation'
+export const builderAiLocalValidationEndpoint = '/api/chat/chatgpt/validation'
 
 export type BuilderAiLocalValidationRequest = {
   requestId: string

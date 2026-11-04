@@ -1,0 +1,14 @@
+@scope (:root:has(.tanchat-shell)) {
+  .ui-loading {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    padding: 12px 0;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .ui-loading-inset {
+    padding: 20px;
+  }
+}

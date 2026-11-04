@@ -23,8 +23,8 @@ export function localBuilderAi(): PluginOption {
         if (!request.url) return next()
         const url = new URL(request.url, 'http://localhost')
         if (
-          url.pathname !== '/api/builder/chatgpt' &&
-          url.pathname !== '/api/builder/chatgpt/assist' &&
+          url.pathname !== '/api/chat/chatgpt' &&
+          url.pathname !== '/api/chat/chatgpt/assist' &&
           url.pathname !== builderAiLocalValidationEndpoint
         ) {
           return next()
@@ -219,13 +219,13 @@ function getBridgePath(
   method: string | undefined,
   body: string,
 ) {
-  if (pathname === '/api/builder/chatgpt/assist' && method === 'POST') {
+  if (pathname === '/api/chat/chatgpt/assist' && method === 'POST') {
     return '/assist'
   }
   if (pathname === builderAiLocalValidationEndpoint && method === 'POST') {
     return '/validation'
   }
-  if (pathname !== '/api/builder/chatgpt') return
+  if (pathname !== '/api/chat/chatgpt') return
   if (method === 'GET') return '/account'
   if (method !== 'POST') return
 

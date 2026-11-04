@@ -1,3 +1,4 @@
+import { env } from '~/utils/env'
 import { createServerFn } from '@tanstack/react-start'
 import { setResponseHeaders } from '@tanstack/react-start/server'
 import { extent, scaleLinear } from 'd3'
@@ -108,6 +109,11 @@ async function getSponsors() {
 }
 
 async function getGithubSponsors() {
+  if (
+    !env.GITHUB_AUTH_TOKEN ||
+    env.GITHUB_AUTH_TOKEN === 'USE_A_REAL_KEY_IN_PRODUCTION'
+  )
+    return []
   let sponsors: Array<Sponsor> = []
 
   try {
@@ -221,28 +227,8 @@ async function getGithubSponsors() {
     const error = err as { status?: number }
 
     if (error.status === 401) {
-      console.error(
-        'Invalid or missing GitHub credentials, returning mock data.',
-      )
-      return [
-        'tannerlinsley',
-        'tkdodo',
-        'crutchcorn',
-        'kevinvandy',
-        'jherr',
-        'seancassiere',
-        'schiller-manuel',
-      ].flatMap((d) =>
-        new Array(20).fill(d).map((_, i2) => ({
-          login: d,
-          name: d,
-          amount: (20 - i2) / 20 + Math.random(),
-          createdAt: new Date().toISOString(),
-          private: false,
-          linkUrl: `https://github.com/${d}`,
-          imageUrl: `https://github.com/${d}.png`,
-        })),
-      )
+      console.error('GitHub sponsor credentials were rejected.')
+      return []
     }
 
     if (error.status === 403) {

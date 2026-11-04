@@ -1,0 +1,430 @@
+import * as React from 'react'
+import { useTheme } from '~/components/ThemeProvider'
+import { Button } from '~/components/ds/ui'
+import {
+  createSDKExampleSession,
+  decodeSDKProjectFiles,
+} from '~/utils/example-sdk.client'
+import type { SDKProjectFiles } from '~/utils/example-sdk.client'
+import type { ExampleDefinition } from '~/utils/example-workspace'
+import type { CheckpointMetadata } from '@tanstack/browser-sandbox-experimental'
+import { CodeMirrorEditor } from './CodeMirrorEditor.client'
+
+type Session = ReturnType<typeof createSDKExampleSession>
+type Project = {
+  files: SDKProjectFiles
+  sourceHashes: Record<string, string>
+  identity: ProjectIdentity
+}
+type SerializedProject = Omit<Project, 'files'> & {
+  files: Record<string, string>
+  binaryFiles?: Record<string, string>
+}
+type ProjectIdentity = {
+  version: 1
+  sdkManifestSHA256: string
+  projectSHA256: string
+  configSHA256: string
+}
+type SavedWorkspace = {
+  version: 1
+  projectId: string
+  identity: ProjectIdentity
+  checkpoint: CheckpointMetadata
+}
+
+const databaseName = 'tanstack-browser-sandbox'
+const metadataStoreName = 'saved-workspace-metadata'
+
+function openDatabase() {
+  return new Promise<IDBDatabase>((resolve, reject) => {
+    if (!globalThis.indexedDB) {
+      reject(new Error('This browser does not provide IndexedDB.'))
+      return
+    }
+    const request = indexedDB.open(databaseName, 3)
+    request.onupgradeneeded = () => {
+      if (!request.result.objectStoreNames.contains(metadataStoreName)) request.result.createObjectStore(metadataStoreName)
+    }
+    request.onerror = () => reject(request.error ?? new Error('Could not open saved workspaces.'))
+    request.onblocked = () => reject(new Error('Saved workspaces are blocked by another open tab.'))
+    request.onsuccess = () => resolve(request.result)
+  })
+}
+
+async function readSavedWorkspace(projectId: string) {
+  const database = await openDatabase()
+  try {
+    return await new Promise<SavedWorkspace | undefined>((resolve, reject) => {
+      const transaction = database.transaction(metadataStoreName, 'readonly')
+      const request = transaction.objectStore(metadataStoreName).get(projectId)
+      request.onerror = () => reject(request.error ?? new Error('Could not read saved workspace metadata.'))
+      transaction.onabort = () => reject(transaction.error ?? new Error('Reading saved workspace metadata was aborted.'))
+      transaction.oncomplete = () => resolve(request.result as SavedWorkspace | undefined)
+    })
+  } finally {
+    database.close()
+  }
+}
+
+async function writeSavedWorkspace(value: SavedWorkspace) {
+  const database = await openDatabase()
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const transaction = database.transaction(metadataStoreName, 'readwrite')
+      transaction.objectStore(metadataStoreName).put(value, value.projectId)
+      transaction.onabort = () => reject(transaction.error ?? new Error('Saving the workspace was aborted.'))
+      transaction.onerror = () => reject(transaction.error ?? new Error('Could not save the workspace.'))
+      transaction.oncomplete = () => resolve()
+    })
+  } finally {
+    database.close()
+  }
+}
+
+function sameIdentity(left: ProjectIdentity, right: ProjectIdentity) {
+  return left.version === right.version &&
+    left.sdkManifestSHA256 === right.sdkManifestSHA256 &&
+    left.projectSHA256 === right.projectSHA256 &&
+    left.configSHA256 === right.configSHA256
+}
+
+function declaredCommand(command: string, args: string[]) {
+  const quote = (value: string) => /^[A-Za-z0-9_./:@=-]+$/.test(value)
+    ? value
+    : `'${value.replaceAll("'", "'\\''")}'`
+  return [command, ...args].map(quote).join(' ')
+}
+
+async function sourceHash(source: string) {
+  const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(source))
+  return Array.from(new Uint8Array(bytes), (byte) => byte.toString(16).padStart(2, '0')).join('')
+}
+
+function readProject(value: unknown): Project {
+  if (!value || typeof value !== 'object') throw new Error('Local SDK project is missing.')
+  const project = value as SerializedProject
+  if (!project.files || typeof project.files !== 'object' || Array.isArray(project.files)) {
+    throw new Error('Local SDK project files are missing.')
+  }
+  for (const [path, source] of Object.entries(project.files)) {
+    if (!path.startsWith('/project/') || path.includes('\\') || path.includes('\0') || path.split('/').some((part, index) => index > 0 && (!part || part === '.' || part === '..')) || typeof source !== 'string') {
+      throw new Error('Invalid local SDK project file: ' + path)
+    }
+  }
+  if (project.binaryFiles !== undefined &&
+    (!project.binaryFiles || typeof project.binaryFiles !== 'object' || Array.isArray(project.binaryFiles))) {
+    throw new Error('Local SDK binary project files are invalid.')
+  }
+  for (const [path, source] of Object.entries(project.binaryFiles ?? {})) {
+    if (!path.startsWith('/project/') || path.includes('\\') || path.includes('\0') || path.split('/').some((part, index) => index > 0 && (!part || part === '.' || part === '..')) || typeof source !== 'string') {
+      throw new Error('Invalid local SDK binary project file: ' + path)
+    }
+  }
+  if (!project.sourceHashes || typeof project.sourceHashes !== 'object' || Array.isArray(project.sourceHashes)) {
+    throw new Error('Local SDK source hashes are missing.')
+  }
+  if (!project.identity || project.identity.version !== 1 ||
+    ![project.identity.sdkManifestSHA256, project.identity.projectSHA256, project.identity.configSHA256].every(value => /^[a-f0-9]{64}$/.test(value))) {
+    throw new Error('Local SDK project identity is missing.')
+  }
+  return {
+    files: decodeSDKProjectFiles(project.files, project.binaryFiles),
+    sourceHashes: project.sourceHashes,
+    identity: project.identity,
+  }
+}
+
+export function ExampleSDKWorkbench({ definition }: { definition: ExampleDefinition }) {
+  const { resolvedTheme } = useTheme()
+  const path = definition.initialFile ?? definition.workspace.entry
+  const relativePath = path.replace(/^\//, '')
+  const virtualPath = '/project/' + relativePath
+  const [source, setSource] = React.useState('')
+  const [loaded, setLoaded] = React.useState(false)
+  const [busy, setBusy] = React.useState(false)
+  const [running, setRunning] = React.useState(false)
+  const [canResume, setCanResume] = React.useState(false)
+  const [status, setStatus] = React.useState('Loading local project')
+  const [error, setError] = React.useState('')
+  const [output, setOutput] = React.useState('')
+  const containerRef = React.useRef<HTMLDivElement>(null)
+  const filesRef = React.useRef<SDKProjectFiles>({})
+  const identityRef = React.useRef<ProjectIdentity | null>(null)
+  const savedRef = React.useRef<SavedWorkspace | null>(null)
+  const pendingSaveRef = React.useRef<SavedWorkspace | null>(null)
+  const sessionRef = React.useRef<Session | null>(null)
+  const generationRef = React.useRef(0)
+  const startedRef = React.useRef(false)
+  const writeTimerRef = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const writesRef = React.useRef<Promise<void>>(Promise.resolve())
+  const cleanupRef = React.useRef<Promise<void>>(Promise.resolve())
+  const cleanupFailedRef = React.useRef(false)
+
+  function clearWriteTimer() {
+    if (writeTimerRef.current !== undefined) clearTimeout(writeTimerRef.current)
+    writeTimerRef.current = undefined
+  }
+
+  function releaseSession() {
+    clearWriteTimer()
+    startedRef.current = false
+    const session = sessionRef.current
+    sessionRef.current = null
+    if (session) {
+      cleanupRef.current = cleanupRef.current.then(() => session.dispose())
+      void cleanupRef.current.catch(() => { cleanupFailedRef.current = true })
+    }
+    return cleanupRef.current
+  }
+
+  React.useEffect(() => {
+    const generation = ++generationRef.current
+    const controller = new AbortController()
+    setLoaded(false)
+    setRunning(false)
+    setCanResume(false)
+    setBusy(false)
+    setError('')
+    setOutput('')
+    setStatus('Loading local project')
+    savedRef.current = null
+    pendingSaveRef.current = null
+    void (async () => {
+      await cleanupRef.current
+      const response = await fetch('/__sandbox-local/project.json', { signal: controller.signal, cache: 'no-store' })
+      if (!response.ok) throw new Error('Local SDK project could not be loaded (' + response.status + ').')
+      const project = readProject(await response.json())
+      const visibleSource = definition.workspace.files[path]
+      const localSource = project.files[virtualPath]
+      const expectedHash = project.sourceHashes[relativePath]
+      if (typeof localSource !== 'string' || typeof visibleSource !== 'string' || !/^[a-f0-9]{64}$/.test(expectedHash ?? '')) {
+        throw new Error('The selected example file has no verified local source.')
+      }
+      const [localHash, visibleHash] = await Promise.all([sourceHash(localSource), sourceHash(visibleSource)])
+      if (localHash !== expectedHash || visibleHash !== expectedHash) {
+        throw new Error('The local source differs from this example. Update the local fixture before running it.')
+      }
+      if (generation !== generationRef.current) return
+      filesRef.current = { ...project.files }
+      identityRef.current = project.identity
+      const saved = await readSavedWorkspace(definition.id)
+      if (generation !== generationRef.current) return
+      if (saved) {
+        if (saved.version !== 1 || saved.projectId !== definition.id || !saved.identity ||
+          saved.checkpoint?.formatVersion !== 1 || saved.checkpoint.key !== `tanstack-example:${definition.id}`) {
+          setError('The saved workspace record is invalid. Run a fresh workspace to replace it.')
+        } else if (!sameIdentity(saved.identity, project.identity)) {
+          setError('The saved workspace was created by a different project or SDK build. Run a fresh workspace to replace it.')
+        } else {
+          savedRef.current = saved
+          setCanResume(true)
+        }
+      } else {
+        savedRef.current = null
+      }
+      setSource(localSource)
+      setLoaded(true)
+      setStatus('Ready')
+    })().catch((cause: unknown) => {
+      if (generation !== generationRef.current) return
+      setError(cause instanceof Error ? cause.message : String(cause))
+      setStatus('Unavailable')
+    })
+    return () => {
+      generationRef.current++
+      controller.abort()
+      void releaseSession().catch(() => undefined)
+    }
+  }, [definition, path, relativePath, virtualPath])
+
+  function queueWrite(session: Session, generation: number, value: string) {
+    const write = writesRef.current.then(async () => {
+      if (generation !== generationRef.current || sessionRef.current !== session) return
+      await session.writeFile(virtualPath, value)
+    })
+    writesRef.current = write.catch(() => undefined)
+    void write.catch((cause: unknown) => {
+      if (generation !== generationRef.current) return
+      setError(cause instanceof Error ? cause.message : String(cause))
+    })
+    return write
+  }
+
+  function updateSource(value: string) {
+    setSource(value)
+    filesRef.current[virtualPath] = value
+    clearWriteTimer()
+    const session = sessionRef.current
+    const generation = generationRef.current
+    if (!session || !startedRef.current) return
+    writeTimerRef.current = setTimeout(() => {
+      writeTimerRef.current = undefined
+      void queueWrite(session, generation, value).catch(() => undefined)
+    }, 150)
+  }
+
+  async function run(resume = false) {
+    if (!loaded || busy || sessionRef.current || cleanupFailedRef.current || !containerRef.current) return
+    const saved = resume ? savedRef.current : null
+    if (resume && !saved) return
+    const generation = ++generationRef.current
+    setBusy(true)
+    setError('')
+    setOutput('')
+    setStatus('Starting')
+    try {
+      await cleanupRef.current
+      if (generation !== generationRef.current || !containerRef.current) return
+      const files = { ...filesRef.current }
+      const session = createSDKExampleSession({
+        container: containerRef.current,
+        files,
+        installCommand: declaredCommand(
+          definition.runtime!.install.command,
+          definition.runtime!.install.args,
+        ),
+        startCommand: declaredCommand(
+          definition.runtime!.start.command,
+          definition.runtime!.start.args,
+        ),
+        externalFetchOrigins: ['-start-basic', '-basic-ssr-file-based'].some(suffix => definition.id.endsWith(suffix))
+          ? ['https://jsonplaceholder.typicode.com']
+          : undefined,
+        externalScriptOrigins: definition.id.endsWith('-basic-ssr-file-based')
+          ? ['https://unpkg.com']
+          : undefined,
+        checkpointKey: `tanstack-example:${definition.id}`,
+        resume,
+        onOutput(value) {
+          if (generation === generationRef.current) setOutput((current) => (current + value).slice(-64000))
+        },
+        onStatus(value) {
+          if (generation === generationRef.current) {
+            setStatus(value)
+            if (value === 'Stopped') {
+              setRunning(false)
+              void releaseSession().catch(cause => setError(String(cause)))
+            }
+          }
+        },
+      })
+      sessionRef.current = session
+      await session.start()
+      if (generation !== generationRef.current || sessionRef.current !== session) return
+      if (saved) {
+        const restoredSource = await session.readFile(virtualPath)
+        filesRef.current[virtualPath] = restoredSource
+        setSource(restoredSource)
+      }
+      startedRef.current = true
+      if (!saved && filesRef.current[virtualPath] !== files[virtualPath]) {
+        await queueWrite(session, generation, String(filesRef.current[virtualPath]))
+      }
+      if (generation !== generationRef.current) return
+      setRunning(true)
+      setStatus('Running')
+    } catch (cause) {
+      if (generation !== generationRef.current) return
+      setError(cause instanceof Error ? cause.message : String(cause))
+      setStatus('Stopped')
+      await releaseSession().catch((cleanupError: unknown) => {
+        if (generation === generationRef.current) setError((current) => current + '\nCleanup failed: ' + String(cleanupError))
+      })
+    } finally {
+      if (generation === generationRef.current) setBusy(false)
+    }
+  }
+
+  async function save() {
+    const pending = pendingSaveRef.current
+    if (pending) {
+      setBusy(true)
+      setError('')
+      try {
+        await writeSavedWorkspace(pending)
+        savedRef.current = pending
+        pendingSaveRef.current = null
+        setCanResume(true)
+        setStatus('Saved')
+      } catch (cause) {
+        setError('Workspace captured but could not be stored. Select Save to retry.\n' + String(cause))
+      } finally {
+        setBusy(false)
+      }
+      return
+    }
+    const session = sessionRef.current
+    const identity = identityRef.current
+    if (!session || !identity || busy || !startedRef.current) return
+    const generation = generationRef.current
+    setBusy(true)
+    setError('')
+    setStatus('Saving')
+    try {
+      clearWriteTimer()
+      await queueWrite(session, generation, String(filesRef.current[virtualPath]))
+      await writesRef.current
+      if (generation !== generationRef.current || sessionRef.current !== session) throw new Error('The running workspace changed before it could be saved.')
+      sessionRef.current = null
+      startedRef.current = false
+      setRunning(false)
+      const checkpoint = await session.save()
+      const record: SavedWorkspace = { version: 1, projectId: definition.id, identity, checkpoint }
+      pendingSaveRef.current = record
+      try {
+        await writeSavedWorkspace(record)
+      } catch (cause) {
+        throw new Error('Workspace captured but could not be stored. Select Save to retry.\n' + String(cause))
+      }
+      savedRef.current = record
+      pendingSaveRef.current = null
+      setCanResume(true)
+      setStatus('Saved')
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause))
+      if (!pendingSaveRef.current) setStatus(sessionRef.current ? 'Running' : 'Stopped')
+    } finally {
+      if (generation === generationRef.current) setBusy(false)
+    }
+  }
+
+  async function stop() {
+    const generation = ++generationRef.current
+    setBusy(true)
+    setRunning(false)
+    setStatus('Stopping')
+    try {
+      await releaseSession()
+      if (generation === generationRef.current) setStatus('Stopped')
+    } catch (cause) {
+      if (generation === generationRef.current) setError('Cleanup failed: ' + String(cause))
+    } finally {
+      if (generation === generationRef.current) setBusy(false)
+    }
+  }
+
+  return (
+    <section className="not-prose flex min-h-[520px] flex-1 flex-col overflow-hidden rounded-lg border border-border-default">
+      <header className="flex flex-wrap items-center gap-3 border-b border-border-default px-3 py-2">
+        <span className="text-xs text-text-muted">Local SDK, portable dependencies</span>
+        <span role="status" className="text-xs text-text-muted">{status}</span>
+        <div className="ml-auto flex gap-2">
+          <Button onClick={() => void run(false)} disabled={!loaded || busy || running || cleanupFailedRef.current}>Run</Button>
+          <Button onClick={() => void save()} disabled={busy || (!running && !pendingSaveRef.current)}>Save</Button>
+          <Button onClick={() => void run(true)} disabled={!loaded || busy || running || !canResume || cleanupFailedRef.current}>Resume</Button>
+          <Button onClick={() => void stop()} disabled={(!busy && !running) || status === 'Stopping'}>Stop</Button>
+        </div>
+      </header>
+      {error ? <p role="alert" className="whitespace-pre-wrap border-b border-border-default p-3 text-sm text-red-600 dark:text-red-400">{error}</p> : null}
+      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-2">
+        <div className="flex min-h-[320px] min-w-0 flex-col border-b border-border-default lg:border-r lg:border-b-0">
+          <div className="border-b border-border-default px-3 py-2 font-ds-mono text-xs">{path}</div>
+          {loaded ? <div className="min-h-0 flex-1"><CodeMirrorEditor path={path} theme={resolvedTheme} value={source} onChange={updateSource} onRun={() => void run()} /></div> : null}
+        </div>
+        <div ref={containerRef} aria-label={`${definition.title} preview`} className="min-h-[320px] min-w-0 [&>iframe]:block [&>iframe]:h-full [&>iframe]:min-h-[320px] [&>iframe]:w-full [&>iframe]:border-0" />
+      </div>
+      {output ? <pre aria-label="Process output" className="max-h-48 overflow-auto border-t border-border-default p-3 font-ds-mono text-xs whitespace-pre-wrap">{output}</pre> : null}
+    </section>
+  )
+}

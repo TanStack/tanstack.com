@@ -2,11 +2,11 @@ import * as React from 'react'
 import { GearIcon } from '@phosphor-icons/react/Gear'
 import { KeyIcon } from '@phosphor-icons/react/Key'
 import { LockIcon } from '@phosphor-icons/react/Lock'
-import { HammerIcon } from '@phosphor-icons/react/Hammer'
+import { ChatCircleIcon } from '@phosphor-icons/react/ChatCircle'
 import { SignInIcon } from '@phosphor-icons/react/SignIn'
 import { SignOutIcon } from '@phosphor-icons/react/SignOut'
 import { SparkleIcon } from '@phosphor-icons/react/Sparkle'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { ClientOnly, Link, useNavigate } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 import {
   Authenticated,
@@ -81,7 +81,7 @@ export function NavbarAuthControls({ className }: NavbarAuthControlsProps) {
   )
 
   return (
-    <>
+    <ClientOnly fallback={loadingPlaceholder}>
       <AuthLoading>{loadingPlaceholder}</AuthLoading>
       <Unauthenticated>{loginButton}</Unauthenticated>
       <Authenticated>
@@ -94,7 +94,7 @@ export function NavbarAuthControls({ className }: NavbarAuthControlsProps) {
           />
         </React.Suspense>
       </Authenticated>
-    </>
+    </ClientOnly>
   )
 }
 
@@ -150,7 +150,7 @@ export function MobileNavbarAuthControls({
   )
 
   return (
-    <>
+    <ClientOnly fallback={loadingPlaceholder}>
       <AuthLoading>{loadingPlaceholder}</AuthLoading>
       <Unauthenticated>{signIn}</Unauthenticated>
       <Authenticated>
@@ -164,13 +164,14 @@ export function MobileNavbarAuthControls({
           Account
         </Link>
         <Link
-          to="/builder"
+          to="/chat"
+          reloadDocument
           tabIndex={tabIndex}
           onClick={onNavigate}
           className={itemClassName}
         >
-          <HammerIcon className="size-8 shrink-0" />
-          My Projects
+          <ChatCircleIcon className="size-8 shrink-0" />
+          TanChat
         </Link>
         <Link
           to="/account/submissions"
@@ -213,6 +214,6 @@ export function MobileNavbarAuthControls({
           Sign Out
         </button>
       </Authenticated>
-    </>
+    </ClientOnly>
   )
 }

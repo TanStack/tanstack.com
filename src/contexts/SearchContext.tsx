@@ -18,6 +18,7 @@ interface SearchContextType {
   askAiDock: (question: string) => void
   clearAiDockAskRequest: (id: number) => void
   closeSearch: () => void
+  restoreSearchFocus: () => void
   closeAiDock: () => void
   cancelAiDockHoverClose: () => void
   scheduleAiDockHoverClose: () => void
@@ -28,7 +29,13 @@ const SearchContext = React.createContext<SearchContextType | undefined>(
   undefined,
 )
 
-export function SearchProvider({ children }: { children: React.ReactNode }) {
+export function SearchProvider({
+  children,
+  enabled = true,
+}: {
+  children: React.ReactNode
+  enabled?: boolean
+}) {
   const [isOpen, setIsOpen] = React.useState(false)
   const [isAiDockOpen, setIsAiDockOpen] = React.useState(false)
   const [isAiDockDirty, setIsAiDockDirty] = React.useState(false)
@@ -39,6 +46,7 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
     question: string
   } | null>(null)
   const aiDockCloseTimerRef = React.useRef<number | null>(null)
+  const searchTriggerRef = React.useRef<HTMLElement | null>(null)
 
   const cancelAiDockHoverClose = React.useCallback(() => {
     if (!aiDockCloseTimerRef.current) {
@@ -50,8 +58,34 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const openSearch = React.useCallback(() => {
+    if (!isOpen) {
+      searchTriggerRef.current =
+        document.activeElement instanceof HTMLElement
+          ? document.activeElement
+          : null
+    }
     setHasLoadedSearch(true)
     setIsOpen(true)
+  }, [isOpen])
+
+  const restoreSearchFocus = React.useCallback(() => {
+    const trigger = searchTriggerRef.current
+    searchTriggerRef.current = null
+    if (
+      trigger?.isConnected &&
+      trigger.getClientRects().length > 0 &&
+      !trigger.closest('[aria-hidden="true"], [inert]')
+    ) {
+      trigger.focus({ preventScroll: true })
+      return
+    }
+
+    const menuTrigger = document.querySelector(
+      'button[aria-controls="primary-mobile-menu"]',
+    )
+    if (menuTrigger instanceof HTMLElement) {
+      menuTrigger.focus({ preventScroll: true })
+    }
   }, [])
 
   const openAiDock = React.useCallback(() => {
@@ -122,6 +156,7 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
       askAiDock,
       clearAiDockAskRequest,
       closeSearch,
+      restoreSearchFocus,
       closeAiDock,
       cancelAiDockHoverClose,
       scheduleAiDockHoverClose,
@@ -134,6 +169,7 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
       clearAiDockAskRequest,
       closeAiDock,
       closeSearch,
+      restoreSearchFocus,
       isAiDockDirty,
       isAiDockOpen,
       isOpen,
@@ -145,6 +181,7 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
   )
 
   React.useEffect(() => {
+    if (!enabled) return
     const handleDocumentClick = (event: MouseEvent) => {
       if (!(event.target instanceof Element)) return
 
@@ -160,9 +197,10 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
     return () => {
       document.removeEventListener('click', handleDocumentClick)
     }
-  }, [openSearch])
+  }, [enabled, openSearch])
 
   React.useEffect(() => {
+    if (!enabled) return
     const handleGlobalKeyDown = (event: KeyboardEvent) => {
       if (!(event.metaKey || event.ctrlKey)) return
       if (event.altKey || event.shiftKey) return
@@ -187,12 +225,12 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
         capture: true,
       })
     }
-  }, [isOpen, openSearch, requestNewChat])
+  }, [enabled, isOpen, openSearch, requestNewChat])
 
   return (
     <SearchContext.Provider value={value}>
       {children}
-      {hasLoadedSearch ? (
+      {enabled && hasLoadedSearch ? (
         <React.Suspense fallback={null}>
           <LazySearchModal />
         </React.Suspense>

@@ -15,7 +15,8 @@ export const Route = createFileRoute('/_library/intent/$version/')({
   },
   loader: ({ params, context: { queryClient } }) =>
     loadLibraryLandingRouteData('intent', params.version, queryClient),
-  head: () => getLibraryLandingHead('intent'),
+  head: ({ match }) =>
+    getLibraryLandingHead('intent', match.status === 'success'),
   headers: () => getLibraryLandingHeaders('intent'),
   component: IntentLandingRoute,
 })

@@ -1,11 +1,20 @@
 import * as React from 'react'
 import { trackScarfClipboardText } from '~/utils/analytics/scarf'
 
+// Analytics must never turn a successful copy into a failure.
+function trackClipboardCopy(text: string) {
+  try {
+    trackScarfClipboardText('copy', text)
+  } catch {
+    // ignore analytics failures
+  }
+}
+
 export async function copyTextToClipboard(value: string) {
   if (typeof navigator !== 'undefined' && navigator.clipboard) {
     try {
       await navigator.clipboard.writeText(value)
-      trackScarfClipboardText('copy', value)
+      trackClipboardCopy(value)
       return
     } catch {
       // Fall back for restricted contexts where the Clipboard API exists but rejects.
@@ -38,6 +47,56 @@ export async function copyTextToClipboard(value: string) {
   if (!didCopy) {
     throw new Error('Copy failed')
   }
+}
+
+/**
+ * Copies text that is still being produced (e.g. fetched over the network).
+ *
+ * The clipboard write is started synchronously, before the text is ready, so it
+ * stays tied to the user gesture that triggered it. WebKit (iOS Safari) rejects
+ * clipboard writes made after an await has consumed the user activation.
+ */
+export function copyTextPromiseToClipboard(
+  textPromise: Promise<string>,
+): Promise<string> {
+  const fallback = async () => {
+    const text = await textPromise
+    await copyTextToClipboard(text)
+    return text
+  }
+
+  if (
+    typeof navigator === 'undefined' ||
+    !navigator.clipboard ||
+    typeof navigator.clipboard.write !== 'function' ||
+    typeof ClipboardItem === 'undefined'
+  ) {
+    return fallback()
+  }
+
+  let writePromise: Promise<void>
+  try {
+    const blobPromise = textPromise.then(
+      (text) => new Blob([text], { type: 'text/plain' }),
+    )
+    // Avoid an unhandled rejection if the browser never consumes the blob.
+    blobPromise.catch(() => {})
+    writePromise = navigator.clipboard.write([
+      new ClipboardItem({ 'text/plain': blobPromise }),
+    ])
+  } catch {
+    return fallback()
+  }
+
+  return writePromise.then(
+    async () => {
+      const text = await textPromise
+      trackClipboardCopy(text)
+      return text
+    },
+    // Promise-based ClipboardItem unsupported or rejected: try the text path.
+    fallback,
+  )
 }
 
 export function openPopupWindow(

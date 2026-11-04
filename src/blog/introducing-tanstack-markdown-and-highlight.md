@@ -20,7 +20,7 @@ RSC gave us a good way to keep that system on the server, and it worked, but the
 
 So we made the expensive part small.
 
-Today we're releasing the first alphas of [TanStack Markdown](/markdown) and [TanStack Highlight](/highlight), two deliberately narrow libraries built around the content contract we actually need for technical blogs, documentation, and streamed AI output. The last post was about the architecture we could remove, this one is about what we built to remove it.
+Today we're releasing the first releases of [TanStack Markdown](/markdown) and [TanStack Highlight](/highlight), two deliberately narrow libraries built around the content contract we actually need for technical blogs, documentation, and streamed AI output. The last post was about the architecture we could remove, this one is about what we built to remove it.
 
 ## Parsing and highlighting are different jobs
 
@@ -136,7 +136,7 @@ Coding agents made it practical for us to explore purpose-built parsers and scan
 
 TanStack Highlight's committed corpus currently samples **333 fixtures from 2,940 TanStack documentation files**. Release checks cover token fidelity, deterministic HTML, package exports, bundle profiles, focused parser regressions, and a roughly 10,000-block throughput budget. Markdown tracks its supported CommonMark examples explicitly, checks renderer parity, and audits real TanStack and external content corpora.
 
-The first tanstack.com migrations found edge cases in tight lists and image handling almost immediately. That's exactly what alpha software should surface, and every fix has to leave behind a focused regression test instead of another clever branch nobody can explain six months later.
+The first tanstack.com migrations found edge cases in tight lists and image handling almost immediately. That's exactly what an early release should surface, and every fix has to leave behind a focused regression test instead of another clever branch nobody can explain six months later.
 
 The cost of going tiny is owning the contract. We want that cost in the repositories where everyone can inspect it.
 
@@ -148,7 +148,7 @@ Our RSC content pipeline existed largely to keep the old Markdown and highlighti
 
 The [RSC post](/blog/we-removed-rsc-from-tanstack-com) has the measurements and caveats behind that decision. For this announcement, the important part is that these aren't tiny libraries built around a benchmark toy, they're already carrying the messiest content corpus we own.
 
-## Alpha means the contract can still move
+## Try them on your own content
 
 Both libraries are available now:
 

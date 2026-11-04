@@ -3,6 +3,7 @@
   "exclude": [
     "node_modules",
     "tests",
+    "harness-tests",
     "scripts",
     "packages",
     "src/builder/features/*/files"

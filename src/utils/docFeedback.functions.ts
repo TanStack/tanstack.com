@@ -1,6 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import * as v from 'valibot'
-import { db } from '~/db/client'
+import { db, isDatabaseConfigured } from '~/db/client'
 import {
   docFeedback,
   users,
@@ -497,6 +497,14 @@ export const getDocFeedbackLeaderboard = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data }) => {
     const { page, pageSize } = data.pagination
+    if (
+      process.env.NODE_ENV === 'development' &&
+      !(await isDatabaseConfigured())
+    )
+      return {
+        leaderboard: [],
+        pagination: { page, pageSize, total: 0, totalPages: 0 },
+      }
 
     // Get all approved feedback to calculate leaderboard in JS
     const allFeedback = await db

@@ -1,3 +1,5 @@
+import { isDatabaseConfigured } from '~/db/client'
+import { env } from '~/utils/env'
 import { createServerFn } from '@tanstack/react-start'
 import { getRequest } from '@tanstack/react-start/server'
 import {
@@ -83,3 +85,17 @@ export const requireAnyAdminCapability = createServerFn({
 
   return user
 })
+
+export const getSignInProviders = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    const database = await isDatabaseConfigured()
+    return {
+      github:
+        database &&
+        Boolean(env.GITHUB_OAUTH_CLIENT_ID && env.GITHUB_OAUTH_CLIENT_SECRET),
+      google:
+        database &&
+        Boolean(env.GOOGLE_OAUTH_CLIENT_ID && env.GOOGLE_OAUTH_CLIENT_SECRET),
+    }
+  },
+)

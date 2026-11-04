@@ -1,0 +1,470 @@
+{
+  "scope": "Original scripts only. Presence does not prove behavior or completeness.",
+  "scripts": [
+    {
+      "source": "scripts/analyze-ranking-confidence.py",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/audit-task-baselines.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/benchmark-conversation-copy.ts",
+      "destination": "scripts/chat/benchmark-conversation-copy.ts",
+      "status": "present, adaptation review required"
+    },
+    {
+      "source": "scripts/benchmark-conversation-protocol.ts",
+      "destination": "scripts/chat/benchmark-conversation-protocol.ts",
+      "status": "present, adaptation review required"
+    },
+    {
+      "source": "scripts/check-mcp-egress.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/compare-ranking-prompts.py",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/desktop-publish.mjs",
+      "destination": "scripts/desktop-publish.mjs",
+      "status": "present, adaptation review required"
+    },
+    {
+      "source": "scripts/desktop-release.mjs",
+      "destination": "scripts/desktop-release.mjs",
+      "status": "present, adaptation review required"
+    },
+    {
+      "source": "scripts/diagnose-kimi-transport.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/diagnose-multiline-provider.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-alpha-report.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-answer-evidence.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-array-workflow.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-assistant-baseline.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-assistant-instructions.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-batched-ranking.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-branching-discovery.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-call-review.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-code-refactor.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-dynamic-mcp.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-evidence-freshness.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-file-copy.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-grounding-review.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-history-recovery.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-included.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-jev-arguments.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-kody-code-discovery.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-mcp-session.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-mcp-tasks.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-message-attachments.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-message-references.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-multi-server-workflow.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-project-maintenance.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-ranking-evidence.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-ranking-recovery.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-ranking-suite.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-response-preferences.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-result-context.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-retry-runtime.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-retry-uncertain.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-run-model.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-saved-files.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-schedule-runtime.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-schedule-timezone.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-schedules.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-server-selection.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-shortlist-selection.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-stored-records.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-system-one-context.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-system-one-tasks.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-terminal-classification.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-tool-ranking.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-tool-selection.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-verification-audit.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-verification-recovery.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/evaluate-workflow-runtime.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/fixtures/browser-sandbox-pin.json",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/lib/kimi-transport-diagnostic.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/lib/message-attachments-evaluation.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/lib/saved-files-evaluation.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/lib/schedule-evaluation.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/local-mcp-egress.ts",
+      "destination": "scripts/local-mcp-egress.ts",
+      "status": "present, adaptation review required"
+    },
+    {
+      "source": "scripts/observe-schedule-review.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/observe-sketch-runtime.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/record-delegation-evaluation.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/reference-paging-evidence.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/rehearse-alpha-migrations.py",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/smoke-attachments.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/smoke-branching.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/smoke-conversation-identity.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/smoke-conversation-references.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/smoke-conversation-threads.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/smoke-conversation.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/smoke-drafts.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/smoke-exclusive-fork.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/smoke-files.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/smoke-onboarding.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/smoke-references.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/smoke-remote-fixture.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/smoke-retry-attempt.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/smoke-retry-chain.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/smoke-retry-files.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/smoke-retry-source.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/smoke-retry-uncertain.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/smoke-review-fixture.ts",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/smoke-run-models.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/smoke-runs.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/smoke-schedule-recovery.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/smoke-schedules.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/smoke-skills.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/smoke-workspace-sync.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/smoke-workspace.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    },
+    {
+      "source": "scripts/smoke.mjs",
+      "destination": null,
+      "status": "not ported, disposition required"
+    }
+  ]
+}

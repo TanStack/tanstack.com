@@ -5,7 +5,7 @@ import {
   getBuilderAiApiKey,
   getBuilderAiMissingKeyResponse,
   parseBuilderAiRequest,
-} from '../src/routes/api/builder/assist'
+} from '../src/utils/builder-ai-request.server'
 import { createExampleWorkspace } from '../src/utils/example-workspace'
 import {
   streamBuilderAiResponse,
@@ -97,7 +97,7 @@ test('builder BYOK parses canonical AG-UI input and preserves tool history', asy
 })
 
 test('builder BYOK selects only the requested provider header', () => {
-  const request = new Request('https://tanstack.com/api/builder/assist', {
+  const request = new Request('https://tanstack.com/api/chat/assist', {
     headers: {
       'x-byok-anthropic': 'anthropic-test-key',
       'x-byok-openai': 'openai-test-key',
@@ -117,7 +117,7 @@ test('builder BYOK ignores server keys and returns the official missing-key resp
   process.env.ANTHROPIC_API_KEY = 'server-anthropic-key'
 
   try {
-    const request = new Request('https://tanstack.com/api/builder/assist')
+    const request = new Request('https://tanstack.com/api/chat/assist')
     assert.equal(getBuilderAiApiKey(request, 'openai'), null)
     assert.equal(getBuilderAiApiKey(request, 'anthropic'), null)
     assert.equal(getBuilderAiApiKey(request, 'openrouter'), null)

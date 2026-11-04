@@ -1,0 +1,45 @@
+@scope (:root:has(.tanchat-shell)) {
+  .retry-composer {
+    min-width: 0;
+    margin-top: 12px;
+  }
+  .retry-composer[hidden] {
+    display: none;
+  }
+  .retry-composer-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .retry-composer .composer {
+    width: 100%;
+  }
+  .retry-draft-recovery {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 8px 0;
+    font-size: 13px;
+  }
+  .retry-draft-recovery details {
+    flex-basis: 100%;
+  }
+  .retry-draft-recovery pre {
+    max-height: 160px;
+    overflow: auto;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    font: inherit;
+  }
+  .retry-composer .composer-toolbar {
+    flex-wrap: wrap;
+  }
+  .retry-composer .error {
+    overflow-wrap: anywhere;
+  }
+}

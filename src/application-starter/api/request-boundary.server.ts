@@ -59,7 +59,7 @@ export async function readApplicationStarterJsonRequest(
 export async function validateApplicationStarterGetRequest(
   request: Request,
   options: { rateLimit?: RateLimitOptions } = {},
-) {
+): Promise<{ response: Response } | { rateLimit: RateLimitResult }> {
   const rateLimit = await checkIpRateLimit(
     request,
     options.rateLimit ?? RATE_LIMITS.applicationStarterCompile,

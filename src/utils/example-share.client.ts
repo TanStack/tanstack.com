@@ -1,3 +1,4 @@
+import { storeBuilderProjectRevision } from './builder-project.client'
 import {
   parseSharedExampleProject,
   serializeSharedExampleProject,
@@ -9,32 +10,13 @@ const inlineUrlLimit = 8_000
 
 export async function createSharedExampleUrl(project: SharedExampleProject) {
   const encoded = await encodeSharedExampleProject(project)
-  const inlineUrl = new URL('/builder', window.location.origin)
+  const inlineUrl = new URL('/chat/shared', window.location.origin)
   inlineUrl.hash = `${sharedProjectFragmentPrefix.slice(1)}${encoded}`
 
   if (inlineUrl.href.length <= inlineUrlLimit) return inlineUrl
 
-  const response = await fetch('/api/builder/projects', {
-    method: 'POST',
-    credentials: 'same-origin',
-    headers: { 'content-type': 'application/json' },
-    body: serializeSharedExampleProject(project),
-  })
-
-  if (!response.ok) {
-    if (response.status === 401) {
-      throw new Error('Sign in to share projects larger than 8 KB.')
-    }
-
-    throw new Error(await readShareError(response))
-  }
-
-  const result: unknown = await response.json()
-  if (!isRecord(result) || typeof result.url !== 'string') {
-    throw new Error('The builder share response was invalid.')
-  }
-
-  return new URL(result.url, window.location.origin)
+  const snapshot = await storeBuilderProjectRevision(project)
+  return new URL(`/chat/p/${snapshot}`, window.location.origin)
 }
 
 export async function decodeSharedExampleProject(hash: string) {
@@ -67,14 +49,4 @@ async function encodeSharedExampleProject(project: SharedExampleProject) {
     .replaceAll('+', '-')
     .replaceAll('/', '_')
     .replace(/=+$/, '')
-}
-
-async function readShareError(response: Response) {
-  const value: unknown = await response.json().catch(() => undefined)
-  if (isRecord(value) && typeof value.error === 'string') return value.error
-  return 'Unable to share this builder.'
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
 }

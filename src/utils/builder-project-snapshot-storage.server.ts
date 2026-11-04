@@ -5,7 +5,10 @@ import {
   type SharedExampleProject,
 } from './example-project'
 import { sha256Hex } from './hash'
-import { validateBuilderProjectSnapshot } from './builder-project-snapshot'
+import {
+  maxCanonicalBytes,
+  validateBuilderProjectSnapshot,
+} from './builder-project-snapshot'
 
 const storageName = 'builderProjects'
 const snapshotHashPattern = /^[a-f0-9]{64}$/
@@ -172,4 +175,43 @@ async function gzip(source: string) {
     .stream()
     .pipeThrough(new CompressionStream('gzip'))
   return new Uint8Array(await new Response(stream).arrayBuffer())
+}
+
+/** Read the same compressed snapshot used by the Builder, with its canonical byte limit. */
+export async function readBuilderProjectSnapshot(hash: string) {
+  const object = await getBuilderProjectSnapshotObject(hash)
+  if (!object) return null
+  if (!object.body) throw new Error('Project snapshot contents are unavailable')
+  const bytesStream = object.body.pipeThrough(
+    new TransformStream<Uint8Array, BufferSource>({
+      transform(chunk, controller) {
+        controller.enqueue(new Uint8Array(chunk).buffer)
+      },
+    }),
+  )
+  const reader = bytesStream
+    .pipeThrough(new DecompressionStream('gzip'))
+    .getReader()
+  const decoder = new TextDecoder('utf-8', { fatal: true })
+  let source = ''
+  let bytes = 0
+  try {
+    while (true) {
+      const chunk = await reader.read()
+      if (chunk.done) break
+      bytes += chunk.value.byteLength
+      if (bytes > maxCanonicalBytes)
+        throw new Error('Project snapshot exceeds 1 MiB')
+      source += decoder.decode(chunk.value, { stream: true })
+    }
+    source += decoder.decode()
+    if ((await sha256Hex(source)) !== hash)
+      throw new Error('Project snapshot integrity check failed')
+    return parseStoredBuilderProjectSnapshot(JSON.parse(source))
+  } catch (error) {
+    await reader.cancel().catch(() => {})
+    throw error
+  } finally {
+    reader.releaseLock()
+  }
 }

@@ -12,11 +12,8 @@ import {
   createRouter,
 } from '@tanstack/react-router'
 
-import {
-  CatalogChartsHero,
-  ChartsCatalogGallery,
-  chartsLandingHeroCaseIds,
-} from '../src/components/landing/ChartsCatalogGallery'
+import { ChartsCatalogGallery } from '../src/components/landing/ChartsCatalogGallery'
+import { ChartsHeroBackground } from '../src/components/landing/ChartsHeroBackground'
 import { shuffleWithSeed } from '../src/utils/utils'
 
 const galleryOrderSeed = 'charts-landing-ssr'
@@ -47,10 +44,10 @@ const catalog = {
       title: 'Labeled ordinal heatmap',
     },
     {
-      id: '70-composed-chart',
-      family: 'composition',
+      id: '73-many-point-scatter',
+      family: 'performance',
       order: 4,
-      title: 'Seattle weather with three y axes',
+      title: 'Automobile specifications scatter',
     },
     {
       id: '84-pinned-nested-chart-tooltip',
@@ -103,18 +100,6 @@ const catalog = {
   ],
 }
 
-test('the landing hero uses a fixed set of distinct catalog cases', () => {
-  assert.equal(
-    new Set(chartsLandingHeroCaseIds).size,
-    chartsLandingHeroCaseIds.length,
-  )
-  assert.deepEqual(chartsLandingHeroCaseIds, [
-    '70-composed-chart',
-    '101-sunburst',
-    '127-shadcn-dashboard',
-  ])
-})
-
 test('the landing server-renders revision-pinned chart preview assets', () => {
   const shuffledCases = shuffleWithSeed(
     [...catalog.cases].sort((left, right) => left.order - right.order),
@@ -135,7 +120,7 @@ test('the landing server-renders revision-pinned chart preview assets', () => {
     RouterContextProvider<typeof router>({
       router,
       children: createElement(Fragment, null, [
-        createElement(CatalogChartsHero, { catalog, key: 'hero' }),
+        createElement(ChartsHeroBackground, { key: 'hero' }),
         createElement(ChartsCatalogGallery, {
           catalog,
           key: 'gallery',
@@ -153,8 +138,14 @@ test('the landing server-renders revision-pinned chart preview assets', () => {
   }).byteLength
   const elements = $('*').length
 
-  assert.ok(rawBytes <= landingCatalogSsrBudget.rawBytes)
-  assert.ok(brotliQuality4Bytes <= landingCatalogSsrBudget.brotliQuality4Bytes)
+  assert.ok(
+    rawBytes <= landingCatalogSsrBudget.rawBytes,
+    `${rawBytes} raw bytes`,
+  )
+  assert.ok(
+    brotliQuality4Bytes <= landingCatalogSsrBudget.brotliQuality4Bytes,
+    `${brotliQuality4Bytes} compressed bytes`,
+  )
   assert.ok(elements <= landingCatalogSsrBudget.elements)
 
   const shuffledIds = shuffledCases.map((catalogCase) => catalogCase.id)
@@ -175,28 +166,23 @@ test('the landing server-renders revision-pinned chart preview assets', () => {
     shuffledIds,
   )
 
-  const hero = $('section[aria-label="Chart catalog examples"]')
-  const heroPreviews = hero.find('img[data-catalog-preview-case]')
-  assert.deepEqual(
-    heroPreviews
-      .map((_, element) => $(element).attr('data-catalog-preview-case'))
-      .get(),
-    [...chartsLandingHeroCaseIds],
-  )
-  assert.equal(hero.children('.grid').hasClass('grid-cols-2'), true)
-  assert.equal(hero.find('figure').first().hasClass('col-span-2'), true)
+  const hero = $('.charts-hero-background')
+  assert.equal(hero.find('svg, .ts-chart-host').length, 0)
+  assert.equal(hero.find('img, text').length, 0)
+  assert.equal(hero.attr('aria-hidden'), 'true')
+  assert.equal(hero.find('figure, figcaption, a').length, 0)
 
   assert.equal(
     $('img[src^="/charts/catalog/previews/"]').length,
-    catalog.cases.length + chartsLandingHeroCaseIds.length,
+    catalog.cases.length,
   )
   assert.equal(
     $('img[data-catalog-preview-case][loading="lazy"]').length,
-    catalog.cases.length + chartsLandingHeroCaseIds.length,
+    catalog.cases.length,
   )
   assert.equal(
     $('img[data-catalog-preview-case][decoding="async"]').length,
-    catalog.cases.length + chartsLandingHeroCaseIds.length,
+    catalog.cases.length,
   )
   assert.equal($('.charts-catalog-chart').length, 0)
   assert.equal($('[data-chart-case]').length, 0)

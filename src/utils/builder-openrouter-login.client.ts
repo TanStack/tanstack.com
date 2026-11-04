@@ -28,7 +28,7 @@ export function startBuilderOpenRouterLogin(signal: AbortSignal) {
   popup.opener = null
   const verifier = generateCodeVerifier()
   const callback = new URL(
-    '/api/builder/openrouter/callback',
+    '/api/chat/openrouter/callback',
     window.location.origin,
   )
   callback.searchParams.set('state', state)

@@ -1,5 +1,30 @@
 import { type Framework } from '~/libraries'
 
+export function getExampleSandboxUrls({
+  repo,
+  branch,
+  examplePath,
+  file,
+  isDark,
+}: {
+  repo: string
+  branch: string
+  examplePath: string
+  file: string
+  isDark: boolean
+}) {
+  const path = `${repo}/tree/${branch}/examples/${examplePath}`
+  const search = new URLSearchParams({
+    embed: '1',
+    theme: isDark ? 'dark' : 'light',
+    file,
+  })
+  return {
+    stackBlitzUrl: `https://stackblitz.com/github/${path}?${search}&preset=node`,
+    codeSandboxUrl: `https://codesandbox.io/p/devbox/github/${path}?${search}`,
+  }
+}
+
 export const getExampleStartingPath = (
   framework: Framework,
   libraryId?: string,

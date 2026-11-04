@@ -1,23 +1,24 @@
 import React from 'react'
-import { FileExplorer } from './FileExplorer'
+import { FileExplorer, type FileExplorerNode } from './FileExplorer'
 import { InteractiveSandbox } from './InteractiveSandbox'
 import { CodeExplorerTopBar } from './CodeExplorerTopBar'
-import type { GitHubFileNode } from '~/utils/documents.server'
+import { getExamplePanels, type ExamplePanel } from '~/utils/example-panel'
 import type { Library } from '~/libraries'
 import { twMerge } from 'tailwind-merge'
 import { CodeBlock } from '~/components/markdown'
 import { getCodeBlockLanguageFromFilePath } from '~/components/markdown/codeBlock.shared'
 
 interface CodeExplorerProps {
-  activeTab: 'code' | 'sandbox'
+  activeTab: ExamplePanel
   codeSandboxUrl: string
   currentCode: string
   currentPath: string
   examplePath: string
-  githubContents: GitHubFileNode[] | undefined
+  githubContents: FileExplorerNode[] | undefined
   library: Library
   prefetchFileContent: (path: string) => void
-  setActiveTab: (tab: 'code' | 'sandbox') => void
+  playground?: React.ReactNode
+  setActiveTab: (tab: ExamplePanel) => void
   setCurrentPath: (path: string) => void
   stackBlitzUrl: string
 }
@@ -31,12 +32,23 @@ export function CodeExplorer({
   githubContents,
   library,
   prefetchFileContent,
+  playground,
   setActiveTab,
   setCurrentPath,
   stackBlitzUrl,
 }: CodeExplorerProps) {
   const [isFullScreen, setIsFullScreen] = React.useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true)
+  const [hasOpenedPlayground, setHasOpenedPlayground] = React.useState(
+    activeTab === 'playground',
+  )
+  React.useEffect(() => {
+    if (activeTab === 'playground') setHasOpenedPlayground(true)
+  }, [activeTab])
+  const panels = getExamplePanels({
+    ...library,
+    hasPlayground: Boolean(playground),
+  })
   const currentCodeLanguage = getCodeBlockLanguageFromFilePath(currentPath)
 
   // Add escape key handler
@@ -60,6 +72,7 @@ export function CodeExplorer({
     >
       <CodeExplorerTopBar
         activeTab={activeTab}
+        panels={panels}
         setActiveTab={setActiveTab}
         isFullScreen={isFullScreen}
         setIsFullScreen={setIsFullScreen}
@@ -68,45 +81,66 @@ export function CodeExplorer({
       />
 
       <div className="relative flex-1">
-        <div
-          className={`absolute inset-0 flex ${
-            activeTab === 'code' ? '' : 'hidden'
-          }`}
-        >
-          <FileExplorer
-            currentPath={currentPath}
-            files={githubContents}
-            isSidebarOpen={isSidebarOpen}
-            libraryColor={library.bgStyle}
-            onSidebarClose={() => setIsSidebarOpen(false)}
-            prefetchFileContent={prefetchFileContent}
-            setCurrentPath={setCurrentPath}
-          />
+        {playground && (hasOpenedPlayground || activeTab === 'playground') ? (
           <div
-            className={twMerge(
-              'flex-1 overflow-auto relative',
-              isFullScreen ? 'max-h-[90dvh]' : 'max-h-[80dvh]',
-            )}
+            className={`absolute inset-0 min-h-0 flex-col ${activeTab === 'playground' ? 'flex' : 'hidden'}`}
           >
-            <CodeBlock
-              className="h-full border-0"
-              isEmbedded
-              showTypeCopyButton={false}
-            >
-              <code className={`language-${currentCodeLanguage}`}>
-                {currentCode}
-              </code>
-            </CodeBlock>
+            {playground}
           </div>
-        </div>
-        <InteractiveSandbox
-          isActive={activeTab === 'sandbox'}
-          codeSandboxUrl={codeSandboxUrl}
-          stackBlitzUrl={stackBlitzUrl}
-          examplePath={examplePath}
-          libraryName={library.name}
-          embedEditor={library.embedEditor || 'stackblitz'}
-        />
+        ) : null}
+        {!playground ? (
+          <div
+            className={`absolute inset-0 flex ${
+              activeTab === 'code' ? '' : 'hidden'
+            }`}
+          >
+            <FileExplorer
+              currentPath={currentPath}
+              files={githubContents}
+              isSidebarOpen={isSidebarOpen}
+              libraryColor={library.bgStyle}
+              onSidebarClose={() => setIsSidebarOpen(false)}
+              prefetchFileContent={prefetchFileContent}
+              setCurrentPath={setCurrentPath}
+            />
+            <div
+              className={twMerge(
+                'flex-1 overflow-auto relative',
+                isFullScreen ? 'max-h-[90dvh]' : 'max-h-[80dvh]',
+              )}
+            >
+              <CodeBlock
+                className="h-full border-0"
+                isEmbedded
+                showTypeCopyButton={false}
+              >
+                <code className={`language-${currentCodeLanguage}`}>
+                  {currentCode}
+                </code>
+              </CodeBlock>
+            </div>
+          </div>
+        ) : null}
+        {!library.hideStackblitzUrl ? (
+          <InteractiveSandbox
+            isActive={activeTab === 'stackblitz'}
+            codeSandboxUrl={codeSandboxUrl}
+            stackBlitzUrl={stackBlitzUrl}
+            examplePath={examplePath}
+            libraryName={library.name}
+            embedEditor="stackblitz"
+          />
+        ) : null}
+        {!library.hideCodesandboxUrl ? (
+          <InteractiveSandbox
+            isActive={activeTab === 'codesandbox'}
+            codeSandboxUrl={codeSandboxUrl}
+            stackBlitzUrl={stackBlitzUrl}
+            examplePath={examplePath}
+            libraryName={library.name}
+            embedEditor="codesandbox"
+          />
+        ) : null}
       </div>
     </div>
   )

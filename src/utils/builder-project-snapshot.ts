@@ -4,7 +4,7 @@ import {
 } from './example-project'
 import { decodeExampleBinaryFile } from './example-workspace'
 
-const maxCanonicalBytes = 1024 * 1024
+export const maxCanonicalBytes = 1024 * 1024
 const maxFileBytes = maxCanonicalBytes
 const maxFiles = 128
 const maxPathBytes = 512

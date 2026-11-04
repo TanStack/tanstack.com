@@ -56,15 +56,22 @@ const journalUrl = new URL(
 const journal = migrationJournalSchema.parse(
   JSON.parse(await readFile(journalUrl, 'utf8')),
 )
-const latestMigration = journal.entries.reduce((_, entry) => entry)
+const builderMigration = journal.entries.find(
+  (entry) => entry.tag === '0000_builder_durability',
+)
+if (!builderMigration) {
+  throw new Error(
+    'Builder migration 0000_builder_durability is missing from the journal',
+  )
+}
 const migrationSql = await readFile(
-  new URL(`../drizzle/migrations/${latestMigration.tag}.sql`, import.meta.url),
+  new URL(`../drizzle/migrations/${builderMigration.tag}.sql`, import.meta.url),
   'utf8',
 )
 const expectedMigrationHash = createHash('sha256')
   .update(migrationSql)
   .digest('hex')
-const expectedMigrationVersion = String(latestMigration.when)
+const expectedMigrationVersion = String(builderMigration.when)
 
 const databaseUrl = process.env.DATABASE_URL
 if (!databaseUrl) {
@@ -95,7 +102,8 @@ try {
   const [appliedMigration] = await sql<{ hash: string; version: string }[]>`
     select hash, created_at::text as version
     from drizzle.__drizzle_migrations
-    order by created_at desc, id desc
+    where created_at = ${expectedMigrationVersion}
+    order by id desc
     limit 1
   `
 
@@ -104,7 +112,7 @@ try {
     appliedMigration.version !== expectedMigrationVersion
   ) {
     throw new Error(
-      `Builder database migration mismatch: expected ${latestMigration.tag} (${expectedMigrationVersion}, ${expectedMigrationHash})`,
+      `Builder database migration mismatch: expected ${builderMigration.tag} (${expectedMigrationVersion}, ${expectedMigrationHash})`,
     )
   }
 
@@ -155,7 +163,7 @@ try {
   }
 
   console.info(
-    `Builder database schema matches ${latestMigration.tag} (${expectedMigrationHash})`,
+    `Builder database schema matches ${builderMigration.tag} (${expectedMigrationHash})`,
   )
 } finally {
   await sql.end()

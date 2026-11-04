@@ -36,9 +36,17 @@ export const authClient = {
     /**
      * Initiate OAuth sign-in in a popup window (for modal-based login)
      */
-    socialPopup: ({ provider }: { provider: OAuthProvider }) => {
+    socialPopup: ({
+      provider,
+      popupChannel,
+    }: {
+      provider: OAuthProvider
+      popupChannel?: string
+    }) => {
+      const query = new URLSearchParams({ popup: 'true' })
+      if (popupChannel) query.set('popupChannel', popupChannel)
       return openCenteredPopupWindow({
-        url: `/auth/${provider}/start?popup=true`,
+        url: `/auth/${provider}/start?${query}`,
         target: 'tanstack-oauth',
         width: 500,
         height: 600,

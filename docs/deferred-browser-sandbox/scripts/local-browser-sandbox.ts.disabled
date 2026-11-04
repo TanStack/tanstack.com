@@ -1,0 +1,148 @@
+import type { Plugin } from 'vite'
+import { readFileSync, readdirSync, realpathSync } from 'node:fs'
+import { dirname, resolve, relative, sep, extname } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { createHash } from 'node:crypto'
+import { resolveSDKRuntimeProfile } from '@tanstack/browser-sandbox-experimental'
+
+export const localBrowserSandboxExcludedPatterns = [
+  'node_modules',
+  '.git',
+  'dist',
+  '.output',
+  '.netlify',
+  '.vercel',
+  '.DS_Store',
+  '.nitro',
+  'test-results',
+  'playwright-report',
+  '.tanstack-start/build',
+] as const
+
+export function shouldExcludeLocalBrowserSandboxPath(path: string) {
+  const normalized = path.split(sep).join('/')
+  return localBrowserSandboxExcludedPatterns.some(
+    (pattern) => normalized === pattern || normalized.startsWith(`${pattern}/`),
+  )
+}
+
+export function classifyLocalBrowserSandboxFile(bytes: Buffer) {
+  try {
+    const text = new TextDecoder('utf-8', {
+      fatal: true,
+      ignoreBOM: true,
+    }).decode(bytes)
+    const encoded = new TextEncoder().encode(text)
+    if (
+      !text.includes('\0') &&
+      encoded.byteLength === bytes.byteLength &&
+      encoded.every((byte, index) => byte === bytes[index])
+    ) {
+      return { type: 'text' as const, value: text }
+    }
+  } catch {
+    // Files that are not lossless UTF-8 must remain byte-for-byte intact.
+  }
+
+  return { type: 'binary' as const, value: bytes.toString('base64') }
+}
+
+// Local consumer experiment only. No production hosting or dependency fallback.
+export function localBrowserSandbox(): Plugin | false {
+  if (process.env.VITE_LOCAL_BROWSER_SANDBOX !== '1') return false
+  return {
+    name: 'local-browser-sandbox',
+    apply: 'serve',
+    async configureServer(server) {
+      const root = dirname(fileURLToPath(import.meta.resolve('@tanstack/browser-sandbox-experimental')))
+      const manifest = JSON.parse(readFileSync(resolve(root, 'manifest.json'), 'utf8'))
+      const sha = (bytes: string | Buffer) => createHash('sha256').update(bytes).digest('hex')
+      const expectedSdkManifestSHA256 = process.env.SANDBOX_SDK_MANIFEST_SHA256
+      if (!expectedSdkManifestSHA256?.match(/^[a-f0-9]{64}$/)) throw Error('Set SANDBOX_SDK_MANIFEST_SHA256 to the exact tested SDK manifest hash')
+      if (sha(readFileSync(resolve(root, 'manifest.json'))) !== expectedSdkManifestSHA256) throw Error('Local integration requires the exact tested SDK package')
+      const runtimeProfile = resolveSDKRuntimeProfile(manifest, 'tanstack-start')
+      if (!process.env.SANDBOX_LOCAL_SOURCE || !process.env.SANDBOX_LOCAL_FIXTURE) throw Error('Set SANDBOX_LOCAL_SOURCE and SANDBOX_LOCAL_FIXTURE')
+      const source = realpathSync(process.env.SANDBOX_LOCAL_SOURCE)
+      const fixture = realpathSync(process.env.SANDBOX_LOCAL_FIXTURE)
+      const provenance = JSON.parse(readFileSync(resolve(fixture, 'provenance.json'), 'utf8'))
+      const files: Record<string, string> = {}
+      const binaryFiles: Record<string, string> = {}
+      const sourceHashes: Record<string, string> = {}
+      function collect(directory: string) {
+        for (const entry of readdirSync(directory, { withFileTypes: true })) {
+          const path = resolve(directory, entry.name)
+          const name = relative(source, path)
+          if (shouldExcludeLocalBrowserSandboxPath(name)) continue
+          if (entry.isDirectory()) { collect(path); continue }
+          if (!entry.isFile()) throw Error('Unexpected project entry: ' + path)
+          const bytes = readFileSync(path)
+          const classified = classifyLocalBrowserSandboxFile(bytes)
+          const normalizedName = name.split(sep).join('/')
+          const projectPath = '/project/' + normalizedName
+          if (classified.type === 'text') files[projectPath] = classified.value
+          else binaryFiles[projectPath] = classified.value
+          sourceHashes[normalizedName] = sha(bytes)
+        }
+      }
+      collect(source)
+      if (sourceHashes['package.json'] !== provenance.sourceSHA256) throw Error('Start source changed; review the portable dependency graph')
+      const original = JSON.parse(files['/project/package.json'])
+      const portable = readFileSync(resolve(fixture, 'package.json'), 'utf8')
+      const expected = {
+        ...original,
+        dependencies: { ...original.dependencies, ...provenance.graphChanges.dependencies },
+        devDependencies: { ...original.devDependencies, ...provenance.graphChanges.devDependencies },
+        overrides: provenance.graphChanges.overrides,
+      }
+      if (JSON.stringify(JSON.parse(portable)) !== JSON.stringify(expected)) throw Error('Undeclared dependency changes')
+      files['/project/package.json'] = portable
+      const lockfile = readFileSync(resolve(fixture, 'package-lock.json'))
+      files['/project/package-lock.json'] = lockfile.toString('utf8')
+      files['/project/SDK-SOURCE-LICENSE.txt'] = readFileSync(resolve(source, '../../../LICENSE'), 'utf8')
+      const projectHash = createHash('sha256')
+      for (const path of [...Object.keys(files), ...Object.keys(binaryFiles)].sort()) {
+        const pathBytes = Buffer.from(path)
+        const fileBytes = Object.hasOwn(files, path)
+          ? Buffer.from(files[path])
+          : Buffer.from(binaryFiles[path], 'base64')
+        const lengths = Buffer.allocUnsafe(8)
+        lengths.writeUInt32BE(pathBytes.byteLength, 0)
+        lengths.writeUInt32BE(fileBytes.byteLength, 4)
+        projectHash.update(lengths).update(pathBytes).update(fileBytes)
+      }
+      const identity = {
+        version: 1,
+        sdkManifestSHA256: expectedSdkManifestSHA256,
+        projectSHA256: projectHash.digest('hex'),
+        configSHA256: sha(JSON.stringify({appPort: 3000, env: provenance.env})),
+      }
+      server.middlewares.use((request, response, next) => {
+        const path = new URL(request.url!, 'http://localhost').pathname
+        if (!path.startsWith('/__sandbox-local/')) return next()
+        if (request.method !== 'GET') { response.statusCode = 405; response.end(); return }
+        response.setHeader('Cache-Control', 'no-store')
+        for (const [name, value] of Object.entries(runtimeProfile.ownerHeaders)) response.setHeader(name, value)
+        response.setHeader('Cross-Origin-Resource-Policy', 'same-origin')
+        try {
+          if (path === '/__sandbox-local/project.json' || path === '/__sandbox-local/config.json') {
+            response.setHeader('Content-Type', 'application/json')
+            response.end(JSON.stringify(path.endsWith('/project.json') ? {
+              files,
+              binaryFiles,
+              sourceHashes,
+              provenance,
+              identity,
+            } : {previewOrigin: 'http://127.0.0.1:4199', appPort: 3000, env: provenance.env, runtimeProfile}))
+            return
+          }
+          if (!path.startsWith('/__sandbox-local/runtime/')) { response.statusCode = 404; response.end(); return }
+          const runtime = realpathSync(resolve(root, 'runtime'))
+          const file = realpathSync(resolve(runtime, decodeURIComponent(path.slice('/__sandbox-local/runtime/'.length))))
+          if (!file.startsWith(runtime + sep)) throw Error('Outside runtime assets')
+          response.setHeader('Content-Type', ({'.js':'text/javascript','.mjs':'text/javascript','.wasm':'application/wasm','.json':'application/json'} as Record<string,string>)[extname(file)] ?? 'application/octet-stream')
+          response.end(readFileSync(file))
+        } catch { response.statusCode = 404; response.end() }
+      })
+    },
+  }
+}

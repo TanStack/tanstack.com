@@ -1,3 +1,5 @@
+import { Breadcrumbs } from './Breadcrumbs'
+import { getLibraryBreadcrumbItems } from '~/utils/library-breadcrumbs'
 import * as React from 'react'
 import { CaretLeftIcon } from '@phosphor-icons/react/CaretLeft'
 import { CaretRightIcon } from '@phosphor-icons/react/CaretRight'
@@ -15,7 +17,6 @@ import { getActiveDocsNavTabId, getTabbedMenuConfig } from '~/utils/docsNavTabs'
 import { getLibrary, type Framework, type LibraryId } from '~/libraries'
 import { categoryOf, categoryTextColor } from '~/libraries/categories'
 import { frameworkOptions } from '~/libraries/frameworks'
-import { fallbackLibraryIcon, libraryIcons } from '~/libraries/icons'
 import { twMerge } from 'tailwind-merge'
 import {
   getPartnerHref,
@@ -43,8 +44,11 @@ import {
   getLibraryLayoutVersion,
   getLibraryTabLinkOptions,
   getMenuGroupInitialOpenState,
-  isChartsCatalogTarget,
 } from './library-layout-navigation'
+import {
+  customToolTabs,
+  isCustomToolTarget,
+} from '~/libraries/custom-tool-tabs'
 
 // Number of days a doc page is flagged as "New"/"Updated" in the sidebar.
 const RECENCY_WINDOW_DAYS = 7
@@ -674,18 +678,6 @@ const useMenuConfig = ({
   const currentFramework = useCurrentFramework(frameworks)
   const statsAvailable =
     getLibrary(libraryId as LibraryId).statsAvailable !== false
-  const chartsExamplesMenuItems: MenuItem['children'] = [
-    {
-      label: 'Examples',
-      to: '/charts/catalog',
-      tab: 'home',
-    },
-    {
-      label: 'Examples',
-      to: '/charts/catalog',
-      tab: 'examples',
-    },
-  ]
 
   const localMenu: MenuItem = {
     label: 'Menu',
@@ -694,7 +686,6 @@ const useMenuConfig = ({
         label: 'Home',
         to: '..',
       },
-      ...(libraryId === 'charts' ? chartsExamplesMenuItems : []),
       {
         label: 'Blog',
         to: '/$libraryId/$version/docs/blog',
@@ -817,22 +808,19 @@ export function LibraryLayout({
   const { _splat, version: routeVersion } = useParams({ strict: false })
   const matches = useMatches()
   const lastMatch = last(matches)
+  const landingBreadcrumbItems =
+    lastMatch.status === 'success' && lastMatch.routeId.endsWith('/$version/')
+      ? getLibraryBreadcrumbItems(getLibrary(libraryId))
+      : undefined
   const version = getLibraryLayoutVersion({
     layoutVersion,
     pathname: lastMatch.pathname,
     routeVersion,
   })
   const menuConfig = useMenuConfig({ config, frameworks, repo, libraryId })
-  const LibraryIcon = libraryIcons[libraryId] ?? fallbackLibraryIcon
   const libraryGroupColor = categoryTextColor[categoryOf(libraryId)]
 
-  const isExample = matches.some(
-    (d) =>
-      d.pathname.includes('/examples/') ||
-      d.routeId.startsWith('/_library/charts/catalog'),
-  )
-
-  const isNpmStats = matches.some((d) => d.pathname.includes('/docs/npm-stats'))
+  const docsTab = matches.find((d) => d.staticData.docsTab)?.staticData.docsTab
 
   // The library blog already lists posts, so the "Latest Posts" rail widget is
   // redundant there — hide it on the blog while keeping it on other docs pages.
@@ -864,32 +852,17 @@ export function LibraryLayout({
   }, [closeMobileMenu, mobileMenuOpen])
 
   const tabbedMenuConfig = React.useMemo(() => {
-    const tabs = getTabbedMenuConfig(menuConfig)
-
-    return libraryId === 'charts'
-      ? tabs.map((tab) =>
-          tab.id === 'examples'
-            ? {
-                ...tab,
-                firstItem: {
-                  label: 'Examples',
-                  to: '/charts/catalog',
-                  tab: 'examples',
-                },
-              }
-            : tab,
-        )
-      : tabs
+    return getTabbedMenuConfig(menuConfig, customToolTabs[libraryId])
   }, [libraryId, menuConfig])
 
   const activeTabId = React.useMemo(() => {
     return getActiveDocsNavTabId({
-      isExample,
+      tabIdOverride: docsTab?.id,
       menuConfig,
       pathname: lastMatch.pathname,
       relativePathname,
     })
-  }, [isExample, lastMatch.pathname, menuConfig, relativePathname])
+  }, [docsTab?.id, lastMatch.pathname, menuConfig, relativePathname])
 
   const visibleMenuConfig = React.useMemo(() => {
     return (
@@ -928,11 +901,12 @@ export function LibraryLayout({
 
   const groupInitialOpenState = React.useMemo(() => {
     return getMenuGroupInitialOpenState(
+      libraryId,
       visibleMenuConfig,
       _splat,
       lastMatch.pathname,
     )
-  }, [lastMatch.pathname, visibleMenuConfig, _splat])
+  }, [libraryId, lastMatch.pathname, visibleMenuConfig, _splat])
 
   const [openGroups, setOpenGroups] = React.useState(groupInitialOpenState)
 
@@ -1006,7 +980,7 @@ export function LibraryLayout({
                 ? ({ libraryId, version } as never)
                 : undefined
             const isHomeLink = child.to === '..'
-            const isChartsExamplesLink = isChartsCatalogTarget(child.to)
+            const isCustomToolLink = isCustomToolTarget(libraryId, child.to)
             const frameworkDocsTarget = getFrameworkDocsLinkTarget(child.to)
 
             const recency = getDocRecency(child.addedAt, child.updatedAt)
@@ -1094,14 +1068,12 @@ export function LibraryLayout({
                 ) : (
                   <Link
                     from={
-                      isChartsExamplesLink
-                        ? undefined
-                        : '/$libraryId/$version/docs'
+                      isCustomToolLink ? undefined : '/$libraryId/$version/docs'
                     }
                     to={child.to}
                     params={linkParams}
                     onClick={closeMobileMenu}
-                    preload={isChartsExamplesLink ? false : 'intent'}
+                    preload={isCustomToolLink ? false : 'intent'}
                     activeOptions={{
                       exact: true,
                       includeHash: false,
@@ -1208,7 +1180,9 @@ export function LibraryLayout({
                       params={linkOptions.params as never}
                       onClick={closeMobileMenu}
                       preload={
-                        isChartsCatalogTarget(target.to) ? false : 'intent'
+                        isCustomToolTarget(libraryId, target.to)
+                          ? false
+                          : 'intent'
                       }
                       aria-current={isActive ? 'page' : undefined}
                       className={twMerge(
@@ -1321,17 +1295,6 @@ export function LibraryLayout({
       )}
     >
       <div className="flex h-full items-stretch">
-        <Link
-          to={libraryHomePath}
-          aria-label={`${name} home`}
-          className={twMerge(
-            'flex max-w-[50vw] shrink-0 items-center gap-2 border-r border-gray-500/20 px-3 font-ds-display text-[20px] font-semibold leading-none hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current md:max-w-none md:text-[24px] min-[900px]:px-5',
-            libraryGroupColor,
-          )}
-        >
-          <LibraryIcon className="size-5 shrink-0 md:size-6" weight="bold" />
-          <span className="truncate">{name}</span>
-        </Link>
         <button
           type="button"
           aria-label="Documentation menu"
@@ -1392,7 +1355,9 @@ export function LibraryLayout({
                   from={linkOptions.from as never}
                   to={linkOptions.to as never}
                   params={linkOptions.params as never}
-                  preload={isChartsCatalogTarget(target.to) ? false : 'intent'}
+                  preload={
+                    isCustomToolTarget(libraryId, target.to) ? false : 'intent'
+                  }
                   activeOptions={{
                     exact: true,
                     includeHash: false,
@@ -1443,7 +1408,17 @@ export function LibraryLayout({
               Sponsor-supported
             </Link>
           </div>
-        ) : null}
+        ) : (
+          <a
+            href={`https://github.com/${repo}`}
+            target="_blank"
+            rel="noreferrer"
+            className="hidden shrink-0 items-center gap-1.5 px-5 text-xs font-semibold text-text-primary/60 transition-colors hover:text-text-primary xl:inline-flex"
+          >
+            <GithubIcon className="size-4" />
+            GitHub
+          </a>
+        )}
         {shouldShowDocsPartnerSlot && activePartners.length ? (
           <DocsPartnerSlot
             orderPlacementContext={docsPartnerOrderContext}
@@ -1455,7 +1430,18 @@ export function LibraryLayout({
   )
 
   return (
-    <WidthToggleContext.Provider value={{ isFullWidth, setIsFullWidth }}>
+    <WidthToggleContext.Provider
+      value={{
+        isFullWidth,
+        setIsFullWidth: (fullWidth) => {
+          document.documentElement.style.setProperty(
+            '--docs-content-width',
+            fullWidth ? '100%' : '900px',
+          )
+          setIsFullWidth(fullWidth)
+        },
+      }}
+    >
       <DocNavigationContext.Provider
         value={{
           libraryId,
@@ -1491,12 +1477,23 @@ export function LibraryLayout({
                   !isLandingPage && 'px-4 md:px-8',
 
                   !isLandingPage &&
-                    !isExample &&
-                    !isNpmStats &&
-                    !isFullWidth &&
-                    'mx-auto w-[900px]',
+                    !docsTab?.fullBleed &&
+                    'mx-auto w-[var(--docs-content-width,900px)]',
                 )}
               >
+                {landingBreadcrumbItems && (
+                  // Overlays the hero's top padding; matches the hero container so it aligns with the logo.
+                  <div className="pointer-events-none absolute inset-x-0 top-0 z-10">
+                    <div className="mx-auto w-full max-w-384 px-5 pt-4 md:px-10 lg:px-12 lg:pt-5 2xl:px-20">
+                      <div className="pointer-events-auto w-fit">
+                        <Breadcrumbs
+                          section="Libraries"
+                          items={landingBreadcrumbItems}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
                 {children}
               </div>
             </div>

@@ -1,0 +1,214 @@
+@scope (:root:has(.tanchat-shell)) {
+  .execution-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+    padding-top: 16px;
+    font-size: 13px;
+  }
+  .execution-panel h3,
+  .execution-panel h4,
+  .execution-panel p {
+    margin: 0;
+  }
+  .execution-panel-tab {
+    padding: 16px;
+  }
+  .execution-history-picker {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    padding: 12px 16px;
+  }
+  .execution-history-picker label {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 12px;
+  }
+  .execution-history-picker .select-field-trigger {
+    width: 100%;
+    min-width: 0;
+    padding: 6px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    color: inherit;
+    background: transparent;
+    font: inherit;
+  }
+  .execution-history-error {
+    margin: 12px 16px 0;
+    font-size: 12px;
+  }
+  .execution-panel-summary {
+    gap: 8px;
+  }
+  .execution-panel-preview-inspection,
+  .execution-panel-file-editor {
+    min-width: 0;
+  }
+  .execution-panel-tab fieldset > label + label,
+  .execution-panel-tab fieldset > label + button {
+    margin-top: 10px;
+  }
+  .execution-panel h3,
+  .execution-panel h4 {
+    font-size: 13px;
+  }
+  .execution-panel-heading,
+  .execution-panel-actions,
+  .execution-panel-icon-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .execution-panel-heading {
+    justify-content: space-between;
+  }
+  .execution-panel-heading > strong {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .execution-panel-actions {
+    flex-wrap: wrap;
+  }
+  .execution-panel-actions:empty {
+    display: none;
+  }
+  .execution-panel-icon-actions {
+    flex: none;
+    gap: 2px;
+  }
+  .execution-panel-status,
+  .execution-panel-confirm,
+  .execution-panel label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .execution-panel small {
+    color: var(--muted);
+    font-size: 11px;
+  }
+  .execution-panel-error {
+    color: var(--danger);
+    overflow-wrap: anywhere;
+  }
+  .execution-panel fieldset {
+    border: 0;
+    padding: 0;
+    margin: 12px 0 0;
+    min-width: 0;
+  }
+  .execution-panel form,
+  .execution-panel-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 12px;
+    min-width: 0;
+  }
+  .execution-panel input,
+  .execution-panel textarea,
+  .execution-panel .select-field-trigger {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    font:
+      12px ui-monospace,
+      SFMono-Regular,
+      Menlo,
+      monospace;
+  }
+  .execution-panel textarea {
+    resize: vertical;
+  }
+  .execution-panel fieldset:disabled {
+    opacity: 0.6;
+  }
+  .execution-panel-processes ul {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0 0;
+  }
+  .execution-panel-processes li {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 0;
+  }
+  .execution-panel-processes li > div:first-child {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+  .execution-panel-processes > label {
+    margin-top: 10px;
+  }
+  .execution-panel-preview form {
+    flex-direction: row;
+    align-items: flex-end;
+  }
+  .execution-panel-preview form > label {
+    flex: 1;
+    min-width: 0;
+  }
+  .execution-panel pre {
+    margin: 8px 0 0;
+    padding: 10px;
+    max-width: 100%;
+    max-height: 280px;
+    overflow: auto;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    background: var(--soft);
+    border-radius: 6px;
+    font:
+      11px/1.5 ui-monospace,
+      SFMono-Regular,
+      Menlo,
+      monospace;
+  }
+  .execution-panel-output {
+    max-height: 320px;
+    overflow: auto;
+    margin-top: 8px;
+  }
+  .execution-panel-output > div + div {
+    margin-top: 8px;
+  }
+  .execution-panel-output pre {
+    margin-top: 3px;
+    max-height: none;
+  }
+  .execution-panel-receipt {
+    margin-top: 8px;
+  }
+  .execution-panel-receipt summary {
+    overflow-wrap: anywhere;
+  }
+  .execution-panel-receipt summary > span + span {
+    margin-left: 8px;
+    color: var(--muted);
+  }
+  .execution-panel summary {
+    cursor: pointer;
+  }
+  .execution-panel :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  @media (pointer: coarse) {
+    .execution-history-picker .select-field-trigger,
+    .execution-panel button:not(.icon-button),
+    .execution-panel summary,
+    .execution-panel input {
+      min-height: 44px;
+    }
+  }
+}

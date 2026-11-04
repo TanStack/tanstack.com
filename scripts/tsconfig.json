@@ -1,0 +1,15 @@
+{
+  "extends": "../tsconfig.json",
+  "include": [
+    "./verify-tanchat*.ts",
+    "./verify-builder-schema.ts",
+    "../src/**/*.d.ts",
+    "../src/routeTree.gen.ts"
+  ],
+  "exclude": [],
+  "compilerOptions": {
+    "types": ["node", "vite/client"],
+    "noEmit": true,
+    "tsBuildInfoFile": "../node_modules/.cache/tanchat-verify.tsbuildinfo"
+  }
+}

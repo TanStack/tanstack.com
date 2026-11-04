@@ -1,0 +1,383 @@
+@scope (:root:has(.tanchat-shell)) {
+  .conversation-context,
+  .conversation-context-main {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    overflow: clip;
+  }
+  .conversation-context-body {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    overflow: clip;
+  }
+  .conversation-context-main {
+    position: relative;
+  }
+  .conversation-context-header {
+    min-height: 48px;
+    flex-shrink: 0;
+  }
+  @media (pointer: coarse) {
+    .conversation-context-header {
+      min-height: 52px;
+    }
+  }
+  .conversation-navigator-presence {
+    display: flex;
+    flex: 0 0 auto;
+    width: var(--navigator-width, 280px);
+    min-height: 0;
+    overflow: clip;
+  }
+  .conversation-navigator-presence:where([data-panel-motion]) {
+    transition:
+      width var(--motion-panel) var(--motion-ease),
+      opacity var(--motion-panel) var(--motion-ease);
+  }
+  .conversation-navigator-presence:where(
+      [data-panel-motion]
+    )[data-starting-style],
+  .conversation-navigator-presence:where(
+      [data-panel-motion]
+    )[data-ending-style] {
+    width: 0;
+    opacity: 0;
+  }
+  .conversation-navigator {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: var(--navigator-width, 280px);
+    flex-shrink: 0;
+    min-height: 0;
+    background: var(--sidebar);
+    color: inherit;
+  }
+  .conversation-navigator-heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 6px 10px 6px 14px;
+    flex-shrink: 0;
+  }
+  .conversation-navigator-heading h2 {
+    margin: 0;
+    flex: 1;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .conversation-navigator-items {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0 8px 12px;
+  }
+  .conversation-navigator-items section + section {
+    margin-top: 18px;
+  }
+  .conversation-navigator-items h3 {
+    margin: 6px 6px 8px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .conversation-navigator-items p {
+    margin: 10px 6px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  :is(.conversation-navigator, .conversation-navigator-overlay) .thread-link,
+  .conversation-navigator-child {
+    width: 100%;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: inherit;
+    padding: 10px 8px;
+    text-align: left;
+    font: inherit;
+    font-size: 13px;
+    min-height: 44px;
+  }
+  :is(.conversation-navigator, .conversation-navigator-overlay) .thread-link {
+    display: grid;
+    grid-template-columns: 16px minmax(0, 1fr);
+    column-gap: 8px;
+    row-gap: 3px;
+  }
+  :is(.conversation-navigator, .conversation-navigator-overlay)
+    .thread-link
+    > svg {
+    grid-row: 1 / 3;
+    align-self: start;
+    margin-top: 2px;
+  }
+  :is(.conversation-navigator, .conversation-navigator-overlay)
+    .thread-link
+    > small {
+    grid-column: 2;
+    font-size: 11px;
+  }
+  .conversation-navigator-child {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-left: calc(8px + var(--navigator-child-depth, 0) * 16px);
+  }
+  .conversation-navigator-root {
+    margin-bottom: 12px;
+    border-radius: 0;
+  }
+  .conversation-navigator-root > svg {
+    flex-shrink: 0;
+  }
+  .conversation-navigator-root-label {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+  }
+  .conversation-navigator-root-label small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--muted);
+    font-size: 11px;
+  }
+  :is(.conversation-navigator, .conversation-navigator-overlay)
+    .conversation-navigator-root[aria-current='page'] {
+    background: transparent;
+  }
+  :is(.conversation-navigator, .conversation-navigator-overlay)
+    [aria-current='page'] {
+    background: var(--soft);
+  }
+  .conversation-navigator-child > span:last-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  :is(.conversation-navigator, .conversation-navigator-overlay)
+    :is(.thread-link, .conversation-navigator-child):hover {
+    background: var(--soft);
+  }
+  .conversation-navigator-child:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+  .conversation-navigator-overlay .conversation-navigator-items {
+    flex: initial;
+    overflow: visible;
+    padding: var(--conversation-card-padding);
+  }
+  .conversation-navigator-overlay {
+    width: var(--navigator-width, 360px);
+  }
+  .conversation-navigator-resizer {
+    position: absolute;
+    inset: 0 0 0 auto;
+    width: 12px;
+    z-index: 2;
+    cursor: col-resize;
+    touch-action: none;
+    outline: none;
+  }
+  .conversation-navigator-resizer::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 0 auto;
+    width: 2px;
+  }
+  .conversation-navigator-overlay > .conversation-navigator-resizer {
+    top: 22px;
+    bottom: 22px;
+  }
+
+  [data-navigator-resizing] .conversation-navigator-presence {
+    transition: none;
+  }
+  .conversation-context[data-navigator-resizing],
+  .conversation-context[data-navigator-resizing] * {
+    cursor: col-resize;
+    user-select: none;
+  }
+  .conversation-navigator-overlay .conversation-navigator-items h3 {
+    margin: 0 0 8px;
+    font-size: 13px;
+    line-height: 20px;
+    font-weight: 400;
+  }
+  .conversation-navigator-overlay section:first-child > h3 {
+    padding-right: 28px;
+  }
+  .conversation-navigator-overlay .conversation-navigator-root {
+    padding-right: 36px;
+    margin-bottom: 16px;
+  }
+  .conversation-navigator-overlay section + section {
+    margin-top: 16px;
+    padding-top: 16px;
+  }
+  .conversation-navigator-overlay
+    :is(.thread-link, .conversation-navigator-child) {
+    width: calc(100% + 16px);
+    margin-inline: -8px;
+    font-size: 14px;
+    line-height: 20px;
+  }
+  .conversation-navigator-overlay .conversation-navigator-items p {
+    margin: 8px 0 0;
+    line-height: 1.5;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .conversation-navigator-presence {
+      transition: none;
+    }
+  }
+  .conversation-navigator-search {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    margin: 4px 0 8px;
+    padding: 7px 9px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: 12px;
+  }
+  .conversation-navigator-search:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+  .conversation-navigator-overlay .conversation-navigator-search {
+    width: calc(100% - 30px);
+  }
+
+  /* Titles form one tree, with the filter above it. */
+  .conversation-navigator-heading {
+    position: absolute;
+    top: 12px;
+    right: 8px;
+    z-index: 2;
+    min-height: 0;
+    padding: 0;
+  }
+  .conversation-navigator-items {
+    padding-top: 10px;
+  }
+  .conversation-navigator-filter {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 32px;
+    margin: 0 34px 8px 0;
+  }
+  .conversation-navigator-filter .conversation-navigator-search {
+    flex: 1;
+    width: 0;
+    margin: 0;
+  }
+  .conversation-navigator-filter .icon-button {
+    flex-shrink: 0;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .conversation-navigator-heading,
+    .conversation-navigator-overlay > .conversation-card-close {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .conversation-navigator:hover .conversation-navigator-heading,
+    .conversation-navigator:focus-within .conversation-navigator-heading,
+    .conversation-navigator-overlay:hover > .conversation-card-close,
+    .conversation-navigator-overlay:focus-within > .conversation-card-close {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+  .conversation-navigator-root {
+    margin-bottom: 0;
+    border: 0;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+  .navigator-tree-children {
+    margin-left: 14px;
+  }
+  .navigator-tree-node {
+    position: relative;
+    padding-left: 14px;
+  }
+  .navigator-tree-node::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--line);
+  }
+  .navigator-tree-node:last-child::before {
+    height: 22px;
+    bottom: auto;
+  }
+  .navigator-tree-node::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 22px;
+    width: 12px;
+    height: 1px;
+    background: var(--line);
+  }
+
+  .conversation-navigator-overlay > .conversation-card-close {
+    top: calc(var(--conversation-card-padding) + 2px);
+  }
+
+  /* Keep the title and search on one compact row. */
+  .conversation-navigator-top {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding-right: 32px;
+  }
+  .conversation-navigator-top .conversation-navigator-root {
+    flex: 1;
+    width: 0;
+    min-width: 0;
+    margin: 0;
+  }
+  .conversation-navigator-top .conversation-navigator-filter {
+    flex: 1;
+    flex-direction: row-reverse;
+    margin: 0;
+    min-width: 0;
+  }
+  .conversation-navigator-top
+    .conversation-navigator-root
+    + .conversation-navigator-filter {
+    flex: 0 0 auto;
+  }
+  .conversation-navigator-items {
+    padding-top: 0;
+  }
+  .conversation-navigator-heading {
+    top: 8px;
+  }
+  .conversation-navigator-overlay
+    .conversation-navigator-top
+    .conversation-navigator-root {
+    padding-right: 8px;
+  }
+  .conversation-navigator-overlay > .conversation-card-close {
+    top: calc(var(--conversation-card-padding) + 8px);
+  }
+}

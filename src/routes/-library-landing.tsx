@@ -14,6 +14,7 @@ export type LandingLibraryId =
   | 'intent'
   | 'markdown'
   | 'pacer'
+  | 'redact'
   | 'query'
   | 'ranger'
   | 'router'

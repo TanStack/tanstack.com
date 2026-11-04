@@ -1,0 +1,14 @@
+@scope (:root:has(.tanchat-shell)) {
+  .execution-preview-viewport {
+    width: 100%;
+    height: clamp(240px, 52vh, 640px);
+    min-width: 0;
+    flex-shrink: 0;
+    background: var(--soft);
+  }
+  .execution-preview-viewport > p {
+    padding: 16px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+}

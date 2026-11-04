@@ -1,0 +1,16 @@
+import subprocess,json,sys,time
+from pathlib import Path
+name=sys.argv[1];run=sys.argv[2] if len(sys.argv)>2 else 'initial'
+rows=[]
+paths=['/noop']*8+['/cache']*3+['/r2']*3
+if name not in ['tiny','minimal']:paths+=['/docs']*5+['/noop']*2
+if len(sys.argv)>3: paths=[sys.argv[3]]*int(sys.argv[4])
+for i,path in enumerate(paths):
+ out=Path(f'/tmp/docs-cold-{name}-{run}-{i}.headers')
+ p=subprocess.run(['curl','-sS','--max-time','30','-H','Accept: text/html','-D',str(out),'-o',f'/tmp/docs-cold-{name}-{run}-{i}.body','-w','%{json}',f'https://tanstack-cold-probe-{name}.thetanstack.workers.dev{path}'],capture_output=True,text=True)
+ if p.returncode:print('curl error',p.stderr,flush=True);continue
+ m=json.loads(p.stdout);h={}
+ for line in out.read_text().splitlines():
+  if ':' in line:k,v=line.split(':',1);h[k.lower()]=v.strip()
+ row={'worker':name,'run':run,'path':path,'status':m['http_code'],'ttfb_ms':round(m['time_starttransfer']*1000,1),'total_ms':round(m['time_total']*1000,1),'tls_ms':round(m['time_appconnect']*1000,1),'after_connection_ms':round((m['time_starttransfer']-m['time_pretransfer'])*1000,1),'ray':h.get('cf-ray'),'instance':h.get('x-probe-instance'),'instance_request':h.get('x-probe-request'),'phase_ms':h.get('x-probe-phase-ms'),'server_timing':h.get('server-timing')}
+ rows.append(row);print(json.dumps(row),flush=True);Path(f'/tmp/docs-cold-{name}-{run}-measurements.json').write_text(json.dumps(rows,indent=2)+'\n');time.sleep(.5)

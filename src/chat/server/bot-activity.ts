@@ -22,9 +22,11 @@ export async function readBotActivity(
   workspaceId: string,
   userId: string,
 ): Promise<Record<string, BotActivitySummary>> {
-  const rows = await db.execute<ActivityRow>(
-    pg`SELECT a.*,a.activity_at::double precision AS activity_at,a.event_version::double precision AS event_version,a.read_version::double precision AS read_version,a.message_count::double precision AS message_count,a.queued_count::double precision AS queued_count FROM chat_conversation_activity a JOIN chat_conversations c ON c.id=a.conversation_id AND c.bot_id=a.bot_id AND c.user_id=a.user_id JOIN chat_bots b ON b.id=c.bot_id JOIN chat_memberships m ON m.workspace_id=b.workspace_id AND m.user_id=c.user_id WHERE b.workspace_id=${workspaceId} AND c.user_id=${userId} AND EXISTS(SELECT 1 FROM chat_conversation_mains main WHERE main.conversation_id=c.id AND main.bot_id=c.bot_id AND main.user_id=c.user_id)`,
-  )
+  const rows = (
+    await db.execute<ActivityRow>(
+      pg`SELECT a.*,a.activity_at::double precision AS activity_at,a.event_version::double precision AS event_version,a.read_version::double precision AS read_version,a.message_count::double precision AS message_count,a.queued_count::double precision AS queued_count FROM chat_conversation_activity a JOIN chat_conversations c ON c.id=a.conversation_id AND c.bot_id=a.bot_id AND c.user_id=a.user_id JOIN chat_bots b ON b.id=c.bot_id JOIN chat_memberships m ON m.workspace_id=b.workspace_id AND m.user_id=c.user_id WHERE b.workspace_id=${workspaceId} AND c.user_id=${userId} AND EXISTS(SELECT 1 FROM chat_conversation_mains main WHERE main.conversation_id=c.id AND main.bot_id=c.bot_id AND main.user_id=c.user_id)`,
+    )
+  ).rows
   return Object.fromEntries(
     rows.map((r) => [
       r.bot_id,
@@ -74,11 +76,11 @@ export async function readConversationReadVersion(
   userId: string,
   conversationId: string,
 ) {
-  const [seen] = await db.execute<
-    { read_version: number } & Record<string, unknown>
-  >(
-    pg`SELECT a.read_version::float8 AS read_version FROM chat_conversation_activity a JOIN chat_conversations c ON c.id=a.conversation_id AND c.bot_id=a.bot_id AND c.user_id=a.user_id JOIN chat_bots b ON b.id=c.bot_id JOIN chat_memberships m ON m.workspace_id=b.workspace_id AND m.user_id=c.user_id WHERE c.id=${conversationId} AND c.user_id=${userId} AND b.workspace_id=${workspaceId}`,
-  )
+  const [seen] = (
+    await db.execute<{ read_version: number } & Record<string, unknown>>(
+      pg`SELECT a.read_version::float8 AS read_version FROM chat_conversation_activity a JOIN chat_conversations c ON c.id=a.conversation_id AND c.bot_id=a.bot_id AND c.user_id=a.user_id JOIN chat_bots b ON b.id=c.bot_id JOIN chat_memberships m ON m.workspace_id=b.workspace_id AND m.user_id=c.user_id WHERE c.id=${conversationId} AND c.user_id=${userId} AND b.workspace_id=${workspaceId}`,
+    )
+  ).rows
   return seen?.read_version ?? 0
 }
 /** One persisted latest-value outbox. Conditional updates reject stale deliveries. */

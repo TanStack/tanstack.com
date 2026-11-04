@@ -20,9 +20,11 @@ const sourceScope = sql.raw(
   `EXISTS(SELECT 1 FROM chat_memberships membership JOIN chat_bots source ON source.workspace_id=membership.workspace_id JOIN chat_conversations conversation ON conversation.bot_id=source.id AND conversation.user_id=membership.user_id WHERE membership.workspace_id=chat_conversation_copies.workspace_id AND membership.user_id=chat_conversation_copies.user_id AND source.id=chat_conversation_copies.source_bot_id AND conversation.id=chat_conversation_copies.source_conversation_id AND source.deleted_at IS NULL)`,
 )
 const operation = async (_env: CopyRuntimeEnvironment, id: string) => {
-  const [row] = await db.execute<ConversationCopyRow & Record<string, unknown>>(
-    sql`SELECT ${columns} FROM chat_conversation_copies WHERE id=${id}::uuid`,
-  )
+  const [row] = (
+    await db.execute<ConversationCopyRow & Record<string, unknown>>(
+      sql`SELECT ${columns} FROM chat_conversation_copies WHERE id=${id}::uuid`,
+    )
+  ).rows
   return row
 }
 /** RPC identity validation. Cleanup only removes staging data and never grants access. */
@@ -39,9 +41,11 @@ export async function getAuthorizedCopyOperation(
     conversation = sql.identifier(
       role === 'source' ? 'source_conversation_id' : 'target_conversation_id',
     )
-  const [row] = await db.execute<ConversationCopyRow & Record<string, unknown>>(
-    sql`SELECT ${columns} FROM chat_conversation_copies WHERE id=${operationId}::uuid AND workspace_id=${identity.workspaceId} AND user_id=${identity.userId}::uuid AND ${bot}=${identity.botId} AND (${identity.conversationId ?? null}::text IS NULL OR ${conversation}=${identity.conversationId ?? null}) AND ${options.cleanup ? sql.raw("phase IN ('cleanup','done')") : sql`status='copying' AND ${sourceScope}`}`,
-  )
+  const [row] = (
+    await db.execute<ConversationCopyRow & Record<string, unknown>>(
+      sql`SELECT ${columns} FROM chat_conversation_copies WHERE id=${operationId}::uuid AND workspace_id=${identity.workspaceId} AND user_id=${identity.userId}::uuid AND ${bot}=${identity.botId} AND (${identity.conversationId ?? null}::text IS NULL OR ${conversation}=${identity.conversationId ?? null}) AND ${options.cleanup ? sql.raw("phase IN ('cleanup','done')") : sql`status='copying' AND ${sourceScope}`}`,
+    )
+  ).rows
   return row
 }
 async function updateOperation(
@@ -66,9 +70,11 @@ async function updateOperation(
     ([key, value]) =>
       sql`${sql.identifier(key)}=${value}${key === 'manifest_json' ? sql.raw('::jsonb') : sql.empty()}`,
   )
-  return db.execute(
-    sql`UPDATE chat_conversation_copies SET ${sql.join(assignments, sql`,`)},work_version=work_version+1,updated_at=${Date.now()} WHERE id=${row.id}::uuid AND work_version=${row.work_version} AND phase=${row.phase} AND status=${row.status}`,
-  )
+  return db
+    .execute(
+      sql`UPDATE chat_conversation_copies SET ${sql.join(assignments, sql`,`)},work_version=work_version+1,updated_at=${Date.now()} WHERE id=${row.id}::uuid AND work_version=${row.work_version} AND phase=${row.phase} AND status=${row.status}`,
+    )
+    .then((result) => result.rows)
 }
 async function failOperation(
   env: CopyRuntimeEnvironment,
@@ -99,18 +105,24 @@ function manifestFor(row: ConversationCopyRow): CopyManifest {
 }
 async function publish(env: CopyRuntimeEnvironment, row: ConversationCopyRow) {
   const published = await db.transaction(async (tx) => {
-    const [current] = await tx.execute(
-      sql`SELECT id FROM chat_conversation_copies WHERE id=${row.id}::uuid AND work_version=${row.work_version} AND status='copying' AND phase='publish' FOR UPDATE`,
-    )
+    const [current] = (
+      await tx.execute(
+        sql`SELECT id FROM chat_conversation_copies WHERE id=${row.id}::uuid AND work_version=${row.work_version} AND status='copying' AND phase='publish' FOR UPDATE`,
+      )
+    ).rows
     if (!current) return false
-    const [source] = await tx.execute(
-      sql`SELECT c.id FROM chat_conversations c JOIN chat_bots b ON b.id=c.bot_id JOIN chat_memberships m ON m.workspace_id=b.workspace_id AND m.user_id=c.user_id WHERE c.id=${row.source_conversation_id} AND c.bot_id=${row.source_bot_id} AND c.user_id=${row.user_id}::uuid AND b.workspace_id=${row.workspace_id} AND b.deleted_at IS NULL FOR SHARE OF c,b,m`,
-    )
+    const [source] = (
+      await tx.execute(
+        sql`SELECT c.id FROM chat_conversations c JOIN chat_bots b ON b.id=c.bot_id JOIN chat_memberships m ON m.workspace_id=b.workspace_id AND m.user_id=c.user_id WHERE c.id=${row.source_conversation_id} AND c.bot_id=${row.source_bot_id} AND c.user_id=${row.user_id}::uuid AND b.workspace_id=${row.workspace_id} AND b.deleted_at IS NULL FOR SHARE OF c,b,m`,
+      )
+    ).rows
     if (!source) return false
     if (row.parent_id) {
-      const [parent] = await tx.execute(
-        sql`SELECT id FROM chat_bots WHERE id=${row.parent_id} AND workspace_id=${row.workspace_id} AND archived_at IS NULL AND deleted_at IS NULL FOR SHARE`,
-      )
+      const [parent] = (
+        await tx.execute(
+          sql`SELECT id FROM chat_bots WHERE id=${row.parent_id} AND workspace_id=${row.workspace_id} AND archived_at IS NULL AND deleted_at IS NULL FOR SHARE`,
+        )
+      ).rows
       if (!parent) return false
     }
     const now = Date.now(),
@@ -148,9 +160,11 @@ export async function resumeConversationCopies(
   identity: CopyIdentity,
   source: CopySourcePort,
 ): Promise<{ pending: boolean; nextWakeAt?: number }> {
-  const [row] = await db.execute<ConversationCopyRow & Record<string, unknown>>(
-    sql`SELECT ${columns} FROM chat_conversation_copies WHERE ${scope(identity)} AND phase!='done' AND retry_at<=${Date.now()} ORDER BY chat_conversation_copies.updated_at,chat_conversation_copies.id LIMIT 1`,
-  )
+  const [row] = (
+    await db.execute<ConversationCopyRow & Record<string, unknown>>(
+      sql`SELECT ${columns} FROM chat_conversation_copies WHERE ${scope(identity)} AND phase!='done' AND retry_at<=${Date.now()} ORDER BY chat_conversation_copies.updated_at,chat_conversation_copies.id LIMIT 1`,
+    )
+  ).rows
   if (row) {
     try {
       const target: CopyTargetPort = env.CONVERSATIONS.getByName(
@@ -283,9 +297,11 @@ export async function resumeConversationCopies(
       })
     }
   }
-  const [next] = await db.execute<{ wake: number | null }>(
-    sql`SELECT min(retry_at)::double precision AS wake FROM chat_conversation_copies WHERE ${scope(identity)} AND phase!='done'`,
-  )
+  const [next] = (
+    await db.execute<{ wake: number | null }>(
+      sql`SELECT min(retry_at)::double precision AS wake FROM chat_conversation_copies WHERE ${scope(identity)} AND phase!='done'`,
+    )
+  ).rows
   return next?.wake === null || next?.wake === undefined
     ? { pending: false }
     : { pending: true, nextWakeAt: Math.max(Date.now() + 1, next.wake) }

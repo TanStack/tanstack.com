@@ -40,9 +40,11 @@ export async function readBootstrap(
       readCredentials(env, user.userId),
       readKodyUsername(user.userId),
       fundedSpendReport(user.userId),
-      db.execute<{ turns: number } & Record<string, unknown>>(
-        sql`SELECT turns::float8 AS turns FROM chat_daily_usage WHERE user_id=${user.userId} AND day=${new Date().toISOString().slice(0, 10)}`,
-      ),
+      db
+        .execute<{ turns: number } & Record<string, unknown>>(
+          sql`SELECT turns::float8 AS turns FROM chat_daily_usage WHERE user_id=${user.userId} AND day=${new Date().toISOString().slice(0, 10)}`,
+        )
+        .then((result) => result.rows),
       hasUnlimitedUsage(user.userId, env.UNLIMITED_USAGE_EMAILS),
     ])
   const assistantId = `assistant:${user.userId}`

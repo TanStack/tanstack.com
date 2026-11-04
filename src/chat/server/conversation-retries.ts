@@ -67,7 +67,7 @@ export class ConversationRetries {
         await db.execute(
           sql`SELECT 1 FROM chat_memberships WHERE workspace_id=${this.workspaceId} AND user_id=${this.userId}`,
         )
-      )[0])
+      ).rows[0])
     )
       throw new BotWorkspaceError('Workspace not found.', 404)
   }
@@ -77,7 +77,7 @@ export class ConversationRetries {
       await db.execute<ConversationRetryRow & Record<string, unknown>>(
         sql`SELECT *,source_json::text AS source_json,file_plan_json::text AS file_plan_json,created_at::float8 AS created_at,updated_at::float8 AS updated_at FROM chat_conversation_retries WHERE id=${id} AND workspace_id=${this.workspaceId} AND user_id=${this.userId}`,
       )
-    )[0]
+    ).rows[0]
     if (!row) throw new BotWorkspaceError('Retry attempt not found.', 404)
     return row
   }
@@ -86,7 +86,7 @@ export class ConversationRetries {
       await db.execute<ConversationCopyRow & Record<string, unknown>>(
         sql`SELECT *,boundary_json::text AS boundary_json,manifest_json::text AS manifest_json,next_page::float8 AS next_page,work_version::float8 AS work_version,attempts::float8 AS attempts,retry_at::float8 AS retry_at,created_at::float8 AS created_at,updated_at::float8 AS updated_at,completed_at::float8 AS completed_at FROM chat_conversation_copies WHERE retry_id=${row.id} AND workspace_id=${this.workspaceId} AND user_id=${this.userId}`,
       )
-    )[0]
+    ).rows[0]
   }
   private async target(copy: ConversationCopyRow) {
     const identity = await resolveConversationIdentity({
@@ -104,7 +104,7 @@ export class ConversationRetries {
       >(
         sql`SELECT (extract(epoch FROM archived_at)*1000)::float8 AS archived_at,(extract(epoch FROM deleted_at)*1000)::float8 AS deleted_at FROM chat_bots WHERE id=${identity.botId}`,
       )
-    )[0]
+    ).rows[0]
     if (
       !metadata ||
       metadata.archived_at !== null ||
@@ -219,7 +219,7 @@ export class ConversationRetries {
       await db.execute<ConversationRetryRow & Record<string, unknown>>(
         sql`SELECT *,source_json::text AS source_json,file_plan_json::text AS file_plan_json,created_at::float8 AS created_at,updated_at::float8 AS updated_at FROM chat_conversation_retries WHERE workspace_id=${this.workspaceId} AND user_id=${this.userId} AND idempotency_key=${value.idempotencyKey}`,
       )
-    )[0]
+    ).rows[0]
     if (!row) {
       const exact = await resolveConversationIdentity(identity)
       const stub = this.env.CONVERSATIONS.getByName(exact.conversationId)
@@ -235,9 +235,11 @@ export class ConversationRetries {
         await tx.execute(
           sql`SELECT pg_advisory_xact_lock(hashtextextended(${canonicalCopyJson(['chat-retry-admission', this.workspaceId, this.userId])},0))`,
         )
-        const [current] = await tx.execute(
-          sql`SELECT 1 FROM chat_conversations c JOIN chat_bots b ON b.id=c.bot_id JOIN chat_memberships m ON m.workspace_id=b.workspace_id AND m.user_id=c.user_id WHERE c.id=${exact.conversationId} AND c.bot_id=${exact.botId} AND c.user_id=${this.userId} AND b.workspace_id=${this.workspaceId} AND b.deleted_at IS NULL FOR SHARE OF c,b,m`,
-        )
+        const [current] = (
+          await tx.execute(
+            sql`SELECT 1 FROM chat_conversations c JOIN chat_bots b ON b.id=c.bot_id JOIN chat_memberships m ON m.workspace_id=b.workspace_id AND m.user_id=c.user_id WHERE c.id=${exact.conversationId} AND c.bot_id=${exact.botId} AND c.user_id=${this.userId} AND b.workspace_id=${this.workspaceId} AND b.deleted_at IS NULL FOR SHARE OF c,b,m`,
+          )
+        ).rows
         if (!current)
           throw new BotWorkspaceError('Conversation not found.', 404)
         await tx.execute(sql`INSERT INTO chat_conversation_retries
@@ -253,7 +255,7 @@ export class ConversationRetries {
         await db.execute<ConversationRetryRow & Record<string, unknown>>(
           sql`SELECT *,source_json::text AS source_json,file_plan_json::text AS file_plan_json,created_at::float8 AS created_at,updated_at::float8 AS updated_at FROM chat_conversation_retries WHERE workspace_id=${this.workspaceId} AND user_id=${this.userId} AND idempotency_key=${value.idempotencyKey}`,
         )
-      )[0]
+      ).rows[0]
       if (!row)
         throw new BotWorkspaceError(
           'Retry preparation is unavailable. Check access and the 200-attempt preview limit.',

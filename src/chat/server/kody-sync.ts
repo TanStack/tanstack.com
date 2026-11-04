@@ -70,11 +70,13 @@ async function probeAccount(
 ) {
   if (options.fixture || !options.policy.allowKody || !env.KODY_ORIGIN)
     return undefined
-  const [row] = await db.execute<
-    { policy: string; subject: string | null } & Record<string, unknown>
-  >(
-    sql`SELECT w.policy::text AS policy,(SELECT subject FROM chat_kody_links WHERE user_id=${scope.userId}) AS subject FROM chat_workspaces w JOIN chat_memberships m ON m.workspace_id=w.id WHERE w.id=${scope.workspaceId} AND m.user_id=${scope.userId}`,
-  )
+  const [row] = (
+    await db.execute<
+      { policy: string; subject: string | null } & Record<string, unknown>
+    >(
+      sql`SELECT w.policy::text AS policy,(SELECT subject FROM chat_kody_links WHERE user_id=${scope.userId}) AS subject FROM chat_workspaces w JOIN chat_memberships m ON m.workspace_id=w.id WHERE w.id=${scope.workspaceId} AND m.user_id=${scope.userId}`,
+    )
+  ).rows
   if (!row) return undefined
   let policy: Policy
   try {
@@ -110,11 +112,13 @@ export async function probeKodyAccount(
 ): Promise<boolean> {
   const before = await probeAccount(env, scope, options)
   if (!before || signal.aborted) return false
-  const [claimed] = await db.execute<
-    { revision: number; source_fingerprint: string } & Record<string, unknown>
-  >(
-    sql`INSERT INTO chat_kody_account_probe(user_id,account_fingerprint,checked_at,revision) VALUES(${scope.userId},${before.fingerprint},${Date.now()},1) ON CONFLICT(user_id) DO UPDATE SET source_fingerprint=CASE WHEN chat_kody_account_probe.account_fingerprint<>excluded.account_fingerprint THEN '' ELSE chat_kody_account_probe.source_fingerprint END,account_fingerprint=excluded.account_fingerprint,checked_at=excluded.checked_at,revision=chat_kody_account_probe.revision+1 WHERE chat_kody_account_probe.account_fingerprint<>excluded.account_fingerprint OR chat_kody_account_probe.checked_at<=excluded.checked_at-${probeInterval} RETURNING revision::float8 AS revision,source_fingerprint`,
-  )
+  const [claimed] = (
+    await db.execute<
+      { revision: number; source_fingerprint: string } & Record<string, unknown>
+    >(
+      sql`INSERT INTO chat_kody_account_probe(user_id,account_fingerprint,checked_at,revision) VALUES(${scope.userId},${before.fingerprint},${Date.now()},1) ON CONFLICT(user_id) DO UPDATE SET source_fingerprint=CASE WHEN chat_kody_account_probe.account_fingerprint<>excluded.account_fingerprint THEN '' ELSE chat_kody_account_probe.source_fingerprint END,account_fingerprint=excluded.account_fingerprint,checked_at=excluded.checked_at,revision=chat_kody_account_probe.revision+1 WHERE chat_kody_account_probe.account_fingerprint<>excluded.account_fingerprint OR chat_kody_account_probe.checked_at<=excluded.checked_at-${probeInterval} RETURNING revision::float8 AS revision,source_fingerprint`,
+    )
+  ).rows
   if (!claimed) return false
   try {
     const raw = await call(
@@ -147,9 +151,11 @@ export async function probeKodyAccount(
     const fingerprint = `${index.format}:${index.fingerprint}`
     const changed = fingerprint !== claimed.source_fingerprint
     return db.transaction(async (tx) => {
-      const published = await tx.execute(
-        sql`UPDATE chat_kody_account_probe SET source_fingerprint=${fingerprint} WHERE user_id=${scope.userId} AND account_fingerprint=${before.fingerprint} AND revision=${claimed.revision} AND EXISTS(SELECT 1 FROM chat_memberships m JOIN chat_workspaces w ON w.id=m.workspace_id WHERE m.workspace_id=${scope.workspaceId} AND m.user_id=${scope.userId} AND w.policy=${before.policyText}::jsonb) AND (SELECT subject FROM chat_kody_links WHERE user_id=${scope.userId}) IS NOT DISTINCT FROM ${before.subject}::text RETURNING user_id`,
-      )
+      const published = (
+        await tx.execute(
+          sql`UPDATE chat_kody_account_probe SET source_fingerprint=${fingerprint} WHERE user_id=${scope.userId} AND account_fingerprint=${before.fingerprint} AND revision=${claimed.revision} AND EXISTS(SELECT 1 FROM chat_memberships m JOIN chat_workspaces w ON w.id=m.workspace_id WHERE m.workspace_id=${scope.workspaceId} AND m.user_id=${scope.userId} AND w.policy=${before.policyText}::jsonb) AND (SELECT subject FROM chat_kody_links WHERE user_id=${scope.userId}) IS NOT DISTINCT FROM ${before.subject}::text RETURNING user_id`,
+        )
+      ).rows
       if (!published.length) return false
       if (changed) {
         await tx.execute(

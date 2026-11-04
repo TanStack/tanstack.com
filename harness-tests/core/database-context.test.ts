@@ -23,17 +23,20 @@ vi.mock('~/server/runtime/host.server', () => ({
     return true
   },
 }))
-vi.mock('postgres', () => ({
-  default: vi.fn(() => {
-    const client = {
-      execute: vi.fn(async () => []),
-      end: vi.fn(async () => {}),
+vi.mock('pg', () => ({
+  Pool: class {
+    constructor() {
+      const client = {
+        execute: vi.fn(async () => ({ rows: [] })),
+        on: vi.fn(),
+        end: vi.fn(async () => {}),
+      }
+      runtime.clients.push(client)
+      return client
     }
-    runtime.clients.push(client)
-    return client
-  }),
+  },
 }))
-vi.mock('drizzle-orm/postgres-js', () => ({
+vi.mock('drizzle-orm/node-postgres', () => ({
   drizzle: (client: { execute: ReturnType<typeof vi.fn> }) => client,
 }))
 

@@ -11,6 +11,7 @@ import { visitorChatCookieAge } from '../visitor-chat/contract'
 import { and, desc, eq, gt, lt, sql } from 'drizzle-orm'
 import { isIP } from 'node:net'
 import { db } from '~/db/client'
+import { databaseFailureKind } from '~/db/errors'
 import { liveSessions, liveTabs } from '~/db/schema'
 import { requireAdmin } from '~/utils/roles.server'
 import {
@@ -92,7 +93,12 @@ export async function receiveLiveEvent(request: Request) {
     )
     const chat = await timeRequestWork('presence_chat_lookup', () =>
       offerVisitorChat(request, parsed.data, Boolean(created)),
-    ).catch(() => null)
+    ).catch((error: unknown) => {
+      console.warn('Live chat lookup failed', {
+        kind: databaseFailureKind(error),
+      })
+      return null
+    })
     if (chat) {
       const headers = new Headers(responseHeaders)
       if (chat.cookie) headers.append('Set-Cookie', chat.cookie)
@@ -104,9 +110,11 @@ export async function receiveLiveEvent(request: Request) {
       return Response.json({ chat: true }, { headers })
     }
     return respond(204)
-  } catch {
+  } catch (error) {
     // Never log a request, body, IP, or third-party exception here.
-    console.warn('Live presence update failed')
+    console.warn('Live presence update failed', {
+      kind: databaseFailureKind(error),
+    })
     return respond(503)
   }
 }
@@ -333,7 +341,7 @@ export async function listLiveCompanyOverview() {
   const companies = config.enabled
     ? z
         .array(liveCompanyOverviewRowSchema)
-        .parse(await db.execute(liveCompanyOverviewSql(now)))
+        .parse((await db.execute(liveCompanyOverviewSql(now))).rows)
     : []
   return {
     enabled: config.enabled,

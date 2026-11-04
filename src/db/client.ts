@@ -38,11 +38,19 @@ function createPostgresClient(connectionString: string) {
   })
   // Idle clients can lose their connection between queries. pg removes them
   // from the pool; handle the event so it cannot crash the process.
-  client.on('error', (error) =>
+  client.on('error', (error) => {
+    // Hyperdrive can close the socket before pg finishes its explicit shutdown.
+    // This event is expected only after we have started ending this pool.
+    if (
+      client.ending &&
+      error instanceof TypeError &&
+      error.message === 'This socket has been closed.'
+    )
+      return
     console.warn('Idle database connection lost', {
       kind: databaseFailureKind(error),
-    }),
-  )
+    })
+  })
   return client
 }
 

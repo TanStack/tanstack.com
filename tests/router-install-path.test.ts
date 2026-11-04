@@ -14,7 +14,7 @@ for (const framework of router.frameworks) {
       docsPath,
       'quick-start',
       `Router install path for ${framework} should point at the canonical ` +
-      `quick-start doc, not a framework-nested path that doesn't exist`,
+        `quick-start doc, not a framework-nested path that doesn't exist`,
     )
     assert.doesNotMatch(
       docsPath,

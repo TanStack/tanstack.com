@@ -27,7 +27,8 @@ export async function resolveWorkflowContext(
     .optional()
     .parse(childConversationId)
   const read = async () => {
-    const [row] = await db.execute<{ policy: string }>(sql`
+    const [row] = (
+      await db.execute<{ policy: string }>(sql`
       SELECT w.policy::text AS policy FROM chat_conversations c
       JOIN chat_bots b ON b.id=c.bot_id
       JOIN chat_workspaces w ON w.id=b.workspace_id
@@ -40,6 +41,7 @@ export async function resolveWorkflowContext(
           WHERE child.id=${childId ?? null} AND child.bot_id=b.id AND child.user_id=c.user_id
             AND NOT EXISTS (SELECT 1 FROM chat_conversation_threads t WHERE t.conversation_id=child.id AND t.archived_at IS NOT NULL)
         ))`)
+    ).rows
     if (!row) throw new ConversationIdentityError()
     const policy = policySchema.parse(JSON.parse(row.policy))
     if (!policy.allowChatModels)

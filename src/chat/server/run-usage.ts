@@ -16,9 +16,11 @@ export async function hasUnlimitedUsage(
       .filter(Boolean),
   )
   if (!emails.size) return false
-  const [user] = await db.execute<{ email: string }>(
-    sql`SELECT email FROM users WHERE id=${userId}::uuid`,
-  )
+  const [user] = (
+    await db.execute<{ email: string }>(
+      sql`SELECT email FROM users WHERE id=${userId}::uuid`,
+    )
+  ).rows
   return !!user && emails.has(user.email.trim().toLowerCase())
 }
 
@@ -128,15 +130,17 @@ export async function reserveRunUsage(
     unlimited,
     spend,
   })
-  const [result] = await db.execute<{
-    outcome:
-      | 'reserved'
-      | 'duplicate'
-      | 'conflict'
-      | ConstructorParameters<typeof RunUsageAllowanceError>[0]
-    receipt_day: string
-  }>(sql`SELECT * FROM public.reserve_chat_run_usage(${request}::jsonb,
+  const [result] = (
+    await db.execute<{
+      outcome:
+        | 'reserved'
+        | 'duplicate'
+        | 'conflict'
+        | ConstructorParameters<typeof RunUsageAllowanceError>[0]
+      receipt_day: string
+    }>(sql`SELECT * FROM public.reserve_chat_run_usage(${request}::jsonb,
     ${JSON.stringify(['chat-run-receipt', identity.conversationId, runId])})`)
+  ).rows
   if (result.outcome === 'conflict') throw new RunUsageConflictError()
   if (result.outcome !== 'reserved' && result.outcome !== 'duplicate')
     throw new RunUsageAllowanceError(result.outcome)
@@ -147,14 +151,16 @@ export async function fundedSpendReport(
   userId: string,
   day = new Date().toISOString().slice(0, 10),
 ) {
-  const [row] = await db.execute<{
-    user_micros: number
-    global_micros: number
-    unknown_runs: number
-  }>(sql`SELECT
+  const [row] = (
+    await db.execute<{
+      user_micros: number
+      global_micros: number
+      unknown_runs: number
+    }>(sql`SELECT
     COALESCE((SELECT SUM(billed_micros) FROM chat_funded_spend WHERE day=${day} AND user_id=${userId}::uuid),0)::double precision AS user_micros,
     COALESCE((SELECT SUM(billed_micros) FROM chat_funded_spend WHERE day=${day}),0)::double precision AS global_micros,
     COALESCE((SELECT COUNT(*) FROM chat_funded_spend WHERE day=${day} AND user_id=${userId}::uuid AND unknown),0)::double precision AS unknown_runs`)
+  ).rows
   return row ?? { user_micros: 0, global_micros: 0, unknown_runs: 0 }
 }
 
@@ -170,9 +176,11 @@ export async function settleFundedSpend(
     throw new Error('Invalid funded usage estimate.')
   const micros = Math.ceil(estimatedUsd * 1_000_000)
   await db.transaction(async (tx) => {
-    const [receipt] = await tx.execute<{ day: string }>(
-      sql`SELECT day FROM chat_funded_spend WHERE conversation_id=${conversationId} AND run_id=${runId}`,
-    )
+    const [receipt] = (
+      await tx.execute<{ day: string }>(
+        sql`SELECT day FROM chat_funded_spend WHERE conversation_id=${conversationId} AND run_id=${runId}`,
+      )
+    ).rows
     if (!receipt) return
     await tx.execute(
       sql`SELECT pg_advisory_xact_lock(hashtextextended(${'chat-run-usage:' + receipt.day},0))`,

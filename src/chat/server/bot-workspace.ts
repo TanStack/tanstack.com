@@ -79,9 +79,11 @@ export class BotWorkspace extends WorkspaceSections {
   }
 
   private async authorizeWorkspace() {
-    const rows = await db.execute(
-      sql`SELECT 1 FROM chat_memberships WHERE workspace_id=${this.workspaceId} AND user_id=${this.userId}`,
-    )
+    const rows = (
+      await db.execute(
+        sql`SELECT 1 FROM chat_memberships WHERE workspace_id=${this.workspaceId} AND user_id=${this.userId}`,
+      )
+    ).rows
     if (!rows.length)
       throw new BotWorkspaceError('Workspace access is unavailable.', 403)
   }
@@ -93,9 +95,11 @@ export class BotWorkspace extends WorkspaceSections {
     const now = new Date()
     try {
       await db.transaction(async (tx) => {
-        const members = await tx.execute(
-          sql`SELECT 1 FROM chat_memberships WHERE workspace_id=${this.workspaceId} AND user_id=${this.userId} FOR SHARE`,
-        )
+        const members = (
+          await tx.execute(
+            sql`SELECT 1 FROM chat_memberships WHERE workspace_id=${this.workspaceId} AND user_id=${this.userId} FOR SHARE`,
+          )
+        ).rows
         if (!members.length)
           throw new BotWorkspaceError(
             'Access changed before the conversation could be created. Refresh and try again.',
@@ -175,9 +179,11 @@ export class BotWorkspace extends WorkspaceSections {
     try {
       await options?.beforeCommit?.()
       await db.transaction(async (tx) => {
-        const members = await tx.execute(
-          sql`SELECT 1 FROM chat_memberships WHERE workspace_id=${this.workspaceId} AND user_id=${this.userId} FOR SHARE`,
-        )
+        const members = (
+          await tx.execute(
+            sql`SELECT 1 FROM chat_memberships WHERE workspace_id=${this.workspaceId} AND user_id=${this.userId} FOR SHARE`,
+          )
+        ).rows
         const current = await tx
           .select()
           .from(chatBots)
@@ -199,11 +205,11 @@ export class BotWorkspace extends WorkspaceSections {
             409,
           )
         if (reservation.botIds.length) {
-          const rows = await tx.execute<
-            { id: string } & Record<string, unknown>
-          >(
-            sql`SELECT id FROM chat_conversations WHERE bot_id=${id} ORDER BY id FOR SHARE`,
-          )
+          const rows = (
+            await tx.execute<{ id: string } & Record<string, unknown>>(
+              sql`SELECT id FROM chat_conversations WHERE bot_id=${id} ORDER BY id FOR SHARE`,
+            )
+          ).rows
           const expected = [...reservation.conversationIds].sort()
           if (
             rows.length !== expected.length ||
@@ -233,11 +239,11 @@ export class BotWorkspace extends WorkspaceSections {
             version: value.version + 1,
           })
           .where(eq(chatBots.id, id))
-        const [deadline] = await tx.execute<
-          { valid: boolean } & Record<string, unknown>
-        >(
-          sql`SELECT extract(epoch FROM clock_timestamp())*1000 < ${reservation.expiresAt} AS valid`,
-        )
+        const [deadline] = (
+          await tx.execute<{ valid: boolean } & Record<string, unknown>>(
+            sql`SELECT extract(epoch FROM clock_timestamp())*1000 < ${reservation.expiresAt} AS valid`,
+          )
+        ).rows
         if (!deadline.valid)
           throw new BotWorkspaceError(
             'The lifecycle check expired. Try again.',
@@ -283,9 +289,11 @@ export class BotWorkspace extends WorkspaceSections {
       await tx.execute(
         sql`SELECT pg_advisory_xact_lock(hashtextextended(${JSON.stringify(['chat-section-order', this.workspaceId, this.userId])},0))`,
       )
-      const members = await tx.execute(
-        sql`SELECT 1 FROM chat_memberships WHERE workspace_id=${this.workspaceId} AND user_id=${this.userId} FOR SHARE`,
-      )
+      const members = (
+        await tx.execute(
+          sql`SELECT 1 FROM chat_memberships WHERE workspace_id=${this.workspaceId} AND user_id=${this.userId} FOR SHARE`,
+        )
+      ).rows
       const [current] = await tx
         .select()
         .from(chatBots)
@@ -304,9 +312,11 @@ export class BotWorkspace extends WorkspaceSections {
           409,
         )
       if (value.sectionId) {
-        const sections = await tx.execute(
-          sql`SELECT id FROM chat_bot_sections WHERE id=${value.sectionId} AND workspace_id=${this.workspaceId} AND user_id=${this.userId} FOR SHARE`,
-        )
+        const sections = (
+          await tx.execute(
+            sql`SELECT id FROM chat_bot_sections WHERE id=${value.sectionId} AND workspace_id=${this.workspaceId} AND user_id=${this.userId} FOR SHARE`,
+          )
+        ).rows
         if (!sections.length)
           throw new BotWorkspaceError('Section not found.', 404)
       }
@@ -382,17 +392,19 @@ export class BotWorkspace extends WorkspaceSections {
   }
   private async subtree(id: string, tx: Transaction | typeof db = db) {
     return Array.from(
-      await tx.execute<
-        {
-          id: string
-          version: number
-          deleted_at: number | null
-          deletion_batch: string | null
-        } & Record<string, unknown>
-      >(sql`WITH RECURSIVE tree(id) AS (
+      (
+        await tx.execute<
+          {
+            id: string
+            version: number
+            deleted_at: number | null
+            deletion_batch: string | null
+          } & Record<string, unknown>
+        >(sql`WITH RECURSIVE tree(id) AS (
       SELECT id FROM chat_bots WHERE id=${id} AND workspace_id=${this.workspaceId}
       UNION SELECT b.id FROM chat_bots b JOIN tree t ON b.parent_id=t.id WHERE b.workspace_id=${this.workspaceId}
-    ) SELECT b.id,b.version::float8 AS version,trunc(extract(epoch FROM b.deleted_at)*1000)::float8 AS deleted_at,b.deletion_batch FROM tree t JOIN chat_bots b ON b.id=t.id ORDER BY b.id`),
+    ) SELECT b.id,b.version::float8 AS version,trunc(extract(epoch FROM b.deleted_at)*1000)::float8 AS deleted_at,b.deletion_batch FROM tree t JOIN chat_bots b ON b.id=t.id ORDER BY b.id`)
+      ).rows,
     )
   }
   private async activeAncestor(
@@ -423,9 +435,11 @@ export class BotWorkspace extends WorkspaceSections {
     await tx.execute(
       sql`SELECT pg_advisory_xact_lock(hashtextextended(${'chat-hierarchy:' + this.workspaceId},0))`,
     )
-    const member = await tx.execute(
-      sql`SELECT 1 FROM chat_memberships WHERE workspace_id=${this.workspaceId} AND user_id=${this.userId} FOR SHARE`,
-    )
+    const member = (
+      await tx.execute(
+        sql`SELECT 1 FROM chat_memberships WHERE workspace_id=${this.workspaceId} AND user_id=${this.userId} FOR SHARE`,
+      )
+    ).rows
     await tx
       .select({ id: chatBots.id })
       .from(chatBots)
@@ -479,11 +493,11 @@ export class BotWorkspace extends WorkspaceSections {
     try {
       await db.transaction(async (tx) => {
         await this.lockSubtree(tx, id, snapshot)
-        const conversations = await tx.execute<
-          { id: string } & Record<string, unknown>
-        >(
-          sql`SELECT id FROM chat_conversations WHERE bot_id IN(SELECT jsonb_array_elements_text(${JSON.stringify(reservation.botIds)}::jsonb)) ORDER BY id FOR SHARE`,
-        )
+        const conversations = (
+          await tx.execute<{ id: string } & Record<string, unknown>>(
+            sql`SELECT id FROM chat_conversations WHERE bot_id IN(SELECT jsonb_array_elements_text(${JSON.stringify(reservation.botIds)}::jsonb)) ORDER BY id FOR SHARE`,
+          )
+        ).rows
         const expected = [...reservation.conversationIds].sort()
         if (
           conversations.length !== expected.length ||
@@ -504,11 +518,11 @@ export class BotWorkspace extends WorkspaceSections {
         await tx.execute(
           sql`UPDATE chat_bots SET version=version+1,updated_at=${now.toISOString()},deleted_at=${now.toISOString()},deletion_batch=${batch} WHERE id IN(SELECT jsonb_array_elements_text(${JSON.stringify(targets.map((row) => row.id))}::jsonb)) AND deleted_at IS NULL`,
         )
-        const [deadline] = await tx.execute<
-          { valid: boolean } & Record<string, unknown>
-        >(
-          sql`SELECT extract(epoch FROM clock_timestamp())*1000 < ${reservation.expiresAt} AS valid`,
-        )
+        const [deadline] = (
+          await tx.execute<{ valid: boolean } & Record<string, unknown>>(
+            sql`SELECT extract(epoch FROM clock_timestamp())*1000 < ${reservation.expiresAt} AS valid`,
+          )
+        ).rows
         if (!deadline.valid)
           throw new BotWorkspaceError(
             'The lifecycle check expired. Try again.',
@@ -613,9 +627,11 @@ export class BotWorkspace extends WorkspaceSections {
       await tx.execute(
         sql`SELECT pg_advisory_xact_lock(hashtextextended(${'chat-hierarchy:' + this.workspaceId},0))`,
       )
-      const member = await tx.execute(
-        sql`SELECT 1 FROM chat_memberships WHERE workspace_id=${this.workspaceId} AND user_id=${this.userId} FOR SHARE`,
-      )
+      const member = (
+        await tx.execute(
+          sql`SELECT 1 FROM chat_memberships WHERE workspace_id=${this.workspaceId} AND user_id=${this.userId} FOR SHARE`,
+        )
+      ).rows
       await tx
         .select({ id: chatBots.id })
         .from(chatBots)
@@ -633,9 +649,11 @@ export class BotWorkspace extends WorkspaceSections {
           409,
         )
       if (value.sectionId) {
-        const sections = await tx.execute(
-          sql`SELECT id FROM chat_bot_sections WHERE id=${value.sectionId} AND workspace_id=${this.workspaceId} AND user_id=${this.userId} FOR SHARE`,
-        )
+        const sections = (
+          await tx.execute(
+            sql`SELECT id FROM chat_bot_sections WHERE id=${value.sectionId} AND workspace_id=${this.workspaceId} AND user_id=${this.userId} FOR SHARE`,
+          )
+        ).rows
         if (!sections.length)
           throw new BotWorkspaceError('Section not found.', 404)
       }
@@ -783,9 +801,11 @@ export class BotWorkspace extends WorkspaceSections {
         await tx.execute(
           sql`SELECT pg_advisory_xact_lock(hashtextextended(${'chat-hierarchy:' + this.workspaceId},0))`,
         )
-        const member = await tx.execute(
-          sql`SELECT 1 FROM chat_memberships WHERE workspace_id=${this.workspaceId} AND user_id=${this.userId} FOR SHARE`,
-        )
+        const member = (
+          await tx.execute(
+            sql`SELECT 1 FROM chat_memberships WHERE workspace_id=${this.workspaceId} AND user_id=${this.userId} FOR SHARE`,
+          )
+        ).rows
         if (!member.length) throw conflict()
         await tx
           .select({ id: chatBots.id })
@@ -839,9 +859,11 @@ export class BotWorkspace extends WorkspaceSections {
             if (collision.length) throw conflict()
           }
           if (!after && before) {
-            const outsiders = await tx.execute(
-              sql`SELECT 1 FROM chat_bot_viewer_state WHERE section_id=${before.id} AND bot_id NOT IN(SELECT jsonb_array_elements_text(${JSON.stringify([...ids])}::jsonb)) LIMIT 1`,
-            )
+            const outsiders = (
+              await tx.execute(
+                sql`SELECT 1 FROM chat_bot_viewer_state WHERE section_id=${before.id} AND bot_id NOT IN(SELECT jsonb_array_elements_text(${JSON.stringify([...ids])}::jsonb)) LIMIT 1`,
+              )
+            ).rows
             if (outsiders.length) throw conflict()
           }
         }
@@ -854,11 +876,11 @@ export class BotWorkspace extends WorkspaceSections {
             !sectionRows.some((section) => section.id === after.section_id)
           )
             throw conflict()
-        const conversations = await tx.execute<
-          { id: string } & Record<string, unknown>
-        >(
-          sql`SELECT id FROM chat_conversations WHERE bot_id IN(SELECT jsonb_array_elements_text(${JSON.stringify(reservation.botIds)}::jsonb)) ORDER BY id FOR SHARE`,
-        )
+        const conversations = (
+          await tx.execute<{ id: string } & Record<string, unknown>>(
+            sql`SELECT id FROM chat_conversations WHERE bot_id IN(SELECT jsonb_array_elements_text(${JSON.stringify(reservation.botIds)}::jsonb)) ORDER BY id FOR SHARE`,
+          )
+        ).rows
         const expected = [...reservation.conversationIds].sort()
         if (
           conversations.length !== expected.length ||
@@ -938,11 +960,11 @@ export class BotWorkspace extends WorkspaceSections {
                   eq(chatBotSections.userId, this.userId),
                 ),
               )
-        const [deadline] = await tx.execute<
-          { valid: boolean } & Record<string, unknown>
-        >(
-          sql`SELECT extract(epoch FROM clock_timestamp())*1000 < ${reservation.expiresAt} AS valid`,
-        )
+        const [deadline] = (
+          await tx.execute<{ valid: boolean } & Record<string, unknown>>(
+            sql`SELECT extract(epoch FROM clock_timestamp())*1000 < ${reservation.expiresAt} AS valid`,
+          )
+        ).rows
         if (!deadline.valid) throw conflict()
       })
       await wakeWorkspaceSync(this.env, this.workspaceId)

@@ -30,13 +30,15 @@ type Row = {
   updated_at: number
 }
 async function syncState(userId: string) {
-  const [row] = await db.execute<{
-    account_fingerprint: string
-    fetched_at: number
-    revision: number
-  }>(
-    sql`SELECT account_fingerprint,fetched_at::double precision AS fetched_at,revision::double precision AS revision FROM chat_kody_skill_sync WHERE user_id=${userId}`,
-  )
+  const [row] = (
+    await db.execute<{
+      account_fingerprint: string
+      fetched_at: number
+      revision: number
+    }>(
+      sql`SELECT account_fingerprint,fetched_at::double precision AS fetched_at,revision::double precision AS revision FROM chat_kody_skill_sync WHERE user_id=${userId}`,
+    )
+  ).rows
   return row
 }
 export type KodySkillSuggestion = Pick<
@@ -135,9 +137,11 @@ export async function suggestKodySkills(
   let lastId = ''
   while (true) {
     const rows = {
-      results: await db.execute<KodySkillSuggestion>(
-        sql`SELECT id,version::double precision AS version,name,description FROM chat_kody_skill_versions WHERE user_id=${scope.userId} AND current=true AND id>${lastId} ORDER BY id LIMIT 200`,
-      ),
+      results: (
+        await db.execute<KodySkillSuggestion>(
+          sql`SELECT id,version::double precision AS version,name,description FROM chat_kody_skill_versions WHERE user_id=${scope.userId} AND current=true AND id>${lastId} ORDER BY id LIMIT 200`,
+        )
+      ).rows,
     }
     skills.push(...rows.results)
     if (rows.results.length < 200) break
@@ -222,9 +226,11 @@ export class KodySkillCatalog {
     let offset = 0
     while (true) {
       const rows = {
-        results: await db.execute<Row>(
-          sql`SELECT id,version::double precision AS version,package_id,source_skill_id,name,description,updated_at::double precision AS updated_at FROM chat_kody_skill_versions WHERE user_id=${this.scope.userId} AND current=true ORDER BY lower(name),id LIMIT 200 OFFSET ${offset}`,
-        ),
+        results: (
+          await db.execute<Row>(
+            sql`SELECT id,version::double precision AS version,package_id,source_skill_id,name,description,updated_at::double precision AS updated_at FROM chat_kody_skill_versions WHERE user_id=${this.scope.userId} AND current=true ORDER BY lower(name),id LIMIT 200 OFFSET ${offset}`,
+          )
+        ).rows,
       }
       found.push(
         ...rows.results
@@ -260,14 +266,18 @@ export class KodySkillCatalog {
   async inspect(id: string, version?: number): Promise<SkillVersion> {
     if (!(await this.ready()))
       throw new SkillError('Connect Kody to use this skill.', 409)
-    const [current] = await db.execute(
-      sql`SELECT 1 FROM chat_kody_skill_versions WHERE user_id=${this.scope.userId} AND id=${id} AND current=true`,
-    )
+    const [current] = (
+      await db.execute(
+        sql`SELECT 1 FROM chat_kody_skill_versions WHERE user_id=${this.scope.userId} AND id=${id} AND current=true`,
+      )
+    ).rows
     if (!current)
       throw new SkillError('This Kody skill is no longer available.', 404)
-    const [row] = await db.execute<Row>(
-      sql`SELECT id,version::double precision AS version,package_id,source_skill_id,name,description,document::text AS document,files::text AS files,updated_at::double precision AS updated_at FROM chat_kody_skill_versions WHERE user_id=${this.scope.userId} AND id=${id} AND version=COALESCE(${version ?? null}::bigint,(SELECT version FROM chat_kody_skill_versions WHERE user_id=${this.scope.userId} AND id=${id} AND current=true))`,
-    )
+    const [row] = (
+      await db.execute<Row>(
+        sql`SELECT id,version::double precision AS version,package_id,source_skill_id,name,description,document::text AS document,files::text AS files,updated_at::double precision AS updated_at FROM chat_kody_skill_versions WHERE user_id=${this.scope.userId} AND id=${id} AND version=COALESCE(${version ?? null}::bigint,(SELECT version FROM chat_kody_skill_versions WHERE user_id=${this.scope.userId} AND id=${id} AND current=true))`,
+      )
+    ).rows
     if (!row)
       throw new SkillError('This Kody skill version is unavailable.', 404)
     return skillVersionSchema.parse({
@@ -278,9 +288,11 @@ export class KodySkillCatalog {
 
   async readFile(id: string, version: number, path: string) {
     await this.inspect(id, version)
-    const [row] = await db.execute<{ files: string }>(
-      sql`SELECT files::text AS files FROM chat_kody_skill_versions WHERE user_id=${this.scope.userId} AND id=${id} AND version=${version}`,
-    )
+    const [row] = (
+      await db.execute<{ files: string }>(
+        sql`SELECT files::text AS files FROM chat_kody_skill_versions WHERE user_id=${this.scope.userId} AND id=${id} AND version=${version}`,
+      )
+    ).rows
     const files = z.array(fileSchema).parse(JSON.parse(row!.files))
     const file = files.find((file) => file.path === path)
     if (!file) throw new SkillError('This Kody skill file is unavailable.', 404)

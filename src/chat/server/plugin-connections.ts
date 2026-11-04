@@ -89,7 +89,8 @@ export async function pluginMcpConnections(
     pins.set(exact.installationId, exact.version)
   }
   const query = () =>
-    db.execute<Row & Record<string, unknown>>(sql`
+    db
+      .execute<Row & Record<string, unknown>>(sql`
     SELECT p.id,v.version::double precision AS version,p.revision::double precision AS revision,v.digest,
     jsonb_build_object('name',v.preview->'manifest'->>'name','status',v.preview->'compatibility'->>'status','servers',v.preview->'mcpServers')::text AS metadata,
     COALESCE((SELECT jsonb_agg(jsonb_build_object('key',b.requirement_key,'serverId',b.server_id,'endpoint',b.endpoint) ORDER BY b.requirement_key) FROM chat_plugin_bindings b WHERE b.installation_id=p.id AND b.version=v.version),'[]'::jsonb)::text AS bindings
@@ -97,6 +98,7 @@ export async function pluginMcpConnections(
     LEFT JOIN jsonb_array_elements(${JSON.stringify([...pins].map(([installationId, version]) => ({ installationId, version })))}::jsonb) chosen ON chosen->>'installationId'=p.id::text
     JOIN chat_plugin_versions v ON v.installation_id=p.id AND v.version=COALESCE((chosen->>'version')::bigint,p.current_version)
     WHERE p.workspace_id=${scope.workspaceId} AND p.user_id=${scope.userId} AND p.enabled=true AND p.removed=false ${exact ? sql`AND p.id=${exact.installationId}` : sql``} ORDER BY p.id LIMIT 50`)
+      .then((result) => result.rows)
   const rows = await query(),
     candidates: Array<{ row: Row; connection: McpConnection }> = []
   for (const row of rows) {

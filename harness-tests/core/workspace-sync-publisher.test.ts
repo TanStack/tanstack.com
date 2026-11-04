@@ -75,7 +75,7 @@ beforeEach(() => {
   mocks.member.mockImplementation(async () =>
     membership ? { generation: membership } : undefined,
   )
-  mocks.execute.mockResolvedValue([{ revision: 1 }])
+  mocks.execute.mockResolvedValue({ rows: [{ revision: 1 }] })
   mocks.fetch.mockImplementation(async (request: Request) => {
     if (request.method === 'PUT') return new Response(null, { status: 200 })
     if (request.method === 'HEAD')

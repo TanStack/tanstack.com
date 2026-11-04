@@ -36,7 +36,8 @@ async function readBots(
   id?: string,
   reader: Reader = db,
 ) {
-  const rows = await reader.execute<Row & Record<string, unknown>>(sql`
+  const rows = (
+    await reader.execute<Row & Record<string, unknown>>(sql`
     SELECT b.id,b.workspace_id,b.parent_id,b.name,b.purpose,b.avatar,
       trunc(extract(epoch FROM b.created_at)*1000)::float8 AS created_at,
       b.version::float8 AS version,
@@ -51,6 +52,7 @@ async function readBots(
     WHERE b.workspace_id=${workspaceId}
       ${id === undefined ? sql`` : sql`AND b.id=${id}`}
       ORDER BY b.created_at,b.id`)
+  ).rows
   return rows.map(
     ({ mainConversationId, ...row }): WorkspaceBot => ({
       ...row,
@@ -69,17 +71,23 @@ export async function readBotSections(
   const columns = sql`id,name,position,version::float8 AS version,sort_override`
   if (page) {
     return Array.from(
-      await db.execute<
-        BotSection & Record<string, unknown>
-      >(sql`SELECT ${columns}
+      (
+        await db.execute<
+          BotSection & Record<string, unknown>
+        >(sql`SELECT ${columns}
       FROM chat_bot_sections WHERE workspace_id=${workspaceId} AND user_id=${userId}
       AND id>${page.afterId ?? ''} AND strpos(lower(name),lower(${page.query ?? ''}))>0
-      ORDER BY id LIMIT 101`),
+      ORDER BY id LIMIT 101`)
+      ).rows,
     )
   }
   return Array.from(
-    await db.execute<BotSection & Record<string, unknown>>(sql`SELECT ${columns}
+    (
+      await db.execute<
+        BotSection & Record<string, unknown>
+      >(sql`SELECT ${columns}
     FROM chat_bot_sections WHERE workspace_id=${workspaceId} AND user_id=${userId}
-    ORDER BY position,id`),
+    ORDER BY position,id`)
+    ).rows,
   )
 }

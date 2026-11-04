@@ -16,20 +16,22 @@ export async function readBootstrapWorkspaceData(
   userId: string,
 ) {
   const policy = await readWorkspacePolicy(workspaceId, userId)
-  const [workspace] = await db.execute<
-    { id: string; name: string } & Record<string, unknown>
-  >(
-    sql`SELECT w.id,w.name FROM chat_workspaces w JOIN chat_memberships m ON m.workspace_id=w.id WHERE w.id=${workspaceId} AND m.user_id=${userId}`,
-  )
+  const [workspace] = (
+    await db.execute<{ id: string; name: string } & Record<string, unknown>>(
+      sql`SELECT w.id,w.name FROM chat_workspaces w JOIN chat_memberships m ON m.workspace_id=w.id WHERE w.id=${workspaceId} AND m.user_id=${userId}`,
+    )
+  ).rows
   if (!workspace) throw new WorkspacePolicyError()
   const [bots, sections, activity, recipes, workspaces] = await Promise.all([
     readWorkspaceBots(workspaceId, userId),
     readBotSections(workspaceId, userId),
     workspaceActivity(workspaceId, userId),
     new SavedActions(workspaceId, userId).list(),
-    db.execute<{ id: string; name: string } & Record<string, unknown>>(
-      sql`SELECT w.id,w.name FROM chat_workspaces w JOIN chat_memberships m ON m.workspace_id=w.id WHERE m.user_id=${userId} ORDER BY w.name,w.id`,
-    ),
+    db
+      .execute<{ id: string; name: string } & Record<string, unknown>>(
+        sql`SELECT w.id,w.name FROM chat_workspaces w JOIN chat_memberships m ON m.workspace_id=w.id WHERE m.user_id=${userId} ORDER BY w.name,w.id`,
+      )
+      .then((result) => result.rows),
   ])
   return {
     workspace,

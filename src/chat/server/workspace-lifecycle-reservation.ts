@@ -32,11 +32,16 @@ export async function reserveWorkspaceConversations(
     )
   }
   try {
-    const conversations = await db.execute<
-      { id: string; bot_id: string; user_id: string } & Record<string, unknown>
-    >(
-      sql`SELECT c.id,c.bot_id,c.user_id FROM chat_conversations c JOIN chat_bots b ON b.id=c.bot_id WHERE b.workspace_id=${workspaceId} AND c.bot_id IN(SELECT jsonb_array_elements_text(${JSON.stringify(ids)}::jsonb)) ORDER BY c.created_at,c.id`,
-    )
+    const conversations = (
+      await db.execute<
+        { id: string; bot_id: string; user_id: string } & Record<
+          string,
+          unknown
+        >
+      >(
+        sql`SELECT c.id,c.bot_id,c.user_id FROM chat_conversations c JOIN chat_bots b ON b.id=c.bot_id WHERE b.workspace_id=${workspaceId} AND c.bot_id IN(SELECT jsonb_array_elements_text(${JSON.stringify(ids)}::jsonb)) ORDER BY c.created_at,c.id`,
+      )
+    ).rows
     for (const conversation of conversations) {
       const stub = env.CONVERSATIONS.getByName(conversation.id)
       await stub.bindIdentity({

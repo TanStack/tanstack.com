@@ -110,9 +110,11 @@ export class Plugins extends PluginPackages {
           ).find((server) => server.id === c.serverId)
         : undefined
     return db.transaction(async (tx) => {
-      const [membership] = await tx.execute(
-        sql`SELECT 1 FROM chat_memberships WHERE workspace_id=${this.scope.workspaceId} AND user_id=${this.scope.userId} FOR UPDATE`,
-      )
+      const [membership] = (
+        await tx.execute(
+          sql`SELECT 1 FROM chat_memberships WHERE workspace_id=${this.scope.workspaceId} AND user_id=${this.scope.userId} FOR UPDATE`,
+        )
+      ).rows
       if (!membership)
         throw new PluginError('Workspace access is unavailable.', 403)
       const [previous] = await tx
@@ -290,9 +292,11 @@ export class Plugins extends PluginPackages {
       }
       const receipt = summary(next)
       if (!old) {
-        const [count] = await tx.execute<{ count: number }>(
-          sql`SELECT count(*)::integer AS count FROM chat_plugin_installations WHERE workspace_id=${this.scope.workspaceId} AND user_id=${this.scope.userId}`,
-        )
+        const [count] = (
+          await tx.execute<{ count: number }>(
+            sql`SELECT count(*)::integer AS count FROM chat_plugin_installations WHERE workspace_id=${this.scope.workspaceId} AND user_id=${this.scope.userId}`,
+          )
+        ).rows
         if (count.count >= 50)
           throw new PluginError(
             'The installation changed or the 50 installation limit was reached.',
@@ -415,7 +419,8 @@ export class Plugins extends PluginPackages {
           'Restart this plugin list after changing its filters.',
         )
     }
-    const rows = await db.execute<Row>(sql`
+    const rows = (
+      await db.execute<Row>(sql`
       SELECT p.id,p.workspace_id,p.user_id,p.current_version::double precision AS current_version,p.revision::double precision AS revision,
       CASE WHEN p.enabled THEN 1 ELSE 0 END AS enabled,CASE WHEN p.removed THEN 1 ELSE 0 END AS removed,
       p.created_at::double precision AS created_at,p.updated_at::double precision AS updated_at,
@@ -426,6 +431,7 @@ export class Plugins extends PluginPackages {
       AND (strpos(lower(v.preview->'manifest'->>'name'),lower(${o.query}))>0 OR strpos(lower(COALESCE(v.preview->'manifest'->>'description','')),lower(${o.query}))>0)
       ${cursor ? sql`AND (p.updated_at<${cursor.time} OR (p.updated_at=${cursor.time} AND p.id>${cursor.id}::uuid))` : sql``}
       ORDER BY p.updated_at DESC,p.id ASC LIMIT ${o.limit + 1}`)
+    ).rows
     await this.member()
     const page = rows.slice(0, o.limit),
       last = page.at(-1)

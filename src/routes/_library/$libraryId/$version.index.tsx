@@ -46,6 +46,8 @@ function redirectToStaticLanding(libraryId: string, version: string) {
       throw redirect({ to: '/markdown/$version', params: { version } })
     case 'pacer':
       throw redirect({ to: '/pacer/$version', params: { version } })
+    case 'redact':
+      throw redirect({ to: '/redact/$version', params: { version } })
     case 'query':
       throw redirect({ to: '/query/$version', params: { version } })
     case 'ranger':

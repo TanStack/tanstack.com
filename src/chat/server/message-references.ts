@@ -174,7 +174,7 @@ async function authorize(env: ReferenceEnvironment, scope: ReferenceScope) {
     >(sql`SELECT 1 FROM chat_memberships a WHERE a.workspace_id=${scope.workspaceId} AND a.user_id=${scope.userId}
     AND (${identity?.botId ?? null}::text IS NULL OR EXISTS (SELECT 1 FROM chat_bots b
       WHERE b.id=${identity?.botId ?? null} AND b.workspace_id=a.workspace_id AND b.deleted_at IS NULL))`)
-  )[0]
+  ).rows[0]
   if (!member) throw new ReferenceError('Workspace access is unavailable.', 403)
   return identity?.conversationId
 }
@@ -249,7 +249,7 @@ async function conversation(
     LEFT JOIN chat_conversation_threads t ON t.conversation_id=c.id
     JOIN chat_memberships a ON a.workspace_id=b.workspace_id AND a.user_id=c.user_id
     WHERE b.workspace_id=${scope.workspaceId} AND c.user_id=${scope.userId} AND c.id=${identity.conversationId} AND c.bot_id=${identity.botId} AND b.deleted_at IS NULL`)
-  )[0]
+  ).rows[0]
   if (!row)
     throw new ReferenceError('Conversation reference is unavailable.', 404)
   return row
@@ -438,29 +438,32 @@ export async function listMessageReferences(
       .sort((a, b) => a.label.localeCompare(b.label))
       .slice(0, catalogLimit + 1)
   } else if (kind === 'conversation') {
-    const rows = await db.execute<
-      ConversationRow & Record<string, unknown>
-    >(sql`SELECT c.id,c.bot_id,COALESCE(t.title,b.name) AS name,(extract(epoch FROM COALESCE(b.archived_at,t.archived_at))*1000)::float8 AS archived_at FROM chat_conversations c
+    const rows = (
+      await db.execute<
+        ConversationRow & Record<string, unknown>
+      >(sql`SELECT c.id,c.bot_id,COALESCE(t.title,b.name) AS name,(extract(epoch FROM COALESCE(b.archived_at,t.archived_at))*1000)::float8 AS archived_at FROM chat_conversations c
       JOIN chat_bots b ON b.id=c.bot_id
       LEFT JOIN chat_conversation_threads t ON t.conversation_id=c.id
       JOIN chat_memberships a ON a.workspace_id=b.workspace_id AND a.user_id=c.user_id
       WHERE b.workspace_id=${scope.workspaceId} AND c.user_id=${scope.userId} AND b.deleted_at IS NULL
         AND (${currentConversationId ?? null}::text IS NULL OR c.id!=${currentConversationId ?? null}) AND strpos(lower(COALESCE(t.title,b.name)),lower(${query}))>0
       ORDER BY lower(COALESCE(t.title,b.name)),b.id,c.id LIMIT ${catalogLimit + 1}`)
+    ).rows
     items = rows.map(conversationReference)
   } else {
-    const rows = await db.execute<
-      {
-        id: string
-        bot_id: string
-        conversation_id: string
-        name: string
-        created_at: number
-        bot_name: string
-        revision: number
-        revisions: number
-      } & Record<string, unknown>
-    >(sql`SELECT f.id,f.bot_id,f.conversation_id,f.name,f.created_at::float8 AS created_at,COALESCE(t.title,b.name) AS bot_name,
+    const rows = (
+      await db.execute<
+        {
+          id: string
+          bot_id: string
+          conversation_id: string
+          name: string
+          created_at: number
+          bot_name: string
+          revision: number
+          revisions: number
+        } & Record<string, unknown>
+      >(sql`SELECT f.id,f.bot_id,f.conversation_id,f.name,f.created_at::float8 AS created_at,COALESCE(t.title,b.name) AS bot_name,
         ROW_NUMBER() OVER (PARTITION BY f.conversation_id,f.name ORDER BY f.created_at,f.id)::integer AS revision,
         COUNT(*) OVER (PARTITION BY f.conversation_id,f.name)::integer AS revisions FROM chat_saved_files f
       JOIN chat_conversations c ON c.id=f.conversation_id AND c.bot_id=f.bot_id AND c.user_id=f.user_id
@@ -470,6 +473,7 @@ export async function listMessageReferences(
       WHERE f.workspace_id=${scope.workspaceId} AND b.workspace_id=f.workspace_id AND f.user_id=${scope.userId}
         AND f.state='ready' AND b.deleted_at IS NULL AND strpos(lower(f.name),lower(${query}))>0
       ORDER BY lower(f.name),f.created_at DESC,f.id DESC LIMIT ${catalogLimit + 1}`)
+    ).rows
     items = rows.map((row) => ({
       kind: 'file',
       botId: row.bot_id,
@@ -690,9 +694,10 @@ export async function discoverWorkspaceConversations(
 ) {
   const { query, afterId, state } = workspaceConversationSearch.parse(input)
   const currentId = await authorize(env, scope)
-  const rows = await db.execute<
-    ConversationRow & Record<string, unknown>
-  >(sql`SELECT c.id,c.bot_id,COALESCE(t.title,b.name) AS name,
+  const rows = (
+    await db.execute<
+      ConversationRow & Record<string, unknown>
+    >(sql`SELECT c.id,c.bot_id,COALESCE(t.title,b.name) AS name,
       (extract(epoch FROM COALESCE(b.archived_at,t.archived_at))*1000)::float8 AS archived_at
     FROM chat_conversations c
     JOIN chat_bots b ON b.id=c.bot_id
@@ -704,6 +709,7 @@ export async function discoverWorkspaceConversations(
       AND (${state}='all' OR (${state}='active' AND COALESCE(b.archived_at,t.archived_at) IS NULL)
         OR (${state}='archived' AND COALESCE(b.archived_at,t.archived_at) IS NOT NULL))
     ORDER BY c.id LIMIT ${catalogLimit + 1}`)
+  ).rows
   await authorize(env, scope)
   const page = rows.slice(0, catalogLimit)
   return {
@@ -818,7 +824,7 @@ export function assistantReferenceTools({
           await db.execute<Record<string, unknown>>(
             sql`SELECT 1 FROM chat_conversation_threads WHERE (conversation_id=${conversationId} AND parent_conversation_id=${scope.conversationId}) OR (conversation_id=${scope.conversationId} AND parent_conversation_id=${conversationId})`,
           )
-        )[0]
+        ).rows[0]
         if (!relation) return undefined
         return resolveConversationIdentity({
           workspaceId: scope.workspaceId,
@@ -953,16 +959,18 @@ export function assistantReferenceTools({
             inputSchema: z.strictObject({}),
           }).server(async () => {
             await authorize(env, scope)
-            const rows = await db.execute<
-              {
-                conversation_id: string
-                parent_conversation_id: string
-                title: string
-                archived_at: number | null
-              } & Record<string, unknown>
-            >(
-              sql`SELECT conversation_id, parent_conversation_id, title, (extract(epoch FROM archived_at)*1000)::float8 AS archived_at FROM chat_conversation_threads WHERE parent_conversation_id=${scope.conversationId} OR conversation_id=${scope.conversationId} ORDER BY conversation_id LIMIT 101`,
-            )
+            const rows = (
+              await db.execute<
+                {
+                  conversation_id: string
+                  parent_conversation_id: string
+                  title: string
+                  archived_at: number | null
+                } & Record<string, unknown>
+              >(
+                sql`SELECT conversation_id, parent_conversation_id, title, (extract(epoch FROM archived_at)*1000)::float8 AS archived_at FROM chat_conversation_threads WHERE parent_conversation_id=${scope.conversationId} OR conversation_id=${scope.conversationId} ORDER BY conversation_id LIMIT 101`,
+              )
+            ).rows
             const threads = []
             for (const row of rows) {
               const id =

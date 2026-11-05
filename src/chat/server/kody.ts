@@ -45,9 +45,11 @@ export async function kodyNeedsSignIn(
 ) {
   if (!tokens || currentToken(tokens)) return false
   if (!tokens.refresh_token) return true
-  const [state] = await db.execute<{ status: string }>(sql`
+  const [state] = (
+    await db.execute<{ status: string }>(sql`
     SELECT status FROM chat_kody_refresh_claims
     WHERE user_id=${userId} AND token_fingerprint=${await tokenFingerprint(tokens)}`)
+  ).rows
   return state?.status === 'needs_auth'
 }
 
@@ -60,13 +62,15 @@ async function refreshKodyToken(
 ) {
   const fingerprint = await tokenFingerprint(tokens)
   const claimId = crypto.randomUUID()
-  const [claimed] = await db.execute(sql`
+  const [claimed] = (
+    await db.execute(sql`
     INSERT INTO chat_kody_refresh_claims (user_id,token_fingerprint,claim_id,status,lease_until)
     VALUES (${userId},${fingerprint},${claimId},'refreshing',${Date.now() + refreshLease})
     ON CONFLICT(user_id) DO UPDATE SET token_fingerprint=excluded.token_fingerprint,
       claim_id=excluded.claim_id,status='refreshing',lease_until=excluded.lease_until
     WHERE chat_kody_refresh_claims.token_fingerprint<>excluded.token_fingerprint
     RETURNING claim_id`)
+  ).rows
   if (!claimed) {
     const deadline = Date.now() + refreshWait
     do {
@@ -74,12 +78,14 @@ async function refreshKodyToken(
       if (!latest)
         throw new KodyConnectionError('Connect Kody to use its tools.')
       if (currentToken(latest)) return
-      const [state] = await db.execute<{
-        token_fingerprint: string
-        status: string
-        lease_until: number
-      }>(sql`
+      const [state] = (
+        await db.execute<{
+          token_fingerprint: string
+          status: string
+          lease_until: number
+        }>(sql`
         SELECT token_fingerprint,status,lease_until FROM chat_kody_refresh_claims WHERE user_id=${userId}`)
+      ).rows
       if (!state || state.token_fingerprint !== fingerprint) return
       if (state.status === 'completed') return
       if (state.status === 'needs_auth')

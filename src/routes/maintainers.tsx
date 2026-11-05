@@ -131,7 +131,7 @@ function MaintainersFilter({
 
   return (
     <div>
-      <div className="flex items-center gap-3 flex-wrap">
+      <div className="relative flex items-center gap-3 flex-wrap">
         {/* View Mode Toggle */}
         <div className="flex items-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
           {(
@@ -172,7 +172,7 @@ function MaintainersFilter({
         </div>
 
         {/* Filter dropdown trigger */}
-        <div className="relative" data-filter-dropdown>
+        <div className="sm:relative" data-filter-dropdown>
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="inline-flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
@@ -188,7 +188,7 @@ function MaintainersFilter({
 
           {/* Dropdown menu */}
           {isOpen && (
-            <div className="absolute top-full left-0 mt-2 w-96 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
+            <div className="absolute top-full left-0 mt-2 w-full max-w-96 sm:w-96 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
               <div className="p-4">
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-sm font-medium text-gray-900 dark:text-gray-100">

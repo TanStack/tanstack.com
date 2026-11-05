@@ -575,6 +575,18 @@ export const allMaintainers: Maintainer[] = [
     },
     workshopsAvailable: false,
   },
+  {
+    name: 'Ciarán Curley',
+    avatar:
+      'https://i8qrvymqoy.ufs.sh/f/5bi1XUVQkRmSSCXecObVfEJ4jbILkeMFwiotspxWBCUX32qG',
+    github: 'DogPawHat',
+    maintainerOf: ['query'],
+    social: {
+      bluesky: 'https://bsky.app/profile/dogpawhat.tech',
+      linkedIn: 'https://www.linkedin.com/in/dogpawhat/',
+    },
+    workshopsAvailable: false,
+  },
 ]
 
 export const coreMaintainers = allMaintainers.filter(

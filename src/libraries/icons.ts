@@ -1,3 +1,4 @@
+import { EraserIcon } from '@phosphor-icons/react/Eraser'
 import { BrainIcon } from '@phosphor-icons/react/Brain'
 import { ChartLineUpIcon } from '@phosphor-icons/react/ChartLineUp'
 import { ClipboardTextIcon } from '@phosphor-icons/react/ClipboardText'
@@ -29,6 +30,7 @@ import type { Icon } from '@phosphor-icons/react'
 export const libraryIcons: Record<string, Icon> = {
   start: SunHorizonIcon,
   router: TrafficSignIcon,
+  redact: EraserIcon,
   query: SealQuestionIcon,
   db: DatabaseIcon,
   store: DresserIcon,

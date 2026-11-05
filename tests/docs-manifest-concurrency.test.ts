@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
+  collectDocsManifest,
   collectRedirectEntriesForFile,
+  isDocsManifest,
   mapWithConcurrency,
   type DocsTreeNode,
 } from '../src/utils/docs.functions'
@@ -130,3 +132,79 @@ test('a mix of one failing file and several succeeding files still produces ever
 })
 
 console.log('buildDocsManifest per-file fault tolerance tests passed')
+
+test('manifest dates belong to individual canonical pages and preserve undated pages', async () => {
+  const dates: Record<string, string> = {}
+  const contents: Record<string, string> = {
+    'docs/guide/a/index.md': '---\nupdated: "2026-09-01"\n---\n# A',
+    'docs/guide/b.md': '---\nupdated: "2026-09-02"\n---\n# B',
+    'docs/guide/c.md': '# C',
+  }
+  const collect = async () => {
+    for (const path of Object.keys(contents)) {
+      await collectRedirectEntriesForFile(
+        { path },
+        {
+          docsRoot: 'docs',
+          fetchFile: async (filePath) => contents[filePath],
+          onCanonicalPath: () => {},
+          onLastModified: (slug, date) => {
+            dates[slug] = date
+          },
+        },
+      )
+    }
+  }
+  await collect()
+  assert.deepEqual(dates, { 'guide/a': '2026-09-01', 'guide/b': '2026-09-02' })
+  contents['docs/guide/a/index.md'] =
+    '---\nupdated: "2026-09-03"\n---\n# A revised'
+  await collect()
+  assert.deepEqual(dates, { 'guide/a': '2026-09-03', 'guide/b': '2026-09-02' })
+})
+
+test('manifest cache accepts older records and rejects invalid date maps', () => {
+  const base = { paths: ['guide/a'], redirects: {} }
+  assert.equal(isDocsManifest(base), true)
+  assert.equal(
+    isDocsManifest({
+      ...base,
+      lastModifiedByPath: { 'guide/a': '2026-09-11' },
+    }),
+    true,
+  )
+  for (const lastModifiedByPath of [
+    null,
+    [],
+    '2026-09-11',
+    { 'guide/a': '2026-02-30' },
+    { 'guide/a': 42 },
+  ]) {
+    assert.equal(isDocsManifest({ ...base, lastModifiedByPath }), false)
+  }
+})
+
+test('manifest dates use the served sibling even when the index finishes last', async () => {
+  for (const sibling of ['---\nupdated: "2026-09-01"\n---\n# A', '# A']) {
+    const contents: Record<string, string> = {
+      'docs/guide/a.md': sibling,
+      'docs/guide/a/index.md': '---\nupdated: "2026-09-02"\n---\n# Index',
+      'docs/guide/b/index.md': '---\nupdated: "2026-09-03"\n---\n# B',
+    }
+    const manifest = await collectDocsManifest(
+      Object.keys(contents).map((path) => ({ path })),
+      'docs',
+      async (path) => {
+        if (path.endsWith('/index.md'))
+          await new Promise((resolve) => setTimeout(resolve, 10))
+        return contents[path]
+      },
+    )
+    assert.equal(
+      manifest.lastModifiedByPath?.['guide/a'],
+      sibling === '# A' ? undefined : '2026-09-01',
+    )
+    assert.equal(manifest.lastModifiedByPath?.['guide/b'], '2026-09-03')
+    assert.deepEqual(manifest.paths.sort(), ['guide/a', 'guide/b'])
+  }
+})

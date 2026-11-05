@@ -18,6 +18,7 @@ interface SearchContextType {
   askAiDock: (question: string) => void
   clearAiDockAskRequest: (id: number) => void
   closeSearch: () => void
+  restoreSearchFocus: () => void
   closeAiDock: () => void
   cancelAiDockHoverClose: () => void
   scheduleAiDockHoverClose: () => void
@@ -45,6 +46,7 @@ export function SearchProvider({
     question: string
   } | null>(null)
   const aiDockCloseTimerRef = React.useRef<number | null>(null)
+  const searchTriggerRef = React.useRef<HTMLElement | null>(null)
 
   const cancelAiDockHoverClose = React.useCallback(() => {
     if (!aiDockCloseTimerRef.current) {
@@ -56,8 +58,34 @@ export function SearchProvider({
   }, [])
 
   const openSearch = React.useCallback(() => {
+    if (!isOpen) {
+      searchTriggerRef.current =
+        document.activeElement instanceof HTMLElement
+          ? document.activeElement
+          : null
+    }
     setHasLoadedSearch(true)
     setIsOpen(true)
+  }, [isOpen])
+
+  const restoreSearchFocus = React.useCallback(() => {
+    const trigger = searchTriggerRef.current
+    searchTriggerRef.current = null
+    if (
+      trigger?.isConnected &&
+      trigger.getClientRects().length > 0 &&
+      !trigger.closest('[aria-hidden="true"], [inert]')
+    ) {
+      trigger.focus({ preventScroll: true })
+      return
+    }
+
+    const menuTrigger = document.querySelector(
+      'button[aria-controls="primary-mobile-menu"]',
+    )
+    if (menuTrigger instanceof HTMLElement) {
+      menuTrigger.focus({ preventScroll: true })
+    }
   }, [])
 
   const openAiDock = React.useCallback(() => {
@@ -128,6 +156,7 @@ export function SearchProvider({
       askAiDock,
       clearAiDockAskRequest,
       closeSearch,
+      restoreSearchFocus,
       closeAiDock,
       cancelAiDockHoverClose,
       scheduleAiDockHoverClose,
@@ -140,6 +169,7 @@ export function SearchProvider({
       clearAiDockAskRequest,
       closeAiDock,
       closeSearch,
+      restoreSearchFocus,
       isAiDockDirty,
       isAiDockOpen,
       isOpen,

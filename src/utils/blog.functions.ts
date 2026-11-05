@@ -129,6 +129,7 @@ export const fetchBlogPost = createServerFn({ method: 'GET' })
       description: post.excerpt,
       filePath: `src/blog/${data}.md`,
       headerImage: post.headerImage,
+      socialImage: post.socialImage,
       isUnpublished,
       headerVideo: post.headerVideo,
       headerVideoCaptions: post.headerVideoCaptions,

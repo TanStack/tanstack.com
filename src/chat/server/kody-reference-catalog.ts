@@ -229,9 +229,11 @@ async function unchanged(
 }
 
 async function catalogRow(env: KodyEnvironment, userId: string) {
-  const [row] = await db.execute<Row & Record<string, unknown>>(
-    sql`SELECT account_fingerprint,metadata,fetched_at::double precision AS fetched_at,complete::integer AS complete,data_revision::double precision AS data_revision FROM chat_kody_reference_catalog WHERE user_id=${userId}::uuid`,
-  )
+  const [row] = (
+    await db.execute<Row & Record<string, unknown>>(
+      sql`SELECT account_fingerprint,metadata,fetched_at::double precision AS fetched_at,complete::integer AS complete,data_revision::double precision AS data_revision FROM chat_kody_reference_catalog WHERE user_id=${userId}::uuid`,
+    )
+  ).rows
   return row ?? null
 }
 
@@ -258,9 +260,11 @@ async function readSnapshot(
       const manifest = storedCatalogSchema.parse(JSON.parse(row.metadata))
       items = []
       while (items.length < manifest.count) {
-        const rows = await db.execute<{ ordinal: number; payload: string }>(
-          sql`SELECT ordinal::double precision AS ordinal,payload::text AS payload FROM chat_kody_reference_items WHERE user_id=${userId}::uuid AND revision=${row.data_revision} AND ordinal>=${items.length} ORDER BY ordinal LIMIT 200`,
-        )
+        const rows = (
+          await db.execute<{ ordinal: number; payload: string }>(
+            sql`SELECT ordinal::double precision AS ordinal,payload::text AS payload FROM chat_kody_reference_items WHERE user_id=${userId}::uuid AND revision=${row.data_revision} AND ordinal>=${items.length} ORDER BY ordinal LIMIT 200`,
+          )
+        ).rows
         const page = { results: rows }
         if (
           !page.results.length ||
@@ -511,9 +515,11 @@ async function resolveKodyReferenceMatching(
     )
   let saved = await snapshot(env, scope.userId, current.fingerprint)
   if (!saved) {
-    const [row] = await db.execute<{ account_fingerprint: string }>(
-      sql`SELECT account_fingerprint FROM chat_kody_reference_catalog WHERE user_id=${scope.userId}::uuid`,
-    )
+    const [row] = (
+      await db.execute<{ account_fingerprint: string }>(
+        sql`SELECT account_fingerprint FROM chat_kody_reference_catalog WHERE user_id=${scope.userId}::uuid`,
+      )
+    ).rows
     if (row && row.account_fingerprint !== current.fingerprint)
       throw new KodyReferenceError(
         'Kody connection or access changed. Try again.',
@@ -776,9 +782,11 @@ export async function refreshKodyReferences(
     )
   if (signal.aborted)
     throw new KodyReferenceError('Kody refresh was stopped.', 409)
-  const [reservation] = await db.execute<{ revision: number }>(
-    sql`INSERT INTO chat_kody_reference_catalog(user_id,account_fingerprint,metadata,fetched_at,refresh_started_at,revision) VALUES(${scope.userId}::uuid,${before.fingerprint},'[]',0,${startedAt},1) ON CONFLICT(user_id) DO UPDATE SET revision=chat_kody_reference_catalog.revision+1,refresh_started_at=excluded.refresh_started_at RETURNING revision::double precision AS revision`,
-  )
+  const [reservation] = (
+    await db.execute<{ revision: number }>(
+      sql`INSERT INTO chat_kody_reference_catalog(user_id,account_fingerprint,metadata,fetched_at,refresh_started_at,revision) VALUES(${scope.userId}::uuid,${before.fingerprint},'[]',0,${startedAt},1) ON CONFLICT(user_id) DO UPDATE SET revision=chat_kody_reference_catalog.revision+1,refresh_started_at=excluded.refresh_started_at RETURNING revision::double precision AS revision`,
+    )
+  ).rows
   if (!reservation)
     throw new KodyReferenceError('Kody refresh could not start.', 502)
   let raw: unknown
@@ -823,9 +831,11 @@ export async function refreshKodyReferences(
     (await readSnapshot(env, scope.userId, before.fingerprint, previous))
   ) {
     const bound = await unchanged(env, scope, options, before)
-    const current = await db.execute(
-      sql`UPDATE chat_kody_reference_catalog SET account_fingerprint=${bound.fingerprint},fetched_at=${Date.now()},complete=${complete} WHERE user_id=${scope.userId}::uuid AND revision=${reservation.revision} AND data_revision=${previous.data_revision} AND EXISTS(SELECT 1 FROM chat_memberships m JOIN chat_workspaces w ON w.id=m.workspace_id WHERE m.workspace_id=${scope.workspaceId} AND m.user_id=${scope.userId}::uuid AND w.policy=${bound.policyText}::jsonb) AND (SELECT subject FROM chat_kody_links WHERE user_id=${scope.userId}::uuid) IS NOT DISTINCT FROM ${bound.subject}::text RETURNING user_id`,
-    )
+    const current = (
+      await db.execute(
+        sql`UPDATE chat_kody_reference_catalog SET account_fingerprint=${bound.fingerprint},fetched_at=${Date.now()},complete=${complete} WHERE user_id=${scope.userId}::uuid AND revision=${reservation.revision} AND data_revision=${previous.data_revision} AND EXISTS(SELECT 1 FROM chat_memberships m JOIN chat_workspaces w ON w.id=m.workspace_id WHERE m.workspace_id=${scope.workspaceId} AND m.user_id=${scope.userId}::uuid AND w.policy=${bound.policyText}::jsonb) AND (SELECT subject FROM chat_kody_links WHERE user_id=${scope.userId}::uuid) IS NOT DISTINCT FROM ${bound.subject}::text RETURNING user_id`,
+      )
+    ).rows
     if (!current.length)
       throw new KodyReferenceError(
         'Kody connection changed or a newer refresh finished. Try again.',
@@ -855,9 +865,11 @@ export async function refreshKodyReferences(
       if (chunkBytes >= stageChunkBytes) await writeChunk()
     }
     await writeChunk()
-    const [staged] = await db.execute<{ count: number }>(
-      sql`SELECT count(*)::integer AS count FROM chat_kody_reference_items WHERE user_id=${scope.userId}::uuid AND revision=${reservation.revision}`,
-    )
+    const [staged] = (
+      await db.execute<{ count: number }>(
+        sql`SELECT count(*)::integer AS count FROM chat_kody_reference_items WHERE user_id=${scope.userId}::uuid AND revision=${reservation.revision}`,
+      )
+    ).rows
     if (staged?.count !== items.length)
       throw new KodyReferenceError(
         'Kody changed during refresh. Try again.',
@@ -865,9 +877,11 @@ export async function refreshKodyReferences(
       )
     const bound = await unchanged(env, scope, options, before)
     await db.transaction(async (tx) => {
-      const result = await tx.execute(
-        sql`UPDATE chat_kody_reference_catalog SET account_fingerprint=${bound.fingerprint},metadata=${JSON.stringify({ format: 'banks-kody-reference-items-v1', count: items.length, digest })},fetched_at=${Date.now()},complete=${complete},data_revision=${reservation.revision} WHERE user_id=${scope.userId}::uuid AND revision=${reservation.revision} AND EXISTS(SELECT 1 FROM chat_memberships m JOIN chat_workspaces w ON w.id=m.workspace_id WHERE m.workspace_id=${scope.workspaceId} AND m.user_id=${scope.userId}::uuid AND w.policy=${bound.policyText}::jsonb) AND (SELECT subject FROM chat_kody_links WHERE user_id=${scope.userId}::uuid) IS NOT DISTINCT FROM ${bound.subject}::text RETURNING user_id`,
-      )
+      const result = (
+        await tx.execute(
+          sql`UPDATE chat_kody_reference_catalog SET account_fingerprint=${bound.fingerprint},metadata=${JSON.stringify({ format: 'banks-kody-reference-items-v1', count: items.length, digest })},fetched_at=${Date.now()},complete=${complete},data_revision=${reservation.revision} WHERE user_id=${scope.userId}::uuid AND revision=${reservation.revision} AND EXISTS(SELECT 1 FROM chat_memberships m JOIN chat_workspaces w ON w.id=m.workspace_id WHERE m.workspace_id=${scope.workspaceId} AND m.user_id=${scope.userId}::uuid AND w.policy=${bound.policyText}::jsonb) AND (SELECT subject FROM chat_kody_links WHERE user_id=${scope.userId}::uuid) IS NOT DISTINCT FROM ${bound.subject}::text RETURNING user_id`,
+        )
+      ).rows
       if (!result.length)
         throw new KodyReferenceError(
           'Kody connection changed or a newer refresh finished. Try again.',

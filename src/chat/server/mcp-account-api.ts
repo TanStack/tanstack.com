@@ -145,9 +145,11 @@ export async function mcpOAuthRoute(
   if (states.length !== 1 || !states[0] || states[0].length > 200)
     return response({ error: 'The sign-in response is invalid.' }, 400)
   const stateHash = await hash(states[0])
-  const [row] = await db.execute<{ id: string; workspace_id: string }>(
-    sql`SELECT id,workspace_id FROM chat_mcp_setup_attempts WHERE state_hash=${stateHash} AND user_id=${user.userId}`,
-  )
+  const [row] = (
+    await db.execute<{ id: string; workspace_id: string }>(
+      sql`SELECT id,workspace_id FROM chat_mcp_setup_attempts WHERE state_hash=${stateHash} AND user_id=${user.userId}`,
+    )
+  ).rows
   if (!row)
     return response(
       { error: 'This sign-in response has expired or was already used.' },

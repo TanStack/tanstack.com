@@ -1,6 +1,7 @@
 export const libraryIds = [
   'start',
   'router',
+  'redact',
   'query',
   'table',
   'charts',
@@ -29,6 +30,7 @@ export type LibraryId = (typeof libraryIds)[number]
 export const SIDEBAR_LIBRARY_IDS = [
   'start',
   'router',
+  'redact',
   'query',
   'table',
   'db',

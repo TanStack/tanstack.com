@@ -89,7 +89,7 @@ import {
   type ExampleDefinition,
   type ExampleWorkspace,
 } from '~/utils/example-workspace'
-import { CodeMirrorEditor } from './CodeMirrorEditor.client'
+import { LazyCodeMirrorEditor } from './LazyCodeMirrorEditor.client'
 import {
   MAX_SANDBOX_BROWSER_ANNOTATION_PROMPT_LENGTH,
   SandboxBrowser,
@@ -3129,7 +3129,7 @@ export function ExampleWorkbench({
                 ))}
               </div>
               <div className="min-h-0 flex-1">
-                <CodeMirrorEditor
+                <LazyCodeMirrorEditor
                   path={tab.path}
                   theme={resolvedTheme}
                   value={source}
@@ -4172,7 +4172,7 @@ export function ExampleWorkbench({
                 </div>
               </div>
               <div className="min-h-0 flex-1">
-                <CodeMirrorEditor
+                <LazyCodeMirrorEditor
                   path={activePath}
                   theme={resolvedTheme}
                   value={activeSource}

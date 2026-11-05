@@ -44,9 +44,9 @@ export class Workflows {
     private now = () => Date.now(),
   ) {}
   private async authorize(write = false) {
-    const [row] = await db.execute(
-      sql`SELECT 1 WHERE ${access(this.scope, write)}`,
-    )
+    const [row] = (
+      await db.execute(sql`SELECT 1 WHERE ${access(this.scope, write)}`)
+    ).rows
     if (!row)
       throw new WorkflowError('Conversation access is unavailable.', 403)
   }
@@ -55,9 +55,11 @@ export class Workflows {
     if (revision !== undefined)
       z.number().int().positive().safe().parse(revision)
     await this.authorize()
-    const [row] = await db.execute<Row>(
-      sql`SELECT ${projection} FROM chat_workflow_revisions WHERE conversation_id=${this.scope.conversationId} AND workflow_id=${id} ${revision === undefined ? sql`` : sql`AND revision=${revision}`} ORDER BY chat_workflow_revisions.revision DESC LIMIT 1`,
-    )
+    const [row] = (
+      await db.execute<Row>(
+        sql`SELECT ${projection} FROM chat_workflow_revisions WHERE conversation_id=${this.scope.conversationId} AND workflow_id=${id} ${revision === undefined ? sql`` : sql`AND revision=${revision}`} ORDER BY chat_workflow_revisions.revision DESC LIMIT 1`,
+      )
+    ).rows
     await this.authorize()
     if (!row) throw new WorkflowError('Workflow not found.', 404)
     return view(row)
@@ -70,9 +72,11 @@ export class Workflows {
       })
       .parse(input)
     await this.authorize()
-    const rows = await db.execute<Row>(
-      sql`SELECT ${projection} FROM chat_workflow_revisions r WHERE r.conversation_id=${this.scope.conversationId} AND r.workflow_id::text>${query.after ?? ''} AND r.revision=(SELECT MAX(v.revision) FROM chat_workflow_revisions v WHERE v.conversation_id=r.conversation_id AND v.workflow_id=r.workflow_id) ORDER BY r.workflow_id LIMIT ${query.limit + 1}`,
-    )
+    const rows = (
+      await db.execute<Row>(
+        sql`SELECT ${projection} FROM chat_workflow_revisions r WHERE r.conversation_id=${this.scope.conversationId} AND r.workflow_id::text>${query.after ?? ''} AND r.revision=(SELECT MAX(v.revision) FROM chat_workflow_revisions v WHERE v.conversation_id=r.conversation_id AND v.workflow_id=r.workflow_id) ORDER BY r.workflow_id LIMIT ${query.limit + 1}`,
+      )
+    ).rows
     await this.authorize()
     return {
       items: rows.slice(0, query.limit).map(view),
@@ -87,9 +91,11 @@ export class Workflows {
     await this.authorize(true)
     const digest = await hash(JSON.stringify(command))
     const receipt = async () => {
-      const [row] = await db.execute<Row>(
-        sql`SELECT ${projection} FROM chat_workflow_revisions WHERE conversation_id=${this.scope.conversationId} AND command_id=${command.commandId}`,
-      )
+      const [row] = (
+        await db.execute<Row>(
+          sql`SELECT ${projection} FROM chat_workflow_revisions WHERE conversation_id=${this.scope.conversationId} AND command_id=${command.commandId}`,
+        )
+      ).rows
       if (row && row.request_hash !== digest)
         throw new WorkflowError(
           'This workflow command was already used for different input.',

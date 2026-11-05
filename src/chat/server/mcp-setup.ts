@@ -139,9 +139,11 @@ export class McpSetups {
   private async read(id: string, allowExpired = false) {
     await this.authorize()
     z.string().uuid().parse(id)
-    const [row] = await db.execute<Row>(
-      sql`SELECT *, summary::text AS summary, expires_at::double precision AS expires_at FROM chat_mcp_setup_attempts WHERE id=${id} AND user_id=${this.scope.userId} AND workspace_id=${this.scope.workspaceId}`,
-    )
+    const [row] = (
+      await db.execute<Row>(
+        sql`SELECT *, summary::text AS summary, expires_at::double precision AS expires_at FROM chat_mcp_setup_attempts WHERE id=${id} AND user_id=${this.scope.userId} AND workspace_id=${this.scope.workspaceId}`,
+      )
+    ).rows
     if (!row)
       throw new McpAuthorizationError('Connection setup was not found.', 404)
     if (
@@ -212,9 +214,11 @@ export class McpSetups {
       sql`DELETE FROM chat_mcp_setup_attempts WHERE user_id=${this.scope.userId} AND expires_at<${Date.now() - 86400000}`,
     )
     const requestHash = await hash(JSON.stringify([origin, input]))
-    const [existing] = await db.execute<{ request_hash: string }>(
-      sql`SELECT request_hash FROM chat_mcp_setup_attempts WHERE id=${input.id} AND user_id=${this.scope.userId} AND workspace_id=${this.scope.workspaceId}`,
-    )
+    const [existing] = (
+      await db.execute<{ request_hash: string }>(
+        sql`SELECT request_hash FROM chat_mcp_setup_attempts WHERE id=${input.id} AND user_id=${this.scope.userId} AND workspace_id=${this.scope.workspaceId}`,
+      )
+    ).rows
     if (existing) {
       if (existing.request_hash !== requestHash)
         throw new McpAuthorizationError(
@@ -223,9 +227,11 @@ export class McpSetups {
         )
       return this.get(input.id)
     }
-    const [recent] = await db.execute<{ count: number }>(
-      sql`SELECT COUNT(*)::integer AS count FROM chat_mcp_setup_attempts WHERE user_id=${this.scope.userId} AND created_at>${Date.now() - lifespan}`,
-    )
+    const [recent] = (
+      await db.execute<{ count: number }>(
+        sql`SELECT COUNT(*)::integer AS count FROM chat_mcp_setup_attempts WHERE user_id=${this.scope.userId} AND created_at>${Date.now() - lifespan}`,
+      )
+    ).rows
     if ((recent?.count ?? 0) >= 20)
       throw new McpAuthorizationError(
         'Too many connection attempts. Try again in a few minutes.',
@@ -301,9 +307,11 @@ export class McpSetups {
       await tx.execute(
         sql`SELECT id FROM users WHERE id=${this.scope.userId} FOR UPDATE`,
       )
-      const [existing] = await tx.execute<{ request_hash: string }>(
-        sql`SELECT request_hash FROM chat_mcp_setup_attempts WHERE id=${input.id} AND user_id=${this.scope.userId} AND workspace_id=${this.scope.workspaceId}`,
-      )
+      const [existing] = (
+        await tx.execute<{ request_hash: string }>(
+          sql`SELECT request_hash FROM chat_mcp_setup_attempts WHERE id=${input.id} AND user_id=${this.scope.userId} AND workspace_id=${this.scope.workspaceId}`,
+        )
+      ).rows
       if (existing) {
         if (existing.request_hash !== requestHash)
           throw new McpAuthorizationError(
@@ -312,9 +320,11 @@ export class McpSetups {
           )
         return
       }
-      const [recent] = await tx.execute<{ count: number }>(
-        sql`SELECT COUNT(*)::integer AS count FROM chat_mcp_setup_attempts WHERE user_id=${this.scope.userId} AND created_at>${Date.now() - lifespan}`,
-      )
+      const [recent] = (
+        await tx.execute<{ count: number }>(
+          sql`SELECT COUNT(*)::integer AS count FROM chat_mcp_setup_attempts WHERE user_id=${this.scope.userId} AND created_at>${Date.now() - lifespan}`,
+        )
+      ).rows
       if ((recent?.count ?? 0) >= 20)
         throw new McpAuthorizationError(
           'Too many connection attempts. Try again in a few minutes.',
@@ -324,9 +334,11 @@ export class McpSetups {
         sql`INSERT INTO chat_mcp_setup_attempts(id,user_id,workspace_id,request_hash,status,summary,ciphertext,expires_at,created_at) VALUES(${input.id},${this.scope.userId},${this.scope.workspaceId},${requestHash},${summary.status},${JSON.stringify(summary)}::jsonb,${encrypted},${summary.expiresAt},${Date.now()}) ON CONFLICT DO NOTHING`,
       )
     })
-    const [accepted] = await db.execute<{ request_hash: string }>(
-      sql`SELECT request_hash FROM chat_mcp_setup_attempts WHERE id=${input.id} AND user_id=${this.scope.userId} AND workspace_id=${this.scope.workspaceId}`,
-    )
+    const [accepted] = (
+      await db.execute<{ request_hash: string }>(
+        sql`SELECT request_hash FROM chat_mcp_setup_attempts WHERE id=${input.id} AND user_id=${this.scope.userId} AND workspace_id=${this.scope.workspaceId}`,
+      )
+    ).rows
     if (accepted?.request_hash !== requestHash)
       throw new McpAuthorizationError(
         'This connection attempt belongs to a different request.',
@@ -357,9 +369,11 @@ export class McpSetups {
         summary.error ?? 'This service requires a different setup method.',
       )
     await this.plugin(secret.input)
-    const [claimed] = await db.execute(
-      sql`UPDATE chat_mcp_setup_attempts SET status='starting' WHERE id=${id} AND user_id=${this.scope.userId} AND workspace_id=${this.scope.workspaceId} AND status='review' AND expires_at>${Date.now()} RETURNING id`,
-    )
+    const [claimed] = (
+      await db.execute(
+        sql`UPDATE chat_mcp_setup_attempts SET status='starting' WHERE id=${id} AND user_id=${this.scope.userId} AND workspace_id=${this.scope.workspaceId} AND status='review' AND expires_at>${Date.now()} RETURNING id`,
+      )
+    ).rows
     if (!claimed)
       throw new McpAuthorizationError(
         'This connection attempt is already starting. Check its status.',
@@ -488,9 +502,11 @@ export class McpSetups {
     const browserHash = secret.browserNonce
       ? await hash(secret.browserNonce)
       : null
-    const [result] = await db.execute(
-      sql`UPDATE chat_mcp_setup_attempts SET status=${summary.status},summary=${JSON.stringify(summary)}::jsonb,ciphertext=${encrypted},state_hash=${stateHash},browser_hash=${browserHash} WHERE id=${row.id} AND user_id=${this.scope.userId} AND workspace_id=${this.scope.workspaceId} AND status=${expected} RETURNING id`,
-    )
+    const [result] = (
+      await db.execute(
+        sql`UPDATE chat_mcp_setup_attempts SET status=${summary.status},summary=${JSON.stringify(summary)}::jsonb,ciphertext=${encrypted},state_hash=${stateHash},browser_hash=${browserHash} WHERE id=${row.id} AND user_id=${this.scope.userId} AND workspace_id=${this.scope.workspaceId} AND status=${expected} RETURNING id`,
+      )
+    ).rows
     if (!result)
       throw new McpAuthorizationError(
         'Connection setup changed. Review its current status.',
@@ -518,9 +534,11 @@ export class McpSetups {
         'This sign-in response has already been used.',
         409,
       )
-    const [claimed] = await db.execute(
-      sql`UPDATE chat_mcp_setup_attempts SET status='starting' WHERE id=${id} AND user_id=${this.scope.userId} AND workspace_id=${this.scope.workspaceId} AND status='authorize' AND expires_at>${Date.now()} RETURNING id`,
-    )
+    const [claimed] = (
+      await db.execute(
+        sql`UPDATE chat_mcp_setup_attempts SET status='starting' WHERE id=${id} AND user_id=${this.scope.userId} AND workspace_id=${this.scope.workspaceId} AND status='authorize' AND expires_at>${Date.now()} RETURNING id`,
+      )
+    ).rows
     if (!claimed)
       throw new McpAuthorizationError(
         'This sign-in response has already been used.',

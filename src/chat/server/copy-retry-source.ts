@@ -24,11 +24,11 @@ export interface ConversationRetryRow {
 /** Only the immutable server record can supply retry data to a copy export. */
 export async function copyRetrySource(copy: ConversationCopyRow) {
   if (!copy.retry_id) return undefined
-  const [row] = await db.execute<
-    ConversationRetryRow & Record<string, unknown>
-  >(
-    sql`SELECT *,source_json::text AS source_json,file_plan_json::text AS file_plan_json,created_at::double precision AS created_at,updated_at::double precision AS updated_at FROM chat_conversation_retries WHERE id=${copy.retry_id}::uuid AND workspace_id=${copy.workspace_id} AND user_id=${copy.user_id}::uuid AND source_bot_id=${copy.source_bot_id} AND source_conversation_id=${copy.source_conversation_id}`,
-  )
+  const [row] = (
+    await db.execute<ConversationRetryRow & Record<string, unknown>>(
+      sql`SELECT *,source_json::text AS source_json,file_plan_json::text AS file_plan_json,created_at::double precision AS created_at,updated_at::double precision AS updated_at FROM chat_conversation_retries WHERE id=${copy.retry_id}::uuid AND workspace_id=${copy.workspace_id} AND user_id=${copy.user_id}::uuid AND source_bot_id=${copy.source_bot_id} AND source_conversation_id=${copy.source_conversation_id}`,
+    )
+  ).rows
   if (!row) throw new Error('The original retry review is unavailable.')
   const source = parseRetrySource(JSON.parse(row.source_json))
   if (

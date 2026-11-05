@@ -1,3 +1,4 @@
+import { isNpmStatsPath } from '~/utils/analytics/stats-location'
 import * as Sentry from '@sentry/tanstackstart-react'
 import { getLiveRuntimeConfig } from '~/utils/analytics/live.functions'
 import {
@@ -74,7 +75,7 @@ const THEME_BOOTSTRAP = `(function(){try{var t=localStorage.getItem('theme')||'a
 // the bootstrap idempotent: without it the head script can execute twice on a
 // single load, sending a second config (and a second page_view) and injecting
 // a second gtag.js loader.
-const GOOGLE_ANALYTICS_BOOTSTRAP = `(function(){if(window.__tanstackGaBootstrapped)return;window.__tanstackGaBootstrapped=true;var id='${GOOGLE_ANALYTICS_ID}';var src='${GOOGLE_ANALYTICS_SCRIPT_SRC}';window.dataLayer=window.dataLayer||[];window.gtag=window.gtag||function(){window.dataLayer.push(arguments)};window.gtag('set',{traffic_quality:'unknown',traffic_quality_rule:'v1'});window.gtag('js',new Date());window.gtag('config',id,{send_page_view:false,transport_url:window.location.origin+'${GOOGLE_ANALYTICS_PROXY_PREFIX}'});${TRAFFIC_QUALITY_BOOTSTRAP}var loaded=false;var load=function(){if(loaded)return;var parent=document.head||document.documentElement;if(!parent){window.setTimeout(load,100);return}loaded=true;var script=document.createElement('script');script.async=true;script.src=src;script.setAttribute('data-ga-loader','true');parent.appendChild(script)};if(typeof window.requestIdleCallback==='function'){window.requestIdleCallback(load,{timeout:3000});return}if(document.readyState==='complete'){window.setTimeout(load,1500);return}window.addEventListener('load',function(){window.setTimeout(load,1500)},{once:true})})();`
+const GOOGLE_ANALYTICS_BOOTSTRAP = `(function(){if(location.hostname!=='tanstack.com'||window.__tanstackGaBootstrapped)return;window.__tanstackGaBootstrapped=true;var id='${GOOGLE_ANALYTICS_ID}';var src='${GOOGLE_ANALYTICS_SCRIPT_SRC}';window.dataLayer=window.dataLayer||[];window.gtag=window.gtag||function(){window.dataLayer.push(arguments)};window.gtag('set',{traffic_quality:'unknown',traffic_quality_rule:'v2'});window.gtag('js',new Date());window.gtag('config',id,{send_page_view:false,transport_url:window.location.origin+'${GOOGLE_ANALYTICS_PROXY_PREFIX}'});${TRAFFIC_QUALITY_BOOTSTRAP}var loaded=false;var load=function(){if(loaded)return;var parent=document.head||document.documentElement;if(!parent){window.setTimeout(load,100);return}loaded=true;var script=document.createElement('script');script.async=true;script.src=src;script.setAttribute('data-ga-loader','true');parent.appendChild(script)};if(typeof window.requestIdleCallback==='function'){window.requestIdleCallback(load,{timeout:3000});return}if(document.readyState==='complete'){window.setTimeout(load,1500);return}window.addEventListener('load',function(){window.setTimeout(load,1500)},{once:true})})();`
 const DOCUMENT_CACHE_HEADERS = {
   'Cache-Control': 'public, max-age=0, must-revalidate',
   'Cloudflare-CDN-Cache-Control': 'no-store',
@@ -494,7 +495,7 @@ function PageViewTracker() {
       const pathname = s.resolvedLocation.pathname || '/'
       const search = s.resolvedLocation.searchStr || ''
 
-      return `${pathname}${search}`
+      return isNpmStatsPath(pathname) ? pathname : `${pathname}${search}`
     },
   })
   const lastTrackedPath = React.useRef<string | null>(null)

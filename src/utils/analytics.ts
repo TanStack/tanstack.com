@@ -1,3 +1,4 @@
+import { cleanStatsLocation, isNpmStatsPath } from './analytics/stats-location'
 import { trackLiveAction } from './analytics/live-browser'
 import * as React from 'react'
 import { googleAnalyticsProvider } from './analytics/providers/google'
@@ -117,6 +118,14 @@ function buildEventPayload(props: object): EventPayload {
     }
 
     payload[key] = normalized
+  }
+
+  if (
+    typeof window !== 'undefined' &&
+    isNpmStatsPath(window.location.pathname)
+  ) {
+    payload.page_location = cleanStatsLocation(window.location.href)
+    payload.page_path = window.location.pathname
   }
 
   return payload

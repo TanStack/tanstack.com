@@ -1,3 +1,4 @@
+import { cleanStatsLocation } from './stats-location'
 import { z } from 'zod'
 
 const networkSchema = z.object({
@@ -43,13 +44,7 @@ export function labelAnalyticsCollection(
   const location = params.get('dl')
   if (location) {
     try {
-      const url = new URL(location)
-      if (
-        url.pathname === '/stats/npm' ||
-        url.pathname.startsWith('/stats/npm/')
-      ) {
-        params.set('dl', url.origin + url.pathname)
-      }
+      params.set('dl', cleanStatsLocation(location))
     } catch {
       // Preserve malformed upstream values rather than breaking collection.
     }

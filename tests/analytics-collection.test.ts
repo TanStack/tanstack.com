@@ -81,11 +81,14 @@ test('collection preserves scanner labels in query and batch events', () => {
 test('collection removes chart state for automatic as well as explicit events', () => {
   for (const path of ['/stats/npm', '/stats/npm/', '/stats/npm/react-vs-vue']) {
     const params = new URLSearchParams({
-      dl: `https://tanstack.com${path}?chart=${'x'.repeat(1500)}#chart`,
+      dl: `https://tanstack.com${path}?packageGroups=${'x'.repeat(1500)}&range=all-time&utm_source=email#chart`,
       en: 'scroll',
     })
     labelAnalyticsCollection(params, undefined)
-    assert.equal(params.get('dl'), `https://tanstack.com${path}`)
+    assert.equal(
+      params.get('dl'),
+      `https://tanstack.com${path}?utm_source=email`,
+    )
   }
   const params = new URLSearchParams({
     dl: 'https://tanstack.com/?utm_source=newsletter',

@@ -26,19 +26,21 @@ test('page views and partner events use clean stats URLs without modifying other
     URL,
     document: { title: 'Stats' },
     window: {
-      location: new URL('https://tanstack.com/stats/npm?chart=large#state'),
+      location: new URL(
+        'https://tanstack.com/stats/npm?packageGroups=large&utm_source=email#state',
+      ),
       gtag: (...args: unknown[]) => sent.push(args),
     },
   })
   vm.runInContext(code, context)
   vm.runInContext(
-    "analytics.trackPageView('/stats/npm?chart=large'); analytics.trackEvent('partner_viewed', {partner_id:'vercel',placement:'docs_rail'})",
+    "analytics.trackPageView('/stats/npm?packageGroups=large&utm_source=email'); analytics.trackEvent('partner_viewed', {partner_id:'vercel',placement:'docs_rail'})",
     context,
   )
   for (const event of sent) {
     assert.equal(
       Reflect.get(Object(event[2]), 'page_location'),
-      'https://tanstack.com/stats/npm',
+      'https://tanstack.com/stats/npm?utm_source=email',
     )
     assert.equal(Reflect.get(Object(event[2]), 'page_path'), '/stats/npm')
   }

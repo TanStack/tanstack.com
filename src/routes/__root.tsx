@@ -1,3 +1,4 @@
+import { isNpmStatsPath } from '~/utils/analytics/stats-location'
 import * as Sentry from '@sentry/tanstackstart-react'
 import { getLiveRuntimeConfig } from '~/utils/analytics/live.functions'
 import {
@@ -494,7 +495,7 @@ function PageViewTracker() {
       const pathname = s.resolvedLocation.pathname || '/'
       const search = s.resolvedLocation.searchStr || ''
 
-      return `${pathname}${search}`
+      return isNpmStatsPath(pathname) ? pathname : `${pathname}${search}`
     },
   })
   const lastTrackedPath = React.useRef<string | null>(null)

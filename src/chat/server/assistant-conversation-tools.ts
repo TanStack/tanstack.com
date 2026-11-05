@@ -85,9 +85,11 @@ export class AssistantConversations {
       userId: this.scope.userId,
       conversationId: conversationId ?? current.conversationId,
     })
-    const [main] = await db.execute(
-      sql`SELECT 1 FROM chat_conversation_mains WHERE conversation_id=${identity.conversationId} AND bot_id=${identity.botId} AND user_id=${identity.userId}`,
-    )
+    const [main] = (
+      await db.execute(
+        sql`SELECT 1 FROM chat_conversation_mains WHERE conversation_id=${identity.conversationId} AND bot_id=${identity.botId} AND user_id=${identity.userId}`,
+      )
+    ).rows
     if (!main)
       throw new BotWorkspaceError(
         'Thread settings are not available through this tool. No parent conversation was changed.',

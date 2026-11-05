@@ -13,41 +13,41 @@
   },
   "vars": {
     "APP_MODE": "production",
+    "LIVE_VISITORS_ENABLED": "true",
+    "VISITOR_CHAT_ENABLED": "true",
     "MCP_EGRESS_MODE": "cloudflare-public",
     "KODY_ORIGIN": "https://kody.codes",
     "INCLUDED_MODEL": "@cf/moonshotai/kimi-k2.6",
   },
+  "ratelimits": [
+    {
+      "name": "VISITOR_CHAT_RATE_LIMITER",
+      "namespace_id": "144401",
+      "simple": { "limit": 600, "period": 60 },
+    },
+    {
+      "name": "LIVE_PRESENCE_RATE_LIMITER",
+      "namespace_id": "144201",
+      "simple": { "limit": 600, "period": 60 },
+    },
+    {
+      "name": "LIVE_LOOKUP_RATE_LIMITER",
+      "namespace_id": "144202",
+      "simple": { "limit": 30, "period": 60 },
+    },
+  ],
   "limits": {
     "cpu_ms": 300000,
   },
-  "durable_objects": {
-    "bindings": [
-      { "name": "STREAMS", "class_name": "StreamObject" },
-      { "name": "WORKSPACE_SYNC", "class_name": "WorkspaceSync" },
-      { "name": "CONVERSATIONS", "class_name": "Conversation" },
-    ],
-  },
-  "migrations": [
-    {
-      "tag": "tanchat-v1",
-      "new_sqlite_classes": ["StreamObject", "WorkspaceSync"],
-    },
-    { "tag": "tanchat-v2", "new_sqlite_classes": ["Conversation"] },
-  ],
-  "workflows": [
-    {
-      "name": "tanstack-chat-workflows",
-      "binding": "WORKFLOW_RUNS",
-      "class_name": "TanChatWorkflow",
-    },
-  ],
   "triggers": {
     "crons": ["* * * * *", "0 9 * * *", "0 */6 * * *"],
   },
   "assets": {
     "binding": "ASSETS",
   },
-  "ai": { "binding": "AI" },
+  "ai": {
+    "binding": "AI",
+  },
   "r2_buckets": [
     {
       "binding": "GITHUB_CONTENT_CACHE",
@@ -70,6 +70,20 @@
     {
       "binding": "HYPERDRIVE",
       "id": "6ec1513b87bb47e9897e5502727b0388",
+    },
+  ],
+  "services": [
+    {
+      "binding": "OG",
+      "service": "tanstack-og",
+    },
+    {
+      "binding": "CHAT",
+      "service": "tanstack-chat",
+    },
+    {
+      "binding": "STARTER",
+      "service": "tanstack-starter",
     },
   ],
 }

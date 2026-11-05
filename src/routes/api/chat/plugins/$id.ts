@@ -1,11 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { handlePlugins } from '../plugins'
+import { forwardWorkerRequest } from '~/server/runtime/worker-service.server'
 
 export const Route = createFileRoute('/api/chat/plugins/$id')({
   server: {
     handlers: {
-      GET: ({ request, params }) => handlePlugins(request, params.id),
-      POST: ({ request, params }) => handlePlugins(request, params.id),
+      GET: ({ request }) => forwardWorkerRequest('CHAT', request),
+      POST: ({ request }) => forwardWorkerRequest('CHAT', request),
     },
   },
 })

@@ -1,3 +1,10 @@
-import {createFileRoute} from '@tanstack/react-router'
-import {handleSavedActions} from '~/chat/server/saved-actions-http.server'
-export const Route=createFileRoute('/api/chat/recipes')({server:{handlers:{POST:({request})=>handleSavedActions(request)}}})
+import { createFileRoute } from '@tanstack/react-router'
+import { forwardWorkerRequest } from '~/server/runtime/worker-service.server'
+
+export const Route = createFileRoute('/api/chat/recipes')({
+  server: {
+    handlers: {
+      POST: ({ request }) => forwardWorkerRequest('CHAT', request),
+    },
+  },
+})

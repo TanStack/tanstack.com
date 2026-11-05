@@ -1,0 +1,43 @@
+{
+  "repository": "TanStack/tanstack-com-worker-staging",
+  "worker": "tanstack-perf-stage-site",
+  "branch": "main",
+  "buildCommand": "pnpm build:staging",
+  "deployCommand": "pnpm deploy:staging",
+  "previewBuildsEnabled": false,
+  "completedBuilds": [
+    "89710348-86be-41a7-b1b4-76fc8174489e",
+    "65689645-a2b9-42c2-93da-6636b2e3cf58",
+    "e411366e-2004-4113-b4cb-1f9a52c02049",
+    "39c8aba7-a6a5-4b36-b2d9-4c6f17c50962"
+  ],
+  "finalBuild": "39c8aba7-a6a5-4b36-b2d9-4c6f17c50962",
+  "finalCommit": "8ec3799ac999b804108204024022e0e1427607bb",
+  "database": {
+    "projectId": "spring-dew-83008577",
+    "name": "worker_staging_auth",
+    "tables": 103,
+    "triggers": 35,
+    "migrations": 42,
+    "productionDataCopied": false,
+    "builderSchemaVerified": true,
+    "chatSchemaVerified": true
+  },
+  "oauthHandshakeTested": false,
+  "modelInferenceTested": false,
+  "productionModified": false,
+  "observedCiWorker": "tanstack-perf-stage-site",
+  "observedCiMatchTagPresent": true,
+  "observedDestinations": [
+    "tanstack-perf-stage-og",
+    "tanstack-perf-stage-starter",
+    "tanstack-perf-stage-chat",
+    "tanstack-perf-stage-site"
+  ],
+  "finalBuildStatus": "success",
+  "finalSiteVersion": "15525c51-3af6-4b4f-b21f-93bcdfdb89c6",
+  "namespaceIdsPreserved": true,
+  "authenticatedChecksPassed": 13,
+  "signedInBrowserPassed": true,
+  "oldSessionRejectedAfterLogout": true
+}

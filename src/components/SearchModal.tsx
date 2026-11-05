@@ -294,7 +294,7 @@ function isSearchModalPortalTarget(target: EventTarget | null) {
 const searchModalTransitionMs = 140
 
 export function SearchModal() {
-  const { isOpen, closeSearch } = useSearchContext()
+  const { isOpen, closeSearch, restoreSearchFocus } = useSearchContext()
   const contentRef = React.useRef<HTMLDivElement>(null)
   const bodyPointerEventsRef = React.useRef('')
   const [shouldRenderSearch, setShouldRenderSearch] = React.useState(isOpen)
@@ -399,6 +399,10 @@ export function SearchModal() {
             <DialogPrimitive.Content
               forceMount
               ref={contentRef}
+              onCloseAutoFocus={(event) => {
+                event.preventDefault()
+                restoreSearchFocus()
+              }}
               className={twMerge(
                 'search-modal-content fixed z-[calc(var(--z-overlay)+2)] inset-0 sm:inset-auto sm:top-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-[96%] xl:w-full sm:max-w-4xl text-left outline-none',
                 isFullHeight && 'sm:bottom-4',

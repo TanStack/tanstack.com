@@ -9,8 +9,8 @@ const captured = vi.hoisted(() => {
   }) => Promise<void>)[] = []
   return { headers, beforeLoads }
 })
-vi.mock('../../src/chat/components/ChatShell', () => ({
-  ChatShell: () => null,
+vi.mock('../../src/chat/components/ChatShellRoute', () => ({
+  ChatShellRoute: () => null,
 }))
 vi.mock('@tanstack/react-start', () => ({
   createServerFn: () => ({ handler: () => () => null }),

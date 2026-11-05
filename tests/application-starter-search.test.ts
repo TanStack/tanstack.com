@@ -28,6 +28,7 @@ test('application starter preserves optional fields and custom feature options',
     },
     ...['pnpm', 'npm', 'yarn', 'bun'].map((pm) => ({ pm })),
     ...['summary', 'code', 'preview'].map((tab) => ({ tab })),
+    { tailwind: true },
   ]) {
     const result = await standardSchema.validate(input)
     assert.equal(result.issues, undefined)
@@ -41,7 +42,6 @@ test('application starter rejects invalid known fields instead of coercing them'
     [],
     'name=app',
     { pm: 'deno' },
-    { tailwind: true },
     { tailwind: 'true' },
     { tab: 'unknown' },
     ...[

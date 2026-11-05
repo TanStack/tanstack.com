@@ -205,11 +205,11 @@ export class WorkspaceSyncPublisher {
     return this.serial(async () => {
       this.scope(workspaceId)
       await this.ctx.storage.setAlarm(Date.now() + 30_000)
-      const [clock] = await db.execute<
-        { revision: number } & Record<string, unknown>
-      >(
-        sql`SELECT revision::float8 AS revision FROM chat_workspace_sync_clock WHERE workspace_id=${workspaceId}`,
-      )
+      const [clock] = (
+        await db.execute<{ revision: number } & Record<string, unknown>>(
+          sql`SELECT revision::float8 AS revision FROM chat_workspace_sync_clock WHERE workspace_id=${workspaceId}`,
+        )
+      ).rows
       for (const row of this.ctx.storage.sql
         .exec<Viewer>('SELECT * FROM viewers')
         .toArray())
@@ -267,11 +267,11 @@ export async function recoverWorkspaceSync(
 ) {
   let after = ''
   while (true) {
-    const rows = await db.execute<
-      { workspace_id: string } & Record<string, unknown>
-    >(
-      sql`SELECT workspace_id FROM chat_workspace_sync_clock WHERE revision>published_revision AND workspace_id>${after} ORDER BY workspace_id LIMIT 32`,
-    )
+    const rows = (
+      await db.execute<{ workspace_id: string } & Record<string, unknown>>(
+        sql`SELECT workspace_id FROM chat_workspace_sync_clock WHERE revision>published_revision AND workspace_id>${after} ORDER BY workspace_id LIMIT 32`,
+      )
+    ).rows
     if (!rows.length) return
     await Promise.all(
       rows.map((row) => wakeWorkspaceSync(env, row.workspace_id)),

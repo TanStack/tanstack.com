@@ -35,7 +35,7 @@ export const Route = createFileRoute('/admin/chat-access')({
   component: ChatAccessAdminPage,
 })
 
-export function ChatAccessAdminPage() {
+function ChatAccessAdminPage() {
   const guard = useAdminGuard()
   const queryClient = useQueryClient()
   const [tab, setTab] = useState<'waitlist' | 'invites'>('waitlist')

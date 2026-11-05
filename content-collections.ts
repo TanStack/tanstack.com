@@ -37,6 +37,7 @@ const posts = defineCollection({
       contributors: z.string().array().optional(),
       library: libraryListSchema.optional(),
       headerImage: z.string().optional(),
+      socialImage: z.string().optional(),
       headerVideo: z.string().optional(),
       headerVideoCaptions: z.string().optional(),
       content: z.string(),

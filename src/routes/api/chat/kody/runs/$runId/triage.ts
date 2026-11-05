@@ -1,3 +1,10 @@
-import {createFileRoute} from '@tanstack/react-router'
-import {handleKodyControl} from '~/chat/server/kody-control-http.server'
-export const Route=createFileRoute('/api/chat/kody/runs/$runId/triage')({server:{handlers:{POST:({request,params})=>handleKodyControl(request,'run-triage',params.runId)}}})
+import { createFileRoute } from '@tanstack/react-router'
+import { forwardWorkerRequest } from '~/server/runtime/worker-service.server'
+
+export const Route = createFileRoute('/api/chat/kody/runs/$runId/triage')({
+  server: {
+    handlers: {
+      POST: ({ request }) => forwardWorkerRequest('CHAT', request),
+    },
+  },
+})

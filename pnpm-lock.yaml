@@ -182,8 +182,8 @@ importers:
         specifier: 0.4.1
         version: 0.4.1(react@19.2.3)(typescript@6.0.2)
       '@tanstack/react-hotkeys':
-        specifier: ^0.14.0
-        version: 0.14.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        specifier: ^0.15.1
+        version: 0.15.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@tanstack/react-pacer':
         specifier: ^0.22.1
         version: 0.22.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -219,7 +219,7 @@ importers:
         version: 0.0.3(@opentelemetry/api@1.9.1)
       '@tanstack/workflow-store-drizzle-postgres':
         specifier: 0.0.5
-        version: 0.0.5(@cloudflare/workers-types@5.20261001.1)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(postgres@3.4.8(patch_hash=3dffa5c1d54f190ed733b23ed8c2fadd0e61c1939e5a8ba8affad5d96e13f033))
+        version: 0.0.5(@cloudflare/workers-types@5.20261001.1)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(pg@8.23.1)(postgres@3.4.8(patch_hash=3dffa5c1d54f190ed733b23ed8c2fadd0e61c1939e5a8ba8affad5d96e13f033))
       '@types/d3':
         specifier: ^7.4.3
         version: 7.4.3
@@ -273,7 +273,7 @@ importers:
         version: 4.4.0
       drizzle-orm:
         specifier: ^0.45.2
-        version: 0.45.2(@cloudflare/workers-types@5.20261001.1)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(postgres@3.4.8(patch_hash=3dffa5c1d54f190ed733b23ed8c2fadd0e61c1939e5a8ba8affad5d96e13f033))
+        version: 0.45.2(@cloudflare/workers-types@5.20261001.1)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(pg@8.23.1)(postgres@3.4.8(patch_hash=3dffa5c1d54f190ed733b23ed8c2fadd0e61c1939e5a8ba8affad5d96e13f033))
       encoding-sniffer:
         specifier: ^0.2.1
         version: 0.2.1
@@ -331,6 +331,9 @@ importers:
       parse5-parser-stream:
         specifier: ^7.1.2
         version: 7.1.2
+      pg:
+        specifier: ^8.23.1
+        version: 8.23.1
       postgres:
         specifier: ^3.4.8
         version: 3.4.8(patch_hash=3dffa5c1d54f190ed733b23ed8c2fadd0e61c1939e5a8ba8affad5d96e13f033)
@@ -4066,8 +4069,8 @@ packages:
     resolution: {integrity: sha512-utTS5L2OkeYUzXGohL1Z8sefu1GLNOJcxe8Hd6iIdc/Xo1K1nDB2JEp4iSFhvYh33xKC9V91TxrS8qfrpoKobQ==}
     engines: {node: '>=20.19'}
 
-  '@tanstack/hotkeys@0.12.0':
-    resolution: {integrity: sha512-DvVl1VMEFQbhOJPBlIouieJPq6Kq+ZuDOe/FC7c1rkEq5d7ZSnn32yDL6L7hlp5n4Z1Cj4F6cEcbcB7lIUC7KQ==}
+  '@tanstack/hotkeys@0.16.1':
+    resolution: {integrity: sha512-GqPOsL/WK2TrqCBnCCYK6RlsGCypylyXVY9v48+UIboynrSCHHKbrBfAuMR9T7cQry+N/uiAl0hxL1Cb9ggj2w==}
     engines: {node: '>=20'}
 
   '@tanstack/markdown@0.0.13':
@@ -4130,8 +4133,8 @@ packages:
       react: '>=16.8'
       react-dom: '>=16.8'
 
-  '@tanstack/react-hotkeys@0.14.0':
-    resolution: {integrity: sha512-LrjU1wCT6VFaoZd99KuisrhN0OOqoM512BFE2UNRHQCtGU6cYNufDKadYypCOiSq+pqvyLIxWEIpHykYgjePlQ==}
+  '@tanstack/react-hotkeys@0.15.1':
+    resolution: {integrity: sha512-OJQOwJYUx4hOHcECoBMBi51ha2jM2aal58HXg/wdiKeuxkbLbAd84fpI51h9e7Q0efAaoTGSfc3g4saXAIDDvw==}
     engines: {node: '>=20'}
     peerDependencies:
       react: '>=16.8'
@@ -7139,16 +7142,42 @@ packages:
     resolution: {integrity: sha512-eRWB5LBz7PpDu4PUlwT0PhnQfTQJlDDdPa35urV4Osrm0t0AqQFGn+UIkU3klZvwJ8KPO3VbBFsXquA6p6kqZw==}
     engines: {node: '>=12', npm: '>=6'}
 
+  pg-cloudflare@1.4.1:
+    resolution: {integrity: sha512-6PQbsFWZcp9EmJEwy5cGQ2La+AMWpP46lgbb8X+U/XsHIUweYDNCpeuKck5RxL2MdVFi7krbbEi5nX4Zh7JhrQ==}
+
+  pg-connection-string@2.14.1:
+    resolution: {integrity: sha512-qR3kGNPBLpCNtz0evbKA0Y/MRFXwSSdT+pTJvYp/bXTcReZbvX1kzF0IyTc1QnxqF7AZbOeBhNL8R5mYQZV/MA==}
+
   pg-int8@1.0.1:
     resolution: {integrity: sha512-WCtabS6t3c8SkpDBUlb1kjOs7l66xsGdKpIPZsg4wR+B3+u9UAum2odSsF9tnvxg80h4ZxLWMy4pRjOsFIqQpw==}
     engines: {node: '>=4.0.0'}
 
+  pg-pool@3.14.0:
+    resolution: {integrity: sha512-gKtPkFdQPU3DksooVLi9LsjZxrsBUZIpa+7aVx+LV5pNh0KzP4Zleud2po+ConrxbuXGBJ6Hfer6hdgpIBpBaw==}
+    peerDependencies:
+      pg: '>=8.0'
+
   pg-protocol@1.13.0:
     resolution: {integrity: sha512-zzdvXfS6v89r6v7OcFCHfHlyG/wvry1ALxZo4LqgUoy7W9xhBDMaqOuMiF3qEV45VqsN6rdlcehHrfDtlCPc8w==}
+
+  pg-protocol@1.16.1:
+    resolution: {integrity: sha512-p9VOFMiHB/ZbJATetbg+99PxssTVSQRnyuPSQ67mN1+1KBOjZaZ83ZQzltnxPhJwSsC3nwVjJ10DVJlerbFzLg==}
 
   pg-types@2.2.0:
     resolution: {integrity: sha512-qTAAlrEsl8s4OiEQY69wDvcMIdQN6wdz5ojQiOy6YRMuynxenON0O5oCpJI6lshc6scgAY8qvJ2On/p+CXY0GA==}
     engines: {node: '>=4'}
+
+  pg@8.23.1:
+    resolution: {integrity: sha512-aL96AHANtWjPLDOLqnhx+ngp9+UK7ETEU8VJrDCGvsSSi/mGLcWYsS6Herg7lmaBJe4uwrfqsa7gTEFaSizDoQ==}
+    engines: {node: '>= 16.0.0'}
+    peerDependencies:
+      pg-native: '>=3.0.1'
+    peerDependenciesMeta:
+      pg-native:
+        optional: true
+
+  pgpass@1.0.5:
+    resolution: {integrity: sha512-FdW9r/jQZhSeohs1Z3sI1yxFQNFvMcnmfuj4WBMUTxOrAyLMaTcE1aAMBiTlbMNaXvBCQuVi0R7hd8udDSP7ug==}
 
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
@@ -7728,6 +7757,10 @@ packages:
 
   spdx-license-ids@3.0.23:
     resolution: {integrity: sha512-CWLcCCH7VLu13TgOH+r8p1O/Znwhqv/dbb6lqWy67G+pT1kHmeD/+V36AVb/vq8QMIQwVShJ6Ssl5FPh0fuSdw==}
+
+  split2@4.2.0:
+    resolution: {integrity: sha512-UcjcJOWknrNkF6PLX83qcHM6KHgVKNkV62Y8a5uYDVv9ydGQVwAHMKqHdJje1VTWpljG0WYpCDhrCdAOYH4TWg==}
+    engines: {node: '>= 10.x'}
 
   sprintf-js@1.0.3:
     resolution: {integrity: sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==}
@@ -11738,7 +11771,7 @@ snapshots:
 
   '@tanstack/history@1.162.4': {}
 
-  '@tanstack/hotkeys@0.12.0':
+  '@tanstack/hotkeys@0.16.1':
     dependencies:
       '@tanstack/store': 0.11.2
 
@@ -11808,9 +11841,9 @@ snapshots:
       - solid-js
       - utf-8-validate
 
-  '@tanstack/react-hotkeys@0.14.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
+  '@tanstack/react-hotkeys@0.15.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
-      '@tanstack/hotkeys': 0.12.0
+      '@tanstack/hotkeys': 0.16.1
       '@tanstack/react-store': 0.11.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
@@ -12125,11 +12158,11 @@ snapshots:
       '@opentelemetry/api': 1.9.1
       '@tanstack/workflow-core': 0.0.4(@opentelemetry/api@1.9.1)
 
-  '@tanstack/workflow-store-drizzle-postgres@0.0.5(@cloudflare/workers-types@5.20261001.1)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(postgres@3.4.8(patch_hash=3dffa5c1d54f190ed733b23ed8c2fadd0e61c1939e5a8ba8affad5d96e13f033))':
+  '@tanstack/workflow-store-drizzle-postgres@0.0.5(@cloudflare/workers-types@5.20261001.1)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(pg@8.23.1)(postgres@3.4.8(patch_hash=3dffa5c1d54f190ed733b23ed8c2fadd0e61c1939e5a8ba8affad5d96e13f033))':
     dependencies:
       '@tanstack/workflow-core': 0.0.4(@opentelemetry/api@1.9.1)
       '@tanstack/workflow-runtime': 0.0.3(@opentelemetry/api@1.9.1)
-      drizzle-orm: 0.45.2(@cloudflare/workers-types@5.20261001.1)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(postgres@3.4.8(patch_hash=3dffa5c1d54f190ed733b23ed8c2fadd0e61c1939e5a8ba8affad5d96e13f033))
+      drizzle-orm: 0.45.2(@cloudflare/workers-types@5.20261001.1)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(pg@8.23.1)(postgres@3.4.8(patch_hash=3dffa5c1d54f190ed733b23ed8c2fadd0e61c1939e5a8ba8affad5d96e13f033))
     transitivePeerDependencies:
       - '@aws-sdk/client-rds-data'
       - '@cloudflare/workers-types'
@@ -13425,11 +13458,12 @@ snapshots:
       esbuild: 0.25.12
       tsx: 4.21.0
 
-  drizzle-orm@0.45.2(@cloudflare/workers-types@5.20261001.1)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(postgres@3.4.8(patch_hash=3dffa5c1d54f190ed733b23ed8c2fadd0e61c1939e5a8ba8affad5d96e13f033)):
+  drizzle-orm@0.45.2(@cloudflare/workers-types@5.20261001.1)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(pg@8.23.1)(postgres@3.4.8(patch_hash=3dffa5c1d54f190ed733b23ed8c2fadd0e61c1939e5a8ba8affad5d96e13f033)):
     optionalDependencies:
       '@cloudflare/workers-types': 5.20261001.1
       '@opentelemetry/api': 1.9.1
       '@types/pg': 8.20.0
+      pg: 8.23.1
       postgres: 3.4.8(patch_hash=3dffa5c1d54f190ed733b23ed8c2fadd0e61c1939e5a8ba8affad5d96e13f033)
 
   dunder-proto@1.0.1:
@@ -15225,9 +15259,20 @@ snapshots:
 
   pe-library@0.4.1: {}
 
+  pg-cloudflare@1.4.1:
+    optional: true
+
+  pg-connection-string@2.14.1: {}
+
   pg-int8@1.0.1: {}
 
+  pg-pool@3.14.0(pg@8.23.1):
+    dependencies:
+      pg: 8.23.1
+
   pg-protocol@1.13.0: {}
+
+  pg-protocol@1.16.1: {}
 
   pg-types@2.2.0:
     dependencies:
@@ -15236,6 +15281,20 @@ snapshots:
       postgres-bytea: 1.0.1
       postgres-date: 1.0.7
       postgres-interval: 1.2.0
+
+  pg@8.23.1:
+    dependencies:
+      pg-connection-string: 2.14.1
+      pg-pool: 3.14.0(pg@8.23.1)
+      pg-protocol: 1.16.1
+      pg-types: 2.2.0
+      pgpass: 1.0.5
+    optionalDependencies:
+      pg-cloudflare: 1.4.1
+
+  pgpass@1.0.5:
+    dependencies:
+      split2: 4.2.0
 
   picocolors@1.1.1: {}
 
@@ -15933,6 +15992,8 @@ snapshots:
       spdx-license-ids: 3.0.23
 
   spdx-license-ids@3.0.23: {}
+
+  split2@4.2.0: {}
 
   sprintf-js@1.0.3: {}
 

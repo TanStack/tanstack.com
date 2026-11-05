@@ -47,9 +47,9 @@
   },
   {
     "login": "humanizerpro",
-    "name": "AI humanizer",
-    "imageUrl": "https://humanizetext.io/logo.svg",
-    "linkUrl": "https://humanizetext.io"
+    "name": "StatementScan",
+    "imageUrl": "https://statementscan.io/logo.svg",
+    "linkUrl": "https://statementscan.io"
   },
   {
     "login": "GoHumanize-ai",
@@ -365,5 +365,11 @@
     "name": "Humanize AI Text",
     "imageUrl": "https://humanizeaitext.io/favicon/favicon-32x32.png",
     "linkUrl": "https://humanizeaitext.io/"
+  },
+  {
+    "login": "endformdev",
+    "name": "Endform",
+    "imageUrl": "https://endform.dev/web-app-manifest-512x512.png",
+    "linkUrl": "https://endform.dev/?utm_source=tanstack"
   }
 ]

@@ -502,9 +502,7 @@ function PageViewTracker() {
   React.useEffect(() => {
     if (import.meta.env.MODE === 'staging') return
     if (chatEnabled) void resumeVisitorChat().catch(() => {})
-    const stopLivePresence = presenceEnabled
-      ? startLivePresence()
-      : () => {}
+    const stopLivePresence = presenceEnabled ? startLivePresence() : () => {}
     const stopTrackingHoverIntent = trackScarfExternalLinkHoverIntent()
     document.addEventListener('click', trackScarfExternalLinkClick, true)
     document.addEventListener('click', trackScarfDownloadClick, true)

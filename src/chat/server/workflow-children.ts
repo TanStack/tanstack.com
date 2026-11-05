@@ -14,9 +14,11 @@ export async function publishWorkflowChild(
   const owner = admission.owner
   await resolveWorkflowContext(env, owner, admission.model)
   const receipt = async () => {
-    const [row] = await db.execute<{ admission_json: string }>(
-      sql`SELECT admission_json FROM chat_workflow_children WHERE conversation_id=${admission.childConversationId}`,
-    )
+    const [row] = (
+      await db.execute<{ admission_json: string }>(
+        sql`SELECT admission_json FROM chat_workflow_children WHERE conversation_id=${admission.childConversationId}`,
+      )
+    ).rows
     if (row && row.admission_json !== canonicalCopyJson(admission))
       throw Error('Workflow child belongs to another admission.')
     return !!row

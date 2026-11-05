@@ -18,9 +18,11 @@ const versionSchema = z.number().int().positive().safe()
 export class PluginPackages {
   constructor(protected scope: PluginScope) {}
   protected async member() {
-    const [row] = await db.execute(
-      sql`SELECT 1 FROM chat_memberships WHERE workspace_id=${this.scope.workspaceId} AND user_id=${this.scope.userId}`,
-    )
+    const [row] = (
+      await db.execute(
+        sql`SELECT 1 FROM chat_memberships WHERE workspace_id=${this.scope.workspaceId} AND user_id=${this.scope.userId}`,
+      )
+    ).rows
     if (!row) throw new PluginError('Workspace access is unavailable.', 403)
   }
   async preview(files: unknown) {
@@ -32,35 +34,43 @@ export class PluginPackages {
   async inspect(id: string, version?: number) {
     uuid.parse(id)
     await this.member()
-    const [head] = await db.execute<{
-      id: string
-      current_version: number
-      revision: number
-      enabled: boolean
-      removed: boolean
-      created_at: number
-      updated_at: number
-    }>(
-      sql`SELECT id,current_version::double precision AS current_version,revision::double precision AS revision,enabled,removed,created_at::double precision AS created_at,updated_at::double precision AS updated_at FROM chat_plugin_installations WHERE id=${id} AND workspace_id=${this.scope.workspaceId} AND user_id=${this.scope.userId}`,
-    )
+    const [head] = (
+      await db.execute<{
+        id: string
+        current_version: number
+        revision: number
+        enabled: boolean
+        removed: boolean
+        created_at: number
+        updated_at: number
+      }>(
+        sql`SELECT id,current_version::double precision AS current_version,revision::double precision AS revision,enabled,removed,created_at::double precision AS created_at,updated_at::double precision AS updated_at FROM chat_plugin_installations WHERE id=${id} AND workspace_id=${this.scope.workspaceId} AND user_id=${this.scope.userId}`,
+      )
+    ).rows
     if (!head) throw new PluginError('Plugin not found.', 404)
     const requested =
       version === undefined
         ? head.current_version
         : versionSchema.parse(version)
-    const [v] = await db.execute<{
-      preview: ParsedPluginPackage
-      digest: string
-    }>(
-      sql`SELECT preview,digest FROM chat_plugin_versions WHERE installation_id=${id} AND version=${requested}`,
-    )
+    const [v] = (
+      await db.execute<{
+        preview: ParsedPluginPackage
+        digest: string
+      }>(
+        sql`SELECT preview,digest FROM chat_plugin_versions WHERE installation_id=${id} AND version=${requested}`,
+      )
+    ).rows
     if (!v) throw new PluginError('Plugin version not found.', 404)
-    const files = await db.execute<{ path: string; text: string }>(
-      sql`SELECT path,content AS text FROM chat_plugin_files WHERE installation_id=${id} AND version=${requested} ORDER BY path`,
-    )
-    const bindings = await db.execute<PluginBinding>(
-      sql`SELECT version::double precision AS version,requirement_key AS "requirementKey",server_id AS "serverId",endpoint FROM chat_plugin_bindings WHERE installation_id=${id} AND version=${requested} ORDER BY requirement_key`,
-    )
+    const files = (
+      await db.execute<{ path: string; text: string }>(
+        sql`SELECT path,content AS text FROM chat_plugin_files WHERE installation_id=${id} AND version=${requested} ORDER BY path`,
+      )
+    ).rows
+    const bindings = (
+      await db.execute<PluginBinding>(
+        sql`SELECT version::double precision AS version,requirement_key AS "requirementKey",server_id AS "serverId",endpoint FROM chat_plugin_bindings WHERE installation_id=${id} AND version=${requested} ORDER BY requirement_key`,
+      )
+    ).rows
     await this.member()
     return {
       id: head.id,
@@ -84,16 +94,18 @@ export class PluginPackages {
     uuid.parse(id)
     versionSchema.parse(version)
     await this.member()
-    const [row] = await db.execute<{
-      id: string
-      version: number
-      digest: string
-      name: string
-      description: string | null
-      packageVersion: string | null
-    }>(
-      sql`SELECT p.id,v.version::double precision AS version,v.digest,v.preview->'manifest'->>'name' AS name,v.preview->'manifest'->>'description' AS description,v.preview->'manifest'->>'version' AS "packageVersion" FROM chat_plugin_installations p JOIN chat_memberships m ON m.workspace_id=p.workspace_id AND m.user_id=p.user_id JOIN chat_plugin_versions v ON v.installation_id=p.id AND v.version=${version} WHERE p.id=${id} AND p.workspace_id=${this.scope.workspaceId} AND p.user_id=${this.scope.userId} AND p.enabled=true AND p.removed=false AND v.preview->'compatibility'->>'status'='supported'`,
-    )
+    const [row] = (
+      await db.execute<{
+        id: string
+        version: number
+        digest: string
+        name: string
+        description: string | null
+        packageVersion: string | null
+      }>(
+        sql`SELECT p.id,v.version::double precision AS version,v.digest,v.preview->'manifest'->>'name' AS name,v.preview->'manifest'->>'description' AS description,v.preview->'manifest'->>'version' AS "packageVersion" FROM chat_plugin_installations p JOIN chat_memberships m ON m.workspace_id=p.workspace_id AND m.user_id=p.user_id JOIN chat_plugin_versions v ON v.installation_id=p.id AND v.version=${version} WHERE p.id=${id} AND p.workspace_id=${this.scope.workspaceId} AND p.user_id=${this.scope.userId} AND p.enabled=true AND p.removed=false AND v.preview->'compatibility'->>'status'='supported'`,
+      )
+    ).rows
     if (!row)
       throw new PluginError(
         'This plugin version is unavailable, disabled or removed.',
@@ -134,24 +146,28 @@ export class PluginPackages {
   async inspectSkill(skillId: string, version?: number): Promise<PluginSkill> {
     uuid.parse(skillId)
     await this.member()
-    const [identity] = await db.execute<{
-      installation_id: string
-      path: string
-    }>(
-      sql`SELECT s.installation_id,s.path FROM chat_plugin_skill_identities s JOIN chat_plugin_installations p ON p.id=s.installation_id WHERE s.id=${skillId} AND p.workspace_id=${this.scope.workspaceId} AND p.user_id=${this.scope.userId}`,
-    )
+    const [identity] = (
+      await db.execute<{
+        installation_id: string
+        path: string
+      }>(
+        sql`SELECT s.installation_id,s.path FROM chat_plugin_skill_identities s JOIN chat_plugin_installations p ON p.id=s.installation_id WHERE s.id=${skillId} AND p.workspace_id=${this.scope.workspaceId} AND p.user_id=${this.scope.userId}`,
+      )
+    ).rows
     if (!identity) throw new PluginError('Skill not found.', 404)
     const head = await this.inspect(identity.installation_id)
     if (!head) throw new PluginError('Skill not found.', 404)
     const v =
       version === undefined ? head.currentVersion : versionSchema.parse(version)
-    const [row] = await db.execute<{
-      document: string
-      preview: string
-      digest: string
-    }>(
-      sql`SELECT s.document::text AS document,p.preview::text AS preview,p.digest FROM chat_plugin_skill_versions s JOIN chat_plugin_versions p ON p.installation_id=${identity.installation_id} AND p.version=s.version WHERE s.skill_id=${skillId} AND s.version=${v}`,
-    )
+    const [row] = (
+      await db.execute<{
+        document: string
+        preview: string
+        digest: string
+      }>(
+        sql`SELECT s.document::text AS document,p.preview::text AS preview,p.digest FROM chat_plugin_skill_versions s JOIN chat_plugin_versions p ON p.installation_id=${identity.installation_id} AND p.version=s.version WHERE s.skill_id=${skillId} AND s.version=${v}`,
+      )
+    ).rows
     if (!row) throw new PluginError('Skill version not found.', 404)
     await this.member()
     const document = skillDocumentSchema.parse(JSON.parse(row.document)),
@@ -217,20 +233,21 @@ export class PluginPackages {
         throw new PluginError('The skill list cursor is invalid.')
       }
     }
-    const rows = await db.execute<{
-      id: string
-      path: string
-      installation_id: string
-      current_version: number
-      revision: number
-      created_at: number
-      updated_at: number
-      name: string
-      description: string
-      installation_name: string
-      package_version: string | null
-      digest: string
-    }>(sql`
+    const rows = (
+      await db.execute<{
+        id: string
+        path: string
+        installation_id: string
+        current_version: number
+        revision: number
+        created_at: number
+        updated_at: number
+        name: string
+        description: string
+        installation_name: string
+        package_version: string | null
+        digest: string
+      }>(sql`
       SELECT s.id,s.path,p.id AS installation_id,v.version::double precision AS current_version,
       p.revision::double precision AS revision,p.created_at::double precision AS created_at,
       p.updated_at::double precision AS updated_at,v.document->>'name' AS name,
@@ -244,6 +261,7 @@ export class PluginPackages {
       AND p.enabled=true AND p.removed=false AND s.id::text>${after}
       AND (strpos(lower(v.document->>'name'),lower(${o.query}))>0 OR strpos(lower(v.document->>'description'),lower(${o.query}))>0)
       ORDER BY s.id LIMIT ${o.limit + 1}`)
+    ).rows
     const items = rows.slice(0, o.limit).map((r) => ({
       id: r.id,
       name: r.name,
@@ -282,15 +300,17 @@ export class PluginPackages {
   }
   async skillMetadata(installationId: string, version: number) {
     await this.authorizeVersion(installationId, version)
-    const rows = await db.execute<{
-      id: string
-      version: number
-      path: string
-      name: string
-      description: string
-    }>(
-      sql`SELECT i.id,v.version::double precision AS version,i.path,v.document->>'name' AS name,v.document->>'description' AS description FROM chat_plugin_skill_identities i JOIN chat_plugin_skill_versions v ON v.skill_id=i.id AND v.version=${version} WHERE i.installation_id=${installationId} ORDER BY i.path LIMIT ${maxPluginSkills + 1}`,
-    )
+    const rows = (
+      await db.execute<{
+        id: string
+        version: number
+        path: string
+        name: string
+        description: string
+      }>(
+        sql`SELECT i.id,v.version::double precision AS version,i.path,v.document->>'name' AS name,v.document->>'description' AS description FROM chat_plugin_skill_identities i JOIN chat_plugin_skill_versions v ON v.skill_id=i.id AND v.version=${version} WHERE i.installation_id=${installationId} ORDER BY i.path LIMIT ${maxPluginSkills + 1}`,
+      )
+    ).rows
     await this.authorizeVersion(installationId, version)
     if (rows.length > maxPluginSkills)
       throw new PluginError('This plugin version has too many skills.', 409)

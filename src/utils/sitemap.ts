@@ -1,3 +1,5 @@
+import { readDocsFreshness } from './docs-freshness'
+import { isHighValueDocsSlug } from './sitemap-docs'
 import { getStartExampleSitemapEntries } from './start-example-pages'
 import { getBranch, libraries } from '~/libraries'
 import type { LibrarySlim } from '~/libraries/types'
@@ -22,14 +24,6 @@ const HIGH_VALUE_NON_DOC_PAGES = [
   '/workshops',
   '/paid-support',
 ] as const satisfies ReadonlyArray<string>
-
-const LOW_VALUE_DOCS_SITEMAP_SEGMENTS = new Set(['examples', 'community'])
-
-const LOW_VALUE_DOCS_SITEMAP_SLUGS = new Set([
-  'community-resources',
-  'contributors',
-  'npm-stats',
-])
 
 function trimTrailingSlash(url: string) {
   return url.replace(/\/$/, '')
@@ -62,16 +56,6 @@ function getLibraryEntries(): Array<SitemapEntry> {
   })
 }
 
-function isHighValueDocsSlug(slug: string) {
-  const segments = slug.split('/').filter(Boolean)
-
-  return (
-    segments.length > 0 &&
-    !segments.some((segment) => LOW_VALUE_DOCS_SITEMAP_SEGMENTS.has(segment)) &&
-    !LOW_VALUE_DOCS_SITEMAP_SLUGS.has(slug)
-  )
-}
-
 async function getLibraryDocsEntries(
   library: LibrarySlim,
 ): Promise<Array<SitemapEntry>> {
@@ -89,20 +73,23 @@ async function getLibraryDocsEntries(
     repo: library.repo,
     branch,
     docsRoot,
-  }).catch(() => ({ paths: [], redirects: {} }))
+  }).catch(() => ({ paths: [], redirects: {}, lastModifiedByPath: undefined }))
 
   return manifest.paths
     .filter(Boolean)
     .filter(isHighValueDocsSlug)
     .map((slug) => ({
       path: `/${library.id}/latest/docs/${slug}`,
+      lastModified: readDocsFreshness({
+        updated: manifest.lastModifiedByPath?.[slug],
+      }).updated,
     }))
 }
 
 function getBlogEntries(): Array<SitemapEntry> {
   return getPublishedPosts().map((post) => ({
     path: `/blog/${post.slug}`,
-    lastModified: asLastModified(post.published),
+    lastModified: asLastModified(post.updated ?? post.published),
   }))
 }
 
@@ -145,7 +132,7 @@ async function getPublishedChartsCatalogEntries(): Promise<
     return getChartsCatalogSitemapEntries(publication.index)
   } catch (error) {
     console.error('[sitemap] Charts catalog unavailable', error)
-    return [{ path: '/charts/catalog/' }]
+    return [{ path: '/charts/catalog' }]
   }
 }
 

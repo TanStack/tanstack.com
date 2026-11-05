@@ -1,3 +1,4 @@
+import { homepageScarfPixel } from '~/utils/analytics/scarf-pixels'
 import * as React from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 
@@ -74,7 +75,7 @@ function Index() {
 
   return (
     <>
-      <Scarf id="b7a8c111-2305-4d95-a02a-d84c5bfb82ae" path="/" />
+      <Scarf id={homepageScarfPixel} path="/" />
       <main className="max-w-full z-10 space-y-24">
         <div className="space-y-8">
           {/* Hero — Figma node 802:2027. Full-bleed palm/gradient photo card:
@@ -110,8 +111,20 @@ function Index() {
                     light-mode selves (no per-button color overrides). */}
                 <div className="ds-mode-light flex flex-wrap items-center gap-2">
                   <Button
-                    type="button"
-                    onClick={() => openLibraries()}
+                    as="a"
+                    href="/libraries"
+                    onClick={(event) => {
+                      if (
+                        event.button !== 0 ||
+                        event.metaKey ||
+                        event.ctrlKey ||
+                        event.shiftKey ||
+                        event.altKey
+                      )
+                        return
+                      event.preventDefault()
+                      openLibraries()
+                    }}
                     variant="primary"
                     size="md"
                   >

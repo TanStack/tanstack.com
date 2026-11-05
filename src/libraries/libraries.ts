@@ -196,7 +196,7 @@ export const router: LibrarySlim = {
   id: 'router',
   ...categoryStyles.framework,
   name: 'TanStack Router',
-  installPath: 'framework/$framework/quick-start',
+  installPath: 'quick-start',
   to: '/router/latest',
   tagline: 'Type-safe Routing for React and Solid applications',
   description:

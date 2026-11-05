@@ -88,9 +88,11 @@ async function access(
   scope: Scope,
   options: Options,
 ) {
-  const [row] = await db.execute<{ policy: string }>(
-    sql`SELECT w.policy::text AS policy FROM chat_workspaces w JOIN chat_memberships a ON a.workspace_id=w.id WHERE w.id=${scope.workspaceId} AND a.user_id=${scope.userId}::uuid AND (${scope.botId ?? null}::text IS NULL OR EXISTS(SELECT 1 FROM chat_bots b WHERE b.id=${scope.botId ?? null} AND b.workspace_id=w.id AND b.deleted_at IS NULL))`,
-  )
+  const [row] = (
+    await db.execute<{ policy: string }>(
+      sql`SELECT w.policy::text AS policy FROM chat_workspaces w JOIN chat_memberships a ON a.workspace_id=w.id WHERE w.id=${scope.workspaceId} AND a.user_id=${scope.userId}::uuid AND (${scope.botId ?? null}::text IS NULL OR EXISTS(SELECT 1 FROM chat_bots b WHERE b.id=${scope.botId ?? null} AND b.workspace_id=w.id AND b.deleted_at IS NULL))`,
+    )
+  ).rows
   if (!row)
     throw new ToolReferenceError('Workspace access is unavailable.', 403)
   let stored: Policy
@@ -113,19 +115,23 @@ const accountsStateSql = (userId: string) =>
 const pluginsStateSql = (scope: Scope) =>
   sql`(SELECT COALESCE(jsonb_agg(jsonb_build_array(id,revision) ORDER BY id),'[]'::jsonb)::text FROM chat_plugin_installations WHERE workspace_id=${scope.workspaceId} AND user_id=${scope.userId}::uuid)`
 async function pluginState(_env: ToolReferenceEnvironment, scope: Scope) {
-  const [row] = await db.execute<{ state: string }>(
-    sql`SELECT ${pluginsStateSql(scope)} AS state`,
-  )
+  const [row] = (
+    await db.execute<{ state: string }>(
+      sql`SELECT ${pluginsStateSql(scope)} AS state`,
+    )
+  ).rows
   return row.state
 }
 async function credentialState(_env: ToolReferenceEnvironment, userId: string) {
-  const [row] = await db.execute<{
-    ciphertext: string | null
-    kodySubject: string | null
-    accountsState: string
-  }>(
-    sql`SELECT (SELECT ciphertext FROM chat_credentials WHERE user_id=${userId}::uuid) AS ciphertext,(SELECT subject FROM chat_kody_links WHERE user_id=${userId}::uuid) AS "kodySubject",${accountsStateSql(userId)} AS "accountsState"`,
-  )
+  const [row] = (
+    await db.execute<{
+      ciphertext: string | null
+      kodySubject: string | null
+      accountsState: string
+    }>(
+      sql`SELECT (SELECT ciphertext FROM chat_credentials WHERE user_id=${userId}::uuid) AS ciphertext,(SELECT subject FROM chat_kody_links WHERE user_id=${userId}::uuid) AS "kodySubject",${accountsStateSql(userId)} AS "accountsState"`,
+    )
+  ).rows
   return row
 }
 /** Local only, including expired OAuth credentials. Picker reads never refresh them. */
@@ -312,9 +318,11 @@ function readSnapshot(row: Snapshot | undefined, source: Source) {
   }
 }
 async function snapshots(_env: ToolReferenceEnvironment, scope: Scope) {
-  return db.execute<Snapshot & Record<string, unknown>>(
-    sql`SELECT server_id,fingerprint,metadata,fetched_at::double precision AS fetched_at FROM chat_mcp_reference_catalog WHERE workspace_id=${scope.workspaceId} AND user_id=${scope.userId}::uuid LIMIT ${maxCachedSources}`,
-  )
+  return db
+    .execute<Snapshot & Record<string, unknown>>(
+      sql`SELECT server_id,fingerprint,metadata,fetched_at::double precision AS fetched_at FROM chat_mcp_reference_catalog WHERE workspace_id=${scope.workspaceId} AND user_id=${scope.userId}::uuid LIMIT ${maxCachedSources}`,
+    )
+    .then((result) => result.rows)
 }
 
 function reference(
@@ -538,9 +546,11 @@ export async function refreshToolReferences(
             : sql`true`
         } AND ${guard}`,
       )
-      const result = await tx.execute(
-        sql`INSERT INTO chat_mcp_reference_catalog(workspace_id,user_id,server_id,fingerprint,metadata,fetched_at,refresh_started_at) SELECT ${scope.workspaceId},${scope.userId}::uuid,${serverId},${boundSource.fingerprint},${metadata},${Date.now()},${startedAt} WHERE ${guard} ON CONFLICT(workspace_id,user_id,server_id) DO UPDATE SET fingerprint=excluded.fingerprint,metadata=excluded.metadata,fetched_at=excluded.fetched_at,refresh_started_at=excluded.refresh_started_at WHERE excluded.refresh_started_at>=chat_mcp_reference_catalog.refresh_started_at RETURNING server_id`,
-      )
+      const result = (
+        await tx.execute(
+          sql`INSERT INTO chat_mcp_reference_catalog(workspace_id,user_id,server_id,fingerprint,metadata,fetched_at,refresh_started_at) SELECT ${scope.workspaceId},${scope.userId}::uuid,${serverId},${boundSource.fingerprint},${metadata},${Date.now()},${startedAt} WHERE ${guard} ON CONFLICT(workspace_id,user_id,server_id) DO UPDATE SET fingerprint=excluded.fingerprint,metadata=excluded.metadata,fetched_at=excluded.fetched_at,refresh_started_at=excluded.refresh_started_at WHERE excluded.refresh_started_at>=chat_mcp_reference_catalog.refresh_started_at RETURNING server_id`,
+        )
+      ).rows
       if (!result.length)
         throw new ToolReferenceError(
           'The connection changed or a newer refresh finished. Try again.',

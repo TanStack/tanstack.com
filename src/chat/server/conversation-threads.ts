@@ -139,11 +139,12 @@ const listItem = (
 export async function conversationThreadContext(
   identity: ConversationIdentity,
 ) {
-  const [row] = await db.execute<{
-    parent_conversation_id: string | null
-    source_message_id: string | null
-    source_context: string | null
-  }>(sql`SELECT t.parent_conversation_id,t.source_message_id,t.source::text AS source_context
+  const [row] = (
+    await db.execute<{
+      parent_conversation_id: string | null
+      source_message_id: string | null
+      source_context: string | null
+    }>(sql`SELECT t.parent_conversation_id,t.source_message_id,t.source::text AS source_context
     FROM chat_conversations c
     JOIN chat_bots b ON b.id=c.bot_id
     JOIN chat_memberships m ON m.workspace_id=b.workspace_id AND m.user_id=c.user_id
@@ -151,6 +152,7 @@ export async function conversationThreadContext(
     WHERE c.id=${identity.conversationId} AND c.bot_id=${identity.botId}
       AND c.user_id=${identity.userId}::uuid AND b.workspace_id=${identity.workspaceId}
       AND b.deleted_at IS NULL`)
+  ).rows
   if (!row) throw new ConversationIdentityError()
   return row.parent_conversation_id &&
     row.source_message_id &&
@@ -178,9 +180,11 @@ export class ConversationThreads {
   }
   async get(conversationId: string): Promise<ThreadSummary> {
     await this.identity(conversationId)
-    const [row] = await db.execute<ThreadRow>(
-      sql`SELECT ${columns},t.source::text AS source_context ${from} WHERE c.id=${conversationId} AND c.user_id=${this.userId}::uuid AND b.workspace_id=${this.workspaceId} AND b.deleted_at IS NULL`,
-    )
+    const [row] = (
+      await db.execute<ThreadRow>(
+        sql`SELECT ${columns},t.source::text AS source_context ${from} WHERE c.id=${conversationId} AND c.user_id=${this.userId}::uuid AND b.workspace_id=${this.workspaceId} AND b.deleted_at IS NULL`,
+      )
+    ).rows
     if (!row) throw new ConversationThreadError('Thread not found.', 404)
     return {
       ...listItem(row, this.userId),
@@ -241,12 +245,13 @@ export class ConversationThreads {
           )
         reserved = true
       }
-      const [changed] =
+      const [changed] = (
         await db.execute(sql`UPDATE chat_conversation_threads SET archived_at=${command.archived ? new Date().toISOString() : null}::timestamptz,version=version+1
         WHERE conversation_id=${conversationId} AND version=${command.expectedVersion}
         AND (${!onlyIfEmpty} OR NOT EXISTS(SELECT 1 FROM chat_conversation_threads child WHERE child.parent_conversation_id=chat_conversation_threads.conversation_id))
         AND extract(epoch from clock_timestamp())*1000<${expiresAt}
         AND conversation_id IN (SELECT c.id FROM chat_conversations c JOIN chat_bots b ON b.id=c.bot_id JOIN chat_memberships m ON m.workspace_id=b.workspace_id AND m.user_id=c.user_id WHERE c.id=${conversationId} AND c.user_id=${this.userId}::uuid AND b.workspace_id=${this.workspaceId} AND b.deleted_at IS NULL AND b.archived_at IS NULL) RETURNING version`)
+      ).rows
       const current = await this.get(conversationId)
       if (!changed)
         throw new ConversationThreadError(
@@ -267,9 +272,10 @@ export class ConversationThreads {
     await this.get(conversationId)
     beforeWrite()
     // Scope and membership are checked again by the write, after the async read.
-    const [changed] =
+    const [changed] = (
       await db.execute(sql`UPDATE chat_conversation_threads SET title=${command.title},version=version+1 WHERE conversation_id=${conversationId} AND version=${command.expectedVersion}
       AND conversation_id IN (SELECT c.id FROM chat_conversations c JOIN chat_bots b ON b.id=c.bot_id JOIN chat_memberships m ON m.workspace_id=b.workspace_id AND m.user_id=c.user_id WHERE c.id=${conversationId} AND c.user_id=${this.userId}::uuid AND b.workspace_id=${this.workspaceId} AND b.deleted_at IS NULL AND b.archived_at IS NULL) RETURNING version`)
+    ).rows
     const current = await this.get(conversationId)
     if (
       changed ||
@@ -286,9 +292,10 @@ export class ConversationThreads {
     parentConversationId: string,
   ): Promise<{ items: ThreadListItem[] }> {
     await this.identity(parentConversationId)
-    const rows =
+    const rows = (
       await db.execute<ThreadRow>(sql`SELECT ${columns} ${from} WHERE t.parent_conversation_id=${parentConversationId} AND c.user_id=${this.userId}::uuid AND b.workspace_id=${this.workspaceId} AND b.deleted_at IS NULL
       AND (t.archived_at IS NULL OR COALESCE(a.message_count,0)>0 OR EXISTS(SELECT 1 FROM chat_conversation_threads child WHERE child.parent_conversation_id=c.id)) ORDER BY c.created_at,c.id LIMIT ${maxConversationThreads}`)
+    ).rows
     return { items: rows.map((row) => listItem(row, this.userId)) }
   }
   async create(
@@ -333,14 +340,16 @@ export class ConversationThreads {
           )
         : undefined
     const receipt = async () => {
-      const [row] = await db.execute<{
-        request_digest: string | null
-        conversation_id: string
-        parent_conversation_id: string
-        source_message_id: string
-      }>(
-        sql`SELECT request_digest,conversation_id,parent_conversation_id,source_message_id FROM chat_thread_requests WHERE workspace_id=${this.workspaceId} AND user_id=${this.userId}::uuid AND idempotency_key=${idempotencyKey}::uuid`,
-      )
+      const [row] = (
+        await db.execute<{
+          request_digest: string | null
+          conversation_id: string
+          parent_conversation_id: string
+          source_message_id: string
+        }>(
+          sql`SELECT request_digest,conversation_id,parent_conversation_id,source_message_id FROM chat_thread_requests WHERE workspace_id=${this.workspaceId} AND user_id=${this.userId}::uuid AND idempotency_key=${idempotencyKey}::uuid`,
+        )
+      ).rows
       return row
         ? {
             ...row,
@@ -372,9 +381,11 @@ export class ConversationThreads {
     }
     const previous = await receipt()
     if (previous) return resolveReceipt(previous)
-    const [main] = await db.execute(
-      sql`SELECT 1 FROM chat_conversation_mains cm JOIN chat_bots b ON b.id=cm.bot_id WHERE cm.conversation_id=${parentConversationId} AND cm.user_id=${this.userId}::uuid AND b.workspace_id=${this.workspaceId} AND b.archived_at IS NULL AND b.deleted_at IS NULL`,
-    )
+    const [main] = (
+      await db.execute(
+        sql`SELECT 1 FROM chat_conversation_mains cm JOIN chat_bots b ON b.id=cm.bot_id WHERE cm.conversation_id=${parentConversationId} AND cm.user_id=${this.userId}::uuid AND b.workspace_id=${this.workspaceId} AND b.archived_at IS NULL AND b.deleted_at IS NULL`,
+      )
+    ).rows
     if (!main)
       throw new ConversationThreadError(
         'Start a thread from an active main conversation.',
@@ -402,17 +413,23 @@ export class ConversationThreads {
     try {
       await db.transaction(async (tx) => {
         // Serialize parent admission so competing requests cannot exceed the quota.
-        const [owner] = await tx.execute<{ bot_id: string }>(
-          sql`SELECT c.bot_id FROM chat_conversations c JOIN chat_conversation_mains cm ON cm.conversation_id=c.id AND cm.bot_id=c.bot_id AND cm.user_id=c.user_id JOIN chat_bots b ON b.id=c.bot_id JOIN chat_memberships m ON m.workspace_id=b.workspace_id AND m.user_id=c.user_id WHERE c.id=${parentConversationId} AND c.user_id=${this.userId}::uuid AND b.workspace_id=${this.workspaceId} AND b.deleted_at IS NULL AND b.archived_at IS NULL FOR UPDATE OF c,b FOR SHARE OF m`,
-        )
+        const [owner] = (
+          await tx.execute<{ bot_id: string }>(
+            sql`SELECT c.bot_id FROM chat_conversations c JOIN chat_conversation_mains cm ON cm.conversation_id=c.id AND cm.bot_id=c.bot_id AND cm.user_id=c.user_id JOIN chat_bots b ON b.id=c.bot_id JOIN chat_memberships m ON m.workspace_id=b.workspace_id AND m.user_id=c.user_id WHERE c.id=${parentConversationId} AND c.user_id=${this.userId}::uuid AND b.workspace_id=${this.workspaceId} AND b.deleted_at IS NULL AND b.archived_at IS NULL FOR UPDATE OF c,b FOR SHARE OF m`,
+          )
+        ).rows
         if (!owner) return
-        const [existing] = await tx.execute(
-          sql`SELECT 1 FROM chat_thread_requests WHERE workspace_id=${this.workspaceId} AND user_id=${this.userId}::uuid AND idempotency_key=${idempotencyKey}::uuid`,
-        )
+        const [existing] = (
+          await tx.execute(
+            sql`SELECT 1 FROM chat_thread_requests WHERE workspace_id=${this.workspaceId} AND user_id=${this.userId}::uuid AND idempotency_key=${idempotencyKey}::uuid`,
+          )
+        ).rows
         if (existing) return
-        const [quota] = await tx.execute<{ count: number }>(
-          sql`SELECT count(*)::integer AS count FROM chat_conversation_threads WHERE parent_conversation_id=${parentConversationId}`,
-        )
+        const [quota] = (
+          await tx.execute<{ count: number }>(
+            sql`SELECT count(*)::integer AS count FROM chat_conversation_threads WHERE parent_conversation_id=${parentConversationId}`,
+          )
+        ).rows
         if (quota.count >= maxConversationThreads) return
         await tx.execute(
           sql`INSERT INTO chat_conversations(id,bot_id,user_id,created_at) VALUES(${conversationId},${owner.bot_id},${this.userId}::uuid,${new Date(now).toISOString()}::timestamptz)`,

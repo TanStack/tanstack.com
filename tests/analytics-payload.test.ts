@@ -7,6 +7,7 @@ const result = buildSync({
   entryPoints: ['src/utils/analytics.ts'],
   bundle: true,
   write: false,
+  outfile: 'analytics.js',
   format: 'iife',
   globalName: 'analytics',
   platform: 'browser',
@@ -15,7 +16,9 @@ const result = buildSync({
     'import.meta.env.DEV': 'false',
   },
 })
-const code = result.outputFiles[0].text
+const script = result.outputFiles.find((file) => file.path.endsWith('.js'))
+assert.ok(script)
+const code = script.text
 
 test('page views and partner events use clean stats URLs without modifying other campaign URLs', () => {
   const sent: unknown[][] = []

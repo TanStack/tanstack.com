@@ -32,7 +32,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Update TanStack Dependencies
-        run: pnpm up "@tanstack/*" --latest
+        run: pnpm up "@tanstack/*" "!@tanstack/ai" "!@tanstack/ai-*" --latest
 
       - name: Check for Changes
         id: git-check

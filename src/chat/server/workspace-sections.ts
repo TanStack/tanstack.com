@@ -22,9 +22,11 @@ export class WorkspaceSections {
     readonly userId: string,
   ) {}
   private async authorize(tx: Transaction | typeof db = db, lock = false) {
-    const rows = await tx.execute(
-      sql`SELECT 1 FROM chat_memberships WHERE workspace_id=${this.workspaceId} AND user_id=${this.userId} ${lock ? sql`FOR SHARE` : sql``}`,
-    )
+    const rows = (
+      await tx.execute(
+        sql`SELECT 1 FROM chat_memberships WHERE workspace_id=${this.workspaceId} AND user_id=${this.userId} ${lock ? sql`FOR SHARE` : sql``}`,
+      )
+    ).rows
     if (!rows.length) throw new BotWorkspaceError('Workspace not found.', 404)
   }
   private async lock(tx: Transaction) {
@@ -93,9 +95,11 @@ export class WorkspaceSections {
       await tx.execute(
         sql`SELECT v.bot_id FROM chat_bot_viewer_state v JOIN jsonb_array_elements(${json}::jsonb) e ON v.bot_id=e->>'id' WHERE v.user_id=${this.userId} ORDER BY v.bot_id FOR UPDATE OF v`,
       )
-      const targets = await tx.execute(
-        sql`SELECT s.id FROM chat_bot_sections s JOIN jsonb_array_elements(${json}::jsonb) e ON s.id=e->>'sectionId' WHERE s.workspace_id=${this.workspaceId} AND s.user_id=${this.userId} ORDER BY s.id FOR SHARE OF s`,
-      )
+      const targets = (
+        await tx.execute(
+          sql`SELECT s.id FROM chat_bot_sections s JOIN jsonb_array_elements(${json}::jsonb) e ON s.id=e->>'sectionId' WHERE s.workspace_id=${this.workspaceId} AND s.user_id=${this.userId} ORDER BY s.id FOR SHARE OF s`,
+        )
+      ).rows
       const selected = new Set(
         expected.flatMap((item) => (item.sectionId ? [item.sectionId] : [])),
       )
@@ -104,11 +108,11 @@ export class WorkspaceSections {
           'This conversation changed in another window. Refresh and try again.',
           409,
         )
-      const [checked] = await tx.execute<
-        { count: number } & Record<string, unknown>
-      >(
-        sql`SELECT count(*)::integer AS count FROM jsonb_array_elements(${json}::jsonb) e JOIN chat_bots b ON b.id=e->>'id' AND b.workspace_id=${this.workspaceId} LEFT JOIN chat_bot_viewer_state v ON v.bot_id=b.id AND v.user_id=${this.userId} WHERE b.deleted_at IS NULL AND b.version=(e->>'version')::bigint AND v.section_id IS NOT DISTINCT FROM e->>'previousSectionId'`,
-      )
+      const [checked] = (
+        await tx.execute<{ count: number } & Record<string, unknown>>(
+          sql`SELECT count(*)::integer AS count FROM jsonb_array_elements(${json}::jsonb) e JOIN chat_bots b ON b.id=e->>'id' AND b.workspace_id=${this.workspaceId} LEFT JOIN chat_bot_viewer_state v ON v.bot_id=b.id AND v.user_id=${this.userId} WHERE b.deleted_at IS NULL AND b.version=(e->>'version')::bigint AND v.section_id IS NOT DISTINCT FROM e->>'previousSectionId'`,
+        )
+      ).rows
       if (checked.count !== expected.length)
         throw new BotWorkspaceError(
           'This conversation changed in another window. Refresh and try again.',
@@ -150,15 +154,17 @@ export class WorkspaceSections {
     await options?.beforeCommit?.()
     await db.transaction(async (tx) => {
       await this.lock(tx)
-      const [section] = await tx.execute<
-        {
-          name: string
-          sort_override: string | null
-          version: number
-        } & Record<string, unknown>
-      >(
-        sql`SELECT name,sort_override,version::float8 AS version FROM chat_bot_sections WHERE id=${id} AND workspace_id=${this.workspaceId} AND user_id=${this.userId} FOR UPDATE`,
-      )
+      const [section] = (
+        await tx.execute<
+          {
+            name: string
+            sort_override: string | null
+            version: number
+          } & Record<string, unknown>
+        >(
+          sql`SELECT name,sort_override,version::float8 AS version FROM chat_bot_sections WHERE id=${id} AND workspace_id=${this.workspaceId} AND user_id=${this.userId} FOR UPDATE`,
+        )
+      ).rows
       if (!section) throw new BotWorkspaceError('Section not found.', 404)
       if (section.version !== value.version)
         throw new BotWorkspaceError(
@@ -182,9 +188,11 @@ export class WorkspaceSections {
     await this.authorize()
     await db.transaction(async (tx) => {
       await this.lock(tx)
-      const removed = await tx.execute(
-        sql`DELETE FROM chat_bot_sections WHERE id=${id} AND workspace_id=${this.workspaceId} AND user_id=${this.userId} RETURNING id`,
-      )
+      const removed = (
+        await tx.execute(
+          sql`DELETE FROM chat_bot_sections WHERE id=${id} AND workspace_id=${this.workspaceId} AND user_id=${this.userId} RETURNING id`,
+        )
+      ).rows
       if (!removed.length)
         throw new BotWorkspaceError('Section not found.', 404)
     })

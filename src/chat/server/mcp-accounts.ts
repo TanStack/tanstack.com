@@ -117,9 +117,11 @@ export class McpAccounts extends McpAccountReads {
         sql`SELECT id FROM users WHERE id=${this.scope.userId} FOR UPDATE`,
       )
       const authorizeTransaction = async () => {
-        const [row] = await tx.execute<{ policy: unknown }>(
-          sql`SELECT w.policy FROM chat_workspaces w JOIN chat_memberships m ON m.workspace_id=w.id WHERE w.id=${this.scope.workspaceId} AND m.user_id=${this.scope.userId} FOR SHARE OF w,m`,
-        )
+        const [row] = (
+          await tx.execute<{ policy: unknown }>(
+            sql`SELECT w.policy FROM chat_workspaces w JOIN chat_memberships m ON m.workspace_id=w.id WHERE w.id=${this.scope.workspaceId} AND m.user_id=${this.scope.userId} FOR SHARE OF w,m`,
+          )
+        ).rows
         if (!row || !policySchema.parse(row.policy).allowMcp)
           throw new McpAccountError('Workspace access is unavailable.', 403)
       }
@@ -237,9 +239,11 @@ export class McpAccounts extends McpAccountReads {
       }
       const result = { summary: summary(next), grantId: next.grant_id }
       if (!old) {
-        const [count] = await tx.execute<{ count: number }>(
-          sql`SELECT count(*)::integer AS count FROM chat_mcp_accounts WHERE user_id=${this.scope.userId}`,
-        )
+        const [count] = (
+          await tx.execute<{ count: number }>(
+            sql`SELECT count(*)::integer AS count FROM chat_mcp_accounts WHERE user_id=${this.scope.userId}`,
+          )
+        ).rows
         if (count.count >= 100)
           throw new McpAccountError(
             'The connection changed or the account limit was reached. Reload and try again.',
@@ -362,9 +366,11 @@ export class McpAccounts extends McpAccountReads {
         authMode: 'oauth',
         oauth: state,
       })
-    const [result] = await db.execute(
-      sql`UPDATE chat_mcp_accounts SET ciphertext=${ciphertext},status='configured',error=NULL,token_revision=token_revision+1,updated_at=${Date.now()} WHERE id=${row.id} AND user_id=${this.scope.userId} AND revision=${input.expectedRevision} AND grant_id=${input.grantId} AND ciphertext IS NULL AND status='needs_auth' AND enabled=true AND removed=false AND ${this.membership()} RETURNING id`,
-    )
+    const [result] = (
+      await db.execute(
+        sql`UPDATE chat_mcp_accounts SET ciphertext=${ciphertext},status='configured',error=NULL,token_revision=token_revision+1,updated_at=${Date.now()} WHERE id=${row.id} AND user_id=${this.scope.userId} AND revision=${input.expectedRevision} AND grant_id=${input.grantId} AND ciphertext IS NULL AND status='needs_auth' AND enabled=true AND removed=false AND ${this.membership()} RETURNING id`,
+      )
+    ).rows
     if (!result)
       throw new McpAccountError(
         'This authorization was replaced or disconnected.',
@@ -375,9 +381,11 @@ export class McpAccounts extends McpAccountReads {
   /** Final local fence before dispatch. Revocation after network dispatch cannot undo
    * a provider request; completeRefresh still prevents installing its result. */
   async assertRefreshClaim(claim: RefreshClaim): Promise<void> {
-    const [current] = await db.execute(
-      sql`SELECT id FROM chat_mcp_accounts WHERE id=${claim.id} AND user_id=${this.scope.userId} AND grant_id=${claim.grantId} AND token_revision=${claim.tokenRevision} AND refresh_claim=${claim.claimId} AND refresh_until>${Date.now()} AND enabled=true AND removed=false AND status!='needs_auth' AND ${this.membership()}`,
-    )
+    const [current] = (
+      await db.execute(
+        sql`SELECT id FROM chat_mcp_accounts WHERE id=${claim.id} AND user_id=${this.scope.userId} AND grant_id=${claim.grantId} AND token_revision=${claim.tokenRevision} AND refresh_claim=${claim.claimId} AND refresh_until>${Date.now()} AND enabled=true AND removed=false AND status!='needs_auth' AND ${this.membership()}`,
+      )
+    ).rows
     if (!current)
       throw new McpAccountError('This refresh is no longer authorized.', 409)
   }
@@ -421,9 +429,11 @@ export class McpAccounts extends McpAccountReads {
         .min(1000)
         .max(60000)
         .parse(options.leaseMs ?? 30000)
-    const [claimed] = await db.execute(
-      sql`UPDATE chat_mcp_accounts SET refresh_claim=${claimId},refresh_until=${now + lease} WHERE id=${id} AND user_id=${this.scope.userId} AND grant_id=${row.grant_id} AND token_revision=${row.token_revision} AND revision=${row.revision} AND refresh_claim IS NULL AND enabled=true AND removed=false AND status!='needs_auth' AND ${this.membership()} RETURNING id`,
-    )
+    const [claimed] = (
+      await db.execute(
+        sql`UPDATE chat_mcp_accounts SET refresh_claim=${claimId},refresh_until=${now + lease} WHERE id=${id} AND user_id=${this.scope.userId} AND grant_id=${row.grant_id} AND token_revision=${row.token_revision} AND revision=${row.revision} AND refresh_claim IS NULL AND enabled=true AND removed=false AND status!='needs_auth' AND ${this.membership()} RETURNING id`,
+      )
+    ).rows
     if (!claimed) return { status: 'busy' }
     return {
       status: 'claimed',
@@ -458,9 +468,11 @@ export class McpAccounts extends McpAccountReads {
         authMode: 'oauth',
         oauth: state,
       })
-    const [saved] = await db.execute(
-      sql`UPDATE chat_mcp_accounts SET ciphertext=${ciphertext},token_revision=token_revision+1,status='configured',error=NULL,refresh_claim=NULL,refresh_until=NULL,updated_at=${Date.now()} WHERE id=${row.id} AND user_id=${this.scope.userId} AND grant_id=${input.grantId} AND token_revision=${input.tokenRevision} AND refresh_claim=${input.claimId} AND refresh_until>${Date.now()} AND enabled=true AND removed=false AND ${this.membership()} RETURNING id`,
-    )
+    const [saved] = (
+      await db.execute(
+        sql`UPDATE chat_mcp_accounts SET ciphertext=${ciphertext},token_revision=token_revision+1,status='configured',error=NULL,refresh_claim=NULL,refresh_until=NULL,updated_at=${Date.now()} WHERE id=${row.id} AND user_id=${this.scope.userId} AND grant_id=${input.grantId} AND token_revision=${input.tokenRevision} AND refresh_claim=${input.claimId} AND refresh_until>${Date.now()} AND enabled=true AND removed=false AND ${this.membership()} RETURNING id`,
+      )
+    ).rows
     if (!saved)
       throw new McpAccountError(
         'This refresh expired or was replaced. Reconnect if needed.',
@@ -480,9 +492,11 @@ export class McpAccounts extends McpAccountReads {
     result: { ok: boolean; error?: string; code?: keyof typeof mcpCheckErrors },
   ) {
     await this.authorize()
-    const [saved] = await db.execute(
-      sql`UPDATE chat_mcp_accounts SET status=${result.ok ? 'checked' : 'error'},checked_at=${Date.now()},error=${result.ok ? null : result.code ? mcpCheckErrors[result.code] : 'The connection check failed.'} WHERE id=${uuid.parse(id)} AND user_id=${this.scope.userId} AND revision=${rev.parse(expectedRevision)} AND enabled=true AND removed=false AND status!='needs_auth' AND ${this.membership()} RETURNING id`,
-    )
+    const [saved] = (
+      await db.execute(
+        sql`UPDATE chat_mcp_accounts SET status=${result.ok ? 'checked' : 'error'},checked_at=${Date.now()},error=${result.ok ? null : result.code ? mcpCheckErrors[result.code] : 'The connection check failed.'} WHERE id=${uuid.parse(id)} AND user_id=${this.scope.userId} AND revision=${rev.parse(expectedRevision)} AND enabled=true AND removed=false AND status!='needs_auth' AND ${this.membership()} RETURNING id`,
+      )
+    ).rows
     if (!saved)
       throw new McpAccountError(
         'This connection changed before the check completed.',

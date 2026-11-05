@@ -31,21 +31,25 @@ async function hash(token: string) {
 }
 
 async function privateConversation(userId: string, conversationId: string) {
-  const [row] = await db.execute(
-    sql`SELECT c.id FROM chat_conversations c JOIN chat_bots b ON b.id=c.bot_id JOIN chat_workspaces w ON w.id=b.workspace_id WHERE c.id=${conversationId} AND c.user_id=${userId}::uuid AND w.owner_id=${userId}::uuid AND w.id=${'personal:' + userId} AND (SELECT COUNT(*) FROM chat_memberships m WHERE m.workspace_id=w.id)=1`,
-  )
+  const [row] = (
+    await db.execute(
+      sql`SELECT c.id FROM chat_conversations c JOIN chat_bots b ON b.id=c.bot_id JOIN chat_workspaces w ON w.id=b.workspace_id WHERE c.id=${conversationId} AND c.user_id=${userId}::uuid AND w.owner_id=${userId}::uuid AND w.id=${'personal:' + userId} AND (SELECT COUNT(*) FROM chat_memberships m WHERE m.workspace_id=w.id)=1`,
+    )
+  ).rows
   return row
 }
 
 export async function listDevices(userId: string) {
-  const results = await db.execute<{
-    id: string
-    name: string
-    grants: string
-    last_seen: number
-  }>(
-    sql`SELECT id,name,grants,last_seen::double precision AS last_seen FROM chat_connected_devices WHERE user_id=${userId}::uuid AND revoked_at IS NULL`,
-  )
+  const results = (
+    await db.execute<{
+      id: string
+      name: string
+      grants: string
+      last_seen: number
+    }>(
+      sql`SELECT id,name,grants,last_seen::double precision AS last_seen FROM chat_connected_devices WHERE user_id=${userId}::uuid AND revoked_at IS NULL`,
+    )
+  ).rows
   return results.map((row) => ({
     id: row.id,
     name: row.name,
@@ -95,9 +99,11 @@ export async function deviceTransportApi(request: Request) {
     ?.match(/^Bearer ([a-f0-9-]{72})$/)?.[1]
   if (!token || request.method !== 'POST')
     return json({ error: 'Device authentication required' }, 401)
-  const [device] = await db.execute<{ id: string; user_id: string }>(
-    sql`SELECT id,user_id FROM chat_connected_devices WHERE token_hash=${await hash(token)} AND revoked_at IS NULL`,
-  )
+  const [device] = (
+    await db.execute<{ id: string; user_id: string }>(
+      sql`SELECT id,user_id FROM chat_connected_devices WHERE token_hash=${await hash(token)} AND revoked_at IS NULL`,
+    )
+  ).rows
   if (!device) return json({ error: 'Device revoked or unknown' }, 401)
   const input = z
     .discriminatedUnion('type', [
@@ -121,14 +127,16 @@ export async function deviceTransportApi(request: Request) {
     sql`UPDATE chat_connected_devices SET grants=${JSON.stringify(input.grants)},last_seen=${Date.now()} WHERE id=${device.id}::uuid AND revoked_at IS NULL`,
   )
   // Atomic claim: a reconnect never replays a claimed operation.
-  const [row] = await db.execute<{
-    id: string
-    request: string
-    expires_at: number
-    conversation_id: string
-  }>(
-    sql`UPDATE chat_device_operations SET status='running' WHERE id=(SELECT id FROM chat_device_operations WHERE device_id=${device.id}::uuid AND status='pending' AND expires_at>${Date.now()} ORDER BY created_at LIMIT 1) AND status='pending' AND EXISTS (SELECT 1 FROM chat_connected_devices WHERE id=${device.id}::uuid AND revoked_at IS NULL) RETURNING id,request,expires_at::double precision AS expires_at,conversation_id`,
-  )
+  const [row] = (
+    await db.execute<{
+      id: string
+      request: string
+      expires_at: number
+      conversation_id: string
+    }>(
+      sql`UPDATE chat_device_operations SET status='running' WHERE id=(SELECT id FROM chat_device_operations WHERE device_id=${device.id}::uuid AND status='pending' AND expires_at>${Date.now()} ORDER BY created_at LIMIT 1) AND status='pending' AND EXISTS (SELECT 1 FROM chat_connected_devices WHERE id=${device.id}::uuid AND revoked_at IS NULL) RETURNING id,request,expires_at::double precision AS expires_at,conversation_id`,
+    )
+  ).rows
   if (
     row &&
     (!input.grants.some((g) => g.id === JSON.parse(row.request).grantId) ||
@@ -200,12 +208,14 @@ export function assistantDeviceTools(input: {
       try {
         for (let i = 0; i < 30; i++) {
           await authorize()
-          const [row] = await db.execute<{
-            status: string
-            result: string | null
-          }>(
-            sql`SELECT status,result FROM chat_device_operations WHERE id=${id}::uuid`,
-          )
+          const [row] = (
+            await db.execute<{
+              status: string
+              result: string | null
+            }>(
+              sql`SELECT status,result FROM chat_device_operations WHERE id=${id}::uuid`,
+            )
+          ).rows
           if (row?.status === 'complete') return JSON.parse(row.result!)
           if (!row || row.status === 'cancelled')
             return { error: 'Device operation cancelled.' }

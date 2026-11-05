@@ -1,3 +1,4 @@
+import { measureBlobStorageOperations } from '~/server/runtime/blob-storage-metrics.server'
 import { libraries } from '~/libraries'
 import { docsWebhookSources } from '~/utils/docs-webhook-sources'
 import { requireCapability } from './auth.server'
@@ -79,10 +80,13 @@ export async function invalidateDocsCacheAdmin(opts: {
 }) {
   await requireCapability({ data: { capability: 'admin' } })
 
-  const [staleContentCount, staleArtifactCount] = await Promise.all([
-    markGitHubContentStale({ repo: opts.data.repo }),
-    markDocsArtifactsStale({ repo: opts.data.repo }),
-  ])
+  const [staleContentCount, staleArtifactCount] =
+    await measureBlobStorageOperations('admin-invalidation', () =>
+      Promise.all([
+        markGitHubContentStale({ repo: opts.data.repo }),
+        markDocsArtifactsStale({ repo: opts.data.repo }),
+      ]),
+    )
 
   const tags = opts.data.repo
     ? [

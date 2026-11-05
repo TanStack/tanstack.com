@@ -45,7 +45,7 @@ export async function readExecutionAuthority(
     throw new ExecutionAuthorityError('Conversation not found.', 404)
   // Authority and its epochs come from one database snapshot. A session ID or
   // same-bot sibling never substitutes for the exact authenticated conversation.
-  const [row] =
+  const [row] = (
     await db.execute<AuthorityRow>(sql`SELECT b.archived_at,b.deleted_at,
     COALESCE(lifecycle.generation,0)::double precision AS "lifecycleGeneration",
     COALESCE(membership_generation.generation,0)::double precision AS "membershipGeneration",
@@ -56,6 +56,7 @@ export async function readExecutionAuthority(
     LEFT JOIN chat_execution_membership_generations membership_generation ON membership_generation.workspace_id=b.workspace_id AND membership_generation.user_id=c.user_id
     LEFT JOIN chat_conversation_copies copy ON copy.target_conversation_id=c.id
     WHERE c.id=${conversationId} AND c.bot_id=${botId} AND c.user_id=${userId} AND b.workspace_id=${workspaceId}`)
+  ).rows
   if (!row) throw new ExecutionAuthorityError('Conversation not found.', 404)
   if (
     row.copy_status !== null &&

@@ -15,7 +15,8 @@ export const Route = createFileRoute('/_library/redact/$version/')({
   },
   loader: ({ params, context: { queryClient } }) =>
     loadLibraryLandingRouteData('redact', params.version, queryClient),
-  head: () => getLibraryLandingHead('redact'),
+  head: ({ match }) =>
+    getLibraryLandingHead('redact', match.status === 'success'),
   headers: () => getLibraryLandingHeaders('redact'),
   component: RedactLandingRoute,
 })

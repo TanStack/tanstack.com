@@ -1,3 +1,9 @@
+import * as Sentry from '@sentry/tanstackstart-react'
+import { getLiveRuntimeConfig } from '~/utils/analytics/live.functions'
+import {
+  resumeVisitorChat,
+  startLivePresence,
+} from '~/utils/analytics/live-browser'
 import * as React from 'react'
 import {
   createRootRouteWithContext,
@@ -176,11 +182,29 @@ class OptionalDevtoolsBoundary extends React.Component<
   }
 }
 
+const LIVE_RUNTIME_CONFIG_DISABLED = {
+  presenceEnabled: false,
+  chatEnabled: false,
+}
+
+// Live presence/chat is optional. A failure here must not put the root route
+// (and therefore the whole site) into its error state, but it is still
+// reported so the underlying problem stays visible.
+async function loadLiveRuntimeConfig() {
+  try {
+    return await getLiveRuntimeConfig()
+  } catch (error) {
+    Sentry.captureException(error, { tags: { feature: 'live-config' } })
+    return LIVE_RUNTIME_CONFIG_DISABLED
+  }
+}
+
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
 }>()({
-  loader: () => {
+  loader: async () => {
     return {
+      live: await loadLiveRuntimeConfig(),
       partnerPlacementSessionSeed: createPartnerPlacementSessionSeed(),
     }
   },
@@ -339,6 +363,8 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
     select: (s) => s.some((d) => d.staticData?.showNavbar === false),
   })
   const hideFooter =
+    pathname === '/admin' ||
+    pathname.startsWith('/admin/') ||
     pathname === '/builder' ||
     pathname.startsWith('/builder/') ||
     pathname === '/chat' ||
@@ -454,6 +480,11 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
  * stay disabled on the web stream, or navigations are counted twice.
  */
 function PageViewTracker() {
+  // The shell renders even when the root loader failed or hasn't resolved,
+  // so loader data may be missing here. Live features default to off.
+  const live = Route.useLoaderData()?.live
+  const presenceEnabled = live?.presenceEnabled === true
+  const chatEnabled = live?.chatEnabled === true
   const pagePath = useRouterState({
     select: (s) => {
       if (!s.resolvedLocation) {
@@ -470,19 +501,22 @@ function PageViewTracker() {
 
   React.useEffect(() => {
     if (import.meta.env.MODE === 'staging') return
+    if (chatEnabled) void resumeVisitorChat().catch(() => {})
+    const stopLivePresence = presenceEnabled ? startLivePresence() : () => {}
     const stopTrackingHoverIntent = trackScarfExternalLinkHoverIntent()
     document.addEventListener('click', trackScarfExternalLinkClick, true)
     document.addEventListener('click', trackScarfDownloadClick, true)
     document.addEventListener('copy', trackScarfClipboardEvent, true)
     document.addEventListener('paste', trackScarfClipboardEvent, true)
     return () => {
+      stopLivePresence()
       stopTrackingHoverIntent()
       document.removeEventListener('click', trackScarfExternalLinkClick, true)
       document.removeEventListener('click', trackScarfDownloadClick, true)
       document.removeEventListener('copy', trackScarfClipboardEvent, true)
       document.removeEventListener('paste', trackScarfClipboardEvent, true)
     }
-  }, [])
+  }, [presenceEnabled, chatEnabled])
 
   React.useEffect(() => {
     // Skip until the router has resolved a location, and never send the same

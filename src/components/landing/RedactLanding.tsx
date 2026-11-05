@@ -369,6 +369,30 @@ redact({ preset: 'nano' })`}</code>
           </CodeBlock>
         </div>
       </LandingSection>
+      <LandingSection>
+        <div className="max-w-3xl space-y-5">
+          <h2 className="font-ds-display text-3xl font-bold tracking-tight sm:text-4xl">
+            Why not Preact?
+          </h2>
+          <p className="text-ds-body-sm leading-relaxed text-text-secondary">
+            Preact is smaller. Redact keeps more of the React behavior your app
+            may rely on, like pending transitions, deferred results, and form
+            actions. If keeping that behavior matters more than the smallest
+            download, Redact is worth a look.
+          </p>
+          <Link
+            to="/$libraryId/$version/docs/$"
+            params={{
+              libraryId: 'redact',
+              version: 'latest',
+              _splat: 'comparison',
+            }}
+            className="inline-block font-medium underline underline-offset-4"
+          >
+            Compare compatibility, size, and speed ↗
+          </Link>
+        </div>
+      </LandingSection>
     </LibraryLandingShell>
   )
 }

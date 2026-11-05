@@ -85,12 +85,9 @@ const INSTALL_TRAFFIC_QUALITY = `function installTrafficQuality(id, classify, co
         const saved = JSON.parse(
           localStorage.getItem('tanstack:traffic-quality') || 'null',
         )
-        if (
-          key &&
-          saved?.key === key &&
-          ['automated', 'suspect', 'unflagged'].includes(saved.quality)
-        ) {
-          quality = saved.quality
+        if (key && saved?.key === key) {
+          if (['automated', 'suspect', 'unflagged'].includes(saved.quality))
+            quality = saved.quality
           for (const partner of saved.partners || []) clickedPartners.add(partner)
         }
       } catch {
@@ -106,7 +103,7 @@ const INSTALL_TRAFFIC_QUALITY = `function installTrafficQuality(id, classify, co
         send(event[0], event[1], { ...event[2], traffic_quality: quality, traffic_quality_rule: 'v2' })
       }
       try {
-        if (key && quality !== 'unknown') localStorage.setItem(
+        if (key && (quality !== 'unknown' || clickedPartners.size > 0)) localStorage.setItem(
           'tanstack:traffic-quality',
           JSON.stringify({ key, quality, partners: [...clickedPartners] }),
         )

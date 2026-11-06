@@ -8,3 +8,6 @@
 # the filename changes on a later build.
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
+
+/.well-known/security.txt
+  Content-Type: text/plain; charset=utf-8

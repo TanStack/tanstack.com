@@ -428,9 +428,9 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/harry-whorlow.png',
     github: 'harry-whorlow',
     location: {
-      name: 'Germany',
+      name: 'Berlin, Germany',
       latitude: 52.52,
-      longitude: 13.405,
+      longitude: 13.4049,
     },
     maintainerOf: ['form', 'devtools'],
     frameworkExpertise: ['react'],

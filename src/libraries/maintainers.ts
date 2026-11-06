@@ -460,6 +460,11 @@ export const allMaintainers: Maintainer[] = [
     name: 'Jonghyeon Ko',
     avatar: 'https://github.com/manudeli.png',
     github: 'manudeli',
+    location: {
+      name: 'South Korea',
+      latitude: 37.5665,
+      longitude: 126.978,
+    },
     maintainerOf: ['query'],
     frameworkExpertise: ['react'],
     specialties: ['TypeScript', 'Backport', 'Test'],

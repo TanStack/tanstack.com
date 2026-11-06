@@ -553,6 +553,26 @@ export const allMaintainers: Maintainer[] = [
     },
   },
   {
+    name: 'Benjamín Vicente',
+    avatar: 'https://github.com/benjavicente.png',
+    github: 'benjavicente',
+    location: {
+      name: 'Chile',
+      latitude: -33.4489,
+      longitude: -70.6693,
+    },
+    maintainerOf: ['query'],
+    contributorOf: ['pacer'],
+    frameworkExpertise: ['angular'],
+    specialties: ['Reactivity', 'SSR', 'Migrations'],
+    social: {
+      twitter: 'https://x.com/benjavicenteg',
+      bluesky: 'https://bsky.app/profile/benjavicente.dev',
+      linkedIn: 'https://www.linkedin.com/in/benjavicente',
+      website: 'https://benjavicente.dev',
+    },
+  },
+  {
     name: 'Tom Beckenham',
     github: 'tombeckenham',
     location: {

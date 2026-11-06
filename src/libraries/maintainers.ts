@@ -5,6 +5,11 @@ export interface Maintainer {
   name: string
   avatar: string
   github: string
+  location?: {
+    name: string
+    latitude: number
+    longitude: number
+  }
   isCoreMaintainer?: boolean
   creatorOf?: Library['id'][]
   maintainerOf?: Library['id'][] // inherits from creatorOf
@@ -53,6 +58,11 @@ export const allMaintainers: Maintainer[] = [
     isCoreMaintainer: true,
     avatar: 'https://github.com/tannerlinsley.png',
     github: 'tannerlinsley',
+    location: {
+      name: 'Syracuse, Utah, US',
+      latitude: 41.045,
+      longitude: -112.094,
+    },
     creatorOf: [
       'start',
       'router',
@@ -85,6 +95,11 @@ export const allMaintainers: Maintainer[] = [
     isCoreMaintainer: true,
     avatar: 'https://github.com/tkdodo.png',
     github: 'tkdodo',
+    location: {
+      name: 'Vienna, Austria',
+      latitude: 48.2082,
+      longitude: 16.3738,
+    },
     maintainerOf: ['query'],
     contributorOf: ['router'],
     frameworkExpertise: ['react'],
@@ -141,6 +156,11 @@ export const allMaintainers: Maintainer[] = [
     isCoreMaintainer: true,
     avatar: 'https://github.com/kevinvandy.png',
     github: 'kevinvandy',
+    location: {
+      name: 'Lincoln, Nebraska, US',
+      latitude: 40.739,
+      longitude: -96.682,
+    },
     creatorOf: ['pacer', 'hotkeys'],
     maintainerOf: ['table', 'store'],
     contributorOf: ['virtual'],
@@ -232,6 +252,11 @@ export const allMaintainers: Maintainer[] = [
     isCoreMaintainer: true,
     avatar: 'https://github.com/KyleAMathews.png',
     github: 'KyleAMathews',
+    location: {
+      name: 'Salt Lake City, Utah, US',
+      latitude: 40.78,
+      longitude: -111.911,
+    },
     creatorOf: ['db', 'intent'],
     frameworkExpertise: ['react'],
     specialties: ['Sync Engines'],
@@ -338,6 +363,11 @@ export const allMaintainers: Maintainer[] = [
     name: 'Luca Jakob',
     avatar: 'https://github.com/LeCarbonator.png',
     github: 'LeCarbonator',
+    location: {
+      name: 'Sargans, Switzerland',
+      latitude: 47.047444,
+      longitude: 9.439917,
+    },
     maintainerOf: ['form'],
     frameworkExpertise: ['react'],
   },
@@ -580,6 +610,11 @@ export const allMaintainers: Maintainer[] = [
     avatar:
       'https://i8qrvymqoy.ufs.sh/f/5bi1XUVQkRmSSCXecObVfEJ4jbILkeMFwiotspxWBCUX32qG',
     github: 'DogPawHat',
+    location: {
+      name: 'Dublin, Ireland',
+      latitude: 53.35014,
+      longitude: -6.266155,
+    },
     maintainerOf: ['query'],
     social: {
       bluesky: 'https://bsky.app/profile/dogpawhat.tech',

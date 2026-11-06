@@ -14,6 +14,7 @@ import {
   CompactMaintainerCard,
   MaintainerRowCard,
 } from '~/components/MaintainerCard'
+import { MaintainersMap } from '~/components/MaintainersMap'
 import { seo } from '~/utils/seo'
 import {
   allMaintainers,
@@ -678,6 +679,11 @@ function RouteComponent() {
             onGroupByChange={(groupBy) => updateFilters({ groupBy })}
             onSortByChange={(sortBy) => updateFilters({ sortBy })}
             onClearAll={() => navigate({ search: {}, replace: true })}
+          />
+
+          <MaintainersMap
+            maintainers={filteredMaintainers}
+            selectedLibraries={search.libraries}
           />
 
           {hasResults ? (

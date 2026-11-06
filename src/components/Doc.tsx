@@ -1,3 +1,4 @@
+import type { BreadcrumbItem } from './Breadcrumbs'
 import type { readDocsFreshness } from '~/utils/docs-freshness'
 import * as React from 'react'
 import {
@@ -37,6 +38,7 @@ type DocProps = {
   pagePath?: string
   // Breadcrumb props (optional)
   config?: ConfigSchema
+  breadcrumbItems?: Array<BreadcrumbItem>
   // Footer content rendered after markdown
   footer?: React.ReactNode
   // Optional framework to use (overrides URL and local storage)
@@ -58,6 +60,7 @@ export function Doc({
   libraryVersion,
   pagePath,
   config,
+  breadcrumbItems,
   footer,
   framework: frameworkProp,
 }: DocProps) {
@@ -161,10 +164,11 @@ export function Doc({
         )}
       >
         <div className="flex flex-col w-full min-w-0">
-          {config && (
+          {(config || breadcrumbItems) && (
             <div className="mb-3">
               <DocBreadcrumb
                 config={config}
+                items={breadcrumbItems}
                 headings={isTocVisible ? headings : undefined}
               />
             </div>

@@ -1,5 +1,5 @@
 import { useParams } from '@tanstack/react-router'
-import { Breadcrumbs } from './Breadcrumbs'
+import { Breadcrumbs, type BreadcrumbItem } from './Breadcrumbs'
 import type { ConfigSchema } from '~/utils/config'
 import type { MarkdownHeading } from '~/utils/markdown'
 
@@ -32,9 +32,11 @@ function findSectionForDoc(
 
 export function DocBreadcrumb({
   config,
+  items,
   headings,
 }: {
-  config: ConfigSchema
+  config?: ConfigSchema
+  items?: Array<BreadcrumbItem>
   headings?: MarkdownHeading[]
 }) {
   const { _splat, framework } = useParams({ strict: false })
@@ -44,16 +46,18 @@ export function DocBreadcrumb({
   const fullDocPath = framework ? `framework/${framework}/${_splat}` : _splat
 
   // Find the section for this doc
-  const section = fullDocPath ? findSectionForDoc(config, fullDocPath) : null
+  const section =
+    config && fullDocPath ? findSectionForDoc(config, fullDocPath) : null
 
-  // Only show if we found a section
-  if (!section) {
+  // Keep the section-only mode for callers without a semantic trail.
+  if (!section && !items) {
     return null
   }
 
   return (
     <Breadcrumbs
-      section={section}
+      section={section ?? ''}
+      items={items}
       headings={headings}
       tocHiddenBreakpoint="xl"
     />

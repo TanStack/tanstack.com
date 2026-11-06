@@ -305,10 +305,6 @@ export function MaintainersMap({
         <h2 id="maintainers-map-heading" className="text-xl font-semibold">
           Around the world
         </h2>
-        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-          Locations are optional and shared by each person. The map follows the
-          library filter.
-        </p>
       </div>
       <div className="relative">
         <div

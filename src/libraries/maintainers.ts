@@ -480,9 +480,9 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/ladybluenotes.png',
     github: 'ladybluenotes',
     location: {
-      name: 'Canada',
-      latitude: 45.4215,
-      longitude: -75.6972,
+      name: 'Vancouver, Canada',
+      latitude: 49.2827,
+      longitude: -123.1207,
     },
     creatorOf: ['intent'],
     contributorOf: [

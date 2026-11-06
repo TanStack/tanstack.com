@@ -153,6 +153,11 @@ export const allMaintainers: Maintainer[] = [
     isCoreMaintainer: true,
     avatar: 'https://github.com/schiller-manuel.png',
     github: 'schiller-manuel',
+    location: {
+      name: 'Germany',
+      latitude: 52.52,
+      longitude: 13.405,
+    },
     maintainerOf: ['start', 'router'],
     frameworkExpertise: ['react'],
     specialties: ['Architecture', 'Core API', 'Documentation'],
@@ -504,6 +509,11 @@ export const allMaintainers: Maintainer[] = [
     isCoreMaintainer: true,
     avatar: 'https://github.com/lachlancollins.png',
     github: 'lachlancollins',
+    location: {
+      name: 'Australia',
+      latitude: -35.2809,
+      longitude: 149.13,
+    },
     maintainerOf: ['config', 'query'],
     contributorOf: [
       'start',

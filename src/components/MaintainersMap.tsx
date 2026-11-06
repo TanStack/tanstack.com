@@ -14,7 +14,6 @@ import { tooltip } from '@tanstack/charts/tooltip'
 import { decorative } from '@tanstack/charts/mark/decorative'
 import { text } from '@tanstack/charts/text'
 import type { Maintainer } from '~/libraries/maintainers'
-import { getLibrary } from '~/libraries'
 import type { LibraryId } from '~/libraries/types'
 import { categoryOf } from '~/libraries/categories'
 import land from '~/data/maintainers-land.json'
@@ -44,17 +43,16 @@ const worldLand: LandGeometry = {
   coordinates: land.coordinates,
 }
 
-function getMapLibrary(
+function getMapLibraryId(
   maintainer: Maintainer,
   selectedLibraries?: LibraryId[],
 ) {
-  const id = [
+  return [
     ...(maintainer.creatorOf ?? []),
     ...(maintainer.maintainerOf ?? []),
     ...(maintainer.contributorOf ?? []),
     ...(maintainer.consultantOf ?? []),
   ].find((id) => !selectedLibraries?.length || selectedLibraries.includes(id))
-  return id ? getLibrary(id) : undefined
 }
 
 export function createMaintainersMapChart(
@@ -133,8 +131,8 @@ export function createMaintainersMapChart(
         members.sort((a, b) => a.github.localeCompare(b.github))
         const categories = new Set(
           members.map((member) => {
-            const library = getMapLibrary(member, selectedLibraries)
-            return library ? categoryOf(library.id) : undefined
+            const libraryId = getMapLibraryId(member, selectedLibraries)
+            return libraryId ? categoryOf(libraryId) : undefined
           }),
         )
         const category =
@@ -220,10 +218,10 @@ export function MaintainersMap({
   selectedLibraries?: LibraryId[]
 }) {
   const [host, setHost] = useState((): Element | null => null)
-  const [transform, setTransform] = useState(() => zoomIdentity)
+  const [transform, setTransform] = useState(zoomIdentity)
   const [behavior] = useState(() => zoom())
-  const [focus, setFocus] = useState(
-    (): ChartPoint<MaintainerPin> | null => null,
+  const [selectedGithub, setSelectedGithub] = useState(
+    (): Maintainer['github'] | undefined => undefined,
   )
   useEffect(() => {
     if (!host) return
@@ -263,9 +261,8 @@ export function MaintainersMap({
   function changeZoom(factor: number) {
     if (!host) return
     const location =
-      maintainers.find(
-        (member) => member.github === focus?.datum.members[0]?.github,
-      )?.location ?? maintainers.find((member) => member.location)?.location
+      maintainers.find((member) => member.github === selectedGithub)
+        ?.location ?? maintainers.find((member) => member.location)?.location
     const projected =
       location &&
       geoEqualEarth().fitExtent(
@@ -300,9 +297,7 @@ export function MaintainersMap({
   function reset() {
     if (host) select(host).call(behavior.transform, zoomIdentity)
   }
-  const locatedMaintainers = maintainers.filter(
-    (maintainer) => maintainer.location,
-  )
+  const hasLocations = maintainers.some((maintainer) => maintainer.location)
 
   return (
     <section aria-labelledby="maintainers-map-heading" className="space-y-4">
@@ -341,7 +336,9 @@ export function MaintainersMap({
           <Chart
             definition={definition}
             className="[&_svg]:overflow-hidden [&_svg]:rounded-xl [&_svg]:outline-none"
-            onSelect={setFocus}
+            onSelect={(point) =>
+              setSelectedGithub(point?.datum.members[0]?.github)
+            }
             initialWidth={896}
             aspectRatio={2}
             ariaLabel="World map of shared maintainer and contributor locations"
@@ -393,7 +390,7 @@ export function MaintainersMap({
         screens. Select a pin, then use + to zoom toward it. Use Shift and arrow
         keys to pan.
       </p>
-      {locatedMaintainers.length === 0 && (
+      {!hasLocations && (
         <p role="status" className="text-sm text-gray-600 dark:text-gray-400">
           No shared locations for the selected maintainers and contributors.
         </p>

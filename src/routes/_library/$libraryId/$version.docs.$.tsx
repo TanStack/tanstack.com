@@ -18,6 +18,19 @@ import {
   createFileRoute,
 } from '@tanstack/react-router'
 
+function DocsPending() {
+  return (
+    <DocContainer>
+      <div className="animate-pulse space-y-4 p-4">
+        <div className="h-8 w-1/3 rounded bg-gray-200 dark:bg-gray-700" />
+        <div className="h-4 w-full rounded bg-gray-200 dark:bg-gray-700" />
+        <div className="h-4 w-5/6 rounded bg-gray-200 dark:bg-gray-700" />
+        <div className="h-4 w-4/6 rounded bg-gray-200 dark:bg-gray-700" />
+      </div>
+    </DocContainer>
+  )
+}
+
 export const Route = createFileRoute('/_library/$libraryId/$version/docs/$')({
   staleTime: 1000 * 60 * 5,
   // This route's head() emits the rel=canonical link (it may point at the
@@ -25,6 +38,7 @@ export const Route = createFileRoute('/_library/$libraryId/$version/docs/$')({
   staticData: {
     ownsCanonicalLink: true,
   },
+  pendingComponent: DocsPending,
   loader: async (ctx) => {
     const { _splat: docsPath, version, libraryId } = ctx.params
     const library = findLibrary(libraryId)

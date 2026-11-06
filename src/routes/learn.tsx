@@ -33,6 +33,16 @@ function LearnPage() {
             individual or team, we have resources that will help you succeed.
           </p>
         </header>
+        <a
+          href="/start/latest/docs/framework/react/tutorial/learn-start"
+          className="block rounded-lg border border-gray-500/20 p-6 hover:border-green-500 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-green-500"
+        >
+          <h2 className="text-xl font-bold">Learn TanStack Start</h2>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">
+            Build one React app through eight working checkpoints: routing,
+            PostgreSQL, forms, accounts, SEO, deployment, and tests.
+          </p>
+        </a>
         <div className="flex items-stretch flex-wrap gap-4 max-w-full w-[900px] justify-center">
           <a
             href="https://youtube.com/@tan_stack"

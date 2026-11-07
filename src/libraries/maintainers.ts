@@ -114,9 +114,9 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/beaussan.png',
     github: 'beaussan',
     location: {
-      name: 'France',
-      latitude: 48.8566,
-      longitude: 2.3522,
+      name: 'Lille, France',
+      latitude: 50.62925,
+      longitude: 3.057256,
     },
     maintainerOf: ['router'],
     frameworkExpertise: ['react'],

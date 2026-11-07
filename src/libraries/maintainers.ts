@@ -461,7 +461,7 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/manudeli.png',
     github: 'manudeli',
     location: {
-      name: 'South Korea',
+      name: 'Seoul, South Korea',
       latitude: 37.5665,
       longitude: 126.978,
     },

@@ -110,25 +110,6 @@ export const allMaintainers: Maintainer[] = [
     },
   },
   {
-    name: 'Nicolas Beaussart',
-    avatar: 'https://github.com/beaussan.png',
-    github: 'beaussan',
-    location: {
-      name: 'Lille, France',
-      latitude: 50.62925,
-      longitude: 3.057256,
-    },
-    maintainerOf: ['router'],
-    frameworkExpertise: ['react'],
-    specialties: ['Monorepo', 'Architecture', 'Typescript'],
-    social: {
-      twitter: 'https://x.com/beaussan',
-      bluesky: 'https://bsky.app/profile/beaussan.io',
-      website: 'https://beaussan.io/',
-    },
-    workshopsAvailable: true,
-  },
-  {
     name: 'Corbin Crutchley',
     isCoreMaintainer: true,
     avatar: 'https://github.com/crutchcorn.png',
@@ -259,6 +240,25 @@ export const allMaintainers: Maintainer[] = [
       bluesky: 'https://bsky.app/profile/sheraff.bsky.social',
       website: 'https://florianpellet.com',
     },
+  },
+  {
+    name: 'Nicolas Beaussart',
+    avatar: 'https://github.com/beaussan.png',
+    github: 'beaussan',
+    location: {
+      name: 'Lille, France',
+      latitude: 50.62925,
+      longitude: 3.057256,
+    },
+    maintainerOf: ['router'],
+    frameworkExpertise: ['react'],
+    specialties: ['Monorepo', 'Architecture', 'Typescript'],
+    social: {
+      twitter: 'https://x.com/beaussan',
+      bluesky: 'https://bsky.app/profile/beaussan.io',
+      website: 'https://beaussan.io/',
+    },
+    workshopsAvailable: true,
   },
   {
     name: 'Christopher Horobin',

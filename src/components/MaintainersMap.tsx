@@ -35,6 +35,7 @@ function placeProfiles(
   elapsed: number,
 ) {
   const bounds = host.getBoundingClientRect()
+  const gap = window.matchMedia('(max-width: 639px)').matches ? 4 : 8
   const labels = [...host.querySelectorAll('[data-globe-profile]')].flatMap(
     (card) => {
       if (!(card instanceof HTMLElement)) return []
@@ -90,18 +91,18 @@ function placeProfiles(
     label.y = Math.max(10, Math.min(bounds.height - label.height - 66, label.y))
   }
   const overlaps = (a: Label, b: Label) =>
-    a.x < b.x + b.width + 8 - 0.1 &&
-    a.x + a.width + 8 - 0.1 > b.x &&
-    a.y < b.y + b.height + 8 - 0.1 &&
-    a.y + a.height + 8 - 0.1 > b.y
+    a.x < b.x + b.width + gap - 0.1 &&
+    a.x + a.width + gap - 0.1 > b.x &&
+    a.y < b.y + b.height + gap - 0.1 &&
+    a.y + a.height + gap - 0.1 > b.y
   function findSpace(label: Label, obstacles: Label[]) {
     const xs = [
       label.x,
       10,
       bounds.width - label.width - 10,
       ...obstacles.flatMap((other) => [
-        other.x - label.width - 8,
-        other.x + other.width + 8,
+        other.x - label.width - gap,
+        other.x + other.width + gap,
       ]),
     ]
     const ys = [
@@ -109,8 +110,8 @@ function placeProfiles(
       10,
       bounds.height - label.height - 66,
       ...obstacles.flatMap((other) => [
-        other.y - label.height - 8,
-        other.y + other.height + 8,
+        other.y - label.height - gap,
+        other.y + other.height + gap,
       ]),
     ]
     let best = { x: label.x, y: label.y, distance: Infinity }
@@ -143,9 +144,9 @@ function placeProfiles(
           b = labels[j]
         if (!overlaps(a, b)) continue
         const overlapX =
-          Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x) + 8
+          Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x) + gap
         const overlapY =
-          Math.min(a.y + a.height, b.y + b.height) - Math.max(a.y, b.y) + 8
+          Math.min(a.y + a.height, b.y + b.height) - Math.max(a.y, b.y) + gap
         const share = b.width / (a.width + b.width)
         if (overlapX < overlapY) {
           const direction = a.x + a.width / 2 <= b.x + b.width / 2 ? -1 : 1

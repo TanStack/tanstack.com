@@ -9,6 +9,40 @@ import { categoryOf } from '~/libraries/categories'
 import { Tooltip } from '~/ui/Tooltip'
 
 const initialView = { phi: -Math.PI / 2 - 0.25, theta: 0.4, scale: 1.5 }
+const markerElevation = 0.015
+
+type View = typeof initialView
+
+type Anchor = { x: number; y: number; visible: boolean }
+
+// Same projection COBE uses for its marker anchors (radius 0.8, no offset).
+// Doing it here avoids COBE's per-frame :root custom properties, which force
+// a style recalc of the whole page on every frame.
+function project(
+  [latitude, longitude]: [number, number],
+  { phi, theta, scale }: View,
+  width: number,
+  height: number,
+): Anchor {
+  const lat = (latitude * Math.PI) / 180
+  const lng = (longitude * Math.PI) / 180 - Math.PI
+  const radius = 0.8 + markerElevation
+  const x = -Math.cos(lat) * Math.cos(lng) * radius
+  const y = Math.sin(lat) * radius
+  const z = Math.cos(lat) * Math.sin(lng) * radius
+  const cosPhi = Math.cos(phi),
+    sinPhi = Math.sin(phi),
+    cosTheta = Math.cos(theta),
+    sinTheta = Math.sin(theta)
+  const screenX = cosPhi * x + sinPhi * z
+  const screenY = sinPhi * sinTheta * x + cosTheta * y - cosPhi * sinTheta * z
+  const depth = -sinPhi * cosTheta * x + sinTheta * y + cosPhi * cosTheta * z
+  return {
+    x: (((screenX / (width / height)) * scale + 1) / 2) * width,
+    y: ((-screenY * scale + 1) / 2) * height,
+    visible: depth >= 0 || screenX ** 2 + screenY ** 2 >= 0.64,
+  }
+}
 
 type MaintainerGroup = {
   id: string
@@ -29,31 +63,55 @@ type ProfilePosition = {
 
 // Keep each location's chosen offset for its entire visible pass. Rotation
 // carries the row along; empty space opening up is not a reason to reshuffle.
+// Runs every frame: card sizes are cached and read before any style writes, so
+// the frame never forces a layout.
 function placeProfiles(
   host: Element,
+  bounds: { width: number; height: number },
+  gap: number,
+  anchors: Map<string, Anchor>,
+  sizes: Map<string, { width: number; height: number }>,
   positions: Map<string, ProfilePosition>,
   elapsed: number,
 ) {
-  const bounds = host.getBoundingClientRect()
-  const gap = window.matchMedia('(max-width: 639px)').matches ? 4 : 8
-  const labels = [...host.querySelectorAll('[data-globe-profile]')].flatMap(
-    (card) => {
-      if (!(card instanceof HTMLElement)) return []
-      const id = card.dataset.globeProfile
-      if (!id) return []
-      const anchor = host.querySelector(`[data-globe-anchor="${id}"]`)
-      const line = host.querySelector(`[data-globe-line="${id}"]`)
-      if (!(anchor instanceof HTMLElement) || !(line instanceof SVGLineElement))
-        return []
-      const point = anchor.getBoundingClientRect()
-      const anchorX = point.left - bounds.left,
-        anchorY = point.top - bounds.top
-      const visible =
-        getComputedStyle(anchor).visibility !== 'hidden' &&
-        anchorX >= 0 &&
-        anchorX <= bounds.width &&
-        anchorY >= 0 &&
-        anchorY <= bounds.height
+  const lines = new Map<string, SVGLineElement>()
+  for (const line of host.querySelectorAll('[data-globe-line]'))
+    if (line instanceof SVGLineElement && line.dataset.globeLine)
+      lines.set(line.dataset.globeLine, line)
+  const cards = [...host.querySelectorAll('[data-globe-profile]')].filter(
+    (card) => card instanceof HTMLElement,
+  )
+  for (const card of cards) {
+    const id = card.dataset.globeProfile
+    if (id && !sizes.has(id))
+      sizes.set(id, { width: card.offsetWidth, height: card.offsetHeight })
+  }
+  for (const element of host.querySelectorAll('[data-globe-anchor]')) {
+    if (!(element instanceof HTMLElement)) continue
+    const anchor = anchors.get(element.dataset.globeAnchor ?? '')
+    if (!anchor) continue
+    element.style.transform = `translate(${anchor.x}px, ${anchor.y}px)`
+    const visibility = anchor.visible ? 'visible' : 'hidden'
+    if (element.style.visibility !== visibility)
+      element.style.visibility = visibility
+  }
+  const labels = cards.flatMap((card) => {
+    const id = card.dataset.globeProfile
+    if (!id) return []
+    const line = lines.get(id)
+    const anchor = anchors.get(id)
+    const size = sizes.get(id)
+    if (!line || !anchor || !size) return []
+    const anchorX = anchor.x,
+      anchorY = anchor.y
+    const visible =
+      anchor.visible &&
+      anchorX >= 0 &&
+      anchorX <= bounds.width &&
+      anchorY >= 0 &&
+      anchorY <= bounds.height
+    if ((card.dataset.shown === 'true') !== visible) {
+      card.dataset.shown = String(visible)
       card.style.visibility = visible ? 'visible' : 'hidden'
       card.style.opacity = visible ? '1' : '0'
       card.style.filter = visible ? 'blur(0px)' : 'blur(6px)'
@@ -61,30 +119,29 @@ function placeProfiles(
       card.style.pointerEvents = visible ? 'auto' : 'none'
       card.inert = !visible
       line.style.opacity = visible ? '1' : '0'
-      const previous = positions.get(id)
-      if (!visible) {
-        if (previous) previous.visible = false
-        return []
-      }
-      const width = card.offsetWidth,
-        height = card.offsetHeight
-      const fresh = !previous?.visible
-      return [
-        {
-          id,
-          card,
-          line,
-          anchorX,
-          anchorY,
-          width,
-          height,
-          fresh,
-          x: anchorX + (fresh ? -width / 2 : previous.offsetX),
-          y: anchorY + (fresh ? -height - 28 : previous.offsetY),
-        },
-      ]
-    },
-  )
+    }
+    const previous = positions.get(id)
+    if (!visible) {
+      if (previous) previous.visible = false
+      return []
+    }
+    const { width, height } = size
+    const fresh = !previous?.visible
+    return [
+      {
+        id,
+        card,
+        line,
+        anchorX,
+        anchorY,
+        width,
+        height,
+        fresh,
+        x: anchorX + (fresh ? -width / 2 : previous.offsetX),
+        y: anchorY + (fresh ? -height - 28 : previous.offsetY),
+      },
+    ]
+  })
   type Label = (typeof labels)[number]
   const constrain = (label: Label) => {
     label.x = Math.max(10, Math.min(bounds.width - label.width - 10, label.x))
@@ -235,10 +292,14 @@ export function MaintainersMap({
   const [profilePositions] = useState(
     (): Map<string, ProfilePosition> => new Map(),
   )
+  const [profileSizes] = useState(
+    (): Map<string, { width: number; height: number }> => new Map(),
+  )
   const view = useRef({ ...initialView })
   const target = useRef({ ...initialView })
   const interacting = useRef(false)
   const dirty = useRef(true)
+  const hostSize = useRef({ width: 0, height: 0 })
 
   const groups = useMemo(() => {
     const result: MaintainerGroup[] = []
@@ -290,6 +351,8 @@ export function MaintainersMap({
     (count, group) => count + group.members.length,
     0,
   )
+  // Read by the frame loop, so zooming doesn't restart it.
+  const groupsRef = useRef(groups)
 
   useEffect(() => {
     if (!surface) return
@@ -297,6 +360,10 @@ export function MaintainersMap({
     canvas.style.cssText = 'display:block;width:100%;height:100%'
     canvas.setAttribute('aria-hidden', 'true')
     surface.append(canvas)
+    hostSize.current = {
+      width: surface.clientWidth,
+      height: surface.clientHeight,
+    }
     const instance = createGlobe(canvas, {
       width: surface.clientWidth,
       height: surface.clientHeight,
@@ -310,14 +377,15 @@ export function MaintainersMap({
       baseColor: [0.55, 0.65, 0.72],
       markerColor: [1, 0.57, 0.37],
       glowColor: [0.12, 0.17, 0.2],
-      markerElevation: 0.015,
+      markerElevation,
     })
     setGlobe(instance)
     const resize = new ResizeObserver(() => {
-      instance.update({
+      hostSize.current = {
         width: surface.clientWidth,
         height: surface.clientHeight,
-      })
+      }
+      instance.update(hostSize.current)
       dirty.current = true
     })
     resize.observe(surface)
@@ -345,15 +413,19 @@ export function MaintainersMap({
   }, [surface])
 
   useEffect(() => {
+    groupsRef.current = groups
+    // Grouping can change a card's members, and so its size.
+    profileSizes.clear()
+    dirty.current = true
     if (!globe) return
+    // No marker ids: COBE would otherwise rewrite :root custom properties and
+    // move an anchor element per marker on every frame.
     const markers: Marker[] = groups.map((group) => ({
-      id: group.id,
       location: group.location,
       size: group.members.length > 1 ? 0.035 : 0.022,
     }))
     globe.update({ markers })
-    dirty.current = true
-  }, [globe, groups])
+  }, [globe, groups, profileSizes])
 
   useEffect(() => {
     const preference = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -376,6 +448,12 @@ export function MaintainersMap({
       dirty.current = true
     })
     observer.observe(host)
+    const mobile = window.matchMedia('(max-width: 639px)')
+    const resetSizes = () => {
+      profileSizes.clear()
+      dirty.current = true
+    }
+    mobile.addEventListener('change', resetSizes)
     dirty.current = true
     function animate(now: number) {
       const elapsed = now - lastFrame
@@ -403,8 +481,24 @@ export function MaintainersMap({
             current.scale += (next.scale - current.scale) * ease
             instance.update(current)
           }
-          if (redraw || layoutMoving)
-            layoutMoving = placeProfiles(container, profilePositions, elapsed)
+          if (redraw || layoutMoving) {
+            const { width, height } = hostSize.current
+            const anchors = new Map<string, Anchor>()
+            for (const group of groupsRef.current)
+              anchors.set(
+                group.id,
+                project(group.location, current, width, height),
+              )
+            layoutMoving = placeProfiles(
+              container,
+              hostSize.current,
+              mobile.matches ? 4 : 8,
+              anchors,
+              profileSizes,
+              profilePositions,
+              elapsed,
+            )
+          }
           dirty.current = false
         }
       }
@@ -413,9 +507,10 @@ export function MaintainersMap({
     frame = requestAnimationFrame(animate)
     return () => {
       observer.disconnect()
+      mobile.removeEventListener('change', resetSizes)
       cancelAnimationFrame(frame)
     }
-  }, [host, globe, reducedMotion, groups, profilePositions])
+  }, [host, globe, reducedMotion, profilePositions, profileSizes])
 
   useEffect(() => {
     if (!host) return
@@ -575,19 +670,9 @@ export function MaintainersMap({
           <span
             key={group.id}
             data-globe-anchor={group.id}
-            ref={(anchor) => {
-              anchor?.style.setProperty(
-                'visibility',
-                `var(--cobe-visible-${group.id}, hidden)`,
-              )
-            }}
             aria-hidden="true"
-            className="pointer-events-none absolute size-px"
-            style={{
-              positionAnchor: `--cobe-${group.id}`,
-              left: 'anchor(center)',
-              top: 'anchor(center)',
-            }}
+            className="pointer-events-none absolute left-0 top-0 size-px"
+            style={{ visibility: 'hidden' }}
           >
             <span
               className="pointer-events-none absolute -left-2 -top-2 size-4 rounded-full border border-[#f79163]/70 bg-[#f79163]/10 motion-safe:animate-[maintainer-location-pulse_2.4s_ease-out_infinite]"
@@ -609,7 +694,7 @@ export function MaintainersMap({
                   'opacity 280ms ease, filter 280ms ease, visibility 0s linear 280ms',
               }}
             >
-              <div className="flex items-center -space-x-1 rounded-full border border-white/70 bg-white/95 p-1 shadow-[0_6px_16px_#00000024] backdrop-blur-sm sm:-space-x-1.5 sm:p-1.5 dark:border-gray-600 dark:bg-gray-800/95">
+              <div className="flex items-center -space-x-1 rounded-full border border-white/70 bg-white/95 p-1 shadow-[0_6px_16px_#00000024] sm:-space-x-1.5 sm:p-1.5 dark:border-gray-600 dark:bg-gray-800/95">
                 {group.members.map((member) => (
                   <Tooltip
                     key={member.github}

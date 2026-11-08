@@ -16,15 +16,18 @@ import { Tooltip } from '~/ui/Tooltip'
 
 const initialView = { phi: -Math.PI / 2 - 0.25, theta: 0.4, scale: 1.2 }
 const zoomStep = 1.5
+const desktopInitialScale = initialView.scale * zoomStep
 const mobileViewport = '(max-width: 639px)'
 // Allow for rounding in rAF timestamps at 60 Hz and cap redraws on faster displays.
 const frameInterval = 1000 / 60 - 1
 const markerElevation = 0.015
 const entranceThreshold = 0.25
+const entranceDuration = 850
+const entranceRise = 56
+const entranceScale = 0.72
 const profileClearance = 12
 const viewportGutter = 16
 const offscreenBadgeMinRemaining = 96
-const canvasHeightStep = 128
 const globeRadius = 0.4
 const globeGlowDiameter = 0.92
 const zoomControls = { width: 46, height: 126 }
@@ -38,6 +41,9 @@ type GlobeBounds = {
   width: number
   height: number
   headingLeft: number
+  paintWidth: number
+  paintHeight: number
+  projectionHeight: number
 }
 
 type ProfileViewport = {
@@ -70,8 +76,7 @@ function markerVector(latitude: number, longitude: number): MarkerVector {
 function projectAnchors(
   groups: MaintainerGroup[],
   { phi, theta, scale }: View,
-  width: number,
-  height: number,
+  { width, height, projectionHeight }: GlobeBounds,
 ) {
   const cosPhi = Math.cos(phi),
     sinPhi = Math.sin(phi),
@@ -79,7 +84,7 @@ function projectAnchors(
     sinTheta = Math.sin(theta)
   const centerX = width / 2
   const centerY = height / 2
-  const pixels = centerY * scale
+  const pixels = (projectionHeight * scale) / 2
   const anchors = new Map<string, Anchor>()
   for (const {
     id,
@@ -647,6 +652,9 @@ export function MaintainersMap({
     width: 0,
     height: 0,
     headingLeft: 0,
+    paintWidth: 0,
+    paintHeight: 0,
+    projectionHeight: 0,
   })
 
   const groups = useMemo(() => {
@@ -707,11 +715,23 @@ export function MaintainersMap({
     if (!host || !surface) return
     const readBounds = () => {
       const width = host.clientWidth
+      const height = host.clientHeight
       const contentWidth = host.parentElement?.clientWidth ?? width
+      const paintWidth = surface.clientWidth
+      const initialScale = window.matchMedia(mobileViewport).matches
+        ? initialView.scale
+        : desktopInitialScale
       return {
         width,
-        height: host.clientHeight,
+        height,
         headingLeft: (width - contentWidth) / 2,
+        paintWidth,
+        paintHeight: surface.clientHeight,
+        // Fit the full starting globe, including its glow, on narrower screens.
+        projectionHeight: Math.min(
+          height,
+          paintWidth / (initialScale * globeGlowDiameter),
+        ),
       }
     }
     const canvas = document.createElement('canvas')
@@ -720,8 +740,8 @@ export function MaintainersMap({
     surface.append(canvas)
     hostSize.current = readBounds()
     const instance = createGlobe(canvas, {
-      width: hostSize.current.width,
-      height: hostSize.current.height,
+      width: hostSize.current.paintWidth,
+      height: hostSize.current.paintHeight,
       devicePixelRatio: Math.min(window.devicePixelRatio, 2),
       ...view.current,
       dark: 1,
@@ -741,6 +761,7 @@ export function MaintainersMap({
     }
     const resize = new ResizeObserver(updateBounds)
     resize.observe(host)
+    resize.observe(surface)
     const updateTheme = () => {
       const dark = document.documentElement.classList.contains('dark')
       instance.update({
@@ -792,7 +813,7 @@ export function MaintainersMap({
     const container = host
     const instance = globe
     const canvasSurface = surface
-    const scene = container.querySelector('[data-globe-scene][inert]')
+    const scene = container.querySelector<HTMLElement>('[data-globe-overlay]')
     const section = container.closest('section')
     const help = section?.querySelector('#maintainers-globe-help')
     const filterControls =
@@ -873,6 +894,8 @@ export function MaintainersMap({
     let entranceVisible = false
     let entered = container.hasAttribute('data-globe-entered')
     let entrancePrepared = false
+    let entranceStart: number | undefined
+    if (scene) scene.style.transform = ''
     if (entered) scene?.removeAttribute('inert')
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -897,8 +920,9 @@ export function MaintainersMap({
       const elapsed = now - lastFrame
       if (elapsed >= frameInterval) {
         lastFrame = now
-        const { width, height } = hostSize.current
-        const radius = height * view.current.scale * globeRadius
+        const bounds = hostSize.current
+        const { height, paintWidth, paintHeight, projectionHeight } = bounds
+        const radius = projectionHeight * view.current.scale * globeRadius
         const globeTop = height / 2 - radius
         const globeBottom = height / 2 + radius
         const visibleGlobeTop = mobile.matches
@@ -944,7 +968,7 @@ export function MaintainersMap({
             current.phi += (next.phi - current.phi) * ease
             current.theta += (next.theta - current.theta) * ease
             current.scale += (next.scale - current.scale) * ease
-            anchors = projectAnchors(groupsRef.current, current, width, height)
+            anchors = projectAnchors(groupsRef.current, current, bounds)
           }
           if (
             redraw ||
@@ -978,30 +1002,51 @@ export function MaintainersMap({
             profileNodes.current !== undefined &&
             (entrancePrepared || reducedMotion)
           if (preparing && profileNodes.current) entrancePrepared = true
-          if (redraw || reveal) {
-            // Refresh the hidden canvas before starting the entrance animation.
-            // Only the paint layer grows with zoom, preserving page layout.
-            const extraHeight = mobile.matches
-              ? 0
-              : Math.max(0, height * (current.scale * globeGlowDiameter - 1))
-            const paintHeight =
-              height +
-              Math.ceil(extraHeight / canvasHeightStep) * canvasHeightStep
+          const entering = entranceStart !== undefined
+          const progress =
+            entranceStart === undefined
+              ? Number(entered || reducedMotion)
+              : Math.min(1, (now - entranceStart) / entranceDuration)
+          const remaining = (1 - progress) ** 4
+          const entryScale = 1 - (1 - entranceScale) * remaining
+          const offsetY = entranceRise * remaining
+          if ((entering || reveal) && scene) {
+            // Apply the camera's entrance motion to the interactive overlays.
+            scene.style.transform = remaining
+              ? `translateY(${offsetY}px) scale(${entryScale})`
+              : ''
+          }
+          if ((redraw || reveal || entering) && paintHeight > 0) {
             const paintView = {
               ...current,
-              scale: (current.scale * height) / paintHeight,
+              scale:
+                (current.scale * projectionHeight * entryScale) / paintHeight,
             }
-            if (width !== renderedWidth || paintHeight !== renderedHeight) {
-              canvasSurface.style.height = `${paintHeight}px`
-              instance.update({ ...paintView, width, height: paintHeight })
-              renderedWidth = width
+            // COBE applies its offset before scale and uses half the pixel distance.
+            const offset: [number, number] = [
+              0,
+              (2 * offsetY) / paintView.scale,
+            ]
+            if (
+              paintWidth !== renderedWidth ||
+              paintHeight !== renderedHeight
+            ) {
+              instance.update({
+                ...paintView,
+                offset,
+                width: paintWidth,
+                height: paintHeight,
+              })
+              renderedWidth = paintWidth
               renderedHeight = paintHeight
             } else {
-              instance.update(paintView)
+              instance.update({ ...paintView, offset })
             }
           }
+          if (progress === 1) entranceStart = undefined
           if (reveal) {
             entered = true
+            if (!reducedMotion) entranceStart = now
             container.setAttribute('data-globe-entered', '')
             scene?.removeAttribute('inert')
           }
@@ -1047,14 +1092,14 @@ export function MaintainersMap({
       .on('zoom', (event: D3ZoomEvent<Element, unknown>) => {
         const next = event.transform
         if (next.k === previous.k) {
-          target.current.phi +=
-            (next.x - previous.x) / (host.clientHeight * 0.4 * next.k)
+          const radius =
+            hostSize.current.projectionHeight * globeRadius * next.k
+          target.current.phi += (next.x - previous.x) / radius
           target.current.theta = Math.max(
             -1.2,
             Math.min(
               1.2,
-              target.current.theta +
-                (next.y - previous.y) / (host.clientHeight * 0.4 * next.k),
+              target.current.theta + (next.y - previous.y) / radius,
             ),
           )
           view.current.phi = target.current.phi
@@ -1072,7 +1117,7 @@ export function MaintainersMap({
     selection.call(behavior)
     const initialScale = window.matchMedia(mobileViewport).matches
       ? initialView.scale
-      : initialView.scale * zoomStep
+      : desktopInitialScale
     selection.call(behavior.transform, zoomIdentity.scale(initialScale))
     view.current.scale = initialScale
     return () => {
@@ -1101,31 +1146,28 @@ export function MaintainersMap({
       className="relative space-y-4"
     >
       <style>{`
-        @media (min-width: 640px) {
-          [data-globe-surface] {
-            mask-image: linear-gradient(
-              to bottom,
-              black calc(50% + var(--globe-fade-offset) - 4rem),
-              transparent calc(50% + var(--globe-fade-offset))
-            );
-          }
+        [data-globe-surface] {
+          mask-image: linear-gradient(
+            to bottom,
+            black calc(50% + var(--globe-fade-offset) - 4rem),
+            transparent calc(50% + var(--globe-fade-offset))
+          );
         }
         @keyframes maintainer-location-pulse {
           0% { transform: scale(0.45); opacity: 0.7; }
           80%, 100% { transform: scale(2); opacity: 0; }
         }
         @media (prefers-reduced-motion: no-preference) {
-          [data-globe-scene] { opacity: 0; transform: translateY(3.5rem) scale(0.72); }
+          [data-globe-scene] { opacity: 0; }
           [data-globe-entered] [data-globe-scene] {
             opacity: 1;
-            transform: none;
-            animation: maintainer-globe-enter 850ms cubic-bezier(0.16, 1, 0.3, 1);
+            animation: maintainer-globe-enter ${entranceDuration}ms cubic-bezier(0.16, 1, 0.3, 1);
           }
         }
         @keyframes maintainer-globe-enter {
-          from { opacity: 0; transform: translateY(3.5rem) scale(0.72); }
+          from { opacity: 0; }
           25% { opacity: 1; }
-          to { opacity: 1; transform: none; }
+          to { opacity: 1; }
         }
       `}</style>
       <div className="sm:pointer-events-none sm:absolute sm:top-0 sm:left-0 sm:z-20">
@@ -1172,15 +1214,20 @@ export function MaintainersMap({
         >
           <div
             data-globe-scene
-            className="pointer-events-none absolute inset-0 -z-10 overflow-hidden sm:overflow-visible"
+            className="pointer-events-none absolute inset-0 -z-10"
           >
             <div
               ref={setSurface}
               data-globe-surface
-              className="absolute inset-x-0 top-1/2 h-full -translate-y-1/2"
+              className="absolute top-1/2 left-1/2 h-[max(100%,100cqw)] w-[100cqw] -translate-x-1/2 -translate-y-1/2"
             />
           </div>
-          <div data-globe-scene inert className="absolute inset-0">
+          <div
+            data-globe-scene
+            data-globe-overlay
+            inert
+            className="absolute inset-0"
+          >
             <div className="absolute inset-0 touch-none cursor-grab active:cursor-grabbing" />
             <svg
               aria-hidden="true"

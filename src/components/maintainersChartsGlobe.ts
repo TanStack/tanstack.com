@@ -59,6 +59,8 @@ function gradients(dark: boolean): ChartGradient[] {
 
 const round = (value: number) => Math.round(value * 10) / 10
 
+export const globeHaloScale = 1.075
+
 export function createChartsGlobe(container: HTMLDivElement) {
   let view: GlobeView
   let offsetY = 0
@@ -114,7 +116,7 @@ export function createChartsGlobe(container: HTMLDivElement) {
           key: 'globe-atmosphere',
           x: centerX,
           y: centerY,
-          radius: radius * 1.075,
+          radius: radius * globeHaloScale,
           style: { fill: 'url(#atmosphere)' },
         },
         {

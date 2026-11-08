@@ -20,7 +20,7 @@ import type { Maintainer } from '~/libraries/maintainers'
 import type { LibraryId } from '~/libraries/types'
 import { categoryOf } from '~/libraries/categories'
 import { Tooltip } from '~/ui/Tooltip'
-import { createChartsGlobe } from './maintainersChartsGlobe'
+import { createChartsGlobe, globeHaloScale } from './maintainersChartsGlobe'
 
 const initialView = { phi: -Math.PI / 2 - 0.25, theta: 0.4, scale: 1.2 }
 const zoomStep = 1.5
@@ -29,6 +29,7 @@ const desktopInitialScale = initialView.scale * zoomStep
 const mobileViewport = '(max-width: 639px)'
 const mobileTopInset = 8
 const mobileCornerBleed = 6
+const mobileZoomFade = 48
 // Allow for rounding in rAF timestamps at 60 Hz and cap redraws on faster displays.
 const frameInterval = 1000 / 60 - 1
 const markerElevation = 0.015
@@ -55,6 +56,7 @@ type GlobeBounds = {
   contentInset: number
   paintWidth: number
   paintHeight: number
+  paintTop: number
   projectionHeight: number
 }
 
@@ -205,7 +207,7 @@ function placeProfiles(
   const showOffscreenBadges =
     bounds.height - visibleTop >=
     Math.min(offscreenBadgeMinRemaining, bounds.height / 4)
-  const paintTop = (bounds.height - bounds.paintHeight) / 2
+  const { paintTop } = bounds
   const paintBottom = paintTop + bounds.paintHeight
   const pinTop = Math.max(
     viewport.contentTop,
@@ -681,7 +683,7 @@ export function MaintainersMap({
   selectedLibraries,
 }: MaintainersMapProps) {
   const prefix = useId().replace(/[^a-zA-Z0-9_-]/g, '')
-  const [host, setHost] = useState((): Element | null => null)
+  const [host, setHost] = useState((): HTMLDivElement | null => null)
   const [surface, setSurface] = useState((): HTMLDivElement | null => null)
   const [globe, setGlobe] = useState<ReturnType<
     typeof createChartsGlobe
@@ -690,7 +692,7 @@ export function MaintainersMap({
   const [scale, setScale] = useState(initialView.scale)
   const [selectedId, setSelectedId] = useState('')
   const [paused, setPaused] = useState(false)
-  const [behavior] = useState(() => zoom())
+  const [behavior] = useState(() => zoom<HTMLDivElement, unknown>())
   const [profilePositions] = useState(
     (): Map<string, ProfilePosition> => new Map(),
   )
@@ -712,6 +714,7 @@ export function MaintainersMap({
     contentInset: 0,
     paintWidth: 0,
     paintHeight: 0,
+    paintTop: 0,
     projectionHeight: 0,
   })
 
@@ -765,31 +768,49 @@ export function MaintainersMap({
   // Read by the frame loop, so zooming doesn't restart it.
   const groupsRef = useRef(groups)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!host || !surface) return
     const mobile = window.matchMedia(mobileViewport)
+    let landingWidth = 0
+    let landingHeight = 0
     const readBounds = () => {
       const width = host.clientWidth
-      const height = host.clientHeight
       const contentWidth = host.parentElement?.clientWidth ?? width
       const paintWidth = surface.clientWidth
-      const paintHeight = surface.clientHeight
+      let height = host.clientHeight
       let centerY = height / 2
+      let mobilePaintTop = 0
       let projectionHeight = Math.min(
         height,
         paintWidth / (desktopInitialScale * globeGlowDiameter),
       )
       if (mobile.matches) {
-        // Fit a circle through both bottom corners with its top still in view.
-        const bottomDepth = Math.max(
-          1,
-          (height + paintHeight) / 2 - mobileTopInset,
-        )
+        if (paintWidth !== landingWidth || window.scrollY === 0) {
+          landingWidth = paintWidth
+          landingHeight =
+            window.visualViewport?.height ??
+            document.documentElement.clientHeight
+        }
+        const pageTop = host.getBoundingClientRect().top + window.scrollY
+        mobilePaintTop = -Math.ceil(Math.max(0, pageTop))
+        host.style.setProperty('--globe-paint-top', `${mobilePaintTop}px`)
         const halfWidth = paintWidth / 2 + mobileCornerBleed
+        // Fill the first viewport's corners, then reserve room for the entire globe.
+        const bottomDepth = Math.max(
+          halfWidth,
+          landingHeight - pageTop - mobileTopInset,
+        )
         const radius = (bottomDepth ** 2 + halfWidth ** 2) / (2 * bottomDepth)
         projectionHeight = radius / (mobileInitialScale * globeRadius)
         centerY = mobileTopInset + radius
+        const globeHeight = Math.ceil(
+          centerY + radius * globeHaloScale + mobileTopInset,
+        )
+        if (height !== globeHeight)
+          host.style.setProperty('--globe-mobile-height', `${globeHeight}px`)
+        height = globeHeight
       }
+      const paintHeight = surface.clientHeight
       return {
         width,
         height,
@@ -797,6 +818,7 @@ export function MaintainersMap({
         contentInset: (width - contentWidth) / 2,
         paintWidth,
         paintHeight,
+        paintTop: mobile.matches ? mobilePaintTop : (height - paintHeight) / 2,
         projectionHeight,
       }
     }
@@ -810,6 +832,7 @@ export function MaintainersMap({
     const resize = new ResizeObserver(updateBounds)
     resize.observe(host)
     resize.observe(surface)
+    window.addEventListener('resize', updateBounds)
     const updateTheme = () => {
       const dark = document.documentElement.classList.contains('dark')
       instance.setDark(dark)
@@ -823,6 +846,7 @@ export function MaintainersMap({
     })
     return () => {
       resize.disconnect()
+      window.removeEventListener('resize', updateBounds)
       theme.disconnect()
       instance.destroy()
       surface.replaceChildren()
@@ -883,6 +907,8 @@ export function MaintainersMap({
     wakeGlobe.current = requestFrame
     const visualViewport = window.visualViewport
     let fadeOffset: number | undefined
+    let fadedScale: number | undefined
+    let fadedBounds: GlobeBounds | undefined
     const updateViewport = () => {
       const { top, left, height } = container.getBoundingClientRect()
       const contentTop =
@@ -975,12 +1001,17 @@ export function MaintainersMap({
       if (elapsed >= frameInterval) {
         lastFrame = now
         const bounds = hostSize.current
-        const { height, centerY, paintWidth, paintHeight, projectionHeight } =
-          bounds
+        const {
+          height,
+          centerY,
+          paintWidth,
+          paintHeight,
+          paintTop,
+          projectionHeight,
+        } = bounds
         const radius = projectionHeight * view.current.scale * globeRadius
         const globeTop = centerY - radius
         const globeBottom = centerY + radius
-        const paintTop = (height - paintHeight) / 2
         const visibleGlobeTop = mobile.matches
           ? Math.max(paintTop, globeTop)
           : globeTop
@@ -1075,6 +1106,32 @@ export function MaintainersMap({
               : ''
           }
           if ((redraw || entering) && paintHeight > 0) {
+            if (
+              mobile.matches &&
+              (current.scale !== fadedScale || bounds !== fadedBounds)
+            ) {
+              fadedScale = current.scale
+              fadedBounds = bounds
+              const fade = Math.min(
+                mobileZoomFade,
+                mobileZoomFade *
+                  Math.max(
+                    0,
+                    (current.scale - mobileInitialScale) / (zoomStep - 1),
+                  ),
+              )
+              const drawRadius = projectionHeight * current.scale * globeRadius
+              const fadeAt = (overflow: number) =>
+                `${Math.max(0, Math.min(fade, overflow))}px`
+              canvasSurface.style.setProperty(
+                '--globe-fade-bottom',
+                fadeAt(centerY + drawRadius - paintTop - paintHeight),
+              )
+              canvasSurface.style.setProperty(
+                '--globe-fade-side',
+                fadeAt(drawRadius - paintWidth / 2),
+              )
+            }
             const paintView = {
               ...current,
               scale:
@@ -1084,7 +1141,10 @@ export function MaintainersMap({
               paintView,
               paintWidth,
               paintHeight,
-              offsetY + (centerY - height / 2) * entryScale,
+              offsetY +
+                (centerY - height / 2) * entryScale +
+                (height - paintHeight) / 2 -
+                paintTop,
             )
           }
           if (progress === 1) entranceStart = undefined
@@ -1141,7 +1201,7 @@ export function MaintainersMap({
       .on('start', () => {
         interacting.current = true
       })
-      .on('zoom', (event: D3ZoomEvent<Element, unknown>) => {
+      .on('zoom', (event: D3ZoomEvent<HTMLDivElement, unknown>) => {
         const next = event.transform
         if (next.k === previous.k) {
           const radius =
@@ -1203,6 +1263,27 @@ export function MaintainersMap({
             transparent calc(50% + var(--globe-fade-offset))
           );
         }
+        @media ${mobileViewport} {
+          [data-globe-surface] {
+            top: var(--globe-paint-top, 0px);
+            height: calc(100% - var(--globe-paint-top, 0px));
+            mask-image:
+              linear-gradient(
+                to bottom,
+                black,
+                black calc(100% - var(--globe-fade-bottom, 0px)),
+                transparent
+              ),
+              linear-gradient(
+                to right,
+                transparent,
+                black var(--globe-fade-side, 0px),
+                black calc(100% - var(--globe-fade-side, 0px)),
+                transparent
+              );
+            mask-composite: intersect;
+          }
+        }
         @keyframes maintainer-location-pulse {
           0% { transform: scale(0.45); opacity: 0.7; }
           80%, 100% { transform: scale(2); opacity: 0; }
@@ -1250,7 +1331,7 @@ export function MaintainersMap({
             )
             invalidate()
           }}
-          className="relative isolate z-10 aspect-square outline-offset-4 [overflow-anchor:none] sm:absolute sm:inset-y-0 sm:left-[calc(50%-50cqw)] sm:z-auto sm:isolation-auto sm:aspect-auto sm:w-[100cqw]"
+          className="relative h-[var(--globe-mobile-height,max(125cqw,66svh))] outline-offset-4 [overflow-anchor:none] sm:absolute sm:inset-y-0 sm:left-[calc(50%-50cqw)] sm:h-auto sm:w-[100cqw]"
         >
           <div
             data-globe-scene
@@ -1259,7 +1340,7 @@ export function MaintainersMap({
             <div
               ref={setSurface}
               data-globe-surface
-              className="absolute top-1/2 left-1/2 h-[max(100%,100cqw)] w-[100cqw] -translate-x-1/2 -translate-y-1/2"
+              className="absolute left-1/2 h-full w-[100cqw] -translate-x-1/2 sm:top-1/2 sm:h-[max(100%,100cqw)] sm:-translate-y-1/2"
             />
           </div>
           <div

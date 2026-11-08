@@ -61,6 +61,7 @@ const round = (value: number) => Math.round(value * 10) / 10
 
 export function createChartsGlobe(container: HTMLDivElement) {
   let view: GlobeView
+  let offsetY = 0
   let dark = false
   let markers: GlobeMarker[] = []
   const runtime = createChartRuntime()
@@ -72,8 +73,8 @@ export function createChartsGlobe(container: HTMLDivElement) {
     render: ({ chart }) => {
       const { phi, theta, scale } = view
       const centerX = chart.width / 2
-      const centerY = chart.height / 2
-      const pixels = centerY * scale
+      const centerY = chart.height / 2 + offsetY
+      const pixels = (chart.height / 2) * scale
       const radius = pixels * 0.8
       const cosPhi = Math.cos(phi)
       const sinPhi = Math.sin(phi)
@@ -188,9 +189,10 @@ export function createChartsGlobe(container: HTMLDivElement) {
     setMarkers(nextMarkers: GlobeMarker[]) {
       markers = nextMarkers
     },
-    draw(nextView: GlobeView, width: number, height: number) {
+    draw(nextView: GlobeView, width: number, height: number, nextOffsetY = 0) {
       if (width < 1 || height < 1) return
       view = nextView
+      offsetY = nextOffsetY
       const scene = runtime.render(charts[dark ? 1 : 0], { width, height })
       surface.render(scene, renderOptions)
     },

@@ -1540,7 +1540,7 @@ export function MaintainersMap({
         <div
           role="region"
           aria-label="Selected maintainers"
-          className="relative z-20 rounded-xl border border-border-default bg-background-subtle/50 p-4"
+          className="relative z-20 rounded-xl border border-border-default bg-background-subtle/50 p-4 dark:border-white/20"
         >
           <div className="mb-4 flex items-start justify-between gap-4">
             <div>

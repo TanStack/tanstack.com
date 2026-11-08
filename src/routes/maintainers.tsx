@@ -14,7 +14,6 @@ import {
   CompactMaintainerCard,
   MaintainerRowCard,
 } from '~/components/MaintainerCard'
-import { createChartsGlobe } from '~/components/maintainersChartsGlobe'
 import { MaintainersMap } from '~/components/MaintainersMap'
 import { seo } from '~/utils/seo'
 import {
@@ -28,15 +27,11 @@ import {
 import { Library, libraries } from '~/libraries'
 import { libraryIdSchema } from '~/utils/schemas'
 
-const mapViews = ['map', 'globe'] as const
-type MapView = (typeof mapViews)[number]
-
 const viewModeSchema = v.picklist(['compact', 'full', 'row'])
 const groupBySchema = v.picklist(['none', 'core', 'library', 'role'])
 const sortBySchema = v.picklist(['none', 'name', 'role', 'contributions'])
 
 const searchSchema = v.object({
-  mapView: v.fallback(v.optional(v.picklist(mapViews)), undefined),
   libraries: v.fallback(v.optional(v.array(libraryIdSchema)), undefined),
   viewMode: v.fallback(v.optional(viewModeSchema, 'full'), 'full'),
   groupBy: v.fallback(v.optional(groupBySchema, 'none'), 'none'),
@@ -60,8 +55,6 @@ export const Route = createFileRoute('/maintainers')({
 })
 
 interface FilterProps {
-  mapView: MapView
-  onMapViewChange: (mapView: MapView) => void
   selectedLibraries: Library['id'][] | undefined
   viewMode: 'compact' | 'full' | 'row'
   groupBy: 'none' | 'core' | 'library' | 'role'
@@ -74,8 +67,6 @@ interface FilterProps {
 }
 
 function MaintainersFilter({
-  mapView,
-  onMapViewChange,
   selectedLibraries,
   viewMode,
   groupBy,
@@ -303,29 +294,6 @@ function MaintainersFilter({
           )}
         </div>
 
-        <div
-          role="group"
-          aria-label="Globe renderer"
-          data-globe-filter
-          className="pointer-events-auto flex overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
-        >
-          {mapViews.map((view) => (
-            <button
-              key={view}
-              type="button"
-              aria-pressed={mapView === view}
-              onClick={() => onMapViewChange(view)}
-              className={`px-3 py-2 text-sm font-medium capitalize transition-colors focus-visible:outline-2 focus-visible:-outline-offset-2 ${
-                mapView === view
-                  ? 'bg-blue-500 text-white'
-                  : 'text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700'
-              }`}
-            >
-              {view === 'map' ? 'Charts globe' : 'COBE globe'}
-            </button>
-          ))}
-        </div>
-
         {/* Current filter chips */}
         <div className="flex flex-wrap gap-2">
           {selectedLibraries?.map((libraryId) => {
@@ -413,12 +381,9 @@ function MaintainerGrid({
 function RouteComponent() {
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
-  const mapView = search.mapView ?? 'map'
-  const clearFilters = () =>
-    navigate({ search: { mapView: search.mapView }, replace: true })
+  const clearFilters = () => navigate({ search: {}, replace: true })
 
   const updateFilters = (updates: {
-    mapView?: MapView
     libraries?: Library['id'][] | undefined
     viewMode?: 'compact' | 'full' | 'row'
     groupBy?: 'none' | 'core' | 'library' | 'role'
@@ -713,10 +678,6 @@ function RouteComponent() {
           </header>
 
           <MaintainersFilter
-            mapView={mapView}
-            onMapViewChange={(view) =>
-              updateFilters({ mapView: view === 'globe' ? view : undefined })
-            }
             selectedLibraries={search.libraries}
             viewMode={search.viewMode}
             groupBy={search.groupBy}
@@ -729,8 +690,6 @@ function RouteComponent() {
           />
 
           <MaintainersMap
-            key={mapView}
-            createRenderer={mapView === 'globe' ? undefined : createChartsGlobe}
             maintainers={filteredMaintainers}
             selectedLibraries={search.libraries}
           />

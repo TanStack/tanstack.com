@@ -1,11 +1,12 @@
 import { createChartRuntime, createMark, defineChart } from '@tanstack/charts'
 import type { ChartGradient, SceneNode } from '@tanstack/charts'
 import { createSvgChartRenderer } from '@tanstack/charts/svg/renderer'
-import type { COBEOptions, Globe } from 'cobe'
 import { scaleIdentity } from 'd3'
 import land from '~/data/maintainers-globe-land-mask.json'
 
 type Vector = [number, number, number]
+type GlobeView = { phi: number; theta: number; scale: number }
+type GlobeMarker = { id: string; vector: Vector; size: number }
 const goldenFraction = (Math.sqrt(5) - 1) / 2
 const degrees = Math.PI / 180
 
@@ -58,11 +59,10 @@ function gradients(dark: boolean): ChartGradient[] {
 
 const round = (value: number) => Math.round(value * 10) / 10
 
-export function createChartsGlobe(
-  container: HTMLDivElement,
-  options: COBEOptions,
-): Globe {
-  const state = { ...options }
+export function createChartsGlobe(container: HTMLDivElement) {
+  let view: GlobeView
+  let dark = false
+  let markers: GlobeMarker[] = []
   const runtime = createChartRuntime()
   const surface = createSvgChartRenderer().mount(container, () => {})
   const idPrefix = container.id || 'maintainer-charts-globe'
@@ -70,7 +70,7 @@ export function createChartsGlobe(
     id: 'globe',
     channels: {},
     render: ({ chart }) => {
-      const { phi, theta, scale = 1, dark, markers = [] } = state
+      const { phi, theta, scale } = view
       const centerX = chart.width / 2
       const centerY = chart.height / 2
       const pixels = centerY * scale
@@ -80,39 +80,28 @@ export function createChartsGlobe(
       const cosTheta = Math.cos(theta)
       const sinTheta = Math.sin(theta)
 
-      // Match the overlay's camera so the dots and avatar connectors stay aligned.
-      const rotate = ([x, y, z]: Vector): Vector => {
-        const depth = cosPhi * z - sinPhi * x
-        return [
-          cosPhi * x + sinPhi * z,
-          cosTheta * y - sinTheta * depth,
-          sinTheta * y + cosTheta * depth,
-        ]
-      }
-
       // Batch each shade into a single Charts path. Foreshorten each dot at the rim.
       const paths = ['', '', '', '']
       const dotRadius = radius * 0.0054
-      for (const vector of landVectors) {
-        const [screenX, screenY, depth] = rotate(vector)
+      const major = round(dotRadius)
+      const right = chart.width + dotRadius
+      const bottom = chart.height + dotRadius
+      for (const [vx, vy, vz] of landVectors) {
+        const horizontalDepth = cosPhi * vz - sinPhi * vx
+        const depth = sinTheta * vy + cosTheta * horizontalDepth
         if (depth < 0.12) continue
+        const screenX = cosPhi * vx + sinPhi * vz
+        const screenY = cosTheta * vy - sinTheta * horizontalDepth
         const x = centerX + screenX * radius
         const y = centerY - screenY * radius
-        if (
-          x < -dotRadius ||
-          x > chart.width + dotRadius ||
-          y < -dotRadius ||
-          y > chart.height + dotRadius
-        )
+        if (x < -dotRadius || x > right || y < -dotRadius || y > bottom)
           continue
-        const radialLength = Math.hypot(screenX, screenY)
-        const dx = radialLength
-          ? (screenY * dotRadius) / radialLength
-          : dotRadius
-        const dy = radialLength ? (screenX * dotRadius) / radialLength : 0
-        const major = round(dotRadius)
+        const radialLength = Math.sqrt(screenX * screenX + screenY * screenY)
+        const radialScale = radialLength ? dotRadius / radialLength : 0
+        const dx = radialLength ? screenY * radialScale : dotRadius
+        const dy = screenX * radialScale
         const minor = Math.max(0.1, round(dotRadius * depth))
-        const angle = Math.round(Math.atan2(dy, dx) / degrees)
+        const angle = Math.round(Math.atan2(screenX, screenY) / degrees)
         const shade = Math.min(3, Math.floor(depth * 4))
         paths[shade] +=
           `M${round(x + dx)} ${round(y + dy)}a${major} ${minor} ${angle} 1 0 ${round(-2 * dx)} ${round(-2 * dy)}a${major} ${minor} ${angle} 1 0 ${round(2 * dx)} ${round(2 * dy)}z`
@@ -147,21 +136,20 @@ export function createChartsGlobe(
             style: { fill: colors[shade] },
           })
       }
-      const markerRadius = 0.8 + (state.markerElevation ?? 0)
+      // Use the same location vectors as the avatar connectors.
       for (const {
-        location: [latitude, longitude],
+        id,
+        vector: [vx, vy, vz],
         size,
       } of markers) {
-        const horizontal = Math.cos(latitude * degrees) * markerRadius
-        const [x, y, depth] = rotate([
-          horizontal * Math.cos(longitude * degrees),
-          Math.sin(latitude * degrees) * markerRadius,
-          -horizontal * Math.sin(longitude * degrees),
-        ])
+        const horizontalDepth = cosPhi * vz - sinPhi * vx
+        const x = cosPhi * vx + sinPhi * vz
+        const y = cosTheta * vy - sinTheta * horizontalDepth
+        const depth = sinTheta * vy + cosTheta * horizontalDepth
         if (depth < 0 && x * x + y * y < 0.64) continue
         nodes.push({
           kind: 'dot',
-          key: `globe-pin-${latitude}-${longitude}`,
+          key: `globe-pin-${id}`,
           x: centerX + x * pixels,
           y: centerY - y * pixels,
           radius: (size * pixels) / 2,
@@ -172,36 +160,39 @@ export function createChartsGlobe(
     },
   }))
 
-  const chart = defineChart({
-    chart: () => ({
+  const scales = {
+    x: { scale: scaleIdentity() },
+    y: { scale: scaleIdentity() },
+  }
+  const charts = [false, true].map((isDark) =>
+    defineChart({
       marks: [mark],
-      gradients: gradients(Boolean(state.dark)),
-      scales: { x: { scale: scaleIdentity() }, y: { scale: scaleIdentity() } },
+      gradients: gradients(isDark),
+      scales,
       guides: false,
       margin: 0,
-      theme: { background: 'transparent' },
     }),
-  })
+  )
+  const renderOptions = {
+    ariaLabel: 'Maintainer globe surface',
+    idPrefix,
+    className: 'block size-full',
+  }
   container.dataset.globeRenderer = 'charts'
   container.setAttribute('aria-hidden', 'true')
 
-  const draw = () => {
-    if (state.width < 1 || state.height < 1) return
-    const scene = runtime.render(chart, {
-      width: state.width,
-      height: state.height,
-    })
-    surface.render(scene, {
-      ariaLabel: 'Maintainer globe surface',
-      idPrefix,
-      className: 'block size-full',
-    })
-  }
-  draw()
   return {
-    update(next) {
-      Object.assign(state, next)
-      draw()
+    setDark(nextDark: boolean) {
+      dark = nextDark
+    },
+    setMarkers(nextMarkers: GlobeMarker[]) {
+      markers = nextMarkers
+    },
+    draw(nextView: GlobeView, width: number, height: number) {
+      if (width < 1 || height < 1) return
+      view = nextView
+      const scene = runtime.render(charts[dark ? 1 : 0], { width, height })
+      surface.render(scene, renderOptions)
     },
     destroy() {
       surface.destroy()

@@ -138,7 +138,6 @@
     "algoliasearch": "^5.50.0",
     "cheerio": "^1.2.0",
     "cmdk": "^1.1.1",
-    "cobe": "^2.0.1",
     "codemirror": "^6.0.2",
     "d3": "^7.9.0",
     "d3-interpolate": "3.0.1",

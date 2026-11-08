@@ -14,7 +14,7 @@ import {
   CompactMaintainerCard,
   MaintainerRowCard,
 } from '~/components/MaintainerCard'
-import { MaintainersChartMap } from '~/components/MaintainersChartMap'
+import { MaintainersChartsGlobe } from '~/components/MaintainersChartsGlobe'
 import { MaintainersMap } from '~/components/MaintainersMap'
 import { seo } from '~/utils/seo'
 import {
@@ -305,7 +305,7 @@ function MaintainersFilter({
 
         <div
           role="group"
-          aria-label="Map view"
+          aria-label="Globe renderer"
           data-globe-filter
           className="pointer-events-auto flex overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
         >
@@ -321,7 +321,7 @@ function MaintainersFilter({
                   : 'text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700'
               }`}
             >
-              {view}
+              {view === 'map' ? 'Charts globe' : 'COBE globe'}
             </button>
           ))}
         </div>
@@ -415,7 +415,7 @@ function RouteComponent() {
   const navigate = Route.useNavigate()
   const mapView = search.mapView ?? 'map'
   const MapComponent =
-    mapView === 'globe' ? MaintainersMap : MaintainersChartMap
+    mapView === 'globe' ? MaintainersMap : MaintainersChartsGlobe
   const clearFilters = () =>
     navigate({ search: { mapView: search.mapView }, replace: true })
 

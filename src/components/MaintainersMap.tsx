@@ -24,8 +24,10 @@ import { createChartsGlobe } from './maintainersChartsGlobe'
 
 const initialView = { phi: -Math.PI / 2 - 0.25, theta: 0.4, scale: 1.2 }
 const zoomStep = 1.5
+const mobileInitialScale = 1.35
 const desktopInitialScale = initialView.scale * zoomStep
 const mobileViewport = '(max-width: 639px)'
+const mobileFraming = { topInset: 8, sideInset: 6, bottomCrop: 12 }
 // Allow for rounding in rAF timestamps at 60 Hz and cap redraws on faster displays.
 const frameInterval = 1000 / 60 - 1
 const markerElevation = 0.015
@@ -47,6 +49,7 @@ type Anchor = { x: number; y: number; visible: boolean }
 type GlobeBounds = {
   width: number
   height: number
+  centerY: number
   contentInset: number
   paintWidth: number
   paintHeight: number
@@ -84,14 +87,13 @@ function markerVector(latitude: number, longitude: number): MarkerVector {
 function projectAnchors(
   groups: MaintainerGroup[],
   { phi, theta, scale }: View,
-  { width, height, projectionHeight }: GlobeBounds,
+  { width, centerY, projectionHeight }: GlobeBounds,
 ) {
   const cosPhi = Math.cos(phi),
     sinPhi = Math.sin(phi),
     cosTheta = Math.cos(theta),
     sinTheta = Math.sin(theta)
   const centerX = width / 2
-  const centerY = height / 2
   const pixels = (projectionHeight * scale) / 2
   const anchors = new Map<string, Anchor>()
   for (const {
@@ -201,9 +203,15 @@ function placeProfiles(
   const showOffscreenBadges =
     bounds.height - visibleTop >=
     Math.min(offscreenBadgeMinRemaining, bounds.height / 4)
-  const pinTop = Math.max(viewport.contentTop, visibleTop)
+  const paintTop = (bounds.height - bounds.paintHeight) / 2
+  const paintBottom = paintTop + bounds.paintHeight
+  const pinTop = Math.max(
+    viewport.contentTop,
+    visibleTop,
+    mobile ? paintTop : -Infinity,
+  )
   const pinBottom = mobile
-    ? Math.min(bounds.height, visibleBottom)
+    ? Math.min(paintBottom, visibleBottom)
     : visibleBottom
   const contentRight = bounds.width - bounds.contentInset
   const ui = [
@@ -228,7 +236,8 @@ function placeProfiles(
       const pinVisibility =
         anchor.visible &&
         anchor.y >= viewport.contentTop &&
-        anchor.y + viewportGutter <= viewport.contentBottom
+        anchor.y + viewportGutter <= viewport.contentBottom &&
+        (!mobile || (anchor.y >= paintTop && anchor.y <= paintBottom))
           ? 'visible'
           : 'hidden'
       if (pin.style.visibility !== pinVisibility)
@@ -383,7 +392,7 @@ function placeProfiles(
     ]
     if ((label.fresh || tooFar) && !label.offscreen) {
       const dx = label.anchorX - bounds.width / 2
-      const dy = label.anchorY - bounds.height / 2
+      const dy = label.anchorY - bounds.centerY
       const radius = Math.hypot(dx, dy)
       const directionX = radius ? dx / radius : -1
       const directionY = radius ? dy / radius : 0
@@ -589,7 +598,7 @@ function placeProfiles(
     const centerX = position.x + label.width / 2
     const centerY = position.y + label.height / 2
     const radialX = label.anchorX - bounds.width / 2
-    const radialY = label.anchorY - bounds.height / 2
+    const radialY = label.anchorY - bounds.centerY
     const alongRadius =
       ((centerX - label.anchorX) * radialX +
         (centerY - label.anchorY) * radialY) /
@@ -697,6 +706,7 @@ export function MaintainersMap({
   const hostSize = useRef<GlobeBounds>({
     width: 0,
     height: 0,
+    centerY: 0,
     contentInset: 0,
     paintWidth: 0,
     paintHeight: 0,
@@ -755,25 +765,39 @@ export function MaintainersMap({
 
   useEffect(() => {
     if (!host || !surface) return
+    const mobile = window.matchMedia(mobileViewport)
     const readBounds = () => {
       const width = host.clientWidth
       const height = host.clientHeight
       const contentWidth = host.parentElement?.clientWidth ?? width
       const paintWidth = surface.clientWidth
-      const initialScale = window.matchMedia(mobileViewport).matches
-        ? initialView.scale
-        : desktopInitialScale
+      const paintHeight = surface.clientHeight
+      const mobileDiameter = Math.max(
+        0,
+        Math.min(
+          paintWidth - 2 * mobileFraming.sideInset,
+          (height + paintHeight) / 2 +
+            mobileFraming.bottomCrop -
+            mobileFraming.topInset,
+        ),
+      )
+      const projectionHeight = Math.min(
+        height,
+        mobile.matches
+          ? mobileDiameter / (2 * globeRadius * mobileInitialScale)
+          : paintWidth / (desktopInitialScale * globeGlowDiameter),
+      )
       return {
         width,
         height,
+        centerY: mobile.matches
+          ? mobileFraming.topInset +
+            projectionHeight * mobileInitialScale * globeRadius
+          : height / 2,
         contentInset: (width - contentWidth) / 2,
         paintWidth,
-        paintHeight: surface.clientHeight,
-        // Fit the full starting globe, including its glow, on narrower screens.
-        projectionHeight: Math.min(
-          height,
-          paintWidth / (initialScale * globeGlowDiameter),
-        ),
+        paintHeight,
+        projectionHeight,
       }
     }
     hostSize.current = readBounds()
@@ -951,15 +975,19 @@ export function MaintainersMap({
       if (elapsed >= frameInterval) {
         lastFrame = now
         const bounds = hostSize.current
-        const { height, paintWidth, paintHeight, projectionHeight } = bounds
+        const { height, centerY, paintWidth, paintHeight, projectionHeight } =
+          bounds
         const radius = projectionHeight * view.current.scale * globeRadius
-        const globeTop = height / 2 - radius
-        const globeBottom = height / 2 + radius
+        const globeTop = centerY - radius
+        const globeBottom = centerY + radius
+        const paintTop = (height - paintHeight) / 2
         const visibleGlobeTop = mobile.matches
-          ? Math.max(0, globeTop)
+          ? Math.max(paintTop, globeTop)
           : globeTop
         const visibleGlobeBottom = Math.min(
-          mobile.matches ? Math.min(height, globeBottom) : globeBottom,
+          mobile.matches
+            ? Math.min(paintTop + paintHeight, globeBottom)
+            : globeBottom,
           viewport.contentBottom,
         )
         const globeVisible =
@@ -1048,7 +1076,12 @@ export function MaintainersMap({
               scale:
                 (current.scale * projectionHeight * entryScale) / paintHeight,
             }
-            instance.draw(paintView, paintWidth, paintHeight, offsetY)
+            instance.draw(
+              paintView,
+              paintWidth,
+              paintHeight,
+              offsetY + (centerY - height / 2) * entryScale,
+            )
           }
           if (progress === 1) entranceStart = undefined
           if (reveal) {
@@ -1132,7 +1165,7 @@ export function MaintainersMap({
       })
     selection.call(behavior)
     const initialScale = window.matchMedia(mobileViewport).matches
-      ? initialView.scale
+      ? mobileInitialScale
       : desktopInitialScale
     selection.call(behavior.transform, zoomIdentity.scale(initialScale))
     view.current.scale = initialScale

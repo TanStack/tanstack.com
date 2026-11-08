@@ -199,13 +199,13 @@ function MaintainersFilter({
             <div className="absolute top-full left-0 mt-2 w-full max-w-96 sm:w-96 bg-background-elevated border border-border-default dark:border-white/20 rounded-lg shadow-lg z-50">
               <div className="p-4">
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  <span className="text-sm font-medium text-text-primary">
                     Filter & Sort Options
                   </span>
                   {hasFilters && (
                     <button
                       onClick={clearFilters}
-                      className="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+                      className="text-xs text-text-muted hover:text-text-primary transition-colors"
                     >
                       Clear All
                     </button>
@@ -216,7 +216,7 @@ function MaintainersFilter({
                 <div className="mb-4">
                   <label
                     htmlFor="groupBy"
-                    className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2"
+                    className="block text-xs font-medium text-text-secondary mb-2"
                   >
                     Group By
                   </label>
@@ -225,7 +225,7 @@ function MaintainersFilter({
                     onChange={(e) =>
                       onGroupByChange(e.target.value as typeof groupBy)
                     }
-                    className="w-full px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100"
+                    className="w-full px-3 py-2 text-sm bg-background-surface border border-border-default rounded-md text-text-primary"
                   >
                     <option value="none">No Grouping</option>
                     <option value="core">
@@ -240,7 +240,7 @@ function MaintainersFilter({
                 <div className="mb-4">
                   <label
                     htmlFor="sortBy"
-                    className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2"
+                    className="block text-xs font-medium text-text-secondary mb-2"
                   >
                     Sort By
                   </label>
@@ -249,7 +249,7 @@ function MaintainersFilter({
                     onChange={(e) =>
                       onSortByChange(e.target.value as typeof sortBy)
                     }
-                    className="w-full px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100"
+                    className="w-full px-3 py-2 text-sm bg-background-surface border border-border-default rounded-md text-text-primary"
                   >
                     <option value="none">No Sorting</option>
                     <option value="name">Name</option>
@@ -262,7 +262,7 @@ function MaintainersFilter({
                 <div>
                   <label
                     htmlFor="libraryFilter"
-                    className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2"
+                    className="block text-xs font-medium text-text-secondary mb-2"
                   >
                     Filter by Libraries
                   </label>
@@ -271,7 +271,7 @@ function MaintainersFilter({
                       const isSelected =
                         selectedLibraries?.includes(library.id) || false
 
-                      const bgStyle = library.bgStyle ?? 'bg-gray-500'
+                      const bgStyle = library.bgStyle ?? 'bg-category-tooling'
 
                       return (
                         <button
@@ -280,7 +280,7 @@ function MaintainersFilter({
                           className={`text-left px-3 py-2 rounded-md text-sm transition-colors ${
                             isSelected
                               ? `${bgStyle} text-white`
-                              : `${bgStyle}/30 text-green-900 dark:text-green-200 hover:${bgStyle}/40`
+                              : `${bgStyle}/30 text-text-primary hover:${bgStyle}/40`
                           }`}
                         >
                           {library.name}

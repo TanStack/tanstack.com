@@ -44,7 +44,7 @@ const viewportGutter = 16
 const offscreenBadgeMinRemaining = 96
 const globeRadius = 0.4
 const globeGlowDiameter = 0.92
-const zoomControls = { width: 46, height: 166 }
+const zoomControls = { width: 46, height: 171 }
 
 type View = typeof initialView
 
@@ -1458,7 +1458,7 @@ export function MaintainersMap({
             </ClientOnly>
           </div>
         </div>
-        <div className="absolute bottom-0 right-0 z-20 flex flex-col gap-1 rounded-lg border border-gray-200 bg-white/95 p-1 text-sm text-gray-800 shadow-sm dark:border-gray-700 dark:bg-gray-800/95 dark:text-gray-100">
+        <div className="absolute bottom-0 right-0 z-20 flex flex-col gap-1 rounded-lg border border-border-default bg-background-elevated/95 p-1 text-sm text-text-primary shadow-sm">
           <button
             type="button"
             aria-label="Zoom in"
@@ -1466,7 +1466,7 @@ export function MaintainersMap({
             onClick={() =>
               host && select(host).call(behavior.scaleBy, zoomStep)
             }
-            className="grid size-9 place-items-center rounded hover:bg-gray-100 disabled:opacity-40 dark:hover:bg-gray-700"
+            className="grid size-9 place-items-center rounded hover:bg-surface-state-hover disabled:opacity-40"
           >
             <PlusIcon aria-hidden="true" weight="bold" className="size-4" />
           </button>
@@ -1477,7 +1477,7 @@ export function MaintainersMap({
             onClick={() =>
               host && select(host).call(behavior.scaleBy, 1 / zoomStep)
             }
-            className="grid size-9 place-items-center rounded hover:bg-gray-100 disabled:opacity-40 dark:hover:bg-gray-700"
+            className="grid size-9 place-items-center rounded hover:bg-surface-state-hover disabled:opacity-40"
           >
             <MinusIcon aria-hidden="true" weight="bold" className="size-4" />
           </button>
@@ -1493,7 +1493,7 @@ export function MaintainersMap({
                   : desktopInitialScale,
               )
             }
-            className="grid size-9 place-items-center rounded hover:bg-gray-100 disabled:opacity-40 dark:hover:bg-gray-700"
+            className="grid size-9 place-items-center rounded hover:bg-surface-state-hover disabled:opacity-40"
           >
             <ArrowCounterClockwiseIcon
               aria-hidden="true"
@@ -1501,6 +1501,7 @@ export function MaintainersMap({
               className="size-4"
             />
           </button>
+          <div className="mx-1 h-px bg-border-subtle dark:bg-white/10" />
           <button
             type="button"
             aria-label="Pause rotation"
@@ -1511,7 +1512,7 @@ export function MaintainersMap({
               setPaused(!paused)
               wakeGlobe.current?.()
             }}
-            className="grid size-9 place-items-center rounded hover:bg-gray-100 disabled:opacity-40 dark:hover:bg-gray-700"
+            className="grid size-9 place-items-center rounded hover:bg-surface-state-hover disabled:opacity-40"
           >
             {paused ? (
               <PlayIcon aria-hidden="true" weight="bold" className="size-4" />
